@@ -1,0 +1,53 @@
+contract_version: "1.0"
+status: success
+domain: code
+strategy: systematic
+depth: standard
+proposal_count: 3
+handoff_action: task
+blind_mode: false
+seed_schema_version: "1.0"
+merged_requirements_schema_version: "1.0"
+context_anchors_count: 5
+fit_to_intent: pass
+source_of_truth_paths:
+  - src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+  - src/superclaude/commands/sc/brainstorm.md
+seed_brief_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/merged-requirements.md
+adversarial_artifacts_dir: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/adversarial
+handoff_output_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/handoff/task-feature-flag-system.md
+convergence_score: 0.82
+agent_spec:
+  raw: "opus:architect:'systematic patterns OpenFeature compat',sonnet:backend:'Python SDK reliability sub-ms eval',haiku:security:'audit trail fail-closed governance'"
+  personas:
+    - architect
+    - backend
+    - security
+  models:
+    - opus
+    - sonnet
+    - haiku
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+unresolved_conflicts: []
+wave_durations_ms:
+  wave_0: 50
+  wave_1: 4200
+  wave_2a: 200
+  wave_2b: 300
+  wave_3: 28000
+  wave_4: 3500
+token_usage:
+  wave_0: 200
+  wave_1: 1800
+  wave_2a: 150
+  wave_2b: 350
+  wave_3: 42000
+  wave_4: 2500
+enrichment_artifact_sizes:
+  codebase-context.md: null
+  research-light.md: null

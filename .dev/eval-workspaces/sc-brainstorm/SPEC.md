@@ -52,9 +52,9 @@ topic (user)
    ↓
    ├── seed-brief.md (Socratic dialogue output)
    ↓
-   ├── /sc:adversarial --source seed-brief.md --generate requirements --agents <built-spec>
+   ├── /sc:adversarial --source seed-brief.md --generate spec --agents <built-spec>
    ↓
-   ├── merged-requirements.md  + 6 adversarial artifacts
+   ├── merged-requirements.md  + 6 adversarial artifacts   # spec-shaped per §10
    ↓
    └── --handoff:
         ├── none      → STOP (default)
@@ -261,7 +261,7 @@ Spawn enrichment tasks in parallel via `Task` tool, based on domain + flags:
 1. Build adversarial invocation arguments:
    ```
    --source <output>/seed-brief.md
-   --generate requirements           # New generate type, see §10
+   --generate spec                   # Reframed as "spec-style requirements" per §10
    --agents <composed-spec>
    --depth <passthrough>
    --convergence <passthrough, default 0.75>
@@ -518,26 +518,61 @@ Cases cover 6 domains × 3 strategies × 3 depths × {with/without enrichment} �
 - Adversarial FAIL routing (convergence < 0.50) — requires manufactured divergent topics
 - Token-budget hard-kill mid-Wave-3 — requires synthetic large topic
 
-### 11.2 Quality Score Rubric (5 dimensions × 1-5 scale = 0-25 total)
+### 11.2 Quality Score Rubric (5 dimensions × 1-10 scale = 5-50 total) — STRICT MODE v2
 
-Each `merged-requirements.md` output is scored on:
+**Why v2 strict mode**: iteration-2 produced perfect 25/25 scores across all 3 pilot cases, which is implausible for a second iteration and indicates the v1 5-point rubric was too coarse. Strict mode uses a 10-point scale, explicit ceiling controls, critique-first scoring, penalty arithmetic, and hostile-reviewer framing.
 
-| Dimension | 1 (Poor) | 3 (Acceptable) | 5 (Excellent) |
-|-----------|----------|----------------|---------------|
-| **Concreteness** | Vague generalities ("handle errors gracefully") | Most requirements measurable, some hand-waving | Every requirement has specific thresholds, examples, or test criteria |
-| **Adversarial Diversity** | All proposals identical in framing | 2-3 perspectives visible in merged output | All N proposals' distinct perspectives surfaced, tensions reconciled with rationale |
-| **Coverage** | Major aspects of topic missing | Core covered, some adjacent concerns missed | Comprehensive: functional + non-functional + risks + open questions |
-| **Actionability** | No clear next step | Reader can plan next sprint but not next 10 minutes | Reader can immediately start work; acceptance criteria define done-ness |
-| **Provenance** | No traceability to inputs | Some references to seed-brief/enrichment | Every requirement traceable to debate-transcript decision or seed-brief constraint |
+Each `merged-requirements.md` output is scored on the same 5 quality dimensions:
 
-**Quality Score** = sum of 5 dimensions ∈ [5, 25].
+| Dimension | What is being scored |
+|-----------|----------------------|
+| **Concreteness** | Specific thresholds, examples, test criteria, and absence of vague generalities |
+| **Adversarial Diversity** | Distinct proposal perspectives preserved, tensions reconciled, rationale visible |
+| **Coverage** | Functional requirements, non-functional requirements, risks, open questions, and domain-specific concerns |
+| **Actionability** | Whether a reader can immediately plan and execute next work, with acceptance criteria defining done-ness |
+| **Provenance** | Traceability from each key requirement to seed brief, enrichment, proposal, or debate decision |
 
-**Grader**: Spawn a `general-purpose` subagent with `opus` model, given the rubric + the output to grade, returns JSON `{scores: {concreteness: N, ...}, total: N, evidence: [...]}`. The grader does NOT see whether the output is v1 or v2 (`--blind` style).
+#### Score bin anchors (10-point scale)
+
+| Score | Bucket | Description | What it looks like |
+|-------|--------|-------------|--------------------|
+| 1-2 | **FAIL** | Dimension is absent or actively wrong | Vague platitudes only; major contradictions; document does not address the dimension |
+| 3-4 | **WEAK** | Attempts the dimension but with significant gaps | Surface-level attempt, but most content still vague or incomplete |
+| 5-6 | **ACCEPTABLE** | Journeyman handling with no major flaws | Would survive review, but contains hedging, gaps, or unclear tradeoffs |
+| 7-8 | **STRONG** | Exceptional handling beyond average team output | Requirements are measurable, tensions are reconciled, and evidence is easy to inspect |
+| 9 | **NEAR-PERFECT** | Teaching example | Reads like a reference-quality spec; a reviewer learns from it |
+| 10 | **RESERVED** | Actively advances the field | Introduces a novel framework or insight beyond what a domain expert would normally produce; almost never awarded |
+
+**Quality Score** = sum of 5 dimensions ∈ [5, 50].
+
+#### Strict-mode procedures (mandatory)
+
+1. **Critique-first scoring**: For any dimension score ≥7, the grader MUST list at least 2 specific weaknesses in that dimension before awarding the score. If the grader cannot identify 2 weaknesses, cap that dimension at 6.
+2. **Penalty arithmetic**: Each dimension starts from 10 and deductions are applied for observed flaws. The final score is the post-penalty value, floored at 1.
+3. **Hostile reviewer persona**: The grader is framed as a skeptical senior engineer trying to find reasons not to ship the document. Before final scores, the grader MUST produce at least 3 specific objections per output.
+4. **Bin-anchor justification**: For every dimension score ≥7, the grader MUST cite the relevant bin-anchor language and explain why the evidence justifies crossing from acceptable into strong or better.
+
+#### Penalty table
+
+| Flaw | Deduction |
+|------|-----------|
+| Each vague generality found, such as "handle gracefully" or "improve performance" | -1 |
+| Each requirement lacking a measurable threshold or test criterion | -1 |
+| Each unresolved tension that should have converged at the selected depth | -1 |
+| Each missing standard section: FRs, NFRs, ACs, Open Questions, Risks | -1 |
+| Each frontmatter field promised by the protocol but missing | -2 |
+| Each key claim without a source or provenance tag | -1 |
+| Each section with fewer enumerated items than the protocol requires | -1 |
+| Repetition across sections without added value | -1 |
+
+Penalties apply to the dimension they affect. For example, vague functional requirements deduct from Concreteness, missing risks deduct from Coverage, unresolved debate tensions deduct from Adversarial Diversity, and missing source tags deduct from Provenance.
+
+**Grader**: Spawn a `general-purpose` subagent with `opus` model, given the strict rubric + the output to grade, returns JSON `{scores: {concreteness: N, ...}, total: N, objections: [...], penalties: {...}, evidence: [...]}`. The grader does NOT see whether the output is v1 or v2 (`--blind` style).
 
 **Calibration step (mandatory before trusting deltas)**:
 - Pick 2 eval cases (Case 1 and Case 5).
-- Have grader subagent score independently.
-- Author scores manually using same rubric.
+- Have grader subagent score independently using strict-mode procedures.
+- Author scores manually using the same rubric.
 - Compute Cohen's kappa or simple agreement rate. If agreement < 0.6 → revise rubric anchor points; re-calibrate.
 - Only after calibration passes are bulk delta scores trusted.
 
@@ -563,12 +598,14 @@ For each eval:
 **Reviewers**: 2 reviewers per case (spec author + one non-author colleague when available; if non-author unavailable, single-reviewer with explicit caveat in benchmark.md).
 
 **Scoring sheet** (per reviewer, per case):
-- 1-5 Likert on each of the 5 quality dimensions (§11.2)
+- 1-10 strict-mode score on each of the 5 quality dimensions (§11.2)
 - Free-text observation for each dimension
+- At least 3 hostile-reviewer objections per output
+- Penalty ledger showing deductions applied before final score
 - Overall thumbs-up / thumbs-down / revise
 
 **Disagreement resolution**:
-- If reviewers disagree by >1 point on any single dimension → third reviewer or author re-reads and adjudicates
+- If reviewers disagree by >2 points on any single dimension → third reviewer or author re-reads and adjudicates
 - Final score = mean of all reviewers
 - All scoring sheets archived in `iterations/iteration-N/eval-<id>/qualitative-review.md`
 
@@ -584,9 +621,9 @@ Capture per-eval:
 - Compare v2 vs v1 baseline as `delta_tokens`, `delta_time`, `delta_quality_score` (from §11.2 grader)
 
 **Decision threshold** (operationalized):
-- Quality: mean v2 quality score (0-25 scale) − mean v1 quality score ≥ 6.0 points (~30% relative improvement on the 20-point active range 5-25)
+- Quality: mean v2 quality score (5-50 scale) − mean v1 quality score ≥ 12.0 points (~27% relative improvement on the 45-point active range 5-50)
 - Cost: mean v2 tokens ≤ 5 × mean v1 tokens AND mean v2 wall-clock ≤ 5 × mean v1 wall-clock
-- Per-case: no v2 case may score LOWER than its v1 counterpart by more than 2 quality points (regression guard)
+- Per-case: no v2 case may score LOWER than its v1 counterpart by more than 4 quality points (regression guard)
 - Calibration: §11.2 calibration step must pass before this threshold is evaluated
 
 **Outcome routing**:
@@ -640,7 +677,7 @@ For v2 to merge:
 - [ ] `make sync-dev && make verify-sync` passes
 - [ ] All 15 eval cases from §11.1 run successfully on iteration ≥2 (12 in iter-1 + 3 in iter-2)
 - [ ] §11.2 calibration step passes (grader/author agreement ≥ 0.6 on 2 calibration cases) BEFORE delta scores are trusted
-- [ ] Quantitative gate (§11.6): mean quality delta ≥ 6.0 points (5-25 scale) AND mean cost ≤ 5× v1 AND no per-case quality regression > 2 points
+- [ ] Quantitative gate (§11.6): mean quality delta ≥ 12.0 points (5-50 strict scale) AND mean cost ≤ 5× v1 AND no per-case quality regression > 4 points
 - [ ] User sign-off on qualitative review of merged-requirements docs (per §11.4 protocol)
 - [ ] No regressions on the 2 v1-compat eval cases (IDs 13, 14)
 - [ ] All 13 §11.3 quantitative assertions pass on all cases
@@ -668,7 +705,7 @@ This spec was reviewed by a focused /sc:spec-panel critique panel (Fowler, Nygar
 
 - Eliminated silent-success failure mode for empty adversarial response (§4 Wave 3 step 3)
 - Decided on `--generate spec` path for adversarial integration (§10) — unblocks v2 ship
-- Added 5-dimension quality rubric with calibration step (§11.2)
+- Added 5-dimension strict 1-10 quality rubric with calibration, critique-first scoring, penalty arithmetic, and hostile-reviewer objections (§11.2)
 - Added agent-spec serialization sanitization rules (§4 Wave 2B step 4)
 - Split Wave 2 into 2A (enrichment, partial-OK) and 2B (agent-spec, must-succeed)
 - Token-budget pre-flight + back-off mechanism (§4 Wave 2B step 5)

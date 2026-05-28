@@ -1,12 +1,17 @@
+<!-- markdownlint-disable MD024 -->
+<!-- MD024 disabled: each of the 5 Steps reuses ### Purpose / ### Input / ### Process / ### Output / ### Delegation subsection headings by design. -->
+
 # Debate Protocol Reference
 
 Detailed protocol specification for the 5-step adversarial debate pipeline.
 
 ## Protocol Overview
 
-The adversarial pipeline executes 5 sequential steps, each producing a documented artifact. Steps must execute in order — each step's output feeds into the next.
+The adversarial pipeline executes 5 sequential steps, each producing a
+documented artifact. Steps must execute in order — each step's output feeds
+into the next.
 
-```
+```text
 Step 1: Diff Analysis → diff-analysis.md
 Step 2: Adversarial Debate → debate-transcript.md
 Step 3: Base Selection → base-selection.md
@@ -104,7 +109,9 @@ Structured debate where agents argue for their variant's approach, using steelma
 
 ### Steelman Requirement
 
-Advocates MUST construct the strongest possible version of opposing positions before critiquing them. This is not a zero-sum competition — the goal is to identify genuine strengths from all sides.
+Advocates MUST construct the strongest possible version of opposing positions
+before critiquing them. This is not a zero-sum competition — the goal is to
+identify genuine strengths from all sides.
 
 ### Round Structure
 
@@ -213,6 +220,31 @@ For each non-base strength (as determined by debate):
 3. **Rationale**: Debate evidence supporting incorporation
 4. **Integration approach**: How to merge (replace, append, insert, restructure)
 5. **Risk level**: Low (additive), Medium (modifies existing), High (restructures)
+6. **Concrete anchors preserved**: List the requirement IDs, thresholds,
+   constraints, acceptance criteria, examples, and implementation anchors
+   carried over verbatim from the source — or, if any are intentionally
+   modified, record the rationale here. Anchor categories include: requirement
+   IDs (FR-/NFR-/AC-), numeric thresholds/SLOs/percentages/counts, named
+   systems/files/endpoints/components, dates/deadlines, stakeholder
+   constraints, rollback bounds, compliance/audit requirements.
+7. **Threshold preservation**: Every numeric threshold, limit, SLO, percentage,
+   or count inherited from any variant MUST be listed with `source variant`,
+   `value`, and `target disposition` (preserved-exact / modified-with-rationale
+   / dropped-with-rationale). A planned change that touches a section
+   containing thresholds without listing them here is a planning gap and MUST
+   be returned to Step 4 before merge.
+
+#### Concrete-over-generic precedence rule (Step 4 planning)
+
+When source and target express the same requirement, constraint, acceptance
+criterion, or implementation anchor, the merge plan MUST preserve the more
+concrete version unless a higher-confidence debate finding explicitly
+contradicts the concrete content. "More concrete" means: contains specific IDs,
+numeric thresholds, named systems/files/endpoints/dates, or worked examples
+rather than generic taxonomy, prose, or governance categories. Governance,
+safety, lifecycle, policy-first, and proof-gate additions from non-base
+variants are AUGMENTATION — they wrap or extend concrete anchors but MUST NOT
+replace them with a higher-level summary.
 
 For each base weakness identified during debate:
 
@@ -223,6 +255,13 @@ For each base weakness identified during debate:
 Changes NOT being made (with rationale):
 
 - Differences where the base approach was determined superior in debate
+- **Anchor-level rule**: For every non-base variant, list each omitted
+  requirement-level anchor (requirement ID, acceptance criterion, threshold,
+  named system, dependency, example, or compliance reference) with
+  `source variant`, `anchor type`, `anchor text or ID`, `reason for omission`,
+  and `evidence from debate transcript`. A non-base variant's anchor MAY NOT be
+  silently dropped — either it is preserved in the merged output, replaced
+  with a documented equivalent, or listed here with rationale.
 
 ### Review
 
@@ -250,20 +289,73 @@ Execute the refactoring plan to produce a unified output.
 1. Read base variant and plan
 2. Apply each planned change methodically (in plan order)
 3. Maintain structural integrity (heading hierarchy, section flow)
-4. Add provenance annotations (source attribution per merged section)
-5. Post-merge validation:
+4. Add provenance annotations at the requirement level when the merged
+   artifact contains requirement-bearing content (requirements, acceptance
+   criteria, constraints, risks, thresholds, named systems). Section-level
+   attribution alone is INSUFFICIENT for requirement-bearing artifacts — every
+   requirement, acceptance criterion, constraint, risk entry, and explicit
+   threshold MUST carry an inline provenance tag identifying source variant,
+   source requirement ID/anchor, target ID/anchor, and the refactor-plan
+   change number when applicable. Non-requirement-bearing artifacts (e.g.
+   narrative documents) may use section-level provenance.
+5. **Concrete-over-generic execution rule**: When applying a planned change,
+   DO NOT replace specific requirement IDs, numeric thresholds, constraints,
+   named systems/files/endpoints, dates/deadlines, worked examples, acceptance
+   criteria, or implementation anchors with generic taxonomy or governance
+   prose. If a planned change appears to drop or paraphrase such anchors, halt
+   execution of that change, record a deviation in the merge log, and either
+   (a) re-plan with the anchor preserved, or (b) return the unresolved anchor
+   to Step 4 for re-evaluation. Governance, safety, lifecycle, policy, and
+   proof-gate additions are merged as augmentation around concrete content,
+   not as replacements for it.
+6. **Dropped-anchor merge-log entry**: If execution drops, paraphrases, or
+   rewrites a source anchor (requirement ID, acceptance criterion, threshold,
+   named system, dependency, example, compliance reference), the merge log
+   MUST record `anchor ID or verbatim text`, `source variant`, `change
+   number`, `decision basis`, and `replacement target if any`. An anchor that
+   appears in any variant's accepted content but is absent from the merged
+   output without a matching merge-log entry is a merge-execution failure and
+   MUST be flagged in post-merge validation.
+7. Post-merge validation:
    - Structural integrity check
    - Internal reference validation
    - Contradiction re-scan
-6. Produce merge-log.md
+   - **Threshold preservation check**: Verify that every numeric threshold,
+     limit, SLO, percentage, or count listed in the Step 4
+     threshold-preservation table is present in the merged output with its
+     exact value, OR has a merge-log entry recording the change with
+     rationale. Modified or dropped thresholds without a documented rationale
+     FAIL this gate.
+   - **Dropped-anchor audit**: Compare the set of accepted requirement-level
+     anchors in the refactor plan against anchors present in the merged
+     output. Every accepted anchor MUST either appear in the merged output
+     with an inline requirement-level provenance tag, OR carry a merge-log
+     entry per item 6. Unaccounted-for accepted anchors FAIL this gate.
+8. Produce merge-log.md
 
 ### Provenance Annotation Format
+
+For section-level attribution (non-requirement-bearing content):
 
 ```markdown
 <!-- Source: Variant A (opus:architect), Section 3.2 -->
 <!-- Source: Variant B (sonnet:security), Section 4.1 — merged per refactor-plan Change #3 -->
 <!-- Source: Base (original) -->
 ```
+
+For requirement-level attribution (requirements, acceptance criteria, constraints, risks, thresholds — REQUIRED for requirement-bearing artifacts):
+
+```markdown
+<!-- Source: Variant A (opus:architect), Requirement FR-007 → Target FR-012, Change #4, Disposition: preserved-exact -->
+<!-- Source: Variant B (sonnet:security), AC-NFR-3 → Target AC-NFR-5, Change #7, Disposition: modified, Decision basis: debate consensus on threshold harmonization -->
+<!-- Source: Variant C (sonnet:performance), Threshold "p95 < 300ms" → Target NFR-Perf-2, Change #9, Disposition: preserved-exact -->
+<!-- Source: Base (original), Requirement FR-001, Disposition: preserved-exact -->
+```
+
+Each requirement-level tag MUST include: `Source variant`, `Source requirement
+ID or anchor`, `Target ID or anchor`, `Change #` (linking to the refactor
+plan), and `Disposition` (preserved-exact / modified / merged-from-multiple).
+Tags for modified or merged anchors MUST include `Decision basis`.
 
 ### Output
 

@@ -1,0 +1,124 @@
+{
+  "eval_name": "incident-payment-webhook-q1",
+  "winner": "baseline",
+  "baseline_total": 55,
+  "live_total": 43,
+  "dimensions": {
+    "concreteness": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Some requirements may be more implementation-prescriptive than pure requirements, e.g. cryptographic signing and exact telemetry thresholds."
+        ],
+        "notes": "Baseline names incident dates, merchant impact, dollar impact, concrete alert thresholds, tiered DLQ behavior, rollout regions, acceptance thresholds, and rollback triggers."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-2: Many requirements are intentionally requirements-level and generic, e.g. capacity contracts, intentional back-pressure, and agreed thresholds without concrete numbers.",
+          "-1: Several concrete baseline constraints are softened into prerequisites or open decisions."
+        ],
+        "notes": "Live is clear but less specific; it preserves throughput numbers and key DLQ thresholds in acceptance criteria, but omits many exact operational thresholds and rollout details."
+      }
+    },
+    "coverage": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Some areas are framed as decided solutions rather than leaving room for requirements discovery alternatives."
+        ],
+        "notes": "Baseline covers investigation, functional/non-functional requirements, acceptance criteria, risks, open questions, and provenance across observability, retry architecture, DLQ, security, legal/compliance, and operations."
+      },
+      "live": {
+        "score": 8,
+        "penalties": [
+          "-1: No Risks section despite this being a high-stakes incident remediation artifact.",
+          "-1: Rollout, disclosure readiness, and merchant/customer-success risks receive less explicit treatment."
+        ],
+        "notes": "Live covers the main domains and adds lifecycle states and contract inventory, but materially under-covers explicit risk management."
+      }
+    },
+    "actionability": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: A few items may need decomposition before implementation because multiple actions are bundled into single requirements."
+        ],
+        "notes": "Baseline gives directly testable acceptance criteria, thresholds, sequencing, owners/RACI expectations, region rollout order, and concrete investigation work."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-1: Requirements such as agreed tolerance, contract threshold, and where available defer important operating parameters.",
+          "-1: Missing Risks section weakens action planning for incident remediation.",
+          "-1: Fewer explicit preconditions and sequencing constraints than baseline."
+        ],
+        "notes": "Live remains usable as a discovery requirements artifact, but is less ready to hand to execution teams."
+      }
+    },
+    "provenance": {
+      "baseline": {
+        "score": 10,
+        "penalties": [],
+        "notes": "Baseline has frontmatter with source proposals, convergence score, debate transcript path, and a detailed requirement-to-origin provenance table."
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-1: No YAML frontmatter carrying spec_type, adversarial_status, proposal_count, or convergence metadata in the artifact itself.",
+          "-2: No dedicated Provenance section or requirement-to-origin mapping table.",
+          "-1: Inline HTML source comments identify broad variant origins but are sparse compared with baseline traceability."
+        ],
+        "notes": "Live has useful source comments and a return contract outside the artifact, but the merged requirements file itself is much weaker on provenance."
+      }
+    },
+    "adversarial_synthesis": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Strong convergence may conceal that some solution choices were settled aggressively rather than retained as blocking decisions."
+        ],
+        "notes": "Baseline explicitly merges proposal tensions, names ratifications, records remaining open questions, and integrates analyzer/security/devops perspectives."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-1: Variant source comments are present but synthesis rationale is not exposed as a debate/tension resolution record.",
+          "-1: Some conflicts are pushed into open questions without comparable explanation of tradeoff resolution.",
+          "-1: Missing provenance section makes adversarial integration less auditable."
+        ],
+        "notes": "Live clearly used adversarial inputs and preserves unresolved decisions, but provides less evidence of how conflicts were adjudicated."
+      }
+    },
+    "fit_to_eval_intent": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: It occasionally crosses from requirements into design/remediation implementation detail."
+        ],
+        "notes": "Baseline fits an enterprise incident-remediation eval: post-mortem framework, concrete remediation requirements, high-stakes compliance/legal concerns, risks, and measurable success criteria."
+      },
+      "live": {
+        "score": 8,
+        "penalties": [
+          "-1: Live explicitly stops short of architecture and implementation, which is appropriate for discovery but less complete for remediation planning.",
+          "-1: Missing incident-remediation risk section is a poor fit for the Q1 Sev-2/payment-webhook context."
+        ],
+        "notes": "Live fits requirements discovery well and avoids over-design, but the eval intent appears to reward enterprise incident remediation completeness."
+      }
+    }
+  },
+  "top_regressions": [
+    "Live removes the explicit Risks section that baseline used to surface disclosure obligation, rollout-caused incident risk, key-exposure discovery, attestation pushback, metric-cardinality risk, and runbook drift recurrence.",
+    "Live loses artifact-level provenance: no frontmatter metadata and no dedicated provenance table mapping each requirement to proposal/debate origins.",
+    "Live is less concrete and less execution-ready: baseline thresholds such as +25% P99 drift for 30 minutes, 80% back-pressure signals, 18-month Tier-1 retention, 7-day Tier-2/3 TTL, rollout order, and rollback triggers are generalized or omitted."
+  ],
+  "top_improvements": [
+    "Live better preserves requirements-discovery boundaries by explicitly excluding architecture diagrams, queue topology, schema design, API contracts, and implementation tasks.",
+    "Live clarifies incident context by naming the three distinct proximate triggers while still requiring analysis of the shared failure pattern.",
+    "Live adds a cleaner lifecycle-state taxonomy and contract inventory prerequisites, reducing premature commitment where current thresholds or SLO clauses are unknown."
+  ],
+  "structural_failure_interpretation": "Mixed. The seed-brief strategy, proposal_count, interactive_mode, and frontmatter mismatches are mostly metadata/parameter mismatches because the live return-contract shows success, incident domain, proposal_count 5, convergence_score 0.86, and a populated adversarial artifact directory. However, the missing Risks section and missing artifact-level Provenance section are real quality regressions because they materially reduce incident remediation usefulness and auditability.",
+  "adversarial_warranted": false,
+  "adversarial_reason": "Not warranted. Baseline is the clear qualitative winner by 12 points, with no unresolved tie. The live artifact has identifiable regressions, but they are not contradictory-evidence failures requiring a new quick adversarial debate; they are direct remediation items: restore risks, restore provenance/frontmatter, and decide whether requirements-discovery strictness should intentionally trade off against concrete remediation detail."
+}

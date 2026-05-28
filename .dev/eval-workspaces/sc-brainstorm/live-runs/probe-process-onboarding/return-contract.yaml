@@ -1,0 +1,36 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/seed-brief.md"
+merged_output_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/merged-requirements.md"
+convergence_score: 1.00
+adversarial_artifacts_dir: ".dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/adversarial/"
+domain: process
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped  # --no-codebase
+  - source: research-light
+    quality_tier: skipped  # --no-research
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+telemetry:
+  wave_durations_ms:
+    wave_0: ~3000
+    wave_1: ~5000
+    wave_2a: 0  # skipped (--no-codebase + --no-research)
+    wave_2b: ~2000
+    wave_3: ~280000  # variant generation (~140s for slowest) + inline adversarial pipeline
+    wave_4: ~1000
+  token_usage:
+    wave_0: ~500
+    wave_1: ~1500
+    wave_2a: 0
+    wave_2b: ~500
+    wave_3: ~128000  # measured: 72777 (variant-1) + 55347 (variant-2) + orchestrator inline work
+    wave_4: ~300
+  agent_spec: "opus:scribe,sonnet:analyzer"
+  enrichment_artifact_sizes:
+    codebase-context.md: 0
+    research-light.md: 0

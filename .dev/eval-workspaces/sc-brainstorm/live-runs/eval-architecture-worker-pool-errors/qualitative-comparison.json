@@ -1,0 +1,127 @@
+{
+  "eval_name": "architecture-worker-pool-errors",
+  "winner": "baseline",
+  "baseline_total": 54,
+  "live_total": 39,
+  "dimensions": {
+    "concreteness": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: A few sources are cited by proposal section labels rather than independently verifiable source lines."
+        ],
+        "notes": "Names concrete fleet classes, old DLQ files, target subsystem, envelope fields, CLI syntax, IAM verbs, latency budgets, cost targets, migration ordering, and rollback mechanics."
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-2: Mostly generic contract language with no concrete fleets, files, deadlines, migration chunks, SLO thresholds, or cost targets.",
+          "-1: Durable store, overhead budget, ownership, and compatibility-window decisions are deferred to open questions.",
+          "-1: Replay, redaction, and quarantine controls are expressed as properties but not implementable mechanisms."
+        ],
+        "notes": "Generic but still contains a usable worker error envelope and taxonomy."
+      }
+    },
+    "coverage": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Does not emphasize pool-level mixed result preservation and rollback policy variants as explicitly as live does."
+        ],
+        "notes": "Covers taxonomy, DLQ, replay, audit, redaction, chaos tests, feature flags, observability, migration order, async refactor, performance, security, cost, and runbooks."
+      },
+      "live": {
+        "score": 8,
+        "penalties": [
+          "-1: Misses seed-specific fleet migration details, Q1 incident economics, and billing-critical no-loss guarantees.",
+          "-1: Lacks concrete DLQ implementation choices and chaos-harness content."
+        ],
+        "notes": "Covers cancellation, timeout, rollback-failed, unknown states, mixed outcomes, compatibility adapters, and rollback semantics better than baseline."
+      }
+    },
+    "actionability": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Some open questions remain around per-message-type overrides and future UI/correlation work."
+        ],
+        "notes": "Provides subsystem paths, feature flags, test gates, benchmark gates, migration order, and acceptance criteria."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-1: Key decisions remain open, including durable store, overhead budget, compatibility window, idempotency classes, and ownership.",
+          "-1: Acceptance criteria do not map to specific rollout slices, code locations, or measurable budgets.",
+          "-1: Requirements often say to define policies rather than specifying the chosen policy."
+        ],
+        "notes": "Testable as a contract outline but less directly implementable."
+      }
+    },
+    "provenance": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-1: Provenance references proposal sections and research sections, not immutable line-level evidence."
+        ],
+        "notes": "Includes frontmatter, source proposal list, debate transcript pointer, seed pointer, and per-requirement provenance table."
+      },
+      "live": {
+        "score": 5,
+        "penalties": [
+          "-2: Provenance is five coarse bullets grouped by persona rather than mapped per requirement.",
+          "-1: No source-specific trace for individual functional requirements or acceptance criteria.",
+          "-1: No explicit seed-brief references for preserving key scenario facts.",
+          "-1: No indication which items came from adversarial debate versus initial proposal synthesis."
+        ],
+        "notes": "Has a provenance section, but it is too coarse for audit-quality traceability."
+      }
+    },
+    "adversarial_synthesis": {
+      "baseline": {
+        "score": 8,
+        "penalties": [
+          "-1: Uses adversarial debate outputs, but the final artifact has limited explanation of rejected alternatives.",
+          "-1: A few compromises are carried as open questions instead of resolved decisions."
+        ],
+        "notes": "Integrates architecture, devops, QA, security, and performance tensions into concrete requirements."
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-2: Multi-perspective synthesis is mostly implicit; reads like a normalized generic spec rather than a negotiated merge.",
+          "-1: Tradeoffs are not surfaced with concrete accepted/rejected positions.",
+          "-1: High-stakes replay, rollback, and store choices are deferred rather than adversarially resolved."
+        ],
+        "notes": "Persona contributions are visible only at a high level."
+      }
+    },
+    "fit_to_eval_intent": {
+      "baseline": {
+        "score": 10,
+        "penalties": [],
+        "notes": "Tightly tailored to the architecture worker-pool error scenario, including 12-fleet context, incident-driven migration, billing-critical constraints, retry-cost target, and shared subsystem."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-2: Fits a generic worker-pool error contract problem but loses much of the case-specific architecture evaluation intent.",
+          "-1: Omits high-signal seed details that distinguish this eval from any other error-handling redesign."
+        ],
+        "notes": "Relevant but under-specific for this eval."
+      }
+    }
+  },
+  "top_regressions": [
+    "Major loss of scenario specificity: live removes the 12 worker fleets, Q1 incidents, roughly $40k retry cost, Q3 cost target, billing-critical fleets, concrete fleet migration order, old DLQ names, and target subsystem path.",
+    "Weaker measurable implementation plan: live drops the baseline's ≤2-week chunks, 100µs p99/5% latency gate, 13M messages/hour floor, 100 msg/sec replay default, 2-week canary soak, quarterly chaos/access reviews, and no-message-loss verification method.",
+    "Substantially weaker provenance and debate traceability: live only attributes broad proposal themes, while baseline maps requirements, NFRs, ACs, risks, open questions, and out-of-scope items to sources."
+  ],
+  "top_improvements": [
+    "Better explicit pool-result semantics: live directly requires mixed outcomes to be preserved and prevents pool-level failure from erasing item states.",
+    "Broader terminal-state taxonomy: live adds cancellation, timeout, rollback-failed, skipped, and unknown handling.",
+    "Clearer migration compatibility concept: live's compatibility adapters for legacy ambiguous None/exception patterns and dual legacy/new envelope emission are useful."
+  ],
+  "structural_failure_interpretation": "For this case, the comparison JSON reports 27/27 live assertions passing and a baseline pass rate of 1.0. There is no structural failure in this eval case to explain away. The unavailable timing/token/strict-quality telemetry is a metadata coverage limitation, not a content quality failure. The live artifact's weaknesses are real qualitative regressions in specificity, actionability, and provenance, not parser or parameter mismatches.",
+  "adversarial_warranted": false,
+  "adversarial_reason": "No unresolved tie or contradictory evidence. Baseline wins clearly on total score and eval-relevant dimensions. Live has targeted improvements in mixed-result and rollback semantics, but those can be incorporated as feedback without running /sc:adversarial --depth quick."
+}

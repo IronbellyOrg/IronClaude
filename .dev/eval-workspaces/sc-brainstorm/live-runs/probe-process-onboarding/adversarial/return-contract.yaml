@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/merged-requirements.md"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/eval-workspaces/sc-brainstorm/live-runs/probe-process-onboarding/adversarial/"
+  status: "success"
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []  # Round 2.5 skipped at --depth quick; no invariant probe executed

@@ -1,0 +1,51 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial
+domain: process
+proposal_count: 3
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+# Phase-2 schema fields
+seed_schema_version: "1.0"
+merged_requirements_schema_version: "1.0"
+context_anchors_count: 5
+fit_to_intent: high
+source_of_truth_paths:
+  - /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/seed-brief.md
+  - /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/merged-requirements.md
+
+# Agent spec used in adversarial debate
+agent_spec:
+  personas:
+    - scribe
+    - pm
+    - architect
+  models:
+    - opus
+    - sonnet
+    - haiku
+  raw: "opus:scribe:'agile iterative docs improvements',sonnet:pm:'sprint-shippable process changes',haiku:architect:'system-level onboarding touchpoints'"
+blind_mode: false
+
+# Enrichment (Case 6 per evals.json: NO codebase/research auto-enrichment expected)
+enrichment_used: []
+
+telemetry:
+  command_skill_invoked: sc:brainstorm
+  adversarial_skill_invoked: sc-adversarial-protocol-inline
+  output_dir: /config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding
+  non_interactive_mode: true
+  defaults_applied:
+    - "audience=external OSS contributors"
+    - "metrics=time-to-first-PR, setup drop-off, return rate"
+    - "scope_cap=one 2-week sprint"
+  strategy: agile
+  depth: standard
+  expected_proposal_count_match: true
+  expected_strategy_match: true
+  expected_domain_match: true

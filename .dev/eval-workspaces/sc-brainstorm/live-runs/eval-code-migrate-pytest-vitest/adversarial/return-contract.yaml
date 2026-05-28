@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial/merged-output.md"
+  convergence_score: 0.82
+  artifacts_dir: "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial"
+  status: "success"
+  base_variant: "architect:parallel-run"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

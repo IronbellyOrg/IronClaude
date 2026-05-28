@@ -19,6 +19,8 @@ import re
 import sys
 from pathlib import Path
 
+import yaml
+
 
 def read_text(p: Path) -> str | None:
     """Read text file, return None if missing."""
@@ -46,19 +48,45 @@ def parse_frontmatter(text: str) -> dict:
 
 
 def parse_yaml_simple(text: str) -> dict:
-    """Parse a simple flat YAML file (no nesting). Returns dict of string values."""
+    """Parse YAML (possibly nested) into a dict.
+
+    Handles two input shapes that the grader's targets use:
+      1. Plain YAML files (e.g., return-contract.yaml) — safe_load the whole text.
+      2. Markdown files with YAML frontmatter (e.g., debate-transcript.md) — extract
+         the frontmatter block between leading `---` delimiters and safe_load just that;
+         this avoids the multi-document YAML stream error when safe_load encounters the
+         markdown body as a second document.
+
+    Empty or invalid input returns {}.
+    """
     if not text:
         return {}
-    result = {}
-    for line in text.split("\n"):
-        line = line.rstrip()
-        if not line or line.startswith("#") or line.startswith(" "):
-            continue
-        if ":" in line:
-            k, _, v = line.partition(":")
-            v = v.strip().strip("'\"")
-            result[k.strip()] = v
-    return result
+    body = text
+    if text.startswith("---"):
+        end = text.find("\n---", 4)
+        if end != -1:
+            body = text[3:end].strip()
+    try:
+        loaded = yaml.safe_load(body)
+    except yaml.YAMLError:
+        return {}
+    return loaded if isinstance(loaded, dict) else {}
+
+
+def _resolve_field(d: dict, path: str):
+    """Resolve a dotted path 'a.b.0.c' through nested dicts/lists. Returns '' if missing or non-traversable."""
+    cur = d
+    for part in path.split("."):
+        if isinstance(cur, list):
+            try:
+                cur = cur[int(part)]
+            except (ValueError, IndexError):
+                return ""
+        elif isinstance(cur, dict):
+            cur = cur.get(part, "")
+        else:
+            return ""
+    return cur
 
 
 def find_section(text: str, section_pattern: str) -> tuple[int, int] | None:
@@ -146,7 +174,8 @@ def check_assertion(assertion: dict, base_dir: Path) -> tuple[bool, str]:
         y = parse_yaml_simple(content)
         field = assertion["field"]
         expected = str(assertion["expected"])
-        actual = y.get(field, "")
+        raw = _resolve_field(y, field)
+        actual = str(raw) if raw != "" else ""
         if actual == expected:
             return True, f"YAML field {field}={actual} matches expected {expected}"
         return False, f"YAML field {field}={actual!r}, expected {expected!r}"
@@ -157,10 +186,13 @@ def check_assertion(assertion: dict, base_dir: Path) -> tuple[bool, str]:
             return False, f"File not readable: {target}"
         y = parse_yaml_simple(content)
         field = assertion["field"]
+        raw = _resolve_field(y, field)
+        if not isinstance(raw, (int, float, str)) or raw == "":
+            return False, f"YAML field {field} is non-numeric (got {type(raw).__name__}={raw!r})"
         try:
-            actual = float(y.get(field, "0"))
+            actual = float(raw)
         except (TypeError, ValueError):
-            return False, f"YAML field {field} not numeric: {y.get(field)!r}"
+            return False, f"YAML field {field} not numeric: {raw!r}"
         min_val = float(assertion["min_value"])
         if actual >= min_val:
             return True, f"YAML field {field}={actual} >= {min_val}"
@@ -172,7 +204,8 @@ def check_assertion(assertion: dict, base_dir: Path) -> tuple[bool, str]:
             return False, f"File not readable: {target}"
         y = parse_yaml_simple(content)
         field = assertion["field"]
-        actual = y.get(field, "")
+        raw = _resolve_field(y, field)
+        actual = str(raw) if raw != "" else ""
         substrings = assertion.get("substring_any", [])
         for s in substrings:
             if s.lower() in actual.lower():
@@ -234,8 +267,12 @@ def grade_eval(eval_dir: Path) -> dict:
     old_grading = build_grading(old_skill_assertions)
 
     # Write grading.json files
-    (eval_dir / "with_skill" / "grading.json").write_text(json.dumps(with_grading, indent=2))
-    (eval_dir / "old_skill" / "grading.json").write_text(json.dumps(old_grading, indent=2))
+    with_skill_path = eval_dir / "with_skill" / "grading.json"
+    old_skill_path = eval_dir / "old_skill" / "grading.json"
+    with_skill_path.parent.mkdir(parents=True, exist_ok=True)
+    old_skill_path.parent.mkdir(parents=True, exist_ok=True)
+    with_skill_path.write_text(json.dumps(with_grading, indent=2))
+    old_skill_path.write_text(json.dumps(old_grading, indent=2))
 
     return {
         "eval_name": meta["eval_name"],

@@ -1,0 +1,126 @@
+{
+  "eval_name": "code-api-caching-tasklist",
+  "winner": "baseline",
+  "baseline_total": 54,
+  "live_total": 47,
+  "dimensions": {
+    "concreteness": {
+      "baseline": {
+        "score": 10,
+        "penalties": [],
+        "notes": "Specifies concrete Redis/FastAPI middleware, key shape, TTL defaults, invalidation paths, SETNX stampede protection, metrics, tests, and file/module paths."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-1.5 avoids selecting backend, framework, topology, or persistence model",
+          "-1.0 uses broad mechanisms such as registry/equivalent control plane and another documented mechanism",
+          "-0.5 lacks file/module targets, cache-key canonical representation, TTL defaults, and metric names"
+        ],
+        "notes": "More generic and policy-oriented, less code-tasklist-ready."
+      }
+    },
+    "coverage": {
+      "baseline": {
+        "score": 8,
+        "penalties": [
+          "-1.0 narrowed to catalog/pricing/feature-flag reference data rather than broad endpoint inventory",
+          "-0.5 limited tenant/user/confidential/regulated classification coverage",
+          "-0.5 weaker manual purge, audit, rollback, stale-if-error, and data-residency/privacy coverage"
+        ],
+        "notes": "Deep on reference-data caching, less broad operational/security coverage."
+      },
+      "live": {
+        "score": 9,
+        "penalties": [
+          "-0.5 lacks concrete TTL classes, budget values, and implementation targets",
+          "-0.5 lacks migration story for existing caches or non-HTTP/background consumers"
+        ],
+        "notes": "Broadest coverage across security, operations, rollout, purge, observability, and policy controls."
+      }
+    },
+    "actionability": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-0.5 assumptions around stack/endpoints/Redis/paths need validation before work begins",
+          "-0.5 requirements artifact rather than actual tasklist"
+        ],
+        "notes": "Highly convertible to implementation tasks."
+      },
+      "live": {
+        "score": 8,
+        "penalties": [
+          "-1.0 many items remain policy-level and require implementation design",
+          "-0.5 acceptance criteria are often generic rather than tied to named endpoints/files/metrics",
+          "-0.5 merged requirements mention tasklist handoff but do not contain actual task decomposition"
+        ],
+        "notes": "Good workstream handoff, less immediately codeable."
+      }
+    },
+    "provenance": {
+      "baseline": {
+        "score": 10,
+        "penalties": [],
+        "notes": "Frontmatter and provenance table trace requirements to seed brief, proposal sections, and debate tensions."
+      },
+      "live": {
+        "score": 6,
+        "penalties": [
+          "-1.5 no Provenance section",
+          "-1.0 comments name variants but do not trace each requirement",
+          "-1.0 frontmatter omits spec_type and adversarial_status expected by structural checks",
+          "-0.5 return-contract metadata lacks agent_spec persona/model aliases in structural context"
+        ],
+        "notes": "Some top-level provenance exists, but traceability is much weaker."
+      }
+    },
+    "adversarial_synthesis": {
+      "baseline": {
+        "score": 9,
+        "penalties": [
+          "-0.5 mostly presents resolved consensus with limited preserved disagreement",
+          "-0.5 some risks read as clean mitigations rather than full tradeoff space"
+        ],
+        "notes": "Clearly exposes debate tensions and consensus decisions."
+      },
+      "live": {
+        "score": 7,
+        "penalties": [
+          "-1.0 evidence of merge exists, but little visible tension resolution in body",
+          "-1.0 lacks detailed requirement-by-requirement synthesis provenance",
+          "-1.0 does not show how competing proposals were reconciled or rejected"
+        ],
+        "notes": "Likely synthesized, but not auditable enough in the artifact body."
+      }
+    },
+    "fit_to_eval_intent": {
+      "baseline": {
+        "score": 8,
+        "penalties": [
+          "-1.0 less fit for tasklist handoff because it lacks workstreams/handoff metadata",
+          "-1.0 may overfit specific stack/endpoints if eval intent is generic API caching"
+        ],
+        "notes": "Excellent implementation brief, weaker tasklist-handoff framing."
+      },
+      "live": {
+        "score": 10,
+        "penalties": [],
+        "notes": "Directly targets API endpoint caching and includes dedicated tasklist handoff scope; structural context confirms handoff_action=tasklist and tasklist artifact exists."
+      }
+    }
+  },
+  "top_regressions": [
+    "Implementation specificity regressed: live lacks concrete backend/framework choices, cache key format, TTL defaults, module paths, metrics names, and test quantities present in baseline.",
+    "Provenance/audit trail regressed: live lacks a Provenance section and requirement-by-requirement source mapping.",
+    "Visible adversarial synthesis regressed: live comments name incorporated variants but do not expose debate tensions or rejected alternatives."
+  ],
+  "top_improvements": [
+    "Security and isolation coverage improved: live explicitly handles tenant/user/confidential/regulated/auth/session/secret-bearing constraints.",
+    "Operational controls improved: live adds manual purge, rollout/rollback states, policy versions, stale-if-error gating, audit events, and disablement without deployment.",
+    "General API-caching applicability improved: live avoids overfitting to catalog/pricing/flags and frames endpoint inventory/classification for a broader rollout."
+  ],
+  "structural_failure_interpretation": "Mixed. Missing Provenance is a real quality regression. The Risks failure is quality-relevant to the checker but partly a table-vs-enumerated-item mismatch because the live artifact has a risk table. Missing agent_spec persona/model aliases are mainly metadata/contract regressions, not direct merged-requirements content failures. Functional, NFR, AC, open-question, handoff, artifact-completeness, and adversarial-directory checks pass.",
+  "adversarial_warranted": false,
+  "adversarial_reason": "No unresolved tie, contradictory evidence, or high-stakes ambiguity. Baseline clearly wins implementation-readiness/provenance while live clearly wins generic coverage/tasklist fit; remediation is straightforward rather than requiring adversarial arbitration."
+}

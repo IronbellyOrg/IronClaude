@@ -1,0 +1,63 @@
+contract_version: "1.0"
+status: success
+seed_schema_version: "1.0"
+merged_requirements_schema_version: "1.0"
+seed_brief_path: .dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/seed-brief.md
+merged_output_path: .dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: .dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/
+domain: code
+strategy: systematic
+depth: deep
+proposal_count: 5
+blind_mode: true
+context_anchors_count: 6
+fit_to_intent: pass
+source_of_truth_paths:
+  - .claude/skills/sc-brainstorm-protocol/SKILL.md
+  - src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped
+  - source: research-light
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Per-call-site shadow-window soak length (24h to 7d) — implementation parameter"
+  - "Canonical-contract format (typed interface plus property tests vs. OpenAPI-style plus contract tests) — tooling parameter"
+
+agent_spec:
+  blind_mode: true
+  personas:
+    - Agent A
+    - Agent B
+    - Agent C
+    - Agent D
+    - Agent E
+  models:
+    - opus
+    - sonnet
+    - haiku
+    - opus
+    - sonnet
+  serialized: "opus:Agent A:'systematic consolidation focus',sonnet:Agent B:'systematic consolidation focus',haiku:Agent C:'systematic consolidation focus',opus:Agent D:'systematic consolidation focus',sonnet:Agent E:'systematic consolidation focus'"
+
+telemetry:
+  wave_durations_ms:
+    wave_0: 50
+    wave_1: 800
+    wave_2a: 20
+    wave_2b: 100
+    wave_3: 4200
+    wave_4: 20
+  token_usage:
+    wave_0: 200
+    wave_1: 2500
+    wave_2a: 0
+    wave_2b: 400
+    wave_3: 28000
+    wave_4: 100
+  enrichment_artifact_sizes:
+    codebase-context.md: 0
+    research-light.md: 0

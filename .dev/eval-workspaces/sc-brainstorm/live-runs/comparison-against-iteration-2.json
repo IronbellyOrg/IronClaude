@@ -1,0 +1,2913 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-27T16:34:45.529561Z",
+    "baseline": "iterations/iteration-2",
+    "live_root": "live-runs",
+    "path_mapping": "live run directory = live-runs/eval-{eval.name}"
+  },
+  "summary": {
+    "case_count": 8,
+    "compared_case_ids": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "excluded_case_ids": [
+      12
+    ],
+    "excluded_case_reason": "Case 12 (architecture-graphql-public-api) is excluded because live invocation is blocked by the command/skill registry error `Unknown skill: sc:brainstorm-protocol`. Bringing case 12 into the comparison requires a separate scope decision and a registry-compatibility task.",
+    "live_artifact_cases": 8,
+    "complete_artifact_cases": 8,
+    "mean_baseline_pass_rate": 0.7387,
+    "mean_live_pass_rate": 0.8242,
+    "quality_scores_available": 0,
+    "quality_unavailable_count": 8,
+    "live_timing_available": 0,
+    "telemetry_unavailable_count": 8,
+    "availability_gaps": {
+      "quality": "explicit gap: strict quality grading not yet covering compared cases",
+      "timing_tokens": "explicit gap: live runs do not write timing.json / token telemetry; comparison cannot validate telemetry assertions until this lands"
+    }
+  },
+  "cases": [
+    {
+      "eval_id": 4,
+      "eval_name": "code-migrate-pytest-vitest",
+      "topic": "migrate test suite from pytest to vitest",
+      "live_dir": "live-runs/eval-code-migrate-pytest-vitest",
+      "baseline": {
+        "pass_rate": 0.7609,
+        "passed": 35,
+        "failed": 11,
+        "total": 46,
+        "time_seconds": 184.4,
+        "tokens": 38420,
+        "tool_calls": 11,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "contract_version": "1.0",
+          "status": "success",
+          "seed_brief_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/seed-brief.md",
+          "seed_schema_version": "1.0",
+          "merged_output_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/merged-requirements.md",
+          "merged_requirements_schema_version": "1.0",
+          "convergence_score": "0.82",
+          "adversarial_artifacts_dir": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/adversarial",
+          "domain": "code",
+          "proposal_count": "2",
+          "context_anchors_count": "4",
+          "fit_to_intent": "pass",
+          "fit_to_intent_issues": "[]",
+          "enrichment_used": "",
+          "handoff_action": "none",
+          "handoff_output_path": "null",
+          "unresolved_conflicts": "[]",
+          "blind_mode": "false",
+          "source_of_truth_paths": "",
+          "agent_spec": "",
+          "telemetry": ""
+        },
+        "assertions": {
+          "passed": 40,
+          "failed": 6,
+          "total": 46,
+          "pass_rate": 0.8696,
+          "expectations": [
+            {
+              "text": "seed-brief.md exists",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (4897 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (9048 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml exists",
+              "passed": true,
+              "evidence": "File exists at return-contract.yaml (1955 bytes)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "codebase enrichment artifact exists",
+              "passed": true,
+              "evidence": "File exists at enrichment/codebase-context.md (2725 bytes)",
+              "target": "enrichment/codebase-context.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: code",
+              "passed": true,
+              "evidence": "Frontmatter field domain=code matches expected code",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: systematic",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=systematic matches expected systematic",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares depth: quick",
+              "passed": true,
+              "evidence": "Frontmatter field depth=quick matches expected quick",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares proposal_count: 2",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '2'",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has spec_type",
+              "passed": false,
+              "evidence": "Frontmatter field spec_type='', expected 'requirements'",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has adversarial_status",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass matches expected pass",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has proposal_count: 2",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '2'",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Functional Requirements section with \u22653 items",
+              "passed": true,
+              "evidence": "Section 'Functional Requirements' has 7 enumerated items (>= 3)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Non-Functional Requirements section with \u22652 items",
+              "passed": true,
+              "evidence": "Section 'Non-Functional Requirements' has 6 enumerated items (>= 2)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria section with \u22653 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Acceptance Criteria' has 6 enumerated items (>= 3)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section with \u22652 items",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items, need >= 2",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Open Questions section with \u22652 items",
+              "passed": true,
+              "evidence": "Section 'Open Questions' has 6 enumerated items (>= 2)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml has contract_version = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml status = success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.82 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml domain = code",
+              "passed": true,
+              "evidence": "YAML field domain=code matches expected code",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml proposal_count = 2",
+              "passed": true,
+              "evidence": "YAML field proposal_count=2 matches expected 2",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml agent_spec mentions \u22652 personas",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['refactorer', 'qa', 'architect']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml agent_spec mentions \u22652 model aliases",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['opus', 'sonnet', 'haiku']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "adversarial dir has \u22653 files (\u22652 proposals + debate-transcript)",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 9 files (>= 3)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Non-Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": true,
+              "evidence": "Section 'Risks' has 6 items-or-table-rows (>= 1)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass is in allowed set ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": true,
+              "evidence": "Frontmatter field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": true,
+              "evidence": "Frontmatter field schema_version=1.0 matches expected 1.0",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=4.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'sc-brainstorm-protocol' (found across 91 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'architect' (found across 91 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 91 string leaves)",
+              "target": "return-contract.yaml"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 4,
+          "total": 4,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": 0.1087,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "architecture-worker-pool-errors",
+      "topic": "redesign error handling across the worker pool",
+      "live_dir": "live-runs/eval-architecture-worker-pool-errors",
+      "baseline": {
+        "pass_rate": 0.766,
+        "passed": 36,
+        "failed": 11,
+        "total": 47,
+        "time_seconds": 612.8,
+        "tokens": 178420,
+        "tool_calls": 26,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "contract_version": "1.0",
+          "status": "success",
+          "seed_brief_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/seed-brief.md",
+          "seed_schema_version": "1.0",
+          "merged_output_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/merged-requirements.md",
+          "merged_requirements_schema_version": "1.0",
+          "convergence_score": "0.72",
+          "adversarial_artifacts_dir": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/adversarial",
+          "domain": "architecture",
+          "proposal_count": "5",
+          "context_anchors_count": "12",
+          "fit_to_intent": "pass",
+          "fit_to_intent_issues": "[]",
+          "enrichment_used": "",
+          "handoff_action": "none",
+          "handoff_output_path": "null",
+          "unresolved_conflicts": "",
+          "blind_mode": "false",
+          "source_of_truth_paths": "",
+          "agent_spec": "",
+          "telemetry": ""
+        },
+        "assertions": {
+          "passed": 44,
+          "failed": 3,
+          "total": 47,
+          "pass_rate": 0.9362,
+          "expectations": [
+            {
+              "text": "seed-brief.md exists",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (15398 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (22214 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml exists",
+              "passed": true,
+              "evidence": "File exists at return-contract.yaml (3458 bytes)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "codebase enrichment artifact exists",
+              "passed": true,
+              "evidence": "File exists at enrichment/codebase-context.md (2752 bytes)",
+              "target": "enrichment/codebase-context.md"
+            },
+            {
+              "text": "research-deep enrichment artifact exists",
+              "passed": true,
+              "evidence": "File exists at enrichment/research-deep.md (2392 bytes)",
+              "target": "enrichment/research-deep.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: architecture",
+              "passed": true,
+              "evidence": "Frontmatter field domain=architecture matches expected architecture",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: enterprise",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=enterprise matches expected enterprise",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares depth: deep",
+              "passed": true,
+              "evidence": "Frontmatter field depth=deep matches expected deep",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares proposal_count: 5",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '5'",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has spec_type",
+              "passed": true,
+              "evidence": "Frontmatter field spec_type=requirements matches expected requirements",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has adversarial_status",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass matches expected pass",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has proposal_count: 5",
+              "passed": true,
+              "evidence": "Frontmatter field proposal_count=5 matches expected 5",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Functional Requirements section \u22655 items",
+              "passed": true,
+              "evidence": "Section 'Functional Requirements' has 13 enumerated items (>= 5)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Non-Functional Requirements section \u22653 items",
+              "passed": true,
+              "evidence": "Section 'Non-Functional Requirements' has 9 enumerated items (>= 3)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria section \u22655 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Acceptance Criteria' has 14 enumerated items (>= 5)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section \u22653 items",
+              "passed": true,
+              "evidence": "Section 'Risks' has 9 enumerated items (>= 3)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Open Questions section \u22652 items",
+              "passed": true,
+              "evidence": "Section 'Open Questions' has 7 enumerated items (>= 2)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml contract_version = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml status = success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.72 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml domain = architecture",
+              "passed": true,
+              "evidence": "YAML field domain=architecture matches expected architecture",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml proposal_count = 5",
+              "passed": true,
+              "evidence": "YAML field proposal_count=5 matches expected 5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml agent_spec mentions \u22652 personas (architect, devops, qa, security, performance)",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['architect', 'devops', 'qa', 'security', 'performance']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml agent_spec mentions \u22652 model aliases",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['opus', 'sonnet', 'haiku']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "adversarial dir has \u22656 files (\u22655 proposals + debate-transcript)",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 11 files (>= 6)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Non-Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": true,
+              "evidence": "Section 'Risks' has 9 items-or-table-rows (>= 1)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass is in allowed set ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": true,
+              "evidence": "Frontmatter field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": true,
+              "evidence": "Frontmatter field schema_version=1.0 matches expected 1.0",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=12.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'sc-brainstorm-protocol' (found across 120 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'architect' (found across 120 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 120 string leaves)",
+              "target": "return-contract.yaml"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 4,
+          "total": 4,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": 0.1702,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    },
+    {
+      "eval_id": 6,
+      "eval_name": "process-contributor-onboarding",
+      "topic": "improve onboarding workflow for new contributors",
+      "live_dir": "live-runs/eval-process-contributor-onboarding",
+      "baseline": {
+        "pass_rate": 0.7556,
+        "passed": 34,
+        "failed": 11,
+        "total": 45,
+        "time_seconds": 298.7,
+        "tokens": 71240,
+        "tool_calls": 14,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "contract_version": "1.0",
+          "status": "success",
+          "seed_brief_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/seed-brief.md",
+          "merged_output_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/merged-requirements.md",
+          "convergence_score": "0.82",
+          "adversarial_artifacts_dir": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/adversarial",
+          "domain": "process",
+          "proposal_count": "3",
+          "handoff_action": "none",
+          "handoff_output_path": "null",
+          "unresolved_conflicts": "[]",
+          "seed_schema_version": "1.0",
+          "merged_requirements_schema_version": "1.0",
+          "context_anchors_count": "5",
+          "fit_to_intent": "high",
+          "source_of_truth_paths": "",
+          "agent_spec": "",
+          "blind_mode": "false",
+          "enrichment_used": "[]",
+          "telemetry": ""
+        },
+        "assertions": {
+          "passed": 37,
+          "failed": 8,
+          "total": 45,
+          "pass_rate": 0.8222,
+          "expectations": [
+            {
+              "text": "seed-brief.md exists",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (4804 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (7886 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml exists",
+              "passed": true,
+              "evidence": "File exists at return-contract.yaml (2239 bytes)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: process",
+              "passed": true,
+              "evidence": "Frontmatter field domain=process matches expected process",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: agile",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=agile matches expected agile",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares depth: standard",
+              "passed": true,
+              "evidence": "Frontmatter field depth=standard matches expected standard",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares proposal_count: 3",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '3'",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has spec_type",
+              "passed": true,
+              "evidence": "Frontmatter field spec_type=requirements matches expected requirements",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has adversarial_status",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=PASS matches expected pass",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has proposal_count: 3",
+              "passed": true,
+              "evidence": "Frontmatter field proposal_count=3 matches expected 3",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Functional Requirements section \u22654 items",
+              "passed": true,
+              "evidence": "Section 'Functional Requirements' has 16 enumerated items (>= 4)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Non-Functional Requirements section \u22652 items",
+              "passed": true,
+              "evidence": "Section 'Non-Functional Requirements' has 7 enumerated items (>= 2)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria section \u22654 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Acceptance Criteria' has 9 enumerated items (>= 4)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section \u22652 items",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items, need >= 2",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Open Questions section \u22652 items",
+              "passed": false,
+              "evidence": "Section 'Open Questions' has 0 items, need >= 2",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml contract_version = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml status = success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.82 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml domain = process",
+              "passed": true,
+              "evidence": "YAML field domain=process matches expected process",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml proposal_count = 3",
+              "passed": true,
+              "evidence": "YAML field proposal_count=3 matches expected 3",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml agent_spec mentions \u22652 personas (scribe, mentor, refactorer, pm)",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['scribe', 'mentor', 'refactorer', 'pm', 'architect']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml agent_spec mentions \u22652 model aliases",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['opus', 'sonnet', 'haiku']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "adversarial dir has \u22654 files (\u22653 proposals + debate-transcript)",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 8 files (>= 4)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Non-Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items-or-table-rows, need >= 1",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=PASS is in allowed set ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": false,
+              "evidence": "Frontmatter field fit_to_intent='', expected one of ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": true,
+              "evidence": "Frontmatter field schema_version=1.0 matches expected 1.0",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=5.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=high is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": false,
+              "evidence": "YAML structure contains none of ['sc-brainstorm-protocol'] (searched 71 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'architect' (found across 71 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 71 string leaves)",
+              "target": "return-contract.yaml"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 4,
+          "total": 4,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": 0.0666,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    },
+    {
+      "eval_id": 7,
+      "eval_name": "research-bun-vs-node",
+      "topic": "evaluate Bun vs Node for our backend services",
+      "live_dir": "live-runs/eval-research-bun-vs-node",
+      "baseline": {
+        "pass_rate": 0.7442,
+        "passed": 32,
+        "failed": 11,
+        "total": 43,
+        "time_seconds": 487.3,
+        "tokens": 138420,
+        "tool_calls": 22,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "contract_version": "1.0",
+          "status": "success",
+          "seed_brief_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/seed-brief.md",
+          "seed_schema_version": "1.0",
+          "merged_output_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/merged-requirements.md",
+          "merged_requirements_schema_version": "1.0",
+          "convergence_score": "0.82",
+          "adversarial_artifacts_dir": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/adversarial/",
+          "domain": "research",
+          "strategy": "systematic",
+          "depth": "standard",
+          "proposal_count": "3",
+          "context_anchors_count": "11",
+          "fit_to_intent": "pass",
+          "fit_to_intent_issues": "[]",
+          "enrichment_used": "",
+          "handoff_action": "none",
+          "handoff_output_path": "null",
+          "unresolved_conflicts": "[]",
+          "blind_mode": "false",
+          "agent_spec": "",
+          "source_of_truth_paths": "",
+          "telemetry": ""
+        },
+        "assertions": {
+          "passed": 39,
+          "failed": 4,
+          "total": 43,
+          "pass_rate": 0.907,
+          "expectations": [
+            {
+              "text": "seed-brief.md exists in output dir",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (7972 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists in output dir",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (13304 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml exists in output dir",
+              "passed": true,
+              "evidence": "File exists at return-contract.yaml (2532 bytes)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "enrichment/research-deep.md exists",
+              "passed": true,
+              "evidence": "File exists at enrichment/research-deep.md (10041 bytes)",
+              "target": "enrichment/research-deep.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: research",
+              "passed": true,
+              "evidence": "Frontmatter field domain=research matches expected research",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: systematic",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=systematic matches expected systematic",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares depth: standard",
+              "passed": true,
+              "evidence": "Frontmatter field depth=standard matches expected standard",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares proposal_count: 3",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '3'",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements has Functional Requirements section with \u22654 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Functional Requirements' has 7 enumerated items (>= 4)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Non-Functional Requirements section with \u22653 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Non-Functional Requirements' has 8 enumerated items (>= 3)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Acceptance Criteria' has 8 enumerated items (>= 4)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section with \u22653 items",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items, need >= 3",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Open Questions section with \u22652 items",
+              "passed": true,
+              "evidence": "Section 'Open Questions' has 6 enumerated items (>= 2)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml has contract_version field = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml status = success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml domain = research",
+              "passed": true,
+              "evidence": "YAML field domain=research matches expected research",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml proposal_count = 3",
+              "passed": true,
+              "evidence": "YAML field proposal_count=3 matches expected 3",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.82 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions at least one of analyzer/architect/scribe",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['analyzer', 'architect', 'scribe']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions at least two model aliases",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['opus', 'sonnet', 'haiku']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 6 files (>= 4)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Non-Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": true,
+              "evidence": "Section 'Risks' has 10 items-or-table-rows (>= 1)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass is in allowed set ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": true,
+              "evidence": "Frontmatter field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": true,
+              "evidence": "Frontmatter field schema_version=1.0 matches expected 1.0",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=11.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'sc-brainstorm-protocol' (found across 108 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'architect' (found across 108 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 108 string leaves)",
+              "target": "return-contract.yaml"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 4,
+          "total": 4,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": 0.1628,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "code-api-caching-tasklist",
+      "topic": "add caching to the API layer",
+      "live_dir": "live-runs/eval-code-api-caching-tasklist",
+      "baseline": {
+        "pass_rate": 0.7333,
+        "passed": 33,
+        "failed": 12,
+        "total": 45,
+        "time_seconds": 442.2,
+        "tokens": 124880,
+        "tool_calls": 21,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "schema_version": "1.0",
+          "contract_version": "1.0",
+          "status": "success",
+          "case_id": "8",
+          "case_name": "code-api-caching-tasklist",
+          "topic": "adding caching to the API layer",
+          "domain": "code",
+          "strategy": "systematic",
+          "depth": "standard",
+          "proposal_count": "3",
+          "convergence_score": "0.82",
+          "blind_mode": "false",
+          "interactive": "false",
+          "handoff_action": "tasklist",
+          "fit_to_intent": "pass",
+          "created": "2026-05-27",
+          "seed_schema_version": "1.0",
+          "merged_requirements_schema_version": "1.0",
+          "context_anchors_count": "7",
+          "seed_brief_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/seed-brief.md",
+          "merged_output_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/merged-requirements.md",
+          "adversarial_artifacts_dir": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/adversarial",
+          "handoff_output_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/handoff/tasklist-index.md",
+          "source_of_truth_paths": "",
+          "enrichment_used": "",
+          "agent_spec": "",
+          "telemetry": ""
+        },
+        "assertions": {
+          "passed": 38,
+          "failed": 7,
+          "total": 45,
+          "pass_rate": 0.8444,
+          "expectations": [
+            {
+              "text": "seed-brief.md exists in output dir",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (10196 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists in output dir",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (10390 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml exists in output dir",
+              "passed": true,
+              "evidence": "File exists at return-contract.yaml (1934 bytes)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "enrichment/codebase-context.md exists",
+              "passed": true,
+              "evidence": "File exists at enrichment/codebase-context.md (3458 bytes)",
+              "target": "enrichment/codebase-context.md"
+            },
+            {
+              "text": "handoff/tasklist-index.md exists",
+              "passed": true,
+              "evidence": "File exists at handoff/tasklist-index.md (9046 bytes)",
+              "target": "handoff/tasklist-index.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: code",
+              "passed": true,
+              "evidence": "Frontmatter field domain=code matches expected code",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: systematic",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=systematic matches expected systematic",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares depth: standard",
+              "passed": true,
+              "evidence": "Frontmatter field depth=standard matches expected standard",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares proposal_count: 3",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '3'",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements has Functional Requirements section with \u22655 enumerated items",
+              "passed": false,
+              "evidence": "Section 'Functional Requirements' has 0 items, need >= 5",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Non-Functional Requirements section with \u22653 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Non-Functional Requirements' has 10 enumerated items (>= 3)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria section with \u22654 enumerated items",
+              "passed": true,
+              "evidence": "Section 'Acceptance Criteria' has 11 enumerated items (>= 4)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section with \u22653 items",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items, need >= 3",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Open Questions section with \u22652 items",
+              "passed": true,
+              "evidence": "Section 'Open Questions' has 9 enumerated items (>= 2)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml has contract_version field = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml status = success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml domain = code",
+              "passed": true,
+              "evidence": "YAML field domain=code matches expected code",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml proposal_count = 3",
+              "passed": true,
+              "evidence": "YAML field proposal_count=3 matches expected 3",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = tasklist",
+              "passed": true,
+              "evidence": "YAML field handoff_action=tasklist matches expected tasklist",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_output_path points to tasklist-index",
+              "passed": true,
+              "evidence": "YAML field handoff_output_path contains substring 'tasklist-index'",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.82 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions architect or refactorer persona",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['architect', 'refactorer', 'performance']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions at least two model aliases",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['opus', 'sonnet', 'haiku']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 11 files (>= 4)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Non-Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": true,
+              "evidence": "Section 'Risks' has 9 items-or-table-rows (>= 1)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": false,
+              "evidence": "Frontmatter field adversarial_status='converged', expected one of ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": true,
+              "evidence": "Frontmatter field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": true,
+              "evidence": "Frontmatter field schema_version=1.0 matches expected 1.0",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": false,
+              "evidence": "YAML field handoff_action='tasklist', expected 'none'",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=7.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'sc-brainstorm-protocol' (found across 86 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'architect' (found across 86 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 86 string leaves)",
+              "target": "return-contract.yaml"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 5,
+          "total": 5,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            },
+            {
+              "path": "handoff",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": 0.1111,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    },
+    {
+      "eval_id": 9,
+      "eval_name": "code-feature-flag-task",
+      "topic": "implement feature flag system",
+      "live_dir": "live-runs/eval-code-feature-flag-task",
+      "baseline": {
+        "pass_rate": 0.625,
+        "passed": 20,
+        "failed": 12,
+        "total": 32,
+        "time_seconds": 404.2,
+        "tokens": 104880,
+        "tool_calls": 18,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "contract_version": "1.0",
+          "status": "success",
+          "domain": "code",
+          "strategy": "systematic",
+          "depth": "standard",
+          "proposal_count": "3",
+          "handoff_action": "task",
+          "blind_mode": "false",
+          "seed_schema_version": "1.0",
+          "merged_requirements_schema_version": "1.0",
+          "context_anchors_count": "5",
+          "fit_to_intent": "pass",
+          "source_of_truth_paths": "",
+          "seed_brief_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/seed-brief.md",
+          "merged_output_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/merged-requirements.md",
+          "adversarial_artifacts_dir": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/adversarial",
+          "handoff_output_path": "/config/workspace/IronClaude/.claude/worktrees/sc-brainstorm-v2/.dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/handoff/task-feature-flag-system.md",
+          "convergence_score": "0.82",
+          "agent_spec": "",
+          "enrichment_used": "",
+          "unresolved_conflicts": "[]",
+          "wave_durations_ms": "",
+          "token_usage": "",
+          "enrichment_artifact_sizes": ""
+        },
+        "assertions": {
+          "passed": 26,
+          "failed": 6,
+          "total": 32,
+          "pass_rate": 0.8125,
+          "expectations": [
+            {
+              "text": "seed_brief.md exists",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (8304 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (9438 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: code",
+              "passed": true,
+              "evidence": "Frontmatter field domain=code matches expected code",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: systematic",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=systematic matches expected systematic",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria section with \u22655 items",
+              "passed": true,
+              "evidence": "Section 'Acceptance Criteria' has 8 enumerated items (>= 5)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section with \u22653 items",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items, need >= 3",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml contract_version = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.82 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = task",
+              "passed": true,
+              "evidence": "YAML field handoff_action=task matches expected task",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "handoff task artifact exists",
+              "passed": true,
+              "evidence": "File exists at handoff/task.md (2271 bytes)",
+              "target": "handoff/task.md"
+            },
+            {
+              "text": "agent_spec includes architect/refactorer/security",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['architect', 'refactorer', 'security']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "adversarial dir contains \u22653 proposal files + debate-transcript",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 13 files (>= 4)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": true,
+              "evidence": "Section matching 'Non-Functional Requirements' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items-or-table-rows, need >= 1",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=passed is in allowed set ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": false,
+              "evidence": "Frontmatter field fit_to_intent='', expected one of ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": false,
+              "evidence": "Frontmatter field schema_version='', expected '1.0'",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": false,
+              "evidence": "YAML field handoff_action='task', expected 'none'",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=5.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'sc-brainstorm-protocol' (found across 86 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'architect' (found across 86 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 86 string leaves)",
+              "target": "return-contract.yaml"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 5,
+          "total": 5,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            },
+            {
+              "path": "handoff",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": 0.1875,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    },
+    {
+      "eval_id": 10,
+      "eval_name": "incident-payment-webhook-q1",
+      "topic": "Q1 incident: payment webhook delivery failures",
+      "live_dir": "live-runs/eval-incident-payment-webhook-q1",
+      "baseline": {
+        "pass_rate": 0.7551,
+        "passed": 37,
+        "failed": 12,
+        "total": 49,
+        "time_seconds": 612.5,
+        "tokens": 187432,
+        "tool_calls": 27,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "contract_version": "1.0",
+          "schema_version": "1.0",
+          "seed_schema_version": "1.0",
+          "merged_requirements_schema_version": "1.0",
+          "status": "success",
+          "seed_brief_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/seed-brief.md",
+          "merged_output_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/merged-requirements.md",
+          "convergence_score": "0.79",
+          "adversarial_artifacts_dir": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/adversarial",
+          "domain": "incident",
+          "strategy": "enterprise",
+          "depth": "deep",
+          "proposal_count": "5",
+          "interactive_mode": "true",
+          "blind_mode": "false",
+          "context_anchors_count": "8",
+          "fit_to_intent": "pass",
+          "source_of_truth_paths": "",
+          "enrichment_used": "",
+          "agent_spec": "",
+          "handoff_action": "none",
+          "handoff_output_path": "null",
+          "unresolved_conflicts": "",
+          "wave_durations_ms": "",
+          "token_usage": "",
+          "enrichment_artifact_sizes": ""
+        },
+        "assertions": {
+          "passed": 31,
+          "failed": 18,
+          "total": 49,
+          "pass_rate": 0.6327,
+          "expectations": [
+            {
+              "text": "seed-brief.md exists in output dir",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (20547 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists in output dir",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (10809 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml exists in output dir",
+              "passed": true,
+              "evidence": "File exists at return-contract.yaml (2250 bytes)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: incident",
+              "passed": true,
+              "evidence": "Frontmatter field domain=incident matches expected incident",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: enterprise",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=enterprise matches expected enterprise",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares depth: deep",
+              "passed": true,
+              "evidence": "Frontmatter field depth=deep matches expected deep",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares proposal_count: 5",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '5'",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief explicitly tags simulated interactive mode",
+              "passed": false,
+              "evidence": "YAML field interactive_mode contains none of ['simulated']",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements has Post-Mortem Framework or Investigation Steps section",
+              "passed": false,
+              "evidence": "Section matching '(Post-Mortem|Investigation)' NOT found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Functional Requirements \u22658 items",
+              "passed": false,
+              "evidence": "Section 'Functional Requirements' has 0 items, need >= 8",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Non-Functional Requirements \u22655 items",
+              "passed": false,
+              "evidence": "Section 'Non-Functional Requirements' has 0 items, need >= 5",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria \u22656 items",
+              "passed": false,
+              "evidence": "Section 'Acceptance Criteria' has 0 items, need >= 6",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section",
+              "passed": false,
+              "evidence": "Section matching 'Risks' NOT found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Open Questions \u22652 items",
+              "passed": false,
+              "evidence": "Section 'Open Questions' has 0 items, need >= 2",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has adversarial_status: pass",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass matches expected pass",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has proposal_count: 5",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '5'",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml has contract_version = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml status = success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.79 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml domain = incident",
+              "passed": true,
+              "evidence": "YAML field domain=incident matches expected incident",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml proposal_count = 5",
+              "passed": true,
+              "evidence": "YAML field proposal_count=5 matches expected 5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions analyzer persona",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['analyzer']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions security persona",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['security']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions devops persona",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['devops']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec uses \u22652 model aliases (opus/sonnet/haiku)",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['opus', 'sonnet', 'haiku']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "adversarial dir has \u22656 files (5 proposals + debate-transcript)",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 11 files (>= 6)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief frontmatter declares interactive_mode: true (case expects interactive)",
+              "passed": true,
+              "evidence": "Frontmatter field interactive_mode=true matches expected true",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": false,
+              "evidence": "Section matching 'Functional Requirements' NOT found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": false,
+              "evidence": "Section matching 'Non-Functional Requirements' NOT found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": false,
+              "evidence": "Section 'Risks' has 0 items-or-table-rows, need >= 1",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass is in allowed set ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": false,
+              "evidence": "Frontmatter field fit_to_intent='', expected one of ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": false,
+              "evidence": "Frontmatter field schema_version='', expected '1.0'",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=8.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'sc-brainstorm-protocol' (found across 99 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'architect' (found across 99 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 99 string leaves)",
+              "target": "return-contract.yaml"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 4,
+          "total": 4,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": -0.1224,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    },
+    {
+      "eval_id": 11,
+      "eval_name": "code-duplicate-auth-blind",
+      "topic": "consolidate three duplicate auth modules",
+      "live_dir": "live-runs/eval-code-duplicate-auth-blind",
+      "baseline": {
+        "pass_rate": 0.7692,
+        "passed": 40,
+        "failed": 12,
+        "total": 52,
+        "time_seconds": 689.1,
+        "tokens": 198715,
+        "tool_calls": 31,
+        "errors": 0
+      },
+      "live": {
+        "exists": true,
+        "contract": {
+          "contract_version": "1.0",
+          "status": "success",
+          "seed_schema_version": "1.0",
+          "merged_requirements_schema_version": "1.0",
+          "seed_brief_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/seed-brief.md",
+          "merged_output_path": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/merged-requirements.md",
+          "convergence_score": "0.82",
+          "adversarial_artifacts_dir": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/adversarial/",
+          "domain": "code",
+          "strategy": "systematic",
+          "depth": "deep",
+          "proposal_count": "5",
+          "blind_mode": "true",
+          "context_anchors_count": "6",
+          "fit_to_intent": "pass",
+          "source_of_truth_paths": "",
+          "enrichment_used": "",
+          "handoff_action": "none",
+          "handoff_output_path": "null",
+          "unresolved_conflicts": "",
+          "agent_spec": "",
+          "telemetry": ""
+        },
+        "assertions": {
+          "passed": 40,
+          "failed": 12,
+          "total": 52,
+          "pass_rate": 0.7692,
+          "expectations": [
+            {
+              "text": "seed-brief.md exists",
+              "passed": true,
+              "evidence": "File exists at seed-brief.md (6593 bytes)",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements.md exists",
+              "passed": true,
+              "evidence": "File exists at merged-requirements.md (8038 bytes)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml exists",
+              "passed": true,
+              "evidence": "File exists at return-contract.yaml (1896 bytes)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "enrichment/codebase-context.md exists",
+              "passed": false,
+              "evidence": "File missing: enrichment/codebase-context.md",
+              "target": "enrichment/codebase-context.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares domain: code",
+              "passed": true,
+              "evidence": "Frontmatter field domain=code matches expected code",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares strategy: systematic",
+              "passed": true,
+              "evidence": "Frontmatter field strategy=systematic matches expected systematic",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares depth: deep",
+              "passed": true,
+              "evidence": "Frontmatter field depth=deep matches expected deep",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares proposal_count: 5",
+              "passed": false,
+              "evidence": "Frontmatter field proposal_count='', expected '5'",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "seed-brief frontmatter declares blind_mode: true",
+              "passed": true,
+              "evidence": "Frontmatter field blind_mode=true matches expected true",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "merged-requirements has Functional Requirements \u226510 items",
+              "passed": false,
+              "evidence": "Section 'Functional Requirements' has 0 items, need >= 10",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Non-Functional Requirements \u22655 items",
+              "passed": false,
+              "evidence": "Section 'Non-Functional Requirements' has 0 items, need >= 5",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Acceptance Criteria \u22656 items",
+              "passed": true,
+              "evidence": "Section 'Acceptance Criteria' has 9 enumerated items (>= 6)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Risks section",
+              "passed": true,
+              "evidence": "Section matching 'Risks' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Open Questions \u22652 items",
+              "passed": false,
+              "evidence": "Section 'Open Questions' has 0 items, need >= 2",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements has Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter has adversarial_status: pass",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass matches expected pass",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "merged-requirements frontmatter declares blind_mode: true",
+              "passed": true,
+              "evidence": "Frontmatter field blind_mode=true matches expected true",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "return-contract.yaml has contract_version = 1.0",
+              "passed": true,
+              "evidence": "YAML field contract_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml status = success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml convergence_score \u2265 0.50",
+              "passed": true,
+              "evidence": "YAML field convergence_score=0.82 >= 0.5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml domain = code",
+              "passed": true,
+              "evidence": "YAML field domain=code matches expected code",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml proposal_count = 5",
+              "passed": true,
+              "evidence": "YAML field proposal_count=5 matches expected 5",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "return-contract.yaml handoff_action = none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec uses blind/anonymized labels (Agent A-E) \u2014 validates --blind mode",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['Agent A', 'blind:Agent', 'anonymized']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "agent_spec mentions \u22652 personas across blind labels",
+              "passed": false,
+              "evidence": "YAML field agent_spec contains none of ['architect', 'refactorer', 'security', 'qa', 'devops']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "debate transcript uses anonymized agent labels (not model aliases)",
+              "passed": false,
+              "evidence": "YAML field blind_labels contains none of ['Agent A', 'Agent B', 'Agent C']",
+              "target": "adversarial/debate-transcript.md"
+            },
+            {
+              "text": "adversarial dir has \u22656 files (5 proposals + debate-transcript)",
+              "passed": true,
+              "evidence": "Directory adversarial/ has 12 files (>= 6)",
+              "target": "adversarial/"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Intent Summary section",
+              "passed": true,
+              "evidence": "Section matching 'Intent Summary' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Context Anchors section",
+              "passed": true,
+              "evidence": "Section matching 'Context Anchors' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Must Preserve section",
+              "passed": true,
+              "evidence": "Section matching 'Must Preserve' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief has ## Out of Scope section",
+              "passed": true,
+              "evidence": "Section matching 'Out of Scope' found",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] seed-brief frontmatter declares blind_mode: true (case expects blind)",
+              "passed": true,
+              "evidence": "Frontmatter field blind_mode=true matches expected true",
+              "target": "seed-brief.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has dedicated ## Provenance section",
+              "passed": true,
+              "evidence": "Section matching 'Provenance' found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Functional Requirements section",
+              "passed": false,
+              "evidence": "Section matching 'Functional Requirements' NOT found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has ## Non-Functional Requirements section",
+              "passed": false,
+              "evidence": "Section matching 'Non-Functional Requirements' NOT found",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements has Risks section with at least 1 item (table rows OR bullets)",
+              "passed": true,
+              "evidence": "Section 'Risks' has 8 items-or-table-rows (>= 1)",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has adversarial_status field with passing value",
+              "passed": true,
+              "evidence": "Frontmatter field adversarial_status=pass is in allowed set ['pass', 'passed', 'success']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has fit_to_intent status",
+              "passed": false,
+              "evidence": "Frontmatter field fit_to_intent='', expected one of ['pass', 'partial', 'high']",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter has schema_version (spec_type equivalent)",
+              "passed": false,
+              "evidence": "Frontmatter field schema_version='', expected '1.0'",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] merged-requirements frontmatter declares blind_mode: true",
+              "passed": true,
+              "evidence": "Frontmatter field blind_mode=true matches expected true",
+              "target": "merged-requirements.md"
+            },
+            {
+              "text": "[Phase-2] return-contract has status: success",
+              "passed": true,
+              "evidence": "YAML field status=success matches expected success",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has handoff_action: none",
+              "passed": true,
+              "evidence": "YAML field handoff_action=none matches expected none",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has seed_schema_version",
+              "passed": true,
+              "evidence": "YAML field seed_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has merged_requirements_schema_version",
+              "passed": true,
+              "evidence": "YAML field merged_requirements_schema_version=1.0 matches expected 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has context_anchors_count >= 1",
+              "passed": true,
+              "evidence": "YAML field context_anchors_count=6.0 >= 1.0",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has fit_to_intent in {pass, partial}",
+              "passed": true,
+              "evidence": "YAML field fit_to_intent=pass is in allowed set ['pass', 'partial', 'high']",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract has source_of_truth_paths referencing sc-brainstorm-protocol",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'sc-brainstorm-protocol' (found across 94 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains persona aliases (architect/refactorer/security/devops/qa/analyzer/scribe/pm/backend/performance/Agent)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'Agent A' (found across 94 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2] return-contract agent_spec contains model aliases (opus/sonnet/haiku)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'opus' (found across 94 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2 blind] return-contract agent_spec uses anonymized labels (Agent A-E)",
+              "passed": true,
+              "evidence": "YAML structure contains substring 'Agent A' (found across 94 string leaves)",
+              "target": "return-contract.yaml"
+            },
+            {
+              "text": "[Phase-2 blind] debate-transcript uses anonymized labels (Agent A-E)",
+              "passed": true,
+              "evidence": "Text contains substring 'Agent A'",
+              "target": "adversarial/debate-transcript.md"
+            },
+            {
+              "text": "[Phase-2 blind] debate-transcript does NOT leak persona-role labels",
+              "passed": true,
+              "evidence": "Text contains none of ['opus:architect', 'sonnet:security', 'sonnet:refactorer', 'haiku:qa'] (blind-mode anonymization verified)",
+              "target": "adversarial/debate-transcript.md"
+            }
+          ]
+        },
+        "artifact_completeness": {
+          "present": 4,
+          "total": 4,
+          "complete": true,
+          "artifacts": [
+            {
+              "path": "seed-brief.md",
+              "present": true
+            },
+            {
+              "path": "merged-requirements.md",
+              "present": true
+            },
+            {
+              "path": "return-contract.yaml",
+              "present": true
+            },
+            {
+              "path": "adversarial",
+              "present": true
+            }
+          ]
+        },
+        "timing": {
+          "status": "unavailable",
+          "reason": "live run artifacts do not include timing.json/token telemetry"
+        },
+        "quality": {
+          "status": "unavailable",
+          "reason": "strict quality grading currently covers cases 1-3 only"
+        }
+      },
+      "deltas": {
+        "pass_rate": 0.0,
+        "time_seconds": null,
+        "tokens": null
+      },
+      "notes": "live runtime/token telemetry unavailable; quality score unavailable"
+    }
+  ]
+}

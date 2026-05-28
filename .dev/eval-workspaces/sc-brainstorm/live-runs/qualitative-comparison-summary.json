@@ -1,0 +1,495 @@
+{
+  "metadata": {
+    "generated_at": "2026-05-26T18:01:57.089237Z",
+    "scope": "sc-brainstorm qualitative baseline-vs-live comparison for eval cases 4-11",
+    "source_root": ".dev/eval-workspaces/sc-brainstorm/live-runs",
+    "case_count": 8
+  },
+  "summary": {
+    "winner_counts": {
+      "baseline": 7,
+      "live": 1
+    },
+    "baseline_wins": 7,
+    "live_wins": 1,
+    "ties": 0,
+    "baseline_total_sum": 432,
+    "live_total_sum": 343,
+    "baseline_avg_total": 54.0,
+    "live_avg_total": 42.88,
+    "avg_delta_live_minus_baseline": -11.12,
+    "adversarial_warranted_cases": []
+  },
+  "dimension_averages": {
+    "concreteness": {
+      "baseline_avg": 9.12,
+      "live_avg": 6.88,
+      "delta_live_minus_baseline": -2.25
+    },
+    "coverage": {
+      "baseline_avg": 8.75,
+      "live_avg": 8.0,
+      "delta_live_minus_baseline": -0.75
+    },
+    "actionability": {
+      "baseline_avg": 9.0,
+      "live_avg": 7.38,
+      "delta_live_minus_baseline": -1.62
+    },
+    "provenance": {
+      "baseline_avg": 9.5,
+      "live_avg": 5.62,
+      "delta_live_minus_baseline": -3.88
+    },
+    "adversarial_synthesis": {
+      "baseline_avg": 8.62,
+      "live_avg": 7.12,
+      "delta_live_minus_baseline": -1.5
+    },
+    "fit_to_eval_intent": {
+      "baseline_avg": 9.0,
+      "live_avg": 7.88,
+      "delta_live_minus_baseline": -1.12
+    }
+  },
+  "cross_case_findings": {
+    "primary_regression_themes": [
+      "Live outputs usually lose baseline-specific context, concrete thresholds, or implementation constraints.",
+      "Provenance is the most consistent live regression: several live artifacts lack dedicated Provenance sections or audit-ready source mapping.",
+      "Live outputs often broaden into generic frameworks, reducing fit to the exact eval prompt.",
+      "Some structural failures are metadata or parser mismatches, but missing provenance and weakened specificity are real qualitative regressions."
+    ],
+    "primary_improvement_themes": [
+      "Live outputs sometimes add broader governance, safety, policy, or taxonomy framing.",
+      "Live feature-flag output narrowly beats baseline by improving fit and coverage despite provenance regression.",
+      "Live artifacts were operationally complete across all eight cases, even when qualitative quality regressed."
+    ],
+    "adversarial_decision": "No case warranted /sc:adversarial --depth quick; reviewers found no unresolved tie, contradictory evidence, or high-stakes ambiguity requiring adjudication."
+  },
+  "cases": [
+    {
+      "eval_name": "code-migrate-pytest-vitest",
+      "winner": "baseline",
+      "baseline_total": 56,
+      "live_total": 38,
+      "delta_live_minus_baseline": -18,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 9,
+          "live": 6,
+          "delta_live_minus_baseline": -3
+        },
+        "coverage": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "actionability": {
+          "baseline": 9,
+          "live": 6,
+          "delta_live_minus_baseline": -3
+        },
+        "provenance": {
+          "baseline": 10,
+          "live": 6,
+          "delta_live_minus_baseline": -4
+        },
+        "adversarial_synthesis": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "fit_to_eval_intent": {
+          "baseline": 10,
+          "live": 5,
+          "delta_live_minus_baseline": -5
+        }
+      },
+      "top_regressions": [
+        "Live loses the specific frontend-slice grounding: ~400 React+TS component tests under frontend/tests, pytest-shell-playwright bridge, Playwright integration out-of-scope, Storybook fixture resolution, and concrete LCOV merge constraints.",
+        "Live is less actionable: it replaces the baseline's batch order, package/config/provider decisions, CI metrics, and bridge deletion sequence with generic inventory and decision requirements.",
+        "Live has weaker evaluator-compatible provenance and metadata: structural comparison reports missing spec_type, adversarial_status, proposal_count, and an explicit Provenance section in merged-requirements.md."
+      ],
+      "top_improvements": [
+        "Live adds a strong runtime-eligibility guard that prevents invalid mechanical conversion of Python-only pytest tests to Vitest.",
+        "Live covers broader pytest semantic preservation: fixtures, parametrization, markers, custom hooks/plugins, monkeypatching, filesystem effects, subprocesses, async behavior, and category selection.",
+        "Live uses three synthesized perspectives and explicitly includes toolchain, dependency governance, branch-protection, environment parity, and rollback criteria."
+      ],
+      "structural_failure_interpretation": "Mixed, but mostly real quality regression for this eval. The proposal_count=3 versus expected 2 and seed depth=standard versus expected quick are parameter/metadata mismatches from the live run using a broader run configuration. However, missing merged-requirements spec_type/adversarial_status/proposal_count and missing explicit Provenance section are not merely cosmetic: they reduce auditability and break the evaluator contract. More importantly, the content-level broadening away from the known frontend slice is a real fit/actionability regression.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "No unresolved tie or high-stakes ambiguity remains after qualitative review: baseline is clearly superior for the eval's specific intent despite live's useful runtime-boundary insight. A quick adversarial rerun would be warranted only if the evaluation goal changed to a generic pytest-to-Vitest migration across an unknown Python-first repository.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-migrate-pytest-vitest/qualitative-comparison.json"
+    },
+    {
+      "eval_name": "architecture-worker-pool-errors",
+      "winner": "baseline",
+      "baseline_total": 54,
+      "live_total": 39,
+      "delta_live_minus_baseline": -15,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 9,
+          "live": 6,
+          "delta_live_minus_baseline": -3
+        },
+        "coverage": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "actionability": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "provenance": {
+          "baseline": 9,
+          "live": 5,
+          "delta_live_minus_baseline": -4
+        },
+        "adversarial_synthesis": {
+          "baseline": 8,
+          "live": 6,
+          "delta_live_minus_baseline": -2
+        },
+        "fit_to_eval_intent": {
+          "baseline": 10,
+          "live": 7,
+          "delta_live_minus_baseline": -3
+        }
+      },
+      "top_regressions": [
+        "Major loss of scenario specificity: live removes the 12 worker fleets, Q1 incidents, roughly $40k retry cost, Q3 cost target, billing-critical fleets, concrete fleet migration order, old DLQ names, and target subsystem path.",
+        "Weaker measurable implementation plan: live drops the baseline's \u22642-week chunks, 100\u00b5s p99/5% latency gate, 13M messages/hour floor, 100 msg/sec replay default, 2-week canary soak, quarterly chaos/access reviews, and no-message-loss verification method.",
+        "Substantially weaker provenance and debate traceability: live only attributes broad proposal themes, while baseline maps requirements, NFRs, ACs, risks, open questions, and out-of-scope items to sources."
+      ],
+      "top_improvements": [
+        "Better explicit pool-result semantics: live directly requires mixed outcomes to be preserved and prevents pool-level failure from erasing item states.",
+        "Broader terminal-state taxonomy: live adds cancellation, timeout, rollback-failed, skipped, and unknown handling.",
+        "Clearer migration compatibility concept: live's compatibility adapters for legacy ambiguous None/exception patterns and dual legacy/new envelope emission are useful."
+      ],
+      "structural_failure_interpretation": "For this case, the comparison JSON reports 27/27 live assertions passing and a baseline pass rate of 1.0. There is no structural failure in this eval case to explain away. The unavailable timing/token/strict-quality telemetry is a metadata coverage limitation, not a content quality failure. The live artifact's weaknesses are real qualitative regressions in specificity, actionability, and provenance, not parser or parameter mismatches.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "No unresolved tie or contradictory evidence. Baseline wins clearly on total score and eval-relevant dimensions. Live has targeted improvements in mixed-result and rollback semantics, but those can be incorporated as feedback without running /sc:adversarial --depth quick.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-architecture-worker-pool-errors/qualitative-comparison.json"
+    },
+    {
+      "eval_name": "process-contributor-onboarding",
+      "winner": "baseline",
+      "baseline_total": 54,
+      "live_total": 48,
+      "delta_live_minus_baseline": -6,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "coverage": {
+          "baseline": 9,
+          "live": 9,
+          "delta_live_minus_baseline": 0
+        },
+        "actionability": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "provenance": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "adversarial_synthesis": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "fit_to_eval_intent": {
+          "baseline": 9,
+          "live": 9,
+          "delta_live_minus_baseline": 0
+        }
+      },
+      "top_regressions": [
+        "Live loses baseline's hard outcome thresholds and windows: baseline sets median time-to-first-merged-PR <= 7 days, second-PR-within-60-days >= 35%, SLA >=80%, and mislabel rate <=10%; live mostly names metrics without thresholds.",
+        "Live has weaker provenance and auditability: baseline maps nearly every requirement/risk/open question to seed, proposal, or debate tension; live groups origins by variant and structural context reports missing seed proposal_count and return-contract agent_spec metadata.",
+        "Live resolves fewer operational tradeoffs: baseline commits to README/START_HERE/CONTRIBUTING/SHEPHERD_RUNBOOK/rubric artifacts and a 24h/7d SLA; live leaves doc shape, response target, owner, and budget as open questions."
+      ],
+      "top_improvements": [
+        "Live is more repository-specific: it captures IronClaude vs superclaude naming, UV-only Python operations, src/superclaude source-of-truth discipline, make sync-dev / make verify-sync, and generated .claude mirror restrictions.",
+        "Live adds a stronger first-PR evidence package: problem statement, authoritative files changed, local checks, verify-sync when assets change, and inherited-vs-new failure distinction.",
+        "Live explicitly protects docs-only contributors with an acceptance criterion that avoids unnecessary local code setup while retaining applicable validation."
+      ],
+      "structural_failure_interpretation": "Mostly metadata/parameter mismatches, not direct quality regressions in the merged requirements artifact. For this case, the live artifact exists, has required sections, merged-requirements frontmatter has spec_type/adversarial_status/proposal_count, and the adversarial directory exists. The failed checks are seed strategy expected agile but live systematic, missing seed proposal_count, and missing return-contract agent_spec/model metadata. These reduce auditability/provenance confidence but do not by themselves show that the live requirements content is malformed. The qualitative regressions are real in provenance and adversarial synthesis, not in basic artifact structure.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "Not warranted. The baseline clearly wins 54-48 on qualitative scoring, so there is no unresolved tie. Evidence is not contradictory: structural failures mainly concern metadata/parameter mismatches, while content comparison consistently shows baseline stronger on measurable process commitments and live stronger on repo-specific onboarding details. The ambiguity is not high-stakes enough to justify another /sc:adversarial --depth quick run; a deterministic merge of baseline's metric/SLA rigor with live's repo-specific contribution rules would be more efficient.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-process-contributor-onboarding/qualitative-comparison.json"
+    },
+    {
+      "eval_name": "research-bun-vs-node",
+      "winner": "baseline",
+      "baseline_total": 55,
+      "live_total": 42,
+      "delta_live_minus_baseline": -13,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "coverage": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "actionability": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "provenance": {
+          "baseline": 9,
+          "live": 5,
+          "delta_live_minus_baseline": -4
+        },
+        "adversarial_synthesis": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "fit_to_eval_intent": {
+          "baseline": 10,
+          "live": 6,
+          "delta_live_minus_baseline": -4
+        }
+      },
+      "top_regressions": [
+        "Loss of organization-specific decision context: Q2 2026, planned WebSocket gateway, 40-service Node 20 LTS fleet, selective-adoption policy, and six-week forcing function.",
+        "Provenance regression: Live lacks a dedicated Provenance section and only has inline source comments.",
+        "Specific operational risks and compatibility checks are diluted: named native dependencies, observability stack, blast-radius limit, and one-sprint revert bound are omitted."
+      ],
+      "top_improvements": [
+        "Live adds a clearer generic runtime-adoption taxonomy: Node.js Standard, Bun Pilot, Bun Tooling-Only, and Bun Standard for a Service Class.",
+        "Live adds explicit proof gates for Bun production use: dependency audit, representative benchmark, soak test, observability validation, security/governance review, and rollback rehearsal.",
+        "Live improves stakeholder framing by requiring separation of confirmed facts, benchmark results, assumptions, unresolved questions, and provisional conclusions."
+      ],
+      "structural_failure_interpretation": "Mixed. Missing seed proposal_count is mostly metadata/parameter mismatch. Risks section failure is mostly parser/format mismatch because Live uses a Risks and Mitigations table, though it remains a structural-compliance regression. Missing Provenance section is a real quality regression.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "No unresolved tie, contradictory evidence, or high-stakes ambiguity in the comparison. Baseline clearly wins on fit, concreteness, and provenance.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-research-bun-vs-node/qualitative-comparison.json"
+    },
+    {
+      "eval_name": "code-api-caching-tasklist",
+      "winner": "baseline",
+      "baseline_total": 54,
+      "live_total": 47,
+      "delta_live_minus_baseline": -7,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 10,
+          "live": 7,
+          "delta_live_minus_baseline": -3
+        },
+        "coverage": {
+          "baseline": 8,
+          "live": 9,
+          "delta_live_minus_baseline": 1
+        },
+        "actionability": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "provenance": {
+          "baseline": 10,
+          "live": 6,
+          "delta_live_minus_baseline": -4
+        },
+        "adversarial_synthesis": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "fit_to_eval_intent": {
+          "baseline": 8,
+          "live": 10,
+          "delta_live_minus_baseline": 2
+        }
+      },
+      "top_regressions": [
+        "Implementation specificity regressed: live lacks concrete backend/framework choices, cache key format, TTL defaults, module paths, metrics names, and test quantities present in baseline.",
+        "Provenance/audit trail regressed: live lacks a Provenance section and requirement-by-requirement source mapping.",
+        "Visible adversarial synthesis regressed: live comments name incorporated variants but do not expose debate tensions or rejected alternatives."
+      ],
+      "top_improvements": [
+        "Security and isolation coverage improved: live explicitly handles tenant/user/confidential/regulated/auth/session/secret-bearing constraints.",
+        "Operational controls improved: live adds manual purge, rollout/rollback states, policy versions, stale-if-error gating, audit events, and disablement without deployment.",
+        "General API-caching applicability improved: live avoids overfitting to catalog/pricing/flags and frames endpoint inventory/classification for a broader rollout."
+      ],
+      "structural_failure_interpretation": "Mixed. Missing Provenance is a real quality regression. The Risks failure is quality-relevant to the checker but partly a table-vs-enumerated-item mismatch because the live artifact has a risk table. Missing agent_spec persona/model aliases are mainly metadata/contract regressions, not direct merged-requirements content failures. Functional, NFR, AC, open-question, handoff, artifact-completeness, and adversarial-directory checks pass.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "No unresolved tie, contradictory evidence, or high-stakes ambiguity. Baseline clearly wins implementation-readiness/provenance while live clearly wins generic coverage/tasklist fit; remediation is straightforward rather than requiring adversarial arbitration.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-api-caching-tasklist/qualitative-comparison.json"
+    },
+    {
+      "eval_name": "code-feature-flag-task",
+      "winner": "live",
+      "baseline_total": 46,
+      "live_total": 47,
+      "delta_live_minus_baseline": 1,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 8,
+          "live": 8,
+          "delta_live_minus_baseline": 0
+        },
+        "coverage": {
+          "baseline": 7,
+          "live": 9,
+          "delta_live_minus_baseline": 2
+        },
+        "actionability": {
+          "baseline": 8,
+          "live": 8,
+          "delta_live_minus_baseline": 0
+        },
+        "provenance": {
+          "baseline": 9,
+          "live": 6,
+          "delta_live_minus_baseline": -3
+        },
+        "adversarial_synthesis": {
+          "baseline": 8,
+          "live": 7,
+          "delta_live_minus_baseline": -1
+        },
+        "fit_to_eval_intent": {
+          "baseline": 6,
+          "live": 9,
+          "delta_live_minus_baseline": 3
+        }
+      },
+      "top_regressions": [
+        "Live loses explicit structured provenance: baseline has adversarial_status/proposal_count/debate_transcript frontmatter and a Provenance table; live only has frontmatter plus HTML comments and no Provenance section.",
+        "Live weakens adversarial traceability: it names a base variant and two modifications but does not map individual requirements to proposals or debate tension resolutions.",
+        "Live leaves key implementation choices unresolved, especially override storage and environment/project/user precedence, while baseline has more closed-form evaluator acceptance tests."
+      ],
+      "top_improvements": [
+        "Live is much better aligned to CLI feature flag management, specifying list/show/enable/disable/unset/validate/effective behavior rather than a generic runtime evaluator.",
+        "Live adds repository-specific source-of-truth safeguards by forbidding writes to generated .claude mirrors and requiring implementation under src/superclaude conventions.",
+        "Live improves product coverage with user stories, explicit scope/out-of-scope boundaries, fail-closed malformed override behavior, precedence reporting, and machine-readable output guidance."
+      ],
+      "structural_failure_interpretation": "Mostly metadata/parameter mismatch with one real quality regression. The structural comparison reports 11/12 live assertions passing and only fails the Risks expectation because it did not count the 'Risks and Mitigations' table as risk items, even though the live artifact has five risk rows. That specific failure is a parser/section-shape mismatch rather than a substantive risk omission. However, the missing dedicated Provenance section is a real quality regression versus baseline even though it was not one of the 12 checks for this case.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "Not warranted. The live artifact wins narrowly on qualitative fit and coverage despite provenance regressions. There is no unresolved tie, contradictory evidence, or high-stakes ambiguity requiring /sc:adversarial --depth quick; the needed follow-up is a straightforward provenance/section-format fix, not another debate.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-feature-flag-task/qualitative-comparison.json"
+    },
+    {
+      "eval_name": "incident-payment-webhook-q1",
+      "winner": "baseline",
+      "baseline_total": 55,
+      "live_total": 43,
+      "delta_live_minus_baseline": -12,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "coverage": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        },
+        "actionability": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "provenance": {
+          "baseline": 10,
+          "live": 6,
+          "delta_live_minus_baseline": -4
+        },
+        "adversarial_synthesis": {
+          "baseline": 9,
+          "live": 7,
+          "delta_live_minus_baseline": -2
+        },
+        "fit_to_eval_intent": {
+          "baseline": 9,
+          "live": 8,
+          "delta_live_minus_baseline": -1
+        }
+      },
+      "top_regressions": [
+        "Live removes the explicit Risks section that baseline used to surface disclosure obligation, rollout-caused incident risk, key-exposure discovery, attestation pushback, metric-cardinality risk, and runbook drift recurrence.",
+        "Live loses artifact-level provenance: no frontmatter metadata and no dedicated provenance table mapping each requirement to proposal/debate origins.",
+        "Live is less concrete and less execution-ready: baseline thresholds such as +25% P99 drift for 30 minutes, 80% back-pressure signals, 18-month Tier-1 retention, 7-day Tier-2/3 TTL, rollout order, and rollback triggers are generalized or omitted."
+      ],
+      "top_improvements": [
+        "Live better preserves requirements-discovery boundaries by explicitly excluding architecture diagrams, queue topology, schema design, API contracts, and implementation tasks.",
+        "Live clarifies incident context by naming the three distinct proximate triggers while still requiring analysis of the shared failure pattern.",
+        "Live adds a cleaner lifecycle-state taxonomy and contract inventory prerequisites, reducing premature commitment where current thresholds or SLO clauses are unknown."
+      ],
+      "structural_failure_interpretation": "Mixed. The seed-brief strategy, proposal_count, interactive_mode, and frontmatter mismatches are mostly metadata/parameter mismatches because the live return-contract shows success, incident domain, proposal_count 5, convergence_score 0.86, and a populated adversarial artifact directory. However, the missing Risks section and missing artifact-level Provenance section are real quality regressions because they materially reduce incident remediation usefulness and auditability.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "Not warranted. Baseline is the clear qualitative winner by 12 points, with no unresolved tie. The live artifact has identifiable regressions, but they are not contradictory-evidence failures requiring a new quick adversarial debate; they are direct remediation items: restore risks, restore provenance/frontmatter, and decide whether requirements-discovery strictness should intentionally trade off against concrete remediation detail.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-incident-payment-webhook-q1/qualitative-comparison.json"
+    },
+    {
+      "eval_name": "code-duplicate-auth-blind",
+      "winner": "baseline",
+      "baseline_total": 58,
+      "live_total": 39,
+      "delta_live_minus_baseline": -19,
+      "dimensions": {
+        "concreteness": {
+          "baseline": 10,
+          "live": 6,
+          "delta_live_minus_baseline": -4
+        },
+        "coverage": {
+          "baseline": 10,
+          "live": 6,
+          "delta_live_minus_baseline": -4
+        },
+        "actionability": {
+          "baseline": 10,
+          "live": 7,
+          "delta_live_minus_baseline": -3
+        },
+        "provenance": {
+          "baseline": 10,
+          "live": 4,
+          "delta_live_minus_baseline": -6
+        },
+        "adversarial_synthesis": {
+          "baseline": 8,
+          "live": 7,
+          "delta_live_minus_baseline": -1
+        },
+        "fit_to_eval_intent": {
+          "baseline": 10,
+          "live": 9,
+          "delta_live_minus_baseline": -1
+        }
+      },
+      "top_regressions": [
+        "Loss of concrete compliance/security gates: Q3 compliance forcing function, 90-day audit overlap, 7-year retention, attestation table, and pentest gates are missing.",
+        "Provenance collapse: live lacks a Provenance section and per-requirement traceability, while blind/proposal-count metadata also fails structural checks.",
+        "Operational rollout detail degraded: named flags, dashboards-before-build, promotion checklists, runbooks, migration order, and deletion/decommission gates are omitted or generalized."
+      ],
+      "top_improvements": [
+        "Cleaner first-increment framing around policy-and-contract-first consolidation with protocol-specific adapters preserved.",
+        "Explicit drift inventory requirement classifies duplicated logic into shared policy, primitive, adapter-specific flow, legacy-only behavior, or unresolved decision.",
+        "Clearer contract vocabulary through AuthRequest, AuthResult, PolicyDecision, AuditEvent, and lossless mapping acceptance criteria."
+      ],
+      "structural_failure_interpretation": "Mixed. adversarial_status success vs pass is likely schema vocabulary drift, but missing blind_mode/anonymized labels, proposal_count 4 vs expected 5, and missing Provenance are real eval-intent and quality regressions. Missing Provenance especially affects auditability, not just formatting.",
+      "adversarial_warranted": false,
+      "adversarial_reason": "No unresolved tie, no balanced contradictory evidence, and no high-stakes ambiguity in the comparison outcome. Baseline decisively wins; remediation should target provenance, blind-mode conformance, proposal-count traceability, and missing concrete security/compliance gates rather than running /sc:adversarial --depth quick.",
+      "source_json": ".dev/eval-workspaces/sc-brainstorm/live-runs/eval-code-duplicate-auth-blind/qualitative-comparison.json"
+    }
+  ]
+}
