@@ -1,3 +1,4 @@
+# ruff: noqa: N801, N999  # intentional: class names encode INV-1/2/3/4/5 invariant identifiers; filename encodes NFR-6 through NFR-10 cross-reference
 """TEST-025 — Composite invariant-preservation fixture (T07.09 / D-0090 / R-150).
 
 Single composite fixture exercising each of the FIVE load-bearing

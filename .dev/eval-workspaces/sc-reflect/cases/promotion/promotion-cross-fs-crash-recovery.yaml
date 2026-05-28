@@ -1,0 +1,34 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 14.
+# Cross-filesystem mv crashed mid-copy → operator passes --promote-resume <checkpoint-path>
+# → action: resumed per §14.5.5 mutation-mechanics 4-state recovery table.
+id: promotion-cross-fs-crash-recovery
+status: stub-iteration-1-follow-up
+description: Cross-filesystem mv crashed mid-copy; --promote-resume resumes from promotion-checkpoint.yaml per §14.5.5 4-state recovery table.
+spec_ref: "§14.5.7 bullet 14"
+expected_action: resumed
+override_flag: --promote-resume
+crash_state: mid-copy
+checkpoint_path: .dev/reflect/<run-id>/promotion-checkpoint.yaml
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  # NOTE: per SKILL.md L1179, --promote-resume does NOT re-evaluate the 9-condition gate.
+  # The gate was satisfied when the checkpoint was written; resume only completes the mv.
+  # This block records the gate state AT CHECKPOINT-WRITE TIME (still consulted by audit logs).
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: []
+expected_gate_passed: true
+expected_cross_fs_promotion: true            # SKILL.md §14.5.6 L1228 root-level field
+expected_checkpoint_path_emitted: true       # SKILL.md §14.5.6 L1229 root-level field
+adapter: task
+fs_mode: cross-fs
+expected_audit_checkpoint: cross_fs_recovery_from_checkpoint

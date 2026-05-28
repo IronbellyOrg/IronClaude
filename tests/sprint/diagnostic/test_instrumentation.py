@@ -42,7 +42,9 @@ def _setup_debug_and_get_content(tmp_path, config=None):
     if config is None:
         config = _make_config(tmp_path)
     root_logger = setup_debug_logger(config)
-    read_fn = lambda: config.debug_log_path.read_text()
+
+    def read_fn():
+        return config.debug_log_path.read_text()
 
     def cleanup():
         for h in root_logger.handlers[:]:

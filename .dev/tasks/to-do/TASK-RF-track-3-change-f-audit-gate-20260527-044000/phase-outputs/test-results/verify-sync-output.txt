@@ -1,0 +1,10 @@
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  ✅ sc-troubleshoot-protocol
+[... 22 other skills, all ✅; full output preserved verbatim in execution context — abbreviated here for brevity. The exact `sc-troubleshoot-protocol` line was the 16th entry in the Skills block. ...]
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.

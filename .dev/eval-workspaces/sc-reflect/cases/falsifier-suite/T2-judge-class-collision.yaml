@@ -1,0 +1,22 @@
+# SKELETON — iteration-3 follow-up authors full fixture and flips status to active.
+# Spec §12.5 line 1011 (Khan ICML 2024 violation case) + W-A8 spec-panel fix.
+id: T2-judge-class-collision
+status: skeleton-pending-iteration-3-fixture
+description: "Tests that the judge-class-collision-detector in the reviewer rotation logic (refs/reviewer-spec.md) refuses to seat a reviewer whose model class matches the calibrator's model class — the Khan ICML 2024 disjoint-set rule."
+expected_behavior: "The reviewer-seating algorithm MUST reject the colliding seat and pick a substitute from the rotation table. If the algorithm silently seats the colliding reviewer, the falsifier succeeds."
+expected_grader_emission:
+  skeleton_present: true
+iteration_3_fixture_path: cases/falsifier-suite/fixtures/judge-class-collision-config.yaml
+canonical_assertion_for_iteration_3: "convergence_score < 0.75 OR verdict == regression_present"
+related_spec_references:
+  - "§7.1 reviewer composition rules (executor-class exclusion + Khan judge-class note)"
+  - "§11.3 blind calibration disjoint-set (calibrator vs reviewer model classes)"
+  - "refs/reviewer-spec.md (rotation table + seating algorithm)"
+
+# When iteration-3 promotes to active, populate the following block and remove this placeholder.
+TODO_ITERATION_3:
+  - "Promote status field to `active` (byte-exact replacement)."
+  - "Add canonical fields: `type`, `fixture`, `expected`, `assertion` per §12.5."
+  - "Author the fixture content at `fixtures/judge-class-collision-config.yaml` — a reviewer config where the calibrator's model class is, e.g., `sonnet` and the reviewer pool includes `sonnet`. The disjoint-set rule MUST reject the colliding seat."
+  - "Run the reviewer-seating algorithm against the fixture; confirm the algorithm REJECTS the colliding seat AND picks a substitute (e.g., `haiku` or `qwen`) from the rotation table."
+  - "If the algorithm silently seats the collider, escalate per the falsifier-suite README: the Khan disjoint-set rule enforcement is broken."

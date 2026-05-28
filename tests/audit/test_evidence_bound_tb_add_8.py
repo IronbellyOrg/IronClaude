@@ -81,7 +81,7 @@ def _iter_per_item_context(text: str) -> List[ContextItem]:
     header_start, header_end = _header_range(text)
     in_header = False
     current_item_id: Optional[str] = None
-    current_item_line: int = -1
+    _current_item_line: int = -1  # noqa: F841  # intentional initialization for clarity
     item_re = re.compile(r"^\s*-\s*\[[ x]\]\s*\*\*([\d.]+)\s+—")
     context_re = re.compile(r"^\s*-\s*\*\*Context\*\*\s*:\s*(.*)$")
     out: List[ContextItem] = []
@@ -94,7 +94,7 @@ def _iter_per_item_context(text: str) -> List[ContextItem]:
         m_item = item_re.match(raw)
         if m_item:
             current_item_id = m_item.group(1)
-            current_item_line = idx
+            _current_item_line = idx  # noqa: F841  # intentional capture for debugging/clarity
             continue
         m_ctx = context_re.match(raw)
         if m_ctx and current_item_id is not None:

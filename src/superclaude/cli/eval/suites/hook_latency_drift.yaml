@@ -1,0 +1,198 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# hook_latency_drift — recurring eval suite for hook latency budgets +
+# telemetry schema drift detection.
+#
+# Cadence: recurring (continuous on CI + nightly cron).
+#
+# Differentiation from real.yaml E6-E11:
+#   * real.yaml E6 / E7 / E9 assert the OQ-2-FROZEN contract — they expect
+#     hook telemetry on `logs/freshness.jsonl` with field names
+#     `type` / `matcher`. Those evals are deliberately ahead of the hook
+#     scripts (see real.yaml D-0090 §8.1 "Telemetry gap") and will pass
+#     only after a follow-up hook-update task lands.
+#   * THIS suite asserts the CURRENT-revision schema — telemetry on
+#     `logs/freshness-hook.jsonl` with the envelope shipped by
+#     freshness-pre-edit.sh:108-119: `{ts, event, tool, path, session_id,
+#     tool_call_idx, recent_read_age_sec, external_change_seen, decision,
+#     reason}`. If any of those fields disappears or renames, this eval
+#     fails — which is exactly the drift signal the recurring cadence
+#     exists to catch.
+#
+# Latency strategy (v1 — best-effort):
+#   * The hooks.json budgets are short (PreToolUse=1s, PostToolUse=1s
+#     async, UserPromptSubmit=3s, SessionStart=5-10s). Claude Code's hook
+#     dispatcher hard-kills any hook that exceeds its timeout; therefore
+#     the binary file-presence + non-empty assertion IS the v1 latency
+#     proxy: if the hook had exceeded budget, Claude Code would have
+#     killed it before the JSONL flush, and the row would be absent.
+#     Explicit ts-delta computation against a Python callable is deferred
+#     (expect.py:269-369 requires a callable for jsonl arithmetic).
+#
+# Fail-open strategy:
+#   * Every script under hooks/scripts/ pipes its jq emit through
+#     `2>/dev/null || true` (see freshness-pre-edit.sh:111-119). The
+#     exit_code.equals(0) assertion on a clean /quit session therefore
+#     proves no hook returned a non-zero status into the Claude Code
+#     dispatcher, which would otherwise surface as a session abort.
+name: hook_latency_drift
+version: "1.0"
+description: "Recurring telemetry-schema + latency-budget drift eval for hooks shipped in src/superclaude/hooks/hooks.json (continuous + nightly cadence)."
+
+defaults:
+  per_eval_timeout_sec: 90
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: bash,                          failure_mode: hard }
+  - { name: jq,                            failure_mode: hard }
+  - { name: flock,                         failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  # HL1 — PreToolUse schema drift (Edit + Write matchers).
+  #
+  # Drives `freshness-pre-edit.sh` via a Write-then-Edit sequence so the
+  # script's `create_allowed` and `prior_read_ok` branches BOTH fire.
+  # Asserts the SHIPPED envelope fields verbatim against the actual log
+  # path `logs/freshness-hook.jsonl` (NOT the OQ-2 contract path
+  # `logs/freshness.jsonl` exercised by real.yaml E6 / E7).
+  - id: HL1
+    title: "PreToolUse telemetry schema — current-revision envelope drift"
+    category: hook-schema-drift
+    requires: []
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    inputs:
+      - prompt: "Use the Write tool to create a file named drift.txt under the current working directory with the single line 'seed'."
+      - prompt: "Use the Read tool to read drift.txt."
+        expect_tool_call: Read
+      - prompt: "Use the Edit tool on drift.txt to replace 'seed' with 'mutated'."
+      - prompt: "/quit"
+    expects:
+      # Telemetry file must exist at the SHIPPED path.
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+      # PreToolUse event row was emitted (proves the hook fired within
+      # its 1s budget — otherwise Claude Code would have killed it
+      # before jq flushed).
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"event":"PreToolUse"'
+      # Tool-name field present and pinned to Edit (the second matched
+      # call in the sequence). Drift signal: if the field renames to
+      # e.g. `tool_name`, this assertion fails.
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"tool":"Edit"'
+      # Decision field present — core fail-open contract. If the script
+      # drops the decision field, this fires.
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"decision":'
+      # Session correlation field present.
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+          contains: '"session_id":'
+      # Edited file persisted — proves the hook returned `allow` (not
+      # `block`) and the Edit actually went through (fail-open under
+      # the create_allowed / prior_read_ok routes).
+      - file:
+          path: drift.txt
+          exists: true
+      # Clean teardown — proves no hook returned non-zero into the
+      # Claude Code dispatcher across the whole session.
+      - exit_code:
+          equals: 0
+
+  # HL2 — PostToolUse async (Read matcher) latency budget + state file
+  # drift. The Read post-hook is the only `async: true` entry in
+  # hooks.json (timeout=1) — if it overruns, Claude Code reaps it before
+  # the flock-protected append lands in state/reads.jsonl.
+  #
+  # Schema: freshness-post-read.sh:42-46 writes `{ts, ts_unix,
+  # session_id, path, tool_call_idx}` to `state/reads.jsonl`. This eval
+  # asserts those fields verbatim.
+  - id: HL2
+    title: "PostToolUse async Read — flock + 1s budget + state schema drift"
+    category: hook-schema-drift
+    requires: []
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    inputs:
+      - prompt: "Use the Write tool to create a file named probe.txt under the current working directory with the single line 'probe-content'."
+      - prompt: "Use the Read tool to read probe.txt."
+        expect_tool_call: Read
+      - prompt: "/quit"
+    expects:
+      # Async hook's state file exists at the shipped path (NOT the
+      # OQ-2 logs/freshness.jsonl exercised by real.yaml E9).
+      - file:
+          path: state/reads.jsonl
+          exists: true
+      # Path field present — drift signal if renamed to `file` etc.
+      - file:
+          path: state/reads.jsonl
+          exists: true
+          contains: '"path":'
+      # Unix-epoch timestamp field — used by downstream age computation;
+      # drift signal if removed.
+      - file:
+          path: state/reads.jsonl
+          exists: true
+          contains: '"ts_unix":'
+      # Tool-call index — preserves ordering for the freshness window
+      # computation. Drift signal if renamed.
+      - file:
+          path: state/reads.jsonl
+          exists: true
+          contains: '"tool_call_idx":'
+      - exit_code:
+          equals: 0
+
+  # HL3 — UserPromptSubmit envelope drift. The hook emits stdout JSON
+  # via `jq -nc ... hookSpecificOutput ...` (freshness-user-prompt.sh
+  # :258-264). Truncation telemetry lands in logs/freshness-hook.jsonl
+  # when triggered (lines 251-256). On the normal (non-truncated) path
+  # the only persistent signal is the SessionStart-opened freshness
+  # ledger plus successful exit — which transitively proves the 3s
+  # UserPromptSubmit budget was honoured (otherwise Claude Code would
+  # have killed the hook and surfaced an abort).
+  - id: HL3
+    title: "UserPromptSubmit — 3s budget + stdout envelope contract"
+    category: hook-schema-drift
+    requires: []
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    inputs:
+      - prompt: "echo schema-probe"
+      - prompt: "echo second-prompt"
+      - prompt: "/quit"
+    expects:
+      # The SessionStart-opened ledger exists (transitively proves the
+      # SessionStart 5-10s budget was honoured, since the ledger is
+      # opened in that window).
+      - file:
+          path: logs/freshness-hook.jsonl
+          exists: true
+      # Clean session exit — proves all UserPromptSubmit invocations
+      # returned within their 3s budget AND the stdout envelope parsed
+      # as valid JSON for the Claude Code dispatcher (an invalid
+      # envelope surfaces as a session abort).
+      - exit_code:
+          equals: 0

@@ -14,14 +14,14 @@ import logging
 import time
 from pathlib import Path
 
-from ..models import (
+from superclaude.cli.cli_portify.models import (
     FailureClassification,
     PortifyConfig,
     PortifyStatus,
     PortifyStepResult,
 )
-from ..process import PortifyProcess, ProcessResult
-from ..review import ReviewDecision, review_gate
+from superclaude.cli.cli_portify.process import PortifyProcess, ProcessResult
+from superclaude.cli.cli_portify.review import ReviewDecision, review_gate
 
 log = logging.getLogger(__name__)
 
@@ -190,7 +190,7 @@ def run_design_pipeline(config: PortifyConfig) -> PortifyStepResult:
 
 def _check_gate(content: str) -> bool:
     """SC-004: must have YAML frontmatter and substantive design content."""
-    from ..utils import parse_frontmatter
+    from superclaude.cli.cli_portify.utils import parse_frontmatter
 
     frontmatter, body = parse_frontmatter(content)
     if not frontmatter:

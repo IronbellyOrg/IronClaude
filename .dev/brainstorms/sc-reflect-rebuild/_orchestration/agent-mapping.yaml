@@ -1,0 +1,27 @@
+# Blind-mode private mapping — DO NOT REVEAL until merge-log step
+# Maps variant index → (model, persona, custom instruction)
+
+variant-1:
+  model: opus  # resolves to claude-opus-4-7[1m] via env
+  persona: architect
+  instruction: "prioritize skill-boundary surface tier topology and conformance to Tier 3 complex-skill spec for code systematic work"
+
+variant-2:
+  model: opus
+  persona: analyzer
+  instruction: "frame variants around root-cause of reflection sycophancy deviation taxonomy and hallucination guardrails for code systematic work"
+
+variant-3:
+  model: sonnet  # resolves to glm-5.1 via env
+  persona: refactorer
+  instruction: "aggressively eliminate deprecated surfaces and duplication with sibling skills sc-troubleshoot sc-brainstorm sc-adversarial for code systematic work"
+
+variant-4:
+  model: haiku  # resolves to gpt-5.5 via env
+  persona: quality-engineer
+  instruction: "design eval rubric dimensions and acceptance thresholds with iteration-harness mechanics for code systematic work"
+
+variant-5:
+  model: sonnet
+  persona: devops
+  instruction: "pick Sprint CLI vs skill-creator build path and define sync-dev verify-sync eval-harness ops for code systematic work"

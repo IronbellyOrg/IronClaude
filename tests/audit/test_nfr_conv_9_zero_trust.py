@@ -1,3 +1,4 @@
+# ruff: noqa: N801  # intentional: class names encode PartA/PartB sub-scenario identifiers for NFR-CONV.9 zero-trust cross-reference
 """NFR-CONV.9 zero-trust QA invariant fixture (T07.07 / D-0088 / R-145).
 
 Two-part fixture per `phase-7-tasklist.md` lines 327-339:

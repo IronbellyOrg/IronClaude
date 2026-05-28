@@ -1,0 +1,41 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA/run1/adversarial/merged-output.md"
+  convergence_score: 0.857
+  artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupA/run1/adversarial/"
+  status: "success"
+  base_variant: "sonnet:security"
+  unresolved_conflicts: 3
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+
+# Provenance metadata (informational, not part of return contract schema)
+_meta:
+  pipeline: sc:adversarial
+  mode: B (source + generate + agents)
+  source: "/config/workspace/IronClaude/tests/sc-roadmap/fixtures/sample_spec.md"
+  generate: roadmap
+  agents:
+    - opus:security
+    - sonnet:security
+  depth: standard
+  debate_rounds: 2
+  invariant_probe: true
+  taxonomy_gate: PASS
+  invariant_gate: PASS
+  unresolved_diff_points:
+    - A-001  # single-tenant assumption
+    - A-004  # Redis session reliability
+    - A-007  # single email provider
+  scoring_summary:
+    variant_A_combined: 0.937
+    variant_B_combined: 0.922
+    margin: 0.015
+    tiebreaker: "Level 1 — Debate performance (B: 6 clear wins; A: 4)"
+  invariant_probe_summary:
+    total_findings: 12
+    addressed: 7
+    unaddressed_high: 0
+    unaddressed_medium: 4
+    unaddressed_low: 1

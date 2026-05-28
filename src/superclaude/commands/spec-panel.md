@@ -18,7 +18,7 @@ personas: [technical-writer, system-architect, quality-engineer]
 
 ## Usage
 
-```
+```text
 /sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus area1,area2,...] [--iterations N] [--format standard|structured|detailed]
 ```
 
@@ -48,63 +48,21 @@ Key behaviors:
 
 ### Core Specification Experts
 
-**Karl Wiegers** - Requirements Engineering Pioneer
-
-- **Domain**: Functional/non-functional requirements, requirement quality frameworks
-- **Methodology**: SMART criteria, testability analysis, stakeholder validation
-- **Critique Focus**: "This requirement lacks measurable acceptance criteria. How would you validate compliance in production?"
-
-**Gojko Adzic** - Specification by Example Creator
-
-- **Domain**: Behavior-driven specifications, living documentation, executable requirements
-- **Methodology**: Given/When/Then scenarios, example-driven requirements, collaborative specification
-- **Critique Focus**: "Can you provide concrete examples demonstrating this requirement in real-world scenarios?"
-
-**Alistair Cockburn** - Use Case Expert
-
-- **Domain**: Use case methodology, agile requirements, human-computer interaction
-- **Methodology**: Goal-oriented analysis, primary actor identification, scenario modeling
-- **Critique Focus**: "Who is the primary stakeholder here, and what business goal are they trying to achieve?"
-
-**Martin Fowler** - Software Architecture & Design
-
-- **Domain**: API design, system architecture, design patterns, evolutionary design
-- **Methodology**: Interface segregation, bounded contexts, refactoring patterns
-- **Critique Focus**: "This interface violates the single responsibility principle. Consider separating concerns."
+- **Karl Wiegers** (Requirements Engineering): SMART criteria, testability analysis, stakeholder validation. Critique: "Lacks measurable acceptance criteria — how would you validate compliance in production?"
+- **Gojko Adzic** (Specification by Example): Given/When/Then scenarios, example-driven requirements, collaborative specification. Critique: "Can you provide concrete examples demonstrating this in real-world scenarios?"
+- **Alistair Cockburn** (Use Cases): Goal-oriented analysis, primary actor identification, scenario modeling. Critique: "Who is the primary stakeholder and what business goal are they trying to achieve?"
+- **Martin Fowler** (Architecture & Design): Interface segregation, bounded contexts, refactoring patterns. Critique: "This interface violates single responsibility — consider separating concerns."
 
 ### Technical Architecture Experts
 
-**Michael Nygard** - Release It! Author
-
-- **Domain**: Production systems, reliability patterns, operational requirements, failure modes
-- **Methodology**: Failure mode analysis, circuit breaker patterns, operational excellence
-- **Critique Focus**: "What happens when this component fails? Where are the monitoring and recovery mechanisms?"
-
-**Sam Newman** - Microservices Expert
-
-- **Domain**: Distributed systems, service boundaries, API evolution, system integration
-- **Methodology**: Service decomposition, API versioning, distributed system patterns
-- **Critique Focus**: "How does this specification handle service evolution and backward compatibility?"
-
-**Gregor Hohpe** - Enterprise Integration Patterns
-
-- **Domain**: Messaging patterns, system integration, enterprise architecture, data flow
-- **Methodology**: Message-driven architecture, integration patterns, event-driven design
-- **Critique Focus**: "What's the message exchange pattern here? How do you handle ordering and delivery guarantees?"
+- **Michael Nygard** (Release It! / Reliability): Failure mode analysis, circuit breaker patterns, operational excellence. Critique: "What happens when this fails? Where are the monitoring and recovery mechanisms?"
+- **Sam Newman** (Microservices): Service decomposition, API versioning, distributed system patterns. Critique: "How does this handle service evolution and backward compatibility?"
+- **Gregor Hohpe** (Enterprise Integration): Message-driven architecture, integration patterns, event-driven design. Critique: "What's the message exchange pattern — how do you handle ordering and delivery guarantees?"
 
 ### Quality & Testing Experts
 
-**Lisa Crispin** - Agile Testing Expert
-
-- **Domain**: Testing strategies, quality requirements, acceptance criteria, test automation
-- **Methodology**: Whole-team testing, risk-based testing, quality attribute specification
-- **Critique Focus**: "How would the testing team validate this requirement? What are the edge cases and failure scenarios?"
-
-**Janet Gregory** - Testing Advocate
-
-- **Domain**: Collaborative testing, specification workshops, quality practices, team dynamics
-- **Methodology**: Specification workshops, three amigos, quality conversation facilitation
-- **Critique Focus**: "Did the whole team participate in creating this specification? Are quality expectations clearly defined?"
+- **Lisa Crispin** (Agile Testing): Whole-team testing, risk-based testing, quality attribute specification. Critique: "How would the testing team validate this — what are the edge cases and failure scenarios?"
+- **Janet Gregory** (Testing Advocacy): Specification workshops, three amigos, quality conversation facilitation. Critique: "Did the whole team participate? Are quality expectations clearly defined?"
 
 ### Adversarial Testing Expert
 
@@ -126,11 +84,7 @@ Key behaviors:
 
 ### Modern Software Experts
 
-**Kelsey Hightower** - Cloud Native Expert
-
-- **Domain**: Kubernetes, cloud architecture, operational excellence, infrastructure as code
-- **Methodology**: Cloud-native patterns, infrastructure automation, operational observability
-- **Critique Focus**: "How does this specification handle cloud-native deployment and operational concerns?"
+- **Kelsey Hightower** (Cloud Native): Cloud-native patterns, infrastructure automation, operational observability. Critique: "How does this handle cloud-native deployment and operational concerns?"
 
 ## MCP Integration
 
@@ -160,98 +114,15 @@ The panel reviews specifications in the following fixed order. Each expert build
 
 ### Discussion Mode (`--mode discussion`)
 
-**Purpose**: Collaborative improvement through expert dialogue and knowledge sharing
-
-**Expert Interaction Pattern**:
-
-- Sequential expert commentary building upon previous insights
-- Cross-expert validation and refinement of recommendations
-- Consensus building around critical improvements
-- Collaborative solution development
-
-**Example Output**:
-
-```
-KARL WIEGERS: "The requirement 'SHALL handle failures gracefully' lacks specificity. 
-What constitutes graceful handling? What types of failures are we addressing?"
-
-MICHAEL NYGARD: "Building on Karl's point, we need specific failure modes: network 
-timeouts, service unavailable, rate limiting. Each requires different handling strategies."
-
-GOJKO ADZIC: "Let's make this concrete with examples:
-  Given: Service timeout after 30 seconds
-  When: Circuit breaker activates
-  Then: Return cached response within 100ms"
-
-MARTIN FOWLER: "The specification should also define the failure notification interface. 
-How do upstream services know what type of failure occurred?"
-```
+Collaborative improvement through expert dialogue. Pattern: sequential expert commentary building on prior insights; cross-expert validation; consensus building; collaborative solution development. Output: a dialogue transcript where each expert speaks in turn (`<EXPERT_NAME>: "<commentary>"`), framed by the Behavioral Flow's review sequence.
 
 ### Critique Mode (`--mode critique`)
 
-**Purpose**: Systematic review with specific improvement suggestions and priority rankings
-
-**Analysis Structure**:
-
-- Issue identification with severity classification
-- Specific improvement recommendations with rationale
-- Priority ranking based on impact and effort
-- Quality metrics and validation criteria
-
-**Example Output**:
-
-```
-=== REQUIREMENTS ANALYSIS ===
-
-KARL WIEGERS - Requirements Quality Assessment:
-❌ CRITICAL: Requirement R-001 lacks measurable acceptance criteria
-📝 RECOMMENDATION: Replace "handle failures gracefully" with "open circuit breaker after 5 consecutive failures within 30 seconds"
-🎯 PRIORITY: High - Affects testability and validation
-📊 QUALITY IMPACT: +40% testability, +60% clarity
-
-GOJKO ADZIC - Specification Testability:
-⚠️ MAJOR: No executable examples provided for complex behaviors
-📝 RECOMMENDATION: Add Given/When/Then scenarios for each requirement
-🎯 PRIORITY: Medium - Improves understanding and validation
-📊 QUALITY IMPACT: +50% comprehensibility, +35% validation coverage
-
-=== ARCHITECTURE ANALYSIS ===
-
-MARTIN FOWLER - Interface Design:
-⚠️ MINOR: CircuitBreaker interface couples state management with execution logic
-📝 RECOMMENDATION: Separate CircuitBreakerState from CircuitBreakerExecutor
-🎯 PRIORITY: Low - Design improvement, not functional issue
-📊 QUALITY IMPACT: +20% maintainability, +15% testability
-```
+Systematic review with severity-classified findings and priority rankings. Structure per finding: issue identification → severity (CRITICAL/MAJOR/MINOR) → expert attribution → recommendation with rationale → priority (High/Medium/Low) → quality-impact estimate. Output groups findings by analysis bucket (`=== REQUIREMENTS ANALYSIS ===`, `=== ARCHITECTURE ANALYSIS ===`, etc.).
 
 ### Socratic Mode (`--mode socratic`)
 
-**Purpose**: Learning-focused questioning to deepen understanding and improve thinking
-
-**Question Categories**:
-
-- Foundational understanding questions
-- Stakeholder and purpose clarification
-- Assumption identification and validation
-- Alternative approach exploration
-
-**Example Output**:
-
-```
-ALISTAIR COCKBURN: "What is the fundamental problem this specification is trying to solve?"
-
-KARL WIEGERS: "Who are the primary stakeholders affected by these requirements?"
-
-MICHAEL NYGARD: "What assumptions are you making about the deployment environment and operational context?"
-
-GOJKO ADZIC: "How would you explain these requirements to a non-technical business stakeholder?"
-
-MARTIN FOWLER: "What would happen if we removed this requirement entirely? What breaks?"
-
-LISA CRISPIN: "How would you validate that this specification is working correctly in production?"
-
-KELSEY HIGHTOWER: "What operational and monitoring capabilities does this specification require?"
-```
+Learning-focused questioning to deepen understanding. Question categories: foundational understanding, stakeholder/purpose clarification, assumption identification, alternative approach exploration. Output: a sequence of expert-attributed questions designed to elicit reflection rather than provide answers (`<EXPERT_NAME>: "<question>"`).
 
 ## Focus Areas
 
@@ -384,56 +255,7 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 
 ### Standard Format (`--format standard`)
 
-```yaml
-specification_review:
-  original_spec: "authentication_service.spec.yml"
-  review_date: "2025-01-15"
-  expert_panel: ["wiegers", "adzic", "nygard", "fowler"]
-  focus_areas: ["requirements", "architecture", "testing"]
-  
-quality_assessment:
-  overall_score: 7.2/10
-  requirements_quality: 8.1/10
-  architecture_clarity: 6.8/10
-  testability_score: 7.5/10
-  
-critical_issues:
-  - category: "requirements"
-    severity: "high"
-    expert: "wiegers"
-    issue: "Authentication timeout not specified"
-    recommendation: "Define session timeout with configurable values"
-    
-  - category: "architecture"  
-    severity: "medium"
-    expert: "fowler"
-    issue: "Token refresh mechanism unclear"
-    recommendation: "Specify refresh token lifecycle and rotation policy"
-
-expert_consensus:
-  - "Specification needs concrete failure handling definitions"
-  - "Missing operational monitoring and alerting requirements"
-  - "Authentication flow is well-defined but lacks error scenarios"
-
-improvement_roadmap:
-  immediate: ["Define timeout specifications", "Add error handling scenarios"]
-  short_term: ["Specify monitoring requirements", "Add performance criteria"]
-  long_term: ["Comprehensive security review", "Integration testing strategy"]
-
-adversarial_analysis:
-  expert: "whittaker"
-  findings:
-    - attack: "Zero/Empty Attack"
-      severity: "CRITICAL"
-      invariant: "Section 3.2 - Session timeout handler"
-      condition: "timeout_seconds is set to 0"
-      scenario: "State before: session.timeout=0. Attack: login request. Guard `if timeout > 0` bypassed. State after: session never expires, permanent authentication."
-    - attack: "Sentinel Collision Attack"
-      severity: "MAJOR"
-      invariant: "Section 4.1 - Token refresh endpoint"
-      condition: "refresh_token value equals the reserved 'EXPIRED' sentinel string"
-      scenario: "State before: valid refresh_token='EXPIRED'. Attack: refresh request. Guard interprets token as expired sentinel. State after: valid session rejected."
-```
+YAML output with these top-level keys: `specification_review` (metadata: original_spec, review_date, expert_panel, focus_areas), `quality_assessment` (overall_score + per-dimension scores 0-10), `critical_issues` (list of {category, severity, expert, issue, recommendation}), `expert_consensus` (consensus bullets), `improvement_roadmap` (immediate / short_term / long_term lists), and `adversarial_analysis` (Whittaker findings: attack methodology, severity, invariant location, triggering condition, state-trace scenario).
 
 ### Structured Format (`--format structured`)
 
@@ -544,7 +366,7 @@ When Pipeline Dimensional Analysis triggers, the panel MUST produce a Quantity F
 
 **Template**:
 
-```
+```text
 [Source: N items] --> [Stage 1: Filter] --> [N' items (N' <= N)]
                                               |
                                               v
@@ -571,124 +393,48 @@ The following integration points connect spec-panel outputs to downstream SuperC
 
 ## Examples
 
-### API Specification Review
-
-```
+```bash
+# API specification review (critique mode, requirements + architecture focus)
 /sc:spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
-# Comprehensive API specification review
-# Focus on requirements quality and architectural consistency
-# Generate detailed improvement recommendations
-```
 
-### Requirements Workshop
-
-```
+# Requirements workshop (discussion mode, curated expert subset)
 /sc:spec-panel "user story content" --mode discussion --experts "wiegers,adzic,cockburn"
-# Collaborative requirements analysis and improvement
-# Expert dialogue for requirement refinement
-# Consensus building around acceptance criteria
-```
 
-### Architecture Validation
-
-```
+# Architecture validation (socratic mode for deep questioning)
 /sc:spec-panel @microservice.spec.yml --mode socratic --focus architecture
-# Learning-focused architectural review
-# Deep questioning about design decisions
-# Alternative approach exploration
-```
 
-### Iterative Improvement
-
-```
+# Iterative improvement (multi-iteration with detailed format)
 /sc:spec-panel @complex_system.spec.yml --iterations 3 --format detailed
-# Multi-iteration improvement process
-# Progressive refinement with expert guidance
-# Comprehensive quality enhancement
-```
 
-### Compliance Review
-
-```
+# Compliance review (compliance focus with security-leaning experts)
 /sc:spec-panel @security_requirements.yml --focus compliance --experts "wiegers,nygard"
-# Compliance and security specification review
-# Regulatory requirement validation
-# Risk assessment and mitigation planning
 ```
 
 ## Integration Patterns
 
-### Workflow Integration with /sc:code-to-spec
-
 ```bash
-# Generate initial specification from code
+# Workflow with /sc:code-to-spec: generate spec → review → refine
 /sc:code-to-spec ./authentication_service --type api --format yaml
-
-# Review and improve with expert panel
 /sc:spec-panel @generated_auth_spec.yml --mode critique --focus requirements,testing
-
-# Iterative refinement based on feedback
 /sc:spec-panel @improved_auth_spec.yml --mode discussion --iterations 2
-```
 
-### Learning and Development Workflow
-
-```bash
-# Start with socratic mode for learning
+# Learning workflow: socratic → discussion → critique
 /sc:spec-panel @my_first_spec.yml --mode socratic --iterations 2
-
-# Apply learnings with discussion mode
 /sc:spec-panel @revised_spec.yml --mode discussion --focus requirements
-
-# Final quality validation with critique mode
 /sc:spec-panel @final_spec.yml --mode critique --format detailed
 ```
 
 ## Quality Assurance Features
 
-### Expert Validation
-
-- Cross-expert consistency checking and validation
-- Methodology alignment and best practice verification
-- Quality metric calculation and progress tracking
-- Recommendation prioritization and impact assessment
-
-### Specification Quality Metrics
-
-- **Clarity Score**: Language precision and understandability (0-10)
-- **Completeness Score**: Coverage of essential specification elements (0-10)
-- **Testability Score**: Measurability and validation capability (0-10)
-- **Consistency Score**: Internal coherence and contradiction detection (0-10)
-
-### Continuous Improvement
-
-- Pattern recognition from successful improvements
-- Expert recommendation effectiveness tracking
-- Specification quality trend analysis
-- Best practice pattern library development
+- **Expert Validation**: cross-expert consistency checking, methodology alignment, quality-metric calculation, recommendation prioritization
+- **Quality Metrics (0-10)**: Clarity (language precision), Completeness (coverage), Testability (measurability), Consistency (internal coherence)
+- **Continuous Improvement**: pattern recognition from successful improvements, recommendation effectiveness tracking, quality trend analysis, best-practice library development
 
 ## Advanced Features
 
-### Custom Expert Panels
-
-- Domain-specific expert selection and configuration
-- Industry-specific methodology application
-- Custom quality criteria and assessment frameworks
-- Specialized review processes for unique requirements
-
-### Integration with Development Workflow
-
-- CI/CD pipeline integration for specification validation
-- Version control integration for specification evolution tracking
-- IDE integration for inline specification quality feedback
-- Automated quality gate enforcement and validation
-
-### Learning and Mentoring
-
-- Progressive skill development tracking and guidance
-- Specification writing pattern recognition and teaching
-- Best practice library development and sharing
-- Mentoring mode with educational focus and guidance
+- **Custom Expert Panels**: domain-specific expert selection, industry-specific methodology, custom quality criteria
+- **Dev Workflow Integration**: CI/CD spec validation, VCS spec evolution tracking, IDE inline quality feedback, automated quality-gate enforcement
+- **Learning and Mentoring**: progressive skill tracking, spec-writing pattern teaching, best-practice library sharing, educational/mentoring mode
 
 ## Boundaries
 

@@ -1,0 +1,22 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 2.
+id: promotion-blocked-by-drift
+status: stub-iteration-1-follow-up
+description: One §10.3 drift deviation in the ledger — promotion rejected because no_drift_no_regression (cond 4) fails.
+spec_ref: "§14.5.7 bullet 2"
+expected_action: rejected
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: fail               # cond 4 — drift present
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: [no_drift_no_regression]
+expected_gate_passed: false
+adapter: task

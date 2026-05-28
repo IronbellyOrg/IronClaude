@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# eval_smoke — minimal smoke suite for the cliEval CLI itself.
+#
+# Agent-5 proposal (eval_real_no_pty_smoke): exercise `superclaude eval
+# doctor` / `list` / `describe` / `run` end-to-end against the existing
+# `real` suite via the `--no-pty` skip path. Every eval body is shaped
+# as a Claude prompt that issues a single `superclaude eval ...`
+# shell command through Bash and reports the captured output; assertions
+# are exit_code + stdout substring checks driven through the same PTY
+# harness used by the real suite. The whole suite carries `no_pty: skip`
+# on every entry so `eval run --suite eval_smoke --no-pty` short-circuits
+# the same way the real suite does (DOC-OQ3 / R-077 / D-0077).
+#
+# Hypothesis (agent-5-cli.md):
+#   - `eval doctor --json --no-mcp` exits 0 with a CapabilityReport JSON
+#     payload (commands.py:760-790).
+#   - `eval list --json` enumerates discovered suite manifests (real +
+#     eval_smoke) and exits 0 (commands.py:920-952).
+#   - `eval describe --suite real --eval E3 --json` renders the E3 entry
+#     and exits 0 (commands.py:~1211).
+#   - `eval run --suite real --no-pty --no-mcp --junit --json` short-
+#     circuits all 15 real evals via the PTY-skip path, emits
+#     summary.{md,json,yaml} + junit.xml, and exits 0
+#     (commands.py:~1554 / :~1679, reporter.py:168).
+#
+# This suite is intentionally the SIMPLEST cliEval manifest in the tree;
+# it doubles as the e2e test target for the runner itself.
+name: eval_smoke
+version: "1.0"
+description: "Smoke suite for the cliEval CLI itself (eval doctor/list/describe/run via Bash; --no-pty skips the whole suite)."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: jq,                            failure_mode: hard }
+  - { name: make,                          failure_mode: hard }
+  - { name: git,                           failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: ES1
+    title: "eval doctor --json --no-mcp reports capabilities"
+    category: cli-smoke
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # ES1 — `superclaude eval doctor --json --no-mcp` (commands.py:761-).
+    # The doctor emits a deterministic JSON CapabilityReport payload on
+    # stdout and exits 0 when no hard binary is missing. The --no-mcp
+    # flag short-circuits the MCP-server gates so the assertion is
+    # host-agnostic (FR-CAP1 / D-0082 §6).
+    inputs:
+      - prompt: "Run `superclaude eval doctor --json --no-mcp` via Bash and print the full stdout. Do not modify anything else."
+    expects:
+      - stdout:
+          contains: '"capabilities"'
+      - exit_code:
+          equals: 0
+
+  - id: ES2
+    title: "eval list --json enumerates suite manifests"
+    category: cli-smoke
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # ES2 — `superclaude eval list --json` (commands.py:920-952). Emits a
+    # JSON array of {name, version, eval_count} entries for every
+    # manifest in src/superclaude/cli/eval/suites/. The `real` suite is
+    # always present in-tree (real.yaml), so asserting `"name": "real"`
+    # in stdout is a host-independent smoke check on suite discovery
+    # plus schema validation (an invalid manifest exits 2).
+    inputs:
+      - prompt: "Run `superclaude eval list --json` via Bash and print the full stdout. Do not modify anything else."
+    expects:
+      - stdout:
+          contains: '"name": "real"'
+      - exit_code:
+          equals: 0
+
+  - id: ES3
+    title: "eval run --suite real --no-pty skips all 15 real evals and emits artifacts"
+    category: cli-smoke
+    requires: []
+    timeout_sec: 120
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # ES3 — `superclaude eval run --suite real --no-pty --no-mcp --junit
+    # --json` (commands.py:~1554 / :~1679). With --no-pty, every entry
+    # in real.yaml short-circuits to SKIPPED with skip_reason="--no-pty"
+    # (DOC-OQ3 / R-077 / D-0077) before any HOME setup; the runner
+    # still emits summary.{md,json,yaml} and junit.xml via
+    # reporter.py:168. Exit 0 is the success contract on an all-skip
+    # run; stdout substring "15" pins the skipped count (real.yaml
+    # ships E1, E2.1, E2.2, E2.3, E3-E14 = 15 evals).
+    inputs:
+      - prompt: "Run `superclaude eval run --suite real --no-pty --no-mcp --junit --json` via Bash and print the full stdout. Do not modify anything else."
+    expects:
+      - stdout:
+          contains: "summary.json"
+      - exit_code:
+          equals: 0

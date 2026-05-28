@@ -78,8 +78,9 @@ The following objectives MUST be achieved by this task. Each maps to one or more
 ## Prerequisites & Dependencies
 
 ### Parent Task & Dependencies
+
 - **Parent Task:** None (first phase of cliEval release; no upstream task).
-- **Blocking Dependencies:** None at task-start — the design-spec and decisions log are already published; the upstream ptytest repo at https://github.com/brandon-fryslie/ptytest is publicly reachable.
+- **Blocking Dependencies:** None at task-start — the design-spec and decisions log are already published; the upstream ptytest repo at <https://github.com/brandon-fryslie/ptytest> is publicly reachable.
 - **This task blocks:** cliEval Phase 2 (loader.py + models.py + expect.py + eval describe/list), Phase 3 (orchestrator.py + runner.py + reporter.py + eval run), Phase 4 (wire into cli/main.py + Makefile + .gitignore), and Phase 5 (eval body implementations E1-E15).
 
 ### Required Inputs (read in Phase 1)
@@ -112,6 +113,7 @@ These files persist across all batches and session rollovers. Later items read t
 ### Frontmatter Update Protocol
 
 YOU MUST update the frontmatter at these MANDATORY checkpoints:
+
 - **Upon Task Start:** Update `status` to "🟠 Doing" and `start_date` to current date (Phase 1 Step 1.1).
 - **Upon Completion:** Update `status` to "🟢 Done" and `completion_date` to current date (Phase 8 final step).
 - **If Blocked:** Update `status` to "⚪ Blocked" and populate `blocker_reason`.
@@ -612,14 +614,17 @@ After the subagent returns, read `phase-outputs/reviews/PG-FINAL-rf-qa-composite
 This section documents unresolved ambiguities surfaced by the BUILD_REQUEST and by execution. Each entry follows the OQ disposition pattern. Entries are appended during Phase 1 (Steps 1.6, 1.7, 1.8) for the BUILD_REQUEST's original 3 Qs, and during Phase 8 (Step 8.3) for any unresolved gate failures.
 
 **OQ-1:** _BUILD_REQUEST Q1 verbatim — "Confirm `pexpect>=4.9` is acceptable as a new runtime dep (it's transitively pulled by some existing packages but not directly required). If not, the vendored ptytest needs to vendor pexpect too."_
+
 - **Disposition:** [TO-BE-FILLED in Phase 1 Step 1.6 — one of ACCEPTABLE / CONDITIONAL / DEFERRED-TO-VENDOR based on `uv pip list` and pyproject.toml inspection]
 - **Evidence:** `phase-outputs/discovery/03-pexpect-acceptability.md`
 
 **OQ-2:** _BUILD_REQUEST Q2 verbatim — "Verify upstream ptytest's MIT license and ensure NOTICE/LICENSE handling matches IronClaude's existing conventions."_
+
 - **Disposition:** [TO-BE-FILLED in Phase 1 Step 1.7 — confirm MIT identifier and verify NOTICE requirement]
 - **Evidence:** `phase-outputs/discovery/04-ptytest-license-and-sha.md`
 
 **OQ-3:** _BUILD_REQUEST Q3 verbatim — "Verify Claude Code's TTY behavior on Linux (the target platform) — specifically, does it emit a deterministic prompt-ready signal that `expect_prompt_ready` can match? If not, document the heuristic chosen (e.g., regex for `^> $` or `^\$ $` or idle-stdout-for-N-seconds)."_
+
 - **Disposition:** [TO-BE-FILLED in Phase 1 Step 1.8 — primary regex + fallback idle-timeout chosen; surfaced for verification during AC-P1.3 testing]
 - **Evidence:** `phase-outputs/discovery/05-prompt-ready-heuristic.md`
 
@@ -645,25 +650,33 @@ This section documents unresolved ambiguities surfaced by the BUILD_REQUEST and 
 ```
 
 ### Phase 2 Findings
+
 [Same template as Phase 1 Findings]
 
 ### Phase 3 Findings
+
 [Same template]
 
 ### Phase 4 Findings
+
 [Same template]
 
 ### Phase 5 Findings
+
 [Same template]
 
 ### Phase 6 Findings
+
 [Same template]
 
 ### Phase 7 Findings
+
 [Same template]
 
 ### Phase 8 Findings
+
 [Same template]
 
 ### Follow-Up Items
+
 [Items discovered during execution that need separate tasks — e.g., a verify-sync rule update if Step 7.2 surfaces one, the P2 wiring of seed_state in HomeIsolation.setup per Step 3.3 TODO marker]

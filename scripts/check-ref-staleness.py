@@ -92,8 +92,7 @@ def check_ref_file(ref_path: Path, live_fields: dict) -> list[str]:
     content = ref_path.read_text()
     errors = []
 
-    # Check GateCriteria field names
-    gc_fields = live_fields["GateCriteria"]
+    # Check GateCriteria field names (live_fields["GateCriteria"] available for future cross-checks)
 
     # Detect old field names
     if re.search(r'\btier\s*=\s*"', content):
@@ -124,8 +123,7 @@ def check_ref_file(ref_path: Path, live_fields: dict) -> list[str]:
         if val != val.upper():
             errors.append(f"{ref_path.name}: tier value '{val}' should be UPPER_CASE")
 
-    # Check SemanticCheck field names
-    sc_fields = live_fields["SemanticCheck"]
+    # Check SemanticCheck field names (live_fields["SemanticCheck"] available for future cross-checks)
     if "fn=" in content and "check_fn=" not in content:
         errors.append(
             f"{ref_path.name}: uses 'fn=' instead of 'check_fn=' for SemanticCheck"

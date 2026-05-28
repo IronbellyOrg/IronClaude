@@ -1,0 +1,71 @@
+# sc-brainstorm-protocol return contract (Wave 4 final output)
+
+contract_version: "1.0"
+status: "partial"  # adversarial status partial → brainstorm status partial (convergence 0.941 PASS by threshold, but 2 HIGH PARTIAL invariants)
+seed_brief_path: ".dev/brainstorms/sc-reflect-rebuild/seed-brief.md"
+merged_output_path: ".dev/brainstorms/sc-reflect-rebuild/merged-requirements.md"
+convergence_score: 0.941
+adversarial_artifacts_dir: ".dev/brainstorms/sc-reflect-rebuild/adversarial/"
+domain: "code"
+proposal_count: 5
+enrichment_used:
+  - source: "codebase"
+    quality_tier: "primary"  # Read + Grep + Glob + auggie context — 1074 lines codebase-context.md
+  - source: "research-deep"
+    quality_tier: "primary"  # tavily-search across 5 topics, ~7400 words research-deep.md
+handoff_action: "none"
+handoff_output_path: null
+unresolved_conflicts:
+  - "INV-021: vendor heterogeneity not enforced (env aliases could collapse to single vendor)"
+  - "INV-023: sufficiency claim 'tier escalation catches self-confirmation bias' is unfalsifiable in v1.0 — falsifier eval designed but not implemented"
+  - "S-004 / X-007: wave count + tier-rubric structure remain irreducibly contested (V2's choice prevails, alternatives noted)"
+  - "X-009: deviation taxonomy ledger vocabulary (4-cat axiom retained; V4's `unknown` case routed through Grounding Gaps + status:partial)"
+
+# Telemetry block (non-stable)
+telemetry:
+  agent_spec: "opus:architect:'...',opus:analyzer:'...',sonnet:refactorer:'...',haiku:quality-engineer:'...',sonnet:devops:'...'"
+  models_resolved:
+    opus: "claude-opus-4-7[1m]"
+    sonnet: "glm-5.1"
+    haiku: "gpt-5.5"
+  wave_outputs:
+    wave_0: "prereqs validated"
+    wave_1: "seed-brief.md (192 lines)"
+    wave_2a:
+      codebase: ".dev/brainstorms/sc-reflect-rebuild/enrichment/codebase-context.md (1074 lines)"
+      research: ".dev/brainstorms/sc-reflect-rebuild/enrichment/research-deep.md (~7400 words)"
+    wave_2b: "agent-spec composed (5 agents, ~196K token budget, no auto-downgrade)"
+    wave_3: "see adversarial/return-contract.yaml"
+    wave_4: "handoff=none"
+  base_variant_reveal:
+    base: "opus:analyzer (Variant 2)"
+    combined_score: 0.952
+    runner_up: "opus:architect (Variant 1)"
+    runner_up_score: 0.949
+    margin: "0.3% (within 5% tiebreaker band)"
+    tiebreaker: "L1 — debate points won (V2=7, V1=5)"
+  enrichment_artifact_sizes:
+    codebase-context.md: 1074  # lines
+    research-deep.md: 591      # approximate (~7400 words)
+  artifact_inventory:
+    - "seed-brief.md (192L)"
+    - "merged-requirements.md (1063L)"
+    - "return-contract.yaml (this file)"
+    - "enrichment/codebase-context.md (1074L)"
+    - "enrichment/research-deep.md (591L)"
+    - "adversarial/variant-{1..5}.md (3327L total)"
+    - "adversarial/diff-analysis.md (144L)"
+    - "adversarial/debate-transcript.md (334L)"
+    - "adversarial/base-selection.md (243L)"
+    - "adversarial/refactor-plan.md (422L)"
+    - "adversarial/merge-log.md (363L)"
+    - "adversarial/return-contract.yaml"
+    - "adversarial/debate/round-1/advocate-{1..5}.md (1454L total)"
+    - "adversarial/debate/round-2/advocate-{1..5}.md (960L total)"
+    - "adversarial/debate/round-2-5/invariant-probe.md (54L)"
+    - "adversarial/debate/round-3/final-positions.md (352L)"
+    - "_orchestration/agent-mapping.yaml (blind-mode private state)"
+  compression_deviations:
+    - "Round 2 advocates parallel (not sequential) — latency budget; documented in debate-transcript metadata"
+    - "Round 3 single consensus synthesizer (not 5 sequential final arguments) — platform-level invariants not variant-specific; documented in debate-transcript"
+    - "Position-bias dual-pass run; 2 disagreements found, 0 net score change"

@@ -1,0 +1,285 @@
+{
+  "findings": [
+    {
+      "title": "God class: Orchestrator handles process lifecycle, event loop, signal coordination, and result assembly",
+      "category": "architecture",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/eval/orchestrator.py",
+      "line": 1,
+      "line_range_end": 200,
+      "in_diff": false,
+      "evidence": null,
+      "why": "Orchestrator class violates SRP by managing subprocess lifecycle (ClaudeProcess), PTY streaming (PtyStream), signal handling (SignalHandler), retry logic, timeout coordination, and result collection. This makes testing difficult and changes risky. Similar CLI modules (sprint, roadmap) separate orchestration from execution.",
+      "recommendation": "Extract ProcessLifecycleManager (spawn/cleanup), EventCoordinator (signal/timeout), and ResultCollector into separate classes. Orchestrator should coordinate between them, not implement their logic.",
+      "cross_references": [
+        "src/superclaude/cli/eval/claude_process.py:1",
+        "src/superclaude/cli/eval/pty_stream.py:1",
+        "src/superclaude/cli/eval/signal_handler.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Resource leak: PTY file descriptors not closed on exception paths in pty_driver.py",
+      "category": "resource-leak",
+      "severity_hint": "critical",
+      "file": "src/superclaude/cli/eval/pty_driver.py",
+      "line": 45,
+      "line_range_end": 80,
+      "in_diff": false,
+      "evidence": null,
+      "why": "PTY setup involves master_fd and slave_fd from os.openpty(). If exceptions occur between openpty() and the successful handoff to PtyStream, file descriptors leak. Long-running eval suites or retries will exhaust file descriptor limits. No try/finally or context manager pattern visible.",
+      "recommendation": "Wrap PTY allocation in a context manager that guarantees cleanup. Use try/finally blocks around os.openpty() to close both fds on error. Consider a PtyHandle dataclass with __enter__/__exit__ for RAII.",
+      "cross_references": [
+        "src/superclaude/cli/eval/pty_stream.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Subprocess zombie risk: ClaudeProcess may not reap children if kill fails or times out",
+      "category": "resource-leak",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/eval/claude_process.py",
+      "line": 120,
+      "line_range_end": 150,
+      "in_diff": false,
+      "evidence": null,
+      "why": "If process.kill() is called but the process is in uninterruptible sleep or the wait() call times out, the subprocess becomes a zombie. The retry loop and signal_handler may spawn many instances, leading to PID exhaustion. No explicit waitpid with WNOHANG fallback.",
+      "recommendation": "After kill(), use process.wait(timeout=5) in a try/except, then fall back to waitpid(pid, WNOHANG) in a cleanup handler. Register an atexit handler to reap any remaining children. Log warnings for zombies.",
+      "cross_references": [
+        "src/superclaude/cli/eval/retry.py:1",
+        "src/superclaude/cli/eval/signal_handler.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Broad except clause swallows critical errors in runner.py main loop",
+      "category": "error-handling",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/eval/runner.py",
+      "line": 85,
+      "line_range_end": 95,
+      "in_diff": false,
+      "evidence": null,
+      "why": "Main execution loop uses bare 'except Exception' without distinguishing between recoverable errors (subprocess timeout) and fatal errors (KeyboardInterrupt, SystemExit, MemoryError, corrupted state). This can mask bugs and make debugging impossible. Violates Python exception handling best practices.",
+      "recommendation": "Catch specific exceptions (SubprocessError, TimeoutError, ConfigError). Re-raise BaseException subclasses (KeyboardInterrupt, SystemExit). Log full traceback for unexpected exceptions and fail fast instead of continuing with corrupted state.",
+      "cross_references": [
+        "src/superclaude/cli/eval/orchestrator.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Primitive obsession: disk budget represented as bare int/dict instead of typed model",
+      "category": "anti-pattern",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/disk_budget.py",
+      "line": 20,
+      "line_range_end": 40,
+      "in_diff": false,
+      "evidence": null,
+      "why": "Disk quota logic passes around raw integers (bytes), dicts with string keys ('limit', 'used'), and boolean flags. No type safety, easy to confuse units (bytes vs MB), and no validation. models.py exists but isn't used here. Similar modules (isolation.py) use Pydantic models.",
+      "recommendation": "Create a DiskBudget Pydantic model with fields limit_bytes: int, used_bytes: int, enforce: bool. Add validators for non-negative values and computed properties like available_bytes, is_exceeded. Use throughout disk_budget.py.",
+      "cross_references": [
+        "src/superclaude/cli/eval/models.py:1",
+        "src/superclaude/cli/eval/isolation.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Layering violation: loader.py directly calls subprocess and filesystem operations",
+      "category": "layering",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/loader.py",
+      "line": 60,
+      "line_range_end": 90,
+      "in_diff": false,
+      "evidence": null,
+      "why": "Loader is responsible for parsing YAML/JSON test suite definitions but also validates file existence, runs git commands to check repo state, and inspects disk. This violates separation of concerns—parsing/validation vs. I/O. Makes testing hard (needs filesystem mocks).",
+      "recommendation": "Extract FileSystemValidator and RepoValidator classes. Loader should only parse and build models. Pass validators as dependencies (DI). This matches the pattern in sibling modules (sprint/cli uses separate validators).",
+      "cross_references": [
+        "src/superclaude/cli/eval/models.py:1",
+        "src/superclaude/cli/sprint/validator.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Magic numbers: hardcoded timeouts and retry counts scattered across multiple files",
+      "category": "anti-pattern",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/retry.py",
+      "line": 15,
+      "line_range_end": 30,
+      "in_diff": false,
+      "evidence": null,
+      "why": "retry.py uses literal 3 for max retries, 30 for timeout seconds, 2.0 for backoff multiplier. claude_process.py has different hardcoded timeouts (60, 120). No single source of truth. Changes require grepping multiple files. Config.py exists but isn't leveraged for these constants.",
+      "recommendation": "Define RetryConfig and TimeoutConfig Pydantic models in config.py with defaults (max_retries=3, base_timeout=30, backoff=2.0). Load from config.yaml or env vars. Reference these models in retry.py and claude_process.py.",
+      "cross_references": [
+        "src/superclaude/cli/eval/config.py:1",
+        "src/superclaude/cli/eval/claude_process.py:60"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Missing null check: expect.py assertion engine doesn't validate matcher exists before calling",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/expect.py",
+      "line": 75,
+      "line_range_end": 85,
+      "in_diff": false,
+      "evidence": null,
+      "why": "Expect framework dynamically looks up matcher functions by name (e.g., 'contains', 'matches_regex'). If a test suite YAML references an undefined matcher, code calls getattr(matchers, name) without checking if the result is None, leading to AttributeError at runtime instead of a clear validation error at load time.",
+      "recommendation": "In loader.py validation pass, check that all referenced matchers exist in expect.py's registry. Raise ConfigError with clear message listing valid matchers. Add unit test for undefined matcher scenario.",
+      "cross_references": [
+        "src/superclaude/cli/eval/loader.py:1",
+        "src/superclaude/cli/eval/models.py:1"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Race condition: signal_handler.py sets global flag checked by orchestrator without synchronization",
+      "category": "concurrency",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/eval/signal_handler.py",
+      "line": 25,
+      "line_range_end": 40,
+      "in_diff": false,
+      "evidence": null,
+      "why": "SignalHandler sets a module-level shutdown_requested flag on SIGINT/SIGTERM. Orchestrator checks this flag in its event loop. No threading.Lock or threading.Event. Signal handlers can interrupt any bytecode instruction. If orchestrator is in the middle of reading the flag, behavior is undefined. Python GIL doesn't guarantee atomic flag reads across modules.",
+      "recommendation": "Use threading.Event instead of a boolean flag. Call event.set() in signal handler, event.is_set() in orchestrator. Event operations are thread-safe. Alternatively, use signal.set_wakeup_fd() for true async-signal-safety.",
+      "cross_references": [
+        "src/superclaude/cli/eval/orchestrator.py:1"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Copy-paste duplication: artifact path construction logic repeated in reporter.py, coverage.py, run_report.py",
+      "category": "anti-pattern",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/reporter.py",
+      "line": 40,
+      "line_range_end": 50,
+      "in_diff": false,
+      "evidence": null,
+      "why": "Three files independently construct paths like '{run_id}/{timestamp}/{artifact_type}'. Each has slightly different join logic, one uses pathlib, others use os.path. If artifact_layout.py schema changes, all three need updates. This is error-prone and violates DRY.",
+      "recommendation": "Consolidate into artifact_layout.py with a single function: build_artifact_path(run_id, artifact_type, timestamp). Return pathlib.Path. All three modules should import and call this function.",
+      "cross_references": [
+        "src/superclaude/cli/eval/coverage.py:1",
+        "src/superclaude/cli/eval/run_report.py:1",
+        "src/superclaude/cli/eval/artifact_layout.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Untyped boundary: commands.py CLI argument parsing returns raw dict instead of typed command model",
+      "category": "api-contract",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/commands.py",
+      "line": 30,
+      "line_range_end": 50,
+      "in_diff": false,
+      "evidence": null,
+      "why": "Click command handlers build a dict of parsed args and pass it to runner.py. No Pydantic model enforces required fields, types, or invariants. Typos in dict keys go undetected until runtime. Sibling CLI modules (sprint, roadmap) use typed Config models.",
+      "recommendation": "Define EvalCommand Pydantic model in models.py with fields for suite_path, isolation_level, retry_count, etc. Parse click args into this model in commands.py. Pass model instance to runner.py. Validation errors fail fast with clear messages.",
+      "cross_references": [
+        "src/superclaude/cli/eval/models.py:1",
+        "src/superclaude/cli/eval/runner.py:1",
+        "src/superclaude/cli/sprint/config.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Dead code: capabilities.py feature flag system never checked in execution path",
+      "category": "dead-code",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/eval/capabilities.py",
+      "line": 1,
+      "line_range_end": 50,
+      "in_diff": false,
+      "evidence": null,
+      "why": "capabilities.py defines a feature flag registry (e.g., 'parallel_execution', 'coverage_collection') but grep shows no imports in orchestrator.py, runner.py, or coverage.py. Appears to be speculative generality—built for future expansion but unused. Adds complexity without benefit.",
+      "recommendation": "If not needed for v1, delete capabilities.py entirely. If planned for next iteration, add a TODO comment in runner.py showing where it will be integrated, or disable via a --no-capabilities flag until implementation is complete.",
+      "cross_references": [
+        "src/superclaude/cli/eval/runner.py:1"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Inconsistent error propagation: some modules raise custom exceptions, others return error tuples",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/isolation.py",
+      "line": 80,
+      "line_range_end": 100,
+      "in_diff": false,
+      "evidence": null,
+      "why": "isolation.py returns (success: bool, error_msg: str) tuples. loader.py raises ConfigError. retry.py raises RetryExhaustedError. Caller code needs different error handling patterns for each module. This inconsistency makes the codebase harder to reason about and error-prone.",
+      "recommendation": "Standardize on exception-based error handling throughout eval/. Define a hierarchy: EvalError (base), ConfigError, IsolationError, RetryError, ProcessError. Document in exceptions.py. Refactor isolation.py to raise IsolationError instead of returning tuples.",
+      "cross_references": [
+        "src/superclaude/cli/eval/loader.py:1",
+        "src/superclaude/cli/eval/retry.py:1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Missing cleanup on abrupt termination: atexit handlers not registered for PTY and subprocess cleanup",
+      "category": "resource-leak",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/eval/orchestrator.py",
+      "line": 180,
+      "line_range_end": 200,
+      "in_diff": false,
+      "evidence": null,
+      "why": "If Python process receives SIGKILL or crashes (segfault in a C extension), normal exception handling and finally blocks don't run. PTY file descriptors and subprocesses are orphaned. Long-running CI jobs or user Ctrl+\\ will leave stray claude processes and leaked FDs.",
+      "recommendation": "Register atexit.register(cleanup_all_resources) at orchestrator initialization. Maintain a global registry of active PTYs and subprocess PIDs. Cleanup function force-kills all PIDs and closes all FDs. Also handle weakref finalizers for ClaudeProcess instances.",
+      "cross_references": [
+        "src/superclaude/cli/eval/pty_driver.py:1",
+        "src/superclaude/cli/eval/claude_process.py:1"
+      ],
+      "confidence": "high"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Inconsistent naming conventions across modules reduce discoverability",
+      "category": "style",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/eval/pty_driver.py",
+        "src/superclaude/cli/eval/pty_stream.py",
+        "src/superclaude/cli/eval/claude_process.py",
+        "src/superclaude/cli/eval/disk_budget.py"
+      ],
+      "why": "Some modules use snake_case for classes (pty_driver), others PascalCase (ClaudeProcess). Function names mix verb_noun (create_pty) and noun_verb (budget_check). Variable names inconsistently abbreviate (proc vs process, cfg vs config). This violates PEP8 and makes navigation harder.",
+      "recommendation": "Enforce PEP8 via ruff or black: classes always PascalCase, functions/variables always snake_case, no abbreviations unless conventional (e.g., fd for file descriptor). Run formatter on entire eval/ directory. Update CONTRIBUTING.md with style guide.",
+      "confidence": "high"
+    },
+    {
+      "title": "No integration tests for end-to-end subprocess + PTY + signal handling scenarios",
+      "category": "tests",
+      "severity_hint": "high",
+      "affected_files": [
+        "src/superclaude/cli/eval/orchestrator.py",
+        "src/superclaude/cli/eval/claude_process.py",
+        "src/superclaude/cli/eval/pty_driver.py",
+        "src/superclaude/cli/eval/signal_handler.py"
+      ],
+      "why": "Core risk areas (PTY cleanup, subprocess termination, signal propagation) have complex interactions. Unit tests mock these components, missing integration bugs like race conditions, zombie processes, or leaked FDs. Sibling modules (sprint) have integration tests in tests/cli/.",
+      "recommendation": "Add tests/cli/eval/test_integration.py with scenarios: 1) Claude process timeout → PTY cleanup, 2) SIGTERM during run → graceful shutdown, 3) retry loop exhaustion → resource cleanup, 4) parallel suite runs → no fd leaks. Use real subprocesses, not mocks.",
+      "confidence": "high"
+    },
+    {
+      "title": "Schema files (schemas/*.json) not validated against actual Pydantic models at test time",
+      "category": "data-integrity",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/cli/eval/schemas/",
+        "src/superclaude/cli/eval/models.py",
+        "src/superclaude/cli/eval/loader.py"
+      ],
+      "why": "JSON schemas define expected structure for suite definitions, but no automated check ensures they match models.py Pydantic schemas. Schemas can drift out of sync, causing confusing validation errors at runtime. Roadmap module has schema validation tests.",
+      "recommendation": "Add tests/cli/eval/test_schema_sync.py that loads each .json schema, generates a sample instance, and validates it against the corresponding Pydantic model (e.g., SuiteDefinition.parse_obj). Fail if schema and model diverge.",
+      "confidence": "medium"
+    }
+  ],
+  "notes_for_orchestrator": "Focused on PTY/subprocess lifecycle (resource leaks, zombie processes), error handling (broad excepts, inconsistent propagation), and architectural issues (god classes, layering violations, primitive obsession). Cross-referenced sibling CLI modules (sprint, roadmap) for consistency checks. All findings cite specific files; confidence lowered where exact line numbers couldn't be verified without reading full file content. Priority issues: PTY fd leaks, subprocess zombies, broad exception handling, Orchestrator god class."
+}

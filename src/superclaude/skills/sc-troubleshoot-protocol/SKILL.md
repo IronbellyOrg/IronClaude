@@ -72,7 +72,7 @@ This flag exists so downstream automation knows to NOT auto-apply a code fix whe
 
 ## Wave Structure
 
-```
+```text
 Wave 0: Parse + Validate Input
 Wave 1: Tier 1 — Real-Code Grounding  ← always; loads refs/triage-checklist.md on demand (grounding + reproduce only)
 Wave 1.5: Documentation Grounding    ← always; loads refs/doc-discovery.md on demand; skipped only by --no-doc-discovery
@@ -107,7 +107,7 @@ Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-
 4. Compute output slug: `<type-or-untyped>-<first-5-words-of-issue-or-scope>-<YYYYMMDDHHMMSS>` and create `<output-dir>/`.
 5. Open audit log; emit machine-readable header:
 
-```
+```text
 <!-- SC:TROUBLESHOOT:TARGET
 issue: <first 80 chars>
 type: <type|auto>
@@ -263,6 +263,18 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
 3.5. **Calibrate each card independently** — spawn N `confidence-calibrator` instances in parallel (one per Tier 2 card), each with `card_tier=2` and `output_path=<output-dir>/tier2-<agent-name>-calibration.md`. Use the calibrated scores (not the agents' self-reports) when weighting consensus/competing/outlier in step 4. Fallback rule from Wave 1.7 applies per-card.
 4. **Distill candidate fixes**: cluster the hypothesis cards by proposed fix. If 2 or more agents propose substantively different fixes, mark them as **competing**. If they all converge on one fix, mark as **consensus**.
 
+#### Tier 2 calibration completeness gate (hard precondition for report publishing)
+
+After all Tier 2 hypothesis cards are written and the calibrator subagents have been dispatched, the orchestrator MUST verify on disk:
+
+- For every `tier2-<agent-name>-hypothesis.md` card written in this run's output directory, a sibling `tier2-<agent-name>-calibration.md` artifact MUST exist and parse as a Calibration Report (per the agent's Output Format).
+- If any sibling calibration artifact is missing or malformed, the orchestrator MUST NOT publish `REPORT.md` with the un-calibrated card's confidence. Instead:
+  1. Log `calibration: missing` for each missing sibling in `audit.log` with the absolute card path.
+  2. Re-dispatch the `confidence-calibrator` `Task` once for the missing card with the same inputs. Wait up to 2 minutes wall-clock for completion. If the retry does not produce a parseable Calibration Report within that window, proceed to the force-degrade step. Do not attempt a third retry.
+  3. If retry still fails, write the card into `REPORT.md` with confidence force-degraded to `min(self_reported, 0.65)` (using the card's self-reported confidence — per the hypothesis-card template, the `## Confidence` section's `Self-reported confidence: <0.0–1.0>` line is the load-bearing input; in the worked-example rendering, this is the bare numeric on the line immediately under the `## Confidence` header). If `self_reported` is missing, null, non-numeric, or outside `[0.0, 1.0]`, default to `0.0` (the most pessimistic safe value); clamp out-of-range numeric values into `[0.0, 1.0]` first, then apply the floor. Annotate `audit.log` with `calibration: force_degraded card=<path> self_reported=<value|missing|non-numeric|out-of-range> floored=0.65 calibration_status=failed_to_calibrate`. Add a prose line to the Grounding Gaps section of `REPORT.md` reading `Hypothesis card from <agent> could not be calibrated after one retry — confidence force-degraded to min(self_reported, 0.65); calibration_status: failed_to_calibrate.` Self-reported confidence is NEVER passed through unmodified.
+
+Verification command (run before publishing): for each `tier2-*-hypothesis.md` (excluding `*-calibration.md`), assert a matching `*-calibration.md` exists and contains the Calibration Report markers (`# Calibration Report`, `## Per-dimension scores`, `## Confidence`, `## Escalation recommendation`, `**Verdict**: STOP|ESCALATE`, `**Calibrated (this report)**:` with a parseable float) — failure triggers the three-step ladder above.
+
 **Exit criteria**:
 
 - ≥ 1 hypothesis card written to disk
@@ -291,7 +303,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
 1. **Materialise each candidate fix as a standalone file** — write `<output-dir>/fix-proposals/fix-<N>.md` for each, structured as a self-contained proposal (problem statement, proposed change, evidence, risks, test plan). **When a Documentation Context Card exists at `<output-dir>/doc-context.md` (i.e., `--no-doc-discovery` was NOT set)**, append a final `## Documented constraints to honor` section to every `fix-<N>.md` containing a verbatim copy of the Card's Restrictions and Re-frame signals sections. This embed makes the debate doc-context-aware via the `--compare` artifact channel without introducing any new flag on `/sc:adversarial`. The debate agents, instructed to read each fix proposal in full, will weight proposals against the embedded constraints naturally. A fix that violates an embedded constraint must be either rejected outright by the debate, or wrapped as a **doc-update + fix bundle** (see step 3 output mode).
 2. **Invoke `/sc:adversarial` in compare mode** via `Skill`:
 
-   ```
+   ```text
    Skill sc:adversarial-protocol with --compare fix-1.md,fix-2.md[,fix-3.md] \
        --depth quick (when source signals are strong) | standard (default) \
        --focus correctness,risk,test-coverage \
@@ -332,7 +344,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
    - **Fallback**: if `evidence-validator` fails (subprocess crash, malformed output, agent unavailable), inline-validate citations in the orchestrator context (the original Wave 5 step 3 behavior); mark `status: partial` and add a Grounding Gap entry noting the validator was unavailable. The inline path is the fallback — never ship without validation.
 4. Append the machine-readable footer to the audit log:
 
-```
+```text
 <!-- SC:TROUBLESHOOT:SUMMARY
 status: <success|partial>
 tier_reached: <1|2|3>

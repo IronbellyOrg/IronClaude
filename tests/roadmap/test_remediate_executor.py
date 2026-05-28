@@ -748,6 +748,63 @@ class TestCheckPatchDiffSize:
         )
         assert check_patch_diff_size(p) is True
 
+    def test_loop_reports_structural_when_all_remediations_exceed_diff_guard(self):
+        """Cross-cutting test: when every candidate patch exceeds the 30% diff
+        guard, every patch is rejected with the "exceeds threshold" reason —
+        signaling that no remediation can land within the additive-edit
+        constraint. The upstream convergence loop interprets this as a
+        STRUCTURAL ceiling (the spec/roadmap delta cannot be closed by
+        additive patches), distinct from budget exhaustion.
+
+        Companion to the spec-fidelity-canonicalizer fix: the fix demotes
+        ID-form drift to MEDIUM so it never reaches this all-exceed-guard
+        terminal state. Genuine structural drift (function signatures,
+        spec-only IDs) can still hit this ceiling — this test locks the
+        verdict shape so the convergence loop can correctly attribute the
+        halt cause.
+        """
+        # Three patches, each rewriting 100% of the original — well above the
+        # 30% per-patch threshold (test_threshold_is_30_percent locks the
+        # value). All three MUST be rejected with the "exceeds threshold"
+        # marker so the loop can attribute the halt to a structural ceiling.
+        patches = []
+        for i, fid in enumerate(("F-A", "F-B", "F-C")):
+            original = "\n".join(f"orig {fid} line {j}" for j in range(10))
+            replacement = "\n".join(f"completely rewritten {j}" for j in range(10))
+            patches.append(
+                RemediationPatch(
+                    target_file=f"file_{i}.md",
+                    finding_id=fid,
+                    original_code=original,
+                    instruction="fix",
+                    update_snippet=replacement,
+                    rationale="r",
+                )
+            )
+
+        results = [check_patch_diff_size(p) for p in patches]
+
+        assert all(r is False for r in results), (
+            f"Expected every patch to be rejected by the 30% guard; got {results}"
+        )
+        for p in patches:
+            assert p.rejected is True, f"Patch {p.finding_id} not marked rejected"
+            assert "exceeds threshold" in p.rejection_reason, (
+                f"Patch {p.finding_id} rejection_reason "
+                f"{p.rejection_reason!r} missing 'exceeds threshold' marker"
+            )
+
+        # Loop-level verdict shape: when every candidate is rejected, the
+        # set of "applied" patches is empty. The convergence loop's
+        # downstream verdict attribution depends on this — it MUST be able
+        # to distinguish "no candidates applied because budget exhausted"
+        # vs "no candidates applied because every one exceeded the guard".
+        # The rejection_reason marker is the load-bearing signal.
+        applied = [p for p in patches if not p.rejected]
+        assert applied == [], (
+            "Sanity check: when all patches fail the guard, applied set is empty"
+        )
+
 
 # ══════════════════════════════════════════════════════════════
 # T06.01 -- Per-File Rollback

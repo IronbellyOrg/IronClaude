@@ -70,6 +70,7 @@ The following objectives MUST be achieved by this task:
 ## Prerequisites & Dependencies
 
 ### Parent Task & Dependencies
+
 - **Parent Task:** cliEval-release (Phase 2 of 4 implementation phases per design-spec §17)
 - **Blocking Dependencies:**
   - `TASK-RF-20260518-cliEval-P1-pty-isolation-gates`: provides `cli/eval/__init__.py` (exporting `eval_group`), `cli/eval/commands.py` (the `eval_group` Click group skeleton + `eval doctor` subcommand), `cli/eval/pty/` vendored driver, `cli/eval/isolation.py` (`HomeIsolation`), and `cli/eval/capability_gates.py`.
@@ -87,6 +88,7 @@ The following objectives MUST be achieved by this task:
 The actual checklist items for reading these files appear in Phase 1, Steps 1.4 and 1.5, and inline within Phase 2 build items per the self-contained pattern.
 
 **Required Previous Stage Outputs:**
+
 - **Design spec:** `.dev/releases/current/cliEval/design-spec.md` — §3 (directory layout, where each file lives), §5 (suite manifest schema, expected YAML fields and parameterize semantics), §8 (Expect.* DSL surface — class signatures and return shapes).
 - **Decisions log:** `.dev/releases/current/cliEval/decisions.md` — D-2 (rationale for porting `mcp-eval`'s Expect.* idea without taking a dependency) and D-4 (YAML primary + Python callback escape).
 - **Build request:** `.dev/releases/current/cliEval/build-requests/BUILD-REQUEST-cliEval-P2-loader-models-expect.md` — authoritative list of files to create, the 11 acceptance criteria, and the 3 open questions.
@@ -99,6 +101,7 @@ This task uses intra-task handoff patterns. Items write intermediate outputs to:
 **`.dev/tasks/to-do/TASK-RF-20260518-cliEval-P2-loader-models-expect/phase-outputs/`**
 
 Subdirectories (pre-created by the build process):
+
 - `discovery/` — manifest-schema field inventory, prd sub-package layout inventory, open-question resolutions
 - `test-results/` — `uv run pytest` raw output and structured summaries; `make verify-sync` capture
 - `reviews/` — QA gate verdicts (rf-qa structural reports)
@@ -110,6 +113,7 @@ These files persist across all batches and session rollovers. Later items read t
 ### Frontmatter Update Protocol
 
 YOU MUST update the frontmatter at these MANDATORY checkpoints:
+
 - **Upon Task Start:** Update `status` to "🟠 Doing" and `start_date` to current date
 - **Upon Completion:** Update `status` to "🟢 Done" and `completion_date` to current date
 - **If Blocked:** Update `status` to "⚪ Blocked" and populate `blocker_reason`
@@ -295,18 +299,22 @@ This final gate verifies that all 11 acceptance criteria are satisfied with on-d
 **Completion Date:** [YYYY-MM-DD]
 
 **Work Completed:**
+
 - [Implementation files]: [List with paths]
 - [Test files]: [List with paths]
 - [Schema + example + README]: [List with paths]
 - [Handoff files created]: [List phase-outputs/ files]
 
 **Challenges Encountered:**
+
 - [Challenge]: [How addressed] OR None
 
 **Deviations from Process:**
+
 - [Deviation]: [Rationale] OR None
 
 **Blockers Logged:**
+
 - [Step X.Y]: [Description] - **Status:** [Resolved/Unresolved] OR None
 
 **Follow-Up Required:** [Yes/No] - [Description if yes]
@@ -339,7 +347,7 @@ This final gate verifies that all 11 acceptance criteria are satisfied with on-d
 
 ### Phase Gate Findings
 
-_QA gate verdicts, fix cycle counts, and unresolved issues from PG.1, PG.2, and PG.3 are recorded here._
+*QA gate verdicts, fix cycle counts, and unresolved issues from PG.1, PG.2, and PG.3 are recorded here.*
 
 ### Open Questions
 

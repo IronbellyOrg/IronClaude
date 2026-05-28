@@ -26,7 +26,6 @@ from jsonschema import Draft202012Validator
 
 from superclaude.cli.eval.suites import SCHEMA_PATH
 
-
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 
 

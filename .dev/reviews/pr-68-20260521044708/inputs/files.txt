@@ -1,0 +1,9 @@
+src/superclaude/cli/eval/commands.py
+src/superclaude/cli/eval/config.py
+tests/cli/eval/conftest.py
+tests/cli/eval/test_coverage_gate_integration.py
+tests/cli/eval/test_exit_codes.py
+tests/cli/eval/test_no_mcp_skip.py
+tests/cli/eval/test_no_pty_exclusion.py
+tests/cli/eval/test_retention_policy.py
+tests/cli/eval/test_scratch_root_policy.py

@@ -1,0 +1,71 @@
+You are reviewing files in the workspace at path src/superclaude/cli/eval/ in their current state. Snapshot mode — every line is in scope.
+
+## Context
+
+Target: src/superclaude/cli/eval/ (a Python CLI evaluation engine: subprocess + PTY orchestration of Claude Code runs, with isolation, retries, coverage, reporting). It just landed as PR #66, in-tree but not merged.
+
+The directory contains ~29 files including:
+- pty_driver.py, pty_stream.py (PTY lifecycle)
+- claude_process.py, orchestrator.py, runner.py (subprocess + run loop)
+- isolation.py, disk_budget.py (sandbox/quota)
+- loader.py, models.py, expect.py, config.py (input/schema)
+- retry.py, signal_handler.py (concurrency/termination)
+- reporter.py, run_report.py, coverage.py, artifact_layout.py (reporting)
+- hook_adapter.py, commands.py, capabilities.py (plumbing)
+- schemas/*.json, suites/*.yaml
+
+Use your indexed retrieval to enumerate the actual files. Cross-reference sibling modules in src/superclaude/cli/ (sprint, roadmap, tasklist, audit, prd) for repo conventions.
+
+## Focus
+
+Three areas. Aim for 3-5 highest-signal findings per area. Quick depth.
+
+1. anti-patterns: god functions/classes, copy-paste, primitive obsession, speculative generality, message chains, swallowed exceptions, broad except.
+2. architecture: layering violations, business logic in wrong layer, missing abstractions, modules with too many responsibilities, inconsistency with sibling CLI modules (sprint/roadmap/tasklist/audit/prd/task_builder/pipeline/cli_portify), circular imports, leaky abstractions.
+3. quality: off-by-one, null-deref, untyped boundaries, dead code, magic numbers, resource leaks (subprocess/pty/fd/file handles not closed on error paths), missing error handling around signal/IPC, comments contradicting code, copy-pasted code.
+
+Pay special attention to PTY lifecycle (pty_driver/pty_stream), subprocess timeouts/cleanup (claude_process/orchestrator), sandbox boundaries (isolation/disk_budget), schema enforcement (loader/models/expect), termination semantics (retry/signal_handler).
+
+## Output (STRICT)
+
+Single JSON object. May be wrapped in ```json ... ``` fence. No prose outside. Shape:
+
+{
+  "findings": [
+    {
+      "title": "<one-line sentence-case>",
+      "category": "<security|data-integrity|correctness|concurrency|resource-leak|error-handling|api-contract|performance|architecture|layering|coupling|anti-pattern|dead-code|tests|docs|logging|naming|style>",
+      "severity_hint": "<critical|high|medium|low|nit>",
+      "file": "<repo-relative path>",
+      "line": <int>,
+      "line_range_end": <int|null>,
+      "in_diff": false,
+      "evidence": "<verbatim excerpt or null>",
+      "why": "<2-4 sentences>",
+      "recommendation": "<1-3 sentences concrete change>",
+      "cross_references": ["<path:line>"],
+      "confidence": "<high|medium|low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "...",
+      "category": "...",
+      "severity_hint": "...",
+      "affected_files": ["..."],
+      "why": "...",
+      "recommendation": "...",
+      "confidence": "..."
+    }
+  ],
+  "notes_for_orchestrator": "<optional>"
+}
+
+Quality bar:
+- Every finding MUST cite a real file:line. Verify before citing. If unsure, set confidence=low.
+- Do not invent paths.
+- Higher-level/multi-file concerns go to cross_cutting_observations.
+- in_diff=false for all (snapshot mode).
+- Aim for 8-15 findings total. Quality over quantity.
+
+Return only the JSON object.

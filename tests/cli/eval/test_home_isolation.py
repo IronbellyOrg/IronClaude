@@ -53,7 +53,6 @@ from superclaude.cli.eval import (
     HomeIsolation,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -400,7 +399,7 @@ class TestParallelSiblings:
     def test_parallel_lifecycle_round_trip(
         self, scratch_root: Path, permissive_config: EvalConfig
     ) -> None:
-        N = 8
+        n = 8
 
         def run(idx: int) -> tuple[Path, Path]:
             iso = HomeIsolation(
@@ -418,12 +417,12 @@ class TestParallelSiblings:
             finally:
                 iso.teardown(keep=False)
 
-        with ThreadPoolExecutor(max_workers=N) as pool:
+        with ThreadPoolExecutor(max_workers=n) as pool:
             results = list(
-                as_completed([pool.submit(run, i) for i in range(N)])
+                as_completed([pool.submit(run, i) for i in range(n)])
             )
         homes = [r.result()[0] for r in results]
-        assert len({str(h) for h in homes}) == N  # no collisions
+        assert len({str(h) for h in homes}) == n  # no collisions
         # All scratched out post-teardown.
         for h in homes:
             assert not h.exists()

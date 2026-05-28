@@ -38,7 +38,6 @@ from superclaude.cli.eval.schemas import (
     load_summary_schema,
 )
 
-
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "summary_schema"
 SCHEMA_PATH = (
     Path(__file__).parents[3]

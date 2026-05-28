@@ -1,0 +1,55 @@
+11795ec10e944da71eb31f3c2065634dc1c10fab
+feat(agents): Tavily-first web search precedence across 9 RF agents
+Lands TASK-RF-20260522-203947-tavily-agents-refactor together with the
+markdownlint-remediation unblocker TASK-RF-20260523-234320-markdownlint
+-remediation that cleared the pre-commit gate.
+
+Agent edits (9 files, src/superclaude/agents/*.md):
+  - deep-research, deep-research-agent
+  - rf-analyst, rf-assembler
+  - rf-qa, rf-qa-qualitative
+  - rf-task-builder, rf-task-executor, rf-task-researcher
+
+Each agent now prefers Tavily MCP (mcp__tavily__tavily-search /
+tavily-extract) as the first-choice web-search/extraction path, with
+WebSearch / WebFetch reserved as fallback. Frontmatter tool lists were
+reordered to surface Tavily ahead of generic web tools, and body prose
+documents the precedence explicitly.
+
+rf-team-lead intentionally NOT in this commit: Phase 6 of the parent
+task surfaced audit-test failures (tests/audit/test_severity_floor_*)
+that pinned to rf-team-lead's pre-refactor SHA. The team-lead edit was
+reverted pending the test-pin update path captured below.
+
+Markdownlint remediation (.markdownlint.json + 9 agent files):
+  - MD029 style relaxed to "one" — resolves 79 ol-prefix violations
+    globally across the agent set without touching content.
+  - 155 per-file content fixes: MD036 emphasis-as-heading converted to
+    ####/##### levels, MD024 duplicate headings suffix-disambiguated,
+    MD040 fenced-code-language tags added, MD013 long lines reflowed at
+    sentence boundaries.
+  - All 9 files pass `pre-commit run markdownlint --files <file>` with
+    0 violations.
+  - rf-qa task-integrity gate: 12/12 PASS.
+
+Audit-test pin refresh (4 files, tests/audit/):
+  - test_dnsp_twice_exhaust.py, test_nfr_conv_6_self_contained.py,
+    test_self_audit_inv_019.py: line/SHA pins updated to match the
+    post-refactor agent files (path 1 from Phase 6 follow-up: update
+    pins rather than revert affected agents).
+  - test_severity_floor_unweakened.py: pin updated PLUS
+    `# pragma: allowlist secret` annotation on BASELINE_BLOCK_SHA so
+    detect-secrets accepts the 64-char test-fixture SHA (not a real
+    credential).
+  - .secrets.baseline updated by detect-secrets to reflect new line
+    numbers and the now-pragma-allowlisted SHA removal.
+
+Validation:
+  - Pytest baseline preserved exactly: 102 failed / 7263 passed / 110
+    skipped / 1 error — zero new failures vs clean-HEAD parent-task
+    baseline.
+  - make sync-dev and make verify-sync both clean.
+  - .claude/agents/*.md mirrors NOT staged (now properly untracked per
+    prior chore commit so sync-dev output stays out of git).
+
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>

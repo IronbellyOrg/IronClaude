@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from ..vocabulary import DISCHARGE_TERMS, SCAFFOLD_TERMS
+from superclaude.cli.vocabulary import DISCHARGE_TERMS, SCAFFOLD_TERMS
 
 # Compile patterns
 _SCAFFOLD_RE = re.compile("|".join(SCAFFOLD_TERMS), re.IGNORECASE)

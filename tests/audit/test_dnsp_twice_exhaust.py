@@ -345,12 +345,18 @@ class TestWrapperContractTextGuards:
         # The three agent sites all use this exact phrasing; SKILL.md
         # phrases the same condition slightly differently (it scopes
         # the merge step, not the emission trigger).
+        # NOTE (2026-05-24): markdownlint MD013 reflow per
+        # TASK-RF-20260523-234320-markdownlint-remediation may split this
+        # phrase across a line-break + indentation. Normalise whitespace
+        # before the substring check so the audit remains content-pinned
+        # without being byte-pinned to a specific line wrap.
         agent_sites = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC)
         for p in agent_sites:
             txt = wrapper_texts[p]
+            normalised = " ".join(txt.split())
             assert (
                 "fails after the single retry AND exhausts its escalation ladder"
-                in txt
+                in normalised
             ), (
                 f"{p.name} no longer names the twice-exhaust trigger "
                 "('fails after the single retry AND exhausts its "

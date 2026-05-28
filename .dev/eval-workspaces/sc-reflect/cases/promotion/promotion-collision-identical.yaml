@@ -1,0 +1,29 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 10.
+# Destination already exists with byte-identical content → idempotent: action: already-promoted, no error.
+# Per §14.5.5 7-row collision-rules table.
+id: promotion-collision-identical
+status: stub-iteration-1-follow-up
+description: "Destination already exists with identical content; idempotent re-run returns action: already-promoted with no mutation."
+spec_ref: "§14.5.7 bullet 10"
+expected_action: already-promoted
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: []
+expected_gate_passed: true
+# Destination collision is NOT a gate_evaluation field — it's handled by SKILL.md §14.5.5 destination-collision rules.
+# Identical destination → action: already-promoted with no mutation. The 9-condition gate still passes (gate evaluates the work-unit, not the destination state).
+expected_collision_kind: identical
+adapter: task
+collision_kind: identical
+mutation_performed: false

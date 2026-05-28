@@ -65,7 +65,6 @@ from superclaude.cli.eval.run_report import (
 )
 from superclaude.cli.eval.schemas import load_summary_schema
 
-
 # ---------------------------------------------------------------------------
 # RunSummary fixture helpers
 # ---------------------------------------------------------------------------

@@ -67,7 +67,7 @@ CANONICAL_LOG = (
     REPO_ROOT
     / ".dev"
     / "releases"
-    / "current"
+    / "complete"
     / "task-builder-merge"
     / "artifacts"
     / "D-0060"

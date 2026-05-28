@@ -374,7 +374,7 @@ class TestNFR009Compliance:
 # ---------------------------------------------------------------------------
 
 
-from superclaude.cli.cli_portify.failures import (
+from superclaude.cli.cli_portify.failures import (  # noqa: E402  # late import for T02.06 acceptance section grouping
     STEP_0_TIMEOUT_SECONDS,
     STEP_1_TIMEOUT_SECONDS,
 )

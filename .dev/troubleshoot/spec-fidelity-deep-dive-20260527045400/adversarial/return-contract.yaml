@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/troubleshoot/spec-fidelity-deep-dive-20260527045400/adversarial/merged-output.md"
+  convergence_score: 0.76
+  artifacts_dir: "/config/workspace/IronClaude/.dev/troubleshoot/spec-fidelity-deep-dive-20260527045400/adversarial/"
+  status: "partial"
+  base_variant: "fix-5 (tier2:quality-engineer)"
+  unresolved_conflicts: 4
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-003"
+      category: "count_divergence"
+      assumption: "fix-2's CLASS_DRIFT count threshold is undefined"
+      severity: "HIGH"
+      note: "Variant-conditional — applies only if fix-2's classifier is incorporated; merged output does NOT incorporate fix-2's scaffolding."

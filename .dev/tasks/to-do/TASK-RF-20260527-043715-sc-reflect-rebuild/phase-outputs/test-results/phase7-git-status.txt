@@ -1,0 +1,12 @@
+ M .claude/commands/sc/roadmap.md
+ M .dev/brainstorms/sc-reflect-rebuild/merged-requirements.md
+ M Makefile
+ M src/superclaude/commands/reflect.md
+ M src/superclaude/commands/spec-panel.md
+ M src/superclaude/commands/task.md
+ M src/superclaude/commands/tdd.md
+?? .dev/brainstorms/sc-reflect-rebuild/spec-panel-review.md
+?? .dev/eval-workspaces/sc-reflect/
+?? .dev/reflect/
+?? .dev/tasks/to-do/TASK-RF-20260527-043715-sc-reflect-rebuild/
+?? src/superclaude/skills/sc-reflect-protocol/

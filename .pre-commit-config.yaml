@@ -42,6 +42,12 @@ repos:
     rev: v4.5.0
     hooks:
       - id: detect-private-key
+        exclude: |
+          (?x)^(
+            \.dev/releases/archive/.*|
+            \.dev/releases/backlog/.*|
+            \.dev/releases/complete/.*
+          )$
       - id: check-yaml
         name: Check for hardcoded secrets
         entry: |

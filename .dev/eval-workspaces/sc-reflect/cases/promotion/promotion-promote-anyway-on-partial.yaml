@@ -1,0 +1,32 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 12.
+# status: partial + --promote-anyway → action: moved.
+# Override flag bypasses ONLY the partial-status condition; all other 7 conditions still apply.
+# No effect on status: failed.
+id: promotion-promote-anyway-on-partial
+status: stub-iteration-1-follow-up
+description: status=partial + --promote-anyway override → promotion moves forward; other gate conditions still apply.
+spec_ref: "§14.5.7 bullet 12"
+expected_action: moved
+override_flag: --promote-anyway
+reflect_status: partial
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  # cond 2 (status_success) fails because reflect_status == partial; --promote-anyway bypasses cond 2 only.
+  # The literal gate_evaluation block reflects the *raw* per-condition evaluation (cond 2 fails);
+  # override_used: --promote-anyway is recorded at log root per §14.5.6 L1232 and is what flips action to moved.
+  mode_post: pass                            # cond 1
+  status_success: fail                       # cond 2 — reflect_status == partial fails here; override bypasses ONLY this one
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: pass                    # cond 6b
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: [status_success]
+expected_gate_passed: false                 # raw gate fails on cond 2; override_used flips action to moved
+expected_override_used: --promote-anyway    # SKILL.md §14.5.6 L1232 log-root field
+adapter: task
+override_scope: partial-status-only      # --promote-anyway only overrides this one condition

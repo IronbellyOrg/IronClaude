@@ -54,9 +54,9 @@ import yaml
 from click.testing import CliRunner
 
 from superclaude.cli.eval.capabilities import (
+    _DEFAULT_CAPABILITY_SPECS,
     CapabilityGates,
     _CapabilitySpec,
-    _DEFAULT_CAPABILITY_SPECS,
 )
 from superclaude.cli.eval.commands import eval_group
 from superclaude.cli.eval.models import (

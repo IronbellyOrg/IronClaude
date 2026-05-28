@@ -31,7 +31,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parents[3]
 EVAL_PKG = REPO_ROOT / "src" / "superclaude" / "cli" / "eval"
 PROBE_DIR = EVAL_PKG / "_probe_synth_ban_import_rule"

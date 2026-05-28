@@ -80,9 +80,12 @@ class TestNFR005GateDataSeparation:
     def test_imports_only_models(self):
         gates_data_path = _SRC_ROOT / "roadmap" / "gates.py"
         content = gates_data_path.read_text(encoding="utf-8")
-        # Should only import data types from pipeline.models
-        assert "from ..pipeline.models import" in content
+        # Should only import data types from pipeline.models (TID252 converted to absolute imports)
+        assert "from superclaude.cli.pipeline.models import" in content
         # Should not import executor or process
+        assert "from superclaude.cli.pipeline.executor" not in content
+        assert "from superclaude.cli.pipeline.process" not in content
+        # Also must not have relative imports from earlier
         assert "from ..pipeline.executor" not in content
         assert "from ..pipeline.process" not in content
 

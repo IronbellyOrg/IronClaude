@@ -1,0 +1,103 @@
+You are reviewing a code change for the repository at the workspace root. Your job is to identify problems — both narrow bugs and higher-level concerns — and report them as structured JSON.
+
+## Context
+
+Target: PR #79 — fix(roadmap): repair u2014 template corruption + add cosmetic-failure auto-remediation lane
+Source: https://github.com/IronbellyOrg/IronClaude/pull/79
+
+PR summary (verbatim from description):
+- Root-cause fix: `src/superclaude/examples/roadmap_template.md` shipped with 9 literal `u2014` ASCII strings where em-dash `—` should have been. Since commit 1073a309 embedded the template inline in the architect prompt, every architect run sees the corruption verbatim — Sonnet auto-corrects, Opus follows the template literally and drops the dash plus " and Mitigation" stem fragment, halting the pipeline on `template_sections_present`.
+- Defense-in-depth: new cosmetic-failure auto-remediation lane that classifies gate failures as cosmetic vs semantic and deterministically rewrites pure-cosmetic failures before halting. Semantic failures still halt.
+
+Diff range: master...fix/roadmap-template-and-cosmetic-remediation (1 commit, 4a647c44)
+Files changed (8):
+  src/superclaude/examples/roadmap_template.md             (9 +/ 9 -)  root-cause fix: u2014 → --
+  src/superclaude/cli/pipeline/models.py                   (48 +/ 3 -) CosmeticRemediator Protocol; StepResult.remediated/remediations; PipelineConfig.allow_cosmetic_remediation/cosmetic_remediator
+  src/superclaude/cli/pipeline/executor.py                 (65 +/ 1 -) inject classify→transform→recheck between gate-fail and FAIL StepResult
+  src/superclaude/cli/roadmap/cosmetic_remediator.py       (796 +/ 0 -) NEW MODULE — C1-C11 classifier + transforms
+  src/superclaude/cli/roadmap/executor.py                  (58 +/ 0 -) wire roadmap remediator adapter; surface remediations in halt output; remediation_summary kwarg in build_certify_step
+  src/superclaude/cli/roadmap/commands.py                  (30 +/ 0 -) --allow-cosmetic-remediation / --strict-no-remediation flags
+  src/superclaude/cli/roadmap/certify_prompts.py           (28 +/ 1 -) remediation_summary kwarg + "Pipeline Remediations Applied" prompt section
+  tests/roadmap/test_cosmetic_remediator.py                (357 +/ 0 -) NEW TEST FILE — 17 unit tests
+
+The full diff is available at: /config/workspace/IronClaude/.dev/reviews/pr-79-20260524144323/inputs/diff.patch
+Read it with the `view` tool, then use your indexed codebase context to investigate.
+
+## Focus areas
+
+You MUST cover every focus area listed below. For each focus area, search for the patterns described — do not just react to what's visible in the diff. Use your codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
+
+- security: Look for: hardcoded secrets, weak crypto, SQL/XSS injection sinks, deserialization sinks, authz/authn bypasses, path traversal, SSRF, missing rate-limits, sensitive data in logs, race conditions in auth paths, missing input validation at trust boundaries. Cross-reference: are similar patterns hardened elsewhere in the repo?
+
+- architecture: Look for: layering violations (a module reaching across boundaries that the repo conventions don't allow — note NFR-007: `cli/pipeline/*` MUST NOT import from `cli/sprint/*` or `cli/roadmap/*`), business logic in transport/presentation layers, missing abstractions, god-objects, circular imports, leaky abstractions, modules with too many responsibilities. Cross-reference: how do other modules in this repo solve similar callback-injection problems?
+
+- quality: Look for: off-by-one errors, null-deref / unwrap-on-None, untyped function boundaries, dead code, unused variables/imports, swallowed exceptions, broad except clauses, copy-pasted code, magic numbers, misleading names, comments that contradict code. Cross-reference: does `cli/roadmap/cosmetic_remediator.py` re-use existing helpers from `cli/roadmap/gates.py` (e.g. `_normalize_heading`) where appropriate, or does it reinvent?
+
+- performance: Look for: N+1 patterns, repeated full-file walks, accidentally quadratic algorithms (e.g. `_is_in_fenced_block` recomputed per line), unbounded loops, large allocations in hot paths.
+
+- anti-patterns: Look for: god functions (> 100 lines), shotgun surgery, primitive obsession, dead conditionals, brittle regex, swallowed errors.
+
+- tests: Look for: new code with no tests, tests that don't actually exercise the new code path, tests with hardcoded paths, missing edge-case tests (empty/null/multi-milestone/nested fenced code blocks), tests that rely on time/network/randomness. Cross-reference: do the new tests follow the conventions in `tests/roadmap/test_gates_data.py` (inline markdown via `tmp_path.write_text`)?
+
+- docs: Look for: new public API without docstrings, README that no longer matches code, comments that contradict code, missing migration notes for breaking changes, stale references in docs/. The PR adds a new `--allow-cosmetic-remediation` flag — does any user-facing docs file need an update?
+
+## Special instructions for this PR
+
+1. The new module `cli/roadmap/cosmetic_remediator.py` is the heart of the change. Verify:
+   - `_is_in_fenced_block` walks the whole file from line 0 for every call — is that O(N²) in the loops that call it line-by-line? Is there a cumulative-state alternative?
+   - The C7 (blank-line collapse), C8 (smart-quote fold), C9 (table padding), C10 (frontmatter trim) detectors only emit one CosmeticViolation summarizing many sites; verify the transforms still apply to every site (idempotency relies on this).
+   - The regex `_NONCANONICAL_DASH_PATTERN` includes `\xa0` (non-break space) as a "dash" — that's intentional (no-break-space replacing a dash is a common drift) but verify there are no false positives where `\xa0` appears legitimately in body text.
+   - `_h3_stem_and_suffix` strips section numbering first (line 153) but then partitions on canonical separators. Is there an ordering issue if a heading has BOTH numbering AND a non-canonical dash? Trace an example.
+
+2. The injection in `cli/pipeline/executor.py` (between gate_passed and FAIL StepResult) reads the gate target a second time to identify which semantic_check failed. Verify:
+   - The file isn't modified between the first gate_passed call and this re-read (could be — the cosmetic remediator writes!), creating a TOCTOU.
+   - When `step.gate.semantic_checks` is None or empty, gate_name falls back to "non_semantic_gate" — does the classifier's roadmap-gate filter then early-return? Trace the path.
+
+3. The roadmap remediator adapter in `cli/roadmap/executor.py` calls `output_file.read_text()` and `output_file.write_text()` without explicit encoding= in some spots and with `encoding="utf-8"` in others. Verify encoding consistency for cross-platform / Windows-line-ending scenarios.
+
+4. `_apply_blank_line_collapse` uses `\n{3,}` not `\r?\n{3,}` — Windows line endings will not be collapsed. Is this an issue given the repo's other files?
+
+5. The test file uses inline markdown but the `_content_with_milestone` helper places `## Executive Summary\nfoo\n\n` before the `## M1:` H2 — this is enough to satisfy Rule 1 ("required H2 sections") of the gate. Verify the tests are NOT accidentally testing remediation on artifacts where Rule 1 would have failed (which would invalidate the cosmetic-vs-semantic classification).
+
+## Output contract (STRICT — your response must match this exactly)
+
+Respond with a single JSON object. The shape is:
+
+{
+  "findings": [
+    {
+      "title": "<one-line summary, sentence case, no trailing period>",
+      "category": "<one of: security | data-integrity | correctness | concurrency | resource-leak | error-handling | api-contract | performance | architecture | layering | coupling | anti-pattern | dead-code | tests | docs | logging | naming | style>",
+      "severity_hint": "<critical | high | medium | low | nit>",
+      "file": "<repo-relative path>",
+      "line": <integer line number in the file at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": <true|false>,
+      "evidence": "<exact code excerpt verbatim, or null with confidence='low'>",
+      "why": "<2-4 sentences>",
+      "recommendation": "<1-3 sentences with concrete change>",
+      "cross_references": ["<repo-relative path:line>"],
+      "confidence": "<high | medium | low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "<for findings spanning multiple files>",
+      "category": "<as above>",
+      "severity_hint": "<as above>",
+      "affected_files": ["<paths>"],
+      "why": "<...>",
+      "recommendation": "<...>",
+      "confidence": "<as above>"
+    }
+  ],
+  "notes_for_orchestrator": "<optional free-form notes>"
+}
+
+## Quality bar
+
+- Every finding must cite a real file:line. If you can't verify, set confidence to "low".
+- Do not invent file paths.
+- For each focus area, aim for the highest-signal 3-5 findings, not exhaustive lists.
+
+Return only the JSON object.

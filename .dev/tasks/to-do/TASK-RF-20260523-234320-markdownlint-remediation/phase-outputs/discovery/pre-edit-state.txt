@@ -1,0 +1,10 @@
+ M .markdownlint.json
+ M src/superclaude/agents/deep-research-agent.md
+ M src/superclaude/agents/deep-research.md
+ M src/superclaude/agents/rf-analyst.md
+ M src/superclaude/agents/rf-assembler.md
+ M src/superclaude/agents/rf-qa-qualitative.md
+ M src/superclaude/agents/rf-qa.md
+ M src/superclaude/agents/rf-task-builder.md
+ M src/superclaude/agents/rf-task-executor.md
+ M src/superclaude/agents/rf-task-researcher.md

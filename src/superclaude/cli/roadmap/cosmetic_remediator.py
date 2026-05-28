@@ -36,12 +36,30 @@ Scope (per the design's "ALL deterministic-fixable drift" decision):
 - C10 frontmatter key/value trailing whitespace
 - C11 resource-requirements subsection alias (``External Dependencies (PRD-confirmed, TDD-pinned)``
   -> ``External Dependencies``; ``Infrastructure`` -> ``Infrastructure Requirements``)
+- C12 H2 parenthetical strip on required sections (``## Timeline Estimates
+  (gate-bound, not date-bound)`` -> ``## Timeline Estimates``). Safety gate:
+  only rewrites H2s whose stripped canonical is a member of
+  ``gates._REQUIRED_H2_SECTIONS``. Runs BEFORE C11 because C11's parent-H2
+  detector cannot strip parentheticals, so a parenthetical-bearing
+  ``## Resource Requirements and Dependencies (...)`` would otherwise
+  prevent C11's H3 normalizations from firing.
+- C13 gap-driven H3 repair under ``## Resource Requirements and Dependencies``.
+  For each missing canonical H3 (after C11's alias-promotion), score
+  remaining non-canonical H3s by Jaccard token overlap with the canonical
+  name; rename only when EXACTLY ONE candidate scores at-or-above
+  ``_C13_TOKEN_OVERLAP_THRESHOLD`` (cardinality safety -- 0 candidates is
+  a true gap, 2+ ties is semantic ambiguity, both refuse). Runs AFTER C11.
 """
 
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+
+from superclaude.cli.roadmap.gates import (
+    _REQUIRED_H2_SECTIONS,
+    _REQUIRED_RESOURCE_SUBSECTIONS,
+)
 
 # The required milestone H3 stems, ordered for stable transform output.
 # Mirrors ``gates._REQUIRED_MILESTONE_SUBSECTIONS`` plus the optional
@@ -114,6 +132,16 @@ _SEMANTIC_MARKERS: tuple[str, ...] = (
     "{{SC_PLACEHOLDER:",  # unreplaced sentinel
 )
 
+# Minimum Jaccard token-overlap score for a non-canonical H3 under
+# ``## Resource Requirements and Dependencies`` to be eligible for C13 rename.
+# Calibrated against the TUIBBS case (`### External library lockset` vs
+# canonical `external dependencies`): tokens {external, library, lockset} ∩
+# {external, dependencies} = {external}; union has 4 elements; Jaccard = 0.25.
+# 0.20 admits this case with 0.05 of headroom without admitting near-zero-
+# overlap candidates. Cardinality safety (exactly one above threshold) is
+# non-negotiable regardless of this value.
+_C13_TOKEN_OVERLAP_THRESHOLD: float = 0.20
+
 # Gate names this remediator applies to. The pipeline executor is generic;
 # we narrow the remediation surface to known roadmap gates so non-roadmap
 # pipelines (sprint, validate) get default halt-on-failure behavior.
@@ -132,7 +160,7 @@ _ROADMAP_GATE_NAMES: frozenset[str] = frozenset(
 class CosmeticViolation:
     """One detected cosmetic defect with its remediation evidence."""
 
-    klass: str  # "C1".."C10"
+    klass: str  # "C1".."C13"
     description: str  # human-readable, suitable for audit log
     line_number: int | None = None  # 1-based, if locatable
     original: str | None = None  # the offending text, for diff diagnostics
@@ -265,6 +293,107 @@ def _detect_semantic_violations(content: str) -> list[str]:
         )
 
     return violations
+
+
+def _compute_c13_renames(
+    lines: list[str], fenced_indices: set[int]
+) -> list[tuple[int, str, float, str]]:
+    """Compute C13 gap-driven renames as ``(idx, original_line, score, canonical_title)``.
+
+    Shared between ``_detect_cosmetic_violations`` (for C13 emission) and
+    ``_apply_h3_gap_driven_repair`` (for the rewrite). Both must agree on
+    which lines qualify, so the discovery + scoring + cardinality logic is
+    factored into this single helper.
+
+    Algorithm:
+      1. Walk lines, tracking whether we are inside ``## Resource Requirements
+         and Dependencies`` scope (uses the same toggle pattern as C11).
+      2. Collect every H3 under that scope with its index, original line,
+         and a normalized comparison body (numbering stripped, trailing
+         parenthetical removed, lowercased, stripped).
+      3. Partition into ``covered`` (normalized body is already canonical or
+         matches a C11 alias substring) and ``non_canonical`` (everything
+         else). C11 alias coverage is included because C11 will promote
+         those H3s; C13 must not also pick them.
+      4. ``missing = _REQUIRED_RESOURCE_SUBSECTIONS - covered``.
+      5. For each missing canonical, score each non-canonical H3 by Jaccard
+         token overlap; emit a rename ONLY when exactly one candidate is
+         at-or-above ``_C13_TOKEN_OVERLAP_THRESHOLD`` (cardinality safety).
+      6. A candidate consumed for one missing canonical is excluded from
+         scoring for any other missing canonical in the same pass.
+
+    Returns an empty list when no gap exists, no candidate qualifies, or
+    cardinality safety refuses every candidate.
+    """
+    h2_re_resource = re.compile(r"^##\s+(.+?)\s*$")
+    trailing_paren_re = re.compile(r"\s*\([^)]*\)\s*$")
+    in_resource_scope = False
+    resource_h3s: list[tuple[int, str, str]] = []  # (idx, original_line, normalized)
+    for idx, line in enumerate(lines):
+        h2m = h2_re_resource.match(line.rstrip("\n"))
+        if h2m and not line.startswith("### "):
+            h2_text = _strip_section_numbering(h2m.group(1)).lower().strip()
+            in_resource_scope = h2_text == _RESOURCE_PARENT_NORMALIZED
+            continue
+        if not in_resource_scope:
+            continue
+        if line.startswith("# "):
+            in_resource_scope = False
+            continue
+        if not line.startswith("### "):
+            continue
+        if idx in fenced_indices:
+            continue
+        body = _strip_section_numbering(line[4:])
+        body_no_paren = trailing_paren_re.sub("", body).strip()
+        normalized = body_no_paren.lower()
+        resource_h3s.append((idx, line, normalized))
+
+    if not resource_h3s:
+        return []
+
+    covered: set[str] = set()
+    non_canonical: list[tuple[int, str, str]] = []
+    for idx_, line_, normalized in resource_h3s:
+        if normalized in _REQUIRED_RESOURCE_SUBSECTIONS:
+            covered.add(normalized)
+            continue
+        c11_canonical: str | None = None
+        for alias_lower, canonical_name in _RESOURCE_SUBSECTION_ALIASES:
+            if alias_lower in normalized:
+                c11_canonical = canonical_name.lower()
+                break
+        if c11_canonical is not None:
+            covered.add(c11_canonical)
+            continue
+        non_canonical.append((idx_, line_, normalized))
+
+    missing = _REQUIRED_RESOURCE_SUBSECTIONS - covered
+    if not missing:
+        return []
+
+    renames: list[tuple[int, str, float, str]] = []
+    used: set[int] = set()
+    for canonical_missing in sorted(missing):
+        canonical_tokens = set(canonical_missing.split())
+        scored: list[tuple[float, int, str]] = []
+        for idx_, line_, normalized in non_canonical:
+            if idx_ in used:
+                continue
+            h3_tokens = set(normalized.split())
+            union = canonical_tokens | h3_tokens
+            score = (
+                len(canonical_tokens & h3_tokens) / len(union) if union else 0.0
+            )
+            if score >= _C13_TOKEN_OVERLAP_THRESHOLD:
+                scored.append((score, idx_, line_))
+        if len(scored) != 1:
+            continue  # cardinality safety: 0 -> true gap; 2+ -> ambiguity
+        score, idx_, line_ = scored[0]
+        canonical_title = canonical_missing.title()
+        renames.append((idx_, line_, score, canonical_title))
+        used.add(idx_)
+    return renames
 
 
 def _detect_cosmetic_violations(content: str) -> list[CosmeticViolation]:
@@ -453,6 +582,41 @@ def _detect_cosmetic_violations(content: str) -> list[CosmeticViolation]:
                         )
                     )
 
+    # C12 H2 parenthetical strip. A required H2 like ``## Timeline Estimates``
+    # may drift into ``## Timeline Estimates (gate-bound, not date-bound)`` --
+    # the gate's _template_sections_present normalizer rejects it because the
+    # parenthetical breaks exact-match against ``_REQUIRED_H2_SECTIONS``. Safety
+    # gate: ONLY emit C12 when the stripped canonical (lowercased) is a member
+    # of ``_REQUIRED_H2_SECTIONS`` -- non-required H2s keep their parentheticals.
+    h2_paren_re = re.compile(r"^##\s+(.+?)\s*$")
+    h2_trailing_paren_re = re.compile(r"\s*\([^)]*\)\s*$")
+    for idx, line in enumerate(lines):
+        if idx in fenced_indices:
+            continue
+        m = h2_paren_re.match(line.rstrip("\n"))
+        if not m:
+            continue
+        body = m.group(1)
+        if not h2_trailing_paren_re.search(body):
+            continue
+        # Strip a leading "N." numbering prefix (case-preserving), then strip
+        # the trailing parenthetical to compute the canonical form.
+        body_no_numbering = _strip_section_numbering(body)
+        canonical_body = h2_trailing_paren_re.sub("", body_no_numbering).strip()
+        canonical_lower = canonical_body.lower()
+        if canonical_lower not in _REQUIRED_H2_SECTIONS:
+            continue
+        violations.append(
+            CosmeticViolation(
+                klass="C12",
+                description=(
+                    f"H2 parenthetical at line {idx + 1}: {line.rstrip()!r}"
+                ),
+                line_number=idx + 1,
+                original=line,
+            )
+        )
+
     # C11 resource-requirements subsection alias. Under
     # ``## Resource Requirements and Dependencies``, the gate requires H3s
     # spelled exactly ``External Dependencies`` and ``Infrastructure
@@ -494,6 +658,27 @@ def _detect_cosmetic_violations(content: str) -> list[CosmeticViolation]:
                     )
                 )
                 break
+
+    # C13 gap-driven H3 repair. After C11's alias-promotion, the remaining
+    # gap is the set of canonical resource H3s not present and not coverable
+    # by a C11 alias. For each missing canonical, score remaining
+    # non-matching H3s by Jaccard token overlap. Emit C13 only when EXACTLY
+    # ONE candidate scores at-or-above ``_C13_TOKEN_OVERLAP_THRESHOLD``
+    # (cardinality safety -- ambiguity is semantic, not cosmetic).
+    c13_renames = _compute_c13_renames(lines, fenced_indices)
+    for c13_idx, c13_line, score, canonical_title in c13_renames:
+        violations.append(
+            CosmeticViolation(
+                klass="C13",
+                description=(
+                    f"gap-driven H3 rename at line {c13_idx + 1}: "
+                    f"'{c13_line.rstrip()}' -> '### {canonical_title}' "
+                    f"(token-overlap score {score:.2f})"
+                ),
+                line_number=c13_idx + 1,
+                original=c13_line,
+            )
+        )
 
     return violations
 
@@ -719,6 +904,47 @@ def _apply_frontmatter_trim(content: str) -> tuple[str, list[str]]:
     return content, transforms
 
 
+def _apply_h2_parenthetical_strip(content: str) -> tuple[str, list[str]]:
+    """Strip trailing parentheticals from required H2 headings (C12).
+
+    Required H2s like ``## Timeline Estimates`` may drift into
+    ``## Timeline Estimates (gate-bound, not date-bound)`` -- the parenthetical
+    breaks exact-match against ``_REQUIRED_H2_SECTIONS`` in
+    ``gates._template_sections_present``. This transform rewrites such lines
+    to ``## <canonical>``. Safety gate: only H2s whose stripped (lowercased)
+    canonical is a member of ``_REQUIRED_H2_SECTIONS`` are rewritten; other
+    H2s keep their parentheticals. Skips fenced-code regions. Idempotent.
+    """
+    transforms: list[str] = []
+    lines = content.splitlines(keepends=True)
+    fenced_indices = _compute_fenced_indices(lines)
+    h2_re = re.compile(r"^(##\s+)(.+?)(\s*)$")
+    trailing_paren_re = re.compile(r"\s*\([^)]*\)\s*$")
+    for idx, line in enumerate(lines):
+        if idx in fenced_indices:
+            continue
+        raw = line.rstrip("\n")
+        m = h2_re.match(raw)
+        if not m:
+            continue
+        prefix, body, _trail = m.group(1), m.group(2), m.group(3)
+        if not trailing_paren_re.search(body):
+            continue
+        body_no_numbering = _strip_section_numbering(body)
+        canonical_body = trailing_paren_re.sub("", body_no_numbering).strip()
+        if canonical_body.lower() not in _REQUIRED_H2_SECTIONS:
+            continue
+        new_line = f"{prefix}{canonical_body}" + ("\n" if line.endswith("\n") else "")
+        if new_line == line:
+            continue
+        transforms.append(
+            f"H2 parenthetical stripped at line {idx + 1}: "
+            f"{line.rstrip()!r} -> {new_line.rstrip()!r}"
+        )
+        lines[idx] = new_line
+    return "".join(lines), transforms
+
+
 def _apply_resource_subsection_rewrites(content: str) -> tuple[str, list[str]]:
     """Rewrite Resource Requirements H3s to canonical form (C11).
 
@@ -764,6 +990,37 @@ def _apply_resource_subsection_rewrites(content: str) -> tuple[str, list[str]]:
     return "".join(lines), transforms
 
 
+def _apply_h3_gap_driven_repair(content: str) -> tuple[str, list[str]]:
+    """Rename non-canonical resource H3s to fill gaps (C13).
+
+    Runs AFTER C11 in the dispatcher so the ``covered`` set reflects C11's
+    alias-promotions. For each missing canonical H3 under
+    ``## Resource Requirements and Dependencies``, if exactly one
+    non-canonical H3 in scope scores at-or-above
+    ``_C13_TOKEN_OVERLAP_THRESHOLD`` by Jaccard token overlap, rename it.
+    Refuses to rename when zero or 2+ candidates qualify (cardinality
+    safety). Idempotent: after a successful rename, the renamed body is
+    canonical and ``missing`` shrinks on the next call.
+    """
+    transforms: list[str] = []
+    lines = content.splitlines(keepends=True)
+    fenced_indices = _compute_fenced_indices(lines)
+    renames = _compute_c13_renames(lines, fenced_indices)
+    for idx, original_line, score, canonical_title in renames:
+        new_line = f"### {canonical_title}" + (
+            "\n" if original_line.endswith("\n") else ""
+        )
+        if new_line == original_line:
+            continue
+        transforms.append(
+            f"gap-driven H3 rename at line {idx + 1}: "
+            f"'{original_line.rstrip()}' -> '### {canonical_title}' "
+            f"(token-overlap score {score:.2f})"
+        )
+        lines[idx] = new_line
+    return "".join(lines), transforms
+
+
 def apply_cosmetic_remediations(
     content: str,
     classification: Classification,
@@ -776,12 +1033,16 @@ def apply_cosmetic_remediations(
 
     Transforms are applied in a stable order so the output is deterministic:
         1. Milestone H3 rewrites (C1-C4)
-        2. Resource-section H3 rewrites (C11)
-        3. Trailing whitespace (C5, C6)
-        4. Blank-line collapse (C7)
-        5. Smart-quote fold (C8)
-        6. Table padding (C9)
-        7. Frontmatter trim (C10)
+        2. H2 parenthetical strip (C12) -- must run BEFORE C11 because
+           C11's parent-H2 detector cannot strip parentheticals
+        3. Resource-section H3 rewrites (C11)
+        4. Gap-driven H3 repair (C13) -- runs AFTER C11 so it sees the
+           post-promotion already-canonical set
+        5. Trailing whitespace (C5, C6)
+        6. Blank-line collapse (C7)
+        7. Smart-quote fold (C8)
+        8. Table padding (C9)
+        9. Frontmatter trim (C10)
 
     All transforms are idempotent. The function is safe to call twice.
     """
@@ -796,8 +1057,16 @@ def apply_cosmetic_remediations(
         current, t = _apply_milestone_h3_rewrites(current)
         transforms.extend(t)
 
+    if "C12" in klasses:
+        current, t = _apply_h2_parenthetical_strip(current)
+        transforms.extend(t)
+
     if "C11" in klasses:
         current, t = _apply_resource_subsection_rewrites(current)
+        transforms.extend(t)
+
+    if "C13" in klasses:
+        current, t = _apply_h3_gap_driven_repair(current)
         transforms.extend(t)
 
     if klasses & {"C5", "C6"}:

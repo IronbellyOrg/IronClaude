@@ -1,0 +1,21 @@
+# SKELETON — iteration-3 follow-up authors full fixture and flips status to active.
+# Spec §12.5 lines 1018-1059 (canonical falsifier case shape) + W-A8 spec-panel fix.
+id: T2-converges-on-wrong
+status: skeleton-pending-iteration-3-fixture
+description: "T2 reviewer ensemble converges on the WRONG answer when given a fixture with deliberate misclassification, exercising the heterogeneous-reviewer-ensemble guarantee."
+expected_grader_emission:
+  skeleton_present: true
+iteration_3_fixture_path: cases/falsifier-suite/fixtures/spec-with-deliberate-misclassification.md
+canonical_assertion_for_iteration_3: "convergence_score < 0.75 OR verdict == regression_present"
+related_spec_references:
+  - "§11.4 heterogeneous reviewer ensemble (anti-representational-bias rationale)"
+  - "§7.1 reviewer composition rules"
+  - "§11.3 blind calibration disjoint-set"
+
+# When iteration-3 promotes to active, populate the following block and remove this placeholder.
+TODO_ITERATION_3:
+  - "Promote status field to `active` (byte-exact replacement)."
+  - "Add canonical fields: `type`, `fixture`, `expected`, `assertion` per §12.5."
+  - "Author the fixture content at `fixtures/spec-with-deliberate-misclassification.md` (currently a placeholder)."
+  - "Run `make reflect-eval` against this case and confirm the canonical assertion `convergence_score < 0.75 OR verdict == regression_present` actually triggers."
+  - "If the assertion fails to trigger, escalate per the falsifier-suite README: the sufficiency claim is empirically wrong."

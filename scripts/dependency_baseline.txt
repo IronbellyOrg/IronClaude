@@ -65,3 +65,9 @@ typing-extensions
 # --- AC3 allow-list additions (permitted while eval CLI lands) ---
 pexpect
 ptyprocess
+
+# --- Python <3.11 backports auto-installed via pytest ---
+# pytest-9 pulls these transitively on Python 3.10/3.11 (exceptiongroup also on
+# 3.11 for the ExceptionGroup type backport). Both are stdlib in 3.11+/3.12+.
+exceptiongroup
+tomli

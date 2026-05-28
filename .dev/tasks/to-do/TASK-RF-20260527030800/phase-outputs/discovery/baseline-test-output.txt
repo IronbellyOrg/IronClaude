@@ -1,0 +1,34 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python3
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 21 items
+
+tests/roadmap/test_cosmetic_remediator.py::TestClassifierBasics::test_non_roadmap_gate_classifies_as_non_cosmetic PASSED [  4%]
+tests/roadmap/test_cosmetic_remediator.py::TestClassifierBasics::test_placeholder_sentinel_is_semantic PASSED [  9%]
+tests/roadmap/test_cosmetic_remediator.py::TestClassifierBasics::test_oq_in_deliverable_id_is_semantic PASSED [ 14%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c1_stem_alias_classified_and_fixed PASSED [ 19%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c2_missing_milestone_suffix_fixed PASSED [ 23%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c3_u2014_literal_dash_variant_fixed PASSED [ 28%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_c3_em_dash_normalized_to_double_hyphen PASSED [ 33%]
+tests/roadmap/test_cosmetic_remediator.py::TestMilestoneH3Defects::test_full_tuibbs_failure_shape_remediated PASSED [ 38%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c5_c6_trailing_whitespace_stripped PASSED [ 42%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c7_blank_line_collapse PASSED [ 47%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c8_smart_quotes_folded PASSED [ 52%]
+tests/roadmap/test_cosmetic_remediator.py::TestNonH3Cosmetics::test_c10_frontmatter_trailing_whitespace_stripped PASSED [ 57%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_canonical_input_classifies_as_not_cosmetic PASSED [ 61%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_remediation_is_idempotent PASSED [ 66%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_c11_resource_subsection_alias_fixed PASSED [ 71%]
+tests/roadmap/test_cosmetic_remediator.py::TestIdempotency::test_mixed_cosmetic_and_semantic_refuses_to_remediate PASSED [ 76%]
+tests/roadmap/test_cosmetic_remediator.py::TestClassificationDataclass::test_step_id_and_gate_name_round_trip PASSED [ 80%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_matches_is_in_fenced_block_on_mixed_sample PASSED [ 85%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_empty_input PASSED [ 90%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_no_fences PASSED [ 95%]
+tests/roadmap/test_cosmetic_remediator.py::TestComputeFencedIndices::test_unclosed_fence_preserves_oracle_semantics PASSED [100%]
+
+============================== 21 passed in 0.15s ==============================

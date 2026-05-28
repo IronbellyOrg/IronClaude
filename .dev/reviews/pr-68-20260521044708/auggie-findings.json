@@ -1,0 +1,178 @@
+{
+  "findings": [
+    {
+      "title": "Tautology fix correctly implemented — eval_run no longer passes self-referential output_dir kwarg",
+      "category": "security",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/eval/commands.py",
+      "line": 1764,
+      "line_range_end": 1767,
+      "in_diff": true,
+      "evidence": "resolved_output = resolve_scratch_root(\n    requested_output,\n    config=base_config,\n)",
+      "why": "The M2 fix correctly closes the tautology: eval_run now calls resolve_scratch_root with only the candidate path and config, omitting the output_dir kwarg that previously allowed /etc/foo to slip through. The PR description claims this closes the tautology, and inspection confirms eval doctor (commands.py:848) never passed the kwarg either — the two commands now agree on allowlist enforcement.",
+      "recommendation": "Verified as correct. Cross-check: containment_guard in isolation.py:310 also calls resolve_scratch_root(scratch_root, config=config) without the output_dir kwarg, confirming the layered defense-in-depth pattern is correctly applied. No action needed.",
+      "cross_references": [
+        "src/superclaude/cli/eval/commands.py:848",
+        "src/superclaude/cli/eval/isolation.py:310",
+        "src/superclaude/cli/eval/config.py:199"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "RUN_INTERRUPTED_EXIT_CODE correctly re-exports EXIT_INTERRUPTED, not hardcoded",
+      "category": "correctness",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/eval/commands.py",
+      "line": 578,
+      "line_range_end": 578,
+      "in_diff": true,
+      "evidence": "RUN_INTERRUPTED_EXIT_CODE: int = EXIT_INTERRUPTED",
+      "why": "The PR claims RUN_INTERRUPTED_EXIT_CODE re-exports signal_handler.EXIT_INTERRUPTED (= 3) to maintain a single source of truth. Verified: EXIT_INTERRUPTED is imported at line 93 and defined in signal_handler.py:47 as the literal integer 3. The constant is correctly re-exported, not hardcoded.",
+      "recommendation": "Verified as correct. The docstring at lines 579-581 explicitly states the re-export prevents drift. No action needed.",
+      "cross_references": [
+        "src/superclaude/cli/eval/signal_handler.py:47",
+        "tests/cli/eval/test_exit_codes.py:405"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "_NullLifecycleExecutor returns None from spawn/inject methods but docstring claims 'canned values'",
+      "category": "docs",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/eval/commands.py",
+      "line": 1417,
+      "line_range_end": 1421,
+      "in_diff": true,
+      "evidence": "def spawn(self, ctx: ExecutorContext) -> None:\n    return None\n\ndef inject(self, ctx: ExecutorContext) -> None:\n    return None",
+      "why": "The docstring at line 1413 says methods 'return canned values so run_eval flows end-to-end without spawning a subprocess', but spawn() and inject() return None (which matches their -> None type hints). The observe() method at line 1424 does return a canned ObservedRun. The docstring is slightly misleading — 'canned values' suggests all three methods return data, when two return None (which is correct).",
+      "recommendation": "Clarify docstring at line 1413: change 'return canned values' to 'return no-op None for spawn/inject and a canned ObservedRun for observe' to align with the actual implementation.",
+      "cross_references": [
+        "src/superclaude/cli/eval/commands.py:1424"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "_resolve_executor_factory type-ignores the return of _NullLifecycleExecutor()",
+      "category": "quality",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/eval/commands.py",
+      "line": 1441,
+      "line_range_end": 1442,
+      "in_diff": true,
+      "evidence": "def factory(**_kwargs: Any) -> LifecycleExecutor:\n    return _NullLifecycleExecutor()  # type: ignore[return-value]",
+      "why": "_NullLifecycleExecutor is a concrete class, not a LifecycleExecutor. The type-ignore suppresses the mismatch. The PR description says _NullLifecycleExecutor is a deliberate M5/M6-gated placeholder that 'fails-closed safely', but the type-ignore suggests it doesn't actually implement the LifecycleExecutor protocol. The comment says tests monkeypatch this function — the type-ignore may be intentional to allow the placeholder.",
+      "recommendation": "Verify whether _NullLifecycleExecutor should inherit from or implement LifecycleExecutor. If the placeholder is truly temporary (M5/M6), the type-ignore is acceptable but should cite the follow-up task in a comment. If the class should implement the protocol, remove the type-ignore and add proper inheritance.",
+      "cross_references": [
+        "src/superclaude/cli/eval/runner.py:91",
+        "src/superclaude/cli/eval/commands.py:1403"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "allowlisted_output_dir fixture uses uuid.uuid4().hex[:12] without collision safety documentation",
+      "category": "tests",
+      "severity_hint": "low",
+      "file": "tests/cli/eval/conftest.py",
+      "line": 34,
+      "line_range_end": 34,
+      "in_diff": true,
+      "evidence": "root = Path(\"/tmp/eval-runs\") / f\"pytest-{uuid.uuid4().hex[:12]}\"",
+      "why": "The fixture generates a 12-hex-char subdirectory name (48 bits of entropy). For a test suite with N parallel workers, the birthday paradox says collision probability becomes non-negligible around sqrt(2^48) ≈ 16M runs. Pytest typically runs <1000 tests, so collisions are astronomically unlikely, but the fixture doesn't document this assumption or handle collisions (e.g., exist_ok=True on mkdir would mask a collision).",
+      "recommendation": "Document the collision safety assumption in the docstring: 'UUID4 12-hex suffix provides ~48 bits of entropy; collision probability is negligible for test-suite scale (<1000 tests).' The exist_ok=True at line 35 is already correct, so no code change needed unless explicit collision detection is desired.",
+      "cross_references": [
+        "tests/cli/eval/conftest.py:35"
+      ],
+      "confidence": "low"
+    },
+    {
+      "title": "Test skip for K005 (inspect.getsource on Click Command) claims TypeError but doesn't show evidence",
+      "category": "tests",
+      "severity_hint": "low",
+      "file": "tests/cli/eval/test_no_mcp_skip.py",
+      "line": 586,
+      "line_range_end": 594,
+      "in_diff": true,
+      "evidence": "pytest.skip(\n    \"T04.10-followup-K005: pre-existing test authoring bug — \"\n    \"`inspect.getsource(eval_run)` raises TypeError because eval_run \"\n    \"is a Click Command object, not a Python function. Un-skips when \"\n    \"`_no_mcp_runtime_wired()` is rewritten to introspect via \"\n    \"`eval_run.callback` or the underlying function object.\"\n)",
+      "why": "The skip message claims inspect.getsource(eval_run) raises TypeError because eval_run is a Click Command, and suggests using eval_run.callback instead. However, the test doesn't actually demonstrate this error — it's skipped unconditionally at line 587. The PR description says this is a 'pre-existing-broken' test, but there's no inline verification of the claim (e.g., a commented-out assertion showing the TypeError).",
+      "recommendation": "Add a comment above the skip showing the actual error or referencing a prior PR/issue that documents the TypeError. Alternatively, add a commented-out snippet demonstrating `type(eval_run)` is `click.Command` to make the skip rationale verifiable.",
+      "cross_references": [
+        "tests/cli/eval/test_no_pty_exclusion.py:630",
+        "tests/cli/eval/test_no_mcp_skip.py:433"
+      ],
+      "confidence": "low"
+    },
+    {
+      "title": "Test skip for K004 (--suites-dir wrong subcommand) claims eval run doesn't accept flag but doesn't verify",
+      "category": "tests",
+      "severity_hint": "low",
+      "file": "tests/cli/eval/test_no_pty_exclusion.py",
+      "line": 630,
+      "line_range_end": 636,
+      "in_diff": true,
+      "evidence": "pytest.skip(\n    \"T04.10-followup-K004: pre-existing test authoring bug — \"\n    \"`eval run --suites-dir` is invalid (the flag exists on `eval list`, \"\n    \"not `eval run`). Un-skips when the test is rewritten to either \"\n    \"(a) drop --suites-dir, (b) move the suite manifest to a location \"\n    \"discoverable by --suite directly, or (c) target a different command.\"\n)",
+      "why": "The skip claims --suites-dir is a flag on 'eval list' (commands.py around L920), not 'eval run', and that Click correctly rejects with exit 2. The PR description says this is 'pre-existing-broken', but there's no inline evidence showing the flag doesn't exist on eval run. A quick check would be to grep for @click.option('--suites-dir') in the eval_run function.",
+      "recommendation": "Add a comment referencing the eval list command location (commands.py:920) or showing a snippet of the eval run command signature to verify --suites-dir is absent. This makes the skip rationale auditable without re-running the test.",
+      "cross_references": [
+        "tests/cli/eval/test_no_mcp_skip.py:586",
+        "src/superclaude/cli/eval/commands.py:1579"
+      ],
+      "confidence": "low"
+    },
+    {
+      "title": "_compute_run_stats hardcodes status sets but no single source of truth for valid statuses",
+      "category": "quality",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/eval/commands.py",
+      "line": 1538,
+      "line_range_end": 1539,
+      "in_diff": true,
+      "evidence": "kept_statuses = {\"PASS\", \"FAIL\", \"ERRORED\", \"TIMEOUT\", \"XFAIL\", \"XPASS\"}\nskipped_statuses = {\"SKIPPED\", \"INTERRUPTED\"}",
+      "why": "The function hardcodes two status sets at lines 1538-1539, then uses them to partition outcomes. The docstring at line 1532 says XFAIL/XPASS rollup 'follows DM-012 verbatim', but there's no single source of truth for valid status names. If a future status (e.g., CANCELLED) is added to models.EvalOutcome, this function won't automatically recognize it, leading to silent undercounting.",
+      "recommendation": "Define a canonical set of valid statuses in models.py (e.g., EvalOutcome.VALID_STATUSES) and reference it here, or add a comment referencing the DM-012 spec so future maintainers know where the list comes from. Consider adding a runtime assertion that all observed statuses are in the union of kept_statuses | skipped_statuses to catch unknown statuses early.",
+      "cross_references": [
+        "src/superclaude/cli/eval/models.py:85"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Three skipped tests (K002, K004, K005) all cite legitimate blockers but lack inline verification",
+      "category": "tests",
+      "severity_hint": "low",
+      "affected_files": [
+        "tests/cli/eval/test_exit_codes.py",
+        "tests/cli/eval/test_no_pty_exclusion.py",
+        "tests/cli/eval/test_no_mcp_skip.py",
+        "tests/cli/eval/test_retention_policy.py"
+      ],
+      "why": "The PR defers 5 follow-up tasks (K001-K005). Three of them (K002, K004, K005) add pytest.skip() calls with detailed rationales, but none of the skip blocks include inline verification of the claim (e.g., showing the actual error or demonstrating the missing feature). K002 (production LifecycleExecutor) is verified via type(_executor_sample).__name__ == '_NullLifecycleExecutor', which is excellent. K004/K005 should follow the same pattern.",
+      "recommendation": "For K004 and K005, add commented-out snippets or assertions showing the claimed error (e.g., 'type(eval_run)' is 'click.core.Command' for K005, or 'eval_run' has no '--suites-dir' option for K004). This makes the skip rationale auditable without requiring the reviewer to trust the author's claim.",
+      "confidence": "medium"
+    },
+    {
+      "title": "M1 fix adds 205 LOC of helpers to commands.py (now 1988 lines) — cohesion concern but not god-object yet",
+      "category": "architecture",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/eval/commands.py"
+      ],
+      "why": "The PR adds 8 module-private helpers (lines 1335-1576, ~240 LOC including docstrings) to commands.py. The file is now 1988 lines. The PR asks whether this 'pushed commands.py past a reasonable size' and should move to a sibling module (e.g., runner_helpers.py). The 8 helpers are cohesive (all consumed by eval_run) and well-documented. Commands.py contains 3 subcommands (doctor, list, run) + helpers — not yet a god-object, but approaching the threshold where refactoring would aid navigation.",
+      "recommendation": "Acceptable for now, but consider extracting the 8 helpers to a new module (e.g., src/superclaude/cli/eval/run_helpers.py) in a follow-up. The helpers are module-private by design (so tests can monkeypatch them), which is load-bearing — if extracted, they'd need to be public exports of the new module. Not urgent, but flag for future cleanup.",
+      "confidence": "medium"
+    },
+    {
+      "title": "No other resolve_scratch_root callers pass self-referential output_dir kwarg — tautology was isolated to eval_run",
+      "category": "security",
+      "severity_hint": "high",
+      "affected_files": [
+        "src/superclaude/cli/eval/commands.py",
+        "src/superclaude/cli/eval/isolation.py"
+      ],
+      "why": "Codebase retrieval confirms only two callers of resolve_scratch_root: (1) eval doctor at commands.py:848, which calls resolve_scratch_root(output_dir) without the kwarg, and (2) containment_guard at isolation.py:310, which calls resolve_scratch_root(scratch_root, config=config) without the kwarg. The M2 fix (removing output_dir=output_dir from eval_run) aligns eval_run with both existing callers. No other code passes a self-referential kwarg.",
+      "recommendation": "Verified. The tautology was isolated to eval_run (pre-fix) and is now closed. The docstring update at config.py:199-209 correctly warns future callers not to pass the raw operator-supplied path as the kwarg. No action needed.",
+      "confidence": "high"
+    }
+  ],
+  "notes_for_orchestrator": "All focus areas covered. Security: tautology fix verified correct; eval_run and eval doctor now agree on allowlist enforcement. Architecture: _NullLifecycleExecutor / _resolve_executor_factory seam is correct; the type-ignore at L1442 is intentional for the M5/M6 placeholder. Quality: exit-code constants correctly re-export from signal_handler; hardcoded status sets in _compute_run_stats are a minor maintainability concern but not a bug. Tests: 3 skipped tests (K002/K004/K005) cite legitimate blockers; K002 verification is excellent, K004/K005 should add inline evidence. Anti-patterns: 205 LOC of helpers push commands.py to 1988 lines; cohesive but approaching threshold for extraction. Docs: resolve_scratch_root docstring tightening is accurate and names the legitimate caller (containment_guard). No critical or high-severity bugs found; the M1/M2 fixes are correct."
+}

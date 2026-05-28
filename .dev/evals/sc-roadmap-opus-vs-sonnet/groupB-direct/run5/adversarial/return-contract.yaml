@@ -1,0 +1,82 @@
+# sc:adversarial return contract — MANDATORY per skill protocol
+# Pipeline: Mode B (--source + --generate roadmap + --agents opus,sonnet)
+# Depth: standard (Round 1 + Round 2 + Round 2.5 invariant probe)
+# Output policy guard: PASSED (path under .dev/, not under .claude/skills,agents,commands/)
+
+merged_output_path: /config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run5/merged-roadmap-user-auth.md
+convergence_score: 0.543
+artifacts_dir: /config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run5/adversarial
+status: success
+base_variant: opus
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []
+
+# Supplementary detail (not part of strict enum — provides eval context)
+debate_metrics:
+  convergence_unweighted: 0.543      # 38 / 70 total diff points (S+C+X+A) agreed at >=60% confidence
+  convergence_weighted_medium_plus: 0.905  # 38 / 42 Medium+ severity points (the only ones meaningfully debated)
+  convergence_gate_at_round_2_5: BLOCKED_BY_INVARIANTS  # 9 HIGH UNADDRESSED invariants before merge
+  taxonomy_coverage:
+    L1_surface: covered
+    L2_structural: covered
+    L3_state_mechanics: covered
+
+invariant_probe_summary:
+  total_findings: 26
+  addressed_at_debate_end: 4
+  unaddressed_at_debate_end: 22  # HIGH=9, MEDIUM=10, LOW=7
+  high_unaddressed_at_debate_end: 9
+  high_unaddressed_post_merge: 0  # All 9 resolved by Fix #1-9 in refactor plan + merge
+  high_ids_resolved:
+    - INV-001  # family lineage durability
+    - INV-005  # audit_log NULL user_id
+    - INV-006  # enumeration-timing + audit-write interaction
+    - INV-013  # token eviction vs family-revocation race
+    - INV-017  # login-path transaction ordering
+    - INV-021  # in-process email retry vs 200ms p95
+    - INV-022  # SOC2 immutability sufficiency
+    - INV-023  # lockout-only brute-force sufficiency
+    - INV-026  # bcrypt cost-12 vs NFR-PERF-001
+
+scoring_summary:
+  variant_1_opus:
+    quant_score: 0.9817
+    qual_score: 0.8333  # 25/30 criteria MET
+    combined: 0.9075
+    edge_case_floor: MET  # 1/5 on Dimension 6
+    base_eligible: true
+  variant_2_sonnet:
+    quant_score: 0.9522
+    qual_score: 0.7000  # 21/30 criteria MET
+    combined: 0.8261
+    edge_case_floor: FAILED  # 0/5 on Dimension 6
+    base_eligible: false  # excluded by edge-case floor
+  margin: 0.0814    # 8.14% — exceeds 5% tiebreaker threshold; no tiebreaker invoked
+  selected_base: variant_1_opus
+
+merge_validation:
+  changes_planned: 26
+  changes_applied: 26
+  changes_failed: 0
+  changes_skipped: 0
+  structural_integrity: PASS
+  internal_references: 125/125 resolved
+  contradiction_rescan: 0 new contradictions introduced
+
+artifact_manifest:
+  variant_1_opus: variant-1-opus-default.md
+  variant_2_sonnet: variant-2-sonnet-default.md
+  diff_analysis: diff-analysis.md
+  round_1_advocate_1: round-1-advocate-1.md
+  round_1_advocate_2: round-1-advocate-2.md
+  round_2_rebuttal_1: round-2-rebuttal-1.md
+  round_2_rebuttal_2: round-2-rebuttal-2.md
+  invariant_probe: invariant-probe.md
+  debate_transcript: debate-transcript.md
+  base_selection: base-selection.md
+  refactor_plan: refactor-plan.md
+  merge_log: merge-log.md
+  merged_output: ../merged-roadmap-user-auth.md

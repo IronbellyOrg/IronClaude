@@ -361,9 +361,15 @@ class TestQDm1SchemaCrossCheck:
     def _rf_qa_field_names(self) -> List[str]:
         text = RF_QA_PATH.read_text(encoding="utf-8")
         # The rule body lists the 5 field names in a parenthetical.
+        # NOTE (2026-05-24): markdownlint MD013 reflow per
+        # TASK-RF-20260523-234320-markdownlint-remediation may wrap the
+        # rule body across multiple lines. Collapse internal whitespace
+        # before matching so the regex stays content-pinned without
+        # depending on the post-reflow line wrap.
+        normalised = " ".join(text.split())
         m = re.search(
             r"it MUST have a ([^.]+?) body\)\. Title-only or placeholder-only items",
-            text,
+            normalised,
         )
         assert m, "TB-Add-1 rule text in rf-qa.md does not match expected pattern"
         raw = m.group(1)

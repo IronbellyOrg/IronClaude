@@ -50,7 +50,6 @@ import yaml
 
 from superclaude.cli.eval.suites import SCHEMA_PATH
 
-
 REAL_SUITE_PATH: Path = SCHEMA_PATH.parent / "real.yaml"
 """Filesystem location of the ``real`` suite manifest (lands in T05.01)."""
 

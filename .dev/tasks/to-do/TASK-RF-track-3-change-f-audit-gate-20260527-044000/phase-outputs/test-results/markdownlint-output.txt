@@ -1,0 +1,10 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+[WARNING] top-level `default_stages` uses deprecated stage names (commit) which will be removed in a future version.  run: `pre-commit migrate-config` to automatically fix this.
+markdownlint.............................................................Failed
+- hook id: markdownlint
+- exit code: 1
+
+src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:75 MD040/fenced-code-language Fenced code blocks should have a language specified [Context: "```"]
+src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:110 MD040/fenced-code-language Fenced code blocks should have a language specified [Context: "```"]
+src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:306 MD040/fenced-code-language Fenced code blocks should have a language specified [Context: "   ```"]
+src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md:347 MD040/fenced-code-language Fenced code blocks should have a language specified [Context: "```"]

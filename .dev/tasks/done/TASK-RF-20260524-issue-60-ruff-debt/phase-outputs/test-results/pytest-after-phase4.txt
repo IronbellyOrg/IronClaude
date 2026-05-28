@@ -1,0 +1,189 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+testpaths: tests
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collected 7475 items
+
+tests/audit/test_ac_validation.py ...................................... [  0%]
+..                                                                       [  0%]
+tests/audit/test_agent_regression.py ................................... [  1%]
+.......                                                                  [  1%]
+tests/audit/test_already_tracked.py .......                              [  1%]
+tests/audit/test_anti_lazy.py ........                                   [  1%]
+tests/audit/test_artifact_emitter.py ...........                         [  1%]
+tests/audit/test_auto_config.py ...........                              [  1%]
+tests/audit/test_axis_column_populated.py ........FF                     [  1%]
+tests/audit/test_batch_decomposer.py ...............                     [  1%]
+tests/audit/test_batch_retry.py ...........                              [  2%]
+tests/audit/test_benchmark.py .........                                  [  2%]
+tests/audit/test_budget.py .............................                 [  2%]
+tests/audit/test_budget_caveat.py ......                                 [  2%]
+tests/audit/test_checkpoint.py ......                                    [  2%]
+tests/audit/test_classification.py ..............                        [  2%]
+tests/audit/test_concurrent_isolation.py ........                        [  3%]
+tests/audit/test_consolidation.py ............                           [  3%]
+tests/audit/test_coverage.py .......                                     [  3%]
+tests/audit/test_credential_scanner.py ..............                    [  3%]
+tests/audit/test_dead_code.py ........                                   [  3%]
+tests/audit/test_dependency_graph.py ..........                          [  3%]
+tests/audit/test_dir_assessment.py ............                          [  3%]
+tests/audit/test_dnsp_all_agents_fail_bypass.py ...........FFF.......... [  4%]
+........................F.                                               [  4%]
+tests/audit/test_dnsp_dedup_collapse.py .......................          [  4%]
+tests/audit/test_dnsp_does_not_serialize_cohort.py ..................... [  5%]
+...........                                                              [  5%]
+tests/audit/test_dnsp_twice_exhaust.py ................................. [  5%]
+.                                                                        [  5%]
+tests/audit/test_docs_audit.py .............                             [  5%]
+tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py ........F  [  6%]
+tests/audit/test_dry_run.py ............                                 [  6%]
+tests/audit/test_duplication.py .........                                [  6%]
+tests/audit/test_dynamic_enumeration_inv_010.py .....F.s........F......  [  6%]
+tests/audit/test_dynamic_imports.py ............                         [  6%]
+tests/audit/test_env_matrix.py ................                          [  6%]
+tests/audit/test_escalation.py ............                              [  7%]
+tests/audit/test_eval_wiring_multifile.py .........                      [  7%]
+tests/audit/test_evidence_bound_tb_add_8.py ..........                   [  7%]
+tests/audit/test_execution_context_full.py .....                         [  7%]
+tests/audit/test_execution_context_minimal_buildrequest.py ......        [  7%]
+tests/audit/test_execution_context_no_file_paths.py .....                [  7%]
+tests/audit/test_filetype_rules.py ......................                [  7%]
+tests/audit/test_five_axes_overlay.py .........F                         [  8%]
+tests/audit/test_full_docs_audit.py ...................                  [  8%]
+tests/audit/test_gitignore_checker.py ........                           [  8%]
+tests/audit/test_hidden_input_guard.py .......................           [  8%]
+tests/audit/test_inherited_verdict_freshness_inv_002.py ................ [  8%]
+........                                                                 [  9%]
+tests/audit/test_inherited_verdict_present.py ...........                [  9%]
+tests/audit/test_invariant_preservation_NFR_6_through_10.py ............ [  9%]
+.......                                                                  [  9%]
+tests/audit/test_known_issues.py ............                            [  9%]
+tests/audit/test_known_issues_lifecycle.py ............                  [  9%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py ....................       [ 10%]
+tests/audit/test_nfr_conv_6_self_contained.py ..........                 [ 10%]
+tests/audit/test_nfr_conv_9_zero_trust.py ..........F................... [ 10%]
+.....                                                                    [ 10%]
+tests/audit/test_profile_generator.py .................                  [ 10%]
+tests/audit/test_profiler.py .............................               [ 11%]
+tests/audit/test_regression_halt_pass1_fail2.py ........................ [ 11%]
+...                                                                      [ 11%]
+tests/audit/test_report_completeness.py ...........                      [ 11%]
+tests/audit/test_report_depth.py ..................                      [ 12%]
+tests/audit/test_report_limitations.py .......                           [ 12%]
+tests/audit/test_resume.py .......                                       [ 12%]
+tests/audit/test_scanner_schema.py .............                         [ 12%]
+tests/audit/test_self_audit_inv_019.py ..........F.............          [ 12%]
+tests/audit/test_sequencing_PR06_before_PR04.py ........F..............F [ 13%]
+.....                                                                    [ 13%]
+tests/audit/test_severity_floor_unweakened.py ........                   [ 13%]
+tests/audit/test_slow_shrink_continues.py ....................           [ 13%]
+tests/audit/test_spot_check.py ..........                                [ 13%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py ................ [ 13%]
+...........                                                              [ 13%]
+tests/audit/test_tiered_keep.py .............                            [ 14%]
+tests/audit/test_tool_orchestrator.py ................                   [ 14%]
+tests/audit/test_validation.py .........                                 [ 14%]
+tests/audit/test_validation_output.py ........                           [ 14%]
+tests/audit/test_wiring_analyzer.py ...................                  [ 14%]
+tests/audit/test_wiring_gate.py ........................................ [ 15%]
+......................................                                   [ 15%]
+tests/audit/test_wiring_integration.py ....                              [ 15%]
+tests/audit-trail/test_audit_writer.py ......................            [ 16%]
+tests/cli/eval/test_artifact_layout.py ...................               [ 16%]
+tests/cli/eval/test_artifact_reproducibility.py ........                 [ 16%]
+tests/cli/eval/test_atomic_setup.py ...................                  [ 16%]
+tests/cli/eval/test_ban_import_rule.py ...                               [ 16%]
+tests/cli/eval/test_capability_classifications.py ....................   [ 17%]
+tests/cli/eval/test_capability_dataclass.py ................             [ 17%]
+tests/cli/eval/test_capability_gates.py ..................               [ 17%]
+tests/cli/eval/test_capability_report.py ..........                      [ 17%]
+tests/cli/eval/test_claude_process_adapter.py .............              [ 17%]
+tests/cli/eval/test_config.py ......                                     [ 17%]
+tests/cli/eval/test_containment.py ...............................       [ 18%]
+tests/cli/eval/test_coverage_gate.py ...........................         [ 18%]
+tests/cli/eval/test_coverage_gate_integration.py ......                  [ 18%]
+tests/cli/eval/test_defense_in_depth.py ...................              [ 19%]
+tests/cli/eval/test_describe.py .........................                [ 19%]
+tests/cli/eval/test_disk_budget.py .................................     [ 19%]
+tests/cli/eval/test_doctor.py .......................................... [ 20%]
+......                                                                   [ 20%]
+tests/cli/eval/test_doctor_version.py .............                      [ 20%]
+tests/cli/eval/test_eval_context.py .............................        [ 21%]
+tests/cli/eval/test_eval_group.py .....                                  [ 21%]
+tests/cli/eval/test_eval_id_regex.py ................................... [ 21%]
+................................                                         [ 22%]
+tests/cli/eval/test_eval_lifecycle.py ......................             [ 22%]
+tests/cli/eval/test_eval_outcome.py ........................             [ 22%]
+tests/cli/eval/test_eval_result.py ................                      [ 22%]
+tests/cli/eval/test_eval_run.py ........Fatal Python error: Segmentation fault
+
+Current thread 0x000078b175bec740 (most recent call first):
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/reader.py", line 100 in forward
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/scanner.py", line 1194 in scan_flow_scalar_non_spaces
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/scanner.py", line 1149 in scan_flow_scalar
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/scanner.py", line 666 in fetch_flow_scalar
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/scanner.py", line 655 in fetch_double
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/scanner.py", line 251 in fetch_more_tokens
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/scanner.py", line 116 in check_token
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/parser.py", line 551 in parse_flow_mapping_key
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/parser.py", line 98 in check_event
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 127 in compose_mapping_node
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84 in compose_node
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 133 in compose_mapping_node
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84 in compose_node
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 133 in compose_mapping_node
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 84 in compose_node
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 55 in compose_document
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/composer.py", line 36 in get_single_node
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/constructor.py", line 49 in get_single_data
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/__init__.py", line 81 in load
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/yaml/__init__.py", line 125 in safe_load
+  File "/config/workspace/IronClaude/src/superclaude/cli/eval/loader.py", line 230 in _load_schema
+  File "/config/workspace/IronClaude/src/superclaude/cli/eval/loader.py", line 283 in _validate_manifest_dict
+  File "/config/workspace/IronClaude/src/superclaude/cli/eval/loader.py", line 527 in load
+  File "/config/workspace/IronClaude/src/superclaude/cli/eval/commands.py", line 1120 in resolve_suite_manifest
+  File "/config/workspace/IronClaude/src/superclaude/cli/eval/commands.py", line 1796 in eval_run
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/click/core.py", line 824 in invoke
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/click/core.py", line 1269 in invoke
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/click/core.py", line 1873 in invoke
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/click/core.py", line 1406 in main
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/click/testing.py", line 501 in invoke
+  File "/config/workspace/IronClaude/tests/cli/eval/test_eval_run.py", line 398 in test_suite_not_found_exits_2
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/python.py", line 166 in pytest_pyfunc_call
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/python.py", line 1720 in runtest
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 179 in pytest_runtest_call
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 245 in <lambda>
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 353 in from_call
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 244 in call_and_report
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 137 in runtestprotocol
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/main.py", line 396 in pytest_runtestloop
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/main.py", line 372 in _main
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/main.py", line 318 in wrap_session
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/main.py", line 365 in pytest_cmdline_main
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py", line 199 in main
+  File "/config/workspace/IronClaude/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py", line 223 in console_main
+  File "/config/workspace/IronClaude/.venv/bin/pytest", line 10 in <module>
+
+Extension modules: yaml._yaml (total: 1)
+EXIT_CODE: 139

@@ -13,7 +13,6 @@ import argparse
 import json
 import subprocess
 import sys
-import tempfile
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field

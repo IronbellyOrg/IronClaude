@@ -1,0 +1,34 @@
+# STUB — iteration-1 follow-up authors full fixture. Spec §14.5.7 bullet 5.
+# NOTE: Per SKILL.md §14.5.7 L1245 this single fixture name carries TWO scenarios:
+#   (A) findings: []       → file is "empty" per the canonical definition → `no_grounding_gaps: pass` → action: moved
+#   (B) findings: [{...}]  → file is NON-empty → `no_grounding_gaps: fail` → action: rejected
+# This fixture file encodes scenario (B) (`expected_action: rejected`, `no_grounding_gaps: fail`),
+# which is what the eval is meant to exercise (the canonical empty-definition is exercised positively
+# by promotion-task-strict-pass). The historical fixture name (`empty-list`) is retained for
+# §14.5.7-bullet-5 traceability even though scenario (B) is the asserted one.
+id: promotion-blocked-by-grounding-gaps-empty-list
+status: stub-iteration-1-follow-up
+description: §10.6 grounding-gaps file is NON-empty (one or more findings) — `no_grounding_gaps` (cond 6b) fails per §14.5.2 canonical "empty" definition.
+spec_ref: "§14.5.7 bullet 5"
+expected_action: rejected
+expected_gate_evaluation:
+  # 11 atomic gate_evaluation fields per SKILL.md §14.5.6
+  mode_post: pass                            # cond 1
+  status_success: pass                       # cond 2
+  tasklist_completion_pct_1_0: pass          # cond 3
+  no_drift_no_regression: pass               # cond 4
+  frontmatter_present: pass                  # cond 5a
+  frontmatter_status_matches: pass           # cond 5b
+  no_citations_dropped: pass                 # cond 6a
+  no_grounding_gaps: fail                    # cond 6b — non-empty grounding-gaps file
+  no_input_drift: pass                       # cond 7
+  no_user_decision_pending: pass             # cond 8
+  adversarial_result_present: pass           # cond 9
+expected_gate_evaluation_failures: [no_grounding_gaps]
+expected_gate_passed: false
+adapter: task
+# Scenario (B) input shape — see top-of-file note for scenario (A) which lives implicitly in promotion-task-strict-pass.
+grounding_gaps_file_content: |
+  findings:
+    - id: gap-001
+      claim: "Example unresolved citation"

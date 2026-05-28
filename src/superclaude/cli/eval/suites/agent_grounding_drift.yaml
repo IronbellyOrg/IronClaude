@@ -1,0 +1,176 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# agent_grounding_drift — recurring meta-eval suite for citation-grounding
+# agents (evidence-validator, confidence-calibrator, rf-qa,
+# rf-qa-qualitative).
+#
+# Proposal: .dev/eval-proposals/agent-3-agents.md (agent 3 of 8)
+# Hypothesis: the four citation/grounding agents independently re-Read every
+# cited file:line and DROP unfounded items rather than rubber-stamping
+# upstream claims. The evidence-validator contract
+# (.claude/agents/evidence-validator.md:48) says "Parse every citation" and
+# verdict per citation is verified|line-mismatch|file-missing|snippet-mismatch;
+# the confidence-calibrator contract
+# (.claude/agents/confidence-calibrator.md:49) says it "Read[s] the rubric"
+# and spot-checks every cited file:line (line 51) before scoring Evidence
+# grounding. rf-qa.md:84 and rf-qa-qualitative.md:94 inherit the same
+# verify-or-drop discipline.
+#
+# Cadence: RECURRING — schedule this suite nightly AND on any change to
+# .claude/agents/{evidence-validator,confidence-calibrator,rf-qa,
+# rf-qa-qualitative}.md. The placebo-risk and silent-wrong-output failure
+# modes called out in evidence-validator.md:128 and
+# confidence-calibrator.md:118 only surface against a fixed
+# known-good/known-bad fixture run over time.
+#
+# Body shape: each eval seeds a per-eval HOME with a draft report (mix of
+# real file:line citations into files that ALSO get seeded so verification
+# can succeed, plus fabricated citations into paths that do NOT exist).
+# Eval (a) — clean fixture, agent should drop zero items, exit 0.
+# Eval (b) — poisoned fixture, agent MUST drop at least one item and
+# recommend status `partial`, exit 0.
+#
+# All bodies drive a Claude Code PTY subprocess; no_pty: skip per the
+# real-suite precedent (DOC-OQ3 / R-077 / D-0077).
+name: agent_grounding_drift
+version: "1.0"
+description: "Recurring meta-eval suite verifying that grounding agents (evidence-validator, confidence-calibrator, rf-qa, rf-qa-qualitative) independently re-verify file:line citations and drop unfounded items. Nightly + on agent-prompt changes."
+
+defaults:
+  per_eval_timeout_sec: 180
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: jq,                            failure_mode: hard }
+  - { name: git,                           failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: G1
+    title: "evidence-validator drops zero citations on clean fixture"
+    category: agent-grounding
+    timeout_sec: 180
+    isolation:
+      home_strategy: seeded
+      # Clean fixture: every cited file:line resolves to a real seeded
+      # file at the cited line. Evidence-validator contract
+      # (.claude/agents/evidence-validator.md:48) requires Read of each
+      # citation; a fully-grounded report should produce zero drops and
+      # a suggested status of `success`.
+      seed_state:
+        - path: fixtures/good/report_draft.md
+          content: |
+            # Draft Troubleshooting Report
+
+            Status: pending validation
+
+            ## Evidence
+
+            - `fixtures/good/src/loader.py:3` — `def load_config(path):`
+            - `fixtures/good/src/loader.py:7` — `    return {}`
+            - `fixtures/good/src/runner.py:2` — `class Runner:`
+        - path: fixtures/good/src/loader.py
+          content: |
+            # loader.py — seeded for evidence-validator meta-eval
+
+            def load_config(path):
+                """Load YAML config from path."""
+                with open(path) as fh:
+                    data = fh.read()
+                return {}
+        - path: fixtures/good/src/runner.py
+          content: |
+            # runner.py — seeded for evidence-validator meta-eval
+            class Runner:
+                def run(self):
+                    return 0
+        - path: fixtures/good/validation_output.md
+          content: ""
+    no_pty: skip
+    inputs:
+      - prompt: |
+          Use the Task tool to spawn the evidence-validator subagent with these arguments:
+            report_draft_path: $HOME/fixtures/good/report_draft.md
+            evidence_section_locator: "## Evidence"
+            output_path: $HOME/fixtures/good/validation_output.md
+            allow_command_reexec: false
+          Wait for the subagent to finish, then /quit.
+        expect_tool_call: Task
+    expects:
+      - file:
+          path: fixtures/good/validation_output.md
+          exists: true
+          contains: "Dropped**: 0"
+      - file:
+          path: fixtures/good/validation_output.md
+          exists: true
+          contains: "Suggested report status"
+      - exit_code:
+          equals: 0
+
+  - id: G2
+    title: "evidence-validator drops fabricated citations on poisoned fixture"
+    category: agent-grounding
+    timeout_sec: 180
+    isolation:
+      home_strategy: seeded
+      # Poisoned fixture: the draft report mixes 2 real citations (into
+      # seeded files) with 3 fabricated citations into paths that do NOT
+      # exist in the per-eval HOME. Per
+      # .claude/agents/evidence-validator.md:55 the verdict for missing
+      # files is `file-missing`; per :101-102 zero drops -> `success` but
+      # >=1 drops -> `partial`. We assert that:
+      #   - at least one "file-missing" verdict appears,
+      #   - the suggested status is `partial`,
+      #   - the agent did not silently rubber-stamp.
+      seed_state:
+        - path: fixtures/bad/report_draft.md
+          content: |
+            # Draft Troubleshooting Report
+
+            Status: pending validation
+
+            ## Evidence
+
+            - `fixtures/bad/src/real.py:3` — `def good_fn():`
+            - `fixtures/bad/src/real.py:5` — `    return 42`
+            - `fixtures/bad/src/ghost.py:17` — `def hallucinated():`
+            - `fixtures/bad/src/missing_dir/also_ghost.py:9` — `class Phantom:`
+            - `fixtures/bad/nonexistent.py:1` — `# fabricated header line`
+        - path: fixtures/bad/src/real.py
+          content: |
+            # real.py — seeded so the 2 good citations verify
+            def good_fn():
+                """Real function, real line."""
+                return 42
+        - path: fixtures/bad/validation_output.md
+          content: ""
+    no_pty: skip
+    inputs:
+      - prompt: |
+          Use the Task tool to spawn the evidence-validator subagent with these arguments:
+            report_draft_path: $HOME/fixtures/bad/report_draft.md
+            evidence_section_locator: "## Evidence"
+            output_path: $HOME/fixtures/bad/validation_output.md
+            allow_command_reexec: false
+          Wait for the subagent to finish, then /quit.
+        expect_tool_call: Task
+    expects:
+      - file:
+          path: fixtures/bad/validation_output.md
+          exists: true
+          contains: "file-missing"
+      - file:
+          path: fixtures/bad/validation_output.md
+          exists: true
+          contains: "partial"
+      - file:
+          path: fixtures/bad/validation_output.md
+          exists: true
+          contains: "## Dropped citations"
+      - exit_code:
+          equals: 0

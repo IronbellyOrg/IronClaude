@@ -1,0 +1,11 @@
+scripts/eval_1.py:13:8: F401 [*] `os` imported but unused
+scripts/eval_runner.py:16:8: F401 [*] `tempfile` imported but unused
+tests/cli/eval/test_capability_classifications.py:66:5: F401 [*] `superclaude.cli.eval.commands.build_doctor_report` imported but unused
+tests/cli/eval/test_capability_gates.py:23:20: F401 [*] `typing.Iterable` imported but unused
+tests/cli/eval/test_capability_gates.py:31:5: F401 [*] `superclaude.cli.eval.capabilities.CapabilityStatus` imported but unused
+tests/cli/eval/test_expect_exit_code.py:20:20: F401 [*] `typing.Mapping` imported but unused
+tests/cli/eval/test_no_pty_exclusion.py:34:41: F401 [*] `superclaude.cli.eval.loader.SchemaError` imported but unused
+tests/cli/eval/test_pty_lifecycle.py:37:8: F401 [*] `threading` imported but unused
+tests/cli/eval/test_reporter.py:23:8: F401 [*] `json` imported but unused
+tests/cli/eval/test_retention_policy.py:48:8: F401 [*] `json` imported but unused
+[*] 10 fixable with the `--fix` option.

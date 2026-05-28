@@ -7,9 +7,9 @@ from __future__ import annotations
 
 import pytest
 
-pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l1]
-
 from superclaude.cli.sprint.debug_logger import DEBUG_LOG_VERSION
+
+pytestmark = [pytest.mark.diagnostic, pytest.mark.diagnostic_l1]
 
 
 class TestDebugLogReader:

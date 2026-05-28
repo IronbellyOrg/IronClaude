@@ -1,0 +1,46 @@
+ M .claude/agents/deep-research-agent.md
+ M .claude/agents/deep-research.md
+ M .claude/agents/rf-analyst.md
+ M .claude/agents/rf-assembler.md
+ M .claude/agents/rf-qa-qualitative.md
+ M .claude/agents/rf-qa.md
+ M .claude/agents/rf-task-builder.md
+ M .claude/agents/rf-task-executor.md
+ M .claude/agents/rf-task-researcher.md
+ M .claude/commands/sc/troubleshoot.md
+ M .dev/tasks/to-do/TASK-RF-20260518-cliEval-P1-pty-isolation-gates/TASK-RF-20260518-cliEval-P1-pty-isolation-gates.md
+ M .dev/tasks/to-do/TASK-RF-20260518-cliEval-P2-loader-models-expect/TASK-RF-20260518-cliEval-P2-loader-models-expect.md
+ M .dev/tasks/to-do/TASK-RF-20260518-cliEval-P3-orchestrator-runner-reporter/TASK-RF-20260518-cliEval-P3-orchestrator-runner-reporter.md
+ M .dev/test-sprints/smoke-test/phase-1-tasklist.md
+ M .dev/test-sprints/smoke-test/phase-2-tasklist.md
+ M CHANGELOG.md
+M  src/superclaude/agents/deep-research-agent.md
+M  src/superclaude/agents/deep-research.md
+M  src/superclaude/agents/rf-analyst.md
+M  src/superclaude/agents/rf-assembler.md
+M  src/superclaude/agents/rf-qa-qualitative.md
+M  src/superclaude/agents/rf-qa.md
+M  src/superclaude/agents/rf-task-builder.md
+M  src/superclaude/agents/rf-task-executor.md
+M  src/superclaude/agents/rf-task-researcher.md
+ M src/superclaude/cli/cleanup_audit/portify-summary.md
+?? .dev/eval-proposals/
+?? .dev/eval-roadmap/
+?? .dev/eval-workspaces/prd-bug-test/
+?? .dev/eval-workspaces/sc-troubleshoot/forensic-analysis/
+?? .dev/eval-workspaces/sc-troubleshoot/phase4-5-errors-20260521202240/
+?? .dev/releases/current/TavilyAgents/
+?? .dev/releases/current/cliEval/
+?? .dev/reviews/2026-05-21-orphaned-commits-debate/
+?? .dev/reviews/pr-67-20260521044654/
+?? .dev/reviews/pr-68-20260521044708/
+?? .dev/reviews/snapshot-src-superclaude-cli-eval-20260521034554/
+?? .dev/tasks/to-do/TASK-RF-20260522-203947-tavily-agents-refactor/
+?? src/superclaude/cli/eval/suites/agent_grounding_drift.yaml
+?? src/superclaude/cli/eval/suites/audit_wiring_guard.yaml
+?? src/superclaude/cli/eval/suites/eval_smoke.yaml
+?? src/superclaude/cli/eval/suites/freshness_blocks_unread_edit.yaml
+?? src/superclaude/cli/eval/suites/hook_latency_drift.yaml
+?? src/superclaude/cli/eval/suites/installer_sync_drift.yaml
+?? src/superclaude/cli/eval/suites/task_classification_contract.yaml
+?? src/superclaude/cli/eval/suites/tasklist_deterministic_shape.yaml

@@ -1,0 +1,59 @@
+{
+  "generated_at": "2026-05-26T18:09:29.766428+00:00",
+  "summary": {
+    "total": 6,
+    "found": 6,
+    "missing": 0,
+    "recovered": 0
+  },
+  "entries": [
+    {
+      "phase": 1,
+      "name": "End of Phase 01",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/roadmap-cli-skill-converge/checkpoints/CP-P01-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "Phase 02 / Tasks T02.01-T02.05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/roadmap-cli-skill-converge/checkpoints/CP-P02-T01-T05.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "End of Phase 02",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/roadmap-cli-skill-converge/checkpoints/CP-P02-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 3,
+      "name": "End of Phase 03",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/roadmap-cli-skill-converge/checkpoints/CP-P03-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 4,
+      "name": "End of Phase 04",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/roadmap-cli-skill-converge/checkpoints/CP-P04-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 5,
+      "name": "End of Phase 05",
+      "expected_path": "/config/workspace/IronClaude/.dev/releases/current/roadmap-cli-skill-converge/checkpoints/CP-P05-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    }
+  ]
+}

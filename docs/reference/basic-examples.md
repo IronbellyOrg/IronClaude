@@ -27,16 +27,17 @@
 
 #### Command: /sc:brainstorm
 
-**Purpose**: Interactive project discovery and requirements gathering
-**Syntax**: `/sc:brainstorm "project description"`
+**Purpose**: Orchestrated multi-agent brainstorm — Socratic dialogue + parallel proposals + adversarial merge
+**Syntax**: `/sc:brainstorm "<topic>" [--depth quick|standard|deep] [--proposals N] [--handoff none|design|tasklist|task]`
 **Example**:
 
 ```bash
 /sc:brainstorm "mobile app for fitness tracking"
-# Expected: Socratic dialogue, requirement elicitation, feasibility analysis
+# Expected: Socratic dialogue → seed-brief.md, optional Tavily/Auggie enrichment,
+# 3 parallel proposals across opus/sonnet/haiku, adversarial merge → merged-requirements.md
 ```
 
-**Behavior**: Triggers interactive discovery dialogue and requirements analysis
+**Behavior**: Runs the `sc-brainstorm-protocol` skill — 5-wave pipeline that delegates parallel proposal generation and merge to `/sc:adversarial`. See [brainstorm.md](../user-guide/brainstorm.md) for the full flag reference.
 
 #### Command: /sc:analyze
 

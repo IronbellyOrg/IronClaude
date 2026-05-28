@@ -1,0 +1,57 @@
+return_contract:
+  merged_output_path: null
+  convergence_score: null
+  artifacts_dir: "/config/workspace/IronClaude/.dev/eval-roadmap/groupB-direct/run3/adversarial"
+  status: "failed"
+  base_variant: null
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: "transport"
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-004"
+      category: "interaction_effects"
+      assumption: "Refresh-token rotation lacks atomic replay protection under concurrent requests"
+      severity: "HIGH"
+    - id: "INV-012"
+      category: "guard_conditions"
+      assumption: "Rate-limited requests may not count toward lockout counter, creating a bypass path"
+      severity: "HIGH"
+    - id: "INV-017"
+      category: "sufficiency_challenge"
+      assumption: "Pen-test engagement starting during M5 beta is illusory if pen-test report lands after GA flip"
+      severity: "HIGH"
+  failure_detail:
+    cause: "External transport-layer artifact destruction during pipeline execution"
+    description: |
+      Between turn 3 (19:31) and turn 4 (19:52), the working tree underwent five git
+      checkouts in a parallel session (feat/sc-troubleshoot-wave-1.5-doc-grounding →
+      chore/markdownlint-sweep → feat/cliEval-exit-codes → chore/task-graduation →
+      feat/cliEval-exit-codes), interleaved with three commits. The /sc:adversarial
+      output directory (.dev/eval-roadmap/groupB-direct/run3/adversarial/) is untracked
+      by .gitignore (.dev/ is uncommitted by convention), so checkouts that landed on
+      branches without those paths effectively wiped uncommitted artifacts from the
+      working tree mid-pipeline.
+    artifacts_destroyed:
+      - variant-1-opus-default.md
+      - variant-2-sonnet-default.md
+      - diff-analysis.md
+      - round-1-advocate-v1.md
+      - round-1-advocate-v2.md
+      - round-2-rebuttal-v1.md
+    artifacts_surviving:
+      - round-2-rebuttal-v2.md   # written at 19:53 (post-final-checkout)
+      - invariant-probe.md        # written at 19:57; fault-finder reported it could read only round-2-rebuttal-v2.md as input; findings are therefore based on incomplete debate context
+    recovery_recommendation: |
+      Re-run /sc:adversarial on a quiet branch (no parallel session
+      switching branches in this worktree), or use an isolated worktree
+      via EnterWorktree. The source spec
+      .dev/eval-roadmap/inputs/merged-prd-tdd-user-auth.md is committed
+      and unaffected, so the run is fully reproducible.
+    integrity_note: |
+      The surviving invariant-probe.md HIGH findings (INV-004, INV-012,
+      INV-017) are preserved as unaddressed_invariants above, but they
+      were generated from a single-rebuttal input (only V2's round-2
+      rebuttal was visible to the fault-finder), so they should be
+      treated as suggestive evidence pending re-execution rather than as
+      a complete invariant audit.

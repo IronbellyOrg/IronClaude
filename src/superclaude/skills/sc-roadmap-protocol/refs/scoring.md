@@ -4,7 +4,52 @@ Reference document for Wave 1B and Wave 2. Contains the complexity scoring formu
 
 ---
 
+## Input-Type Detection Order
+
+The CLI detection function `detect_input_type()` at `src/superclaude/cli/roadmap/executor.py:73-210` evaluates input type in a **fixed order**:
+
+1. **PRD detection runs first** — if `prd_score ≥ 5`, the input is classified as `"prd"` and TDD scoring is skipped.
+2. **TDD detection runs second** — only reached when PRD detection does not trigger. If `tdd_score ≥ 5`, the input is `"tdd"`.
+3. **Spec fallback** — neither threshold reached → `"spec"`.
+
+Both detectors use the same threshold semantics (`score ≥ 5`) and both emit a borderline warning when `3 ≤ score ≤ 6`, instructing the operator to use `--input-type` to override if the classification is wrong. The skill reference below mirrors that order: PRD first, then TDD.
+
+---
+
+## PRD-First Detection Rule
+
+**PRD detection:** Input is classified as PRD-format using a 5-signal weighted scoring system with threshold ≥ 5. PRD detection is evaluated **before** TDD detection — when `prd_score ≥ 5`, the function returns `"prd"` immediately and never runs the TDD scorer.
+
+1. **Frontmatter `type` field** containing `"Product Requirements"` in the first 1000 characters: +3
+2. **PRD-exclusive section headings** (12 section names, +1 each):
+   - User Personas
+   - Jobs To Be Done
+   - Product Vision
+   - Customer Journey
+   - Value Proposition
+   - Competitive Analysis
+   - User Stories
+   - User Experience Requirements
+   - Legal and Compliance
+   - Success Metrics and Measurement
+   - Maintenance and Ownership
+   - Background and Strategic Fit
+3. **User story pattern** — regex `As .+, I want` anywhere in the document: +2
+4. **JTBD pattern** — regex `When I .+ I want to` anywhere in the document: +2
+5. **PRD tag** in frontmatter — regex `tags:.*\bprd\b` in the first 2000 characters: +2
+
+**Threshold behavior:** `prd_score ≥ 5` returns `"prd"`. When `3 ≤ prd_score ≤ 6` the function emits a borderline warning naming the score and recommending `--input-type` override. Maximum theoretically attainable score: 3 (type field) + 12 (all PRD sections) + 2 (user story) + 2 (JTBD) + 2 (prd tag) = 21. A realistic PRD typically scores 7–12 (type field +3, 2–4 PRD sections, user story regex +2). A non-PRD spec or TDD almost never reaches 5 because the type field and PRD-only sections do not appear.
+
+This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/executor.py:detect_input_type()` lines 100–147.
+
+- **When PRD-format is detected:** the standard 5-factor complexity formula applies (see "PRD Supplementary Scoring" below); PRD content enriches the extraction but does not change the complexity scoring model.
+- **When PRD-format is NOT detected:** detection falls through to TDD-format scoring.
+
+---
+
 ## TDD-Format Detection Rule
+
+**Order note:** TDD detection runs **second**, only after PRD detection fails (`prd_score < 5`). The CLI evaluates PRD first; this reference preserves that order.
 
 **TDD-format detection:** Input is classified as TDD-format using a 4-signal weighted scoring system with threshold ≥ 5:
 
@@ -15,7 +60,7 @@ Reference document for Wave 1B and Wave 2. Contains the complexity scoring formu
 
 A real TDD typically scores 10+ (28 headings = +3, parent_doc + coordinator = +4, section names = +5, type field = +2 = 14). A standard spec scores 1-3 (12 headings = +1, no exclusive fields, no TDD section names). The threshold of ≥5 prevents false positives from specs with numbered headings or shared frontmatter fields.
 
-This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/executor.py:detect_input_type()`.
+This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/executor.py:detect_input_type()` lines 149–210.
 
 - **When TDD-format is detected:** use the 7-factor TDD scoring formula (see below).
 - **When TDD-format is NOT detected:** use the standard 5-factor formula (unchanged).
@@ -26,7 +71,7 @@ This algorithm matches the CLI implementation at `src/superclaude/cli/roadmap/ex
 
 Complexity is computed as a weighted sum of 5 normalized factors. Each factor is normalized to [0, 1] before weighting. **This formula applies to non-TDD inputs only. For TDD inputs, see the 7-factor TDD formula below.**
 
-### Factor Definitions
+### Standard Factor Definitions
 
 | Factor | Raw Value | Normalization | Weight |
 |--------|-----------|---------------|--------|
@@ -36,9 +81,9 @@ Complexity is computed as a weighted sum of 5 normalized factors. Each factor is
 | `risk_severity` | Weighted risk score: `(high_count * 3 + medium_count * 2 + low_count * 1) / total_risks` | `(weighted_avg - 1.0) / 2.0` — normalizes [1.0, 3.0] to [0, 1] | 0.15 |
 | `scope_size` | Total line count of the specification | `min(lines / 1000, 1.0)` — 1000+ lines = maximum scope | 0.15 |
 
-### Formula
+### Standard Formula
 
-```
+```text
 complexity_score = (requirement_count_norm * 0.25)
                  + (dependency_depth_norm * 0.25)
                  + (domain_spread_norm * 0.20)
@@ -80,7 +125,7 @@ complexity_score = (requirement_count_norm * 0.25)
 
 **Applies when TDD-format is detected** (see TDD-Format Detection Rule above). The standard 5-factor formula for non-TDD input remains unchanged above.
 
-### Factor Definitions
+### TDD Factor Definitions
 
 | Factor | Raw Value Source | Normalization | Weight |
 |--------|-----------------|---------------|--------|
@@ -92,9 +137,9 @@ complexity_score = (requirement_count_norm * 0.25)
 | `api_surface` | Endpoint count from Step 14 | `min(count / 30, 1.0)` | 0.10 |
 | `data_model_complexity` | Entity count + relationship count from Step 15 (§7 Data Entities table) | `min(count / 20, 1.0)` | 0.10 |
 
-### Formula
+### TDD Formula
 
-```
+```text
 tdd_complexity_score = (requirement_count_norm * 0.20)
                      + (dependency_depth_norm * 0.20)
                      + (domain_spread_norm * 0.15)
@@ -132,9 +177,9 @@ When Wave 2 discovers template files via the 4-tier search, each template is sco
 | `type_match` | 0.20 | 1.0 if template `type` matches spec's dominant requirement type, 0.5 if related type, 0.0 if unrelated |
 | `version_compatibility` | 0.10 | 1.0 if template's `min_version` ≤ current sc:roadmap version, 0.0 otherwise |
 
-### Formula
+### Template Formula
 
-```
+```text
 template_score = (domain_match * 0.40)
                + (complexity_alignment * 0.30)
                + (type_match * 0.20)
@@ -165,7 +210,7 @@ template_score = (domain_match * 0.40)
 
 ## PRD Supplementary Scoring
 
-When `--prd-file` is provided, PRD inputs use the **standard 5-factor formula** (not the TDD 7-factor). PRD content enriches the extraction but does not change the complexity scoring model -- PRD-derived fields (personas, success metrics, compliance requirements) inform downstream prompt enrichment rather than altering the numeric complexity calculation.
+When PRD input is detected (see "PRD-First Detection Rule" above) — either auto-detected via `detect_input_type()` returning `"prd"` or explicitly supplied via `--prd-file` — PRD inputs use the **standard 5-factor formula** (not the TDD 7-factor). PRD content enriches the extraction but does not change the complexity scoring model -- PRD-derived fields (personas, success metrics, compliance requirements) inform downstream prompt enrichment rather than altering the numeric complexity calculation.
 
 The `product` type entry in the Type Match Lookup above enables template scoring for PRD-driven specifications. When the spec's dominant type is classified as `product` (based on PRD-specific section presence: User Personas, JTBD, Success Metrics, Customer Journey Map), the template selector matches against the `product` row.
 
@@ -181,7 +226,7 @@ Personas are selected based on domain distribution from the extraction. The prim
 
 For each candidate persona:
 
-```
+```text
 confidence = base_confidence * domain_weight * coverage_bonus
 ```
 

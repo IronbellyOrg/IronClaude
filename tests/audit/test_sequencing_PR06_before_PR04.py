@@ -1,3 +1,4 @@
+# ruff: noqa: N999  # intentional: filename encodes PR06-before-PR04 sequencing-inversion mitigation for R-108 / INV-010 cross-reference
 """TEST-024 — K-007 sequencing-inversion mitigation (R-108 / INV-010 / T05.15).
 
 Phase-5 / T05.15 deliverable (D-0066). Proves the K-007 mitigation
