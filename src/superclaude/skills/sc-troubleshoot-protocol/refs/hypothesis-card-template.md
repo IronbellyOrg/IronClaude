@@ -111,6 +111,8 @@ Bullet list of 0–3 other hypotheses the agent considered and rejected. For eac
 ## Grounding gaps
 
 What the agent could **not** verify (e.g. "could not run the failing test locally because UV is unavailable in the sandbox"). Explicit gaps protect the calibration step from over-counting evidence.
+
+If Wave 1.6 emitted a Diagnosability Context Card with `verdict ∈ {partial, insufficient}`, reference it here (e.g., "Diagnosability verdict: partial — see <card-path>; coverage of 'why' is missing, so this hypothesis cannot be falsified at runtime without the proposed instrumentation").
 ```
 
 ## Filling the card

@@ -4,7 +4,7 @@ The final deliverable of every `/sc:troubleshoot` invocation, regardless of tier
 
 ## Template
 
-```markdown
+````markdown
 # Troubleshoot Report
 
 **Target**: <one-line: the symptom or scope as given>
@@ -17,10 +17,17 @@ The final deliverable of every `/sc:troubleshoot` invocation, regardless of tier
 **Test file to update**: <absolute or repo-relative path when test_is_wrong=true, otherwise omit this line>
 **Behavior is documented**: <true|false|n/a> <!-- See "Behavior-is-documented rule" below. When true, the observed behavior matches the documented contract AND the recommended remediation is a SPEC/DOCS change (not a test change — that's the test_is_wrong=true case). Mutually exclusive with `Test is wrong: true` by construction (3-case decomposition: see SKILL.md derivation rule). `n/a` when --no-doc-discovery suppressed Wave 1.5. -->
 **Doc context card**: <repo-relative path to <output-dir>/doc-context.md when Wave 1.5 ran (path is present even if the card's sections all read "None found"); `null` ONLY when `--no-doc-discovery` was set>
+**Diagnosability audit**: SKIPPED (--no-diagnosability-audit, user-bypassed) <!-- Render this line ONLY when --no-diagnosability-audit was set. Omit the line entirely when Wave 1.6 ran (the result lands in the Diagnosability Context section instead). -->
 **Duration**: <seconds>
 **Date**: <ISO 8601>
 
 ---
+
+> ⚠ **Diagnosability Caveat**: Your hypothesis depth was constrained by insufficient evidence. See
+> Diagnosability Context section below. Consider implementing the suggested instrumentation tasklist
+> and re-running to get higher-confidence answers.
+
+<!-- Render the Diagnosability Caveat banner ONLY when `--depth deep` AND `diagnosability_verdict ∈ {insufficient, partial}`. Otherwise omit the banner block entirely. -->
 
 ## Summary
 
@@ -39,6 +46,21 @@ Wave 1.5 documentation grounding result. ≤6-line summary of the Documentation 
 - **Card path**: <output-dir>/doc-context.md
 
 If `--no-doc-discovery` was set, omit this section entirely and add a line to **Grounding Gaps**: "Documentation grounding skipped by `--no-doc-discovery`."
+
+## Diagnosability Context
+
+Wave 1.6 diagnosability audit result. Always rendered when Wave 1.6 ran (omit only when `--no-diagnosability-audit` was set — then add the bypass line to **Grounding Gaps** instead).
+
+**Verdict**: <sufficient | partial | insufficient | unknown>
+**Complexity classification**: <trivial | non-trivial>
+**Captured-bytes (failing run)**: <bytes-or-n/a>
+
+<≤6-line summary of the Diagnosability Context Card. Names the existing instrumentation in 1 line, names the gap in 1 line, names the implication for diagnosis confidence in 1 line.>
+
+(Full card: <abs path to <output-dir>/diagnosability-context.md>)
+(Tasklist (informational): <abs path to <output-dir>/diagnosability-tasklist.md>, if emitted)
+
+When `diagnosability_hard_stop=true`, this section is replaced by the hard-stop block defined in the **Next Steps** hard-stop variant below.
 
 ## Diagnosis
 
@@ -131,6 +153,46 @@ Pick the line(s) that apply:
 - Tier 2 with `--fix`, awaiting user accept: "Reply **yes** to proceed to the task-builder remediation chain, or apply the fix manually."
 - Tier 3 chain completed (post-`/task`): "Run `/sc:reflect --type task --validate <task-file>` before committing."
 
+### Hard-stop variant (when `diagnosability_hard_stop=true`)
+
+When the Wave 1.6 hard-stop fired, REPLACE the Diagnosis section (and skip Evidence / Proposed Fix / Alternative Fixes / Risk + Rollback) with the following block, then render only this Next Steps variant:
+
+```text
+Wave 1.6 Diagnosability Audit — HALT
+
+The reported symptom looks non-trivial (signals: <list>), and the existing instrumentation around
+<failing_component> is insufficient to triangulate it: <1-line specific gap, e.g. "no thread-correlation
+fields in any log call within the suspect function; intermittent symptom requires when/why traceability">.
+
+Hypothesizing harder against blind code at this point produces low-confidence answers. The protocol will
+halt the deep-debugging pipeline and emit an instrumentation tasklist instead. No hypothesis work happens
+in the same turn as the instrumentation patch — once you've implemented the tasklist and re-run, the
+re-entry starts fresh with new evidence.
+
+  Diagnosability Context Card:  <abs path>
+  Instrumentation Tasklist:     <abs path>
+  Diagnostic REPORT.md:         <abs path>
+  Round:                        <N> of 3
+
+Next steps:
+
+  1. Review the tasklist and instrument the invocation sites (NOT the failing component's source):
+       /task <tasklist-path>
+       (or implement manually; tasks target test scripts / CI / dev harnesses only)
+  2. Re-run the workload with the new instrumentation.
+  3. Re-run /sc:troubleshoot with the fresh log/trace excerpts in the issue description.
+
+  To override and proceed with deep debugging anyway:
+       /sc:troubleshoot --no-diagnosability-audit <original args>
+  (Bypass will be logged in the REPORT.md header for post-mortem auditability.)
+
+  To package the tasklist as an MDTM task via task-builder:
+       /sc:troubleshoot <original args> --diagnosability-handoff
+
+```
+
+When the 3-round cap is reached for an `issue_slug`, append a cap-specific paragraph: "Wave 1.6 has now hard-stopped 3 times for this issue. Further instrumentation iteration is unlikely to yield new evidence — escalate to structural change (a different repro harness, a different test scope, or a redesign of the failing component's observability). Reset the counter via `--reset-diagnosability-rounds` if you intend to retry from round 0 anyway."
+
 ## Audit
 
 - **Hypothesis cards**: <list of paths>
@@ -138,7 +200,7 @@ Pick the line(s) that apply:
 - **Self-review** (Tier 2 only): <result>
 - **Task file** (Tier 3 only): <path>
 - **Audit log**: <path>
-```
+````
 
 ## Rendering rules
 
