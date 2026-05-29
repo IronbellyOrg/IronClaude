@@ -148,7 +148,6 @@ _DEMOTED_H3_SUBSECTIONS: tuple[str, ...] = (
 _H3_HEADING_RE = re.compile(r"^###\s+(.+?)$", re.MULTILINE)
 _H2_HEADING_RE = re.compile(r"^##\s+.+?$", re.MULTILINE)
 
-
 # Layer 3b: Parenthetical phase/step label (requires multi-word content)
 # Matches: "(command scaffolding)", "(Phase 2 mocking)", "(stubbed layer)" etc.
 # Bare "(scaffold)" or "(mock)" stay HIGH — those are genuine qualifiers, not labels.
