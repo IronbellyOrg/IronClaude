@@ -61,14 +61,15 @@ POPULATED_FIXTURE = FIXTURE_DIR / "header_populated_done.md"
 INVENTORY_FIXTURE = FIXTURE_DIR / "populated_done_inventory.md"
 
 EXECUTION_CONTEXT_LEAK_FIXTURE = (
-    Path(__file__).parent
-    / "fixtures"
-    / "execution_context"
-    / "hidden_input_leak.md"
+    Path(__file__).parent / "fixtures" / "execution_context" / "hidden_input_leak.md"
 )
 
-RF_TASK_BUILDER_PATH = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-task-builder.md"
-TB_SKILL_PATH = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
+RF_TASK_BUILDER_PATH = (
+    REPO_ROOT / "src" / "superclaude" / "agents" / "rf-task-builder.md"
+)
+TB_SKILL_PATH = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
+)
 RELEASE_SPEC_PATH = (
     REPO_ROOT
     / ".dev"
@@ -222,9 +223,7 @@ class TestRuleArtifactsExcludeDoneReadback:
                 # the OPEN-PR05 cardinality threshold (which is a
                 # passive observation by the operator, not a
                 # builder-time directory read).
-                forbidden = re.search(
-                    r"\b(glob\(|grep\(|read\()", raw
-                ) or re.search(
+                forbidden = re.search(r"\b(glob\(|grep\(|read\()", raw) or re.search(
                     r"(builder|agent)\s+(read|reads|reading)\s+", lower
                 )
                 assert not forbidden, (
@@ -244,9 +243,7 @@ class TestStructuralOutputByteIdentical:
     empty-done baseline and the populated-done twin."""
 
     def test_execution_context_byte_range_identical(self):
-        empty_ec = _execution_context_range(
-            EMPTY_FIXTURE.read_text(encoding="utf-8")
-        )
+        empty_ec = _execution_context_range(EMPTY_FIXTURE.read_text(encoding="utf-8"))
         populated_ec = _execution_context_range(
             POPULATED_FIXTURE.read_text(encoding="utf-8")
         )
@@ -309,9 +306,7 @@ class TestHiddenInputGuardGrep:
         "fixture_path", [EMPTY_FIXTURE, POPULATED_FIXTURE], ids=lambda p: p.name
     )
     def test_byte_range_has_zero_hidden_input_hits(self, fixture_path):
-        ec_range = _execution_context_range(
-            fixture_path.read_text(encoding="utf-8")
-        )
+        ec_range = _execution_context_range(fixture_path.read_text(encoding="utf-8"))
         hits = HIDDEN_INPUT_GREP_RE.findall(ec_range)
         assert not hits, (
             f"{fixture_path.name} Execution Context block has {len(hits)} "
@@ -414,9 +409,7 @@ class TestInventoryCrossesOpenPR05Threshold:
         text = INVENTORY_FIXTURE.read_text(encoding="utf-8")
         types: List[str] = []
         for raw in text.splitlines():
-            m = re.match(
-                r"^\|\s*TASK-RF-\d+-\d+\s*\|\s*([\w-]+)\s*\|", raw.strip()
-            )
+            m = re.match(r"^\|\s*TASK-RF-\d+-\d+\s*\|\s*([\w-]+)\s*\|", raw.strip())
             if m:
                 types.append(m.group(1))
         unique_types = set(types)

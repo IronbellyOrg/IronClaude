@@ -86,7 +86,10 @@ class TestDriftAnnotationRulePresent:
     def test_rule_forbids_cell_value_placement(self, src_text: str):
         """The rule explicitly states that drift-axis-inactive is NOT an
         Axis-column cell value."""
-        assert "NOT as an Axis-column cell value" in src_text or "not as an Axis-column cell value" in src_text, (
+        assert (
+            "NOT as an Axis-column cell value" in src_text
+            or "not as an Axis-column cell value" in src_text
+        ), (
             f"rule must explicitly forbid `{ANNOTATION}` as an Axis-column cell value in {AGENT_SRC}"
         )
 
@@ -115,7 +118,11 @@ class TestDriftFixtureEmitsAnnotation:
             if line.strip().lower() == "## summary":
                 summary_start = idx + 1
                 continue
-            if summary_start != -1 and line.startswith("## ") and line.strip().lower() != "## summary":
+            if (
+                summary_start != -1
+                and line.startswith("## ")
+                and line.strip().lower() != "## summary"
+            ):
                 summary_end = idx
                 break
         assert summary_start != -1, f"`## Summary` heading not found in {FIXTURE}"

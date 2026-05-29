@@ -23,6 +23,7 @@ Test scope:
     V6 — `auggie-flag-clear.sh` case body loses one prefix → DRIFT
     V7 — regression-to-master (both files revert) → DRIFT
 """
+
 from __future__ import annotations
 
 import json
@@ -36,7 +37,9 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HOOKS_JSON = REPO_ROOT / "src" / "superclaude" / "hooks" / "hooks.json"
-AUGGIE_FLAG_CLEAR = REPO_ROOT / "src" / "superclaude" / "hooks" / "scripts" / "auggie-flag-clear.sh"
+AUGGIE_FLAG_CLEAR = (
+    REPO_ROOT / "src" / "superclaude" / "hooks" / "scripts" / "auggie-flag-clear.sh"
+)
 INSTALL_HOOKS_PY = REPO_ROOT / "src" / "superclaude" / "cli" / "install_hooks.py"
 CLAUDE_HOOKS_DIR = REPO_ROOT / ".claude" / "hooks"
 
@@ -105,11 +108,9 @@ def _temporarily_mutate_freshness_list(
     current = re.findall(r'"([^"]+\.sh)"', match.group())
     new_list = [s for s in current if s not in remove] + list(add)
     new_block = (
-        "_FRESHNESS_SCRIPTS = [\n"
-        + "".join(f'    "{s}",\n' for s in new_list)
-        + "]"
+        "_FRESHNESS_SCRIPTS = [\n" + "".join(f'    "{s}",\n' for s in new_list) + "]"
     )
-    mutated = original[: match.start()] + new_block + original[match.end():]
+    mutated = original[: match.start()] + new_block + original[match.end() :]
     try:
         INSTALL_HOOKS_PY.write_text(mutated)
         yield
@@ -210,9 +211,7 @@ def test_V7_regression_to_master():  # noqa: N802 — V1-V7 are release-spec §9
     for reg in new_data["hooks"]["PostToolUse"]:
         for h in reg.get("hooks", []):
             if "auggie-flag-clear" in h.get("command", ""):
-                reg["matcher"] = (
-                    "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*"
-                )
+                reg["matcher"] = "mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*"
     original_script = AUGGIE_FLAG_CLEAR.read_text()
     mutated_script = original_script.replace("|mcp__auggie-mcp__*", "")
     with _temporarily_replace_file(HOOKS_JSON, json.dumps(new_data, indent=2)):

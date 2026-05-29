@@ -248,9 +248,7 @@ class TestSignalHandlerInstaller:
 
         def _install() -> None:
             try:
-                installer = SignalHandlerInstaller(
-                    token, signals=(signal.SIGUSR1,)
-                )
+                installer = SignalHandlerInstaller(token, signals=(signal.SIGUSR1,))
                 installer.install()
             except BaseException as exc:  # noqa: BLE001
                 errors.append(exc)
@@ -566,9 +564,7 @@ def test_timeout_invokes_executor_cancel(scratch_root, eval_config, run_paths):
     assert "executor_cancel_started" in events
     assert "executor_cancel_completed" in events
     # Cancel-started precedes teardown so the subprocess dies first.
-    assert events.index("executor_cancel_started") < events.index(
-        "teardown_started"
-    )
+    assert events.index("executor_cancel_started") < events.index("teardown_started")
 
 
 def test_timeout_swallows_cancel_failure(scratch_root, eval_config, run_paths):

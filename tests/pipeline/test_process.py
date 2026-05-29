@@ -264,8 +264,12 @@ class TestClaudeProcessOutputFileCollision:
         out_b = config.task_output_file(phase, task_b)
         err_a = config.task_error_file(phase, task_a)
         err_b = config.task_error_file(phase, task_b)
-        assert out_a != out_b, "task_output_file produced identical paths for distinct tasks"
-        assert err_a != err_b, "task_error_file produced identical paths for distinct tasks"
+        assert out_a != out_b, (
+            "task_output_file produced identical paths for distinct tasks"
+        )
+        assert err_a != err_b, (
+            "task_error_file produced identical paths for distinct tasks"
+        )
 
         config.results_dir.mkdir(parents=True, exist_ok=True)
 

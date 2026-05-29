@@ -89,9 +89,7 @@ def test_summarize_suites_handles_static_only_manifest(tmp_path: Path) -> None:
 
 def test_summarize_suites_preserves_filename_order(tmp_path: Path) -> None:
     shutil.copy(FIXTURES_DIR / "valid_suite.yaml", tmp_path / "b.yaml")
-    shutil.copy(
-        FIXTURES_DIR / "no_parameterize_suite.yaml", tmp_path / "a.yaml"
-    )
+    shutil.copy(FIXTURES_DIR / "no_parameterize_suite.yaml", tmp_path / "a.yaml")
     summaries = summarize_suites(tmp_path)
     assert [s.source.name for s in summaries] == ["a.yaml", "b.yaml"]
 
@@ -202,9 +200,7 @@ def test_cli_list_json_is_deterministic_across_invocations(tmp_path: Path) -> No
 def test_cli_list_output_is_sorted_by_filename(tmp_path: Path) -> None:
     # Copy files in reverse alphabetical order; the listing MUST still be
     # alphabetical because the sort happens inside discover_suite_manifests.
-    shutil.copy(
-        FIXTURES_DIR / "valid_suite.yaml", tmp_path / "zebra.yaml"
-    )
+    shutil.copy(FIXTURES_DIR / "valid_suite.yaml", tmp_path / "zebra.yaml")
     shutil.copy(
         FIXTURES_DIR / "no_parameterize_suite.yaml",
         tmp_path / "alpha.yaml",

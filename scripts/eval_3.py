@@ -7,6 +7,7 @@ Phase A: Rollout sensitivity — run wiring analysis in 3 modes against project 
 Phase B: Pipeline artifact inspection — verify trailing gate mode in pipeline output
 Phase C: A/B branch comparison — verify rollout fields absent pre-v3.0
 """
+
 from __future__ import annotations
 
 import argparse
@@ -67,9 +68,11 @@ def verify_artifact_provenance(output_dir: Path, start_time: float) -> list[dict
     assertions = []
     artifacts = list(output_dir.glob("*"))
     if not artifacts:
-        assertions.append(assert_check(
-            "provenance_artifacts_exist", False, "No artifacts in output directory"
-        ))
+        assertions.append(
+            assert_check(
+                "provenance_artifacts_exist", False, "No artifacts in output directory"
+            )
+        )
         return assertions
 
     stale = []
@@ -77,12 +80,18 @@ def verify_artifact_provenance(output_dir: Path, start_time: float) -> list[dict
         if artifact.is_file():
             mtime = artifact.stat().st_mtime
             if mtime < start_time:
-                stale.append(f"{artifact.name} (mtime={mtime:.0f} < start={start_time:.0f})")
-    assertions.append(assert_check(
-        "provenance_all_artifacts_fresh",
-        len(stale) == 0,
-        f"Stale artifacts: {stale}" if stale else f"All {len(artifacts)} artifacts post-date eval start",
-    ))
+                stale.append(
+                    f"{artifact.name} (mtime={mtime:.0f} < start={start_time:.0f})"
+                )
+    assertions.append(
+        assert_check(
+            "provenance_all_artifacts_fresh",
+            len(stale) == 0,
+            f"Stale artifacts: {stale}"
+            if stale
+            else f"All {len(artifacts)} artifacts post-date eval start",
+        )
+    )
     return assertions
 
 
@@ -175,7 +184,11 @@ def phase_a_rollout_sensitivity(output_dir: Path, project_source: Path) -> EvalR
 
     # 6. Assert: if total_findings > 0, verify graduated enforcement.
     if shadow["total_findings"] > 0:
-        graduated = shadow["blocking_findings"] <= soft["blocking_findings"] <= full["blocking_findings"]
+        graduated = (
+            shadow["blocking_findings"]
+            <= soft["blocking_findings"]
+            <= full["blocking_findings"]
+        )
         result.assertions.append(
             assert_check(
                 "graduated_enforcement",
@@ -195,16 +208,21 @@ def phase_a_rollout_sensitivity(output_dir: Path, project_source: Path) -> EvalR
     return result
 
 
-def phase_b_pipeline_trailing_mode(output_dir: Path, spec_file: Path, eval_start_time: float) -> EvalResult:
+def phase_b_pipeline_trailing_mode(
+    output_dir: Path, spec_file: Path, eval_start_time: float
+) -> EvalResult:
     """Phase B: Run pipeline, verify wiring step uses TRAILING gate mode."""
     start = time.monotonic()
     result = EvalResult(eval_id="eval-3", phase="B-trailing-mode", passed=False)
 
     # Run pipeline
     cmd = [
-        "superclaude", "roadmap", "run",
+        "superclaude",
+        "roadmap",
+        "run",
         str(spec_file),
-        "--output-dir", str(output_dir),
+        "--output-dir",
+        str(output_dir),
         "--no-validate",
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
@@ -365,9 +383,13 @@ def phase_c_branch_comparison(output_dir: Path) -> EvalResult:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Eval 3: Mode-Aware Rollout Enforcement")
+    parser = argparse.ArgumentParser(
+        description="Eval 3: Mode-Aware Rollout Enforcement"
+    )
     parser.add_argument(
-        "--branch", choices=["local", "global"], default="local",
+        "--branch",
+        choices=["local", "global"],
+        default="local",
         help="Artifact label for directory naming (does NOT switch git branches)",
     )
     parser.add_argument(
@@ -386,7 +408,9 @@ def main():
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     eval_start_time = time.time()
 
-    print(f"[eval-3] Running on current branch ('{args.branch}' is an artifact label, not a git operation)")
+    print(
+        f"[eval-3] Running on current branch ('{args.branch}' is an artifact label, not a git operation)"
+    )
 
     report = ComparisonReport(
         timestamp=datetime.now(timezone.utc).isoformat(),
@@ -414,7 +438,7 @@ def main():
 
     report.overall_passed = all(p["passed"] for p in report.phases)
     report.summary = " | ".join(
-        f"Phase {chr(65+i)} ({'PASS' if p['passed'] else 'FAIL'})"
+        f"Phase {chr(65 + i)} ({'PASS' if p['passed'] else 'FAIL'})"
         for i, p in enumerate(report.phases)
     )
 

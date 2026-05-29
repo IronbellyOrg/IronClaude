@@ -182,7 +182,14 @@ F_CROSS_CYCLE_DEDUP_NON_SHRINKING = [
         # in PASS_1's set per the construction below — see comment
         # in cycle 1's pass_set). synth-K persists. |F_2|=2 = |F_1|.
         fail_set={"item-3.4", SYNTH_DEDUP_KEY},
-        pass_set={"item-1.1", "item-3.1", "item-3.2", "item-4.2", "item-6.1", "item-8.2"},
+        pass_set={
+            "item-1.1",
+            "item-3.1",
+            "item-3.2",
+            "item-4.2",
+            "item-6.1",
+            "item-8.2",
+        },
     ),
 ]
 
@@ -333,12 +340,12 @@ class TestRegressionStepReturnsPass:
         # Sanity: the dedup_key is in BOTH F_1 and F_2. If we
         # accidentally omitted it from one of them, the
         # "persistence" claim is vacuous.
-        assert (
-            SYNTH_DEDUP_KEY in F_CROSS_CYCLE_DEDUP_SHRINKING[0].fail_set
-        ), "synth dedup_key not in F_1 — fixture invariant broken"
-        assert (
-            SYNTH_DEDUP_KEY in F_CROSS_CYCLE_DEDUP_SHRINKING[1].fail_set
-        ), "synth dedup_key not in F_2 — persistence claim vacuous"
+        assert SYNTH_DEDUP_KEY in F_CROSS_CYCLE_DEDUP_SHRINKING[0].fail_set, (
+            "synth dedup_key not in F_1 — fixture invariant broken"
+        )
+        assert SYNTH_DEDUP_KEY in F_CROSS_CYCLE_DEDUP_SHRINKING[1].fail_set, (
+            "synth dedup_key not in F_2 — persistence claim vacuous"
+        )
 
     def test_synth_key_not_in_pass_set_of_cycle_1(self):
         # The INV-012 invariant depends on synth-K being a FAIL_1
@@ -346,9 +353,7 @@ class TestRegressionStepReturnsPass:
         # FAIL_2 verdict WOULD be a regression — which is exactly
         # what INV-012 says happens by construction (synthetic-dnsp
         # findings emit at FAIL verdicts, never PASS).
-        assert (
-            SYNTH_DEDUP_KEY not in F_CROSS_CYCLE_DEDUP_SHRINKING[0].pass_set
-        ), (
+        assert SYNTH_DEDUP_KEY not in F_CROSS_CYCLE_DEDUP_SHRINKING[0].pass_set, (
             "synth dedup_key incorrectly placed in PASS_1 — INV-012 "
             "non-emission invariant cannot be tested if the dedup_key "
             "starts as a PASS item"
@@ -406,9 +411,7 @@ class TestNonShrinkingCounterfactualHalts:
     message. This is the "persistence trips monotonicity (intended)"
     behavior documented at SKILL.md L1071-1072."""
 
-    def test_counterfactual_halts_with_monotonicity(
-        self, non_shrinking_log: HaltLog
-    ):
+    def test_counterfactual_halts_with_monotonicity(self, non_shrinking_log: HaltLog):
         assert non_shrinking_log.halt_message == "[HALT-MONOTONICITY] |F|=2", (
             f"counterfactual non-shrinking dedup fixture did NOT halt with "
             f"byte-exact '[HALT-MONOTONICITY] |F|=2': got "
@@ -416,9 +419,7 @@ class TestNonShrinkingCounterfactualHalts:
             "non-emission invariant is scoped to regression only"
         )
 
-    def test_counterfactual_regression_step_pass(
-        self, non_shrinking_log: HaltLog
-    ):
+    def test_counterfactual_regression_step_pass(self, non_shrinking_log: HaltLog):
         first_transition = [t for t in non_shrinking_log.transitions if t[0] == 3]
         regression_steps = [t for t in first_transition if t[1] == "regression"]
         assert len(regression_steps) == 1, (
@@ -431,12 +432,9 @@ class TestNonShrinkingCounterfactualHalts:
             "persistence must NEVER be classified as regression"
         )
 
-    def test_counterfactual_cycle_3_never_started(
-        self, non_shrinking_log: HaltLog
-    ):
+    def test_counterfactual_cycle_3_never_started(self, non_shrinking_log: HaltLog):
         assert 3 not in non_shrinking_log.cycles_started, (
-            "counterfactual non-shrinking dedup fixture unexpectedly "
-            "attempted cycle 3"
+            "counterfactual non-shrinking dedup fixture unexpectedly attempted cycle 3"
         )
 
 
@@ -459,15 +457,12 @@ class TestCanonicalFixtureParity:
 
     def test_canonical_non_shrinking_log_present(self):
         assert CANONICAL_LOG_NON_SHRINKING.is_file(), (
-            f"D-0059 non-shrinking fixture missing at "
-            f"{CANONICAL_LOG_NON_SHRINKING}"
+            f"D-0059 non-shrinking fixture missing at {CANONICAL_LOG_NON_SHRINKING}"
         )
 
     def test_canonical_shrinking_log_has_no_halt(self, canonical_shrinking_text: str):
         halt_lines = [
-            ln
-            for ln in canonical_shrinking_text.splitlines()
-            if ln.startswith("HALT ")
+            ln for ln in canonical_shrinking_text.splitlines() if ln.startswith("HALT ")
         ]
         assert halt_lines == [], (
             f"D-0059 shrinking fixture HALT line(s) {halt_lines!r} — "

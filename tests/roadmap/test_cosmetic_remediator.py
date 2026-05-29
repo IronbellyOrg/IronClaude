@@ -311,7 +311,9 @@ class TestNonH3Cosmetics:
 
 class TestC12H2Parenthetical:
     def test_c12_detector_emits_violation_for_required_h2_with_parenthetical(self):
-        content = _content_with_h2_parenthetical()  # ## Timeline Estimates (gate-bound, not date-bound)
+        content = (
+            _content_with_h2_parenthetical()
+        )  # ## Timeline Estimates (gate-bound, not date-bound)
         cl = classify_gate_failure(content, _GATE, "x", step_id="s1")
         assert cl.is_pure_cosmetic is True
         assert any(v.klass == "C12" for v in cl.cosmetic_violations)
@@ -610,22 +612,22 @@ class TestComputeFencedIndices:
         sample = (
             "intro line A\n"
             "intro line B\n"
-            "```\n"          # opener of region 1 (idx=2) → EXCLUDED
-            "inside 1a\n"    # idx=3 → INCLUDED
-            "inside 1b\n"    # idx=4 → INCLUDED
-            "```\n"          # closer of region 1 (idx=5) → INCLUDED
-            "between A\n"    # idx=6 → EXCLUDED
-            "```py\n"        # opener of region 2 (idx=7, with info string)
-            "inside 2\n"     # idx=8 → INCLUDED
-            "```\n"          # closer of region 2 (idx=9) → INCLUDED
-            "between B\n"    # idx=10 → EXCLUDED
-            "```\n"          # opener of region 3 (idx=11)
-            "```\n"          # closer of region 3 (idx=12) — length-1 region
-            "between C\n"    # idx=13 → EXCLUDED
-            "  ```\n"        # opener of region 4, indented (idx=14)
-            "inside 4\n"     # idx=15 → INCLUDED
-            "```\n"          # closer of region 4 (idx=16) → INCLUDED
-            "trailing\n"     # idx=17 → EXCLUDED
+            "```\n"  # opener of region 1 (idx=2) → EXCLUDED
+            "inside 1a\n"  # idx=3 → INCLUDED
+            "inside 1b\n"  # idx=4 → INCLUDED
+            "```\n"  # closer of region 1 (idx=5) → INCLUDED
+            "between A\n"  # idx=6 → EXCLUDED
+            "```py\n"  # opener of region 2 (idx=7, with info string)
+            "inside 2\n"  # idx=8 → INCLUDED
+            "```\n"  # closer of region 2 (idx=9) → INCLUDED
+            "between B\n"  # idx=10 → EXCLUDED
+            "```\n"  # opener of region 3 (idx=11)
+            "```\n"  # closer of region 3 (idx=12) — length-1 region
+            "between C\n"  # idx=13 → EXCLUDED
+            "  ```\n"  # opener of region 4, indented (idx=14)
+            "inside 4\n"  # idx=15 → INCLUDED
+            "```\n"  # closer of region 4 (idx=16) → INCLUDED
+            "trailing\n"  # idx=17 → EXCLUDED
         )
         lines = sample.splitlines(keepends=True)
         fenced_indices = _compute_fenced_indices(lines)
@@ -650,9 +652,7 @@ class TestComputeFencedIndices:
         # Pathological case: opener with no closer. Whatever the helper
         # returns for trailing lines, the set must match — preserves
         # bit-for-bit equivalence even on malformed input.
-        lines = "before\n```\nstill inside\nnever closes\n".splitlines(
-            keepends=True
-        )
+        lines = "before\n```\nstill inside\nnever closes\n".splitlines(keepends=True)
         fenced_indices = _compute_fenced_indices(lines)
         for idx in range(len(lines)):
             assert (idx in fenced_indices) == _is_in_fenced_block(lines, idx)
@@ -668,7 +668,10 @@ class TestComputeFencedIndices:
 def _gate_shaped_roadmap(
     *,
     timeline_h2: str = "## Timeline Estimates",
-    resource_h3s: tuple[str, ...] = ("### External Dependencies", "### Infrastructure Requirements"),
+    resource_h3s: tuple[str, ...] = (
+        "### External Dependencies",
+        "### Infrastructure Requirements",
+    ),
 ) -> str:
     """Hermetic minimal roadmap with all 8 required H2s + complete M1 + caller-tunable drift sites.
 

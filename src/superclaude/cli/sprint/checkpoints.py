@@ -71,7 +71,7 @@ def extract_checkpoint_paths(
         # emit as a portable, release-dir-agnostic anchor. The actual release
         # root is `release_dir`; treat the remainder as release-relative.
         if raw_path.startswith("TASKLIST_ROOT/"):
-            raw_path = raw_path[len("TASKLIST_ROOT/"):]
+            raw_path = raw_path[len("TASKLIST_ROOT/") :]
         elif raw_path == "TASKLIST_ROOT":
             raw_path = "."
 

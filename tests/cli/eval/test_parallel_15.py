@@ -305,8 +305,7 @@ class TestParallel15:
 
         session_ids_from_record = {iso.session_id for iso in isolations_seen.values()}
         session_ids_from_jsonl = {
-            _read_telemetry_event(iso)["session_id"]
-            for iso in isolations_seen.values()
+            _read_telemetry_event(iso)["session_id"] for iso in isolations_seen.values()
         }
         env_session_ids_from_jsonl = {
             _read_telemetry_event(iso)["env_session_id"]

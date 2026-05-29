@@ -256,9 +256,7 @@ class TestTeardownKeepFlag:
         iso.teardown(keep=False)
         assert not iso.is_set_up
 
-    def test_teardown_is_noop_when_setup_never_ran(
-        self, scratch_root: Path
-    ) -> None:
+    def test_teardown_is_noop_when_setup_never_ran(self, scratch_root: Path) -> None:
         iso = _build(scratch_root)
         # Must not raise; orchestrator is allowed to call teardown
         # unconditionally in a ``finally`` block.
@@ -418,9 +416,7 @@ class TestParallelSiblings:
                 iso.teardown(keep=False)
 
         with ThreadPoolExecutor(max_workers=n) as pool:
-            results = list(
-                as_completed([pool.submit(run, i) for i in range(n)])
-            )
+            results = list(as_completed([pool.submit(run, i) for i in range(n)]))
         homes = [r.result()[0] for r in results]
         assert len({str(h) for h in homes}) == n  # no collisions
         # All scratched out post-teardown.

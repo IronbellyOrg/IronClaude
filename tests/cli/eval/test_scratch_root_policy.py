@@ -158,9 +158,7 @@ def test_doctor_rejects_real_home_output_dir(clean_host: dict) -> None:
     """The NFR-SEC3 hard case (``~/.claude/``) refuses through the same path."""
 
     runner = CliRunner()
-    result = runner.invoke(
-        eval_group, ["doctor", "--output-dir", "/root/.claude"]
-    )
+    result = runner.invoke(eval_group, ["doctor", "--output-dir", "/root/.claude"])
     assert result.exit_code == SCRATCH_ROOT_VIOLATION_EXIT_CODE
     assert "/root/.claude" in result.stderr
     assert SCRATCH_ROOT_POLICY in result.stderr
@@ -170,9 +168,7 @@ def test_doctor_accepts_allowlisted_output_dir(clean_host: dict) -> None:
     """Allowlisted ``--output-dir`` MUST NOT regress the green-path exit 0."""
 
     runner = CliRunner()
-    result = runner.invoke(
-        eval_group, ["doctor", "--output-dir", "/tmp/eval-runs/sub"]
-    )
+    result = runner.invoke(eval_group, ["doctor", "--output-dir", "/tmp/eval-runs/sub"])
     assert result.exit_code == 0, result.output
     assert "all HARD capabilities satisfied" in result.output
     # The policy block MUST NOT appear in the happy path -- the renderer
@@ -201,9 +197,7 @@ def test_doctor_output_dir_violation_takes_precedence_over_hard_check(
     )
 
     runner = CliRunner()
-    result = runner.invoke(
-        eval_group, ["doctor", "--output-dir", "/etc/foo"]
-    )
+    result = runner.invoke(eval_group, ["doctor", "--output-dir", "/etc/foo"])
     assert result.exit_code == SCRATCH_ROOT_VIOLATION_EXIT_CODE
     # HARD-failure artifact MUST NOT appear: doctor exited before
     # building the capability report.
@@ -256,9 +250,7 @@ def test_eval_run_and_doctor_agree_on_non_allowlisted_output_dir(
 
     runner = CliRunner()
     for bad_path in ("/etc/foo", "/root/.claude"):
-        doctor_result = runner.invoke(
-            eval_group, ["doctor", "--output-dir", bad_path]
-        )
+        doctor_result = runner.invoke(eval_group, ["doctor", "--output-dir", bad_path])
         run_result = runner.invoke(
             eval_group, ["run", "--suite", "real", "--output-dir", bad_path]
         )
@@ -321,14 +313,10 @@ def test_doctor_uses_default_evalconfig_allowlist(clean_host: dict) -> None:
 
     runner = CliRunner()
 
-    ok = runner.invoke(
-        eval_group, ["doctor", "--output-dir", "/tmp/eval-runs/passing"]
-    )
+    ok = runner.invoke(eval_group, ["doctor", "--output-dir", "/tmp/eval-runs/passing"])
     assert ok.exit_code == 0, ok.output
 
-    bad = runner.invoke(
-        eval_group, ["doctor", "--output-dir", "/tmp/other-runs"]
-    )
+    bad = runner.invoke(eval_group, ["doctor", "--output-dir", "/tmp/other-runs"])
     assert bad.exit_code == SCRATCH_ROOT_VIOLATION_EXIT_CODE
     assert SCRATCH_ROOT_POLICY in bad.stderr
 

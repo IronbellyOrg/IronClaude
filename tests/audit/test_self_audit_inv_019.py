@@ -271,10 +271,14 @@ class TestSelfAuditHeadingPresent:
     794 (AC-1; phase-3-tasklist.md L684) in both source and mirror."""
 
     def test_agent_source_exists(self):
-        assert AGENT_SRC.is_file(), f"missing source rf-qa-qualitative.md at {AGENT_SRC}"
+        assert AGENT_SRC.is_file(), (
+            f"missing source rf-qa-qualitative.md at {AGENT_SRC}"
+        )
 
     def test_agent_mirror_exists(self):
-        assert AGENT_MIRROR.is_file(), f"missing mirror rf-qa-qualitative.md at {AGENT_MIRROR}"
+        assert AGENT_MIRROR.is_file(), (
+            f"missing mirror rf-qa-qualitative.md at {AGENT_MIRROR}"
+        )
 
     def test_self_audit_heading_at_or_after_line_794_source(self):
         line = _line_of(
@@ -321,9 +325,10 @@ class TestSelfAuditSchemaBothCategoriesRequired:
     category-(b) semantic check (AC-2; phase-3-tasklist.md L685)."""
 
     def test_category_a_label_present(self, src_text: str):
-        assert "Reliance list — rf-qa PASS items skipped for structural re-check" in src_text, (
-            "category-(a) label missing from rf-qa-qualitative.md schema block"
-        )
+        assert (
+            "Reliance list — rf-qa PASS items skipped for structural re-check"
+            in src_text
+        ), "category-(a) label missing from rf-qa-qualitative.md schema block"
 
     def test_category_b_label_present(self, src_text: str):
         assert "Independent semantic checks (≥1 required, INV-019)" in src_text, (
@@ -336,9 +341,9 @@ class TestSelfAuditSchemaBothCategoriesRequired:
             "INV-019 zero-category-(b) violation rule not documented at EOF spec section"
         )
         # The literal sentence from the schema requirement section.
-        assert (
-            "INV-019 violation" in src_text
-        ), "literal 'INV-019 violation' phrase missing — enforcement rule not stated"
+        assert "INV-019 violation" in src_text, (
+            "literal 'INV-019 violation' phrase missing — enforcement rule not stated"
+        )
 
 
 class TestSelfAuditMirrorParity:

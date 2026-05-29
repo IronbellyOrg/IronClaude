@@ -276,8 +276,11 @@ def test_run_one_does_not_short_circuit_non_mcp_spec_under_no_mcp() -> None:
 
     spec = EvalSpec(id="E3", title="non-mcp eval", requires=())
     no_mcp = True
-    skipped_caps = {"mcp_server.auggie", "mcp_server.auggie-mcp",
-                    "mcp_server.airis-mcp-gateway"}
+    skipped_caps = {
+        "mcp_server.auggie",
+        "mcp_server.auggie-mcp",
+        "mcp_server.airis-mcp-gateway",
+    }
 
     gated = [r for r in spec.requires if r in skipped_caps]
     take_short_circuit = bool(no_mcp and gated)
@@ -370,8 +373,10 @@ def test_run_summary_counts_kept_plus_skipped_equals_n_prime_under_no_mcp() -> N
     )
 
     assert summary.counts.kept_plus_skipped_equals_n_prime is True
-    assert summary.counts.kept_k + summary.counts.skipped_s == \
-        summary.counts.expanded_n_prime
+    assert (
+        summary.counts.kept_k + summary.counts.skipped_s
+        == summary.counts.expanded_n_prime
+    )
 
     # Every SKIPPED row in the summary must carry a populated skip_reason
     # (T05.26 AC bullet 3).
@@ -456,7 +461,9 @@ def _no_mcp_runtime_wired() -> bool:
     return has_no_mcp_branch and has_capability_skip_reason
 
 
-def test_eval_run_no_mcp_skips_mcp_evals_end_to_end(allowlisted_output_dir: Path) -> None:
+def test_eval_run_no_mcp_skips_mcp_evals_end_to_end(
+    allowlisted_output_dir: Path,
+) -> None:
     """End-to-end ``eval run --suite real --no-mcp`` skips MCP-tagged evals.
 
     Patches ``_run_one_spec`` so any MCP-tagged spec that bypasses the
@@ -551,17 +558,14 @@ def test_eval_run_no_mcp_skips_mcp_evals_end_to_end(allowlisted_output_dir: Path
         )
 
     assert result.exit_code in (0,), (
-        f"eval run --no-mcp exit_code={result.exit_code}\n"
-        f"stdout:\n{result.output}\n"
+        f"eval run --no-mcp exit_code={result.exit_code}\nstdout:\n{result.output}\n"
     )
 
     payload = json.loads(result.output)
 
     by_id = {entry["eval_id"]: entry for entry in payload["evals"]}
     for eval_id in MCP_EVAL_IDS:
-        assert eval_id in by_id, (
-            f"eval {eval_id!r} missing from --no-mcp run summary"
-        )
+        assert eval_id in by_id, f"eval {eval_id!r} missing from --no-mcp run summary"
         entry = by_id[eval_id]
         assert entry["status"] == "SKIPPED", (
             f"eval {eval_id!r} must be SKIPPED under --no-mcp; "

@@ -46,7 +46,9 @@ def test_sanitize_pattern_preserves_safe_chars() -> None:
 
 def test_sanitize_pattern_replaces_unsafe_chars() -> None:
     """Regex metacharacters and path separators collapse to ``_``."""
-    sanitised = sanitize_pattern_for_filename("mcp__auggie__.*|mcp__airis-mcp-gateway__.*")
+    sanitised = sanitize_pattern_for_filename(
+        "mcp__auggie__.*|mcp__airis-mcp-gateway__.*"
+    )
     # ``*`` and ``|`` are filesystem-unfriendly when piping; both become ``_``.
     assert "*" not in sanitised
     assert "|" not in sanitised
@@ -156,7 +158,9 @@ def test_coverage_gate_passes_when_settings_missing(tmp_path: Path) -> None:
     assert result.matchers == ()
 
 
-def test_coverage_gate_fails_closed_when_settings_unreadable_json(tmp_path: Path) -> None:
+def test_coverage_gate_fails_closed_when_settings_unreadable_json(
+    tmp_path: Path,
+) -> None:
     """H2: malformed settings.json fails the gate closed (FR-G5).
 
     Pre-H2 this test asserted ``passed is True`` (silent-green on corrupt
@@ -318,9 +322,7 @@ def test_coverage_gate_to_dict_serialises_full_result(tmp_path: Path) -> None:
     assert payload["matchers"] == [
         {"event": "PreToolUse", "pattern": "mcp__auggie__.*"}
     ]
-    assert payload["covered"] == [
-        {"event": "PreToolUse", "pattern": "mcp__auggie__.*"}
-    ]
+    assert payload["covered"] == [{"event": "PreToolUse", "pattern": "mcp__auggie__.*"}]
     assert payload["coverage_map"] == {"mcp__auggie__.*": ["E1"]}
 
 
@@ -385,9 +387,7 @@ def test_cli_doctor_check_coverage_fails_when_uncovered_matcher_present(
     """Stub a settings.json with an uncovered matcher → exit 2 + stderr."""
     settings = clean_host["claude_home"] / "settings.json"
     settings.write_text(
-        json.dumps(
-            {"hooks": {"PreToolUse": [{"matcher": "mcp__auggie__.*"}]}}
-        ),
+        json.dumps({"hooks": {"PreToolUse": [{"matcher": "mcp__auggie__.*"}]}}),
         encoding="utf-8",
     )
     runner = CliRunner()
@@ -404,15 +404,11 @@ def test_cli_doctor_check_coverage_json_payload_carries_missing_list(
 ) -> None:
     settings = clean_host["claude_home"] / "settings.json"
     settings.write_text(
-        json.dumps(
-            {"hooks": {"PreToolUse": [{"matcher": "mcp__auggie__.*"}]}}
-        ),
+        json.dumps({"hooks": {"PreToolUse": [{"matcher": "mcp__auggie__.*"}]}}),
         encoding="utf-8",
     )
     runner = CliRunner()
-    result = runner.invoke(
-        eval_group, ["doctor", "--check-coverage", "--json"]
-    )
+    result = runner.invoke(eval_group, ["doctor", "--check-coverage", "--json"])
     assert result.exit_code == COVERAGE_GATE_FAILED_EXIT_CODE
     payload = json.loads(result.stdout)
     assert payload["coverage_gate"]["status"] == "failed"

@@ -51,9 +51,7 @@ def test_aggregated_phase_report_lives_in_sprint_executor_module() -> None:
     silently shift to a renamed module."""
 
     assert AggregatedPhaseReport.__module__ == "superclaude.cli.sprint.executor"
-    assert (
-        getattr(_executor_module, "AggregatedPhaseReport") is AggregatedPhaseReport
-    )
+    assert getattr(_executor_module, "AggregatedPhaseReport") is AggregatedPhaseReport
 
 
 # --- field contract --------------------------------------------------------
@@ -83,9 +81,7 @@ def test_aggregated_phase_report_field_names_and_order() -> None:
 
 
 @pytest.mark.parametrize(("field_name", "field_type"), _EXPECTED_FIELDS)
-def test_aggregated_phase_report_field_types(
-    field_name: str, field_type: type
-) -> None:
+def test_aggregated_phase_report_field_types(field_name: str, field_type: type) -> None:
     """Each pinned field must keep its typed annotation."""
 
     hints = get_type_hints(AggregatedPhaseReport)

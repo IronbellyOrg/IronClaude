@@ -330,9 +330,7 @@ def test_from_mapping_threads_not_equals(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, exit_code=0)
-    result = Expect.from_mapping(
-        {"exit_code": {"equals": 0, "not_equals": 1}}
-    )(ctx)
+    result = Expect.from_mapping({"exit_code": {"equals": 0, "not_equals": 1}})(ctx)
     assert result.passed
 
 

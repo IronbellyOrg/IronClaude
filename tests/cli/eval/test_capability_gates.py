@@ -86,7 +86,9 @@ def test_check_all_is_idempotent() -> None:
     assert first == second
 
 
-def test_which_or_skip_resolves_existing_binary(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_which_or_skip_resolves_existing_binary(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(shutil, "which", lambda name: f"/usr/bin/{name}")
     passed, detail = CapabilityGates().which_or_skip("ls")
     assert passed is True
@@ -124,6 +126,7 @@ def test_missing_mcp_server_classifies_soft_skip(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """T01.11 AC: missing MCP server classifies SOFT-SKIP under --no-mcp."""
+
     # All binaries present; no MCP server resolvable.
     def fake_which(name: str) -> str | None:
         if name in ("claude", "make", "jq", "git"):

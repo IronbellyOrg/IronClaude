@@ -50,10 +50,14 @@ class TestFiveAxesHeaderPresent:
     """The axes header subsection is present in both rf-qa-qualitative surfaces."""
 
     def test_agent_source_exists(self):
-        assert AGENT_SRC.is_file(), f"missing source rf-qa-qualitative.md at {AGENT_SRC}"
+        assert AGENT_SRC.is_file(), (
+            f"missing source rf-qa-qualitative.md at {AGENT_SRC}"
+        )
 
     def test_agent_mirror_exists(self):
-        assert AGENT_MIRROR.is_file(), f"missing mirror rf-qa-qualitative.md at {AGENT_MIRROR}"
+        assert AGENT_MIRROR.is_file(), (
+            f"missing mirror rf-qa-qualitative.md at {AGENT_MIRROR}"
+        )
 
     def test_axes_header_present_in_source(self, src_text: str):
         assert AXES_HEADER_PREFIX in src_text, (
@@ -82,7 +86,9 @@ class TestFiveAxesHeaderOrdering:
     def test_ordering_in_source(self):
         ord_ = self._ordering(AGENT_SRC)
         assert ord_["axes"] != -1, f"axes header not found in source (ord={ord_})"
-        assert ord_["checklist"] != -1, f"checklist header not found in source (ord={ord_})"
+        assert ord_["checklist"] != -1, (
+            f"checklist header not found in source (ord={ord_})"
+        )
         assert ord_["axes"] < ord_["checklist"], (
             f"axes header must precede checklist header in source: {ord_}"
         )
@@ -90,7 +96,9 @@ class TestFiveAxesHeaderOrdering:
     def test_ordering_in_mirror(self):
         ord_ = self._ordering(AGENT_MIRROR)
         assert ord_["axes"] != -1, f"axes header not found in mirror (ord={ord_})"
-        assert ord_["checklist"] != -1, f"checklist header not found in mirror (ord={ord_})"
+        assert ord_["checklist"] != -1, (
+            f"checklist header not found in mirror (ord={ord_})"
+        )
         assert ord_["axes"] < ord_["checklist"], (
             f"axes header must precede checklist header in mirror: {ord_}"
         )

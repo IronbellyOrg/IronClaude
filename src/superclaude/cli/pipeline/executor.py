@@ -305,7 +305,9 @@ def _execute_single_step(
                     for sc in step.gate.semantic_checks:
                         sc_result = sc.check_fn(gate_target.read_text(encoding="utf-8"))
                         sc_ok = (
-                            sc_result if isinstance(sc_result, bool) else bool(sc_result)
+                            sc_result
+                            if isinstance(sc_result, bool)
+                            else bool(sc_result)
                         )
                         if not sc_ok:
                             gate_name = sc.name

@@ -339,9 +339,7 @@ class TestFullSuiteRuntimeBaseline:
         # The artifact must always land on disk so a downstream harvest
         # picks it up regardless of pass/xfail status — the AC pins the
         # presence of suite-runtime.json, not just a green assertion.
-        assert report_path.is_file(), (
-            f"suite-runtime.json missing at {report_path}"
-        )
+        assert report_path.is_file(), f"suite-runtime.json missing at {report_path}"
         parsed = json.loads(report_path.read_text(encoding="utf-8"))
         assert parsed["budget_sec"] == SUITE_RUNTIME_BUDGET_SEC
         assert parsed["parallel"] == BASELINE_PARALLEL

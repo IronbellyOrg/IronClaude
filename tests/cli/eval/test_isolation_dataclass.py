@@ -121,8 +121,8 @@ def test_home_isolation_is_hashable() -> None:
         "/etc",
         "..",
         "",
-        "1E",          # leading digit
-        "e1",          # lowercase start
+        "1E",  # leading digit
+        "e1",  # lowercase start
         "E1/x",
         "E1\x00",
         "{{prefix}}",

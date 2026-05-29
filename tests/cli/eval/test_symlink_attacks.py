@@ -258,9 +258,7 @@ class TestScratchSymlinkToHome:
 
         assert exc_info.value.check == "scratch_root_allowlist"
 
-    def test_scratch_symlink_refusal_runs_before_mkdtemp(
-        self, tmp_path: Path
-    ) -> None:
+    def test_scratch_symlink_refusal_runs_before_mkdtemp(self, tmp_path: Path) -> None:
         """H5b: scratch-root allowlist refusal fires BEFORE ``mkdtemp``.
 
         Pre-H5b this asserted ``mkdtemp`` ran before the post-mkdtemp
@@ -333,9 +331,7 @@ class TestNestedSymlinkEscape:
         escape_target.mkdir()
         (escape_target / "marker").write_text("would-be-escape")
 
-        with patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp:
             # Pre-create a symlink with the eval-id prefix that
             # ``mkdtemp`` would have returned. The path lives lexically
             # under ``scratch_root`` (so a textual prefix check would
@@ -364,9 +360,7 @@ class TestNestedSymlinkEscape:
         intermediate = tmp_path / "INTERMEDIATE_LINK"
         intermediate.symlink_to(final_target)
 
-        with patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp:
             chained_home = scratch_root / "E2-chainXXXXXX"
             chained_home.symlink_to(intermediate)
             mock_mkdtemp.return_value = str(chained_home)
@@ -389,9 +383,7 @@ class TestNestedSymlinkEscape:
         escape_target = tmp_path / "ESCAPE_TARGET"
         escape_target.mkdir()
 
-        with patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp:
             evil_home = scratch_root / "E3-postXXXXXX"
             evil_home.symlink_to(escape_target)
             mock_mkdtemp.return_value = str(evil_home)
@@ -473,9 +465,7 @@ class TestPartialHomePreservedOnSymlinkAttack:
         escape_target = tmp_path / "ESCAPE_TARGET"
         escape_target.mkdir()
 
-        with patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp:
             evil_home = scratch_root / "Epartial2-XXXXXX"
             evil_home.symlink_to(escape_target)
             mock_mkdtemp.return_value = str(evil_home)
@@ -519,9 +509,7 @@ class TestSetupFailedTagUnderSymlinkAttack:
       is intercepted.
     """
 
-    def test_scratch_symlink_violation_does_not_write_tag(
-        self, tmp_path: Path
-    ) -> None:
+    def test_scratch_symlink_violation_does_not_write_tag(self, tmp_path: Path) -> None:
         """H5b: scratch->outside symlink refusal blocks mkdtemp entirely,
         so the ``setup_failed`` tag is trivially absent.
 
@@ -568,9 +556,7 @@ class TestSetupFailedTagUnderSymlinkAttack:
         escape_target = tmp_path / "ESCAPE_TARGET"
         escape_target.mkdir()
 
-        with patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp:
             evil_home = scratch_root / "Enotag2-XXXXXX"
             evil_home.symlink_to(escape_target)
             mock_mkdtemp.return_value = str(evil_home)
@@ -667,9 +653,7 @@ class TestOrderingAfterMkdtempBeforeHookDeploy:
         scratch_symlink.symlink_to(outside_target)
         config = EvalConfig(allowed_scratch_roots=(allowed_dir,))
 
-        with patch(
-            "superclaude.cli.eval.hook_adapter.deploy_hooks_to"
-        ) as mock_deploy:
+        with patch("superclaude.cli.eval.hook_adapter.deploy_hooks_to") as mock_deploy:
             iso = _build(scratch_symlink, eval_id="Eorder1")
             with pytest.raises(HomeContainmentViolation):
                 iso.setup(config=config)
@@ -688,11 +672,10 @@ class TestOrderingAfterMkdtempBeforeHookDeploy:
         escape_target = tmp_path / "ESCAPE_TARGET"
         escape_target.mkdir()
 
-        with patch(
-            "superclaude.cli.eval.hook_adapter.deploy_hooks_to"
-        ) as mock_deploy, patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with (
+            patch("superclaude.cli.eval.hook_adapter.deploy_hooks_to") as mock_deploy,
+            patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp,
+        ):
             evil_home = scratch_root / "Eorder2-XXXXXX"
             evil_home.symlink_to(escape_target)
             mock_mkdtemp.return_value = str(evil_home)

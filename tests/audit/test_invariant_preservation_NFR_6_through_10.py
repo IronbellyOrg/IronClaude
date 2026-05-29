@@ -144,9 +144,7 @@ class TestCompositeFixtureWiring:
             "NFR-CONV.9",
             "NFR-CONV.10",
         }
-        assert labels == expected, (
-            f"composite must name NFR-CONV.6..10; got {labels}"
-        )
+        assert labels == expected, f"composite must name NFR-CONV.6..10; got {labels}"
 
     def test_all_detector_fixtures_resolvable(self):
         """Each invariant's source-of-truth fixture path exists on disk."""
@@ -196,9 +194,7 @@ class TestInvariant1_SelfContainedItem:
             f"{self.INVARIANT_LABEL}: stripped fixture must yield ≥1 "
             f"TB-Add-1 FAIL (got {[r.detail for r in results]})"
         )
-        named = [
-            r for r in fails if "1.1" in r.detail and "Output" in r.detail
-        ]
+        named = [r for r in fails if "1.1" in r.detail and "Output" in r.detail]
         assert named, (
             f"{self.INVARIANT_LABEL}: TB-Add-1 FAIL must name item-ID '1.1' "
             f"AND stripped field 'Output'; got {[r.detail for r in fails]}"
@@ -445,12 +441,30 @@ class TestCompositeAggregateVerdict:
         verdicts["NFR-CONV.6"] = v6
 
         # NFR-CONV.7 — bare/file-line/absence verdict matrix.
-        bare = "FAIL" if any(r.verdict == "FAIL"
-                              for r in tb_add_8(BARE_PATH_FIXTURE.read_text(encoding="utf-8"))) else "PASS"
-        fl = "PASS" if all(r.verdict == "PASS"
-                            for r in tb_add_8(FILE_LINE_FIXTURE.read_text(encoding="utf-8"))) else "FAIL"
-        absc = "PASS" if all(r.verdict == "PASS"
-                              for r in tb_add_8(JUSTIFIED_ABSENCE_FIXTURE.read_text(encoding="utf-8"))) else "FAIL"
+        bare = (
+            "FAIL"
+            if any(
+                r.verdict == "FAIL"
+                for r in tb_add_8(BARE_PATH_FIXTURE.read_text(encoding="utf-8"))
+            )
+            else "PASS"
+        )
+        fl = (
+            "PASS"
+            if all(
+                r.verdict == "PASS"
+                for r in tb_add_8(FILE_LINE_FIXTURE.read_text(encoding="utf-8"))
+            )
+            else "FAIL"
+        )
+        absc = (
+            "PASS"
+            if all(
+                r.verdict == "PASS"
+                for r in tb_add_8(JUSTIFIED_ABSENCE_FIXTURE.read_text(encoding="utf-8"))
+            )
+            else "FAIL"
+        )
         v7 = "PASS" if (bare, fl, absc) == ("FAIL", "PASS", "PASS") else "FAIL"
         verdicts["NFR-CONV.7"] = v7
 
@@ -475,7 +489,9 @@ class TestCompositeAggregateVerdict:
         rf_qa_text = RF_QA_SRC.read_text(encoding="utf-8")
         bullets_ok = PASS_BULLET in rf_qa_text and FAIL_BULLET in rf_qa_text
         one_low = _score_rf_qa_verdict(FIX_ONE_LOW.read_text(encoding="utf-8"))
-        verdicts["NFR-CONV.9"] = "PASS" if (bullets_ok and one_low == "FAIL") else "FAIL"
+        verdicts["NFR-CONV.9"] = (
+            "PASS" if (bullets_ok and one_low == "FAIL") else "FAIL"
+        )
 
         # NFR-CONV.10 — concurrent accepts AND serialized rejects.
         cohort_ok, ex_ok = build_canonical_overlap_spawn_log(n_siblings=3)
@@ -484,8 +500,11 @@ class TestCompositeAggregateVerdict:
         bad_res = check_inv_021_n_minus_1_concurrency(cohort_bad, ex_bad)
         verdicts["NFR-CONV.10"] = (
             "PASS"
-            if (ok_res.ok and not bad_res.ok
-                and bad_res.symbol == SYM_COHORT_SERIALIZATION)
+            if (
+                ok_res.ok
+                and not bad_res.ok
+                and bad_res.symbol == SYM_COHORT_SERIALIZATION
+            )
             else "FAIL"
         )
 

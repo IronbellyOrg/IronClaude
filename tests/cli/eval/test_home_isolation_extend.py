@@ -497,9 +497,7 @@ def test_equality_ignores_private_setup_state(
     assert a == b
 
 
-def test_is_set_up_flag(
-    scratch_root: Path, permissive_config: EvalConfig
-) -> None:
+def test_is_set_up_flag(scratch_root: Path, permissive_config: EvalConfig) -> None:
     """``is_set_up`` is the lightweight predicate the orchestrator uses
     instead of catching ``RuntimeError`` from ``home_path``."""
 
@@ -672,8 +670,8 @@ def test_eval_run_extends_allowlist_before_mkdir(
         ],
         catch_exceptions=False,
     )
-    assert result.exit_code == RUN_CLEAN_EXIT_CODE, (
-        result.stdout + (result.stderr or "")
+    assert result.exit_code == RUN_CLEAN_EXIT_CODE, result.stdout + (
+        result.stderr or ""
     )
 
     config_idx = next(

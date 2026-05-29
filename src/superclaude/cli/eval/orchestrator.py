@@ -195,13 +195,9 @@ class RunOrchestrator:
         # of design-spec §11 — "parallel=20 clamps to 15" — and the
         # orchestrator must honour it without raising.
         if not isinstance(parallel, int) or isinstance(parallel, bool):
-            raise TypeError(
-                f"parallel must be int; got {type(parallel).__name__}"
-            )
+            raise TypeError(f"parallel must be int; got {type(parallel).__name__}")
         if parallel < self.MIN_PARALLEL:
-            raise ValueError(
-                f"parallel must be >= {self.MIN_PARALLEL}; got {parallel}"
-            )
+            raise ValueError(f"parallel must be >= {self.MIN_PARALLEL}; got {parallel}")
         max_workers = min(parallel, self.MAX_PARALLEL)
 
         if not specs:

@@ -727,9 +727,14 @@ class PrdExecutor:
         # output artifacts already exist on disk. Honors config.resume_from.
         resume_from = getattr(self._config, "resume_from", None)
         stage_b_order = [
-            "investigation", "research-qa", "web-research",
-            "synthesis", "synthesis-qa", "assembly",
-            "structural-qa", "qualitative-qa",
+            "investigation",
+            "research-qa",
+            "web-research",
+            "synthesis",
+            "synthesis-qa",
+            "assembly",
+            "structural-qa",
+            "qualitative-qa",
         ]
         resume_idx = 0
         if resume_from in stage_b_order:
@@ -741,16 +746,13 @@ class PrdExecutor:
         research_dir = self._config.research_dir
         synthesis_dir = self._config.synthesis_dir
         have_investigation = research_dir.is_dir() and any(
-            INVESTIGATION_FILENAME_RE.match(p.name)
-            for p in research_dir.glob("*.md")
+            INVESTIGATION_FILENAME_RE.match(p.name) for p in research_dir.glob("*.md")
         )
         have_web = research_dir.is_dir() and any(
-            WEB_RESEARCH_FILENAME_RE.match(p.name)
-            for p in research_dir.glob("*.md")
+            WEB_RESEARCH_FILENAME_RE.match(p.name) for p in research_dir.glob("*.md")
         )
         have_synthesis = synthesis_dir.is_dir() and any(
-            SYNTHESIS_FILENAME_RE.match(p.name)
-            for p in synthesis_dir.glob("*.md")
+            SYNTHESIS_FILENAME_RE.match(p.name) for p in synthesis_dir.glob("*.md")
         )
 
         # Step 10: Investigation (parallel)

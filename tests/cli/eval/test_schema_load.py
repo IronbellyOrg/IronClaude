@@ -95,7 +95,9 @@ def test_unknown_top_level_key_is_rejected(validator: Draft202012Validator) -> N
     assert any("mystery_field" in err.message for err in errors)
 
 
-def test_parameterize_block_accepted_under_evals(validator: Draft202012Validator) -> None:
+def test_parameterize_block_accepted_under_evals(
+    validator: Draft202012Validator,
+) -> None:
     manifest = _load_yaml("valid_suite.yaml")
     e2 = next(e for e in manifest["evals"] if e["id"] == "E2")
     assert "parameterize" in e2
@@ -132,7 +134,9 @@ def test_eval_id_regex_rejects_template_tokens(validator: Draft202012Validator) 
     assert errors, "schema must reject template tokens in id (T01.05 invariant)"
 
 
-def test_parameterize_row_must_be_non_empty_mapping(validator: Draft202012Validator) -> None:
+def test_parameterize_row_must_be_non_empty_mapping(
+    validator: Draft202012Validator,
+) -> None:
     bad = {
         "name": "x",
         "version": "1.0",
@@ -158,9 +162,7 @@ def test_failure_mode_enum_enforced(validator: Draft202012Validator) -> None:
         "version": "1.0",
         "description": "x",
         "defaults": {},
-        "required_binaries": [
-            {"name": "claude", "failure_mode": "explode"}
-        ],
+        "required_binaries": [{"name": "claude", "failure_mode": "explode"}],
         "optional_capabilities": [],
         "evals": [{"id": "E1", "title": "ok"}],
     }

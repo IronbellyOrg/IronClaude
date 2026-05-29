@@ -55,7 +55,9 @@ def current_install() -> set[str]:
             text=True,
         )
     except FileNotFoundError:
-        print("ERROR: `uv` is not on PATH; install uv to run verify-deps", file=sys.stderr)
+        print(
+            "ERROR: `uv` is not on PATH; install uv to run verify-deps", file=sys.stderr
+        )
         sys.exit(2)
     except subprocess.CalledProcessError as exc:
         print(f"ERROR: `uv pip list` failed: {exc.stderr}", file=sys.stderr)

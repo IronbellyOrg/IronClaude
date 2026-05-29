@@ -167,9 +167,9 @@ def test_schema_violation_unknown_top_level_key_is_rejected() -> None:
     with pytest.raises(SchemaError) as excinfo:
         validate_manifest(FIXTURES_DIR / "unknown_top_level_suite.yaml")
 
-    assert any(
-        "mystery_field" in msg for _, msg in excinfo.value.violations
-    ), excinfo.value.violations
+    assert any("mystery_field" in msg for _, msg in excinfo.value.violations), (
+        excinfo.value.violations
+    )
 
 
 def test_schema_violation_cli_describe_exits_two(tmp_path: Path) -> None:
@@ -226,11 +226,11 @@ def test_schema_violation_cli_list_exits_two(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "eval_id",
     [
-        "../home",   # canonical path-traversal prefix
-        "/etc",      # absolute-path leak
-        "..",        # bare traversal
-        "",          # empty string
-        "1bad",      # leading digit
+        "../home",  # canonical path-traversal prefix
+        "/etc",  # absolute-path leak
+        "..",  # bare traversal
+        "",  # empty string
+        "1bad",  # leading digit
         "{{prefix}}",  # un-substituted template token
     ],
 )
@@ -306,9 +306,7 @@ def test_unsafe_id_cli_describe_exits_two(tmp_path: Path) -> None:
     the FR-SCH1+FR-SCH2 contract.
     """
 
-    broken = _copy_fixture(
-        "invalid_eval_entry_suite.yaml", tmp_path, "broken.yaml"
-    )
+    broken = _copy_fixture("invalid_eval_entry_suite.yaml", tmp_path, "broken.yaml")
     runner = CliRunner()
     result = runner.invoke(
         eval_group,
@@ -322,10 +320,9 @@ def test_unsafe_id_cli_describe_exits_two(tmp_path: Path) -> None:
     )
 
     assert result.exit_code == SUITE_LOADER_ERROR_EXIT_CODE == 2
-    assert (
-        "InvalidEvalId" in result.stderr
-        or "SchemaError" in result.stderr
-    ), result.stderr
+    assert "InvalidEvalId" in result.stderr or "SchemaError" in result.stderr, (
+        result.stderr
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -392,12 +389,13 @@ def test_parameterize_unsafe_expansion_is_rejected_post_expansion() -> None:
         return [EvalSpec.from_dict({**entry, "id": unsafe_id})]
 
     loader = SuiteLoader()
-    with patch(
-        "superclaude.cli.eval.loader._validate_manifest_dict",
-        return_value=manifest,
-    ), patch.object(
-        SuiteLoader, "_expand_entry", autospec=True
-    ) as mock_expand:
+    with (
+        patch(
+            "superclaude.cli.eval.loader._validate_manifest_dict",
+            return_value=manifest,
+        ),
+        patch.object(SuiteLoader, "_expand_entry", autospec=True) as mock_expand,
+    ):
         mock_expand.side_effect = hostile_expand
         with pytest.raises(InvalidEvalId) as excinfo:
             loader.load("/dev/null")
@@ -502,8 +500,7 @@ def test_no_fs_write_when_cli_describe_rejects(tmp_path: Path) -> None:
 
     assert result.exit_code == SUITE_LOADER_ERROR_EXIT_CODE == 2
     assert result.stdout == "", (
-        "CLI emitted stdout before validation rejected the manifest: "
-        f"{result.stdout!r}"
+        f"CLI emitted stdout before validation rejected the manifest: {result.stdout!r}"
     )
 
     scratch_after = _scratch_snapshot()

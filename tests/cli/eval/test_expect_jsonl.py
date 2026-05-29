@@ -249,9 +249,7 @@ def test_line_count_ignores_blank_lines(
 ) -> None:
     """Blank / whitespace-only lines are not counted (matches loader semantics)."""
     target = home.home_path / "padded.jsonl"
-    target.write_text(
-        '{"event": "a"}\n\n   \n{"event": "b"}\n', encoding="utf-8"
-    )
+    target.write_text('{"event": "a"}\n\n   \n{"event": "b"}\n', encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
     result = Expect.jsonl(path="padded.jsonl", line_count=2)(ctx)
     assert result.passed
@@ -380,9 +378,7 @@ def test_invalid_json_line_fails_with_lineno(
     """A line that is not valid JSON produces a structured failure
     naming the offending line."""
     target = home.home_path / "bad.jsonl"
-    target.write_text(
-        '{"event": "a"}\nNOT JSON\n{"event": "b"}\n', encoding="utf-8"
-    )
+    target.write_text('{"event": "a"}\nNOT JSON\n{"event": "b"}\n', encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
     result = Expect.jsonl(path="bad.jsonl")(ctx)
     assert not result.passed

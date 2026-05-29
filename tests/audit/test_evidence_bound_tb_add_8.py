@@ -32,7 +32,9 @@ HEADING = "## Execution Context"
 
 FILE_LINE_RE = re.compile(r"[\w./-]+\.\w+:\d+")
 EVIDENCE_ABSENCE_RE = re.compile(r"<!--\s*evidence-absence:")
-CODE_SURFACE_RE = re.compile(r"`[^`]*\b(?:src/|\.py|\.md|\.\w+:\d+)[^`]*`|src/[\w./-]+|`\w+\.\w+`")
+CODE_SURFACE_RE = re.compile(
+    r"`[^`]*\b(?:src/|\.py|\.md|\.\w+:\d+)[^`]*`|src/[\w./-]+|`\w+\.\w+`"
+)
 
 
 @dataclass
@@ -146,7 +148,11 @@ def tb_add_8(text: str) -> List[TBAdd8Result]:
             )
             continue
         if has_file_line or has_absence:
-            why = "file:line citation present" if has_file_line else "justified-absence comment present"
+            why = (
+                "file:line citation present"
+                if has_file_line
+                else "justified-absence comment present"
+            )
             results.append(
                 TBAdd8Result(
                     item.item_id,
@@ -184,7 +190,11 @@ class TestTBAdd8ThreeFixtureTriple:
     def test_all_fixtures_carry_m2_execution_context_header(self):
         """Pre-condition: each fixture must include the FR-CONV.2 header so
         the test exercises TB-Add-8 in the M2-generated environment."""
-        for fixture in (BARE_PATH_FIXTURE, FILE_LINE_FIXTURE, JUSTIFIED_ABSENCE_FIXTURE):
+        for fixture in (
+            BARE_PATH_FIXTURE,
+            FILE_LINE_FIXTURE,
+            JUSTIFIED_ABSENCE_FIXTURE,
+        ):
             text = fixture.read_text(encoding="utf-8")
             assert HEADING in text, (
                 f"{fixture.name} must include the M2 `## Execution Context` header"
@@ -211,7 +221,9 @@ class TestTBAdd8ThreeFixtureTriple:
 
     def test_justified_absence_passes_tb_add_8(self):
         results = tb_add_8(JUSTIFIED_ABSENCE_FIXTURE.read_text(encoding="utf-8"))
-        assert results, "justified-absence fixture must contain at least one Context item"
+        assert results, (
+            "justified-absence fixture must contain at least one Context item"
+        )
         assert all(r.verdict == "PASS" for r in results), (
             "justified-absence fixture must produce only TB-Add-8 PASS verdicts "
             f"(got {[(r.item_id, r.verdict, r.reason) for r in results]})"
@@ -241,7 +253,11 @@ class TestTBAdd8CitesPerItemContextNotHeader:
         (NFR-CONV.3). TB-Add-8 must never enumerate any Context item whose
         line index sits inside the header range, regardless of fixture
         verdict."""
-        for fixture in (BARE_PATH_FIXTURE, FILE_LINE_FIXTURE, JUSTIFIED_ABSENCE_FIXTURE):
+        for fixture in (
+            BARE_PATH_FIXTURE,
+            FILE_LINE_FIXTURE,
+            JUSTIFIED_ABSENCE_FIXTURE,
+        ):
             text = fixture.read_text(encoding="utf-8")
             start, end = _header_range(text)
             for r in tb_add_8(text):

@@ -81,7 +81,9 @@ def _pass(eval_id: str) -> EvalOutcome:
     )
 
 
-def _skipped(eval_id: str, reason: str = "capability_gate:mcp_server.tavily") -> EvalOutcome:
+def _skipped(
+    eval_id: str, reason: str = "capability_gate:mcp_server.tavily"
+) -> EvalOutcome:
     return EvalOutcome(
         eval_id=eval_id,
         title=f"{eval_id} skipped",

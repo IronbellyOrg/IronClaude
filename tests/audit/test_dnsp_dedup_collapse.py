@@ -52,9 +52,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 RF_ANALYST_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
-RF_QA_QUAL_SRC = (
-    REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
-)
+RF_QA_QUAL_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
 WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
@@ -192,9 +190,7 @@ class TestR123WrapperTextGuards:
         for p in WRAPPER_SOURCES:
             assert p.is_file(), f"missing wrapper source: {p}"
 
-    def test_r123_label_named_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_r123_label_named_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "R-123" in txt, (
                 f"{p.name} no longer references R-123 — within-cycle "
@@ -217,12 +213,10 @@ class TestR123WrapperTextGuards:
         # TEST-019.
         for p, txt in wrapper_texts.items():
             assert "default `1`" in txt, (
-                f"{p.name} no longer pins the default `1` for "
-                "found_n_times"
+                f"{p.name} no longer pins the default `1` for found_n_times"
             )
             assert "increments by exactly `1`" in txt, (
-                f"{p.name} no longer pins the +1 increment for "
-                "within-cycle collapse"
+                f"{p.name} no longer pins the +1 increment for within-cycle collapse"
             )
 
     def test_collapse_rejection_symbol_present_at_every_site(
@@ -234,9 +228,7 @@ class TestR123WrapperTextGuards:
                 f"{SYM_WITHIN_CYCLE_COLLAPSE!r}"
             )
 
-    def test_inv_012_label_present_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_inv_012_label_present_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "INV-012" in txt, (
                 f"{p.name} no longer references INV-012 — dedup "
@@ -279,29 +271,22 @@ class TestTwoIdenticalDedupKeysCollapse:
         # dedup_keys. If either of these regressed, the cardinality-1
         # claim would be vacuous.
         assert len(two_identical_dedup_key_emissions) == 2, (
-            "fixture invariant violated: TEST-019 input must be exactly "
-            "2 emissions"
+            "fixture invariant violated: TEST-019 input must be exactly 2 emissions"
         )
-        keys = {
-            tuple(em["dedup_key"]) for em in two_identical_dedup_key_emissions
-        }
+        keys = {tuple(em["dedup_key"]) for em in two_identical_dedup_key_emissions}
         assert len(keys) == 1, (
             f"fixture invariant violated: dedup_keys differ between the "
             f"two emissions: {keys}"
         )
 
-    def test_collapse_cardinality_is_one(
-        self, two_identical_dedup_key_emissions
-    ):
+    def test_collapse_cardinality_is_one(self, two_identical_dedup_key_emissions):
         result = collapse_within_cycle(two_identical_dedup_key_emissions)
         assert len(result.records) == 1, (
             f"R-123 within-cycle collapse failed: expected cardinality 1, "
             f"got {len(result.records)} records: {result.records!r}"
         )
 
-    def test_collapse_found_n_times_is_two(
-        self, two_identical_dedup_key_emissions
-    ):
+    def test_collapse_found_n_times_is_two(self, two_identical_dedup_key_emissions):
         result = collapse_within_cycle(two_identical_dedup_key_emissions)
         assert len(result.records) == 1
         rec = result.records[0]
@@ -310,9 +295,7 @@ class TestTwoIdenticalDedupKeysCollapse:
             f"{rec['found_n_times']!r}"
         )
 
-    def test_exactly_one_collapse_was_applied(
-        self, two_identical_dedup_key_emissions
-    ):
+    def test_exactly_one_collapse_was_applied(self, two_identical_dedup_key_emissions):
         result = collapse_within_cycle(two_identical_dedup_key_emissions)
         assert result.collapses == 1, (
             f"expected exactly 1 collapse for 2 identical emissions, got "
@@ -333,9 +316,7 @@ class TestTwoIdenticalDedupKeysCollapse:
         assert rec["affected_range"].strip() != ""
         assert rec["evidence"].strip() != ""
 
-    def test_collapsed_record_still_validates(
-        self, two_identical_dedup_key_emissions
-    ):
+    def test_collapsed_record_still_validates(self, two_identical_dedup_key_emissions):
         # The post-collapse record MUST still be valid under the
         # DM-003 contract — collapse is the only operation that
         # changes found_n_times from 1; a value of 2 is in range.
@@ -354,8 +335,7 @@ class TestTwoIdenticalDedupKeysCollapse:
         rec = result.records[0]
         original_key = list(two_identical_dedup_key_emissions[0]["dedup_key"])
         assert rec["dedup_key"] == original_key, (
-            f"collapse mutated dedup_key: {rec['dedup_key']!r} != "
-            f"{original_key!r}"
+            f"collapse mutated dedup_key: {rec['dedup_key']!r} != {original_key!r}"
         )
 
 

@@ -39,17 +39,13 @@ AGENT_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md
 AGENT_MIRROR = REPO_ROOT / ".claude" / "agents" / "rf-qa-qualitative.md"
 
 # Baselines captured in D-0049 evidence (pre-M4 commit 3a57a0d).
-BASELINE_SLICE_SHA = (
-    "770f439517cab45a605f0e098561946f04485d406393567fa8bbeaba9de91fc7"
-)
+BASELINE_SLICE_SHA = "770f439517cab45a605f0e098561946f04485d406393567fa8bbeaba9de91fc7"
 # Updated 2026-05-24: re-pinned to post-reflow content following the
 # authorized markdownlint MD013 remediation in
 # TASK-RF-20260523-234320-markdownlint-remediation. The Critical Rules
 # block was reflowed (no semantic content change); recompute reflects
 # the new byte sequence of the same logical block.
-BASELINE_BLOCK_SHA = (
-    "cc57869c5580b32d9c38a9a64089820a9ea92e4103c8eb68d5b5ff041e5de06b"  # pragma: allowlist secret
-)
+BASELINE_BLOCK_SHA = "cc57869c5580b32d9c38a9a64089820a9ea92e4103c8eb68d5b5ff041e5de06b"  # pragma: allowlist secret
 
 # Rule #6 verbatim text (the explicit severity floor).
 RULE_6_TEXT = (
@@ -134,7 +130,9 @@ class TestSeverityFloorSliceHash:
         above the section). Anchoring by the header keeps the test stable
         across future strictly-additive insertions above the block.
         """
-        header_line = _find_line(path, lambda line: line.strip() == CRITICAL_RULES_HEADER)
+        header_line = _find_line(
+            path, lambda line: line.strip() == CRITICAL_RULES_HEADER
+        )
         assert header_line != -1, f"`{CRITICAL_RULES_HEADER}` not found in {path}"
         start = header_line - 3
         end = header_line + 6

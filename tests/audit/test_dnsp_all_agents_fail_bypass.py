@@ -54,13 +54,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 RF_ANALYST_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
-RF_QA_QUAL_SRC = (
-    REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
-)
+RF_QA_QUAL_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
-RF_TEAM_LEAD_SRC = (
-    REPO_ROOT / "src" / "superclaude" / "agents" / "rf-team-lead.md"
-)
+RF_TEAM_LEAD_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-team-lead.md"
 
 WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
 
@@ -71,11 +67,7 @@ WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
 # bullets at R-122 pin RF_TEAM_LEAD_FIX_CYCLES_SHA256 verbatim — drift
 # here breaks the Path A activation contract.
 RF_TEAM_LEAD_FIX_CYCLES_FIXTURE_PATH = (
-    REPO_ROOT
-    / "tests"
-    / "audit"
-    / "fixtures"
-    / "rf-team-lead-fix-cycles-rule.txt"
+    REPO_ROOT / "tests" / "audit" / "fixtures" / "rf-team-lead-fix-cycles-rule.txt"
 )
 # Unique anchor substring that locates the Fix Cycles rule region in
 # rf-team-lead.md by content match (not line index).
@@ -298,35 +290,27 @@ class TestR122WrapperTextGuards:
             f"missing rf-team-lead.md: {RF_TEAM_LEAD_SRC}"
         )
 
-    def test_r122_label_named_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_r122_label_named_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "R-122" in txt, (
                 f"{p.name} no longer references R-122 — all-agents-fail "
                 "guard precedence pointer lost"
             )
 
-    def test_path_a_label_present_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_path_a_label_present_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "Path A" in txt, (
                 f"{p.name} no longer labels Path A (zero-success → "
                 "rf-team-lead's Fix Cycles rule)"
             )
 
-    def test_path_b_label_present_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_path_b_label_present_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "Path B" in txt, (
                 f"{p.name} no longer labels Path B (mixed-cohort synthetic)"
             )
 
-    def test_path_c_label_present_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_path_c_label_present_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "Path C" in txt, (
                 f"{p.name} no longer labels Path C (all-success baseline)"
@@ -356,8 +340,7 @@ class TestR122WrapperTextGuards:
     ):
         for p, txt in wrapper_texts.items():
             assert SYM_GUARD_PRECEDENCE in txt, (
-                f"{p.name} no longer names rejection symbol "
-                f"{SYM_GUARD_PRECEDENCE!r}"
+                f"{p.name} no longer names rejection symbol {SYM_GUARD_PRECEDENCE!r}"
             )
 
     def test_mutual_exclusivity_phrasing_present_at_every_site(
@@ -389,9 +372,7 @@ class TestRfTeamLeadFixCyclesByteStability:
     to line shifts (e.g., markdownlint reformatting) but byte-strict
     on rule content."""
 
-    def test_fix_cycles_rule_present_and_byte_stable(
-        self, rf_team_lead_text: str
-    ):
+    def test_fix_cycles_rule_present_and_byte_stable(self, rf_team_lead_text: str):
         # Path C / COMP-006-M6: locate the Fix Cycles rule by content
         # anchor (not by line index), then verify its bytes match the
         # snapshot fixture exactly. Drift here means either:
@@ -411,9 +392,7 @@ class TestRfTeamLeadFixCyclesByteStability:
             f"{hashlib.sha256(live_bytes).hexdigest()!r}."
         )
 
-    def test_fix_cycles_line_contains_max_3_cycles_token(
-        self, rf_team_lead_text: str
-    ):
+    def test_fix_cycles_line_contains_max_3_cycles_token(self, rf_team_lead_text: str):
         rule_line = _find_fix_cycles_line(rf_team_lead_text)
         assert "max 3 cycles per phase" in rule_line, (
             f"rf-team-lead Fix Cycles rule no longer names the "
@@ -464,8 +443,7 @@ class TestPathAActivatesRfTeamLeadNoSynthetic:
         )
         blocks = synthetic_blocks_for_cohort(all_fail_cohort)
         assert blocks == [], (
-            f"Path A emitted synthetic blocks despite zero-success: "
-            f"{blocks!r}"
+            f"Path A emitted synthetic blocks despite zero-success: {blocks!r}"
         )
 
     @pytest.mark.parametrize("n", [1, 2, 3, 5, 8])
@@ -504,8 +482,7 @@ class TestPathBEmitsSyntheticNoEscalation:
         sel = select_cohort_path(outcome)
         assert sel.ok, f"valid mixed cohort wrongly rejected: {sel}"
         assert sel.path == "B", (
-            f"expected Path B on mixed cohort (n={n},s={s},x={x}), got "
-            f"{sel.path!r}"
+            f"expected Path B on mixed cohort (n={n},s={s},x={x}), got {sel.path!r}"
         )
 
     def test_path_b_does_not_activate_rf_team_lead(self):
@@ -520,8 +497,7 @@ class TestPathBEmitsSyntheticNoEscalation:
         outcome = CohortOutcome(n_partitions=5, success_count=2, exhaust_count=3)
         blocks = synthetic_blocks_for_cohort(outcome)
         assert len(blocks) == 3, (
-            f"Path B emit count != exhaust_count: got {len(blocks)}, "
-            f"expected 3"
+            f"Path B emit count != exhaust_count: got {len(blocks)}, expected 3"
         )
         for b in blocks:
             assert b["severity"] == "HIGH"
@@ -573,8 +549,7 @@ class TestR122GuardPrecedenceViolations:
         outcome = CohortOutcome(n_partitions=2, success_count=2, exhaust_count=1)
         sel = select_cohort_path(outcome)
         assert not sel.ok and sel.symbol == SYM_GUARD_PRECEDENCE, (
-            f"oversubscribed cohort should reject as "
-            f"{SYM_GUARD_PRECEDENCE}: {sel}"
+            f"oversubscribed cohort should reject as {SYM_GUARD_PRECEDENCE}: {sel}"
         )
 
     def test_undersubscribed_cohort_rejected(self):
@@ -582,8 +557,7 @@ class TestR122GuardPrecedenceViolations:
         outcome = CohortOutcome(n_partitions=4, success_count=1, exhaust_count=1)
         sel = select_cohort_path(outcome)
         assert not sel.ok and sel.symbol == SYM_GUARD_PRECEDENCE, (
-            f"undersubscribed cohort should reject as "
-            f"{SYM_GUARD_PRECEDENCE}: {sel}"
+            f"undersubscribed cohort should reject as {SYM_GUARD_PRECEDENCE}: {sel}"
         )
 
     def test_negative_counts_rejected(self):
@@ -667,9 +641,7 @@ class TestPathAExecutionLogHaltBinding:
     Bind the HALT verb to the rf-team-lead source so a regression
     breaking the HALT activation breaks TEST-020."""
 
-    def test_fix_cycles_line_contains_halt_verb(
-        self, rf_team_lead_text: str
-    ):
+    def test_fix_cycles_line_contains_halt_verb(self, rf_team_lead_text: str):
         rule_line = _find_fix_cycles_line(rf_team_lead_text)
         assert "HALT" in rule_line, (
             f"rf-team-lead Fix Cycles rule no longer contains the HALT "

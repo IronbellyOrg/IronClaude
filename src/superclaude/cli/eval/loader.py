@@ -128,8 +128,7 @@ class InvalidEvalId(Exception):
     def __init__(self, eval_id: Any) -> None:
         self.eval_id = eval_id
         super().__init__(
-            f"eval id failed FR-SCH2 regex ({EVAL_ID_REGEX.pattern!r}): "
-            f"{eval_id!r}"
+            f"eval id failed FR-SCH2 regex ({EVAL_ID_REGEX.pattern!r}): {eval_id!r}"
         )
 
 

@@ -312,9 +312,7 @@ class TestRetryOncePolicyUnit:
         FAIL with no retry."""
 
         spec = EvalSpec(id="E1", title="t", requires=())
-        outcome = EvalOutcome(
-            eval_id="E1", title="t", status="FAIL", duration_sec=0.1
-        )
+        outcome = EvalOutcome(eval_id="E1", title="t", status="FAIL", duration_sec=0.1)
         policy = RetryOncePolicy()
         assert policy.should_retry(spec, outcome) is False
 
@@ -404,7 +402,9 @@ class TestEvalRunnerRetryIntegration:
         default applies — no retry — even when the spec is tagged."""
 
         executor = ScriptedExecutor(
-            script=[ObservedRun(exit_code=1, stdout="boom", stderr="", duration_sec=0.1)]
+            script=[
+                ObservedRun(exit_code=1, stdout="boom", stderr="", duration_sec=0.1)
+            ]
         )
         runner = _make_runner(
             home=home,
@@ -429,7 +429,9 @@ class TestEvalRunnerRetryIntegration:
         """An untagged spec with a wired policy still does not retry."""
 
         executor = ScriptedExecutor(
-            script=[ObservedRun(exit_code=1, stdout="boom", stderr="", duration_sec=0.1)]
+            script=[
+                ObservedRun(exit_code=1, stdout="boom", stderr="", duration_sec=0.1)
+            ]
         )
         policy = RetryOncePolicy()
         runner = _make_runner(

@@ -193,9 +193,7 @@ class TestMonotonicityHaltByteExact:
             f"transition. cycles_started={halt_log.cycles_started}"
         )
         cycle_3_lines = [ln for ln in halt_log.lines if "CYCLE 3 START" in ln]
-        assert cycle_3_lines == [], (
-            f"unexpected 'CYCLE 3 START' lines: {cycle_3_lines}"
-        )
+        assert cycle_3_lines == [], f"unexpected 'CYCLE 3 START' lines: {cycle_3_lines}"
 
     def test_per_gate_counter_stops_at_two(self, halt_log: HaltLog):
         # The per-gate cap (3) is the third-precedence backstop. It
@@ -221,8 +219,7 @@ class TestFourStepOrdering:
     def test_halting_transition_has_regression_first(self, halt_log: HaltLog):
         halting = [t for t in halt_log.transitions if t[0] == 3]
         assert len(halting) >= 2, (
-            f"halting transition 2->3 missing regression+monotonicity "
-            f"steps: {halting}"
+            f"halting transition 2->3 missing regression+monotonicity steps: {halting}"
         )
         assert halting[0][1] == "regression", (
             f"first step at transition 2->3 is {halting[0][1]!r}, not 'regression' "
@@ -319,9 +316,7 @@ class TestCanonicalFixtureParity:
 
     def test_canonical_log_halts_byte_exact(self, canonical_log_text: str):
         matches = [
-            ln
-            for ln in canonical_log_text.splitlines()
-            if ln.startswith("HALT ")
+            ln for ln in canonical_log_text.splitlines() if ln.startswith("HALT ")
         ]
         assert matches == ["HALT [HALT-MONOTONICITY] |F|=5"], (
             f"D-0056 canonical fixture HALT line(s) {matches!r} differ from "

@@ -112,8 +112,7 @@ def test_synthetic_import_anthropic_is_flagged_by_ruff(cleanup_probe_dir):
         # The no-op assignment keeps F401 (unused-import) from being
         # the *only* error, so we can assert on the TID251 finding
         # explicitly rather than relying on a single-error stream.
-        "import anthropic\n"
-        "_ = anthropic\n",
+        "import anthropic\n_ = anthropic\n",
         encoding="utf-8",
     )
 
@@ -123,9 +122,7 @@ def test_synthetic_import_anthropic_is_flagged_by_ruff(cleanup_probe_dir):
         f"exited 0.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
     )
     combined = result.stdout + result.stderr
-    assert "TID251" in combined, (
-        f"expected TID251 in ruff output; got:\n{combined}"
-    )
+    assert "TID251" in combined, f"expected TID251 in ruff output; got:\n{combined}"
     assert "anthropic" in combined, (
         f"expected 'anthropic' in ruff output; got:\n{combined}"
     )

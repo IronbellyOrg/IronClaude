@@ -58,9 +58,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 RF_ANALYST_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
-RF_QA_QUAL_SRC = (
-    REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
-)
+RF_QA_QUAL_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
 WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
@@ -161,10 +159,7 @@ def check_inv_021_n_minus_1_concurrency(
                 f"applies to exhausted partitions"
             ),
         )
-    if (
-        exhausted.synthesis_start_ts is None
-        or exhausted.synthesis_end_ts is None
-    ):
+    if exhausted.synthesis_start_ts is None or exhausted.synthesis_end_ts is None:
         return ConcurrencyCheckResult(
             ok=False,
             symbol=SYM_COHORT_SERIALIZATION,
@@ -181,8 +176,7 @@ def check_inv_021_n_minus_1_concurrency(
             ok=False,
             symbol=SYM_COHORT_SERIALIZATION,
             detail=(
-                f"synthesis window non-positive: start={syn_start} >= "
-                f"end={syn_end}"
+                f"synthesis window non-positive: start={syn_start} >= end={syn_end}"
             ),
         )
 
@@ -319,22 +313,17 @@ class TestInv021WrapperTextGuards:
         for p in WRAPPER_SOURCES:
             assert p.is_file(), f"missing wrapper source: {p}"
 
-    def test_inv_021_label_named_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_inv_021_label_named_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "INV-021" in txt, (
                 f"{p.name} no longer references INV-021 — N-1 cohort "
                 "concurrency invariant pointer lost"
             )
 
-    def test_r125_label_named_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_r125_label_named_at_every_site(self, wrapper_texts: Dict[Path, str]):
         for p, txt in wrapper_texts.items():
             assert "R-125" in txt, (
-                f"{p.name} no longer references R-125 — INV-021 driver "
-                "row pointer lost"
+                f"{p.name} no longer references R-125 — INV-021 driver row pointer lost"
             )
 
     def test_n_minus_1_phrasing_present_at_every_site(
@@ -352,9 +341,7 @@ class TestInv021WrapperTextGuards:
         # The load-bearing phrase that bins the concurrency rule to
         # the success-or-exhaust terminal state of each sibling.
         for p, txt in wrapper_texts.items():
-            assert (
-                "concurrently to their own success-or-exhaust" in txt
-            ), (
+            assert "concurrently to their own success-or-exhaust" in txt, (
                 f"{p.name} no longer pins the 'concurrently to their own "
                 f"success-or-exhaust' phrasing — INV-021 wording drift"
             )
@@ -471,8 +458,7 @@ class TestCanonicalConcurrentSpawnLogPasses:
                     p.synthesis_end_ts = 10.5 + 0.5 * n_siblings + 1.0
         result = check_inv_021_n_minus_1_concurrency(cohort, exhausted_id)
         assert result.ok, (
-            f"N-1 concurrency failed for n_siblings={n_siblings}: "
-            f"{result.detail}"
+            f"N-1 concurrency failed for n_siblings={n_siblings}: {result.detail}"
         )
         assert len(result.overlapping_siblings) == n_siblings
 

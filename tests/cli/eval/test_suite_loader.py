@@ -89,9 +89,7 @@ def test_load_populates_suite_envelope_fields() -> None:
     suite = SuiteLoader().load(FIXTURES_DIR / "valid_suite.yaml")
     assert suite.defaults["per_eval_timeout_sec"] == 120
     assert any(b["name"] == "claude" for b in suite.required_binaries)
-    assert any(
-        c["name"] == "mcp_server.auggie" for c in suite.optional_capabilities
-    )
+    assert any(c["name"] == "mcp_server.auggie" for c in suite.optional_capabilities)
     assert suite.source_path == FIXTURES_DIR / "valid_suite.yaml"
 
 
@@ -246,17 +244,21 @@ def test_load_rejects_post_expansion_unsafe_id() -> None:
         if eval_id == "E2.1.injected":
             raise InvalidEvalId(eval_id)
 
-    with patch(
-        "superclaude.cli.eval.loader._validate_manifest_dict",
-        return_value=malicious,
-    ), patch(
-        "superclaude.cli.eval.loader.validate_eval_id",
-        side_effect=fake_validate,
-    ), patch.object(
-        SuiteLoader,
-        "_expand_entry",
-        autospec=True,
-    ) as mock_expand:
+    with (
+        patch(
+            "superclaude.cli.eval.loader._validate_manifest_dict",
+            return_value=malicious,
+        ),
+        patch(
+            "superclaude.cli.eval.loader.validate_eval_id",
+            side_effect=fake_validate,
+        ),
+        patch.object(
+            SuiteLoader,
+            "_expand_entry",
+            autospec=True,
+        ) as mock_expand,
+    ):
         from superclaude.cli.eval.loader import validate_eval_id as ve
 
         def safe_expand(self, entry):
@@ -323,9 +325,7 @@ def test_resolver_receives_requires_tuple_per_eval() -> None:
     """``required`` argument must round-trip the manifest ``requires`` list."""
 
     resolver = _RecordingResolver()
-    SuiteLoader(capability_resolver=resolver).load(
-        FIXTURES_DIR / "valid_suite.yaml"
-    )
+    SuiteLoader(capability_resolver=resolver).load(FIXTURES_DIR / "valid_suite.yaml")
     by_id = dict(resolver.calls)
     assert "mcp_server.auggie" in by_id["E1"]
 

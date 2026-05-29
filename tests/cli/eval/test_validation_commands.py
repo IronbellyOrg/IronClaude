@@ -78,12 +78,16 @@ def test_doc_exists_at_canonical_path() -> None:
     assert DOC_PATH.is_file(), DOC_PATH
 
 
-@pytest.mark.parametrize("command, _evidence", OPS_004_COMMANDS, ids=[
-    "01-targeted-pytest",
-    "02-make-verify-sync",
-    "03-eval-doctor",
-    "04-eval-run-E1",
-])
+@pytest.mark.parametrize(
+    "command, _evidence",
+    OPS_004_COMMANDS,
+    ids=[
+        "01-targeted-pytest",
+        "02-make-verify-sync",
+        "03-eval-doctor",
+        "04-eval-run-E1",
+    ],
+)
 def test_doc_references_each_command(
     doc_text: str, command: str, _evidence: str
 ) -> None:
@@ -106,15 +110,17 @@ def test_doc_lists_commands_in_canonical_order(doc_text: str) -> None:
     )
 
 
-@pytest.mark.parametrize("_command, evidence", OPS_004_COMMANDS, ids=[
-    "01-targeted-pytest",
-    "02-make-verify-sync",
-    "03-eval-doctor",
-    "04-eval-run-E1",
-])
-def test_doc_links_evidence_log(
-    doc_text: str, _command: str, evidence: str
-) -> None:
+@pytest.mark.parametrize(
+    "_command, evidence",
+    OPS_004_COMMANDS,
+    ids=[
+        "01-targeted-pytest",
+        "02-make-verify-sync",
+        "03-eval-doctor",
+        "04-eval-run-E1",
+    ],
+)
+def test_doc_links_evidence_log(doc_text: str, _command: str, evidence: str) -> None:
     """Each command links its evidence log under the canonical root."""
 
     assert evidence in doc_text, (
@@ -142,15 +148,17 @@ def test_evidence_root_directory_exists() -> None:
     )
 
 
-@pytest.mark.parametrize("_command, evidence", OPS_004_COMMANDS, ids=[
-    "01-targeted-pytest",
-    "02-make-verify-sync",
-    "03-eval-doctor",
-    "04-eval-run-E1",
-])
-def test_evidence_log_present_with_exit_code(
-    _command: str, evidence: str
-) -> None:
+@pytest.mark.parametrize(
+    "_command, evidence",
+    OPS_004_COMMANDS,
+    ids=[
+        "01-targeted-pytest",
+        "02-make-verify-sync",
+        "03-eval-doctor",
+        "04-eval-run-E1",
+    ],
+)
+def test_evidence_log_present_with_exit_code(_command: str, evidence: str) -> None:
     """Each evidence log exists and carries a trailing ``EXIT_CODE=<n>`` marker."""
 
     log = EVIDENCE_ROOT / evidence

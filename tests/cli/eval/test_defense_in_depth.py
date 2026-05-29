@@ -177,9 +177,7 @@ class TestVectorScratchOutsideAllowlist:
     unintended location.
     """
 
-    def test_setup_rejects_scratch_root_not_in_allowlist(
-        self, tmp_path: Path
-    ) -> None:
+    def test_setup_rejects_scratch_root_not_in_allowlist(self, tmp_path: Path) -> None:
         """A real scratch directory that is not listed in the config's
         ``allowed_scratch_roots`` must fail with ``check="scratch_root_allowlist"``."""
 

@@ -436,6 +436,4 @@ def write_aggregated_report(
     """
 
     _check_invariant(summary)
-    return _write_artifact_set(
-        Path(output_dir), summary=summary, emit_junit=emit_junit
-    )
+    return _write_artifact_set(Path(output_dir), summary=summary, emit_junit=emit_junit)

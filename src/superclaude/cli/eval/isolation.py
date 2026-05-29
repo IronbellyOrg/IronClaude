@@ -559,9 +559,7 @@ class HomeIsolation:
         # branch on a single ``HomeContainmentViolation`` to catch both
         # gates (NFR-SEC2 "hard refusal before side effects").
         _resolved_root = self.home_root.expanduser().resolve(strict=False)
-        _config_prefixes = [
-            _resolve_prefix(p) for p in config.allowed_scratch_roots
-        ]
+        _config_prefixes = [_resolve_prefix(p) for p in config.allowed_scratch_roots]
         if not any(
             _resolved_root == prefix or _resolved_root.is_relative_to(prefix)
             for prefix in _config_prefixes

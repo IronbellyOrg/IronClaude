@@ -51,10 +51,7 @@ class TestTableSeparatorRegex:
 
     def test_data_row_does_not_match(self):
         # The fixture that test 02 exercises — must NOT be skipped.
-        assert (
-            _TABLE_SEPARATOR_RE.match("| 2.2.1 | Scaffold cmd | FR-001 |")
-            is None
-        )
+        assert _TABLE_SEPARATOR_RE.match("| 2.2.1 | Scaffold cmd | FR-001 |") is None
 
 
 def test_extract_component_context_smoke_on_data_row():

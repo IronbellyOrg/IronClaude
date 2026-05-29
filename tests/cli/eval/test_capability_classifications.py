@@ -112,7 +112,9 @@ def host_missing_claude(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict
 
 
 def _mcp_only_specs() -> tuple[_CapabilitySpec, ...]:
-    return tuple(spec for spec in _DEFAULT_CAPABILITY_SPECS if spec.kind == "mcp_server")
+    return tuple(
+        spec for spec in _DEFAULT_CAPABILITY_SPECS if spec.kind == "mcp_server"
+    )
 
 
 _DEFAULT_MCP_NAMES: frozenset[str] = frozenset(
@@ -539,7 +541,5 @@ def test_test_004_slice_coverage_is_complete() -> None:
         cls = module[cls_name]
         assert isinstance(cls, type), f"{cls_name} is not a class"
         # Each slice has at least one test_ method.
-        test_methods = [
-            name for name in dir(cls) if name.startswith("test_")
-        ]
+        test_methods = [name for name in dir(cls) if name.startswith("test_")]
         assert test_methods, f"{cls_name} has no test methods"

@@ -59,7 +59,9 @@ def _pass_outcome(eval_id: str = "E1") -> EvalOutcome:
     )
 
 
-def _skipped_outcome(eval_id: str = "E2", reason: str = "capability_gate") -> EvalOutcome:
+def _skipped_outcome(
+    eval_id: str = "E2", reason: str = "capability_gate"
+) -> EvalOutcome:
     return EvalOutcome(
         eval_id=eval_id,
         title=f"{eval_id} requires mcp",
@@ -76,7 +78,9 @@ def _fail_outcome(eval_id: str = "E3") -> EvalOutcome:
         title=f"{eval_id} timeout fail-open",
         status="FAIL",
         duration_sec=12.0,
-        expects=(ExpectResult(name="exit_code", passed=False, message="expected 0 got 1"),),
+        expects=(
+            ExpectResult(name="exit_code", passed=False, message="expected 0 got 1"),
+        ),
         artifacts={"transcript": f"evals/{eval_id}/transcript.txt"},
     )
 
@@ -281,7 +285,9 @@ def test_to_yaml_preserves_dm_004_field_order() -> None:
     top_keys = [
         line.split(":", 1)[0]
         for line in body.splitlines()
-        if line and not line.startswith(" ") and not line.startswith("-")
+        if line
+        and not line.startswith(" ")
+        and not line.startswith("-")
         and ":" in line
     ]
     assert top_keys == [

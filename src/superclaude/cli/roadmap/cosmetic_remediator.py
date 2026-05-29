@@ -382,9 +382,7 @@ def _compute_c13_renames(
                 continue
             h3_tokens = set(normalized.split())
             union = canonical_tokens | h3_tokens
-            score = (
-                len(canonical_tokens & h3_tokens) / len(union) if union else 0.0
-            )
+            score = len(canonical_tokens & h3_tokens) / len(union) if union else 0.0
             if score >= _C13_TOKEN_OVERLAP_THRESHOLD:
                 scored.append((score, idx_, line_))
         if len(scored) != 1:
@@ -609,9 +607,7 @@ def _detect_cosmetic_violations(content: str) -> list[CosmeticViolation]:
         violations.append(
             CosmeticViolation(
                 klass="C12",
-                description=(
-                    f"H2 parenthetical at line {idx + 1}: {line.rstrip()!r}"
-                ),
+                description=(f"H2 parenthetical at line {idx + 1}: {line.rstrip()!r}"),
                 line_number=idx + 1,
                 original=line,
             )

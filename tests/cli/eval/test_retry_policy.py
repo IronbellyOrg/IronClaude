@@ -299,9 +299,7 @@ def test_non_zero_retry_count_rejected(home, eval_config, run_paths):
 
 
 @pytest.mark.parametrize("bad", [-1, 2, 10])
-def test_other_non_zero_retry_count_rejected(
-    bad, home, eval_config, run_paths
-):
+def test_other_non_zero_retry_count_rejected(bad, home, eval_config, run_paths):
     executor = CountingExecutor()
     with pytest.raises(ValueError):
         _make_runner(
@@ -313,9 +311,7 @@ def test_other_non_zero_retry_count_rejected(
         )
 
 
-def test_explicit_zero_retry_count_accepted(
-    eval_spec, home, eval_config, run_paths
-):
+def test_explicit_zero_retry_count_accepted(eval_spec, home, eval_config, run_paths):
     """Passing the default value explicitly must continue to work."""
 
     executor = CountingExecutor()

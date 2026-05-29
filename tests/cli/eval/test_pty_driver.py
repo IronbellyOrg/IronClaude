@@ -115,7 +115,10 @@ def test_method_surface_matches_comp_007_contract() -> None:
         "read_stdout",
         "wait_exit",
     }
-    actual = {name for name, member in inspect.getmembers(PtyDriver, predicate=inspect.isfunction)}
+    actual = {
+        name
+        for name, member in inspect.getmembers(PtyDriver, predicate=inspect.isfunction)
+    }
     missing = required - actual
     assert not missing, f"PtyDriver is missing required methods: {missing}"
 
@@ -155,7 +158,9 @@ def test_expect_prompt_ready_returns_before_timeout_against_stub() -> None:
     with _make_driver(_prompt_stub_source()) as driver:
         deadline = time.perf_counter() + 5.0
         before = driver.expect_prompt_ready(timeout=5.0)
-        assert time.perf_counter() < deadline, "expect_prompt_ready blocked past timeout"
+        assert time.perf_counter() < deadline, (
+            "expect_prompt_ready blocked past timeout"
+        )
         assert "banner: stub up" in before
 
 

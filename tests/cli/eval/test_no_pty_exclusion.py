@@ -284,7 +284,9 @@ def test_run_one_runs_tagged_spec_when_no_pty_flag_absent() -> None:
     assert take_short_circuit is False
 
 
-def test_eval_run_no_pty_skips_real_suite_end_to_end(allowlisted_output_dir: Path) -> None:
+def test_eval_run_no_pty_skips_real_suite_end_to_end(
+    allowlisted_output_dir: Path,
+) -> None:
     """End-to-end ``eval run --no-pty`` on real.yaml reports SKIPPED only.
 
     Patches ``_run_one_spec`` to raise so any non-skipped spec would
@@ -355,8 +357,7 @@ def test_eval_run_no_pty_skips_real_suite_end_to_end(allowlisted_output_dir: Pat
     # The run exits 0 because all evals SKIPPED is a clean outcome per
     # design-spec §4 ("0 = All evals PASSED or correctly SKIPPED").
     assert result.exit_code == 0, (
-        f"eval run --no-pty exit_code={result.exit_code}\n"
-        f"stdout:\n{result.output}\n"
+        f"eval run --no-pty exit_code={result.exit_code}\nstdout:\n{result.output}\n"
     )
 
     # JSON stdout carries the RunSummary; the run is clean and every

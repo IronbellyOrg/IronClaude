@@ -111,10 +111,10 @@ def test_rejects_empty_string() -> None:
 @pytest.mark.parametrize(
     "eval_id",
     [
-        "1bad",   # canonical leading-digit name
+        "1bad",  # canonical leading-digit name
         "9E",
         "0",
-        "12.3",   # leading digit + parameterize-shaped suffix
+        "12.3",  # leading digit + parameterize-shaped suffix
     ],
 )
 def test_rejects_leading_digit_ids(eval_id: str) -> None:
@@ -134,10 +134,10 @@ def test_rejects_leading_digit_ids(eval_id: str) -> None:
 @pytest.mark.parametrize(
     "eval_id",
     [
-        "{{prefix}}",   # AC named example: bare template token
-        "E{{p}}",       # template residue inside an otherwise-valid id
-        "E1{{n}}",      # trailing template token
-        "{prefix}",     # single-brace template (Click-style)
+        "{{prefix}}",  # AC named example: bare template token
+        "E{{p}}",  # template residue inside an otherwise-valid id
+        "E1{{n}}",  # trailing template token
+        "{prefix}",  # single-brace template (Click-style)
     ],
 )
 def test_rejects_template_token_patterns(eval_id: str) -> None:
@@ -193,10 +193,13 @@ def test_rejects_parameterized_unsafe_expansion_in_loader() -> None:
         return [EvalSpec.from_dict({**entry, "id": unsafe_id})]
 
     loader = SuiteLoader()
-    with patch(
-        "superclaude.cli.eval.loader._validate_manifest_dict",
-        return_value=manifest,
-    ), patch.object(SuiteLoader, "_expand_entry", autospec=True) as mock_expand:
+    with (
+        patch(
+            "superclaude.cli.eval.loader._validate_manifest_dict",
+            return_value=manifest,
+        ),
+        patch.object(SuiteLoader, "_expand_entry", autospec=True) as mock_expand,
+    ):
         mock_expand.side_effect = hostile_expand
         with pytest.raises(InvalidEvalId) as excinfo:
             loader.load("/dev/null")

@@ -282,7 +282,9 @@ def test_run_summary_to_dict_is_json_serialisable() -> None:
 
 def test_run_summary_to_dict_unwraps_nested_outcomes() -> None:
     outcome = _outcome("E1")
-    summary = _summary(evals=(outcome,), counts=_counts(manifest_n=1, expanded_n_prime=1, kept_k=1))
+    summary = _summary(
+        evals=(outcome,), counts=_counts(manifest_n=1, expanded_n_prime=1, kept_k=1)
+    )
     payload = summary.to_dict()
     # Reporter relies on each EvalOutcome being a plain dict, not a nested
     # dataclass, so it can iterate without bespoke unwrapping.
@@ -396,7 +398,14 @@ def test_format_run_summary_line_renders_errored_interrupted_timeout(
 
     from superclaude.cli.eval.commands import _format_run_summary_line
 
-    totals_kwargs = {"passed": 0, "failed": 0, "skipped": 0, "errored": 0, "interrupted": 0, "timeout": 0}
+    totals_kwargs = {
+        "passed": 0,
+        "failed": 0,
+        "skipped": 0,
+        "errored": 0,
+        "interrupted": 0,
+        "timeout": 0,
+    }
     totals_kwargs[bucket] = 3
     summary = _summary(totals=RunTotals(**totals_kwargs))
 

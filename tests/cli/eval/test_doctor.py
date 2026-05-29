@@ -205,7 +205,9 @@ def test_build_doctor_report_missing_claude_home_is_hard(
     assert "filesystem.claude_home" in report.hard_failures
 
 
-def test_build_doctor_report_below_min_version_is_hard(clean_host: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_build_doctor_report_below_min_version_is_hard(
+    clean_host: dict, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setattr(
         doctor_module,
         "_default_claude_version_probe",
@@ -545,13 +547,8 @@ def test_free_ram_check_fires_at_threshold_minus_one_pass(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Threshold uses ``>=`` so parallel=15 fires; parallel=14 does not."""
-    assert (
-        _check_free_ram_for_parallel(requested_parallel=14, probe=lambda: 0)
-        is None
-    )
-    fired = _check_free_ram_for_parallel(
-        requested_parallel=15, probe=lambda: 0
-    )
+    assert _check_free_ram_for_parallel(requested_parallel=14, probe=lambda: 0) is None
+    fired = _check_free_ram_for_parallel(requested_parallel=15, probe=lambda: 0)
     assert fired is not None
 
 

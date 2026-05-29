@@ -131,9 +131,7 @@ def test_doctor_check_coverage_passes_when_suite_covers_all_matchers(
     }
     assert coverage["result"]["missing"] == []
     covered_eval_ids = {
-        eid
-        for ids in coverage["result"]["coverage_map"].values()
-        for eid in ids
+        eid for ids in coverage["result"]["coverage_map"].values() for eid in ids
     }
     assert covered_eval_ids == {"E1", "E2", "E3"}
 
@@ -190,9 +188,7 @@ def test_doctor_check_coverage_stderr_names_uncovered_pattern(
     assert f"PreToolUse: {UNCOVERED_PATTERN}" in result.stderr
     # Covered matchers do NOT appear in the failure roster — only the
     # missing patterns are listed under "uncovered matcher patterns".
-    failure_block = result.stderr.split(
-        "uncovered matcher patterns:", maxsplit=1
-    )[1]
+    failure_block = result.stderr.split("uncovered matcher patterns:", maxsplit=1)[1]
     assert "mcp__auggie__.*" not in failure_block
     assert "mcp__auggie-mcp__.*" not in failure_block
     assert "mcp__airis-mcp-gateway__.*" not in failure_block
@@ -263,8 +259,8 @@ def test_run_exits_2_when_settings_has_uncovered_matcher(
             "1",
         ],
     )
-    assert result.exit_code == COVERAGE_GATE_FAILED_EXIT_CODE, (
-        result.output + (result.stderr or "")
+    assert result.exit_code == COVERAGE_GATE_FAILED_EXIT_CODE, result.output + (
+        result.stderr or ""
     )
     assert "coverage gate FAILED" in result.stderr
     assert UNCOVERED_PATTERN in result.stderr

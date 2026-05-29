@@ -177,9 +177,7 @@ def test_jsonl_passes_with_line_count(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     log_path = home.home_path / "hooks.jsonl"
-    log_path.write_text(
-        '{"event": "a"}\n{"event": "b"}\n', encoding="utf-8"
-    )
+    log_path.write_text('{"event": "a"}\n{"event": "b"}\n', encoding="utf-8")
     ctx = _make_ctx(
         eval_spec=eval_spec,
         home=home,
@@ -195,9 +193,7 @@ def test_jsonl_assert_any_finds_matching_row(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     log_path = home.home_path / "hooks.jsonl"
-    log_path.write_text(
-        '{"event": "a"}\n{"event": "b"}\n', encoding="utf-8"
-    )
+    log_path.write_text('{"event": "a"}\n{"event": "b"}\n', encoding="utf-8")
     ctx = _make_ctx(
         eval_spec=eval_spec,
         home=home,
@@ -234,9 +230,7 @@ def test_settings_json_exists_flag(
     settings = home.home_path / "settings.json"
     settings.write_text(json.dumps({"x": 1}), encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    result = Expect.settings_json(
-        path="settings.json", key_path="y", exists=False
-    )(ctx)
+    result = Expect.settings_json(path="settings.json", key_path="y", exists=False)(ctx)
     assert result.passed
 
 
@@ -298,9 +292,7 @@ def test_stderr_predicate(
 def test_duration_informational_passes(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.5
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.5)
     result = Expect.duration()(ctx)
     assert result.passed
     assert result.details["observed_sec"] == 2.5
@@ -309,9 +301,7 @@ def test_duration_informational_passes(
 def test_duration_max_sec_fails_over_budget(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0)
     result = Expect.duration(max_sec=1.0)(ctx)
     assert not result.passed
     assert result.failure is not None
@@ -356,7 +346,7 @@ def test_from_mapping_threads_kwargs_to_file_primitive(
 ) -> None:
     (home.home_path / "report.txt").write_text("PASS\n", encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    result = Expect.from_mapping(
-        {"file": {"path": "report.txt", "contains": "PASS"}}
-    )(ctx)
+    result = Expect.from_mapping({"file": {"path": "report.txt", "contains": "PASS"}})(
+        ctx
+    )
     assert result.passed

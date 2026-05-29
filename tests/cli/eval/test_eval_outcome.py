@@ -203,9 +203,7 @@ def test_eval_outcome_to_dict_is_json_serialisable() -> None:
         title="example",
         status="PASS",
         duration_sec=0.123,
-        expects=(
-            ExpectResult(name="exit_code", passed=True, duration_sec=0.001),
-        ),
+        expects=(ExpectResult(name="exit_code", passed=True, duration_sec=0.001),),
         artifacts={"stdout": "/tmp/run/stdout.log"},
     )
     payload = outcome.to_dict()

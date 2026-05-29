@@ -50,8 +50,7 @@ def test_eval_group_help_lists_all_four_subcommands() -> None:
     assert result.exit_code == 0, result.output
     for name in EXPECTED_SUBCOMMANDS:
         assert name in result.output, (
-            f"subcommand {name!r} missing from `eval --help` output:\n"
-            f"{result.output}"
+            f"subcommand {name!r} missing from `eval --help` output:\n{result.output}"
         )
 
 

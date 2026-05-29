@@ -144,9 +144,7 @@ def test_eval_run_help_lists_all_twelve_flags() -> None:
     result = runner.invoke(eval_group, ["run", "--help"])
     assert result.exit_code == 0, result.output
     missing = [flag for flag in EXPECTED_FLAGS if flag not in result.output]
-    assert not missing, (
-        f"FR-CLI1: --help missing {missing!r}; got:\n{result.output}"
-    )
+    assert not missing, f"FR-CLI1: --help missing {missing!r}; got:\n{result.output}"
 
 
 def test_eval_run_help_documents_clamping_band() -> None:
@@ -213,9 +211,7 @@ def recording_orchestrator(
     return _RecordingOrchestrator
 
 
-def _invoke_run_with_real_suite(
-    args: list[str], *, output_dir: Path
-) -> Any:
+def _invoke_run_with_real_suite(args: list[str], *, output_dir: Path) -> Any:
     """Run ``eval run`` against the ``real`` suite with ``--no-pty``.
 
     Every eval in ``real.yaml`` carries the DOC-OQ3 ``no_pty: skip`` tag,
@@ -250,11 +246,9 @@ def test_parallel_zero_clamps_to_one(
     """``--parallel 0`` clamps to ``MIN_PARALLEL`` (= 1)."""
 
     output_dir = allowlisted_output_dir / "p0"
-    result = _invoke_run_with_real_suite(
-        ["--parallel", "0"], output_dir=output_dir
-    )
-    assert result.exit_code == RUN_CLEAN_EXIT_CODE, (
-        result.stdout + (result.stderr or "")
+    result = _invoke_run_with_real_suite(["--parallel", "0"], output_dir=output_dir)
+    assert result.exit_code == RUN_CLEAN_EXIT_CODE, result.stdout + (
+        result.stderr or ""
     )
     assert recording_orchestrator.last_parallel == RunOrchestrator.MIN_PARALLEL == 1
 
@@ -267,11 +261,9 @@ def test_parallel_sixteen_clamps_to_fifteen(
     """``--parallel 16`` clamps to ``MAX_PARALLEL`` (= 15)."""
 
     output_dir = allowlisted_output_dir / "p16"
-    result = _invoke_run_with_real_suite(
-        ["--parallel", "16"], output_dir=output_dir
-    )
-    assert result.exit_code == RUN_CLEAN_EXIT_CODE, (
-        result.stdout + (result.stderr or "")
+    result = _invoke_run_with_real_suite(["--parallel", "16"], output_dir=output_dir)
+    assert result.exit_code == RUN_CLEAN_EXIT_CODE, result.stdout + (
+        result.stderr or ""
     )
     assert recording_orchestrator.last_parallel == RunOrchestrator.MAX_PARALLEL == 15
 
@@ -468,8 +460,8 @@ def test_run_real_suite_no_pty_skips_e1_and_exits_clean(
         ],
         catch_exceptions=False,
     )
-    assert result.exit_code == RUN_CLEAN_EXIT_CODE, (
-        result.stdout + (result.stderr or "")
+    assert result.exit_code == RUN_CLEAN_EXIT_CODE, result.stdout + (
+        result.stderr or ""
     )
     # FR-G4 / T04.13 / H1: summary.md + summary.json land in the compose_run_dir-
     # derived run-dir under output_dir (the OUTPUT ROOT, post-H1).
@@ -517,8 +509,8 @@ def test_run_anchors_output_via_compose_run_dir(
         ],
         catch_exceptions=False,
     )
-    assert result.exit_code == RUN_CLEAN_EXIT_CODE, (
-        result.stdout + (result.stderr or "")
+    assert result.exit_code == RUN_CLEAN_EXIT_CODE, result.stdout + (
+        result.stderr or ""
     )
 
     # FR-G4 layout: <output_dir>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/
@@ -611,7 +603,9 @@ def test_run_verbose_emits_summary_line(
     # per H3 — the full DM-012 status taxonomy (6 buckets covering 8 statuses).
     out = result.stdout
     assert out.startswith("run ")
-    assert "0P/0F/1S/0E/0I/0T" in out  # 1 SKIPPED, 0 PASS, 0 FAIL, 0 ERRORED, 0 INTERRUPTED, 0 TIMEOUT
+    assert (
+        "0P/0F/1S/0E/0I/0T" in out
+    )  # 1 SKIPPED, 0 PASS, 0 FAIL, 0 ERRORED, 0 INTERRUPTED, 0 TIMEOUT
     assert str(output_dir) in out
 
 
@@ -672,8 +666,8 @@ def test_run_no_pty_full_suite_skips_every_eval(
         ],
         catch_exceptions=False,
     )
-    assert result.exit_code == RUN_CLEAN_EXIT_CODE, (
-        result.stdout + (result.stderr or "")
+    assert result.exit_code == RUN_CLEAN_EXIT_CODE, result.stdout + (
+        result.stderr or ""
     )
     # H1: summary.json lands under the compose_run_dir-derived run-dir.
     run_dir = _find_run_dir(output_dir)

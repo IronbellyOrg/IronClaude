@@ -63,9 +63,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 RF_ANALYST_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_QA_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa.md"
-RF_QA_QUAL_SRC = (
-    REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
-)
+RF_QA_QUAL_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
 SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKILL.md"
 
 WRAPPER_SOURCES = (RF_ANALYST_SRC, RF_QA_SRC, RF_QA_QUAL_SRC, SKILL_SRC)
@@ -152,10 +150,14 @@ def validate_dnsp_emission(record: Dict[str, Any]) -> ValidationResult:
         if fname not in record:
             return ValidationResult(
                 ok=False,
-                symbol=SYM_FIXED_FIELD if fname in FIXED_FIELDS
-                else SYM_DYNAMIC_FIELD if fname in DYNAMIC_FIELDS
-                else SYM_RECOMMENDATION if fname == "recommendation"
-                else SYM_DEDUP_KEY_SHAPE if fname == "dedup_key"
+                symbol=SYM_FIXED_FIELD
+                if fname in FIXED_FIELDS
+                else SYM_DYNAMIC_FIELD
+                if fname in DYNAMIC_FIELDS
+                else SYM_RECOMMENDATION
+                if fname == "recommendation"
+                else SYM_DEDUP_KEY_SHAPE
+                if fname == "dedup_key"
                 else SYM_FOUND_N_TIMES,
                 field=fname,
                 detail=f"required field {fname!r} missing",
@@ -164,12 +166,16 @@ def validate_dnsp_emission(record: Dict[str, Any]) -> ValidationResult:
     # Fixed-field invariants (R-113 + R-114).
     if record["severity"] != FIXED_SEVERITY:
         return ValidationResult(
-            ok=False, symbol=SYM_FIXED_FIELD, field="severity",
+            ok=False,
+            symbol=SYM_FIXED_FIELD,
+            field="severity",
             detail=f"severity={record['severity']!r} != {FIXED_SEVERITY!r}",
         )
     if record["source"] != FIXED_SOURCE:
         return ValidationResult(
-            ok=False, symbol=SYM_FIXED_FIELD, field="source",
+            ok=False,
+            symbol=SYM_FIXED_FIELD,
+            field="source",
             detail=f"source={record['source']!r} != {FIXED_SOURCE!r}",
         )
 
@@ -178,47 +184,61 @@ def validate_dnsp_emission(record: Dict[str, Any]) -> ValidationResult:
         val = record[fname]
         if not isinstance(val, str) or val.strip() == "":
             return ValidationResult(
-                ok=False, symbol=SYM_DYNAMIC_FIELD, field=fname,
+                ok=False,
+                symbol=SYM_DYNAMIC_FIELD,
+                field=fname,
                 detail=f"{fname} is blank/whitespace/non-string",
             )
 
     # Recommendation byte-exact (R-117).
     if record["recommendation"] != FIXED_RECOMMENDATION:
         return ValidationResult(
-            ok=False, symbol=SYM_RECOMMENDATION, field="recommendation",
+            ok=False,
+            symbol=SYM_RECOMMENDATION,
+            field="recommendation",
             detail=f"recommendation={record['recommendation']!r} != "
-                   f"{FIXED_RECOMMENDATION!r}",
+            f"{FIXED_RECOMMENDATION!r}",
         )
 
     # dedup_key 2-tuple shape + closed vocabulary (R-118 + R-121).
     dk = record["dedup_key"]
     if not isinstance(dk, list) or len(dk) != 2:
         return ValidationResult(
-            ok=False, symbol=SYM_DEDUP_KEY_SHAPE, field="dedup_key",
+            ok=False,
+            symbol=SYM_DEDUP_KEY_SHAPE,
+            field="dedup_key",
             detail=f"dedup_key not 2-element list: {dk!r}",
         )
     if not isinstance(dk[0], str) or dk[0].strip() == "":
         return ValidationResult(
-            ok=False, symbol=SYM_DEDUP_KEY_SHAPE, field="dedup_key",
+            ok=False,
+            symbol=SYM_DEDUP_KEY_SHAPE,
+            field="dedup_key",
             detail=f"dedup_key[0] (range) is blank: {dk[0]!r}",
         )
     if dk[1] not in EXHAUST_POINT_VOCAB:
         return ValidationResult(
-            ok=False, symbol=SYM_DEDUP_KEY_SHAPE, field="dedup_key",
+            ok=False,
+            symbol=SYM_DEDUP_KEY_SHAPE,
+            field="dedup_key",
             detail=f"dedup_key[1]={dk[1]!r} not in vocabulary "
-                   f"{sorted(EXHAUST_POINT_VOCAB)}",
+            f"{sorted(EXHAUST_POINT_VOCAB)}",
         )
 
     # found_n_times int default 1 + positive (R-119).
     fnt = record["found_n_times"]
     if not isinstance(fnt, int) or isinstance(fnt, bool):
         return ValidationResult(
-            ok=False, symbol=SYM_FOUND_N_TIMES, field="found_n_times",
+            ok=False,
+            symbol=SYM_FOUND_N_TIMES,
+            field="found_n_times",
             detail=f"found_n_times is not int: {fnt!r}",
         )
     if fnt < 1:
         return ValidationResult(
-            ok=False, symbol=SYM_FOUND_N_TIMES, field="found_n_times",
+            ok=False,
+            symbol=SYM_FOUND_N_TIMES,
+            field="found_n_times",
             detail=f"found_n_times={fnt} < 1",
         )
 
@@ -229,9 +249,7 @@ def build_twice_exhaust_emission(
     *,
     assigned_files_range: str = "${TASK_DIR}research/03-auth.md, 04-cache.md",
     exhaust_point: str = "retry-2",
-    evidence_path: str = (
-        "${TASK_DIR}qa/spawn-log-rf-analyst-partition-2.txt"
-    ),
+    evidence_path: str = ("${TASK_DIR}qa/spawn-log-rf-analyst-partition-2.txt"),
 ) -> Dict[str, Any]:
     """Construct the canonical TEST-018 emission: a partition agent
     has failed retry-1 and exhausted retry-2 (the "twice-exhaust"
@@ -307,9 +325,7 @@ class TestWrapperContractTextGuards:
                 f"recommendation literal {FIXED_RECOMMENDATION!r}"
             )
 
-    def test_dm_003_schema_named_at_every_site(
-        self, wrapper_texts: Dict[Path, str]
-    ):
+    def test_dm_003_schema_named_at_every_site(self, wrapper_texts: Dict[Path, str]):
         # The "DM-003" schema label is the load-bearing pointer
         # tying the wrapper to the M1 contract-freeze entity. The
         # three agent sites elaborate this as "7-field DM-003
@@ -387,9 +403,7 @@ class TestWrapperContractTextGuards:
         # wrapper bullet (and any nearby example block).
         for p, txt in wrapper_texts.items():
             for val in sorted(EXHAUST_POINT_VOCAB):
-                assert val in txt, (
-                    f"{p.name} no longer names vocabulary value {val!r}"
-                )
+                assert val in txt, f"{p.name} no longer names vocabulary value {val!r}"
 
 
 # ---------------------------------------------------------------------------
@@ -428,31 +442,30 @@ class TestTwiceExhaustEmissionPasses:
     def test_all_five_fixed_fields_populated(self, twice_exhaust_emission):
         """The AC1 row of T06.15: 'all 5 fixed fields populated'."""
         five_fields = (
-            "severity", "source", "affected_range", "evidence",
+            "severity",
+            "source",
+            "affected_range",
+            "evidence",
             "recommendation",
         )
         for fname in five_fields:
             val = twice_exhaust_emission[fname]
-            assert isinstance(val, str), (
-                f"field {fname} is not a string: {val!r}"
-            )
+            assert isinstance(val, str), f"field {fname} is not a string: {val!r}"
             assert val.strip() != "", (
                 f"field {fname} is blank/whitespace — AC1 violated"
             )
 
     def test_recommendation_byte_exact(self, twice_exhaust_emission):
-        assert (
-            twice_exhaust_emission["recommendation"] == FIXED_RECOMMENDATION
-        ), "recommendation drift — R-117 byte-exact pin broken"
+        assert twice_exhaust_emission["recommendation"] == FIXED_RECOMMENDATION, (
+            "recommendation drift — R-117 byte-exact pin broken"
+        )
 
     def test_dedup_key_is_two_tuple_yaml_list(self, twice_exhaust_emission):
         dk = twice_exhaust_emission["dedup_key"]
         assert isinstance(dk, list), f"dedup_key is not a list: {dk!r}"
         assert len(dk) == 2, f"dedup_key length != 2: {dk!r}"
 
-    def test_dedup_key_second_element_in_vocabulary(
-        self, twice_exhaust_emission
-    ):
+    def test_dedup_key_second_element_in_vocabulary(self, twice_exhaust_emission):
         dk = twice_exhaust_emission["dedup_key"]
         assert dk[1] in EXHAUST_POINT_VOCAB, (
             f"dedup_key exhaust_point {dk[1]!r} not in "
@@ -518,8 +531,7 @@ class TestNegativePathRejectionSymbols:
         rec["affected_range"] = "   "
         result = validate_dnsp_emission(rec)
         assert not result.ok and result.symbol == SYM_DYNAMIC_FIELD, (
-            f"blank affected_range should reject as {SYM_DYNAMIC_FIELD}: "
-            f"{result}"
+            f"blank affected_range should reject as {SYM_DYNAMIC_FIELD}: {result}"
         )
 
     def test_blank_evidence_rejected_as_dynamic_field(self):
@@ -550,8 +562,7 @@ class TestNegativePathRejectionSymbols:
         ]
         result = validate_dnsp_emission(rec)
         assert not result.ok and result.symbol == SYM_DEDUP_KEY_SHAPE, (
-            f"3-element dedup_key should reject as {SYM_DEDUP_KEY_SHAPE}: "
-            f"{result}"
+            f"3-element dedup_key should reject as {SYM_DEDUP_KEY_SHAPE}: {result}"
         )
 
     def test_dedup_key_non_vocabulary_exhaust_point_rejected(self):
@@ -579,8 +590,7 @@ class TestNegativePathRejectionSymbols:
         rec["found_n_times"] = "1"
         result = validate_dnsp_emission(rec)
         assert not result.ok and result.symbol == SYM_FOUND_N_TIMES, (
-            f"stringified found_n_times should reject as "
-            f"{SYM_FOUND_N_TIMES}: {result}"
+            f"stringified found_n_times should reject as {SYM_FOUND_N_TIMES}: {result}"
         )
 
 
@@ -598,18 +608,14 @@ class TestVocabularyIsFullyWired:
     associated escalation-ladder step undetectable."""
 
     @pytest.mark.parametrize("exhaust_point", sorted(EXHAUST_POINT_VOCAB))
-    def test_each_vocabulary_value_yields_valid_emission(
-        self, exhaust_point: str
-    ):
+    def test_each_vocabulary_value_yields_valid_emission(self, exhaust_point: str):
         rec = build_twice_exhaust_emission(exhaust_point=exhaust_point)
         result = validate_dnsp_emission(rec)
         assert result.ok, (
-            f"vocabulary value {exhaust_point!r} unexpectedly rejected: "
-            f"{result}"
+            f"vocabulary value {exhaust_point!r} unexpectedly rejected: {result}"
         )
 
     def test_vocabulary_size_is_exactly_five(self):
         assert len(EXHAUST_POINT_VOCAB) == 5, (
-            f"closed vocabulary cardinality changed: "
-            f"{sorted(EXHAUST_POINT_VOCAB)}"
+            f"closed vocabulary cardinality changed: {sorted(EXHAUST_POINT_VOCAB)}"
         )

@@ -340,9 +340,7 @@ def _exit_zero_expect(ctx: EvalContext) -> ExpectResult:
     shutil.which("claude") is None,
     reason="real claude binary not installed on this host",
 )
-def test_real_claude_help_spawn_and_transcript(
-    eval_spec, home, eval_config, run_paths
-):
+def test_real_claude_help_spawn_and_transcript(eval_spec, home, eval_config, run_paths):
     """FR-G1 — drive the real ``claude --help`` through the lifecycle.
 
     ``--help`` is non-interactive: the binary prints usage text and
@@ -434,9 +432,7 @@ def test_lifecycle_prompt_ready_and_input_injection(
 # ---------------------------------------------------------------------------
 
 
-def test_lifecycle_timeout_reaps_child(
-    home, eval_config, run_paths
-):
+def test_lifecycle_timeout_reaps_child(home, eval_config, run_paths):
     """A hanging subprocess must be reaped when the runner's timeout fires.
 
     The stub blocks forever on ``stdin.read()``. With

@@ -375,15 +375,12 @@ def build_task_file_prompt(
             f"- {s}" for s in context_summaries
         )
 
-    existing_task_file = (
-        config.task_dir / ("TASK-PRD-" + config.product_slug + ".md")
-    )
+    existing_task_file = config.task_dir / ("TASK-PRD-" + config.product_slug + ".md")
     existing_note = _preserve_guard_note(
         existing_task_file,
         400,
         [
-            "has valid YAML frontmatter "
-            "(id, title, status, complexity, created_date)",
+            "has valid YAML frontmatter (id, title, status, complexity, created_date)",
             "contains multiple '### Phase N:' headings",
             "has no 'see above'/'as mentioned'/'refer to' in checklist items",
             "each phase >=2 (including '### Phase N - Findings' placeholders) "
@@ -584,7 +581,9 @@ def _parse_agent_block(notes: str, agent_idx: int) -> dict:
     topic = topic_m.group(1).strip() if topic_m else title
     agent_type_m = re.search(r"\*\*Agent type\*\*\s*[:\-]\s*([^\n]+)", block)
     agent_type = agent_type_m.group(1).strip() if agent_type_m else "Investigator"
-    files_section = re.search(r"\*\*Files\*\*\s*[:\-]?\s*\n((?:\s*[-*]\s*[^\n]+\n?)+)", block)
+    files_section = re.search(
+        r"\*\*Files\*\*\s*[:\-]?\s*\n((?:\s*[-*]\s*[^\n]+\n?)+)", block
+    )
     files: list[str] = []
     if files_section:
         for line in files_section.group(1).splitlines():
@@ -604,11 +603,18 @@ def _slugify_agent_title(title: str) -> str:
 
 
 _INVESTIGATION_LEGACY_FIELDS = {
-    "topic", "agent_type", "files", "product_root", "output_path",
+    "topic",
+    "agent_type",
+    "files",
+    "product_root",
+    "output_path",
 }
 _WEB_RESEARCH_LEGACY_FIELDS = {"topic", "context", "product", "output_path"}
 _SYNTHESIS_LEGACY_FIELDS = {
-    "research_files", "template_sections", "output_path", "template_path",
+    "research_files",
+    "template_sections",
+    "output_path",
+    "template_path",
 }
 
 
@@ -639,9 +645,9 @@ def _dual_mode_call(
         idx_m = _re.search(step_id_pattern, step_id)
         idx = int(idx_m.group(1)) if idx_m else 1
         return render_fn(**derive_render_kwargs(config, idx))
-    return render_fn(*args, **{
-        k: v for k, v in kwargs.items() if k in legacy_field_whitelist
-    })
+    return render_fn(
+        *args, **{k: v for k, v in kwargs.items() if k in legacy_field_whitelist}
+    )
 
 
 def _derive_investigation_render_kwargs(config, idx: int) -> dict:
@@ -651,8 +657,8 @@ def _derive_investigation_render_kwargs(config, idx: int) -> dict:
     agent = _parse_agent_block(notes, idx) or {
         "title": f"Agent {idx}",
         "topic": f"Investigation topic {idx} (research-notes did not "
-                 f"contain an Agent {idx} block — investigate broadly "
-                 f"using the planning inputs).",
+        f"contain an Agent {idx} block — investigate broadly "
+        f"using the planning inputs).",
         "agent_type": "Investigator",
         "files": [],
     }
@@ -675,15 +681,16 @@ def _derive_web_research_render_kwargs(config, web_idx: int) -> dict:
     agent = _parse_agent_block(notes, agent_idx) or {
         "title": f"Web research topic {web_idx}",
         "topic": f"External market and ecosystem research for topic {web_idx} "
-                 f"related to the product.",
+        f"related to the product.",
         "agent_type": "Web Analyst",
         "files": [],
     }
     slug = _slugify_agent_title(agent["title"])
     config.research_dir.mkdir(parents=True, exist_ok=True)
     scope_path = config.task_dir / "scope-discovery-raw.md"
-    codebase_context = scope_path.read_text(encoding="utf-8")[:2000] \
-        if scope_path.is_file() else ""
+    codebase_context = (
+        scope_path.read_text(encoding="utf-8")[:2000] if scope_path.is_file() else ""
+    )
     return {
         "topic": agent["topic"],
         "context": codebase_context,
@@ -717,7 +724,8 @@ def _derive_synthesis_render_kwargs(config, synth_idx: int) -> dict:
 def build_investigation_prompt(*args, **kwargs) -> str:  # type: ignore[no-redef]
     """Step 10 (dynamic): per-agent codebase research prompt (dual-mode)."""
     return _dual_mode_call(
-        args, kwargs,
+        args,
+        kwargs,
         step_id_pattern=r"investigation-(\d+)",
         derive_render_kwargs=_derive_investigation_render_kwargs,
         render_fn=_render_investigation_prompt,
@@ -803,7 +811,8 @@ EXIT_RECOMMENDATION: CONTINUE
 def build_web_research_prompt(*args, **kwargs) -> str:  # type: ignore[no-redef]
     """Step 12 (dynamic): per-topic web research prompt (dual-mode)."""
     return _dual_mode_call(
-        args, kwargs,
+        args,
+        kwargs,
         step_id_pattern=r"web-research-(\d+)",
         derive_render_kwargs=_derive_web_research_render_kwargs,
         render_fn=_render_web_research_prompt,
@@ -978,7 +987,8 @@ EXIT_RECOMMENDATION: CONTINUE
 def build_synthesis_prompt(*args, **kwargs) -> str:  # type: ignore[no-redef]
     """Step 13a (dynamic): per-synth-file synthesis prompt (dual-mode)."""
     return _dual_mode_call(
-        args, kwargs,
+        args,
+        kwargs,
         step_id_pattern=r"synthesis-(\d+)",
         derive_render_kwargs=_derive_synthesis_render_kwargs,
         render_fn=_render_synthesis_prompt,
