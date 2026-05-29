@@ -3,7 +3,7 @@ name: audit-consolidator
 description: "Consolidates audit batch reports into pass summaries and final reports with deduplication."
 tools: Read, Grep, Glob, Write
 model: sonnet
-maxTurns: 40
+maxTurns: 60
 permissionMode: plan
 ---
 

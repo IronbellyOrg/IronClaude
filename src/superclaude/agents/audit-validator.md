@@ -3,7 +3,7 @@ name: audit-validator
 description: "Spot-check validator verifying audit finding accuracy by re-testing claims independently."
 tools: Read, Grep, Glob
 model: sonnet
-maxTurns: 25
+maxTurns: 60
 permissionMode: plan
 ---
 

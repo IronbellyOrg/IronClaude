@@ -3,7 +3,7 @@ name: audit-analyzer
 description: "Deep structural auditor for repository audit Pass 2. Produces mandatory 8-field per-file profiles with evidence."
 tools: Read, Grep, Glob
 model: sonnet
-maxTurns: 35
+maxTurns: 60
 permissionMode: plan
 ---
 
@@ -97,7 +97,7 @@ For files classified as `REVIEW:wiring` by Pass 1 (audit-scanner), the per-file 
 
 Trace the complete wiring chain for each injectable or registry pattern found in the file:
 
-```
+```text
 Declaration: ClassName.__init__(param: Optional[Callable] = None) [file:line]
   → Registration: where param is provided a concrete value [file:line] or MISSING
     → Invocation: where the callable is actually called [file:line] or MISSING
@@ -105,7 +105,7 @@ Declaration: ClassName.__init__(param: Optional[Callable] = None) [file:line]
 
 For registry patterns:
 
-```
+```text
 Declaration: REGISTRY_NAME = {...} [file:line]
   → Registration: entries map to functions [file:line per entry]
     → Invocation: REGISTRY_NAME[key](...) or accessor call [file:line] or MISSING
