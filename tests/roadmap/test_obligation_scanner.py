@@ -416,7 +416,13 @@ Ship it.
         )
 
     def test_descriptive_noun_context_not_detected(self):
-        """'scaffolding work' / 'for scaffolding' is descriptive, not an obligation."""
+        """'scaffolding work' / 'for scaffolding' is descriptive, not an
+        actionable obligation. Post Fix 3, the descriptor noun 'fallback'
+        causes Layer 4 to demote to MEDIUM (which is excluded from
+        ``undischarged_count``); prior behavior dropped it entirely. Both
+        outcomes satisfy the test's intent: descriptive use does NOT
+        contribute to the undischarged gate.
+        """
         content = """\
 ## M1: Setup
 Fallback to dev-managed instances for scaffolding work if provisioning slips.
@@ -428,7 +434,13 @@ Ship it.
         scaffold_obs = [
             o for o in report.obligations if o.term.lower().startswith("scaffold")
         ]
-        assert scaffold_obs == []
+        # Either dropped entirely OR demoted to MEDIUM is acceptable —
+        # both keep it out of the undischarged_count.
+        for o in scaffold_obs:
+            assert o.severity == "MEDIUM", (
+                f"descriptive 'scaffolding' must not be HIGH-severity, got {o.severity}"
+            )
+        assert report.undischarged_count == 0
 
     def test_imperative_build_still_detected(self):
         """'Build scaffolding' is a real obligation and must still be flagged."""
@@ -529,4 +541,185 @@ Run load tests and finalize RBAC.
         assert report.undischarged_count == 0, (
             f"Expected no undischarged obligations, got: "
             f"{[(o.phase, o.term, o.component, o.context) for o in report.obligations if not o.discharged]}"
+        )
+
+
+class TestFix1TailSectionTermination:
+    """Fix 1: tail-section H2s (Risk Register, Decision Summary, etc.) must
+    terminate the last milestone's section so scaffold mentions in those
+    template tails are excluded from scanning entirely.
+    """
+
+    def test_fix1_tail_section_excluded(self):
+        """A 'Stub' mention inside `## Risk Register` after the last
+        milestone must NOT be flagged — tail sections are out of scope.
+        """
+        content = """\
+## M1: Foundation
+
+Build the executor module.
+
+## Risk Register
+
+|R-01|Stub transport retained as mitigation for unavailable upstream|Low|Medium|
+"""
+        report = scan_obligations(content)
+        assert report.undischarged_count == 0, (
+            "Tail-section Risk Register content must be excluded from "
+            f"scanning, got: {[(o.phase, o.term, o.line_number) for o in report.obligations if not o.discharged]}"
+        )
+
+
+class TestFix3DescriptiveContext:
+    """Fix 3: Layer 4 descriptor-noun adjacency demotes descriptive prose
+    (outcome/result/mitigation/fallback/etc.) to MEDIUM severity. The
+    discharge-intent guard ensures real obligations remain HIGH.
+    """
+
+    def test_fix3_dummy_value_remains_high(self):
+        """Documents the accepted Fix-2 gap: `(dummy value)` has no
+        descriptor noun adjacent AND no existing Layer 3b coverage
+        (Layer 3b's `_PAREN_PHASE_LABEL_RE` covers only scaffold/mock/
+        stub lexemes inside parentheticals). So Layer 4 does NOT fire
+        and severity stays HIGH. If real roadmaps surface this pattern,
+        revisit Fix 2 (widened parenthetical regex).
+        """
+        content = """\
+## M1: Foundation
+
+Inject a (dummy value) for the API key during early dev.
+
+## M2: Hardening
+
+Run the test suite.
+"""
+        report = scan_obligations(content)
+        dummy_obs = [o for o in report.obligations if o.term.lower() == "dummy"]
+        assert dummy_obs, "expected at least one dummy obligation"
+        # No descriptor noun + no Layer 3b match → HIGH severity preserved.
+        assert all(o.severity == "HIGH" for o in dummy_obs)
+
+    def test_fix3_stub_tested_mitigation_demoted(self):
+        """A per-milestone Risk subsection line containing
+        `stub-tested fallback` matches BOTH 'mitigation'-style adjacency
+        words (via 'mitigation' or 'fallback' in the descriptor list).
+        Severity must be demoted to MEDIUM.
+        """
+        content = """\
+## M1: Foundation
+
+Build the executor module.
+
+### Risk Assessment and Mitigation — M1
+
+- Mitigated by stub-tested fallback for offline mode.
+
+## M2: Hardening
+
+Run the test suite.
+"""
+        report = scan_obligations(content)
+        stub_obs = [o for o in report.obligations if o.term.lower().startswith("stub")]
+        assert stub_obs, "expected at least one stub obligation"
+        # Layer 4 fires via 'mitigation' + 'fallback' nouns.
+        assert all(o.severity == "MEDIUM" for o in stub_obs), (
+            f"expected MEDIUM, got: {[(o.term, o.severity, o.context) for o in stub_obs]}"
+        )
+
+    def test_fix3_discharge_guard_preserves_obligation(self):
+        """A line that simultaneously contains a descriptor noun AND a
+        discharge-intent verb MUST stay HIGH — the discharge guard
+        prevents Layer 4 from masking real obligations.
+
+        Fixture: "outcome: stub needs replacement in M3" — has both
+        'outcome' (descriptor) and 'replacement' (discharge intent).
+        Without the guard, Layer 4 would demote to MEDIUM; with it,
+        severity stays HIGH.
+        """
+        content = """\
+## M1: Foundation
+
+outcome: stub needs replacement in M3.
+
+## M2: Filler
+
+Other work happens here.
+"""
+        report = scan_obligations(content)
+        stub_obs = [
+            o
+            for o in report.obligations
+            if o.term.lower().startswith("stub") and "M1" in o.phase
+        ]
+        assert stub_obs, "expected stub obligation in M1"
+        # Discharge-intent guard preserves HIGH severity.
+        high_obs = [o for o in stub_obs if o.severity == "HIGH"]
+        assert high_obs, (
+            "expected HIGH-severity M1 stub obligation, got: "
+            f"{[(o.term, o.severity, o.context) for o in stub_obs]}"
+        )
+
+
+class TestFix1Fix3RegressionPreservesTrueCatches:
+    """Regression: a genuine undischarged scaffold mention in a milestone
+    body (NOT in a tail section, NOT adjacent to descriptor nouns) must
+    still be flagged. Both fixes preserve true-catch detection.
+    """
+
+    def test_regression_genuine_undischarged_mock_handler(self):
+        """M2 says 'Build mock handler for auth'; M3 does NOT discharge it.
+        The scanner must flag this as undischarged.
+        """
+        content = """\
+## M2: Auth Foundation
+
+Build mock handler for auth flows during prototype phase.
+
+## M3: Feature Wave
+
+Implement password reset and email verification flows.
+"""
+        report = scan_obligations(content)
+        assert report.undischarged_count >= 1, (
+            "Genuine mock-handler obligation must remain flagged, got: "
+            f"{[(o.phase, o.term, o.severity, o.discharged) for o in report.obligations]}"
+        )
+
+
+class TestEndToEndMultiModelSwarmRoadmap:
+    """E2E: original 6 false positives on the MultiModelSwarm roadmap
+    (lines 311, 519, 529, 541, 553, 600) must no longer be flagged.
+
+    Note: the broader `undischarged_count == 0` is NOT asserted here —
+    Fix 1 + Fix 3 eliminate the 6 originally-reported lines but reveal
+    8 new in-milestone surfacings (in Risk Assessment / Integration
+    Points subsections) that were previously masked by tail-section
+    absorption. Those are tracked as a follow-up gap (see Phase
+    Findings in TASK-RF-20260529-163344).
+    """
+
+    def test_e2e_multimodelswarm_original_six_fps_resolved(self):
+        from pathlib import Path
+
+        import pytest
+
+        roadmap_path = Path(".dev/releases/Current/MultiModelSwarm/roadmap.md")
+        if not roadmap_path.exists():
+            pytest.skip(f"MultiModelSwarm roadmap fixture missing at {roadmap_path}")
+
+        content = roadmap_path.read_text()
+        report = scan_obligations(content)
+
+        original_fp_lines = {311, 519, 529, 541, 553, 600}
+        flagged_lines = {
+            o.line_number
+            for o in report.obligations
+            if not o.discharged and not o.exempt and o.severity != "MEDIUM"
+        }
+        # None of the original 6 false-positive lines should remain in the
+        # undischarged set.
+        remaining_originals = original_fp_lines & flagged_lines
+        assert not remaining_originals, (
+            "Original false-positive lines still flagged: "
+            f"{sorted(remaining_originals)}"
         )
