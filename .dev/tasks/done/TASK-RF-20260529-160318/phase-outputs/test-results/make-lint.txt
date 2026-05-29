@@ -1,0 +1,11 @@
+Captured: 2026-05-29 17:44
+Command: cd /config/workspace/IronClaude && make lint 2>&1
+
+Running linter...
+uv run ruff check .
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+exit 0
+
+NOTES: `make lint` runs `uv run ruff check .` — Python linter. This task edits only .md files (no Python). Ruff has nothing new to inspect from this task's changes; exit 0 confirms the repo-wide Python state is clean (no pre-existing Python lint violations). Markdown quality is NOT enforced by `make lint`; it is enforced qualitatively by PG.A/PG.B rf-qa gates which already passed.

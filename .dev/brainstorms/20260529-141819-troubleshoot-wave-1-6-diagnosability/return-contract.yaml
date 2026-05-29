@@ -1,0 +1,91 @@
+# sc:brainstorm return contract (v2.0)
+# Schema: contract_version 1.0 (stable) + telemetry (non-stable)
+
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/brainstorms/20260529-141819-troubleshoot-wave-1-6-diagnosability/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/brainstorms/20260529-141819-troubleshoot-wave-1-6-diagnosability/merged-output.md
+convergence_score: 0.78
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/brainstorms/20260529-141819-troubleshoot-wave-1-6-diagnosability/adversarial
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: skipped  # prior-turn analysis substituted for fresh codebase enrichment
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+# --- Telemetry block (non-stable) ---
+
+telemetry:
+  wave_durations_ms:
+    wave_0: 5000
+    wave_1: 30000   # Socratic dialogue (3 AskUserQuestion exchanges + 1 user-provided refinement on hard-stop complexity gating)
+    wave_2a: 0      # enrichment skipped
+    wave_2b: 8000   # agent-spec composition
+    wave_3: 1800000 # variant gen + (interrupted/retried) + Phase-0 doc integration + inline debate/merge — extended due to mid-pipeline scope additions and sonnet-gateway 502
+    wave_4: 0       # no handoff
+  variant_generation:
+    - variant_id: variant-1-opus-architect
+      status: success
+      subagent_tokens: 115558
+      duration_ms: 234430
+    - variant_id: variant-2-sonnet-analyzer
+      status: failed
+      failure_reason: "502 unknown provider for model gpt5.5 (inference gateway misconfiguration; sonnet alias now fixed per user 2026-05-29T15:17)"
+      retry_attempted: true
+      retry_outcome: user_rejected_to_swap_in_field_study
+    - variant_id: variant-3-haiku-devops
+      status: success
+      subagent_tokens: 72604
+      duration_ms: 235979
+    - variant_id: variant-4-fieldstudy-phase0
+      status: promoted_post_pipeline
+      source: user_provided_session_replay_2026-05-29
+      provenance: T4_zellij_contract_test_debugging_session
+  adversarial:
+    debate_axes_resolved: 5
+    debate_axes_total: 5
+    rounds_executed: 2
+    convergence_after_round_1: 0.62
+    convergence_after_round_2: 0.78
+    threshold_met: true
+    rounds_skipped: [round_3]  # convergence met at round 2
+  merge:
+    changes_planned: 12
+    changes_applied: 12
+    changes_restructured: 1  # V3 worked tasklist re-framed for invocation-site-only
+    rejected_alternatives: 7  # 3 fork-locked + 4 lost in debate
+    validation_passed: true
+    new_contradictions_introduced: 0
+  artifacts_written:
+    - seed-brief.md  (updated in turn 4 to absorb V4 additives)
+    - adversarial/variant-1-opus-architect.md
+    - adversarial/variant-3-haiku-devops.md
+    - adversarial/variant-4-fieldstudy-phase0.md
+    - adversarial/diff-analysis.md
+    - adversarial/debate-transcript.md
+    - adversarial/base-selection.md
+    - adversarial/refactor-plan.md
+    - adversarial/merge-log.md
+    - merged-output.md
+    - return-contract.yaml
+  enrichment_artifact_sizes:
+    codebase-context.md: 0  # skipped — prior-turn analysis substituted
+    research-light.md: 0    # skipped
+    research-deep.md: 0     # skipped
+  agent_spec: "opus:architect:'...wave-graph integration...',sonnet:analyzer:'...sufficiency rubric...',haiku:devops:'...audit mechanics...'"
+  agent_spec_note: "Sonnet alias was broken (502 gpt5.5) at variant-gen time; retry attempted with opus override but user rejected the retry and provided variant-4 (field study) as substitute peer."
+
+# --- Next-step recommendation ---
+
+next_step_text: |
+  Merged spec is at merged-output.md. Suggested next moves:
+    1. Review the merged spec, especially §6 worked tasklist (restructured for invocation-site-only).
+    2. If approved, hand off to /sc:tasklist or task-builder to produce an MDTM tasklist for SKILL.md + ref-file changes per §10 of merged-output.md.
+    3. v1.1 backlog: broader scope, pre-Wave-1 placement, generalize to epistemic-sufficiency-gate skill (see §12).

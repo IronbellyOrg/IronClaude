@@ -1,0 +1,37 @@
+Captured: 2026-05-29 17:46
+Purpose: Confirm Wave 1.6 changes are byte-exact in the .claude/ mirror.
+
+=== Wave 1.6 refs visible in .claude/skills/sc-troubleshoot-protocol/SKILL.md (sample) ===
+
+58:| `diagnosability_verdict` | string | one of `sufficient`, `partial`, `insufficient`, `unknown` ... |
+59:| `diagnosability_context_card_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-context.md`; ... |
+61:| `diagnosability_hard_stop` | bool | `true` when Wave 1.6 fired the hard-stop ... |
+83:Wave 1.6: Diagnosability Audit       ← always; loads refs/diagnosability-audit.md on demand; skipped only by --no-diagnosability-audit; may hard-stop to Wave 5
+89:                                    Wave 1.6 hard-stop edge: → Wave 5 (skip Waves 1.7-4); sets diagnosability_hard_stop=true and status=partial
+
+=== New ref `refs/diagnosability-audit.md` in .claude/ mirror ===
+
+340 lines (matches src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md byte-for-byte).
+
+=== Byte-exact identity checks (all 5 diffs empty = PASS) ===
+
+diff src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md .claude/skills/sc-troubleshoot-protocol/SKILL.md
+  → (empty)
+
+diff src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md .claude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md
+  → (empty)
+
+diff src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md .claude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md
+  → (empty)
+
+diff src/superclaude/skills/sc-troubleshoot-protocol/refs/report-template.md .claude/skills/sc-troubleshoot-protocol/refs/report-template.md
+  → (empty)
+
+diff src/superclaude/skills/sc-troubleshoot-protocol/refs/escalation-rubric.md .claude/skills/sc-troubleshoot-protocol/refs/escalation-rubric.md
+  → (empty)
+
+=== VERDICT: PASS ===
+
+All 5 files in sc-troubleshoot-protocol are byte-exact between src/ (source-of-truth) and .claude/ (sync mirror). Wave 1.6 changes are visible in the mirror.
+
+CRITICAL REMINDER per CLAUDE.md absolute rule: When the user commits this work, ONLY src/superclaude/skills/sc-troubleshoot-protocol/ paths are stageable. The .claude/skills/sc-troubleshoot-protocol/* paths MUST NOT appear in any `git add` line — `.claude/` is gitignored sync-dev output (except for .claude/settings.json which this task did not touch).

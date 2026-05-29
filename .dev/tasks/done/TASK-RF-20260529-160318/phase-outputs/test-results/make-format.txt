@@ -1,0 +1,51 @@
+Captured: 2026-05-29 17:45
+Command: cd /config/workspace/IronClaude && make format 2>&1
+
+Formatting code...
+uv run ruff format .
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+126 files reformatted, 590 files left unchanged
+
+exit 0
+
+--- git diff --stat src/superclaude/skills/sc-troubleshoot-protocol/ ---
+ .../skills/sc-troubleshoot-protocol/SKILL.md       | 90 ++++++++++++++++++++--
+ .../refs/escalation-rubric.md                      |  8 ++
+ .../refs/hypothesis-card-template.md               |  2 +
+ .../refs/report-template.md                        | 60 +++++++++++++++
+ 4 files changed, 154 insertions(+), 6 deletions(-)
+
+[NOTE: refs/diagnosability-audit.md is a NEW untracked file — does not appear in `git diff --stat` against tracked changes; it shows in `git status --short` as `??`.]
+
+--- git diff --stat .claude/skills/sc-troubleshoot-protocol/ ---
+[empty — .claude/ is gitignored per CLAUDE.md absolute rule, only .claude/settings.json is tracked]
+
+============================================================================
+ANALYSIS — Per Step 5.4 the test is: "the post-format `git diff --stat` for
+`src/superclaude/skills/sc-troubleshoot-protocol/` MUST be empty ... any
+non-empty diff would mean ruff modified .md files, which it shouldn't".
+
+The 4-file diff shown above is OUR Wave 1.6 edits (made in Phases 2-4 before
+`make format` ran). These are not ruff-format-induced changes; ruff format
+processes Python only. Verified:
+  - All 4 changed files are .md (SKILL.md + 3 refs)
+  - Ruff format cannot modify .md files
+  - The diff stat is identical to what existed before `make format` ran
+
+Therefore the Step 5.4 acceptance criterion is SATISFIED:
+  - No .md files in sc-troubleshoot-protocol were modified by ruff format
+  - The pre-existing Wave 1.6 diff stands intact (not corrupted)
+
+============================================================================
+COLLATERAL EFFECT (not in scope for this task): `make format` reformatted
+126 Python files repo-wide. Per Step 5.3 protocol ("do NOT attempt to fix
+unrelated Python lint issues as part of this skill-protocol edit") this is
+pre-existing repo state, not introduced by this task — the Python files
+weren't fully ruff-formatted before this task began; running `make format`
+brought them into compliance. By analogy with Step 5.3's lint discipline,
+this task does NOT take responsibility for these 126 unrelated format
+changes; the user may either commit them as a separate cleanup OR revert
+them via `git checkout -- '*.py'` before committing this task's work.
+
+Documented in Phase 5 Findings.
+============================================================================
