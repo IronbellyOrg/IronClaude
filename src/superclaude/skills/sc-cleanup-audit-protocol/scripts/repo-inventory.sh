@@ -63,7 +63,7 @@ else
         -not -path '*/.mypy_cache/*' \
         -not -path '*/.pytest_cache/*' \
         -not -path '*/coverage/*' \
-        2>/dev/null | apply_scope)
+        2>/dev/null | sed 's|^\./||' | apply_scope)
 fi
 
 # Echo the active scope rules for transparency
@@ -96,7 +96,7 @@ classify_domain() {
             echo "frontend" ;;
         *.py|*.go|*.rs|*.java|*.rb|*.php|*/api/*|*/services/*|*/models/*|*/controllers/*)
             echo "backend" ;;
-        *test*|*spec*|*__tests__*|*/tests/*|*/test/*)
+        *test*|*spec*)
             echo "tests" ;;
         *.md|*.rst|*.txt|*.adoc|*/docs/*|*/doc/*)
             echo "documentation" ;;
