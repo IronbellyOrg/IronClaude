@@ -27,7 +27,15 @@
 - **Files audited**: {sum across all batches}
 - **Coverage percentage**: {audited / in_scope * 100}%
 - **Files not reached**: {list or count}
-- **Exclusions applied**: {.git, node_modules, build outputs, caches, vendor}
+- **Default exclusions applied** (`repo-inventory.sh` floor — every project):
+  hidden paths (`.claude/`, `.dev/`, `.github/`, etc. — anything starting with `.`),
+  BMAD directories (`_bmad/`, `_bmad-output/`, `_planning-input/`),
+  audit output (`.claude-audit/`).
+- **Find-fallback exclusions** (non-git enumeration only): `.git`, `node_modules`,
+  build outputs, caches (`__pycache__`, `.cache`, `.mypy_cache`, `.pytest_cache`),
+  vendor, `.venv`, `.tox`.
+- **Project exclusions applied** (from `.claude-audit/SCOPE.md` `EXCLUDE: <regex>` lines, if any):
+  {list of EXTRA_EXCLUDES patterns or `(none)`}.
 
 ---
 

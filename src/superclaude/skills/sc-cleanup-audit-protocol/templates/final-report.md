@@ -86,7 +86,14 @@ Numbered list of all systemic issues found across all passes:
 
 ### Exclusions
 
-- Directories excluded: `.git/`, `node_modules/`, build outputs, caches, vendor
+- **Default exclusions** (`repo-inventory.sh` floor — applied in every project):
+  hidden paths (any leading-`.` segment — `.claude/`, `.dev/`, `.github/`, etc.),
+  BMAD directories (`_bmad/`, `_bmad-output/`, `_planning-input/`),
+  audit output (`.claude-audit/`).
+- **Find-fallback exclusions** (non-git enumeration only): `.git/`, `node_modules/`,
+  build outputs, caches, vendor, `.venv`, `.tox`.
+- **Project exclusions** (from `.claude-audit/SCOPE.md` `EXCLUDE: <regex>` lines, if any):
+  {list or `(none)`}.
 - Files not audited: {count} ({reason})
 
 ---

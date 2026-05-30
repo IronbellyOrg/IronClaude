@@ -8,6 +8,23 @@ Find duplication, sprawl, and broken references spanning directory boundaries �
 
 **"Does this file duplicate or conflict with another file elsewhere in the repo?"**
 
+## Scope rule (inherited from `repo-inventory.sh`)
+
+You will only ever receive in-scope paths in your batch — the orchestrator
+applies the default exclusion filter (`^\.` for hidden, `^_bmad/`,
+`^_bmad-output/`, `^_planning-input/` for BMAD) before sharding. **Do not
+compare against or classify any path that starts with `.` or one of the
+BMAD prefixes**, even if it appears in your duplication/overlap analysis
+as a candidate. Such paths are legitimate cross-references but are managed
+outside the cleanup audit and must not be flagged as duplication targets.
+
+When you grep for duplicate content across the repo, hidden and BMAD paths
+MAY appear as siblings (e.g. `.dev/research/foo.md` may mirror `docs/foo.md`).
+Noting them in cross-cutting commentary is fine — they just don't get
+proposed for consolidation or deletion themselves.
+
+---
+
 ## Extended Classification Taxonomy
 
 | Category | Meaning | Action | Evidence Required |

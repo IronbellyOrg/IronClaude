@@ -1,0 +1,40 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: already-promoted
+source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260529-162751-cleanup-audit-scope-defaults
+destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260529-162751-cleanup-audit-scope-defaults
+source_sha256_before: null   # source already gone at Wave 7
+source_sha256_after_move: null
+sha_match: null
+gate_evaluation:
+  mode_post: pass
+  status_success: fail              # cond 2: status: partial from §14 fallback
+  tasklist_completion_pct_1_0: pass
+  no_drift_no_regression: fail      # cond 4: 1 minor stale-log Drift present
+  frontmatter_present: pass
+  frontmatter_status_matches: pass  # "🟢 Done" matches verdict
+  no_citations_dropped: pass        # 0 drops in sampled set
+  no_grounding_gaps: fail           # cond 6b: 2 process-discipline gaps
+  no_input_drift: pass
+  no_user_decision_pending: pass
+  adversarial_result_present: n/a   # tier_reached == 1
+gate_evaluation_failures: [status_success, no_drift_no_regression, no_grounding_gaps]
+gate_passed: false
+citation_revalidation_at_promotion: false   # Wave 6 did not run
+pending: false
+cross_fs_promotion: false
+checkpoint_path: null
+skip_reason: gate-failed
+fail_reason: null
+override_used: null
+rollback_command: null   # no mutation performed
+timestamp: 2026-05-30T03:30:00Z
+note: |
+  Task was self-promoted to .dev/tasks/done/ by its own item 6.5 during original
+  execution (before /sc:reflect ran). Source path no longer exists; destination
+  contains the canonical work. Reflect did not perform Wave 7 mutation. The gate
+  failures (cond 2 + 4 + 6b) are all administrative — `status: partial` from
+  inline-fallback evidence-validator (§14), one minor stale-log Drift, two
+  process-discipline grounding gaps. None indicate defects in the shipped work.
+  Operator action: optional doc-hygiene fixes per REPORT.md Recommendations.

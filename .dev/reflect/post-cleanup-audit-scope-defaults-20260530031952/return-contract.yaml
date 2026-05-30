@@ -1,0 +1,104 @@
+contract_version: "1.0"
+status: partial
+mode: post
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/post-cleanup-audit-scope-defaults-20260530031952/REPORT.md
+audit_log_path: null   # audit.log not separately emitted in this run; per-step rows inlined to artifacts
+confidence_calibrated: 0.88
+escalation_rule_matched: 2
+
+# UC-1 specific
+coverage_pct: null
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: null
+
+# UC-2 specific
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 3
+  necessary: 1
+  drift: 1
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/post-cleanup-audit-scope-defaults-20260530031952/reviewer-cards/card-T1.md
+grounding_gaps_path: /config/workspace/IronClaude/.dev/reflect/post-cleanup-audit-scope-defaults-20260530031952/reviewer-cards/card-T1.md
+
+# Input integrity
+input_sha256:
+  tasklist: null   # not separately computed; rolled into tree hash
+  spec: null
+input_tree_sha256: "d80ef64037196a2f00372a3e75e6c640398053adf8f947dfb531868d91271b63"
+input_tree_file_count: null
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/reflect/post-cleanup-audit-scope-defaults-20260530031952/artifacts/input-tree-sha256.txt
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 31
+citations_revalidated: 9
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: false
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards: ["/config/workspace/IronClaude/.dev/reflect/post-cleanup-audit-scope-defaults-20260530031952/reviewer-cards/card-T1.md"]
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: not-applicable
+t2_model_class_diversity: not-applicable
+t2_vendor_diversity: not-applicable
+t2_effective_diversity: not-applicable
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Per-task verdict array (left empty for single-task tasklist)
+per_task_verdicts: []
+
+# Cross-task interaction-effects
+interaction_effects_scanned: true
+interaction_effects_findings: 0
+
+# Budget pre-flight
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion
+promotion_action: already-promoted
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260529-162751-cleanup-audit-scope-defaults
+promotion_destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260529-162751-cleanup-audit-scope-defaults
+promotion_log_path: /config/workspace/IronClaude/.dev/reflect/post-cleanup-audit-scope-defaults-20260530031952/promotion-log.yaml
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Telemetry
+fallback_path: null
+degraded_components: [confidence-calibrator, evidence-validator]
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false

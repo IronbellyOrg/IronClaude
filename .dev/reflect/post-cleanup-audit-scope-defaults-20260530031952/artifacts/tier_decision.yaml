@@ -1,0 +1,12 @@
+selected_tier: 1
+fired_rule_number: 2
+composite_score: 9.5
+per_signal_breakdown:
+  scope_size: 1.5        # 6 files; rule-2 threshold 10 → moderate
+  task_count: 2          # 18 tasklist items completed
+  blast_radius: 2        # 2 domains (shell + markdown), no cross-cutting
+  spec_density: 2        # 0 unmapped items, S_dev_density ≈ 0
+  ambiguity_signals: 2   # 0 regressions, 1 minor drift only
+escalation_reason: "Rule 2 first-match: C=0.88 ≥ 0.85, S_scope=6 ≤ 10, S_domains=2 ≤ 2, S_dev_density~0 ≤ 0.10, no regression candidate. T1 stops with WARN absent (S_dev_density well below 0.05 threshold). Prior in-band QA (7 reports, all PASS) reduces marginal value of T2 ensemble."
+calibrator_diversity: degraded   # inline-fallback path (§14 row: confidence-calibrator agent fails → inline)
+calibration: inline-fallback

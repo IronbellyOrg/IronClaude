@@ -8,6 +8,23 @@ Validate placement, staleness, broken references, and structural issues — thin
 
 **"Is this file in the right place, correctly documented, and structurally sound?"**
 
+## Scope rule (inherited from `repo-inventory.sh`)
+
+You will only ever receive in-scope paths from Pass 1 — the orchestrator
+applies the default exclusion filter (`^\.` for hidden, `^_bmad/`,
+`^_bmad-output/`, `^_planning-input/` for BMAD) before sharding, and Pass 1
+already filtered to KEEP/REVIEW. **Do not analyse any path that starts
+with `.` or one of the BMAD prefixes**, even if it appears in your grep
+results as a *referencing* file. Such paths are legitimate referrers but
+are managed outside the cleanup audit.
+
+When you grep for symbol/import references, hidden and BMAD paths MAY
+appear as referrers (e.g. `.github/workflows/ci.yml` legitimately
+references `internal/...` Go source). Citing them in the structural-audit
+notes is correct — they just don't get audited themselves.
+
+---
+
 ## Scope Limitation
 
 **Only files marked KEEP or REVIEW from Pass 1.** Files classified as DELETE in Pass 1 are excluded.

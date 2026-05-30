@@ -12,7 +12,8 @@ personas: [analyzer, architect, devops, qa, refactorer]
 
 ## Repository Context
 
-- Total files: !`git ls-files | wc -l`
+- Total tracked files: !`git ls-files | wc -l`
+- In-scope after default excludes: !`git ls-files | grep -Ev '^(\.|.*/\.)|^_bmad/|^_bmad-output/|^_planning-input/|^\.claude-audit/' | wc -l`
 - File breakdown: !`git ls-files | sed 's/.*\.//' | sort | uniq -c | sort -rn | head -15`
 - Repo size: !`du -sh . --exclude=.git --exclude=node_modules 2>/dev/null`
 - Current branch: !`git branch --show-current`

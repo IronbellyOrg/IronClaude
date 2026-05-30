@@ -4,6 +4,31 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### sc:cleanup-audit — bake hidden + BMAD scope exclusions into defaults (TASK-RF-20260529-162751)
+
+#### Added (sc:cleanup-audit)
+
+- `DEFAULT_EXCLUDES` regex floor in `src/superclaude/skills/sc-cleanup-audit-protocol/scripts/repo-inventory.sh`: hidden paths (any leading-`.` or `/.` segment), BMAD directories (`_bmad/`, `_bmad-output/`, `_planning-input/`), and audit output (`.claude-audit/`). Applied to BOTH the `git ls-files` branch and the `find` fallback branch via a shared `apply_scope()` filter — every downstream artifact (type distribution, domain classification, batch assignments, summary) inherits the filter automatically.
+- Per-project override mechanism: `.claude-audit/SCOPE.md` lines of the form `EXCLUDE: <regex>` are added to the exclusion set. Default exclusions cannot be removed — they are a floor, not a ceiling. Override file path is configurable via `SCOPE_FILE` env var.
+- `=== ACTIVE SCOPE RULES ===` diagnostic block emitted at the top of `repo-inventory.sh` output so operators can see what was excluded without re-deriving the regex.
+- "Default scope exclusions" paragraph under the Discover step + "Scope Floor" Key Patterns bullet in `src/superclaude/skills/sc-cleanup-audit-protocol/SKILL.md` documenting the new floor + per-project override semantics.
+- "Scope rule (inherited from `repo-inventory.sh`)" defense-in-depth section in `rules/pass{1,2,3}-*.md` so audit-scanner / audit-analyzer / audit-comparator subagents don't classify out-of-scope paths even if a leaked path appears in a grep result.
+- `In-scope after default excludes:` line in the `## Repository Context` block of `src/superclaude/commands/cleanup-audit.md` (alongside the renamed `Total tracked files:`) using the same regex byte-for-byte. **Three-site lockstep** between `scripts/repo-inventory.sh:20`, `commands/cleanup-audit.md:16`, and `SKILL.md:38` — any future regex change must update all three.
+
+#### Changed (sc:cleanup-audit)
+
+- `commands/cleanup-audit.md` Repository Context: `Total files:` relabeled to `Total tracked files:` (clearer, since `git ls-files` only lists tracked files).
+- `templates/pass-summary.md` Coverage Metrics "Exclusions applied" item now enumerates the three exclusion layers (Default / Find-fallback / Project) separately so generated reports are accurate post-default-excludes.
+- `templates/final-report.md` Exclusions block updated analogously.
+
+#### Validated
+
+- TUIBBS smoke (post-edit): `Total files: 389` matches `progress.json:current_scope.in_scope_paths` from the 2026-05-29 TUIBBS audit (the manually-derived in-scope count) — defaults reproduce the prior hand-authored scope with zero per-project setup.
+- 0 hidden/BMAD paths leak into any batch assignment.
+- Per-project override fixture (`EXCLUDE: ^vendor/`) tightens scope correctly (3 files → 2 files).
+- `sh -n` clean on `repo-inventory.sh`; POSIX-sh compatibility preserved.
+- 7 in-band QA reports (5 phase-gate `rf-qa` + post-completion `rf-qa` structural + `rf-qa-qualitative` operational, all PASS-after-fixes) + post-execution `/sc:reflect --mode post` (T1, calibrated 0.88, 0 regressions, 5 deviations classified under §10 taxonomy).
+
 ### cliEval — Phase 5+6 remediation (TASK-RF-20260522-153212)
 
 #### Added (cliEval)
