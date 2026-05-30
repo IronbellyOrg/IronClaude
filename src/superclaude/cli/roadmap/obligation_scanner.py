@@ -15,6 +15,15 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+# Tail-section headings — MUST stay in sync with gates._REQUIRED_H2_SECTIONS.
+# Imported at module load to avoid drift; no circular-import risk because
+# gates.py does not import obligation_scanner.
+from superclaude.cli.roadmap.gates import (  # noqa: E402
+    _REQUIRED_H2_SECTIONS as _TAIL_SECTION_HEADINGS,
+)
+from superclaude.cli.roadmap.gates import (  # noqa: E402
+    _normalize_heading,
+)
 from superclaude.cli.vocabulary import DISCHARGE_TERMS, SCAFFOLD_TERMS
 
 # Compile patterns
@@ -90,6 +99,56 @@ _TABLE_CELL_IMPERATIVE_RE = re.compile(
 # `continue` branch, killing Layer 3 reachability for table-cell fixtures.
 _TABLE_SEPARATOR_RE = re.compile(r"^\s*\|(\s*:?-+:?\s*\|)+\s*$")
 
+# Layer 4 (Fix 3): descriptor nouns adjacent to scaffold terms signal
+# descriptive/historical/fallback prose, not prescriptive scaffolding.
+# Used by `_is_descriptive_context` to demote scaffold-term findings sitting
+# inside per-milestone Risk Assessment / Mitigation subsections, External
+# Dependencies tables, etc. A line that ALSO matches discharge intent
+# (`_is_discharge_intent_line`) is NOT demoted — that protects real
+# obligations like "outcome: scaffold needs replacement".
+_DESCRIPTOR_NOUNS = frozenset(
+    {
+        "outcome",
+        "result",
+        "behavior",
+        "behaviour",
+        "property",
+        "mitigation",
+        "fallback",
+        "dependency",
+        "consideration",
+        "historical",
+        "legacy",
+        "prior",
+        "existing",
+    }
+)
+_DESCRIPTOR_ADJACENCY_RE = re.compile(
+    r"\b(" + "|".join(_DESCRIPTOR_NOUNS) + r")\b",
+    re.IGNORECASE,
+)
+
+# Layer 5: H3 subsection-context demotion prefixes. A scaffold-term finding
+# whose containing H3 heading (lowercased, with trailing " — M{n}" stripped)
+# starts with one of these prefixes is demoted from HIGH to MEDIUM, unless
+# the line itself matches discharge intent. Tuple not frozenset — order is
+# stable for diagnostic reproducibility and prefix-match `any(...startswith)`
+# semantics make set-vs-tuple equivalent for correctness.
+_DEMOTED_H3_SUBSECTIONS: tuple[str, ...] = (
+    "risk assessment",
+    "integration points",
+    "milestone dependencies",
+    "open questions",
+)
+
+# Layer 5: H3 / H2 boundary regexes for the pre-scan `_build_h3_index`.
+# `_H3_HEADING_RE` captures the H3 heading text (non-greedy, MULTILINE-anchored
+# per line); `_H2_HEADING_RE` is boundary-only (no capture) — it resets the
+# current-H3 state inside `_build_h3_index` when a new milestone starts.
+_H3_HEADING_RE = re.compile(r"^###\s+(.+?)$", re.MULTILINE)
+_H2_HEADING_RE = re.compile(r"^##\s+.+?$", re.MULTILINE)
+
+
 # Layer 3b: Parenthetical phase/step label (requires multi-word content)
 # Matches: "(command scaffolding)", "(Phase 2 mocking)", "(stubbed layer)" etc.
 # Bare "(scaffold)" or "(mock)" stay HIGH — those are genuine qualifiers, not labels.
@@ -162,6 +221,8 @@ def scan_obligations(content: str) -> ObligationReport:
     """
     # Pre-compute code block ranges for severity demotion
     code_block_ranges = _get_code_block_ranges(content)
+    # Pre-compute line → containing H3 index for Layer 5 subsection demotion
+    h3_index = _build_h3_index(content)
 
     sections = _split_into_phases(content)
     obligations: list[Obligation] = []
@@ -296,6 +357,20 @@ def scan_obligations(content: str) -> ObligationReport:
                 if _is_meta_context(context_line, term_start_in_line):
                     severity = "MEDIUM"
 
+            # Layer 5: H3 subsection-context demotion. Scaffold-term findings
+            # whose containing H3 starts with one of the demote-target prefixes
+            # (Risk Assessment, Integration Points, Milestone Dependencies,
+            # Open Questions) are demoted to MEDIUM. The `if severity == "HIGH"`
+            # guard makes this a no-op when prior layers already demoted; the
+            # `_is_discharge_intent_line` guard mirrors Layer 4 and preserves
+            # genuine obligations like "stub needs replacement" inside RAM.
+            if severity == "HIGH":
+                h3_text = h3_index.get(abs_line, "")
+                if _is_demoted_h3(h3_text) and not _is_discharge_intent_line(
+                    context_line
+                ):
+                    severity = "MEDIUM"
+
             # FR-MOD1.3: Cross-phase discharge search
             discharged = False
             discharge_phase = None
@@ -341,6 +416,24 @@ def scan_obligations(content: str) -> ObligationReport:
 # --- FR-MOD1.2: Milestone-section parser with H2/H3 fallback ---
 
 
+def _find_tail_section_start(content: str, search_start: int, hard_end: int) -> int:
+    """Return position of first tail-section H2 in [search_start, hard_end], else hard_end.
+
+    Tail sections (Risk Register, Decision Summary, etc.) are template-prescribed
+    H2s that appear AFTER the last milestone. Without this guard, a scaffold term
+    in such a section gets absorbed into the last milestone and becomes
+    structurally undischargeable (Fix 1 — fixes 5 of 6 false positives).
+
+    The heading set is sourced from ``gates._REQUIRED_H2_SECTIONS`` to keep
+    coupling tight: any rename in the template breaks BOTH gates at once.
+    """
+    for m in re.finditer(r"^##\s+(.+?)$", content[search_start:hard_end], re.MULTILINE):
+        heading = _normalize_heading(m.group(1))
+        if heading in _TAIL_SECTION_HEADINGS:
+            return search_start + m.start()
+    return hard_end
+
+
 def _split_into_phases(content: str) -> list[tuple[str, str, int]]:
     """Split content into (phase_id, text, start_line_number) tuples.
 
@@ -367,7 +460,18 @@ def _split_into_phases(content: str) -> list[tuple[str, str, int]]:
     for i, m in enumerate(matches):
         phase_id = m.group(2).strip()
         start = m.end()
-        end = matches[i + 1].start() if i + 1 < len(matches) else len(content)
+        next_milestone_end = (
+            matches[i + 1].start() if i + 1 < len(matches) else len(content)
+        )
+        # Fix 1: terminate each milestone section at the earlier of the next
+        # milestone or the first template-tail H2 (Risk Register, Decision
+        # Summary, etc.). This prevents tail-section content from being
+        # absorbed into the last milestone, where it would be structurally
+        # undischargeable.
+        tail_section_start = _find_tail_section_start(
+            content, start, next_milestone_end
+        )
+        end = min(next_milestone_end, tail_section_start)
         start_line = content[: m.start()].count("\n") + 1
         sections.append((phase_id, content[start:end], start_line))
 
@@ -502,6 +606,110 @@ def _get_context_line(text: str, pos: int) -> str:
     return text[start:end].strip()
 
 
+def _is_descriptive_context(line: str, term_start_in_line: int) -> bool:
+    """True when a scaffold term sits within ~4 words of a descriptor noun AND
+    the line does NOT signal discharge intent.
+
+    Fix 3: catches descriptive-prose contexts like
+    ``(no-op outcome)``, ``stub-tested mitigation``, ``legacy stub retained``
+    that the parenthetical-phrase Layer 3b misses. The discharge-intent guard
+    ensures lines like ``outcome: scaffold needs replacement`` (a real
+    obligation) remain HIGH.
+
+    Window heuristic: ~40 chars on each side of the term covers ~4 short
+    English words, which matches the prose density of roadmap risk tables.
+    """
+    if _is_discharge_intent_line(line):
+        return False
+    window_start = max(0, term_start_in_line - 40)
+    window_end = min(len(line), term_start_in_line + 40)
+    window = line[window_start:window_end]
+    return bool(_DESCRIPTOR_ADJACENCY_RE.search(window))
+
+
+def _normalize_h3_for_match(h3_text: str) -> str:
+    """Lowercase the H3 heading after stripping the trailing " — M{n}" suffix.
+
+    Roadmap convention: per-milestone H3 subsections carry a ` — M{n}`
+    decoration that ties them to their enclosing milestone, e.g.
+    ``### Risk Assessment and Mitigation — M2``. The Layer 5 prefix match
+    operates on the bare subsection name only, so this helper strips the
+    decoration before lowercasing.
+
+    Tolerates BOTH the em-dash U+2014 (the real roadmap convention) and the
+    ascii hyphen-minus, and accepts the alphanumeric milestone suffix
+    variants ``M8a`` / ``M8b`` via ``M\\d+\\w*``.
+    """
+    return re.sub(
+        r"\s+[—-]\s+M\d+\w*\s*$",
+        "",
+        h3_text.strip(),
+        flags=re.IGNORECASE,
+    ).lower()
+
+
+def _build_h3_index(content: str) -> dict[int, str]:
+    """Return a 1-based line → containing-H3-heading-text index.
+
+    Walks the raw markdown for H3 and H2 boundaries and builds a dense
+    ``{line_no: h3_text}`` map covering every line from 1 through
+    ``content.count("\\n") + 1``. The H3 scope ends at the NEXT H3 or the
+    NEXT H2 — whichever comes first. Lines that sit between an H2 and the
+    first H3 inside it (or in the document preamble) map to ``""``.
+
+    Line numbers are 1-based to align with ``Obligation.line_number`` /
+    the ``abs_line`` used in ``scan_obligations``. Cost is O(n) per call
+    where n = number of lines, which is acceptable per the existing
+    per-call cost budget for tail-section/discharge precomputes.
+
+    Used by Layer 5 (H3 subsection-context demotion) — the scanner's
+    existing ``_split_into_phases`` silently absorbs H3 subsections into
+    their enclosing H2 chunk, so a separate per-line index is required.
+    """
+    boundaries: list[tuple[int, str, str]] = []
+    for m in _H3_HEADING_RE.finditer(content):
+        line_no = content[: m.start()].count("\n") + 1
+        boundaries.append((line_no, "h3", m.group(1).rstrip()))
+    for m in _H2_HEADING_RE.finditer(content):
+        line_no = content[: m.start()].count("\n") + 1
+        boundaries.append((line_no, "h2", ""))
+    boundaries.sort(key=lambda b: b[0])
+
+    total_lines = content.count("\n") + 1
+    index: dict[int, str] = {}
+    boundary_iter = iter(boundaries)
+    next_boundary = next(boundary_iter, None)
+    current_h3 = ""
+    for line_no in range(1, total_lines + 1):
+        while next_boundary is not None and next_boundary[0] == line_no:
+            kind = next_boundary[1]
+            if kind == "h2":
+                current_h3 = ""
+            else:  # kind == "h3"
+                current_h3 = next_boundary[2]
+            next_boundary = next(boundary_iter, None)
+        index[line_no] = current_h3
+    return index
+
+
+def _is_demoted_h3(h3_text: str) -> bool:
+    """Return True when an H3 heading starts with a demote-target prefix.
+
+    Prefix-match (NOT exact equality) so heading variants like
+    ``Risk Assessment and Mitigation`` still match the ``risk assessment``
+    prefix. The empty-string short-circuit handles the gap between an H2
+    and the first H3 inside it where ``_build_h3_index`` records ``""``.
+
+    Demote-target prefixes are defined in ``_DEMOTED_H3_SUBSECTIONS``:
+    ``risk assessment``, ``integration points``, ``milestone dependencies``,
+    ``open questions``.
+    """
+    if not h3_text:
+        return False
+    normalized = _normalize_h3_for_match(h3_text)
+    return any(normalized.startswith(prefix) for prefix in _DEMOTED_H3_SUBSECTIONS)
+
+
 def _is_meta_context(line: str, term_start_in_line: int) -> bool:
     """Determine if a scaffold term on this line is in a meta-context.
 
@@ -527,6 +735,10 @@ def _is_meta_context(line: str, term_start_in_line: int) -> bool:
 
     # Layer 3b: Scaffold term in parenthetical label
     if _PAREN_PHASE_LABEL_RE.search(line):
+        return True
+
+    # Layer 4 (Fix 3): Descriptor-noun adjacency — descriptive prose
+    if _is_descriptive_context(line, term_start_in_line):
         return True
 
     return False
@@ -571,11 +783,17 @@ def _is_inside_code_block(text: str, pos: int) -> bool:
 
 
 def _is_discharge_intent_line(line: str) -> bool:
-    """Return True if line clearly states discharge intent, not new scaffolding."""
+    """Return True if line clearly states discharge intent, not new scaffolding.
+
+    Recognizes both verb and noun forms of replace/integration so a phrase
+    like "needs replacement" is treated as discharge intent (used as the
+    guard for Layer 4's descriptor-noun classifier).
+    """
     return bool(
         re.search(
-            r"\b(?:replace|wire\s+(?:up|in|into)|integrat(?:e|ing|ed)|connect|"
-            r"swap\s+(?:out|in)|remove|implement\s+real|fill\s+in|complete)\b",
+            r"\b(?:replace(?:ment|s|d)?|wire\s+(?:up|in|into)|"
+            r"integrat(?:e|ing|ed|ion)|connect|swap\s+(?:out|in)|remove|"
+            r"implement\s+real|fill\s+in|complete)\b",
             line,
             re.IGNORECASE,
         )

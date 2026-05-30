@@ -10,6 +10,8 @@ Tests cover:
 All tests use real content fixtures, no mocks.
 """
 
+import pytest
+
 from superclaude.cli.roadmap.obligation_scanner import (
     scan_obligations,
 )
@@ -416,7 +418,13 @@ Ship it.
         )
 
     def test_descriptive_noun_context_not_detected(self):
-        """'scaffolding work' / 'for scaffolding' is descriptive, not an obligation."""
+        """'scaffolding work' / 'for scaffolding' is descriptive, not an
+        actionable obligation. Post Fix 3, the descriptor noun 'fallback'
+        causes Layer 4 to demote to MEDIUM (which is excluded from
+        ``undischarged_count``); prior behavior dropped it entirely. Both
+        outcomes satisfy the test's intent: descriptive use does NOT
+        contribute to the undischarged gate.
+        """
         content = """\
 ## M1: Setup
 Fallback to dev-managed instances for scaffolding work if provisioning slips.
@@ -428,7 +436,13 @@ Ship it.
         scaffold_obs = [
             o for o in report.obligations if o.term.lower().startswith("scaffold")
         ]
-        assert scaffold_obs == []
+        # Either dropped entirely OR demoted to MEDIUM is acceptable —
+        # both keep it out of the undischarged_count.
+        for o in scaffold_obs:
+            assert o.severity == "MEDIUM", (
+                f"descriptive 'scaffolding' must not be HIGH-severity, got {o.severity}"
+            )
+        assert report.undischarged_count == 0
 
     def test_imperative_build_still_detected(self):
         """'Build scaffolding' is a real obligation and must still be flagged."""
@@ -529,4 +543,341 @@ Run load tests and finalize RBAC.
         assert report.undischarged_count == 0, (
             f"Expected no undischarged obligations, got: "
             f"{[(o.phase, o.term, o.component, o.context) for o in report.obligations if not o.discharged]}"
+        )
+
+
+class TestFix1TailSectionTermination:
+    """Fix 1: tail-section H2s (Risk Register, Decision Summary, etc.) must
+    terminate the last milestone's section so scaffold mentions in those
+    template tails are excluded from scanning entirely.
+    """
+
+    def test_fix1_tail_section_excluded(self):
+        """A 'Stub' mention inside `## Risk Register` after the last
+        milestone must NOT be flagged — tail sections are out of scope.
+        """
+        content = """\
+## M1: Foundation
+
+Build the executor module.
+
+## Risk Register
+
+|R-01|Stub transport retained as mitigation for unavailable upstream|Low|Medium|
+"""
+        report = scan_obligations(content)
+        assert report.undischarged_count == 0, (
+            "Tail-section Risk Register content must be excluded from "
+            f"scanning, got: {[(o.phase, o.term, o.line_number) for o in report.obligations if not o.discharged]}"
+        )
+
+
+class TestFix3DescriptiveContext:
+    """Fix 3: Layer 4 descriptor-noun adjacency demotes descriptive prose
+    (outcome/result/mitigation/fallback/etc.) to MEDIUM severity. The
+    discharge-intent guard ensures real obligations remain HIGH.
+    """
+
+    def test_fix3_dummy_value_remains_high(self):
+        """Documents the accepted Fix-2 gap: `(dummy value)` has no
+        descriptor noun adjacent AND no existing Layer 3b coverage
+        (Layer 3b's `_PAREN_PHASE_LABEL_RE` covers only scaffold/mock/
+        stub lexemes inside parentheticals). So Layer 4 does NOT fire
+        and severity stays HIGH. If real roadmaps surface this pattern,
+        revisit Fix 2 (widened parenthetical regex).
+        """
+        content = """\
+## M1: Foundation
+
+Inject a (dummy value) for the API key during early dev.
+
+## M2: Hardening
+
+Run the test suite.
+"""
+        report = scan_obligations(content)
+        dummy_obs = [o for o in report.obligations if o.term.lower() == "dummy"]
+        assert dummy_obs, "expected at least one dummy obligation"
+        # No descriptor noun + no Layer 3b match → HIGH severity preserved.
+        assert all(o.severity == "HIGH" for o in dummy_obs)
+
+    def test_fix3_stub_tested_mitigation_demoted(self):
+        """A per-milestone Risk subsection line containing
+        `stub-tested fallback` matches BOTH 'mitigation'-style adjacency
+        words (via 'mitigation' or 'fallback' in the descriptor list).
+        Severity must be demoted to MEDIUM.
+        """
+        content = """\
+## M1: Foundation
+
+Build the executor module.
+
+### Risk Assessment and Mitigation — M1
+
+- Mitigated by stub-tested fallback for offline mode.
+
+## M2: Hardening
+
+Run the test suite.
+"""
+        report = scan_obligations(content)
+        stub_obs = [o for o in report.obligations if o.term.lower().startswith("stub")]
+        assert stub_obs, "expected at least one stub obligation"
+        # Layer 4 fires via 'mitigation' + 'fallback' nouns.
+        assert all(o.severity == "MEDIUM" for o in stub_obs), (
+            f"expected MEDIUM, got: {[(o.term, o.severity, o.context) for o in stub_obs]}"
+        )
+
+    def test_fix3_discharge_guard_preserves_obligation(self):
+        """A line that simultaneously contains a descriptor noun AND a
+        discharge-intent verb MUST stay HIGH — the discharge guard
+        prevents Layer 4 from masking real obligations.
+
+        Fixture: "outcome: stub needs replacement in M3" — has both
+        'outcome' (descriptor) and 'replacement' (discharge intent).
+        Without the guard, Layer 4 would demote to MEDIUM; with it,
+        severity stays HIGH.
+        """
+        content = """\
+## M1: Foundation
+
+outcome: stub needs replacement in M3.
+
+## M2: Filler
+
+Other work happens here.
+"""
+        report = scan_obligations(content)
+        stub_obs = [
+            o
+            for o in report.obligations
+            if o.term.lower().startswith("stub") and "M1" in o.phase
+        ]
+        assert stub_obs, "expected stub obligation in M1"
+        # Discharge-intent guard preserves HIGH severity.
+        high_obs = [o for o in stub_obs if o.severity == "HIGH"]
+        assert high_obs, (
+            "expected HIGH-severity M1 stub obligation, got: "
+            f"{[(o.term, o.severity, o.context) for o in stub_obs]}"
+        )
+
+
+class TestFix1Fix3RegressionPreservesTrueCatches:
+    """Regression: a genuine undischarged scaffold mention in a milestone
+    body (NOT in a tail section, NOT adjacent to descriptor nouns) must
+    still be flagged. Both fixes preserve true-catch detection.
+    """
+
+    def test_regression_genuine_undischarged_mock_handler(self):
+        """M2 says 'Build mock handler for auth'; M3 does NOT discharge it.
+        The scanner must flag this as undischarged.
+        """
+        content = """\
+## M2: Auth Foundation
+
+Build mock handler for auth flows during prototype phase.
+
+## M3: Feature Wave
+
+Implement password reset and email verification flows.
+"""
+        report = scan_obligations(content)
+        assert report.undischarged_count >= 1, (
+            "Genuine mock-handler obligation must remain flagged, got: "
+            f"{[(o.phase, o.term, o.severity, o.discharged) for o in report.obligations]}"
+        )
+
+
+class TestLayer5H3SubsectionContext:
+    """Layer 5: H3 subsection-context demotion. Scaffold terms inside
+    Risk Assessment / Integration Points / Milestone Dependencies / Open
+    Questions H3 subsections are demoted to MEDIUM, guarded by the
+    discharge-intent check that mirrors Layer 4.
+    """
+
+    def test_layer5_risk_assessment_h3_demotes_scaffold_to_medium(self) -> None:
+        """Happy path: stub mentions inside a Risk Assessment H3 demote to MEDIUM."""
+        content = """## M2: Transport Layer
+
+**Objective:** ship the transport.
+
+### Risk Assessment and Mitigation — M2
+
+| # | Risk | Likelihood | Impact | Detection | Mitigation | Owner |
+|---|------|-----------|--------|-----------|------------|-------|
+| 1 | Stub transport drifts from real semantics | Med | Low | tests pass | Pin stub to documented shape | backend |
+"""
+        report = scan_obligations(content)
+        stub_obs = [o for o in report.obligations if o.term.lower().startswith("stub")]
+        assert stub_obs, "Expected stub obligation to be detected"
+        assert all(o.severity == "MEDIUM" for o in stub_obs), (
+            "All stub findings inside Risk Assessment H3 must demote to MEDIUM, "
+            f"got: {[(o.term, o.severity, o.context) for o in stub_obs]}"
+        )
+        assert report.undischarged_count == 0, (
+            "Risk-Assessment-only stub mentions must not contribute to "
+            f"undischarged_count, got: {report.undischarged_count}"
+        )
+
+    def test_layer5_h3_context_resets_at_next_h2_milestone(self) -> None:
+        """H3 demotion state must NOT bleed across the next H2 milestone."""
+        content = """## M2: Transport Layer
+
+**Objective:** ship the transport.
+
+### Risk Assessment and Mitigation — M2
+
+| # | Risk | Likelihood | Impact | Mitigation |
+|---|------|-----------|--------|------------|
+| 1 | Stub transport drifts | Med | Low | Pin stub to shape |
+
+## M3: Lens Registry
+
+**Objective:** register lenses.
+
+| # | Step | Dep |
+|---|------|-----|
+| 3.1 | Build stub registry component | DM-100 |
+"""
+        report = scan_obligations(content)
+        m2_stubs = [
+            o
+            for o in report.obligations
+            if o.term.lower() == "stub" and "M2" in o.phase
+        ]
+        m3_stubs = [
+            o
+            for o in report.obligations
+            if o.term.lower() == "stub" and "M3" in o.phase
+        ]
+        assert all(o.severity == "MEDIUM" for o in m2_stubs), (
+            "M2 stub findings inside Risk Assessment H3 must be MEDIUM, "
+            f"got: {[(o.severity, o.context) for o in m2_stubs]}"
+        )
+        assert m3_stubs, "Expected M3 stub finding"
+        assert any(o.severity == "HIGH" for o in m3_stubs), (
+            "M3 finding must NOT inherit M2's H3 demotion — H3 state must "
+            f"reset at the M3 H2 boundary, got: {[(o.severity, o.context) for o in m3_stubs]}"
+        )
+        assert report.undischarged_count >= 1, (
+            "Expected at least one HIGH undischarged from M3 body line, "
+            f"got: {report.undischarged_count}"
+        )
+
+    @pytest.mark.parametrize(
+        "h3_text",
+        [
+            "Risk Assessment and Mitigation — M2",
+            "Risk Assessment and Mitigation - M2",  # ASCII hyphen-minus path
+            "Integration Points — M2",
+            "Milestone Dependencies — M2",
+            "Open Questions — M2",
+        ],
+    )
+    def test_layer5_demotes_in_demote_target_h3(self, h3_text: str) -> None:
+        """Parameterized across all 4 demote-target H3 prefixes.
+
+        Open Questions is included prospectively per round-3 gap-fill governance —
+        no current FP in the 8-FP corpus sits under an OQ H3 at task-creation
+        time; the branch ships with synthetic coverage only.
+
+        One ASCII-hyphen-minus variant is exercised alongside the canonical
+        em-dash forms because ``_normalize_h3_for_match``'s regex
+        ``[—-]`` tolerates both U+2014 and U+002D — if a future refactor
+        narrowed the class to em-dash only, hyphen-minus roadmaps would
+        silently fail to normalize and zero tests would catch it.
+        """
+        content = (
+            f"## M2: Foo\n\n### {h3_text}\n\n- Reference to M1 stub for context.\n"
+        )
+        report = scan_obligations(content)
+        stubs = [o for o in report.obligations if o.term.lower() == "stub"]
+        assert all(o.severity == "MEDIUM" for o in stubs), (
+            f"Expected MEDIUM under '### {h3_text}', got "
+            f"{[(o.severity, o.context) for o in stubs]}"
+        )
+
+    def test_layer5_discharge_intent_keeps_high_inside_risk_assessment(self) -> None:
+        """Discharge-intent guard SKIPS the Layer 5 demote, so the line
+        stays HIGH inside a demote-target H3. Mirrors the Layer 4
+        discharge guard. Uses the task overview's canonical "stub needs
+        replacement" shape (term-before-verb) — the alternative shape
+        "replace the X stub" (verb-before-term) is independently demoted
+        by the pre-existing Layer 2 ``_NEGATION_PREFIX_RE`` check and so
+        cannot exercise the Layer 5 guard. See Phase 3 Findings for the
+        deviation rationale.
+
+        Mechanism note: Layer 5's branch is
+        ``if _is_demoted_h3(h3_text) and not _is_discharge_intent_line(context_line)``;
+        when discharge intent is present, the second clause short-circuits
+        to False and the ``severity = "MEDIUM"`` assignment is skipped
+        entirely. The line stays HIGH because no layer demotes it — NOT
+        because a fired demote was retroactively vetoed.
+        """
+        content = """## M2: Transport Layer
+
+**Objective:** ship the transport.
+
+### Risk Assessment and Mitigation — M2
+
+- Mitigation: stub needs replacement with real transport by M5.
+"""
+        report = scan_obligations(content)
+        stubs = [o for o in report.obligations if o.term.lower() == "stub"]
+        assert stubs, "Expected stub obligation"
+        assert any(o.severity == "HIGH" for o in stubs), (
+            "Discharge-intent line must remain HIGH even inside Risk "
+            f"Assessment subsection, got: {[(o.severity, o.context) for o in stubs]}"
+        )
+
+
+class TestEndToEndMultiModelSwarmRoadmap:
+    """E2E: post-Layer-5 contract on the MultiModelSwarm roadmap.
+
+    Two assertions:
+      1. None of the original 6 false-positive lines (311, 519, 529, 541,
+         553, 600) is flagged — Fix 1 + Fix 3 preservation.
+      2. `undischarged_count == 0` overall — Layer 5 demotes the 8
+         in-milestone H3-subsection surfacings (Risk Assessment /
+         Integration Points / Milestone Dependencies) that Fix 1 + Fix 3
+         revealed but did not demote on their own.
+    """
+
+    def test_e2e_multimodelswarm_original_six_fps_resolved(self):
+        from pathlib import Path
+
+        roadmap_path = Path(".dev/releases/Current/MultiModelSwarm/roadmap.md")
+        if not roadmap_path.exists():
+            pytest.skip(f"MultiModelSwarm roadmap fixture missing at {roadmap_path}")
+
+        content = roadmap_path.read_text()
+        report = scan_obligations(content)
+
+        original_fp_lines = {311, 519, 529, 541, 553, 600}
+        flagged_lines = {
+            o.line_number
+            for o in report.obligations
+            if not o.discharged and not o.exempt and o.severity != "MEDIUM"
+        }
+        # None of the original 6 false-positive lines should remain in the
+        # undischarged set.
+        remaining_originals = original_fp_lines & flagged_lines
+        assert not remaining_originals, (
+            "Original false-positive lines still flagged: "
+            f"{sorted(remaining_originals)}"
+        )
+
+        # Layer 5 contract: zero undischarged findings overall.
+        undischarged = [
+            o
+            for o in report.obligations
+            if not o.discharged and not o.exempt and o.severity != "MEDIUM"
+        ]
+        diagnostic = "\n".join(
+            f"  L{o.line_number:>4}  {o.term:<12}  phase={o.phase!r}  ctx={o.context[:80]!r}"
+            for o in undischarged
+        )
+        assert report.undischarged_count == 0, (
+            f"Expected undischarged_count == 0 on MultiModelSwarm roadmap, "
+            f"got {report.undischarged_count}. Remaining undischarged:\n{diagnostic}"
         )
