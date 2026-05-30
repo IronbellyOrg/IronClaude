@@ -1,12 +1,40 @@
 #!/bin/sh
 # repo-inventory.sh — File inventory for /sc:cleanup-audit
 # Usage: repo-inventory.sh [target-path] [batch-size]
+# Optional env:
+#   SCOPE_FILE=path   — per-project file; one extra regex per line, '#' for comments
+#                       (default: $TARGET/.claude-audit/SCOPE.md if present)
 # Output: Domain-grouped file inventory with batch assignments
 
 set -e
 
 TARGET="${1:-.}"
 BATCH_SIZE="${2:-50}"
+SCOPE_FILE="${SCOPE_FILE:-$TARGET/.claude-audit/SCOPE.md}"
+
+# --- Default scope exclusions (apply to every audit in every project) ---
+# POSIX-extended regex against path RELATIVE to TARGET.
+# Rule 1 — hidden paths: any leading-dot segment.
+# Rule 2 — BMAD directories: paths owned by BMAD tooling.
+# Rule 3 — audit output: .claude-audit/ is itself an audit-artifact dir.
+DEFAULT_EXCLUDES='^(\.|.*/\.)|^_bmad/|^_bmad-output/|^_planning-input/|^\.claude-audit/'
+
+# Per-project SCOPE.md may add extra patterns (lines starting with "EXCLUDE: ")
+EXTRA_EXCLUDES=""
+if [ -f "$SCOPE_FILE" ]; then
+    EXTRA_EXCLUDES=$(grep -E '^EXCLUDE: ' "$SCOPE_FILE" 2>/dev/null \
+        | sed -E 's/^EXCLUDE: +//' | paste -sd'|' -)
+fi
+
+apply_scope() {
+    # Filter stdin through default + per-project regex exclusions.
+    # `|| true` guards against grep's exit-1 on empty input under `set -e`.
+    if [ -n "$EXTRA_EXCLUDES" ]; then
+        grep -E -v "($DEFAULT_EXCLUDES|$EXTRA_EXCLUDES)" || true
+    else
+        grep -E -v "$DEFAULT_EXCLUDES" || true
+    fi
+}
 
 # Validate target exists
 if [ ! -d "$TARGET" ]; then
@@ -18,7 +46,7 @@ fi
 # Use git ls-files for .gitignore-respecting enumeration
 # Fall back to find if not in a git repo
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    FILE_LIST=$(git ls-files -- "$TARGET" 2>/dev/null)
+    FILE_LIST=$(git ls-files -- "$TARGET" 2>/dev/null | apply_scope)
 else
     FILE_LIST=$(find "$TARGET" -type f \
         -not -path '*/.git/*' \
@@ -35,8 +63,18 @@ else
         -not -path '*/.mypy_cache/*' \
         -not -path '*/.pytest_cache/*' \
         -not -path '*/coverage/*' \
-        2>/dev/null)
+        2>/dev/null | apply_scope)
 fi
+
+# Echo the active scope rules for transparency
+echo "=== ACTIVE SCOPE RULES ==="
+echo "  Default excludes: $DEFAULT_EXCLUDES"
+if [ -n "$EXTRA_EXCLUDES" ]; then
+    echo "  Project excludes (from $SCOPE_FILE): $EXTRA_EXCLUDES"
+else
+    echo "  Project excludes: (none — no SCOPE.md or no EXCLUDE: lines)"
+fi
+echo ""
 
 TOTAL=$(echo "$FILE_LIST" | grep -c . 2>/dev/null || echo 0)
 

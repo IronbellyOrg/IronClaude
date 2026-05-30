@@ -8,6 +8,22 @@ Quickly identify obvious waste — test artifacts, runtime files committed by ac
 
 **"Is this file junk?"**
 
+## Scope rule (inherited from `repo-inventory.sh`)
+
+You will only ever receive in-scope paths in your batch — the orchestrator
+applies the default exclusion filter (`^\.` for hidden, `^_bmad/`,
+`^_bmad-output/`, `^_planning-input/` for BMAD) before sharding. **Do not
+classify any path that starts with `.` or one of the BMAD prefixes**, even
+if it appears in your grep results as a *referencing* file. Such paths are
+legitimate referrers but are managed outside the cleanup audit.
+
+When you grep for references to verify KEEP, hidden and BMAD paths MAY
+appear as referrers (e.g. `.github/workflows/ci.yml` legitimately
+references `internal/...` Go source). Citing them in the "referenced by"
+field is correct — they just don't get audited themselves.
+
+---
+
 ## Classification Taxonomy (3-Tier)
 
 | Category | Meaning | Action | Evidence Required |

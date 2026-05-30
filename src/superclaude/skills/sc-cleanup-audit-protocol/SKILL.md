@@ -34,7 +34,8 @@ argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--b
 
 ## Repository Context
 
-- Total files: !`git ls-files | wc -l`
+- Total tracked files: !`git ls-files | wc -l`
+- In-scope after default excludes: !`git ls-files | grep -Ev '^(\.|.*/\.)|^_bmad/|^_bmad-output/|^_planning-input/|^\.claude-audit/' | wc -l`
 - File breakdown: !`git ls-files | sed 's/.*\.//' | sort | uniq -c | sort -rn | head -15`
 - Repo size: !`du -sh . --exclude=.git --exclude=node_modules 2>/dev/null`
 - Current branch: !`git branch --show-current`
@@ -49,6 +50,20 @@ argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--b
 ## Behavioral Flow
 
 1. **Discover**: Enumerate repository files via shell preprocessing and `repo-inventory.sh`. Build file inventory with domain grouping, type distribution, and batch assignments. Compute total scope and coverage targets.
+
+   **Default scope exclusions** (applied by `repo-inventory.sh` before
+   batch sharding — the inventory output will never contain these):
+   - **Hidden paths**: any path starting with `.` or containing a `/.`
+     segment (covers `.claude/`, `.dev/`, `.github/`, `.serena/`,
+     `.gitignore`, `.golangci.yml`, etc.).
+   - **BMAD directories**: `_bmad/`, `_bmad-output/`, `_planning-input/` —
+     BMAD-tooling-owned content is not audited by the cleanup pass.
+   - **Audit output**: `.claude-audit/` is the audit's own output sink and
+     is exempt from being scanned.
+
+   **Per-project override**: if `.claude-audit/SCOPE.md` exists, lines of
+   the form `EXCLUDE: <regex>` are added to the exclusion set. The default
+   exclusions cannot be removed — they are a floor, not a ceiling.
 2. **Configure**: Parse `$ARGUMENTS` for pass selection and focus area. Load pass-specific rules from `rules/` supporting files. Create TodoWrite tasks for each batch. Initialize output directory at `.claude-audit/`.
 3. **Orchestrate**: Spawn parallel subagents via Task tool in waves of 7-8 concurrent agents. Pass 1 uses `audit-scanner` (Haiku), Pass 2 uses `audit-analyzer` (Sonnet), Pass 3 uses `audit-comparator` (Sonnet). Each agent writes batch reports incrementally to disk. Track progress via TodoWrite.
 4. **Validate**: Spawn `audit-validator` for 10% spot-check sampling (5 findings per 50 files). Verify grep claims match actual results. Enforce quality gates: all batch reports must have required sections and mandatory per-file profiles. Failed reports trigger regeneration.
@@ -85,6 +100,7 @@ Key behaviors:
 - **Incremental Checkpoint**: Batch complete → write to disk → update progress.json → resume-safe state
 - **Fan-Out/Fan-In Orchestration**: File inventory → parallel agent waves (7-8) → disk-based results → consolidated report
 - **Conservative Escalation**: Uncertain classification → FLAG/REVIEW (never DELETE) → human review gate
+- **Scope Floor**: Hidden + BMAD directories are excluded by default in every project; per-project `SCOPE.md` can tighten further but never loosen
 
 ## Examples
 
