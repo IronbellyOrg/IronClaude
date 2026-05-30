@@ -76,7 +76,10 @@ else
 fi
 echo ""
 
-TOTAL=$(echo "$FILE_LIST" | grep -c . 2>/dev/null || echo 0)
+# `grep -c` already prints `0` on a no-match exit-1; use `|| true` to absorb
+# that exit without appending a second `0` line (which yields "0\n0" and
+# breaks downstream `-gt`/arithmetic with "Illegal number: 0").
+TOTAL=$(echo "$FILE_LIST" | grep -c . 2>/dev/null || true)
 
 # --- File Type Distribution ---
 echo "=== FILE TYPE DISTRIBUTION ==="
@@ -119,7 +122,7 @@ for domain in infrastructure frontend backend tests documentation config assets 
         fi
     done
     # Use grep-based counting for accuracy
-    domain_count=$(echo "$FILE_LIST" | while IFS= read -r file; do classify_domain "$file"; done | grep -c "^${domain}$" 2>/dev/null || echo 0)
+    domain_count=$(echo "$FILE_LIST" | while IFS= read -r file; do classify_domain "$file"; done | grep -c "^${domain}$" 2>/dev/null || true)
     if [ "$domain_count" -gt 0 ]; then
         printf "  %-15s %s files\n" "$domain:" "$domain_count"
     fi
@@ -144,7 +147,7 @@ for domain in infrastructure config tests backend frontend documentation assets 
         continue
     fi
 
-    domain_total=$(echo "$domain_files" | grep -c . 2>/dev/null || echo 0)
+    domain_total=$(echo "$domain_files" | grep -c . 2>/dev/null || true)
     if [ "$domain_total" -eq 0 ]; then
         continue
     fi

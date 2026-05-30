@@ -70,3 +70,25 @@ def test_nongit_target_absolute_unchanged(tmp_path: Path) -> None:
     result = _run(str(tmp_path), tmp_path.parent)
     assert result.returncode == 0, result.stderr
     assert _total(result.stdout) == 2, result.stdout
+
+
+def test_no_illegal_number_noise(tmp_path: Path) -> None:
+    """Regression guard for the `||echo 0` bug.
+
+    `grep -c` on no-match exits 1 with stdout `0`; the prior idiom
+    `... || echo 0` then appended a second `0`, yielding `"0\\n0"` in
+    domain/total counters. Downstream `-gt` / arithmetic then died with
+    `[: Illegal number: 0` on every empty domain bucket. The fix
+    replaces `|| echo 0` with `|| true` at three sites.
+    """
+    _populate(tmp_path)
+    result = _run(".", tmp_path)
+    assert "Illegal number" not in result.stderr, result.stderr
+
+
+def test_empty_target_no_noise(tmp_path: Path) -> None:
+    """Empty non-git target must report zero cleanly — no Illegal-number spew."""
+    result = _run(".", tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert _total(result.stdout) == 0, result.stdout
+    assert "Illegal number" not in result.stderr, result.stderr
