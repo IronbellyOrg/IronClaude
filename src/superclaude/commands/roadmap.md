@@ -23,7 +23,7 @@ When the user requests roadmap generation from one to three markdown inputs: spe
 | Flag | Required | Default | Description |
 |------|----------|---------|-------------|
 | `INPUT_FILES...` | Yes | - | 1-3 markdown files: spec, TDD, and/or PRD in any order. Content type is auto-detected. |
-| `--agents TEXT` | No | `opus:architect,haiku:architect` | Comma-separated agent specs: `model[:persona]`. |
+| `--agents TEXT` | No | `opus:architect,sonnet:architect` | Comma-separated agent specs: `model[:persona]`. |
 | `--output PATH` | No | Parent dir of spec-file | Output directory for all artifacts. |
 | `--depth quick\|standard\|deep` | No | `standard` | Debate round depth: `quick=1`, `standard=2`, `deep=3`. |
 | `--resume` | No | `false` | Skip steps whose outputs already pass their gates. Re-run from the first failing step. |
@@ -69,7 +69,7 @@ The current CLI surface does not support the older inference-only command flags 
 /sc:roadmap spec.md --dry-run
 
 # Deep debate with explicit agents
-/sc:roadmap spec.md --agents opus:architect,haiku:qa --depth deep
+/sc:roadmap spec.md --agents opus:architect,sonnet:qa --depth deep
 
 # High-stakes run with cosmetic auto-remediation disabled
 /sc:roadmap spec.md --strict-no-remediation

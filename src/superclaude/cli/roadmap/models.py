@@ -77,7 +77,7 @@ class AgentSpec:
 
         Examples:
             AgentSpec.parse("opus:architect") -> AgentSpec("opus", "architect")
-            AgentSpec.parse("haiku")          -> AgentSpec("haiku", "architect")
+            AgentSpec.parse("sonnet")          -> AgentSpec("sonnet", "architect")
         """
         if ":" in spec:
             model, persona = spec.split(":", 1)
@@ -102,7 +102,7 @@ class RoadmapConfig(PipelineConfig):
     agents: list[AgentSpec] = field(
         default_factory=lambda: [
             AgentSpec("opus", "architect"),
-            AgentSpec("haiku", "architect"),
+            AgentSpec("sonnet", "architect"),
         ]
     )
     depth: Literal["quick", "standard", "deep"] = "standard"
@@ -138,6 +138,6 @@ class ValidateConfig(PipelineConfig):
     agents: list[AgentSpec] = field(
         default_factory=lambda: [
             AgentSpec("opus", "architect"),
-            AgentSpec("haiku", "architect"),
+            AgentSpec("sonnet", "architect"),
         ]
     )

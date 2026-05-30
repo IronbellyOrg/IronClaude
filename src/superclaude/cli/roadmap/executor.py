@@ -3024,7 +3024,7 @@ def execute_roadmap(
     if not config.agents:
         config.agents = [
             AgentSpec("opus", "architect"),
-            AgentSpec("haiku", "architect"),
+            AgentSpec("sonnet", "architect"),
         ]
     if not config.depth:
         config.depth = "standard"

@@ -76,7 +76,8 @@ restore_backups() {
         if [[ ${#PATCHED_FILES[@]} -gt 0 && -d "$BACKUP_DIR" ]]; then
             if [[ "$MODE" == "run" ]]; then header "Restoring original files"; fi
             for f in "${PATCHED_FILES[@]}"; do
-                local backup="$BACKUP_DIR/$(basename "$f")"
+                local backup
+                backup="$BACKUP_DIR/$(basename "$f")"
                 if [[ -f "$backup" ]]; then
                     cp "$backup" "$f"
                     if [[ "$MODE" == "run" ]]; then pass "Restored: $(basename "$f")"; fi
@@ -261,14 +262,14 @@ done
 if [[ $VARIANT_COUNT -eq 0 ]]; then
     if [[ "$SKIP_GATES" == "true" ]]; then
         warn "No generate variants found — pre-adversarial release"
-        info "Using default agents: opus:architect, haiku:architect"
+        info "Using default agents: opus:architect, sonnet:architect"
         AGENT_A="opus-architect"
-        AGENT_B="haiku-architect"
+        AGENT_B="sonnet-architect"
         MODEL_A="opus"; PERSONA_A="architect"
-        MODEL_B="haiku"; PERSONA_B="architect"
+        MODEL_B="sonnet"; PERSONA_B="architect"
     else
         fail "No generate variants found (roadmap-*.md)"
-        info "Expected files like: roadmap-opus-architect.md, roadmap-haiku-architect.md"
+        info "Expected files like: roadmap-opus-architect.md, roadmap-sonnet-architect.md"
     fi
 elif [[ $VARIANT_COUNT -eq 1 ]]; then
     warn "Only 1 generate variant found ($AGENT_A); using it for both A and B"
@@ -320,11 +321,14 @@ check_file "$RELEASE_DIR/roadmap.md"    "roadmap.md (merged)"
 
 # Soft requirements (upstream pipeline artifacts — can be stubbed)
 check_file "$RELEASE_DIR/extraction.md"        "extraction.md"         "soft" || true
+# shellcheck disable=SC2034
 HAS_VARIANTS=true
 if [[ -n "$AGENT_A" ]]; then
+    # shellcheck disable=SC2034
     check_file "$RELEASE_DIR/roadmap-${AGENT_A}.md" "roadmap-${AGENT_A}.md" "soft" || HAS_VARIANTS=false
 fi
 if [[ -n "$AGENT_B" && "$AGENT_A" != "$AGENT_B" ]]; then
+    # shellcheck disable=SC2034
     check_file "$RELEASE_DIR/roadmap-${AGENT_B}.md" "roadmap-${AGENT_B}.md" "soft" || HAS_VARIANTS=false
 fi
 check_file "$RELEASE_DIR/diff-analysis.md"     "diff-analysis.md"      "soft" || true
@@ -802,7 +806,7 @@ cat > "$STATE_FILE" << HEREDOC
   "spec_hash": "$SPEC_HASH",
   "agents": [
     {"model": "${MODEL_A:-opus}", "persona": "${PERSONA_A:-architect}"},
-    {"model": "${MODEL_B:-haiku}", "persona": "${PERSONA_B:-architect}"}
+    {"model": "${MODEL_B:-sonnet}", "persona": "${PERSONA_B:-architect}"}
   ],
   "depth": "standard",
   "last_run": "$TIMESTAMP",
@@ -821,7 +825,7 @@ if [[ "$MODE" == "run" ]]; then
     set -x
     superclaude roadmap run "$SPEC_FILE" \
         --output "$RELEASE_DIR" \
-        --agents "${MODEL_A:-opus}:${PERSONA_A:-architect},${MODEL_B:-haiku}:${PERSONA_B:-architect}" \
+        --agents "${MODEL_A:-opus}:${PERSONA_A:-architect},${MODEL_B:-sonnet}:${PERSONA_B:-architect}" \
         --resume \
         --no-validate
     set +x
@@ -831,7 +835,7 @@ else
     echo "Execute:"
     echo "  superclaude roadmap run \"$SPEC_FILE\" \\"
     echo "    --output \"$RELEASE_DIR\" \\"
-    echo "    --agents \"${MODEL_A:-opus}:${PERSONA_A:-architect},${MODEL_B:-haiku}:${PERSONA_B:-architect}\" \\"
+    echo "    --agents \"${MODEL_A:-opus}:${PERSONA_A:-architect},${MODEL_B:-sonnet}:${PERSONA_B:-architect}\" \\"
     echo "    --resume \\"
     echo "    --no-validate"
     if [[ ${#PATCHED_FILES[@]} -gt 0 || ${#CREATED_STUBS[@]} -gt 0 ]]; then

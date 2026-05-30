@@ -1,0 +1,90 @@
+============================================================================
+Step 1.3 Pre-edit `make verify-sync` baseline capture
+Captured: 2026-05-29 17:09
+Working directory: /config/workspace/IronClaude
+============================================================================
+
+[INITIAL RUN — PRE-SYNC]
+
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  ⚠️  DIFFERS: confidence-check
+      Only in src/superclaude/skills/confidence-check/: confidence.ts
+      Files src/superclaude/skills/confidence-check/SKILL.md and .claude/skills/confidence-check/SKILL.md differ
+  ⚠️  DIFFERS: prd
+      Only in src/superclaude/skills/prd/refs: synthesis-mapping.md
+  ⚠️  DIFFERS: sc-adversarial-protocol
+      Files src/superclaude/skills/sc-adversarial-protocol/refs/debate-protocol.md and .claude/skills/sc-adversarial-protocol/refs/debate-protocol.md differ
+  ✅ sc-auggie-review-protocol
+  ✅ sc-brainstorm-protocol
+  ⚠️  DIFFERS: sc-cleanup-audit-protocol
+      Only in src/superclaude/skills/sc-cleanup-audit-protocol/: scripts
+  ⚠️  DIFFERS: sc-cli-portify-protocol
+      Only in src/superclaude/skills/sc-cli-portify-protocol/: decisions.yaml
+      Only in src/superclaude/skills/sc-cli-portify-protocol/refs: code-templates.md
+  ✅ sc-crash-recovery
+  ✅ sc-pm-protocol
+  ✅ sc-recommend-protocol
+  ✅ sc-reflect-protocol
+  ⚠️  DIFFERS: sc-release-split-protocol
+      Files src/superclaude/skills/sc-release-split-protocol/SKILL.md and .claude/skills/sc-release-split-protocol/SKILL.md differ
+  ✅ sc-review-translation-protocol
+  ✅ sc-roadmap-protocol
+  ⚠️  DIFFERS: sc-tasklist-protocol
+      Only in src/superclaude/skills/sc-tasklist-protocol/rules: file-emission-rules.md
+  ✅ sc-task-protocol
+  ⚠️  DIFFERS: sc-troubleshoot-protocol
+      Files src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md and .claude/skills/sc-troubleshoot-protocol/SKILL.md differ
+  ✅ sc-validate-roadmap-protocol
+  ⚠️  DIFFERS: sc-validate-tests-protocol
+      Only in src/superclaude/skills/sc-validate-tests-protocol/: classification-algorithm.yaml
+  ✅ task
+  ✅ task-builder
+  ⚠️  DIFFERS: tdd
+      Only in src/superclaude/skills/tdd/refs: synthesis-mapping.md
+  ✅ tech-reference
+  ✅ tech-research
+
+=== Commands ===
+  ❌ MISSING in .claude/commands/sc/: roadmap.md
+  (other commands all OK)
+
+=== Templates ===
+  ❌ MISSING in .claude/templates/: workflow/03_project_plan_template.md
+  ❌ MISSING in .claude/templates/: workflow/06_architecture_proposal_template.md
+  ❌ MISSING in .claude/templates/: workflow/04_feature_brief_template.md
+  (other templates all OK)
+
+❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+make: *** [Makefile:168: verify-sync] Error 1
+exit 2
+
+============================================================================
+PRE-EXISTING DRIFT DOCUMENTED: This task did NOT introduce these drifts —
+they exist before any Wave 1.6 work begins. Includes sc-troubleshoot-protocol
+itself (SKILL.md drift between src/ and .claude/). Per Step 1.3 protocol,
+running `make sync-dev` to fix, then re-running `make verify-sync`.
+============================================================================
+
+[REMEDIATION: ran `make sync-dev`]
+
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:    24 directories
+   Agents:    38 files
+   Commands:  41 files
+   Hooks:     11 files
+   Templates: 15 files
+exit 0
+
+[POST-SYNC RE-RUN of `make verify-sync`]
+
+✅ All components in sync.
+exit 0
+
+============================================================================
+RESULT: Starting state is now CLEAN (verify-sync exit 0) after one sync-dev
+round. Task can proceed with Wave 1.6 edits. The pre-existing drift was
+resolved automatically — no underlying source bugs were exposed.
+============================================================================

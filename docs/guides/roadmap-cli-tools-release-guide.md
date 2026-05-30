@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD024 -->
 # Roadmap CLI Tools — Release Guide
 
 This guide covers the `superclaude roadmap` CLI tooling, including:
@@ -40,7 +41,7 @@ The roadmap CLI orchestrates an **adversarial dual-agent pipeline** that:
 
 ### Module structure
 
-```
+```text
 src/superclaude/cli/roadmap/
 ├── __init__.py               # Exports roadmap_group
 ├── commands.py               # Click CLI definition (run + validate + accept-spec-change)
@@ -125,7 +126,7 @@ superclaude roadmap run <SPEC_FILE> [options]
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `--agents` | String | `opus:architect,haiku:architect` | Comma-separated agent specs in `model[:persona]` format. Controls which models/personas generate the two roadmap variants. |
+| `--agents` | String | `opus:architect,sonnet:architect` | Comma-separated agent specs in `model[:persona]` format. Controls which models/personas generate the two roadmap variants. |
 | `--output` | Path | Parent dir of SPEC_FILE | Output directory for all pipeline artifacts. Created automatically if it doesn't exist. |
 | `--depth` | Choice | `standard` | Debate round depth: `quick` (1 round), `standard` (2 rounds), `deep` (3 rounds). |
 | `--resume` | Flag | Off | Skip steps whose outputs already pass their gates. Re-run from the first failing step. Detects stale spec files via SHA-256 hash comparison. |
@@ -141,7 +142,7 @@ superclaude roadmap run <SPEC_FILE> [options]
 
 The `--agents` flag accepts a comma-separated list of agent specifications:
 
-```
+```text
 model[:persona]
 ```
 
@@ -155,7 +156,7 @@ The model value is passed directly to `claude --model` (no resolution needed —
 **Parsing rules**:
 
 - `"opus:architect"` → model=`opus`, persona=`architect`
-- `"haiku"` → model=`haiku`, persona=`architect` (default persona)
+- `"sonnet"` → model=`sonnet`, persona=`architect` (default persona)
 - `"sonnet:security"` → model=`sonnet`, persona=`security`
 
 The agent's ID (used in output filenames) is `{model}-{persona}`, e.g., `opus-architect`.
@@ -163,11 +164,11 @@ The agent's ID (used in output filenames) is `{model}-{persona}`, e.g., `opus-ar
 ### Examples
 
 ```bash
-# Basic execution with defaults (opus:architect + haiku:architect)
+# Basic execution with defaults (opus:architect + sonnet:architect)
 superclaude roadmap run spec.md
 
 # Custom agent personas
-superclaude roadmap run spec.md --agents sonnet:security,haiku:qa
+superclaude roadmap run spec.md --agents sonnet:security,sonnet:qa
 
 # Deep debate with 3 rounds
 superclaude roadmap run spec.md --depth deep
@@ -257,14 +258,14 @@ Always exits 0 (NFR-006). Blocking issues are surfaced as yellow CLI warnings; t
 superclaude roadmap validate ./output
 
 # Dual-agent adversarial validation
-superclaude roadmap validate ./output --agents opus:architect,haiku:qa
+superclaude roadmap validate ./output --agents opus:architect,sonnet:qa
 
 # Validate with a specific model override
 superclaude roadmap validate ./output --model claude-sonnet-4-20250514
 
 # Disable auto-validation during roadmap run, validate manually later
 superclaude roadmap run spec.md --no-validate
-superclaude roadmap validate ./output --agents sonnet:architect,haiku:security
+superclaude roadmap validate ./output --agents sonnet:architect,sonnet:security
 ```
 
 ---
@@ -300,7 +301,7 @@ The roadmap pipeline generates a high-quality roadmap through adversarial compar
 
 ### Pipeline overview
 
-```
+```text
 Step 1: Extract ──────────────┐
                                │
                ┌───────────────┴───────────────┐
@@ -365,11 +366,11 @@ All artifacts are written to the output directory (default: parent of SPEC_FILE)
 
 ### Example artifact filenames (with default agents)
 
-```
+```text
 output_dir/
 ├── extraction.md
 ├── roadmap-opus-architect.md
-├── roadmap-haiku-architect.md
+├── roadmap-sonnet-architect.md
 ├── diff-analysis.md
 ├── debate-transcript.md
 ├── base-selection.md
@@ -381,7 +382,7 @@ output_dir/
 ├── .roadmap-state.json
 ├── extraction.err                ← stderr from each step
 ├── roadmap-opus-architect.err
-├── roadmap-haiku-architect.err
+├── roadmap-sonnet-architect.err
 ├── diff-analysis.err
 ├── debate-transcript.err
 ├── base-selection.err
@@ -539,7 +540,7 @@ The validate pipeline is a lightweight post-generation quality gate. It reads th
 
 **Pipeline routing** depends on agent count:
 
-```
+```text
 Single agent (default):
   INPUT: roadmap.md + test-strategy.md + extraction.md
        │
@@ -550,7 +551,7 @@ Multi-agent (N agents):
        │
   ┌────┴─────────────────────────────┐
   Step 1a: reflect-{agent_a.id}    Step 1b: reflect-{agent_b.id}   ← parallel
-  ├── reflect-opus-architect.md     └── reflect-haiku-qa.md
+  ├── reflect-opus-architect.md     └── reflect-sonnet-qa.md
   └────┬─────────────────────────────┘
        │
   Step 2: adversarial-merge ───────────────────────────────► validation-report.md
@@ -609,13 +610,13 @@ warnings_count: 1              # integer — total WARNING findings
 tasklist_ready: false          # boolean — true only if blocking_issues_count == 0
 # (multi-agent only)
 validation_mode: adversarial
-validation_agents: opus-architect, haiku-qa
+validation_agents: opus-architect, sonnet-qa
 ---
 ```
 
 ### CLI output format
 
-```
+```text
 WARNING: 2 blocking issue(s) found        ← yellow, only if blocking > 0
 Warnings: 1                               ← only if warning > 0
 Info: 3                                   ← only if info > 0
@@ -750,7 +751,7 @@ After pipeline execution (success or failure), `.roadmap-state.json` is written 
   "spec_hash": "<sha256 hex>",
   "agents": [
     {"model": "opus", "persona": "architect"},
-    {"model": "haiku", "persona": "architect"}
+    {"model": "sonnet", "persona": "architect"}
   ],
   "depth": "standard",
   "last_run": "2026-03-08T12:00:00+00:00",
@@ -791,7 +792,7 @@ When `--resume` is passed:
 
 When a step fails after exhausting retries, the executor prints structured diagnostics:
 
-```
+```text
 ERROR: Roadmap pipeline halted at step 'debate' (attempt 2/2)
   Gate failure: convergence_score must be a float in [0.0, 1.0]
   Output file: /path/to/debate-transcript.md
@@ -853,7 +854,7 @@ class AgentSpec:
     @classmethod
     def parse(cls, spec: str) -> AgentSpec:
         # "opus:architect" → AgentSpec("opus", "architect")
-        # "haiku"          → AgentSpec("haiku", "architect")
+        # "sonnet"          → AgentSpec("sonnet", "architect")
 
     @property
     def id(self) -> str:
@@ -889,7 +890,7 @@ class Finding:
 @dataclass
 class RoadmapConfig(PipelineConfig):
     spec_file: Path                    # Resolved spec file path
-    agents: list[AgentSpec]            # Default: [opus:architect, haiku:architect]
+    agents: list[AgentSpec]            # Default: [opus:architect, sonnet:architect]
     depth: "quick"|"standard"|"deep"   # Default: "standard"
     output_dir: Path                   # Resolved output directory
     retrospective_file: Path | None    # Optional retrospective from prior release
@@ -912,7 +913,7 @@ class RoadmapConfig(PipelineConfig):
 @dataclass
 class ValidateConfig(PipelineConfig):
     output_dir: Path          # Directory containing roadmap run outputs
-    agents: list[AgentSpec]   # Default: [opus:architect, haiku:architect]
+    agents: list[AgentSpec]   # Default: [opus:architect, sonnet:architect]
 
 # Inherited from PipelineConfig:
     work_dir: Path          # Default: Path(".")
@@ -1066,7 +1067,7 @@ Automatically invokes validation on success (unless `--no-validate`).
 ```bash
 # Automatic after roadmap run (unless --no-validate)
 # To re-run manually:
-superclaude roadmap validate ./output --agents opus:architect,haiku:qa
+superclaude roadmap validate ./output --agents opus:architect,sonnet:qa
 ```
 
 Produces `validate/validation-report.md`. Check `tasklist_ready: true` before proceeding.
@@ -1114,7 +1115,7 @@ Each pipeline step uses a specialized prompt builder (defined in `prompts.py`). 
 
 All prompts include a critical output format instruction:
 
-```
+```text
 CRITICAL: Your response MUST begin with YAML frontmatter (--- delimited block).
 Do NOT include any text, preamble, or commentary before the opening ---.
 ```
@@ -1205,7 +1206,7 @@ The `/sc:roadmap` slash command (defined in `src/superclaude/commands/roadmap.md
 superclaude roadmap run .dev/releases/current/v2.20/spec.md
 ```
 
-Runs the full 11-step pipeline with default agents (`opus:architect` + `haiku:architect`) and standard depth (2 debate rounds). Artifacts written to the spec's parent directory.
+Runs the full 11-step pipeline with default agents (`opus:architect` + `sonnet:architect`) and standard depth (2 debate rounds). Artifacts written to the spec's parent directory.
 
 ### Use case 2: Security-focused roadmap
 
@@ -1218,7 +1219,7 @@ Uses a security persona for the second variant. Deep debate ensures thorough adv
 ### Use case 3: Quick iteration roadmap
 
 ```bash
-superclaude roadmap run spec.md --agents haiku:architect,haiku:qa --depth quick
+superclaude roadmap run spec.md --agents sonnet:architect,sonnet:qa --depth quick
 ```
 
 Uses faster (cheaper) models with a single debate round for rapid prototype roadmaps.
@@ -1290,7 +1291,7 @@ superclaude roadmap run spec.md --resume
 superclaude roadmap run spec.md
 
 # Custom agents
-superclaude roadmap run spec.md --agents sonnet:security,haiku:qa
+superclaude roadmap run spec.md --agents sonnet:security,sonnet:qa
 
 # Deep debate (3 rounds)
 superclaude roadmap run spec.md --depth deep
@@ -1337,11 +1338,11 @@ superclaude roadmap run spec.md \
 superclaude roadmap validate ./output
 
 # Dual-agent adversarial validation
-superclaude roadmap validate ./output --agents opus:architect,haiku:qa
+superclaude roadmap validate ./output --agents opus:architect,sonnet:qa
 
 # Skip auto-validation during run, validate manually later
 superclaude roadmap run spec.md --no-validate
-superclaude roadmap validate ./output --agents sonnet:architect,haiku:security
+superclaude roadmap validate ./output --agents sonnet:architect,sonnet:security
 
 # Validate with model override
 superclaude roadmap validate ./output --model claude-sonnet-4-20250514
@@ -1400,7 +1401,7 @@ superclaude roadmap accept-spec-change ./output
 - The roadmap CLI covers three layers: **generation** (`roadmap run` → 11-step pipeline), **validation** (`roadmap validate` → quality gate), and **spec-change acceptance** (`roadmap accept-spec-change` → resume enablement). All feed into the **tasklist** layer (`/sc:tasklist`) and then the **execution** layer (`superclaude sprint run`).
 - Validation runs automatically after `roadmap run` unless `--no-validate` is passed. Check `tasklist_ready: true` in `validate/validation-report.md` before invoking `/sc:tasklist`.
 - For CI/CD pipelines: use `--no-validate` during `roadmap run` to control timing, then call `roadmap validate` as a separate gate step and parse `blocking_issues_count` from the report frontmatter.
-- Single-agent validation (`--agents opus:architect`) is faster and cheaper. Dual-agent (`--agents opus:architect,haiku:qa`) produces an adversarial merge with an agreement table for richer analysis.
+- Single-agent validation (`--agents opus:architect`) is faster and cheaper. Dual-agent (`--agents opus:architect,sonnet:qa`) produces an adversarial merge with an agreement table for richer analysis.
 - Use `--dry-run` as an automated gate between spec authoring and pipeline execution.
 - Use `--resume` for efficient iteration: edit spec → re-run → only changed steps execute.
 - The `.roadmap-state.json` file is the source of truth for resume decisions. Delete it to force a full re-run.

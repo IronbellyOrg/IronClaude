@@ -2,7 +2,7 @@
 name: audit-scanner
 description: "Fast read-only surface scanner for repository audit Pass 1. Classifies files as DELETE/REVIEW/KEEP with grep evidence."
 tools: Read, Grep, Glob
-model: haiku
+model: sonnet
 maxTurns: 20
 permissionMode: plan
 ---

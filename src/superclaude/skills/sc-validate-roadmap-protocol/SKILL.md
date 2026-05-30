@@ -362,7 +362,7 @@ Symbols found: {N} / {N} attempted
 
 #### Step 1.1 — Create Domain Agent Assignments
 
-For each domain from Step 0.4, create one agent spec. **All agents use the `haiku` model** (see Spawn Protocol).
+For each domain from Step 0.4, create one agent spec. **All agents use the `sonnet` model** (see Spawn Protocol).
 
 ```yaml
 AGENT-D{N}:
@@ -493,7 +493,7 @@ Cross-cutting agents receive the same evidence standards but apply the specific 
 
 #### Spawn Protocol
 
-1. Dispatch ALL agents in a single message using parallel `Task` calls. **All agents MUST use the `haiku` model** — set `model: "haiku"` on every `Task` invocation (domain agents and cross-cutting agents alike). The orchestrator remains on the parent model; only spawned agents use haiku.
+1. Dispatch ALL agents in a single message using parallel `Task` calls. **All agents MUST use the `sonnet` model** — set `model: "sonnet"` on every `Task` invocation (domain agents and cross-cutting agents alike). The orchestrator remains on the parent model; only spawned agents use sonnet.
 2. Each agent prompt includes the FULL text of its assigned requirements — paste the content, do not reference a file path.
 3. If an agent fails, retry ONCE. If retry fails, log failure — CC4 and the adversarial pass will catch gaps.
 4. Wait for ALL agents to complete before proceeding to Phase 3.

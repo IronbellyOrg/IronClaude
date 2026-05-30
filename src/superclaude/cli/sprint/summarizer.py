@@ -8,7 +8,7 @@ spawns a daemon thread that:
    structured categories — task status, files changed, validation
    evidence, agent reasoning excerpts, and errors — into a
    :class:`PhaseSummary`.
-2. Invokes ``claude --print --model claude-haiku-4-5`` (non-interactive,
+2. Invokes ``claude --print --model claude-sonnet-4-5`` (non-interactive,
    30 s timeout) to render a 3-5 sentence narrative. Failure is
    silently swallowed; the summary is still written without the
    narrative section.
@@ -20,7 +20,7 @@ failure can never abort the running sprint. The internal ``_summaries``
 dict is protected by a :class:`threading.Lock` because the worker has a
 pool of concurrent writers (unlike the single-writer ``OutputMonitor``).
 
-Spec refs: §3.2 (F8), §6.3 (Haiku subprocess conventions), §6.4 (hook
+Spec refs: §3.2 (F8), §6.3 (Sonnet subprocess conventions), §6.4 (hook
 ordering), §7.6 (PhaseSummary dataclass).
 """
 
@@ -42,13 +42,13 @@ from .models import Phase, PhaseResult, SprintConfig
 
 _logger = logging.getLogger("superclaude.sprint.summarizer")
 
-# Haiku subprocess conventions (Section 6.3).
-HAIKU_MODEL = "claude-haiku-4-5"
-HAIKU_TIMEOUT_SECONDS = 30
-# Environment variables that must be stripped before launching Haiku to
+# Sonnet subprocess conventions (Section 6.3).
+SONNET_MODEL = "claude-sonnet-4-5"
+SONNET_TIMEOUT_SECONDS = 30
+# Environment variables that must be stripped before launching Sonnet to
 # avoid spawning a recursive Claude Code session when the sprint itself
 # is running inside one.
-_HAIKU_STRIP_ENV_VARS: tuple[str, ...] = (
+_SONNET_STRIP_ENV_VARS: tuple[str, ...] = (
     "CLAUDECODE",
     "CLAUDE_CODE_ENTRYPOINT",
 )
@@ -81,7 +81,7 @@ _VALIDATION_EVIDENCE_RE = re.compile(
 class PhaseSummary:
     """Structured summary of a single completed phase (spec §7.6).
 
-    ``narrative`` is the Haiku-generated prose; empty string when the
+    ``narrative`` is the Sonnet-generated prose; empty string when the
     subprocess was unavailable or timed out. ``path`` is set by
     :meth:`PhaseSummarizer.write` to the actual markdown destination
     (``results/phase-<N>-summary.md``) so downstream fanout (tmux
@@ -298,12 +298,12 @@ def _flatten(raw: object) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Haiku subprocess helper (shared with RetrospectiveGenerator)
+# Sonnet subprocess helper (shared with RetrospectiveGenerator)
 # ---------------------------------------------------------------------------
 
 
-def invoke_haiku(prompt: str, *, timeout: float = HAIKU_TIMEOUT_SECONDS) -> str:
-    """Run ``claude --print --model <haiku> -p <prompt>`` and return stdout.
+def invoke_sonnet(prompt: str, *, timeout: float = SONNET_TIMEOUT_SECONDS) -> str:
+    """Run ``claude --print --model <sonnet> -p <prompt>`` and return stdout.
 
     Returns the empty string on any failure (claude not on PATH, non-zero
     exit, timeout, OS error). Never raises. Per Section 6.3:
@@ -315,15 +315,15 @@ def invoke_haiku(prompt: str, *, timeout: float = HAIKU_TIMEOUT_SECONDS) -> str:
     """
     claude_bin = shutil.which("claude")
     if not claude_bin:
-        _logger.debug("invoke_haiku: claude not on PATH — skipping narrative")
+        _logger.debug("invoke_sonnet: claude not on PATH — skipping narrative")
         return ""
 
-    env = {k: v for k, v in os.environ.items() if k not in _HAIKU_STRIP_ENV_VARS}
+    env = {k: v for k, v in os.environ.items() if k not in _SONNET_STRIP_ENV_VARS}
     cmd = [
         claude_bin,
         "--print",
         "--model",
-        HAIKU_MODEL,
+        SONNET_MODEL,
         "--max-turns",
         "1",
         "--dangerously-skip-permissions",
@@ -341,15 +341,15 @@ def invoke_haiku(prompt: str, *, timeout: float = HAIKU_TIMEOUT_SECONDS) -> str:
             check=False,
         )
     except subprocess.TimeoutExpired:
-        _logger.warning("invoke_haiku: timed out after %ds", int(timeout))
+        _logger.warning("invoke_sonnet: timed out after %ds", int(timeout))
         return ""
     except OSError as exc:
-        _logger.warning("invoke_haiku: OSError %s", exc)
+        _logger.warning("invoke_sonnet: OSError %s", exc)
         return ""
 
     if proc.returncode != 0:
         _logger.warning(
-            "invoke_haiku: exit=%s stderr=%r",
+            "invoke_sonnet: exit=%s stderr=%r",
             proc.returncode,
             (proc.stderr or b"")[:200],
         )
@@ -358,7 +358,7 @@ def invoke_haiku(prompt: str, *, timeout: float = HAIKU_TIMEOUT_SECONDS) -> str:
     try:
         return (proc.stdout or b"").decode("utf-8", errors="replace").strip()
     except Exception as exc:  # noqa: BLE001 - defensive
-        _logger.warning("invoke_haiku: decode failed: %s", exc)
+        _logger.warning("invoke_sonnet: decode failed: %s", exc)
         return ""
 
 
@@ -368,7 +368,7 @@ def invoke_haiku(prompt: str, *, timeout: float = HAIKU_TIMEOUT_SECONDS) -> str:
 
 
 def _build_phase_narrative_prompt(summary: PhaseSummary) -> str:
-    """Render the structured data to a compact prompt for the Haiku model."""
+    """Render the structured data to a compact prompt for the Sonnet model."""
     p = summary.phase_result
     lines: list[str] = [
         (
@@ -433,7 +433,7 @@ def _render_phase_summary_markdown(summary: PhaseSummary) -> str:
             [
                 "## Narrative",
                 "",
-                "_Narrative unavailable (Haiku subprocess failed or skipped)._",
+                "_Narrative unavailable (Sonnet subprocess failed or skipped)._",
                 "",
             ]
         )
@@ -496,9 +496,9 @@ class PhaseSummarizer:
         return extract_phase_signals(output_path)
 
     def narrate(self, summary: PhaseSummary) -> str:
-        """Build prompt + invoke Haiku; return narrative or empty string."""
+        """Build prompt + invoke Sonnet; return narrative or empty string."""
         prompt = _build_phase_narrative_prompt(summary)
-        return invoke_haiku(prompt)
+        return invoke_sonnet(prompt)
 
     def write(self, summary: PhaseSummary) -> Path:
         """Serialise ``summary`` to ``results/phase-<N>-summary.md``.

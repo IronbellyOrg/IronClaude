@@ -112,7 +112,7 @@ The CLI emits the following 14 step IDs in pipeline order (see `_get_all_step_id
 
 1. `extract`
 2. `generate-{agent_a.id}` (e.g. `generate-opus-architect`)
-3. `generate-{agent_b.id}` (e.g. `generate-haiku-architect`)
+3. `generate-{agent_b.id}` (e.g. `generate-sonnet-architect`)
 4. `diff`
 5. `debate`
 6. `score`
@@ -143,7 +143,7 @@ The following thresholds in this skill are **inference heuristics**, NOT CLI gat
 
 - **Convergence routing (Wave 1A Step 2e, Wave 2 Step 3e)**: `convergence_score >= 0.6 → PASS`, `>= 0.5 → PARTIAL`, `< 0.5 → FAIL`. The CLI's gate criteria only validate `convergence_score ∈ [0.0, 1.0]` as a validity check; pass/fail routing on this score is a skill-layer decision. See `cli/roadmap/validate_gates.py` for the actual CLI gate criteria.
 - **Validation aggregate thresholds (Wave 4, `refs/validation.md`)**: `PASS ≥ 85%`, `REVISE 70-84%`, `REJECT < 70%`. The CLI does not compute an aggregate validation score and does not run a `REVISE` loop; it uses per-gate boolean criteria from `validate_gates.py` (`REFLECT_GATE`, `ADVERSARIAL_MERGE_GATE`).
-- **Agent count range (Section 5)**: `2-10 agents`. The CLI's `roadmap run` defaults to `opus:architect,haiku:architect` (2) and does not enforce a 2-10 bound; `roadmap validate` defaults to a single agent. The 2-10 range is an inference recommendation for the skill surface.
+- **Agent count range (Section 5)**: `2-10 agents`. The CLI's `roadmap run` defaults to `opus:architect,sonnet:architect` (2) and does not enforce a 2-10 bound; `roadmap validate` defaults to a single agent. The 2-10 range is an inference recommendation for the skill surface.
 
 ### Cosmetic-Gate Auto-Remediation Lane
 

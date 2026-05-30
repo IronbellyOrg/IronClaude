@@ -1,0 +1,27 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/brainstorms/calibration-refactor-pr86/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/brainstorms/calibration-refactor-pr86/merged-requirements.md
+canonical_output_path: /config/workspace/IronClaude/.dev/troubleshoot/pr86-integration-contracts-20260526100600/calibration-failure/REFACTOR-PROPOSAL.md
+convergence_score: 1.00
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/brainstorms/calibration-refactor-pr86/adversarial
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+notes: |
+  Adversarial pipeline executed in-process by the orchestrator (sc:brainstorm-protocol Wave 3).
+  3 variants (V1 opus:analyzer / V2 sonnet:architect / V3 haiku:qa) produced; 5-step debate +
+  invariant probe ran in deep mode with convergence threshold 0.65 (achieved 1.00 direction-converged,
+  per-point confidences 0.70-0.95). Base = V1 surgical-minimum; merged with V3 Changes 4+5 and
+  V2 U-001 (optional). Minimal-change subset closing M1+M2+M3a = Changes A+B+C alone (rubric +
+  card + calibrator); Changes D+E ship as defense-in-depth for M4 + recursion-of-anti-pattern.
+agent_spec: "opus:analyzer:'minimal surgical fix prioritizing M1+M2+M3a closure',sonnet:architect:'schema-redesign perspective',haiku:qa:'defense-in-depth perspective: regression tests + pin tests'"

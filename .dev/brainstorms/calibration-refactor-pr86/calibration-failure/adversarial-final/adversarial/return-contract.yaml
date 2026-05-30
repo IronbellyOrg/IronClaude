@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/troubleshoot/pr86-integration-contracts-20260526100600/calibration-failure/FINAL-MERGED-CAUSES.md"
+  convergence_score: 0.92
+  artifacts_dir: "/config/workspace/IronClaude/.dev/troubleshoot/pr86-integration-contracts-20260526100600/calibration-failure/adversarial-final/adversarial/"
+  status: "success"
+  base_variant: "opus (Variant 1, A-merged)"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+notes:
+  - "fallback_mode=true: subagent Task fan-out unavailable in single-thread orchestration context; debate-orchestrator (this turn) ran advocate steelman/critique synthesis inline against all three loaded variants. Mode A protocol explicitly permits this when Task dispatch is constrained, provided the orchestrator can faithfully steelman each variant — all three variants were fully Read and cited directly."
+  - "--agents opus,haiku resolution: Mode A spec says 'One advocate per input file; agent spec defaults to current model if --agents not specified'. With 3 variants and only 2 model specs provided, assignment was opus->V1, haiku->V2, current-model-fallback (opus)->V3. Substitution flagged in debate-transcript.md metadata."
+  - "X-001 resolved via MERGE outcome (90% confidence): M3 preserved as composite (M3a/M3b/M3c) with three independent fixes."

@@ -1,0 +1,12 @@
+Captured: 2026-05-29 17:43
+Command: cd /config/workspace/IronClaude && make sync-dev 2>&1
+
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:    24 directories
+   Agents:    38 files
+   Commands:  41 files
+   Hooks:     11 files
+   Templates: 15 files
+
+exit 0
