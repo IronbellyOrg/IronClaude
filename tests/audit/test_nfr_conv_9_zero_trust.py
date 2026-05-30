@@ -76,8 +76,7 @@ NFR_CONV_2_DOC = REPO_ROOT / "docs" / "reference" / "nfr-conv-2-prose-determinis
 # index.
 # ---------------------------------------------------------------------------
 PASS_BULLET = (
-    "- **PASS** — All checks pass, no gaps of any severity. "
-    "Green light for synthesis."
+    "- **PASS** — All checks pass, no gaps of any severity. Green light for synthesis."
 )
 FAIL_BULLET = (
     "- **FAIL** — Any gaps exist (CRITICAL, IMPORTANT, or MINOR). "
@@ -268,8 +267,7 @@ class TestPartA_ZeroFindingsBaselinePasses:
             line for line in report.splitlines() if _SEVERITY_LINE_RE.match(line)
         ]
         assert gap_rows == [], (
-            "baseline fixture must carry zero gap rows; found: "
-            f"{gap_rows}"
+            f"baseline fixture must carry zero gap rows; found: {gap_rows}"
         )
 
     def test_gate_returns_pass(self, report: str):
@@ -460,9 +458,10 @@ class TestNfrConv2DocumentationPage:
             )
 
     def test_doc_enumerates_prose_side(self, doc_text: str):
-        assert "research-prose" in doc_text.lower() or "prose nondeterminism" in doc_text.lower(), (
-            "NFR-CONV.2 doc must name the research-prose nondeterminism side"
-        )
+        assert (
+            "research-prose" in doc_text.lower()
+            or "prose nondeterminism" in doc_text.lower()
+        ), "NFR-CONV.2 doc must name the research-prose nondeterminism side"
 
     def test_doc_cross_references_rf_qa_pass_fail(self, doc_text: str):
         assert "rf-qa.md" in doc_text, (

@@ -184,9 +184,7 @@ def _strip_catalogue_block(text: str) -> str:
             found = True
             continue
         if in_block and (
-            line.startswith("####")
-            or line.startswith("### ")
-            or line.startswith("## ")
+            line.startswith("####") or line.startswith("### ") or line.startswith("## ")
         ):
             in_block = False
             out.append(line)
@@ -355,9 +353,7 @@ class TestInvertedSequencingEmptyCatalogue:
     """
 
     def test_inverted_text_lacks_catalogue_heading(self, sequencing_scenario):
-        assert (
-            STRUCTURAL_GATE_HEADING not in sequencing_scenario["inverted_text"]
-        ), (
+        assert STRUCTURAL_GATE_HEADING not in sequencing_scenario["inverted_text"], (
             "fixture setup violation: inverted-state rf-qa.md still "
             "contains the catalogue heading; _strip_catalogue_block "
             "did not remove the bounded region"
@@ -391,8 +387,7 @@ class TestInvertedSequencingEmptyCatalogue:
         # Only one line of content (the header) + trailing newline.
         non_empty = [ln for ln in block.splitlines() if ln.strip()]
         assert len(non_empty) == 1, (
-            "inverted-state verdict-block contains orphan TB-Add rows: "
-            f"{non_empty}"
+            f"inverted-state verdict-block contains orphan TB-Add rows: {non_empty}"
         )
 
     def test_inverted_no_tb_add_tokens_anywhere_in_log_or_block(
@@ -433,9 +428,7 @@ class TestCatalogueActivationAutoRichens:
     PR-06 landing.
     """
 
-    def test_activated_extract_catalogue_meets_min_floor(
-        self, sequencing_scenario
-    ):
+    def test_activated_extract_catalogue_meets_min_floor(self, sequencing_scenario):
         k = sequencing_scenario["k_activated"]
         assert k >= MIN_LIVE_K, (
             f"activated K={k} below MIN_LIVE_K={MIN_LIVE_K}. Either the "
@@ -451,9 +444,7 @@ class TestCatalogueActivationAutoRichens:
             f"activated catalogue has gaps in TB-Add-N integer range: {cat}"
         )
 
-    def test_activated_log_line_matches_present_shape(
-        self, sequencing_scenario
-    ):
+    def test_activated_log_line_matches_present_shape(self, sequencing_scenario):
         m = INV010_LOG_PRESENT_RE.match(sequencing_scenario["log_activated"])
         assert m, (
             "INV-010 log line malformed in activated state: "
@@ -465,17 +456,12 @@ class TestCatalogueActivationAutoRichens:
             f"K_activated={sequencing_scenario['k_activated']}"
         )
 
-    def test_activation_grew_catalogue_by_exactly_k(
-        self, sequencing_scenario
-    ):
+    def test_activation_grew_catalogue_by_exactly_k(self, sequencing_scenario):
         """The delta between inverted and activated states is exactly K
         new TB-Add entries (the full canonical catalogue). The inverted
         state was empty; the activated state is the full catalogue.
         """
-        delta = (
-            sequencing_scenario["k_activated"]
-            - sequencing_scenario["k_inverted"]
-        )
+        delta = sequencing_scenario["k_activated"] - sequencing_scenario["k_inverted"]
         assert delta == sequencing_scenario["k_activated"], (
             f"K-007 mitigation broken: activation delta={delta} != "
             f"K_activated={sequencing_scenario['k_activated']}. The "
@@ -483,9 +469,7 @@ class TestCatalogueActivationAutoRichens:
             "delta == the full catalogue"
         )
 
-    def test_structural_diff_surfaces_every_canonical_tb_add(
-        self, sequencing_scenario
-    ):
+    def test_structural_diff_surfaces_every_canonical_tb_add(self, sequencing_scenario):
         """The unified diff between the inverted (header-only) and
         activated (full catalogue) verdict-block enumeration views
         surfaces every canonical TB-Add-N as an added line, with zero
@@ -493,9 +477,7 @@ class TestCatalogueActivationAutoRichens:
         ("structural assertion confirms enriched checklist when
         catalogue activates") from phase-5-tasklist.md L722.
         """
-        block_inverted = sequencing_scenario["block_inverted"].splitlines(
-            keepends=True
-        )
+        block_inverted = sequencing_scenario["block_inverted"].splitlines(keepends=True)
         block_activated = sequencing_scenario["block_activated"].splitlines(
             keepends=True
         )
@@ -510,12 +492,8 @@ class TestCatalogueActivationAutoRichens:
                 n=0,
             )
         )
-        added = [
-            ln for ln in diff if ln.startswith("+") and not ln.startswith("+++")
-        ]
-        removed = [
-            ln for ln in diff if ln.startswith("-") and not ln.startswith("---")
-        ]
+        added = [ln for ln in diff if ln.startswith("+") and not ln.startswith("+++")]
+        removed = [ln for ln in diff if ln.startswith("-") and not ln.startswith("---")]
         assert len(removed) == 0, (
             f"K-007 AC-2 violated: expected 0 removed lines in diff, got "
             f"{len(removed)} ({removed}) — catalogue activation should be "
@@ -569,9 +547,7 @@ class TestSkillByteIdenticalAcrossActivation:
             f"post={post[:16]}"
         )
 
-    def test_skill_bytes_unchanged_at_module_exit(
-        self, skill_canonical_pre_sha: str
-    ):
+    def test_skill_bytes_unchanged_at_module_exit(self, skill_canonical_pre_sha: str):
         """Final guard — independent of any fixture. The canonical
         SKILL.md surface MUST be untouched by the entire test module.
         """
@@ -603,9 +579,7 @@ class TestCanonicalRfQaUntouched:
             f"pre={rf_qa_canonical_pre_sha[:16]} post={post_sha[:16]}"
         )
 
-    def test_mirror_rf_qa_byte_identical_post_fixture(
-        self, sequencing_scenario
-    ):
+    def test_mirror_rf_qa_byte_identical_post_fixture(self, sequencing_scenario):
         src = RF_QA_SRC.read_bytes()
         mirror = RF_QA_MIRROR.read_bytes()
         assert src == mirror, (
@@ -626,9 +600,7 @@ class TestHelperDeterminism:
     (the "before vs after activation" comparison would be noisy).
     """
 
-    def test_extract_catalogue_pure_on_canonical(
-        self, rf_qa_canonical_text: str
-    ):
+    def test_extract_catalogue_pure_on_canonical(self, rf_qa_canonical_text: str):
         a = extract_catalogue(rf_qa_canonical_text)
         b = extract_catalogue(rf_qa_canonical_text)
         assert a == b, (
@@ -636,9 +608,7 @@ class TestHelperDeterminism:
             f"rf-qa.md: a={a}, b={b}"
         )
 
-    def test_extract_catalogue_pure_on_stripped(
-        self, rf_qa_canonical_text: str
-    ):
+    def test_extract_catalogue_pure_on_stripped(self, rf_qa_canonical_text: str):
         stripped = _strip_catalogue_block(rf_qa_canonical_text)
         a = extract_catalogue(stripped)
         b = extract_catalogue(stripped)
@@ -647,9 +617,7 @@ class TestHelperDeterminism:
             f"rf-qa.md: a={a}, b={b}; both should be []"
         )
 
-    def test_strip_then_strip_is_idempotent(
-        self, rf_qa_canonical_text: str
-    ):
+    def test_strip_then_strip_is_idempotent(self, rf_qa_canonical_text: str):
         """Stripping a text that has already been stripped MUST raise
         — the helper's assertion guards against silent double-stripping
         being misread as a successful inverted state.
@@ -692,9 +660,7 @@ class TestCrossFixtureConsistencyWithTest010:
             "semantics, else the mitigation's coverage is split."
         )
 
-    def test_test010_helper_agrees_on_inverted_state(
-        self, sequencing_scenario
-    ):
+    def test_test010_helper_agrees_on_inverted_state(self, sequencing_scenario):
         from tests.audit.test_dynamic_enumeration_inv_010 import (
             extract_catalogue as test010_extract,
         )

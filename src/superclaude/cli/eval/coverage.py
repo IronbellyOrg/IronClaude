@@ -170,16 +170,10 @@ class CoverageResult:
             "matchers": [
                 {"event": m.event, "pattern": m.pattern} for m in self.matchers
             ],
-            "covered": [
-                {"event": m.event, "pattern": m.pattern} for m in self.covered
-            ],
-            "missing": [
-                {"event": m.event, "pattern": m.pattern} for m in self.missing
-            ],
+            "covered": [{"event": m.event, "pattern": m.pattern} for m in self.covered],
+            "missing": [{"event": m.event, "pattern": m.pattern} for m in self.missing],
             "artifacts": {k: str(v) for k, v in self.artifacts.items()},
-            "coverage_map": {
-                k: list(v) for k, v in self.coverage_map.items()
-            },
+            "coverage_map": {k: list(v) for k, v in self.coverage_map.items()},
             "parse_error": self.parse_error,
         }
 
@@ -318,8 +312,7 @@ def coverage_gate(
     if not isinstance(data, Mapping):
         return CoverageResult(
             parse_error=(
-                f"settings.json top-level is {type(data).__name__}, "
-                "expected Mapping"
+                f"settings.json top-level is {type(data).__name__}, expected Mapping"
             )
         )
 

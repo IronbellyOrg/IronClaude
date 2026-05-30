@@ -281,8 +281,7 @@ def test_single_command_local_runnability(tmp_path: Path) -> None:
     summary_json = per_run_dir / "summary.json"
     payload = json.loads(summary_json.read_text(encoding="utf-8"))
     assert isinstance(payload, dict), (
-        f"FR-G6 AC: summary.json should be a JSON object; got "
-        f"{type(payload).__name__}."
+        f"FR-G6 AC: summary.json should be a JSON object; got {type(payload).__name__}."
     )
 
 

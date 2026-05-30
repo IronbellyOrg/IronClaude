@@ -119,9 +119,7 @@ class TestCheckVerdictField:
         "shape",
         ["Verdict PASS", "Verdict::: PASS", "Verdict***PASS", "verdict pass"],
     )
-    def test_check_verdict_field_rejects_invalid_shapes(
-        self, shape: str
-    ) -> None:
+    def test_check_verdict_field_rejects_invalid_shapes(self, shape: str) -> None:
         """Malformed verdict shapes (no colon, junk separators, lowercase
         value) are rejected — the tightened regex no longer false-accepts."""
         content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"

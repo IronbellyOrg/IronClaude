@@ -129,9 +129,7 @@ class IntegrationContract:
     description: str  # human-readable description
     requires_explicit_wiring: bool  # True if cannot be implicit
     # NEW
-    mechanism_signature: tuple[str, frozenset[str]] = field(
-        default=(("", frozenset()))
-    )
+    mechanism_signature: tuple[str, frozenset[str]] = field(default=(("", frozenset())))
     # signature = (mechanism, frozenset of normalized identifiers)
 
 
@@ -203,15 +201,17 @@ def extract_integration_contracts(spec_text: str) -> list[IntegrationContract]:
                 continue
             seen_signatures[signature] = counter
 
-            contracts.append(IntegrationContract(
-                id=f"IC-{counter:03d}",
-                mechanism=mechanism,
-                spec_evidence=context,
-                spec_location=f"line {i + 1}",
-                description=f"{mechanism}: {evidence}",
-                requires_explicit_wiring=True,
-                mechanism_signature=signature,
-            ))
+            contracts.append(
+                IntegrationContract(
+                    id=f"IC-{counter:03d}",
+                    mechanism=mechanism,
+                    spec_evidence=context,
+                    spec_location=f"line {i + 1}",
+                    description=f"{mechanism}: {evidence}",
+                    requires_explicit_wiring=True,
+                    mechanism_signature=signature,
+                )
+            )
             counter += 1
             break  # one contract per line max
 
@@ -351,9 +351,13 @@ def check_roadmap_coverage(
                         if contract_idents:
                             window_start = max(0, j - 2)
                             window_end = min(len(roadmap_lines), j + 3)
-                            window_text = " ".join(roadmap_lines[window_start:window_end])
+                            window_text = " ".join(
+                                roadmap_lines[window_start:window_end]
+                            )
                             window_upper = window_text.upper()
-                            if not any(ident in window_upper for ident in contract_idents):
+                            if not any(
+                                ident in window_upper for ident in contract_idents
+                            ):
                                 continue
                         covered = True
                         evidence = rline.strip()
@@ -432,7 +436,7 @@ def _signature_subsumed(
     mech, idents = sig
     if not idents:
         return sig in seen
-    for (smech, sidents) in seen:
+    for smech, sidents in seen:
         if smech != mech:
             continue
         if idents and sidents and idents.issubset(sidents) and (idents & sidents):
@@ -463,7 +467,11 @@ def _canonicalize_identifiers(text: str) -> frozenset[str]:
     # tokens rather than the uppercased entire input — honors invariant 2
     # without polluting the identifier set with common English words from
     # natural prose contexts.
-    hyphen_pattern = re.compile(r"\b(?=\S*\d)(?:[A-Z][A-Z0-9]*-)+[A-Z0-9]+\b", re.IGNORECASE)
+    hyphen_pattern = re.compile(
+        r"\b(?=\S*\d)(?:[A-Z][A-Z0-9]*-)+[A-Z0-9]+\b", re.IGNORECASE
+    )
     hyphen_tokens = hyphen_pattern.findall(text)
     hyphen_fragments = _extract_identifiers(" ".join(t.upper() for t in hyphen_tokens))
-    return frozenset(t.upper() for t in (base_tokens + hyphen_tokens + hyphen_fragments))
+    return frozenset(
+        t.upper() for t in (base_tokens + hyphen_tokens + hyphen_fragments)
+    )

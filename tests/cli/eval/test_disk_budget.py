@@ -76,9 +76,7 @@ def _write_bytes(path: Path, size_bytes: int) -> None:
         handle.write(b"\0" * size_bytes)
 
 
-def _wait_for_breach(
-    poller: DiskBudgetPoller, *, timeout: float = 2.0
-) -> bool:
+def _wait_for_breach(poller: DiskBudgetPoller, *, timeout: float = 2.0) -> bool:
     """Block until ``poller.is_breached()`` flips or ``timeout`` elapses."""
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -205,9 +203,7 @@ class TestDisabledPoller:
 
 
 class TestBreachDetection:
-    def test_breach_triggers_when_usage_exceeds_budget(
-        self, tmp_path: Path
-    ) -> None:
+    def test_breach_triggers_when_usage_exceeds_budget(self, tmp_path: Path) -> None:
         """The poller flips ``is_breached`` after a tick observes the breach."""
         poller = DiskBudgetPoller(
             tmp_path,
@@ -278,9 +274,7 @@ class TestBreachDetection:
             assert poller.is_breached() is True
 
     def test_no_breach_when_usage_under_budget(self, tmp_path: Path) -> None:
-        poller = DiskBudgetPoller(
-            tmp_path, max_disk_mb=1, tick_sec=0.05
-        )
+        poller = DiskBudgetPoller(tmp_path, max_disk_mb=1, tick_sec=0.05)
         _write_bytes(tmp_path / "small.bin", 4096)
         with poller:
             time.sleep(0.2)
@@ -288,9 +282,7 @@ class TestBreachDetection:
             assert poller.breach_detail() is None
             assert poller.artifact_path() is None
 
-    def test_artifact_path_returns_none_before_breach(
-        self, tmp_path: Path
-    ) -> None:
+    def test_artifact_path_returns_none_before_breach(self, tmp_path: Path) -> None:
         poller = DiskBudgetPoller(tmp_path, max_disk_mb=1, tick_sec=0.05)
         with poller:
             assert poller.artifact_path() is None
@@ -311,9 +303,7 @@ class TestSymlinkHandling:
             _write_bytes(target, 2 * 1024 * 1024)
             link = tmp_path / "evil-link"
             link.symlink_to(target)
-            poller = DiskBudgetPoller(
-                tmp_path, max_disk_mb=1, tick_sec=0.05
-            )
+            poller = DiskBudgetPoller(tmp_path, max_disk_mb=1, tick_sec=0.05)
             with poller:
                 time.sleep(0.2)
                 # The link target is 2 MB > 1 MB budget. If the poller
@@ -380,9 +370,7 @@ class _GatedWorker:
 
 
 class TestOrchestratorIntegration:
-    def test_orchestrator_accepts_optional_poller(
-        self, tmp_path: Path
-    ) -> None:
+    def test_orchestrator_accepts_optional_poller(self, tmp_path: Path) -> None:
         """The constructor accepts ``disk_budget_poller=None`` unchanged."""
 
         def worker(spec: EvalSpec) -> EvalOutcome:
@@ -392,9 +380,7 @@ class TestOrchestratorIntegration:
         outcomes = orch.run([_spec("E1"), _spec("E2")])
         assert [o.status for o in outcomes] == ["PASS", "PASS"]
 
-    def test_disabled_poller_does_not_change_behavior(
-        self, tmp_path: Path
-    ) -> None:
+    def test_disabled_poller_does_not_change_behavior(self, tmp_path: Path) -> None:
         """``max_disk_mb=0`` is a no-op even when wired through the orchestrator."""
 
         def worker(spec: EvalSpec) -> EvalOutcome:
@@ -445,13 +431,9 @@ class TestOrchestratorIntegration:
             return _passing_outcome(spec)
 
         orch = RunOrchestrator(run_one=worker, disk_budget_poller=poller)
-        outcomes = orch.run(
-            [_spec("E1"), _spec("E2"), _spec("E3")], parallel=1
-        )
+        outcomes = orch.run([_spec("E1"), _spec("E2"), _spec("E3")], parallel=1)
         assert len(outcomes) == 3
-        assert worker_calls == [], (
-            "worker invoked despite pre-existing budget breach"
-        )
+        assert worker_calls == [], "worker invoked despite pre-existing budget breach"
         for outcome in outcomes:
             assert outcome.status == "SKIPPED"
             assert outcome.skip_reason == DISK_BUDGET_EXCEEDED_REASON
@@ -459,9 +441,7 @@ class TestOrchestratorIntegration:
         # Side-car was written during the pre-breach phase.
         assert (tmp_path / DISK_BUDGET_EXCEEDED_ARTIFACT_NAME).exists()
 
-    def test_inflight_workers_complete_after_breach(
-        self, tmp_path: Path
-    ) -> None:
+    def test_inflight_workers_complete_after_breach(self, tmp_path: Path) -> None:
         """In-flight workers are not interrupted by a mid-run breach.
 
         Submit a batch of slow workers; once the pool is saturated,
@@ -498,9 +478,7 @@ class TestOrchestratorIntegration:
         outcomes_holder: dict[str, list[EvalOutcome]] = {}
 
         def runner() -> None:
-            outcomes_holder["result"] = orch.run(
-                [_spec("E1"), _spec("E2")], parallel=2
-            )
+            outcomes_holder["result"] = orch.run([_spec("E1"), _spec("E2")], parallel=2)
 
         run_thread = threading.Thread(target=runner)
         run_thread.start()
@@ -520,9 +498,7 @@ class TestOrchestratorIntegration:
         # work on a disk-budget breach.
         assert [o.status for o in outcomes] == ["PASS", "PASS"]
 
-    def test_breach_outcome_order_matches_input_order(
-        self, tmp_path: Path
-    ) -> None:
+    def test_breach_outcome_order_matches_input_order(self, tmp_path: Path) -> None:
         """Even with SKIPPED backfills, the outcome order must mirror specs.
 
         Pre-breach the poller so every spec is routed to the SKIPPED
@@ -556,9 +532,7 @@ class TestOrchestratorIntegration:
         outcomes = orch.run([_spec("E1"), _spec("E2")])
         assert all(o.status == "PASS" for o in outcomes)
 
-    def test_breach_stops_poller_on_orchestrator_exit(
-        self, tmp_path: Path
-    ) -> None:
+    def test_breach_stops_poller_on_orchestrator_exit(self, tmp_path: Path) -> None:
         """The poller thread is joined when ``run()`` returns."""
         _write_bytes(tmp_path / "payload.bin", int(1.5 * 1024 * 1024))
         poller = DiskBudgetPoller(tmp_path, max_disk_mb=1, tick_sec=0.05)
@@ -575,9 +549,7 @@ class TestOrchestratorIntegration:
         if thread is not None:
             assert thread.is_alive() is False
 
-    def test_cancellation_takes_priority_over_disk_breach(
-        self, tmp_path: Path
-    ) -> None:
+    def test_cancellation_takes_priority_over_disk_breach(self, tmp_path: Path) -> None:
         """A cancelled token routes unsubmitted specs to INTERRUPTED, not SKIPPED."""
         from superclaude.cli.eval.signal_handler import CancellationToken
 
@@ -594,9 +566,7 @@ class TestOrchestratorIntegration:
             cancellation_token=token,
             disk_budget_poller=poller,
         )
-        outcomes = orch.run(
-            [_spec("E1"), _spec("E2")], parallel=1
-        )
+        outcomes = orch.run([_spec("E1"), _spec("E2")], parallel=1)
         # Token was already cancelled before submission, so every spec
         # is INTERRUPTED (operator intent dominates the resource limit).
         assert all(o.status == "INTERRUPTED" for o in outcomes)

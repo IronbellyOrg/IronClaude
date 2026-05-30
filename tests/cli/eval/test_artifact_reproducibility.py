@@ -113,9 +113,7 @@ def _make_traceback() -> str:
     try:
         raise RuntimeError("simulated harness error inside eval body")
     except RuntimeError as exc:
-        return "".join(
-            tb_mod.format_exception(type(exc), exc, exc.__traceback__)
-        )
+        return "".join(tb_mod.format_exception(type(exc), exc, exc.__traceback__))
 
 
 def _write_pass_per_eval(
@@ -249,9 +247,7 @@ def _per_eval_artifacts_map(
 
     eval_dir = compose_per_eval_dir(run_dir, eval_id)
     return {
-        LOGS_JSONL_NAME: (
-            eval_dir.relative_to(run_dir) / LOGS_JSONL_NAME
-        ).as_posix(),
+        LOGS_JSONL_NAME: (eval_dir.relative_to(run_dir) / LOGS_JSONL_NAME).as_posix(),
         TTY_TRANSCRIPT_NAME: (
             eval_dir.relative_to(run_dir) / TTY_TRANSCRIPT_NAME
         ).as_posix(),
@@ -283,9 +279,7 @@ def _build_summary(
         title=f"{pass_eval_id} pass",
         status="PASS",
         duration_sec=1.25,
-        expects=(
-            ExpectResult(name="exit_code", passed=True, message="ok"),
-        ),
+        expects=(ExpectResult(name="exit_code", passed=True, message="ok"),),
         artifacts=pass_artifacts,
     )
 
@@ -508,9 +502,7 @@ def test_errored_outcome_records_stack_trace(tmp_path: Path) -> None:
     )
     payload = json.loads(Reporter(summary).to_json())
 
-    errored_row = next(
-        row for row in payload["evals"] if row["status"] == "ERRORED"
-    )
+    errored_row = next(row for row in payload["evals"] if row["status"] == "ERRORED")
     assert errored_row["error_class"] == "builtins.RuntimeError"
     assert errored_row["expects"], "ERRORED row must carry an ExpectResult"
     rendered_failure = errored_row["expects"][0]["failure"]
@@ -635,9 +627,7 @@ def test_artifact_tree_reproducible_across_replays(tmp_path: Path) -> None:
             traceback_str=trace,
         )
         written = Reporter(summary).write(run_dir)
-        payloads.append(
-            json.loads(written["summary.json"].read_text(encoding="utf-8"))
-        )
+        payloads.append(json.loads(written["summary.json"].read_text(encoding="utf-8")))
 
     # The two replays' run-dir tails (date + run-id) match.
     tail_a = compose_run_dir(root_a, _STARTED_AT, suite_name=_SUITE_NAME).relative_to(

@@ -57,14 +57,14 @@ def _pass_outcome(eval_id: str = "E1") -> EvalOutcome:
         title=f"{eval_id} sticky lifecycle",
         status="PASS",
         duration_sec=8.3,
-        expects=(
-            ExpectResult(name="file.exists", passed=True, message="ok"),
-        ),
+        expects=(ExpectResult(name="file.exists", passed=True, message="ok"),),
         artifacts={"stdout": f"evals/{eval_id}/stdout.log"},
     )
 
 
-def _skipped_outcome(eval_id: str = "E2", reason: str = "capability_gate") -> EvalOutcome:
+def _skipped_outcome(
+    eval_id: str = "E2", reason: str = "capability_gate"
+) -> EvalOutcome:
     return EvalOutcome(
         eval_id=eval_id,
         title=f"{eval_id} requires mcp",
@@ -448,9 +448,7 @@ def test_writer_handles_partial_summary_with_interrupted_row(tmp_path: Path) -> 
 def test_reporter_contract_violation_message_includes_counts() -> None:
     """The exception message includes both sides of the mismatch + run_id."""
 
-    summary = _summary(
-        evals=(_pass_outcome("E1"),), expanded_n_prime=2, kept_k=2
-    )
+    summary = _summary(evals=(_pass_outcome("E1"),), expanded_n_prime=2, kept_k=2)
     with pytest.raises(ReporterContractViolation) as exc_info:
         render_summary_json(summary)
 

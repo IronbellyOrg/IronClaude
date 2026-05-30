@@ -346,8 +346,7 @@ class TestMonotonicityNotConsultedOnRegression:
     def test_shrinking_log_has_no_monotonicity_halt(self, shrinking_log: HaltLog):
         joined = "\n".join(shrinking_log.lines)
         assert "HALT-MONOTONICITY" not in joined, (
-            "monotonicity halt token unexpectedly present on shrinking "
-            "regression run"
+            "monotonicity halt token unexpectedly present on shrinking regression run"
         )
 
     def test_non_shrinking_log_has_no_monotonicity_halt(
@@ -437,9 +436,7 @@ class TestCanonicalFixtureParity:
 
     def test_canonical_shrinking_halt_byte_exact(self, canonical_shrinking_text: str):
         halts = [
-            ln
-            for ln in canonical_shrinking_text.splitlines()
-            if ln.startswith("HALT ")
+            ln for ln in canonical_shrinking_text.splitlines() if ln.startswith("HALT ")
         ]
         assert halts == [self.EXPECTED_CANONICAL_HALT_LINE], (
             f"D-0057 shrinking fixture HALT line(s) {halts!r} differ from "

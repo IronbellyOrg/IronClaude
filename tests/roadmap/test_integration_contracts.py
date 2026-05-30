@@ -330,7 +330,8 @@ class TestHubDispatchRegression:
         """4 epic lines mentioning hub dispatch → 1 IntegrationContract."""
         contracts = extract_integration_contracts(TUIBBS_HUB_SPEC)
         hub_contracts = [
-            c for c in contracts
+            c
+            for c in contracts
             if c.mechanism == "dispatch_table"
             and "FR-S10-02" in c.mechanism_signature[1]
         ]
@@ -376,9 +377,7 @@ class TestHubDispatchRegression:
 
     def test_t7_stem_fallback_without_ident_overlap_uncovers(self):
         """'Implement priority dispatch for logging' must NOT cover hub contract because no identifier overlap with the contract's signature."""
-        spec = (
-            "The hub uses class-priority dispatch — FR-S10-02 is the relevant requirement.\n"
-        )
+        spec = "The hub uses class-priority dispatch — FR-S10-02 is the relevant requirement.\n"
         roadmap = (
             "## M5\n"
             "Implement priority dispatch for logging events.\n"
@@ -403,7 +402,9 @@ class TestExtractIdentifiersInvariants:
         # INV-003 guard: PascalCase tokens must survive .upper() AND
         # Layer-3 window-upper. This pin test would FAIL if either side
         # of the canonicalization chain regresses.
-        assert _canonicalize_identifiers("ConcreteStrategy") == frozenset({"CONCRETESTRATEGY"})
+        assert _canonicalize_identifiers("ConcreteStrategy") == frozenset(
+            {"CONCRETESTRATEGY"}
+        )
 
     def test_empty_text_yields_empty_frozenset(self):
         assert _canonicalize_identifiers("") == frozenset()

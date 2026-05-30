@@ -56,9 +56,7 @@ def _passing_outcome(spec: EvalSpec, duration_sec: float = 0.0) -> EvalOutcome:
     )
 
 
-def _make_recording_worker() -> tuple[
-    Callable[[EvalSpec], EvalOutcome], list[str]
-]:
+def _make_recording_worker() -> tuple[Callable[[EvalSpec], EvalOutcome], list[str]]:
     """Return ``(worker, call_log)`` where ``call_log`` captures spec ids."""
 
     call_log: list[str] = []
@@ -370,9 +368,7 @@ def test_orchestrator_allocates_unique_session_id_per_run() -> None:
 
     sid_a = allocate_session_id(run_id="20260522T120000Z-deadbeef", eval_id="E1")
     sid_b = allocate_session_id(run_id="20260522T130000Z-cafebabe", eval_id="E1")
-    sid_a_repeat = allocate_session_id(
-        run_id="20260522T120000Z-deadbeef", eval_id="E1"
-    )
+    sid_a_repeat = allocate_session_id(run_id="20260522T120000Z-deadbeef", eval_id="E1")
 
     assert sid_a != sid_b, "different run_ids must produce different session_ids"
     assert sid_a == sid_a_repeat, "same (run_id, eval_id) must be stable"
@@ -393,6 +389,6 @@ def test_run_one_spec_uses_orchestrator_allocate_session_id() -> None:
         "_run_one_spec must call orchestrator.allocate_session_id, not "
         "construct session_id ad-hoc"
     )
-    assert 'sess-{spec.id}' not in source, (
+    assert "sess-{spec.id}" not in source, (
         "_run_one_spec must not embed the old ad-hoc f-string"
     )

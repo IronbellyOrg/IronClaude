@@ -1057,6 +1057,7 @@ class TestTaskOutputFileHelpers:
 
     def _make_config(self, tmp_path):
         from superclaude.cli.sprint.models import Phase, SprintConfig
+
         phase = Phase(number=2, file=tmp_path / "phase-2-tasklist.md")
         phase.file.write_text("# Phase 2\n")
         index = tmp_path / "tasklist-index.md"

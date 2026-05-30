@@ -295,7 +295,9 @@ class TestStartupStallWatchdog:
             def __init__(self):
                 self.returncode = None
                 self.pid = 7777
-                self.stdin = MagicMock()  # workaround pre-existing .stdin AttributeError
+                self.stdin = (
+                    MagicMock()
+                )  # workaround pre-existing .stdin AttributeError
 
             def poll(self):
                 if terminated[0]:

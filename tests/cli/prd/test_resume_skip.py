@@ -23,8 +23,11 @@ _STAGE_A_IDS = [s[0] for s in _STAGE_A_STEPS]
 def _make_executor(tmp_path: Path, resume_from=None) -> PrdExecutor:
     """Build a PrdExecutor with a real (writable) task dir."""
     config = resolve_config(
-        "resume-skip test", product="resume-test", tier="standard",
-        dry_run=False, resume_from=resume_from,
+        "resume-skip test",
+        product="resume-test",
+        tier="standard",
+        dry_run=False,
+        resume_from=resume_from,
     )
     task_dir = tmp_path / "prd-resume-test"
     config.task_dir = task_dir
@@ -105,12 +108,16 @@ def _stage_b_groups(executor: PrdExecutor, monkeypatch) -> list[str]:
     group names actually dispatched to _execute_parallel_steps."""
     groups: list[str] = []
     monkeypatch.setattr(
-        executor, "_execute_parallel_steps",
+        executor,
+        "_execute_parallel_steps",
         lambda steps, result, group: groups.append(group),
     )
     monkeypatch.setattr(executor, "_execute_qa_fix_cycle", lambda *a, **k: None)
-    monkeypatch.setattr(executor, "_execute_step", lambda *a, **k: PrdStepResult(
-        status=PrdStepStatus.PASS))
+    monkeypatch.setattr(
+        executor,
+        "_execute_step",
+        lambda *a, **k: PrdStepResult(status=PrdStepStatus.PASS),
+    )
     executor._execute_stage_b(PrdPipelineResult(config=executor._config))
     return groups
 

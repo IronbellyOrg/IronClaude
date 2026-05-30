@@ -26,7 +26,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 AGENT_SRC = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-qa-qualitative.md"
 AGENT_MIRROR = REPO_ROOT / ".claude" / "agents" / "rf-qa-qualitative.md"
 
-HEADER_RE = re.compile(r"\|\s*#\s*\|\s*Check\s*\|\s*axis\s*\|\s*Result\s*\|\s*Evidence\s*\|", re.IGNORECASE)
+HEADER_RE = re.compile(
+    r"\|\s*#\s*\|\s*Check\s*\|\s*axis\s*\|\s*Result\s*\|\s*Evidence\s*\|", re.IGNORECASE
+)
 ITEMS_REVIEWED_LINE = "## Items Reviewed"
 FORBIDDEN_VALUES = ["N/A", "n/a", "—", "blank"]
 

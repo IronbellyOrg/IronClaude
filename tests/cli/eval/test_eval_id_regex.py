@@ -50,15 +50,15 @@ def test_eval_id_regex_is_compiled_pattern() -> None:
 @pytest.mark.parametrize(
     "eval_id",
     [
-        "E1",        # canonical eval id (design-spec example)
+        "E1",  # canonical eval id (design-spec example)
         "E2",
         "E15",
-        "E2.1",      # parameterize-expanded id (design-spec example)
+        "E2.1",  # parameterize-expanded id (design-spec example)
         "E2.10",
-        "D15",       # design-spec example
-        "A",         # minimum-length: single uppercase letter
+        "D15",  # design-spec example
+        "A",  # minimum-length: single uppercase letter
         "Z9",
-        "Test1",     # mixed-case body is allowed by the regex
+        "Test1",  # mixed-case body is allowed by the regex
         "ABC123",
         "E0.0",
         "Foo42.7",
@@ -78,19 +78,19 @@ def test_validate_eval_id_accepts_well_formed_ids(eval_id: str) -> None:
 @pytest.mark.parametrize(
     "eval_id",
     [
-        "../home",         # AC: path-traversal prefix
-        "../../etc",       # deeper traversal
-        "/etc",            # AC: absolute-path leak
+        "../home",  # AC: path-traversal prefix
+        "../../etc",  # deeper traversal
+        "/etc",  # AC: absolute-path leak
         "/tmp/eval-runs",  # absolute path matching scratch allowlist
-        "..",              # AC: bare traversal
-        ".",               # bare current-dir
-        "./foo",           # relative-with-dot
-        "foo/bar",         # embedded slash
-        "foo\\bar",        # embedded backslash (Windows-style)
-        "E1/x",            # otherwise-valid prefix with slash suffix
-        "E1\x00",          # NUL terminator (defence in depth)
-        "E1\n",            # trailing newline (re.fullmatch-equivalent guard)
-        "E 1",             # whitespace
+        "..",  # AC: bare traversal
+        ".",  # bare current-dir
+        "./foo",  # relative-with-dot
+        "foo/bar",  # embedded slash
+        "foo\\bar",  # embedded backslash (Windows-style)
+        "E1/x",  # otherwise-valid prefix with slash suffix
+        "E1\x00",  # NUL terminator (defence in depth)
+        "E1\n",  # trailing newline (re.fullmatch-equivalent guard)
+        "E 1",  # whitespace
         " E1",
         "E1 ",
         "\tE1",
@@ -129,14 +129,14 @@ def test_validate_eval_id_rejects_leading_digit_ids(eval_id: str) -> None:
 @pytest.mark.parametrize(
     "eval_id",
     [
-        "{{prefix}}",         # AC: template tokens inside id
-        "E{{p}}",             # partial template residue
+        "{{prefix}}",  # AC: template tokens inside id
+        "E{{p}}",  # partial template residue
         "E1{{n}}",
-        "{prefix}",           # single-brace template (Click-style)
-        "${var}",             # shell variable expansion
+        "{prefix}",  # single-brace template (Click-style)
+        "${var}",  # shell variable expansion
         "$var",
-        "%name%",             # cmd-style variable
-        "<id>",               # XML-ish placeholder
+        "%name%",  # cmd-style variable
+        "<id>",  # XML-ish placeholder
     ],
 )
 def test_validate_eval_id_rejects_template_token_patterns(eval_id: str) -> None:
@@ -147,13 +147,13 @@ def test_validate_eval_id_rejects_template_token_patterns(eval_id: str) -> None:
 @pytest.mark.parametrize(
     "eval_id",
     [
-        "e1",           # lowercase start (regex anchors to [A-Z])
+        "e1",  # lowercase start (regex anchors to [A-Z])
         "eval1",
-        "E-1",          # hyphen not in [A-Za-z0-9]
-        "E_1",          # underscore not in [A-Za-z0-9]
-        "E1.",          # trailing dot with no digit suffix
-        "E.1",          # dot must follow a digit run
-        "E1.1.1",       # only one ".N" decimal allowed
+        "E-1",  # hyphen not in [A-Za-z0-9]
+        "E_1",  # underscore not in [A-Za-z0-9]
+        "E1.",  # trailing dot with no digit suffix
+        "E.1",  # dot must follow a digit run
+        "E1.1.1",  # only one ".N" decimal allowed
         "E1..1",
         "E1.1.",
     ],

@@ -48,9 +48,7 @@ EXPECTED_TOP_LEVEL_COMMANDS: frozenset[str] = frozenset(
 
 # M1 subcommands that MUST appear under `superclaude eval` per FR-CLI2/3/4.
 # Later milestones add `run` (FR-CLI1, M4); the M1 floor is asserted here.
-EXPECTED_EVAL_SUBCOMMANDS_M1: frozenset[str] = frozenset(
-    {"describe", "doctor", "list"}
-)
+EXPECTED_EVAL_SUBCOMMANDS_M1: frozenset[str] = frozenset({"describe", "doctor", "list"})
 
 
 @pytest.fixture

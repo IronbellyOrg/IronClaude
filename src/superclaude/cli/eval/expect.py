@@ -141,7 +141,9 @@ def _unified_diff(expected: str, actual: str, *, name: str) -> str:
     return "".join(diff_lines)
 
 
-def _named_callable(name: str, fn: Callable[[EvalContext], ExpectResult]) -> ExpectCallable:
+def _named_callable(
+    name: str, fn: Callable[[EvalContext], ExpectResult]
+) -> ExpectCallable:
     """Tag ``fn`` with ``__name__`` so the runner's JSONL log records it."""
 
     fn.__name__ = name
@@ -203,59 +205,86 @@ class Expect:
         compiled = re.compile(regex) if regex is not None else None
 
         def _run(ctx: EvalContext) -> ExpectResult:
-            def _build() -> tuple[bool, str, Mapping[str, Any], Optional[ExpectFailure]]:
+            def _build() -> tuple[
+                bool, str, Mapping[str, Any], Optional[ExpectFailure]
+            ]:
                 resolved = _resolve_path(ctx, path)
                 file_exists = resolved.exists()
 
                 if exists is not None and file_exists != bool(exists):
                     msg = f"file existence: expected {bool(exists)} got {file_exists}"
-                    return False, msg, {"path": str(resolved), "exists": file_exists}, _make_failure(
-                        ctx,
-                        name="file",
-                        expected={"exists": bool(exists)},
-                        actual={"exists": file_exists},
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        {"path": str(resolved), "exists": file_exists},
+                        _make_failure(
+                            ctx,
+                            name="file",
+                            expected={"exists": bool(exists)},
+                            actual={"exists": file_exists},
+                            message=msg,
+                        ),
                     )
 
                 if not file_exists:
                     # Nothing else to assert against a missing file.
-                    return True, "file absent (per exists=False)", {"path": str(resolved)}, None
+                    return (
+                        True,
+                        "file absent (per exists=False)",
+                        {"path": str(resolved)},
+                        None,
+                    )
 
                 content = resolved.read_text(encoding="utf-8", errors="replace")
 
                 if equals is not None and content != equals:
                     diff = _unified_diff(equals, content, name=str(resolved))
-                    return False, "file content does not equal expected", {
-                        "path": str(resolved),
-                        "diff": diff,
-                    }, _make_failure(
-                        ctx,
-                        name="file",
-                        expected=equals,
-                        actual=content,
-                        message="file content does not equal expected",
+                    return (
+                        False,
+                        "file content does not equal expected",
+                        {
+                            "path": str(resolved),
+                            "diff": diff,
+                        },
+                        _make_failure(
+                            ctx,
+                            name="file",
+                            expected=equals,
+                            actual=content,
+                            message="file content does not equal expected",
+                        ),
                     )
 
                 if contains is not None and contains not in content:
-                    return False, f"file missing substring {contains!r}", {
-                        "path": str(resolved),
-                    }, _make_failure(
-                        ctx,
-                        name="file",
-                        expected={"contains": contains},
-                        actual=content,
-                        message=f"substring {contains!r} not found in {resolved}",
+                    return (
+                        False,
+                        f"file missing substring {contains!r}",
+                        {
+                            "path": str(resolved),
+                        },
+                        _make_failure(
+                            ctx,
+                            name="file",
+                            expected={"contains": contains},
+                            actual=content,
+                            message=f"substring {contains!r} not found in {resolved}",
+                        ),
                     )
 
                 if compiled is not None and compiled.search(content) is None:
-                    return False, f"file does not match regex {regex!r}", {
-                        "path": str(resolved),
-                    }, _make_failure(
-                        ctx,
-                        name="file",
-                        expected={"regex": regex},
-                        actual=content,
-                        message=f"regex {regex!r} did not match {resolved}",
+                    return (
+                        False,
+                        f"file does not match regex {regex!r}",
+                        {
+                            "path": str(resolved),
+                        },
+                        _make_failure(
+                            ctx,
+                            name="file",
+                            expected={"regex": regex},
+                            actual=content,
+                            message=f"regex {regex!r} did not match {resolved}",
+                        ),
                     )
 
                 return True, "file assertions satisfied", {"path": str(resolved)}, None
@@ -283,7 +312,9 @@ class Expect:
         """
 
         def _run(ctx: EvalContext) -> ExpectResult:
-            def _build() -> tuple[bool, str, Mapping[str, Any], Optional[ExpectFailure]]:
+            def _build() -> tuple[
+                bool, str, Mapping[str, Any], Optional[ExpectFailure]
+            ]:
                 path_str = str(path)
                 if path_str in ctx.jsonl_paths:
                     resolved = Path(ctx.jsonl_paths[path_str])
@@ -292,12 +323,17 @@ class Expect:
 
                 if not resolved.exists():
                     msg = f"jsonl path {resolved} does not exist"
-                    return False, msg, {"path": str(resolved)}, _make_failure(
-                        ctx,
-                        name="jsonl",
-                        expected={"exists": True},
-                        actual={"exists": False},
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        {"path": str(resolved)},
+                        _make_failure(
+                            ctx,
+                            name="jsonl",
+                            expected={"exists": True},
+                            actual={"exists": False},
+                            message=msg,
+                        ),
                     )
 
                 rows: list[Mapping[str, Any]] = []
@@ -310,59 +346,84 @@ class Expect:
                             rows.append(json.loads(raw))
                         except json.JSONDecodeError as exc:
                             msg = f"line {lineno} not valid JSON: {exc}"
-                            return False, msg, {"path": str(resolved)}, _make_failure(
-                                ctx,
-                                name="jsonl",
-                                expected="valid JSON per line",
-                                actual=raw,
-                                message=msg,
-                                exc=exc,
+                            return (
+                                False,
+                                msg,
+                                {"path": str(resolved)},
+                                _make_failure(
+                                    ctx,
+                                    name="jsonl",
+                                    expected="valid JSON per line",
+                                    actual=raw,
+                                    message=msg,
+                                    exc=exc,
+                                ),
                             )
 
                 filtered = [r for r in rows if filter is None or filter(r)]
 
                 if line_count is not None and len(filtered) != line_count:
                     msg = f"line_count expected {line_count} got {len(filtered)}"
-                    return False, msg, {
-                        "path": str(resolved),
-                        "actual": len(filtered),
-                    }, _make_failure(
-                        ctx,
-                        name="jsonl",
-                        expected={"line_count": line_count},
-                        actual={"line_count": len(filtered)},
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        {
+                            "path": str(resolved),
+                            "actual": len(filtered),
+                        },
+                        _make_failure(
+                            ctx,
+                            name="jsonl",
+                            expected={"line_count": line_count},
+                            actual={"line_count": len(filtered)},
+                            message=msg,
+                        ),
                     )
 
                 if assert_each is not None:
                     for idx, row in enumerate(filtered):
                         if not assert_each(row):
                             msg = f"assert_each failed at index {idx}"
-                            return False, msg, {
-                                "path": str(resolved),
-                                "row_index": idx,
-                            }, _make_failure(
-                                ctx,
-                                name="jsonl",
-                                expected={"assert_each": "predicate true"},
-                                actual=dict(row),
-                                message=msg,
+                            return (
+                                False,
+                                msg,
+                                {
+                                    "path": str(resolved),
+                                    "row_index": idx,
+                                },
+                                _make_failure(
+                                    ctx,
+                                    name="jsonl",
+                                    expected={"assert_each": "predicate true"},
+                                    actual=dict(row),
+                                    message=msg,
+                                ),
                             )
 
                 if assert_any is not None and not any(assert_any(r) for r in filtered):
                     msg = "assert_any predicate satisfied by no row"
-                    return False, msg, {"path": str(resolved)}, _make_failure(
-                        ctx,
-                        name="jsonl",
-                        expected={"assert_any": "any matching row"},
-                        actual=[dict(r) for r in filtered],
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        {"path": str(resolved)},
+                        _make_failure(
+                            ctx,
+                            name="jsonl",
+                            expected={"assert_any": "any matching row"},
+                            actual=[dict(r) for r in filtered],
+                            message=msg,
+                        ),
                     )
 
-                return True, "jsonl assertions satisfied", {
-                    "path": str(resolved),
-                    "rows_inspected": len(filtered),
-                }, None
+                return (
+                    True,
+                    "jsonl assertions satisfied",
+                    {
+                        "path": str(resolved),
+                        "rows_inspected": len(filtered),
+                    },
+                    None,
+                )
 
             return _timed_result("jsonl", _build)
 
@@ -392,30 +453,44 @@ class Expect:
         """
 
         def _run(ctx: EvalContext) -> ExpectResult:
-            def _build() -> tuple[bool, str, Mapping[str, Any], Optional[ExpectFailure]]:
+            def _build() -> tuple[
+                bool, str, Mapping[str, Any], Optional[ExpectFailure]
+            ]:
                 resolved = _resolve_path(ctx, path)
                 if not resolved.exists():
                     msg = f"settings.json not found at {resolved}"
-                    return False, msg, {"path": str(resolved)}, _make_failure(
-                        ctx,
-                        name="settings_json",
-                        expected={"settings_json_present": True},
-                        actual={"settings_json_present": False},
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        {"path": str(resolved)},
+                        _make_failure(
+                            ctx,
+                            name="settings_json",
+                            expected={"settings_json_present": True},
+                            actual={"settings_json_present": False},
+                            message=msg,
+                        ),
                     )
 
                 try:
                     payload = json.loads(resolved.read_text(encoding="utf-8"))
                 except json.JSONDecodeError as exc:
-                    return False, f"settings.json invalid JSON: {exc}", {
-                        "path": str(resolved),
-                    }, _make_failure(
-                        ctx,
-                        name="settings_json",
-                        expected="valid JSON",
-                        actual=resolved.read_text(encoding="utf-8", errors="replace"),
-                        message=str(exc),
-                        exc=exc,
+                    return (
+                        False,
+                        f"settings.json invalid JSON: {exc}",
+                        {
+                            "path": str(resolved),
+                        },
+                        _make_failure(
+                            ctx,
+                            name="settings_json",
+                            expected="valid JSON",
+                            actual=resolved.read_text(
+                                encoding="utf-8", errors="replace"
+                            ),
+                            message=str(exc),
+                            exc=exc,
+                        ),
                     )
 
                 found = True
@@ -429,51 +504,73 @@ class Expect:
                         break
 
                 if exists is not None and found != bool(exists):
-                    msg = f"key_path {key_path!r} exists={found}, expected {bool(exists)}"
-                    return False, msg, {
-                        "path": str(resolved),
-                        "key_path": key_path,
-                        "found": found,
-                    }, _make_failure(
-                        ctx,
-                        name="settings_json",
-                        expected={"key_path": key_path, "exists": bool(exists)},
-                        actual={"key_path": key_path, "exists": found},
-                        message=msg,
+                    msg = (
+                        f"key_path {key_path!r} exists={found}, expected {bool(exists)}"
+                    )
+                    return (
+                        False,
+                        msg,
+                        {
+                            "path": str(resolved),
+                            "key_path": key_path,
+                            "found": found,
+                        },
+                        _make_failure(
+                            ctx,
+                            name="settings_json",
+                            expected={"key_path": key_path, "exists": bool(exists)},
+                            actual={"key_path": key_path, "exists": found},
+                            message=msg,
+                        ),
                     )
 
                 if equals is not _SENTINEL:
                     if not found:
                         msg = f"key_path {key_path!r} missing; cannot compare"
-                        return False, msg, {
-                            "path": str(resolved),
-                            "key_path": key_path,
-                        }, _make_failure(
-                            ctx,
-                            name="settings_json",
-                            expected=equals,
-                            actual=None,
-                            message=msg,
+                        return (
+                            False,
+                            msg,
+                            {
+                                "path": str(resolved),
+                                "key_path": key_path,
+                            },
+                            _make_failure(
+                                ctx,
+                                name="settings_json",
+                                expected=equals,
+                                actual=None,
+                                message=msg,
+                            ),
                         )
                     if value != equals:
                         msg = f"key_path {key_path!r} value mismatch"
-                        return False, msg, {
-                            "path": str(resolved),
-                            "key_path": key_path,
-                            "actual": value,
-                        }, _make_failure(
-                            ctx,
-                            name="settings_json",
-                            expected=equals,
-                            actual=value,
-                            message=msg,
+                        return (
+                            False,
+                            msg,
+                            {
+                                "path": str(resolved),
+                                "key_path": key_path,
+                                "actual": value,
+                            },
+                            _make_failure(
+                                ctx,
+                                name="settings_json",
+                                expected=equals,
+                                actual=value,
+                                message=msg,
+                            ),
                         )
 
-                return True, "settings.json assertions satisfied", {
-                    "path": str(resolved),
-                    "key_path": key_path,
-                    "found": found,
-                }, None
+                return (
+                    True,
+                    "settings.json assertions satisfied",
+                    {
+                        "path": str(resolved),
+                        "key_path": key_path,
+                        "found": found,
+                    },
+                    None,
+                )
 
             return _timed_result("settings_json", _build)
 
@@ -511,37 +608,54 @@ class Expect:
         )
 
         def _run(ctx: EvalContext) -> ExpectResult:
-            def _build() -> tuple[bool, str, Mapping[str, Any], Optional[ExpectFailure]]:
+            def _build() -> tuple[
+                bool, str, Mapping[str, Any], Optional[ExpectFailure]
+            ]:
                 code = ctx.exit_code
 
                 if normalized_set is not None:
                     if code not in normalized_set:
                         msg = f"exit_code {code} not in {sorted(normalized_set)}"
-                        return False, msg, {"actual": code}, _make_failure(
-                            ctx,
-                            name="exit_code",
-                            expected={"in_set": sorted(normalized_set)},
-                            actual=code,
-                            message=msg,
+                        return (
+                            False,
+                            msg,
+                            {"actual": code},
+                            _make_failure(
+                                ctx,
+                                name="exit_code",
+                                expected={"in_set": sorted(normalized_set)},
+                                actual=code,
+                                message=msg,
+                            ),
                         )
                 elif effective_equals is not None and code != effective_equals:
                     msg = f"exit_code expected {effective_equals} got {code}"
-                    return False, msg, {"actual": code}, _make_failure(
-                        ctx,
-                        name="exit_code",
-                        expected=effective_equals,
-                        actual=code,
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        {"actual": code},
+                        _make_failure(
+                            ctx,
+                            name="exit_code",
+                            expected=effective_equals,
+                            actual=code,
+                            message=msg,
+                        ),
                     )
 
                 if not_equals is not None and code == not_equals:
                     msg = f"exit_code expected != {not_equals}, got {code}"
-                    return False, msg, {"actual": code}, _make_failure(
-                        ctx,
-                        name="exit_code",
-                        expected={"not_equals": not_equals},
-                        actual=code,
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        {"actual": code},
+                        _make_failure(
+                            ctx,
+                            name="exit_code",
+                            expected={"not_equals": not_equals},
+                            actual=code,
+                            message=msg,
+                        ),
                     )
 
                 return True, f"exit_code={code}", {"actual": code}, None
@@ -602,32 +716,49 @@ class Expect:
         """
 
         def _run(ctx: EvalContext) -> ExpectResult:
-            def _build() -> tuple[bool, str, Mapping[str, Any], Optional[ExpectFailure]]:
+            def _build() -> tuple[
+                bool, str, Mapping[str, Any], Optional[ExpectFailure]
+            ]:
                 observed = ctx.duration_sec
                 details: dict[str, Any] = {"observed_sec": observed}
 
                 if max_sec is not None and observed > max_sec:
                     msg = f"duration {observed:.3f}s exceeds max_sec {max_sec}"
-                    return False, msg, details, _make_failure(
-                        ctx,
-                        name="duration",
-                        expected={"max_sec": max_sec},
-                        actual=observed,
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        details,
+                        _make_failure(
+                            ctx,
+                            name="duration",
+                            expected={"max_sec": max_sec},
+                            actual=observed,
+                            message=msg,
+                        ),
                     )
 
                 if min_sec is not None and observed < min_sec:
                     msg = f"duration {observed:.3f}s below min_sec {min_sec}"
-                    return False, msg, details, _make_failure(
-                        ctx,
-                        name="duration",
-                        expected={"min_sec": min_sec},
-                        actual=observed,
-                        message=msg,
+                    return (
+                        False,
+                        msg,
+                        details,
+                        _make_failure(
+                            ctx,
+                            name="duration",
+                            expected={"min_sec": min_sec},
+                            actual=observed,
+                            message=msg,
+                        ),
                     )
 
                 if max_sec is None and min_sec is None:
-                    return True, f"duration={observed:.3f}s (informational)", details, None
+                    return (
+                        True,
+                        f"duration={observed:.3f}s (informational)",
+                        details,
+                        None,
+                    )
 
                 return True, f"duration={observed:.3f}s within bounds", details, None
 
@@ -657,11 +788,10 @@ class Expect:
                 "Expect.from_mapping requires exactly one primitive key; "
                 f"got {sorted(mapping)!r}"
             )
-        (key, value), = mapping.items()
+        ((key, value),) = mapping.items()
         if key not in PRIMITIVE_NAMES:
             raise ValueError(
-                f"Unknown Expect primitive {key!r}; "
-                f"valid names are {PRIMITIVE_NAMES!r}"
+                f"Unknown Expect primitive {key!r}; valid names are {PRIMITIVE_NAMES!r}"
             )
 
         kwargs: Mapping[str, Any] = value if isinstance(value, Mapping) else {}
@@ -687,32 +817,47 @@ def _stream_predicate(
 
             if contains is not None and contains not in buf:
                 msg = f"{name} missing substring {contains!r}"
-                return False, msg, {"stream": name}, _make_failure(
-                    ctx,
-                    name=name,
-                    expected={"contains": contains},
-                    actual=buf,
-                    message=msg,
+                return (
+                    False,
+                    msg,
+                    {"stream": name},
+                    _make_failure(
+                        ctx,
+                        name=name,
+                        expected={"contains": contains},
+                        actual=buf,
+                        message=msg,
+                    ),
                 )
 
             if compiled is not None and compiled.search(buf) is None:
                 msg = f"{name} did not match regex {regex!r}"
-                return False, msg, {"stream": name}, _make_failure(
-                    ctx,
-                    name=name,
-                    expected={"regex": regex},
-                    actual=buf,
-                    message=msg,
+                return (
+                    False,
+                    msg,
+                    {"stream": name},
+                    _make_failure(
+                        ctx,
+                        name=name,
+                        expected={"regex": regex},
+                        actual=buf,
+                        message=msg,
+                    ),
                 )
 
             if not_contains is not None and not_contains in buf:
                 msg = f"{name} unexpectedly contained {not_contains!r}"
-                return False, msg, {"stream": name}, _make_failure(
-                    ctx,
-                    name=name,
-                    expected={"not_contains": not_contains},
-                    actual=buf,
-                    message=msg,
+                return (
+                    False,
+                    msg,
+                    {"stream": name},
+                    _make_failure(
+                        ctx,
+                        name=name,
+                        expected={"not_contains": not_contains},
+                        actual=buf,
+                        message=msg,
+                    ),
                 )
 
             return True, f"{name} predicates satisfied", {"stream": name}, None

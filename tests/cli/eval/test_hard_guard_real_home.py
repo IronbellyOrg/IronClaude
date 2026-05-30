@@ -176,11 +176,7 @@ class _DirSnapshot:
             is_file = child.is_file() and not child.is_symlink()
             is_dir = child.is_dir() and not child.is_symlink()
             is_symlink = child.is_symlink()
-            sha = (
-                hashlib.sha256(child.read_bytes()).hexdigest()
-                if is_file
-                else None
-            )
+            sha = hashlib.sha256(child.read_bytes()).hexdigest() if is_file else None
             entries[child.name] = _EntrySnapshot(
                 name=child.name,
                 is_file=is_file,
@@ -456,9 +452,7 @@ class TestScratchRootContainsRealHomeViaSymlink:
         evil_home = scratch / f"{_EVAL_ID}-evilXXXXXX"
         evil_home.symlink_to(real_claude_dir)
 
-        with patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp:
             mock_mkdtemp.return_value = str(evil_home)
 
             iso = HomeIsolation(

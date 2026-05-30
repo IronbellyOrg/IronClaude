@@ -210,9 +210,11 @@ def test_uses_expanduser_for_home_anchors() -> None:
 def test_resolve_prefix_helper_handles_relative_and_absolute(tmp_path: Path) -> None:
     """The internal prefix resolver must accept relative + absolute inputs."""
 
-    assert config_module._resolve_prefix(Path("/tmp/eval-runs")) == Path(
-        "/tmp/eval-runs"
-    ).resolve()
-    assert config_module._resolve_prefix(Path(".dev/eval-runs")) == Path(
-        ".dev/eval-runs"
-    ).resolve()
+    assert (
+        config_module._resolve_prefix(Path("/tmp/eval-runs"))
+        == Path("/tmp/eval-runs").resolve()
+    )
+    assert (
+        config_module._resolve_prefix(Path(".dev/eval-runs"))
+        == Path(".dev/eval-runs").resolve()
+    )

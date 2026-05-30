@@ -339,7 +339,9 @@ class TestCounterfactualNonShrinkHalts:
     def test_counterfactual_halts_with_monotonicity(
         self, counterfactual_non_shrink_log: HaltLog
     ):
-        assert counterfactual_non_shrink_log.halt_message == "[HALT-MONOTONICITY] |F|=5", (
+        assert (
+            counterfactual_non_shrink_log.halt_message == "[HALT-MONOTONICITY] |F|=5"
+        ), (
             f"counterfactual |F|=5,5 did NOT halt with byte-exact "
             f"'[HALT-MONOTONICITY] |F|=5': got "
             f"{counterfactual_non_shrink_log.halt_message!r} — X-003 rejection "
@@ -374,9 +376,7 @@ class TestCanonicalFixtureParity:
 
     def test_canonical_log_has_no_halt(self, canonical_log_text: str):
         halt_lines = [
-            ln
-            for ln in canonical_log_text.splitlines()
-            if ln.startswith("HALT ")
+            ln for ln in canonical_log_text.splitlines() if ln.startswith("HALT ")
         ]
         assert halt_lines == [], (
             f"D-0060 canonical fixture HALT line(s) {halt_lines!r} — "
@@ -401,8 +401,7 @@ class TestCanonicalFixtureParity:
             if ln.startswith("HALT ") and "HALT-MONOTONICITY" in ln
         ]
         assert halt_mon_lines == [], (
-            f"D-0060 canonical fixture has HALT-MONOTONICITY lines: "
-            f"{halt_mon_lines!r}"
+            f"D-0060 canonical fixture has HALT-MONOTONICITY lines: {halt_mon_lines!r}"
         )
 
     def test_canonical_log_monotonicity_proceeds_at_transition_1_2(

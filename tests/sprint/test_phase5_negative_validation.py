@@ -197,8 +197,7 @@ class TestAmbiguousContinuation:
         standalone callable for re-promotion once classification is wired.
         """
         assert (
-            "unclassified_count"
-            in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+            "unclassified_count" in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
         )
         for suppressed in (
             "ambiguous_count",
@@ -208,8 +207,7 @@ class TestAmbiguousContinuation:
             "ambiguous_deviations",
         ):
             assert (
-                suppressed
-                not in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
+                suppressed not in DEVIATION_ANALYSIS_GATE.required_frontmatter_fields
             ), f"{suppressed} should be suppressed until classifier ships"
 
     def test_ambiguous_deviation_cannot_silently_pass(self, tmp_path):

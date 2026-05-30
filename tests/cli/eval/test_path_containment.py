@@ -520,9 +520,7 @@ class TestIntegrationWithHomeIsolationSetup:
         # the symlink back so :func:`containment_guard` sees a path
         # that lives lexically under ``scratch_root`` but resolves
         # outside it.
-        with patch(
-            "superclaude.cli.eval.isolation.tempfile.mkdtemp"
-        ) as mock_mkdtemp:
+        with patch("superclaude.cli.eval.isolation.tempfile.mkdtemp") as mock_mkdtemp:
             evil_home = scratch_root / "E1-evilXXXXXX"
             evil_home.symlink_to(escape_target)
             mock_mkdtemp.return_value = str(evil_home)

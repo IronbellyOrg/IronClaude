@@ -402,8 +402,7 @@ def test_exit_code_3_interrupted_run(allowlisted_output_dir: Path) -> None:
     from superclaude.cli.eval.signal_handler import EXIT_INTERRUPTED
 
     assert EXIT_INTERRUPTED == 3, (
-        f"EXIT_INTERRUPTED must equal 3 per design-spec §4, "
-        f"got {EXIT_INTERRUPTED}"
+        f"EXIT_INTERRUPTED must equal 3 per design-spec §4, got {EXIT_INTERRUPTED}"
     )
 
     output_dir = allowlisted_output_dir / "run"
@@ -460,7 +459,9 @@ def test_no_magic_exit_code_literals_in_eval_module() -> None:
 
     import re as _re
 
-    eval_dir = Path(__file__).resolve().parents[3] / "src" / "superclaude" / "cli" / "eval"
+    eval_dir = (
+        Path(__file__).resolve().parents[3] / "src" / "superclaude" / "cli" / "eval"
+    )
     assert eval_dir.is_dir(), f"eval module dir not found: {eval_dir}"
 
     sysexit_pattern = _re.compile(
@@ -499,7 +500,9 @@ def test_no_magic_exit_code_literals_in_eval_module() -> None:
     # (3) exit_codes.py contains exactly 4 canonical-value declarations.
     canonical_lines = [
         line
-        for line in (eval_dir / "exit_codes.py").read_text(encoding="utf-8").splitlines()
+        for line in (eval_dir / "exit_codes.py")
+        .read_text(encoding="utf-8")
+        .splitlines()
         if canonical_pattern.match(line)
     ]
     assert len(canonical_lines) == 4, (

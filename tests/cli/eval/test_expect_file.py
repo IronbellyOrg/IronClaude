@@ -213,9 +213,7 @@ def test_contains_supports_utf8(
 def test_regex_passes_on_match(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    (home.home_path / "out.txt").write_text(
-        "session-id: abc123\n", encoding="utf-8"
-    )
+    (home.home_path / "out.txt").write_text("session-id: abc123\n", encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
     result = Expect.file(path="out.txt", regex=r"session-id:\s+\w+")(ctx)
     assert result.passed
@@ -292,17 +290,11 @@ def test_contains_and_regex_both_evaluated(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     """When both ``contains`` and ``regex`` are set, both must hold."""
-    (home.home_path / "c.txt").write_text(
-        "status=ok pid=4242\n", encoding="utf-8"
-    )
+    (home.home_path / "c.txt").write_text("status=ok pid=4242\n", encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    assert Expect.file(
-        path="c.txt", contains="status=ok", regex=r"pid=\d+"
-    )(ctx).passed
+    assert Expect.file(path="c.txt", contains="status=ok", regex=r"pid=\d+")(ctx).passed
     # Substring match but regex misses.
-    miss = Expect.file(
-        path="c.txt", contains="status=ok", regex=r"pid=[a-z]+"
-    )(ctx)
+    miss = Expect.file(path="c.txt", contains="status=ok", regex=r"pid=[a-z]+")(ctx)
     assert not miss.passed
 
 

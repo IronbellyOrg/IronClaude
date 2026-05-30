@@ -8,6 +8,7 @@ is a thin CLI that preserves the historical invocation surface:
 
 It prints a human-readable per-strategy savings report.
 """
+
 from __future__ import annotations
 
 import argparse

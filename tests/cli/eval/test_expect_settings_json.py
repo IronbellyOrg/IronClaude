@@ -109,9 +109,9 @@ def test_relative_path_resolves_against_home_path(
     real ``~/.claude`` (DM-006 / NFR-ISO1)."""
     settings = _write_settings(home, {"key": "value"})
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    result = Expect.settings_json(
-        path="settings.json", key_path="key", equals="value"
-    )(ctx)
+    result = Expect.settings_json(path="settings.json", key_path="key", equals="value")(
+        ctx
+    )
     assert result.passed, result.message
     assert isinstance(result, ExpectResult)
     assert result.name == "settings_json"
@@ -125,9 +125,7 @@ def test_absolute_path_is_used_verbatim(
     settings = tmp_path / "absolute-settings.json"
     settings.write_text(json.dumps({"k": 1}), encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    result = Expect.settings_json(
-        path=str(settings), key_path="k", equals=1
-    )(ctx)
+    result = Expect.settings_json(path=str(settings), key_path="k", equals=1)(ctx)
     assert result.passed
     assert result.details["path"] == str(settings)
 
@@ -277,9 +275,7 @@ def test_exists_false_passes_when_key_absent(
     """Asserting a key path *should not* be present."""
     _write_settings(home, {"x": 1})
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    result = Expect.settings_json(
-        path="settings.json", key_path="y", exists=False
-    )(ctx)
+    result = Expect.settings_json(path="settings.json", key_path="y", exists=False)(ctx)
     assert result.passed
     assert result.failure is None
 
@@ -289,9 +285,7 @@ def test_exists_false_fails_when_key_present(
 ) -> None:
     _write_settings(home, {"y": 2})
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    result = Expect.settings_json(
-        path="settings.json", key_path="y", exists=False
-    )(ctx)
+    result = Expect.settings_json(path="settings.json", key_path="y", exists=False)(ctx)
     assert not result.passed
     assert result.failure is not None
     assert result.failure.expected == {"key_path": "y", "exists": False}
@@ -423,9 +417,7 @@ def test_invalid_json_payload_fails(
     settings = home.home_path / "settings.json"
     settings.write_text("{ not-json", encoding="utf-8")
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    result = Expect.settings_json(
-        path="settings.json", key_path="x", exists=True
-    )(ctx)
+    result = Expect.settings_json(path="settings.json", key_path="x", exists=True)(ctx)
     assert not result.passed
     assert isinstance(result.failure, ExpectFailure)
     assert result.failure.expected == "valid JSON"
@@ -443,9 +435,7 @@ def test_result_carries_primitive_name_and_timing(
 ) -> None:
     _write_settings(home, {"k": 1})
     ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path)
-    callable_ = Expect.settings_json(
-        path="settings.json", key_path="k", equals=1
-    )
+    callable_ = Expect.settings_json(path="settings.json", key_path="k", equals=1)
     assert callable_.__name__ == "settings_json"
     result = callable_(ctx)
     assert result.name == "settings_json"

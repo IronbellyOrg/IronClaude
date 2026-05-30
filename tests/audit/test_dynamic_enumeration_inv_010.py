@@ -173,9 +173,7 @@ def _append_synthetic_stub(text: str, synth_n: int, synth_num: int) -> str:
             out.append(line)
             continue
         if in_block and (
-            line.startswith("####")
-            or line.startswith("### ")
-            or line.startswith("## ")
+            line.startswith("####") or line.startswith("### ") or line.startswith("## ")
         ):
             out.append(synth_line)
             out.append("")
@@ -285,7 +283,10 @@ class TestEnumerationWiringPresent:
 
     def test_skill_a105_enumeration_block_present(self):
         skill_text = SKILL_SRC.read_text(encoding="utf-8")
-        assert "TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup)" in skill_text, (
+        assert (
+            "TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup)"
+            in skill_text
+        ), (
             "SKILL.md §A.10.5 enumeration block heading missing — T03.07 (D-0031) regressed"
         )
 
@@ -316,7 +317,10 @@ class TestNoHardCodedEnumerationInA105:
         block_start = -1
         block_end = -1
         for idx, line in enumerate(skill_lines, start=1):
-            if "TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup)" in line:
+            if (
+                "TB-Add catalogue enumeration (INV-010 dynamic catalogue lookup)"
+                in line
+            ):
                 block_start = idx
                 continue
             if block_start != -1 and line.startswith("### "):
@@ -348,9 +352,7 @@ class TestNoHardCodedEnumerationInA105:
                 f"SKILL.md shrank below {SKILL_A105_BLOCK_END} lines; "
                 "documented range no longer applies — dynamic check above is authoritative"
             )
-        span = "\n".join(
-            skill_lines[SKILL_A105_BLOCK_START - 1 : SKILL_A105_BLOCK_END]
-        )
+        span = "\n".join(skill_lines[SKILL_A105_BLOCK_START - 1 : SKILL_A105_BLOCK_END])
         tokens = set(re.findall(r"TB-Add-\d+", span))
         allowed = {"TB-Add-1", "TB-Add-2"}
         unexpected = tokens - allowed
@@ -392,9 +394,7 @@ class TestBaselineCatalogueExtraction:
 
     def test_cycle1_log_shape_matches_inv010_contract(self, two_cycle):
         m = INV010_LOG_RE.match(two_cycle["log1"])
-        assert m, (
-            f"INV-010 log shape mismatch (cycle-1): {two_cycle['log1']!r}"
-        )
+        assert m, f"INV-010 log shape mismatch (cycle-1): {two_cycle['log1']!r}"
         size = int(m.group(1))
         assert size == two_cycle["k1"], (
             f"INV-010 log size={size} disagrees with extracted K1={two_cycle['k1']}"
@@ -449,28 +449,18 @@ class TestAutoRichenOnCatalogueGrowth:
         )
         # Filter to actual added/removed content lines (skip headers
         # and @@ hunk markers).
-        added = [
-            ln
-            for ln in diff
-            if ln.startswith("+") and not ln.startswith("+++")
-        ]
-        removed = [
-            ln
-            for ln in diff
-            if ln.startswith("-") and not ln.startswith("---")
-        ]
+        added = [ln for ln in diff if ln.startswith("+") and not ln.startswith("+++")]
+        removed = [ln for ln in diff if ln.startswith("-") and not ln.startswith("---")]
         assert len(removed) == 0, (
             f"AC-1 violated: expected 0 removed lines in diff, got "
             f"{len(removed)} ({removed})"
         )
         assert len(added) == 1, (
-            f"AC-1 violated: expected exactly 1 added line, got "
-            f"{len(added)} ({added})"
+            f"AC-1 violated: expected exactly 1 added line, got {len(added)} ({added})"
         )
         synth_id = f"TB-Add-{two_cycle['synth_n']}"
         assert synth_id in added[0], (
-            f"AC-1 violated: added line does not reference {synth_id}: "
-            f"{added[0]!r}"
+            f"AC-1 violated: added line does not reference {synth_id}: {added[0]!r}"
         )
 
 
@@ -543,9 +533,7 @@ class TestNoGrowthWithoutSourceEdit:
     different sets, the auto-richen claim above would be false-positive
     on noise rather than a true response to catalogue growth."""
 
-    def test_two_extractions_of_same_text_are_equal(
-        self, rf_qa_canonical_text: str
-    ):
+    def test_two_extractions_of_same_text_are_equal(self, rf_qa_canonical_text: str):
         cat_a = extract_catalogue(rf_qa_canonical_text)
         cat_b = extract_catalogue(rf_qa_canonical_text)
         assert cat_a == cat_b, (

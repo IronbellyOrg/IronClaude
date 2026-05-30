@@ -94,10 +94,10 @@ __all__ = [
 ANSI_ESCAPE_RE: Pattern[str] = re.compile(
     r"\x1B"
     r"(?:"
-    r"\[[0-?]*[ -/]*[@-~]"               # CSI ... final
-    r"|\][^\x07\x1B]*?(?:\x07|\x1B\\)"   # OSC ... BEL or ST
-    r"|[PX^_].*?\x1B\\"                  # DCS / SOS / PM / APC ... ST
-    r"|[\x20-\x7E]"                      # ESC + any single printable -- catch-all
+    r"\[[0-?]*[ -/]*[@-~]"  # CSI ... final
+    r"|\][^\x07\x1B]*?(?:\x07|\x1B\\)"  # OSC ... BEL or ST
+    r"|[PX^_].*?\x1B\\"  # DCS / SOS / PM / APC ... ST
+    r"|[\x20-\x7E]"  # ESC + any single printable -- catch-all
     r")"
 )
 
@@ -172,10 +172,16 @@ class PtyStream:
     def _coerce_reader(source: Any) -> ChunkReader:
         read_stdout = getattr(source, "read_stdout", None)
         if callable(read_stdout):
+
             def _from_driver(timeout: float) -> str:
                 # PtyDriver.read_stdout(size=-1, timeout=None) -> str.
                 chunk = read_stdout(timeout=timeout)
-                return chunk if isinstance(chunk, str) else chunk.decode("utf-8", errors="replace")
+                return (
+                    chunk
+                    if isinstance(chunk, str)
+                    else chunk.decode("utf-8", errors="replace")
+                )
+
             return _from_driver
         if callable(source):
             return source  # type: ignore[return-value]

@@ -419,9 +419,7 @@ def test_run_eval_observe_exception_yields_errored(
 # ---------------------------------------------------------------------------
 
 
-def test_run_eval_expect_raise_yields_errored(
-    eval_spec, home, eval_config, run_paths
-):
+def test_run_eval_expect_raise_yields_errored(eval_spec, home, eval_config, run_paths):
     """An ExpectCallable that raises folds into ERRORED with the partial
     tuple of results gathered before the raise."""
 
@@ -452,9 +450,7 @@ def test_run_eval_expect_raise_yields_errored(
 # ---------------------------------------------------------------------------
 
 
-def test_run_eval_passes_when_all_expects_pass(
-    eval_spec, home, eval_config, run_paths
-):
+def test_run_eval_passes_when_all_expects_pass(eval_spec, home, eval_config, run_paths):
     outcome = _invoke(
         spec=eval_spec,
         home=home,
@@ -471,9 +467,7 @@ def test_run_eval_passes_when_all_expects_pass(
     assert outcome.duration_sec == 0.5
 
 
-def test_run_eval_empty_expects_yields_pass(
-    eval_spec, home, eval_config, run_paths
-):
+def test_run_eval_empty_expects_yields_pass(eval_spec, home, eval_config, run_paths):
     """An eval with no Expects ran cleanly => PASS by design (spec §PASS
     precondition)."""
 
@@ -494,9 +488,7 @@ def test_run_eval_empty_expects_yields_pass(
 # ---------------------------------------------------------------------------
 
 
-def test_run_eval_failing_expect_yields_fail(
-    eval_spec, home, eval_config, run_paths
-):
+def test_run_eval_failing_expect_yields_fail(eval_spec, home, eval_config, run_paths):
     outcome = _invoke(
         spec=eval_spec,
         home=home,
@@ -510,9 +502,7 @@ def test_run_eval_failing_expect_yields_fail(
     assert outcome.expects[0].passed is False
 
 
-def test_run_eval_mixed_results_yields_fail(
-    eval_spec, home, eval_config, run_paths
-):
+def test_run_eval_mixed_results_yields_fail(eval_spec, home, eval_config, run_paths):
     """Mixed pass/fail expects -> FAIL; all expects appear in the tuple."""
 
     outcome = _invoke(
@@ -551,9 +541,7 @@ def test_run_eval_teardown_keep_true_on_errored(
     assert home.last_teardown_keep is True
 
 
-def test_run_eval_teardown_keep_true_on_fail(
-    eval_spec, home, eval_config, run_paths
-):
+def test_run_eval_teardown_keep_true_on_fail(eval_spec, home, eval_config, run_paths):
     _invoke(
         spec=eval_spec,
         home=home,

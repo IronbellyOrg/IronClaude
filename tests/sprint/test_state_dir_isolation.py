@@ -27,9 +27,7 @@ from superclaude.cli.sprint.models import Phase, SprintConfig
 
 
 def _make_phases(n: int = 1) -> list[Phase]:
-    return [
-        Phase(number=i + 1, file=Path(f"/tmp/phase-{i + 1}.md")) for i in range(n)
-    ]
+    return [Phase(number=i + 1, file=Path(f"/tmp/phase-{i + 1}.md")) for i in range(n)]
 
 
 def test_writer_uses_state_dir_not_release_dir(tmp_path):
@@ -96,8 +94,7 @@ def test_no_tracked_sprint_exitcode_files():
         check=True,
     )
     sentinels = [
-        line for line in result.stdout.splitlines()
-        if line.endswith(".sprint-exitcode")
+        line for line in result.stdout.splitlines() if line.endswith(".sprint-exitcode")
     ]
     assert sentinels == [], (
         f"FU-001 contract violated: {len(sentinels)} tracked .sprint-exitcode "
@@ -142,9 +139,7 @@ def test_state_dir_env_var_resolution(tmp_path, monkeypatch):
     release_dir.mkdir()
     tasklist = release_dir / "tasklist-index.md"
     tasklist.write_text("# Tasklist\n\n## Phase 1 — Setup\n")
-    (release_dir / "phase-1-tasklist.md").write_text(
-        "# Phase 1\n\n- [ ] noop\n"
-    )
+    (release_dir / "phase-1-tasklist.md").write_text("# Phase 1\n\n- [ ] noop\n")
 
     resolved_state_dir = Path(os.environ["SPRINT_STATE_DIR"])
     config = load_sprint_config(
@@ -152,6 +147,5 @@ def test_state_dir_env_var_resolution(tmp_path, monkeypatch):
         state_dir=resolved_state_dir,
     )
     assert config.state_dir == env_state_dir, (
-        f"Env-var did not propagate: expected {env_state_dir}, "
-        f"got {config.state_dir}"
+        f"Env-var did not propagate: expected {env_state_dir}, got {config.state_dir}"
     )

@@ -41,7 +41,9 @@ SKILL_SRC = REPO_ROOT / "src" / "superclaude" / "skills" / "task-builder" / "SKI
 SKILL_MIRROR = REPO_ROOT / ".claude" / "skills" / "task-builder" / "SKILL.md"
 
 BLOCK_HEADER = "## Inherited Structural Verdict (rf-qa A.10 output — DO NOT re-verify)"
-FIX_CYCLE_HEADER = "**Fix-cycle re-entry (INV-002 freshness — stale-verdict rejection):**"
+FIX_CYCLE_HEADER = (
+    "**Fix-cycle re-entry (INV-002 freshness — stale-verdict rejection):**"
+)
 INV002_LOG_TOKEN = "INV-002: re-extracted verdict for"
 
 
@@ -155,7 +157,9 @@ def short_sha(data: str | bytes) -> str:
     return hashlib.sha256(data).hexdigest()[:16]
 
 
-def emit_inv002_log(task_dir: Path, cycle: int, mtime: float, prod_sha: str, block_sha: str) -> str:
+def emit_inv002_log(
+    task_dir: Path, cycle: int, mtime: float, prod_sha: str, block_sha: str
+) -> str:
     """Emit SKILL.md:1210 step-7 structured log line (verbatim format)."""
     iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(mtime))
     return (
@@ -213,7 +217,9 @@ def two_cycle_artifacts(task_dir: Path) -> dict:
     span1 = extract_items_reviewed_span(producer.read_text(encoding="utf-8"))
     prompt1 = assemble_spawn_prompt(task_dir, span1)
     block_sha1 = short_sha(span1)
-    log1 = emit_inv002_log(task_dir, cycle=1, mtime=p1_mtime, prod_sha=p1_sha, block_sha=block_sha1)
+    log1 = emit_inv002_log(
+        task_dir, cycle=1, mtime=p1_mtime, prod_sha=p1_sha, block_sha=block_sha1
+    )
     ledger = {str(task_dir): block_sha1}
 
     # --- Cycle 2 (after producer rewrite) ---------------------------------
@@ -223,6 +229,7 @@ def two_cycle_artifacts(task_dir: Path) -> dict:
     # Bump mtime explicitly in case the FS clock resolution is coarse.
     new_mtime = max(p1_mtime + 1.0, producer.stat().st_mtime)
     import os
+
     os.utime(producer, (new_mtime, new_mtime))
 
     # Step 1: discard cached state — re-read from disk below (no reuse).
@@ -240,7 +247,9 @@ def two_cycle_artifacts(task_dir: Path) -> dict:
     ledger_post = dict(ledger)
     ledger_post[str(task_dir)] = block_sha2
     # Step 7: log line.
-    log2 = emit_inv002_log(task_dir, cycle=2, mtime=p2_mtime, prod_sha=p2_sha, block_sha=block_sha2)
+    log2 = emit_inv002_log(
+        task_dir, cycle=2, mtime=p2_mtime, prod_sha=p2_sha, block_sha=block_sha2
+    )
 
     return {
         "cycle1": {
@@ -306,7 +315,7 @@ class TestFreshnessProcedureWiredInSkill:
         required = [
             "1. **Discard cached state.**",
             "2. **Re-read the producer artifact from disk.**",
-            "3. **Re-extract the \"Items Reviewed\" span contiguously.**",
+            '3. **Re-extract the "Items Reviewed" span contiguously.**',
             "4. **Re-enumerate the TB-Add-* catalogue (INV-010).**",
             "5. **Re-assemble and re-splice.**",
             "6. **Stale-verdict-rejection (defense-in-depth).**",
@@ -345,7 +354,9 @@ class TestFreshnessTwoCycleSpawnPrompt:
             f"--- cycle-2 prompt ---\n{prompt2}"
         )
 
-    def test_cycle2_prompt_does_not_contain_cycle1_fail_row(self, two_cycle_artifacts: dict):
+    def test_cycle2_prompt_does_not_contain_cycle1_fail_row(
+        self, two_cycle_artifacts: dict
+    ):
         prompt2 = two_cycle_artifacts["cycle2"]["prompt"]
         assert CYCLE1_FAIL_ROW not in prompt2, (
             "AC-fail: cycle-2 spawn prompt still contains the cycle-1 stale "
@@ -362,7 +373,9 @@ class TestFreshnessTwoCycleSpawnPrompt:
             "(fixture construction error)"
         )
 
-    def test_cycle1_prompt_does_not_contain_cycle2_pass_row(self, two_cycle_artifacts: dict):
+    def test_cycle1_prompt_does_not_contain_cycle2_pass_row(
+        self, two_cycle_artifacts: dict
+    ):
         """Symmetric negative anchor — cycle-1 cannot contain cycle-2 content."""
         prompt1 = two_cycle_artifacts["cycle1"]["prompt"]
         assert CYCLE2_PASS_ROW not in prompt1, (
@@ -414,12 +427,19 @@ class TestFreshnessByteDiff:
         p2_lines = two_cycle_artifacts["cycle2"]["prompt"].splitlines()
         diff = list(
             difflib.unified_diff(
-                p1_lines, p2_lines,
-                fromfile="cycle-1", tofile="cycle-2", lineterm="",
+                p1_lines,
+                p2_lines,
+                fromfile="cycle-1",
+                tofile="cycle-2",
+                lineterm="",
             )
         )
-        added = [ln[1:] for ln in diff if ln.startswith("+") and not ln.startswith("+++")]
-        removed = [ln[1:] for ln in diff if ln.startswith("-") and not ln.startswith("---")]
+        added = [
+            ln[1:] for ln in diff if ln.startswith("+") and not ln.startswith("+++")
+        ]
+        removed = [
+            ln[1:] for ln in diff if ln.startswith("-") and not ln.startswith("---")
+        ]
         assert CYCLE2_PASS_ROW in added, (
             f"cycle-2 PASS row not in diff additions: {added!r}"
         )
@@ -433,7 +453,8 @@ class TestFreshnessByteDiff:
         p1 = two_cycle_artifacts["cycle1"]["prompt"]
         p2 = two_cycle_artifacts["cycle2"]["prompt"]
         diff_lines = [
-            ln for ln in difflib.ndiff(p1.splitlines(), p2.splitlines())
+            ln
+            for ln in difflib.ndiff(p1.splitlines(), p2.splitlines())
             if ln.startswith(("+ ", "- "))
         ]
         assert len(diff_lines) > 0, "ndiff produced zero +/- lines"
@@ -496,10 +517,11 @@ class TestFreshnessStaleVerdictRejection:
         prior_producer_sha = "deadbeefdeadbeef"
         new_producer_sha = "f00df00df00df00d"
         prior_block_sha = "abc1234567890abc"
-        new_block_sha = "abc1234567890abc"  # contradiction: producer moved, block didn't
+        new_block_sha = (
+            "abc1234567890abc"  # contradiction: producer moved, block didn't
+        )
         contradiction = (
-            prior_producer_sha != new_producer_sha
-            and prior_block_sha == new_block_sha
+            prior_producer_sha != new_producer_sha and prior_block_sha == new_block_sha
         )
         assert contradiction is True
 

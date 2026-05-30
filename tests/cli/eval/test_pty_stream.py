@@ -100,49 +100,49 @@ def delayed_reader(
 def test_ansi_regex_strips_csi_sgr_color_codes() -> None:
     """SGR colour codes (CSI ... m) must be removed verbatim."""
 
-    coloured = "\x1B[31mERROR\x1B[0m: boom\n"
+    coloured = "\x1b[31mERROR\x1b[0m: boom\n"
     assert ANSI_ESCAPE_RE.sub("", coloured) == "ERROR: boom\n"
 
 
 def test_ansi_regex_strips_cursor_moves() -> None:
-    cursor = "before\x1B[2J\x1B[1;1Hafter\n"
+    cursor = "before\x1b[2J\x1b[1;1Hafter\n"
     assert ANSI_ESCAPE_RE.sub("", cursor) == "beforeafter\n"
 
 
 def test_ansi_regex_strips_osc_title_set_bel_terminated() -> None:
-    osc = "x\x1B]0;hello world\x07y\n"
+    osc = "x\x1b]0;hello world\x07y\n"
     assert ANSI_ESCAPE_RE.sub("", osc) == "xy\n"
 
 
 def test_ansi_regex_strips_osc_title_set_st_terminated() -> None:
-    osc = "x\x1B]0;hello world\x1B\\y\n"
+    osc = "x\x1b]0;hello world\x1b\\y\n"
     assert ANSI_ESCAPE_RE.sub("", osc) == "xy\n"
 
 
 def test_ansi_regex_strips_c1_singleton() -> None:
     # ESC '=' is a single-character Fe (DECPAM).
-    raw = "x\x1B=y\n"
+    raw = "x\x1b=y\n"
     assert ANSI_ESCAPE_RE.sub("", raw) == "xy\n"
 
 
 def test_strips_ansi_csi_sgr() -> None:
     """T02.17 AC bullet 1 — colour codes are absent from the yielded line."""
 
-    reader = scripted_reader(["\x1B[31mERROR\x1B[0m: boom\r\n"])
+    reader = scripted_reader(["\x1b[31mERROR\x1b[0m: boom\r\n"])
     stream = PtyStream(reader, timeout=1.0, poll_interval=0.05)
     assert stream.read_line() == "ERROR: boom"
 
 
 def test_strips_osc_title_set() -> None:
-    reader = scripted_reader(["\x1B]0;ttl\x07hello\n"])
+    reader = scripted_reader(["\x1b]0;ttl\x07hello\n"])
     stream = PtyStream(reader, timeout=1.0, poll_interval=0.05)
     assert stream.read_line() == "hello"
 
 
 def test_can_disable_ansi_stripping() -> None:
-    reader = scripted_reader(["\x1B[31mERROR\x1B[0m\n"])
+    reader = scripted_reader(["\x1b[31mERROR\x1b[0m\n"])
     stream = PtyStream(reader, timeout=1.0, strip_ansi=False, poll_interval=0.05)
-    assert stream.read_line() == "\x1B[31mERROR\x1B[0m"
+    assert stream.read_line() == "\x1b[31mERROR\x1b[0m"
 
 
 # ---------------------------------------------------------------------------
@@ -252,11 +252,13 @@ def test_slow_stream_eventually_returns_line() -> None:
 def test_iteration_yields_all_clean_lines() -> None:
     """T02.17 AC bullet 3 — iteration produces the canonical clean transcript."""
 
-    reader = scripted_reader([
-        "\x1B[32mone\x1B[0m\n",
-        "\x1B[32mtwo\x1B[0m\n",
-        "\x1B[32mthree\x1B[0m\n",
-    ])
+    reader = scripted_reader(
+        [
+            "\x1b[32mone\x1b[0m\n",
+            "\x1b[32mtwo\x1b[0m\n",
+            "\x1b[32mthree\x1b[0m\n",
+        ]
+    )
     stream = PtyStream(reader, timeout=0.5, poll_interval=0.02)
     collected: list[str] = []
     try:
@@ -354,11 +356,11 @@ def test_context_manager_closes() -> None:
 # ANSI-laden transcript with cursor moves, SGR colour, OSC title, and
 # a stray C1 escape -- chosen to cover all four ANSI_ESCAPE_RE branches.
 ANSI_FIXTURE: list[str] = [
-    "\x1B]0;claude\x07",                                  # OSC title
-    "\x1B[2J\x1B[1;1H",                                   # CSI clear + home
-    "\x1B[1;32m== welcome ==\x1B[0m\r\n",                 # SGR colour line
-    "\x1B[33mprompt> \x1B[0m\r\n",                        # prompt line
-    "\x1B=output\x1B[0K\r\n",                             # C1 single + EL
+    "\x1b]0;claude\x07",  # OSC title
+    "\x1b[2J\x1b[1;1H",  # CSI clear + home
+    "\x1b[1;32m== welcome ==\x1b[0m\r\n",  # SGR colour line
+    "\x1b[33mprompt> \x1b[0m\r\n",  # prompt line
+    "\x1b=output\x1b[0K\r\n",  # C1 single + EL
 ]
 
 EXPECTED_LINES: list[str] = [

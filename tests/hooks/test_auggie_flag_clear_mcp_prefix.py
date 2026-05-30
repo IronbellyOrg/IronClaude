@@ -109,7 +109,9 @@ def test_auggie_mcp_dash_prefix_implement_clears_sticky(tmp_path: Path) -> None:
 # (the full Part 3 lives in the bundled release as a Makefile assertion;
 # this Python version covers the same invariant at pytest time).
 
-_AUGGIE_PREFIX_RE = re.compile(r"mcp__[A-Za-z0-9_-]+(?:__|_)auggie[A-Za-z0-9_-]*|mcp__auggie[A-Za-z0-9_-]*")
+_AUGGIE_PREFIX_RE = re.compile(
+    r"mcp__[A-Za-z0-9_-]+(?:__|_)auggie[A-Za-z0-9_-]*|mcp__auggie[A-Za-z0-9_-]*"
+)
 
 
 def _normalize_prefixes(raw: list[str]) -> set[str]:

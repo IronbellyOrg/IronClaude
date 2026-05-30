@@ -219,9 +219,7 @@ class ClaudeProcessAdapter:
         if self._cwd is None:
             self._cwd = self._home.home_path
         if not self._cwd.exists():
-            raise ClaudeProcessAdapterError(
-                f"cwd {self._cwd!s} does not exist on disk"
-            )
+            raise ClaudeProcessAdapterError(f"cwd {self._cwd!s} does not exist on disk")
 
     # ------------------------------------------------------------------
     # Env assembly

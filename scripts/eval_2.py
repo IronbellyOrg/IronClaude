@@ -8,6 +8,7 @@ Phase B: Convergence-enabled run → verify DeviationRegistry is created and pop
 Phase C: Stable ID determinism → verify compute_stable_id() is pure
 Phase D: Regression detection → verify _check_regression() distinguishes structural regressions from noise
 """
+
 from __future__ import annotations
 
 import argparse
@@ -47,22 +48,29 @@ def assert_check(name: str, condition: bool, detail: str = "") -> dict:
 
 
 def run_pipeline(
-    spec_file: Path, output_dir: Path,
+    spec_file: Path,
+    output_dir: Path,
     convergence_enabled: bool = False,
     timeout: int = 1800,
 ) -> int:
     """Run superclaude roadmap run with convergence flag."""
     cmd = [
-        "superclaude", "roadmap", "run",
+        "superclaude",
+        "roadmap",
+        "run",
         str(spec_file),
-        "--output-dir", str(output_dir),
+        "--output-dir",
+        str(output_dir),
         "--no-validate",
     ]
     if convergence_enabled:
         cmd.append("--convergence")
 
     result = subprocess.run(
-        cmd, capture_output=True, text=True, timeout=timeout,
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
     )
     (output_dir / "pipeline-stdout.log").write_text(result.stdout)
     (output_dir / "pipeline-stderr.log").write_text(result.stderr)
@@ -92,9 +100,11 @@ def verify_artifact_provenance(output_dir: Path, start_time: float) -> list[dict
     assertions = []
     artifacts = list(output_dir.glob("*"))
     if not artifacts:
-        assertions.append(assert_check(
-            "provenance_artifacts_exist", False, "No artifacts in output directory"
-        ))
+        assertions.append(
+            assert_check(
+                "provenance_artifacts_exist", False, "No artifacts in output directory"
+            )
+        )
         return assertions
 
     stale = []
@@ -102,16 +112,24 @@ def verify_artifact_provenance(output_dir: Path, start_time: float) -> list[dict
         if artifact.is_file():
             mtime = artifact.stat().st_mtime
             if mtime < start_time:
-                stale.append(f"{artifact.name} (mtime={mtime:.0f} < start={start_time:.0f})")
-    assertions.append(assert_check(
-        "provenance_all_artifacts_fresh",
-        len(stale) == 0,
-        f"Stale artifacts: {stale}" if stale else f"All {len(artifacts)} artifacts post-date eval start",
-    ))
+                stale.append(
+                    f"{artifact.name} (mtime={mtime:.0f} < start={start_time:.0f})"
+                )
+    assertions.append(
+        assert_check(
+            "provenance_all_artifacts_fresh",
+            len(stale) == 0,
+            f"Stale artifacts: {stale}"
+            if stale
+            else f"All {len(artifacts)} artifacts post-date eval start",
+        )
+    )
     return assertions
 
 
-def phase_a_convergence_disabled(output_dir: Path, spec_file: Path, eval_start_time: float) -> EvalResult:
+def phase_a_convergence_disabled(
+    output_dir: Path, spec_file: Path, eval_start_time: float
+) -> EvalResult:
     """Phase A: Run without convergence → SPEC_FIDELITY_GATE applies."""
     start = time.monotonic()
     result = EvalResult(eval_id="eval-2", phase="A-convergence-disabled", passed=False)
@@ -135,9 +153,12 @@ def phase_a_convergence_disabled(output_dir: Path, spec_file: Path, eval_start_t
 
     # 2. Assert: has SPEC_FIDELITY_GATE required fields
     required = [
-        "high_severity_count", "medium_severity_count",
-        "low_severity_count", "total_deviations",
-        "validation_complete", "tasklist_ready",
+        "high_severity_count",
+        "medium_severity_count",
+        "low_severity_count",
+        "total_deviations",
+        "validation_complete",
+        "tasklist_ready",
     ]
     missing = [f for f in required if f not in fm]
     result.assertions.append(
@@ -154,7 +175,9 @@ def phase_a_convergence_disabled(output_dir: Path, spec_file: Path, eval_start_t
         assert_check(
             "no_deviation_registry",
             len(registry_candidates) == 0,
-            f"Found: {registry_candidates}" if registry_candidates else "No registry file (correct for disabled)",
+            f"Found: {registry_candidates}"
+            if registry_candidates
+            else "No registry file (correct for disabled)",
         )
     )
 
@@ -162,14 +185,22 @@ def phase_a_convergence_disabled(output_dir: Path, spec_file: Path, eval_start_t
     content = spec_fidelity.read_text()
     has_ambiguity_reference = any(
         marker in content
-        for marker in ["FR-001.4", "FR-EVAL-001.4", "schema", "deviation sub-entry",
-                        "significant findings", "FR-001.5", "FR-EVAL-001.5"]
+        for marker in [
+            "FR-001.4",
+            "FR-EVAL-001.4",
+            "schema",
+            "deviation sub-entry",
+            "significant findings",
+            "FR-001.5",
+            "FR-EVAL-001.5",
+        ]
     )
     result.assertions.append(
         assert_check(
             "seeded_ambiguity_detected",
             has_ambiguity_reference,
-            "Spec-fidelity references seeded ambiguity" if has_ambiguity_reference
+            "Spec-fidelity references seeded ambiguity"
+            if has_ambiguity_reference
             else "No seeded ambiguity references found in spec-fidelity output",
         )
     )
@@ -197,7 +228,9 @@ def phase_a_convergence_disabled(output_dir: Path, spec_file: Path, eval_start_t
     return result
 
 
-def phase_b_convergence_enabled(output_dir: Path, spec_file: Path, eval_start_time: float) -> EvalResult:
+def phase_b_convergence_enabled(
+    output_dir: Path, spec_file: Path, eval_start_time: float
+) -> EvalResult:
     """Phase B: Run with convergence → DeviationRegistry created."""
     start = time.monotonic()
     result = EvalResult(eval_id="eval-2", phase="B-convergence-enabled", passed=False)
@@ -213,13 +246,15 @@ def phase_b_convergence_enabled(output_dir: Path, spec_file: Path, eval_start_ti
     )
 
     # 2. Assert: deviation registry file exists
-    registry_candidates = list(output_dir.glob("*deviation*registry*")) + \
-                          list(output_dir.glob("*deviation*.json"))
+    registry_candidates = list(output_dir.glob("*deviation*registry*")) + list(
+        output_dir.glob("*deviation*.json")
+    )
     result.assertions.append(
         assert_check(
             "deviation_registry_exists",
             len(registry_candidates) > 0,
-            f"Found: {[str(p) for p in registry_candidates]}" if registry_candidates
+            f"Found: {[str(p) for p in registry_candidates]}"
+            if registry_candidates
             else "No deviation registry file found",
         )
     )
@@ -230,8 +265,7 @@ def phase_b_convergence_enabled(output_dir: Path, spec_file: Path, eval_start_ti
         try:
             registry_data = json.loads(registry_path.read_text())
             has_schema = all(
-                k in registry_data
-                for k in ["schema_version", "runs", "findings"]
+                k in registry_data for k in ["schema_version", "runs", "findings"]
             )
             result.assertions.append(
                 assert_check(
@@ -335,7 +369,11 @@ def phase_c_stable_id_determinism() -> EvalResult:
     key = "architecture:R-001:Section 3.2:missing"
     expected = hashlib.sha256(key.encode()).hexdigest()[:16]
     result.assertions.append(
-        assert_check("stable_id_matches_sha256", id_a == expected, f"id={id_a}, expected={expected}")
+        assert_check(
+            "stable_id_matches_sha256",
+            id_a == expected,
+            f"id={id_a}, expected={expected}",
+        )
     )
 
     result.passed = all(a["passed"] for a in result.assertions)
@@ -356,28 +394,52 @@ def phase_d_regression_detection() -> EvalResult:
     # Simulate run 1: 2 structural HIGHs
     finding_1 = compute_stable_id("architecture", "R-001", "Section 3", "missing")
     finding_2 = compute_stable_id("architecture", "R-002", "Section 4", "incomplete")
-    registry.record_run({
-        "run_number": 1,
-        "structural_high_count": 2,
-        "semantic_high_count": 0,
-        "findings": {
-            finding_1: {"stable_id": finding_1, "severity": "HIGH", "status": "ACTIVE"},
-            finding_2: {"stable_id": finding_2, "severity": "HIGH", "status": "ACTIVE"},
-        },
-    })
+    registry.record_run(
+        {
+            "run_number": 1,
+            "structural_high_count": 2,
+            "semantic_high_count": 0,
+            "findings": {
+                finding_1: {
+                    "stable_id": finding_1,
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                },
+                finding_2: {
+                    "stable_id": finding_2,
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                },
+            },
+        }
+    )
 
     # Simulate run 2: 3 structural HIGHs (regression — new finding added)
     finding_3 = compute_stable_id("architecture", "R-003", "Section 5", "missing")
-    registry.record_run({
-        "run_number": 2,
-        "structural_high_count": 3,
-        "semantic_high_count": 0,
-        "findings": {
-            finding_1: {"stable_id": finding_1, "severity": "HIGH", "status": "ACTIVE"},
-            finding_2: {"stable_id": finding_2, "severity": "HIGH", "status": "ACTIVE"},
-            finding_3: {"stable_id": finding_3, "severity": "HIGH", "status": "ACTIVE"},
-        },
-    })
+    registry.record_run(
+        {
+            "run_number": 2,
+            "structural_high_count": 3,
+            "semantic_high_count": 0,
+            "findings": {
+                finding_1: {
+                    "stable_id": finding_1,
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                },
+                finding_2: {
+                    "stable_id": finding_2,
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                },
+                finding_3: {
+                    "stable_id": finding_3,
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                },
+            },
+        }
+    )
 
     # 1. Assert: regression detected (structural increase 2 → 3)
     is_regression = registry._check_regression()
@@ -399,16 +461,30 @@ def phase_d_regression_detection() -> EvalResult:
     )
 
     # Simulate run 3: back to 2 structural HIGHs (finding_3 resolved)
-    registry.record_run({
-        "run_number": 3,
-        "structural_high_count": 2,
-        "semantic_high_count": 0,
-        "findings": {
-            finding_1: {"stable_id": finding_1, "severity": "HIGH", "status": "ACTIVE"},
-            finding_2: {"stable_id": finding_2, "severity": "HIGH", "status": "ACTIVE"},
-            finding_3: {"stable_id": finding_3, "severity": "HIGH", "status": "FIXED"},
-        },
-    })
+    registry.record_run(
+        {
+            "run_number": 3,
+            "structural_high_count": 2,
+            "semantic_high_count": 0,
+            "findings": {
+                finding_1: {
+                    "stable_id": finding_1,
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                },
+                finding_2: {
+                    "stable_id": finding_2,
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                },
+                finding_3: {
+                    "stable_id": finding_3,
+                    "severity": "HIGH",
+                    "status": "FIXED",
+                },
+            },
+        }
+    )
 
     # 3. Assert: no regression (structural count did not increase from run 2)
     is_regression_after_fix = registry._check_regression()
@@ -433,18 +509,22 @@ def phase_d_regression_detection() -> EvalResult:
 
     # 5. Assert: semantic fluctuation does NOT trigger regression
     registry_semantic = DeviationRegistry()
-    registry_semantic.record_run({
-        "run_number": 1,
-        "structural_high_count": 2,
-        "semantic_high_count": 1,
-        "findings": {},
-    })
-    registry_semantic.record_run({
-        "run_number": 2,
-        "structural_high_count": 2,
-        "semantic_high_count": 3,  # Semantic increase only
-        "findings": {},
-    })
+    registry_semantic.record_run(
+        {
+            "run_number": 1,
+            "structural_high_count": 2,
+            "semantic_high_count": 1,
+            "findings": {},
+        }
+    )
+    registry_semantic.record_run(
+        {
+            "run_number": 2,
+            "structural_high_count": 2,
+            "semantic_high_count": 3,  # Semantic increase only
+            "findings": {},
+        }
+    )
     is_semantic_regression = registry_semantic._check_regression()
     result.assertions.append(
         assert_check(
@@ -462,7 +542,9 @@ def phase_d_regression_detection() -> EvalResult:
 def main():
     parser = argparse.ArgumentParser(description="Eval 2: Convergence Spec-Fidelity")
     parser.add_argument(
-        "--branch", choices=["local", "global"], default="local",
+        "--branch",
+        choices=["local", "global"],
+        default="local",
         help="Artifact label for directory naming (does NOT switch git branches)",
     )
     parser.add_argument(
@@ -475,7 +557,9 @@ def main():
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     eval_start_time = time.time()
 
-    print(f"[eval-2] Running on current branch ('{args.branch}' is an artifact label, not a git operation)")
+    print(
+        f"[eval-2] Running on current branch ('{args.branch}' is an artifact label, not a git operation)"
+    )
 
     report = ComparisonReport(
         timestamp=datetime.now(timezone.utc).isoformat(),
@@ -483,14 +567,18 @@ def main():
     )
 
     # Phase A: Convergence disabled
-    out_a = Path(f"eval-results/eval-2-convergence/phase-a-disabled-{args.branch}-{timestamp}")
+    out_a = Path(
+        f"eval-results/eval-2-convergence/phase-a-disabled-{args.branch}-{timestamp}"
+    )
     out_a.mkdir(parents=True, exist_ok=True)
     print(f"[eval-2] Phase A: Convergence disabled ({args.branch})")
     phase_a = phase_a_convergence_disabled(out_a, spec_file, eval_start_time)
     report.phases.append(asdict(phase_a))
 
     # Phase B: Convergence enabled
-    out_b = Path(f"eval-results/eval-2-convergence/phase-b-enabled-{args.branch}-{timestamp}")
+    out_b = Path(
+        f"eval-results/eval-2-convergence/phase-b-enabled-{args.branch}-{timestamp}"
+    )
     out_b.mkdir(parents=True, exist_ok=True)
     print(f"[eval-2] Phase B: Convergence enabled ({args.branch})")
     phase_b = phase_b_convergence_enabled(out_b, spec_file, eval_start_time)
@@ -508,7 +596,7 @@ def main():
 
     report.overall_passed = all(p["passed"] for p in report.phases)
     report.summary = " | ".join(
-        f"Phase {chr(65+i)} ({'PASS' if p['passed'] else 'FAIL'})"
+        f"Phase {chr(65 + i)} ({'PASS' if p['passed'] else 'FAIL'})"
         for i, p in enumerate(report.phases)
     )
 

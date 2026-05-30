@@ -211,9 +211,7 @@ class TestPerfResourceBoundsAtMaxParallel:
 
     SPEC_COUNT: int = 15
 
-    def test_peak_rss_within_ceiling_at_parallel_fifteen(
-        self, tmp_path: Path
-    ) -> None:
+    def test_peak_rss_within_ceiling_at_parallel_fifteen(self, tmp_path: Path) -> None:
         """Run 15 evals concurrently; assert peak RSS delta <= 2.25 GB."""
 
         free_ram = _free_ram_bytes()
@@ -242,8 +240,7 @@ class TestPerfResourceBoundsAtMaxParallel:
         hold_event = threading.Event()
         worker = _make_stub_worker(hold_event=hold_event)
         specs = [
-            EvalSpec(id=f"E{i:03d}", title=f"perf-{i}")
-            for i in range(self.SPEC_COUNT)
+            EvalSpec(id=f"E{i:03d}", title=f"perf-{i}") for i in range(self.SPEC_COUNT)
         ]
         orch = RunOrchestrator(run_one=worker)
 

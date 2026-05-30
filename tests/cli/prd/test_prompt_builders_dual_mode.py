@@ -71,9 +71,7 @@ def test_build_investigation_prompt_config_mode_returns_agent_1_topic(
     config_with_notes,
 ):
     """Config-mode dispatch resolves Agent 1 and embeds its topic."""
-    prompt = build_investigation_prompt(
-        config_with_notes, step_id="investigation-1"
-    )
+    prompt = build_investigation_prompt(config_with_notes, step_id="investigation-1")
     assert prompt
     assert "Some investigation topic about the foo subsystem" in prompt
 
@@ -118,9 +116,7 @@ def test_build_web_research_prompt_resolves_agent_idx_6_plus_web_idx(
     config_with_notes,
 ):
     """web-research-1 maps to Agent 7 (6 + 1) and embeds that topic."""
-    prompt = build_web_research_prompt(
-        config_with_notes, step_id="web-research-1"
-    )
+    prompt = build_web_research_prompt(config_with_notes, step_id="web-research-1")
     assert "External web research for the foo ecosystem" in prompt
 
 
@@ -156,12 +152,18 @@ def test_build_investigation_prompt_legacy_positional_call_still_works(
     """The legacy positional signature still routes to the renderer."""
     out = tmp_path / "o.md"
     via_builder = build_investigation_prompt(
-        topic="x", agent_type="y", files=["f"],
-        product_root=".", output_path=out,
+        topic="x",
+        agent_type="y",
+        files=["f"],
+        product_root=".",
+        output_path=out,
     )
     direct = _render_investigation_prompt(
-        topic="x", agent_type="y", files=["f"],
-        product_root=".", output_path=out,
+        topic="x",
+        agent_type="y",
+        files=["f"],
+        product_root=".",
+        output_path=out,
     )
     assert via_builder == direct
 
@@ -180,13 +182,12 @@ def test_build_prompt_propagates_typeerror_from_buggy_builder_body(
     through to a stub string; the inspect-signature dispatch only guards
     `inspect.signature`, so a body bug propagates as the real error.
     """
+
     def buggy_builder(config, **kwargs):
         raise TypeError("body bug")
 
     monkeypatch.setattr(prompts, "buggy_builder", buggy_builder, raising=False)
-    config = resolve_config(
-        "test", product="bug-test", tier="standard", dry_run=True
-    )
+    config = resolve_config("test", product="bug-test", tier="standard", dry_run=True)
     executor = PrdExecutor(config)
     with pytest.raises(TypeError, match="body bug"):
         executor._build_prompt("buggy_builder")

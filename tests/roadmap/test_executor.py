@@ -1187,9 +1187,7 @@ class TestCosmeticRemediatorExceptionFallthrough:
 
         def writes_failing_output(step, cfg, cancel_check):
             output_file.parent.mkdir(parents=True, exist_ok=True)
-            output_file.write_text(
-                "---\nspec_source: x\n---\n# Body\n" + "line\n" * 50
-            )
+            output_file.write_text("---\nspec_source: x\n---\n# Body\n" + "line\n" * 50)
             return StepResult(
                 step=step,
                 status=StepStatus.PASS,
@@ -1235,9 +1233,7 @@ class TestCosmeticRemediatorExceptionFallthrough:
             cosmetic_remediator=raising_remediator,
         )
 
-        with caplog.at_level(
-            logging.WARNING, logger="superclaude.pipeline.executor"
-        ):
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.executor"):
             results = execute_pipeline(
                 steps=[step],
                 config=config,
@@ -1269,7 +1265,4 @@ class TestCosmeticRemediatorExceptionFallthrough:
         assert any(
             "RuntimeError" in msg and "m2-fallthrough-step" in msg
             for msg in warning_messages
-        ), (
-            f"expected WARNING naming RuntimeError + step id; got "
-            f"{warning_messages!r}"
-        )
+        ), f"expected WARNING naming RuntimeError + step id; got {warning_messages!r}"

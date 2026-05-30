@@ -326,9 +326,7 @@ def _check_free_ram_for_parallel(
         return None
 
     probe = probe or _default_free_ram_probe
-    description = (
-        f"free RAM >= {RAM_CEILING_TEXT} for --parallel {threshold_parallel}"
-    )
+    description = f"free RAM >= {RAM_CEILING_TEXT} for --parallel {threshold_parallel}"
     try:
         free_ram = probe()
     except Exception as exc:  # noqa: BLE001 — probe is caller-supplied
@@ -878,9 +876,7 @@ def doctor(
                 click.echo(f"eval doctor: {type(exc).__name__}: {exc}", err=True)
                 sys.exit(SUITE_NOT_FOUND_EXIT_CODE)
             except SuiteLoaderError as exc:
-                click.echo(
-                    f"eval doctor: {type(exc).__name__}: {exc}", err=True
-                )
+                click.echo(f"eval doctor: {type(exc).__name__}: {exc}", err=True)
                 sys.exit(SUITE_LOADER_ERROR_EXIT_CODE)
         coverage_result = coverage_gate(
             settings_path=Path.home() / ".claude" / "settings.json",
@@ -1004,9 +1000,7 @@ class SuiteNotFound(Exception):
     def __init__(self, suite: str, suites_dir: Path) -> None:
         self.suite = suite
         self.suites_dir = suites_dir
-        super().__init__(
-            f"no manifest matched --suite {suite!r} in {suites_dir}"
-        )
+        super().__init__(f"no manifest matched --suite {suite!r} in {suites_dir}")
 
 
 class EvalNotFound(Exception):
@@ -1317,9 +1311,7 @@ def _utc_iso_now() -> str:
     summary timestamps share one clock read.
     """
     return (
-        datetime.now(timezone.utc)
-        .isoformat(timespec="seconds")
-        .replace("+00:00", "Z")
+        datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     )
 
 
@@ -1752,9 +1744,7 @@ def eval_run(
             default_run_dir = _default_output_dir(
                 started_at=started_iso, suite_name=suite_name
             )
-            resolved_run_dir = resolve_scratch_root(
-                default_run_dir, config=base_config
-            )
+            resolved_run_dir = resolve_scratch_root(default_run_dir, config=base_config)
             resolved_output_root = resolved_run_dir
     except ScratchRootViolation as exc:
         click.echo(format_scratch_root_violation(exc), err=True)
@@ -1987,7 +1977,9 @@ def eval_run(
     # Operator-facing stdout
     # ------------------------------------------------------------------
     if as_json:
-        click.echo(json.dumps(summary.to_dict(), indent=2, sort_keys=False, default=str))
+        click.echo(
+            json.dumps(summary.to_dict(), indent=2, sort_keys=False, default=str)
+        )
     elif verbose:
         click.echo(_format_run_summary_line(summary, resolved_run_dir))
 
@@ -2007,10 +1999,6 @@ def eval_run(
         # drift apart.
         click.echo(DISK_BUDGET_RETENTION_ADVICE, err=True)
         sys.exit(DISK_BUDGET_EXCEEDED_EXIT_CODE)
-    if (
-        totals.failed > 0
-        or totals.errored > 0
-        or totals.timeout > 0
-    ):
+    if totals.failed > 0 or totals.errored > 0 or totals.timeout > 0:
         sys.exit(RUN_FAILURES_EXIT_CODE)
     sys.exit(RUN_CLEAN_EXIT_CODE)

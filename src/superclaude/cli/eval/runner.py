@@ -150,7 +150,9 @@ class LifecycleExecutor(Protocol):
     def inject(self, ctx: ExecutorContext) -> None:  # pragma: no cover - protocol
         ...
 
-    def observe(self, ctx: ExecutorContext) -> ObservedRun:  # pragma: no cover - protocol
+    def observe(
+        self, ctx: ExecutorContext
+    ) -> ObservedRun:  # pragma: no cover - protocol
         ...
 
 
@@ -446,7 +448,13 @@ def _finalize(
     # value (which may be 0.0 for a stub eval) is preserved verbatim
     # because the Reporter renders it without further interpretation.
     duration_sec = state.observed.duration_sec
-    if state.harness_failure_step in {"setup", "deploy_hooks", "spawn", "inject", "observe"}:
+    if state.harness_failure_step in {
+        "setup",
+        "deploy_hooks",
+        "spawn",
+        "inject",
+        "observe",
+    }:
         # Steps 1-5 failures: observe never ran cleanly, so duration is
         # not meaningful — pin to 0.0 so the Reporter's per-eval row
         # does not display a stale or misleading value.
@@ -545,7 +553,9 @@ class _JsonlLog:
     def _ts_offset(self) -> float:
         return self._clock() - self._start
 
-    def emit(self, event: str, *, step: str, extra: Optional[Mapping[str, Any]] = None) -> None:
+    def emit(
+        self, event: str, *, step: str, extra: Optional[Mapping[str, Any]] = None
+    ) -> None:
         evt = _LogEvent(
             event=event,
             ts_offset_sec=self._ts_offset(),
@@ -857,7 +867,9 @@ class EvalRunner:
         # contract as the first; without a factory the original home
         # is reused, which only works for test stubs whose ``setup()``
         # is callable across teardown.
-        if self._retry_policy is not None and self._retry_policy.should_retry(spec, outcome):
+        if self._retry_policy is not None and self._retry_policy.should_retry(
+            spec, outcome
+        ):
             if self._home_factory is not None:
                 self._home = self._home_factory()
             retry_outcome = self._execute_once(spec)
@@ -883,7 +895,10 @@ class EvalRunner:
         # return INTERRUPTED immediately so the orchestrator does not
         # waste a HomeIsolation setup on an eval whose result will be
         # discarded anyway.
-        if self._cancellation_token is not None and self._cancellation_token.is_cancelled():
+        if (
+            self._cancellation_token is not None
+            and self._cancellation_token.is_cancelled()
+        ):
             return self._make_interrupted_outcome(spec=spec, log=log)
 
         # Holders for the worker thread. ``outcome_holder`` is populated
@@ -966,9 +981,8 @@ class EvalRunner:
             # token, propagation is preserved verbatim so the FR-LC1
             # contract (and the existing ``test_runner_class.py`` AC4
             # case) stays unchanged.
-            if (
-                self._cancellation_token is not None
-                and isinstance(exc, (KeyboardInterrupt, SystemExit))
+            if self._cancellation_token is not None and isinstance(
+                exc, (KeyboardInterrupt, SystemExit)
             ):
                 self._cancellation_token.cancel()
                 return self._make_interrupted_outcome(spec=spec, log=log)

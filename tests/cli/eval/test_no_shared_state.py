@@ -257,8 +257,7 @@ def _run_trials(
         # orchestrator/isolation composition broke before NFR-ISO1
         # could be evaluated.
         assert len(outcomes) == evals_per_trial, (
-            f"trial {trial}: expected {evals_per_trial} outcomes, "
-            f"got {len(outcomes)}"
+            f"trial {trial}: expected {evals_per_trial} outcomes, got {len(outcomes)}"
         )
         assert all(o.status == "PASS" for o in outcomes), (
             f"trial {trial}: non-PASS outcomes: "
@@ -297,9 +296,7 @@ class TestNoSharedStateAcrossTrials:
 
         records = _run_trials(scratch_root, eval_config)
         home_paths = [r["home_path"] for r in records]
-        duplicates = [
-            path for path, count in Counter(home_paths).items() if count > 1
-        ]
+        duplicates = [path for path, count in Counter(home_paths).items() if count > 1]
         assert not duplicates, (
             f"shared HOME paths detected across trials: {duplicates!r}"
         )
@@ -367,9 +364,7 @@ class TestNoSharedStateAcrossTrials:
         records = _run_trials(scratch_root, eval_config)
         telemetry_paths = [r["telemetry_path"] for r in records]
         duplicates = [
-            path
-            for path, count in Counter(telemetry_paths).items()
-            if count > 1
+            path for path, count in Counter(telemetry_paths).items() if count > 1
         ]
         assert not duplicates, (
             f"shared telemetry paths detected across trials: {duplicates!r}"
@@ -427,11 +422,7 @@ class TestNoSharedStateAcrossTrials:
 
         records = _run_trials(scratch_root, eval_config)
         for record in records:
-            offending = [
-                key
-                for key in record["env"]
-                if "PORT" in key.upper()
-            ]
+            offending = [key for key in record["env"] if "PORT" in key.upper()]
             assert not offending, (
                 f"trial {record['trial']} eval {record['eval_id']}: "
                 f"unexpected port-bearing env keys {offending!r}"

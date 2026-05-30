@@ -183,32 +183,59 @@ class _CapabilitySpec:
 # green-checklist layout.
 _DEFAULT_CAPABILITY_SPECS: tuple[_CapabilitySpec, ...] = (
     _CapabilitySpec(
-        "binary.claude", "claude", "binary", "hard", None,
+        "binary.claude",
+        "claude",
+        "binary",
+        "hard",
+        None,
         "Claude CLI on PATH",
     ),
     _CapabilitySpec(
-        "binary.make", "make", "binary", "hard", None,
+        "binary.make",
+        "make",
+        "binary",
+        "hard",
+        None,
         "GNU make on PATH",
     ),
     _CapabilitySpec(
-        "binary.jq", "jq", "binary", "hard", None,
+        "binary.jq",
+        "jq",
+        "binary",
+        "hard",
+        None,
         "jq JSON processor on PATH",
     ),
     _CapabilitySpec(
-        "binary.git", "git", "binary", "hard", None,
+        "binary.git",
+        "git",
+        "binary",
+        "hard",
+        None,
         "git VCS on PATH",
     ),
     _CapabilitySpec(
-        "mcp_server.auggie", "auggie", "mcp_server", "skip", "--no-mcp",
+        "mcp_server.auggie",
+        "auggie",
+        "mcp_server",
+        "skip",
+        "--no-mcp",
         "Auggie MCP server reachable",
     ),
     _CapabilitySpec(
-        "mcp_server.auggie-mcp", "auggie-mcp", "mcp_server", "skip", "--no-mcp",
+        "mcp_server.auggie-mcp",
+        "auggie-mcp",
+        "mcp_server",
+        "skip",
+        "--no-mcp",
         "auggie-mcp MCP server reachable",
     ),
     _CapabilitySpec(
-        "mcp_server.airis-mcp-gateway", "airis-mcp-gateway",
-        "mcp_server", "skip", "--no-mcp",
+        "mcp_server.airis-mcp-gateway",
+        "airis-mcp-gateway",
+        "mcp_server",
+        "skip",
+        "--no-mcp",
         "AIRIS MCP gateway reachable",
     ),
 )
@@ -339,10 +366,7 @@ class CapabilityGates:
         for spec in self._specs:
             passed, detail = self._probe(spec)
             skipped_by_flag = False
-            if (
-                spec.skip_flag is not None
-                and spec.skip_flag in self._skip_flags
-            ):
+            if spec.skip_flag is not None and spec.skip_flag in self._skip_flags:
                 # SOFT-SKIP override: the user asked us to ignore this
                 # capability tier regardless of probe result. The probe
                 # detail is preserved so doctor output can still show
@@ -395,11 +419,14 @@ class CapabilityGates:
 
     def _make_capability(self, spec: _CapabilitySpec) -> Capability:
         if spec.kind == "binary":
+
             def _check(target: str = spec.target) -> bool:
                 return self.which_or_skip(target)[0]
         else:
+
             def _check(target: str = spec.target) -> bool:
                 return self.mcp_server_reachable(target)[0]
+
         return Capability(
             name=spec.name,
             check=_check,

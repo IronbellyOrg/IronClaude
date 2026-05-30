@@ -37,8 +37,8 @@ def load_summary_schema() -> Mapping[str, Any]:
     """
 
     schema_text = (
-        resources.files(__name__).joinpath(SUMMARY_SCHEMA_FILENAME).read_text(
-            encoding="utf-8"
-        )
+        resources.files(__name__)
+        .joinpath(SUMMARY_SCHEMA_FILENAME)
+        .read_text(encoding="utf-8")
     )
     return json.loads(schema_text)

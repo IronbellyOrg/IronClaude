@@ -6,6 +6,7 @@ and produces structurally valid artifacts.
 Phase A: Full pipeline run with eval spec → verify wiring-verification.md
 Phase B: Direct wiring analysis against project source → verify detection power
 """
+
 from __future__ import annotations
 
 import argparse
@@ -42,9 +43,12 @@ class ComparisonReport:
 def run_pipeline(spec_file: Path, output_dir: Path, timeout: int = 1800) -> int:
     """Run superclaude roadmap run and return exit code."""
     cmd = [
-        "superclaude", "roadmap", "run",
+        "superclaude",
+        "roadmap",
+        "run",
         str(spec_file),
-        "--output-dir", str(output_dir),
+        "--output-dir",
+        str(output_dir),
         "--no-validate",  # Skip post-pipeline validation for eval speed
     ]
     result = subprocess.run(
@@ -93,9 +97,11 @@ def verify_artifact_provenance(output_dir: Path, start_time: float) -> list[dict
     assertions = []
     artifacts = list(output_dir.glob("*"))
     if not artifacts:
-        assertions.append(assert_check(
-            "provenance_artifacts_exist", False, "No artifacts in output directory"
-        ))
+        assertions.append(
+            assert_check(
+                "provenance_artifacts_exist", False, "No artifacts in output directory"
+            )
+        )
         return assertions
 
     stale = []
@@ -103,16 +109,24 @@ def verify_artifact_provenance(output_dir: Path, start_time: float) -> list[dict
         if artifact.is_file():
             mtime = artifact.stat().st_mtime
             if mtime < start_time:
-                stale.append(f"{artifact.name} (mtime={mtime:.0f} < start={start_time:.0f})")
-    assertions.append(assert_check(
-        "provenance_all_artifacts_fresh",
-        len(stale) == 0,
-        f"Stale artifacts: {stale}" if stale else f"All {len(artifacts)} artifacts post-date eval start",
-    ))
+                stale.append(
+                    f"{artifact.name} (mtime={mtime:.0f} < start={start_time:.0f})"
+                )
+    assertions.append(
+        assert_check(
+            "provenance_all_artifacts_fresh",
+            len(stale) == 0,
+            f"Stale artifacts: {stale}"
+            if stale
+            else f"All {len(artifacts)} artifacts post-date eval start",
+        )
+    )
     return assertions
 
 
-def phase_a_pipeline_integration(output_dir: Path, spec_file: Path, eval_start_time: float) -> EvalResult:
+def phase_a_pipeline_integration(
+    output_dir: Path, spec_file: Path, eval_start_time: float
+) -> EvalResult:
     """Phase A: Run full pipeline, verify wiring-verification.md exists and passes gate."""
     start = time.monotonic()
     result = EvalResult(eval_id="eval-1", phase="A-pipeline-integration", passed=False)
@@ -143,11 +157,22 @@ def phase_a_pipeline_integration(output_dir: Path, spec_file: Path, eval_start_t
     # 3. Assert: frontmatter has all 16 required fields
     fm = parse_frontmatter(wiring_report)
     required_fields = [
-        "gate", "target_dir", "files_analyzed", "rollout_mode",
-        "analysis_complete", "unwired_callable_count", "orphan_module_count",
-        "unwired_registry_count", "critical_count", "major_count",
-        "info_count", "total_findings", "blocking_findings",
-        "whitelist_entries_applied", "files_skipped", "audit_artifacts_used",
+        "gate",
+        "target_dir",
+        "files_analyzed",
+        "rollout_mode",
+        "analysis_complete",
+        "unwired_callable_count",
+        "orphan_module_count",
+        "unwired_registry_count",
+        "critical_count",
+        "major_count",
+        "info_count",
+        "total_findings",
+        "blocking_findings",
+        "whitelist_entries_applied",
+        "files_skipped",
+        "audit_artifacts_used",
     ]
     missing = [f for f in required_fields if f not in fm]
     result.assertions.append(
@@ -275,7 +300,9 @@ def phase_a_pipeline_integration(output_dir: Path, spec_file: Path, eval_start_t
         assert_check(
             "report_has_7_sections",
             len(missing_sections) == 0,
-            f"Missing sections: {missing_sections}" if missing_sections else "All 7 sections present",
+            f"Missing sections: {missing_sections}"
+            if missing_sections
+            else "All 7 sections present",
         )
     )
 
@@ -288,12 +315,17 @@ def phase_a_pipeline_integration(output_dir: Path, spec_file: Path, eval_start_t
             f"Non-empty lines: {len(lines)}",
         )
     )
-    has_headings = any(line.startswith("## ") or line.startswith("### ") for line in content.splitlines())
+    has_headings = any(
+        line.startswith("## ") or line.startswith("### ")
+        for line in content.splitlines()
+    )
     result.assertions.append(
         assert_check(
             "content_has_section_headings",
             has_headings,
-            "Has markdown section headings" if has_headings else "No section headings found",
+            "Has markdown section headings"
+            if has_headings
+            else "No section headings found",
         )
     )
 
@@ -390,7 +422,9 @@ def phase_b_detection_power(project_source: Path) -> EvalResult:
 def main():
     parser = argparse.ArgumentParser(description="Eval 1: Wiring Verification Gate")
     parser.add_argument(
-        "--branch", choices=["local", "global"], default="local",
+        "--branch",
+        choices=["local", "global"],
+        default="local",
         help="Artifact label for directory naming (does NOT switch git branches)",
     )
     parser.add_argument(
@@ -415,7 +449,9 @@ def main():
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     eval_start_time = time.time()
 
-    print(f"[eval-1] Running on current branch ('{args.branch}' is an artifact label, not a git operation)")
+    print(
+        f"[eval-1] Running on current branch ('{args.branch}' is an artifact label, not a git operation)"
+    )
 
     if args.output_dir:
         output_dir = Path(args.output_dir)

@@ -33,7 +33,14 @@ E2E_SCRIPTS = [
 ]
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-RESULTS_DIR = REPO_ROOT / ".dev" / "releases" / "current" / "v3.0_unified-audit-gating" / "eval-results"
+RESULTS_DIR = (
+    REPO_ROOT
+    / ".dev"
+    / "releases"
+    / "current"
+    / "v3.0_unified-audit-gating"
+    / "eval-results"
+)
 
 
 @dataclass
@@ -51,10 +58,13 @@ class RunResult:
 def run_pytest(label: str, cwd: Path, xml_path: Path) -> RunResult:
     """Run pytest and parse JUnit XML results."""
     cmd = [
-        "uv", "run", "pytest",
+        "uv",
+        "run",
+        "pytest",
         *EVAL_FILES,
         f"--junit-xml={xml_path}",
-        "--tb=short", "-q",
+        "--tb=short",
+        "-q",
     ]
     start = time.monotonic()
     proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=120)
@@ -66,7 +76,12 @@ def run_pytest(label: str, cwd: Path, xml_path: Path) -> RunResult:
         tree = ET.parse(xml_path)
         root = tree.getroot()
         for suite in root.iter("testsuite"):
-            result.passed += int(suite.get("tests", 0)) - int(suite.get("failures", 0)) - int(suite.get("errors", 0)) - int(suite.get("skipped", 0))
+            result.passed += (
+                int(suite.get("tests", 0))
+                - int(suite.get("failures", 0))
+                - int(suite.get("errors", 0))
+                - int(suite.get("skipped", 0))
+            )
             result.failed += int(suite.get("failures", 0))
             result.errors += int(suite.get("errors", 0))
             result.skipped += int(suite.get("skipped", 0))
@@ -78,7 +93,9 @@ def run_pytest(label: str, cwd: Path, xml_path: Path) -> RunResult:
     else:
         # XML not created — parse from stdout
         result.errors = 1
-        result.failures.append(f"pytest did not produce XML output. stderr: {proc.stderr[-500:]}")
+        result.failures.append(
+            f"pytest did not produce XML output. stderr: {proc.stderr[-500:]}"
+        )
 
     return result
 
@@ -89,7 +106,9 @@ def run_e2e_script(script: str, branch: str, cwd: Path) -> RunResult:
     cmd = ["uv", "run", "python", script, "--branch", branch]
     start = time.monotonic()
     try:
-        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=1800)
+        proc = subprocess.run(
+            cmd, cwd=cwd, capture_output=True, text=True, timeout=1800
+        )
         duration = time.monotonic() - start
         result = RunResult(name=label, duration=round(duration, 3))
         if proc.returncode == 0:
@@ -122,7 +141,9 @@ def run_global(run_id: str) -> RunResult:
     if not worktree_path.exists():
         subprocess.run(
             ["git", "worktree", "add", str(worktree_path), "master"],
-            cwd=REPO_ROOT, capture_output=True, text=True,
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
         )
 
     # Check if eval files exist on master
@@ -154,25 +175,29 @@ def compare_runs(runs: list[RunResult]) -> dict:
     global_runs = [r for r in runs if r.name.startswith("global")]
 
     for r in runs:
-        report["runs"].append({
-            "name": r.name,
-            "passed": r.passed,
-            "failed": r.failed,
-            "skipped": r.skipped,
-            "errors": r.errors,
-            "duration": r.duration,
-            "failures": r.failures,
-        })
+        report["runs"].append(
+            {
+                "name": r.name,
+                "passed": r.passed,
+                "failed": r.failed,
+                "skipped": r.skipped,
+                "errors": r.errors,
+                "duration": r.duration,
+                "failures": r.failures,
+            }
+        )
 
     # Consistency check: local runs should be identical
     if len(local_runs) == 2:
         a, b = local_runs
         report["consistency"]["local_identical"] = (
-            a.passed == b.passed and a.failed == b.failed and
-            a.skipped == b.skipped and set(a.failures) == set(b.failures)
+            a.passed == b.passed
+            and a.failed == b.failed
+            and a.skipped == b.skipped
+            and set(a.failures) == set(b.failures)
         )
-        report["consistency"]["duration_variance_pct"] = (
-            round(abs(a.duration - b.duration) / max(a.duration, b.duration, 0.001) * 100, 1)
+        report["consistency"]["duration_variance_pct"] = round(
+            abs(a.duration - b.duration) / max(a.duration, b.duration, 0.001) * 100, 1
         )
 
     # A/B comparison: local vs global
@@ -182,11 +207,19 @@ def compare_runs(runs: list[RunResult]) -> dict:
         if glob.errors == 0:
             local_failures = set(local.failures)
             global_failures = set(glob.failures)
-            report["comparison"]["regressions"] = sorted(local_failures - global_failures)
-            report["comparison"]["improvements"] = sorted(global_failures - local_failures)
-            report["comparison"]["new_tests"] = local.passed + local.failed - glob.passed - glob.failed
+            report["comparison"]["regressions"] = sorted(
+                local_failures - global_failures
+            )
+            report["comparison"]["improvements"] = sorted(
+                global_failures - local_failures
+            )
+            report["comparison"]["new_tests"] = (
+                local.passed + local.failed - glob.passed - glob.failed
+            )
         else:
-            report["comparison"]["note"] = "Global run had errors; full comparison unavailable"
+            report["comparison"]["note"] = (
+                "Global run had errors; full comparison unavailable"
+            )
             report["comparison"]["new_tests"] = local.passed + local.failed
 
     return report
@@ -200,14 +233,18 @@ def print_report(report: dict) -> None:
 
     for r in report["runs"]:
         status = "PASS" if r["failed"] == 0 and r["errors"] == 0 else "FAIL"
-        print(f"  {r['name']:20s}  {r['passed']} passed / {r['failed']} failed / {r['skipped']} skipped  [{r['duration']:.3f}s]  {status}")
+        print(
+            f"  {r['name']:20s}  {r['passed']} passed / {r['failed']} failed / {r['skipped']} skipped  [{r['duration']:.3f}s]  {status}"
+        )
         for f in r["failures"]:
             print(f"    FAIL: {f}")
 
     if "local_identical" in report.get("consistency", {}):
         ident = report["consistency"]["local_identical"]
         var = report["consistency"]["duration_variance_pct"]
-        print(f"\n  Consistency: {'PASS' if ident else 'FAIL'} (duration variance: {var}%)")
+        print(
+            f"\n  Consistency: {'PASS' if ident else 'FAIL'} (duration variance: {var}%)"
+        )
 
     comp = report.get("comparison", {})
     if comp:

@@ -78,9 +78,7 @@ def permissive_config(scratch_root: Path) -> EvalConfig:
 
 
 @pytest.fixture
-def home_iso(
-    scratch_root: Path, permissive_config: EvalConfig
-) -> HomeIsolation:
+def home_iso(scratch_root: Path, permissive_config: EvalConfig) -> HomeIsolation:
     """A :class:`HomeIsolation` with ``setup`` already invoked."""
 
     iso = HomeIsolation(
@@ -114,9 +112,7 @@ class FakeClaudeShim:
 
 
 @pytest.fixture
-def fake_claude_path(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> FakeClaudeShim:
+def fake_claude_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> FakeClaudeShim:
     """Drop a ``claude`` shim on PATH that writes deterministic stdout/stderr.
 
     The shim reads its stdin (mimicking the prompt delivery in
@@ -408,9 +404,8 @@ def test_no_anthropic_imports_anywhere_under_cli_eval() -> None:
             # Skip comments, docstrings already-stripped non-import refs.
             if stripped.startswith("#"):
                 continue
-            if (
-                stripped.startswith("import anthropic")
-                or stripped.startswith("from anthropic")
+            if stripped.startswith("import anthropic") or stripped.startswith(
+                "from anthropic"
             ):
                 offenders.append(f"{py_file}:{lineno}: {stripped}")
     assert offenders == [], (
@@ -460,8 +455,7 @@ def test_ruff_flags_synthetic_anthropic_import_under_cli_eval(
         f"is not registered. stdout={result.stdout!r} stderr={result.stderr!r}"
     )
     assert "TID251" in result.stdout, (
-        "Expected TID251 ban-api violation in ruff output; got: "
-        f"{result.stdout!r}"
+        f"Expected TID251 ban-api violation in ruff output; got: {result.stdout!r}"
     )
     assert "anthropic" in result.stdout
 
@@ -485,8 +479,7 @@ def test_ruff_passes_on_real_adapter_module() -> None:
         check=False,
     )
     assert result.returncode == 0, (
-        f"adapter module trips its own ban rule: {result.stdout!r} "
-        f"{result.stderr!r}"
+        f"adapter module trips its own ban rule: {result.stdout!r} {result.stderr!r}"
     )
 
 

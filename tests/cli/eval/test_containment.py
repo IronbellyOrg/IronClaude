@@ -261,9 +261,9 @@ class TestNonAllowlistedRootsRejected:
         [
             "user-home-dot-claude",  # stands in for ``$HOME/.claude``
             "etc-style-system-path",  # stands in for ``/etc/...``
-            "var-lib-eval-runs",      # ``/var/lib`` close-but-not-allowed
-            "root-dot-claude",        # stands in for ``/root/.claude``
-            "tmp-other-runs",         # ``/tmp/other-runs`` prefix-collision
+            "var-lib-eval-runs",  # ``/var/lib`` close-but-not-allowed
+            "root-dot-claude",  # stands in for ``/root/.claude``
+            "tmp-other-runs",  # ``/tmp/other-runs`` prefix-collision
         ],
     )
     def test_setup_rejects_root_outside_default_allowlist(
@@ -372,16 +372,16 @@ class TestLoaderBypassDefense:
     @pytest.mark.parametrize(
         "loader_rejected_eval_id",
         [
-            "../escape",         # path traversal
-            "/etc/passwd",       # absolute-path smuggling
-            "E1/with/sep",       # embedded path separator
-            "..",                # parent-dir literal
-            "9bad",              # FR-SCH2 leading-digit reject
-            "",                  # empty string
-            "with spaces",       # whitespace
-            "{{template}}",      # un-expanded parameterize token
-            "${shell}",          # shell-substitution smuggling
-            "E1\nE2",            # newline injection
+            "../escape",  # path traversal
+            "/etc/passwd",  # absolute-path smuggling
+            "E1/with/sep",  # embedded path separator
+            "..",  # parent-dir literal
+            "9bad",  # FR-SCH2 leading-digit reject
+            "",  # empty string
+            "with spaces",  # whitespace
+            "{{template}}",  # un-expanded parameterize token
+            "${shell}",  # shell-substitution smuggling
+            "E1\nE2",  # newline injection
         ],
     )
     def test_direct_construction_rejects_loader_rejected_id(

@@ -306,9 +306,7 @@ def parse_run_dir_components(run_dir: Path | str) -> RunDirComponents:
         if parts[i] == ".dev" and i + 1 < len(parts) and parts[i + 1] == "eval-runs":
             eval_runs_idx = i + 1
     if eval_runs_idx is None:
-        raise ValueError(
-            f"run_dir {run_dir!r} is not anchored at .dev/eval-runs/"
-        )
+        raise ValueError(f"run_dir {run_dir!r} is not anchored at .dev/eval-runs/")
     if eval_runs_idx + 2 >= len(parts):
         raise ValueError(
             f"run_dir {run_dir!r} is missing the <date>/<run-id> tail "

@@ -390,9 +390,7 @@ def test_outcome_event_records_final_status(eval_spec, home, eval_config, run_pa
 # ---------------------------------------------------------------------------
 
 
-def test_run_returns_timeout_when_observe_hangs(
-    home, eval_config, run_paths
-):
+def test_run_returns_timeout_when_observe_hangs(home, eval_config, run_paths):
     """A hung observe step must return an outcome with status TIMEOUT.
 
     The observe step blocks on an ``Event`` that is never set; the

@@ -144,8 +144,7 @@ def test_retention_doc_exists() -> None:
     )
     assert DOC_PATH.is_file(), f"{DOC_PATH} must be a regular file"
     assert DOC_PATH.stat().st_size > 0, (
-        f"{DOC_PATH} is empty; the policy doc must document the four "
-        "OPS-003 pillars."
+        f"{DOC_PATH} is empty; the policy doc must document the four OPS-003 pillars."
     )
 
 
@@ -185,8 +184,7 @@ def test_retention_doc_covers_four_pillars() -> None:
         "doc must name the summary artifacts the Reporter writes"
     )
     assert "junit.xml" in text, (
-        "doc must mention the junit.xml artifact retained when "
-        "--junit-xml is on"
+        "doc must mention the junit.xml artifact retained when --junit-xml is on"
     )
 
     # P4 — disk-budget breach.
@@ -253,9 +251,7 @@ def test_retention_advice_constant_shape() -> None:
     )
 
     # (b) preserved artifacts
-    assert "summary" in advice, (
-        "advice must mention summary.{md,json} as preserved"
-    )
+    assert "summary" in advice, "advice must mention summary.{md,json} as preserved"
     assert "disk_budget_exceeded.json" in advice, (
         "advice must mention the side-car filename"
     )
@@ -277,7 +273,9 @@ def test_retention_advice_constant_shape() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_cli_emits_retention_advice_on_disk_budget_breach(allowlisted_output_dir: Path) -> None:
+def test_cli_emits_retention_advice_on_disk_budget_breach(
+    allowlisted_output_dir: Path,
+) -> None:
     """A real ``superclaude eval run`` that breaches the disk budget must
     emit ``DISK_BUDGET_RETENTION_ADVICE`` verbatim to stderr immediately
     before exiting with code 2.
@@ -368,7 +366,9 @@ def test_cli_emits_retention_advice_on_disk_budget_breach(allowlisted_output_dir
 # ---------------------------------------------------------------------------
 
 
-def test_keep_home_true_preserves_per_eval_homes_on_pass(allowlisted_output_dir: Path) -> None:
+def test_keep_home_true_preserves_per_eval_homes_on_pass(
+    allowlisted_output_dir: Path,
+) -> None:
     """An end-to-end run with ``--keep-home`` must preserve every PASS
     eval's HOME under the scratch root.
 
@@ -410,9 +410,7 @@ def test_keep_home_true_preserves_per_eval_homes_on_pass(allowlisted_output_dir:
     )
     # If any HOME materialised under scratch_root, every one must survive.
     materialised_homes = [
-        p
-        for p in scratch_root.rglob("*")
-        if p.is_dir() and (p / ".eval-meta").is_dir()
+        p for p in scratch_root.rglob("*") if p.is_dir() and (p / ".eval-meta").is_dir()
     ]
     for home in materialised_homes:
         assert home.exists(), (

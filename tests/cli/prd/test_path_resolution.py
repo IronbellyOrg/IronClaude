@@ -177,7 +177,9 @@ def test_template_path_falls_back_to_dev_tree(
     home = tmp_path / "home"
     cwd.mkdir()
     home.mkdir()
-    dev_tpl = cwd / "src" / "superclaude" / "templates" / "workflow" / "05_prd_template.md"
+    dev_tpl = (
+        cwd / "src" / "superclaude" / "templates" / "workflow" / "05_prd_template.md"
+    )
     dev_tpl.parent.mkdir(parents=True)
     dev_tpl.write_text("# stub\n", encoding="utf-8")
     _isolate_paths(monkeypatch, cwd=cwd, home=home)
@@ -197,8 +199,5 @@ def test_template_path_returns_absolute_home_path_on_total_miss(
 
     result = _default_template_path()
     assert result.is_absolute()
-    assert (
-        result
-        == home / ".claude" / "templates" / "workflow" / "05_prd_template.md"
-    )
+    assert result == home / ".claude" / "templates" / "workflow" / "05_prd_template.md"
     assert not result.exists()

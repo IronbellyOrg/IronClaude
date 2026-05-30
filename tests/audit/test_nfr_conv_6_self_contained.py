@@ -98,7 +98,12 @@ def _parse_checklist_items(text: str, skip_header: bool = True) -> List[Checklis
             current.field_lines[label] = idx
             current_field = label
             continue
-        if current_field is not None and raw.strip() and not raw.startswith("- ") and not raw.startswith("## "):
+        if (
+            current_field is not None
+            and raw.strip()
+            and not raw.startswith("- ")
+            and not raw.startswith("## ")
+        ):
             current.fields[current_field] += "\n" + raw
             continue
         if raw.startswith("## ") or raw.startswith("---"):
@@ -192,7 +197,9 @@ def tb_add_3(text: str) -> CheckResult:
             "INACTIVE",
             "Open Questions section present but adjacency rules not exercised by this fixture",
         )
-    return CheckResult("TB-Add-3", "PASS", "no Open Questions section — adjacency rule vacuous")
+    return CheckResult(
+        "TB-Add-3", "PASS", "no Open Questions section — adjacency rule vacuous"
+    )
 
 
 def tb_add_4(text: str) -> CheckResult:
@@ -208,7 +215,9 @@ def tb_add_4(text: str) -> CheckResult:
                 edges.append((item.item_id, ref))
     # Trivially DAG when zero edges
     if not edges:
-        return CheckResult("TB-Add-4", "PASS", "no item-to-item references — DAG trivially acyclic")
+        return CheckResult(
+            "TB-Add-4", "PASS", "no item-to-item references — DAG trivially acyclic"
+        )
     # Topological sort
     incoming: Dict[str, int] = {iid: 0 for iid in item_ids}
     for _src, dst in edges:
@@ -225,8 +234,12 @@ def tb_add_4(text: str) -> CheckResult:
                     roots.append(dst)
                 edges.remove((src, dst))
     if visited == len(item_ids):
-        return CheckResult("TB-Add-4", "PASS", "item-to-item dependency graph is acyclic")
-    return CheckResult("TB-Add-4", "FAIL", "item-to-item dependency graph contains a cycle")
+        return CheckResult(
+            "TB-Add-4", "PASS", "item-to-item dependency graph is acyclic"
+        )
+    return CheckResult(
+        "TB-Add-4", "FAIL", "item-to-item dependency graph contains a cycle"
+    )
 
 
 def tb_add_5(text: str) -> CheckResult:
@@ -234,11 +247,17 @@ def tb_add_5(text: str) -> CheckResult:
     if re.search(r"\b(XL|multi-file|complex)\b", text):
         # Items with these markers must include a justifying comment.
         if re.search(r"<!--\s*xl-justified:", text):
-            return CheckResult("TB-Add-5", "PASS", "XL markers carry xl-justified comments")
+            return CheckResult(
+                "TB-Add-5", "PASS", "XL markers carry xl-justified comments"
+            )
         # Plain prose mentions of 'complex' don't trigger; we only fail if explicit XL effort label.
         if re.search(r"\bEffort:\s*XL\b", text):
-            return CheckResult("TB-Add-5", "FAIL", "Effort:XL item lacks xl-justified comment")
-    return CheckResult("TB-Add-5", "PASS", "no XL granularity markers — splitting rule vacuous")
+            return CheckResult(
+                "TB-Add-5", "FAIL", "Effort:XL item lacks xl-justified comment"
+            )
+    return CheckResult(
+        "TB-Add-5", "PASS", "no XL granularity markers — splitting rule vacuous"
+    )
 
 
 def tb_add_6(text: str) -> List[CheckResult]:
@@ -253,7 +272,13 @@ def tb_add_6(text: str) -> List[CheckResult]:
     out: List[CheckResult] = []
     for item in items:
         if "Verification" not in item.fields:
-            out.append(CheckResult("TB-Add-6", "FAIL", f"Item {item.item_id} missing Verification field"))
+            out.append(
+                CheckResult(
+                    "TB-Add-6",
+                    "FAIL",
+                    f"Item {item.item_id} missing Verification field",
+                )
+            )
             continue
         out.append(
             CheckResult(
@@ -271,7 +296,9 @@ def tb_add_7(text: str) -> CheckResult:
     """Execution Context source areas reappear in items."""
     areas = _header_source_areas(text)
     if not areas:
-        return CheckResult("TB-Add-7", "INACTIVE", "no Source areas line — degraded-form tolerated")
+        return CheckResult(
+            "TB-Add-7", "INACTIVE", "no Source areas line — degraded-form tolerated"
+        )
     items = _parse_checklist_items(text)
     bodies = "\n".join(("\n".join(item.fields.values())) for item in items)
     missing = [a for a in areas if a not in bodies]
@@ -438,10 +465,7 @@ class TestStrippedFailsTBAdd1:
         )
         # The error message must name both the item-ID ('1.1') and the
         # stripped field label ('Output').
-        named = [
-            r for r in fails
-            if "1.1" in r.detail and "Output" in r.detail
-        ]
+        named = [r for r in fails if "1.1" in r.detail and "Output" in r.detail]
         assert named, (
             f"TB-Add-1 FAIL must name both item-ID '1.1' and missing field 'Output'; "
             f"got {[r.detail for r in fails]}"

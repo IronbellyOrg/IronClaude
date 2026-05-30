@@ -110,9 +110,7 @@ def test_duration_no_bounds_passes_informationally(
 ) -> None:
     """No bounds → trivial PASS; observed duration recorded in details
     so reports can chart benchmark numbers without asserting."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.5
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.5)
     result = Expect.duration()(ctx)
     assert isinstance(result, ExpectResult)
     assert result.passed
@@ -127,9 +125,7 @@ def test_duration_no_bounds_records_zero_duration(
 ) -> None:
     """A 0-second eval still emits an informational PASS rather than
     raising on the degenerate ``observed=0`` edge."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.0)
     result = Expect.duration()(ctx)
     assert result.passed
     assert result.details["observed_sec"] == 0.0
@@ -143,9 +139,7 @@ def test_duration_no_bounds_records_zero_duration(
 def test_duration_max_sec_passes_when_under_budget(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=1.5
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=1.5)
     result = Expect.duration(max_sec=3.0)(ctx)
     assert result.passed
     assert result.failure is None
@@ -157,9 +151,7 @@ def test_duration_max_sec_passes_at_boundary(
 ) -> None:
     """``observed == max_sec`` is PASS — the implementation uses ``>``
     so the boundary is inclusive (allowed)."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=3.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=3.0)
     result = Expect.duration(max_sec=3.0)(ctx)
     assert result.passed
 
@@ -169,9 +161,7 @@ def test_duration_max_sec_fails_when_over_budget(
 ) -> None:
     """Mirrors the T04.08 validation example:
     ``duration_sec=5`` + ``max_sec=3`` → FAIL."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0)
     result = Expect.duration(max_sec=3.0)(ctx)
     assert not result.passed
     assert isinstance(result.failure, ExpectFailure)
@@ -193,9 +183,7 @@ def test_duration_min_sec_passes_when_above_floor(
 ) -> None:
     """Mirrors the T04.08 validation example:
     ``duration_sec=5`` + ``min_sec=2`` → PASS."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0)
     result = Expect.duration(min_sec=2.0)(ctx)
     assert result.passed
     assert result.failure is None
@@ -206,9 +194,7 @@ def test_duration_min_sec_passes_at_boundary(
 ) -> None:
     """``observed == min_sec`` is PASS — the implementation uses ``<``
     so the boundary is inclusive (allowed)."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.0)
     result = Expect.duration(min_sec=2.0)(ctx)
     assert result.passed
 
@@ -216,9 +202,7 @@ def test_duration_min_sec_passes_at_boundary(
 def test_duration_min_sec_fails_when_below_floor(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.5
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.5)
     result = Expect.duration(min_sec=2.0)(ctx)
     assert not result.passed
     assert result.failure is not None
@@ -236,9 +220,7 @@ def test_duration_min_sec_fails_when_below_floor(
 def test_duration_both_bounds_pass_when_within_window(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.0)
     result = Expect.duration(min_sec=1.0, max_sec=3.0)(ctx)
     assert result.passed
     assert result.failure is None
@@ -249,9 +231,7 @@ def test_duration_both_bounds_pass_when_within_window(
 def test_duration_both_bounds_fail_via_max_sec(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=10.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=10.0)
     result = Expect.duration(min_sec=1.0, max_sec=3.0)(ctx)
     assert not result.passed
     assert result.failure is not None
@@ -262,9 +242,7 @@ def test_duration_both_bounds_fail_via_max_sec(
 def test_duration_both_bounds_fail_via_min_sec(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.1
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.1)
     result = Expect.duration(min_sec=1.0, max_sec=3.0)(ctx)
     assert not result.passed
     assert result.failure is not None
@@ -278,9 +256,7 @@ def test_duration_both_bounds_max_evaluated_before_min(
     both bounds: the implementation evaluates ``max_sec`` first, so the
     failure payload pins the over-budget bound regardless of which
     bound the manifest author considered "more wrong"."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0)
     result = Expect.duration(min_sec=10.0, max_sec=3.0)(ctx)
     assert not result.passed
     assert result.failure is not None
@@ -298,9 +274,7 @@ def test_duration_max_only_does_not_fail_on_missing_min_bound(
     """COMP-010.6 AC: when only one bound is set, the missing other
     bound is informational. A 0.0s eval against ``max_sec=5`` must PASS
     even though a hypothetical ``min_sec=1`` would have failed."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=0.0)
     result = Expect.duration(max_sec=5.0)(ctx)
     assert result.passed
     assert result.failure is None
@@ -329,9 +303,7 @@ def test_from_mapping_threads_duration_max_sec(
 ) -> None:
     """``{duration: {max_sec: 3.0}}`` resolves to the same callable as
     the programmatic form."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=1.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=1.0)
     decl = Expect.from_mapping({"duration": {"max_sec": 3.0}})(ctx)
     prog = Expect.duration(max_sec=3.0)(ctx)
     assert decl.passed and prog.passed
@@ -341,12 +313,8 @@ def test_from_mapping_threads_duration_max_sec(
 def test_from_mapping_threads_duration_both_bounds(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.0
-    )
-    result = Expect.from_mapping(
-        {"duration": {"min_sec": 1.0, "max_sec": 3.0}}
-    )(ctx)
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=2.0)
+    result = Expect.from_mapping({"duration": {"min_sec": 1.0, "max_sec": 3.0}})(ctx)
     assert result.passed
     assert result.name == "duration"
 
@@ -356,9 +324,7 @@ def test_from_mapping_threads_duration_no_bounds(
 ) -> None:
     """``{duration: {}}`` invokes the informational form with no
     arguments."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=4.2
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=4.2)
     result = Expect.from_mapping({"duration": {}})(ctx)
     assert result.passed
     assert result.details == {"observed_sec": 4.2}
@@ -370,9 +336,7 @@ def test_duration_result_carries_primitive_name_and_timing(
     """ExpectResult envelope (DM-009) records ``name='duration'`` and a
     non-negative ``duration_sec`` (time the assertion itself took, not
     the eval body)."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=1.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=1.0)
     callable_ = Expect.duration(max_sec=2.0)
     assert callable_.__name__ == "duration"
     result = callable_(ctx)
@@ -386,9 +350,7 @@ def test_duration_failure_traceback_field_is_none_for_predicate_miss(
     """A predicate miss (over-budget) is *not* an exception; the failure
     record carries ``traceback=None`` so the Reporter does not render a
     stack trace for an ordinary assertion failure."""
-    ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0
-    )
+    ctx = _make_ctx(eval_spec=eval_spec, home=home, run_dir=tmp_path, duration_sec=5.0)
     result = Expect.duration(max_sec=1.0)(ctx)
     assert not result.passed
     assert result.failure is not None

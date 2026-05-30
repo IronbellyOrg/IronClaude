@@ -12,7 +12,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-FIXTURE = Path(__file__).parent / "fixtures" / "execution_context" / "fully_populated.md"
+FIXTURE = (
+    Path(__file__).parent / "fixtures" / "execution_context" / "fully_populated.md"
+)
 
 HEADING = "## Execution Context"
 LABELS = ("**References:**", "**Source areas:**", "**Key constraints:**")
@@ -48,9 +50,7 @@ class TestExecutionContextFull:
         lines = text.splitlines()
         # Line-based scan so substrings inside the YAML frontmatter description
         # are not mistaken for the actual heading line.
-        heading_idx = next(
-            i for i, line in enumerate(lines) if line.strip() == HEADING
-        )
+        heading_idx = next(i for i, line in enumerate(lines) if line.strip() == HEADING)
         sep_indices = [i for i, line in enumerate(lines) if line.strip() == "---"]
         assert len(sep_indices) >= 2, "frontmatter delimiters missing"
         frontmatter_close = sep_indices[1]

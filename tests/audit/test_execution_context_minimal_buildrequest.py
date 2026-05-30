@@ -15,10 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 
 FIXTURE = (
-    Path(__file__).parent
-    / "fixtures"
-    / "execution_context"
-    / "minimal_buildrequest.md"
+    Path(__file__).parent / "fixtures" / "execution_context" / "minimal_buildrequest.md"
 )
 
 HEADING = "## Execution Context"
@@ -46,7 +43,9 @@ class TestExecutionContextMinimal:
 
     def test_block_heading_present(self):
         text = FIXTURE.read_text(encoding="utf-8")
-        assert HEADING in text, "degraded form still emits the `## Execution Context` heading"
+        assert HEADING in text, (
+            "degraded form still emits the `## Execution Context` heading"
+        )
 
     def test_references_bullet_present(self):
         block = _extract_header_range(FIXTURE.read_text(encoding="utf-8"))
@@ -73,7 +72,10 @@ class TestExecutionContextMinimal:
         """Exactly one labeled bullet (`**References:**`) in the degraded form."""
         block = _extract_header_range(FIXTURE.read_text(encoding="utf-8"))
         labeled_lines = [
-            line for line in block.splitlines() if line.startswith("- **") and line.endswith(":**")
+            line
+            for line in block.splitlines()
+            if line.startswith("- **")
+            and line.endswith(":**")
             or (line.startswith("- **") and ":**" in line)
         ]
         assert len(labeled_lines) == 1, (

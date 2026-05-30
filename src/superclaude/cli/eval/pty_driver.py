@@ -261,8 +261,10 @@ class PtyDriver:
                 "child closed PTY before prompt-ready pattern matched"
             ) from exc
         before = child.before
-        return before if isinstance(before, str) else (before or b"").decode(
-            self._encoding or "utf-8", errors="replace"
+        return (
+            before
+            if isinstance(before, str)
+            else (before or b"").decode(self._encoding or "utf-8", errors="replace")
         )
 
     def inject_prompt(self, text: str) -> None:
@@ -378,7 +380,9 @@ class PtyDriver:
         if child.signalstatus is not None:
             self._exit_code = -int(child.signalstatus)
         else:
-            self._exit_code = int(child.exitstatus) if child.exitstatus is not None else -1
+            self._exit_code = (
+                int(child.exitstatus) if child.exitstatus is not None else -1
+            )
         return self._exit_code
 
     # ------------------------------------------------------------------ cleanup

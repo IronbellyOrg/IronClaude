@@ -19,6 +19,6 @@ process boundary is a documented ``3``. We track the codebase contract here.
 from __future__ import annotations
 
 SUCCESS: int = 0
-FAILURES: int = 1            # one or more eval failures
-USAGE_ERROR: int = 2         # operator misuse / config / harness contract error
-INTERRUPTED: int = 3         # SIGINT / SIGTERM cooperative cancellation
+FAILURES: int = 1  # one or more eval failures
+USAGE_ERROR: int = 2  # operator misuse / config / harness contract error
+INTERRUPTED: int = 3  # SIGINT / SIGTERM cooperative cancellation

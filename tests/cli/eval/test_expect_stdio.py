@@ -101,7 +101,9 @@ def test_stdout_contains_passes_when_substring_present(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="claude is ready for input\n",
     )
     result = Expect.stdout(contains="ready")(ctx)
@@ -116,7 +118,9 @@ def test_stdout_contains_fails_when_substring_absent(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="claude says goodbye\n",
     )
     result = Expect.stdout(contains="ready")(ctx)
@@ -137,7 +141,9 @@ def test_stdout_regex_passes_on_match(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="step 1 of 5 complete\n",
     )
     result = Expect.stdout(regex=r"step \d+ of \d+ complete")(ctx)
@@ -148,7 +154,9 @@ def test_stdout_regex_fails_on_no_match(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="hello world\n",
     )
     result = Expect.stdout(regex=r"^ERROR")(ctx)
@@ -167,7 +175,9 @@ def test_stdout_not_contains_passes_when_absent(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="clean run\n",
     )
     result = Expect.stdout(not_contains="Traceback")(ctx)
@@ -178,7 +188,9 @@ def test_stdout_not_contains_fails_when_present(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="Traceback (most recent call last)\n",
     )
     result = Expect.stdout(not_contains="Traceback")(ctx)
@@ -197,7 +209,9 @@ def test_stderr_contains_passes_when_substring_present(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stderr="warning: deprecated flag\n",
     )
     result = Expect.stderr(contains="deprecated")(ctx)
@@ -209,7 +223,9 @@ def test_stderr_contains_fails_when_substring_absent(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stderr="warning: deprecated flag\n",
     )
     result = Expect.stderr(contains="fatal")(ctx)
@@ -223,7 +239,9 @@ def test_stderr_regex_passes_on_match(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stderr="Error: missing config at /etc/foo.yaml\n",
     )
     result = Expect.stderr(regex=r"Error:\s+missing config")(ctx)
@@ -234,7 +252,9 @@ def test_stderr_regex_fails_on_no_match(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stderr="all clear\n",
     )
     result = Expect.stderr(regex=r"Error:")(ctx)
@@ -247,7 +267,9 @@ def test_stderr_not_contains_passes_when_absent(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stderr="benign log line\n",
     )
     result = Expect.stderr(not_contains="SecurityError")(ctx)
@@ -258,7 +280,9 @@ def test_stderr_not_contains_fails_when_present(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stderr="SecurityError: bad mount\n",
     )
     result = Expect.stderr(not_contains="SecurityError")(ctx)
@@ -279,7 +303,9 @@ def test_stdout_strips_ansi_csi_before_match(
     the predicate engine re-strips ANSI so ``contains='ready'`` matches
     ``"\\x1b[32mready\\x1b[0m"`` verbatim."""
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="\x1b[32mready\x1b[0m\n",
     )
     assert Expect.stdout(contains="ready")(ctx).passed
@@ -305,7 +331,9 @@ def test_stdout_not_contains_after_ansi_strip(
     forbidding a phrase still rejects the same phrase wrapped in
     colour codes."""
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="\x1b[31mTraceback\x1b[0m: oops\n",
     )
     result = Expect.stdout(not_contains="Traceback")(ctx)
@@ -326,7 +354,9 @@ def test_stdout_contains_runs_before_regex(
     first; the failure payload pins the substring miss rather than the
     regex."""
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="hello\n",
     )
     result = Expect.stdout(contains="missing", regex=r".*")(ctx)
@@ -341,7 +371,9 @@ def test_stdout_all_three_predicates_pass_together(
     """``contains`` + ``regex`` + ``not_contains`` may be combined; all
     three must hold for the assertion to pass."""
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="step 3 of 5 complete\n",
     )
     result = Expect.stdout(
@@ -363,7 +395,9 @@ def test_from_mapping_threads_stdout_contains(
     """``{stdout: {contains: 'ready'}}`` resolves to the same callable
     as the programmatic form."""
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stdout="ready\n",
     )
     decl = Expect.from_mapping({"stdout": {"contains": "ready"}})(ctx)
@@ -376,12 +410,12 @@ def test_from_mapping_threads_stderr_not_contains(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path,
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
         stderr="benign\n",
     )
-    result = Expect.from_mapping(
-        {"stderr": {"not_contains": "SecurityError"}}
-    )(ctx)
+    result = Expect.from_mapping({"stderr": {"not_contains": "SecurityError"}})(ctx)
     assert result.passed
     assert result.name == "stderr"
 
@@ -392,7 +426,10 @@ def test_stdout_result_carries_primitive_name_and_timing(
     """ExpectResult envelope (DM-009) records ``name='stdout'`` and a
     non-negative ``duration_sec``."""
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, stdout="hi\n",
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
+        stdout="hi\n",
     )
     callable_ = Expect.stdout(contains="hi")
     assert callable_.__name__ == "stdout"
@@ -405,7 +442,10 @@ def test_stderr_result_carries_primitive_name_and_timing(
     eval_spec: EvalSpec, home: HomeIsolation, tmp_path: Path
 ) -> None:
     ctx = _make_ctx(
-        eval_spec=eval_spec, home=home, run_dir=tmp_path, stderr="hi\n",
+        eval_spec=eval_spec,
+        home=home,
+        run_dir=tmp_path,
+        stderr="hi\n",
     )
     callable_ = Expect.stderr(contains="hi")
     assert callable_.__name__ == "stderr"
