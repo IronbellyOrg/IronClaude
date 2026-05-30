@@ -55,6 +55,10 @@ The skill returns a structured dictionary on completion:
 | `task_file_path` | string | MDTM task file path (Tier 3 only) |
 | `remediation_offered` | bool | Whether Tier 3 was offered |
 | `remediation_accepted` | bool | If offered, user's response |
+| `diagnosability_verdict` | string | one of `sufficient`, `partial`, `insufficient`, `unknown` (default `unknown` when audit could not run — auggie + Grep fallback empty, failing_component not localizable, or `--no-diagnosability-audit` set; never silently skipped) |
+| `diagnosability_context_card_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-context.md`; `null` only when `--no-diagnosability-audit` was set or Wave 1.6 was not reached |
+| `diagnosability_tasklist_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-tasklist.md`; populated when verdict ∈ {partial, insufficient} AND tasklist was emitted; `null` for sufficient/unknown/skipped |
+| `diagnosability_hard_stop` | bool | `true` when Wave 1.6 fired the hard-stop and skipped Waves 1.7-4; mutually informative with existing `status: partial` |
 
 **`test_is_wrong` derivation rule** (applied during Wave 5 synthesis): set `test_is_wrong=true` when the chosen diagnosis names a test file (not production code) as the file requiring change, AND one of these conditions holds:
 
@@ -76,11 +80,13 @@ This flag exists so downstream automation knows to NOT auto-apply a code fix whe
 Wave 0: Parse + Validate Input
 Wave 1: Tier 1 — Real-Code Grounding  ← always; loads refs/triage-checklist.md on demand (grounding + reproduce only)
 Wave 1.5: Documentation Grounding    ← always; loads refs/doc-discovery.md on demand; skipped only by --no-doc-discovery
+Wave 1.6: Diagnosability Audit       ← always; loads refs/diagnosability-audit.md on demand; skipped only by --no-diagnosability-audit; may hard-stop to Wave 5
 Wave 1.7: Tier 1 — Hypothesis Formation ← always; consumes Wave 1.5 Documentation Context Card; produces single hypothesis card + calibration
 Wave 2: Confidence Gate              ← decides escalation via refs/escalation-rubric.md
 Wave 3: Tier 2 — Parallel Hypotheses (conditional)
 Wave 4: Tier 2 — Adversarial Fix Debate (conditional, requires ≥2 viable fixes)
 Wave 5: Synthesis + Report        ← always finalises; loads refs/report-template.md
+                                    Wave 1.6 hard-stop edge: → Wave 5 (skip Waves 1.7-4); sets diagnosability_hard_stop=true and status=partial
 Wave 6: Tier 3 — Remediation Chain (conditional, requires --fix + user accept)
 ```
 
@@ -94,7 +100,7 @@ Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-
 
 **Steps**:
 
-1. Parse flags. Required: issue description OR `--scope`. Optional: `--type`, `--depth`, `--fix`, `--no-escalate`, `--models`, `--output-dir`, `--no-mcp`.
+1. Parse flags. Required: issue description OR `--scope`. Optional: `--type`, `--depth`, `--fix`, `--no-escalate`, `--models`, `--output-dir`, `--no-mcp`, `--no-diagnosability-audit`, `--diagnosability-handoff`, `--reset-diagnosability-rounds`.
 2. Auto-detect `--type` if not provided. Use keyword + structural cues from the issue description:
    - Stack trace, exception name, `undefined`/`null`/`NameError` → `bug`
    - "tsc", "ts(", "compiled", "lint", "build", `make`, CI log fragments → `build`
@@ -187,11 +193,66 @@ output_dir: <abs-path>
 
 ---
 
+### Wave 1.6: Diagnosability Audit
+
+**Goal**: Audit existing instrumentation around the failing component to decide whether the system is observable enough for Tier 1/Tier 2 hypothesis work, or whether the user should instrument first.
+
+**Preconditions**:
+
+- Wave 1 complete (real-code grounding done; `<output-dir>/tier1-observation.md` written).
+- Wave 1.5 complete or skipped via `--no-doc-discovery` (`doc_context_card_path` is a real path or `null`).
+- `--no-diagnosability-audit` is NOT set. When IT IS set: skip the wave entirely, emit `diagnosability_verdict: unknown`, `diagnosability_context_card_path: null`, `diagnosability_hard_stop: false`. The bypass is logged in REPORT.md's header AND in the audit log.
+- Wave 1 has localized at least one `<component_path>` or `<scope>` — Wave 1.6 needs a code surface to inspect.
+
+**Steps**:
+
+1. **S1.6.0 — Component identification**. Before any branch fan-out, identify the smallest component whose output the failure asserts against. Source priority: (a) `--scope` from Wave 0 if set; (b) stack-trace bottom frame from Wave 1's observation; (c) named subsystem in the Wave 0 issue text; (d) named test in the failure transcript. Record as `failing_component` in the audit log. Branches A and B scope queries to this component first; expand outward only if no signal is found.
+
+2. **S1.6.1 — Load `refs/diagnosability-audit.md`** (lazy load, mirroring Wave 1.5's discipline). Read Section 1 (query templates), Section 2 (fallback paths), Section 3 (per-branch schemas), Section 4 (sufficiency rubric + 3-W's synthesis), Section 5 (complexity gate), Section 6 (Diagnosability Context Card template), Section 7 (tasklist rules), Section 8 (T4 worked example).
+
+3. **S1.6.2 — Spawn 2 audit branches in parallel** via `Task` (single message, two Task calls):
+   - **Branch A — Log-Call Inspection**: logger/print/exception-handler calls + error-reporter SDK initializations on the `failing_component` and immediate callers. Captures exception-handler richness as a piggyback signal (no separate branch).
+   - **Branch B — Log-Config Inspection**: log-config files, env vars, structured-log filters, sampling configuration that governs runtime log emission for the `failing_component`.
+
+4. **S1.6.3 — Wait for branches; synthesize Diagnosability Context Card** at `<output-dir>/diagnosability-context.md`. Synthesis includes the **3-W's coverage scoring** (orchestrator logic): `{ when_answerable, where_answerable, why_answerable } ∈ { yes | partial | no }`, computed against Branch A inventory + Branch B reachability + Wave 1 observation. **Byte-count column** populated from runtime-content sniffs of any log file paths discoverable from the failing-run transcript; `n/a (audit-time only)` when no captured-content is available.
+
+5. **S1.6.4 — Apply sufficiency rubric + complexity gate**. Compute `diagnosability_verdict ∈ {sufficient | partial | insufficient | unknown}`. Compute `issue_complexity ∈ {trivial | non-trivial}` from Wave 0 + Wave 1 signals only (no Wave 1.7 dependency). Branch on `(verdict × complexity)`:
+   - `insufficient` AND `non-trivial` AND NOT `--no-escalate` → **hard-stop**: emit `diagnosability-tasklist.md`, set `diagnosability_hard_stop=true`, jump to Wave 5 with status `partial` (Waves 1.7-4 skipped). No hypothesis work happens in the same turn as the instrumentation patch.
+   - `insufficient` AND `non-trivial` AND `--no-escalate` → soft-warn (suppressed by user assertion). Emit tasklist, surface in REPORT.md, continue to Wave 1.7.
+   - `insufficient` AND `trivial` → soft-warn: emit tasklist (informational), continue to Wave 1.7.
+   - `partial` → continue to Wave 1.7; surface in REPORT.md's Diagnosability Context section.
+   - `sufficient` OR `unknown` → continue to Wave 1.7; surface in Diagnosability Context (or Grounding Gaps for `unknown`).
+   - **`--depth deep` modifier**: does NOT force the hard-stop, BUT when `verdict ∈ {insufficient, partial}` under `--depth deep`, the soft-warn becomes mandatory and prominent — REPORT.md gains a top-of-report banner: "Your hypothesis depth was constrained by insufficient evidence — see Diagnosability Context."
+
+**Per-defect patch-round counter**: the Wave 1.6 orchestrator maintains `<output-dir>/diagnosability-rounds.json` keyed by the Wave 0 `issue_slug`. Each hard-stop fires the counter +1. After 3 rounds for the same defect, the off-ramp message escalates (see refs/report-template.md hard-stop variant + cap prose). Reset via `--reset-diagnosability-rounds`.
+
+**Exit criteria**:
+
+- Two branch outputs at `<output-dir>/wave1_6-branch-<A|B>.md`.
+- Diagnosability Context Card at `<output-dir>/diagnosability-context.md`.
+- Diagnosability tasklist at `<output-dir>/diagnosability-tasklist.md` (when verdict ∈ {partial, insufficient}).
+- Emit `Wave 1.6 complete: verdict=<v> complexity=<c> hard_stop=<bool> round=<N>/3`.
+
+**Failure handling**:
+
+| Scenario | Behavior | Fallback |
+|----------|----------|----------|
+| `--no-diagnosability-audit` set | Skip Wave 1.6 entirely | Emit `diagnosability_verdict: unknown`, `diagnosability_context_card_path: null`, `diagnosability_hard_stop: false`; log bypass in REPORT.md header AND the audit log |
+| Auggie unavailable (Wave 1.6) | Fall back to Glob/Grep per `refs/diagnosability-audit.md` Section 2 | Set Branch A/B `degraded: true`; cap verdict at `partial` (never `sufficient`) |
+| Both Wave 1.6 branches return empty | Cannot compute 3-W's coverage | Set verdict = `insufficient` if complexity non-trivial; `partial` if trivial; surface in Grounding Gaps |
+| `failing_component` not localizable | S1.6.0 cannot identify the smallest failing component | Set verdict = `unknown`; add Grounding Gaps line; continue to Wave 1.7 without hard-stop |
+| Heisenbug detected on Wave 1.6 re-run | Instrumentation altered timing — bug no longer reproduces | Downgrade next-round tasklist to env-vars-only (no `--debug` flag changes, no log-level overrides); record Heisenbug finding in audit card |
+| 3-round diagnosability cap reached for an `issue_slug` | Per-defect counter at `<output-dir>/diagnosability-rounds.json` reached 3 hard-stops | Emit the 3-round cap message (refs/report-template.md hard-stop variant + cap-specific prose); refuse next tasklist until `--reset-diagnosability-rounds` is set |
+
+**Token budget**: ≤ 2-3k Claude tokens (auggie offloads retrieval bulk). Hard-stop case yields a net token saving over the full Tier 2 pipeline.
+
+---
+
 ### Wave 1.7: Tier 1 — Hypothesis Formation
 
 **Goal**: Form one calibrated Tier 1 hypothesis card, consuming the Wave 1.5 Documentation Context Card (when produced) so the hypothesis is doc-grounded from the start.
 
-**Preconditions**: Wave 1 (real-code grounding) is complete; Wave 1.5 has produced a Documentation Context Card at `<output-dir>/doc-context.md` (or `--no-doc-discovery` was set and `doc_context_card_path` is `null`).
+**Preconditions**: Wave 1 (real-code grounding) is complete; Wave 1.5 has produced a Documentation Context Card at `<output-dir>/doc-context.md` (or `--no-doc-discovery` was set and `doc_context_card_path` is `null`); Wave 1.6 did NOT fire its hard-stop (or was skipped via `--no-diagnosability-audit`, or fired soft-warn under `--no-escalate`). When Wave 1.6 hard-stopped, this wave is skipped entirely.
 
 **Steps**:
 
@@ -332,6 +393,7 @@ Verification command (run before publishing): for each `tier2-*-hypothesis.md` (
    - Header (target, tier reached, confidence, escalation reason)
    - Summary (2-4 sentence executive summary)
    - Documentation Context (≤6-line summary of the Wave 1.5 Documentation Context Card at `<output-dir>/doc-context.md`; omit this section entirely and add a line to Grounding Gaps when `--no-doc-discovery` was set)
+   - Diagnosability Context (≤6-line summary of the Wave 1.6 Diagnosability Context Card at `<output-dir>/diagnosability-context.md`; omit this section entirely and add a line to Grounding Gaps when `--no-diagnosability-audit` was set; when Wave 1.6 hard-stopped, render the section as the hard-stop block from refs/report-template.md instead)
    - Diagnosis (the chosen hypothesis — from Tier 1 alone, or from the adversarial merge)
    - Evidence (cited `file:line` and command outputs)
    - Proposed Fix (the recommended change; if a doc-update + fix bundle was produced in Wave 4, render BOTH the doc file(s) to update and the code change(s) in this section)
@@ -340,6 +402,8 @@ Verification command (run before publishing): for each `tier2-*-hypothesis.md` (
    - Next Steps (Tier 1: rerun with `--depth deep` if needed; Tier 2 without `--fix`: re-invoke with `--fix` to authorize remediation; Tier 2 with `--fix`: confirm to proceed to Wave 6)
 
    When `--no-doc-discovery` was set, omit the Documentation Context section entirely AND populate the Grounding Gaps section with: "Documentation grounding skipped by `--no-doc-discovery` — diagnosis is not weighted against documented behavior or restrictions."
+
+   When `diagnosability_hard_stop=true`, replace the Diagnosis section with a "Halted — instrumentation required" prose block referencing the diagnosability tasklist (template in refs/report-template.md). When `--depth deep` is set AND `diagnosability_verdict ∈ {insufficient, partial}`, render the top-of-report Diagnosability Caveat banner above the Summary section (template in refs/report-template.md).
 3. **File:line validation pass (non-negotiable)** — spawn the `evidence-validator` agent via `Task` with `report_draft_path=<output-dir>/REPORT.md.draft`, `evidence_section_locator="## Evidence"`, `output_path=<output-dir>/evidence-validation.md`, `allow_command_reexec=false`. The agent Reads every cited `file:line`, drops mismatches, and returns the verified evidence set plus a `Suggested report status` (success/partial). Apply its verdict: remove dropped citations from the final `REPORT.md`; if any were dropped, set the report's frontmatter `status: partial` and add a "Grounding Gaps" entry referencing them.
    - **Fallback**: if `evidence-validator` fails (subprocess crash, malformed output, agent unavailable), inline-validate citations in the orchestrator context (the original Wave 5 step 3 behavior); mark `status: partial` and add a Grounding Gap entry noting the validator was unavailable. The inline path is the fallback — never ship without validation.
 4. Append the machine-readable footer to the audit log:
@@ -390,14 +454,14 @@ duration_sec: <N>
 
 | Tool | Tier 1 | Tier 2 | Tier 3 |
 |------|--------|--------|--------|
-| `mcp__auggie__codebase-retrieval` | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries) | ✓ (per-hypothesis queries) | — |
+| `mcp__auggie__codebase-retrieval` | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries; Wave 1.6 audit fan-out: 2 parallel branch queries (A log-call, B log-config)) | ✓ (per-hypothesis queries) | — |
 | `mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview` | ✓ | ✓ | — |
 | `mcp__context7__query-docs` | — | ✓ when framework/library named | — |
 | `mcp__tavily__tavily-search` | — | ✓ rate-limited (≤2 queries) | — |
 | `mcp__sequential-thinking__sequentialthinking` | — | ✓ for synthesis | — |
-| `Task` (agent spawn) | ✓ (root-cause-analyst + confidence-calibrator) | ✓ (2-4 hypothesis agents in parallel + per-card confidence-calibrator + evidence-validator at Wave 5) | ✓ (self-review for post-exec) |
+| `Task` (agent spawn) | ✓ (root-cause-analyst + confidence-calibrator; Wave 1.6: 2 parallel audit branches A/B + 1 orchestrator synthesis) | ✓ (2-4 hypothesis agents in parallel + per-card confidence-calibrator + evidence-validator at Wave 5) | ✓ (self-review for post-exec) |
 | `Skill` | — | ✓ (`sc:adversarial-protocol`) | ✓ (`task-builder`, `/sc:reflect`) |
-| `Read` / `Grep` / `Glob` | ✓ | ✓ | — |
+| `Read` / `Grep` / `Glob` | ✓ (Wave 1.6 Grep/Glob fallback when auggie unavailable) | ✓ | — |
 | `Bash` | ✓ (repro when cheap) | ✓ (diagnostic commands) | — |
 | `Write` | ✓ (hypothesis + report) | ✓ (hypothesis cards, fix proposals) | — |
 
@@ -411,6 +475,9 @@ duration_sec: <N>
 - Run `self-review` after the adversarial merge to catch obvious regressions before reporting
 - Validate every `file:line` citation in the report against the real file
 - Stop at the natural off-ramp for each tier; never silently proceed to a deeper tier than the user authorized
+- Run Wave 1.6 Diagnosability Audit by default; opt-out via `--no-diagnosability-audit` (bypass is logged in REPORT.md header and audit log).
+- Halt Waves 1.7-4 when `diagnosability_verdict=insufficient` AND `issue_complexity=non-trivial` AND `--no-escalate` is not set (sets `diagnosability_hard_stop=true` and `status=partial`).
+- Emit an instrumentation tasklist at `<output-dir>/diagnosability-tasklist.md` instead of hypothesis work when the hard-stop fires — no hypothesis work happens in the same turn as an instrumentation patch; the user re-runs after instrumenting.
 
 ## Will Not Do
 
@@ -423,6 +490,9 @@ duration_sec: <N>
 - Ship a `REPORT.md` whose `file:line` citations have not passed through `evidence-validator` (or the inline fallback)
 - Auto-execute the Tier 3 task file — that is always a separate user-initiated `/task` invocation
 - Auto-commit after Tier 3 — `/sc:reflect --type task --validate` is the final gate the user runs before committing
+- Auto-apply the diagnosability tasklist — it is a proposal that requires user review (opt-in MDTM packaging via `--diagnosability-handoff` invokes `task-builder` against the tasklist).
+- Force the Wave 1.6 hard-stop when `--no-escalate` is set — the flag suppresses the hard-stop and downgrades it to a soft-warn while still emitting the tasklist informationally.
+- Allow the diagnosability tasklist to target the failing component's own source code — every task MUST target an invocation site (test script, CI workflow YAML, dev harness, container entrypoint, dev-mode config override). Diagnostic code in production source leaks into release artifacts.
 
 ## Error Handling
 
@@ -442,6 +512,12 @@ duration_sec: <N>
 | `--depth deep` requested on under-specified input | STOP at Wave 0; ask user to add detail | None |
 | `evidence-validator` agent fails (subprocess crash, timeout, or malformed report) | Inline-validate citations in the orchestrator context (the original Wave 5 step 3 behavior); mark `status: partial` and add a Grounding Gap entry noting the validator was unavailable | None — the inline path is the fallback |
 | `confidence-calibrator` agent fails for any card | Fall back to inline orchestrator calibration for that card; mark the card with `calibration: inline-fallback` in the audit log; do NOT block escalation on a missing calibration | None |
+| `--no-diagnosability-audit` set | Skip Wave 1.6 entirely | Emit `diagnosability_verdict: unknown`, `diagnosability_context_card_path: null`, `diagnosability_hard_stop: false`; log the bypass in REPORT.md's header AND the audit log |
+| Auggie unavailable (Wave 1.6) | Fall back to Glob/Grep per refs/diagnosability-audit.md Section 2 | Set Branch A/B `degraded: true`; cap verdict at `partial` (never `sufficient`) |
+| Both Wave 1.6 branches return empty | Cannot compute 3-W's coverage | Set verdict = `insufficient` if complexity non-trivial; `partial` if trivial; surface in Grounding Gaps |
+| `failing_component` not localizable (Wave 1.6) | S1.6.0 cannot identify the smallest failing component | Set verdict = `unknown`; add Grounding Gaps line; continue to Wave 1.7 without hard-stop |
+| Heisenbug detected on Wave 1.6 re-run | Instrumentation altered timing — bug no longer reproduces | Downgrade next-round tasklist to env-vars-only (no `--debug` flag changes, no log-level overrides); record Heisenbug finding in audit card |
+| 3-round diagnosability cap reached for an `issue_slug` | Per-defect counter at `<output-dir>/diagnosability-rounds.json` reached 3 hard-stops | Emit the 3-round cap message (refs/report-template.md hard-stop variant + cap-specific prose); refuse next tasklist until `--reset-diagnosability-rounds` is set |
 
 ## Token Cost Profile
 
@@ -451,8 +527,9 @@ duration_sec: <N>
 | Tier 2 (no adversarial) | ~5-15k | ~15-30k | 4-7 min |
 | Tier 2 (with adversarial) | ~10-25k | ~30-60k | 8-15 min |
 | Tier 3 added | +0 (auggie not used) | +20-40k (task-builder) | +5-10 min |
+| Wave 1.6 added | +1-2k auggie | +1-2.5k Claude | +30-60s wall clock |
 
-These are targets, not hard caps. Auggie tokens are offloaded to a free / low-cost retrieval tier; Claude tokens are the constrained resource. The escalation gate exists specifically to keep the Tier-1-only path inside the 3-9k Claude-token band for the common case.
+These are targets, not hard caps. Auggie tokens are offloaded to a free / low-cost retrieval tier; Claude tokens are the constrained resource. The escalation gate exists specifically to keep the Tier-1-only path inside the 3-9k Claude-token band for the common case. (Wave 1.6 hard-stop case yields a net token *saving* vs the full Tier 2 path — early halt prevents Tier 2 hypothesis-round token spend on blind code.)
 
 ## Refs
 
@@ -464,5 +541,6 @@ These are targets, not hard caps. Auggie tokens are offloaded to a free / low-co
 | `refs/hypothesis-card-template.md` | Wave 1.7 and Wave 3 (passed to agents) |
 | `refs/report-template.md` | Wave 5 |
 | `refs/remediation-handoff.md` | Wave 6 |
+| `refs/diagnosability-audit.md` | Wave 1.6 (audit query templates, fallback paths, sufficiency rubric, complexity gate, context card template, tasklist rules + hard constraints, T4 worked example) |
 
 Each ref is loaded only by the wave that needs it. Do not pre-load.

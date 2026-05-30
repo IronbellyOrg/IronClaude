@@ -80,3 +80,11 @@ This number is calibrated, not arbitrary — change it only based on eval data, 
 ## What escalation does NOT mean
 
 Escalation does **not** mean the Tier 1 hypothesis was wrong. It means the skill judged that one perspective is insufficient evidence to recommend a fix with confidence. The Tier 1 card is always retained in the report as one of the candidate hypotheses.
+
+## Diagnosability interaction
+
+Wave 1.6's complexity gate (per `refs/diagnosability-audit.md` Section 5) reuses the structural dimensions of this rubric — multi-domain, intermittent, security_caution — for pre-hypothesis classification at Wave 1.6 entry. Those signals are extracted from Wave 0 + Wave 1 state only (no Wave 1.7 dependency, no circular wait on a hypothesis card).
+
+Wave 1.6 does NOT consume this rubric's calibrated-confidence signal. Calibrated confidence fires only after Wave 1.7 produces a hypothesis card; Wave 1.6 runs before Wave 1.7 and so has no card to score.
+
+This is a forward reference: Wave 1.6's complexity gate is the consumer; this rubric is unchanged. When `--type security` is set, Wave 1.6's complexity gate ALWAYS classifies as non-trivial — matching this rubric's `security_caution` override at the same flag.
