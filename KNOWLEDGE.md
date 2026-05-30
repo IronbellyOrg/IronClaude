@@ -203,3 +203,17 @@ Item per merged-output.md §6 secondary counter-argument.
 `total=5 uncovered=0` — confirming the merged Fix B alone is sufficient.
 
 **Files touched:** src/superclaude/cli/roadmap/integration_contracts.py, tests/roadmap/test_integration_contracts.py
+
+---
+
+## obligation_scanner Layer 2 vs Layer 5 surface overlap (2026-05-29, TASK-RF-20260529-171029 FU-001)
+
+**Context.** Captured during Layer 5 H3 subsection-context detector work. The task's T03.05 prescribed a Test 4 fixture `- Mitigation: replace the M1 stub with real transport by M5.` to verify the Layer 5 discharge-intent guard preserves HIGH severity inside Risk Assessment H3s. The test failed because the pre-existing Layer 2 `_NEGATION_PREFIX_RE` independently demoted the line to MEDIUM *before* Layer 5 ever ran — verified via Python trace: `_is_discharge_intent_line` True, `_is_descriptive_context` False (its own guard fires), but `_is_meta_context` True via the negation-prefix branch. Resolved via `/sc:adversarial --depth quick` Option A: rewrite the fixture to `- Mitigation: stub needs replacement with real transport by M5.` (canonical form from task overview line 28). Test passes with HIGH preserved.
+
+**The rule.** When authoring a `tests/roadmap/test_obligation_scanner.py` fixture that targets a *specific* meta-context layer's guard (Layer 4 `_is_descriptive_context` discharge guard, Layer 5 `_is_demoted_h3` discharge guard, or any future similar layer), put the scaffold term BEFORE the discharge verb, not after. Use the canonical noun-form pattern `<term> needs <discharge-noun>` (e.g., `stub needs replacement`, `mock needs swap-out`) instead of the verb-form `<discharge-verb> the <term>` (e.g., `replace the stub`, `swap out the mock`). The verb-first form puts the discharge verb in the line PREFIX before the scaffold term, which trips `_NEGATION_PREFIX_RE` upstream and demotes via Layer 2 regardless of whether the layer-under-test would have fired.
+
+**Why.** `_is_meta_context` walks the layers in this order: shell-cmd → risk-warning → gate-criteria → **negation-prefix (via `_NEGATION_PREFIX_RE.search(line[:term_start])`)** → table-cell-imperative → paren-phase-label → descriptive-context. The negation-prefix branch matches discharge verbs sitting BEFORE the scaffold term and treats them as meta-context indicators. Any test fixture that relies on a layer LATER in the cascade (Layer 4 / Layer 5) firing on a verb-prefix discharge sentence is structurally incapable of being exercised — Layer 2 wins.
+
+**Load-bearing test convention.** Tests targeting layer-specific discharge guards MUST use the term-before-verb form. The task overview at task-file line 28 of TASK-RF-20260529-171029 already names "stub needs replacement" as the canonical example; future task templates (especially the BUILD_REQUEST templates for obligation_scanner test additions) should embed this convention in their prescribed-fixture sections.
+
+**Files touched:** src/superclaude/cli/roadmap/obligation_scanner.py (Layer 5 surface), tests/roadmap/test_obligation_scanner.py (`TestLayer5H3SubsectionContext` + tightened e2e), .dev/tasks/to-do/TASK-RF-20260529-171029/ (deviation log + FU-001 origin)

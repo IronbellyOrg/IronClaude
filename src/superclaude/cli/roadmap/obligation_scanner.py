@@ -128,6 +128,26 @@ _DESCRIPTOR_ADJACENCY_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Layer 5: H3 subsection-context demotion prefixes. A scaffold-term finding
+# whose containing H3 heading (lowercased, with trailing " — M{n}" stripped)
+# starts with one of these prefixes is demoted from HIGH to MEDIUM, unless
+# the line itself matches discharge intent. Tuple not frozenset — order is
+# stable for diagnostic reproducibility and prefix-match `any(...startswith)`
+# semantics make set-vs-tuple equivalent for correctness.
+_DEMOTED_H3_SUBSECTIONS: tuple[str, ...] = (
+    "risk assessment",
+    "integration points",
+    "milestone dependencies",
+    "open questions",
+)
+
+# Layer 5: H3 / H2 boundary regexes for the pre-scan `_build_h3_index`.
+# `_H3_HEADING_RE` captures the H3 heading text (non-greedy, MULTILINE-anchored
+# per line); `_H2_HEADING_RE` is boundary-only (no capture) — it resets the
+# current-H3 state inside `_build_h3_index` when a new milestone starts.
+_H3_HEADING_RE = re.compile(r"^###\s+(.+?)$", re.MULTILINE)
+_H2_HEADING_RE = re.compile(r"^##\s+.+?$", re.MULTILINE)
+
 
 # Layer 3b: Parenthetical phase/step label (requires multi-word content)
 # Matches: "(command scaffolding)", "(Phase 2 mocking)", "(stubbed layer)" etc.
@@ -201,6 +221,8 @@ def scan_obligations(content: str) -> ObligationReport:
     """
     # Pre-compute code block ranges for severity demotion
     code_block_ranges = _get_code_block_ranges(content)
+    # Pre-compute line → containing H3 index for Layer 5 subsection demotion
+    h3_index = _build_h3_index(content)
 
     sections = _split_into_phases(content)
     obligations: list[Obligation] = []
@@ -333,6 +355,20 @@ def scan_obligations(content: str) -> ObligationReport:
                 line_start = phase_content.rfind("\n", 0, match.start()) + 1
                 term_start_in_line = match.start() - line_start
                 if _is_meta_context(context_line, term_start_in_line):
+                    severity = "MEDIUM"
+
+            # Layer 5: H3 subsection-context demotion. Scaffold-term findings
+            # whose containing H3 starts with one of the demote-target prefixes
+            # (Risk Assessment, Integration Points, Milestone Dependencies,
+            # Open Questions) are demoted to MEDIUM. The `if severity == "HIGH"`
+            # guard makes this a no-op when prior layers already demoted; the
+            # `_is_discharge_intent_line` guard mirrors Layer 4 and preserves
+            # genuine obligations like "stub needs replacement" inside RAM.
+            if severity == "HIGH":
+                h3_text = h3_index.get(abs_line, "")
+                if _is_demoted_h3(h3_text) and not _is_discharge_intent_line(
+                    context_line
+                ):
                     severity = "MEDIUM"
 
             # FR-MOD1.3: Cross-phase discharge search
@@ -589,6 +625,89 @@ def _is_descriptive_context(line: str, term_start_in_line: int) -> bool:
     window_end = min(len(line), term_start_in_line + 40)
     window = line[window_start:window_end]
     return bool(_DESCRIPTOR_ADJACENCY_RE.search(window))
+
+
+def _normalize_h3_for_match(h3_text: str) -> str:
+    """Lowercase the H3 heading after stripping the trailing " — M{n}" suffix.
+
+    Roadmap convention: per-milestone H3 subsections carry a ` — M{n}`
+    decoration that ties them to their enclosing milestone, e.g.
+    ``### Risk Assessment and Mitigation — M2``. The Layer 5 prefix match
+    operates on the bare subsection name only, so this helper strips the
+    decoration before lowercasing.
+
+    Tolerates BOTH the em-dash U+2014 (the real roadmap convention) and the
+    ascii hyphen-minus, and accepts the alphanumeric milestone suffix
+    variants ``M8a`` / ``M8b`` via ``M\\d+\\w*``.
+    """
+    return re.sub(
+        r"\s+[—-]\s+M\d+\w*\s*$",
+        "",
+        h3_text.strip(),
+        flags=re.IGNORECASE,
+    ).lower()
+
+
+def _build_h3_index(content: str) -> dict[int, str]:
+    """Return a 1-based line → containing-H3-heading-text index.
+
+    Walks the raw markdown for H3 and H2 boundaries and builds a dense
+    ``{line_no: h3_text}`` map covering every line from 1 through
+    ``content.count("\\n") + 1``. The H3 scope ends at the NEXT H3 or the
+    NEXT H2 — whichever comes first. Lines that sit between an H2 and the
+    first H3 inside it (or in the document preamble) map to ``""``.
+
+    Line numbers are 1-based to align with ``Obligation.line_number`` /
+    the ``abs_line`` used in ``scan_obligations``. Cost is O(n) per call
+    where n = number of lines, which is acceptable per the existing
+    per-call cost budget for tail-section/discharge precomputes.
+
+    Used by Layer 5 (H3 subsection-context demotion) — the scanner's
+    existing ``_split_into_phases`` silently absorbs H3 subsections into
+    their enclosing H2 chunk, so a separate per-line index is required.
+    """
+    boundaries: list[tuple[int, str, str]] = []
+    for m in _H3_HEADING_RE.finditer(content):
+        line_no = content[: m.start()].count("\n") + 1
+        boundaries.append((line_no, "h3", m.group(1).rstrip()))
+    for m in _H2_HEADING_RE.finditer(content):
+        line_no = content[: m.start()].count("\n") + 1
+        boundaries.append((line_no, "h2", ""))
+    boundaries.sort(key=lambda b: b[0])
+
+    total_lines = content.count("\n") + 1
+    index: dict[int, str] = {}
+    boundary_iter = iter(boundaries)
+    next_boundary = next(boundary_iter, None)
+    current_h3 = ""
+    for line_no in range(1, total_lines + 1):
+        while next_boundary is not None and next_boundary[0] == line_no:
+            kind = next_boundary[1]
+            if kind == "h2":
+                current_h3 = ""
+            else:  # kind == "h3"
+                current_h3 = next_boundary[2]
+            next_boundary = next(boundary_iter, None)
+        index[line_no] = current_h3
+    return index
+
+
+def _is_demoted_h3(h3_text: str) -> bool:
+    """Return True when an H3 heading starts with a demote-target prefix.
+
+    Prefix-match (NOT exact equality) so heading variants like
+    ``Risk Assessment and Mitigation`` still match the ``risk assessment``
+    prefix. The empty-string short-circuit handles the gap between an H2
+    and the first H3 inside it where ``_build_h3_index`` records ``""``.
+
+    Demote-target prefixes are defined in ``_DEMOTED_H3_SUBSECTIONS``:
+    ``risk assessment``, ``integration points``, ``milestone dependencies``,
+    ``open questions``.
+    """
+    if not h3_text:
+        return False
+    normalized = _normalize_h3_for_match(h3_text)
+    return any(normalized.startswith(prefix) for prefix in _DEMOTED_H3_SUBSECTIONS)
 
 
 def _is_meta_context(line: str, term_start_in_line: int) -> bool:

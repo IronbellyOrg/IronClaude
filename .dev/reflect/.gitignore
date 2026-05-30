@@ -1,2 +1,3 @@
-*
-!.gitignore
+# Per-machine cross-run aggregator (per sc-reflect-protocol §15.1). REPORT.md
+# trees and reviewer-cards/ are audit artifacts and SHOULD be committed.
+runs.jsonl

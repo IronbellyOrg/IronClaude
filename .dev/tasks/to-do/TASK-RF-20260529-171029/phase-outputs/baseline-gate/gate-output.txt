@@ -1,0 +1,27 @@
+VERDICT: PASS (with documented threshold deviation — see Phase 1 Findings)
+
+# T01.03 Baseline-State Gate — Output Capture
+# Source: research/06-gap-fill-round3.md §1 (Contract step 5)
+# Worktree: RoadmapCLI-ObligationFix @ worktree-RoadmapCLI-ObligationFix (rebased onto brainstorm/t2-bare-reviewer-adjunct @ 156e3835)
+# Date: 2026-05-29
+
+## Command 1: wc -l src/superclaude/cli/roadmap/obligation_scanner.py
+## Threshold: ≥710 lines
+## Verdict: SOFT-FAIL (707 < 710 by 3 lines) — re-classified to PASS per user authorization
+
+$ wc -l src/superclaude/cli/roadmap/obligation_scanner.py
+707 src/superclaude/cli/roadmap/obligation_scanner.py
+
+## Command 2: grep -c _is_descriptive_context src/superclaude/cli/roadmap/obligation_scanner.py
+## Threshold: ≥1
+## Verdict: PASS (3 ≥ 1)
+
+$ grep -c _is_descriptive_context src/superclaude/cli/roadmap/obligation_scanner.py
+3
+
+## Deviation explanation
+The expected baseline at task-creation time was 710 lines (per Prerequisite #1 "POST-Fix-1+Fix-3 711-line scanner"). The actual post-rebase value is 707 lines. Root cause: when Fix 1+Fix 3 were committed to brainstorm/t2-bare-reviewer-adjunct (commit 156e3835), ruff's "Organize imports" autofix merged two adjacent `from superclaude.cli.roadmap.gates import (...)` statements into a single import block, dropping 3 lines. The two imports were originally separated for distinct `# noqa: E402` annotations; ruff combined them into one block while keeping both noqa annotations effective.
+
+Semantic equivalence: all Fix 1+Fix 3 symbols (`_find_tail_section_start`, `_DESCRIPTOR_NOUNS`, `_DESCRIPTOR_ADJACENCY_RE`, `_is_descriptive_context`, `_is_discharge_intent_line`) are present and exercised by the existing `tests/roadmap/test_obligation_scanner.py` Fix 1+Fix 3 test class (82 passed / 1 skipped on targeted run pre-Layer-5).
+
+User authorization to PASS with deviation: see AskUserQuestion answered in the Phase-1 pre-flight (option "Treat as PASS, log the deviation in Phase 1 Findings").
