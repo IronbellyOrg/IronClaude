@@ -33,6 +33,40 @@ def results_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 @pytest.fixture(scope="session")
+def recurrence_corpus_dir() -> Path:
+    """Path to tests/roadmap/fixtures/recurrence/ — base for all recurrence cases.
+
+    Registered for Contract #9 (id_containment) and reused by Contract #10
+    (anti_instinct), #4 (spec_fidelity), #6 (frontmatter_parser), #7
+    (retry_contract), #8 (threshold_registry) in later phases.
+    Layout convention documented at
+    ``tests/roadmap/fixtures/recurrence/README.md``.
+    """
+    return Path(__file__).parent / "fixtures" / "recurrence"
+
+
+@pytest.fixture
+def recurrence_case(request, recurrence_corpus_dir):
+    """Indirect-parametrized loader: (failure_class, case_name) -> (path, expected).
+
+    Usage::
+
+        @pytest.mark.parametrize(
+            "recurrence_case",
+            [("id_containment", "spec_roadmap_drift_case")],
+            indirect=True,
+        )
+        def test_xxx(recurrence_case):
+            input_path, expected = recurrence_case
+            ...
+    """
+    failure_class, case_name = request.param
+    input_path = recurrence_corpus_dir / failure_class / f"{case_name}.md"
+    expected_path = recurrence_corpus_dir / failure_class / f"{case_name}.expected.json"
+    return (input_path, json.loads(expected_path.read_text(encoding="utf-8")))
+
+
+@pytest.fixture(scope="session")
 def audit_trail(results_dir: Path) -> AuditTrailHelper:
     """Session-scoped audit trail fixture for roadmap integration tests.
 

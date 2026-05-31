@@ -609,6 +609,72 @@ def _sanitize_output(output_file: Path) -> int:
     return preamble_bytes
 
 
+def _save_id_registry(spec_file: Path, output_dir: Path) -> Path:
+    """Persist a sidecar :class:`SpecIdRegistry` JSON next to the extract output.
+
+    R0.1 / Contract #9 (BUILD-REQUEST §R0 item 1, master:§Recurrence #4).
+
+    The sidecar at ``<output_dir>/spec_id_registry.json`` is consumed by
+    MERGE_GATE's ``roadmap_ids_within_spec`` SemanticCheck. R1.2 will absorb
+    the JSON into the typed :class:`PipelineEnvelope`; until then the sidecar
+    is the proto-envelope (stable JSON schema).
+
+    Accepted-deviation IDs are merged from
+    :func:`spec_patch.scan_accepted_deviation_records` — the
+    ``dev-*-accepted-deviation.md`` glob — so the registry honors deviations
+    accepted between pipeline runs.
+    """
+    from .id_registry import build_id_registry
+    from .spec_patch import scan_accepted_deviation_records
+
+    # Collect accepted deviation IDs from the sidecar markdown records.
+    # The records are parsed by spec_patch; we only need the deviation id
+    # (frontmatter field) here. We dedupe via set semantics inside
+    # build_id_registry. Use a permissive try/except: a malformed record
+    # must not crash the extract step.
+    accepted_ids: list[str] = []
+    try:
+        records = scan_accepted_deviation_records(output_dir)
+        for record in records:
+            dev_id = getattr(record, "deviation_id", None) or getattr(
+                record, "id", None
+            )
+            if isinstance(dev_id, str) and dev_id:
+                accepted_ids.append(dev_id)
+    except Exception as exc:  # pragma: no cover - defensive
+        _log.warning(
+            "scan_accepted_deviation_records failed during registry build: %s",
+            exc,
+        )
+
+    registry = build_id_registry(spec_file, accepted_deviations=accepted_ids)
+    sidecar = output_dir / "spec_id_registry.json"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    sidecar.write_text(
+        json.dumps(registry.to_dict(), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    # Register the sidecar path with gates.py so MERGE_GATE's
+    # `roadmap_ids_within_spec` SemanticCheck can resolve it. R0.1 bridges
+    # the content-only SemanticCheck signature via this module-level hint;
+    # R1.3 widens the signature and removes the hint.
+    from .gates import set_id_registry_sidecar_path
+
+    set_id_registry_sidecar_path(sidecar)
+
+    _log.info(
+        "Persisted spec_id_registry.json (%d FR / %d NFR / %d SC / %d G / %d D / %d accepted)",
+        len(registry.fr_ids),
+        len(registry.nfr_ids),
+        len(registry.sc_ids),
+        len(registry.g_ids),
+        len(registry.d_ids),
+        len(registry.accepted_deviation_ids),
+    )
+    return sidecar
+
+
 def _inject_pipeline_diagnostics(
     output_file: Path,
     started_at: datetime,
@@ -1206,6 +1272,18 @@ def roadmap_run_step(
         # See open question C-2 (structural_checkers.py investigation needed).
         if hasattr(config, "spec_file"):
             _run_structural_audit(config.spec_file, step.output_file)
+        # R0.1 / Contract #9: persist a sidecar Spec-ID registry alongside the
+        # extract artifact. MERGE_GATE's `roadmap_ids_within_spec` SemanticCheck
+        # loads this sidecar to enforce roadmap_ids ⊆ spec_ids ∪ accepted_dev.
+        # R1.2 absorbs the sidecar into PipelineEnvelope.
+        if hasattr(config, "spec_file") and hasattr(config, "output_dir"):
+            try:
+                _save_id_registry(config.spec_file, Path(config.output_dir))
+            except Exception as exc:  # pragma: no cover - defensive
+                _log.warning(
+                    "Failed to persist spec_id_registry.json sidecar: %s",
+                    exc,
+                )
 
     # Inject provenance fields into test-strategy output
     if step.id == "test-strategy" and step.output_file.exists():

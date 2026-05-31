@@ -21,6 +21,8 @@ GateCriteria instances.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from superclaude.cli.audit.wiring_gate import WIRING_GATE
 from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
 
@@ -1015,6 +1017,94 @@ def _template_sections_present(content: str) -> bool:
     return True
 
 
+# --- R0.1 Spec-ID registry sidecar hint (Contract #9) ---
+#
+# The MERGE_GATE's `roadmap_ids_within_spec` SemanticCheck needs to read the
+# sidecar `spec_id_registry.json` written by the extract step (executor
+# `_save_id_registry`). The SemanticCheck contract is
+# `Callable[[str], bool | str]` — content only, no extra args. R0.1 keeps
+# that signature unchanged (R1.3 will widen it to take an envelope); we
+# bridge by exposing a module-level hint the executor populates before
+# running gates. ``None`` means "not yet set" — in which case the check
+# fails CLOSED (Contract #9 requires fail-shut, master:§Flaw 4).
+
+_id_registry_sidecar_path: Path | None = None
+
+
+def set_id_registry_sidecar_path(path: Path | None) -> None:
+    """Register the sidecar path used by ``_roadmap_ids_within_spec``.
+
+    Called by the executor immediately after the extract step persists the
+    sidecar. ``None`` clears the hint (used by tests for isolation).
+    """
+    global _id_registry_sidecar_path
+    _id_registry_sidecar_path = path
+
+
+def _roadmap_ids_within_spec(content: str) -> bool | str:
+    """Contract #9: every roadmap requirement ID must belong to the known set.
+
+    The known set is ``spec_ids ∪ accepted_deviation_ids`` as recorded by
+    the sidecar :class:`SpecIdRegistry` persisted by the extract step.
+
+    Returns ``True`` on success. On failure, returns a string describing
+    up to 5 violations so the gate failure_message is actionable.
+
+    Fail-shut: if the sidecar is missing/unreadable/malformed the check
+    returns a string (failure) rather than ``True`` (master:§Flaw 4 — no
+    fail-open defaults).
+    """
+    import json as _json
+
+    from .id_registry import SpecIdRegistry, extract_roadmap_ids
+
+    if _id_registry_sidecar_path is None:
+        return (
+            "Contract #9: spec_id_registry.json sidecar path was not "
+            "registered by the executor before MERGE_GATE ran "
+            "(set_id_registry_sidecar_path was never called)."
+        )
+
+    try:
+        raw = _id_registry_sidecar_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return (
+            f"Contract #9: could not read spec_id_registry sidecar at "
+            f"{_id_registry_sidecar_path}: {exc}"
+        )
+
+    try:
+        payload = _json.loads(raw)
+    except _json.JSONDecodeError as exc:
+        return f"Contract #9: spec_id_registry sidecar is not valid JSON: {exc}"
+
+    try:
+        registry = SpecIdRegistry(
+            fr_ids=tuple(payload.get("fr_ids", ())),
+            nfr_ids=tuple(payload.get("nfr_ids", ())),
+            sc_ids=tuple(payload.get("sc_ids", ())),
+            g_ids=tuple(payload.get("g_ids", ())),
+            d_ids=tuple(payload.get("d_ids", ())),
+            accepted_deviation_ids=tuple(payload.get("accepted_deviation_ids", ())),
+            spec_hash=str(payload.get("spec_hash", "")),
+            spec_path=Path(str(payload.get("spec_path", ""))),
+        )
+    except (TypeError, ValueError) as exc:
+        return f"Contract #9: spec_id_registry sidecar schema mismatch: {exc}"
+
+    roadmap_ids = extract_roadmap_ids(content)
+    known = registry.union_of_known()
+    violations = sorted(roadmap_ids - known)
+    if not violations:
+        return True
+    preview = violations[:5]
+    return (
+        f"Contract #9: roadmap contains {len(violations)} IDs not in spec "
+        f"or accepted-deviation set (master:§Recurrence #4 phantom IDs): "
+        f"{preview}{'…' if len(violations) > 5 else ''}"
+    )
+
+
 # --- GateCriteria instances ---
 
 EXTRACT_GATE = GateCriteria(
@@ -1223,6 +1313,15 @@ MERGE_GATE = GateCriteria(
                 "Risk Assessment and Mitigation subsections, and External "
                 "Dependencies / Infrastructure Requirements under Resource "
                 "Requirements and Dependencies"
+            ),
+        ),
+        SemanticCheck(
+            name="roadmap_ids_within_spec",
+            check_fn=_roadmap_ids_within_spec,
+            failure_message=(
+                "Contract #9: roadmap IDs must be subset of spec IDs ∪ "
+                "accepted deviations (master:§Recurrence #4 phantom IDs). "
+                "See sidecar spec_id_registry.json written by extract step."
             ),
         ),
     ],
