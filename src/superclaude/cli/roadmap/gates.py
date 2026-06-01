@@ -25,7 +25,7 @@ from pathlib import Path
 
 from superclaude.cli.audit.wiring_gate import WIRING_GATE
 from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
-from superclaude.contracts import GATE_FIELD_NAMES
+from superclaude.contracts import GATE_FIELD_NAMES, THRESHOLDS
 
 # R0.3: canonical field name for the deviation-analysis ambiguous count.
 # Sourced from `superclaude.contracts.GATE_FIELD_NAMES` per Contract #5/#8
@@ -372,7 +372,7 @@ def _fingerprint_coverage_check(content: str) -> bool:
     if value is None:
         return False
     try:
-        return float(value) >= 0.7
+        return float(value) >= THRESHOLDS["fingerprint.coverage_min"]
     except (ValueError, TypeError):
         return False
 

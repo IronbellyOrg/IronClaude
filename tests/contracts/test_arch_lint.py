@@ -21,7 +21,16 @@ from superclaude.tools.arch_lint import (
     scan_file,
 )
 
-_CANONICAL_NAMES = {"ID_PATTERNS", "CONVERGENCE_THRESHOLDS", "GATE_FIELD_NAMES"}
+_CANONICAL_NAMES = {
+    "ID_PATTERNS",
+    "CONVERGENCE_THRESHOLDS",
+    "GATE_FIELD_NAMES",
+    # R1.1 extensions (Step 6.2).
+    "THRESHOLDS",
+    "RETURN_CONTRACTS",
+    "AdversarialReturn",
+    "UnaddressedInvariant",
+}
 _CANONICAL_PATTERN_BODIES = set(ID_PATTERNS.values())
 
 
@@ -139,6 +148,71 @@ def test_main_returns_two_on_missing_path(tmp_path: Path, capsys) -> None:
     missing = tmp_path / "does-not-exist"
     rc = main(["--scan-paths", str(missing)])
     assert rc == 2
+
+
+def test_class_redef_violation_detected(tmp_path: Path) -> None:
+    """R1.1 Rule 3: ``class AdversarialReturn`` outside contracts is a violation."""
+    bad = tmp_path / "bad_class.py"
+    bad.write_text(
+        "from dataclasses import dataclass\n"
+        "\n"
+        "@dataclass(frozen=True)\n"
+        "class AdversarialReturn:\n"
+        "    x: str\n",
+        encoding="utf-8",
+    )
+    violations = scan_file(bad, _CANONICAL_NAMES, _CANONICAL_PATTERN_BODIES)
+    class_redefs = [v for v in violations if v.kind == "class-redef"]
+    assert len(class_redefs) == 1
+    assert class_redefs[0].name == "AdversarialReturn"
+
+
+def test_class_redef_unaddressed_invariant_detected(tmp_path: Path) -> None:
+    """R1.1 Rule 3 also catches the nested ``UnaddressedInvariant`` dataclass."""
+    bad = tmp_path / "bad_nested.py"
+    bad.write_text(
+        "class UnaddressedInvariant:\n    pass\n",
+        encoding="utf-8",
+    )
+    violations = scan_file(bad, _CANONICAL_NAMES, _CANONICAL_PATTERN_BODIES)
+    class_redefs = [v for v in violations if v.kind == "class-redef"]
+    assert len(class_redefs) == 1
+    assert class_redefs[0].name == "UnaddressedInvariant"
+
+
+def test_class_redef_allow_marker_suppresses(tmp_path: Path) -> None:
+    """R1.1 Rule 3 respects the ``arch-lint: allow-duplicate`` opt-out."""
+    bad = tmp_path / "with_marker.py"
+    bad.write_text(
+        "class AdversarialReturn:  # arch-lint: allow-duplicate test-fixture\n"
+        "    pass\n",
+        encoding="utf-8",
+    )
+    violations = scan_file(bad, _CANONICAL_NAMES, _CANONICAL_PATTERN_BODIES)
+    class_redefs = [v for v in violations if v.kind == "class-redef"]
+    assert class_redefs == []
+
+
+def test_canonical_names_includes_r1_1_extensions() -> None:
+    """Step 6.2: ``superclaude.contracts.__all__`` exposes the R1.1 names.
+
+    The arch-lint walker auto-discovers canonical names via the contracts
+    module's ``__all__``. This test asserts the runtime set matches the
+    R1.1 surface so the walker covers the new constants without further code.
+    """
+    import importlib
+
+    contracts = importlib.import_module("superclaude.contracts")
+    all_set = set(getattr(contracts, "__all__", []))
+    r1_1_extensions = {
+        "THRESHOLDS",
+        "RETURN_CONTRACTS",
+        "AdversarialReturn",
+        "UnaddressedInvariant",
+    }
+    assert r1_1_extensions.issubset(all_set), (
+        f"R1.1 extensions missing from contracts.__all__: {r1_1_extensions - all_set}"
+    )
 
 
 def test_violation_dataclass_is_hashable() -> None:

@@ -7,15 +7,21 @@ literal value is owned by the contracts registry.
 This walker:
 
 1. Imports :mod:`superclaude.contracts` to learn the canonical constant
-   names (``ID_PATTERNS``, ``CONVERGENCE_THRESHOLDS``, ``GATE_FIELD_NAMES``)
-   and the verbatim regex/string values they own.
+   names (``__all__`` membership: ``ID_PATTERNS``, ``CONVERGENCE_THRESHOLDS``,
+   ``GATE_FIELD_NAMES``, ``THRESHOLDS``, ``RETURN_CONTRACTS``,
+   ``AdversarialReturn``, ``UnaddressedInvariant``) and the verbatim
+   regex/string values they own.
 2. Walks the AST of every ``.py`` file under one or more scan paths.
-3. Flags every ``ast.Assign`` whose LHS targets a name in the contract
-   constant set, when the file is NOT the contracts module.
+3. Flags every ``ast.Assign`` / ``ast.AnnAssign`` whose LHS targets a name
+   in the contract constant set, when the file is NOT the contracts module.
 4. Flags every ``ast.Constant`` (string literal) whose value matches an
    ID-pattern body string from :data:`ID_PATTERNS`, when the surrounding
    line does not carry the opt-out marker
    ``# arch-lint: allow-duplicate <reason>``.
+5. Flags every ``ast.ClassDef`` whose ``name`` matches a canonical
+   class name (e.g. ``AdversarialReturn``, ``UnaddressedInvariant``),
+   when the file is NOT the contracts module. Added in R1.1 Step 6.3 to
+   prevent dataclass shadowing of the SoT return-contract types.
 
 Usage::
 
@@ -58,7 +64,7 @@ class Violation:
 
     path: Path
     lineno: int
-    kind: str  # "name-rebind" | "literal-duplicate"
+    kind: str  # "name-rebind" | "literal-duplicate" | "class-redef"
     name: str
     detail: str
 
@@ -177,6 +183,25 @@ def scan_file(
                         ),
                     )
                 )
+
+        # Rule 3 (R1.1 Step 6.3): class definition shadowing a canonical name.
+        # Prevents `class AdversarialReturn: ...` outside the contracts module
+        # from evading the name-rebind rule (ClassDef is not Assign/AnnAssign).
+        if isinstance(node, ast.ClassDef) and node.name in canonical_names:
+            if _line_has_allow_marker(source_lines, node.lineno):
+                continue
+            violations.append(
+                Violation(
+                    path=path,
+                    lineno=node.lineno,
+                    kind="class-redef",
+                    name=node.name,
+                    detail=(
+                        "dataclass owned by superclaude.contracts; "
+                        "import instead of redefine"
+                    ),
+                )
+            )
 
     return violations
 

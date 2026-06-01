@@ -31,6 +31,8 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from superclaude.contracts import ID_PATTERNS
+
 from .convergence import compute_stable_id
 from .models import Finding
 from .spec_parser import (
@@ -39,9 +41,11 @@ from .spec_parser import (
 
 logger = logging.getLogger(__name__)
 
-# FR pattern for extracting requirement references with associated names
+# Heading-anchored FR pattern: `^#{1,6}\s+.*?\b` + canonical FR body + `\b`.
+# The pattern body is sourced from `superclaude.contracts.ID_PATTERNS["FR"]`
+# per Contract #5/#8 (R1.1 Step 6.3 migration — return-contracts-scope.md §G).
 _FR_HEADING_RE = re.compile(
-    r"^#{1,6}\s+.*?\b(FR-\d+(?:\.\d+)?)\b",
+    rf"^#{{1,6}}\s+.*?\b({ID_PATTERNS['FR']})\b",
     re.MULTILINE,
 )
 

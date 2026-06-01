@@ -17,6 +17,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from superclaude.contracts import THRESHOLDS
+
 # --- FR-MOD4.1: 7 structural indicator counters ---
 
 
@@ -88,7 +90,7 @@ def audit_spec_structure(spec_text: str) -> SpecStructuralAudit:
 def check_extraction_adequacy(
     spec_text: str,
     extraction_total_requirements: int,
-    threshold: float = 0.5,
+    threshold: float = THRESHOLDS["structural_audit.adequacy_min"],
 ) -> tuple[bool, SpecStructuralAudit]:
     """Check whether extraction captured enough of the spec's structural content.
 
