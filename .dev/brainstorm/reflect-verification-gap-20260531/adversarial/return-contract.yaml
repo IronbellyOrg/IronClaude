@@ -1,0 +1,26 @@
+return_contract:
+  merged_output_path: /config/workspace/IronClaude/.dev/brainstorm/reflect-verification-gap-20260531/MERGED-PROPOSAL.md
+  convergence_score: 0.91
+  artifacts_dir: /config/workspace/IronClaude/.dev/brainstorm/reflect-verification-gap-20260531/adversarial/
+  status: success
+  base_variant: "proposal-A (OVM — Outcome-Verification Manifest)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []   # 2 MEDIUM invariant items (INV-002, INV-005) addressed via mechanism-text additions (Changes 10, 12); 0 HIGH UNADDRESSED items remain
+  notes: |
+    Mode A (--compare --merge) 2 input artifacts. Both proposals converged on the
+    same architectural direction (parallel artifact per §10.6 pattern, additive
+    contract minor bump, new gate condition, WebFetch addition). The merge takes A as
+    base (combined score 0.937 vs 0.907; tiebreaker level 3 — input order) and
+    incorporates 9 strengths from B (INC-01 through INC-09) plus 5 mechanism-text
+    additions from the invariant-probe Round 2.5 (INV-002, INV-003, INV-005) and
+    promoted shared-assumption diff points (A-001, A-002). All 14 changes applied
+    successfully. Post-merge validation: structural OK, references OK, 0 new
+    contradictions. Word count 5,303 (within 4,000-5,500 target). No findings
+    flagged for human review.
+
+    The merged proposal is the input to task-builder which will produce an MDTM
+    task file under .dev/tasks/to-do/ for downstream /task execution in a fresh
+    session.
