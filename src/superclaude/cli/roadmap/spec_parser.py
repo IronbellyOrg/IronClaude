@@ -14,6 +14,11 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+# R0.3: pattern bodies come from the canonical contracts registry
+# (Contract #8). Word-boundary anchors `\b…\b` stay local — they are a
+# rendering concern, not part of the SoT body.
+from superclaude.contracts import ID_PATTERNS as _CONTRACTS_ID_PATTERNS
+
 
 @dataclass
 class ParseWarning:
@@ -322,11 +327,8 @@ def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlo
 # ---------- Requirement IDs ----------
 
 _REQUIREMENT_PATTERNS: dict[str, re.Pattern[str]] = {
-    "FR": re.compile(r"\bFR-\d+(?:\.\d+)?\b"),
-    "NFR": re.compile(r"\bNFR-\d+(?:\.\d+)?\b"),
-    "SC": re.compile(r"\bSC-\d+\b"),
-    "G": re.compile(r"\bG-\d+\b"),
-    "D": re.compile(r"\bD-?\d+\b"),
+    family: re.compile(rf"\b{body}\b")
+    for family, body in _CONTRACTS_ID_PATTERNS.items()
 }
 
 

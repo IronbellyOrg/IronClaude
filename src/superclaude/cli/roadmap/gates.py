@@ -25,6 +25,13 @@ from pathlib import Path
 
 from superclaude.cli.audit.wiring_gate import WIRING_GATE
 from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
+from superclaude.contracts import GATE_FIELD_NAMES
+
+# R0.3: canonical field name for the deviation-analysis ambiguous count.
+# Sourced from `superclaude.contracts.GATE_FIELD_NAMES` per Contract #5/#8
+# to prevent the `ambiguous_count`/`ambiguous_deviations` field-mismatch
+# class of bug documented above (B-1).
+_AMBIGUOUS_DEVIATIONS_FIELD = GATE_FIELD_NAMES["deviation_analysis"]["ambiguous"]
 
 # --- Semantic check functions (pure: content -> bool) ---
 
@@ -402,7 +409,7 @@ def _no_ambiguous_deviations(content: str) -> bool:
     if fm is None:
         return False
 
-    value = fm.get("ambiguous_deviations")
+    value = fm.get(_AMBIGUOUS_DEVIATIONS_FIELD)
     if value is None:
         return False
 

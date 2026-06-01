@@ -30,11 +30,13 @@ from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
 
-# R0.3: import from superclaude.contracts.ID_PATTERNS — see BUILD-REQUEST §MVR §5
-# (R0.1 keeps the family list inline so the module is self-contained while the
-# contracts SoT module is being built; the registry's ID extraction itself
-# delegates to spec_parser, so this constant only enumerates KNOWN families.)
-_ID_PATTERN_KEYS: tuple[str, ...] = ("FR", "NFR", "SC", "G", "D")
+# R0.3: source the family list from the canonical contracts registry.
+# The registry's ID extraction itself delegates to spec_parser, so this
+# constant only enumerates KNOWN families. Contract #8 satisfied — no
+# duplicate literal definition.
+from superclaude.contracts import ID_PATTERNS as _ID_PATTERNS
+
+_ID_PATTERN_KEYS: tuple[str, ...] = tuple(_ID_PATTERNS.keys())
 
 
 @dataclass(frozen=True)
