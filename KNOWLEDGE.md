@@ -217,3 +217,49 @@ Item per merged-output.md §6 secondary counter-argument.
 **Load-bearing test convention.** Tests targeting layer-specific discharge guards MUST use the term-before-verb form. The task overview at task-file line 28 of TASK-RF-20260529-171029 already names "stub needs replacement" as the canonical example; future task templates (especially the BUILD_REQUEST templates for obligation_scanner test additions) should embed this convention in their prescribed-fixture sections.
 
 **Files touched:** src/superclaude/cli/roadmap/obligation_scanner.py (Layer 5 surface), tests/roadmap/test_obligation_scanner.py (`TestLayer5H3SubsectionContext` + tightened e2e), .dev/tasks/to-do/TASK-RF-20260529-171029/ (deviation log + FU-001 origin)
+
+---
+
+## 2026-05-31: Roadmap Spec-Fidelity Validator — M{n}-D{nn} Tokenizer + Canonicalizer Fix (TASK-RF-20260531-044100)
+
+### Symptom
+
+The TUIBBS v1-MVP roadmap pipeline halted at the spec-fidelity convergence gate with FAIL: 51 HIGH + 3 MEDIUM signatures-dimension findings, all false positives. Each finding said either `Roadmap references ID 'D{nn}' not found in spec` (HIGH phantom_id) or `Roadmap ID 'D{nn}' canonicalizes to spec ID 'D{n}' (surface form differs)` (MEDIUM id_schema_drift) for D01..D54 — but those tokens never appear bare in the spec. They are always paired with a milestone prefix as M{n}-D{nn} (e.g., `M1-D01`, `M2-D03`).
+
+### Root cause
+
+Two coupled defects in the structural-signatures checker pipeline at `src/superclaude/cli/roadmap/`:
+
+1. **Tokenizer (`spec_parser.py:_REQUIREMENT_PATTERNS`).** The D-family regex `\bD-?\d+\b` matched only the trailing `D\d+` portion of milestone-prefixed IDs like `M1-D01`, silently stripping the `M{n}-` prefix and emitting a bare-`D01` token. There was no MD-family pattern.
+2. **Canonicalizer (`structural_checkers.py:_canonicalize_requirement_id`).** Given the resulting bare `D01`, `D02`, etc., the canonicalizer further collapsed zero-padded forms to `D1`, `D2`, etc. — so milestone-distinct deliverables (`M1-D01`, `M2-D01`, `M3-D01`, ...) all canonicalized to the single key `D1`, then failed to resolve against the spec namespace.
+
+The canonical roadmap annotation at `/config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/roadmap.md:L657-L665` (Deliverable ID Convention heading + Validator note + Explicit non-references) explicitly states the authorial decision: full M{n}-D{nn} IS the canonical ID and the bare D{nn} suffixes MUST NOT be resolved against spec namespaces. The validator did not honor this annotation.
+
+### Fix
+
+Three coordinated edits per the design decisions captured in `phase-outputs/plans/a-track-patch-design.md`:
+
+1. **D1 (spec_parser.py:324).** Add a new `"MD"` family pattern `\bM\d+-D-?\d+\b` ordered BEFORE the existing `"D"` entry so milestone-prefixed deliverable IDs surface as their own family. Add a post-process dedup in `extract_requirement_ids` so the bare-D regex does NOT re-match the trailing `D\d+` portion of an already-captured MD token.
+2. **D2 (structural_checkers.py:_canonicalize_requirement_id).** Extend the canonicalizer with a leading branch for the MD family: preserve the M{n}- prefix and canonicalize only the trailing D{nn} portion (strip leading zeros on the deliverable index). Reuse existing `phantom_id` / `id_schema_drift` mismatch types — no new SEVERITY_RULES / MISMATCH_FILE_ROUTING / FIX_GUIDANCE_TEMPLATES entries.
+3. **D3 (structural_checkers.py:_parse_explicit_non_references + check_signatures).** Add a module-level helper that reads the roadmap, finds the canonical `**Explicit non-references (do not resolve against spec):**` anchor, and parses the inline backtick-delimited token list (truncating at the boundary phrase `are **roadmap-internal` to avoid grabbing counter-example tokens). `check_signatures` calls this helper once at the top and skips emission for any roadmap-canonical token whose family is `D`/`G` AND whose raw form is in the allowlist, OR whose family is `MD` AND whose trailing D-suffix is in the allowlist.
+
+### Verification
+
+- Three new unit tests at `tests/roadmap/test_structural_checkers.py` (appended after the existing lock-the-fix 5-test block at lines 309-434; D4 backward-compat invariant honored):
+  - `test_phantom_id_honors_explicit_non_references_for_milestone_d_ids` — M{n}-D{nn} multi-milestone IDs + allowlist → 0 findings (the canonical v1-MVP bug-trigger shape).
+  - `test_phantom_id_backward_compatible_without_explicit_non_references` — legacy roadmaps without the allowlist annotation → existing canonicalization behavior preserved (D01↔D1 → 3 MEDIUM drift).
+  - `test_phantom_id_bare_d_still_resolves_when_spec_uses_bare_d` — spec uses bare D7/D8 → matches D7 in roadmap; D9 still flagged HIGH phantom (false-negative regression check).
+- All 13 `TestSignaturesChecker` tests + full `test_structural_checkers.py` file (61 passed, 1 pre-existing skip) GREEN.
+- Integration: `superclaude roadmap run /config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/epics.md --output .dev/releases/current/v1-MVP/ --resume` against the same v1-MVP roadmap.md produced `fidelity_status=pass`, `spec-fidelity step=PASS`, `Final HIGH Count: 0`. roadmap.md sha256 preserved at `8c93b8f5157bcb73ede60ddd02aa4c8f6d1d928b927655cfaa2bf1c78a12b5e7`.
+
+### Operational hazard for future devs
+
+`superclaude` is installed via pipx, which performs a real-file copy of the package into a venv at `/config/.local/share/pipx/venvs/superclaude/lib/python3.12/site-packages/` (NOT an editable install). `pipx reinstall superclaude` is REQUIRED to propagate any IronClaude validator-source edit to the system binary. `make install` only refreshes the project's local `.venv/`; it does NOT touch the system-wide `superclaude` binary. The pipx install metadata at `/config/.local/share/pipx/venvs/superclaude/pipx_metadata.json` records `package_or_url: /config/workspace/IronClaude` — verify this before running `pipx reinstall` to ensure the cached source is correct.
+
+Secondary hazard: the roadmap pipeline's `remediate` step may attempt cosmetic edits to roadmap.md when phantom_id findings persist — if those edits land on a file whose byte-identity is invariant (as in this case, where roadmap.md L657-L665 is the canonical anchor), they violate downstream contracts. The patched validator no longer emits the false positives that would trigger this cosmetic remediation.
+
+### Historical reference
+
+The C-track operational unblock for this issue used class waiver `V-PFX-1` registered in `/config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/deviation-registry.json` `waivers` array. After the durable A-track fix landed, V-PFX-1 was retired (status `RETIRED` with retirement metadata; entry preserved for audit). The authoring task is `/config/workspace/TUIBBS-scp/.dev/tasks/{to-do,done}/TASK-RF-20260531-044100/`.
+
+**Files touched:** src/superclaude/cli/roadmap/spec_parser.py, src/superclaude/cli/roadmap/structural_checkers.py, tests/roadmap/test_structural_checkers.py

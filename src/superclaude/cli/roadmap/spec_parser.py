@@ -322,6 +322,11 @@ def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlo
 # ---------- Requirement IDs ----------
 
 _REQUIREMENT_PATTERNS: dict[str, re.Pattern[str]] = {
+    # MD must be ordered BEFORE D so milestone-prefixed deliverable IDs (M{n}-D{nn})
+    # are extracted as their own family rather than being silently collapsed under
+    # the bare-D family. See TASK-RF-20260531-044100 design decision D1 and
+    # /config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/roadmap.md L657 ("Deliverable ID Convention").
+    "MD": re.compile(r"\bM\d+-D-?\d+\b"),
     "FR": re.compile(r"\bFR-\d+(?:\.\d+)?\b"),
     "NFR": re.compile(r"\bNFR-\d+(?:\.\d+)?\b"),
     "SC": re.compile(r"\bSC-\d+\b"),
@@ -329,18 +334,43 @@ _REQUIREMENT_PATTERNS: dict[str, re.Pattern[str]] = {
     "D": re.compile(r"\bD-?\d+\b"),
 }
 
+# Matches the trailing D-portion of a milestone-prefixed deliverable ID (e.g. "M1-D01" -> "D01").
+# Used by extract_requirement_ids to deduplicate the bare-D family list against MD-family tokens
+# that would otherwise generate a phantom bare-D match for the same source span.
+_MD_TRAILING_D_RE = re.compile(r"-(D-?\d+)$")
+
 
 def extract_requirement_ids(text: str) -> dict[str, list[str]]:
     """Extract requirement ID families via regex.
 
-    Returns dict keyed by family prefix (FR, NFR, SC, G, D)
+    Returns dict keyed by family prefix (MD, FR, NFR, SC, G, D)
     with sorted unique ID lists.
+
+    Note: when the MD family captures a token like "M1-D01", the D family regex
+    will independently match the trailing "D01" portion of the same source span.
+    To preserve the family boundary (M{n}-D{nn} is a roadmap-internal deliverable
+    sequence; bare D{nn} is a spec-namespace ID), we strip those trailing-D
+    duplicates from the D family list when an MD match already covers them.
     """
     result: dict[str, list[str]] = {}
     for family, pattern in _REQUIREMENT_PATTERNS.items():
         ids = sorted(set(pattern.findall(text)))
         if ids:
             result[family] = ids
+
+    # Dedup: remove bare-D tokens that are the trailing portion of an MD-family token.
+    if "MD" in result and "D" in result:
+        md_trailing_d: set[str] = set()
+        for md_token in result["MD"]:
+            m = _MD_TRAILING_D_RE.search(md_token)
+            if m:
+                md_trailing_d.add(m.group(1))
+        filtered_d = [d for d in result["D"] if d not in md_trailing_d]
+        if filtered_d:
+            result["D"] = filtered_d
+        else:
+            del result["D"]
+
     return result
 
 
