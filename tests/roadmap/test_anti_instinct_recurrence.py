@@ -193,6 +193,61 @@ def test_is_allowlisted_matches_seed_phrases():
         )
 
 
+@pytest.mark.parametrize(
+    "recurrence_case",
+    [("anti_instinct", "imperative_verb_with_allowlist_phrase_case")],
+    indirect=True,
+)
+def test_imperative_verb_overrides_allowlist(recurrence_case):
+    """M8 fix-up — imperative verb + SCAFFOLD term overrides Layer 6 allowlist.
+
+    Source authority: sc:reflect UC-2 Phase-3 validation, MEDIUM Finding
+    ``M8 — substring-match FN`` at
+    ``/config/workspace/IronClaude/.dev/reflect/phase-3-r0.2-uc2-validation/REPORT.md``.
+
+    Pre-fix: the Layer 6 short-circuit at ``obligation_scanner.py:280`` runs
+    before the imperative-verb checks and silently allowlists a line like
+    ``|1|FR-001|Build stub transport now|temporary stub transport — must be
+    replaced in M2|...|`` because the substring ``stub transport`` matches
+    ``_ALLOWLIST_PHRASES``. The line emits zero obligations.
+
+    Post-fix: ``_is_allowlisted`` consults
+    ``_ALLOWLIST_IMPERATIVE_OVERRIDE_RE`` and returns ``False`` when the line
+    pairs an imperative verb (build / create / set up / generate / write /
+    add / implement / stand up) with a SCAFFOLD term. The line is no longer
+    short-circuited and emits 3 HIGH undischarged obligations (2x ``stub`` +
+    1x ``temporary``), matching the genuine-scaffolding signal in the row.
+
+    Contract #1 invariant: MUST FAIL pre-fix, MUST PASS post-fix.
+    Contract #10 invariant: allowlist subtracts from FPs only — never masks
+    a genuine obligation.
+    """
+    input_path, expected = recurrence_case
+    content = input_path.read_text(encoding="utf-8")
+
+    report = scan_obligations(content)
+
+    high_findings = [o for o in report.obligations if o.severity == "HIGH"]
+
+    assert report.total_obligations == expected["expected_total_obligations"], (
+        f"Fixture {expected['fixture']}: expected "
+        f"{expected['expected_total_obligations']} total obligations, got "
+        f"{report.total_obligations}. M8 fix may have regressed — the "
+        f"imperative-verb override should bypass the Layer 6 allowlist."
+    )
+    assert len(high_findings) == expected["expected_high_findings"], (
+        f"Fixture {expected['fixture']}: expected "
+        f"{expected['expected_high_findings']} HIGH findings, got "
+        f"{len(high_findings)}. M8 — substring-match FN regression. "
+        f"Findings: {[(o.term, o.context) for o in high_findings]}"
+    )
+    assert report.undischarged_count == expected["expected_undischarged_count"], (
+        f"Fixture {expected['fixture']}: expected "
+        f"{expected['expected_undischarged_count']} undischarged, got "
+        f"{report.undischarged_count}. M8 — substring-match FN regression."
+    )
+
+
 def test_is_allowlisted_rejects_unrelated_scaffold_prose():
     """``_is_allowlisted`` MUST return False for unrelated scaffold prose.
 

@@ -175,6 +175,24 @@ _ALLOWLIST_PHRASES: frozenset[str] = frozenset(
     }
 )
 
+# M8 (sc:reflect UC-2 Phase-3 finding): imperative-verb prefix that overrides
+# the Layer 6 allowlist short-circuit. A line like
+# ``|1|FR-001|Build stub transport now|temporary stub transport — must be
+# replaced in M2|...|`` matches the allowlist phrase ``stub transport`` but
+# the imperative verb ``Build`` paired with a SCAFFOLD term proves this is
+# genuine scaffolding work, not a named permanent fixture. The allowlist
+# subtracts from FPs only (Contract #10) — when an imperative verb is
+# present, the line is NOT an FP and must NOT be allowlisted. See
+# ``_is_allowlisted`` docstring and ``test_imperative_verb_overrides_allowlist``
+# for the empirical evidence chain.
+_ALLOWLIST_IMPERATIVE_OVERRIDE_RE = re.compile(
+    r"\b(?:build|create|set\s+up|generate|write|add|implement|stand\s+up)\b"
+    r"[^\n]*?"
+    r"\b(?:mock(?:ed|s)?|stub(?:bed|s)?|skeleton|placeholder|"
+    r"scaffold(?:ing|ed)?|temporary|hardcoded|hardwired|no-?op|dummy|fake)\b",
+    re.IGNORECASE,
+)
+
 # Layer 5: H3 / H2 boundary regexes for the pre-scan `_build_h3_index`.
 # `_H3_HEADING_RE` captures the H3 heading text (non-greedy, MULTILINE-anchored
 # per line); `_H2_HEADING_RE` is boundary-only (no capture) — it resets the
@@ -771,9 +789,23 @@ def _is_allowlisted(line: str) -> bool:
     documented historical incident and a negative-test fixture proving no
     real obligation is masked. See ``_ALLOWLIST_PHRASES`` docstring for the
     source-authority list and addition criteria.
+
+    M8 override (sc:reflect UC-2 Phase-3 finding): when the line ALSO matches
+    an imperative-verb-paired-with-SCAFFOLD-term pattern (e.g. ``Build stub
+    transport now``), the line is treated as a genuine scaffolding obligation
+    and NOT allowlisted, regardless of allowlist-phrase substring matches on
+    other tokens in the same line. This preserves Contract #10's "allowlist
+    subtracts from FPs only" invariant by refusing to mask a line where the
+    imperative verb makes the scaffolding intent explicit.
     """
     lowered = line.lower()
-    return any(phrase in lowered for phrase in _ALLOWLIST_PHRASES)
+    if not any(phrase in lowered for phrase in _ALLOWLIST_PHRASES):
+        return False
+    # M8: imperative-verb + scaffold-term pair signals genuine scaffolding —
+    # the allowlist must not mask it.
+    if _ALLOWLIST_IMPERATIVE_OVERRIDE_RE.search(line):
+        return False
+    return True
 
 
 def _is_meta_context(line: str, term_start_in_line: int) -> bool:
