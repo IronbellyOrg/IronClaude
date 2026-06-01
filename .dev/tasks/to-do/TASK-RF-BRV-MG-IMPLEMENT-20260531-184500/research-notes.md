@@ -1,7 +1,7 @@
 # Research Notes: Implement BRV-MG — `sc:pr-bot-validate` sibling skill
 
 **Date:** 2026-05-31
-**Scenario:** A (explicit — merged brainstorm proposal at `/config/workspace/Coder/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md` is the concrete BUILD_REQUEST)
+**Scenario:** A (explicit — merged brainstorm proposal at `/config/workspace/IronClaude/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md` is the concrete BUILD_REQUEST)
 **Depth Tier:** Standard
 **Track Count:** 1
 
@@ -11,8 +11,7 @@
 
 **Cross-repo binding (inherited from OVM cycle's research/04 — same decision applies here):**
 
-- **Execution repo:** `/config/workspace/IronClaude/` (SuperClaude framework source-of-truth)
-- **Planning repo:** `/config/workspace/Coder/` (this task file, the merged proposal, the research)
+- **Single repo:** `/config/workspace/IronClaude/` — task file, merged proposal, research, and execution targets all co-located. (Originally split across Coder=planning + IronClaude=execution; consolidated to IronClaude on 2026-06-01.)
 
 **Files to create (new in IronClaude):**
 
@@ -32,7 +31,7 @@
 
 **Source-of-truth file (READ-ONLY for executor):**
 
-- `/config/workspace/Coder/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md` — the authoritative BUILD_REQUEST (6,464 words, 9 §6 sections)
+- `/config/workspace/IronClaude/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md` — the authoritative BUILD_REQUEST (6,464 words, 9 §6 sections)
 
 **Pattern source files (READ-ONLY templates for executor):**
 
@@ -62,7 +61,7 @@ Same as OVM cycle (all decisions resolved in OVM's research/04-cross-repo-target
 ## RECOMMENDED_OUTPUTS
 
 The builder produces ONE MDTM task file at:
-`/config/workspace/Coder/.dev/tasks/to-do/TASK-RF-BRV-MG-IMPLEMENT-20260531-184500/TASK-RF-BRV-MG-IMPLEMENT-20260531-184500.md`
+`/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-BRV-MG-IMPLEMENT-20260531-184500/TASK-RF-BRV-MG-IMPLEMENT-20260531-184500.md`
 
 The task file's checklist drives the executor to produce these artifacts (in IronClaude source-of-truth `src/superclaude/`, then synced to `.claude/`):
 

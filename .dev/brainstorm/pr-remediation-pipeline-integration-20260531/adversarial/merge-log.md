@@ -6,7 +6,7 @@
 - **Incorporated variant:** Proposal A — Third Mode (`proposals/proposal-A.md`) — used as source for changes INC-01 through INC-05
 - **Refactor plan source:** `adversarial/refactor-plan.md`
 - **Executor:** merge-executor-agent (Step 5 of sc-adversarial-protocol pipeline)
-- **Output artifact:** `/config/workspace/Coder/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md`
+- **Output artifact:** `/config/workspace/IronClaude/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md`
 - **Changes planned:** 10
 - **Changes applied:** 10
 - **Changes failed:** 0

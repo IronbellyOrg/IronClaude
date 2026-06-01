@@ -1,7 +1,7 @@
 <!-- Provenance: Produced by /sc:brainstorm via Skill sc-brainstorm-protocol (single-proposal mode per task spec) -->
 <!-- Author: PR-Remediation-Integration Brainstorm Agent -->
 <!-- Date: 2026-05-31 -->
-<!-- Composes-with: /config/workspace/Coder/.dev/brainstorm/reflect-verification-gap-20260531/MERGED-PROPOSAL.md (OVM, v1.0 → v1.1) -->
+<!-- Composes-with: /config/workspace/IronClaude/.dev/brainstorm/reflect-verification-gap-20260531/MERGED-PROPOSAL.md (OVM, v1.0 → v1.1) -->
 <!-- Target: extends /config/.claude/skills/sc-reflect-protocol/SKILL.md v1.0 → v1.1 -->
 
 # Bot-Review-Validated Merge Gate (BRV-MG) — Integrating the 6-Way Parallel PR-Remediation Pipeline into `sc:reflect`
@@ -10,7 +10,7 @@
 
 `sc:reflect` v1.0 audits *one work-unit at a time* from the operator's seat: it consumes a tasklist (UC-2) or a spec (UC-1) and returns a verdict + 9-condition promotion gate (§14.5.2) scoped to that single unit. The Coder repo, however, operates on a different load-bearing artifact in the merge-gate dimension: an *open GitHub PR* against which external bot reviewers (Augment Code today; CodeRabbit, GitHub Copilot, sourcery-ai, Greptile, codiumai tomorrow) have left inline review comments. Those comments are currently (i) authored against a specific commit SHA and immediately stale on rebase/force-push, (ii) un-triaged free-form prose, (iii) disconnected from any remediation/execute/re-validate loop, and (iv) **advisory rather than gating** — branch protection on `main` checks CI + human approval, not bot-review reconciliation.
 
-The team has empirically converged on a 6-way parallel orchestration script (preamble §3) that fans out one general-purpose subagent per PR, runs `/sc:auggie-review --no-post-pr --no-remediation-offer` as the validation primitive against the current diff, buckets each Augment finding into `CONFIRMED / STILL_VALID / FALSE_POSITIVE / OUT_OF_SCOPE`, aggregates per-PR remediation files into `.dev/reviews/aggregated-remediation-<ts>/PROPOSALS.md` + `PROPOSALS-normalized.md`, runs `/sc:reflect --mode pre` on the normalized spec, then hands off to `task-builder` → `/task` → `/sc:reflect --mode post` for execution. The artifacts at `/config/workspace/Coder/.dev/reviews/aggregated-remediation-20260531-034121/` (16 actionable issues across PRs #68-#73, 8 CONFIRMED + 8 STILL_VALID, 0 false positives, 1 High severity) are the proof-of-shape.
+The team has empirically converged on a 6-way parallel orchestration script (preamble §3) that fans out one general-purpose subagent per PR, runs `/sc:auggie-review --no-post-pr --no-remediation-offer` as the validation primitive against the current diff, buckets each Augment finding into `CONFIRMED / STILL_VALID / FALSE_POSITIVE / OUT_OF_SCOPE`, aggregates per-PR remediation files into `.dev/reviews/aggregated-remediation-<ts>/PROPOSALS.md` + `PROPOSALS-normalized.md`, runs `/sc:reflect --mode pre` on the normalized spec, then hands off to `task-builder` → `/task` → `/sc:reflect --mode post` for execution. The artifacts at `/config/workspace/IronClaude/.dev/reviews/aggregated-remediation-20260531-034121/` (16 actionable issues across PRs #68-#73, 8 CONFIRMED + 8 STILL_VALID, 0 false positives, 1 High severity) are the proof-of-shape.
 
 The gap is structural, not procedural: the pipeline is an orchestration script the team maintains by hand, not a protocol surface with a contract, an audit log, a falsifier, or a merge-gate hook. Worse, the pipeline is *adjacent to* `sc:reflect` but does not yet *compose with* its 9-condition gate — meaning bot-review reconciliation cannot today block a `gh pr merge`. This proposal closes that gap by extending `sc:reflect` with a third mode that subsumes Phases 1-4 of the pipeline, surfaces the result as a GitHub status check, and cleanly hands off Phase 5 to the existing `task-builder` → `/task` → `--mode post` chain.
 
@@ -30,7 +30,7 @@ The mode is **opt-in by invocation** but **always-on by CI workflow** once lande
 
 ## 3. Mechanism — concrete protocol-text amendments
 
-All anchors below refer to either `sc:reflect` v1.0 (`/config/.claude/skills/sc-reflect-protocol/SKILL.md`) or OVM v1.1 (`/config/workspace/Coder/.dev/brainstorm/reflect-verification-gap-20260531/MERGED-PROPOSAL.md`). Numbering is preserved; every amendment is additive per `sc:reflect §9.4` minor-bump rules.
+All anchors below refer to either `sc:reflect` v1.0 (`/config/.claude/skills/sc-reflect-protocol/SKILL.md`) or OVM v1.1 (`/config/workspace/IronClaude/.dev/brainstorm/reflect-verification-gap-20260531/MERGED-PROPOSAL.md`). Numbering is preserved; every amendment is additive per `sc:reflect §9.4` minor-bump rules.
 
 ### 3.1 New input + mode-selection rule (§3.1, §3.2)
 

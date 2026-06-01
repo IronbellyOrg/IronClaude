@@ -453,7 +453,7 @@ permissions:
 - **Blocker:** `claude` CLI install step for the runner is not in any existing workflow. Executor must add one explicit install step (recommend `curl`-based pinned install) and document in TDD. ANTHROPIC_API_KEY secret will need to be configured in repo settings — flag for the executor to verify before workflow is enabled.
 
 **File paths (all absolute):**
-- Research file: `/config/workspace/Coder/.dev/tasks/to-do/TASK-RF-BRV-MG-IMPLEMENT-20260531-184500/research/02-workflow-evalworkspace-refs.md`
+- Research file: `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-BRV-MG-IMPLEMENT-20260531-184500/research/02-workflow-evalworkspace-refs.md`
 - Workflow source dir: `/config/workspace/IronClaude/.github/workflows/`
 - Eval-workspace pattern source: `/config/workspace/IronClaude/.dev/eval-workspaces/sc-reflect/`
 - Refs pattern source: `/config/workspace/IronClaude/src/superclaude/skills/sc-reflect-protocol/refs/`

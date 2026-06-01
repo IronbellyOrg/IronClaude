@@ -1,7 +1,7 @@
 return_contract:
-  merged_output_path: /config/workspace/Coder/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md
+  merged_output_path: /config/workspace/IronClaude/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md
   convergence_score: 0.84
-  artifacts_dir: /config/workspace/Coder/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/adversarial/
+  artifacts_dir: /config/workspace/IronClaude/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/adversarial/
   status: success
   base_variant: "proposal-B (Sibling Skill — sc:pr-bot-validate)"
   unresolved_conflicts: 0

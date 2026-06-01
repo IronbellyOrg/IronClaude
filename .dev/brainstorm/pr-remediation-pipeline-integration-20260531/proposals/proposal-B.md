@@ -1,7 +1,7 @@
 <!-- Provenance: Brainstorm Agent B (independent; did NOT read proposal-A.md before producing this proposal) -->
 <!-- Date: 2026-05-31 -->
 <!-- Divergent direction: B1 — Sibling skill `sc:pr-bot-validate` that consumes `sc:reflect`'s return contract as input, leaving reflect with zero new modes -->
-<!-- Compose-target: OVM merged proposal at /config/workspace/Coder/.dev/brainstorm/reflect-verification-gap-20260531/MERGED-PROPOSAL.md (v1.0 → v1.1) -->
+<!-- Compose-target: OVM merged proposal at /config/workspace/IronClaude/.dev/brainstorm/reflect-verification-gap-20260531/MERGED-PROPOSAL.md (v1.0 → v1.1) -->
 
 # Proposal B — Bot-Review-Validated Merge Gate via the Sibling Skill `sc:pr-bot-validate`
 
