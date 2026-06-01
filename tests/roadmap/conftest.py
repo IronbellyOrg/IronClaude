@@ -24,6 +24,62 @@ from audit_writer import AuditWriter
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "v3.3"))
 from conftest import AuditTrailHelper
 
+# ---------------------------------------------------------------------------
+# Contract #9 sidecar registration helper (sc:reflect M9 / D-REGRESSION-01)
+# ---------------------------------------------------------------------------
+#
+# R0.1 added the ``_roadmap_ids_within_spec`` SemanticCheck to MERGE_GATE.
+# That check is fail-shut: if ``set_id_registry_sidecar_path`` was never
+# called before the gate runs, the check returns a failure string
+# (master:§Flaw 4 -- no fail-open defaults).
+#
+# Pipeline-integration tests that exercise MERGE_GATE via mock subprocess
+# fixtures (no real executor) never register a sidecar. The fixture below
+# writes a permissive sidecar covering the IDs those mock fixtures emit
+# (FR-001..FR-999, NFR-001..NFR-099, SC-001..SC-099, G-001..G-099,
+# D1..D99) and registers it for the duration of the test. State is cleared
+# on teardown so test_spec_roadmap_id_containment.py's own ``autouse``
+# isolation fixture sees a clean slate.
+#
+# Apply via ``pytestmark = pytest.mark.usefixtures(
+#     "_merge_gate_id_registry_sidecar"
+# )`` in the affected test modules rather than ``autouse=True`` here,
+# because the fixture should be scoped to integration tests that
+# exercise MERGE_GATE with synthetic IDs, not to the entire roadmap
+# test suite.
+
+
+@pytest.fixture
+def _merge_gate_id_registry_sidecar(tmp_path: Path):
+    """Register a permissive spec_id_registry.json sidecar for MERGE_GATE.
+
+    Writes a JSON sidecar covering the synthetic ID families used by
+    pipeline-integration mock fixtures and registers it via
+    ``gates.set_id_registry_sidecar_path``. Cleared on teardown.
+    """
+    from superclaude.cli.roadmap import gates as _gates
+
+    sidecar = tmp_path / "spec_id_registry.json"
+    payload = {
+        "fr_ids": [f"FR-{i:03d}" for i in range(1, 1000)],
+        "nfr_ids": [f"NFR-{i:03d}" for i in range(1, 100)],
+        "sc_ids": [f"SC-{i:03d}" for i in range(1, 100)],
+        "g_ids": [f"G-{i:03d}" for i in range(1, 100)],
+        # D-family lenient pattern matches both ``D5`` and ``D-5``; cover both.
+        "d_ids": (
+            [f"D{i}" for i in range(1, 100)] + [f"D-{i:02d}" for i in range(1, 100)]
+        ),
+        "accepted_deviation_ids": [],
+        "spec_hash": "0" * 16,
+        "spec_path": str(tmp_path / "spec.md"),
+    }
+    sidecar.write_text(json.dumps(payload), encoding="utf-8")
+    _gates.set_id_registry_sidecar_path(sidecar)
+    try:
+        yield sidecar
+    finally:
+        _gates.set_id_registry_sidecar_path(None)
+
 
 @pytest.fixture(scope="session")
 def results_dir(tmp_path_factory: pytest.TempPathFactory) -> Path:

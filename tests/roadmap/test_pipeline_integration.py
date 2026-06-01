@@ -18,6 +18,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
+
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.gates import gate_passed
 from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
@@ -43,6 +45,12 @@ from superclaude.cli.roadmap.remediate import (
     generate_remediation_tasklist,
 )
 from superclaude.cli.roadmap.remediate_parser import parse_validation_report
+
+# sc:reflect M9 / D-REGRESSION-01: see test_executor.py for rationale --
+# mock-subprocess fixtures here exercise MERGE_GATE without invoking the
+# executor's set_id_registry_sidecar_path() call, so the fail-shut
+# Contract #9 check would reject the synthetic IDs.
+pytestmark = pytest.mark.usefixtures("_merge_gate_id_registry_sidecar")
 
 
 def _now():

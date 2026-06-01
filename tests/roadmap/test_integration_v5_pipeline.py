@@ -23,6 +23,8 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+import pytest
+
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import Step, StepResult, StepStatus
 from superclaude.cli.roadmap.executor import (
@@ -44,6 +46,12 @@ from superclaude.cli.roadmap.remediate import (
     _parse_routing_list,
     deviations_to_findings,
 )
+
+# sc:reflect M9 / D-REGRESSION-01: see test_executor.py for rationale.
+# Mock-subprocess pipeline tests (SC-1..SC-6) reach MERGE_GATE without
+# the executor wiring that normally registers the sidecar; conftest
+# fixture provides a permissive registry for the duration of each test.
+pytestmark = pytest.mark.usefixtures("_merge_gate_id_registry_sidecar")
 
 # ──────────────────────────────────────────────────────────────────
 # Shared fixtures and helpers

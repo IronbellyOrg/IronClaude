@@ -304,8 +304,17 @@ def _build_passing_doc(gate_name: str) -> str:
     return _make_content(fm, body_lines) + "\n" + body
 
 
+@pytest.mark.usefixtures("_merge_gate_id_registry_sidecar")
 class TestAllGatesPass:
-    """Verify our passing fixtures actually pass each gate (test the test)."""
+    """Verify our passing fixtures actually pass each gate (test the test).
+
+    sc:reflect M9 / D-REGRESSION-01: the ``merge`` parametrize case
+    exercises MERGE_GATE, which carries the fail-shut Contract #9
+    ``_roadmap_ids_within_spec`` check (R0.1). The passing fixture emits
+    synthetic FR-NNN IDs that are not in any real spec; conftest fixture
+    registers a permissive sidecar so the check passes during this test.
+    Other parametrize cases (non-merge gates) ignore the sidecar.
+    """
 
     @pytest.mark.parametrize("gate_name,gate", ALL_GATES)
     def test_passing_fixture_passes(self, gate_name, gate, tmp_path):

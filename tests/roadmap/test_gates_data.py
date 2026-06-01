@@ -108,7 +108,10 @@ class TestGateInstances:
 
     def test_merge_gate_has_seven_semantic_checks(self):
         assert MERGE_GATE.enforcement_tier == "STRICT"
-        assert len(MERGE_GATE.semantic_checks) == 7
+        # 8th check added by R0.1 (Contract #9 _roadmap_ids_within_spec) --
+        # sc:reflect M9 / D-DRIFT-01. Test name retained for grep continuity;
+        # gate now carries 8 checks (7 structural + 1 ID-containment).
+        assert len(MERGE_GATE.semantic_checks) == 8
         check_names = {c.name for c in MERGE_GATE.semantic_checks}
         assert check_names == {
             "no_heading_gaps",
@@ -118,6 +121,7 @@ class TestGateInstances:
             "deliverable_table_schema",
             "no_template_sentinels",
             "template_sections_present",
+            "roadmap_ids_within_spec",
         }
 
     def test_score_gate_standard(self):

@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
     GateCriteria,
@@ -34,6 +36,13 @@ from superclaude.cli.roadmap.executor import (
     _write_deviation_analysis_output,
 )
 from superclaude.cli.roadmap.models import AgentSpec, Finding, RoadmapConfig
+
+# sc:reflect M9 / D-REGRESSION-01: mock-subprocess pipeline tests in this
+# module never invoke the executor's set_id_registry_sidecar_path() call,
+# so MERGE_GATE's fail-shut Contract #9 check would otherwise reject the
+# synthetic FR-*** IDs the fixtures emit. Conftest fixture registers a
+# permissive sidecar for the duration of each test.
+pytestmark = pytest.mark.usefixtures("_merge_gate_id_registry_sidecar")
 
 
 def _now():
