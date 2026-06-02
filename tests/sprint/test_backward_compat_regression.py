@@ -532,7 +532,7 @@ class TestBackwardCompatRegression:
         """All v1.2.1 enum values are preserved without modification."""
         # TaskStatus
         assert TaskStatus.PASS.value == "pass"
-        assert TaskStatus.FAIL.value == "fail"
+        assert TaskStatus.FAIL_TERMINAL.value == "fail"
         assert TaskStatus.INCOMPLETE.value == "incomplete"
         assert TaskStatus.SKIPPED.value == "skipped"
 

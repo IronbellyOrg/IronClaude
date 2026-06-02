@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging as _logging
 import re
 import shutil
@@ -321,7 +322,7 @@ def aggregate_task_results(
 
     report.tasks_total = len(task_results) + len(report.remaining_task_ids)
     report.tasks_passed = sum(1 for r in task_results if r.status == TaskStatus.PASS)
-    report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL)
+    report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL_TERMINAL)
     report.tasks_incomplete = sum(
         1 for r in task_results if r.status == TaskStatus.INCOMPLETE
     )
@@ -567,7 +568,7 @@ def run_post_task_wiring_hook(
                 blocking,
                 task.task_id,
             )
-            task_result.status = TaskStatus.FAIL
+            task_result.status = TaskStatus.FAIL_TERMINAL
             task_result.gate_outcome = GateOutcome.FAIL
 
             # T08/R4: Remediation lifecycle via callable interface (Constraint 7)
@@ -771,7 +772,7 @@ def run_post_phase_wiring_hook(
     if phase_result.status.is_success:
         synth_status = TaskStatus.PASS
     elif phase_result.status.is_failure:
-        synth_status = TaskStatus.FAIL
+        synth_status = TaskStatus.FAIL_TERMINAL
     else:
         synth_status = TaskStatus.SKIPPED
 
@@ -794,7 +795,7 @@ def run_post_phase_wiring_hook(
     )
 
     # Map back: if the wiring hook changed status to FAIL, propagate to PhaseResult
-    if updated_result.status == TaskStatus.FAIL and synth_status != TaskStatus.FAIL:
+    if updated_result.status == TaskStatus.FAIL_TERMINAL and synth_status != TaskStatus.FAIL_TERMINAL:
         phase_result.status = PhaseStatus.HALT
 
     return phase_result
@@ -891,7 +892,7 @@ def run_post_task_anti_instinct_hook(
     else:
         # SPEC-DEVIATION (BUG-009/P6): Spec says this path should delegate to
         # attempt_remediation() for retry-once semantics. We use inline fail logic
-        # (set GateOutcome.FAIL / TaskStatus.FAIL) as an intentional v3.1
+        # (set GateOutcome.FAIL / TaskStatus.FAIL_TERMINAL) as an intentional v3.1
         # simplification. attempt_remediation() has a 6-arg callable-based API
         # that requires more design work to integrate here safely. Deferred to v3.2.
         # See: gap-remediation-tasklist.md, T08 Option B.
@@ -907,7 +908,7 @@ def run_post_task_anti_instinct_hook(
             )
             task_result.gate_outcome = GateOutcome.FAIL
             if mode == "full":
-                task_result.status = TaskStatus.FAIL
+                task_result.status = TaskStatus.FAIL_TERMINAL
             return (task_result, gate_result)
 
         _anti_instinct_logger.warning(
@@ -919,7 +920,7 @@ def run_post_task_anti_instinct_hook(
 
         if mode == "full":
             # Full mode: fail the task
-            task_result.status = TaskStatus.FAIL
+            task_result.status = TaskStatus.FAIL_TERMINAL
 
     return (task_result, gate_result)
 
@@ -1017,7 +1018,7 @@ def execute_phase_tasks(
         elif exit_code == 124:
             status = TaskStatus.INCOMPLETE
         else:
-            status = TaskStatus.FAIL
+            status = TaskStatus.FAIL_TERMINAL
 
         # Reconcile budget: debit actual consumption, credit back pre-allocation
         if ledger is not None:
@@ -1283,6 +1284,7 @@ def execute_sprint(config: SprintConfig):
                     exit_code=0 if all_passed else 1,
                     started_at=started_at,
                     finished_at=datetime.now(timezone.utc),
+                    task_results=task_results,
                 )
 
                 # v3.2-T02: Run post-phase wiring hook for per-task phases too
@@ -1296,6 +1298,8 @@ def execute_sprint(config: SprintConfig):
 
                 sprint_result.phase_results.append(phase_result)
                 logger.write_phase_result(phase_result)
+                # v4.3.0-T06: persist phase result as JSON for rerun-tasks consumption
+                _write_phase_result_json(config, phase, phase_result)
                 # Refresh TUI with completed phase (current_phase=None resets active panel)
                 tui.update(sprint_result, MonitorState(), None)
                 continue
@@ -1602,6 +1606,8 @@ def execute_sprint(config: SprintConfig):
 
                 # Log and notify
                 logger.write_phase_result(phase_result)
+                # v4.3.0-T06: persist phase result as JSON for rerun-tasks consumption
+                _write_phase_result_json(config, phase, phase_result)
                 notify_phase_complete(phase_result)
 
                 tui.update(sprint_result, monitor.state, None)
@@ -2015,6 +2021,28 @@ def _write_preliminary_result(
             exc,
         )
         return False
+
+
+def _write_phase_result_json(config: SprintConfig, phase: Phase, result: PhaseResult) -> None:
+    """Persist a phase result as JSON for rerun-tasks consumption (TDD §T6).
+
+    Mirrors the atomic tmp+rename write convention from checkpoints.py so a
+    crash mid-write never leaves a truncated phase-N-result.json on disk.
+    """
+    payload = {
+        "phase": result.phase.number,
+        "status": result.status.value,
+        "exit_code": result.exit_code,
+        "started_at": result.started_at.isoformat(),
+        "finished_at": result.finished_at.isoformat(),
+        "task_results": [tr.to_dict() for tr in result.task_results],
+        "recovery_history": result.recovery_history,
+    }
+    out = config.phase_result_json(phase)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(payload, indent=2) + "\n")
+    tmp.replace(out)
 
 
 def _write_executor_result_file(

@@ -1013,7 +1013,7 @@ class TestTaskResult:
     def test_to_context_summary_compressed(self):
         tr = _make_task_result(
             task=_make_task_entry(task_id="T01.02"),
-            status=TaskStatus.FAIL,
+            status=TaskStatus.FAIL_TERMINAL,
             gate_outcome=GateOutcome.FAIL,
         )
         summary = tr.to_context_summary(verbose=False)

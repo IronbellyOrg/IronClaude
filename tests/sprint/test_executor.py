@@ -709,7 +709,7 @@ class TestPerTaskOrchestration:
         results, _, _gate_results = execute_phase_tasks(
             tasks, config, phase, _subprocess_factory=self._fail_factory
         )
-        assert results[0].status == TaskStatus.FAIL
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
         assert results[0].exit_code == 1
 
     def test_per_task_timeout_produces_incomplete(self, tmp_path):
@@ -832,7 +832,7 @@ class TestResultAggregation:
     def test_aggregate_mixed_results(self):
         results = [
             self._make_task_result("T02.01", TaskStatus.PASS, 3),
-            self._make_task_result("T02.02", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.02", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         assert report.tasks_total == 2
@@ -842,7 +842,7 @@ class TestResultAggregation:
 
     def test_aggregate_all_fail(self):
         results = [
-            self._make_task_result("T02.01", TaskStatus.FAIL, 3),
+            self._make_task_result("T02.01", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(2, results)
         assert report.status == "FAIL"
@@ -885,7 +885,7 @@ class TestResultAggregation:
 
     def test_to_markdown_halt_on_failure(self):
         results = [
-            self._make_task_result("T02.01", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.01", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         md = report.to_markdown()
@@ -895,7 +895,7 @@ class TestResultAggregation:
     def test_to_markdown_partial_halt(self):
         results = [
             self._make_task_result("T02.01", TaskStatus.PASS, 3),
-            self._make_task_result("T02.02", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.02", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         md = report.to_markdown()
@@ -936,7 +936,7 @@ class TestPhaseYamlReport:
         """YAML report contains all required fields from roadmap spec."""
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
-            self._make_task_result("T03.02", TaskStatus.FAIL, 3),
+            self._make_task_result("T03.02", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(3, results, budget_remaining=42)
         yaml_str = report.to_yaml()
@@ -964,7 +964,7 @@ class TestPhaseYamlReport:
         yaml = pytest.importorskip("yaml")
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
-            self._make_task_result("T03.02", TaskStatus.FAIL, 3),
+            self._make_task_result("T03.02", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(3, results, budget_remaining=20)
         yaml_str = report.to_yaml()
@@ -981,7 +981,7 @@ class TestPhaseYamlReport:
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
             self._make_task_result("T03.02", TaskStatus.PASS, 8),
-            self._make_task_result("T03.03", TaskStatus.FAIL, 2),
+            self._make_task_result("T03.03", TaskStatus.FAIL_TERMINAL, 2),
         ]
         report = aggregate_task_results(3, results, budget_remaining=35)
         yaml_str = report.to_yaml()
@@ -1136,7 +1136,7 @@ class TestIntegrationSubprocess:
         # Verify per-task statuses
         assert results[0].status == TaskStatus.PASS
         assert results[1].status == TaskStatus.PASS
-        assert results[2].status == TaskStatus.FAIL
+        assert results[2].status == TaskStatus.FAIL_TERMINAL
         assert results[3].status == TaskStatus.PASS
         assert results[4].status == TaskStatus.INCOMPLETE
 
