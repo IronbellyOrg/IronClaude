@@ -1,0 +1,68 @@
+deviation_ledger_version: "1.0"
+# §10 4-category taxonomy. Each finding has: file:line, mapped tasklist item, spec section, evidence, class, rationale.
+
+deviations:
+  - id: D-NECESSARY-01
+    class: necessary
+    file_ref: "src/superclaude/contracts/__init__.py:57-63 (ID_PATTERNS includes G + broadened NFR)"
+    mapped_tasklist_item: "Phase 4 / Step 4.1 — superclaude.contracts SoT module"
+    spec_section: "BUILD-REQUEST §MVR §5 (illustrative shape: FR/NFR/SC/D only, NFR-\\d+)"
+    rationale: "Phase 2 D1 deviation: G-family required to honor Contract #8 vs pre-existing spec_parser.py:328 extractor. NFR-\\d+(?:\\.\\d+)? broadened to preserve sc-reflect spec corpora using NFR-N.M sub-IDs. Both logged in contracts/__init__.py:40-49 comment block + contracts-consumer-sites.md §E with R1.1 reconciliation note."
+    detection_signals: ["inline comment block at ID_PATTERNS site", "task-log rationale", "no contradicting acceptance criterion"]
+    default_remediation: "documentation_note — R1.1 reconciles via widened SoT or NFR_SUB family"
+
+  - id: D-NECESSARY-02
+    class: necessary
+    file_ref: "phase-outputs/test-results/r0-acceptance-multimodelswarm-summary.md (Step 5.2 escape)"
+    mapped_tasklist_item: "Phase 5 / Step 5.2 — MultiModelSwarm acceptance rescan"
+    spec_section: "BUILD-REQUEST §R0 acceptance — 'currently-blocking pipeline run reaches anti-instinct PASS'"
+    rationale: "'superclaude roadmap audit' CLI subcommand does not exist (only run, validate, accept-spec-change). Pre-existing missing surface, not introduced by R0. Phase 3 escape precedent authorized direct Python invocation of obligation_scanner against the canonical roadmap.md. Result: undischarged=0, fingerprint_coverage=1.00 — acceptance gate satisfied at the scanner level."
+    detection_signals: ["task-log explicit citation", "CLI inspection via --help"]
+    default_remediation: "documentation_note — no R1 work item (state-discovery class, not pipeline correctness)"
+
+  - id: D-NECESSARY-03
+    class: necessary
+    file_ref: "src/superclaude/contracts/__init__.py:48-55 (anchor-free pattern bodies)"
+    mapped_tasklist_item: "Phase 4 / Step 4.1"
+    spec_section: "BUILD-REQUEST §MVR §5 (illustrative pattern bodies)"
+    rationale: "Bodies do NOT include \\b…\\b boundaries. Consumers wrap at compile time. Independently probed: \\bFR-\\d+(?:\\.\\d+)?\\b matches 'FR-001' inside 'Z-FR-001-X' (hyphen-prose substring hazard). This is the inherited behavior from spec_parser.py:328 — Contract #8 anti-duplication mandates reuse of the pre-existing extractor pattern, so this is a Necessary deviation: composability with non-word-boundary contexts (heading-anchored fidelity_checker.py variants) is the design rationale. R1.1 reconciles."
+    detection_signals: ["inline docstring rationale", "anti-duplication contract"]
+    default_remediation: "documentation_note — log substring-hazard for R1.1 review; current behavior matches legacy"
+
+  - id: D-DRIFT-01
+    class: drift
+    severity: HIGH
+    file_ref: "tests/roadmap/test_gates_data.py:111 (test_merge_gate_has_seven_semantic_checks)"
+    mapped_tasklist_item: "Phase 2 Step 2.4 — register _roadmap_ids_within_spec on MERGE_GATE"
+    spec_section: "BUILD-REQUEST §Contract item 9 — Spec↔Roadmap ID-set containment"
+    rationale: "R0.1 commit 6cee1eb1 added an 8th semantic_check to MERGE_GATE but did not update the assertion test that pinned the count at 7. PASSES on parent commit 91095144, FAILS on head bdfad6d3 with `assert 8 == 7`. No tasklist item mentioned updating this assertion. No commit-body rationale references it. No inline comment explains it. This is silent test drift introduced by the R0.1 change. Does not contradict spec acceptance criteria (the new check is correct; only the count assertion lagged), so it is Drift, not Regression."
+    detection_signals: ["unmapped diff impact", "no commit rationale", "no inline comment", "passes parent, fails head", "no contradiction with spec"]
+    default_remediation: "authorize_or_revert — update assertion to `== 8` (preferred — the new check is intended) OR backfill spec/tasklist with explicit 'update count assertion' step"
+
+  - id: D-REGRESSION-01
+    class: regression
+    severity: HIGH
+    file_refs:
+      - "tests/roadmap/test_executor.py::TestIntegrationMockSubprocess::test_full_pipeline_all_pass (assert 8 == 13)"
+      - "tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_steps_1_through_9_complete (assert 8 == 13)"
+      - "tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_state_with_all_12_steps (assert 8 == 13)"
+      - "tests/roadmap/test_integration_v5_pipeline.py::TestSC1PipelineComplete::test_pipeline_reaches_certify (assert 8 == 13)"
+      - "tests/roadmap/test_integration_v5_pipeline.py::TestSC1PipelineComplete::test_remediate_step_is_last (assert 'wiring-verification' == 'remediate')"
+      - "tests/roadmap/test_integration_v5_pipeline.py::TestSC1PipelineComplete::test_no_step_fails (assert 1 == 0)"
+      - "tests/roadmap/test_integration_v5_pipeline.py::TestCompleteV224PipelineFlow::test_full_pipeline_sc1_through_sc6 (Expected 13 results, got 8)"
+      - "tests/roadmap/test_eval_gate_rejection.py::TestAllGatesPass::test_passing_fixture_passes[merge-gate6] (FAILED)"
+    mapped_tasklist_item: "None — these failures were NOT identified by any inline rf-qa verdict"
+    spec_section: "BUILD-REQUEST Acceptance Gate #2 — 'All current passing tests in tests/roadmap/ still pass'"
+    rationale: "8 pipeline-integration tests pass on parent commit 91095144, FAIL on head bdfad6d3. These tests assert end-to-end pipeline behavior (8 vs 13 steps, presence of remediate as terminal step, eval-gate merge fixture pass). The failures appear to be a side-effect of the new MERGE_GATE._roadmap_ids_within_spec check failing-shut when the sidecar is not registered in the mock-subprocess test fixtures (the check returns a truthy string, not True). This contradicts BUILD-REQUEST Acceptance Gate #2 — a documented acceptance criterion. Pre-existing test state was 29 failures on parent; head has 38 — net +9 (one is the gates_data count drift above; the other 8 are this regression class). The R0 acceptance report's claim of '12 pre-existing test failures' is INCORRECT — only 3 of the 12 referenced are roadmap-suite, and the remaining 9 of head's roadmap failures are NEW introductions from this bridge diff."
+    detection_signals: ["contradicts BUILD-REQUEST Acceptance Gate #2", "passes parent, fails head", "8 tests at once = systemic", "unmapped to any tasklist item", "fail-shut sidecar logic likely root cause"]
+    default_remediation: "MUST FIX before R0 close — either (a) update test fixtures to register a sidecar via set_id_registry_sidecar_path before pipeline runs, or (b) make the MERGE_GATE check soft-pass (return True) when sidecar is intentionally absent in test mode (NOT recommended — defeats Contract #9 fail-shut). Path (a) is correct."
+
+deviation_counts_by_class:
+  authorized: 0
+  necessary: 3
+  drift: 1
+  regression: 1
+
+high_count: 2
+medium_count: 0
+critical_count: 0  # regression is HIGH not CRITICAL — fix is mechanical, scoped to test fixtures

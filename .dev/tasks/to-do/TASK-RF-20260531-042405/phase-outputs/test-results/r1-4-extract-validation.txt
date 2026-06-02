@@ -1,0 +1,32 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 20 items
+
+tests/roadmap/test_tool_write_step_extract.py::test_extract_schema_loads PASSED [  5%]
+tests/roadmap/test_tool_write_step_extract.py::test_extract_schema_id_pattern_matches_contracts PASSED [ 10%]
+tests/roadmap/test_tool_write_step_extract.py::test_valid_output_passes_schema PASSED [ 15%]
+tests/roadmap/test_tool_write_step_extract.py::test_phantom_field_type_fails PASSED [ 20%]
+tests/roadmap/test_tool_write_step_extract.py::test_render_parity PASSED [ 25%]
+tests/roadmap/test_tool_write_step_extract.py::test_render_step_tool_write_roundtrip PASSED [ 30%]
+tests/roadmap/test_tool_write_step_extract.py::test_render_step_tool_write_rejects_invalid PASSED [ 35%]
+tests/roadmap/test_tool_write_step_extract.py::test_validate_id_subset PASSED [ 40%]
+tests/roadmap/test_tool_write_step_extract.py::test_build_extract_prompt_tool_write_emits_json_contract PASSED [ 45%]
+tests/roadmap/test_prompts.py::TestDepthInstructions::test_quick_maps_to_1_round PASSED [ 50%]
+tests/roadmap/test_prompts.py::TestDepthInstructions::test_standard_maps_to_2_rounds PASSED [ 55%]
+tests/roadmap/test_prompts.py::TestDepthInstructions::test_deep_maps_to_3_rounds PASSED [ 60%]
+tests/roadmap/test_prompts.py::TestDepthInstructions::test_all_depth_values_present PASSED [ 65%]
+tests/roadmap/test_prompts.py::TestBuildDebatePrompt::test_quick_depth_includes_round_instruction PASSED [ 70%]
+tests/roadmap/test_prompts.py::TestBuildDebatePrompt::test_standard_depth_includes_2_rounds PASSED [ 75%]
+tests/roadmap/test_prompts.py::TestBuildDebatePrompt::test_deep_depth_includes_3_rounds PASSED [ 80%]
+tests/roadmap/test_prompts.py::TestBuildDebatePrompt::test_prompt_includes_frontmatter_instruction PASSED [ 85%]
+tests/roadmap/test_prompts.py::TestBuildDebatePrompt::test_each_depth_produces_different_prompts PASSED [ 90%]
+tests/roadmap/test_prompts.py::TestVocabularyConstraintInjection::test_generate_prompt_contains_constraint PASSED [ 95%]
+tests/roadmap/test_prompts.py::TestVocabularyConstraintInjection::test_merge_prompt_contains_constraint PASSED [100%]
+
+============================== 20 passed in 0.23s ==============================

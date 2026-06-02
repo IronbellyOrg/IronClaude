@@ -1,0 +1,104 @@
+# R1.4 Tool-Write Cutover Counters (Phase 9 / sc:reflect H5 hardening)
+#
+# Tracks side-by-side dual-write release cadence per Vector A:
+#   "stage one step at a time, side-by-side >=3 release cycles each before
+#    deletion of the markdown path."
+#
+# Lifecycle of each entry:
+#   * tool_write_flag_default == false  -> markdown path is the production
+#     default; the tool-write path is opt-in via --tool-write-<step>.
+#   * Each production release shipped with --tool-write-<step> true increments
+#     release_marker_count (manual increment via PR review; later automated via
+#     a release-cycle hook).
+#   * cutover_eligible becomes true once release_marker_count >= cutover_at_count.
+#   * Step 9.12 (cutover decision) iterates this file, asserts each step's
+#     cutover_eligible == true, then R1.6 flips tool_write_flag_default to true
+#     and deletes the markdown path. A premature cutover (count < 3) is
+#     HALT-blocked.
+#
+# Authored at Phase 9 start: every step begins at 0 cycles, all dual-write,
+# none cutover-eligible.
+
+cutover_at_count_default: 3
+
+steps:
+  # --- 9 primary LLM steps (Steps 9.2-9.10) ---
+  extract:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  extract_tdd:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  generate:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  diff:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  debate:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  score:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  merge:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  spec_fidelity:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  wiring_verification:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  # --- 4 secondary LLM steps (Step 9.11) ---
+  test_strategy:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  certify:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  validate_reflect:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3
+  remediation:
+    tool_write_flag_default: false
+    release_marker_count: 0
+    last_marker_release: ""
+    cutover_eligible: false
+    cutover_at_count: 3

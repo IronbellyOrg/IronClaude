@@ -1,0 +1,28 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 16 items
+
+tests/roadmap/test_tool_write_step_score.py::test_score_schema_loads PASSED [  6%]
+tests/roadmap/test_tool_write_step_score.py::test_valid_output_passes_schema PASSED [ 12%]
+tests/roadmap/test_tool_write_step_score.py::test_missing_base_selection_rationale_fails PASSED [ 18%]
+tests/roadmap/test_tool_write_step_score.py::test_missing_frontmatter_field_fails PASSED [ 25%]
+tests/roadmap/test_tool_write_step_score.py::test_per_criterion_requires_criterion PASSED [ 31%]
+tests/roadmap/test_tool_write_step_score.py::test_render_parity PASSED   [ 37%]
+tests/roadmap/test_tool_write_step_score.py::test_rendered_score_satisfies_gate_frontmatter PASSED [ 43%]
+tests/roadmap/test_tool_write_step_score.py::test_render_step_tool_write_roundtrip PASSED [ 50%]
+tests/roadmap/test_tool_write_step_score.py::test_render_step_tool_write_rejects_invalid PASSED [ 56%]
+tests/roadmap/test_tool_write_step_score.py::test_render_step_tool_write_dual_write_proof PASSED [ 62%]
+tests/roadmap/test_tool_write_step_score.py::test_score_registry_key_distinct PASSED [ 68%]
+tests/roadmap/test_tool_write_step_score.py::test_score_tool_definition PASSED [ 75%]
+tests/roadmap/test_tool_write_step_score.py::test_build_score_prompt_tool_write_emits_json_contract PASSED [ 81%]
+tests/roadmap/test_tool_write_step_score.py::test_build_score_prompt_default_byte_identical PASSED [ 87%]
+tests/roadmap/test_tool_write_step_score.py::test_score_schema_no_hardcoded_thresholds PASSED [ 93%]
+tests/roadmap/test_tool_write_step_score.py::test_score_thresholds_registry_sourced PASSED [100%]
+
+============================== 16 passed in 0.21s ==============================

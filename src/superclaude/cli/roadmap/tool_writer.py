@@ -330,11 +330,11 @@ TOOL_WRITE_REGISTRY: dict[str, ToolWriteSpec] = {
     # variant -- those are out of scope for this entry). The reflect step runs
     # under the validate sub-executor (validate_run_step), NOT roadmap_run_step,
     # so the tool-write render hook is added to validate_run_step (which reads the
-    # flag from ValidateConfig.tool_write_reflect). Routes to the PLAIN
+    # flag from ValidateConfig.tool_write_validate_reflect). Routes to the PLAIN
     # render_step_tool_write: reflect carries no roadmap_ids.
     "reflect": ToolWriteSpec(
         step_id="reflect",
-        config_flag="tool_write_reflect",
+        config_flag="tool_write_validate_reflect",
         schema_name="reflect.schema.json",
         template_name="reflect.md.j2",
     ),

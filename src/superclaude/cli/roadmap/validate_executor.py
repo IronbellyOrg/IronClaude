@@ -176,7 +176,7 @@ def validate_run_step(
     # against reflect.schema.json and render the markdown artifact
     # deterministically. validate_run_step has no RoadmapConfig dispatch (unlike
     # roadmap_run_step), so the hook lives here; it reads the opt-in flag from
-    # ValidateConfig.tool_write_reflect. The reflect step carries no roadmap_ids,
+    # ValidateConfig.tool_write_validate_reflect. The reflect step carries no roadmap_ids,
     # so it routes through the PLAIN render_step_tool_write (no id-check variant).
     from .tool_writer import TOOL_WRITE_REGISTRY, render_step_tool_write
 
@@ -302,7 +302,7 @@ def _build_single_agent_steps(
                 spec_file=str(spec_file) if spec_file else None,
                 tdd_file=str(tdd_file) if tdd_file else None,
                 prd_file=str(prd_file) if prd_file else None,
-                tool_write=getattr(config, "tool_write_reflect", False),
+                tool_write=getattr(config, "tool_write_validate_reflect", False),
             ),
             output_file=validate_dir / "validation-report.md",
             gate=REFLECT_GATE,

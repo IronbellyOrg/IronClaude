@@ -245,6 +245,13 @@ def roadmap_group():
     default=False,
     help="R1.4 dual-write: certify step (secondary) emits structured JSON rendered to markdown (opt-in).",
 )
+@click.option(
+    "--tool-write-remediate",
+    "tool_write_remediate",
+    is_flag=True,
+    default=False,
+    help="R1.4 surface-consistency: remediate prompt builder appends a structured-output hint (parity-only; no schema/render -- emits no roadmap-ID artifact).",
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -277,6 +284,7 @@ def run(
     tool_write_spec_fidelity: bool,
     tool_write_test_strategy: bool,
     tool_write_certify: bool,
+    tool_write_remediate: bool,
 ) -> None:
     """Run the roadmap generation pipeline on INPUT_FILES.
 
@@ -367,6 +375,7 @@ def run(
         "tool_write_spec_fidelity": tool_write_spec_fidelity,
         "tool_write_test_strategy": tool_write_test_strategy,
         "tool_write_certify": tool_write_certify,
+        "tool_write_remediate": tool_write_remediate,
     }
     if agent_specs is not None:
         config_kwargs["agents"] = agent_specs
@@ -445,8 +454,8 @@ def accept_spec_change(output_dir: Path) -> None:
     help="Enable debug logging.",
 )
 @click.option(
-    "--tool-write-reflect",
-    "tool_write_reflect",
+    "--tool-write-validate-reflect",
+    "tool_write_validate_reflect",
     is_flag=True,
     default=False,
     help="R1.4 dual-write: reflect step (secondary) emits structured JSON rendered to markdown (opt-in; single-agent path only).",
@@ -457,7 +466,7 @@ def validate(
     model: str,
     max_turns: int,
     debug: bool,
-    tool_write_reflect: bool,
+    tool_write_validate_reflect: bool,
 ) -> None:
     """Validate roadmap pipeline outputs in OUTPUT_DIR.
 
@@ -480,7 +489,7 @@ def validate(
         max_turns=max_turns,
         model=model,
         debug=debug,
-        tool_write_reflect=tool_write_reflect,
+        tool_write_validate_reflect=tool_write_validate_reflect,
     )
 
     counts = execute_validate(config)

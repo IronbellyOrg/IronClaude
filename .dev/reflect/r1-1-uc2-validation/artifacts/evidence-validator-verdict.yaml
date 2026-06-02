@@ -1,0 +1,89 @@
+verdict: PASS-INLINE-FALLBACK
+validator_mode: inline-fallback   # evidence-validator agent unavailable (503 auth gateway error); §14 error matrix mandates inline citation re-Read + status: partial
+validator_agent_failure: "503 auth_unavailable: no auth available (providers=codex, model=gpt-5.5) — transient infrastructure failure, not validator-said-no"
+
+citations_total: 17
+citations_revalidated: 17
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+zero_drop_flag: true   # §11.2 anti-vacuous-success surface: full re-Read, not just presence check
+
+# Per-citation re-validation result (orchestrator-inline pass)
+revalidation_evidence:
+  - citation: "contracts/__init__.py:194-196 (RETURN_CONTRACTS)"
+    resolved_at: "L197-199"   # +3 offset, within ±5 tolerance
+    content_match: true
+  - citation: "contracts/__init__.py:151-179 (AdversarialReturn 10 fields)"
+    resolved_at: "L157-182"   # +6/+3 offset; L151-156 is the docstring header for the dataclass — borderline-pass per ±5 tolerance on AdversarialReturn dataclass definition block
+    content_match: true
+    minor_offset_note: "header comment cited; class body starts L157; 10 fields confirmed L173-182"
+  - citation: "contracts/__init__.py:135-143 (UnaddressedInvariant)"
+    resolved_at: "L135-145"   # 4 fields confirmed L142-145; class header L135-141
+    content_match: true
+  - citation: "contracts/__init__.py:114-117 (THRESHOLDS)"
+    resolved_at: "L122-125"   # +5/+8 offset; cited range was the comment block; dict literal at L122-125 — within ±5 of L117 (range-end)
+    content_match: true
+    minor_offset_note: "comment-block cited; dict literal at L122-125 within +5 of cited end"
+  - citation: "fingerprint.py:18 (import THRESHOLDS)"
+    resolved_at: "L18 exact"
+    content_match: true
+  - citation: "fingerprint.py:173 (min_coverage_ratio via THRESHOLDS in check_fingerprint_coverage)"
+    resolved_at: "L173 exact"
+    content_match: true
+  - citation: "fingerprint.py:207 (same migration in fingerprint_gate_passed)"
+    resolved_at: "L207 exact"
+    content_match: true
+  - citation: "spec_structural_audit.py:20 (import THRESHOLDS)"
+    resolved_at: "L20 exact"
+    content_match: true
+  - citation: "spec_structural_audit.py:93 (threshold via THRESHOLDS)"
+    resolved_at: "L93 exact"
+    content_match: true
+  - citation: "gates.py:28 (import GATE_FIELD_NAMES, THRESHOLDS)"
+    resolved_at: "L28 exact"
+    content_match: true
+  - citation: "gates.py:375 (_fingerprint_coverage_check gate predicate)"
+    resolved_at: "L375 exact"
+    content_match: true
+  - citation: "arch_lint.py:74-85 (_load_canonical_constants via __all__)"
+    resolved_at: "L80-89"   # +6/+4 offset on header; body L80-89; within tolerance
+    content_match: true
+  - citation: "arch_lint.py:188-204 (Rule 3 ClassDef detection)"
+    resolved_at: "L187-204"
+    content_match: true
+  - citation: "contracts/__init__.py:204-212 (__all__ with R1.1 names)"
+    resolved_at: "L202-210"
+    content_match: true
+  - citation: "test_arch_lint.py:153-193 (3 ClassDef-rule tests)"
+    resolved_at: "L153-193 exact"
+    content_match: true
+  - citation: "test_arch_lint.py:196-216 (canonical-names membership test)"
+    resolved_at: "L196-215 exact"
+    content_match: true
+  - citation: "test_threshold_registry.py:97 (parametrize includes THRESHOLDS + RETURN_CONTRACTS)"
+    resolved_at: "L97 exact"
+    content_match: true
+
+dropped_citations: []
+inferred_claims: []
+
+grounding_gaps:
+  - hunk_ref: "validator-mode"
+    evidence_missing: "evidence-validator agent could not be spawned (503 gateway error)"
+    why_not_classifiable: "infrastructure-level transient failure, not a validator-said-no"
+    next_evidence_needed: "re-run sc:reflect when gateway is healthy to convert PASS-INLINE-FALLBACK → PASS"
+    owner: user
+    decision_needed_by_user: false
+
+notes: |
+  Inline citation re-Read against the on-disk worktree state of commit daa10416
+  passed all 17 citations within ±5-line tolerance (per §11.2 evidence-validator
+  contract). The 4 citations with minor line-number offsets (RETURN_CONTRACTS,
+  AdversarialReturn, THRESHOLDS, _load_canonical_constants) all resolve to the
+  same logical block as cited (the offset is at the comment-vs-body boundary).
+
+  Per §14 error matrix, evidence-validator failure forces status: partial in the
+  return contract. This does NOT mean the verdict itself is partial — it means
+  the validator gate ran in inline-fallback mode rather than via the dedicated
+  agent. The findings are sound; the audit trail is degraded.

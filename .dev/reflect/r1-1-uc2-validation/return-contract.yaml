@@ -1,0 +1,97 @@
+contract_version: "1.0"
+status: partial   # forced per §14 error matrix: evidence-validator agent unavailable → inline-fallback; verdict-itself is PASS
+mode: post
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/r1-1-uc2-validation/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/r1-1-uc2-validation/audit.log
+confidence_calibrated: 0.92
+escalation_rule_matched: null   # --tier 1 hard override; rubric not evaluated
+
+# UC-1 fields (n/a)
+coverage_pct: null
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: null
+
+# UC-2 fields
+tasklist_completion_pct: null   # the reflection target is the Phase-6 sub-tasklist (4 steps + 2 PGs); not a top-level multi-task tasklist for per_task_verdicts arithmetic
+deviation_count_by_class:
+  authorized: 1
+  necessary: 1
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/r1-1-uc2-validation/artifacts/spec-vs-diff-map.yaml
+grounding_gaps_path: /config/workspace/IronClaude/.dev/reflect/r1-1-uc2-validation/REPORT.md   # §G inline (1 row: validator unavailable)
+
+# Input integrity
+input_sha256:
+  tasklist: null   # this run used spec-vs-diff, not a tasklist
+  spec: "4782e56a503b191b811887ee90ab86e921631d10c8afcc88f1e2064535879c7e"
+input_tree_sha256: "see artifacts/input-snapshot.yaml file_list"
+input_tree_file_count: 9
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/reflect/r1-1-uc2-validation/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 17
+citations_revalidated: 17
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false   # the agent failed; inline-fallback used
+citation_revalidation_at_promotion: false   # n/a — Wave 7 skipped (gate fails on condition 3)
+
+# Tier 2 artifacts (n/a)
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false   # T1-only run; T2 not attempted
+merge_method: adversarial   # n/a but field required; no T2 ran
+t2_model_class_diversity: full   # n/a but field required (T1 path)
+t2_vendor_diversity: multi      # n/a but field required
+t2_effective_diversity: full    # n/a
+calibrator_diversity: degraded  # T1 inline calibration
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: true   # grounding-gaps non-empty (validator-unavailable row)
+
+# Per-task verdicts (n/a — single-phase reflection, not multi-task tasklist)
+per_task_verdicts: []
+
+# Cross-task interaction-effects (P3)
+interaction_effects_scanned: false   # mode is UC-2 but Phase 6 = single phase, not ≥3-task tasklist
+interaction_effects_findings: 0
+
+# Budget pre-flight (P5)
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (Wave 7 skipped — condition 3 fails)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

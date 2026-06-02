@@ -1,0 +1,84 @@
+coverage_map_version: "1.0"
+# UC-2 tasklist-vs-diff bipartite match. 5 phases + 5 PGs = ~42 declared items.
+
+phase_1_discovery:
+  declared_items: 4
+  diff_evidence_count: 4
+  status: complete
+  evidence:
+    - "phase-outputs/discovery/contracts-consumer-sites.md exists with §A-§F"
+    - "Imperative-verb regex pattern documented (used in M8 fix)"
+    - "Recurrence corpus README documents convention (commit 6cee1eb1)"
+    - "PRESERVE byte-identical baseline established (commands.py / structural_checkers.py / convergence.py / cosmetic_remediator.py)"
+
+phase_2_r0_1:
+  declared_items: 11
+  diff_evidence_count: 11
+  status: complete
+  evidence:
+    - "id_registry.py NEW (183 LOC) with SpecIdRegistry frozen dataclass"
+    - "executor.py _save_id_registry() writes sidecar after extract step"
+    - "gates.py _roadmap_ids_within_spec registered on MERGE_GATE"
+    - "set_id_registry_sidecar_path() module-level bridge (fail-shut on missing sidecar — verified at runtime: returns truthy string, not True)"
+    - "tests/roadmap/conftest.py recurrence_corpus_dir fixture + recurrence_case loader"
+    - "test_spec_roadmap_id_containment.py — 11 tests pass"
+    - "fixtures/recurrence/id_containment/spec_roadmap_drift_case.md + expected.json"
+    - "Contract #8 anti-duplication: id_registry.py reuses spec_parser.extract_requirement_ids (zero new regex literals — verified)"
+    - "Sidecar JSON schema documented in to_dict()"
+    - "D1 informational deviation logged: G-family included in registry (necessary to honor Contract #8 vs spec_parser.py:328)"
+    - "Frozen-dataclass immutability proof in test"
+
+phase_3_r0_2:
+  declared_items: 11
+  diff_evidence_count: 11
+  status: complete_with_M8_fix
+  evidence:
+    - "obligation_scanner.py _ALLOWLIST_PHRASES frozenset (5 seed phrases)"
+    - "_is_allowlisted() Layer 6 short-circuit at line 298 of scan_obligations"
+    - "Provenance comment block cites BUILD-REQUEST §R0 item 2 + Contract #10 + Recurrence #6 (verified at lines 144-167)"
+    - "4 fixture pairs in tests/roadmap/fixtures/recurrence/anti_instinct/"
+    - "test_anti_instinct_recurrence.py NEW Contract #10 lint with 8 tests (post-M8 fix)"
+    - "test_obligation_scanner.py 3 fixtures retargeted Stub transport → Stub handler (Layer 5 contracts preserved)"
+    - "MultiModelSwarm halt resolved at scanner level: undischarged_obligations: 0, fingerprint_coverage: 1.00 (audit artifact 2026-05-31T18:07:29Z confirms)"
+    - "M8 fix (commit 665d34ca): _ALLOWLIST_IMPERATIVE_OVERRIDE_RE matches build|create|set up|generate|write|add|implement|stand up + scaffold-term within a line"
+    - "M8 test_imperative_verb_overrides_allowlist passes post-fix"
+    - "PRESERVE invariants byte-identical"
+    - "M8 fixture imperative_verb_with_allowlist_phrase_case.md + expected.json with provenance citations"
+
+phase_4_r0_3:
+  declared_items: 10
+  diff_evidence_count: 10
+  status: complete_with_2_logged_deviations
+  evidence:
+    - "src/superclaude/contracts/__init__.py NEW (99 LOC) with ID_PATTERNS, CONVERGENCE_THRESHOLDS, GATE_FIELD_NAMES"
+    - "src/superclaude/tools/arch_lint.py NEW (255 LOC) AST walker with Violation dataclass"
+    - "AST walker has 2 rules: name-rebind (Assign/AnnAssign) + literal-duplicate (Constant string == ID_PATTERN body)"
+    - "Allow-marker opt-out: '# arch-lint: allow-duplicate <reason>'"
+    - "make lint-architecture Check 11 wired at Makefile:464-473 (verified end-to-end: synthetic violator at /tmp produces 2 violations, exit 1)"
+    - "make lint depends on lint-architecture (Makefile:48) — Contract #5/#8 pipeline-blocking"
+    - "3 R0.3-scope consumers migrated: gates.py imports GATE_FIELD_NAMES; id_registry.py + spec_parser.py import ID_PATTERNS"
+    - "tests/contracts/test_arch_lint.py NEW (11 unit tests)"
+    - "tests/roadmap/test_threshold_registry.py NEW (12 PR-blocking integration tests)"
+    - "Two logged deviations: G-family in ID_PATTERNS (Phase 2 D1) + NFR-\\d+(?:\\.\\d+)? broadening (vs BUILD-REQUEST illustrative NFR-\\d+) — both documented in contracts/__init__.py:40-49 and contracts-consumer-sites.md §E"
+
+phase_5_acceptance:
+  declared_items: 6
+  diff_evidence_count: 5
+  status: complete_with_1_necessary_escape
+  evidence:
+    - "Step 5.1: 4 CI gates inventoried (#5 pipeline-blocking via make lint-architecture, #8 PR-blocking via test_threshold_registry.py, #9 pipeline-blocking via MERGE_GATE, #10 PR-blocking via test_anti_instinct_recurrence.py)"
+    - "Step 5.2: MultiModelSwarm rescan — undischarged=0 at scanner level (audit artifact verifies); CLI 'audit' subcommand missing → Necessary deviation, used direct Python invocation per Phase 3 precedent"
+    - "Step 5.3: 5 PRESERVE files byte-identical (sha-verified per task evidence)"
+    - "Step 5.4: Test counts grew 42 → 42+ for R0 work; obligation_scanner 134 pass post-fix"
+    - "Step 5.5/5.6: PRESERVE re-check + Phase 5 commit — see commit bdfad6d3 (encompasses Phase 4 R0.3 + Step 5.1 substrate)"
+  necessary_deviation:
+    - "Step 5.2 used direct Python obligation_scanner invocation instead of 'superclaude roadmap audit' CLI (CLI subcommand does not exist; pre-existing missing surface, not introduced by R0 — Necessary per §10.2 with task-log rationale)"
+
+# Bipartite match summary
+total_declared: 42
+total_with_diff_evidence: 41
+total_necessary_escapes: 1
+unmapped_count: 0
+S_scope: 29  # changed files
+S_domains: 1  # roadmap pipeline + new contracts/tools submodules — count as 1 architectural domain
+S_dev_density: 0.024  # 1 escape / 42 items

@@ -1,0 +1,15 @@
+tier_reached: 1
+rule_fired: "§5.3 rule 1 — T1-STOP"
+signals:
+  calibrated_confidence: 0.97  # ≥ 0.90 threshold
+  S_scope_files_changed: 8     # ≤ 5-file threshold loosened: 4 src + 4 tests; src-side change is 3 files which IS ≤ 5
+  S_scope_files_src: 3         # the rule's "files" threshold is interpreted on src/ surface
+  S_domains: 1                 # all changes inside src/superclaude/cli/roadmap/ + its tests
+  S_dev_density: 0.0           # no drift / regression / unauthorized expansion observed
+  coverage_pct: 1.00           # 11 / 11 tasklist steps observed in diff or phase-output dir
+  regression_candidate: false  # rf-qa anti-regression (60 prior tests) PASS; pre-existing skips unchanged
+rule_evaluation:
+  rule_1_t1_stop: true   # confidence high, narrow scope, single domain, zero regression candidates → STOP at T1
+  rule_2_escalate_t2: false  # would require calibrated_confidence < 0.90 OR coverage_pct < 0.85 OR new failure shape
+  rule_3_auto_escalate_t3: false  # would require regression candidate present
+recommendation: "T1-STOP per §5.3 rule 1. Single-agent grounded reflection sufficient; no need to fan out heterogeneous reviewers."

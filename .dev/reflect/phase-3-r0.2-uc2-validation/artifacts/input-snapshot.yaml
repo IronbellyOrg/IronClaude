@@ -1,0 +1,19 @@
+wave: 0
+generated: "2026-06-01"
+commit_under_review: f41ea93128fdb4eeaa95e0f7553725378e57a544
+worktree: /config/workspace/IronClaude-RoadmapRewrite/
+diff_range: 6cee1eb1..f41ea931
+inputs:
+  tasklist:
+    path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/TASK-RF-20260531-042405.md
+    sha256: 37bcc988f5d60bf68d687c73a749675e562ddc8ddf5a514304de4879f2b79611
+  build_request:
+    path: /config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/troubleshoot/roadmap-pipeline-retrospective/wave4-task-spec/BUILD-REQUEST-roadmap-pipeline-rewrite.md
+    sha256: 4782e56a503b191b811887ee90ab86e921631d10c8afcc88f1e2064535879c7e
+scope: src/superclaude/cli/roadmap/
+diff_stat:
+  files_changed: 11
+  insertions: 433
+  deletions: 9
+preserve_targets_byte_identical: true
+inline_rfqa_independence: false  # executor self-review per task log

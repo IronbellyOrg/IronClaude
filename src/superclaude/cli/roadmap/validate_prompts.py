@@ -20,7 +20,7 @@ from .tool_writer import TEMPLATES_DIR, ToolDefinition, load_schema
 # shared with the markdown path; only the output contract differs. reflect carries
 # no roadmap_ids and has no §MVR §3 / Contract #3 phantom-ID constraint -- it is
 # rendered via the PLAIN render_step_tool_write. The executor hook lives in
-# validate_run_step (the validate sub-executor reads ValidateConfig.tool_write_reflect).
+# validate_run_step (the validate sub-executor reads ValidateConfig.tool_write_validate_reflect).
 _REFLECT_TOOL_WRITE_OUTPUT_BLOCK = (
     "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
     "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
@@ -100,7 +100,7 @@ def build_reflect_prompt(
         output contract differs. We deliberately do NOT append
         ``_OUTPUT_FORMAT_BLOCK`` in tool-write mode -- that block mandates YAML
         frontmatter, which is wrong for JSON. The tool-write render hook lives in
-        ``validate_run_step`` (which reads ``ValidateConfig.tool_write_reflect``).
+        ``validate_run_step`` (which reads ``ValidateConfig.tool_write_validate_reflect``).
     """
     has_inputs = any(f is not None for f in (spec_file, tdd_file, prd_file))
     dim_count = 9 if has_inputs else 7
@@ -220,7 +220,7 @@ def reflect_tool_definition() -> ToolDefinition:
 
     The reflect step runs under the validate sub-executor (``validate_run_step``),
     NOT ``roadmap_run_step``; the render hook reads
-    ``ValidateConfig.tool_write_reflect``.
+    ``ValidateConfig.tool_write_validate_reflect``.
     """
     return ToolDefinition(
         name="reflect",

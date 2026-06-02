@@ -1,0 +1,99 @@
+map_version: "1.0"
+mode: post
+spec_anchor: "BUILD-REQUEST §R1.1 + §MVR §5 + §Contract item #8"
+spec_path: ".dev/troubleshoot/roadmap-pipeline-retrospective/wave4-task-spec/BUILD-REQUEST-roadmap-pipeline-rewrite.md"
+commit_under_audit: "daa10416"
+parent: "1c56b50f"
+
+# §R1.1 prose decomposition into 3 spec items
+spec_items:
+  - id: "R1.1-A"
+    spec_text: "extend with full `RETURN_CONTRACTS`"
+    spec_anchor_line: 169
+    delivery_evidence:
+      - "src/superclaude/contracts/__init__.py:194-196 — RETURN_CONTRACTS dict declared"
+      - "src/superclaude/contracts/__init__.py:151-179 — AdversarialReturn dataclass (10 fields verbatim per sc-adversarial-protocol/SKILL.md:432-443)"
+      - "src/superclaude/contracts/__init__.py:135-143 — UnaddressedInvariant nested dataclass (frozen, for parent hashability)"
+    deviation_class: none
+    coverage: full
+    notes: |
+      §MVR §5 example shape `RETURN_CONTRACTS = {"sc:adversarial": AdversarialReturn}`
+      matched verbatim. Only sc:adversarial declares a programmatic return contract
+      today (return-contracts-scope.md §B). No fabrication of other entries.
+
+  - id: "R1.1-B"
+    spec_text: "threshold registry"
+    spec_anchor_line: 169
+    secondary_anchor: "§Contract #8 line 70"
+    delivery_evidence:
+      - "src/superclaude/contracts/__init__.py:114-117 — THRESHOLDS dict declared"
+      - "src/superclaude/cli/roadmap/fingerprint.py:18 — import THRESHOLDS"
+      - "src/superclaude/cli/roadmap/fingerprint.py:173 — min_coverage_ratio default via THRESHOLDS"
+      - "src/superclaude/cli/roadmap/fingerprint.py:207 — same migration in fingerprint_gate_passed"
+      - "src/superclaude/cli/roadmap/spec_structural_audit.py:20 — import THRESHOLDS"
+      - "src/superclaude/cli/roadmap/spec_structural_audit.py:93 — threshold default via THRESHOLDS"
+      - "src/superclaude/cli/roadmap/gates.py:28 — import GATE_FIELD_NAMES, THRESHOLDS"
+      - "src/superclaude/cli/roadmap/gates.py:375 — _fingerprint_coverage_check gate predicate via THRESHOLDS"
+    deviation_class: necessary
+    coverage: scoped
+    notes: |
+      §Contract #8 wording: "every numeric threshold...MUST be defined in
+      `src/superclaude/cli/roadmap/thresholds.py` (or equivalent SoT module)."
+      R1.1 chose `superclaude.contracts.THRESHOLDS` over `cli/roadmap/thresholds.py` —
+      explicitly Authorized by the parenthetical ("or equivalent SoT module"). Single
+      SoT location, hierarchical dotted keys, fully importable. Scope of threshold
+      coverage is `cli/roadmap/` per BUILD-REQUEST §Scope ("In: src/superclaude/cli/
+      roadmap/"); other CLI dirs (cli/audit, cli/sprint) are out of R1.1 explicit
+      scope per Phase 4 inventory and §Scope boundary.
+
+  - id: "R1.1-C"
+    spec_text: "arch-lint coverage"
+    spec_anchor_line: 169
+    delivery_evidence:
+      - "src/superclaude/tools/arch_lint.py:74-85 — _load_canonical_constants auto-discovers via __all__ (new constants picked up automatically)"
+      - "src/superclaude/tools/arch_lint.py:188-204 — new Rule 3 (ClassDef) catches dataclass shadowing"
+      - "src/superclaude/contracts/__init__.py:204-212 — __all__ includes the 4 R1.1 names"
+      - "tests/contracts/test_arch_lint.py:153-193 — 3 ClassDef-rule tests (positive/UnaddressedInvariant/allow-marker)"
+      - "tests/contracts/test_arch_lint.py:196-216 — canonical-names membership test"
+      - "tests/roadmap/test_threshold_registry.py:97 — parametrize includes THRESHOLDS + RETURN_CONTRACTS in single-definition-invariant"
+    deviation_class: none
+    coverage: full
+    notes: |
+      §Contract #8: "Test: tests/roadmap/test_threshold_registry.py asserts no
+      numeric threshold appears in >1 source location" — satisfied via the
+      parametrized test_constant_defined_exactly_once_in_src + the AST sentinel
+      test_no_orphan_threshold_literals_in_migrated_files which catches
+      re-inlining of 0.7/0.5 in the 4 migrated functions.
+
+# Diff hunks not mapped to a spec item (potential Drift candidates)
+unmapped_hunks: []
+
+# Phase 6 D3 informational deviation (logged in return-contracts-scope.md §F)
+authorized_expansions:
+  - id: "Phase 6 D3"
+    description: "gates.py:375 behavioral threshold migration added mid-Phase 6 — Phase 4 inventory missed it"
+    rationale: |
+      Phase 4 contracts-consumer-sites.md §C catalogued only the prose at gates.py:363,
+      365, 1481. Step 6.1 discovery (return-contracts-scope.md §F) found the live
+      `return float(value) >= 0.7` at L375. This site is in-scope per the literal
+      §Contract #8 wording ("every numeric threshold in cli/roadmap/"). Migration
+      added in Step 6.3.
+    classification: authorized_expansion
+
+# Necessary deviations
+necessary_deviations:
+  - id: "R1.1-B-Scope-Boundary"
+    description: "THRESHOLDS covers only the 2 cli/roadmap/ behavioral thresholds (fingerprint.coverage_min, structural_audit.adequacy_min); other CLI dirs not covered"
+    rationale: |
+      BUILD-REQUEST §Scope explicitly lists `src/superclaude/cli/roadmap/` as In
+      scope and other CLI dirs are not mentioned. §Contract #8 says "every numeric
+      threshold" but is bounded by §Scope. cli/audit/dir_assessment.py:59
+      (`if ratio > 0.5`) is non-roadmap labelling heuristic — out of R1.1 scope.
+      Documented in rf-qa verdict report §Informational notes #1.
+    classification: necessary_deviation
+
+# Drift (none)
+drift: []
+
+# Regression (none)
+regression: []

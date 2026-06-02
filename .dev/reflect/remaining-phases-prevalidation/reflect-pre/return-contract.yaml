@@ -1,0 +1,38 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude-RoadmapRewrite/.dev/reflect/remaining-phases-prevalidation/reflect-pre/REPORT.md
+
+# UC-1
+coverage_pct: 1.0
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 4
+
+# grounding
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+
+# verdict flags
+verdict: PROCEED
+must_fix_count: 0
+needs_human_decision: false
+user_decision_required: false
+
+advisory_items:
+  - "Key Objective 11 (L100) lists adversarial-integration.md, contradicting PRESERVE — documentation-only, logged in Follow-Up Items."
+  - "Some Phase 12 per-item line-count citations are stale (advisory; self-correct on execution)."
+
+gap_registry: []   # empty — every pending spec requirement has a covering item
+
+corrections_validated:
+  - "CI-vs-runtime code_assertion split (Phase 11 omission) CLOSED — PG11.1 checks j/k/l + Step 11.4"
+  - "Phase 10 verify-implementation grounds in run artifacts (envelope.spec_ids.fr_ids), not source tree"
+  - "Phase 9 remediate parity-only drops no §MVR §3 obligation (generate+merge carry roadmap_ids)"
+  - "Phase 13 baseline-delta acceptance bar satisfies Gate #2 intent (no-regression), not a weakening"
+  - "Step-count ≤14 holds (Phase 10 consolidates wiring-verification)"

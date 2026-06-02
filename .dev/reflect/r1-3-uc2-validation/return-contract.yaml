@@ -1,0 +1,44 @@
+contract_version: "1.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude-RoadmapRewrite/.dev/reflect/r1-3-uc2-validation/REPORT.md
+deviation_register_path: /config/workspace/IronClaude-RoadmapRewrite/.dev/reflect/r1-3-uc2-validation/deviation-ledger.yaml
+confidence_calibrated: 0.88
+escalation_rule_matched: 3   # UC-2 regression-candidate → ESCALATE
+
+# UC-2
+tasklist_completion_pct: 1.0   # all Phase 8 items 8.1-8.4 + PG8.1/PG8.2 checked
+deviation_count_by_class:
+  authorized: 2
+  necessary: 2
+  drift: 2
+  regression: 0
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+reviewer_cards:
+  - /config/workspace/IronClaude-RoadmapRewrite/.dev/reflect/r1-3-uc2-validation/reviewer-cards/card-sonnet.md
+  - /config/workspace/IronClaude-RoadmapRewrite/.dev/reflect/r1-3-uc2-validation/reviewer-cards/card-haiku.md
+merge_method: inline-adversarial   # heterogeneous sonnet+haiku, opus judge (distinct class)
+t2_model_class_diversity: full     # opus(executor, excluded) / sonnet+haiku(reviewers) / opus(calibrator+judge)
+calibrator_diversity: full
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false   # the 2 drift items are documented/grounded, not silent unauthorized
+needs_human_decision: true              # DEV-R13-001: fix now (Option B) vs defer to R1.6 with gate-bypass logged
+user_decision_required: true
+spec_is_wrong: false
+
+highest_severity_finding: DEV-R13-001   # HIGH — dynamic certify bypasses gate evaluation
+
+# Promotion (not applicable — task remains in-progress; reflect did not promote)
+promotion_action: not-applicable

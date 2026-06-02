@@ -106,9 +106,15 @@ def test_strategy_fixture() -> dict:
             "Defer cosmetic-remediation tests to a later sprint.",
         ],
         "acceptance_criteria": [
-            {"milestone": "M1", "criteria": "Extraction schema validates all fixtures."},
+            {
+                "milestone": "M1",
+                "criteria": "Extraction schema validates all fixtures.",
+            },
             {"milestone": "M3", "criteria": "Generate step rejects phantom IDs."},
-            {"milestone": "M6", "criteria": "Full pipeline produces a certified roadmap."},
+            {
+                "milestone": "M6",
+                "criteria": "Full pipeline produces a certified roadmap.",
+            },
         ],
         "quality_gates": [
             "All BLOCKING findings resolved before the next milestone.",
