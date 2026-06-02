@@ -187,6 +187,61 @@ class SprintLogger:
             }
         )
 
+    def write_phase_rerun_start(
+        self, phase: int, tasks: list[str], bundle_path: str, source_sha: str
+    ) -> None:
+        """Emit a `phase_rerun_start` JSONL event (TDD line 93/95)."""
+        self._jsonl(
+            {
+                "event": "phase_rerun_start",
+                "phase": phase,
+                "tasks": list(tasks),
+                "bundle": bundle_path,
+                "source_sha": source_sha,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
+    def write_task_rerun_complete(
+        self, phase: int, task_id: str, status: str, turns: int, duration_sec: float
+    ) -> None:
+        """Emit a `task_rerun_complete` JSONL event (TDD line 94/95)."""
+        self._jsonl(
+            {
+                "event": "task_rerun_complete",
+                "phase": phase,
+                "task_id": task_id,
+                "status": status,
+                "turns": turns,
+                "duration_sec": duration_sec,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
+    def write_phase_rerun_complete(
+        self,
+        phase: int,
+        status: str,
+        bundle_path: str,
+        *,
+        tasks_rerun: list[str],
+        tasks_passed: list[str],
+        tasks_failed: list[str],
+    ) -> None:
+        """Emit a `phase_rerun_complete` JSONL event (TDD line 95)."""
+        self._jsonl(
+            {
+                "event": "phase_rerun_complete",
+                "phase": phase,
+                "status": status,
+                "bundle": bundle_path,
+                "tasks_rerun": list(tasks_rerun),
+                "tasks_passed": list(tasks_passed),
+                "tasks_failed": list(tasks_failed),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
     def write_summary(self, sprint: SprintResult):
         """Write sprint summary to both logs."""
         self._jsonl(

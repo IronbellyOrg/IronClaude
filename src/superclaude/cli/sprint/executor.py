@@ -1017,6 +1017,8 @@ def execute_phase_tasks(
             status = TaskStatus.PASS
         elif exit_code == 124:
             status = TaskStatus.INCOMPLETE
+        elif _is_transient_failure(config.task_output_file(phase, task)):
+            status = TaskStatus.FAIL_RECOVERABLE
         else:
             status = TaskStatus.FAIL_TERMINAL
 
@@ -1775,6 +1777,31 @@ def _write_exit_sentinel(config: SprintConfig, exitcode: int) -> None:
         (state_dir / ".sprint-exitcode").write_text(str(exitcode))
     except OSError:
         pass
+
+
+def _is_transient_failure(output_path: Path) -> bool:
+    """Heuristic: was a task failure transient (retryable) rather than terminal?
+
+    Returns True when the transcript shows API-retry / connection-refused markers,
+    or its final non-blank JSON line has `is_error: true` and zero output tokens
+    (TDD §T6 lines 122-126). Degrades gracefully to False on any read/parse error.
+    """
+    try:
+        text = output_path.read_text(errors="replace")
+    except OSError:
+        return False
+    if "api_retry" in text or "ConnectionRefused" in text:
+        return True
+    for line in reversed(text.splitlines()):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            obj = json.loads(stripped)
+        except (ValueError, TypeError):
+            return False
+        return bool(obj.get("is_error") and obj.get("output_tokens", 1) == 0)
+    return False
 
 
 def _classify_from_result_file(
