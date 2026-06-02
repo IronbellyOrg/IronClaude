@@ -1018,7 +1018,7 @@ def _validate_merge_completeness(output_file: Path) -> list[str]:
     return missing
 
 
-def roadmap_run_step(
+def _roadmap_run_step_impl(
     step: Step,
     config: PipelineConfig,
     cancel_check: Callable[[], bool],
@@ -1027,6 +1027,11 @@ def roadmap_run_step(
 
     Builds argv with context isolation, launches process, waits with
     timeout, and returns StepResult.
+
+    R1.2 note: this is the pre-rewrite ``roadmap_run_step`` body, renamed
+    so the new ``roadmap_run_step`` wrapper can apply the post-step
+    PipelineEnvelope update after this returns. Behavior is otherwise
+    unchanged — every return path still produces the same StepResult.
     """
     started_at = datetime.now(timezone.utc)
 
@@ -1326,6 +1331,84 @@ def roadmap_run_step(
         started_at=started_at,
         finished_at=finished_at,
     )
+
+
+def _apply_post_step_envelope_update(step: Step, config: PipelineConfig) -> None:
+    """R1.2 dual-write: invoke the post-step extractor for ``step`` and persist envelope.json.
+
+    Best-effort: no-op when ``config.output_dir`` is missing, when
+    ``envelope.json`` hasn't been created yet (the extract step initializes
+    it via R0.1 wiring), or when no extractor is registered for
+    ``step.id``. Failures are logged but never raise — the markdown
+    pipeline must be unaffected during the dual-write phase per
+    BUILD-REQUEST §R1.2.
+
+    The post-extractor dispatch lives in
+    ``src/superclaude/cli/roadmap/envelope.py`` (:data:`POST_EXTRACTORS`
+    map + :func:`get_post_extractor` resolver). The resolver handles
+    dynamic ``generate-{agent.id}`` IDs via prefix-match.
+
+    Master:§Flaw 3 invariant: this helper does NOT write LLM output
+    directly into ``envelope.counts`` or ``envelope.findings`` — the
+    registered extractor derives counts deterministically from the
+    artifact via the ``spec_parser`` helpers.
+    """
+    if not hasattr(config, "output_dir") or getattr(config, "output_dir", None) is None:
+        return
+    envelope_path = Path(config.output_dir) / "envelope.json"
+    if not envelope_path.exists():
+        return
+    try:
+        from superclaude.cli.roadmap.envelope import (
+            get_post_extractor,
+            load_envelope,
+            save_envelope,
+        )
+
+        extractor = get_post_extractor(step.id)
+        if extractor is None:
+            return
+        envelope = load_envelope(envelope_path)
+        updated = extractor(step.output_file, envelope)
+        save_envelope(updated, envelope_path)
+    except Exception as exc:  # pragma: no cover - defensive
+        _log.warning(
+            "[R1.2 dual-write] envelope update failed for step '%s': %s",
+            step.id,
+            exc,
+        )
+
+
+def roadmap_run_step(
+    step: Step,
+    config: PipelineConfig,
+    cancel_check: Callable[[], bool],
+) -> StepResult:
+    """Roadmap StepRunner — R1.2 wrapper around :func:`_roadmap_run_step_impl`.
+
+    Adds a deterministic post-step :class:`PipelineEnvelope` update
+    (BUILD-REQUEST §R1.2, §MVR §1) after the inner implementation
+    produces its :class:`StepResult`. The inner implementation is the
+    pre-R1.2 ``roadmap_run_step`` body, renamed to
+    :func:`_roadmap_run_step_impl` and otherwise unmodified.
+
+    Dual-write semantics: markdown artifacts are still written by the
+    inner implementation; the envelope is updated additively after each
+    step. Gate logic continues to consume markdown until R1.3+ migrates
+    it to envelope reads.
+
+    .. note::
+       ``inspect.getsource(roadmap_run_step)`` now returns this wrapper
+       source rather than the inner implementation source. Tests
+       asserting properties of the LLM-subprocess command construction
+       (e.g.
+       ``tests/roadmap/test_cli_contract.py::test_no_session_flags``)
+       should inspect :func:`_roadmap_run_step_impl` instead. This is a
+       known follow-up captured in Phase 7 findings.
+    """
+    result = _roadmap_run_step_impl(step, config, cancel_check)
+    _apply_post_step_envelope_update(step, config)
+    return result
 
 
 class _ClaudeRunner:
