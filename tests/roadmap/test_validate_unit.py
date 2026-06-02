@@ -29,7 +29,7 @@ class TestValidateConfigDefaults:
         config = ValidateConfig()
         assert len(config.agents) == 2
         assert config.agents[0].model == "opus"
-        assert config.agents[1].model == "haiku"
+        assert config.agents[1].model == "sonnet"
 
     def test_custom_single_agent(self):
         config = ValidateConfig(agents=[AgentSpec("sonnet", "security")])

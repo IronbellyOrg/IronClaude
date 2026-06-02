@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Optional
 
 from .models import SprintConfig, SprintResult
-from .summarizer import PhaseSummary, invoke_haiku
+from .summarizer import PhaseSummary, invoke_sonnet
 
 _logger = logging.getLogger("superclaude.sprint.retrospective")
 
@@ -334,7 +334,7 @@ class RetrospectiveGenerator:
         """
         if not retro.phase_outcomes:
             return ""
-        return invoke_haiku(_build_retrospective_narrative_prompt(retro))
+        return invoke_sonnet(_build_retrospective_narrative_prompt(retro))
 
     def write(self, retro: ReleaseRetrospective) -> Optional[Path]:
         target = self.config.results_dir / "release-retrospective.md"
