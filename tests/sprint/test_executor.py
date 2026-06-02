@@ -709,7 +709,7 @@ class TestPerTaskOrchestration:
         results, _, _gate_results = execute_phase_tasks(
             tasks, config, phase, _subprocess_factory=self._fail_factory
         )
-        assert results[0].status == TaskStatus.FAIL
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
         assert results[0].exit_code == 1
 
     def test_per_task_timeout_produces_incomplete(self, tmp_path):
@@ -832,7 +832,7 @@ class TestResultAggregation:
     def test_aggregate_mixed_results(self):
         results = [
             self._make_task_result("T02.01", TaskStatus.PASS, 3),
-            self._make_task_result("T02.02", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.02", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         assert report.tasks_total == 2
@@ -842,7 +842,7 @@ class TestResultAggregation:
 
     def test_aggregate_all_fail(self):
         results = [
-            self._make_task_result("T02.01", TaskStatus.FAIL, 3),
+            self._make_task_result("T02.01", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(2, results)
         assert report.status == "FAIL"
@@ -885,7 +885,7 @@ class TestResultAggregation:
 
     def test_to_markdown_halt_on_failure(self):
         results = [
-            self._make_task_result("T02.01", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.01", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         md = report.to_markdown()
@@ -895,7 +895,7 @@ class TestResultAggregation:
     def test_to_markdown_partial_halt(self):
         results = [
             self._make_task_result("T02.01", TaskStatus.PASS, 3),
-            self._make_task_result("T02.02", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.02", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         md = report.to_markdown()
@@ -936,7 +936,7 @@ class TestPhaseYamlReport:
         """YAML report contains all required fields from roadmap spec."""
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
-            self._make_task_result("T03.02", TaskStatus.FAIL, 3),
+            self._make_task_result("T03.02", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(3, results, budget_remaining=42)
         yaml_str = report.to_yaml()
@@ -964,7 +964,7 @@ class TestPhaseYamlReport:
         yaml = pytest.importorskip("yaml")
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
-            self._make_task_result("T03.02", TaskStatus.FAIL, 3),
+            self._make_task_result("T03.02", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(3, results, budget_remaining=20)
         yaml_str = report.to_yaml()
@@ -981,7 +981,7 @@ class TestPhaseYamlReport:
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
             self._make_task_result("T03.02", TaskStatus.PASS, 8),
-            self._make_task_result("T03.03", TaskStatus.FAIL, 2),
+            self._make_task_result("T03.03", TaskStatus.FAIL_TERMINAL, 2),
         ]
         report = aggregate_task_results(3, results, budget_remaining=35)
         yaml_str = report.to_yaml()
@@ -1136,7 +1136,7 @@ class TestIntegrationSubprocess:
         # Verify per-task statuses
         assert results[0].status == TaskStatus.PASS
         assert results[1].status == TaskStatus.PASS
-        assert results[2].status == TaskStatus.FAIL
+        assert results[2].status == TaskStatus.FAIL_TERMINAL
         assert results[3].status == TaskStatus.PASS
         assert results[4].status == TaskStatus.INCOMPLETE
 
@@ -1505,6 +1505,127 @@ class TestTimeoutFormulaConsistency:
             assert step.timeout_seconds == want, (
                 f"max_turns={mt}: expected {want}s, got {step.timeout_seconds}"
             )
+
+
+class TestPhaseResultJsonWrite:
+    """Tests for _write_phase_result_json — v4.3.0 phase-N-result.json (TDD §T6)."""
+
+    @staticmethod
+    def _make_task_result(
+        task_id: str, status: TaskStatus, turns: int = 3
+    ) -> TaskResult:
+        return TaskResult(
+            task=TaskEntry(task_id=task_id, title=f"Task {task_id}"),
+            status=status,
+            turns_consumed=turns,
+            exit_code=0 if status == TaskStatus.PASS else 1,
+        )
+
+    def _make_phase_result(self, phase, task_results, *, all_passed):
+        from superclaude.cli.sprint.models import PhaseResult
+
+        now = datetime.now(timezone.utc)
+        return PhaseResult(
+            phase=phase,
+            status=PhaseStatus.PASS if all_passed else PhaseStatus.ERROR,
+            exit_code=0 if all_passed else 1,
+            started_at=now,
+            finished_at=now,
+            task_results=task_results,
+        )
+
+    def test_phase_result_json_written_at_phase_end(self, tmp_path):
+        """After the phase result is persisted, phase-N-result.json exists."""
+        from superclaude.cli.sprint.executor import _write_phase_result_json
+
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        task_results = [self._make_task_result("T01.01", TaskStatus.PASS, 3)]
+        phase_result = self._make_phase_result(
+            phase, task_results, all_passed=True
+        )
+
+        _write_phase_result_json(config, phase, phase_result)
+
+        out = config.phase_result_json(phase)
+        assert out.exists()
+        assert out.name == "phase-1-result.json"
+
+    def test_phase_result_json_includes_task_results_and_status(self, tmp_path):
+        """Parsed JSON has a populated task_results array and a correct status."""
+        import json
+
+        from superclaude.cli.sprint.executor import _write_phase_result_json
+
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        task_results = [
+            self._make_task_result("T01.01", TaskStatus.PASS, 3),
+            self._make_task_result("T01.02", TaskStatus.FAIL_TERMINAL, 5),
+        ]
+        phase_result = self._make_phase_result(
+            phase, task_results, all_passed=False
+        )
+
+        _write_phase_result_json(config, phase, phase_result)
+
+        payload = json.loads(config.phase_result_json(phase).read_text())
+        assert payload["phase"] == 1
+        # ERROR phase status serializes to its enum value
+        assert payload["status"] == PhaseStatus.ERROR.value
+        assert payload["exit_code"] == 1
+        assert isinstance(payload["task_results"], list)
+        assert len(payload["task_results"]) == 2
+        ids = [tr["task"]["task_id"] for tr in payload["task_results"]]
+        assert ids == ["T01.01", "T01.02"]
+        assert payload["task_results"][0]["status"] == TaskStatus.PASS.value
+        assert (
+            payload["task_results"][1]["status"] == TaskStatus.FAIL_TERMINAL.value
+        )
+
+
+class TestFailClassificationHeuristic:
+    """Tests for the transient/terminal classification ladder (TDD §T6).
+
+    Drives _is_transient_failure directly — the same helper the executor's
+    status ladder (executor.py:1020-1023) consults to choose between
+    FAIL_RECOVERABLE and FAIL_TERMINAL for a non-zero, non-timeout exit.
+    """
+
+    def _classify(self, output_path: Path) -> TaskStatus:
+        """Mirror the executor ladder for a failing (exit_code != 0/124) task."""
+        from superclaude.cli.sprint.executor import _is_transient_failure
+
+        if _is_transient_failure(output_path):
+            return TaskStatus.FAIL_RECOVERABLE
+        return TaskStatus.FAIL_TERMINAL
+
+    def test_transient_proxy_error_classified_fail_recoverable(self, tmp_path):
+        """A transient trigger (is_error + zero output tokens) → FAIL_RECOVERABLE."""
+        output = tmp_path / "task-output.txt"
+        output.write_text(
+            '{"type":"content","text":"calling tool"}\n'
+            '{"type":"result","is_error":true,"output_tokens":0}\n'
+        )
+        assert self._classify(output) == TaskStatus.FAIL_RECOVERABLE
+
+    def test_transient_connection_refused_classified_fail_recoverable(
+        self, tmp_path
+    ):
+        """The ConnectionRefused marker is also a transient trigger."""
+        output = tmp_path / "task-output.txt"
+        output.write_text("Error: ConnectionRefused while reaching API\n")
+        assert self._classify(output) == TaskStatus.FAIL_RECOVERABLE
+
+    def test_assertion_error_classified_fail_terminal(self, tmp_path):
+        """is_error: true but NON-zero output tokens and no marker → FAIL_TERMINAL."""
+        output = tmp_path / "task-output.txt"
+        output.write_text(
+            '{"type":"content","text":"running tests"}\n'
+            '{"type":"result","is_error":true,"output_tokens":512,'
+            '"text":"AssertionError: expected 3 got 4"}\n'
+        )
+        assert self._classify(output) == TaskStatus.FAIL_TERMINAL
 
 
 def test_run_task_subprocess_uses_task_output_file(tmp_path):

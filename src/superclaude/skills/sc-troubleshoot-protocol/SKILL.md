@@ -401,6 +401,8 @@ Verification command (run before publishing): for each `tier2-*-hypothesis.md` (
    - Risk + Rollback (what to watch after applying)
    - Next Steps (Tier 1: rerun with `--depth deep` if needed; Tier 2 without `--fix`: re-invoke with `--fix` to authorize remediation; Tier 2 with `--fix`: confirm to proceed to Wave 6)
 
+   **Sprint-failure recovery hint.** When the diagnosed target is a `superclaude sprint run` phase that failed on a *subset* of its tasks from a transient cause (API outage, timeout, rate limit — not a logic defect), the Proposed Fix / Next Steps SHOULD surface `superclaude sprint rerun-tasks <tasklist-index.md> --phase N --tasks T<…>` as the surgical recovery: it re-executes only the named failed tasks and merges results back, instead of re-running the whole phase via `--start N`. Recommend `--dry-run` first to preview the plan, and note `--restore` rolls back a botched merge. (Per-task statuses live in `phase-N-result.json`; tasks classified `fail_recoverable` are the usual candidates.)
+
    When `--no-doc-discovery` was set, omit the Documentation Context section entirely AND populate the Grounding Gaps section with: "Documentation grounding skipped by `--no-doc-discovery` — diagnosis is not weighted against documented behavior or restrictions."
 
    When `diagnosability_hard_stop=true`, replace the Diagnosis section with a "Halted — instrumentation required" prose block referencing the diagnosability tasklist (template in refs/report-template.md). When `--depth deep` is set AND `diagnosability_verdict ∈ {insufficient, partial}`, render the top-of-report Diagnosability Caveat banner above the Summary section (template in refs/report-template.md).

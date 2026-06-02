@@ -331,7 +331,7 @@ class TestAntiInstinctPath:
         )
 
         # 1. TaskStatus/GateOutcome: FAIL in full mode when gate fails
-        assert result.status == TaskStatus.FAIL
+        assert result.status == TaskStatus.FAIL_TERMINAL
         assert result.gate_outcome == GateOutcome.FAIL
 
         # 2. TurnLedger: no credit (gate failed)
@@ -364,7 +364,7 @@ class TestAntiInstinctPath:
                 "shadow_failed": 1,
             },
             verdict="PASS",
-            evidence="full mode: empty output → gate FAIL → TaskStatus.FAIL, metrics recorded",
+            evidence="full mode: empty output → gate FAIL → TaskStatus.FAIL_TERMINAL, metrics recorded",
         )
 
 
@@ -613,7 +613,7 @@ class TestWiringPath:
             )
 
         # 1. TaskStatus/GateOutcome: FAIL (blocking findings, remediation failed)
-        assert result.status == TaskStatus.FAIL
+        assert result.status == TaskStatus.FAIL_TERMINAL
         assert result.gate_outcome == GateOutcome.FAIL
 
         # 2. TurnLedger: wiring debited + remediation cost debited
@@ -815,7 +815,7 @@ class TestBudgetExhaustion:
             )
 
         # 1. FAIL persists (remediation skipped due to budget)
-        assert result.status == TaskStatus.FAIL
+        assert result.status == TaskStatus.FAIL_TERMINAL
         assert result.gate_outcome == GateOutcome.FAIL
 
         # 2. Wiring analysis ran (debit occurred) but remediation did not

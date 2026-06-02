@@ -88,3 +88,54 @@ class TestCLIContract:
     def test_invalid_subcommand(self):
         result = self.runner.invoke(sprint_group, ["nonexistent"])
         assert result.exit_code != 0
+
+
+class TestRerunTasksContract:
+    """rerun-tasks subcommand matches its documented CLI contract."""
+
+    def setup_method(self):
+        self.runner = CliRunner()
+
+    def test_rerun_tasks_listed_in_group_help(self):
+        result = self.runner.invoke(sprint_group, ["--help"])
+        assert result.exit_code == 0
+        assert "rerun-tasks" in result.output
+
+    def test_rerun_tasks_help_exposes_documented_options(self):
+        result = self.runner.invoke(sprint_group, ["rerun-tasks", "--help"])
+        assert result.exit_code == 0
+        # Required argument
+        assert "INDEX_PATH" in result.output or "index_path" in result.output.lower()
+        # Documented options
+        assert "--phase" in result.output
+        assert "--tasks" in result.output
+        assert "--from-reflect-report" in result.output
+        assert "--merge-back" in result.output
+        assert "--no-merge-back" in result.output
+        assert "--dry-run" in result.output
+        assert "--include-transitive" in result.output
+        assert "--ignore-deps" in result.output
+        assert "--force-merge" in result.output
+        assert "--allow-loop" in result.output
+        assert "--no-verify-checkpoints" in result.output
+        assert "--bundle-dir" in result.output
+        assert "--restore" in result.output
+
+    def test_rerun_tasks_reflect_report_mutually_exclusive(self):
+        # CLAUDE.md is a guaranteed-existing path so the exists=True checks pass
+        # and execution reaches the mutual-exclusion guard.
+        result = self.runner.invoke(
+            sprint_group,
+            ["rerun-tasks", "CLAUDE.md", "--from-reflect-report", "CLAUDE.md", "--tasks", "T1"],
+        )
+        assert result.exit_code != 0
+        assert "mutually exclusive" in result.output
+
+    def test_rerun_tasks_requires_phase_without_reflect_report(self):
+        result = self.runner.invoke(sprint_group, ["rerun-tasks", "CLAUDE.md"])
+        assert result.exit_code != 0
+        assert "--phase is required" in result.output
+
+    def test_rerun_tasks_help_exits_cleanly(self):
+        result = self.runner.invoke(sprint_group, ["rerun-tasks", "--help"])
+        assert result.exit_code == 0, f"rerun-tasks --help failed: {result.output}"

@@ -86,7 +86,7 @@ class TestContextInjectionSingleTask:
     @pytest.mark.context_injection_test
     def test_context_injection_test_single_task_exit_code(self):
         """Exit code appears in verbose context summary."""
-        r = _result(task_id="T01.01", exit_code=1, status=TaskStatus.FAIL)
+        r = _result(task_id="T01.01", exit_code=1, status=TaskStatus.FAIL_TERMINAL)
         ctx = build_task_context([r])
         assert "Exit code" in ctx
         assert "1" in ctx
@@ -162,7 +162,7 @@ class TestContextInjectionFiveTasks:
         """Mixed pass/fail/incomplete statuses all reflected."""
         results = [
             _result(task_id="T01.01", status=TaskStatus.PASS),
-            _result(task_id="T01.02", status=TaskStatus.FAIL),
+            _result(task_id="T01.02", status=TaskStatus.FAIL_TERMINAL),
             _result(task_id="T01.03", status=TaskStatus.INCOMPLETE),
             _result(task_id="T01.04", status=TaskStatus.PASS),
             _result(task_id="T01.05", status=TaskStatus.SKIPPED),
@@ -275,7 +275,7 @@ class TestContextInjectionMixedOutcomes:
             _result(task_id="T01.01", status=TaskStatus.PASS, gate=GateOutcome.PASS),
             _result(
                 task_id="T01.02",
-                status=TaskStatus.FAIL,
+                status=TaskStatus.FAIL_TERMINAL,
                 gate=GateOutcome.FAIL,
                 reimbursement=5,
             ),
