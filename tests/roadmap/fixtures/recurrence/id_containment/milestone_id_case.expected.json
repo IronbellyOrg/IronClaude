@@ -1,0 +1,24 @@
+{
+  "fixture": "id_containment/milestone_id_case",
+  "source_authority": {
+    "master_recurrence_row": 4,
+    "partition_finding": "A12:F-A12-01",
+    "incident_summary": "TUIBBS v1-MVP milestone-prefixed M{n}-D{nn} IDs mis-tokenized as bare-D produced 51 HIGH + 3 MEDIUM phantom_id/id_schema_drift; fixed by R5 MD-family + canonicalizer + Explicit-non-references allowlist (PR #111 / 861047c2)"
+  },
+  "spec_section_heading": "spec",
+  "roadmap_section_heading": "roadmap",
+  "expected_spec_ids": {
+    "fr_ids": ["FR-1"],
+    "nfr_ids": ["NFR-1"],
+    "sc_ids": [],
+    "g_ids": [],
+    "d_ids": [],
+    "md_ids": ["M1-D01", "M1-D02", "M2-D01", "M2-D02", "M3-D01"]
+  },
+  "expected_phantom_violations": [],
+  "expected_signatures_findings_count": 0,
+  "expected_semantic_check_result_type": "bool",
+  "expected_contains_fr_1": true,
+  "expected_milestone_ids_resolve_distinctly": true,
+  "notes": "Post-fix oracle: MD family resolves M1-D01 != M2-D01 distinctly; bare-D indices D01..D05 are allowlisted via the Explicit non-references annotation. Zero phantom_id/id_schema_drift findings. Pre-fix this case produced milestone-ID bare-D phantoms (the recurrence)."
+}

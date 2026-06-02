@@ -1,0 +1,35 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude-RoadmapRewrite/.dev/reflect/pre-pr112-111-remediation-20260602/REPORT.md
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # rule 4 nominally suggested T2; capped at T1 with logged rationale (prior heterogeneous gate stack)
+
+# UC-1 specific
+coverage_pct: 1.0
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 5
+
+# Hallucination guard
+citations_total: 25
+citations_revalidated: 25
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Gap registry
+gap_count_by_severity:
+  critical: 0
+  high: 0
+  medium: 0
+  low: 1            # G1 — PR #111 close deferred to operator (accept-as-designed)
+
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+
+verdict: GO
+recommendation: "Execute with /task. Coverage 1.0, best-practice 5/5, sequencing sound. Only LOW finding (G1) is accept-as-designed."

@@ -384,6 +384,8 @@ def envelope_from_dict(d: dict) -> PipelineEnvelope:
         sc_ids=tuple(spec_ids_d.get("sc_ids", ())),
         g_ids=tuple(spec_ids_d.get("g_ids", ())),
         d_ids=tuple(spec_ids_d.get("d_ids", ())),
+        # R5: .get(..., ()) so OLD envelope dicts lacking md_ids round-trip to empty.
+        md_ids=tuple(spec_ids_d.get("md_ids", ())),
         accepted_deviation_ids=tuple(spec_ids_d.get("accepted_deviation_ids", ())),
         spec_hash=spec_ids_d["spec_hash"],
         spec_path=Path(spec_ids_d["spec_path"]),

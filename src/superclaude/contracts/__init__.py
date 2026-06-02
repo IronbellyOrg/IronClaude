@@ -62,6 +62,13 @@ from typing import Final
 # variants in `fidelity_checker.py` — migrated in R1.1 Step 6.3).
 # ---------------------------------------------------------------------------
 ID_PATTERNS: Final[dict[str, str]] = {
+    # MD ordered BEFORE D: milestone-prefixed deliverable IDs (M{n}-D{nn}) form
+    # their own family rather than being silently collapsed under the bare-D family.
+    # Ported from PR #111 (fix/roadmap-md-family-tokenizer-canonicalizer, commit
+    # 861047c2) as the contracts-SoT body; consumers (spec_parser, structural_checkers)
+    # source it from here — the regex literal is NOT re-inlined (Contract #8 / arch-lint
+    # Rule 2). The bare-D trailing portion is de-duplicated in spec_parser.extract_requirement_ids.
+    "MD": r"M\d+-D-?\d+",
     "FR": r"FR-\d+(?:\.\d+)?",
     "NFR": r"NFR-\d+(?:\.\d+)?",  # broader than BUILD-REQUEST verbatim — see §E
     "SC": r"SC-\d+",

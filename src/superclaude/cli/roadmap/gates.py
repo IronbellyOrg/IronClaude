@@ -1093,6 +1093,8 @@ def _roadmap_ids_within_spec(content: str) -> bool | str:
             sc_ids=tuple(payload.get("sc_ids", ())),
             g_ids=tuple(payload.get("g_ids", ())),
             d_ids=tuple(payload.get("d_ids", ())),
+            # R5: .get("md_ids", ()) so OLD sidecars lacking the key round-trip to empty.
+            md_ids=tuple(payload.get("md_ids", ())),
             accepted_deviation_ids=tuple(payload.get("accepted_deviation_ids", ())),
             spec_hash=str(payload.get("spec_hash", "")),
             spec_path=Path(str(payload.get("spec_path", ""))),

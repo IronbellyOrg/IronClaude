@@ -664,12 +664,13 @@ def _save_id_registry(spec_file: Path, output_dir: Path) -> Path:
     set_id_registry_sidecar_path(sidecar)
 
     _log.info(
-        "Persisted spec_id_registry.json (%d FR / %d NFR / %d SC / %d G / %d D / %d accepted)",
+        "Persisted spec_id_registry.json (%d FR / %d NFR / %d SC / %d G / %d D / %d MD / %d accepted)",
         len(registry.fr_ids),
         len(registry.nfr_ids),
         len(registry.sc_ids),
         len(registry.g_ids),
         len(registry.d_ids),
+        len(registry.md_ids),
         len(registry.accepted_deviation_ids),
     )
     return sidecar
@@ -3396,6 +3397,39 @@ def _restore_from_state(
     return config
 
 
+def _reset_id_registry_sidecar_hint(output_dir: Path, resume: bool) -> None:
+    """R2: reset the module-level Contract #9 sidecar hint at pipeline-run start.
+
+    The ``gates._id_registry_sidecar_path`` hint is set ONLY by the extract step
+    (``_save_id_registry`` -> ``set_id_registry_sidecar_path``). Without a
+    run-start reset, a process that runs a second pipeline while skipping extract
+    would validate Contract #9 against the *previous* run's registry (the
+    stale-sidecar leak this helper closes).
+
+    Resume-aware:
+
+    * Fresh run (``resume`` is False): clear the hint to ``None``. The extract
+      step repopulates it via ``_save_id_registry``, so clearing here is always
+      safe and guarantees a clean start.
+    * ``--resume`` run: ``_apply_resume`` may skip the extract step, so a blind
+      reset to ``None`` would fail-shut MERGE on a legitimate resume. Instead,
+      re-point the hint at the persisted ``<output_dir>/spec_id_registry.json``
+      (written by the original run for the same spec) when it exists; otherwise
+      clear to ``None`` (correct fail-shut: no registry => cannot validate).
+
+    This helper changes only the module-level hint; it does NOT touch the
+    ``gates._roadmap_ids_within_spec`` fail-shut branches or the
+    ``Callable[[str], bool | str]`` SemanticCheck signature (R1.3 territory).
+    """
+    from .gates import set_id_registry_sidecar_path
+
+    sidecar = Path(output_dir) / "spec_id_registry.json"
+    if resume and sidecar.exists():
+        set_id_registry_sidecar_path(sidecar)
+    else:
+        set_id_registry_sidecar_path(None)
+
+
 def execute_roadmap(
     config: RoadmapConfig,
     resume: bool = False,
@@ -3492,6 +3526,11 @@ def execute_roadmap(
     if config.dry_run:
         _dry_run_output(steps)
         return
+
+    # R2 (Contract #9 stale-sidecar leak): reset the module-level sidecar hint
+    # at run-start so a second in-process run cannot inherit a prior run's
+    # sidecar. Resume-aware (see _reset_id_registry_sidecar_hint).
+    _reset_id_registry_sidecar_hint(Path(config.output_dir), resume)
 
     # --resume: check which steps already pass their gates
     if resume:

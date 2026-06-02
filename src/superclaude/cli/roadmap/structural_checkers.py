@@ -12,6 +12,7 @@ No LLM calls. No shared mutable state between checkers (NFR-4).
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
@@ -322,6 +323,20 @@ def _canonicalize_requirement_id(family: str, raw: str) -> str:
     """
     import re
 
+    # MD family: milestone-prefixed deliverable IDs (e.g. "M1-D01" -> "M1-D1").
+    # Preserve the M{n}- prefix; canonicalize only the trailing D{nn} portion (strip
+    # leading zeros on the deliverable index) so milestone-distinct deliverables
+    # (M1-D01 vs M2-D01) resolve to DISTINCT canonical forms rather than collapsing
+    # to a single bare-D key. Ported from PR #111 (861047c2) design D2. The local
+    # re.match shape is a canonicalization helper, NOT a duplicate of any
+    # contracts.ID_PATTERNS body (arch-lint Rule 2 stays green).
+    if family == "MD":
+        md_match = re.match(r"^(M\d+-D)-?0*(\d+)$", raw)
+        if md_match:
+            md_prefix, md_num = md_match.groups()
+            return f"{md_prefix}{md_num}"
+        return raw
+
     # Match: family prefix (letters), optional sep (- or _), leading zeros, digit run, optional rest.
     # Multi-letter prefix families (FR, NFR, SC) use a hyphen in canonical form;
     # single-letter prefix families (D, G) drop the separator entirely.
@@ -393,6 +408,65 @@ def _section_text(sections: list[SpecSection]) -> str:
     return "\n".join(s.content for s in sections)
 
 
+# Anchor for the Explicit non-references allowlist parser. The roadmap may declare
+# certain bare-D or bare-G tokens as roadmap-internal-only sequences that MUST NOT be
+# resolved against the spec namespace. Ported from PR #111 (861047c2) design D3.
+_EXPLICIT_NON_REFS_ANCHOR_RE = re.compile(
+    r"\*\*Explicit non-references[^*]*\*\*([^\n]*)", re.IGNORECASE
+)
+# Tokens we accept into the allowlist are bare single-letter-prefix forms (D{nn}, G{nn})
+# that the roadmap author has marked as roadmap-internal sequences. Multi-letter spec
+# families (FR-*, NFR-*, etc.) are never silenced by this allowlist — those references
+# in the same anchor line are counter-examples, not allowlist entries.
+_EXPLICIT_NON_REFS_TOKEN_RE = re.compile(r"`([DG]-?\d+)`")
+# The post-list boundary phrase. After this marker the line transitions into a
+# description of what the listed tokens are NOT (the spec namespaces). Any tokens
+# after this phrase are explicitly NOT allowlist entries.
+_EXPLICIT_NON_REFS_BOUNDARY_RE = re.compile(
+    r"\s+are\s+\*\*roadmap-internal", re.IGNORECASE
+)
+
+
+def _parse_explicit_non_references(roadmap_path: str) -> set[str]:
+    """Parse the "Explicit non-references (do not resolve against spec)" allowlist.
+
+    Returns a set of token strings (e.g. {"D01", "D02", ..., "D54"}) that the
+    roadmap author has marked as roadmap-internal-only sequences. These tokens
+    must be exempted from spec-namespace phantom_id and id_schema_drift findings.
+
+    The canonical anchor is a line of the form:
+        **Explicit non-references (do not resolve against spec):** the tokens `D01`, `D02`, ... are **roadmap-internal deliverable sequence numbers** ONLY when paired with ...
+
+    Tokens are extracted from backtick-delimited literals on the same line as the
+    anchor, between the bold anchor and the boundary phrase "are **roadmap-internal"
+    (which signals the transition to descriptive prose listing counter-examples
+    rather than allowlist entries). The token family is restricted to single-letter
+    D/G prefixes because those are the only families the allowlist semantic exempts;
+    multi-letter spec families (FR-*, NFR-*) cited as counter-examples must never
+    be silenced.
+
+    If the anchor is absent (legacy roadmaps without the convention), the function
+    returns an empty set and the validator behaves as before.
+    """
+    try:
+        text = Path(roadmap_path).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return set()
+
+    allowlist: set[str] = set()
+    for anchor_match in _EXPLICIT_NON_REFS_ANCHOR_RE.finditer(text):
+        # The captured group is the remainder of the line after the bold anchor.
+        tail = anchor_match.group(1)
+        # Truncate at the boundary phrase so we don't accidentally allowlist
+        # counter-example tokens (FR-*, NFR-*, G1..G8, T1..T11) cited after the list.
+        boundary_match = _EXPLICIT_NON_REFS_BOUNDARY_RE.search(tail)
+        if boundary_match:
+            tail = tail[: boundary_match.start()]
+        for tok_match in _EXPLICIT_NON_REFS_TOKEN_RE.finditer(tail):
+            allowlist.add(tok_match.group(1))
+    return allowlist
+
+
 # ---------- FR-1: Five Structural Checkers ----------
 
 # Type alias for checker callable
@@ -409,6 +483,11 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
 
     spec_parsed = parse_document(spec_text)
     roadmap_parsed = parse_document(roadmap_text)
+
+    # Explicit non-references allowlist: bare-D / bare-G tokens the roadmap author
+    # has marked as roadmap-internal-only sequences (e.g. D01..D54 under M{n}- prefixes).
+    # Ported from PR #111 (861047c2) design D3.
+    non_ref_allowlist: set[str] = _parse_explicit_non_references(roadmap_path)
 
     # Get dimension-relevant sections
     roadmap_full_text = roadmap_text.lower()
@@ -429,17 +508,37 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
             if canon not in spec_canon:
                 spec_canon[canon] = raw
 
+    # We also track the source family of each canonical roadmap ID so the allowlist
+    # check (D3) can be scoped to bare-D / bare-G families only — milestone-prefixed
+    # MD-family tokens are handled by their own allowlist branch below.
     roadmap_canon: dict[str, str] = {}
+    roadmap_canon_family: dict[str, str] = {}
     for family, ids in roadmap_parsed.requirement_ids.items():
         for raw in ids:
             canon = _canonicalize_requirement_id(family, raw)
             if canon not in roadmap_canon:
                 roadmap_canon[canon] = raw
+                roadmap_canon_family[canon] = family
 
     drift_findings: list[Finding] = []  # MEDIUM id_schema_drift
     phantom_findings: list[Finding] = []  # HIGH phantom_id (existing behavior)
     for canon in sorted(roadmap_canon):
         raw = roadmap_canon[canon]
+        family = roadmap_canon_family[canon]
+        # D3 allowlist: skip findings for bare-D/bare-G tokens explicitly marked as
+        # roadmap-internal-only by the roadmap's "Explicit non-references" annotation.
+        if family in ("D", "G") and raw in non_ref_allowlist:
+            continue
+        # D3 allowlist extension: MD-family tokens (M{n}-D{nn}) are the canonical
+        # roadmap-internal form of the bare-D sequences. Per the canonical roadmap
+        # annotation ("the tokens D01..D54 are roadmap-internal deliverable sequence
+        # numbers ONLY when paired with their milestone prefix"), the milestone-
+        # prefixed forms are equally roadmap-internal and must be exempted from
+        # spec-namespace resolution when their D-suffix is in the allowlist.
+        if family == "MD":
+            md_match = re.match(r"^M\d+-(D-?\d+)$", raw)
+            if md_match and md_match.group(1) in non_ref_allowlist:
+                continue
         if canon in spec_canon:
             if raw == spec_canon[canon]:
                 continue  # exact match — no finding

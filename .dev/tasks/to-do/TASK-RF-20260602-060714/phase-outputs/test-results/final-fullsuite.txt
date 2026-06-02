@@ -1,0 +1,11 @@
+tests/sprint/test_summarizer.py:28: in <module>
+    from superclaude.cli.sprint.summarizer import (
+E   ImportError: cannot import name 'invoke_haiku' from 'superclaude.cli.sprint.summarizer' (/config/workspace/IronClaude-RoadmapRewrite/src/superclaude/cli/sprint/summarizer.py)
+=========================== short test summary info ============================
+ERROR tests/sprint/test_retrospective.py
+ERROR tests/sprint/test_summarizer.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 skipped, 2 errors in 1.50s =========================
+tests/contracts/test_arch_lint.py ...................                    [100%]
+
+======================= 1973 passed, 12 skipped in 7.67s =======================

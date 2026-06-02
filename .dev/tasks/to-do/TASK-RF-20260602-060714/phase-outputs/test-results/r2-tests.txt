@@ -1,0 +1,31 @@
+########## test_spec_roadmap_id_containment.py ##########
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 12 items
+
+tests/roadmap/test_spec_roadmap_id_containment.py::test_phantom_id_rejected[recurrence_case0] PASSED [  8%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_registry_contains_method[recurrence_case0] PASSED [ 16%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_spec_ids_contained_when_roadmap_matches_spec PASSED [ 25%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_accepted_deviation_allows_otherwise_phantom_id PASSED [ 33%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_fail_shut_when_sidecar_missing PASSED [ 41%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_fail_shut_when_sidecar_unreadable PASSED [ 50%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_r2_run_start_reset_closes_stale_sidecar_leak PASSED [ 58%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_extract_roadmap_ids_reuses_canonical_extractor PASSED [ 66%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_registry_is_immutable_and_hashable PASSED [ 75%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_registry_sidecar_schema_stable PASSED [ 83%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_build_id_registry_picks_up_d_lenient_family PASSED [ 91%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_sidecar_schema_round_trip PASSED [100%]
+
+============================== 12 passed in 0.21s ==============================
+
+########## test_gates_data.py ##########
+tests/roadmap/test_gates_data.py::TestDeviationCountsReconciled::test_non_integer_total_analyzed_fails PASSED [ 99%]
+tests/roadmap/test_gates_data.py::TestDeviationCountsReconciled::test_function_still_detects_mismatch_standalone PASSED [100%]
+
+============================= 227 passed in 0.33s ==============================
+
+########## test_executor.py ##########
+tests/roadmap/test_executor.py::TestT1bConsistencyCheck::test_pure_unclassified_registry_passes_check PASSED [ 98%]
+tests/roadmap/test_executor.py::TestCosmeticRemediatorExceptionFallthrough::test_raising_remediator_yields_fail_not_crash PASSED [100%]
+
+============================== 71 passed in 0.29s ==============================

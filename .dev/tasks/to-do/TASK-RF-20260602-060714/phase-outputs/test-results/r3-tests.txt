@@ -1,0 +1,36 @@
+########## test_arch_lint.py ##########
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 19 items
+
+tests/contracts/test_arch_lint.py::test_clean_file_yields_no_violations PASSED [  5%]
+tests/contracts/test_arch_lint.py::test_name_rebind_violation_detected PASSED [ 10%]
+tests/contracts/test_arch_lint.py::test_literal_duplicate_violation_detected PASSED [ 15%]
+tests/contracts/test_arch_lint.py::test_docstring_with_verbatim_pattern_body_not_flagged[module-r"""{body}"""\nX = 1\n] PASSED [ 21%]
+tests/contracts/test_arch_lint.py::test_docstring_with_verbatim_pattern_body_not_flagged[class-r"""module docstring"""\n\n\nclass C:\n    r"""{body}"""\n    x = 1\n] PASSED [ 26%]
+tests/contracts/test_arch_lint.py::test_docstring_with_verbatim_pattern_body_not_flagged[function-r"""module docstring"""\n\n\ndef f():\n    r"""{body}"""\n    return 1\n] PASSED [ 31%]
+tests/contracts/test_arch_lint.py::test_docstring_skip_does_not_mask_real_literal PASSED [ 36%]
+tests/contracts/test_arch_lint.py::test_allow_marker_suppresses_violation PASSED [ 42%]
+tests/contracts/test_arch_lint.py::test_canonical_file_is_skipped PASSED [ 47%]
+tests/contracts/test_arch_lint.py::test_violation_format_includes_canonical_pointer PASSED [ 52%]
+tests/contracts/test_arch_lint.py::test_check_paths_aggregates_across_files PASSED [ 57%]
+tests/contracts/test_arch_lint.py::test_main_returns_nonzero_on_violations PASSED [ 63%]
+tests/contracts/test_arch_lint.py::test_main_returns_zero_on_clean_scan PASSED [ 68%]
+tests/contracts/test_arch_lint.py::test_main_returns_two_on_missing_path PASSED [ 73%]
+tests/contracts/test_arch_lint.py::test_class_redef_violation_detected PASSED [ 78%]
+tests/contracts/test_arch_lint.py::test_class_redef_unaddressed_invariant_detected PASSED [ 84%]
+tests/contracts/test_arch_lint.py::test_class_redef_allow_marker_suppresses PASSED [ 89%]
+tests/contracts/test_arch_lint.py::test_canonical_names_includes_r1_1_extensions PASSED [ 94%]
+tests/contracts/test_arch_lint.py::test_violation_dataclass_is_hashable PASSED [100%]
+
+============================== 19 passed in 0.04s ==============================
+
+########## arch_lint walker over src/superclaude/cli/ ##########
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+arch-lint: PASS — no contract-constant duplications detected.
+WALKER_EXIT=0

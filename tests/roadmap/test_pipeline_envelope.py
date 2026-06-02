@@ -65,6 +65,7 @@ def sample_envelope(tmp_path: Path) -> PipelineEnvelope:
         sc_ids=("SC-1",),
         g_ids=(),
         d_ids=("D-1", "D-3"),
+        md_ids=("M1-D1", "M2-D1"),
         accepted_deviation_ids=("D-7",),
         spec_hash="abc1234567890def",  # pragma: allowlist secret
         spec_path=spec_path,

@@ -179,6 +179,62 @@ def test_fail_shut_when_sidecar_unreadable(tmp_path):
     assert "Contract #9" in result
 
 
+def test_r2_run_start_reset_closes_stale_sidecar_leak(tmp_path):
+    """R2: a fresh second in-process run that skips extract must NOT validate
+    its roadmap against the PREVIOUS run's spec registry, and a legitimate
+    --resume must re-point at its OWN persisted sidecar (resume-aware).
+
+    Single test body by design: the autouse ``_isolate_gates_state`` fixture
+    only clears the gates global BETWEEN test functions, so the cross-run
+    stale-sidecar leak can only be exercised within ONE body where that reset
+    does not fire between the two simulated runs (Step 5.5 test-design hazard).
+
+    Fail-before/pass-after: ``_reset_id_registry_sidecar_hint`` is the R2 fix —
+    pre-fix it did not exist (import fails) and a fresh second run would inherit
+    run-1's stale sidecar and wrongly PASS ``FR-1`` against registry A.
+    """
+    from superclaude.cli.roadmap.executor import _reset_id_registry_sidecar_hint
+
+    # --- Run 1 (spec A): extract sets the sidecar hint to A's registry ---
+    run1_dir = tmp_path / "run1"
+    run1_dir.mkdir()
+    spec_a = run1_dir / "spec.md"
+    spec_a.write_text("- **FR-1** Auth.\n- **FR-2** Sessions.\n", encoding="utf-8")
+    registry_a = build_id_registry(spec_a)
+    sidecar_a = run1_dir / "spec_id_registry.json"
+    sidecar_a.write_text(json.dumps(registry_a.to_dict()), encoding="utf-8")
+    _gates.set_id_registry_sidecar_path(sidecar_a)  # what the extract step does
+    assert _gates._roadmap_ids_within_spec("FR-1") is True  # FR-1 ∈ A → passes
+
+    # --- Run 2: a FRESH second pipeline (new output dir, extract skipped) ---
+    # "FR-1" IS in stale registry A, so WITHOUT the R2 run-start reset the gate
+    # would WRONGLY PASS against A. The R2 reset for a fresh run clears the hint
+    # to None (run2 has no own sidecar yet), so the gate MUST fail-shut.
+    run2_dir = tmp_path / "run2"
+    run2_dir.mkdir()
+    assert not (run2_dir / "spec_id_registry.json").exists()
+    _reset_id_registry_sidecar_hint(run2_dir, resume=False)  # the R2 fix
+    leaked = _gates._roadmap_ids_within_spec("FR-1")
+    assert isinstance(leaked, str), (
+        "R2: a fresh run that skipped extract must fail-shut, not validate "
+        f"against run-1's stale registry; got {leaked!r}"
+    )
+    assert "Contract #9" in leaked
+
+    # --- Resume-aware: a --resume run re-points at its OWN persisted sidecar ---
+    spec_b = run2_dir / "spec.md"
+    spec_b.write_text("- **NFR-9** Telemetry.\n", encoding="utf-8")
+    registry_b = build_id_registry(spec_b)
+    (run2_dir / "spec_id_registry.json").write_text(
+        json.dumps(registry_b.to_dict()), encoding="utf-8"
+    )
+    _reset_id_registry_sidecar_hint(run2_dir, resume=True)
+    assert _gates._roadmap_ids_within_spec("NFR-9") is True, (
+        "R2 resume-aware: a --resume run with a persisted sidecar must re-use "
+        "its own registry, not fail-shut"
+    )
+
+
 def test_extract_roadmap_ids_reuses_canonical_extractor():
     """Contract #8: no duplicate regex literals — must use spec_parser."""
     sample = "Roadmap references FR-1, NFR-2, SC-3, G-4, D-5, and D6."
@@ -210,6 +266,7 @@ def test_registry_sidecar_schema_stable(tmp_path):
         "sc_ids",
         "g_ids",
         "d_ids",
+        "md_ids",
         "accepted_deviation_ids",
         "spec_hash",
         "spec_path",
@@ -251,6 +308,7 @@ def test_sidecar_schema_round_trip(tmp_path):
         sc_ids=tuple(payload["sc_ids"]),
         g_ids=tuple(payload["g_ids"]),
         d_ids=tuple(payload["d_ids"]),
+        md_ids=tuple(payload["md_ids"]),
         accepted_deviation_ids=tuple(payload["accepted_deviation_ids"]),
         spec_hash=payload["spec_hash"],
         spec_path=Path(payload["spec_path"]),

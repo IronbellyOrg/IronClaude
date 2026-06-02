@@ -138,6 +138,26 @@ def scan_file(
     except SyntaxError:
         return []
 
+    # R3: precompute the id()-set of docstring Constant nodes so Rule 2 does not
+    # flag a docstring whose entire value happens to equal a canonical ID-pattern
+    # body. The walker below is a flat ``ast.walk`` (parent-blind), so docstrings
+    # are identified structurally here: the first statement of a Module /
+    # ClassDef / FunctionDef / AsyncFunctionDef body, when it is an ``Expr``
+    # wrapping a ``str`` ``Constant``. Defensive hardening — the walker returns 0
+    # violations on the current tree and must continue to; a real top-level /
+    # assignment literal of the same body is unaffected and still flags.
+    docstring_node_ids: set[int] = set()
+    for _parent in ast.walk(tree):
+        if isinstance(
+            _parent,
+            (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef),
+        ):
+            _body = getattr(_parent, "body", None)
+            if _body and isinstance(_body[0], ast.Expr):
+                _doc = _body[0].value
+                if isinstance(_doc, ast.Constant) and isinstance(_doc.value, str):
+                    docstring_node_ids.add(id(_doc))
+
     violations: list[Violation] = []
 
     for node in ast.walk(tree):
@@ -167,6 +187,10 @@ def scan_file(
 
         # Rule 2: string literal that exactly matches a canonical ID pattern body.
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            # R3: a docstring whose entire value equals a pattern body is not a
+            # re-inlined constant — skip it (the literal still flags elsewhere).
+            if id(node) in docstring_node_ids:
+                continue
             if node.value in canonical_pattern_bodies:
                 if _line_has_allow_marker(source_lines, node.lineno):
                     continue

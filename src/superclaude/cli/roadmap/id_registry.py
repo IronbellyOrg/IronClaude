@@ -19,9 +19,10 @@ broken comparator; this registry is the comparator-side fix.
 **Anti-duplication discipline (Contract #8):** This module does NOT
 re-implement any ID pattern. It REUSES
 :func:`superclaude.cli.roadmap.spec_parser.extract_requirement_ids` as the
-single source of truth for ID regex literals. R0.3 will hoist the patterns
-to ``superclaude.contracts.ID_PATTERNS``; the TODO comment below tracks
-that migration.
+single source of truth for ID regex literals. R0.3 hoisted the family
+patterns to ``superclaude.contracts.ID_PATTERNS``; this module now sources
+the known-family list from there (see import below). Contract #8 satisfied
+— no duplicate literal definition.
 """
 
 from __future__ import annotations
@@ -63,6 +64,12 @@ class SpecIdRegistry:
         both ``D5`` and ``D-5``; master:§Recurrence #4 documents the
         asymmetry this lenient pattern previously caused with strict
         comparators).
+    md_ids:
+        Declared milestone-prefixed deliverable identifiers (MD family,
+        ``M{n}-D{nn}``; canonical form ``M{n}-D{m}``). Added per R5
+        (PR #111 port) so milestone-scoped deliverables are recognized as
+        valid by the Contract #9 containment check instead of being
+        collapsed under the bare-D family.
     accepted_deviation_ids:
         IDs accepted via ``dev-*-accepted-deviation.md`` records in the
         output dir; merged from
@@ -79,6 +86,7 @@ class SpecIdRegistry:
     sc_ids: tuple[str, ...]
     g_ids: tuple[str, ...]
     d_ids: tuple[str, ...]
+    md_ids: tuple[str, ...]
     accepted_deviation_ids: tuple[str, ...]
     spec_hash: str
     spec_path: Path
@@ -91,6 +99,7 @@ class SpecIdRegistry:
             + self.sc_ids
             + self.g_ids
             + self.d_ids
+            + self.md_ids
             + self.accepted_deviation_ids
         )
 
@@ -116,6 +125,7 @@ class SpecIdRegistry:
             "sc_ids": list(self.sc_ids),
             "g_ids": list(self.g_ids),
             "d_ids": list(self.d_ids),
+            "md_ids": list(self.md_ids),
             "accepted_deviation_ids": list(self.accepted_deviation_ids),
             "spec_hash": self.spec_hash,
             "spec_path": str(self.spec_path),
@@ -160,6 +170,7 @@ def build_id_registry(
         sc_ids=tuple(families.get("SC", ())),
         g_ids=tuple(families.get("G", ())),
         d_ids=tuple(families.get("D", ())),
+        md_ids=tuple(families.get("MD", ())),
         accepted_deviation_ids=tuple(sorted(set(accepted_deviations or ()))),
         spec_hash=spec_hash,
         spec_path=spec_path,

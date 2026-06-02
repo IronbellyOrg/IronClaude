@@ -12,6 +12,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from superclaude.contracts import ID_PATTERNS
 from superclaude.tools.arch_lint import (
     _CANONICAL_RELPATH,
@@ -71,6 +73,57 @@ def test_literal_duplicate_violation_detected(tmp_path: Path) -> None:
     violations = scan_file(bad, _CANONICAL_NAMES, _CANONICAL_PATTERN_BODIES)
     literal_dupes = [v for v in violations if v.kind == "literal-duplicate"]
     assert len(literal_dupes) == 1
+    assert literal_dupes[0].name == fr_body
+
+
+@pytest.mark.parametrize(
+    "position,source_template",
+    [
+        ("module", 'r"""{body}"""\nX = 1\n'),
+        (
+            "class",
+            'r"""module docstring"""\n\n\nclass C:\n    r"""{body}"""\n    x = 1\n',
+        ),
+        (
+            "function",
+            'r"""module docstring"""\n\n\ndef f():\n    r"""{body}"""\n    return 1\n',
+        ),
+    ],
+)
+def test_docstring_with_verbatim_pattern_body_not_flagged(
+    tmp_path: Path, position: str, source_template: str
+) -> None:
+    """R3: a docstring whose entire value equals an ``ID_PATTERNS`` body must NOT
+    be flagged as a literal-duplicate — it is documentation, not a re-inlined
+    constant. Covers module / class / function docstring positions. Fail-before
+    (pre-R3 the docstring Constant matched the body and flagged) / pass-after."""
+    fr_body = ID_PATTERNS["FR"]
+    f = tmp_path / f"doc_{position}.py"
+    f.write_text(source_template.format(body=fr_body), encoding="utf-8")
+    violations = scan_file(f, _CANONICAL_NAMES, _CANONICAL_PATTERN_BODIES)
+    literal_dupes = [v for v in violations if v.kind == "literal-duplicate"]
+    assert literal_dupes == [], (
+        f"R3: a {position} docstring equal to a pattern body must not flag; "
+        f"got {literal_dupes}"
+    )
+
+
+def test_docstring_skip_does_not_mask_real_literal(tmp_path: Path) -> None:
+    """R3 contrast (self-documenting in one place): a module docstring equal to a
+    body is skipped, but a REAL top-level assignment of the SAME body in the same
+    file STILL flags exactly once — proving the skip is scoped to docstrings only."""
+    fr_body = ID_PATTERNS["FR"]
+    f = tmp_path / "doc_and_literal.py"
+    f.write_text(
+        'r"""' + fr_body + '"""\n\nPATTERN = ' + repr(fr_body) + "\n",
+        encoding="utf-8",
+    )
+    violations = scan_file(f, _CANONICAL_NAMES, _CANONICAL_PATTERN_BODIES)
+    literal_dupes = [v for v in violations if v.kind == "literal-duplicate"]
+    assert len(literal_dupes) == 1, (
+        "R3: docstring skipped but the real assignment literal must still flag "
+        f"exactly once; got {literal_dupes}"
+    )
     assert literal_dupes[0].name == fr_body
 
 
