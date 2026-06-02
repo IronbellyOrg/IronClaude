@@ -266,7 +266,7 @@ class TestRetrospectiveGenerator:
         sr.outcome = SprintOutcome.SUCCESS
 
         with patch(
-            "superclaude.cli.sprint.retrospective.invoke_haiku",
+            "superclaude.cli.sprint.retrospective.invoke_sonnet",
             return_value="Release narrative",
         ):
             retro = RetrospectiveGenerator(config).generate(sr, summaries)
@@ -284,7 +284,7 @@ class TestRetrospectiveGenerator:
         sr = _make_sprint_result(config, [s.phase_result for s in summaries.values()])
 
         with patch(
-            "superclaude.cli.sprint.retrospective.invoke_haiku",
+            "superclaude.cli.sprint.retrospective.invoke_sonnet",
             side_effect=RuntimeError("boom"),
         ):
             retro = RetrospectiveGenerator(config).generate(sr, summaries)
@@ -299,7 +299,7 @@ class TestRetrospectiveGenerator:
         sr = _make_sprint_result(config, [])
 
         with patch(
-            "superclaude.cli.sprint.retrospective.invoke_haiku", return_value=""
+            "superclaude.cli.sprint.retrospective.invoke_sonnet", return_value=""
         ):
             retro = RetrospectiveGenerator(config).generate(sr, {})
 

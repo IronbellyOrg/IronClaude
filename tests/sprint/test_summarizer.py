@@ -32,7 +32,7 @@ from superclaude.cli.sprint.summarizer import (
     _build_phase_narrative_prompt,
     _render_phase_summary_markdown,
     extract_phase_signals,
-    invoke_haiku,
+    invoke_sonnet,
 )
 
 # ---------------------------------------------------------------------------
@@ -268,14 +268,14 @@ class TestExtractPhaseSignals:
 
 
 # ---------------------------------------------------------------------------
-# Haiku subprocess helper
+# Sonnet subprocess helper
 # ---------------------------------------------------------------------------
 
 
-class TestInvokeHaiku:
+class TestInvokeSonnet:
     def test_returns_empty_when_claude_not_on_path(self):
         with patch("superclaude.cli.sprint.summarizer.shutil.which", return_value=None):
-            assert invoke_haiku("hello") == ""
+            assert invoke_sonnet("hello") == ""
 
     def test_success_returns_stdout_stripped(self):
         fake_result = MagicMock(returncode=0, stdout=b"  narrative text  ", stderr=b"")
@@ -289,11 +289,11 @@ class TestInvokeHaiku:
                 return_value=fake_result,
             ) as run,
         ):
-            out = invoke_haiku("prompt")
+            out = invoke_sonnet("prompt")
             assert out == "narrative text"
             call = run.call_args
             cmd = call.args[0]
-            assert "--model" in cmd and "claude-haiku-4-5" in cmd
+            assert "--model" in cmd and "sonnet" in cmd
             assert "--max-turns" in cmd and "1" in cmd
             assert "--dangerously-skip-permissions" in cmd
             # stdin must be DEVNULL.
@@ -315,7 +315,7 @@ class TestInvokeHaiku:
                 return_value=fake_result,
             ),
         ):
-            assert invoke_haiku("x") == ""
+            assert invoke_sonnet("x") == ""
 
     def test_timeout_returns_empty(self):
         with (
@@ -328,7 +328,7 @@ class TestInvokeHaiku:
                 side_effect=subprocess.TimeoutExpired(cmd="claude", timeout=30),
             ),
         ):
-            assert invoke_haiku("x") == ""
+            assert invoke_sonnet("x") == ""
 
     def test_oserror_returns_empty(self):
         with (
@@ -341,7 +341,7 @@ class TestInvokeHaiku:
                 side_effect=OSError("nope"),
             ),
         ):
-            assert invoke_haiku("x") == ""
+            assert invoke_sonnet("x") == ""
 
 
 # ---------------------------------------------------------------------------
@@ -380,7 +380,7 @@ class TestPhaseSummarizer:
 
         summarizer = PhaseSummarizer(config)
         with patch(
-            "superclaude.cli.sprint.summarizer.invoke_haiku",
+            "superclaude.cli.sprint.summarizer.invoke_sonnet",
             return_value="Narrative text",
         ):
             summary = summarizer.summarize(phase, pr)
@@ -411,7 +411,7 @@ class TestPhaseSummarizer:
 
         summarizer = PhaseSummarizer(config)
         with patch(
-            "superclaude.cli.sprint.summarizer.invoke_haiku",
+            "superclaude.cli.sprint.summarizer.invoke_sonnet",
             side_effect=RuntimeError("boom"),
         ):
             summary = summarizer.summarize(phase, pr)
@@ -585,7 +585,7 @@ class TestSummaryWorker:
         config.output_file(phase).write_text("")
 
         summarizer = PhaseSummarizer(config)
-        with patch("superclaude.cli.sprint.summarizer.invoke_haiku", return_value=""):
+        with patch("superclaude.cli.sprint.summarizer.invoke_sonnet", return_value=""):
             summary = summarizer.summarize(phase, pr)
 
         assert summary.path is not None
