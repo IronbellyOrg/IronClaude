@@ -433,6 +433,119 @@ class TestSignaturesChecker:
             f"got {[(f.rule_id, f.roadmap_quote) for f in phantom_or_drift]}"
         )
 
+    # ---------- TASK-RF-20260531-044100 Phase 6: MD-family + Explicit non-references allowlist ----------
+    # Lock the M{n}-D{nn} tokenizer + canonicalizer fix and the Explicit non-references
+    # allowlist parser. Three additive tests covering: (a) M{n}-D{nn} IDs with allowlist
+    # → zero findings; (b) backward-compat when allowlist is absent; (c) bare-D
+    # legitimate match still resolves when spec uses bare-D family.
+
+    @staticmethod
+    def _write_md_fixture_with_allowlist(
+        tmp_path: Path, spec_body: str, roadmap_body: str, allowlist_tokens: list[str]
+    ) -> tuple[str, str]:
+        """Build a spec + roadmap pair where the roadmap carries the canonical
+        Explicit non-references annotation listing the given allowlist tokens."""
+        spec = tmp_path / "spec.md"
+        roadmap = tmp_path / "roadmap.md"
+        backticked = ", ".join(f"`{t}`" for t in allowlist_tokens)
+        spec.write_text(
+            f"---\ntitle: Test Spec\n---\n\n# Spec\n\n## Requirements\n\n{spec_body}\n",
+            encoding="utf-8",
+        )
+        roadmap.write_text(
+            "---\ntitle: Test Roadmap\n---\n\n# Roadmap\n\n## Implementation\n\n"
+            f"{roadmap_body}\n\n"
+            f"**Explicit non-references (do not resolve against spec):** the tokens "
+            f"{backticked} are **roadmap-internal deliverable sequence numbers** ONLY "
+            "when paired with their milestone prefix.\n",
+            encoding="utf-8",
+        )
+        return str(spec), str(roadmap)
+
+    def test_phantom_id_honors_explicit_non_references_for_milestone_d_ids(
+        self, tmp_path: Path
+    ) -> None:
+        """Roadmap with M{n}-D{nn} multi-milestone IDs AND Explicit non-references
+        annotation → zero signatures findings. The canonical v1-MVP bug-trigger shape."""
+        spec_path, roadmap_path = self._write_md_fixture_with_allowlist(
+            tmp_path,
+            spec_body=(
+                "Milestone deliverables: M1-D01, M1-D02, M2-D01, M2-D02, M3-D01."
+            ),
+            roadmap_body=(
+                "Implements M1-D01, M1-D02, M2-D01, M2-D02, M3-D01 "
+                "(reference D01, D02, D03, D04, D05 as roadmap-internal indices)."
+            ),
+            allowlist_tokens=["D01", "D02", "D03", "D04", "D05"],
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        sig_findings = [
+            f
+            for f in findings
+            if f.rule_id in ("phantom_id", "id_schema_drift")
+            and f.dimension == "signatures"
+        ]
+        assert len(sig_findings) == 0, (
+            f"Expected 0 signatures-dimension findings (allowlist exempts D01..D05 AND "
+            f"MD-family resolves M1-D01 != M2-D01 distinctly); got "
+            f"{[(f.rule_id, f.roadmap_quote, f.spec_quote) for f in sig_findings]}"
+        )
+
+    def test_phantom_id_backward_compatible_without_explicit_non_references(
+        self, tmp_path: Path
+    ) -> None:
+        """Roadmap WITHOUT the Explicit non-references annotation → existing
+        canonicalization behavior preserved (D01↔D1, D03↔D3, D05↔D5 → 3 MEDIUM drift).
+        Same scenario as test_phantom_id_canonicalizes_zero_padded_d_ids; pins the
+        invariant that the allowlist absence does NOT regress legacy behavior."""
+        spec_path, roadmap_path = self._write_id_fixture(
+            tmp_path,
+            spec_ids="Items: D1, D3, D5.",
+            roadmap_ids="Items: D01, D03, D05.",
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        high_phantoms = [
+            f for f in findings if f.rule_id == "phantom_id" and f.severity == "HIGH"
+        ]
+        drift = [f for f in findings if f.rule_id == "id_schema_drift"]
+        assert len(high_phantoms) == 0, (
+            f"Expected 0 HIGH phantom_id (legacy canonicalization should match); got "
+            f"{[f.roadmap_quote for f in high_phantoms]}"
+        )
+        assert len(drift) == 3, (
+            f"Expected 3 MEDIUM id_schema_drift (D01↔D1, D03↔D3, D05↔D5); "
+            f"got {len(drift)}"
+        )
+
+    def test_phantom_id_bare_d_still_resolves_when_spec_uses_bare_d(
+        self, tmp_path: Path
+    ) -> None:
+        """Spec uses bare D7 (legitimate spec-namespace D family); roadmap references
+        D7 (matches) and D9 (genuine phantom — not in spec, not in allowlist) WITHOUT
+        any Explicit non-references annotation. Expected: 1 HIGH phantom for D9, 0
+        findings for D7. Confirms the tokenizer change does NOT regress bare-D
+        resolution for specs that legitimately use bare D-family IDs."""
+        spec_path, roadmap_path = self._write_id_fixture(
+            tmp_path,
+            spec_ids="Items: D7, D8.",
+            roadmap_ids="Items: D7, D9.",
+        )
+        findings = check_signatures(spec_path, roadmap_path)
+        high_phantoms = [
+            f for f in findings if f.rule_id == "phantom_id" and f.severity == "HIGH"
+        ]
+        drift = [f for f in findings if f.rule_id == "id_schema_drift"]
+        # D9 should be flagged HIGH phantom; D7 should not appear at all.
+        assert len(high_phantoms) == 1, (
+            f"Expected exactly 1 HIGH phantom_id (D9); got "
+            f"{[f.roadmap_quote for f in high_phantoms]}"
+        )
+        assert high_phantoms[0].roadmap_quote == "D9"
+        assert len(drift) == 0, (
+            f"Expected 0 MEDIUM id_schema_drift (D7 matches spec D7 exactly, no drift); "
+            f"got {[(f.roadmap_quote, f.spec_quote) for f in drift]}"
+        )
+
 
 class TestDataModelsChecker:
     """T02.02: Data Models checker with machine keys."""
