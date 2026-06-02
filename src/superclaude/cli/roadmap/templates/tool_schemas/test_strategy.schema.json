@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/test_strategy.schema.json",
+  "title": "Roadmap test-strategy step structured output",
+  "$comment": "R1.4 Step 9.11 (secondary). The test-strategy step reads the merged roadmap + extraction and produces a continuous-parallel test strategy. Its Step.id is the literal 'test-strategy', so the executor's registry-key resolver falls through to _tw_key = step.id and routes it to the PLAIN render_step_tool_write (NOT the id-check variant) -- test-strategy carries NO roadmap_ids and therefore has NO MVR-3 / Contract #3 phantom-ID subset constraint. No convergence threshold literal is embedded (Contract #8): interleave_ratio is a test:work milestone ratio string (e.g. '1:2'), NOT a convergence ratio.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "complexity_class",
+        "validation_philosophy",
+        "validation_milestones",
+        "work_milestones",
+        "interleave_ratio",
+        "major_issue_policy"
+      ],
+      "properties": {
+        "complexity_class": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "validation_philosophy": { "type": "string" },
+        "validation_milestones": { "type": "integer", "minimum": 0 },
+        "work_milestones": { "type": "integer", "minimum": 0 },
+        "interleave_ratio": { "type": "string" },
+        "major_issue_policy": { "type": "string" },
+        "spec_source": { "type": "string" },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" }
+      }
+    },
+    "issue_classification": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity"],
+        "properties": {
+          "severity": { "type": "string" },
+          "action": { "type": "string" },
+          "gate_impact": { "type": "string" }
+        }
+      }
+    },
+    "validation_milestone_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["milestone"],
+        "properties": {
+          "milestone": { "type": "string" },
+          "validates": { "type": "string" }
+        }
+      }
+    },
+    "test_categories": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "interleaving_strategy": { "type": "string" },
+    "risk_based_prioritization": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["milestone"],
+        "properties": {
+          "milestone": { "type": "string" },
+          "criteria": { "type": "string" }
+        }
+      }
+    },
+    "quality_gates": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

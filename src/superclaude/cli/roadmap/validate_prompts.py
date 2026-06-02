@@ -11,6 +11,39 @@ Prompt templates for the validate pipeline:
 from __future__ import annotations
 
 from .prompts import _OUTPUT_FORMAT_BLOCK
+from .tool_writer import TEMPLATES_DIR, ToolDefinition, load_schema
+
+# R1.4 Step 9.11 tool-write output contract for the validate reflect step
+# (SECONDARY, validate subsystem). Replaces _OUTPUT_FORMAT_BLOCK in tool_write
+# mode: the model emits ONE JSON object (no markdown, no frontmatter, no prose)
+# conforming to reflect.schema.json. The 7/9-dimension validation guidance is
+# shared with the markdown path; only the output contract differs. reflect carries
+# no roadmap_ids and has no §MVR §3 / Contract #3 phantom-ID constraint -- it is
+# rendered via the PLAIN render_step_tool_write. The executor hook lives in
+# validate_run_step (the validate sub-executor reads ValidateConfig.tool_write_reflect).
+_REFLECT_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with blocking_issues_count (integer, total BLOCKING "
+    "findings == count of BLOCKING entries in findings[]), warnings_count "
+    "(integer, total WARNING findings), and tasklist_ready (boolean: true ONLY "
+    "if blocking_issues_count == 0); plus optional generated, generator.\n"
+    "- findings: array of objects, each {severity (string: exactly one of "
+    "BLOCKING, WARNING, INFO), dimension (string: the validation dimension "
+    "name), description (string), location? (string: file:line or "
+    "file:section), evidence? (string: expected vs. found), fix_guidance? "
+    "(string)}. severity, dimension, and description are REQUIRED. Every finding "
+    "MUST cite a specific location.\n"
+    "- summary: string -- total counts by severity and overall assessment.\n"
+    "- interleave_ratio: string -- the computed interleave_ratio with the "
+    "formula and values used.\n\n"
+    "Be thorough but precise -- false positives waste user time. The frontmatter "
+    "counts MUST be consistent with the findings array."
+)
 
 
 def build_reflect_prompt(
@@ -21,6 +54,7 @@ def build_reflect_prompt(
     spec_file: str | None = None,
     tdd_file: str | None = None,
     prd_file: str | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for the 'reflect' validation step.
 
@@ -47,6 +81,26 @@ def build_reflect_prompt(
         Path (as string) to the original TDD file, or None.
     prd_file:
         Path (as string) to the original PRD file, or None.
+    tool_write:
+        R1.4 Step 9.11 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract: ``base + _OUTPUT_FORMAT_BLOCK`` (YAML frontmatter + Findings /
+        Summary / Interleave Ratio markdown body), with the 7/9-dimension
+        conditional intact. When ``True`` the OUTPUT CONTRACT is replaced -- the
+        model is asked to emit a SINGLE structured JSON object conforming to
+        ``reflect.schema.json`` (keys: ``frontmatter`` (blocking_issues_count,
+        warnings_count, tasklist_ready), ``findings``, ``summary``,
+        ``interleave_ratio``), which the validate sub-executor validates and
+        renders to markdown deterministically via
+        :mod:`superclaude.cli.roadmap.tool_writer`. The reflect step is a
+        SECONDARY validate-subsystem LLM step: it carries no ``roadmap_ids`` and
+        therefore has no §MVR §3 / Contract #3 phantom-ID subset constraint (it
+        is rendered through the PLAIN ``render_step_tool_write``). The
+        7/9-dimension validation guidance is shared between both modes; only the
+        output contract differs. We deliberately do NOT append
+        ``_OUTPUT_FORMAT_BLOCK`` in tool-write mode -- that block mandates YAML
+        frontmatter, which is wrong for JSON. The tool-write render hook lives in
+        ``validate_run_step`` (which reads ``ValidateConfig.tool_write_reflect``).
     """
     has_inputs = any(f is not None for f in (spec_file, tdd_file, prd_file))
     dim_count = 9 if has_inputs else 7
@@ -143,7 +197,37 @@ def build_reflect_prompt(
         "Show the computed interleave_ratio with the formula and values used."
     )
 
+    if tool_write:
+        # R1.4 tool-write contract (Step 9.11): emit ONE structured JSON object
+        # instead of markdown+frontmatter. The 7/9-dimension validation guidance
+        # above is reused verbatim; only the OUTPUT CONTRACT is inverted. The
+        # validate sub-executor validates this JSON against reflect.schema.json
+        # and renders the markdown deterministically.
+        return base + _REFLECT_TOOL_WRITE_OUTPUT_BLOCK
+
     return base + _OUTPUT_FORMAT_BLOCK
+
+
+def reflect_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the validate reflect step.
+
+    Pairs the reflect output schema (``reflect.schema.json``) with the render
+    template (``reflect.md.j2``) so the tool-write back end can validate the
+    model's structured JSON and render the validation report deterministically.
+    ``input_schema`` is empty -- the reflect step's tool takes no structured tool
+    inputs (the roadmap, test-strategy, extraction, and original source documents
+    arrive as file attachments).
+
+    The reflect step runs under the validate sub-executor (``validate_run_step``),
+    NOT ``roadmap_run_step``; the render hook reads
+    ``ValidateConfig.tool_write_reflect``.
+    """
+    return ToolDefinition(
+        name="reflect",
+        input_schema={},
+        output_schema=load_schema("reflect.schema.json"),
+        render_template=TEMPLATES_DIR / "reflect.md.j2",
+    )
 
 
 def build_merge_prompt(reflect_reports: list[str]) -> str:

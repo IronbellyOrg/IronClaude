@@ -88,6 +88,36 @@ class SemanticCheck:
 
 
 @dataclass
+class CodeAssertion:
+    """Code-graph predicate applied at gate evaluation time (R1.3 / §MVR §2).
+
+    Unlike ``SemanticCheck`` (which inspects the rendered string content of an
+    output file), a ``CodeAssertion`` inspects the live code graph -- it may
+    parse Python source via ``ast``, import callables, or walk module-level
+    constants. The widened
+    ``(PipelineEnvelope, Path) -> Finding | None`` signature is the
+    BUILD-REQUEST §MVR §2 verbatim contract.
+
+    ``PipelineEnvelope`` and ``Finding`` are referenced as string forward
+    refs to preserve NFR-007 (``pipeline.*`` MUST NOT import from
+    ``roadmap.*`` or ``sprint.*``). At runtime ``check_fn`` receives a
+    ``PipelineEnvelope`` (defined in ``cli/roadmap/envelope.py``) and a
+    repository-root ``Path``; it returns ``None`` on PASS or a typed
+    ``Finding`` (defined in ``cli/roadmap/findings.py``) on FAIL with
+    ``severity``/``description``/``location`` populated for downstream
+    gate reporters.
+
+    Return convention:
+      None     -> PASS (the assertion held)
+      Finding  -> FAIL (assertion violated)
+    """
+
+    name: str
+    check_fn: Callable[..., object]
+    failure_message: str
+
+
+@dataclass
 class GateCriteria:
     """Defines what constitutes a passing output for a pipeline step.
 
@@ -97,12 +127,19 @@ class GateCriteria:
         must be present. Used when the template contract allows mutually
         exclusive aliases for the same slot (e.g. ``("spec_source",
         "spec_sources")`` for single-spec vs multi-spec roadmap artifacts).
+
+    ``code_assertions`` is the R1.3 / §MVR §2 slot for code-graph predicates
+    (AST walks, import-and-call). It is dispatched by
+    ``cli/pipeline/gates.py:gate_passed`` AFTER all semantic_checks pass.
+    Default ``None`` preserves backward compatibility with every existing
+    ``GateCriteria(...)`` call site that pre-dates R1.3.
     """
 
     required_frontmatter_fields: list[str | tuple[str, ...]]
     min_lines: int
     enforcement_tier: Literal["STRICT", "STANDARD", "LIGHT", "EXEMPT"] = "STANDARD"
     semantic_checks: list[SemanticCheck] | None = None
+    code_assertions: list[CodeAssertion] | None = None
 
 
 @dataclass

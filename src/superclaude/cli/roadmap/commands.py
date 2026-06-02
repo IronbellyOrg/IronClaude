@@ -171,6 +171,80 @@ def roadmap_group():
         "where any drift should halt for human review."
     ),
 )
+@click.option(
+    "--tool-write-extract",
+    "tool_write_extract",
+    is_flag=True,
+    default=False,
+    help=(
+        "R1.4 dual-write: extract step emits structured JSON rendered "
+        "deterministically to markdown (opt-in; markdown path remains default "
+        "until cutover)."
+    ),
+)
+@click.option(
+    "--tool-write-extract-tdd",
+    "tool_write_extract_tdd",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: TDD-input extract step emits structured JSON rendered to markdown (opt-in).",
+)
+@click.option(
+    "--tool-write-generate",
+    "tool_write_generate",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: generate step emits structured JSON (with generation-time phantom-ID rejection) rendered to markdown (opt-in).",
+)
+@click.option(
+    "--tool-write-diff",
+    "tool_write_diff",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: diff step emits structured JSON rendered to markdown (opt-in).",
+)
+@click.option(
+    "--tool-write-debate",
+    "tool_write_debate",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: debate step (PRESERVED adversarial-debate mechanism) emits structured JSON rendered to markdown (opt-in).",
+)
+@click.option(
+    "--tool-write-score",
+    "tool_write_score",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: score step emits structured JSON rendered to markdown (opt-in).",
+)
+@click.option(
+    "--tool-write-merge",
+    "tool_write_merge",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: merge step (SECOND primary phantom-ID source) emits structured JSON with generation-time phantom-ID rejection, rendered to markdown (opt-in).",
+)
+@click.option(
+    "--tool-write-spec-fidelity",
+    "tool_write_spec_fidelity",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: spec-fidelity step emits structured JSON rendered to markdown (opt-in; single-shot path only -- convergence mode is unaffected).",
+)
+@click.option(
+    "--tool-write-test-strategy",
+    "tool_write_test_strategy",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: test-strategy step (secondary) emits structured JSON rendered to markdown (opt-in).",
+)
+@click.option(
+    "--tool-write-certify",
+    "tool_write_certify",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: certify step (secondary) emits structured JSON rendered to markdown (opt-in).",
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -193,6 +267,16 @@ def run(
     no_compress: bool,
     allow_cosmetic_remediation: bool,
     strict_no_remediation: bool,
+    tool_write_extract: bool,
+    tool_write_extract_tdd: bool,
+    tool_write_generate: bool,
+    tool_write_diff: bool,
+    tool_write_debate: bool,
+    tool_write_score: bool,
+    tool_write_merge: bool,
+    tool_write_spec_fidelity: bool,
+    tool_write_test_strategy: bool,
+    tool_write_certify: bool,
 ) -> None:
     """Run the roadmap generation pipeline on INPUT_FILES.
 
@@ -273,6 +357,16 @@ def run(
         "prd_file": routing["prd_file"].resolve() if routing["prd_file"] else None,
         "compress_enabled": not no_compress,
         "allow_cosmetic_remediation": cosmetic_remediation_on,
+        "tool_write_extract": tool_write_extract,
+        "tool_write_extract_tdd": tool_write_extract_tdd,
+        "tool_write_generate": tool_write_generate,
+        "tool_write_diff": tool_write_diff,
+        "tool_write_debate": tool_write_debate,
+        "tool_write_score": tool_write_score,
+        "tool_write_merge": tool_write_merge,
+        "tool_write_spec_fidelity": tool_write_spec_fidelity,
+        "tool_write_test_strategy": tool_write_test_strategy,
+        "tool_write_certify": tool_write_certify,
     }
     if agent_specs is not None:
         config_kwargs["agents"] = agent_specs
@@ -350,12 +444,20 @@ def accept_spec_change(output_dir: Path) -> None:
     is_flag=True,
     help="Enable debug logging.",
 )
+@click.option(
+    "--tool-write-reflect",
+    "tool_write_reflect",
+    is_flag=True,
+    default=False,
+    help="R1.4 dual-write: reflect step (secondary) emits structured JSON rendered to markdown (opt-in; single-agent path only).",
+)
 def validate(
     output_dir: Path,
     agents: str,
     model: str,
     max_turns: int,
     debug: bool,
+    tool_write_reflect: bool,
 ) -> None:
     """Validate roadmap pipeline outputs in OUTPUT_DIR.
 
@@ -378,6 +480,7 @@ def validate(
         max_turns=max_turns,
         model=model,
         debug=debug,
+        tool_write_reflect=tool_write_reflect,
     )
 
     counts = execute_validate(config)

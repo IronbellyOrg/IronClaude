@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/certify.schema.json",
+  "title": "Roadmap certify step structured output",
+  "$comment": "R1.4 Step 9.11 (secondary). The certify step verifies that remediation fixes were applied correctly, producing a per-finding PASS/FAIL verdict and the aggregate certification report. Its Step.id is the literal 'certify', so the executor's registry-key resolver falls through to _tw_key = step.id and routes it to the PLAIN render_step_tool_write (NOT the id-check variant) -- certify carries NO roadmap_ids and therefore has NO MVR-3 / Contract #3 phantom-ID subset constraint. PRESERVE: the R1.3 CodeAssertion (assert_step_reachable) on CERTIFY_GATE is unaffected -- tool-write only changes HOW the markdown is produced, not the dispatch reachability of the step. The rendered markdown mirrors the shape produced by certify_prompts.generate_certification_report.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter",
+    "results"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "findings_verified",
+        "findings_passed",
+        "findings_failed",
+        "certified",
+        "certification_date"
+      ],
+      "properties": {
+        "findings_verified": { "type": "integer", "minimum": 0 },
+        "findings_passed": { "type": "integer", "minimum": 0 },
+        "findings_failed": { "type": "integer", "minimum": 0 },
+        "certified": { "type": "boolean" },
+        "certification_date": { "type": "string" }
+      }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "result"],
+        "properties": {
+          "finding_id": { "type": "string" },
+          "severity": { "type": "string" },
+          "result": { "type": "string", "enum": ["PASS", "FAIL"] },
+          "justification": { "type": "string" }
+        }
+      }
+    },
+    "summary": { "type": "string" }
+  }
+}

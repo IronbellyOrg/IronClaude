@@ -24,7 +24,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from superclaude.cli.audit.wiring_gate import WIRING_GATE
-from superclaude.cli.pipeline.models import GateCriteria, SemanticCheck
+from superclaude.cli.pipeline.models import CodeAssertion, GateCriteria, SemanticCheck
+from superclaude.cli.roadmap.code_assertions import assert_step_reachable
 from superclaude.contracts import GATE_FIELD_NAMES, THRESHOLDS
 
 # R0.3: canonical field name for the deviation-analysis ambiguous count.
@@ -1452,6 +1453,20 @@ CERTIFY_GATE = GateCriteria(
             name="certified_is_true",
             check_fn=_certified_is_true,
             failure_message="certified field must be true for certification gate to pass",
+        ),
+    ],
+    # R1.3 / §MVR §2: dispatch-reachability via AST walk of _build_steps.
+    # Catches master:§Flaw 1 — a gate registered for a step that ships
+    # unwired from the production dispatch.
+    code_assertions=[
+        CodeAssertion(
+            name="step_reachable",
+            check_fn=assert_step_reachable,
+            failure_message=(
+                "Contract #2: certify step must be reachable from the "
+                "production _build_steps dispatch map "
+                "(master:§Flaw 1 evidence chain)."
+            ),
         ),
     ],
 )

@@ -17,11 +17,27 @@ from pathlib import Path
 from .models import GateCriteria
 
 
-def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | None]:
+def gate_passed(
+    output_file: Path,
+    criteria: GateCriteria,
+    *,
+    envelope: object | None = None,
+    repo_root: Path | None = None,
+) -> tuple[bool, str | None]:
     """Validate a step's output against its gate criteria.
 
     Returns (True, None) on pass.
     Returns (False, reason) on failure where reason is human-readable.
+
+    ``envelope`` and ``repo_root`` are R1.3 keyword-only optional
+    parameters consumed by ``criteria.code_assertions``. They are typed
+    as ``object`` / ``Path | None`` rather than the precise
+    ``PipelineEnvelope`` because ``cli/pipeline/*`` must not import from
+    ``cli/roadmap/*`` (NFR-007). When either is ``None`` and the criteria
+    define code_assertions, the assertions are silently skipped --
+    backward-compat shim for R1.3 call sites that do not yet plumb
+    envelope/repo_root. R1.6 cleanup deletes this skip-path once all
+    callers pass both.
     """
     tier = criteria.enforcement_tier
 
@@ -71,6 +87,24 @@ def gate_passed(output_file: Path, criteria: GateCriteria) -> tuple[bool, str | 
                 return (
                     False,
                     f"Semantic check '{check.name}' failed: {detail}",
+                )
+
+    # STRICT: code assertions (R1.3 / §MVR §2)
+    if criteria.code_assertions:
+        if envelope is None or repo_root is None:
+            # Backward-compat shim: callers that do not yet plumb
+            # envelope/repo_root see code_assertions as if undefined.
+            # R1.6 deletes this branch when all call sites are migrated.
+            return True, None
+        for assertion in criteria.code_assertions:
+            finding = assertion.check_fn(envelope, repo_root)
+            if finding is not None:
+                detail = (
+                    getattr(finding, "description", None) or assertion.failure_message
+                )
+                return (
+                    False,
+                    f"Code assertion '{assertion.name}' failed: {detail}",
                 )
 
     return True, None

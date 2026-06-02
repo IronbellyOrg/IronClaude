@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/generate.schema.json",
+  "title": "Roadmap generate step structured output",
+  "$comment": "roadmap_ids is the generator-side phantom-ID surface (Contract #3 / master:§Top-3 #3). Schema constrains SHAPE; the SET-membership constraint (roadmap_ids ⊆ spec_ids ∪ accepted_deviations) is enforced at runtime by tool_writer.validate_id_subset against the envelope's spec_ids — a phantom id like FR-99 absent from the spec is REJECTED AT GENERATION TIME, not downstream.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["frontmatter", "milestones", "roadmap_ids"],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["spec_source", "complexity_score", "primary_persona"],
+      "properties": {
+        "spec_source": { "type": "string" },
+        "spec_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" },
+        "complexity_score": { "type": "number" },
+        "complexity_class": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH"]
+        },
+        "primary_persona": { "type": "string" },
+        "total_requirements": { "type": "integer" },
+        "milestone_count": { "type": "integer" },
+        "deliverable_count": { "type": "integer" }
+      }
+    },
+    "executive_summary": { "type": "string" },
+    "milestone_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["milestone", "title"],
+        "properties": {
+          "milestone": { "type": "string" },
+          "title": { "type": "string" },
+          "duration": { "type": "string" },
+          "exit_criteria": { "type": "string" }
+        }
+      }
+    },
+    "dependency_graph": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "milestones": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "deliverables"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "duration": { "type": "string" },
+          "exit_criteria": { "type": "string" },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "title"],
+              "properties": {
+                "num": { "type": "integer" },
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "comp": { "type": "string" },
+                "deps": { "type": "string" },
+                "ac": { "type": "string" },
+                "eff": { "type": "string" },
+                "pri": { "type": "string" }
+              }
+            }
+          },
+          "risk_assessment": { "type": "string" },
+          "open_questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "id": { "type": "string" },
+                "question": { "type": "string" },
+                "impact": { "type": "string" },
+                "owner": { "type": "string" },
+                "target": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "resource_requirements": { "type": "string" },
+    "risk_register": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string" },
+          "risk": { "type": "string" },
+          "severity": { "type": "string" },
+          "mitigation": { "type": "string" }
+        }
+      }
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "decision_summary": { "type": "string" },
+    "timeline_estimates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["milestone"],
+        "properties": {
+          "milestone": { "type": "string" },
+          "start_week": { "type": "string" },
+          "end_week": { "type": "string" },
+          "duration": { "type": "string" }
+        }
+      }
+    },
+    "roadmap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(FR-\\d+(?:\\.\\d+)?|NFR-\\d+(?:\\.\\d+)?|SC-\\d+|G-\\d+|D-?\\d+|DM-\\w+|API-\\w+|COMP-\\w+|TEST-\\w+|MIG-\\w+|OPS-\\w+|OQ-\\w+)$"
+      }
+    }
+  }
+}

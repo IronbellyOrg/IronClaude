@@ -1,0 +1,47 @@
+---
+base_variant: {{ frontmatter.base_variant }}
+variant_scores: {{ frontmatter.variant_scores }}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+variant_a: {{ frontmatter.variant_a | default("") }}
+variant_b: {{ frontmatter.variant_b | default("") }}
+---
+
+## Scoring Criteria
+
+{% for criterion in scoring_criteria | default([]) %}
+- {{ criterion }}
+{% endfor %}
+
+## Per-Criterion Scores
+
+| Criterion | Variant A | Variant B |
+| --- | --- | --- |
+{% for row in per_criterion_scores | default([]) %}
+| {{ row.criterion }} | {% if row.variant_a_score is defined %}{{ row.variant_a_score }}{% else %}—{% endif %} | {% if row.variant_b_score is defined %}{{ row.variant_b_score }}{% else %}—{% endif %} |
+{% endfor %}
+
+## Overall Scores
+
+{% if overall_scores is defined %}
+{% if overall_scores.variant_a is defined %}
+- Variant A: {{ overall_scores.variant_a }}
+{% endif %}
+{% if overall_scores.variant_b is defined %}
+- Variant B: {{ overall_scores.variant_b }}
+{% endif %}
+{% if overall_scores.justification is defined %}
+
+{{ overall_scores.justification }}
+{% endif %}
+{% endif %}
+
+## Base Variant Selection Rationale
+
+{{ base_selection_rationale }}
+
+## Improvements to Incorporate from the Non-Base Variant
+
+{% for improvement in improvements_to_incorporate | default([]) %}
+- {{ improvement }}
+{% endfor %}

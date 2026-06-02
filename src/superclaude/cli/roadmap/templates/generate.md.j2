@@ -1,0 +1,93 @@
+---
+spec_source: {{ frontmatter.spec_source }}
+{% if frontmatter.spec_sources is defined %}
+spec_sources: [{{ frontmatter.spec_sources | join(", ") }}]
+{% endif %}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+complexity_score: {{ frontmatter.complexity_score }}
+complexity_class: {{ frontmatter.complexity_class | default("MEDIUM") }}
+primary_persona: {{ frontmatter.primary_persona }}
+total_requirements: {{ frontmatter.total_requirements | default(0) }}
+milestone_count: {{ frontmatter.milestone_count | default(milestones | length) }}
+deliverable_count: {{ frontmatter.deliverable_count | default(0) }}
+---
+
+## Executive Summary
+
+{{ executive_summary | default("") }}
+
+## Milestone Summary
+
+| # | Milestone | Title | Duration | Exit Criteria |
+|---|---|---|---|---|
+{% for ms in milestone_summary | default([]) %}
+| {{ loop.index }} | {{ ms.milestone }} | {{ ms.title }} | {{ ms.duration | default("TBD") }} | {{ ms.exit_criteria | default("TBD") }} |
+{% endfor %}
+
+## Dependency Graph
+
+{% if dependency_graph is defined %}
+{% if dependency_graph is string %}
+{{ dependency_graph }}
+{% else %}
+{% for edge in dependency_graph %}
+- {{ edge }}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% for m in milestones %}
+## {{ m.id }}: {{ m.title }}
+
+**{{ m.id }}: {{ m.title }}** | {{ m.duration | default("TBD") }} | {{ m.exit_criteria | default("TBD") }}
+
+| # | ID | Title | Description | Comp | Deps | AC | Eff | Pri |
+|---|---|---|---|---|---|---|---|---|
+{% for d in m.deliverables %}
+| {{ d.num | default(loop.index) }} | {{ d.id }} | {{ d.title }} | {{ d.description | default("") }} | {{ d.comp | default("") }} | {{ d.deps | default("") }} | {{ d.ac | default("") }} | {{ d.eff | default("") }} | {{ d.pri | default("") }} |
+{% endfor %}
+
+### Risk Assessment and Mitigation — {{ m.id }}
+
+{{ m.risk_assessment | default("No milestone-specific risks identified.") }}
+
+{% if m.open_questions is defined and m.open_questions %}
+### Open Questions — {{ m.id }}
+
+| # | ID | Question | Impact | Resolution Owner | Target |
+|---|---|---|---|---|---|
+{% for oq in m.open_questions %}
+| {{ loop.index }} | {{ oq.id | default("OQ-" ~ loop.index) }} | {{ oq.question | default("") }} | {{ oq.impact | default("") }} | {{ oq.owner | default("TBD") }} | {{ oq.target | default("TBD") }} |
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+## Resource Requirements and Dependencies
+
+{{ resource_requirements | default("") }}
+
+## Risk Register
+
+{% for risk in risk_register | default([]) %}
+{{ loop.index }}. {% if risk.id is defined %}**{{ risk.id }}** {% endif %}{{ risk.risk | default("") }}{% if risk.severity is defined %} (severity: {{ risk.severity }}){% endif %}{% if risk.mitigation is defined %} — Mitigation: {{ risk.mitigation }}{% endif %}
+
+{% endfor %}
+
+## Success Criteria and Validation Approach
+
+{% for sc in success_criteria | default([]) %}
+- {{ sc }}
+{% endfor %}
+
+## Decision Summary
+
+{{ decision_summary | default("") }}
+
+## Timeline Estimates
+
+| Milestone | Start Week | End Week | Duration |
+|---|---|---|---|
+{% for te in timeline_estimates | default([]) %}
+| {{ te.milestone }} | {{ te.start_week | default("TBD") }} | {{ te.end_week | default("TBD") }} | {{ te.duration | default("TBD") }} |
+{% endfor %}
