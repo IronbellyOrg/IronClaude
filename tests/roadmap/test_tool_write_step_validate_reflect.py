@@ -163,6 +163,26 @@ def test_reflect_registry_key_distinct() -> None:
     assert spec.template_name == "reflect.md.j2"
 
 
+def test_multi_agent_reflect_step_ids_bypass_tool_write_hook() -> None:
+    """Multi-agent reflect/merge step ids must NOT resolve to a registry spec.
+
+    The validate sub-executor's tool-write hook keys on
+    ``TOOL_WRITE_REGISTRY.get(step.id)``. The single-agent path uses
+    ``id="reflect"`` (the genuine migration); the multi-agent path uses
+    ``id=f"reflect-{agent.id}"`` and ``id="adversarial-merge"``. Those MUST
+    return None so the hook is skipped and the existing markdown flow is
+    preserved (the multi-agent path is markdown-only and never passes
+    ``tool_write=`` to ``build_reflect_prompt``). Hardens against a future
+    registry that adds a ``reflect-``-prefixed key or a key-normalization
+    change (cf. the ``generate-*`` -> ``generate`` mapping in roadmap_run_step).
+    """
+    assert TOOL_WRITE_REGISTRY.get("reflect-opus-architect") is None
+    assert TOOL_WRITE_REGISTRY.get("reflect-sonnet-analyzer") is None
+    assert TOOL_WRITE_REGISTRY.get("adversarial-merge") is None
+    # The genuine single-agent step id DOES resolve.
+    assert TOOL_WRITE_REGISTRY.get("reflect") is not None
+
+
 def test_reflect_tool_definition() -> None:
     td = _reflect_tool_definition()
     assert td.name == "reflect"

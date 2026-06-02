@@ -57,7 +57,8 @@
         "success_criteria_count": { "type": "integer" },
         "extraction_mode": {
           "type": "string",
-          "enum": ["standard", "chunked"]
+          "pattern": "^(standard|chunked.*)$",
+          "$comment": "Mirrors EXTRACT_TDD gate _extraction_mode_valid (gates.py): accepts 'standard' or any value starting with 'chunked' (e.g. 'chunked (3 chunks)') so the tool-write path is interchangeable with the markdown path. Tool-write prompts still instruct the LLM to emit the canonical 'standard'/'chunked' forms."
         },
         "data_models_identified": { "type": "integer" },
         "api_surfaces_identified": { "type": "integer" },

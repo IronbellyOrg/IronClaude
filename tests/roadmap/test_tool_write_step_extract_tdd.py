@@ -239,6 +239,39 @@ def test_phantom_field_type_fails(extract_tdd_fixture: dict) -> None:
     assert errors, "wrong type for a count field should fail schema validation"
 
 
+def test_extraction_mode_matches_gate_tolerance(extract_tdd_fixture: dict) -> None:
+    """The extraction_mode schema constraint must be interchangeable with the
+    markdown-path gate ``_extraction_mode_valid`` (gates.py): it accepts
+    'standard' or ANY value starting with 'chunked' (e.g. 'chunked (3 chunks)').
+
+    Regression for the dual-write semantic-narrowing finding F1: the prior
+    ``enum: ["standard","chunked"]`` rejected the gate-legal 'chunked (3 chunks)'
+    form, which would have failed a tool-write extract whose equivalent markdown
+    extract passed its gate. Also confirms a non-chunked/non-standard value is
+    still rejected (the gate rejects 'full'/'partial'/'incremental').
+    """
+    from superclaude.cli.roadmap.gates import _extraction_mode_valid
+
+    schema = load_schema("extract_tdd.schema.json")
+
+    for legal in ("standard", "chunked", "chunked (3 chunks)"):
+        ok = json.loads(json.dumps(extract_tdd_fixture))
+        ok["frontmatter"]["extraction_mode"] = legal
+        assert validate_tool_output(ok, schema) == [], (
+            f"schema must accept gate-legal extraction_mode {legal!r}"
+        )
+        # Parity with the markdown gate's semantic check on the same value.
+        assert _extraction_mode_valid(f"---\nextraction_mode: {legal}\n---\n"), (
+            f"gate must also accept {legal!r} (interchangeability)"
+        )
+
+    bad = json.loads(json.dumps(extract_tdd_fixture))
+    bad["frontmatter"]["extraction_mode"] = "full"
+    assert validate_tool_output(bad, schema), (
+        "schema must reject a non-standard/non-chunked extraction_mode"
+    )
+
+
 def test_render_parity(extract_tdd_fixture: dict) -> None:
     """Side-by-side parity: rendered tool-write output mirrors markdown path.
 
