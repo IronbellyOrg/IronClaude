@@ -1408,6 +1408,32 @@ def run_rerun_tasks(
                 status=RecoveryStatus.SUCCESS,
                 rerun_attempt=attempt,
             )
+            # Sidecar: serialize the rerun's refreshed task_results so
+            # merge_recovery_bundle step 7 can splice the new statuses into the
+            # canonical phase-N-result.json (TASK-SIDECAR-GAP / AC-1). Without it
+            # the merge has no replacement results and the canonical per-task status
+            # stays stale (fail_recoverable) after a successful rerun.
+            if produced:
+                _bundle_result = sub_config.phase_result_json(sub_phase_obj)
+                if _bundle_result.exists():
+                    _bdata = json.loads(_bundle_result.read_text(encoding="utf-8"))
+                    _refreshed = [
+                        tr
+                        for tr in _bdata.get("task_results", [])
+                        if tr.get("task", {}).get("task_id") in set(resolved)
+                    ]
+                    # Only write when the sidecar covers EVERY resolved task: the
+                    # merge replaces affected entries with the sidecar, so a partial
+                    # sidecar would drop an uncovered task with no replacement (data
+                    # loss). Incomplete -> skip the write -> R-F3 preserve (AC-4).
+                    _covered = {
+                        tr.get("task", {}).get("task_id") for tr in _refreshed
+                    }
+                    if set(resolved).issubset(_covered):
+                        _atomic_write_text(
+                            produced[0].parent / "task-results.json",
+                            json.dumps(_refreshed, indent=2) + "\n",
+                        )
             merge_recovery_bundle(
                 recovery, config.index_path, release_dir=config.release_dir
             )

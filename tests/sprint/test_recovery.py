@@ -248,6 +248,87 @@ class TestMergeRecoveryBundle:
         # Failure was recorded → bundle downgraded to PARTIAL, never SUCCESS.
         assert bundle.status is RecoveryStatus.PARTIAL
 
+    def test_merge_refreshes_canonical_status_from_sidecar(self, tmp_path: Path):
+        """AC-2/AC-3 (TASK-SIDECAR-GAP): with a ``task-results.json`` sidecar
+        present, merge step 7 REPLACES the affected task's prior entry with the
+        refreshed rerun result — the canonical ``phase-N-result.json`` flips
+        ``fail_recoverable`` → ``pass`` with no duplicate entry, and the bundle
+        settles SUCCESS (no ``result-json-not-refreshed`` failure)."""
+        source_index, _release_dir, results_dir = _seed_release(tmp_path, phase=7)
+        result_json = results_dir / "phase-7-result.json"
+        # Seed a prior fail_recoverable entry for the task about to be reran.
+        result_json.write_text(
+            json.dumps(
+                {
+                    "phase": 7,
+                    "task_results": [
+                        {"task": {"task_id": "T07.11"}, "status": "fail_recoverable"}
+                    ],
+                    "recovery_history": [],
+                }
+            ),
+            encoding="utf-8",
+        )
+        # _bundle_with_sidecar writes a sidecar holding the refreshed PASS result.
+        bundle = _bundle_with_sidecar(
+            tmp_path, bundle_id="rerun-refresh", phase=7, task_ids=["T07.11"]
+        )
+
+        merge_recovery_bundle(bundle, source_index)
+
+        data = json.loads(result_json.read_text(encoding="utf-8"))
+        entries = [
+            tr
+            for tr in data["task_results"]
+            if tr.get("task", {}).get("task_id") == "T07.11"
+        ]
+        assert len(entries) == 1, "affected task must be replaced, not duplicated"
+        assert entries[0]["status"] == "pass"
+        assert len(data["recovery_history"]) == 1
+        assert bundle.status is RecoveryStatus.SUCCESS
+
+    def test_merge_without_sidecar_preserves_prior_and_partials(self, tmp_path: Path):
+        """AC-4 (R-F3 no-data-loss): with NO ``task-results.json`` sidecar, merge
+        step 7 must PRESERVE the affected task's prior entry (never silently drop
+        it) and downgrade the bundle to PARTIAL."""
+        source_index, _release_dir, results_dir = _seed_release(tmp_path, phase=7)
+        result_json = results_dir / "phase-7-result.json"
+        result_json.write_text(
+            json.dumps(
+                {
+                    "phase": 7,
+                    "task_results": [
+                        {"task": {"task_id": "T07.11"}, "status": "fail_recoverable"}
+                    ],
+                    "recovery_history": [],
+                }
+            ),
+            encoding="utf-8",
+        )
+        # Bundle whose artifacts_produced parent holds NO task-results.json sidecar.
+        bundle_dir = tmp_path / "bundles" / "rerun-nosidecar"
+        bundle_dir.mkdir(parents=True, exist_ok=True)
+        placeholder = bundle_dir / "phase-7-task-T07.11-output.txt"
+        placeholder.write_text("rerun output", encoding="utf-8")
+        bundle = RecoveryBundle(
+            bundle_id="rerun-nosidecar",
+            affected_phase=7,
+            affected_tasks=["T07.11"],
+            artifacts_produced=[placeholder],
+        )
+
+        merge_recovery_bundle(bundle, source_index)
+
+        data = json.loads(result_json.read_text(encoding="utf-8"))
+        entries = [
+            tr
+            for tr in data["task_results"]
+            if tr.get("task", {}).get("task_id") == "T07.11"
+        ]
+        assert len(entries) == 1, "prior entry must be preserved, never dropped"
+        assert entries[0]["status"] == "fail_recoverable"
+        assert bundle.status is RecoveryStatus.PARTIAL
+
 
 # ---------------------------------------------------------------------------
 # write_recovery_audit_log — shared JSONL audit writer
