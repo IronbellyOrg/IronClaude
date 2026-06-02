@@ -32,7 +32,11 @@ from superclaude.cli.roadmap.tool_writer import (
     validate_id_subset,
     validate_tool_output,
 )
-from superclaude.contracts import ID_PATTERNS
+from superclaude.contracts import (
+    ID_PATTERNS,
+    ROADMAP_ENTITY_ID_FAMILIES,
+    TOOL_WRITE_ROADMAP_ID_FAMILIES,
+)
 
 # 14 verbatim section headers the rendered markdown must contain
 # (8 standard + 6 TDD design sections).
@@ -204,24 +208,29 @@ def test_extract_tdd_schema_loads() -> None:
 
 
 def test_extract_tdd_schema_id_pattern_matches_contracts() -> None:
-    """The roadmap_ids pattern must embed every ID_PATTERNS family body AND
-    the 6 synthetic TDD-artifact family prefixes.
+    """The roadmap_ids pattern must embed every ID_PATTERNS family body AND the
+    extract_tdd step's 6 entity families, each as an EXACT alternation arm.
 
-    Guards against silent SoT drift (Contract #8): if a family regex in
-    ``superclaude.contracts.ID_PATTERNS`` changes, this assertion fails until
-    the schema pattern is recomposed from the SoT.
+    Guards against silent SoT drift (Contract #8): keys-driven on BOTH halves
+    from the live SoT — ``ID_PATTERNS`` for spec families (incl. MD) and
+    ``TOOL_WRITE_ROADMAP_ID_FAMILIES`` / ``ROADMAP_ENTITY_ID_FAMILIES`` for the
+    per-step entity families (DM/API/COMP/TEST/MIG/OPS — OQ intentionally
+    excluded at extract time). Arm-level membership (split on ``|``) is immune
+    to the MD-subset-of-D substring trap.
     """
     schema = load_schema("extract_tdd.schema.json")
     pattern = schema["properties"]["roadmap_ids"]["items"]["pattern"]
-    for family in ("FR", "NFR", "SC", "G", "D"):
-        assert ID_PATTERNS[family] in pattern, (
-            f"ID_PATTERNS['{family}'] body {ID_PATTERNS[family]!r} "
-            f"missing from roadmap_ids pattern {pattern!r}"
+    arms = pattern[2:-2].split("|")  # strip leading "^(" and trailing ")$"
+    for family, body in ID_PATTERNS.items():  # MD, FR, NFR, SC, G, D
+        assert body in arms, (
+            f"ID_PATTERNS['{family}'] body {body!r} is not an exact "
+            f"alternation arm of {arms!r}"
         )
-    for prefix in ("DM-", "API-", "COMP-", "TEST-", "MIG-", "OPS-"):
-        assert prefix in pattern, (
-            f"synthetic TDD-artifact prefix {prefix!r} missing from "
-            f"roadmap_ids pattern {pattern!r}"
+    for prefix in TOOL_WRITE_ROADMAP_ID_FAMILIES["extract_tdd"]:
+        body = ROADMAP_ENTITY_ID_FAMILIES[prefix]
+        assert body in arms, (
+            f"extract_tdd entity family {prefix!r} body {body!r} is not an "
+            f"exact alternation arm of {arms!r}"
         )
 
 

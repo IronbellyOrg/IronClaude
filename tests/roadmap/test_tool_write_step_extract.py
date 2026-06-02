@@ -29,7 +29,11 @@ from superclaude.cli.roadmap.tool_writer import (
     validate_id_subset,
     validate_tool_output,
 )
-from superclaude.contracts import ID_PATTERNS
+from superclaude.contracts import (
+    ID_PATTERNS,
+    ROADMAP_ENTITY_ID_FAMILIES,
+    TOOL_WRITE_ROADMAP_ID_FAMILIES,
+)
 
 # 9 verbatim section headers the rendered markdown must contain.
 _SECTION_HEADERS = [
@@ -128,18 +132,29 @@ def test_extract_schema_loads() -> None:
 
 
 def test_extract_schema_id_pattern_matches_contracts() -> None:
-    """The roadmap_ids pattern must embed every ID_PATTERNS family body.
+    """The roadmap_ids pattern must embed every ID_PATTERNS family body AND the
+    extract step's entity families, each as an EXACT alternation arm.
 
-    Guards against silent SoT drift (Contract #8): if a family regex in
-    ``superclaude.contracts.ID_PATTERNS`` changes, this assertion fails until
-    the schema pattern is recomposed from the SoT.
+    Guards against silent SoT drift (Contract #8): keys-driven on BOTH halves
+    from the live SoT — ``ID_PATTERNS`` for spec families (incl. MD) and
+    ``TOOL_WRITE_ROADMAP_ID_FAMILIES`` / ``ROADMAP_ENTITY_ID_FAMILIES`` for the
+    per-step entity families. Arm-level membership (split the alternation on
+    ``|`` and compare whole arms) is immune to the MD-subset-of-D substring
+    trap, where ``D-?\\d+`` is a literal substring of ``M\\d+-D-?\\d+``.
     """
     schema = load_schema("extract.schema.json")
     pattern = schema["properties"]["roadmap_ids"]["items"]["pattern"]
-    for family in ("FR", "NFR", "SC", "G", "D"):
-        assert ID_PATTERNS[family] in pattern, (
-            f"ID_PATTERNS['{family}'] body {ID_PATTERNS[family]!r} "
-            f"missing from roadmap_ids pattern {pattern!r}"
+    arms = pattern[2:-2].split("|")  # strip leading "^(" and trailing ")$"
+    for family, body in ID_PATTERNS.items():  # MD, FR, NFR, SC, G, D
+        assert body in arms, (
+            f"ID_PATTERNS['{family}'] body {body!r} is not an exact "
+            f"alternation arm of {arms!r}"
+        )
+    for prefix in TOOL_WRITE_ROADMAP_ID_FAMILIES["extract"]:
+        body = ROADMAP_ENTITY_ID_FAMILIES[prefix]
+        assert body in arms, (
+            f"extract entity family {prefix!r} body {body!r} is not an exact "
+            f"alternation arm of {arms!r}"
         )
 
 

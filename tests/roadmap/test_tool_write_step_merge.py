@@ -20,6 +20,7 @@ Dependencies / Infrastructure Requirements subsections that generate does not).
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -43,7 +44,12 @@ from superclaude.cli.roadmap.tool_writer import (
     validate_id_subset,
     validate_tool_output,
 )
-from superclaude.contracts import ID_PATTERNS
+from superclaude.contracts import (
+    ID_PATTERNS,
+    ROADMAP_ENTITY_ID_FAMILIES,
+    TOOL_WRITE_ROADMAP_ID_FAMILIES,
+    roadmap_ids_pattern,
+)
 
 
 def _deliverable(num: int, rid: str, title: str) -> dict:
@@ -249,27 +255,38 @@ def test_merge_schema_loads() -> None:
 
 def test_merge_schema_id_pattern_matches_contracts() -> None:
     """The roadmap_ids pattern must embed every ID_PATTERNS family body AND the
-    entity-family prefixes (DM-/API-/COMP-/TEST-/MIG-/OPS-).
+    merge step's full entity family set, each as an EXACT alternation arm.
 
-    SoT-drift guard (Contract #8): the pattern is composed from the same
-    families generate uses; this fails if contracts drift away from the schema.
+    SoT-drift guard (Contract #8): keys-driven on BOTH halves from the live
+    SoT — ``ID_PATTERNS`` for spec families (incl. MD) and
+    ``TOOL_WRITE_ROADMAP_ID_FAMILIES`` / ``ROADMAP_ENTITY_ID_FAMILIES`` for the
+    per-step entity families (DM/API/COMP/TEST/MIG/OPS/OQ — equal to generate).
+    Arm-level membership (split on ``|``) is immune to the MD-subset-of-D
+    substring trap.
     """
     schema = load_schema("merge.schema.json")
     pattern = schema["properties"]["roadmap_ids"]["items"]["pattern"]
-    for family in ("FR", "NFR", "SC", "G", "D"):
-        assert ID_PATTERNS[family] in pattern, (
-            f"ID_PATTERNS['{family}'] body {ID_PATTERNS[family]!r} "
-            f"missing from roadmap_ids pattern {pattern!r}"
+    arms = pattern[2:-2].split("|")  # strip leading "^(" and trailing ")$"
+    for family, body in ID_PATTERNS.items():  # MD, FR, NFR, SC, G, D
+        assert body in arms, (
+            f"ID_PATTERNS['{family}'] body {body!r} is not an exact "
+            f"alternation arm of {arms!r}"
         )
-    for prefix in ("DM-", "API-", "COMP-", "TEST-", "MIG-", "OPS-"):
-        assert prefix in pattern, (
-            f"entity-family prefix {prefix!r} missing from "
-            f"roadmap_ids pattern {pattern!r}"
+    for prefix in TOOL_WRITE_ROADMAP_ID_FAMILIES["merge"]:
+        body = ROADMAP_ENTITY_ID_FAMILIES[prefix]
+        assert body in arms, (
+            f"merge entity family {prefix!r} body {body!r} is not an exact "
+            f"alternation arm of {arms!r}"
         )
 
 
 def test_merge_schema_matches_generate_id_pattern() -> None:
-    """Merge reuses the SAME roadmap_ids pattern as generate (no divergence)."""
+    """Merge reuses the SAME roadmap_ids pattern as generate (no divergence).
+
+    Extended to also pin BOTH on-disk schemas to the ``roadmap_ids_pattern``
+    assembler output, closing the drift door durably: the schemas can no longer
+    diverge from the contracts SoT without this guard going red.
+    """
     merge_pattern = load_schema("merge.schema.json")[
         "properties"
     ]["roadmap_ids"]["items"]["pattern"]
@@ -277,6 +294,46 @@ def test_merge_schema_matches_generate_id_pattern() -> None:
         "properties"
     ]["roadmap_ids"]["items"]["pattern"]
     assert merge_pattern == generate_pattern
+    # Pin each on-disk schema to the single derivation source (assembler).
+    assert merge_pattern == roadmap_ids_pattern("merge")
+    assert generate_pattern == roadmap_ids_pattern("generate")
+
+
+@pytest.mark.parametrize("step", ["extract", "extract_tdd", "generate", "merge"])
+def test_all_schemas_accept_md_family(step: str) -> None:
+    """Regression: every tool-write schema admits the MD spec family.
+
+    Guards the latent drift fixed in TASK-RF-20260602-162259, where all four
+    ``roadmap_ids.items.pattern`` strings omitted the MD arm and rejected a
+    milestone-prefixed deliverable id like ``M1-D01``. Asserts BOTH:
+
+    * structural — ``ID_PATTERNS["MD"]`` is an EXACT alternation arm (compared
+      after ``split("|")``, so it is immune to the MD-subset-of-D trap where
+      ``D-?\\d+`` is a literal substring of ``M\\d+-D-?\\d+``); and
+    * behavioral — ``M1-D01`` matches, the bare-D arm still matches ``D-1``
+      independently, and a non-family token ``XYZ-1`` does NOT match (bounding
+      the alternation).
+    """
+    pattern = load_schema(f"{step}.schema.json")[
+        "properties"
+    ]["roadmap_ids"]["items"]["pattern"]
+    arms = pattern[2:-2].split("|")  # strip leading "^(" and trailing ")$"
+    # Structural: MD is its OWN exact arm (not merely a substring via the D arm).
+    assert ID_PATTERNS["MD"] in arms, (
+        f"MD body {ID_PATTERNS['MD']!r} not an exact alternation arm of {arms!r}"
+    )
+    # Behavioral: the milestone-prefixed deliverable id now validates...
+    assert re.match(pattern, "M1-D01"), (
+        f"M1-D01 must validate against {step} pattern {pattern!r}"
+    )
+    # ...the bare-D arm is exercised independently of the MD arm...
+    assert re.match(pattern, "D-1"), (
+        f"bare-D id D-1 must validate against {step} pattern {pattern!r}"
+    )
+    # ...and a non-family token is rejected (the alternation is bounded).
+    assert re.match(pattern, "XYZ-1") is None, (
+        f"XYZ-1 must NOT validate against {step} pattern {pattern!r}"
+    )
 
 
 def test_valid_output_passes_schema(merge_fixture: dict) -> None:

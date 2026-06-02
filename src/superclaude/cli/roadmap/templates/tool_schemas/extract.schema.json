@@ -131,7 +131,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "pattern": "^(FR-\\d+(?:\\.\\d+)?|NFR-\\d+(?:\\.\\d+)?|SC-\\d+|G-\\d+|D-?\\d+|COMP-\\w+|DM-\\w+)$"
+        "pattern": "^(M\\d+-D-?\\d+|FR-\\d+(?:\\.\\d+)?|NFR-\\d+(?:\\.\\d+)?|SC-\\d+|G-\\d+|D-?\\d+|DM-\\w+|COMP-\\w+)$"
       }
     }
   }

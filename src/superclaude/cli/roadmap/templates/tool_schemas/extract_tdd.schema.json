@@ -215,7 +215,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "pattern": "^(FR-\\d+(?:\\.\\d+)?|NFR-\\d+(?:\\.\\d+)?|SC-\\d+|G-\\d+|D-?\\d+|DM-\\w+|API-\\w+|COMP-\\w+|TEST-\\w+|MIG-\\w+|OPS-\\w+)$"
+        "pattern": "^(M\\d+-D-?\\d+|FR-\\d+(?:\\.\\d+)?|NFR-\\d+(?:\\.\\d+)?|SC-\\d+|G-\\d+|D-?\\d+|DM-\\w+|API-\\w+|COMP-\\w+|TEST-\\w+|MIG-\\w+|OPS-\\w+)$"
       }
     }
   }

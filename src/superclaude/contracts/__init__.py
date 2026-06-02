@@ -206,6 +206,99 @@ RETURN_CONTRACTS: Final[dict[str, type]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# ROADMAP_ENTITY_ID_FAMILIES — tool-write entity-ID regex bodies per prefix.
+#
+# A DISTINCT universe from :data:`ID_PATTERNS` (the SPEC families a spec
+# DECLARES). These are the entity-ID families the LLM MINTS while elaborating a
+# roadmap in tool-write mode: component / data-model / API / test / migration /
+# operational deliverables, plus milestone open-question IDs. They are kept OUT
+# of ``ID_PATTERNS`` deliberately — promoting them would make
+# ``spec_parser.extract_requirement_ids`` match roadmap-internal entity IDs as
+# if they were spec requirements, polluting the ``spec_ids`` universe that
+# ``tool_writer.validate_id_subset`` checks against
+# (TASK-RF-20260602-162259, research/02: REJECT promoting extras into
+# ID_PATTERNS). Bodies are anchor-free; the per-step assembler
+# :func:`roadmap_ids_pattern` wraps them. This registry is the single owner of
+# these entity-family bodies.
+# ---------------------------------------------------------------------------
+ROADMAP_ENTITY_ID_FAMILIES: Final[dict[str, str]] = {
+    "DM": r"DM-\w+",
+    "API": r"API-\w+",
+    "COMP": r"COMP-\w+",
+    "TEST": r"TEST-\w+",
+    "MIG": r"MIG-\w+",
+    "OPS": r"OPS-\w+",
+    "OQ": r"OQ-\w+",
+}
+
+# ---------------------------------------------------------------------------
+# TOOL_WRITE_ROADMAP_ID_FAMILIES — per-tool-write-step ordered ENTITY prefixes.
+#
+# Each of the four roadmap tool-write JSON schemas
+# (``cli/roadmap/templates/tool_schemas/{extract,extract_tdd,generate,merge}``
+# ``.schema.json``) accepts a per-step family set in
+# ``roadmap_ids.items.pattern``. The per-step differences are INTENTIONAL
+# semantics — each set tracks the typed inventories that step structurally
+# produces or consumes — NOT drift (TASK-RF-20260602-162259 research/02
+# verdict). The SPEC families (incl. ``MD``) are implicit in EVERY step via
+# :data:`ID_PATTERNS`; this map holds only the per-step ENTITY families, in
+# canonical order:
+#   * ``extract``      — ``component_inventory`` (COMP) + fixture-backed DM
+#   * ``extract_tdd``  — its 6 typed entity arrays (DM/API/COMP/TEST/MIG/OPS), no OQ
+#   * ``generate``     — full entity set incl. OQ (``milestones[].open_questions[].id``)
+#   * ``merge``        — identical to ``generate`` (preserves the merge==generate pin)
+# Order is canonical DM-before-COMP (extract's historical COMP-before-DM
+# ordering anomaly is reconciled here).
+# ---------------------------------------------------------------------------
+TOOL_WRITE_ROADMAP_ID_FAMILIES: Final[dict[str, tuple[str, ...]]] = {
+    "extract": ("DM", "COMP"),
+    "extract_tdd": ("DM", "API", "COMP", "TEST", "MIG", "OPS"),
+    "generate": ("DM", "API", "COMP", "TEST", "MIG", "OPS", "OQ"),
+    "merge": ("DM", "API", "COMP", "TEST", "MIG", "OPS", "OQ"),
+}
+
+
+def roadmap_ids_pattern(step: str) -> str:
+    """Assemble the ``roadmap_ids.items.pattern`` regex for a tool-write step.
+
+    This is the single derivation source for the four roadmap tool-write
+    schemas' ``properties.roadmap_ids.items.pattern`` strings. It emits
+    ``"^(" + "|".join(spec_bodies + entity_bodies) + ")$"`` where:
+
+    * ``spec_bodies`` are the SPEC-family bodies read verbatim from
+      :data:`ID_PATTERNS` (so ``MD`` is always present and the MD-before-D
+      ordering is preserved). The bodies are READ from ``ID_PATTERNS`` and are
+      never re-inlined as literals here — Contract #8 / arch-lint Rule 2.
+    * ``entity_bodies`` are the per-step ENTITY-family bodies looked up from
+      :data:`ROADMAP_ENTITY_ID_FAMILIES` in the order given by
+      :data:`TOOL_WRITE_ROADMAP_ID_FAMILIES` for ``step``.
+
+    Because ``merge`` and ``generate`` share an identical entity tuple, their
+    assembled patterns are byte-identical (the merge==generate invariant).
+
+    Args:
+        step: One of ``"extract"``, ``"extract_tdd"``, ``"generate"``,
+            ``"merge"``.
+
+    Returns:
+        The anchored alternation pattern string.
+
+    Raises:
+        ValueError: If ``step`` is not a known tool-write step.
+    """
+    try:
+        entity_prefixes = TOOL_WRITE_ROADMAP_ID_FAMILIES[step]
+    except KeyError as exc:
+        valid = ", ".join(sorted(TOOL_WRITE_ROADMAP_ID_FAMILIES))
+        raise ValueError(
+            f"unknown tool-write step {step!r}; expected one of: {valid}"
+        ) from exc
+    spec_bodies = list(ID_PATTERNS.values())
+    entity_bodies = [ROADMAP_ENTITY_ID_FAMILIES[prefix] for prefix in entity_prefixes]
+    return "^(" + "|".join(spec_bodies + entity_bodies) + ")$"
+
+
 __all__ = [
     "ID_PATTERNS",
     "CONVERGENCE_THRESHOLDS",
@@ -214,4 +307,7 @@ __all__ = [
     "UnaddressedInvariant",
     "AdversarialReturn",
     "RETURN_CONTRACTS",
+    "ROADMAP_ENTITY_ID_FAMILIES",
+    "TOOL_WRITE_ROADMAP_ID_FAMILIES",
+    "roadmap_ids_pattern",
 ]

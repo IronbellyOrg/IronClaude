@@ -1,0 +1,7 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+extract ^(M\d+-D-?\d+|FR-\d+(?:\.\d+)?|NFR-\d+(?:\.\d+)?|SC-\d+|G-\d+|D-?\d+|DM-\w+|COMP-\w+)$ True True
+extract_tdd ^(M\d+-D-?\d+|FR-\d+(?:\.\d+)?|NFR-\d+(?:\.\d+)?|SC-\d+|G-\d+|D-?\d+|DM-\w+|API-\w+|COMP-\w+|TEST-\w+|MIG-\w+|OPS-\w+)$ True True
+generate ^(M\d+-D-?\d+|FR-\d+(?:\.\d+)?|NFR-\d+(?:\.\d+)?|SC-\d+|G-\d+|D-?\d+|DM-\w+|API-\w+|COMP-\w+|TEST-\w+|MIG-\w+|OPS-\w+|OQ-\w+)$ True True
+merge ^(M\d+-D-?\d+|FR-\d+(?:\.\d+)?|NFR-\d+(?:\.\d+)?|SC-\d+|G-\d+|D-?\d+|DM-\w+|API-\w+|COMP-\w+|TEST-\w+|MIG-\w+|OPS-\w+|OQ-\w+)$ True True
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+True
