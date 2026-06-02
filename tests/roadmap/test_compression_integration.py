@@ -177,7 +177,9 @@ class TestBuildStepsWithCompression:
         assert sc_a in by_id["merge"].inputs and sc_b in by_id["merge"].inputs
         assert sc_merge in by_id["spec-fidelity"].inputs
         assert sc_merge in by_id["test-strategy"].inputs
-        assert sc_merge in by_id["wiring-verification"].inputs
+        # R1.5: wiring-verification removed from _build_steps (REPLACED by the
+        # dynamic verify-implementation step). The compressed-merge input
+        # assertion for the legacy step is dropped accordingly.
 
     def test_deterministic_steps_keep_originals(self, config_on: RoadmapConfig) -> None:
         steps = _flatten(_build_steps(config_on))

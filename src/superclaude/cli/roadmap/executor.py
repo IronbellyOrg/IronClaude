@@ -21,12 +21,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from superclaude.cli.audit.wiring_gate import WIRING_GATE
 from superclaude.cli.pipeline.deliverables import decompose_deliverables
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
     Deliverable,
-    GateMode,
     PipelineConfig,
     Step,
     StepResult,
@@ -51,6 +49,7 @@ from .gates import (
     SCORE_GATE,
     SPEC_FIDELITY_GATE,
     TEST_STRATEGY_GATE,
+    VERIFY_IMPLEMENTATION_GATE,
 )
 from .models import AgentSpec, RoadmapConfig
 from .prompts import (
@@ -63,10 +62,10 @@ from .prompts import (
     build_score_prompt,
     build_spec_fidelity_prompt,
     build_test_strategy_prompt,
-    build_wiring_verification_prompt,
     wrap_for_incremental_write,
 )
 from .templates import ROADMAP_TEMPLATE, get_template_path
+from .verify_implementation import build_verify_implementation_step
 
 _log = logging.getLogger("superclaude.roadmap.executor")
 
@@ -1080,20 +1079,22 @@ def _roadmap_run_step_impl(
     if step.id == "remediate":
         return _run_remediate_step(step, config, started_at)
 
-    # Wiring-verification: run static analysis directly, no Claude subprocess.
-    # Returns PASS unconditionally; gate evaluation is handled separately by
-    # the trailing gate runner (section 5.7.1).
-    if step.id == "wiring-verification":
-        from superclaude.cli.audit.wiring_config import WiringConfig
-        from superclaude.cli.audit.wiring_gate import emit_report, run_wiring_analysis
-
-        wiring_config = WiringConfig(rollout_mode="soft")
-        source_dir = (
-            Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
-        )
-        report = run_wiring_analysis(wiring_config, source_dir)
+    # Verify-implementation (R1.5 / §MVR §4): terminal FR-resolution gate.
+    # No Claude subprocess. This branch only WRITES the report artifact so the
+    # STRICT gate's file-existence precondition is met; the gate verdict is
+    # owned by the all_frs_resolved CodeAssertion, evaluated with the live
+    # envelope plumbed in _run_verify_implementation (INV-002). Returns PASS
+    # here unconditionally — the assertion-backed verdict is applied by the
+    # explicit gate_passed call in _run_verify_implementation.
+    if step.id == "verify-implementation":
         step.output_file.parent.mkdir(parents=True, exist_ok=True)
-        emit_report(report, step.output_file)
+        step.output_file.write_text(
+            "# Verify Implementation\n\n"
+            "Terminal FR-resolution gate (R1.5 / §MVR §4). Verdict is owned by "
+            "the `all_frs_resolved` code assertion evaluated against the live "
+            "pipeline envelope; see the certification state for the outcome.\n",
+            encoding="utf-8",
+        )
         return StepResult(
             step=step,
             status=StepStatus.PASS,
@@ -2309,6 +2310,88 @@ def _run_certify_after_remediate(
         )
 
 
+def _run_verify_implementation(
+    config: RoadmapConfig,
+    results: list[StepResult],
+) -> None:
+    """Construct + evaluate the terminal ``verify-implementation`` step.
+
+    R1.5 / §MVR §4: this is the fail-closed terminal FR-resolution gate that
+    REPLACES the legacy ``wiring-verification`` shadow step. It is dispatched
+    dynamically AFTER ``certify`` (truly terminal), mirroring
+    :func:`_run_certify_after_remediate`.
+
+    **INV-002 (design §7.3) — the load-bearing difference from certify.**
+    ``assert_all_frs_resolved`` is a *runtime-artifact-based* assertion: it
+    consumes the live :class:`PipelineEnvelope`. The ``gate_passed`` shim
+    (``pipeline/gates.py:94-98``) SILENTLY SKIPS ``code_assertions`` when
+    ``envelope`` or ``repo_root`` is ``None`` — so this function MUST plumb
+    both into the explicit ``gate_passed`` call, or the gate would present as
+    a passing terminal verification while verifying nothing. (Contrast
+    ``_run_certify_after_remediate``, which deliberately OMITS the envelope so
+    its source-tree ``assert_step_reachable`` is shim-skipped at runtime.)
+
+    No-op when the pipeline produced no ``envelope.json`` (e.g. tests that mock
+    ``execute_pipeline`` to return an empty result list, or runs predating the
+    R1.2 dual-write substrate) — there is nothing to verify against.
+    """
+    out = Path(config.output_dir)
+    envelope_path = out / "envelope.json"
+    if not envelope_path.exists():
+        _log.info(
+            "[roadmap] verify-implementation: no envelope.json at %s; skipping "
+            "terminal FR-resolution gate (no runtime substrate to verify).",
+            envelope_path,
+        )
+        return
+
+    from superclaude.cli.pipeline.gates import gate_passed
+    from superclaude.cli.roadmap.envelope import load_envelope
+
+    envelope = load_envelope(envelope_path)
+
+    verify_step = build_verify_implementation_step(
+        config, gate=VERIFY_IMPLEMENTATION_GATE
+    )
+    verify_result = roadmap_run_step(verify_step, config, lambda: False)
+
+    # INV-002: plumb the live envelope + repo_root so the all_frs_resolved
+    # CodeAssertion actually runs (the gate_passed shim would otherwise skip
+    # it and return a silent PASS). repo_root is reserved/unused by the
+    # assertion (artifact-based resolution, not source-tree), but MUST be
+    # non-None for the shim to dispatch the assertion.
+    passed, reason = gate_passed(
+        verify_step.output_file,
+        VERIFY_IMPLEMENTATION_GATE,
+        envelope=envelope,
+        repo_root=out,
+    )
+    if not passed:
+        # A failed verification gate is a CAVEAT, not a hard error: the main
+        # pipeline already succeeded and its state is persisted. Record FAIL so
+        # the audit log / derive_pipeline_status surface the unresolved FRs.
+        verify_result = dataclasses.replace(
+            verify_result,
+            status=StepStatus.FAIL,
+            gate_failure_reason=reason,
+        )
+
+    results.append(verify_result)
+    _save_state(config, results)
+
+    if passed:
+        print(
+            "[roadmap] Verify-implementation complete (all FRs resolved)",
+            flush=True,
+        )
+    else:
+        print(
+            "[roadmap] Verify-implementation FAILED: "
+            f"{reason or 'one or more FRs unresolved'}",
+            flush=True,
+        )
+
+
 def _parse_certify_counts(report_file: Path, default: int = 0) -> dict[str, int]:
     """Extract finding counts from a certification report's frontmatter.
 
@@ -2586,17 +2669,11 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             ),
             retry_limit=1,
         ),
-        # Step 9: Wiring Verification (section 5.7, shadow mode trailing gate)
-        Step(
-            id="wiring-verification",
-            prompt=build_wiring_verification_prompt(merge_file, config.spec_file.name),
-            output_file=out / "wiring-verification.md",
-            gate=WIRING_GATE,
-            timeout_seconds=60,
-            inputs=_llm_inputs_for(config, merge_file) + [spec_fidelity_file],
-            retry_limit=0,
-            gate_mode=GateMode.TRAILING,
-        ),
+        # R1.5 / §MVR §4: the legacy `wiring-verification` shadow step is
+        # REPLACED by the fail-closed `verify-implementation` terminal step,
+        # which is dispatched dynamically after `certify`
+        # (_run_verify_implementation in execute_roadmap), mirroring the
+        # certify wiring. Net pipeline step-count delta 0 (Acceptance Gate #6).
         # Step 10: Deviation Analysis (deterministic, no LLM)
         Step(
             id="deviation-analysis",
@@ -2710,10 +2787,12 @@ def _get_all_step_ids(config: RoadmapConfig) -> list[str]:
         "anti-instinct",
         "test-strategy",
         "spec-fidelity",
-        "wiring-verification",
         "deviation-analysis",
         "remediate",
         "certify",
+        # R1.5 / §MVR §4: terminal verification step (dynamic, after certify),
+        # REPLACES wiring-verification (net delta 0; 14 IDs total).
+        "verify-implementation",
     ]
 
 
@@ -3626,6 +3705,11 @@ def execute_roadmap(
     # call exists (Contract #2 / kills master:§Flaw 1 for certify).
     _run_certify_after_remediate(config, results)
 
+    # R1.5 / §MVR §4: terminal fail-closed FR-resolution gate, AFTER certify.
+    # Plumbs the live envelope (INV-002) so the all_frs_resolved assertion
+    # actually runs. REPLACES the legacy wiring-verification shadow step.
+    _run_verify_implementation(config, results)
+
     # Auto-invoke validation after successful pipeline completion
     if no_validate:
         print("[roadmap] Validation skipped (--no-validate)", flush=True)
@@ -3843,6 +3927,10 @@ def _apply_resume_after_spec_patch(
     # cycle too, matching the fresh-run path (execute_roadmap). Without this,
     # certify would only run on fresh runs, not on spec-patch auto-resumes.
     _run_certify_after_remediate(config, resumed_results)
+
+    # R1.5 / §MVR §4: terminal FR-resolution gate on the spec-patch resume
+    # cycle too, matching the fresh-run path (INV-002 envelope plumbing).
+    _run_verify_implementation(config, resumed_results)
 
     return True
 

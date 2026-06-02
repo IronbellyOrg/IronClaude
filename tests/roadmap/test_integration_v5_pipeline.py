@@ -334,7 +334,9 @@ class TestSC1PipelineComplete:
             run_step=_mock_runner_all_pass,
         )
 
-        assert len(results) == 13
+        # R1.5: 12 steps (wiring-verification REPLACED by dynamic
+        # verify-implementation, dispatched after certify).
+        assert len(results) == 12
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_remediate_step_is_last(self, tmp_path):
@@ -767,8 +769,10 @@ class TestCompleteV224PipelineFlow:
             run_step=_mock_runner_all_pass,
         )
 
-        # SC-1: All 13 steps pass (pipeline reaches remediate without manual intervention)
-        assert len(results) == 13, f"Expected 13 results, got {len(results)}"
+        # SC-1: All 12 static steps pass (pipeline reaches remediate without
+        # manual intervention). R1.5: wiring-verification REPLACED by dynamic
+        # verify-implementation (after certify), so it is not in this count.
+        assert len(results) == 12, f"Expected 12 results, got {len(results)}"
         assert all(r.status == StepStatus.PASS for r in results), (
             f"Failed steps: {[r.step.id for r in results if r.status != StepStatus.PASS]}"
         )

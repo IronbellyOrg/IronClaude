@@ -271,8 +271,11 @@ class TestE2EFullPipeline:
             run_step=_mock_runner,
         )
 
-        # 13 individual steps (2 parallel generate + 10 sequential + deviation-analysis + remediate)
-        assert len(results) == 13
+        # R1.5: 12 individual steps (2 parallel generate + 8 sequential +
+        # deviation-analysis + remediate). wiring-verification was REPLACED by
+        # the dynamic verify-implementation step (after certify), so it is not
+        # part of the execute_pipeline(_build_steps) run.
+        assert len(results) == 12
         assert all(r.status == StepStatus.PASS for r in results)
 
     def test_e2e_state_saved_after_steps_1_9(self, tmp_path):
@@ -512,8 +515,9 @@ class TestE2EFullPipeline:
         state = read_state(config.output_dir / ".roadmap-state.json")
         assert state is not None
 
-        # Verify all 13 step results + remediate + certify metadata
-        assert len(state["steps"]) == 13
+        # R1.5: verify all 12 step results + remediate + certify metadata
+        # (wiring-verification REPLACED by dynamic verify-implementation).
+        assert len(state["steps"]) == 12
         assert all(state["steps"][sid]["status"] == "PASS" for sid in state["steps"])
         assert state["remediate"]["status"] == "PASS"
         assert state["certify"]["certified"] is True

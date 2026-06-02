@@ -56,15 +56,19 @@ class TestStepOrdering:
     """Verify pipeline step ordering invariants."""
 
     def test_step_count(self, tmp_path):
-        """Pipeline produces exactly 13 steps (12 entries; parallel pair counts as 2).
-        certify is dynamic, not in static step list; _get_all_step_ids has 14.
+        """Pipeline produces exactly 12 static steps (11 entries; parallel pair counts as 2).
+
+        R1.5: wiring-verification was REMOVED from _build_steps (REPLACED by
+        the dynamic verify-implementation step, dispatched after certify). Both
+        certify and verify-implementation are dynamic, so _get_all_step_ids
+        still has 14 (net step-count delta 0; Acceptance Gate #6).
         """
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
         assert (
-            len(flat) == 13
-        )  # extract + 2 generate + diff + debate + score + merge + anti-instinct + test-strategy + spec-fidelity + wiring + deviation-analysis + remediate
+            len(flat) == 12
+        )  # extract + 2 generate + diff + debate + score + merge + anti-instinct + test-strategy + spec-fidelity + deviation-analysis + remediate
 
     def test_extract_is_first(self, tmp_path):
         config = _make_config(tmp_path)
@@ -87,6 +91,8 @@ class TestStepOrdering:
         steps = _build_steps(config)
         sequential = [s for s in steps[2:] if isinstance(s, Step)]
         seq_ids = [s.id for s in sequential]
+        # R1.5: wiring-verification removed (REPLACED by dynamic
+        # verify-implementation after certify).
         expected_order = [
             "diff",
             "debate",
@@ -95,7 +101,6 @@ class TestStepOrdering:
             "anti-instinct",
             "test-strategy",
             "spec-fidelity",
-            "wiring-verification",
             "deviation-analysis",
             "remediate",
         ]
@@ -111,15 +116,22 @@ class TestStepOrdering:
         sf_idx = ids.index("spec-fidelity")
         assert sf_idx > ts_idx
 
-    def test_wiring_after_spec_fidelity(self, tmp_path):
-        """wiring-verification must come after spec-fidelity."""
+    def test_wiring_verification_removed(self, tmp_path):
+        """R1.5: wiring-verification is REPLACED — absent from _build_steps.
+
+        Its FR-resolution property is now enforced by the fail-closed
+        verify-implementation terminal step (dynamic, after certify), not a
+        static _build_steps shadow gate. Here we only assert the legacy step is
+        gone and deviation-analysis follows spec-fidelity directly.
+        """
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
         ids = [s.id for s in flat]
+        assert "wiring-verification" not in ids
         sf_idx = ids.index("spec-fidelity")
-        wv_idx = ids.index("wiring-verification")
-        assert wv_idx > sf_idx
+        da_idx = ids.index("deviation-analysis")
+        assert da_idx > sf_idx
 
 
 class TestInputDependencies:
@@ -173,15 +185,10 @@ class TestInputDependencies:
         assert config.spec_file in sf.inputs
         assert merge.output_file in sf.inputs
 
-    def test_wiring_inputs_merge_and_fidelity(self, tmp_path):
-        config = _make_config(tmp_path)
-        steps = _build_steps(config)
-        flat = _flatten_steps(steps)
-        merge = next(s for s in flat if s.id == "merge")
-        sf = next(s for s in flat if s.id == "spec-fidelity")
-        wv = next(s for s in flat if s.id == "wiring-verification")
-        assert merge.output_file in wv.inputs
-        assert sf.output_file in wv.inputs
+    # R1.5: test_wiring_inputs_merge_and_fidelity removed — the
+    # wiring-verification step no longer exists in _build_steps. The
+    # verify-implementation step's substrate (the run's emitted artifacts via
+    # the envelope) is covered by the Step 10.3 verify-implementation tests.
 
 
 class TestGateAssignment:
@@ -251,21 +258,11 @@ class TestStepMetadata:
                 f"Step '{step.id}' has non-positive timeout"
             )
 
-    def test_wiring_has_trailing_gate_mode(self, tmp_path):
-        config = _make_config(tmp_path)
-        steps = _build_steps(config)
-        flat = _flatten_steps(steps)
-        wv = next(s for s in flat if s.id == "wiring-verification")
-        from superclaude.cli.pipeline.models import GateMode
-
-        assert wv.gate_mode == GateMode.TRAILING
-
-    def test_wiring_zero_retries(self, tmp_path):
-        config = _make_config(tmp_path)
-        steps = _build_steps(config)
-        flat = _flatten_steps(steps)
-        wv = next(s for s in flat if s.id == "wiring-verification")
-        assert wv.retry_limit == 0
+    # R1.5: test_wiring_has_trailing_gate_mode / test_wiring_zero_retries
+    # removed — wiring-verification (the only TRAILING step) was REPLACED by
+    # the fail-closed, BLOCKING-equivalent verify-implementation terminal step
+    # (dynamic, after certify). Its metadata is asserted in the Step 10.3
+    # verify-implementation tests.
 
     def test_output_files_unique(self, tmp_path):
         config = _make_config(tmp_path)
@@ -290,14 +287,16 @@ class TestStepMetadata:
 class TestNewStepOrdering:
     """Verify ordering of newly wired post-fidelity steps."""
 
-    def test_deviation_analysis_after_wiring(self, tmp_path):
+    def test_deviation_analysis_after_spec_fidelity(self, tmp_path):
+        # R1.5: was test_deviation_analysis_after_wiring; wiring-verification
+        # removed, so deviation-analysis now follows spec-fidelity directly.
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
         ids = [s.id for s in flat]
-        wv_idx = ids.index("wiring-verification")
+        sf_idx = ids.index("spec-fidelity")
         da_idx = ids.index("deviation-analysis")
-        assert da_idx > wv_idx
+        assert da_idx > sf_idx
 
     def test_remediate_after_deviation_analysis(self, tmp_path):
         config = _make_config(tmp_path)

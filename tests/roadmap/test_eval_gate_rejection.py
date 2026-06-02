@@ -1,11 +1,15 @@
 """P0 Eval: Gate Rejection Fidelity.
 
-Tests that each of the 13 gates correctly rejects malformed output through
+Tests that each gate in ALL_GATES correctly rejects malformed output through
 the full gate_passed() function. Parameterized across all gates × failure modes.
 
 This eval fills the gap identified in adversarial debate: existing tests call
 individual _*() semantic check functions in isolation, but no test exercises
-the composed gate_passed() path with failure inputs across all 13 gates.
+the composed gate_passed() path with failure inputs across every gate.
+
+R1.5: wiring-verification was REPLACED in ALL_GATES by verify-implementation
+(CodeAssertion-only; net step-count delta 0). The standalone WIRING_GATE tests
+below still exercise WIRING_GATE directly (the symbol is preserved).
 """
 
 from __future__ import annotations
@@ -243,6 +247,12 @@ PASSING_FRONTMATTER: dict[str, dict[str, str]] = {
         "certified": "true",
         "certification_date": "2026-03-19",
     },
+    # R1.5: verify-implementation is CodeAssertion-only (no required
+    # frontmatter, min_lines=0). With no envelope plumbed in this gate_passed
+    # call, the all_frs_resolved assertion is shim-skipped (INV-002 backward-
+    # compat), so a non-empty file with no frontmatter passes. The runtime
+    # envelope-plumbed behaviour is covered by the Step 10.3 tests.
+    "verify-implementation": {},
 }
 
 # Gate lookup

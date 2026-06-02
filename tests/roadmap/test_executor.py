@@ -63,12 +63,14 @@ def _make_config(tmp_path: Path) -> RoadmapConfig:
 
 
 class TestBuildSteps:
-    def test_produces_12_entries(self, tmp_path):
+    def test_produces_11_entries(self, tmp_path):
         config = _make_config(tmp_path)
         steps = _build_steps(config)
-        assert (
-            len(steps) == 12
-        )  # 10 sequential + 1 parallel group (2 steps) + deviation-analysis + remediate; certify is dynamic
+        # R1.5: wiring-verification removed from _build_steps (REPLACED by the
+        # dynamic verify-implementation step, dispatched after certify). So the
+        # static list is 9 sequential + 1 parallel group (2 steps); certify and
+        # verify-implementation are both dynamic.
+        assert len(steps) == 11
 
     def test_second_entry_is_parallel(self, tmp_path):
         config = _make_config(tmp_path)
@@ -95,23 +97,33 @@ class TestBuildSteps:
         assert ids[7] == "anti-instinct"
         assert ids[8] == "test-strategy"
         assert ids[9] == "spec-fidelity"
-        assert ids[10] == "wiring-verification"
-        assert ids[11] == "deviation-analysis"
-        assert ids[12] == "remediate"
+        # R1.5: wiring-verification removed; deviation-analysis/remediate shift
+        # up by one. verify-implementation is dynamic (after certify), not in
+        # this static list.
+        assert ids[10] == "deviation-analysis"
+        assert ids[11] == "remediate"
 
     def test_get_all_step_ids_includes_certify(self, tmp_path):
-        """_get_all_step_ids includes certify (dynamic) and has 14 IDs total."""
+        """_get_all_step_ids includes certify + verify-implementation (dynamic), 14 total."""
         from superclaude.cli.roadmap.executor import _get_all_step_ids
 
         config = _make_config(tmp_path)
         all_ids = _get_all_step_ids(config)
         assert "certify" in all_ids
         assert "deviation-analysis" in all_ids
+        # R1.5: verify-implementation REPLACES wiring-verification (terminal,
+        # dynamic). The legacy shadow step is gone; the new terminal gate is
+        # present.
+        assert "verify-implementation" in all_ids
+        assert "wiring-verification" not in all_ids
 
-        # Static steps = 13 flattened; _get_all_step_ids = 14 (includes dynamic certify)
+        # Static steps = 12 flattened; _get_all_step_ids = 14 (includes the two
+        # dynamic steps: certify + verify-implementation). Net step-count delta
+        # vs. the pre-R1.5 14 is 0 (Acceptance Gate #6).
         steps = _build_steps(config)
         flat_count = sum(len(s) if isinstance(s, list) else 1 for s in steps)
-        assert len(all_ids) == flat_count + 1  # +1 for dynamic certify
+        assert len(all_ids) == flat_count + 2  # +2 for dynamic certify + verify
+        assert len(all_ids) == 14
 
 
 class TestIntegrationMockSubprocess:
@@ -298,9 +310,9 @@ class TestIntegrationMockSubprocess:
             run_step=mock_runner,
         )
 
-        assert (
-            len(results) == 13
-        )  # 12 entries -> 13 individual steps (certify is dynamic)
+        # R1.5: 11 entries -> 12 individual steps (certify + verify-implementation
+        # are both dynamic, dispatched after execute_pipeline).
+        assert len(results) == 12
         failed = [r for r in results if r.status != StepStatus.PASS]
         assert not failed, (
             f"Failed steps: {[(r.step.id, r.status, r.gate_failure_reason) for r in failed]}"
@@ -326,12 +338,13 @@ class TestIntegrationMockSubprocess:
             run_step=failing_runner,
         )
 
-        # Pipeline should halt at first gate failure, then run deferred TRAILING steps.
+        # Pipeline should halt at first gate failure.
         # Find the first FAIL result (extract's gate failure).
         fail_results = [r for r in results if r.status == StepStatus.FAIL]
         assert len(fail_results) >= 1, "Expected at least one FAIL from gate failure"
-        # Deferred TRAILING steps (wiring-verification) may append after halt,
-        # but total should still be less than full pipeline (10 steps).
+        # R1.5: wiring-verification (the only TRAILING step) was removed, so no
+        # deferred TRAILING steps append after halt; total stays below the full
+        # pipeline (10 steps).
         non_deferred = [r for r in results if r.step.gate_mode != GateMode.TRAILING]
         assert len(non_deferred) < 10  # Not all non-trailing steps executed
 

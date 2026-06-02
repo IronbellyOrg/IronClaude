@@ -23,9 +23,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from superclaude.cli.audit.wiring_gate import WIRING_GATE
 from superclaude.cli.pipeline.models import CodeAssertion, GateCriteria, SemanticCheck
 from superclaude.cli.roadmap.code_assertions import assert_step_reachable
+from superclaude.cli.roadmap.verify_implementation import assert_all_frs_resolved
 from superclaude.contracts import GATE_FIELD_NAMES, THRESHOLDS
 
 # R0.3: canonical field name for the deviation-analysis ambiguous count.
@@ -1473,6 +1473,30 @@ CERTIFY_GATE = GateCriteria(
     ],
 )
 
+# R1.5 / §MVR §4: fail-closed terminal verification gate. CodeAssertion-only
+# (no frontmatter/semantic checks): required_frontmatter_fields=[] and
+# min_lines=0 so gate_passed runs zero frontmatter/line checks and dispatches
+# only the assertion. The actual on-disk GateCriteria field is
+# ``required_frontmatter_fields`` (design §7.2 reconciliation — §MVR §2's
+# ``required_envelope_fields`` rename never landed). REPLACES wiring-verification
+# in ALL_GATES (net step-count delta 0; Acceptance Gate #6 stays at 14).
+VERIFY_IMPLEMENTATION_GATE = GateCriteria(
+    required_frontmatter_fields=[],
+    min_lines=0,
+    enforcement_tier="STRICT",
+    semantic_checks=None,
+    code_assertions=[
+        CodeAssertion(
+            name="all_frs_resolved",
+            check_fn=assert_all_frs_resolved,
+            failure_message=(
+                "Contract #2 + #4: every FR must resolve against the run's own "
+                "emitted artifacts or be in accepted_deviations (fail-closed)"
+            ),
+        ),
+    ],
+)
+
 ANTI_INSTINCT_GATE = GateCriteria(
     required_frontmatter_fields=[
         "undischarged_obligations",
@@ -1557,8 +1581,10 @@ ALL_GATES = [
     ("anti-instinct", ANTI_INSTINCT_GATE),
     ("test-strategy", TEST_STRATEGY_GATE),
     ("spec-fidelity", SPEC_FIDELITY_GATE),
-    ("wiring-verification", WIRING_GATE),
     ("deviation-analysis", DEVIATION_ANALYSIS_GATE),
     ("remediate", REMEDIATE_GATE),
     ("certify", CERTIFY_GATE),
+    # R1.5 / §MVR §4: terminal verification step REPLACES wiring-verification
+    # (net step-count delta 0; ALL_GATES stays at 14, Acceptance Gate #6).
+    ("verify-implementation", VERIFY_IMPLEMENTATION_GATE),
 ]
