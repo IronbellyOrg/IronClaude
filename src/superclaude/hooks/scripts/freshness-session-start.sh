@@ -21,6 +21,38 @@ for d in turns bg-agents tool-call-counter; do
     [ -f "$fp" ] || echo "0" > "$fp" 2>/dev/null || true
 done
 
+# Self-healing compaction of reads.jsonl (startup only, size-gated, backgrounded,
+# fail-open). Drops corrupt/torn lines (ENOSPC casualties) and trims to a 7-day
+# retention window so (a) one bad line can never freeze the freshness gate and
+# (b) the file cannot grow unbounded (it had reached 23.8k lines / 5.4 MB before
+# this guard). Size-gated to avoid rewriting (and racing the post-read appender)
+# on the common small file; the atomic writer in freshness-post-read.sh prevents
+# NEW torn lines, so this is recovery + growth-capping, not the primary defense.
+if [ "$SOURCE" = "startup" ] && [ -f "$STATE_DIR/reads.jsonl" ]; then
+    (
+        RF="$STATE_DIR/reads.jsonl"
+        lines=$(wc -l < "$RF" 2>/dev/null || echo 0)
+        case "$lines" in ''|*[!0-9]*) lines=0 ;; esac
+        if [ "$lines" -gt 5000 ]; then
+            cutoff=$(( $(date +%s 2>/dev/null || echo 0) - 604800 ))
+            tmp=$(mktemp "$RF.XXXXXX" 2>/dev/null || echo "")
+            if [ -n "$tmp" ]; then
+                if command -v flock >/dev/null 2>&1; then
+                    exec 7>"$RF.lock"
+                    flock -w 5 7 2>/dev/null || true
+                fi
+                if jq -cR --argjson c "$cutoff" \
+                    'fromjson? // empty | select((.ts_unix // 0) >= $c)' "$RF" \
+                    > "$tmp" 2>/dev/null && [ -s "$tmp" ]; then
+                    mv "$tmp" "$RF" 2>/dev/null || rm -f "$tmp" 2>/dev/null || true
+                else
+                    rm -f "$tmp" 2>/dev/null || true
+                fi
+            fi
+        fi
+    ) 2>/dev/null &
+fi
+
 NOW_ISO=$(date -Iseconds 2>/dev/null || date "+%Y-%m-%dT%H:%M:%S")
 TODAY=$(date '+%Y-%m-%d' 2>/dev/null || true)
 PROJECT_BASE=$(basename "$CWD" 2>/dev/null || true)

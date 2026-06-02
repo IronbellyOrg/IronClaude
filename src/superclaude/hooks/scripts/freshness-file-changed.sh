@@ -34,8 +34,11 @@ CHANGE_TYPE=$(printf '%s' "$INPUT" | jq -r '.change_type // .changeType // .even
 [ -f "$READS_FILE" ] || exit 0
 NOW_UNIX=$(date +%s 2>/dev/null || echo 0)
 CUTOFF=$((NOW_UNIX - 86400))
-SEEN=$(jq -r --arg p "$CHANGED_PATH" --argjson c "$CUTOFF" \
-    'select(.path == $p and .ts_unix >= $c) | .path' "$READS_FILE" 2>/dev/null | head -1)
+# Line-resilient lookup (see freshness-pre-edit.sh): one corrupt/torn line
+# must not abort the stream. grep -F prefilters; fromjson? drops bad lines.
+SEEN=$(grep -F "$CHANGED_PATH" "$READS_FILE" 2>/dev/null \
+    | jq -rR --arg p "$CHANGED_PATH" --argjson c "$CUTOFF" \
+        'fromjson? // empty | select(.path == $p and .ts_unix >= $c) | .path' 2>/dev/null | head -1)
 [ -z "$SEEN" ] && exit 0
 
 NOW_ISO=$(date -Iseconds 2>/dev/null || date "+%Y-%m-%dT%H:%M:%S")

@@ -60,11 +60,18 @@ TC_IDX=1
 [ -f "$TCC_TMP" ] && TC_IDX=$(cat "$TCC_TMP" 2>/dev/null || echo 1)
 rm -f "$TCC_TMP" 2>/dev/null || true
 
-# 4. Look up most recent Read of TARGET for this session
+# 4. Look up most recent Read of TARGET for this session.
+# Line-resilient: a single torn/corrupt line (e.g. an ENOSPC partial append)
+# must NOT abort the jq stream and hide every record after it — that fails
+# CLOSED (over-blocks) and contradicts the NFR-3 "corrupt -> fail open"
+# contract in the header. `grep -F` bounds cost on the growing file; reading
+# raw lines with `fromjson? // empty` parses each line independently and
+# silently drops any that don't parse.
 LAST_READ_TS_UNIX=0
 if [ -f "$READS_FILE" ]; then
-    LAST_READ_TS_UNIX=$(jq -r --arg p "$TARGET" --arg s "$SESSION_ID" \
-        'select(.path == $p and .session_id == $s) | .ts_unix' "$READS_FILE" 2>/dev/null \
+    LAST_READ_TS_UNIX=$(grep -F "$TARGET" "$READS_FILE" 2>/dev/null \
+        | jq -rR --arg p "$TARGET" --arg s "$SESSION_ID" \
+            'fromjson? // empty | select(.path == $p and .session_id == $s) | .ts_unix' 2>/dev/null \
         | sort -n | tail -1)
     [ -z "$LAST_READ_TS_UNIX" ] && LAST_READ_TS_UNIX=0
 fi
