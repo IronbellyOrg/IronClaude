@@ -195,24 +195,25 @@ class TestGateAssignment:
     """Verify each step has the correct gate assigned."""
 
     def test_all_steps_have_gates(self, tmp_path):
-        """Every step should have a gate (or None for convergence-mode spec-fidelity)."""
+        """Every step has a gate (R1.6: the convergence-mode gate=None bypass is gone)."""
         config = _make_config(tmp_path)
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
         for step in flat:
-            if step.id == "spec-fidelity" and config.convergence_enabled:
-                assert step.gate is None
-            else:
-                assert step.gate is not None, f"Step '{step.id}' has no gate"
+            assert step.gate is not None, f"Step '{step.id}' has no gate"
 
-    def test_convergence_mode_disables_fidelity_gate(self, tmp_path):
-        """When convergence_enabled=True, spec-fidelity gate is None."""
+    def test_convergence_mode_uses_convergence_aware_fidelity_gate(self, tmp_path):
+        """R1.6 / Contract #4: convergence mode uses the convergence-aware gate, not None."""
+        from superclaude.cli.roadmap.gates import (
+            SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+        )
+
         config = _make_config(tmp_path)
         config.convergence_enabled = True
         steps = _build_steps(config)
         flat = _flatten_steps(steps)
         sf = next(s for s in flat if s.id == "spec-fidelity")
-        assert sf.gate is None
+        assert sf.gate is SPEC_FIDELITY_GATE_CONVERGENCE_AWARE
 
     def test_all_strict_gates_have_semantic_checks(self, tmp_path):
         """All STRICT-tier gates should define semantic checks."""

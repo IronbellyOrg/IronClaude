@@ -116,6 +116,17 @@ def parse_frontmatter(text: str, warnings: list[ParseWarning]) -> dict[str, Any]
 
     Returns parsed dict. On malformed YAML, returns partial parse via
     line-by-line key: value extraction and appends ParseWarning.
+
+    Contract #6 note (Step 11.2): this is a DISTINCT-PURPOSE parser, not a
+    duplicate of the canonical gate parser
+    :func:`superclaude.cli.pipeline.frontmatter.extract_frontmatter`. It does a
+    full ``yaml.safe_load`` of spec documents (preserving nested structures,
+    lists, and type coercion) for pre-pipeline spec ingestion, and threads a
+    ``warnings`` channel — a strictly richer contract than the flat
+    ``dict[str, str]`` the gate parser returns. Collapsing it onto the gate
+    parser would regress spec parsing (loss of nested YAML + warnings); it is
+    retained and enumerated by ``tests/roadmap/test_parser_consistency.py`` as
+    a distinct-purpose parser rather than deleted. See Phase 11 findings.
     """
     match = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
     if not match:

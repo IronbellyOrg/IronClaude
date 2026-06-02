@@ -11,9 +11,9 @@ NFR-003: No subprocess import. NFR-007: No sprint/roadmap imports.
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
+from .frontmatter import extract_frontmatter
 from .models import GateCriteria
 
 
@@ -34,10 +34,14 @@ def gate_passed(
     as ``object`` / ``Path | None`` rather than the precise
     ``PipelineEnvelope`` because ``cli/pipeline/*`` must not import from
     ``cli/roadmap/*`` (NFR-007). When either is ``None`` and the criteria
-    define code_assertions, the assertions are silently skipped --
-    backward-compat shim for R1.3 call sites that do not yet plumb
-    envelope/repo_root. R1.6 cleanup deletes this skip-path once all
-    callers pass both.
+    define code_assertions, the assertions are skipped -- this skip-path is
+    PRESERVED (R1.6 CI-vs-runtime split decision): it is the CORRECT behavior
+    for CI-only/source-tree assertions on a pipx-installed package (which has
+    no ``src/`` tree at runtime) and for live callers (``execute_pipeline``)
+    that validate rendered output rather than the envelope. CI-only assertions
+    (``CodeAssertion.ci_only=True``) are additionally skipped even when the
+    envelope IS plumbed -- they are enforced exclusively by their dedicated CI
+    tests -- so only runtime-safe assertions ever fire in the live gate path.
     """
     tier = criteria.enforcement_tier
 
@@ -89,14 +93,24 @@ def gate_passed(
                     f"Semantic check '{check.name}' failed: {detail}",
                 )
 
-    # STRICT: code assertions (R1.3 / §MVR §2)
+    # STRICT: code assertions (R1.3 / §MVR §2; R1.6 CI-vs-runtime split)
     if criteria.code_assertions:
         if envelope is None or repo_root is None:
-            # Backward-compat shim: callers that do not yet plumb
-            # envelope/repo_root see code_assertions as if undefined.
-            # R1.6 deletes this branch when all call sites are migrated.
+            # PRESERVED skip-path (R1.6): when a caller does not plumb
+            # envelope/repo_root, all code_assertions are skipped. This is the
+            # CORRECT behavior -- for CI-only/source-tree assertions on a
+            # pipx-installed package (no ``src/`` tree at runtime) and for live
+            # callers (execute_pipeline) that gate on rendered output. NOT a
+            # backward-compat shim to be deleted: runtime assertions fire only
+            # when a caller (e.g. verify-implementation) plumbs the envelope.
             return True, None
         for assertion in criteria.code_assertions:
+            # CI-only (source-tree/AST) assertions never fire in the live gate
+            # path -- they require a ``src/`` tree absent on a pipx install and
+            # are enforced by their dedicated CI tests instead. Only
+            # runtime-safe (envelope-state) assertions evaluate here.
+            if getattr(assertion, "ci_only", False):
+                continue
             finding = assertion.check_fn(envelope, repo_root)
             if finding is not None:
                 detail = (
@@ -110,53 +124,29 @@ def gate_passed(
     return True, None
 
 
-_FRONTMATTER_RE = re.compile(
-    r"^---[ \t]*\n(.*?)\n---[ \t]*$",
-    re.MULTILINE | re.DOTALL,
-)
-
-# Top-level key: value lines (no leading indentation, at least one non-space,
-# non-dash word char before the colon). Nested list items (``  - id: M1``)
-# and continuation lines inside a list value are intentionally ignored here
-# because only top-level keys satisfy ``required_frontmatter_fields`` checks.
-_TOPLEVEL_KEY_RE = re.compile(r"^([A-Za-z_][\w\-]*)\s*:", re.MULTILINE)
-
-
 def _check_frontmatter(
     content: str,
     required_fields: list[str | tuple[str, ...]],
     output_file: Path,
 ) -> tuple[bool, str | None]:
-    """Extract and validate YAML frontmatter fields.
+    """Validate that required YAML frontmatter fields are present.
 
-    Uses a non-greedy ``---`` delimiter pair (with ``re.DOTALL``) so nested
-    YAML structures — list items like ``  - id: M1`` and block scalars —
-    appear intact inside the captured frontmatter body. Horizontal rules
-    (``---`` with no ``key: value`` content between delimiters) are rejected
-    by a post-match check that requires at least one top-level ``key:`` line.
-    Conversational preamble, CONV comments, and any other pre-frontmatter
-    lines are tolerated because ``re.search`` scans from any line start.
+    Parsing is delegated to the single canonical
+    :func:`superclaude.cli.pipeline.frontmatter.extract_frontmatter`
+    (Contract #6 — one frontmatter parser). This wrapper enforces only the
+    required-field contract on the parsed top-level keys; it carries no
+    parsing logic of its own.
 
     ``required_fields`` entries are either a string (exact key required) or a
     tuple of strings (OR-group — at least one of the aliases must appear).
     The tuple form expresses mutually exclusive aliases from the template
     contract, e.g. ``("spec_source", "spec_sources")``.
     """
-    # Scan every ``---`` delimiter pair; accept the first one whose body
-    # contains at least one top-level ``key:`` line. This rejects pure
-    # horizontal rules while still accepting YAML frontmatter that sits
-    # after preamble / CONV comments.
-    frontmatter_text: str | None = None
-    for match in _FRONTMATTER_RE.finditer(content):
-        body = match.group(1)
-        if _TOPLEVEL_KEY_RE.search(body):
-            frontmatter_text = body
-            break
-
-    if frontmatter_text is None:
+    fm = extract_frontmatter(content)
+    if fm is None:
         return False, f"YAML frontmatter not found in {output_file}"
 
-    found_keys = set(_TOPLEVEL_KEY_RE.findall(frontmatter_text))
+    found_keys = set(fm.keys())
 
     for field in required_fields:
         if isinstance(field, tuple):

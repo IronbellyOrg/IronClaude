@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from superclaude.cli.pipeline.frontmatter import extract_frontmatter
 from superclaude.cli.pipeline.models import GateCriteria
 from superclaude.cli.roadmap.gates import (
     ALL_GATES,
@@ -22,7 +23,6 @@ from superclaude.cli.roadmap.gates import (
     _certified_is_true,
     _complexity_class_valid,
     _convergence_score_valid,
-    _cross_refs_resolve,
     _deviation_counts_reconciled,
     _extraction_mode_valid,
     _frontmatter_values_non_empty,
@@ -34,7 +34,6 @@ from superclaude.cli.roadmap.gates import (
     _no_ambiguous_deviations,
     _no_duplicate_headings,
     _no_heading_gaps,
-    _parse_frontmatter,
     _pre_approved_not_in_fix_roadmap,
     _routing_consistent_with_slip_count,
     _routing_ids_valid,
@@ -108,14 +107,15 @@ class TestGateInstances:
 
     def test_merge_gate_has_seven_semantic_checks(self):
         assert MERGE_GATE.enforcement_tier == "STRICT"
-        # 8th check added by R0.1 (Contract #9 _roadmap_ids_within_spec) --
-        # sc:reflect M9 / D-DRIFT-01. Test name retained for grep continuity;
-        # gate now carries 8 checks (7 structural + 1 ID-containment).
-        assert len(MERGE_GATE.semantic_checks) == 8
+        # R0.1 added the 8th check (Contract #9 _roadmap_ids_within_spec --
+        # sc:reflect M9 / D-DRIFT-01); R1.6 Step 11.3 removed the
+        # cross_refs_resolve warning-only stub (canonical Contract #5 fragility
+        # stub -- structurally incapable of returning False). Net: gate carries
+        # 7 checks (6 structural + 1 ID-containment). Test name now accurate.
+        assert len(MERGE_GATE.semantic_checks) == 7
         check_names = {c.name for c in MERGE_GATE.semantic_checks}
         assert check_names == {
             "no_heading_gaps",
-            "cross_refs_resolve",
             "no_duplicate_headings",
             "minimum_deliverable_rows",
             "deliverable_table_schema",
@@ -779,45 +779,6 @@ class TestTestStrategyGateIntegration:
         assert passed is False
 
 
-class TestCrossRefsResolve:
-    def test_cross_refs_resolve_valid(self):
-        """Valid cross-references resolve to existing headings."""
-        content = (
-            "# Document\n"
-            "## 1.0 Introduction\n"
-            "### 1.1 Overview\n"
-            "See section 1.1 for details.\n"
-        )
-        assert _cross_refs_resolve(content) is True
-
-    def test_cross_refs_resolve_invalid(self):
-        """Dangling cross-references emit warnings but return True (warning-only mode)."""
-        content = "# Document\n## 1.0 Introduction\nSee section 9.9 for details.\n"
-        import warnings
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            result = _cross_refs_resolve(content)
-            # Warning-only mode: returns True despite dangling ref
-            assert result is True
-            # But a warning was emitted
-            assert len(w) == 1
-            assert "9.9" in str(w[0].message)
-
-    def test_cross_refs_resolve_no_refs(self):
-        """Documents with no cross-references pass without warnings."""
-        content = (
-            "# Document\n## Introduction\nThis document has no cross-references.\n"
-        )
-        import warnings
-
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            result = _cross_refs_resolve(content)
-            assert result is True
-            assert len(w) == 0
-
-
 class TestHighSeverityCountZero:
     def test_high_severity_count_zero_passes(self):
         """count=0 returns True."""
@@ -986,11 +947,15 @@ class TestSpecFidelityGate:
         assert SPEC_FIDELITY_GATE.min_lines == 20
 
     def test_spec_fidelity_gate_in_all_gates(self):
-        """SPEC_FIDELITY_GATE is registered in ALL_GATES."""
+        """spec-fidelity is registered in ALL_GATES with the convergence-aware gate (R1.6)."""
+        from superclaude.cli.roadmap.gates import (
+            SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+        )
+
         gate_names = {name for name, _gate in ALL_GATES}
         assert "spec-fidelity" in gate_names
         gate = next(g for name, g in ALL_GATES if name == "spec-fidelity")
-        assert gate is SPEC_FIDELITY_GATE
+        assert gate is SPEC_FIDELITY_GATE_CONVERGENCE_AWARE
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1358,59 +1323,64 @@ class TestDeviationAnalysisGate:
 
 
 class TestParseFrontmatterYaml:
-    """Tests for yaml.safe_load-based _parse_frontmatter."""
+    """Tests for the canonical gate parser ``extract_frontmatter`` (Contract #6).
+
+    Step 11.2 relocated the gate-layer frontmatter parser to
+    ``superclaude.cli.pipeline.frontmatter.extract_frontmatter``; these
+    quote-tolerance / colon-value regression tests now exercise it there.
+    """
 
     def test_quoted_colon_value_stripped(self):
         """The original bug: quoted '1:1' must not retain quote chars."""
         content = '---\ninterleave_ratio: "1:1"\n---\n'
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm is not None
         assert fm["interleave_ratio"] == "1:1"
 
     def test_unquoted_colon_value(self):
         """Unquoted colon value parsed correctly."""
         content = "---\ninterleave_ratio: 1:1\n---\n"
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm is not None
         assert fm["interleave_ratio"] == "1:1"
 
     def test_single_quoted_value(self):
         content = "---\ninterleave_ratio: '1:1'\n---\n"
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm["interleave_ratio"] == "1:1"
 
     def test_integer_value_unchanged(self):
         content = "---\nhigh_severity_count: 0\n---\n"
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm["high_severity_count"] == "0"
 
     def test_float_value_unchanged(self):
         content = "---\nconvergence_score: 0.85\n---\n"
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm["convergence_score"] == "0.85"
 
     def test_boolean_value_unchanged(self):
         """Hand-rolled parser keeps booleans as strings (no type coercion)."""
         content = "---\ncertified: true\n---\n"
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm["certified"] == "true"
 
     def test_empty_value_is_empty_string(self):
         content = "---\ntitle:\n---\n"
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm["title"] == ""
 
     def test_no_frontmatter_returns_none(self):
-        assert _parse_frontmatter("No frontmatter here.") is None
+        assert extract_frontmatter("No frontmatter here.") is None
 
     def test_quoted_string_stripped(self):
         content = '---\nspec_source: "my-spec.md"\n---\n'
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm["spec_source"] == "my-spec.md"
 
     def test_single_quoted_string_stripped(self):
         content = "---\nspec_source: 'my-spec.md'\n---\n"
-        fm = _parse_frontmatter(content)
+        fm = extract_frontmatter(content)
         assert fm["spec_source"] == "my-spec.md"
 
 

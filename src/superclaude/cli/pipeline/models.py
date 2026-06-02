@@ -110,11 +110,22 @@ class CodeAssertion:
     Return convention:
       None     -> PASS (the assertion held)
       Finding  -> FAIL (assertion violated)
+
+    ``ci_only`` (R1.6 CI-vs-runtime split) classifies whether the predicate is
+    safe to evaluate in the live gate path. A ``ci_only=True`` assertion
+    inspects the *source tree* (e.g. an ``ast`` walk of ``src/superclaude/cli``)
+    and therefore cannot run on a pipx-installed package, which ships no
+    ``src/`` tree -- it is enforced exclusively by its dedicated CI test and is
+    skipped by ``gate_passed`` even when the envelope is plumbed. The default
+    ``ci_only=False`` marks a runtime-safe assertion (it inspects only the
+    ``PipelineEnvelope`` state) that fires in the live path whenever a caller
+    plumbs the envelope.
     """
 
     name: str
     check_fn: Callable[..., object]
     failure_message: str
+    ci_only: bool = False
 
 
 @dataclass

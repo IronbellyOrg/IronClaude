@@ -515,8 +515,15 @@ class TestConvergenceDefaultOn:
         assert convergence_enabled is True
 
     def test_default_builds_convergence_steps(self):
-        """Default config (convergence ON) builds spec-fidelity with gate=None."""
+        """Default config (convergence ON) builds spec-fidelity with the convergence-aware gate.
+
+        R1.6 / Contract #4: the ``gate=None`` bypass is removed; the step is
+        always gated.
+        """
         from superclaude.cli.roadmap.executor import _build_steps
+        from superclaude.cli.roadmap.gates import (
+            SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+        )
         from superclaude.cli.roadmap.models import AgentSpec
 
         config = RoadmapConfig(
@@ -537,12 +544,20 @@ class TestConvergenceDefaultOn:
                 fidelity_step = entry
 
         assert fidelity_step is not None
-        assert fidelity_step.gate is None, "Convergence ON should disable legacy gate"
+        assert fidelity_step.gate is SPEC_FIDELITY_GATE_CONVERGENCE_AWARE, (
+            "Convergence ON should use the convergence-aware gate (R1.6 — no gate=None bypass)"
+        )
 
     def test_disabled_builds_legacy_gate(self):
-        """convergence_enabled=False builds spec-fidelity with SPEC_FIDELITY_GATE."""
+        """convergence_enabled=False also uses the convergence-aware gate (R1.6).
+
+        Both modes share the gate; with convergence off the envelope's
+        convergence field is None so its CodeAssertion vacuously passes.
+        """
         from superclaude.cli.roadmap.executor import _build_steps
-        from superclaude.cli.roadmap.gates import SPEC_FIDELITY_GATE
+        from superclaude.cli.roadmap.gates import (
+            SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+        )
         from superclaude.cli.roadmap.models import AgentSpec
 
         config = RoadmapConfig(
@@ -562,6 +577,6 @@ class TestConvergenceDefaultOn:
                 fidelity_step = entry
 
         assert fidelity_step is not None
-        assert fidelity_step.gate is SPEC_FIDELITY_GATE, (
-            "Convergence OFF should use legacy gate"
+        assert fidelity_step.gate is SPEC_FIDELITY_GATE_CONVERGENCE_AWARE, (
+            "Convergence OFF should still use the convergence-aware gate (R1.6)"
         )

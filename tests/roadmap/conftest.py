@@ -72,9 +72,7 @@ def _merge_gate_id_registry_sidecar(tmp_path: Path):
         # R5: milestone-prefixed deliverable IDs (MD family, canonical M{n}-D{m}).
         # Cover a representative grid so MERGE_GATE integration fixtures exercising
         # synthetic M{n}-D{nn} IDs do not false-fail Contract #9 containment.
-        "md_ids": [
-            f"M{m}-D{d}" for m in range(1, 4) for d in range(1, 10)
-        ],
+        "md_ids": [f"M{m}-D{d}" for m in range(1, 4) for d in range(1, 10)],
         "accepted_deviation_ids": [],
         "spec_hash": "0" * 16,
         "spec_path": str(tmp_path / "spec.md"),

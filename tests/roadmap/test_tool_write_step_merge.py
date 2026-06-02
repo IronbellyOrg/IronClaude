@@ -123,19 +123,36 @@ def merge_fixture() -> dict:
             "verifiable against the spec."
         ),
         "milestone_summary": [
-            {"milestone": "M1", "title": "Foundation", "duration": "weeks 1-3",
-             "exit_criteria": "FR-1..FR-3 implemented."},
-            {"milestone": "M2", "title": "Core Logic", "duration": "weeks 4-6",
-             "exit_criteria": "FR-4..FR-6 implemented."},
-            {"milestone": "M3", "title": "Integration", "duration": "weeks 7-9",
-             "exit_criteria": "FR-7..FR-9 implemented."},
-            {"milestone": "M4", "title": "Hardening and Production Readiness",
-             "duration": "weeks 10-12", "exit_criteria": "FR-10..FR-12 implemented."},
+            {
+                "milestone": "M1",
+                "title": "Foundation",
+                "duration": "weeks 1-3",
+                "exit_criteria": "FR-1..FR-3 implemented.",
+            },
+            {
+                "milestone": "M2",
+                "title": "Core Logic",
+                "duration": "weeks 4-6",
+                "exit_criteria": "FR-4..FR-6 implemented.",
+            },
+            {
+                "milestone": "M3",
+                "title": "Integration",
+                "duration": "weeks 7-9",
+                "exit_criteria": "FR-7..FR-9 implemented.",
+            },
+            {
+                "milestone": "M4",
+                "title": "Hardening and Production Readiness",
+                "duration": "weeks 10-12",
+                "exit_criteria": "FR-10..FR-12 implemented.",
+            },
         ],
         "dependency_graph": "M1 -> M2 -> M3 -> M4",
         "milestones": [
             _milestone(
-                "M1", "Foundation",
+                "M1",
+                "Foundation",
                 [
                     _deliverable(1, "FR-1", "Bootstrap the substrate"),
                     _deliverable(2, "FR-2", "Persist the sidecar"),
@@ -155,7 +172,8 @@ def merge_fixture() -> dict:
                 ],
             ),
             _milestone(
-                "M2", "Core Logic",
+                "M2",
+                "Core Logic",
                 [
                     _deliverable(7, "FR-4", "Render the artifact"),
                     _deliverable(8, "FR-5", "Wire the phantom-ID gate"),
@@ -166,7 +184,8 @@ def merge_fixture() -> dict:
                 ],
             ),
             _milestone(
-                "M3", "Integration",
+                "M3",
+                "Integration",
                 [
                     _deliverable(13, "FR-7", "Integrate the executor hook"),
                     _deliverable(14, "FR-8", "Dual-write wiring"),
@@ -177,7 +196,8 @@ def merge_fixture() -> dict:
                 ],
             ),
             _milestone(
-                "M4", "Hardening and Production Readiness",
+                "M4",
+                "Hardening and Production Readiness",
                 [
                     _deliverable(19, "FR-10", "Emit timeline estimates"),
                     _deliverable(20, "FR-11", "Risk register aggregation"),
@@ -226,16 +246,56 @@ def merge_fixture() -> dict:
             "observability rows, as recommended by the score step and debate."
         ),
         "timeline_estimates": [
-            {"milestone": "M1", "start_week": "1", "end_week": "3", "duration": "3 weeks"},
-            {"milestone": "M2", "start_week": "4", "end_week": "6", "duration": "3 weeks"},
-            {"milestone": "M3", "start_week": "7", "end_week": "9", "duration": "3 weeks"},
-            {"milestone": "M4", "start_week": "10", "end_week": "12", "duration": "3 weeks"},
+            {
+                "milestone": "M1",
+                "start_week": "1",
+                "end_week": "3",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M2",
+                "start_week": "4",
+                "end_week": "6",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M3",
+                "start_week": "7",
+                "end_week": "9",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M4",
+                "start_week": "10",
+                "end_week": "12",
+                "duration": "3 weeks",
+            },
         ],
         "roadmap_ids": [
-            "FR-1", "FR-2", "FR-3", "COMP-loader", "DM-config", "API-load",
-            "FR-4", "FR-5", "FR-6", "API-render", "DM-roadmap", "COMP-renderer",
-            "FR-7", "FR-8", "FR-9", "API-merge", "TEST-integration", "MIG-cutover",
-            "FR-10", "FR-11", "FR-12", "OPS-metrics", "TEST-e2e", "NFR-1",
+            "FR-1",
+            "FR-2",
+            "FR-3",
+            "COMP-loader",
+            "DM-config",
+            "API-load",
+            "FR-4",
+            "FR-5",
+            "FR-6",
+            "API-render",
+            "DM-roadmap",
+            "COMP-renderer",
+            "FR-7",
+            "FR-8",
+            "FR-9",
+            "API-merge",
+            "TEST-integration",
+            "MIG-cutover",
+            "FR-10",
+            "FR-11",
+            "FR-12",
+            "OPS-metrics",
+            "TEST-e2e",
+            "NFR-1",
         ],
     }
 
@@ -287,12 +347,12 @@ def test_merge_schema_matches_generate_id_pattern() -> None:
     assembler output, closing the drift door durably: the schemas can no longer
     diverge from the contracts SoT without this guard going red.
     """
-    merge_pattern = load_schema("merge.schema.json")[
-        "properties"
-    ]["roadmap_ids"]["items"]["pattern"]
-    generate_pattern = load_schema("generate.schema.json")[
-        "properties"
-    ]["roadmap_ids"]["items"]["pattern"]
+    merge_pattern = load_schema("merge.schema.json")["properties"]["roadmap_ids"][
+        "items"
+    ]["pattern"]
+    generate_pattern = load_schema("generate.schema.json")["properties"]["roadmap_ids"][
+        "items"
+    ]["pattern"]
     assert merge_pattern == generate_pattern
     # Pin each on-disk schema to the single derivation source (assembler).
     assert merge_pattern == roadmap_ids_pattern("merge")
@@ -314,9 +374,9 @@ def test_all_schemas_accept_md_family(step: str) -> None:
       independently, and a non-family token ``XYZ-1`` does NOT match (bounding
       the alternation).
     """
-    pattern = load_schema(f"{step}.schema.json")[
-        "properties"
-    ]["roadmap_ids"]["items"]["pattern"]
+    pattern = load_schema(f"{step}.schema.json")["properties"]["roadmap_ids"]["items"][
+        "pattern"
+    ]
     arms = pattern[2:-2].split("|")  # strip leading "^(" and trailing ")$"
     # Structural: MD is its OWN exact arm (not merely a substring via the D arm).
     assert ID_PATTERNS["MD"] in arms, (
@@ -510,7 +570,10 @@ def test_merge_registry_key_distinct() -> None:
 
 def test_build_merge_prompt_tool_write_emits_json_contract() -> None:
     tw = build_merge_prompt(
-        Path("score.md"), Path("a.md"), Path("b.md"), Path("debate.md"),
+        Path("score.md"),
+        Path("a.md"),
+        Path("b.md"),
+        Path("debate.md"),
         tool_write=True,
     )
     assert "JSON" in tw

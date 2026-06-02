@@ -47,7 +47,7 @@ from .gates import (
     MERGE_GATE,
     REMEDIATE_GATE,
     SCORE_GATE,
-    SPEC_FIDELITY_GATE,
+    SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
     TEST_STRATEGY_GATE,
     VERIFY_IMPLEMENTATION_GATE,
 )
@@ -761,7 +761,8 @@ def _run_structural_audit(
     Compares spec structural indicators against extraction requirement count.
     Logs a warning if extraction appears inadequate but never blocks the pipeline.
     """
-    from .gates import _parse_frontmatter
+    from superclaude.cli.pipeline.frontmatter import extract_frontmatter
+
     from .spec_structural_audit import check_extraction_adequacy
 
     try:
@@ -771,7 +772,7 @@ def _run_structural_audit(
         _log.warning("Structural audit skipped: %s", e)
         return
 
-    fm = _parse_frontmatter(extraction_text)
+    fm = extract_frontmatter(extraction_text)
     if fm is None:
         _log.warning("Structural audit skipped: no frontmatter in extraction")
         return
@@ -2662,7 +2663,16 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 tool_write=config.tool_write_spec_fidelity,
             ),
             output_file=spec_fidelity_file,
-            gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
+            # R1.6 / Contract #4: the `gate=None if convergence_enabled` bypass
+            # is DELETED. Both modes now use the convergence-aware gate. In
+            # convergence mode it validates the terminal report frontmatter
+            # (written by _write_convergence_report, reflecting the
+            # ConvergenceResult verdict) and carries the runtime
+            # convergence_passed CodeAssertion on the envelope SoT; in
+            # non-convergence mode envelope.convergence is None so the
+            # assertion vacuously passes and behavior matches the old
+            # SPEC_FIDELITY_GATE.
+            gate=SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
             timeout_seconds=600,
             inputs=_llm_inputs_for(
                 config, config.spec_file, merge_file, config.tdd_file, config.prd_file
@@ -4067,10 +4077,10 @@ def _check_tasklist_hash_current(
     SHA-256 of the validation report file. Returns False on mismatch
     (fail closed).
     """
-    from .gates import _parse_frontmatter
+    from superclaude.cli.pipeline.frontmatter import extract_frontmatter
 
     content = tasklist_file.read_text(encoding="utf-8")
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 

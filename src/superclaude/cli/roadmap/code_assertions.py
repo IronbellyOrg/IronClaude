@@ -184,6 +184,67 @@ def assert_envelope_artifacts_present(
     return None
 
 
+def assert_convergence_passed(
+    envelope: PipelineEnvelope,
+    repo_root: Path,
+) -> Finding | None:
+    """Verify the envelope's terminal convergence verdict is a PASS.
+
+    Convergence-aware companion to the spec-fidelity gate (R1.6 / Contract #4
+    / master:§Flaw 4). When the roadmap runs in convergence mode (the
+    production default), spec-fidelity is decided by the convergence engine
+    (``execute_fidelity_with_convergence``) and the terminal verdict is
+    recorded on ``envelope.convergence`` (a :class:`ConvergenceResult`).
+    Before R1.6 the spec-fidelity ``Step`` carried ``gate=None`` under
+    convergence, so no ``GateCriteria``-level contract asserted that
+    convergence actually reached a passing terminal state -- the fail-open
+    seam this assertion closes by gating on the envelope SoT directly.
+
+    This is a **runtime-safe** assertion (``ci_only=False``): it reads
+    ``envelope.convergence`` and never touches the source tree, so it is
+    dispatched in the live gate path whenever a caller plumbs the envelope.
+    The live ``execute_pipeline`` path that omits the envelope falls through
+    the documented envelope-None shim; in that path the terminal report's
+    severity frontmatter (``high_severity_count`` / ``validation_complete`` /
+    ``tasklist_ready``, written by ``_write_convergence_report``) is validated
+    by the gate's ``semantic_checks`` tier, so a convergence FAIL cannot
+    silently pass.
+
+    Returns
+    -------
+    Finding | None
+        ``None`` (PASS) when ``envelope.convergence`` is ``None`` (convergence
+        did not run -- disabled or not yet reached, a vacuous pass) or when the
+        recorded verdict is ``passed=True``. A HIGH-severity ``Finding`` when
+        convergence ran and did not pass.
+    """
+    del repo_root  # not consulted; the verdict lives on the envelope
+    convergence = getattr(envelope, "convergence", None)
+    if convergence is None:
+        return None
+    if getattr(convergence, "passed", False):
+        return None
+    return Finding(
+        id="CA-CONVERGENCE-001",
+        severity="HIGH",
+        dimension="spec-fidelity-convergence",
+        description=(
+            "Spec-fidelity convergence did not pass: envelope.convergence."
+            "passed is False (halt_reason="
+            f"{getattr(convergence, 'halt_reason', None)!r}). Contract #4 / "
+            "master:§Flaw 4 -- the spec-fidelity step must not pass while the "
+            "convergence engine reports an unresolved terminal state."
+        ),
+        location="envelope.convergence",
+        evidence="",
+        fix_guidance=(
+            "Inspect the convergence halt_reason; resolve the outstanding HIGH "
+            "findings (or record them as accepted deviations) so convergence "
+            "reaches a passing terminal state, then re-run."
+        ),
+    )
+
+
 def _build_certify_step_has_production_caller(tree: ast.Module) -> bool:
     """Return True if ``build_certify_step(...)`` is called within executor.py.
 

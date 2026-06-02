@@ -23,8 +23,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from superclaude.cli.pipeline.frontmatter import extract_frontmatter
 from superclaude.cli.pipeline.models import CodeAssertion, GateCriteria, SemanticCheck
-from superclaude.cli.roadmap.code_assertions import assert_step_reachable
+from superclaude.cli.roadmap.code_assertions import (
+    assert_convergence_passed,
+    assert_step_reachable,
+)
 from superclaude.cli.roadmap.verify_implementation import assert_all_frs_resolved
 from superclaude.contracts import GATE_FIELD_NAMES, THRESHOLDS
 
@@ -52,52 +56,6 @@ def _no_heading_gaps(content: str) -> bool:
             if prev_level > 0 and level > prev_level + 1:
                 return False
             prev_level = level
-    return True
-
-
-def _cross_refs_resolve(content: str) -> bool:
-    """Verify all 'See section' / cross-reference patterns have matching headings.
-
-    Checks that internal references like 'See section X.Y' or 'See X.Y'
-    have corresponding headings. Unresolved references emit warnings but
-    do not block the pipeline (warning-only mode per OQ-001 for v2.20).
-    """
-    import re
-    import warnings
-
-    # Extract heading anchors (simplified: heading text, lowercased)
-    headings: set[str] = set()
-    for line in content.splitlines():
-        stripped = line.lstrip()
-        if stripped.startswith("#"):
-            heading_text = stripped.lstrip("#").strip().lower()
-            headings.add(heading_text)
-
-    # Find cross-references like "See section X" or "(see X.Y)"
-    refs = re.findall(r'[Ss]ee\s+(?:[Ss]ection\s+)?["\']?(\d+(?:\.\d+)*)', content)
-    # If there are no cross-references, that's fine
-    if not refs:
-        return True
-
-    # Check each reference against headings
-    unresolved: list[str] = []
-    for ref in refs:
-        found = any(ref in h for h in headings)
-        if not found:
-            # Also check if the section number appears as a heading prefix
-            found = any(h.startswith(ref) for h in headings)
-        if not found:
-            unresolved.append(ref)
-
-    if unresolved:
-        for ref in unresolved:
-            warnings.warn(
-                f"Unresolved cross-reference: 'See section {ref}' has no matching heading",
-                stacklevel=2,
-            )
-        # Warning-only mode (OQ-001): return True to avoid blocking pipeline
-        return True
-
     return True
 
 
@@ -140,7 +98,7 @@ def _no_duplicate_headings(content: str) -> bool | str:
 
 def _frontmatter_values_non_empty(content: str) -> bool:
     """All YAML frontmatter fields have non-empty values."""
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
     for _key, value in fm.items():
@@ -157,48 +115,6 @@ def _has_actionable_content(content: str) -> bool:
     return bool(re.search(r"^\s*(?:[-*]|\d+\.)\s+\S", content, re.MULTILINE))
 
 
-def _strip_yaml_quotes(value: str) -> str:
-    """Strip matching outer YAML quotes (single or double) from a value.
-
-    Handles the common case where LLMs wrap values in quotes:
-      '"1:1"'  -> '1:1'
-      "'1:1'"  -> '1:1'
-
-    Does NOT strip if quotes are unmatched:
-      '"1:1'   -> '"1:1'   (unmatched -- leave as-is)
-    """
-    if len(value) >= 2:
-        if (value[0] == '"' and value[-1] == '"') or (
-            value[0] == "'" and value[-1] == "'"
-        ):
-            return value[1:-1]
-    return value
-
-
-def _parse_frontmatter(content: str) -> dict[str, str] | None:
-    """Extract YAML frontmatter key-value pairs from content.
-
-    Returns a dict of key→value strings, or None if no frontmatter found.
-    Values are stripped of whitespace and matching outer YAML quotes.
-    """
-    stripped = content.lstrip()
-    if not stripped.startswith("---"):
-        return None
-
-    rest = stripped[3:].lstrip("\n")
-    end_idx = rest.find("\n---")
-    if end_idx == -1:
-        return None
-
-    result: dict[str, str] = {}
-    for line in rest[:end_idx].splitlines():
-        line = line.strip()
-        if ":" in line:
-            key, value = line.split(":", 1)
-            result[key.strip()] = _strip_yaml_quotes(value.strip())
-    return result
-
-
 def _high_severity_count_zero(content: str) -> bool:
     """Validate that high_severity_count equals zero in fidelity report frontmatter.
 
@@ -210,7 +126,7 @@ def _high_severity_count_zero(content: str) -> bool:
 
     Raises TypeError if high_severity_count value is not parseable as an integer.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -289,7 +205,7 @@ def _tasklist_ready_consistent(content: str) -> bool:
     - Inconsistency: tasklist_ready=true but high_severity_count > 0
     - Inconsistency: tasklist_ready=true but validation_complete != true
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -330,7 +246,7 @@ def _no_undischarged_obligations(content: str) -> bool:
     Returns True only if frontmatter contains undischarged_obligations: 0.
     Fail-closed: missing field, missing frontmatter, or non-zero value → False.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
     value = fm.get("undischarged_obligations")
@@ -348,7 +264,7 @@ def _integration_contracts_covered(content: str) -> bool:
     Returns True only if frontmatter contains uncovered_contracts: 0.
     Fail-closed: missing field, missing frontmatter, or non-zero value → False.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
     value = fm.get("uncovered_contracts")
@@ -366,7 +282,7 @@ def _fingerprint_coverage_check(content: str) -> bool:
     Returns True if fingerprint_coverage is a float >= 0.7.
     Fail-closed: missing field, missing frontmatter, or unparseable value → False.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
     value = fm.get("fingerprint_coverage")
@@ -380,7 +296,7 @@ def _fingerprint_coverage_check(content: str) -> bool:
 
 def _convergence_score_valid(content: str) -> bool:
     """convergence_score frontmatter value parses as float in [0.0, 1.0]."""
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
     value = fm.get("convergence_score")
@@ -406,7 +322,7 @@ def _no_ambiguous_deviations(content: str) -> bool:
     - Non-integer value (fail-closed, no exception raised)
     - Value > 0
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -429,7 +345,7 @@ def _certified_is_true(content: str) -> bool:
     Rejects: 'false', 'yes', '1', empty, missing, no frontmatter.
     Fail-closed: any non-true value returns False.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -446,11 +362,39 @@ def _validation_complete_true(content: str) -> bool:
     Returns True only if frontmatter has analysis_complete: true.
     Returns False for missing field, missing frontmatter, or false value.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
     value = fm.get("analysis_complete")
+    if value is None:
+        return False
+
+    return value.lower() == "true"
+
+
+def _spec_fidelity_validation_complete_true(content: str) -> bool:
+    """spec-fidelity ``validation_complete`` frontmatter field must equal true.
+
+    Closes the convergence-aware fail-open edge (R1.6 / Contract #4): a
+    convergence FAIL writes ``validation_complete: false`` (mirroring the
+    ConvergenceResult verdict via ``_write_convergence_report``) even in the
+    rare halt-at-zero-active-HIGHs case (e.g. budget exhausted before any
+    checker run) that ``high_severity_count_zero`` alone would let through.
+    Requiring ``validation_complete: true`` in the live gate path makes the
+    terminal report's PASS/FAIL bit load-bearing without depending on the
+    envelope being plumbed. A genuinely-passing non-convergence LLM report
+    also sets ``validation_complete: true`` (prompts.py contract), so this
+    only rejects incomplete/failed validations.
+
+    Returns True only if frontmatter has ``validation_complete: true``.
+    Returns False for missing field, missing frontmatter, or any other value.
+    """
+    fm = extract_frontmatter(content)
+    if fm is None:
+        return False
+
+    value = fm.get("validation_complete")
     if value is None:
         return False
 
@@ -467,7 +411,7 @@ def _routing_ids_valid(content: str) -> bool:
     """
     import re
 
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -504,7 +448,7 @@ def _slip_count_matches_routing(content: str) -> bool:
     """
     import re
 
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -539,7 +483,7 @@ def _pre_approved_not_in_fix_roadmap(content: str) -> bool:
     """
     import re
 
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -571,7 +515,7 @@ def _total_analyzed_consistent(content: str) -> bool:
     is missing or non-integer. Returns True iff the four-class sum
     equals total_analyzed.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -616,7 +560,7 @@ def _unclassified_count_consistent(content: str) -> bool:
     - Either value is non-integer (fail-closed)
     - The two values do not match
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -639,7 +583,7 @@ def _total_annotated_consistent(content: str) -> bool:
     Returns True if field is absent (optional field).
     Returns False if present but doesn't match the sum.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -668,7 +612,7 @@ def _total_annotated_consistent(content: str) -> bool:
 
 def _complexity_class_valid(content: str) -> bool:
     """Validate complexity_class is one of LOW, MEDIUM, HIGH (case-insensitive)."""
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -685,7 +629,7 @@ def _extraction_mode_valid(content: str) -> bool:
     Accepts: 'standard', 'chunked', 'chunked (3 chunks)'.
     Rejects: 'full', 'partial', 'incremental'.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -703,7 +647,7 @@ def _interleave_ratio_consistent(content: str) -> bool:
     Required mapping: LOW→1:3, MEDIUM→1:2, HIGH→1:1.
     Rejects mismatches like LOW+1:1 or HIGH+1:3.
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -727,7 +671,7 @@ def _interleave_ratio_consistent(content: str) -> bool:
 
 def _milestone_counts_positive(content: str) -> bool:
     """Validate validation_milestones and work_milestones are positive integers."""
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -750,7 +694,7 @@ def _validation_philosophy_correct(content: str) -> bool:
 
     Rejects: 'continuous_parallel' (underscore), 'continuous parallel' (space).
     """
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -763,7 +707,7 @@ def _validation_philosophy_correct(content: str) -> bool:
 
 def _major_issue_policy_correct(content: str) -> bool:
     """Validate major_issue_policy is exactly 'stop-and-fix'."""
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -797,7 +741,7 @@ def _deviation_counts_reconciled(content: str) -> bool:
     """
     import re
 
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 
@@ -1286,11 +1230,6 @@ MERGE_GATE = GateCriteria(
             failure_message="Heading level gap detected (e.g. H2 -> H4 without H3)",
         ),
         SemanticCheck(
-            name="cross_refs_resolve",
-            check_fn=_cross_refs_resolve,
-            failure_message="Internal cross-reference does not resolve to an existing heading",
-        ),
-        SemanticCheck(
             name="no_duplicate_headings",
             check_fn=_no_duplicate_headings,
             failure_message="Duplicate H2 (global) or H3 (within same H2 section) heading detected",
@@ -1405,6 +1344,55 @@ SPEC_FIDELITY_GATE = GateCriteria(
     ],
 )
 
+# R1.6 / Contract #4 / master:§Flaw 4: convergence-aware spec-fidelity gate.
+# REPLACES the convergence-mode ``gate=None`` bypass at ``executor.py`` (the
+# bypass let spec-fidelity run ungated on every convergence-mode run -- the
+# production default, since ``--no-convergence`` defaults False). This
+# gate is a SUPERSET of :data:`SPEC_FIDELITY_GATE`: it keeps the same STRICT
+# tier, required frontmatter, and severity ``semantic_checks`` (which validate
+# the convergence terminal report written by ``_write_convergence_report`` --
+# ``high_severity_count``/``validation_complete``/``tasklist_ready`` -- so a
+# convergence FAIL cannot pass the live ``execute_pipeline`` gate path that
+# omits the envelope), and ADDS a runtime ``CodeAssertion`` that gates on the
+# envelope SoT (``envelope.convergence.passed``) directly. The assertion is
+# runtime-safe (``ci_only=False``): dormant in the no-envelope live path
+# (envelope-None shim), it fires for any caller that plumbs the envelope and
+# is CI-enforced by the gate-data / empty-target tests. Non-convergence runs
+# reuse the same gate: ``envelope.convergence`` is ``None`` there, so the
+# assertion vacuously PASSES and behavior is identical to SPEC_FIDELITY_GATE.
+SPEC_FIDELITY_GATE_CONVERGENCE_AWARE = GateCriteria(
+    required_frontmatter_fields=SPEC_FIDELITY_GATE.required_frontmatter_fields,
+    min_lines=SPEC_FIDELITY_GATE.min_lines,
+    enforcement_tier="STRICT",
+    # Base severity checks PLUS a validation_complete=true check that closes the
+    # convergence-FAIL-at-zero-HIGHs fail-open edge in the live (no-envelope)
+    # path. New list via unpacking so SPEC_FIDELITY_GATE.semantic_checks is not
+    # mutated (it remains the 2-check base).
+    semantic_checks=[
+        *(SPEC_FIDELITY_GATE.semantic_checks or []),
+        SemanticCheck(
+            name="validation_complete_true",
+            check_fn=_spec_fidelity_validation_complete_true,
+            failure_message=(
+                "validation_complete must be true -- spec-fidelity validation "
+                "(or convergence) did not complete successfully"
+            ),
+        ),
+    ],
+    code_assertions=[
+        CodeAssertion(
+            name="convergence_passed",
+            check_fn=assert_convergence_passed,
+            failure_message=(
+                "Contract #4 / master:§Flaw 4: when convergence ran, the "
+                "envelope's terminal ConvergenceResult must be passed=True "
+                "(no silent fail-open bypass of spec-fidelity)."
+            ),
+            ci_only=False,
+        ),
+    ],
+)
+
 REMEDIATE_GATE = GateCriteria(
     required_frontmatter_fields=[
         "type",
@@ -1469,6 +1457,11 @@ CERTIFY_GATE = GateCriteria(
                 "production _build_steps dispatch map "
                 "(master:§Flaw 1 evidence chain)."
             ),
+            # R1.6 CI-vs-runtime split: source-tree AST walk of executor.py;
+            # has no src/ tree on a pipx install -> CI-only. Enforced by
+            # tests/roadmap/test_dispatch_reachability.py, skipped in the live
+            # gate path.
+            ci_only=True,
         ),
     ],
 )
@@ -1580,7 +1573,9 @@ ALL_GATES = [
     ("merge", MERGE_GATE),
     ("anti-instinct", ANTI_INSTINCT_GATE),
     ("test-strategy", TEST_STRATEGY_GATE),
-    ("spec-fidelity", SPEC_FIDELITY_GATE),
+    # R1.6: convergence-aware variant (replaces the gate=None convergence
+    # bypass in executor.py); SPEC_FIDELITY_GATE retained as its declared base.
+    ("spec-fidelity", SPEC_FIDELITY_GATE_CONVERGENCE_AWARE),
     ("deviation-analysis", DEVIATION_ANALYSIS_GATE),
     ("remediate", REMEDIATE_GATE),
     ("certify", CERTIFY_GATE),

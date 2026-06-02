@@ -287,6 +287,15 @@ def _extract_frontmatter(text: str) -> str | None:
 
     Returns the YAML content between the first pair of --- delimiters,
     or None if no valid frontmatter is found.
+
+    Contract #6 note (Step 11.2): this is a DISTINCT-PURPOSE parser, not a
+    duplicate of the canonical gate parser
+    :func:`superclaude.cli.pipeline.frontmatter.extract_frontmatter`. It
+    returns the *raw frontmatter block as a string* (not a parsed
+    ``dict``) for the spec-patch flow, which re-emits the block verbatim — a
+    different return contract than the gate parser. It is retained and
+    enumerated by ``tests/roadmap/test_parser_consistency.py`` as a
+    distinct-purpose parser rather than deleted. See Phase 11 findings.
     """
     lines = text.split("\n")
     if not lines or lines[0].strip() != "---":
