@@ -23,6 +23,7 @@ module-import-time cycles (researcher 2 §1.7).
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import re
@@ -684,6 +685,22 @@ def _split_rerun_block(content: str) -> tuple[str, str]:
     return (match.group(0), content[: match.start()] + content[match.end() :])
 
 
+def _content_sha256_excluding_rerun_block(path: Path) -> str:
+    """SHA256 of the tasklist with the SUPERCLAUDE-RERUN provenance block stripped.
+
+    The §T8.1 mid-flight-edit guard must detect a real *operator* edit while
+    ignoring the engine's own provenance write (step 10). Hashing the
+    block-stripped content keeps the guard sensitive to task-content changes
+    but blind to the rerun marker (R-F6).
+    """
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    _, without_block = _split_rerun_block(content)
+    return hashlib.sha256(without_block.encode("utf-8")).hexdigest()
+
+
 def _extract_history(block_text: str) -> list[str]:
     """Pull the ``  - {...}`` history entry lines out of a prior provenance block."""
     history: list[str] = []
@@ -1212,6 +1229,20 @@ def run_rerun_tasks(
     lock release and abort auto-restore both run in ``finally`` for crash safety.
     """
     if phase is None:
+        if from_reflect_report is not None:
+            # --from-reflect-report is a v4.3.0 forward-compat stub: the
+            # ReflectReportNominator schema co-ships with SprintRunReflect in
+            # v4.4.0 (TDD Resolution #2 / Option A). Until then there is no
+            # working nomination source for it, so abort honestly rather than
+            # surfacing the misleading "--phase is required" contradiction
+            # (the --help text advertises reflect-report as an alternative to
+            # --phase). Use --phase/--tasks for manual nomination in v4.3.0.
+            raise click.ClickException(
+                "--from-reflect-report is not available in v4.3.0 "
+                "(reflect-report nomination ships with SprintRunReflect in "
+                "v4.4.0). Use --phase N --tasks T<PP>.<TT>[,...] to nominate "
+                "tasks manually."
+            )
         raise click.ClickException("--phase is required for rerun-tasks.")
     phase_obj = next((p for p in config.phases if p.number == phase), None)
     if phase_obj is None:
@@ -1272,7 +1303,7 @@ def run_rerun_tasks(
 
         # Step 4 — claim a bundle dir + capture the pre-rerun source SHA (T8.1).
         bundle = build_rerun_bundle_dir(config.results_dir, bundle_dir)
-        source_sha = compute_tasklist_sha256(phase_obj.file)
+        source_sha = _content_sha256_excluding_rerun_block(phase_obj.file)
         debug_log(
             _rerun_logger, "rerun_step_4_bundle", bundle=str(bundle), sha=source_sha
         )
@@ -1353,7 +1384,7 @@ def run_rerun_tasks(
 
         if rerun_succeeded and merge_back:
             # Step 12 — re-hash source (R-F6 / T8.1) then merge back.
-            current_sha = compute_tasklist_sha256(phase_obj.file)
+            current_sha = _content_sha256_excluding_rerun_block(phase_obj.file)
             if current_sha != source_sha and not force_merge:
                 raise click.ClickException(
                     "Source tasklist modified since rerun started. Bundle "

@@ -5,6 +5,7 @@ PhaseResult, SprintResult, MonitorState, TaskResult, TaskStatus,
 GateOutcome, TurnLedger) and their property methods.
 """
 
+import json
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -1094,3 +1095,79 @@ class TestTaskOutputFileHelpers:
         config, phase = self._make_config(tmp_path)
         assert config.output_file(phase).name == "phase-2-output.txt"
         assert config.error_file(phase).name == "phase-2-errors.txt"
+
+
+# ---------------------------------------------------------------------------
+# v4.3.0 — TaskStatus.FAIL_RECOVERABLE + FAIL_TERMINAL rename
+# ---------------------------------------------------------------------------
+
+
+class TestFailRecoverableStatus:
+    """v4.3.0 rerun-tasks splits the old generic failure into a terminal vs.
+    recoverable distinction. FAIL_TERMINAL keeps the legacy serialized value
+    ``"fail"`` so existing phase-N-result.json payloads still load."""
+
+    def test_fail_recoverable_value_and_properties(self):
+        status = TaskStatus.FAIL_RECOVERABLE
+        assert status.value == "fail_recoverable"
+        assert status.is_failure is True
+        assert status.is_success is False
+        # Round-trips by value
+        assert TaskStatus("fail_recoverable") is TaskStatus.FAIL_RECOVERABLE
+
+    def test_fail_terminal_rename_preserves_serialized_value(self):
+        """The enum member was renamed FAIL -> FAIL_TERMINAL but the wire value
+        MUST remain ``"fail"`` for backward-compatible deserialization."""
+        assert TaskStatus.FAIL_TERMINAL.value == "fail"
+        assert TaskStatus("fail") is TaskStatus.FAIL_TERMINAL
+        assert TaskStatus.FAIL_TERMINAL.is_failure is True
+        assert TaskStatus.FAIL_TERMINAL.is_success is False
+
+
+# ---------------------------------------------------------------------------
+# v4.3.0 — PhaseResult.task_results granular evidence (TDD §T6)
+# ---------------------------------------------------------------------------
+
+
+class TestPhaseResultExtensions:
+    """PhaseResult gains a ``task_results`` list carrying per-task evidence for
+    the rerun-tasks engine. It defaults to an empty list and each entry
+    round-trips through TaskResult.to_dict()/from_dict()."""
+
+    def test_task_results_field_default_empty_list(self):
+        result = _make_phase_result()
+        assert result.task_results == []
+        # Defaults must be independent per-instance (no shared mutable default).
+        other = _make_phase_result()
+        result.task_results.append(_make_task_result())
+        assert other.task_results == []
+
+    def test_json_serialization_round_trip_with_task_results(self):
+        result = _make_phase_result(
+            task_results=[
+                _make_task_result(
+                    task=_make_task_entry(task_id="T01.01", title="First"),
+                    status=TaskStatus.PASS,
+                    gate_outcome=GateOutcome.PASS,
+                ),
+                _make_task_result(
+                    task=_make_task_entry(task_id="T01.02", title="Second"),
+                    status=TaskStatus.FAIL_RECOVERABLE,
+                    gate_outcome=GateOutcome.FAIL,
+                ),
+            ]
+        )
+        assert len(result.task_results) == 2
+
+        # Serialize each task result through the JSON-safe dict and back.
+        payload = [tr.to_dict() for tr in result.task_results]
+        as_json = json.dumps(payload)
+        restored = [TaskResult.from_dict(d) for d in json.loads(as_json)]
+
+        assert len(restored) == 2
+        assert restored[0].task.task_id == "T01.01"
+        assert restored[0].status is TaskStatus.PASS
+        assert restored[0].gate_outcome is GateOutcome.PASS
+        assert restored[1].task.task_id == "T01.02"
+        assert restored[1].status is TaskStatus.FAIL_RECOVERABLE
+        assert restored[1].gate_outcome is GateOutcome.FAIL

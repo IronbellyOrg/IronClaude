@@ -44,6 +44,9 @@ class _FakePopenSuccess:
         self.returncode = 0
         self.pid = 20000
         self._poll_count = 0
+        # ProcessManager.start() writes the prompt via stdin; a None stdin
+        # makes the guarded write a no-op (matches the v1.2.1 no-pipe path).
+        self.stdin = None
 
     def poll(self):
         self._poll_count += 1
