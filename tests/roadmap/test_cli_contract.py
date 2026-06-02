@@ -30,7 +30,7 @@ class TestAgentsParsing:
         assert len(config.agents) == 2
         assert config.agents[0].model == "opus"
         assert config.agents[0].persona == "architect"
-        assert config.agents[1].model == "haiku"
+        assert config.agents[1].model == "sonnet"
         assert config.agents[1].persona == "architect"
 
     def test_parse_single_agent(self):
