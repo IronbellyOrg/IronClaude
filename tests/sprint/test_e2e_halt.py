@@ -45,6 +45,7 @@ class _FakePopenExit0:
     def __init__(self):
         self.returncode = 0
         self.pid = 30000
+        self.stdin = None
         self._poll_count = 0
 
     def poll(self):
@@ -60,6 +61,7 @@ class _FakePopenExit1:
     def __init__(self):
         self.returncode = 1
         self.pid = 30001
+        self.stdin = None
         self._poll_count = 0
 
     def poll(self):

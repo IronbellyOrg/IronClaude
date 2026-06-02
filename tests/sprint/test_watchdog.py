@@ -57,6 +57,7 @@ class TestWatchdogKillAction:
             def __init__(self):
                 self.returncode = None
                 self.pid = 9999
+                self.stdin = None
 
             def poll(self):
                 poll_calls[0] += 1
@@ -130,6 +131,7 @@ class TestWatchdogWarnAction:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 8888
+                self.stdin = None
 
             def poll(self):
                 poll_count[0] += 1
@@ -196,6 +198,7 @@ class TestWatchdogStallReset:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 7777
+                self.stdin = None
 
             def poll(self):
                 poll_count[0] += 1

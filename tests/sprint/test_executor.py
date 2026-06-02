@@ -339,6 +339,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 1001
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -385,6 +386,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 1002
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -437,6 +439,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = 1
                 self.pid = 1003
+                self.stdin = None
 
             def poll(self):
                 return None
@@ -497,6 +500,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = None
                 self.pid = 1004
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -1276,6 +1280,7 @@ class TestBackwardCompat:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 2001
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):

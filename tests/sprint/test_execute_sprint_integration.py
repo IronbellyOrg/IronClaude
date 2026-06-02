@@ -46,6 +46,7 @@ class _FakeProcess:
     def __init__(self):
         self.returncode = 0
         self.pid = 42000
+        self.stdin = None
         self._poll_count = 0
 
     def poll(self):
