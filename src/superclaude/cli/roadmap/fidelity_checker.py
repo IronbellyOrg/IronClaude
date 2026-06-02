@@ -12,12 +12,15 @@ Evidence search methods (in order):
 2. String search fallback — for non-Python files or AST parse failures, a
    case-sensitive substring search of file contents.
 
-Ambiguity Policy (R-3 Mitigation)
-==================================
-When a match is ambiguous (e.g. a name appears but context is unclear),
-the checker **fails open**: it logs a warning and reports the FR as FOUND
-rather than blocking the pipeline.  This prevents false-positive gaps from
-stalling the convergence engine.
+Verification Policy (§MVR §4 — Fail-Closed)
+===========================================
+When an FR cannot be positively verified — no function/class names are
+extractable from the spec, or only a SUBSET of the expected names is present
+in the codebase (partial evidence) — the checker **fails closed**: it logs a
+warning, marks the FR as NOT found (``ambiguous=True``), and surfaces a gap
+Finding rather than silently claiming the FR is implemented. A PASS requires a
+COMPLETE name match. This kills the master:§Flaw 1 fail-open evidence chain
+(R1.6 Step 11.4): unverifiable != implemented.
 
 Checker output conforms to the ``list[Finding]`` shape used by structural
 and semantic checkers, enabling direct integration into ``_run_checkers()``.
@@ -290,18 +293,19 @@ class FidelityChecker:
 
         for mapping in mappings:
             if not mapping.expected_names:
-                # No extractable names for this FR — ambiguous, fail-open
+                # No extractable names for this FR — unverifiable.
+                # Fail-closed (§MVR §4): unverifiable != implemented.
                 logger.warning(
                     "FR %s: no function/class names extracted from spec; "
-                    "marking as ambiguous (fail-open per R-3)",
+                    "marking as NOT found (fail-closed per §MVR §4)",
                     mapping.fr_id,
                 )
                 results.append(
                     FidelityResult(
                         fr_id=mapping.fr_id,
-                        found=True,  # fail-open
+                        found=False,  # fail-closed: unverifiable != implemented
                         ambiguous=True,
-                        message=f"No extractable names for {mapping.fr_id}; fail-open",
+                        message=f"No extractable names for {mapping.fr_id}; fail-closed (unverifiable)",
                     )
                 )
                 continue
@@ -316,12 +320,13 @@ class FidelityChecker:
                     missing.append(name)
 
             if evidence:
-                # At least some evidence found
-                found = True
+                # Fail-closed (§MVR §4): a PASS requires ALL expected names.
+                # Partial evidence (some names missing) is NOT a full match.
+                found = not missing
                 if missing:
                     logger.warning(
                         "FR %s: partial evidence — found %s, missing %s; "
-                        "marking as found (fail-open per R-3)",
+                        "marking as NOT found (fail-closed per §MVR §4)",
                         mapping.fr_id,
                         evidence,
                         missing,

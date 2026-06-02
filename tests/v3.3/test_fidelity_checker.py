@@ -277,3 +277,147 @@ class TestFidelityCheckerNegative:
                 f"Finding(s) for the gap."
             ),
         )
+
+
+class TestFidelityCheckerFailClosed:
+    """§MVR §4 / R1.6 Step 11.4: unverifiable FRs fail CLOSED, not open.
+
+    Regression for the deleted fail-open defaults (fidelity_checker.py:302/:320):
+    an FR that cannot be positively verified (no extractable names, or only a
+    partial name match) must report found=False + surface a HIGH gap Finding,
+    NOT silently default to found=True.
+    """
+
+    def test_no_extractable_names_reports_not_found(
+        self, synth_workspace: tuple[Path, Path, Path], audit_trail
+    ) -> None:
+        """An FR with no extractable function/class names is NOT auto-passed.
+
+        Pre-R1.6 this branch defaulted to ``found=True`` (fail-open). Fail-closed
+        (§MVR §4): found=False, ambiguous=True, and a HIGH gap Finding surfaces.
+        """
+        audit_trail.start_timer()
+        source_dir, spec_path, _ = synth_workspace
+        _write_python(
+            source_dir,
+            "utils/helpers.py",
+            """\
+            def format_output(data):
+                return str(data)
+            """,
+        )
+        # FR prose carries NO code-quoted function/class names → no extractable names
+        _write_spec(
+            spec_path,
+            """\
+            # Specification
+
+            ## FR-7.1 Performance Budget
+
+            The system shall respond to user requests promptly and remain
+            responsive under sustained load.
+            """,
+        )
+        checker = FidelityChecker(source_dir=source_dir)
+        results = checker.check(spec_path)
+        fr = next((r for r in results if r.fr_id == "FR-7.1"), None)
+        assert fr is not None, (
+            f"Expected FR-7.1 result, got {[r.fr_id for r in results]}"
+        )
+        assert fr.found is False, (
+            f"Fail-closed: unverifiable FR must be found=False, got {fr.found}"
+        )
+        assert fr.ambiguous is True, "Unverifiable FR should be flagged ambiguous"
+        findings = checker.check_as_findings(spec_path)
+        gap = [f for f in findings if "FR-7.1" in f.description]
+        assert gap and gap[0].severity == "HIGH", (
+            "Fail-closed must surface a HIGH gap Finding for the unverifiable FR"
+        )
+        audit_trail.record(
+            test_id="test_no_extractable_names_reports_not_found",
+            spec_ref="§MVR §4, Contract #4",
+            assertion_type="behavioral",
+            inputs={
+                "fr": "FR-7.1",
+                "extractable_names": [],
+                "scenario": "no names → fail-closed",
+            },
+            observed={
+                "found": fr.found,
+                "ambiguous": fr.ambiguous,
+                "gap_findings": len(gap),
+            },
+            expected={"found": False, "ambiguous": True, "gap_findings_gte": 1},
+            verdict="PASS",
+            evidence="Unverifiable FR-7.1 fail-closed (found=False) + HIGH gap Finding; was found=True under the deleted fail-open.",
+        )
+
+    def test_partial_evidence_does_not_auto_pass(
+        self, synth_workspace: tuple[Path, Path, Path], audit_trail
+    ) -> None:
+        """Partial name evidence (some expected names missing) does NOT auto-PASS.
+
+        Pre-R1.6 any single matching name set ``found=True`` (fail-open). Fail-closed
+        (§MVR §4): a PASS requires ALL expected names; a partial match is
+        found=False, ambiguous=True, with a HIGH gap Finding.
+        """
+        audit_trail.start_timer()
+        source_dir, spec_path, _ = synth_workspace
+        # Codebase has ONLY alpha_handler, NOT BetaProcessor
+        _write_python(
+            source_dir,
+            "mod/alpha.py",
+            """\
+            def alpha_handler(x):
+                return x
+            """,
+        )
+        _write_spec(
+            spec_path,
+            """\
+            # Specification
+
+            ## FR-8.1 Dual Component Coordination
+
+            The `alpha_handler()` function and the `BetaProcessor` class shall
+            coordinate request handling.
+            """,
+        )
+        checker = FidelityChecker(source_dir=source_dir)
+        results = checker.check(spec_path)
+        fr = next((r for r in results if r.fr_id == "FR-8.1"), None)
+        assert fr is not None, (
+            f"Expected FR-8.1 result, got {[r.fr_id for r in results]}"
+        )
+        assert "alpha_handler" in fr.evidence_names, (
+            "Partial match should still record the matched name as evidence"
+        )
+        assert fr.found is False, (
+            f"Fail-closed: partial match (BetaProcessor missing) must be found=False, "
+            f"got {fr.found}; evidence={fr.evidence_names}"
+        )
+        assert fr.ambiguous is True, "Partial match should be flagged ambiguous"
+        findings = checker.check_as_findings(spec_path)
+        gap = [f for f in findings if "FR-8.1" in f.description]
+        assert gap and gap[0].severity == "HIGH", (
+            "Fail-closed must surface a HIGH gap Finding for the partial match"
+        )
+        audit_trail.record(
+            test_id="test_partial_evidence_does_not_auto_pass",
+            spec_ref="§MVR §4, Contract #4",
+            assertion_type="behavioral",
+            inputs={
+                "fr": "FR-8.1",
+                "expected": ["alpha_handler", "BetaProcessor"],
+                "codebase_has": ["alpha_handler"],
+                "scenario": "partial match → fail-closed",
+            },
+            observed={
+                "found": fr.found,
+                "ambiguous": fr.ambiguous,
+                "evidence": fr.evidence_names,
+            },
+            expected={"found": False, "ambiguous": True},
+            verdict="PASS",
+            evidence="Partial-match FR-8.1 fail-closed (found=False) + HIGH gap Finding; was found=True under the deleted fail-open.",
+        )
