@@ -36,6 +36,32 @@ slugify() {
   echo "$1" | sed 's|/|-|g'
 }
 
+validate_label() {
+  # Guard a user-supplied topic label before it is interpolated into a file
+  # path ("$TOPIC_DIR/$LABEL.txt"). Rejects empty, path separators, '..'
+  # traversal, the special '.'/'..' names, and any character outside a safe
+  # filename charset. On success echoes the label unchanged; on rejection
+  # prints an error to stderr and returns non-zero.
+  local label="$1"
+  if [ -z "$label" ]; then
+    echo "ccsession: empty label" >&2
+    return 1
+  fi
+  case "$label" in
+    */* | *..* | .)
+      echo "ccsession: invalid label '$label' (no '/' or '..', and not '.'/'..')" >&2
+      return 1
+      ;;
+  esac
+  case "$label" in
+    *[!A-Za-z0-9._-]*)
+      echo "ccsession: invalid label '$label' (allowed chars: A-Z a-z 0-9 . _ -)" >&2
+      return 1
+      ;;
+  esac
+  printf '%s' "$label"
+}
+
 workspace_name() {
   # Prefer the real cwd cached at label-write time. Fall back to a best-effort
   # decode of the slug (lossy when dir names contain literal dashes).
@@ -54,18 +80,48 @@ workspace_name() {
 # Linux fallback requires ext4+ with birthtime tracking and returns "-" if
 # unavailable.
 get_btime() {
-  local file="$1" bt
-  bt=$(stat -f '%B' "$file" 2>/dev/null)
-  if [ -z "$bt" ] || [ "$bt" = "0" ]; then
-    bt=$(stat -c '%W' "$file" 2>/dev/null)
+  local file="$1" bt=""
+  # Try GNU/Linux first: `stat -c '%W'` prints the birth time in epoch seconds,
+  # or 0 / '?' when the filesystem doesn't track it. On BSD/macOS `stat -c`
+  # errors out (exit non-zero), so we fall through to the BSD form.
+  #
+  # NOTE: the BSD form `stat -f '%B'` is *invalid* on GNU stat, where `-f` means
+  # --file-system: GNU then prints the filesystem-info table for "$file" to
+  # stdout and exits 0-ish. Trying it first (the old behavior) captured that
+  # table into $bt, so the GNU fallback never fired and durations were computed
+  # on garbage. Detecting GNU first avoids ever running the BSD form on Linux.
+  if bt=$(stat -c '%W' "$file" 2>/dev/null); then
+    case "$bt" in
+      ''|0|'?'|'-') bt="" ;;
+    esac
+  else
+    bt=$(stat -f '%B' "$file" 2>/dev/null) || bt=""
+    case "$bt" in
+      ''|0|'-') bt="" ;;
+      *[!0-9]*) bt="" ;;
+    esac
   fi
-  [ -z "$bt" ] || [ "$bt" = "0" ] || [ "$bt" = "-" ] && return
-  echo "$bt"
+  [ -n "$bt" ] && echo "$bt"
+  return 0
 }
 
 get_mtime() {
-  local file="$1"
-  stat -f '%m' "$file" 2>/dev/null || stat -c '%Y' "$file" 2>/dev/null
+  local file="$1" mt=""
+  # GNU/Linux first: `stat -c '%Y'` is the modify time in epoch seconds. The
+  # BSD form `stat -f '%m'` is invalid on GNU stat (same --file-system trap as
+  # get_btime: it would leak the filesystem-info table into $mt and break the
+  # caller's `$((last_ts - start_ts))` arithmetic under set -e). Detecting GNU
+  # first keeps the BSD form off Linux entirely.
+  if mt=$(stat -c '%Y' "$file" 2>/dev/null); then
+    :
+  else
+    mt=$(stat -f '%m' "$file" 2>/dev/null) || mt=""
+  fi
+  case "$mt" in
+    '' | *[!0-9]*) mt="" ;;
+  esac
+  [ -n "$mt" ] && echo "$mt"
+  return 0
 }
 
 format_epoch() {
@@ -166,8 +222,9 @@ case "${1:-}" in
     ;;
   --rm)
     [ -n "${2:-}" ] || { echo "Usage: ccsession --rm <topic>" >&2; exit 2; }
+    RM_TOPIC=$(validate_label "$2") || exit 2
     WS_SLUG=$(slugify "$(pwd)")
-    TOPIC_FILE="$PROJECTS_DIR/$WS_SLUG/topics/$2.txt"
+    TOPIC_FILE="$PROJECTS_DIR/$WS_SLUG/topics/$RM_TOPIC.txt"
     if [ -f "$TOPIC_FILE" ]; then
       rm "$TOPIC_FILE"
       echo "Removed label '$2' from this workspace."
@@ -179,7 +236,7 @@ case "${1:-}" in
     ;;
 esac
 
-TOPIC="$1"
+TOPIC=$(validate_label "$1") || exit 2
 shift
 
 WS_SLUG=$(slugify "$(pwd)")

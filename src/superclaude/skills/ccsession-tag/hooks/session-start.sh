@@ -25,19 +25,28 @@ CWD=$(printf '%s' "$PAYLOAD" \
 [ -z "$CWD" ] && CWD=$(pwd)
 
 # 1. Persist session_id into the env file so Bash tool calls can read
-#    $CLAUDE_SESSION_ID.
+#    $CLAUDE_SESSION_ID. A non-writable env file must NOT abort the hook
+#    (set -e would otherwise exit non-zero on the failed append), so the
+#    write is made failure-tolerant.
 if [ -n "$CLAUDE_ENV_FILE" ]; then
-  echo "CLAUDE_SESSION_ID=$SESSION_ID" >> "$CLAUDE_ENV_FILE"
+  echo "CLAUDE_SESSION_ID=$SESSION_ID" >> "$CLAUDE_ENV_FILE" 2>/dev/null || true
 fi
 
 # 2. If the parent shell labeled this session via the ccsession wrapper,
 #    persist the label → session_id mapping under this workspace.
+#    Defense-in-depth: $CLAUDE_TOPIC is interpolated into a file path, so
+#    reject any value that could escape the topics/ dir before using it.
+case "$CLAUDE_TOPIC" in
+  */* | *..* | . | *[!A-Za-z0-9._-]*) CLAUDE_TOPIC="" ;;
+esac
 if [ -n "$CLAUDE_TOPIC" ]; then
   WS_SLUG=$(echo "$CWD" | sed 's|/|-|g')
   TOPIC_DIR="$HOME/.claude/projects/$WS_SLUG/topics"
-  mkdir -p "$TOPIC_DIR"
-  echo "$SESSION_ID" > "$TOPIC_DIR/$CLAUDE_TOPIC.txt"
-  echo "$CWD" > "$TOPIC_DIR/.cwd"
+  # All writes are failure-tolerant so a non-writable target can never abort
+  # the hook under set -e — it must always reach `exit 0`.
+  mkdir -p "$TOPIC_DIR" 2>/dev/null || true
+  echo "$SESSION_ID" > "$TOPIC_DIR/$CLAUDE_TOPIC.txt" 2>/dev/null || true
+  echo "$CWD" > "$TOPIC_DIR/.cwd" 2>/dev/null || true
 fi
 
 exit 0

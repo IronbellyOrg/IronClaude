@@ -19,7 +19,7 @@ UUID picker.
 ## Files
 
 | File | Purpose |
-|---|---|
+| --- | --- |
 | `SKILL.md` | The `/ccsession-tag` slash command behavior |
 | `ccsession` | The shell wrapper script (symlinked to PATH by install.sh) |
 | `ccsession.env.example` | Template for proxy URL / auth env vars |
@@ -83,7 +83,7 @@ ccsession brownfield
 If the label doesn't exist yet, a new Claude session starts. Once it's
 running and the conversation has gotten useful, retroactively label it:
 
-```
+```text
 /ccsession-tag brownfield
 ```
 
@@ -116,7 +116,7 @@ ccsession --list
 
 ```bash
 rm ~/.local/bin/ccsession
-rm -rf ~/.claude/skills/ccsession
+rm -rf ~/.claude/skills/ccsession-tag
 # Optional: rm ~/.claude/ccsession.env  (your secrets)
 # Optional: remove the SessionStart hook block from ~/.claude/settings.json
 ```

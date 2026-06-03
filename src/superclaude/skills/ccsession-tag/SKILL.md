@@ -18,6 +18,20 @@ The user invokes this command with a label as the argument, e.g.
    ```bash
    LABEL="<LABEL>"
 
+   # Reject labels that could escape the topics/ dir or break the path. The
+   # label is interpolated into "$TOPIC_DIR/$LABEL.txt", so it must be a safe
+   # filename: no '/', no '..', not empty, and only [A-Za-z0-9._-].
+   case "$LABEL" in
+     '' | */* | *..* | .)
+       echo "ERROR: invalid label '$LABEL' (no '/' or '..', and not empty)" >&2
+       exit 1 ;;
+   esac
+   case "$LABEL" in
+     *[!A-Za-z0-9._-]*)
+       echo "ERROR: invalid label '$LABEL' (allowed chars: A-Z a-z 0-9 . _ -)" >&2
+       exit 1 ;;
+   esac
+
    WS_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
    WS_SLUG=$(echo "$WS_DIR" | sed 's|/|-|g')
    PROJECT_DIR="$HOME/.claude/projects/$WS_SLUG"
