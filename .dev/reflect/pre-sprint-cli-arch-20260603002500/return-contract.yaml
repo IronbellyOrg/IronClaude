@@ -1,0 +1,65 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.claude/worktrees/SprintCLIWireDead/.dev/reflect/pre-sprint-cli-arch-20260603002500/REPORT.md
+audit_log_path: null
+confidence_calibrated: 0.85
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+
+# UC-1 specific
+coverage_pct: null
+coverage_undefined: true        # no --tasklist supplied → coverage-only readiness pass
+unmapped_requirements: []
+best_practice_grade: 4          # spec rigor (evidence-grounded, staged, escape hatches)
+readiness_grade: 2              # completeness as a tasklist basis (reviewer grades 3,2,2)
+
+# Findings
+findings_total: 16
+findings_by_severity:
+  high: 6
+  medium: 7
+  low: 5  # L1-L5 (L4 bundles 3 sub-items)
+top_blockers:
+  - "H1: Stage 0 'decoupled/pure win' is false — wiring setup_isolation is a behavior change (Path A CLAUDE_WORK_DIR conflict)"
+  - "H4+H5: HandoffRecord schema not frozen; resume unsafe-by-existence + task_id cross-phase key collision + no --resume CLI surface"
+  - "H3: proposed write_task_complete must reconcile with existing write_task_rerun_complete event"
+
+# Grounding integrity
+grounding_claims_verified: 7   # of 9 load-bearing spec claims fully TRUE
+grounding_claims_imprecise: 2  # claim 6 (CLAUDE_SETTINGS_DIR overstated), claim 7 (dependencies "first consumer" false)
+grounding_artifact: /config/workspace/IronClaude/.claude/worktrees/SprintCLIWireDead/.dev/reflect/pre-sprint-cli-arch-20260603002500/artifacts/wave1a-grounding.md
+input_tree_sha256_files:
+  SYNTHESIS.md: cc392499ded988d92a4562dcf9ba27c17d5688d196a5fa86965277cd54d351cb
+  agent1-execution-model.md: f545e1db0546d2d52ed7c0d5142b0386936d1faa382546d2d1cc36eb9c57118c
+  agent2-handoff-mechanism.md: 520c1c20b85f1b6a4b3e0a37f047e6f482ab708e2e7e01c2b8258e63c3215ffa
+input_drift_detected: false
+spec_line_drift_detected: true  # +4 to +55 lines vs spec citations in this worktree
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 4        # the 4 highest-load-bearing NEW reviewer citations (EV-1..EV-4)
+citations_dropped: 0            # zero-drop = flag, not clean signal (§11.2); mitigated by EV re-Reads
+citations_inferred: 0
+citation_budget_policy: sampled
+evidence_validator_ran: true    # inline orchestrator re-Read (agent not spawned)
+
+# Tier 2 artifacts
+reviewer_count: 3
+reviewer_models: [gpt-5.5, qwen3.6-plus, claude-opus-4-8]   # via sonnet/haiku/opus aliases
+reviewer_personas: [analyzer, qa, refactorer]
+t2_model_class_diversity: full
+t2_vendor_diversity: multi      # OpenAI-compat + Qwen + Anthropic
+calibrator_diversity: degraded  # R3 (opus) collides with orchestrator/merge class
+merge_method: inline-orchestrator   # sc-adversarial-protocol not spawned this run
+adversarial_unavailable: false
+convergence_score: null         # inline merge; reviewers strongly converged on H1/H4/H5/M1
+
+# Asymmetric-cost flags
+regression_present: false       # UC-1 pre-execution; no completed work
+unauthorized_deviation_present: false
+needs_human_decision: true      # operator must patch spec before tasklist authoring (6 HIGH)
+cannot_validate_without_user_input: false
+
+# Promotion (UC-1 → not applicable)
+promotion_action: not-applicable
