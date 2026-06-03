@@ -1,0 +1,234 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python3
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 85 items
+
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_timeout_exit_code PASSED [  1%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_timeout_overrides_result_file PASSED [  2%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_nonzero_exit_error PASSED [  3%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_nonzero_exit_overrides_continue_signal PASSED [  4%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_halt_signal PASSED [  5%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_continue_signal PASSED [  7%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_yaml_status_pass PASSED [  8%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_yaml_status_fail PASSED [  9%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_result_file_no_signals PASSED [ 10%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_no_result_file_with_output PASSED [ 11%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_no_result_no_output PASSED [ 12%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_empty_output_file PASSED [ 14%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_continue_signal_case_insensitive PASSED [ 15%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_halt_signal_case_insensitive PASSED [ 16%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_both_continue_and_halt_halt_wins PASSED [ 17%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_partial_status_produces_halt PASSED [ 18%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_reclassification_pass_no_report_with_error_max_turns PASSED [ 20%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_reclassification_pass_no_report_without_error_max_turns PASSED [ 21%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_reclassification_does_not_affect_normal_pass PASSED [ 22%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_reclassification_does_not_affect_normal_halt PASSED [ 23%]
+tests/sprint/test_executor.py::TestDeterminePhaseStatus::test_incomplete_is_failure PASSED [ 24%]
+tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_pass FAILED [ 25%]
+tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_halt FAILED [ 27%]
+tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_timeout_exit_code_124 FAILED [ 28%]
+tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_interrupted FAILED [ 29%]
+tests/sprint/test_executor.py::TestBudgetGuard::test_budget_guard_allows_launch_when_sufficient PASSED [ 30%]
+tests/sprint/test_executor.py::TestBudgetGuard::test_budget_guard_blocks_launch_when_insufficient PASSED [ 31%]
+tests/sprint/test_executor.py::TestBudgetGuard::test_budget_guard_allows_at_exact_minimum PASSED [ 32%]
+tests/sprint/test_executor.py::TestBudgetGuard::test_budget_guard_none_ledger_allows_launch PASSED [ 34%]
+tests/sprint/test_executor.py::TestBudgetGuard::test_budget_guard_message_includes_values PASSED [ 35%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_spawns_one_subprocess_per_task PASSED [ 36%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_all_pass PASSED [ 37%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_budget_prevents_starvation PASSED [ 38%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_budget_debit_credit PASSED [ 40%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_empty_inventory PASSED [ 41%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_fail_records_status PASSED [ 42%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_timeout_produces_incomplete PASSED [ 43%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_error_max_turns_after_completion_recovers PASSED [ 44%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_genuine_failure_still_fails PASSED [ 45%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_timeout_phase_still_fails PASSED [ 47%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_error_max_turns_without_completion_still_fails PASSED [ 48%]
+tests/sprint/test_executor.py::TestPerTaskOrchestration::test_per_task_no_ledger_always_launches PASSED [ 49%]
+tests/sprint/test_executor.py::TestIsolation::test_setup_isolation_creates_all_dirs PASSED [ 50%]
+tests/sprint/test_executor.py::TestIsolation::test_isolation_all_four_layers_active PASSED [ 51%]
+tests/sprint/test_executor.py::TestIsolation::test_isolation_env_vars PASSED [ 52%]
+tests/sprint/test_executor.py::TestIsolation::test_isolation_plugin_dir_is_empty PASSED [ 54%]
+tests/sprint/test_executor.py::TestIsolation::test_isolation_no_cross_task_leakage PASSED [ 55%]
+tests/sprint/test_executor.py::TestIsolation::test_isolation_idempotent PASSED [ 56%]
+tests/sprint/test_executor.py::TestResultAggregation::test_aggregate_all_pass PASSED [ 57%]
+tests/sprint/test_executor.py::TestResultAggregation::test_aggregate_counts_pass_recovered_as_passed PASSED [ 58%]
+tests/sprint/test_executor.py::TestResultAggregation::test_aggregate_mixed_results PASSED [ 60%]
+tests/sprint/test_executor.py::TestResultAggregation::test_aggregate_all_fail PASSED [ 61%]
+tests/sprint/test_executor.py::TestResultAggregation::test_aggregate_with_remaining PASSED [ 62%]
+tests/sprint/test_executor.py::TestResultAggregation::test_aggregate_includes_incomplete PASSED [ 63%]
+tests/sprint/test_executor.py::TestResultAggregation::test_aggregate_empty PASSED [ 64%]
+tests/sprint/test_executor.py::TestResultAggregation::test_to_markdown_contains_frontmatter PASSED [ 65%]
+tests/sprint/test_executor.py::TestResultAggregation::test_to_markdown_halt_on_failure PASSED [ 67%]
+tests/sprint/test_executor.py::TestResultAggregation::test_to_markdown_partial_halt PASSED [ 68%]
+tests/sprint/test_executor.py::TestResultAggregation::test_phase_report_is_runner_constructed PASSED [ 69%]
+tests/sprint/test_executor.py::TestPhaseYamlReport::test_phase_yaml_contains_required_fields PASSED [ 70%]
+tests/sprint/test_executor.py::TestPhaseYamlReport::test_phase_yaml_with_remaining_tasks PASSED [ 71%]
+tests/sprint/test_executor.py::TestPhaseYamlReport::test_phase_yaml_is_valid_yaml PASSED [ 72%]
+tests/sprint/test_executor.py::TestPhaseYamlReport::test_phase_yaml_field_values_match_aggregation PASSED [ 74%]
+tests/sprint/test_executor.py::TestPhaseYamlReport::test_phase_yaml_task_details PASSED [ 75%]
+tests/sprint/test_executor.py::TestPhaseYamlReport::test_phase_yaml_empty_report PASSED [ 76%]
+tests/sprint/test_executor.py::TestTurnCountDebit::test_debit_called_with_correct_turns PASSED [ 77%]
+tests/sprint/test_executor.py::TestTurnCountDebit::test_can_remediate_prevents_remediation_when_low PASSED [ 78%]
+tests/sprint/test_executor.py::TestTurnCountDebit::test_can_remediate_allows_when_sufficient PASSED [ 80%]
+tests/sprint/test_executor.py::TestTurnCountDebit::test_turn_count_zero_reimburses_minimum PASSED [ 81%]
+tests/sprint/test_executor.py::TestIntegrationSubprocess::test_integration_subprocess_five_tasks_mixed_outcomes PASSED [ 82%]
+tests/sprint/test_executor.py::TestIntegrationSubprocess::test_integration_subprocess_budget_exhaustion_skips_remaining PASSED [ 83%]
+tests/sprint/test_executor.py::TestIntegrationSubprocess::test_integration_subprocess_all_pass_aggregation PASSED [ 84%]
+tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_grace_period_zero_is_default PASSED [ 85%]
+tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_gate_mode_blocking_is_default PASSED [ 87%]
+tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_sprint_pass_grace_period_zero FAILED [ 88%]
+tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_per_task_no_ledger PASSED [ 89%]
+tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_existing_tests_pass_under_grace_period_zero PASSED [ 90%]
+tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_no_gate_threads_in_executor PASSED [ 91%]
+tests/sprint/test_executor.py::TestWritePreliminaryResult::test_t001_absent_file_written_with_sentinel PASSED [ 92%]
+tests/sprint/test_executor.py::TestWritePreliminaryResult::test_t002_fresh_agent_file_preserved PASSED [ 94%]
+tests/sprint/test_executor.py::TestWritePreliminaryResult::test_t002b_zero_byte_file_overwritten PASSED [ 95%]
+tests/sprint/test_executor.py::TestWritePreliminaryResult::test_t005_oserror_returns_false_with_warning PASSED [ 96%]
+tests/sprint/test_executor.py::TestTimeoutFormulaConsistency::test_remediation_step_timeout_matches_canonical_formula PASSED [ 97%]
+tests/sprint/test_executor.py::TestTimeoutFormulaConsistency::test_remediation_step_timeout_matches_per_phase_for_various_max_turns PASSED [ 98%]
+tests/sprint/test_executor.py::test_run_task_subprocess_uses_task_output_file PASSED [100%]
+
+=================================== FAILURES ===================================
+________ TestExecuteSprintIntegrationCoverage.test_execute_sprint_pass _________
+tests/sprint/test_executor.py:376: in test_execute_sprint_pass
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1339: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_PassPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭─────────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_pass0 ───────────╮
+│                                                                              │
+│  test_execute_sprint_pass0    Elapsed: 0s                                    │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:422 No task headings (### T<PP>.<TT>) found in tasklist content
+________ TestExecuteSprintIntegrationCoverage.test_execute_sprint_halt _________
+tests/sprint/test_executor.py:427: in test_execute_sprint_halt
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1339: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_HaltPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭─────────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_halt0 ───────────╮
+│                                                                              │
+│  test_execute_sprint_halt0    Elapsed: 0s                                    │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:422 No task headings (### T<PP>.<TT>) found in tasklist content
+_ TestExecuteSprintIntegrationCoverage.test_execute_sprint_timeout_exit_code_124 _
+tests/sprint/test_executor.py:486: in test_execute_sprint_timeout_exit_code_124
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1339: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_TimeoutPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭──────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_timeout_ex0 ────────╮
+│                                                                              │
+│  test_execute_sprint_timeout_ex0    Elapsed: 0s                              │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:422 No task headings (### T<PP>.<TT>) found in tasklist content
+_____ TestExecuteSprintIntegrationCoverage.test_execute_sprint_interrupted _____
+tests/sprint/test_executor.py:556: in test_execute_sprint_interrupted
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1339: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_InterruptPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭──────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_interrupte0 ────────╮
+│                                                                              │
+│  test_execute_sprint_interrupte0    Elapsed: 0s                              │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:422 No task headings (### T<PP>.<TT>) found in tasklist content
+____ TestBackwardCompat.test_backward_compat_sprint_pass_grace_period_zero _____
+tests/sprint/test_executor.py:1451: in test_backward_compat_sprint_pass_grace_period_zero
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1339: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_PassPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭──────── SUPERCLAUDE SPRINT RUNNER == test_backward_compat_sprint_pa0 ────────╮
+│                                                                              │
+│  test_backward_compat_sprint_pa0    Elapsed: 0s                              │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:422 No task headings (### T<PP>.<TT>) found in tasklist content
+=========================== short test summary info ============================
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_pass - AttributeError: '_PassPopen' object has no attribute 'stdin'
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_halt - AttributeError: '_HaltPopen' object has no attribute 'stdin'
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_timeout_exit_code_124 - AttributeError: '_TimeoutPopen' object has no attribute 'stdin'
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_interrupted - AttributeError: '_InterruptPopen' object has no attribute 'stdin'
+FAILED tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_sprint_pass_grace_period_zero - AttributeError: '_PassPopen' object has no attribute 'stdin'
+========================= 5 failed, 80 passed in 0.44s =========================

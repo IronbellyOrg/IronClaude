@@ -1,0 +1,24 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260527074800-spec-fidelity-default-soft-fail/seed-brief.md
+merged_output_path: .dev/brainstorms/20260527074800-spec-fidelity-default-soft-fail/merged-requirements.md
+convergence_score: 0.78
+adversarial_artifacts_dir: null   # internal-only synthesis; user will run external /sc:adversarial pass
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: troubleshoot-report
+    quality_tier: primary
+    path: .dev/troubleshoot/spec-fidelity-soft-fail-20260527073000/REPORT.md
+handoff_action: deferred_to_user
+handoff_output_path: null
+unresolved_conflicts: []
+notes: |
+  Three internal design variants (V1 minimal, V2 DEGRADED enum, V3 per-step policy)
+  were synthesized inline rather than via 3 parallel model agents because the change
+  is small and well-bounded (single architectural seam, ~10 LOC production). The chosen
+  approach is V1 + observability augment (new StepResult.degraded field), preserving
+  surgical scope without losing telemetry signal.
+
+  User will invoke /sc:adversarial next to debate this merged spec; that pass functions
+  as the external quality gate that brainstorm normally provides internally via Wave 3.

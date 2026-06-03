@@ -321,7 +321,7 @@ def aggregate_task_results(
     )
 
     report.tasks_total = len(task_results) + len(report.remaining_task_ids)
-    report.tasks_passed = sum(1 for r in task_results if r.status == TaskStatus.PASS)
+    report.tasks_passed = sum(1 for r in task_results if r.status.is_success)
     report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL_TERMINAL)
     report.tasks_incomplete = sum(
         1 for r in task_results if r.status == TaskStatus.INCOMPLETE
@@ -1013,11 +1013,20 @@ def execute_phase_tasks(
         finished_at = datetime.now(timezone.utc)
 
         # Determine task status from exit code
+        task_output_path = config.task_output_file(phase, task)
         if exit_code == 0:
             status = TaskStatus.PASS
         elif exit_code == 124:
             status = TaskStatus.INCOMPLETE
-        elif _is_transient_failure(config.task_output_file(phase, task)):
+        elif detect_error_max_turns(task_output_path) and _task_completed_before_overrun(
+            task_output_path
+        ):
+            # Budget overrun (error_max_turns) AFTER completing substantive work:
+            # the task emitted a successful result before the terminal overrun
+            # envelope, so recover instead of failing the phase. Completion
+            # evidence outranks the transient-failure classification below.
+            status = TaskStatus.PASS_RECOVERED
+        elif _is_transient_failure(task_output_path):
             status = TaskStatus.FAIL_RECOVERABLE
         else:
             status = TaskStatus.FAIL_TERMINAL
@@ -1278,7 +1287,7 @@ def execute_sprint(config: SprintConfig):
                     sprint_result=sprint_result,
                 )
                 all_gate_results.extend(phase_gate_results)
-                all_passed = all(r.status == TaskStatus.PASS for r in task_results)
+                all_passed = all(r.status.is_success for r in task_results)
                 status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
                 phase_result = PhaseResult(
                     phase=phase,
@@ -1801,6 +1810,60 @@ def _is_transient_failure(output_path: Path) -> bool:
         except (ValueError, TypeError):
             return False
         return bool(obj.get("is_error") and obj.get("output_tokens", 1) == 0)
+    return False
+
+
+# A successful per-task completion envelope: a result line whose subtype is
+# "success", or an agent task_complete envelope. Used by
+# ``_task_completed_before_overrun`` to detect completion evidence that gates
+# per-task recovery from ``error_max_turns``.
+_TASK_SUCCESS_ENVELOPE_PATTERN = re.compile(
+    r'"subtype"\s*:\s*"success"|"(?:type|subtype)"\s*:\s*"task_complete"'
+)
+
+
+def _task_completed_before_overrun(output_path: Path) -> bool:
+    """Return True iff the per-task NDJSON stream shows a successful completion
+    envelope BEFORE its terminal ``error_max_turns`` envelope.
+
+    This is the completion-evidence gate for per-task recovery. A task that
+    overran *after* finishing its substantive work emits a successful
+    ``{"type":"result","subtype":"success"}`` (or agent ``task_complete``)
+    envelope and only later — at EOF — the terminal
+    ``{"type":"result","subtype":"error_max_turns"}`` envelope. A task that
+    overran *without* finishing has the ``error_max_turns`` envelope as its
+    only/last result, with no prior success envelope.
+
+    Recovery is GATED on this: ``error_max_turns`` alone is NOT sufficient
+    (that would mask a task that overran without finishing). This helper is
+    only meaningful when called for a stream whose terminal line is the
+    ``error_max_turns`` envelope (i.e. ``detect_error_max_turns`` is already
+    True); it scans the lines strictly BEFORE that terminal line so the error
+    line itself can never be mistaken for completion evidence.
+
+    Returns False when the file is missing/unreadable/empty, or when the only
+    completion signal is the terminal ``error_max_turns`` line. Reads the file
+    defensively (mirroring ``detect_error_max_turns``); performs no network or
+    subprocess calls.
+    """
+    try:
+        content = output_path.read_text(errors="replace")
+    except (FileNotFoundError, OSError):
+        return False
+
+    if not content.strip():
+        return False
+
+    lines = [ln.strip() for ln in content.strip().splitlines() if ln.strip()]
+    if not lines:
+        return False
+
+    # Scan only the lines strictly before the terminal (last non-empty) line,
+    # which is the error_max_turns envelope on the gated-recovery path.
+    for line in lines[:-1]:
+        if _TASK_SUCCESS_ENVELOPE_PATTERN.search(line):
+            return True
+
     return False
 
 
