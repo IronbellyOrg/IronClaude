@@ -730,6 +730,128 @@ class TestPerTaskOrchestration:
         assert results[0].status == TaskStatus.INCOMPLETE
         assert results[0].exit_code == 124
 
+    def test_per_task_error_max_turns_after_completion_recovers(self, tmp_path):
+        """A task that finished its work (success result envelope) and only THEN
+        overran its turn budget (terminal error_max_turns, non-zero exit) must be
+        recovered to PASS_RECOVERED — taking precedence over the transient-failure
+        classification — and the phase must aggregate as success-valued."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        # results_dir does not pre-exist under release_dir=tmp_path.
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"result","subtype":"success","is_error":false}\n'
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}\n'
+        )
+
+        def overran_after_completion_factory(task, config, phase):
+            # Non-zero, non-124 exit with the budget overrun turn count.
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_after_completion_factory,
+        )
+        assert results[0].status == TaskStatus.PASS_RECOVERED
+        assert results[0].status.is_success is True
+
+        # Phase aggregation mirrors executor.py (all_passed via .is_success).
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is True
+
+    def test_per_task_genuine_failure_still_fails(self, tmp_path):
+        """A non-zero, non-124 exit with NO error_max_turns evidence (and not
+        transient) MUST stay FAIL_TERMINAL — the gated recovery must not rescue
+        genuine failures — and the phase must aggregate as a failure."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        # No per-task output file → detect_error_max_turns and _is_transient_failure
+        # both return False → FAIL_TERMINAL.
+        def genuine_fail_factory(task, config, phase):
+            return (1, 5, 512)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks, config, phase, _subprocess_factory=genuine_fail_factory
+        )
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status == PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
+    def test_per_task_timeout_phase_still_fails(self, tmp_path):
+        """exit 124 (genuine timeout) maps to INCOMPLETE and MUST keep failing
+        the phase — the recovery fix must not make timeouts pass. Asserts the
+        PHASE-level non-regression (distinct from
+        test_per_task_timeout_produces_incomplete)."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        def timeout_factory(task, config, phase):
+            return (124, 10, 200)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks, config, phase, _subprocess_factory=timeout_factory
+        )
+        assert results[0].status == TaskStatus.INCOMPLETE
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
+    def test_per_task_error_max_turns_without_completion_still_fails(
+        self, tmp_path
+    ):
+        """Gated guard: a task that hit error_max_turns WITHOUT first emitting a
+        success result (overran without finishing) must NOT recover. With no
+        success envelope and no transient marker it stays FAIL_TERMINAL; either
+        way the phase fails."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # ONLY result envelope is the terminal error_max_turns; preceded only by
+        # non-result working lines. No output_tokens field, so the transient-
+        # failure heuristic also returns False → FAIL_TERMINAL.
+        out.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"content","text":"still working..."}\n'
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}\n'
+        )
+
+        def overran_without_completion_factory(task, config, phase):
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_without_completion_factory,
+        )
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
     def test_per_task_no_ledger_always_launches(self, tmp_path):
         """Without a ledger, all tasks always launch."""
         config = _make_config(tmp_path, num_phases=1)
@@ -832,6 +954,22 @@ class TestResultAggregation:
         assert report.tasks_failed == 0
         assert report.status == "PASS"
         assert report.total_turns_consumed == 8
+
+    def test_aggregate_counts_pass_recovered_as_passed(self):
+        # A PASS_RECOVERED task (overran after completing) is success-valued and
+        # MUST be counted in tasks_passed so the report status is "PASS", not
+        # "PARTIAL"/"FAIL". Mixing PASS and PASS_RECOVERED still yields a full pass.
+        results = [
+            self._make_task_result("T02.01", TaskStatus.PASS, 3),
+            self._make_task_result("T02.02", TaskStatus.PASS_RECOVERED, 101),
+        ]
+        report = aggregate_task_results(2, results)
+        assert report.tasks_total == 2
+        assert report.tasks_passed == 2
+        assert report.tasks_failed == 0
+        assert report.tasks_incomplete == 0
+        assert report.tasks_skipped == 0
+        assert report.status == "PASS"
 
     def test_aggregate_mixed_results(self):
         results = [
