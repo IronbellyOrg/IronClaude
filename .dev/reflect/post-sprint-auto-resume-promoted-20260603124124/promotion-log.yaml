@@ -1,0 +1,31 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: moved
+source: .dev/tasks/to-do/TASK-RF-20260602-sprint-auto-resume/
+destination: .dev/tasks/done/TASK-RF-20260602-sprint-auto-resume/
+source_sha256_before: "4466440273e4d0066bad5973dc83956808b0281180d5ce3f77f7730d64fe0491"
+sha_match: true                       # atomic same-fs rename(2) — bytes untouched by construction
+cross_fs_promotion: false             # src fs 2064 == done-parent fs 2064
+gate_evaluation:
+  mode_post: pass                     # cond 1
+  status_success: pass                # cond 2 (no drift/regression/gaps -> success)
+  tasklist_completion_pct_1_0: pass   # cond 3 (31/31)
+  no_drift_no_regression: pass        # cond 4 (drift 0, regression 0 — NEW-R1 fixed)
+  frontmatter_present: pass           # cond 5a
+  frontmatter_status_matches: pass    # cond 5b (status: Done)
+  no_citations_dropped: pass          # cond 6a
+  no_grounding_gaps: pass             # cond 6b
+  no_input_drift: pass                # cond 7
+  no_user_decision_pending: pass      # cond 8 (CG-4 ruled YES; NEW-R1 resolved)
+  adversarial_result_present: pass    # cond 9 (tier 2; heterogeneous ensemble converged on promote)
+gate_evaluation_failures: []
+gate_passed: true
+citation_revalidation_at_promotion: true   # Wave 6/fix touched commands.py; re-verified at 7.2
+pending: false
+checkpoint_path: null
+skip_reason: null
+fail_reason: null
+override_used: null
+rollback_command: "mv .dev/tasks/done/TASK-RF-20260602-sprint-auto-resume .dev/tasks/to-do/TASK-RF-20260602-sprint-auto-resume"
+timestamp: "2026-06-03T12:33:24Z"

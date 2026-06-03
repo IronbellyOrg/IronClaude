@@ -696,6 +696,43 @@ def _content_sha256_excluding_rerun_block(path: Path) -> str:
     return hashlib.sha256(without_block.encode("utf-8")).hexdigest()
 
 
+def _normalize_whitespace(text: str) -> str:
+    """Deterministically collapse whitespace so cosmetic-only edits hash equal.
+
+    Per-line: collapse every run of intra-line whitespace (spaces, tabs) to a
+    single space and strip leading/trailing whitespace (``" ".join(line.split())``).
+    Then drop trailing blank lines and join with ``\\n``. Interior blank lines are
+    preserved (as empty strings) so structural blank-line *removal* still registers
+    as a content change. This is the F-3/CG-2 whitespace-tolerant normalization:
+    a trailing-whitespace-only edit (AC-4) normalizes back to the baseline, while a
+    material body/deliverable edit (AC-5 same-ID) does not.
+    """
+    lines = [" ".join(line.split()) for line in text.splitlines()]
+    while lines and lines[-1] == "":
+        lines.pop()
+    return "\n".join(lines)
+
+
+def _content_sha256_ws_excluding_rerun_block(path: Path) -> str:
+    """Whitespace-normalized SHA256 of the tasklist, rerun-block stripped (F-3/CG-2).
+
+    Identical rerun-block exclusion to ``_content_sha256_excluding_rerun_block`` so
+    the two hashes differ ONLY in whitespace tolerance, then hashes the
+    ``_normalize_whitespace``-collapsed content. Persisted alongside
+    ``tasklist_sha256`` as ``tasklist_sha256_ws`` so the auto-resume DriftAssessor
+    can prove a same-ID change after a Tier-0 miss is whitespace-only (keep 0.9
+    cosmetic, AC-4) versus material (score <0.8, AC-5). Backward-compatible: a
+    result.json written before this field exists simply lacks the key, and drift
+    falls back to the conservative <0.8 branch.
+    """
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    _, without_block = _split_rerun_block(content)
+    return hashlib.sha256(_normalize_whitespace(without_block).encode("utf-8")).hexdigest()
+
+
 def _extract_history(block_text: str) -> list[str]:
     """Pull the ``  - {...}`` history entry lines out of a prior provenance block."""
     history: list[str] = []

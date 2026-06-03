@@ -1,6 +1,6 @@
 # Pipeline Layouts and Resume Idioms
 
-Reference for the `crash-recovery` skill. Each pipeline has a distinct artifact layout and a canonical resume command. The skill's synthesis report should map detected state to one of these and emit the right resume idiom.
+Reference for the `crash-recovery` skill. Each pipeline has a distinct artifact layout and a canonical resume command or default auto-resume idiom. The skill's synthesis report should map detected state to one of these and emit the right recovery command.
 
 A project can have multiple of these in flight simultaneously. Do not assume a single "active" pipeline — enumerate every layout that has recent activity.
 
@@ -113,35 +113,48 @@ superclaude roadmap validate <output-dir>
 └── (the tasklist files above)
 ```
 
-**Status signal:** `execution-log.jsonl` is authoritative. Tail it for the last event. Each `phase_complete` event has `status: pass | error` and `exit_code`. `.sprint-exitcode` mirrors the overall last sprint exit.
+**Status signal:** `results/phase-N-result.json` is the authoritative completion signal: a present phase result with a PASS-family status means that phase finished. `execution-log.jsonl` corroborates progress, but a hard crash can tear the final ledger line. `.sprint-exitcode` mirrors the overall last sprint exit.
 **Recovery:**
 
 ```bash
-# Resume from the failed phase (sprint detects via execution-log).
-superclaude sprint run <release>/tasklist-index.md --resume
+# Canonical resume command (v4.3.5+): bare run auto-detects the interrupted phase
+# from on-disk state, prints the plan, asks for confirmation, and resumes there.
+superclaude sprint run <release>/tasklist-index.md
 
-# Or replay just one phase:
-superclaude sprint run <release>/tasklist-index.md --phase 6
+# Unattended recovery: auto-confirm the detected plan.
+superclaude sprint run <release>/tasklist-index.md --yes
+
+# Or replay just one phase explicitly (bypasses auto-detection):
+superclaude sprint run <release>/tasklist-index.md --start 6 --end 6
+
+# Discard prior state and start clean (alias: --restart):
+superclaude sprint run <release>/tasklist-index.md --fresh
 ```
 
-**Prefer granular rerun when only a few tasks failed (v4.3.0+).** If the phase
+Use `--yes` / `-y`, `SUPERCLAUDE_SPRINT_ASSUME_YES=1`, or `CI=1` for unattended/automated recovery.
+
+**Prefer granular rerun when only a few tasks failed (v4.3.0+; auto-detect in v4.3.5+).** If the phase
 mostly passed and only specific tasks failed — especially on a transient cause
 (API outage, timeout) rather than a logic defect — suggest re-running just those
-tasks instead of the whole phase. This re-executes only the named tasks in an
-isolated bundle and merges results back into the canonical results + tasklist:
+tasks instead of the whole phase. This re-executes only the named or auto-detected
+tasks in an isolated bundle and merges results back into the canonical results + tasklist:
 
 ```bash
-# Surgically re-run only the failed tasks of a phase, then merge back.
+# Auto-detect the failed recoverable tasks, then merge back.
+superclaude sprint rerun-tasks <release>/tasklist-index.md
+
+# Or surgically re-run explicit failed tasks of a phase, then merge back.
 superclaude sprint rerun-tasks <release>/tasklist-index.md --phase 7 --tasks T07.11,T07.12
 
-# Preview the plan first without mutating anything:
+# Preview the explicit plan first without mutating anything:
 superclaude sprint rerun-tasks <release>/tasklist-index.md --phase 7 --tasks T07.11,T07.12 --dry-run
 ```
 
 Inspect `phase-N-result.json` (per-task statuses) to identify which tasks to
 nominate; tasks classified `fail_recoverable` (transient) are the usual
 candidates. `--restore` recovers from a botched merge-back. When the WHOLE phase
-must be redone, fall back to the full-phase resume above.
+must be redone, use the bare `sprint run` auto-resume command or pass an explicit
+`--start/--end` window.
 
 When a phase shows `status: error`, read the corresponding `phase-N-tasklist.md` to understand what was being attempted, and look for stderr in the JSONL `output_bytes` / `error_bytes` fields.
 

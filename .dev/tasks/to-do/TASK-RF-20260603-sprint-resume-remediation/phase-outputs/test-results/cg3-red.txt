@@ -1,0 +1,27 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/SprintReRun/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/SprintReRun
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collecting ... collected 2 items
+
+tests/sprint/test_resume.py::TestResumePlanner::test_resume_hard_crash_double_validates_prior_phase_tail FAILED [ 50%]
+tests/sprint/test_resume.py::TestResumePlanner::test_resume_hard_crash_prior_tail_overclaim_stops FAILED [100%]
+
+=================================== FAILURES ===================================
+__ TestResumePlanner.test_resume_hard_crash_double_validates_prior_phase_tail __
+tests/sprint/test_resume.py:191: in test_resume_hard_crash_double_validates_prior_phase_tail
+    assert lc and lc[0].task_id == "T02.01"  # fails today (boundary empty)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert ([])
+_____ TestResumePlanner.test_resume_hard_crash_prior_tail_overclaim_stops ______
+tests/sprint/test_resume.py:220: in test_resume_hard_crash_prior_tail_overclaim_stops
+    assert lc and lc[0].task_id == "T02.01"
+E   assert ([])
+=========================== short test summary info ============================
+FAILED tests/sprint/test_resume.py::TestResumePlanner::test_resume_hard_crash_double_validates_prior_phase_tail - assert ([])
+FAILED tests/sprint/test_resume.py::TestResumePlanner::test_resume_hard_crash_prior_tail_overclaim_stops - assert ([])
+============================== 2 failed in 0.22s ===============================

@@ -2661,7 +2661,27 @@ def _write_phase_result_json(
 
     Mirrors the atomic tmp+rename write convention from checkpoints.py so a
     crash mid-write never leaves a truncated phase-N-result.json on disk.
+
+    Also persists ``tasklist_sha256`` — the normalized-content hash of this
+    phase's tasklist file with the rerun-provenance block stripped (DD-4). It is
+    produced by the SAME ``_content_sha256_excluding_rerun_block`` function over
+    the SAME per-phase ``phase.file`` the auto-resume ``DriftAssessor`` hashes on
+    the current side, so a Tier-0 exact match is possible (INV-001). The field is
+    backward-compatible: a ``phase-N-result.json`` written before v4.3.5 simply
+    lacks the key, and resume falls back to Tier-1/2 drift scoring — never crashes.
+
+    Additionally persists ``tasklist_sha256_ws`` (F-3/CG-2) — a *whitespace-
+    normalized* hash of the same block-stripped content. It differs from
+    ``tasklist_sha256`` only in whitespace tolerance, letting the DriftAssessor
+    prove a same-ID change after a Tier-0 miss is whitespace-only (AC-4 cosmetic,
+    keep 0.9) versus material (AC-5, score <0.8). Also backward-compatible:
+    absence ⇒ drift's conservative <0.8 fallback.
     """
+    from .rerun_tasks import (
+        _content_sha256_excluding_rerun_block,
+        _content_sha256_ws_excluding_rerun_block,
+    )
+
     payload = {
         "phase": result.phase.number,
         "status": result.status.value,
@@ -2670,6 +2690,9 @@ def _write_phase_result_json(
         "finished_at": result.finished_at.isoformat(),
         "task_results": [tr.to_dict() for tr in result.task_results],
         "recovery_history": result.recovery_history,
+        "tasklist_sha256": _content_sha256_excluding_rerun_block(phase.file),
+        # F-3/CG-2: whitespace-normalized hash alongside the exact hash.
+        "tasklist_sha256_ws": _content_sha256_ws_excluding_rerun_block(phase.file),
     }
     out = config.phase_result_json(phase)
     out.parent.mkdir(parents=True, exist_ok=True)
