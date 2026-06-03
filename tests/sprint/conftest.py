@@ -38,7 +38,18 @@ def _stub_phase_narrative(request, monkeypatch):
     """
     if request.module.__name__.split(".")[-1] in _NARRATIVE_TEST_MODULES:
         return
+    _noop_narrative = lambda *args, **kwargs: ""  # noqa: E731
     monkeypatch.setattr(
         "superclaude.cli.sprint.summarizer.invoke_sonnet",
-        lambda *args, **kwargs: "",
+        _noop_narrative,
+    )
+    # ``retrospective.py`` does ``from .summarizer import invoke_sonnet``, which
+    # binds the name at import time into its own module namespace. Patching only
+    # the ``summarizer`` symbol above leaves ``retrospective.invoke_sonnet``
+    # pointing at the real implementation, so ``RetrospectiveGenerator.narrate``
+    # can still spawn a real ``claude`` subprocess and consume a call-count-indexed
+    # patched ``subprocess.Popen``. Neutralise that second binding too.
+    monkeypatch.setattr(
+        "superclaude.cli.sprint.retrospective.invoke_sonnet",
+        _noop_narrative,
     )
