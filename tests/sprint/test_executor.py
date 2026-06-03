@@ -12,6 +12,7 @@ import pytest
 
 from superclaude.cli.sprint.executor import (
     _determine_phase_status,
+    _task_completed_before_overrun,
     _write_preliminary_result,
     aggregate_task_results,
     check_budget_guard,
@@ -851,6 +852,136 @@ class TestPerTaskOrchestration:
         all_passed = all(r.status.is_success for r in results)
         phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
         assert phase_status.is_success is False
+
+    def test_per_task_error_max_turns_tail_verdict_recovers(self, tmp_path):
+        """A task that finished its deliverable and emitted a strong completion
+        verdict (VERDICT: PASS) in its final turns — but NO structured
+        success/task_complete envelope anywhere — before overrunning the turn
+        budget must recover to PASS_RECOVERED via the tail-completion evidence
+        class. This is the TUIBBS Phase 7 / T07.05 shape."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # Working lines + a tail line carrying a strong completion verdict, then
+        # the terminal error_max_turns. No "subtype":"success" / "task_complete"
+        # envelope appears anywhere, so recovery must come from the tail verdict.
+        out.write_text(
+            '{"type":"content","text":"implementing dispatch contract..."}\n'
+            '{"type":"content","text":"running gates..."}\n'
+            '{"type":"assistant","message":{"content":[{"type":"text",'
+            '"text":"All acceptance criteria met. VERDICT: PASS"}]}}\n'
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}\n'
+        )
+
+        def overran_after_verdict_factory(task, config, phase):
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_after_verdict_factory,
+        )
+        assert results[0].status == TaskStatus.PASS_RECOVERED
+        assert results[0].status.is_success is True
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is True
+
+    def test_per_task_error_max_turns_early_verdict_still_fails(self, tmp_path):
+        """Tail-scoping guard: a strong completion verdict that appears EARLY
+        and is pushed OUTSIDE the _TASK_TAIL_COMPLETION_WINDOW by >=16 later
+        working lines must NOT recover — proving the verdict scan is
+        tail-scoped, not whole-stream. With no success envelope it stays
+        FAIL_TERMINAL and the phase fails."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # An early VERDICT: PASS, then 20 working lines pushing it well outside
+        # the 15-line tail window, then the terminal error_max_turns. No
+        # success/task_complete envelope anywhere.
+        ndjson_lines = ['{"type":"content","text":"VERDICT: PASS (premature)"}']
+        ndjson_lines += [
+            '{"type":"content","text":"still working step %d..."}' % i
+            for i in range(20)
+        ]
+        ndjson_lines.append(
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}'
+        )
+        out.write_text("\n".join(ndjson_lines) + "\n")
+
+        def overran_with_early_verdict_factory(task, config, phase):
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_with_early_verdict_factory,
+        )
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
+    def test_task_completed_before_overrun_evidence_classes(self, tmp_path):
+        """Direct unit test of _task_completed_before_overrun across the four
+        evidence classes: (1) success envelope -> True, (2) tail verdict ->
+        True, (3) early verdict outside the window -> False, (4) neither ->
+        False. Each stream has a terminal line so lines[:-1] slicing is
+        exercised."""
+        term = (
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}'
+        )
+
+        # (1) structured success envelope before the terminal line
+        envelope = tmp_path / "envelope.ndjson"
+        envelope.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"result","subtype":"success","is_error":false}\n'
+            + term + "\n"
+        )
+        assert _task_completed_before_overrun(envelope) is True
+
+        # (2) tail completion verdict, no envelope
+        tail = tmp_path / "tail.ndjson"
+        tail.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"content","text":"VERDICT: PASS"}\n'
+            + term + "\n"
+        )
+        assert _task_completed_before_overrun(tail) is True
+
+        # (3) verdict pushed outside the tail window by >=16 later lines
+        early_lines = ['{"type":"content","text":"VERDICT: PASS"}']
+        early_lines += [
+            '{"type":"content","text":"line %d"}' % i for i in range(20)
+        ]
+        early_lines.append(term)
+        early = tmp_path / "early.ndjson"
+        early.write_text("\n".join(early_lines) + "\n")
+        assert _task_completed_before_overrun(early) is False
+
+        # (4) neither envelope nor verdict
+        neither = tmp_path / "neither.ndjson"
+        neither.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"content","text":"still working..."}\n'
+            + term + "\n"
+        )
+        assert _task_completed_before_overrun(neither) is False
 
     def test_per_task_no_ledger_always_launches(self, tmp_path):
         """Without a ledger, all tasks always launch."""
