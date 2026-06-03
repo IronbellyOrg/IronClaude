@@ -146,3 +146,52 @@ Tests: round-trip fidelity (all fields), forward-compat (unknown field round-tri
 ### Reconciliation note (LOW, but author must not duplicate)
 
 `executor.py:1117` comment "Turn counting is wired separately in T02.06" references an existing turn-counting task. Stage 0's "fix `turns_consumed=0`" must fold into / supersede T02.06, and its acceptance test must assert the *correct* turn count, not merely `!= 0`.
+
+---
+
+## 7. MEDIUM + LOW reflection findings resolved
+
+Same audit as §6. **M1** is already resolved in §6 · H6 ("reuse, don't re-derive" the `rerun_tasks.py` dep primitive); **L1** in the Reconciliation note above. The remainder:
+
+### MEDIUM
+
+**M2 — `_jsonl` concurrency: make the ordering dependency explicit.** Stage 0/1 add a per-task `write_task_complete` writer through the lock-free `_jsonl` (`logging_.py:265-267`). Spec must state: Stages 0-2 are safe **only** under the sequential single-writer invariant; the logger concurrency architecture is *decided* in Stage 1 (runner-owned single-writer queue vs per-task event files merged deterministically) and *implemented* in Stage 3, which must cover every writer added in Stages 0-1.
+
+**M3 — Per-task prompt composition table (Stage 1).** `build_prompt` is monolithic/phase-scoped (`process.py:169-216`). "Narrowed to one task" must specify, per section:
+
+| `build_prompt` section | Per-task disposition |
+|---|---|
+| Sprint Context (prior-phase dirs) | KEEP, narrowed to this task's declared upstreams |
+| Execution Rules | KEEP |
+| `/sc:task Execute all tasks in @{phase_file}` | REWRITE → single-task directive |
+| Checkpoints (scan phase file) | DROP (phase-terminal; runner/coordinator owns) |
+| Scope Boundary | KEEP, scoped to the task |
+| Result File / `EXIT_RECOMMENDATION` | DROP from worker — the runner (or Path-A coordinator) writes the phase result file by aggregating per-task handoffs |
+
+Decision required: the **runner aggregates** per-task handoffs into `config.result_file(phase)` (recommended); workers do not each write it.
+
+**M4 — Flag + config plumbing (name the owning stage).** Enumerate the new surface so it is not invented ad-hoc:
+
+| Flag | `SprintConfig` field | `click.option` site | Stage |
+|---|---|---|---|
+| `--task-parallelism K` | `task_parallelism: int = 1` | `commands.py run()` | 3 |
+| `--handoff on\|off` | `handoff_enabled: bool = True` | `commands.py run()` | 1 |
+| store select | `handoff_store: str = "file"` | config/internal | 1 (file) · 4 (mail) |
+
+The Stage-4 "one config line" rollback depends on `handoff_store`. Add the plumbing as explicit tasks.
+
+**M5 — Migration / back-compat for in-flight sprints.** A `release_dir` created before Stage 1 has no `handoff/` dir and no `task_complete` events. Decision: resume against such a dir **degrades to today's phase-granular behavior** (documented default); `handoff/` is created lazily on first write; `--handoff=off` reproduces legacy behavior exactly. Add a back-compat regression task.
+
+**M6 — Heading-regex fallback is a GLOBAL routing change (Stage 1).** The B→A demotion fix touches `_TASK_HEADING_RE` / `_parse_phase_tasks` (`config.py:380`; `executor.py:1264`), affecting **every** phase's path selection — including existing Path A phases. Decision: **warn-only, no reclassification** — a near-miss heading emits a loud WARN but does NOT auto-reroute. Acceptance: a ≥10-entry heading-variant corpus (correct · wrong level `####` · colon separator · extra whitespace · em-dash variants) with expected route + diagnostic, plus a regression over existing Path A phase files confirming zero reclassification.
+
+**M7 — Stage-1 schema-freeze gate is premature.** Change the Stage-1 gate from "schema frozen" to "schema **versioned + migration-safe**." The H4 v1 record already carries `schema_version` + `consumed_upstreams`; add a migration test (old reader tolerates a newly-added field) and freeze only after Stage-2 resume/fan-in tests exercise the fields.
+
+### LOW
+
+**L2 — Stage-4 rollback reword.** "Flip one line, free rollback" → "**data** rollback is lossless (the file store remained source of truth the whole pilot)." Add an operational teardown checklist task: stop sidecar, remove per-subprocess MCP config injection, revoke token, archive mailbox repo.
+
+**L3 — Crash-consistency asymmetry test.** Handoff file = atomic temp+replace; journal = bare `_jsonl`. A crash between the two yields a completed task with no journal event. Add a test: write handoff atomically → kill before `_jsonl` append → resume scan treats handoff files (not the JSONL) as the authoritative completion source.
+
+**L4 — Remaining test gaps.** (a) Stage-3 wall-clock win needs a defined baseline + fixed-duration mock-subprocess harness (assert parallel < 0.5× serial at K=4). (b) DAG+resume: a task in-flight at kill time has no handoff file → its dependents must not launch on resume. (c) Stage-4 mail-server mid-sprint failover: kill server at task N/2 → all subsequent writes route to `FileHandoffStore`, sprint completes, zero handoff loss.
+
+**L5 — Documentation tasks.** Each new user-visible surface (`--task-parallelism` / `--handoff` flags, the `handoff/` artifact, the new `task_complete` ledger event) gets a docs/changelog sub-task in the stage that ships it.
