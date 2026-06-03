@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from datetime import datetime, timezone
 
 from rich.console import Console
@@ -24,6 +25,10 @@ class SprintLogger:
         self.config = config
         self.console = Console(stderr=True)  # TUI uses stdout
         config.results_dir.mkdir(parents=True, exist_ok=True)
+        # Stage 3 (M2): serialize all JSONL appends so concurrent per-task writers
+        # (K>1) cannot interleave or tear lines. Created once per logger; covers
+        # every event routed through _jsonl, including write_task_complete.
+        self._jsonl_lock = threading.Lock()
 
     def write_header(self, sprint: SprintResult):
         """Write sprint header to both log formats."""
@@ -218,6 +223,31 @@ class SprintLogger:
             }
         )
 
+    def write_task_complete(
+        self, phase: int, task_id: str, status: str, turns: int, duration_sec: float
+    ) -> None:
+        """Emit a `task_complete` JSONL event — the FIRST-RUN sibling of
+        `write_task_rerun_complete` (H3).
+
+        Discriminator: `event: "task_complete"` is emitted once per task on its
+        first (non-rerun) execution; `event: "task_rerun_complete"` is emitted by
+        the rerun flow. The two schemas are frozen side-by-side with an IDENTICAL
+        field set/order (`event, phase, task_id, status, turns, duration_sec,
+        timestamp`) for log-analysis symmetry. `status` is the `TaskStatus.value`
+        string (caller passes `.value`).
+        """
+        self._jsonl(
+            {
+                "event": "task_complete",
+                "phase": phase,
+                "task_id": task_id,
+                "status": status,
+                "turns": turns,
+                "duration_sec": duration_sec,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
     def write_phase_rerun_complete(
         self,
         phase: int,
@@ -263,8 +293,12 @@ class SprintLogger:
                 f.write(f"**Resume**: `{sprint.resume_command()}`\n")
 
     def _jsonl(self, data: dict):
-        with open(self.config.execution_log_jsonl, "a") as f:
-            f.write(json.dumps(data, default=str) + "\n")
+        # The lock makes the serialize+append atomic w.r.t. other threads; the
+        # JSONL line format is unchanged and single-threaded behavior is identical.
+        line = json.dumps(data, default=str) + "\n"
+        with self._jsonl_lock:
+            with open(self.config.execution_log_jsonl, "a") as f:
+                f.write(line)
 
     def _screen_info(self, msg: str):
         self.console.print(f"[green][INFO][/] {msg}")

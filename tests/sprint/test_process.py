@@ -19,6 +19,7 @@ from superclaude.cli.sprint.process import (
     SignalHandler,
     build_task_context,
     compress_context_summary,
+    count_turns_from_stream_json,
     get_git_diff_context,
 )
 
@@ -553,3 +554,61 @@ class TestCompressContextSummary:
         # With compression it should be much less than 3.5x
         ratio = len(large_summary) / len(small_summary)
         assert ratio < 3.0, f"Compression ratio {ratio:.1f} exceeds 3.0x"
+
+
+class TestCountTurnsFromStreamJson:
+    """Authoritative per-task turn count from the stream-json transcript.
+
+    Capability #2 of the per-task wiring: turns are counted from the REAL
+    stream-json ``num_turns`` of the terminal result event (was hard-coded 0).
+    SYNTHESIS §6 Reconciliation note requires the acceptance test to assert the
+    CORRECT count, not merely ``!= 0``.
+    """
+
+    def test_returns_num_turns_from_terminal_result_event(self, tmp_path):
+        """Primary use case: the Claude-reported num_turns is returned exactly."""
+        p = tmp_path / "task-output.txt"
+        p.write_text(
+            '{"type":"system","subtype":"init"}\n'
+            '{"type":"assistant","message":{"role":"assistant"}}\n'
+            '{"type":"assistant","message":{"role":"assistant"}}\n'
+            '{"type":"result","subtype":"success","num_turns":7,"is_error":false}\n'
+        )
+        assert count_turns_from_stream_json(p) == 7
+
+    def test_last_result_event_wins(self, tmp_path):
+        """When multiple result events exist, the terminal (last) one is used."""
+        p = tmp_path / "task-output.txt"
+        p.write_text(
+            '{"type":"result","num_turns":3}\n{"type":"result","num_turns":11}\n'
+        )
+        assert count_turns_from_stream_json(p) == 11
+
+    def test_missing_file_returns_zero(self, tmp_path):
+        assert count_turns_from_stream_json(tmp_path / "nope.txt") == 0
+
+    def test_no_result_event_returns_zero(self, tmp_path):
+        p = tmp_path / "task-output.txt"
+        p.write_text('{"type":"system"}\n{"type":"assistant","message":{}}\n')
+        assert count_turns_from_stream_json(p) == 0
+
+    def test_result_event_without_num_turns_returns_zero(self, tmp_path):
+        p = tmp_path / "task-output.txt"
+        p.write_text('{"type":"result","subtype":"success"}\n')
+        assert count_turns_from_stream_json(p) == 0
+
+    def test_bool_num_turns_is_rejected(self, tmp_path):
+        """``True`` is an int subclass but must NOT be accepted as a turn count."""
+        p = tmp_path / "task-output.txt"
+        p.write_text('{"type":"result","num_turns":true}\n')
+        assert count_turns_from_stream_json(p) == 0
+
+    def test_malformed_lines_are_tolerated(self, tmp_path):
+        """Partial / non-JSON lines are skipped without raising; valid result wins."""
+        p = tmp_path / "task-output.txt"
+        p.write_text(
+            "not json at all\n"
+            '{"type":"result","num_turns":  \n'  # truncated/partial JSON
+            '{"type":"result","num_turns":5}\n'
+        )
+        assert count_turns_from_stream_json(p) == 5

@@ -187,6 +187,26 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     default=None,
     help="Transient state directory for .sprint-exitcode and other runtime artifacts (default: $SPRINT_STATE_DIR or .dev/sprint-state/<tasklist-id>/).",
 )
+@click.option(
+    "--handoff/--no-handoff",
+    "handoff_enabled",
+    default=True,
+    help="Enable per-task handoff records (default: enabled).",
+)
+@click.option(
+    "--resume",
+    "resume_task_id",
+    default="",
+    help="Resume from a task id, skipping validated-successful tasks (composes with --start/--end).",
+)
+@click.option(
+    "--task-parallelism",
+    "task_parallelism",
+    type=int,
+    default=1,
+    show_default=True,
+    help="Number of tasks to execute concurrently per phase (1 = sequential).",
+)
 def run(
     index_path: Path,
     start_phase: int,
@@ -205,6 +225,9 @@ def run(
     force_fidelity_fail: str,
     release_dir_override: Path | None,
     state_dir_override: Path | None,
+    handoff_enabled: bool,
+    resume_task_id: str,
+    task_parallelism: int,
 ):
     """Execute a sprint from a tasklist index.
 
@@ -241,6 +264,9 @@ def run(
         stall_action=stall_action,
         shadow_gates=shadow_gates,
         state_dir=state_dir,
+        handoff_enabled=handoff_enabled,
+        resume_task_id=resume_task_id,
+        task_parallelism=task_parallelism,
     )
 
     # Thread tmux session name into config when relaunched by launch_in_tmux

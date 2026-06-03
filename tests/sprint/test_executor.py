@@ -1368,14 +1368,23 @@ class TestBackwardCompat:
         assert config.error_file(config.phases[0]).name == "phase-1-errors.txt"
         assert config.result_file(config.phases[0]).name == "phase-1-result.md"
 
-    def test_backward_compat_no_gate_threads_in_executor(self):
-        """The executor module does not import or use threading directly.
-        All daemon threads come from OutputMonitor (pre-existing in v1.2.1)."""
+    def test_backward_compat_no_leaked_daemon_threads_in_executor(self):
+        """Stage 3 adds bounded per-task parallelism (--task-parallelism K), so the
+        executor now legitimately uses a threading lock and a context-managed
+        ThreadPoolExecutor. The backward-compat invariant is no LEAKED daemon
+        threads — not 'no threading import'. This test enforces that the executor
+        spawns no raw long-lived daemon threads (any pool is context-managed and
+        joined on block exit); the runtime no-leak guarantee is separately
+        verified by the threading.active_count() backward-compat tests."""
         import superclaude.cli.sprint.executor as mod
 
         source = Path(mod.__file__).read_text()
-        assert "threading" not in source
+        # No raw daemon-thread spawns (OutputMonitor's threads remain its own).
         assert "Thread(" not in source
+        assert "daemon=True" not in source
+        # Any ThreadPoolExecutor use MUST be context-managed so workers are joined.
+        if "ThreadPoolExecutor" in source:
+            assert "with ThreadPoolExecutor" in source
 
 
 class TestWritePreliminaryResult:
@@ -1446,7 +1455,12 @@ class TestWritePreliminaryResult:
         started_at = datetime.now(timezone.utc).timestamp() - 1.0
 
         with caplog.at_level(logging.WARNING, logger="superclaude.cli.sprint.executor"):
-            with patch("pathlib.Path.write_text", side_effect=OSError("disk full")):
+            # RC.4: the sentinel is now written via an O_EXCL os.open (not write_text),
+            # so inject the OSError there to exercise the telemetry branch.
+            with patch(
+                "superclaude.cli.sprint.executor.os.open",
+                side_effect=OSError("disk full"),
+            ):
                 return_val = _write_preliminary_result(config, phase, started_at)
 
         assert return_val is False

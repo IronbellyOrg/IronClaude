@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import contextlib
 import json
 import logging as _logging
+import os
 import re
 import shutil
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,9 +23,11 @@ from superclaude.cli.pipeline.trailing_gate import (
 
 from .debug_logger import debug_log, setup_debug_logger
 from .diagnostics import DiagnosticCollector, FailureClassifier, ReportGenerator
+from .handoff import FileHandoffStore, is_validated_success
 from .logging_ import SprintLogger
 from .models import (
     GateOutcome,
+    HandoffRecord,
     MonitorState,
     Phase,
     PhaseResult,
@@ -37,13 +43,28 @@ from .models import (
 )
 from .monitor import OutputMonitor, detect_error_max_turns, detect_prompt_too_long
 from .notify import notify_phase_complete, notify_sprint_complete
-from .process import ClaudeProcess, SignalHandler
+from .process import (
+    ClaudeProcess,
+    SignalHandler,
+    build_task_context,
+    count_turns_from_stream_json,
+)
+from .scheduler import CycleError, topological_launch_order
 from .tmux import update_summary_pane, update_tail_pane
 from .tui import SprintTUI
 
 _wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
 _anti_instinct_logger = _logging.getLogger("superclaude.sprint.anti_instinct_hook")
 _checkpoint_logger = _logging.getLogger("superclaude.sprint.checkpoint")
+_routing_logger = _logging.getLogger("superclaude.sprint.routing")
+_stall_logger = _logging.getLogger("superclaude.sprint.stall")
+
+# M6: a SEPARATE relaxed near-miss probe for the per-task heading router. This is
+# NOT the strict extraction regex (`config._TASK_HEADING_RE`, which must stay
+# unchanged) — it only diagnoses headings that LOOK like `### T<PP>.<TT>` but miss
+# the strict shape (wrong level, separator, or zero-pad). Used warn-only; it never
+# reclassifies a phase.
+_TASK_HEADING_NEAR_MISS_RE = re.compile(r"#{2,5}\s*T\d{1,2}[._]\d{1,2}", re.MULTILINE)
 
 # Debug logger name for executor-specific events
 _DBG_NAME = "superclaude.sprint.debug.executor"
@@ -148,7 +169,7 @@ class IsolationLayers:
         return active
 
 
-def setup_isolation(config: SprintConfig) -> IsolationLayers:
+def setup_isolation(config: SprintConfig, *, scope: str = "") -> IsolationLayers:
     """Create 4-layer isolation for subprocess execution.
 
     Sets up:
@@ -162,6 +183,13 @@ def setup_isolation(config: SprintConfig) -> IsolationLayers:
 
     Args:
         config: Sprint configuration providing the release directory.
+        scope: Optional per-slot discriminator (H1). When non-empty, the
+            plugin and settings dirs become ``plugins/<scope>`` and
+            ``settings/<scope>`` so each phase/task/worker gets its own
+            isolated settings dir (needed for Stage-3 parallelism). When
+            empty (the default), behavior is byte-for-byte equivalent to the
+            pre-H1 shared ``plugins`` / ``settings`` dirs, preserving Path A
+            serial behavior.
 
     Returns:
         IsolationLayers with all 4 layers configured.
@@ -170,10 +198,12 @@ def setup_isolation(config: SprintConfig) -> IsolationLayers:
     base.mkdir(parents=True, exist_ok=True)
 
     plugin_dir = base / "plugins"
-    plugin_dir.mkdir(exist_ok=True)
-
     settings_dir = base / "settings"
-    settings_dir.mkdir(exist_ok=True)
+    if scope:
+        plugin_dir = plugin_dir / scope
+        settings_dir = settings_dir / scope
+    plugin_dir.mkdir(parents=True, exist_ok=True)
+    settings_dir.mkdir(parents=True, exist_ok=True)
 
     return IsolationLayers(
         scoped_work_dir=config.release_dir,
@@ -925,6 +955,220 @@ def run_post_task_anti_instinct_hook(
     return (task_result, gate_result)
 
 
+def _run_one_task(
+    task,
+    config: SprintConfig,
+    phase,
+    *,
+    started_at,
+    prior_context: str = "",
+    ledger: TurnLedger | None = None,
+    subprocess_factory=None,
+    shadow_metrics: ShadowGateMetrics | None = None,
+    remediation_log: DeferredRemediationLog | None = None,
+    lock=None,
+) -> tuple[TaskResult, TrailingGateResult | None]:
+    """Execute one task: spawn → classify → reconcile budget → post-task hooks.
+
+    Shared by the sequential (K=1) and parallel (K>1) per-task paths so both
+    classify and reconcile identically. The SPAWN runs UNLOCKED (the slow part —
+    concurrency here is the source of the wall-clock win). The budget reconcile
+    and the post-task hooks run under ``lock`` when provided (K>1) so shared
+    ledger / shadow_metrics / remediation_log mutations cannot race. With
+    ``lock=None`` (K=1) there is no locking and behavior is identical to the
+    former inline block.
+    """
+    if subprocess_factory is not None:
+        exit_code, turns_consumed, output_bytes = subprocess_factory(task, config, phase)
+    else:
+        exit_code, turns_consumed, output_bytes = _run_task_subprocess(
+            task, config, phase, prior_context=prior_context
+        )
+
+    finished_at = datetime.now(timezone.utc)
+
+    if exit_code == 0:
+        status = TaskStatus.PASS
+    elif exit_code == 124:
+        status = TaskStatus.INCOMPLETE
+    elif _is_transient_failure(config.task_output_file(phase, task)):
+        status = TaskStatus.FAIL_RECOVERABLE
+    else:
+        status = TaskStatus.FAIL_TERMINAL
+
+    guard = lock if lock is not None else contextlib.nullcontext()
+    with guard:
+        if ledger is not None:
+            actual = max(turns_consumed, 0)
+            pre_allocated = ledger.minimum_allocation
+            if actual > pre_allocated:
+                ledger.debit(actual - pre_allocated)
+            elif actual < pre_allocated:
+                ledger.credit(pre_allocated - actual)
+
+        result = TaskResult(
+            task=task,
+            status=status,
+            turns_consumed=turns_consumed,
+            exit_code=exit_code,
+            started_at=started_at,
+            finished_at=finished_at,
+            output_bytes=output_bytes,
+        )
+
+        # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
+        result = run_post_task_wiring_hook(
+            task, config, result, ledger=ledger, remediation_log=remediation_log
+        )
+        # Post-task anti-instinct hook per config.gate_rollout_mode
+        result, gate_result = run_post_task_anti_instinct_hook(
+            task, config, result, ledger=ledger, shadow_metrics=shadow_metrics
+        )
+    return result, gate_result
+
+
+def _execute_phase_tasks_parallel(
+    tasks: list[TaskEntry],
+    config: SprintConfig,
+    phase,
+    *,
+    ledger: TurnLedger | None = None,
+    _subprocess_factory=None,
+    _env_capture: list | None = None,
+    shadow_metrics: ShadowGateMetrics | None = None,
+    remediation_log: DeferredRemediationLog | None = None,
+    tui: "SprintTUI | None" = None,
+    sprint_result: "SprintResult | None" = None,
+    logger: "SprintLogger | None" = None,
+    handoff_store=None,
+) -> tuple[list[TaskResult], list[str], list[TrailingGateResult]]:
+    """Bounded parallel per-task execution (Stage 3, K>1 only).
+
+    Runs up to ``config.task_parallelism`` tasks concurrently per dependency wave
+    (from ``topological_launch_order``), routing every shared mutation through the
+    thread-safe primitives: ``TurnLedger.try_launch``/``debit``/``credit`` (locked),
+    ``SprintLogger._jsonl`` (locked), per-task handoff files (independent, atomic
+    temp+replace), and a local lock guarding the env-capture list, the per-task
+    reconcile+hooks (via ``_run_one_task(lock=...)``), and TUI updates. K==1 never
+    reaches here — the caller takes the unchanged sequential path.
+
+    The SPAWN runs concurrently (the source of the wall-clock win); only the fast
+    reconcile/hook/TUI mutations are serialized. Budget-exhaustion semantics differ
+    from the sequential path: a task whose atomic ``try_launch`` fails is recorded
+    SKIPPED and added to ``remaining`` (already-launched tasks still complete),
+    rather than breaking the whole loop. Results are assembled in the original
+    declared task order (not completion order) for determinism.
+    """
+    try:
+        waves = topological_launch_order(tasks)
+    except CycleError:
+        # A dependency cycle cannot be wave-ordered; fall back to a single set in
+        # declared order so execution still completes deterministically.
+        waves = [[t.task_id for t in tasks]]
+
+    by_id = {t.task_id: t for t in tasks}
+    results_by_id: dict[str, TaskResult] = {}
+    remaining: list[str] = []
+    gate_results: list[TrailingGateResult] = []
+    completed_results: list[TaskResult] = []  # prior-wave results for M3 context
+    lock = threading.Lock()
+    k = max(1, int(getattr(config, "task_parallelism", 1)))
+
+    def _worker(task, prior_context):
+        started_at = datetime.now(timezone.utc)
+        # Resume skip (same validated-success predicate + back-compat as sequential).
+        if (
+            handoff_store is not None
+            and getattr(config, "resume_task_id", "")
+            and (config.results_dir / "handoff").exists()
+        ):
+            _prior = handoff_store.read(phase=phase, task=task)
+            if _prior is not None and is_validated_success(_prior):
+                return (
+                    TaskResult(
+                        task=task,
+                        status=TaskStatus.PASS,
+                        turns_consumed=0,
+                        exit_code=0,
+                        started_at=started_at,
+                        finished_at=datetime.now(timezone.utc),
+                        gate_outcome=GateOutcome.PASS,
+                        output_path=_prior.output_path,
+                    ),
+                    None,
+                    "skip",
+                )
+        # Atomic budget gate.
+        if ledger is not None and not ledger.try_launch():
+            return (
+                TaskResult(
+                    task=task,
+                    status=TaskStatus.SKIPPED,
+                    started_at=started_at,
+                    finished_at=datetime.now(timezone.utc),
+                ),
+                None,
+                "budget",
+            )
+        if _env_capture is not None:
+            with lock:
+                _env_capture.append(_task_env(task, config, phase))
+        result, gate_result = _run_one_task(
+            task,
+            config,
+            phase,
+            started_at=started_at,
+            prior_context=prior_context,
+            ledger=ledger,
+            subprocess_factory=_subprocess_factory,
+            shadow_metrics=shadow_metrics,
+            remediation_log=remediation_log,
+            lock=lock,
+        )
+        if logger is not None:
+            logger.write_task_complete(
+                phase.number,
+                task.task_id,
+                result.status.value,
+                result.turns_consumed,
+                result.duration_seconds,
+            )
+        if handoff_store is not None:
+            record = HandoffRecord.from_task_result(
+                result,
+                phase=phase.number,
+                produced_artifacts=[str(config.task_output_file(phase, task))],
+                consumed_upstreams=list(task.dependencies),
+            )
+            handoff_store.write(record, phase=phase, task=task)
+        if tui is not None and sprint_result is not None:
+            with lock:
+                _st = MonitorState()
+                _st.last_task_id = task.task_id
+                _st.last_event_time = time.monotonic()
+                tui.update(sprint_result, _st, phase)
+        return result, gate_result, "ran"
+
+    for wave in waves:
+        wave_tasks = [by_id[tid] for tid in wave if tid in by_id]
+        # All tasks in a wave share the same prior context = results of PRIOR waves
+        # (their dependencies); same-wave tasks are independent by construction.
+        prior_context = build_task_context(list(completed_results), start_commit="")
+        with ThreadPoolExecutor(max_workers=k) as pool:
+            wave_out = list(pool.map(lambda t: _worker(t, prior_context), wave_tasks))
+        # Merge (single-threaded) preserving determinism.
+        for (result, gate_result, kind), t in zip(wave_out, wave_tasks):
+            results_by_id[t.task_id] = result
+            completed_results.append(result)
+            if gate_result is not None:
+                gate_results.append(gate_result)
+            if kind == "budget":
+                remaining.append(t.task_id)
+
+    results = [results_by_id[t.task_id] for t in tasks if t.task_id in results_by_id]
+    return results, remaining, gate_results
+
+
 def execute_phase_tasks(
     tasks: list[TaskEntry],
     config: SprintConfig,
@@ -932,12 +1176,15 @@ def execute_phase_tasks(
     ledger: TurnLedger | None = None,
     *,
     _subprocess_factory=None,
+    _env_capture: list | None = None,
     shadow_metrics: ShadowGateMetrics | None = None,
     remediation_log: DeferredRemediationLog | None = None,
     # TUI params are optional for backward compat with tests.
     # When provided, per-task progress is shown in the dashboard.
     tui: "SprintTUI | None" = None,
     sprint_result: "SprintResult | None" = None,
+    logger: "SprintLogger | None" = None,
+    handoff_store=None,
 ) -> tuple[list[TaskResult], list[str], list[TrailingGateResult]]:
     """Per-task subprocess orchestration loop.
 
@@ -969,12 +1216,70 @@ def execute_phase_tasks(
     if not tasks:
         return results, remaining, gate_results
 
+    # Stage 3 (H6): bounded parallel execution when --task-parallelism K>1 and
+    # there is more than one task. K==1 (the default) falls through to the
+    # unchanged sequential loop below, preserving byte-identical legacy behavior.
+    if getattr(config, "task_parallelism", 1) > 1 and len(tasks) > 1:
+        return _execute_phase_tasks_parallel(
+            tasks,
+            config,
+            phase,
+            ledger=ledger,
+            _subprocess_factory=_subprocess_factory,
+            _env_capture=_env_capture,
+            shadow_metrics=shadow_metrics,
+            remediation_log=remediation_log,
+            tui=tui,
+            sprint_result=sprint_result,
+            logger=logger,
+            handoff_store=handoff_store,
+        )
+
     for i, task in enumerate(tasks):
         started_at = datetime.now(timezone.utc)
 
-        # Budget check: can we launch?
-        if ledger is not None and not ledger.can_launch():
-            # Mark this and all subsequent tasks as skipped
+        # H5 resume skip: when resuming (config.resume_task_id set) and a handoff
+        # store is present, a task with a VALIDATED-SUCCESS handoff record is not
+        # re-run and does not debit the budget. The recorded result is the prior
+        # validated success (status PASS, gate PASS) so downstream dependency
+        # oracles (_is_satisfied → status.is_success) and phase aggregation see it
+        # as satisfied; turns_consumed is 0 because this run spent none on it.
+        # Only validated-success records are skipped — every non-success state
+        # (FAIL_*/INCOMPLETE/SKIPPED, or PASS-with-gate-fail) still runs.
+        # Back-compat (H5/M5): resuming against a pre-Stage-1 release_dir that has
+        # NO handoff/ directory performs NO per-task skipping and degrades to
+        # today's phase-granular behavior with no error. The explicit dir check
+        # short-circuits before any read; handoff/ is created lazily only on the
+        # first write (FileHandoffStore.write), never on a read.
+        if (
+            handoff_store is not None
+            and getattr(config, "resume_task_id", "")
+            and (config.results_dir / "handoff").exists()
+        ):
+            _prior = handoff_store.read(phase=phase, task=task)
+            if _prior is not None and is_validated_success(_prior):
+                results.append(
+                    TaskResult(
+                        task=task,
+                        status=TaskStatus.PASS,
+                        turns_consumed=0,
+                        exit_code=0,
+                        started_at=started_at,
+                        finished_at=datetime.now(timezone.utc),
+                        gate_outcome=GateOutcome.PASS,
+                        output_path=_prior.output_path,
+                    )
+                )
+                continue
+
+        # Budget gate (atomic). try_launch checks can_launch AND debits the
+        # minimum_allocation as ONE atomic op under the ledger lock, so two
+        # concurrent workers (K>1) cannot both pass the check then both debit and
+        # over-commit the budget. Single-threaded (K=1) semantics are identical to
+        # the former can_launch()-then-debit() pair: the same tasks are skipped and
+        # the same turns are debited. On failure (insufficient budget), mark this
+        # and all subsequent tasks skipped and stop.
+        if ledger is not None and not ledger.try_launch():
             remaining = [t.task_id for t in tasks[i:]]
             for t in tasks[i:]:
                 results.append(
@@ -986,10 +1291,7 @@ def execute_phase_tasks(
                     )
                 )
             break
-
-        # Debit the minimum allocation upfront
-        if ledger is not None:
-            ledger.debit(ledger.minimum_allocation)
+        # (try_launch already debited minimum_allocation on success)
 
         # Per-task TUI update: show which task is about to launch
         if tui is not None and sprint_result is not None:
@@ -999,71 +1301,58 @@ def execute_phase_tasks(
             _tui_state.last_task_id = task.task_id
             tui.update(sprint_result, _tui_state, phase)
 
-        # Spawn subprocess for this task
-        if _subprocess_factory is not None:
-            exit_code, turns_consumed, output_bytes = _subprocess_factory(
-                task, config, phase
-            )
-        else:
-            # Default: delegate to ClaudeProcess (real execution)
-            exit_code, turns_consumed, output_bytes = _run_task_subprocess(
-                task, config, phase
-            )
+        # H6 env-capture test seam: record the per-task isolation env that the
+        # child WOULD receive, for every launched task, regardless of whether
+        # the real subprocess or the injected factory runs (the factory bypasses
+        # build_env, so per-worker CLAUDE_SETTINGS_DIR isolation is otherwise
+        # untestable). Inert (zero behavior change) when _env_capture is None.
+        if _env_capture is not None:
+            _env_capture.append(_task_env(task, config, phase))
 
-        finished_at = datetime.now(timezone.utc)
+        # M3 prior-task context: render the prior results (already accumulated in
+        # `results` at the top of this iteration) into the per-task prompt. Runs
+        # in the parent process; start_commit="" simply skips the git-diff section.
+        prior_context = build_task_context(results, start_commit="")
 
-        # Determine task status from exit code
-        if exit_code == 0:
-            status = TaskStatus.PASS
-        elif exit_code == 124:
-            status = TaskStatus.INCOMPLETE
-        elif _is_transient_failure(config.task_output_file(phase, task)):
-            status = TaskStatus.FAIL_RECOVERABLE
-        else:
-            status = TaskStatus.FAIL_TERMINAL
-
-        # Reconcile budget: debit actual consumption, credit back pre-allocation
-        if ledger is not None:
-            # We pre-debited minimum_allocation; now adjust for actual turns
-            actual = max(turns_consumed, 0)
-            pre_allocated = ledger.minimum_allocation
-            if actual > pre_allocated:
-                ledger.debit(actual - pre_allocated)
-            elif actual < pre_allocated:
-                ledger.credit(pre_allocated - actual)
-
-        result = TaskResult(
-            task=task,
-            status=status,
-            turns_consumed=turns_consumed,
-            exit_code=exit_code,
+        # Spawn + classify + reconcile + post-task hooks. Shared with the K>1
+        # parallel path via _run_one_task; lock=None here (sequential, no race).
+        result, gate_result = _run_one_task(
+            task,
+            config,
+            phase,
             started_at=started_at,
-            finished_at=finished_at,
-            output_bytes=output_bytes,
-        )
-
-        # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
-        result = run_post_task_wiring_hook(
-            task,
-            config,
-            result,
+            prior_context=prior_context,
             ledger=ledger,
-            remediation_log=remediation_log,
-        )
-
-        # Post-task anti-instinct hook: run anti-instinct gate per config.gate_rollout_mode
-        # NFR-010: anti-instinct and wiring gates evaluate independently (no shared state)
-        result, gate_result = run_post_task_anti_instinct_hook(
-            task,
-            config,
-            result,
-            ledger=ledger,
+            subprocess_factory=_subprocess_factory,
             shadow_metrics=shadow_metrics,
+            remediation_log=remediation_log,
+            lock=None,
         )
         if gate_result is not None:
             gate_results.append(gate_result)
 
         results.append(result)
+
+        # Per-task journal + typed handoff write (Stage 0/1) — the single
+        # in-loop site under one single-writer discipline (M2). Emitted exactly
+        # once per task at the moment the TaskResult is finalized; fully inert
+        # (zero side effects, legacy behavior) when both params are None.
+        if logger is not None:
+            logger.write_task_complete(
+                phase.number,
+                task.task_id,
+                result.status.value,
+                result.turns_consumed,
+                result.duration_seconds,
+            )
+        if handoff_store is not None:
+            record = HandoffRecord.from_task_result(
+                result,
+                phase=phase.number,
+                produced_artifacts=[str(config.task_output_file(phase, task))],
+                consumed_upstreams=list(task.dependencies),
+            )
+            handoff_store.write(record, phase=phase, task=task)
 
         # Per-task TUI update: show task completion
         if tui is not None and sprint_result is not None:
@@ -1076,22 +1365,112 @@ def execute_phase_tasks(
     return results, remaining, gate_results
 
 
+def _task_env(task: TaskEntry, config: SprintConfig, phase) -> dict[str, str]:
+    """Per-task isolation env (H1/H6) — the single source of per-task subprocess env.
+
+    Returns the full 4-layer ``setup_isolation`` env dict scoped to
+    ``task-<task_id>`` so each task gets its OWN CLAUDE_SETTINGS_DIR /
+    CLAUDE_PLUGIN_DIR (plus the release-scoped CLAUDE_WORK_DIR /
+    GIT_CEILING_DIRECTORIES). Pure apart from the directory ``mkdir`` that
+    ``setup_isolation`` already performs. Shared by the Path B wiring
+    (``_run_task_subprocess``) and the H6 ``_env_capture`` test seam so both
+    observe an identical per-task env. The ``phase`` arg is accepted for a
+    uniform call shape (and future per-phase-qualified scoping) even though the
+    scope is task-id based today.
+    """
+    return setup_isolation(config, scope=f"task-{task.task_id}").env_vars
+
+
+def _poll_with_stall_watchdog(
+    proc,
+    config: SprintConfig,
+    *,
+    output_path: Path | None = None,
+    on_stall=None,
+    poll_interval: float = 0.5,
+) -> None:
+    """Wait for ``proc`` to exit while watching for a startup stall (RC.2).
+
+    A stall = the per-task stream-json ``output_path`` does not grow for longer
+    than ``config.startup_stall_timeout`` seconds. On the first stall this emits a
+    LOUD warning, invokes ``on_stall(proc)`` (if given), and — when
+    ``config.stall_action == "kill"`` — terminates the child. With
+    ``startup_stall_timeout <= 0`` the watchdog is disabled and this degrades to a
+    plain ``proc.wait()``. Shared by the per-task wait (``_run_task_subprocess``)
+    and, under K>1, by each parallel worker's own wait (RC.3) — every in-flight
+    per-task process gets its OWN independent stall timer (no shared timer state
+    across workers). Previously a hung per-task process was never detected.
+    """
+    timeout = getattr(config, "startup_stall_timeout", 0) or 0
+    underlying = getattr(proc, "_process", None)
+    if underlying is None or timeout <= 0:
+        proc.wait()
+        return
+
+    def _size() -> int:
+        try:
+            if output_path is not None and output_path.exists():
+                return output_path.stat().st_size
+        except OSError:
+            return 0
+        return 0
+
+    last_size = _size()
+    last_progress = time.monotonic()
+    acted = False
+    while underlying.poll() is None:
+        time.sleep(poll_interval)
+        cur = _size()
+        if cur != last_size:
+            last_size = cur
+            last_progress = time.monotonic()
+            acted = False
+        elif not acted and (time.monotonic() - last_progress) > timeout:
+            acted = True
+            _stall_logger.warning(
+                "Per-task subprocess stalled: no output for >%ss "
+                "(startup_stall_timeout); stall_action=%s.",
+                timeout,
+                getattr(config, "stall_action", "warn"),
+            )
+            if on_stall is not None:
+                try:
+                    on_stall(proc)
+                except Exception:  # noqa: BLE001 - on_stall is best-effort
+                    pass
+            if getattr(config, "stall_action", "warn") == "kill":
+                try:
+                    underlying.terminate()
+                except Exception:  # noqa: BLE001 - best-effort kill
+                    pass
+                break
+    proc.wait()
+
+
 def _run_task_subprocess(
     task: TaskEntry,
     config: SprintConfig,
     phase,
+    prior_context: str = "",
 ) -> tuple[int, int, int]:
     """Run a single task in a subprocess. Returns (exit_code, turns, output_bytes).
 
     This is the real implementation that spawns a ClaudeProcess. For testing,
     callers of execute_phase_tasks pass _subprocess_factory instead.
+
+    ``prior_context`` is the rendered ``build_task_context(...)`` block for the
+    prior tasks in this phase (M3); when non-empty it is appended to the
+    single-task directive so the spawned worker sees prior-task context. Computed
+    by the caller in the parent process (no logger needed).
     """
-    # Build a task-specific prompt
+    # Build a task-specific prompt (single-task directive).
     prompt = (
         f"Execute task {task.task_id}: {task.title}\n"
         f"From phase file: {phase.file}\n"
         f"Description: {task.description}\n"
     )
+    if prior_context:
+        prompt = f"{prompt}\n{prior_context}\n"
 
     proc = ClaudeProcess.__new__(ClaudeProcess)
     proc.config = config
@@ -1108,14 +1487,28 @@ def _run_task_subprocess(
         permission_flag=config.permission_flag,
         timeout_seconds=config.max_turns * 120 + 300,
         output_format="stream-json",
+        # Path B isolation (H1): inject the full per-task setup_isolation env set
+        # (own CLAUDE_SETTINGS_DIR / CLAUDE_PLUGIN_DIR / CLAUDE_WORK_DIR /
+        # GIT_CEILING_DIRECTORIES). Previously Path B passed no env_vars and the
+        # child inherited the parent env verbatim — the unmitigated-corruption path.
+        env_vars=_task_env(task, config, phase),
     )
     proc.start()
-    proc.wait()
+    # RC.2: per-task wait now runs under the stall watchdog (was a bare wait, so a
+    # hung per-task process was never detected). Each call has its OWN timer, so
+    # under K>1 every parallel worker is independently watched (RC.3).
+    _poll_with_stall_watchdog(
+        proc, config, output_path=config.task_output_file(phase, task)
+    )
     exit_code = proc._process.returncode if proc._process else -1
     output_path = config.task_output_file(phase, task)
     output_bytes = output_path.stat().st_size if output_path.exists() else 0
-    # Turn counting is wired separately in T02.06
-    return (exit_code if exit_code is not None else -1, 0, output_bytes)
+    # Real per-task turn count parsed from the stream-json result event.
+    # Supersedes the T02.06 turn-counting wire (formerly hard-coded 0, which
+    # made every task credit back its full minimum allocation and under-report
+    # total_turns_consumed).
+    turns = max(count_turns_from_stream_json(output_path), 0)
+    return (exit_code if exit_code is not None else -1, turns, output_bytes)
 
 
 def _parse_phase_tasks(phase: Phase, config: SprintConfig) -> list[TaskEntry] | None:
@@ -1132,7 +1525,25 @@ def _parse_phase_tasks(phase: Phase, config: SprintConfig) -> list[TaskEntry] | 
 
     content = phase.file.read_text(encoding="utf-8", errors="replace")
     tasks = parse_tasklist(content, execution_mode=phase.execution_mode)
-    return tasks if tasks else None
+    if tasks:
+        return tasks
+    # M6 warn-only near-miss probe: the strict heading regex matched nothing, so
+    # this phase routes to the single-session (Path A) fallback. If a RELAXED
+    # probe finds a heading that LOOKS like a `T<PP>.<TT>` task heading (wrong
+    # level, separator, or missing zero-pad), emit a LOUD warning so a heading
+    # typo does not silently demote a per-task phase to single-session — but do
+    # NOT reroute (return None unchanged). Legitimately freeform phases (no
+    # `T<PP>.<TT>`-like text) produce no match and no warning.
+    if _TASK_HEADING_NEAR_MISS_RE.search(content):
+        _routing_logger.warning(
+            "Phase file %s has a heading-format near-miss: it contains text that "
+            "looks like '### T<PP>.<TT>' task headings but none matched the strict "
+            "parser, so this phase will run as a SINGLE-SESSION (per-phase) phase. "
+            "If per-task execution was intended, check the heading level (###), the "
+            "separator (-- or em-dash), and two-digit zero-padding.",
+            phase.file,
+        )
+    return None
 
 
 def execute_sprint(config: SprintConfig):
@@ -1267,6 +1678,18 @@ def execute_sprint(config: SprintConfig):
                 logger.write_phase_start(phase, started_at)
                 # Signal TUI that this phase is now active
                 tui.update(sprint_result, MonitorState(), phase)
+                # M5 legacy-exact gating: with --handoff=off (handoff_enabled
+                # False) NO HandoffRecord is written AND NO task_complete journal
+                # event is emitted, so the execution log is byte-equivalent to the
+                # pre-Stage-1 behavior. Both the store and the per-task journal
+                # logger are gated by handoff_enabled; the store also requires the
+                # "file" backend ("mail" is the out-of-scope Stage 4 selector).
+                _handoff_store = (
+                    FileHandoffStore(config)
+                    if config.handoff_enabled and config.handoff_store == "file"
+                    else None
+                )
+                _handoff_logger = logger if config.handoff_enabled else None
                 task_results, remaining, phase_gate_results = execute_phase_tasks(
                     tasks=tasks,
                     config=config,
@@ -1276,9 +1699,21 @@ def execute_sprint(config: SprintConfig):
                     remediation_log=remediation_log,
                     tui=tui,
                     sprint_result=sprint_result,
+                    logger=_handoff_logger,
+                    handoff_store=_handoff_store,
                 )
                 all_gate_results.extend(phase_gate_results)
-                all_passed = all(r.status == TaskStatus.PASS for r in task_results)
+                # RC.1 (reflect C-021): use the runner-authoritative aggregation
+                # (counts + status) as the source of the phase result instead of
+                # an inline binary collapse. aggregate_task_results now has a live
+                # caller. For a fully-attempted phase (no `remaining`) the PASS/ERROR
+                # outcome is equivalent to the former `all(r.status == PASS)`; when
+                # budget left tasks un-attempted (`remaining` non-empty) the report
+                # correctly counts them so the phase is no longer reported PASS.
+                phase_report = aggregate_task_results(
+                    phase.number, task_results, remaining_task_ids=remaining
+                )
+                all_passed = phase_report.status == "PASS"
                 status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
                 phase_result = PhaseResult(
                     phase=phase,
@@ -1323,9 +1758,18 @@ def execute_sprint(config: SprintConfig):
                 if config.tmux_session_name:
                     update_tail_pane(config.tmux_session_name, output_path)
 
-                # Launch claude with isolation env vars (CLAUDE_WORK_DIR → isolation_dir)
+                # Launch claude with isolation env vars. H1 (Path A): KEEP the
+                # phase-scoped CLAUDE_WORK_DIR (the per-phase copy dir at
+                # isolation_dir) and ADD only the settings + plugin isolation
+                # keys so this per-phase session gets its own settings/plugin
+                # dirs without losing the phase work-dir scoping. setup_isolation's
+                # own CLAUDE_WORK_DIR is the whole release dir, which would clobber
+                # the phase scope, so it is deliberately NOT merged here.
+                _layers = setup_isolation(config, scope=f"phase-{phase.number}")
                 _phase_env_vars = {
-                    "CLAUDE_WORK_DIR": str(isolation_dir),
+                    "CLAUDE_WORK_DIR": str(isolation_dir),  # KEEP phase-scoped (re-pinned)
+                    "CLAUDE_SETTINGS_DIR": _layers.env_vars["CLAUDE_SETTINGS_DIR"],
+                    "CLAUDE_PLUGIN_DIR": _layers.env_vars["CLAUDE_PLUGIN_DIR"],
                 }
                 proc_manager = ClaudeProcess(config, phase, env_vars=_phase_env_vars)
                 proc_manager.start()
@@ -2037,11 +2481,32 @@ def _write_preliminary_result(
         except OSError:
             pass  # Treat stat failure as absent; fall through to write
 
-    # Write the sentinel: zero-byte, stale, or missing files are all overwritten.
+    # RC.4 (C-019): write the sentinel via a true O_EXCL atomic create so two
+    # concurrent writers cannot both create it and so we never clobber a file that
+    # appeared AFTER the freshness check (closing the docstring's exists-check→write
+    # TOCTOU). A known-stale / zero-byte file (a fresh one was preserved above) is
+    # removed first so O_EXCL can create. If O_EXCL then fails with FileExistsError,
+    # a concurrent writer (or a freshly-appeared agent file) beat us — preserve it
+    # (no-op). Zero-byte/stale/absent still yield a written sentinel; the
+    # EXIT_RECOMMENDATION: CONTINUE contract and the OSError telemetry branch are
+    # unchanged.
     try:
         result_path.parent.mkdir(parents=True, exist_ok=True)
-        result_path.write_text("EXIT_RECOMMENDATION: CONTINUE\n")
+        try:
+            if result_path.exists():
+                result_path.unlink()
+        except OSError:
+            pass  # If we cannot remove it, the O_EXCL create below will preserve it.
+        fd = os.open(result_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        try:
+            os.write(fd, b"EXIT_RECOMMENDATION: CONTINUE\n")
+        finally:
+            os.close(fd)
         return True
+    except FileExistsError:
+        # A concurrent writer created the sentinel between our unlink and create —
+        # its sentinel is equivalent, or a fresh agent file appeared; preserve it.
+        return False
     except OSError as exc:
         _logging.getLogger(__name__).warning(
             "preliminary result write failed: %s; phase may report PASS_NO_REPORT",

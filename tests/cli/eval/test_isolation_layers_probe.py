@@ -124,8 +124,14 @@ def test_setup_isolation_signature_pin() -> None:
 
     sig = inspect.signature(setup_isolation)
     params = sig.parameters
-    assert tuple(params.keys()) == ("config",)
+    # H1 (TASK-RF-SPRINTCLI-WIRE-DEAD): a keyword-only ``scope`` param was added
+    # so each phase/task/worker can get its own settings dir. Re-pinned to the
+    # new contract — ``config`` stays positional-or-keyword, ``scope`` is
+    # keyword-only with an empty-string default (scope="" == legacy behavior).
+    assert tuple(params.keys()) == ("config", "scope")
     assert params["config"].kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
+    assert params["scope"].kind == inspect.Parameter.KEYWORD_ONLY
+    assert params["scope"].default == ""
 
     hints = get_type_hints(setup_isolation)
     assert hints["return"] is IsolationLayers
