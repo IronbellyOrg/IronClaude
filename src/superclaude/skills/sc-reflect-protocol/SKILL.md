@@ -2,7 +2,7 @@
 name: sc:reflect-protocol
 description: "Tiered reflection protocol grounded in real code and real citations. UC-1 (pre-execution) validates a proposed strategy/tasklist against its driving spec/PRD for coverage and best-practice compliance. UC-2 (post-execution) audits completed work for 100% adherence and classifies every divergence under a 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Tier 1 is a fast single-agent grounded pass; Tier 2 fans out 2-3 heterogeneous reviewer agents on different model classes and merges via sc-adversarial-protocol Mode A; Tier 3 hands off to task-builder for a corrective MDTM remediation. Structural mechanisms — heterogeneous reviewers, blind calibration, mandatory evidence-validator gate — exist specifically to neutralise the representational bias that makes single-agent self-review unreliable."
 version: 1.0.0
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily-search, mcp__sequential-thinking__sequentialthinking
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__serena__get_current_config, mcp__serena__find_implementations, mcp__serena__find_declaration, mcp__serena__delete_memory, mcp__serena__rename_memory, mcp__serena__edit_memory, mcp__serena__summarize_changes, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily-search, mcp__sequential-thinking__sequentialthinking
 ---
 
 <!-- markdownlint-disable MD013 MD040 -->
@@ -130,8 +130,9 @@ Wave 0:   Parse + Validate Input + Activate Project + Memory Hydrate
             0.3 Probe sc-adversarial-protocol installation (see §14)
             0.4 Compute input_sha256 snapshot (see §4.0 — Change #10)
             0.5 Resolve env-var aliases + apply 0/1/2/3+ alias routing table (Change #13/#14)
+            0.5c get_current_config probe (active context/modes/version fingerprint)
             0.6 Inspect vendor heterogeneity (Change #18 — warn-only)
-            0.7 Activate Serena project + memory hydrate
+            0.7 Activate Serena project + memory hydrate + parse onboarding status
             0.8 Open audit log + machine-readable header
 Wave 1:   Tier 1 — Grounded Single-Agent Reflection
             1A. Real-code grounding (auggie + serena symbolic chain)
@@ -210,7 +211,27 @@ The zero-aliases + `--tier 2` row is the only case where alias-resolution itself
 
 (See `refs/input-resolution.md` "Env routing table" for the full 4-row matrix with grader-assertion column.)
 
+**Step 0.5c (active-project config probe, FR-7).** At Wave 0, invoke `mcp__serena__get_current_config` once to fingerprint Serena's own active state — a calibration input reflect currently lacks. The return shape is documented-unstable across Serena v1.0→v1.5 (OQ-4), so parse **defensively**:
+
+1. Invoke `get_current_config`. Using **field-presence checks** (never assume a field exists), extract: `serena_active_context` (active context string), `serena_active_modes` (list), the loaded-tools list (→ `serena_tool_count` and any chain-critical tools excluded by the active context → `serena_excluded_tools`), and the Serena version. Any field whose presence check fails → that derived value is `unknown`.
+2. Derive a **three-valued** `serena_version` ∈ `{"<v1.5", ">=v1.5", "unknown"}`. Default `unknown`; `unknown` is treated as `<v1.5` for all downstream gating (C2 — load-bearing for FR-6 and FR-8).
+3. Write the parsed snapshot to `<output>/serena-config-snapshot.yaml` and record `serena_config_snapshot_path` in telemetry.
+4. **Context-exclusion up-weight (FR-7.3):** when the active context excludes a chain-critical tool (e.g. `get_diagnostics_for_file`), append `"serena:context-excluded"` to `degraded_components` and influence rubric `S_dev_density` upward (the grounding chain is operating with a known capability gap).
+5. **Fail-open (OQ-4):** on parse failure, emit `degraded_components: ["get_current_config"]`, set `serena_version: unknown`, skip the snapshot, and continue Wave 0 — never abort.
+
+This step emits one `audit.log` row per the §4 per-step convention with the parsed `serena_context`/`serena_modes`/`serena_tool_count`/`serena_excluded_tools` evidence. Emit `serena_version`, `serena_active_context`, `serena_active_modes`, and `serena_config_snapshot_path` to telemetry when this step runs; `serena_version: unknown` with `degraded_components: ["get_current_config"]` and no snapshot path when skipped (parse failure or Serena unavailable).
+
 **Step 0.6 (vendor heterogeneity check).** For each resolved alias, extract the vendor (Anthropic / Qwen / Kimi / DeepSeek / OpenAI-compat / etc.) by alias-name heuristic. Emit one of `t2_vendor_diversity: multi` (≥2 vendors among resolved aliases) or `t2_vendor_diversity: single` (all aliases share one vendor). When `single`, emit a WARN with the suggested env-var override (full message body lives in `refs/ops-integration.md`). This is **warn-only in v1**; behaviour does not block. See §11.0 and the v1.1 deferred-hardening notes in §19.
+
+**Step 0.7 (activate project + memory hydrate + onboarding-status parse, FR-6).** At Wave 0, after `mcp__serena__activate_project` and memory hydrate, derive whether project memory was bootstrapped — an input to `S_dev_density` calibration. The historical standalone onboarding-status tool was **DELETED in Serena v1.5.0**, so it is NOT called and NOT in `allowed-tools`; the signal is derived from the activation message instead:
+
+1. Parse the `mcp__serena__activate_project` response message for the onboarding-status marker (v1.2.0+ always provides the full activation message on `activate_project`).
+2. **Fallback proxy:** when the marker is absent from the message, infer bootstrap state from `mcp__serena__list_memories` — presence of the v1.5 `memory_maintenance` seed memory (or any project seed memory) ⇒ bootstrapped.
+3. Set `onboarding_status` ∈ `{bootstrapped, not_bootstrapped, unknown}` (default `unknown`), recording `onboarding_status_source` (`activation_msg` | `list_memories_proxy` | `unknown`).
+4. **FR-6.4:** `not_bootstrapped` down-weights grounding confidence (the project has no memory to ground against); `unknown` implies **NO `S_dev_density` down-weight** (absence of signal is not negative signal).
+5. **Fail-open:** on parse/probe failure, set `onboarding_status: unknown`, emit `degraded_components: ["serena:onboarding-parse"]`, and continue — never abort, and never fall back to the defunct (v1.5.0-deleted) standalone onboarding-status tool.
+
+This step emits one `audit.log` row per the §4 per-step convention recording `onboarding_status` and `onboarding_status_source`. Emit `onboarding_status: bootstrapped | not_bootstrapped` (with its source) when the parse succeeds; `onboarding_status: unknown` (no `S_dev_density` down-weight, per FR-6.4) when the marker and proxy are both absent or the probe fails.
 
 **Step 0.9 (budget pre-flight, P5).** When `--budget-remaining N` is provided, route per this table against the §15 Token Cost Profile (Claude-side band midpoints). Boundaries are stated with explicit inclusive/exclusive operators to remove ambiguity at integer boundary values. The numeric anchors are **T1-midpoint = 6 turns**, **T2-midpoint = 52 turns**, computed from §15's "T1 only ~3-8k Claude" and "T2 ~35-70k Claude" bands via the conversion `1 turn ≈ 1k claude-orchestration tokens at the band midpoint`.
 
@@ -231,6 +252,8 @@ The zero-aliases + `--tier 2` row is the only case where alias-resolution itself
 **Step 1B.2 (coverage_undefined route).** If the spec/tasklist parse produces zero requirement IDs (no `T-NNN`, no checklist items, no headings to map), set `coverage_undefined: true`, route directly to T2 (no T1 stop possible), and surface in the report header. `coverage_pct` is not computed. The 0.90 T1 floor cannot pass vacuously (0/0 ≠ PASS).
 
 **Step 1B.3 (cross-task interaction-effects scan, UC-2 tasklist-scope only).** When mode is UC-2 AND the tasklist contains ≥3 completed tasks, run the symbol-overlap scan:
+
+1a. (FR-2) For each task's diff hunks, resolve each hunk's canonical declaration site via `mcp__serena__find_declaration` BEFORE deriving touched symbols — this anchors the overlap graph to resolved declarations rather than raw text, cutting false-positive overlap edges from name collisions. On zero matches for a hunk, emit `find_declaration_no_match`. Fail-open per §6.5.
 
 1. For each task in the tasklist, derive its touched symbols via `mcp__serena__find_symbol` against the task's diff hunks.
 2. Build a symbol-overlap graph: nodes = symbols, edges = "touched by task X and task Y." Cap at top-30 most-touched symbols (heuristic; full enumeration is bounded at 30 to control cost).
@@ -358,11 +381,23 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 ```
 1. mcp__serena__activate_project (once, idempotent at Wave 0)
 2. mcp__serena__get_symbols_overview <file>            # structural map
+2a. mcp__serena__find_declaration <symbol>            # diff-hunk → declaration
 3. mcp__serena__find_symbol <relevant-symbol>          # symbol body
-4. mcp__serena__find_referencing_symbols <symbol>      # downstream impact
+3b. mcp__serena__find_implementations <symbol>         # polymorphic surface
+4. mcp__serena__find_referencing_symbols <symbol> include_info:true   # downstream impact + signatures
 5. mcp__serena__get_diagnostics_for_file <file>        # LSP-level issues
 6. Re-Read each cited file:line range before quoting    # citation-grounding
+7. mcp__serena__find_symbol <symbol> search_deps:true   # third-party / dependency surface
+7'. mcp__serena__summarize_changes   # UC-2 corroboration vs supplied diff
 ```
+
+Step 2a (FR-2) resolves a diff hunk to its canonical declaration site before symbol lookup; on zero matches it emits `find_declaration_no_match`. Step 3b (FR-1) enumerates the polymorphic surface and fires for `kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}` — `Class` is **included** (C3) because non-Python LSPs report `Class` for traits/Protocols; on a `Class` a non-empty result IS the implementor surface and an empty result is "genuinely none" (no degrade). Both new steps are fail-open per §6.5 and emit one `audit.log` row each per the §4 per-step convention.
+
+Step 4's `include_info: true` (FR-3) is a **parameter add to the existing call, not a new step**: the v1.5 "Extended Symbol Information" return shape absorbed the old standalone referencing-snippets tool, so the referencing scan now also yields each referrer's signature/docstring. The run emits `references_extended_info_used: true` to `audit.log`, and the Wave-0 tool-inventory probe (OQ-1, via `serena_info` / `get_current_config`) records to the audit whether that defunct standalone referencing-snippets tool is present — the protocol uses the `include_info` path regardless and never wires the standalone tool.
+
+Step 7 (FR-4) is **conditional**: it fires only on the operationalized trigger predicate — a symbol whose step-2a `find_declaration` resolves to an `<ext:…>` path (a third-party dependency), NOT the vague "cites a third-party API by name". When the LSP has not indexed the dependency (no active venv / unindexed package), it fails open to `degraded_components: ["search_deps:lsp_unindexed"]` and the dependent claim stays marked `[INFERRED]` rather than `[VERIFIED]`. It emits one `audit.log` row per the §4 convention.
+
+Step 7' (FR-5) is **UC-2-only** and **prompt-based** (a corroboration meta-tool, NOT a computed diff — it returns instructions to summarize the session's changes, still model-mediated). It is **session-aware**: it must be invoked in the SAME MCP session as the edits; on a cross-session reflect (fresh session, nothing to summarize) it sets `serena_summary_corroboration: unavailable` and the main verdict is unchanged (FR-5.4). It sets `serena_summary_corroboration` ∈ `{agree, partial, disagree, unavailable}` by comparing the Serena change-summary against the supplied diff. It emits `summarize_changes_invoked: true` and `summarize_changes_path: <output>/serena-change-summary.md` to `audit.log` per the §4 per-step emit convention (SKILL.md per-step audit row) — the same way steps 3b/7 emit their own `<tool>_invoked` rows — so the FR-5 telemetry has an explicit producer in the chain. FR-5 **ships last** and is **pilot-gated** (OQ-3 — its signature is "not surfaced"; treat as zero-arg until the eval-workspace pilot probes the return shape).
 
 The chain replaces "think_about_collected_information" — instead of asking the model to self-assess whether it has enough info, the protocol *produces* the evidence and lets the rubric score whether grounding is sufficient.
 
@@ -381,6 +416,25 @@ mcp__serena__list_memories                                          # Wave 0 inv
 ```
 
 Retention rule: keep last 20 entries per key; expire >90 days. Project slug derived from `pwd` basename.
+
+**Retention sweep (Wave 5/0, FR-8).** The retention rule above was previously specified but unimplemented (`write_memory` accumulated without pruning). At Wave 5 (persist) — or Wave 0 if the prior run never swept — run the CRUD sweep over **Serena memory blobs** (NOT project source):
+
+```
+mcp__serena__list_memories                                  # inventory + slug filter
+mcp__serena__delete_memory  name=<expired-or-over-cap slug> # prune deletable entries
+mcp__serena__rename_memory  old=<slug> new=<migrated-slug>  # slug migration (mem: refs propagate, v1.5+)
+mcp__serena__edit_memory    name=<slug> patch=<merge>       # merge/dedupe overlapping entries
+```
+
+Sweep rules:
+
+- **Version gate (C2).** `rename_memory`'s `mem:` cross-reference propagation requires Serena **v1.5+**. When `serena_version ∈ {"<v1.5", "unknown"}` (recall `unknown` is treated as `<v1.5`), run **write-only / no-retention**: skip `rename_memory` propagation (renaming would silently break `mem:` refs), and emit `degraded_components: ["serena:pre-v1.5-no-rename-propagation"]`.
+- **Unbounded-gap loud flag (C1).** The retention invariant is "keep last 20 **deletable** entries" — read-only entries (those matching `read_only_memory_patterns`) are EXCLUDED from the budget. When `slug_count > 20` AND `(slug_count − readonly_count) ≤ 20` after the sweep (the total exceeds the 20-entry budget but the deletable entries alone are within it, so read-only entries are what make the ≤20-total target unreachable), emit `memory_retention_unbounded: true` and a WARN to `audit.log` (loud, never silent) rather than deleting read-only entries.
+- **Zero / degenerate case (C4).** On the first-ever run (no slug memories) or an all-stale set, still emit the sweep-invoked flag with all-zero action counts. The **current-pass entry is protected from the age sweep**: order the Wave-5 `write_memory` AFTER the sweep, or exclude the current pass by recency rank, so a >90-day all-stale sweep never deletes the entry just written.
+- **Slug sanitization.** Derived slugs MUST contain no `..` (Serena v1.2.0 path-traversal guard rejects them); sanitize before any CRUD call.
+- **Read-only respect.** Never delete or rename entries matching `read_only_memory_patterns`.
+
+Every CRUD action is fail-open per §6.5 and emits one `audit.log` row per the §4 per-step convention; the sweep records `memory_retention_actions`, `memory_retention_skipped_readonly`, and `memory_retention_unbounded` to §9.2 telemetry. This sweep mutates Serena memory blobs ONLY — it never touches project source.
 
 ### 6.4 `think_about_*` as scripted checkpoints (not load-bearing)
 
@@ -488,10 +542,10 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
-### 9.1 Stable contract (contract_version: 1.0)
+### 9.1 Stable contract (contract_version: 1.1.0)
 
 ```yaml
-contract_version: "1.0"
+contract_version: "1.1.0"
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -505,6 +559,11 @@ coverage_pct: <float 0.0-1.0> | null
 coverage_undefined: <bool>           # true when no parseable requirement IDs
 unmapped_requirements: [<list>]
 best_practice_grade: <int 0-5> | null
+implementation_coverage_pct: <float 0.0-1.0> | null   # FR-1 (null when the kind-guard never fired — C5)
+missing_implementations:                              # FR-1
+  - abstract_name_path: <string>
+    expected_count: <int>
+    found_count: <int>
 
 # UC-2 specific
 tasklist_completion_pct: <float 0.0-1.0> | null
@@ -515,6 +574,13 @@ deviation_count_by_class:
   regression: <int>
 deviation_register_path: <abs path> | null
 grounding_gaps_path: <abs path> | null    # parallel artifact for evidence-insufficient findings
+hunk_to_declaration_map_path: <abs path>   # FR-2 (UC-2 only)
+third_party_api_grounding:                 # FR-4
+  - api_name: <string>
+    dep_version: <string>
+    resolution_path: <string>
+third_party_api_verified: <bool>           # FR-4
+serena_summary_corroboration: agree | partial | disagree | unavailable   # FR-5
 
 # Input integrity
 input_sha256:                         # legacy single-file hashes preserved for backward-compat
@@ -596,7 +662,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
 promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.1.0`.
 
 ### 9.2 Telemetry (non-stable)
 
@@ -615,6 +681,14 @@ executor_exclusion_degraded: bool                              # true when execu
 citations_dropped_extrapolated: <int>   # sampled-mode telemetry (recording, not deciding) — see §11.5
 memory_hits: <int>                       # serena read_memory hits in Wave 0
 memory_misses: <int>
+onboarding_status: bootstrapped | not_bootstrapped | unknown   # FR-6
+serena_version: "<v1.5" | ">=v1.5" | "unknown"   # FR-7 (three-valued — A4/C2)
+serena_config_snapshot_path: <abs path>   # FR-7
+serena_active_context: <string>   # FR-7
+serena_active_modes: [<string>]   # FR-7
+memory_retention_actions: <int>   # FR-8
+memory_retention_skipped_readonly: <int>   # FR-8
+memory_retention_unbounded: <bool>   # FR-8 (C1 loud-gap flag)
 ```
 
 ### 9.3 Consumer Field Map
@@ -637,7 +711,7 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
 
 ### 9.4 Contract Evolution
 
-The return contract is versioned via `contract_version: "<major>.<minor>"`. Changes are governed by:
+The return contract is versioned via `contract_version: "<major>.<minor>.<patch>"`. Changes are governed by:
 
 **Versioning rule.**
 
@@ -696,6 +770,7 @@ Each category has detection signals, a gold-standard reference, and a default re
 - Commit message body (not subject) contains the rationale.
 - Task log contains "blocked by X, deviated to Y" entry.
 - The deviation does NOT contradict any acceptance criterion in the spec.
+- A `third_party_api_verified` flag (FR-4): the divergence resolves to a verified external-API constraint — `find_symbol(search_deps:true)` confirmed the upstream third-party behavior the work conforms to — supporting classification as Necessary (forced by a real upstream constraint) rather than Drift.
 
 **Gold-standard reference.** Inline documentation (comment, commit body, task log) + spec acceptance-criteria check (no contradictions).
 
@@ -710,6 +785,7 @@ Each category has detection signals, a gold-standard reference, and a default re
 - Diff hunk does NOT map to any tasklist item.
 - No commit-body rationale, no inline comment, no task-log entry explaining the change.
 - Does NOT contradict any acceptance criterion (this is what distinguishes drift from regression).
+- A `serena_summary_corroboration: disagree` (FR-5): the Serena change-summary contradicts the supplied diff, reinforcing the Drift classification. (`agree` / `partial` / `unavailable` do NOT boost Drift — `unavailable` is the cross-session no-signal default.)
 
 **Gold-standard reference.** Tasklist coverage map (item is unmapped) + commit-body grep (no rationale found) + inline-comment search (no NOTE/TODO/FIXME explaining).
 
@@ -1500,7 +1576,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
 | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
 | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.0"` |
+| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.1.0"` |
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |

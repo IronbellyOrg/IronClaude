@@ -47,6 +47,7 @@ When the diff under audit contains **more than 100 hunks**, taxonomy classificat
 - Commit message body (not subject) contains the rationale.
 - Task log contains "blocked by X, deviated to Y" entry.
 - The deviation does NOT contradict any acceptance criterion in the spec.
+- A `third_party_api_verified` flag (FR-4): the divergence resolves to a verified external-API constraint — `find_symbol(search_deps:true)` confirmed the upstream third-party behavior the work conforms to — supporting classification as Necessary (forced by a real upstream constraint) rather than Drift.
 
 **Gold-standard reference.** Inline documentation (comment, commit body, task log) + spec acceptance-criteria check (no contradictions).
 
@@ -61,6 +62,7 @@ When the diff under audit contains **more than 100 hunks**, taxonomy classificat
 - Diff hunk does NOT map to any tasklist item.
 - No commit-body rationale, no inline comment, no task-log entry explaining the change.
 - Does NOT contradict any acceptance criterion (this is what distinguishes drift from regression).
+- A `serena_summary_corroboration: disagree` (FR-5): the Serena change-summary contradicts the supplied diff, reinforcing the Drift classification. (`agree` / `partial` / `unavailable` do NOT boost Drift — `unavailable` is the cross-session no-signal default.)
 
 **Gold-standard reference.** Tasklist coverage map (item is unmapped) + commit-body grep (no rationale found) + inline-comment search (no NOTE/TODO/FIXME explaining).
 

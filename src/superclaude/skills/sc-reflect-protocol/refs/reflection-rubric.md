@@ -111,6 +111,12 @@ Structural signals come from **Wave 1B** (not the calibrator) and feed §5.3 alo
 - `≤ 0.10` — eligible for the §5.3 rule-2 path (WARN above 0.05)
 - `> 0.20` — automatic ESCALATE (rule 5): "at one in five unmapped artifacts, a single reviewer cannot adjudicate without ensemble pressure"
 
+**S_dev_density sub-terms (V3 Serena adoptions).** The threshold semantics above are unchanged — the following are **additive weighting inputs** (not threshold changes) layered onto the computed value (the numerator arithmetic lives in `coverage-mapping.md`):
+
+- **FR-6 onboarding-status weight.** Keyed on `onboarding_status` (Wave 0.7): `not_bootstrapped` down-weights grounding confidence (the project has no bootstrapped memory to ground against, so unmapped artifacts are more likely genuine ambiguity). Per **FR-6.4**, `unknown` is **NO signal** — it does NOT down-weight (absence of an onboarding marker is not evidence of a missing bootstrap). `bootstrapped` is neutral.
+- **FR-7 context-exclusion up-weight.** When the Wave-0 `get_current_config` probe finds the active Serena context excludes a chain-critical tool (e.g. `get_diagnostics_for_file`), S_dev_density is **up-weighted** (the grounding chain ran with a known capability gap, so its unmapped-artifact ratio under-states true ambiguity) and `"serena:context-excluded"` is appended to `degraded_components`. The `serena:context-excluded` degrade token is an **intentional new colon-namespaced convention** (flagged in this task's Open Questions) — do not normalize it back to a hyphenated slug.
+- **FR-1 missing-implementor count.** For UC-1, abstract symbols whose implementors are unaccounted (the `missing_implementations` count from §6.1 step 3b `find_implementations`) feed the **unmapped-artifact numerator** — an interface added with no wired implementor is an unmapped requirement for coverage purposes. The numerator arithmetic is in `coverage-mapping.md`; the degenerate no-op (no eligible symbol of kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}) emits `implementation_coverage_pct: null` (C5) and contributes nothing to the numerator.
+
 ---
 
 ## Calibrator selection

@@ -1,0 +1,23 @@
+# STUB — V3-Serena eval scaffold. Human contract doc (grader does NOT read this; machine
+# assertions live in evals/evals.json for serena-search-deps).
+# Case: serena-search-deps — FR-RV3-LOW.4 (find_symbol(search_deps:true), UC-2 third-party grounding).
+mode: post
+use_case: UC-2
+
+# --- FR-4 success path (FastAPI Depends — <ext:...> trigger) ---
+search_deps_invocations: 1               # >= 1
+external_symbols_resolved: 1             # fastapi.Depends resolved
+external_resolution_failures: 1          # obscure_pkg.widget un-indexed
+third_party_api_grounding:
+  - api_name: fastapi.Depends
+    dep_version: "0.110.x"
+    resolution_path: "<ext:fastapi/params.py|HASH>"
+third_party_api_verified: true           # → classifies the Depends-conforming divergence as Necessary
+
+# --- FR-4.4 degraded path (un-indexed venv) ---
+degraded_components:
+  - search_deps:lsp_unindexed
+# the obscure_pkg.widget claim stays [INFERRED] (not [VERIFIED]) on the degrade path
+
+tier_reached: 1
+escalation_reason: null

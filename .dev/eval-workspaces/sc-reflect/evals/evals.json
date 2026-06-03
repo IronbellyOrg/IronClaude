@@ -1,8 +1,8 @@
 {
   "skill_name": "sc-reflect-protocol",
   "iteration": 1,
-  "scope": "v1.0-ship-it-3-pilot-15-promotion-2-falsifier-skeleton",
-  "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm).",
+  "scope": "v1.0-ship-it-3-pilot-15-promotion-2-falsifier-skeleton-6-serena-v3",
+  "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm). Reflect-V3-Serena adds 6 SCAFFOLDED serena cases (ids 21-26) covering FR-RV3-LOW.1–8: serena-find-implementations (FR-1), serena-find-declaration (FR-2, also hosts FR-3 references_extended_info), serena-search-deps (FR-4), serena-wave0-config (FR-6+FR-7), serena-memory-retention (FR-8), serena-summarize-changes (FR-5, pilot/ships-last per OQ-3). These are SCAFFOLDS — input fixtures + expected.yaml (STUB) + assertions[] targeting future with_skill/outputs/; not executed/graded in this task. See TASK-RF-20260602-135209.",
   "evals": [
     {
       "id": 1,
@@ -491,6 +491,375 @@
           "type": "falsifier_skeleton_present",
           "case_yaml": "cases/falsifier-suite/T2-judge-class-collision.yaml",
           "text": "Falsifier skeleton T2-judge-class-collision is present and well-formed"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "serena-wave0-config",
+      "case_dir": "cases/serena-wave0-config/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-LOW.6+FR-RV3-LOW.7",
+      "description": "Wave-0 calibration pair: FR-7 get_current_config probe (step 0.5c — active context/modes/version fingerprint, context-exclusion degrade) + FR-6 onboarding-status parse (step 0.7 — corrected activate_project-message form, no defunct check_onboarding_performed). Scaffold: assertions target a future run's with_skill/outputs/ plus a static SKILL.md corrected-form guard.",
+      "inputs": {
+        "diff": "input/diff.patch",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "serena_context|serena_modes|serena_tool_count|serena_excluded_tools",
+          "text": "FR-7.1: Wave-0 get_current_config probe emits serena context/modes/tool-count/excluded-tools to audit.log"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "onboarding_status",
+          "text": "FR-6.1: Wave-0 onboarding-status parse emits onboarding_status to audit.log"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "onboarding_status_source",
+          "text": "FR-6.1: onboarding_status_source recorded (activation_msg | list_memories_proxy | unknown)"
+        },
+        {
+          "type": "path_exists",
+          "target": "with_skill/outputs/serena-config-snapshot.yaml",
+          "text": "FR-7.2: the parsed get_current_config snapshot is written to outputs/serena-config-snapshot.yaml"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "serena_config_snapshot_path",
+          "expected": "outputs/serena-config-snapshot.yaml",
+          "text": "FR-7.2: contract records serena_config_snapshot_path"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "serena_active_context",
+          "expected": "ts-frontend-readonly",
+          "text": "FR-7: contract records serena_active_context from the probe"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "serena_version",
+          "expected": ">=v1.5",
+          "text": "FR-7.4: contract records three-valued serena_version (here >=v1.5)"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/contract.yaml",
+          "field_path": "degraded_components",
+          "value": "serena:context-excluded",
+          "text": "FR-7.3: active-context exclusion of a chain-critical tool appends serena:context-excluded to degraded_components"
+        },
+        {
+          "type": "regex_absent",
+          "target": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+          "pattern": "check_onboarding_performed",
+          "text": "FR-6.3 static corrected-form guard: SKILL.md allowed-tools MUST NOT contain check_onboarding_performed (DELETED in Serena v1.5.0). Targets the source path (static guard, not a runtime output)."
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "serena-find-implementations",
+      "case_dir": "cases/serena-find-implementations/",
+      "mode": "pre",
+      "use_case": "UC-1",
+      "spec_ref": "FR-RV3-LOW.1",
+      "description": "FR-1 find_implementations (§6.1 step 3b) coverage audit of an abstract symbol: enumerates the polymorphic surface, catches an interface-coverage Drift (a wired-less implementor), fires on a Class-misreported trait (C3), degrades cleanly on an LSP-unsupported backend (FR-1.4), and emits the C5 degenerate no-op contract. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": {
+        "spec": "input/spec.md",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "file_exists",
+          "target": "with_skill/outputs/REPORT.md",
+          "text": "REPORT.md is produced"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "find_implementations_invoked.*true",
+          "text": "FR-1.1: find_implementations was invoked on the abstract symbol(s)"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "implementations_found|unmapped_implementations",
+          "text": "FR-1.2: implementor enumeration + unmapped-implementor accounting emitted to audit.log"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "implementation_coverage_pct",
+          "expected": "0.67",
+          "text": "FR-1.3: implementation_coverage_pct reflects 2-of-3 PaymentHandler implementors wired"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/contract.yaml",
+          "pattern": "PaymentHandler",
+          "text": "FR-1.3: missing_implementations records the abstract symbol with an unwired implementor (regex_present per grader check_yaml_list_contains list-only limitation; alternatives: top-level-scalar-list field_path, or new scalar-capable grader type)"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/contract.yaml",
+          "field_path": "degraded_components",
+          "value": "find_implementations:lsp_unsupported",
+          "text": "FR-1.4: LSP-unsupported backend degrades to degraded_components without aborting"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract-no-abstracts.yaml",
+          "field": "implementation_coverage_pct",
+          "expected": "null",
+          "text": "FR-1.6/C5 degenerate no-op: implementation_coverage_pct is null when no eligible abstract symbol exists (degenerate fixture run)"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit-no-abstracts.log",
+          "pattern": "find_implementations_invoked.*false",
+          "text": "FR-1.6/C5: find_implementations_invoked is false on the no-abstract-symbol path"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "name": "serena-find-declaration",
+      "case_dir": "cases/serena-find-declaration/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-LOW.2 + FR-RV3-LOW.3",
+      "description": "FR-2 find_declaration (§6.1 step 2a + §4.1 1B.3 1a pre-step): diff-hunk anchoring resolves each hunk to its declaration, records find_declaration_no_match on an undeclared identifier, and prevents name-collision false-positive overlap edges (FR-2.4). ALSO HOSTS FR-RV3-LOW.3 (find_referencing_symbols include_info): the FR-3 references_extended_info + Wave-0 inventory-probe assertions were added in Phase 6 (the corrected include_info path, gated on the OQ-1 runtime probe — never a standalone find_referencing_code_snippets tool). Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": {
+        "diff": "input/diff.patch",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "find_declaration_invoked.*true",
+          "text": "FR-2.1: find_declaration was invoked to resolve diff-hunk declarations"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "declaration_resolutions|find_declaration_no_match",
+          "text": "FR-2.2: declaration resolutions counted and find_declaration_no_match recorded for the undeclared __codegen_stub__ hunk"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "hunk_to_declaration_map_path",
+          "expected": "outputs/hunk-to-declaration-map.yaml",
+          "text": "FR-2.3: the contract records the hunk-to-declaration map path"
+        },
+        {
+          "type": "regex_absent",
+          "target": "with_skill/outputs/REPORT.md",
+          "pattern": "cross_task_interaction.*forms\\.Validator\\.validate.*auth\\.Validator\\.validate",
+          "text": "FR-2.4: the two same-named validate methods resolve to distinct declarations → NO name-collision false-positive overlap edge in the report"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "references_extended_info_used.*true",
+          "text": "FR-3.1: the corrected find_referencing_symbols(include_info:true) path emitted references_extended_info_used:true"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "find_referencing_code_snippets",
+          "text": "FR-3.2: the Wave-0 tool-inventory probe recorded to audit.log whether the defunct standalone find_referencing_code_snippets tool is present (corrected/absorbed path used regardless)"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "name": "serena-search-deps",
+      "case_dir": "cases/serena-search-deps/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-LOW.4",
+      "description": "FR-4 find_symbol(search_deps:true) (§6.1 conditional step 7): grounds a third-party API divergence (FastAPI Depends) whose find_declaration resolves to an <ext:...> path → third_party_api_verified classifies it Necessary; degrades cleanly to search_deps:lsp_unindexed on an un-indexed venv with the claim staying [INFERRED] (FR-4.4). Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": {
+        "diff": "input/diff.patch",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "yaml_field_min",
+          "target": "with_skill/outputs/audit-summary.yaml",
+          "field": "search_deps_invocations",
+          "min_value": 1,
+          "text": "FR-4.1: search_deps was invoked at least once on the <ext:...>-resolving symbol"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "external_symbols_resolved|external_resolution_failures",
+          "text": "FR-4.2: external symbol resolution successes and failures are recorded to audit.log"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/contract.yaml",
+          "pattern": "fastapi\\.Depends",
+          "text": "FR-4.3: third_party_api_grounding[] is populated with the resolved external API (regex_present per grader check_yaml_list_contains list-only limitation; alternatives: top-level-scalar-list field_path, or new scalar-capable grader type)"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "third_party_api_verified",
+          "expected": "true",
+          "text": "FR-4.3: third_party_api_verified flag set when the external resolution is confirmed"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/contract.yaml",
+          "field_path": "degraded_components",
+          "value": "search_deps:lsp_unindexed",
+          "text": "FR-4.4: un-indexed dependency degrades to search_deps:lsp_unindexed without aborting"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/REPORT.md",
+          "pattern": "\\[INFERRED\\]",
+          "text": "FR-4.4: the claim depending on the un-indexed dependency stays marked [INFERRED]"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "serena-memory-retention",
+      "case_dir": "cases/serena-memory-retention/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-LOW.8",
+      "description": "FR-8 memory-retention CRUD trio (§6.3 Wave-5 sweep: delete/rename/edit_memory over Serena memory blobs): prunes expired/over-cap deletable entries, rename-migrates a slug with mem: propagation (v1.5+), skips read-only entries, degrades to write-only/no-retention on <v1.5 (C2), raises the C1 unbounded loud flag when read-only dominates (25 total / 24 readonly), and handles the C4 zero/all-stale degenerate cases with current-pass protection. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": {
+        "diff": "input/diff.patch",
+        "tasklist": "input/tasklist.md",
+        "seed_memories": "input/seed-memories.yaml"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "memory_retention_sweep_invoked.*true",
+          "text": "FR-8.1: the Wave-5 retention sweep was invoked"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "memories_deleted|memories_renamed|memories_edited",
+          "text": "FR-8.1: per-action sweep counts (deleted/renamed/edited) recorded to audit.log"
+        },
+        {
+          "type": "yaml_field_min",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "memory_retention_actions",
+          "min_value": 1,
+          "text": "FR-8.2: memory_retention_actions recorded (telemetry)"
+        },
+        {
+          "type": "yaml_field_min",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "memory_retention_skipped_readonly",
+          "min_value": 1,
+          "text": "FR-8.5: read-only entries skipped count recorded"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "rename_memory",
+          "text": "FR-8.3: rename_memory used for slug migration (not delete+write) so mem: refs propagate"
+        },
+        {
+          "type": "yaml_list_contains",
+          "target": "with_skill/outputs/contract.yaml",
+          "field_path": "degraded_components",
+          "value": "serena:pre-v1.5-no-rename-propagation",
+          "text": "FR-8.4: on serena_version in {<v1.5, unknown} the sweep degrades to write-only/no-rename-propagation"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "memory_retention_unbounded",
+          "expected": "true",
+          "text": "FR-8.6/C1: loud-gap flag set when slug_count > 20 AND deletable (slug_count - readonly) <= 20 — read-only entries make the <=20-total target unreachable"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "WARN.*memory_retention_unbounded|memory_retention_unbounded.*WARN",
+          "text": "FR-8.6/C1: a WARN accompanies the unbounded flag (loud, never silent)"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit-zero-run.log",
+          "pattern": "memory_retention_sweep_invoked.*true",
+          "text": "FR-8.7/C4: on the empty first-run set the sweep is still invoked with all-zero counts"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "name": "serena-summarize-changes",
+      "case_dir": "cases/serena-summarize-changes/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-LOW.5",
+      "description": "FR-5 summarize_changes (§6.1 conditional step 7', UC-2-only): a prompt-based, session-aware corroboration of the supplied diff. The same-session run sets serena_summary_corroboration (disagree when the Serena summary names files absent from the diff, feeding the §10.3 Drift / §10.2 Necessary sets); the cross-session run yields unavailable with the main verdict unchanged. FR-5 SHIPS LAST and is PILOT-GATED per OQ-3 (signature not surfaced; zero-arg until probed). Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": {
+        "diff": "input/diff.patch",
+        "tasklist": "input/tasklist.md"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/audit.log",
+          "pattern": "summarize_changes_invoked.*true",
+          "text": "FR-5.1: summarize_changes was invoked (same MCP session) — emitted by the step-7' audit producer"
+        },
+        {
+          "type": "path_exists",
+          "target": "with_skill/outputs/serena-change-summary.md",
+          "text": "FR-5.1: summarize_changes_path points at outputs/serena-change-summary.md and the artifact exists"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "serena_summary_corroboration",
+          "expected": "disagree",
+          "text": "FR-5.2: serena_summary_corroboration set (disagree here — summary names a file absent from the diff)"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/REPORT.md",
+          "pattern": "src/svc/audit\\.py",
+          "text": "FR-5.3: summary-only file (in the Serena summary, absent from the diff) surfaces into the Drift/Necessary set in the report"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract-cross-session.yaml",
+          "field": "serena_summary_corroboration",
+          "expected": "unavailable",
+          "text": "FR-5.4: cross-session run yields serena_summary_corroboration: unavailable with the main verdict unchanged"
         }
       ]
     }

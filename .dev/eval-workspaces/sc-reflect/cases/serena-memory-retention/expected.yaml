@@ -1,0 +1,31 @@
+# STUB — V3-Serena eval scaffold. Human contract doc (grader does NOT read this; machine
+# assertions live in evals/evals.json for serena-memory-retention).
+# Case: serena-memory-retention — FR-RV3-LOW.8 (delete/rename/edit_memory CRUD, UC-2 Wave-5 sweep).
+mode: post
+use_case: UC-2
+
+# --- FR-8 success path ---
+memory_retention_sweep_invoked: true
+memories_deleted: 1            # the 1 deletable expired entry
+memories_renamed: 1            # reflect/last-pass-oldslug → reflect/last-pass-newslug (v1.5+)
+memories_edited: 0
+memory_retention_actions: 2    # delete + rename
+memory_retention_skipped_readonly: 24
+rename_memory_used: true       # rename used (NOT delete+write); mem: refs resolve after rename
+
+# --- FR-8.4 degraded path (pre-v1.5 / unknown version) ---
+degraded_components:
+  - serena:pre-v1.5-no-rename-propagation    # on serena_version ∈ {<v1.5, unknown}
+
+# --- FR-8.6 / C1 loud-gap (read-only dominates: 25 total, 24 readonly, deletable=1) ---
+memory_retention_unbounded: true              # slug_count 25 > 20 AND deletable (25-24)=1 ≤ 20 → read-only dominates, total-unreachable → fires
+
+# --- FR-8.7 / C4 degenerate ---
+# zero_first_run variant: memory_retention_sweep_invoked: true with all-zero counts.
+# all_stale variant: current-pass entry PROTECTED from the age sweep (written after the sweep).
+zero_run_sweep_invoked: true
+zero_run_all_counts: 0
+current_pass_entry_protected: true
+
+tier_reached: 1
+escalation_reason: null

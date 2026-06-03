@@ -1,0 +1,9 @@
+=== sync-dev + verify-sync ===
+✅ All components in sync.
+verify_exit=0
+=== markdownlint current report-template.md (all rules) ===
+0
+=== markdownlint baseline /tmp/report-template-preedit.md (all rules) ===
+0
+=== confirm line 14 ===
+contract_version: 1.1.0

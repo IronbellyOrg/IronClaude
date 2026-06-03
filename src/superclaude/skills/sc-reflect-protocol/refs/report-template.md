@@ -11,7 +11,7 @@ Wave 5 MUST NOT introduce findings that were not already classified upstream. Un
 The header block is the first content in the emitted artifact. It is rendered as a fenced YAML block so downstream parsers (sprint TurnLedger, CI) can lift fields without Markdown parsing.
 
 ```yaml
-contract_version: 1.0.0
+contract_version: 1.1.0
 status: success | partial | needs_human_decision
 mode: pre | post
 tier_reached: 1 | 2

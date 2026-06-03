@@ -92,13 +92,27 @@ Per §5.2 of the merged requirements, `S_dev_density` is the **ratio of
 unmapped artifacts to total artifacts**, computed per mode:
 
 - **UC-1 (tasklist scope):**
-  `S_dev_density = unmapped_requirements_count / total_requirements_count`
+  `S_dev_density = (unmapped_requirements_count + missing_implementations_count) / total_requirements_count`
 - **UC-2 (diff scope):**
   `S_dev_density = unmapped_diff_hunks_count / total_diff_hunks_count`
 
 The value is clamped to `[0.0, 1.0]`. When `total_*_count == 0`, the value is
 undefined — emit `S_dev_density: null` and rely on the `coverage_undefined`
 route (see fallback below) for tier routing.
+
+**FR-1 missing-implementor term (UC-1).** `missing_implementations_count` is the
+number of abstract symbols (kind ∈ {Interface, AbstractMethod, Protocol, Trait,
+Class}) whose implementors are unaccounted, surfaced by §6.1 step 3b
+`find_implementations`. It is added to the UC-1 unmapped numerator above so an
+"interface added, implementor missing" gap raises structural ambiguity exactly
+like an unmapped requirement. The clamp to `[0.0, 1.0]` and the
+`null`-when-`total_requirements_count == 0` rule are unchanged. When the kind-guard
+never fires (no eligible abstract symbol), `implementation_coverage_pct` is `null`
+(C5) and `missing_implementations_count` contributes `0` — no numerator change.
+(OQ for a future iteration: whether `implementation_coverage_pct` should instead
+feed S_dev_density as a *parallel* weight rather than a numerator addend; this task
+defaults to the numerator-addend form per the BUILD_REQUEST and keeps it consistent
+with the `reflection-rubric.md` sub-term.)
 
 **Threshold semantics (per §5.3 row 5).** Values `> 0.20` ESCALATE to T2
 ("too many unmapped artifacts for a single-pass verdict"). The 0.20

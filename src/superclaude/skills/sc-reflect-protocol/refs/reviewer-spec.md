@@ -36,6 +36,10 @@ Example shape — the brief contains an H2 `## Grounding hunks` heading followed
 
 Each hunk preserves the `file:line` ref so the `evidence-validator` agent can re-Read it at the Wave 5 final gate.
 
+**FR-1 implementor-list hunks.** When §6.1 step 3b `find_implementations` enumerated the polymorphic surface of an abstract symbol the reviewer will cite, that implementor list is injected into this `## Grounding hunks` block as additional `file:line` H3 hunks (one per implementor site) so reviewers see the full abstract-symbol implementor set, not just the abstract declaration. The `file:line` hunk-shape convention is unchanged.
+
+**FR-3 extended-info references.** When §6.1 step 4 ran `find_referencing_symbols` with `include_info: true`, the richer reference context (docstrings + signatures from the extended-info return shape) is surfaced into the same grounding-hunks block alongside the plain `file:line` reference hunks — denser reference grounding without a new brief structure. The `reviewer_briefs_materialized` contract emission is unchanged.
+
 #### `## Coverage slice`
 
 The coverage-matrix slice containing **only the rows this reviewer is responsible for**. For UC-1, this is the requirement-to-card mapping subset; for UC-2, this is the tasklist-task-to-diff-hunk mapping subset.

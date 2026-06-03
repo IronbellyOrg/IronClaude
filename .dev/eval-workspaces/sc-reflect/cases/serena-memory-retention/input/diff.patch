@@ -1,0 +1,16 @@
+# STUB — V3-Serena eval scaffold (FR-RV3-LOW.8, UC-2). Body fleshed out in a later iteration.
+# The discriminating signal is the SEED MEMORY INVENTORY the run operates on (see
+# input/seed-memories.yaml below, described in this header and in expected.yaml), NOT the diff.
+# Minimal diff so the UC-2 path runs and reaches the Wave-5 retention sweep.
+
+diff --git a/src/svc/cache.py b/src/svc/cache.py
+index 9999aaa..aaaabbb 100644
+--- a/src/svc/cache.py
++++ b/src/svc/cache.py
+@@ -1,2 +1,4 @@
++"""Cache service — TTL eviction helpers.
++
++Docstring added per Task 1.
++"""
+ def evict(key):
+     pass

@@ -1,0 +1,86 @@
+contract_version: "1.1.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-rv3low-impl-audit-20260602T211900/REPORT.md
+audit_log_path: .dev/reflect/post-rv3low-impl-audit-20260602T211900/audit.log
+confidence_calibrated: 0.88
+escalation_rule_matched: 4
+
+# UC-2
+tasklist_completion_pct: 1.0           # all task checklist items done; but spec-adherence regressions found
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 2
+deviation_register_path: .dev/reflect/post-rv3low-impl-audit-20260602T211900/REPORT.md
+grounding_gaps_path: null
+
+# Hallucination guard
+citations_total: 12
+citations_revalidated: 12
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+reviewer_cards: [reviewer-1-sonnet-correctness, reviewer-2-haiku-qa]
+t2_model_class_diversity: degraded        # 2 classes (sonnet, haiku); N=2 T2 floor
+merge_method: orchestrator-synthesis      # merge by executor class (opus) — see calibrator_diversity note
+calibrator_diversity: degraded            # merge/adjudication by executor class; reviewers are the load-bearing independence
+
+# Asymmetric-cost flags
+regression_present: true
+unauthorized_deviation_present: true
+needs_human_decision: true
+spec_is_wrong: false                       # the CODE diverges from the spec, not vice-versa
+
+# Promotion (Wave 7)
+promotion_action: skipped
+promotion_adapter: task
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed         # cond 4 no_drift_no_regression FAIL (2 regressions) + cond 2 status!=success
+gate_evaluation:
+  mode_post: pass
+  status_success: fail                      # status: partial
+  tasklist_completion_pct_1_0: pass
+  no_drift_no_regression: fail              # 2 regressions
+  frontmatter_present: pass
+  frontmatter_status_matches: pass
+  no_citations_dropped: pass
+  no_grounding_gaps: pass
+  no_input_drift: pass
+  no_user_decision_pending: fail            # needs_human_decision: true
+  adversarial_result_present: n/a
+
+# Findings summary
+findings:
+  - id: F-1
+    class: regression
+    severity: high
+    fr: FR-RV3-LOW.8
+    invariant: C1
+    site: src/superclaude/skills/sc-reflect-protocol/SKILL.md:432
+    issue: "C1 unbounded predicate inverted — (slug_count-readonly)>20 misses the read-only-dominated total-unreachable case (25/24); contradicts spec FR-8.6 AND own eval expected.yaml:21"
+    task_introduced: true
+  - id: F-2
+    class: regression
+    severity: low
+    fr: FR-RV3-LOW.6
+    site: src/superclaude/skills/sc-reflect-protocol/SKILL.md:230
+    issue: "onboarding_status_source enum is 'activation_message|list_memories_proxy|none' but spec FR-6.1 mandates 'activation_msg|list_memories_proxy|unknown'; leaks to expected.yaml:20 + evals.json:527"
+    task_introduced: true
+  - id: G-1
+    class: pre-existing-out-of-scope
+    site: src/superclaude/skills/sc-reflect-protocol/refs/report-template.md:14
+    issue: "contract_version: 1.0.0 hardcoded; unmodified by task (git-confirmed); outside research-07 5-site scope; recommend bump to 1.1.0"
+    task_introduced: false
+  - id: G-2
+    class: known-followup
+    site: .dev/eval-workspaces/sc-reflect/evals/evals.json (ids 22, 24)
+    issue: "yaml_list_contains indexed-scalar field_path won't grade; already logged PG-4 Follow-Up"
+    task_introduced: true
+
+remediation_offered: false                 # --remediate not set; audit-first
