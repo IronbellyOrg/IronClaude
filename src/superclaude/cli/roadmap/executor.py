@@ -1273,26 +1273,54 @@ def _roadmap_run_step_impl(
                 # merge (the SECOND primary source, R1.4 Step 9.8) -- route here
                 # so a roadmap_id absent from the spec is rejected AT GENERATION
                 # TIME, never downstream.
-                # Derive spec_ids from the extract tool-write sidecar
-                # (extraction.json) when present; if absent (extract not in
-                # tool-write mode) pass an empty set, which SKIPS the subset
-                # check (the schema/render still runs).
-                _spec_ids: set[str] = set()
-                try:
-                    _sidecar = config.output_dir / "extraction.json"
-                    if _sidecar.exists():
-                        import json as _json
+                #
+                # Source the spec universe from the ALWAYS-written
+                # spec_id_registry.json (NOT extraction.json, which is empty
+                # unless --tool-write-extract is set, in which case the subset
+                # check silently degraded to a no-op and prevention fell back
+                # entirely to the merge GATE). The registry is persisted by
+                # _save_id_registry on every run, so generate/merge always have
+                # a real universe to constrain against. Reconstruct it via the
+                # shared SpecIdRegistry.from_payload (Contract #8: reuses the
+                # registry, introduces no ID regex), then constrain to
+                # union_of_known() ∪ accepted_deviation_ids.
+                #
+                # FAIL-SHUT (master:§Flaw 4 -- no fail-open defaults): if the
+                # registry is missing/unreadable/malformed, FAIL the step rather
+                # than emit an unconstrained roadmap, mirroring the MERGE_GATE
+                # Contract #9 reader posture in gates.py:_roadmap_ids_within_spec.
+                import json as _json
 
-                        _data = _json.loads(_sidecar.read_text(encoding="utf-8"))
-                        _spec_ids = set(_data.get("roadmap_ids", []) or [])
-                except (OSError, ValueError):
-                    _spec_ids = set()
+                from .id_registry import SpecIdRegistry
+
+                _registry_path = config.output_dir / "spec_id_registry.json"
+                try:
+                    _registry_raw = _registry_path.read_text(encoding="utf-8")
+                    _registry_payload = _json.loads(_registry_raw)
+                    _registry = SpecIdRegistry.from_payload(_registry_payload)
+                except (OSError, ValueError, TypeError) as exc:
+                    return StepResult(
+                        step=step,
+                        status=StepStatus.FAIL,
+                        attempt=1,
+                        gate_failure_reason=(
+                            f"Step '{step.id}' tool-write phantom-ID prevention: "
+                            f"spec_id_registry.json missing/unreadable/malformed "
+                            f"at {_registry_path} ({exc}); refusing to emit an "
+                            f"unconstrained roadmap (fail-shut, Contract #9)."
+                        ),
+                        started_at=started_at,
+                        finished_at=finished_at,
+                    )
+                _spec_ids: set[str] = set(_registry.union_of_known())
+                _accepted: set[str] = set(_registry.accepted_deviation_ids)
                 _tw_errors = render_step_tool_write_with_id_check(
                     _tw_key,
                     _json_text,
                     step.output_file,
                     spec_ids=_spec_ids,
-                    accepted_deviations=None,
+                    accepted_deviations=_accepted,
+                    require_spec_ids=True,
                 )
             else:
                 _tw_errors = render_step_tool_write(
@@ -2673,6 +2701,21 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
             # assertion vacuously passes and behavior matches the old
             # SPEC_FIDELITY_GATE.
             gate=SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+            # PERF NOTE (TASK-RF-20260603-180207 Area C): the `timeout_seconds=600`
+            # below is INERT whenever `config.convergence_enabled` is True (the
+            # default). In convergence mode `_roadmap_run_step_impl` short-circuits
+            # to `_run_convergence_spec_fidelity` (the `step.id == "spec-fidelity"
+            # and config.convergence_enabled` guard earlier in this module) BEFORE
+            # any `ClaudeProcess` is constructed, so this Step-level 600s timeout is
+            # never consulted. The real latency budget is the convergence engine's
+            # `max_runs` (default 3) checker/remediation cycles, each issuing inner
+            # `_ClaudeRunner` calls capped at 300s (plus per-HIGH semantic-layer
+            # debate pairs and remediation) -- NOT this 600s value. The 600s here
+            # only takes effect on the `--no-convergence` single-shot LLM path.
+            # Therefore do NOT "fix" spec-fidelity latency by bumping this literal:
+            # it is dead under the default. Genuine latency reductions cross the
+            # PRESERVE boundary (convergence.py / semantic_layer.py are byte-
+            # untouched) and are recorded as a Follow-Up Item, not implemented here.
             timeout_seconds=600,
             inputs=_llm_inputs_for(
                 config, config.spec_file, merge_file, config.tdd_file, config.prd_file

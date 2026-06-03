@@ -131,6 +131,34 @@ class SpecIdRegistry:
             "spec_path": str(self.spec_path),
         }
 
+    @classmethod
+    def from_payload(cls, payload: dict) -> SpecIdRegistry:
+        """Reconstruct a registry from a ``spec_id_registry.json`` payload.
+
+        The inverse of :meth:`to_dict`. This is the single SHARED
+        reconstruction reused by generation-time phantom-ID prevention (the
+        executor's generate/merge render branch) so the same field-mapping
+        parse is not duplicated. Missing keys degrade to empty tuples; the R5
+        ``md_ids`` key uses ``.get(..., ())`` so OLD sidecars lacking it
+        round-trip to empty (matching the MERGE_GATE Contract #9 reader in
+        ``gates.py``). Introduces NO ID regex — only :mod:`spec_parser` owns the
+        pattern literals (Contract #8 satisfied).
+
+        Raises ``TypeError``/``ValueError`` on a malformed payload (e.g. a
+        non-iterable family value), letting callers fail-shut.
+        """
+        return cls(
+            fr_ids=tuple(payload.get("fr_ids", ())),
+            nfr_ids=tuple(payload.get("nfr_ids", ())),
+            sc_ids=tuple(payload.get("sc_ids", ())),
+            g_ids=tuple(payload.get("g_ids", ())),
+            d_ids=tuple(payload.get("d_ids", ())),
+            md_ids=tuple(payload.get("md_ids", ())),
+            accepted_deviation_ids=tuple(payload.get("accepted_deviation_ids", ())),
+            spec_hash=str(payload.get("spec_hash", "")),
+            spec_path=Path(str(payload.get("spec_path", ""))),
+        )
+
 
 def build_id_registry(
     spec_path: Path,

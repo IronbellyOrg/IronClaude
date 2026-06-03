@@ -967,3 +967,35 @@ class TestNFR007Compliance:
         # The analyzer logic lives in wiring_gate.py. This test verifies the
         # analyzer functions don't indirectly depend on pipeline beyond models.
         pass
+
+    def test_no_pipeline_imports_in_wiring_gate(self):
+        """NFR-007 (AST-walk variant, re-homed from the deleted
+        tests/integration/test_wiring_pipeline.py): wiring_gate.py must not
+        import from pipeline/* (except pipeline.models).
+
+        Parses the module AST and asserts every ``from ...pipeline...`` import
+        resolves only to ``pipeline.models`` (data types). This is an additive
+        strengthening of ``test_no_pipeline_logic_imports_in_wiring_gate`` (the
+        ``inspect.getsource`` line-matching variant above) and preserves the
+        exact assertion form of the original integration test before its source
+        file was removed in Area A.
+        """
+        import ast
+
+        wiring_gate_path = Path("src/superclaude/cli/audit/wiring_gate.py")
+        if not wiring_gate_path.exists():
+            pytest.skip("wiring_gate.py not found")
+
+        source = wiring_gate_path.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+
+        pipeline_imports = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom) and node.module:
+                # Allow imports from pipeline.models (data types only)
+                if "pipeline" in node.module and "models" not in node.module:
+                    pipeline_imports.append(node.module)
+
+        assert pipeline_imports == [], (
+            f"NFR-007 violation: wiring_gate.py imports from pipeline: {pipeline_imports}"
+        )

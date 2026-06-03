@@ -458,6 +458,7 @@ def render_step_tool_write_with_id_check(
     output_path: Path,
     spec_ids: set[str] | list[str],
     accepted_deviations: set[str] | list[str] | None = None,
+    require_spec_ids: bool = False,
 ) -> list[str]:
     """Generator-side tool-write back end with phantom-ID rejection (Contract #3).
 
@@ -476,6 +477,17 @@ def render_step_tool_write_with_id_check(
     step is not itself in tool-write mode and therefore exposed no spec_ids
     sidecar).
 
+    ``require_spec_ids`` (default ``False``) is an optional self-defending guard
+    for callers that KNOW a non-empty spec universe must exist (the generate and
+    merge steps, which source their universe from the always-written
+    ``spec_id_registry.json``). When ``require_spec_ids`` is ``True`` AND the
+    effective ``spec_ids`` set is empty/falsy, the function refuses to render and
+    returns a hard error WITHOUT writing any artifact -- rather than silently
+    taking the vacuous identity skip and emitting an unconstrained roadmap. When
+    ``require_spec_ids`` is ``False`` the legitimate identity skip is preserved
+    byte-for-byte (extract-like callers that expose no spec_ids sidecar), so all
+    existing callers' behavior is unchanged.
+
     Returns a list of error strings; an **empty list means success**.
     """
     spec, parsed, errors = _parse_and_validate(step_id, json_text)
@@ -483,8 +495,15 @@ def render_step_tool_write_with_id_check(
         return errors
 
     # Phantom-ID rejection: roadmap_ids ⊆ spec_ids ∪ accepted_deviations.
-    # Skip when spec_ids is empty/None (identity -- no universe to constrain to).
-    if spec_ids:
+    if not spec_ids:
+        if require_spec_ids:
+            # Self-defending: the caller (generate/merge) asserted a non-empty
+            # spec universe is REQUIRED, but none was supplied. Refuse to render
+            # an unconstrained roadmap -- do NOT write any artifact.
+            return ["require_spec_ids=True but spec_ids universe is empty"]
+        # require_spec_ids is False: legitimate identity skip (extract-like
+        # callers expose no spec_ids sidecar -- the inclusion is vacuous).
+    else:
         roadmap_ids = parsed.get("roadmap_ids", []) if parsed else []  # type: ignore[union-attr]
         id_errors = validate_id_subset(roadmap_ids, spec_ids, accepted_deviations)
         if id_errors:
