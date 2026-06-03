@@ -1,0 +1,18 @@
+# STUB — V3-Serena-medium eval scaffold. Human contract doc (grader reads evals/evals.json).
+# Case: serena-verify-drift-guard — FR-RV3-MED.4.8 / M-COR2 (cache artifacts must NOT trip input-drift STOP).
+mode: post
+use_case: UC-2
+verification_ran: true
+
+# The verify run emits cache artifacts into the input tree:
+artifacts_emitted: ["__pycache__/", ".pytest_cache/", "*.pyc", ".coverage"]
+
+# VERIFICATION_ARTIFACT_EXCLUDES filters them at BOTH construction and recompute →
+# input_tree_sha256 unchanged → NO spurious STOP.
+input_drift_detected: false
+status: success            # the run completes; NO input_drift STOP line
+input_tree_sha256_changed: false
+stop_reason: null
+
+tier_reached: 1
+escalation_reason: null

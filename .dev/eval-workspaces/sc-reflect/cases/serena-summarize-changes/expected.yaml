@@ -1,0 +1,25 @@
+# STUB — V3-Serena eval scaffold. Human contract doc (grader does NOT read this; machine
+# assertions live in evals/evals.json for serena-summarize-changes).
+# Case: serena-summarize-changes — FR-RV3-LOW.5 (summarize_changes, UC-2 corroboration; pilot/ships-last per OQ-3).
+mode: post
+use_case: UC-2
+
+# --- FR-5 success path (same MCP session) ---
+summarize_changes_invoked: true
+summarize_changes_path: outputs/serena-change-summary.md   # the prompt-based summary artifact
+serena_summary_corroboration: disagree    # summary names src/svc/audit.py absent from the diff → disagree → boosts Drift
+# FR-5.3: summary-only files (in summary, not in diff) + diff-only files (in diff, not in summary)
+# feed the §10.3 Drift / §10.2 Necessary sets.
+summary_only_files: [src/svc/audit.py]
+diff_only_files: [src/svc/report.py]
+
+# --- FR-5.4 cross-session path (fresh MCP session) ---
+cross_session_corroboration: unavailable   # nothing to summarize → unavailable
+main_verdict_unchanged_on_unavailable: true
+
+# --- OQ-3 pilot caveat ---
+oq3_pilot: true            # signature probed here BEFORE promotion; zero-arg; same-session requirement (R5 manual)
+ships_last: true
+
+tier_reached: 1
+escalation_reason: null
