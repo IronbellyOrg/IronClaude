@@ -465,9 +465,7 @@ def _auto_resume(index_path: Path, *, assume_yes: bool, dry_run: bool):
 
         if sys.stdin is not None and sys.stdin.isatty():
             _print_resume_decision(
-                ResumeDecision(
-                    plan=plan, drift=drift, report=report, action="proceed"
-                )
+                ResumeDecision(plan=plan, drift=drift, report=report, action="proceed")
             )
             if not click.confirm("Proceed with auto-resume?", default=True):
                 return ResumeDecision(
@@ -539,8 +537,7 @@ def _print_resume_decision(decision) -> None:
     click.echo(f"  index:            {plan.index_path}")
     click.echo(f"  completed phases: {plan.completed_phases}")
     click.echo(
-        f"  interrupted:      phase {plan.interrupted_phase} "
-        f"({plan.interrupt_kind})"
+        f"  interrupted:      phase {plan.interrupted_phase} ({plan.interrupt_kind})"
     )
     click.echo(f"  resume window:    phases {plan.start_phase}–{plan.end_phase}")
     click.echo(f"  granularity:      {plan.granularity.value}")
@@ -870,8 +867,7 @@ def rerun_tasks(
         phase = plan.interrupted_phase
         tasks_list = list(plan.rerun_task_ids)
         click.echo(
-            f"Auto-detected rerun target: phase {phase}, "
-            f"tasks {', '.join(tasks_list)}."
+            f"Auto-detected rerun target: phase {phase}, tasks {', '.join(tasks_list)}."
         )
     elif not from_reflect_report and not phase:
         raise click.UsageError(

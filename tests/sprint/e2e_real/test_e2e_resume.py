@@ -42,9 +42,7 @@ def _status_by_id(result_json: dict) -> dict[str, str]:
 
 
 def _phase1_result(results_dir: Path) -> dict:
-    return json.loads(
-        (results_dir / "phase-1-result.json").read_text(encoding="utf-8")
-    )
+    return json.loads((results_dir / "phase-1-result.json").read_text(encoding="utf-8"))
 
 
 def _run_until_interrupted(config, claude_shim) -> None:

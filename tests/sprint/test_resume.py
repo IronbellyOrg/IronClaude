@@ -495,9 +495,7 @@ class TestCliWiring:
             ),
         )
 
-        decision = sprint_commands._auto_resume(
-            index, assume_yes=True, dry_run=False
-        )
+        decision = sprint_commands._auto_resume(index, assume_yes=True, dry_run=False)
 
         assert decision.action == "proceed"
         out = capsys.readouterr().out
@@ -549,8 +547,9 @@ class TestCliWiring:
         monkeypatch.setattr(
             rt_mod,
             "run_rerun_tasks",
-            lambda config, **kw: captured.append((kw.get("phase"), kw.get("tasks")))
-            or 0,
+            lambda config, **kw: (
+                captured.append((kw.get("phase"), kw.get("tasks"))) or 0
+            ),
         )
         runner = CliRunner()
         runner.invoke(sprint_group, ["rerun-tasks", str(index)])
@@ -659,7 +658,9 @@ class TestInvariants:
 
         # Opt-in: reversible copy-to-quarantine.
         report2 = BoundaryIntegrityGate().run(plan, cleanup_opted_in=True)
-        qdirs = [d for d in results.iterdir() if d.name.startswith(".resume-quarantine-")]
+        qdirs = [
+            d for d in results.iterdir() if d.name.startswith(".resume-quarantine-")
+        ]
         assert len(qdirs) == 1
         qdir = qdirs[0]
         assert (qdir / "preserved" / "manifest.json").exists()
@@ -692,9 +693,7 @@ class TestInvariants:
         assert report.quarantined == {}  # no mutation
         # The partial-work PATHS are carried (the F-2 gap this locks):
         surfaced = [str(p) for p in report.partial_paths]
-        assert any(
-            s.endswith("phase-3-task-T03.02-output.txt") for s in surfaced
-        )
+        assert any(s.endswith("phase-3-task-T03.02-output.txt") for s in surfaced)
 
     def test_haiku_coherence_advisory_only(self, tmp_path, monkeypatch):
         """DD-2: (a) a SUSPECT verdict on a deterministically-validated TASK adds

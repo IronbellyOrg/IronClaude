@@ -70,7 +70,9 @@ class ResumePlan:
     start_phase: int = 1
     end_phase: int = 0
     granularity: Granularity = Granularity.NONE
-    boundary_tasks: list[BoundaryTask] = field(default_factory=list)  # interrupted phase only
+    boundary_tasks: list[BoundaryTask] = field(
+        default_factory=list
+    )  # interrupted phase only
     rerun_task_ids: list[str] = field(default_factory=list)  # task-level dispatch set
     ambiguous: bool = False  # FR-5 → list + STOP
     ambiguity_reasons: list[str] = field(default_factory=list)
@@ -99,7 +101,9 @@ class BoundaryReport:
 
     validated_last: bool = False
     suspects: list[BoundaryTask] = field(default_factory=list)
-    quarantined: dict[Path, Path] = field(default_factory=dict)  # canonical → quarantine copy
+    quarantined: dict[Path, Path] = field(
+        default_factory=dict
+    )  # canonical → quarantine copy
     passed: bool = False  # gate verdict (FR-2.4) — deterministic only
     blocking_reasons: list[str] = field(default_factory=list)
     coherence_warnings: list[tuple[BoundaryTask, str]] = field(

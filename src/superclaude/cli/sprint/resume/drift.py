@@ -93,9 +93,7 @@ class DriftAssessor:
             if bt.persisted_status is TaskStatus.PASS
         }
         recorded_all = {
-            bt.task_id
-            for bt in plan.boundary_tasks
-            if bt.persisted_status is not None
+            bt.task_id for bt in plan.boundary_tasks if bt.persisted_status is not None
         }
 
         # Parse-failure guard: the phase file was readable (else _boundary_phase_file
@@ -104,11 +102,7 @@ class DriftAssessor:
         # deliberate task removal. Verdict stays conservative (<0.8 STOP, FR-3.4) but
         # the explanation must accurately attribute the cause (FR-3.5) rather than
         # claim specific completed tasks were "removed".
-        if (
-            plan.granularity is Granularity.TASK
-            and recorded_all
-            and not current_ids
-        ):
+        if plan.granularity is Granularity.TASK and recorded_all and not current_ids:
             return DriftAssessment(
                 confidence=0.3,
                 tier="structural",
@@ -257,9 +251,7 @@ class DriftAssessor:
         return {e.task_id for e in entries if getattr(e, "task_id", None)}
 
     @staticmethod
-    def _annotate_git(
-        assessment: DriftAssessment, phase_file: Path
-    ) -> DriftAssessment:
+    def _annotate_git(assessment: DriftAssessment, phase_file: Path) -> DriftAssessment:
         """Tier 2 — additive git characterization. NEVER changes ``confidence``.
 
         Annotates ``changed_paths`` with a ``git diff @{upstream}`` --stat summary
@@ -310,9 +302,7 @@ class DriftAssessor:
         import json
 
         path = (
-            plan.release_dir
-            / "results"
-            / f"phase-{plan.interrupted_phase}-result.json"
+            plan.release_dir / "results" / f"phase-{plan.interrupted_phase}-result.json"
         )
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -331,9 +321,7 @@ class DriftAssessor:
         import json
 
         path = (
-            plan.release_dir
-            / "results"
-            / f"phase-{plan.interrupted_phase}-result.json"
+            plan.release_dir / "results" / f"phase-{plan.interrupted_phase}-result.json"
         )
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))

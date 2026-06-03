@@ -66,9 +66,7 @@ class ResumePlanner:
             p.number: self._classify_phase(p.number, events, results_dir)
             for p in phases
         }
-        plan.completed_phases = sorted(
-            n for n, c in classes.items() if c == _COMPLETE
-        )
+        plan.completed_phases = sorted(n for n, c in classes.items() if c == _COMPLETE)
 
         # 2. Locate the resume seam.
         interrupted_phase, interrupt_kind = self._find_interrupted(phases, classes)
@@ -142,9 +140,7 @@ class ResumePlanner:
         )
 
         interrupted = plan.interrupted_phase
-        rj = self._load_result_json(
-            results_dir / f"phase-{interrupted}-result.json"
-        )
+        rj = self._load_result_json(results_dir / f"phase-{interrupted}-result.json")
         task_results = (rj or {}).get("task_results") or []
 
         boundary: list[BoundaryTask] = []
@@ -171,9 +167,7 @@ class ResumePlanner:
             derived = discover_failed_tasks_from_transcripts(results_dir, interrupted)
             plan.granularity = Granularity.TASK if derived else Granularity.PHASE
             for task_id, status in derived:
-                boundary.append(
-                    BoundaryTask(task_id=task_id, derived_status=status)
-                )
+                boundary.append(BoundaryTask(task_id=task_id, derived_status=status))
             plan.rerun_task_ids = [task_id for task_id, _ in derived]
 
         self._assign_roles(boundary)
@@ -199,9 +193,7 @@ class ResumePlanner:
         if interrupted is None:
             return
         # Highest completed phase strictly below the interrupted one.
-        prior = max(
-            (n for n in plan.completed_phases if n < interrupted), default=None
-        )
+        prior = max((n for n in plan.completed_phases if n < interrupted), default=None)
         if prior is None:
             return  # no completed phase below the interrupted one — nothing to validate
         prior_phase = next((p for p in phases if p.number == prior), None)
@@ -308,8 +300,7 @@ class ResumePlanner:
         closes = Counter(
             e["phase"]
             for e in events
-            if e.get("event") in ("phase_complete", "phase_interrupt")
-            and "phase" in e
+            if e.get("event") in ("phase_complete", "phase_interrupt") and "phase" in e
         )
         for phase, start_count in starts.items():
             if start_count - closes.get(phase, 0) >= 2:

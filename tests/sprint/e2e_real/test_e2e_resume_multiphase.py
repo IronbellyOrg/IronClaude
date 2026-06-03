@@ -90,12 +90,8 @@ def _read_result(results_dir: Path, phase: int) -> dict:
 def two_phase_release(tmp_path: Path):
     release = tmp_path / "release"
     release.mkdir(parents=True, exist_ok=True)
-    (release / "phase-1-tasklist.md").write_text(
-        _PHASE_1_TASKLIST, encoding="utf-8"
-    )
-    (release / "phase-2-tasklist.md").write_text(
-        _PHASE_2_TASKLIST, encoding="utf-8"
-    )
+    (release / "phase-1-tasklist.md").write_text(_PHASE_1_TASKLIST, encoding="utf-8")
+    (release / "phase-2-tasklist.md").write_text(_PHASE_2_TASKLIST, encoding="utf-8")
     index = release / "tasklist-index.md"
     index.write_text(_INDEX, encoding="utf-8")
 

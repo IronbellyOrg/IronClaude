@@ -28,9 +28,7 @@ def _status_by_id(result_json: dict) -> dict[str, str]:
 
 
 def _phase1_result(results_dir: Path) -> dict:
-    return json.loads(
-        (results_dir / "phase-1-result.json").read_text(encoding="utf-8")
-    )
+    return json.loads((results_dir / "phase-1-result.json").read_text(encoding="utf-8"))
 
 
 def _run_until_interrupted(config, claude_shim) -> None:
@@ -50,9 +48,7 @@ def _run_until_interrupted(config, claude_shim) -> None:
 
 @pytest.mark.integration
 class TestE2EResumeDriftStop:
-    def test_e2e_run_stops_on_material_tasklist_drift(
-        self, claude_shim, real_release
-    ):
+    def test_e2e_run_stops_on_material_tasklist_drift(self, claude_shim, real_release):
         """AC-5: material drift stops auto-resume before any task dispatch."""
         config, index = real_release
         _run_until_interrupted(config, claude_shim)

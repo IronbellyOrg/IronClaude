@@ -199,15 +199,15 @@ class BoundaryIntegrityGate:
         """Task IDs to scan for partial work: next-unfinished (TASK) or whole
         phase (PHASE)."""
         if plan.granularity is Granularity.TASK:
-            nu = [bt.task_id for bt in plan.boundary_tasks if bt.role == "next_unfinished"]
+            nu = [
+                bt.task_id for bt in plan.boundary_tasks if bt.role == "next_unfinished"
+            ]
             return nu or list(plan.rerun_task_ids)
         import re
 
         ids: set[str] = set()
         try:
-            transcripts = results_dir.glob(
-                f"phase-{plan.interrupted_phase}-task-T*-*"
-            )
+            transcripts = results_dir.glob(f"phase-{plan.interrupted_phase}-task-T*-*")
         except OSError:
             return []
         for p in transcripts:
