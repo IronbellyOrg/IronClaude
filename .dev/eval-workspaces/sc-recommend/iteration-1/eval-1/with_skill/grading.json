@@ -1,0 +1,30 @@
+{
+  "eval_id": 1,
+  "eval_name": "spec-from-matrices-must-surface-spec-panel",
+  "configuration": "with_skill",
+  "output_chars": 6678,
+  "output_exists": true,
+  "expectations": [
+    {
+      "text": "Output names /sc:spec-panel as the primary delegation",
+      "passed": true,
+      "evidence": "substring '/sc:spec-panel' found"
+    },
+    {
+      "text": "Output references the release-spec template file by name",
+      "passed": false,
+      "evidence": "substring 'release-spec-template.md' NOT found"
+    },
+    {
+      "text": "Output does not include any static keyword-category labels",
+      "passed": true,
+      "evidence": "substring '_category' absent (good)"
+    },
+    {
+      "text": "Output includes a fenced paste-ready prompt block",
+      "passed": true,
+      "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```text\\nUse the Skill tool to invoke the `prd` skill with the following inputs:\\n'"
+    }
+  ],
+  "pass_rate": 0.75
+}

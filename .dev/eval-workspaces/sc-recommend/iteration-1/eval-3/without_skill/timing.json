@@ -1,0 +1,7 @@
+{
+  "total_tokens": 61537,
+  "duration_ms": 32648,
+  "total_duration_seconds": 32.6,
+  "tool_uses": 2,
+  "summary": "Recommended /sc:roadmap then /sc:tasklist chain; /sc:tasklist's canonical input is roadmap artifacts not raw spec."
+}

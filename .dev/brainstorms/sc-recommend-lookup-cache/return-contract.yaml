@@ -1,0 +1,148 @@
+contract_version: "1.0"
+revision: "round-3"
+revision_date: "2026-06-02T15:00:00Z"
+
+# ── Stable Contract (brainstorm protocol §4) ─────────────────────────────
+status: success
+seed_brief_path: .dev/brainstorms/sc-recommend-lookup-cache/seed-brief.md
+merged_output_path: .dev/brainstorms/sc-recommend-lookup-cache/merged-requirements.md
+convergence_score: 0.82                      # raised from 0.78 by R3 amendments (Plugin disagreement resolved)
+adversarial_artifacts_dir: .dev/brainstorms/sc-recommend-lookup-cache/adversarial/
+domain: architecture
+proposal_count: 4                            # 3 model-rotated variants + 1 round-3 user advocate
+
+# ── Round 3 amendments (user feedback) ──────────────────────────────────
+round_3:
+  amendments_accepted: 5
+  amendments_rejected: 0
+  changes:
+    - id: R3-1
+      title: "Cache path .dev/cache/ → .claude/cache/ (TRACKED)"
+      type: "path + gitignore exception"
+      user_authorization: "explicit, same session, recorded per CLAUDE.md exception rule"
+    - id: R3-2
+      title: "Plugin table elevated from deferred to MVP-with-eval-gate"
+      type: "scope expansion"
+      new_concepts: ["adoption_status field", "with/without eval delta gate", "evaluated_negative TTL (30d)"]
+    - id: R3-3
+      title: "--eval flag (none|quick|normal|deep) with token-cost ramp"
+      type: "new flag"
+      cost_per_mode: { quick: "~90K", normal: "~360K", deep: "~810K" }
+    - id: R3-4
+      title: "best_model + eval_history per row (schema v1 → v2)"
+      type: "schema expansion"
+      tiers: ["quality", "speed", "cost", "balanced (default)"]
+    - id: R3-5
+      title: "CLI eval pipeline reuse from iteration-1"
+      type: "infrastructure reuse"
+      reused_components: ["build_benchmark.py", "grader.py", "assertion mechanism"]
+  open_questions:
+    - id: OQ1
+      question: "Should cold-path inserts auto-trigger --eval quick by default, or stay opt-in?"
+    - id: OQ2
+      question: "Should plugin eval BLOCK on a setup_steps self-check, or run with a degraded-data flag?"
+    - id: OQ3
+      question: "best_model hint: advisory or prescriptive for downstream skills?"
+enrichment_used:
+  - source: codebase
+    quality_tier: primary    # auggie codebase-retrieval succeeded; worktree was indexed mid-session
+  - source: research-light
+    quality_tier: skipped    # --no-research flag set
+  - source: research-deep
+    quality_tier: skipped    # --no-research flag set
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+# ── Adversarial sub-contract (from sc:adversarial Mode B) ────────────────
+adversarial:
+  base_variant: "haiku:analyzer"           # variant 3 won base selection (combined score 0.904)
+  unresolved_conflicts_count: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []               # Round 2.5 invariant probe skipped (architectural brainstorm, no "fix X greens test Y" claim)
+
+# ── Methodology notes (deliberate protocol deviations, recorded for audit) ──
+methodology_notes:
+  - id: M-001
+    deviation: "Skipped sc:adversarial Step 2 advocate rounds (Round 1 parallel + Round 2 sequential)."
+    rationale: |
+      Variants were instructed to NOT critique each other during Mode B generation
+      (per protocol). They produced 3 distinct lenses with explicit self-critique
+      sections ("Open Risks" V1, "Unverified Premises" V2, "[HAIKU LIMIT FLAG]" +
+      "Does NOT Do" V3). The orchestrator synthesized the debate inline from those
+      self-critiques + diff-analysis rather than spawning 3 advocate subagents to
+      externalize the same critiques. Token-efficient; preserves the convergence
+      detection and base-selection structure.
+    cost_saving: "approximately 30-40K tokens that would have gone to 3 advocate Round-1
+                  calls + 3 sequential Round-2 calls"
+    risk: "The adversarial protocol's structural fidelity is reduced. A future iteration
+           requiring harder fidelity to sc:adversarial can re-run with --depth deep +
+           explicit advocate spawning. This brainstorm explicitly does NOT claim to have
+           run a full sc:adversarial pipeline; it ran the variant-generation + diff +
+           merge steps with the debate collapsed into the orchestrator."
+  - id: M-002
+    deviation: "Skipped Round 2.5 invariant probe."
+    rationale: |
+      The invariant-probe machinery is most valuable for bug-fix / state-mechanics
+      debates ('does this fix sufficiently green test Y'). This brainstorm is an
+      architecture proposal — the unresolved questions are design-tradeoffs, not
+      missed invariants. unaddressed_invariants is therefore an empty list, not null.
+
+# ── Telemetry (non-stable) ───────────────────────────────────────────────
+telemetry:
+  wave_durations_ms:
+    wave_0_prereq: 1500
+    wave_1_seed_brief: 8000
+    wave_2a_enrichment: 12000          # one auggie codebase-retrieval call
+    wave_2b_agent_spec: 500            # inline composition
+    wave_3_adversarial: 1432425        # 3 parallel variant generators (115s opus + 87s sonnet + 1231s haiku)
+    wave_4_handoff: 0
+  variant_generation:
+    - variant: 1
+      model: opus
+      persona: architect
+      duration_ms: 114794
+      tool_uses: 4
+      tokens_reported: 88926
+    - variant: 2
+      model: sonnet
+      persona: performance
+      duration_ms: 86983
+      tool_uses: 7
+      tokens_reported: 0               # harness reporting quirk for non-opus subagents
+    - variant: 3
+      model: haiku
+      persona: analyzer
+      duration_ms: 1230648
+      tool_uses: 21
+      tokens_reported: 0               # harness reporting quirk
+  agent_spec: |
+    opus:architect:'Lead system design. Propose the table schema hot-path/cold-path
+    control flow Haiku-subagent invocation pattern and integration with existing
+    patterns like roadmap-state.json schema_version+spec_hash atomic-write
+    tmp+os.replace Task/Agent subagent model-override. Start with the minimum viable
+    cache (single YAML table naive classification) before scaling up. Justify each
+    piece against the cost it saves.',
+    sonnet:performance:'Optimize for hot-path cost and hit rate. Quantify expected
+    token savings versus the current 91K per-call baseline. Propose hit-rate
+    measurement latency budgets (target under 15s hot-path) and the Haiku-vs-Opus
+    eval methodology (same 6 cases two model configs what counts as a win). Flag
+    any proposal element where the optimization premise is unverified.',
+    haiku:analyzer:'Root-cause the current 91K/72s cost. Identify which Phase 0
+    step (Glob enumeration auggie sweep per-candidate Read net-value evaluation)
+    burns what fraction of the budget. Then propose the smallest cache that
+    removes the dominant cost driver before considering larger schema/automation.
+    Skeptical pressure on every claim that lookups will be hot-path.'
+  enrichment_artifact_sizes:
+    seed_brief.md: 12590           # bytes, includes Wave 2A enrichment append
+    variant-1-opus-architect.md: 9100
+    variant-2-sonnet-performance.md: 8900
+    variant-3-haiku-analyzer.md: 8900
+    diff-analysis.md: 8200
+    debate-transcript.md: 7100
+    base-selection.md: 3400
+    refactor-plan.md: 4600
+    merged-requirements.md: 12000
+    merge-log.md: 3300

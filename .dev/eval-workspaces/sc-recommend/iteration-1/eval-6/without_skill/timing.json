@@ -1,0 +1,7 @@
+{
+  "total_tokens": 61028,
+  "duration_ms": 21208,
+  "total_duration_seconds": 21.2,
+  "tool_uses": 2,
+  "summary": "Recommended /sc:research with 3 parallel tech-research subagents then sc-brainstorm-protocol synthesis."
+}

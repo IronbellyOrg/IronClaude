@@ -1,0 +1,30 @@
+{
+  "eval_id": 1,
+  "eval_name": "spec-from-matrices-must-surface-spec-panel",
+  "configuration": "without_skill",
+  "output_chars": 5218,
+  "output_exists": true,
+  "expectations": [
+    {
+      "text": "Output names /sc:spec-panel as the primary delegation",
+      "passed": false,
+      "evidence": "substring '/sc:spec-panel' NOT found"
+    },
+    {
+      "text": "Output references the release-spec template file by name",
+      "passed": true,
+      "evidence": "substring 'release-spec-template.md' found"
+    },
+    {
+      "text": "Output does not include any static keyword-category labels",
+      "passed": true,
+      "evidence": "substring '_category' absent (good)"
+    },
+    {
+      "text": "Output includes a fenced paste-ready prompt block",
+      "passed": true,
+      "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```\\nInputs (treat as authoritative, frozen \u2014 do not re-derive scope or risk from'"
+    }
+  ],
+  "pass_rate": 0.75
+}
