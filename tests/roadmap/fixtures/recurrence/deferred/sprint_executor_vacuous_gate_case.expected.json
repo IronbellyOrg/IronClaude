@@ -1,0 +1,10 @@
+{
+  "fixture": "deferred/sprint_executor_vacuous_gate_case",
+  "source_authority": {
+    "master_recurrence_row": 21,
+    "partition_findings": ["A11:F-A11-023", "A12:F-A12-13"],
+    "incident_summary": "Sprint executor ignored task dependencies and reused roadmap gates vacuously with no feedback loop back to roadmap (A11:F-A11-023 deps ignored; A12:F-A12-13 sprint reuses ANTI_INSTINCT_GATE vacuously)."
+  },
+  "deferred": true,
+  "reason": "Hard DEFER (out of scope). The sprint executor is explicitly OUT of scope per BUILD-REQUEST §Scope; the roadmap-pipeline rewrite (R0/R1) does not touch sprint/executor.py. This is a sprint-layer recurrence outside the R0/R1 boundaries, so no in-scope fixture with verifiable expected values is constructible."
+}

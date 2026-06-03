@@ -1,0 +1,71 @@
+name: Contract #3 — Generator-Constraint Considered
+
+# BUILD-REQUEST §Contract item #3 (Producer-side constraint preferred over
+# validator addition). When a PR touches validator/gate surfaces
+# (`gates.py`, `structural_checkers.py`, or any `*_validator.py`), the PR body
+# MUST contain a `## Generator-Constraint Considered` section explaining why a
+# generator-side constraint (tool-write template / structured-output schema /
+# prompt-pinned invariant) was insufficient and a downstream validator was
+# required instead. Closes the master:§Flaw 2 generator/validator-asymmetry
+# review gap.
+#
+# Enforcement class: PR-review-blocking (override-with-reason allowed). The job
+# fails the check when the trigger paths are touched and the section is absent;
+# a reviewer may still merge over a documented justification per the
+# BUILD-REQUEST §Acceptance gate #1 override policy.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [master, integration]
+
+jobs:
+  generator-constraint-considered:
+    name: Generator-Constraint Considered (Contract #3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect validator/gate surface changes
+        id: detect
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Trigger paths per BUILD-REQUEST §Contract #3.
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          echo "Changed files:"
+          echo "$changed"
+          touched="$(echo "$changed" | grep -E '(^|/)gates\.py$|(^|/)structural_checkers\.py$|.*_validator\.py$' || true)"
+          if [ -n "$touched" ]; then
+            echo "Trigger paths touched:"
+            echo "$touched"
+            echo "triggered=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No validator/gate surface touched — Contract #3 lint not required."
+            echo "triggered=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Require "## Generator-Constraint Considered" in PR body
+        if: steps.detect.outputs.triggered == 'true'
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          # Match the H2 heading exactly (case-sensitive), allowing trailing space.
+          if printf '%s' "$PR_BODY" | grep -qE '^##[[:space:]]+Generator-Constraint Considered[[:space:]]*$'; then
+            echo "✅ Contract #3: PR body contains '## Generator-Constraint Considered'."
+          else
+            echo "::error::Contract #3 violation — this PR touches a validator/gate surface"
+            echo "::error::(gates.py / structural_checkers.py / *_validator.py) but the PR body"
+            echo "::error::lacks a '## Generator-Constraint Considered' section."
+            echo "::error::Per BUILD-REQUEST §Contract #3, document why a generator-side"
+            echo "::error::constraint (tool-write schema / prompt-pinned invariant) was"
+            echo "::error::insufficient. PR-review-blocking: a reviewer may override with a"
+            echo "::error::documented justification."
+            exit 1
+          fi

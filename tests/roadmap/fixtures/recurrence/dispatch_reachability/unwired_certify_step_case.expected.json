@@ -1,0 +1,28 @@
+{
+  "fixture": "dispatch_reachability/unwired_certify_step_case",
+  "source_authority": {
+    "master_recurrence_row": 2,
+    "partition_findings": ["A10:F-A10-019", "A11:F-A11-011"],
+    "incident_summary": "build_certify_step() was a fully-formed builder with no production caller — _build_steps ended at remediate and execute_roadmap never invoked it (only a test did). The pipeline silently ended at remediate, shipping a dead terminal certify step (A11:F-A11-011 'confirmed dead code'; A10:F-A10-019 'no step.id == certify dispatch'). Contract #2 / master:§Flaw 1."
+  },
+  "verified_component": "superclaude.cli.roadmap.code_assertions.assert_step_reachable",
+  "verification_against": "live src/superclaude/cli/roadmap/executor.py AST (not this .md)",
+  "expected_dispatch_reachable": true,
+  "expected_static_reachable": false,
+  "expected_dynamic_reachable": true,
+  "expected_build_steps_step_ids": [
+    "anti-instinct",
+    "debate",
+    "deviation-analysis",
+    "diff",
+    "extract",
+    "generate-",
+    "merge",
+    "remediate",
+    "score",
+    "spec-fidelity",
+    "test-strategy"
+  ],
+  "expected_assert_step_reachable_returns": null,
+  "expected_contract_2_invariant": "MUST FAIL pre-fix (build_certify_step defined but certify unreachable by both static and dynamic dispatch shapes — master:§Flaw 1 dead-code state), MUST PASS post-fix (build_certify_step() has a production caller in execute_roadmap, so the dynamic dispatch shape makes certify reachable and assert_step_reachable returns None / no Finding)."
+}

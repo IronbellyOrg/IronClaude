@@ -15,10 +15,11 @@
     "d_ids": [],
     "md_ids": ["M1-D01", "M1-D02", "M2-D01", "M2-D02", "M3-D01"]
   },
-  "expected_phantom_violations": [],
+  "expected_phantom_violations": ["D03", "D04", "D05"],
   "expected_signatures_findings_count": 0,
-  "expected_semantic_check_result_type": "bool",
+  "expected_semantic_check_result_type": "str",
+  "expected_failure_substring": "Contract #9: roadmap contains 3 IDs not in spec",
   "expected_contains_fr_1": true,
   "expected_milestone_ids_resolve_distinctly": true,
-  "notes": "Post-fix oracle: MD family resolves M1-D01 != M2-D01 distinctly; bare-D indices D01..D05 are allowlisted via the Explicit non-references annotation. Zero phantom_id/id_schema_drift findings. Pre-fix this case produced milestone-ID bare-D phantoms (the recurrence)."
+  "notes": "Post-fix oracle (corrected Step 13.3 against live _roadmap_ids_within_spec): the R5 MD family resolves M1-D01 != M2-D01 distinctly — the load-bearing recurrence-#4 fix — so ZERO milestone IDs collapse to bare-D phantoms (M{n}-D{nn} are all in spec_ids). The bare-D sequence indices D03/D04/D05 written as prose in the Description column ('reference D03 as roadmap-internal index') ARE flagged as phantoms: the live extract_roadmap_ids / spec_parser has NO 'Explicit non-references' allowlist for prose bare-D tokens (verified Step 13.3 — grep found no such allowlist in id_registry.py/spec_parser.py), so the deterministic literal set-containment comparator reports D03/D04/D05 ∉ spec_ids. D01/D02 are absorbed as part of the co-located M1-D01/M1-D02 MD tokens. The ORIGINAL expected_phantom_violations:[] / result_type:bool asserted an allowlist that does not exist in the live component; corrected to the real output (3 phantoms, str failure). The milestone-collapse recurrence the fixture pins (M{n}-D{nn} mis-tokenized as bare-D) is still proven cured: expected_milestone_ids_resolve_distinctly:true and none of the M{n}-D{nn} IDs appear in the phantom set."
 }

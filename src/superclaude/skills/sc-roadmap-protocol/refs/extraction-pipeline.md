@@ -2,6 +2,8 @@
 
 Reference document for Wave 1B (Detection & Analysis). Documents the canonical CLI **single-pass extraction step** built by `build_extract_prompt` / `build_extract_prompt_tdd`, the eight aspects the single prompt instructs the LLM to cover, the additional TDD aspects emitted by the TDD-specific builder, the PRD/TDD supplementary context blocks, the LLM-advisory domain keyword dictionaries, and the inference-only chunked-extraction algorithm and 4-pass completeness verification.
 
+> **R1.4 tool-write (current substrate).** The `extract` step is now a **flag-gated tool-write generator**. When `--tool-write-extract` is enabled (`config.tool_write_extract`), the LLM emits structured JSON validated against `templates/tool_schemas/extract.schema.json`, and `extraction.md` is rendered deterministically from the validated tool output via `templates/extract.md.j2` (`tool_writer.py`). When the flag is off, the legacy markdown-authoring path runs. This is a **side-by-side dual-write** migration (markdown path retained for parity validation, not yet deleted). The TDD branch (`build_extract_prompt_tdd`) is governed by the separate `--tool-write-extract-tdd` flag (`extract_tdd.schema.json` / `extract_tdd.md.j2`). See "R1.4 Tool-Write Dispatch" below.
+
 ---
 
 ## Single-Pass Extraction (CLI Canonical Behavior)
@@ -15,15 +17,19 @@ Reference document for Wave 1B (Detection & Analysis). Documents the canonical C
 | `build_extract_prompt` | `src/superclaude/cli/roadmap/prompts.py:180` | Default extraction path (`config.input_type` is `spec`, or omitted). Produces the 8 standard body sections described below. |
 | `build_extract_prompt_tdd` | `src/superclaude/cli/roadmap/prompts.py:328` | Selected when `--input-type tdd` is passed (the CLI uses an **explicit flag**, not the 4-signal inference heuristic in `scoring.md`). Produces the 8 standard body sections plus 6 TDD-specific aspects (see "TDD-Extended Aspects" below). |
 
-Both functions return one prompt string. The executor wires it into a single step at `src/superclaude/cli/roadmap/executor.py:2001-2025`:
+Both functions return one prompt string and accept a `tool_write=` parameter (R1.4) that toggles the structured-JSON tool variant. The executor builds the prompt at `src/superclaude/cli/roadmap/executor.py:2482-2497`, then wires it into a single step at `executor.py:2499-2512`:
 
 ```python
+# executor.py:2482-2497 — prompt build (R1.4 tool_write flag threaded in)
+if config.input_type == "tdd":
+    extract_prompt = build_extract_prompt_tdd(..., tool_write=config.tool_write_extract_tdd)
+else:
+    extract_prompt = build_extract_prompt(..., tool_write=config.tool_write_extract)
+
+# executor.py:2499-2512 — single Step
 Step(
     id="extract",
-    prompt=(
-        build_extract_prompt_tdd(...) if config.input_type == "tdd"
-        else build_extract_prompt(...)
-    ),
+    prompt=extract_prompt,
     output_file=extraction,
     gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
     timeout_seconds=1800 if config.input_type == "tdd" else 300,
@@ -32,7 +38,29 @@ Step(
 )
 ```
 
+When `tool_write=` is true, the LLM is instructed to call the structured tool instead of writing markdown prose; the post-step `tool_writer` validates the JSON against the step schema and renders the markdown artifact deterministically (see "R1.4 Tool-Write Dispatch" below).
+
 The LLM receives one prompt and writes one `extraction.md` file with YAML frontmatter plus eight standard body sections (fourteen in the TDD path). The only mechanical gate is `EXTRACT_GATE` (or `EXTRACT_TDD_GATE`) against the single emitted file; there is no per-aspect validation, no inter-aspect handoff, and the single step has `retry_limit=1` for transport-level retry only.
+
+### R1.4 Tool-Write Dispatch
+
+The tool-write variant is governed by a per-step registry in `tool_writer.py` (`TOOL_WRITE_REGISTRY`, `tool_writer.py:196-216`). The `extract` entry is:
+
+| Field | Value |
+|---|---|
+| `step_id` | `"extract"` |
+| `config_flag` | `"tool_write_extract"` (CLI `--tool-write-extract`) |
+| `schema_name` | `"extract.schema.json"` |
+| `template_name` | `"extract.md.j2"` |
+
+The TDD path is a **separate** registry key `"extract_tdd"` (still `step_id == "extract"`, governed by `--tool-write-extract-tdd`, using `extract_tdd.schema.json` / `extract_tdd.md.j2`) — keyed distinctly to avoid colliding with the spec-extract entry.
+
+**Dispatch:** when `Step.tool_write_mode` is active, the executor (`executor.py:1290/1298`) routes through one of two `tool_writer` rendering functions:
+
+- `render_step_tool_write` (`tool_writer.py:421`) — validate JSON against the schema (`validate_tool_output`), persist the structured sidecar, and render markdown via the Jinja template (`render_tool_output`).
+- `render_step_tool_write_with_id_check` (`tool_writer.py:455`) — same, plus the **Contract #3 generator-side constraint**: the `roadmap_ids` array in the parsed JSON MUST be a subset of `envelope.spec_ids ∪ accepted_deviations`, **rejected at generation time** (`tool_writer.py:467-475`) so a phantom ID never reaches the markdown.
+
+> **Contract #3 nuance for `extract` specifically.** The `extract` step is the **SOURCE** of `spec_ids` — it is the step that *defines* the spec ID set. For extract, the id-subset inclusion is therefore *vacuously the identity* (`tool_writer.py:359,475`): there is no upstream `spec_ids` to violate. The Contract #3 `roadmap_ids ⊆ envelope.spec_ids` constraint binds the **downstream** consumers (`generate`, `merge`) that must not invent IDs absent from what extract declared. Do not describe extract as "enforcing `roadmap_ids ⊆ spec_ids`" — extract establishes the set; the downstream tool-write steps enforce containment against it.
 
 ### Eight-aspect coverage inside the single prompt
 
@@ -528,4 +556,4 @@ After merge and ID assignment, run 4 verification passes:
 
 *Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 1B.*
 
-*CLI parity baseline (B-7, VERIFIED): single-pass extraction via `build_extract_prompt` (`src/superclaude/cli/roadmap/prompts.py:180`) or `build_extract_prompt_tdd` (`:328`), wired by `src/superclaude/cli/roadmap/executor.py:2001-2025`, gated by `EXTRACT_GATE` / `EXTRACT_TDD_GATE`. Eight-aspect coverage (Aspects 1-8) is the body-section taxonomy the single prompt instructs the LLM to fill; TDD-extended aspects (9-15) are an inference-only finer-grained taxonomy that overlaps the CLI's six TDD body sections. Domain keyword dictionaries are LLM-advisory; the chunked-extraction protocol and 4-pass completeness verification are non-canonical inference-only and have no CLI implementation.*
+*CLI parity baseline (B-7, VERIFIED): single-pass extraction via `build_extract_prompt` (`src/superclaude/cli/roadmap/prompts.py:180`) or `build_extract_prompt_tdd` (`:328`), wired by `src/superclaude/cli/roadmap/executor.py:2482-2512`, gated by `EXTRACT_GATE` / `EXTRACT_TDD_GATE`. **R1.4 tool-write (VERIFIED):** both builders accept `tool_write=` (`config.tool_write_extract` / `config.tool_write_extract_tdd`); when enabled the step emits JSON validated against `templates/tool_schemas/extract.schema.json` (or `extract_tdd.schema.json`) and rendered via `templates/extract.md.j2` (or `extract_tdd.md.j2`) by `tool_writer.TOOL_WRITE_REGISTRY` (`tool_writer.py:196-216`); the markdown path is retained as side-by-side dual-write. Contract #3 `roadmap_ids ⊆ spec_ids` is enforced at generation time by `render_step_tool_write_with_id_check` for downstream consumers — extract itself DEFINES `spec_ids` (subset check vacuous for extract). Eight-aspect coverage (Aspects 1-8) is the body-section taxonomy the single prompt instructs the LLM to fill; TDD-extended aspects (9-15) are an inference-only finer-grained taxonomy that overlaps the CLI's six TDD body sections. Domain keyword dictionaries are LLM-advisory; the chunked-extraction protocol and 4-pass completeness verification are non-canonical inference-only and have no CLI implementation.*

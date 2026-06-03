@@ -1,0 +1,13 @@
+{
+  "fixture": "fragility_stub/fail_open_ambiguous_found_case",
+  "source_authority": {
+    "master_recurrence_row": 22,
+    "partition_findings": ["A2a:F-A2a-008", "A9:F-A9-002"],
+    "incident_summary": "'Silent skip on uncertainty' institutionalised as design: /sc:brainstorm 'If uncertain, do NOT trigger. False negatives preferred over token waste' (A9:F-A9-002); a Stage-9 ambiguity check resolved the uncertain case as already-found (fail-open ambiguous=found, A2a:F-A2a-008). R1.6 made gates fail-closed. Contract #5 forbids return-True fragility/false-negative-preferred stubs."
+  },
+  "verified_component": "tests.roadmap.test_no_fragility_stubs._FRAGILITY_STUB_RE + live src/superclaude/cli tree scan",
+  "pre_fix_snippet": "return True  # fail-open: if uncertain treat as found — false negatives preferred for now",
+  "pre_fix_expected_regex_match": true,
+  "post_fix_expected_cli_tree_offender_count": 0,
+  "expected_contract_5_invariant": "MUST FAIL pre-fix (a fail-open-on-uncertainty `return True # ... for now` stub is matched by the Contract #5 fragility-stub regex — uncertainty silently converted to a pass), MUST PASS post-fix (R1.6 made gates fail-closed; the live src/superclaude/cli tree contains ZERO fail-open fragility stubs, and the companion deterministic ambiguous/validation gates return False on uncertain input)."
+}

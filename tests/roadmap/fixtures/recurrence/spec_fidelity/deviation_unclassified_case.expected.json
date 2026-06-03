@@ -1,0 +1,16 @@
+{
+  "fixture": "spec_fidelity/deviation_unclassified_case",
+  "source_authority": {
+    "master_recurrence_row": 19,
+    "partition_findings": ["A6:F-A6-008", "A10:F-A10-010", "A11:F-A11-009"],
+    "incident_summary": "Deviation classifier produced UNCLASSIFIED / hex-stable_id / false-positive deviations forcing manual triage every release (A10:F-A10-010 '14 UNCLASSIFIED hex IDs'; A6:F-A6-008 '20 deviations all NO_ACTION via manual triage'). Compounded by the ambiguous_count vs ambiguous_deviations field-name mismatch (A11:F-A11-009, gates.py:18). Post-fix the gate reads the canonical field name from superclaude.contracts.GATE_FIELD_NAMES and is fail-closed."
+  },
+  "verified_component": "superclaude.cli.roadmap.gates._no_ambiguous_deviations",
+  "canonical_field_source": "superclaude.contracts.GATE_FIELD_NAMES['deviation_analysis']['ambiguous']",
+  "canonical_field_name": "ambiguous_deviations",
+  "fixture_ambiguous_deviations_value": 14,
+  "expected_check_result_on_fixture": false,
+  "expected_check_result_if_zero": true,
+  "expected_check_result_if_old_ambiguous_count_field_only": false,
+  "expected_contract_invariant": "MUST FAIL pre-fix (14 UNCLASSIFIED ambiguous deviations forced manual triage, and the gate read the wrong field name ambiguous_count so it could silently miss them), MUST PASS post-fix (_no_ambiguous_deviations reads ambiguous_deviations from the GATE_FIELD_NAMES SoT and returns False for this 14-ambiguous report — failing closed — while a clean ambiguous_deviations:0 report returns True; a stale ambiguous_count-only report also returns False, proving the field-name mismatch is closed)."
+}
