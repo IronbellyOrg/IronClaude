@@ -13,14 +13,34 @@ The user invokes this command with a label as the argument, e.g.
 1. Extract the label from the user's invocation (the single argument after the
    command name, whitespace trimmed). If empty, ask the user for one and stop.
 
-2. Run this bash command, with `<LABEL>` replaced by the user's label:
+2. **Validate the label BEFORE building any command (load-bearing security
+   gate).** The label is interpolated as text into the bash command in step 3,
+   so an unvalidated value containing shell metacharacters would execute as
+   code at interpolation time — *before* any in-shell guard could run. You
+   MUST therefore reject an unsafe label here, at the instruction level, and
+   never substitute it into the command:
+
+   - The label MUST match `^[A-Za-z0-9._-]+$` (only letters, digits, dot,
+     underscore, dash) AND MUST NOT be `.` or `..`.
+   - If it contains anything else — a space, `/`, `\`, `..`, a quote (`'` or
+     `"`), `` ` ``, `$`, `;`, `&`, `|`, `(`, newline, or any other character —
+     STOP and tell the user: *"Invalid label — use only letters, digits, dot,
+     underscore, and dash."* Do NOT run the bash command in step 3.
+
+   Only a label that passes this check may be substituted into step 3.
+
+3. Run this bash command, with `<LABEL>` replaced by the (already-validated)
+   label from step 2:
 
    ```bash
    LABEL="<LABEL>"
 
-   # Reject labels that could escape the topics/ dir or break the path. The
-   # label is interpolated into "$TOPIC_DIR/$LABEL.txt", so it must be a safe
-   # filename: no '/', no '..', not empty, and only [A-Za-z0-9._-].
+   # Defense-in-depth ONLY. The load-bearing gate is step 2 (instruction-level
+   # validation before interpolation) — a value with shell metacharacters would
+   # already have executed at the `LABEL=` assignment above, so these in-shell
+   # cases cannot stop a breakout; they only catch a safe-charset-but-invalid
+   # value (e.g. '..') if step 2 was somehow skipped. The label flows into
+   # "$TOPIC_DIR/$LABEL.txt".
    case "$LABEL" in
      '' | */* | *..* | .)
        echo "ERROR: invalid label '$LABEL' (no '/' or '..', and not empty)" >&2
@@ -62,7 +82,7 @@ The user invokes this command with a label as the argument, e.g.
    echo "Resume next time with: ccsession $LABEL"
    ```
 
-3. Relay the bash output to the user verbatim. If it exits non-zero, surface
+4. Relay the bash output to the user verbatim. If it exits non-zero, surface
    the error.
 
 ## Notes
