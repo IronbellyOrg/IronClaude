@@ -1,0 +1,204 @@
+#!/bin/bash
+# ccsession — Claude Code session manager with labeled resume
+#
+# Part of the 'ccsession' skill. Symlinked from ~/.local/bin/ccsession by
+# install.sh in this skill's directory.
+#
+# Usage:
+#   ccsession <topic>         Resume or start a Claude session labeled <topic>
+#   ccsession --list          List all labeled sessions across all workspaces
+#   ccsession --here          List labeled sessions for the current workspace only
+#   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
+#   ccsession --help          Show this help
+#
+# The wrapper always runs claude with --dangerously-skip-permissions.
+# Override by setting CC_CLAUDE_FLAGS in your shell env.
+#
+# Env vars (proxy URL, auth tokens) can be set in ~/.claude/ccsession.env.
+# See ccsession.env.example in this skill's directory for the template.
+
+set -e
+
+CLAUDE_BIN="${CLAUDE_BIN:-claude}"
+CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions}"
+PROJECTS_DIR="$HOME/.claude/projects"
+
+# Source per-user env (proxy base URL, auth tokens, etc.) before launching
+# claude. Keep this file out of version control — it holds secrets.
+CCSESSION_ENV_FILE="${CCSESSION_ENV_FILE:-$HOME/.claude/ccsession.env}"
+if [ -f "$CCSESSION_ENV_FILE" ]; then
+  # shellcheck disable=SC1090
+  . "$CCSESSION_ENV_FILE"
+fi
+
+slugify() {
+  # Claude Code's path encoding: replace / with -
+  echo "$1" | sed 's|/|-|g'
+}
+
+workspace_name() {
+  # Prefer the real cwd cached at label-write time. Fall back to a best-effort
+  # decode of the slug (lossy when dir names contain literal dashes).
+  local topics_dir="$1"
+  local cwd_file="$topics_dir/.cwd"
+  if [ -f "$cwd_file" ]; then
+    basename "$(cat "$cwd_file")"
+    return
+  fi
+  local slug
+  slug=$(basename "$(dirname "$topics_dir")")
+  echo "$slug" | sed 's|^-||; s|-|/|g' | xargs basename 2>/dev/null || echo "$slug"
+}
+
+# Birth time (start) in epoch seconds — macOS APFS supports it natively;
+# Linux fallback requires ext4+ with birthtime tracking and returns "-" if
+# unavailable.
+get_btime() {
+  local file="$1" bt
+  bt=$(stat -f '%B' "$file" 2>/dev/null)
+  if [ -z "$bt" ] || [ "$bt" = "0" ]; then
+    bt=$(stat -c '%W' "$file" 2>/dev/null)
+  fi
+  [ -z "$bt" ] || [ "$bt" = "0" ] || [ "$bt" = "-" ] && return
+  echo "$bt"
+}
+
+get_mtime() {
+  local file="$1"
+  stat -f '%m' "$file" 2>/dev/null || stat -c '%Y' "$file" 2>/dev/null
+}
+
+format_epoch() {
+  local epoch="$1"
+  date -r "$epoch" '+%Y-%m-%d %H:%M' 2>/dev/null \
+    || date -d "@$epoch" '+%Y-%m-%d %H:%M' 2>/dev/null
+}
+
+format_duration() {
+  local secs="$1"
+  [ "$secs" -lt 0 ] && secs=0
+  local days=$((secs / 86400))
+  local hours=$(( (secs % 86400) / 3600 ))
+  local mins=$(( (secs % 3600) / 60 ))
+  if [ "$days" -gt 0 ]; then
+    printf '%dd %dh' "$days" "$hours"
+  elif [ "$hours" -gt 0 ]; then
+    printf '%dh %dm' "$hours" "$mins"
+  else
+    printf '%dm' "$mins"
+  fi
+}
+
+list_sessions() {
+  local scope_slug="$1"  # empty = all workspaces, else filter to this slug
+  local found=0
+  for ws_dir in "$PROJECTS_DIR"/*/topics; do
+    [ -d "$ws_dir" ] || continue
+    local ws_slug
+    ws_slug=$(basename "$(dirname "$ws_dir")")
+    [ -n "$scope_slug" ] && [ "$ws_slug" != "$scope_slug" ] && continue
+
+    local first=1
+    for topic_file in "$ws_dir"/*.txt; do
+      [ -f "$topic_file" ] || continue
+      if [ $first = 1 ]; then
+        echo ""
+        echo "$(workspace_name "$ws_dir")"
+        first=0
+      fi
+      local topic uuid jsonl start_ts last_ts start_str last_str dur_str range
+      topic=$(basename "$topic_file" .txt)
+      uuid=$(cat "$topic_file")
+      jsonl="$(dirname "$ws_dir")/$uuid.jsonl"
+
+      if [ ! -f "$jsonl" ]; then
+        printf '  %-22s  %s  %s\n' "$topic" "(transcript missing)" "${uuid:0:8}"
+        found=1
+        continue
+      fi
+
+      start_ts=$(get_btime "$jsonl")
+      last_ts=$(get_mtime "$jsonl")
+
+      if [ -z "$start_ts" ] || [ -z "$last_ts" ]; then
+        printf '  %-22s  %s  %s\n' "$topic" "(times unavailable)" "${uuid:0:8}"
+        found=1
+        continue
+      fi
+
+      start_str=$(format_epoch "$start_ts")
+      last_str=$(format_epoch "$last_ts")
+      dur_str=$(format_duration $((last_ts - start_ts)))
+      # If start and last are on the same day, show last as time-only for
+      # compactness; otherwise show full date on both.
+      if [ "${start_str%% *}" = "${last_str%% *}" ]; then
+        range="started $start_str  last ${last_str#* }"
+      else
+        range="started $start_str  last $last_str"
+      fi
+      printf '  %-22s  %s  (%s)  %s\n' "$topic" "$range" "$dur_str" "${uuid:0:8}"
+      found=1
+    done
+  done
+  if [ $found = 0 ]; then
+    if [ -n "$scope_slug" ]; then
+      echo "No labeled sessions in this workspace yet."
+    else
+      echo "No labeled sessions yet."
+    fi
+    echo "Start one with: ccsession <topic>"
+    echo "Or tag an active session from inside Claude: /ccsession-tag <topic>"
+  fi
+}
+
+case "${1:-}" in
+  ""|-h|--help)
+    sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+  --list)
+    list_sessions ""
+    exit 0
+    ;;
+  --here)
+    list_sessions "$(slugify "$(pwd)")"
+    exit 0
+    ;;
+  --rm)
+    [ -n "${2:-}" ] || { echo "Usage: ccsession --rm <topic>" >&2; exit 2; }
+    WS_SLUG=$(slugify "$(pwd)")
+    TOPIC_FILE="$PROJECTS_DIR/$WS_SLUG/topics/$2.txt"
+    if [ -f "$TOPIC_FILE" ]; then
+      rm "$TOPIC_FILE"
+      echo "Removed label '$2' from this workspace."
+    else
+      echo "No label '$2' in this workspace." >&2
+      exit 1
+    fi
+    exit 0
+    ;;
+esac
+
+TOPIC="$1"
+shift
+
+WS_SLUG=$(slugify "$(pwd)")
+TOPIC_DIR="$PROJECTS_DIR/$WS_SLUG/topics"
+TOPIC_FILE="$TOPIC_DIR/$TOPIC.txt"
+
+mkdir -p "$TOPIC_DIR"
+# Cache the real workspace path so --list can show it accurately even when the
+# directory name contains dashes (slug encoding is lossy).
+echo "$(pwd)" > "$TOPIC_DIR/.cwd"
+
+# Exported so the SessionStart hook can pick it up and write the label file.
+export CLAUDE_TOPIC="$TOPIC"
+
+if [ -f "$TOPIC_FILE" ]; then
+  SESSION_ID=$(cat "$TOPIC_FILE")
+  echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
+  exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --resume "$SESSION_ID" "$@"
+else
+  echo "[ccsession] Starting new session labeled '$TOPIC'"
+  exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
+fi
