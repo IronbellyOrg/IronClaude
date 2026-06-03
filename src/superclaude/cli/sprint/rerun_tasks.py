@@ -730,7 +730,9 @@ def _content_sha256_ws_excluding_rerun_block(path: Path) -> str:
     except OSError:
         return ""
     _, without_block = _split_rerun_block(content)
-    return hashlib.sha256(_normalize_whitespace(without_block).encode("utf-8")).hexdigest()
+    return hashlib.sha256(
+        _normalize_whitespace(without_block).encode("utf-8")
+    ).hexdigest()
 
 
 def _extract_history(block_text: str) -> list[str]:

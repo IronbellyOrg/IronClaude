@@ -120,7 +120,9 @@ class BoundaryIntegrityGate:
         lc_phase = lc.phase if lc.phase is not None else plan.interrupted_phase
 
         # Signal A — the persisted claim.
-        signal_a_pass = lc.persisted_status is TaskStatus.PASS
+        signal_a_pass = (
+            lc.persisted_status is not None and lc.persisted_status.is_success
+        )
 
         # Signal B — independent re-derivation from the transcript (under lc_phase).
         transcript = self._read_transcript(results_dir, lc_phase, lc.task_id)

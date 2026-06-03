@@ -160,7 +160,7 @@ class ResumePlanner:
             plan.rerun_task_ids = [
                 bt.task_id
                 for bt in boundary
-                if bt.persisted_status is not TaskStatus.PASS
+                if bt.persisted_status is None or not bt.persisted_status.is_success
             ]
         else:
             # Hard crash / pre-v4.3.0: derive the failed set from transcripts.
@@ -315,13 +315,21 @@ class ResumePlanner:
     def _assign_roles(boundary: list[BoundaryTask]) -> None:
         """Mark last_completed (highest-index PASS) and next_unfinished roles."""
         passed = sorted(
-            (bt for bt in boundary if bt.persisted_status is TaskStatus.PASS),
+            (
+                bt
+                for bt in boundary
+                if bt.persisted_status is not None and bt.persisted_status.is_success
+            ),
             key=lambda bt: bt.task_id,
         )
         if passed:
             passed[-1].role = "last_completed"
         non_pass = sorted(
-            (bt for bt in boundary if bt.persisted_status is not TaskStatus.PASS),
+            (
+                bt
+                for bt in boundary
+                if bt.persisted_status is None or not bt.persisted_status.is_success
+            ),
             key=lambda bt: bt.task_id,
         )
         if non_pass:

@@ -18,7 +18,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from superclaude.cli.sprint.config import discover_phases, parse_tasklist_file
-from superclaude.cli.sprint.models import TaskStatus
 
 from .models import DriftAssessment, Granularity, ResumePlan
 
@@ -90,7 +89,7 @@ class DriftAssessor:
         recorded_completed = {
             bt.task_id
             for bt in plan.boundary_tasks
-            if bt.persisted_status is TaskStatus.PASS
+            if bt.persisted_status is not None and bt.persisted_status.is_success
         }
         recorded_all = {
             bt.task_id for bt in plan.boundary_tasks if bt.persisted_status is not None

@@ -139,6 +139,123 @@ class TestResumePlanner:
         assert roles["T03.01"] == "last_completed"
         assert roles["T03.02"] == "next_unfinished"
 
+    def test_resume_pass_recovered_counts_as_completed(self, tmp_path):
+        """PR #124: a per-task result with status 'pass_recovered' is a SUCCESS.
+
+        A recovered tail task (non-zero exit but completion evidence, persisted by
+        master as ``"pass_recovered"`` after #126) must be treated as completed by
+        the resume code, which compared task status by identity to ``TaskStatus.PASS``
+        before this fix. Guards all four widened axes as genuine RED->GREEN signals:
+        (a) the recovered task is NOT in ``rerun_task_ids``; (b) it IS selected as
+        ``last_completed`` (T03.02 is ``next_unfinished``); (c) the drift assessor
+        treats it as COMPLETED work (a same-ID removal scores material, <0.8 per
+        AC-5); (d) the integrity gate's Signal A surface (the persisted claim,
+        ``lc.persisted_status.is_success`` — NOT the composite ``validated_last``)
+        recognizes the recovered ``last_completed``.
+        """
+        # ---- Fixture 1: T03.01 present + pass_recovered → planner + integrity ----
+        base = tmp_path / "base"
+        base.mkdir()
+        results = base / "results"
+        results.mkdir()
+        deliv = base / "recovered_deliverable.txt"
+        deliv.write_text("done\n")
+        (base / "phase-1-tasklist.md").write_text(_task_block("T01.01"))
+        (base / "phase-2-tasklist.md").write_text(_task_block("T02.01"))
+        (base / "phase-3-tasklist.md").write_text(
+            "# Phase 3\n"
+            + _task_block("T03.01", deliverable=deliv)
+            + _task_block("T03.02")
+        )
+        index = _write_index(base, (1, 2, 3))
+        events = _complete_phase(results, 1) + _complete_phase(results, 2)
+        (results / "phase-3-result.json").write_text(
+            json.dumps(
+                {
+                    "phase": 3,
+                    "status": "incomplete",
+                    "task_results": [
+                        {"task": {"task_id": "T03.01"}, "status": "pass_recovered"},
+                        {"task": {"task_id": "T03.02"}, "status": "incomplete"},
+                    ],
+                }
+            )
+        )
+        events += [
+            {"event": "phase_start", "phase": 3},
+            {"event": "phase_complete", "phase": 3, "status": "incomplete"},
+        ]
+        _write_log(base, events)
+        (results / "phase-3-task-T03.01-output.txt").write_text(PASS_TRANSCRIPT)
+
+        plan = ResumePlanner().plan(index)
+
+        # (a) recovered task is NOT rerun (planner Site 3a):
+        assert "T03.01" not in plan.rerun_task_ids
+        assert plan.rerun_task_ids == ["T03.02"]
+        # (b) recovered task IS last_completed; T03.02 is next_unfinished
+        #     (planner Sites 3b + 3c):
+        roles = {bt.task_id: bt.role for bt in plan.boundary_tasks}
+        assert roles["T03.01"] == "last_completed"
+        assert roles["T03.02"] == "next_unfinished"
+        # (d) integrity gate Signal A (the persisted-claim surface) recognizes the
+        #     recovered last_completed (integrity Site 4a). Read the Signal-A-specific
+        #     field (lc.persisted_status), NOT the composite validated_last.
+        report = BoundaryIntegrityGate().run(plan)
+        lc = next(
+            (bt for bt in plan.boundary_tasks if bt.role == "last_completed"), None
+        )
+        assert lc is not None and lc.task_id == "T03.01"
+        assert lc.persisted_status is not None and lc.persisted_status.is_success
+        # report.validated_last is the COMPOSITE (signal_a AND signal_b AND
+        # artifacts). signal_b re-derives via _classify_transcript, which scores
+        # PASS_TRANSCRIPT as PASS even though a genuine recovered seam would fail
+        # it — so validated_last here is OQ-1/Opt-2-dependent — NOT a guard.
+        # (Intentionally not asserted: see F1 GUARD in TASK-RF-20260604-035221.)
+        assert report is not None
+
+        # ---- Fixture 2: T03.01 pass_recovered but REMOVED from the current
+        #      tasklist → drift must score the removal material (assertion (c)). ----
+        drift_dir = tmp_path / "drift"
+        drift_dir.mkdir()
+        dresults = drift_dir / "results"
+        dresults.mkdir()
+        (drift_dir / "phase-1-tasklist.md").write_text(_task_block("T01.01"))
+        (drift_dir / "phase-2-tasklist.md").write_text(_task_block("T02.01"))
+        recorded_p3 = "# Phase 3\n" + _task_block("T03.01") + _task_block("T03.02")
+        # Current body renames/removes the completed T03.01 (-> T03.09):
+        material_p3 = "# Phase 3\n" + _task_block("T03.09") + _task_block("T03.02")
+        dp3 = drift_dir / "phase-3-tasklist.md"
+        dindex = _write_index(drift_dir, (1, 2, 3))
+        devents = _complete_phase(dresults, 1) + _complete_phase(dresults, 2)
+        dp3.write_text(recorded_p3)  # baseline body for the recorded hash
+        rj = {
+            "phase": 3,
+            "status": "incomplete",
+            "task_results": [
+                {"task": {"task_id": "T03.01"}, "status": "pass_recovered"},
+                {"task": {"task_id": "T03.02"}, "status": "incomplete"},
+            ],
+            "tasklist_sha256": _content_sha256_excluding_rerun_block(dp3),
+            "tasklist_sha256_ws": _content_sha256_ws_excluding_rerun_block(dp3),
+        }
+        dp3.write_text(material_p3)  # now mutate to the drifted current body
+        (dresults / "phase-3-result.json").write_text(json.dumps(rj))
+        devents += [
+            {"event": "phase_start", "phase": 3},
+            {"event": "phase_complete", "phase": 3, "status": "incomplete"},
+        ]
+        _write_log(drift_dir, devents)
+
+        dplan = ResumePlanner().plan(dindex)
+        # (c) drift treats the recovered task as COMPLETED work (drift Site 5):
+        #     removing the recovered T03.01 must score material (<0.8 per AC-5).
+        #     With the unfixed predicate T03.01 is absent from recorded_completed,
+        #     so its removal is NOT flagged material (>=0.8) — a genuine guard.
+        drift = DriftAssessor().assess(dindex, dplan)
+        assert drift.confidence < 0.8
+        assert "T03.01" in drift.explanation
+
     def test_resume_hard_crash_phase_level(self, tmp_path):
         """AC-3: P3 phase_start, no result.json, no per-task transcripts ⇒
         PHASE granularity (whole-phase re-run)."""
