@@ -87,15 +87,15 @@ List 5-10 capabilities. Each line is a single capability in "{verb} {noun}
 </OUTPUT>
 ```
 
-The "negative" hint asks Haiku to surface 1-2 capabilities the plugin probably does NOT do — important for generating genuine without-resource expectations.
+The "negative" hint asks Haiku to surface 1 capability the plugin probably does NOT do — important for generating a genuine without-resource expectation. (R4-OQ6 RESOLVED 2026-06-03: 1 negative-control, not 1-2.)
 
-**Output**: capability list + 1-2 negative-control capabilities. Cost: one Haiku call, ~3K tokens.
+**Output**: capability list + 1 negative-control capability. Cost: one Haiku call, ~3K tokens.
 
 ## Stage 2: Synthetic Case Generation
 
 **Input**: Capability list from Stage 1 + plugin row metadata.
 
-**Worker**: Haiku by default, with explicit user override to Sonnet/Opus when stakes are high. *Decision deferred to user as round-4 OQ4 below.*
+**Worker (R4-OQ4 RESOLVED 2026-06-03): Sonnet**, per-plugin and user-gated. This is a deliberate, user-authorized exception to the Haiku-only constraint. The constraint applies to the sc-recommend HOT PATH (cost-sensitive, frequent); Stage 2 is opt-in, off hot-path, one-time per plugin, and gated by mandatory human review (Stage 3). Sonnet trades modest extra token cost (~1.5x Haiku) for materially higher case-quality — fewer rejection-and-redo cycles in Stage 3, lower implementation risk. The strict Haiku-only behavior remains for hot-path classification and cold-path runbook execution.
 
 **Output schema** — a cliEval-compatible suite YAML written to a draft file:
 
@@ -218,7 +218,7 @@ adoption_gate:
 
 `tool_use_present`/`absent` require cliEval to **persist the subagent's tool-use transcript** to a deterministic path. The harness already captures `.output` files (full JSONL transcripts) — the new code is a thin parse-and-filter step.
 
-**Cost**: one Haiku call per capability × ~5-10 capabilities + 1-2 negative-control cases = roughly 6-12 calls × ~3K tokens each = ~20-35K tokens for case generation.
+**Cost (resolutions applied)**: one Sonnet call per capability × 5-10 capabilities + 1 negative-control case = roughly 6-11 calls × ~4-5K tokens each (Sonnet is slightly heavier than Haiku for the same task) = **~24-55K tokens for case generation**. Cost scales linearly with target case count.
 
 **Pairing**: every positive case (`configuration: with_resource`) MUST have a paired `configuration: without_resource` case with the same `pair_id` and same isolation/inputs. This is what makes the delta meaningful.
 
@@ -301,43 +301,48 @@ assertion_types:
 
 All additions are backward-compatible — existing cliEval suites without these fields continue to run unchanged.
 
-## Cost Summary (per plugin adopted)
+## Cost Summary (per plugin adopted) — updated with R4 resolutions
 
 | Stage | Worker | Cost (tokens) | Wall time |
 |---|---|---|---|
 | Discovery (existing) | Tavily / tech-research | ~10-30K | ~30s |
 | Stage 1: capability extraction | Haiku | ~3K | ~10s |
-| Stage 2: case generation | Haiku (default) | ~20-35K | ~60s |
+| Stage 2: case generation | **Sonnet** (R4-OQ4) | ~24-55K | ~75s |
 | Stage 3: user review | human | 0 | varies (~5 min) |
-| Stage 4: eval execution | per `--eval` mode | ~90K-1.6M | 70s-15min |
-| **Total before adoption decision** | | **~120K-1.7M** | **~6-17 min** |
+| Stage 4: eval execution | per `--eval` mode | ~90K-1.6M | 70s-15 min |
+| **Total before adoption decision** | | **~127K-1.7M** | **~7-17 min** |
 
-The cost is real but bounded and user-driven. A user evaluating 5 plugins in a session at `--eval normal` is ~2M tokens. At `--eval deep` it's ~9M. Worth ranging an `--eval-budget` flag in a future round.
+The cost is real but bounded and user-driven. A user evaluating 5 plugins in a session at `--eval normal` ≈ 2M tokens. At `--eval deep` ≈ 9M. Worth ranging an `--eval-budget` flag in a future round.
 
-## Open Questions (round-4)
+## Resolved Open Questions (R4)
 
-### OQ4 (round-4): Generator-worker model choice
+All four round-4 open questions resolved by user on 2026-06-03. Recorded here for audit.
 
-The Haiku-only constraint applies to sc-recommend's HOT PATH (the cost-sensitive lookup). Synthetic case generation is opt-in, per-plugin, run-once-per-plugin work that lands in a tracked, committed suite YAML reviewed by a human before use.
+### OQ4 — Generator-worker model choice — RESOLVED: Sonnet
 
-**Should Stage 2 (case generation) be allowed to use Sonnet/Opus despite the Haiku-only constraint?** Trade-offs:
+**Decision**: Stage 2 case generation runs on **Sonnet**, per-plugin and user-gated. Deliberate user-authorized exception to the Haiku-only constraint, justified by: (a) Stage 2 is off hot-path, (b) one-time per plugin, (c) user-gated via Stage 3 mandatory review, (d) Sonnet's higher case quality reduces Stage 3 reject-and-redo cycles. The Haiku-only constraint remains for sc-recommend hot-path classification and cold-path runbook execution. Reflected throughout this doc and in `merged-requirements.md` provenance comments.
 
-- **Haiku (strict adherence)**: matches round-3 hard constraint. Generated cases reflect what Haiku can produce. If Haiku-generated cases are weaker (vague assertions, missed capabilities), the user review gate is the safety net — but more cases get rejected, more iterations needed.
-- **Sonnet/Opus (relax for off-hot-path generation)**: higher case quality, fewer review-and-redo cycles. Inconsistent with the "all work on Haiku" framing but consistent with the "Haiku-only on hot path, opt-in evaluation can be heavier" pragmatic reading.
+### OQ5 — Cases-per-plugin target — RESOLVED: 5-10
 
-I lean toward Sonnet for Stage 2 (per-plugin, one-time, user-gated, off hot-path) but defer the decision.
+**Decision**: 5-10 cases per plugin, scaled by capability count surfaced in Stage 1. Narrow plugins (single capability — e.g., a calculator MCP server) get ~5 cases. Broad multi-capability plugins (Notion: search + read + write + database) get ~10. Stage 1's capability extraction prompt now caps the surface list at 10 capabilities; Stage 2 generates one positive case per capability + one without-resource pair per positive case + 1 negative-control (see OQ6). Total positive/negative-pair count: 5-10 + 5-10 + 1 = 11-21 case rows per suite.
 
-### OQ5 (round-4): Cases-per-plugin target
+### OQ6 — Negative controls per plugin — RESOLVED: 1
 
-5? 10? 20? Cost scales linearly. 5 cases × 1 model × 2 configurations (with/without) = 10 runs at `quick` mode = ~900K tokens. 20 cases at `deep` = ~9M tokens. The right answer probably depends on plugin scope — narrow plugins (single capability) get fewer; broad plugins (Notion, with search + read + write + database) get more. Round-4 spec says "5-10" as Stage 1's target — finalize?
+**Decision**: Exactly **1** negative-control case per plugin (chose lower end of the 1-2 range from the original spec). Rationale: 1 negative-control is sufficient to catch the dominant false-positive failure mode (plugin claims X, but X requests succeed identically with or without). Additional negative controls have diminishing returns. Stage 1 prompt updated above to ask for 1 capability the plugin probably does NOT do. Eval-budget-conscious choice.
 
-### OQ6 (round-4): Negative controls — how many?
+### OQ7 — Suite TTL on plugin version change — RESOLVED: Hard-invalidate on `source_hash` change
 
-Round-4 spec says "1-2 negative-control capabilities". Negative controls are load-bearing for catching false-positive adoptions (the plugin claims X, but if X requests succeed identically with and without the plugin, X isn't real). But each negative control doubles its cost. Default 1, allow user to bump?
+**Decision**: Generated synthetic suites carry a `suite.bound_to_plugin_hash: <hash>` frontmatter field. When the plugin's `source_hash` in the plugin lookup-table row drifts from the suite's bound hash, the cliEval harness **hard-fails** with: "Synthetic suite for <plugin-key> is bound to plugin hash `<old>` but current plugin hash is `<new>`. Regenerate the suite (`/sc:recommend --plugin <query> --eval <mode> --regen-suite`) before re-running." This prevents stale eval results from misinforming adoption verdicts after a plugin upgrade. Schema addition added to `suite.schema.json` delta below.
 
-### OQ7 (round-4): Suite TTL
+### Suite schema delta — additional R4-OQ7 field
 
-Synthetic eval suites are tied to a specific plugin version. When the plugin's `source_hash` changes (new version published), do generated cases automatically invalidate? Or do they stay valid until manual re-run? Suggests adding `suite.bound_to_plugin_hash: <hash>` and treating any mismatch as a hard-fail until regenerated.
+```yaml
+# Per-suite addition (round-4 schema delta — appended to the schema_additions block above)
+bound_to_plugin_hash:
+  type: string
+  format: sha256
+  description: "Plugin source_hash this synthetic suite was generated against. Hard-fail if plugin's current source_hash differs."
+```
 
 ## What Round 4 Explicitly Does NOT Do
 

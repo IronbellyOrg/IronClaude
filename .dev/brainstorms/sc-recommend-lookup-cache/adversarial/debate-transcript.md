@@ -140,10 +140,16 @@ These are not resolved by the spec — they need user decision before implementa
 
 - **R4 → SPAWNED**: user requested a round-4 spec for synthetic-eval-case generation. Drafted as standalone artifact `.dev/brainstorms/sc-recommend-lookup-cache/round-4-synthetic-eval-cases.md`. Auggie-grounded against existing precedents in `src/superclaude/cli/install_mcp.py`, `src/superclaude/cli/eval/suites/*.yaml`, and `.dev/eval-workspaces/sc-reflect/grader.py`. Aggressively reuses cliEval suite format + adds 3 schema fields and 2 assertion types. 4 new open questions (OQ4-OQ7) surfaced in the round-4 doc itself.
 
-## Remaining Open Questions (R3.5 status)
+## Round 3.5 + Round 4 — All Open Questions RESOLVED (2026-06-03)
 
-- **R3.5-OQ3-original**: best_model hint advisory or prescriptive? (Default: advisory. Awaiting explicit user call.)
-- **R4-OQ4**: Should synthetic eval-case generator (Stage 2 in round-4) be allowed to use Sonnet/Opus despite Haiku-only constraint? Generation is off hot-path, opt-in, one-time per plugin, user-gated. (Default: Haiku per strict constraint. Recommend: Sonnet for higher case quality given the user review safety net.)
-- **R4-OQ5**: How many synthetic cases per plugin? (Default: 5-10, plugin-scope-dependent.)
-- **R4-OQ6**: How many negative-control cases per plugin? (Default: 1-2.)
-- **R4-OQ7**: Synthetic suite TTL — invalidate when plugin's `source_hash` changes, or only on manual re-run? (Default: invalidate on hash change, treat as hard-fail.)
+User resolved all 5 outstanding open questions in one batch on 2026-06-03. No questions remain open.
+
+- **R3.5-OQ3-original → RESOLVED: ADVISORY**. best_model hint emitted as non-binding "consider --model X" text in the recommendation prompt. Downstream skills are NOT required to honor model overrides. Prescriptive routing was deferred as cross-cutting work out of MVP scope. Reflected in `merged-requirements.md` Hot-Path step 7.
+- **R4-OQ4 → RESOLVED: Sonnet** for Stage 2 case generation, per-plugin and user-gated. Deliberate, user-authorized exception to the Haiku-only constraint, scoped to off-hot-path opt-in work with mandatory human review (Stage 3) as the safety net. Hot-path classification and cold-path runbook execution stay Haiku-only. Reflected in `round-4-synthetic-eval-cases.md` Stage 2 + Cost Summary table.
+- **R4-OQ5 → RESOLVED: 5-10** cases per plugin, capability-scope-dependent. Stage 1 capability extraction caps the surface list at 10. Reflected in `round-4-synthetic-eval-cases.md` Stage 1 prompt + Resolved Open Questions section.
+- **R4-OQ6 → RESOLVED: 1** negative-control case per plugin (lower end of the 1-2 range). Eval-budget-conscious choice; sufficient to catch the dominant false-positive failure mode. Stage 1 prompt updated to ask for exactly 1 capability the plugin probably does NOT do.
+- **R4-OQ7 → RESOLVED: Hard-invalidate** synthetic suite when plugin `source_hash` changes. Suite carries `bound_to_plugin_hash: <sha256>` frontmatter; cliEval hard-fails on mismatch with an explicit "regenerate before re-running" message. Schema delta added in `round-4-synthetic-eval-cases.md`.
+
+## Status: brainstorm closed
+
+With R3.5 + R4 closed, the merged-requirements spec is implementation-ready. No further brainstorm rounds planned unless the implementation surfaces new design questions. Open questions in the implementation phase (e.g., specific YAML key vocabulary, exact prompt few-shot examples) belong in implementation review, not brainstorm rounds.

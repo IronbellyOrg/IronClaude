@@ -36,13 +36,51 @@ round_3:
       title: "CLI eval pipeline reuse from iteration-1"
       type: "infrastructure reuse"
       reused_components: ["build_benchmark.py", "grader.py", "assertion mechanism"]
-  open_questions:
+  open_questions_status: "all resolved 2026-06-03 across R3.5 + R4"
+  resolved_open_questions:
     - id: OQ1
       question: "Should cold-path inserts auto-trigger --eval quick by default, or stay opt-in?"
+      resolution: "opt-in (default --eval none); user rejected auto-eval"
+      resolved_on: "2026-06-02"
     - id: OQ2
       question: "Should plugin eval BLOCK on a setup_steps self-check, or run with a degraded-data flag?"
+      resolution: "block on self-check failure (option a); reuse check_mcp_server_installed()"
+      resolved_on: "2026-06-02"
     - id: OQ3
       question: "best_model hint: advisory or prescriptive for downstream skills?"
+      resolution: "advisory only; downstream skills NOT required to honor model overrides"
+      resolved_on: "2026-06-03"
+
+round_4:
+  spawned_on: "2026-06-02"
+  closed_on: "2026-06-03"
+  artifact: ".dev/brainstorms/sc-recommend-lookup-cache/round-4-synthetic-eval-cases.md"
+  scope: "Synthetic eval-case generation pipeline for plugin adoption decisions"
+  precedents_reused:
+    - "src/superclaude/cli/install_mcp.py:check_mcp_server_installed"
+    - "src/superclaude/cli/eval/suites/*.yaml (cliEval suite format)"
+    - "src/superclaude/cli/eval/suites/model_capability_matrix.yaml"
+    - "src/superclaude/cli/eval/suites/adversarial_merge_consistency.yaml"
+    - ".dev/eval-workspaces/sc-reflect/grader.py:check_checkpoint_logged"
+    - "isolation.home_strategy=seeded pattern"
+  resolved_open_questions:
+    - id: R4-OQ4
+      question: "Should Stage 2 case generator use Haiku (strict) or Sonnet/Opus (off-hot-path)?"
+      resolution: "Sonnet — per-plugin, user-gated, off hot-path; deliberate user-authorized exception to Haiku-only"
+      resolved_on: "2026-06-03"
+    - id: R4-OQ5
+      question: "How many synthetic cases per plugin?"
+      resolution: "5-10, capability-scope-dependent (narrow plugins 5; broad multi-capability plugins 10)"
+      resolved_on: "2026-06-03"
+    - id: R4-OQ6
+      question: "How many negative-control cases per plugin?"
+      resolution: "1 (lower end of 1-2 range); eval-budget conscious"
+      resolved_on: "2026-06-03"
+    - id: R4-OQ7
+      question: "Synthetic suite TTL on plugin source_hash change?"
+      resolution: "hard-invalidate via bound_to_plugin_hash field; cliEval hard-fails on mismatch"
+      resolved_on: "2026-06-03"
+
 enrichment_used:
   - source: codebase
     quality_tier: primary    # auggie codebase-retrieval succeeded; worktree was indexed mid-session
