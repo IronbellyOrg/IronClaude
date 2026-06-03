@@ -118,8 +118,8 @@ class HandoffRecord:
     schema_version: int            # = 1; forward-compat: readers tolerate unknown fields
     task_id: str                   # bare T<PP>.<TT>
     phase: int                     # REQUIRED — disambiguates the key (see H5)
-    status: str                    # TaskResult.status enum (PASS/FAIL_*/INCOMPLETE/SKIPPED)
-    gate_outcome: dict | None
+    status: str                    # TaskStatus.value: "pass"/"fail"/"fail_recoverable"/"incomplete"/"skipped" (TaskResult.to_dict, models.py:206)
+    gate_outcome: str              # [CORRECTED v2] GateOutcome.value: "pass"/"fail"/"deferred"/"pending" (models.py:207). NOT dict|None — the source TaskResult.gate_outcome is a GateOutcome ENUM (never None, never a dict). The H5 skip predicate uses GateOutcome(gate_outcome).is_success.
     turns_consumed: int
     exit_code: int
     output_path: str
