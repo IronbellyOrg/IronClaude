@@ -114,8 +114,17 @@ Tests/
 temp/
 tmp/
 .cache/
-.claude/
+.claude/*
 !.claude/settings.json
+# (R3) Lookup-cache tracked artifacts — user-authorized exception (merged-requirements.md Gitignore Exception)
+!.claude/cache/
+.claude/cache/*
+!.claude/cache/sc-recommend-lookup.yaml
+!.claude/cache/sc-recommend-plugin.yaml
+!.claude/cache/eval-runs/
+!.claude/cache/eval-runs/**
+# Re-ignore high-churn per-session telemetry
+.claude/cache/sc-recommend-events.jsonl
 
 # Build artifacts
 *.tar.gz

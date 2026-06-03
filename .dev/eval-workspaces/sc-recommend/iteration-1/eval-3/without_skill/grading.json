@@ -1,0 +1,25 @@
+{
+  "eval_id": 3,
+  "eval_name": "tasklist-must-handoff-not-reimplement",
+  "configuration": "without_skill",
+  "output_chars": 3241,
+  "output_exists": true,
+  "expectations": [
+    {
+      "text": "Output names /sc:tasklist or task-builder skill",
+      "passed": true,
+      "evidence": "regex /(/sc:tasklist|task-builder)/ matched: '/sc:tasklist'"
+    },
+    {
+      "text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)",
+      "passed": true,
+      "evidence": "substring 'MDTM template' absent (good)"
+    },
+    {
+      "text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification",
+      "passed": false,
+      "evidence": "length 3241 <= 2500? NO"
+    }
+  ],
+  "pass_rate": 0.6666666666666666
+}

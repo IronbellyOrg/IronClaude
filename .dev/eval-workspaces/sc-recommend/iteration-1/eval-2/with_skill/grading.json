@@ -1,0 +1,25 @@
+{
+  "eval_id": 2,
+  "eval_name": "research-codebase-must-pick-among-three-research-paths",
+  "configuration": "with_skill",
+  "output_chars": 4945,
+  "output_exists": true,
+  "expectations": [
+    {
+      "text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill",
+      "passed": true,
+      "evidence": "regex /(deep-research|Explore|auggie|tech-research)/ matched: 'auggie'"
+    },
+    {
+      "text": "Output justifies the choice (does not flat-list all three)",
+      "passed": true,
+      "evidence": "regex /(because|since|wins|preferred|fits|scope)/ matched: 'scope'"
+    },
+    {
+      "text": "Output includes a fenced prompt block OR a clear native-tool recommendation",
+      "passed": true,
+      "evidence": "regex /(```|Read|Glob|Grep)/ matched: 'Read'"
+    }
+  ],
+  "pass_rate": 1.0
+}

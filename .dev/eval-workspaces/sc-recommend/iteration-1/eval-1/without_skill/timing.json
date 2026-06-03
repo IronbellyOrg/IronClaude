@@ -1,0 +1,7 @@
+{
+  "total_tokens": 68161,
+  "duration_ms": 72465,
+  "total_duration_seconds": 72.5,
+  "tool_uses": 8,
+  "summary": "Recommended chaining prd skill then tdd skill with release-spec-template.md toggle, matrices as frozen authoritative inputs."
+}

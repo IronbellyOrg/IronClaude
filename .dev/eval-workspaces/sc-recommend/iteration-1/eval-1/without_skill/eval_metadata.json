@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "spec-from-matrices-must-surface-spec-panel",
+  "prompt": "Generate a prompt to create specs from these matrices: docs/scope-matrix.md and docs/risk-matrix.md",
+  "configuration": "without_skill",
+  "assertions": [
+    {"text": "Output names /sc:spec-panel as the primary delegation", "type": "string_contains", "value": "/sc:spec-panel"},
+    {"text": "Output references the release-spec template file by name", "type": "string_contains", "value": "release-spec-template.md"},
+    {"text": "Output does not include any static keyword-category labels", "type": "string_not_contains", "value": "_category"},
+    {"text": "Output includes a fenced paste-ready prompt block", "type": "regex_match", "value": "```[a-zA-Z]*\\n[\\s\\S]*?```"}
+  ]
+}

@@ -1,0 +1,10 @@
+ M .dev/tasks/to-do/TASK-RF-20260603-032936/TASK-RF-20260603-032936.md
+ M .gitignore
+ M src/superclaude/cli/main.py
+ M src/superclaude/commands/recommend.md
+ M src/superclaude/skills/sc-recommend/SKILL.md
+ M tests/cli/test_cli_registration.py
+?? .dev/releases/current/
+?? .dev/tasks/to-do/TASK-RF-20260603-032936/phase-outputs/
+?? src/superclaude/cli/recommend/
+?? tests/recommend/

@@ -1,0 +1,48 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/recommendv2/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/recommendv2
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 37 items
+
+tests/recommend/test_best_model.py::TestBestModelTiers::test_quality_picks_highest_pass_rate_tiebreak_tokens PASSED [  2%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_speed_respects_70pct_floor PASSED [  5%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_cost_respects_70pct_floor PASSED [  8%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_speed_cost_floor_none_qualify_suppresses PASSED [ 10%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_balanced_weighted_sum_picks_expected PASSED [ 13%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_balanced_is_default_tier PASSED [ 16%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_confidence_below_half_suppresses_hint PASSED [ 18%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_based_on_recorded PASSED [ 21%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_save_and_reload PASSED [ 24%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_surface_hash_invalidation_resets_rows PASSED [ 27%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_source_hash_full_digest PASSED [ 29%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_surface_hash_is_full_digest PASSED [ 32%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_get_row_returns_match_or_none PASSED [ 35%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_upsert_replaces_existing_key PASSED [ 37%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_upsert_appends_new_key PASSED [ 40%]
+tests/recommend/test_cache.py::TestLookupCacheAtomicWrite::test_atomic_write_no_partial_on_crash PASSED [ 43%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_hit PASSED  [ 45%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_native_likely PASSED [ 48%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_no_key_unknown PASSED [ 51%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_low_confidence PASSED [ 54%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_validation_stale_on_hash_drift PASSED [ 56%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_budget_exceeded PASSED [ 59%]
+tests/recommend/test_dispatch.py::TestColdInsertWarmsToHit::test_cache_put_recomputes_source_hash_then_dispatch_hits PASSED [ 62%]
+tests/recommend/test_eval_pipeline.py::TestGrader::test_five_assertion_types PASSED [ 64%]
+tests/recommend/test_eval_pipeline.py::TestGrader::test_grade_text_pass_rate PASSED [ 67%]
+tests/recommend/test_eval_pipeline.py::TestAggregate::test_mode_matrix_panels PASSED [ 70%]
+tests/recommend/test_eval_pipeline.py::TestAggregate::test_aggregate_by_model PASSED [ 72%]
+tests/recommend/test_eval_pipeline.py::TestFinalizeRoundTrip::test_finalize_writes_results_and_patches_row PASSED [ 75%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_append_event_writes_exactly_five_fields PASSED [ 78%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_append_event_is_line_oriented PASSED [ 81%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[miss] PASSED [ 83%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[HIT] PASSED [ 86%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[cold] PASSED [ 89%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[success] PASSED [ 91%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[] PASSED [ 94%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[miss_unknown] PASSED [ 97%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_all_six_valid_cache_results_accepted PASSED [100%]
+
+============================== 37 passed in 0.20s ==============================

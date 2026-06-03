@@ -11,6 +11,17 @@
             "timeout": 3
           }
         ]
+      },
+      {
+        "matcher": "Skill",
+        "description": "Phase-0 gate for sc:recommend. When the Skill tool invokes `sc-recommend` (or legacy `sc-recommend-protocol`), inject a context block reminding the model that live surface enumeration + mandatory auggie semantic ranking + per-candidate Read-based verification are required before any recommendation is emitted. Fail-open (exit 0); the hook does not block the Skill tool, it makes the Phase 0 contract unmissable at the moment of invocation. Source: src/superclaude/skills/sc-recommend/SKILL.md Phase 0.",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/sc-recommend-phase0.sh",
+            "timeout": 3
+          }
+        ]
       }
     ],
     "PostToolUse": [

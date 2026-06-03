@@ -1,0 +1,7 @@
+{
+  "total_tokens": 107818,
+  "duration_ms": 61972,
+  "total_duration_seconds": 62.0,
+  "tool_uses": 10,
+  "summary": "Recommended /sc:roadmap then /sc:tasklist (two-step). Verified tasklist.md source: primary input is roadmap not spec. R3 honored — hand-off only, no protocol restatement. Rejected task-builder (wrong artifact shape)."
+}

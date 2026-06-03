@@ -1,0 +1,530 @@
+{
+  "metadata": {
+    "skill_name": "sc-recommend",
+    "skill_path": "/config/workspace/IronClaude/.claude/worktrees/recommendv2/.dev/src/superclaude/skills/sc-recommend",
+    "executor_model": "claude-opus-4-7 (parent) + general-purpose subagents (default model)",
+    "analyzer_model": "claude-opus-4-7",
+    "timestamp": "2026-06-02T13:35:00Z",
+    "evals_run": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "runs_per_configuration": 1,
+    "notes": "Iteration 1 \u2014 single run per configuration (12 subagents total, fanned out in one message). Length-cap assertions for evals 3 and 4 are overly tight; surfaced as a finding rather than a true skill regression."
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "spec-from-matrices-must-surface-spec-panel",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 109.9,
+        "tokens": 106362,
+        "tool_calls": 14,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output names /sc:spec-panel as the primary delegation",
+          "passed": true,
+          "evidence": "substring '/sc:spec-panel' found"
+        },
+        {
+          "text": "Output references the release-spec template file by name",
+          "passed": false,
+          "evidence": "substring 'release-spec-template.md' NOT found"
+        },
+        {
+          "text": "Output does not include any static keyword-category labels",
+          "passed": true,
+          "evidence": "substring '_category' absent (good)"
+        },
+        {
+          "text": "Output includes a fenced paste-ready prompt block",
+          "passed": true,
+          "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```text\\nUse the Skill tool to invoke the `prd` skill with the following inputs:\\n'"
+        }
+      ],
+      "notes": [
+        "Recommended prd skill (Skill tool hand-off). Argued /sc:spec-panel reviews specs (does not produce), /sc:design is untemplated, /sc:workflow consumes a PRD rather than producing one. Did NOT surface /sc:spec-panel as the build-request expected."
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "spec-from-matrices-must-surface-spec-panel",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 72.5,
+        "tokens": 68161,
+        "tool_calls": 8,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output names /sc:spec-panel as the primary delegation",
+          "passed": false,
+          "evidence": "substring '/sc:spec-panel' NOT found"
+        },
+        {
+          "text": "Output references the release-spec template file by name",
+          "passed": true,
+          "evidence": "substring 'release-spec-template.md' found"
+        },
+        {
+          "text": "Output does not include any static keyword-category labels",
+          "passed": true,
+          "evidence": "substring '_category' absent (good)"
+        },
+        {
+          "text": "Output includes a fenced paste-ready prompt block",
+          "passed": true,
+          "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```\\nInputs (treat as authoritative, frozen \u2014 do not re-derive scope or risk from'"
+        }
+      ],
+      "notes": [
+        "Recommended chaining prd skill then tdd skill with release-spec-template.md toggle, matrices as frozen authoritative inputs."
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "research-codebase-must-pick-among-three-research-paths",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 94.1,
+        "tokens": 91590,
+        "tool_calls": 11,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill",
+          "passed": true,
+          "evidence": "regex /(deep-research|Explore|auggie|tech-research)/ matched: 'auggie'"
+        },
+        {
+          "text": "Output justifies the choice (does not flat-list all three)",
+          "passed": true,
+          "evidence": "regex /(because|since|wins|preferred|fits|scope)/ matched: 'scope'"
+        },
+        {
+          "text": "Output includes a fenced prompt block OR a clear native-tool recommendation",
+          "passed": true,
+          "evidence": "regex /(```|Read|Glob|Grep)/ matched: 'Read'"
+        }
+      ],
+      "notes": [
+        "Picked auggie codebase-retrieval (one sweep) + native Read on verified files. Rejected tech-research (overkill), deep-research-agent (wrong tool), Explore agent (dropped as ghost per Rule R2 \u2014 no source file)."
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "research-codebase-must-pick-among-three-research-paths",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 32.7,
+        "tokens": 61206,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill",
+          "passed": true,
+          "evidence": "regex /(deep-research|Explore|auggie|tech-research)/ matched: 'tech-research'"
+        },
+        {
+          "text": "Output justifies the choice (does not flat-list all three)",
+          "passed": true,
+          "evidence": "regex /(because|since|wins|preferred|fits|scope)/ matched: 'since'"
+        },
+        {
+          "text": "Output includes a fenced prompt block OR a clear native-tool recommendation",
+          "passed": true,
+          "evidence": "regex /(```|Read|Glob|Grep)/ matched: 'Read'"
+        }
+      ],
+      "notes": [
+        "Recommended /sc:research (tech-research skill) with auggie-first discovery, then serena + Read for citations."
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "tasklist-must-handoff-not-reimplement",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 62.0,
+        "tokens": 107818,
+        "tool_calls": 10,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output names /sc:tasklist or task-builder skill",
+          "passed": true,
+          "evidence": "regex /(/sc:tasklist|task-builder)/ matched: '/sc:tasklist'"
+        },
+        {
+          "text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)",
+          "passed": true,
+          "evidence": "substring 'MDTM template' absent (good)"
+        },
+        {
+          "text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification",
+          "passed": false,
+          "evidence": "length 3559 <= 2500? NO"
+        }
+      ],
+      "notes": [
+        "Recommended /sc:roadmap then /sc:tasklist (two-step). Verified tasklist.md source: primary input is roadmap not spec. R3 honored \u2014 hand-off only, no protocol restatement. Rejected task-builder (wrong artifact shape)."
+      ]
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "tasklist-must-handoff-not-reimplement",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 32.6,
+        "tokens": 61537,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output names /sc:tasklist or task-builder skill",
+          "passed": true,
+          "evidence": "regex /(/sc:tasklist|task-builder)/ matched: '/sc:tasklist'"
+        },
+        {
+          "text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)",
+          "passed": true,
+          "evidence": "substring 'MDTM template' absent (good)"
+        },
+        {
+          "text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification",
+          "passed": false,
+          "evidence": "length 3241 <= 2500? NO"
+        }
+      ],
+      "notes": [
+        "Recommended /sc:roadmap then /sc:tasklist chain; /sc:tasklist's canonical input is roadmap artifacts not raw spec."
+      ]
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "small-util-refactor-must-recommend-native",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 47.4,
+        "tokens": 78361,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output recommends native tooling (Read + Edit)",
+          "passed": true,
+          "evidence": "regex /(native|Read.*Edit|Edit.*Read)/ matched: 'native'"
+        },
+        {
+          "text": "Output does NOT recommend a skill delegation for a 40-line util",
+          "passed": true,
+          "evidence": "regex /Run: /sc:(improve|cleanup|refactor|design)/ absent (good)"
+        },
+        {
+          "text": "Output explains the reason for the native fallback",
+          "passed": true,
+          "evidence": "regex /(scope|specialized|overhead|reason)/ matched: 'specialized'"
+        },
+        {
+          "text": "Output is concise (anti-bloat)",
+          "passed": false,
+          "evidence": "length 2411 <= 1500? NO"
+        }
+      ],
+      "notes": [
+        "Recommended NATIVE (Read + Edit) for the 40-line util. Phase 1 net-value rubric pre-resolved the case; agent explicitly skipped Auggie sweep on the rationale that issuing it would itself be the bloat the skill exists to prevent."
+      ]
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "small-util-refactor-must-recommend-native",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 20.2,
+        "tokens": 60583,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output recommends native tooling (Read + Edit)",
+          "passed": false,
+          "evidence": "regex /(native|Read.*Edit|Edit.*Read)/ NO match"
+        },
+        {
+          "text": "Output does NOT recommend a skill delegation for a 40-line util",
+          "passed": true,
+          "evidence": "regex /Run: /sc:(improve|cleanup|refactor|design)/ absent (good)"
+        },
+        {
+          "text": "Output explains the reason for the native fallback",
+          "passed": true,
+          "evidence": "regex /(scope|specialized|overhead|reason)/ matched: 'scope'"
+        },
+        {
+          "text": "Output is concise (anti-bloat)",
+          "passed": true,
+          "evidence": "length 665 <= 1500? YES"
+        }
+      ],
+      "notes": [
+        "Recommended /sc:improve src/utils/timefmt.py for a 40-line util \u2014 chose to delegate rather than fall back to native Read+Edit."
+      ]
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "plugin-mode-must-search-ecosystem-not-local",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 80.0,
+        "tokens": 93802,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output contains a candidate plugin/MCP server with install command",
+          "passed": true,
+          "evidence": "regex /(install|npm|pipx|uv|brew|claude.*install)/ matched: 'claude mcp add --transport http notion https://mcp.notion.com/mcp\\n  ```\\n  Then r'"
+        },
+        {
+          "text": "Output includes a citation URL (github.com or marketplace)",
+          "passed": true,
+          "evidence": "regex /https?:/// matched: 'https://'"
+        },
+        {
+          "text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)",
+          "passed": true,
+          "evidence": "regex /src/superclaude/(commands|skills|agents)/ absent (good)"
+        },
+        {
+          "text": "Output identifies the candidate as an MCP server, not a plugin or skill",
+          "passed": true,
+          "evidence": "regex /(MCP server|mcp-server)/ matched: 'MCP server'"
+        }
+      ],
+      "notes": [
+        "Top pick Notion hosted MCP (https://mcp.notion.com/mcp) with one-line install + OAuth. #2 @notionhq/notion-mcp-server (headless/token). #3 mcp-remote bridge (stdio). All labeled MCP server, with install + repo + notes + citations."
+      ]
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "plugin-mode-must-search-ecosystem-not-local",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 47.9,
+        "tokens": 70169,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output contains a candidate plugin/MCP server with install command",
+          "passed": true,
+          "evidence": "regex /(install|npm|pipx|uv|brew|claude.*install)/ matched: 'install'"
+        },
+        {
+          "text": "Output includes a citation URL (github.com or marketplace)",
+          "passed": true,
+          "evidence": "regex /https?:/// matched: 'https://'"
+        },
+        {
+          "text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)",
+          "passed": true,
+          "evidence": "regex /src/superclaude/(commands|skills|agents)/ absent (good)"
+        },
+        {
+          "text": "Output identifies the candidate as an MCP server, not a plugin or skill",
+          "passed": true,
+          "evidence": "regex /(MCP server|mcp-server)/ matched: 'MCP server'"
+        }
+      ],
+      "notes": [
+        "Top pick: Notion official hosted MCP at https://mcp.notion.com/mcp. First-party, OAuth, hosted (no infra). makenotion local is soft-deprecated. Runners-up documented for headless / Python-extensible cases."
+      ]
+    },
+    {
+      "eval_id": 6,
+      "eval_name": "parallel-research-must-recommend-multi-agent-fanout",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 3,
+        "failed": 0,
+        "total": 3,
+        "time_seconds": 40.5,
+        "tokens": 71275,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output recommends parallel Agent fan-out, not sequential skill calls",
+          "passed": true,
+          "evidence": "regex /(parallel|single message|fan-out|fanout)/ matched: 'parallel'"
+        },
+        {
+          "text": "Output explicitly invokes the Agent tool (not 3x /sc:research)",
+          "passed": true,
+          "evidence": "regex /Agent.*(tool|call)/ matched: 'Agent fan-out** \u2014 a single message spawning 3 `Agent` calls (one per file), foll'"
+        },
+        {
+          "text": "Output includes a synthesis step after the parallel Agents",
+          "passed": true,
+          "evidence": "regex /(synthesi|combin|merge|aggregate)/ matched: 'synthesi'"
+        }
+      ],
+      "notes": [
+        "Parallel Agent fan-out \u2014 single message, 3 deep-research Agent calls, parent-side synthesis. Explicitly rejected sequential /sc:research chain and single tech-research compression."
+      ]
+    },
+    {
+      "eval_id": 6,
+      "eval_name": "parallel-research-must-recommend-multi-agent-fanout",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 2,
+        "failed": 1,
+        "total": 3,
+        "time_seconds": 21.2,
+        "tokens": 61028,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Output recommends parallel Agent fan-out, not sequential skill calls",
+          "passed": true,
+          "evidence": "regex /(parallel|single message|fan-out|fanout)/ matched: 'parallel'"
+        },
+        {
+          "text": "Output explicitly invokes the Agent tool (not 3x /sc:research)",
+          "passed": false,
+          "evidence": "regex /Agent.*(tool|call)/ NO match"
+        },
+        {
+          "text": "Output includes a synthesis step after the parallel Agents",
+          "passed": true,
+          "evidence": "regex /(synthesi|combin|merge|aggregate)/ matched: 'synthesi'"
+        }
+      ],
+      "notes": [
+        "Recommended /sc:research with 3 parallel tech-research subagents then sc-brainstorm-protocol synthesis."
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.8611,
+        "stddev": 0.1552,
+        "min": 0.6667,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 72.3167,
+        "stddev": 27.1501,
+        "min": 40.5,
+        "max": 109.9
+      },
+      "tokens": {
+        "mean": 91534.6667,
+        "stddev": 14657.0134,
+        "min": 71275,
+        "max": 107818
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8056,
+        "stddev": 0.1552,
+        "min": 0.6667,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 37.85,
+        "stddev": 19.7203,
+        "min": 20.2,
+        "max": 72.5
+      },
+      "tokens": {
+        "mean": 63780.6667,
+        "stddev": 4229.972,
+        "min": 60583,
+        "max": 70169
+      }
+    },
+    "delta": {
+      "pass_rate": 0.0555,
+      "time_seconds": 34.4667,
+      "tokens": 27754.0
+    }
+  }
+}

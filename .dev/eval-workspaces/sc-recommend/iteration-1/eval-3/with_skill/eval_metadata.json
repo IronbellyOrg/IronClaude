@@ -1,0 +1,11 @@
+{
+  "eval_id": 3,
+  "eval_name": "tasklist-must-handoff-not-reimplement",
+  "prompt": "Build a tasklist for this spec at docs/specs/checkout-v2-spec.md",
+  "configuration": "with_skill",
+  "assertions": [
+    {"text": "Output names /sc:tasklist or task-builder skill", "type": "regex_match", "value": "(/sc:tasklist|task-builder)"},
+    {"text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)", "type": "string_not_contains", "value": "MDTM template"},
+    {"text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification", "type": "max_length_check", "value": 2500}
+  ]
+}
