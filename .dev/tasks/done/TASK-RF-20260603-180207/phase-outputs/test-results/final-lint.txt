@@ -1,0 +1,20 @@
+$ make lint 2>&1 | tail -30   (after fixing the I001 import-format in the new test file)
+
+=== Checks 5/7: NEEDS DESIGN (skipped) ===
+  ℹ️  Check 5 (inline protocol detection) — pending design
+  ℹ️  Check 7 (activation references correct skill) — pending design
+
+=== Summary ===
+  Errors:   0
+  Warnings: 5
+  ✅ PASS — architecture policy compliant (5 warning(s))
+Running linter...
+uv run ruff check .
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+NOTE: `make lint` = lint-architecture (✅ PASS, 0 errors, 5 pre-existing warnings) + `ruff check .`
+(All checks passed!). The single initial ruff finding (I001 import-block formatting — one extra
+blank line after the import block in tests/roadmap/test_generation_phantom_id_prevention.py) was
+fixed surgically (removed one blank line); re-run is clean. The 5 architecture warnings are
+pre-existing and non-blocking (not attributable to this task's edits).

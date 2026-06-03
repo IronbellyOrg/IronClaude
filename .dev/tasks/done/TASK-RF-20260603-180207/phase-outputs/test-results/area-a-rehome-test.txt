@@ -1,0 +1,23 @@
+$ uv run pytest tests/audit/test_wiring_gate.py -q 2>&1 | tail -15
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collected 79 items
+
+tests/audit/test_wiring_gate.py ........................................ [ 50%]
+.......................................                                  [100%]
+
+============================== 79 passed in 0.32s ==============================
+
+$ uv run pytest "tests/audit/test_wiring_gate.py::TestNFR007Compliance" -v 2>&1 | tail -12
+collected 3 items
+
+tests/audit/test_wiring_gate.py::TestNFR007Compliance::test_no_pipeline_logic_imports_in_wiring_gate PASSED [ 33%]
+tests/audit/test_wiring_gate.py::TestNFR007Compliance::test_no_pipeline_imports_in_wiring_analyzer PASSED [ 66%]
+tests/audit/test_wiring_gate.py::TestNFR007Compliance::test_no_pipeline_imports_in_wiring_gate PASSED [100%]
+
+============================== 3 passed in 0.16s ==============================

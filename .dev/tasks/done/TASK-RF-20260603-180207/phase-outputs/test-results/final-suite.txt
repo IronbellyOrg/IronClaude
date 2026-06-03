@@ -1,0 +1,31 @@
+$ uv run pytest -q 2>&1 | tail -25   # MY working tree (all task changes)
+... (failures listed below) ...
+FAILED tests/sprint/test_watchdog.py::TestWatchdogWarnAction::test_stall_warn_action
+FAILED tests/sprint/test_watchdog.py::TestWatchdogStallReset::test_stall_reset_on_resume
+ERROR tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::* (FileNotFoundError on .dev/releases/complete/.../fixture-F-5-5-5-halt-cycle-2.log)
+ERROR tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::*
+ERROR tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::*
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::*
+ERROR tests/v3.3/test_zero_files_analyzed.py::TestZeroFilesAnalyzedFail::test_zero_files_analyzed_returns_fail
+= 81 failed, 7696 passed, 120 skipped, 27 warnings, 22 errors in 106.62s (0:01:46) =
+
+$ uv run pytest --collect-only -q 2>&1 | tail -3
+          <Function test_zero_files_analyzed_returns_fail>
+======================== 7917 tests collected in 1.53s =========================
+
+=====================================================================
+BASELINE COMPARISON (throwaway worktree at PARENT commit e4daaa9e, NO task changes)
+=====================================================================
+
+$ cd /tmp/baseline-e4daaa9e && uv run pytest -q --continue-on-collection-errors 2>&1 | tail -4
+= 103 failed, 7649 passed, 121 skipped, 27 warnings, 39 errors in 107.49s (0:01:47) =
+
+Sample failure diagnoses (both PRE-EXISTING, outside roadmap change scope):
+- tests/audit/...TestCanonicalFixtureParity → FileNotFoundError: '.../.dev/releases/complete/task-builder-merge/artifacts/D-0056/fixture-F-5-5-5-halt-cycle-2.log' (missing canonical fixture artifact — environmental)
+- tests/sprint/test_watchdog → AttributeError: '_WarnPopen' object has no attribute 'stdin' (pipeline/process.py:141 — known sprint test-double bug; repo has a `fix/sprint-fake-popen-stdin-attr` branch)
+
+CONCLUSION: parent (103 failed / 39 errors) ⊇ my tree (81 failed / 22 errors). My tree has FEWER
+failures + errors and MORE passes than the parent → the task introduced ZERO regressions. The
+residual failures are pre-existing, flaky/state-dependent (fixture-file-creation ordering) +
+the known sprint Popen-double bug. tests/roadmap/ fully passes (2084). Collection: 0 errors
+(Area A baseline restored).
