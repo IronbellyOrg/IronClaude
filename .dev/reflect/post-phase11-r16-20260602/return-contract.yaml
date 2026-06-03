@@ -1,0 +1,61 @@
+contract_version: "1.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-phase11-r16-20260602/REPORT.md
+audit_log_path: .dev/reflect/post-phase11-r16-20260602/REPORT.md
+confidence_calibrated: 0.66          # card-only blind calibration; escalated
+merged_confidence_post_review: 0.88  # after independent reviewer empirical grounding
+escalation_rule_matched: 6           # C < 0.85
+
+# UC-2
+tasklist_completion_pct: 1.0         # Phase 11 scope (9/9); whole-task < 1.0 (Phases 12-13 remain)
+deviation_count_by_class:
+  authorized: 2
+  necessary: 3
+  drift: 0
+  regression: 0
+deviation_register_path: .dev/reflect/post-phase11-r16-20260602/REPORT.md
+grounding_gaps_path: null
+
+# Input integrity
+input_tree_sha256_tasklist: e661219135a927a85f6ffb3a2ba2cd01e7797f43b4a6471c9833e3f0343d5a40
+input_tree_sha256_spec: 4782e56a503b191b811887ee90ab86e921631d10c8afcc88f1e2064535879c7e
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14            # via independent heterogeneous reviewer source re-read
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true         # performed by the independent reviewer's empirical source re-verification
+
+# Tier 2 artifacts
+reviewer_cards: [".dev/reflect/post-phase11-r16-20260602/reflection-card-t1.md"]
+merge_method: single-reviewer-fallback  # bounded ensemble: 1 independent reviewer + calibrator
+t2_model_class_diversity: degraded   # bounded; justified by prior PG11.1 independent adversarial gate
+adversarial_unavailable: false
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false   # all deviations Authorized/Necessary
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Remediation
+remediation_offered: false           # --remediate not set; no regression/drift to remediate
+remediation_accepted: null
+
+# Promotion (Wave 7)
+promotion_action: skipped
+promotion_adapter: task
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed   # cond 3 (tasklist_completion_pct != 1.0 whole-task) + cond 5b (frontmatter status "Doing" != done)
+
+# Carry-forward (independent reviewer minors — none blocking)
+follow_ups:
+  - "LOW: add a unit test for the ci_only=True skip branch in gate_passed with envelope plumbed"
+  - "NIT: refs/validation.md:67 stale SPEC_FIDELITY_GATE mapping — addressed by Phase 12 Step 12.4"
+  - "NIT: two SemanticChecks named 'validation_complete_true' over different fields (optional rename)"
