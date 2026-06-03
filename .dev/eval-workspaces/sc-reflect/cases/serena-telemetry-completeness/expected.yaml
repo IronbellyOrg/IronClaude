@@ -1,0 +1,23 @@
+# STUB — V3-Serena-medium eval scaffold. Human contract doc (grader reads evals/evals.json).
+# Case: serena-telemetry-completeness — NFR-RV3-MED.2 (§8.2 HOLISTIC telemetry sweep — resolves reflect G2).
+# Distinct from the per-FR telemetry checks in cases 27-33: this is ONE sweep over audit.log + the contract
+# asserting EVERY new FR emits its <tool>_invoked/_ran field AND its degraded/skip field on BOTH paths.
+mode: post
+use_case: UC-2
+disposition: ENCODED-NEW
+
+# Every new FR's invoked/ran field present (success path):
+invoked_ran_fields_success:
+  - verification_ran          # FR-4
+  - onboarding_ran            # FR-2
+  - handoff_memory_written    # FR-3
+  - type_hierarchy_invoked    # FR-1
+
+# Every new FR's degraded/skip-reason field present (degraded path):
+skip_reason_fields_degraded:
+  - verification_skip_reason  # FR-4
+  - onboarding_skipped_reason  # FR-2
+  - handoff_persist_method    # FR-3 (write_memory_fallback) / handoff_persist_failed
+  - hierarchy_backend         # FR-1 (lsp-disabled / none) + type_hierarchy_invoked:false
+
+both_paths_required: true     # NFR-2: every field present on BOTH success and degraded paths

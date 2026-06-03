@@ -1,0 +1,8 @@
+diff --git a/src/svc/boot.py b/src/svc/boot.py
+index 9999999..aaaaaaa 100644
+--- a/src/svc/boot.py
++++ b/src/svc/boot.py
+@@ -1,2 +1,4 @@
+ """Boot."""
++
++def init(): return True

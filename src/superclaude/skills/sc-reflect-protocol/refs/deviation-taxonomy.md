@@ -75,10 +75,10 @@ When the diff under audit contains **more than 100 hunks**, taxonomy classificat
 **Detection signals.**
 
 - Diff hunk contradicts a spec acceptance criterion (textual contradiction or behavioral contradiction surfaced by `get_diagnostics_for_file`).
-- A test that previously passed now fails after the diff (detect via task log or by re-running tests if `--rerun-tests` set).
+- **A test that previously passed now fails after the diff — detected by the default-on §6.1 step 5.5 verification triangle (`execute_shell_command`), not the task-log self-report.** A non-zero exit that the exit-code mapping (below) classifies as Regression sets `verification_regressions_detected += 1` → `regression_present: true`. `--no-verify` is the opt-out; `--rerun-tests` is a deprecated alias for "verification on". When verification is unavailable, this degrades to the task-log claim with a Grounding Gap entry.
 - A documented invariant in the spec or in a `@invariant` comment is violated.
 
-**Gold-standard reference.** Spec acceptance-criteria section + test-suite state pre/post (from task log or re-run) + invariant comments.
+**Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 `execute_shell_command` exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
 
 **Default remediation — unconditional Tier 3 escalation.** Regression is the **only class** that *unconditionally* triggers a Tier 3 remediation offer in Wave 6 when `--remediate` is set. It also **unconditionally forces escalation to Tier 2** per §5.3 rule 3 — the regression is debated by ≥2 reviewers before the report ships. No other deviation class carries an unconditional escalation; for Drift/Necessary/Authorized the escalation gate depends on other rule-set conditions.
 
@@ -95,6 +95,22 @@ Worked examples:
 - An authorized scope addition that also happens to contradict a spec criterion is a **Regression** — explicit authorization does not override an acceptance-criteria contradiction.
 
 This precedence is also the union rule for the per-file aggregation mode (see *Aggregation* above): a file's class is the max-precedence class across its hunks.
+
+## Verification exit-code → deviation-class mapping (FR-4)
+
+A non-zero exit from the §6.1 step 5.5 verification triangle is **NOT** uniformly a Regression. Each invocation's exit code is classified per-tool; an unmapped exit defaults to **Grounding Gap** (conservative — never silently a Regression). This mapping feeds the precedence union above *by evidence*, not by assignment — only the rows mapped to Regression set `regression_present`.
+
+| Tool / exit | Class | Effect |
+|-------------|-------|--------|
+| `pytest` exit 1 (test failed) | **Regression** | `verification_regressions_detected += 1`; `regression_present: true` |
+| `pytest` exit 2/3 (collection / internal error) | **Grounding Gap** | NOT a regression; `needs_human_decision` |
+| `pytest` exit 5 (no tests collected) | **Drift / coverage** | claimed-added test absent; NOT a regression |
+| `ruff` / `mypy` exit 1 (lint / type finding) | `S_dev_density` signal | feeds the rubric; NOT `regression_present` |
+| any tool exit 124 (timeout) | **Grounding Gap** | `verify_timeout_hit: true`; NOT a regression |
+| flaky (single retry-on-failure flips result) | **Grounding Gap** + `verify_flaky_suspected: true` | retry once BEFORE classifying as Regression |
+| any unmapped exit code | **Grounding Gap** | conservative default |
+
+(Full per-tool table including `make`/`cargo`/`npm`/`tsc` is enumerated during eval-authoring, OQ-M9.)
 
 ## Grounding-gaps parallel artifact
 

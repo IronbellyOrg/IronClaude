@@ -1,0 +1,9 @@
+diff --git a/src/svc/auth.py b/src/svc/auth.py
+index bbbbbbb..ccccccc 100644
+--- a/src/svc/auth.py
++++ b/src/svc/auth.py
+@@ -1,3 +1,5 @@
+ """Auth."""
++
++# regression hunk → forces a Tier-3 --remediate handoff
++def login(): raise NotImplementedError

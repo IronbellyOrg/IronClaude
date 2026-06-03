@@ -114,6 +114,26 @@ feed S_dev_density as a *parallel* weight rather than a numerator addend; this t
 defaults to the numerator-addend form per the BUILD_REQUEST and keeps it consistent
 with the `reflection-rubric.md` sub-term.)
 
+**FR-4 verification-failure weight (lint/type channel — parallel weight).** Keyed on
+`verification_failures` from the §6.1 step 5.5 verification triangle, **restricted to the
+`ruff`/`mypy` lint/type-finding channel** (those tools' exit 1). This is NOT the §10.4
+Regression channel (`pytest` exit 1 → `regression_present`) and NOT a numerator addend —
+it is a **parallel up-weight** on the computed `S_dev_density` value: a verified lint/type
+finding on a hunk the tasklist claimed clean increases structural ambiguity. It is
+`null`-safe — when verification did not run (`verification_ran: false`) it contributes `0`,
+and the clamp to `[0.0, 1.0]` is unchanged. This mirrors the `reflection-rubric.md`
+S_dev_density sub-term so the formula and threshold docs do not diverge.
+
+**FR-RV3-MED.1 hierarchy-gap weight (parallel weight).** Keyed on `hierarchy_gaps_found` /
+`hierarchy_coverage_pct` from the §6.1 step 4.5 `type_hierarchy` retrieval, where
+`hierarchy_coverage_pct = registered_subtypes / total_subtypes_in_hierarchy`. A type whose
+transitive subtype family is under-registered (low `hierarchy_coverage_pct` / nonzero
+`hierarchy_gaps_found`) increases structural ambiguity → a **parallel up-weight** on
+`S_dev_density` (NOT a numerator addend). It is `null`-safe — when the backend is unavailable
+or `--with-hierarchy` is unset (`hierarchy_coverage_pct: null`) it contributes `0`, and the
+clamp to `[0.0, 1.0]` is unchanged. This mirrors the `reflection-rubric.md` hierarchy-gap
+sub-term so the formula and threshold docs do not diverge.
+
 **Threshold semantics (per §5.3 row 5).** Values `> 0.20` ESCALATE to T2
 ("too many unmapped artifacts for a single-pass verdict"). The 0.20
 threshold is the structural-ambiguity trigger and is the default; it

@@ -1,7 +1,7 @@
 {
   "skill_name": "sc-reflect-protocol",
   "iteration": 1,
-  "scope": "v1.0-ship-it-3-pilot-15-promotion-2-falsifier-skeleton-6-serena-v3",
+  "scope": "v1.0-ship-it-3-pilot-15-promotion-2-falsifier-skeleton-6-serena-v3-10-serena-v3-medium",
   "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm). Reflect-V3-Serena adds 6 SCAFFOLDED serena cases (ids 21-26) covering FR-RV3-LOW.1–8: serena-find-implementations (FR-1), serena-find-declaration (FR-2, also hosts FR-3 references_extended_info), serena-search-deps (FR-4), serena-wave0-config (FR-6+FR-7), serena-memory-retention (FR-8), serena-summarize-changes (FR-5, pilot/ships-last per OQ-3). These are SCAFFOLDS — input fixtures + expected.yaml (STUB) + assertions[] targeting future with_skill/outputs/; not executed/graded in this task. See TASK-RF-20260602-135209.",
   "evals": [
     {
@@ -861,6 +861,169 @@
           "expected": "unavailable",
           "text": "FR-5.4: cross-session run yields serena_summary_corroboration: unavailable with the main verdict unchanged"
         }
+      ]
+    },
+    {
+      "id": 27,
+      "name": "serena-execute-verify",
+      "case_dir": "cases/serena-execute-verify/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-MED.4",
+      "description": "FR-4 execute_shell_command verification triangle (§6.1 step 5.5, default-on UC-2). A pytest exit-1 on a tasklist-claimed-passing file sets verification_regressions_detected and regression_present, blocking the §14.5.2 condition-4 promotion gate. Allowlist/no-mutation/timeout denials and the --no-verify + read-only skip variants are covered. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "verification_ran", "expected": "true", "text": "FR-4.1: verification triangle ran (default-on UC-2)" },
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "regression_present", "expected": "true", "text": "FR-4.3: pytest exit-1 on a claimed-passing file → regression_present (verified-sourced)" },
+        { "type": "path_exists", "target": "with_skill/outputs/verify-logs/invocations.yaml", "text": "FR-4.1 / M-ARC1: per-invocation array artifact exists (evidence_ref, not inlined)" },
+        { "type": "yaml_list_contains", "target": "with_skill/outputs/contract.yaml", "field": "gate_evaluation_failures", "value": "regression", "text": "FR-4.3: §14.5.2 condition-4 promotion gate blocks on the verified regression" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "verify_blocked_reason.*mutation-denied", "text": "FR-4.5: a mutating command is mutation-denied and never invoked" }
+      ]
+    },
+    {
+      "id": 28,
+      "name": "serena-verify-injection",
+      "case_dir": "cases/serena-verify-injection/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-MED.4.2b / NFR-RV3-MED.8",
+      "description": "C1 injection-bypass GATING SAFETY case (M-TST1). Each of 6 shell-metacharacter classes (semicolon, ampersand, pipe, command-substitution, backtick, redirect) must be metachar-denied BEFORE invocation with ZERO subprocess invocations. This is the auto-fail safety test. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "verify_blocked_reason.*metachar-denied", "text": "FR-4.2b: metachar-bearing commands are metachar-denied" },
+        { "type": "regex_absent", "target": "with_skill/outputs/verify-logs/invocations.yaml", "pattern": "rm -rf|curl |\\$\\(|`|>/etc", "text": "NFR-8: ZERO invocations for any metacharacter class — no metachar command reached execute_shell_command" },
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "verification_invocations", "expected": "0", "text": "NFR-8: zero subprocess invocations for the 6 adversarial commands" }
+      ]
+    },
+    {
+      "id": 29,
+      "name": "serena-verify-exitcodes",
+      "case_dir": "cases/serena-verify-exitcodes/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-MED.4.3",
+      "description": "C2 exit-code → deviation-class taxonomy: pytest 1 → Regression, 2/3 → Grounding Gap, 5 → Drift, ruff/mypy 1 → S_dev_density, 124 → Grounding Gap; flaky retry-flip → verify_flaky_suspected (Grounding Gap, not Regression); unmapped → Grounding Gap. Only one regression results. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "verification_regressions_detected", "expected": "1", "text": "FR-4.3: exactly one Regression (pytest exit 1); lint/type/collection/no-tests/timeout do NOT inflate it" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "verify_flaky_suspected.*true", "text": "FR-4.3b: a flaky retry-flip is Grounding Gap, not Regression" },
+        { "type": "deviation_class_matches", "target": "with_skill/outputs/deviation-register.md", "value": "drift", "text": "FR-4.3: pytest exit 5 (no tests collected) → Drift, not Regression" }
+      ]
+    },
+    {
+      "id": 30,
+      "name": "serena-verify-drift-guard",
+      "case_dir": "cases/serena-verify-drift-guard/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-MED.4.8",
+      "description": "M-COR2: a verify run emitting build/test cache artifacts (.pytest_cache, __pycache__, *.pyc, .coverage) must NOT trip the input_tree_sha256 drift guard. VERIFICATION_ARTIFACT_EXCLUDES filters them at BOTH input-tree construction and the Wave-5/Wave-7 recompute → no spurious STOP. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "input_drift_detected", "expected": "false", "text": "FR-4.8: cache artifacts excluded → no input drift" },
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "status", "expected": "success", "text": "FR-4.8: run completes; no input_drift STOP" },
+        { "type": "regex_absent", "target": "with_skill/outputs/audit.log", "pattern": "input_drift.*STOP|stop_reason.*input_drift", "text": "M-COR2: no spurious input_drift STOP line" }
+      ]
+    },
+    {
+      "id": 31,
+      "name": "serena-onboarding",
+      "case_dir": "cases/serena-onboarding/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-MED.2",
+      "description": "FR-2 onboarding cold-start bootstrap (Wave 0.7b): --onboard + empty memory → onboarding_ran; silent-fail guard (delta ≤0 → succeeded:false + WARN); context-excluded WARN-not-STOP; warm-start skip (memories-present); no-auto-trigger without --onboard (no implicit .serena/); NFR-7 budget abort. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "onboarding_ran", "expected": "true", "text": "FR-2.1: --onboard + empty memory + tool available → onboarding_ran" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "onboarding_skipped_reason.*context-excluded", "text": "FR-2.3: context-excluded → WARN-not-STOP with skip reason" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "onboarding_skipped_reason.*memories-present", "text": "FR-2.4: warm start skips with memories-present" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "onboarding_budget_exceeded.*true", "text": "NFR-7: budget breach aborts onboarding without consuming the waves' budget" }
+      ]
+    },
+    {
+      "id": 32,
+      "name": "serena-handoff",
+      "case_dir": "cases/serena-handoff/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-MED.3",
+      "description": "FR-3 prepare_for_new_conversation Tier-3 handoff bridge: handoff blob written BEFORE the task-builder spawn; write_memory fallback when context-excluded; both-fail → handoff_persist_failed with the report still shipping; no-remediate no-op (handoff_memory_key null); FR-3.7 retention sweep when N>20 handoff entries. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "checkpoint_logged", "target": "with_skill/outputs/audit.log", "value": "handoff_memory_written", "text": "FR-3.1: handoff blob written BEFORE the task-builder invocation (ordering)" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "handoff_persist_method.*write_memory_fallback", "text": "FR-3.3: context-excluded → write_memory fallback" },
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "handoff_persist_failed", "expected": "true", "text": "FR-3.4: both-fail → handoff_persist_failed; report still ships" },
+        { "type": "file_exists", "target": "with_skill/outputs/REPORT.md", "text": "FR-3.4: report ships even on handoff persist failure" }
+      ]
+    },
+    {
+      "id": 33,
+      "name": "serena-type-hierarchy",
+      "case_dir": "cases/serena-type-hierarchy/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RV3-MED.1",
+      "description": "FR-1 type_hierarchy transitive family coverage (§6.1 step 4.5 + Wave 1B.3): backend-probe gate; OO subtype coverage via hierarchy_coverage_pct (registered/total); LSP-disabled skip with type_hierarchy_invoked:false and NO degrade (FR-1.4); explicit backend error → degraded:[type_hierarchy:backend_error] + fallback (FR-1.5); 1B.3 lineage confirmation raises HIGH only on genuine shared lineage (FR-1.6). Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "type_hierarchy_invoked.*true", "text": "FR-1.1: step 4.5 ran on a hierarchy-capable backend with --with-hierarchy" },
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "hierarchy_coverage_pct", "expected": "0.6667", "text": "FR-1.3: hierarchy_coverage_pct = registered_subtypes / total_subtypes_in_hierarchy" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "type_hierarchy_invoked.*false", "text": "FR-1.4: LSP-disabled backend skips step 4.5 with NO degrade (expected absence)" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "type_hierarchy:backend_error", "text": "FR-1.5: explicit backend error degrades and falls back" }
+      ]
+    },
+    {
+      "id": 34,
+      "name": "serena-token-budget",
+      "case_dir": "cases/serena-token-budget/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "NFR-RV3-MED.3 / §8.2",
+      "description": "§8.2 token-budget delta measurement (NFR-3): FR-1/FR-3/FR-4 orchestration additions ≤ +1000 Claude tokens vs master HEAD on the serena-execute-verify fixture; onboarding measured separately. RUNNER-GATED: a token-ledger runner (baseline-vs-branch token diff) is absent (make reflect-eval is an assertion grader, not a token ledger), so the measurement is EXPLICITLY DEFERRED (skeleton-pending-runner) per phase-outputs/plans/nfr3-token-budget.md — not silently omitted. Replace with a yaml_field on the measured delta when a token-ledger runner lands.",
+      "inputs": {},
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "falsifier_skeleton_present", "target": "old_skill/expected.yaml", "text": "NFR-3: runner-gated skeleton present (status: skeleton-pending-runner); explicit deferral recorded — not a silent omission" }
+      ]
+    },
+    {
+      "id": 35,
+      "name": "serena-telemetry-completeness",
+      "case_dir": "cases/serena-telemetry-completeness/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "NFR-RV3-MED.2 / §8.2",
+      "description": "§8.2 HOLISTIC telemetry-completeness sweep (NFR-2; resolves reflect G2). ONE sweep over audit.log + the return contract asserting EVERY new FR emits its <tool>_invoked/_ran field AND its degraded/skip-reason field on BOTH the success and degraded paths — distinct from the per-FR telemetry checks already in cases 27-33. Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_list_contains", "target": "with_skill/outputs/contract.yaml", "field": "telemetry_fields_present", "value": "verification_ran", "text": "NFR-2: FR-4 verification_ran present (success path)" },
+        { "type": "yaml_list_contains", "target": "with_skill/outputs/contract.yaml", "field": "telemetry_fields_present", "value": "onboarding_ran", "text": "NFR-2: FR-2 onboarding_ran present" },
+        { "type": "yaml_list_contains", "target": "with_skill/outputs/contract.yaml", "field": "telemetry_fields_present", "value": "type_hierarchy_invoked", "text": "NFR-2: FR-1 type_hierarchy_invoked present" },
+        { "type": "regex_present", "target": "with_skill/outputs/audit.log", "pattern": "verification_skip_reason|onboarding_skipped_reason|hierarchy_backend|handoff_persist_method", "text": "NFR-2: each new FR emits its degraded/skip field on the degraded path (both-paths requirement)" }
+      ]
+    },
+    {
+      "id": 36,
+      "name": "serena-citation-freshness",
+      "case_dir": "cases/serena-citation-freshness/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "NFR-RV3-MED.4 / §8.2",
+      "description": "§8.2 HOLISTIC citation-freshness audit (NFR-4; resolves reflect G2). Every file:line citation entering REPORT.md — including type_hierarchy step-4.5 and execute_shell_command step-5.5 outputs that become citations — was re-Read within the §6.2 5-tool-call window (CLAUDE.md S1). Scaffold: assertions target a future run's with_skill/outputs/.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "evidence_validator_ran", "expected": "true", "text": "NFR-4: the Wave-5 evidence-validator re-Reads every cited file:line" },
+        { "type": "checkpoint_logged", "target": "with_skill/outputs/audit.log", "value": "citation_revalidated", "text": "NFR-4: every REPORT.md file:line citation has a preceding re-Read within the §6.2 5-call window" }
       ]
     }
   ],
