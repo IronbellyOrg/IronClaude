@@ -1,0 +1,8 @@
+=== RUFF CHECK ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+RUFF_EXIT=0
+
+=== IMPORT CHECK ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+IMPORT_EXIT=0

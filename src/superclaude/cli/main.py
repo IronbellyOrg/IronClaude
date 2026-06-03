@@ -425,6 +425,10 @@ from superclaude.cli.eval.commands import eval_group  # noqa: E402,I001  # inten
 
 main.add_command(eval_group, name="eval")
 
+from superclaude.cli.recommend import recommend_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(recommend_group, name="recommend")
+
 
 if __name__ == "__main__":
     main()

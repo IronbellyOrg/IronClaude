@@ -85,12 +85,17 @@ The cache lives under `.claude/cache/` — a TRACKED directory, explicit user-au
 Required `.gitignore` additions (companion to the existing `!.claude/settings.json` exception):
 
 ```
-# Existing
-.claude/
+# Existing — MUST be `.claude/*` (glob), NOT `.claude/` (directory-prune).
+# A `.claude/` dir-prune stops git descending into .claude, so the file-level
+# negations below cannot re-include anything ("cannot re-include a file if a
+# parent directory is excluded"). `.claude/*` ignores the direct children
+# without pruning the dir, so the negations take effect.
+.claude/*
 !.claude/settings.json
 
 # (R3) Lookup-cache tracked artifacts
 !.claude/cache/
+.claude/cache/*
 !.claude/cache/sc-recommend-lookup.yaml
 !.claude/cache/sc-recommend-plugin.yaml
 !.claude/cache/eval-runs/

@@ -1,7 +1,7 @@
 ---
 name: sc-recommend
 description: "Build a refined, paste-ready prompt that hands the user's request off to the right local skill, command, agent, or native-tool sequence — only when delegation adds net value. Use this skill whenever the user asks 'which command should I use', 'how do I best prompt for X', 'help me invoke the right skill for Y', 'recommend a workflow for Z', or describes a task without naming a command. Also use proactively whenever the user pastes a goal that could plausibly map onto multiple skills/agents/commands in this repo and you would otherwise have to choose blindly. With --plugin, switches to ecosystem search (Claude plugin marketplaces + community skill repos) instead of the local project surface."
-allowed-tools: Read, Glob, Grep, Bash, mcp__auggie__codebase-retrieval, mcp__tavily__tavily-search, mcp__tavily__tavily-extract, WebFetch, WebSearch
+allowed-tools: Read, Glob, Grep, Bash, mcp__auggie__codebase-retrieval, mcp__tavily__tavily-search, mcp__tavily__tavily-extract, WebFetch, WebSearch, Edit, Write, Agent, Task
 argument-hint: "[goal description] [--plugin]"
 category: utility
 ---
@@ -34,6 +34,27 @@ Every successful invocation emits one of:
 If multiple distinct paths are reasonable (e.g., "either /sc:tasklist or task-builder fits"), emit each as its own clearly-labeled prompt block with a one-line disambiguator — never as a flat "alternatives" list.
 
 The skill never restates the target's internal logic (see Rule R3).
+
+## Hot-Path Cache Lookup (try the amortized cache before the cold path)
+
+Before running the full Phase 0–3 **cold path** below, attempt the **hot path** — the lazily-populated YAML lookup cache that drops a repeat delegation request from ~91K to ~5–10K tokens. The cold path (Phase 0–3) only runs on a cache miss.
+
+Under the resolved **Option P** layering, the `cli/recommend/` Python module owns the deterministic dispatch (scan / source_hash validation / budget gate); this skill owns only the Agent spawns (the `anthropic` SDK is banned, so the CLI cannot spawn Agents).
+
+1. **Classify (ONE Haiku subagent).** Spawn exactly **one** `model: haiku` subagent via the Agent tool, using the classifier prompt at `src/superclaude/cli/recommend/prompts.py::CLASSIFIER_PROMPT`. Pass the verbatim user request. It returns `{classification_key, native_likely, confidence_top2_delta}` — nothing else. Do not classify in the parent.
+
+2. **Deterministic dispatch (shell to the CLI).** The CLI owns the scan/validate/budget under Option P:
+
+   `uv run superclaude recommend dispatch --key <classification_key> --delta <confidence_top2_delta> [--native-likely] [--budget-used <cumulative_hot_tokens>]`
+
+   It prints a JSON `DispatchResult`. The source_hash validation is the CLI's deterministic Read + sha256 compare — **never** trust a Haiku-computed hash.
+
+3. **Interpret the outcome (the 5 fall-throughs):**
+   - `outcome: "hit"` → emit `recommendation` **verbatim** (it is the row's filled `prompt_envelope_template` plus any `best_model_hint`). Then append exactly one telemetry event: `uv run superclaude recommend telemetry append --mode delegate --cache-result hit --classification-key <key> --duration-ms <ms>`. **DONE — do not run the cold path.**
+   - `outcome: "native"` (classifier `native_likely`, or a `native_fallback` row) → recommend native tooling per Phase 1; **no cold path, no table write, and no telemetry event** (native is not a cache-table event — it has no `cache_result` enum member, so the appender has nothing valid to log).
+   - `outcome: "miss"` with `cache_result` ∈ {`miss_no_key`, `miss_low_confidence`, `miss_validation_stale`, `miss_budget_exceeded`} → **fall through to the cold path** (Phase 0–3). Carry the miss reason into the cold-path write-back.
+
+The skill spawns exactly **one** Haiku subagent here (the classifier); the cold-path Haiku subagent is spawned only on a miss (see the Cold-Path Write-Back section after Phase 3). The emitted hot-hit recommendation reuses the row's hand-off envelope unchanged — it restates no target protocol (R3). The hot and cold paths emit the **same Return Contract** shape for caller parity.
 
 ## Phase 0 — Mandatory Surface Enumeration + Auggie Sweep (GATE)
 
@@ -158,6 +179,48 @@ For every candidate, return:
 - citation (the URL the claim came from)
 
 See `refs/plugin-ecosystem-sources.md` for the full source list, query patterns, and result-format template.
+
+### `--plugin --eval` adoption lifecycle (4 phases)
+
+When `--plugin` is combined with `--eval <mode>` (mode ≠ `none`), the skill runs the plugin adoption gate. The CLI owns the deterministic half (precondition HARD-BLOCK, adoption verdict, plugin-row patch); the skill owns the Agent-spawned eval panels. The four phases (spec `merged-requirements.md:211-220`):
+
+1. **Discovery** — `--plugin <query>` with no eval mode surfaces the candidate plugin/MCP resource + metadata (install command, `setup_steps`, repo URL, citations). No row is committed (browse mode).
+2. **Adoption proposal** — `--plugin <query> --eval <mode>` runs the eval pipeline twice per panel cell: with the resource INSTALLED vs UNINSTALLED, on synthetic cases generated from the plugin's stated capabilities (the cold-path `--eval` fan-out below produces the per-(model,run) deliverables for each configuration). Install steps that need OAuth / API keys / env vars are EMITTED for the user to run — the skill never auto-completes auth flows; the user confirms readiness before the with-resource runs.
+3. **Decision gate** — after the panels finalize, the parent shells the CLI:
+
+   `uv run superclaude recommend eval plugin --key <plugin-key> --preconditions-file <path> --with-resource-file <agg.json> --without-resource-file <agg.json>`
+
+   `run_preconditions` runs FIRST and **HARD-BLOCKS** on any `failure_mode: hard` precondition (e.g. the MCP server is not installed) — the CLI exits non-zero, no degraded fallback. On pass, `evaluate_adoption` applies the threshold (`pass_rate +≥0.10` **OR** `token −≤−0.20`, with `pass_rate` must-not-regress) and `patch_plugin_row` writes `adoption_status` (`evaluated_positive` / `evaluated_negative`) + an `eval_history` entry to `.claude/cache/sc-recommend-plugin.yaml` via the atomic writer.
+4. **Hot-path use** — a later `--plugin <query>` matching the row reads its `adoption_status`: `evaluated_positive` rows emit the install command (if not locally installed) + best-model hint; `evaluated_negative` rows are kept (30-day TTL) but never surfaced as a hot-path recommendation.
+
+## Cold-Path Write-Back (populate the cache on a miss)
+
+The cold path **is** Phase 0–3 above — run when the Hot-Path Cache Lookup returned `outcome: "miss"` (any of the four miss reasons: `miss_no_key`, `miss_low_confidence`, `miss_validation_stale`, `miss_budget_exceeded`). A `native` outcome does **not** reach the cold path. Phase 0–3 run inside a **second** `model: haiku` subagent so the expensive enumerate→auggie→verify work happens in an isolated context, not the parent.
+
+1. **Spawn the cold-path Haiku subagent.** Use the Agent tool, `model: haiku`, handing it the condensed runbook at `src/superclaude/cli/recommend/prompts.py::COLD_PATH_RUNBOOK` as its system context — **not** the full SKILL.md body (inlining the full skill would recreate the exact ~91K cost the cache exists to remove). The subagent runs Phase 0–3 (Glob → auggie → Read-verify → net-value → prompt) and returns the recommendation **plus** a structured `cache_update` payload (the row to commit: `key`, `candidate`, `flags`, `prompt_envelope_template`, `rationale`, `source_path`, `native_fallback`).
+
+2. **Parent commits the cache_update.** Haiku **cannot write files**, so the parent (this skill, the Claude session) commits the row by shelling to the CLI atomic writer:
+
+   `uv run superclaude recommend cache put --row-json '<the cache_update row as a single-line JSON object>'`
+
+   This routes through `LookupCache.save()` (atomic tmp + `os.replace`). The CLI recomputes the current `surface_hash` and the full per-row `source_hash` on write — the parent never trusts a Haiku-computed hash.
+
+3. **Optional `--eval` trigger (Agent fan-out + finalize).** If the invocation carried `--eval <mode>` (mode ≠ `none`), evaluate the just-inserted row's `best_model`. Opt-in only. Under Option P the CLI cannot spawn Agents (anthropic SDK banned), so the **skill (parent session) emits the fan-out** and the CLI does the deterministic finalize:
+
+   a. **Resolve the panel** for `<mode>` from `MODE_MATRIX`: `quick` = `opus`×1 (**1** Agent call); `normal` = `opus`+`sonnet`×2 (**4** Agent calls); `deep` = `opus`+`sonnet`+`haiku`×3 (**9** Agent calls). `none` = no-op.
+
+   b. **Fan out** — emit one parallel Agent-tool call per `(model, run)` cell, each with the corresponding `model:` (e.g. `deep` → opus run-1/2/3 + sonnet run-1/2/3 + haiku run-1/2/3). Each Agent produces the real deliverable for the row and writes **both** files at the EXACT path the finalizer reads:
+
+      - `.claude/cache/eval-runs/iteration-<N>/<key>/<model>/run-<i>/outputs/recommendation.md`
+      - `.claude/cache/eval-runs/iteration-<N>/<key>/<model>/run-<i>/timing.json`
+
+      (the `<i>` is the 1-based run number; tokens are NOT auto-captured, so each Agent MUST emit `timing.json` itself.)
+
+   c. **Finalize (CLI, deterministic).** After all Agent calls complete, the parent shells: `uv run superclaude recommend eval run --key <key> --mode <mode> --iteration <N>`. This grades each deliverable, aggregates per model, selects `best_model` by tier, writes `row-<key>-results.json`, and patches the lookup row's `best_model` + `eval_history` via the atomic writer. The finalizer assumes the deliverables already exist on disk — the fan-out in (b) must have produced them at the exact layout above, or grading sees empty text.
+
+4. **Emit + telemetry.** Surface the recommendation verbatim, then append exactly one telemetry event with `--cache-result cold_inserted` (or the original miss reason if no row was inserted): `uv run superclaude recommend telemetry append --mode delegate --cache-result cold_inserted --classification-key <key> --duration-ms <ms>`.
+
+The cold path emits the **same Return Contract** shape as the hot path (caller parity). No protocol of any recommended target is restated in the `cache_update` (R3) — the `prompt_envelope_template` is a hand-off envelope.
 
 ## Output Constraints — Anti-Fabrication Rules
 

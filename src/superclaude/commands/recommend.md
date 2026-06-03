@@ -5,7 +5,7 @@ category: utility
 complexity: standard
 mcp-servers: [auggie, tavily]
 personas: []
-argument-hint: "<goal description> [--plugin]"
+argument-hint: "<goal description> [--plugin] [--eval <mode>]"
 ---
 
 # /sc:recommend — Refined-Prompt Builder
@@ -23,6 +23,7 @@ argument-hint: "<goal description> [--plugin]"
 ```bash
 /sc:recommend <goal description>
 /sc:recommend <goal description> --plugin
+/sc:recommend <goal description> --eval quick
 ```
 
 ### Flags
@@ -30,8 +31,9 @@ argument-hint: "<goal description> [--plugin]"
 | Flag | Description |
 |------|-------------|
 | `--plugin` | Ignore the local project surface; search the Claude Code plugin marketplace + community skill repos instead. Out: install commands, repo URLs, capability summaries, citations. |
+| `--eval <mode>` | **Opt-in** per-row `best_model` evaluation, triggered on a cold-path cache insert. Modes: `none` (default — no eval), `quick` (opus ×1), `normal` (opus+sonnet ×2 each), `deep` (opus+sonnet+haiku ×3 each). Spawns parallel per-model subagents, grades their deliverables, aggregates per-model metrics, and writes a deterministic `best_model` into the lookup row. Auto-eval was rejected — evaluation runs **only** when `--eval` is passed. |
 
-No other flags. The skill picks the smallest delegation that wins; there is no `--alternatives` (multi-path output is automatic when two paths are genuinely distinct), no `--estimate`, no `--stream`, no `--community`, no language toggle.
+`--plugin` and `--eval` are the only flags. The skill picks the smallest delegation that wins; there is no `--alternatives` (multi-path output is automatic when two paths are genuinely distinct), no `--estimate`, no `--stream`, no `--community`, no language toggle.
 
 ## Behavioral Summary
 
