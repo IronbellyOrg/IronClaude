@@ -77,6 +77,9 @@ Desktop.ini
 # Logs
 logs/
 *.log
+# Canonical evidence-pack fixtures asserted by tests/audit/*CanonicalFixtureParity*.
+# The blanket *.log rule above otherwise leaves them untracked -> clean CI checkouts fail.
+!.dev/releases/**/artifacts/**/fixture-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
