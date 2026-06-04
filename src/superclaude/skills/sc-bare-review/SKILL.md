@@ -122,8 +122,8 @@ reviewer (timeout / proxy_error / parse_error) never aborts its siblings (AC-1.7
 ### Wave D+E — Normalize + return contract (single Bash call)
 
 ```bash
-"$SKILL_DIR/scripts/t2_normalize.py" --manifest "<output-dir>/manifest.json"
-# invoke via: uv run python "$SKILL_DIR/scripts/t2_normalize.py" --manifest ... (or python3)
+# Project rule (CLAUDE.md): all Python runs through UV — never bare `python3 script.py`.
+uv run python "$SKILL_DIR/scripts/t2_normalize.py" --manifest "<output-dir>/manifest.json"
 ```
 
 This parses each `.raw` into the §4 template, writes final `bare-review-NN-<model>.md`

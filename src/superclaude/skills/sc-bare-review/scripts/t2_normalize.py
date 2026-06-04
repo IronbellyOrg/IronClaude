@@ -8,11 +8,12 @@ final ``.md`` atomically with a deterministic filename (IMM-6), then determines 
 status (IMM-5, success-first) and emits the Wave-E return contract — always, including on
 failure (write-on-failure pattern).
 
-Usage:  t2_normalize.py --manifest <output>/manifest.json
+Usage:  uv run python t2_normalize.py --manifest <output>/manifest.json
 
 Spec: merged-requirements.md §3.3 Wave D/E, §4, §7.4, §9.1 (AC-1.8..AC-1.12).
 No third-party deps (stdlib only) — the contract/frontmatter YAML is hand-emitted.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -22,11 +23,20 @@ import re
 from datetime import datetime, timezone
 
 SEV_ALIASES = {
-    "crit": "crit", "critical": "crit", "blocker": "crit",
-    "high": "high", "major": "high",
-    "med": "med", "medium": "med", "moderate": "med",
-    "low": "low", "minor": "low",
-    "nit": "nit", "nitpick": "nit", "trivial": "nit", "info": "nit",
+    "crit": "crit",
+    "critical": "crit",
+    "blocker": "crit",
+    "high": "high",
+    "major": "high",
+    "med": "med",
+    "medium": "med",
+    "moderate": "med",
+    "low": "low",
+    "minor": "low",
+    "nit": "nit",
+    "nitpick": "nit",
+    "trivial": "nit",
+    "info": "nit",
 }
 EMPTY_CITE = {"", "none", "n/a", "na", "-", "--"}
 FINDING_ID = re.compile(r"^f-?\d+$", re.IGNORECASE)
@@ -37,8 +47,18 @@ def iso_now() -> str:
 
 
 def yaml_str(v: str) -> str:
-    """Double-quote a scalar for safe single-line YAML emission."""
-    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
+    """Double-quote a scalar for safe single-line YAML emission.
+
+    Escapes backslash + quote AND C0 control chars (newline/CR/tab + any other
+    < 0x20). Without this, a newline in a user-controlled field (e.g. ``--label`` ->
+    ``caller_label``) folds to a space inside the double-quoted scalar, silently
+    corrupting the value (and risking structural breakage of frontmatter/contract).
+    """
+    s = str(v).replace("\\", "\\\\").replace('"', '\\"')
+    s = s.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+    # Catch-all for any remaining C0 control char (newline/CR/tab already handled above).
+    s = "".join(c if ord(c) >= 0x20 else f"\\x{ord(c):02x}" for c in s)
+    return '"' + s + '"'
 
 
 def strip_frontmatter(text: str) -> str:
@@ -76,26 +96,32 @@ def parse_findings(text: str) -> list[dict]:
         claim = cells[2].replace("\n", " ").strip()[:120]
         if not claim:
             continue
-        findings.append({
-            "sev": normalize_sev(cells[1]),
-            "claim": claim,
-            "cite": normalize_cite(cells[3]),
-            "conf": parse_conf(cells[4]),
-        })
+        findings.append(
+            {
+                "sev": normalize_sev(cells[1]),
+                "claim": claim,
+                "cite": normalize_cite(cells[3]),
+                "conf": parse_conf(cells[4]),
+            }
+        )
     return findings
 
 
 def extract_section(text: str, heading: str, cap: int) -> str:
-    m = re.search(rf"^#+\s*{re.escape(heading)}\s*$", text, re.IGNORECASE | re.MULTILINE)
+    m = re.search(
+        rf"^#+\s*{re.escape(heading)}\s*$", text, re.IGNORECASE | re.MULTILINE
+    )
     if not m:
         return ""
-    rest = text[m.end():]
+    rest = text[m.end() :]
     nxt = re.search(r"^#+\s", rest, re.MULTILINE)
     body = rest[: nxt.start()] if nxt else rest
     return " ".join(body.split())[:cap]
 
 
-def render_markdown(slug: str, fm: dict, findings: list[dict], verdict: str, notes: str) -> str:
+def render_markdown(
+    slug: str, fm: dict, findings: list[dict], verdict: str, notes: str
+) -> str:
     lines = ["---"]
     for k, v in fm.items():
         if isinstance(v, bool):
@@ -106,9 +132,14 @@ def render_markdown(slug: str, fm: dict, findings: list[dict], verdict: str, not
             lines.append(f"{k}: {yaml_str(v)}")
     lines.append("---")
     lines += ["", f"# T2-Bare Review — {slug}", "", "## Findings", ""]
-    lines += ["| ID | Sev | Claim | Cite | SelfConf |", "|----|-----|-------|------|----------|"]
+    lines += [
+        "| ID | Sev | Claim | Cite | SelfConf |",
+        "|----|-----|-------|------|----------|",
+    ]
     for i, f in enumerate(findings, 1):
-        lines.append(f"| F-{i:02d} | {f['sev']} | {f['claim']} | {f['cite']} | {f['conf']} |")
+        lines.append(
+            f"| F-{i:02d} | {f['sev']} | {f['claim']} | {f['cite']} | {f['conf']} |"
+        )
     lines += ["", "## Verdict", verdict or "(no verdict returned)"]
     if notes:
         lines += ["", "## Notes", notes]
@@ -127,12 +158,17 @@ def atomic_write(path: str, content: str) -> int:
     return len(data)
 
 
-def normalize_reviewer(rv: dict, target: str, checksum: str, truncated: bool, label: str) -> dict:
+def normalize_reviewer(
+    rv: dict, target: str, checksum: str, truncated: bool, label: str
+) -> dict:
     """Return an output_files record; writes the final .md on success."""
     rec = {
-        "path": rv["final_path"], "model_id": rv["model_id"],
-        "model_label": rv["model_label"], "bytes": 0,
-        "status": "proxy_error", "elapsed_ms": 0,
+        "path": rv["final_path"],
+        "model_id": rv["model_id"],
+        "model_label": rv["model_label"],
+        "bytes": 0,
+        "status": "proxy_error",
+        "elapsed_ms": 0,
     }
     meta = {}
     if os.path.exists(rv["meta_path"]):
@@ -170,13 +206,22 @@ def normalize_reviewer(rv: dict, target: str, checksum: str, truncated: bool, la
 
     slug = os.path.splitext(os.path.basename(target))[0]
     fm = {
-        "schema_version": "1.0", "tier": "T2", "suspect": True,
-        "reviewer_model_id": rv["model_id"], "reviewer_model_label": rv["model_label"],
-        "target": target, "target_checksum": checksum, "target_truncated": truncated,
-        "generated": iso_now(), "caller_label": label,
-        "elapsed_ms": rec["elapsed_ms"], "finding_count": len(findings),
+        "schema_version": "1.0",
+        "tier": "T2",
+        "suspect": True,
+        "reviewer_model_id": rv["model_id"],
+        "reviewer_model_label": rv["model_label"],
+        "target": target,
+        "target_checksum": checksum,
+        "target_truncated": truncated,
+        "generated": iso_now(),
+        "caller_label": label,
+        "elapsed_ms": rec["elapsed_ms"],
+        "finding_count": len(findings),
     }
-    rec["bytes"] = atomic_write(rv["final_path"], render_markdown(slug, fm, findings, verdict, notes))
+    rec["bytes"] = atomic_write(
+        rv["final_path"], render_markdown(slug, fm, findings, verdict, notes)
+    )
     rec["status"] = "success"
     try:
         os.remove(rv["raw_path"])  # Wave D.3: drop .raw on success
@@ -251,9 +296,15 @@ def main() -> int:
 
     contract_text = emit_contract(
         man["contract_path"],
-        {"status": status, "target": target, "checksum": checksum,
-         "truncated": truncated, "requested": requested, "succeeded": m,
-         "next_cmd": next_cmd},
+        {
+            "status": status,
+            "target": target,
+            "checksum": checksum,
+            "truncated": truncated,
+            "requested": requested,
+            "succeeded": m,
+            "next_cmd": next_cmd,
+        },
         output_files,
     )
     print(contract_text, end="")

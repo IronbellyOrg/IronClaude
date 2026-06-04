@@ -95,26 +95,34 @@ else
   cp "$TARGET_ABS" "$TRUNC_TARGET"
 fi
 
+# --- Wave B.4: provenance checksum (AC-1.10) --------------------------------
+# Computed BEFORE the empty-target guard so the failed contract can carry the
+# documented target_checksum field (schema conformance — see below).
+CHECKSUM="$( { sha256sum "$TRUNC_TARGET" 2>/dev/null || shasum -a 256 "$TRUNC_TARGET"; } | cut -c1-12 )"
+[ -n "$CHECKSUM" ] || die "could not compute target checksum (need sha256sum or shasum)."
+
 # --- Wave B.3 (IMM-4): empty-target guard — writes failed contract ----------
+# The failed contract MUST match the documented Return Contract schema in SKILL.md
+# (no rogue error:/message: keys; all documented keys present) so callers parsing
+# the documented shape don't break on this special case. The skip reason is carried
+# as a YAML comment (parser-invisible, human-visible) rather than a non-schema key.
 NW_BYTES="$(tr -d '[:space:]' < "$TRUNC_TARGET" | wc -c | tr -d ' ')"
 if [ "$NW_BYTES" -lt 50 ]; then
   {
+    printf '# skip-reason: target-too-small (<50 non-whitespace bytes after truncation); sc-bare-review skipped\n'
     printf 'contract_version: "1.0"\n'
     printf 'status: failed\n'
-    printf 'error: target-too-small\n'
-    printf 'message: "Target too small for review (<50 non-whitespace bytes after truncation). sc-bare-review skipped."\n'
     printf 'target: %s\n' "$TARGET_ABS"
+    printf 'target_checksum: %s\n' "$CHECKSUM"
+    printf 'target_truncated: %s\n' "$TRUNCATED"
     printf 'reviewers_requested: %s\n' "$REVIEWERS"
     printf 'reviewers_succeeded: 0\n'
     printf 'output_files: []\n'
     printf 'suspect: true\n'
+    printf 'recommended_next_command: ""\n'
   } > "$CONTRACT"
   die "Target too small for review (<50 non-whitespace bytes after truncation). sc-bare-review skipped. (contract: $CONTRACT)" 3
 fi
-
-# --- Wave B.4: provenance checksum (AC-1.10) --------------------------------
-CHECKSUM="$( { sha256sum "$TRUNC_TARGET" 2>/dev/null || shasum -a 256 "$TRUNC_TARGET"; } | cut -c1-12 )"
-[ -n "$CHECKSUM" ] || die "could not compute target checksum (need sha256sum or shasum)."
 
 # --- Wave A.6 build shared prompts (refs/prompts.md is the documented source) -
 cat > "$PROMPTS_DIR/system.txt" <<'SYSEOF'

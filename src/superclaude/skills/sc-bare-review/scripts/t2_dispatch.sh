@@ -35,8 +35,16 @@ done
 now_ms() { local n; n="$(date +%s%N 2>/dev/null)"; case "$n" in (*[!0-9]*|'') echo $(( $(date +%s) * 1000 )) ;; (*) echo $(( n / 1000000 )) ;; esac; }
 
 write_meta() { # status http_code elapsed_ms attempts
-  jq -n --arg status "$1" --argjson http "${2:-0}" --argjson ms "${3:-0}" \
-        --argjson attempts "${4:-1}" --arg model "$MODEL" \
+  # curl's no-connect sentinel is "000"; jq <=1.6 rejects leading-zero numbers via
+  # --argjson, which would fail and leave an empty meta file (normalizer then loses all
+  # diagnostics). Coerce to a clean base-10 int first: non-numeric -> 0, "000" -> 0,
+  # "010" -> 10 (10# avoids octal). Same guard applied to ms/attempts for safety.
+  local http="${2:-0}" ms="${3:-0}" attempts="${4:-1}"
+  case "$http"     in (''|*[!0-9]*) http=0 ;;     esac; http=$((10#$http))
+  case "$ms"       in (''|*[!0-9]*) ms=0 ;;       esac; ms=$((10#$ms))
+  case "$attempts" in (''|*[!0-9]*) attempts=1 ;; esac; attempts=$((10#$attempts))
+  jq -n --arg status "$1" --argjson http "$http" --argjson ms "$ms" \
+        --argjson attempts "$attempts" --arg model "$MODEL" \
         '{status:$status, http_code:$http, elapsed_ms:$ms, attempts:$attempts, model_id:$model}' \
         > "$META_OUT"
 }
