@@ -424,3 +424,30 @@ The configuration is (PERMANENT OUT) for the V1 release scope.
         texts = {fp.text for fp in fps}
         for word in ["BEGIN", "FROM", "OPEN", "IMMEDIATE", "PERMANENT"]:
             assert word not in texts, f"'{word}' should not be a fingerprint"
+
+    def test_audit_meta_words_excluded(self):
+        """HTML/WILL/UNADDRESSED are document-format / RFC-emphasis / audit-status
+        words that appear in spec frontmatter and prose but are not code-level
+        identifiers. They belong in the same class as YAML/JSON, MUST/SHALL/SHOULD,
+        and EXEMPT/TODO respectively. Empirically observed inflating the missing-
+        fingerprint count on the MultiModelSwarm 2026-05-30 anti-instinct run.
+        """
+        for word in ["HTML", "WILL", "UNADDRESSED"]:
+            assert word in _EXCLUDED_CONSTANTS, f"'{word}' should be excluded"
+
+    def test_audit_meta_words_not_extracted(self):
+        """Verify end-to-end exclusion against spec-typical contexts that
+        previously surfaced these tokens as fingerprints on the MultiModelSwarm
+        run (HTML comments in frontmatter; "the orchestrator WILL emit"
+        boundary-section phrasing; "HIGH+UNADDRESSED items resolved" audit
+        annotation).
+        """
+        spec = """\
+<!-- Per-section source attribution provided inline as HTML comments -->
+### 11.1 The orchestrator WILL emit a manifest snapshot at preflight.
+unaddressed_invariants: 0 (all 6 HIGH+UNADDRESSED items resolved by refactor plan)
+"""
+        fps = extract_code_fingerprints(spec)
+        texts = {fp.text for fp in fps}
+        for word in ["HTML", "WILL", "UNADDRESSED"]:
+            assert word not in texts, f"'{word}' should not be a fingerprint"
