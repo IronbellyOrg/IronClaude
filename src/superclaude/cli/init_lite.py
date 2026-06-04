@@ -12,6 +12,7 @@ creates advisory project-guidance files under ``.dev/superclaude/``.
 Token weight is estimated deterministically as ``ceil(bytes / 4)``.
 """
 
+import os
 from pathlib import Path
 from typing import List, NamedTuple
 
@@ -217,6 +218,28 @@ def _is_protected_context_path(project_root: Path, target: Path) -> bool:
         return False
 
 
+def _atomic_write(target: Path, content: str) -> None:
+    """Write ``content`` to ``target`` atomically via a same-dir temp file + ``os.replace``.
+
+    Mirrors the repo-wide convention (see ``install_hooks._atomic_write_json``).
+    ``os.replace`` swaps the path entry itself rather than following a symlink that
+    may have been substituted after the marker check, closing the TOCTOU window a
+    bare ``write_text`` would leave open.
+    """
+    target.parent.mkdir(parents=True, exist_ok=True)
+    tmp = target.parent / f".{target.name}.tmp.{os.getpid()}"
+    try:
+        tmp.write_text(content, encoding="utf-8")
+        os.replace(tmp, target)
+    finally:
+        # On success os.replace consumed tmp; on failure remove the leftover.
+        if tmp.exists():
+            try:
+                tmp.unlink()
+            except OSError:
+                pass
+
+
 def _write_report(
     project_root: Path, out_path: Path, content: str, force: bool
 ) -> None:
@@ -238,8 +261,7 @@ def _write_report(
                 f"marker-less file only when it is init-lite-owned under .dev/superclaude/."
             )
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(content, encoding="utf-8")
+    _atomic_write(out_path, content)
 
 
 def _write_scaffold(project_root: Path, force: bool) -> List[str]:
@@ -253,8 +275,7 @@ def _write_scaffold(project_root: Path, force: bool) -> List[str]:
     for path, body in targets:
         if path.exists() and not force:
             continue
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(body, encoding="utf-8")
+        _atomic_write(path, body)
         created.append(path.as_posix())
     return created
 
