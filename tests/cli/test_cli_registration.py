@@ -34,6 +34,7 @@ EXPECTED_TOP_LEVEL_COMMANDS: frozenset[str] = frozenset(
         "cli-portify",
         "doctor",
         "eval",
+        "init-lite",
         "install",
         "install-skill",
         "mcp",
@@ -115,3 +116,25 @@ def test_pre_existing_command_help_still_invokable(runner: CliRunner) -> None:
         assert result.exit_code == 0, (
             f"`{name} --help` exited {result.exit_code}:\n{result.output}"
         )
+
+
+def test_top_level_help_lists_init_lite(runner: CliRunner) -> None:
+    """`superclaude --help` exposes the `init-lite` command."""
+    result = runner.invoke(main, ["--help"])
+    assert result.exit_code == 0, result.output
+    assert "init-lite" in result.output
+
+
+def test_init_lite_help_lists_required_flags(runner: CliRunner) -> None:
+    """`superclaude init-lite --help` exposes every documented flag."""
+    result = runner.invoke(main, ["init-lite", "--help"])
+    assert result.exit_code == 0, result.output
+    for flag in (
+        "--context-optimized",
+        "--project-root",
+        "--output",
+        "--dry-run",
+        "--scaffold",
+        "--force",
+    ):
+        assert flag in result.output, f"missing flag in init-lite --help: {flag}"
