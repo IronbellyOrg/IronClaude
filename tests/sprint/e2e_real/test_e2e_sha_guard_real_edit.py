@@ -86,9 +86,7 @@ _INDEX = (
 
 
 def _load_phase1_result(results_dir: Path) -> dict:
-    return json.loads(
-        (results_dir / "phase-1-result.json").read_text(encoding="utf-8")
-    )
+    return json.loads((results_dir / "phase-1-result.json").read_text(encoding="utf-8"))
 
 
 def _status_by_id(result_json: dict) -> dict[str, str]:
@@ -186,9 +184,7 @@ def _seed_fail_recoverable(rig: EditShimRig) -> None:
 
 @pytest.mark.integration
 class TestE2EShaGuardRealEdit:
-    def test_no_false_trip_engine_provenance_write(
-        self, claude_shim, real_release
-    ):
+    def test_no_false_trip_engine_provenance_write(self, claude_shim, real_release):
         """Negative half: the engine's own step-10 provenance write must NOT trip.
 
         A normal ``--merge-back`` rerun (no ``--force-merge``, no operator edit)

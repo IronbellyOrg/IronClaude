@@ -177,8 +177,7 @@ def extract_phase_subset(
     out_path = bundle_dir / f"phase-{phase_number}r-tasklist.md"
 
     rerun_frontmatter = (
-        f"rerun_of: phase-{phase_number}\n"
-        f"source_tasklist_sha256: {source_sha}\n"
+        f"rerun_of: phase-{phase_number}\nsource_tasklist_sha256: {source_sha}\n"
     )
     payload = rerun_frontmatter + slice_text
 
@@ -421,9 +420,7 @@ def walk_dependencies(
 
     result_by_id = {}
     if phase_result is not None:
-        result_by_id = {
-            tr.task.task_id: tr for tr in phase_result.task_results
-        }
+        result_by_id = {tr.task.task_id: tr for tr in phase_result.task_results}
 
     target_set = set(target_ids)
     resolved: list[str] = list(target_ids)
@@ -586,9 +583,7 @@ def _classify_transcript(text: str) -> TaskStatus:
         return TaskStatus.PASS
 
     transient = (
-        "api_retry" in text
-        or "ConnectionRefused" in text
-        or total_output_tokens == 0
+        "api_retry" in text or "ConnectionRefused" in text or total_output_tokens == 0
     )
     if is_error and transient:
         return TaskStatus.FAIL_RECOVERABLE
@@ -721,9 +716,7 @@ def _id_list(ids: list[str]) -> str:
     return "[" + ", ".join(ids) + "]"
 
 
-def _render_rerun_block(
-    *, in_progress: Optional[dict], history: list[str]
-) -> str:
+def _render_rerun_block(*, in_progress: Optional[dict], history: list[str]) -> str:
     lines = [_RERUN_BLOCK_START]
     if in_progress is not None:
         lines.append("rerun_in_progress:")
@@ -846,9 +839,7 @@ def restore_checkboxes_on_abort(phase_tasklist: Path, restore_info: dict) -> Non
             "tasklist": str(phase_tasklist),
             "restored": [
                 tid
-                for tid, st in restore_info.get(
-                    "original_checkbox_states", {}
-                ).items()
+                for tid, st in restore_info.get("original_checkbox_states", {}).items()
                 if st == "[x]"
             ],
         },
@@ -1005,7 +996,11 @@ def stash_and_restore_deliverables(
             except OSError:
                 continue
             entries.append(
-                {"task_id": task_id, "canonical": str(canonical), "preserved": str(dest)}
+                {
+                    "task_id": task_id,
+                    "canonical": str(canonical),
+                    "preserved": str(dest),
+                }
             )
 
     try:
@@ -1246,9 +1241,7 @@ def run_rerun_tasks(
         raise click.ClickException("--phase is required for rerun-tasks.")
     phase_obj = next((p for p in config.phases if p.number == phase), None)
     if phase_obj is None:
-        raise click.ClickException(
-            f"Phase {phase} not found in {config.index_path}."
-        )
+        raise click.ClickException(f"Phase {phase} not found in {config.index_path}.")
 
     lock_path: Optional[Path] = None
     restore_info: Optional[dict] = None
@@ -1262,9 +1255,7 @@ def run_rerun_tasks(
         if restore:
             target_bundle = bundle_dir or most_recent_bundle(config.results_dir)
             if target_bundle is None:
-                raise click.ClickException(
-                    "No rerun bundle found to --restore from."
-                )
+                raise click.ClickException("No rerun bundle found to --restore from.")
             count = restore_from_bundle(target_bundle, config.results_dir)
             click.echo(f"Restored {count} file(s) from {target_bundle}.")
             return 0
@@ -1337,9 +1328,7 @@ def run_rerun_tasks(
         if not allow_loop:
             for tid in resolved:
                 if retry_count_for_task(parent_view, tid) >= 3:
-                    bundles = sorted(
-                        str(b) for b in config.results_dir.glob("rerun-*")
-                    )
+                    bundles = sorted(str(b) for b in config.results_dir.glob("rerun-*"))
                     raise click.ClickException(
                         f"Task {tid} has been rerun 3 times. Manual intervention "
                         f"required. Inspect bundles: {bundles}"
@@ -1391,9 +1380,7 @@ def run_rerun_tasks(
                     f"preserved at {bundle}. To force, use --force-merge."
                 )
             produced = sorted(
-                p
-                for p in (bundle / "results").glob(f"phase-{phase}-*")
-                if p.is_file()
+                p for p in (bundle / "results").glob(f"phase-{phase}-*") if p.is_file()
             )
             attempt = 1 + max(
                 (retry_count_for_task(parent_view, tid) for tid in resolved),
@@ -1426,9 +1413,7 @@ def run_rerun_tasks(
                     # merge replaces affected entries with the sidecar, so a partial
                     # sidecar would drop an uncovered task with no replacement (data
                     # loss). Incomplete -> skip the write -> R-F3 preserve (AC-4).
-                    _covered = {
-                        tr.get("task", {}).get("task_id") for tr in _refreshed
-                    }
+                    _covered = {tr.get("task", {}).get("task_id") for tr in _refreshed}
                     if set(resolved).issubset(_covered):
                         _atomic_write_text(
                             produced[0].parent / "task-results.json",
@@ -1449,7 +1434,9 @@ def run_rerun_tasks(
             if rerun_error is not None:
                 click.echo(f"Rerun failed ({rerun_error}); source restored, no merge.")
             elif not merge_back:
-                click.echo("Rerun complete; --no-merge-back set, results left in bundle.")
+                click.echo(
+                    "Rerun complete; --no-merge-back set, results left in bundle."
+                )
                 exit_code = 0
             else:
                 click.echo(
@@ -1461,8 +1448,15 @@ def run_rerun_tasks(
             try:
                 subprocess.run(
                     [
-                        "uv", "run", "superclaude", "sprint", "verify-checkpoints",
-                        "--recover", "--phase", str(phase), "--quiet",
+                        "uv",
+                        "run",
+                        "superclaude",
+                        "sprint",
+                        "verify-checkpoints",
+                        "--recover",
+                        "--phase",
+                        str(phase),
+                        "--quiet",
                     ],
                     check=False,
                 )

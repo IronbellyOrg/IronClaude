@@ -161,15 +161,19 @@ class TestExtractPhaseSubset:
 # ---------------------------------------------------------------------------
 
 
-def _task_result(task_id: str, status: TaskStatus, *, deps: list[str] | None = None,
-                 turns: int = 1) -> TaskResult:
+def _task_result(
+    task_id: str, status: TaskStatus, *, deps: list[str] | None = None, turns: int = 1
+) -> TaskResult:
     """Build a real ``TaskResult`` for the PhaseResult-view the walker consumes."""
     return TaskResult(
-        task=TaskEntry(task_id=task_id, title=f"Task {task_id}",
-                       dependencies=list(deps or [])),
+        task=TaskEntry(
+            task_id=task_id, title=f"Task {task_id}", dependencies=list(deps or [])
+        ),
         status=status,
         turns_consumed=turns,
-        gate_outcome=GateOutcome.PASS if status is TaskStatus.PASS else GateOutcome.FAIL,
+        gate_outcome=GateOutcome.PASS
+        if status is TaskStatus.PASS
+        else GateOutcome.FAIL,
     )
 
 
@@ -194,9 +198,7 @@ class TestDependencyWalker:
         )
         # Rerunning the whole chain together: every dep is itself a target, so it
         # is satisfied by construction and the full chain resolves with no abort.
-        resolved, warnings = walk_dependencies(
-            src, ["T07.11", "T07.12", "T07.13"]
-        )
+        resolved, warnings = walk_dependencies(src, ["T07.11", "T07.12", "T07.13"])
         assert resolved == ["T07.11", "T07.12", "T07.13"]
         assert warnings == []
 
@@ -236,10 +238,12 @@ class TestTransitiveClosure:
         view = _View(
             [
                 _task_result("T07.11", TaskStatus.PASS, turns=1),
-                _task_result("T07.12", TaskStatus.FAIL_RECOVERABLE,
-                             deps=["T07.11"], turns=1),
-                _task_result("T07.13", TaskStatus.FAIL_RECOVERABLE,
-                             deps=["T07.12"], turns=1),
+                _task_result(
+                    "T07.12", TaskStatus.FAIL_RECOVERABLE, deps=["T07.11"], turns=1
+                ),
+                _task_result(
+                    "T07.13", TaskStatus.FAIL_RECOVERABLE, deps=["T07.12"], turns=1
+                ),
             ]
         )
         resolved, warnings = walk_dependencies(
@@ -261,7 +265,9 @@ class TestTransitiveClosure:
 # ---------------------------------------------------------------------------
 
 
-def _write_transcript(results_dir: Path, phase: int, task_id: str, lines: list[dict]) -> Path:
+def _write_transcript(
+    results_dir: Path, phase: int, task_id: str, lines: list[dict]
+) -> Path:
     """Write a ``phase-N-task-<id>-output.txt`` stream-json transcript."""
     results_dir.mkdir(parents=True, exist_ok=True)
     path = results_dir / f"phase-{phase}-task-{task_id}-output.txt"
@@ -280,7 +286,11 @@ class TestTranscriptFallback:
             "T07.11",
             [
                 {"type": "assistant", "message": {"usage": {"output_tokens": 128}}},
-                {"type": "result", "is_error": True, "subtype": "error_during_execution"},
+                {
+                    "type": "result",
+                    "is_error": True,
+                    "subtype": "error_during_execution",
+                },
             ],
         )
         failed = discover_failed_tasks_from_transcripts(tmp_path, 7)
@@ -341,7 +351,9 @@ class _FakePopenSuccess:
         return 0
 
 
-def _seed_orchestration(tmp_path: Path, target: str = "T07.11") -> tuple[SprintConfig, Phase]:
+def _seed_orchestration(
+    tmp_path: Path, target: str = "T07.11"
+) -> tuple[SprintConfig, Phase]:
     """Seed a release dir with a phase tasklist, a parent phase-7-result.json
     (target recorded FAIL_RECOVERABLE), and a canonical original transcript that
     merge-back must rename to ``*.failed-<ts>``."""
@@ -391,9 +403,7 @@ def _execute_sprint_writes_pass(target: str):
         sub_results = sub_config.results_dir
         sub_results.mkdir(parents=True, exist_ok=True)
         rerun_result = {
-            "task_results": [
-                _task_result(target, TaskStatus.PASS, turns=1).to_dict()
-            ],
+            "task_results": [_task_result(target, TaskStatus.PASS, turns=1).to_dict()],
             "recovery_history": [],
         }
         (sub_results / "phase-7-result.json").write_text(
@@ -441,7 +451,9 @@ class TestRunOrchestration:
             )
         assert exit_code == 0
         # Merge-back renamed the original canonical transcript to *.failed-<ts>.
-        failed = list(config.results_dir.glob("phase-7-task-T07.11-output.failed-*.txt"))
+        failed = list(
+            config.results_dir.glob("phase-7-task-T07.11-output.failed-*.txt")
+        )
         assert failed, "expected original transcript renamed to *.failed-<ts>"
 
     def test_orchestrate_emits_phase_rerun_complete_event(self, tmp_path: Path):

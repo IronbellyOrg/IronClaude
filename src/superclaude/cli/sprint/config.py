@@ -292,6 +292,9 @@ def load_sprint_config(
     stall_action: str = "warn",
     shadow_gates: bool = False,
     state_dir: Path | None = None,
+    handoff_enabled: bool = True,
+    resume_task_id: str = "",
+    task_parallelism: int = 1,
 ) -> SprintConfig:
     """Load and validate a complete sprint configuration.
 
@@ -360,6 +363,9 @@ def load_sprint_config(
         shadow_gates=shadow_gates,
         total_tasks=total_tasks,
         state_dir=state_dir if state_dir is not None else Path(""),
+        handoff_enabled=handoff_enabled,
+        resume_task_id=resume_task_id,
+        task_parallelism=task_parallelism,
     )
 
     # Validate that the requested range yields at least one active phase

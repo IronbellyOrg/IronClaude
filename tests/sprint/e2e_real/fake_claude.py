@@ -83,6 +83,11 @@ def _emit_pass_transcript(task_id: str) -> None:
     per-task executor path only looks at the exit code, but emitting a
     faithful transcript keeps the artifact honest.
     """
+    # Real Claude reports num_turns in its terminal result event; the per-task
+    # executor parses it via process.count_turns_from_stream_json. Emit a
+    # deterministic value driven by FAKE_CLAUDE_NUM_TURNS (default 0 → no
+    # behavior change for tests that do not set it).
+    num_turns = int(os.environ.get("FAKE_CLAUDE_NUM_TURNS", "0") or "0")
     lines = [
         {"type": "system", "subtype": "init", "task": task_id},
         {
@@ -97,6 +102,7 @@ def _emit_pass_transcript(task_id: str) -> None:
             "subtype": "success",
             "is_error": False,
             "output_tokens": 88,
+            "num_turns": num_turns,
             "task": task_id,
         },
     ]
@@ -149,6 +155,16 @@ def main() -> int:
     runs = control.setdefault("runs", {})
     runs[task_id] = int(runs.get(task_id, 0)) + 1
     control.setdefault("run_log", []).append(task_id)
+    # Additive: record the per-task isolation env this child actually received,
+    # so the isolation smoke / concurrent-isolation tests can assert each task
+    # got its own CLAUDE_SETTINGS_DIR / CLAUDE_PLUGIN_DIR under .isolation. Other
+    # e2e tests ignore env_log, so this is a non-breaking addition.
+    env_log = control.setdefault("env_log", {})
+    env_log[task_id] = {
+        "CLAUDE_SETTINGS_DIR": os.environ.get("CLAUDE_SETTINGS_DIR", ""),
+        "CLAUDE_PLUGIN_DIR": os.environ.get("CLAUDE_PLUGIN_DIR", ""),
+        "CLAUDE_WORK_DIR": os.environ.get("CLAUDE_WORK_DIR", ""),
+    }
     if control_path:
         _save_control(control_path, control)
 

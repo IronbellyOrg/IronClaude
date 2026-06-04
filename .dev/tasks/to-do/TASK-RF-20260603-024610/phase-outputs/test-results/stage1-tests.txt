@@ -1,0 +1,229 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/SprintCLIWireDead
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collected 149 items
+
+tests/sprint/test_handoff_record.py ....                                 [  2%]
+tests/sprint/test_handoff_store.py ....                                  [  5%]
+tests/sprint/test_stage1_wiring.py ....                                  [  8%]
+tests/sprint/test_handoff_backward_compat.py ..                          [  9%]
+tests/sprint/test_context_injection.py ..................                [ 21%]
+tests/sprint/test_backward_compat_regression.py ..................       [ 33%]
+tests/sprint/test_executor.py .....................FFFF................. [ 61%]
+...........................F...............                              [ 90%]
+tests/integration/test_sprint_wiring.py ..............                   [100%]
+
+=================================== FAILURES ===================================
+________ TestExecuteSprintIntegrationCoverage.test_execute_sprint_pass _________
+tests/sprint/test_executor.py:376: in test_execute_sprint_pass
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1466: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_PassPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭─────────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_pass0 ───────────╮
+│                                                                              │
+│  test_execute_sprint_pass0    Elapsed: 0s                                    │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:430 No task headings (### T<PP>.<TT>) found in tasklist content
+________ TestExecuteSprintIntegrationCoverage.test_execute_sprint_halt _________
+tests/sprint/test_executor.py:427: in test_execute_sprint_halt
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1466: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_HaltPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭─────────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_halt0 ───────────╮
+│                                                                              │
+│  test_execute_sprint_halt0    Elapsed: 0s                                    │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:430 No task headings (### T<PP>.<TT>) found in tasklist content
+_ TestExecuteSprintIntegrationCoverage.test_execute_sprint_timeout_exit_code_124 _
+tests/sprint/test_executor.py:486: in test_execute_sprint_timeout_exit_code_124
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1466: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_TimeoutPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭──────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_timeout_ex0 ────────╮
+│                                                                              │
+│  test_execute_sprint_timeout_ex0    Elapsed: 0s                              │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:430 No task headings (### T<PP>.<TT>) found in tasklist content
+_____ TestExecuteSprintIntegrationCoverage.test_execute_sprint_interrupted _____
+tests/sprint/test_executor.py:556: in test_execute_sprint_interrupted
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1466: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_InterruptPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭──────── SUPERCLAUDE SPRINT RUNNER == test_execute_sprint_interrupte0 ────────╮
+│                                                                              │
+│  test_execute_sprint_interrupte0    Elapsed: 0s                              │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:430 No task headings (### T<PP>.<TT>) found in tasklist content
+____ TestBackwardCompat.test_backward_compat_sprint_pass_grace_period_zero _____
+tests/sprint/test_executor.py:1315: in test_backward_compat_sprint_pass_grace_period_zero
+    execute_sprint(config)
+src/superclaude/cli/sprint/executor.py:1466: in execute_sprint
+    proc_manager.start()
+src/superclaude/cli/pipeline/process.py:141: in start
+    if self._process.stdin is not None:
+       ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: '_PassPopen' object has no attribute 'stdin'
+----------------------------- Captured stdout call -----------------------------
+╭──────── SUPERCLAUDE SPRINT RUNNER == test_backward_compat_sprint_pa0 ────────╮
+│                                                                              │
+│  test_backward_compat_sprint_pa0    Elapsed: 0s                              │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│                                                                              │
+│  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  ╭───────────────────────────── Active Phase ─────────────────────────────╮  │
+│  │ Waiting...                                                             │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:430 No task headings (### T<PP>.<TT>) found in tasklist content
+=========================== short test summary info ============================
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_pass
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_halt
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_timeout_exit_code_124
+FAILED tests/sprint/test_executor.py::TestExecuteSprintIntegrationCoverage::test_execute_sprint_interrupted
+FAILED tests/sprint/test_executor.py::TestBackwardCompat::test_backward_compat_sprint_pass_grace_period_zero
+======================== 5 failed, 144 passed in 5.90s =========================
+
+===== make lint =====
+Running linter...
+uv run ruff check .
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/superclaude/cli/sprint/executor.py:3:1
+   |
+ 1 |   """Sprint executor — core orchestration loop."""
+ 2 |
+ 3 | / from __future__ import annotations
+ 4 | |
+ 5 | | import json
+ 6 | | import logging as _logging
+ 7 | | import re
+ 8 | | import shutil
+ 9 | | import time
+10 | | from dataclasses import dataclass, field
+11 | | from datetime import datetime, timezone
+12 | | from pathlib import Path
+13 | |
+14 | | from superclaude.cli.pipeline.models import Step, StepResult
+15 | | from superclaude.cli.pipeline.trailing_gate import (
+16 | |     DeferredRemediationLog,
+17 | |     TrailingGateResult,
+18 | | )
+19 | |
+20 | | from .debug_logger import debug_log, setup_debug_logger
+21 | | from .diagnostics import DiagnosticCollector, FailureClassifier, ReportGenerator
+22 | | from .logging_ import SprintLogger
+23 | | from .models import (
+24 | |     GateOutcome,
+25 | |     HandoffRecord,
+26 | |     MonitorState,
+27 | |     Phase,
+28 | |     PhaseResult,
+29 | |     PhaseStatus,
+30 | |     ShadowGateMetrics,
+31 | |     SprintConfig,
+32 | |     SprintOutcome,
+33 | |     SprintResult,
+34 | |     TaskEntry,
+35 | |     TaskResult,
+36 | |     TaskStatus,
+37 | |     TurnLedger,
+38 | | )
+39 | | from .monitor import OutputMonitor, detect_error_max_turns, detect_prompt_too_long
+40 | | from .notify import notify_phase_complete, notify_sprint_complete
+41 | | from .process import (
+42 | |     ClaudeProcess,
+43 | |     SignalHandler,
+44 | |     build_task_context,
+45 | |     count_turns_from_stream_json,
+46 | | )
+47 | | from .tmux import update_summary_pane, update_tail_pane
+48 | | from .handoff import FileHandoffStore
+49 | | from .tui import SprintTUI
+   | |__________________________^
+50 |
+51 |   _wiring_logger = _logging.getLogger("superclaude.sprint.wiring_hook")
+   |
+help: Organize imports
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
+make: *** [Makefile:50: lint] Error 1
+
+===== make lint (re-run after I001 auto-fix) =====
+Running linter...
+uv run ruff check .
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!

@@ -37,9 +37,7 @@ from superclaude.cli.sprint.executor import execute_sprint
 
 
 def _load_phase1_result(results_dir: Path) -> dict:
-    return json.loads(
-        (results_dir / "phase-1-result.json").read_text(encoding="utf-8")
-    )
+    return json.loads((results_dir / "phase-1-result.json").read_text(encoding="utf-8"))
 
 
 def _status_by_id(result_json: dict) -> dict[str, str]:
@@ -92,11 +90,15 @@ class TestE2ERerunHappyPath:
 
         # Capture the original T01.02 transcript content + the unchanged
         # neighbours' mtimes so we can prove the rerun touched only T01.02.
-        t0102_orig = (
-            results_dir / "phase-1-task-T01.02-output.txt"
-        ).read_text(encoding="utf-8")
-        t0101_mtime = (results_dir / "phase-1-task-T01.01-output.txt").stat().st_mtime_ns
-        t0103_mtime = (results_dir / "phase-1-task-T01.03-output.txt").stat().st_mtime_ns
+        t0102_orig = (results_dir / "phase-1-task-T01.02-output.txt").read_text(
+            encoding="utf-8"
+        )
+        t0101_mtime = (
+            (results_dir / "phase-1-task-T01.01-output.txt").stat().st_mtime_ns
+        )
+        t0103_mtime = (
+            (results_dir / "phase-1-task-T01.03-output.txt").stat().st_mtime_ns
+        )
 
         # --- Run 2: real rerun via the CLI; shim now passes T01.02 ---------
         # Resetting failures also clears the run counter / run-log so the

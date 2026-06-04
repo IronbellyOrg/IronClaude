@@ -32,14 +32,18 @@ class TestResumeSemantics:
         assert "--resume T07.03" in output
 
     def test_resume_command_includes_budget(self):
-        """Resume command includes budget suggestion."""
+        """Resume command includes a budget suggestion via the REAL turn-budget
+        flag. Stage 2 reconciled the dangling resume hint: `--budget` is not a
+        real `sprint run` option, so the printed command now uses `--max-turns`
+        (the actual turn-budget flag) and is directly runnable."""
         config = SprintConfig(index_path=Path("sprint.md"))
         output = build_resume_output(
             config=config,
             halt_task_id="T07.03",
             remaining_tasks=self._make_tasks("T07.03", "T07.04"),
         )
-        assert "--budget" in output
+        assert "--max-turns" in output
+        assert "--budget" not in output  # the non-existent flag was removed
 
     def test_remaining_tasks_listed(self):
         """Remaining tasks listed in execution order."""

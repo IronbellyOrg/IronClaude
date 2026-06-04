@@ -4,6 +4,24 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### Sprint CLI — wire the per-task execution path + runner-owned typed handoff (Stages 0-3, TASK-RF-SPRINTCLI-WIRE-DEAD-20260603-024610)
+
+#### Added (sprint CLI)
+
+- `--handoff/--no-handoff` flag on `superclaude sprint run` (default: **enabled**). When enabled, the per-task execution path writes one typed `HandoffRecord` JSON per task and a `task_complete` ledger event; `--no-handoff` reproduces legacy behavior exactly (no handoff records, no `task_complete` events). Threaded through all three layers (`commands.py` click option → `load_sprint_config` → `SprintConfig.handoff_enabled`).
+- `--resume <task_id>` flag on `superclaude sprint run`: resumes a per-task sprint by skipping *validated-successful* tasks (handoff record with `status == "pass"` AND a successful gate outcome). The argument is a `T<PP>.<TT>` task id; it composes with the phase-granular `--start/--end` (those bound the phase range, the validated-success skip suppresses already-done tasks within it). Resuming against a pre-Stage-1 `release_dir` (no `handoff/` directory) degrades gracefully to phase-granular behavior. Non-success tasks (`FAIL_*`/`INCOMPLETE`/`SKIPPED`, PASS-with-gate-fail) are never skipped.
+- `handoff/` results subdirectory: per-task handoff records are persisted to `<results_dir>/handoff/phase-{N}-task-{task_id}.json` (phase-qualified key, since the bare `T<PP>.<TT>` id is not sprint-unique). Written via an atomic temp+replace `FileHandoffStore` (`src/superclaude/cli/sprint/handoff.py`).
+- `task_complete` execution-log JSONL event — the first-run sibling of `task_rerun_complete`, with the identical field set `{event, phase, task_id, status, turns, duration_sec, timestamp}` (discriminator: `task_complete` = first run, `task_rerun_complete` = rerun).
+- Typed, schema-versioned `HandoffRecord` dataclass (`models.py`) constructed by the runner from each finalized `TaskResult` plus `produced_artifacts[]`/`consumed_upstreams[]`; forward-compatible (`from_dict` tolerates unknown keys).
+- `--task-parallelism K` flag on `superclaude sprint run` (default: **1 = sequential**). `K > 1` executes up to `K` tasks concurrently per dependency wave (topological order built on the existing `rerun_tasks` dependency-edge shape; cycles surfaced, not dropped). Concurrency is made safe by a lock-guarded `SprintLogger._jsonl`, a lock-guarded `TurnLedger` with an atomic `try_launch` (prevents budget over-commit), and per-task atomic handoff-file writes. `K = 1` preserves byte-identical legacy behavior.
+
+#### Changed (sprint CLI)
+
+- Per-task subprocesses now receive full per-task isolation env (own `CLAUDE_SETTINGS_DIR`/`CLAUDE_PLUGIN_DIR` under `<results_dir>/.isolation`), and the per-phase fallback path additionally seeds the two settings/plugin keys while keeping its phase-scoped `CLAUDE_WORK_DIR`.
+- Per-task `turns_consumed` is now parsed from the stream-json terminal `result` event's `num_turns` (previously hard-coded `0`).
+- Prior-task context (`build_task_context`) is now injected into each per-task prompt.
+- The per-task heading router emits a warn-only near-miss diagnostic when a phase file has headings that look like `### T<PP>.<TT>` but miss the strict format (it never reclassifies the phase).
+
 ### sc:cleanup-audit — bake hidden + BMAD scope exclusions into defaults (TASK-RF-20260529-162751)
 
 #### Added (sc:cleanup-audit)
