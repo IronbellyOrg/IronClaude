@@ -1,0 +1,23 @@
+$ ruff check src/superclaude/cli/sprint/rerun_tasks.py src/superclaude/cli/sprint/config.py
+# (run via worktree-absolute paths — see CRITICAL ENVIRONMENT FINDING in Phase 3 Findings:
+#  `uv run` resolves imports to the MAIN repo, so lint MUST target the worktree absolute path.)
+
+# --- Initial run (pre-fix) ---
+F401 [*] `.models.Phase` imported but unused
+  --> src/superclaude/cli/sprint/rerun_tasks.py:40:21
+F401 [*] `.recovery.RecoveryBundleRef` imported but unused
+  --> src/superclaude/cli/sprint/rerun_tasks.py:44:5
+F821 Undefined name `verify_checkpoint_files`
+  --> src/superclaude/cli/sprint/rerun_tasks.py:471:20
+Found 3 errors.
+[*] 2 fixable with the `--fix` option.
+
+# --- Fixes applied (Step 3.10) ---
+# 1. Removed unused import `.models.Phase` (run_rerun_tasks uses phase_obj from config.phases, not Phase()).
+# 2. Removed unused import `.recovery.RecoveryBundleRef`.
+# 3. Added lazy `from .checkpoints import verify_checkpoint_files` inside
+#    walk_dependencies._cross_phase_checkpoints_ok (was called but never imported — a real bug,
+#    not just a lint nit; the Step 3.1 scaffolding spec'd it as a deferred lazy import).
+
+# --- Final run (post-fix) ---
+All checks passed!
