@@ -65,7 +65,7 @@ The skill MUST resolve a mode (UC-1 or UC-2) before any wave runs.
 
 - `--mode pre | post` — explicit mode (RECOMMENDED for non-interactive callers; eliminates auto-detect ambiguity)
 - `--spec <path>` — driving spec/PRD/objectives doc (required for UC-1; recommended for UC-2)
-- `--tasklist <path>` — tasklist file (required for UC-2; recommended for UC-1 if a tasklist already exists)
+- `--tasklist <path>` — tasklist file (strongly recommended for UC-2 — does not STOP if omitted; recommended for UC-1 if a tasklist already exists)
 - `--diff <ref-or-path>` — git ref (e.g., `HEAD~1..HEAD`, branch name) or path to a diff file (required for UC-2)
 - `--commit-range <ref-range>` — alternative to `--diff` for resolving a post-execution diff via git
 - `--scope <path>` — narrowing scope (when resolving to modified files → UC-2 auto-detect)

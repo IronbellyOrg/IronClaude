@@ -1024,6 +1024,8 @@ TALEB: "The real question: does this benefit from uncertainty?"
 /sc:reflect --type task --validate   # maps to --mode post
 ```
 
+> The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
+
 **MCP servers:** auggie, serena, context7, tavily, sequential
 
 ---
