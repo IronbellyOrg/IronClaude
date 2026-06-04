@@ -80,13 +80,16 @@ class TestBrainstormGapsHappyPath:
 
 
 class TestSkillAvailability:
-    def test_skill_not_available_returns_false(self, tmp_path):
-        """When skill directories don't exist, returns False."""
-        with patch(
-            "superclaude.cli.cli_portify.steps.brainstorm_gaps.check_brainstorm_skill_available",
-            return_value=False,
-        ):
-            assert not check_brainstorm_skill_available()
+    def test_skill_not_available_returns_false(self, tmp_path, monkeypatch):
+        """No skill dirs under ~/.claude/skills -> False."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+        assert not check_brainstorm_skill_available()
+
+    def test_skill_available_returns_true(self, tmp_path, monkeypatch):
+        """sc-brainstorm-protocol present under ~/.claude/skills -> True."""
+        monkeypatch.setenv("HOME", str(tmp_path))
+        (tmp_path / ".claude" / "skills" / "sc-brainstorm-protocol").mkdir(parents=True)
+        assert check_brainstorm_skill_available()
 
     def test_fallback_activates_with_warning(self, config_with_prior_artifacts):
         """Fallback path should still produce PASS result."""
