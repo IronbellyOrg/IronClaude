@@ -1,0 +1,52 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/pre-ataraxy-eval-plan-20260604015505/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/pre-ataraxy-eval-plan-20260604015505/REPORT.md
+confidence_calibrated: 0.87
+
+# UC-1 specific
+coverage_pct: 0.77
+coverage_undefined: false
+unmapped_requirements:
+  - "broad-variety-of-scenarios → generalization appendix named but unspecified (M1)"
+  - "Rust-toolchain-maintenance ownership → no owner assigned (H2)"
+  - "security/data-egress → entirely absent (H3)"
+best_practice_grade: 3
+
+# Findings summary
+findings_high: 6   # H1 gating-contradiction, H2 no-owner, H3 no-security, H4 solo-blinding, H5 corpus/backfill, H6 harness-underspec
+findings_med: 5
+dropped_from_variant: 3   # V1 rollback-ordering, V2 sample-table+owner-field, V3 install-matrix+bash-harness
+
+# Tier 2 artifacts
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/reflect/pre-ataraxy-eval-plan-20260604015505/reviewer-cards/card-1-coverage.md
+  - /config/workspace/IronClaude/.dev/reflect/pre-ataraxy-eval-plan-20260604015505/reviewer-cards/card-2-feasibility.md
+  - /config/workspace/IronClaude/.dev/reflect/pre-ataraxy-eval-plan-20260604015505/reviewer-cards/card-3-completeness.md
+t2_model_class_diversity: full        # sonnet + haiku + opus
+merge_method: synthesized-inline      # 3 complementary cards; sc-adversarial not invoked (disclosed)
+adversarial_unavailable: false
+
+# Evidence guard
+citations_total: 7
+citations_revalidated: 5              # gating, owner, security, generalization, token-vs-Auggie re-verified via grep/read
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true
+
+# Calibration adjustments (tempered findings)
+calibration_notes:
+  - "reviewer-2 F1 'PRs live upstream' corrected: fork hosts own PRs, ~30 merges exist; valid core = backfill unspecified (H5)"
+  - "reviewer-2 F3 'unmeasurable on Markdown' tempered to MED: weave acts on Python only, gate IS measurable on its actual merges (M4)"
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+user_decision_required: false
+needs_human_decision: false
+verdict: not-yet-executable           # strong plan; 6 HIGH gaps to close before Phase 0
+
+# Remediation
+remediation_offered: false            # no --remediate flag; audit-first, stop after report

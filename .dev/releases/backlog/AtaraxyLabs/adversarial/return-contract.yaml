@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/releases/backlog/AtaraxyLabs/merged-requirements.md"
+  convergence_score: 0.88
+  artifacts_dir: "/config/workspace/IronClaude/.dev/releases/backlog/AtaraxyLabs/adversarial/"
+  status: "success"
+  base_variant: "opus:architect"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []

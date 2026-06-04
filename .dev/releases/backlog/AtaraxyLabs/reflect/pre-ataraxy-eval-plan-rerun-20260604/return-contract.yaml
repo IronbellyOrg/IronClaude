@@ -1,0 +1,48 @@
+contract_version: "1.2.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/reflect/pre-ataraxy-eval-plan-rerun-20260604/REPORT.md
+confidence_calibrated: 0.92
+escalation_rule_matched: 1   # §5.3 rule 1: C>=0.90, single domain (docs), near-zero ambiguity, coverage>=floor
+
+# UC-1 specific
+coverage_pct: 0.94
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 4
+
+# Confirmation re-run closure (vs original 6 HIGH + 5 MED)
+high_findings_closed: 6
+high_findings_open: 0
+med_findings_closed: 5
+med_findings_open: 0
+new_high_gaps_introduced: 0
+internal_contradictions: 0
+
+per_original_finding:
+  H1: closed   # §3 L110-119 + §8.2 L311 + §14 L433-434 terminal-state rule
+  H2: closed   # §5 L204-222 Owner + tie-break resolver
+  H3: closed   # §11.5 L371-401 Security & Data-Handling
+  H4: closed   # §7 L253-268 automated solo-operator blinding
+  H5: closed   # §2 G0-1 L66/L71-84 inventory-first + synthetic backfill
+  H6: closed   # §4 L143-167 runner I/O contract + restored V3 artifacts
+  M1: closed   # §14 L437-452 generalization skeleton
+  M2: closed   # §5 L189-199 token-vs-Auggie isolation method
+  M3: closed   # §7 L279-294 sample-size interpolation banding
+  M4: closed   # §8.3 L316 weave Python-only + Phase-0 check
+  M5: closed   # §10 L341-354 + §12 L416 .md-substrate first-class assumption
+
+# Hallucination guard
+citations_total: 22
+citations_inferred: 0
+evidence_validator_ran: false   # inline grounded pass (Tier 1 confirmation); grounding pre-established via grep-validation + 2 rf-qa gates
+citation_budget_policy: full_reread
+
+# Verdict
+executability_verdict: EXECUTABLE   # was NOT-YET-EXECUTABLE
+cannot_validate_without_user_input: false
+needs_human_decision: false
+regression_present: false
+
+prior_report: .dev/reflect/pre-ataraxy-eval-plan-20260604015505/REPORT.md

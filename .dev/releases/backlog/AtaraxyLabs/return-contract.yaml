@@ -1,0 +1,25 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/releases/backlog/AtaraxyLabs/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/releases/backlog/AtaraxyLabs/merged-requirements.md
+convergence_score: 0.88
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/releases/backlog/AtaraxyLabs/adversarial/
+domain: research
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: primary   # upstream GitHub READMEs fetched (WebFetch), tool surfaces verified
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+telemetry:
+  agent_spec: "opus:architect:'phased incorporation + gates + reversibility',sonnet:analyzer:'falsifiable baseline-anchored evals',haiku:devops:'all-in cost + TCO'"
+  variants:
+    - {id: 1, model: opus, persona: architect, tokens: 82078, role: base}
+    - {id: 2, model: sonnet, persona: analyzer, tokens: 47710, role: eval-graft}
+    - {id: 3, model: haiku, persona: devops, tokens: 48973, role: cost-graft}
+  key_resolution: "X-005 multi-vendor token economics — token value is provider-conditional, not absolute"
+  promoted_assumptions: [A-001 corpus-exists, A-002 expensive-provider, A-003 prebuilt-binaries, A-004 sem-core-on-markdown]
