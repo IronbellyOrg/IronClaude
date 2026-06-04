@@ -292,15 +292,16 @@ def _write_scaffold(project_root: Path, force: bool) -> List[str]:
     "--project-root",
     "project_root",
     default=".",
-    type=click.Path(file_okay=False, path_type=Path),
-    help="Project directory to audit (default: current directory).",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    help="Project directory to audit (must be an existing directory; default: current directory).",
 )
 @click.option(
     "--output",
     "output",
     default=None,
     type=click.Path(dir_okay=False, path_type=Path),
-    help="Report output path (default: <project-root>/.dev/superclaude/context-audit.md).",
+    help="Report output path. Relative values resolve against --project-root "
+    "(default: <project-root>/.dev/superclaude/context-audit.md).",
 )
 @click.option(
     "--dry-run",
@@ -336,7 +337,10 @@ def init_lite_command(
     surfaces = discover_surfaces(root)
     report = render_report(root, surfaces)
 
-    out_path = Path(output).resolve() if output else (root / REPORT_RELPATH)
+    if output is None:
+        out_path = root / REPORT_RELPATH
+    else:
+        out_path = (output if output.is_absolute() else (root / output)).resolve()
     total_tokens = sum(s.tokens for s in surfaces)
 
     if dry_run:

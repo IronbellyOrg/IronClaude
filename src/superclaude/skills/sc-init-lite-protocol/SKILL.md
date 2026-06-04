@@ -42,6 +42,8 @@ The mechanical audit is implemented as the `superclaude init-lite --context-opti
 | scaffold | `--scaffold` | false |
 | force | `--force` | false |
 
+`project_root` must be an existing directory (validated at the CLI boundary). A relative `--output` value resolves against `--project-root`, not the current working directory.
+
 ## 3. Workflow
 
 1. **Discover** only project-local context surfaces under `project_root` (read-only): `CLAUDE.md`, `.mcp.json`, `.claude/settings.json`, every markdown file under `.claude/commands/**/*.md`, every `.claude/skills/**/SKILL.md`, and `.claude/agents/*.md`. Missing surfaces are reported, never created.

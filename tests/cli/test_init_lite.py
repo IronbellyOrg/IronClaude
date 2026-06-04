@@ -383,3 +383,114 @@ def test_force_refuses_to_write_protected_context_inputs(
     )
     assert result.exit_code != 0  # protected context input refused under --force
     assert protected_path.read_bytes() == before
+
+
+# --- CLI: --project-root must be an existing directory (Med-A) -------------
+
+
+def test_project_root_nonexistent_is_rejected(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    # A typo'd / nonexistent --project-root must fail fast (Click exists=True),
+    # never silently produce an empty audit or create dirs under the wrong root.
+    missing = tmp_path / "typo-does-not-exist"
+    result = runner.invoke(
+        main, ["init-lite", "--context-optimized", "--project-root", str(missing)]
+    )
+    assert result.exit_code == 2  # Click usage error: path does not exist
+    assert not missing.exists()  # nothing created under the bad root
+
+
+def test_project_root_that_is_a_file_is_rejected(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    a_file = tmp_path / "not-a-dir.txt"
+    a_file.write_text("x\n", encoding="utf-8")
+    result = runner.invoke(
+        main, ["init-lite", "--context-optimized", "--project-root", str(a_file)]
+    )
+    assert result.exit_code == 2  # file_okay=False rejects a file path
+
+
+def test_empty_but_existing_project_still_succeeds(
+    runner: CliRunner, tmp_path: Path
+) -> None:
+    # Regression guard against over-rejection: an existing project with zero
+    # SuperClaude surfaces must still produce an empty audit, NOT an error.
+    result = runner.invoke(
+        main, ["init-lite", "--context-optimized", "--project-root", str(tmp_path)]
+    )
+    assert result.exit_code == 0, result.output
+    report = tmp_path / ".dev" / "superclaude" / "context-audit.md"
+    assert report.is_file()
+    assert "No project-local SuperClaude context surfaces found" in report.read_text(
+        encoding="utf-8"
+    )
+
+
+# --- CLI: --output resolution is anchored to --project-root (Med-B) --------
+
+
+def test_relative_output_resolves_against_project_root_not_cwd(
+    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)  # cwd != project-root
+    result = runner.invoke(
+        main,
+        [
+            "init-lite",
+            "--context-optimized",
+            "--project-root",
+            str(proj),
+            "--output",
+            "report.md",  # relative
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert (proj / "report.md").is_file()  # anchored to --project-root
+    assert not (elsewhere / "report.md").exists()  # NOT the current working dir
+
+
+def test_absolute_output_is_unaffected_by_project_root(
+    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    monkeypatch.chdir(tmp_path)
+    out = tmp_path / "out" / "abs-report.md"  # absolute, outside proj
+    result = runner.invoke(
+        main,
+        [
+            "init-lite",
+            "--context-optimized",
+            "--project-root",
+            str(proj),
+            "--output",
+            str(out),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert out.is_file()  # absolute --output honored exactly
+    assert GENERATED_MARKER in out.read_text(encoding="utf-8")
+
+
+def test_default_output_anchors_to_project_root_regardless_of_cwd(
+    runner: CliRunner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Default-path parity guard: with no --output, the report lands under
+    # <project-root>/.dev/superclaude/ even when cwd is elsewhere.
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+    result = runner.invoke(
+        main, ["init-lite", "--context-optimized", "--project-root", str(proj)]
+    )
+    assert result.exit_code == 0, result.output
+    assert (proj / ".dev" / "superclaude" / "context-audit.md").is_file()
+    assert not (elsewhere / ".dev").exists()
