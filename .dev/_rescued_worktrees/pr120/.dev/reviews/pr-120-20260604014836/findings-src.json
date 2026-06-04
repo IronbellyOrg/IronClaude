@@ -1,0 +1,152 @@
+{
+  "findings": [
+    {
+      "title": "Subprocess file handle leak in _run_task_subprocess under exception",
+      "category": "resource-leak",
+      "severity_hint": "high",
+      "file": "src/superclaude/cli/sprint/executor.py",
+      "line": 1493,
+      "line_range_end": 1520,
+      "in_diff": true,
+      "evidence": "proc = ClaudeProcess.__new__(ClaudeProcess)\n    proc.config = config\n    proc.phase = phase\n    from superclaude.cli.pipeline.process import ClaudeProcess as _Base\n\n    _Base.__init__(\n        proc,\n        prompt=prompt,\n        output_file=config.task_output_file(phase, task),\n        error_file=config.task_error_file(phase, task),\n        ...\n    )\n    proc.start()\n    _poll_with_stall_watchdog(\n        proc, config, output_path=config.task_output_file(phase, task)\n    )",
+      "why": "The function constructs ClaudeProcess via __new__ + __init__ then calls start() which opens file handles (_stdout_fh, _stderr_fh in pipeline/process.py:120-123). If _poll_with_stall_watchdog raises (e.g., KeyboardInterrupt during sleep), the handles are never closed because there's no try/finally or context manager. The inherited wait() would call _close_handles() but is unreachable if an exception is raised. Under K>1 parallelism this can exhaust file descriptors.",
+      "recommendation": "Wrap the start() + _poll_with_stall_watchdog block in try/finally to ensure proc._close_handles() or proc.terminate() is called on exception. The sequential path avoids this because it doesn't use manual __new__/__init__, but the per-task path does.",
+      "cross_references": [
+        "src/superclaude/cli/pipeline/process.py:238"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Task ID not validated for path traversal before handoff file write",
+      "category": "security",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/sprint/models.py",
+      "line": 699,
+      "line_range_end": 709,
+      "in_diff": true,
+      "evidence": "def handoff_file(self, phase: \"Phase\", task: \"TaskEntry\") -> Path:\n        return (\n            self.results_dir\n            / \"handoff\"\n            / f\"phase-{phase.number}-task-{task.task_id}.json\"\n        )",
+      "why": "task.task_id is inserted into file path without sanitization. A malicious or malformed task ID like '../../../etc/passwd' or 'T01.01/../../sensitive' could escape results_dir/handoff/ via path traversal. While TaskEntry.task_id is populated from the tasklist parser (config.py parse_tasklist), there's no schema validation that task_id conforms to T<PP>.<TT>. The rerun_tasks module uses a regex (_PHASE_FROM_TASK_ID) but only to extract phase number, not as a trust boundary.",
+      "recommendation": "Add validation in handoff_file or TaskEntry.__post_init__ that task_id matches the expected T\\d{2}\\.\\d{2} pattern. Reject or sanitize non-conforming IDs. The same applies to task_output_file and task_error_file which use identical unsanitized interpolation.",
+      "cross_references": [
+        "src/superclaude/cli/sprint/models.py:693",
+        "src/superclaude/cli/sprint/models.py:696"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Missing timeout on _poll_with_stall_watchdog sleep loop",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/sprint/executor.py",
+      "line": 1439,
+      "line_range_end": 1465,
+      "in_diff": true,
+      "evidence": "while underlying.poll() is None:\n        time.sleep(poll_interval)\n        cur = _size()\n        if cur != last_size:\n            last_size = cur\n            last_progress = time.monotonic()\n            acted = False\n        elif not acted and (time.monotonic() - last_progress) > timeout:\n            acted = True\n            ...\n            if getattr(config, \"stall_action\", \"warn\") == \"kill\":\n                try:\n                    underlying.terminate()\n                except Exception:  # noqa: BLE001 - best-effort kill\n                    pass\n                break\n    proc.wait()",
+      "why": "The while loop polls until underlying.poll() returns non-None (process exit). If underlying.terminate() fails silently (Exception is swallowed) or the process ignores SIGTERM, the loop continues indefinitely. The timeout is only for detecting stalls, not bounding the overall wait. The final proc.wait() at line 1465 has no timeout argument, so a zombie process hangs forever.",
+      "recommendation": "Add a max_wait parameter or use config.timeout_seconds to bound the total watchdog wait. After the break, change proc.wait() to proc.wait(timeout=X) and handle TimeoutExpired. Alternatively, add a SIGKILL fallback if terminate() doesn't exit within N seconds, mirroring the pipeline/process.py terminate() logic.",
+      "cross_references": [
+        "src/superclaude/cli/pipeline/process.py:173",
+        "src/superclaude/cli/pipeline/process.py:194"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Race condition in _poll_with_stall_watchdog file size check",
+      "category": "concurrency",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/sprint/executor.py",
+      "line": 1428,
+      "line_range_end": 1434,
+      "in_diff": true,
+      "evidence": "def _size() -> int:\n        try:\n            if output_path is not None and output_path.exists():\n                return output_path.stat().st_size\n        except OSError:\n            return 0\n        return 0",
+      "why": "The exists() check followed by stat() is a TOCTOU. If the file is deleted between exists() and stat(), stat() raises FileNotFoundError which is NOT caught (OSError catches IOError/PermissionError but FileNotFoundError is a distinct subclass in some contexts). However, testing shows FileNotFoundError IS an OSError subclass, so this is low-severity. The real issue is returning 0 on OSError masks write failures; if stat() fails due to permission denied, the watchdog interprets it as no growth and may spuriously trigger a stall.",
+      "recommendation": "Simplify to just stat() without exists() check, since stat() on a missing file raises OSError which is caught. Log the OSError instead of silently returning 0 so permission/filesystem issues are visible.",
+      "cross_references": [],
+      "confidence": "low"
+    },
+    {
+      "title": "TurnLedger.try_launch does not check allocation parameter against available budget",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/sprint/models.py",
+      "line": 956,
+      "line_range_end": 971,
+      "in_diff": true,
+      "evidence": "def try_launch(self, allocation: int | None = None) -> bool:\n        debit_amount = self.minimum_allocation if allocation is None else allocation\n        with self._lock:\n            if not self.can_launch():\n                return False\n            self.debit(debit_amount)\n            return True",
+      "why": "can_launch() checks available() >= minimum_allocation, but then debits debit_amount which may differ if allocation is passed. If caller passes allocation=100 but available()=10 and minimum_allocation=5, can_launch() returns True (10>=5) but debit(100) makes consumed negative or overdraws. The contract says check-and-debit is atomic but doesn't validate the debit_amount against available().",
+      "recommendation": "Change can_launch() call to check available() >= debit_amount instead of relying on minimum_allocation. Or add an assertion after debit() that available() didn't go negative.",
+      "cross_references": [
+        "src/superclaude/cli/sprint/models.py:952"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "HandoffRecord.from_dict does not validate gate_outcome before GateOutcome(record.gate_outcome)",
+      "category": "error-handling",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/sprint/handoff.py",
+      "line": 36,
+      "line_range_end": 40,
+      "in_diff": true,
+      "evidence": "try:\n        return GateOutcome(record.gate_outcome).is_success\n    except ValueError:\n        # Defensive: an unrecognized gate_outcome string is not a validated success.\n        return False",
+      "why": "is_validated_success catches ValueError from GateOutcome() constructor, but HandoffRecord.from_dict (models.py:329-350) uses data.get('gate_outcome', '') which defaults to empty string. GateOutcome('') raises ValueError. This is caught in is_validated_success, but the read path (handoff.py:71) calls HandoffRecord.from_dict(json.loads(...)) and doesn't catch json.JSONDecodeError or ValueError. A corrupted handoff file with invalid JSON or gate_outcome causes an unhandled exception during resume, aborting the sprint instead of skipping the task.",
+      "recommendation": "Wrap handoff_store.read() call sites (executor.py:1084, 1258) in try/except to catch json.JSONDecodeError and ValueError, treating corrupted handoff files as absent (return None from read()). Or move the try/except into FileHandoffStore.read itself.",
+      "cross_references": [
+        "src/superclaude/cli/sprint/handoff.py:71",
+        "src/superclaude/cli/sprint/executor.py:1084"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Parallel _execute_phase_tasks_parallel does not bound ThreadPoolExecutor queue",
+      "category": "performance",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/sprint/executor.py",
+      "line": 1174,
+      "line_range_end": 1177,
+      "in_diff": true,
+      "evidence": "with ThreadPoolExecutor(max_workers=k) as pool:\n            wave_out = list(pool.map(lambda t: _worker(t, prior_context), wave_tasks))",
+      "why": "ThreadPoolExecutor with max_workers=k but no max_queue_size means if a wave has 1000 tasks and k=4, all 1000 _worker callables are queued immediately. Each _worker spawns a subprocess (via _run_task_subprocess) which opens file handles. Under memory pressure or with a huge wave, this can cause memory issues or exceed ulimit before the workers even start. The map() call blocks until all tasks in the wave complete, but the queue is unbounded.",
+      "recommendation": "Consider processing waves in chunks of k tasks at a time, or use a bounded queue with ThreadPoolExecutor (requires custom executor subclass or manual semaphore). Alternatively, document the assumption that waves are reasonably sized (<100 tasks) and add a warning if len(wave_tasks) > k*10.",
+      "cross_references": [],
+      "confidence": "medium"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "No validation that task.dependencies contains only valid task IDs before scheduler",
+      "category": "correctness",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/sprint/scheduler.py",
+        "src/superclaude/cli/sprint/executor.py"
+      ],
+      "why": "scheduler.topological_launch_order (line 74-104) filters deps to only those in entry_by_id, silently dropping invalid deps. If a task declares dependencies=['nonexistent', 'T01.01'], the nonexistent dep is ignored but the task still launches in wave 0 because all(d in satisfied for d in deps[tid]) passes with deps[tid]=['T01.01']. This can violate user intent if the nonexistent dep was a typo. CycleError is raised for cycles but not for missing deps.",
+      "recommendation": "Add a validation pass before topological_launch_order that checks all task.dependencies exist in the task set, logging a warning or raising an error for missing deps. Or surface the dropped deps in a debug log.",
+      "confidence": "low"
+    },
+    {
+      "title": "Shared state mutations in parallel path lack defensive copying for list fields",
+      "category": "concurrency",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/sprint/executor.py"
+      ],
+      "why": "In _execute_phase_tasks_parallel, gate_results (line 1090) is a shared list appended to inside the lock (line 1163: gate_results.append(gate_result)). However, completed_results (line 1091) is appended to outside the merge block (line 1180: completed_results.append(result)). While this is serialized by the wave-by-wave structure (pool.map is blocking), if the code is refactored to pipeline waves, appending to completed_results could race. The lock guards env_capture, result mutations, and gate_results but not completed_results.",
+      "recommendation": "Move completed_results.append(result) inside the lock block at line 1178-1184 for consistency, or document why it's safe to append outside the lock (because pool.map is blocking and waves are sequential).",
+      "confidence": "low"
+    },
+    {
+      "title": "No fsync or sync after handoff write despite crash-consistency claim",
+      "category": "data-integrity",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/sprint/handoff.py"
+      ],
+      "why": "FileHandoffStore.write uses temp+replace (line 58-60) which is atomic w.r.t. readers but not crash-safe without fsync. The docstring (line 7-9) claims 'prevents partial-write corruption if the process dies mid-write', but a crash between write_text and replace can lose the write. Modern filesystems may reorder the write before the rename. This is low-severity because resume degrades gracefully when handoff is missing, but the crash-consistency claim is overstated.",
+      "recommendation": "Add tmp.write_text(...); os.fsync(tmp.fileno()) before tmp.replace(path), or adjust the docstring to say 'atomic w.r.t. concurrent readers' instead of 'prevents partial-write corruption on crash'.",
+      "confidence": "low"
+    }
+  ],
+  "notes_for_orchestrator": "Focus areas covered: security (path traversal in task IDs), correctness/concurrency (TurnLedger.try_launch allocation mismatch, subprocess handle leak, watchdog timeout), resource-leak (file handles in exception path), error-handling (corrupted handoff JSON), performance (unbounded ThreadPoolExecutor queue). No command injection found (task_id is not shell-interpolated). No env-var leakage (setup_isolation creates per-task dirs). SHA-guard TOCTOU not found (SHA is computed once before write, not re-checked). Most findings have concrete line numbers from HEAD. Confidence calibrated to evidence strength."
+}

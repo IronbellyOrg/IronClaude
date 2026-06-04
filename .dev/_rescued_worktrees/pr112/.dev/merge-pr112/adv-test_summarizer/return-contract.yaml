@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: ".dev/merge-pr112/test_summarizer.py.resolved"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/merge-pr112/adv-test_summarizer/adversarial/"
+  status: "success"
+  base_variant: "resolved (== ours)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped (--depth quick); no HIGH items
+verdict: PASS
+stress_test_answers:
+  q1_stale_haiku_in_resolution: "NO — zero invoke_haiku / claude-haiku refs (grep confirmed). Only residual 'Haiku' is module-docstring prose line 6, identical in all variants, non-executable, out of conflict scope."
+  q2_ours_side_assertion_lost: "NO — resolved file is byte-identical to ours; every ours assertion retained; full 25-test suite green."
+  q3_sonnet_vs_literal_correct: "OURS '\"sonnet\"' is CORRECT. Production passes SONNET_MODEL='sonnet' (summarizer.py:51/331). THEIRS '\"claude-sonnet-4-5\"' FAILS against production (pytest: AssertionError). Proven by executed tests, not inference."

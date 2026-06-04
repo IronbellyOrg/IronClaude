@@ -1,0 +1,26 @@
+{
+  "accepted_deviation_ids": [],
+  "d_ids": [],
+  "fr_ids": [
+    "FR-003"
+  ],
+  "g_ids": [],
+  "md_ids": [],
+  "nfr_ids": [
+    "NFR-004",
+    "NFR-006",
+    "NFR-007"
+  ],
+  "sc_ids": [
+    "SC-001",
+    "SC-002",
+    "SC-003",
+    "SC-004",
+    "SC-005",
+    "SC-006",
+    "SC-007",
+    "SC-008"
+  ],
+  "spec_hash": "9a1f9b3687d9abb7",
+  "spec_path": "/config/workspace/IronClaude-RoadmapRewrite/.dev/releases/complete/v2.22-RoadmapRemediate/spec-roadmap-remediate.md"
+}
