@@ -83,6 +83,9 @@ Auto-activates whenever a reviewer-side, structurally-independent audit is neede
 | `--no-mcp` | `false` | Native-tools-only mode; warns and auto-degrades grounding quality. |
 | `--no-evidence-validator` | `false` | Skip the final evidence-validator gate (debug only — auto-warns; report records the skip in Grounding Gaps). |
 | `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (records the skip in Grounding Gaps). |
+| `--no-verify` | `false` (UC-2) | Disable the UC-2 verification triangle (`execute_shell_command` scoped non-mutating tests/linters/type-checkers/build, §6.1 step 5.5). Default-on; when set, degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry. Subsumes the deprecated `--rerun-tests` alias. |
+| `--onboard` | `false` | Opt-in one-shot Serena `onboarding` bootstrap at Wave 0.7b — runs ONLY when `list_memories` is empty for the project slug; seeds the §6.3 cold-start calibration baseline. Never creates `.serena/` implicitly. |
+| `--with-hierarchy` | `false` | Opt-in `type_hierarchy` transitive supertype/subtype retrieval (§6.1 step 4.5, Wave 1B.3). Backend-gated (`jetbrains` only; default OFF on `lsp`, unavailable on `none`); non-OO codebases see zero change. |
 | `--remediate` | `false` | After the audit ships, offer the Tier 3 remediation chain (`task-builder` → operator runs `/task` → `/sc:reflect --mode post` re-runs as the post-commit gate). |
 | `--budget-remaining` | (none) | Caller-side budget hint (typically `TurnLedger.available()` from a sprint context). When provided, reflect cross-checks against the §15 cost profile and may auto-degrade tier; emits `budget_forced_tier_downgrade: true` in the contract. |
 | `--no-promote` | `false` (UC-2) | Suppress Wave 7 promotion. Default behavior: when the §14.5.2 strict gate passes, the validated work-unit folder moves to its `done` destination. |
@@ -129,7 +132,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 ## MCP Integration
 
 - **Auggie** (primary, free retrieval): Wave 0-2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to the free tier, keeping Claude tokens tight.
-- **Serena**: Wave 0-6 symbol-level navigation (`find_symbol`, `find_referencing_symbols`, `get_symbols_overview`), memory pattern for cross-session learning capture (§6.3), and the `think_about_*` checkpoint triad as one of several signals (NOT the sole reflection mechanism — see §6.4 fail-open policy).
+- **Serena**: Wave 0-6 symbol-level navigation (`find_symbol`, `find_referencing_symbols`, `get_symbols_overview`, plus `find_declaration` / `find_implementations` / `type_hierarchy` for declaration-anchored and polymorphic grounding), the UC-2 §6.1 step-5.5 verification triangle (`get_diagnostics_for_file` / `execute_shell_command` / `summarize_changes`; `--no-verify` disables), opt-in `onboarding` cold-start bootstrap (`--onboard`), the memory pattern for cross-session learning capture (§6.3), and the `think_about_*` checkpoint triad as one of several signals (NOT the sole reflection mechanism — see §6.4 fail-open policy).
 - **Context7**: Tier 2 only; consulted when the spec/diff references a framework or library by name.
 - **Tavily**: Tier 2 only; rate-limited; used for external-symptom lookups when documentation grounding can't resolve a deviation.
 - **Sequential**: Tier 2 synthesis when reconciling competing reviewer verdicts before the merge.
@@ -138,6 +141,10 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 - **`mcp__auggie__codebase-retrieval`**: in-repo grounding (all waves)
 - **`mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview`**: symbol navigation
+- **`mcp__serena__find_declaration` / `find_implementations`**: diff-hunk → canonical declaration site (§6.1 step 2a, FR-2) and polymorphic implementor surface (§6.1 step 3b, FR-1)
+- **`mcp__serena__type_hierarchy`**: transitive supertype/subtype family (§6.1 step 4.5, Wave 1B.3) — backend- and `--with-hierarchy`-gated; fail-open when unavailable
+- **`mcp__serena__get_diagnostics_for_file` / `execute_shell_command` / `summarize_changes`**: UC-2 §6.1 step-5.5 verification triangle (LSP issues + scoped non-mutating tests/linters/type-checkers + change summary) feeding §10.4 Regression detection; `--no-verify` disables
+- **`mcp__serena__onboarding`**: opt-in cold-start memory bootstrap at Wave 0.7b (`--onboard`, default OFF)
 - **`mcp__serena__think_about_*`**: checkpoint signals (§6.4) — three-row table feeds the merge, never the sole verdict
 - **`mcp__serena__read_memory` / `write_memory` / `list_memories`**: cross-session learning capture (§6.3 — 20-entry, 90-day retention)
 - **`mcp__context7__resolve-library-id` / `query-docs`**: external library grounding (Tier 2)
