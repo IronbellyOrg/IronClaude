@@ -202,7 +202,7 @@ class TestScenario6BlockingRemediationLifecycle:
         # Remediation cost was debited (consumed increased by remediation_cost)
         assert ledger.consumed >= config.wiring_analysis_turns + config.remediation_cost
         # Task marked FAIL because recheck returned False
-        assert returned.status == TaskStatus.FAIL
+        assert returned.status == TaskStatus.FAIL_TERMINAL
         assert returned.gate_outcome == GateOutcome.FAIL
 
 

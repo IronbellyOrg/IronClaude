@@ -1,0 +1,12 @@
+{
+  "eval_id": 4,
+  "eval_name": "small-util-refactor-must-recommend-native",
+  "prompt": "Recommend a command for refactoring this small util in src/utils/timefmt.py — it's about 40 lines",
+  "configuration": "with_skill",
+  "assertions": [
+    {"text": "Output recommends native tooling (Read + Edit)", "type": "regex_match", "value": "(native|Read.*Edit|Edit.*Read)"},
+    {"text": "Output does NOT recommend a skill delegation for a 40-line util", "type": "regex_match_not", "value": "Run: /sc:(improve|cleanup|refactor|design)"},
+    {"text": "Output explains the reason for the native fallback", "type": "regex_match", "value": "(scope|specialized|overhead|reason)"},
+    {"text": "Output is concise (anti-bloat)", "type": "max_length_check", "value": 1500}
+  ]
+}

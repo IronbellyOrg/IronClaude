@@ -9,7 +9,7 @@ A project can have multiple of these in flight simultaneously. Do not assume a s
 **Created by:** `task-builder` skill, `/sc:pm`, or manual.
 **Layout:**
 
-```
+```text
 .dev/tasks/to-do/TASK-PRD-<timestamp>/
 ├── TASK-PRD-<timestamp>.md       # MDTM task file with checklist + frontmatter
 ├── BUILD-REQUEST*.md             # original prompt
@@ -54,7 +54,7 @@ mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
 **Created by:** `superclaude roadmap run <spec.md>` CLI.
 **Layout:**
 
-```
+```text
 docs/generated/<run-slug>/        # or .dev/research/roadmap-*/
 ├── .roadmap-state.json           # AUTHORITATIVE state — step-by-step progress
 ├── extraction.md
@@ -86,7 +86,7 @@ superclaude roadmap validate <output-dir>
 **Created by:** `superclaude tasklist` from a roadmap.
 **Layout:**
 
-```
+```text
 .dev/releases/current/<release-slug>/
 ├── tasklist-index.md             # entry point — lists all phase files
 ├── phase-1-tasklist.md
@@ -104,7 +104,7 @@ superclaude roadmap validate <output-dir>
 **Created by:** `superclaude sprint run <tasklist-index.md>` CLI — executes the multi-phase tasklist.
 **Layout:**
 
-```
+```text
 .dev/releases/current/<release-slug>/
 ├── manifest.json                 # checkpoint manifest, summary of expected files
 ├── execution-log.jsonl           # one event per phase: sprint_start, phase_complete
@@ -123,6 +123,25 @@ superclaude sprint run <release>/tasklist-index.md --resume
 # Or replay just one phase:
 superclaude sprint run <release>/tasklist-index.md --phase 6
 ```
+
+**Prefer granular rerun when only a few tasks failed (v4.3.0+).** If the phase
+mostly passed and only specific tasks failed — especially on a transient cause
+(API outage, timeout) rather than a logic defect — suggest re-running just those
+tasks instead of the whole phase. This re-executes only the named tasks in an
+isolated bundle and merges results back into the canonical results + tasklist:
+
+```bash
+# Surgically re-run only the failed tasks of a phase, then merge back.
+superclaude sprint rerun-tasks <release>/tasklist-index.md --phase 7 --tasks T07.11,T07.12
+
+# Preview the plan first without mutating anything:
+superclaude sprint rerun-tasks <release>/tasklist-index.md --phase 7 --tasks T07.11,T07.12 --dry-run
+```
+
+Inspect `phase-N-result.json` (per-task statuses) to identify which tasks to
+nominate; tasks classified `fail_recoverable` (transient) are the usual
+candidates. `--restore` recovers from a botched merge-back. When the WHOLE phase
+must be redone, fall back to the full-phase resume above.
 
 When a phase shows `status: error`, read the corresponding `phase-N-tasklist.md` to understand what was being attempted, and look for stderr in the JSONL `output_bytes` / `error_bytes` fields.
 

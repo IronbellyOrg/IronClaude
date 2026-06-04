@@ -229,6 +229,24 @@ For each phase, sprint runtime:
 
 If halted, use generated resume command from summary (`--start <halt_phase>`).
 
+## Stage F: Granular per-task rerun (v4.3.0+)
+
+`--start <halt_phase>` re-runs an **entire** phase. When only a few tasks in an
+otherwise-passing phase failed — typically a transient cause such as an API
+outage or a timeout — use `superclaude sprint rerun-tasks` instead to
+re-execute **only the named tasks** and merge their results back:
+
+```bash
+superclaude sprint rerun-tasks <tasklist-index.md> --phase 7 --tasks T07.11,T07.12
+```
+
+This re-runs just `T07.11` and `T07.12` in an isolated bundle, leaves the
+other tasks in phase 7 untouched, and (by default) merges the new results back
+into the canonical results directory and tasklist, then runs
+`verify-checkpoints --recover` to regenerate any missing checkpoint reports.
+See [§6 Use case 5](#use-case-5-recover-a-few-failed-tasks-without-rerunning-the-whole-phase)
+for the full option reference.
+
 ---
 
 ## 4) Behind the Scenes: What the Python sprint runtime actually executes
@@ -421,6 +439,57 @@ superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux
 ```
 
 Avoids tmux dependency in constrained runners.
+
+## Use case 5: Recover a few failed tasks without rerunning the whole phase
+
+When a phase mostly passed but a handful of tasks failed (often transiently),
+re-running the entire phase with `--start N` wastes runtime and tokens on the
+tasks that already passed. `sprint rerun-tasks` re-executes only the named
+tasks and merges their results back atomically.
+
+**Motivating example.** In a 21-task phase 7, tasks `T07.11` and `T07.12`
+failed on a transient API outage. Rather than re-running all 21:
+
+```bash
+# Preview first (no state mutation):
+superclaude sprint rerun-tasks .dev/releases/current/tasklist-index.md \
+  --phase 7 --tasks T07.11,T07.12 --dry-run
+
+# Then run for real:
+superclaude sprint rerun-tasks .dev/releases/current/tasklist-index.md \
+  --phase 7 --tasks T07.11,T07.12
+```
+
+By default the rerun results are merged back into the canonical results
+directory and the phase tasklist, after which a `verify-checkpoints --recover`
+pass regenerates any missing checkpoint reports.
+
+### Options reference
+
+`superclaude sprint rerun-tasks <tasklist-index.md> [OPTIONS]` — `<tasklist-index.md>`
+is the same index `sprint run` consumes.
+
+| Option | Purpose |
+|--------|---------|
+| `--phase N` | The phase number containing the failed tasks (required unless `--from-reflect-report` is used). |
+| `--tasks T07.11,T07.12` | Comma-separated task IDs to re-run. |
+| `--from-reflect-report PATH` | **Reserved for v4.4.0 (SprintRunReflect).** Intended to let a reflect report nominate the failed tasks; mutually exclusive with `--phase`/`--tasks`. **Not yet functional in v4.3.0** — it aborts with a deferral message. Use `--phase`/`--tasks` for manual nomination. |
+| `--merge-back` / `--no-merge-back` | Merge rerun results back into canonical results + tasklist. **Default: merge back.** Use `--no-merge-back` to leave results isolated in the bundle for inspection. |
+| `--dry-run` | Print the rerun plan (nominated + dependency-resolved tasks, bundle dir) and exit without mutating anything. |
+| `--include-transitive` | Also re-run tasks that transitively depend on the named tasks. |
+| `--ignore-deps` | Skip dependency resolution; re-run exactly the named tasks. |
+| `--force-merge` | Escape hatch: merge even if the source tasklist's content changed since the rerun started. Normally the rerun's own provenance write does **not** trip this guard — only a real operator edit does. |
+| `--allow-loop` | Bypass the retry-cap-3 guard (a task is normally refused after 3 reruns). |
+| `--no-verify-checkpoints` | Skip the post-merge `verify-checkpoints --recover` pass. |
+| `--bundle-dir PATH` | Explicit recovery-bundle directory (default: auto-suffixed under `results/`). |
+| `--restore` | Restore deliverables and checkboxes from a prior aborted rerun bundle (recover from a botched merge-back). |
+
+**Safety defenses (automatic).** A concurrent-rerun lock prevents two reruns of
+the same phase at once; a SHA guard aborts if the source tasklist was edited
+mid-rerun (override with `--force-merge`); the retry cap stops runaway loops
+after 3 attempts (override with `--allow-loop`); partial deliverables are
+stashed and restored on abort; and prior outputs are preserved with a
+`.failed-<timestamp>` forensic rename rather than overwritten.
 
 ---
 

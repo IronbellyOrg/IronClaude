@@ -1,0 +1,38 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/reflect/pre-rv3-med-tasklist-20260602-172834/REPORT.md
+audit_log_path: .dev/reflect/pre-rv3-med-tasklist-20260602-172834/artifacts/coverage-map.yaml
+confidence_calibrated: 0.92
+escalation_rule_matched: 8   # default STOP at T1 (single domain, S_dev_density ~0.07, high confidence)
+
+# UC-1 specific
+coverage_pct: 0.93
+coverage_undefined: false
+unmapped_requirements:
+  - "NFR-RV3-MED.3 (token-budget delta measurement) — no task item / no eval (spec §8.2); not explicitly deferred"
+  - "spec §8.2 Integration-Test layer (7 tests) — ~2 distributed into §8.1 cases, 5 not encoded by name"
+  - "NFR-RV3-MED.4 (citation-freshness audit) — partial: protocol-inherent only, no dedicated assertion"
+best_practice_grade: 5
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+
+# Promotion (UC-1 → not applicable)
+promotion_action: not-applicable
+
+# Telemetry
+degraded_components: []   # serena available; spec+tasklist both freshly Read this turn
+finding_severity_counts: { major: 1, minor: 1 }

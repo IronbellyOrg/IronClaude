@@ -1,0 +1,91 @@
+schema_version: 2
+surface_hash: 6f96875ecd41de5bec43f5b5419dd853d5cdbdb52833a47208db9320ee79e2f3
+generated: '2026-06-03T23:37:56.309702+00:00'
+generator: sc-recommend-cache/v0.2
+rows:
+  - key: spec-generation
+    candidate: /sc:spec-panel
+    flags:
+      - --mode discussion|critique|socratic
+      - --experts "name1,name2"
+      - --focus requirements|architecture|testing|compliance|correctness
+      - --iterations N
+      - --format standard|structured|detailed
+    prompt_envelope_template: 'Run: /sc:spec-panel @{spec_inputs} --focus {focus_areas}
+      --mode {mode}
+
+
+      Goal: {goal}
+
+      Deliverable: {deliverable_shape}
+
+      (Hand-off only — the panel owns its expert sequence and review logic.)'
+    rationale: Multi-expert spec review/improvement; wins over native for structured
+      spec generation.
+    source_path: src/superclaude/commands/spec-panel.md
+    source_hash: 655dd700a3df587cb49a0d133fdbb9e4264be6b377d3116a085ce6ca1ff1bffd
+    last_validated_at: '2026-06-03T23:37:56.309164+00:00'
+    native_fallback: false
+    best_model: null
+  - key: codebase-research
+    candidate: tech-research skill (or deep-research agent / Explore / auggie)
+    flags: []
+    prompt_envelope_template: 'Invoke the tech-research skill (or the deep-research
+      agent) on:
+
+      Research question: {research_question}
+
+      Scope: {scope}
+
+      Deliverable: a structured research report (findings + gaps + recommendations).
+
+      (Hand-off only — the skill owns its investigation pipeline.)'
+    rationale: Deep codebase/system investigation; wins over native when the question
+      spans many files.
+    source_path: src/superclaude/skills/tech-research/SKILL.md
+    source_hash: 72a853d0175333abf3fc417a52e309f452fdb843b2d017fdb59d13fc110794c3
+    last_validated_at: '2026-06-03T23:37:56.309164+00:00'
+    native_fallback: false
+    best_model: null
+  - key: tasklist-generation
+    candidate: /sc:tasklist (or task-builder)
+    flags:
+      - <roadmap-path>
+      - --spec <spec-path>
+      - --output <output-dir>
+    prompt_envelope_template: 'Run: /sc:tasklist {roadmap_path} --spec {spec_path}
+      --output {output_dir}
+
+
+      Goal: {goal}
+
+      (Hand-off only — the protocol skill owns the generation algorithm; do NOT reimplement
+      it.)'
+    rationale: Deterministic roadmap->tasklist bundle generation; hands off, never
+      reimplements.
+    source_path: src/superclaude/commands/tasklist.md
+    source_hash: f3cd47a9483c71ed2858bf463a9b821c994c0fd70773eaf5a7a42d388cace052
+    last_validated_at: '2026-06-03T23:37:56.309164+00:00'
+    native_fallback: false
+    best_model: null
+  - key: parallel-agent-fanout
+    candidate: parallel Agent fan-out (multiple Agent tool calls in ONE message)
+    flags: []
+    prompt_envelope_template: 'Spawn N parallel Agent tool calls in a SINGLE message,
+      one per item in:
+
+      Items: {items}
+
+      Each agent produces: {per_item_deliverable}
+
+      Then synthesize the results into: {final_deliverable}
+
+      (Hand-off only — wins on wall-clock + context isolation vs a sequential skill
+      chain.)'
+    rationale: Naturally-parallel work (research N items + synthesize); parallel fan-out
+      beats serial chains.
+    source_path: src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md
+    source_hash: 889c5d5d6667df37852b666e474be39e39e2a6cda27befe6d220b8d544eaddf2
+    last_validated_at: '2026-06-03T23:37:56.309164+00:00'
+    native_fallback: false
+    best_model: null

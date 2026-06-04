@@ -337,17 +337,18 @@ def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlo
 
 # ---------- Requirement IDs ----------
 
+# R0.3 + R5 (PR #111 port): the family→pattern table is derived from the
+# canonical contracts registry (Contract #8 — no duplicate regex literals).
+# ``superclaude.contracts.ID_PATTERNS`` enumerates the families in canonical
+# order with ``MD`` FIRST and ``D`` LAST, which is exactly the ordering the
+# milestone-prefixed deliverable (``M{n}-D{nn}``) handling requires: MD is
+# matched as its own family rather than being silently collapsed under the
+# bare-D family. The word-boundary anchors ``\b…\b`` are a local rendering
+# concern and are NOT part of the SoT body.
 _REQUIREMENT_PATTERNS: dict[str, re.Pattern[str]] = {
     family: re.compile(rf"\b{body}\b")
     for family, body in _CONTRACTS_ID_PATTERNS.items()
 }
-
-# Matches the trailing D-portion of a milestone-prefixed deliverable ID
-# (e.g. "M1-D01" -> "D01"). Used by extract_requirement_ids to deduplicate the
-# bare-D family list against MD-family tokens that would otherwise generate a
-# phantom bare-D match for the same source span. Ported from PR #111 (861047c2);
-# the MD *pattern body* itself lives only in superclaude.contracts.ID_PATTERNS.
-_MD_TRAILING_D_RE = re.compile(r"-(D-?\d+)$")
 
 
 def extract_requirement_ids(text: str) -> dict[str, list[str]]:
@@ -356,30 +357,43 @@ def extract_requirement_ids(text: str) -> dict[str, list[str]]:
     Returns dict keyed by family prefix (MD, FR, NFR, SC, G, D)
     with sorted unique ID lists.
 
-    Note: when the MD family captures a token like "M1-D01", the D family regex
-    will independently match the trailing "D01" portion of the same source span.
-    To preserve the family boundary (M{n}-D{nn} is a roadmap-internal deliverable
-    sequence; bare D{nn} is a spec-namespace ID), we strip those trailing-D
-    duplicates from the D family list when an MD match already covers them.
+    Note: when the MD family captures a token like "M1-D01", the bare-D regex
+    (``\\bD-?\\d+\\b``) will independently match the trailing "D01" portion of the
+    *same source span*. To preserve the family boundary (M{n}-D{nn} is a
+    roadmap-internal deliverable sequence; bare D{nn} is a spec-namespace ID),
+    we drop those phantom bare-D matches.
+
+    The dedup is *span-aware*, not value-global: a bare-D match is suppressed only
+    when its character span is contained within an MD-family match's span. This
+    preserves a legitimate standalone "D01" that happens to share its value with
+    the trailing portion of some "M1-D01" elsewhere in the document — value-global
+    membership dedup would wrongly drop it (augmentcode #111).
     """
     result: dict[str, list[str]] = {}
+
+    # Collect MD-family match spans up front; bare-D matches whose span falls
+    # inside one of these are the phantom trailing-D portions we must suppress.
+    md_pattern = _REQUIREMENT_PATTERNS["MD"]
+    md_spans: list[tuple[int, int]] = [m.span() for m in md_pattern.finditer(text)]
+
     for family, pattern in _REQUIREMENT_PATTERNS.items():
-        ids = sorted(set(pattern.findall(text)))
+        if family == "D" and md_spans:
+            # Span-aware: keep a bare-D occurrence unless it is contained within
+            # an MD-family span (i.e. it is the "-D01" tail of an "M1-D01" token).
+            ids = sorted(
+                {
+                    m.group()
+                    for m in pattern.finditer(text)
+                    if not any(
+                        start <= m.start() and m.end() <= end
+                        for (start, end) in md_spans
+                    )
+                }
+            )
+        else:
+            ids = sorted(set(pattern.findall(text)))
         if ids:
             result[family] = ids
-
-    # Dedup: remove bare-D tokens that are the trailing portion of an MD-family token.
-    if "MD" in result and "D" in result:
-        md_trailing_d: set[str] = set()
-        for md_token in result["MD"]:
-            m = _MD_TRAILING_D_RE.search(md_token)
-            if m:
-                md_trailing_d.add(m.group(1))
-        filtered_d = [d for d in result["D"] if d not in md_trailing_d]
-        if filtered_d:
-            result["D"] = filtered_d
-        else:
-            del result["D"]
 
     return result
 

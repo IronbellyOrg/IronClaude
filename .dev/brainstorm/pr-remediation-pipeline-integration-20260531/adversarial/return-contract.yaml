@@ -1,0 +1,49 @@
+return_contract:
+  merged_output_path: /config/workspace/IronClaude/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/MERGED-PROPOSAL.md
+  convergence_score: 0.84
+  artifacts_dir: /config/workspace/IronClaude/.dev/brainstorm/pr-remediation-pipeline-integration-20260531/adversarial/
+  status: success
+  base_variant: "proposal-B (Sibling Skill — sc:pr-bot-validate)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
+  notes: |
+    Mode A (--compare --merge) on 2 input artifacts. Proposals were genuinely
+    divergent at the architectural level (X-001 contradiction): A proposed
+    extending sc:reflect with a third mode `--mode pr-bot-validation`;
+    B proposed a brand-new sibling skill `sc:pr-bot-validate` that leaves
+    reflect unchanged. Debate adjudicated X-001 decisively to B at 95% confidence
+    after Advocate-A conceded in Round 2 on three structural arguments:
+    (1) §17.7 Kill #3 identity-dilution rationale applies symmetrically,
+    (2) PR-layer vs work-unit-layer separation is categorically distinct,
+    (3) Adding a third mode triggers reflect's own §17 `--recursive`
+    anti-pattern.
+
+    Combined scoring: A 0.859 vs B 0.869 (margin 1.0%, within tiebreaker zone);
+    debate performance was decisive.
+
+    Merge: B as base + 5 incorporations from A (contract field shapes
+    namespace-renamed pr_bot_validation_* → pr_bot_validate_*; budget
+    composition; three-state PASS/FAIL/PENDING semantics; manual-invocation
+    flag enumeration; multi-bot-disagreement v1.2-defer mention) + 4 mechanism-
+    text additions from invariant-probe Round 2.5 (INV-002 GitHub status-check
+    idempotency, INV-003 budget degradation rule, INV-004 empty-PR-set
+    behavior, A-001 gh CLI stability assumption with fallback) + 1 reflect §16
+    "Related Commands" cross-reference (low-cost discoverability bridge,
+    addresses Advocate-A's operator-cognitive-load concession).
+
+    Post-merge validation: structural OK, references OK, 0 new contradictions
+    (no architectural leftovers — verified `--mode pr-bot-validation`,
+    `condition 11`, `third mode`, and `pr_bot_validation_` occurrences all
+    appear as explicit negations or quoted-rejection references in §1/§4/§5/
+    §6/§9).
+
+    Word count 6,464 (slightly above 4,500-6,000 target; refactor plan
+    explicitly instructed verbatim incorporation of A's enumerated content,
+    which exceeded compression budget).
+
+    The merged proposal is the input to task-builder, which will produce an
+    MDTM task file for downstream /task execution against the IronClaude repo
+    (per established cross-repo pattern from the OVM cycle).

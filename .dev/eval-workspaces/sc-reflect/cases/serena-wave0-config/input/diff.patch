@@ -1,0 +1,35 @@
+# STUB — V3-Serena eval scaffold (FR-RV3-LOW.6 + FR-RV3-LOW.7). Body fleshed out in a later iteration.
+# Minimal UC-2 diff: 2 hunks. The DISCRIMINATING signal for this case is Serena's own Wave-0
+# config state (see expected.yaml), NOT the diff content. The diff exists only to give the
+# UC-2 path something to audit so Wave 0 (steps 0.5c / 0.7) runs.
+#
+# Seed Serena config state this case simulates (the run reads it at Wave 0):
+#   - get_current_config (FR-7): active_context = "ts-frontend-readonly" which EXCLUDES the
+#     chain-critical tool `get_diagnostics_for_file` → FR-7.3 context-exclusion → degraded_components
+#     ∋ "serena:context-excluded"; serena_version = ">=v1.5"; tool_count = 32.
+#   - activate_project message (FR-6): carries an onboarding-status marker = bootstrapped
+#     (onboarding_status_source = activation_msg).
+
+diff --git a/src/example/widget.py b/src/example/widget.py
+index aaaa111..bbbb222 100644
+--- a/src/example/widget.py
++++ b/src/example/widget.py
+@@ -1,3 +1,5 @@
++"""Widget module — render and layout helpers.
++
++Docstring added per Task 1.
++"""
+ def render(widget_id):
+     pass
+
+diff --git a/src/example/layout.py b/src/example/layout.py
+index cccc333..dddd444 100644
+--- a/src/example/layout.py
++++ b/src/example/layout.py
+@@ -1,2 +1,4 @@
++"""Layout module — grid and flow positioning.
++
++Docstring added per Task 2.
++"""
+ def position(node):
+     pass

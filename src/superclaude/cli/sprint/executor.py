@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging as _logging
 import re
 import shutil
@@ -320,8 +321,8 @@ def aggregate_task_results(
     )
 
     report.tasks_total = len(task_results) + len(report.remaining_task_ids)
-    report.tasks_passed = sum(1 for r in task_results if r.status == TaskStatus.PASS)
-    report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL)
+    report.tasks_passed = sum(1 for r in task_results if r.status.is_success)
+    report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL_TERMINAL)
     report.tasks_incomplete = sum(
         1 for r in task_results if r.status == TaskStatus.INCOMPLETE
     )
@@ -567,7 +568,7 @@ def run_post_task_wiring_hook(
                 blocking,
                 task.task_id,
             )
-            task_result.status = TaskStatus.FAIL
+            task_result.status = TaskStatus.FAIL_TERMINAL
             task_result.gate_outcome = GateOutcome.FAIL
 
             # T08/R4: Remediation lifecycle via callable interface (Constraint 7)
@@ -771,7 +772,7 @@ def run_post_phase_wiring_hook(
     if phase_result.status.is_success:
         synth_status = TaskStatus.PASS
     elif phase_result.status.is_failure:
-        synth_status = TaskStatus.FAIL
+        synth_status = TaskStatus.FAIL_TERMINAL
     else:
         synth_status = TaskStatus.SKIPPED
 
@@ -794,7 +795,7 @@ def run_post_phase_wiring_hook(
     )
 
     # Map back: if the wiring hook changed status to FAIL, propagate to PhaseResult
-    if updated_result.status == TaskStatus.FAIL and synth_status != TaskStatus.FAIL:
+    if updated_result.status == TaskStatus.FAIL_TERMINAL and synth_status != TaskStatus.FAIL_TERMINAL:
         phase_result.status = PhaseStatus.HALT
 
     return phase_result
@@ -891,7 +892,7 @@ def run_post_task_anti_instinct_hook(
     else:
         # SPEC-DEVIATION (BUG-009/P6): Spec says this path should delegate to
         # attempt_remediation() for retry-once semantics. We use inline fail logic
-        # (set GateOutcome.FAIL / TaskStatus.FAIL) as an intentional v3.1
+        # (set GateOutcome.FAIL / TaskStatus.FAIL_TERMINAL) as an intentional v3.1
         # simplification. attempt_remediation() has a 6-arg callable-based API
         # that requires more design work to integrate here safely. Deferred to v3.2.
         # See: gap-remediation-tasklist.md, T08 Option B.
@@ -907,7 +908,7 @@ def run_post_task_anti_instinct_hook(
             )
             task_result.gate_outcome = GateOutcome.FAIL
             if mode == "full":
-                task_result.status = TaskStatus.FAIL
+                task_result.status = TaskStatus.FAIL_TERMINAL
             return (task_result, gate_result)
 
         _anti_instinct_logger.warning(
@@ -919,7 +920,7 @@ def run_post_task_anti_instinct_hook(
 
         if mode == "full":
             # Full mode: fail the task
-            task_result.status = TaskStatus.FAIL
+            task_result.status = TaskStatus.FAIL_TERMINAL
 
     return (task_result, gate_result)
 
@@ -1012,12 +1013,23 @@ def execute_phase_tasks(
         finished_at = datetime.now(timezone.utc)
 
         # Determine task status from exit code
+        task_output_path = config.task_output_file(phase, task)
         if exit_code == 0:
             status = TaskStatus.PASS
         elif exit_code == 124:
             status = TaskStatus.INCOMPLETE
+        elif detect_error_max_turns(task_output_path) and _task_completed_before_overrun(
+            task_output_path
+        ):
+            # Budget overrun (error_max_turns) AFTER completing substantive work:
+            # the task emitted a successful result before the terminal overrun
+            # envelope, so recover instead of failing the phase. Completion
+            # evidence outranks the transient-failure classification below.
+            status = TaskStatus.PASS_RECOVERED
+        elif _is_transient_failure(task_output_path):
+            status = TaskStatus.FAIL_RECOVERABLE
         else:
-            status = TaskStatus.FAIL
+            status = TaskStatus.FAIL_TERMINAL
 
         # Reconcile budget: debit actual consumption, credit back pre-allocation
         if ledger is not None:
@@ -1275,7 +1287,7 @@ def execute_sprint(config: SprintConfig):
                     sprint_result=sprint_result,
                 )
                 all_gate_results.extend(phase_gate_results)
-                all_passed = all(r.status == TaskStatus.PASS for r in task_results)
+                all_passed = all(r.status.is_success for r in task_results)
                 status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
                 phase_result = PhaseResult(
                     phase=phase,
@@ -1283,6 +1295,7 @@ def execute_sprint(config: SprintConfig):
                     exit_code=0 if all_passed else 1,
                     started_at=started_at,
                     finished_at=datetime.now(timezone.utc),
+                    task_results=task_results,
                 )
 
                 # v3.2-T02: Run post-phase wiring hook for per-task phases too
@@ -1296,6 +1309,8 @@ def execute_sprint(config: SprintConfig):
 
                 sprint_result.phase_results.append(phase_result)
                 logger.write_phase_result(phase_result)
+                # v4.3.0-T06: persist phase result as JSON for rerun-tasks consumption
+                _write_phase_result_json(config, phase, phase_result)
                 # Refresh TUI with completed phase (current_phase=None resets active panel)
                 tui.update(sprint_result, MonitorState(), None)
                 continue
@@ -1602,6 +1617,8 @@ def execute_sprint(config: SprintConfig):
 
                 # Log and notify
                 logger.write_phase_result(phase_result)
+                # v4.3.0-T06: persist phase result as JSON for rerun-tasks consumption
+                _write_phase_result_json(config, phase, phase_result)
                 notify_phase_complete(phase_result)
 
                 tui.update(sprint_result, monitor.state, None)
@@ -1769,6 +1786,129 @@ def _write_exit_sentinel(config: SprintConfig, exitcode: int) -> None:
         (state_dir / ".sprint-exitcode").write_text(str(exitcode))
     except OSError:
         pass
+
+
+def _is_transient_failure(output_path: Path) -> bool:
+    """Heuristic: was a task failure transient (retryable) rather than terminal?
+
+    Returns True when the transcript shows API-retry / connection-refused markers,
+    or its final non-blank JSON line has `is_error: true` and zero output tokens
+    (TDD §T6 lines 122-126). Degrades gracefully to False on any read/parse error.
+    """
+    try:
+        text = output_path.read_text(errors="replace")
+    except OSError:
+        return False
+    if "api_retry" in text or "ConnectionRefused" in text:
+        return True
+    for line in reversed(text.splitlines()):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            obj = json.loads(stripped)
+        except (ValueError, TypeError):
+            return False
+        return bool(obj.get("is_error") and obj.get("output_tokens", 1) == 0)
+    return False
+
+
+# A successful per-task completion envelope: a result line whose subtype is
+# "success", or an agent task_complete envelope. Used by
+# ``_task_completed_before_overrun`` to detect completion evidence that gates
+# per-task recovery from ``error_max_turns``.
+_TASK_SUCCESS_ENVELOPE_PATTERN = re.compile(
+    r'"subtype"\s*:\s*"success"|"(?:type|subtype)"\s*:\s*"task_complete"'
+)
+
+# A SECOND, tail-only class of completion evidence: a strong completion verdict
+# emitted in the final assistant turns when the agent finished its deliverable
+# but overran the turn budget BEFORE emitting a structured
+# ``success``/``task_complete`` envelope (e.g. TUIBBS V1 MVP sprint Phase 7 /
+# task T07.05, whose deliverable was complete and green on disk but whose stream
+# carried no success envelope). Deliberately conservative (strong verdict
+# phrases, not a bare "PASS") and applied only to the tail of the stream by
+# ``_task_completed_before_overrun`` — a task that overran *mid-work* does not
+# end on a completion verdict, while one that overran *after completing* does,
+# so tail-scoping preserves the completed-after-overrun vs overran-mid-work
+# distinction the recovery gate exists to protect.
+_TASK_TAIL_COMPLETION_PATTERN = re.compile(
+    r'VERDICT:\s*PASS'
+    r'|EXIT_RECOMMENDATION:\s*CONTINUE'
+    r'|"result"\s*:\s*"Pass"'
+    r'|ACCEPTANCE CRITERIA[^\n]{0,40}ALL MET',
+    re.IGNORECASE,
+)
+_TASK_TAIL_COMPLETION_WINDOW = 15
+
+
+def _task_completed_before_overrun(output_path: Path) -> bool:
+    """Return True iff the per-task NDJSON stream shows completion evidence
+    BEFORE its terminal ``error_max_turns`` envelope.
+
+    This is the completion-evidence gate for per-task recovery. A task that
+    overran *after* finishing its substantive work shows completion evidence in
+    the lines preceding the terminal ``{"type":"result","subtype":"error_max_turns"}``
+    envelope; a task that overran *without* finishing does not. Recovery is
+    GATED on this — ``error_max_turns`` alone is NOT sufficient (that would mask
+    a task that overran without finishing).
+
+    Two classes of completion evidence are recognized, in order:
+
+    1. **Structured success envelope** — a successful
+       ``{"type":"result","subtype":"success"}`` (or agent ``task_complete``)
+       envelope anywhere in the pre-terminal lines.
+    2. **Tail completion verdict** — a strong completion verdict
+       (``_TASK_TAIL_COMPLETION_PATTERN``) within the last
+       ``_TASK_TAIL_COMPLETION_WINDOW`` pre-terminal lines. This recovers the
+       *artifact-only* overrun where the agent finished and wrote its
+       deliverable + evidence but tripped the turn ceiling before emitting a
+       structured envelope (the motivating case: TUIBBS V1 MVP sprint Phase 7 /
+       task T07.05). The verdict scan is **tail-scoped on purpose**: a task
+       that overran mid-work does not end on a completion verdict, while one
+       that overran after completing does, so confining the scan to the tail
+       preserves the completed-after-overrun vs overran-mid-work distinction
+       (a casual mid-stream "PASS" cannot trigger recovery).
+
+    This helper is only meaningful when called for a stream whose terminal line
+    is the ``error_max_turns`` envelope (i.e. ``detect_error_max_turns`` is
+    already True); it scans the lines strictly BEFORE that terminal line so the
+    error line itself can never be mistaken for completion evidence.
+
+    Returns False when the file is missing/unreadable/empty, or when neither
+    class of completion evidence appears before the terminal
+    ``error_max_turns`` line. Reads the file defensively (mirroring
+    ``detect_error_max_turns``); performs no network or subprocess calls.
+    """
+    try:
+        content = output_path.read_text(errors="replace")
+    except (FileNotFoundError, OSError):
+        return False
+
+    if not content.strip():
+        return False
+
+    lines = [ln.strip() for ln in content.strip().splitlines() if ln.strip()]
+    if not lines:
+        return False
+
+    # Class 1: a structured success/task_complete envelope anywhere in the
+    # lines strictly before the terminal (last non-empty) line, which is the
+    # error_max_turns envelope on the gated-recovery path.
+    for line in lines[:-1]:
+        if _TASK_SUCCESS_ENVELOPE_PATTERN.search(line):
+            return True
+
+    # Class 2: a strong completion verdict in the TAIL (last
+    # ``_TASK_TAIL_COMPLETION_WINDOW`` pre-terminal lines). Tail-scoped on
+    # purpose — a task that overran mid-work does not end on a completion
+    # verdict, while one that overran after completing does. This recovers the
+    # artifact-only overrun (no success envelope) that Class 1 misses.
+    for line in lines[:-1][-_TASK_TAIL_COMPLETION_WINDOW:]:
+        if _TASK_TAIL_COMPLETION_PATTERN.search(line):
+            return True
+
+    return False
 
 
 def _classify_from_result_file(
@@ -2015,6 +2155,28 @@ def _write_preliminary_result(
             exc,
         )
         return False
+
+
+def _write_phase_result_json(config: SprintConfig, phase: Phase, result: PhaseResult) -> None:
+    """Persist a phase result as JSON for rerun-tasks consumption (TDD §T6).
+
+    Mirrors the atomic tmp+rename write convention from checkpoints.py so a
+    crash mid-write never leaves a truncated phase-N-result.json on disk.
+    """
+    payload = {
+        "phase": result.phase.number,
+        "status": result.status.value,
+        "exit_code": result.exit_code,
+        "started_at": result.started_at.isoformat(),
+        "finished_at": result.finished_at.isoformat(),
+        "task_results": [tr.to_dict() for tr in result.task_results],
+        "recovery_history": result.recovery_history,
+    }
+    out = config.phase_result_json(phase)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(payload, indent=2) + "\n")
+    tmp.replace(out)
 
 
 def _write_executor_result_file(

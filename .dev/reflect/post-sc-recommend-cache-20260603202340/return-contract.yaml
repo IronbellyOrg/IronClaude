@@ -1,0 +1,66 @@
+contract_version: "1.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-sc-recommend-cache-20260603202340/REPORT.md
+confidence_calibrated: 0.88   # merged, post-evidence-validator; A=0.86 self-reported, B=0.95; classification corrected in merge
+escalation_rule_matched: null  # --depth deep hard override (§5.1) forced Tier 2
+
+# UC-2
+tasklist_completion_pct: 0.85   # reflect-independent: steps 1-6 + deterministic 7/helper-8 done; F3/F4 integration incomplete
+deviation_count_by_class:
+  authorized: 6     # steps 1,2,4,5,6 + deterministic dispatch/grader/aggregate/best_model — faithful
+  necessary: 1      # F2 classifier few-shot density (eval set only covers 4 keys)
+  drift: 2          # F3 (--eval fan-out thin prose), F4 (plugin_eval orphaned + untested) — load-bearing; +2 cosmetic
+  regression: 0     # A's "3 Regressions" reclassified — none contradict a criterion; 45/45 tests pass
+
+# Input integrity
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 16
+citations_revalidated: 14    # 2 command citations passed-through (validator lacks Bash; both re-run by orchestrator this turn)
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true
+zero_drop_flag: true         # §11.2 — flagged, but triangulated (2 reviewers + orchestrator greps + validator), credible
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/post-sc-recommend-cache-20260603202340/reviewer-cards/card-A-analyzer.md
+  - .dev/reflect/post-sc-recommend-cache-20260603202340/reviewer-cards/card-B-qa.md
+reviewer_models: [sonnet, haiku]
+reviewer_personas: [analyzer, qa]
+t2_model_class_diversity: degraded   # N=2 (opus executor excluded → no 3rd disjoint class via override)
+merge_method: inline-synthesis        # sc-adversarial not invoked; competing verdicts reconciled inline + evidence-validated
+calibrator_diversity: full            # opus calibrator ∉ {sonnet, haiku}
+
+# Asymmetric-cost flags
+regression_present: false
+spec_is_wrong: true                   # F1 gitignore — code faithful, spec block defective
+unauthorized_deviation_present: true  # F4 wiring gap not disclosed (only the generators were deferred)
+needs_human_decision: true            # F4 wire-vs-descope + F1 spec fix
+cannot_validate_without_user_input: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null            # awaiting user
+
+# Promotion (UC-2) — Wave 7
+promotion_action: skipped
+promotion_adapter: task               # .dev/tasks/to-do/TASK-* → would-be .dev/tasks/done/TASK-*
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass                     # cond 1
+  status_success: fail                # cond 2 (status: partial)
+  tasklist_completion_pct_1_0: fail   # cond 3 (0.85)
+  no_drift_no_regression: fail        # cond 4 (2 Drift)
+  frontmatter_present: pass           # cond 5a
+  frontmatter_status_matches: fail    # cond 5b (frontmatter says Done; reflect says partial → Drift signal)
+  no_citations_dropped: pass          # cond 6a
+  no_grounding_gaps: fail             # cond 6b (needs_human_decision findings)
+  no_input_drift: pass                # cond 7
+  no_user_decision_pending: fail      # cond 8 (needs_human_decision: true)
+  adversarial_result_present: n/a     # cond 9 — inline merge; tier 2 without sc-adversarial → treated as non-promotable
+gate_evaluation_failures: [status_success, tasklist_completion_pct_1_0, no_drift_no_regression, frontmatter_status_matches, no_grounding_gaps, no_user_decision_pending]

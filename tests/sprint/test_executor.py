@@ -12,6 +12,7 @@ import pytest
 
 from superclaude.cli.sprint.executor import (
     _determine_phase_status,
+    _task_completed_before_overrun,
     _write_preliminary_result,
     aggregate_task_results,
     check_budget_guard,
@@ -339,6 +340,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 1001
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -385,6 +387,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 1002
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -437,6 +440,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = 1
                 self.pid = 1003
+                self.stdin = None
 
             def poll(self):
                 return None
@@ -497,6 +501,7 @@ class TestExecuteSprintIntegrationCoverage:
             def __init__(self):
                 self.returncode = None
                 self.pid = 1004
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -709,7 +714,7 @@ class TestPerTaskOrchestration:
         results, _, _gate_results = execute_phase_tasks(
             tasks, config, phase, _subprocess_factory=self._fail_factory
         )
-        assert results[0].status == TaskStatus.FAIL
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
         assert results[0].exit_code == 1
 
     def test_per_task_timeout_produces_incomplete(self, tmp_path):
@@ -725,6 +730,258 @@ class TestPerTaskOrchestration:
         )
         assert results[0].status == TaskStatus.INCOMPLETE
         assert results[0].exit_code == 124
+
+    def test_per_task_error_max_turns_after_completion_recovers(self, tmp_path):
+        """A task that finished its work (success result envelope) and only THEN
+        overran its turn budget (terminal error_max_turns, non-zero exit) must be
+        recovered to PASS_RECOVERED — taking precedence over the transient-failure
+        classification — and the phase must aggregate as success-valued."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        # results_dir does not pre-exist under release_dir=tmp_path.
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"result","subtype":"success","is_error":false}\n'
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}\n'
+        )
+
+        def overran_after_completion_factory(task, config, phase):
+            # Non-zero, non-124 exit with the budget overrun turn count.
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_after_completion_factory,
+        )
+        assert results[0].status == TaskStatus.PASS_RECOVERED
+        assert results[0].status.is_success is True
+
+        # Phase aggregation mirrors executor.py (all_passed via .is_success).
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is True
+
+    def test_per_task_genuine_failure_still_fails(self, tmp_path):
+        """A non-zero, non-124 exit with NO error_max_turns evidence (and not
+        transient) MUST stay FAIL_TERMINAL — the gated recovery must not rescue
+        genuine failures — and the phase must aggregate as a failure."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        # No per-task output file → detect_error_max_turns and _is_transient_failure
+        # both return False → FAIL_TERMINAL.
+        def genuine_fail_factory(task, config, phase):
+            return (1, 5, 512)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks, config, phase, _subprocess_factory=genuine_fail_factory
+        )
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status == PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
+    def test_per_task_timeout_phase_still_fails(self, tmp_path):
+        """exit 124 (genuine timeout) maps to INCOMPLETE and MUST keep failing
+        the phase — the recovery fix must not make timeouts pass. Asserts the
+        PHASE-level non-regression (distinct from
+        test_per_task_timeout_produces_incomplete)."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        def timeout_factory(task, config, phase):
+            return (124, 10, 200)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks, config, phase, _subprocess_factory=timeout_factory
+        )
+        assert results[0].status == TaskStatus.INCOMPLETE
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
+    def test_per_task_error_max_turns_without_completion_still_fails(
+        self, tmp_path
+    ):
+        """Gated guard: a task that hit error_max_turns WITHOUT first emitting a
+        success result (overran without finishing) must NOT recover. With no
+        success envelope and no transient marker it stays FAIL_TERMINAL; either
+        way the phase fails."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # ONLY result envelope is the terminal error_max_turns; preceded only by
+        # non-result working lines. No output_tokens field, so the transient-
+        # failure heuristic also returns False → FAIL_TERMINAL.
+        out.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"content","text":"still working..."}\n'
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}\n'
+        )
+
+        def overran_without_completion_factory(task, config, phase):
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_without_completion_factory,
+        )
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
+    def test_per_task_error_max_turns_tail_verdict_recovers(self, tmp_path):
+        """A task that finished its deliverable and emitted a strong completion
+        verdict (VERDICT: PASS) in its final turns — but NO structured
+        success/task_complete envelope anywhere — before overrunning the turn
+        budget must recover to PASS_RECOVERED via the tail-completion evidence
+        class. This is the TUIBBS Phase 7 / T07.05 shape."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # Working lines + a tail line carrying a strong completion verdict, then
+        # the terminal error_max_turns. No "subtype":"success" / "task_complete"
+        # envelope appears anywhere, so recovery must come from the tail verdict.
+        out.write_text(
+            '{"type":"content","text":"implementing dispatch contract..."}\n'
+            '{"type":"content","text":"running gates..."}\n'
+            '{"type":"assistant","message":{"content":[{"type":"text",'
+            '"text":"All acceptance criteria met. VERDICT: PASS"}]}}\n'
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}\n'
+        )
+
+        def overran_after_verdict_factory(task, config, phase):
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_after_verdict_factory,
+        )
+        assert results[0].status == TaskStatus.PASS_RECOVERED
+        assert results[0].status.is_success is True
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is True
+
+    def test_per_task_error_max_turns_early_verdict_still_fails(self, tmp_path):
+        """Tail-scoping guard: a strong completion verdict that appears EARLY
+        and is pushed OUTSIDE the _TASK_TAIL_COMPLETION_WINDOW by >=16 later
+        working lines must NOT recover — proving the verdict scan is
+        tail-scoped, not whole-stream. With no success envelope it stays
+        FAIL_TERMINAL and the phase fails."""
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+
+        out = config.task_output_file(phase, tasks[0])
+        out.parent.mkdir(parents=True, exist_ok=True)
+        # An early VERDICT: PASS, then 20 working lines pushing it well outside
+        # the 15-line tail window, then the terminal error_max_turns. No
+        # success/task_complete envelope anywhere.
+        ndjson_lines = ['{"type":"content","text":"VERDICT: PASS (premature)"}']
+        ndjson_lines += [
+            '{"type":"content","text":"still working step %d..."}' % i
+            for i in range(20)
+        ]
+        ndjson_lines.append(
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}'
+        )
+        out.write_text("\n".join(ndjson_lines) + "\n")
+
+        def overran_with_early_verdict_factory(task, config, phase):
+            return (1, 101, out.stat().st_size)
+
+        results, _, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=overran_with_early_verdict_factory,
+        )
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
+        assert results[0].status.is_success is False
+
+        all_passed = all(r.status.is_success for r in results)
+        phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+        assert phase_status.is_success is False
+
+    def test_task_completed_before_overrun_evidence_classes(self, tmp_path):
+        """Direct unit test of _task_completed_before_overrun across the four
+        evidence classes: (1) success envelope -> True, (2) tail verdict ->
+        True, (3) early verdict outside the window -> False, (4) neither ->
+        False. Each stream has a terminal line so lines[:-1] slicing is
+        exercised."""
+        term = (
+            '{"type":"result","subtype":"error_max_turns",'
+            '"is_error":true,"num_turns":101}'
+        )
+
+        # (1) structured success envelope before the terminal line
+        envelope = tmp_path / "envelope.ndjson"
+        envelope.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"result","subtype":"success","is_error":false}\n'
+            + term + "\n"
+        )
+        assert _task_completed_before_overrun(envelope) is True
+
+        # (2) tail completion verdict, no envelope
+        tail = tmp_path / "tail.ndjson"
+        tail.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"content","text":"VERDICT: PASS"}\n'
+            + term + "\n"
+        )
+        assert _task_completed_before_overrun(tail) is True
+
+        # (3) verdict pushed outside the tail window by >=16 later lines
+        early_lines = ['{"type":"content","text":"VERDICT: PASS"}']
+        early_lines += [
+            '{"type":"content","text":"line %d"}' % i for i in range(20)
+        ]
+        early_lines.append(term)
+        early = tmp_path / "early.ndjson"
+        early.write_text("\n".join(early_lines) + "\n")
+        assert _task_completed_before_overrun(early) is False
+
+        # (4) neither envelope nor verdict
+        neither = tmp_path / "neither.ndjson"
+        neither.write_text(
+            '{"type":"content","text":"working..."}\n'
+            '{"type":"content","text":"still working..."}\n'
+            + term + "\n"
+        )
+        assert _task_completed_before_overrun(neither) is False
 
     def test_per_task_no_ledger_always_launches(self, tmp_path):
         """Without a ledger, all tasks always launch."""
@@ -829,10 +1086,26 @@ class TestResultAggregation:
         assert report.status == "PASS"
         assert report.total_turns_consumed == 8
 
+    def test_aggregate_counts_pass_recovered_as_passed(self):
+        # A PASS_RECOVERED task (overran after completing) is success-valued and
+        # MUST be counted in tasks_passed so the report status is "PASS", not
+        # "PARTIAL"/"FAIL". Mixing PASS and PASS_RECOVERED still yields a full pass.
+        results = [
+            self._make_task_result("T02.01", TaskStatus.PASS, 3),
+            self._make_task_result("T02.02", TaskStatus.PASS_RECOVERED, 101),
+        ]
+        report = aggregate_task_results(2, results)
+        assert report.tasks_total == 2
+        assert report.tasks_passed == 2
+        assert report.tasks_failed == 0
+        assert report.tasks_incomplete == 0
+        assert report.tasks_skipped == 0
+        assert report.status == "PASS"
+
     def test_aggregate_mixed_results(self):
         results = [
             self._make_task_result("T02.01", TaskStatus.PASS, 3),
-            self._make_task_result("T02.02", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.02", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         assert report.tasks_total == 2
@@ -842,7 +1115,7 @@ class TestResultAggregation:
 
     def test_aggregate_all_fail(self):
         results = [
-            self._make_task_result("T02.01", TaskStatus.FAIL, 3),
+            self._make_task_result("T02.01", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(2, results)
         assert report.status == "FAIL"
@@ -885,7 +1158,7 @@ class TestResultAggregation:
 
     def test_to_markdown_halt_on_failure(self):
         results = [
-            self._make_task_result("T02.01", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.01", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         md = report.to_markdown()
@@ -895,7 +1168,7 @@ class TestResultAggregation:
     def test_to_markdown_partial_halt(self):
         results = [
             self._make_task_result("T02.01", TaskStatus.PASS, 3),
-            self._make_task_result("T02.02", TaskStatus.FAIL, 5),
+            self._make_task_result("T02.02", TaskStatus.FAIL_TERMINAL, 5),
         ]
         report = aggregate_task_results(2, results)
         md = report.to_markdown()
@@ -936,7 +1209,7 @@ class TestPhaseYamlReport:
         """YAML report contains all required fields from roadmap spec."""
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
-            self._make_task_result("T03.02", TaskStatus.FAIL, 3),
+            self._make_task_result("T03.02", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(3, results, budget_remaining=42)
         yaml_str = report.to_yaml()
@@ -964,7 +1237,7 @@ class TestPhaseYamlReport:
         yaml = pytest.importorskip("yaml")
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
-            self._make_task_result("T03.02", TaskStatus.FAIL, 3),
+            self._make_task_result("T03.02", TaskStatus.FAIL_TERMINAL, 3),
         ]
         report = aggregate_task_results(3, results, budget_remaining=20)
         yaml_str = report.to_yaml()
@@ -981,7 +1254,7 @@ class TestPhaseYamlReport:
         results = [
             self._make_task_result("T03.01", TaskStatus.PASS, 5),
             self._make_task_result("T03.02", TaskStatus.PASS, 8),
-            self._make_task_result("T03.03", TaskStatus.FAIL, 2),
+            self._make_task_result("T03.03", TaskStatus.FAIL_TERMINAL, 2),
         ]
         report = aggregate_task_results(3, results, budget_remaining=35)
         yaml_str = report.to_yaml()
@@ -1136,7 +1409,7 @@ class TestIntegrationSubprocess:
         # Verify per-task statuses
         assert results[0].status == TaskStatus.PASS
         assert results[1].status == TaskStatus.PASS
-        assert results[2].status == TaskStatus.FAIL
+        assert results[2].status == TaskStatus.FAIL_TERMINAL
         assert results[3].status == TaskStatus.PASS
         assert results[4].status == TaskStatus.INCOMPLETE
 
@@ -1276,6 +1549,7 @@ class TestBackwardCompat:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 2001
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -1505,6 +1779,127 @@ class TestTimeoutFormulaConsistency:
             assert step.timeout_seconds == want, (
                 f"max_turns={mt}: expected {want}s, got {step.timeout_seconds}"
             )
+
+
+class TestPhaseResultJsonWrite:
+    """Tests for _write_phase_result_json — v4.3.0 phase-N-result.json (TDD §T6)."""
+
+    @staticmethod
+    def _make_task_result(
+        task_id: str, status: TaskStatus, turns: int = 3
+    ) -> TaskResult:
+        return TaskResult(
+            task=TaskEntry(task_id=task_id, title=f"Task {task_id}"),
+            status=status,
+            turns_consumed=turns,
+            exit_code=0 if status == TaskStatus.PASS else 1,
+        )
+
+    def _make_phase_result(self, phase, task_results, *, all_passed):
+        from superclaude.cli.sprint.models import PhaseResult
+
+        now = datetime.now(timezone.utc)
+        return PhaseResult(
+            phase=phase,
+            status=PhaseStatus.PASS if all_passed else PhaseStatus.ERROR,
+            exit_code=0 if all_passed else 1,
+            started_at=now,
+            finished_at=now,
+            task_results=task_results,
+        )
+
+    def test_phase_result_json_written_at_phase_end(self, tmp_path):
+        """After the phase result is persisted, phase-N-result.json exists."""
+        from superclaude.cli.sprint.executor import _write_phase_result_json
+
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        task_results = [self._make_task_result("T01.01", TaskStatus.PASS, 3)]
+        phase_result = self._make_phase_result(
+            phase, task_results, all_passed=True
+        )
+
+        _write_phase_result_json(config, phase, phase_result)
+
+        out = config.phase_result_json(phase)
+        assert out.exists()
+        assert out.name == "phase-1-result.json"
+
+    def test_phase_result_json_includes_task_results_and_status(self, tmp_path):
+        """Parsed JSON has a populated task_results array and a correct status."""
+        import json
+
+        from superclaude.cli.sprint.executor import _write_phase_result_json
+
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        task_results = [
+            self._make_task_result("T01.01", TaskStatus.PASS, 3),
+            self._make_task_result("T01.02", TaskStatus.FAIL_TERMINAL, 5),
+        ]
+        phase_result = self._make_phase_result(
+            phase, task_results, all_passed=False
+        )
+
+        _write_phase_result_json(config, phase, phase_result)
+
+        payload = json.loads(config.phase_result_json(phase).read_text())
+        assert payload["phase"] == 1
+        # ERROR phase status serializes to its enum value
+        assert payload["status"] == PhaseStatus.ERROR.value
+        assert payload["exit_code"] == 1
+        assert isinstance(payload["task_results"], list)
+        assert len(payload["task_results"]) == 2
+        ids = [tr["task"]["task_id"] for tr in payload["task_results"]]
+        assert ids == ["T01.01", "T01.02"]
+        assert payload["task_results"][0]["status"] == TaskStatus.PASS.value
+        assert (
+            payload["task_results"][1]["status"] == TaskStatus.FAIL_TERMINAL.value
+        )
+
+
+class TestFailClassificationHeuristic:
+    """Tests for the transient/terminal classification ladder (TDD §T6).
+
+    Drives _is_transient_failure directly — the same helper the executor's
+    status ladder (executor.py:1020-1023) consults to choose between
+    FAIL_RECOVERABLE and FAIL_TERMINAL for a non-zero, non-timeout exit.
+    """
+
+    def _classify(self, output_path: Path) -> TaskStatus:
+        """Mirror the executor ladder for a failing (exit_code != 0/124) task."""
+        from superclaude.cli.sprint.executor import _is_transient_failure
+
+        if _is_transient_failure(output_path):
+            return TaskStatus.FAIL_RECOVERABLE
+        return TaskStatus.FAIL_TERMINAL
+
+    def test_transient_proxy_error_classified_fail_recoverable(self, tmp_path):
+        """A transient trigger (is_error + zero output tokens) → FAIL_RECOVERABLE."""
+        output = tmp_path / "task-output.txt"
+        output.write_text(
+            '{"type":"content","text":"calling tool"}\n'
+            '{"type":"result","is_error":true,"output_tokens":0}\n'
+        )
+        assert self._classify(output) == TaskStatus.FAIL_RECOVERABLE
+
+    def test_transient_connection_refused_classified_fail_recoverable(
+        self, tmp_path
+    ):
+        """The ConnectionRefused marker is also a transient trigger."""
+        output = tmp_path / "task-output.txt"
+        output.write_text("Error: ConnectionRefused while reaching API\n")
+        assert self._classify(output) == TaskStatus.FAIL_RECOVERABLE
+
+    def test_assertion_error_classified_fail_terminal(self, tmp_path):
+        """is_error: true but NON-zero output tokens and no marker → FAIL_TERMINAL."""
+        output = tmp_path / "task-output.txt"
+        output.write_text(
+            '{"type":"content","text":"running tests"}\n'
+            '{"type":"result","is_error":true,"output_tokens":512,'
+            '"text":"AssertionError: expected 3 got 4"}\n'
+        )
+        assert self._classify(output) == TaskStatus.FAIL_TERMINAL
 
 
 def test_run_task_subprocess_uses_task_output_file(tmp_path):

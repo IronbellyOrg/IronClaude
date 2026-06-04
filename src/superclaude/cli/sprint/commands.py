@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -413,6 +414,131 @@ def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
         return
 
     _print_checkpoint_table(manifest, manifest_path)
+
+
+@sprint_group.command("rerun-tasks")
+@click.argument("index_path", type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--phase",
+    type=int,
+    default=None,
+    help="Phase number whose failed tasks should be re-executed.",
+)
+@click.option(
+    "--tasks",
+    type=str,
+    default=None,
+    help="Comma-separated task IDs to rerun (e.g. T07.11,T07.12).",
+)
+@click.option(
+    "--from-reflect-report",
+    type=click.Path(exists=True, path_type=Path),
+    default=None,
+    help="Resolve failed tasks from a reflect report instead of --phase/--tasks.",
+)
+@click.option(
+    "--merge-back/--no-merge-back",
+    default=True,
+    help="Merge rerun results back into canonical results (default: enabled).",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Preview the rerun plan without executing or merging.",
+)
+@click.option(
+    "--include-transitive",
+    is_flag=True,
+    help="Include transitive dependencies of the target tasks in the rerun.",
+)
+@click.option(
+    "--ignore-deps",
+    is_flag=True,
+    help="Rerun only the named tasks, ignoring dependency edges.",
+)
+@click.option(
+    "--force-merge",
+    is_flag=True,
+    help="Merge results even when the source tasklist SHA256 changed mid-flight.",
+)
+@click.option(
+    "--allow-loop",
+    is_flag=True,
+    help="Permit rerun of a task that has already hit the retry cap.",
+)
+@click.option(
+    "--no-verify-checkpoints",
+    is_flag=True,
+    help="Skip the post-merge verify-checkpoints --recover auto-invoke.",
+)
+@click.option(
+    "--bundle-dir",
+    type=click.Path(path_type=Path),
+    default=None,
+    help="Explicit recovery bundle directory (default: auto-suffixed under results).",
+)
+@click.option(
+    "--restore",
+    is_flag=True,
+    help="Restore deliverables and checkboxes from a prior aborted rerun bundle.",
+)
+def rerun_tasks(
+    index_path: Path,
+    phase: Optional[int],
+    tasks: Optional[str],
+    from_reflect_report: Optional[Path],
+    merge_back: bool,
+    dry_run: bool,
+    include_transitive: bool,
+    ignore_deps: bool,
+    force_merge: bool,
+    allow_loop: bool,
+    no_verify_checkpoints: bool,
+    bundle_dir: Optional[Path],
+    restore: bool,
+) -> None:
+    """Re-execute only the named failed tasks within a single sprint phase.
+
+    INDEX_PATH is the sprint release's tasklist-index.md — the same file
+    `superclaude sprint run` consumes. Use --phase N together with
+    --tasks T07.11,T07.12 to surgically re-run a subset of a phase's tasks,
+    then merge their results back into the canonical results directory and
+    tasklist. As an alternative to --phase/--tasks, pass --from-reflect-report
+    to let a reflect report nominate the failed tasks; that flag is mutually
+    exclusive with --phase / --tasks. By default results are merged back and a
+    `verify-checkpoints --recover` pass runs afterward; use --no-merge-back or
+    --no-verify-checkpoints to opt out, and --dry-run to preview the plan.
+    """
+    from .config import load_sprint_config
+    from .rerun_tasks import run_rerun_tasks
+
+    if from_reflect_report and (phase or tasks):
+        raise click.ClickException(
+            "--from-reflect-report is mutually exclusive with --phase / --tasks"
+        )
+    if not from_reflect_report and not phase:
+        raise click.UsageError(
+            "--phase is required when --from-reflect-report is not used"
+        )
+
+    tasks_list = tasks.split(",") if tasks else None
+    config = load_sprint_config(index_path)
+    exit_code = run_rerun_tasks(
+        config,
+        phase=phase,
+        tasks=tasks_list,
+        from_reflect_report=from_reflect_report,
+        merge_back=merge_back,
+        dry_run=dry_run,
+        include_transitive=include_transitive,
+        ignore_deps=ignore_deps,
+        force_merge=force_merge,
+        allow_loop=allow_loop,
+        no_verify_checkpoints=no_verify_checkpoints,
+        bundle_dir=bundle_dir,
+        restore=restore,
+    )
+    raise SystemExit(exit_code)
 
 
 def _print_checkpoint_table(manifest: list, manifest_path: Path) -> None:

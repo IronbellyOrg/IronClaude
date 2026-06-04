@@ -1,0 +1,26 @@
+contract_version: "1.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: .dev/reflect/post-remediation-20260603230600/REPORT.md
+confidence_calibrated: 0.94
+escalation_rule_matched: null   # rule-4 multi-domain would fire; Tier-1 pinned (see report rationale)
+tasklist_completion_pct: 1.0
+deviation_count_by_class: { authorized: 5, necessary: 0, drift: 0, regression: 0 }
+input_drift_detected: false
+citations_total: 9
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true   # citations = live command outputs run this turn
+zero_drop_flag: true           # justified: every check executed directly this turn
+regression_present: false
+spec_is_wrong: false           # F1 spec defect was CORRECTED by the remediation
+needs_human_decision: false
+tier_pinned: 1
+tier_pin_rationale: "confirmation gate on work validated minutes ago by the remediation's 5 adversarial gates incl. a live final gate; rule-4 multi-domain escalation judged redundant"
+# Promotion (Wave 7)
+promotion_action: moved
+promotion_adapter: task
+promotion_gate_passed: true
+promotion_log_path: .dev/reflect/post-remediation-20260603230600/promotion-log.yaml
+promoted_tasks: [TASK-RF-20260603-204500, TASK-RF-20260603-032936]

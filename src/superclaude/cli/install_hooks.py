@@ -73,6 +73,16 @@ _FRESHNESS_SCRIPTS = [
     # `=== Installer Registration ===` verify-sync gate, but is harmless when
     # unregistered in unrelated projects.
     "offer-pr-review.sh",
+    # Project-local PreToolUse hook for /sc:recommend Phase 0. When the Skill
+    # tool invokes `sc-recommend`, injects a context block reminding the model
+    # that live surface enumeration + mandatory auggie semantic ranking +
+    # per-candidate Read-based verification are required before any
+    # recommendation is emitted. Fail-open (exit 0); never blocks. Registered
+    # in this project's `.claude/settings.json` PreToolUse with the
+    # project-relative `$CLAUDE_PROJECT_DIR/.claude/hooks/sc-recommend-phase0.sh`
+    # command — same pattern as `reject-workspace-writes.sh` and
+    # `offer-pr-review.sh`, harmless when unregistered in unrelated projects.
+    "sc-recommend-phase0.sh",
 ]
 _LEGACY_SCRIPTS = ["session-init.sh"]
 

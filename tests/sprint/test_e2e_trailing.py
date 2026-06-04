@@ -469,7 +469,7 @@ class TestE2ETrailingGates:
         statuses = [r.status for r in results]
         assert statuses == [
             TaskStatus.PASS,
-            TaskStatus.FAIL,
+            TaskStatus.FAIL_TERMINAL,
             TaskStatus.PASS,
             TaskStatus.INCOMPLETE,
             TaskStatus.PASS,
@@ -560,7 +560,7 @@ class TestE2ETrailingGates:
             ),
             TaskResult(
                 task=tasks[1],
-                status=TaskStatus.FAIL,
+                status=TaskStatus.FAIL_TERMINAL,
                 turns_consumed=8,
                 exit_code=1,
             ),

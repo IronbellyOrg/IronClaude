@@ -1,0 +1,30 @@
+{
+  "eval_id": 4,
+  "eval_name": "small-util-refactor-must-recommend-native",
+  "configuration": "with_skill",
+  "output_chars": 2411,
+  "output_exists": true,
+  "expectations": [
+    {
+      "text": "Output recommends native tooling (Read + Edit)",
+      "passed": true,
+      "evidence": "regex /(native|Read.*Edit|Edit.*Read)/ matched: 'native'"
+    },
+    {
+      "text": "Output does NOT recommend a skill delegation for a 40-line util",
+      "passed": true,
+      "evidence": "regex /Run: /sc:(improve|cleanup|refactor|design)/ absent (good)"
+    },
+    {
+      "text": "Output explains the reason for the native fallback",
+      "passed": true,
+      "evidence": "regex /(scope|specialized|overhead|reason)/ matched: 'specialized'"
+    },
+    {
+      "text": "Output is concise (anti-bloat)",
+      "passed": false,
+      "evidence": "length 2411 <= 1500? NO"
+    }
+  ],
+  "pass_rate": 0.75
+}

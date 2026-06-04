@@ -53,6 +53,7 @@ class TestThreePhaseHappyPath:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 5000
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -118,6 +119,7 @@ class TestHaltAtPhaseThree:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 6000
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):

@@ -1,0 +1,23 @@
+# STUB — V3-Serena eval scaffold (FR-RV3-LOW.4, UC-2). Body fleshed out in a later iteration.
+# Discriminating signals:
+#   - <ext:...> TRIGGER: the diff imports and conforms to a third-party API (fastapi.Depends).
+#     find_declaration on `Depends` resolves to an <ext:fastapi/params.py|HASH> path → the FR-4
+#     trigger predicate fires → find_symbol(search_deps:true) grounds the upstream contract.
+#     A verified resolution sets third_party_api_verified: true → classifies the divergence as
+#     Necessary (not Drift).
+#   - UN-INDEXED-VENV (FR-4.4 degrade): the second import (`from obscure_pkg import widget`) is a
+#     dependency the LSP has NOT indexed (no active venv entry) → search_deps:lsp_unindexed degrade;
+#     the claim about widget() stays [INFERRED].
+
+diff --git a/src/api/routes.py b/src/api/routes.py
+index 7777aaa..8888bbb 100644
+--- a/src/api/routes.py
++++ b/src/api/routes.py
+@@ -1,4 +1,7 @@
+ from fastapi import Depends
++from obscure_pkg import widget   # un-indexed third-party dep (FR-4.4 degrade path)
++
++def get_current_user(token: str = Depends(verify_token)):
++    return widget(token)
+ def verify_token(token):
+     pass

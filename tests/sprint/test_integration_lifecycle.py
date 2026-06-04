@@ -51,6 +51,7 @@ def _mock_popen_success(config: SprintConfig):
         def __init__(self, *args, **kwargs):
             self.returncode = 0
             self.pid = 12345
+            self.stdin = None
             self._poll_count = 0
 
         def poll(self):

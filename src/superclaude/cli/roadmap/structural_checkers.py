@@ -327,9 +327,10 @@ def _canonicalize_requirement_id(family: str, raw: str) -> str:
     # Preserve the M{n}- prefix; canonicalize only the trailing D{nn} portion (strip
     # leading zeros on the deliverable index) so milestone-distinct deliverables
     # (M1-D01 vs M2-D01) resolve to DISTINCT canonical forms rather than collapsing
-    # to a single bare-D key. Ported from PR #111 (861047c2) design D2. The local
-    # re.match shape is a canonicalization helper, NOT a duplicate of any
-    # contracts.ID_PATTERNS body (arch-lint Rule 2 stays green).
+    # to a single bare-D key. Ported from PR #111 (861047c2) design D2; see also
+    # TASK-RF-20260531-044100 design D2. The local re.match shape is a
+    # canonicalization helper, NOT a duplicate of any contracts.ID_PATTERNS body
+    # (arch-lint Rule 2 stays green).
     if family == "MD":
         md_match = re.match(r"^(M\d+-D)-?0*(\d+)$", raw)
         if md_match:
@@ -410,7 +411,8 @@ def _section_text(sections: list[SpecSection]) -> str:
 
 # Anchor for the Explicit non-references allowlist parser. The roadmap may declare
 # certain bare-D or bare-G tokens as roadmap-internal-only sequences that MUST NOT be
-# resolved against the spec namespace. Ported from PR #111 (861047c2) design D3.
+# resolved against the spec namespace. Ported from PR #111 (861047c2) design D3;
+# see also TASK-RF-20260531-044100 design D3.
 _EXPLICIT_NON_REFS_ANCHOR_RE = re.compile(
     r"\*\*Explicit non-references[^*]*\*\*([^\n]*)", re.IGNORECASE
 )
@@ -486,7 +488,7 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
 
     # Explicit non-references allowlist: bare-D / bare-G tokens the roadmap author
     # has marked as roadmap-internal-only sequences (e.g. D01..D54 under M{n}- prefixes).
-    # Ported from PR #111 (861047c2) design D3.
+    # Ported from PR #111 (861047c2) design D3; see also TASK-RF-20260531-044100 design D3.
     non_ref_allowlist: set[str] = _parse_explicit_non_references(roadmap_path)
 
     # Get dimension-relevant sections

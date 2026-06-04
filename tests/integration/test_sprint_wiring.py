@@ -176,7 +176,7 @@ class TestFullMode:
         returned = run_post_task_wiring_hook(task, config, result)
 
         # Full mode with critical findings should mark FAIL
-        assert returned.status == TaskStatus.FAIL
+        assert returned.status == TaskStatus.FAIL_TERMINAL
         assert returned.gate_outcome == GateOutcome.FAIL
 
     def test_full_mode_passes_clean_codebase(self, tmp_path):

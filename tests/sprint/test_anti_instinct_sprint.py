@@ -236,7 +236,7 @@ class TestRolloutModeMatrix:
             shadow_metrics=metrics,
         )
 
-        assert result.status == TaskStatus.FAIL  # full mode FAILS the task
+        assert result.status == TaskStatus.FAIL_TERMINAL  # full mode FAILS the task
         assert result.gate_outcome == GateOutcome.FAIL
 
 
@@ -280,7 +280,7 @@ class TestNoneSafeLedgerGuards:
             ledger=None,
         )
 
-        assert result.status == TaskStatus.FAIL
+        assert result.status == TaskStatus.FAIL_TERMINAL
         assert result.gate_outcome == GateOutcome.FAIL
 
     @patch("superclaude.cli.pipeline.gates.gate_passed", return_value=(False, "fail"))
@@ -386,7 +386,7 @@ class TestBudgetExhaustion:
             ledger=ledger,
         )
 
-        assert result.status == TaskStatus.FAIL
+        assert result.status == TaskStatus.FAIL_TERMINAL
         assert result.gate_outcome == GateOutcome.FAIL
 
     @patch(

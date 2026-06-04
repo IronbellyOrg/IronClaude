@@ -1,0 +1,15 @@
+# STUB — V3-Serena-medium eval scaffold. Human contract doc (grader reads evals/evals.json).
+# Case: serena-citation-freshness — NFR-RV3-MED.4 (§8.2 HOLISTIC citation-freshness audit — resolves reflect G2).
+# Holistic: every file:line citation entering REPORT.md (including type_hierarchy step-4.5 and
+# execute_shell_command step-5.5 outputs that become citations) was re-Read within the §6.2 5-tool-call window.
+mode: post
+use_case: UC-2
+disposition: ENCODED-NEW
+
+# NFR-4: 100% of cited file:line in REPORT.md have a preceding re-Read within the last 5 tool calls.
+all_citations_refreshed_within_5_calls: true
+new_output_citations_refreshed:
+  - hierarchy-slice.yaml      # FR-1 step 4.5 output that becomes a citation
+  - verify-logs/invocations.yaml   # FR-4 step 5.5 output that becomes a citation
+evidence_validator_ran: true  # the Wave-5 gate re-Reads every cited file:line
+citations_dropped_on_stale: ">=0"   # stale citations are dropped, not downgraded (§1 thesis)

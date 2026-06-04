@@ -1,0 +1,10 @@
+diff --git a/src/agents/base.py b/src/agents/base.py
+index ddddddd..eeeeeee 100644
+--- a/src/agents/base.py
++++ b/src/agents/base.py
+@@ -1,4 +1,9 @@
+ """Agent base + subtypes (OO hierarchy fixture)."""
+ class BaseAgent: ...
++class PlannerAgent(BaseAgent): ...   # registered
++class ReviewerAgent(BaseAgent): ...  # registered
++class AuditorAgent(BaseAgent): ...   # NOT registered in the tasklist → hierarchy gap

@@ -432,7 +432,7 @@ class TestAntiInstinctFullFlow:
         )
 
         assert result.gate_outcome == GateOutcome.FAIL
-        assert result.status == SprintTaskStatus.FAIL  # full mode fails task
+        assert result.status == SprintTaskStatus.FAIL_TERMINAL  # full mode fails task
 
     @patch(
         "superclaude.cli.pipeline.gates.gate_passed",
@@ -460,7 +460,7 @@ class TestAntiInstinctFullFlow:
             shadow_metrics=metrics,
         )
 
-        assert result.status == SprintTaskStatus.FAIL
+        assert result.status == SprintTaskStatus.FAIL_TERMINAL
         assert result.gate_outcome == GateOutcome.FAIL
         assert metrics.failed == 1
 

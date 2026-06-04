@@ -1,0 +1,24 @@
+# STUB — V3-Serena-medium eval scaffold. Human contract doc (grader reads evals/evals.json).
+# Case: serena-handoff — FR-RV3-MED.3 (prepare_for_new_conversation Tier-3 handoff bridge).
+mode: post
+use_case: UC-2
+tier_reached: 3                # --remediate accepted → Tier 3 / Wave 6
+
+# --- FR-3.1 + ordering: handoff written BEFORE the task-builder spawn ---
+handoff_written_before_taskbuilder: true
+handoff_memory_key: reflect/handoff-{slug}-{timestamp}
+handoff_memory_written: true
+
+# --- FR-3.3 fallback (tool context-excluded — the realistic default here) ---
+fallback: { handoff_persist_method: write_memory_fallback, key_passed_to_taskbuilder: true }
+
+# --- FR-3.4 both-fail: report still ships, no key ---
+both_fail: { handoff_persist_failed: true, report_ships: true, handoff_memory_key: null }
+
+# --- FR-3.5 no-remediate no-op ---
+no_remediate: { handoff_memory_key: null, wave6_ran: false }
+
+# --- FR-3.7 / M-ARC2 retention: N>20 handoff entries trigger a sweep ---
+retention_sweep: { handoff_entries_before: 21, sweep_triggered: true, handoff_entries_after: 20 }
+
+escalation_reason: regression_present

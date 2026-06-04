@@ -12,13 +12,19 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Literal, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
 from superclaude.cli.pipeline.models import (
     PipelineConfig,
     Step,
     StepResult,
 )
+
+if TYPE_CHECKING:
+    # Forward-ref only — recovery.py imports from models.py, so a runtime
+    # import here would create a cycle. TYPE_CHECKING resolves at static
+    # type-check time only; at runtime the annotation is a string.
+    from .recovery import RecoveryBundleRef
 
 
 @dataclass
@@ -40,17 +46,19 @@ class TaskStatus(Enum):
     """Outcome status for a single task within a phase."""
 
     PASS = "pass"
-    FAIL = "fail"
+    PASS_RECOVERED = "pass_recovered"  # non-zero exit but evidence of success
+    FAIL_TERMINAL = "fail"
+    FAIL_RECOVERABLE = "fail_recoverable"
     INCOMPLETE = "incomplete"
     SKIPPED = "skipped"
 
     @property
     def is_success(self) -> bool:
-        return self == TaskStatus.PASS
+        return self in (TaskStatus.PASS, TaskStatus.PASS_RECOVERED)
 
     @property
     def is_failure(self) -> bool:
-        return self in (TaskStatus.FAIL, TaskStatus.INCOMPLETE)
+        return self in (TaskStatus.FAIL_TERMINAL, TaskStatus.FAIL_RECOVERABLE, TaskStatus.INCOMPLETE)
 
 
 class GateOutcome(Enum):
@@ -173,6 +181,58 @@ class TaskResult:
     gate_outcome: GateOutcome = GateOutcome.PENDING
     reimbursement_amount: int = 0
     output_path: str = ""
+
+    def to_dict(self) -> dict:
+        """Serialize to a JSON-safe dict (v4.3.0 phase-N-result.json payload).
+
+        Enum fields use ``.value`` (lowercase string). Datetimes use
+        ``.isoformat()`` for UTC ISO 8601. Nested ``task`` is serialized as
+        a dict literal of TaskEntry fields per checkpoints.py:write_manifest
+        convention. Round-trips via from_dict().
+        """
+        return {
+            "task": {
+                "task_id": self.task.task_id,
+                "title": self.task.title,
+                "description": self.task.description,
+                "dependencies": list(self.task.dependencies),
+                "command": self.task.command,
+                "classifier": self.task.classifier,
+            },
+            "status": self.status.value,
+            "turns_consumed": self.turns_consumed,
+            "exit_code": self.exit_code,
+            "started_at": self.started_at.isoformat(),
+            "finished_at": self.finished_at.isoformat(),
+            "output_bytes": self.output_bytes,
+            "gate_outcome": self.gate_outcome.value,
+            "reimbursement_amount": self.reimbursement_amount,
+            "output_path": str(self.output_path),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "TaskResult":
+        """Reverse of to_dict(); reconstructs a TaskResult from a JSON-loaded dict."""
+        task_data = data["task"]
+        return cls(
+            task=TaskEntry(
+                task_id=task_data["task_id"],
+                title=task_data["title"],
+                description=task_data.get("description", ""),
+                dependencies=list(task_data.get("dependencies", [])),
+                command=task_data.get("command", ""),
+                classifier=task_data.get("classifier", ""),
+            ),
+            status=TaskStatus(data["status"]),
+            turns_consumed=data["turns_consumed"],
+            exit_code=data["exit_code"],
+            started_at=datetime.fromisoformat(data["started_at"]),
+            finished_at=datetime.fromisoformat(data["finished_at"]),
+            output_bytes=data["output_bytes"],
+            gate_outcome=GateOutcome(data["gate_outcome"]),
+            reimbursement_amount=data["reimbursement_amount"],
+            output_path=data["output_path"],
+        )
 
     @property
     def duration_seconds(self) -> float:
@@ -508,6 +568,9 @@ class SprintConfig(PipelineConfig):
     def result_file(self, phase: Phase) -> Path:
         return self.results_dir / f"phase-{phase.number}-result.md"
 
+    def phase_result_json(self, phase: Phase) -> Path:
+        return self.results_dir / f"phase-{phase.number}-result.json"
+
 
 @dataclass
 class SprintStep(Step):
@@ -542,6 +605,9 @@ class PhaseResult(StepResult):
     turns: int = 0
     tokens_in: int = 0
     tokens_out: int = 0
+    # v4.3.0: granular task evidence for rerun-tasks (TDD §T6)
+    task_results: list["TaskResult"] = field(default_factory=list)
+    recovery_history: list["RecoveryBundleRef"] = field(default_factory=list)
 
     @property
     def duration_seconds(self) -> float:

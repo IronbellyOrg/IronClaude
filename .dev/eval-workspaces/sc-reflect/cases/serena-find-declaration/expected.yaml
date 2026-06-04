@@ -1,0 +1,22 @@
+# STUB — V3-Serena eval scaffold. Human contract doc (grader does NOT read this; machine
+# assertions live in evals/evals.json for serena-find-declaration).
+# Case: serena-find-declaration — FR-RV3-LOW.2 (find_declaration) + FR-RV3-LOW.3 shares this dir
+# (references_extended_info; FR-3 assertions added in Phase 6).
+mode: post
+use_case: UC-2
+
+# --- FR-2: find_declaration ---
+find_declaration_invoked: true
+declaration_resolutions: 2          # auth.Validator.validate and forms.Validator.validate resolved distinctly
+find_declaration_no_match: true     # __codegen_stub__ has no resolvable declaration (Task 3)
+hunk_to_declaration_map_path: outputs/hunk-to-declaration-map.yaml   # present
+# FR-2.4: the two `validate` methods resolve to DISTINCT declarations → NO name-collision
+# false-positive overlap edge in the 1B.3 cross-task interaction scan.
+name_collision_false_positive: false
+
+# --- FR-3 (shared dir; assertions added to this eval object in Phase 6) ---
+references_extended_info_used: true                 # find_referencing_symbols(include_info: true)
+find_referencing_code_snippets_present: false       # Wave-0 tool-inventory probe: absorbed/absent
+
+tier_reached: 1
+escalation_reason: null

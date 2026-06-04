@@ -947,7 +947,7 @@ class TestRunPostPhaseWiringHookConfirming:
             delegated_calls.append({"task_id": task.task_id})
             failed = TaskResult(
                 task=task,
-                status=TaskStatus.FAIL,
+                status=TaskStatus.FAIL_TERMINAL,
                 exit_code=task_result.exit_code,
                 started_at=task_result.started_at,
                 finished_at=task_result.finished_at,
@@ -1999,7 +1999,7 @@ class TestBlockingRemediationLifecycle:
 
         assert len(results_b) >= 1
         # Assertion: on failed recheck, FAIL persists
-        assert results_b[0].status == TaskStatus.FAIL, (
+        assert results_b[0].status == TaskStatus.FAIL_TERMINAL, (
             f"Expected FAIL after failed recheck, got {results_b[0].status}"
         )
 
@@ -2019,7 +2019,7 @@ class TestBlockingRemediationLifecycle:
             expected={
                 "scenario_a_status": TaskStatus.PASS.value,
                 "scenario_a_gate_outcome": GateOutcome.PASS.value,
-                "scenario_b_status": TaskStatus.FAIL.value,
+                "scenario_b_status": TaskStatus.FAIL_TERMINAL.value,
             },
             verdict="PASS",
             evidence=(

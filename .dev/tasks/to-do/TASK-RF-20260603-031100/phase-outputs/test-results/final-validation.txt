@@ -1,0 +1,16 @@
+=== (1) verify-sync ===
+✅ All components in sync.
+verify_exit=0
+=== (2) markdownlint deltas (all rules) ===
+SKILL.md current: 136
+SKILL.md baseline (/tmp/skill-preedit-f1.md, pre-ANY-edit): 136
+report-template current: 0
+report-template baseline (/tmp/report-template-preedit.md): 0
+=== (3) evals.json JSON-validity ===
+JSON_VALID
+=== (4) corrected-form guards (both MUST be 0) ===
+check_onboarding_performed: 0
+find_referencing_code_snippets: 0
+=== (5) no .claude/ staged (MUST be 0) ===
+staged .claude/ paths: 0
+0
