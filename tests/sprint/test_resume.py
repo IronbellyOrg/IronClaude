@@ -36,6 +36,19 @@ PASS_TRANSCRIPT = (
     '{"type":"result","subtype":"success","is_error":false}\n'
 )
 
+# A transcript that _classify_transcript scores as FAIL_RECOVERABLE (errored
+# terminal result + a transient ``api_retry`` signal). This is the genuine
+# recovered-tail shape: a task that overran/errored is persisted as
+# ``pass_recovered`` by the executor (completion evidence before the overrun),
+# but its raw transcript does NOT classify as a clean PASS — so the resume
+# integrity gate's Signal B must accept it via the PASS_RECOVERED exemption
+# (OQ-1/Opt-2a), not via the clean-PASS classifier path.
+RECOVERED_TRANSCRIPT = (
+    '{"type":"assistant","message":{"usage":{"output_tokens":42}}}\n'
+    '{"type":"result","subtype":"error_during_execution","is_error":true}\n'
+    "api_retry\n"
+)
+
 
 @pytest.fixture(autouse=True)
 def _stub_invoke_sonnet(monkeypatch):
@@ -186,7 +199,12 @@ class TestResumePlanner:
             {"event": "phase_complete", "phase": 3, "status": "incomplete"},
         ]
         _write_log(base, events)
-        (results / "phase-3-task-T03.01-output.txt").write_text(PASS_TRANSCRIPT)
+        # OQ-1/Opt-2a genuine RED->GREEN: T03.01 is persisted ``pass_recovered`` but
+        # its transcript classifies as FAIL_RECOVERABLE (NOT a clean PASS). Pre-fix,
+        # Signal B (``derived is TaskStatus.PASS``) is False ⇒ validated_last False
+        # (RED). Post-fix, the PASS_RECOVERED exemption sets signal_b_pass True and,
+        # with the declared deliverable present, validated_last True (GREEN).
+        (results / "phase-3-task-T03.01-output.txt").write_text(RECOVERED_TRANSCRIPT)
 
         plan = ResumePlanner().plan(index)
 
@@ -208,11 +226,11 @@ class TestResumePlanner:
         assert lc is not None and lc.task_id == "T03.01"
         assert lc.persisted_status is not None and lc.persisted_status.is_success
         # report.validated_last is the COMPOSITE (signal_a AND signal_b AND
-        # artifacts). signal_b re-derives via _classify_transcript, which scores
-        # PASS_TRANSCRIPT as PASS even though a genuine recovered seam would fail
-        # it — so validated_last here is OQ-1/Opt-2-dependent — NOT a guard.
-        # (Intentionally not asserted: see F1 GUARD in TASK-RF-20260604-035221.)
-        assert report is not None
+        # artifacts). With the RECOVERED_TRANSCRIPT above, signal_b re-derives as
+        # FAIL_RECOVERABLE, so pre-Opt-2a this is False (RED). Opt-2a accepts the
+        # persisted-PASS_RECOVERED seam for Signal B and, since the declared
+        # deliverable exists (artifacts_ok), validated_last is True (GREEN).
+        assert report.validated_last is True
 
         # ---- Fixture 2: T03.01 pass_recovered but REMOVED from the current
         #      tasklist → drift must score the removal material (assertion (c)). ----
@@ -749,6 +767,72 @@ class TestInvariants:
         # Explicit operator override proceeds despite the suspect seam.
         accepted = BoundaryIntegrityGate().run(plan, accept_suspect=True)
         assert accepted.passed is True
+
+    def test_gate_recovered_last_completed_missing_artifact_stops(self, tmp_path):
+        """OQ-1/Opt-2a negative: a PASS_RECOVERED last-completed task whose
+        declared deliverable is MISSING still STOPs. The Signal B exemption
+        accepts the recovered transcript, but ``artifacts_ok`` is False, so the
+        composite ``validated_last`` is False — the exemption must NOT over-trust
+        persisted recovered status when the declared artifact is absent.
+
+        Expected GREEN both before and after Opt-2a (missing artifact stops the
+        seam either way); its value is regression coverage that the new exemption
+        does not bypass the artifact check."""
+        index = _build_gate_fixture(
+            tmp_path, lc_deliverable_exists=False, nu_partial=False
+        )
+        results = tmp_path / "results"
+        # Persist T03.01 as pass_recovered (the helper writes ordinary "pass") and
+        # give it the recovered transcript. BOTH overwrites MUST precede planning,
+        # which reads phase-3-result.json + the transcript at plan/run time.
+        (results / "phase-3-result.json").write_text(
+            json.dumps(
+                {
+                    "phase": 3,
+                    "status": "incomplete",
+                    "task_results": [
+                        {"task": {"task_id": "T03.01"}, "status": "pass_recovered"},
+                        {"task": {"task_id": "T03.02"}, "status": "incomplete"},
+                    ],
+                }
+            )
+        )
+        (results / "phase-3-task-T03.01-output.txt").write_text(RECOVERED_TRANSCRIPT)
+
+        plan = ResumePlanner().plan(index)
+        report = BoundaryIntegrityGate().run(plan)
+        assert report.validated_last is False  # missing declared artifact ⇒ STOP
+        assert report.passed is False
+        assert report.blocking_reasons
+        assert any(s.role == "last_completed" for s in report.suspects)
+
+    def test_gate_last_completed_non_pass_transcript_still_stops(self, tmp_path):
+        """OQ-1/Opt-2a scoping guard: an ORDINARY (persisted ``pass``)
+        last-completed task whose transcript has no terminal result event
+        (``_classify_transcript`` ⇒ INCOMPLETE) still STOPs. The PASS_RECOVERED
+        exemption is scoped to persisted ``PASS_RECOVERED`` only — it must NOT be
+        applied to every non-PASS derived transcript. Ordinary PASS remains
+        transcript-rechecked via the ``else`` branch, where ``INCOMPLETE.is_success``
+        is False.
+
+        Expected GREEN both before and after Opt-2a — proves the exemption did not
+        widen into an "any non-PASS transcript is fine" hole."""
+        index = _build_gate_fixture(
+            tmp_path, lc_deliverable_exists=True, nu_partial=False
+        )
+        results = tmp_path / "results"
+        # Persisted status stays ordinary "pass"; only the transcript is replaced
+        # with a no-terminal-result body. Overwrite MUST precede planning.
+        (results / "phase-3-task-T03.01-output.txt").write_text(
+            "partial work, killed mid-task\n"
+        )
+
+        plan = ResumePlanner().plan(index)
+        report = BoundaryIntegrityGate().run(plan)
+        assert report.validated_last is False  # INCOMPLETE transcript ⇒ STOP
+        assert report.passed is False
+        assert report.blocking_reasons
+        assert any(s.role == "last_completed" for s in report.suspects)
 
     def test_boundary_quarantine_nondestructive(self, tmp_path):
         """FR-2.5: default report-only (NO results/ mutation); opt-in cleanup
