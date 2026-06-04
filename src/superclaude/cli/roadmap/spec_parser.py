@@ -14,6 +14,11 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+# R0.3: pattern bodies come from the canonical contracts registry
+# (Contract #8). Word-boundary anchors `\b…\b` stay local — they are a
+# rendering concern, not part of the SoT body.
+from superclaude.contracts import ID_PATTERNS as _CONTRACTS_ID_PATTERNS
+
 
 @dataclass
 class ParseWarning:
@@ -111,6 +116,17 @@ def parse_frontmatter(text: str, warnings: list[ParseWarning]) -> dict[str, Any]
 
     Returns parsed dict. On malformed YAML, returns partial parse via
     line-by-line key: value extraction and appends ParseWarning.
+
+    Contract #6 note (Step 11.2): this is a DISTINCT-PURPOSE parser, not a
+    duplicate of the canonical gate parser
+    :func:`superclaude.cli.pipeline.frontmatter.extract_frontmatter`. It does a
+    full ``yaml.safe_load`` of spec documents (preserving nested structures,
+    lists, and type coercion) for pre-pipeline spec ingestion, and threads a
+    ``warnings`` channel — a strictly richer contract than the flat
+    ``dict[str, str]`` the gate parser returns. Collapsing it onto the gate
+    parser would regress spec parsing (loss of nested YAML + warnings); it is
+    retained and enumerated by ``tests/roadmap/test_parser_consistency.py`` as
+    a distinct-purpose parser rather than deleted. See Phase 11 findings.
     """
     match = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
     if not match:
@@ -321,17 +337,17 @@ def extract_code_blocks(text: str, warnings: list[ParseWarning]) -> list[CodeBlo
 
 # ---------- Requirement IDs ----------
 
+# R0.3 + R5 (PR #111 port): the family→pattern table is derived from the
+# canonical contracts registry (Contract #8 — no duplicate regex literals).
+# ``superclaude.contracts.ID_PATTERNS`` enumerates the families in canonical
+# order with ``MD`` FIRST and ``D`` LAST, which is exactly the ordering the
+# milestone-prefixed deliverable (``M{n}-D{nn}``) handling requires: MD is
+# matched as its own family rather than being silently collapsed under the
+# bare-D family. The word-boundary anchors ``\b…\b`` are a local rendering
+# concern and are NOT part of the SoT body.
 _REQUIREMENT_PATTERNS: dict[str, re.Pattern[str]] = {
-    # MD must be ordered BEFORE D so milestone-prefixed deliverable IDs (M{n}-D{nn})
-    # are extracted as their own family rather than being silently collapsed under
-    # the bare-D family. See TASK-RF-20260531-044100 design decision D1 and
-    # /config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/roadmap.md L657 ("Deliverable ID Convention").
-    "MD": re.compile(r"\bM\d+-D-?\d+\b"),
-    "FR": re.compile(r"\bFR-\d+(?:\.\d+)?\b"),
-    "NFR": re.compile(r"\bNFR-\d+(?:\.\d+)?\b"),
-    "SC": re.compile(r"\bSC-\d+\b"),
-    "G": re.compile(r"\bG-\d+\b"),
-    "D": re.compile(r"\bD-?\d+\b"),
+    family: re.compile(rf"\b{body}\b")
+    for family, body in _CONTRACTS_ID_PATTERNS.items()
 }
 
 

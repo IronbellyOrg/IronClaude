@@ -1,0 +1,10 @@
+===== SCENARIO 1: malformed EXCLUDE (expect NON-ZERO exit + SCOPE.md diagnostic) =====
+EXIT=1
+--- stderr ---
+grep: Unmatched [, [^, [:, [., or [=
+ERROR: invalid exclusion regex from EXCLUDE lines in /tmp/claude-1000/tmp.kkGmdw8GcA/scope_bad.md (grep reported a malformed extended-regex; fix the EXCLUDE: pattern)
+
+===== SCENARIO 2: valid EXCLUDE (expect EXIT 0, non-empty inventory) =====
+EXIT=0
+--- 'Total files' line ---
+  Total files: 0

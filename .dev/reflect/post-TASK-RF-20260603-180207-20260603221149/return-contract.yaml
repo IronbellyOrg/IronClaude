@@ -1,0 +1,68 @@
+contract_version: "1.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: .dev/reflect/post-TASK-RF-20260603-180207-20260603221149/REPORT.md
+audit_log_path: .dev/reflect/post-TASK-RF-20260603-180207-20260603221149/audit.log
+confidence_calibrated: 0.94
+escalation_rule_matched: 2          # §5.3 rule 2: C≥0.85, S_scope≤10, S_domains≤2, S_dev_density≤0.10 → STOP at T1
+
+# UC-1 specific (n/a)
+coverage_pct: null
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: null
+
+# UC-2 specific
+tasklist_completion_pct: 1.0        # 43/43 checklist items verified
+deviation_count_by_class:
+  authorized: 6                     # all 6 change-surface files map to tasklist items (A/B/C + D/E HALT markers)
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: .dev/reflect/post-TASK-RF-20260603-180207-20260603221149/deviation-ledger.yaml
+grounding_gaps_path: null           # empty — no evidence-insufficient findings
+
+# Input integrity
+input_tree_sha256: "(working-tree audit; tasklist + phase-outputs read live)"
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true        # inline re-Read of every cited file:line this session
+
+# Tier 2 artifacts (n/a — stopped at T1)
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full      # not exercised (T1)
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion (UC-2) — gate evaluated, mutation HELD (see REPORT §Promotion)
+promotion_action: dry-run
+promotion_adapter: task
+promotion_source: .dev/tasks/to-do/TASK-RF-20260603-180207/
+promotion_destination: .dev/tasks/done/TASK-RF-20260603-180207/
+promotion_gate_passed: true         # all 9 conditions pass
+promotion_skip_reason: dry-run
+promotion_rollback_command: null
+notes: >
+  Promotion gate passes all 9 conditions and the work-unit is eligible to move
+  to .dev/tasks/done/. Mutation was HELD (dry-run) rather than auto-executed
+  because the underlying CODE changes are UNCOMMITTED on branch `integration`
+  (HEAD == e4daaa9e). Recommend: commit the 6-file change set first, then
+  promote (or re-run with default promotion). Moving an untracked task folder is
+  reversible via the inverse mv, but archiving before commit is premature in this
+  workflow.

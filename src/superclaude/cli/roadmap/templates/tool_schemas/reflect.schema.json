@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/reflect.schema.json",
+  "title": "Roadmap validate-reflect step structured output",
+  "$comment": "R1.4 Step 9.11 (secondary, validate subsystem). The reflect step validates pipeline outputs across 7 (or 9 with original inputs) dimensions and classifies each finding BLOCKING/WARNING/INFO. Its Step.id is the literal 'reflect' (single-agent path); the multi-agent path uses 'reflect-{agent.id}' + the 'adversarial-merge' variant, which are out of scope for this entry. The reflect step runs under the validate sub-executor (validate_run_step), NOT roadmap_run_step, so the tool-write render hook lives in validate_run_step. reflect carries NO roadmap_ids and therefore has NO MVR-3 / Contract #3 phantom-ID subset constraint -- it is rendered via the PLAIN render_step_tool_write. No convergence threshold literal is embedded (Contract #8).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blocking_issues_count",
+        "warnings_count",
+        "tasklist_ready"
+      ],
+      "properties": {
+        "blocking_issues_count": { "type": "integer", "minimum": 0 },
+        "warnings_count": { "type": "integer", "minimum": 0 },
+        "tasklist_ready": { "type": "boolean" },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "dimension", "description"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["BLOCKING", "WARNING", "INFO"] },
+          "dimension": { "type": "string" },
+          "description": { "type": "string" },
+          "location": { "type": "string" },
+          "evidence": { "type": "string" },
+          "fix_guidance": { "type": "string" }
+        }
+      }
+    },
+    "summary": { "type": "string" },
+    "interleave_ratio": { "type": "string" }
+  }
+}

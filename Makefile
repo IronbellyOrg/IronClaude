@@ -45,7 +45,7 @@ verify:
 	@echo "✅ Phase 1 verification complete"
 
 # Linting
-lint:
+lint: lint-architecture
 	@echo "Running linter..."
 	uv run ruff check .
 
@@ -459,6 +459,18 @@ lint-architecture:
 	if [ "$$workspace_hits" -eq 0 ]; then \
 		echo "  ✅ [Check 10]: no *-workspace directories under .claude/skills/"; \
 	fi; \
+	\
+	echo ""; \
+	echo "=== Check 11: Contract Constant Anti-Duplication (Contract #5 + #8) ==="; \
+	if uv run python -m superclaude.tools.arch_lint \
+		--check-contracts src/superclaude/contracts/__init__.py \
+		--scan-paths src/superclaude/cli/ > /tmp/arch_lint_check11.out 2>&1; then \
+		echo "  ✅ [Check 11]: no contract-constant duplications"; \
+	else \
+		cat /tmp/arch_lint_check11.out | sed 's/^/      /'; \
+		errors=$$((errors+1)); \
+	fi; \
+	rm -f /tmp/arch_lint_check11.out; \
 	\
 	echo ""; \
 	echo "=== Checks 5/7: NEEDS DESIGN (skipped) ==="; \

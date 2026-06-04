@@ -1,0 +1,6 @@
+$ uv run pytest --collect-only -q 2>&1 | tail -5
+      <Module test_zero_files_analyzed.py>
+        <Class TestZeroFilesAnalyzedFail>
+          <Function test_zero_files_analyzed_returns_fail>
+
+======================== 7917 tests collected in 1.45s =========================

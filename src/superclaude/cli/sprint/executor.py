@@ -1599,7 +1599,7 @@ def execute_sprint(config: SprintConfig):
 
     # TUI v2 Wave 3 (v3.7): background phase-summary thread pool. Each
     # completed phase triggers a daemon thread that re-parses the
-    # stream-json output file, asks Haiku for a narrative, and writes
+    # stream-json output file, asks Sonnet for a narrative, and writes
     # ``results/phase-<N>-summary.md``. Failures never propagate to the
     # sprint loop (see SummaryWorker.__doc__).
     #
@@ -2136,7 +2136,7 @@ def execute_sprint(config: SprintConfig):
         # summary threads to finish, then generate the release
         # retrospective. Blocking — runs before the terminal panel so
         # operators see a "retrospective ready" state, not a partial one.
-        # Capped at a generous timeout because Haiku is 30s per phase;
+        # Capped at a generous timeout because Sonnet is 30s per phase;
         # if summaries are still running after the cap we take what we
         # have and move on (never abort sprint wrap-up).
         try:

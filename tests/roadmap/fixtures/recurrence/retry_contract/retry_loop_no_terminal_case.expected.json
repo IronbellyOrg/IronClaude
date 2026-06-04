@@ -1,0 +1,15 @@
+{
+  "fixture": "retry_contract/retry_loop_no_terminal_case",
+  "source_authority": {
+    "master_recurrence_row": 9,
+    "partition_findings": ["A1b:F-A1b-006", "A11:F-A11-017", "A12:F-A12-02"],
+    "incident_summary": "v2.24-cli-portify halted at spec-fidelity after exhausting a 2-attempt retry budget producing identical output, because the retry re-ran the same prompt against an unchanged roadmap.md (A1b:F-A1b-006). Recurred as the A12 D-family flatline 58->54->54 HIGH over 3 runs. Drove the v5 deviation-analysis + remediate redesign."
+  },
+  "failure_class": "retry_contract",
+  "contract": 7,
+  "invariant": "A retry site must EITHER mutate its input between attempts (non-deterministic/LLM step, or remediation that rewrites input -> different content_hash / envelope.findings count) OR carry a `retry_reason: transient_failure_only` annotation. A deterministic step (prompt=\"\", non-LLM) with retry_limit>0 and no transient annotation is the violation.",
+  "expected_deterministic_retry_violations": 0,
+  "expected_all_deterministic_steps_retry_limit": 0,
+  "expected_transient_annotation": "retry_reason: transient_failure_only",
+  "expected_contract_7_invariant": "MUST FAIL pre-fix (a deterministic step carried retry_limit>0 against unchanged input), MUST PASS post-fix (every deterministic roadmap Step carries retry_limit=0; progress comes from bounded convergence with genuine input mutation, not identical-input retries)."
+}

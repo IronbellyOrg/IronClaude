@@ -136,10 +136,14 @@ class TestE2ESuccess:
             json.loads(line) for line in jsonl_path.read_text().strip().split("\n")
         ]
 
-        # Should have: sprint_start + 3x(phase_start + phase_complete) + sprint_complete = 8
-        # write_phase_start is called when each phase begins RUNNING,
-        # producing an additional event beyond what the original test expected.
-        assert len(events) == 8
+        # sprint_start + 3x(phase_start + phase_complete) + checkpoint_manifest
+        # + sprint_complete = 9. The checkpoint_manifest event is emitted once
+        # after the final phase completes (executor.py write_checkpoint manifest
+        # path), before sprint_complete. The original assertion (8) predated that
+        # event and was never updated — pre-existing on master, not introduced by
+        # this branch. Verified actual sequence: sprint_start, (phase_start,
+        # phase_complete) x3, checkpoint_manifest, sprint_complete.
+        assert len(events) == 9
 
         # First event is sprint_start
         assert events[0]["event"] == "sprint_start"

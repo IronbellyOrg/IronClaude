@@ -1,0 +1,125 @@
+phase: 2
+step_coverage:
+  - step: "2.1"
+    description: "Discover all spec-ID extraction sites; write inventory"
+    expected_artifacts: ["phase-outputs/discovery/spec-id-extraction-sites.md"]
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/discovery/spec-id-extraction-sites.md"
+
+  - step: "2.2"
+    description: "Implement id_registry.py (SpecIdRegistry frozen dataclass, build_id_registry, contains, union_of_known, _ID_PATTERN_KEYS, R0.3 TODO)"
+    expected_artifacts:
+      - "src/superclaude/cli/roadmap/id_registry.py with @dataclass(frozen=True), contains(), union_of_known(), _ID_PATTERN_KEYS, R0.3 TODO comment, no new regex literals"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude-RoadmapRewrite/src/superclaude/cli/roadmap/id_registry.py"
+    notes: |
+      Verified: @dataclass(frozen=True) at L40; contains() at L95-102; union_of_known() at L84-93;
+      _ID_PATTERN_KEYS=("FR","NFR","SC","G","D") at L37 (D-family ADDED beyond tasklist's
+      ("FR","NFR","SC","D") — see deviation D1 below); R0.3 TODO comment at L33-36; zero `import re`
+      or `re.compile` (Contract #8 satisfied via deferred import of spec_parser.extract_requirement_ids
+      at L149 and L175).
+
+  - step: "2.3"
+    description: "Wire id_registry into extract step; persist sidecar spec_id_registry.json; merge accepted-deviation IDs from spec_patch.scan_accepted_deviation_records"
+    expected_artifacts:
+      - "executor.py modification that invokes build_id_registry post-extract and writes <output_dir>/spec_id_registry.json"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude-RoadmapRewrite/src/superclaude/cli/roadmap/executor.py"
+    notes: |
+      Verified: _save_id_registry helper at L612 (executor.py post-patch line numbers from
+      `git show 6cee1eb1 -- executor.py`); call site is the post-write block of
+      roadmap_run_step at the new L1276-L1284, guarded by hasattr(config, "spec_file") and
+      hasattr(config, "output_dir"). accepted_deviations merged from
+      scan_accepted_deviation_records (L633-L645). Sidecar written with sort_keys=True for
+      stable diffability. Defensive try/except logs warning on scan failure rather than
+      crashing the extract step (acceptable per master:§Flaw 4 because the SemanticCheck
+      itself fail-shuts if the sidecar is missing).
+
+  - step: "2.4"
+    description: "Add Contract #9 SemanticCheck (_roadmap_ids_within_spec) to MERGE_GATE with explicit failure_message citing Contract #9 and master:§Recurrence #4"
+    expected_artifacts:
+      - "gates.py SemanticCheck registered on MERGE_GATE with check_fn=_roadmap_ids_within_spec; fail-shut on missing/unreadable/malformed sidecar"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude-RoadmapRewrite/src/superclaude/cli/roadmap/gates.py"
+    notes: |
+      Verified: SemanticCheck instance at gates.py L1318-L1326 inside MERGE_GATE; check_fn signature
+      _roadmap_ids_within_spec(content: str) -> bool | str matches
+      cli/pipeline/models.py:86 Callable[[str], bool | str] exactly. Fail-shut paths: sidecar path
+      None → string return (L1066-L1070); OSError → string return (L1078-L1080); JSONDecodeError →
+      string return (L1085); schema mismatch (TypeError/ValueError) → string return (L1098).
+      failure_message at L1321-L1325 cites Contract #9 + master:§Recurrence #4 verbatim. The
+      module-level _id_registry_sidecar_path holder + set_id_registry_sidecar_path() bridge the
+      content-only SemanticCheck signature without smuggling a kwarg (R1.3 widens later).
+
+  - step: "2.5"
+    description: "Create recurrence corpus fixture for Contract #9 (id_containment) + README documenting layout"
+    expected_artifacts:
+      - "tests/roadmap/fixtures/recurrence/id_containment/spec_roadmap_drift_case.md"
+      - "tests/roadmap/fixtures/recurrence/id_containment/spec_roadmap_drift_case.expected.json"
+      - "tests/roadmap/fixtures/recurrence/README.md"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude-RoadmapRewrite/tests/roadmap/fixtures/recurrence/"
+    notes: |
+      All three files present. spec_roadmap_drift_case.md L1-3 traces to master-report row #4
+      (TUIBBS v1-MVP A12:F-A12-01) — verbatim citation, no fabrication. Sizes (39 / 29 / 60 lines)
+      are well under the <200-line diffability ceiling per tasklist Step 2.5.
+
+  - step: "2.6"
+    description: "Create test_spec_roadmap_id_containment.py + extend conftest with recurrence_corpus_dir + recurrence_case fixtures"
+    expected_artifacts:
+      - "tests/roadmap/test_spec_roadmap_id_containment.py with ≥2 parametrized tests"
+      - "tests/roadmap/conftest.py extended with recurrence_corpus_dir + recurrence_case fixtures (R3 §3.4 indirect-parametrize pattern)"
+    observed: "✅ present (over-delivered: 11 tests vs minimum 2-3)"
+    evidence_path: "/config/workspace/IronClaude-RoadmapRewrite/tests/roadmap/test_spec_roadmap_id_containment.py"
+    notes: |
+      11 test functions (grep -c '^def test_' = 11). conftest.py recurrence_corpus_dir at L35-44,
+      recurrence_case indirect loader at L48-66 (matches R3 §3.4 signature). audit_trail session
+      fixture untouched (the new fixtures are inserted before it). Test naming matches r0-1-pytest-
+      summary.md table.
+
+  - step: "2.7"
+    description: "Run pytest on R0.1 + anti-regression files; capture raw output + summary"
+    expected_artifacts:
+      - "phase-outputs/test-results/r0-1-pytest-output.txt"
+      - "phase-outputs/test-results/r0-1-pytest-summary.md"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/test-results/"
+    notes: |
+      Summary records 71 passed / 10 skipped / 0 failed for the union of
+      test_spec_roadmap_id_containment.py + test_spec_parser.py + test_spec_fidelity.py.
+      Commit message verification line matches. All 11 new test names appear with PASS verdicts.
+
+  - step: "2.8"
+    description: "Lint + format R0.1 changes (ruff check + ruff format --check)"
+    expected_artifacts:
+      - "phase-outputs/test-results/r0-1-lint-format-summary.md"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/test-results/r0-1-lint-format-summary.md"
+    notes: "Summary records clean ruff check + format on all 5 touched files."
+
+  - step: "PG2.1"
+    description: "Aggregate R0.1 outputs into reports/r0-1-aggregation.md"
+    expected_artifacts:
+      - "phase-outputs/reports/r0-1-aggregation.md"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/reports/r0-1-aggregation.md"
+
+  - step: "PG2.2"
+    description: "rf-qa task-integrity verification (adversarial, fix_authorization)"
+    expected_artifacts:
+      - "phase-outputs/reviews/r0-1-rf-qa-task-integrity.md"
+    observed: "✅ present (verdict PASS, 0 findings, 0 fix cycles)"
+    evidence_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/reviews/r0-1-rf-qa-task-integrity.md"
+    notes: |
+      Auditor note: rf-qa Skill not available in environment; parent agent ran the 7-check
+      adversarial checklist (a-g) inline. Each check has a file:line evidence anchor verified
+      independently in this UC-2 pass (see REPORT.md §Evidence-validator results).
+
+  - step: "PG2.3"
+    description: "Act on PASS verdict; create proceed-decision artifact"
+    expected_artifacts:
+      - "phase-outputs/plans/r0-1-proceed-decision.md"
+    observed: "✅ present"
+    evidence_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/plans/r0-1-proceed-decision.md"
+
+coverage_pct: 1.00  # 11 / 11 steps observed

@@ -1,0 +1,10 @@
+{
+  "fixture": "merge_completeness/merge_dropped_findings_case",
+  "source_authority": {
+    "master_recurrence_row": 15,
+    "partition_findings": ["A8:F-A8-005", "A9:F-A9-011"],
+    "incident_summary": "~10-15% of adversarial debate-transcript findings dropped silently at the merge step with no completeness invariant tying transcript items to the merged roadmap (~85-90% incorporation rate across v2.07/v2.13/v2.20, A9:F-A9-011)."
+  },
+  "deferred": true,
+  "reason": "No merge-completeness invariant component exists post-R1. Verified Step 13.2: MERGE_GATE semantic_checks (no_heading_gaps, no_duplicate_headings, minimum_deliverable_rows, deliverable_table_schema, no_template_sentinels, template_sections_present, roadmap_ids_within_spec) do not count or reconcile adversarial findings, and _validate_merge_completeness (executor.py:923) checks only structural completeness (milestone bodies, tail headings, table schema, OQ anti-rules) — not adversarial-findings incorporation. No component consumes a (debate-transcript, merged-roadmap) pair to assert incorporation completeness, so no verifiable expected values are constructible. Documented recurrence retained as an auditable stub."
+}

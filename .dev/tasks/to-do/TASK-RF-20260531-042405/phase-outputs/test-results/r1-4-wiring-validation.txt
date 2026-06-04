@@ -1,0 +1,53 @@
+Step 9.10 — wiring-verification tool-write migration: N/A (already deterministic)
+================================================================================
+Date: 2026-06-02
+Determination: tool-write migration is NOT APPLICABLE to wiring-verification.
+User-approved handling: "Mark N/A + document" (recommended option).
+
+EVIDENCE (verified independently this session):
+- executor.py:1085 contains an UNCONDITIONAL early-return for the
+  wiring-verification step:
+      # Wiring-verification: run static analysis directly, no Claude subprocess.
+      # Returns PASS unconditionally; gate evaluation is handled separately by
+      # the trailing gate runner (section 5.7.1).
+      if step.id == "wiring-verification":
+          ... run_wiring_analysis(wiring_config, source_dir) ...
+          emit_report(report, step.output_file)
+          return StepResult(...)
+  This fires BEFORE the LLM subprocess AND before the R1.4 tool-write render
+  hook (~executor.py:1230). There is no flag/convergence guard — it ALWAYS runs.
+- run_wiring_analysis (audit/wiring_gate.py:673) + emit_report (:740) are pure
+  deterministic Python static analysis. grep of audit/wiring_gate.py for
+  subprocess/claude/Claude/LLM => ZERO matches. No LLM is invoked.
+- build_wiring_verification_prompt (prompts.py:1957) is VESTIGIAL: its only use
+  is to populate Step.prompt at executor.py:2589, which is never consumed for
+  this step because of the 1085 early-return.
+
+WHY MIGRATION IS N/A:
+R1.4 tool-write replaces LLM-as-black-box markdown producers with JSON-schema +
+deterministic Jinja render. wiring-verification is ALREADY in that end-state:
+deterministic structured output via emit_report, validated deterministically by
+WIRING_GATE (audit/wiring_gate.py; uncovered_contracts==0 etc.). There is:
+  - NO LLM output to constrain with a schema,
+  - NO markdown LLM path to dual-write against,
+  - NO parity to test (nothing to compare a tool-write render to).
+Building a schema/template/test would model deterministic Python output with no
+LLM in the loop — pure redundancy, and a scope-discipline violation
+("build exactly what's asked; no speculative additions"). NOT DONE.
+
+R1.5 CONSOLIDATION CANDIDATE (per Step 9.10 item note + Phase 10 design):
+wiring-verification is the named consolidation target for the step-count budget
+(Acceptance Gate #6, ≤14). R1.5 `verify-implementation` AST-grounds the same
+wiring concern; Steps 10.1/10.2 evaluate replacing wiring-verification with
+verify-implementation to keep the budget. Flagged for that analysis.
+
+PG9.1 / 9.12 EXEMPTION:
+The "12 sub-steps" framing counts wiring as an LLM step. Actual genuine LLM
+tool-write migrations = 11:
+  PRIMARY (8): extract, extract_tdd, generate, diff, debate, score, merge,
+               spec-fidelity   [all DONE, dual-write flag default False]
+  SECONDARY (Step 9.11, 4): test_strategy, certify, validate-reflect, remediation
+  EXEMPT (1): wiring-verification (already deterministic — this file).
+PG9.1's check "(a) 12 sub-steps all have schema+template+dual-write+parity"
+should treat wiring-verification as legitimately exempt (11 migrated + 1
+deterministic), NOT as a missing artifact.

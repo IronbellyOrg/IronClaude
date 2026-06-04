@@ -171,6 +171,44 @@ def validate_run_step(
 
     _sanitize_output(step.output_file)
 
+    # R1.4 Step 9.11 tool-write render: when the reflect step ran in tool-write
+    # mode, the LLM emitted structured JSON to step.output_file; validate it
+    # against reflect.schema.json and render the markdown artifact
+    # deterministically. validate_run_step has no RoadmapConfig dispatch (unlike
+    # roadmap_run_step), so the hook lives here; it reads the opt-in flag from
+    # ValidateConfig.tool_write_validate_reflect. The reflect step carries no roadmap_ids,
+    # so it routes through the PLAIN render_step_tool_write (no id-check variant).
+    from .tool_writer import TOOL_WRITE_REGISTRY, render_step_tool_write
+
+    _tw_spec = TOOL_WRITE_REGISTRY.get(step.id)
+    if _tw_spec is not None and getattr(config, _tw_spec.config_flag, False):
+        try:
+            _json_text = step.output_file.read_text(encoding="utf-8")
+        except OSError as exc:
+            return StepResult(
+                step=step,
+                status=StepStatus.FAIL,
+                attempt=1,
+                gate_failure_reason=(
+                    f"Step '{step.id}' tool-write: cannot read output: {exc}"
+                ),
+                started_at=started_at,
+                finished_at=finished_at,
+            )
+        _tw_errors = render_step_tool_write(step.id, _json_text, step.output_file)
+        if _tw_errors:
+            return StepResult(
+                step=step,
+                status=StepStatus.FAIL,
+                attempt=1,
+                gate_failure_reason=(
+                    f"Step '{step.id}' tool-write schema/render failure: "
+                    + "; ".join(_tw_errors[:5])
+                ),
+                started_at=started_at,
+                finished_at=finished_at,
+            )
+
     return StepResult(
         step=step,
         status=StepStatus.PASS,
@@ -264,6 +302,7 @@ def _build_single_agent_steps(
                 spec_file=str(spec_file) if spec_file else None,
                 tdd_file=str(tdd_file) if tdd_file else None,
                 prd_file=str(prd_file) if prd_file else None,
+                tool_write=getattr(config, "tool_write_validate_reflect", False),
             ),
             output_file=validate_dir / "validation-report.md",
             gate=REFLECT_GATE,

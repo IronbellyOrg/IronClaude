@@ -1,0 +1,31 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 16 items
+
+tests/roadmap/test_tool_write_step_merge.py::test_merge_schema_loads PASSED [  6%]
+tests/roadmap/test_tool_write_step_merge.py::test_merge_schema_id_pattern_matches_contracts PASSED [ 12%]
+tests/roadmap/test_tool_write_step_merge.py::test_merge_schema_matches_generate_id_pattern PASSED [ 18%]
+tests/roadmap/test_tool_write_step_merge.py::test_valid_output_passes_schema PASSED [ 25%]
+tests/roadmap/test_tool_write_step_merge.py::test_missing_adversarial_fails_schema PASSED [ 31%]
+tests/roadmap/test_tool_write_step_merge.py::test_both_spec_source_keys_fails_schema PASSED [ 37%]
+tests/roadmap/test_tool_write_step_merge.py::test_missing_milestones_fails_schema PASSED [ 43%]
+tests/roadmap/test_tool_write_step_merge.py::test_render_parity PASSED   [ 50%]
+tests/roadmap/test_tool_write_step_merge.py::test_render_emits_adversarial_frontmatter_lowercase PASSED [ 56%]
+tests/roadmap/test_tool_write_step_merge.py::test_rendered_merge_satisfies_gate_frontmatter PASSED [ 62%]
+tests/roadmap/test_tool_write_step_merge.py::test_merge_rejects_phantom_id PASSED [ 68%]
+tests/roadmap/test_tool_write_step_merge.py::test_id_check_skips_when_spec_ids_empty PASSED [ 75%]
+tests/roadmap/test_tool_write_step_merge.py::test_render_step_tool_write_with_id_check_rejects_invalid PASSED [ 81%]
+tests/roadmap/test_tool_write_step_merge.py::test_merge_registry_key_distinct PASSED [ 87%]
+tests/roadmap/test_tool_write_step_merge.py::test_build_merge_prompt_tool_write_emits_json_contract PASSED [ 93%]
+tests/roadmap/test_tool_write_step_merge.py::test_build_merge_prompt_default_byte_identical PASSED [100%]
+
+============================== 16 passed in 0.28s ==============================
+tests/roadmap/test_dispatch_reachability.py .......                      [100%]
+
+============================= 177 passed in 0.64s ==============================

@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/merge.schema.json",
+  "title": "Roadmap merge step structured output",
+  "$comment": "Merge is the SECOND primary phantom-ID source (master:§Top-3 #3). roadmap_ids is the generator-side phantom-ID surface (Contract #3): the schema constrains SHAPE; the SET-membership constraint (roadmap_ids ⊆ spec_ids ∪ accepted_deviations, §MVR §3 / Contract #3) is enforced at runtime by tool_writer.validate_id_subset against the extract sidecar — a phantom id like FR-99 absent from the spec is REJECTED AT GENERATION TIME, not downstream. Frontmatter mirrors examples/roadmap_template.md and MERGE_GATE.required_frontmatter_fields: one-of (spec_source, spec_sources), complexity_score, and adversarial are required; the milestone integration_points / milestone_dependencies and the resource external_dependencies / infrastructure_requirements fields carry the MERGE_GATE template_sections_present H3 subsections that the generate schema does not require.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["frontmatter", "milestones", "roadmap_ids"],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["complexity_score", "adversarial"],
+      "oneOf": [
+        { "required": ["spec_source"] },
+        { "required": ["spec_sources"] }
+      ],
+      "properties": {
+        "spec_source": { "type": "string" },
+        "spec_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" },
+        "complexity_score": { "type": "number" },
+        "complexity_class": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH"]
+        },
+        "primary_persona": { "type": "string" },
+        "adversarial": { "type": "boolean" },
+        "base_variant": { "type": "string" },
+        "variant_scores": { "type": "string" },
+        "convergence_score": { "type": "number" },
+        "total_requirements": { "type": "integer" },
+        "milestone_count": { "type": "integer" },
+        "deliverable_count": { "type": "integer" }
+      }
+    },
+    "executive_summary": { "type": "string" },
+    "milestone_summary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["milestone", "title"],
+        "properties": {
+          "milestone": { "type": "string" },
+          "title": { "type": "string" },
+          "duration": { "type": "string" },
+          "exit_criteria": { "type": "string" }
+        }
+      }
+    },
+    "dependency_graph": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": "array", "items": { "type": "string" } }
+      ]
+    },
+    "milestones": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "deliverables"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "duration": { "type": "string" },
+          "exit_criteria": { "type": "string" },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "title"],
+              "properties": {
+                "num": { "type": "integer" },
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "comp": { "type": "string" },
+                "deps": { "type": "string" },
+                "ac": { "type": "string" },
+                "eff": { "type": "string" },
+                "pri": { "type": "string" }
+              }
+            }
+          },
+          "integration_points": { "type": "string" },
+          "milestone_dependencies": { "type": "string" },
+          "risk_assessment": { "type": "string" },
+          "open_questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "id": { "type": "string" },
+                "question": { "type": "string" },
+                "impact": { "type": "string" },
+                "owner": { "type": "string" },
+                "target": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "resource_requirements": { "type": "string" },
+    "external_dependencies": { "type": "string" },
+    "infrastructure_requirements": { "type": "string" },
+    "risk_register": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string" },
+          "risk": { "type": "string" },
+          "affected_milestones": { "type": "string" },
+          "probability": { "type": "string" },
+          "impact": { "type": "string" },
+          "severity": { "type": "string" },
+          "mitigation": { "type": "string" },
+          "owner": { "type": "string" }
+        }
+      }
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "decision_summary": { "type": "string" },
+    "timeline_estimates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["milestone"],
+        "properties": {
+          "milestone": { "type": "string" },
+          "start_week": { "type": "string" },
+          "end_week": { "type": "string" },
+          "duration": { "type": "string" }
+        }
+      }
+    },
+    "roadmap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(M\\d+-D-?\\d+|FR-\\d+(?:\\.\\d+)?|NFR-\\d+(?:\\.\\d+)?|SC-\\d+|G-\\d+|D-?\\d+|DM-\\w+|API-\\w+|COMP-\\w+|TEST-\\w+|MIG-\\w+|OPS-\\w+|OQ-\\w+)$"
+      }
+    }
+  }
+}

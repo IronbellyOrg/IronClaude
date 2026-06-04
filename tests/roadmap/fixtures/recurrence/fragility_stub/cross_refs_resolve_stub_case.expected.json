@@ -1,0 +1,13 @@
+{
+  "fixture": "fragility_stub/cross_refs_resolve_stub_case",
+  "source_authority": {
+    "master_recurrence_row": 8,
+    "partition_findings": ["A9:F-A9-005", "A11:F-A11-031", "A4:F-A4-010"],
+    "incident_summary": "_cross_refs_resolve() always returned True with the comment `# Don't fail on this — it's too fragile for now`, shipping a non-enforcing cross-reference gate to production (A9:F-A9-005). First seen v2.20; still BACKLOG at A11 (C-108). R1.6 deleted the stub. Contract #5 forbids return-True fragility stubs."
+  },
+  "verified_component": "tests.roadmap.test_no_fragility_stubs._FRAGILITY_STUB_RE + live src/superclaude/cli tree scan",
+  "pre_fix_snippet": "return True  # Don't fail on this — it's too fragile for now",
+  "pre_fix_expected_regex_match": true,
+  "post_fix_expected_cli_tree_offender_count": 0,
+  "expected_contract_5_invariant": "MUST FAIL pre-fix (the _cross_refs_resolve `return True # ... too fragile for now` stub is matched by the Contract #5 fragility-stub regex — a non-enforcing always-pass gate), MUST PASS post-fix (R1.6 deleted the stub; the live src/superclaude/cli tree contains ZERO fragility-commented return-True stubs)."
+}

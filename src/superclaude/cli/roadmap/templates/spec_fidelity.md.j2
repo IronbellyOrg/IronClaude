@@ -1,0 +1,31 @@
+---
+high_severity_count: {{ frontmatter.high_severity_count }}
+medium_severity_count: {{ frontmatter.medium_severity_count }}
+low_severity_count: {{ frontmatter.low_severity_count }}
+total_deviations: {{ frontmatter.total_deviations }}
+validation_complete: {{ "true" if frontmatter.validation_complete else "false" }}
+tasklist_ready: {{ "true" if frontmatter.tasklist_ready else "false" }}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+spec_source: {{ frontmatter.spec_source | default("") }}
+---
+
+## Deviation Report
+
+{% for dev in deviations | default([]) %}
+### {{ dev.id }} — {{ dev.severity }}
+
+- **Severity**: {{ dev.severity }}
+- **Deviation**: {{ dev.deviation }}
+- **Source Quote**: {{ dev.source_quote | default("") }}
+- **Roadmap Quote**: {{ dev.roadmap_quote | default("[MISSING]") }}
+- **Impact**: {{ dev.impact | default("") }}
+- **Recommended Correction**: {{ dev.recommended_correction | default("") }}
+{% endfor %}
+{% if not deviations %}
+No deviations found. The roadmap is fully faithful to the source document.
+{% endif %}
+
+## Summary
+
+{{ summary }}

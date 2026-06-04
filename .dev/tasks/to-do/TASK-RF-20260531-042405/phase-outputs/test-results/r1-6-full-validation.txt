@@ -1,0 +1,167 @@
+######## 1. pytest tests/roadmap/ ########
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collected 2074 items / 1 skipped
+
+tests/roadmap/test_accept_spec_change.py ............................... [  1%]
+..............                                                           [  2%]
+tests/roadmap/test_anti_instinct_integration.py ........................ [  3%]
+......                                                                   [  3%]
+tests/roadmap/test_anti_instinct_recurrence.py ........                  [  4%]
+tests/roadmap/test_backward_compat.py .................                  [  4%]
+tests/roadmap/test_certify_gate_eval.py ......                           [  5%]
+tests/roadmap/test_certify_gates.py .............                        [  5%]
+tests/roadmap/test_certify_prompts.py .................................. [  7%]
+....                                                                     [  7%]
+tests/roadmap/test_cli_contract.py ................                      [  8%]
+tests/roadmap/test_compression_integration.py ....................       [  9%]
+tests/roadmap/test_convergence.py ...................................... [ 11%]
+.....................                                                    [ 12%]
+tests/roadmap/test_convergence_e2e.py ......                             [ 12%]
+tests/roadmap/test_convergence_smoke.py .....                            [ 12%]
+tests/roadmap/test_convergence_wiring.py ............                    [ 13%]
+tests/roadmap/test_cosmetic_remediator.py .............................. [ 14%]
+....                                                                     [ 14%]
+tests/roadmap/test_dispatch_reachability.py .......                      [ 15%]
+tests/roadmap/test_dry_run.py .........                                  [ 15%]
+tests/roadmap/test_embed_inputs.py ....                                  [ 15%]
+tests/roadmap/test_eval_convergence_multirun.py .............            [ 16%]
+tests/roadmap/test_eval_finding_lifecycle.py ........................... [ 17%]
+............                                                             [ 18%]
+tests/roadmap/test_eval_gate_ordering.py ........................        [ 19%]
+tests/roadmap/test_eval_gate_rejection.py ...........................s.. [ 20%]
+...........................................................              [ 23%]
+tests/roadmap/test_executor.py ......................................... [ 25%]
+..............................                                           [ 27%]
+tests/roadmap/test_file_passing.py ....                                  [ 27%]
+tests/roadmap/test_fingerprint.py .....................................  [ 29%]
+tests/roadmap/test_gate_empty_target.py ...............                  [ 29%]
+tests/roadmap/test_gates_data.py ....................................... [ 31%]
+........................................................................ [ 35%]
+........................................................................ [ 38%]
+.........................................                                [ 40%]
+tests/roadmap/test_halt.py ........                                      [ 41%]
+tests/roadmap/test_inline_fallback.py ......                             [ 41%]
+tests/roadmap/test_integration_contracts.py ............................ [ 42%]
+....                                                                     [ 42%]
+tests/roadmap/test_integration_v5_pipeline.py .......................... [ 44%]
+..                                                                       [ 44%]
+tests/roadmap/test_merge_completeness.py ........                        [ 44%]
+tests/roadmap/test_models.py .............................               [ 46%]
+tests/roadmap/test_nfr_compliance.py ...............                     [ 46%]
+tests/roadmap/test_no_fragility_stubs.py .                               [ 46%]
+tests/roadmap/test_obligation_scanner.py ............................... [ 48%]
+........................s                                                [ 49%]
+tests/roadmap/test_obligation_scanner_extract_component_context.py ..... [ 49%]
+..                                                                       [ 49%]
+tests/roadmap/test_obligation_scanner_meta_context.py .................. [ 50%]
+.................                                                        [ 51%]
+tests/roadmap/test_parallel.py .....                                     [ 51%]
+tests/roadmap/test_parser_consistency.py ............................... [ 53%]
+......................................................s                  [ 55%]
+tests/roadmap/test_phase7_hardening.py ................................. [ 57%]
+                                                                         [ 57%]
+tests/roadmap/test_pipeline_envelope.py .........                        [ 58%]
+tests/roadmap/test_pipeline_integration.py ...........                   [ 58%]
+tests/roadmap/test_prd_cli.py ......                                     [ 58%]
+tests/roadmap/test_prd_prompts.py ...........................            [ 60%]
+tests/roadmap/test_progress.py ..........                                [ 60%]
+tests/roadmap/test_prompts.py ...........                                [ 61%]
+tests/roadmap/test_remediate.py ........................................ [ 63%]
+.........................................                                [ 65%]
+tests/roadmap/test_remediate_executor.py ............................... [ 66%]
+.........................                                                [ 67%]
+tests/roadmap/test_remediate_parser.py ................................. [ 69%]
+.....                                                                    [ 69%]
+tests/roadmap/test_remediate_prompts.py ........................         [ 70%]
+tests/roadmap/test_remediation.py ..                                     [ 70%]
+tests/roadmap/test_resume.py .....                                       [ 71%]
+tests/roadmap/test_resume_pipeline_states.py .........................   [ 72%]
+tests/roadmap/test_resume_restore.py ..........................          [ 73%]
+tests/roadmap/test_retrospective.py ...........                          [ 74%]
+tests/roadmap/test_retry_contract.py ..                                  [ 74%]
+tests/roadmap/test_semantic_layer.py ................................... [ 75%]
+.                                                                        [ 75%]
+tests/roadmap/test_spec_fidelity.py ..............................       [ 77%]
+tests/roadmap/test_spec_parser.py ..............................ssssssss [ 79%]
+ss                                                                       [ 79%]
+tests/roadmap/test_spec_patch_cycle.py ....................              [ 80%]
+tests/roadmap/test_spec_roadmap_id_containment.py ............           [ 80%]
+tests/roadmap/test_spec_structural_audit.py ..........................   [ 82%]
+tests/roadmap/test_state.py ..........                                   [ 82%]
+tests/roadmap/test_structural_checkers.py .............................. [ 83%]
+.......................s........                                         [ 85%]
+tests/roadmap/test_threshold_registry.py .......................         [ 86%]
+tests/roadmap/test_tool_write_step_certify.py ................           [ 87%]
+tests/roadmap/test_tool_write_step_debate.py .............               [ 88%]
+tests/roadmap/test_tool_write_step_diff.py ...........                   [ 88%]
+tests/roadmap/test_tool_write_step_extract.py .........                  [ 89%]
+tests/roadmap/test_tool_write_step_extract_tdd.py ............           [ 89%]
+tests/roadmap/test_tool_write_step_generate.py ............              [ 90%]
+tests/roadmap/test_tool_write_step_merge.py ....................         [ 91%]
+tests/roadmap/test_tool_write_step_remediation.py ......                 [ 91%]
+tests/roadmap/test_tool_write_step_score.py ................             [ 92%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py .................... [ 93%]
+                                                                         [ 93%]
+tests/roadmap/test_tool_write_step_test_strategy.py .............        [ 93%]
+tests/roadmap/test_tool_write_step_validate_reflect.py .............     [ 94%]
+tests/roadmap/test_validate_cli.py ....................                  [ 95%]
+tests/roadmap/test_validate_defects.py ...............                   [ 96%]
+tests/roadmap/test_validate_executor.py ...............                  [ 96%]
+tests/roadmap/test_validate_gates.py .......................             [ 97%]
+tests/roadmap/test_validate_resume_failure.py ..                         [ 98%]
+tests/roadmap/test_validate_sc001_sc003.py ........                      [ 98%]
+tests/roadmap/test_validate_unit.py ..............                       [ 99%]
+tests/roadmap/test_verify_implementation.py .........                    [ 99%]
+tests/roadmap/test_vocabulary.py ..........                              [100%]
+
+======================= 2060 passed, 15 skipped in 8.43s =======================
+
+######## 2. ruff check src/superclaude/ tests/ ########
+All checks passed!
+
+######## 3. ruff format --check src/superclaude/ tests/ ########
+Would reformat: tests/roadmap/conftest.py
+Would reformat: tests/roadmap/test_tool_write_step_merge.py
+2 files would be reformatted, 725 files already formatted
+
+######## 4. make verify-sync ########
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+
+######## 5. make lint-architecture ########
+
+=== Check 10: Workspace Suffix Blocklist ===
+  ✅ [Check 10]: no *-workspace directories under .claude/skills/
+
+=== Check 11: Contract Constant Anti-Duplication (Contract #5 + #8) ===
+  ✅ [Check 11]: no contract-constant duplications
+
+=== Checks 5/7: NEEDS DESIGN (skipped) ===
+  ℹ️  Check 5 (inline protocol detection) — pending design
+  ℹ️  Check 7 (activation references correct skill) — pending design
+
+=== Summary ===
+  Errors:   0
+  Warnings: 5
+  ✅ PASS — architecture policy compliant (5 warning(s))
+
+######## 6. full-codebase return-True fragility stub grep (must be 0) ########
+fragility_stub_count=0 (expected 0)
+
+######## 7. SCOPED gate=None convergence-bypass grep (must be 0) ########
+convergence_bypass_count=0 (expected 0)
+
+(sanity) legitimate bare gate=None at sprint/executor.py:
+src/superclaude/cli/sprint/executor.py:85:            gate=None,

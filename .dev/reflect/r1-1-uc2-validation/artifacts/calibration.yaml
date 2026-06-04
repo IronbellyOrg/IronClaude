@@ -1,0 +1,23 @@
+calibration_version: "1.0"
+calibrator_role: inline-fallback (T1 single-agent path; no separate calibrator-class invocation per §11.3 disjoint-set rule applies only to T2)
+calibrator_diversity: degraded
+calibrator_diversity_reason: "Tier 1 hard override per --tier 1 — heterogeneous calibrator is a T2 feature; T1 uses orchestrator-inline calibration with explicit anti-anchoring discipline (calibrator does not see card formation context, only the card itself)"
+
+# 5-dimension blind re-grade (calibrator does not see formation context, only the card)
+calibrated_scores:
+  citation_grounding: 5.0    # 17 citations are all real file:line; all 4 R1.1 migration sites independently verified via rf-qa probe
+  coverage_completeness: 5.0  # all 3 spec items have delivery-evidence; no unmapped hunks; matches independent rf-qa check (b)
+  deviation_classification_clarity: 5.0  # 4-bucket classification used; rationale cites §Scope boundary; no ambiguous hunks
+  risk_surface_coverage: 4.0  # gap noted on THRESHOLDS late-binding test — legitimate per AST sentinel scope; module-load semantics is standard Python and doesn't require defensive testing in v1
+  recommendation_actionability: 4.0  # OQs are forward-looking and non-blocking; recommendation is concrete (PROCEED to Phase 7)
+
+mean_calibrated: 4.6
+calibrated_confidence: 0.92
+
+# Comparison to self-graded
+self_graded_mean: 4.6
+delta: 0.0    # zero delta — calibration confirms self-grade (low anchoring risk because the work was independently rf-qa-verified before this card was authored)
+
+# Validity assertions
+disjoint_set_assertion: "n/a-tier-1"   # disjoint-set is a T2 requirement
+anchoring_risk: low   # the card cites independently-validated evidence (rf-qa verdict on same commit)

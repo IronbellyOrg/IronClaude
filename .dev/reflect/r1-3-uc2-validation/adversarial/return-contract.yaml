@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: .dev/reflect/r1-3-uc2-validation/adversarial/merged-recommendation.md
+  convergence_score: 0.88
+  artifacts_dir: .dev/reflect/r1-3-uc2-validation/adversarial/
+  status: success
+  base_variant: "Option B (simplified, no-envelope)"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []   # INV-001/INV-002 were resolved by the reframe (no-envelope fix avoids them)

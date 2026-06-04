@@ -1,11 +1,15 @@
 """P0 Eval: Gate Rejection Fidelity.
 
-Tests that each of the 13 gates correctly rejects malformed output through
+Tests that each gate in ALL_GATES correctly rejects malformed output through
 the full gate_passed() function. Parameterized across all gates × failure modes.
 
 This eval fills the gap identified in adversarial debate: existing tests call
 individual _*() semantic check functions in isolation, but no test exercises
-the composed gate_passed() path with failure inputs across all 13 gates.
+the composed gate_passed() path with failure inputs across every gate.
+
+R1.5: wiring-verification was REPLACED in ALL_GATES by verify-implementation
+(CodeAssertion-only; net step-count delta 0). The standalone WIRING_GATE tests
+below still exercise WIRING_GATE directly (the symbol is preserved).
 """
 
 from __future__ import annotations
@@ -243,6 +247,12 @@ PASSING_FRONTMATTER: dict[str, dict[str, str]] = {
         "certified": "true",
         "certification_date": "2026-03-19",
     },
+    # R1.5: verify-implementation is CodeAssertion-only (no required
+    # frontmatter, min_lines=0). With no envelope plumbed in this gate_passed
+    # call, the all_frs_resolved assertion is shim-skipped (INV-002 backward-
+    # compat), so a non-empty file with no frontmatter passes. The runtime
+    # envelope-plumbed behaviour is covered by the Step 10.3 tests.
+    "verify-implementation": {},
 }
 
 # Gate lookup
@@ -304,8 +314,17 @@ def _build_passing_doc(gate_name: str) -> str:
     return _make_content(fm, body_lines) + "\n" + body
 
 
+@pytest.mark.usefixtures("_merge_gate_id_registry_sidecar")
 class TestAllGatesPass:
-    """Verify our passing fixtures actually pass each gate (test the test)."""
+    """Verify our passing fixtures actually pass each gate (test the test).
+
+    sc:reflect M9 / D-REGRESSION-01: the ``merge`` parametrize case
+    exercises MERGE_GATE, which carries the fail-shut Contract #9
+    ``_roadmap_ids_within_spec`` check (R0.1). The passing fixture emits
+    synthetic FR-NNN IDs that are not in any real spec; conftest fixture
+    registers a permissive sidecar so the check passes during this test.
+    Other parametrize cases (non-merge gates) ignore the sidecar.
+    """
 
     @pytest.mark.parametrize("gate_name,gate", ALL_GATES)
     def test_passing_fixture_passes(self, gate_name, gate, tmp_path):

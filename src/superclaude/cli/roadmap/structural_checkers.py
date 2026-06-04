@@ -325,7 +325,12 @@ def _canonicalize_requirement_id(family: str, raw: str) -> str:
 
     # MD family: milestone-prefixed deliverable IDs (e.g. "M1-D01" -> "M1-D1").
     # Preserve the M{n}- prefix; canonicalize only the trailing D{nn} portion (strip
-    # leading zeros on the deliverable index). See TASK-RF-20260531-044100 design D2.
+    # leading zeros on the deliverable index) so milestone-distinct deliverables
+    # (M1-D01 vs M2-D01) resolve to DISTINCT canonical forms rather than collapsing
+    # to a single bare-D key. Ported from PR #111 (861047c2) design D2; see also
+    # TASK-RF-20260531-044100 design D2. The local re.match shape is a
+    # canonicalization helper, NOT a duplicate of any contracts.ID_PATTERNS body
+    # (arch-lint Rule 2 stays green).
     if family == "MD":
         md_match = re.match(r"^(M\d+-D)-?0*(\d+)$", raw)
         if md_match:
@@ -406,8 +411,8 @@ def _section_text(sections: list[SpecSection]) -> str:
 
 # Anchor for the Explicit non-references allowlist parser. The roadmap may declare
 # certain bare-D or bare-G tokens as roadmap-internal-only sequences that MUST NOT be
-# resolved against the spec namespace. See TASK-RF-20260531-044100 design D3 and the
-# canonical anchor at /config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/roadmap.md L665.
+# resolved against the spec namespace. Ported from PR #111 (861047c2) design D3;
+# see also TASK-RF-20260531-044100 design D3.
 _EXPLICIT_NON_REFS_ANCHOR_RE = re.compile(
     r"\*\*Explicit non-references[^*]*\*\*([^\n]*)", re.IGNORECASE
 )
@@ -483,7 +488,7 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
 
     # Explicit non-references allowlist: bare-D / bare-G tokens the roadmap author
     # has marked as roadmap-internal-only sequences (e.g. D01..D54 under M{n}- prefixes).
-    # See TASK-RF-20260531-044100 design D3.
+    # Ported from PR #111 (861047c2) design D3; see also TASK-RF-20260531-044100 design D3.
     non_ref_allowlist: set[str] = _parse_explicit_non_references(roadmap_path)
 
     # Get dimension-relevant sections
@@ -497,10 +502,6 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
     # and separator-variant forms (D01, D-01 -> D1) so surface-form drift no
     # longer trips the raw set-difference comparator. Mirrors the precedent at
     # integration_contracts.py:445.
-    #
-    # We also track the source family of each canonical roadmap ID so the allowlist
-    # check (D3) can be scoped to bare-D / bare-G families only — milestone-prefixed
-    # MD-family tokens are intentionally not suppressed by the bare-D allowlist.
     spec_canon: dict[str, str] = {}
     for family, ids in spec_parsed.requirement_ids.items():
         for raw in ids:
@@ -509,6 +510,9 @@ def check_signatures(spec_path: str, roadmap_path: str) -> list[Finding]:
             if canon not in spec_canon:
                 spec_canon[canon] = raw
 
+    # We also track the source family of each canonical roadmap ID so the allowlist
+    # check (D3) can be scoped to bare-D / bare-G families only — milestone-prefixed
+    # MD-family tokens are handled by their own allowlist branch below.
     roadmap_canon: dict[str, str] = {}
     roadmap_canon_family: dict[str, str] = {}
     for family, ids in roadmap_parsed.requirement_ids.items():

@@ -433,7 +433,7 @@ class TestSignaturesChecker:
             f"got {[(f.rule_id, f.roadmap_quote) for f in phantom_or_drift]}"
         )
 
-    # ---------- TASK-RF-20260531-044100 Phase 6: MD-family + Explicit non-references allowlist ----------
+    # ---------- R5 (PR #111 port, commit 861047c2): MD-family + Explicit non-references allowlist ----------
     # Lock the M{n}-D{nn} tokenizer + canonicalizer fix and the Explicit non-references
     # allowlist parser. Three additive tests covering: (a) M{n}-D{nn} IDs with allowlist
     # → zero findings; (b) backward-compat when allowlist is absent; (c) bare-D

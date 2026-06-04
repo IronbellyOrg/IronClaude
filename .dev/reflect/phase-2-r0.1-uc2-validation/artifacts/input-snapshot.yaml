@@ -1,0 +1,36 @@
+scope: "Phase 2 (Steps 2.1-2.8 + PG2.1/PG2.2/PG2.3) of TASK-RF-20260531-042405 — R0.1 Spec-ID Registry + Contract #9 MERGE_GATE"
+commit: "6cee1eb1b275b9d15f2976f1649d1eba6e31caea"
+parent_commit: "91095144"  # origin/master prior to Phase 2
+worktree: "/config/workspace/IronClaude-RoadmapRewrite/"
+branch: "refactor/roadmap-pipeline-r0-r1-rewrite"
+inputs:
+  - path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/TASK-RF-20260531-042405.md"
+    sha256: "20232106bbe71114ba81c7ef76f24162975df99821a669a677127557414581b3"
+    role: "tasklist (Phase 2 spec)"
+  - path: "/config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/troubleshoot/roadmap-pipeline-retrospective/wave4-task-spec/BUILD-REQUEST-roadmap-pipeline-rewrite.md"
+    sha256: "4782e56a503b191b811887ee90ab86e921631d10c8afcc88f1e2064535879c7e"
+    role: "authoritative spec (§R0 item 1 + §Contract #9)"
+diff_stat:
+  files_changed: 8
+  insertions: 778
+  deletions: 0
+  domains: ["src/superclaude/cli/roadmap/", "tests/roadmap/"]
+files_changed:
+  - "src/superclaude/cli/roadmap/id_registry.py (NEW, 181 lines)"
+  - "src/superclaude/cli/roadmap/executor.py (MODIFIED, +78)"
+  - "src/superclaude/cli/roadmap/gates.py (MODIFIED, +99)"
+  - "tests/roadmap/conftest.py (MODIFIED, +34)"
+  - "tests/roadmap/test_spec_roadmap_id_containment.py (NEW, 258 lines, 11 tests)"
+  - "tests/roadmap/fixtures/recurrence/README.md (NEW, 60 lines)"
+  - "tests/roadmap/fixtures/recurrence/id_containment/spec_roadmap_drift_case.md (NEW, 39 lines)"
+  - "tests/roadmap/fixtures/recurrence/id_containment/spec_roadmap_drift_case.expected.json (NEW, 29 lines)"
+preserve_targets:
+  - path: "src/superclaude/cli/roadmap/commands.py"
+    diff_status: "untouched (PRESERVE per MVR §6.3)"
+  - path: "src/superclaude/cli/roadmap/structural_checkers.py"
+    diff_status: "untouched (PRESERVE per MVR §3)"
+  - path: "src/superclaude/cli/roadmap/convergence.py"
+    diff_status: "untouched (PRESERVE per MVR §5)"
+  - path: "src/superclaude/cli/roadmap/cosmetic_remediator.py"
+    diff_status: "untouched (PRESERVE per MVR §2.8)"
+verification_notes: "git show 6cee1eb1 --stat for those 4 files returns empty — confirms zero touches."

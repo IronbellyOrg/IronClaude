@@ -1,0 +1,56 @@
+# Deviation Ledger — UC-2 post-execution audit of TASK-RF-20260603-180207
+# 4-category taxonomy (§10): authorized / necessary / drift / regression
+# Every change-surface hunk maps to a tasklist item → all AUTHORIZED. Zero drift, zero regression.
+
+deviations:
+  - hunk_ref: "tests/audit/test_wiring_gate.py:+32 (TestNFR007Compliance.test_no_pipeline_imports_in_wiring_gate)"
+    deviation_class: authorized
+    mapped_tasklist_item: "Step 2.1 (Area A re-home)"
+    spec_section: "Key Objective 1"
+    evidence: "AST-walk guard added inside existing class; 3/3 methods green; logic byte-equivalent to deleted original"
+    rationale: "Explicitly instructed; gold-standard = tasklist Step 2.1 + Area A rf-qa PASS"
+
+  - hunk_ref: "tests/integration/test_wiring_pipeline.py:-379 (file deleted)"
+    deviation_class: authorized
+    mapped_tasklist_item: "Step 2.3 (Area A delete)"
+    spec_section: "Key Objective 1"
+    evidence: "File was the SOLE collection error at baseline (broken WIRING_GATE import) → non-collecting/dead; zero live coverage lost; only NFR-007 guard re-homed"
+    rationale: "Explicitly instructed; deletion-safety verified by research 01 + Area A rf-qa"
+
+  - hunk_ref: "src/superclaude/cli/roadmap/tool_writer.py:+23 (require_spec_ids param)"
+    deviation_class: authorized
+    mapped_tasklist_item: "Step 3.1 (Area B)"
+    spec_section: "Key Objective 2"
+    evidence: "Additive default-False kwarg; empty+required → hard error; existing callers byte-identical"
+    rationale: "Verbatim per Step 3.1"
+
+  - hunk_ref: "src/superclaude/cli/roadmap/id_registry.py:+28 (SpecIdRegistry.from_payload)"
+    deviation_class: authorized
+    mapped_tasklist_item: "Step 3.2 (Area B — shared reconstruction)"
+    spec_section: "Key Objective 2 / Contract #8"
+    evidence: "Pure field-mapping inverse of to_dict; no ID regex; mirrors gates.py reconstruction"
+    rationale: "Step 3.2 directed 'factor to a shared helper … no new regex'"
+
+  - hunk_ref: "src/superclaude/cli/roadmap/executor.py:L1273-1326 (registry-sourced + fail-shut + require_spec_ids)"
+    deviation_class: authorized
+    mapped_tasklist_item: "Step 3.2 (Area B)"
+    spec_section: "Key Objective 2"
+    evidence: "Sources _spec_ids from spec_id_registry.json via from_payload().union_of_known(); fail-shut StepResult(FAIL) on missing/malformed; require_spec_ids=True. Behavior change (fail on empty/missing registry) is exactly the specified hardening; affects only opt-in tool-write (default False); aligns with Contract #9 gate posture"
+    rationale: "Verbatim per Step 3.2 Fix 1+2a; PRESERVE set (merge-gate catch, default markdown, plain renderer) intact"
+
+  - hunk_ref: "src/superclaude/cli/roadmap/executor.py:L2701-2719 (Area C inert-timeout comment)"
+    deviation_class: authorized
+    mapped_tasklist_item: "Step 4.1 (Area C)"
+    spec_section: "Key Objective 3"
+    evidence: "Comment-only between gate= and timeout_seconds=600 (both byte-unchanged); no gate=None form; content verified vs convergence.py:440 (max_runs=3) + _ClaudeRunner (300s)"
+    rationale: "Verbatim per Step 4.1"
+
+# Areas D & E produced NO code change (deliberate cutover-gated HALTs with PENDING markers) — not deviations.
+
+informational_observations:
+  - id: O1
+    note: "executor passes _accepted separately though union_of_known() already includes accepted_deviation_ids → redundant but provably correct (idempotent set union; accepted ⊆ union_of_known). No behavior impact."
+    severity: informational
+  - id: O2
+    note: "from_payload docstring calls itself 'the single SHARED reconstruction', but gates.py:_roadmap_ids_within_spec retains its own inline payload→SpecIdRegistry reconstruction (kept byte-unchanged per the PRESERVE requirement). from_payload is shared-CAPABLE but not yet adopted by gates.py. Future cleanup: repoint gates.py to from_payload AFTER the merge-gate catch leaves the PRESERVE boundary. NOT a Contract #8 violation (no regex duplicated)."
+    severity: informational

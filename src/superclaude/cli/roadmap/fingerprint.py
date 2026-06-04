@@ -15,6 +15,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from superclaude.contracts import THRESHOLDS
+
 
 @dataclass
 class Fingerprint:
@@ -168,7 +170,7 @@ def extract_code_fingerprints(content: str) -> list[Fingerprint]:
 def check_fingerprint_coverage(
     spec_content: str,
     roadmap_content: str,
-    min_coverage_ratio: float = 0.7,
+    min_coverage_ratio: float = THRESHOLDS["fingerprint.coverage_min"],
 ) -> tuple[int, int, list[str], float]:
     """Check that spec fingerprints appear in roadmap.
 
@@ -202,7 +204,7 @@ def check_fingerprint_coverage(
 def fingerprint_gate_passed(
     spec_content: str,
     roadmap_content: str,
-    min_coverage_ratio: float = 0.7,
+    min_coverage_ratio: float = THRESHOLDS["fingerprint.coverage_min"],
 ) -> bool:
     """FR-MOD3.4: Threshold gate logic.
 

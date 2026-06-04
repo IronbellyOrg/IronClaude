@@ -305,9 +305,9 @@ class TestTasklistRoundTrip:
         tasklist = generate_remediation_tasklist(findings, "report.md", source)
 
         # Parse frontmatter
-        from superclaude.cli.roadmap.gates import _parse_frontmatter
+        from superclaude.cli.pipeline.frontmatter import extract_frontmatter
 
-        fm = _parse_frontmatter(tasklist)
+        fm = extract_frontmatter(tasklist)
         assert fm is not None
 
         expected_fields = {
@@ -343,9 +343,9 @@ class TestTasklistRoundTrip:
         findings = [_make_finding("F-01")]
         tasklist = generate_remediation_tasklist(findings, "report.md", source)
 
-        from superclaude.cli.roadmap.gates import _parse_frontmatter
+        from superclaude.cli.pipeline.frontmatter import extract_frontmatter
 
-        fm = _parse_frontmatter(tasklist)
+        fm = extract_frontmatter(tasklist)
         assert fm["source_report_hash"] == expected_hash
 
     def test_round_trip_status_preserved(self):

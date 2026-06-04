@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/score.schema.json",
+  "title": "Roadmap score step structured output",
+  "$comment": "Convergence/acceptance thresholds are NOT embedded here -- they are sourced at runtime from superclaude.contracts.CONVERGENCE_THRESHOLDS (Contract #8). variant_scores are 0-100 evaluation points, distinct from the (high,low) convergence pair.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter",
+    "base_selection_rationale"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "base_variant",
+        "variant_scores"
+      ],
+      "properties": {
+        "base_variant": { "type": "string" },
+        "variant_scores": { "type": "string" },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" },
+        "variant_a": { "type": "string" },
+        "variant_b": { "type": "string" }
+      }
+    },
+    "scoring_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "per_criterion_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criterion"],
+        "properties": {
+          "criterion": { "type": "string" },
+          "variant_a_score": { "type": "number" },
+          "variant_b_score": { "type": "number" }
+        }
+      }
+    },
+    "overall_scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variant_a": { "type": "number" },
+        "variant_b": { "type": "number" },
+        "justification": { "type": "string" }
+      }
+    },
+    "base_selection_rationale": { "type": "string" },
+    "improvements_to_incorporate": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

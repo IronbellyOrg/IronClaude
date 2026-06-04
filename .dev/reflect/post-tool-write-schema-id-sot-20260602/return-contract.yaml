@@ -1,0 +1,43 @@
+contract_version: "1.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: /config/workspace/IronClaude-RoadmapRewrite/.dev/reflect/post-tool-write-schema-id-sot-20260602/REPORT.md
+confidence_calibrated: 0.93
+escalation_rule_matched: null
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 2
+  necessary: 2
+  drift: 0
+  regression: 0
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true        # inline (single-agent tier-1); all citations re-Read this audit
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Independence
+independent_adversarial_backstop: rf-qa task-integrity PASS 14/14 (PG.2, separate context)
+
+# Promotion
+promotion_action: not-applicable    # task file lives in .dev/tasks/to-do/; promotion not invoked by this reflect pass
+
+notes: >
+  Full tests/roadmap/ suite executed during this audit to close the
+  BUILD_REQUEST line-74 "full roadmap-suite delta" criterion: 1957 passed,
+  13 skipped, 0 failures (delta +4 from new MD regression tests, zero new
+  failures). All 4 examined divergences are adherence or authorized
+  expansion; 2 documented process deviations carry no residual risk.

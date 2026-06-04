@@ -139,11 +139,15 @@ class TestAcceptanceCriteriaAC01:
         _dry_run_output(steps)
         captured = capsys.readouterr()
 
-        # Count "Step N" lines -> 13 individual steps (12 entries, parallel pair = 13)
+        # R1.5: wiring-verification removed from _build_steps (REPLACED by the
+        # dynamic verify-implementation step, dispatched after certify). So the
+        # static dry-run list is 12 individual steps (11 entries, parallel pair
+        # counts as 2). certify + verify-implementation are dynamic and not in
+        # the dry-run plan.
         step_lines = [
             line for line in captured.out.splitlines() if line.startswith("Step ")
         ]
-        assert len(step_lines) == 13
+        assert len(step_lines) == 12
 
     def test_dry_run_no_files_created(self, tmp_path, capsys):
         from superclaude.cli.roadmap.executor import _build_steps, _dry_run_output

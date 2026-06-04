@@ -268,11 +268,11 @@ class TestExtractPhaseSignals:
 
 
 # ---------------------------------------------------------------------------
-# Haiku subprocess helper
+# Sonnet subprocess helper
 # ---------------------------------------------------------------------------
 
 
-class TestInvokeHaiku:
+class TestInvokeSonnet:
     def test_returns_empty_when_claude_not_on_path(self):
         with patch("superclaude.cli.sprint.summarizer.shutil.which", return_value=None):
             assert invoke_sonnet("hello") == ""
@@ -293,7 +293,7 @@ class TestInvokeHaiku:
             assert out == "narrative text"
             call = run.call_args
             cmd = call.args[0]
-            assert "--model" in cmd and "claude-sonnet-4-5" in cmd
+            assert "--model" in cmd and "sonnet" in cmd
             assert "--max-turns" in cmd and "1" in cmd
             assert "--dangerously-skip-permissions" in cmd
             # stdin must be DEVNULL.

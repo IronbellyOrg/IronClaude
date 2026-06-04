@@ -1,0 +1,29 @@
+---
+findings_verified: {{ frontmatter.findings_verified }}
+findings_passed: {{ frontmatter.findings_passed }}
+findings_failed: {{ frontmatter.findings_failed }}
+certified: {{ "true" if frontmatter.certified else "false" }}
+certification_date: {{ frontmatter.certification_date }}
+---
+
+# Certification Report
+
+## Per-Finding Results
+
+| Finding | Severity | Result | Justification |
+|---------|----------|--------|---------------|
+{% for r in results | default([]) %}
+| {{ r.finding_id }} | {{ r.severity | default("UNKNOWN") }} | {{ r.result }} | {{ r.justification | default("") }} |
+{% endfor %}
+
+## Summary
+
+{% if summary is defined and summary %}
+{{ summary }}
+{% else %}
+{% if frontmatter.certified %}
+All {{ frontmatter.findings_verified }} findings verified. {{ frontmatter.findings_passed }} passed, {{ frontmatter.findings_failed }} failed. Certification: **CERTIFIED**.
+{% else %}
+{{ frontmatter.findings_verified }} findings verified. {{ frontmatter.findings_passed }} passed, {{ frontmatter.findings_failed }} failed. Certification: **CERTIFIED WITH CAVEATS**.
+{% endif %}
+{% endif %}

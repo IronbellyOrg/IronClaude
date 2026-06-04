@@ -1,0 +1,31 @@
+---
+blocking_issues_count: {{ frontmatter.blocking_issues_count }}
+warnings_count: {{ frontmatter.warnings_count }}
+tasklist_ready: {{ "true" if frontmatter.tasklist_ready else "false" }}
+{% if frontmatter.generated is defined and frontmatter.generated %}
+generated: {{ frontmatter.generated }}
+{% endif %}
+{% if frontmatter.generator is defined and frontmatter.generator %}
+generator: {{ frontmatter.generator }}
+{% endif %}
+---
+
+## Findings
+
+{% for f in findings | default([]) %}
+- **[{{ f.severity }}]** {{ f.dimension }}: {{ f.description }}
+  - Location: {{ f.location | default("") }}
+  - Evidence: {{ f.evidence | default("") }}
+  - Fix guidance: {{ f.fix_guidance | default("") }}
+{% endfor %}
+{% if not findings %}
+No findings reported.
+{% endif %}
+
+## Summary
+
+{{ summary | default("") }}
+
+## Interleave Ratio
+
+{{ interleave_ratio | default("") }}

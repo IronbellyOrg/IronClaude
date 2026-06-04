@@ -31,7 +31,11 @@ from superclaude.cli.sprint.models import TurnLedger
 def _make_config(tmp_path: Path) -> RoadmapConfig:
     """Create a minimal RoadmapConfig with spec and output dir."""
     spec = tmp_path / "spec.md"
-    spec.write_text("# Test Spec\nFR-1: Must have feature X\n")
+    # No FR carrying unextractable names: such an FR would now (correctly) raise a
+    # HIGH fidelity gap under fail-closed verification (§MVR §4 / R1.6 Step 11.4),
+    # which is not what this convergence smoke asserts. Keep the spec FR-free so the
+    # fixture genuinely exercises the 0-HIGH "valid step result" path.
+    spec.write_text("# Test Spec\n")
     output_dir = tmp_path / "output"
     output_dir.mkdir()
     roadmap = output_dir / "roadmap.md"

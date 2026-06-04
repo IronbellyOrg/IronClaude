@@ -1,0 +1,80 @@
+---
+spec_source: {{ frontmatter.spec_source }}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+functional_requirements: {{ frontmatter.functional_requirements }}
+nonfunctional_requirements: {{ frontmatter.nonfunctional_requirements | default(0) }}
+total_requirements: {{ frontmatter.total_requirements | default(0) }}
+complexity_score: {{ frontmatter.complexity_score }}
+complexity_class: {{ frontmatter.complexity_class }}
+domains_detected: [{{ frontmatter.domains_detected | default([]) | join(", ") }}]
+risks_identified: {{ frontmatter.risks_identified | default(0) }}
+dependencies_identified: {{ frontmatter.dependencies_identified | default(0) }}
+success_criteria_count: {{ frontmatter.success_criteria_count | default(0) }}
+extraction_mode: {{ frontmatter.extraction_mode }}
+---
+
+## Functional Requirements
+
+{% for fr in functional_requirements %}
+- **{{ fr.id }}**{% if fr.description is defined %}: {{ fr.description }}{% endif %}
+
+{% if fr.paths is defined and fr.paths %}
+  - Paths: {{ fr.paths | join(", ") }}
+{% endif %}
+{% endfor %}
+
+## Non-Functional Requirements
+
+{% for nfr in non_functional_requirements %}
+- **{{ nfr.id }}**{% if nfr.description is defined %}: {{ nfr.description }}{% endif %}
+
+{% endfor %}
+
+## Complexity Assessment
+
+{{ complexity_assessment | default("") }}
+
+## Architectural Constraints
+
+{% for constraint in architectural_constraints | default([]) %}
+- {{ constraint }}
+{% endfor %}
+
+## Component Inventory
+
+{% for comp in component_inventory | default([]) %}
+- **{{ comp.id }}** {{ comp.name }}{% if comp.role is defined %} — {{ comp.role }}{% endif %}
+
+{% if comp.dependencies is defined and comp.dependencies %}
+  - Dependencies: {{ comp.dependencies | join(", ") }}
+{% endif %}
+{% if comp.source_ref is defined %}
+  - Source: {{ comp.source_ref }}
+{% endif %}
+{% endfor %}
+
+## Risk Inventory
+
+{% for risk in risk_inventory | default([]) %}
+{{ loop.index }}. {% if risk.id is defined %}**{{ risk.id }}** {% endif %}{{ risk.risk }} (severity: {{ risk.severity }}) — Mitigation: {{ risk.mitigation }}
+
+{% endfor %}
+
+## Dependency Inventory
+
+{% for dep in dependency_inventory | default([]) %}
+- {{ dep }}
+{% endfor %}
+
+## Success Criteria
+
+{% for sc in success_criteria | default([]) %}
+- {{ sc }}
+{% endfor %}
+
+## Open Questions
+
+{% for oq in open_questions | default([]) %}
+- {{ oq }}
+{% endfor %}

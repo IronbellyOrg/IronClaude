@@ -1,0 +1,16 @@
+{
+  "fixture": "threshold_registry/convergence_threshold_drift_case",
+  "source_authority": {
+    "master_recurrence_row": 7,
+    "partition_findings": ["A1b:F-A1b-002", "A10:F-A10-003"],
+    "incident_summary": "Convergence-threshold drift: sibling skills carried divergent local copies of the (high, low) convergence pair — release-split used 0.7/0.5 while sc:roadmap used 0.6/0.5 (A10:F-A10-003), with no single source of truth so the drift was invisible until a release shipped at a threshold one skill passed and the other failed. Contract #8: the pair lives only in superclaude.contracts.CONVERGENCE_THRESHOLDS; a duplicate definition outside contracts is an arch-lint name-rebind violation."
+  },
+  "verified_component": "superclaude.tools.arch_lint.scan_file",
+  "canonical_constant": "CONVERGENCE_THRESHOLDS",
+  "canonical_owner": "src/superclaude/contracts/__init__.py",
+  "pre_fix_expected_violation_count": 1,
+  "pre_fix_expected_violation_kind": "name-rebind",
+  "pre_fix_expected_violation_name": "CONVERGENCE_THRESHOLDS",
+  "post_fix_expected_violation_count": 0,
+  "expected_contract_8_invariant": "MUST FAIL pre-fix (a sibling-skill module re-declares CONVERGENCE_THRESHOLDS as a local literal — arch-lint emits exactly one name-rebind violation), MUST PASS post-fix (the module imports CONVERGENCE_THRESHOLDS from superclaude.contracts instead of redefining it — arch-lint emits zero violations)."
+}

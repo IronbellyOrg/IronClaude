@@ -1,0 +1,72 @@
+card_version: "1.0"
+mode: post
+tier: 1
+agent_role: orchestrator-inline (T1 hard override)
+formation_context: |
+  Tier-1 grounded reflection on commit daa10416 (R1.1 of TASK-RF-20260531-042405).
+  Driving spec: BUILD-REQUEST §R1.1 + §MVR §5 + §Contract item #8.
+  Diff: 8 files, +406/-28. rf-qa task-integrity gate (PG6.1) returned PASS on
+  this exact commit's worktree state (verdict report at
+  phase-outputs/reviews/r1-1-rf-qa-task-integrity.md — 7/7 checks clean,
+  0 fixes, 0 cycles).
+
+# 5-dimension self-grading (refs/reflection-rubric.md)
+self_grading:
+  citation_grounding:
+    score: 5
+    rationale: |
+      Every claim in spec-vs-diff-map.yaml cites a real file:line in commit
+      daa10416. All 17 citations re-validated via Wave 5 re-Read pass below.
+  coverage_completeness:
+    score: 5
+    rationale: |
+      All 3 spec items (R1.1-A RETURN_CONTRACTS, R1.1-B threshold registry,
+      R1.1-C arch-lint coverage) have at least 1 delivery-evidence row.
+      Zero unmapped diff hunks.
+  deviation_classification_clarity:
+    score: 5
+    rationale: |
+      Per §10 taxonomy:
+        - 0 Regression
+        - 0 Drift
+        - 1 Necessary deviation (R1.1-B-Scope-Boundary, with §Scope citation)
+        - 1 Authorized expansion (Phase 6 D3, with rf-qa verdict citation)
+      All four §10.5 precedence buckets explicitly considered; no ambiguous-
+      class hunks routed to grounding-gaps.yaml.
+  risk_surface_coverage:
+    score: 4
+    rationale: |
+      Considered: hashability invariant (verified by test), regression in
+      consumer behavior (preserved — defaults still resolve to 0.7/0.5),
+      PRESERVE invariants (empty diff per git), Contract #5 zero new stubs
+      (per-file return-True count delta == 0 per rf-qa). One risk surface NOT
+      independently verified: the THRESHOLDS module-load semantics — function
+      default-arg form `f(x: float = THRESHOLDS["..."])` evaluates the
+      subscript at module load, not per-call. This is correct Python
+      semantics but no test explicitly verifies the value is bound at
+      load-time (vs. lazy via lambda). Inline AST sentinel test catches
+      re-inlining but not late-binding mistakes. Score 4 (not 5) reflects
+      this gap.
+  recommendation_actionability:
+    score: 4
+    rationale: |
+      Two OQs surfaced (rf-qa OQ-1 type-drift, OQ-2 list/tuple serialization)
+      with concrete next-actions (where to harden, when to revisit). No
+      Critical/High remediation needed. Recommendation: PROCEED to Phase 7.
+      Not score 5 because R1.1-B-Scope-Boundary classification depends on
+      reader's interpretation of "every numeric threshold" — the rationale
+      cites §Scope but a stricter reader could classify as Drift.
+
+# Mean across 5 dimensions
+mean_score: 4.6
+calibrated_confidence: 0.92   # see calibration block below
+
+# Asymmetric-cost flags
+flags:
+  cannot_validate_without_user_input: false
+  regression_present: false
+  unauthorized_deviation_present: false
+  blocked_by_low_confidence: false
+  spec_is_wrong: false
+  user_decision_required: false
+  needs_human_decision: false

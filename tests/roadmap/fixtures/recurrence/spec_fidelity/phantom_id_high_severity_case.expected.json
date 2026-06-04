@@ -1,0 +1,24 @@
+{
+  "fixture": "spec_fidelity/phantom_id_high_severity_case",
+  "source_authority": {
+    "master_recurrence_row": 1,
+    "partition_findings": ["A4:F-A4-005", "A12:F-A12-01"],
+    "incident_summary": "Spec-fidelity LLM-only / non-deterministic / phantom-ID gate: 5 runs on identical input produced 4 distinct HIGH counts (A4:F-A4-005); TUIBBS v1-MVP produced 54 phantom_id HIGH findings from the lenient D-family extractor vs strict comparator (A12:F-A12-01). Contract #4/#9 replaces LLM-judged severity with a deterministic roadmap_ids subset-of spec_ids union accepted_deviations containment check that runs before any severity classification."
+  },
+  "spec_section_heading": "spec",
+  "roadmap_section_heading": "roadmap",
+  "expected_spec_ids": {
+    "fr_ids": ["FR-1", "FR-2"],
+    "nfr_ids": ["NFR-1"],
+    "sc_ids": ["SC-1"],
+    "g_ids": ["G-1"],
+    "d_ids": ["D1", "D3"],
+    "md_ids": []
+  },
+  "expected_phantom_violations": ["D-1", "D5", "FR-3", "NFR-2", "SC-2"],
+  "expected_semantic_check_result_type": "str",
+  "expected_failure_substring": "Contract #9: roadmap contains 5 IDs not in spec",
+  "expected_contains_fr_1": true,
+  "expected_contains_fr_3": false,
+  "expected_contract_4_invariant": "MUST FAIL pre-fix (LLM-judged severity emitted a non-deterministic HIGH count on phantom IDs, with the binary high_severity_count==0 halt unable to distinguish fabricated IDs from LLM variance), MUST PASS post-fix (the deterministic _roadmap_ids_within_spec containment check identically reports the same 5 surface-form phantom IDs on every run, before any severity step)."
+}

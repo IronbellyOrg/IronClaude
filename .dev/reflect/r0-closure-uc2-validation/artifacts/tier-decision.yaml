@@ -1,0 +1,34 @@
+tier_decision_version: "1.0"
+selected_tier: 1   # T1 with explicit regression escalation override (see below)
+fired_rule_number: 3   # §5.3 rule 3: UC-2 AND any single hunk classified as Regression candidate
+escalation_reason: "regression_candidate_requires_debate"
+
+# Structural signals from Wave 1B
+S_scope: 29
+S_domains: 1
+S_dev_density: 0.024
+coverage_pct: 0.976
+coverage_undefined: false
+regression_candidate_count: 1
+
+# Calibration
+calibrated_confidence: 0.87   # high overall, but explicit regression finding pulls below T1-only threshold
+
+# Composite recording
+composite_score: 6.5
+per_signal_breakdown:
+  scope_size: 2   # 29 files exceeds rule-1 ≤5 ceiling
+  task_count: 1
+  blast_radius: 2   # test-fixture regression has pipeline-wide blast
+  spec_density: 0  # all R0 spec items mapped
+  ambiguity_signals: 1.5  # MERGE_GATE fail-shut interaction with test fixtures was missed by all 5 inline rf-qa runs
+
+# Tier 2 was warranted under rule 3 but executed inline within this single UC-2 agent
+# (no parallel reviewers spawned). The findings below are calibrated against the
+# heterogeneous-reviewer requirement by independent re-Read of every cited file:line
+# and end-to-end empirical probes (synthetic violator, pytest diff parent vs head).
+tier_2_executed: inline   # documented limitation — sufficiency claim is CONDITIONAL per §11.0
+
+degraded_components:
+  - "tier_2_parallel_reviewers"   # single-agent run; no parallel haiku/sonnet/opus fan-out
+  - "vendor_heterogeneity"        # all aliases are Anthropic (single vendor)

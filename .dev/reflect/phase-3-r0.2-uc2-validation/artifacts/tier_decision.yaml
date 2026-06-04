@@ -1,0 +1,25 @@
+wave: 2
+rule_fired: "§5.3 rule 1 — narrow scope, single domain, zero regression candidates per inline rf-qa"
+tier_reached: T1
+escalate_to_T2: false
+rationale: |
+  Scope is narrow (1 source module + 4 fixtures + 1 new test file + 3
+  fixture retargets in 1 existing test file). Single domain (anti-instinct
+  vocab-lint, Layer 6 only). The inline rf-qa report classifies as 0
+  CRITICAL / 0 IMPORTANT / 1 MINOR informational. PRESERVE-target byte-
+  equality is mechanically verified (4 files, 0 lines changed). All 7
+  Contract #10 invariant tests pass plus the 4 pre-existing
+  test_obligation_scanner*.py files (127 passed, 1 skipped). T1 grounded
+  reflection is sufficient.
+
+  The T1-STOP recommendation is conditional on the UC-2 reflection
+  surfacing zero new CRITICAL findings. This reflection surfaces ONE new
+  MEDIUM finding (substring-match false-negative risk) but classifies it
+  as a Necessary-Deviation tradeoff inherent to a substring allowlist,
+  not a regression. T1-STOP holds.
+escalation_triggers_evaluated:
+  - "Multi-domain change?": no — Layer 6 only.
+  - "Architecture-shaping decision?": no — module-local frozenset with documented R1.3 hoist path.
+  - "Critical-path safety claim?": no — claim is "absorbs 3 documented FPs", proven by test.
+  - "Inline rf-qa surfaced disagreement?": no — PASS.
+  - "Net-new critical finding from this reflection?": no (MEDIUM only).

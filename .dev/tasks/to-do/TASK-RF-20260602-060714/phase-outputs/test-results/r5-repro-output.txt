@@ -1,0 +1,9 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+total findings: 0
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+spec extract: {'D': ['D01']}
+road extract: {'D': ['D01', 'D02', 'D03']}
+total findings: 2
+HIGH phantom_id count: 2
+  rule_id=phantom_id severity=HIGH roadmap_quote='D02' spec_quote='[MISSING]'
+  rule_id=phantom_id severity=HIGH roadmap_quote='D03' spec_quote='[MISSING]'

@@ -1,0 +1,10 @@
+{
+  "fixture": "deferred/truncation_no_detection_case",
+  "source_authority": {
+    "master_recurrence_row": 20,
+    "partition_findings": ["A11:F-A11-005", "A12:F-A12-12"],
+    "incident_summary": "One-shot stdout capture truncated at the 64k token cap with no truncation detection and no template enforcement, yielding 49% fewer tasks on TDD+PRD vs spec-only (A11:F-A11-005); corrected RCA was a format artifact plus no phase-count floor (A12:F-A12-12)."
+  },
+  "deferred": true,
+  "reason": "Telemetry/truncation DEFER. One-shot stdout/64k truncation is a transport/harness concern; R1.4 tool-write mitigates the truncation class structurally (incremental tool-write instead of one-shot stdout) but there is no roadmap-scanner fixture input that reproduces it, so no verifiable expected values are constructible."
+}
