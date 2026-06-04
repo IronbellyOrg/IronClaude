@@ -1436,7 +1436,17 @@ def _poll_with_stall_watchdog(
     last_size = _size()
     last_progress = time.monotonic()
     acted = False
-    while underlying.poll() is None:
+    # M2: bound the poll loop by an absolute wall-clock ceiling so that in the
+    # default "warn" mode a child that never produces output and never exits
+    # cannot spin forever. The ceiling is the proc's own per-task timeout budget
+    # (proc.timeout_seconds == max_turns * 120 + 300), the same value proc.wait()
+    # enforces — so when it trips the loop falls through to the bounded wait
+    # below, which kills the child and returns 124 on TimeoutExpired. getattr with
+    # a finite fallback keeps the duck-typed proc contract (some callers may pass
+    # a proc without timeout_seconds).
+    loop_started = time.monotonic()
+    ceiling = getattr(proc, "timeout_seconds", 3600)
+    while underlying.poll() is None and (time.monotonic() - loop_started) < ceiling:
         time.sleep(poll_interval)
         cur = _size()
         if cur != last_size:
@@ -1515,9 +1525,18 @@ def _run_task_subprocess(
     # RC.2: per-task wait now runs under the stall watchdog (was a bare wait, so a
     # hung per-task process was never detected). Each call has its OWN timer, so
     # under K>1 every parallel worker is independently watched (RC.3).
-    _poll_with_stall_watchdog(
-        proc, config, output_path=config.task_output_file(phase, task)
-    )
+    # M1: if the poll is interrupted (e.g. KeyboardInterrupt) before the watchdog
+    # reaches its internal proc.wait(), the file handles opened by start() would
+    # leak. terminate() reaps a still-running child AND closes handles (it is
+    # idempotent / safe on an already-exited child); re-raise to preserve the
+    # original failure semantics.
+    try:
+        _poll_with_stall_watchdog(
+            proc, config, output_path=config.task_output_file(phase, task)
+        )
+    except BaseException:
+        proc.terminate()
+        raise
     exit_code = proc._process.returncode if proc._process else -1
     output_path = config.task_output_file(phase, task)
     output_bytes = output_path.stat().st_size if output_path.exists() else 0

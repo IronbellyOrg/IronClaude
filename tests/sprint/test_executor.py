@@ -1963,3 +1963,53 @@ def test_run_task_subprocess_uses_task_output_file(tmp_path):
         f"Expected canonical timeout {config.max_turns * 120 + 300}, "
         f"got {captured.get('timeout_seconds')}"
     )
+
+
+@pytest.mark.unit
+def test_run_task_subprocess_closes_handles_when_poll_raises(tmp_path):
+    """M1 — when the per-task poll is interrupted (e.g. KeyboardInterrupt) before
+    the watchdog reaches its internal proc.wait(), cleanup (terminate -> close
+    handles) MUST still run, and the exception MUST re-propagate (no swallow, so
+    KeyboardInterrupt still aborts the sprint).
+    """
+    from unittest.mock import MagicMock, patch
+
+    from superclaude.cli.sprint.executor import _run_task_subprocess
+
+    config = _make_config(tmp_path, num_phases=1)
+    phase = config.phases[0]
+    task = TaskEntry(task_id="T01.01", title="x", description="d")
+
+    def capture_init(self, **kwargs):
+        self._process = MagicMock(returncode=None)  # still "running"
+        self._stdout_fh = None
+        self._stderr_fh = None
+
+    config.results_dir.mkdir(parents=True, exist_ok=True)
+    config.task_output_file(phase, task).write_text("")
+
+    terminate_called = []
+    with (
+        patch(
+            "superclaude.cli.pipeline.process.ClaudeProcess.__init__",
+            new=capture_init,
+        ),
+        patch(
+            "superclaude.cli.pipeline.process.ClaudeProcess.start",
+            return_value=None,
+        ),
+        patch(
+            "superclaude.cli.pipeline.process.ClaudeProcess.terminate",
+            side_effect=lambda *a, **k: terminate_called.append(True),
+        ),
+        patch(
+            "superclaude.cli.sprint.executor._poll_with_stall_watchdog",
+            side_effect=KeyboardInterrupt,
+        ),
+    ):
+        with pytest.raises(KeyboardInterrupt):
+            _run_task_subprocess(task, config, phase)
+
+    assert terminate_called, (
+        "cleanup (terminate) did not run on the exception path (M1)"
+    )

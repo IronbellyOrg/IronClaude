@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from superclaude.cli.sprint.handoff import FileHandoffStore
 from superclaude.cli.sprint.models import (
     GateOutcome,
@@ -89,3 +91,26 @@ def test_write_leaves_no_tmp_file(tmp_path: Path) -> None:
     handoff_dir = config.results_dir / "handoff"
     leftover = list(handoff_dir.glob("*.tmp"))
     assert leftover == [], f"atomic write left a temp file behind: {leftover}"
+
+
+@pytest.mark.unit
+def test_read_corrupt_handoff_returns_none(tmp_path: Path) -> None:
+    """M3: a corrupt/unparseable handoff file must degrade to ``None`` (== absent),
+    not raise — both resume call sites treat ``None`` as "re-run the task"."""
+    config = _config(tmp_path)
+    phase = config.phases[0]
+    task = TaskEntry(task_id="T01.01", title="t")
+    store = FileHandoffStore(config)
+
+    corrupt_inputs = [
+        '{"task_id": "T01.01", "phase": 1, ',  # truncated JSON
+        "",  # empty file
+        "not json at all",  # non-JSON garbage
+    ]
+    for raw in corrupt_inputs:
+        path = config.handoff_file(phase, task)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(raw)
+        assert store.read(phase=phase, task=task) is None, (
+            "corrupt handoff must degrade to None, not raise (M3)"
+        )
