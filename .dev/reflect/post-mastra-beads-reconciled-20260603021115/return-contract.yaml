@@ -1,0 +1,54 @@
+contract_version: "1.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-mastra-beads-reconciled-20260603021115/REPORT.md
+audit_log_path: .dev/reflect/post-mastra-beads-reconciled-20260603021115/audit.log
+confidence_calibrated: 0.84
+escalation_rule_matched: 1  # --depth deep hard override (§5.1)
+
+# UC-2 (document-artifact review)
+artifact_under_review: .dev/releases/backlog/mastra-beads-port-feasibility/reconciliation/reconciled-recommendation.md
+driving_spec: .dev/releases/backlog/mastra-beads-port-feasibility/seed-brief.md
+tasklist_completion_pct: null  # not a tasklist; document artifact
+coverage_pct_vs_brief: 0.90    # core brief asks covered; gaps in multi-tool output-equivalence + tenancy-isolation design
+
+deviation_count_by_class:
+  authorized: 0
+  necessary: 4   # multi-tool Phase-0 scoping, RBAC-as-procurement decision, DEFER-vs-conditional-go reframe, Beads v1 drop
+  drift: 6        # cross-model equivalence gap, tenant-isolation+MCP-security ungated, V/C/L/R false precision, gate-coupling (INV-003/011), Phase-4 dangling gate, strata-LOC rigor
+  regression: 0   # nothing contradicts a brief acceptance criterion
+
+# Hallucination guard / evidence-validator
+citations_total: 16          # load-bearing file:line + LOC + invariant-probe citations re-verified
+citations_revalidated: 16
+citations_dropped: 0          # all FINAL-REPORT citations survived re-Read
+citations_inferred: 2
+reviewer_findings_dropped: 1  # R2 HIGH#1 (0.93 convergence misread) dropped at evidence gate
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+
+# Tier 2 ensemble
+reviewer_models: [sonnet, haiku, opus]
+reviewer_personas: [analyzer/root-cause, qa/fault-finder, architect]
+t2_model_class_diversity: full      # 3 distinct classes spawned
+t2_vendor_diversity: multi          # CORRECTED 2026-06-03 (was: single). Execution-confirmed via LiteLLM spend differential: model:sonnet→gpt-5.5 (OpenAI), model:haiku→qwen3.6-plus (Qwen), opus→claude — genuinely multi-vendor. Prior `single` was an UNVERIFIED self-report grounded on a stale discovery cache; refuted by /sc:troubleshoot probe. See .dev/troubleshoot/model-routing-reflect-vendor-20260603031500/REPORT.md
+t2_vendor_diversity_source: execution-confirmed
+t2_effective_diversity: full        # CORRECTED 2026-06-03 (was: model-only)
+calibrator_diversity: degraded      # no 4th class available for disjoint-set calibrator; inline calibration
+merge_method: inline-synthesis      # sc-adversarial not invoked; 3-card inline merge + evidence gate
+adversarial_unavailable: false
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: true          # several HIGH gaps are author-judgment calls (block DEFER posture or accept as Phase-0-gated?)
+user_decision_required: false
+
+# Citation re-verification headline
+load_bearing_code_citations: "6/6 DEFER-flip citations + all LOC arithmetic INDEPENDENTLY RE-CONFIRMED"
+
+# Promotion (Wave 7)
+promotion_action: not-applicable    # backlog document, not a .dev/tasks/to-do or .dev/releases/current work-unit
+promotion_adapter: none
