@@ -1,0 +1,53 @@
+contract_version: "1.2.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/reflect/pre-TASK-RF-20260604-042055-20260604/REPORT.md
+confidence_calibrated: 0.88
+escalation_rule_matched: 8   # default STOP at T1 (no regression candidate, single domain, coverage >= floor)
+
+# UC-1 specific
+coverage_pct: 0.97
+coverage_undefined: false
+unmapped_requirements:
+  - "Proposal-1 §5.4 bounded ±4-TCS S2 inference + tcs_boundary_inference sign-off field (ambiguous scope; not in §8 checklist)"
+best_practice_grade: 5
+
+# Findings
+findings:
+  - id: F1
+    severity: medium
+    class: fidelity-drift
+    summary: "S4 trim is a substitution (depends on N\\.\\d+ -> depends_on:), presented as a pure subtraction"
+    evidence: ".dev/proposals/reflect-in-task-builder.md:111 vs TASK-RF-20260604-042055.md:69 + Steps 2.12/2.13"
+    blocking: false
+  - id: F2
+    severity: low-medium
+    class: coverage-accepted-limitation
+    summary: "Dogfood POST --spec covers Proposal 1 only; Phase-3 (Proposal 2) edits get no UC-2 spec-coverage"
+    evidence: "TASK-RF-20260604-042055.md:336; reflect --spec is single-path"
+    blocking: false
+  - id: F3
+    severity: low
+    class: coverage-ambiguous-scope
+    summary: "Proposal §5.4 bounded-inference rule + tcs_boundary_inference field not explicitly required by Step 2.12"
+    evidence: "TASK-RF-20260604-042055.md Step 2.12 vs reflect-in-task-builder.md §5.4"
+    blocking: false
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false   # Tier-1 inline re-Read; native-tools grounding this session
+needs_human_decision: false
+
+# Grounding
+degraded_components: ["evidence-validator-agent", "tier2-ensemble"]   # T1 inline pass; no escalation triggered
+grounding_gaps_path: null
+
+# Tier 2 (not run)
+reviewer_cards: []
+adversarial_unavailable: false
+t2_model_class_diversity: full   # n/a (T1)

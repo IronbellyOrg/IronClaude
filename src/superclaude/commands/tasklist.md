@@ -19,8 +19,8 @@ When the user requests roadmap-to-tasklist conversion, sprint planning from a ro
 
 ## Usage
 
-```
-/sc:tasklist <roadmap-path> [--spec <spec-path>] [--output <output-dir>]
+```text
+/sc:tasklist <roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]
 ```
 
 Both `@file` syntax and explicit file paths are supported for `<roadmap-path>` and `--spec`.
@@ -36,6 +36,7 @@ Transforms a roadmap into a Sprint CLI-compatible multi-file tasklist bundle. Th
 | `<roadmap-path>` | Yes | -- | Path to roadmap file. Accepts `@file` reference or explicit path. |
 | `--spec <spec-path>` | No | -- | Supplementary spec/context file for additional generation context. |
 | `--output <output-dir>` | No | Auto-derived from roadmap `TASKLIST_ROOT` | Output directory for the tasklist bundle. |
+| `--no-reflect` | No | off (false) | Escape hatch: skip both reflect gates (pre-reflect sign-off + templated post-reflect task). Set automatically by `--dry-run`. |
 
 ### TASKLIST_ROOT Auto-Derivation
 
@@ -51,7 +52,7 @@ Before invoking the skill, the command validates all inputs. On any validation f
 
 **Error format** (2 fields):
 
-```
+```text
 error_code: <category string>
 message: <human-readable description with corrective action>
 ```

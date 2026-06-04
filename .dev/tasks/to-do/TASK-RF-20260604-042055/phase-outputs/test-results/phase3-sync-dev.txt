@@ -1,0 +1,14 @@
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:    25 directories
+   Agents:    38 files
+   Commands:  41 files
+   Hooks:     12 files
+   Templates: 15 files
+
+--- PROVENANCE NOTE (Step 3.15) ---
+make verify-sync = "All components in sync" (exit 0). All four edited files synced:
+  src/superclaude/commands/tasklist.md -> .claude/commands/sc/tasklist.md
+  src/superclaude/skills/sc-tasklist-protocol/SKILL.md -> .claude/.../SKILL.md
+  templates/phase-template.md + index-template.md synced as part of the skill copy.
+The .claude/ mirrors are gitignored sync-dev output and MUST NEVER be staged.

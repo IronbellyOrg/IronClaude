@@ -1,0 +1,470 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collected 1297 items
+
+tests/audit/test_ac_validation.py ...................................... [  2%]
+..                                                                       [  3%]
+tests/audit/test_agent_regression.py ................................... [  5%]
+.......                                                                  [  6%]
+tests/audit/test_already_tracked.py .......                              [  6%]
+tests/audit/test_anti_lazy.py ........                                   [  7%]
+tests/audit/test_artifact_emitter.py ...........                         [  8%]
+tests/audit/test_auto_config.py ...........                              [  9%]
+tests/audit/test_axis_column_populated.py ..........                     [  9%]
+tests/audit/test_batch_decomposer.py ...............                     [ 11%]
+tests/audit/test_batch_retry.py ...........                              [ 11%]
+tests/audit/test_benchmark.py .........                                  [ 12%]
+tests/audit/test_budget.py .............................                 [ 14%]
+tests/audit/test_budget_caveat.py ......                                 [ 15%]
+tests/audit/test_checkpoint.py ......                                    [ 15%]
+tests/audit/test_classification.py ..............                        [ 16%]
+tests/audit/test_concurrent_isolation.py ........                        [ 17%]
+tests/audit/test_consolidation.py ............                           [ 18%]
+tests/audit/test_coverage.py .......                                     [ 18%]
+tests/audit/test_credential_scanner.py ..............                    [ 20%]
+tests/audit/test_dead_code.py ........                                   [ 20%]
+tests/audit/test_dependency_graph.py ..........                          [ 21%]
+tests/audit/test_dir_assessment.py ............                          [ 22%]
+tests/audit/test_dnsp_all_agents_fail_bypass.py ........................ [ 24%]
+..........................                                               [ 26%]
+tests/audit/test_dnsp_dedup_collapse.py .......................          [ 27%]
+tests/audit/test_dnsp_does_not_serialize_cohort.py ..................... [ 29%]
+...........                                                              [ 30%]
+tests/audit/test_dnsp_twice_exhaust.py ................................. [ 32%]
+.                                                                        [ 33%]
+tests/audit/test_docs_audit.py .............                             [ 34%]
+tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py .........  [ 34%]
+tests/audit/test_dry_run.py ............                                 [ 35%]
+tests/audit/test_duplication.py .........                                [ 36%]
+tests/audit/test_dynamic_enumeration_inv_010.py .......s...............  [ 38%]
+tests/audit/test_dynamic_imports.py ............                         [ 39%]
+tests/audit/test_env_matrix.py ................                          [ 40%]
+tests/audit/test_escalation.py ............                              [ 41%]
+tests/audit/test_eval_wiring_multifile.py .........                      [ 41%]
+tests/audit/test_evidence_bound_tb_add_8.py ..........                   [ 42%]
+tests/audit/test_execution_context_full.py .....                         [ 43%]
+tests/audit/test_execution_context_minimal_buildrequest.py ......        [ 43%]
+tests/audit/test_execution_context_no_file_paths.py .....                [ 43%]
+tests/audit/test_filetype_rules.py ......................                [ 45%]
+tests/audit/test_five_axes_overlay.py ..........                         [ 46%]
+tests/audit/test_full_docs_audit.py ...................                  [ 47%]
+tests/audit/test_gitignore_checker.py ........                           [ 48%]
+tests/audit/test_hidden_input_guard.py .......................           [ 50%]
+tests/audit/test_inherited_verdict_freshness_inv_002.py ................ [ 51%]
+........                                                                 [ 52%]
+tests/audit/test_inherited_verdict_present.py ...........                [ 52%]
+tests/audit/test_invariant_preservation_NFR_6_through_10.py ...........F [ 53%]
+.......                                                                  [ 54%]
+tests/audit/test_known_issues.py ............                            [ 55%]
+tests/audit/test_known_issues_lifecycle.py ............                  [ 56%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py ..............FEEEE.       [ 57%]
+tests/audit/test_nfr_conv_6_self_contained.py ..........                 [ 58%]
+tests/audit/test_nfr_conv_9_zero_trust.py .............................. [ 60%]
+.....                                                                    [ 61%]
+tests/audit/test_profile_generator.py .................                  [ 62%]
+tests/audit/test_profiler.py .............................               [ 64%]
+tests/audit/test_regression_halt_pass1_fail2.py ..................FFEEEE [ 66%]
+E..                                                                      [ 66%]
+tests/audit/test_report_completeness.py ...........                      [ 67%]
+tests/audit/test_report_depth.py ..................                      [ 69%]
+tests/audit/test_report_limitations.py .......                           [ 69%]
+tests/audit/test_resume.py .......                                       [ 70%]
+tests/audit/test_scanner_schema.py .............                         [ 71%]
+tests/audit/test_self_audit_inv_019.py ........................          [ 73%]
+tests/audit/test_sequencing_PR06_before_PR04.py ........................ [ 74%]
+.....                                                                    [ 75%]
+tests/audit/test_severity_floor_unweakened.py ........                   [ 75%]
+tests/audit/test_slow_shrink_continues.py ..............FEEEEE           [ 77%]
+tests/audit/test_spot_check.py ..........                                [ 78%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py ................ [ 79%]
+..FFEEEEEEE                                                              [ 80%]
+tests/audit/test_tiered_keep.py .............                            [ 81%]
+tests/audit/test_tool_orchestrator.py ................                   [ 82%]
+tests/audit/test_validation.py .........                                 [ 83%]
+tests/audit/test_validation_output.py ........                           [ 83%]
+tests/audit/test_wiring_analyzer.py ...................                  [ 85%]
+tests/audit/test_wiring_gate.py ........................................ [ 88%]
+.......................................                                  [ 91%]
+tests/audit/test_wiring_integration.py ....                              [ 91%]
+tests/skills/test_task_builder_merge.py ................................ [ 94%]
+....................................                                     [ 96%]
+tests/sprint/test_checkpoints.py ....................................... [100%]
+
+==================================== ERRORS ====================================
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_halts_byte_exact _
+tests/audit/test_monotonicity_halt_F_5_5_5.py:107: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0056/fixture-F-5-5-5-halt-cycle-2.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_has_no_cycle_3 _
+tests/audit/test_monotonicity_halt_F_5_5_5.py:107: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0056/fixture-F-5-5-5-halt-cycle-2.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_ordering_regression_then_monotonicity _
+tests/audit/test_monotonicity_halt_F_5_5_5.py:107: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0056/fixture-F-5-5-5-halt-cycle-2.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_runtime_and_canonical_halt_strings_match _
+tests/audit/test_monotonicity_halt_F_5_5_5.py:107: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0056/fixture-F-5-5-5-halt-cycle-2.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_shrinking_halt_byte_exact _
+tests/audit/test_regression_halt_pass1_fail2.py:167: in canonical_shrinking_text
+    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-shrinking.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_non_shrinking_halt_byte_exact _
+tests/audit/test_regression_halt_pass1_fail2.py:172: in canonical_non_shrinking_text
+    return CANONICAL_LOG_NON_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-non-shrinking.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_no_monotonicity_halt_in_either_fixture _
+tests/audit/test_regression_halt_pass1_fail2.py:167: in canonical_shrinking_text
+    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-shrinking.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_no_cycle_3_in_either_fixture _
+tests/audit/test_regression_halt_pass1_fail2.py:167: in canonical_shrinking_text
+    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-shrinking.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_runtime_and_canonical_halt_strings_match _
+tests/audit/test_regression_halt_pass1_fail2.py:167: in canonical_shrinking_text
+    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-shrinking.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_has_no_halt __
+tests/audit/test_slow_shrink_continues.py:172: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0060/fixture-slow-shrink-F-5-4.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_has_cycle_3 __
+tests/audit/test_slow_shrink_continues.py:172: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0060/fixture-slow-shrink-F-5-4.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_no_monotonicity_token _
+tests/audit/test_slow_shrink_continues.py:172: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0060/fixture-slow-shrink-F-5-4.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_monotonicity_proceeds_at_transition_1_2 _
+tests/audit/test_slow_shrink_continues.py:172: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0060/fixture-slow-shrink-F-5-4.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_log_proceed_respawn_at_transition_1_2 _
+tests/audit/test_slow_shrink_continues.py:172: in canonical_log_text
+    return CANONICAL_LOG.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0060/fixture-slow-shrink-F-5-4.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_shrinking_log_has_no_halt _
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:214: in canonical_shrinking_text
+    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-shrinking.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_shrinking_log_has_cycle_3 _
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:214: in canonical_shrinking_text
+    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-shrinking.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_non_shrinking_halt_byte_exact _
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:219: in canonical_non_shrinking_text
+    return CANONICAL_LOG_NON_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-non-shrink.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_non_shrinking_log_no_regression_halt _
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:219: in canonical_non_shrinking_text
+    return CANONICAL_LOG_NON_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-non-shrink.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_non_shrinking_log_no_cycle_3 _
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:219: in canonical_non_shrinking_text
+    return CANONICAL_LOG_NON_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-non-shrink.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_runtime_and_canonical_non_shrink_halt_match _
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:219: in canonical_non_shrinking_text
+    return CANONICAL_LOG_NON_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-non-shrink.log'
+_ ERROR at setup of TestCanonicalFixtureParity.test_canonical_shrinking_log_monotonicity_proceeds _
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:214: in canonical_shrinking_text
+    return CANONICAL_LOG_SHRINKING.read_text(encoding="utf-8")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: '/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-shrinking.log'
+=================================== FAILURES ===================================
+___ TestInvariant3_PersistentArtifact.test_task_id_naming_pattern_preserved ____
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:334: in test_task_id_naming_pattern_preserved
+    assert not bad, (
+E   AssertionError: NFR-CONV.8 persistent-.dev/tasks/-artifact: task-id naming pattern drifted; non-matching dirs: ['TASK-STDIN-RECON-REMEDIATION-20260501', 'TASK-RF-merge-prompt-wiring-directive-20260525-160000', 'TASK-RF-OVM-VERIFICATION-GAP-CLOSURE-20260531-040500', 'TASK-RF-BRV-MG-IMPLEMENT-20260531-184500', 'TASK-RF-phase-maxturns-falseneg-20260603-003834']
+E   assert not ['TASK-STDIN-RECON-REMEDIATION-20260501', 'TASK-RF-merge-prompt-wiring-directive-20260525-160000', 'TASK-RF-OVM-VERIFI...00', 'TASK-RF-phase-maxturns-falseneg-20260603-003834', 'TASK-RF-track-1-change-a-rubric-formula-20260527-044000', ...]
+____________ TestCanonicalFixtureParity.test_canonical_log_present _____________
+tests/audit/test_monotonicity_halt_F_5_5_5.py:312: in test_canonical_log_present
+    assert CANONICAL_LOG.is_file(), (
+E   AssertionError: D-0056 canonical fixture missing at /config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0056/fixture-F-5-5-5-halt-cycle-2.log — T05.03 evidence pack regressed
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0056/fixture-F-5-5-5-halt-cycle-2.log').is_file
+_______ TestCanonicalFixtureParity.test_canonical_shrinking_log_present ________
+tests/audit/test_regression_halt_pass1_fail2.py:423: in test_canonical_shrinking_log_present
+    assert CANONICAL_LOG_SHRINKING.is_file(), (
+E   AssertionError: D-0057 shrinking fixture missing at /config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-shrinking.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-shrinking.log').is_file
+_____ TestCanonicalFixtureParity.test_canonical_non_shrinking_log_present ______
+tests/audit/test_regression_halt_pass1_fail2.py:428: in test_canonical_non_shrinking_log_present
+    assert CANONICAL_LOG_NON_SHRINKING.is_file(), (
+E   AssertionError: D-0057 non-shrinking fixture missing at /config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-non-shrinking.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0057/fixture-pass1-fail2-non-shrinking.log').is_file
+____________ TestCanonicalFixtureParity.test_canonical_log_present _____________
+tests/audit/test_slow_shrink_continues.py:372: in test_canonical_log_present
+    assert CANONICAL_LOG.is_file(), (
+E   AssertionError: D-0060 canonical fixture missing at /config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0060/fixture-slow-shrink-F-5-4.log — T05.08 evidence pack regressed
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0060/fixture-slow-shrink-F-5-4.log').is_file
+_______ TestCanonicalFixtureParity.test_canonical_shrinking_log_present ________
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:453: in test_canonical_shrinking_log_present
+    assert CANONICAL_LOG_SHRINKING.is_file(), (
+E   AssertionError: D-0059 shrinking fixture missing at /config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-shrinking.log — T05.07 evidence pack regressed
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-shrinking.log').is_file
+_____ TestCanonicalFixtureParity.test_canonical_non_shrinking_log_present ______
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py:459: in test_canonical_non_shrinking_log_present
+    assert CANONICAL_LOG_NON_SHRINKING.is_file(), (
+E   AssertionError: D-0059 non-shrinking fixture missing at /config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-non-shrink.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/releases/complete/task-builder-merge/artifacts/D-0059/fixture-cross-cycle-dedup-non-shrink.log').is_file
+=========================== short test summary info ============================
+FAILED tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant3_PersistentArtifact::test_task_id_naming_pattern_preserved
+FAILED tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_present
+FAILED tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_present
+FAILED tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_present
+FAILED tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_present
+FAILED tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_present
+FAILED tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_present
+ERROR tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_halts_byte_exact
+ERROR tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_has_no_cycle_3
+ERROR tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_ordering_regression_then_monotonicity
+ERROR tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_runtime_and_canonical_halt_strings_match
+ERROR tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_shrinking_halt_byte_exact
+ERROR tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_halt_byte_exact
+ERROR tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_no_monotonicity_halt_in_either_fixture
+ERROR tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_no_cycle_3_in_either_fixture
+ERROR tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_runtime_and_canonical_halt_strings_match
+ERROR tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_has_no_halt
+ERROR tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_has_cycle_3
+ERROR tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_no_monotonicity_token
+ERROR tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_monotonicity_proceeds_at_transition_1_2
+ERROR tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_proceed_respawn_at_transition_1_2
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_has_no_halt
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_has_cycle_3
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_halt_byte_exact
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_no_regression_halt
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_no_cycle_3
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_runtime_and_canonical_non_shrink_halt_match
+ERROR tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_monotonicity_proceeds
+============= 7 failed, 1268 passed, 1 skipped, 21 errors in 3.09s =============
