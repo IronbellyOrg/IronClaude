@@ -28,7 +28,7 @@ The research artifacts persist in the task folder under `.dev/tasks/to-do/` so f
 
 ## Input
 
-The skill needs four pieces of information to produce a well-researched task file. The first is mandatory; the rest are optional but improve output quality.
+The skill needs five pieces of information to produce a well-researched task file. The first is mandatory; the rest are optional but improve output quality.
 
 1. **GOAL — what task to build** (mandatory) — What the task file should accomplish when executed. This can be a natural language description, a structured request, or a pointer to source files/directories. Examples: "Create API documentation for all handlers", "Refactor the auth middleware and add tests", "Build a new feature for project templates".
 
@@ -37,6 +37,8 @@ The skill needs four pieces of information to produce a well-researched task fil
 3. **WHERE — source directories** (optional, saves significant research time) — Specific directories, files, or subsystems the task involves. Prevents researchers from spending time on irrelevant areas. Examples: `backend/app/api/v1/`, `frontend/app/wizard/`, `backend/app/services/auth_service.py`.
 
 4. **BUILD_REQUEST file path** (optional) — A `.md` file containing a structured build request. Used for programmatic invocation by other skills or when the request is too complex for a one-line prompt. The file should contain GOAL, WHY, OUTPUTS, CONTEXT, and optionally TEMPLATE preference.
+
+5. **--spec <path> — driving spec/PRD/TDD** (optional) — The path to the driving specification, PRD, or TDD that the task implements. When supplied it is threaded into the PRE reflect gate's coverage audit (the `--mode pre --spec <path>` call at A.10.7) and baked into the templated POST reflect item's command, so the post-execution deviation audit can check the executed work against the original spec. Resolved in priority order: explicit `--spec <path>` → an `@file` reference in the GOAL → a `SPEC:`/`PRD:`/`TDD:` field in a BUILD_REQUEST file → none. Written to the generated tasklist frontmatter as `spec_path:`. Examples: `--spec .dev/proposals/reflect-in-task-builder.md`, `--spec docs/specs/auth-system-prd.md`.
 
 ### Effective Prompt Examples
 
@@ -158,7 +160,8 @@ This skill operates in a single stage (Stage A only). Unlike the canonical docum
 10. Spawn the `rf-task-builder` agent via Agent tool with structured BUILD_REQUEST (A.9)
 11. Task file structural validation — rf-qa in task-integrity mode via Agent tool, with fix authorization (A.10)
 12. Task file qualitative validation — rf-qa-qualitative in task-qualitative mode via Agent tool, with fix authorization (A.10.5)
-13. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
+13. PRE reflect gate — spawn `/sc:reflect --mode pre` against the built tasklist (advisory-blocking sign-off; A.10.7)
+14. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
 
 If a task folder already exists for this request (from a previous session), skip to the appropriate step based on artifact state:
 
@@ -195,6 +198,7 @@ Break the user's request into structured components:
 - **WHY**: Why this task is needed (if stated)
 - **OUTPUTS**: Specific deliverables, paths, formats (if stated)
 - **CONTEXT**: Files, directories, components mentioned (if any)
+- **SPEC_PATH**: The driving spec/PRD/TDD path, resolved in priority order (explicit `--spec <path>` → an `@file` reference in GOAL → a `SPEC:`/`PRD:`/`TDD:` field in BUILD_REQUEST → none); written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` and the POST item's `{SPEC_PATH}` placeholder
 
 **Triage into Scenario A or B:**
 
@@ -846,6 +850,11 @@ Agent:
       builder violates this signal — e.g., emitting the block under SUPPRESS,
       or omitting the block under REQUIRED.]
 
+    POST_REFLECT_GATE: ENABLED
+      SPEC_PATH: <spec_path or NONE>
+      DEPTH: <max(tcs-derived depth, standard)>   # POST floor per O4 — never quick
+      TASK_FILE: ${TASK_FILE}
+
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
     claims and contradictions here. If none found, write:
@@ -1395,6 +1404,45 @@ failure_mode: halt-A.10-before-A.10.5
 - Consumer prompt: A.10.5 (this skill) + `rf-qa-qualitative.md`.
 - Future consumers of `schema_version: 1.0.0` versioning baseline: every inter-agent contract emitted by this skill after M3.
 
+### A.10.7: PRE Reflect Gate
+
+After the qualitative gate (A.10.5) passes and the DM-005 phase contract (A.10.6) is recorded, run an independent PRE reflect gate against the just-built tasklist BEFORE presenting results (A.11). This is the cheapest executor-disjoint anti-bias check: the three rf-* gates above verify the tasklist is *present and internally correct*, but they run in the same orchestrator frame and cannot confirm it is *spec-literal-correct and coverage-complete*. The gate is **advisory-blocking** — it records a sign-off verdict and may surface a remediation offer, but it NEVER auto-mutates the tasklist (per `feedback_human_decision_items_must_halt`).
+
+**Resolve depth and spec.** Compute the Tasklist Complexity Score (see `## Reflect Depth (Deterministic TCS)`) from the finished MDTM file → `pre_depth` (`quick`/`standard`/`deep`; `quick` is permitted at PRE because no diff exists yet). Resolve `spec_path` per the A.2 priority order. If no spec resolves, the gate degrades to `verdict: skipped` (UC-1 coverage is spec-dependent) and proceeds to A.11.
+
+**Spawn reflect directly.** Invoke `Skill sc:reflect-protocol` via the Agent/Task tool using the **default subagent model** (no model-routing flag), mirroring how `/sc:brainstorm` Wave 3 invokes `Skill sc-adversarial-protocol`. Pass the flag string:
+
+```text
+--mode pre --remediate
+[--spec <spec_path>]            # omitted ⇒ verdict: skipped (no-spec)
+--tasklist <TASK_FILE>
+--depth <pre_depth>            # raw TCS-derived depth; quick permitted at PRE
+--output ${TASK_DIR}reflect/pre/
+```
+
+Do **NOT** pass `--executor-model` at PRE — no executor has run in `--mode pre`, so excluding an executor class is a category error (it is a POST-only concern, see A.9 `POST_REFLECT_GATE`).
+
+**Route the verdict (advisory-blocking).** Consume reflect's return contract (`status`, `coverage_pct`, `unmapped_requirements`, `run_id`). Then:
+
+- `coverage_pct ≥ coverage-floor` (default 0.90) AND `status` not failed → stamp the sign-off block `verdict: pass` and proceed to A.11.
+- else → stamp `verdict: fail`, **additively** append the `unmapped_requirements` list to the tasklist's `### Open Questions` via Edit (NEVER rewrite or delete existing items), and carry the `--remediate` Tier-3 offer into A.11. The build still completes; the tasklist is flagged not-signed-off.
+- no spec → `verdict: skipped` (reason: no-spec); proceed (the rf-* gates remain the only coverage check).
+
+**Record the sign-off.** Add to the generated tasklist frontmatter:
+
+```yaml
+reflect_pre:
+  verdict: pass | fail | skipped
+  coverage_pct: <float | null>
+  depth: quick | standard | deep
+  tcs: <int>
+  run_id: <reflect run id>
+  report: ${TASK_DIR}reflect/pre/report.md
+  reviewed_at: <ISO-ts>
+```
+
+**Loop policy: max 0 auto-loops.** The PRE gate NEVER re-invokes the builder automatically — a `fail` verdict is surfaced for operator action only (avoiding the unattended-mutation failure mode). Reflect's findings are spec-level and may require human judgment, unlike the bounded auto-fix of the rf-* gates.
+
 ### A.11: Present Results
 
 Present the completed task file to the user with quality gate summary and execution instructions.
@@ -1415,6 +1463,10 @@ QUALITY GATES:
   Research gate: [PASS/FAIL] ([N] researchers, [N] gap-fill rounds)
   Task structural validation: [PASS/FAIL] ([N] issues fixed in-place)
   Task qualitative validation: [PASS/FAIL] ([N] issues fixed in-place)
+
+REFLECT GATES:
+  PRE  (--mode pre):  [PASS coverage=0.94 depth=standard tcs=22] | [FAIL coverage=0.71 — see Open Questions] | [SKIPPED no-spec]
+  POST (--mode post): TEMPLATED as final-phase item N.{X-1}  (operator runs /sc:reflect in a fresh session)
 
 TASK FOLDER: ${TASK_DIR}
   research/   [list each research file and its topic]
@@ -1444,11 +1496,13 @@ TO EXECUTE:
 TASK FILE: .dev/tasks/to-do/TASK-RF-track-1-YYYYMMDD-HHMMSS/TASK-RF-track-1-YYYYMMDD-HHMMSS.md
 TEMPLATE: [01/02] | ITEMS: [X] | PHASES: [N] | BATCH: [N]
 GATES: research=[PASS/FAIL] | validation=[PASS/FAIL]
+REFLECT: pre=[PASS coverage=0.94 depth=standard tcs=22 | FAIL | SKIPPED no-spec] | post=[templated as final-phase item]
 
 --- Track 2: [goal] ---
 TASK FILE: .dev/tasks/to-do/TASK-RF-track-2-YYYYMMDD-HHMMSS/TASK-RF-track-2-YYYYMMDD-HHMMSS.md
 TEMPLATE: [01/02] | ITEMS: [X] | PHASES: [N] | BATCH: [N]
 GATES: research=[PASS/FAIL] | validation=[PASS/FAIL]
+REFLECT: pre=[PASS coverage=0.94 depth=standard tcs=22 | FAIL | SKIPPED no-spec] | post=[templated as final-phase item]
 
 TASK FOLDERS:
 - .dev/tasks/to-do/TASK-RF-track-1-YYYYMMDD-HHMMSS/ (research/ + qa/)
@@ -1876,6 +1930,16 @@ assigned_to: "orchestrator"
 template_schema_doc: ".claude/templates/workflow/0[1|2]_mdtm_template_[generic|complex]_task.md"
 estimation: "[estimated duration]"
 task_type: static
+spec_path: "[driving spec/PRD/TDD path resolved at A.2, or empty if none]"
+reflect_pre:
+  verdict: pass | fail | skipped
+  coverage_pct: <float | null>
+  depth: quick | standard | deep
+  tcs: <int>
+  run_id: "[reflect run id]"
+  report: "[TASK_DIR]reflect/pre/report.md"
+  reviewed_at: "YYYY-MM-DDTHH:MM:SSZ"
+reflect_post: ""   # PENDING sentinel set by the final-phase POST reflect item; operator records {verdict, run_id, report} in a fresh session
 related_docs:
 - path: "[relevant file]"
   description: "[why it's relevant]"
@@ -1927,6 +1991,13 @@ tags:
 
 ## Phase N: [Final Phase — includes completion items]
 
+- [ ] **N.{X-1} — Independent post-execution reflection gate (fresh session, HALT)**
+  - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per project memory `feedback_sc_reflect_vs_inline_rfqa`, an independent `/sc:reflect --mode post` ensemble catches spec-literal-token, invariant-arithmetic, and integration/orphan blindspots that same-frame QA misses.
+  - **Action**: Do NOT run reflect inside this session. Write `reflect_post: PENDING` to this file's frontmatter, then STOP and surface this paste-ready command for the operator to run in a NEW session: `/sc:reflect --mode post --remediate --diff <BASE>..HEAD --tasklist {TASK_FILE} [--spec {SPEC_PATH}] --depth {DEPTH} --executor-model {EXECUTOR_CLASS}` — where `<BASE>` is the commit recorded at task start (frontmatter `start_commit`, or `git merge-base HEAD <integration>` if unset), `{DEPTH}` is floored at `standard` per O4 (the POST gate NEVER runs `--depth quick`), and the spawned reflect agent uses the default subagent model. The gate command uses `/sc:reflect` and never `/sc:task`.
+  - **Output**: Frontmatter `reflect_post: PENDING`; paste-ready `/sc:reflect --mode post` command surfaced for a fresh session.
+  - **Verification**: `reflect_post` is PENDING and the operator has the exact `/sc:reflect` command. The item does NOT self-resolve.
+  - **Completion gate**: Operator has run `/sc:reflect --mode post` in a fresh session and recorded its verdict (`reflect_post: {verdict, run_id, report}`) in frontmatter. Only THEN may the Update-status-to-Done item proceed (HALT per `feedback_human_decision_items_must_halt`).
+
 - [ ] **N.X — Update task status to Done**
   - **Context**: All phases complete.
   - **Action**: Update frontmatter: status to "🟢 Done", set completion_date.
@@ -1977,6 +2048,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - [ ] TB-Add-6: Uniform `Verify: ...` prefix and consistent Acceptance Criteria form
 - [ ] TB-Add-7: Every `## Execution Context` "Source areas:" entry reappears in at least one item Context; block contains no file:line citations (INACTIVE if no Execution Context block)
 - [ ] TB-Add-8: Every per-item Context referencing a code surface carries a file:line citation OR an `<!-- evidence-absence: ... -->` comment (PR-01 INV-015 scope-confinement)
+- [ ] POST reflect item present and positioned penultimate (immediately before Update-status-to-Done) when POST_REFLECT_GATE is ENABLED — MALFORMED if omitted
 
 ---
 
@@ -2033,7 +2105,53 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 18. **Testing in generated task files.** When the BUILD_REQUEST specifies TESTING_REQUIREMENTS other than NONE or N/A, the builder MUST encode testing checklist items in the generated task file. Testing items must specify: test file paths, test commands, coverage thresholds (if applicable), and verification that tests pass. Testing items are placed after implementation items and before QA gate items. A generated task file that requires testing items (TESTING_REQUIREMENTS is not NONE or N/A) but omits them is a MALFORMED output.
 
+19. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a fresh-session reflect handoff item. The item MUST NOT run reflect inline in the executor's biased context; it writes a `reflect_post: PENDING` sentinel and HALTs until the operator records the verdict in a fresh session. The handoff command uses `/sc:reflect` for the gate and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED` is a MALFORMED output.
+
 **Precedence rule:** When a BUILD_REQUEST contains both SKILL PHASES TO ENCODE and QA_GATE_REQUIREMENTS, the SKILL PHASES TO ENCODE field is authoritative. QA_GATE_REQUIREMENTS serves as a structured summary and quick reference. For the standalone task-builder (which has no SKILL PHASES TO ENCODE), QA_GATE_REQUIREMENTS is the sole authority for QA gate encoding.
+
+---
+
+## Reflect Depth (Deterministic TCS)
+
+The PRE reflect gate (A.10.7) and the templated POST item both derive reflect's `--depth` from a **Tasklist Complexity Score (TCS)** — a pure-arithmetic score computed from observable signals on the finished MDTM file + BUILD_REQUEST + spec. No inference is used except a single bounded tiebreaker within ±4 TCS of a band edge (see below). Each signal carries a **frozen extraction rule (FER)** so two implementers compute the same integer from the same inputs.
+
+### TCS Signals
+
+| # | Signal | Frozen extraction rule (deterministic) | Why it predicts audit complexity | Weight |
+|---|--------|----------------------------------------|----------------------------------|--------|
+| S1 | **Distinct files touched** | Apply regex `(?:[\w.-]+/)+[\w.-]+\.[\w]+` to the MDTM body, **excluding fenced code blocks and the `### Open Questions` section**; lowercase, strip a trailing `:\d+` line suffix, dedupe by exact string. S1 = size of the deduped set. | Breadth of the surface reflect must re-ground and re-Read | ×3 |
+| S2 | **Distinct subsystems** | From the S1 deduped set, take **exactly the first 2 path segments** (or all segments if the path has <2 dir segments) as the subsystem key; dedupe. S2 = count of distinct keys. | Cross-cutting changes are where drift/regression hide | ×4 |
+| S3 | **FR/NFR count in spec** | If `--spec` known: count **distinct** `FR-\d+`/`NFR-\d+` IDs in the spec file (an `FR-1` cited 5× counts once). Else 0. | Each requirement is a coverage row reflect must map | ×2 |
+| S4 | **Inter-task dependencies** | Count occurrences of the fixed dependency-token set `{after Phase \d+, depends_on:}` (case-insensitive, those literal forms only — no open-ended "explicit item ref" inference) across all items. | Dependency depth → more verdict-matrix coupling | ×2 |
+| S5 | **Human-decision / Open-Question-blocked items** | Count **distinct** `OQ-\d+` (or `Open Question \d+`) tokens that appear in a checklist item's Context line AND have a matching entry under the tasklist's `### Open Questions` section. If a `### Open Questions` section exists but no in-Context index references, fall back to the count of non-empty `### Open Questions` entries. | Each is a halt-point reflect must check did NOT auto-resolve | ×5 |
+| S6 | **Risk/refactor class (file-level)** | Read the single frontmatter `type:` field; S6 = **1 if `type` is a refactor/remediation-class value** (`🔧 Refactor`, `♻️ Refactor`, `🔨 Refactor`, `🔧 Remediation`, `Code Remediation`), **else 0**. A 0-or-1 file-level signal, not a per-item count. | Regression-class deviations force reflect Tier-2 escalation | ×4 |
+
+**S4 token-set note (trimmed):** the dependency-token set is exactly `{after Phase \d+, depends_on:}`. The broader 4-token form is trimmed — `blockedBy:` has zero occurrences in the generated-tasklist corpus (inert) and `after N\.\d+` is dropped — leaving the two live literal forms.
+
+### The TCS Formula
+
+```text
+TCS = 3·S1 + 4·S2 + 2·S3 + 2·S4 + 5·S5 + 4·S6
+```
+
+All S* are non-negative integers read directly from the tasklist/spec; the formula is pure arithmetic. Human-decision (S5) and risk (S6) carry the highest weights because they are exactly the classes that flip reflect to Tier 2 (make it non-vacuous).
+
+### TCS Threshold Table (TCS → `--depth`)
+
+| TCS range | reflect `--depth` | reflect tier reached | Rationale |
+|-----------|-------------------|----------------------|-----------|
+| **TCS ≤ 12** | `quick` | Tier 1 only | Small, single-subsystem, no human-decision/risk items. A single grounded pass suffices. |
+| **13 ≤ TCS ≤ 34** | `standard` | Tier 1, escalate-by-rubric | Moderate breadth; reflect's own rubric decides if it needs T2. |
+| **TCS ≥ 35** | `deep` | Tier 2 (forced) | Cross-subsystem, dependency-heavy, or carries human-decision/risk items. |
+
+### TCS Hard Overrides (deterministic, take precedence over the band)
+
+- **O1 — Any `S5 > 0` (human-decision item) ⇒ floor `--depth standard`.** A halt-point must get at least the rubric-escalation path (honors `feedback_human_decision_items_must_halt`).
+- **O2 — `S6 = 1` (file-level refactor/remediation `type:`) ⇒ force `--depth deep`.** Matches reflect's own unconditional-T2 rule for regression-class surfaces.
+- **O3 — Item-count cap:** if checklist item count > 40 (single-track > 50) ⇒ floor `--depth standard` even if TCS is low (a large tasklist is never "quick" to audit).
+- **O4 — POST-gate depth floor (HARD RULE, no exceptions):** the POST gate depth ∈ {`standard`, `deep`} — it may **NEVER** be `quick`. `--depth quick` disables reflect's regression-escalation rubric, and the POST gate audits executed code, which is exactly where that escalation matters most. When the band yields `quick`, the POST command is emitted with `--depth standard` (the PRE call may still use `quick`, since no diff exists pre-execution).
+
+Within ±4 TCS of a band edge (the span an S2 ±1 disagreement can traverse), the orchestrator may apply one bounded inference — "are these N FER-distinct dirs truly distinct *logical* subsystems?" — recorded as `tcs_boundary_inference: {applied, from, to, reason}` in the sign-off block for auditability. Outside the ±4 windows, no inference is permitted.
 
 ---
 

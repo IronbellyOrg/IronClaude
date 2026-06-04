@@ -28,6 +28,7 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 | Total Tasks | `<count>` |
 | Total Deliverables | `<count>` |
 | Complexity Class | `LOW|MEDIUM|HIGH` |
+| Reflect Pre Summary | `{pass: <x>, partial: <y>, fail: <z>}` |
 | Primary Persona | `<derived from roadmap domain>` |
 | Consulting Personas | `<comma-separated>` |
 
@@ -50,11 +51,11 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 
 `## Phase Files`
 
-| Phase | File | Phase Name | Task IDs | Tier Distribution |
-|---|---|---|---|---|
-| 1 | phase-1-tasklist.md | Foundation | T01.01-T01.04 | STRICT: 1, STANDARD: 2, EXEMPT: 1 |
-| 2 | phase-2-tasklist.md | Backend Core | T02.01-T02.05 | STRICT: 2, STANDARD: 3 |
-| ... | ... | ... | ... | ... |
+| Phase | File | Phase Name | Task IDs | Tier Distribution | Pre-Reflect Sign-off |
+|---|---|---|---|---|---|
+| 1 | phase-1-tasklist.md | Foundation | T01.01-T01.04 | STRICT: 1, STANDARD: 2, EXEMPT: 1 | PASS (depth=quick, coverage=100%) |
+| 2 | phase-2-tasklist.md | Backend Core | T02.01-T02.05 | STRICT: 2, STANDARD: 3 | PARTIAL (depth=standard, coverage=82%) |
+| ... | ... | ... | ... | ... | ... |
 
 Rules:
 
@@ -62,6 +63,7 @@ Rules:
 - "Phase Name" is derived from the roadmap bucket heading; if none, use defaults.
 - "Task IDs" is a compact range like `T01.01-T01.07` (only if continuous), otherwise comma-separated.
 - "Tier Distribution" shows count per tier.
+- "Pre-Reflect Sign-off" records Stage 10.5's per-phase verdict: `PASS|PARTIAL|FAIL (depth=<d>, coverage=<pct>)`, with a link to the reflect `REPORT.md` on `PARTIAL`/`FAIL`. Shown as `SKIPPED` (or omitted) when `--no-reflect` is set.
 
 ### Source Snapshot
 
