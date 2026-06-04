@@ -3593,12 +3593,14 @@ def _sidecar_matches_spec(sidecar: Path, spec_file: Path | None) -> bool:
         return False
     try:
         spec_text = Path(spec_file).read_text(encoding="utf-8")
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         return False
     current_hash = hashlib.sha256(spec_text.encode("utf-8")).hexdigest()[:16]
     try:
         payload = json.loads(sidecar.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return False
+    if not isinstance(payload, dict):
         return False
     persisted_hash = payload.get("spec_hash")
     return isinstance(persisted_hash, str) and persisted_hash == current_hash

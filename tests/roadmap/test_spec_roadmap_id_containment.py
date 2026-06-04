@@ -278,6 +278,49 @@ def test_resume_rejects_sidecar_built_from_different_spec(tmp_path):
     assert "Contract #9" in leaked
 
 
+def test_sidecar_match_fail_shut_on_non_utf8_spec(tmp_path):
+    """A non-UTF8 spec must fail-shut (return False), not crash --resume.
+
+    ``UnicodeDecodeError`` is a ``ValueError`` subclass — NOT an ``OSError`` —
+    so the spec-read handler must catch it explicitly, matching the docstring's
+    "unknown/unreadable spec" fail-shut contract.
+    """
+    from superclaude.cli.roadmap.executor import _sidecar_matches_spec
+
+    spec = tmp_path / "spec.md"
+    spec.write_bytes(b"\xff\xfe invalid utf-8 \x80\x81")
+    sidecar = tmp_path / "spec_id_registry.json"
+    sidecar.write_text(json.dumps({"spec_hash": "deadbeefdeadbeef"}), encoding="utf-8")
+    assert _sidecar_matches_spec(sidecar, spec) is False
+
+
+def test_sidecar_match_fail_shut_on_non_utf8_sidecar(tmp_path):
+    """A non-UTF8 sidecar must fail-shut, not raise ``UnicodeDecodeError``."""
+    from superclaude.cli.roadmap.executor import _sidecar_matches_spec
+
+    spec = tmp_path / "spec.md"
+    spec.write_text("- **FR-1** Real.\n", encoding="utf-8")
+    sidecar = tmp_path / "spec_id_registry.json"
+    sidecar.write_bytes(b"\xff\xfe\x00 not utf-8 json \x80")
+    assert _sidecar_matches_spec(sidecar, spec) is False
+
+
+def test_sidecar_match_fail_shut_on_non_dict_json(tmp_path):
+    """A valid-but-non-object sidecar JSON (e.g. ``[]``) must fail-shut.
+
+    Pre-fix, ``json.loads`` returns a list and ``payload.get("spec_hash")``
+    raises ``AttributeError``; the ``isinstance(payload, dict)`` guard now
+    declines the sidecar instead of crashing.
+    """
+    from superclaude.cli.roadmap.executor import _sidecar_matches_spec
+
+    spec = tmp_path / "spec.md"
+    spec.write_text("- **FR-1** Real.\n", encoding="utf-8")
+    sidecar = tmp_path / "spec_id_registry.json"
+    sidecar.write_text("[]", encoding="utf-8")
+    assert _sidecar_matches_spec(sidecar, spec) is False
+
+
 def test_extract_roadmap_ids_reuses_canonical_extractor():
     """Contract #8: no duplicate regex literals — must use spec_parser."""
     sample = "Roadmap references FR-1, NFR-2, SC-3, G-4, D-5, and D6."
