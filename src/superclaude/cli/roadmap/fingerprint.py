@@ -27,6 +27,12 @@ class Fingerprint:
 
 # FR-MOD3.1 + OQ-011: Common non-specific constants to exclude.
 # Aligned with 4-char regex minimum.
+#
+# Addition criteria: a token belongs here ONLY if it is an ALL-CAPS prose word
+# (RFC emphasis, format name, status annotation) that the spec author would
+# never expect to appear verbatim in an implementation-level roadmap. If you
+# add a token, add a unit test in test_fingerprint.py with a representative
+# fixture line.
 _EXCLUDED_CONSTANTS = frozenset(
     {
         # Boolean/sentinel
@@ -45,6 +51,7 @@ _EXCLUDED_CONSTANTS = frozenset(
         # Formats/standards
         "YAML",
         "JSON",
+        "HTML",
         "STRICT",
         "STANDARD",
         "EXEMPT",
@@ -54,10 +61,12 @@ _EXCLUDED_CONSTANTS = frozenset(
         "FAIL",
         "TODO",
         "NOTE",
+        "UNADDRESSED",
         # RFC/spec emphasis words (common ALL_CAPS in PRD/spec prose)
         "MUST",
         "SHALL",
         "SHOULD",
+        "WILL",
         "MANDATORY",
         "REQUIRED",
         "OPTIONAL",
