@@ -1,0 +1,58 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 45 items
+
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[0-0] PASSED [  2%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[1-1] PASSED [  4%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[3-1] PASSED [  6%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[4-1] PASSED [  8%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[5-2] PASSED [ 11%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[7-2] PASSED [ 13%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[8-2] PASSED [ 15%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[4000-1000] PASSED [ 17%]
+tests/cli/test_init_lite.py::test_estimate_tokens_is_ceil_bytes_over_4[4001-1001] PASSED [ 20%]
+tests/cli/test_init_lite.py::test_classify_weight_thresholds[0-low] PASSED [ 22%]
+tests/cli/test_init_lite.py::test_classify_weight_thresholds[999-low] PASSED [ 24%]
+tests/cli/test_init_lite.py::test_classify_weight_thresholds[1000-medium] PASSED [ 26%]
+tests/cli/test_init_lite.py::test_classify_weight_thresholds[4000-medium] PASSED [ 28%]
+tests/cli/test_init_lite.py::test_classify_weight_thresholds[4001-high] PASSED [ 31%]
+tests/cli/test_init_lite.py::test_classify_weight_thresholds[9999-high] PASSED [ 33%]
+tests/cli/test_init_lite.py::test_discover_surfaces_returns_only_allowed_surfaces PASSED [ 35%]
+tests/cli/test_init_lite.py::test_discover_surfaces_empty_project_is_empty PASSED [ 37%]
+tests/cli/test_init_lite.py::test_context_optimized_is_required PASSED   [ 40%]
+tests/cli/test_init_lite.py::test_help_lists_all_flags PASSED            [ 42%]
+tests/cli/test_init_lite.py::test_dry_run_writes_nothing PASSED          [ 44%]
+tests/cli/test_init_lite.py::test_default_writes_marked_report_and_no_scaffold PASSED [ 46%]
+tests/cli/test_init_lite.py::test_explicit_output_path_is_honored PASSED [ 48%]
+tests/cli/test_init_lite.py::test_scaffold_creates_only_two_files PASSED [ 51%]
+tests/cli/test_init_lite.py::test_claude_md_bytes_never_change[extra_flags0] PASSED [ 53%]
+tests/cli/test_init_lite.py::test_claude_md_bytes_never_change[extra_flags1] PASSED [ 55%]
+tests/cli/test_init_lite.py::test_claude_md_bytes_never_change[extra_flags2] PASSED [ 57%]
+tests/cli/test_init_lite.py::test_claude_md_bytes_never_change[extra_flags3] PASSED [ 60%]
+tests/cli/test_init_lite.py::test_default_run_is_idempotent PASSED       [ 62%]
+tests/cli/test_init_lite.py::test_scaffold_rerun_does_not_fail PASSED    [ 64%]
+tests/cli/test_init_lite.py::test_no_claude_dir_created_when_absent PASSED [ 66%]
+tests/cli/test_init_lite.py::test_existing_claude_dir_is_not_written PASSED [ 68%]
+tests/cli/test_init_lite.py::test_force_refuses_markerless_file_outside_owned_root PASSED [ 71%]
+tests/cli/test_init_lite.py::test_force_refuses_to_write_protected_context_inputs[CLAUDE.md] PASSED [ 73%]
+tests/cli/test_init_lite.py::test_force_refuses_to_write_protected_context_inputs[.mcp.json] PASSED [ 75%]
+tests/cli/test_init_lite.py::test_force_refuses_to_write_protected_context_inputs[.claude/settings.json] PASSED [ 77%]
+tests/cli/test_init_lite.py::test_force_refuses_to_write_protected_context_inputs[.claude/commands/sc/foo.md] PASSED [ 80%]
+tests/cli/test_init_lite.py::test_force_refuses_to_write_protected_context_inputs[.claude/skills/foo/SKILL.md] PASSED [ 82%]
+tests/cli/test_init_lite.py::test_force_refuses_to_write_protected_context_inputs[.claude/agents/foo.md] PASSED [ 84%]
+tests/cli/test_cli_registration.py::test_top_level_help_lists_eval_group PASSED [ 86%]
+tests/cli/test_cli_registration.py::test_top_level_command_roster_unchanged PASSED [ 88%]
+tests/cli/test_cli_registration.py::test_eval_group_help_lists_m1_subcommands PASSED [ 91%]
+tests/cli/test_cli_registration.py::test_eval_group_registers_m1_subcommands_in_click PASSED [ 93%]
+tests/cli/test_cli_registration.py::test_pre_existing_command_help_still_invokable PASSED [ 95%]
+tests/cli/test_cli_registration.py::test_top_level_help_lists_init_lite PASSED [ 97%]
+tests/cli/test_cli_registration.py::test_init_lite_help_lists_required_flags PASSED [100%]
+
+============================== 45 passed in 0.34s ==============================

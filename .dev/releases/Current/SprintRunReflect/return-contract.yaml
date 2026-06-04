@@ -1,0 +1,43 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/releases/backlog/SprintRunReflect/seed-brief.md
+merged_output_path: .dev/releases/backlog/SprintRunReflect/merged-requirements.md
+convergence_score: 0.85
+adversarial_artifacts_dir: .dev/releases/backlog/SprintRunReflect/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "Open question 1: reflect behavior for sprints without .roadmap-state.json (recommended option: skip with INFO log)"
+  - "Open question 2: should --reflect-join {none|soft|block} ship in v1 or punt to v1.1"
+  - "Open question 3: strict mode halt on authorized_expansion — explicit no recommended"
+  - "Open question 4: multi-sprint budget envelope coordination (recommended: per-sprint, no cross-coordination)"
+
+telemetry:
+  wave_durations_ms:
+    wave_0: 8000
+    wave_1: 3000
+    wave_2a: 0
+    wave_2b: 2000
+    wave_3: 45000
+    wave_4: 0
+  agent_spec: "opus:architect:'conservative sidecar-first',sonnet:analyzer:'asymmetric-cost strict-gate',haiku:devops:'event-driven decoupled'"
+  enrichment_artifact_sizes:
+    codebase-context.md: 0
+    research-light.md: 0
+  artifacts_produced:
+    - seed-brief.md
+    - proposals/proposal-A-architect-conservative.md
+    - proposals/proposal-B-analyzer-strict-gate.md
+    - proposals/proposal-C-devops-event-driven.md
+    - adversarial/debate-transcript.md
+    - merged-requirements.md
+    - return-contract.yaml

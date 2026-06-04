@@ -1,0 +1,38 @@
+===== make lint =====
+Running linter...
+uv run ruff check .
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+I001 [*] Import block is un-sorted or un-formatted
+   --> tests/unit/test_cli_install.py:232:9
+    |
+230 |     def test_install_all_skills_keeps_protocol_skills_standalone(self, tmp_path):
+231 |         """End-to-end: protocol skills are installed standalone, not removed."""
+232 |         from superclaude.cli.install_skills import install_all_skills, list_available_skills
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+233 |
+234 |         target = tmp_path / "skills"
+    |
+help: Organize imports
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
+make: *** [Makefile:50: lint] Error 1
+[make lint exit=2]
+
+===== uv run ruff format --check src/ tests/ =====
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Would reformat: src/superclaude/cli/init_lite.py
+Would reformat: tests/cli/test_init_lite.py
+Would reformat: tests/unit/test_cli_install.py
+3 files would be reformatted, 692 files already formatted
+[format-check exit=1]
+
+===== REMEDIATION RE-RUN (Step 4.7, 2026-06-03) =====
+--- applied: uv run ruff format src/ tests/  (3 files reformatted) ---
+--- applied: uv run ruff check --fix .       (I001 fixed) ---
+--- make lint ---
+Running linter...
+uv run ruff check .
+All checks passed!
+--- uv run ruff format --check src/ tests/ ---
+695 files already formatted

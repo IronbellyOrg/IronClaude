@@ -1,0 +1,126 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/SprintReRun/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/SprintReRun
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 10 items
+
+<Dir SprintReRun>
+  <Package tests>
+    <Package sprint>
+      <Module test_rerun_tasks_e2e.py>
+        AC1, AC2, AC3 — E2E integration tests for sprint rerun-tasks.
+        <Class TestRerunTasksDryRun>
+          AC1: `rerun-tasks --dry-run` previews the plan without spawning work.
+          <Function test_dry_run_prints_plan_does_not_execute>
+        <Class TestRerunTasksRoundTrip>
+          AC2 + AC3: a successful rerun renames originals, emits exactly one
+          phase_rerun_complete event, and regenerates the checkpoint manifest.
+          <Function test_rerun_renames_originals_flips_checkboxes_emits_event_runs_verify_checkpoints>
+      <Module test_rerun_tasks_failure_modes.py>
+        AC4-AC8 — failure-mode tests for sprint rerun-tasks.
+
+        Each test drives the real CLI surface (`sprint rerun-tasks`) through a
+        ``CliRunner`` against a ``tmp_path`` sprint release, with subprocess and
+        executor side-effects stubbed via stacked ``patch()`` so nothing real spawns.
+        Abort messages asserted here are quoted byte-for-byte from the production
+        abort sites in ``rerun_tasks.py`` / ``recovery.py``; if production wording
+        changes these tests must change with it.
+
+        Layer note: the orchestrator ``run_rerun_tasks`` raises ``click.ClickException``
+        for operator-facing aborts and *returns* a non-zero exit code for the
+        abort-before-merge path. The CLI command wrapper (`commands.rerun_tasks`)
+        turns both into a process exit: a ``ClickException`` is caught by Click and
+        rendered as ``exit_code == 1`` with the message on stdout/stderr, and a
+        non-zero return is re-raised as ``SystemExit(code)``. ``CliRunner.invoke``
+        captures that ``SystemExit`` and exposes it as ``result.exit_code`` /
+        ``result.exception``; failure-path tests therefore assert
+        ``result.exit_code != 0`` (the captured ``SystemExit.code``).
+        <Class TestRerunTasksLocking>
+          <Function test_second_concurrent_invocation_aborts_with_lock_pid>
+            A held lock (live PID) aborts the second invocation, naming the PID.
+
+            Production: ``recovery.acquire_recovery_lock`` reads
+            ``<results_dir>/.recovery-locks/phase-7.lock``, and when its recorded
+            PID is alive raises::
+
+                Recovery lock held by PID {pid} since {ts}. Remove `{lock}` if the
+                prior process crashed.
+
+            We pre-create the lock with THIS process's PID (guaranteed alive), so
+            the abort fires before any nomination/executor work.
+        <Class TestRerunTasksSHACheck>
+          <Function test_source_tasklist_sha_mismatch_aborts>
+            Editing the source tasklist mid-rerun aborts the merge-back.
+
+            The SHA guard lives at step 12 (merge branch), so the rerun must reach
+            a successful executor first; we stub ``execute_sprint`` to mark the
+            target PASS, then mutate ``phase-7-tasklist.md`` after the pre-rerun SHA
+            is captured. Production abort (byte-exact)::
+
+                Source tasklist modified since rerun started. Bundle preserved at
+                {bundle}. To force, use --force-merge.
+          <Function test_force_merge_proceeds_with_warning>
+            ``--force-merge`` overrides the SHA mismatch and completes the merge.
+
+            Same mid-flight mutation as above, but with ``--force-merge`` the merge
+            branch proceeds instead of aborting. ``merge_recovery_bundle`` and the
+            post-merge ``verify-checkpoints`` subprocess are stubbed so only the
+            rerun-tasks control flow is exercised; success prints the
+            ``Rerun merged:`` line and exits 0.
+        <Class TestRerunTasksRetryCap>
+          <Function test_fourth_attempt_aborts_with_cap_message>
+            A task already rerun 3 times aborts the 4th attempt (step 8).
+
+            ``retry_count_for_task`` counts the 3 seeded ``recovery_history``
+            entries; step 8 then raises (byte-exact prefix)::
+
+                Task {tid} has been rerun 3 times. Manual intervention required.
+                Inspect bundles: {bundles}
+
+            The abort precedes the executor, so no executor stub is required.
+          <Function test_allow_loop_bypasses_cap>
+            ``--allow-loop`` skips the retry-cap abort and runs the rerun.
+
+            With the cap bypassed the executor runs (stubbed PASS) and the merge
+            completes; the cap message must NOT appear and the run exits 0.
+            ``merge_recovery_bundle`` + verify-checkpoints subprocess are stubbed.
+
+            ``--force-merge`` is also passed because of a real engine interaction:
+            step 10 (``flip_target_checkboxes``) writes a ``rerun_in_progress``
+            provenance block to the source tasklist, which changes its SHA256.
+            The step-12 mid-flight-edit guard then recomputes the hash and sees the
+            engine's own write as a "modification", so any merge-back run aborts on
+            the SHA mismatch unless ``--force-merge`` is set. This test isolates the
+            retry-cap bypass, so it opts past that self-induced SHA guard to reach
+            the merge. (See the prominent finding reported alongside this file.)
+        <Class TestRerunTasksLegacyFallback>
+          <Function test_missing_phase_result_json_falls_back_to_transcript_inspection>
+            No phase-7-result.json → nomination comes from transcript discovery.
+
+            With ``--tasks`` omitted and the result JSON absent,
+            ``select_default_recoverable_tasks`` returns ``[]`` and
+            ``run_rerun_tasks`` falls back to
+            ``discover_failed_tasks_from_transcripts`` (which finds the errored
+            ``T07.11`` transcript). We assert the fallback path is actually taken
+            via a spy and that the run proceeds with T07.11 nominated.
+        <Class TestRerunTasksAbortRestore>
+          <Function test_abort_before_merge_back_restores_source_tasklist>
+            An executor failure restores the source tasklist byte-for-byte.
+
+            ``run_rerun_tasks`` writes a ``rerun_in_progress`` provenance block to
+            the source tasklist (step 10) before running the executor; when the
+            executor raises, the ``finally`` block calls
+            ``restore_checkboxes_on_abort`` which strips that block. Net effect: the
+            on-disk tasklist must equal its pre-rerun bytes.
+          <Function test_abort_clears_rerun_in_progress_flag>
+            After an aborted rerun, no ``rerun_in_progress`` marker remains.
+
+            The provenance block written at step 10 carries a ``rerun_in_progress:``
+            key; the auto-restore must remove the whole block so neither the marker
+            nor the ``<!-- SUPERCLAUDE-RERUN`` delimiter survives on disk.
+
+========================= 10 tests collected in 0.18s ==========================

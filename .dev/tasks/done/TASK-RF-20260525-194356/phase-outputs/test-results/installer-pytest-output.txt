@@ -1,0 +1,30 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 17 items
+
+tests/unit/test_cli_install.py::TestInstallCommands::test_list_available_commands PASSED [  5%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_to_temp_dir PASSED [ 11%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_skip_existing PASSED [ 17%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_force_reinstall PASSED [ 23%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_list_installed_commands PASSED [ 29%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_install_commands_creates_target_directory PASSED [ 35%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_available_commands_format PASSED [ 41%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_research_command_exists PASSED [ 47%]
+tests/unit/test_cli_install.py::TestInstallCommands::test_all_expected_commands_available PASSED [ 52%]
+tests/unit/test_cli_install.py::TestInstallCommandsEdgeCases::test_install_to_nonexistent_parent PASSED [ 58%]
+tests/unit/test_cli_install.py::TestInstallCommandsEdgeCases::test_empty_target_directory_ok PASSED [ 64%]
+tests/unit/test_cli_install.py::test_cli_integration PASSED              [ 70%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_new_init_lite_protocol_is_not_command_backed PASSED [ 76%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_sample_existing_protocol_skills_not_command_backed PASSED [ 82%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_bare_sc_command_mapping_still_works PASSED [ 88%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_no_available_protocol_skill_is_command_backed PASSED [ 94%]
+tests/unit/test_cli_install.py::TestProtocolSkillInstallMapping::test_install_all_skills_keeps_protocol_skills_standalone PASSED [100%]
+
+============================== 17 passed in 0.19s ==============================

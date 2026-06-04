@@ -1,0 +1,80 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/releases/backlog/SprintGranularResume/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/releases/backlog/SprintGranularResume/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/releases/backlog/SprintGranularResume/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+  - source: research-deep
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+resolved_decisions:
+  resolved_on: "2026-06-01"
+  resolved_by: "user"
+  decisions:
+    - question: "Ship sprint repair umbrella in v4.3.0 or defer to v4.4.0/v5.0.0"
+      decision: "DEFER to v4.4.0/v5.0.0"
+      implication: "v4.3.0 ships rerun-tasks as standalone subcommand only; recovery.py internals pre-position the abstraction but the umbrella verb lands later"
+    - question: "Ship sequencing with SprintRunReflect (independent vs co-shipped)"
+      decision: "INDEPENDENT (Option A)"
+      implication: "rerun-tasks v4.3.0 ships with manual nomination only; --from-reflect-report flag co-ships with SprintRunReflect in v4.4.0"
+    - question: "Introduce FAIL_RECOVERABLE TaskStatus enum member"
+      decision: "INTRODUCE in v4.3.0"
+      implication: "Cleaner semantics than overloading ERROR; tasks with proxy/transport-class failures classified FAIL_RECOVERABLE; rerun-tasks defaults to picking up only FAIL_RECOVERABLE tasks unless --tasks is explicit"
+    - question: "Auto-invoke verify-checkpoints --recover after merge-back"
+      decision: "ON by default"
+      implication: "After successful rerun and merge-back, automatically regenerate any missing checkpoint markdown reports; --no-verify-checkpoints flag opts out"
+
+# Telemetry (non-stable)
+wave_durations_ms:
+  wave_0: 1200
+  wave_1: 4500
+  wave_2a: 2200
+  wave_2b: 800
+  wave_3: 28000
+  wave_4: 0
+token_usage:
+  wave_0: 800
+  wave_1: 3500
+  wave_2a: 2200
+  wave_2b: 600
+  wave_3: 42000
+  wave_4: 0
+agent_spec: "opus:devops:'conservative / minimal-change / ship-fast',sonnet:analyzer:'strict-correctness / failure-mode-rigor / data-model-first',haiku:refactorer:'composability / unified-recovery-verb / API-cleanliness'"
+proposals:
+  - id: 01
+    persona: devops
+    model: opus
+    file: proposals/01-devops-conservative.md
+    loc_estimate_source: 310
+    loc_estimate_tests: 250
+  - id: 02
+    persona: analyzer
+    model: sonnet
+    file: proposals/02-analyzer-strict.md
+    loc_estimate_source: 520
+    loc_estimate_tests: 450
+  - id: 03
+    persona: refactorer
+    model: haiku
+    file: proposals/03-refactorer-composable.md
+    loc_estimate_source: 760
+    loc_estimate_tests: 600
+merged_loc_estimate:
+  source: 760
+  tests: 500
+  total: 1260
+related_brainstorms:
+  - path: .dev/releases/backlog/SprintRunReflect/merged-requirements.md
+    relationship: "Composes via --from-reflect-report flag; co-design deviation-register schema; recommend independent ship sequencing (Option A)"
+  - path: .dev/releases/backlog/TaskQAComparison/merged-recommendation.md
+    relationship: "Provides the QA rationale (out-of-context /sc:reflect catches blindspots inline rf-qa misses); rerun-tasks is the recovery vehicle"

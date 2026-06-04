@@ -1,0 +1,44 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/releases/backlog/TaskQAComparison/merged-recommendation.md"
+  convergence_score: 0.71  # raw; effective post-INV-006-resolution 0.85+
+  artifacts_dir: "/config/workspace/IronClaude/.dev/releases/backlog/TaskQAComparison/adversarial/"
+  status: "partial"  # convergence below 0.80 threshold pre-resolution; resolved by Change #9 in refactor-plan
+  base_variant: "sc:task-superclaude-tier-classified"
+  unresolved_conflicts: 2  # A-001 and A-002 [SHARED-ASSUMPTION] points — addressed by Change #9 (sc:reflect-post integration) in the refactor-plan but flagged as a structural addition rather than a debate-resolved point
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants:
+    - id: "INV-006"
+      category: "sufficiency_challenge"
+      assumption: "QA-finding-resolved verdict correlates with absence of the underlying defect, not just absence of the surface signal the QA agent looked for"
+      severity: "HIGH"
+      resolution: "Change #9 in refactor-plan.md (sc:reflect-post integration). Empirically demonstrated to be effective by R0 PR #112 (memory: feedback_sc_reflect_vs_inline_rfqa.md)"
+    - id: "INV-002"
+      category: "guard_conditions"
+      assumption: "QA agent's claims that file:line X exists actually correspond to on-disk state"
+      severity: "HIGH"
+      resolution: "Partially addressed by V2's AX-5 invented-content axis (Change #4); fully addressed when Change #9 (sc:reflect-post) is integrated since sc-reflect-protocol §11.2 mandates evidence-validator re-Read"
+  debate_metadata:
+    rounds_completed: 2  # + Round 2.5 invariant probe
+    variants_compared: 3
+    diff_points_total: 24  # S:4 + C:6 + X:4 + U:8 + A:2
+    diff_points_resolved: 15
+    convergence_blocker: "INV-006 + A-001 shared assumption"
+    convergence_status: "BLOCKED_BY_INVARIANTS (raw) / UNBLOCKED (effective via Change #9)"
+  scoring_summary:
+    quant_scores: {v1: 0.92, v2: 0.95, v3: 0.90}
+    qual_scores: {v1: 0.69, v2: 0.70, v3: 0.79}
+    combined_scores: {v1: 0.805, v2: 0.825, v3: 0.845}
+    tiebreaker_resolution: "Level 1 (debate performance: V3 7 wins vs V2 5 wins) → V3 selected as base"
+  refactor_summary:
+    transfers_from_v1: 2  # cross-phase validation, 15-item checklist
+    transfers_from_v2: 4  # DNSP, 5 axes, anti-inflation, DM-005 wire
+    architectural_additions: 3  # sc:reflect-post (INV-006 resolution), NEEDS_HUMAN_ADJUDICATION, composition-safety check
+    tightening_changes: 1  # tier-floor override on tested modules
+    documentation_changes: 1  # composition pattern doc
+  next_actions:
+    - "Implement Change #9 (sc:reflect-post integration) as v1.0 milestone — unblocks INV-006"
+    - "Empirically measure sc:reflect-post cost overhead per STRICT-tier task"
+    - "Document the composition pattern as a top-level architecture doc"
+    - "Consider whether merged base is a new skill or a flag on /sc:task"

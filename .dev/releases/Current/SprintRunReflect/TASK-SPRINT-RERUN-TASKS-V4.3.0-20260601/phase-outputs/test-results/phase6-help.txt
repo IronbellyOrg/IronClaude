@@ -1,0 +1,41 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Usage: superclaude sprint rerun-tasks [OPTIONS] INDEX_PATH
+
+  Re-execute only the named failed tasks within a single sprint phase.
+
+  INDEX_PATH is the sprint release's tasklist-index.md — the same file
+  `superclaude sprint run` consumes. Use --phase N together with --tasks
+  T07.11,T07.12 to surgically re-run a subset of a phase's tasks, then merge
+  their results back into the canonical results directory and tasklist. As an
+  alternative to --phase/--tasks, pass --from-reflect-report to let a reflect
+  report nominate the failed tasks; that flag is mutually exclusive with
+  --phase / --tasks. By default results are merged back and a `verify-
+  checkpoints --recover` pass runs afterward; use --no-merge-back or --no-
+  verify-checkpoints to opt out, and --dry-run to preview the plan.
+
+Options:
+  --phase INTEGER                 Phase number whose failed tasks should be
+                                  re-executed.
+  --tasks TEXT                    Comma-separated task IDs to rerun (e.g.
+                                  T07.11,T07.12).
+  --from-reflect-report PATH      Resolve failed tasks from a reflect report
+                                  instead of --phase/--tasks.
+  --merge-back / --no-merge-back  Merge rerun results back into canonical
+                                  results (default: enabled).
+  --dry-run                       Preview the rerun plan without executing or
+                                  merging.
+  --include-transitive            Include transitive dependencies of the
+                                  target tasks in the rerun.
+  --ignore-deps                   Rerun only the named tasks, ignoring
+                                  dependency edges.
+  --force-merge                   Merge results even when the source tasklist
+                                  SHA256 changed mid-flight.
+  --allow-loop                    Permit rerun of a task that has already hit
+                                  the retry cap.
+  --no-verify-checkpoints         Skip the post-merge verify-checkpoints
+                                  --recover auto-invoke.
+  --bundle-dir PATH               Explicit recovery bundle directory (default:
+                                  auto-suffixed under results).
+  --restore                       Restore deliverables and checkboxes from a
+                                  prior aborted rerun bundle.
+  --help                          Show this message and exit.
