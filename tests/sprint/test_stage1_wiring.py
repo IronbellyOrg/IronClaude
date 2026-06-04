@@ -92,7 +92,10 @@ def test_prior_context_reaches_per_task_prompt(tmp_path: Path, monkeypatch) -> N
 def test_execute_phase_tasks_threads_prior_context(tmp_path: Path, monkeypatch) -> None:
     config = _config(tmp_path)
     phase = config.phases[0]
-    tasks = [TaskEntry(task_id="T01.01", title="A"), TaskEntry(task_id="T01.02", title="B")]
+    tasks = [
+        TaskEntry(task_id="T01.01", title="A"),
+        TaskEntry(task_id="T01.02", title="B"),
+    ]
 
     seen: list[tuple[str, str]] = []
 
@@ -130,7 +133,9 @@ def test_task_complete_event_emitted_and_distinct(tmp_path: Path) -> None:
         if line.strip()
     ]
     complete = [e for e in lines if e.get("event") == "task_complete"]
-    assert len(complete) == 1, f"expected exactly one task_complete event, got {complete}"
+    assert len(complete) == 1, (
+        f"expected exactly one task_complete event, got {complete}"
+    )
     ev = complete[0]
     # Reconciled field set, identical shape to task_rerun_complete.
     assert ev["phase"] == 1
@@ -148,7 +153,11 @@ def test_task_complete_event_emitted_and_distinct(tmp_path: Path) -> None:
 # (content, expects_tasks, expects_warning)
 _HEADING_CORPUS = [
     # correct strict headings -> route to per-task, NO warning
-    ("### T01.01 -- Correct double-dash\n\n**Dependencies:** none\n\nBody.\n", True, False),
+    (
+        "### T01.01 -- Correct double-dash\n\n**Dependencies:** none\n\nBody.\n",
+        True,
+        False,
+    ),
     ("### T01.01 — Correct em-dash\n\n**Dependencies:** none\n\nBody.\n", True, False),
     (
         "### T01.01 -- First\n\n**Dependencies:** none\n\nA.\n\n### T01.02 -- Second\n\n**Dependencies:** none\n\nB.\n",
@@ -165,7 +174,11 @@ _HEADING_CORPUS = [
     ("##### T01.02 -- Five hashes\n\nBody.\n", False, True),
     # legitimately freeform -> Path A (None), NO warning, NO reclassification
     ("# Phase Goal\n\nDo the thing. No task headings here.\n", False, False),
-    ("## Overview\n\nSome prose about the migration. Nothing task-like.\n", False, False),
+    (
+        "## Overview\n\nSome prose about the migration. Nothing task-like.\n",
+        False,
+        False,
+    ),
 ]
 
 

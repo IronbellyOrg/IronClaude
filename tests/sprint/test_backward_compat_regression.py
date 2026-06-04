@@ -645,8 +645,7 @@ class TestRerunTasksNoRegressionWhenUnused:
             "phase_rerun_complete",
         }
         assert event_types.isdisjoint(rerun_event_types), (
-            f"Clean sprint emitted rerun events: "
-            f"{event_types & rerun_event_types}"
+            f"Clean sprint emitted rerun events: {event_types & rerun_event_types}"
         )
 
     @pytest.mark.backward_compat
@@ -694,9 +693,7 @@ class TestRerunTasksNoRegressionWhenUnused:
         )
 
     @pytest.mark.backward_compat
-    def test_phase_result_json_write_does_not_break_existing_e2e_paths(
-        self, tmp_path
-    ):
+    def test_phase_result_json_write_does_not_break_existing_e2e_paths(self, tmp_path):
         """The v4.3.0 _write_phase_result_json side effect (invoked on every
         phase completion in execute_sprint) must not break the existing
         baseline e2e success path. Reuse the real baseline test rather than

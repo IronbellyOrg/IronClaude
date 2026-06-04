@@ -59,7 +59,11 @@ class TaskStatus(Enum):
 
     @property
     def is_failure(self) -> bool:
-        return self in (TaskStatus.FAIL_TERMINAL, TaskStatus.FAIL_RECOVERABLE, TaskStatus.INCOMPLETE)
+        return self in (
+            TaskStatus.FAIL_TERMINAL,
+            TaskStatus.FAIL_RECOVERABLE,
+            TaskStatus.INCOMPLETE,
+        )
 
 
 class GateOutcome(Enum):
@@ -698,7 +702,11 @@ class SprintConfig(PipelineConfig):
         Mirrors ``task_output_file``. The key is phase-qualified because the bare
         ``T<PP>.<TT>`` id is not sprint-unique and collides across phases.
         """
-        return self.results_dir / "handoff" / f"phase-{phase.number}-task-{task.task_id}.json"
+        return (
+            self.results_dir
+            / "handoff"
+            / f"phase-{phase.number}-task-{task.task_id}.json"
+        )
 
     def result_file(self, phase: Phase) -> Path:
         return self.results_dir / f"phase-{phase.number}-result.md"

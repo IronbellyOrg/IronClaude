@@ -352,7 +352,9 @@ def aggregate_task_results(
 
     report.tasks_total = len(task_results) + len(report.remaining_task_ids)
     report.tasks_passed = sum(1 for r in task_results if r.status.is_success)
-    report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL_TERMINAL)
+    report.tasks_failed = sum(
+        1 for r in task_results if r.status == TaskStatus.FAIL_TERMINAL
+    )
     report.tasks_incomplete = sum(
         1 for r in task_results if r.status == TaskStatus.INCOMPLETE
     )
@@ -825,7 +827,10 @@ def run_post_phase_wiring_hook(
     )
 
     # Map back: if the wiring hook changed status to FAIL, propagate to PhaseResult
-    if updated_result.status == TaskStatus.FAIL_TERMINAL and synth_status != TaskStatus.FAIL_TERMINAL:
+    if (
+        updated_result.status == TaskStatus.FAIL_TERMINAL
+        and synth_status != TaskStatus.FAIL_TERMINAL
+    ):
         phase_result.status = PhaseStatus.HALT
 
     return phase_result
@@ -979,7 +984,9 @@ def _run_one_task(
     former inline block.
     """
     if subprocess_factory is not None:
-        exit_code, turns_consumed, output_bytes = subprocess_factory(task, config, phase)
+        exit_code, turns_consumed, output_bytes = subprocess_factory(
+            task, config, phase
+        )
     else:
         exit_code, turns_consumed, output_bytes = _run_task_subprocess(
             task, config, phase, prior_context=prior_context
@@ -1780,7 +1787,9 @@ def execute_sprint(config: SprintConfig):
                 # the phase scope, so it is deliberately NOT merged here.
                 _layers = setup_isolation(config, scope=f"phase-{phase.number}")
                 _phase_env_vars = {
-                    "CLAUDE_WORK_DIR": str(isolation_dir),  # KEEP phase-scoped (re-pinned)
+                    "CLAUDE_WORK_DIR": str(
+                        isolation_dir
+                    ),  # KEEP phase-scoped (re-pinned)
                     "CLAUDE_SETTINGS_DIR": _layers.env_vars["CLAUDE_SETTINGS_DIR"],
                     "CLAUDE_PLUGIN_DIR": _layers.env_vars["CLAUDE_PLUGIN_DIR"],
                 }
@@ -2281,10 +2290,10 @@ _TASK_SUCCESS_ENVELOPE_PATTERN = re.compile(
 # so tail-scoping preserves the completed-after-overrun vs overran-mid-work
 # distinction the recovery gate exists to protect.
 _TASK_TAIL_COMPLETION_PATTERN = re.compile(
-    r'VERDICT:\s*PASS'
-    r'|EXIT_RECOMMENDATION:\s*CONTINUE'
+    r"VERDICT:\s*PASS"
+    r"|EXIT_RECOMMENDATION:\s*CONTINUE"
     r'|"result"\s*:\s*"Pass"'
-    r'|ACCEPTANCE CRITERIA[^\n]{0,40}ALL MET',
+    r"|ACCEPTANCE CRITERIA[^\n]{0,40}ALL MET",
     re.IGNORECASE,
 )
 _TASK_TAIL_COMPLETION_WINDOW = 15
@@ -2626,7 +2635,9 @@ def _write_preliminary_result(
         return False
 
 
-def _write_phase_result_json(config: SprintConfig, phase: Phase, result: PhaseResult) -> None:
+def _write_phase_result_json(
+    config: SprintConfig, phase: Phase, result: PhaseResult
+) -> None:
     """Persist a phase result as JSON for rerun-tasks consumption (TDD §T6).
 
     Mirrors the atomic tmp+rename write convention from checkpoints.py so a

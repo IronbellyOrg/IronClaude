@@ -80,8 +80,14 @@ def test_resume_skips_validated_success_and_reruns_failure(tmp_path: Path) -> No
     tasks = [TaskEntry("T01.01", "First"), TaskEntry("T01.02", "Second")]
 
     # Pre-seed: T01.01 validated-success, T01.02 recoverable failure.
-    store.write(_record("T01.01", TaskStatus.PASS, GateOutcome.PASS), phase=phase, task=tasks[0])
-    store.write(_record("T01.02", TaskStatus.FAIL_RECOVERABLE, GateOutcome.FAIL), phase=phase, task=tasks[1])
+    store.write(
+        _record("T01.01", TaskStatus.PASS, GateOutcome.PASS), phase=phase, task=tasks[0]
+    )
+    store.write(
+        _record("T01.02", TaskStatus.FAIL_RECOVERABLE, GateOutcome.FAIL),
+        phase=phase,
+        task=tasks[1],
+    )
 
     ran: list[str] = []
 
@@ -119,7 +125,9 @@ def test_resume_inactive_runs_all_tasks_even_with_records(tmp_path: Path) -> Non
     phase = config.phases[0]
     store = FileHandoffStore(config)
     tasks = [TaskEntry("T01.01", "First")]
-    store.write(_record("T01.01", TaskStatus.PASS, GateOutcome.PASS), phase=phase, task=tasks[0])
+    store.write(
+        _record("T01.01", TaskStatus.PASS, GateOutcome.PASS), phase=phase, task=tasks[0]
+    )
 
     ran: list[str] = []
 

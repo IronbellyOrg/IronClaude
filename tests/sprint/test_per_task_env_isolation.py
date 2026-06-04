@@ -112,18 +112,26 @@ def test_per_task_env_capture_settings_dirs_are_distinct(tmp_path: Path) -> None
         _env_capture=captured,
     )
 
-    assert len(captured) == 4, f"expected one captured env per task, got {len(captured)}"
+    assert len(captured) == 4, (
+        f"expected one captured env per task, got {len(captured)}"
+    )
     settings = [e["CLAUDE_SETTINGS_DIR"] for e in captured]
-    assert len(set(settings)) == 4, f"per-task CLAUDE_SETTINGS_DIR not distinct: {settings}"
+    assert len(set(settings)) == 4, (
+        f"per-task CLAUDE_SETTINGS_DIR not distinct: {settings}"
+    )
     for s, task in zip(settings, tasks):
-        assert ".isolation" in s and "settings" in s, f"settings dir not isolated: {s!r}"
+        assert ".isolation" in s and "settings" in s, (
+            f"settings dir not isolated: {s!r}"
+        )
         assert f"task-{task.task_id}" in s, f"settings dir not scoped to task: {s!r}"
 
 
 # --- assertion 2: positive concurrent-spawn repro -------------------------
 
 
-def test_concurrent_isolated_workers_never_corrupt_shared_config(tmp_path: Path) -> None:
+def test_concurrent_isolated_workers_never_corrupt_shared_config(
+    tmp_path: Path,
+) -> None:
     config, _phase, _tasks = _make_config(tmp_path)
 
     # Shared baseline sentinel (the corruptible ~/.claude/config.json analog).
@@ -137,7 +145,9 @@ def test_concurrent_isolated_workers_never_corrupt_shared_config(tmp_path: Path)
         for k in range(n)
     ]
     # Pairwise-distinct per-worker settings dirs (the isolation guarantee).
-    assert len(set(settings_dirs)) == n, f"worker settings dirs not distinct: {settings_dirs}"
+    assert len(set(settings_dirs)) == n, (
+        f"worker settings dirs not distinct: {settings_dirs}"
+    )
 
     barrier = threading.Barrier(n)
     with ThreadPoolExecutor(max_workers=n) as pool:
@@ -166,7 +176,9 @@ def test_concurrent_isolated_workers_never_corrupt_shared_config(tmp_path: Path)
 
 def test_shared_settings_dir_contention_is_detectable(tmp_path: Path) -> None:
     config, _phase, _tasks = _make_config(tmp_path)
-    shared = setup_isolation(config, scope="shared-worker").env_vars["CLAUDE_SETTINGS_DIR"]
+    shared = setup_isolation(config, scope="shared-worker").env_vars[
+        "CLAUDE_SETTINGS_DIR"
+    ]
 
     n = 4
     barrier = threading.Barrier(n)

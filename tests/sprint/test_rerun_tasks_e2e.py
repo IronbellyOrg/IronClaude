@@ -161,9 +161,7 @@ class TestRerunTasksDryRun:
         index = _seed_failed_phase(tmp_path, phase=7)
         runner = CliRunner()
 
-        with patch(
-            "superclaude.cli.pipeline.process.subprocess.Popen"
-        ) as mock_popen:
+        with patch("superclaude.cli.pipeline.process.subprocess.Popen") as mock_popen:
             result = runner.invoke(
                 sprint_group,
                 [
@@ -236,9 +234,7 @@ class TestRerunTasksRoundTrip:
             ),
             patch("superclaude.cli.pipeline.process.os.setpgrp", create=True),
             patch("superclaude.cli.sprint.notify._notify"),
-            patch(
-                "superclaude.cli.sprint.rerun_tasks.subprocess.run"
-            ) as mock_verify,
+            patch("superclaude.cli.sprint.rerun_tasks.subprocess.run") as mock_verify,
         ):
             result = runner.invoke(
                 sprint_group,

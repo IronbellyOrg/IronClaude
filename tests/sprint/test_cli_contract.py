@@ -126,7 +126,14 @@ class TestRerunTasksContract:
         # and execution reaches the mutual-exclusion guard.
         result = self.runner.invoke(
             sprint_group,
-            ["rerun-tasks", "CLAUDE.md", "--from-reflect-report", "CLAUDE.md", "--tasks", "T1"],
+            [
+                "rerun-tasks",
+                "CLAUDE.md",
+                "--from-reflect-report",
+                "CLAUDE.md",
+                "--tasks",
+                "T1",
+            ],
         )
         assert result.exit_code != 0
         assert "mutually exclusive" in result.output

@@ -26,7 +26,9 @@ from superclaude.cli.sprint.models import (
 _TASK_SLEEP = 0.2
 
 
-def _config(tmp_path: Path, *, task_parallelism: int = 1, resume_task_id: str = "") -> SprintConfig:
+def _config(
+    tmp_path: Path, *, task_parallelism: int = 1, resume_task_id: str = ""
+) -> SprintConfig:
     tmp_path.mkdir(parents=True, exist_ok=True)
     pf = tmp_path / "phase-1-tasklist.md"
     pf.write_text("# Phase 1\n")

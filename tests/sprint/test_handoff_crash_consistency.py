@@ -71,7 +71,9 @@ def test_resume_honors_handoff_file_without_journal_event(tmp_path: Path) -> Non
     assert config.handoff_file(phase, task).exists()
     jsonl = config.execution_log_jsonl
     if jsonl.exists():
-        events = [json.loads(line) for line in jsonl.read_text().splitlines() if line.strip()]
+        events = [
+            json.loads(line) for line in jsonl.read_text().splitlines() if line.strip()
+        ]
         assert not any(e.get("event") == "task_complete" for e in events), (
             "precondition violated: a task_complete event exists (not the crash window)"
         )
@@ -87,5 +89,7 @@ def test_resume_honors_handoff_file_without_journal_event(tmp_path: Path) -> Non
         [task], config, phase, _subprocess_factory=_factory, handoff_store=store
     )
 
-    assert ran == [], "resume re-ran a task whose handoff file marks it validated-success"
+    assert ran == [], (
+        "resume re-ran a task whose handoff file marks it validated-success"
+    )
     assert results[0].status == TaskStatus.PASS

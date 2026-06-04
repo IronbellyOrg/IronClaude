@@ -144,7 +144,9 @@ def test_handoff_on_does_write_records_and_events(tmp_path: Path, monkeypatch) -
             pass
 
     handoff_dir = config.results_dir / "handoff"
-    records = list(handoff_dir.glob("phase-1-task-*.json")) if handoff_dir.exists() else []
+    records = (
+        list(handoff_dir.glob("phase-1-task-*.json")) if handoff_dir.exists() else []
+    )
     assert len(records) == 2, f"expected 2 handoff records, found {records}"
 
     events = [

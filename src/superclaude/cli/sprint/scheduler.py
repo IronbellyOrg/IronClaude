@@ -84,9 +84,7 @@ def topological_launch_order(
     """
     ordered_ids = [t.task_id for t in tasks]
     entry_by_id = {t.task_id: t for t in tasks}
-    deps = {
-        tid: dependencies_of(tid, entry_by_id, result_by_id) for tid in ordered_ids
-    }
+    deps = {tid: dependencies_of(tid, entry_by_id, result_by_id) for tid in ordered_ids}
 
     satisfied: set[str] = set()
     remaining = list(ordered_ids)

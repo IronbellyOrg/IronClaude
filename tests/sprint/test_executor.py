@@ -814,9 +814,7 @@ class TestPerTaskOrchestration:
         phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
         assert phase_status.is_success is False
 
-    def test_per_task_error_max_turns_without_completion_still_fails(
-        self, tmp_path
-    ):
+    def test_per_task_error_max_turns_without_completion_still_fails(self, tmp_path):
         """Gated guard: a task that hit error_max_turns WITHOUT first emitting a
         success result (overran without finishing) must NOT recover. With no
         success envelope and no transient marker it stays FAIL_TERMINAL; either
@@ -950,8 +948,7 @@ class TestPerTaskOrchestration:
         envelope = tmp_path / "envelope.ndjson"
         envelope.write_text(
             '{"type":"content","text":"working..."}\n'
-            '{"type":"result","subtype":"success","is_error":false}\n'
-            + term + "\n"
+            '{"type":"result","subtype":"success","is_error":false}\n' + term + "\n"
         )
         assert _task_completed_before_overrun(envelope) is True
 
@@ -959,16 +956,13 @@ class TestPerTaskOrchestration:
         tail = tmp_path / "tail.ndjson"
         tail.write_text(
             '{"type":"content","text":"working..."}\n'
-            '{"type":"content","text":"VERDICT: PASS"}\n'
-            + term + "\n"
+            '{"type":"content","text":"VERDICT: PASS"}\n' + term + "\n"
         )
         assert _task_completed_before_overrun(tail) is True
 
         # (3) verdict pushed outside the tail window by >=16 later lines
         early_lines = ['{"type":"content","text":"VERDICT: PASS"}']
-        early_lines += [
-            '{"type":"content","text":"line %d"}' % i for i in range(20)
-        ]
+        early_lines += ['{"type":"content","text":"line %d"}' % i for i in range(20)]
         early_lines.append(term)
         early = tmp_path / "early.ndjson"
         early.write_text("\n".join(early_lines) + "\n")
@@ -978,8 +972,7 @@ class TestPerTaskOrchestration:
         neither = tmp_path / "neither.ndjson"
         neither.write_text(
             '{"type":"content","text":"working..."}\n'
-            '{"type":"content","text":"still working..."}\n'
-            + term + "\n"
+            '{"type":"content","text":"still working..."}\n' + term + "\n"
         )
         assert _task_completed_before_overrun(neither) is False
 
@@ -1829,9 +1822,7 @@ class TestPhaseResultJsonWrite:
         config = _make_config(tmp_path, num_phases=1)
         phase = config.phases[0]
         task_results = [self._make_task_result("T01.01", TaskStatus.PASS, 3)]
-        phase_result = self._make_phase_result(
-            phase, task_results, all_passed=True
-        )
+        phase_result = self._make_phase_result(phase, task_results, all_passed=True)
 
         _write_phase_result_json(config, phase, phase_result)
 
@@ -1851,9 +1842,7 @@ class TestPhaseResultJsonWrite:
             self._make_task_result("T01.01", TaskStatus.PASS, 3),
             self._make_task_result("T01.02", TaskStatus.FAIL_TERMINAL, 5),
         ]
-        phase_result = self._make_phase_result(
-            phase, task_results, all_passed=False
-        )
+        phase_result = self._make_phase_result(phase, task_results, all_passed=False)
 
         _write_phase_result_json(config, phase, phase_result)
 
@@ -1867,9 +1856,7 @@ class TestPhaseResultJsonWrite:
         ids = [tr["task"]["task_id"] for tr in payload["task_results"]]
         assert ids == ["T01.01", "T01.02"]
         assert payload["task_results"][0]["status"] == TaskStatus.PASS.value
-        assert (
-            payload["task_results"][1]["status"] == TaskStatus.FAIL_TERMINAL.value
-        )
+        assert payload["task_results"][1]["status"] == TaskStatus.FAIL_TERMINAL.value
 
 
 class TestFailClassificationHeuristic:
@@ -1897,9 +1884,7 @@ class TestFailClassificationHeuristic:
         )
         assert self._classify(output) == TaskStatus.FAIL_RECOVERABLE
 
-    def test_transient_connection_refused_classified_fail_recoverable(
-        self, tmp_path
-    ):
+    def test_transient_connection_refused_classified_fail_recoverable(self, tmp_path):
         """The ConnectionRefused marker is also a transient trigger."""
         output = tmp_path / "task-output.txt"
         output.write_text("Error: ConnectionRefused while reaching API\n")

@@ -35,7 +35,9 @@ def _seed_release(tmp_path: Path, phase: int = 7) -> tuple[Path, Path, Path]:
     file to rewrite.
     """
     source_index = tmp_path / "tasklist-index.md"
-    source_index.write_text("# Sprint\n\n| # | File |\n|---|------|\n", encoding="utf-8")
+    source_index.write_text(
+        "# Sprint\n\n| # | File |\n|---|------|\n", encoding="utf-8"
+    )
     results_dir = tmp_path / "results"
     results_dir.mkdir(parents=True, exist_ok=True)
     result_json = results_dir / f"phase-{phase}-result.json"
@@ -62,12 +64,7 @@ def _bundle_with_sidecar(
     bundle_dir.mkdir(parents=True, exist_ok=True)
     sidecar = bundle_dir / "task-results.json"
     sidecar.write_text(
-        json.dumps(
-            [
-                {"task": {"task_id": tid}, "status": "pass"}
-                for tid in task_ids
-            ]
-        ),
+        json.dumps([{"task": {"task_id": tid}, "status": "pass"} for tid in task_ids]),
         encoding="utf-8",
     )
     # artifacts_produced[0].parent resolves to bundle_dir (where the sidecar
@@ -111,9 +108,7 @@ class TestRecoveryBundle:
         bundle.affected_tasks.append("T03.01")
         bundle.artifacts_produced.append(Path("phase-3-task-T03.01-output.txt"))
         assert bundle.affected_tasks == ["T03.01"]
-        assert bundle.artifacts_produced == [
-            Path("phase-3-task-T03.01-output.txt")
-        ]
+        assert bundle.artifacts_produced == [Path("phase-3-task-T03.01-output.txt")]
         # Status has NOT yet advanced — merge_recovery_bundle owns that flip.
         assert bundle.status is RecoveryStatus.DRYRUN
         assert bundle.end_tasklist_sha256 is None
@@ -386,12 +381,8 @@ class TestRecoverySurfaceSmoke:
 
         phase_result = PhaseResult(phase=Phase(number=7, file=Path(".")))
         phase_result.recovery_history = [
-            RecoveryBundle(
-                bundle_id="b1", affected_phase=7, affected_tasks=["T07.11"]
-            ),
-            RecoveryBundle(
-                bundle_id="b2", affected_phase=7, affected_tasks=["T07.12"]
-            ),
+            RecoveryBundle(bundle_id="b1", affected_phase=7, affected_tasks=["T07.11"]),
+            RecoveryBundle(bundle_id="b2", affected_phase=7, affected_tasks=["T07.12"]),
             # A compact ref carries no affected_tasks → not counted.
             RecoveryBundleRef(
                 bundle_id="b3",
