@@ -228,11 +228,97 @@ def test_r2_run_start_reset_closes_stale_sidecar_leak(tmp_path):
     (run2_dir / "spec_id_registry.json").write_text(
         json.dumps(registry_b.to_dict()), encoding="utf-8"
     )
-    _reset_id_registry_sidecar_hint(run2_dir, resume=True)
+    _reset_id_registry_sidecar_hint(run2_dir, resume=True, spec_file=spec_b)
     assert _gates._roadmap_ids_within_spec("NFR-9") is True, (
-        "R2 resume-aware: a --resume run with a persisted sidecar must re-use "
-        "its own registry, not fail-shut"
+        "R2 resume-aware: a --resume run with a persisted sidecar whose "
+        "spec_hash matches the current spec must re-use its own registry, "
+        "not fail-shut"
     )
+
+
+def test_resume_rejects_sidecar_built_from_different_spec(tmp_path):
+    """PR #112 identity guard: a --resume run whose output_dir holds a sidecar
+    built from a DIFFERENT (or mutated) spec must fail-shut, not validate the
+    roadmap against the wrong spec's id-registry.
+
+    Fail-before/pass-after: pre-fix, ``_reset_id_registry_sidecar_hint`` trusted
+    ``<output_dir>/spec_id_registry.json`` on existence alone, so a resume against
+    a mutated spec would re-point at the STALE sidecar and wrongly PASS an ID that
+    only belongs to the old spec. The ``spec_hash`` identity guard now rejects the
+    provenance mismatch and clears the hint to ``None`` (fail-shut).
+    """
+    from superclaude.cli.roadmap.executor import _reset_id_registry_sidecar_hint
+
+    out_dir = tmp_path / "out"
+    out_dir.mkdir()
+
+    # Original run: spec contained FR-1; its registry sidecar persisted here.
+    spec_old = out_dir / "spec.md"
+    spec_old.write_text("- **FR-1** Legacy auth.\n", encoding="utf-8")
+    registry_old = build_id_registry(spec_old)
+    (out_dir / "spec_id_registry.json").write_text(
+        json.dumps(registry_old.to_dict()), encoding="utf-8"
+    )
+
+    # The spec is then MUTATED in place (FR-1 removed, NFR-9 added) but the
+    # stale sidecar from the original run still sits in out_dir. A --resume run
+    # now targets the mutated spec.
+    spec_old.write_text("- **NFR-9** Telemetry only.\n", encoding="utf-8")
+
+    _reset_id_registry_sidecar_hint(out_dir, resume=True, spec_file=spec_old)
+
+    # FR-1 is in the STALE sidecar but NOT in the current (mutated) spec. The
+    # identity guard must have cleared the hint, so the gate fails-shut instead
+    # of validating FR-1 against the wrong registry.
+    leaked = _gates._roadmap_ids_within_spec("FR-1")
+    assert isinstance(leaked, str), (
+        "Resume against a spec whose hash differs from the persisted sidecar "
+        f"must fail-shut, not validate against the stale registry; got {leaked!r}"
+    )
+    assert "Contract #9" in leaked
+
+
+def test_sidecar_match_fail_shut_on_non_utf8_spec(tmp_path):
+    """A non-UTF8 spec must fail-shut (return False), not crash --resume.
+
+    ``UnicodeDecodeError`` is a ``ValueError`` subclass — NOT an ``OSError`` —
+    so the spec-read handler must catch it explicitly, matching the docstring's
+    "unknown/unreadable spec" fail-shut contract.
+    """
+    from superclaude.cli.roadmap.executor import _sidecar_matches_spec
+
+    spec = tmp_path / "spec.md"
+    spec.write_bytes(b"\xff\xfe invalid utf-8 \x80\x81")
+    sidecar = tmp_path / "spec_id_registry.json"
+    sidecar.write_text(json.dumps({"spec_hash": "deadbeefdeadbeef"}), encoding="utf-8")
+    assert _sidecar_matches_spec(sidecar, spec) is False
+
+
+def test_sidecar_match_fail_shut_on_non_utf8_sidecar(tmp_path):
+    """A non-UTF8 sidecar must fail-shut, not raise ``UnicodeDecodeError``."""
+    from superclaude.cli.roadmap.executor import _sidecar_matches_spec
+
+    spec = tmp_path / "spec.md"
+    spec.write_text("- **FR-1** Real.\n", encoding="utf-8")
+    sidecar = tmp_path / "spec_id_registry.json"
+    sidecar.write_bytes(b"\xff\xfe\x00 not utf-8 json \x80")
+    assert _sidecar_matches_spec(sidecar, spec) is False
+
+
+def test_sidecar_match_fail_shut_on_non_dict_json(tmp_path):
+    """A valid-but-non-object sidecar JSON (e.g. ``[]``) must fail-shut.
+
+    Pre-fix, ``json.loads`` returns a list and ``payload.get("spec_hash")``
+    raises ``AttributeError``; the ``isinstance(payload, dict)`` guard now
+    declines the sidecar instead of crashing.
+    """
+    from superclaude.cli.roadmap.executor import _sidecar_matches_spec
+
+    spec = tmp_path / "spec.md"
+    spec.write_text("- **FR-1** Real.\n", encoding="utf-8")
+    sidecar = tmp_path / "spec_id_registry.json"
+    sidecar.write_text("[]", encoding="utf-8")
+    assert _sidecar_matches_spec(sidecar, spec) is False
 
 
 def test_extract_roadmap_ids_reuses_canonical_extractor():

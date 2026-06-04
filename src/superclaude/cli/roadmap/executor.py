@@ -3529,7 +3529,9 @@ def _restore_from_state(
     return config
 
 
-def _reset_id_registry_sidecar_hint(output_dir: Path, resume: bool) -> None:
+def _reset_id_registry_sidecar_hint(
+    output_dir: Path, resume: bool, spec_file: Path | None = None
+) -> None:
     """R2: reset the module-level Contract #9 sidecar hint at pipeline-run start.
 
     The ``gates._id_registry_sidecar_path`` hint is set ONLY by the extract step
@@ -3546,8 +3548,22 @@ def _reset_id_registry_sidecar_hint(output_dir: Path, resume: bool) -> None:
     * ``--resume`` run: ``_apply_resume`` may skip the extract step, so a blind
       reset to ``None`` would fail-shut MERGE on a legitimate resume. Instead,
       re-point the hint at the persisted ``<output_dir>/spec_id_registry.json``
-      (written by the original run for the same spec) when it exists; otherwise
-      clear to ``None`` (correct fail-shut: no registry => cannot validate).
+      (written by the original run for the same spec) when it exists AND its
+      embedded ``spec_hash`` still matches the current spec; otherwise clear to
+      ``None`` (correct fail-shut: no trustworthy registry => cannot validate).
+
+    Identity guard (PR #112 augmentcode follow-up): the R2 fresh-run reset closes
+    the *cross-run* stale-path leak, but the ``--resume`` re-point previously
+    trusted ``<output_dir>/spec_id_registry.json`` on existence alone. If the
+    same ``output_dir`` is resumed against a *different or mutated* spec, that
+    persisted sidecar belongs to the wrong spec and MERGE_GATE would validate
+    Contract #9 against the wrong id-registry — a false-positive in a fail-shut
+    contract path. We close this by comparing the persisted sidecar's
+    ``spec_hash`` (sha256[:16] of the spec bytes, the same fingerprint
+    :func:`id_registry.build_id_registry` records) against the current
+    ``spec_file``'s hash. On any mismatch, or if the hash cannot be computed
+    (missing/unreadable spec or sidecar, malformed JSON), we fail-shut to
+    ``None`` rather than trust a sidecar of uncertain provenance.
 
     This helper changes only the module-level hint; it does NOT touch the
     ``gates._roadmap_ids_within_spec`` fail-shut branches or the
@@ -3556,10 +3572,38 @@ def _reset_id_registry_sidecar_hint(output_dir: Path, resume: bool) -> None:
     from .gates import set_id_registry_sidecar_path
 
     sidecar = Path(output_dir) / "spec_id_registry.json"
-    if resume and sidecar.exists():
+    if resume and sidecar.exists() and _sidecar_matches_spec(sidecar, spec_file):
         set_id_registry_sidecar_path(sidecar)
     else:
         set_id_registry_sidecar_path(None)
+
+
+def _sidecar_matches_spec(sidecar: Path, spec_file: Path | None) -> bool:
+    """Return ``True`` iff *sidecar*'s ``spec_hash`` matches *spec_file*'s hash.
+
+    Fail-shut helper for the ``--resume`` re-point in
+    :func:`_reset_id_registry_sidecar_hint`. Returns ``False`` (decline to
+    trust the sidecar) when the spec is unknown/unreadable, the sidecar is
+    unreadable or malformed JSON, or the embedded ``spec_hash`` is absent or
+    differs. The hash recipe MUST stay in lockstep with
+    :func:`id_registry.build_id_registry` (sha256 of the spec UTF-8 bytes,
+    first 16 hex chars).
+    """
+    if spec_file is None:
+        return False
+    try:
+        spec_text = Path(spec_file).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    current_hash = hashlib.sha256(spec_text.encode("utf-8")).hexdigest()[:16]
+    try:
+        payload = json.loads(sidecar.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return False
+    if not isinstance(payload, dict):
+        return False
+    persisted_hash = payload.get("spec_hash")
+    return isinstance(persisted_hash, str) and persisted_hash == current_hash
 
 
 def execute_roadmap(
@@ -3662,7 +3706,7 @@ def execute_roadmap(
     # R2 (Contract #9 stale-sidecar leak): reset the module-level sidecar hint
     # at run-start so a second in-process run cannot inherit a prior run's
     # sidecar. Resume-aware (see _reset_id_registry_sidecar_hint).
-    _reset_id_registry_sidecar_hint(Path(config.output_dir), resume)
+    _reset_id_registry_sidecar_hint(Path(config.output_dir), resume, config.spec_file)
 
     # --resume: check which steps already pass their gates
     if resume:
