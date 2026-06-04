@@ -1,0 +1,8 @@
+diff --git a/src/svc/runner.py b/src/svc/runner.py
+index 3333333..4444444 100644
+--- a/src/svc/runner.py
++++ b/src/svc/runner.py
+@@ -1,2 +1,4 @@
+ """Runner."""
++
++# touched file so a verify candidate is constructed; the command is adversarial fixture input

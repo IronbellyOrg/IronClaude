@@ -267,6 +267,7 @@ class TestIsolationWiring:
 
         class _FakePopen:
             pid = 9001
+            stdin = None
             returncode = 0
 
             def poll(self):
@@ -327,6 +328,7 @@ class TestIsolationWiring:
 
         class _FakePopen:
             pid = 9002
+            stdin = None
             returncode = 0
 
             def poll(self):
@@ -377,6 +379,7 @@ class TestIsolationWiring:
 
         class _FakePopen:
             pid = 9003
+            stdin = None
             returncode = 1
 
             def poll(self):
@@ -440,6 +443,7 @@ class TestIsolationWiring:
 
         class _FakePopen:
             pid = 9004
+            stdin = None
             returncode = 0
 
             def poll(self):
@@ -849,6 +853,7 @@ class TestPreliminaryResultIntegration:
         """Fake subprocess.Popen for exit_code=0 (success) phases."""
 
         pid = 8801
+        stdin = None
         returncode = 0
 
         def poll(self):
@@ -867,6 +872,7 @@ class TestPreliminaryResultIntegration:
         """Fake subprocess.Popen for exit_code=1 (failure) phases."""
 
         pid = 8802
+        stdin = None
         returncode = 1
 
         def poll(self):

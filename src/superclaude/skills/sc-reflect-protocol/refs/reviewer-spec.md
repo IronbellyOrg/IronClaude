@@ -36,6 +36,14 @@ Example shape — the brief contains an H2 `## Grounding hunks` heading followed
 
 Each hunk preserves the `file:line` ref so the `evidence-validator` agent can re-Read it at the Wave 5 final gate.
 
+**FR-1 implementor-list hunks.** When §6.1 step 3b `find_implementations` enumerated the polymorphic surface of an abstract symbol the reviewer will cite, that implementor list is injected into this `## Grounding hunks` block as additional `file:line` H3 hunks (one per implementor site) so reviewers see the full abstract-symbol implementor set, not just the abstract declaration. The `file:line` hunk-shape convention is unchanged.
+
+**FR-3 extended-info references.** When §6.1 step 4 ran `find_referencing_symbols` with `include_info: true`, the richer reference context (docstrings + signatures from the extended-info return shape) is surfaced into the same grounding-hunks block alongside the plain `file:line` reference hunks — denser reference grounding without a new brief structure. The `reviewer_briefs_materialized` contract emission is unchanged.
+
+**FR-4 verification-results hunk.** When §6.1 step 5.5 ran the verification triangle, a grounding-hunk entry carrying the artifact-path ref `<output>/verify-logs/invocations.yaml` (the per-invocation `evidence_ref` array: `{cmd, exit_code, deviation_class, ...}`) is injected into this `## Grounding hunks` block for the **`qa`-persona** reviewer (persona-filtered — the qa reviewer owns the coverage/acceptance/verification surface). The artifact ref is preserved verbatim so the Wave-5 evidence-validator can re-Read it. This is an entry under the existing `## Grounding hunks` section — NOT a fourth brief section; the "exactly three sections" invariant is unchanged.
+
+**FR-RV3-MED.1 hierarchy-slice hunk.** When §6.1 step 4.5 ran `type_hierarchy`, a grounding-hunk entry carrying the artifact-path ref `<output>/artifacts/hierarchy-slice.yaml` (the materialized transitive supertype/subtype family, FR-1 `hierarchy_slice_path`) is injected into this `## Grounding hunks` block for the **`analyzer`/`architect`-persona** reviewer (persona-filtered — they own the structural/lineage surface). The artifact ref is preserved verbatim so the Wave-5 evidence-validator can re-Read it. Like the FR-4 entry, this is an entry under the existing `## Grounding hunks` section — NOT a fourth brief section; the "exactly three sections" invariant is unchanged.
+
 #### `## Coverage slice`
 
 The coverage-matrix slice containing **only the rows this reviewer is responsible for**. For UC-1, this is the requirement-to-card mapping subset; for UC-2, this is the tasklist-task-to-diff-hunk mapping subset.

@@ -47,6 +47,7 @@ class _SlowFakePopen:
     def __init__(self):
         self.returncode = None
         self.pid = 99999
+        self.stdin = None
         self._poll_count = 0
         self._terminated = False
 
@@ -167,6 +168,7 @@ class TestGracefulShutdown:
             def __init__(self):
                 self.returncode = 1
                 self.pid = 55555
+                self.stdin = None
                 self._poll_count = 0
 
             def poll(self):
@@ -271,6 +273,7 @@ class TestGracefulShutdown:
             def __init__(self):
                 self.returncode = None
                 self.pid = 11111
+                self.stdin = None
                 self._poll_count = 0
                 self._terminated = False
 

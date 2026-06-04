@@ -1,0 +1,93 @@
+{
+  "skill_name": "sc-recommend",
+  "schema_version": "1.0",
+  "notes": "Draft eval set covering the 6 test cases from the BUILD_REQUEST. This iteration is a vibe-pass: no subagent runs, no benchmark — user reviews drafts manually. Assertions are listed per eval so a future iteration can spawn parallel with-skill/baseline subagents without re-authoring.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "spec-from-matrices-must-surface-spec-panel",
+      "prompt": "Generate a prompt to create specs from these matrices: docs/scope-matrix.md and docs/risk-matrix.md",
+      "expected_output": "Refined prompt that hands off to /sc:spec-panel. Must also reference release-spec-template.md and surface the prd / tdd skills as multi-path branches if their fit is non-trivial. This is the live miss from a recent /sc:recommend invocation; surfacing /sc:spec-panel is non-negotiable.",
+      "must_appear": ["/sc:spec-panel", "release-spec-template.md"],
+      "must_not_appear": ["ml_category", "web_category", "api_category"],
+      "assertions": [
+        {"text": "Output names /sc:spec-panel as the primary delegation", "type": "string_contains", "value": "/sc:spec-panel"},
+        {"text": "Output references the release-spec template file by name", "type": "string_contains", "value": "release-spec-template.md"},
+        {"text": "Output does not include any static keyword-category labels from the old skill", "type": "string_not_contains", "value": "_category"},
+        {"text": "Output includes a fenced paste-ready prompt block", "type": "regex_match", "value": "```[a-zA-Z]*\\n[\\s\\S]*?```"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "research-codebase-must-pick-among-three-research-paths",
+      "prompt": "Help me research the codebase for how the freshness hook system works",
+      "expected_output": "Output distinguishes deep-research agent vs. Explore agent vs. auggie MCP / tech-research skill based on scope/breadth. Should explicitly name which one wins and why; should not list all three flatly.",
+      "must_appear_one_of": ["deep-research", "Explore", "auggie", "tech-research"],
+      "assertions": [
+        {"text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill", "type": "regex_match", "value": "(deep-research|Explore|auggie|tech-research)"},
+        {"text": "Output justifies the choice (does not flat-list all three)", "type": "regex_match", "value": "(because|since|wins|preferred|fits|scope)"},
+        {"text": "Output includes a fenced prompt block OR a clear native-tool recommendation", "type": "regex_match", "value": "(```|Read|Glob|Grep)"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "tasklist-must-handoff-not-reimplement",
+      "prompt": "Build a tasklist for this spec at docs/specs/checkout-v2-spec.md",
+      "expected_output": "Output hands off to /sc:tasklist OR the task-builder skill. Output MUST NOT restate the tasklist algorithm — no phase breakdown, no MDTM template content, no scoring rules. This demonstrates R3 (no protocol reimplementation).",
+      "must_appear_one_of": ["/sc:tasklist", "task-builder"],
+      "must_not_appear": ["MDTM template", "phase breakdown", "checklist algorithm"],
+      "assertions": [
+        {"text": "Output names /sc:tasklist or task-builder skill", "type": "regex_match", "value": "(/sc:tasklist|task-builder)"},
+        {"text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)", "type": "string_not_contains", "value": "MDTM template"},
+        {"text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification", "type": "max_length_check", "value": 2500}
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "small-util-refactor-must-recommend-native",
+      "prompt": "Recommend a command for refactoring this small util in src/utils/timefmt.py — it's about 40 lines",
+      "expected_output": "Anti-bloat default: net-value evaluation recommends native Read + Edit. No skill delegation. Output should be short and direct.",
+      "must_appear": ["native", "Read", "Edit"],
+      "must_not_appear": ["/sc:improve", "/sc:cleanup", "/sc:refactor"],
+      "assertions": [
+        {"text": "Output recommends native tooling (Read + Edit)", "type": "regex_match", "value": "(native|Read.*Edit|Edit.*Read)"},
+        {"text": "Output does NOT recommend a skill delegation for a 40-line util", "type": "regex_match_not", "value": "Run: /sc:(improve|cleanup|refactor|design)"},
+        {"text": "Output explains the reason for the native fallback", "type": "regex_match", "value": "(scope|specialized|overhead|reason)"},
+        {"text": "Output is concise (anti-bloat)", "type": "max_length_check", "value": 1500}
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "plugin-mode-must-search-ecosystem-not-local",
+      "prompt": "/sc:recommend find an MCP server for Notion --plugin",
+      "expected_output": "Plugin-mode invocation. Even though the user explicitly asks for an MCP server (which is normally out-of-scope for --plugin in this configuration), the request opens the scope explicitly. Output must IGNORE the local surface and search the ecosystem. Must return install commands, repo URLs, and citations. Must NOT mix local skills into the output.",
+      "must_appear": ["install", "github.com"],
+      "must_not_appear": ["src/superclaude/commands/", "src/superclaude/skills/"],
+      "assertions": [
+        {"text": "Output contains a candidate plugin/MCP server with install command", "type": "regex_match", "value": "(install|npm|pipx|uv|brew|claude.*install)"},
+        {"text": "Output includes a citation URL (github.com or marketplace)", "type": "regex_match", "value": "https?://"},
+        {"text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)", "type": "regex_match_not", "value": "src/superclaude/(commands|skills|agents)"},
+        {"text": "Output identifies the candidate as an MCP server, not a plugin or skill", "type": "regex_match", "value": "(MCP server|mcp-server)"}
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "parallel-research-must-recommend-multi-agent-fanout",
+      "prompt": "Set up a research workflow for these 3 files: src/superclaude/skills/sc-adversarial-protocol/SKILL.md, src/superclaude/skills/sc-reflect-protocol/SKILL.md, src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+      "expected_output": "Output recommends a parallel multi-Agent fan-out pattern: a single message with 3 Agent tool calls (one per file), then a synthesis step. Does NOT recommend a sequential skill chain like /sc:research three times.",
+      "must_appear_one_of": ["parallel", "single message", "fan-out", "Agent tool"],
+      "must_not_appear": [],
+      "assertions": [
+        {"text": "Output recommends parallel Agent fan-out, not sequential skill calls", "type": "regex_match", "value": "(parallel|single message|fan-out|fanout)"},
+        {"text": "Output explicitly invokes the Agent tool (not 3x /sc:research)", "type": "regex_match", "value": "Agent.*(tool|call)"},
+        {"text": "Output includes a synthesis step after the parallel Agents", "type": "regex_match", "value": "(synthesi|combin|merge|aggregate)"}
+      ],
+      "files": []
+    }
+  ]
+}

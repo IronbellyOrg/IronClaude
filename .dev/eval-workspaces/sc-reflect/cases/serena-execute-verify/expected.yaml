@@ -1,0 +1,27 @@
+# STUB — V3-Serena-medium eval scaffold. Human contract doc (grader does NOT read this; machine
+# assertions live in evals/evals.json for serena-execute-verify).
+# Case: serena-execute-verify — FR-RV3-MED.4 (execute_shell_command verification triangle).
+mode: post
+use_case: UC-2
+
+# --- default UC-2 verification run (verification-capable context) ---
+verification_ran: true
+verification_invocations: 3          # pytest + ruff + mypy on the affected subtree
+evidence_ref: outputs/verify-logs/invocations.yaml   # per-invocation array (NOT inlined in audit row)
+
+# --- pytest exit 1 on a tasklist-claimed-passing file → Regression → promotion blocked ---
+verification_regressions_detected: 1
+regression_present: true             # verified-sourced (not task-log self-report)
+promotion_blocked: true              # §14.5.2 condition 4 (regression == 0) fails → Wave 7 promotion blocked
+
+# --- safety-envelope denials (each NOT invoked) ---
+allowlist_block: { cmd: "rm -rf src", verify_blocked: true, verify_blocked_reason: "verb 'rm' not in allowlist" }
+mutation_deny: { cmd: "git commit -am x", verify_blocked: true, verify_blocked_reason: "mutation-denied" }
+timeout_124: { verify_timeout_hit: true, exit_code: 124 }   # NFR-6 liveness
+
+# --- skip variants (loud, never silent) ---
+no_verify_variant: { verification_ran: false, verification_skip_reason: "--no-verify" }
+read_only_variant: { verification_ran: false, verification_skip_reason: "read-only-project", warn_emitted: true }
+
+tier_reached: 1
+escalation_reason: regression_present   # §5.3 rule 3

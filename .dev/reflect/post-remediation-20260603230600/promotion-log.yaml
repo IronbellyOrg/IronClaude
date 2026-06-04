@@ -1,0 +1,21 @@
+promotion_log_version: "1.0"
+adapter: task
+action: moved
+timestamp: 2026-06-03T23:08:00Z
+gate_passed: true
+sha_verification: content-only (relative paths; path-independent)
+promoted:
+  - task: TASK-RF-20260603-204500
+    source: .dev/tasks/to-do/TASK-RF-20260603-204500
+    destination: .dev/tasks/done/TASK-RF-20260603-204500
+    content_sha256_prefix: 79d38a66ac85
+    rollback_command: "mv .dev/tasks/done/TASK-RF-20260603-204500 .dev/tasks/to-do/TASK-RF-20260603-204500"
+  - task: TASK-RF-20260603-032936
+    source: .dev/tasks/to-do/TASK-RF-20260603-032936
+    destination: .dev/tasks/done/TASK-RF-20260603-032936
+    content_sha256_prefix: 00a5008c06d6
+    rollback_command: "mv .dev/tasks/done/TASK-RF-20260603-032936 .dev/tasks/to-do/TASK-RF-20260603-032936"
+note: |
+  First mv attempt false-flagged a SHA mismatch (sha256sum output includes the file path,
+  which differs to-do/ vs done/); rollback fired correctly. Re-run with content-only
+  relative-path hashing verified byte-identity and the move succeeded.

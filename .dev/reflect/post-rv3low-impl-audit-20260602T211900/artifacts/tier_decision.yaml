@@ -1,0 +1,21 @@
+selected_tier: 2
+fired_rule_number: 4          # S_domains >= 3 (protocol markdown / refs / eval JSON+YAML) — multi-domain
+composite_score: 7.5
+per_signal_breakdown:
+  scope_size: 2               # 5 tracked files + 6 new eval-case dirs + evals.json
+  task_count: 2               # 8 FRs + 5-site contract bump + 6 eval scaffolds
+  blast_radius: 1             # additive/fail-open protocol doc; no project source mutated
+  spec_density: 1             # high spec density but well-mapped (research distilled it)
+  ambiguity_signals: 1.5      # OQ-gated runtime emissions (scaffold-vs-runtime boundary)
+escalation_reason: >
+  Multi-domain change AND — decisively — the reflect executor (Opus, this orchestrator) IS the
+  agent whose work is under review. Single-agent self-review is the §11.0 failure mode this protocol
+  exists to neutralise. Escalate to Tier 2 with reviewers on classes DISJOINT from the executor
+  (sonnet + haiku, both != Opus) per §7.1 executor-class exclusion + §11.4 heterogeneity.
+executor_class: opus
+executor_class_source: orchestrator-identity
+reviewer_classes: [sonnet, haiku]
+executor_exclusion_satisfied: true     # reviewers contain neither the executor class (opus)
+calibrator_merge_class: opus           # NOTE: merge orchestration done by executor class — see degradation note
+calibrator_diversity: degraded         # merge-orchestrator class == executor class; reviewers are the load-bearing independence
+reviewer_count: 2                      # N=2 T2 floor (legitimate)

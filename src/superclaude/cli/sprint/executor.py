@@ -351,7 +351,7 @@ def aggregate_task_results(
     )
 
     report.tasks_total = len(task_results) + len(report.remaining_task_ids)
-    report.tasks_passed = sum(1 for r in task_results if r.status == TaskStatus.PASS)
+    report.tasks_passed = sum(1 for r in task_results if r.status.is_success)
     report.tasks_failed = sum(1 for r in task_results if r.status == TaskStatus.FAIL_TERMINAL)
     report.tasks_incomplete = sum(
         1 for r in task_results if r.status == TaskStatus.INCOMPLETE
@@ -987,11 +987,22 @@ def _run_one_task(
 
     finished_at = datetime.now(timezone.utc)
 
+    # Determine task status from exit code.
+    task_output_path = config.task_output_file(phase, task)
     if exit_code == 0:
         status = TaskStatus.PASS
     elif exit_code == 124:
         status = TaskStatus.INCOMPLETE
-    elif _is_transient_failure(config.task_output_file(phase, task)):
+    elif detect_error_max_turns(task_output_path) and _task_completed_before_overrun(
+        task_output_path
+    ):
+        # Budget overrun (error_max_turns) AFTER completing substantive work:
+        # the task emitted a successful result before the terminal overrun
+        # envelope, so recover instead of failing the phase. Completion
+        # evidence outranks the transient-failure classification below.
+        # (#121, ported into the shared helper so BOTH K=1 and K>1 recover.)
+        status = TaskStatus.PASS_RECOVERED
+    elif _is_transient_failure(task_output_path):
         status = TaskStatus.FAIL_RECOVERABLE
     else:
         status = TaskStatus.FAIL_TERMINAL
@@ -1710,6 +1721,8 @@ def execute_sprint(config: SprintConfig):
                 # outcome is equivalent to the former `all(r.status == PASS)`; when
                 # budget left tasks un-attempted (`remaining` non-empty) the report
                 # correctly counts them so the phase is no longer reported PASS.
+                # aggregate_task_results.tasks_passed uses TaskStatus.is_success, so
+                # #121's PASS_RECOVERED is counted as success here.
                 phase_report = aggregate_task_results(
                     phase.number, task_results, remaining_task_ids=remaining
                 )
@@ -2245,6 +2258,104 @@ def _is_transient_failure(output_path: Path) -> bool:
         except (ValueError, TypeError):
             return False
         return bool(obj.get("is_error") and obj.get("output_tokens", 1) == 0)
+    return False
+
+
+# A successful per-task completion envelope: a result line whose subtype is
+# "success", or an agent task_complete envelope. Used by
+# ``_task_completed_before_overrun`` to detect completion evidence that gates
+# per-task recovery from ``error_max_turns``.
+_TASK_SUCCESS_ENVELOPE_PATTERN = re.compile(
+    r'"subtype"\s*:\s*"success"|"(?:type|subtype)"\s*:\s*"task_complete"'
+)
+
+# A SECOND, tail-only class of completion evidence: a strong completion verdict
+# emitted in the final assistant turns when the agent finished its deliverable
+# but overran the turn budget BEFORE emitting a structured
+# ``success``/``task_complete`` envelope (e.g. TUIBBS V1 MVP sprint Phase 7 /
+# task T07.05, whose deliverable was complete and green on disk but whose stream
+# carried no success envelope). Deliberately conservative (strong verdict
+# phrases, not a bare "PASS") and applied only to the tail of the stream by
+# ``_task_completed_before_overrun`` — a task that overran *mid-work* does not
+# end on a completion verdict, while one that overran *after completing* does,
+# so tail-scoping preserves the completed-after-overrun vs overran-mid-work
+# distinction the recovery gate exists to protect.
+_TASK_TAIL_COMPLETION_PATTERN = re.compile(
+    r'VERDICT:\s*PASS'
+    r'|EXIT_RECOMMENDATION:\s*CONTINUE'
+    r'|"result"\s*:\s*"Pass"'
+    r'|ACCEPTANCE CRITERIA[^\n]{0,40}ALL MET',
+    re.IGNORECASE,
+)
+_TASK_TAIL_COMPLETION_WINDOW = 15
+
+
+def _task_completed_before_overrun(output_path: Path) -> bool:
+    """Return True iff the per-task NDJSON stream shows completion evidence
+    BEFORE its terminal ``error_max_turns`` envelope.
+
+    This is the completion-evidence gate for per-task recovery. A task that
+    overran *after* finishing its substantive work shows completion evidence in
+    the lines preceding the terminal ``{"type":"result","subtype":"error_max_turns"}``
+    envelope; a task that overran *without* finishing does not. Recovery is
+    GATED on this — ``error_max_turns`` alone is NOT sufficient (that would mask
+    a task that overran without finishing).
+
+    Two classes of completion evidence are recognized, in order:
+
+    1. **Structured success envelope** — a successful
+       ``{"type":"result","subtype":"success"}`` (or agent ``task_complete``)
+       envelope anywhere in the pre-terminal lines.
+    2. **Tail completion verdict** — a strong completion verdict
+       (``_TASK_TAIL_COMPLETION_PATTERN``) within the last
+       ``_TASK_TAIL_COMPLETION_WINDOW`` pre-terminal lines. This recovers the
+       *artifact-only* overrun where the agent finished and wrote its
+       deliverable + evidence but tripped the turn ceiling before emitting a
+       structured envelope (the motivating case: TUIBBS V1 MVP sprint Phase 7 /
+       task T07.05). The verdict scan is **tail-scoped on purpose**: a task
+       that overran mid-work does not end on a completion verdict, while one
+       that overran after completing does, so confining the scan to the tail
+       preserves the completed-after-overrun vs overran-mid-work distinction
+       (a casual mid-stream "PASS" cannot trigger recovery).
+
+    This helper is only meaningful when called for a stream whose terminal line
+    is the ``error_max_turns`` envelope (i.e. ``detect_error_max_turns`` is
+    already True); it scans the lines strictly BEFORE that terminal line so the
+    error line itself can never be mistaken for completion evidence.
+
+    Returns False when the file is missing/unreadable/empty, or when neither
+    class of completion evidence appears before the terminal
+    ``error_max_turns`` line. Reads the file defensively (mirroring
+    ``detect_error_max_turns``); performs no network or subprocess calls.
+    """
+    try:
+        content = output_path.read_text(errors="replace")
+    except (FileNotFoundError, OSError):
+        return False
+
+    if not content.strip():
+        return False
+
+    lines = [ln.strip() for ln in content.strip().splitlines() if ln.strip()]
+    if not lines:
+        return False
+
+    # Class 1: a structured success/task_complete envelope anywhere in the
+    # lines strictly before the terminal (last non-empty) line, which is the
+    # error_max_turns envelope on the gated-recovery path.
+    for line in lines[:-1]:
+        if _TASK_SUCCESS_ENVELOPE_PATTERN.search(line):
+            return True
+
+    # Class 2: a strong completion verdict in the TAIL (last
+    # ``_TASK_TAIL_COMPLETION_WINDOW`` pre-terminal lines). Tail-scoped on
+    # purpose — a task that overran mid-work does not end on a completion
+    # verdict, while one that overran after completing does. This recovers the
+    # artifact-only overrun (no success envelope) that Class 1 misses.
+    for line in lines[:-1][-_TASK_TAIL_COMPLETION_WINDOW:]:
+        if _TASK_TAIL_COMPLETION_PATTERN.search(line):
+            return True
+
     return False
 
 

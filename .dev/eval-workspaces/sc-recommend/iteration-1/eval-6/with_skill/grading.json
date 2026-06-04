@@ -1,0 +1,25 @@
+{
+  "eval_id": 6,
+  "eval_name": "parallel-research-must-recommend-multi-agent-fanout",
+  "configuration": "with_skill",
+  "output_chars": 3386,
+  "output_exists": true,
+  "expectations": [
+    {
+      "text": "Output recommends parallel Agent fan-out, not sequential skill calls",
+      "passed": true,
+      "evidence": "regex /(parallel|single message|fan-out|fanout)/ matched: 'parallel'"
+    },
+    {
+      "text": "Output explicitly invokes the Agent tool (not 3x /sc:research)",
+      "passed": true,
+      "evidence": "regex /Agent.*(tool|call)/ matched: 'Agent fan-out** \u2014 a single message spawning 3 `Agent` calls (one per file), foll'"
+    },
+    {
+      "text": "Output includes a synthesis step after the parallel Agents",
+      "passed": true,
+      "evidence": "regex /(synthesi|combin|merge|aggregate)/ matched: 'synthesi'"
+    }
+  ],
+  "pass_rate": 1.0
+}

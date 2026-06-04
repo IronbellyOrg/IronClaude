@@ -1,0 +1,66 @@
+# UC-1 coverage map: spec FR-RV3-MED → tasklist TASK-RF-20260602-145459
+# spec:     .dev/releases/current/Reflect-V3.5-Serena_Mediums/05-spec-medium-complexity.md
+# tasklist: .dev/tasks/to-do/TASK-RF-20260602-145459/TASK-RF-20260602-145459.md
+
+functional_requirements:
+  FR-RV3-MED.4_execute_shell_command:
+    phase: "Phase 2 (Steps 2.1-2.16)"
+    acceptance_criteria:
+      FR-4.1_verification_ran_+_evidence_ref_artifact: "Step 2.4(g) + 2.7"
+      FR-4.2_verb_allowlist: "Step 2.4(b)"
+      FR-4.2b_metachar_denied: "Step 2.4(c) [C1 load-bearing]"
+      FR-4.3_exit_code_taxonomy: "Step 2.5"
+      FR-4.3b_flaky_retry: "Step 2.5"
+      FR-4.4_no_verify/excluded/read_only_skip: "Step 2.5 + 2.14"
+      FR-4.5_mutation_denied: "Step 2.4(e/g) + 2.13"
+      FR-4.6_timeout_124: "Step 2.4(d)"
+      FR-4.7_read_only_WARN: "Step 2.2 + 2.13"
+      FR-4.8_input_hash_artifact_excludes: "Step 2.6 (both construction + recompute)"
+    status: COVERED
+  FR-RV3-MED.2_onboarding:
+    phase: "Phase 3 (Steps 3.1-3.7)"
+    acceptance_criteria: { FR-2.1..FR-2.6: "Step 3.3 (all six)", NFR-7_budget: "Step 3.3 + 3.5" }
+    status: COVERED
+  FR-RV3-MED.3_prepare_for_new_conversation:
+    phase: "Phase 4 (Steps 4.1-4.10)"
+    acceptance_criteria:
+      FR-3.1_handoff_before_taskbuilder: "Step 4.4"
+      FR-3.2_handoff_memory_key_contract: "Step 4.6"
+      FR-3.3_write_memory_fallback: "Step 4.4 + 4.5"
+      FR-3.4_both_fail_no_block: "Step 4.4 + 4.5"
+      FR-3.5_no_remediate_noop: "Step 4.4"
+      FR-3.6_no_assumed_params: "Step 4.1 (OQ-M1 probe gate)"
+      FR-3.7_handoff_retention_prefix: "Step 4.8 (cross-spec dependency record)"
+    status: COVERED
+  FR-RV3-MED.1_type_hierarchy:
+    phase: "Phase 5 (Steps 5.1-5.9)"
+    acceptance_criteria:
+      FR-1.1_invoked: "Step 5.3"
+      FR-1.2/1.3_hierarchy_coverage_pct_+_slice_path: "Step 5.5"
+      FR-1.4_skip_no_degrade: "Step 5.3"
+      FR-1.5_backend_error_degrade_fallback: "Step 5.3"
+      FR-1.6_1B.3_lineage_confirm: "Step 5.4"
+    status: COVERED
+
+non_functional_requirements:
+  NFR-1_fail_open: { mapped: true, where: "per-FR fail-open clauses + §14 rows (2.14/4.5) + per-eval skip variants" }
+  NFR-2_telemetry: { mapped: partial, where: "distributed — each FR adds §9.2 telemetry + per-case asserts; NO dedicated telemetry-completeness sweep case (spec §8.2)" }
+  NFR-3_token_budget: { mapped: false, where: "NO task item or eval measures the +1000-token delta (spec §8.2 integration test); not explicitly deferred either — GAP G-1" }
+  NFR-4_citation_freshness: { mapped: partial, where: "protocol-inherent (§6.2 re-Read); no dedicated citation-freshness eval (spec §8.2)" }
+  NFR-5_verification_safety: { mapped: true, where: "Step 2.4 envelope + serena-verify-injection (6.3)" }
+  NFR-6_verification_liveness: { mapped: true, where: "serena-execute-verify timeout->124 (6.2) + FR-4.6 (2.4)" }
+  NFR-7_onboarding_budget: { mapped: true, where: "Step 3.3 + 3.5 WARN + serena-onboarding eval (6.6)" }
+  NFR-8_injection_containment: { mapped: true, where: "serena-verify-injection (6.3) + envelope (c) (2.4)" }
+
+eval_cases_8_1_unit: { count_spec: 7, count_tasklist: 7, status: COVERED, where: "Phase 6 Steps 6.2-6.8 + registry 6.9 + scope 6.10" }
+integration_tests_8_2: { count_spec: 7, encoded_as_items: "~2 distributed (read-only skip, timeout)", status: GAP, note: "Serena-disabled full run, telemetry sweep, contract-bump regression, token-budget delta, citation-freshness, verification-liveness — not scaffolded; mostly absorbed into §8.1 cases but NFR-3 measurement genuinely unmapped" }
+
+refs_edits: { spec_4_2_listed: "reflection-rubric, deviation-taxonomy, reviewer-spec, ops-integration, (return-contract.yaml=N/A)", tasklist_adds: "coverage-mapping.md, grader-extensions.md, remediation-handoff.md", status: COVERED+EXPANDED }
+
+inline_contract: { status: COVERED, where: "§9.1 fields 2.7/3.4/4.6/5.5 + §9.2 telemetry + atomic bump 2.9; OQ-M8 inline-§9 correction applied" }
+
+open_questions: { OQ-M1: probe-gated, OQ-M2: resolved, OQ-M3: probe-gated, OQ-M4: resolved-UC2-only, OQ-M5: resolved, OQ-M6: resolved-conditional, OQ-M7: resolved-best-effort, OQ-M8: resolved, OQ-M9: deferred-eval, OQ-M10: resolved, status: ALL_ADDRESSED }
+
+coverage_pct: 0.93
+coverage_floor: 0.90
+verdict: PASS_with_one_major_gap

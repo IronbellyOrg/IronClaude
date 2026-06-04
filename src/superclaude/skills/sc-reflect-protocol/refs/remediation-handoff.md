@@ -68,6 +68,13 @@ Agent:
       # - hypothesis-cards/    (root-cause-analyst cards)
       # - adversarial/merged.md (T2 only — reviewer verdict)
 
+    HANDOFF_MEMORY_KEY: reflect/handoff-{slug}-{timestamp}
+      # FR-3 warm-start bridge. When present, task-builder should
+      # `read_memory` this key to recover reflect's in-flight rubric
+      # scores + deviation set + evidence packet + reviewer verdicts
+      # instead of re-deriving them. Omitted / null when no Tier 3
+      # handoff was written (handoff_persist_failed or no --remediate).
+
     QUALITY GATE RESULTS:
       Evidence-validator gate (Wave 5) PASSED with
       <validator_pass_rate>% citation re-Read pass rate.
@@ -132,6 +139,7 @@ Maps each BUILD_REQUEST field to the reflect output-contract source (§9.1).
 | `EXECUTION_CONTEXT_REQUIREMENTS` | AUTO default; REQUIRED when register spans ≥3 distinct source areas (matches DM-001.SourceAreas heuristic) |
 | `DOCUMENTATION STALENESS WARNINGS` | "None found" — evidence-validator already re-Read every citation in Wave 5 |
 | `RESEARCH DIR` | `<output>/reflect/<run_id>/` substitutes for standard researcher dir; lists reflect's own artifacts |
+| `HANDOFF_MEMORY_KEY` | `handoff_memory_key` (§9.1 Tier-3 block) — `reflect/handoff-{slug}-{timestamp}`; null when no Tier 3 handoff was written (FR-3) |
 | `QUALITY GATE RESULTS` | `evidence_validator.pass_rate` + status from §9.1 return contract |
 | `OPEN QUESTIONS` | Copied verbatim from `report.md` "Open Questions" section |
 | `REMAINING GAPS` | Copied verbatim from `grounding-gaps.md` |

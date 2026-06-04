@@ -47,6 +47,7 @@ class TaskStatus(Enum):
     """Outcome status for a single task within a phase."""
 
     PASS = "pass"
+    PASS_RECOVERED = "pass_recovered"  # non-zero exit but evidence of success
     FAIL_TERMINAL = "fail"
     FAIL_RECOVERABLE = "fail_recoverable"
     INCOMPLETE = "incomplete"
@@ -54,7 +55,7 @@ class TaskStatus(Enum):
 
     @property
     def is_success(self) -> bool:
-        return self == TaskStatus.PASS
+        return self in (TaskStatus.PASS, TaskStatus.PASS_RECOVERED)
 
     @property
     def is_failure(self) -> bool:

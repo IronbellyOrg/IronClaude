@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "research-codebase-must-pick-among-three-research-paths",
+  "prompt": "Help me research the codebase for how the freshness hook system works",
+  "configuration": "with_skill",
+  "assertions": [
+    {"text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill", "type": "regex_match", "value": "(deep-research|Explore|auggie|tech-research)"},
+    {"text": "Output justifies the choice (does not flat-list all three)", "type": "regex_match", "value": "(because|since|wins|preferred|fits|scope)"},
+    {"text": "Output includes a fenced prompt block OR a clear native-tool recommendation", "type": "regex_match", "value": "(```|Read|Glob|Grep)"}
+  ]
+}

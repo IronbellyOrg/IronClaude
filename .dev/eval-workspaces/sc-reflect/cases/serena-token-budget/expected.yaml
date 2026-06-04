@@ -1,0 +1,24 @@
+# STUB — V3-Serena-medium eval scaffold. Human contract doc (grader reads evals/evals.json).
+# Case: serena-token-budget — NFR-RV3-MED.3 (§8.2 token-budget delta; RUNNER-GATED / DEFERRED).
+mode: post
+use_case: UC-2
+status: skeleton-pending-runner
+
+# Measurement procedure (NFR-3):
+#   baseline = current master HEAD on the FR-4 eval fixture (serena-execute-verify)
+#   branch   = this work
+#   metric   = diff of total Claude orchestration output tokens (baseline vs branch)
+#   assert   = delta ≤ 1000 for the FR-1/FR-3/FR-4 orchestration additions
+#   note     = execute_shell_command Claude-side cost ~0 (test-suite wall-clock runs in the subprocess)
+#   note     = onboarding is EXCLUDED from the ≤1000 cap (one-shot context-heavy exception) — measured separately
+measurement:
+  baseline: "master HEAD on cases/serena-execute-verify"
+  metric: "delta(total_claude_output_tokens)"
+  assert: "delta <= 1000 for FR-1/FR-3/FR-4"
+  onboarding: "measured separately, excluded from the cap"
+
+# RUNNER GATE: a token-ledger runner (baseline-vs-branch Claude-output-token diff) is NOT present.
+# `make reflect-eval` runs grader.py (assertion grading), NOT a token-ledger. The measurement is
+# EXPLICITLY DEFERRED (see phase-outputs/plans/nfr3-token-budget.md) — NOT silently omitted.
+runner_present: false
+disposition: RUNNER-DEFERRED

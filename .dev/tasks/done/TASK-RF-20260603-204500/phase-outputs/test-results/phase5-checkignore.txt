@@ -1,0 +1,4 @@
+.gitignore:122:!.claude/cache/sc-recommend-lookup.yaml	.claude/cache/sc-recommend-lookup.yaml
+exit=0
+.gitignore:127:.claude/cache/sc-recommend-events.jsonl	.claude/cache/sc-recommend-events.jsonl
+exit=0

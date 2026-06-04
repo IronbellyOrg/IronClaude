@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/recommendv2/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/recommendv2
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 17 items
+
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_save_and_reload PASSED [  5%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_surface_hash_invalidation_resets_rows PASSED [ 11%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_source_hash_full_digest PASSED [ 17%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_surface_hash_is_full_digest PASSED [ 23%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_get_row_returns_match_or_none PASSED [ 29%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_upsert_replaces_existing_key PASSED [ 35%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_upsert_appends_new_key PASSED [ 41%]
+tests/recommend/test_cache.py::TestLookupCacheAtomicWrite::test_atomic_write_no_partial_on_crash PASSED [ 47%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_append_event_writes_exactly_five_fields PASSED [ 52%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_append_event_is_line_oriented PASSED [ 58%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[miss] PASSED [ 64%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[HIT] PASSED [ 70%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[cold] PASSED [ 76%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[success] PASSED [ 82%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[] PASSED [ 88%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[miss_unknown] PASSED [ 94%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_all_six_valid_cache_results_accepted PASSED [100%]
+
+============================== 17 passed in 0.30s ==============================

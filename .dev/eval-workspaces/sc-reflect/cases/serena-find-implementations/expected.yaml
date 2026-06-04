@@ -1,0 +1,31 @@
+# STUB — V3-Serena eval scaffold. Human contract doc (grader does NOT read this; machine
+# assertions live in evals/evals.json for serena-find-implementations).
+# Case: serena-find-implementations — FR-RV3-LOW.1 (find_implementations, UC-1 coverage audit).
+mode: pre
+use_case: UC-1
+
+# --- FR-1 success path ---
+find_implementations_invoked: true
+implementation_coverage_pct: 0.67          # PaymentHandler: 2 of 3 implementors wired (Adyen missing)
+missing_implementations:
+  - abstract_name_path: PaymentHandler
+    expected_count: 3
+    found_count: 2                          # AdyenHandler unwired by the tasklist → coverage Drift
+implementations_found: true
+unmapped_implementations: [AdyenHandler]
+
+# --- C3: Class-misreported-trait still triggers the guard ---
+# RetryPolicy is reported by the LSP as kind=Class but is a trait; find_implementations MUST fire on it.
+class_kind_guard_fired_on: [RetryPolicy]
+
+# --- FR-1.4 degraded path (Serializer Protocol on LSP-unsupported backend) ---
+degraded_components:
+  - find_implementations:lsp_unsupported
+
+# --- C5 degenerate no-op (documented expectation for the no-abstract-symbol case) ---
+# When a UC-1 spec references NO abstract/interface symbol, the guard never fires:
+#   find_implementations_invoked: false ; implementation_coverage_pct: null
+# (This case DOES have abstract symbols, so the no-op is documented, not exercised here.)
+
+tier_reached: 2          # interface-coverage Drift present → ensemble pressure
+escalation_reason: drift_present

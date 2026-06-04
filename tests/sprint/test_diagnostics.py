@@ -46,6 +46,7 @@ class _HaltPopen:
     def __init__(self):
         self.returncode = 0
         self.pid = 3000
+        self.stdin = None
         self._poll = 0
 
     def poll(self):

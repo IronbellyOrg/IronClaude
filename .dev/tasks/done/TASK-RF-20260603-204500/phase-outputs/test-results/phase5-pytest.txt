@@ -1,0 +1,60 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/recommendv2/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/recommendv2
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 48 items
+
+tests/recommend/test_best_model.py::TestBestModelTiers::test_quality_picks_highest_pass_rate_tiebreak_tokens PASSED [  2%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_speed_respects_70pct_floor PASSED [  4%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_cost_respects_70pct_floor PASSED [  6%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_speed_cost_floor_none_qualify_suppresses PASSED [  8%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_balanced_weighted_sum_picks_expected PASSED [ 10%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_balanced_is_default_tier PASSED [ 12%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_confidence_below_half_suppresses_hint PASSED [ 14%]
+tests/recommend/test_best_model.py::TestBestModelTiers::test_based_on_recorded PASSED [ 16%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_save_and_reload PASSED [ 18%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_surface_hash_invalidation_resets_rows PASSED [ 20%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_source_hash_full_digest PASSED [ 22%]
+tests/recommend/test_cache.py::TestLookupCachePersistence::test_surface_hash_is_full_digest PASSED [ 25%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_get_row_returns_match_or_none PASSED [ 27%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_upsert_replaces_existing_key PASSED [ 29%]
+tests/recommend/test_cache.py::TestLookupCacheRowOps::test_upsert_appends_new_key PASSED [ 31%]
+tests/recommend/test_cache.py::TestLookupCacheAtomicWrite::test_atomic_write_no_partial_on_crash PASSED [ 33%]
+tests/recommend/test_cli_registration.py::test_recommend_group_registered PASSED [ 35%]
+tests/recommend/test_cli_registration.py::test_recommend_help_lists_subcommands PASSED [ 37%]
+tests/recommend/test_cli_registration.py::test_recommend_eval_run_exposes_mode_choice PASSED [ 39%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_hit PASSED  [ 41%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_native_likely PASSED [ 43%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_no_key_unknown PASSED [ 45%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_low_confidence PASSED [ 47%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_validation_stale_on_hash_drift PASSED [ 50%]
+tests/recommend/test_dispatch.py::TestDispatchOutcomes::test_miss_budget_exceeded PASSED [ 52%]
+tests/recommend/test_dispatch.py::TestColdInsertWarmsToHit::test_cache_put_recomputes_source_hash_then_dispatch_hits PASSED [ 54%]
+tests/recommend/test_eval_pipeline.py::TestGrader::test_five_assertion_types PASSED [ 56%]
+tests/recommend/test_eval_pipeline.py::TestGrader::test_grade_text_pass_rate PASSED [ 58%]
+tests/recommend/test_eval_pipeline.py::TestAggregate::test_mode_matrix_panels PASSED [ 60%]
+tests/recommend/test_eval_pipeline.py::TestAggregate::test_aggregate_by_model PASSED [ 62%]
+tests/recommend/test_eval_pipeline.py::TestFinalizeRoundTrip::test_finalize_writes_results_and_patches_row PASSED [ 64%]
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_hard_block_raises PASSED [ 66%]
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_warn_and_skip_do_not_raise[warn] PASSED [ 68%]
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_warn_and_skip_do_not_raise[skip] PASSED [ 70%]
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_satisfied_precondition_returns_empty PASSED [ 72%]
+tests/recommend/test_plugin_eval.py::TestEvaluateAdoption::test_pass_rate_gain_is_positive PASSED [ 75%]
+tests/recommend/test_plugin_eval.py::TestEvaluateAdoption::test_token_drop_is_positive PASSED [ 77%]
+tests/recommend/test_plugin_eval.py::TestEvaluateAdoption::test_pass_rate_regression_is_negative_even_with_token_drop PASSED [ 79%]
+tests/recommend/test_plugin_eval.py::TestPatchPluginRow::test_patch_round_trip PASSED [ 81%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_append_event_writes_exactly_five_fields PASSED [ 83%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_append_event_is_line_oriented PASSED [ 85%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[miss] PASSED [ 87%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[HIT] PASSED [ 89%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[cold] PASSED [ 91%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[success] PASSED [ 93%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[] PASSED [ 95%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_invalid_cache_result_rejected[miss_unknown] PASSED [ 97%]
+tests/recommend/test_telemetry.py::TestTelemetryAppend::test_all_six_valid_cache_results_accepted PASSED [100%]
+
+============================== 48 passed in 3.84s ==============================

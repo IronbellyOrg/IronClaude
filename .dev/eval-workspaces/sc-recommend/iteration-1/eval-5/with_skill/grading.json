@@ -1,0 +1,30 @@
+{
+  "eval_id": 5,
+  "eval_name": "plugin-mode-must-search-ecosystem-not-local",
+  "configuration": "with_skill",
+  "output_chars": 7325,
+  "output_exists": true,
+  "expectations": [
+    {
+      "text": "Output contains a candidate plugin/MCP server with install command",
+      "passed": true,
+      "evidence": "regex /(install|npm|pipx|uv|brew|claude.*install)/ matched: 'claude mcp add --transport http notion https://mcp.notion.com/mcp\\n  ```\\n  Then r'"
+    },
+    {
+      "text": "Output includes a citation URL (github.com or marketplace)",
+      "passed": true,
+      "evidence": "regex /https?:/// matched: 'https://'"
+    },
+    {
+      "text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)",
+      "passed": true,
+      "evidence": "regex /src/superclaude/(commands|skills|agents)/ absent (good)"
+    },
+    {
+      "text": "Output identifies the candidate as an MCP server, not a plugin or skill",
+      "passed": true,
+      "evidence": "regex /(MCP server|mcp-server)/ matched: 'MCP server'"
+    }
+  ],
+  "pass_rate": 1.0
+}

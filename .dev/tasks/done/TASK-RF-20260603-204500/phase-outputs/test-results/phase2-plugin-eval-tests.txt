@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/recommendv2/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude/.claude/worktrees/recommendv2
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 8 items
+
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_hard_block_raises PASSED [ 12%]
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_warn_and_skip_do_not_raise[warn] PASSED [ 25%]
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_warn_and_skip_do_not_raise[skip] PASSED [ 37%]
+tests/recommend/test_plugin_eval.py::TestRunPreconditions::test_satisfied_precondition_returns_empty PASSED [ 50%]
+tests/recommend/test_plugin_eval.py::TestEvaluateAdoption::test_pass_rate_gain_is_positive PASSED [ 62%]
+tests/recommend/test_plugin_eval.py::TestEvaluateAdoption::test_token_drop_is_positive PASSED [ 75%]
+tests/recommend/test_plugin_eval.py::TestEvaluateAdoption::test_pass_rate_regression_is_negative_even_with_token_drop PASSED [ 87%]
+tests/recommend/test_plugin_eval.py::TestPatchPluginRow::test_patch_round_trip PASSED [100%]
+
+============================== 8 passed in 3.50s ===============================
+
+=== caller grep ===
+src/superclaude/cli/recommend/commands.py:336:    verdict, and the atomic plugin-row patch. ``run_preconditions`` is called FIRST and a
+src/superclaude/cli/recommend/commands.py:341:        evaluate_adoption,
+src/superclaude/cli/recommend/commands.py:342:        patch_plugin_row,
+src/superclaude/cli/recommend/commands.py:343:        run_preconditions,
+src/superclaude/cli/recommend/commands.py:352:        issues = run_preconditions(preconditions)
+src/superclaude/cli/recommend/commands.py:364:    verdict = evaluate_adoption(with_resource, without_resource)
+src/superclaude/cli/recommend/commands.py:365:    patch_plugin_row(

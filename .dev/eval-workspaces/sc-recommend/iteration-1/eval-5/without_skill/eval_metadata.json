@@ -1,0 +1,12 @@
+{
+  "eval_id": 5,
+  "eval_name": "plugin-mode-must-search-ecosystem-not-local",
+  "prompt": "/sc:recommend find an MCP server for Notion --plugin",
+  "configuration": "without_skill",
+  "assertions": [
+    {"text": "Output contains a candidate plugin/MCP server with install command", "type": "regex_match", "value": "(install|npm|pipx|uv|brew|claude.*install)"},
+    {"text": "Output includes a citation URL (github.com or marketplace)", "type": "regex_match", "value": "https?://"},
+    {"text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)", "type": "regex_match_not", "value": "src/superclaude/(commands|skills|agents)"},
+    {"text": "Output identifies the candidate as an MCP server, not a plugin or skill", "type": "regex_match", "value": "(MCP server|mcp-server)"}
+  ]
+}
