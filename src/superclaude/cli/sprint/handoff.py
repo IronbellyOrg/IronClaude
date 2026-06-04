@@ -63,9 +63,14 @@ class FileHandoffStore:
         """Return the stored ``HandoffRecord`` or typed ``None`` if absent.
 
         A missing handoff file returns ``None`` (does not raise) — resume and
-        back-compat paths rely on this to degrade gracefully.
+        back-compat paths rely on this to degrade gracefully. A corrupt or
+        unparseable handoff file also returns ``None`` (corrupt == absent), so a
+        truncated/garbled record degrades to a re-run rather than aborting resume.
         """
         path = self.config.handoff_file(phase, task)
         if not path.exists():
             return None
-        return HandoffRecord.from_dict(json.loads(path.read_text()))
+        try:
+            return HandoffRecord.from_dict(json.loads(path.read_text()))
+        except (json.JSONDecodeError, ValueError):
+            return None
