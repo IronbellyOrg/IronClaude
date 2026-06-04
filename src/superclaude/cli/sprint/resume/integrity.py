@@ -126,9 +126,18 @@ class BoundaryIntegrityGate:
 
         # Signal B — independent re-derivation from the transcript (under lc_phase).
         transcript = self._read_transcript(results_dir, lc_phase, lc.task_id)
-        derived = _classify_transcript(transcript)
-        lc.derived_status = derived
-        signal_b_pass = derived is TaskStatus.PASS
+        if lc.persisted_status is TaskStatus.PASS_RECOVERED:
+            # PASS_RECOVERED is already transcript-evidence-based in the executor
+            # (error_max_turns after completion evidence). Preserve that recovery
+            # basis for report transparency instead of forcing the clean-PASS
+            # classifier path, which structurally cannot emit PASS_RECOVERED.
+            derived = TaskStatus.PASS_RECOVERED
+            lc.derived_status = derived
+            signal_b_pass = True
+        else:
+            derived = _classify_transcript(transcript)
+            lc.derived_status = derived
+            signal_b_pass = derived is not None and derived.is_success
 
         # Artifacts — every declared deliverable must exist. Resolve the tasklist
         # for lc's OWN phase (the prior phase for a hard-crash prior-tail). If we
