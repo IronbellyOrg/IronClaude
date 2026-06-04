@@ -212,9 +212,24 @@ def _generate_json() -> dict:
             "markdown and enforces the phantom-ID subset constraint."
         ),
         "timeline_estimates": [
-            {"milestone": "M1", "start_week": "1", "end_week": "3", "duration": "3 weeks"},
-            {"milestone": "M2", "start_week": "4", "end_week": "6", "duration": "3 weeks"},
-            {"milestone": "M3", "start_week": "7", "end_week": "9", "duration": "3 weeks"},
+            {
+                "milestone": "M1",
+                "start_week": "1",
+                "end_week": "3",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M2",
+                "start_week": "4",
+                "end_week": "6",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M3",
+                "start_week": "7",
+                "end_week": "9",
+                "duration": "3 weeks",
+            },
         ],
         "roadmap_ids": ["FR-1", "FR-2", "FR-3", "FR-4", "FR-5"],
     }
@@ -247,10 +262,30 @@ def _merge_json() -> dict:
             "verifiable against the spec."
         ),
         "milestone_summary": [
-            {"milestone": "M1", "title": "Foundation", "duration": "weeks 1-3", "exit_criteria": "FR-1..FR-3 implemented."},
-            {"milestone": "M2", "title": "Core Logic", "duration": "weeks 4-6", "exit_criteria": "FR-4..FR-6 implemented."},
-            {"milestone": "M3", "title": "Integration", "duration": "weeks 7-9", "exit_criteria": "FR-7..FR-9 implemented."},
-            {"milestone": "M4", "title": "Hardening and Production Readiness", "duration": "weeks 10-12", "exit_criteria": "FR-10..FR-12 implemented."},
+            {
+                "milestone": "M1",
+                "title": "Foundation",
+                "duration": "weeks 1-3",
+                "exit_criteria": "FR-1..FR-3 implemented.",
+            },
+            {
+                "milestone": "M2",
+                "title": "Core Logic",
+                "duration": "weeks 4-6",
+                "exit_criteria": "FR-4..FR-6 implemented.",
+            },
+            {
+                "milestone": "M3",
+                "title": "Integration",
+                "duration": "weeks 7-9",
+                "exit_criteria": "FR-7..FR-9 implemented.",
+            },
+            {
+                "milestone": "M4",
+                "title": "Hardening and Production Readiness",
+                "duration": "weeks 10-12",
+                "exit_criteria": "FR-10..FR-12 implemented.",
+            },
         ],
         "dependency_graph": "M1 -> M2 -> M3 -> M4",
         "milestones": [
@@ -350,16 +385,56 @@ def _merge_json() -> dict:
             "observability rows, as recommended by the score step and debate."
         ),
         "timeline_estimates": [
-            {"milestone": "M1", "start_week": "1", "end_week": "3", "duration": "3 weeks"},
-            {"milestone": "M2", "start_week": "4", "end_week": "6", "duration": "3 weeks"},
-            {"milestone": "M3", "start_week": "7", "end_week": "9", "duration": "3 weeks"},
-            {"milestone": "M4", "start_week": "10", "end_week": "12", "duration": "3 weeks"},
+            {
+                "milestone": "M1",
+                "start_week": "1",
+                "end_week": "3",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M2",
+                "start_week": "4",
+                "end_week": "6",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M3",
+                "start_week": "7",
+                "end_week": "9",
+                "duration": "3 weeks",
+            },
+            {
+                "milestone": "M4",
+                "start_week": "10",
+                "end_week": "12",
+                "duration": "3 weeks",
+            },
         ],
         "roadmap_ids": [
-            "FR-1", "FR-2", "FR-3", "COMP-loader", "DM-config", "API-load",
-            "FR-4", "FR-5", "FR-6", "API-render", "DM-roadmap", "COMP-renderer",
-            "FR-7", "FR-8", "FR-9", "API-merge", "TEST-integration", "MIG-cutover",
-            "FR-10", "FR-11", "FR-12", "OPS-metrics", "TEST-e2e", "NFR-1",
+            "FR-1",
+            "FR-2",
+            "FR-3",
+            "COMP-loader",
+            "DM-config",
+            "API-load",
+            "FR-4",
+            "FR-5",
+            "FR-6",
+            "API-render",
+            "DM-roadmap",
+            "COMP-renderer",
+            "FR-7",
+            "FR-8",
+            "FR-9",
+            "API-merge",
+            "TEST-integration",
+            "MIG-cutover",
+            "FR-10",
+            "FR-11",
+            "FR-12",
+            "OPS-metrics",
+            "TEST-e2e",
+            "NFR-1",
         ],
     }
 
@@ -536,9 +611,17 @@ def test_executor_merge_rejects_phantom_via_registry(tmp_path) -> None:
         fr_ids=[f"FR-{n}" for n in range(1, 13)],
         nfr_ids=["NFR-1"],
         accepted=[
-            "COMP-loader", "DM-config", "API-load", "API-render", "DM-roadmap",
-            "COMP-renderer", "API-merge", "TEST-integration", "MIG-cutover",
-            "OPS-metrics", "TEST-e2e",
+            "COMP-loader",
+            "DM-config",
+            "API-load",
+            "API-render",
+            "DM-roadmap",
+            "COMP-renderer",
+            "API-merge",
+            "TEST-integration",
+            "MIG-cutover",
+            "OPS-metrics",
+            "TEST-e2e",
         ],
     )
     phantom = _merge_json()
