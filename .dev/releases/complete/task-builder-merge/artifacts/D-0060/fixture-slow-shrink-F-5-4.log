@@ -1,0 +1,60 @@
+FIXTURE: slow-shrink |F|=5,4 (X-003 rejection enforcement), expected: continues to cycle 3 — NO halt of any kind
+X-003 rejection rule (roadmap row 10, M5): "Rate-threshold halt design (X-003) REJECTED; |F|= 5, 4 (shrink by 1) MUST continue" — no rate-of-shrink parameter introduced; strict shrink (|F_{n+1}| < |F_n|, even by 1) PROCEEDS to next cycle per the 4-step ordering rule Step 2 (monotonicity) → Step 4 (proceed).
+GATE: research-gate (per-gate cap=3 per rf-task-builder.md:354-364)
+SHA256(rf-team-lead.md:417 3-cycle hard cap): 51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0 (T05.01..T05.07 baseline — preserved)
+SHA256(rf-task-builder.md L354-360 per-gate counter table head): 72200fbe5974562928f6c933133358e1010c2981df1b0adf2373a2640083aab1 (T05.08 baseline — preserved)
+SHA256(SKILL.md L1029-1059 API-004 contract block + 4-step ordering rule): 14c40575d94a44da6caa15c0031e84d7e788ca07e3e79beda0cb6a1558b7b099 (T05.02..T05.07 baseline — preserved)
+
+CYCLE 1 START n=1
+  spawn rf-task-builder ... verdict per item:
+    item-3.1                                        verdict=FAIL
+    item-3.2                                        verdict=FAIL
+    item-3.3                                        verdict=FAIL
+    item-3.4                                        verdict=FAIL
+    item-3.5                                        verdict=FAIL
+CYCLE 1 END
+  F_1 = { item-3.1, item-3.2, item-3.3, item-3.4, item-3.5 }
+  |F_1| = 5   (post-dedup cardinality; all distinct dedup_keys)
+  PASS_1 = { ...other-checklist-items-not-shown... }   (none of items 3.1..3.5 were PASS_1)
+
+CYCLE 2 START n=2
+  spawn rf-task-builder ... verdict per item:
+    item-3.1                                        verdict=PASS  (fix landed)
+    item-3.2                                        verdict=FAIL  (still failing)
+    item-3.3                                        verdict=FAIL  (still failing)
+    item-3.4                                        verdict=FAIL  (still failing)
+    item-3.5                                        verdict=FAIL  (still failing)
+CYCLE 2 END
+  F_2 = { item-3.2, item-3.3, item-3.4, item-3.5 }
+  |F_2| = 4   (strict shrink by 1 — slowest legitimate shrink)
+  PASS_2 = superset { item-3.1 }
+
+TRANSITION 1->2 step=regression  verdict=PASS   PASS_1 intersect FAIL_2 = empty   (none of items 3.2..3.5 were in PASS_1)
+TRANSITION 1->2 step=monotonicity verdict=PROCEED   |F_2|=4 < |F_1|=5 -> strict shrink -> continue
+  -> X-003 REJECTION INVARIANT: shrink-by-1 is sufficient; no rate-of-shrink threshold parameter is consulted; the monotonicity check is the binary predicate `|F_{n+1}| >= |F_n|`, which is FALSE here (4 < 5), so PROCEED.
+TRANSITION 1->2 step=hard-cap     verdict=PROCEED   research-gate counter 2/3 (rf-task-builder.md:354-364)
+TRANSITION 1->2 step=proceed      re-spawn cycle 3 per SKILL.md L1057
+
+CYCLE 3 START n=3
+  spawn rf-task-builder ... verdict per item:
+    item-3.2                                        verdict=PASS  (fix landed)
+    item-3.3                                        verdict=PASS  (fix landed)
+    item-3.4                                        verdict=PASS  (fix landed)
+    item-3.5                                        verdict=PASS  (fix landed)
+CYCLE 3 END
+  F_3 = empty
+  |F_3| = 0
+
+TRANSITION 2->3 step=regression  verdict=PASS   PASS_2 intersect FAIL_3 = empty   (F_3 = empty)
+TRANSITION 2->3 step=monotonicity verdict=SKIP   |F_3|=0 -> monotonicity check skipped per SKILL.md L1055 precondition `|F_n| > 0`; converged
+TRANSITION 2->3 step=hard-cap     verdict=PROCEED   research-gate counter 3/3 reached at proceed boundary; not consulted (all-PASS)
+TRANSITION 2->3 step=proceed      no further cycle needed (F_3 = empty)
+
+GATE VERDICT: PASS (converged at cycle 3 with |F_3| = 0)
+
+ASSERTIONS (machine-checkable; semantics: halt strings would be emitted on event lines if triggered; this fixture's correct behaviour is the ABSENCE of any halt event):
+  grep -c "^HALT " THIS-FILE                                  = 0   (no halt of any kind — X-003 NOT triggered)
+  grep -cE "^TRANSITION.*verdict=HALT-REGRESSION" THIS-FILE   = 0   (no regression halt event — none possible since PASS_1 intersect FAIL_2 = empty)
+  grep -cE "^TRANSITION.*verdict=HALT-MONOTONICITY" THIS-FILE = 0   (no monotonicity halt event — |F_2|=4 < |F_1|=5 strict shrink)
+  grep -c "^CYCLE 3 START" THIS-FILE                          = 1   (cycle 3 attempted per X-003 REJECTION INVARIANT)
+  grep -c "^GATE VERDICT: PASS" THIS-FILE                     = 1   (gate converges)
