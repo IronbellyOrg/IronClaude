@@ -141,14 +141,20 @@
 |------|---------|--------|
 | `--mode` | Reflection mode | `pre` (UC-1 coverage/gap audit), `post` (UC-2 deviation audit); auto-detected if omitted |
 | `--spec` | Driving spec/PRD/objectives doc | Path — **required for `--mode pre`** |
-| `--tasklist` | Tasklist file | Path — **required for `--mode post`** |
+| `--tasklist` | Tasklist file | Path — **strongly recommended for `--mode post`** (does not STOP if omitted) |
 | `--diff` | Completed work to audit | Git ref (e.g. `HEAD~1..HEAD`) or diff file — **required for `--mode post`** (unless `--task-log`) |
+| `--task-log` | Completed work to audit | Path — UC-2 alternative to `--diff` (satisfies the `--mode post` input requirement when no diff is available) |
 | `--depth` | Tier control | `quick` (Tier 1 only), `standard` (default), `deep` (force Tier 2) |
 | `--tier` | Explicit tier pin | `1`, `2`, `auto` (default) |
 | `--reviewers` | Tier 2 reviewer count | `2`–`3` (default `3`) |
 | `--output` | Output directory | Path (default `.dev/reflect/<mode>-<slug>-<ts>/`); MUST NOT be under `.claude/skills,agents,commands/` |
 | `--no-promote` | Suppress UC-2 Wave 7 promotion mutation | Boolean (UC-2 default-on) |
 | `--remediate` | Offer the Tier 3 remediation chain after the audit | Boolean |
+| `--no-verify` | Disable the UC-2 verification triangle (scoped tests/linters/type-checkers/build) | Boolean (UC-2 default-on) |
+| `--onboard` | Opt-in one-shot Serena cold-start memory bootstrap | Boolean (default off) |
+| `--with-hierarchy` | Opt-in `type_hierarchy` transitive supertype/subtype retrieval | Boolean (default off) |
+
+> This table lists the most-used flags. For the full surface (promotion controls, `--coverage-floor`, tier pins, MCP toggles, etc.) run `/sc:reflect --help` or see the `/sc:reflect` command reference.
 
 **Legacy grammar (preserved for `/sc:troubleshoot` Wave 6 and other v1 callers):**
 

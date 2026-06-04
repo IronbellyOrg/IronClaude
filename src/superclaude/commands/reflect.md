@@ -70,7 +70,7 @@ Auto-activates whenever a reviewer-side, structurally-independent audit is neede
 | `--analyze` | (legacy) | Legacy v1 flag — paired with `--type task`, maps to `--mode pre`. |
 | `--validate` | (legacy) | Legacy v1 flag — paired with `--type task`, maps to `--mode post`. |
 | `--spec` | (none) | Driving spec / PRD / objectives doc. **Required for UC-1.** Recommended for UC-2. |
-| `--tasklist` | (none) | Tasklist file. **Required for UC-2** (recommended for UC-1 when one exists). |
+| `--tasklist` | (none) | Tasklist file. **Strongly recommended for UC-2** (does not STOP if omitted; the post hard requirement is `--diff` or `--task-log`). Recommended for UC-1 when one exists. |
 | `--diff` | (none) | Git ref (e.g., `HEAD~1..HEAD`, branch name) or path to a diff file. **Required for UC-2** unless `--task-log` is provided. |
 | `--commit-range` | (none) | Alternative to `--diff` for resolving a post-execution diff via git. |
 | `--scope` | (none) | Narrowing scope; when it resolves to modified files, contributes to UC-2 auto-detect. |
