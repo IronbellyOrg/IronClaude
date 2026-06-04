@@ -6,7 +6,7 @@ A typical project has multiple work initiatives in different states. The report 
 
 ## Single-project format
 
-```markdown
+````markdown
 # Post-crash recovery — <project name>
 _Scan time: <ISO timestamp>, signals window: <since>_
 
@@ -72,32 +72,47 @@ _Last 1-3 sessions for this project. The assistant's last reply often hints at t
 _Numbered, copy-pasteable. SAFE = idempotent / read-only. REVIEW = changes state._
 
 1. **SAFE** — Inspect the failed sprint phase:
-   ```
 
+   ```bash
    cat .dev/releases/current/<release>/phase-6-tasklist.md
    tail -5 .dev/releases/current/<release>/execution-log.jsonl
-
    ```
 
-2. **REVIEW** — Resume the sprint from the failed phase:
+2. **REVIEW** — Resume the interrupted sprint (auto-detects the failed phase/task from on-disk state):
+
+   ```bash
+   superclaude sprint run .dev/releases/current/<release>/tasklist-index.md
    ```
 
-   superclaude sprint run .dev/releases/current/<release>/tasklist-index.md --resume
+   For unattended recovery:
 
+   ```bash
+   superclaude sprint run .dev/releases/current/<release>/tasklist-index.md --yes
+   ```
+
+   To re-run only specific failed tasks:
+
+   ```bash
+   superclaude sprint rerun-tasks .dev/releases/current/<release>/tasklist-index.md
+   superclaude sprint rerun-tasks .dev/releases/current/<release>/tasklist-index.md --phase <N> --tasks <task-ids>
+   ```
+
+   To discard prior sprint state and restart clean:
+
+   ```bash
+   superclaude sprint run .dev/releases/current/<release>/tasklist-index.md --fresh
    ```
 
 3. **SAFE** — Validate the roadmap output:
-   ```
 
+   ```bash
    superclaude roadmap validate docs/generated/<run-slug>
-
    ```
 
 4. **REVIEW** — Move the completed PRD task out of to-do/:
-   ```
 
+   ```bash
    mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
-
    ```
 
 (commands sorted by recommended order: diagnose-then-act, lowest-risk-first)
@@ -112,13 +127,13 @@ _Surface anything that doesn't line up — the user decides._
 ## What I could not determine
 - Whether the haiku-architect step would succeed on retry (no error log present)
 - ...
-```
+````
 
 ## Multi-project (--all) format
 
 Wrap each project in its own section with the structure above. Lead with a fleet-level summary table:
 
-```markdown
+````markdown
 # Fleet-wide recovery scan
 _<N> projects scanned, signals window: <since>_
 
@@ -143,7 +158,7 @@ _Project ordering: errors first, then in-progress count, then activity recency._
 
 ---
 ...
-```
+````
 
 ## Tone
 

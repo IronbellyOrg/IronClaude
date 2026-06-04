@@ -1,0 +1,23 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/SprintReRun/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/SprintReRun
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collecting ... collected 1 item
+
+tests/sprint/test_resume.py::TestDriftAssessor::test_drift_same_id_material_body_edit_low_conf FAILED [100%]
+
+=================================== FAILURES ===================================
+_______ TestDriftAssessor.test_drift_same_id_material_body_edit_low_conf _______
+tests/sprint/test_resume.py:296: in test_drift_same_id_material_body_edit_low_conf
+    assert drift.confidence < 0.8  # fails today (gets 0.9), passes post-F-3
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert 0.9 < 0.8
+E    +  where 0.9 = DriftAssessment(confidence=0.9, tier='structural', changed_paths=[], explanation='Tasklist task-ID structure identical to the recorded baseline; remaining differences are cosmetic (whitespace/formatting).', cosmetic_only=True).confidence
+=========================== short test summary info ============================
+FAILED tests/sprint/test_resume.py::TestDriftAssessor::test_drift_same_id_material_body_edit_low_conf - AssertionError: assert 0.9 < 0.8
+ +  where 0.9 = DriftAssessment(confidence=0.9, tier='structural', changed_paths=[], explanation='Tasklist task-ID structure identical to the recorded baseline; remaining differences are cosmetic (whitespace/formatting).', cosmetic_only=True).confidence
+============================== 1 failed in 0.22s ===============================

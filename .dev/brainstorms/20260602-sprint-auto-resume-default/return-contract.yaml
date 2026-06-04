@@ -1,0 +1,19 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260602-sprint-auto-resume-default/seed-brief.md
+merged_output_path: .dev/brainstorms/20260602-sprint-auto-resume-default/merged-requirements.md
+convergence_score: null   # consolidated directly from resolved user decisions; no multi-variant debate run
+adversarial_artifacts_dir: null
+domain: architecture
+proposal_count: 0
+enrichment_used:
+  - source: codebase
+    quality_tier: primary    # 3 parallel Explore sweeps over cli/sprint/* + skills/task
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "OQ1: resume cursor — derive-only vs pre-phase breadcrumb (crash-before-phase_start blind spot)"
+  - "OQ2: definition of 'doubly validated' for the last completed task"
+  - "OQ3: half-finished artifact cleanup mechanism (stash vs quarantine vs report-only)"
+  - "OQ4: drift assessment — deterministic vs LLM vs hybrid; behavior when offline"
+  - "OQ5: canonical opt-out flag name (--fresh / --no-resume / --restart)"

@@ -1,0 +1,48 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: .dev/reflect/pre-sprint-resume-remediation-20260603005500/REPORT.md
+confidence_calibrated: 0.91
+escalation_rule_matched: 4   # S_domains >= 3 (code + tests + spec)
+
+# UC-1 specific
+coverage_pct: 1.00
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 5
+
+# Tier 2 artifacts (degraded — single independent reviewer)
+reviewer_cards:
+  - .dev/reflect/pre-sprint-resume-remediation-20260603005500/reviewer-cards/card-independent-coverage.md
+t2_model_class_diversity: degraded   # 1 reviewer (sonnet, isolated); right-sized given 3 prior same-session adversarial gates
+merge_method: single-reviewer-fallback
+calibrator_diversity: degraded       # inline calibration (calibration: inline-fallback)
+
+# Hallucination guard
+citations_total: 14
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+
+# Gaps found (driving the remediation)
+gaps_found:
+  critical: 1   # G-1: CG-4 auto-applied default + spec amendment from it
+  important: 1  # G-3: PG gates silently passed on rf-qa spawn failure
+  minor: 2      # G-2 (F-3 conservative §5), G-4 (F-4 AC-3 assertion reconcile)
+
+# Remediation (Wave 6 — applied in-place to the reviewed tasklist)
+remediation_offered: true
+remediation_accepted: true
+remediation_method: in-place-tasklist-edit   # not a task-builder re-run; the review target IS a tasklist
+task_file_path: .dev/tasks/to-do/TASK-RF-20260603-sprint-resume-remediation/TASK-RF-20260603-sprint-resume-remediation.md
+
+# Asymmetric-cost flags
+needs_human_decision: false   # CG-4 is now correctly DEFERRED to the operator at execution time, not a blocker on the tasklist
+regression_present: false     # no regression introduced by the plan
+unauthorized_deviation_present: false
+spec_is_wrong: false
+
+# Anti-self-confirmation note
+independent_reviewer_non_vacuous: true   # fresh isolated reviewer found a CRITICAL gap 3 same-session gates missed

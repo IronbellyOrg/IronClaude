@@ -73,7 +73,7 @@ The `run` command has **16 CLI options** (see [Section 29](#29-cli-options-refer
 
 ## 2. Module Map
 
-```
+```text
 sprint/
   __init__.py          # Re-exports sprint_group
   commands.py          # Click command definitions (run, attach, status, logs, kill)
@@ -231,7 +231,7 @@ _CLASSIFIER_RE   = re.compile(r"\|\s*Classifier\s*\|\s*(\w+)\s*\|", re.IGNORECAS
 
 Before execution, the runner checks for a `.roadmap-state.json` file in the release directory. If `fidelity_status: "fail"` is found, the sprint is **blocked**:
 
-```
+```text
 Sprint blocked: spec-fidelity check FAILED.
 The tasklist was generated from a spec with unresolved HIGH severity deviations.
 ```
@@ -250,7 +250,7 @@ With `--dry-run`, the runner prints discovered phases in a formatted table and e
 
 The first thing `execute_sprint()` does is verify `claude` is in `PATH` (`executor.py:1124`). If missing:
 
-```
+```text
 Error: 'claude' binary not found in PATH.
 Install Claude Code CLI before running sprint.
 ```
@@ -302,7 +302,7 @@ This is the core of the sprint runner. Here is the precise execution sequence:
 
 ### 8.1 Infrastructure Setup (lines 1123–1168)
 
-```
+```text
 1. Verify `claude` binary in PATH
 2. Install SignalHandler (catches SIGINT/SIGTERM, sets shutdown flag)
 3. Set up debug logger
@@ -672,7 +672,7 @@ Isolation directories live at `results/.isolation/` and are cleaned up per-phase
 
 The prompt sent to each ClaudeProcess is structured:
 
-```
+```text
 /sc:task-unified Execute all tasks in @<phase_file> --compliance strict --strategy systematic
 
 ## Sprint Context
@@ -752,7 +752,7 @@ ledger = TurnLedger(
 
 For each task in the per-task path:
 
-```
+```text
 Step 1: Budget guard → can_launch()? (available >= 5)
    NO  → all remaining tasks SKIPPED, loop breaks
    YES ↓
@@ -841,7 +841,7 @@ Findings have two severity levels:
 
 ### 16.3 Detailed Flow (full mode)
 
-```
+```text
 1. Check can_run_wiring_gate() → budget guard
 2. debit_wiring(1) → consume 1 turn
 3. Run wiring analysis on release_dir
@@ -921,7 +921,7 @@ These fields come from three deterministic modules (no LLM):
 
 ### 17.3 Detailed Flow (soft/full mode)
 
-```
+```text
 1. Evaluate gate on output artifact path
 2. Record pass/fail + latency in ShadowGateMetrics
 3. Build TrailingGateResult
@@ -974,7 +974,7 @@ A daemon thread that watches the subprocess output file at 0.5s intervals.
 
 ### 18.1 Architecture
 
-```
+```text
 ClaudeProcess → writes NDJSON to output file
     ↓
 OutputMonitor thread (0.5s poll)
@@ -1051,7 +1051,7 @@ growth_rate_bps = alpha * (delta / poll_interval) + (1 - alpha) * growth_rate_bp
 
 After a whole-phase subprocess completes, the runner classifies its outcome through a priority chain:
 
-```
+```text
 Priority 1: exit_code == 124?
   → TIMEOUT
 
@@ -1132,7 +1132,7 @@ A Rich `Live` display showing:
 
 7 states with a formal transition FSM (`models.py:107`):
 
-```
+```text
 NONE → CHECKING → PASS
 NONE → CHECKING → FAIL_DEFERRED → REMEDIATING → REMEDIATED
 NONE → CHECKING → FAIL_DEFERRED → REMEDIATING → HALT
@@ -1306,7 +1306,7 @@ If exit code is non-zero, raises `SystemExit(_exitcode)`.
 
 ## 24. Results Directory Layout
 
-```
+```text
 results/
   phase-1-output.txt              # Raw subprocess NDJSON output
   phase-1-errors.txt              # Subprocess stderr
@@ -1522,7 +1522,7 @@ The whole-phase execution path (`executor.py:1235-1489`) does not interact with 
 
 ## 30. End-to-End Flow Diagram
 
-```
+```bash
 superclaude sprint run tasklist-index.md --start 1 --end 6 --max-turns 100
     │
     ▼
@@ -1636,6 +1636,88 @@ superclaude sprint run tasklist-index.md --start 1 --end 6 --max-turns 100
 │  SystemExit if non-zero        │
 └─────────────────────────────┘
 ```
+
+---
+
+## Auto-Resume (v4.3.5)
+
+Auto-resume is the **default** behavior of `sprint run` and `sprint rerun-tasks`.
+A bare invocation (no explicit window/selector and no `--fresh`) reconstructs
+where the previous run was interrupted from on-disk state and resumes there.
+
+### Read-first modules — `src/superclaude/cli/sprint/resume/`
+
+| Module | Class | Output | Role |
+|---|---|---|---|
+| `planner.py` | `ResumePlanner` | `ResumePlan` | Pure-read: classify each phase, locate the interrupted seam, derive granularity + the failed-task set. |
+| `drift.py` | `DriftAssessor` | `DriftAssessment` | Score how safe resume is given edits to the boundary tasklist. |
+| `integrity.py` | `BoundaryIntegrityGate` | `BoundaryReport` | Validate the resume seam (non-idempotent phases ⇒ the seam is suspect). |
+| `models.py` | dataclasses | — | `ResumePlan`, `BoundaryReport`, `DriftAssessment`, `BoundaryTask`, `Granularity`, `ResumeDecision`. |
+
+### Truth anchor (DD-1)
+
+The atomic `results/phase-N-result.json` (written tmp+rename) is the
+**authoritative** phase-completion signal. The `execution-log.jsonl` ledger is
+non-durable corroboration only — a torn/dropped `phase_complete` line must not
+demote a phase whose result.json proves it passed.
+
+### Control flow (`run()`)
+
+```text
+explicit window (Click parameter source — even `--start 1`)  → today's exact path, auto-detect OFF
+--fresh / --restart                                          → clean run from phase 1, auto-detect OFF
+else                                                         → AUTO-RESUME:
+   plan  = ResumePlanner().plan(index)
+   if granularity == NONE        → "nothing to resume", exit 0
+   if plan.ambiguous             → list candidates, STOP (no auto-pick)
+   drift = DriftAssessor().assess(index, plan)
+   report= BoundaryIntegrityGate().run(plan)          # report-only (no results/ mutation)
+   print plan + drift + report
+   if not report.passed          → STOP (last-completed over-claim; use --start/--fresh)
+   if drift.confidence < 0.8     → STOP (material edit; guide to --start/--fresh)
+   else                          → prompt (unless --yes / env / CI / non-tty), then dispatch
+dispatch: granularity==TASK → run_rerun_tasks(phase, tasks, merge_back=True)
+          granularity==PHASE → set start/end window, execute_sprint (existing loop)
+```
+
+`rerun_tasks()` gets the symmetric treatment: when `--phase`/`--tasks`/
+`--from-reflect-report` are all absent, the planner nominates `phase` +
+`rerun_task_ids` and the command proceeds exactly as if they were supplied.
+
+### Flags (both subcommands)
+
+| Flag | Meaning |
+|---|---|
+| `--fresh` / `--restart` | Ignore prior on-disk state; clean run from phase 1; auto-detect OFF. |
+| `--yes` / `-y` | Non-interactive assent (also `SUPERCLAUDE_SPRINT_ASSUME_YES=1` / `CI=1`). |
+| `--dry-run` (run) | Print `ResumePlan` + `DriftAssessment` + `BoundaryReport`; execute nothing. |
+
+### Drift tiers (DriftAssessor)
+
+- **Tier 0 (`hash`)** — exact normalized-content hash (`tasklist_sha256` recorded
+  in result.json vs current, same function over the same per-phase file) ⇒ `1.0`.
+- **Tier 1 (`structural`)** — task-ID diff vs the recorded per-task baseline:
+  a removed/renamed *completed* task ⇒ `~0.3` (resume STOPs); cosmetic-only ⇒
+  `~0.9`; not-yet-run changes ⇒ `~0.85`. **Only the `0.8` boundary gates.**
+- **Tier 2 (`git`)** — additive `git diff @{upstream}` annotation; never changes
+  the deterministic confidence; skips offline / detached-HEAD / untracked.
+
+### Integrity gate (BoundaryIntegrityGate)
+
+- **Last-completed double-validation:** persisted status ∧ transcript
+  re-derivation (`_classify_transcript`) ∧ declared-artifact existence. A `pass`
+  claim is re-checked, never trusted. Failure ⇒ hard STOP.
+- **Next-unfinished partial work:** detected across transcript + declared
+  deliverable + stray-file classes and surfaced. Report-only by default (zero
+  `results/` mutation). Opt-in cleanup is a reversible `shutil.copy2` into
+  `.resume-quarantine-<ts>/` (lock-guarded, audit-logged, reversed by the
+  existing `rerun-tasks --restore`).
+- **Advisory coherence read** (`invoke_sonnet`, TASK-granularity only) can append
+  a warning but **never** changes the verdict; empty/absent verdict is CI-safe.
+
+The gate verdict is `passed = accept_suspect or validated_last`: boundary partial
+work is surfaced but does not block (the resume plan re-runs that task), while a
+last-completed over-claim is a hard STOP.
 
 ---
 

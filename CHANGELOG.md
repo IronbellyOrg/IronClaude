@@ -22,6 +22,36 @@ All notable changes to IronClaude are documented in this file.
 - Prior-task context (`build_task_context`) is now injected into each per-task prompt.
 - The per-task heading router emits a warn-only near-miss diagnostic when a phase file has headings that look like `### T<PP>.<TT>` but miss the strict format (it never reclassifies the phase).
 
+### sprint — auto-resume as the default for `run` / `rerun-tasks` (v4.3.5, TASK-RF-20260602-sprint-auto-resume)
+
+#### Behavior change (READ THIS if you script `superclaude sprint`)
+
+- **`superclaude sprint run <index>` with no `--start/--end` now AUTO-RESUMES.** An interrupted sprint is detected from on-disk state (the atomic `phase-N-result.json` is the truth anchor) and resumes at the boundary phase, re-running only the unfinished task on the task-level path. Before proceeding it prints the resume plan + drift + integrity report and (interactively) asks for confirmation.
+- **`superclaude sprint rerun-tasks <index>` with no `--phase/--tasks/--from-reflect-report` now AUTO-DETECTS** the boundary phase and its recoverable failed-task set, then runs exactly as if those flags had been supplied (identical result to the explicit invocation).
+- **Opt-out / explicit control is unchanged.** An explicit `--start`/`--end` (run) or `--phase`/`--tasks` (rerun-tasks) — *including `--start 1`* — disables auto-detection and preserves today's exact behavior (detected via Click parameter source, not value comparison). `--fresh` (alias `--restart`) ignores prior on-disk state and runs clean from phase 1.
+- **CI / non-interactive:** pass `--yes` (or set `SUPERCLAUDE_SPRINT_ASSUME_YES=1` / `CI=1`) to skip the confirmation prompt. A non-interactive session without assent stops with guidance rather than hanging.
+
+#### Added (sprint auto-resume)
+
+- New read-first package `src/superclaude/cli/sprint/resume/`:
+  - `planner.py` (`ResumePlanner`) — pure-read reconstruction of the resume plan from `execution-log.jsonl` + `phase-N-result.json` + transcripts. `result.json` presence with a PASS-family status is the authoritative phase-completion signal (a torn/dropped ledger line cannot demote it). Flags ambiguous state (multiple plausible release dirs / interleaved ledger / unreadable core files) and refuses to auto-pick.
+  - `drift.py` (`DriftAssessor`) — tiered safety-of-resume scoring. Tier 0 exact normalized-content hash match; Tier 1 whitespace-insensitive cosmetic + structural task-ID diff (only the 0.8 confidence boundary gates resume); Tier 2 additive `git diff` annotation behind a capability check.
+  - `integrity.py` (`BoundaryIntegrityGate`) — the resume-seam safety gate. Doubly-validates the last-completed task (persisted status ∧ transcript re-derivation ∧ artifact existence), surfaces next-unfinished partial work, and offers opt-in reversible copy-to-quarantine. The gate verdict is a pure function of deterministic signals; an advisory coherence read can annotate but never change it.
+  - `models.py` — `ResumePlan`, `BoundaryReport`, `DriftAssessment`, `BoundaryTask`, `Granularity`, `ResumeDecision`.
+- `--fresh` / `--restart`, `--yes` / `-y` flags on both `sprint run` and `sprint rerun-tasks`.
+- `phase-N-result.json` now records `tasklist_sha256` (normalized-content hash of the per-phase tasklist) so a later resume can detect drift. Backward-compatible: result files written before v4.3.5 simply lack the key and resume falls back to structural drift scoring.
+
+#### Safety properties
+
+- **Non-destructive by default (NFR-1):** the integrity gate performs zero `results/` mutation unless cleanup is opted into; quarantine is a `shutil.copy2` (originals untouched), lock-guarded, audit-logged, and reversible by the existing `rerun-tasks --restore` (`restore_from_bundle`).
+- **LLM is advisory-only (NFR-3):** the coherence read is CI-safe (empty verdict when `claude` is absent/times out) and can never flip the gate verdict.
+
+#### Validated (sprint auto-resume)
+
+- 17 deterministic unit/integration tests (`tests/sprint/test_resume.py`) mapping 1:1 to AC-1..AC-9 + the validator-corrected invariants (INV-001 same-fn hash, FR-2.5 non-destructive/reversible quarantine, DD-2 advisory-only coherence) + a mutation-proved hard-STOP guard.
+- 3 real-`claude`-subprocess e2e tests (`tests/sprint/e2e_real/test_e2e_resume.py`) proving bare `rerun-tasks` auto-detect, bare `sprint run` task-level auto-resume, and hard-crash phase-level re-run end-to-end.
+- Five in-band phase-gate `rf-qa` reviews (adversarial, fix-authorized) + Phase-4 caught a runtime-only dispatch defect (missing `run_rerun_tasks` kwargs) that mocked tests had hidden.
+
 ### sc:cleanup-audit — bake hidden + BMAD scope exclusions into defaults (TASK-RF-20260529-162751)
 
 #### Added (sc:cleanup-audit)

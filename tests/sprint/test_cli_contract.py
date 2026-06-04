@@ -138,10 +138,15 @@ class TestRerunTasksContract:
         assert result.exit_code != 0
         assert "mutually exclusive" in result.output
 
-    def test_rerun_tasks_requires_phase_without_reflect_report(self):
+    def test_rerun_tasks_without_phase_on_non_index_errors(self):
+        """v4.3.5: bare ``rerun-tasks`` now auto-detects (FR-4.1), so the old
+        "--phase is required" gate no longer fires unconditionally. On a file
+        with no discoverable sprint phases (CLAUDE.md), auto-detect finds nothing
+        and the command still errors with guidance rather than silently passing.
+        """
         result = self.runner.invoke(sprint_group, ["rerun-tasks", "CLAUDE.md"])
         assert result.exit_code != 0
-        assert "--phase is required" in result.output
+        assert "No sprint phases" in result.output
 
     def test_rerun_tasks_help_exits_cleanly(self):
         result = self.runner.invoke(sprint_group, ["rerun-tasks", "--help"])
