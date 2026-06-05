@@ -1,0 +1,112 @@
+name: Boundary Guards (mechanical-merge)
+
+# T05.05 / NFR-009 / AC-011 / AC-012 -- PR-review-discipline guard.
+#
+# This workflow runs on pull requests that touch the swarm
+# mechanical-merge boundary surface:
+#   * src/superclaude/cli/swarm/merge.py             (the module itself)
+#   * tests/swarm/test_merge_mechanical_only.py      (3-worker concat boundary)
+#   * tests/swarm/test_merge_loc_ceiling.py          (<=30 LOC ceiling)
+#   * tests/swarm/test_merge_no_transforms.py        (AC-011 variant)
+#   * tests/swarm/test_no_scoring_engine.py          (AC-012 grep audit)
+#
+# Touching any of these is the single highest-risk caller-facing
+# boundary in the swarm. The job below:
+#   * annotates the workflow run with a "boundary touched" warning so
+#     the reviewer sees the flag at the top of the Checks tab,
+#   * writes a structured GitHub job summary documenting which guards
+#     apply and what to verify on review,
+#   * (combined with branch protection requiring this check) gates
+#     merge until a human acknowledges the boundary touch.
+#
+# This is the CI side of Guard 3 (PR-review discipline) and Guard 4
+# (boundary test CI flag) from T05.05 / FR-012.
+
+on:
+  pull_request:
+    branches: [master, integration]
+    paths:
+      - 'src/superclaude/cli/swarm/merge.py'
+      - 'tests/swarm/test_merge_mechanical_only.py'
+      - 'tests/swarm/test_merge_loc_ceiling.py'
+      - 'tests/swarm/test_merge_no_transforms.py'
+      - 'tests/swarm/test_no_scoring_engine.py'
+
+jobs:
+  flag-boundary-touch:
+    name: Mechanical-merge boundary touched -- human review required
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List boundary files changed in this PR
+        id: changed
+        run: |
+          set -euo pipefail
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          mapfile -t touched < <(
+            git diff --name-only "$base_sha" "$head_sha" -- \
+              src/superclaude/cli/swarm/merge.py \
+              tests/swarm/test_merge_mechanical_only.py \
+              tests/swarm/test_merge_loc_ceiling.py \
+              tests/swarm/test_merge_no_transforms.py \
+              tests/swarm/test_no_scoring_engine.py
+          )
+          printf 'touched:\n'
+          printf '  %s\n' "${touched[@]}"
+          {
+            echo "files<<EOF"
+            printf '%s\n' "${touched[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Annotate boundary touch
+        run: |
+          echo "::warning title=Mechanical-merge boundary touched::This PR modifies the caller-facing neutrality boundary in src/superclaude/cli/swarm/merge.py or one of its four structural guards. Human review is required before merge -- the merge module is intentionally pinned at <=30 LOC and must remain free of sort / score / dedup / filter / rewrite operations (AC-011, AC-012, NFR-008, NFR-009)."
+
+      - name: Write job summary
+        run: |
+          {
+            echo "## Mechanical-merge boundary touched"
+            echo ""
+            echo "This PR modifies one or more files on the caller-facing"
+            echo "neutrality boundary (T05.05 / FR-012). Reviewers must"
+            echo "verify all four structural guards remain intact:"
+            echo ""
+            echo "1. **Docstring contract** -- \`merge.py\` module docstring"
+            echo "   must still enumerate ALLOWED operations (concat,"
+            echo "   slot-index sort, provenance header) and DISALLOWED"
+            echo "   operations (sort/score/dedup/filter/rewrite/reorder)."
+            echo "2. **<=30 LOC ceiling** -- \`merge.py\` body must remain"
+            echo "   at or below 30 lines (excluding module docstring and"
+            echo "   imports per NFR-008). Verified by"
+            echo "   \`tests/swarm/test_merge_loc_ceiling.py\`."
+            echo "3. **PR-review discipline** -- this workflow flags the"
+            echo "   touch; branch protection must require this check."
+            echo "4. **Boundary test** -- \`tests/swarm/test_merge_mechanical_only.py\`"
+            echo "   asserts 3-worker concat preserves slot-index order,"
+            echo "   verbatim bodies, and provenance-header-only output."
+            echo ""
+            echo "### Files touched in this PR"
+            echo ""
+            echo '```'
+            echo "${{ steps.changed.outputs.files }}"
+            echo '```'
+            echo ""
+            echo "### Required reviewer checks"
+            echo ""
+            echo "- [ ] No new sort / score / rank / dedup / filter / rewrite"
+            echo "      operations introduced into \`merge.py\`."
+            echo "- [ ] Module docstring still enumerates ALLOWED and"
+            echo "      DISALLOWED operations."
+            echo "- [ ] All four guards still listed in the module docstring."
+            echo "- [ ] If \`merge.py\` body grew, NFR-008 (<=30 LOC) was"
+            echo "      explicitly revisited and the ceiling deliberately"
+            echo "      raised in the spec -- not silently relaxed in the test."
+            echo "- [ ] Scoring / ranking work was directed to"
+            echo "      \`/sc:adversarial\`, not added here."
+          } >> "$GITHUB_STEP_SUMMARY"

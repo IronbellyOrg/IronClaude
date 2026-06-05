@@ -1,221 +1,59 @@
 ---
 name: sc-bare-review
-description: Infrastructure skill that dispatches 2-4 bare (unscaffolded) reviews of a target file in parallel to diverse EXTERNAL models via an OpenAI-compatible proxy, normalizes each into a compressed-markdown template carrying suspect:true, and returns a contract handing the files to /sc:adversarial --suspect-source. Delegate-only — no slash command.
-allowed-tools: Read, Glob, Grep, Bash, Write
+description: Infrastructure skill that dispatches 2-4 bare (unscaffolded) reviews of a target file in parallel to diverse EXTERNAL models, normalizes each into a compressed-markdown template carrying suspect:true, and returns a contract handing the files to /sc:adversarial --suspect-source. Delegate-only — no slash command. Thin caller over `superclaude swarm run --lens bare-review`.
+allowed-tools: Bash, Read
 model: sonnet
 ---
 
-# sc-bare-review — T2 Bare-Reviewer Adjunct
+# sc-bare-review — T2 Bare-Reviewer Adjunct (thin caller)
 
-<!-- Extended metadata (for documentation, not parsed):
-category: infrastructure
-complexity: standard
-mcp-servers: []            # Phase 1 = Bash+curl reference transport; MCP transport is Phase 5
-personas: [analyzer, qa]
-delegate-only: true        # no /sc:bare-review user command
-suspect-by-construction: true
-spec: .dev/brainstorms/20260528030000-t2-bare-reviewer-adjunct/merged-requirements.md (v1.3.0-draft §3,§4,§7,§8,§9.1)
--->
+Spec: `.dev/brainstorms/20260528030000-t2-bare-reviewer-adjunct/merged-requirements.md` (v1.3.0-draft). Roadmap: M9 / R-135 / FR-029 / COMP-033 — thin caller over `--lens bare-review`.
 
-## Purpose & Identity
+## Purpose
 
-`sc-bare-review` turns a target file into 2-4 independent "bare" reviews — each from a
-*different external model* (DeepSeek, Qwen, Kimi, GLM), prompted with no protocol
-scaffolding so the model reviews with its native instinct. Bare reviews surface edge
-cases and latent risks that structured reviewers miss, **but their hallucinations are
-predictable enough to gate against** — so every output is tagged `suspect: true` and is
-meant to flow into `/sc:adversarial --suspect-source`, never trusted directly.
+Delegate to `superclaude swarm run --lens bare-review` and relay its return contract verbatim. Preflight, parallel dispatch, normalize, merge, and contract emission live in the CLI's `bare_review_v1` recipe — **no orchestration logic here**. `/sc:bare-review` does not exist. Entry point is `Skill sc-bare-review …` from caller pipelines (`/sc:troubleshoot`, `/sc:reflect`, `/sc:auggie-review`, `/sc:code-review`, `/sc:adversarial`). Every output is `suspect: true` by construction; consumers MUST flow them into `/sc:adversarial --suspect-source`.
 
-**What this skill IS:**
-
-- A pure delegation target invoked as `Skill sc-bare-review …` by caller commands
-  (`/sc:troubleshoot`, `/sc:reflect`, `/sc:auggie-review`, `/sc:code-review`,
-  `/sc:adversarial`) — wired up in Phase 3.
-- A thin orchestrator over three bundled scripts (`scripts/t2_preflight.sh`,
-  `scripts/t2_dispatch.sh`, `scripts/t2_normalize.py`). The scripts own the deterministic
-  work; this SKILL.md owns sequencing and the single-message parallel dispatch.
-
-**What this skill IS NOT:**
-
-- **Not user-invoked.** There is no `/sc:bare-review` slash command. Pure infrastructure.
-- **Not a judge.** It never scores or filters reviews — raw forwarding to `/sc:adversarial`.
-- **Not Anthropic-routed.** T2 is explicitly external; routing bare reviewers to Anthropic
-  models defeats the diversification purpose.
-
-**Compliance tier:** STANDARD — single-file output × N, network-bound, fail-soft.
-
-## Required Input (§3.2)
+## Required Input
 
 ```text
 Skill sc-bare-review
-  --target <path>           # File to review (REQUIRED)
-  --reviewers <N>           # Count, 2-4 (default 3)
-  --output <dir>            # Output directory (REQUIRED)
-  --target-line-cap <N>     # Truncate target to first N lines (default 4000)
-  --timeout-sec <N>         # Per-reviewer hard timeout (default 180 / T2Timeout)
-  --label <string>          # Optional context label baked into the prompt
-  # --c7 / --c7-libs / --c7-query-cap are accepted by callers but wired in Phase 1.5 (no-op here)
+  --target <path>          # REQUIRED — file to review
+  --output <dir>           # REQUIRED — output directory
+  --reviewers <N>          # 2-4 (default 3)
+  --target-line-cap <N>    # truncate target to N lines (default 4000)
+  --timeout-sec <N>        # per-reviewer hard timeout (default 180)
+  --label <string>         # optional prompt context label
 ```
-
-## Triggers
-
-- **Delegate-only.** Entry point is an explicit `Skill sc-bare-review …` invocation from a
-  caller pipeline. No keyword/slash trigger surface.
-
-## Prerequisites
-
-Requires `T2ProxyUrl` + `T2ProxyKey` env vars and `curl` + `jq` on the host. The preflight
-script enforces these and STOPs with an actionable message (see Failure Modes). See
-`docs/t2-proxy-setup.md` (Phase 4) for example shell config.
 
 ## Behavioral Protocol
 
-Resolve the skill directory once, then run the three waves in order.
+Issue a single Bash call. The CLI owns preflight, parallel dispatch (IMM-3), timeouts (AC-1.6), partial-success handling (AC-1.7 / IMM-5), atomic writes (IMM-6), and contract emission (FR-036).
 
 ```bash
-# Resolve SKILL_DIR — the directory containing this SKILL.md (installed vs dev).
-SKILL_DIR="$HOME/.claude/skills/sc-bare-review"
-[ -d "$SKILL_DIR" ] || SKILL_DIR="src/superclaude/skills/sc-bare-review"
+superclaude swarm run --lens bare-review \
+  --target "<target>" --output "<output-dir>" --transport openai_compat
 ```
 
-### Wave A+B — Preflight (single Bash call)
+Forward `--reviewers`, `--target-line-cap`, `--timeout-sec`, `--label` only when the caller supplied them. Resume with `--resume <job_id>` against the same `--output` directory (INV-001). After the command exits, `Read <output-dir>/return-contract.yaml` and relay it as the skill's result — never transform, score, or filter; the CLI is the source of truth.
 
-Run the preflight. It validates args/env, resolves the N models, reads + truncates the
-target, enforces the IMM-4 empty-target guard, computes the provenance checksum, builds
-the shared reviewer prompts, and writes `<output>/manifest.json`.
+## Return Contract
 
-```bash
-"$SKILL_DIR/scripts/t2_preflight.sh" \
-  --target <target> --reviewers <N> --output <output-dir> \
-  [--target-line-cap <N>] [--timeout-sec <N>] [--label "<label>"]
-```
+CLI emits `return-contract.yaml` (FR-036 / DM-003). Status: `success` when `M == N`; `partial` when `2 ≤ M < N`; `failed` when `M < 2` (IMM-5, success-first). `suspect: true` is always set. `recommended_next_command` carries the literal `/sc:adversarial --suspect-source …` invocation — surface it, never auto-execute (AC-015).
 
-- **Non-zero exit → STOP.** Surface the script's stderr message to the caller verbatim.
-  For the empty-target case (exit 3) a `failed` return-contract.yaml has already been
-  written; relay it. **Do NOT dispatch any reviewer in this branch** (IMM-4).
-- On success, `Read` `<output>/manifest.json`. Its `reviewers[]` array gives, per reviewer:
-  `index, model_id, model_label, raw_path, meta_path, final_path`. Also read `timeout_sec`,
-  `temperature`, `prompts_dir`.
+## Failure Modes
 
-### Wave C — Parallel dispatch (single message, N Bash calls — AC-1.5 / IMM-3)
+Relay CLI stderr verbatim. The CLI STOPs cleanly on missing env (`T2ProxyUrl` / `T2ProxyKey`), out-of-range `--reviewers`, unreadable target, empty target (IMM-4, ≥50 non-whitespace bytes), and missing `curl`/`jq`. Per-reviewer failures (timeout, proxy_error, parse_error) do not abort siblings; a `failed` contract is still written.
 
-> **MANDATORY structural assertion (AC-1.5 / IMM-3).** Before dispatching, assert that you
-> are about to emit **exactly `reviewers_requested` `Bash` tool calls in ONE single
-> assistant message** — true parallel dispatch. If you cannot guarantee a single message
-> block (e.g., you are tempted to dispatch them one per turn), STOP and fix the plan. One
-> `t2_dispatch.sh` call per reviewer, all in the same message. Proxy-side serialization is
-> acceptable and explicitly out of scope; *client-side* serialization is a violation.
+## Boundaries
 
-For each reviewer entry in `manifest.reviewers`, emit (in the same message) one call:
+**Will:** forward arguments to `swarm run --lens bare-review`; relay `return-contract.yaml`; preserve the user-facing flag surface.
+**Will NOT:** dispatch reviewers; parse model output; score/filter/rank; route to Anthropic; write outside `--output`; embed prompts or recipe logic (those live in `cli/swarm/lenses/bare_review.py` + `cli/swarm/recipes/bare_review_v1.py`).
 
-```bash
-"$SKILL_DIR/scripts/t2_dispatch.sh" \
-  --model "<model_id>" \
-  --prompt-dir "<prompts_dir>" \
-  --raw-out "<raw_path>" --meta-out "<meta_path>" \
-  --timeout <timeout_sec> --temperature <temperature>
-```
+## Acceptance Pointers
 
-Each call is self-contained and always exits 0 after writing its `.meta.json` — a failing
-reviewer (timeout / proxy_error / parse_error) never aborts its siblings (AC-1.7).
-
-### Wave D+E — Normalize + return contract (single Bash call)
-
-```bash
-"$SKILL_DIR/scripts/t2_normalize.py" --manifest "<output-dir>/manifest.json"
-# invoke via: uv run python "$SKILL_DIR/scripts/t2_normalize.py" --manifest ... (or python3)
-```
-
-This parses each `.raw` into the §4 template, writes final `bare-review-NN-<model>.md`
-files atomically with deterministic names (IMM-6), determines status (IMM-5, success-first),
-emits `<output>/return-contract.yaml`, and prints the contract to stdout. Relay that
-contract as the skill's result.
-
-## Return Contract (§3.3 Wave E)
-
-```yaml
-contract_version: "1.0"
-status: success | partial | failed
-target: <absolute path>
-target_checksum: <sha256-12>
-target_truncated: <bool>
-reviewers_requested: <N>
-reviewers_succeeded: <M>
-output_files:
-  - path: <absolute path>
-    model_id: <e.g., deepseek-v4-pro>
-    model_label: <e.g., DeepSeek V4 Pro>
-    bytes: <size>
-    status: success | timeout | parse_error | proxy_error
-    elapsed_ms: <int>
-suspect: true                          # always — these are suspect by construction
-recommended_next_command: "/sc:adversarial --compare <existing-review>,<bare1>,... --suspect-source <bare1>,..."
-```
-
-**Status (IMM-5, success-first):** `M == N` → `success`; `2 ≤ M < N` → `partial`;
-`M < 2` → `failed`. The `M == N == 2` case is `success` (the `M==N` rule is evaluated
-first), because a user who asked for 2 and got 2 received what they requested.
-
-The contract is written on **every** invocation including failure (write-on-failure).
-
-## Failure Modes (§8 — skill rows)
-
-| Scenario | Behavior |
-|----------|----------|
-| `T2ProxyUrl`/`T2ProxyKey` unset | STOP at preflight naming the missing var |
-| `--reviewers` out of `[2,4]` or > configured models | STOP at preflight |
-| Target missing/unreadable | STOP at preflight with the path |
-| Target < 50 non-whitespace bytes (IMM-4) | STOP, write `failed`/`target-too-small` contract, **no dispatch** |
-| `curl`/`jq` unavailable | STOP at preflight |
-| Proxy HTTP 5xx | dispatch retries once after 2s; then `proxy_error`, continue |
-| Proxy HTTP 4xx | no retry; `proxy_error`, continue |
-| Per-reviewer timeout | `timeout`, continue with others |
-| Response parse fails | `parse_error`; `.raw` retained; normalizer attempts §7.4 salvage |
-| `M < 2` reviewers succeed | `status=failed`; caller should NOT proceed to adversarial |
-| `2 ≤ M < N` | `status=partial`; contract lists only successful files |
-| Adversarial fails later (IMM-6) | bare-review artifacts preserved (idempotent filenames); `recommended_next_command` enables manual retry; caller surfaces the failure (no auto-retry) |
-
-## Boundaries (§3.4)
-
-**Will:** read target; dispatch N parallel proxy calls; apply per-reviewer hard timeout;
-continue on partial success (≥2); always set `suspect: true`; emit `recommended_next_command`;
-write only inside `--output`.
-
-**Will NOT:** make claims about review quality; filter or score reviews; retry beyond a
-single 5xx retry; route to Anthropic models; write outside `--output`.
-
-## MCP Integration
-
-None in Phase 1 — the reference transport is Bash + curl + jq against an OpenAI-compatible
-proxy (spec §7.3). An optional `mcp__t2-proxy__chat` MCP transport adapter is Phase 5
-(AC-5.1/5.2): the skill would auto-detect MCP availability and fall back to Bash+curl when
-absent. Not implemented here.
-
-## Model Recommendation
-
-- **Default: sonnet.** The skill is deterministic orchestration over scripts; the
-  reviewing intelligence lives in the external T2 models, not in this skill.
-
-## Acceptance Criteria (§9.1)
-
-- **AC-1.1** — Skill at `src/superclaude/skills/sc-bare-review/SKILL.md`; `make sync-dev`
-  copies to `.claude/skills/sc-bare-review/`.
-- **AC-1.2** — Reads env per §7.1; STOPs cleanly when required vars missing.
-- **AC-1.3** — Defaults `deepseek-v4-pro` / `qwen3.6-plus` / `kimi-k2.6` / `glm-5.1`.
-- **AC-1.4** — `--reviewers ∈ [2,4]`; out-of-range → STOP.
-- **AC-1.5** — All N reviewers dispatched in a single message (structural assertion in
-  Wave C); proxy-side serialization out of scope.
-- **AC-1.6** — Per-reviewer timeout enforced (default 180s; `--timeout-sec` / `T2Timeout`).
-- **AC-1.7** — Per-reviewer failure does not abort other reviewers.
-- **AC-1.8** — Output files conform to §4.1; `schema_version` present.
-- **AC-1.9** — Output frontmatter always carries `suspect: true`.
-- **AC-1.10** — `target_checksum` is SHA-256 first 12 hex chars.
-- **AC-1.11** — Return contract includes `recommended_next_command` with literal
-  `--suspect-source` flag and paths.
-- **AC-1.12** — `failed` when `M < 2`; `partial` when `2 ≤ M < N`; `success` when `M == N`.
+- **AC-1.x / IMM-3/4/5/6 / §11.5** — enforced in `swarm run`; covered by `tests/swarm/test_imm_suite.py`.
+- **R-135 / FR-029 / COMP-033** — thin caller; orchestration in CLI.
+- **SC-001 / MIG-003** — legacy `scripts/*.sh` retired (T08.07); `tests/swarm/test_bare_review_parity.py` auto-skips post-retirement.
 
 ---
-
-*v1.0 — Phase 1 of the T2 Bare-Reviewer Adjunct (spec v1.3.0-draft). Bash+curl reference
-transport; suspect-by-construction. Source of truth: `src/superclaude/`; run `make sync-dev`
-after edits — never edit the `.claude/` mirror directly.*
+*v2.0 — Phase 8 / M9 thin caller. Source of truth: `src/superclaude/`; run `make sync-dev` after edits — never edit the `.claude/` mirror directly.*

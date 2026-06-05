@@ -1,0 +1,4 @@
+# Troubleshoot — empty pass
+
+## Notes
+Re-read the failure log end-to-end. No reproducible failure pattern surfaced — single transient timeout that already resolved.

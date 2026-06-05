@@ -1,0 +1,8 @@
+model dropped its frontmatter mid-stream, but the hypothesis table survived:
+
+| Cause | Evidence | Confidence | Next step |
+|-------|----------|------------|-----------|
+| connection pool exhaustion | pool_in_use counter pegged at max_size for 30s before each 502 | 70 | bump pool size and watch pool_wait_time |
+
+## Notes
+Stream cut off mid-row; recovered one hypothesis before truncation.

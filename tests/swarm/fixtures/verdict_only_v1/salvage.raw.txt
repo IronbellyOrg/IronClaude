@@ -1,0 +1,7 @@
+# partial output -- model truncated mid-stream
+
+## Verdict
+uncertain — could not complete the analysis; partial output captured below.
+
+## Notes
+Started feasibility scan; got through 2 of 6 concerns before

@@ -1,0 +1,12 @@
+# Edge-Case Hunt — pipeline/dispatcher.py
+
+## Edge cases
+
+| File:line | Input/state | Why it breaks | Repro sketch |
+|-----------|-------------|---------------|---------------|
+| pipeline/dispatcher.py:55 | empty worker list | divides by zero in throughput calc | `dispatch([], cfg)` |
+| pipeline/dispatcher.py:73 | duplicate model ids | reuses connection pool, races on auth | spin two identical model entries |
+| pipeline/dispatcher.py:101 | unicode in model_label | crashes filename templating | model_label="モデル" |
+
+## Notes
+Concurrency path 73 needs a regression test even if rare.

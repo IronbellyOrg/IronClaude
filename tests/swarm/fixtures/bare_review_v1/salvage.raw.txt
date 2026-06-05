@@ -1,0 +1,15 @@
+Model returned malformed JSON wrapper but the markdown body is
+recoverable. The transport flagged this reviewer as parse_error;
+the §7.4 salvage path should promote to success because the
+findings table parses cleanly.
+
+## Findings
+
+| ID | Sev | Claim | Cite | SelfConf |
+|----|-----|-------|------|----------|
+| F-01 | blocker | unbounded recursion in tree-walk on cyclic input | tree.py:88 | 90 |
+| F-02 | medium | missing index on join column slows query 12x | db/queries.py:340 | 70 |
+
+## Verdict
+Cyclic-input crash is reproducible; the index gap is real but
+acceptable until next migration window.

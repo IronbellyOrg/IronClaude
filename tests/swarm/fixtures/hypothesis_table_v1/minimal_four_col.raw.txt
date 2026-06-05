@@ -1,0 +1,11 @@
+# Troubleshoot — disk_full.log
+
+## Hypotheses
+
+| Cause | Evidence | Confidence | Next step |
+|-------|----------|------------|-----------|
+| /var/log not rotated | du shows 40G of nginx access logs from last 90 days | 85 | logrotate -d /etc/logrotate.d/nginx |
+| tmpfs leak from crashed worker | /tmp has 12G of pid-named files older than worker uptime | 60 | inspect workers, then `find /tmp -mtime +1 -delete` |
+
+## Notes
+Both findings are independent; clear logs first.

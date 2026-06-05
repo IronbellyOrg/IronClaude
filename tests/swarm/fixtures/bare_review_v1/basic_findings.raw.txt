@@ -1,0 +1,25 @@
+---
+schema_version: 1.0
+tier: T2
+suspect: true
+---
+
+# Bare Review — auth/login.py
+
+## Findings
+
+| ID | Sev | Claim | Cite | SelfConf |
+|----|-----|-------|------|----------|
+| F-01 | critical | password hash uses md5 instead of bcrypt | auth/login.py:42 | 95 |
+| F-02 | high | session token never rotated after privilege change | auth/session.py:118 | 80 |
+| F-03 | med | rate-limit window is per-process not cluster-wide | auth/rate_limit.py:55 | 65 |
+| F-04 | LOW | comment in `validate_email` references removed API | auth/login.py:201 | 40 |
+| F-05 | nitpick | trailing whitespace in 3 docstrings | n/a | 15 |
+
+## Verdict
+Two real bugs (md5 hash, session-token rotation); rate-limit caveat
+worth confirming on cluster deploy; remaining items cosmetic.
+
+## Notes
+Did not have time to trace OAuth fallback path; recommend a follow-up
+pass on auth/oauth.py.

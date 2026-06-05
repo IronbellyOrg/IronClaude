@@ -1,0 +1,18 @@
+---
+schema_version: 1.0
+tier: T2-tshoot
+lens: troubleshoot-hypothesis
+---
+
+# Troubleshoot — auth_login_500.log
+
+## Hypotheses
+
+| Cause | Supporting evidence | Falsifying evidence | Confidence | Next probe |
+|-------|---------------------|----------------------|------------|------------|
+| Stale JWT signing key after rotation | 500s started at 14:02, key rotation cron fired at 14:00 | login still works for service accounts | 75 | curl /auth/.well-known/jwks and diff keys against issuer |
+| Postgres replica lag on user lookup | login_user_by_email shows 8s p99 in replica metrics | primary RTT is flat at 1ms | 55 | force read-from-primary and re-test |
+| OAuth provider rate-limit on the callback URL | provider returned 429 in 3 of the failing traces | other tenants on same shard unaffected | 35 | inspect provider dashboard for tenant-scoped throttling |
+
+## Notes
+Hypotheses ranked by likelihood. Probe in order — JWKS check is the cheapest.

@@ -1,0 +1,4 @@
+# Audit notes
+
+## Notes
+Spec is roughly complete but missing token rotation and audit retention SLA; need follow-up before sign-off.

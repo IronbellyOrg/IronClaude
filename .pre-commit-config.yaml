@@ -108,6 +108,21 @@ repos:
         pass_filenames: false
         files: '^\.claude/(skills|agents|commands|hooks|templates)/'
 
+  # MIG-001 / R-138 / T08.04 — bare-review migration mirror-parity gate.
+  # Narrowed local check that fires when src/superclaude/skills/sc-bare-review/
+  # is staged. Asserts the .claude/skills/sc-bare-review/ mirror matches src
+  # so the migrating skill cannot drift during the thin-caller rewrite. CI
+  # continues to run `make verify-sync` as the authoritative cross-component
+  # gate. See docs/dev/migration-skill.md.
+  - repo: local
+    hooks:
+      - id: verify-bare-review-mirror-matches-src
+        name: Verify bare-review src ↔ mirror parity (MIG-001)
+        entry: scripts/precommit_verify_bare_review_sync.sh
+        language: script
+        pass_filenames: false
+        files: '^src/superclaude/skills/sc-bare-review/'
+
 # Global settings
 default_stages: [commit]
 fail_fast: false
