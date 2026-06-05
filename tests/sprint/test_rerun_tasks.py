@@ -38,6 +38,7 @@ from superclaude.cli.sprint.models import (
 )
 from superclaude.cli.sprint.recovery import acquire_recovery_lock
 from superclaude.cli.sprint.rerun_tasks import (
+    _rerun_targets_passed,
     build_rerun_bundle_dir,
     build_sub_index,
     discover_failed_tasks_from_transcripts,
@@ -535,3 +536,64 @@ class TestRerunNameMatchRegression:
         # Sanity: the canonical (non-rerun) form still matches and the trailing-r
         # form is genuinely a distinct branch from plain phase-7-tasklist.md.
         assert PHASE_FILE_PATTERN.search("phase-7-tasklist.md") is not None
+
+
+class TestRerunTargetsPassed:
+    """Regression: PASS_RECOVERED targets must count as passed for merge-back.
+
+    `_rerun_targets_passed` historically compared each serialized status to the
+    literal string ``"pass"``, so a rerun target completing as ``pass_recovered``
+    (a success-family status, models.py: TaskStatus.is_success) was mis-judged as
+    not-passed and merge-back was silently skipped. The fix coerces the raw JSON
+    status to TaskStatus and uses ``.is_success``.
+    """
+
+    def test_pass_recovered_target_counts_as_passed(self, tmp_path: Path):
+        # The result JSON shape mirrors what `_rerun_targets_passed` parses:
+        # a top-level dict with a ``task_results`` list of {task, status} entries.
+        result_path = tmp_path / "phase-7-result.json"
+        result_path.write_text(
+            json.dumps(
+                {
+                    "status": "pass_recovered",
+                    "task_results": [
+                        {"task": {"task_id": "T07.11"}, "status": "pass_recovered"},
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        # GREEN: with the is_success-family fix, a pass_recovered target is passed.
+        assert _rerun_targets_passed(result_path, ["T07.11"]) is True
+
+    def test_plain_pass_target_still_counts_as_passed(self, tmp_path: Path):
+        # Guard: the literal-"pass" path is not regressed by the fix.
+        result_path = tmp_path / "phase-7-result.json"
+        result_path.write_text(
+            json.dumps(
+                {
+                    "status": "pass",
+                    "task_results": [
+                        {"task": {"task_id": "T07.11"}, "status": "pass"},
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        assert _rerun_targets_passed(result_path, ["T07.11"]) is True
+
+    def test_failed_target_is_not_passed(self, tmp_path: Path):
+        # Guard: a non-success status still returns False (no over-broadening).
+        result_path = tmp_path / "phase-7-result.json"
+        result_path.write_text(
+            json.dumps(
+                {
+                    "status": "fail_terminal",
+                    "task_results": [
+                        {"task": {"task_id": "T07.11"}, "status": "fail_terminal"},
+                    ],
+                }
+            ),
+            encoding="utf-8",
+        )
+        assert _rerun_targets_passed(result_path, ["T07.11"]) is False

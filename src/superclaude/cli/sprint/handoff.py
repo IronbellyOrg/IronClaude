@@ -23,15 +23,21 @@ from .models import GateOutcome, HandoffRecord, SprintConfig, TaskStatus
 def is_validated_success(record: HandoffRecord) -> bool:
     """Resume skip predicate (H5 item 1): a *validated successful* record.
 
-    Returns True ONLY when the task both PASSed and its gate succeeded — i.e.
-    ``record.status == TaskStatus.PASS.value`` AND
-    ``GateOutcome(record.gate_outcome).is_success``. Mere file existence is
-    unsafe: ``FAIL_*``/``INCOMPLETE``/``SKIPPED`` tasks (and PASS-with-gate-fail)
-    also leave records behind, and resume must NOT skip those. Per the H4 schema
-    fix, ``gate_outcome`` is always the ``GateOutcome`` enum's ``.value`` string
-    (never None, never a dict), so there is no None/absent-gate branch to decide.
+    Returns True ONLY when the task succeeded AND its gate succeeded — i.e.
+    ``TaskStatus(record.status).is_success`` (the success family ``PASS`` **or**
+    ``PASS_RECOVERED``) AND ``GateOutcome(record.gate_outcome).is_success``. Mere
+    file existence is unsafe: ``FAIL_*``/``INCOMPLETE``/``SKIPPED`` tasks (and
+    success-with-gate-fail) also leave records behind, and resume must NOT skip
+    those. Per the H4 schema fix, ``gate_outcome`` is always the ``GateOutcome``
+    enum's ``.value`` string (never None, never a dict), so there is no
+    None/absent-gate branch to decide.
     """
-    if record.status != TaskStatus.PASS.value:
+    try:
+        status = TaskStatus(record.status)
+    except (ValueError, TypeError):
+        # Defensive: an unrecognized/None status is not a validated success.
+        return False
+    if not status.is_success:
         return False
     try:
         return GateOutcome(record.gate_outcome).is_success
