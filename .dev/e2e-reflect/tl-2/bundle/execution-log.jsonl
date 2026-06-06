@@ -1,0 +1,5 @@
+{"event": "sprint_start", "timestamp": "2026-06-04T18:29:13.569400+00:00", "index": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/tl-2/bundle/tasklist-index.md", "phases": "1-1", "max_turns": 1, "model": "default"}
+{"event": "phase_start", "phase": 1, "phase_name": "- Scaffold", "phase_file": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/tl-2/bundle/phase-1-tasklist.md", "timestamp": "2026-06-04T18:29:13.573196+00:00"}
+{"event": "phase_complete", "phase": 1, "phase_name": "- Scaffold", "status": "error", "exit_code": 1, "started_at": "2026-06-04T18:29:13.573196+00:00", "finished_at": "2026-06-04T18:29:13.573548+00:00", "duration_seconds": 0.000352, "output_bytes": 0, "error_bytes": 0, "last_task_id": "", "files_changed": 0}
+{"event": "checkpoint_manifest", "path": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/tl-2/bundle/manifest.json", "total": 2, "found": 0, "missing": 2}
+{"event": "sprint_complete", "outcome": "error", "duration_seconds": 0.006175, "phases_passed": 0, "phases_failed": 1, "halt_phase": null}

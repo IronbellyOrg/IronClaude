@@ -1,0 +1,17 @@
+# Input tree snapshot (§4.0 Step 0.4) — UC-2 post-execution audit, Phase 1
+# Phase 1 work is UNTRACKED (no commits); the audited "diff" is the working tree.
+input_tree_sha256: working-tree-untracked  # no git commit range; see REPORT §"Diff resolution"
+input_tree_file_count: 5
+file_list:
+  - path: .dev/e2e-reflect/live-tl/bundle/phase-1-tasklist.md   # the driving tasklist
+    sha256: 474ec6d3e47f3bfef6346f1d20e3fd8d31bad7d8a8e73bbeacaf5d231f54044b
+  - path: .dev/e2e-reflect/tl-1/work/index.md                   # T01.01 deliverable (D-0001)
+    sha256: 535d62eb335c7b27618ee10d51d3a12f3e1902412528589b9197016b3fd96eae
+  - path: .dev/e2e-reflect/tl-1/work/glossary.md                # T01.02 deliverable (D-0002)
+    sha256: 6456280902c119e7f1c03c4500a7a53f74fcecd39714bee912c3d1c1540581ff
+  - path: .dev/e2e-reflect/live-tl/bundle/artifacts/D-0001/evidence.md   # D-0001 evidence (present)
+    sha256: 420e1e454fabd67c6fc8e25bd52ab74da97b3fc86f655dade51cdd1188d07c18
+  - path: .dev/e2e-reflect/live-tl/bundle/checkpoints/CP-P01-END.md      # T01.03 checkpoint (status FAIL)
+    sha256: eac03e0aa4facc21f4806711afdab53131c3057474aa89787d4dc25a162de237
+# Note: the canonical live D-0002 evidence (.dev/e2e-reflect/live-tl/bundle/artifacts/D-0002/evidence.md)
+# is ABSENT from the input tree — this absence is the primary Phase-1 deviation (see deviation-ledger.yaml DV-01).
