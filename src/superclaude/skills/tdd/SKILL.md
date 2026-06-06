@@ -87,7 +87,7 @@ All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-TDD-Y
 
 **Variable definitions:**
 
-```
+```text
 TASK_ID:     TASK-TDD-YYYYMMDD-HHMMSS
 TASK_DIR:    .dev/tasks/to-do/${TASK_ID}/
 TASK_FILE:   ${TASK_DIR}${TASK_ID}.md
@@ -209,6 +209,8 @@ Use Glob, Grep, and codebase-retrieval to map the component's architecture. This
    - External integration points (imports from outside the component)
    - **If PRD_REF is provided**, read the PRD and extract: relevant epics, user stories, acceptance criteria, technical requirements, technology stack, success metrics/KPIs, scope definition (in/out/deferred), performance/security/scalability requirements.
 
+2a. **Reuse-neighbour search (orchestrator-level — NOT a nested research subagent)** — for each proposed new component / helper / pipeline-step, delegate to the `reuse-auditor` agent: `Task(reuse-auditor, candidates=<proposed components>, stage=pre, repo_root, output_path=${TASK_DIR}research/reuse-audit.yaml)`. Run this **here, at orchestrator level during scope discovery** — explicitly NOT inside a spawned Phase-2 research subagent (avoids subagent→agent nesting; see `mem:reference_subagent_cannot_nest_skill_fanout`). The agent returns, per proposed component, a name-agnostic capability fingerprint, grounded neighbours (`file:line`), composite scores, similarity tier, and a verdict (`reuse-by-import | mirror-shape | extract-shared | distinct`). Record the findings for A.4 `## REUSE_AUDIT`. Pre-stage is **always advisory** (no code has shipped). Fallback: agent unavailable → inline capability-keyed `codebase-retrieval` + grep-skeleton sweep, findings advisory-only; never STOP.
+
 3. **Plan research assignments** — divide the component into specific investigation topics, each becoming a subagent assignment. Common topics for TDDs:
    - Architecture and system design patterns
    - Each major subsystem (1 per subsystem)
@@ -233,6 +235,7 @@ Use Glob, Grep, and codebase-retrieval to map the component's architecture. This
 | **API Surface Mapper** | Document integration contracts | Map API endpoints, request/response schemas, service boundaries |
 | **Integration Mapper** | Identify connection points | Map extension points, plugin interfaces, config surfaces, cross-service communication |
 | **Doc Analyst** | Extract context from existing documentation | Read docs, **cross-validate every architectural claim against actual code**, note discrepancies and stale content |
+| **Reuse Scout** | Detect prior art for proposed components (don't rebuild what exists) | **Delegate to the `reuse-auditor` agent** for each proposed component (name-agnostic capability search); record grounded neighbours (`file:line`), tier, and verdict (`reuse-by-import`/`mirror-shape`/`extract-shared`/`distinct`) into `## REUSE_AUDIT` |
 
 Create the task folder: `.dev/tasks/to-do/TASK-TDD-YYYYMMDD-HHMMSS/` with subfolders `research/`, `synthesis/`, `qa/`, `reviews/`
 
@@ -244,7 +247,7 @@ If scope discovery needs deeper context (e.g., Scenario B with a large unknown c
 
 Write the scope discovery results to a structured research notes file at `${TASK_DIR}research-notes.md`. This file is what the builder reads — NOT inline content in the BUILD_REQUEST.
 
-The file MUST be organized into these 8 categories (include all, mark as "N/A" if empty):
+The file MUST be organized into these 9 categories (include all, mark as "N/A" if empty):
 
 ```markdown
 # Research Notes: [COMPONENT]
@@ -281,6 +284,19 @@ The file MUST be organized into these 8 categories (include all, mark as "N/A" i
 ## TEMPLATE_NOTES
 [Notes about which MDTM template to use and why. Almost always Template 02 for TDD.]
 
+## REUSE_AUDIT
+[Reuse & consolidation findings from the A.3 step-2a `reuse-auditor` delegation. One entry per proposed new component (include explicit `distinct`/`maybe-related` entries for any tempting neighbour you considered and rejected):
+- **Component:** [proposed component name]
+- **Capability phrase:** [one-line capability summary, name-agnostic]
+- **Grounded neighbours:** [`file:line` for each prior-art neighbour — cite only after Read]
+- **Scores:** C_cap / C_shape / C_aug / S_reuse
+- **Tier:** confident-duplicate | maybe-related | distinct
+- **Verdict:** reuse-by-import | mirror-shape | extract-shared | distinct
+- **Dependency-boundary note:** [any import ban that downgrades reuse-by-import → mirror-shape]
+- **Model-after requirements:** [naming/skeleton/idempotency/error-semantics to mirror, if mirror-shape]
+- **Decision:** [design directive for confident-duplicate; TDD Reuse Question for maybe-related; rationale for distinct]
+If no new components are proposed (pure documentation of existing architecture): "N/A — documenting existing architecture, no new components proposed."]
+
 ## AMBIGUITIES_FOR_USER
 [Genuine ambiguities about user intent that cannot be resolved from the codebase. If none, write "None — intent is clear from the request and codebase context."]
 ```
@@ -299,6 +315,7 @@ Read `${TASK_DIR}research-notes.md` and evaluate:
 6. Is the template section mapping reasonable?
 7. If a PRD was provided: is PRD_CONTEXT populated with extracted requirements (epics, acceptance criteria, technical requirements, scope boundaries)?
 8. If any doc-sourced claims appear in the research notes (e.g., from scanning existing documentation during scope discovery), are they tagged with `[CODE-VERIFIED]`, `[CODE-CONTRADICTED]`, or `[UNVERIFIED]`? Claims marked `[CODE-CONTRADICTED]` or `[UNVERIFIED]` must be flagged in AMBIGUITIES_FOR_USER.
+9. Is `## REUSE_AUDIT` populated for **every** proposed new component (including explicit `distinct`/`maybe-related` entries for tempting neighbours)? Any hard verdict (`confident-duplicate` / `reuse-by-import` / `mirror-shape` / `extract-shared`) lacking a grounded `file:line` ⇒ research insufficient.
 
 **If sufficient** → proceed to A.6 (template triage).
 
@@ -337,7 +354,7 @@ Spawn the `rf-task-builder` subagent. The builder reads the research notes file 
 
 **Loading declaration (FR-TDD-R.6a):** Before spawning the builder, the orchestrator MUST load `refs/build-request-template.md`:
 
-```
+```text
 Read refs/build-request-template.md
 ```
 
@@ -347,7 +364,7 @@ This provides the BUILD_REQUEST structure that the orchestrator fills in and pas
 
 **Builder load dependencies (FR-TDD-R.6b):** The `rf-task-builder` subagent MUST load these 4 refs files to construct the task file:
 
-```
+```text
 Read refs/agent-prompts.md
 Read refs/synthesis-mapping.md
 Read refs/validation-checklists.md
@@ -357,11 +374,11 @@ Read refs/operational-guidance.md
 These refs are loaded by the builder (not the orchestrator). The builder uses them to embed agent prompt templates, synthesis mapping rules, validation checklists, and operational guidance directly into the task file's B2 checklist items.
 
 > **Loaded at runtime from** `refs/agent-prompts.md` — Codebase research, web research, synthesis, analyst, QA, assembly, and PRD extraction agent prompt templates with per-agent instructions.
-
+>
 > **Loaded at runtime from** `refs/synthesis-mapping.md` — Output structure definition and research-to-template-section synthesis mapping table.
-
+>
 > **Loaded at runtime from** `refs/validation-checklists.md` — Assembly process steps, structural/content validation checklists, and non-negotiable content rules.
-
+>
 > **Loaded at runtime from** `refs/operational-guidance.md` — Critical execution rules, research quality signals, artifact location conventions, PRD-to-TDD pipeline, TDD update protocol, and session management guidance.
 
 **Spawning the builder:**

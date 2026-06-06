@@ -385,6 +385,7 @@ Structural signals from Wave 1B:
 | 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
 | 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` | STOP at T1 with WARN if `S_dev_density > 0.05` |
 | 3 | UC-2 AND any single hunk classified as `Regression` candidate by Wave 1 | **ESCALATE** (regression must be debated by ≥2 reviewers; structural mechanism, not a confidence question) |
+| 3a | UC-2 AND a Reuse-Miss at rung L3 mapped to Drift or Regression (§10.8) | **ESCALATE** (a shipped high-confidence duplicate is debated by ≥2 reviewers — same asymmetric-cost logic as rule 3 Regression) |
 | 4 | `S_domains ≥ 3` | ESCALATE (multi-domain reflection cannot be reliably done by a single reviewer card) |
 | 5 | `S_dev_density > 0.20` | ESCALATE (too many unmapped artifacts for a single-pass verdict) |
 | 6 | `C < 0.85` | ESCALATE |
@@ -452,6 +453,11 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 3. mcp__serena__find_symbol <relevant-symbol>          # symbol body
 3b. mcp__serena__find_implementations <symbol>         # polymorphic surface
 4. mcp__serena__find_referencing_symbols <symbol> include_info:true   # downstream impact + signatures
+4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root)  # FR-REUSE.1 — outward reuse/consolidation neighbour search
+    → consume reuse-audit.yaml (per-candidate verdict/tier/neighbours; run-level max_overlap/degraded/sampled).
+    Orchestrator-level (Wave 1A, Tier 1) — NEVER nested inside a spawned subagent.
+    Fallback: agent unavailable → inline serena+ripgrep grep-skeleton degrade, findings CAPPED at advisory L2,
+    degraded_components += "neighbour-search:auggie_unavailable"; NEVER STOP.
 4.5. mcp__serena__type_hierarchy(hierarchy_type=both|subtypes, depth=0)  # transitive family (backend+--with-hierarchy gated)
 5. mcp__serena__get_diagnostics_for_file <file>        # LSP-level issues
 5.5. mcp__serena__execute_shell_command (scoped verify) # UC-2 verification triangle (safety envelope §6.1.1)
@@ -471,6 +477,8 @@ Step 7' (FR-5) is **UC-2-only** and **prompt-based** (a corroboration meta-tool,
 Step 4.5 (FR-RV3-MED.1) retrieves a type's **transitive supertype/subtype family** in one call. It runs ONLY when (a) the Wave-0 step 0.5d backend probe reports a hierarchy-capable backend, (b) `--with-hierarchy` is set, and (c) the located symbol is a type (FR-1.1). Backend `none`/`lsp-disabled` → skip with `type_hierarchy_invoked: false` and **NO degrade** (expected absence, FR-1.4). An explicit backend error (distinct from "unsupported") → `degraded: ["type_hierarchy:backend_error"]` and fall back to the `find_implementations`/`find_referencing_symbols` chain (FR-1.5). `--with-hierarchy` defaults OFF on `lsp` (no generic `type_hierarchy` tool there until OQ-M3 confirms per-language support) and is unavailable on `none`; non-OO codebases see zero degradation. The skill MUST never abort because hierarchy is unavailable.
 
 Step 5.5 (FR-RV3-MED.4) is the **verification triangle** — `get_diagnostics_for_file` (step 5, LSP issues) + `summarize_changes` (step 7', what changed) + `execute_shell_command` (step 5.5, does it pass). It is **UC-2 default-on** and gated: it runs only when `execute_shell_command_available` is true (Wave-0 step 0.5d), `read_only` is not set, and `--no-verify` was not passed; otherwise it skips with the matching `verification_skip_reason` and degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry (never STOP). Every invocation is governed by the consumer-side safety envelope specified in §6.1.1 below. It emits one `audit.log` row per the §4 per-step convention whose `evidence_ref` points at the per-invocation artifact.
+
+Step 4a (FR-REUSE.1) is the **outward reuse/consolidation neighbour search** — the inverse of the inward symbol-walk above. For each new/body-changed symbol (incl. new files), it delegates to the `reuse-auditor` agent (§7), which fingerprints behaviour (capability + skeleton, name-agnostic), fires one capability-keyed auggie query per candidate (cap ≤12/run; overflow → `neighbour_search_sampled: true`), re-Reads each returned neighbour `file:line` before citing it (§6.2), and returns `reuse-audit.yaml` (per-candidate `tier`/`verdict`/composite-scores + run-level `max_overlap`). It is invoked at **orchestrator / Tier-1 level only** — never inside an already-spawned subagent (subagent→agent nesting can fail). The agent returns *findings only*; the skill maps each `confident-duplicate` onto §10.8 Reuse-Miss (Drift/Regression by evidence) and routes `maybe-related`/insufficient-grounding to §10.6 Grounding Gaps. Fail-open: agent or auggie unavailable → inline serena+ripgrep grep-skeleton, findings CAPPED at advisory L2, `degraded_components += "neighbour-search:auggie_unavailable"`; NEVER STOP. Emits one `audit.log` row (`reuse_sweep_invoked`, `candidates_scanned`, `neighbours_found`, `max_overlap`) per the §4 per-step convention.
 
 The chain replaces "think_about_collected_information" — instead of asking the model to self-assess whether it has enough info, the protocol *produces* the evidence and lets the rubric score whether grounding is sufficient.
 
@@ -562,6 +570,7 @@ Every reusable agent is mapped to a wave; no agent is duplicated inline.
 | `evidence-validator` | 5 | both | **Non-negotiable final gate**; re-Reads every cited file:line; drops unfounded items | Inline validation with `status: partial` and "validator unavailable" Grounding Gap |
 | `task-builder` (skill, not agent) | 6 | UC-2 (post-execution remediation) | Generate corrective MDTM task file from reflection findings | None; surface findings without remediation |
 | `socratic-mentor` | 1C | UC-1 (deep) | Optional probing pass for `--depth deep` UC-1 when spec is ambiguous | Skip |
+| `reuse-auditor` | 1A | both | Detect reuse/consolidation prior art for new/changed symbols (post) or proposed components (pre); fingerprint behaviour name-agnostically and return findings (verdict + tier + grounded neighbours) — **detection only, never classifies deviations or gates** | Inline grep-skeleton degrade (advisory-capped) |
 
 (See `refs/reviewer-spec.md` for the brief template and reviewer composition rotation details.)
 
@@ -583,7 +592,7 @@ Post-removal: if the executor is `sonnet`, the N=3 default rotation becomes `hai
 
 The merge judge in Wave 4 is `sc-adversarial-protocol`'s internal scoring; per Khan et al. ICML 2024 Oral, the judge being a *different* class than the debaters is the right default. The protocol does not pin a judge model — sc-adversarial owns that selection.
 
-### 7.2 No new agents required
+### 7.2 New-agent discipline (one introduced: `reuse-auditor`)
 
 The four hypothetical new agents discussed in enrichment notes (`coverage-mapper`, `deviation-classifier`, `tasklist-vs-diff-comparator`, `reflection-synthesizer`) are *deliberately not introduced* in this variant. Their work is absorbed:
 
@@ -593,6 +602,8 @@ The four hypothetical new agents discussed in enrichment notes (`coverage-mapper
 - Reflection synthesis → inline Wave 5 (mirrors sc-troubleshoot's inline Wave 5; new agent introduces bloat without value).
 
 Rationale: keeping the SKILL.md within the sc-troubleshoot/sc-brainstorm band requires keeping inline logic *only* where the inline logic is templated. Where the work is open-ended hypothesis or judgement, agents stay. Where the work is mechanical mapping, inline stays.
+
+**The one new agent — `reuse-auditor` — clears exactly that bar.** Note `deviation-classifier` was rejected above precisely because deviation classification *is* mechanical mapping (the §10 taxonomy is the classifier). Reuse/consolidation detection is the opposite: deciding "do these two symbols do the same thing despite zero shared name tokens?" is **semantic capability/skeleton equivalence** — open-ended judgement, not a lookup. It is also an `extract-shared` unit by its own §4 N≥2 rule: both `sc:reflect` (Wave 1A) and `/tdd` (Stage A.3) consume it, and skill-packaged refs can't be shared across skills, so the detection algorithm lives in one globally-addressable agent rather than being duplicated into each SKILL (cf. `evidence-validator`, "reusable by any skill"). Introducing it is the feature taking its own advice; the gate integration (§10.8 mapping, §14.5.2) stays inline — the agent relocates *detection*, not *gating*.
 
 ---
 
@@ -634,10 +645,10 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
-### 9.1 Stable contract (contract_version: 1.2.0)
+### 9.1 Stable contract (contract_version: 1.3.0)
 
 ```yaml
-contract_version: "1.2.0"
+contract_version: "1.3.0"
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -681,6 +692,17 @@ verification_invocations: <int>            # FR-4 (count of verify-log invocatio
 verification_failures: <int>               # FR-4 (exit_code != 0 count)
 verification_regressions_detected: <int>   # FR-4 (taxonomy-classified Regression exits on a claimed-passing file)
 verification_skip_reason: tool-unavailable|read-only-project|--no-verify|null   # FR-4
+
+# Reuse-Miss neighbour sweep (FR-REUSE — §6.1 step 4a / §10.8; UC-2). NO deviation_count_by_class.reuse_miss key (§17.7).
+reuse_sweep_ran: <bool>
+reuse_audit_path: <abs path> | null          # reuse-auditor's reuse-audit.yaml
+reuse_miss_blocking: <int>                    # rung-L3 findings mapped to Drift/Regression (§10.8)
+reuse_miss_advisory: <int>                    # rung ≤ L2 (non-gating)
+reuse_verdict_count_by_type: { reuse_by_import: <int>, mirror_shape: <int>, extract_shared: <int>, distinct: <int> }
+reuse_grounding_gap_count: <int>              # maybe-related/insufficient routed to §10.6
+neighbour_search_sampled: <bool>              # candidates exceeded the ≤12 cap
+neighbour_search_degraded: <bool>             # auggie-unavailable fallback used (caps findings at advisory L2)
+max_overlap_score: <float 0.0-1.0> | null
 
 # Input integrity
 input_sha256:                         # legacy single-file hashes preserved for backward-compat
@@ -763,7 +785,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
 promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.2.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.3.0`.
 
 ### 9.2 Telemetry (non-stable)
 
@@ -953,6 +975,11 @@ The taxonomy is **4 categories**, not 5. There is no `unknown` deviation class. 
   next_evidence_needed: <what would resolve — e.g., "ask user whether feature X was authorized">
   owner: user             # default; can be `reviewer` if a reviewer round can resolve
   decision_needed_by_user: true | false
+  # OPTIONAL — present only on reuse-routed gaps (§10.8 maybe-related / insufficient-grounding):
+  reuse_candidate: <symbol or proposed-component name>      # optional
+  nearest_neighbour: <file:line>                            # optional
+  similarity_tier: maybe-related | insufficient-grounding   # optional
+  composite_scores: { C_cap: <float>, C_shape: <float>, C_aug: <float>, S_reuse: <float> }   # optional
 ```
 
 When `grounding-gaps.yaml` is non-empty:
@@ -966,6 +993,19 @@ This is **structurally separate** from the 4-category ledger. See §17.7 Kill Li
 ### 10.7 Reporting
 
 Every deviation in REPORT.md is rendered with: file:line, mapped tasklist item (or "unmapped"), spec section (or "n/a"), evidence (verified by evidence-validator), classification rationale (signals matched + gold-standard refs cited), default remediation, and any `[INFERRED]` notes flagged for the reader. Template in `refs/report-template.md`.
+
+### 10.8 Reuse-Miss (finding modifier — NOT a 5th deviation class)
+
+A new/changed symbol that implements a capability an existing neighbour already provides (`confident-duplicate` per the `reuse-auditor` agent, §6.1 step 4a), where a cheaper reuse path was available. Per §17.7 Kill List item 6, Reuse-Miss is **NOT a deviation class** — it **MAPS onto the existing 4 by evidence** (mirroring §10.4's exit-code-by-evidence rule):
+
+- shipped duplicate, unmapped to any tasklist item, no inline rationale → **§10.3 Drift**
+- shipped duplicate that violates an invariant/criterion the original guarantees → **§10.4 Regression**
+- shipped duplicate with an inline rationale contradicting no criterion → **§10.2 Necessary**
+- tasklist/spec/user explicitly approved a separate impl → **§10.1 Authorized expansion**
+
+**Blocking bar (high):** a Reuse-Miss maps to a blocking class (Drift/Regression) **only at rung L3** — `S_reuse ≥ 0.82` **AND** `confidence ≥ 0.85` **AND** `verdict ≠ distinct`. Weaker signal (rung ≤ L2), any auggie-unavailable fallback finding, OR `maybe-related`/insufficient-grounding → **§10.6 Grounding Gaps** (NEVER `deviation-ledger.yaml`). The verdict vocabulary is `reuse-by-import | mirror-shape | extract-shared | distinct`, with the mechanical NFR-import-ban downgrade (`reuse-by-import` → `mirror-shape` across a banned edge) applied by the agent.
+
+**Default remediation.** Drift-mapped → "authorize-or-revert OR consolidate"; if `--remediate`, Tier-3 consolidate/backfill/revert. Regression-mapped → Tier-3 + §5.3 rule-3a Tier-2 escalation. There is **no** `deviation_count_by_class.reuse_miss` counter (§17.7); a blocking Reuse-Miss increments the Drift or Regression counter of the class it maps to (§14.5.2 cond 4).
 
 ---
 
@@ -1306,7 +1346,7 @@ Promotion fires only when ALL of the following hold:
 1. **`mode == post`** — UC-1 has no completed work to promote. *(maps to `gate_evaluation.mode_post`)*
 2. **`status == success`** — `partial` or `failed` blocks promotion. (Conditional-CONVERGED per §11.0 is NOT eligible.) *(maps to `gate_evaluation.status_success`)*
 3. **`tasklist_completion_pct == 1.0`** — every checklist item independently verified done by reflect (not just frontmatter-declared). *(maps to `gate_evaluation.tasklist_completion_pct_1_0`)*
-4. **`deviation_count_by_class.drift == 0` AND `deviation_count_by_class.regression == 0`** — Authorized expansion and Necessary deviation are non-blocking; Drift and Regression block. **Exception**: if the only Drift signal is the frontmatter-mismatch from condition 5b AND that mismatch is classifiable as §10.2 Necessary deviation (e.g., frontmatter carries an inline rationale that does not contradict any spec acceptance criterion), it is NOT counted as Drift here — but condition 5b still independently gates promotion. *(maps to `gate_evaluation.no_drift_no_regression`)*
+4. **`deviation_count_by_class.drift == 0` AND `deviation_count_by_class.regression == 0`** — Authorized expansion and Necessary deviation are non-blocking; Drift and Regression block. **Exception**: if the only Drift signal is the frontmatter-mismatch from condition 5b AND that mismatch is classifiable as §10.2 Necessary deviation (e.g., frontmatter carries an inline rationale that does not contradict any spec acceptance criterion), it is NOT counted as Drift here — but condition 5b still independently gates promotion. **Reuse-Miss clause (§10.8):** a Reuse-Miss finding mapped to Drift or Regression at rung L3 increments `deviation_count_by_class.drift`/`.regression` like any deviation of that class and gates promotion through this UNMODIFIED condition; advisory Reuse-Miss findings (rung ≤ L2, or any auggie-unavailable fallback) do NOT increment these counters and do NOT gate. *(maps to `gate_evaluation.no_drift_no_regression`)*
 5. **Frontmatter agreement** — split into two independent sub-conditions:
    - **5a. Frontmatter is present and parseable** — the tasklist file MUST have a `status` field (or equivalent completion marker per the adapter's frontmatter schema). Missing/unparseable frontmatter fails 5a regardless of value. *(maps to `gate_evaluation.frontmatter_present`)*
    - **5b. Frontmatter status agrees with reflect's verdict** — `status: done` (or equivalent terminal value) MUST be declared. Any other value (including `in-progress`, `partial`, blank, etc.) fails 5b. Disagreement is recorded as Drift (§10.3) in the deviation register regardless of promotion outcome, but does not redundantly increment cond 4 (see cond 4 exception). *(maps to `gate_evaluation.frontmatter_status_matches`)*
@@ -1581,7 +1621,7 @@ Operators using Prometheus's `json_exporter`, StatsD's `dogstatsd-json`, or Open
 **Cross-run aggregation (`.dev/reflect/runs.jsonl`).** A one-line JSON summary is appended to `.dev/reflect/runs.jsonl` at end-of-run. Schema is a subset of `metrics.json` with only the cross-run-comparable fields:
 
 ```json
-{"run_id": "...", "timestamp": "...", "skill_version": "1.2.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
+{"run_id": "...", "timestamp": "...", "skill_version": "1.3.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
 ```
 
 The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
@@ -1712,7 +1752,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
 | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
 | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.2.0"` |
+| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.3.0"` |
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |
