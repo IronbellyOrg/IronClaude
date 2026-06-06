@@ -1,0 +1,22 @@
+=== RED RUN (old handoff predicate restored) ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/fix-sprint-rerun-pass-recovered
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collected 1 item
+
+tests/sprint/test_resume_contract.py F                                   [100%]
+
+=================================== FAILURES ===================================
+__________ test_is_validated_success_only_for_pass_plus_gate_success ___________
+tests/sprint/test_resume_contract.py:70: in test_is_validated_success_only_for_pass_plus_gate_success
+    assert is_validated_success(rec) is expected, (
+E   AssertionError: pass_recovered+pass → False, expected True
+E   assert False is True
+E    +  where False = is_validated_success(HandoffRecord(schema_version=1, task_id='T01.01', phase=1, status='pass_recovered', gate_outcome='pass', turns_consume... exit_code=0, output_path='/r/T01.01.txt', started_at='', finished_at='', produced_artifacts=[], consumed_upstreams=[]))
+=========================== short test summary info ============================
+FAILED tests/sprint/test_resume_contract.py::test_is_validated_success_only_for_pass_plus_gate_success
+============================== 1 failed in 0.28s ===============================

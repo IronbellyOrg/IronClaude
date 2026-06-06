@@ -1,0 +1,5 @@
+input_tree_sha256: addc7922e1f138a6bdb8d9b041d15eb19d8ac362dcf84f99303ad2186f86ba6b
+input_tree_file_count: 38
+tasklist_sha256: c2c5b16af03373cbbda93b700b65cf833fc12ec4ba92ce52999a8b43f2ca7eab
+file_list_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/artifacts/input-file-shas.txt
+verification_artifact_excludes_applied: true

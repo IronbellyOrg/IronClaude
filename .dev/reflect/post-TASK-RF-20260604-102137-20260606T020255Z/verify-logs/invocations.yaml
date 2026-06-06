@@ -1,0 +1,13 @@
+invocations:
+  - cmd: "uv run pytest tests/sprint/test_rerun_tasks.py::TestRerunTargetsPassed tests/sprint/test_resume_contract.py::test_is_validated_success_only_for_pass_plus_gate_success -q"
+    exit_code: 0
+    deviation_class: none
+  - cmd: "uv run pytest tests/sprint/ -q"
+    exit_code: 0
+    deviation_class: none
+  - cmd: "uv run ruff check src/ tests/"
+    exit_code: 0
+    deviation_class: none
+  - cmd: "uv run ruff format --check src/ tests/"
+    exit_code: 0
+    deviation_class: none

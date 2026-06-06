@@ -1,0 +1,9 @@
+{"wave":0,"step":"0.1","timestamp":"2026-06-06T02:02:55Z","outcome":"ok","evidence_ref":"args: --mode post --diff origin/master..fix/sprint-rerun-pass-recovered --tasklist .dev/tasks/to-do/TASK-RF-20260604-102137/TASK-RF-20260604-102137.md"}
+{"wave":0,"step":"0.2","timestamp":"2026-06-06T02:03:20Z","outcome":"ok","evidence_ref":"git diff origin/master..fix/sprint-rerun-pass-recovered: 4 files"}
+{"wave":0,"step":"0.4","timestamp":"2026-06-06T02:05:00Z","outcome":"ok","evidence_ref":"artifacts/input-snapshot.yaml"}
+{"wave":0,"step":"0.5c","timestamp":"2026-06-06T02:03:40Z","outcome":"warn","evidence_ref":"Serena active context claude-code; execute_shell_command unavailable"}
+{"wave":1,"step":"1B","timestamp":"2026-06-06T02:10:00Z","outcome":"ok","evidence_ref":"REPORT.md#scope-and-task-mapping"}
+{"wave":1,"step":"1C","timestamp":"2026-06-06T02:12:00Z","outcome":"ok","evidence_ref":"deviation-register.yaml"}
+{"wave":2,"step":"2.0","timestamp":"2026-06-06T02:13:00Z","outcome":"ok","evidence_ref":"artifacts/tier_decision.yaml"}
+{"wave":5,"step":"5.0","timestamp":"2026-06-06T02:16:00Z","outcome":"ok","evidence_ref":"REPORT.md"}
+{"wave":7,"step":"7.4","timestamp":"2026-06-06T02:18:00Z","outcome":"ok","evidence_ref":"promotion-log.yaml"}

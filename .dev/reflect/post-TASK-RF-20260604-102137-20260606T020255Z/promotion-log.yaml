@@ -1,0 +1,17 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: moved
+source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260604-102137
+destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260604-102137
+source_sha256_before: 9ca88bb9f92adc6cb91e483d550ca6630b03fc269d56a7e07a95bebede575bdf
+gate_passed: true
+pending: false
+cross_fs_promotion: false
+skip_reason: null
+fail_reason: null
+override_used: null
+rollback_command: "mv /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260604-102137 /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260604-102137"
+timestamp: "2026-06-06T02:02:55Z"
+source_sha256_after_move: 9ca88bb9f92adc6cb91e483d550ca6630b03fc269d56a7e07a95bebede575bdf
+sha_match: true
