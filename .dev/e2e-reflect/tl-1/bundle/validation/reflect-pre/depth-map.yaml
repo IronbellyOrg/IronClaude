@@ -1,0 +1,30 @@
+generated: '2026-06-04T00:00:00Z'
+reflect_pre_summary:
+  pass: 2
+  partial: 0
+  fail: 0
+phases:
+  phase-1:
+    file: phase-1-tasklist.md
+    depth: 1
+    tier: EXEMPT
+    signals:
+      max_tier: STANDARD
+      max_risk: Low
+      critical_path_override: false
+      task_count: 4
+    verdict: PASS
+    coverage_pct: 100
+    report_path: .dev/e2e-reflect/tl-1/bundle/validation/reflect-pre/phase-01/REPORT.md
+  phase-2:
+    file: phase-2-tasklist.md
+    depth: 1
+    tier: EXEMPT
+    signals:
+      max_tier: STANDARD
+      max_risk: Low
+      critical_path_override: false
+      task_count: 4
+    verdict: PASS
+    coverage_pct: 100
+    report_path: .dev/e2e-reflect/tl-1/bundle/validation/reflect-pre/phase-02/REPORT.md

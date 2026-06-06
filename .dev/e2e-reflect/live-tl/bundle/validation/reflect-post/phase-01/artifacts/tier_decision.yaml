@@ -1,0 +1,18 @@
+# Tier decision (§5) — Phase 1 post-execution reflect
+selected_tier: 1
+fired_rule_number: 0          # no rubric evaluation: hard override fired (§5.1)
+hard_override: "--depth quick AND --tier 1 (both force STOP at T1)"
+composite_score: 1.0          # recording-only; would not have escalated regardless
+per_signal_breakdown:
+  scope_size: 0               # 2 tiny markdown deliverables + 1 checkpoint
+  task_count: 0               # 3 audited tasks (T01.01/02/03); T01.04 is EXEMPT (this reflect)
+  blast_radius: 0             # sandbox-only under .dev/e2e-reflect/tl-1/work/
+  spec_density: 0             # all requirements mapped (R-001/R-002)
+  ambiguity_signals: 1        # one authorize-or-revert decision open (DV-01 Drift)
+escalation_reason: "none — Tier 1 pinned by flags; no Regression candidate present (§5.3 rule 3 not triggered)"
+regression_candidate_count: 0
+executor_model_class: default   # --executor-model default; excluded from reviewer pool (moot at T1)
+notes: >-
+  --depth quick and --tier 1 both hard-stop at Tier 1 (§5.1). No heterogeneous reviewer
+  ensemble (Wave 3) or adversarial merge (Wave 4) runs. Evidence validation performed inline
+  (no evidence-validator subagent spawned) → evidence_validator_ran:false, status:partial.
