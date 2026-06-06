@@ -1201,8 +1201,29 @@ def _load_phase_result_view(phase_result_json: Path) -> SimpleNamespace:
     return SimpleNamespace(task_results=task_results, recovery_history=history)
 
 
+def _is_success_task_status(value: object) -> bool:
+    """True iff ``value`` denotes a success-family ``TaskStatus``.
+
+    Accepts either a ``TaskStatus`` enum or its serialized ``.value`` string and
+    returns ``status.is_success`` (i.e. ``PASS`` or ``PASS_RECOVERED``). ``None``,
+    unknown strings, and invalid types return ``False`` without raising, so raw
+    JSON status fields and possibly-``None`` enum fields are both safe inputs.
+    """
+    if isinstance(value, TaskStatus):
+        return value.is_success
+    try:
+        return TaskStatus(value).is_success  # type: ignore[arg-type]
+    except (ValueError, TypeError):
+        return False
+
+
 def _rerun_targets_passed(phase_result_json: Path, targets: list[str]) -> bool:
-    """True iff every ``targets`` task is recorded PASS in the rerun's result JSON."""
+    """True iff every ``targets`` task is recorded success in the rerun's result JSON.
+
+    Success is the ``TaskStatus.is_success`` family (``PASS`` **or**
+    ``PASS_RECOVERED``), not a literal ``"pass"`` string — a target that completes
+    as ``pass_recovered`` is a successful rerun and must not skip merge-back.
+    """
     try:
         data = json.loads(phase_result_json.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -1213,7 +1234,9 @@ def _rerun_targets_passed(phase_result_json: Path, targets: list[str]) -> bool:
         tid = task.get("task_id") if isinstance(task, dict) else None
         if tid:
             status_by_id[tid] = entry.get("status")
-    return bool(targets) and all(status_by_id.get(t) == "pass" for t in targets)
+    return bool(targets) and all(
+        _is_success_task_status(status_by_id.get(t)) for t in targets
+    )
 
 
 def _print_investigation_summary(phase_result_json: Path, nominated: list[str]) -> None:
@@ -1228,7 +1251,7 @@ def _print_investigation_summary(phase_result_json: Path, nominated: list[str]) 
     recoverable: list[str] = []
     terminal: list[str] = []
     for tr in view.task_results:
-        if tr.status is TaskStatus.PASS:
+        if _is_success_task_status(tr.status):
             last_pass = tr.task.task_id
         elif tr.status is TaskStatus.FAIL_RECOVERABLE:
             recoverable.append(tr.task.task_id)

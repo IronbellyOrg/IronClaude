@@ -55,7 +55,9 @@ def _record(task_id: str, status: TaskStatus, gate: GateOutcome) -> HandoffRecor
 def test_is_validated_success_only_for_pass_plus_gate_success() -> None:
     cases = [
         (TaskStatus.PASS, GateOutcome.PASS, True),
+        (TaskStatus.PASS_RECOVERED, GateOutcome.PASS, True),  # success + good gate
         (TaskStatus.PASS, GateOutcome.FAIL, False),  # PASS but gate failed
+        (TaskStatus.PASS_RECOVERED, GateOutcome.FAIL, False),  # gate req preserved
         (TaskStatus.PASS, GateOutcome.DEFERRED, False),
         (TaskStatus.PASS, GateOutcome.PENDING, False),
         (TaskStatus.FAIL_TERMINAL, GateOutcome.PASS, False),
