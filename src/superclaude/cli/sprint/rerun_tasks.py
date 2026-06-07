@@ -1453,10 +1453,16 @@ def run_rerun_tasks(
                         "superclaude",
                         "sprint",
                         "verify-checkpoints",
+                        # OUTPUT_DIR positional: the directory that contains
+                        # tasklist-index.md. `index_path` is absolute (resolved
+                        # in load_sprint_config), so `.parent` is cwd-independent
+                        # and is the dir verify-checkpoints derives index/
+                        # checkpoint/artifacts paths from. NOTE: do NOT pass
+                        # config.release_dir — it resolves to the grandparent in
+                        # the sc:tasklist subdir layout, where tasklist-index.md
+                        # does not live. verify-checkpoints has no --phase/--quiet.
+                        str(config.index_path.parent),
                         "--recover",
-                        "--phase",
-                        str(phase),
-                        "--quiet",
                     ],
                     check=False,
                 )
