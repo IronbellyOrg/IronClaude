@@ -292,6 +292,21 @@ class TestRerunTasksRoundTrip:
         verify_argv = mock_verify.call_args.args[0]
         assert "verify-checkpoints" in verify_argv
         assert "--recover" in verify_argv
+        # AC1: the auto-invoke must NOT pass unsupported options. verify-checkpoints
+        # takes a positional OUTPUT_DIR plus --recover/--json only — never
+        # --phase/--quiet (the bug this regression guards).
+        assert "--phase" not in verify_argv
+        assert "--quiet" not in verify_argv
+        vc_idx = verify_argv.index("verify-checkpoints")
+        positional = verify_argv[vc_idx + 1]
+        assert not positional.startswith("-"), (
+            f"expected a positional OUTPUT_DIR after verify-checkpoints, got {positional!r}"
+        )
+        # AC3: round-trip the built argv through the REAL command parser (the
+        # mocked subprocess never did, which is why the bad argv shipped). Strip
+        # the `uv run superclaude sprint` prefix and invoke the group directly.
+        roundtrip = runner.invoke(sprint_group, verify_argv[4:])
+        assert roundtrip.exit_code == 0, roundtrip.output
 
         # --- AC3 round-trip artifact equivalence (key invariant form) ---
         # The merged result JSON keeps both target tasks and records the rerun in
