@@ -343,7 +343,9 @@ Do NOT write it to any other directory or filename. The pipeline depends
 on finding it at this exact location. Do NOT write into any source or
 spec directory listed in your scope.
 
-Return JSON:
+Write the following JSON object as the FULL contents of that file
+(sufficiency-review.md) -- do not emit it only on stdout, or the pinned
+write the pipeline relies on will be skipped:
 {{
   "verdict": "PASS" or "FAIL",
   "coverage_score": 0-100,

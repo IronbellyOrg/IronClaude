@@ -264,9 +264,9 @@ _STEP_ARTIFACT_FILES: dict[str, str] = {
 
 
 _STEP_ARTIFACT_PATTERNS: dict[str, list[str]] = {
-    "scope-discovery": ["scope-discovery*.md"],   # agent may drop the -raw suffix
-    "research-notes":  ["research-notes*.md"],
-    "sufficiency-review": [],                       # stable; exact match
+    "scope-discovery": ["scope-discovery*.md"],  # agent may drop the -raw suffix
+    "research-notes": ["research-notes*.md"],
+    "sufficiency-review": [],  # stable; exact match
 }
 # Empty/missing entry → fall back to exact-name behavior.
 
@@ -289,10 +289,19 @@ def _pick_best_candidate(
     def _key(item: tuple[Path, str]) -> tuple[int, float, int, int]:
         path, content = item
         try:
-            in_pref = 1 if path.resolve().is_relative_to(preferred_root.resolve()) else 0
+            in_pref = (
+                1 if path.resolve().is_relative_to(preferred_root.resolve()) else 0
+            )
         except ValueError:
             in_pref = 0
-        return (in_pref, path.stat().st_mtime, len(content), -len(path.parts))
+        try:
+            mtime = path.stat().st_mtime
+        except OSError:
+            # Candidate vanished or became unreadable between read_text() and
+            # ranking; content is already captured in memory, so treat it as
+            # oldest rather than crashing recoverable step recovery.
+            mtime = 0.0
+        return (in_pref, mtime, len(content), -len(path.parts))
 
     return max(candidates, key=_key)[1]
 
@@ -383,22 +392,26 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
     if task_dir.parent.exists():
         search_roots.append(task_dir.parent)
 
+    # Hoisted so the per-candidate containment check below can re-validate every
+    # matched file against repo_root regardless of whether parsed-request.json
+    # contributed any WHERE roots.
+    repo_root = task_dir.parent if task_dir.parent.exists() else task_dir
+
     parsed_path = task_dir / "parsed-request.json"
     if parsed_path.exists():
         try:
             parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             parsed = {}
-        repo_root = task_dir.parent if task_dir.parent.exists() else task_dir
         for where in parsed.get("WHERE") or []:
-            where_path = (repo_root / where)
+            where_path = repo_root / where
             # realpath containment (INV-005): reject traversal AND symlink escapes
             try:
                 real = where_path.resolve(strict=True)
                 real.relative_to(repo_root.resolve())
             except (ValueError, OSError):
                 continue
-            if where_path.is_symlink():        # reject symlinked roots outright
+            if where_path.is_symlink():  # reject symlinked roots outright
                 continue
             if real.is_dir() and real not in search_roots:
                 search_roots.append(real)
@@ -413,6 +426,15 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
                 if "-output.txt" in match.name or (
                     {"node_modules", ".git", "__pycache__"} & set(match.parts)
                 ):
+                    continue
+                # INV-005 (per-candidate): a matched file may itself be — or sit
+                # under — a symlink that escapes repo_root even when its WHERE
+                # root was validated. Re-resolve and re-check containment before
+                # reading so a symlinked candidate cannot leak content from
+                # outside the contained roots.
+                try:
+                    match.resolve(strict=True).relative_to(repo_root.resolve())
+                except (ValueError, OSError):
                     continue
                 try:
                     content = match.read_text(encoding="utf-8", errors="replace")
