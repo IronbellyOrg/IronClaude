@@ -11,6 +11,7 @@ import pytest
 
 from superclaude.cli.prd.models import PrdConfig
 from superclaude.cli.prd.prompts import (
+    _artifact_path_for_step,
     _read_file,
     build_analyst_completeness_prompt,
     build_analyst_synthesis_prompt,
@@ -274,3 +275,47 @@ class TestReadFileTruncation:
         small_file.write_text(small_content, encoding="utf-8")
         result = _read_file(small_file)
         assert result == small_content
+
+
+class TestDocumentBuilderOutputPins:
+    """[AC1] The 4 un-pinned document builders now pin their canonical output path.
+
+    Each injected ``CRITICAL -- Output Location:`` block must render the
+    absolute ``config.task_dir / <canonical-name>`` path and a
+    do-not-write-elsewhere instruction, so the agent writes to the canonical
+    task-directory path instead of inventing a variant filename in a WHERE
+    source/spec directory.
+    """
+
+    @pytest.mark.parametrize(
+        ("builder", "canonical_filename"),
+        [
+            (build_scope_discovery_prompt, "scope-discovery-raw.md"),
+            (build_research_notes_prompt, "research-notes.md"),
+            (build_sufficiency_review_prompt, "sufficiency-review.md"),
+            (build_preparation_prompt, ".preparation-complete"),
+        ],
+    )
+    def test_builder_pins_canonical_output_path(
+        self, config: PrdConfig, builder, canonical_filename: str
+    ) -> None:
+        prompt = builder(config)
+        expected_path = str(config.task_dir / canonical_filename)
+        assert expected_path in prompt
+        assert "CRITICAL -- Output Location:" in prompt
+        assert "do not write" in prompt.lower()
+
+
+def test_prompt_executor_mapping_sync(config: PrdConfig) -> None:
+    """[AC2] _artifact_path_for_step mirrors _STEP_ARTIFACT_FILES with ZERO drift.
+
+    The prompt-side helper (prompts.py) and the executor-side artifact mapping
+    (executor.py) must agree on one source of truth across all 8 keys, and an
+    unmapped step must resolve to None.
+    """
+    from superclaude.cli.prd.executor import _STEP_ARTIFACT_FILES
+
+    for step_id, filename in _STEP_ARTIFACT_FILES.items():
+        assert _artifact_path_for_step(config, step_id) == config.task_dir / filename
+
+    assert _artifact_path_for_step(config, "some-unmapped-step") is None

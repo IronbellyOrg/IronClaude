@@ -52,6 +52,27 @@ def _today() -> str:
     return date.today().isoformat()
 
 
+def _artifact_path_for_step(config: PrdConfig, step_id: str) -> Path | None:
+    """Canonical artifact path for a step, or None if not applicable.
+
+    Read-only mirror of _STEP_ARTIFACT_FILES in executor.py so prompt-side
+    pinning and executor-side recovery agree on one source of truth.
+    Guarded by test_prompt_executor_mapping_sync.
+    """
+    mapping = {
+        "parse-request": "parsed-request.json",
+        "scope-discovery": "scope-discovery-raw.md",
+        "research-notes": "research-notes.md",
+        "sufficiency-review": "sufficiency-review.md",
+        "research-qa": "qa/qa-research-gate-report.md",
+        "synthesis-qa": "qa/qa-synthesis-gate-report.md",
+        "structural-qa": "qa/qa-report-validation.md",
+        "qualitative-qa": "qa/qa-qualitative-review.md",
+    }
+    name = mapping.get(step_id)
+    return None if name is None else config.task_dir / name
+
+
 # ---------------------------------------------------------------------------
 # Stage A Prompt Builders (7)
 # ---------------------------------------------------------------------------
@@ -151,6 +172,14 @@ PROCESS:
 6. Identify integration points -- APIs, external services, plugin systems
 7. Assess complexity -- how many distinct areas need dedicated research agents?
 
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / "scope-discovery-raw.md"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
+
 OUTPUT FORMAT:
 
 Write a markdown document with these sections:
@@ -218,6 +247,14 @@ Scope Discovery Results:
 ---
 {scope_content}
 ---
+
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / "research-notes.md"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
 
 Produce a research-notes.md file with EXACTLY these 7 sections (all required):
 
@@ -297,6 +334,14 @@ Evaluate whether these research notes provide sufficient foundation for the PRD 
 3. **Specificity**: Does each agent assignment have specific files, not just directories?
 4. **Balance**: Are there gaps -- areas mentioned in EXISTING_FILES but not assigned to any agent?
 5. **Web research**: Are there topics requiring external market/competitive research?
+
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / "sufficiency-review.md"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
 
 Return JSON:
 {{
@@ -535,6 +580,14 @@ Research directory: {config.research_dir}
 Synthesis directory: {config.synthesis_dir}
 QA directory: {config.qa_dir}
 {ctx}
+
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / ".preparation-complete"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
 
 PREPARATION STEPS:
 1. Verify all required directories exist (research/, synthesis/, qa/)

@@ -263,6 +263,40 @@ _STEP_ARTIFACT_FILES: dict[str, str] = {
 }
 
 
+_STEP_ARTIFACT_PATTERNS: dict[str, list[str]] = {
+    "scope-discovery": ["scope-discovery*.md"],   # agent may drop the -raw suffix
+    "research-notes":  ["research-notes*.md"],
+    "sufficiency-review": [],                       # stable; exact match
+}
+# Empty/missing entry → fall back to exact-name behavior.
+
+
+def _pick_best_candidate(
+    candidates: list[tuple[Path, str]], *, preferred_root: Path
+) -> str:
+    """Stable multi-match tiebreak.
+
+    Priority (INV-006 — freshness MUST outrank raw size, else a stale longer
+    file from a prior failed run silently wins over the current output):
+      1. Inside preferred_root (task_dir) over external dirs.
+      2. Most recently modified (mtime).
+      3. Longest content.
+      4. Most specific path (fewest parts).
+    """
+    if not candidates:
+        return ""
+
+    def _key(item: tuple[Path, str]) -> tuple[int, float, int, int]:
+        path, content = item
+        try:
+            in_pref = 1 if path.resolve().is_relative_to(preferred_root.resolve()) else 0
+        except ValueError:
+            in_pref = 0
+        return (in_pref, path.stat().st_mtime, len(content), -len(path.parts))
+
+    return max(candidates, key=_key)[1]
+
+
 def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str:
     """Resolve the best content for gate evaluation and artifact persistence.
 
@@ -340,28 +374,56 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
     if not artifact_name:
         return ndjson_text
 
-    base_name = Path(artifact_name).name
-
     # Search task_dir and its parent (project root) — bounded scope
-    # to avoid searching unrelated directories.
-    search_roots = [task_dir]
+    # to avoid searching unrelated directories. Layer 2 (INV-005): also
+    # add containment-checked WHERE dirs from parsed-request.json so a
+    # variant document written into a writable WHERE source dir is still
+    # recoverable, without re-introducing unbounded widening.
+    search_roots: list[Path] = [task_dir]
     if task_dir.parent.exists():
         search_roots.append(task_dir.parent)
 
-    best_content = ""
-    for root in search_roots:
-        for match in root.rglob(base_name):
-            # Skip NDJSON output files, node_modules, and .git
-            skip_parts = {"node_modules", ".git", "__pycache__"}
-            if "-output.txt" in match.name or skip_parts & set(match.parts):
-                continue
+    parsed_path = task_dir / "parsed-request.json"
+    if parsed_path.exists():
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            parsed = {}
+        repo_root = task_dir.parent if task_dir.parent.exists() else task_dir
+        for where in parsed.get("WHERE") or []:
+            where_path = (repo_root / where)
+            # realpath containment (INV-005): reject traversal AND symlink escapes
             try:
-                content = match.read_text(encoding="utf-8", errors="replace")
-                if len(content) > len(best_content):
-                    best_content = content
-            except OSError:
+                real = where_path.resolve(strict=True)
+                real.relative_to(repo_root.resolve())
+            except (ValueError, OSError):
                 continue
+            if where_path.is_symlink():        # reject symlinked roots outright
+                continue
+            if real.is_dir() and real not in search_roots:
+                search_roots.append(real)
 
+    patterns = _STEP_ARTIFACT_PATTERNS.get(step_id) or [Path(artifact_name).name]
+    candidates: list[tuple[Path, str]] = []
+    for root in search_roots:
+        if not root.exists():
+            continue
+        for pattern in patterns:
+            for match in root.rglob(pattern):
+                if "-output.txt" in match.name or (
+                    {"node_modules", ".git", "__pycache__"} & set(match.parts)
+                ):
+                    continue
+                try:
+                    content = match.read_text(encoding="utf-8", errors="replace")
+                except OSError:
+                    continue
+                if content.strip():
+                    candidates.append((match, content))
+
+    best_content = _pick_best_candidate(candidates, preferred_root=task_dir)
+    # Zero-match (INV-006a/INV-009): best_content == "" → caller falls back to
+    # ndjson_text exactly as today (the only non-regressing default).
     return best_content if best_content.strip() else ndjson_text
 
 
@@ -609,15 +671,26 @@ class PrdExecutor:
         output_text = _extract_text_from_stream_json(raw_output) if raw_output else ""
 
         # Resolve best content: prefer files written to disk by the
-        # subprocess over extracted NDJSON commentary
+        # subprocess over extracted NDJSON commentary.
+        #
+        # INV-010 (binding contract — do NOT collapse these two channels):
+        #   * output_text (NDJSON)  -> _determine_status, for EXIT_RECOMMENDATION/
+        #     HALT/CONTINUE sentinel + QA verdict detection. These sentinels live
+        #     ONLY in the assistant's stdout commentary, never in the disk artifact.
+        #   * gate_content (disk-resolved; NDJSON only as the zero-match fallback)
+        #     -> _evaluate_gate (min_lines + semantic_checks) and
+        #     _persist_step_artifact (canonical-name write for resume).
+        # A future refactor that feeds gate_content into _determine_status (or
+        # vice-versa) would silently strip sentinel detection of its input and
+        # break HALT/verdict handling. Keep these two inputs independent.
         gate_content = _resolve_step_content(
             step_id, self._config.task_dir, output_text
         )
 
-        # Determine status (uses NDJSON text for sentinel detection)
+        # Determine status (uses NDJSON output_text for sentinel detection — INV-010)
         status = self._determine_status(exit_code, output_text, step_id)
 
-        # Gate evaluation (uses resolved content — disk file or NDJSON)
+        # Gate evaluation (uses resolved disk gate_content — INV-010)
         gate = GATE_CRITERIA.get(step_id)
         if gate and status.is_success:
             gate_passed = self._evaluate_gate(step_id, gate, gate_content)

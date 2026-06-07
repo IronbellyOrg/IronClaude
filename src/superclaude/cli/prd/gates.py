@@ -83,6 +83,12 @@ def _check_no_placeholders(content: str) -> bool | str:
     return True
 
 
+def _check_no_truncation_marker(content: str) -> bool | str:
+    if "[TRUNCATED" in content or content.rstrip().endswith("..."):
+        return "Content appears truncated — model output limit may have been reached"
+    return True
+
+
 # ---------------------------------------------------------------------------
 # Layer 2: PRD-specific semantic checks
 # ---------------------------------------------------------------------------
