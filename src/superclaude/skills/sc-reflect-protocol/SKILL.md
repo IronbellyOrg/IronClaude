@@ -453,8 +453,11 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 3. mcp__serena__find_symbol <relevant-symbol>          # symbol body
 3b. mcp__serena__find_implementations <symbol>         # polymorphic surface
 4. mcp__serena__find_referencing_symbols <symbol> include_info:true   # downstream impact + signatures
-4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root)  # FR-REUSE.1 — outward reuse/consolidation neighbour search
-    → consume reuse-audit.yaml (per-candidate verdict/tier/neighbours; run-level max_overlap/degraded/sampled).
+4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root, output_path=<output>/artifacts/reuse-audit.yaml)  # FR-REUSE.1 — outward reuse/consolidation neighbour search
+    → agent RETURNS findings; orchestrator persists them to output_path, then consumes reuse-audit.yaml
+      (per-candidate verdict/tier/neighbours; run-level max_overlap/degraded/sampled). stage=post is fixed here
+      (Wave 1A is the UC-2 post-execution chain); the pre-stage path lives in /tdd step 2a. Path matches
+      `reuse_audit_path` in the output schema below.
     Orchestrator-level (Wave 1A, Tier 1) — NEVER nested inside a spawned subagent.
     Fallback: agent unavailable → inline serena+ripgrep grep-skeleton degrade, findings CAPPED at advisory L2,
     degraded_components += "neighbour-search:auggie_unavailable"; NEVER STOP.

@@ -235,7 +235,7 @@ Use Glob, Grep, and codebase-retrieval to map the component's architecture. This
 | **API Surface Mapper** | Document integration contracts | Map API endpoints, request/response schemas, service boundaries |
 | **Integration Mapper** | Identify connection points | Map extension points, plugin interfaces, config surfaces, cross-service communication |
 | **Doc Analyst** | Extract context from existing documentation | Read docs, **cross-validate every architectural claim against actual code**, note discrepancies and stale content |
-| **Reuse Scout** | Detect prior art for proposed components (don't rebuild what exists) | **Delegate to the `reuse-auditor` agent** for each proposed component (name-agnostic capability search); record grounded neighbours (`file:line`), tier, and verdict (`reuse-by-import`/`mirror-shape`/`extract-shared`/`distinct`) into `## REUSE_AUDIT` |
+| **Reuse Scout** | Detect prior art for proposed components (don't rebuild what exists) | **Performed at orchestrator level in step 2a — NOT a spawned research subagent** (avoids subagent→agent nesting; see the note at 2a). The orchestrator's `reuse-auditor` delegation produces the grounded neighbours (`file:line`), tier, and verdict (`reuse-by-import`/`mirror-shape`/`extract-shared`/`distinct`); this row only records that output into `## REUSE_AUDIT` |
 
 Create the task folder: `.dev/tasks/to-do/TASK-TDD-YYYYMMDD-HHMMSS/` with subfolders `research/`, `synthesis/`, `qa/`, `reviews/`
 

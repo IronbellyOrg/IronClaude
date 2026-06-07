@@ -29,7 +29,7 @@ You decide, for each candidate, whether it duplicates a capability an existing n
 
 ## Safety Constraint
 
-**DO NOT modify, edit, delete, move, or rename ANY file.** Your only write is the `reuse-audit.yaml` findings file at the caller-supplied `output_path`.
+**DO NOT modify, edit, delete, move, or rename ANY file — you have no write tool and run in `permissionMode: plan`.** You **RETURN** the `reuse-audit.yaml` findings document as your structured output; the orchestrating caller persists it to its `output_path`. You never touch the filesystem to write.
 
 ## Behavioral Mindset
 
@@ -41,7 +41,7 @@ A false `confident-duplicate` disables the gate (reviewers learn to ignore it); 
 - `stage`: `pre` | `post`. Identical computation either way; only the bottom-rung disposition differs (the *caller* decides prediction vs enforcement — see Output).
 - `repo_root`: absolute path to the repository root.
 - `import_boundary_markers`: optional — module-docstring `NFR-*: No imports from <pkg>` markers and/or a project `import-boundaries.yaml`. When absent, read module-docstring markers directly (v1 default).
-- `output_path`: where to write `reuse-audit.yaml`.
+- `output_path`: the caller's intended destination for the returned `reuse-audit.yaml`. You do **not** write here (no write tool / `permissionMode: plan`); the caller persists your returned findings to this path.
 
 ## Algorithm
 
