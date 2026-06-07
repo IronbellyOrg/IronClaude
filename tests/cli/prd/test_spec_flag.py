@@ -225,6 +225,22 @@ class TestBindSpecs:
         assert reloaded["SPECS"][0]["path"] == str(spec)
         assert reloaded["WHERE"][0] == str(spec.parent)
 
+    def test_dedup_duplicate_spec_values(self, tmp_path: Path) -> None:
+        """Two identical ``--spec`` values must collapse to exactly one SPECS
+        entry and a single idempotent WHERE parent dir (review comment
+        r3367342586). Pre-fix, the duplicate path produced two SPECS entries."""
+        spec = tmp_path / "foo.md"
+        spec.write_text("data", encoding="utf-8")
+        ex = _executor_with_specs(tmp_path, [str(spec), str(spec)])
+
+        out = ex._bind_specs({"WHERE": ["src/"]})
+
+        # Exactly one SPECS entry despite the duplicate --spec value.
+        assert len(out["SPECS"]) == 1
+        assert out["SPECS"][0]["path"] == str(spec)
+        # WHERE parent dir is idempotent: the spec's parent appears exactly once.
+        assert out["WHERE"].count(str(spec.parent)) == 1
+
 
 # ===========================================================================
 # 5. Prompt injection + byte-identical lock (test_prompts surface)
@@ -358,6 +374,46 @@ class TestGateAndWarn:
         assert "WARNING" in err
         assert str(spec) in err
         assert "scope-discovery" in err
+
+    def test_warn_lists_persisted_specs_on_resume(self, tmp_path: Path, capsys) -> None:
+        """On ``prd resume``, ``config.spec_files`` is empty (``--spec`` is not
+        re-passed) but the bound SPECS persist in parsed-request.json. The R5
+        WARN must still fire and list the persisted spec path(s) (review comment
+        r3367342583). Pre-fix, the empty config suppressed both the gate and the
+        message; here the message routes through ``_bound_spec_paths``."""
+        ex = _executor_with_specs(tmp_path, [])  # resume: no --spec passed
+        parsed = dict(_PARSED_BASE)
+        parsed["SPECS"] = [
+            {"path": "/abs/SPEC_X.md", "size": 7, "inlined": False, "truncated": False}
+        ]
+        _write_parsed(ex._config.task_dir, parsed)
+
+        # The R5 gate condition (truthiness of bound paths) is now satisfied on
+        # the resume path even though config.spec_files is empty.
+        assert ex._bound_spec_paths() == ["/abs/SPEC_X.md"]
+
+        ex._warn_spec_degradation()
+
+        err = capsys.readouterr().err
+        assert "WARNING" in err
+        assert "/abs/SPEC_X.md" in err
+
+    def test_bound_spec_paths_fails_closed(self, tmp_path: Path) -> None:
+        """``_bound_spec_paths`` returns ``[]`` (never raises) when
+        parsed-request.json is missing (OSError) or corrupt (JSONDecodeError),
+        with ``config.spec_files`` empty — mirroring the fail-soft disk-read
+        contract of ``_persist_bound_specs``."""
+        ex = _executor_with_specs(tmp_path, [])  # config specs empty
+        ex._config.task_dir.mkdir(parents=True, exist_ok=True)
+
+        # (a) Missing parsed-request.json → OSError swallowed → [].
+        assert ex._bound_spec_paths() == []
+
+        # (b) Corrupt parsed-request.json → JSONDecodeError swallowed → [].
+        (ex._config.task_dir / "parsed-request.json").write_text(
+            "not json{", encoding="utf-8"
+        )
+        assert ex._bound_spec_paths() == []
 
 
 # ===========================================================================

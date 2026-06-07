@@ -642,7 +642,7 @@ class PrdExecutor:
                 # files were bound but scope-discovery still fails its
                 # (non-fatal) STANDARD gate, the run is continuing on a thin
                 # foundation despite the operator naming specs. Surface it.
-                if step_id == "scope-discovery" and self._config.spec_files:
+                if step_id == "scope-discovery" and self._bound_spec_paths():
                     self._warn_spec_degradation()
             else:
                 self._tui.update_step(step_id, gate_state="PASS")
@@ -1210,6 +1210,17 @@ class PrdExecutor:
         if not spec_files:
             return parsed
 
+        # Dedup duplicate --spec values (order-preserving): identical inputs must
+        # not produce duplicate SPECS entries / repeated --file attachments.
+        _seen: set[str] = set()
+        _deduped: list[str] = []
+        for sp in spec_files:
+            key = str(Path(sp))
+            if key not in _seen:
+                _seen.add(key)
+                _deduped.append(sp)
+        spec_files = _deduped
+
         specs: list[dict] = []
         parent_dirs: list[str] = []
         for sp in spec_files:
@@ -1271,7 +1282,7 @@ class PrdExecutor:
         """
         import click
 
-        specs = ", ".join(self._config.spec_files)
+        specs = ", ".join(self._bound_spec_paths())
         message = (
             "WARNING: scope-discovery failed its quality gate even though "
             f"authoritative --spec files were provided ({specs}). The pipeline "
@@ -1280,6 +1291,21 @@ class PrdExecutor:
         )
         click.echo(message, err=True)
         self._logger.log_gate_result("scope-discovery", False, message)
+
+    def _bound_spec_paths(self) -> list[str]:
+        """Authoritative spec paths for this run: from config, else from the
+        persisted SPECS array in parsed-request.json. On `prd resume`, --spec is
+        not re-passed, so config.spec_files is empty even though the original run
+        bound SPECS; reading the persisted array makes R5 fire on any run path."""
+        if self._config.spec_files:
+            return list(self._config.spec_files)
+        parsed_path = self._config.task_dir / "parsed-request.json"
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        specs = parsed.get("SPECS") or []
+        return [s["path"] for s in specs if isinstance(s, dict) and s.get("path")]
 
     @staticmethod
     def _estimate_turns(step_id: str) -> int:
