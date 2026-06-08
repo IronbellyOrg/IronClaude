@@ -1,0 +1,13 @@
+# Doc-Completeness — docs/install.md
+
+## Gaps
+
+| Section | Gap kind | Issue | Suggested fix |
+|---------|----------|-------|----------------|
+| §2 Prereqs | missing | no Python version range | add "Python >=3.10" line |
+| §3 Install | stale | references removed `pip install superclaude-cli` | replace with `pipx install superclaude` |
+| §4 Verify | unclear | "run doctor" without command | add `superclaude doctor` example |
+| §6 Troubleshoot | broken link | hyperlink 404s | repoint to `/docs/reference/errors.md` |
+
+## Notes
+Section §5 (uninstall) was not reviewed — out of scope for this audit.

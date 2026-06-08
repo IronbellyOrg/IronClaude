@@ -1,0 +1,4 @@
+# Quick check
+
+## Verdict
+yes — all required sections present and contracts unambiguous.

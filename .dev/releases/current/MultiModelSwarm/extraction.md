@@ -99,7 +99,7 @@ Source: §1.2, §2 Wave 1, §8. Use single Python `ThreadPoolExecutor` invoked v
 Source: §2 Wave 1, §8. Each task: build HTTP request body via `json.dumps` (never shell-interpolated), POST via `httpx` with per-worker timeout, write `.raw` + `.meta.json` sidecar.
 
 **FR-026: Retry policy**
-Source: §2 Wave 1, §8. On 5xx: retry once after `retry.on_5xx_backoff_sec`. On 4xx / timeout / network: no retry. Always-record (no silent drops).
+Source: §2 Wave 1, §8. On 5xx: retry once after `retry.on_5xx_backoff_sec`. On 4xx / timeout / network: no retry by default (caller-overridable via `retry.on_4xx` / `retry.on_timeout`). Always-record (no silent drops).
 
 **FR-027: Per-worker hard timeout**
 Source: §2 Wave 1, §11.1. Apply per-worker hard timeout (default 180s).

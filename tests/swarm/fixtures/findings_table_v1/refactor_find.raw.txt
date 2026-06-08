@@ -1,0 +1,18 @@
+---
+schema_version: 1.0
+tier: T2-code
+lens: refactor-find
+---
+
+# Refactor-Find — utils/parse.py
+
+## Cleanups
+
+| File:line | Cleanup | Rationale | Patch sketch |
+|-----------|---------|-----------|---------------|
+| utils/parse.py:42 | extract regex into module constant | compiled per-call, hot path | `_TOKEN_RE = re.compile(...)` at module scope |
+| utils/parse.py:88 | replace dict-merge with `dict \| other` | py3.9+ supported, more readable | `merged = base \| override` |
+| utils/parse.py:120 | drop unused `legacy_mode` branch | dead since #842 | delete lines 120-134 |
+
+## Notes
+All three cleanups are independent; ship in any order. No behavior change.

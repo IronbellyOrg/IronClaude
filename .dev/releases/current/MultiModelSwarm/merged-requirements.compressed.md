@@ -481,7 +481,7 @@ Single Python `ThreadPoolExecutor` invoked via `superclaude.execution.parallel.P
 
 1. Builds the HTTP request body (`json.dumps` with target_content via `--arg`-equivalent — never shell-interpolated).
 2. POSTs via `httpx` with per-worker timeout.
-3. On 5xx: retry once after `retry.on_5xx_backoff_sec`. On 4xx / timeout / network: no retry.
+3. On 5xx: retry once after `retry.on_5xx_backoff_sec`. On 4xx / timeout / network: no retry by default (caller-overridable).
 4. On 2xx: parse `choices[0].message.content`; write `.raw` + `.meta.json` atomically.
 5. Appends `worker_done` event to JSONL under a `threading.Lock`-guarded write.
 6. Updates `.swarm-state.json` under lock + atomic rename.
@@ -552,7 +552,7 @@ The merge module is bounded by **four guards** copied verbatim from V2 §5.5:
 - Read `--target`, apply `--target-line-cap`, enforce IMM-4 empty-target guard, compute provenance checksum.
 - Compose `prompt.system` + `prompt.user_template` from lens registry OR caller-supplied OR `--custom-prompt-dir`, with §11.5 injection-guard enforced in all three paths.
 - Run the configured Recipe per worker; promote `parse_error → success` on §7.4 salvage.
-- Apply per-worker hard timeout + 5xx-retry-once + 4xx-no-retry policy.
+- Apply per-worker hard timeout + 5xx-retry-once + 4xx-no-retry-by-default (caller-overridable) policy.
 - Emit `manifest.json` with `resolved_lens_entry` snapshot.
 - Emit `.swarm-state.json` (atomic on transition), `execution-log.jsonl` (lock-coordinated append), `execution-log.md` (human log), `done.json` (sentinel), `return-contract.yaml` (write-on-failure).
 - Continue on partial success (≥`status_policy.floor` workers).

@@ -1,0 +1,92 @@
+contract_version: "1.0"
+status: success
+spec_version_current: "1.2.0-draft"  # bumped 2026-05-28T04:24Z per adversarial debate Variant B selection
+seed_brief_path: /config/workspace/IronClaude/.dev/brainstorms/20260528030000-t2-bare-reviewer-adjunct/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/brainstorms/20260528030000-t2-bare-reviewer-adjunct/merged-requirements.md
+convergence_score: null
+adversarial_artifacts_dir: null
+domain: architecture
+strategy: systematic
+depth: standard
+proposal_count: 0
+enrichment_used: []
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+deviations:
+  wave_3_adversarial_skipped:
+    reason: |
+      User explicitly asked to "prepare a spec" with concrete directives.
+      Three load-bearing ambiguities (scope, transport, validation-gate location)
+      were resolved via AskUserQuestion before spec drafting.
+      Generating variants of a spec written from concrete answered directives
+      would re-introduce ambiguity rather than resolve it — net-negative work.
+      Spec written directly as merged-requirements.md.
+    user_confirmation: |
+      Q1 (scope) — picked: Generic bare-reviewer skill, wired into multiple commands
+      Q2 (transport) — picked: OpenAI-compatible proxy / LiteLLM-style router
+      Q3 (validation gate) — picked: Inside /sc:adversarial as a tagged-input mode
+  enrichment_skipped:
+    reason: |
+      Domain is architecture (design spec, not code-discovery task).
+      No source-codebase introspection or external research needed —
+      the spec defines a new system, doesn't analyze an existing one.
+      All cross-references in the spec are forward design references
+      to existing structures already known from the prior conversation
+      (/sc:adversarial protocol, evidence-validator, Round 2.5 invariant probe).
+telemetry:
+  user_questions_asked: 3
+  user_questions_answered: 3
+  empirical_seed: TUIBBS-7-8-review-experiment-2026-05-28
+  spec_loc: ~1280   # was ~1086 at v1.1; +194 from v1.2 §18
+  spec_sections: 18 # was 17; +1 (§18 v1.2 Amendment)
+  acceptance_criteria_count: 55  # was 46; +9 (AC-1.24..AC-1.32 skill-extraction bundle)
+  implementation_phases: 5
+  estimated_loc_delta: ~1450 new + ~300 modified  # unchanged from v1.1 (logic relocated, not added)
+  artifacts:
+    - seed-brief.md
+    - merged-requirements.md (the spec)
+    - spec-panel-review.md
+    - adversarial/c7-agent-debate.md
+    - return-contract.yaml
+amendments:
+  - amendment_id: A-001
+    version: 1.1.0-draft
+    date: 2026-05-28T04:00Z
+    summary: "Added --c7 flag for context7+auggie documentation enrichment of bare reviewers (inline pipeline)"
+    sections_added: ["§16 v1.1 Amendment — Context7 Enrichment", "§17 Changelog"]
+    sections_modified: ["§3.2 Skill API (flags)", "§6.1 Caller-side flags", "§7.1 Env-var schema", "§15 Sign-off Checklist"]
+    impact_on_imm_blockers: "ADDITIVE — does not address or unblock any IMM-1..IMM-6 from spec-panel-review.md"
+    open_questions_introduced:
+      - "Should c7 docs also be available to /sc:adversarial's evidence-validator? (v1.2 candidate)"
+      - "Should --c7 be available to T1 structured reviewers (/sc:reflect, etc.)? (v1.3 candidate)"
+      - "context7 index freshness — no mitigation yet for stale docs masquerading as authoritative"
+      - "Modularity: should c7 enrichment extract from sc-bare-review into a dedicated component? (resolved at v1.2 via adversarial debate)"
+  - amendment_id: A-002
+    version: 1.2.0-draft
+    date: 2026-05-28T04:24Z
+    summary: "Extracted c7 enrichment pipeline from sc-bare-review into standalone c7-enrichment skill (Variant B)"
+    triggered_by: "User-initiated adversarial debate (adversarial/c7-agent-debate.md)"
+    decision_basis: "Variant B selected — combined score 0.70 vs A=0.55, C=0.525"
+    sections_added: ["§18 v1.2 Amendment — c7-enrichment Skill Extraction"]
+    sections_modified: ["frontmatter (version, scope)", "§15 Sign-off Checklist (+2 v1.2 items)", "§16.2 (supersession note)", "§17 Changelog"]
+    impact_on_imm_blockers: "ADDITIVE — does not address or unblock any IMM-1..IMM-6"
+    impact_on_loc_estimate: "NET ZERO — c7 pipeline logic relocated from spec text to skill file"
+    new_skill_introduced: "c7-enrichment at src/superclaude/skills/c7-enrichment/SKILL.md"
+    promotion_escape_hatch:
+      target_variant: "A (c7-context-analyst agent)"
+      triggers:
+        - "lens map > 8 distinct labels"
+        - "--custom-queries usage > 30% over rolling 4-week window"
+        - "skill-output dissatisfaction > 25% across second+ caller"
+        - "multi-step reasoning required within enrichment"
+      mechanics: "Single-line caller-side change per pipeline; skill API contract preserved"
+    open_questions_introduced:
+      - "When does Phase 1.5 measurement start? Need baseline metrics from first 4-week window for promotion-trigger decisions"
+      - "Lens-map governance: which PRs add lens entries? Owned by skill team or open?"
+recommended_next_steps:
+  - Fix IMM-1..IMM-6 from spec-panel-review.md (still blocking Phase 1)
+  - /sc:tasklist on merged-requirements.md to phase-1 implementation
+  - Stand up T2ProxyUrl/T2ProxyKey infrastructure (LiteLLM proxy or equivalent) before Phase 1 implementation
+  - Draft c7-enrichment SKILL.md stub for Phase 1.5 (deferrable until IMM-blockers cleared, but cheap to do in parallel)
+  - /sc:adversarial --compare merged-requirements.md,<reviewer-spec.md> --depth deep to stress-test the design (optional — only if user wants adversarial design review)

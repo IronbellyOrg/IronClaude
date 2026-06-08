@@ -1,0 +1,19 @@
+---
+schema_version: 1.0
+tier: T2-feas
+lens: feasibility-probe
+---
+
+# Feasibility-Probe — wasm-edge-runtime.md
+
+## Concerns
+
+| Concern | Assessment | Evidence | Verdict |
+|---------|-----------|----------|---------|
+| Cold-start latency | Moderate risk | wasm runtime cold-start ~120ms p95 | risky |
+| Memory ceiling | Hard cap at 128MB | runtime spec §4.2 | feasible |
+| Filesystem access | Unsupported | no WASI host bindings yet | infeasible |
+
+## Verdict
+
+risky (60) — feasible for read-only edge workloads; blocked on filesystem-write paths until WASI lands.

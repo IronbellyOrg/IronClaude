@@ -1,0 +1,22 @@
+---
+schema_version: 1.0
+tier: T2-spec
+lens: spec-completeness
+---
+
+# Spec-Completeness — auth_login_spec.md
+
+## Gaps
+
+| Section | Gap | Why it matters | Suggested addition |
+|---------|-----|----------------|---------------------|
+| §3 Auth flow | Token refresh path not specified | Clients cannot implement long-lived sessions | Add §3.5 Refresh token grant |
+| §5 Errors | 401 vs 403 disambiguation missing | Frontend handles both as logout | Add §5.2 Error code matrix |
+| §7 Audit | No retention policy on auth logs | Compliance gap | Add §7.1 Retention SLA |
+
+## Verdict
+
+incomplete (40) — three substantive gaps; ship-blocker until §3.5 lands.
+
+## Notes
+Ranked by blast radius. §3.5 is the only ship-blocker; the rest can land in a follow-up.

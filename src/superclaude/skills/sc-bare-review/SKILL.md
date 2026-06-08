@@ -15,6 +15,7 @@ personas: [analyzer, qa]
 delegate-only: true        # no /sc:bare-review user command
 suspect-by-construction: true
 spec: .dev/brainstorms/20260528030000-t2-bare-reviewer-adjunct/merged-requirements.md (v1.3.0-draft §3,§4,§7,§8,§9.1)
+roadmap: M9 / R-135 / FR-029 / COMP-033
 -->
 
 ## Purpose & Identity
@@ -82,7 +83,7 @@ SKILL_DIR="$HOME/.claude/skills/sc-bare-review"
 
 Run the preflight. It validates args/env, resolves the N models, reads + truncates the
 target, enforces the IMM-4 empty-target guard, computes the provenance checksum, builds
-the shared reviewer prompts, and writes `<output>/manifest.json`.
+the shared reviewer prompts (from `refs/prompts.md`), and writes `<output>/manifest.json`.
 
 ```bash
 "$SKILL_DIR/scripts/t2_preflight.sh" \
@@ -126,10 +127,10 @@ reviewer (timeout / proxy_error / parse_error) never aborts its siblings (AC-1.7
 uv run python "$SKILL_DIR/scripts/t2_normalize.py" --manifest "<output-dir>/manifest.json"
 ```
 
-This parses each `.raw` into the §4 template, writes final `bare-review-NN-<model>.md`
-files atomically with deterministic names (IMM-6), determines status (IMM-5, success-first),
-emits `<output>/return-contract.yaml`, and prints the contract to stdout. Relay that
-contract as the skill's result.
+This parses each `.raw` into the §4 template (`refs/output-template.md`), writes final
+`bare-review-NN-<model>.md` files atomically with deterministic names (IMM-6), determines
+status (IMM-5, success-first), emits `<output>/return-contract.yaml`, and prints the
+contract to stdout. Relay that contract as the skill's result.
 
 ## Return Contract (§3.3 Wave E)
 
@@ -213,6 +214,15 @@ absent. Not implemented here.
 - **AC-1.11** — Return contract includes `recommended_next_command` with literal
   `--suspect-source` flag and paths.
 - **AC-1.12** — `failed` when `M < 2`; `partial` when `2 ≤ M < N`; `success` when `M == N`.
+
+## Acceptance Pointers
+
+- **AC-1.x / IMM-3/4/5/6** — covered by `tests/swarm/test_imm_suite.py` (and the focused
+  `tests/swarm/test_imm3_parallel.py`, `test_imm4_empty_target.py`, `test_imm5_status.py`,
+  `test_imm6_atomic_write.py`).
+- **R-135 / FR-029 / COMP-033** — bare-review adjunct; script-orchestrated dispatch.
+- **Parity** — `tests/swarm/test_bare_review_parity.py` guards the script ↔ recipe parity
+  surface.
 
 ---
 

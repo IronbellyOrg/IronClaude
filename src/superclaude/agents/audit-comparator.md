@@ -3,7 +3,7 @@ name: audit-comparator
 description: "Cross-cutting comparator for repository audit Pass 3. Detects duplication, sprawl, and consolidation opportunities."
 tools: Read, Grep, Glob
 model: sonnet
-maxTurns: 35
+maxTurns: 60
 permissionMode: plan
 ---
 

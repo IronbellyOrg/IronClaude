@@ -1,0 +1,8 @@
+model dropped frontmatter mid-stream, but the findings table survived:
+
+| File:line | Cleanup | Rationale | Patch sketch |
+|-----------|---------|-----------|---------------|
+| pkg/foo.py:10 | tighten exception scope | over-broad except hides bugs | `except (KeyError, IndexError):` |
+
+## Notes
+Stream cut off mid-rationale; recovered one row before truncation.

@@ -1,0 +1,11 @@
+## Findings
+
+| ID | Sev | Claim | Cite | SelfConf |
+|----|-----|-------|------|----------|
+| F1 | crit | citation is plain dash | - | 50 |
+| f-2 | unknown_severity | unknown severity maps to med | -- | NA |
+| F-03 | TRIVIAL | self-conf is non-numeric | N/A | abc |
+| F-04 | major | self-conf is 250 (clamped) | src/x.py:9 | 250 |
+
+## Verdict
+Edge cases: severity aliasing, empty cites, confidence clamping.

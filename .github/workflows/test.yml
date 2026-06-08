@@ -69,6 +69,43 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
+  swarm-marker-matrix:
+    name: Swarm ${{ matrix.marker }} acceptance lane
+    # T08.03 / NFR-007: exercises the per-IMM and per-INV swarm acceptance
+    # matrix. Each marker selects the dedicated test files registered in
+    # tests/swarm/conftest.py (IMM_COVERAGE_MAP / INV_COVERAGE_MAP).
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        marker: ["imm", "inv"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev]"
+
+      - name: Sync src/superclaude/ → .claude/ mirrors
+        run: |
+          make sync-dev
+
+      - name: Run ${{ matrix.marker }} swarm lane
+        run: |
+          pytest tests/swarm/ -m ${{ matrix.marker }} -v --tb=short --color=yes
+
   lint:
     name: Lint and Format Check
     runs-on: ubuntu-latest
@@ -184,7 +221,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
-    needs: [test, lint, plugin-check, doctor-check, verify-deps]
+    needs: [test, swarm-marker-matrix, lint, plugin-check, doctor-check, verify-deps]
     if: always()
 
     steps:
@@ -192,6 +229,10 @@ jobs:
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "❌ Tests failed"
+            exit 1
+          fi
+          if [ "${{ needs.swarm-marker-matrix.result }}" != "success" ]; then
+            echo "❌ Swarm IMM/INV acceptance lanes failed"
             exit 1
           fi
           if [ "${{ needs.lint.result }}" != "success" ]; then

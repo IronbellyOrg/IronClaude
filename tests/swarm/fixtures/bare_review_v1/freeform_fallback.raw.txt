@@ -1,0 +1,4 @@
+Reviewer returned an essay instead of the requested compressed
+template. No findings table; no verdict heading; just prose. The
+recipe should fall back to flattening the body into a synthetic
+verdict so the merge stage still has something to consume.
