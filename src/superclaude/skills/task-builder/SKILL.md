@@ -9,7 +9,7 @@ Creates MDTM task files by researching the actual codebase with parallel agents,
 
 **How it works:** The skill performs scope discovery, spawns parallel researcher agents via the Agent tool, runs rf-analyst + rf-qa quality gates on the research, optionally spawns web research agents, then spawns the `rf-task-builder` agent with a structured BUILD_REQUEST to create the MDTM task file. After the builder returns, rf-qa validates the task file in task-integrity mode. The skill presents the validated task file path and execution command to the user.
 
-This skill stops after task file creation. There is no Stage B — the user reviews the task file and executes it with `/task [path]` when ready.
+When invoked directly by a user (`/task-builder`), this skill stops after task file creation — the user reviews the task file and executes it with `/task [path]` when ready. When invoked by a calling skill (`Source: skill-delegated` in the BUILD_REQUEST), this skill outputs only the task file path so the calling skill can continue to its own Stage B.
 
 ## Why This Process Works
 
@@ -20,7 +20,7 @@ The multi-phase structure (scope discovery → parallel research → **analyst v
 - **Context rot** — By isolating each research topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one topic slice from the scope map), the research goes deep on every aspect simultaneously rather than skimming across everything sequentially. Minimum 3 researchers per track, scaling to 8 for complex scopes.
 - **Hallucinated content** — By separating research (what exists) from task file creation (what to do about it), each phase can be verified independently. The builder only works from verified research files, not from memory or inference. Research claims are evidence-based with file paths and line numbers.
-- **Uncaught quality drift** — Dedicated `rf-analyst`, `rf-qa`, and `rf-qa-qualitative` agents provide independent verification at three critical gates: after research (rf-analyst completeness check + rf-qa evidence quality), after task file creation (rf-qa task-integrity structural validation), and after structural QA passes (rf-qa-qualitative task-qualitative operational validation — verifying the plan would actually succeed if executed). The QA agents assume everything is wrong until independently verified — zero-trust verification prevents rubber-stamping.
+- **Uncaught quality drift** — Lens-based multi-agent QA provides independent verification at three critical gates: after research (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative = 5 agents minimum, each with a focused lens), after task file creation (2 rf-qa structural + 1 rf-analyst research-alignment + 2 rf-qa-qualitative content = 5 agents across A.10/A.10.25/A.10.5, meeting I19 intermediate gate floor). The QA agents assume everything is wrong until independently verified — zero-trust verification prevents rubber-stamping. Serialized fix authorization (report-only agents first, then single fix agent) prevents parallel fix churn. Generated task files are also validated for QA gate sufficiency — any gate with fewer than 6 agents is rejected.
 
 The research artifacts persist in the task folder under `.dev/tasks/to-do/` so findings survive context compression, can be re-verified later, and provide the evidence trail for all task file items.
 
@@ -38,15 +38,52 @@ The skill needs five pieces of information to produce a well-researched task fil
 
 4. **BUILD_REQUEST file path** (optional) — A `.md` file containing a structured build request. Used for programmatic invocation by other skills or when the request is too complex for a one-line prompt. The file should contain GOAL, WHY, OUTPUTS, CONTEXT, and optionally TEMPLATE preference.
 
-5. **--spec <path> — driving spec/PRD/TDD** (optional) — The path to the driving specification, PRD, or TDD that the task implements. When supplied it is threaded into the PRE reflect gate's coverage audit (the `--mode pre --spec <path>` call at A.10.7) and baked into the templated POST reflect item's command, so the post-execution deviation audit can check the executed work against the original spec. Resolved in priority order: explicit `--spec <path>` → an `@file` reference in the GOAL → a `SPEC:`/`PRD:`/`TDD:` field in a BUILD_REQUEST file → none. Written to the generated tasklist frontmatter as `spec_path:`. Examples: `--spec .dev/proposals/reflect-in-task-builder.md`, `--spec docs/specs/auth-system-prd.md`.
+5. **`--spec <path>` -- driving spec/PRD/TDD** (optional) -- The path to the driving specification, PRD, or TDD that the task implements. When supplied it is threaded into the PRE reflect gate's coverage audit (the `--mode pre --spec <path>` call at A.10.7) and baked into the templated POST reflect item's command, so the post-execution deviation audit can check the executed work against the original spec. Resolved in priority order: explicit `--spec <path>` -> an `@file` reference in the GOAL -> a `SPEC:`/`PRD:`/`TDD:` field in a BUILD_REQUEST file -> none. Written to the generated tasklist frontmatter as `spec_path:`. Examples: `--spec .dev/proposals/reflect-in-task-builder.md`, `--spec docs/specs/auth-system-prd.md`.
+
+### Skill-Delegated Build Requests
+
+When a calling skill (tech-research, tech-reference, tdd, prd, operational-guide, readme, repo-cleanup) invokes this skill via `Skill(skill: "task-builder", args: "<BUILD-REQUEST-file-path>")`, the BUILD-REQUEST file uses the `Source: skill-delegated` convention to signal that scope discovery and research notes are pre-computed.
+
+**Skill-delegated BUILD-REQUEST metadata fields:**
+
+| Field | Required | Default | Purpose |
+|-------|----------|---------|---------|
+| `Source` | Yes | `user` (when absent) | `skill-delegated` signals pre-computed scope discovery |
+| `Calling Skill` | Yes (skill-delegated) | -- | Which skill invoked task-builder (logging/diagnostics) |
+| `Task Directory` | Yes (skill-delegated) | -- | Pre-created task directory path (task-builder uses this, does NOT create TASK-RF-*) |
+| `Research Notes` | Yes (skill-delegated) | -- | Path to research-notes.md written by calling skill |
+| `Research Notes Status` | Yes (skill-delegated) | -- | `Complete` or `In Progress` |
+| `SKIP_RESEARCHERS` | No | `true` (skill-delegated), `false` (user-invoked) | Whether to skip the researcher layer (A.7-A.8.5) |
+
+**SKIP_RESEARCHERS defaults:** When `Source: skill-delegated` is present, SKIP_RESEARCHERS defaults to `true` because the calling skill already performed domain-specific scope discovery and wrote comprehensive research notes. Skills that want the additional researcher layer can explicitly set `SKIP_RESEARCHERS: false`.
+
+**Example BUILD-REQUEST.md header for skill-delegated invocations:**
+
+```markdown
+# BUILD REQUEST
+
+Source: skill-delegated
+Calling Skill: tech-reference
+Task Directory: .dev/tasks/to-do/TASK-TECHREF-docker-compose-20260401-120000/
+Research Notes: .dev/tasks/to-do/TASK-TECHREF-docker-compose-20260401-120000/research-notes.md
+Research Notes Status: Complete
+SKIP_RESEARCHERS: true
+
+GOAL: ...
+WHY: ...
+[rest of BUILD_REQUEST as normally structured]
+```
 
 ### Effective Prompt Examples
 
 **Strong — explicit goal with scope and deliverables:**
 > Build a task file to create API documentation for all 14 handlers in `backend/app/api/v1/`. Output docs to `docs/api/` as individual markdown files per handler.
 
-**Strong — build request file:**
+**Strong — build request file (user-invoked):**
 > Build a task from `.dev/tasks/to-do/existing-doc-template-convergence/BUILD-REQUEST-TASK-FILE-REMEDIATION.md`
+
+**Strong — skill-delegated build request:**
+> /task-builder .dev/tasks/to-do/TASK-TECHREF-docker-compose-20260310/BUILD-REQUEST.md
 
 **Strong — clear goal with context:**
 > Create a task to refactor the auth middleware. The current session token storage doesn't meet compliance requirements. Focus on `backend/app/core/security.py` and `backend/app/core/middleware.py`.
@@ -83,7 +120,7 @@ Requests with multiple independent deliverables may be split into parallel track
 
 ### Relationship to Other Skills
 
-This skill is invoked directly by users via `/task-builder [request]`. Other document-producing skills (tech-reference, prd, tdd, operational-guide, repo-cleanup, readme) spawn the `rf-task-builder` **agent** via the Agent tool during their Stage A — they use the agent definition at `.claude/agents/rf-task-builder.md`, not this skill. The agent and the skill share the same builder logic but operate in different contexts: the agent receives a BUILD_REQUEST from the orchestrating skill, while this skill IS the orchestrator.
+This skill is invoked directly by users via `/task-builder [request]`, or by other document-producing skills (tech-reference, prd, tdd, operational-guide, repo-cleanup, readme, tech-research) via `Skill(skill: "task-builder", args: "<BUILD-REQUEST-file-path>")` during their Stage A. When invoked by a calling skill, the skill detects the `Source: skill-delegated` header in the BUILD-REQUEST.md file and follows the skill-delegated flow path (see Input section and A.1). When invoked directly by a user, the skill runs the full pipeline including scope discovery and researchers.
 
 ---
 
@@ -109,17 +146,19 @@ Match the tier to request complexity. **Default to Standard** unless the scope i
 
 ## Output Locations
 
-All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-RF-YYYYMMDD-HHMMSS/`.
+All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-RF-<subject>-YYYYMMDD-HHMMSS/`.
 
 **Variable reference block:**
 
 ```text
-TASK_ID:     TASK-RF-YYYYMMDD-HHMMSS
+TASK_ID:     TASK-RF-<subject>-YYYYMMDD-HHMMSS
 TASK_DIR:    .dev/tasks/to-do/${TASK_ID}/
 TASK_FILE:   ${TASK_DIR}${TASK_ID}.md
 RESEARCH:    ${TASK_DIR}research/
 QA:          ${TASK_DIR}qa/
 ```
+
+**Subject derivation:** `<subject>` is derived at task-folder-creation time from the goal slug of the user's request and normalized to kebab-case (lowercase, hyphen-separated, 1-3 words, ~30 char soft cap). If no clean subject can be derived, fall back to the literal word `general`. Example TASK_ID: `TASK-RF-api-docs-20260408-140000`.
 
 Note: This skill does NOT produce synthesis files, reviews, or final documents. It produces a task file + research artifacts + QA reports. There are no `synthesis/` or `reviews/` subfolders.
 
@@ -129,10 +168,14 @@ Note: This skill does NOT produce synthesis files, reviews, or final documents. 
 | Research notes | `${TASK_DIR}research-notes.md` |
 | Codebase research files | `${TASK_DIR}research/[NN]-[topic-name].md` |
 | Web research files | `${TASK_DIR}research/web-[NN]-[topic].md` |
-| Analyst reports | `${TASK_DIR}qa/analyst-completeness-report.md` |
-| QA research gate reports | `${TASK_DIR}qa/qa-research-gate-report.md` |
-| QA task validation report | `${TASK_DIR}qa/qa-task-validation-report.md` |
-| QA qualitative review | `${TASK_DIR}qa/qa-qualitative-review.md` |
+| Analyst reports (research gate) | `${TASK_DIR}qa/analyst-completeness-report.md`, `analyst-cross-validation-report.md` |
+| QA research gate reports | `${TASK_DIR}qa/qa-research-evidence-report.md`, `qa-research-gap-report.md` |
+| QA research depth report | `${TASK_DIR}qa/qa-research-depth-report.md` |
+| QA task validation reports | `${TASK_DIR}qa/qa-task-validation-b2-report.md`, `qa-task-validation-structure-report.md` |
+| QA task validation consolidated | `${TASK_DIR}qa/qa-task-validation-consolidated.md` |
+| QA task-research-alignment report | `${TASK_DIR}qa/qa-task-research-alignment-report.md` |
+| QA qualitative reports | `${TASK_DIR}qa/qa-qualitative-operational-report.md`, `qa-qualitative-sufficiency-report.md` |
+| QA qualitative consolidated | `${TASK_DIR}qa/qa-qualitative-consolidated.md` |
 
 **Multi-track path convention:** For multi-track builds, each track gets its own folder: `TASK-RF-track-T-YYYYMMDD-HHMMSS/` (e.g., `TASK-RF-track-1-20260318-140000/`). Track ID goes BEFORE the timestamp so folders sort by track. Each track folder has its own `research/` and `qa/` subfolders.
 
@@ -155,21 +198,33 @@ This skill operates in a single stage (Stage A only). Unlike the canonical docum
 5. Review research sufficiency — mandatory self-review gate (A.5)
 6. Triage template selection — Template 01 (generic) vs 02 (complex) per track (A.6)
 7. Spawn parallel researchers via Agent tool — 3-8 per track based on tier and scope complexity (A.7)
-8. Research quality gate — rf-analyst + rf-qa in parallel via Agent tool, with gap-fill cycle if needed (A.8)
+8. Research quality gate — 2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative in parallel via Agent tool (5 agents minimum), with gap-fill cycle if needed (max 3 rounds) (A.8)
 9. Optional web research — only if tier allows web agents AND quality gate identified external knowledge gaps (A.8.5)
 10. Spawn the `rf-task-builder` agent via Agent tool with structured BUILD_REQUEST (A.9)
-11. Task file structural validation — rf-qa in task-integrity mode via Agent tool, with fix authorization (A.10)
-12. Task file qualitative validation — rf-qa-qualitative in task-qualitative mode via Agent tool, with fix authorization (A.10.5)
-13. PRE reflect gate — spawn `/sc:reflect --mode pre` against the built tasklist (advisory-blocking sign-off; A.10.7)
-14. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
+11. Task file structural validation — 2 rf-qa agents with focused lenses (B2 self-containment + phase structure/ordering) via Agent tool, serialized fix authorization (A.10)
+12. Task file research-alignment validation — 1 rf-analyst agent (task-research-alignment lens) cross-validates the task file against research files (A.10.25)
+13. Task file qualitative validation — 2 rf-qa-qualitative agents with focused lenses (operational correctness + QA gate sufficiency) via Agent tool, serialized fix authorization (A.10.5)
+14. PRE reflect gate: spawn `/sc:reflect --mode pre` against the built tasklist (advisory-blocking sign-off; A.10.7)
+15. Present results — task file path, quality gate summary, recommended batch size, execution command (A.11)
 
 If a task folder already exists for this request (from a previous session), skip to the appropriate step based on artifact state:
 
 - Research files complete but no QA reports → skip to A.8 (quality gate)
 - QA reports pass but no task file → skip to A.9 (spawn builder)
 - Task file exists but no validation report → skip to A.10 (structural validation)
-- Task file + structural validation report but no qualitative report → skip to A.10.5 (qualitative validation)
-- Task file + both validation reports exist → skip to A.11 (present results)
+- Task file + structural validation but no research-alignment report → skip to A.10.25 (research-alignment validation)
+- Task file + structural + alignment reports but no qualitative report → skip to A.10.5 (qualitative validation)
+- Task file + all validation/alignment/qualitative reports exist → skip to A.11 (present results)
+
+**Skill-delegated flow (alternative path):** When invoked by a calling skill via `Skill(skill: "task-builder", args: "<BUILD-REQUEST-file-path>")` with `Source: skill-delegated` and `SKIP_RESEARCHERS: true` (default):
+
+`A.1 (detect skill-delegated, extract metadata, check artifact state) → skip A.2-A.8.5 (scope discovery, research, quality gate — already done by caller) → A.9 (spawn builder from BUILD-REQUEST.md file) → A.10 (structural QA) → A.10.25 (research-alignment) → A.10.5 (qualitative QA) → A.11 (present results)`
+
+When `SKIP_RESEARCHERS: false` (e.g., research-notes.md missing or caller explicitly sets false):
+
+`A.1 (detect skill-delegated) → skip A.2-A.4 (scope discovery — already done by caller) → A.5 (review research sufficiency) → A.6-A.8.5 (researchers + quality gate) → A.9 (spawn builder) → A.10 → A.10.25 → A.10.5 → A.11`
+
+In both cases, A.1 checks for prior artifacts first and resumes from the appropriate point if a partially-completed build exists in the Task Directory.
 
 ---
 
@@ -177,15 +232,41 @@ If a task folder already exists for this request (from a previous session), skip
 
 ### A.1: Check for Existing Task Folder
 
-Before creating a new task folder, check if one already exists:
+Before creating a new task folder, check if one already exists.
+
+**Branch 1 — Skill-Delegated Build Request Detection:**
+
+When the input is a file path matching `BUILD-REQUEST*.md`:
+
+1. Read the BUILD-REQUEST file and check for `Source: skill-delegated` in the metadata header.
+2. If `Source: skill-delegated` is present, extract metadata:
+   - `Calling Skill` — which skill invoked us (for logging/diagnostics)
+   - `Task Directory` — the pre-created task directory (use this as TASK_DIR — do NOT create a new TASK-RF-* folder)
+   - `Research Notes` — path to research-notes.md
+   - `Research Notes Status` — whether scope discovery is complete
+   - `SKIP_RESEARCHERS` — whether to skip the researcher layer (default: `true` for skill-delegated)
+3. Verify research-notes.md exists at the specified path and has `Status: Complete`.
+4. **CRITICAL PRECEDENCE — Check existing artifact state FIRST:** After extracting metadata, check the Task Directory for prior artifacts using the SAME resume logic as Branch 2 below (the state-to-resume-point checks). If prior artifacts exist (research files, QA reports, task file, validation reports), resume from the appropriate point regardless of SKIP_RESEARCHERS. This handles session resumption for partially-completed skill-delegated builds.
+5. **ONLY IF no prior artifacts exist in the Task Directory:**
+   - If `SKIP_RESEARCHERS` is `true` (or absent, defaulting to true for skill-delegated) → skip to A.9 (spawn builder with BUILD-REQUEST.md content)
+   - If `SKIP_RESEARCHERS` is `false` → skip to A.5 (review research sufficiency), then proceed through A.6-A.8.5 (researchers + quality gate) before A.9
+
+**Error handling for skill-delegated detection:**
+
+- Missing `Source: skill-delegated` field → treat as user-invoked BUILD_REQUEST file, proceed to A.2 (existing behavior)
+- Missing or nonexistent `Task Directory` → log blocker: "Task Directory not found at [path]. Cannot proceed with skill-delegated build." and halt
+- Missing research-notes.md at the specified path → log warning: "research-notes.md not found at [path]. Setting SKIP_RESEARCHERS=false to enable full research pipeline." Set SKIP_RESEARCHERS to false and skip to A.3 (scope discovery) instead of A.5, since A.5 (review sufficiency) also requires research-notes.md. A.3 will create the research-notes.md file, then flow through A.4 → A.5 → A.6-A.8.5 → A.9 normally.
+
+**Branch 2 — Standard Resume Detection (user-invoked builds):**
 
 1. Look in `.dev/tasks/to-do/` for any `TASK-RF-*/` folder related to this request
 2. If found, check the artifact state to determine the resume point:
    - If `research/` has complete research files but `qa/` has no analyst/QA reports → skip to A.8 (quality gate)
-   - If `qa/` has passing analyst/QA reports but no task file in `${TASK_DIR}` → skip to A.9 (spawn builder)
-   - If task file exists but no `qa-task-validation-report.md` in `qa/` → skip to A.10 (structural validation)
-   - If task file + `qa-task-validation-report.md` exist but no `qa-qualitative-review.md` in `qa/` → skip to A.10.5 (qualitative validation)
-   - If task file and validation report both exist → skip to A.11 (present results)
+   - If `qa/` has all 5 A.8 report files (`analyst-completeness-report.md`, `analyst-cross-validation-report.md`, `qa-research-evidence-report.md`, `qa-research-gap-report.md`, `qa-research-depth-report.md`) but no task file in `${TASK_DIR}` → skip to A.9 (spawn builder). Resume checks verify file EXISTENCE; the orchestrator re-reads verdicts if needed.
+   - If task file exists but no `qa-task-validation-b2-report.md` AND `qa-task-validation-structure-report.md` in `qa/` → skip to A.10 (structural validation)
+   - If task file + structural reports exist but no `qa-task-research-alignment-report.md` in `qa/` → skip to A.10.25 (research-alignment validation)
+   - If task file + structural + alignment reports exist but no `qa-qualitative-operational-report.md` AND `qa-qualitative-sufficiency-report.md` in `qa/` → skip to A.10.5 (qualitative validation)
+   - If task file and all validation/qualitative/alignment reports exist → skip to A.11 (present results)
    - If `research-notes.md` exists with `Status: Complete` → skip to A.5 (review sufficiency)
    - If `research-notes.md` exists with `Status: In Progress` → resume A.3 scope discovery
 3. If no matching task folder exists → continue with A.2
@@ -198,7 +279,7 @@ Break the user's request into structured components:
 - **WHY**: Why this task is needed (if stated)
 - **OUTPUTS**: Specific deliverables, paths, formats (if stated)
 - **CONTEXT**: Files, directories, components mentioned (if any)
-- **SPEC_PATH**: The driving spec/PRD/TDD path, resolved in priority order (explicit `--spec <path>` → an `@file` reference in GOAL → a `SPEC:`/`PRD:`/`TDD:` field in BUILD_REQUEST → none); written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` and the POST item's `{SPEC_PATH}` placeholder
+- **SPEC_PATH**: The driving spec/PRD/TDD path, resolved in priority order (explicit `--spec <path>` -> an `@file` reference in GOAL -> a `SPEC:`/`PRD:`/`TDD:` field in BUILD_REQUEST -> none); written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` and the POST item's `{SPEC_PATH}` placeholder
 
 **Triage into Scenario A or B:**
 
@@ -320,7 +401,7 @@ TRACK [T] SCOPE MAP:
   Estimated complexity: [low/medium/high]
 ```
 
-Create the task folder: `.dev/tasks/to-do/TASK-RF-YYYYMMDD-HHMMSS/` with subfolders `research/` and `qa/`. For multi-track: `.dev/tasks/to-do/TASK-RF-track-T-YYYYMMDD-HHMMSS/` per track.
+Compute `<subject>` from the goal slug of the user's request using the rules in the Subject Derivation section. If no clean subject is derivable, use `general`. Create the task folder: `.dev/tasks/to-do/TASK-RF-<subject>-YYYYMMDD-HHMMSS/` with subfolders `research/` and `qa/`. For multi-track: `.dev/tasks/to-do/TASK-RF-track-T-YYYYMMDD-HHMMSS/` per track.
 
 ### A.4: Write Research Notes File (MANDATORY)
 
@@ -603,22 +684,26 @@ Investigate testing infrastructure for the relevant area:
 
 ### A.8: Research Quality Gate
 
-Spawn rf-analyst and rf-qa in parallel to independently verify research completeness before allowing task file creation.
+Spawn rf-analyst, rf-qa, and rf-qa-qualitative in parallel to independently verify research completeness before allowing task file creation. Minimum agents per I22 qa_intensity (lite: 2, standard: 3, full: 5): 2 rf-analyst (completeness lens + cross-validation lens), 2 rf-qa (evidence-quality lens + gap-detection lens), 1 rf-qa-qualitative (research-depth lens).
 
-**Spawn analyst + QA in parallel** — two Agent calls in one message:
+**Spawn analyst + QA + qualitative in parallel** — Agent calls in one message (5 at full intensity, 3 at standard, 2 at lite per I22):
 
 ```text
-Agent 1:
+Agent 1 (rf-analyst — completeness lens):
   subagent_type: "rf-analyst"
   mode: "bypassPermissions"
-  description: "Research completeness verification"
+  description: "Research completeness verification — completeness lens"
   prompt: |
     ANALYSIS_TYPE: completeness-verification
+    LENS: completeness
     SCOPE: Research files for task-builder track [T]
 
     RESEARCH DIR: ${TASK_DIR}research/
     TRACK GOAL: [goal for this track]
     ASSIGNED FILES: [list all .md files in research/]
+
+    YOUR LENS FOCUS: Verify that every area from the scope map has
+    corresponding research coverage. You check BREADTH, not depth.
 
     Read each research file and verify:
     1. Source files identified with paths and exports?
@@ -640,12 +725,44 @@ Agent 1:
     ESCALATION: You have NO team context. Do NOT use SendMessage.
     Return your verdict and report file path as your final output.
 
-Agent 2:
+Agent 2 (rf-analyst — cross-validation lens):
+  subagent_type: "rf-analyst"
+  mode: "bypassPermissions"
+  description: "Research cross-validation — cross-validation lens"
+  prompt: |
+    ANALYSIS_TYPE: completeness-verification
+    LENS: cross-validation
+    SCOPE: Research files for task-builder track [T]
+
+    RESEARCH DIR: ${TASK_DIR}research/
+    TRACK GOAL: [goal for this track]
+    ASSIGNED FILES: [list all .md files in research/]
+
+    YOUR LENS FOCUS: Cross-validate claims BETWEEN research files.
+    Where two researchers cover overlapping areas, verify their findings
+    are consistent. Flag contradictions, conflicting counts, or divergent
+    descriptions of the same component.
+
+    Checklist:
+    1. Cross-file consistency — do findings about the same files/APIs agree?
+    2. No contradictory claims between research files?
+    3. Shared dependencies documented consistently?
+    4. Integration point descriptions match across researchers?
+
+    OUTPUT FILE: ${TASK_DIR}qa/analyst-cross-validation-report.md
+    Write the file IMMEDIATELY with a header, then append findings incrementally.
+    Conclude with: VERDICT: PASS or FAIL, and a structured gap list if FAIL.
+
+    ESCALATION: You have NO team context. Do NOT use SendMessage.
+    Return your verdict and report file path as your final output.
+
+Agent 3 (rf-qa — evidence-quality lens):
   subagent_type: "rf-qa"
   mode: "bypassPermissions"
-  description: "Research quality gate"
+  description: "Research evidence quality gate — evidence-quality lens"
   prompt: |
     QA_MODE: research-gate
+    LENS: evidence-quality
     fix_authorization: false
 
     **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
@@ -654,27 +771,94 @@ Agent 2:
     TRACK GOAL: [goal for this track]
     ASSIGNED FILES: [list all .md files in research/]
 
-    Zero-trust verification of research quality:
+    YOUR LENS FOCUS: Verify EVIDENCE QUALITY in each research file.
+    Every claim must cite file paths, line numbers, function names.
+
+    Zero-trust verification:
     1. Are claims evidence-based (file paths, line numbers, function names)?
     2. Any unsupported assertions or assumptions stated as facts?
     3. Are [CODE-CONTRADICTED] or [UNVERIFIED] claims properly flagged?
-    4. Coverage gaps — are there obvious areas the researchers missed?
-    5. Are findings actionable for a task builder (not too vague, not too abstract)?
+    4. Spot-check 20% of cited file paths — do they actually exist?
 
-    OUTPUT FILE: ${TASK_DIR}qa/qa-research-gate-report.md
+    OUTPUT FILE: ${TASK_DIR}qa/qa-research-evidence-report.md
     Write the file IMMEDIATELY with a header, then append findings incrementally.
     Conclude with: VERDICT: PASS or FAIL, and severity-rated issues if FAIL.
     Severity ratings: CRITICAL (blocks builder), IMPORTANT (reduces quality), MINOR (nice-to-fix).
 
     ESCALATION: You have NO team context. Do NOT use SendMessage.
     Return your verdict and report file path as your final output.
+
+Agent 4 (rf-qa — gap-detection lens):
+  subagent_type: "rf-qa"
+  mode: "bypassPermissions"
+  description: "Research gap detection gate — gap-detection lens"
+  prompt: |
+    QA_MODE: research-gate
+    LENS: gap-detection
+    fix_authorization: false
+
+    **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
+    RESEARCH DIR: ${TASK_DIR}research/
+    TRACK GOAL: [goal for this track]
+    ASSIGNED FILES: [list all .md files in research/]
+
+    YOUR LENS FOCUS: Find GAPS — areas the researchers missed entirely.
+    Read the scope map/research notes, then check whether every area
+    has corresponding research coverage.
+
+    Gap-detection checklist:
+    1. Coverage gaps — are there obvious areas the researchers missed?
+    2. Are findings actionable for a task builder (not too vague, not too abstract)?
+    3. Missing integration points between subsystems?
+    4. Missing test/verification coverage for areas the task will modify?
+
+    OUTPUT FILE: ${TASK_DIR}qa/qa-research-gap-report.md
+    Write the file IMMEDIATELY with a header, then append findings incrementally.
+    Conclude with: VERDICT: PASS or FAIL, and severity-rated issues if FAIL.
+    Severity ratings: CRITICAL (blocks builder), IMPORTANT (reduces quality), MINOR (nice-to-fix).
+
+    ESCALATION: You have NO team context. Do NOT use SendMessage.
+    Return your verdict and report file path as your final output.
+
+Agent 5 (rf-qa-qualitative — research-depth lens):
+  subagent_type: "rf-qa-qualitative"
+  mode: "bypassPermissions"
+  description: "Research depth assessment — research-depth lens"
+  prompt: |
+    QA_PHASE: research-depth
+    LENS: research-depth
+    fix_authorization: false
+
+    **ADVERSARIAL STANCE:** Assume the research is superficial until proven otherwise. Your job is to determine whether findings are genuinely deep or merely surface-level. Researchers that list file names without understanding behavior are shallow.
+
+    RESEARCH DIR: ${TASK_DIR}research/
+    TRACK GOAL: [goal for this track]
+    ASSIGNED FILES: [list all .md files in research/]
+
+    YOUR LENS FOCUS: Evaluate whether research is DEEP ENOUGH to produce
+    a high-quality task file. Surface-level file inventories without
+    behavioral understanding produce vague task items.
+
+    Depth checklist:
+    1. Do research files explain HOW components work, not just WHAT they are?
+    2. Are data flows traced end-to-end (not just entry points listed)?
+    3. Are edge cases, error handling, and failure modes documented?
+    4. Are patterns specific enough to replicate (not just "follows MVC")?
+    5. Could a task builder create per-file checklist items from this research
+       without needing to re-read any source files?
+
+    OUTPUT FILE: ${TASK_DIR}qa/qa-research-depth-report.md
+    Write the file IMMEDIATELY with a header, then append findings incrementally.
+    Conclude with: VERDICT: PASS or FAIL, and severity-rated issues if FAIL.
+
+    ESCALATION: You have NO team context. Do NOT use SendMessage.
+    Return your verdict and report file path as your final output.
 ```
 
-**Partitioning:** When >6 research files per track, spawn 2 analyst + 2 QA instances (4 agents total), each with assigned_files subsets. Merge reports after all return.
+**Partitioning:** When >6 research files per track, partition across agent types: spawn 4 rf-analyst instances (2 lenses x 2 partitions) + 4 rf-qa instances (2 lenses x 2 partitions) + 2 rf-qa-qualitative instances (1 lens x 2 partitions) = 10 agents total, each with assigned_files subsets. Merge reports per lens after all return.
 
-**Synthetic-dnsp merge step (R-127, COMP-001-M6 — A.8 Research Quality Gate merge).** Before the **Gate evaluation** paragraph below reads the analyst + QA reports, the orchestrator MUST scan each partition agent's normal output stream for `source: "synthetic-dnsp"` blocks emitted under the API-003-M6 wire-shape contract (see L674) and merge them into the partition-cohort findings set ALONGSIDE the real analyst + QA findings. Merge semantics — each invariant binds to a named rejection symbol pinned at L668-L684: (a) the merge is **strictly additive** — post-merge real-finding count MUST equal pre-merge real-finding count plus synthetic count (violation → `R-126-real-findings-replacement-violation`); no merge logic may drop, coalesce, filter, or replace real findings with synthetic ones, even when they share a severity bucket; (b) the synthetic `severity: HIGH` value is **non-overridable across the merge** — no merge-time normalization, severity-downgrade transform, severity-coalesce rule, or operator-overridable severity flag may lower it (violation → `R-126-severity-override-violation`); (c) **within-cycle dedup-key collapse (R-123)** MUST run BEFORE the merged set is handed to gate evaluation so two identical-`dedup_key` synthetic blocks emerge as one cardinality-1 record with `found_n_times` incremented by `+1` (violation → `INV-012-within-cycle-collapse-violation`); (d) **cross-cycle dedup composition (R-124, INV-012)** MUST run before the PR-02 monotonicity comparison at SKILL.md L1071 so a cycle-`n+1` re-emission with the same `dedup_key` as a cycle-`n` emission contributes `1` (not `2`) to `|F_{n+1}|` (violation → `INV-012-cross-cycle-composition-violation`); (e) the **all-agents-fail guard (R-122)** MUST have run BEFORE this merge step at the cohort boundary — when zero partitions succeeded the merge step is skipped and `rf-team-lead's Fix Cycles rule` activates instead (Path A; violation of the path-selection table → `R-122-guard-precedence-violation`). The Gate evaluation paragraph below then treats each merged synthetic-dnsp record as a real finding for the existing "ALL findings resolved regardless of severity" PASS criterion — a present synthetic-dnsp record causes FAIL until the operator manually reviews per its fixed `recommendation` literal `Manual review required — partition agent failed twice` (R-117); the gap-fill cycle below MUST NOT attempt to auto-resolve synthetic-dnsp records (the `recommendation` field is fixed-value invariant and the partition agent has already exhausted retries, so the gap-fill loop has nothing to add). All rejections MUST NOT be silently coerced. Rationale: pinning the merge-step wiring at the producer-side wire-shape boundary (L674) means the existing Gate evaluation logic below reads synthetic-dnsp records out of the same merged set as real findings without channel-discovery code or out-of-band format negotiation; the strictly-additive count invariant catches merge bugs that would silently absorb real findings into synthetic ones at the cohort boundary (a failure invisible to per-emission gates because each block is well-formed); five distinct named rejection symbols let operator tooling grep-distinguish each merge-time failure mode without false positives across the boundary.
-
-**Gate evaluation:** Read both analyst and QA reports. Gate PASSES when both verdicts are PASS with ALL findings resolved regardless of severity.
+**Gate evaluation:** Read ALL 5 agent reports (2 analyst + 2 QA + 1 qualitative). Gate PASSES when ALL verdicts are PASS with ALL findings resolved regardless of severity. A single FAIL from any agent fails the gate.
 
 **Gap-fill cycle:** If the gate fails:
 
@@ -686,9 +870,9 @@ Agent 2:
 
 **Cross-track validation (multi-track only):** After gate evaluation, cross-validate that no two tracks have overlapping scope that would produce conflicting task files.
 
-**DNSP Synthetic Finding Protocol (PR-03 — paradigm-neutral, the BASE proposal of this release):**
+**DNSP Synthetic Finding Protocol (PR-03 - paradigm-neutral, the BASE proposal of this release):**
 
-When the orchestrator spawns rf-analyst / rf-qa / rf-qa-qualitative with partition `assigned_files` slices, a single partition agent that exhausts its escalation ladder (WebSearch → /rf:opinion → team-lead, per rf-task-researcher.md and the agent definitions) AND fails the existing single retry (Bucket A SKILL.md "retry once before reporting error" baseline) MUST NOT silently weaken the gate or abort the entire pipeline. Instead, the orchestrator synthesises a **HIGH-severity finding** with this emission contract:
+When the orchestrator spawns rf-analyst / rf-qa / rf-qa-qualitative with partition `assigned_files` slices, a single partition agent that exhausts its escalation ladder (WebSearch -> /rf:opinion -> team-lead, per rf-task-researcher.md and the agent definitions) AND fails the existing single retry (Bucket A SKILL.md "retry once before reporting error" baseline) MUST NOT silently weaken the gate or abort the entire pipeline. Instead, the orchestrator synthesises a **HIGH-severity finding** with this emission contract:
 
 - `severity: HIGH`
 - `source: "synthetic-dnsp"`
@@ -700,29 +884,31 @@ When the orchestrator spawns rf-analyst / rf-qa / rf-qa-qualitative with partiti
 
 **Fixed-field emitter rejection (R-113 + R-114).** The `severity` and `source` fields are non-overridable fixed-value invariants of DM-003. The emitter MUST reject any synthetic-dnsp emission whose `severity` field is not the literal `HIGH` (case-sensitive) OR whose `source` field is not the literal `synthetic-dnsp` (case-sensitive). Such rejections surface as `DM-003-fixed-field-invariant-violation` errors and MUST NOT be silently coerced. Rationale: the `HIGH` pin prevents merge-time severity downgrade (without it the synthetic could be quietly demoted past the gate's any-gap-regardless-of-severity = FAIL rule); the literal `synthetic-dnsp` sentinel is what allows downstream operators to filter, audit, and report on synthetic emissions distinct from real findings.
 
-**Dynamic-field emitter rejection (R-115 + R-116).** The `affected_range` and `evidence` fields are dynamic-value invariants of DM-003 bound by content rules rather than fixed strings. The `affected_range` field MUST be the partition's spawn-prompt `assigned_files` (or `assigned_phases` for rf-qa-qualitative) slice copied verbatim — byte-for-byte, with no normalization, canonicalization, ordering changes, or whitespace edits. The `evidence` field MUST NEVER be blank: the canonical wire value is the spawn-log path `${TASK_DIR}qa/spawn-log-<agent_role>-<partition_id>.txt`; when that log is unavailable the emitter MUST substitute the stub `<!-- evidence-absence: no-spawn-log: <reason> -->` explicitly citing the absence (e.g., `no-spawn-log: tmpfs-cleared`, `no-spawn-log: orchestrator-write-failed`). The emitter MUST reject any synthetic-dnsp emission whose `affected_range` does not byte-match the spawn-prompt assigned slice OR whose `evidence` field is empty / whitespace-only / missing the absence stub when the path is unresolvable. Such rejections surface as `DM-003-dynamic-field-invariant-violation` errors and MUST NOT be silently coerced. Rationale: a verbatim `affected_range` ensures the merged report's row indexes back into the exact spawn prompt that produced the failure (the orchestrator can re-spawn that range deterministically, and humans reviewing the gate report can grep the exact file list against the original spawn record); a never-blank `evidence` field with the canonical path template makes the missing-log case grep-detectable in downstream tooling, and the explicit absence stub closes the audit gap where "no path" could otherwise read as either "log missing" or "field omitted" (the stub distinguishes the two).
+**Dynamic-field emitter rejection (R-115 + R-116).** The `affected_range` and `evidence` fields are dynamic-value invariants of DM-003 bound by content rules rather than fixed strings. The `affected_range` field MUST be the partition's spawn-prompt `assigned_files` (or `assigned_phases` for rf-qa-qualitative) slice copied verbatim: byte-for-byte, with no normalization, canonicalization, ordering changes, or whitespace edits. The `evidence` field MUST NEVER be blank: the canonical wire value is the spawn-log path `${TASK_DIR}qa/spawn-log-<agent_role>-<partition_id>.txt`; when that log is unavailable the emitter MUST substitute the stub `<!-- evidence-absence: no-spawn-log: <reason> -->` explicitly citing the absence (e.g., `no-spawn-log: tmpfs-cleared`, `no-spawn-log: orchestrator-write-failed`). The emitter MUST reject any synthetic-dnsp emission whose `affected_range` does not byte-match the spawn-prompt assigned slice OR whose `evidence` field is empty / whitespace-only / missing the absence stub when the path is unresolvable. Such rejections surface as `DM-003-dynamic-field-invariant-violation` errors and MUST NOT be silently coerced.
 
-**Fixed-value + tuple-shape + counter emitter rejection (R-117 + R-118 + R-119).** The `recommendation`, `dedup_key`, and `found_n_times` fields complete the DM-003 emitter rejection contract. The `recommendation` field is a fixed-value invariant pinned to the literal byte-exact string `Manual review required — partition agent failed twice` (case-sensitive; no leading/trailing whitespace; no suffix); the emitter MUST reject any synthetic-dnsp emission carrying any other value, including same-prefix-with-trailing-suffix variants (the wrapper's earlier `on this range` extension was a pre-T06.01 drift and is removed by T06.05). The `dedup_key` field MUST be emitted as a 2-element YAML list of the shape `["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]`; the emitter MUST reject any synthetic emission whose `dedup_key` is not a 2-element list OR whose second element falls outside the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}` (the closed vocabulary is API-003-M6's exhaust-point alphabet, ratified by T06.07 / R-121). The `found_n_times` field defaults to the integer `1` on first emission and increments by exactly `1` on each within-cycle dedup-key collapse (the cross-cycle collapse rule composing with PR-02 monotonicity / INV-012 is the "Dedup key" paragraph below); the emitter MUST reject any synthetic emission whose `found_n_times` is not a positive integer ≥1 OR whose first emission carries a value other than `1`. Such rejections surface as `DM-003-recommendation-invariant-violation`, `DM-003-dedup-key-shape-violation`, and `DM-003-found-n-times-invariant-violation` errors respectively and MUST NOT be silently coerced. Rationale: a byte-exact `recommendation` literal makes synthetic findings grep-discoverable by operators without false positives from elaborated suffixes (an unbounded suffix would let two synthetics with the same dedup_key but slightly different recommendations skip dedup collapse, breaking R-118's two-identical-dedup_keys → cardinality 1 + found_n_times=2 invariant); a 2-element list with closed-vocabulary second element makes the dedup_key cardinality-comparable across cycles without YAML-dialect ambiguity (a 3-element list or a free-form exhaust_point would let cross-cycle composition mis-collide, breaking INV-012); a strictly positive `found_n_times` integer with default `1` and exact `+1` increment-on-collapse makes the within-cycle collapse counter monotonic and the cross-cycle cohort-count semantics auditable (a counter that resets or skips would let dedup collapses double-count, breaking T05.07's INV-012 cross-cycle composition with PR-02 monotonicity).
+**Fixed-value + tuple-shape + counter emitter rejection (R-117 + R-118 + R-119).** The `recommendation`, `dedup_key`, and `found_n_times` fields complete the DM-003 emitter rejection contract. The `recommendation` field is a fixed-value invariant pinned to the literal byte-exact string `Manual review required — partition agent failed twice` (case-sensitive; no leading/trailing whitespace; no suffix); the emitter MUST reject any synthetic-dnsp emission carrying any other value, including same-prefix-with-trailing-suffix variants (the wrapper's earlier `on this range` extension was a pre-T06.01 drift and is removed by T06.05). The `dedup_key` field MUST be emitted as a 2-element YAML list of the shape `["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]`; the emitter MUST reject any synthetic emission whose `dedup_key` is not a 2-element list OR whose second element falls outside the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`. The `found_n_times` field defaults to the integer `1` on first emission and increments by exactly `1` on each within-cycle dedup-key collapse; the emitter MUST reject any synthetic emission whose `found_n_times` is not a positive integer >=1 OR whose first emission carries a value other than `1`. Such rejections surface as `DM-003-recommendation-invariant-violation`, `DM-003-dedup-key-shape-violation`, and `DM-003-found-n-times-invariant-violation` errors respectively and MUST NOT be silently coerced.
 
-**API-003-M6 emission wire-shape (R-120 + R-121).** The synthetic-dnsp finding MUST be emitted by the orchestrator as a structured Markdown block written into the partition agent's **normal output stream** — the same stdout/report channel that real findings use — with no separate signalling channel, sideband API, structured-result frame, or out-of-band metadata transport. The block is consumed downstream by the merge step at SKILL.md §A.8 (Research Quality Gate merge) and §A.10 (Task File Validation merge); the merge step picks up the synthetic block alongside real findings and treats it as a real finding for the existing "any gap regardless of severity = FAIL" gating rule. The explicit merge-step pick-up wiring at the A.8 (`:572-656`) and A.10 (`:870-918`) line-range targets lands at T06.11 (R-127 + R-128); this T06.07 paragraph pins the producer-side wire-shape contract (normal output stream, structured-block format, no sideband) that the T06.11 consumer-side edit binds to. The `escalation_ladder_exhaust_point` value (the second element of the `dedup_key` 2-tuple at R-118) MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`; the emitter MUST reject any synthetic-dnsp emission whose `escalation_ladder_exhaust_point` falls outside this vocabulary OR whose value is a free-form description, paraphrase, or natural-language summary of the exhaust point (e.g., `"second retry"`, `"gap-fill round 2"`, `"after WebSearch exhaustion"`, `"escalation-ladder rung 3"` — all rejected). Such rejections surface as `API-003-exhaust-point-vocabulary-violation` errors (cross-bound with `DM-003-dedup-key-shape-violation` from T06.05 — the same vocabulary violation can fire at either check, with the API-003-level rejection scoped to the emission-time wire-shape gate and the DM-003-level rejection scoped to the dedup_key tuple-shape gate) and MUST NOT be silently coerced. Rationale: a normal-output-stream wire format means the existing merge logic at SKILL.md §A.8 and §A.10 picks up synthetic blocks without channel-discovery code, sideband-listener wiring, or out-of-band format negotiation (the merge step's existing behaviour — read partition agent output, treat each emitted finding as a row in the merged report — naturally handles synthetic blocks because they share the wire shape of real findings); a closed exhaust_point vocabulary makes the dedup_key cardinality-comparable across cycles (a free-form exhaust_point would let two cycles' synthetic emissions for the same partition with slightly different exhaust-point wordings — `"retry-2"` vs. `"second-retry"` — mis-collide under R-118's dedup_key equality and double-count toward `|F_n+1|`, breaking T05.07's INV-012 cross-cycle composition with PR-02 monotonicity); a named `API-003-exhaust-point-vocabulary-violation` rejection symbol distinct from `DM-003-dedup-key-shape-violation` lets operator tooling distinguish wire-shape failures at the API boundary (the block format is malformed or the exhaust_point is non-vocabulary at emission time) from dedup-key shape failures inside the DM-003 field-rejection contract (the tuple shape itself is wrong) — the symbols can fire on the same input but scope different rejection responsibilities.
+**API-003-M6 emission wire-shape (R-120 + R-121).** The synthetic-dnsp finding MUST be emitted by the orchestrator as a structured Markdown block written into the partition agent's **normal output stream**, the same stdout/report channel that real findings use, with no separate signalling channel, sideband API, structured-result frame, or out-of-band metadata transport. The block is consumed downstream by the merge step at SKILL.md §A.8 (Research Quality Gate merge) and §A.10 (Task File Validation merge); the merge step picks up the synthetic block alongside real findings and treats it as a real finding for the existing "any gap regardless of severity = FAIL" gating rule. The `escalation_ladder_exhaust_point` value (the second element of the `dedup_key` 2-tuple at R-118) MUST be drawn from the closed vocabulary `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}`; the emitter MUST reject any synthetic-dnsp emission whose `escalation_ladder_exhaust_point` falls outside this vocabulary OR whose value is a free-form description, paraphrase, or natural-language summary of the exhaust point (e.g., `"second retry"`, `"gap-fill round 2"`, `"after WebSearch exhaustion"`, `"escalation-ladder rung 3"` - all rejected). Such rejections surface as `API-003-exhaust-point-vocabulary-violation` errors and MUST NOT be silently coerced.
 
 Then the orchestrator **merges with the remaining N-1 partition agents' findings** rather than aborting. This preserves the parallel-research invariant (N-1 partitions still complete) and the zero-trust QA invariant (the gap is surfaced HIGH-severity, never silently passed).
 
-**All-agents-fail guard.** If zero partition agents succeeded, the orchestrator escalates normally per the existing retry-then-Open-Questions flow — DNSP does NOT fire (a HIGH synthetic for every partition is informationally equivalent to escalation and adds noise).
+**All-agents-fail guard.** If zero partition agents succeeded, the orchestrator escalates normally per the existing retry-then-Open-Questions flow: DNSP does NOT fire (a HIGH synthetic for every partition is informationally equivalent to escalation and adds noise).
 
-**All-agents-fail guard precedence (R-122).** The synthetic-dnsp emitter MUST gate on the partition-cohort success count BEFORE any per-partition emission attempt, routing the cohort outcome down exactly one of three mutually-exclusive paths. **Path A (zero-partitions-succeeded → existing `rf-team-lead's Fix Cycles rule` fix-cycle escalation; NO synthetic emits)** fires when the success count is `0` and the orchestrator MUST activate the byte-stable `rf-team-lead's Fix Cycles rule` fix-cycle escalation (the max-3-cycles HALT-and-ask-user contract that has shipped pre-PR-03 and remains the canonical zero-success destination) without emitting any synthetic-dnsp block — the existing escalation already surfaces the all-fail outcome to the operator, and emitting one HIGH synthetic per partition on top of that activation would be informationally equivalent to the escalation itself while adding O(N) noise to the merged report. **Path B (≥1-success AND ≥1-exhaust → synthetic-dnsp emits ALONGSIDE real findings)** fires when at least one partition succeeded AND at least one partition exhausted its escalation ladder, and the orchestrator MUST emit one synthetic-dnsp block per exhausted partition into the normal output stream alongside the real findings from the successful partitions (the synthetic-dnsp adds to, never replaces, real findings — preserving the cohort's real-finding count and the parallel-research invariant per NFR-CONV.10). **Path C (all-partitions-succeeded → no synthetic; normal merge)** fires when every partition succeeded and is the baseline no-DNSP path. The three paths are mutually exclusive (a single partition-cohort outcome MUST traverse exactly one path; the guard MUST reject any cohort outcome that satisfies more than one path's precondition or satisfies none — e.g., a cohort with zero successes AND zero exhausts is a contract violation because every partition must terminate in success-or-exhaust under the M5 escalation-ladder semantics ratified at FR-CONV.5). Such guard-precedence violations surface as `R-122-guard-precedence-violation` errors (named symbol distinct from `API-003-exhaust-point-vocabulary-violation` from T06.07 and `DM-003-dedup-key-shape-violation` from T06.05 because the path-selection gate is upstream of the per-emission wire-shape gate — the symbol scopes the cohort-level path-selection failure, not a per-emission field-shape failure; operator tooling can grep the symbol to distinguish "the cohort outcome was internally inconsistent" from "an individual synthetic emission was malformed"). The `rf-team-lead's Fix Cycles rule` line MUST be byte-stable across the M6 landing under COMP-006-M6 (sha256 pinned at `51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0` end-to-end across PR-02, PR-03, and M1–M6; the whole-file sha256 of `src/superclaude/agents/rf-team-lead.md` pinned at `874a516e3baedd8fed5b433592ab3d41a78bd8ec8601098d8610f47ce255e40b`); the Path A activation MUST NOT replace, short-circuit, or modify the existing fix-cycle escalation, only route control to it (T06.14 verifies the byte-stability post-MIG-006). Rationale: a pre-emission cohort-level guard means the zero-success case is decided once at the cohort boundary rather than re-evaluated at each per-partition emission attempt (a per-emission guard would either let O(N) synthetics fire before the all-fail check rolls them back — wasteful and racy — or require each emitter to read the cohort state, coupling the per-emission wire-shape gate to the cohort-level path-selection gate); three mutually-exclusive paths with a contract-violation reject for the "zero successes AND zero exhausts" case make the path-selection table exhaustive (no implicit default-path fallback that could silently absorb a malformed cohort outcome); a distinct `R-122-guard-precedence-violation` named symbol lets the all-agents-fail Path A activation be auditable separately from per-emission rejections (an operator inspecting the merged report can grep the symbol to confirm the cohort traversed exactly one path and that the byte-stable `rf-team-lead's Fix Cycles rule` activation is not being short-circuited by a downstream emission path).
+**All-agents-fail guard precedence (R-122).** The synthetic-dnsp emitter MUST gate on the partition-cohort success count BEFORE any per-partition emission attempt, routing the cohort outcome down exactly one of three mutually-exclusive paths. **Path A (zero-partitions-succeeded: existing `rf-team-lead's Fix Cycles rule` fix-cycle escalation; NO synthetic emits)** fires when the success count is `0`. **Path B (>=1-success AND >=1-exhaust: synthetic-dnsp emits ALONGSIDE real findings)** fires when at least one partition succeeded AND at least one partition exhausted its escalation ladder; the orchestrator MUST emit one synthetic-dnsp block per exhausted partition alongside the real findings from the successful partitions (strictly additive, never replaces real findings). **Path C (all-partitions-succeeded: no synthetic; normal merge)** fires when every partition succeeded. The three paths are mutually exclusive (a single partition-cohort outcome MUST traverse exactly one path; the guard MUST reject any cohort outcome that satisfies more than one path's precondition or none -- e.g., a cohort with zero successes AND zero exhausts is a contract violation because every partition must terminate in success-or-exhaust). Guard-precedence violations surface as `R-122-guard-precedence-violation` errors. At the A.8 / A.10 merge step, when zero partitions succeeded the merge step is skipped and `rf-team-lead's Fix Cycles rule` activates instead (Path A). The `rf-team-lead's Fix Cycles rule` line MUST be byte-stable across the M6 landing (COMP-006-M6 preservation gate; sha256 frozen at `51725c0ffa151c3403701f21910d7f5cf122639f3a0e7fa9ae3cafe82701a0a0`); the Path A activation MUST NOT replace, short-circuit, or modify the existing fix-cycle escalation, only route control to it.
 
-**Within-cycle + cross-cycle dedup composition (INV-012, R-123 + R-124).** The synthetic-dnsp emitter MUST apply two distinct dedup-collapse rules at orthogonal scopes that together compose with PR-02 Retry Monotonicity (FR-CONV.5 / M5) per the operational rule subsection at `src/superclaude/skills/task-builder/SKILL.md` L1079-1093 (T05.07 INV-012 cross-cycle dedup composition; subsection sha256 pinned at `5ff2a1803bbe088d2083628bf9c8cffeafba54fcc7b769efd98dd14824f09785`). **Within-cycle collapse (R-123).** Two synthetic-dnsp findings emitted within the SAME retry cycle for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple MUST collapse to a single record with `found_n_times` incremented by exactly `1` from its current value (default `1` on first emission → `2` after the first within-cycle collision → `3` after the second, etc.); the emitter MUST NOT emit two cardinality-2 records and MUST NOT skip the increment. The within-cycle collapse happens BEFORE the merge step picks up the synthetic block at SKILL.md §A.8 / §A.10 (T06.11 / R-127 + R-128), so the merge step sees a cardinality-1 emission already annotated with the correct `found_n_times`. **Cross-cycle composition (R-124, INV-012 non-regression).** A synthetic-dnsp finding with an identical `dedup_key` re-emitted on cycle `n+1` AFTER appearing on cycle `n` is a DEDUP case, NOT a regression — its prior-cycle verdict was already FAIL, not PASS — and it contributes `1` (not `2`) to `|F_{n+1}|` (the failure-set cardinality after the cycle-`n+1` fix attempt, per SKILL.md L1064 — `|F_n|` is computed AFTER dedup-key deduplication; the same identity is used at cycle `n+1`). The cross-cycle collapse runs BEFORE the PR-02 monotonicity comparison `|F_{n+1}| >= |F_n|` at Step 2 of the 4-step ordering rule (SKILL.md L1071). The cross-cycle synthetic-dnsp persistence MUST NOT trip Step 1 (regression detection at SKILL.md L1070) because `dedup_key ∈ FAIL_n` implies `dedup_key ∉ PASS_n`, so the Step 1 predicate `dedup_key ∈ PASS_n ∩ FAIL_{n+1}` is FALSE by construction; persistence trips Step 2 (monotonicity) **if and only if** `|F_{n+1}| >= |F_n|` after the dedup-collapse step — the intended halt when the partition agent is stuck. Violations of the within-cycle collapse rule (e.g., two identical-dedup_key records emitted with cardinality 2 instead of 1 with `found_n_times: 2`; `found_n_times` not incremented by exactly `1` per collapse; counter reset or skipped) surface as `INV-012-within-cycle-collapse-violation` errors. Violations of the cross-cycle composition rule (e.g., a cross-cycle same-dedup_key re-emission contributing `2` instead of `1` to `|F_{n+1}|`; the cross-cycle synthetic-dnsp persistence triggering a regression halt at Step 1; the cross-cycle dedup-collapse step omitted before the monotonicity comparison at Step 2) surface as `INV-012-cross-cycle-composition-violation` errors. Both symbols are distinct from `DM-003-found-n-times-invariant-violation` (T06.05 — per-emission counter-shape failures at the field level), `R-122-guard-precedence-violation` (T06.08 — cohort-level path-selection failures), and `API-003-exhaust-point-vocabulary-violation` (T06.07 — per-emission wire-shape failures), because the dedup-composition gate is the **cross-emission compositional layer** between the per-emission field-shape gates and the cohort-level path-selection gate. Both rejections MUST NOT be silently coerced. Rationale: a within-cycle collapse rule pinned at the per-emission boundary prevents double-counting at the cohort-level merge step (a within-cycle re-emission that bypassed collapse would inflate `|F_n|` and trigger a spurious monotonicity halt at the cycle-`n+1` comparison even when the partition agent is making progress on other items); a cross-cycle composition rule pinned at the F-set construction boundary makes the dedup-identity scope explicit across cycle boundaries (without this binding, an operator could read the inline "Repeated synthetics for the same dedup key collapse" line below as referring to within-cycle only, leaving the cross-cycle case ambiguous between dedup and regression and risking a spurious regression halt at Step 1); two distinct named rejection symbols at the compositional layer let operator tooling grep-distinguish within-cycle counter failures from cross-cycle composition failures (a single conflated symbol would force operators to read the full execution log to determine which collapse rule was violated).
+**Within-cycle + cross-cycle dedup composition (INV-012, R-123 + R-124).** The synthetic-dnsp emitter MUST apply two distinct dedup-collapse rules at orthogonal scopes. **Within-cycle collapse (R-123).** Two synthetic-dnsp findings emitted within the SAME retry cycle for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple MUST collapse to a single record with `found_n_times` incremented by exactly `1` from its current value; the emitter MUST NOT emit two cardinality-2 records and MUST NOT skip the increment. **Cross-cycle composition (R-124, INV-012 non-regression).** A synthetic-dnsp finding with an identical `dedup_key` re-emitted on cycle `n+1` AFTER appearing on cycle `n` is a DEDUP case, NOT a regression: it contributes `1` (not `2`) to `|F_{n+1}|`. The cross-cycle collapse runs BEFORE the PR-02 monotonicity comparison at Step 2 of the 4-step ordering rule. The cross-cycle synthetic-dnsp persistence MUST NOT trip Step 1 (regression detection) because `dedup_key ∈ FAIL_n` implies `dedup_key ∉ PASS_n`. Violations surface as `INV-012-within-cycle-collapse-violation` and `INV-012-cross-cycle-composition-violation` errors respectively. NOTE: the sha256 subsection pin from IC's version is OMITTED as a bridge-stage item; the behavioral contract is adopted.
 
 **INV-021 N-1 cohort concurrency + R-126 HIGH severity non-overridable across merge step (R-125 + R-126).** The synthetic-dnsp emitter MUST preserve two cohort-level invariants spanning the partition-agent execution lattice and the merge-step output stream. **INV-021 N-1 cohort concurrency (R-125).** When one partition's escalation ladder exhausts, the orchestrator MUST allow the remaining N-1 sibling partitions to continue executing concurrently to their own success-or-exhaust terminal state BEFORE the exhausted partition's synthetic-dnsp emission is composed AND BEFORE the merge step at SKILL.md §A.8 / §A.10 runs (explicit pick-up wiring lands at T06.11 / R-127 + R-128). The exhausted partition's synthesis MUST NOT block, pause, serialize, or reduce the parallelism of the sibling cohort; spawn-log timestamps MUST evidence the N-1 partitions completing concurrently with (overlapping in wall-clock time with) the exhausted partition's synthesis step. This is the per-cohort instantiation of the NFR-CONV.10 parallel-research invariant (the M6-scoped governance entry recorded at MIG-006 / T06.17). **R-126 HIGH severity non-overridable across merge step + real findings preserved alongside synthetic.** The synthetic-dnsp `severity: HIGH` value MUST be non-overridable at every downstream layer: the per-emission `DM-003-fixed-field-invariant-violation` gate from T06.03 enforces non-override at the emission boundary, and T06.10 extends the invariant transitively across the cohort-level merge step at SKILL.md §A.8 / §A.10 (no merge-time normalization, severity-downgrade transform, severity-coalesce rule, or operator-overridable severity flag is permitted to lower the synthetic-dnsp severity below HIGH). The synthetic-dnsp block MUST be merged ALONGSIDE the real findings from the successful partitions (Path B from T06.08), never IN PLACE OF them: the cohort's real-finding count post-merge MUST equal the cohort's real-finding count pre-merge plus the synthetic count (strictly additive — not replacement, coalesce, or filter); any merge logic that drops real findings to make room for synthetic findings, that coalesces real findings into synthetic ones, or that filters real findings on the basis of severity-bucket collisions with synthetic findings is a contract violation. Violations of the N-1 concurrency invariant (e.g., sibling cohort paused awaiting exhausted-partition synthesis; spawn-log timestamps show serialization of the N-1 partitions behind the exhausted partition's synthesis; the parallel-research invariant NFR-CONV.10 is degraded for the exhausted-partition case) surface as `INV-021-cohort-serialization-violation` errors. Violations of the real-findings-preservation invariant (e.g., a real finding is dropped during the merge step; a real finding is coalesced into a synthetic finding; the cohort's real-finding count post-merge is strictly less than the real-finding count pre-merge; merge logic replaces a real finding with a synthetic one when both share a severity bucket) surface as `R-126-real-findings-replacement-violation` errors. Violations of the merge-step HIGH-severity non-overridable invariant (e.g., merge-time severity-downgrade transform reduces synthetic-dnsp severity below HIGH; merge-time severity-coalesce rule overrides synthetic-dnsp severity from HIGH to another bucket; an operator override flag is honored to lower synthetic-dnsp severity) surface as `R-126-severity-override-violation` errors (distinct from `DM-003-fixed-field-invariant-violation` from T06.03 — the DM-003 symbol scopes per-emission boundary failures, the R-126 symbol scopes merge-step / cohort-layer override failures across the emission lifecycle; both layers are needed because the wire format is preserved post-emission but merge logic could still apply transforms). All three new symbols are distinct from `INV-012-within-cycle-collapse-violation` + `INV-012-cross-cycle-composition-violation` (T06.09 — cross-emission compositional layer), `R-122-guard-precedence-violation` (T06.08 — cohort-level path-selection), `API-003-exhaust-point-vocabulary-violation` (T06.07 — per-emission wire-shape), `DM-003-found-n-times-invariant-violation` (T06.05 — per-emission counter-shape), and `DM-003-fixed-field-invariant-violation` (T06.03 — per-emission boundary fixed-field), because the INV-021 + R-126 gates scope the **execution-layer + merge-step layer** spanning cohort-wide parallelism and post-emission severity / count preservation across the merge boundary. All three rejections MUST NOT be silently coerced. Rationale: a per-cohort N-1 concurrency invariant pinned at the orchestrator boundary makes the parallel-research property NFR-CONV.10 auditable across the exhausted-partition case (a sibling cohort serialized behind an exhausted partition's synthesis would multiply the wall-clock cost of the partition-research pipeline by the number of exhausted partitions, breaking the constant-factor parallelism that NFR-CONV.10 ratifies, and a regression here would be invisible to per-emission gates because the synthetic block itself would still pass DM-003 / API-003 / R-122 / INV-012 checks); a real-findings-preservation invariant pinned at the merge-step boundary distinguishes the strictly-additive synthetic emission from a replacement / coalesce / filter merge (a non-additive merge could let a partition that succeeded on K real findings have those K findings absorbed into the synthetic emission for an exhausted sibling, silently reducing the merged report's information content and breaking R-126 alongside-not-replacement; the per-emission gates cannot detect this failure because each individual synthetic block is well-formed — the failure emerges only at the cohort-level count comparison); a merge-step-layer HIGH non-overridable invariant distinct from the per-emission DM-003 fixed-field invariant scopes the override failure to its actual emergence boundary (the per-emission DM-003 gate catches `severity != HIGH` at the emitter; the R-126 merge-step gate catches downstream override attempts that bypass the emitter — both layers are needed because the wire format is preserved post-emission but the merge step can still apply transforms, and a single conflated symbol would force operators to read the full execution log to triangulate which layer failed); three distinct named rejection symbols at the execution-layer + merge-step layer let operator tooling grep-distinguish cohort serialization failures (spawn-log timing pathology) from real-findings replacement failures (merge-step count pathology) from merge-step severity override failures (merge-step severity-transform pathology) without false positives across the layers.
 
-**Dedup key (composition with PR-02 Retry Monotonicity, INV-012).** Two synthetic findings emitted across consecutive retry cycles for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` collapse into ONE finding annotated `found N times`. This prevents the dedup case from reading as a regression to the PR-02 monotonicity guard (the same partition failed the same way twice is dedup, not regression). Two synthetics with DIFFERENT escalation_ladder_exhaust_points (e.g., partition A failed via WebSearch exhaustion at cycle N, then via /rf:opinion timeout at cycle N+1) are DISTINCT findings.
+**Dedup key (composition with PR-02 Retry Monotonicity, INV-012).** Two synthetic findings emitted across consecutive retry cycles for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` collapse into ONE finding annotated `found N times`. This prevents the dedup case from reading as a regression to the PR-02 monotonicity guard (the same partition failed the same way twice is dedup, not regression). Two synthetics with DIFFERENT escalation_ladder_exhaust_points are DISTINCT findings.
 
 This protocol applies symmetrically to:
 
 - A.8 research-gate partition spawns of rf-analyst + rf-qa
 - A.10 task-integrity partition spawns of rf-qa (when partitioning is invoked)
 - A.10.5 qualitative partition spawns of rf-qa-qualitative
+
+**Synthetic-dnsp merge step for A.8 (R-127, COMP-001-M6 - A.8 Research Quality Gate merge).** Before the **Gate evaluation** paragraph below reads the analyst + QA reports, the orchestrator MUST scan each partition agent's normal output stream for `source: "synthetic-dnsp"` blocks emitted under the API-003-M6 wire-shape contract and merge them into the partition-cohort findings set ALONGSIDE the real analyst + QA findings. Merge semantics: (a) the merge is **strictly additive**: post-merge real-finding count MUST equal pre-merge real-finding count plus synthetic count; (b) the synthetic `severity: HIGH` value is **non-overridable across the merge**; (c) **within-cycle dedup-key collapse (R-123)** MUST run BEFORE the merged set is handed to gate evaluation; (d) **cross-cycle dedup composition (R-124, INV-012)** MUST run before the PR-02 monotonicity comparison; (e) the **all-agents-fail guard (R-122)** MUST have run BEFORE this merge step. The Gate evaluation paragraph then treats each merged synthetic-dnsp record as a real finding: a present synthetic-dnsp record causes FAIL until the operator manually reviews per its fixed `recommendation` literal `Manual review required — partition agent failed twice` (R-117); the gap-fill cycle MUST NOT attempt to auto-resolve synthetic-dnsp records.
 
 ### A.8.5: Optional Web Research
 
@@ -786,6 +972,8 @@ not override verified code behavior. If you find a discrepancy, note it explicit
 
 Spawn the `rf-task-builder` agent via the Agent tool. The builder reads all research files and the MDTM template, then creates the task file incrementally.
 
+**Skill-delegated BUILD_REQUEST check:** Before constructing the BUILD_REQUEST inline, check if a `BUILD-REQUEST.md` file exists in the task directory (`${TASK_DIR}BUILD-REQUEST.md` or the file path provided at A.1). If found, read its content and use it as the BUILD_REQUEST text block in the agent prompt below — replacing ONLY the inline `BUILD_REQUEST:\n==============\n...` content. Preserve the Agent tool invocation structure (`subagent_type: "rf-task-builder"`, `mode: "bypassPermissions"` wrapper) and all orchestrator mediation logic (RESEARCH_NEEDED, MALFORMED, NEED_USER_INPUT flows). If no BUILD-REQUEST.md file exists, construct the BUILD_REQUEST inline as normal (the default for user-invoked builds).
+
 **BUILD_REQUEST format for the subagent prompt:**
 
 ```text
@@ -805,12 +993,59 @@ Agent:
       01 = simple task, known inputs/outputs, direct transformation
       02 = complex task requiring discovery, build, test, review phases]
 
+    QA_INTENSITY: [lite / standard / full]  (per I22 — determined by calling skill's tier mapping or user override)
     QA_GATE_REQUIREMENTS: [Default: FINAL_ONLY for Template 01, PER_PHASE
       for Template 02. NONE = no QA gates in generated task file. FINAL_ONLY
       = include a final QA validation phase before task completion.
-      PER_PHASE = include QA gates after each major phase. When QA gates are
-      required, the task file must include checklist items that spawn
-      rf-analyst and/or rf-qa to verify phase outputs before proceeding.
+      PER_PHASE = include QA gates after each major phase.
+
+      MANDATORY QA ENCODING RULES (apply to FINAL_ONLY and PER_PHASE):
+      1. Agent counts per QA gate are determined by the BUILD_REQUEST's QA_INTENSITY field per I22: lite = 3 agents minimum (1 structural + 1 content + 1 domain), standard = 7 agents minimum (3 structural + 3 content + 1 domain), full = 6+ agents minimum (3 rf-qa + 3 rf-qa-qualitative per I19, plus domain lenses). Gates with fewer than the I22 minimum for the specified intensity
+         are PROHIBITED and will be REJECTED during A.10.5.
+      2. Each agent gets a SPECIFIC LENS FOCUS (not generic "check everything").
+         Standard structural lenses: template-conformance, internal-consistency,
+         evidence-quality, completeness.
+         Standard content lenses: actionability, numbers-metrics,
+         crossref-chain-integrity, domain-accuracy.
+      3. Follow MDTM M3 (Lens-Based QA Sequence): spawn all lens agents
+         in parallel with fix_authorization: false, consolidate findings,
+         spawn single fix agent, then verification round.
+      4. If the task produces documents >500 lines OR transforms source
+         material into a different format, include a source-document fidelity
+         gate per MDTM M4 and I21 (SOURCE-DOCUMENT FIDELITY GATE REQUIREMENT):
+         agents read BOTH source inputs AND output to verify faithful
+         representation. See I21 for full applicability criteria.
+      5. QA gate items MUST be explicit checklist items (`- [ ]`) in the
+         task file, not prose descriptions.
+      6. All QA agent prompts include adversarial framing.
+      7. Scale agents UP for larger outputs per MDTM I19:
+         <500 lines: 6 agents, 500-1500: 8, 1500-3000: 10, >3000: 12.
+      8. Follow MDTM I20 (Serialized Fix Authorization): NEVER give
+         fix_authorization: true to multiple agents simultaneously.
+         All lens agents REPORT ONLY. A single fix agent applies all
+         fixes after consolidation.
+
+      INTERMEDIATE GATE MINIMUMS (per MDTM I19 — for research-gate,
+      synthesis-gate, and task-integrity gates within generated task files):
+      | Gate | Min Agents | Agent Types |
+      |------|-----------|-------------|
+      | Research gate | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality + gap-detection) + 1 rf-qa-qualitative (research-depth) |
+      | Synthesis gate | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + content-quality) + 1 rf-qa-qualitative (synthesis coherence) |
+
+      GUIDANCE: For intermediate gates (research-gate, synthesis-gate),
+      use the intermediate agent mix above. For final-document gates
+      (phase-gate QA, assembled output QA), use 3 rf-qa + 3 rf-qa-qualitative
+      (minimum 6). The two tables serve different purposes — do not
+      apply the final-document minimum (per I22) to intermediate gates,
+      and do not apply the intermediate 5-agent mix to final-document gates.
+
+      LENS-TO-AGENT MAPPING NOTE: When fewer agents than lenses are
+      available (e.g., 3 agents for 4 lenses at the <500 line tier),
+      combine related lenses per agent: e.g., template-conformance +
+      completeness on one agent, internal-consistency + evidence-quality
+      on another. Each agent's prompt must list ALL assigned lenses.
+      At higher tiers (4+ agents per type), assign one lens per agent.
+
       The orchestrator determines the value based on GOAL complexity and
       template selection.]
 
@@ -828,31 +1063,16 @@ Agent:
       test file locations, test naming conventions, coverage targets, and
       verification commands.]
 
-    EXECUTION_CONTEXT_REQUIREMENTS: [OPTIONAL signal (API-001-M2) controlling
-      the `## Execution Context` block emission in the generated MDTM. Governs
-      DM-001-frozen (T01.13 / D-0011 § 1) emitters defined in the EXECUTION
-      CONTEXT BLOCK section below. Values:
-      - AUTO (default) — builder emits the block when BUILD_REQUEST exposes
-        rollup signal (≥3 distinct named source areas inferable from research
-        findings). Fully-populated form renders all 3 labeled bullets
-        (References, Source areas, Key constraints). Minimal form (GOAL-only
-        BUILD_REQUEST) degenerates to References-only with Source areas and
-        Key constraints bullets ABSENT (not blank-but-present).
-      - REQUIRED — builder MUST emit the block. The degraded References-only
-        form is permitted when only GOAL is populated; suppressing the block
-        entirely is a MALFORMED output.
-      - SUPPRESS — builder MUST NOT emit the block. Per-item Context fields
-        remain unchanged regardless. Used for thin / throwaway task files.
-      Omission of this field implies AUTO. Strictly additive — when absent
-      or AUTO, the M1-frozen 15-field BUILD_REQUEST behavior is preserved
-      byte-identical. Failure mode: MALFORMED retry max-2 (Critical Rule #12
-      and the MALFORMED flow at SKILL.md A.9 mediation) applies when the
-      builder violates this signal — e.g., emitting the block under SUPPRESS,
-      or omitting the block under REQUIRED.]
+    EXECUTION_CONTEXT_INSTRUCTION: The builder MUST populate the `## Execution Context` section that is present in the MDTM template (immediately after Prerequisites & Dependencies). Populate all three sub-bullets using research findings:
+      - **References:** BUILD_REQUEST GOAL verbatim; WHY summary; related-doc IDs (R-001, R-002, ...)
+      - **Source areas:** named modules/packages identified in research -- NEVER specific file:line paths (e.g., "rf-qa agent prompts", "task-builder skill body")
+      - **Key constraints:** top 1-3 invariants from QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS or research findings
+      Omit any sub-bullet that lacks data. If GOAL is the only signal, emit References only.
+      NO specific path.py:NN references in this block -- those belong in per-item Context fields.
 
     POST_REFLECT_GATE: ENABLED
       SPEC_PATH: <spec_path or NONE>
-      DEPTH: <max(tcs-derived depth, standard)>   # POST floor per O4 — never quick
+      DEPTH: <max(tcs-derived depth, standard)>   # POST floor per O4, never quick
       TASK_FILE: ${TASK_FILE}
 
     DOCUMENTATION STALENESS WARNINGS:
@@ -875,7 +1095,9 @@ Agent:
     The research was reviewed by analyst and QA agents. Their reports are
     in ${TASK_DIR}qa/:
     - qa/analyst-completeness-report.md — completeness verification
-    - qa/qa-research-gate-report.md — zero-trust quality assessment
+    - qa/qa-research-evidence-report.md — evidence quality verification
+    - qa/qa-research-gap-report.md — gap detection and coverage analysis
+    - qa/qa-research-depth-report.md — research depth assessment
     [If gap-fill was needed: gap-fill research is in NN-gap-fill.md]
 
     OPEN QUESTIONS (could not be resolved by research):
@@ -892,6 +1114,67 @@ Agent:
     batch items like "document all 14 handlers in a single item." Each
     handler gets its own item. The research files contain per-file detail
     specifically to enable this granularity.
+
+    CRITICAL — QA GATE ENCODING REQUIREMENT:
+    When QA_GATE_REQUIREMENTS is FINAL_ONLY or PER_PHASE, you MUST encode
+    QA gates as explicit checklist items in the task file following these
+    patterns from the MDTM template:
+
+    M3 — LENS-BASED QA SEQUENCE (mandatory for every QA gate):
+    1. Spawn lens-based rf-qa agents in PARALLEL (fix_authorization: false)
+       — each agent has a SPECIFIC lens (template-conformance, internal-
+       consistency, evidence-quality, completeness). Minimum 3 rf-qa agents.
+    2. Spawn lens-based rf-qa-qualitative agents in PARALLEL
+       (fix_authorization: false) — each agent has a SPECIFIC lens
+       (actionability, numbers-metrics, crossref-chain, domain-accuracy).
+       Minimum 3 rf-qa-qualitative agents.
+    3. Consolidate all findings into a single findings file.
+    4. Spawn ONE fix agent (fix_authorization: true) with consolidated
+       findings to apply ALL fixes.
+    5. Spawn verification agents to confirm fixes applied correctly.
+    6. Max 3 fix-verify cycles.
+
+    M4 — SOURCE FIDELITY GATE (mandatory when output >500 lines):
+    After M3 completes, spawn fidelity agents that read BOTH source inputs
+    AND the generated output to verify faithful representation. Minimum 2
+    fidelity agents.
+
+    I19 — MINIMUM AGENT COUNTS (FLOORS, not targets):
+
+    Final-document / assembled output QA:
+    <500 lines output: 6 agents (3 rf-qa + 3 rf-qa-qualitative)
+    500-1500 lines: 8 agents (4+4)
+    1500-3000 lines: 10 agents (5+5)
+    >3000 lines: 12 agents (6+6)
+    Domain-specific lenses are ADDITIONAL to these counts.
+
+    Intermediate gate minimums (research-gate, synthesis-gate):
+    | Gate | Min Agents | Agent Types |
+    |------|-----------|-------------|
+    | Research gate | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality + gap-detection) + 1 rf-qa-qualitative (research-depth) |
+    | Synthesis gate | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + content-quality) + 1 rf-qa-qualitative (synthesis coherence) |
+
+    GUIDANCE: For intermediate gates, use the intermediate agent mix.
+    For final-document gates, use 3 rf-qa + 3 rf-qa-qualitative (minimum 6).
+
+    I20 — SERIALIZED FIX AUTHORIZATION:
+    NEVER give fix_authorization: true to multiple agents simultaneously.
+    All lens agents REPORT ONLY. A single fix agent applies all fixes.
+
+    I21 — SOURCE-DOCUMENT FIDELITY GATE REQUIREMENT:
+    A source-document fidelity gate (M4) is MANDATORY when:
+    (a) the task produces documents >500 lines, OR
+    (b) the task transforms source material into a different format (e.g.,
+        research → report, code → documentation, spec → implementation plan).
+    When I21 applies, the fidelity gate must be encoded as explicit checklist
+    items AFTER the M3 lens-based QA sequence. Fidelity agents read BOTH
+    source inputs AND generated output to verify faithful representation.
+    The builder must evaluate I21 applicability for EVERY QA gate it encodes.
+
+    A final-document QA gate with fewer than 6 agents, or an intermediate
+    gate with fewer than 5 agents, will be REJECTED during task file
+    validation (A.10.5). Encode each QA agent as its own `- [ ]` item
+    with a fully embedded lens-specific prompt.
 
     TO BUILD A GOOD TASK FILE, YOU NEED:
     - Goal and outputs (what to create, where, what format)
@@ -927,108 +1210,9 @@ Agent:
        - ## Task Overview (1-2 paragraphs)
        - ## Key Objectives (bullet list)
        - ## Prerequisites & Dependencies
-       - ## Execution Context (OPTIONAL — see EXECUTION CONTEXT BLOCK below)
     2. THEN: Append each phase ONE AT A TIME using Edit tool.
        One phase per Edit call. Verify each Edit succeeded.
     3. LAST: Append the Task Log section after all phases are written.
-
-    EXECUTION CONTEXT BLOCK (OPTIONAL, TASK-LEVEL ROLL-UP):
-    Emit an `## Execution Context` section immediately after frontmatter
-    (before # Title body content) when BUILD_REQUEST exposes enough rollup
-    signal — typically when ≥3 distinct source areas can be inferred from
-    research files. This is a READING aid for the executor, NOT a substitute
-    for per-item Context fields.
-
-    Signal control (API-001-M2): the `EXECUTION_CONTEXT_REQUIREMENTS`
-    BUILD_REQUEST field overrides the AUTO heuristic when set. REQUIRED
-    forces emission (degraded References-only form permitted on GOAL-only
-    input); SUPPRESS forbids emission (per-item Context fields untouched);
-    AUTO / omission applies the rollup-signal heuristic below. Violation of
-    the signal (emit-under-SUPPRESS or omit-under-REQUIRED) is MALFORMED
-    output and triggers the max-2 retry flow at SKILL.md A.9.
-
-    The block has exactly three sub-bullets, in this order. Each is
-    produced by a distinct emitter governed by the DM-001 contract-freeze
-    (T01.13 / D-0011 § 1). Apply the rules below verbatim — they ARE the
-    implementation (R-033 / R-034 / R-035).
-
-    - **References emitter (DM-001.References — R-033):** A single
-      labeled bullet `**References:**` followed by `R-###: <ref-line>`
-      entries separated by `; `. `###` is a zero-padded ordinal starting
-      at `001`, assigned in stable input order: BUILD_REQUEST GOAL
-      first, then WHY, then each related-doc ID in BUILD_REQUEST source
-      order. `<ref-line>` is the verbatim text of the source field — do
-      not rewrite or summarize; strip only trailing whitespace. ALWAYS
-      present whenever the block is emitted; never blank, never omitted
-      (under minimal-BUILD_REQUEST degradation, GOAL alone produces at
-      least `R-001`).
-    - **Source areas emitter (DM-001.SourceAreas — R-034):** A single
-      labeled bullet `**Source areas:**` followed by named modules or
-      packages, comma-separated (e.g., "rf-qa agent prompts",
-      "task-builder skill body"). Emit only when ≥3 distinct named areas
-      can be inferred from the research files; otherwise OMIT the bullet
-      entirely (do not emit a blank-but-present line). **No-file-paths
-      guard (NFR-CONV.3 hidden-input determinism — MANDATORY
-      pre-emission scan):** the rendered bullet MUST satisfy
-      `grep -cE "src/|/.*:[0-9]+"` returning 0. If any hit is found,
-      reject the candidate, rewrite area names to remove paths and `:NN`
-      line numbers (rename a candidate like `src/superclaude/agents/rf-qa.md`
-      to `rf-qa agent prompt`), and re-scan. Specific `path.py:NN`
-      references belong in per-item Context fields and `research/*.md`,
-      never here.
-    - **Key constraints emitter (DM-001.KeyConstraints — R-035):** A
-      single labeled bullet `**Key constraints:**` followed by 1–3
-      entries separated by `; `. Entries are pulled **verbatim** from
-      BUILD_REQUEST `QA_GATE_REQUIREMENTS` /
-      `VALIDATION_REQUIREMENTS` / `TESTING_REQUIREMENTS` (priority
-      order) or from the highest-severity invariants in research
-      findings — do NOT paraphrase. Bounded strictly to 1–3 entries:
-      when >3 candidates exist, keep the top 3 by priority order and
-      drop the rest (do not concatenate beyond 3). OMIT the bullet
-      entirely when BUILD_REQUEST and research findings produce no
-      clear constraint shortlist.
-
-    Scope-confinement rule (PROTECTS evidence-bound-item invariant): the
-    "no specific file paths" rule applies ONLY to this header. Per-item
-    Context fields and `research/*.md` files MUST retain file:line
-    citations — they are the evidence venue. rf-qa enforces this via
-    TB-Add-7 (header source areas reappear in items) and TB-Add-8
-    (per-item Context fields cite file:line or carry a justified absence
-    comment).
-
-    Degradation rule (R-038 — minimal BUILD_REQUEST → References-only):
-    When BUILD_REQUEST is "minimal" — defined as GOAL is the only populated
-    rollup-signal field (WHY may be empty or duplicate GOAL; no
-    related_docs; no QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS /
-    TESTING_REQUIREMENTS entries; <3 inferable source areas across all
-    research files) — the block degenerates to a single `**References:**`
-    bullet. The Source areas and Key constraints bullets are **absent**
-    from the rendered block (not present-and-blank, not stub-bulleted).
-    The block heading `## Execution Context` remains; the
-    `<!-- OPTIONAL header ... -->` reader-aid comment remains; only the
-    two omitted bullets are physically gone from the output. If even
-    GOAL-derived References cannot be produced (truly empty BUILD_REQUEST),
-    OMIT the entire block — heading included.
-
-    Header-wide hidden-input guard (R-039 — NFR-CONV.3 enforcement at the
-    block boundary, MANDATORY post-assembly scan): after the three
-    emitters have run and the bullets have been concatenated into the
-    candidate block, run `grep -cE "src/|/.*:[0-9]+"` against the byte
-    range from the `## Execution Context` heading line through the
-    closing `---` separator. The count MUST be 0. The per-emitter
-    Source-areas guard at the rule above is a first line of defense; this
-    header-wide guard is the final boundary check, catching any
-    BUILD_REQUEST-derived path leak in References (verbatim GOAL/WHY text)
-    or Key constraints (verbatim invariant text) that the per-emitter
-    rules cannot reach. On any hit (count ≥ 1), DO NOT emit the block —
-    rewrite the offending bullet to remove the path / `:NN` reference
-    (e.g., a GOAL line mentioning `src/foo/bar.py:42` becomes "the foo
-    module" or "the bar handler"), re-run the assembly, and re-scan.
-    Allow at most one rewrite cycle; if the scan still hits, OMIT the
-    entire block and surface a `header-leak-suppressed` annotation in
-    the builder's return value. The check applies uniformly to the
-    fully-populated 3-bullet form and to the degraded References-only
-    form.
 
     TASK FILE LOCATION:
     ${TASK_DIR}${TASK_ID}.md
@@ -1042,8 +1226,12 @@ Agent:
     4. Follow ALL instructions in PART 1 (Sections A-K for template 01;
        A-K + L for template 02)
     5. If anything is missing, note it in the Task Log section
-    6. Create the task file using PART 2 structure (incremental writing)
-    7. Return the task file path as your final output
+    5a. Populate the `## Execution Context` section from the template with References / Source areas / Key constraints drawn from research files and BUILD_REQUEST fields. This section is REQUIRED in every task file (except GOAL-only with no source areas, where it degrades to References-only). Do NOT include specific file:line paths in the block header.
+    6. Encode QA gates per M3/M4/I19/I20/I21 patterns (see QA GATE ENCODING
+       REQUIREMENT above). Every QA gate must have minimum 6 agents with
+       lens-focused prompts. Encode each agent as a separate `- [ ]` item.
+    7. Create the task file using PART 2 structure (incremental writing)
+    8. Return the task file path as your final output
 ```
 
 **Spawning:** Use `Agent` tool with `subagent_type: "rf-task-builder"` and `mode: "bypassPermissions"`. For multi-track, spawn one builder per track — all in a single message for parallel execution.
@@ -1068,149 +1256,228 @@ Agent:
 
 These are SEPARATE retry counters — a builder that returns RESEARCH_NEEDED twice and then produces a malformed file gets 2+2=4 total invocations maximum.
 
-**Halt-precedence note (FR-CONV.5 / API-004 — COMP-001-M5 A.9 invariant tail).** Every retry counter in this section (RESEARCH_NEEDED, MALFORMED) — and every per-gate counter inherited from rf-task-builder/rf-qa — is governed by the strict 4-step ordering rule `regression → monotonicity → hard-cap → proceed`. On every cycle transition `n → n+1`, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string per API-004) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string per API-004); when both conditions would trigger in the same cycle transition, the regression halt is emitted and the monotonicity check is NOT consulted on the regressed item. Each counter keeps its own halt-precedence state — counters are NEVER collapsed across gates. The full ordering chain and worked examples are in the Retry Monotonicity Protocol below and the F-set + ordering precedence subsection.
+**Halt-precedence note (FR-CONV.5 / API-004 -- COMP-001-M5 A.9 invariant tail).** Every retry counter in this section (RESEARCH_NEEDED, MALFORMED) -- and every per-gate counter inherited from rf-task-builder/rf-qa -- is governed by the strict 4-step ordering rule `regression -> monotonicity -> hard-cap -> proceed`. On every cycle transition `n -> n+1`, the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string per API-004) is evaluated BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string per API-004); when both conditions would trigger in the same cycle transition, the regression halt is emitted and the monotonicity check is NOT consulted on the regressed item. Each counter keeps its own halt-precedence state -- counters are NEVER collapsed across gates.
 
-**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 — strengthens zero-trust QA against oscillation):**
+**Retry Monotonicity Protocol (FR-CONV.5 / PR-02 -- strengthens zero-trust QA against oscillation):**
 
-This protocol is the FR-CONV.5 halt-guards wrapper layered ON TOP of every existing fix-cycle loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md). The wrapper introduces NO new retry loop and NO new stage — it adds two stop conditions evaluated BEFORE the existing iteration cap fires; the existing 3-cycle hard cap at `rf-team-lead's Fix Cycles rule` is preserved as the fourth-precedence backstop:
+This protocol is the FR-CONV.5 halt-guards wrapper layered ON TOP of every existing fix-cycle loop in task-builder (RESEARCH_NEEDED, MALFORMED, the A.8 research-gate gap-fill loop, the A.10 / A.10.5 fix cycles, rf-task-builder per-gate fix-cycles in rf-task-builder.md, and rf-qa's 3-fix-cycle in rf-qa.md). The wrapper introduces NO new retry loop and NO new stage -- it adds two stop conditions evaluated BEFORE the existing iteration cap fires; the existing 3-cycle hard cap at `rf-team-lead's Fix Cycles rule` is preserved as the fourth-precedence backstop:
 
-1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` — i.e., the failure count did NOT strictly shrink — HALT and emit `[HALT-MONOTONICITY] |F|=<n>` (the byte-exact halt-message wire string per API-004). The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`, e.g., `|F|=5,4`) continues to the existing cap. The monotonicity check is only consulted when `|F_n| > 0` AND only after the regression check has passed for this cycle transition.
-2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (the byte-exact halt-message wire string per API-004). Regression detection fires only on previously-PASS items — legitimate refinement of still-FAILing items does not trigger.
+1. **Monotonicity guard.** Record the count of remaining gate failures `F_n` at the end of each cycle `n`. If `F_{n+1} >= F_n` -- i.e., the failure count did NOT strictly shrink -- HALT and emit `[HALT-MONOTONICITY] |F|=<n>` (the byte-exact halt-message wire string per API-004). The guard fires only on strict non-shrink; legitimate slow convergence (`F_{n+1} = F_n - 1`) continues to the existing cap. The monotonicity check is only consulted when `|F_n| > 0` AND only after the regression check has passed for this cycle transition.
+2. **Regression detection.** Record the set of items that PASSED at the end of each cycle. If any item that PASSed at cycle `n` is FAILing at cycle `n+1`, HALT immediately and emit `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (the byte-exact halt-message wire string per API-004). Regression detection fires only on previously-PASS items -- legitimate refinement of still-FAILing items does not trigger.
 
-**Precedence rule (regression > monotonicity).** Regression detection ALWAYS runs BEFORE the monotonicity check on every cycle transition `n → n+1`. When both conditions would trigger in the same cycle, the regression halt-message is emitted and the monotonicity check is NOT consulted on the regressed item. The full ordering chain (regression → monotonicity → hard-cap → proceed) is documented in the F-set + ordering precedence section.
+**Precedence rule (regression > monotonicity).** Regression detection ALWAYS runs BEFORE the monotonicity check on every cycle transition `n -> n+1`. When both conditions would trigger in the same cycle, the regression halt-message is emitted and the monotonicity check is NOT consulted on the regressed item.
 
-**Independent counters.** Each retry counter keeps its own monotonicity history. RESEARCH_NEEDED, MALFORMED, research-gate gap-fill, A.10 fix cycle, A.10.5 fix cycle, and any per-gate cycles in rf-task-builder/rf-qa each track `F_n` and PASS-set state separately. Counters are NEVER collapsed (preserves the "tracked independently" property documented in Critical Rule #12).
+**Independent counters.** Each retry counter keeps its own monotonicity history. RESEARCH_NEEDED, MALFORMED, research-gate gap-fill, A.10 fix cycle, A.10.5 fix cycle, and any per-gate cycles in rf-task-builder/rf-qa each track `F_n` and PASS-set state separately. Counters are NEVER collapsed.
 
-**Composition with PR-03 DNSP synthetic findings (INV-012 acceptance criterion).** Synthetic findings emitted by the DNSP protocol (PR-03) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. BUT a synthetic finding with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key appearing across consecutive cycles is a DEDUP case, NOT a regression — the same partition failed the same way twice; the regression-detection logic must compare by dedup key, not by raw finding count, when synthetic-dnsp items are involved. Two synthetic findings with identical dedup keys collapse into one with a "found N times" note (cf. PR-03 dedup behavior).
+**Composition with PR-03 DNSP synthetic findings (INV-012 acceptance criterion).** Synthetic findings emitted by the DNSP protocol (PR-03) COUNT as failures for the `|F_n|` monotonicity comparison. BUT a synthetic finding with the same `(assigned_files_range, escalation_ladder_exhaust_point)` dedup key appearing across consecutive cycles is a DEDUP case, NOT a regression. Two synthetic findings with identical dedup keys collapse into one with a "found N times" note.
 
 **Single-cycle case.** If the first cycle PASSes, no second cycle runs; both guards are no-ops by construction.
 
-**API-004 Fix-Loop Halt Signals — wire ABI (M5 contract freeze):**
-
-This subsection is the byte-exact wire ABI for inter-loop halt signals. Producers (every fix-cycle loop above) MUST emit these strings verbatim; consumers (fixture asserts, execution-log scanners, downstream wrappers) MUST match them byte-for-byte. No paraphrasing, capitalisation drift, or whitespace deviation is permitted.
-
-**Halt-message strings (byte-exact wire form):**
+**API-004 Fix-Loop Halt Signals -- wire ABI (M5 contract freeze):**
 
 | Signal | Wire string (byte-exact) | Substitution |
 |---|---|---|
-| Monotonicity halt | `[HALT-MONOTONICITY] |F|=<n>` | `<n>` ← the integer cardinality `|F_{n+1}|` at the cycle the guard fires (the non-shrinking count) |
-| Regression halt | `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` | `X.Y` ← the regressed item identifier; `N` ← the prior-PASS cycle number |
-
-The em-dash `—` (U+2014) in the regression message and the literal pipe characters around `|F|` are part of the wire string. Substitutions are positional only — no surrounding whitespace, formatting, or punctuation may be altered.
+| Monotonicity halt | `[HALT-MONOTONICITY] \|F\|=<n>` | `<n>` <- the integer cardinality `\|F_{n+1}\|` at the cycle the guard fires |
+| Regression halt | `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` | `X.Y` <- the regressed item identifier; `N` <- the prior-PASS cycle number |
 
 **F-set definition (item identity = dedup-key, cardinality post-dedup):**
 
-`F_n` is the SET (not multiset) of FAIL-verdict items at the end of fix cycle `n`. Set membership is determined by the dedup-key:
+`F_n` is the SET of FAIL-verdict items at the end of fix cycle `n`. Set membership is determined by the dedup-key:
 
 - For ordinary checklist items: dedup-key = item ID (e.g., `3.2`).
 - For synthetic-dnsp findings (PR-03): dedup-key = `(assigned_files_range, escalation_ladder_exhaust_point)`.
 
-`|F_n|` is the cardinality of `F_n` AFTER dedup-key deduplication — two failures sharing a dedup-key collapse to one element BEFORE the monotonicity comparison is computed. The regression check uses the same dedup-key identity, so a synthetic-dnsp finding with an identical dedup-key re-emitted on cycle `n+1` is NOT a regression (the prior verdict was FAIL, not PASS); it is the INV-012 cross-cycle dedup case.
+`|F_n|` is the cardinality of `F_n` AFTER dedup-key deduplication.
 
-**4-step ordering rule (strict per cycle transition `n → n+1`):**
+**4-step ordering rule (strict per cycle transition `n -> n+1`):**
 
-On every cycle transition `n → n+1`, run the following steps in this exact order and EXIT on the first match — `regression → monotonicity → hard-cap → proceed`:
+On every cycle transition `n -> n+1`, run the following steps in this exact order and EXIT on the first match -- `regression -> monotonicity -> hard-cap -> proceed`:
 
 1. **Regression check.** If any item with verdict PASS at end-of-cycle-`n` has verdict FAIL at end-of-cycle-`n+1` (by dedup-key identity), HALT and emit the byte-exact regression halt-message. Do NOT consult subsequent steps.
 2. **Monotonicity check.** If `|F_n| > 0` AND `|F_{n+1}| >= |F_n|` (cardinality after dedup), HALT and emit the byte-exact monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (with `<n>` = `|F_{n+1}|`). Do NOT consult subsequent steps.
-3. **Hard-cap check.** If the per-gate cycle counter has reached the gate-specific cap (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3 — see the rf-task-builder.md per-gate cap table, with the global 3-cycle backstop at `rf-team-lead's Fix Cycles rule`), HALT per the gate's existing escalation path (HALT-and-escalate or Open Questions).
+3. **Hard-cap check.** If the per-gate cycle counter has reached the gate-specific cap (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3 -- see the rf-task-builder.md per-gate cap table, with the global 3-cycle backstop at `rf-team-lead's Fix Cycles rule`), HALT per the gate's existing escalation path (HALT-and-escalate or Open Questions).
 4. **Proceed.** Re-spawn the fix cycle for cycle `n+1`.
 
 Strict ordering invariant: regression ALWAYS exits BEFORE monotonicity; monotonicity ALWAYS exits BEFORE hard-cap; hard-cap ALWAYS exits BEFORE proceed. Producers MUST NOT reorder or skip steps; consumers (fixture asserts) MUST verify ordering by emission ordering in the execution log.
 
-**INV-012 cross-cycle dedup composition (operational rule):**
-
-Synthetic-dnsp findings (PR-03 / FR-CONV.6) COUNT as failures for the `|F_n|` monotonicity comparison — they are real, citable evidence items. **BUT** a synthetic finding with an identical `dedup_key` `(assigned_files_range, escalation_ladder_exhaust_point)` across consecutive cycles is a **DEDUP case, NOT a regression** — its prior-cycle verdict was already FAIL, not PASS. It contributes `1` (not `2`) to `|F_{n+1}|`, and if it persists with nothing else changing it WILL trip the monotonicity guard — the intended behavior. This is the cross-cycle wiring of the F-set identity rule above (L1042-1048).
-
-**Cross-cycle dedup-key tracking (bookkeeping rule).** Each fix-cycle gate records, at end-of-cycle `n`, the FAIL-verdict set `F_n` keyed by dedup-key (ordinary item ID for checklist items; `(assigned_files_range, escalation_ladder_exhaust_point)` 2-tuple for synthetic-dnsp findings — DM-003 contract row). The next cycle's `F_{n+1}` is computed by the same dedup-key identity, so a synthetic-dnsp finding with the same 2-tuple re-emitted on cycle `n+1` collapses with its cycle-`n` counterpart into a single element of `F_{n+1}` BEFORE the monotonicity comparison runs. No additional per-cycle state is required beyond the F-set itself.
-
-**Regression vs. persistence (cross-cycle decision rule).** The regression check at Step 1 of the 4-step ordering rule (L1054) requires `dedup_key ∈ PASS_n ∩ FAIL_{n+1}`. A synthetic-dnsp finding whose dedup-key was in `F_n` (FAIL_n) and is again in `F_{n+1}` (FAIL_{n+1}) has dedup_key ∉ PASS_n, so it is NEVER a regression — it is **persistence**. Persistence trips Step 2 (monotonicity) if and only if it makes `|F_{n+1}| >= |F_n|` (intended halt — the partition agent is stuck). Persistence with strict shrink elsewhere (e.g., `F_n = {item-3.1, synthetic-K}`, `F_{n+1} = {synthetic-K}` → `|F_{n+1}| = 1 < 2 = |F_n|`) continues to cycle `n+2` per Step 4 (proceed).
-
-**Worked examples (operational illustration):**
-
-1. **Cross-cycle dedup, strict shrink, no halt.** Cycle 1 `F_1 = {item-3.1, item-3.2, synthetic-K}` (`|F_1|=3`); cycle 2 `F_2 = {item-3.2, synthetic-K}` (`|F_2|=2`). Step 1 regression check: `PASS_1 ∩ FAIL_2 = ∅` (item-3.1 was FAIL_1, not PASS_1; synthetic-K was FAIL_1). Step 2 monotonicity check: `|F_2|=2 < |F_1|=3` → strict shrink → PROCEED. Step 4 re-spawns cycle 3. Synthetic-K's cross-cycle persistence contributes 1 to `|F_2|` (not 2), per the dedup-key identity rule.
-2. **Cross-cycle dedup, non-shrink, monotonicity halt (intended).** Cycle 1 `F_1 = {item-3.1, synthetic-K}` (`|F_1|=2`); cycle 2 `F_2 = {item-3.2, synthetic-K}` (`|F_2|=2`). Step 1 regression check: `PASS_1 ∩ FAIL_2 = ∅` (item-3.1 → PASS_2; item-3.2 was not in PASS_1; synthetic-K was FAIL_1). Step 2 monotonicity check: `|F_2|=2 >= |F_1|=2` → HALT `[HALT-MONOTONICITY] |F|=2`. The partition agent is stuck; the existing per-gate counter and the `rf-team-lead's Fix Cycles rule` 3-cycle backstop still govern the eventual hard-cap escalation if the operator overrides the monotonicity halt.
-3. **Same-cycle dedup collapse (no cross-cycle interaction).** Two synthetic findings emitted on the SAME cycle with the same `dedup_key` collapse into one record with a `found N times` note (PR-03 emitter behavior). They contribute 1 to `|F_n|`, not 2. Cross-cycle composition then operates on the post-collapse set.
-
-**Regression non-emission invariant (cross-cycle synthetic-dnsp).** A regression halt MUST NOT be emitted for any item whose dedup-key was in `F_n` (i.e., FAIL_n) — regardless of whether the item is a synthetic-dnsp finding or an ordinary checklist item. The Step 1 set predicate `dedup_key ∈ PASS_n ∩ FAIL_{n+1}` is the only condition that fires the regression halt; cross-cycle dedup is excluded from regression by construction of the predicate. Consumers (fixture asserts) MUST verify `grep -c "Regression detected on Item" <execution-log>` returns `0` for any cross-cycle same-dedup_key transition; the cross-cycle synthetic-dnsp fixture (TEST-022 at T05.14 / D-0065) codifies this invariant.
+**Regression non-emission invariant (cross-cycle synthetic-dnsp).** A regression halt MUST NOT be emitted for any item whose dedup-key was in `F_n` (i.e., FAIL_n) -- regardless of whether the item is a synthetic-dnsp finding or an ordinary checklist item. The Step 1 set predicate `dedup_key ∈ PASS_n ∩ FAIL_{n+1}` is the only condition that fires the regression halt; cross-cycle dedup is excluded from regression by construction of the predicate. Consumers (fixture asserts) MUST verify `grep -c "Regression detected on Item" <execution-log>` returns `0` for any cross-cycle same-dedup_key transition; the cross-cycle synthetic-dnsp fixture (TEST-022 at T05.14 / D-0065) codifies this invariant.
 
 ### A.10: Task File Validation
 
-After the builder returns a task file path, validate the task file before presenting to the user.
+After the builder returns a task file path, validate the task file before presenting to the user. Spawn 2 rf-qa agents in parallel, each with a focused structural lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated findings.
 
-**Spawn rf-qa:** Use the Agent tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
+**Spawn 2 rf-qa agents in parallel** — two Agent calls in one message, both with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+**ADVERSARIAL STANCE for both agents:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 **QA prompt:**
 
 ```text
-QA_MODE: task-integrity
-fix_authorization: true
+Agent 1 (rf-qa — B2 self-containment lens):
+  QA_MODE: task-integrity
+  LENS: b2-self-containment
+  fix_authorization: false
 
-TASK FILE: [path to the task file the builder created]
-TEMPLATE USED: [01 or 02]
-TRACK GOAL: [goal for this track]
-RESEARCH DIR: ${TASK_DIR}research/
+  TASK FILE: [path to the task file the builder created]
+  TEMPLATE USED: [01 or 02]
+  TRACK GOAL: [goal for this track]
+  RESEARCH DIR: ${TASK_DIR}research/
 
-ESCALATION — CRITICAL OVERRIDE:
-You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate,
-or TaskList. You are a standalone agent invoked via the Agent tool. Return
-your verdict and report file path as your final output.
+  ESCALATION — CRITICAL OVERRIDE:
+  You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate,
+  or TaskList. You are a standalone agent invoked via the Agent tool. Return
+  your verdict and report file path as your final output.
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+  **ADVERSARIAL STANCE:** Assume the work contains errors. Find at least 5 issues — a verdict of 0 issues requires extraordinary evidence you thoroughly checked.
 
-Validate the task file against template requirements:
-1. YAML frontmatter complete and well-formed?
-2. All mandatory sections present per template?
-3. Checklist items are self-contained (context + action + output + verification + completion gate)?
-4. Granularity check: no batch items like "do all X" — each file/component has its own item?
-5. Evidence-based: items reference specific file paths, not vague descriptions?
-6. No items based on [CODE-CONTRADICTED] or [UNVERIFIED] findings?
-7. Open Questions and remaining gaps documented (if any were passed from quality gate)?
-8. Phase dependencies are logical (no circular or missing dependencies)?
-9. Estimated item count is reasonable for the scope?
+  YOUR LENS FOCUS: Verify every checklist item is SELF-CONTAINED per MDTM B2.
+  An item must have context + action + output + verification + completion gate.
+  An item that says "see above" or "continue from previous" FAILS.
 
-Structural Gate Additions (TB-Add-1 through TB-Add-7, imported from sc:tasklist 17-point pre-write gate per CB-3 per-check classification — see rf-qa agent definition for full rationale):
-10. TB-Add-1: Placeholder scan — no item contains `TBD`/`TODO`/`FIXME` and no item is title-only (5-field schema enforced).
-11. TB-Add-2: Item count bounds — track ≥3 and ≤40 items; single-track ≥3 and ≤50. ADVISORY-fail until empirical calibration completes (≥10 completed tasks in `.dev/tasks/done/` across ≥3 task_types).
-12. TB-Add-3: Clarification adjacency — each blocked item references its blocking Open Question by index in Context.
-13. TB-Add-4: Circular dependency detection — item-to-item dependencies form a DAG; no cycles.
-14. TB-Add-5: Granularity / XL splitting — items flagged complex/multi-file are either split into subtasks or carry a justifying comment.
-15. TB-Add-6: Confidence/Verification format consistency — uniform `Verify: ...` prefix and `- ✅`/`- [x]` Acceptance Criteria form.
-16. TB-Add-7: Execution Context source areas reappear in items — every "Source areas:" entry in the `## Execution Context` block reappears in at least one item's Context field; the block itself contains NO specific file:line references. INACTIVE if no Execution Context block exists.
-17. TB-Add-8: Per-item Context evidence binding — every item Context field that references a code surface includes a file:line citation OR an `<!-- evidence-absence: ... -->` justified-absence comment. Structurally proves PR-01's "no specific paths" rule is confined to the header (INV-015 scope-confinement).
+  B2 Self-Containment Checklist:
+  1. Every checklist item has all 5 B2 components?
+  2. No item references context from a prior item without restating it?
+  3. Agent-spawning items have fully embedded prompts (not "see SKILL.md")?
+  4. File paths in items are specific (not "the relevant file")?
+  5. Verification criteria are measurable (not "verify it works")?
+  6. No batch items ("process all X") — each file/component has its own item?
+  7. No items based on [CODE-CONTRADICTED] or [UNVERIFIED] findings?
 
-OUTPUT FILE: ${TASK_DIR}qa/qa-task-validation-report.md
+  OUTPUT FILE: ${TASK_DIR}qa/qa-task-validation-b2-report.md
+  Write the file IMMEDIATELY with a header, then append findings incrementally.
+  Conclude with: VERDICT: PASS or FAIL, and severity-rated issues if FAIL.
 
-Write the file IMMEDIATELY with a header, then append findings incrementally.
+Agent 2 (rf-qa — phase structure/ordering lens):
+  QA_MODE: task-integrity
+  LENS: phase-structure
+  fix_authorization: false
 
-If fix_authorization is true and you find issues: fix them IN-PLACE in the
-task file using Edit, then document what you fixed in your report.
+  TASK FILE: [path to the task file the builder created]
+  TEMPLATE USED: [01 or 02]
+  TRACK GOAL: [goal for this track]
+  RESEARCH DIR: ${TASK_DIR}research/
 
-Conclude with: VERDICT: PASS or FAIL (with list of unfixable issues if FAIL).
+  ESCALATION — CRITICAL OVERRIDE:
+  You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate,
+  or TaskList. You are a standalone agent invoked via the Agent tool. Return
+  your verdict and report file path as your final output.
+
+  **ADVERSARIAL STANCE:** Assume the work contains errors. Find at least 5 issues — a verdict of 0 issues requires extraordinary evidence you thoroughly checked.
+
+  YOUR LENS FOCUS: Verify task file STRUCTURE and PHASE ORDERING.
+
+  Phase Structure Checklist:
+  1. YAML frontmatter complete and well-formed?
+  2. All mandatory sections present per template?
+  3. Phase dependencies are logical (no circular or missing dependencies)?
+  4. Phase ordering follows logical progression (research before build, build before test)?
+  5. Task completion items inside final phase (anti-orphaning)?
+  6. Task Log section present at bottom?
+  7. Estimated item count is reasonable for the scope?
+  8. Open Questions and remaining gaps documented (if any)?
+  9. QA gate items in the task file follow MDTM M3 (lens-based QA sequence)
+     and M4 (source fidelity gate) patterns? (If MDTM template has been
+     updated with these patterns, verify compliance.)
+  Structural Gate Additions (TB-Add-1, TB-Add-3 through TB-Add-8, imported from sc:tasklist 17-point pre-write gate per CB-3 per-check classification, see rf-qa agent definition for full rationale):
+  10. TB-Add-1: Placeholder scan: no item contains `TBD`/`TODO`/`FIXME` and no item is title-only (5-field schema enforced).
+  11. TB-Add-3: Clarification adjacency: each blocked item references its blocking Open Question by index in Context.
+  12. TB-Add-4: Circular dependency detection: item-to-item dependencies form a DAG; no cycles.
+  13. TB-Add-5: Granularity / XL splitting: items flagged complex/multi-file are either split into subtasks or carry a justifying comment.
+  14. TB-Add-6: Confidence/Verification format consistency: uniform `Verify: ...` prefix and `- [x]` Acceptance Criteria form.
+  15. TB-Add-7: Execution Context source areas reappear in items: every "Source areas:" entry in the `## Execution Context` block reappears in at least one item's Context field; the block itself contains NO specific file:line references. INACTIVE if no Execution Context block exists.
+  16. TB-Add-8: Per-item Context evidence binding: every item Context field that references a code surface includes a file:line citation OR an `<!-- evidence-absence: ... -->` justified-absence comment. Structurally proves PR-01's "no specific paths" rule is confined to the header (INV-015 scope-confinement).
+
+  OUTPUT FILE: ${TASK_DIR}qa/qa-task-validation-structure-report.md
+  Write the file IMMEDIATELY with a header, then append findings incrementally.
+  Conclude with: VERDICT: PASS or FAIL, and severity-rated issues if FAIL.
+
+Consolidation + Fix Round:
+  After both agents return, read both reports. Consolidate all findings
+  into ${TASK_DIR}qa/qa-task-validation-consolidated.md. Then spawn a
+  SINGLE rf-qa fix agent (fix_authorization: true) with the consolidated
+  findings list to apply ALL fixes to the task file. After fixes, spawn
+  a verification agent to confirm fixes were applied correctly.
+  Max 3 fix-verify cycles.
 ```
 
-**Synthetic-dnsp merge step (R-128, COMP-001-M6-r18 — A.10 Task File Validation merge).** Before the **Handling the verdict** branch table below routes on rf-qa's `VERDICT:` line, the orchestrator MUST scan the rf-qa partition agent's normal output stream for `source: "synthetic-dnsp"` blocks emitted under the API-003-M6 wire-shape contract (see L674) and merge them into the task-integrity findings set ALONGSIDE the real rf-qa structural-gate findings. Identical merge semantics to the A.8 step (L645) apply at this validation boundary — each invariant binds to a named rejection symbol pinned at L668-L684: (a) **strictly additive** — post-merge real-finding count MUST equal pre-merge real-finding count plus synthetic count (violation → `R-126-real-findings-replacement-violation`); rf-qa structural findings are never dropped, coalesced, filtered, or replaced by synthetic ones; (b) **HIGH severity non-overridable across the merge** (violation → `R-126-severity-override-violation`) — no merge-time severity transform may lower the synthetic-dnsp record below HIGH, and the rf-qa `fix_authorization: true` flag (line 1106 above) MUST NOT auto-resolve, severity-coerce, or in-place-edit synthetic-dnsp records (the partition agent has already exhausted retries; the fix loop has nothing to add); (c) **within-cycle dedup-key collapse (R-123)** runs before verdict handling so two identical-`dedup_key` synthetic blocks emerge as cardinality-1 with `found_n_times` incremented by `+1` (violation → `INV-012-within-cycle-collapse-violation`); (d) **cross-cycle dedup composition (R-124, INV-012)** runs before the PR-02 monotonicity comparison at L1071 so a cycle-`n+1` re-emission with the same `dedup_key` as a cycle-`n` emission contributes `1` (not `2`) to `|F_{n+1}|` (violation → `INV-012-cross-cycle-composition-violation`); (e) the **all-agents-fail guard (R-122)** MUST have run at the rf-qa partition-cohort boundary BEFORE this merge step — when zero rf-qa partitions succeeded the merge is skipped and `rf-team-lead's Fix Cycles rule` activates instead (Path A; violation → `R-122-guard-precedence-violation`). Branch-table interaction with the synthetic-dnsp merged set: any present synthetic-dnsp record MUST route into the **FAIL with unfixable issues** branch below (it persists into the user-presented issue list with its fixed `recommendation` literal `Manual review required — partition agent failed twice` from R-117); the **FAIL with all fixes applied** branch MUST NOT consume synthetic-dnsp records (rf-qa's in-place fix authority does not extend to them — the `recommendation` field is fixed-value invariant and silent fixes would corrupt the dedup_key identity needed for the cross-cycle composition at L682+L1085); the **PASS** branch fires only when both rf-qa's `VERDICT:` is PASS AND the merged synthetic-dnsp count is `0` (a synthetic-dnsp record in the merged set is a "gap regardless of severity" by R-126's HIGH non-overridable invariant, and the A.10 "all findings resolved" criterion mirrors A.8's at L645). The **No verdict emitted** halt branch above remains the upstream gate — the synthetic-dnsp merge step does NOT run when rf-qa's report is absent or its `VERDICT:` line is missing (control halts at end-of-A.10 before merge per the DM-005 `failure_mode: halt-A.10-before-A.10.5` lever). All rejections MUST NOT be silently coerced. Rationale: pinning A.10's merge step at the rf-qa partition output boundary (analogous to A.8's analyst+QA partition output boundary) means the validation gate sees synthetic-dnsp records out of the same merged stream as rf-qa's real structural-gate findings — no separate signalling channel between A.8 and A.10 is needed; the `fix_authorization: true` carve-out for synthetic-dnsp records prevents rf-qa from silently auto-resolving partition-exhaust signals that the operator must manually review per the R-117 contract; the explicit branch-table routing (synthetic-dnsp → FAIL-unfixable; never FAIL-fixed-applied; PASS only when count is 0) makes the validation-gate consumer logic explicit at the merge boundary, so a future A.10 branch addition cannot accidentally let synthetic-dnsp records slip through to PASS.
+**Handling the verdict:**
+
+- **ALL PASS** → Proceed to A.10.25 (research-alignment validation)
+- **ANY FAIL, all fixes applied by fix agent** → Verification confirms fixes. Proceed to A.10.25.
+- **FAIL with unfixable issues after 3 fix-verify cycles** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
+- **No verdict emitted (report file absent OR present but no `VERDICT:` line OR `VERDICT:` value not `PASS`/`FAIL`)** -- treat as a failed cycle, do NOT advance to A.10.25. Re-spawn rf-qa (counts against the A.10 fix-cycle budget, max 3 cycles). At max cycle, surface the missing/malformed report to the user as an Open Question in the task file and proceed to A.10.25 with the issue documented. The orchestrator MUST: (a) check `${TASK_DIR}qa/qa-task-validation-b2-report.md` and `qa-task-validation-structure-report.md` exist on disk; (b) if absent, log `INV-002-no-producer-artifact` and surface the missing-report path to the user; (c) if present, grep for `^VERDICT: (PASS|FAIL)` (case-sensitive, line-anchored); if zero matches, log `INV-002-no-verdict-line` and surface the malformed-report path to the user. DM-005 token: `failure_mode: retry-into-max-cycle-then-Open-Questions`.
+
+### A.10.25: Task File Research-Alignment Validation
+
+After structural QA passes, cross-validate the task file against the research files to ensure the builder faithfully translated research findings into actionable checklist items. This is the 5th agent in the task-integrity gate (A.10 provides 2 rf-qa, A.10.5 provides 2 rf-qa-qualitative, and A.10.25 provides 1 rf-analyst), satisfying the MDTM I19 intermediate gate floor of 5 agents.
+
+**Spawn 1 rf-analyst agent** via Agent tool with `subagent_type: "rf-analyst"`, `mode: "bypassPermissions"`.
+
+**QA prompt:**
+
+```text
+Agent (rf-analyst — task-research-alignment lens):
+  QA_MODE: task-integrity
+  LENS: task-research-alignment
+
+  TASK FILE: [path to the task file the builder created]
+  RESEARCH DIR: ${TASK_DIR}research/
+  TRACK GOAL: [goal for this track]
+
+  ESCALATION — CRITICAL OVERRIDE:
+  You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate,
+  or TaskList. You are a standalone agent invoked via the Agent tool. Return
+  your verdict and report file path as your final output.
+
+  **ADVERSARIAL STANCE:** Assume the builder dropped or misrepresented
+  research findings. Find at least 3 alignment gaps.
+
+  YOUR LENS FOCUS: Cross-validate that every significant finding in the
+  research files has a corresponding checklist item in the task file, and
+  that no task file item fabricates actions not grounded in research.
+
+  Research-Alignment Checklist:
+  1. For each research file, identify its key findings (file paths, patterns,
+     requirements, conventions discovered).
+  2. For each key finding, verify a corresponding task file item exists that
+     acts on that finding.
+  3. Identify any task file items that reference files, patterns, or
+     requirements NOT present in any research file (fabrication check).
+  4. Verify that research-identified edge cases and caveats are reflected
+     in task file verification criteria ("ensuring..." clauses).
+  5. Check that research-identified dependencies between components are
+     reflected in task file phase ordering.
+
+  OUTPUT FILE: ${TASK_DIR}qa/qa-task-research-alignment-report.md
+  Write the file IMMEDIATELY with a header, then append findings incrementally.
+  Conclude with: VERDICT: PASS or FAIL, and severity-rated issues if FAIL.
+```
 
 **Handling the verdict:**
 
 - **PASS** → Proceed to A.10.5 (qualitative validation)
-- **FAIL with all fixes applied** → QA fixed all issues in-place. Proceed to A.10.5.
-- **FAIL with unfixable issues** → Present the issues to the user alongside the task file. Let them decide whether to proceed, fix manually, or re-run.
-- **No verdict emitted (report file absent OR present but no `VERDICT:` line OR `VERDICT:` value not `PASS`/`FAIL`)** → **HALT. Do NOT spawn rf-qa-qualitative.** This operationalises the DM-005 `failure_mode: halt-A.10-before-A.10.5` lever (A.10.6, row 7). The PR-04 passthrough cannot inject a verdict that does not exist; the consumer's anti-inflation enforcement at `rf-qa-qualitative.md:766-775` requires an enumerated PASS/FAIL checklist that only the producer can publish, so proceeding without a verdict would force the consumer to fabricate verification state (an INV-019 / Self-Audit violation by construction). The orchestrator MUST: (a) check `${TASK_DIR}qa/qa-task-validation-report.md` exists on disk; (b) if absent, log `INV-002-no-producer-artifact halt-A.10-before-A.10.5 task=${TASK_DIR}` and surface the missing-report path to the user; (c) if present, grep for `^VERDICT: (PASS|FAIL)` (case-sensitive, line-anchored); if zero matches, log `INV-002-no-verdict-line halt-A.10-before-A.10.5 task=${TASK_DIR} report=${REPORT_PATH}` and surface the malformed-report path to the user with instruction to re-run rf-qa. In both cases, the pipeline stops at end-of-A.10; control does NOT pass to A.10.5; rf-qa-qualitative is NEVER invoked for that task on that cycle. The user resumes the pipeline only after rf-qa is re-run and emits a well-formed `VERDICT:` line (at which point the orchestrator restarts from "Handling the verdict" above and routes via the PASS / FAIL-with-fixes / FAIL-unfixable branch).
+- **FAIL** → Findings are merged into the A.10 consolidated findings file (`qa-task-validation-consolidated.md`). Spawn a NEW rf-qa fix agent (fix_authorization: true) with the alignment findings appended to the consolidated file. This fix agent applies alignment fixes to the task file. After fix, proceed to A.10.5. Maximum 1 fix-verify cycle for A.10.25 findings (independent of A.10's 3-cycle budget). If unfixable after 1 cycle, document issues in the consolidated file and proceed to A.10.5.
+
+**Note on gate composition:** The combined task-integrity gate spans A.10 + A.10.25 + A.10.5 = 2 rf-qa + 1 rf-analyst + 2 rf-qa-qualitative = 5 agents, meeting the MDTM I19 intermediate gate floor.
 
 ### A.10.5: Task File Qualitative Validation
 
-After structural QA passes, validate that the task file would actually succeed if executed. This step catches operational issues that structural QA cannot: gates that will fail, function signatures that don't match the described modifications, downstream dependencies not updated, tests that exercise stubs instead of real artifacts, and runtime paths that break partway through.
+After structural QA passes, validate that the task file would actually succeed if executed AND that it contains sufficient QA gate coverage. Spawn 2 rf-qa-qualitative agents in parallel, each with a focused lens. Use serialized fix authorization: both agents report findings only (fix_authorization: false), then a single fix agent applies all consolidated findings.
 
-**Spawn rf-qa-qualitative:** Use the Agent tool with `subagent_type: "rf-qa-qualitative"`, `mode: "bypassPermissions"`.
+This step catches two categories of issues:
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+- **Operational issues** (Agent 1): gates that will fail, function signatures that don't match the described modifications, downstream dependencies not updated, tests that exercise stubs instead of real artifacts, runtime paths that break partway through.
+- **QA gate sufficiency issues** (Agent 2): generated task files with inadequate QA coverage — too few agents at gates, missing lens-based QA patterns, missing source fidelity gates. This is the enforcement mechanism that closes the QA hardening loop.
 
-**Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — the qualitative agent must verify every target file, not a sample.
+**Spawn 2 rf-qa-qualitative agents in parallel** — two Agent calls in one message, both with `subagent_type: "rf-qa-qualitative"`, `mode: "bypassPermissions"`.
 
-**Inherited Structural Verdict (PR-04 Gate Results Passthrough — operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-report.md` (rf-qa's A.10 output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** — a single span between the `## Items Reviewed` heading and the next top-level (`##`) heading — verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, at the API-002 wire-contract position: after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list — read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` and re-inject the new verdict — never reuse a stale verdict from a prior cycle (INV-002). If `qa-task-validation-report.md` is missing or its `VERDICT:` line is absent/malformed, the upstream A.10 verdict gate has already HALTed per DM-005 `failure_mode: halt-A.10-before-A.10.5` (see "Handling the verdict" branch 4 above) — control never reaches this A.10.5 spawn step on that cycle, so there is no orchestrator-visible "omit the section and fall back" code path. The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule at `rf-qa-qualitative.md:766-775` depends on an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on (an impossible declaration when no producer verdict exists).
+**ADVERSARIAL STANCE for both agents:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+
+**Building the target file list:** Before spawning, read the task file and extract ALL unique source file paths referenced by checklist items (every file that an item reads, modifies, creates, or runs a command against). This is the TARGET_FILE_LIST. Do NOT allow spot-checking — both qualitative agents must verify every target file, not a sample.
+
+**Inherited Structural Verdict (PR-04 Gate Results Passthrough -- operationalises rf-qa-qualitative rule #11):** Before spawning rf-qa-qualitative, read `${TASK_DIR}qa/qa-task-validation-consolidated.md` (rf-qa's A.10 consolidated output). Extract the "Items Reviewed" PASS/FAIL table **contiguously** -- a single span between the `## Items Reviewed` heading and the next top-level (`##`) heading -- verbatim, with no editing/summarising/renaming/re-ordering. **Splice the extracted span byte-for-byte into the rf-qa-qualitative spawn prompt as a `## Inherited Structural Verdict` section, after the TARGET FILES + PROJECT CONVENTIONS context blocks and before the ADVERSARIAL STANCE / INSTRUCTIONS directive blocks.** The orchestrator MUST also dynamically enumerate every TB-Add-* item from rf-qa.md's current checklist (do NOT hand-maintain the list -- read rf-qa.md and pull the live TB-Add catalogue) so the verdict passthrough auto-picks up future structural additions (INV-010). On EVERY fix cycle re-spawn, the orchestrator MUST re-read the freshly-written consolidated report and re-inject the new verdict -- never reuse a stale verdict from a prior cycle (INV-002). If the consolidated report is missing or its `VERDICT:` line is absent/malformed, handle per the DM-005 `failure_mode: retry-into-max-cycle-then-Open-Questions` lever (see A.10 verdict handling).
+
+The consumer agent (rf-qa-qualitative) retains independent standalone capability, but operationally FR-CONV.3 (PR-04 passthrough) + INV-002 (freshness) + INV-010 (dynamic enumeration) require a producer verdict for every spawn: the anti-inflation rule requires an enumerated checklist that only the producer can publish, and the Self-Audit obligation (INV-019) requires the consumer to declare which producer-PASS items it relied on.
 
 **QA prompt:**
 
@@ -1337,37 +1604,22 @@ This procedure operationalises the `freshness_rule: INV-002-reinject-NEW` field 
 1. **Locate `rf-qa.md`.** Resolve the path via the project's agent registry (canonical surface: `src/superclaude/agents/rf-qa.md`; mirror surface: `.claude/agents/rf-qa.md`). The canonical surface is authoritative; the mirror is consulted only when the canonical surface is unreachable.
 2. **Bound the catalogue region.** Identify the `#### Structural Gate Additions` heading and treat the catalogue region as the span from that heading to the next `####`, `###`, or `##` heading (whichever comes first). Enumeration MUST be confined to this span — TB-Add tokens outside the span (e.g., illustrative references in narrative prose) do NOT contribute to the catalogue.
 3. **Extract IDs.** Within the bounded span, match the regex `^[0-9]+\. \*\*TB-Add-([0-9]+):` (Python `re` flavour, MULTILINE) against the span. Each match yields one TB-Add-N ID via the captured integer N.
-4. **Build the live set.** Deduplicate, sort ascending by N, and form `LIVE_TB_ADD = [TB-Add-1, TB-Add-2, …, TB-Add-K]`. K is the runtime size of the catalogue; it is never asserted against a hard-coded constant in this skill.
-5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and halt at end-of-A.10 (re-uses the `failure_mode: halt-A.10-before-A.10.5` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
+4. **Build the live set.** Deduplicate, sort ascending by N, and form `LIVE_TB_ADD = [TB-Add-1, TB-Add-3, …, TB-Add-K]`. K is the runtime size of the catalogue; it is never asserted against a hard-coded constant in this skill.
+5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and retry into the max cycle then Open Questions (re-uses the `failure_mode: retry-into-max-cycle-then-Open-Questions` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
 6. **Forbid hard-coded enumeration in the orchestrator logic.** This A.10.5 procedure block MUST NOT itself enumerate a fixed `[TB-Add-1, …, TB-Add-K]` list as the spawn target. The directive narratives in this section reference the catalogue abstractly (via the dynamic `LIVE_TB_ADD`); only `rf-qa.md` is the source of the live IDs. (Operator self-check: grep for `TB-Add-[0-9]+` inside the A.10.5 span and confirm every match is either a regex pattern, a worked example tagged `illustrative`, or an integrated-checklist reference — never an orchestrator enumeration target.)
 7. **Emit a structured log line.** Write `INV-010: enumerated TB-Add-* catalogue size=K ids=[TB-Add-1,...,TB-Add-K] source=rf-qa.md source_sha256=<hex8>` at every spawn boundary (initial entry and each fix-cycle re-entry). The log is the operator-visible audit-trail and the TEST-010 fixture's (T03.15) assertion surface.
 8. **Auto-richening invariant.** Appending a new `**TB-Add-N+1: <name>` line inside the bounded catalogue region of `rf-qa.md` MUST cause `LIVE_TB_ADD` to grow by exactly one entry on the next spawn — with **zero edits** to this SKILL.md, to orchestrator code, or to any consumer-side configuration. This is the K-007 sequencing-inversion mitigation cited in `roadmap.md` R-069: FR-CONV.1 catalogue additions auto-propagate to the PR-04 passthrough.
 
 This procedure operationalises the `enumeration_rule: INV-010-auto-pick-TB-Add` field of the DM-005 Phase Contract (A.10.6). The structural-diff fixture (TEST-010, T03.15) consumes log lines from step 7 and the LIVE_TB_ADD set assembled in step 4 as its assertion surface — adding a synthetic TB-Add-N+1 stub to `rf-qa.md`'s bounded region and asserting the cycle-2 spawn prompt auto-richens by exactly one TB-Add-N+1 row.
 
-### A.10.6: DM-005 Phase Contract — rf-qa → rf-qa-qualitative (published row)
+### A.10.6: DM-005 Phase Contract -- rf-qa -> rf-qa-qualitative (published row)
 
-Standalone publication of the 10-field producer/consumer agreement that
-governs the A.10 → A.10.5 inter-agent handoff. The contract was frozen
-at M1 (T01.13 / D-0011 § DM-005) and is published here at M2 (T02.04 /
-D-0019) as the wire reference for M3 (FR-CONV.3 / PR-04), which lands
-the orchestrator-mediated spawn-prompt injection. `schema_version: 1.0.0`
-is the baseline for all future inter-agent contracts emitted by this
-skill — any field add, rename, semantic change, or value-type change
-requires a major version bump.
+Standalone publication of the 10-field producer/consumer agreement that governs the A.10 -> A.10.5 inter-agent handoff. The contract was frozen at M1 (T01.13 / D-0011 section DM-005) and is published here as the wire reference for FR-CONV.3 (PR-04), which lands the orchestrator-mediated spawn-prompt injection. `schema_version: 1.0.0` is the baseline for all future inter-agent contracts emitted by this skill.
 
-This is the source-of-truth contract documentation. A.10.5 above is the
-runtime implementation (verbatim Items Reviewed table embed, INV-002
-freshness reinjection, INV-010 dynamic TB-Add enumeration, anti-inflation
-bullet preservation, halt-on-missing-producer-artifact failure mode).
-
-**DM-005 Phase Contract (10 fields, frozen at M1, published at M2):**
+**DM-005 Phase Contract (10 fields):**
 
 ```yaml
-# DM-005 — Phase Contract: rf-qa → rf-qa-qualitative
-# Frozen: M1 (T01.13 / D-0011 § DM-005)
-# Published: M2 (T02.04 / D-0019)
-# Consumed: M3 (FR-CONV.3 / PR-04, A.10.5 spawn-prompt injection)
+# DM-005 -- Phase Contract: rf-qa -> rf-qa-qualitative
 producer: rf-qa
 consumer: rf-qa-qualitative
 artifact: Inherited Structural Verdict block
@@ -1377,56 +1629,47 @@ freshness_rule: INV-002-reinject-NEW
 enumeration_rule: INV-010-auto-pick-TB-Add
 consumer_obligation: INV-019-Self-Audit
 anti_inflation: preserve-766-775-byte-stable
-failure_mode: halt-A.10-before-A.10.5
+failure_mode: retry-into-max-cycle-then-Open-Questions
 ```
 
 **Field-by-field semantics (1.0.0 wire ABI):**
 
-| Field                | Wire Value                          | Meaning |
-|----------------------|-------------------------------------|---------|
-| producer             | `rf-qa`                             | The rf-qa agent invoked under `QA_MODE: task-integrity` (see A.10). Writes the producer artifact to `${TASK_DIR}qa/qa-task-validation-report.md`. |
-| consumer             | `rf-qa-qualitative`                 | The rf-qa-qualitative agent invoked under `QA_PHASE: task-qualitative` (see A.10.5). Consumes the producer artifact via spawn-prompt injection. |
-| artifact             | `Inherited Structural Verdict block`| Named block embedded under heading `## Inherited Structural Verdict` in the consumer's spawn prompt. Contents = the entire "Items Reviewed" PASS/FAIL table from the producer's report, byte-identical (verbatim copy, no editing/summarising/renaming). |
-| schema_version       | `1.0.0`                             | Wire ABI version. Major-version bump REQUIRED for any field add/rename, semantic change, or value-type change. M3 implementers MUST refuse to consume artifacts with a different schema_version until a migration is recorded. |
-| delivery_semantics   | `at-most-once-per-cycle`            | Exactly one verdict block is injected per consumer spawn. On fix-cycle re-spawn, the prior block is REPLACED (not appended) — see freshness_rule. |
-| freshness_rule       | `INV-002-reinject-NEW`              | Orchestrator MUST re-read the freshly-written `qa-task-validation-report.md` on EVERY fix-cycle re-spawn and re-inject the NEW cycle-N verdict. Stale verdicts from prior cycles are forbidden. |
-| enumeration_rule     | `INV-010-auto-pick-TB-Add`          | Orchestrator MUST dynamically enumerate every TB-Add-* item from rf-qa.md's live checklist at injection time (do NOT hand-maintain the list). Future structural additions to rf-qa.md auto-extend the verdict passthrough. |
-| consumer_obligation  | `INV-019-Self-Audit`                | rf-qa-qualitative MUST emit a `## Self-Audit` section listing (a) which rf-qa PASS items it relied on AND (b) ≥1 semantic check where rf-qa PASS was insufficient and the consumer's own tool engagement was required. Reliance is not verification. |
-| anti_inflation       | `preserve-766-775-byte-stable`      | The anti-inflation bullet at the canonical `rf-qa-qualitative.md:766-775` anchor MUST remain byte-identical across releases. No downstream consumer is permitted to edit, paraphrase, or wrap this bullet. |
-| failure_mode         | `halt-A.10-before-A.10.5`           | If `${TASK_DIR}qa/qa-task-validation-report.md` is missing or malformed, orchestrator HALTs the pipeline at end-of-A.10 before invoking A.10.5. Passthrough is an optimisation; the consumer cannot proceed without a valid producer artifact. (When the producer artifact is present but unparseable, A.10.5 falls back to standalone rf-qa-qualitative behavior — see A.10.5 narrative.) |
-
-**Versioning and migration:** `schema_version: 1.0.0` is frozen for the entire M2-through-M6 release window. Any change to the 10 fields above — including renaming, splitting, merging, or altering the wire value format — requires a major version bump to `2.0.0`, a corresponding entry in the release roadmap, and a migration note documenting the cycle in which old (`1.0.0`) producer artifacts stop being accepted by the consumer.
-
-**Cross-references:**
-
-- Runtime implementation: A.10.5 (this skill).
-- Producer prompt: A.10 (this skill) + `rf-qa.md` (task-integrity mode).
-- Consumer prompt: A.10.5 (this skill) + `rf-qa-qualitative.md`.
-- Future consumers of `schema_version: 1.0.0` versioning baseline: every inter-agent contract emitted by this skill after M3.
+| Field | Wire Value | Meaning |
+|---|---|---|
+| producer | `rf-qa` | The rf-qa agent invoked under `QA_MODE: task-integrity` (A.10). Writes consolidated report to `${TASK_DIR}qa/qa-task-validation-consolidated.md`. |
+| consumer | `rf-qa-qualitative` | The rf-qa-qualitative agent invoked under `QA_PHASE: task-qualitative` (A.10.5). Consumes the producer artifact via spawn-prompt injection. |
+| artifact | `Inherited Structural Verdict block` | Named block embedded under heading `## Inherited Structural Verdict` in the consumer's spawn prompt. Contents = the entire "Items Reviewed" PASS/FAIL table from the producer's consolidated report, byte-identical. |
+| schema_version | `1.0.0` | Wire ABI version. Major-version bump REQUIRED for any field add/rename, semantic change, or value-type change. |
+| delivery_semantics | `at-most-once-per-cycle` | Exactly one verdict block is injected per consumer spawn. On fix-cycle re-spawn, the prior block is REPLACED (not appended). |
+| freshness_rule | `INV-002-reinject-NEW` | Orchestrator MUST re-read the freshly-written consolidated report on EVERY fix-cycle re-spawn and re-inject the NEW cycle-N verdict. |
+| enumeration_rule | `INV-010-auto-pick-TB-Add` | Orchestrator MUST dynamically enumerate every TB-Add-* item from rf-qa.md's live checklist at injection time. |
+| consumer_obligation | `INV-019-Self-Audit` | rf-qa-qualitative MUST emit a `## Self-Audit` section listing which rf-qa PASS items it relied on AND >=1 semantic check where rf-qa PASS was insufficient. |
+| anti_inflation | `preserve-766-775-byte-stable` | The anti-inflation bullet at the canonical rf-qa-qualitative.md anchor MUST remain byte-identical across releases. |
+| failure_mode | `retry-into-max-cycle-then-Open-Questions` | If the consolidated report is missing or malformed, orchestrator treats as failed cycle (per DET-015 no-halt decision). |
 
 ### A.10.7: PRE Reflect Gate
 
-After the qualitative gate (A.10.5) passes and the DM-005 phase contract (A.10.6) is recorded, run an independent PRE reflect gate against the just-built tasklist BEFORE presenting results (A.11). This is the cheapest executor-disjoint anti-bias check: the three rf-* gates above verify the tasklist is *present and internally correct*, but they run in the same orchestrator frame and cannot confirm it is *spec-literal-correct and coverage-complete*. The gate is **advisory-blocking** — it records a sign-off verdict and may surface a remediation offer, but it NEVER auto-mutates the tasklist (per `feedback_human_decision_items_must_halt`).
+After the qualitative gate (A.10.5) passes and the DM-005 phase contract (A.10.6) is recorded, run an independent PRE reflect gate against the just-built tasklist BEFORE presenting results (A.11). This is the cheapest executor-disjoint anti-bias check: the three rf-* gates above verify the tasklist is *present and internally correct*, but they run in the same orchestrator frame and cannot confirm it is *spec-literal-correct and coverage-complete*. The gate is **advisory-blocking**: it records a sign-off verdict and may surface a remediation offer, but it NEVER auto-mutates the tasklist.
 
-**Resolve depth and spec.** Compute the Tasklist Complexity Score (see `## Reflect Depth (Deterministic TCS)`) from the finished MDTM file → `pre_depth` (`quick`/`standard`/`deep`; `quick` is permitted at PRE because no diff exists yet). Resolve `spec_path` per the A.2 priority order. If no spec resolves, the gate degrades to `verdict: skipped` (UC-1 coverage is spec-dependent) and proceeds to A.11.
+**Resolve depth and spec.** Compute the Tasklist Complexity Score (see `## Reflect Depth (Deterministic TCS)`) from the finished MDTM file -> `pre_depth` (`quick`/`standard`/`deep`; `quick` is permitted at PRE because no diff exists yet). Resolve `spec_path` per the A.2 priority order. If no spec resolves, the gate degrades to `verdict: skipped` (UC-1 coverage is spec-dependent) and proceeds to A.11.
 
 **Spawn reflect directly.** Invoke `Skill sc:reflect-protocol` via the Agent/Task tool using the **default subagent model** (no model-routing flag), mirroring how `/sc:brainstorm` Wave 3 invokes `Skill sc-adversarial-protocol`. Pass the flag string:
 
 ```text
 --mode pre --remediate
-[--spec <spec_path>]            # omitted ⇒ verdict: skipped (no-spec)
+[--spec <spec_path>]            # omitted => verdict: skipped (no-spec)
 --tasklist <TASK_FILE>
 --depth <pre_depth>            # raw TCS-derived depth; quick permitted at PRE
 --output ${TASK_DIR}reflect/pre/
 ```
 
-Do **NOT** pass `--executor-model` at PRE — no executor has run in `--mode pre`, so excluding an executor class is a category error (it is a POST-only concern, see A.9 `POST_REFLECT_GATE`).
+Do **NOT** pass `--executor-model` at PRE: no executor has run in `--mode pre`, so excluding an executor class is a category error (it is a POST-only concern, see A.9 `POST_REFLECT_GATE`).
 
 **Route the verdict (advisory-blocking).** Consume reflect's return contract (`status`, `coverage_pct`, `unmapped_requirements`, `run_id`). Then:
 
-- `coverage_pct ≥ coverage-floor` (default 0.90) AND `status` not failed → stamp the sign-off block `verdict: pass` and proceed to A.11.
-- else → stamp `verdict: fail`, **additively** append the `unmapped_requirements` list to the tasklist's `### Open Questions` via Edit (NEVER rewrite or delete existing items), and carry the `--remediate` Tier-3 offer into A.11. The build still completes; the tasklist is flagged not-signed-off.
-- no spec → `verdict: skipped` (reason: no-spec); proceed (the rf-* gates remain the only coverage check).
+- `coverage_pct >= coverage-floor` (default 0.90) AND `status` not failed -> stamp the sign-off block `verdict: pass` and proceed to A.11.
+- else -> stamp `verdict: fail`, **additively** append the `unmapped_requirements` list to the tasklist's `### Open Questions` via Edit (NEVER rewrite or delete existing items), and carry the `--remediate` Tier-3 offer into A.11. The build still completes; the tasklist is flagged not-signed-off.
+- no spec -> `verdict: skipped` (reason: no-spec); proceed (the rf-* gates remain the only coverage check).
 
 **Record the sign-off.** Add to the generated tasklist frontmatter:
 
@@ -1441,11 +1684,22 @@ reflect_pre:
   reviewed_at: <ISO-ts>
 ```
 
-**Loop policy: max 0 auto-loops.** The PRE gate NEVER re-invokes the builder automatically — a `fail` verdict is surfaced for operator action only (avoiding the unattended-mutation failure mode). Reflect's findings are spec-level and may require human judgment, unlike the bounded auto-fix of the rf-* gates.
+**Loop policy: max 0 auto-loops.** The PRE gate NEVER re-invokes the builder automatically: a `fail` verdict is surfaced for operator action only (avoiding the unattended-mutation failure mode). Reflect's findings are spec-level and may require human judgment, unlike the bounded auto-fix of the rf-* gates.
 
 ### A.11: Present Results
 
-Present the completed task file to the user with quality gate summary and execution instructions.
+**Check the BUILD_REQUEST for `Source: skill-delegated`:**
+
+If `Source: skill-delegated` is present in the BUILD_REQUEST:
+
+- Do NOT print the TASK FILE BUILD COMPLETE banner
+- Do NOT print the TO EXECUTE instructions
+- Output ONLY this single line: `TASK_FILE_READY: ${TASK_DIR}${TASK_ID}.md`
+- Then STOP -- the calling skill will handle presentation and Stage B invocation.
+
+If `Source: skill-delegated` is NOT present (direct user invocation):
+
+- Present the completed task file to the user with the full banner format below.
 
 **Single-track result format:**
 
@@ -1462,11 +1716,12 @@ RECOMMENDED BATCH SIZE: [N]
 QUALITY GATES:
   Research gate: [PASS/FAIL] ([N] researchers, [N] gap-fill rounds)
   Task structural validation: [PASS/FAIL] ([N] issues fixed in-place)
+  Task research-alignment: [PASS/FAIL] ([N] issues fixed in-place)
   Task qualitative validation: [PASS/FAIL] ([N] issues fixed in-place)
 
 REFLECT GATES:
-  PRE  (--mode pre):  [PASS coverage=0.94 depth=standard tcs=22] | [FAIL coverage=0.71 — see Open Questions] | [SKIPPED no-spec]
-  POST (--mode post): TEMPLATED as final-phase item N.{X-1}  (operator runs /sc:reflect in a fresh session)
+  PRE  (--mode pre):  [PASS coverage=0.94 depth=standard tcs=22] | [FAIL coverage=0.71 see Open Questions] | [SKIPPED no-spec]
+  POST (--mode post): emitted as final-phase item N.{X-1} (the executor runs /sc:reflect via a subagent at the end of the run)
 
 TASK FOLDER: ${TASK_DIR}
   research/   [list each research file and its topic]
@@ -1495,14 +1750,14 @@ TO EXECUTE:
 --- Track 1: [goal] ---
 TASK FILE: .dev/tasks/to-do/TASK-RF-track-1-YYYYMMDD-HHMMSS/TASK-RF-track-1-YYYYMMDD-HHMMSS.md
 TEMPLATE: [01/02] | ITEMS: [X] | PHASES: [N] | BATCH: [N]
-GATES: research=[PASS/FAIL] | validation=[PASS/FAIL]
-REFLECT: pre=[PASS coverage=0.94 depth=standard tcs=22 | FAIL | SKIPPED no-spec] | post=[templated as final-phase item]
+GATES: research=[PASS/FAIL] | structural=[PASS/FAIL] | alignment=[PASS/FAIL] | qualitative=[PASS/FAIL]
+REFLECT: pre=[PASS coverage=0.94 depth=standard tcs=22 | FAIL | SKIPPED no-spec] | post=[final-phase item, executor-run]
 
 --- Track 2: [goal] ---
 TASK FILE: .dev/tasks/to-do/TASK-RF-track-2-YYYYMMDD-HHMMSS/TASK-RF-track-2-YYYYMMDD-HHMMSS.md
 TEMPLATE: [01/02] | ITEMS: [X] | PHASES: [N] | BATCH: [N]
-GATES: research=[PASS/FAIL] | validation=[PASS/FAIL]
-REFLECT: pre=[PASS coverage=0.94 depth=standard tcs=22 | FAIL | SKIPPED no-spec] | post=[templated as final-phase item]
+GATES: research=[PASS/FAIL] | structural=[PASS/FAIL] | alignment=[PASS/FAIL] | qualitative=[PASS/FAIL]
+REFLECT: pre=[PASS coverage=0.94 depth=standard tcs=22 | FAIL | SKIPPED no-spec] | post=[final-phase item, executor-run]
 
 TASK FOLDERS:
 - .dev/tasks/to-do/TASK-RF-track-1-YYYYMMDD-HHMMSS/ (research/ + qa/)
@@ -1524,7 +1779,7 @@ TO EXECUTE:
 
 ## Agent Prompt Templates
 
-This section contains the complete prompt templates for every agent the skill spawns. Each prompt is self-contained — it includes all instructions the agent needs. The orchestrator passes track-specific context (goal, scope, file paths) via template variables.
+This section contains prompt templates and summaries for the agents the skill spawns. For agents with inline prompts in A.8, A.10, and A.10.5, this section provides a structural summary with references to the authoritative inline prompt. The orchestrator passes track-specific context (goal, scope, file paths) via template variables.
 
 ### Researcher Agent Prompt (general-purpose)
 
@@ -1698,6 +1953,8 @@ Spawn via `Agent` tool with `subagent_type: "rf-analyst"`, `mode: "bypassPermiss
 Perform a completeness verification of all research files for [track goal].
 
 Analysis type: completeness-verification
+LENS: completeness
+YOUR LENS FOCUS: Verify that every area from the scope map has corresponding research coverage. You check BREADTH, not depth.
 Research directory: ${TASK_DIR}research/
 Track goal: [goal for this track]
 Depth tier: [Quick/Standard/Deep]
@@ -1742,67 +1999,40 @@ Be adversarial — your job is to find problems, not confirm things work.
 
 ```text
 
-### Research QA Agent Prompt (rf-qa — Research Gate)
+### Research Analyst Agent Prompt (rf-analyst — Cross-Validation)
 
-Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
+A.8 Agent 2. Spawn via `Agent` tool with `subagent_type: "rf-analyst"`, `mode: "bypassPermissions"`. See **A.8** for full inline prompt.
 
-```
+- Lens focus: Cross-validates findings BETWEEN research files — checks for contradictions, inconsistencies, and conflicting claims across different researchers' outputs
+- Output: `${TASK_DIR}qa/analyst-cross-validation-report.md`
+- Adversarial stance and ESCALATION block (no team context)
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+### Research Depth Agent Prompt (rf-qa-qualitative — Research Depth)
 
-Perform QA verification of research completeness for [track goal].
+A.8 Agent 5. Spawn via `Agent` tool with `subagent_type: "rf-qa-qualitative"`, `mode: "bypassPermissions"`. See **A.8** for full inline prompt.
 
-QA phase: research-gate
-fix_authorization: false
-Research directory: ${TASK_DIR}research/
-Analyst report: ${TASK_DIR}qa/analyst-completeness-report.md (if exists)
-Track goal: [goal for this track]
-Depth tier: [Quick/Standard/Deep]
-Output path: ${TASK_DIR}qa/qa-research-gate-report.md
-Assigned files: [list all .md files, or subset if partitioned]
+- Lens focus: Evaluates whether research depth matches the selected tier (Quick/Standard/Deep), checks for shallow investigation signals, and verifies that research is thorough enough for per-file/per-component task items
+- Output: `${TASK_DIR}qa/qa-research-depth-report.md`
+- `fix_authorization: false` (report-only), adversarial stance, ESCALATION block
 
-ESCALATION — CRITICAL OVERRIDE:
-You have NO team context. Do NOT use SendMessage, TaskCreate, TaskUpdate, or TaskList.
-Return your verdict, report file path, and findings summary as your final output.
+### Research QA Agent Prompts (rf-qa — Research Gate, 2 Agents)
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+A.8 spawns TWO rf-qa agents with focused lenses, both with `fix_authorization: false`. See **A.8** for full inline prompts.
 
-You are the last line of defense before the builder creates the task file. Assume
-everything is wrong until you verify it.
+**Agent 3 — Evidence-Quality Lens (rf-qa):**
+- Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`
+- `fix_authorization: false` (report-only)
+- Lens focus: Verifies every claim in research files is evidence-based with actual file paths, line numbers, and function names. Checks that file paths exist and code references are accurate.
+- Output: `${TASK_DIR}qa/qa-research-evidence-report.md`
 
-IF ANALYST REPORT EXISTS:
+**Agent 4 — Gap-Detection Lens (rf-qa):**
+- Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`
+- `fix_authorization: false` (report-only)
+- Lens focus: Identifies coverage gaps, missing scope areas, unresolved contradictions, and insufficiently documented integration points. Classifies gaps by severity: CRITICAL / IMPORTANT / MINOR.
+- Output: `${TASK_DIR}qa/qa-research-gap-report.md`
 
-1. Read the analyst's completeness report
-2. Verify ALL of their coverage audit claims
-3. Validate gap severity classifications
-4. Check their verdict against your own independent assessment
-5. Apply the 10-item Research Gate checklist
-
-IF NO ANALYST REPORT:
-Apply the full 10-item checklist independently.
-
-10-ITEM CHECKLIST:
-
-1. File inventory — all research files exist with Status: Complete and Summary
-2. Evidence density — Verify EVERY claim in each file — verify file paths exist
-3. Scope coverage — every key area from scope map examined
-4. Documentation cross-validation — doc-sourced claims tagged, Verify EVERY CODE-VERIFIED claim
-5. Contradiction resolution — no unresolved conflicting findings
-6. Gap severity — CRITICAL (blocks builder), IMPORTANT (reduces quality), MINOR (must still be fixed)
-7. Depth appropriateness — matches tier expectation
-8. Integration point coverage — connection points documented
-9. Pattern documentation — code patterns and conventions captured
-10. Incremental writing compliance — files show iterative structure, not one-shot
-
-VERDICTS:
-
-- PASS: Green light for builder
-- FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
-
-Write the file IMMEDIATELY with a header, then append findings incrementally.
-Zero tolerance — if you can't verify it, it fails.
-
-```text
+Both agents use adversarial stance and ESCALATION block (no team context).
+Verdicts: PASS or FAIL per agent; gap-fill cycle triggered on FAIL.
 
 ### Builder Agent Prompt (rf-task-builder — Task File Creation)
 
@@ -1824,52 +2054,6 @@ The complete BUILD_REQUEST template is embedded in **A.9** above. This section d
 - `INCREMENTAL TASK FILE WRITING` — Mandatory incremental writing protocol
 - `TASK FILE LOCATION` — `${TASK_DIR}${TASK_ID}.md`
 
-**Optional BUILD_REQUEST signals (strictly-additive, M1-frozen schema preserved):**
-- `EXECUTION_CONTEXT_REQUIREMENTS` (API-001-M2) — Controls the `## Execution
-  Context` block emission in the generated MDTM. Values: `AUTO` (default,
-  applies rollup-signal heuristic), `REQUIRED` (force emission; degraded
-  References-only form permitted), `SUPPRESS` (forbid emission). Omission
-  implies `AUTO`. Violation triggers MALFORMED retry max-2.
-
-  **Rendered forms (DM-001 contract — T01.13 / D-0011 § 1):** the block has
-  exactly two valid shapes; no third intermediate form exists.
-
-  1. **Fully-populated 3-labeled-line form** (rollup signal present —
-     `AUTO` with ≥3 inferable source areas, OR `REQUIRED` with sufficient
-     signal). The block emits all three labeled bullets verbatim, in this
-     order:
-     - `**References:**` — `R-###: <ref-line>` entries separated by `; `,
-       sourced from BUILD_REQUEST GOAL / WHY / related_docs in stable
-       input order (R-033).
-     - `**Source areas:**` — named modules or packages, comma-separated;
-       NEVER specific file paths or `file:line` citations (R-034).
-     - `**Key constraints:**` — 1–3 entries pulled verbatim from
-       BUILD_REQUEST `QA_GATE_REQUIREMENTS` / `VALIDATION_REQUIREMENTS` /
-       `TESTING_REQUIREMENTS` (priority order) or highest-severity
-       research invariants (R-035).
-  2. **Degraded References-only form** (R-038 — minimal BUILD_REQUEST,
-     defined as GOAL is the only populated rollup-signal field with <3
-     inferable source areas). The `**References:**` bullet emits;
-     `**Source areas:**` and `**Key constraints:**` bullets are
-     **absent from the rendered block** (not present-and-blank, not
-     stub-bulleted). The `## Execution Context` heading and the
-     reader-aid HTML comment remain. If even GOAL-derived References
-     cannot be produced (truly empty BUILD_REQUEST), the entire block
-     including heading is omitted.
-
-  **NFR-CONV.3 hidden-input determinism (R-039 — MANDATORY for both
-  rendered forms):** the rendered block, byte range from the
-  `## Execution Context` heading through the closing `---` separator,
-  MUST satisfy `grep -cE "src/|/.*:[0-9]+"` returning 0. The rule
-  applies uniformly to the fully-populated and the degraded form; it
-  is a hard precondition for emission, not a stylistic preference. On
-  any hit (count ≥ 1), the builder rewrites the offending bullet to
-  remove the path / `:NN` reference, re-runs assembly, and re-scans;
-  at most one rewrite cycle is permitted before the block is
-  suppressed with a `header-leak-suppressed` annotation. Specific
-  `path.py:NN` references belong in per-item Context fields and
-  `research/*.md` (the evidence venue), never in this header.
-
 **COMMON PHASE PATTERNS** (included in BUILD_REQUEST to guide the builder):
 
 The builder creates task files for ARBITRARY requests. These common patterns provide a framework — the builder adapts based on research notes and request scope:
@@ -1888,27 +2072,60 @@ The builder creates task files for ARBITRARY requests. These common patterns pro
 - Do NOT create batch items — individual items per file/component
 - Do NOT one-shot the task file — use incremental writing
 
-### Task File Validation QA Agent Prompt (rf-qa — Task Integrity)
+### Task File Validation QA Agent Prompts (rf-qa — 2-Agent Serialized Fix)
 
-Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`.
+A.10 uses TWO rf-qa agents with focused structural lenses, both with `fix_authorization: false`, followed by a serialized fix round. See **A.10** for full inline prompts.
 
-The complete prompt template is embedded in **A.10** above. Key elements:
-- **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
-- `QA_MODE: task-integrity`, `fix_authorization: true`
-- ESCALATION block (no team context)
-- 9-item validation checklist:
-  1. YAML frontmatter complete and well-formed
-  2. All mandatory sections present per template
-  3. Checklist items self-contained (context + action + output + verification + completion gate)
-  4. Granularity: no batch items — each file/component has its own item
-  5. Evidence-based: items reference specific file paths, not vague descriptions
-  6. No items based on [CODE-CONTRADICTED] or [UNVERIFIED] findings
-  7. Open Questions and remaining gaps documented
-  8. Phase dependencies logical (no circular or missing)
-  9. Reasonable item count for the scope
-- QA fixes issues in-place when authorized
-- Output: `${TASK_DIR}qa/qa-task-validation-report.md`
-- Verdict: PASS or FAIL (with list of unfixable issues if FAIL)
+**Agent 1 — B2 Self-Containment Lens:**
+- Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`
+- `fix_authorization: false` (report-only)
+- Lens focus: Validates that every checklist item follows the B2 self-contained pattern (context + action + output + verification + completion gate)
+- Output: `${TASK_DIR}qa/qa-task-validation-b2-report.md`
+
+**Agent 2 — Phase Structure/Ordering Lens:**
+- Spawn via `Agent` tool with `subagent_type: "rf-qa"`, `mode: "bypassPermissions"`
+- `fix_authorization: false` (report-only)
+- Lens focus: Validates phase structure, ordering, dependencies, and template conformance
+- Output: `${TASK_DIR}qa/qa-task-validation-structure-report.md`
+
+**Serialized Fix Protocol (after both agents report):**
+1. Consolidate findings from both reports into `${TASK_DIR}qa/qa-task-validation-consolidated.md`
+2. Spawn ONE fix agent (`fix_authorization: true`) with consolidated findings to apply all fixes
+3. Verification round to confirm fixes applied correctly
+
+- Both agents use adversarial stance and ESCALATION block (no team context)
+- Verdict: PASS or FAIL per agent; overall PASS requires both agents PASS
+
+### Research-Alignment Validation Agent Prompt (rf-analyst -- Task-Research-Alignment)
+
+A.10.25 uses ONE rf-analyst agent to cross-validate the task file against the research files. See **A.10.25** for full inline prompt.
+
+- Spawn via `Agent` tool with `subagent_type: "rf-analyst"`, `mode: "bypassPermissions"`
+- Lens focus: Verifies every significant research finding has a corresponding task file item, and no task items fabricate actions not grounded in research
+- Output: `${TASK_DIR}qa/qa-task-research-alignment-report.md`
+- Adversarial stance and ESCALATION block (no team context)
+- This is the 5th agent in the combined task-integrity gate (A.10 + A.10.25 + A.10.5 = 5 agents per I19)
+
+### Qualitative Validation Agent Prompts (rf-qa-qualitative — 2-Agent Serialized Fix)
+
+A.10.5 uses TWO rf-qa-qualitative agents with focused operational lenses, both with `fix_authorization: false`, followed by a serialized fix round. See **A.10.5** for full inline prompts.
+
+**Agent 1 — Operational-Correctness Lens:**
+- Spawn via `Agent` tool with `subagent_type: "rf-qa-qualitative"`, `mode: "bypassPermissions"`
+- `fix_authorization: false` (report-only)
+- Lens focus: Validates that task items are operationally correct — commands will work, file paths are valid, verification steps are meaningful, and the task can be executed as written
+- Output: `${TASK_DIR}qa/qa-qualitative-operational-report.md`
+
+**Agent 2 — QA-Gate-Sufficiency Lens:**
+- Spawn via `Agent` tool with `subagent_type: "rf-qa-qualitative"`, `mode: "bypassPermissions"`
+- `fix_authorization: false` (report-only)
+- Lens focus: Validates that QA gates in the generated task file meet minimum requirements — minimum 6 agents per gate, lens-focused prompts, serialized fix authorization, MDTM M3 pattern. REJECTION RULE: If ANY QA gate has fewer than 6 agents, verdict is FAIL with severity CRITICAL.
+- Output: `${TASK_DIR}qa/qa-qualitative-sufficiency-report.md`
+
+**Serialized Fix Protocol (after both agents report):**
+1. Consolidate findings into `${TASK_DIR}qa/qa-qualitative-consolidated.md`
+2. Spawn ONE fix agent (`fix_authorization: true`) with consolidated findings
+3. Verification round to confirm fixes applied correctly
 
 ---
 
@@ -1918,7 +2135,7 @@ This is what the generated MDTM task file looks like — NOT a tech reference do
 
 ```markdown
 ---
-id: "TASK-RF-YYYYMMDD-HHMMSS"
+id: "TASK-RF-<subject>-YYYYMMDD-HHMMSS"
 title: "[Task Title]"
 description: "[Brief description of what the task accomplishes]"
 status: "🟡 To Do"
@@ -1930,16 +2147,6 @@ assigned_to: "orchestrator"
 template_schema_doc: ".claude/templates/workflow/0[1|2]_mdtm_template_[generic|complex]_task.md"
 estimation: "[estimated duration]"
 task_type: static
-spec_path: "[driving spec/PRD/TDD path resolved at A.2, or empty if none]"
-reflect_pre:
-  verdict: pass | fail | skipped
-  coverage_pct: <float | null>
-  depth: quick | standard | deep
-  tcs: <int>
-  run_id: "[reflect run id]"
-  report: "[TASK_DIR]reflect/pre/report.md"
-  reviewed_at: "YYYY-MM-DDTHH:MM:SSZ"
-reflect_post: ""   # PENDING sentinel set by the final-phase POST reflect item; operator records {verdict, run_id, report} in a fresh session
 related_docs:
 - path: "[relevant file]"
   description: "[why it's relevant]"
@@ -1965,14 +2172,6 @@ tags:
 - [Prerequisite 1]
 - [Prerequisite 2]
 
-## Execution Context
-
-<!-- OPTIONAL: emit when BUILD_REQUEST yields enough rollup signal (typically ≥3 inferable source areas). This block is a task-level READING aid; per-item Context fields and research/*.md remain the evidence venue with file:line citations. The block contains NO specific path.py:NN references. Omit any sub-bullet that lacks data; omit the whole block when BUILD_REQUEST is GOAL-only. -->
-
-- **References:** [BUILD_REQUEST GOAL verbatim; WHY summary; related-doc IDs]
-- **Source areas:** [named modules/packages — e.g., "rf-qa agent prompts", "task-builder skill body" — NEVER specific file:line paths]
-- **Key constraints:** [top 1-3 invariants from QA_GATE_REQUIREMENTS / VALIDATION_REQUIREMENTS / TESTING_REQUIREMENTS or research findings]
-
 ---
 
 ## Phase 1: [Phase Name]
@@ -1991,12 +2190,12 @@ tags:
 
 ## Phase N: [Final Phase — includes completion items]
 
-- [ ] **N.{X-1} — Independent post-execution reflection gate (fresh session, HALT)**
+- [ ] **N.{X-1} -- Independent post-execution reflection gate (run via subagent)**
   - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per project memory `feedback_sc_reflect_vs_inline_rfqa`, an independent `/sc:reflect --mode post` ensemble catches spec-literal-token, invariant-arithmetic, and integration/orphan blindspots that same-frame QA misses.
-  - **Action**: Do NOT run reflect inside this session. Write `reflect_post: PENDING` to this file's frontmatter, then STOP and surface this paste-ready command for the operator to run in a NEW session: `/sc:reflect --mode post --remediate --diff <BASE>..HEAD --tasklist {TASK_FILE} [--spec {SPEC_PATH}] --depth {DEPTH} --executor-model {EXECUTOR_CLASS}` — where `<BASE>` is the commit recorded at task start (frontmatter `start_commit`, or `git merge-base HEAD <integration>` if unset), `{DEPTH}` is floored at `standard` per O4 (the POST gate NEVER runs `--depth quick`), and the spawned reflect agent uses the default subagent model. The gate command uses `/sc:reflect` and never the `sc:task` execution command.
-  - **Output**: Frontmatter `reflect_post: PENDING`; paste-ready `/sc:reflect --mode post` command surfaced for a fresh session.
-  - **Verification**: `reflect_post` is PENDING and the operator has the exact `/sc:reflect` command. The item does NOT self-resolve.
-  - **Completion gate**: Operator has run `/sc:reflect --mode post` in a fresh session and recorded its verdict (`reflect_post: {verdict, run_id, report}`) in frontmatter. Only THEN may the Update-status-to-Done item proceed (HALT per `feedback_human_decision_items_must_halt`).
+  - **Action**: Spawn a subagent that runs `/sc:reflect --mode post --remediate --diff <BASE>..HEAD --tasklist {TASK_FILE} [--spec {SPEC_PATH}] --depth {DEPTH} --executor-model {EXECUTOR_CLASS}` -- where `<BASE>` is the commit recorded at task start (frontmatter `start_commit`, or `git merge-base HEAD <integration>` if unset), `{DEPTH}` is floored at `standard` per O4 (the POST gate NEVER runs `--depth quick`), and `{EXECUTOR_CLASS}` is this executor's model class so reflect excludes it from its audit panel. Running reflect inside a subagent supplies the clean, executor-disjoint context that prevents self-rubber-stamping, so NO separate human session is needed. The gate command uses `/sc:reflect` and never `/sc:task`; any re-execution uses `/task`.
+  - **Output**: The reflect subagent returns; record its `{verdict, run_id, report}` to this file's frontmatter `reflect_post`. If reflect surfaces deviations, apply the remediations or append them to `### Open Questions` (never delete existing items).
+  - **Verification**: `reflect_post` in frontmatter holds the subagent's `{verdict, run_id, report}` (not empty), and any flagged deviations were remediated or logged to Open Questions.
+  - **Completion gate**: The reflect subagent has returned and its verdict is recorded in `reflect_post`. THEN the Update-status-to-Done item proceeds.
 
 - [ ] **N.X — Update task status to Done**
   - **Context**: All phases complete.
@@ -2023,7 +2222,7 @@ tags:
 
 ## Task File Validation Checklist
 
-The QA agent (A.10) validates the generated task file against these criteria:
+The QA agents (A.10 + A.10.25 + A.10.5) validate the generated task file against these criteria:
 
 - [ ] Frontmatter properly populated (id, title, status, created_date, related_docs)
 - [ ] All planned phases present as checklist items
@@ -2040,15 +2239,18 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - [ ] Task completion items inside final phase (anti-orphaning)
 - [ ] Task Log section present at bottom
 - [ ] Reasonable item count for scope
+- [ ] QA gates have minimum 6 agents each (3 rf-qa + 3 rf-qa-qualitative) with lens-focused prompts
+- [ ] QA gates use serialized fix authorization (report-only first, single fix agent, verification)
+- [ ] QA gates follow MDTM M3 lens-based sequence pattern
+- [ ] Source fidelity gate present when output exceeds 500 lines (MDTM M4 pattern)
 - [ ] TB-Add-1: No `TBD`/`TODO`/`FIXME` tokens and no title-only items (5-field schema enforced)
-- [ ] TB-Add-2: Item count within bounds (track ≥3/≤40; single-track ≥3/≤50) — ADVISORY-fail until calibrated
 - [ ] TB-Add-3: Each blocked item references its blocking Open Question by index in Context
 - [ ] TB-Add-4: Item-to-item dependencies form a DAG (no circular item-level references)
 - [ ] TB-Add-5: XL/multi-file items either split into subtasks or carry justifying comment
 - [ ] TB-Add-6: Uniform `Verify: ...` prefix and consistent Acceptance Criteria form
 - [ ] TB-Add-7: Every `## Execution Context` "Source areas:" entry reappears in at least one item Context; block contains no file:line citations (INACTIVE if no Execution Context block)
 - [ ] TB-Add-8: Every per-item Context referencing a code surface carries a file:line citation OR an `<!-- evidence-absence: ... -->` comment (PR-01 INV-015 scope-confinement)
-- [ ] POST reflect item present and positioned penultimate (immediately before Update-status-to-Done) when POST_REFLECT_GATE is ENABLED — MALFORMED if omitted
+- [ ] POST reflect item present and positioned penultimate (immediately before Update-status-to-Done) when POST_REFLECT_GATE is ENABLED; the item must be the SELF-RUN form (spawns a reflect subagent and records the verdict), NOT a human-handoff/HALT. MALFORMED if omitted or if it halts for a human.
 
 ---
 
@@ -2081,31 +2283,33 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 6. **Report all uncertainty.** If something is unclear, ambiguous, or requires judgment, document it in Open Questions. Do not silently pick one interpretation and present it as fact.
 
-7. **Quality gates are mandatory.** rf-analyst + rf-qa MUST be spawned at the research gate. Do not skip verification to save time. Uncaught errors compound — bad research becomes a bad task file. Every retry loop (research gate, A.10, A.10.5, RESEARCH_NEEDED, MALFORMED, per-gate cycles inside rf-task-builder and rf-qa) is governed by the **Retry Monotonicity Protocol** (PR-02) — monotonicity guard + regression detection halt oscillation BEFORE the existing iteration cap fires. The protocol is part of zero-trust QA; the guards strengthen the gate, never loosen it.
+7. **Quality gates are mandatory.** Minimum 5 agents at the research gate (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative), minimum 5 agents at task validation (2 rf-qa + 2 rf-qa-qualitative + 1 rf-analyst per I19 intermediate gate floor), with A.10 handling structural lenses, A.10.25 handling research-alignment, and A.10.5 handling content lenses. Do not skip verification to save time. Uncaught errors compound — bad research becomes a bad task file. Generated task files must also contain adequate QA — minimum 6 agents per gate enforced during A.10.5. Every retry loop (research gate, A.10, A.10.5, RESEARCH_NEEDED, MALFORMED, per-gate cycles inside rf-task-builder and rf-qa) is governed by the **Retry Monotonicity Protocol** (PR-02) -- monotonicity guard + regression detection halt oscillation BEFORE the existing iteration cap fires. The guards strengthen the gate, never loosen it.
 
 8. **No one-shotting files.** Every file creation follows incremental writing: Write header first, Edit to append sections. NEVER accumulate content in context and attempt a single large Write.
 
-9. **Partitioning thresholds.** When >6 research files exist, spawn multiple analyst and QA instances with assigned file subsets. Prevents context overload in gate agents.
+9. **Partitioning thresholds.** When >6 research files exist, partition across all 3 agent types: 4 rf-analyst + 4 rf-qa + 2 rf-qa-qualitative = 10 agents (2 lenses x 2 partitions per type). When task files have >15 checklist items, partition qualitative validation across phase subsets. Prevents context overload in gate agents.
 
 10. **Default tier is Standard.** Upgrade to Deep when scope demands it (20+ files, multiple subsystems, multi-track). Downgrade to Quick only for genuinely narrow requests (<5 files, single concern).
 
 11. **Multi-track isolation.** Failure in one track MUST NOT prevent other tracks from completing. Each track is independent — failed tracks are reported alongside successful ones.
 
-12. **Builder mediation has separate retry counters.** RESEARCH_NEEDED (max 2 rounds) and MALFORMED (max 2 rounds) are tracked independently. A builder that needs more research twice and then produces a bad file gets 4 total invocations, not 2. **Halt-precedence rule (FR-CONV.5 / API-004 — COMP-001-M5-r12 hard invariant).** Every retry counter — including these two and every per-gate counter in rf-task-builder/rf-qa — is governed by the strict 4-step ordering `regression → monotonicity → hard-cap → proceed`; the regression halt-message `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (byte-exact wire string) is emitted BEFORE the monotonicity halt-message `[HALT-MONOTONICITY] |F|=<n>` (byte-exact wire string) on every cycle transition `n → n+1`. Counters are NEVER collapsed across gates; the existing per-gate caps (research-gate=3, synthesis-gate=2, report-validation=3, task-integrity=2, qualitative=3) and the global 3-cycle backstop at `rf-team-lead's Fix Cycles rule` remain the fourth-precedence step.
+12. **Builder mediation has separate retry counters.** RESEARCH_NEEDED (max 2 rounds) and MALFORMED (max 2 rounds) are tracked independently. A builder that needs more research twice and then produces a bad file gets 4 total invocations, not 2.
 
 13. **No team infrastructure.** This skill uses the Agent tool exclusively. NEVER use TeamCreate, TeamDelete, SendMessage, TaskCreate (with team_name), or TaskUpdate. All agents receive ESCALATION blocks overriding their team-based defaults.
 
 14. **Task file actionability.** The generated task file must be specific enough that the `/task` executor can process every item without external context — each item must be self-contained with context, action, output, verification, and completion gate.
 
-15. **Anti-orphaning.** Task completion items (update status to Done, write task summary) MUST be inside the final phase of the generated task file, never in a separate Post-Completion section.
+15. **Anti-orphaning.** Task completion items (update status to Done, write task summary) MUST be inside the final phase of the generated task file, never in a separate Post-Completion section. If the final phase includes downstream skill offers (e.g., "create a TDD from this PRD"), those items MUST come AFTER all task-completion actions, MUST be marked `NON-BLOCKING`, and MUST NOT gate task completion. Only major critical issues halt task execution.
 
-16. **QA gates in generated task files.** When the BUILD_REQUEST specifies QA_GATE_REQUIREMENTS of FINAL_ONLY or PER_PHASE, the builder MUST encode corresponding QA gate checklist items in the generated task file. These items must specify the QA agent type (rf-analyst, rf-qa, rf-qa-qualitative), the QA mode, the files to verify, and the pass/fail handling. A generated task file that omits required QA gates is a MALFORMED output.
+16. **QA gates in generated task files.** When the BUILD_REQUEST specifies QA_GATE_REQUIREMENTS of FINAL_ONLY or PER_PHASE, the builder MUST encode corresponding QA gate checklist items in the generated task file following MDTM M3 (lens-based QA sequence), M4 (source fidelity gate), and I21 (source-document fidelity gate applicability) patterns. Each final-document QA gate must meet the I22 minimum for its qa_intensity level (lite: 3, standard: 7, full: 6+ per I19); each intermediate gate (research-gate, synthesis-gate) must have MINIMUM 5 agents (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative) with lens-focused prompts per I19 agent count floors. Agents use serialized fix authorization per I20 (report-only first, then single fix agent, then verification). The builder must evaluate I21 to determine when M4 fidelity gates are mandatory (output >500 lines or source-material transformation). QA gate items must be explicit `- [ ]` checklist items with fully embedded lens-specific prompts. A generated task file that omits required QA gates OR has any final-document gate with fewer agents than the I22 minimum OR any intermediate gate with fewer than 5 agents is a MALFORMED output rejected during A.10.5.
 
 17. **Validation in generated task files.** When the BUILD_REQUEST specifies VALIDATION_REQUIREMENTS, the builder MUST encode corresponding validation checklist items in the generated task file. Validation items must be placed AFTER the phase they validate and BEFORE the next phase begins. A task file with implementation items but no validation items (when VALIDATION_REQUIREMENTS is non-empty) is a MALFORMED output.
 
 18. **Testing in generated task files.** When the BUILD_REQUEST specifies TESTING_REQUIREMENTS other than NONE or N/A, the builder MUST encode testing checklist items in the generated task file. Testing items must specify: test file paths, test commands, coverage thresholds (if applicable), and verification that tests pass. Testing items are placed after implementation items and before QA gate items. A generated task file that requires testing items (TESTING_REQUIREMENTS is not NONE or N/A) but omits them is a MALFORMED output.
 
-19. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a fresh-session reflect handoff item. The item MUST NOT run reflect inline in the executor's biased context; it writes a `reflect_post: PENDING` sentinel and HALTs until the operator records the verdict in a fresh session. The handoff command uses `/sc:reflect` for the gate and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED` is a MALFORMED output.
+19. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
+
+20. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a SELF-RUN reflect item. The item instructs the executor to spawn a subagent that runs `/sc:reflect --mode post` with the resolved args, then record reflect's `{verdict, run_id, report}` to the `reflect_post` frontmatter and remediate or log any deviations before proceeding to Update-status-to-Done. Running reflect in a subagent supplies the executor-disjoint context, so the item MUST NOT halt for a human or defer to a separate session. The gate command uses `/sc:reflect`, and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED`, or that emits a human-handoff/HALT form instead of the self-run form, is a MALFORMED output.
 
 **Precedence rule:** When a BUILD_REQUEST contains both SKILL PHASES TO ENCODE and QA_GATE_REQUIREMENTS, the SKILL PHASES TO ENCODE field is authoritative. QA_GATE_REQUIREMENTS serves as a structured summary and quick reference. For the standalone task-builder (which has no SKILL PHASES TO ENCODE), QA_GATE_REQUIREMENTS is the sole authority for QA gate encoding.
 
@@ -2113,7 +2317,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 ## Reflect Depth (Deterministic TCS)
 
-The PRE reflect gate (A.10.7) and the templated POST item both derive reflect's `--depth` from a **Tasklist Complexity Score (TCS)** — a pure-arithmetic score computed from observable signals on the finished MDTM file + BUILD_REQUEST + spec. No inference is used except a single bounded tiebreaker within ±4 TCS of a band edge (see below). Each signal carries a **frozen extraction rule (FER)** so two implementers compute the same integer from the same inputs.
+The PRE reflect gate (A.10.7) and the templated POST item both derive reflect's `--depth` from a **Tasklist Complexity Score (TCS)**: a pure-arithmetic score computed from observable signals on the finished MDTM file + BUILD_REQUEST + spec. No inference is used except a single bounded tiebreaker within +/-4 TCS of a band edge (see below). Each signal carries a **frozen extraction rule (FER)** so two implementers compute the same integer from the same inputs.
 
 ### TCS Signals
 
@@ -2123,35 +2327,35 @@ The PRE reflect gate (A.10.7) and the templated POST item both derive reflect's 
 | S2 | **Distinct subsystems** | From the S1 deduped set, take **exactly the first 2 path segments** (or all segments if the path has <2 dir segments) as the subsystem key; dedupe. S2 = count of distinct keys. | Cross-cutting changes are where drift/regression hide | ×4 |
 | S3 | **FR/NFR count in spec** | If `--spec` known: count **distinct** `FR-\d+`/`NFR-\d+` IDs in the spec file (an `FR-1` cited 5× counts once). Else 0. | Each requirement is a coverage row reflect must map | ×2 |
 | S4 | **Inter-task dependencies** | Count occurrences of the fixed dependency-token set `{after Phase \d+, depends_on:}` (case-insensitive, those literal forms only — no open-ended "explicit item ref" inference) across all items. | Dependency depth → more verdict-matrix coupling | ×2 |
-| S5 | **Human-decision / Open-Question-blocked items** | Count **distinct** `OQ-\d+` (or `Open Question \d+`) tokens that appear in a checklist item's Context line AND have a matching entry under the tasklist's `### Open Questions` section. If a `### Open Questions` section exists but no in-Context index references, fall back to the count of non-empty `### Open Questions` entries. | Each is a halt-point reflect must check did NOT auto-resolve | ×5 |
+| S5 | **Human-decision / Open-Question-blocked items** | Count **distinct** `OQ-\d+` (or `Open Question \d+`) tokens that appear in a checklist item's Context line AND have a matching entry under the tasklist's `### Open Questions` section. If a `### Open Questions` section exists but no in-Context index references, fall back to the count of non-empty `### Open Questions` entries. | Each is a decision-point reflect must check did NOT auto-resolve | ×5 |
 | S6 | **Risk/refactor class (file-level)** | Read the single frontmatter `type:` field, **first stripping any surrounding quotes and leading emoji + whitespace before matching** (so `type: "🔧 Refactor"` normalizes to `Refactor`); S6 = **1 if the normalized value matches a refactor/remediation-class token** (`Refactor`, `Remediation`, or `Code Remediation`, case-insensitive — covering the `🔧`/`♻️`/`🔨 Refactor` and `🔧 Remediation` quoted-emoji variants), **else 0**. A 0-or-1 file-level signal, not a per-item count. | Regression-class deviations force reflect Tier-2 escalation | ×4 |
 
-**S4 token-set note (trimmed):** the dependency-token set is exactly `{after Phase \d+, depends_on:}`. The broader 4-token form is trimmed — `blockedBy:` has zero occurrences in the generated-tasklist corpus (inert) and `after N\.\d+` is dropped — leaving the two live literal forms.
+**S4 token-set note (trimmed):** the dependency-token set is exactly `{after Phase \d+, depends_on:}`. The broader 4-token form is trimmed: `blockedBy:` has zero occurrences in the generated-tasklist corpus (inert) and `after N\.\d+` is dropped, leaving the two live literal forms.
 
 ### The TCS Formula
 
 ```text
-TCS = 3·S1 + 4·S2 + 2·S3 + 2·S4 + 5·S5 + 4·S6
+TCS = 3*S1 + 4*S2 + 2*S3 + 2*S4 + 5*S5 + 4*S6
 ```
 
 All S* are non-negative integers read directly from the tasklist/spec; the formula is pure arithmetic. Human-decision (S5) and risk (S6) carry the highest weights because they are exactly the classes that flip reflect to Tier 2 (make it non-vacuous).
 
-### TCS Threshold Table (TCS → `--depth`)
+### TCS Threshold Table (TCS -> `--depth`)
 
 | TCS range | reflect `--depth` | reflect tier reached | Rationale |
 |-----------|-------------------|----------------------|-----------|
-| **TCS ≤ 12** | `quick` | Tier 1 only | Small, single-subsystem, no human-decision/risk items. A single grounded pass suffices. |
-| **13 ≤ TCS ≤ 34** | `standard` | Tier 1, escalate-by-rubric | Moderate breadth; reflect's own rubric decides if it needs T2. |
-| **TCS ≥ 35** | `deep` | Tier 2 (forced) | Cross-subsystem, dependency-heavy, or carries human-decision/risk items. |
+| **TCS <= 12** | `quick` | Tier 1 only | Small, single-subsystem, no human-decision/risk items. A single grounded pass suffices. |
+| **13 <= TCS <= 34** | `standard` | Tier 1, escalate-by-rubric | Moderate breadth; reflect's own rubric decides if it needs T2. |
+| **TCS >= 35** | `deep` | Tier 2 (forced) | Cross-subsystem, dependency-heavy, or carries human-decision/risk items. |
 
 ### TCS Hard Overrides (deterministic, take precedence over the band)
 
-- **O1 — Any `S5 > 0` (human-decision item) ⇒ floor `--depth standard`.** A halt-point must get at least the rubric-escalation path (honors `feedback_human_decision_items_must_halt`).
-- **O2 — `S6 = 1` (file-level refactor/remediation `type:`) ⇒ force `--depth deep`.** Matches reflect's own unconditional-T2 rule for regression-class surfaces.
-- **O3 — Item-count cap:** if checklist item count > 40 (single-track > 50) ⇒ floor `--depth standard` even if TCS is low (a large tasklist is never "quick" to audit).
-- **O4 — POST-gate depth floor (HARD RULE, no exceptions):** the POST gate depth ∈ {`standard`, `deep`} — it may **NEVER** be `quick`. `--depth quick` disables reflect's regression-escalation rubric, and the POST gate audits executed code, which is exactly where that escalation matters most. When the band yields `quick`, the POST command is emitted with `--depth standard` (the PRE call may still use `quick`, since no diff exists pre-execution).
+- **O1: Any `S5 > 0` (human-decision item) => floor `--depth standard`.** A decision or open-question item must get at least the rubric-escalation path.
+- **O2: `S6 = 1` (file-level refactor/remediation `type:`) => force `--depth deep`.** Matches reflect's own unconditional-T2 rule for regression-class surfaces.
+- **O3: Item-count cap:** if checklist item count > 40 (single-track > 50) => floor `--depth standard` even if TCS is low (a large tasklist is never "quick" to audit).
+- **O4: POST-gate depth floor (HARD RULE, no exceptions):** the POST gate depth is one of {`standard`, `deep`}: it may **NEVER** be `quick`. `--depth quick` disables reflect's regression-escalation rubric, and the POST gate audits executed code, which is exactly where that escalation matters most. When the band yields `quick`, the POST command is emitted with `--depth standard` (the PRE call may still use `quick`, since no diff exists pre-execution).
 
-Within ±4 TCS of a band edge (the span an S2 ±1 disagreement can traverse), the orchestrator may apply one bounded inference — "are these N FER-distinct dirs truly distinct *logical* subsystems?" — recorded as `tcs_boundary_inference: {applied, from, to, reason}` in the sign-off block for auditability. Outside the ±4 windows, no inference is permitted.
+Within +/-4 TCS of a band edge (the span an S2 +/-1 disagreement can traverse), the orchestrator may apply one bounded inference, "are these N FER-distinct dirs truly distinct *logical* subsystems?", recorded as `tcs_boundary_inference: {applied, from, to, reason}` in the sign-off block for auditability. Outside the +/-4 windows, no inference is permitted.
 
 ---
 
@@ -2193,10 +2397,11 @@ Within ±4 TCS of a band edge (the span an S2 ±1 disagreement can traverse), th
 | Research files | `${TASK_DIR}research/[NN]-[topic].md` |
 | Web research files | `${TASK_DIR}research/web-[NN]-[topic].md` |
 | Gap-fill research | `${TASK_DIR}research/[NN]-gap-fill.md` |
-| Analyst report (research gate) | `${TASK_DIR}qa/analyst-completeness-report.md` |
-| QA report (research gate) | `${TASK_DIR}qa/qa-research-gate-report.md` |
-| QA report (task validation) | `${TASK_DIR}qa/qa-task-validation-report.md` |
-| QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |
+| Analyst reports (research gate) | `${TASK_DIR}qa/analyst-completeness-report.md`, `analyst-cross-validation-report.md` |
+| QA reports (research gate) | `${TASK_DIR}qa/qa-research-evidence-report.md`, `qa-research-gap-report.md`, `qa-research-depth-report.md` |
+| QA reports (task validation) | `${TASK_DIR}qa/qa-task-validation-b2-report.md`, `qa-task-validation-structure-report.md`, `qa-task-validation-consolidated.md` |
+| QA task-research-alignment report | `${TASK_DIR}qa/qa-task-research-alignment-report.md` |
+| QA reports (qualitative review) | `${TASK_DIR}qa/qa-qualitative-operational-report.md`, `qa-qualitative-sufficiency-report.md`, `qa-qualitative-consolidated.md` |
 
 Research and QA report files persist after the task file is built — they serve as the evidence trail for all claims and enable future re-investigation.
 
@@ -2214,11 +2419,15 @@ This skill may span multiple sessions. The task folder and its contents persist 
 |---------------|-------------|
 | No task folder | A.2 (start fresh) |
 | research-notes.md In Progress | A.3 (continue scope discovery) |
-| research-notes.md Complete, no research files | A.7 (spawn researchers) |
+| research-notes.md Complete, no research files | A.5 (review research sufficiency) |
 | research/ has complete files, qa/ empty | A.8 (quality gate) |
-| qa/ has passing reports, no task file | A.9 (spawn builder) |
-| Task file exists, no validation report | A.10 (validation) |
-| Task file + validation report | A.11 (present results) |
+| qa/ has all 5 A.8 report files (`analyst-completeness-report.md` + `analyst-cross-validation-report.md` + `qa-research-evidence-report.md` + `qa-research-gap-report.md` + `qa-research-depth-report.md`), no task file | A.9 (spawn builder) |
+| Task file exists, no validation reports (`qa-task-validation-b2-report.md` + `qa-task-validation-structure-report.md`) | A.10 (structural validation) |
+| Task file + structural validation (`qa-task-validation-b2-report.md` + `qa-task-validation-structure-report.md`), no research-alignment report (`qa-task-research-alignment-report.md`) | A.10.25 (research-alignment validation) |
+| Task file + structural + research-alignment validation, no qualitative reports (`qa-qualitative-operational-report.md` + `qa-qualitative-sufficiency-report.md`) | A.10.5 (qualitative validation) |
+| Task file + all validation/qualitative/alignment reports | A.11 (present results) |
+
+**Resume check clarification:** Resume checks verify file EXISTENCE on disk, not verdict content. If files exist, the orchestrator re-reads the verdicts inside to determine whether to proceed or re-run the gate. |
 
 **At session end:**
 
@@ -2288,7 +2497,7 @@ Mixed-status results use the multi-track format from A.11 with per-track status.
 
 | Artifact | Single Track | Multi-Track (Track T) |
 |----------|-------------|----------------------|
-| Task folder | `TASK-RF-YYYYMMDD-HHMMSS/` | `TASK-RF-track-T-YYYYMMDD-HHMMSS/` |
+| Task folder | `TASK-RF-<subject>-YYYYMMDD-HHMMSS/` | `TASK-RF-track-T-YYYYMMDD-HHMMSS/` |
 | Researcher agents | `researcher-[topic]` | `researcher-T-[topic]` |
 | Analyst agent | `analyst-research` | `analyst-research-T` |
 | QA agent | `qa-research-gate` | `qa-research-gate-T` |

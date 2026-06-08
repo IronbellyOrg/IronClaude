@@ -63,16 +63,18 @@ class TestPR06StructuralGateAdditions:
     validation checklist."""
 
     def test_rf_qa_checklist_count_extended(self, rf_qa_text: str) -> None:
-        # Was 20 items; PR-06 grows it by 7 (TB-Add-1..7) -> 27. PR-01 then
-        # adds TB-Add-8 -> 28. After both landings the count must be >= 27.
-        # We assert the post-PR-01 final state to keep the test current.
-        assert "#### Checklist (28 items)" in rf_qa_text
+        # Was 20 base items; PR-06 + PR-01 added TB-Add-1..8 -> 28. Commit
+        # 804eb4f4 then intentionally removed TB-Add-2 (item-count bounds,
+        # incompatible with 100-250+ item task files), renumbering the list
+        # contiguously to 27 items (TB-Add IDs kept stable: 1, 3-8).
+        assert "#### Checklist (27 items)" in rf_qa_text
 
     @pytest.mark.parametrize(
         "tag",
         [
+            # TB-Add-2 intentionally removed in 804eb4f4 (item-count bounds);
+            # stable IDs leave a gap at 2.
             "TB-Add-1",
-            "TB-Add-2",
             "TB-Add-3",
             "TB-Add-4",
             "TB-Add-5",
@@ -86,8 +88,8 @@ class TestPR06StructuralGateAdditions:
     @pytest.mark.parametrize(
         "tag",
         [
+            # TB-Add-2 intentionally removed in 804eb4f4; stable-ID gap at 2.
             "TB-Add-1",
-            "TB-Add-2",
             "TB-Add-3",
             "TB-Add-4",
             "TB-Add-5",
@@ -100,10 +102,16 @@ class TestPR06StructuralGateAdditions:
         # mention each TB-Add tag at least once.
         assert tag in skill_text, f"SKILL.md missing structural-gate addition {tag}"
 
-    def test_tb_add_2_marked_advisory(self, rf_qa_text: str) -> None:
-        # TB-Add-2 must remain ADVISORY until empirical calibration completes.
-        assert "ADVISORY" in rf_qa_text
-        assert ".dev/tasks/done/" in rf_qa_text
+    def test_tb_add_2_removed_deliberately(self, rf_qa_text: str) -> None:
+        # SUPERSEDES the prior `test_tb_add_2_marked_advisory`. TB-Add-2
+        # (item-count bounds, "promote to blocking" at 40 items/track) was
+        # intentionally removed in 804eb4f4 — fundamentally incompatible with
+        # the 100-250+ item task files this pipeline produces. Guard against
+        # accidental re-introduction: the catalogue heading enumerates the
+        # stable IDs 1, 3-8 (no 2), and the agent prompt no longer carries the
+        # `.dev/tasks/done/` calibration line (the only former done-mention).
+        assert "TB-Add-1, TB-Add-3 through TB-Add-8" in rf_qa_text
+        assert ".dev/tasks/done/" not in rf_qa_text
 
     def test_tb_add_7_inactive_path_documented(self, rf_qa_text: str) -> None:
         # Inactive annotation is required when no Execution Context block exists.
@@ -113,7 +121,8 @@ class TestPR06StructuralGateAdditions:
         # Every TB-Add cites the originating sc:tasklist check ID for traceability.
         for source_check in (
             "check 11",
-            "check 13",
+            # "check 13" (TB-Add-2's sc:tasklist source) dropped with the
+            # intentional TB-Add-2 removal in 804eb4f4.
             "check 14",
             "check 15",
             "check 16",
@@ -124,10 +133,10 @@ class TestPR06StructuralGateAdditions:
             )
 
     def test_skill_15item_validation_checklist_extended(self, skill_text: str) -> None:
-        # The 15-item Task File Validation Checklist grows with 7 TB-Add entries.
+        # The Task File Validation Checklist grows with the TB-Add entries.
+        # TB-Add-2 intentionally removed in 804eb4f4 (stable-ID gap at 2).
         for tag in (
             "TB-Add-1",
-            "TB-Add-2",
             "TB-Add-3",
             "TB-Add-4",
             "TB-Add-5",
@@ -148,13 +157,17 @@ class TestPR06StructuralGateAdditions:
 
 
 class TestPR01ExecutionContextHeader:
-    """PR-01 lands second. Adds an optional task-level `## Execution Context`
+    """PR-01 lands second. Adds a required task-level `## Execution Context`
     block instruction to rf-task-builder spawn prompt and output schema, plus
     TB-Add-8 (per-item Context evidence binding) to enforce INV-015 scope-
-    confinement."""
+    confinement. (PR #144 convergence renamed the directive and made the block
+    REQUIRED — see the two assertions below.)"""
 
     def test_skill_documents_execution_context_block(self, skill_text: str) -> None:
-        assert "EXECUTION CONTEXT BLOCK" in skill_text
+        # PR #144 convergence renamed the directive EXECUTION CONTEXT BLOCK ->
+        # EXECUTION_CONTEXT_INSTRUCTION (intentional supersession; MDTM templates
+        # mark the section a required build step).
+        assert "EXECUTION_CONTEXT_INSTRUCTION" in skill_text
         assert "## Execution Context" in skill_text
 
     def test_execution_context_uses_source_areas_not_paths(
@@ -165,10 +178,12 @@ class TestPR01ExecutionContextHeader:
         assert "NO specific file:line references" in skill_text
         assert "path.py:NN" in skill_text  # cited as the forbidden form
 
-    def test_execution_context_optional_and_degrades_gracefully(
+    def test_execution_context_required_and_degrades_gracefully(
         self, skill_text: str
     ) -> None:
-        assert "OPTIONAL" in skill_text
+        # PR #144 convergence flipped the block from OPTIONAL to REQUIRED in every
+        # task file, with a documented GOAL-only graceful-degradation exception.
+        assert "REQUIRED" in skill_text
         # Minimal-BUILD_REQUEST degeneration case is documented.
         assert "GOAL-only" in skill_text or "References-only" in skill_text
 
@@ -186,8 +201,9 @@ class TestPR01ExecutionContextHeader:
 
     def test_rf_qa_adds_tb_add_8(self, rf_qa_text: str) -> None:
         # PR-01 REVISE acceptance criterion: rf-qa task-integrity grows by one
-        # more item to enforce per-item evidence binding (INV-015).
-        assert "#### Checklist (28 items)" in rf_qa_text
+        # more item to enforce per-item evidence binding (INV-015). Count is 27
+        # after the intentional TB-Add-2 removal (804eb4f4) renumbered the list.
+        assert "#### Checklist (27 items)" in rf_qa_text
         assert "TB-Add-8" in rf_qa_text
         assert "INV-015" in rf_qa_text  # rationale cited
 

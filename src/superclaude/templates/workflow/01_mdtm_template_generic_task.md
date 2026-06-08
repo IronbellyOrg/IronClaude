@@ -2,8 +2,12 @@
 id: "TASK-[AGENT]-[TASKTYPE]-YYYYMMDD-HHMMSS"
 title: "[Clear, Action-Oriented Task Title]"
 description: "[Detailed description of what this task accomplishes and its purpose within the larger workflow]"
+version: ""
+# status options: "🔵 Backlog" | "🟡 To Do" | "🟠 Doing" | "🔴 Blocked" | "🟢 Done" | "⚪ Cancelled"
 status: "🟡 To Do"
-type: "📝 Documentation"
+# type options: "✨ Feature" | "🐛 BugFix" | "📚 Documentation" | "⚙️ Maintenance" | "🔬 Research/Spike" | "✅ Verification/QA" | "🧩 Integration" | "🗣️ Review" | "⚙️ Orchestration" | "💡 Planning/Strategy" | "⚙️ Process Improvement" | "🔧 AI Prompt Engineering" | "📊 AI Output Analysis" | "🛠️ Tooling/Automation"
+type: "📚 Documentation"
+# priority options: "🔥 Highest" | "🔼 High" | "▶️ Medium" | "🔽 Low" | "🧊 Lowest"
 priority: "🔼 High"
 created_date: "YYYY-MM-DD"
 updated_date: "YYYY-MM-DD"
@@ -11,10 +15,21 @@ assigned_to: "[agent-name]"
 autogen: false
 autogen_method: ""
 coordinator: orchestrator
+parent_doc: ""
 parent_task: "[PARENT-TASK-ID]"
 depends_on:
 - "[DEPENDENCY-TASK-ID-1]"
 - "[DEPENDENCY-TASK-ID-2]"
+spec_path: ""   # driving spec/PRD/TDD path; populated by task-builder (A.2), empty if none
+reflect_pre:    # PRE reflect-gate sign-off; populated by task-builder at A.10.7
+  verdict: ""   # pass | fail | skipped
+  coverage_pct: null
+  depth: ""     # quick | standard | deep
+  tcs: 0
+  run_id: ""
+  report: ""
+  reviewed_at: ""
+reflect_post: ""   # POST reflect verdict; recorded by the executor after the final-phase reflect subagent runs
 related_docs:
 - path: "[path/to/governing/workflow.md]"
   description: "Parent workflow this task implements"
@@ -22,6 +37,8 @@ related_docs:
   description: "Process document governing this task"
 - path: "[path/to/related/doc.md]"
   description: "Related documentation"
+related_prd: ""
+related_tdd: ""
 tags:
 - "[relevant]"
 - "[tags]"
@@ -221,7 +238,7 @@ C3. VERIFICATION (embed in action items, NOT separate items)
 C4. TASK COMPLETION (final Post-Completion task items only)
    - Task completion is handled by the Post-Completion Actions section
    - Include items for: updating frontmatter (status, completion_date), logging completion to Execution Log
-   - Post-completion validation items (I17) handle output verification; frontmatter update and task summary are the only Post-Completion Actions
+   - Post-Completion Actions include: checklist completion verification, blocker resolution verification, output file existence checks, test suite confirmation (if applicable), lens-based QA validation per M3/I19, source-document fidelity gates per M4/I21 (when applicable), task summary, and frontmatter updates
    - Do NOT create a "Task Completion and Handoff Protocol" section in the task file
    - Orchestrator info about handoff lives in ib_agent_core.md, not in individual task files
 
@@ -404,7 +421,7 @@ F2. PROHIBITED ACTIONS
    - Skipping ahead to later phases
    - Assuming any item is complete without verification
    - Delegating across phase boundaries — must not spawn a subagent for items spanning multiple phases; must not delegate the F1 loop itself; a subagent receives work from a SINGLE checklist item only
-   - Skipping phase-gate QA — must spawn rf-qa after completing all items in Phase 2+; proceeding to the next phase without a passing QA gate is prohibited (see I15-I16)
+   - Skipping phase-gate QA — must run lens-based QA verification per M3 with minimum agent counts per I19 after completing all items in Phase 2+; proceeding to the next phase without a passing QA gate is prohibited (see I15-I16)
    - Skipping post-completion validation — must run both rf-qa structural and rf-qa-qualitative operational validation before marking the task Done (see I17)
 
 #### F2a. Item Execution Discipline
@@ -438,7 +455,7 @@ F4. TASK FILE MODIFICATION RESTRICTIONS
    1. Check off completed items ([ ] to [x])
    2. Update frontmatter fields per protocol
    3. Add entries to Task Log / Notes section
-   4. FOR DYNAMIC TASKS: Add items within DYNAMIC CONTENT MARKER sections
+   4. FOR DYNAMIC TASKS: Add items within `<!-- DYNAMIC:START:[name] -->` / `<!-- DYNAMIC:END:[name] -->` marker regions only (see I6 for syntax and rules)
 
 F5. FRONTMATTER UPDATE PROTOCOL
    - Upon Task Start: Update status to "🟠 Doing" and start_date
@@ -530,6 +547,29 @@ I6. DYNAMIC CONTENT HANDLING
       - Creation happens BEFORE verification
       - Each item is marked complete WHERE IT IS DONE, not elsewhere
 
+   **Dynamic Content Marker Syntax:**
+
+   Dynamic content markers use HTML comment syntax to delimit regions where worker agents may add new checklist items during execution. These markers are the ONLY mechanism by which workers identify permissible insertion points in dynamic tasks.
+
+   - **Opening marker:** `<!-- DYNAMIC:START:[section-name] -->`
+   - **Closing marker:** `<!-- DYNAMIC:END:[section-name] -->`
+
+   Where `[section-name]` is a descriptive identifier for the dynamic region (e.g., `discovered-files`, `test-results`, `additional-handlers`).
+
+   **Usage example** (a dynamic region within a phase):
+   ```
+   **Step 2.3:** Process discovered items
+   <!-- DYNAMIC:START:discovered-items -->
+   - [ ] [Initial item placeholder — builder places seed items here]
+   <!-- DYNAMIC:END:discovered-items -->
+   ```
+
+   **Rules:**
+   - Workers may ONLY add `- [ ]` items between matched START/END markers
+   - Workers MUST NOT modify or remove the markers themselves
+   - Each dynamic region must have a unique `[section-name]` within the task file
+   - Dynamic regions must be within a phase, never spanning phase boundaries
+
 I7. EXPLICIT TEMPLATE USAGE
    When instructing to use a template, provide explicit steps:
    - Specify exact template path
@@ -593,12 +633,11 @@ I14. ANTI-HALLUCINATION CONTROLS INTEGRATION
 I15. PHASE-GATE QA ENFORCEMENT
    Every task with 2+ execution phases MUST include at least one phase-gate QA checkpoint between the primary execution phase and any subsequent phase that depends on its outputs. The orchestrator MUST insert QA gate checklist items at these boundaries.
 
-   A phase-gate QA checkpoint consists of:
-   1. An aggregation item that collects all outputs from the preceding phase
-   2. A QA agent spawn item that verifies those outputs against defined criteria
-   3. A conditional-action item that proceeds to the next phase on PASS or triggers a fix cycle on FAIL
+   Phase-gate QA checkpoints MUST use the lens-based QA sequence defined in M3, with minimum agent counts per I19 and serialized fix authorization per I20. Single-agent or dual-agent QA gates are PROHIBITED (see I19).
 
-   The QA agent spawn item MUST be a self-contained checklist item following B2's 6-element pattern. It MUST include: the agent to spawn (rf-qa or rf-qa-qualitative), the phase type, the input files, the output report path, the verdict handling (proceed on PASS, fix cycle on FAIL), and the error handling clause.
+   Each QA gate checklist item MUST be a self-contained checklist item following B2's 6-element pattern. It MUST include: the agent to spawn (rf-qa or rf-qa-qualitative), the specific lens focus, the input files, the output report path, the verdict handling (proceed on PASS, fix cycle on FAIL per I16), and the error handling clause.
+
+   See M3 for the complete 8-step lens-based QA sequence, I19 for minimum agent counts, and I20 for serialized fix authorization protocol.
 
 I16. QA GATE VERDICT AND FIX CYCLES
    QA agents produce binary verdicts: PASS or FAIL. Any issue of any severity (CRITICAL, IMPORTANT, or MINOR) results in FAIL.
@@ -623,6 +662,8 @@ I17. POST-COMPLETION VALIDATION PROTOCOL
    2. All output files specified in checklist items exist on disk (verified via Glob)
    3. Any blocker entries in the Task Log have resolution notes
    4. If the task modified source code: all relevant tests pass
+   5. Spawn lens-based QA agents per M3 to verify all task outputs meet quality standards (structural and content lenses, minimum agent counts per I19, serialized fix per I20)
+   6. If the task produced outputs derived from source documents, spawn fidelity agents per M4/I21 to verify output fidelity against source inputs
 
    These items appear in the ## Post-Completion Actions section of PART 2, BEFORE the frontmatter update item.
 
@@ -637,8 +678,149 @@ I18. TESTING REQUIREMENTS FOR CODE-MODIFYING TASKS
 
    The orchestrator determines appropriate test scope based on the changes being made. At minimum, unit tests covering modified code are required.
 
+I19. LENS-BASED QA MINIMUM AGENTS
+   **NOTE: The tables below define FULL intensity minimums. For lite and standard intensity, see I22 which defines reduced agent counts. I19 applies in full only when qa_intensity = full.**
+   Every QA gate MUST spawn multiple agents, each focused on ONE quality dimension ("lens"). Single-agent or dual-agent QA is PROHIBITED. The following table defines the MINIMUM agent counts by output size. These are FLOORS, not targets — skills SHOULD exceed these when output complexity warrants it.
+
+   **Note:** Generic tasks use the same agent count floors as complex tasks. These are universal minimums that apply regardless of which template was used to build the task file.
+
+   **Final Document / Assembled Output QA:**
+
+   | Output Size | rf-qa Agents (structural lenses) | rf-qa-qualitative Agents (content lenses) | Total Minimum |
+   |-------------|----------------------------------|------------------------------------------|---------------|
+   | <500 lines | 3 | 3 | 6 |
+   | 500-1500 lines | 4 | 4 | 8 |
+   | 1500-3000 lines | 5 | 5 | 10 |
+   | >3000 lines | 6 | 6 | 12 |
+
+   These counts are BEFORE domain-specific lenses. Skills with complex outputs add domain-specific lenses ON TOP of these minimums.
+
+   **Standard structural lenses (rf-qa):**
+   1. **Template conformance** — all required sections present, correct ordering, no remaining placeholders/sentinels
+   2. **Internal consistency** — IDs match across tables, counts agree, cross-references resolve, no contradictions within the document
+   3. **Evidence quality** — all claims cite file paths/line numbers, no unverified assertions, no hallucinated paths
+   4. **Completeness** — every topic from scope discovery appears in the output, no gaps, no silently dropped items
+
+   **Standard content lenses (rf-qa-qualitative):**
+   1. **Actionability** — every recommendation, task, or requirement is specific enough to execute without interpretation; criteria are testable with pass/fail not aspirational
+   2. **Numbers and metrics** — all quantitative claims are internally consistent, realistic, and sourced; percentages add up; counts match between sections
+   3. **Cross-reference chain integrity** — trace end-to-end chains (e.g., requirement → task → deliverable → test) and verify every link exists
+   4. **Domain accuracy** — claims about the codebase match actual code; claims about the product match actual capabilities; no aspirational features described as current
+
+   Skills MAY define additional domain-specific lenses beyond these 8.
+
+   Each lens agent gets its own prompt, its own report file, and its own focused checklist. Agents do NOT share a generic "check everything" prompt. The lens is the agent's ONLY job. Every lens agent prompt MUST include adversarial framing: "Assume this document has at least N errors focused on your lens. Find them." (where N scales with document size: 5 for <500 lines, 10 for 500-1500, 15 for 1500-3000, 20 for >3000).
+
+   **Intermediate Gate Minimums (Research + Synthesis):**
+
+   | Gate | Minimum Agents | Agent Types |
+   |------|---------------|-------------|
+   | Research gate (Phase 3) | 5 | 2 rf-analyst (completeness + cross-validation) + 2 rf-qa (evidence-quality + gap-detection) + 1 rf-qa-qualitative (research-depth) |
+   | Synthesis gate (Phase 5) | 5 | 2 rf-analyst (synthesis-accuracy + source-tracing) + 2 rf-qa (structure + content-quality) + 1 rf-qa-qualitative (synthesis coherence) |
+   | Task-integrity gate | 5 | 2 rf-qa (B2-self-containment + phase-structure) + 2 rf-qa-qualitative (operational-correctness + qa-gate-sufficiency) + 1 rf-analyst (task-research-alignment) |
+
+   **Note:** Intermediate gate lens names (e.g., gap-detection, research-depth, synthesis-accuracy) are task-specific and defined by the agent type breakdown in the table above, not drawn from the 8 standard lenses.
+
+   Partitioning applies on top: if research files >6, each agent type gets partitioned (e.g., 10 research files → 4 rf-analyst + 4 rf-qa + 2 rf-qa-qualitative = 10 agents at research gate).
+
+   rf-qa-qualitative at intermediate gates is mandatory. It catches the gap where research/synthesis is structurally complete but qualitatively shallow.
+
+I20. SERIALIZED FIX AUTHORIZATION
+   When multiple QA agents evaluate the same document (any gate with 3+ agents on the same file), fix authorization MUST be serialized. Parallel fix authorization (multiple agents editing the same file concurrently) is PROHIBITED.
+
+   **The Serialized Fix Protocol:**
+   1. **Report phase:** Spawn all lens-based QA agents in parallel with `fix_authorization: false`. Each agent produces a report file listing findings only — it does NOT modify the target document.
+   2. **Consolidation phase:** Read all agent reports. Produce a single consolidated findings file at `${TASK_DIR}qa/qa-consolidated-findings.md` listing all issues, deduplicated, with originating lens identified.
+   3. **Fix phase:** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document.
+   4. **Verification phase:** Spawn a verification round (minimum 2 agents: 1 rf-qa + 1 rf-qa-qualitative) with `fix_authorization: false` to confirm fixes were applied correctly and no new issues were introduced.
+   5. **Cycle control:** If verification finds new issues, repeat from the Consolidation phase (step 2 above / M3 Step 5) — consolidate new findings + original unfixed findings, spawn fix agent, verify. Maximum cycles as specified in I16 for this gate type. If issues remain after the maximum, HALT and escalate to user.
+
+   **Why serialized:** Parallel fix authorization causes churn. Agent A fixes line 50 one way, Agent B fixes line 50 a different way. The next round has to fix the contradictions. Serialized fixes eliminate this.
+
+   **Task file encoding:** Each step of the protocol (report spawn per agent, consolidation, fix agent spawn, verification spawn per agent) MUST be an explicit `- [ ]` checklist item in the task file.
+
+I21. SOURCE-DOCUMENT FIDELITY GATE REQUIREMENT
+   Every task whose outputs are derived from source documents MUST include a source-document fidelity gate per M4. This is fundamentally different from internal-consistency QA which only reads the output. Fidelity agents read BOTH the original source inputs AND the generated output, then verify the output faithfully represents what the inputs say.
+
+   **When the fidelity gate is MANDATORY:**
+   - PRD tasks (source: codebase)
+   - TDD tasks (sources: PRD + codebase)
+   - Roadmap tasks (sources: PRD + TDD)
+   - Tech-reference tasks (source: source code)
+   - Operational-guide tasks (sources: config + infra code)
+   - README tasks (source: module source code)
+   - Tech-research tasks (source: codebase)
+   - Repo-cleanup tasks (source: codebase scan results)
+   - Any task where checklist items instruct reading source documents and producing derivative output files
+
+   **When the fidelity gate is NOT required:**
+   - Pure transformation tasks where the output format is mechanically derived from the input (e.g., rename operations)
+   - Configuration-only tasks with no source-document interpretation
+
+   **What the fidelity gate checks:**
+   1. **Semantic coverage** — for each requirement/spec/feature in the source docs, does the output contain a corresponding item that actually addresses it (not just mentions the ID)?
+   2. **Detail preservation** — source-specific details (error code counts, field types, index names, state pairs, thresholds) survive into the output, not just high-level summaries
+   3. **Cross-source contradiction detection** — when multiple source docs exist (e.g., PRD + TDD), contradictions between them are flagged
+   4. **Phantom coverage detection** — IDs present in coverage/traceability matrices must be verified by reading the actual task/section description to confirm semantic match, not just ID presence
+   5. **Operational/compliance completeness** — source docs mentioning compliance, security, operational, or regulatory requirements must each have a corresponding output item
+
+   **Agent count:** Minimum 2 fidelity agents. If source docs exceed 1000 lines total, partition across 3-4 agents (each assigned a section range of the source docs). Each agent reads its assigned source section range + the FULL output document.
+
+   **Report output:** `${TASK_DIR}qa/qa-source-fidelity-report.md` (or numbered if partitioned: `qa-source-fidelity-report-1.md`, `-2.md`, etc.).
+
+   **Ordering:** The fidelity gate runs AFTER the lens-based QA gate (M3), not before. The document must be structurally sound before checking fidelity.
+
 Remember: The goal is to create tasks that implement workflow requirements with
 complete granularity, preventing any interpretation or deviation from the governing workflow.
+
+I22. QA INTENSITY LEVELS
+   QA gate agent counts scale based on the task's qa_intensity level. Skills map their
+   tier/scope to one of three intensity levels. The orchestrator (or user) may override
+   the default mapping.
+
+   **Level Definitions:**
+
+   | Level | When to Use | Intermediate Gate Agents | Final Gate (M3) Agents | Fidelity Gate (M4) | Fix Cycles | Verification Agents |
+   |-------|-------------|--------------------------|------------------------|---------------------|------------|---------------------|
+   | **lite** | Quick/Lightweight tier, small outputs (<300 lines), basic tasks, user says "quick" or "light" | 2 (1 rf-qa + 1 rf-qa-qualitative) | 3 (1 structural + 1 content + 1 domain) | 1 agent (combined lenses) | 1 max per gate | 1 |
+   | **standard** | Standard tier, medium outputs (300-1500 lines), most tasks | 3 (1 rf-analyst + 1 rf-qa + 1 rf-qa-qualitative) | 7 (3 structural + 3 content + 1 domain) | 2 agents | 2 max per gate | 2 |
+   | **full** | Deep/Heavyweight tier, large outputs (>1500 lines), critical docs, user says "thorough" | Per I19 tables (5+ intermediate, 6-12+ final) | Per I19 tables + all domain lenses | Per I21 (2-8 agents) | Per I16 (2-3 per gate) | 2 |
+
+   **Default mapping (skills override in their tier section):**
+   - Quick / Lightweight → lite
+   - Standard → standard
+   - Deep / Heavyweight → full
+
+   **User override:** The user may explicitly request a different intensity:
+   - "quick with full QA" → Quick research + full QA
+   - "deep but lite QA" → Deep research + lite QA
+   - "standard" with no qualifier → standard research + standard QA (default mapping)
+
+   **Lite intensity rules:**
+   - Intermediate gates: 1 rf-qa (combined evidence-quality + gap-detection) + 1 rf-qa-qualitative (combined research-depth + completeness). No rf-analyst.
+   - Final gate: 1 rf-qa (combined structural lenses) + 1 rf-qa-qualitative (combined content lenses) + 1 domain lens agent (skill picks the highest-value domain lens). Total: 3 agents.
+   - Fidelity gate (M4): 1 rf-qa agent with combined fidelity lenses (semantic-coverage + phantom-detection). Max 1 fix cycle.
+   - Fix cycles: 1 max. If issues remain after 1 fix cycle, log as Open Questions and proceed.
+   - Verification: 1 agent (rf-qa, combined structural + content check).
+   - Partitioning: NEVER triggers (lite tasks don't produce enough files).
+   - Double QA: DISABLED. If the task file contains skill-specific QA items AND /task would add phase-gate QA, only the skill-specific QA runs.
+
+   **Standard intensity rules:**
+   - Intermediate gates: 1 rf-analyst (completeness) + 1 rf-qa (evidence-quality) + 1 rf-qa-qualitative (depth). Total: 3 agents.
+   - Final gate: 3 rf-qa structural (template-conformance, internal-consistency, evidence-quality) + 3 rf-qa-qualitative content (actionability, domain-accuracy, crossref-chain) + 1 domain lens (skill picks highest-value). Total: 7 agents.
+   - Fidelity gate (M4): 2 agents (same as current minimum).
+   - Fix cycles: 2 max per gate.
+   - Verification: 2 agents (current).
+   - Partitioning: Only for >10 files (raised from 6).
+   - Double QA: DISABLED (same as lite).
+
+   **Full intensity rules:**
+   - All current I19, I20, I21 rules apply without modification.
+   - This is the current behavior — no changes needed.
+
+   **Serialized fix protocol (I20) applies at ALL intensity levels.** Even lite with 3 agents
+   uses report → consolidate → fix → verify. The protocol is simplified (fewer agents, fewer
+   cycles) but never bypassed.
 
 ==============================================
 SECTION J: ERROR HANDLING GUIDANCE
@@ -699,6 +881,93 @@ K2. MULTI-ITEM PROCESSING PATTERN
    - [ ] Read the file `[template.md]` at `[path/to/template.md]` to understand the required format including [specific format requirements], then read the file `[source-data.md]` at `[path/to/source-data.md]` to extract the content needed for this specific file including [data points to extract], then create or update the file `[filename1.ext]` at `[full/path/to/filename1.ext]` with content derived from the source following the template format, ensuring [specific requirements for this file], all content is accurate with no fabrication, and all required sections are present. If unable to complete due to missing information, file access issues, or unclear requirements, log the specific blocker using the templated format in the ### Phase [N] Findings section of the ## Task Log / Notes at the bottom of this task file, then mark this item complete. Once done, mark this item as complete.
    ```
 
+==============================================
+SECTION M: PHASE-GATE COMPOSITE PATTERNS
+==============================================
+
+Phase-gate patterns combine multiple steps into a structured quality verification sequence at phase boundaries. M-patterns define multi-item sequences that the orchestrator inserts between phases.
+
+M1. PHASE-GATE QA SEQUENCE (LEGACY — see M3 for lens-based replacement)
+   **NOTE:** M1 describes the original single-agent QA sequence. For ALL new task files, use M3 (Lens-Based QA Sequence) instead. M1 is retained for backward compatibility with existing task files only. New task files MUST NOT use M1 — they MUST use M3.
+
+   **DEPRECATED:** This pattern spawns only 1-2 agents, which is below the mandatory minimum of 6 agents (I19). All new task files MUST use M3 instead.
+
+M2. PHASE-GATE APPLICABILITY
+   | Task Type | Where Gates Are Required | Minimum Agent Protocol |
+   |-----------|------------------------|------------------------|
+   | Research tasks | After research phase (research-gate), after synthesis phase (synthesis-gate), after assembly (report-validation) | Intermediate gates: 5 agents per I19. Assembly gate: M3 lens-based (6-12+ agents per I19) + M4 fidelity gate per I21 |
+   | Document creation tasks | After content creation phase, before Post-Completion (document-type-specific gate) | M3 lens-based (6-12+ agents per I19) + M4 fidelity gate per I21 |
+   | Code-modifying tasks | After implementation phase and before testing phase (if testing is separate), or after combined implement+test phase | M3 lens-based (minimum 6 agents per I19). Fidelity gate only if code was derived from spec documents |
+   | Task-building tasks | After research phase (research-gate), after task file creation (task-integrity) | Intermediate gates: 5 agents per I19. Task-integrity: minimum 5 agents (2 rf-qa + 2 rf-qa-qualitative + 1 rf-analyst) per I19 intermediate gate floor |
+
+   The orchestrator uses the task's scope and outputs to determine which gate types apply. When in doubt, include a gate — the cost of a false-positive gate (QA passes quickly) is far lower than the cost of a missed gate (bad outputs propagate).
+
+   **ALL gates use M3 (lens-based) as the default pattern.** M1 (single-agent) is deprecated and MUST NOT be used for new task files. ALL gates use I20 (serialized fix authorization). ALL gates encoding follows I15 and I20: every agent spawn, consolidation step, fix agent, and verification round is an explicit `- [ ]` checklist item.
+
+M3. LENS-BASED QA SEQUENCE
+   The lens-based QA sequence is the MANDATORY replacement for M1. It defines a multi-agent quality verification sequence where each agent is focused on exactly one quality dimension ("lens"). This pattern applies to every phase-gate QA checkpoint and every post-completion validation.
+
+   **Step 1 (Aggregation):** Collect all outputs from the preceding phase into a summary or inventory file. Use Glob to find files dynamically if the phase produces a variable number of outputs.
+
+   **Step 2 (Structural Lens Agents — PARALLEL):** Spawn rf-qa agents, one per structural lens, ALL in parallel with `fix_authorization: false`. Minimum 3 structural lens agents (see I19 for size-based scaling) — agent count per I22 qa_intensity level (lite: 1 combined agent, standard: 3 agents, full: minimum 3 per I19 with size-based scaling). Each agent gets:
+   - Its assigned lens (e.g., "template-conformance", "internal-consistency", "evidence-quality", "completeness")
+   - The full document under review (or assigned section range if >3000 lines, per the partitioning rules in this section)
+   - A lens-specific checklist defining exactly what to look for
+   - Adversarial framing: "Assume this document has at least N errors focused on [lens]. Find them."
+   - Output report path: `${TASK_DIR}qa/qa-structural-[lens-name]-report.md`
+   - `fix_authorization: false` (report only)
+
+   **Step 3 (Content Lens Agents — PARALLEL):** Spawn rf-qa-qualitative agents, one per content lens, ALL in parallel with `fix_authorization: false`. Minimum 3 content lens agents (see I19 for size-based scaling) — agent count per I22 qa_intensity level (lite: 1 combined agent, standard: 3 agents, full: minimum 3 per I19 with size-based scaling). Each agent gets:
+   - Its assigned lens (e.g., "actionability", "numbers-metrics", "crossref-chain", "domain-accuracy")
+   - The full document under review (or assigned section range if >3000 lines)
+   - A lens-specific checklist defining exactly what to look for
+   - Adversarial framing: "Assume this document has at least N errors focused on [lens]. Find them."
+   - Output report path: `${TASK_DIR}qa/qa-content-[lens-name]-report.md`
+   - `fix_authorization: false` (report only)
+
+   **Note:** Steps 2 and 3 MAY be spawned in the same parallel batch since all agents are independent and report-only.
+
+   **Step 4 (Domain-Specific Lens Agents — PARALLEL, if applicable):** If the skill defines additional domain-specific lenses beyond the standard 8, spawn those agents in parallel with Steps 2-3. Each follows the same pattern: one lens, one report, `fix_authorization: false`.
+
+   **Step 5 (Findings Consolidation):** Read ALL lens agent reports (from Steps 2-4). Produce a single consolidated findings file at `${TASK_DIR}qa/qa-consolidated-findings.md`. The file lists all issues from all agents, deduplicated (same issue found by multiple lenses listed once with all originating lenses noted), with severity (CRITICAL/IMPORTANT/MINOR) and originating lens.
+
+   **Step 6 (Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. This single agent applies ALL fixes to the target document. No other agent modifies the document.
+
+   **Step 7 (Verification Round — PARALLEL):** Spawn minimum 2 verification agents (1 at lite intensity per I22) (1 rf-qa + 1 rf-qa-qualitative) with `fix_authorization: false`. They verify: (a) all findings from Step 5 were addressed, (b) no new issues were introduced by the fixes, (c) document structural integrity is maintained. Output: `${TASK_DIR}qa/qa-verification-structural-report.md` and `${TASK_DIR}qa/qa-verification-content-report.md`.
+
+   **Step 8 (Conditional Proceed):** If all verification agents return PASS, proceed to the next phase. If any return FAIL, repeat consolidation (Step 5), fix (Step 6), and verification (Step 7). Maximum cycles as specified in I16 for this gate type, then HALT and escalate to user. At lite intensity per I22: max 1 fix cycle; unresolved issues become Open Questions.
+
+   **Intermediate Gate Adaptation:** For INTERMEDIATE gates (research-gate, synthesis-gate, task-integrity), Steps 2-3 adapt to the agent types specified in I19's intermediate gate table. rf-analyst agents replace some rf-qa/rf-qa-qualitative slots per I19. The total agent count floor (5 for intermediate, 6 for output/final) and serialized fix protocol (I20) remain the same.
+
+   **Partitioning for large documents (>3000 lines):** In addition to lens focus, each agent gets a section range assignment. This means the agent checks its lens quality dimension only within its assigned sections. The total minimum agent count remains per I19 — partitioning does not reduce agent count.
+
+   **Task file encoding:** EVERY step above (each lens agent spawn, consolidation, fix agent spawn, each verification agent spawn, conditional proceed) MUST be an explicit `- [ ]` checklist item. The orchestrator MUST NOT collapse multiple steps into a single item.
+
+M4. SOURCE-DOCUMENT FIDELITY GATE
+   The source-document fidelity gate is a quality verification pattern that runs AFTER M3 (lens-based QA). It verifies that the generated output faithfully represents what the source documents say. This is fundamentally different from M3 which validates internal quality — M4 validates external fidelity.
+
+   **When required:** See I21 for the mandatory applicability list.
+   **Intensity scaling:** The fidelity gate runs at ALL intensity levels. At lite intensity per I22, spawn 1 rf-qa agent with combined fidelity lenses (semantic-coverage + phantom-detection). At standard: 2 agents (current minimum). At full: per I21 (2-8 agents with partitioning).
+
+   **Step 1 (Source Document Identification):** Identify all source documents that were consumed to produce the output. The skill or task file MUST specify these explicitly (they are not discovered dynamically).
+
+   **Step 2 (Fidelity Agents — PARALLEL):** Spawn fidelity agents (minimum 2, partitioned to 3-4 if source docs exceed 1000 lines total). Each agent is an rf-qa instance spawned with:
+   - Its assigned section range of the source documents
+   - The FULL output document (every fidelity agent reads the complete output)
+   - A fidelity-specific checklist: semantic coverage, detail preservation, phantom coverage detection, operational/compliance completeness
+   - Output report path: `${TASK_DIR}qa/qa-source-fidelity-report-[N].md`
+   - `fix_authorization: false` (report only)
+
+   **Step 3 (Cross-Source Contradiction Agent):** If multiple source documents exist, spawn ONE additional rf-qa agent that reads ALL source documents and checks for contradictions between them. This agent does NOT read the output — it only checks source-to-source consistency. Output: `${TASK_DIR}qa/qa-cross-source-contradictions-report.md`.
+
+   **Step 4 (Fidelity Findings Consolidation):** Read all fidelity and contradiction reports. Produce a consolidated fidelity findings file at `${TASK_DIR}qa/qa-fidelity-consolidated-findings.md`.
+
+   **Step 5 (Fidelity Fix Agent):** Spawn ONE rf-qa agent with `fix_authorization: true` and the fidelity findings file as input. Apply all fixes.
+
+   **Step 6 (Fidelity Verification):** Spawn minimum 2 verification agents to confirm fidelity fixes were applied correctly. Same cycle control as M3 Step 8 (maximum cycles as specified in I16 for this gate type, then HALT).
+
+   **Task file encoding:** Same rule as M3 — every step is an explicit `- [ ]` checklist item.
+
 ################################################################################
 ################################################################################
 ##                                                                            ##
@@ -708,6 +977,13 @@ K2. MULTI-ITEM PROCESSING PATTERN
 ##                                                                            ##
 ################################################################################
 ################################################################################
+
+
+
+
+
+
+
 
 ################################################################################
 ################################################################################
@@ -744,7 +1020,6 @@ The following objectives MUST be achieved by this task:
 ## Prerequisites & Dependencies
 
 ### Parent Task & Dependencies
-
 - **Parent Task:** [PARENT-TASK-ID] - [Brief description of parent task]
 - **Blocking Dependencies:**
   - [DEPENDENCY-ID-1]: [What output from this task is needed]
@@ -758,17 +1033,31 @@ The following objectives MUST be achieved by this task:
 **MANDATORY:** The orchestrator creating this task MUST explicitly list all relevant outputs from previous stages that serve as inputs for this task. The actual checklist items for reading these outputs appear in Phase 1, Step 1.4.
 
 **Required Previous Stage Outputs:**
-
 - **[Output Type 1]:** `[path/to/output1.md]` - [Purpose: what will be extracted/used from this file]
 - **[Output Type 2]:** `[path/to/output2.md]` - [Purpose: what will be extracted/used from this file]
 - **[Output Type 3]:** `[path/to/output3.md]` - [Purpose: what will be extracted/used from this file]
 
 <!-- ORCHESTRATOR: Add all previous stage outputs that this task depends on. These will be read in Phase 1, Step 1.4. -->
 
+## Execution Context
+
+<!-- BUILDER: Populate this section as a required build step. Every generated task file MUST have this section populated before the task file is marked ready. -->
+
+### References
+<!-- List all governing documents, specs, and workflow files this task operates under. Format: `- [Document Name](path/to/doc.md): [one-line purpose]` -->
+- [placeholder: builder populates]
+
+### Source Areas
+<!-- List all codebase directories, modules, or file sets this task reads from or modifies. Format: `- `path/to/area/`: [what it contains / why relevant]` -->
+- [placeholder: builder populates]
+
+### Key Constraints
+<!-- List the top constraints that govern execution: QA intensity, scope limits, known blockers, standing prohibitions. Format: `- [Constraint description]` -->
+- [placeholder: builder populates]
+
 ### Frontmatter Update Protocol
 
 YOU MUST update the frontmatter at these MANDATORY checkpoints:
-
 - **Upon Task Start:** Update `status` to "🟠 Doing" and `start_date` to current date
 - **Upon Completion:** Update `status` to "🟢 Done" and `completion_date` to current date
 - **If Blocked:** Update `status` to "⚪ Blocked" and populate `blocker_reason`
@@ -819,7 +1108,6 @@ Due to session rollovers between batches, context loaded in early batches is NOT
      ═══════════════════════════════════════════════════════════════════════════ -->
 
 ### Phase 1: Preparation and Setup
-
 (Refer to [`[workflow_document].md#phase-1-preparation-and-setup`](path/to/workflow#phase-1-preparation-and-setup) for detailed requirements)
 
 YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark each item as complete before proceeding to the next.
@@ -851,7 +1139,6 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
      ═══════════════════════════════════════════════════════════════════════════ -->
 
 **Step 1.1:** Update task status
-
 - [ ] Update status to "🟠 Doing" and start_date to current date in frontmatter of this file, then add a timestamped entry to the ### Execution Log in the ## Task Log / Notes section at the bottom of this task file using the format: `**[YYYY-MM-DD HH:MM]** - Task started: Updated status to "🟠 Doing" and start_date.` Once done, mark this item as complete.
 
 ### Task-Specific Context Files
@@ -866,7 +1153,6 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 - **Previous Stage Output:** `[path/to/output.md]` - [Purpose]
 
 ### Phase 2: [Main Execution Phase Name]
-
 (Refer to workflow document for detailed requirements)
 
 **Step 2.1:** [Specific action - e.g., "Create [component name]"]
@@ -881,16 +1167,69 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 
 - [ ] Read the file `[source.md]` at `[path/to/source.md]` to extract the [specific requirements or data] needed, then create or update the file `[output-file.md]` at `[exact/path/to/output-file.md]` implementing all requirements from the source including [specific aspects], ensuring no content is fabricated or assumed beyond what the source explicitly states, all required sections are present and complete, all cross-references and links are functional, and no TODO/FIXME markers or placeholder text remains. If unable to complete due to missing information, file access issues, or unclear requirements, log the specific blocker using the templated format in the ### Phase 2 Findings section of the ## Task Log / Notes at the bottom of this task file, then mark this item complete. Once done, mark this item as complete.
 
+<!-- ORCHESTRATOR: For dynamic tasks (task_type: dynamic in frontmatter), insert DYNAMIC:START/END markers per I6 where workers will discover and add items during execution. Example below shows a dynamic discovery region. Remove this comment and the example if the task is static. -->
+
+**Step 2.4:** Process dynamically discovered items
+<!-- DYNAMIC:START:discovered-items -->
+- [ ] [Seed item — replace with actual initial item following B2 pattern. Workers will add items here as they discover new work.]
+<!-- DYNAMIC:END:discovered-items -->
+
 <!-- ORCHESTRATOR: For file-by-file or multi-item processing patterns, see Section K in PART 1 instructions.
      Replace this comment with actual checklist items for your specific files. -->
 
 ### Phase Gate: Quality Verification
 
-<!-- ORCHESTRATOR: Insert QA gate items here when Phase 2 produces outputs that Phase 3 depends on. Use the QA agent appropriate for the output type. See I15-I16 for rules. Remove this comment block and replace with actual QA gate items, or remove this entire section if no QA gate is needed for this task. -->
+<!-- ORCHESTRATOR: Insert lens-based QA gate items here when Phase 2 produces outputs that Phase 3 depends on. Follow the M3 (Lens-Based QA Sequence) pattern with minimum agent counts per I19 and serialized fix authorization per I20. Remove this comment block and replace with actual QA gate items adapted to your specific task outputs. If no QA gate is needed for this task, remove this entire section. -->
 
-**Step PG.1**
+**Step PG.1 (Aggregation — M3 Step 1)**
 
-- [ ] [QA GATE ITEM — Replace with actual QA agent spawn item following B2 pattern. Example: "Spawn rf-qa in [phase-type] mode to verify all Phase 2 outputs at [paths], ensuring the agent writes its report to [output-path] and returns a PASS/FAIL verdict. If FAIL, read the report, address all findings in the relevant Phase 2 output files, then re-spawn rf-qa in fix-cycle mode (max [N] cycles per I16). If unable to complete due to agent spawn failure, log the blocker in ### Phase Gate Findings below, then mark this item complete."]
+- [ ] Collect all Phase 2 outputs by using Glob to find all files created during Phase 2 at `[phase-2-output-paths]`, then write a summary inventory listing each file, its purpose, and its line count to `${TASK_DIR}qa/phase-2-output-inventory.md`, ensuring the inventory accurately reflects all Phase 2 deliverables. If unable to complete due to missing files, log the specific blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+<!-- ORCHESTRATOR: Replace [N] in adversarial framing below with the error target from I19: 5 for <500 lines output, 10 for 500-1500, 15 for 1500-3000, 20 for >3000. -->
+
+**Step PG.2 (Structural Lens 1 — Template Conformance)**
+
+- [ ] Spawn an rf-qa agent with `fix_authorization: false` to verify all Phase 2 outputs through the **template-conformance** lens. The agent reads the inventory at `${TASK_DIR}qa/phase-2-output-inventory.md` and each listed output file, checking: all required sections present, correct ordering, no remaining placeholders or sentinels, all required fields populated. The agent uses adversarial framing: "Assume this output has at least [N] template conformance errors. Find them." The agent writes its report to `${TASK_DIR}qa/qa-structural-template-conformance-report.md` with a PASS/FAIL verdict. If unable to spawn the agent, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.3 (Structural Lens 2 — Internal Consistency)**
+
+- [ ] Spawn an rf-qa agent with `fix_authorization: false` to verify all Phase 2 outputs through the **internal-consistency** lens. The agent reads each output file listed in `${TASK_DIR}qa/phase-2-output-inventory.md`, checking: IDs match across tables, counts agree, cross-references resolve, no contradictions within or between output files. The agent uses adversarial framing: "Assume this output has at least [N] internal consistency errors. Find them." The agent writes its report to `${TASK_DIR}qa/qa-structural-internal-consistency-report.md` with a PASS/FAIL verdict. If unable to spawn the agent, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.4 (Structural Lens 3 — Evidence Quality)**
+
+- [ ] Spawn an rf-qa agent with `fix_authorization: false` to verify all Phase 2 outputs through the **evidence-quality** lens. The agent reads each output file listed in `${TASK_DIR}qa/phase-2-output-inventory.md`, checking: all claims cite file paths and line numbers, no unverified assertions, no hallucinated paths (verify all cited paths exist via Glob). The agent uses adversarial framing: "Assume this output has at least [N] evidence quality errors. Find them." The agent writes its report to `${TASK_DIR}qa/qa-structural-evidence-quality-report.md` with a PASS/FAIL verdict. If unable to spawn the agent, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.5 (Content Lens 1 — Actionability)**
+
+- [ ] Spawn an rf-qa-qualitative agent with `fix_authorization: false` to verify all Phase 2 outputs through the **actionability** lens. The agent reads each output file listed in `${TASK_DIR}qa/phase-2-output-inventory.md`, checking: every recommendation is specific enough to execute without interpretation, acceptance criteria are testable with pass/fail, no vague directives. The agent uses adversarial framing: "Assume this output has at least [N] actionability errors. Find them." The agent writes its report to `${TASK_DIR}qa/qa-content-actionability-report.md` with a PASS/FAIL verdict. If unable to spawn the agent, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.6 (Content Lens 2 — Numbers and Metrics)**
+
+- [ ] Spawn an rf-qa-qualitative agent with `fix_authorization: false` to verify all Phase 2 outputs through the **numbers-metrics** lens. The agent reads each output file listed in `${TASK_DIR}qa/phase-2-output-inventory.md`, checking: all percentages add up, counts in summaries match counts in detail, numeric ranges are realistic and internally consistent. The agent uses adversarial framing: "Assume this output has at least [N] numeric errors. Find them." The agent writes its report to `${TASK_DIR}qa/qa-content-numbers-metrics-report.md` with a PASS/FAIL verdict. If unable to spawn the agent, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.7 (Content Lens 3 — Cross-Reference Chain Integrity)**
+
+- [ ] Spawn an rf-qa-qualitative agent with `fix_authorization: false` to verify all Phase 2 outputs through the **cross-reference chain integrity** lens. The agent reads each output file listed in `${TASK_DIR}qa/phase-2-output-inventory.md`, checking: every requirement traces to at least one implementation item, every implementation item traces back to a requirement, no orphaned items, no phantom coverage. The agent uses adversarial framing: "Assume this output has at least [N] broken cross-references. Find them." The agent writes its report to `${TASK_DIR}qa/qa-content-crossref-chain-report.md` with a PASS/FAIL verdict. If unable to spawn the agent, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+<!-- ORCHESTRATOR: M3 Step 4 (Domain-Specific Lens Agents) is omitted from this generic placeholder. If the task requires domain-specific lenses beyond the standard 8, add them here per M3 Step 4, spawning them in parallel with PG.2-PG.7. -->
+
+<!-- ORCHESTRATOR: This placeholder demonstrates 6 of 8 standard lenses. Add completeness (structural) and domain-accuracy (content) lenses per I19 if the task scope warrants them. -->
+
+**Step PG.8 (Findings Consolidation — M3 Step 5)**
+
+- [ ] Read all QA lens reports from Steps PG.2-PG.7 by using Glob to find all files matching `${TASK_DIR}qa/qa-structural-*.md` and `${TASK_DIR}qa/qa-content-*.md`. Extract all findings from each report and produce a single consolidated findings file at `${TASK_DIR}qa/qa-consolidated-findings.md` listing all issues deduplicated (same issue found by multiple lenses listed once with all originating lenses noted), with severity (CRITICAL/IMPORTANT/MINOR) and originating lens, ensuring no findings are omitted. If all reports show PASS with zero findings, write "No findings — all lenses passed" to the consolidated file and proceed. If unable to read reports, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.9 (Fix Agent — M3 Step 6, Serialized per I20)**
+
+- [ ] Read the consolidated findings file at `${TASK_DIR}qa/qa-consolidated-findings.md`. If it says "No findings," skip this step and mark complete. If findings exist, spawn ONE rf-qa agent with `fix_authorization: true` and the consolidated findings file as input. The fix agent reads each finding and applies the required fix to the relevant Phase 2 output file, then writes a fix log to `${TASK_DIR}qa/qa-fix-log.md` documenting each finding addressed and the specific edit made, ensuring only ONE agent modifies files (no parallel fixes per I20). If unable to spawn the agent, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.10 (Verification Round — M3 Step 7)**
+
+- [ ] Read the fix log at `${TASK_DIR}qa/qa-fix-log.md`. If no fixes were needed (Step PG.9 was skipped), skip this step and mark complete. If fixes were applied, spawn 2 verification agents in parallel (1 rf-qa structural + 1 rf-qa-qualitative content) with `fix_authorization: false` to verify: (a) all findings from the consolidated findings file were addressed, (b) fixes were applied correctly with no garbled text or lost content, (c) no new issues were introduced. The rf-qa agent writes to `${TASK_DIR}qa/qa-verification-structural-report.md` and the rf-qa-qualitative agent writes to `${TASK_DIR}qa/qa-verification-content-report.md`, ensuring both agents use adversarial framing. If unable to spawn agents, log the blocker in ### Phase Gate Findings below, then mark this item complete. Once done, mark this item as complete.
+
+**Step PG.11 (Conditional Proceed — M3 Step 8)**
+
+- [ ] Read the verification reports at `${TASK_DIR}qa/qa-verification-structural-report.md` and `${TASK_DIR}qa/qa-verification-content-report.md`. If both report PASS (or no fixes were needed), proceed to the next phase. If either reports FAIL, repeat Steps PG.8-PG.10 (re-consolidate new + remaining findings, spawn fix agent, verify). Maximum cycles as specified in I16 for this gate type. If issues remain after the maximum, HALT and escalate by logging unresolved issues in ### Phase Gate Findings below with a note that manual intervention is required, then mark this item complete. Once done, mark this item as complete.
 
 ### Phase [N]: Testing & Verification
 
@@ -901,7 +1240,6 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 - [ ] [TESTING ITEM -- Replace with actual test execution item following B2 pattern. Example: "Run the test suite covering the modified code by executing `[test command]` to verify all tests pass with no regressions, ensuring the test output shows 0 failures and no errors in the modified modules, then capture the results to `[output-path]`. If tests fail, read the failure output to identify the root cause, attempt to fix the failing tests or the source code causing failures, then re-run. If unable to resolve test failures, log the specific failures using the templated format in the ### Phase [N] Findings section of the ## Task Log / Notes at the bottom of this task file, then mark this item complete."]
 
 ### Phase 3: [Additional Phase if Needed]
-
 (Refer to workflow document for detailed requirements)
 
 **Step 3.1:** [Specific action]
@@ -910,9 +1248,19 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 
 ## Post-Completion Actions
 
+- [ ] Verify all checklist items are marked complete by scanning this task file for any remaining `- [ ]` items (excluding Post-Completion Actions themselves and any template examples in orchestrator comment blocks), ensuring none remain unchecked. If unchecked items are found, determine whether they were intentionally skipped (with a blocker logged in the Task Log) or accidentally missed, and log any discrepancies in ### Follow-Up Items below, then mark this item complete.
+
+- [ ] Verify all blocker entries in the Task Log have resolution notes by reading the Task Log sections (Phase Findings and Follow-Up Items) of this task file, ensuring every logged blocker includes a resolution status (Resolved or Unresolved with explanation). If any blocker entries lack resolution notes, add the missing resolution status, then mark this item complete.
+
 - [ ] Verify all task outputs by using Glob to confirm every output file specified in checklist items exists on disk, ensuring no expected deliverables are missing. If any files are missing, check the Task Log for blockers explaining the absence. If files are missing without documented reason, log the gap in ### Follow-Up Items below, then mark this item complete.
 
 - [ ] If this task modified source code files, run the relevant test suite (per the testing items in the execution phases) to confirm all tests still pass with no regressions, ensuring the final state of the codebase is clean. If tests were already run and passed in an earlier phase and no subsequent changes were made, note "Tests verified in Phase [N]" in the Task Log and mark this item complete.
+
+<!-- ORCHESTRATOR: The QA and fidelity items below are intentionally written as single orchestrator-level instructions. When building a task file FROM this template, the builder MUST expand each into the full M3 8-step / M4 6-step sequence with individual checklist items per step. See M3 and M4 for the complete step-by-step sequences. -->
+
+- [ ] Spawn lens-based QA agents per M3 to verify all task deliverables meet structural and content quality standards, with minimum agent counts per I19 and serialized fix authorization per I20. Spawn at minimum 3 rf-qa agents (structural lenses: template-conformance, internal-consistency, evidence-quality) and 3 rf-qa-qualitative agents (content lenses: actionability, numbers-metrics, crossref-chain) in parallel, each with `fix_authorization: false`, each writing a report to `${TASK_DIR}qa/qa-[type]-[lens]-report.md`. After all lens agents complete, consolidate findings to `${TASK_DIR}qa/qa-consolidated-findings.md`, spawn one fix agent with `fix_authorization: true`, then spawn verification agents. If verification passes, proceed. If verification fails after the maximum cycles specified in I16 for this gate type, HALT and escalate. If unable to spawn agents, log the blocker in ### Follow-Up Items below, then mark this item complete. Once done, mark this item as complete.
+
+- [ ] If this task produced outputs derived from source documents (e.g., code-to-docs, PRD-to-TDD, spec-to-implementation), spawn fidelity agents per M4/I21 to verify output fidelity against source inputs, with minimum 2 fidelity agents reading both source sections and the full output, writing reports to `${TASK_DIR}qa/qa-source-fidelity-report-[N].md`. Consolidate findings, apply fixes, and verify per M4 Steps 4-6. If this task did NOT transform source documents, skip this item and mark complete. If unable to spawn agents, log the blocker in ### Follow-Up Items below, then mark this item complete. Once done, mark this item as complete.
 
 - [ ] Create a ### Task Summary section at the top of the ## Task Log / Notes section at the bottom of this task file, using the templated format provided there. The summary should document: work completed (referencing key outputs and files created/modified), challenges encountered during execution, any deviations from the planned process and their rationale, and blockers logged during execution with their resolution status. Once the summary is complete, mark this item as complete.
 
@@ -926,21 +1274,17 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 **Completion Date:** [YYYY-MM-DD]
 
 **Work Completed:**
-
 - [Key output 1]: [Brief description]
 - [Files created]: [List with paths]
 - [Files modified]: [List with paths]
 
 **Challenges Encountered:**
-
 - [Challenge]: [How addressed] OR None
 
 **Deviations from Process:**
-
 - [Deviation]: [Rationale] OR None
 
 **Blockers Logged:**
-
 - [Step X.Y]: [Description] - **Status:** [Resolved/Unresolved] OR None
 
 **Follow-Up Required:** [Yes/No] - [Description if yes]

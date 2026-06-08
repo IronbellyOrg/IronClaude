@@ -86,10 +86,12 @@ INV010_LOG_EMPTY_RE = re.compile(
     r"source=rf-qa\.md source_sha256=([0-9a-f]{16})$"
 )
 
-# Minimum K we expect at the time MIG-005 lands. Catalogue floors at
-# 8 (TB-Add-1..8 per the M1 PR-06 contract-freeze, CP-P01-END). A drop
-# below this in the *activated* scenario signals catalogue regression.
-MIN_LIVE_K = 8
+# Minimum K floor for the *activated* scenario. The M1 PR-06 contract-freeze
+# (TB-Add-1..8 per CP-P01-END) was SUPERSEDED by 804eb4f4, which intentionally
+# removed TB-Add-2 (item-count bounds, incompatible with 100-250+ item task
+# files). TB-Add IDs are stable, leaving a permanent gap (live: 1, 3-8 = 7).
+# A drop below 7 signals catalogue regression.
+MIN_LIVE_K = 7
 
 
 # ---------------------------------------------------------------------------
@@ -436,12 +438,16 @@ class TestCatalogueActivationAutoRichens:
             "from SKILL.md §A.10.5 steps 2-4"
         )
 
-    def test_activated_extract_catalogue_is_dense(self, sequencing_scenario):
-        """No gaps: extracted IDs are [TB-Add-1, ..., TB-Add-K]."""
+    def test_activated_extract_catalogue_is_well_formed(self, sequencing_scenario):
+        """IDs are unique and strictly ascending. Contiguity is NOT required:
+        TB-Add-2's intentional removal (804eb4f4) leaves a permanent stable-ID
+        gap (live catalogue: 1, 3-8); the runtime enumeration mechanism
+        (dedupe + sort-by-N) is contiguity-agnostic. Asserts the real
+        invariant (no duplicates, sorted), not the superseded [1..K] form."""
         cat = sequencing_scenario["cat_activated"]
         ns = [int(s.split("-")[-1]) for s in cat]
-        assert ns == list(range(1, len(ns) + 1)), (
-            f"activated catalogue has gaps in TB-Add-N integer range: {cat}"
+        assert ns == sorted(set(ns)), (
+            f"activated catalogue has duplicate or unsorted TB-Add-N IDs: {cat}"
         )
 
     def test_activated_log_line_matches_present_shape(self, sequencing_scenario):
