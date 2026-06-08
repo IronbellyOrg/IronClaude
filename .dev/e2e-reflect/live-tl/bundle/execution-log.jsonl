@@ -1,0 +1,15 @@
+{"event": "sprint_start", "timestamp": "2026-06-06T15:09:11.638951+00:00", "index": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/live-tl/bundle/tasklist-index.md", "phases": "1-2", "max_turns": 100, "model": "default"}
+{"event": "phase_start", "phase": 1, "phase_name": "- Scaffold", "phase_file": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/live-tl/bundle/phase-1-tasklist.md", "timestamp": "2026-06-06T15:09:11.642598+00:00"}
+{"event": "task_complete", "phase": 1, "task_id": "T01.01", "status": "pass", "turns": 8, "duration_sec": 46.019109, "timestamp": "2026-06-06T15:09:57.665927+00:00"}
+{"event": "task_complete", "phase": 1, "task_id": "T01.02", "status": "pass", "turns": 3, "duration_sec": 31.013647, "timestamp": "2026-06-06T15:10:28.681793+00:00"}
+{"event": "task_complete", "phase": 1, "task_id": "T01.03", "status": "pass", "turns": 9, "duration_sec": 144.585341, "timestamp": "2026-06-06T15:12:53.272105+00:00"}
+{"event": "task_complete", "phase": 1, "task_id": "T01.04", "status": "pass", "turns": 18, "duration_sec": 370.652396, "timestamp": "2026-06-06T15:19:04.353436+00:00"}
+{"event": "phase_complete", "phase": 1, "phase_name": "- Scaffold", "status": "pass", "exit_code": 0, "started_at": "2026-06-06T15:09:11.642598+00:00", "finished_at": "2026-06-06T15:19:04.353965+00:00", "duration_seconds": 592.711367, "output_bytes": 0, "error_bytes": 0, "last_task_id": "", "files_changed": 0}
+{"event": "phase_start", "phase": 2, "phase_name": "- Content", "phase_file": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/live-tl/bundle/phase-2-tasklist.md", "timestamp": "2026-06-06T15:19:04.358325+00:00"}
+{"event": "task_complete", "phase": 2, "task_id": "T02.01", "status": "pass", "turns": 7, "duration_sec": 41.517101, "timestamp": "2026-06-06T15:19:45.877928+00:00"}
+{"event": "task_complete", "phase": 2, "task_id": "T02.02", "status": "pass", "turns": 5, "duration_sec": 33.518232, "timestamp": "2026-06-06T15:20:27.250677+00:00"}
+{"event": "task_complete", "phase": 2, "task_id": "T02.03", "status": "pass", "turns": 8, "duration_sec": 73.046289, "timestamp": "2026-06-06T15:22:06.772274+00:00"}
+{"event": "task_complete", "phase": 2, "task_id": "T02.04", "status": "pass", "turns": 26, "duration_sec": 343.624559, "timestamp": "2026-06-06T15:27:50.400387+00:00"}
+{"event": "phase_complete", "phase": 2, "phase_name": "- Content", "status": "pass", "exit_code": 0, "started_at": "2026-06-06T15:19:04.358325+00:00", "finished_at": "2026-06-06T15:27:53.740993+00:00", "duration_seconds": 529.382668, "output_bytes": 0, "error_bytes": 0, "last_task_id": "", "files_changed": 0}
+{"event": "checkpoint_manifest", "path": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/live-tl/bundle/manifest.json", "total": 2, "found": 2, "missing": 0}
+{"event": "sprint_complete", "outcome": "success", "duration_seconds": 1122.107607, "phases_passed": 2, "phases_failed": 0, "halt_phase": null}

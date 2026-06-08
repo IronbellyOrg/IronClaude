@@ -1,0 +1,70 @@
+{
+  "phase": 1,
+  "status": "error",
+  "exit_code": 1,
+  "started_at": "2026-06-04T18:29:13.573196+00:00",
+  "finished_at": "2026-06-04T18:29:13.573548+00:00",
+  "task_results": [
+    {
+      "task": {
+        "task_id": "T01.01",
+        "title": "Create `.dev/e2e-reflect/tl-2/work/index.md` scaffold",
+        "description": "File `.dev/e2e-reflect/tl-2/work/index.md` containing a title and intro paragraph.",
+        "dependencies": [],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:29:13.573522+00:00",
+      "finished_at": "2026-06-04T18:29:13.573526+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T01.02",
+        "title": "Create `.dev/e2e-reflect/tl-2/work/glossary.md` scaffold",
+        "description": "File `.dev/e2e-reflect/tl-2/work/glossary.md` containing three placeholder terms.",
+        "dependencies": [],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:29:13.573522+00:00",
+      "finished_at": "2026-06-04T18:29:13.573532+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T01.03",
+        "title": "Checkpoint: End of Phase 01",
+        "description": "",
+        "dependencies": [
+          "T01.01",
+          "T01.02"
+        ],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:29:13.573522+00:00",
+      "finished_at": "2026-06-04T18:29:13.573533+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    }
+  ],
+  "recovery_history": []
+}

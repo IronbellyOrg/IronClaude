@@ -1,0 +1,99 @@
+contract_version: "1.2.0"
+status: partial                      # degraded inline evidence-validation at T1-quick (no open deviations)
+mode: post
+tier_reached: 1
+report_path: .dev/e2e-reflect/live-tl/bundle/validation/reflect-post/phase-02/REPORT.md
+audit_log_path: .dev/e2e-reflect/live-tl/bundle/validation/reflect-post/phase-02/audit.log
+confidence_calibrated: 0.93          # inline calibration (calibration: inline-fallback); clean phase, high grounding
+escalation_rule_matched: null
+onboarding_ran: false
+
+# UC-2 specific
+tasklist_completion_pct: 1.0         # acceptance-criteria met: 12 of 12 across T02.01/02/03
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: .dev/e2e-reflect/live-tl/bundle/validation/reflect-post/phase-02/artifacts/deviation-ledger.yaml
+grounding_gaps_path: .dev/e2e-reflect/live-tl/bundle/validation/reflect-post/phase-02/artifacts/grounding-gaps.yaml
+verification_ran: false
+verification_skip_reason: --no-verify   # no test surface — sandbox markdown deliverables only
+serena_summary_corroboration: unavailable   # cross-session (sprint subprocess); nothing to summarize
+
+# Input integrity
+input_tree_sha256: working-tree-untracked   # no commit range; Phase 2 work untracked
+input_tree_file_count: 6
+input_tree_snapshot_path: .dev/e2e-reflect/live-tl/bundle/validation/reflect-post/phase-02/artifacts/input-snapshot.yaml
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 11
+citations_revalidated: 11
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false        # inline re-Read fallback (§11.2) → forces status: partial
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts (not run — T1 pinned)
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false           # --remediate set, but zero deviations → nothing to remediate
+remediation_accepted: null
+task_file_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false                 # contrast Phase 1: no checkpoint-AC defect this phase (status:PASS is honest)
+user_decision_required: false
+needs_human_decision: false          # grounding-gaps.yaml is empty
+
+# Per-task verdicts
+per_task_verdicts:
+  - task_id: T02.01
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.96
+    evidence_anchor: .dev/e2e-reflect/live-tl/bundle/artifacts/D-0003/evidence.md
+  - task_id: T02.02
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: .dev/e2e-reflect/live-tl/bundle/artifacts/D-0004/evidence.md
+  - task_id: T02.03
+    status: success                   # checkpoint reports status:PASS honestly (deliverables present)
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.94
+    evidence_anchor: .dev/e2e-reflect/live-tl/bundle/checkpoints/CP-P02-END.md
+
+# Cross-task interaction effects
+interaction_effects_scanned: true        # 3 tasks; cross-file link reference checked (index.md -> glossary.md)
+interaction_effects_findings: 0          # link target valid; no broken cross-reference; no symbol overlap (markdown)
+
+# Promotion (UC-2) — no adapter matches this sandbox path
+promotion_action: skipped
+promotion_adapter: none
+promotion_skip_reason: adapter-unresolved
+promotion_gate_passed: false             # cond 2 (status==success) fails on inline-validator partial; adapter unresolved regardless
+promotion_log_path: null
+
+# Telemetry (non-stable subset)
+executor_class_source: flag
+executor_class_resolved: true
+degraded_components: ["evidence-validator", "confidence-calibrator", "git-commit-range"]
+fallback_path: null

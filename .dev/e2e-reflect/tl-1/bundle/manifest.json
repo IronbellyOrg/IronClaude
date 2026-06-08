@@ -1,0 +1,27 @@
+{
+  "generated_at": "2026-06-04T18:30:33.590283+00:00",
+  "summary": {
+    "total": 2,
+    "found": 1,
+    "missing": 1,
+    "recovered": 0
+  },
+  "entries": [
+    {
+      "phase": 1,
+      "name": "End of Phase 01",
+      "expected_path": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/tl-1/bundle/checkpoints/CP-P01-END.md",
+      "exists": true,
+      "recovered": false,
+      "recovery_source": null
+    },
+    {
+      "phase": 2,
+      "name": "End of Phase 02",
+      "expected_path": "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/tl-1/bundle/.dev/e2e-reflect/tl-1/bundle/checkpoints/CP-P02-END.md",
+      "exists": false,
+      "recovered": false,
+      "recovery_source": null
+    }
+  ]
+}

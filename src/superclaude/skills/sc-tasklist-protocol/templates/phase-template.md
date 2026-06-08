@@ -126,7 +126,7 @@ This checkpoint serves as the gate for the next phase and must include all stand
 
 ## Terminal Post-Execution Reflection Task (when reflect gating is enabled)
 
-> Mirror of the SKILL.md Section 6B inline copy — kept in sync for human review. When reflect gating is enabled, the generator appends exactly ONE fixed terminal task per phase file, AFTER the end-of-phase checkpoint. It uses the standard Sprint-CLI task shape, is Tier EXEMPT (reflect is the auditor, so it is **exempt from the artifact-referencing Acceptance-Criteria minimum**), carries a `**Reflect Report Path:**` (not a Checkpoint Report Path), and its `<phase-commit-range>` is resolved by the Sprint executor at run time (never a fabricated SHA). The spawn directive uses `/sc:reflect` (never `/sc:task`).
+> Mirror of the SKILL.md Section 6B inline copy — kept in sync for human review. When reflect gating is enabled, the generator appends exactly ONE fixed terminal task per phase file, AFTER the end-of-phase checkpoint. It uses the standard Sprint-CLI task shape, is Tier EXEMPT (reflect is the auditor, so it is **exempt from the artifact-referencing Acceptance-Criteria minimum**), carries a `**Reflect Report Path:**` (not a Checkpoint Report Path), and its `<phase-commit-range>` is resolved by the Sprint executor at run time (never a fabricated SHA). The spawn directive uses `/sc:reflect` (never the `sc:task` execution command).
 
 ```markdown
 ### T<PP>.<final> -- Post-Execution Reflection: sc:reflect --mode post
@@ -152,7 +152,7 @@ This checkpoint serves as the gate for the next phase and must include all stand
 
 **Spawn Directive (fresh session):** Spawn a NEW agent/session and run:
 `/sc:reflect --mode post --remediate --tasklist TASKLIST_ROOT/phase-<PP>-tasklist.md --diff <phase-commit-range> --depth <DETERMINISTIC_DEPTH_for_phase_PP> --tier <DETERMINISTIC_TIER_for_phase_PP> --executor-model <EXECUTOR_CLASS> --output TASKLIST_ROOT/validation/reflect-post/phase-<PP>/`
-(The reflect agent uses the default subagent model; `--executor-model` is the reflect-native exclusion flag naming the class that ran the phase's work — it does not select a model. Never `/sc:task`.)
+(The reflect agent uses the default subagent model; `--executor-model` is the reflect-native exclusion flag naming the class that ran the phase's work — it does not select a model. Never the `sc:task` execution command.)
 
 **Steps:**
 1. **[VERIFICATION]** Resolve `<phase-commit-range>` = the git range covering all of Phase <PP>'s task commits.
