@@ -572,3 +572,139 @@ def test_e2e_budget_exhaustion(mock_synth_mapping, mock_process_cls, e2e_task_di
     # Suggested budget should be positive
     suggested = result.suggested_resume_budget
     assert suggested > 0, f"Expected positive suggested budget, got {suggested}"
+
+
+# ---------------------------------------------------------------------------
+# Scenario 6: AC10 -- document-capture hotfix (recovery + no contamination)
+# ---------------------------------------------------------------------------
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
+def test_e2e_ac10_recovery_variant_filename(
+    mock_synth_mapping, mock_process_cls, standard_e2e_config
+):
+    """[AC10a] Variant-named scope-discovery doc is recovered -> no HALT (Layer 2).
+
+    The mocked subprocess emits only 24 lines of NDJSON commentary for
+    scope-discovery (below the gate floor) but writes a 60-line variant
+    ``scope-discovery.md`` into a WHERE source dir. The hardened recovery must
+    surface the real document so the gate evaluates 60 lines, the pipeline
+    completes with outcome == "success", and the persisted canonical artifact
+    carries the recovered content (not the NDJSON commentary).
+    """
+    task_dir = standard_e2e_config.task_dir
+    where_dir = task_dir / ".dev" / "specs"
+    where_dir.mkdir(parents=True)
+
+    variant_doc = "\n".join(f"scope line {i}" for i in range(60)) + "\n"
+    short_ndjson = (
+        "\n".join(f"commentary {i}" for i in range(24))
+        + "\nEXIT_RECOMMENDATION: CONTINUE\n"
+    )
+
+    def factory(**kwargs):
+        step_id = kwargs["step_id"]
+        output_file = kwargs["output_file"]
+        mock_proc = MagicMock()
+        if step_id == "scope-discovery":
+            output_text = short_ndjson
+        else:
+            output_text = _make_passing_output(step_id, 120)
+        mock_proc.start_with_retry.return_value = None
+
+        def write_output_and_return():
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            output_file.write_text(output_text, encoding="utf-8")
+            if step_id == "scope-discovery":
+                # Agent dropped the -raw suffix AND wrote into a WHERE dir.
+                (where_dir / "scope-discovery.md").write_text(
+                    variant_doc, encoding="utf-8"
+                )
+            return 0
+
+        mock_proc.wait.side_effect = write_output_and_return
+        return mock_proc
+
+    mock_process_cls.side_effect = factory
+    mock_synth_mapping.return_value = [
+        {"synth_file": "section-overview.md"},
+        {"synth_file": "section-requirements.md"},
+        {"synth_file": "section-architecture.md"},
+    ]
+
+    executor = PrdExecutor(standard_e2e_config)
+    executor._build_prompt = lambda builder_name, step_id=None: (
+        f"Mock prompt for {builder_name}"
+    )
+
+    result = executor.run()
+
+    # Recovery prevented a gate HALT -> pipeline completes.
+    assert result.outcome == "success"
+    # The persisted canonical artifact carries the recovered 60-line variant,
+    # NOT the 24-line NDJSON commentary.
+    persisted = task_dir / "scope-discovery-raw.md"
+    assert persisted.exists() is True
+    assert len(persisted.read_text(encoding="utf-8").splitlines()) >= 50
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
+def test_e2e_ac10_no_where_contamination_when_pinned(
+    mock_synth_mapping, mock_process_cls, standard_e2e_config
+):
+    """[AC10b] Pinned prompts -> canonical writes leave the WHERE dir clean (Layer 1).
+
+    With the output-path pin in place, a compliant subprocess writes its
+    document to the canonical task_dir path. The fix adds NO cleanup/move
+    logic -- this verifies pinned-path behavior: no scope-discovery*/
+    research-notes* files are left in the WHERE source dir after the run.
+    """
+    task_dir = standard_e2e_config.task_dir
+    where_dir = task_dir / ".dev" / "specs"
+    where_dir.mkdir(parents=True)
+
+    def factory(**kwargs):
+        step_id = kwargs["step_id"]
+        output_file = kwargs["output_file"]
+        mock_proc = MagicMock()
+        output_text = _make_passing_output(step_id, 120)
+        mock_proc.start_with_retry.return_value = None
+
+        def write_output_and_return():
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            output_file.write_text(output_text, encoding="utf-8")
+            # Pinned-compliant agent writes to the canonical task_dir path,
+            # never into the WHERE source dir.
+            if step_id == "scope-discovery":
+                (task_dir / "scope-discovery-raw.md").write_text(
+                    output_text, encoding="utf-8"
+                )
+            elif step_id == "research-notes":
+                (task_dir / "research-notes.md").write_text(
+                    output_text, encoding="utf-8"
+                )
+            return 0
+
+        mock_proc.wait.side_effect = write_output_and_return
+        return mock_proc
+
+    mock_process_cls.side_effect = factory
+    mock_synth_mapping.return_value = [
+        {"synth_file": "section-overview.md"},
+        {"synth_file": "section-requirements.md"},
+        {"synth_file": "section-architecture.md"},
+    ]
+
+    executor = PrdExecutor(standard_e2e_config)
+    executor._build_prompt = lambda builder_name, step_id=None: (
+        f"Mock prompt for {builder_name}"
+    )
+
+    result = executor.run()
+
+    assert result.outcome == "success"
+    # No variant document was left contaminating the WHERE source dir.
+    assert not list(where_dir.glob("scope-discovery*"))
+    assert not list(where_dir.glob("research-notes*"))

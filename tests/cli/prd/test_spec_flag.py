@@ -286,14 +286,26 @@ class TestScopeDiscoverySpecInjection:
         empty_prompt = build_scope_discovery_prompt(_scope_config(empty_dir))
         with_prompt = build_scope_discovery_prompt(_scope_config(with_dir))
 
+        # The scope-discovery prompt now pins its canonical output path
+        # (task_dir/scope-discovery-raw.md — the document-capture hotfix), so each
+        # fixture's distinct task_dir basename legitimately appears in the prompt.
+        # Normalize that incidental path out so the byte-identity check isolates
+        # the only delta this test cares about: AUTHORITATIVE-SPECS block injection.
+        def _norm(prompt: str, task_dir: Path) -> str:
+            return prompt.replace(str(task_dir), "<TASKDIR>")
+
+        no_spec_norm = _norm(no_spec_prompt, no_spec_dir)
+        empty_norm = _norm(empty_prompt, empty_dir)
+        with_norm = _norm(with_prompt, with_dir)
+
         # Empty SPECS array is a true no-op: byte-identical to no SPECS key.
-        assert empty_prompt == no_spec_prompt
+        assert empty_norm == no_spec_norm
         assert "AUTHORITATIVE" not in no_spec_prompt
 
         # With specs, the prompt differs ONLY by the helper-produced block.
         block = _authoritative_specs_block(["/abs/SPEC.md"])
         assert block in with_prompt
-        assert with_prompt.replace(block, "") == no_spec_prompt
+        assert with_norm.replace(block, "") == no_spec_norm
 
     def test_helper_empty_returns_empty_string(self) -> None:
         assert _authoritative_specs_block([]) == ""
