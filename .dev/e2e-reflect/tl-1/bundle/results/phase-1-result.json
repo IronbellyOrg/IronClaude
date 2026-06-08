@@ -1,0 +1,89 @@
+{
+  "phase": 1,
+  "status": "error",
+  "exit_code": 1,
+  "started_at": "2026-06-04T18:30:13.797996+00:00",
+  "finished_at": "2026-06-04T18:30:13.798277+00:00",
+  "task_results": [
+    {
+      "task": {
+        "task_id": "T01.01",
+        "title": "Create sandbox index markdown",
+        "description": "File `.dev/e2e-reflect/tl-1/work/index.md` containing one title and one intro paragraph.",
+        "dependencies": [],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:13.798256+00:00",
+      "finished_at": "2026-06-04T18:30:13.798260+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T01.02",
+        "title": "Create sandbox glossary markdown",
+        "description": "File `.dev/e2e-reflect/tl-1/work/glossary.md` containing three placeholder terms.",
+        "dependencies": [],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:13.798256+00:00",
+      "finished_at": "2026-06-04T18:30:13.798263+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T01.03",
+        "title": "Checkpoint: End of Phase 01",
+        "description": "",
+        "dependencies": [
+          "T01.01",
+          "T01.02"
+        ],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:13.798256+00:00",
+      "finished_at": "2026-06-04T18:30:13.798264+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T01.04",
+        "title": "Post-Execution Reflection: sc:reflect --mode post",
+        "description": "Post-execution reflect report for Phase 1.",
+        "dependencies": [],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:13.798256+00:00",
+      "finished_at": "2026-06-04T18:30:13.798265+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    }
+  ],
+  "recovery_history": []
+}

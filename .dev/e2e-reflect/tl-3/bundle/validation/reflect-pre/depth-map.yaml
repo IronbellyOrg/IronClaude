@@ -1,0 +1,32 @@
+generated: '2026-06-04T00:00:00Z'
+scenario: tl-3
+rule: 'if n_cpo >= 1 OR n_strict >= 2, floor phase pre-reflect to depth=deep tier=2'
+phases:
+  - phase: 1
+    file: phase-1-tasklist.md
+    phase_name: 'Authentication & Credential Migration'
+    n_tasks: 5
+    n_strict: 3
+    n_cpo: 3
+    raw_score: 9
+    raw_depth: standard
+    raw_tier: 1
+    override_fired: true
+    override_reason: 'n_cpo >= 1 and n_strict >= 2'
+    depth: deep
+    tier: 2
+    invocation: '/sc:reflect --mode pre --phase 1 --depth deep --tier 2'
+  - phase: 2
+    file: phase-2-tasklist.md
+    phase_name: Documentation
+    n_tasks: 2
+    n_strict: 0
+    n_cpo: 0
+    raw_score: 1
+    raw_depth: quick
+    raw_tier: 0
+    override_fired: false
+    override_reason: null
+    depth: quick
+    tier: 0
+    invocation: '/sc:reflect --mode pre --phase 2 --depth quick --tier 0'

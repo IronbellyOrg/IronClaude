@@ -52,6 +52,48 @@ def _today() -> str:
     return date.today().isoformat()
 
 
+def _authoritative_specs_block(spec_paths: list[str] | None) -> str:
+    """Imperative AUTHORITATIVE-SPECS prompt fragment, or '' when no specs.
+
+    Returns an empty string (no leading whitespace) when *spec_paths* is empty
+    or None, so callers that interpolate it produce prompts byte-identical to
+    the no-spec path. When specs are present, returns a block (prefixed with a
+    blank line) instructing the agent to Read each authoritative spec in full.
+
+    Phase 1 (paths-only): the block carries paths, not inlined content.
+    """
+    if not spec_paths:
+        return ""
+    listed = "\n".join("- " + p for p in spec_paths if p)
+    return (
+        "\n\nAUTHORITATIVE SPECIFICATIONS -- these files are the operator's "
+        "ground truth for this PRD. You MUST Read each one IN FULL before "
+        "drawing conclusions, and treat their contents as overriding any "
+        "inference from directory names or structure:\n" + listed
+    )
+
+
+def _artifact_path_for_step(config: PrdConfig, step_id: str) -> Path | None:
+    """Canonical artifact path for a step, or None if not applicable.
+
+    Read-only mirror of _STEP_ARTIFACT_FILES in executor.py so prompt-side
+    pinning and executor-side recovery agree on one source of truth.
+    Guarded by test_prompt_executor_mapping_sync.
+    """
+    mapping = {
+        "parse-request": "parsed-request.json",
+        "scope-discovery": "scope-discovery-raw.md",
+        "research-notes": "research-notes.md",
+        "sufficiency-review": "sufficiency-review.md",
+        "research-qa": "qa/qa-research-gate-report.md",
+        "synthesis-qa": "qa/qa-synthesis-gate-report.md",
+        "structural-qa": "qa/qa-report-validation.md",
+        "qualitative-qa": "qa/qa-qualitative-review.md",
+    }
+    name = mapping.get(step_id)
+    return None if name is None else config.task_dir / name
+
+
 # ---------------------------------------------------------------------------
 # Stage A Prompt Builders (7)
 # ---------------------------------------------------------------------------
@@ -132,13 +174,20 @@ def build_scope_discovery_prompt(
             f"- {s}" for s in context_summaries
         )
 
+    # SPECS is a Python-owned array bound into parsed-request.json by the
+    # executor after parse-request. Absent on --where-only / bare runs, so the
+    # block is empty and the prompt stays byte-identical to today (R4/R6).
+    specs_block = _authoritative_specs_block(
+        [s.get("path", "") for s in (parsed.get("SPECS") or [])]
+    )
+
     return f"""Perform scope discovery for a PRD about: {parsed["GOAL"]}
 
 Product: {parsed.get("PRODUCT_NAME", "Unknown")}
 Scope: {parsed.get("PRD_SCOPE", "feature")}
 Scenario: {parsed.get("SCENARIO", "B")}
 {where_clause}
-{ctx}
+{ctx}{specs_block}
 
 Your task is to explore the codebase and produce a comprehensive scope discovery document.
 
@@ -150,6 +199,14 @@ PROCESS:
 5. Find existing documentation -- READMEs, docs/, wiki references, inline comments
 6. Identify integration points -- APIs, external services, plugin systems
 7. Assess complexity -- how many distinct areas need dedicated research agents?
+
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / "scope-discovery-raw.md"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
 
 OUTPUT FORMAT:
 
@@ -218,6 +275,14 @@ Scope Discovery Results:
 ---
 {scope_content}
 ---
+
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / "research-notes.md"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
 
 Produce a research-notes.md file with EXACTLY these 7 sections (all required):
 
@@ -298,7 +363,17 @@ Evaluate whether these research notes provide sufficient foundation for the PRD 
 4. **Balance**: Are there gaps -- areas mentioned in EXISTING_FILES but not assigned to any agent?
 5. **Web research**: Are there topics requiring external market/competitive research?
 
-Return JSON:
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / "sufficiency-review.md"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
+
+Write the following JSON object as the FULL contents of that file
+(sufficiency-review.md) -- do not emit it only on stdout, or the pinned
+write the pipeline relies on will be skipped:
 {{
   "verdict": "PASS" or "FAIL",
   "coverage_score": 0-100,
@@ -536,6 +611,14 @@ Synthesis directory: {config.synthesis_dir}
 QA directory: {config.qa_dir}
 {ctx}
 
+CRITICAL -- Output Location:
+Write the document to EXACTLY this path:
+{config.task_dir / ".preparation-complete"}
+
+Do NOT write it to any other directory or filename. The pipeline depends
+on finding it at this exact location. Do NOT write into any source or
+spec directory listed in your scope.
+
 PREPARATION STEPS:
 1. Verify all required directories exist (research/, synthesis/, qa/)
 2. Create a .preparation-complete marker file
@@ -608,6 +691,7 @@ _INVESTIGATION_LEGACY_FIELDS = {
     "files",
     "product_root",
     "output_path",
+    "spec_paths",
 }
 _WEB_RESEARCH_LEGACY_FIELDS = {"topic", "context", "product", "output_path"}
 _SYNTHESIS_LEGACY_FIELDS = {
@@ -664,12 +748,23 @@ def _derive_investigation_render_kwargs(config, idx: int) -> dict:
     }
     slug = _slugify_agent_title(agent["title"])
     config.research_dir.mkdir(parents=True, exist_ok=True)
+    # Authoritative --spec files bound into parsed-request.json by the executor.
+    # Absent on --where-only / bare runs → empty list → no prompt delta (R4/R6).
+    parsed_path = config.task_dir / "parsed-request.json"
+    spec_paths: list[str] = []
+    if parsed_path.is_file():
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+            spec_paths = [s.get("path", "") for s in (parsed.get("SPECS") or [])]
+        except (OSError, ValueError):
+            spec_paths = []
     return {
         "topic": agent["topic"],
         "agent_type": agent["agent_type"],
         "files": agent["files"] or [str(p) for p in (config.where or [])],
         "product_root": str(config.work_dir),
         "output_path": config.research_dir / investigation_filename(idx, slug),
+        "spec_paths": spec_paths,
     }
 
 
@@ -739,9 +834,16 @@ def _render_investigation_prompt(
     files: list[str],
     product_root: str,
     output_path: Path,
+    spec_paths: list[str] | None = None,
 ) -> str:
-    """Render the actual investigation prompt text."""
+    """Render the actual investigation prompt text.
+
+    *spec_paths* (optional) are authoritative --spec files bound by the
+    executor; when present an imperative AUTHORITATIVE-SPECS block is appended.
+    Empty/None ⇒ byte-identical to the no-spec prompt.
+    """
     files_list = "\n".join(f"- {f}" for f in files)
+    specs_block = _authoritative_specs_block(spec_paths)
 
     return f"""Research this aspect of the product and write findings to {output_path}:
 
@@ -749,7 +851,7 @@ Topic: {topic}
 Investigation type: {agent_type}
 Files to investigate:
 {files_list}
-Product root: {product_root}
+Product root: {product_root}{specs_block}
 
 CRITICAL -- Incremental File Writing Protocol:
 You MUST follow this protocol exactly. Violation results in data loss.

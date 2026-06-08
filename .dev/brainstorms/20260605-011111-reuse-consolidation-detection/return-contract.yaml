@@ -1,0 +1,36 @@
+# /sc:brainstorm return contract
+contract_version: "1.0"
+status: partial          # partial (not success): fallback_mode true — ran 4/5 variants after variant-3 vendor failure
+seed_brief_path: .dev/brainstorms/20260605-011111-reuse-consolidation-detection/seed-brief.md
+merged_output_path: .dev/brainstorms/20260605-011111-reuse-consolidation-detection/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: .dev/brainstorms/20260605-011111-reuse-consolidation-detection/adversarial/
+domain: architecture
+proposal_count: 4        # 5 requested; variant-3 (haiku/qwen) failed twice on vendor socket reset
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "C-002: N=2 cross-module disposition (advisory vs blocking) — shipped as advisory+L3-escalation; revisit with eval data"
+  - "O3: refs/reuse-audit.md location (per-skill refs/ vs shared _shared/refs/)"
+
+# --- telemetry (non-stable) ---
+telemetry:
+  fallback_mode: true
+  variant_generation:
+    requested: 5
+    succeeded: 4
+    failed: ["variant-3-haiku-refactorer (qwen3.6-plus vendor socket reset, 2 attempts)"]
+    lost_lens: "refactorer/simplicity — compensated by refactor-plan Simplicity-Guard + merged §12 Deferred"
+  models_used: {opus: "claude-opus-4-8 (x3 variants + orchestration)", sonnet: "gpt-5.5 (variant-5)", haiku: "qwen3.6-plus (FAILED)"}
+  adversarial:
+    base_variant: "variant-4 (opus:architect, gate-placement)"
+    status: success         # 5-step pipeline completed, merge validation passed, ≥2 variants
+    invocation_method: orchestrator-adjudicated
+    decisive_verifications:
+      - "X-001: sc-reflect §17.7 L1742 rejects a 5th deviation class → Reuse-Miss = modifier-not-class"
+      - "X-002: superclaude.cli.pipeline exists + prd already imports it → extract-shared has a legal home"
+    invariant_probe: "8 findings; 1 HIGH (INV-001) resolved by spec citation; 3 MEDIUM carried with mitigations"
+  agent_spec: "opus:architect,opus:analyzer,haiku:refactorer,opus:architect,sonnet:analyzer"

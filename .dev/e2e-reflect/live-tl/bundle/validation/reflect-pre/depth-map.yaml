@@ -1,0 +1,57 @@
+# Stage 10.5 Pre-Reflect Depth Map (deterministic)
+# /sc:tasklist — Sandbox Docs Bundle v0.1-e2e-tl1
+# Per-phase reflect --depth/--tier computed from COMPLEXITY_SCORE over signals
+# the generator already emitted (Tier Distribution, Critical Path Override, Risk,
+# task count, Traceability Matrix). No inference. See SKILL.md "Per-Phase Reflect
+# Depth (Deterministic COMPLEXITY_SCORE)".
+#
+# COMPLEXITY_SCORE = 3*n_strict + 3*n_cpo + 2*n_high_risk
+#                  + ceil(n_tasks/5) + ceil(n_R/5)
+# Bands: 0-3 -> quick/1 ; 4-9 -> standard/auto ; >=10 -> deep/2
+# Hard overrides: (n_cpo>=1 OR n_strict>=2) -> floor deep/2 ; n_tasks==0 -> skip
+
+generated: 2026-06-05
+roadmap: .dev/e2e-reflect/tl-1/roadmap.md
+spec_resolved: .dev/e2e-reflect/tl-1/roadmap.md   # no --spec, no .roadmap-state.json -> roadmap is the spec
+mode: pre
+fanout_agents: 2          # N phases, one pre-reflect agent each, run in parallel after generation
+
+phases:
+  - phase: 1
+    name: Scaffold
+    signals:
+      n_strict: 0         # T01.01 STANDARD, T01.02 LIGHT
+      n_cpo: 0            # no auth/security/crypto/models/migrations paths
+      n_high_risk: 0      # all tasks Risk=Low
+      n_tasks: 2          # regular tasks only (excludes checkpoint T01.03 + reflect T01.04)
+      n_R: 2              # R-001, R-002
+    complexity_score: 2   # 3*0 + 3*0 + 2*0 + ceil(2/5)=1 + ceil(2/5)=1
+    band: "0-3"
+    hard_override: none
+    depth: quick
+    tier: 1
+    verdict: PASS
+    coverage: 100
+    report: validation/reflect-pre/phase-1/REPORT.md
+  - phase: 2
+    name: Content
+    signals:
+      n_strict: 0         # T02.01 STANDARD, T02.02 STANDARD
+      n_cpo: 0
+      n_high_risk: 0
+      n_tasks: 2          # excludes checkpoint T02.03 + reflect T02.04
+      n_R: 2              # R-003, R-004
+    complexity_score: 2   # 3*0 + 3*0 + 2*0 + ceil(2/5)=1 + ceil(2/5)=1
+    band: "0-3"
+    hard_override: none
+    depth: quick
+    tier: 1
+    verdict: PASS
+    coverage: 100
+    report: validation/reflect-pre/phase-2/REPORT.md
+
+summary:
+  pass: 2
+  partial: 0
+  fail: 0
+  human_decision_halts: 0

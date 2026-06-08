@@ -1,0 +1,5 @@
+# Grounding gaps (§10.6) — evidence-insufficient findings that could not be classified.
+# Phase 2: every task was fully classifiable with sufficient on-disk evidence; no findings
+# lacked grounding. This file parses to a zero-element list → "empty" per the §14.5.2
+# canonical definition (forces neither needs_human_decision nor status:partial on its own).
+findings: []

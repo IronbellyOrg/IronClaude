@@ -1,10 +1,11 @@
 """PRD pipeline gate criteria -- semantic checks and step-to-gate mappings.
 
 Defines the GATE_CRITERIA dict mapping each PRD pipeline step to its
-GateCriteria instance, plus 10 semantic check functions organized in
+GateCriteria instance, plus 11 semantic check functions organized in
 two layers:
 
-  1. Reusable checks: _check_verdict_field, _check_no_placeholders
+  1. Reusable checks: _check_verdict_field, _check_no_placeholders,
+     _check_no_truncation_marker
   2. PRD-specific checks: _check_parsed_request_fields,
      _check_research_notes_sections, _check_suggested_phases_detail,
      _check_task_phases_present, _check_b2_self_contained,
@@ -80,6 +81,12 @@ def _check_no_placeholders(content: str) -> bool | str:
             found.append(f"{label} ({len(matches)}x)")
     if found:
         return f"Placeholder text found: {', '.join(found)}"
+    return True
+
+
+def _check_no_truncation_marker(content: str) -> bool | str:
+    if "[TRUNCATED" in content or content.rstrip().endswith("..."):
+        return "Content appears truncated — model output limit may have been reached"
     return True
 
 

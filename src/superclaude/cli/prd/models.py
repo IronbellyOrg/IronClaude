@@ -180,6 +180,7 @@ class PrdConfig(PipelineConfig):
     prd_scope: str = "feature"
     scenario: str = "B"
     where: list[str] = field(default_factory=list)
+    spec_files: list[str] = field(default_factory=list)
     why: str = ""
     output_path: Path = field(default_factory=lambda: Path("."))
     tier: str = "standard"

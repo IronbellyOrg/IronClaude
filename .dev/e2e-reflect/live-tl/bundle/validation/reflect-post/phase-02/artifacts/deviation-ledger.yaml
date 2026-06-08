@@ -1,0 +1,19 @@
+# Deviation ledger (§10 4-category taxonomy) — Phase 2 post-execution audit
+# Categories: authorized | necessary | drift | regression
+# Precedence (§10.5): Regression > Drift > Necessary > Authorized
+#
+# Phase 2 produced ZERO deviations of any class — this file parses to a zero-element
+# `deviations` list. Every task met every acceptance criterion against its gold-standard
+# reference (phase-2-tasklist.md), and the Phase-1 [COMPLETION]-step Drift (DV-01) did NOT
+# recur: both D-0003 and D-0004 evidence files were written to the canonical live path.
+deviations: []
+
+# Non-deviations (recorded for completeness):
+# - T02.01: all 4 ACs met. index.md:5 `## Usage`; index.md:7 relative link `[glossary](glossary.md)`;
+#   single Usage heading (repeatable); D-0003 evidence written to the correct live path. deviation_class: none.
+# - T02.02: all 4 ACs met. glossary.md `## Summary` table with exactly one data row
+#   `| 3 | Alpha | Gamma | complete |`; D-0004 evidence at the correct live path. deviation_class: none.
+# - T02.03: all 4 ACs met. CP-P02-END.md:3 `status: PASS` is TRUTHFUL (deliverables genuinely present);
+#   all 3 Verification bullets + 3 Exit Criteria confirmed; report names T02.01 and T02.02. deviation_class: none.
+#   Contrast with Phase 1 DV-02, where the checkpoint correctly reported FAIL against on-disk reality;
+#   here the on-disk reality supports a genuine PASS, so AC1 ("must contain status: PASS") is satisfied honestly.

@@ -1,0 +1,93 @@
+{
+  "phase": 2,
+  "status": "error",
+  "exit_code": 1,
+  "started_at": "2026-06-04T18:30:33.584705+00:00",
+  "finished_at": "2026-06-04T18:30:33.585051+00:00",
+  "task_results": [
+    {
+      "task": {
+        "task_id": "T02.01",
+        "title": "Add usage section to sandbox index",
+        "description": "Usage section in `.dev/e2e-reflect/tl-1/work/index.md` linking to `glossary.md`.",
+        "dependencies": [
+          "T01.01"
+        ],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:33.585019+00:00",
+      "finished_at": "2026-06-04T18:30:33.585025+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T02.02",
+        "title": "Add glossary summary table",
+        "description": "One-row summary table in `.dev/e2e-reflect/tl-1/work/glossary.md`.",
+        "dependencies": [
+          "T01.02"
+        ],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:33.585019+00:00",
+      "finished_at": "2026-06-04T18:30:33.585031+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T02.03",
+        "title": "Checkpoint: End of Phase 02",
+        "description": "",
+        "dependencies": [
+          "T02.01",
+          "T02.02"
+        ],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:33.585019+00:00",
+      "finished_at": "2026-06-04T18:30:33.585032+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    },
+    {
+      "task": {
+        "task_id": "T02.04",
+        "title": "Post-Execution Reflection: sc:reflect --mode post",
+        "description": "Post-execution reflect report for Phase 2.",
+        "dependencies": [],
+        "command": "",
+        "classifier": ""
+      },
+      "status": "skipped",
+      "turns_consumed": 0,
+      "exit_code": 0,
+      "started_at": "2026-06-04T18:30:33.585019+00:00",
+      "finished_at": "2026-06-04T18:30:33.585033+00:00",
+      "output_bytes": 0,
+      "gate_outcome": "pending",
+      "reimbursement_amount": 0,
+      "output_path": ""
+    }
+  ],
+  "recovery_history": []
+}

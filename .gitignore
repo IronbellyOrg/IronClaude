@@ -236,6 +236,9 @@ uv.lock
 # Sprint runner transient state directory (post-FU-001 default). Holds
 # .sprint-exitcode and other ephemeral per-run state; never tracked.
 .dev/sprint-state/
+# e2e-reflect harness sprint-state (same ephemeral exitcode/state, nested
+# under per-scenario test dirs). FU-001 forbids tracking .sprint-exitcode.
+.dev/e2e-reflect/**/sprint-state/
 # Sprint runner per-task stdout/stderr dumps. Routinely exceed the 1 MB
 # pre-commit large-file threshold; the manifest, execution-log, tasklists,
 # and verification artifacts in the same release directory remain tracked.

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "task_id": "T01.01",
+  "phase": 1,
+  "status": "pass",
+  "gate_outcome": "pending",
+  "turns_consumed": 8,
+  "exit_code": 0,
+  "output_path": "",
+  "started_at": "2026-06-06T15:09:11.642846+00:00",
+  "finished_at": "2026-06-06T15:09:57.661955+00:00",
+  "produced_artifacts": [
+    "/config/workspace/IronClaude/.claude/worktrees/ReflectInTaskLists/.dev/e2e-reflect/live-tl/bundle/results/phase-1-task-T01.01-output.txt"
+  ],
+  "consumed_upstreams": []
+}

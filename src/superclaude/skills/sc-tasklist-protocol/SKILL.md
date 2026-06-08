@@ -1035,7 +1035,7 @@ checkpoint report path is fixed at
 
 #### Post-Execution Reflection Task (Terminal — when reflect gating is enabled)
 
-When reflect gating is enabled (default; disabled by `--no-reflect`), append exactly ONE fixed terminal task to each phase file, AFTER the End-of-Phase Checkpoint above. This is the sole task permitted to follow the end-of-phase checkpoint (per the amended checkpoint-is-last invariant set — Self-Check #6 and structural checks #18/#19/#20). It uses the standard Sprint-CLI task shape (metadata table + body sections), is Tier EXEMPT (reflect is the auditor, not itself tier-verified, so it is exempt from the artifact-referencing Acceptance-Criteria minimum), and carries a `**Reflect Report Path:**` (not a Checkpoint Report Path). `<phase-commit-range>` is a placeholder the Sprint executor resolves at execution time — never a fabricated SHA. The spawn directive uses `/sc:reflect` (never `/sc:task`).
+When reflect gating is enabled (default; disabled by `--no-reflect`), append exactly ONE fixed terminal task to each phase file, AFTER the End-of-Phase Checkpoint above. This is the sole task permitted to follow the end-of-phase checkpoint (per the amended checkpoint-is-last invariant set — Self-Check #6 and structural checks #18/#19/#20). It uses the standard Sprint-CLI task shape (metadata table + body sections), is Tier EXEMPT (reflect is the auditor, not itself tier-verified, so it is exempt from the artifact-referencing Acceptance-Criteria minimum), and carries a `**Reflect Report Path:**` (not a Checkpoint Report Path). `<phase-commit-range>` is a placeholder the Sprint executor resolves at execution time — never a fabricated SHA. The spawn directive uses `/sc:reflect` (never the `sc:task` execution command).
 
 ```markdown
 ### T<PP>.<final> -- Post-Execution Reflection: sc:reflect --mode post
@@ -1061,7 +1061,7 @@ When reflect gating is enabled (default; disabled by `--no-reflect`), append exa
 
 **Spawn Directive (fresh session):** Spawn a NEW agent/session and run:
 `/sc:reflect --mode post --remediate --tasklist TASKLIST_ROOT/phase-<PP>-tasklist.md --diff <phase-commit-range> --depth <DETERMINISTIC_DEPTH_for_phase_PP> --tier <DETERMINISTIC_TIER_for_phase_PP> --executor-model <EXECUTOR_CLASS> --output TASKLIST_ROOT/validation/reflect-post/phase-<PP>/`
-(The reflect agent uses the default subagent model; `--executor-model` is the reflect-native exclusion flag naming the class that ran the phase's work, so reflect removes it from the reviewer pool — it does not select a model. Never `/sc:task`.)
+(The reflect agent uses the default subagent model; `--executor-model` is the reflect-native exclusion flag naming the class that ran the phase's work, so reflect removes it from the reviewer pool — it does not select a model. Never the `sc:task` execution command.)
 
 **Steps:**
 1. **[VERIFICATION]** Resolve `<phase-commit-range>` = the git range covering all of Phase <PP>'s task commits.

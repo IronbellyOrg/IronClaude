@@ -1,0 +1,10 @@
+selected_tier: 1
+fired_rule_number: 2
+composite_score: 2.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 0
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 1
+escalation_reason: "T1 sufficient: 4 changed files, two domains (code/tests), no unmapped diff, no regression candidates, calibrated confidence 0.94."
