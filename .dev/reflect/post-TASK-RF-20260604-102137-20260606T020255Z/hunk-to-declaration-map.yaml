@@ -1,0 +1,9 @@
+hunks:
+  - file: src/superclaude/cli/sprint/rerun_tasks.py
+    declarations: [_is_success_task_status, _rerun_targets_passed, _print_investigation_summary]
+  - file: src/superclaude/cli/sprint/handoff.py
+    declarations: [is_validated_success]
+  - file: tests/sprint/test_rerun_tasks.py
+    declarations: [TestRerunTargetsPassed]
+  - file: tests/sprint/test_resume_contract.py
+    declarations: [test_is_validated_success_only_for_pass_plus_gate_success]
