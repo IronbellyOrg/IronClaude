@@ -24,8 +24,9 @@ lines 1213-1224 (T03.07 / D-0031):
    "remove synthetic stub after fixture run").
 5. The SKILL.md §A.10.5 enumeration block contains no hard-coded
    TB-Add-N enumeration list — only the symbolic
-   ``LIVE_TB_ADD = [TB-Add-1, TB-Add-2, …, TB-Add-K]`` illustration
-   from step 4 is allowed (AC-4 / phase-3-tasklist.md L346).
+   ``LIVE_TB_ADD = [TB-Add-1, TB-Add-3, …, TB-Add-K]`` illustration
+   from step 4 is allowed (AC-4 / phase-3-tasklist.md L346). (Sparse
+   after 804eb4f4 removed TB-Add-2; leads with the first two live IDs.)
 6. The orchestrator's INV-010 structured log line shape (SKILL.md
    step 7) is emitted with the correct runtime ``size=K`` on both
    cycles, and the ``source_sha256`` witness differs between cycles
@@ -71,7 +72,7 @@ TB_ADD_ID_RE = re.compile(r"^[0-9]+\. \*\*TB-Add-([0-9]+):", re.MULTILINE)
 
 # Used by AC-4 (hard-coded enumeration absence). The enumeration block
 # lives at SKILL.md:1213-1224 — only the symbolic worked-example
-# pattern (``LIVE_TB_ADD = [TB-Add-1, TB-Add-2, …, TB-Add-K]``) is
+# pattern (``LIVE_TB_ADD = [TB-Add-1, TB-Add-3, …, TB-Add-K]``) is
 # allowed. Any other TB-Add-N tokens in this range indicate regression.
 SKILL_A105_BLOCK_START = 1213
 SKILL_A105_BLOCK_END = 1224
@@ -83,9 +84,12 @@ INV010_LOG_RE = re.compile(
     r"source=rf-qa\.md source_sha256=([0-9a-f]{16})$"
 )
 
-# Minimum K we expect at the time MIG-003 lands (M1 freezes TB-Add-1..8
-# per CP-P01-END). A drop below this floor signals catalogue regression.
-MIN_LIVE_K = 8
+# Minimum K floor. The M1 contract-freeze (TB-Add-1..8 per CP-P01-END) was
+# SUPERSEDED by 804eb4f4, which intentionally removed TB-Add-2 (item-count
+# bounds — incompatible with the 100-250+ item task files this pipeline
+# produces). TB-Add IDs are STABLE, so removal leaves a permanent gap (the
+# live catalogue is 1, 3-8 = 7 entries). A drop below 7 signals regression.
+MIN_LIVE_K = 7
 
 
 # ---------------------------------------------------------------------------
@@ -232,8 +236,20 @@ def two_cycle(workdir: Path, rf_qa_canonical_text: str):
     block1 = render_block(cat1)
 
     k1 = len(cat1)
-    synth_n = k1 + 1
-    synth_num = 28 + (synth_n - 8)  # next sequential item after item 28
+    # Catalogue is intentionally sparse after TB-Add-2's removal (804eb4f4):
+    # count (k1) != max ID. A genuinely-new synthetic ID must clear the MAX,
+    # not the count, or it collides with an existing entry (k1+1 == 8 would
+    # duplicate the live TB-Add-8 and the "grew by one" assertion would fail).
+    max_n = max(int(s.split("-")[-1]) for s in cat1)
+    synth_n = max_n + 1
+    # Numbered-list position is cosmetic (extract_catalogue keys on TB-Add-N,
+    # not the leading integer); derive it from the current last item rather
+    # than hard-coding the old "item 28".
+    _item_nums = [
+        int(m)
+        for m in re.findall(r"^([0-9]+)\. ", _bounded_region(cycle1_text), re.MULTILINE)
+    ]
+    synth_num = (max(_item_nums) + 1) if _item_nums else synth_n
     cycle2_text = _append_synthetic_stub(cycle1_text, synth_n, synth_num)
     cycle2_path.write_text(cycle2_text, encoding="utf-8")
 
@@ -302,9 +318,11 @@ class TestNoHardCodedEnumerationInA105:
     """AC-4 (phase-3-tasklist.md L346) — inside the A.10.5 enumeration
     block (lines 1213-1224), the only TB-Add-N tokens permitted are
     the symbolic worked-example references ``TB-Add-1`` and
-    ``TB-Add-2`` from step 4's ``LIVE_TB_ADD = [TB-Add-1, TB-Add-2, …,
-    TB-Add-K]`` illustration. Any other token = hard-coded
-    enumeration regression."""
+    ``TB-Add-3`` from step 4's ``LIVE_TB_ADD = [TB-Add-1, TB-Add-3, …,
+    TB-Add-K]`` illustration. (The example used ``TB-Add-2`` until
+    804eb4f4 intentionally removed TB-Add-2, so the sparse-catalogue
+    illustration now leads with the first two live IDs 1 and 3.) Any
+    other token = hard-coded enumeration regression."""
 
     def test_only_symbolic_tb_add_tokens_in_block(self):
         skill_lines = SKILL_SRC.read_text(encoding="utf-8").splitlines()
@@ -332,12 +350,15 @@ class TestNoHardCodedEnumerationInA105:
         span_lines = skill_lines[block_start - 1 : block_end]
         span_text = "\n".join(span_lines)
         tokens = set(re.findall(r"TB-Add-\d+", span_text))
-        allowed = {"TB-Add-1", "TB-Add-2"}
+        # Worked-example IDs in the A.10.5 illustration. Updated 1,2 -> 1,3
+        # after 804eb4f4 removed TB-Add-2 (the sparse example now leads with
+        # the first two live IDs).
+        allowed = {"TB-Add-1", "TB-Add-3"}
         unexpected = tokens - allowed
         assert not unexpected, (
             "AC-4 violated: SKILL.md §A.10.5 enumeration block contains "
             f"non-symbolic TB-Add tokens {sorted(unexpected)} — hard-coded "
-            "enumeration regression. Only `TB-Add-1` and `TB-Add-2` "
+            "enumeration regression. Only `TB-Add-1` and `TB-Add-3` "
             "(symbolic worked-example) are permitted in the block."
         )
 
@@ -354,7 +375,8 @@ class TestNoHardCodedEnumerationInA105:
             )
         span = "\n".join(skill_lines[SKILL_A105_BLOCK_START - 1 : SKILL_A105_BLOCK_END])
         tokens = set(re.findall(r"TB-Add-\d+", span))
-        allowed = {"TB-Add-1", "TB-Add-2"}
+        # 1,3 (not 1,2) — see worked-example update after the 804eb4f4 TB-Add-2 removal.
+        allowed = {"TB-Add-1", "TB-Add-3"}
         unexpected = tokens - allowed
         if "TB-Add catalogue enumeration" not in span:
             pytest.skip(
@@ -384,12 +406,19 @@ class TestBaselineCatalogueExtraction:
             "SKILL.md §A.10.5 steps 2-4."
         )
 
-    def test_cycle1_catalogue_is_dense(self, two_cycle):
-        """No gaps: extracted IDs are [TB-Add-1, ..., TB-Add-K1]."""
+    def test_cycle1_catalogue_is_well_formed(self, two_cycle):
+        """IDs are unique and strictly ascending. Contiguity is NOT required:
+        TB-Add IDs are STABLE identifiers, so the intentional removal of
+        TB-Add-2 (804eb4f4) leaves a permanent gap (live catalogue: 1, 3-8).
+        The INV-010 runtime mechanism (extract_catalogue: dedupe + sort-by-N)
+        is contiguity-agnostic — re-numbering stable IDs to close the gap would
+        orphan ~169 cross-references for zero runtime benefit. This test now
+        asserts the REAL invariant (no duplicates, sorted) the mechanism
+        enforces, not the superseded [1..K]-contiguous over-constraint."""
         cat1 = two_cycle["cat1"]
         ns = [int(s.split("-")[-1]) for s in cat1]
-        assert ns == list(range(1, len(ns) + 1)), (
-            f"cycle-1 catalogue has gaps in TB-Add-N integer range: {cat1}"
+        assert ns == sorted(set(ns)), (
+            f"cycle-1 catalogue has duplicate or unsorted TB-Add-N IDs: {cat1}"
         )
 
     def test_cycle1_log_shape_matches_inv010_contract(self, two_cycle):

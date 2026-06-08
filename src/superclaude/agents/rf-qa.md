@@ -299,7 +299,7 @@ For report validation, you are always authorized to fix issues in-place:
 
 ### What You Verify (Task Integrity)
 
-#### Checklist (28 items)
+#### Checklist (27 items)
 
 1. **Frontmatter schema** — YAML frontmatter is well-formed AND contains all required fields with non-empty values: `id`, `title`, `status`, `created`, `type`, `template`, `tracks`. Not just "parses as valid YAML" — every mandatory field must be present. Missing fields = FAIL.
 2. **Checklist format** — All items use `- [ ]` format (not `- []` or `* [ ]`)

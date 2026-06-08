@@ -160,7 +160,9 @@ class TestFixturesExist:
 class TestRuleArtifactsExcludeDoneReadback:
     """`.dev/tasks/done/` MUST NOT appear in any behaviour-modifying
     rule for current-task header emission. The TB-Add-2 ADVISORY
-    threshold line is the single allowed informational mention.
+    threshold line was formerly the single allowed informational
+    mention; 804eb4f4 intentionally removed TB-Add-2, so NO mention
+    remains — the strongest no-hidden-input posture.
     """
 
     def test_rf_task_builder_has_no_done_readback(self):
@@ -171,41 +173,26 @@ class TestRuleArtifactsExcludeDoneReadback:
             f"found {len(hits)} occurrences — would re-activate PR-05 risk"
         )
 
-    def test_task_builder_skill_done_mention_is_advisory_only(self):
-        """The task-builder SKILL.md contains exactly one mention of
-        `.dev/tasks/done/`: the TB-Add-2 ADVISORY calibration line
-        explaining when TB-Add-2 may promote out of `[ADVISORY]`.
-        Any additional mention would risk re-activating the
-        hidden-input pathway."""
+    def test_task_builder_skill_has_no_done_mention(self):
+        """SUPERSEDES `test_task_builder_skill_done_mention_is_advisory_only`.
+        The task-builder SKILL.md now references `.dev/tasks/done/` ZERO times.
+        TB-Add-2's ADVISORY calibration line was the only (informational)
+        mention; 804eb4f4 removed TB-Add-2, so the hidden-input pathway has no
+        foothold at all. `== 0` is STRICTLY STRONGER than the prior `== 1`
+        exception — any new `.dev/tasks/done/` mention now fails immediately,
+        rather than being silently tolerated as "the one advisory line"."""
         text = TB_SKILL_PATH.read_text(encoding="utf-8")
-        # Locate every line referencing the directory.
         lines = text.splitlines()
         donelines = [
             (idx + 1, raw)
             for idx, raw in enumerate(lines)
             if DONE_DIR_LITERAL_RE.search(raw)
         ]
-        assert len(donelines) == 1, (
-            f"task-builder SKILL.md must reference `.dev/tasks/done/` exactly once "
-            f"(TB-Add-2 ADVISORY calibration). Found {len(donelines)} mentions: "
-            f"{[ln for ln, _ in donelines]}"
-        )
-        # The single allowed mention MUST be the TB-Add-2 ADVISORY
-        # calibration text, not a current-task readback instruction.
-        _line_no, body = donelines[0]
-        assert "TB-Add-2" in body, (
-            f"`.dev/tasks/done/` mention at SKILL.md:{_line_no} is NOT the "
-            f"TB-Add-2 ADVISORY calibration line — would re-activate PR-05 risk"
-        )
-        assert "ADVISORY" in body, (
-            f"`.dev/tasks/done/` mention at SKILL.md:{_line_no} is missing the "
-            f"ADVISORY marker — would re-activate PR-05 risk"
-        )
-        # The mention talks about a *threshold* for promotion, not a
-        # readback for current-task emission.
-        assert "calibration" in body.lower() or "completes" in body.lower(), (
-            f"`.dev/tasks/done/` mention at SKILL.md:{_line_no} is not the "
-            f"TB-Add-2 calibration threshold — would re-activate PR-05 risk"
+        assert len(donelines) == 0, (
+            "task-builder SKILL.md must NOT reference `.dev/tasks/done/` "
+            f"(TB-Add-2 removed in 804eb4f4). Found {len(donelines)} mention(s) "
+            f"at line(s) {[ln for ln, _ in donelines]} — would re-activate the "
+            "PR-05 hidden-input pathway."
         )
 
     def test_no_done_readback_for_header_emission(self):
