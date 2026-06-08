@@ -873,7 +873,7 @@ class ContractTarget:
     truncation_line_cap: int = 4000
 
 
-@dataclass
+@dataclass(frozen=True)
 class ResultContract:
     """DM-012 -- final job result contract dataclass.
 
@@ -1332,7 +1332,7 @@ class PreflightSummary:
     transport_kind: str = ""
 
 
-@dataclass
+@dataclass(frozen=True)
 class Manifest:
     """DM-016 -- preflight artifact / INV-001 / INV-016 source-of-truth anchor.
 
@@ -1403,9 +1403,24 @@ class Manifest:
     preflight: "PreflightSummary" = field(
         default_factory=lambda: PreflightSummary()
     )
+    # F-P2-2 -- persist the resolved DM-020 CallerMetadata on the manifest so a
+    # caller-supplied OQ-009 override (suspect / tier) provided at Wave 0 is
+    # recoverable from ``manifest.json`` alone (INV-001 / INV-016), not only
+    # in-memory on PreflightResult. Realises the "future work" noted in the
+    # OQ-009 resolution: the lens-side contribution is already recoverable via
+    # ``resolved_lens_entry`` (DM-011 suspect/tier), but a caller override that
+    # diverged from the lens default was previously lost on executor restart.
+    # Versioned by the manifest's own ``contract_version`` and defaulted, so
+    # manifests written before this field existed still load (``from_dict``
+    # applies the default for the absent key) -- additive, backward-compatible,
+    # no-arg-construction safe, round-trip lossless via the nested-dataclass
+    # helpers.
+    caller_metadata: "CallerMetadata" = field(
+        default_factory=lambda: CallerMetadata()
+    )
 
 
-@dataclass
+@dataclass(frozen=True)
 class DoneSentinel:
     """DM-017 -- terminal ``done.json`` marker dataclass.
 

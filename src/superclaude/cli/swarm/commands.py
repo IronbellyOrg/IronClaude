@@ -51,6 +51,7 @@ from superclaude.cli.swarm.models import (
     JobSpec,
     LensEntry,
     SwarmState,
+    SwarmStateValue,
     WorkerResult,
 )
 from superclaude.cli.swarm.schema import (
@@ -491,6 +492,119 @@ def validate_lenses_cmd(warning_mode: bool) -> None:
 _TRANSPORT_KINDS: tuple[str, ...] = ("openai_compat", "stub")
 
 
+def _resolve_run_transport(
+    transport_kind: str,
+    *,
+    models: Any = (),
+    env: Any = None,
+) -> Any:
+    """F-P3-1 -- construct the concrete :class:`Transport` for a run.
+
+    Historically ``run_cmd`` (and the resume redispatch path) passed
+    ``transport=None`` into :func:`dispatch_wave1`, which short-circuits to
+    an empty result list -- so ``swarm run`` recorded ``transport.kind`` on
+    the manifest but dispatched **zero** workers (the F-P3-1 critical no-op:
+    ``swarm run --transport stub`` produced ``results=0`` with no worker
+    artifacts or dispatch log events). This resolver constructs the concrete
+    transport so dispatch actually fans out.
+
+    Resolution:
+
+    * ``stub``          -- a deterministic, network-free :class:`StubTransport`
+      bound to the first configured model id (falling back to the stub
+      default when no model is supplied). No env contract is consulted.
+    * ``openai_compat`` -- reads the T2 proxy env contract (AC-017) via
+      :func:`read_env` and binds a single :class:`OpenAICompatTransport` to
+      the first configured model. ``read_env`` raises :class:`TransportEnvError`
+      when the contract is incomplete; callers surface that as a structured
+      env-missing failure (``EXIT_INVALID``) rather than dispatching nothing.
+
+    A single transport is shared across all N worker slots because
+    :func:`dispatch_wave1` accepts one transport for the whole wave. Per-slot
+    model differentiation (one ``OpenAICompatTransport`` per ``T2Model0N``
+    slot) is intentionally **out of scope** for the no-op fix; it would
+    require extending the dispatch signature and is tracked separately.
+
+    Args:
+        transport_kind: the resolved ``transport.kind`` (one of
+            :data:`_TRANSPORT_KINDS`). Taken from
+            ``manifest.preflight.transport_kind`` on the inline run path and
+            from the manifest / ``--transport`` override on resume.
+        models: optional iterable of model identifiers. For ``stub`` the
+            first non-empty entry becomes the stub ``model_id`` so per-worker
+            results carry a stable model label; for ``openai_compat`` the
+            wire models come from the env contract, so this is ignored.
+        env: optional environment mapping forwarded to :func:`read_env`
+            (defaults to ``os.environ``). Exposed for deterministic tests.
+
+    Returns:
+        A concrete object satisfying the ``Transport`` protocol
+        (``send(prompt, timeout) -> WorkerResult``).
+
+    Raises:
+        TransportEnvError: ``openai_compat`` selected but the T2 env contract
+            is incomplete.
+        ValueError: ``transport_kind`` is not a recognised kind.
+    """
+    if transport_kind == "stub":
+        from superclaude.cli.swarm.transports.stub import StubTransport
+
+        model_id = next((m for m in (models or ()) if m), None) or "stub-model-00"
+        return StubTransport(model_id=model_id)
+    if transport_kind == "openai_compat":
+        from superclaude.cli.swarm.transports.openai_compat import (
+            OpenAICompatTransport,
+            read_env,
+        )
+
+        config = read_env(env)
+        return OpenAICompatTransport(
+            base_url=config.base_url,
+            api_key=config.api_key,
+            model=config.models[0],
+        )
+    raise ValueError(
+        f"swarm run: unknown transport kind {transport_kind!r}; "
+        f"expected one of {_TRANSPORT_KINDS}"
+    )
+
+
+def _write_swarm_state(
+    output_dir: Path,
+    state_value: SwarmStateValue,
+    job_id: str,
+) -> None:
+    """F-P3-3 -- persist ``.swarm-state.json`` for a lifecycle transition.
+
+    Writes ``<output_dir>/.swarm-state.json`` via the atomic COMP-011
+    :func:`~superclaude.cli.swarm.state.write_state` writer (tmp-file +
+    :func:`os.replace`), confined to ``output_dir`` (NFR-013 / AC-014) so a
+    target outside the ``--output`` root raises
+    :class:`OutputConfinementError` before any side effect.
+
+    Before F-P3-3 the production ``swarm run`` path built an in-memory
+    :class:`SwarmState` in preflight but never wrote it to disk, so a real
+    run left no ``.swarm-state.json`` and ``swarm status`` reported
+    ``EXIT_USAGE`` ("no state file") even though the job had run. This helper
+    is invoked at each wave-level transition (``preflight_ok`` ->
+    ``dispatching`` -> ``terminal``) on the inline run path and at resume
+    terminal, so ``swarm status`` and the resume reader observe the live
+    phase. Detached runs re-enter ``swarm run`` inline inside the tmux
+    session (the child argv carries no ``--detached``), so they inherit the
+    identical state behaviour without a separate write site.
+
+    Each call constructs a fresh :class:`SwarmState`; ``updated`` is stamped
+    by the writer, so callers do not manage the timestamp.
+    """
+    from superclaude.cli.swarm.state import write_state as _write_state
+
+    _write_state(
+        output_dir / SWARM_STATE_FILENAME,
+        SwarmState(state=state_value, job_id=job_id),
+        output_dir=output_dir,
+    )
+
+
 def _build_spec_from_lens(lens_name: str) -> dict[str, Any]:
     """Expand a ``--lens NAME`` shortcut into a full JobSpec dict (FR-020).
 
@@ -779,7 +893,7 @@ def _resolve_input_mode(
 #        ``<output_dir>/.swarm-detached-spec.json`` via tmp+os.replace
 #        (mirrors the IMM-6 / NFR-002 atomic-write discipline used by
 #        the rest of the swarm surface).
-#     4. Builds the child argv as ``python -m superclaude.cli.main swarm
+#     4. Builds the child argv via ``sys.executable -m superclaude.cli.main`` running ``swarm
 #        run <snapshot>`` so the launch works regardless of whether the
 #        ``superclaude`` console script is on PATH inside the tmux
 #        session. Operators who customize the launcher path should
@@ -1129,11 +1243,10 @@ def run_cmd(
     from superclaude.cli.swarm.dispatch import dispatch_wave1
     from superclaude.cli.swarm.preflight import PreflightError, run_preflight
 
-    # We intentionally do not consume auto_inject_guard yet -- T02.05 /
-    # T02.07 land the ``--custom-prompt-dir`` reader wiring on this
-    # subcommand. The option is declared here so the operator surface
-    # is single-sourced (see ``auto_inject_guard_option`` docstring).
-    del auto_inject_guard
+    # F-P2-1 -- ``--auto-inject-guard`` is threaded into ``run_preflight``
+    # below so the FR-021 custom-prompt-dir reader can auto-prepend the
+    # canonical §11.5 sentence to a legacy ``system.txt`` that lacks it.
+    # The flag is a no-op on the lens-driven / inline-prompt paths.
 
     # T06.04 / FR-015 -- resume branch. Mutually exclusive with the
     # three preflight-driven input modes (spec_path / stdin / lens).
@@ -1232,6 +1345,7 @@ def run_cmd(
         preflight_result = run_preflight(
             spec_dict,
             output_dir=output_dir,
+            auto_inject_guard=auto_inject_guard,
         )
     except PreflightError as err:
         _emit_preflight_failures(
@@ -1253,17 +1367,88 @@ def run_cmd(
     # side-by-side. The two files are siblings of ``manifest.json``
     # inside ``--output``; preflight has already mkdir'd the directory.
     logger: Optional["Logger"] = None
+    # F-P3-3 -- the output root for the durable ``.swarm-state.json``. Set
+    # only when an ``--output`` directory is in play (same gate as the
+    # manifest / logger); ``None`` for the spec-only smoke path that runs
+    # without a materialised output directory.
+    state_output_dir: Optional[Path] = None
     if preflight_result.manifest_path:
         from superclaude.cli.swarm.logging_ import Logger as _Logger
 
         manifest_dir = Path(preflight_result.manifest_path).parent
+        state_output_dir = manifest_dir
         logger = _Logger(
             jsonl_path=manifest_dir / "execution-log.jsonl",
             md_path=manifest_dir / "execution-log.md",
+            # F-P3-6 -- pass the ``--output`` root so the logger confines both
+            # log paths via ``confine_path`` at construction (NFR-013 / AC-014);
+            # the production path previously omitted ``output_dir``, bypassing
+            # the confinement branch entirely.
+            output_dir=manifest_dir,
         )
-    worker_results = dispatch_wave1(
-        preflight_result, transport=None, logger=logger
+        # F-P3-3 -- persist the post-preflight state so ``swarm status`` and
+        # the resume reader observe ``preflight_ok`` immediately after Wave 0,
+        # even if the process dies before dispatch. The in-memory
+        # ``preflight_result.state`` is already stamped ``preflight_ok``.
+        _write_swarm_state(
+            state_output_dir,
+            preflight_result.state.state,
+            preflight_result.manifest.job_id,
+        )
+
+    # F-P3-1 -- construct the concrete transport before dispatch. Passing
+    # ``transport=None`` here is the historical no-op (dispatch returns an
+    # empty list, so ``swarm run`` recorded the transport kind but never
+    # fanned out a single worker). The resolver builds a deterministic
+    # ``StubTransport`` for ``stub`` and an ``OpenAICompatTransport`` bound
+    # to the T2 env contract for ``openai_compat``.
+    from superclaude.cli.swarm.transports.openai_compat import TransportEnvError
+
+    resolved_transport_kind = preflight_result.manifest.preflight.transport_kind
+    workers_section = (
+        spec_dict.get("workers", {}) if isinstance(spec_dict, dict) else {}
     )
+    resolved_models = (
+        workers_section.get("models", [])
+        if isinstance(workers_section, dict)
+        else []
+    )
+    try:
+        run_transport = _resolve_run_transport(
+            resolved_transport_kind, models=resolved_models
+        )
+    except TransportEnvError as exc:
+        click.echo(
+            f"swarm run: cannot construct {resolved_transport_kind!r} "
+            f"transport -- {exc}",
+            err=True,
+        )
+        raise click.exceptions.Exit(EXIT_INVALID)
+
+    # F-P3-3 -- transition to ``dispatching`` before Wave 1 fans out, so a
+    # crash mid-dispatch leaves the state file at ``dispatching`` (not the
+    # stale ``preflight_ok``) for resume / status triage.
+    if state_output_dir is not None:
+        _write_swarm_state(
+            state_output_dir,
+            "dispatching",
+            preflight_result.manifest.job_id,
+        )
+
+    worker_results = dispatch_wave1(
+        preflight_result, transport=run_transport, logger=logger
+    )
+
+    # F-P3-3 -- Wave 1 is the terminal wave for this T03.01 run body (the
+    # M5 normalize/reduce pipeline is wired separately); flip the state to
+    # ``terminal`` so ``swarm status`` reports completion and ``swarm kill``
+    # finds an already-terminal record.
+    if state_output_dir is not None:
+        _write_swarm_state(
+            state_output_dir,
+            "terminal",
+            preflight_result.manifest.job_id,
+        )
 
     # Return-contract emission stub -- M5 replaces this with the real
     # :class:`ResultContract` writer (DM-012). For T03.01 we emit a
@@ -1594,12 +1779,29 @@ def _run_resume_branch(
             manifest=synthetic_manifest, state=synthetic_state
         )
 
-        # T03.01 wire-only path: transport=None until M5 wires the
-        # concrete openai_compat / stub selection through the resume
-        # branch. Tests inject a real Transport by monkeypatching
-        # ``dispatch_wave1`` (mirrors test_commands_run.py).
+        # F-P3-1 -- construct the concrete transport for the resume
+        # redispatch (previously ``transport=None``, the no-op that made
+        # resume re-dispatch zero workers). The transport kind comes from
+        # the manifest (or the ``--transport`` override resolved above);
+        # ``stub`` needs no env, ``openai_compat`` reads the T2 contract.
+        from superclaude.cli.swarm.transports.openai_compat import (
+            TransportEnvError as _TransportEnvError,
+        )
+
+        try:
+            resume_transport = _resolve_run_transport(
+                resolved_transport_kind,
+                models=list(rehydrated_spec.workers.models),
+            )
+        except _TransportEnvError as exc:
+            click.echo(
+                f"swarm run --resume: cannot construct "
+                f"{resolved_transport_kind!r} transport -- {exc}",
+                err=True,
+            )
+            raise click.exceptions.Exit(EXIT_INVALID)
         raw_redispatched = dispatch_wave1(
-            synthetic_preflight, transport=None, logger=None
+            synthetic_preflight, transport=resume_transport, logger=None
         )
 
         # Reindex returned slots (0..K-1) onto the original slot
@@ -1652,6 +1854,11 @@ def _run_resume_branch(
         job_id=manifest_obj.job_id,
         resume=True,
     )
+
+    # F-P3-3 -- resume reached its terminal wave; persist the terminal state
+    # so ``swarm status`` on the resumed job reports completion (confined to
+    # the ``--output`` root via the same atomic writer the inline path uses).
+    _write_swarm_state(output_path, "terminal", manifest_obj.job_id)
 
     click.echo(
         f"swarm run --resume: job_id={manifest_obj.job_id} "
@@ -2588,12 +2795,16 @@ def _write_killed_terminal_state(output_dir: Path, job_id: str) -> None:
         # Already terminal: refresh the ``updated`` stamp atomically
         # but keep the recorded job_id (the executor's record wins
         # when the state already reached terminal naturally).
-        write_state(state_path, existing)
+        # F-P3-3 -- confine the write to the ``--output`` root (NFR-013 /
+        # AC-014) so the kill flow cannot escape the directory it was given.
+        write_state(state_path, existing, output_dir=output_dir)
         return
 
+    # F-P3-3 -- output-confined terminal write (see above).
     write_state(
         state_path,
         SwarmState(state=TERMINAL_STATE_VALUE, job_id=job_id),
+        output_dir=output_dir,
     )
 
 
