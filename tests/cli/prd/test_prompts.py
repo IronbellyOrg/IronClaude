@@ -319,3 +319,53 @@ def test_prompt_executor_mapping_sync(config: PrdConfig) -> None:
         assert _artifact_path_for_step(config, step_id) == config.task_dir / filename
 
     assert _artifact_path_for_step(config, "some-unmapped-step") is None
+
+
+def test_required_read_call_sites_pin_to_step_artifact_files() -> None:
+    """[reflect F4] Inline REQUIRED-read call-site (producer_step, filename) pairs
+    stay pinned to the canonical ``_STEP_ARTIFACT_FILES`` map.
+
+    The five REQUIRED-read conversion sites in ``prompts.py`` each pass a
+    hardcoded producer-step string alongside an inline artifact path the same
+    call constructs:
+
+      - build_scope_discovery_prompt:    _load_json_required(task_dir/"parsed-request.json", "parse-request")  (~223)
+      - build_research_notes_prompt:     _read_required(task_dir/"scope-discovery-raw.md", "scope-discovery")   (~324)
+      - build_research_notes_prompt:     _load_json_required(task_dir/"parsed-request.json", "parse-request")   (~327)
+      - build_sufficiency_review_prompt: _read_required(task_dir/"research-notes.md", "research-notes")         (~411)
+      - build_task_file_prompt:          _read_required(task_dir/"research-notes.md", "research-notes")         (~513)
+
+    These inline ``(producer_step, filename)`` pairings duplicate the canonical
+    ``_STEP_ARTIFACT_FILES`` map in ``executor.py`` with nothing pinning the
+    CALL-SITE literals in sync. This guard pins them with ZERO runtime coupling:
+    the map is intentionally NOT imported into ``prompts.py`` (doing so risks a
+    circular import, since ``executor`` imports ``prompts`` locally) -- the import
+    lives only in this test. It fails on purpose if either the call-site filename
+    or the map value drifts.
+
+    Complements -- does NOT duplicate -- ``test_prompt_executor_mapping_sync``,
+    which pins the separate ``_artifact_path_for_step`` MIRROR DICT (not these
+    inline call sites) to the same map.
+    """
+    from superclaude.cli.prd.executor import _STEP_ARTIFACT_FILES
+
+    # DISTINCT (producer_step -> filename) pairs the inline REQUIRED reads use,
+    # encoded as explicit literals: THIS is the pin. If a prompts.py call site
+    # changes the filename it constructs, this map must be updated in lockstep
+    # and the assertions below confirm the canonical executor map still agrees.
+    call_site_pairs = {
+        "parse-request": "parsed-request.json",
+        "scope-discovery": "scope-discovery-raw.md",
+        "research-notes": "research-notes.md",
+    }
+
+    for producer_step, expected_filename in call_site_pairs.items():
+        assert producer_step in _STEP_ARTIFACT_FILES, (
+            f"producer-step '{producer_step}' used by a prompts.py REQUIRED read "
+            f"is absent from executor._STEP_ARTIFACT_FILES"
+        )
+        assert _STEP_ARTIFACT_FILES[producer_step] == expected_filename, (
+            f"DRIFT: prompts.py REQUIRED-read site for '{producer_step}' "
+            f"constructs '{expected_filename}', but _STEP_ARTIFACT_FILES maps it "
+            f"to '{_STEP_ARTIFACT_FILES[producer_step]}'"
+        )

@@ -87,6 +87,39 @@ class TestPrdStepStatusProperties:
             assert not status.is_failure, f"{status.name} should not be failure"
             assert status.needs_fix_cycle, f"{status.name} should need fix cycle"
 
+    def test_is_hard_failure_membership(self) -> None:
+        """is_hard_failure is True only for crash/timeout/exhausted/halt.
+
+        Excludes VALIDATION_FAIL and QA_FAIL — the load-bearing exclusions that
+        preserve the non-fatal STANDARD gate-quality path (a clean exit-0 quality
+        failure must NOT halt the pipeline).
+        """
+        # Hard failures: True
+        for status in (
+            PrdStepStatus.ERROR,
+            PrdStepStatus.TIMEOUT,
+            PrdStepStatus.QA_FAIL_EXHAUSTED,
+            PrdStepStatus.HALT,
+        ):
+            assert status.is_hard_failure, f"{status.name} should be hard failure"
+
+        # Everything else: False — including the load-bearing exclusions
+        # VALIDATION_FAIL (non-fatal STANDARD gate-quality path) and QA_FAIL.
+        for status in (
+            PrdStepStatus.VALIDATION_FAIL,
+            PrdStepStatus.QA_FAIL,
+            PrdStepStatus.PASS,
+            PrdStepStatus.PASS_NO_SIGNAL,
+            PrdStepStatus.PASS_NO_REPORT,
+            PrdStepStatus.SKIPPED,
+            PrdStepStatus.INCOMPLETE,
+            PrdStepStatus.PENDING,
+            PrdStepStatus.RUNNING,
+        ):
+            assert not status.is_hard_failure, (
+                f"{status.name} should not be hard failure"
+            )
+
 
 class TestPrdPipelineResultResumeCommand:
     """Verify correct CLI string generation on halt."""

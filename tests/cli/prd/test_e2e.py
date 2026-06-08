@@ -708,3 +708,293 @@ def test_e2e_ac10_no_where_contamination_when_pinned(
     # No variant document was left contaminating the WHERE source dir.
     assert not list(where_dir.glob("scope-discovery*"))
     assert not list(where_dir.glob("research-notes*"))
+
+
+# ---------------------------------------------------------------------------
+# Scenario 7: Atom 1 -- hard-failure halt semantics (halt-on-hard-failure)
+# ---------------------------------------------------------------------------
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
+def test_e2e_standard_tier_error_halts_pipeline(
+    mock_synth_mapping, mock_process_cls, standard_e2e_config
+):
+    """[Atom 1] A STANDARD-tier step that hard-ERRORs halts the pipeline.
+
+    scope-discovery is a STANDARD-tier gate. Under the OLD halt logic (which
+    keyed off the downstream gate's enforcement_tier == "STRICT"), a STANDARD
+    step returning ERROR would NOT halt -- this test would fail. Under Atom 1
+    (halt on is_hard_failure regardless of tier), the ERROR halts at
+    scope-discovery with a "hard failure" reason and research-notes never runs.
+    """
+    mock_synth_mapping.return_value = [
+        {"synth_file": "section-overview.md"},
+    ]
+
+    # scope-discovery subprocess exits non-zero -> _determine_status -> ERROR.
+    base_factory = _mock_process_factory(
+        step_overrides={"scope-discovery": (1, "boom: subprocess crashed\n")},
+    )
+    executed_steps: list[str] = []
+
+    def tracking_factory(**kwargs):
+        executed_steps.append(kwargs["step_id"])
+        return base_factory(**kwargs)
+
+    mock_process_cls.side_effect = tracking_factory
+
+    executor = PrdExecutor(standard_e2e_config)
+    executor._build_prompt = lambda builder_name, step_id=None: (
+        f"Mock prompt for {builder_name}"
+    )
+
+    result = executor.run()
+
+    # The STANDARD-tier ERROR halts the pipeline (Atom 1 behavior).
+    assert result.outcome == "halt"
+    assert result.halt_step == "scope-discovery"
+    assert result.halt_reason is not None
+    assert "hard failure" in result.halt_reason
+    # research-notes (the next Stage-A step) must never execute.
+    assert "research-notes" not in executed_steps
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
+def test_e2e_standard_tier_validation_fail_does_not_halt(
+    mock_synth_mapping, mock_process_cls, standard_e2e_config
+):
+    """[Atom 1] A STANDARD-tier VALIDATION_FAIL (exit 0) does NOT halt.
+
+    scope-discovery exits 0 but emits too few lines to clear its STANDARD gate,
+    yielding VALIDATION_FAIL. VALIDATION_FAIL is excluded from is_hard_failure
+    and the gate is STANDARD (not STRICT), so the loop must continue past
+    scope-discovery -- preserving the intentional non-fatal STANDARD path.
+    """
+    mock_synth_mapping.return_value = [
+        {"synth_file": "section-overview.md"},
+        {"synth_file": "section-requirements.md"},
+        {"synth_file": "section-architecture.md"},
+    ]
+
+    # scope-discovery exits 0 with far fewer than the 50-line gate floor and no
+    # recovery variant -> gate fails STANDARD -> VALIDATION_FAIL (non-fatal).
+    short_output = "short scope output\nEXIT_RECOMMENDATION: CONTINUE\n"
+    base_factory = _mock_process_factory(
+        step_overrides={"scope-discovery": (0, short_output)},
+    )
+    executed_steps: list[str] = []
+
+    def tracking_factory(**kwargs):
+        executed_steps.append(kwargs["step_id"])
+        return base_factory(**kwargs)
+
+    mock_process_cls.side_effect = tracking_factory
+
+    executor = PrdExecutor(standard_e2e_config)
+    executor._build_prompt = lambda builder_name, step_id=None: (
+        f"Mock prompt for {builder_name}"
+    )
+
+    result = executor.run()
+
+    # The STANDARD VALIDATION_FAIL must NOT halt the pipeline at scope-discovery.
+    assert result.halt_step != "scope-discovery"
+    # The loop continued past scope-discovery to the next Stage-A step.
+    assert "research-notes" in executed_steps
+
+    # [reflect F5] Strengthen the guard so it passes for the RIGHT reason:
+    # scope-discovery's RECORDED status must actually be VALIDATION_FAIL, not
+    # merely "did not halt" (which a SKIPPED/ERROR status could also satisfy).
+    # PrdStepResult carries no step_id, but the Stage-A loop appends exactly one
+    # result per step in _STAGE_A_STEPS order and this run has no resume/skip, so
+    # result.step_results aligns 1:1 with the executed Stage-A prefix. Map by that
+    # deterministic order rather than a hardcoded index.
+    from superclaude.cli.prd.executor import _STAGE_A_STEPS
+
+    stage_a_order = [s[0] for s in _STAGE_A_STEPS]
+    status_by_step = dict(
+        zip(stage_a_order, [r.status for r in result.step_results])
+    )
+    assert status_by_step["scope-discovery"] == PrdStepStatus.VALIDATION_FAIL
+
+
+# ---------------------------------------------------------------------------
+# Scenario 8: Atom 2 -- typed missing-artifact guard (graceful HALT)
+# ---------------------------------------------------------------------------
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+def test_missing_required_artifact_yields_graceful_halt(
+    mock_process_cls, standard_e2e_config
+):
+    """[Atom 2] A missing REQUIRED upstream artifact yields a graceful HALT.
+
+    Drives the REAL ``_build_prompt`` (NOT the monkeypatched stub used elsewhere
+    in this file): ``build_research_notes_prompt`` performs a REQUIRED read of
+    ``scope-discovery-raw.md``, which is absent in the fixture task_dir. Under the
+    pre-Atom-2 code an uncaught ``FileNotFoundError`` would escape; under Atom 2
+    the required-read helper raises ``MissingArtifactError`` which the call-site
+    catch converts to a ``PrdStepStatus.HALT`` whose ``halt_reason`` names the
+    missing artifact and its producer step. No subprocess is launched because the
+    prompt build raises before subprocess creation.
+    """
+    executor = PrdExecutor(standard_e2e_config)
+    # Intentionally do NOT stub _build_prompt -- the real builder must run so the
+    # MissingArtifactError -> HALT conversion is actually exercised.
+
+    result = executor._run_subprocess_step(
+        "research-notes", "Research Notes", "build_research_notes_prompt"
+    )
+
+    assert result.status == PrdStepStatus.HALT
+    assert result.halt_reason is not None
+    assert "scope-discovery-raw.md" in result.halt_reason
+    assert "scope-discovery" in result.halt_reason
+    # The graceful HALT short-circuits before any subprocess is created.
+    mock_process_cls.assert_not_called()
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+def test_malformed_required_artifact_yields_graceful_halt(
+    mock_process_cls, standard_e2e_config
+):
+    """[reflect F2] A present-but-malformed REQUIRED JSON artifact HALTs gracefully.
+
+    Drives the REAL ``_build_prompt`` (NOT the monkeypatched stub used by the
+    full-pipeline tests, which would bypass the F2 guard):
+    ``build_scope_discovery_prompt`` performs a REQUIRED ``_load_json_required``
+    read of ``parsed-request.json``. Here that file is written with INVALID JSON.
+    Before F2, ``_load_json`` raised an uncaught ``json.JSONDecodeError`` that
+    escaped ``run()`` and crashed the CLI -- the same crash-class Atom 2 closed for
+    MISSING files. After F2, ``_load_json_required`` raises
+    ``MalformedArtifactError`` (a subclass of ``MissingArtifactError``) which the
+    existing call-site catch converts to a ``PrdStepStatus.HALT`` whose
+    ``halt_reason`` names the malformed artifact and its producer step. No
+    subprocess is launched because the prompt build raises before subprocess
+    creation.
+    """
+    # Write a deliberately malformed parsed-request.json into the task_dir so the
+    # REQUIRED read parses invalid JSON (file IS present -> not a missing-file case).
+    (standard_e2e_config.task_dir / "parsed-request.json").write_text(
+        "{not valid json", encoding="utf-8"
+    )
+
+    executor = PrdExecutor(standard_e2e_config)
+    # Intentionally do NOT stub _build_prompt -- the real builder must run so the
+    # MalformedArtifactError -> HALT conversion is actually exercised.
+
+    result = executor._run_subprocess_step(
+        "scope-discovery", "Scope Discovery", "build_scope_discovery_prompt"
+    )
+
+    # No uncaught exception escaped; the step returned a graceful HALT.
+    assert result.status == PrdStepStatus.HALT
+    assert result.halt_reason is not None
+    # The reason names the malformed artifact and its producer step...
+    assert "parsed-request.json" in result.halt_reason
+    assert "parse-request" in result.halt_reason
+    # ...and reads "malformed" (not the inaccurate "missing") for a present file.
+    assert "malformed" in result.halt_reason
+    # The graceful HALT short-circuits before any subprocess is created.
+    mock_process_cls.assert_not_called()
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
+def test_e2e_scope_discovery_error_halts_before_research_notes(
+    mock_synth_mapping, mock_process_cls, standard_e2e_config
+):
+    """[Atom 1 e2e] Reproduces the original crash; now a graceful halt.
+
+    Original bug: scope-discovery hard-ERRORs (non-zero exit, so no
+    ``scope-discovery-raw.md`` artifact), the Stage-A loop did NOT halt (gate is
+    STANDARD), and research-notes then crashed reading the missing artifact with
+    an uncaught ``FileNotFoundError`` that escaped ``run()``. This test exercises
+    the ATOM-1 halt path (``_build_prompt`` is stubbed): scope-discovery's hard
+    ERROR halts the pipeline before research-notes ever runs, so the missing-read
+    is never reached. The ATOM-2 missing-artifact path through the REAL builder
+    is covered by ``test_missing_required_artifact_yields_graceful_halt`` and
+    ``test_e2e_resume_missing_artifact_surfaces_reason_at_pipeline_level``.
+    """
+    task_dir = standard_e2e_config.task_dir
+    mock_synth_mapping.return_value = [
+        {"synth_file": "section-overview.md"},
+    ]
+
+    # scope-discovery exits non-zero AND writes no artifact -> ERROR.
+    base_factory = _mock_process_factory(
+        step_overrides={"scope-discovery": (1, "scope-discovery crashed fast\n")},
+    )
+    executed_steps: list[str] = []
+
+    def tracking_factory(**kwargs):
+        executed_steps.append(kwargs["step_id"])
+        return base_factory(**kwargs)
+
+    mock_process_cls.side_effect = tracking_factory
+
+    executor = PrdExecutor(standard_e2e_config)
+    executor._build_prompt = lambda builder_name, step_id=None: (
+        f"Mock prompt for {builder_name}"
+    )
+
+    # run() must COMPLETE and return a result -- no uncaught FileNotFoundError.
+    result = executor.run()
+
+    assert result is not None
+    assert result.finished_at is not None
+    # Halts at scope-discovery with a reason that attributes the halt.
+    assert result.outcome == "halt"
+    assert result.halt_step == "scope-discovery"
+    assert result.halt_reason
+    assert "hard failure" in result.halt_reason
+    # The hard ERROR meant no artifact was ever written (the original crash seed).
+    assert not (task_dir / "scope-discovery-raw.md").exists()
+    # research-notes -- the step that originally crashed -- never runs.
+    assert "research-notes" not in executed_steps
+
+
+@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
+def test_e2e_resume_missing_artifact_surfaces_reason_at_pipeline_level(
+    mock_process_cls, e2e_task_dir
+):
+    """[Atom 2 run-level] Missing required artifact surfaces a specific halt_reason.
+
+    Resume from ``research-notes`` with ``scope-discovery-raw.md`` absent (the
+    spec's named backstop scenario). The earlier Stage-A steps are skipped, so
+    research-notes runs FIRST through the REAL ``_build_prompt`` (NOT stubbed):
+    its builder's REQUIRED read of the missing artifact raises
+    ``MissingArtifactError`` -> the call-site catch returns a HALT carrying the
+    artifact-specific reason. This asserts that reason survives to the
+    PIPELINE-level ``result.halt_reason`` (regression guard for reflect finding
+    F1: the Stage-A loop must prefer the step-provided reason, not overwrite it
+    with the generic ``"hard failure: halt"`` template).
+    """
+    config = resolve_config(
+        "resume missing artifact",
+        product="resume-missing",
+        tier="standard",
+        output=str(e2e_task_dir.parent),
+        max_turns=1000,
+        dry_run=False,
+        resume_from="research-notes",
+    )
+    config.task_dir = e2e_task_dir
+    config.work_dir = e2e_task_dir.parent
+    # e2e_task_dir fixture creates only subdirs -> scope-discovery-raw.md is absent.
+
+    executor = PrdExecutor(config)
+    # REAL _build_prompt -- do NOT stub; the missing-artifact catch must fire.
+
+    result = executor.run()
+
+    assert result.outcome == "halt"
+    assert result.halt_step == "research-notes"
+    assert result.halt_reason is not None
+    # The pipeline-level reason names the missing artifact + its producer step.
+    assert "scope-discovery-raw.md" in result.halt_reason
+    assert "scope-discovery" in result.halt_reason
+    # Graceful HALT short-circuits before any subprocess is created.
+    mock_process_cls.assert_not_called()
