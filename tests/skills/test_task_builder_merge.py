@@ -148,13 +148,17 @@ class TestPR06StructuralGateAdditions:
 
 
 class TestPR01ExecutionContextHeader:
-    """PR-01 lands second. Adds an optional task-level `## Execution Context`
+    """PR-01 lands second. Adds a required task-level `## Execution Context`
     block instruction to rf-task-builder spawn prompt and output schema, plus
     TB-Add-8 (per-item Context evidence binding) to enforce INV-015 scope-
-    confinement."""
+    confinement. (PR #144 convergence renamed the directive and made the block
+    REQUIRED — see the two assertions below.)"""
 
     def test_skill_documents_execution_context_block(self, skill_text: str) -> None:
-        assert "EXECUTION CONTEXT BLOCK" in skill_text
+        # PR #144 convergence renamed the directive EXECUTION CONTEXT BLOCK ->
+        # EXECUTION_CONTEXT_INSTRUCTION (intentional supersession; MDTM templates
+        # mark the section a required build step).
+        assert "EXECUTION_CONTEXT_INSTRUCTION" in skill_text
         assert "## Execution Context" in skill_text
 
     def test_execution_context_uses_source_areas_not_paths(
@@ -165,10 +169,12 @@ class TestPR01ExecutionContextHeader:
         assert "NO specific file:line references" in skill_text
         assert "path.py:NN" in skill_text  # cited as the forbidden form
 
-    def test_execution_context_optional_and_degrades_gracefully(
+    def test_execution_context_required_and_degrades_gracefully(
         self, skill_text: str
     ) -> None:
-        assert "OPTIONAL" in skill_text
+        # PR #144 convergence flipped the block from OPTIONAL to REQUIRED in every
+        # task file, with a documented GOAL-only graceful-degradation exception.
+        assert "REQUIRED" in skill_text
         # Minimal-BUILD_REQUEST degeneration case is documented.
         assert "GOAL-only" in skill_text or "References-only" in skill_text
 
