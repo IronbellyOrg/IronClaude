@@ -1,0 +1,145 @@
+---
+spec_source: {{ frontmatter.spec_source }}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+functional_requirements: {{ frontmatter.functional_requirements }}
+nonfunctional_requirements: {{ frontmatter.nonfunctional_requirements | default(0) }}
+total_requirements: {{ frontmatter.total_requirements | default(0) }}
+complexity_score: {{ frontmatter.complexity_score }}
+complexity_class: {{ frontmatter.complexity_class }}
+domains_detected: [{{ frontmatter.domains_detected | default([]) | join(", ") }}]
+risks_identified: {{ frontmatter.risks_identified | default(0) }}
+dependencies_identified: {{ frontmatter.dependencies_identified | default(0) }}
+success_criteria_count: {{ frontmatter.success_criteria_count | default(0) }}
+extraction_mode: {{ frontmatter.extraction_mode }}
+data_models_identified: {{ frontmatter.data_models_identified | default(0) }}
+api_surfaces_identified: {{ frontmatter.api_surfaces_identified | default(0) }}
+components_identified: {{ frontmatter.components_identified | default(0) }}
+test_artifacts_identified: {{ frontmatter.test_artifacts_identified | default(0) }}
+migration_items_identified: {{ frontmatter.migration_items_identified | default(0) }}
+operational_items_identified: {{ frontmatter.operational_items_identified | default(0) }}
+---
+
+## Functional Requirements
+
+{% for fr in functional_requirements %}
+- **{{ fr.id }}**{% if fr.description is defined %}: {{ fr.description }}{% endif %}
+
+{% if fr.paths is defined and fr.paths %}
+  - Paths: {{ fr.paths | join(", ") }}
+{% endif %}
+{% endfor %}
+
+## Non-Functional Requirements
+
+{% for nfr in non_functional_requirements %}
+- **{{ nfr.id }}**{% if nfr.description is defined %}: {{ nfr.description }}{% endif %}
+
+{% endfor %}
+
+## Complexity Assessment
+
+{{ complexity_assessment | default("") }}
+
+## Architectural Constraints
+
+{% for constraint in architectural_constraints | default([]) %}
+- {{ constraint }}
+{% endfor %}
+
+## Risk Inventory
+
+{% for risk in risk_inventory | default([]) %}
+{{ loop.index }}. {% if risk.id is defined %}**{{ risk.id }}** {% endif %}{{ risk.risk }} (severity: {{ risk.severity }}) — Mitigation: {{ risk.mitigation }}
+
+{% endfor %}
+
+## Dependency Inventory
+
+{% for dep in dependency_inventory | default([]) %}
+- {{ dep }}
+{% endfor %}
+
+## Success Criteria
+
+{% for sc in success_criteria | default([]) %}
+- {{ sc }}
+{% endfor %}
+
+## Open Questions
+
+{% for oq in open_questions | default([]) %}
+- {{ oq }}
+{% endfor %}
+
+## Data Models and Interfaces
+
+{% for item in data_models | default([]) %}
+### {{ item.id }}
+
+{% if item.name is defined %}- Name: {{ item.name }}
+{% endif %}
+{% if item.fields is defined %}- Fields: {{ item.fields }}
+{% endif %}
+{% if item.relationships is defined %}- Relationships: {{ item.relationships }}
+{% endif %}
+{% endfor %}
+
+## API Specifications
+
+{% for item in api_specifications | default([]) %}
+### {{ item.id }}
+
+{% if item.method is defined %}- Method: {{ item.method }}
+{% endif %}
+{% if item.path is defined %}- Path: {{ item.path }}
+{% endif %}
+{% if item.description is defined %}- Description: {{ item.description }}
+{% endif %}
+{% endfor %}
+
+## Component Inventory
+
+{% for item in component_inventory | default([]) %}
+### {{ item.id }}
+
+{% if item.name is defined %}- Name: {{ item.name }}
+{% endif %}
+{% if item.type is defined %}- Type: {{ item.type }}
+{% endif %}
+{% if item.dependencies is defined and item.dependencies %}- Dependencies: {{ item.dependencies | join(", ") }}
+{% endif %}
+{% endfor %}
+
+## Testing Strategy
+
+{% for item in testing_strategy | default([]) %}
+### {{ item.id }}
+
+{% if item.name is defined %}- Name: {{ item.name }}
+{% endif %}
+{% if item.level is defined %}- Level: {{ item.level }}
+{% endif %}
+{% endfor %}
+
+## Migration and Rollout Plan
+
+{% for item in migration_plan | default([]) %}
+### {{ item.id }}
+
+{% if item.phase is defined %}- Phase: {{ item.phase }}
+{% endif %}
+{% if item.rollback is defined %}- Rollback: {{ item.rollback }}
+{% endif %}
+{% endfor %}
+
+## Operational Readiness
+
+{% for item in operational_readiness | default([]) %}
+### {{ item.id }}
+
+{% if item.scenario is defined %}- Scenario: {{ item.scenario }}
+{% endif %}
+{% if item.resolution is defined %}- Resolution: {{ item.resolution }}
+{% endif %}
+{% endfor %}

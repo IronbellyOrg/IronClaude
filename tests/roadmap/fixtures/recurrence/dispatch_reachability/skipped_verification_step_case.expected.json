@@ -1,0 +1,16 @@
+{
+  "fixture": "dispatch_reachability/skipped_verification_step_case",
+  "source_authority": {
+    "master_recurrence_row": 14,
+    "partition_findings": ["A2b:F-A2b-003", "A11:F-A11-011"],
+    "incident_summary": "Verification/Wave-3/certify terminal steps were silently skippable — the pipeline ended at remediate, never dispatched the verification/certify terminal steps, and did not gate on verification completion (A2b:F-A2b-003 'T11-T14 skipped'; A11:F-A11-011 'certify still dead code'). Same 'written but not wired' class as Recurrence #2; the silently-dropped link was the terminal verification from Tasklist->Code. Contract #2 / master:§Flaw 1."
+  },
+  "verified_component": "superclaude.cli.roadmap.code_assertions.assert_step_reachable",
+  "verification_against": "live src/superclaude/cli/roadmap/executor.py AST (not this .md)",
+  "expected_dispatch_reachable": true,
+  "expected_certify_dynamic_reachable": true,
+  "expected_verify_implementation_has_production_caller": true,
+  "expected_verify_implementation_caller": "_run_verify_implementation() called inside execute_roadmap()",
+  "expected_assert_step_reachable_returns": null,
+  "expected_contract_2_invariant": "MUST FAIL pre-fix (verification/certify terminal steps unreachable from production dispatch — pipeline ended at remediate with no verification-completion gate, master:§Flaw 1 silent-skip state), MUST PASS post-fix (both terminal steps are wired: build_certify_step() and _run_verify_implementation() each have a production caller in execute_roadmap, so assert_step_reachable returns None / no Finding)."
+}

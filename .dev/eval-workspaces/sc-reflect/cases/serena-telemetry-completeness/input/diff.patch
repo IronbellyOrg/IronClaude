@@ -1,0 +1,9 @@
+diff --git a/src/agents/registry.py b/src/agents/registry.py
+index fff1111..fff2222 100644
+--- a/src/agents/registry.py
++++ b/src/agents/registry.py
+@@ -1,3 +1,5 @@
+ """Registry — exercises all four medium adoptions."""
+ class BaseHandler: ...
++class JsonHandler(BaseHandler): ...
++def register(): return True

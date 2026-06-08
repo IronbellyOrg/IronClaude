@@ -1,0 +1,29 @@
+# STUB — V3-Serena eval scaffold. Human contract doc (the grader does NOT read this;
+# machine assertions live in evals/evals.json, eval id for serena-wave0-config).
+# Case: serena-wave0-config — FR-RV3-LOW.6 (onboarding parse) + FR-RV3-LOW.7 (get_current_config).
+mode: post
+use_case: UC-2
+
+# --- FR-7: get_current_config Wave-0 probe (step 0.5c) ---
+serena_version: ">=v1.5"                     # three-valued enum {<v1.5, >=v1.5, unknown}
+serena_active_context: ts-frontend-readonly
+serena_active_modes: [editing, interactive]
+serena_config_snapshot_path: outputs/serena-config-snapshot.yaml   # present
+serena_tool_count: 32
+serena_excluded_tools: [get_diagnostics_for_file]   # active context excludes a chain-critical tool
+# FR-7.3 context-exclusion: a chain-critical tool is excluded → degraded_components gains the token
+degraded_components:
+  - serena:context-excluded
+
+# --- FR-6: onboarding-status parse (step 0.7), corrected form (no defunct tool) ---
+onboarding_status: bootstrapped               # {bootstrapped, not_bootstrapped, unknown}
+onboarding_status_source: activation_msg  # {activation_msg, list_memories_proxy, unknown}
+# FR-6.4: unknown would imply NO S_dev_density down-weight (not exercised here — this case is bootstrapped)
+
+# --- FR-6.3 static guard (corrected-form) ---
+# SKILL.md `allowed-tools` MUST NOT contain `check_onboarding_performed` (DELETED in Serena v1.5.0).
+# Asserted statically in evals.json via regex_absent over the SKILL.md source.
+skill_allowed_tools_excludes: check_onboarding_performed
+
+tier_reached: 1
+escalation_reason: null

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/diff.schema.json",
+  "title": "Roadmap diff step structured output",
+  "$comment": "The diff step is a SIMPLE comparative-analysis step: it compares two roadmap variants and surfaces their divergence points, shared assumptions, relative strengths, and debate areas. Unlike the generate/merge steps it does NOT carry roadmap_ids and therefore has NO §MVR §3 / Contract #3 phantom-ID subset constraint -- the executor routes it through the PLAIN render_step_tool_write (not the id-check variant). The two frontmatter integers (total_diff_points, shared_assumptions_count) are the DIFF_GATE-required fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter",
+    "divergence_points"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_diff_points",
+        "shared_assumptions_count"
+      ],
+      "properties": {
+        "total_diff_points": { "type": "integer" },
+        "shared_assumptions_count": { "type": "integer" },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" },
+        "variant_a": { "type": "string" },
+        "variant_b": { "type": "string" }
+      }
+    },
+    "shared_assumptions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "divergence_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["description"],
+        "properties": {
+          "n": { "type": "integer" },
+          "description": { "type": "string" },
+          "variant_a_position": { "type": "string" },
+          "variant_b_position": { "type": "string" },
+          "impact": { "type": "string" }
+        }
+      }
+    },
+    "stronger_areas": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["area"],
+            "properties": {
+              "area": { "type": "string" },
+              "variant": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        ]
+      }
+    },
+    "debate_areas": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+contract_version: "1.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-sprint-auto-resume-promoted-20260603124124/REPORT.md
+confidence_calibrated: 0.94
+escalation_rule_matched: 4
+tasklist_completion_pct: 1.0
+deviation_count_by_class: { authorized: 1, necessary: 0, drift: 0, regression: 0 }
+citations_total: 10
+citations_revalidated: 10
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+merge_method: adversarial
+adversarial_convergence_score: 0.92
+calibrator_diversity: full
+regression_present: false
+needs_human_decision: false
+user_decision_required: false
+promotion_action: moved
+promotion_adapter: task
+promotion_source: .dev/tasks/to-do/TASK-RF-20260602-sprint-auto-resume/
+promotion_destination: .dev/tasks/done/TASK-RF-20260602-sprint-auto-resume/
+promotion_log_path: .dev/reflect/post-sprint-auto-resume-promoted-20260603124124/promotion-log.yaml
+promotion_gate_passed: true
+promotion_skip_reason: null
+promotion_cross_fs: false
+promotion_rollback_command: "mv .dev/tasks/done/TASK-RF-20260602-sprint-auto-resume .dev/tasks/to-do/TASK-RF-20260602-sprint-auto-resume"

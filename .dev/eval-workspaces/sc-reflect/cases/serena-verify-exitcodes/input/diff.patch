@@ -1,0 +1,9 @@
+diff --git a/src/svc/calc.py b/src/svc/calc.py
+index 5555555..6666666 100644
+--- a/src/svc/calc.py
++++ b/src/svc/calc.py
+@@ -1,2 +1,5 @@
+ """Calc."""
++
++def add(a, b):
++    return a + b

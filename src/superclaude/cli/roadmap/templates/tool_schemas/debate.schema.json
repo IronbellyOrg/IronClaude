@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/debate.schema.json",
+  "title": "Roadmap debate step structured output",
+  "$comment": "The debate step is part of the PRESERVED adversarial-debate mechanism: a structured debate facilitator runs N rounds between the two roadmap variants and emits a convergence assessment. The tool-write rewrite changes ONLY the prompt/output contract (markdown -> structured JSON rendered deterministically); the semantic_layer.py module is byte-untouched. Like the diff step, debate carries NO roadmap_ids and therefore has NO §MVR §3 / Contract #3 phantom-ID subset constraint -- the executor routes it through the PLAIN render_step_tool_write (not the id-check variant). The two frontmatter fields (convergence_score, rounds_completed) are the DEBATE_GATE-required fields; convergence_score additionally bears the DEBATE_GATE convergence_score_valid semantic check (float in [0.0, 1.0]).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter",
+    "rounds",
+    "convergence_assessment"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "convergence_score",
+        "rounds_completed"
+      ],
+      "properties": {
+        "convergence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rounds_completed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" },
+        "variant_a": { "type": "string" },
+        "variant_b": { "type": "string" }
+      }
+    },
+    "rounds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "round",
+          "variant_a_position",
+          "variant_b_position"
+        ],
+        "properties": {
+          "round": { "type": "integer" },
+          "variant_a_position": { "type": "string" },
+          "variant_b_position": { "type": "string" },
+          "exchange": { "type": "string" }
+        }
+      }
+    },
+    "convergence_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agreements",
+        "remaining_disputes"
+      ],
+      "properties": {
+        "agreements": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "remaining_disputes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "summary": { "type": "string" }
+      }
+    }
+  }
+}

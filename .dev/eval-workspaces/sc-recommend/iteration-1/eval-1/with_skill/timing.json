@@ -1,0 +1,7 @@
+{
+  "total_tokens": 106362,
+  "duration_ms": 109900,
+  "total_duration_seconds": 109.9,
+  "tool_uses": 14,
+  "summary": "Recommended prd skill (Skill tool hand-off). Argued /sc:spec-panel reviews specs (does not produce), /sc:design is untemplated, /sc:workflow consumes a PRD rather than producing one. Did NOT surface /sc:spec-panel as the build-request expected."
+}

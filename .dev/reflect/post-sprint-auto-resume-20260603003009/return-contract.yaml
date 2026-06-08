@@ -1,0 +1,62 @@
+contract_version: "1.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-sprint-auto-resume-20260603003009/REPORT.md
+subject: TASK-RF-20260602-sprint-auto-resume
+
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 2      # F-1 (origin), F-5
+  drift: 1          # F-2
+  regression: 1     # F-3 (regression-class latent gap)
+coverage_gaps: 4    # CG-1..CG-4
+
+regression_present: true        # F-3
+needs_human_decision: true      # CG-4 spec self-contradiction (§7 vs §4(c)/FR-2.4)
+spec_is_wrong: true             # CG-4 — requirements self-contradict; not a code-only fix
+unauthorized_deviation_present: true   # F-2 drift
+
+# method
+prior_independent_gates: 9      # 7 phase-gate rf-qa + 2 post-completion validators
+independent_reviewer_findings: 4
+citations_total: 5
+citations_dropped: 0
+zero_drop_is_vacuous: false     # non-vacuous: independent reviewer found real issues
+
+# promotion (Wave 7)
+promotion_action: skipped
+promotion_skip_reason: gate-failed   # conditions 4 (no drift/regression) + 8 (no user decision) fail
+promotion_gate_passed: false
+
+# remediation (Tier 3 — opt-in, NOT auto-executed)
+remediation_offered: true
+remediation_accepted: null
+remediation_targets: [F-3, F-2, F-4, CG-4]
+
+findings:
+  - id: F-1
+    class: necessary
+    severity: high
+    title: "Boundary partial work no longer hard-gates resume (§7 vs FR-2.4 resolution; --yes path under-assessed)"
+  - id: F-2
+    class: drift
+    severity: medium-high
+    title: "Partial-work artifact paths detected but not surfaced on the report-only path (item 3.2 under-delivered)"
+  - id: F-3
+    class: regression
+    severity: high
+    title: "Drift Tier 1 misses same-ID material edits to a completed task (AC-5 / design §5 under-satisfied)"
+  - id: F-4
+    class: necessary
+    severity: medium
+    title: "PHASE hard-crash does not double-validate the prior completed phase tail (merged-req :141-143)"
+  - id: F-5
+    class: necessary
+    severity: none
+    title: "Advisory surface uses invoke_sonnet not the design's Haiku name (intent preserved)"
+  - id: F-6
+    class: none
+    severity: none
+    title: "Missing transcript hard-STOPs validation (conservative-correct, no defect)"

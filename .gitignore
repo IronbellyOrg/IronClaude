@@ -77,6 +77,9 @@ Desktop.ini
 # Logs
 logs/
 *.log
+# Canonical evidence-pack fixtures asserted by tests/audit/*CanonicalFixtureParity*.
+# The blanket *.log rule above otherwise leaves them untracked -> clean CI checkouts fail.
+!.dev/releases/**/artifacts/**/fixture-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -114,8 +117,17 @@ Tests/
 temp/
 tmp/
 .cache/
-.claude/
+.claude/*
 !.claude/settings.json
+# (R3) Lookup-cache tracked artifacts — user-authorized exception (merged-requirements.md Gitignore Exception)
+!.claude/cache/
+.claude/cache/*
+!.claude/cache/sc-recommend-lookup.yaml
+!.claude/cache/sc-recommend-plugin.yaml
+!.claude/cache/eval-runs/
+!.claude/cache/eval-runs/**
+# Re-ignore high-churn per-session telemetry
+.claude/cache/sc-recommend-events.jsonl
 
 # Build artifacts
 *.tar.gz
@@ -224,6 +236,9 @@ uv.lock
 # Sprint runner transient state directory (post-FU-001 default). Holds
 # .sprint-exitcode and other ephemeral per-run state; never tracked.
 .dev/sprint-state/
+# e2e-reflect harness sprint-state (same ephemeral exitcode/state, nested
+# under per-scenario test dirs). FU-001 forbids tracking .sprint-exitcode.
+.dev/e2e-reflect/**/sprint-state/
 # Sprint runner per-task stdout/stderr dumps. Routinely exceed the 1 MB
 # pre-commit large-file threshold; the manifest, execution-log, tasklists,
 # and verification artifacts in the same release directory remain tracked.

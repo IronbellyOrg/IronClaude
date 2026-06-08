@@ -1,10 +1,9 @@
 # `sc-bare-review` — Reviewer Prompts
 
 Source of truth for the system + user prompts sent to each external (T2) model.
-`superclaude swarm run --lens bare-review` (recipe `bare_review_v1`) instantiates these
-into `<output>/.prompts/system.txt` and `<output>/.prompts/user.txt` once per invocation
-(identical across reviewers — only the model identifier differs at dispatch). Keep these
-in sync with `refs/output-template.md`.
+`scripts/t2_preflight.sh` instantiates these into `<output>/.prompts/system.txt` and
+`<output>/.prompts/user.txt` once per invocation (identical across reviewers — only the
+model identifier differs at dispatch). Keep these in sync with `refs/output-template.md`.
 
 Design constraints:
 

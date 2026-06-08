@@ -1,0 +1,65 @@
+########## test_structural_checkers.py ##########
+tests/roadmap/test_structural_checkers.py::TestSeverityRules::test_rule_table_extensible PASSED [ 64%]
+tests/roadmap/test_structural_checkers.py::TestDeterminism::test_sequential_determinism PASSED [ 66%]
+tests/roadmap/test_structural_checkers.py::TestDeterminism::test_serialized_output_identical PASSED [ 67%]
+tests/roadmap/test_structural_checkers.py::TestDeterminism::test_individual_checker_determinism PASSED [ 69%]
+tests/roadmap/test_structural_checkers.py::TestDeterminism::test_parallel_execution_determinism PASSED [ 70%]
+tests/roadmap/test_structural_checkers.py::TestDeterminism::test_no_shared_mutable_state PASSED [ 72%]
+tests/roadmap/test_structural_checkers.py::TestSupportingDataclasses::test_regression_result PASSED [ 74%]
+tests/roadmap/test_structural_checkers.py::TestSupportingDataclasses::test_remediation_patch PASSED [ 75%]
+tests/roadmap/test_structural_checkers.py::TestSC4Ratio::test_sc4_ratio PASSED [ 77%]
+tests/roadmap/test_structural_checkers.py::TestSC4Ratio::test_all_structural_findings_tagged PASSED [ 79%]
+tests/roadmap/test_structural_checkers.py::TestSC4Ratio::test_structural_vs_semantic_dimensions_disjoint PASSED [ 80%]
+tests/roadmap/test_structural_checkers.py::TestSC4Ratio::test_finding_counts_by_source_layer PASSED [ 82%]
+tests/roadmap/test_structural_checkers.py::TestS2RoutingAndFixGuidance::test_data_models_file_missing_routes_to_roadmap PASSED [ 83%]
+tests/roadmap/test_structural_checkers.py::TestS2RoutingAndFixGuidance::test_fix_guidance_is_actionable_not_boilerplate PASSED [ 85%]
+tests/roadmap/test_structural_checkers.py::TestS2RoutingAndFixGuidance::test_security_missing_is_ambiguous SKIPPED [ 87%]
+tests/roadmap/test_structural_checkers.py::TestS2RoutingAndFixGuidance::test_route_findings_helper_no_op_when_already_routed PASSED [ 88%]
+tests/roadmap/test_structural_checkers.py::TestS5ContextAwareNfrSeverity::test_classify_demotes_under_generic_heading PASSED [ 90%]
+tests/roadmap/test_structural_checkers.py::TestS5ContextAwareNfrSeverity::test_classify_keeps_high_under_strong_heading PASSED [ 91%]
+tests/roadmap/test_structural_checkers.py::TestS5ContextAwareNfrSeverity::test_classify_threshold_demotes_under_generic_heading PASSED [ 93%]
+tests/roadmap/test_structural_checkers.py::TestS5ContextAwareNfrSeverity::test_classify_other_mismatches_unaffected PASSED [ 95%]
+tests/roadmap/test_structural_checkers.py::TestS5ContextAwareNfrSeverity::test_check_nfrs_demotes_under_generic_heading PASSED [ 96%]
+tests/roadmap/test_structural_checkers.py::TestS5ContextAwareNfrSeverity::test_check_nfrs_keeps_high_under_strong_heading PASSED [ 98%]
+tests/roadmap/test_structural_checkers.py::TestS5ContextAwareNfrSeverity::test_check_nfrs_deterministic_ordering PASSED [100%]
+
+======================== 61 passed, 1 skipped in 0.36s =========================
+
+########## test_spec_roadmap_id_containment.py ##########
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 11 items
+
+tests/roadmap/test_spec_roadmap_id_containment.py::test_phantom_id_rejected[recurrence_case0] PASSED [  9%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_registry_contains_method[recurrence_case0] PASSED [ 18%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_spec_ids_contained_when_roadmap_matches_spec PASSED [ 27%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_accepted_deviation_allows_otherwise_phantom_id PASSED [ 36%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_fail_shut_when_sidecar_missing PASSED [ 45%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_fail_shut_when_sidecar_unreadable PASSED [ 54%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_extract_roadmap_ids_reuses_canonical_extractor PASSED [ 63%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_registry_is_immutable_and_hashable PASSED [ 72%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_registry_sidecar_schema_stable PASSED [ 81%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_build_id_registry_picks_up_d_lenient_family PASSED [ 90%]
+tests/roadmap/test_spec_roadmap_id_containment.py::test_sidecar_schema_round_trip PASSED [100%]
+
+============================== 11 passed in 0.19s ==============================
+
+########## test_gates_data.py ##########
+tests/roadmap/test_gates_data.py::TestDeviationCountsReconciled::test_missing_total_analyzed_fails PASSED [ 99%]
+tests/roadmap/test_gates_data.py::TestDeviationCountsReconciled::test_non_integer_total_analyzed_fails PASSED [ 99%]
+tests/roadmap/test_gates_data.py::TestDeviationCountsReconciled::test_function_still_detects_mismatch_standalone PASSED [100%]
+
+============================= 227 passed in 0.32s ==============================
+
+########## test_pipeline_envelope.py ##########
+tests/roadmap/test_pipeline_envelope.py::test_dispatch_reachable_from_production_entry_point PASSED [ 77%]
+tests/roadmap/test_pipeline_envelope.py::test_field_set_matches_mvr_section_1 PASSED [ 88%]
+tests/roadmap/test_pipeline_envelope.py::test_dual_write_does_not_mutate_markdown PASSED [100%]
+
+============================== 9 passed in 0.21s ===============================

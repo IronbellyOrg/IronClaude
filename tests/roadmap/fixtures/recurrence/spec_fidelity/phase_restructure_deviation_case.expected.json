@@ -1,0 +1,10 @@
+{
+  "fixture": "spec_fidelity/phase_restructure_deviation_case",
+  "source_authority": {
+    "master_recurrence_row": 5,
+    "partition_findings": ["A1b:F-A1b-004", "A7:F-A7-04"],
+    "incident_summary": "Architect restructured the spec's logical phases into more execution-unit phases (v2.22: 4 spec phases -> 7 roadmap phases, A1b:F-A1b-004) — a semantic architect-vs-spec deviation, not a fabricated-ID or shape violation."
+  },
+  "deferred": true,
+  "reason": "Phase-restructure is an architect-vs-spec semantic deviation, not deterministically scanner-classifiable. Verified Step 13.2: fidelity_checker.py checks FR-to-implementation name evidence (FRMapping/FidelityResult), not spec-vs-roadmap phase counts; there is no phase_count/phase_restructure/num_phases floor or comparator anywhere in cli/roadmap (the only grep match is a prose LLM instruction at prompts.py:1327). Classifying '4 phases -> 7 phases' as improvement vs drift requires semantic judgment the deterministic scanners deliberately do not make, so no verifiable expected values are constructible."
+}

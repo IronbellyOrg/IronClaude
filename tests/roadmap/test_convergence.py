@@ -1133,8 +1133,15 @@ class TestConvergenceLoop:
 class TestDispatch:
     """T05.03: convergence_enabled dispatch in executor step 8."""
 
-    def test_convergence_gate_none_when_enabled(self):
-        """When convergence_enabled=True, spec-fidelity step has no gate."""
+    def test_convergence_aware_gate_when_enabled(self):
+        """R1.6 / Contract #4: the ``gate=None`` convergence bypass is DELETED.
+
+        When ``convergence_enabled=True`` the spec-fidelity step now carries the
+        convergence-aware gate (not ``None``) so the step is never ungated.
+        """
+        from superclaude.cli.roadmap.gates import (
+            SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+        )
         from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 
         config = RoadmapConfig(
@@ -1160,12 +1167,22 @@ class TestDispatch:
                     fidelity_step = entry
 
         assert fidelity_step is not None
-        # When convergence_enabled=True, gate should be None (convergence takes over)
-        assert fidelity_step.gate is None
+        # R1.6: convergence mode no longer bypasses the gate — it uses the
+        # convergence-aware variant (validates the terminal report frontmatter
+        # in the live path + carries the envelope-SoT convergence assertion).
+        assert fidelity_step.gate is SPEC_FIDELITY_GATE_CONVERGENCE_AWARE
 
-    def test_legacy_gate_when_disabled(self):
-        """When convergence_enabled=False, spec-fidelity step uses SPEC_FIDELITY_GATE."""
-        from superclaude.cli.roadmap.gates import SPEC_FIDELITY_GATE
+    def test_convergence_aware_gate_when_disabled(self):
+        """Both modes use the convergence-aware gate after the R1.6 bypass removal.
+
+        With ``convergence_enabled=False`` the same gate applies; its
+        convergence ``CodeAssertion`` vacuously passes because
+        ``envelope.convergence`` is ``None``, so behavior matches the old
+        SPEC_FIDELITY_GATE for the non-convergence LLM path.
+        """
+        from superclaude.cli.roadmap.gates import (
+            SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+        )
         from superclaude.cli.roadmap.models import AgentSpec, RoadmapConfig
 
         config = RoadmapConfig(
@@ -1189,7 +1206,7 @@ class TestDispatch:
                     fidelity_step = entry
 
         assert fidelity_step is not None
-        assert fidelity_step.gate is SPEC_FIDELITY_GATE
+        assert fidelity_step.gate is SPEC_FIDELITY_GATE_CONVERGENCE_AWARE
 
 
 # --- T05.04: Legacy Budget Isolation ---

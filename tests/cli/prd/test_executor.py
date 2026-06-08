@@ -137,3 +137,63 @@ def test_sentinel_not_matched_in_code_block():
     assert result_none is None, (
         f"Expected None when sentinel is only in code block, got {result_none}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Layer 3 / Layer 1 hotfix acceptance tests (AC7, AC8)
+# ---------------------------------------------------------------------------
+
+
+def test_determine_status_reads_ndjson_channel_inv010(executor):
+    """[AC7] Sentinel + verdict detection still read the NDJSON output_text channel.
+
+    After gate content moved to disk (gate_content), _determine_status must
+    still operate on the NDJSON output_text: the EXIT_RECOMMENDATION sentinel
+    and the QA verdict live only in the assistant's stdout commentary, never in
+    the on-disk artifact (INV-010).
+    """
+    continue_output = (
+        "Assistant commentary in the NDJSON stream...\n"
+        "EXIT_RECOMMENDATION: CONTINUE\n"
+    )
+    assert (
+        executor._determine_status(
+            exit_code=0, output=continue_output, step_id="parse-request"
+        )
+        == PrdStepStatus.PASS
+    )
+
+    qa_fail_output = 'QA Review Results:\n"verdict": "FAIL"\nmissing sections\n'
+    assert (
+        executor._determine_status(
+            exit_code=0, output=qa_fail_output, step_id="research-qa"
+        )
+        == PrdStepStatus.QA_FAIL
+    )
+
+
+def test_persist_step_artifact_writes_canonical_name(tmp_path):
+    """[AC8] _persist_step_artifact writes the canonical filename resume probes expect.
+
+    Resume detection depends on the artifact existing at exactly
+    task_dir / _STEP_ARTIFACT_FILES[step_id] (e.g. research-notes.md). This
+    canonical-name write must be unchanged by the hotfix.
+    """
+    task_dir = tmp_path / "prd-persist"
+    task_dir.mkdir()
+    config = resolve_config(
+        "persist test product",
+        product="persist-test",
+        tier="standard",
+        output=str(tmp_path),
+        dry_run=True,
+    )
+    config.task_dir = task_dir
+    executor = PrdExecutor(config)
+
+    content = "Persisted research notes line 1\nline 2\nline 3\n"
+    executor._persist_step_artifact("research-notes", content)
+
+    artifact = task_dir / "research-notes.md"
+    assert artifact.exists() is True
+    assert artifact.read_text(encoding="utf-8") == content

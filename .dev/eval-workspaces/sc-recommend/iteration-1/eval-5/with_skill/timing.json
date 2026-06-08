@@ -1,0 +1,7 @@
+{
+  "total_tokens": 93802,
+  "duration_ms": 79989,
+  "total_duration_seconds": 80.0,
+  "tool_uses": 7,
+  "summary": "Top pick Notion hosted MCP (https://mcp.notion.com/mcp) with one-line install + OAuth. #2 @notionhq/notion-mcp-server (headless/token). #3 mcp-remote bridge (stdio). All labeled MCP server, with install + repo + notes + citations."
+}

@@ -1,0 +1,8 @@
+diff --git a/src/svc/widget.py b/src/svc/widget.py
+index 7777777..8888888 100644
+--- a/src/svc/widget.py
++++ b/src/svc/widget.py
+@@ -1,2 +1,4 @@
+ """Widget."""
++
++def render(): return "ok"

@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/extract_tdd.schema.json",
+  "title": "Roadmap extract_tdd step structured output",
+  "$comment": "TDD-input variant of the extract step. roadmap_ids carries the IDs the extract step surfaces. Extract is the SOURCE of spec_ids (it DEFINES the universe), so the §MVR §3 generator-side subset constraint (roadmap_ids ⊆ envelope.spec_ids ∪ accepted_deviations) is the IDENTITY at extract and is enforced at the downstream generate/merge steps. See validate_id_subset().",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter",
+    "functional_requirements",
+    "non_functional_requirements",
+    "roadmap_ids"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "spec_source",
+        "generated",
+        "generator",
+        "functional_requirements",
+        "nonfunctional_requirements",
+        "total_requirements",
+        "complexity_score",
+        "complexity_class",
+        "domains_detected",
+        "risks_identified",
+        "dependencies_identified",
+        "success_criteria_count",
+        "extraction_mode",
+        "data_models_identified",
+        "api_surfaces_identified",
+        "components_identified",
+        "test_artifacts_identified",
+        "migration_items_identified",
+        "operational_items_identified"
+      ],
+      "properties": {
+        "spec_source": { "type": "string" },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" },
+        "functional_requirements": { "type": "integer" },
+        "nonfunctional_requirements": { "type": "integer" },
+        "total_requirements": { "type": "integer" },
+        "complexity_score": { "type": "number" },
+        "complexity_class": {
+          "type": "string",
+          "enum": ["LOW", "MEDIUM", "HIGH"]
+        },
+        "domains_detected": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "risks_identified": { "type": "integer" },
+        "dependencies_identified": { "type": "integer" },
+        "success_criteria_count": { "type": "integer" },
+        "extraction_mode": {
+          "type": "string",
+          "pattern": "^(standard|chunked.*)$",
+          "$comment": "Mirrors EXTRACT_TDD gate _extraction_mode_valid (gates.py): accepts 'standard' or any value starting with 'chunked' (e.g. 'chunked (3 chunks)') so the tool-write path is interchangeable with the markdown path. Tool-write prompts still instruct the LLM to emit the canonical 'standard'/'chunked' forms."
+        },
+        "data_models_identified": { "type": "integer" },
+        "api_surfaces_identified": { "type": "integer" },
+        "components_identified": { "type": "integer" },
+        "test_artifacts_identified": { "type": "integer" },
+        "migration_items_identified": { "type": "integer" },
+        "operational_items_identified": { "type": "integer" }
+      }
+    },
+    "functional_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "paths": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "non_functional_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "complexity_assessment": { "type": "string" },
+    "architectural_constraints": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "risk_inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["risk", "severity", "mitigation"],
+        "properties": {
+          "id": { "type": "string" },
+          "risk": { "type": "string" },
+          "severity": { "type": "string" },
+          "mitigation": { "type": "string" }
+        }
+      }
+    },
+    "dependency_inventory": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "data_models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "fields": { "type": "string" },
+          "relationships": { "type": "string" }
+        }
+      }
+    },
+    "api_specifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "method": { "type": "string" },
+          "path": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "component_inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "testing_strategy": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "level": { "type": "string" }
+        }
+      }
+    },
+    "migration_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "phase": { "type": "string" },
+          "rollback": { "type": "string" }
+        }
+      }
+    },
+    "operational_readiness": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string" },
+          "scenario": { "type": "string" },
+          "resolution": { "type": "string" }
+        }
+      }
+    },
+    "roadmap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(M\\d+-D-?\\d+|FR-\\d+(?:\\.\\d+)?|NFR-\\d+(?:\\.\\d+)?|SC-\\d+|G-\\d+|D-?\\d+|DM-\\w+|API-\\w+|COMP-\\w+|TEST-\\w+|MIG-\\w+|OPS-\\w+)$"
+      }
+    }
+  }
+}

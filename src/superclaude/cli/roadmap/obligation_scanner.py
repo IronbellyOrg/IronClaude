@@ -141,6 +141,58 @@ _DEMOTED_H3_SUBSECTIONS: tuple[str, ...] = (
     "open questions",
 )
 
+# Layer 6 (R0.2 — Contract #10): Anti-instinct phrase allowlist.
+# A SCAFFOLD-term match whose context line contains one of these allowlist
+# phrases is SKIPPED entirely (not demoted to MEDIUM) — these phrases refer
+# to named permanent test fixtures and architectural module paths, not
+# scaffolding obligations.
+#
+# Seed authority (no fabricated entries):
+#   - BUILD-REQUEST §R0 item 2 (verbatim "stub transport",
+#     "stub-worker parallelism test")
+#   - .dev/releases/Current/MultiModelSwarm/anti-instinct-remediation.md §1
+#     (6 FP instances at roadmap.md lines 207, 211, 213 — pre-fix prose)
+#   - master:§Recurrence #6 (scaffold-vocabulary FP class)
+#   - Contract #10 (≥3 known-false-positive fixtures from documented
+#     historical recurrences)
+#
+# Addition criteria — a phrase belongs here ONLY when:
+#   1. It traces to a documented historical incident (no speculative entries).
+#   2. A negative-test fixture (`valid_obligation_case.md`) proves the
+#      allowlist did not silently mask a real obligation.
+#   3. A unit test in `test_anti_instinct_recurrence.py` asserts the new
+#      phrase is matched verbatim and `test_allowlist_provenance` confirms
+#      this comment block still cites Contract #10.
+#
+# R1.3: move to superclaude.contracts.vocabulary._ANTI_INSTINCT_ALLOWLIST_PHRASES.
+_ALLOWLIST_PHRASES: frozenset[str] = frozenset(
+    {
+        "stub transport",
+        "deterministic stub for tests",
+        "deterministic stub transport for tests",
+        "stub-worker parallelism test",
+        "transports/stub.py",
+    }
+)
+
+# M8 (sc:reflect UC-2 Phase-3 finding): imperative-verb prefix that overrides
+# the Layer 6 allowlist short-circuit. A line like
+# ``|1|FR-001|Build stub transport now|temporary stub transport — must be
+# replaced in M2|...|`` matches the allowlist phrase ``stub transport`` but
+# the imperative verb ``Build`` paired with a SCAFFOLD term proves this is
+# genuine scaffolding work, not a named permanent fixture. The allowlist
+# subtracts from FPs only (Contract #10) — when an imperative verb is
+# present, the line is NOT an FP and must NOT be allowlisted. See
+# ``_is_allowlisted`` docstring and ``test_imperative_verb_overrides_allowlist``
+# for the empirical evidence chain.
+_ALLOWLIST_IMPERATIVE_OVERRIDE_RE = re.compile(
+    r"\b(?:build|create|set\s+up|generate|write|add|implement|stand\s+up)\b"
+    r"[^\n]*?"
+    r"\b(?:mock(?:ed|s)?|stub(?:bed|s)?|skeleton|placeholder|"
+    r"scaffold(?:ing|ed)?|temporary|hardcoded|hardwired|no-?op|dummy|fake)\b",
+    re.IGNORECASE,
+)
+
 # Layer 5: H3 / H2 boundary regexes for the pre-scan `_build_h3_index`.
 # `_H3_HEADING_RE` captures the H3 heading text (non-greedy, MULTILINE-anchored
 # per line); `_H2_HEADING_RE` is boundary-only (no capture) — it resets the
@@ -231,6 +283,19 @@ def scan_obligations(content: str) -> ObligationReport:
             term = match.group()
             context_line = _get_context_line(phase_content, match.start())
             abs_line = start_line + phase_content[: match.start()].count("\n")
+
+            # Layer 6 (R0.2 — Contract #10): Anti-instinct phrase allowlist.
+            # A SCAFFOLD-term match whose context line contains a documented
+            # permanent-fixture phrase (e.g. "stub transport",
+            # "transports/stub.py") is SKIPPED entirely — these are named
+            # architectural artifacts, not scaffolding obligations.
+            # See `_ALLOWLIST_PHRASES` docstring for the seed authority
+            # (BUILD-REQUEST §R0 item 2, master:§Recurrence #6) and the
+            # addition criteria. Negative-test guard: every entry has a
+            # paired `valid_obligation_case` test that proves no real
+            # obligation is masked (Step 3.4 / Step 3.5).
+            if _is_allowlisted(context_line):
+                continue
 
             # Skip markdown headings — section titles are document structure,
             # not scaffolding obligations. Also skip table header/separator lines.
@@ -707,6 +772,39 @@ def _is_demoted_h3(h3_text: str) -> bool:
         return False
     normalized = _normalize_h3_for_match(h3_text)
     return any(normalized.startswith(prefix) for prefix in _DEMOTED_H3_SUBSECTIONS)
+
+
+def _is_allowlisted(line: str) -> bool:
+    """True when ``line`` contains a documented anti-instinct allowlist phrase.
+
+    Layer 6 (R0.2 — Contract #10) short-circuit. SCAFFOLD-term matches whose
+    context line matches a phrase in ``_ALLOWLIST_PHRASES`` are SKIPPED
+    entirely by ``scan_obligations`` — they refer to named permanent test
+    fixtures or architectural module paths (e.g. ``stub transport``,
+    ``transports/stub.py``), not scaffolding obligations.
+
+    Phrase match is case-insensitive substring containment. Per Contract #10
+    the allowlist subtracts from FPs only — adding a phrase requires a
+    documented historical incident and a negative-test fixture proving no
+    real obligation is masked. See ``_ALLOWLIST_PHRASES`` docstring for the
+    source-authority list and addition criteria.
+
+    M8 override (sc:reflect UC-2 Phase-3 finding): when the line ALSO matches
+    an imperative-verb-paired-with-SCAFFOLD-term pattern (e.g. ``Build stub
+    transport now``), the line is treated as a genuine scaffolding obligation
+    and NOT allowlisted, regardless of allowlist-phrase substring matches on
+    other tokens in the same line. This preserves Contract #10's "allowlist
+    subtracts from FPs only" invariant by refusing to mask a line where the
+    imperative verb makes the scaffolding intent explicit.
+    """
+    lowered = line.lower()
+    if not any(phrase in lowered for phrase in _ALLOWLIST_PHRASES):
+        return False
+    # M8: imperative-verb + scaffold-term pair signals genuine scaffolding —
+    # the allowlist must not mask it.
+    if _ALLOWLIST_IMPERATIVE_OVERRIDE_RE.search(line):
+        return False
+    return True
 
 
 def _is_meta_context(line: str, term_start_in_line: int) -> bool:

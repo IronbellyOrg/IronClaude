@@ -1,0 +1,39 @@
+# STUB — V3-Serena eval scaffold (FR-RV3-LOW.2 + FR-RV3-LOW.3 shared, UC-2). Body fleshed out later.
+# Discriminating signals:
+#   - NAME COLLISION: two `validate` symbols in different scopes (auth.Validator.validate vs
+#     forms.Validator.validate). find_declaration must anchor 1B.3 overlap to the RESOLVED
+#     declaration, not the text "validate" → no false-positive overlap edge (FR-2.4).
+#   - NO-MATCH hunk: a hunk touching a generated/undeclared identifier `__codegen_stub__` with no
+#     resolvable declaration → find_declaration_no_match (FR-2.2).
+#   - FR-3 (shared): find_referencing_symbols(include_info:true) on these symbols surfaces extended
+#     info (signatures/docstrings) → references_extended_info_used: true; Wave-0 inventory probe
+#     records find_referencing_code_snippets absence.
+
+diff --git a/src/app/auth.py b/src/app/auth.py
+index 1111aaa..2222bbb 100644
+--- a/src/app/auth.py
++++ b/src/app/auth.py
+@@ -10,3 +10,6 @@ class Validator:
+     def validate(self, token):
+-        return token is not None
++        if token is None:
++            return False
++        return token.is_active()
+
+diff --git a/src/app/forms.py b/src/app/forms.py
+index 3333ccc..4444ddd 100644
+--- a/src/app/forms.py
++++ b/src/app/forms.py
+@@ -5,2 +5,4 @@ class Validator:
+     def validate(self, field):
+-        return bool(field)
++        # same method name as auth.Validator.validate — name collision
++        return field is not None and len(field) > 0
+
+diff --git a/src/app/generated.py b/src/app/generated.py
+index 5555eee..6666fff 100644
+--- a/src/app/generated.py
++++ b/src/app/generated.py
+@@ -1,1 +1,2 @@
++__codegen_stub__ = 1  # no resolvable declaration → find_declaration_no_match
+ pass

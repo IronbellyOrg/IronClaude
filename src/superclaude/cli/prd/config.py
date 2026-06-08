@@ -48,6 +48,7 @@ def resolve_config(
     *,
     product: Optional[str] = None,
     where: Optional[Sequence[str]] = None,
+    spec: Optional[Sequence[str]] = None,
     output: Optional[str] = None,
     tier: Optional[str] = None,
     max_turns: Optional[int] = None,
@@ -62,6 +63,12 @@ def resolve_config(
         request: Natural-language product request (positional CLI arg).
         product: Product name or scope override.
         where: Source directories to focus on.
+        spec: Authoritative spec FILES to deterministically ingest. Each is
+              resolved to an absolute path and recorded in
+              ``PrdConfig.spec_files``. Distinct from *where* (directories):
+              specs are bound into ``parsed-request.json`` after parse-request
+              so the LLM cannot evict them. Empty/omitted ⇒ no behavioural
+              change.
         output: Output path for final PRD. When omitted, defaults to
               ``<cwd>/.dev/eval-workspaces/`` if a ``.dev/`` sandbox
               directory exists at CWD (i.e. running from a repo that has
@@ -127,11 +134,19 @@ def resolve_config(
     # Skill refs directory: auto-discover from known locations
     skill_refs_dir = _discover_skill_refs_dir()
 
+    # -- Spec file resolution --
+    # Each --spec value is resolved to an absolute path. Click already enforces
+    # existence + file-ness (Path(exists=True, dir_okay=False)); resolving here
+    # makes the result independent of CWD for direct (non-CLI) callers and for
+    # the executor's spec-binding step.
+    spec_files = [str(Path(s).resolve()) for s in spec] if spec else []
+
     return PrdConfig(
         user_message=request,
         product_name=product_name,
         product_slug=product_slug,
         where=list(where) if where else [],
+        spec_files=spec_files,
         output_path=output_path,
         tier=resolved_tier,
         task_dir=task_dir,

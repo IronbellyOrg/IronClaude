@@ -175,13 +175,15 @@ def execute_preflight_phases(config: SprintConfig) -> list[PhaseResult]:
             )
 
             task_status = (
-                TaskStatus.PASS if classification == "pass" else TaskStatus.FAIL
+                TaskStatus.PASS
+                if classification == "pass"
+                else TaskStatus.FAIL_TERMINAL
             )
             gate_outcome = (
                 GateOutcome.PASS if classification == "pass" else GateOutcome.FAIL
             )
             if classification == "timeout":
-                task_status = TaskStatus.FAIL
+                task_status = TaskStatus.FAIL_TERMINAL
                 gate_outcome = GateOutcome.FAIL
 
             if task_status != TaskStatus.PASS:
@@ -202,7 +204,9 @@ def execute_preflight_phases(config: SprintConfig) -> list[PhaseResult]:
 
         # Build aggregated report
         tasks_passed = sum(1 for tr in task_results if tr.status == TaskStatus.PASS)
-        tasks_failed = sum(1 for tr in task_results if tr.status == TaskStatus.FAIL)
+        tasks_failed = sum(
+            1 for tr in task_results if tr.status == TaskStatus.FAIL_TERMINAL
+        )
         total_duration = sum(tr.duration_seconds for tr in task_results)
 
         report = AggregatedPhaseReport(

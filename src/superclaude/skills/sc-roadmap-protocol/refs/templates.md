@@ -307,9 +307,44 @@ Per-milestone acceptance criteria derived from spec requirements and mapped to d
 
 ---
 
+## R0/R1 Substrate: Contract Registry & Pipeline Envelope
+
+The R0.3/R1.1/R1.2 rewrite changed how the IDs, thresholds, and frontmatter fields described below are owned. These are **canonical CLI facts** (verified against `src/superclaude/contracts/__init__.py` and `src/superclaude/cli/roadmap/envelope.py`):
+
+### `superclaude.contracts` registry (R0.3 + R1.1)
+
+`src/superclaude/contracts/__init__.py` is the single source of truth for the pipeline's constants. Arch-lint (`make lint-architecture` Check 11) blocks CI if any of these is re-defined elsewhere (Contract #5 + #8):
+
+| Constant | Shape | Governs |
+|---|---|---|
+| `ID_PATTERNS` | `dict[str, str]` regex bodies, keys `MD`, `FR`, `NFR`, `SC`, `G`, `D` (MD ordered before D so milestone-prefixed `M{n}-D{nn}` deliverable IDs are their own family) | The ID formats appearing in the frontmatter schemas below (`milestone_index` IDs, FR/NFR/SC IDs). Consumers (`spec_parser`, `structural_checkers`, `fidelity_checker`) source the regex from here — never re-inline it. |
+| `CONVERGENCE_THRESHOLDS` | `dict[str, (high, low)]`; `sc:roadmap → (0.7, 0.5)`, `sc:release-split → (0.7, 0.5)` | Per-skill `(target, regression-floor)` convergence pair. **Forward-looking SoT entry** — no consumer reads the pair yet (the live convergence gate uses `assert_convergence_passed`); do not claim a frontmatter field is driven by it. |
+| `GATE_FIELD_NAMES` | `dict[str, dict[str, str]]`; `deviation_analysis.ambiguous → "ambiguous_deviations"` | Canonical frontmatter field names gate predicates consume — centralized to kill the `ambiguous_count`/`ambiguous_deviations` mismatch class. |
+| `THRESHOLDS` | `dict[str, float]`; `fingerprint.coverage_min → 0.7`, `structural_audit.adequacy_min → 0.5` | Single-scalar module tunables (distinct from the `(high, low)` convergence pair). |
+| `RETURN_CONTRACTS` | `dict[str, type]`; `sc:adversarial → AdversarialReturn` | Per-skill return-type registry (the inline return contract sc:roadmap consumes from sc:adversarial). |
+
+> **There is NO `superclaude.contracts.parsers` submodule.** The `contracts` package is a single `__init__.py` constants/schema registry — it hosts no parser. Do not cite `superclaude.contracts.parsers.parse_frontmatter`; it does not exist.
+
+### `PipelineEnvelope` (R1.2, `cli/roadmap/envelope.py`)
+
+The typed `PipelineEnvelope` dataclass (`envelope.py:128`) is the cross-step source of truth (§MVR §1). After the R1.6 dual-write cutover, **markdown is render-only output**; cross-step state lives in the envelope, persisted to the `<release>/envelope.json` sidecar. Its actual fields are:
+
+| Field | Type | Notes |
+|---|---|---|
+| `release_id` | `str` | Release identifier (matches the `<release>` sidecar segment). |
+| `spec_hash` | `str` | SHA-256 (16-char prefix) of spec content at extract time. |
+| `spec_ids` | `SpecIdRegistry` | Full R0.1 registry absorbed by R1.2 — the declared spec ID set Contract #3 checks downstream `roadmap_ids` against. |
+| `artifacts` | `dict[str, ArtifactRef]` | Per-step artifact refs with content hashes, keyed by `step.id`. |
+| `findings` | `list[Finding]` | Typed records, additive across steps. |
+| `counts` | `dict[str, int]` | Gate-pass signals (e.g. `"merge.roadmap_id_count": 47`). |
+| `convergence` | `Optional[ConvergenceResult]` | Terminal convergence verdict (`None` if not yet run / disabled). |
+| `accepted_deviations` | `list[AcceptedDeviation]` | Full audit records (id + reason + timestamp). |
+
+> **Frontmatter is parsed exactly once.** The `counts` and `findings` fields are populated ONLY by the Python post-step extractors registered in `POST_EXTRACTORS` (`envelope.py:690`, resolved via `get_post_extractor`) or by direct Python assignment in `executor.py`. There is **no code path where LLM output flows directly into these fields** (master:§Flaw 3 invariant). Post-extractors *derive* counts deterministically from the markdown via existing `spec_parser` helpers — **Contract #6 forbids new parsers**. Consumers read typed state via `envelope.spec_ids` / `envelope.counts` / `envelope.findings` / `envelope.convergence` / `envelope.accepted_deviations` — **not** via an `envelope.frontmatter` accessor (no such field exists). The frontmatter schemas below are the *render target* the post-extractors read from and the artifact writers emit, not a re-parsed interchange substrate.
+
 ## YAML Frontmatter Schemas
 
-All 3 output artifacts include YAML frontmatter as a versioned contract for downstream consumption. **Fields may be added but never removed or renamed** (contract stability per NFR-003).
+All 3 output artifacts include YAML frontmatter as a versioned contract for downstream consumption. **Fields may be added but never removed or renamed** (contract stability per NFR-003). Per the R1.2 substrate inversion above, this frontmatter is render-only output: the typed `PipelineEnvelope` is the cross-step source of truth, and frontmatter counts are *derived once* by `POST_EXTRACTORS`, never re-parsed as an interchange format.
 
 ### Mutual Exclusion Rule
 
@@ -423,4 +458,4 @@ complexity_class: <LOW|MEDIUM|HIGH>
 
 ---
 
-*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 2, available through Wave 3. CLI parity baseline: single-template resolver via `get_template_path()` over `ROADMAP_TEMPLATE = "roadmap_template.compressed.md"` (`src/superclaude/cli/roadmap/templates.py:14-71`). Multi-tier discovery is inference-only and out of canonical CLI scope (B-5).*
+*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 2, available through Wave 3. CLI parity baseline: single-template resolver via `get_template_path()` over `ROADMAP_TEMPLATE = "roadmap_template.compressed.md"` (`src/superclaude/cli/roadmap/templates.py:14-71`). Multi-tier discovery is inference-only and out of canonical CLI scope (B-5). R0/R1 substrate baseline (VERIFIED): IDs/thresholds/field-names are owned by `superclaude.contracts.__init__` (`ID_PATTERNS`, `CONVERGENCE_THRESHOLDS`, `GATE_FIELD_NAMES`, `THRESHOLDS`, `RETURN_CONTRACTS`; no `parsers` submodule); cross-step state is the typed `PipelineEnvelope` (`cli/roadmap/envelope.py:128`, `<release>/envelope.json` sidecar) with frontmatter derived once by `POST_EXTRACTORS` via `spec_parser` helpers (Contract #6 — no new parsers); markdown is render-only after the R1.6 dual-write cutover.*

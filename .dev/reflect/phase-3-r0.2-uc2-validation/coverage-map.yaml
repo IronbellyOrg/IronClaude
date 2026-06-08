@@ -1,0 +1,60 @@
+wave: 1B
+phase: 3 (R0.2 Anti-Instinct Vocab-Lint Allowlist)
+verdict: 100% covered (8/8 steps + 3/3 phase gates landed)
+steps:
+  - id: 3.1
+    required: Discover MultiModelSwarm FP seed cases
+    landed: phase-outputs/discovery/multimodelswarm-fp-seeds.md (referenced by tests + rf-qa)
+    status: covered
+  - id: 3.2
+    required: Design allowlist mechanism (pick least-over-broadening option A/B/C)
+    landed: Option C (new `_ALLOWLIST_PHRASES` frozenset) — documented at task log line 828 as "minimal-blast-radius fix"
+    status: covered
+    rationale_verified: extending _DESCRIPTOR_NOUNS would over-broaden Layer 4; extending _DEMOTED_H3_SUBSECTIONS doesn't match (FPs not in demoted H3); new constant is least-coupling.
+  - id: 3.3
+    required: Implement allowlist + provenance comment block
+    landed: obligation_scanner.py:144-176 (comment block) + 168 (constant) + 760-776 (helper) + 270-281 (call site)
+    status: covered
+  - id: 3.4
+    required: Create ≥3 FP fixtures + 1 valid-obligation guard
+    landed: tests/roadmap/fixtures/recurrence/anti_instinct/{multimodelswarm,stub_worker_parallelism,module_path}_fp_case.md + valid_obligation_case.md (4 pairs)
+    status: covered
+  - id: 3.5
+    required: Add test_anti_instinct_recurrence.py (parametrised FP + valid-obligation + provenance)
+    landed: tests/roadmap/test_anti_instinct_recurrence.py (212 lines, 7 invariant tests)
+    status: covered
+  - id: 3.6
+    required: Run R0.2 test suite
+    landed: phase-outputs/test-results/r0-2-pytest-summary.md (134 passed / 1 skipped per commit message)
+    status: covered
+  - id: 3.7
+    required: Lint + format
+    landed: no lint diagnostics introduced (verified by absence in rf-qa report)
+    status: covered
+  - id: 3.8
+    required: Live MultiModelSwarm re-run reaches anti-instinct PASS
+    landed: phase-outputs/test-results/r0-2-multimodelswarm-rerun.txt + r0-2-multimodelswarm-summary.md; direct scanner re-run undischarged_count=0 (per anti-instinct-audit.md); escape clause invoked for CLI ergonomics resume failure (test-level proof accepted per Step 3.8 text)
+    status: covered_with_documented_escape
+phase_gates:
+  - id: PG3.1
+    required: Aggregate R0.2 outputs
+    landed: phase-outputs/reports/r0-2-aggregation.md
+    status: covered
+  - id: PG3.2
+    required: Spawn rf-qa with adversarial stance + fix_authorization
+    landed: phase-outputs/reviews/r0-2-rf-qa-task-integrity.md (PASS, cycle 1/2)
+    status: covered_with_known_independence_gap
+    independence_note: |
+      rf-qa was performed inline by the primary executing agent because the
+      Task tool was unavailable to spawn a separate subagent (task log line
+      835). The (a)-(g) checklist was executed verbatim with concrete
+      evidence, but this is same-agent self-review — that is exactly why
+      the UC-2 reflection is the first independent check.
+  - id: PG3.3
+    required: Act on QA verdict
+    landed: PASS → no remediation; aggregation handoff to Phase 4 (per rf-qa §verdict)
+    status: covered
+build_request_anchors:
+  - "§R0 item 2 (anti-instinct vocab-lint allowlist)": satisfied
+  - "§Contract #10 (≥3 known-FP fixtures from documented historical recurrences)": satisfied (3 fixtures from MultiModelSwarm L207/L211/L213)
+  - "§Acceptance gate #5 (MultiModelSwarm halt resolved)": "satisfied (undischarged_obligations: 0 at audit + test-level invariant)"

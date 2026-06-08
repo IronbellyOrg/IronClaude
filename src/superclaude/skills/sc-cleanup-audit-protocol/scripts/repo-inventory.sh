@@ -28,12 +28,20 @@ fi
 
 apply_scope() {
     # Filter stdin through default + per-project regex exclusions.
-    # `|| true` guards against grep's exit-1 on empty input under `set -e`.
+    # grep exit codes: 0 = some lines kept, 1 = no lines matched (legitimate
+    # empty input under `set -e`), >=2 = FATAL error (e.g. an invalid ERE from a
+    # malformed `EXCLUDE:` line in SCOPE.md). The old `|| true` masked the >=2
+    # case, silently yielding an EMPTY inventory and an exit-0 "Total files: 0".
+    # We now collapse 0/1 to success but PROPAGATE >=2 so callers can abort with
+    # a diagnostic. The `&& rc=0 || rc=$?` form keeps grep under `&&`/`||` so
+    # `set -e` does not pre-empt the rc capture on a non-zero grep.
     if [ -n "$EXTRA_EXCLUDES" ]; then
-        grep -E -v "($DEFAULT_EXCLUDES|$EXTRA_EXCLUDES)" || true
+        grep -E -v "($DEFAULT_EXCLUDES|$EXTRA_EXCLUDES)" && rc=0 || rc=$?
     else
-        grep -E -v "$DEFAULT_EXCLUDES" || true
+        grep -E -v "$DEFAULT_EXCLUDES" && rc=0 || rc=$?
     fi
+    [ "${rc:-0}" -le 1 ] && return 0
+    return "$rc"
 }
 
 # Validate target exists
@@ -45,10 +53,24 @@ fi
 # --- File Enumeration ---
 # Use git ls-files for .gitignore-respecting enumeration
 # Fall back to find if not in a git repo
+# NOTE: `apply_scope` may return >=2 (invalid exclusion regex). Under `set -e`,
+# a non-zero command-substitution assignment aborts the script AT THE ASSIGNMENT
+# LINE — before any `rc=$?` / `exit 1` diagnostic could run. We therefore GUARD
+# the substitution inside an `if` (the only context where `set -e` is suppressed
+# for a non-zero substitution) so the SCOPE.md-naming diagnostic actually fires.
+_scope_err="ERROR: invalid exclusion regex from EXCLUDE lines in $SCOPE_FILE (grep reported a malformed extended-regex; fix the EXCLUDE: pattern)"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    FILE_LIST=$(git ls-files -- "$TARGET" 2>/dev/null | apply_scope)
+    if FILE_LIST=$(git ls-files -- "$TARGET" 2>/dev/null | apply_scope); then
+        :
+    else
+        rc=$?
+        if [ "$rc" -ge 2 ]; then
+            echo "$_scope_err" >&2
+            exit 1
+        fi
+    fi
 else
-    FILE_LIST=$(find "$TARGET" -type f \
+    if FILE_LIST=$(find "$TARGET" -type f \
         -not -path '*/.git/*' \
         -not -path '*/node_modules/*' \
         -not -path '*/__pycache__/*' \
@@ -63,7 +85,15 @@ else
         -not -path '*/.mypy_cache/*' \
         -not -path '*/.pytest_cache/*' \
         -not -path '*/coverage/*' \
-        2>/dev/null | sed 's|^\./||' | apply_scope)
+        2>/dev/null | sed 's|^\./||' | apply_scope); then
+        :
+    else
+        rc=$?
+        if [ "$rc" -ge 2 ]; then
+            echo "$_scope_err" >&2
+            exit 1
+        fi
+    fi
 fi
 
 # Echo the active scope rules for transparency

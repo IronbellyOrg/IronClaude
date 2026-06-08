@@ -1,0 +1,29 @@
+{
+  "fixture": "id_containment/spec_roadmap_drift_case",
+  "source_authority": {
+    "master_recurrence_row": 4,
+    "partition_finding": "A12:F-A12-01",
+    "incident_summary": "TUIBBS v1-MVP D-family lenient extractor vs strict comparator produced 54 phantom_id HIGHs"
+  },
+  "spec_section_heading": "spec",
+  "roadmap_section_heading": "roadmap",
+  "expected_spec_ids": {
+    "fr_ids": ["FR-1"],
+    "nfr_ids": ["NFR-1"],
+    "sc_ids": [],
+    "g_ids": [],
+    "d_ids": ["D1", "D3", "D5"]
+  },
+  "expected_phantom_violations": [
+    "D-1",
+    "D-2",
+    "D-3",
+    "D-7",
+    "D-99",
+    "FR-99"
+  ],
+  "expected_semantic_check_result_type": "str",
+  "expected_failure_substring": "Contract #9: roadmap contains 6 IDs not in spec",
+  "expected_contains_fr_99": false,
+  "expected_contains_fr_1": true
+}

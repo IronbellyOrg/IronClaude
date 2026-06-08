@@ -1,0 +1,22 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 9 items
+
+tests/sprint/test_scheduler.py::test_diamond_waves PASSED                [ 11%]
+tests/sprint/test_scheduler.py::test_linear_chain_waves PASSED           [ 22%]
+tests/sprint/test_scheduler.py::test_independent_tasks_single_wave_declared_order PASSED [ 33%]
+tests/sprint/test_scheduler.py::test_cycle_raises_cycle_error PASSED     [ 44%]
+tests/sprint/test_scheduler.py::test_self_edge_dropped PASSED            [ 55%]
+tests/sprint/test_scheduler.py::test_unknown_dep_filtered PASSED         [ 66%]
+tests/sprint/test_scheduler.py::test_dependencies_of_dedup_preserves_order PASSED [ 77%]
+tests/sprint/test_scheduler.py::test_dependencies_of_unions_recorded_deps PASSED [ 88%]
+tests/sprint/test_scheduler.py::test_is_task_satisfied_tristate PASSED   [100%]
+
+============================== 9 passed in 0.17s ===============================

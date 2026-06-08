@@ -1,0 +1,11 @@
+{
+  "eval_id": 6,
+  "eval_name": "parallel-research-must-recommend-multi-agent-fanout",
+  "prompt": "Set up a research workflow for these 3 files: src/superclaude/skills/sc-adversarial-protocol/SKILL.md, src/superclaude/skills/sc-reflect-protocol/SKILL.md, src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+  "configuration": "with_skill",
+  "assertions": [
+    {"text": "Output recommends parallel Agent fan-out, not sequential skill calls", "type": "regex_match", "value": "(parallel|single message|fan-out|fanout)"},
+    {"text": "Output explicitly invokes the Agent tool (not 3x /sc:research)", "type": "regex_match", "value": "Agent.*(tool|call)"},
+    {"text": "Output includes a synthesis step after the parallel Agents", "type": "regex_match", "value": "(synthesi|combin|merge|aggregate)"}
+  ]
+}

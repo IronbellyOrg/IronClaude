@@ -45,6 +45,7 @@ class _PassPopen:
     def __init__(self):
         self.returncode = 0
         self.pid = 4000
+        self.stdin = None
         self._poll = 0
 
     def poll(self):
@@ -122,6 +123,7 @@ class TestTUIExceptionNonFatal:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 4001
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):
@@ -197,6 +199,7 @@ class TestOutputMonitorLifecycle:
             def __init__(self):
                 self.returncode = 0
                 self.pid = 4002
+                self.stdin = None
                 self._poll = 0
 
             def poll(self):

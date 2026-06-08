@@ -195,6 +195,29 @@ class TestExtractRequirementIds:
         ids = extract_requirement_ids("")
         assert ids == {}
 
+    def test_md_family_does_not_collapse_bare_d(self):
+        """MD-family tokens must not suppress a co-located standalone bare-D id.
+
+        Phantom trailing-D matches inside an "M1-D01" span are dropped, but a
+        legitimate standalone "D01" elsewhere in the text must survive. The prior
+        value-global membership dedup wrongly dropped it (augmentcode #111).
+        """
+        text = "Milestone M1-D01 implements spec D01. Also D02 is separate. And M2-D03."
+        ids = extract_requirement_ids(text)
+        # MD family captures the milestone-prefixed deliverables verbatim.
+        assert ids["MD"] == ["M1-D01", "M2-D03"]
+        # Bare-D family keeps the standalone D01 (shares a value with M1-D01's tail
+        # but is its own span) and D02; D03 had no standalone occurrence so it is
+        # correctly absent.
+        assert ids["D"] == ["D01", "D02"]
+
+    def test_md_family_drops_only_phantom_when_no_standalone(self):
+        """When every bare-D occurrence is the tail of an MD token, drop them all."""
+        text = "Deliverables: M1-D01 and M2-D02 only."
+        ids = extract_requirement_ids(text)
+        assert ids["MD"] == ["M1-D01", "M2-D02"]
+        assert "D" not in ids
+
 
 # ---------- Function Signature Tests ----------
 

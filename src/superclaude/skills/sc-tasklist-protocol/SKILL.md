@@ -6,7 +6,7 @@ complexity: high
 allowed-tools: Read, Glob, Grep, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet, Task, Skill
 mcp-servers: [sequential, context7]
 personas: [analyzer, architect]
-argument-hint: "<roadmap-path> [--spec <spec-path>] [--output <output-dir>]"
+argument-hint: "<roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]"
 ---
 
 # Tasklist Generator Protocol (Deterministic, Value-Preserving) v4.0
@@ -84,7 +84,7 @@ Within `TASKLIST_ROOT`, reference these paths exactly:
 - Task evidence (placeholders only; do not invent real files): `TASKLIST_ROOT/evidence/`
 - Deliverable artifacts (placeholders only): `TASKLIST_ROOT/artifacts/`
 - Feedback log: `TASKLIST_ROOT/feedback-log.md`
-- Validation reports: `TASKLIST_ROOT/validation/`
+- Validation reports: `TASKLIST_ROOT/validation/` (incl. `TASKLIST_ROOT/validation/reflect-pre/` and `TASKLIST_ROOT/validation/reflect-post/` for the per-phase reflect-gate outputs, plus `TASKLIST_ROOT/validation/reflect-pre/depth-map.yaml` for the deterministic depth audit)
 
 You must not claim these paths exist; they are **intended locations**.
 
@@ -93,7 +93,7 @@ You must not claim these paths exist; they are **intended locations**.
 The generator produces exactly **N+1 files** during generation (Stages 1-6) where N = number of phases. Stages 7-10 produce up to 2 additional validation artifacts in `TASKLIST_ROOT/validation/`:
 
 1. **`tasklist-index.md`** -- Contains: metadata, artifact paths, source snapshot, deterministic rules, registries, traceability matrix, templates, glossary
-2. **`phase-1-tasklist.md`** through **`phase-N-tasklist.md`** -- Contains: phase heading, phase goal, tasks (in order), inline checkpoints, end-of-phase checkpoint
+2. **`phase-1-tasklist.md`** through **`phase-N-tasklist.md`** -- Contains: phase heading, phase goal, tasks (in order), inline checkpoints, end-of-phase checkpoint, and (when reflect gating is enabled — the default) a terminal post-execution reflection task as the absolute last task
 
 **Naming**: Phase files MUST use the `phase-N-tasklist.md` convention (canonical Sprint CLI convention). Do not emit mixed aliases unless explicitly requested.
 
@@ -118,6 +118,9 @@ TASKLIST_ROOT/
   evidence/
   checkpoints/
   validation/
+    reflect-pre/
+      depth-map.yaml
+    reflect-post/
   execution-log.md
   feedback-log.md
 ```
@@ -197,7 +200,7 @@ If `--prd-file <prd-path>` was provided (or auto-wired from `.roadmap-state.json
 
 When `.roadmap-state.json` exists in the output directory alongside the roadmap file, the tasklist pipeline auto-loads `tdd_file` and `prd_file` from it without requiring the user to re-pass `--tdd-file` and `--prd-file` flags. This enables seamless pipeline chaining:
 
-```
+```text
 superclaude roadmap run tdd.md --prd-file prd.md --output ./output
 superclaude tasklist validate ./output   # auto-wires both files from state
 ```
@@ -353,10 +356,12 @@ Insert checkpoints deterministically:
   - `### T<PP>.<NN> -- Checkpoint: Phase <PP> / Tasks T<start>-T<end>`
   - ``<NN>`` is the next sequential task number in the phase (mid-phase
     checkpoints consume a slot in the numbering).
-- Emit exactly one end-of-phase checkpoint as the **last** task of each phase:
+- Emit exactly one end-of-phase checkpoint as the last **checkpoint** of each phase:
   - `### T<PP>.<last_num> -- Checkpoint: End of Phase <PP>`
   - `<last_num>` MUST be strictly greater than every regular task number in
-    the phase. No regular task may appear after the end-of-phase checkpoint.
+    the phase. No regular task may appear after the end-of-phase checkpoint;
+    when reflect gating is enabled (default), the templated post-reflection task
+    is the sole task permitted to follow it and is the absolute last task.
 
 **Checkpoint task content (mandatory):**
 
@@ -380,7 +385,7 @@ acceptance criteria) with these fixed values:
 
 **Worked example — Phase 3 with 7 regular tasks:**
 
-```
+```text
 T03.01, T03.02, T03.03, T03.04, T03.05        (regular tasks)
 T03.06 -- Checkpoint: Phase 3 / Tasks T03.01-T03.05   (mid-phase checkpoint)
 T03.07                                           (regular task)
@@ -682,6 +687,7 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 | Total Tasks | `<count>` |
 | Total Deliverables | `<count>` |
 | Complexity Class | `LOW|MEDIUM|HIGH` |
+| Reflect Pre Summary | `{pass: <x>, partial: <y>, fail: <z>}` |
 | Primary Persona | `<derived from roadmap domain>` |
 | Consulting Personas | `<comma-separated>` |
 
@@ -704,11 +710,11 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 
 `## Phase Files`
 
-| Phase | File | Phase Name | Task IDs | Tier Distribution |
-|---|---|---|---|---|
-| 1 | phase-1-tasklist.md | Foundation | T01.01-T01.04 | STRICT: 1, STANDARD: 2, EXEMPT: 1 |
-| 2 | phase-2-tasklist.md | Backend Core | T02.01-T02.05 | STRICT: 2, STANDARD: 3 |
-| ... | ... | ... | ... | ... |
+| Phase | File | Phase Name | Task IDs | Tier Distribution | Pre-Reflect Sign-off |
+|---|---|---|---|---|---|
+| 1 | phase-1-tasklist.md | Foundation | T01.01-T01.04 | STRICT: 1, STANDARD: 2, EXEMPT: 1 | PASS (depth=quick, coverage=100%) |
+| 2 | phase-2-tasklist.md | Backend Core | T02.01-T02.05 | STRICT: 2, STANDARD: 3 | PARTIAL (depth=standard, coverage=82%) |
+| ... | ... | ... | ... | ... | ... |
 
 Rules:
 
@@ -716,6 +722,7 @@ Rules:
 - "Phase Name" is derived from the roadmap bucket heading; if none, use the default names from Section 4.2.
 - "Task IDs" is a compact range like `T01.01-T01.07` (only if continuous), otherwise comma-separated.
 - "Tier Distribution" shows count per tier: `STRICT: 2, STANDARD: 5, LIGHT: 1, EXEMPT: 0`
+- "Pre-Reflect Sign-off" records Stage 10.5's per-phase verdict: `PASS|PARTIAL|FAIL (depth=<d>, coverage=<pct>)`, with a link to the reflect `REPORT.md` on `PARTIAL`/`FAIL`. Shown as `SKIPPED` (or omitted) when `--no-reflect` is set.
 
 #### Source Snapshot
 
@@ -849,7 +856,7 @@ Each phase file is a **self-contained execution unit**. It contains only the tas
 
 #### Phase Heading and Goal
 
-```
+```text
 # Phase N -- <Phase Name>
 ```
 
@@ -950,7 +957,7 @@ Checkpoint blocks within phase files use the same `### T<PP>.<NN>` heading
 pattern as regular tasks so they are visible to the sprint task scanner
 (Section 4.8).
 
-```
+```text
 ### T<PP>.<NN> -- Checkpoint: <Name>
 
 | Field | Value |
@@ -1011,20 +1018,69 @@ pattern as regular tasks so they are visible to the sprint task scanner
 #### End-of-Phase Checkpoint (Mandatory, Last Task)
 
 Every phase file MUST end with an end-of-phase checkpoint, emitted as the
-**last** numbered task in the phase:
+last numbered **checkpoint** in the phase:
 
-```
+```text
 ### T<PP>.<last_num> -- Checkpoint: End of Phase <PP>
 ```
 
 `<last_num>` must be strictly greater than every regular task number in the
-phase. No task may appear below it. All other checkpoint-task fields
+phase. No regular task may appear below it; when reflect gating is enabled (default), the templated post-reflection task is the sole task permitted to follow it and is the absolute last task. All other checkpoint-task fields
 (metadata table, Checkpoint Report Path, Purpose, Verification, Exit
 Criteria, Steps, Acceptance Criteria, Validation, Dependencies, Rollback)
 are required exactly as in the inline-checkpoint template above; the
 checkpoint report path is fixed at
 `TASKLIST_ROOT/checkpoints/CP-P<PP>-END.md` and the Deliverable ID is
 `D-CP<PP>`.
+
+#### Post-Execution Reflection Task (Terminal — when reflect gating is enabled)
+
+When reflect gating is enabled (default; disabled by `--no-reflect`), append exactly ONE fixed terminal task to each phase file, AFTER the End-of-Phase Checkpoint above. This is the sole task permitted to follow the end-of-phase checkpoint (per the amended checkpoint-is-last invariant set — Self-Check #6 and structural checks #18/#19/#20). It uses the standard Sprint-CLI task shape (metadata table + body sections), is Tier EXEMPT (reflect is the auditor, not itself tier-verified, so it is exempt from the artifact-referencing Acceptance-Criteria minimum), and carries a `**Reflect Report Path:**` (not a Checkpoint Report Path). `<phase-commit-range>` is a placeholder the Sprint executor resolves at execution time — never a fabricated SHA. The spawn directive uses `/sc:reflect` (never the `sc:task` execution command).
+
+```markdown
+### T<PP>.<final> -- Post-Execution Reflection: sc:reflect --mode post
+
+| Field | Value |
+|---|---|
+| Roadmap Item IDs | <all R-### in this phase, comma-separated> |
+| Why | Independent post-execution deviation audit of every task in Phase <PP>, in a fresh session, after all phase work completes. |
+| Effort | S |
+| Risk | Low |
+| Risk Drivers | None |
+| Tier | EXEMPT  (* reflect is the auditor; it is not itself tier-verified *) |
+| Confidence | [██████████] 100% |
+| Requires Confirmation | No |
+| Critical Path Override | No |
+| Verification Method | Skip verification (reflect IS the verification) |
+| MCP Requirements | None |
+| Fallback Allowed | Yes |
+| Sub-Agent Delegation | Required (fresh-session reflect ensemble) |
+| Deliverable IDs | D-RF<PP> |
+
+**Reflect Report Path:** `TASKLIST_ROOT/validation/reflect-post/phase-<PP>/REPORT.md`
+
+**Spawn Directive (fresh session):** Spawn a NEW agent/session and run:
+`/sc:reflect --mode post --remediate --tasklist TASKLIST_ROOT/phase-<PP>-tasklist.md --diff <phase-commit-range> --depth <DETERMINISTIC_DEPTH_for_phase_PP> --tier <DETERMINISTIC_TIER_for_phase_PP> --executor-model <EXECUTOR_CLASS> --output TASKLIST_ROOT/validation/reflect-post/phase-<PP>/`
+(The reflect agent uses the default subagent model; `--executor-model` is the reflect-native exclusion flag naming the class that ran the phase's work, so reflect removes it from the reviewer pool — it does not select a model. Never the `sc:task` execution command.)
+
+**Steps:**
+1. **[VERIFICATION]** Resolve `<phase-commit-range>` = the git range covering all of Phase <PP>'s task commits.
+2. **[VERIFICATION]** Spawn a fresh session and invoke the Spawn Directive above (reflect audits the committed diff — cross-session-safe).
+3. **[COMPLETION]** Confirm `REPORT.md` exists at the Reflect Report Path and surface its deviation counts (authorized/necessary/drift/regression).
+
+**Acceptance Criteria:** (exactly 4 bullets)
+- File `TASKLIST_ROOT/validation/reflect-post/phase-<PP>/REPORT.md` exists with a deviation-taxonomy summary.
+- Zero `regression`-class deviations, OR a `--remediate` Tier-3 task was authored for each.
+- Reflect ran with executor-disjoint reviewers (the `<EXECUTOR_CLASS>` passed via `--executor-model` was excluded from the reviewer pool).
+- Report includes the per-task verdict matrix for Phase <PP>.
+
+**Validation:**
+- Manual check: reviewer confirms the deviation counts in REPORT.md.
+- Evidence: the generated reflect REPORT.md.
+
+**Dependencies:** all regular + checkpoint tasks in Phase <PP>.
+**Rollback:** N/A (reflect is read-only audit; promotion is gated separately).
+```
 
 ---
 
@@ -1070,7 +1126,7 @@ Before finalizing output, verify all of the following:
 3. Phase numbers are contiguous (1, 2, 3, ..., N) with no gaps
 4. All task IDs match `T<PP>.<TT>` format (zero-padded, 2-digit)
 5. Every phase file starts with `# Phase N -- <Name>` (level 1 heading, em-dash separator)
-6. Every phase file ends with an end-of-phase checkpoint task (per checks 18-20)
+6. Every phase file ends with an end-of-phase checkpoint task — the last *checkpoint* in the phase (per checks 18-20); when reflect gating is enabled (default), the templated post-reflection task is the sole task permitted to follow that checkpoint and is the absolute last task in the file
 7. No phase file contains Deliverable Registry, Traceability Matrix, or template sections
 8. The index contains literal phase filenames (e.g., `phase-1-tasklist.md`) in at least one table cell
 
@@ -1110,9 +1166,9 @@ not a structural parse check.
 | 15 | Circular dependency detection: no A->B->C->A chains | Prevents unexecutable dependency graphs |
 | 16 | XL splitting enforcement: EFFORT=XL tasks must have subtasks | Enforces decomposition time-boxing |
 | 17 | Confidence bar format consistency: all use the standard pattern | Prevents format drift across phases |
-| 18 | Checkpoint task emission: every checkpoint block in each phase is emitted as a `### T<PP>.<NN> -- Checkpoint:` task heading (never as a sibling `### Checkpoint:` heading) | Cause-2 fix (v3.7 Wave 4): keeps checkpoints visible to the sprint task scanner |
-| 19 | End-of-phase position: the `### T<PP>.<NN> -- Checkpoint: End of Phase <PP>` task has the highest `<NN>` in its phase, with no regular task following it | Ensures the end-of-phase gate is the last instruction the agent sees |
-| 20 | Checkpoint Report Path presence: every checkpoint task includes a `**Checkpoint Report Path:** TASKLIST_ROOT/checkpoints/<name>.md` line immediately below its metadata table | Lets Wave 2/3 tooling (`_verify_checkpoints`, `build_manifest`) parse the expected file path |
+| 18 | Checkpoint task emission: every checkpoint block in each phase is emitted as a `### T<PP>.<NN> -- Checkpoint:` task heading (never as a sibling `### Checkpoint:` heading); when reflect gating is enabled, the post-reflection task is likewise emitted as its own `### T<PP>.<NN> -- Post-Execution Reflection:` task heading (scanner-visible, not a checkpoint) | Cause-2 fix (v3.7 Wave 4): keeps checkpoints visible to the sprint task scanner |
+| 19 | End-of-phase position: the `### T<PP>.<NN> -- Checkpoint: End of Phase <PP>` task is the last *checkpoint* in its phase, with no **regular** task following it; when reflect gating is enabled, the templated post-reflection task is the sole task permitted to follow it and holds the highest `<NN>` in the phase | Ensures the end-of-phase gate is the last instruction before the (optional) post-execution reflection |
+| 20 | Checkpoint Report Path presence: every checkpoint task includes a `**Checkpoint Report Path:** TASKLIST_ROOT/checkpoints/<name>.md` line immediately below its metadata table (the post-reflection task is NOT a checkpoint task and instead carries a `**Reflect Report Path:**` line — it is exempt from this check) | Lets Wave 2/3 tooling (`_verify_checkpoints`, `build_manifest`) parse the expected file path |
 
 If any check 1-20 fails, fix it before writing any output file.
 
@@ -1132,7 +1188,7 @@ Return **only** the generated multi-file bundle (`tasklist-index.md` + `phase-N-
 
 ### Priority Order (Conflict Resolution)
 
-```
+```text
 STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)
 ```
 
@@ -1245,7 +1301,7 @@ Findings merged into the same consolidated findings list used by Stage 8. Standa
 
 **Short-circuit rule**: If Stage 7 produced zero findings across all agents, write a clean `ValidationReport.md` containing:
 
-```
+```text
 # Validation Report
 Generated: <ISO-8601 date>
 Roadmap: <roadmap path>
@@ -1258,7 +1314,7 @@ Then skip Stages 9 and 10. The skill is complete.
 
 Structure:
 
-```
+```text
 # Validation Report
 Generated: <ISO-8601 date>
 Roadmap: <roadmap path>
@@ -1291,7 +1347,7 @@ Total findings: X (High: H, Medium: M, Low: L)
 
 Structure:
 
-```
+```text
 # Patch Checklist
 Generated: <ISO-8601 date>
 Total edits: X across Y files
@@ -1371,7 +1427,7 @@ For each finding in `ValidationReport.md`:
 
 **Output**: Append a `## Verification Results` section to `ValidationReport.md`:
 
-```
+```text
 ## Verification Results
 Verified: <ISO-8601 date>
 Findings resolved: X/Y
@@ -1387,9 +1443,74 @@ Findings resolved: X/Y
 
 ---
 
+### Stage 10.5: Pre-Reflect Sign-off
+
+After Stage 10 (the final roadmap re-verification) completes, fan out one `/sc:reflect --mode pre --remediate` agent **per phase file in parallel** — the cheapest executor-disjoint anti-bias check on the generated bundle, validating each phase tasklist against its driving spec before any execution spend. This stage is **fenced after the Stage 8-10 patch chain**: Stage 9 mutates the phase files via `sc:task --compliance strict`, so a pre-reflect co-located with Stages 8-10 would race a file mid-patch (auditing pre-patch content that no longer exists). Running at Stage 10.5 guarantees every pre-reflect reads the final, validated phase content.
+
+**Reuse the Stage 7 fan-out primitive.** Dispatch the agents via the same `Task` (Agent) primitive Stage 7 uses for its 2N validation fan-out, but **N agents, not 2N** — one per phase file, all in a single parallel wave. Generation throughput (Stages 1-5) is untouched (no reflect runs during generation); the fan-out's wall-clock is the slowest single phase's pre-reflect, not the sum across phases (this is how the "parallel agent so it doesn't slow creation" requirement is satisfied — the fan-out is parallel across phases and runs after generation, not interleaved with the mutation chain).
+
+**Resolve depth/tier deterministically + spec.** For each phase compute the per-phase `COMPLEXITY_SCORE` (see `### Per-Phase Reflect Depth (Deterministic COMPLEXITY_SCORE)`) → `--depth`/`--tier`. Resolve `<RESOLVED_SPEC_PATH>` per the spec resolution order (explicit `--spec` → auto-wired TDD/PRD from `.roadmap-state.json` → the roadmap itself, always present). For each of the N phase files, invoke (default subagent model — no model-routing flag; **no `--executor-model` at PRE** since no executor has run):
+
+```text
+/sc:reflect --mode pre --remediate \
+  --tasklist TASKLIST_ROOT/phase-<P>-tasklist.md \
+  --spec <RESOLVED_SPEC_PATH> \
+  --depth <DETERMINISTIC_DEPTH_for_phase_P> \
+  --tier <DETERMINISTIC_TIER_for_phase_P> \
+  --output TASKLIST_ROOT/validation/reflect-pre/phase-<P>/
+```
+
+**Handle each per-phase verdict (non-blocking).** PASS → record `reflect_pre: PASS (depth=<d>, coverage=<pct>)` in the index "Pre-Reflect Sign-off" column. PARTIAL/FAIL → record the verdict + link the reflect `REPORT.md`; the bundle **still ships** (audit-first). Because `--remediate` is passed, reflect *offers* a Tier-3 `task-builder` remediation but NEVER auto-mutates the phase file; any `needs_human_decision` item in that remediation HALTs (per `feedback_human_decision_items_must_halt`). Write a bundle-level `reflect_pre_summary: {pass: x, partial: y, fail: z}` to the index metadata.
+
+**Skip when disabled.** If `--no-reflect` is set (or `--dry-run`), skip this stage entirely (under `--dry-run`, print "would run N pre-reflects + template N post-reflect tasks" and run neither, per `feedback_dryrun_skips_subskills`).
+
+**Stage gate**: All N pre-reflect agents completed; per-phase `reflect_pre` verdict recorded; `reflect_pre_summary` written to the index. The bundle ships regardless of verdict (advisory-blocking).
+
+---
+
+### Per-Phase Reflect Depth (Deterministic COMPLEXITY_SCORE)
+
+Stage 10.5's `--depth`/`--tier` per phase is computed deterministically from signals the generator already produces (Tier Distribution, Critical Path Override, Risk, task count, Traceability Matrix) — **no inference**. The composite is written to `TASKLIST_ROOT/validation/reflect-pre/depth-map.yaml` for audit.
+
+**Per-phase signals** (all already emitted/persisted during Stages 3-5):
+
+- `n_strict` = STRICT-tier tasks in the phase (from the phase Tier Distribution).
+- `n_tasks` = regular task count (excludes checkpoints + the post-reflect task).
+- `n_cpo` = tasks with `Critical Path Override: Yes` (auth/security/crypto/models/migrations).
+- `n_high_risk` = tasks with `Risk: High`.
+- `n_R` = distinct `R-###` roadmap items traced into the phase (Traceability Matrix join).
+
+The earlier `multifile` signal (count of tasks tripping the ">2 files affected" tier booster) is **DROPPED**: it is a transient Stage-4 tier-scoring input that is never persisted as a per-task field, so recomputing it would require inference — and it is largely redundant with `n_strict` (the >2-files booster already pushes a task toward STRICT).
+
+**COMPLEXITY_SCORE (integer, deterministic):**
+
+```text
+COMPLEXITY_SCORE =
+    3 * n_strict          # STRICT tasks dominate — security/data/breaking-change surface
+  + 3 * n_cpo             # critical-path overrides are non-negotiable blast radius
+  + 2 * n_high_risk       # High-risk tasks
+  + 1 * ceil(n_tasks / 5) # raw size, bucketed by the checkpoint cadence (1 pt per 5 tasks)
+  + 1 * ceil(n_R / 5)     # requirement coverage breadth, bucketed
+```
+
+**Score → reflect depth/tier (per phase):**
+
+| COMPLEXITY_SCORE | reflect `--depth` | reflect `--tier` | Rationale |
+|---|---|---|---|
+| `0-3` | `quick` | `1` | Narrow, single-domain, no STRICT/CPO — T1 ensemble suffices. |
+| `4-9` | `standard` | `auto` | Moderate — reflect's own rubric decides T1-vs-T2 from calibrated confidence. |
+| `≥10` | `deep` | `2` | High blast radius (multiple STRICT/CPO or broad requirement coverage) — force the heterogeneous T2 ensemble. |
+
+**Hard overrides (deterministic, applied before the table):**
+
+- If `n_cpo ≥ 1` **OR** `n_strict ≥ 2` → floor the phase at `--depth deep --tier 2` regardless of score (a security/migration/auth phase always gets the full ensemble — a missed regression there is far worse than T2 tokens).
+- If `n_tasks == 0` (an empty/checkpoint-only phase) → **skip reflect entirely** for that phase.
+
+---
+
 ## Stage Completion Reporting Contract
 
-The skill executes in 10 stages with per-stage validation. Stage reporting uses the Task system (TaskCreate, TaskUpdate) for progress tracking.
+The skill executes in 11 stages with per-stage validation. Stage reporting uses the Task system (TaskCreate, TaskUpdate) for progress tracking.
 
 | Stage | Name | Validation Criteria |
 |-------|------|---------------------|
@@ -1403,6 +1524,7 @@ The skill executes in 10 stages with per-stage validation. Stage reporting uses 
 | 8 | Patch Plan Generation | ValidationReport.md and PatchChecklist.md written to TASKLIST_ROOT/validation/; OR clean report if zero issues |
 | 9 | Patch Execution | sc:task --compliance strict completed against PatchChecklist.md; all checklist items addressed |
 | 10 | Spot-Check Verification | All findings from ValidationReport.md re-verified; results appended to report |
+| 10.5 | Pre-Reflect Sign-off | All N pre-reflect agents completed; per-phase reflect_pre verdict recorded; reflect_pre_summary written to index |
 
 ### Gate Behavior
 
@@ -1412,18 +1534,19 @@ The skill executes in 10 stages with per-stage validation. Stage reporting uses 
 
 **Short-circuit gate** (Stage 8): If Stage 7 produces zero findings, Stages 9-10 are skipped. A clean ValidationReport.md is written and the skill completes at Stage 8.
 
-**Dependency chain** (Stages 7-10):
+**Dependency chain** (Stages 7-10.5):
 
 - Stage 7 is blocked by Stage 6
 - Stage 8 is blocked by Stage 7
 - Stage 9 is blocked by Stage 8
 - Stage 10 is blocked by Stage 9
+- Stage 10.5 is blocked by Stage 10
 
 ### Task System Integration
 
-On skill start, create 10 tasks via TaskCreate with dependencies:
+On skill start, create 11 tasks via TaskCreate with dependencies:
 
-```
+```text
 TaskCreate: "Stage 1: Input Ingest" (activeForm: "Ingesting roadmap input")
 TaskCreate: "Stage 2: Parse + Phase Bucketing" (activeForm: "Parsing roadmap phases")
 TaskCreate: "Stage 3: Task Conversion" (activeForm: "Converting roadmap items to tasks")
@@ -1434,6 +1557,7 @@ TaskCreate: "Stage 7: Roadmap Validation" (activeForm: "Validating against roadm
 TaskCreate: "Stage 8: Patch Plan Generation" (activeForm: "Generating patch plan")
 TaskCreate: "Stage 9: Patch Execution" (activeForm: "Executing patches via sc:task")
 TaskCreate: "Stage 10: Spot-Check Verification" (activeForm: "Verifying patch application")
+TaskCreate: "Stage 10.5: Pre-Reflect Sign-off" (activeForm: "Running per-phase pre-reflect fan-out")
 ```
 
 Dependencies:
@@ -1447,6 +1571,7 @@ Dependencies:
 - Stage 8: blockedBy Stage 7
 - Stage 9: blockedBy Stage 8
 - Stage 10: blockedBy Stage 9
+- Stage 10.5: blockedBy Stage 10
 
 Per-stage completion messages (in TaskUpdate description):
 
@@ -1460,6 +1585,7 @@ Per-stage completion messages (in TaskUpdate description):
 - Stage 8: "Patch Plan: ValidationReport.md + PatchChecklist.md written, X high / Y medium / Z low issues" (or "Patch Plan: clean — no drift detected, stages 9-10 skipped")
 - Stage 9: "Patch Execution: PatchChecklist.md executed via sc:task --compliance strict"
 - Stage 10: "Spot-Check: X/Y findings verified resolved"
+- Stage 10.5: "Pre-Reflect Sign-off: N pre-reflects fanned out, P pass / Q partial / R fail"
 
 ---
 
@@ -1476,7 +1602,7 @@ Per-stage completion messages (in TaskUpdate description):
 | `TaskGet` | Read full task details | As needed |
 | `Bash` | Create output directories (`mkdir -p`) | Output (Stage 5), Validation (Stage 8) |
 | `Glob` | Verify output files exist for self-check | Validation (Stage 6) |
-| `Task` (Agent) | Spawn 2N parallel validation agents | Roadmap Validation (Stage 7) |
+| `Task` (Agent) | Spawn 2N parallel validation agents; reused for the N parallel pre-reflect agents | Roadmap Validation (Stage 7); Pre-Reflect Sign-off (Stage 10.5) |
 | `Skill` | Invoke sc:task for patch execution | Patch Execution (Stage 9) |
 
 ---

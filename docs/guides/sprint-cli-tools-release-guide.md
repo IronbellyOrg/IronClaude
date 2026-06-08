@@ -34,6 +34,7 @@ Implemented contract and options are defined in `src/superclaude/cli/sprint/comm
 - **tmux graceful handling** improved when tmux is missing
 - **tmux non-force kill escalation**: SIGTERM → wait → SIGKILL
 - **CLI help contract hardening** (internal hidden options not exposed)
+- **Auto-resume as default (v4.3.5)** for bare `sprint run` and `sprint rerun-tasks`, with explicit-flag opt-out, `--fresh`/`--restart`, `--yes`/`-y`, boundary integrity checks, and drift assessment
 - **E2E brittleness removal** by patching `executor.shutil.which("claude")` in tests
 
 ---
@@ -44,7 +45,7 @@ Implemented contract and options are defined in `src/superclaude/cli/sprint/comm
 
 ### What it does
 
-Loads a tasklist index, discovers phases, validates phase files, and executes phases sequentially (usually in tmux unless `--no-tmux`).
+Loads a tasklist index, discovers phases, validates phase files, and executes phases sequentially (usually in tmux unless `--no-tmux`). With no explicit `--start`/`--end` window, it now auto-resumes from the interrupted phase detected from on-disk sprint state.
 
 Pre-flight behavior: execution fails fast if the `claude` binary is not in `PATH`.
 
@@ -62,11 +63,14 @@ superclaude sprint run <index_path> [options]
 
 ### Key options
 
-- `--start N` start from phase N
-- `--end N` stop at phase N (default: last discovered)
+- Default auto-resume: bare `superclaude sprint run <index_path>` detects the interrupted phase from on-disk state, prints a resume plan + drift + integrity report, asks for confirmation, and resumes there
+- `--start N` start from phase N; any explicit `--start` (including `--start 1`) disables auto-detection
+- `--end N` stop at phase N (default: last discovered); explicit `--end` also disables auto-detection
+- `--fresh` / `--restart` ignore prior on-disk state, disable auto-detection, and run cleanly from phase 1
+- `--yes` / `-y` non-interactive assent for auto-resume confirmation; also honored via `SUPERCLAUDE_SPRINT_ASSUME_YES=1` or `CI=1`
 - `--max-turns N` max turns per phase
 - `--model MODEL` set Claude model
-- `--dry-run` discovery/validation only; no execution
+- `--dry-run` discovery/validation only; with default auto-resume it also prints `ResumePlan`, `DriftAssessment`, and `BoundaryReport` without executing
 - `--no-tmux` run in foreground even if tmux is available
 - `--permission-flag` permission mode passed to Claude CLI
 - `--force-fidelity-fail 'reason'` Bypass spec fidelity check
@@ -75,13 +79,16 @@ superclaude sprint run <index_path> [options]
 ### Examples
 
 ```bash
-# Full execution (tmux auto if available)
+# Full execution, or auto-resume if prior interrupted state exists (tmux auto if available)
 superclaude sprint run .dev/releases/current/tasklist-index.md
 
-# Resume from failed phase 4 through phase 8
+# Auto-resume non-interactively after reviewing the printed resume plan
+superclaude sprint run .dev/releases/current/tasklist-index.md --yes
+
+# Explicit-window override: re-run phase 4 through phase 8 and bypass auto-detection
 superclaude sprint run .dev/releases/current/tasklist-index.md --start 4 --end 8
 
-# Validate discovered phases only
+# Validate discovered phases only; with auto-resume state, also print the resume plan, drift assessment, and boundary report
 superclaude sprint run .dev/releases/current/tasklist-index.md --dry-run
 
 # Foreground execution for CI/local debugging
@@ -227,7 +234,34 @@ For each phase, sprint runtime:
 
 ## Stage E: Resume on halt
 
-If halted, use generated resume command from summary (`--start <halt_phase>`).
+If halted, run the same bare command again:
+
+```bash
+superclaude sprint run <tasklist-index.md>
+```
+
+By default, sprint auto-detects the interrupted phase from on-disk state, treats atomic `phase-N-result.json` as the truth anchor, prints the `ResumePlan`, `DriftAssessment`, and `BoundaryReport`, asks for confirmation, and resumes there. On the task-level path it re-runs only the unfinished task. The generated `--start <halt_phase>` command still works as an explicit-window override and disables auto-detection; use `--fresh` / `--restart` to discard prior state and run cleanly from phase 1.
+
+## Stage F: Granular per-task rerun (v4.3.0+)
+
+Bare `superclaude sprint rerun-tasks <tasklist-index.md>` now auto-detects the boundary phase and its recoverable failed-task set. Use it when a sprint has enough on-disk state to identify the interrupted task-level seam:
+
+```bash
+superclaude sprint rerun-tasks <tasklist-index.md>
+```
+
+`--start <halt_phase>` re-runs an **entire** phase, and explicit `--phase`/`--tasks` remain the manual selector override for granular recovery. When only a few tasks in an otherwise-passing phase failed — typically a transient cause such as an API outage or a timeout — use `superclaude sprint rerun-tasks` instead to re-execute **only the detected or named tasks** and merge their results back:
+
+```bash
+superclaude sprint rerun-tasks <tasklist-index.md> --phase 7 --tasks T07.11,T07.12
+```
+
+This explicit example re-runs just `T07.11` and `T07.12` in an isolated bundle, leaves the
+other tasks in phase 7 untouched, and (by default) merges the new results back
+into the canonical results directory and tasklist, then runs
+`verify-checkpoints --recover` to regenerate any missing checkpoint reports.
+See [§6 Use case 5](#use-case-5-recover-a-few-failed-tasks-without-rerunning-the-whole-phase)
+for the full option reference.
 
 ---
 
@@ -246,10 +280,11 @@ superclaude sprint run <tasklist-index.md> [flags]
 the CLI flow is:
 
 1. `commands.py::run()` parses options.
-2. `config.py::load_sprint_config()` discovers phases and validates range/files.
-3. If `--dry-run`: prints discovered plan and exits.
-4. If tmux is available and `--no-tmux` is not set: `tmux.py::launch_in_tmux()`.
-5. Otherwise: `executor.py::execute_sprint()` in foreground.
+2. If no explicit `--start`/`--end` window and no `--fresh` are present, the auto-resume planner reconstructs the boundary from on-disk state, then the drift assessor and boundary integrity gate validate the seam before execution.
+3. `config.py::load_sprint_config()` discovers phases and validates range/files.
+4. If `--dry-run`: prints the discovered plan; on the auto-resume path it also prints `ResumePlan`, `DriftAssessment`, and `BoundaryReport`, then exits.
+5. If tmux is available and `--no-tmux` is not set: `tmux.py::launch_in_tmux()`.
+6. Otherwise: `executor.py::execute_sprint()` in foreground, or the task-level resume dispatches through the existing `rerun-tasks` engine.
 
 ### 4.2 What command is run for each phase
 
@@ -386,6 +421,13 @@ Decision highlights:
 - If tmux is not installed, discovery returns no session gracefully.
 - Non-force kill follows escalation behavior rather than immediate hard kill.
 
+## Auto-resume safety
+
+- Bare `sprint run <index>` and bare `sprint rerun-tasks <index>` are non-destructive by default and plan from on-disk state before mutating anything.
+- Atomic `phase-N-result.json` is the truth anchor for completed/interrupted boundary detection.
+- The boundary integrity gate doubly-validates the last-completed task before allowing new work to layer onto the resume seam.
+- The drift assessor blocks auto-resume if the boundary tasklist was materially edited and confidence falls below `0.8`; choose an explicit window/selector or `--fresh` when you intend to override prior state.
+
 ---
 
 ## 6) Practical Use Cases
@@ -404,15 +446,15 @@ Best for long-running multi-phase execution with reconnect support via tmux.
 superclaude sprint run .dev/releases/current/tasklist-index.md --dry-run
 ```
 
-Confirms discovery/range before consuming runtime.
+Confirms discovery/range before consuming runtime. If prior interrupted state exists and no explicit window is supplied, it also prints the auto-resume `ResumePlan`, `DriftAssessment`, and `BoundaryReport` without executing.
 
 ## Use case 3: Recover from mid-release halt
 
 ```bash
-superclaude sprint run .dev/releases/current/tasklist-index.md --start 5
+superclaude sprint run .dev/releases/current/tasklist-index.md
 ```
 
-Resume from the halt phase indicated in execution summary.
+Bare `sprint run` auto-resumes from the interrupted phase indicated by on-disk state and asks for confirmation after printing the resume, drift, and integrity reports. If you need to force the old explicit-window behavior, pass `--start 5` (or `--start 5 --end 8`); any explicit `--start`/`--end`, including `--start 1`, disables auto-detection.
 
 ## Use case 4: CI/ephemeral shell environment
 
@@ -421,6 +463,64 @@ superclaude sprint run .dev/releases/current/tasklist-index.md --no-tmux
 ```
 
 Avoids tmux dependency in constrained runners.
+
+## Use case 5: Recover a few failed tasks without rerunning the whole phase
+
+When a phase mostly passed but a handful of tasks failed (often transiently),
+re-running the entire phase with `--start N` wastes runtime and tokens on the
+tasks that already passed. Bare `sprint rerun-tasks <index>` now auto-detects
+the boundary phase and recoverable failed-task set, then re-executes only those
+tasks and merges their results back atomically.
+
+**Motivating example.** In a 21-task phase 7, tasks `T07.11` and `T07.12`
+failed on a transient API outage. Rather than re-running all 21:
+
+```bash
+# Auto-detect the boundary phase and recoverable failed tasks:
+superclaude sprint rerun-tasks .dev/releases/current/tasklist-index.md
+
+# Manual explicit-selector override, preview first (no state mutation):
+superclaude sprint rerun-tasks .dev/releases/current/tasklist-index.md \
+  --phase 7 --tasks T07.11,T07.12 --dry-run
+
+# Then run the explicit selector for real:
+superclaude sprint rerun-tasks .dev/releases/current/tasklist-index.md \
+  --phase 7 --tasks T07.11,T07.12
+```
+
+By default the rerun results are merged back into the canonical results
+directory and the phase tasklist, after which a `verify-checkpoints --recover`
+pass regenerates any missing checkpoint reports.
+
+### Options reference
+
+`superclaude sprint rerun-tasks <tasklist-index.md> [OPTIONS]` — `<tasklist-index.md>`
+is the same index `sprint run` consumes.
+
+| Option | Purpose |
+|--------|---------|
+| bare invocation | With no `--phase`/`--tasks`/`--from-reflect-report`, auto-detect the boundary phase and recoverable failed-task set, then proceed as if those selectors were supplied. |
+| `--phase N` | The phase number containing the failed tasks; explicit selectors disable auto-detection. |
+| `--tasks T07.11,T07.12` | Comma-separated task IDs to re-run; explicit selectors disable auto-detection. |
+| `--from-reflect-report PATH` | **Reserved for v4.4.0 (SprintRunReflect).** Intended to let a reflect report nominate the failed tasks; mutually exclusive with `--phase`/`--tasks`. **Not yet functional in v4.3.0** — it aborts with a deferral message. Use `--phase`/`--tasks` for manual nomination. |
+| `--merge-back` / `--no-merge-back` | Merge rerun results back into canonical results + tasklist. **Default: merge back.** Use `--no-merge-back` to leave results isolated in the bundle for inspection. |
+| `--dry-run` | Print the rerun plan (nominated + dependency-resolved tasks, bundle dir) and exit without mutating anything. |
+| `--fresh` / `--restart` | Disable auto-detection and require explicit `--phase`/`--tasks` (or `--from-reflect-report`). |
+| `--yes` / `-y` | Non-interactive assent; also honored via `SUPERCLAUDE_SPRINT_ASSUME_YES=1` or `CI=1`. |
+| `--include-transitive` | Also re-run tasks that transitively depend on the named tasks. |
+| `--ignore-deps` | Skip dependency resolution; re-run exactly the named tasks. |
+| `--force-merge` | Escape hatch: merge even if the source tasklist's content changed since the rerun started. Normally the rerun's own provenance write does **not** trip this guard — only a real operator edit does. |
+| `--allow-loop` | Bypass the retry-cap-3 guard (a task is normally refused after 3 reruns). |
+| `--no-verify-checkpoints` | Skip the post-merge `verify-checkpoints --recover` pass. |
+| `--bundle-dir PATH` | Explicit recovery-bundle directory (default: auto-suffixed under `results/`). |
+| `--restore` | Restore deliverables and checkboxes from a prior aborted rerun bundle (recover from a botched merge-back). |
+
+**Safety defenses (automatic).** A concurrent-rerun lock prevents two reruns of
+the same phase at once; a SHA guard aborts if the source tasklist was edited
+mid-rerun (override with `--force-merge`); the retry cap stops runaway loops
+after 3 attempts (override with `--allow-loop`); partial deliverables are
+stashed and restored on abort; and prior outputs are preserved with a
+`.failed-<timestamp>` forensic rename rather than overwritten.
 
 ---
 
@@ -438,20 +538,26 @@ After run:
 
 - [ ] inspect `execution-log.md` summary
 - [ ] inspect `execution-log.jsonl` for machine-readable telemetry
-- [ ] use generated resume command if outcome halted
+- [ ] use bare `superclaude sprint run <index>` to auto-resume if outcome halted, or an explicit `--start` window when you intentionally want to override auto-detection
 
 ---
 
 ## 8) Quick Command Cheat Sheet
 
 ```bash
-# Start sprint
+# Start sprint, or auto-resume an interrupted sprint by default
 superclaude sprint run <index>
 
-# Start specific range
+# Auto-resume non-interactively after printing the resume/drift/integrity reports
+superclaude sprint run <index> --yes
+
+# Ignore prior state and run cleanly from phase 1
+superclaude sprint run <index> --fresh
+
+# Start specific range; explicit --start/--end disables auto-detection
 superclaude sprint run <index> --start 2 --end 6
 
-# Dry-run only
+# Dry-run only; auto-resume dry-run also prints ResumePlan/DriftAssessment/BoundaryReport
 superclaude sprint run <index> --dry-run
 
 # Force foreground
@@ -459,6 +565,12 @@ superclaude sprint run <index> --no-tmux
 
 # Run with hierarchical permissions
 superclaude sprint run <index> --permission-flag --allow-hierarchical-permissions
+
+# Auto-detect and rerun recoverable failed tasks only
+superclaude sprint rerun-tasks <index>
+
+# Explicit granular rerun selector; explicit --phase/--tasks disables auto-detection
+superclaude sprint rerun-tasks <index> --phase 7 --tasks T07.11,T07.12
 
 # Attach to running tmux sprint
 superclaude sprint attach

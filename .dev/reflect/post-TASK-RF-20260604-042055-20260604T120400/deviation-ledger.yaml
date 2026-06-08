@@ -1,0 +1,25 @@
+# UC-2 Deviation Ledger — 4-category taxonomy (§10). Gold standard = the tasklist (the artifact the executor was instructed to fulfil).
+deviations:
+  - id: D1
+    class: authorized
+    hunk_ref: "src/superclaude/skills/task-builder/SKILL.md:2125,2129 (TCS S4 row + trim-note)"
+    expected: "tasklist line 69 + Steps 2.12/2.13: S4 token set = {after Phase \\d+, depends_on:}"
+    actual: "S4 row reads exactly {after Phase \\d+, depends_on:}; blockedBy + after N\\.\\d+ only in explanatory trim-note"
+    signals_matched: "diff hunk maps to tasklist Step 2.12/2.13; the substitution (proposal-1 'depends on N\\.\\d+' -> 'depends_on:') is explicitly authorized in the tasklist body (gold standard)"
+    rationale: "Relative to the gold-standard TASKLIST, this is a faithful implementation, not a deviation. It is recorded as 'authorized' only because the tasklist itself authorized a SUBSTITUTION from proposal-1 (which PRE-reflect F1 flagged as 'presented as pure subtraction'). The executed work matches the task verbatim."
+    remediation: "None. Optional doc note: proposal-1 §5.1 could be reconciled to say 'substitute depends on N\\.\\d+ -> depends_on:' rather than 'drop'."
+    inferred: true   # proposal-vs-task fidelity framing is interpretive
+
+# Non-deviations explicitly considered and cleared (recorded for audit transparency):
+cleared:
+  - ref: "phase-template.md mirror vs SKILL.md §6B inline"
+    finding: "Behaviorally identical templated POST task; the mirror adds a '> Mirror of the SKILL.md Section 6B inline copy' note. This is APPROPRIATE for a mirror, not a drift."
+    class: not-a-deviation
+  - ref: "3 unchecked terminal items (Task Summary / dogfood POST gate / Done-flip)"
+    finding: "Intentional HALT chain. The dogfood POST gate IS this reflect run; it correctly wrote reflect_post: PENDING and halted per design. Task Summary + Done-flip are gated behind the POST verdict (anti-orphaning + feedback_human_decision_items_must_halt). Not Drift/Regression — the task correctly stops at its own gate."
+    class: by-design-incomplete
+  - ref: "28 pre-existing pytest failures (TestCanonicalFixtureParity)"
+    finding: "Worktree canonical-fixture-log artifact present in the Phase-1 baseline (63 fail/err -> 28 after sync-dev). ZERO green->red. Not attributable to this work; none assert on edited markdown content."
+    class: pre-existing-environment
+
+grounding_gaps: []   # none — every finding is grounded or cleared

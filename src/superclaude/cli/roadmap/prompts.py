@@ -13,8 +13,27 @@ from pathlib import Path
 from typing import Literal
 
 from superclaude.cli.vocabulary import build_prompt_constraint_block
+from superclaude.contracts import CONVERGENCE_THRESHOLDS
 
 from .models import AgentSpec
+from .tool_writer import TEMPLATES_DIR, ToolDefinition, load_schema
+
+
+def roadmap_convergence_thresholds() -> tuple[float, float]:
+    """Return the ``sc:roadmap`` ``(high, low)`` convergence threshold pair.
+
+    CONTRACT #8 (master:§Flaw 5): the score path's convergence thresholds are
+    sourced from the single source of truth
+    :data:`superclaude.contracts.CONVERGENCE_THRESHOLDS` -- NEVER hardcoded as
+    ``0.7`` / ``0.5`` literals here or in the score schema/template. ``arch_lint``
+    forbids redefining these constants outside ``superclaude.contracts``; reading
+    the registry keeps the score path threshold-faithful to the SoT.
+
+    These ``(high, low)`` ratios are distinct from the score step's
+    ``variant_scores`` (0-100 evaluation points).
+    """
+    return CONVERGENCE_THRESHOLDS["sc:roadmap"]
+
 
 _DEPTH_INSTRUCTIONS = {
     "quick": (
@@ -83,6 +102,364 @@ _OUTPUT_FORMAT_BLOCK = (
     "- Use minimal table separator rows: |---|---|---|...|\n"
     "- Per-milestone metadata on one line: **M{N}: Title** | duration | exit criteria\n"
     "</output_format>"
+)
+
+# R1.4 tool-write output contract for the extract step. Replaces
+# _OUTPUT_FORMAT_BLOCK in tool_write mode: the model emits ONE JSON object
+# (no markdown, no frontmatter, no prose) conforming to extract.schema.json.
+_EXTRACT_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with the 13 metadata fields "
+    "(spec_source, generated, generator, functional_requirements [int], "
+    "nonfunctional_requirements [int], total_requirements [int], "
+    "complexity_score [number], complexity_class [LOW|MEDIUM|HIGH], "
+    "domains_detected [array of string], risks_identified [int], "
+    "dependencies_identified [int], success_criteria_count [int], "
+    "extraction_mode [standard|chunked]).\n"
+    "- functional_requirements: array of {id, description, paths?}.\n"
+    "- non_functional_requirements: array of {id, description}.\n"
+    "- complexity_assessment: string.\n"
+    "- architectural_constraints: array of string.\n"
+    "- component_inventory: array of "
+    "{id, name, role?, dependencies?, source_ref?}.\n"
+    "- risk_inventory: array of {id?, risk, severity, mitigation}.\n"
+    "- dependency_inventory: array of string.\n"
+    "- success_criteria: array of string.\n"
+    "- open_questions: array of string.\n"
+    "- roadmap_ids: array of string -- the union of every requirement and "
+    "component ID surfaced above (FR-/NFR-/SC-/G-/D- plus the synthetic "
+    "COMP-/DM- ids you assigned in the component inventory).\n\n"
+    "All counts in frontmatter MUST be consistent with the array lengths. "
+    "Preserve the spec's exact requirement identifiers verbatim in the id "
+    "fields."
+)
+
+# R1.4 tool-write output contract for the extract_tdd step (TDD-input variant).
+# Replaces _OUTPUT_FORMAT_BLOCK in tool_write mode: the model emits ONE JSON
+# object (no markdown, no frontmatter, no prose) conforming to
+# extract_tdd.schema.json. Mirrors _EXTRACT_TOOL_WRITE_OUTPUT_BLOCK but covers
+# the FULL 19-field frontmatter and the 6 additional TDD design arrays so the
+# rendered markdown is gate-parity with build_extract_prompt_tdd's markdown path
+# (EXTRACT_TDD_GATE requires all 19 frontmatter fields).
+_EXTRACT_TDD_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with the 19 metadata fields "
+    "(spec_source, generated, generator, functional_requirements [int], "
+    "nonfunctional_requirements [int], total_requirements [int], "
+    "complexity_score [number], complexity_class [LOW|MEDIUM|HIGH], "
+    "domains_detected [array of string], risks_identified [int], "
+    "dependencies_identified [int], success_criteria_count [int], "
+    "extraction_mode [standard|chunked], data_models_identified [int], "
+    "api_surfaces_identified [int], components_identified [int], "
+    "test_artifacts_identified [int], migration_items_identified [int], "
+    "operational_items_identified [int]).\n"
+    "- functional_requirements: array of {id, description, paths?}.\n"
+    "- non_functional_requirements: array of {id, description}.\n"
+    "- complexity_assessment: string.\n"
+    "- architectural_constraints: array of string.\n"
+    "- risk_inventory: array of {id?, risk, severity, mitigation}.\n"
+    "- dependency_inventory: array of string.\n"
+    "- success_criteria: array of string.\n"
+    "- open_questions: array of string.\n"
+    "- data_models: array of {id (DM-NNN), name?, fields?, relationships?}.\n"
+    "- api_specifications: array of {id (API-NNN), method?, path?, "
+    "description?}.\n"
+    "- component_inventory: array of {id (COMP-NNN), name?, type?, "
+    "dependencies?}.\n"
+    "- testing_strategy: array of {id (TEST-NNN), name?, level?}.\n"
+    "- migration_plan: array of {id (MIG-NNN), phase?, rollback?}.\n"
+    "- operational_readiness: array of {id (OPS-NNN), scenario?, "
+    "resolution?}.\n"
+    "- roadmap_ids: array of string -- the union of every requirement and "
+    "design-artifact ID surfaced above (FR-/NFR-/SC-/G-/D- plus the synthetic "
+    "DM-/API-/COMP-/TEST-/MIG-/OPS- ids you assigned in the TDD sections).\n\n"
+    "All counts in frontmatter MUST be consistent with the array lengths "
+    "(data_models_identified == len(data_models), etc.). Preserve the spec's "
+    "exact requirement identifiers verbatim in the id fields."
+)
+
+# R1.4 Step 9.4 tool-write output contract for the generate step (PRIMARY
+# phantom-ID source, master:§Top-3 #3). Replaces _TEMPLATE_STRUCTURE_DIRECTIVE
+# + _OUTPUT_FORMAT_BLOCK in tool_write mode: the model emits ONE JSON object
+# (no markdown, no frontmatter, no prose) conforming to generate.schema.json.
+# The persona + ID-preservation + granularity guidance is shared with the
+# markdown path; only the output contract differs.
+_GENERATE_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with at minimum spec_source (string), "
+    "complexity_score (number), primary_persona (string); plus optional "
+    "complexity_class [LOW|MEDIUM|HIGH], generated, generator, "
+    "total_requirements, milestone_count, deliverable_count.\n"
+    "- executive_summary: string.\n"
+    "- milestone_summary: array of {milestone, title, duration?, "
+    "exit_criteria?}.\n"
+    "- dependency_graph: string (or array of edge strings).\n"
+    "- milestones: array (NON-EMPTY) of objects, each "
+    "{id (e.g. 'M1'), title, duration?, exit_criteria?, deliverables[], "
+    "risk_assessment?, open_questions?}. Each deliverables[] entry is a "
+    "9-column row: {num?, id, title, description?, comp?, deps?, ac?, eff?, "
+    "pri?}.\n"
+    "- resource_requirements: string.\n"
+    "- risk_register: array of {id?, risk, severity?, mitigation?}.\n"
+    "- success_criteria: array of string.\n"
+    "- decision_summary: string.\n"
+    "- timeline_estimates: array of {milestone, start_week?, end_week?, "
+    "duration?}.\n"
+    "- roadmap_ids: array of string -- list EVERY deliverable row id (the "
+    "union over all milestones' deliverables). roadmap_ids MUST list every "
+    "deliverable id and MUST NOT invent ids absent from the extraction "
+    "(phantom ids are REJECTED at generation time).\n\n"
+    "Every ID from the extraction MUST appear as exactly one deliverable row "
+    "(its own object in some milestone's deliverables[]) and in roadmap_ids. "
+    "Preserve the extraction's exact identifiers verbatim in the id fields."
+)
+
+# R1.4 Step 9.5 tool-write output contract for the diff step (SIMPLE comparative
+# analysis -- no phantom-ID/roadmap_ids constraint). Replaces _OUTPUT_FORMAT_BLOCK
+# in tool_write mode: the model emits ONE JSON object (no markdown, no
+# frontmatter, no prose) conforming to diff.schema.json. The comparative-analysis
+# guidance is shared with the markdown path; only the output contract differs.
+_DIFF_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with total_diff_points (integer, == "
+    "len(divergence_points)) and shared_assumptions_count (integer, == "
+    "len(shared_assumptions)); plus optional generated, generator, variant_a, "
+    "variant_b.\n"
+    "- shared_assumptions: array of string -- the assumptions and agreements "
+    "shared between the two variants.\n"
+    "- divergence_points: array (NON-EMPTY) of objects, each "
+    "{n?, description, variant_a_position?, variant_b_position?, impact?}. "
+    "``description`` is REQUIRED; variant_*_position describe which variant "
+    "takes which position; impact describes the potential consequence of each "
+    "approach.\n"
+    "- stronger_areas: array of string (or array of {area, variant, "
+    "rationale}) -- areas where one variant is clearly stronger.\n"
+    "- debate_areas: array of string -- areas requiring debate to resolve.\n\n"
+    "Be objective. Present both positions fairly without bias. The two "
+    "frontmatter counts MUST be consistent with their array lengths."
+)
+
+# R1.4 Step 9.6 tool-write output contract for the debate step (PRESERVED
+# adversarial-debate mechanism -- ONLY the prompt changes; semantic_layer.py is
+# byte-untouched). Replaces _OUTPUT_FORMAT_BLOCK in tool_write mode: the model
+# emits ONE JSON object (no markdown, no frontmatter, no prose) conforming to
+# debate.schema.json. The debate-facilitator + depth guidance is shared with the
+# markdown path; only the output contract differs. Like the diff step, debate
+# carries no roadmap_ids and has no §MVR §3 / Contract #3 phantom-ID constraint.
+_DEBATE_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with convergence_score (number in [0.0, 1.0] "
+    "indicating how much agreement was reached) and rounds_completed (integer, "
+    "== len(rounds)); plus optional generated, generator, variant_a, "
+    "variant_b.\n"
+    "- rounds: array (NON-EMPTY) of objects, each {round (integer), "
+    "variant_a_position (string), variant_b_position (string), exchange?}. "
+    "``round`` and both positions are REQUIRED; attribute every position to "
+    "Variant A or Variant B; ``exchange`` optionally captures the back-and-"
+    "forth of that round.\n"
+    "- convergence_assessment: object with agreements (array of string) and "
+    "remaining_disputes (array of string); plus optional summary (string). "
+    "agreements lists areas the variants converged on; remaining_disputes "
+    "lists the points still unresolved.\n\n"
+    "Ensure each perspective argues its strongest case. Do not artificially "
+    "force agreement. convergence_score MUST be a float in [0.0, 1.0] and "
+    "rounds_completed MUST equal the number of round objects."
+)
+
+# R1.4 Step 9.7 tool-write output contract for the score step (SIMPLE evaluation
+# -- selects a base variant and scores both; no phantom-ID/roadmap_ids
+# constraint). Replaces _OUTPUT_FORMAT_BLOCK in tool_write mode: the model emits
+# ONE JSON object (no markdown, no frontmatter, no prose) conforming to
+# score.schema.json. The evaluation guidance (+ TDD/PRD blocks) is shared with
+# the markdown path; only the output contract differs.
+#
+# CONTRACT #8: ``variant_scores`` here are 0-100 EVALUATION points and are
+# entirely distinct from the (high, low) CONVERGENCE thresholds in
+# superclaude.contracts.CONVERGENCE_THRESHOLDS. No convergence threshold literal
+# (0.7 / 0.5) is baked into this block -- any score-path threshold reads the
+# registry via prompts.roadmap_convergence_thresholds().
+_SCORE_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with base_variant (string: the identifier of the "
+    "selected base variant) and variant_scores (string summary of the 0-100 "
+    "evaluation scores, e.g. 'A:78 B:72'); plus optional generated, generator, "
+    "variant_a, variant_b.\n"
+    "- scoring_criteria: array of string -- the criteria used (derived from the "
+    "debate).\n"
+    "- per_criterion_scores: array of objects, each {criterion (string), "
+    "variant_a_score? (number), variant_b_score? (number)} -- the per-criterion "
+    "scores for each variant. ``criterion`` is REQUIRED.\n"
+    "- overall_scores: object {variant_a? (number), variant_b? (number), "
+    "justification? (string)} -- the overall 0-100 scores with justification.\n"
+    "- base_selection_rationale: string (REQUIRED) -- why the base variant was "
+    "selected.\n"
+    "- improvements_to_incorporate: array of string -- the specific improvements "
+    "from the NON-base variant to incorporate during the merge.\n\n"
+    "Be evidence-based. Reference specific debate points and variant content. "
+    "All scores are 0-100 evaluation points (NOT convergence ratios)."
+)
+
+# R1.4 Step 9.8 tool-write output contract for the merge step (SECOND primary
+# phantom-ID source, master:§Top-3 #3). Replaces _TEMPLATE_STRUCTURE_DIRECTIVE
+# + _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK in tool_write mode:
+# the model emits ONE JSON object (no markdown, no frontmatter, no prose)
+# conforming to merge.schema.json. The merge-fidelity + ID-preservation +
+# anti-consolidation guidance is shared with the markdown path; only the output
+# contract differs. Like generate, merge enforces generation-time phantom-ID
+# rejection (roadmap_ids ⊆ spec_ids), so the phantom guidance is retained.
+_MERGE_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with at minimum complexity_score (number), "
+    "adversarial (boolean), and EXACTLY ONE of spec_source (string) or "
+    "spec_sources (array of string) -- never both, never neither; plus optional "
+    "complexity_class [LOW|MEDIUM|HIGH], primary_persona, base_variant, "
+    "variant_scores, convergence_score, generated, generator, "
+    "total_requirements, milestone_count, deliverable_count.\n"
+    "- executive_summary: string.\n"
+    "- milestone_summary: array of {milestone, title, duration?, "
+    "exit_criteria?} enumerating EVERY milestone M1..M{N}.\n"
+    "- dependency_graph: string (or array of edge strings).\n"
+    "- milestones: array (NON-EMPTY) of objects, each "
+    "{id (e.g. 'M1'), title, duration?, exit_criteria?, deliverables[], "
+    "integration_points?, milestone_dependencies?, risk_assessment?, "
+    "open_questions?}. Each deliverables[] entry is a 9-column row: {num?, id, "
+    "title, description?, comp?, deps?, ac?, eff?, pri?}.\n"
+    "- resource_requirements: string; plus external_dependencies (string) and "
+    "infrastructure_requirements (string).\n"
+    "- risk_register: array of {id?, risk, affected_milestones?, probability?, "
+    "impact?, mitigation?, owner?} -- aggregates every per-milestone risk.\n"
+    "- success_criteria: array of string.\n"
+    "- decision_summary: string.\n"
+    "- timeline_estimates: array of {milestone, start_week?, end_week?, "
+    "duration?}.\n"
+    "- roadmap_ids: array of string -- list EVERY deliverable row id (the "
+    "union over all milestones' deliverables). roadmap_ids MUST list every "
+    "deliverable id and MUST NOT invent ids absent from the source variants / "
+    "extraction (phantom ids are REJECTED at generation time).\n\n"
+    "MERGE FIDELITY: Preserve ALL task IDs from both variants -- do NOT "
+    "renumber, relabel, drop, or consolidate rows. If both variants have a row "
+    "for the same ID, keep the richer version; if only one has an ID, include "
+    "it. Each ID = exactly one deliverable row AND one entry in roadmap_ids."
+)
+
+# R1.4 Step 9.9 tool-write output contract for the spec-fidelity step. The
+# spec-fidelity step is the convergence-loop CORE: when config.convergence_enabled
+# is True the executor runs _run_convergence_spec_fidelity and NEVER reaches this
+# tool-write path (convergence.py / semantic_layer.py stay byte-untouched -- they
+# are PRESERVE). In the single-shot (non-convergence) path this block replaces
+# _OUTPUT_FORMAT_BLOCK in tool_write mode: the model emits ONE JSON object (no
+# markdown, no frontmatter, no prose) conforming to spec_fidelity.schema.json.
+# The severity definitions + comparison-dimensions guidance is shared with the
+# markdown path; only the OUTPUT CONTRACT differs. spec-fidelity carries NO
+# roadmap_ids and therefore has no MVR-3 / Contract #3 phantom-ID subset
+# constraint (PLAIN render_step_tool_write, not the id-check variant). No
+# convergence threshold literal (0.7/0.5) is embedded (Contract #8): the severity
+# counts are deviation tallies, never convergence ratios.
+_SPEC_FIDELITY_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with high_severity_count (integer), "
+    "medium_severity_count (integer), low_severity_count (integer), "
+    "total_deviations (integer), validation_complete (boolean), and "
+    "tasklist_ready (boolean: true ONLY if high_severity_count is 0 AND "
+    "validation_complete is true); plus optional generated, generator, "
+    "spec_source.\n"
+    "- deviations: array of objects, each {id (string, DEV-NNN zero-padded), "
+    "severity (string: exactly one of HIGH, MEDIUM, LOW), deviation (string), "
+    "source_quote? (string, verbatim from the source document), roadmap_quote? "
+    "(string, verbatim from the roadmap or '[MISSING]' if absent), impact? "
+    "(string), recommended_correction? (string)}. id, severity, and deviation "
+    "are REQUIRED. Emit an EMPTY array when no deviations are found.\n"
+    "- summary: string -- a brief summary of findings with severity "
+    "distribution.\n\n"
+    "Be thorough and precise. Quote both documents for every deviation. Do NOT "
+    "invent deviations -- only report genuine differences between the source "
+    "document and the roadmap. total_deviations MUST equal the sum of the three "
+    "severity counts AND the length of the deviations array."
+)
+
+# R1.4 Step 9.11 tool-write output contract for the test-strategy step (SECONDARY
+# LLM step). Replaces _OUTPUT_FORMAT_BLOCK in tool_write mode: the model emits ONE
+# JSON object (no markdown, no frontmatter, no prose) conforming to
+# test_strategy.schema.json. The test-strategy guidance (incl. the TDD/PRD
+# supplementary blocks) is shared with the markdown path; only the output contract
+# differs. test-strategy carries no roadmap_ids and has no §MVR §3 / Contract #3
+# phantom-ID constraint -- the executor routes it through the PLAIN
+# render_step_tool_write. CONTRACT #8: interleave_ratio is a test:work milestone
+# ratio string (e.g. '1:2'), NOT a convergence ratio; no threshold literal
+# (0.7 / 0.5) is baked into this block.
+_TEST_STRATEGY_TOOL_WRITE_OUTPUT_BLOCK = (
+    "\n\n## OUTPUT CONTRACT (tool-write JSON mode)\n\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with complexity_class (string: exactly one of LOW, "
+    "MEDIUM, HIGH -- from the extraction), validation_philosophy (string: MUST "
+    "be exactly 'continuous-parallel', hyphenated not underscored), "
+    "validation_milestones (integer: count of validation milestones), "
+    "work_milestones (integer: count of implementation work milestones), "
+    "interleave_ratio (string: test-to-implementation ratio determined by "
+    "complexity_class -- LOW->1:3, MEDIUM->1:2, HIGH->1:1), and "
+    "major_issue_policy (string: MUST be exactly 'stop-and-fix'); plus optional "
+    "spec_source, generated, generator.\n"
+    "- issue_classification: array of objects, each {severity (string: "
+    "CRITICAL/MAJOR/MINOR/COSMETIC), action? (string), gate_impact? (string)} "
+    "-- the severity-to-action mapping.\n"
+    "- validation_milestone_map: array of objects, each {milestone (string), "
+    "validates? (string)} -- validation milestones mapped to roadmap "
+    "milestones.\n"
+    "- test_categories: array of string -- the test categories (unit, "
+    "integration, E2E, acceptance).\n"
+    "- interleaving_strategy: string -- the test-implementation interleaving "
+    "strategy with ratio justification.\n"
+    "- risk_based_prioritization: array of string -- risk-based test "
+    "prioritization items.\n"
+    "- acceptance_criteria: array of objects, each {milestone (string), "
+    "criteria? (string)} -- acceptance criteria per milestone.\n"
+    "- quality_gates: array of string -- quality gates between milestones.\n\n"
+    "Be specific about what to test at each milestone. interleave_ratio MUST be "
+    "consistent with complexity_class as specified above."
 )
 
 _TEMPLATE_STRUCTURE_DIRECTIVE = (
@@ -183,6 +560,7 @@ def build_extract_prompt(
     retrospective_content: str | None = None,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'extract'.
 
@@ -198,6 +576,17 @@ def build_extract_prompt(
         Optional retrospective text from a prior release cycle.
         When provided, it is framed as advisory "areas to watch"
         context -- NOT as hard requirements (RSK-004 mitigation).
+    tool_write:
+        R1.4 dual-write switch. When ``False`` (default, production path) the
+        returned prompt is byte-identical to the legacy markdown contract:
+        ``base + _OUTPUT_FORMAT_BLOCK`` (YAML frontmatter + 9 markdown
+        sections). When ``True`` the OUTPUT CONTRACT is replaced -- the model
+        is asked to emit a SINGLE structured JSON object conforming to
+        ``extract.schema.json`` (no markdown, no frontmatter, no prose), which
+        the executor validates and renders to markdown deterministically via
+        :mod:`superclaude.cli.roadmap.tool_writer`. The domain-extraction
+        guidance (FR/NFR/component/risk instructions) is shared between both
+        modes; only the output contract differs.
     """
     base = (
         "You are a requirements extraction specialist.\n\n"
@@ -323,7 +712,33 @@ def build_extract_prompt(
             "implementation details but the PRD wins on business intent and constraints."
         )
 
+    if tool_write:
+        # R1.4 tool-write contract: emit ONE structured JSON object instead of
+        # markdown+frontmatter. The domain-extraction guidance above is reused
+        # verbatim; only the OUTPUT CONTRACT is inverted. We deliberately do NOT
+        # append _OUTPUT_FORMAT_BLOCK here -- that block mandates YAML
+        # frontmatter, which is wrong for JSON. The executor validates this JSON
+        # against extract.schema.json and renders the markdown deterministically.
+        return base + _EXTRACT_TOOL_WRITE_OUTPUT_BLOCK
+
     return base + _OUTPUT_FORMAT_BLOCK
+
+
+def extract_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the extract step (R1.4).
+
+    Pairs the extract output schema (``extract.schema.json``) with the render
+    template (``extract.md.j2``) so the tool-write back end can validate the
+    model's structured JSON and render the markdown artifact deterministically.
+    ``input_schema`` is empty -- the extract step's tool currently takes no
+    structured tool inputs (the spec/TDD/PRD arrive as file attachments).
+    """
+    return ToolDefinition(
+        name="extract",
+        input_schema={},
+        output_schema=load_schema("extract.schema.json"),
+        render_template=TEMPLATES_DIR / "extract.md.j2",
+    )
 
 
 def build_extract_prompt_tdd(
@@ -331,6 +746,7 @@ def build_extract_prompt_tdd(
     retrospective_content: str | None = None,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'extract' when input is a TDD (Technical Design Document).
 
@@ -346,6 +762,19 @@ def build_extract_prompt_tdd(
         Path to the TDD file being extracted.
     retrospective_content:
         Optional retrospective text from a prior release cycle.
+    tool_write:
+        R1.4 dual-write switch (Step 9.3). When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract: ``base + _OUTPUT_FORMAT_BLOCK`` (YAML frontmatter + markdown
+        sections). When ``True`` the OUTPUT CONTRACT is replaced -- the model is
+        asked to emit a SINGLE structured JSON object conforming to
+        ``extract_tdd.schema.json`` (no markdown, no frontmatter, no prose),
+        which the executor validates and renders to markdown deterministically
+        via :mod:`superclaude.cli.roadmap.tool_writer`. The TDD-extraction
+        domain guidance above is shared between both modes; only the output
+        contract differs. We deliberately do NOT append ``_OUTPUT_FORMAT_BLOCK``
+        in tool-write mode -- that block mandates YAML frontmatter, which is
+        wrong for JSON.
     """
     base = (
         "You are a requirements and design extraction specialist.\n\n"
@@ -527,7 +956,41 @@ def build_extract_prompt_tdd(
             "but the PRD wins on business intent and constraints."
         )
 
+    if tool_write:
+        # R1.4 tool-write contract (Step 9.3): emit ONE structured JSON object
+        # instead of markdown+frontmatter. The TDD domain-extraction guidance
+        # above is reused verbatim; only the OUTPUT CONTRACT is inverted. The
+        # JSON key set is the FULL extract_tdd contract: the 19-field frontmatter
+        # + the 8 standard arrays (functional_requirements,
+        # non_functional_requirements, complexity_assessment,
+        # architectural_constraints, risk_inventory, dependency_inventory,
+        # success_criteria, open_questions) + the 6 TDD design arrays
+        # (data_models, api_specifications, component_inventory,
+        # testing_strategy, migration_plan, operational_readiness) + roadmap_ids;
+        # the executor validates it against extract_tdd.schema.json and renders
+        # extract_tdd.md.j2 deterministically. This is gate-parity with the
+        # markdown path -- EXTRACT_TDD_GATE requires all 19 frontmatter fields.
+        return base + _EXTRACT_TDD_TOOL_WRITE_OUTPUT_BLOCK
+
     return base + _OUTPUT_FORMAT_BLOCK
+
+
+def extract_tdd_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the extract_tdd step (R1.4).
+
+    Pairs the TDD-extract output schema (``extract_tdd.schema.json``) with the
+    render template (``extract_tdd.md.j2``) so the tool-write back end can
+    validate the model's structured JSON and render the markdown artifact
+    deterministically. ``input_schema`` is empty -- the extract_tdd step's tool
+    currently takes no structured tool inputs (the TDD/PRD arrive as file
+    attachments).
+    """
+    return ToolDefinition(
+        name="extract_tdd",
+        input_schema={},
+        output_schema=load_schema("extract_tdd.schema.json"),
+        render_template=TEMPLATES_DIR / "extract_tdd.md.j2",
+    )
 
 
 def build_generate_prompt(
@@ -535,12 +998,30 @@ def build_generate_prompt(
     extraction_path: Path,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'generate-{agent.id}'.
 
     Instructs Claude to read the extraction document and generate a
     complete project roadmap with the agent's persona as a role instruction.
     References expanded extraction fields for richer context.
+
+    Parameters
+    ----------
+    tool_write:
+        R1.4 Step 9.4 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract (``base + _TEMPLATE_STRUCTURE_DIRECTIVE + ... +
+        _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK``). When ``True``
+        the OUTPUT CONTRACT is replaced -- the model is asked to emit a SINGLE
+        structured JSON object conforming to ``generate.schema.json`` (no
+        markdown, no frontmatter, no prose), which the executor validates
+        (schema + phantom-ID subset check) and renders to markdown
+        deterministically via :mod:`superclaude.cli.roadmap.tool_writer`. The
+        persona, ID-preservation, and granularity guidance is shared between
+        both modes; only the output contract differs. In tool-write mode
+        neither ``_TEMPLATE_STRUCTURE_DIRECTIVE`` nor ``_OUTPUT_FORMAT_BLOCK``
+        is appended (the schema + template carry the structure).
     """
     base = (
         f"You are a {agent.persona} specialist creating a project roadmap.\n\n"
@@ -569,7 +1050,10 @@ def build_generate_prompt(
     )
 
     # -- Output structure (delegated to template) + semantic rules --
-    base += _TEMPLATE_STRUCTURE_DIRECTIVE
+    # In tool-write mode the schema + render template carry the structure, so
+    # the markdown-skeleton directive is NOT appended (see return below).
+    if not tool_write:
+        base += _TEMPLATE_STRUCTURE_DIRECTIVE
     base += (
         f"\n- primary_persona: {agent.persona}\n\n"
         "FIELD-LEVEL FIDELITY for DM-xxx and COMP-xxx rows: AC MUST enumerate "
@@ -848,17 +1332,68 @@ def build_generate_prompt(
             "documented-but-inconsistently-applied conflicts are HIGH severity."
         )
 
+    if tool_write:
+        # Tool-write mode: emit the JSON output contract instead of the
+        # markdown frontmatter/format blocks. The integration-enumeration
+        # guidance is markdown-shaped; the JSON contract subsumes it via the
+        # deliverables[]/roadmap_ids keys, so it is not appended here.
+        return base + _GENERATE_TOOL_WRITE_OUTPUT_BLOCK
     return base + _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK
 
 
-def build_diff_prompt(variant_a_path: Path, variant_b_path: Path) -> str:
+def generate_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the generate step (R1.4).
+
+    Pairs the generate output schema (``generate.schema.json``) with the render
+    template (``generate.md.j2``) so the tool-write back end can validate the
+    model's structured JSON (schema + phantom-ID subset check) and render the
+    markdown roadmap deterministically. ``input_schema`` is empty -- the
+    generate step's tool takes no structured tool inputs (the extraction
+    arrives as a file attachment).
+    """
+    return ToolDefinition(
+        name="generate",
+        input_schema={},
+        output_schema=load_schema("generate.schema.json"),
+        render_template=TEMPLATES_DIR / "generate.md.j2",
+    )
+
+
+def build_diff_prompt(
+    variant_a_path: Path,
+    variant_b_path: Path,
+    tool_write: bool = False,
+) -> str:
     """Prompt for step 'diff'.
 
     Instructs Claude to compare two roadmap variants and produce
     diff-analysis.md with frontmatter fields total_diff_points,
     shared_assumptions_count.
+
+    Parameters
+    ----------
+    variant_a_path:
+        Path to the first roadmap variant being compared.
+    variant_b_path:
+        Path to the second roadmap variant being compared.
+    tool_write:
+        R1.4 Step 9.5 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract: ``base + _OUTPUT_FORMAT_BLOCK`` (YAML frontmatter + 4 markdown
+        body parts). When ``True`` the OUTPUT CONTRACT is replaced -- the model
+        is asked to emit a SINGLE structured JSON object conforming to
+        ``diff.schema.json`` (no markdown, no frontmatter, no prose), which the
+        executor validates and renders to markdown deterministically via
+        :mod:`superclaude.cli.roadmap.tool_writer`. The diff step is SIMPLE: it
+        carries no ``roadmap_ids`` and therefore has no §MVR §3 / Contract #3
+        phantom-ID subset constraint (the executor routes it through the PLAIN
+        ``render_step_tool_write``, not the id-check variant). The
+        comparative-analysis guidance is shared between both modes; only the
+        output contract differs. We deliberately do NOT append
+        ``_OUTPUT_FORMAT_BLOCK`` in tool-write mode -- that block mandates YAML
+        frontmatter, which is wrong for JSON.
     """
-    return (
+    base = (
         "You are a comparative analysis specialist.\n\n"
         "Read the two provided roadmap variants and produce a structured diff analysis.\n\n"
         "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
@@ -873,7 +1408,34 @@ def build_diff_prompt(variant_a_path: Path, variant_b_path: Path) -> str:
         "3. Areas where one variant is clearly stronger\n"
         "4. Areas requiring debate to resolve\n\n"
         "Be objective. Present both positions fairly without bias."
-    ) + _OUTPUT_FORMAT_BLOCK
+    )
+
+    if tool_write:
+        # R1.4 tool-write contract (Step 9.5): emit ONE structured JSON object
+        # instead of markdown+frontmatter. The comparative-analysis guidance
+        # above is reused verbatim; only the OUTPUT CONTRACT is inverted. The
+        # executor validates this JSON against diff.schema.json and renders the
+        # markdown deterministically.
+        return base + _DIFF_TOOL_WRITE_OUTPUT_BLOCK
+
+    return base + _OUTPUT_FORMAT_BLOCK
+
+
+def diff_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the diff step (R1.4).
+
+    Pairs the diff output schema (``diff.schema.json``) with the render template
+    (``diff.md.j2``) so the tool-write back end can validate the model's
+    structured JSON and render the markdown diff analysis deterministically.
+    ``input_schema`` is empty -- the diff step's tool takes no structured tool
+    inputs (the two roadmap variants arrive as file attachments).
+    """
+    return ToolDefinition(
+        name="diff",
+        input_schema={},
+        output_schema=load_schema("diff.schema.json"),
+        render_template=TEMPLATES_DIR / "diff.md.j2",
+    )
 
 
 def build_debate_prompt(
@@ -881,13 +1443,39 @@ def build_debate_prompt(
     variant_a_path: Path,
     variant_b_path: Path,
     depth: Literal["quick", "standard", "deep"],
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'debate'.
 
     Depth controls the number of debate rounds embedded in the prompt.
+
+    The debate step is part of the PRESERVED adversarial-debate mechanism; the
+    R1.4 Step 9.6 tool-write rewrite changes ONLY the output contract of this
+    prompt (``semantic_layer.py`` stays byte-untouched).
+
+    Parameters
+    ----------
+    tool_write:
+        R1.4 Step 9.6 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract: the debate-facilitator + depth guidance followed by
+        ``_OUTPUT_FORMAT_BLOCK`` (YAML frontmatter + transcript body). When
+        ``True`` the OUTPUT CONTRACT is replaced -- the model is asked to emit a
+        SINGLE structured JSON object conforming to ``debate.schema.json`` (keys:
+        ``frontmatter`` (convergence_score, rounds_completed), ``rounds[]``,
+        ``convergence_assessment``; no markdown, no frontmatter, no prose), which
+        the executor validates and renders to markdown deterministically via
+        :mod:`superclaude.cli.roadmap.tool_writer`. Like the diff step, debate
+        carries no ``roadmap_ids`` and therefore has no §MVR §3 / Contract #3
+        phantom-ID subset constraint (the executor routes it through the PLAIN
+        ``render_step_tool_write``, not the id-check variant). The
+        debate-facilitator + depth guidance is shared between both modes; only
+        the output contract differs. We deliberately do NOT append
+        ``_OUTPUT_FORMAT_BLOCK`` in tool-write mode -- that block mandates YAML
+        frontmatter, which is wrong for JSON.
     """
     depth_instruction = _DEPTH_INSTRUCTIONS[depth]
-    return (
+    base = (
         "You are a structured debate facilitator.\n\n"
         "Read the provided diff analysis and both roadmap variants. "
         "Facilitate a structured adversarial debate between the two approaches.\n\n"
@@ -900,7 +1488,37 @@ def build_debate_prompt(
         "- Positions attributed to Variant A and Variant B\n"
         "- A convergence assessment summarizing areas of agreement and remaining disputes\n\n"
         "Ensure each perspective argues its strongest case. Do not artificially force agreement."
-    ) + _OUTPUT_FORMAT_BLOCK
+    )
+
+    if tool_write:
+        # R1.4 tool-write contract (Step 9.6): emit ONE structured JSON object
+        # instead of markdown+frontmatter. The debate-facilitator + depth
+        # guidance above is reused verbatim; only the OUTPUT CONTRACT is
+        # inverted. The executor validates this JSON against debate.schema.json
+        # and renders the markdown deterministically.
+        return base + _DEBATE_TOOL_WRITE_OUTPUT_BLOCK
+
+    return base + _OUTPUT_FORMAT_BLOCK
+
+
+def debate_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the debate step (R1.4).
+
+    Pairs the debate output schema (``debate.schema.json``) with the render
+    template (``debate.md.j2``) so the tool-write back end can validate the
+    model's structured JSON and render the markdown debate transcript
+    deterministically. ``input_schema`` is empty -- the debate step's tool takes
+    no structured tool inputs (the diff analysis and the two roadmap variants
+    arrive as file attachments). This is part of the PRESERVED adversarial-debate
+    mechanism: only the prompt/output contract is rewritten, not
+    ``semantic_layer.py``.
+    """
+    return ToolDefinition(
+        name="debate",
+        input_schema={},
+        output_schema=load_schema("debate.schema.json"),
+        render_template=TEMPLATES_DIR / "debate.md.j2",
+    )
 
 
 def build_score_prompt(
@@ -909,10 +1527,39 @@ def build_score_prompt(
     variant_b_path: Path,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'score'.
 
     Instructs Claude to select a base variant and score both.
+
+    Parameters
+    ----------
+    tool_write:
+        R1.4 Step 9.7 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract: ``base + _OUTPUT_FORMAT_BLOCK`` (YAML frontmatter + 5 markdown
+        body parts), with the TDD/PRD supplementary blocks intact. When ``True``
+        the OUTPUT CONTRACT is replaced -- the model is asked to emit a SINGLE
+        structured JSON object conforming to ``score.schema.json`` (keys:
+        ``frontmatter`` (base_variant, variant_scores), ``scoring_criteria``,
+        ``per_criterion_scores``, ``overall_scores``, ``base_selection_rationale``,
+        ``improvements_to_incorporate``; no markdown, no frontmatter, no prose),
+        which the executor validates and renders to markdown deterministically
+        via :mod:`superclaude.cli.roadmap.tool_writer`. The score step is SIMPLE:
+        it carries no ``roadmap_ids`` and therefore has no §MVR §3 / Contract #3
+        phantom-ID subset constraint (the executor routes it through the PLAIN
+        ``render_step_tool_write``, not the id-check variant). The evaluation
+        guidance (and the TDD/PRD supplementary blocks) is shared between both
+        modes; only the output contract differs. We deliberately do NOT append
+        ``_OUTPUT_FORMAT_BLOCK`` in tool-write mode -- that block mandates YAML
+        frontmatter, which is wrong for JSON.
+
+        CONTRACT #8: ``variant_scores`` are 0-100 EVALUATION points, distinct
+        from the ``(high, low)`` CONVERGENCE thresholds sourced via
+        :func:`roadmap_convergence_thresholds` from
+        :data:`superclaude.contracts.CONVERGENCE_THRESHOLDS`. No threshold
+        literal (0.7 / 0.5) is hardcoded in this function or its output blocks.
     """
     base = (
         "You are an objective evaluation specialist.\n\n"
@@ -958,7 +1605,38 @@ def build_score_prompt(
             "Weight these alongside technical scoring criteria."
         )
 
+    if tool_write:
+        # R1.4 tool-write contract (Step 9.7): emit ONE structured JSON object
+        # instead of markdown+frontmatter. The evaluation guidance above (incl.
+        # the TDD/PRD supplementary blocks) is reused verbatim; only the OUTPUT
+        # CONTRACT is inverted. The executor validates this JSON against
+        # score.schema.json and renders the markdown deterministically.
+        return base + _SCORE_TOOL_WRITE_OUTPUT_BLOCK
+
     return base + _OUTPUT_FORMAT_BLOCK
+
+
+def score_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the score step (R1.4).
+
+    Pairs the score output schema (``score.schema.json``) with the render
+    template (``score.md.j2``) so the tool-write back end can validate the
+    model's structured JSON and render the markdown score document
+    deterministically. ``input_schema`` is empty -- the score step's tool takes
+    no structured tool inputs (the debate transcript and the two roadmap
+    variants arrive as file attachments).
+
+    CONTRACT #8: the bound schema carries NO embedded convergence threshold
+    literal; convergence thresholds are sourced at runtime from
+    :func:`roadmap_convergence_thresholds`
+    (:data:`superclaude.contracts.CONVERGENCE_THRESHOLDS`).
+    """
+    return ToolDefinition(
+        name="score",
+        input_schema={},
+        output_schema=load_schema("score.schema.json"),
+        render_template=TEMPLATES_DIR / "score.md.j2",
+    )
 
 
 def build_merge_prompt(
@@ -968,10 +1646,28 @@ def build_merge_prompt(
     debate_path: Path,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'merge'.
 
     Instructs Claude to produce the final merged roadmap.
+
+    Parameters
+    ----------
+    tool_write:
+        R1.4 Step 9.8 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy incremental-
+        markdown contract (``base + ... + _INTEGRATION_ENUMERATION_BLOCK +
+        _OUTPUT_FORMAT_BLOCK``). When ``True`` the OUTPUT CONTRACT is replaced --
+        the model is asked to emit a SINGLE structured JSON object conforming to
+        ``merge.schema.json`` (no markdown, no frontmatter, no prose), which the
+        executor validates (schema + generation-time phantom-ID subset check,
+        mirroring generate) and renders to markdown deterministically via
+        :mod:`superclaude.cli.roadmap.tool_writer`. The merge-fidelity,
+        ID-preservation, and anti-consolidation guidance is shared between both
+        modes; only the output contract differs. In tool-write mode neither
+        ``_INTEGRATION_ENUMERATION_BLOCK`` nor ``_OUTPUT_FORMAT_BLOCK`` is
+        appended (the schema + template carry the structure).
     """
     base = (
         "You are producing the final merged roadmap. The TEMPLATE (embedded "
@@ -1079,7 +1775,32 @@ def build_merge_prompt(
             "variant added but the PRD explicitly places out of scope."
         )
 
+    if tool_write:
+        # Tool-write mode: emit the JSON output contract instead of the
+        # incremental-markdown frontmatter/format blocks. The integration-
+        # enumeration guidance is markdown-shaped; the JSON contract subsumes it
+        # via the deliverables[]/roadmap_ids keys, so it is not appended here.
+        return base + _MERGE_TOOL_WRITE_OUTPUT_BLOCK
     return base + _INTEGRATION_ENUMERATION_BLOCK + _OUTPUT_FORMAT_BLOCK
+
+
+def merge_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the merge step (R1.4).
+
+    Pairs the merge output schema (``merge.schema.json``) with the render
+    template (``merge.md.j2``) so the tool-write back end can validate the
+    model's structured JSON (schema + generation-time phantom-ID subset check,
+    mirroring generate) and render the final merged roadmap deterministically.
+    ``input_schema`` is empty -- the merge step's tool takes no structured tool
+    inputs (the base selection, both variants, and the debate arrive as file
+    attachments).
+    """
+    return ToolDefinition(
+        name="merge",
+        input_schema={},
+        output_schema=load_schema("merge.schema.json"),
+        render_template=TEMPLATES_DIR / "merge.md.j2",
+    )
 
 
 def build_spec_fidelity_prompt(
@@ -1087,6 +1808,7 @@ def build_spec_fidelity_prompt(
     roadmap_path: Path,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'spec-fidelity'.
 
@@ -1096,6 +1818,34 @@ def build_spec_fidelity_prompt(
 
     Embeds explicit severity definitions (HIGH/MEDIUM/LOW) to reduce
     LLM classification drift (RSK-007).
+
+    Parameters
+    ----------
+    tool_write:
+        R1.4 Step 9.9 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract (``base + ... + _OUTPUT_FORMAT_BLOCK``: YAML frontmatter with
+        the six severity/readiness fields + a DEV-NNN deviation report), with
+        the TDD/PRD supplementary blocks intact. When ``True`` the OUTPUT
+        CONTRACT is replaced -- the model is asked to emit a SINGLE structured
+        JSON object conforming to ``spec_fidelity.schema.json`` (keys:
+        ``frontmatter`` (six required severity/readiness fields), ``deviations``
+        (DEV-NNN entries), ``summary``; no markdown, no frontmatter, no prose),
+        which the executor validates and renders to markdown deterministically
+        via :mod:`superclaude.cli.roadmap.tool_writer`. The severity definitions
+        + comparison-dimensions guidance (and the TDD/PRD supplementary blocks)
+        is shared between both modes; only the output contract differs. We
+        deliberately do NOT append ``_OUTPUT_FORMAT_BLOCK`` in tool-write mode --
+        that block mandates YAML frontmatter, which is wrong for JSON.
+
+        spec-fidelity is the convergence-loop CORE: when
+        ``config.convergence_enabled`` is True the executor short-circuits to
+        ``_run_convergence_spec_fidelity`` and this tool-write path is NEVER
+        reached (``convergence.py`` / ``semantic_layer.py`` are PRESERVE,
+        byte-untouched). The step carries no ``roadmap_ids`` and therefore has
+        no MVR-3 / Contract #3 phantom-ID subset constraint -- the executor
+        routes it through the PLAIN ``render_step_tool_write`` (not the id-check
+        variant).
     """
     base = (
         "You are a source-document fidelity analyst.\n\n"
@@ -1214,7 +1964,39 @@ def build_spec_fidelity_prompt(
             "lists the capability as in-scope."
         )
 
+    if tool_write:
+        # R1.4 tool-write contract (Step 9.9): emit ONE structured JSON object
+        # instead of markdown+frontmatter. The severity definitions + comparison
+        # dimensions above (incl. the TDD/PRD supplementary blocks) are reused
+        # verbatim; only the OUTPUT CONTRACT is inverted. The executor validates
+        # this JSON against spec_fidelity.schema.json and renders the markdown
+        # deterministically (PLAIN render_step_tool_write -- no phantom-ID check).
+        return base + _SPEC_FIDELITY_TOOL_WRITE_OUTPUT_BLOCK
+
     return base + _OUTPUT_FORMAT_BLOCK
+
+
+def spec_fidelity_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the spec-fidelity step (R1.4).
+
+    Pairs the spec-fidelity output schema (``spec_fidelity.schema.json``) with
+    the render template (``spec_fidelity.md.j2``) so the tool-write back end can
+    validate the model's structured JSON and render the markdown fidelity report
+    deterministically. ``input_schema`` is empty -- the spec-fidelity step's tool
+    takes no structured tool inputs (the source specification/TDD and the merged
+    roadmap arrive as file attachments).
+
+    NOTE: spec-fidelity is the convergence-loop core. This binding governs ONLY
+    the single-shot (non-convergence) tool-write path; when convergence is
+    enabled the executor runs ``_run_convergence_spec_fidelity`` and this
+    definition is never used (``convergence.py`` is PRESERVE).
+    """
+    return ToolDefinition(
+        name="spec-fidelity",
+        input_schema={},
+        output_schema=load_schema("spec_fidelity.schema.json"),
+        render_template=TEMPLATES_DIR / "spec_fidelity.md.j2",
+    )
 
 
 def build_wiring_verification_prompt(
@@ -1280,12 +2062,36 @@ def build_test_strategy_prompt(
     extraction_path: Path,
     tdd_file: Path | None = None,
     prd_file: Path | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Prompt for step 'test-strategy'.
 
     Instructs Claude to produce a test strategy for the roadmap with
     6 frontmatter fields, complexity-to-ratio mapping, and issue
     classification table.
+
+    Parameters
+    ----------
+    tool_write:
+        R1.4 Step 9.11 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract: ``base + _OUTPUT_FORMAT_BLOCK`` (YAML frontmatter + 6 markdown
+        body parts), with the TDD/PRD supplementary blocks intact. When ``True``
+        the OUTPUT CONTRACT is replaced -- the model is asked to emit a SINGLE
+        structured JSON object conforming to ``test_strategy.schema.json``, which
+        the executor validates and renders to markdown deterministically via
+        :mod:`superclaude.cli.roadmap.tool_writer`. The test-strategy step is a
+        SECONDARY LLM step: it carries no ``roadmap_ids`` and therefore has no
+        §MVR §3 / Contract #3 phantom-ID subset constraint (the executor routes
+        it through the PLAIN ``render_step_tool_write``, not the id-check
+        variant). The test-strategy guidance (and the TDD/PRD supplementary
+        blocks) is shared between both modes; only the output contract differs.
+        We deliberately do NOT append ``_OUTPUT_FORMAT_BLOCK`` in tool-write mode
+        -- that block mandates YAML frontmatter, which is wrong for JSON.
+
+        CONTRACT #8: ``interleave_ratio`` is a test:work milestone ratio string
+        (e.g. ``'1:2'``), NOT a convergence ratio; no threshold literal
+        (``0.7`` / ``0.5``) is hardcoded in this function or its output block.
     """
     base = (
         "You are a test strategy specialist.\n\n"
@@ -1364,4 +2170,35 @@ def build_test_strategy_prompt(
             "section (S23) to ensure negative test scenarios are included."
         )
 
+    if tool_write:
+        # R1.4 tool-write contract (Step 9.11): emit ONE structured JSON object
+        # instead of markdown+frontmatter. The strategy guidance above (incl. the
+        # TDD/PRD supplementary blocks) is reused verbatim; only the OUTPUT
+        # CONTRACT is inverted. The executor validates this JSON against
+        # test_strategy.schema.json and renders the markdown deterministically.
+        return base + _TEST_STRATEGY_TOOL_WRITE_OUTPUT_BLOCK
+
     return base + _OUTPUT_FORMAT_BLOCK
+
+
+def test_strategy_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the test-strategy step.
+
+    Pairs the test-strategy output schema (``test_strategy.schema.json``) with
+    the render template (``test_strategy.md.j2``) so the tool-write back end can
+    validate the model's structured JSON and render the markdown test-strategy
+    document deterministically. ``input_schema`` is empty -- the test-strategy
+    step's tool takes no structured tool inputs (the roadmap and extraction
+    arrive as file attachments).
+
+    CONTRACT #8: the bound schema carries NO embedded convergence threshold
+    literal; ``interleave_ratio`` is a test:work milestone ratio, distinct from
+    the ``(high, low)`` convergence pair in
+    :data:`superclaude.contracts.CONVERGENCE_THRESHOLDS`.
+    """
+    return ToolDefinition(
+        name="test-strategy",
+        input_schema={},
+        output_schema=load_schema("test_strategy.schema.json"),
+        render_template=TEMPLATES_DIR / "test_strategy.md.j2",
+    )

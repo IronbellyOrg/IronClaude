@@ -4,6 +4,54 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### Sprint CLI — wire the per-task execution path + runner-owned typed handoff (Stages 0-3, TASK-RF-SPRINTCLI-WIRE-DEAD-20260603-024610)
+
+#### Added (sprint CLI)
+
+- `--handoff/--no-handoff` flag on `superclaude sprint run` (default: **enabled**). When enabled, the per-task execution path writes one typed `HandoffRecord` JSON per task and a `task_complete` ledger event; `--no-handoff` reproduces legacy behavior exactly (no handoff records, no `task_complete` events). Threaded through all three layers (`commands.py` click option → `load_sprint_config` → `SprintConfig.handoff_enabled`).
+- `--resume <task_id>` flag on `superclaude sprint run`: resumes a per-task sprint by skipping *validated-successful* tasks (handoff record with `status == "pass"` AND a successful gate outcome). The argument is a `T<PP>.<TT>` task id; it composes with the phase-granular `--start/--end` (those bound the phase range, the validated-success skip suppresses already-done tasks within it). Resuming against a pre-Stage-1 `release_dir` (no `handoff/` directory) degrades gracefully to phase-granular behavior. Non-success tasks (`FAIL_*`/`INCOMPLETE`/`SKIPPED`, PASS-with-gate-fail) are never skipped.
+- `handoff/` results subdirectory: per-task handoff records are persisted to `<results_dir>/handoff/phase-{N}-task-{task_id}.json` (phase-qualified key, since the bare `T<PP>.<TT>` id is not sprint-unique). Written via an atomic temp+replace `FileHandoffStore` (`src/superclaude/cli/sprint/handoff.py`).
+- `task_complete` execution-log JSONL event — the first-run sibling of `task_rerun_complete`, with the identical field set `{event, phase, task_id, status, turns, duration_sec, timestamp}` (discriminator: `task_complete` = first run, `task_rerun_complete` = rerun).
+- Typed, schema-versioned `HandoffRecord` dataclass (`models.py`) constructed by the runner from each finalized `TaskResult` plus `produced_artifacts[]`/`consumed_upstreams[]`; forward-compatible (`from_dict` tolerates unknown keys).
+- `--task-parallelism K` flag on `superclaude sprint run` (default: **1 = sequential**). `K > 1` executes up to `K` tasks concurrently per dependency wave (topological order built on the existing `rerun_tasks` dependency-edge shape; cycles surfaced, not dropped). Concurrency is made safe by a lock-guarded `SprintLogger._jsonl`, a lock-guarded `TurnLedger` with an atomic `try_launch` (prevents budget over-commit), and per-task atomic handoff-file writes. `K = 1` preserves byte-identical legacy behavior.
+
+#### Changed (sprint CLI)
+
+- Per-task subprocesses now receive full per-task isolation env (own `CLAUDE_SETTINGS_DIR`/`CLAUDE_PLUGIN_DIR` under `<results_dir>/.isolation`), and the per-phase fallback path additionally seeds the two settings/plugin keys while keeping its phase-scoped `CLAUDE_WORK_DIR`.
+- Per-task `turns_consumed` is now parsed from the stream-json terminal `result` event's `num_turns` (previously hard-coded `0`).
+- Prior-task context (`build_task_context`) is now injected into each per-task prompt.
+- The per-task heading router emits a warn-only near-miss diagnostic when a phase file has headings that look like `### T<PP>.<TT>` but miss the strict format (it never reclassifies the phase).
+
+### sprint — auto-resume as the default for `run` / `rerun-tasks` (v4.3.5, TASK-RF-20260602-sprint-auto-resume)
+
+#### Behavior change (READ THIS if you script `superclaude sprint`)
+
+- **`superclaude sprint run <index>` with no `--start/--end` now AUTO-RESUMES.** An interrupted sprint is detected from on-disk state (the atomic `phase-N-result.json` is the truth anchor) and resumes at the boundary phase, re-running only the unfinished task on the task-level path. Before proceeding it prints the resume plan + drift + integrity report and (interactively) asks for confirmation.
+- **`superclaude sprint rerun-tasks <index>` with no `--phase/--tasks/--from-reflect-report` now AUTO-DETECTS** the boundary phase and its recoverable failed-task set, then runs exactly as if those flags had been supplied (identical result to the explicit invocation).
+- **Opt-out / explicit control is unchanged.** An explicit `--start`/`--end` (run) or `--phase`/`--tasks` (rerun-tasks) — *including `--start 1`* — disables auto-detection and preserves today's exact behavior (detected via Click parameter source, not value comparison). `--fresh` (alias `--restart`) ignores prior on-disk state and runs clean from phase 1.
+- **CI / non-interactive:** pass `--yes` (or set `SUPERCLAUDE_SPRINT_ASSUME_YES=1` / `CI=1`) to skip the confirmation prompt. A non-interactive session without assent stops with guidance rather than hanging.
+
+#### Added (sprint auto-resume)
+
+- New read-first package `src/superclaude/cli/sprint/resume/`:
+  - `planner.py` (`ResumePlanner`) — pure-read reconstruction of the resume plan from `execution-log.jsonl` + `phase-N-result.json` + transcripts. `result.json` presence with a PASS-family status is the authoritative phase-completion signal (a torn/dropped ledger line cannot demote it). Flags ambiguous state (multiple plausible release dirs / interleaved ledger / unreadable core files) and refuses to auto-pick.
+  - `drift.py` (`DriftAssessor`) — tiered safety-of-resume scoring. Tier 0 exact normalized-content hash match; Tier 1 whitespace-insensitive cosmetic + structural task-ID diff (only the 0.8 confidence boundary gates resume); Tier 2 additive `git diff` annotation behind a capability check.
+  - `integrity.py` (`BoundaryIntegrityGate`) — the resume-seam safety gate. Doubly-validates the last-completed task (persisted status ∧ transcript re-derivation ∧ artifact existence), surfaces next-unfinished partial work, and offers opt-in reversible copy-to-quarantine. The gate verdict is a pure function of deterministic signals; an advisory coherence read can annotate but never change it.
+  - `models.py` — `ResumePlan`, `BoundaryReport`, `DriftAssessment`, `BoundaryTask`, `Granularity`, `ResumeDecision`.
+- `--fresh` / `--restart`, `--yes` / `-y` flags on both `sprint run` and `sprint rerun-tasks`.
+- `phase-N-result.json` now records `tasklist_sha256` (normalized-content hash of the per-phase tasklist) so a later resume can detect drift. Backward-compatible: result files written before v4.3.5 simply lack the key and resume falls back to structural drift scoring.
+
+#### Safety properties
+
+- **Non-destructive by default (NFR-1):** the integrity gate performs zero `results/` mutation unless cleanup is opted into; quarantine is a `shutil.copy2` (originals untouched), lock-guarded, audit-logged, and reversible by the existing `rerun-tasks --restore` (`restore_from_bundle`).
+- **LLM is advisory-only (NFR-3):** the coherence read is CI-safe (empty verdict when `claude` is absent/times out) and can never flip the gate verdict.
+
+#### Validated (sprint auto-resume)
+
+- 17 deterministic unit/integration tests (`tests/sprint/test_resume.py`) mapping 1:1 to AC-1..AC-9 + the validator-corrected invariants (INV-001 same-fn hash, FR-2.5 non-destructive/reversible quarantine, DD-2 advisory-only coherence) + a mutation-proved hard-STOP guard.
+- 3 real-`claude`-subprocess e2e tests (`tests/sprint/e2e_real/test_e2e_resume.py`) proving bare `rerun-tasks` auto-detect, bare `sprint run` task-level auto-resume, and hard-crash phase-level re-run end-to-end.
+- Five in-band phase-gate `rf-qa` reviews (adversarial, fix-authorized) + Phase-4 caught a runtime-only dispatch defect (missing `run_rerun_tasks` kwargs) that mocked tests had hidden.
+
 ### sc:cleanup-audit — bake hidden + BMAD scope exclusions into defaults (TASK-RF-20260529-162751)
 
 #### Added (sc:cleanup-audit)

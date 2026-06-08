@@ -1,0 +1,2 @@
+207b0f2a1b667ac2e0b8496410e5045867a8e771d2b9695d99e6cc37d2d7e241  /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/TASK-RF-20260531-042405.md
+4782e56a503b191b811887ee90ab86e921631d10c8afcc88f1e2064535879c7e  /config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/troubleshoot/roadmap-pipeline-retrospective/wave4-task-spec/BUILD-REQUEST-roadmap-pipeline-rewrite.md

@@ -1,0 +1,48 @@
+contract_version: "1.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-sprint-auto-resume-rerun-20260603115107/REPORT.md
+confidence_calibrated: 0.90
+escalation_rule_matched: 4            # S_domains >= 3 (code+tests+docs)
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 1                       # F-1 via CG-4 YES
+  necessary: 0
+  drift: 0
+  regression: 1                       # NEW-R1: --yes path skips plan/paths print
+deviation_register_path: .dev/reflect/post-sprint-auto-resume-rerun-20260603115107/REPORT.md
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+t2_model_class_diversity: full        # opus(executor-excluded) / sonnet=gpt-5.5 / haiku=qwen3.6
+t2_vendor_diversity: multi            # Anthropic / OpenAI-compat / Qwen
+merge_method: adversarial             # orchestrator-merged heterogeneous ensemble; reviewers disagreed, A's finding verified
+adversarial_convergence_score: 0.55   # reviewers split (B: yes / A: no); A's blocking finding independently confirmed
+calibrator_diversity: full
+
+# Asymmetric-cost flags
+regression_present: true              # NEW-R1
+unauthorized_deviation_present: false
+needs_human_decision: false           # CG-4 ruled YES
+user_decision_required: false
+spec_is_wrong: false
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: .dev/tasks/to-do/TASK-RF-20260602-sprint-auto-resume/
+promotion_destination: .dev/tasks/done/TASK-RF-20260602-sprint-auto-resume/
+promotion_log_path: .dev/reflect/post-sprint-auto-resume-rerun-20260603115107/promotion-log.yaml
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_cross_fs: false

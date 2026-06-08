@@ -1,0 +1,20 @@
+# STUB — V3-Serena eval scaffold (FR-RV3-LOW.5, UC-2; pilot/ships-last per OQ-3). Body fleshed out later.
+# Discriminating signals:
+#   - SUMMARY-ONLY FILE: the Serena change-summary names a file (src/svc/audit.py) absent from this
+#     supplied diff, AND the diff touches a file (src/svc/report.py) the summary omits → the
+#     symmetric-difference feeds the §10.3 Drift / §10.2 Necessary sets (FR-5.3); a disagree
+#     corroboration boosts Drift.
+#   - CROSS-SESSION: a variant where reflect runs in a fresh MCP session (nothing to summarize) →
+#     serena_summary_corroboration: unavailable + main verdict unchanged (FR-5.4).
+
+diff --git a/src/svc/report.py b/src/svc/report.py
+index bbbb111..cccc222 100644
+--- a/src/svc/report.py
++++ b/src/svc/report.py
+@@ -1,3 +1,5 @@
++"""Report service — render and export.
++
++Docstring added per Task 1 (this file is in the diff but the Serena summary omits it).
++"""
+ def render_report(rid):
+     pass

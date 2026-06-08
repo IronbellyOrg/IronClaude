@@ -1,0 +1,107 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/r1-2-uc1-validation/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/r1-2-uc1-validation/audit.log
+confidence_calibrated: 0.92
+escalation_rule_matched: null  # --tier 1 hard override per §5.1
+
+# UC-1 specific
+coverage_pct: 0.92
+coverage_undefined: false
+unmapped_requirements: []   # all §R1.2/§MVR §1 mandates trace to a tasklist step
+best_practice_grade: 4
+
+# UC-2 specific — N/A in pre mode
+tasklist_completion_pct: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null   # no grounding gaps surfaced
+
+# Input integrity
+input_sha256:
+  tasklist: "207b0f2a1b667ac2e0b8496410e5045867a8e771d2b9695d99e6cc37d2d7e241"
+  spec: "4782e56a503b191b811887ee90ab86e921631d10c8afcc88f1e2064535879c7e"
+input_tree_sha256: "tree-derived-from-file_list-above"
+input_tree_file_count: 2
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/reflect/r1-2-uc1-validation/artifacts/input-snapshot.txt
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 15
+citations_revalidated: 15
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false   # inline re-Read at synthesis; agent-validator not invoked at Tier 1
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts — none at Tier 1
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full   # not exercised at T1; default emit
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Per-task verdict array — N/A for UC-1
+per_task_verdicts: []
+
+# Cross-task interaction-effects — N/A for UC-1
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+# Budget pre-flight
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion — N/A for UC-1
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+
+# Audit summary
+summary:
+  hard_covered: 22
+  total_requirements: 25
+  partial_gaps: 2          # G1 (dispatch-reachability), G2 (structural_checkers PRESERVE)
+  minor_gaps: 1            # G3 (field-set drift test)
+  type_ambiguities: 1      # A1 (ConvergenceState name)
+  recommended_tasklist_edits: 5   # see REPORT.md "Required adjustments"
+  blocks_phase_7_start: false

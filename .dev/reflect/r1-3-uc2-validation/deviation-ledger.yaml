@@ -1,0 +1,104 @@
+ledger_version: "1.0"
+mode: post
+target: "Phase 8 / R1.3 — GateCriteria.code_assertions + first CodeAssertion"
+task: TASK-RF-20260531-042405
+parent_commit: 90a8fa67
+gold_standard_reference: "BUILD-REQUEST §MVR §2 + task Steps 8.1-8.4 + Acceptance gate #6"
+
+deviations:
+  - id: DEV-R13-001
+    title: "Dynamically-run certify step bypasses execute_pipeline → CERTIFY_GATE never evaluated"
+    severity: HIGH
+    deviation_class: drift
+    regression_risk: true
+    evidence:
+      - "src/superclaude/cli/roadmap/executor.py:2170 — _run_certify_after_remediate runs certify via `roadmap_run_step(certify_step, config, lambda: False)`, a BARE call outside execute_pipeline."
+      - "src/superclaude/cli/pipeline/executor.py:267,329 — gate_passed() is called ONLY inside execute_pipeline's step loop."
+      - "src/superclaude/cli/roadmap/executor.py:1021-1965 — _roadmap_run_step_impl contains ZERO gate_passed calls (grep-verified); L1083-1084 comment: 'Returns PASS unconditionally; gate evaluation is handled separately'."
+      - "Therefore CERTIFY_GATE's 3 semantic_checks (certified_is_true, per_finding_table_present, frontmatter_values_non_empty) AND the new code_assertion are NEVER evaluated on the produced certification-report.md."
+    compounding:
+      - "src/superclaude/cli/roadmap/executor.py:3369 vs :3409 — _save_state runs BEFORE the certify append, so certify_result is NOT persisted to .roadmap-state.json."
+      - "src/superclaude/cli/roadmap/executor.py:3399 vs :3409 — the failures sys.exit runs BEFORE certify, so a certify FAIL is non-halting (executor.py:2175-2178 only prints)."
+    spec_relation: >
+      §MVR §2 says 'Wire build_certify_step() as the final step.' The step now runs, but it is
+      wired OUTSIDE the gated executor, so the gate that gives the step meaning is never evaluated.
+      Does not contradict a literal acceptance criterion (→ not a hard Regression), but defeats
+      CERTIFY_GATE's purpose and renders the headline R1.3 CodeAssertion runtime-inert in production.
+    why_pg81_missed_it: >
+      PG8.1 verified (correctly) that build_certify_step has a production caller and that the CI
+      test enforces dispatch-reachability. It did NOT verify that the production execution path
+      evaluates the gate. The sonnet heterogeneous reviewer surfaced it; haiku and the T1 pass did not.
+    remediation: >
+      OPTION B (recommended, small blast radius): inside _run_certify_after_remediate, after
+      roadmap_run_step returns, explicitly call gate_passed(certify_step.output_file, CERTIFY_GATE,
+      envelope=<envelope>, repo_root=<repo_root>) and act on the verdict (set status, persist to
+      state, optionally halt). This closes DEV-R13-001 AND DEV-R13-002 in one local change.
+      OPTION A: route certify through execute_pipeline so it is gated like every other step.
+
+  - id: DEV-R13-002
+    title: "code_assertion runtime-dormant via gate_passed envelope-None fail-open shim"
+    severity: MEDIUM
+    deviation_class: necessary
+    regression_risk: false
+    evidence:
+      - "src/superclaude/cli/pipeline/gates.py:93-98 — when criteria.code_assertions is set but envelope is None or repo_root is None, returns (True, None) — a fail-OPEN skip."
+      - "All production gate_passed call sites omit envelope/repo_root: pipeline/executor.py:267,329; sprint/executor.py:842; cli_portify/executor.py:417; cleanup_audit/executor.py:137."
+    spec_relation: >
+      §MVR §2 'CodeAssertion guarantees no future step ships unwired' — the guarantee IS provided
+      via the CI test (test_dispatch_reachability). Runtime enforcement is deferred to R1.6.
+    tension: >
+      The shim is a NEW fail-OPEN default. The task's own Contract #5 / R1.6 explicitly targets
+      fail-open defaults for DELETION. Introducing a new (documented, temporary) fail-open path is
+      in tension with the task's anti-fail-open thrust. Documented in Follow-Up Items (High) + PG8.1.
+    remediation: "Tracked R1.6 carry-forward (delete shim + plumb envelope into live gate path). Option-B fix for DEV-R13-001 would also resolve this for certify specifically."
+
+  - id: DEV-R13-003
+    title: "Assertion generalized from design-doc §6.2 (_build_steps-only) to (_build_steps OR production caller)"
+    severity: LOW
+    deviation_class: necessary
+    regression_risk: false
+    evidence:
+      - "src/superclaude/cli/roadmap/code_assertions.py:assert_step_reachable — static_reachable OR dynamic_reachable."
+      - "Design doc §6.2 scoped to _build_steps only; §7.3 chose dynamic wiring (internally inconsistent)."
+    spec_relation: "MORE faithful to §MVR §2 'reachable from a production entry point' than the design doc's narrower §6.2. Documented in Phase 8 Findings + aggregation."
+    remediation: "None — sound; deviation is vs the agent's own intermediate plan, not the spec."
+
+  - id: DEV-R13-004
+    title: "assert_envelope_artifacts_present implemented + tested but wired into zero gates"
+    severity: LOW
+    deviation_class: authorized
+    regression_risk: false
+    evidence:
+      - "Task L516 (Step 8.3) explicitly requires the function — Authorized, not scope creep."
+      - "grep: assert_envelope_artifacts_present referenced only in code_assertions.py + test_dispatch_reachability.py; NO gate wires it."
+    spec_relation: "Task-specified verbatim. Dead-but-tested today (no production consumer) — acceptable for a substrate function awaiting R1.5 verify-implementation."
+    remediation: "None for R1.3. Will gain a consumer at R1.5."
+
+  - id: DEV-R13-005
+    title: "Live executed step count increases 13→14 (certify now runs); 'budget unaffected' wording imprecise"
+    severity: LOW
+    deviation_class: authorized
+    regression_risk: false
+    evidence:
+      - "_build_steps returns 13 Step constructions; ALL_GATES = 14 (certify is 14th)."
+      - "Before R1.3 certify never executed (live count 13); after, certify executes (live count 14). 14 ≤ 14 holds (Acceptance gate #6)."
+    spec_relation: "Within budget. The helper docstring/comment say budget 'unaffected' — precise truth: _build_steps RETURN count unaffected (13); LIVE EXECUTED count +1."
+    remediation: "None — compliant. Wording precision only."
+
+  - id: DEV-R13-006
+    title: "certify runs on fresh run but NOT on --resume path"
+    severity: LOW
+    deviation_class: drift
+    regression_risk: false
+    evidence:
+      - "src/superclaude/cli/roadmap/executor.py:3409 — _run_certify_after_remediate called on the fresh-run path only."
+      - "src/superclaude/cli/roadmap/executor.py:3593-3620 — the resume path (resumed_results = execute_pipeline) has NO _run_certify_after_remediate call."
+    spec_relation: "Inconsistent terminal-step behavior between fresh and resumed runs. Minor; not spec-contradicting."
+    remediation: "Add the certify call to the resume path too, OR document the asymmetry. Bundle with DEV-R13-001 fix."
+
+summary:
+  authorized: 2     # DEV-004, DEV-005
+  necessary: 2      # DEV-002, DEV-003
+  drift: 2          # DEV-001 (regression-risk), DEV-006
+  regression: 0
+  highest_severity: HIGH   # DEV-R13-001

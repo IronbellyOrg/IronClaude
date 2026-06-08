@@ -88,6 +88,9 @@ class _FakePopenPass:
         self.returncode = 0
         self.pid = 30000
         self._poll_count = 0
+        # ProcessManager.start() writes the prompt via stdin; a None stdin
+        # makes the guarded write a no-op (matches the v1.2.1 no-pipe path).
+        self.stdin = None
 
     def poll(self):
         self._poll_count += 1
@@ -286,6 +289,13 @@ class TestBackwardCompatRegression:
             patch(
                 "superclaude.cli.sprint.executor.shutil.which",
                 return_value="/usr/bin/claude",
+            ),
+            # Patch narrate directly (not summarizer.shutil.which) to avoid
+            # colliding with the executor's shutil.which patch (shared module)
+            # and to keep the call-count-indexed factory from over-invoking.
+            patch(
+                "superclaude.cli.sprint.summarizer.PhaseSummarizer.narrate",
+                return_value="",
             ),
             patch(
                 "superclaude.cli.pipeline.process.subprocess.Popen",
@@ -532,7 +542,7 @@ class TestBackwardCompatRegression:
         """All v1.2.1 enum values are preserved without modification."""
         # TaskStatus
         assert TaskStatus.PASS.value == "pass"
-        assert TaskStatus.FAIL.value == "fail"
+        assert TaskStatus.FAIL_TERMINAL.value == "fail"
         assert TaskStatus.INCOMPLETE.value == "incomplete"
         assert TaskStatus.SKIPPED.value == "skipped"
 
@@ -569,3 +579,134 @@ class TestBackwardCompatRegression:
         assert config.result_file(phase) == tmp_path / "results" / "phase-1-result.md"
         assert config.execution_log_jsonl == tmp_path / "execution-log.jsonl"
         assert config.execution_log_md == tmp_path / "execution-log.md"
+
+
+# ===========================================================================
+# v4.3.0 rerun-tasks — no regression when the rerun feature is unused
+# ===========================================================================
+
+
+class TestRerunTasksNoRegressionWhenUnused:
+    """v4.3.0 rerun-tasks feature must be inert for sprints that never
+    invoke a rerun: no new JSONL event types, no extra threads, and the
+    new phase-result-json write must not disturb existing e2e paths.
+    """
+
+    @pytest.mark.backward_compat
+    def test_sprint_without_rerun_invocation_emits_no_new_event_types(self, tmp_path):
+        """A clean sprint (no rerun) emits NONE of the v4.3.0 rerun event
+        types: phase_rerun_start, task_rerun_complete, phase_rerun_complete."""
+        import json
+
+        config = _make_config(tmp_path, num_phases=2)
+
+        call_count = [0]
+
+        def _factory(*args, **kwargs):
+            call_count[0] += 1
+            phase = config.phases[min(call_count[0], len(config.phases)) - 1]
+            config.results_dir.mkdir(parents=True, exist_ok=True)
+            config.result_file(phase).write_text("EXIT_RECOMMENDATION: CONTINUE\n")
+            config.output_file(phase).write_text("output\n")
+            return _FakePopenPass()
+
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            # Neutralize the Sonnet narrative subprocess (claude may be on the
+            # real PATH); without this the summarizer fires an extra Popen.
+            # Patch narrate directly — patching summarizer.shutil.which would
+            # collide with the executor's shutil.which patch (shared module).
+            patch(
+                "superclaude.cli.sprint.summarizer.PhaseSummarizer.narrate",
+                return_value="",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.sprint.notify._notify"),
+        ):
+            execute_sprint(config)
+
+        jsonl_path = config.execution_log_jsonl
+        assert jsonl_path.exists()
+        events = [
+            json.loads(line) for line in jsonl_path.read_text().strip().split("\n")
+        ]
+        event_types = {e["event"] for e in events}
+
+        rerun_event_types = {
+            "phase_rerun_start",
+            "task_rerun_complete",
+            "phase_rerun_complete",
+        }
+        assert event_types.isdisjoint(rerun_event_types), (
+            f"Clean sprint emitted rerun events: {event_types & rerun_event_types}"
+        )
+
+    @pytest.mark.backward_compat
+    def test_sprint_without_rerun_invocation_adds_zero_threads(self, tmp_path):
+        """A clean sprint (no rerun) produces zero additional persistent
+        threads, matching the existing thread-count regression pattern."""
+        config = _make_config(tmp_path, num_phases=1)
+
+        def _factory(*args, **kwargs):
+            phase = config.phases[0]
+            config.results_dir.mkdir(parents=True, exist_ok=True)
+            config.result_file(phase).write_text("EXIT_RECOMMENDATION: CONTINUE\n")
+            config.output_file(phase).write_text("output content\n")
+            return _FakePopenPass()
+
+        baseline_threads = threading.active_count()
+
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            # Patch narrate directly (not summarizer.shutil.which) to avoid
+            # colliding with the executor's shutil.which patch (shared module).
+            patch(
+                "superclaude.cli.sprint.summarizer.PhaseSummarizer.narrate",
+                return_value="",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.sprint.notify._notify"),
+        ):
+            execute_sprint(config)
+
+        # Allow a brief moment for daemon thread cleanup
+        time.sleep(0.1)
+        post_threads = threading.active_count()
+
+        assert post_threads <= baseline_threads + 1, (
+            f"Rerun-tasks thread leak: baseline={baseline_threads}, "
+            f"post={post_threads}. A sprint without rerun must add zero threads."
+        )
+
+    @pytest.mark.backward_compat
+    def test_phase_result_json_write_does_not_break_existing_e2e_paths(self, tmp_path):
+        """The v4.3.0 _write_phase_result_json side effect (invoked on every
+        phase completion in execute_sprint) must not break the existing
+        baseline e2e success path. Reuse the real baseline test rather than
+        duplicating its fixture body."""
+        from tests.sprint.test_e2e_success import TestE2ESuccess
+
+        # Neutralize the Sonnet narrative subprocess so the reused baseline's
+        # call-count-indexed Popen factory is not over-invoked; then run the
+        # real baseline e2e semantics against the post-feature executor.
+        # Patch narrate directly (not summarizer.shutil.which) to avoid
+        # colliding with the baseline's own executor shutil.which patch.
+        with patch(
+            "superclaude.cli.sprint.summarizer.PhaseSummarizer.narrate",
+            return_value="",
+        ):
+            TestE2ESuccess().test_all_phases_pass(tmp_path)

@@ -1,0 +1,11 @@
+selected_tier: 1
+fired_rule_number: null            # explicit --tier 1 hard override per §5.1; rubric not evaluated
+hard_override: "--tier 1"
+composite_score: null              # rubric not evaluated under hard override
+per_signal_breakdown:
+  scope_size: 1                    # ~3-4 files: envelope.py + tests + executor wiring point
+  task_count: 6                    # Steps 7.1, 7.2, 7.3, 7.4 + PG7.1, PG7.2
+  blast_radius: 1                  # narrow: new dataclass + post-extractor dispatch
+  spec_density: 1                  # dense, well-specified §MVR §1
+  ambiguity_signals: 1             # one type-name ambiguity (ConvergenceState)
+escalation_reason: "user-pinned --tier 1; rubric would have stopped at T1 anyway under §5.3 rule 2 with WARN on S_dev_density=0.12"

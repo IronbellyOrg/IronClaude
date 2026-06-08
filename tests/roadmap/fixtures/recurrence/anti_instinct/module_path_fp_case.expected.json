@@ -1,0 +1,18 @@
+{
+  "fixture": "anti_instinct/module_path_fp_case",
+  "source_authority": {
+    "master_recurrence_row": 6,
+    "release_artifact": "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md",
+    "release_line_range": "207-213",
+    "remediation_section": "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/anti-instinct-remediation.md §1.2 Note (the Python module path `cli/swarm/transports/stub.py` STAYS as-is — the scanner only reads roadmap prose)",
+    "build_request_anchor": "BUILD-REQUEST §R0 item 2 (transports/stub.py is the named architectural module path)",
+    "verbatim_phrase": "transports/stub.py",
+    "incident_summary": "Even after the §1.2 rename ('stub transport' -> 'deterministic-fixture transport'), the module path token 'cli/swarm/transports/stub.py' still contains a bare 'stub' that the obligation scanner's SCAFFOLD-term regex matches. The module path is architectural (it names the file in the codebase) and is intentionally NOT renamed per remediation §1.2."
+  },
+  "expected_total_obligations": 0,
+  "expected_undischarged_count": 0,
+  "expected_high_findings": 0,
+  "expected_post_fix_scanner_behavior": "skip_emission",
+  "expected_allowlist_phrases_matched": ["transports/stub.py"],
+  "expected_contract_10_invariant": "MUST FAIL pre-fix (HIGH finding emitted on the bare 'stub' inside the module path), MUST PASS post-fix (allowlist absorbs 'transports/stub.py')"
+}

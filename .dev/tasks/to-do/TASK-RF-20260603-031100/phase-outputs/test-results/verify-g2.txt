@@ -1,0 +1,8 @@
+=== JSON validity ===
+JSON_VALID
+n_evals 26
+=== indexed-scalar field_paths remaining (expect 0 each) ===
+missing_implementations.0.abstract_name_path: 0
+third_party_api_grounding.0.api_name: 0
+=== regex_present count ===
+25

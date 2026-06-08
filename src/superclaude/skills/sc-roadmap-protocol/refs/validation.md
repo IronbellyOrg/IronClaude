@@ -10,7 +10,7 @@ Reference document for Wave 4 (Validation). Documents the canonical CLI **gate-c
 
 ### Gate criteria shape
 
-Every gate is a `GateCriteria` (`src/superclaude/cli/pipeline/models.py`) value with four fields:
+Every gate is a `GateCriteria` (`src/superclaude/cli/pipeline/models.py:132`) value with five fields:
 
 | Field | Purpose |
 |---|---|
@@ -18,8 +18,9 @@ Every gate is a `GateCriteria` (`src/superclaude/cli/pipeline/models.py`) value 
 | `min_lines` | Minimum line count for the rendered output. Catches catastrophic truncation. |
 | `enforcement_tier` | `STRICT` halts the pipeline on failure; `STANDARD` records the failure but allows continuation. |
 | `semantic_checks` | List of `SemanticCheck(name, check_fn, failure_message)` pure functions taking `content: str` and returning `bool`. |
+| `code_assertions` (R1.3 / §MVR §2) | Optional `list[CodeAssertion] \| None` (`models.py:153`) — code-graph / artifact predicates evaluated by `gate_passed` (`cli/pipeline/gates.py:20`). Subject to the CI-vs-runtime split documented in "R1.3 / R1.5 / R1.6 Gate Semantics" below. |
 
-Gates are pure data — no LLM call, no `Task(...)` spawn, no sub-agent dispatch. Enforcement happens in `cli/pipeline/gates.py` against the file already written by the step.
+The first four fields are pure data over `content: str` — no LLM call, no `Task(...)` spawn, no sub-agent dispatch. The R1.3 `code_assertions` field is the one slot that may inspect out-of-band state (the produced `envelope.json` / artifacts), and only for **runtime-safe** (`ci_only=False`) assertions; **CI-only** (`ci_only=True`) assertions are skipped in the live path (see below). Enforcement happens in `cli/pipeline/gates.py` against the file already written by the step.
 
 ### `REFLECT_GATE` — single-agent and per-agent validation
 
@@ -62,17 +63,43 @@ The CLI's flat 14-step pipeline also exposes deterministic `GateCriteria` for th
 
 | Step | Gate | Source |
 |---|---|---|
-| `anti-instinct` | `ANTI_INSTINCT_GATE` | `cli/roadmap/gates.py:1353-1378` |
-| `test-strategy` | `TEST_STRATEGY_GATE` | `cli/roadmap/gates.py:1231-1272` |
-| `spec-fidelity` | `SPEC_FIDELITY_GATE` | `cli/roadmap/gates.py:1274-1297` |
-| `wiring-verification` | `WIRING_GATE` | `cli/audit/wiring_gate.py` |
-| `deviation-analysis` | `DEVIATION_ANALYSIS_GATE` | `cli/roadmap/gates.py:1390-1423` |
-| `remediate` | `REMEDIATE_GATE` | `cli/roadmap/gates.py:1299-1322` |
-| `certify` | `CERTIFY_GATE` | `cli/roadmap/gates.py:1324-1351` |
+| `anti-instinct` | `ANTI_INSTINCT_GATE` | `cli/roadmap/gates.py` |
+| `test-strategy` | `TEST_STRATEGY_GATE` | `cli/roadmap/gates.py` |
+| `spec-fidelity` | `SPEC_FIDELITY_GATE_CONVERGENCE_AWARE` (R1.6) | `cli/roadmap/gates.py:1363`, registered in the gate map at `gates.py:1578`, wired at `executor.py:2675` |
+| `deviation-analysis` | `DEVIATION_ANALYSIS_GATE` | `cli/roadmap/gates.py` |
+| `remediate` | `REMEDIATE_GATE` | `cli/roadmap/gates.py` |
+| `certify` | `CERTIFY_GATE` | `cli/roadmap/gates.py` |
+| `verify-implementation` (terminal, R1.5) | `VERIFY_IMPLEMENTATION_GATE` — fail-closed, `CodeAssertion`-only | `cli/roadmap/verify_implementation.py` (`build_verify_implementation_step`, `:189`) |
 
-All of these are `GateCriteria` instances — no sub-agent dispatch.
+All of these are `GateCriteria` instances — no sub-agent dispatch. **R1.5 / R1.6 changes:** the former `wiring-verification` step / `WIRING_GATE` was **replaced** by the terminal `verify-implementation` step (a fail-closed, `CodeAssertion`-only gate). The `spec-fidelity` step's gate became `SPEC_FIDELITY_GATE_CONVERGENCE_AWARE`, which runs the base severity checks plus `_spec_fidelity_validation_complete_true` and a runtime-safe `assert_convergence_passed` `CodeAssertion` — replacing the deleted `gate=None if config.convergence_enabled` convergence bypass in `executor.py`.
 
 ---
+
+## R1.3 / R1.5 / R1.6 Gate Semantics
+
+These are **canonical CLI facts** (verified against `cli/pipeline/models.py`, `cli/pipeline/gates.py`, `cli/roadmap/gates.py`, `cli/roadmap/code_assertions.py`, and `cli/roadmap/verify_implementation.py`).
+
+### Fail-closed everywhere (R1.6)
+
+R1.6 deleted the fail-open defaults that previously let a gate pass on missing/unparseable evidence: the fail-open branches in `fidelity_checker.py`, the `gates.py:_cross_refs_resolve` `return True` structural stub, and the `executor.py` `gate=None if config.convergence_enabled` convergence bypass are all gone. **All roadmap gates are now fail-closed** — absence of evidence is a failure, not a pass. Zero `return True` fragility stubs remain in `src/superclaude/cli/` (CI-enforced by `tests/roadmap/test_no_fragility_stubs.py`).
+
+### `GateCriteria.code_assertions` — CI-vs-runtime split (R1.3 + R1.6)
+
+The R1.3 / §MVR §2 slot is a `GateCriteria.code_assertions: list[CodeAssertion] | None` field (`models.py:153`) carrying **code-graph / AST predicates**. Each `CodeAssertion` (`models.py:91`) carries a `ci_only` flag (`models.py:128`, default `False`) that classifies whether the predicate is safe to evaluate in the live gate path:
+
+- **CI-only (source-tree / AST) assertions** — e.g. `assert_step_reachable` (`code_assertions.py:27`, `ci_only=True`), which walks the executor's dispatch graph to prove a `step.id` is reachable. These are **enforced exclusively in tests** (the dispatch-reachability invariant, `tests/roadmap/test_dispatch_reachability.py`) and are **skipped in the live gate path** by `gate_passed` (`cli/pipeline/gates.py:112`). They do **not** fire at production runtime.
+- **Runtime-safe (artifact) assertions** — e.g. `assert_convergence_passed` (`code_assertions.py:187`, `ci_only=False`) and `assert_envelope_artifacts_present` (`code_assertions.py:126`, `ci_only=False`), which inspect only produced artifacts (the `envelope.json` sidecar). These **do** fire in the live gate.
+- **PRESERVED skip-path (R1.6):** when a caller does not plumb `envelope` / `repo_root`, `gate_passed` skips all `code_assertions` (`gates.py:99-105`) — this shim was intentionally preserved (not deleted), with its comments corrected away from the stale "R1.6 deletes this branch" framing.
+
+> **Framing guard.** Do NOT describe `code_assertions` as "firing at runtime" without qualification — only runtime-safe (`ci_only=False`) artifact assertions fire in the live gate; the source-tree/AST kind (`assert_step_reachable`) is CI-enforced in tests and skipped live. The slot is "a `GateCriteria.code_assertions` field carrying AST-graph predicates, CI-enforced via the dispatch-reachability test, with only runtime-safe artifact assertions firing in the live gate."
+
+### Convergence-aware `spec-fidelity` gate (R1.6)
+
+The `spec-fidelity` step is gated by `SPEC_FIDELITY_GATE_CONVERGENCE_AWARE` (`gates.py:1363`, registered `gates.py:1578`, wired `executor.py:2675`). It runs the base severity checks plus the `_spec_fidelity_validation_complete_true` semantic check and the runtime-safe `assert_convergence_passed` `CodeAssertion`. This replaced the deleted `gate=None if config.convergence_enabled` bypass — convergence is now enforced by a fail-closed gate, not skipped when convergence mode is on.
+
+### `verify-implementation` terminal step (R1.5)
+
+The terminal `verify-implementation` step (step 14, replacing the former `wiring-verification`) uses a fail-closed, `CodeAssertion`-only `VERIFY_IMPLEMENTATION_GATE` (`verify_implementation.py`, `build_verify_implementation_step` `:189`). For each FR in `envelope.spec_ids`, it either finds an importable callable, finds a match via the `fidelity_checker` AST scan, or matches an accepted deviation; **an empty FR set or any unresolved FR yields a HIGH `Finding`** (no fail-open default).
 
 ## Cosmetic-Gate Auto-Remediation Lane
 
@@ -340,4 +367,4 @@ This is the one Wave 4 behavior that the CLI and the inference-only material agr
 | Cosmetic auto-fix | `apply_cosmetic_remediations` (C1-C11) sits in front of every gate | Not modeled |
 | `--no-validate` | Skip the validate pipeline entirely | Skip Wave 4 entirely |
 
-*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 4. CLI canonical behavior cited from `cli/roadmap/validate_gates.py:30-69`, `cli/roadmap/validate_executor.py:247-338`, `cli/roadmap/cosmetic_remediator.py`, and `cli/roadmap/commands.py:153-170`.*
+*Reference document for sc:roadmap v2.0.0 — loaded on-demand during Wave 4. CLI canonical behavior cited from `cli/roadmap/validate_gates.py:30-69`, `cli/roadmap/validate_executor.py:247-338`, `cli/roadmap/cosmetic_remediator.py`, and `cli/roadmap/commands.py:153-170`. R1.3/R1.5/R1.6 gate semantics (VERIFIED): all roadmap gates are fail-closed; `GateCriteria.code_assertions` (`models.py:153`) carry AST-graph predicates with a `ci_only` split (`gate_passed` skips `ci_only=True` source-tree assertions like `assert_step_reachable` in the live path — CI-enforced via `test_dispatch_reachability.py` — while runtime-safe artifact assertions like `assert_convergence_passed` fire live); `spec-fidelity` uses `SPEC_FIDELITY_GATE_CONVERGENCE_AWARE` (`gates.py:1363`); the terminal `verify-implementation` step (R1.5) replaced `wiring-verification` with a fail-closed `CodeAssertion`-only gate.*

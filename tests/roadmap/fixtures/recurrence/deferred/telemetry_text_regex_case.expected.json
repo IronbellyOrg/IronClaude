@@ -1,0 +1,10 @@
+{
+  "fixture": "deferred/telemetry_text_regex_case",
+  "source_authority": {
+    "master_recurrence_row": 16,
+    "partition_findings": ["A6:F-A6-001", "A6:F-A6-002", "A6:F-A6-003", "A6:F-A6-004"],
+    "incident_summary": "cliEval telemetry parsed agent output with text-regex instead of the structured stream-json event stream, producing PARTIAL->PASS promotion, files_changed=0, empty last_task_id, and phase-name leading-dash artifacts."
+  },
+  "deferred": true,
+  "reason": "Telemetry text-regex-vs-stream-json is a sprint/eval-harness concern (A6 cross-cuts A1a/A11), not a roadmap-pipeline scanner. No roadmap pipeline component consumes a fixture to reproduce it, so no verifiable expected values are constructible."
+}

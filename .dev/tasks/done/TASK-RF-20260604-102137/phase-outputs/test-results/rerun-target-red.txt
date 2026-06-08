@@ -1,0 +1,21 @@
+=== RED RUN (old predicate restored) ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/fix-sprint-rerun-pass-recovered
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collected 1 item
+
+tests/sprint/test_rerun_tasks.py F                                       [100%]
+
+=================================== FAILURES ===================================
+______ TestRerunTargetsPassed.test_pass_recovered_target_counts_as_passed ______
+tests/sprint/test_rerun_tasks.py:567: in test_pass_recovered_target_counts_as_passed
+    assert _rerun_targets_passed(result_path, ["T07.11"]) is True
+E   AssertionError: assert False is True
+E    +  where False = _rerun_targets_passed(PosixPath('/tmp/pytest-of-abc/pytest-7/test_pass_recovered_target_cou0/phase-7-result.json'), ['T07.11'])
+=========================== short test summary info ============================
+FAILED tests/sprint/test_rerun_tasks.py::TestRerunTargetsPassed::test_pass_recovered_target_counts_as_passed
+============================== 1 failed in 0.58s ===============================

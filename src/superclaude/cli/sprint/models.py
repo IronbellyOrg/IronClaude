@@ -7,18 +7,25 @@ superclaude.cli.pipeline for inheritance.
 
 from __future__ import annotations
 
+import threading
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Literal, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
 from superclaude.cli.pipeline.models import (
     PipelineConfig,
     Step,
     StepResult,
 )
+
+if TYPE_CHECKING:
+    # Forward-ref only — recovery.py imports from models.py, so a runtime
+    # import here would create a cycle. TYPE_CHECKING resolves at static
+    # type-check time only; at runtime the annotation is a string.
+    from .recovery import RecoveryBundleRef
 
 
 @dataclass
@@ -40,17 +47,23 @@ class TaskStatus(Enum):
     """Outcome status for a single task within a phase."""
 
     PASS = "pass"
-    FAIL = "fail"
+    PASS_RECOVERED = "pass_recovered"  # non-zero exit but evidence of success
+    FAIL_TERMINAL = "fail"
+    FAIL_RECOVERABLE = "fail_recoverable"
     INCOMPLETE = "incomplete"
     SKIPPED = "skipped"
 
     @property
     def is_success(self) -> bool:
-        return self == TaskStatus.PASS
+        return self in (TaskStatus.PASS, TaskStatus.PASS_RECOVERED)
 
     @property
     def is_failure(self) -> bool:
-        return self in (TaskStatus.FAIL, TaskStatus.INCOMPLETE)
+        return self in (
+            TaskStatus.FAIL_TERMINAL,
+            TaskStatus.FAIL_RECOVERABLE,
+            TaskStatus.INCOMPLETE,
+        )
 
 
 class GateOutcome(Enum):
@@ -174,6 +187,58 @@ class TaskResult:
     reimbursement_amount: int = 0
     output_path: str = ""
 
+    def to_dict(self) -> dict:
+        """Serialize to a JSON-safe dict (v4.3.0 phase-N-result.json payload).
+
+        Enum fields use ``.value`` (lowercase string). Datetimes use
+        ``.isoformat()`` for UTC ISO 8601. Nested ``task`` is serialized as
+        a dict literal of TaskEntry fields per checkpoints.py:write_manifest
+        convention. Round-trips via from_dict().
+        """
+        return {
+            "task": {
+                "task_id": self.task.task_id,
+                "title": self.task.title,
+                "description": self.task.description,
+                "dependencies": list(self.task.dependencies),
+                "command": self.task.command,
+                "classifier": self.task.classifier,
+            },
+            "status": self.status.value,
+            "turns_consumed": self.turns_consumed,
+            "exit_code": self.exit_code,
+            "started_at": self.started_at.isoformat(),
+            "finished_at": self.finished_at.isoformat(),
+            "output_bytes": self.output_bytes,
+            "gate_outcome": self.gate_outcome.value,
+            "reimbursement_amount": self.reimbursement_amount,
+            "output_path": str(self.output_path),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "TaskResult":
+        """Reverse of to_dict(); reconstructs a TaskResult from a JSON-loaded dict."""
+        task_data = data["task"]
+        return cls(
+            task=TaskEntry(
+                task_id=task_data["task_id"],
+                title=task_data["title"],
+                description=task_data.get("description", ""),
+                dependencies=list(task_data.get("dependencies", [])),
+                command=task_data.get("command", ""),
+                classifier=task_data.get("classifier", ""),
+            ),
+            status=TaskStatus(data["status"]),
+            turns_consumed=data["turns_consumed"],
+            exit_code=data["exit_code"],
+            started_at=datetime.fromisoformat(data["started_at"]),
+            finished_at=datetime.fromisoformat(data["finished_at"]),
+            output_bytes=data["output_bytes"],
+            gate_outcome=GateOutcome(data["gate_outcome"]),
+            reimbursement_amount=data["reimbursement_amount"],
+            output_path=data["output_path"],
+        )
+
     @property
     def duration_seconds(self) -> float:
         return (self.finished_at - self.started_at).total_seconds()
@@ -206,6 +271,115 @@ class TaskResult:
         if self.output_path:
             lines.append(f"- **Output**: {self.output_path}")
         return "\n".join(lines)
+
+
+@dataclass
+class HandoffRecord:
+    """Runner-constructed per-task handoff record (frozen v1, schema-versioned).
+
+    Derived from ``TaskResult.to_dict()`` plus exactly two delta fields
+    (``produced_artifacts``, ``consumed_upstreams``) and a ``schema_version``.
+    The RUNNER constructs this from the finalized ``TaskResult`` — it is NOT an
+    agent self-report. Forward-compatible: ``from_dict`` tolerates unknown keys
+    so an old reader can consume a record written by a newer ``schema_version``
+    (SYNTHESIS H4 / M7). Field NAMES + ORDER match SYNTHESIS H4 verbatim. Plain
+    dataclass (not ``frozen``), matching its ``TaskResult`` sibling.
+
+    ``gate_outcome`` is the ``GateOutcome`` enum's ``.value`` string
+    ("pass"/"fail"/"deferred"/"pending") — never ``dict`` or ``None`` — because
+    the source ``TaskResult.gate_outcome`` is a ``GateOutcome`` enum. The H5
+    resume skip predicate reads it back via ``GateOutcome(gate_outcome)``.
+    """
+
+    schema_version: int = 1
+    task_id: str = ""
+    phase: int = 0
+    status: str = ""  # TaskStatus.value: pass/fail/fail_recoverable/incomplete/skipped
+    gate_outcome: str = ""  # GateOutcome.value: pass/fail/deferred/pending
+    turns_consumed: int = 0
+    exit_code: int = 0
+    output_path: str = ""
+    started_at: str = ""
+    finished_at: str = ""
+    produced_artifacts: list[str] = field(default_factory=list)
+    consumed_upstreams: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        """Hand-written JSON-safe dict (mirrors TaskResult.to_dict; NOT asdict).
+
+        List fields are ``list(...)``-copied so the returned dict cannot alias
+        the record's internal lists.
+        """
+        return {
+            "schema_version": self.schema_version,
+            "task_id": self.task_id,
+            "phase": self.phase,
+            "status": self.status,
+            "gate_outcome": self.gate_outcome,
+            "turns_consumed": self.turns_consumed,
+            "exit_code": self.exit_code,
+            "output_path": str(self.output_path),
+            "started_at": self.started_at,
+            "finished_at": self.finished_at,
+            "produced_artifacts": list(self.produced_artifacts),
+            "consumed_upstreams": list(self.consumed_upstreams),
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "HandoffRecord":
+        """Reverse of to_dict; forward-compatible (M7 migration-safe).
+
+        Uses ``data.get(key, default)`` for every field so a dict carrying an
+        UNKNOWN extra key round-trips without raising (the unknown key is simply
+        ignored) and a missing optional field degrades to its default. This lets
+        an old reader consume a record written by a newer ``schema_version``.
+        """
+        return cls(
+            schema_version=data.get("schema_version", 1),
+            task_id=data.get("task_id", ""),
+            phase=data.get("phase", 0),
+            status=data.get("status", ""),
+            gate_outcome=data.get("gate_outcome", ""),
+            turns_consumed=data.get("turns_consumed", 0),
+            exit_code=data.get("exit_code", 0),
+            output_path=data.get("output_path", ""),
+            started_at=data.get("started_at", ""),
+            finished_at=data.get("finished_at", ""),
+            produced_artifacts=list(data.get("produced_artifacts", [])),
+            consumed_upstreams=list(data.get("consumed_upstreams", [])),
+        )
+
+    @classmethod
+    def from_task_result(
+        cls,
+        result: "TaskResult",
+        *,
+        phase: int,
+        produced_artifacts: list[str],
+        consumed_upstreams: list[str],
+    ) -> "HandoffRecord":
+        """Construct from a finalized TaskResult plus the two delta fields.
+
+        Derives the shared fields from ``result`` exactly as
+        ``TaskResult.to_dict`` does: ``status`` via ``result.status.value``,
+        ``gate_outcome`` via ``result.gate_outcome.value`` (the GateOutcome
+        enum's string value, e.g. "pass" — NEVER a dict or None), and timestamps
+        via ``.isoformat()``. Reads only real ``TaskResult`` fields.
+        """
+        return cls(
+            schema_version=1,
+            task_id=result.task.task_id,
+            phase=phase,
+            status=result.status.value,
+            gate_outcome=result.gate_outcome.value,
+            turns_consumed=result.turns_consumed,
+            exit_code=result.exit_code,
+            output_path=str(result.output_path),
+            started_at=result.started_at.isoformat(),
+            finished_at=result.finished_at.isoformat(),
+            produced_artifacts=list(produced_artifacts),
+            consumed_upstreams=list(consumed_upstreams),
+        )
 
 
 class PhaseStatus(Enum):
@@ -397,6 +571,23 @@ class SprintConfig(PipelineConfig):
     total_tasks: int = 0
     # Transient runtime state directory (e.g. .sprint-exitcode sentinel). Default resolved in __post_init__; override via SPRINT_STATE_DIR env var or --state-dir CLI flag.
     state_dir: Path = field(default_factory=lambda: Path(""))
+    # Stage 1 (M4): per-task handoff records. handoff_enabled toggles writing the
+    # typed HandoffRecord + the task_complete journal event (--handoff/--no-handoff;
+    # default on). handoff_store selects the backend: "file" (the only backend
+    # today) → FileHandoffStore; "mail" is reserved for the out-of-scope Stage 4
+    # pilot (the Stage-4 data-rollback depends on this selector).
+    handoff_enabled: bool = True
+    handoff_store: str = "file"
+    # Stage 2 (H5): --resume <task_id>. When non-empty, per-task resume is active:
+    # tasks with a validated-success handoff record are skipped (not re-run, no
+    # budget debit). Composes with the phase-granular --start/--end (which bound
+    # the phase range; the validated-success skip suppresses already-done tasks
+    # within it). "" = resume inactive (no per-task skipping).
+    resume_task_id: str = ""
+    # Stage 3 (M4): number of tasks to execute concurrently per phase. 1 =
+    # sequential (the safe default — preserves byte-identical legacy behavior);
+    # K>1 enables dependency-respecting bounded parallelism via the DAG scheduler.
+    task_parallelism: int = 1
 
     def _derive_tasklist_id(self) -> str:
         """Derive a stable tasklist identifier for the default state_dir path.
@@ -505,8 +696,23 @@ class SprintConfig(PipelineConfig):
     def task_error_file(self, phase: Phase, task: "TaskEntry") -> Path:
         return self.results_dir / f"phase-{phase.number}-task-{task.task_id}-errors.txt"
 
+    def handoff_file(self, phase: "Phase", task: "TaskEntry") -> Path:
+        """Phase-qualified per-task handoff record path (H5 on-disk key).
+
+        Mirrors ``task_output_file``. The key is phase-qualified because the bare
+        ``T<PP>.<TT>`` id is not sprint-unique and collides across phases.
+        """
+        return (
+            self.results_dir
+            / "handoff"
+            / f"phase-{phase.number}-task-{task.task_id}.json"
+        )
+
     def result_file(self, phase: Phase) -> Path:
         return self.results_dir / f"phase-{phase.number}-result.md"
+
+    def phase_result_json(self, phase: Phase) -> Path:
+        return self.results_dir / f"phase-{phase.number}-result.json"
 
 
 @dataclass
@@ -542,6 +748,9 @@ class PhaseResult(StepResult):
     turns: int = 0
     tokens_in: int = 0
     tokens_out: int = 0
+    # v4.3.0: granular task evidence for rerun-tasks (TDD §T6)
+    task_results: list["TaskResult"] = field(default_factory=list)
+    recovery_history: list["RecoveryBundleRef"] = field(default_factory=list)
 
     @property
     def duration_seconds(self) -> float:
@@ -714,6 +923,14 @@ class TurnLedger:
     wiring_budget_exhausted: int = 0
     wiring_analyses_count: int = 0  # T10/A5: count of wiring analyses executed
 
+    def __post_init__(self) -> None:
+        # Stage 3: lock for thread-safe budget mutation under K>1 task parallelism.
+        # Created as a NON-FIELD instance attribute so it is excluded from the
+        # dataclass __eq__/__repr__ and any field-based serialization (asdict).
+        # RLock (reentrant) so try_launch can call the already-guarded debit while
+        # holding the lock. Single-threaded behavior (K=1) is unchanged.
+        self._lock = threading.RLock()
+
     def available(self) -> int:
         """Return available turns: initial_budget - consumed + reimbursed."""
         return self.initial_budget - self.consumed + self.reimbursed
@@ -722,17 +939,36 @@ class TurnLedger:
         """Consume turns from the budget. Enforces monotonicity."""
         if turns < 0:
             raise ValueError("debit amount must be non-negative")
-        self.consumed += turns
+        with self._lock:
+            self.consumed += turns
 
     def credit(self, turns: int) -> None:
         """Reimburse turns to the budget."""
         if turns < 0:
             raise ValueError("credit amount must be non-negative")
-        self.reimbursed += turns
+        with self._lock:
+            self.reimbursed += turns
 
     def can_launch(self) -> bool:
         """Return True if enough budget remains for a subprocess launch."""
         return self.available() >= self.minimum_allocation
+
+    def try_launch(self, allocation: int | None = None) -> bool:
+        """Atomically check-and-debit a launch allocation (Stage 3 TOCTOU fix).
+
+        Under the lock: if ``can_launch()`` holds, debit ``minimum_allocation``
+        (the default) and return True; otherwise return False WITHOUT debiting.
+        This collapses the check-then-act ``can_launch()`` → ``debit(...)`` pair
+        into one atomic operation so two concurrent workers cannot both pass the
+        check and both debit, over-committing the budget. Guarding the individual
+        methods is insufficient because the TOCTOU spans two calls.
+        """
+        debit_amount = self.minimum_allocation if allocation is None else allocation
+        with self._lock:
+            if not self.can_launch():
+                return False
+            self.debit(debit_amount)
+            return True
 
     def can_remediate(self) -> bool:
         """Return True if enough budget remains for remediation."""
@@ -746,11 +982,12 @@ class TurnLedger:
         """
         if turns < 0:
             raise ValueError("debit_wiring amount must be non-negative")
-        self.debit(turns)
-        self.wiring_turns_used += turns
-        self.wiring_analyses_count += 1
-        if self.available() < self.minimum_remediation_budget:
-            self.wiring_budget_exhausted = 1
+        with self._lock:
+            self.debit(turns)
+            self.wiring_turns_used += turns
+            self.wiring_analyses_count += 1
+            if self.available() < self.minimum_remediation_budget:
+                self.wiring_budget_exhausted = 1
 
     def credit_wiring(self, turns: int, rate: float | None = None) -> int:
         """Credit turns back after wiring analysis with floor-to-zero arithmetic.
@@ -764,9 +1001,10 @@ class TurnLedger:
             raise ValueError("credit_wiring turns must be non-negative")
         effective_rate = rate if rate is not None else self.reimbursement_rate
         credit_amount = int(turns * effective_rate)
-        if credit_amount > 0:
-            self.credit(credit_amount)
-        self.wiring_turns_credited += credit_amount
+        with self._lock:
+            if credit_amount > 0:
+                self.credit(credit_amount)
+            self.wiring_turns_credited += credit_amount
         return credit_amount
 
     def can_run_wiring_gate(self) -> bool:
@@ -809,7 +1047,7 @@ def build_resume_output(
         "",
         "### Resume Command",
         "```",
-        f"superclaude sprint run {config.index_path} --resume {halt_task_id} --budget {budget_suggestion}",
+        f"superclaude sprint run {config.index_path} --resume {halt_task_id} --max-turns {budget_suggestion}",
         "```",
         "",
         f"### Remaining Tasks ({remaining_count})",

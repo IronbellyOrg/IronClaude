@@ -16,12 +16,48 @@ import re
 from datetime import datetime, timezone
 
 from .models import Finding
+from .tool_writer import TEMPLATES_DIR, ToolDefinition, load_schema
+
+# R1.4 Step 9.11 tool-write output contract for the certify step (SECONDARY LLM
+# step). Replaces the free-form "FINDING_ID: PASS|FAIL" output instruction in
+# tool_write mode: the model emits ONE JSON object (no markdown, no frontmatter,
+# no prose) conforming to certify.schema.json. The certification guidance (header,
+# remediation summary, context sections, per-finding checklist) is shared with the
+# markdown path; only the output contract differs. certify carries no roadmap_ids
+# and has no §MVR §3 / Contract #3 phantom-ID constraint. The executor validates
+# the JSON against certify.schema.json and renders the certification report
+# deterministically -- the rendered report mirrors generate_certification_report.
+_CERTIFY_TOOL_WRITE_OUTPUT_BLOCK = (
+    "## Output Format (tool-write JSON mode)\n"
+    "\n"
+    "CRITICAL: Emit ONLY a single valid JSON object on stdout. Do NOT emit "
+    "markdown, YAML frontmatter, code fences, or any prose/commentary before "
+    "or after the JSON. The first character of your output MUST be `{` and the "
+    "last MUST be `}`.\n"
+    "\n"
+    "The JSON object MUST have these top-level keys:\n"
+    "- frontmatter: object with findings_verified (integer, == len(results)), "
+    "findings_passed (integer, count of PASS results), findings_failed "
+    "(integer, count of FAIL results), certified (boolean: true ONLY if "
+    "findings_failed == 0 AND findings_verified > 0), and certification_date "
+    "(string, ISO-8601 UTC timestamp).\n"
+    "- results: array (one object per finding above) of "
+    "{finding_id (string, e.g. 'F-01'), severity? (string), "
+    "result (string: exactly one of PASS or FAIL), justification? (string, "
+    "one-line)}. finding_id and result are REQUIRED.\n"
+    "- summary: string -- a brief overall certification summary.\n"
+    "\n"
+    "Be skeptical -- mark a finding PASS only if the fix actually addresses the "
+    "original issue, not merely that the file was modified. The three frontmatter "
+    "counts MUST be consistent with the results array."
+)
 
 
 def build_certification_prompt(
     findings: list[Finding],
     context_sections: dict[str, str],
     remediation_summary: list[str] | None = None,
+    tool_write: bool = False,
 ) -> str:
     """Build a certification agent prompt per spec section 2.4.2 template.
 
@@ -38,6 +74,27 @@ def build_certification_prompt(
     Accepts pre-extracted context sections (not full file content) per NFR-011.
 
     Pure function: no I/O, no subprocess, no side effects (NFR-004).
+
+    Parameters
+    ----------
+    tool_write:
+        R1.4 Step 9.11 dual-write switch. When ``False`` (default, production
+        path) the returned prompt is byte-identical to the legacy markdown
+        contract: the certification checklist plus the free-form
+        ``FINDING_ID: PASS|FAIL -- justification`` output instruction. When
+        ``True`` the OUTPUT FORMAT section is replaced -- the model is asked to
+        emit a SINGLE structured JSON object conforming to ``certify.schema.json``
+        (keys: ``frontmatter`` (findings_verified/passed/failed, certified,
+        certification_date), ``results`` (per-finding PASS/FAIL array),
+        ``summary``), which the executor validates and renders to the
+        certification-report markdown deterministically via
+        :mod:`superclaude.cli.roadmap.tool_writer`. The certify step is a
+        SECONDARY LLM step: it carries no ``roadmap_ids`` and therefore has no
+        §MVR §3 / Contract #3 phantom-ID subset constraint (the executor routes
+        it through the PLAIN ``render_step_tool_write``, not the id-check
+        variant). The certification guidance (header, remediation summary,
+        context sections, per-finding checklist) is shared between both modes;
+        only the output contract differs.
     """
     lines: list[str] = []
 
@@ -96,7 +153,14 @@ def build_certification_prompt(
         )
         lines.append("")
 
-    # Output format requirement
+    # Output format requirement. R1.4 Step 9.11: in tool-write mode the
+    # free-form "FINDING_ID: PASS|FAIL" instruction is replaced by the
+    # structured-JSON OUTPUT CONTRACT; the default markdown path is unchanged.
+    if tool_write:
+        lines.append(_CERTIFY_TOOL_WRITE_OUTPUT_BLOCK)
+        lines.append("")
+        return "\n".join(lines)
+
     lines.append("## Output Format")
     lines.append("")
     lines.append("For EACH finding above, output exactly one line in this format:")
@@ -115,6 +179,29 @@ def build_certification_prompt(
     lines.append("")
 
     return "\n".join(lines)
+
+
+def certify_tool_definition() -> ToolDefinition:
+    """Return the :class:`ToolDefinition` binding for the certify step (R1.4).
+
+    Pairs the certify output schema (``certify.schema.json``) with the render
+    template (``certify.md.j2``) so the tool-write back end can validate the
+    model's structured JSON and render the certification report deterministically.
+    ``input_schema`` is empty -- the certify step's tool takes no structured tool
+    inputs (the remediation tasklist and the findings checklist arrive in the
+    prompt / as file attachments).
+
+    PRESERVE: the R1.3 CodeAssertion (``assert_step_reachable``) on
+    ``CERTIFY_GATE`` is unaffected by tool-write -- this definition only changes
+    HOW the markdown report is produced, not the dispatch reachability of the
+    certify step.
+    """
+    return ToolDefinition(
+        name="certify",
+        input_schema={},
+        output_schema=load_schema("certify.schema.json"),
+        render_template=TEMPLATES_DIR / "certify.md.j2",
+    )
 
 
 def extract_finding_context(

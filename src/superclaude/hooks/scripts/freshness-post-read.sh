@@ -39,10 +39,18 @@ TCC_FILE="$STATE_DIR/tool-call-counter/$SESSION_ID.txt"
     case "$prev" in ''|*[!0-9]*) prev=0 ;; esac
     new=$((prev + 1))
     echo "$new" > "$TCC_FILE" 2>/dev/null || true
-    jq -nc --arg ts "$NOW_ISO" --argjson tu "$NOW_UNIX" --arg sid "$SESSION_ID" \
+    # Atomic append: build the COMPLETE record first, then write it with a
+    # single printf that includes the trailing newline. Streaming jq's output
+    # straight to `>> file` can leave a torn record (a partial line with no
+    # newline) if the write is interrupted mid-stream under ENOSPC — and the
+    # next append then fuses onto it, producing an unparseable line that
+    # poisons every reader. Building the line first means a jq failure writes
+    # NOTHING (not a partial), and the lone printf never emits a record
+    # without its terminator.
+    line=$(jq -nc --arg ts "$NOW_ISO" --argjson tu "$NOW_UNIX" --arg sid "$SESSION_ID" \
         --arg path "$FILE_PATH" --argjson idx "$new" \
-        '{ts:$ts, ts_unix:$tu, session_id:$sid, path:$path, tool_call_idx:$idx}' \
-        2>/dev/null >> "$READS_FILE" || true
+        '{ts:$ts, ts_unix:$tu, session_id:$sid, path:$path, tool_call_idx:$idx}' 2>/dev/null)
+    [ -n "$line" ] && printf '%s\n' "$line" >> "$READS_FILE" 2>/dev/null || true
 ) 2>/dev/null || true
 
 exit 0

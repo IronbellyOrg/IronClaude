@@ -11,9 +11,11 @@ ensures each task subprocess has visibility into prior work.
 
 from __future__ import annotations
 
+import json
 import logging
 import signal
 import subprocess as _subprocess
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from superclaude.cli.pipeline.process import ClaudeProcess as _PipelineClaudeProcess
@@ -25,6 +27,53 @@ if TYPE_CHECKING:
     from .models import TaskResult
 
 _dbg = logging.getLogger("superclaude.sprint.debug.process")
+
+
+def count_turns_from_stream_json(output_path: Path) -> int:
+    """Authoritative per-task turn count from a stream-json transcript file.
+
+    Reads the per-task stream-json transcript, finds the terminal
+    ``{"type": "result", ...}`` event, and returns its ``num_turns`` integer —
+    the count Claude itself reports for the task. Returns ``0`` when the file is
+    missing, has no terminal result event, or the result event carries no
+    integer ``num_turns``. Tolerates partial / malformed lines without raising
+    (mirrors the robust line-by-line parse used by rerun_tasks._classify_transcript).
+
+    Two distinct turn-count contracts exist in this package — keep them straight:
+
+    * ``count_turns_from_stream_json`` (HERE) → the Claude-reported ``num_turns``
+      from the terminal result event. This is the AUTHORITATIVE per-task count
+      used to credit/debit the TurnLedger.
+    * ``monitor.count_turns_from_output`` → counts ``"type":"assistant"`` lines
+      (an assistant-MESSAGE count, a different and less-authoritative semantic).
+      It has its own callers that depend on the assistant-line meaning; it is NOT
+      reused or modified here (per the H-B supersede-by-addition decision).
+    """
+    if not output_path.exists():
+        return 0
+    try:
+        text = output_path.read_text()
+    except OSError:
+        return 0
+
+    result_event: dict | None = None
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            event = json.loads(line)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if isinstance(event, dict) and event.get("type") == "result":
+            result_event = event  # keep the LAST result event
+
+    if result_event is None:
+        return 0
+    num_turns = result_event.get("num_turns")
+    if isinstance(num_turns, int) and not isinstance(num_turns, bool):
+        return num_turns
+    return 0
 
 
 def _make_spawn_hook(phase: Phase, config: SprintConfig):

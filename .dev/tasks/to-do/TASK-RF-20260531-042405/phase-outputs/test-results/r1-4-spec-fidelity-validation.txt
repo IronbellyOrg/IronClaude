@@ -1,0 +1,67 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 50 items
+
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_spec_fidelity_schema_loads PASSED [  2%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_valid_output_passes_schema PASSED [  4%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_missing_summary_fails PASSED [  6%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_missing_frontmatter_field_fails PASSED [  8%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_deviation_requires_core_fields PASSED [ 10%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_invalid_severity_enum_fails PASSED [ 12%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_empty_deviations_passes_schema PASSED [ 14%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_render_parity PASSED [ 16%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_empty_deviations_renders_clean_note PASSED [ 18%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_rendered_satisfies_gate_frontmatter PASSED [ 20%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_rendered_passes_gate_semantic_checks PASSED [ 22%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_render_step_tool_write_roundtrip PASSED [ 24%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_render_step_tool_write_rejects_invalid PASSED [ 26%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_render_step_tool_write_dual_write_proof PASSED [ 28%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_spec_fidelity_registry_key_distinct PASSED [ 30%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_spec_fidelity_routes_plain_not_id_check PASSED [ 32%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_spec_fidelity_tool_definition PASSED [ 34%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_build_spec_fidelity_prompt_tool_write_emits_json_contract PASSED [ 36%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_build_spec_fidelity_prompt_default_byte_identical PASSED [ 38%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py::test_spec_fidelity_schema_no_hardcoded_thresholds PASSED [ 40%]
+tests/roadmap/test_spec_fidelity.py::TestBuildSpecFidelityPrompt::test_spec_fidelity_prompt_returns_string PASSED [ 42%]
+tests/roadmap/test_spec_fidelity.py::TestBuildSpecFidelityPrompt::test_spec_fidelity_prompt_includes_severity_definitions PASSED [ 44%]
+tests/roadmap/test_spec_fidelity.py::TestBuildSpecFidelityPrompt::test_spec_fidelity_prompt_requires_quoting_both_docs PASSED [ 46%]
+tests/roadmap/test_spec_fidelity.py::TestBuildSpecFidelityPrompt::test_spec_fidelity_prompt_specifies_yaml_frontmatter PASSED [ 48%]
+tests/roadmap/test_spec_fidelity.py::TestBuildSpecFidelityPrompt::test_spec_fidelity_prompt_includes_output_format_block PASSED [ 50%]
+tests/roadmap/test_spec_fidelity.py::TestBuildSpecFidelityPrompt::test_spec_fidelity_prompt_comparison_dimensions PASSED [ 52%]
+tests/roadmap/test_spec_fidelity.py::TestBuildSpecFidelityPrompt::test_spec_fidelity_prompt_deviation_format PASSED [ 54%]
+tests/roadmap/test_spec_fidelity.py::TestSpecFidelityPipelineIntegration::test_spec_fidelity_step_after_test_strategy PASSED [ 56%]
+tests/roadmap/test_spec_fidelity.py::TestSpecFidelityPipelineIntegration::test_spec_fidelity_step_timeout_600s PASSED [ 58%]
+tests/roadmap/test_spec_fidelity.py::TestSpecFidelityPipelineIntegration::test_spec_fidelity_step_retry_limit_1 PASSED [ 60%]
+tests/roadmap/test_spec_fidelity.py::TestSpecFidelityPipelineIntegration::test_spec_fidelity_step_output_path PASSED [ 62%]
+tests/roadmap/test_spec_fidelity.py::TestSpecFidelityPipelineIntegration::test_spec_fidelity_step_inputs PASSED [ 64%]
+tests/roadmap/test_spec_fidelity.py::TestSpecFidelityPipelineIntegration::test_no_validate_does_not_skip_spec_fidelity PASSED [ 66%]
+tests/roadmap/test_spec_fidelity.py::TestSpecFidelityPipelineIntegration::test_spec_fidelity_gate_is_strict PASSED [ 68%]
+tests/roadmap/test_spec_fidelity.py::TestDeriveFidelityStatus::test_pass_status PASSED [ 70%]
+tests/roadmap/test_spec_fidelity.py::TestDeriveFidelityStatus::test_degraded_status PASSED [ 72%]
+tests/roadmap/test_spec_fidelity.py::TestDeriveFidelityStatus::test_fail_status PASSED [ 74%]
+tests/roadmap/test_spec_fidelity.py::TestDeriveFidelityStatus::test_timeout_status PASSED [ 76%]
+tests/roadmap/test_spec_fidelity.py::TestDeriveFidelityStatus::test_skipped_status PASSED [ 78%]
+tests/roadmap/test_spec_fidelity.py::TestStatePersistence::test_state_includes_fidelity_status_pass PASSED [ 80%]
+tests/roadmap/test_spec_fidelity.py::TestStatePersistence::test_state_includes_fidelity_status_fail PASSED [ 82%]
+tests/roadmap/test_spec_fidelity.py::TestStatePersistence::test_state_fidelity_valid_enum PASSED [ 84%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_created PASSED [ 86%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_validation_complete_false PASSED [ 88%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_fidelity_check_attempted PASSED [ 90%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_names_failed_agent PASSED [ 92%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_names_failure_reason PASSED [ 94%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_distinguishable_from_clean_pass PASSED [ 96%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_tasklist_ready_false PASSED [ 98%]
+tests/roadmap/test_spec_fidelity.py::TestGenerateDegradedReport::test_degraded_report_has_yaml_frontmatter PASSED [100%]
+
+============================== 50 passed in 0.27s ==============================
+
+=== BROADER REGRESSION (8 tool-write suites + prompts + executor + convergence + dispatch) ===
+256 passed in 0.81s
+ruff check: All checks passed!
+PRESERVE confirmed: test_convergence.py + test_executor.py unchanged & green (convergence.py/semantic_layer.py byte-untouched).

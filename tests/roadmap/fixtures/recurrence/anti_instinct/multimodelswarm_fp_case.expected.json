@@ -1,0 +1,26 @@
+{
+  "fixture": "anti_instinct/multimodelswarm_fp_case",
+  "source_authority": {
+    "master_recurrence_row": 6,
+    "release_artifact": "/config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/anti-instinct-remediation.md",
+    "remediation_section": "§1 False-positive 'stub' obligations (lines 207, 211, 213)",
+    "build_request_anchor": "BUILD-REQUEST §R0 item 2",
+    "verbatim_phrases": [
+      "stub transport",
+      "deterministic stub for tests",
+      "deterministic stub transport for tests"
+    ],
+    "incident_summary": "MultiModelSwarm pre-fix roadmap.md L207 (COMP-033) and L211 (FR-023) used the named permanent-fixture phrase 'stub transport' which the obligation_scanner flagged as a SCAFFOLD-term obligation requiring a discharge term. There is no discharge because the stub is a permanent test fixture per spec §11.5 / §4.3."
+  },
+  "expected_total_obligations": 0,
+  "expected_undischarged_count": 0,
+  "expected_high_findings": 0,
+  "expected_post_fix_scanner_behavior": "skip_emission",
+  "expected_allowlist_phrases_matched": [
+    "stub transport",
+    "deterministic stub for tests",
+    "deterministic stub transport for tests",
+    "transports/stub.py"
+  ],
+  "expected_contract_10_invariant": "MUST FAIL pre-fix (HIGH findings emitted), MUST PASS post-fix (allowlist absorbs)"
+}

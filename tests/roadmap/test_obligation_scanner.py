@@ -555,6 +555,10 @@ class TestFix1TailSectionTermination:
     def test_fix1_tail_section_excluded(self):
         """A 'Stub' mention inside `## Risk Register` after the last
         milestone must NOT be flagged — tail sections are out of scope.
+
+        Note: uses ``Stub handler`` (not the allowlisted ``Stub transport``)
+        so the tail-section exclusion is the active path. Layer 6 (R0.2)
+        would otherwise absorb the row before tail-section logic engages.
         """
         content = """\
 ## M1: Foundation
@@ -563,7 +567,7 @@ Build the executor module.
 
 ## Risk Register
 
-|R-01|Stub transport retained as mitigation for unavailable upstream|Low|Medium|
+|R-01|Stub handler retained as mitigation for unavailable upstream|Low|Medium|
 """
         report = scan_obligations(content)
         assert report.undischarged_count == 0, (
@@ -696,16 +700,23 @@ class TestLayer5H3SubsectionContext:
     """
 
     def test_layer5_risk_assessment_h3_demotes_scaffold_to_medium(self) -> None:
-        """Happy path: stub mentions inside a Risk Assessment H3 demote to MEDIUM."""
-        content = """## M2: Transport Layer
+        """Happy path: stub mentions inside a Risk Assessment H3 demote to MEDIUM.
 
-**Objective:** ship the transport.
+        Note: this fixture uses ``stub handler`` (not the MultiModelSwarm
+        allowlist phrase ``stub transport``) so the Layer 5 demotion path
+        remains reachable. Layer 6 (R0.2 Contract #10 allowlist) takes
+        precedence over Layer 5 for documented permanent-fixture phrases —
+        see ``test_anti_instinct_recurrence.py`` for that path.
+        """
+        content = """## M2: Auth Layer
+
+**Objective:** ship the auth surface.
 
 ### Risk Assessment and Mitigation — M2
 
 | # | Risk | Likelihood | Impact | Detection | Mitigation | Owner |
 |---|------|-----------|--------|-----------|------------|-------|
-| 1 | Stub transport drifts from real semantics | Med | Low | tests pass | Pin stub to documented shape | backend |
+| 1 | Stub handler drifts from real semantics | Med | Low | tests pass | Pin stub to documented shape | backend |
 """
         report = scan_obligations(content)
         stub_obs = [o for o in report.obligations if o.term.lower().startswith("stub")]
@@ -720,16 +731,20 @@ class TestLayer5H3SubsectionContext:
         )
 
     def test_layer5_h3_context_resets_at_next_h2_milestone(self) -> None:
-        """H3 demotion state must NOT bleed across the next H2 milestone."""
-        content = """## M2: Transport Layer
+        """H3 demotion state must NOT bleed across the next H2 milestone.
 
-**Objective:** ship the transport.
+        Note: M2 fixture row uses ``stub handler`` (not the allowlisted
+        phrase ``stub transport``) so Layer 5 demotion is the active path.
+        """
+        content = """## M2: Auth Layer
+
+**Objective:** ship the auth surface.
 
 ### Risk Assessment and Mitigation — M2
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|------|-----------|--------|------------|
-| 1 | Stub transport drifts | Med | Low | Pin stub to shape |
+| 1 | Stub handler drifts | Med | Low | Pin stub to shape |
 
 ## M3: Lens Registry
 

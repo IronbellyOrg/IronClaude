@@ -1,0 +1,91 @@
+contract_version: "1.2.0"
+status: partial          # AUDIT clean; partial because (a) work-unit is mid-flight by design (status 🟠 Doing, 3 terminal HALT items pending) and (b) evidence-validator ran inline (native session), per §11.2 fallback
+mode: post
+tier_reached: 1
+report_path: .dev/reflect/post-TASK-RF-20260604-042055-20260604T120400/REPORT.md
+audit_log_path: .dev/reflect/post-TASK-RF-20260604-042055-20260604T120400/return-contract.yaml
+confidence_calibrated: 0.93
+escalation_rule_matched: 1   # §5.3 rule 1 → STOP at T1 (C>=0.90, S_scope<=5, S_domains==1, S_dev_density<=0.05)
+
+# Input-resolution note (load-bearing)
+input_diff_supplied: "2ea470c1..HEAD"
+input_diff_empty: true        # HEAD == 2ea470c1 (start_commit); supplied range resolves to ZERO commits
+effective_diff: "git diff HEAD (uncommitted working tree)"   # the actual executor work; 5 files, 37 hunks, 664 lines
+effective_diff_rationale: "executor never committed; start_commit==HEAD; substantive deliverables are uncommitted and match the spec/tasklist subject"
+
+# UC-2 specific
+tasklist_completion_pct: 0.933   # 42/45 checked; the 3 unchecked are the designed terminal HALT chain (Task Summary, dogfood POST gate = THIS run, Done-flip)
+deviation_count_by_class:
+  authorized: 1     # S4 trim is a task-authorized substitution (proposal "depends on N\.\d+" -> task "depends_on:")
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: .dev/reflect/post-TASK-RF-20260604-042055-20260604T120400/deviation-ledger.yaml
+grounding_gaps_path: null
+
+# Verification triangle (run via Bash this session — execute_shell_command not in claude-code context)
+verification_ran: true
+verification_invocations: 4    # pytest regression subset, make verify-sync, markdownlint, S4-literal grep
+verification_failures: 0       # 28 pre-existing baseline failures excluded (worktree canonical-fixture artifact)
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Independent verification results (this session, executor-disjoint)
+independent_checks:
+  regression_subset: "7 failed, 1268 passed, 1 skipped, 21 errors — all 28 fail/error are pre-existing TestCanonicalFixtureParity worktree artifacts; ZERO green->red"
+  verify_sync: "PASS — ✅ All components in sync"
+  markdownlint_md040: "17 baseline == 17 now; 0 new unlabeled fences (all 7 added opening fences labelled markdown/text/yaml)"
+  s4_trim: "literal {after Phase \\d+, depends_on:} confirmed in task-builder SKILL.md:2125; blockedBy + after N\\.\\d+ only in trim-note prose"
+  checkpoint_4_invariants: "Self-Check #6 + structural #18/#19/#20 all carry the post-reflection carve-out (SKILL.md:1129,1169,1170,1171)"
+  complexity_score_multifile_dropped: "confirmed (SKILL.md:1483); formula has no multifile term"
+  mirror_consistency: "phase-template.md mirror == SKILL.md §6B inline (cosmetic '> Mirror of...' note only); index-template.md mirror == §6A inline"
+
+# Input integrity
+input_tree_sha256: "n/a-working-tree-audit"
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_inferred: 2          # S4 proposal-vs-task fidelity note; phase-template cosmetic-trim note
+citation_budget_policy: full_reread
+evidence_validator_ran: false  # inline re-Read this native session (no separate evidence-validator agent) -> forces status: partial per §11.2
+zero_drop_flag: true           # §11.2 — a zero-drop pass is an audit flag, not a clean signal; earned via independent re-runs but recorded as suspect-by-policy
+needs_human_decision: false
+
+# Grounding
+degraded_components: ["evidence-validator-agent", "tier2-ensemble", "serena-execute_shell_command"]
+
+# Tier 2 (not run — rubric rule 1 STOP at T1; full diversity was AVAILABLE)
+reviewer_cards: []
+adversarial_unavailable: false
+t2_model_class_diversity: full   # env aliases: opus=claude-opus-4-8, sonnet=gpt-5.5, haiku=qwen3.6-plus (3 classes, 3 vendors AVAILABLE)
+t2_vendor_diversity: multi       # available, not exercised (T1 stop)
+executor_class_source: flag      # --executor-model opus
+executor_class_resolved: true
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+user_decision_required: false
+
+# Promotion (UC-2) — adapter `task`; gate CORRECTLY blocks (work-unit is mid-flight by design)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: .dev/tasks/to-do/TASK-RF-20260604-042055/
+promotion_destination: .dev/tasks/done/TASK-RF-20260604-042055/
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_gate_failures:
+  - "cond 2 status_success: status is partial (not success)"
+  - "cond 3 tasklist_completion_pct_1_0: 0.933 (3 terminal HALT items pending — by design)"
+  - "cond 5b frontmatter_status_matches: frontmatter status is '🟠 Doing', not a terminal 'done' value"
+promotion_note: "Promotion SHOULD be blocked. This reflect run IS the dogfood POST gate the task halts on; promoting now would be wrong. Operator records reflect_post verdict, then the task's own Done-flip proceeds."
+
+# Tier 3
+remediation_offered: true        # --remediate set
+remediation_warranted: false     # zero regression, zero drift — no corrective task needed
+remediation_accepted: null
+task_file_path: null

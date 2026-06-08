@@ -8,8 +8,9 @@ spawns a daemon thread that:
    structured categories — task status, files changed, validation
    evidence, agent reasoning excerpts, and errors — into a
    :class:`PhaseSummary`.
-2. Invokes ``claude --print --model claude-sonnet-4-5`` (non-interactive,
-   30 s timeout) to render a 3-5 sentence narrative. Failure is
+2. Invokes ``claude --print --model sonnet`` (non-interactive, 30 s timeout;
+   the "sonnet" alias resolves via $ANTHROPIC_DEFAULT_SONNET_MODEL) to render a
+   3-5 sentence narrative. Failure is
    silently swallowed; the summary is still written without the
    narrative section.
 3. Writes ``results/phase-<N>-summary.md`` next to the other phase
@@ -43,7 +44,11 @@ from .models import Phase, PhaseResult, SprintConfig
 _logger = logging.getLogger("superclaude.sprint.summarizer")
 
 # Sonnet subprocess conventions (Section 6.3).
-SONNET_MODEL = "claude-sonnet-4-5"
+# Use the Claude Code model ALIAS ("sonnet"), never a hardcoded model literal:
+# the CLI resolves "sonnet" via $ANTHROPIC_DEFAULT_SONNET_MODEL (set in ~/.aienv,
+# routed through the LiteLLM proxy). Hardcoding e.g. "claude-sonnet-4-5" bypasses
+# that alias/proxy routing.
+SONNET_MODEL = "sonnet"
 SONNET_TIMEOUT_SECONDS = 30
 # Environment variables that must be stripped before launching Sonnet to
 # avoid spawning a recursive Claude Code session when the sprint itself

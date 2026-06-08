@@ -103,6 +103,8 @@ complexity_score = (requirement_count_norm * 0.25)
 | MEDIUM | 0.4 - 0.7 | 5-7 milestones | 1:2 (one validation per two work milestones) |
 | HIGH | > 0.7 | 8-12 milestones | 1:1 (one validation per work milestone) |
 
+> **Contract #8 disambiguation (R0.3/R1.1).** These complexity-tier boundaries (`0.4`, `0.7`), the input-type detection threshold (`≥ 5`), the template-selection floor (`≥ 0.6`), and `base_confidence` (`0.7`) are **scoring-engine constants owned by this module** — they are deliberately NOT entries in `superclaude.contracts`. They are semantically distinct from `superclaude.contracts.CONVERGENCE_THRESHOLDS` (the adversarial-debate `(high, low) = (0.7, 0.5)` convergence pair) and `superclaude.contracts.THRESHOLDS` (`fingerprint.coverage_min = 0.7`, `structural_audit.adequacy_min = 0.5`). A shared numeric value (e.g. several constants happen to equal `0.7`) is coincidental and does **not** make these a Contract #8 / arch-lint duplication — Contract #8 forbids re-defining the *same logical constant* in two places, not constants that share a literal value. Do not hoist these scoring-tier literals into the contracts registry; doing so would inject a false cross-reference (master:§Flaw 5 drift).
+
 ### Worked Example
 
 **Input**: 25 FRs + 5 NFRs = 30 requirements, dependency depth 4, 3 domains at ≥10%, 2 high + 3 medium + 1 low risks, 600-line spec.

@@ -19,6 +19,12 @@ _logger = logging.getLogger("superclaude.sprint.config")
 # 4) tasklist-p1.md
 PHASE_FILE_PATTERN = re.compile(
     r"(?<![A-Za-z0-9])(?:phase-(\d+)-tasklist\.md"
+    # v4.3.0 rerun bundle sub-tasklist (TDD §T1/§T2): `phase-Nr-tasklist.md`.
+    # The trailing `r` marks a rerun-bundle tasklist; the captured digits are
+    # still the phase number, so the executor runs it as a normal phase-N
+    # sprint and produces canonically-named `phase-N-task-*` artifacts that
+    # `recovery.merge_recovery_bundle` matches by exact name.
+    r"|phase-(\d+)r-tasklist\.md"
     r"|p(\d+)-tasklist\.md"
     r"|phase_(\d+)_tasklist\.md"
     r"|tasklist-p(\d+)\.md)(?![A-Za-z0-9])",
@@ -286,6 +292,9 @@ def load_sprint_config(
     stall_action: str = "warn",
     shadow_gates: bool = False,
     state_dir: Path | None = None,
+    handoff_enabled: bool = True,
+    resume_task_id: str = "",
+    task_parallelism: int = 1,
 ) -> SprintConfig:
     """Load and validate a complete sprint configuration.
 
@@ -354,6 +363,9 @@ def load_sprint_config(
         shadow_gates=shadow_gates,
         total_tasks=total_tasks,
         state_dir=state_dir if state_dir is not None else Path(""),
+        handoff_enabled=handoff_enabled,
+        resume_task_id=resume_task_id,
+        task_parallelism=task_parallelism,
     )
 
     # Validate that the requested range yields at least one active phase

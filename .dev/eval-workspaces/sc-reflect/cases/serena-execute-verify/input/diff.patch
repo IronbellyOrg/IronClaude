@@ -1,0 +1,11 @@
+diff --git a/src/svc/config.py b/src/svc/config.py
+index 1111111..2222222 100644
+--- a/src/svc/config.py
++++ b/src/svc/config.py
+@@ -1,3 +1,8 @@
+ """Config service."""
++
++
++def parse_config(raw: str) -> dict:
++    # claimed-passing on a file whose test actually fails (pytest exit 1)
++    return {"parsed": raw}

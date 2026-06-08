@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/roadmap/tool_schemas/spec_fidelity.schema.json",
+  "title": "Roadmap spec-fidelity step structured output",
+  "$comment": "R1.4 Step 9.9. spec-fidelity is the convergence-loop CORE: when config.convergence_enabled is True the executor short-circuits to _run_convergence_spec_fidelity and this tool-write path is NEVER reached (convergence.py is PRESERVE, byte-untouched). This schema governs ONLY the single-shot (non-convergence) tool-write path. spec-fidelity carries NO roadmap_ids and therefore has NO MVR-3 / Contract #3 phantom-ID subset constraint -- the executor routes it through the PLAIN render_step_tool_write (NOT the id-check variant). No convergence threshold literal is embedded (Contract #8): severity counts are deviation tallies, not convergence ratios.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "frontmatter",
+    "summary"
+  ],
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "high_severity_count",
+        "medium_severity_count",
+        "low_severity_count",
+        "total_deviations",
+        "validation_complete",
+        "tasklist_ready"
+      ],
+      "properties": {
+        "high_severity_count": { "type": "integer", "minimum": 0 },
+        "medium_severity_count": { "type": "integer", "minimum": 0 },
+        "low_severity_count": { "type": "integer", "minimum": 0 },
+        "total_deviations": { "type": "integer", "minimum": 0 },
+        "validation_complete": { "type": "boolean" },
+        "tasklist_ready": { "type": "boolean" },
+        "generated": { "type": "string" },
+        "generator": { "type": "string" },
+        "spec_source": { "type": "string" }
+      }
+    },
+    "deviations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "severity",
+          "deviation"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+          "deviation": { "type": "string" },
+          "source_quote": { "type": "string" },
+          "roadmap_quote": { "type": "string" },
+          "impact": { "type": "string" },
+          "recommended_correction": { "type": "string" }
+        }
+      }
+    },
+    "summary": { "type": "string" }
+  }
+}

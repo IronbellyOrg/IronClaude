@@ -10,6 +10,7 @@ special-case glob branch in _resolve_step_content.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from superclaude.cli.prd.executor import _resolve_step_content
@@ -110,3 +111,107 @@ def test_known_static_step_id_still_resolves_from_disk(tmp_path: Path) -> None:
     result = _resolve_step_content("research-notes", task_dir, "short ndjson")
 
     assert result == on_disk
+
+
+# ---------------------------------------------------------------------------
+# Layer 2 hotfix acceptance tests (AC3-AC6)
+# ---------------------------------------------------------------------------
+
+
+def test_variant_filename_recovered_from_where_subdir(tmp_path: Path) -> None:
+    """[AC3] A variant-named scope-discovery doc in a WHERE subdir is recovered.
+
+    The agent dropped the canonical ``-raw`` suffix and wrote
+    ``scope-discovery.md`` into a WHERE source/spec directory. The
+    pattern-aware backstop must recover that real document instead of the
+    short NDJSON commentary.
+    """
+    task_dir = tmp_path / "prd-variant"
+    task_dir.mkdir()
+    (task_dir / "parsed-request.json").write_text(
+        '{"GOAL": "g", "WHERE": [".dev/specs"]}', encoding="utf-8"
+    )
+    where_dir = task_dir / ".dev" / "specs"
+    where_dir.mkdir(parents=True)
+    # Canonical name is scope-discovery-raw.md; this is the dropped-suffix variant.
+    on_disk = _write_lines(where_dir / "scope-discovery.md", 60, prefix="scope")
+
+    ndjson_text = "\n".join(f"commentary line {i}" for i in range(24)) + "\n"
+
+    result = _resolve_step_content("scope-discovery", task_dir, ndjson_text)
+
+    assert result == on_disk
+    assert result != ndjson_text
+    assert len(result.splitlines()) >= 50
+
+
+def test_freshness_outranks_size_inv006(tmp_path: Path) -> None:
+    """[AC4] A fresher SHORTER file beats a stale LONGER file (INV-006).
+
+    Both candidates sit inside task_dir (equal preferred-root rank), so the
+    mtime tiebreak decides. The deterministic picker must rank freshness above
+    raw content length, else a stale longer artifact from a prior failed run
+    would silently win.
+    """
+    task_dir = tmp_path / "prd-fresh"
+    task_dir.mkdir()
+    (task_dir / "parsed-request.json").write_text(
+        '{"GOAL": "g", "WHERE": [".dev/specs"]}', encoding="utf-8"
+    )
+    stale_dir = task_dir / ".dev" / "specs"
+    stale_dir.mkdir(parents=True)
+    stale_long = stale_dir / "scope-discovery.md"
+    _write_lines(stale_long, 120, prefix="stale")
+    os.utime(stale_long, (1_000_000, 1_000_000))  # OLD mtime
+
+    fresh_short = task_dir / "scope-discovery-raw.md"
+    fresh_content = _write_lines(fresh_short, 55, prefix="fresh")
+    os.utime(fresh_short, (2_000_000, 2_000_000))  # NEWER mtime
+
+    result = _resolve_step_content("scope-discovery", task_dir, "ndjson fallback")
+
+    assert result == fresh_content
+    assert len(result.splitlines()) < 120
+
+
+def test_where_traversal_escape_excluded_inv005(tmp_path: Path) -> None:
+    """[AC5] A WHERE entry escaping the repo root via '..' is not searched (INV-005).
+
+    A candidate document reachable only via a ``..``-traversal WHERE entry
+    (outside the repo_root = task_dir.parent) must be rejected by the realpath
+    containment guard, so its content is never returned.
+    """
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    task_dir = repo_root / "prd-task"
+    task_dir.mkdir()
+
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    # Longer than anything in-bounds — would win on size if not excluded.
+    escaped_content = _write_lines(outside / "scope-discovery.md", 200, prefix="escaped")
+
+    (task_dir / "parsed-request.json").write_text(
+        '{"GOAL": "g", "WHERE": ["../outside"]}', encoding="utf-8"
+    )
+
+    ndjson_text = "ndjson commentary fallback\nsecond line"
+    result = _resolve_step_content("scope-discovery", task_dir, ndjson_text)
+
+    assert result != escaped_content
+    assert result == ndjson_text
+
+
+def test_zero_match_returns_ndjson_fallback(tmp_path: Path) -> None:
+    """[AC6] No matching artifact and no WHERE dirs -> NDJSON fallback, no crash.
+
+    Regression guard over the existing zero-match behavior preserved by the
+    hotfix: the function returns ndjson_text exactly as today.
+    """
+    task_dir = tmp_path / "prd-empty-scope"
+    task_dir.mkdir()
+
+    ndjson_text = "only commentary — no scope-discovery file was written"
+    result = _resolve_step_content("scope-discovery", task_dir, ndjson_text)
+
+    assert result == ndjson_text

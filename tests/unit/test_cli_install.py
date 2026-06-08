@@ -178,3 +178,75 @@ def test_cli_integration():
     # Should not raise ImportError
     commands = list_available_commands()
     assert len(commands) > 0
+
+
+class TestProtocolSkillInstallMapping:
+    """F2 regression guard (sc:reflect 2026-06-03): protocol skills stay standalone.
+
+    The installer's ``_has_corresponding_command`` strips ONLY the ``sc-`` prefix.
+    Protocol skills are named ``sc-<command>-protocol`` (e.g. sc-roadmap-protocol
+    backing commands/roadmap.md) and are therefore NOT command-backed -- they are
+    installed standalone, which is required because each /sc:<command> command
+    activates its skill by name via ``Skill sc:<command>-protocol``.
+
+    These tests would FAIL if a future change generalized the match to also strip
+    a ``-protocol`` suffix (which would sweep every protocol skill into
+    ``served_by_command`` and remove its standalone install).
+    """
+
+    def test_new_init_lite_protocol_is_not_command_backed(self):
+        from superclaude.cli.install_skills import _has_corresponding_command
+
+        assert _has_corresponding_command("sc-init-lite-protocol") is False
+
+    def test_sample_existing_protocol_skills_not_command_backed(self):
+        from superclaude.cli.install_skills import _has_corresponding_command
+
+        for name in ("sc-roadmap-protocol", "sc-reflect-protocol", "sc-task-protocol"):
+            assert _has_corresponding_command(name) is False, name
+
+    def test_bare_sc_command_mapping_still_works(self):
+        """The strip-``sc-`` behavior is intact: a hypothetical bare sc-<cmd> maps."""
+        from superclaude.cli.install_skills import _has_corresponding_command
+
+        # commands/roadmap.md exists, so a bare "sc-roadmap" WOULD be command-backed.
+        assert _has_corresponding_command("sc-roadmap") is True
+        # Non-sc- skills are never command-backed.
+        assert _has_corresponding_command("some-other-skill") is False
+
+    def test_no_available_protocol_skill_is_command_backed(self):
+        """Across the real skill roster, zero ``sc-*-protocol`` skills are swept."""
+        from superclaude.cli.install_skills import (
+            _has_corresponding_command,
+            list_available_skills,
+        )
+
+        available = list_available_skills()
+        protocol_skills = [
+            s for s in available if s.startswith("sc-") and s.endswith("-protocol")
+        ]
+        assert protocol_skills, (
+            "expected at least one sc-*-protocol skill in the roster"
+        )
+        swept = [s for s in protocol_skills if _has_corresponding_command(s)]
+        assert swept == [], (
+            f"protocol skills wrongly treated as command-backed: {swept}"
+        )
+
+    def test_install_all_skills_keeps_protocol_skills_standalone(self, tmp_path):
+        """End-to-end: protocol skills are installed standalone, not removed."""
+        from superclaude.cli.install_skills import (
+            install_all_skills,
+            list_available_skills,
+        )
+
+        target = tmp_path / "skills"
+        success, _message = install_all_skills(target_path=target, force=True)
+        assert success is True
+
+        available = set(list_available_skills())
+        for name in ("sc-init-lite-protocol", "sc-roadmap-protocol"):
+            if name in available:
+                assert (target / name).exists(), (
+                    f"{name} should be installed standalone"
+                )

@@ -1,0 +1,10 @@
+{
+  "fixture": "deferred/context_window_oom_case",
+  "source_authority": {
+    "master_recurrence_row": 17,
+    "partition_findings": ["A1a:F-A1a-009", "A6:F-A6-006"],
+    "incident_summary": "Context-window exhaustion / sprint phase OOM / max-turns budget collapse manifesting as exit -9, 'Prompt is too long', and first-run-fails-resume-passes non-determinism (A1a:F-A1a-009 v2.02 Phase 2 exit -9 silent; A6:F-A6-006 cliEval Phase 5 crash)."
+  },
+  "deferred": true,
+  "reason": "Hard DEFER (runtime resource). Context-window/OOM/max-turns is a runtime-resource failure (exit -9, 'Prompt is too long'), not a scanner-input-testable shape. No deterministic component consumes a fixture to reproduce it, so no verifiable expected values are constructible."
+}

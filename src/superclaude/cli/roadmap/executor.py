@@ -21,12 +21,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from superclaude.cli.audit.wiring_gate import WIRING_GATE
 from superclaude.cli.pipeline.deliverables import decompose_deliverables
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
     Deliverable,
-    GateMode,
     PipelineConfig,
     Step,
     StepResult,
@@ -49,8 +47,9 @@ from .gates import (
     MERGE_GATE,
     REMEDIATE_GATE,
     SCORE_GATE,
-    SPEC_FIDELITY_GATE,
+    SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
     TEST_STRATEGY_GATE,
+    VERIFY_IMPLEMENTATION_GATE,
 )
 from .models import AgentSpec, RoadmapConfig
 from .prompts import (
@@ -63,10 +62,10 @@ from .prompts import (
     build_score_prompt,
     build_spec_fidelity_prompt,
     build_test_strategy_prompt,
-    build_wiring_verification_prompt,
     wrap_for_incremental_write,
 )
 from .templates import ROADMAP_TEMPLATE, get_template_path
+from .verify_implementation import build_verify_implementation_step
 
 _log = logging.getLogger("superclaude.roadmap.executor")
 
@@ -609,6 +608,73 @@ def _sanitize_output(output_file: Path) -> int:
     return preamble_bytes
 
 
+def _save_id_registry(spec_file: Path, output_dir: Path) -> Path:
+    """Persist a sidecar :class:`SpecIdRegistry` JSON next to the extract output.
+
+    R0.1 / Contract #9 (BUILD-REQUEST §R0 item 1, master:§Recurrence #4).
+
+    The sidecar at ``<output_dir>/spec_id_registry.json`` is consumed by
+    MERGE_GATE's ``roadmap_ids_within_spec`` SemanticCheck. R1.2 will absorb
+    the JSON into the typed :class:`PipelineEnvelope`; until then the sidecar
+    is the proto-envelope (stable JSON schema).
+
+    Accepted-deviation IDs are merged from
+    :func:`spec_patch.scan_accepted_deviation_records` — the
+    ``dev-*-accepted-deviation.md`` glob — so the registry honors deviations
+    accepted between pipeline runs.
+    """
+    from .id_registry import build_id_registry
+    from .spec_patch import scan_accepted_deviation_records
+
+    # Collect accepted deviation IDs from the sidecar markdown records.
+    # The records are parsed by spec_patch; we only need the deviation id
+    # (frontmatter field) here. We dedupe via set semantics inside
+    # build_id_registry. Use a permissive try/except: a malformed record
+    # must not crash the extract step.
+    accepted_ids: list[str] = []
+    try:
+        records = scan_accepted_deviation_records(output_dir)
+        for record in records:
+            dev_id = getattr(record, "deviation_id", None) or getattr(
+                record, "id", None
+            )
+            if isinstance(dev_id, str) and dev_id:
+                accepted_ids.append(dev_id)
+    except Exception as exc:  # pragma: no cover - defensive
+        _log.warning(
+            "scan_accepted_deviation_records failed during registry build: %s",
+            exc,
+        )
+
+    registry = build_id_registry(spec_file, accepted_deviations=accepted_ids)
+    sidecar = output_dir / "spec_id_registry.json"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    sidecar.write_text(
+        json.dumps(registry.to_dict(), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    # Register the sidecar path with gates.py so MERGE_GATE's
+    # `roadmap_ids_within_spec` SemanticCheck can resolve it. R0.1 bridges
+    # the content-only SemanticCheck signature via this module-level hint;
+    # R1.3 widens the signature and removes the hint.
+    from .gates import set_id_registry_sidecar_path
+
+    set_id_registry_sidecar_path(sidecar)
+
+    _log.info(
+        "Persisted spec_id_registry.json (%d FR / %d NFR / %d SC / %d G / %d D / %d MD / %d accepted)",
+        len(registry.fr_ids),
+        len(registry.nfr_ids),
+        len(registry.sc_ids),
+        len(registry.g_ids),
+        len(registry.d_ids),
+        len(registry.md_ids),
+        len(registry.accepted_deviation_ids),
+    )
+    return sidecar
+
+
 def _inject_pipeline_diagnostics(
     output_file: Path,
     started_at: datetime,
@@ -695,7 +761,8 @@ def _run_structural_audit(
     Compares spec structural indicators against extraction requirement count.
     Logs a warning if extraction appears inadequate but never blocks the pipeline.
     """
-    from .gates import _parse_frontmatter
+    from superclaude.cli.pipeline.frontmatter import extract_frontmatter
+
     from .spec_structural_audit import check_extraction_adequacy
 
     try:
@@ -705,7 +772,7 @@ def _run_structural_audit(
         _log.warning("Structural audit skipped: %s", e)
         return
 
-    fm = _parse_frontmatter(extraction_text)
+    fm = extract_frontmatter(extraction_text)
     if fm is None:
         _log.warning("Structural audit skipped: no frontmatter in extraction")
         return
@@ -952,7 +1019,7 @@ def _validate_merge_completeness(output_file: Path) -> list[str]:
     return missing
 
 
-def roadmap_run_step(
+def _roadmap_run_step_impl(
     step: Step,
     config: PipelineConfig,
     cancel_check: Callable[[], bool],
@@ -961,6 +1028,11 @@ def roadmap_run_step(
 
     Builds argv with context isolation, launches process, waits with
     timeout, and returns StepResult.
+
+    R1.2 note: this is the pre-rewrite ``roadmap_run_step`` body, renamed
+    so the new ``roadmap_run_step`` wrapper can apply the post-step
+    PipelineEnvelope update after this returns. Behavior is otherwise
+    unchanged — every return path still produces the same StepResult.
     """
     started_at = datetime.now(timezone.utc)
 
@@ -1008,20 +1080,22 @@ def roadmap_run_step(
     if step.id == "remediate":
         return _run_remediate_step(step, config, started_at)
 
-    # Wiring-verification: run static analysis directly, no Claude subprocess.
-    # Returns PASS unconditionally; gate evaluation is handled separately by
-    # the trailing gate runner (section 5.7.1).
-    if step.id == "wiring-verification":
-        from superclaude.cli.audit.wiring_config import WiringConfig
-        from superclaude.cli.audit.wiring_gate import emit_report, run_wiring_analysis
-
-        wiring_config = WiringConfig(rollout_mode="soft")
-        source_dir = (
-            Path("src/superclaude") if Path("src/superclaude").exists() else Path(".")
-        )
-        report = run_wiring_analysis(wiring_config, source_dir)
+    # Verify-implementation (R1.5 / §MVR §4): terminal FR-resolution gate.
+    # No Claude subprocess. This branch only WRITES the report artifact so the
+    # STRICT gate's file-existence precondition is met; the gate verdict is
+    # owned by the all_frs_resolved CodeAssertion, evaluated with the live
+    # envelope plumbed in _run_verify_implementation (INV-002). Returns PASS
+    # here unconditionally — the assertion-backed verdict is applied by the
+    # explicit gate_passed call in _run_verify_implementation.
+    if step.id == "verify-implementation":
         step.output_file.parent.mkdir(parents=True, exist_ok=True)
-        emit_report(report, step.output_file)
+        step.output_file.write_text(
+            "# Verify Implementation\n\n"
+            "Terminal FR-resolution gate (R1.5 / §MVR §4). Verdict is owned by "
+            "the `all_frs_resolved` code assertion evaluated against the live "
+            "pipeline envelope; see the certification state for the outcome.\n",
+            encoding="utf-8",
+        )
         return StepResult(
             step=step,
             status=StepStatus.PASS,
@@ -1156,6 +1230,113 @@ def roadmap_run_step(
             finished_at=finished_at,
         )
 
+    # R1.4 tool-write render: when the step ran in tool-write mode, the LLM
+    # emitted structured JSON to step.output_file; validate it against the
+    # step schema and render the markdown artifact deterministically.
+    if isinstance(config, RoadmapConfig):
+        from .tool_writer import (
+            TOOL_WRITE_REGISTRY,
+            render_step_tool_write,
+            render_step_tool_write_with_id_check,
+        )
+
+        # Resolve the registry KEY before the lookup:
+        # * The spec-extract and TDD-extract paths BOTH build a Step with
+        #   ``id == "extract"``; disambiguate by input_type so extract_tdd never
+        #   collides with the spec-extract entry.
+        # * The two generate Steps have ``id == "generate-{agent.id}"`` (e.g.
+        #   "generate-opus-architect"), NOT the literal "generate"; map any
+        #   ``generate-*`` step.id to the "generate" registry key.
+        if step.id == "extract" and config.input_type == "tdd":
+            _tw_key = "extract_tdd"
+        elif step.id.startswith("generate-"):
+            _tw_key = "generate"
+        else:
+            _tw_key = step.id
+        _tw_spec = TOOL_WRITE_REGISTRY.get(_tw_key)
+        if _tw_spec is not None and getattr(config, _tw_spec.config_flag, False):
+            try:
+                _json_text = step.output_file.read_text(encoding="utf-8")
+            except OSError as exc:
+                return StepResult(
+                    step=step,
+                    status=StepStatus.FAIL,
+                    attempt=1,
+                    gate_failure_reason=f"Step '{step.id}' tool-write: cannot read output: {exc}",
+                    started_at=started_at,
+                    finished_at=finished_at,
+                )
+            if _tw_key in ("generate", "merge"):
+                # Generator-side phantom-ID rejection (Contract #3 /
+                # master:§Top-3 #3): roadmap_ids ⊆ spec_ids ∪ accepted_deviations.
+                # BOTH primary phantom-ID sources -- generate (§Top-3 #3) and
+                # merge (the SECOND primary source, R1.4 Step 9.8) -- route here
+                # so a roadmap_id absent from the spec is rejected AT GENERATION
+                # TIME, never downstream.
+                #
+                # Source the spec universe from the ALWAYS-written
+                # spec_id_registry.json (NOT extraction.json, which is empty
+                # unless --tool-write-extract is set, in which case the subset
+                # check silently degraded to a no-op and prevention fell back
+                # entirely to the merge GATE). The registry is persisted by
+                # _save_id_registry on every run, so generate/merge always have
+                # a real universe to constrain against. Reconstruct it via the
+                # shared SpecIdRegistry.from_payload (Contract #8: reuses the
+                # registry, introduces no ID regex), then constrain to
+                # union_of_known() ∪ accepted_deviation_ids.
+                #
+                # FAIL-SHUT (master:§Flaw 4 -- no fail-open defaults): if the
+                # registry is missing/unreadable/malformed, FAIL the step rather
+                # than emit an unconstrained roadmap, mirroring the MERGE_GATE
+                # Contract #9 reader posture in gates.py:_roadmap_ids_within_spec.
+                import json as _json
+
+                from .id_registry import SpecIdRegistry
+
+                _registry_path = config.output_dir / "spec_id_registry.json"
+                try:
+                    _registry_raw = _registry_path.read_text(encoding="utf-8")
+                    _registry_payload = _json.loads(_registry_raw)
+                    _registry = SpecIdRegistry.from_payload(_registry_payload)
+                except (OSError, ValueError, TypeError) as exc:
+                    return StepResult(
+                        step=step,
+                        status=StepStatus.FAIL,
+                        attempt=1,
+                        gate_failure_reason=(
+                            f"Step '{step.id}' tool-write phantom-ID prevention: "
+                            f"spec_id_registry.json missing/unreadable/malformed "
+                            f"at {_registry_path} ({exc}); refusing to emit an "
+                            f"unconstrained roadmap (fail-shut, Contract #9)."
+                        ),
+                        started_at=started_at,
+                        finished_at=finished_at,
+                    )
+                _spec_ids: set[str] = set(_registry.union_of_known())
+                _accepted: set[str] = set(_registry.accepted_deviation_ids)
+                _tw_errors = render_step_tool_write_with_id_check(
+                    _tw_key,
+                    _json_text,
+                    step.output_file,
+                    spec_ids=_spec_ids,
+                    accepted_deviations=_accepted,
+                    require_spec_ids=True,
+                )
+            else:
+                _tw_errors = render_step_tool_write(
+                    _tw_key, _json_text, step.output_file
+                )
+            if _tw_errors:
+                return StepResult(
+                    step=step,
+                    status=StepStatus.FAIL,
+                    attempt=1,
+                    gate_failure_reason=f"Step '{step.id}' tool-write schema/render failure: "
+                    + "; ".join(_tw_errors[:5]),
+                    started_at=started_at,
+                    finished_at=finished_at,
+                )
+
     # tool_write_mode: validate the LLM wrote the output file via tools
     if step.tool_write_mode:
         if not proc.validate_tool_write_output():
@@ -1206,6 +1387,18 @@ def roadmap_run_step(
         # See open question C-2 (structural_checkers.py investigation needed).
         if hasattr(config, "spec_file"):
             _run_structural_audit(config.spec_file, step.output_file)
+        # R0.1 / Contract #9: persist a sidecar Spec-ID registry alongside the
+        # extract artifact. MERGE_GATE's `roadmap_ids_within_spec` SemanticCheck
+        # loads this sidecar to enforce roadmap_ids ⊆ spec_ids ∪ accepted_dev.
+        # R1.2 absorbs the sidecar into PipelineEnvelope.
+        if hasattr(config, "spec_file") and hasattr(config, "output_dir"):
+            try:
+                _save_id_registry(config.spec_file, Path(config.output_dir))
+            except Exception as exc:  # pragma: no cover - defensive
+                _log.warning(
+                    "Failed to persist spec_id_registry.json sidecar: %s",
+                    exc,
+                )
 
     # Inject provenance fields into test-strategy output
     if step.id == "test-strategy" and step.output_file.exists():
@@ -1248,6 +1441,84 @@ def roadmap_run_step(
         started_at=started_at,
         finished_at=finished_at,
     )
+
+
+def _apply_post_step_envelope_update(step: Step, config: PipelineConfig) -> None:
+    """R1.2 dual-write: invoke the post-step extractor for ``step`` and persist envelope.json.
+
+    Best-effort: no-op when ``config.output_dir`` is missing, when
+    ``envelope.json`` hasn't been created yet (the extract step initializes
+    it via R0.1 wiring), or when no extractor is registered for
+    ``step.id``. Failures are logged but never raise — the markdown
+    pipeline must be unaffected during the dual-write phase per
+    BUILD-REQUEST §R1.2.
+
+    The post-extractor dispatch lives in
+    ``src/superclaude/cli/roadmap/envelope.py`` (:data:`POST_EXTRACTORS`
+    map + :func:`get_post_extractor` resolver). The resolver handles
+    dynamic ``generate-{agent.id}`` IDs via prefix-match.
+
+    Master:§Flaw 3 invariant: this helper does NOT write LLM output
+    directly into ``envelope.counts`` or ``envelope.findings`` — the
+    registered extractor derives counts deterministically from the
+    artifact via the ``spec_parser`` helpers.
+    """
+    if not hasattr(config, "output_dir") or getattr(config, "output_dir", None) is None:
+        return
+    envelope_path = Path(config.output_dir) / "envelope.json"
+    if not envelope_path.exists():
+        return
+    try:
+        from superclaude.cli.roadmap.envelope import (
+            get_post_extractor,
+            load_envelope,
+            save_envelope,
+        )
+
+        extractor = get_post_extractor(step.id)
+        if extractor is None:
+            return
+        envelope = load_envelope(envelope_path)
+        updated = extractor(step.output_file, envelope)
+        save_envelope(updated, envelope_path)
+    except Exception as exc:  # pragma: no cover - defensive
+        _log.warning(
+            "[R1.2 dual-write] envelope update failed for step '%s': %s",
+            step.id,
+            exc,
+        )
+
+
+def roadmap_run_step(
+    step: Step,
+    config: PipelineConfig,
+    cancel_check: Callable[[], bool],
+) -> StepResult:
+    """Roadmap StepRunner — R1.2 wrapper around :func:`_roadmap_run_step_impl`.
+
+    Adds a deterministic post-step :class:`PipelineEnvelope` update
+    (BUILD-REQUEST §R1.2, §MVR §1) after the inner implementation
+    produces its :class:`StepResult`. The inner implementation is the
+    pre-R1.2 ``roadmap_run_step`` body, renamed to
+    :func:`_roadmap_run_step_impl` and otherwise unmodified.
+
+    Dual-write semantics: markdown artifacts are still written by the
+    inner implementation; the envelope is updated additively after each
+    step. Gate logic continues to consume markdown until R1.3+ migrates
+    it to envelope reads.
+
+    .. note::
+       ``inspect.getsource(roadmap_run_step)`` now returns this wrapper
+       source rather than the inner implementation source. Tests
+       asserting properties of the LLM-subprocess command construction
+       (e.g.
+       ``tests/roadmap/test_cli_contract.py::test_no_session_flags``)
+       should inspect :func:`_roadmap_run_step_impl` instead. This is a
+       known follow-up captured in Phase 7 findings.
+    """
+    result = _roadmap_run_step_impl(step, config, cancel_check)
+    _apply_post_step_envelope_update(step, config)
+    return result
 
 
 class _ClaudeRunner:
@@ -1931,6 +2202,7 @@ def build_certify_step(
         findings=findings or [],
         context_sections=context_sections or {},
         remediation_summary=remediation_summary,
+        tool_write=config.tool_write_certify,
     )
 
     return Step(
@@ -1942,6 +2214,239 @@ def build_certify_step(
         inputs=[out / "remediation-tasklist.md"],
         retry_limit=1,
     )
+
+
+def _run_certify_after_remediate(
+    config: RoadmapConfig,
+    results: list[StepResult],
+) -> None:
+    """Construct + execute the terminal certify step after remediate passes.
+
+    R1.3 / §MVR §2: ``build_certify_step()`` is wired HERE (the pipeline
+    driver), NOT inside ``_build_steps``, so that:
+
+    1. The certify prompt is built from the *runtime* remediation findings
+       — a static ``_build_steps`` entry would have no findings to certify
+       because findings only exist after deviation-analysis / remediate run.
+    2. The pipeline step-count budget is unaffected — ``_build_steps`` still
+       returns 13 constructions and ``ALL_GATES`` stays at 14 (certify is
+       already its 14th entry). Acceptance gate #6 (step count ≤ 14) holds.
+
+    The dispatch-reachability ``CodeAssertion`` on ``CERTIFY_GATE``
+    (``code_assertions.assert_step_reachable``) statically verifies this
+    call exists, killing the master:§Flaw 1 condition where
+    ``build_certify_step`` had ZERO production callers (Contract #2).
+
+    No-op when no ``remediate`` step PASSED (e.g. tests that mock
+    ``execute_pipeline`` to return an empty / failure-only result list):
+    certify only certifies an actual remediation outcome.
+    """
+    remediate_result = next(
+        (r for r in results if r.step and r.step.id == "remediate"),
+        None,
+    )
+    if remediate_result is None or remediate_result.status != StepStatus.PASS:
+        return
+
+    from .models import Finding
+
+    out = config.output_dir
+
+    # Derive findings from the deviation sidecar using the existing parser
+    # (Contract #6: reuse parsers, add none).
+    findings: list[Finding] = []
+    deviation_json = out / "spec-deviations.json"
+    if deviation_json.exists():
+        try:
+            from .remediate import deviations_to_findings
+
+            raw = json.loads(deviation_json.read_text(encoding="utf-8"))
+            records = raw.get("records", []) if isinstance(raw, dict) else raw
+            findings = deviations_to_findings(records)
+        except (OSError, ValueError) as exc:
+            _log.warning("certify: could not load deviations for findings: %s", exc)
+
+    remediation_summary = [
+        transform
+        for r in results
+        if r.remediated
+        for transform in (r.remediations or [])
+    ]
+
+    certify_step = build_certify_step(
+        config,
+        findings=findings,
+        remediation_summary=remediation_summary or None,
+    )
+    certify_result = roadmap_run_step(certify_step, config, lambda: False)
+
+    # DEV-R13-001: evaluate CERTIFY_GATE on the produced report.
+    # roadmap_run_step runs the step but does NOT evaluate the gate
+    # (gate_passed lives only in execute_pipeline). Because certify is
+    # constructed dynamically post-remediate, it never flows through that
+    # gated path, so the gate must be evaluated explicitly here.
+    #
+    # No envelope/repo_root is passed: CERTIFY_GATE.code_assertions's
+    # assert_step_reachable is a SOURCE-TREE (AST-over-``src/``) check that
+    # is only meaningful in a dev checkout / CI -- an installed package has
+    # no ``src/`` tree, so firing it at runtime would spuriously fail
+    # certify in production. Omitting envelope runs the three
+    # runtime-meaningful semantic_checks (certified_is_true,
+    # per_finding_table_present, frontmatter_values_non_empty) and lets the
+    # gate_passed shim skip the CI-only code_assertion. See
+    # .dev/reflect/r1-3-uc2-validation/adversarial/merged-recommendation.md.
+    from superclaude.cli.pipeline.gates import gate_passed
+
+    passed, reason = gate_passed(certify_step.output_file, CERTIFY_GATE)
+    if not passed:
+        # A failed certification gate is a CAVEAT, not a hard error: the main
+        # pipeline already succeeded and its state is persisted. Record the
+        # outcome (derive_pipeline_status -> "certified-with-caveats") rather
+        # than sys.exit.
+        certify_result = dataclasses.replace(
+            certify_result,
+            status=StepStatus.FAIL,
+            gate_failure_reason=reason,
+        )
+
+    results.append(certify_result)
+
+    # DEV-R13-001 (persistence): _save_state ran before this function, so
+    # certify is not yet recorded. Re-save with certify metadata so
+    # derive_pipeline_status reflects certified vs certified-with-caveats.
+    certified = passed
+    counts = _parse_certify_counts(certify_step.output_file, default=len(findings))
+    _save_state(
+        config,
+        results,
+        certify_metadata=build_certify_metadata(
+            status="certified" if certified else "certified-with-caveats",
+            findings_verified=counts["verified"],
+            findings_passed=counts["passed"],
+            findings_failed=counts["failed"],
+            certified=certified,
+            report_file=str(certify_step.output_file),
+        ),
+    )
+
+    if passed:
+        print("[roadmap] Certification step complete (certified)", flush=True)
+    else:
+        print(
+            "[roadmap] Certification step certified-with-caveats: "
+            f"{reason or 'see certification-report.md'}",
+            flush=True,
+        )
+
+
+def _run_verify_implementation(
+    config: RoadmapConfig,
+    results: list[StepResult],
+) -> None:
+    """Construct + evaluate the terminal ``verify-implementation`` step.
+
+    R1.5 / §MVR §4: this is the fail-closed terminal FR-resolution gate that
+    REPLACES the legacy ``wiring-verification`` shadow step. It is dispatched
+    dynamically AFTER ``certify`` (truly terminal), mirroring
+    :func:`_run_certify_after_remediate`.
+
+    **INV-002 (design §7.3) — the load-bearing difference from certify.**
+    ``assert_all_frs_resolved`` is a *runtime-artifact-based* assertion: it
+    consumes the live :class:`PipelineEnvelope`. The ``gate_passed`` shim
+    (``pipeline/gates.py:94-98``) SILENTLY SKIPS ``code_assertions`` when
+    ``envelope`` or ``repo_root`` is ``None`` — so this function MUST plumb
+    both into the explicit ``gate_passed`` call, or the gate would present as
+    a passing terminal verification while verifying nothing. (Contrast
+    ``_run_certify_after_remediate``, which deliberately OMITS the envelope so
+    its source-tree ``assert_step_reachable`` is shim-skipped at runtime.)
+
+    No-op when the pipeline produced no ``envelope.json`` (e.g. tests that mock
+    ``execute_pipeline`` to return an empty result list, or runs predating the
+    R1.2 dual-write substrate) — there is nothing to verify against.
+    """
+    out = Path(config.output_dir)
+    envelope_path = out / "envelope.json"
+    if not envelope_path.exists():
+        _log.info(
+            "[roadmap] verify-implementation: no envelope.json at %s; skipping "
+            "terminal FR-resolution gate (no runtime substrate to verify).",
+            envelope_path,
+        )
+        return
+
+    from superclaude.cli.pipeline.gates import gate_passed
+    from superclaude.cli.roadmap.envelope import load_envelope
+
+    envelope = load_envelope(envelope_path)
+
+    verify_step = build_verify_implementation_step(
+        config, gate=VERIFY_IMPLEMENTATION_GATE
+    )
+    verify_result = roadmap_run_step(verify_step, config, lambda: False)
+
+    # INV-002: plumb the live envelope + repo_root so the all_frs_resolved
+    # CodeAssertion actually runs (the gate_passed shim would otherwise skip
+    # it and return a silent PASS). repo_root is reserved/unused by the
+    # assertion (artifact-based resolution, not source-tree), but MUST be
+    # non-None for the shim to dispatch the assertion.
+    passed, reason = gate_passed(
+        verify_step.output_file,
+        VERIFY_IMPLEMENTATION_GATE,
+        envelope=envelope,
+        repo_root=out,
+    )
+    if not passed:
+        # A failed verification gate is a CAVEAT, not a hard error: the main
+        # pipeline already succeeded and its state is persisted. Record FAIL so
+        # the audit log / derive_pipeline_status surface the unresolved FRs.
+        verify_result = dataclasses.replace(
+            verify_result,
+            status=StepStatus.FAIL,
+            gate_failure_reason=reason,
+        )
+
+    results.append(verify_result)
+    _save_state(config, results)
+
+    if passed:
+        print(
+            "[roadmap] Verify-implementation complete (all FRs resolved)",
+            flush=True,
+        )
+    else:
+        print(
+            "[roadmap] Verify-implementation FAILED: "
+            f"{reason or 'one or more FRs unresolved'}",
+            flush=True,
+        )
+
+
+def _parse_certify_counts(report_file: Path, default: int = 0) -> dict[str, int]:
+    """Extract finding counts from a certification report's frontmatter.
+
+    Reads the ``findings_verified`` / ``findings_passed`` / ``findings_failed``
+    top-level frontmatter integers written by the certify step. Best-effort:
+    on a missing file or unparseable value, ``verified`` falls back to
+    ``default`` and ``passed`` / ``failed`` to 0. Contract #6: no new
+    structural parser -- a single-line key:int regex over the existing
+    frontmatter contract.
+    """
+    import re
+
+    result = {"verified": default, "passed": 0, "failed": 0}
+    try:
+        content = report_file.read_text(encoding="utf-8")
+    except OSError:
+        return result
+    for key, out_key in (
+        ("findings_verified", "verified"),
+        ("findings_passed", "passed"),
+        ("findings_failed", "failed"),
+    ):
+        m = re.search(rf"^{key}:\s*(\d+)\s*$", content, re.MULTILINE)
+        if m:
+            result[out_key] = int(m.group(1))
+    return result
 
 
 def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
@@ -1997,26 +2502,34 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         else (config.spec_file if config.input_type == "tdd" else None)
     )
 
+    # Step 1 prompt: TDD input routing uses dedicated TDD extraction sections.
+    # R1.4 dual-write: for the non-TDD path, --tool-write-extract makes the
+    # extract step emit structured JSON (validated + rendered to markdown by
+    # tool_writer) instead of authoring the markdown directly. The TDD branch
+    # keeps the legacy markdown path (extract_tdd tool-write is R1.4 Step 9.3).
+    if config.input_type == "tdd":
+        extract_prompt = build_extract_prompt_tdd(
+            config.spec_file,
+            retrospective_content=retrospective_content,
+            tdd_file=config.tdd_file,
+            prd_file=config.prd_file,
+            tool_write=config.tool_write_extract_tdd,
+        )
+    else:
+        extract_prompt = build_extract_prompt(
+            config.spec_file,
+            retrospective_content=retrospective_content,
+            tdd_file=config.tdd_file,
+            prd_file=config.prd_file,
+            tool_write=config.tool_write_extract,
+        )
+
     steps: list[Step | list[Step]] = [
         # Step 1: Extract
         # TDD input routing: --input-type tdd uses dedicated TDD extraction sections
         Step(
             id="extract",
-            prompt=(
-                build_extract_prompt_tdd(
-                    config.spec_file,
-                    retrospective_content=retrospective_content,
-                    tdd_file=config.tdd_file,
-                    prd_file=config.prd_file,
-                )
-                if config.input_type == "tdd"
-                else build_extract_prompt(
-                    config.spec_file,
-                    retrospective_content=retrospective_content,
-                    tdd_file=config.tdd_file,
-                    prd_file=config.prd_file,
-                )
-            ),
+            prompt=extract_prompt,
             output_file=extraction,
             gate=EXTRACT_TDD_GATE if config.input_type == "tdd" else EXTRACT_GATE,
             timeout_seconds=1800 if config.input_type == "tdd" else 300,
@@ -2034,6 +2547,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                     extraction,
                     tdd_file=effective_tdd_file,
                     prd_file=config.prd_file,
+                    tool_write=config.tool_write_generate,
                 ),
                 output_file=roadmap_a,
                 gate=GENERATE_A_GATE,
@@ -2052,6 +2566,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                     extraction,
                     tdd_file=effective_tdd_file,
                     prd_file=config.prd_file,
+                    tool_write=config.tool_write_generate,
                 ),
                 output_file=roadmap_b,
                 gate=GENERATE_B_GATE,
@@ -2067,7 +2582,9 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 3: Diff
         Step(
             id="diff",
-            prompt=build_diff_prompt(roadmap_a, roadmap_b),
+            prompt=build_diff_prompt(
+                roadmap_a, roadmap_b, tool_write=config.tool_write_diff
+            ),
             output_file=diff_file,
             gate=DIFF_GATE,
             timeout_seconds=300,
@@ -2077,7 +2594,13 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
         # Step 4: Debate
         Step(
             id="debate",
-            prompt=build_debate_prompt(diff_file, roadmap_a, roadmap_b, config.depth),
+            prompt=build_debate_prompt(
+                diff_file,
+                roadmap_a,
+                roadmap_b,
+                config.depth,
+                tool_write=config.tool_write_debate,
+            ),
             output_file=debate_file,
             gate=DEBATE_GATE,
             timeout_seconds=600,
@@ -2093,6 +2616,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 roadmap_b,
                 tdd_file=effective_tdd_file,
                 prd_file=config.prd_file,
+                tool_write=config.tool_write_score,
             ),
             output_file=score_file,
             gate=SCORE_GATE,
@@ -2113,6 +2637,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 debate_file,
                 tdd_file=effective_tdd_file,
                 prd_file=config.prd_file,
+                tool_write=config.tool_write_merge,
             ),
             output_file=merge_file,
             gate=MERGE_GATE,
@@ -2144,6 +2669,7 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 extraction,
                 tdd_file=effective_tdd_file,
                 prd_file=config.prd_file,
+                tool_write=config.tool_write_test_strategy,
             ),
             output_file=test_strat,
             gate=TEST_STRATEGY_GATE,
@@ -2162,26 +2688,45 @@ def _build_steps(config: RoadmapConfig) -> list[Step | list[Step]]:
                 merge_file,
                 tdd_file=effective_tdd_file,
                 prd_file=config.prd_file,
+                tool_write=config.tool_write_spec_fidelity,
             ),
             output_file=spec_fidelity_file,
-            gate=None if config.convergence_enabled else SPEC_FIDELITY_GATE,
+            # R1.6 / Contract #4: the `gate=None if convergence_enabled` bypass
+            # is DELETED. Both modes now use the convergence-aware gate. In
+            # convergence mode it validates the terminal report frontmatter
+            # (written by _write_convergence_report, reflecting the
+            # ConvergenceResult verdict) and carries the runtime
+            # convergence_passed CodeAssertion on the envelope SoT; in
+            # non-convergence mode envelope.convergence is None so the
+            # assertion vacuously passes and behavior matches the old
+            # SPEC_FIDELITY_GATE.
+            gate=SPEC_FIDELITY_GATE_CONVERGENCE_AWARE,
+            # PERF NOTE (TASK-RF-20260603-180207 Area C): the `timeout_seconds=600`
+            # below is INERT whenever `config.convergence_enabled` is True (the
+            # default). In convergence mode `_roadmap_run_step_impl` short-circuits
+            # to `_run_convergence_spec_fidelity` (the `step.id == "spec-fidelity"
+            # and config.convergence_enabled` guard earlier in this module) BEFORE
+            # any `ClaudeProcess` is constructed, so this Step-level 600s timeout is
+            # never consulted. The real latency budget is the convergence engine's
+            # `max_runs` (default 3) checker/remediation cycles, each issuing inner
+            # `_ClaudeRunner` calls capped at 300s (plus per-HIGH semantic-layer
+            # debate pairs and remediation) -- NOT this 600s value. The 600s here
+            # only takes effect on the `--no-convergence` single-shot LLM path.
+            # Therefore do NOT "fix" spec-fidelity latency by bumping this literal:
+            # it is dead under the default. Genuine latency reductions cross the
+            # PRESERVE boundary (convergence.py / semantic_layer.py are byte-
+            # untouched) and are recorded as a Follow-Up Item, not implemented here.
             timeout_seconds=600,
             inputs=_llm_inputs_for(
                 config, config.spec_file, merge_file, config.tdd_file, config.prd_file
             ),
             retry_limit=1,
         ),
-        # Step 9: Wiring Verification (section 5.7, shadow mode trailing gate)
-        Step(
-            id="wiring-verification",
-            prompt=build_wiring_verification_prompt(merge_file, config.spec_file.name),
-            output_file=out / "wiring-verification.md",
-            gate=WIRING_GATE,
-            timeout_seconds=60,
-            inputs=_llm_inputs_for(config, merge_file) + [spec_fidelity_file],
-            retry_limit=0,
-            gate_mode=GateMode.TRAILING,
-        ),
+        # R1.5 / §MVR §4: the legacy `wiring-verification` shadow step is
+        # REPLACED by the fail-closed `verify-implementation` terminal step,
+        # which is dispatched dynamically after `certify`
+        # (_run_verify_implementation in execute_roadmap), mirroring the
+        # certify wiring. Net pipeline step-count delta 0 (Acceptance Gate #6).
         # Step 10: Deviation Analysis (deterministic, no LLM)
         Step(
             id="deviation-analysis",
@@ -2295,10 +2840,12 @@ def _get_all_step_ids(config: RoadmapConfig) -> list[str]:
         "anti-instinct",
         "test-strategy",
         "spec-fidelity",
-        "wiring-verification",
         "deviation-analysis",
         "remediate",
         "certify",
+        # R1.5 / §MVR §4: terminal verification step (dynamic, after certify),
+        # REPLACES wiring-verification (net delta 0; 14 IDs total).
+        "verify-implementation",
     ]
 
 
@@ -2982,6 +3529,83 @@ def _restore_from_state(
     return config
 
 
+def _reset_id_registry_sidecar_hint(
+    output_dir: Path, resume: bool, spec_file: Path | None = None
+) -> None:
+    """R2: reset the module-level Contract #9 sidecar hint at pipeline-run start.
+
+    The ``gates._id_registry_sidecar_path`` hint is set ONLY by the extract step
+    (``_save_id_registry`` -> ``set_id_registry_sidecar_path``). Without a
+    run-start reset, a process that runs a second pipeline while skipping extract
+    would validate Contract #9 against the *previous* run's registry (the
+    stale-sidecar leak this helper closes).
+
+    Resume-aware:
+
+    * Fresh run (``resume`` is False): clear the hint to ``None``. The extract
+      step repopulates it via ``_save_id_registry``, so clearing here is always
+      safe and guarantees a clean start.
+    * ``--resume`` run: ``_apply_resume`` may skip the extract step, so a blind
+      reset to ``None`` would fail-shut MERGE on a legitimate resume. Instead,
+      re-point the hint at the persisted ``<output_dir>/spec_id_registry.json``
+      (written by the original run for the same spec) when it exists AND its
+      embedded ``spec_hash`` still matches the current spec; otherwise clear to
+      ``None`` (correct fail-shut: no trustworthy registry => cannot validate).
+
+    Identity guard (PR #112 augmentcode follow-up): the R2 fresh-run reset closes
+    the *cross-run* stale-path leak, but the ``--resume`` re-point previously
+    trusted ``<output_dir>/spec_id_registry.json`` on existence alone. If the
+    same ``output_dir`` is resumed against a *different or mutated* spec, that
+    persisted sidecar belongs to the wrong spec and MERGE_GATE would validate
+    Contract #9 against the wrong id-registry — a false-positive in a fail-shut
+    contract path. We close this by comparing the persisted sidecar's
+    ``spec_hash`` (sha256[:16] of the spec bytes, the same fingerprint
+    :func:`id_registry.build_id_registry` records) against the current
+    ``spec_file``'s hash. On any mismatch, or if the hash cannot be computed
+    (missing/unreadable spec or sidecar, malformed JSON), we fail-shut to
+    ``None`` rather than trust a sidecar of uncertain provenance.
+
+    This helper changes only the module-level hint; it does NOT touch the
+    ``gates._roadmap_ids_within_spec`` fail-shut branches or the
+    ``Callable[[str], bool | str]`` SemanticCheck signature (R1.3 territory).
+    """
+    from .gates import set_id_registry_sidecar_path
+
+    sidecar = Path(output_dir) / "spec_id_registry.json"
+    if resume and sidecar.exists() and _sidecar_matches_spec(sidecar, spec_file):
+        set_id_registry_sidecar_path(sidecar)
+    else:
+        set_id_registry_sidecar_path(None)
+
+
+def _sidecar_matches_spec(sidecar: Path, spec_file: Path | None) -> bool:
+    """Return ``True`` iff *sidecar*'s ``spec_hash`` matches *spec_file*'s hash.
+
+    Fail-shut helper for the ``--resume`` re-point in
+    :func:`_reset_id_registry_sidecar_hint`. Returns ``False`` (decline to
+    trust the sidecar) when the spec is unknown/unreadable, the sidecar is
+    unreadable or malformed JSON, or the embedded ``spec_hash`` is absent or
+    differs. The hash recipe MUST stay in lockstep with
+    :func:`id_registry.build_id_registry` (sha256 of the spec UTF-8 bytes,
+    first 16 hex chars).
+    """
+    if spec_file is None:
+        return False
+    try:
+        spec_text = Path(spec_file).read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    current_hash = hashlib.sha256(spec_text.encode("utf-8")).hexdigest()[:16]
+    try:
+        payload = json.loads(sidecar.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return False
+    if not isinstance(payload, dict):
+        return False
+    persisted_hash = payload.get("spec_hash")
+    return isinstance(persisted_hash, str) and persisted_hash == current_hash
+
+
 def execute_roadmap(
     config: RoadmapConfig,
     resume: bool = False,
@@ -3079,6 +3703,11 @@ def execute_roadmap(
         _dry_run_output(steps)
         return
 
+    # R2 (Contract #9 stale-sidecar leak): reset the module-level sidecar hint
+    # at run-start so a second in-process run cannot inherit a prior run's
+    # sidecar. Resume-aware (see _reset_id_registry_sidecar_hint).
+    _reset_id_registry_sidecar_hint(Path(config.output_dir), resume, config.spec_file)
+
     # --resume: check which steps already pass their gates
     if resume:
         from superclaude.cli.pipeline.gates import gate_passed
@@ -3164,6 +3793,19 @@ def execute_roadmap(
         sys.exit(1)
 
     print(f"\n[roadmap] Pipeline complete: {len(results)} steps passed", flush=True)
+
+    # R1.3 / §MVR §2: wire build_certify_step() as the terminal step.
+    # Runs only after remediate PASSED (no-op otherwise). Kept out of
+    # _build_steps so the certify prompt sees runtime findings and the
+    # step-count budget (ALL_GATES == 14) is unaffected. The
+    # dispatch-reachability CodeAssertion on CERTIFY_GATE verifies this
+    # call exists (Contract #2 / kills master:§Flaw 1 for certify).
+    _run_certify_after_remediate(config, results)
+
+    # R1.5 / §MVR §4: terminal fail-closed FR-resolution gate, AFTER certify.
+    # Plumbs the live envelope (INV-002) so the all_frs_resolved assertion
+    # actually runs. REPLACES the legacy wiring-verification shadow step.
+    _run_verify_implementation(config, results)
 
     # Auto-invoke validation after successful pipeline completion
     if no_validate:
@@ -3377,6 +4019,16 @@ def _apply_resume_after_spec_patch(
         f"\n[roadmap] Pipeline complete: {len(resumed_results)} steps passed",
         flush=True,
     )
+
+    # DEV-R13-006: run the terminal certify step on the spec-patch resume
+    # cycle too, matching the fresh-run path (execute_roadmap). Without this,
+    # certify would only run on fresh runs, not on spec-patch auto-resumes.
+    _run_certify_after_remediate(config, resumed_results)
+
+    # R1.5 / §MVR §4: terminal FR-resolution gate on the spec-patch resume
+    # cycle too, matching the fresh-run path (INV-002 envelope plumbing).
+    _run_verify_implementation(config, resumed_results)
+
     return True
 
 
@@ -3512,10 +4164,10 @@ def _check_tasklist_hash_current(
     SHA-256 of the validation report file. Returns False on mismatch
     (fail closed).
     """
-    from .gates import _parse_frontmatter
+    from superclaude.cli.pipeline.frontmatter import extract_frontmatter
 
     content = tasklist_file.read_text(encoding="utf-8")
-    fm = _parse_frontmatter(content)
+    fm = extract_frontmatter(content)
     if fm is None:
         return False
 

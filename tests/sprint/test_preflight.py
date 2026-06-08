@@ -878,7 +878,7 @@ class TestResultFileCompatibility:
         now = datetime.now(timezone.utc)
         tr = TaskResult(
             task=task,
-            status=TaskStatus.FAIL,
+            status=TaskStatus.FAIL_TERMINAL,
             exit_code=1,
             started_at=now,
             finished_at=now,

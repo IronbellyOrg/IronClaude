@@ -1,0 +1,25 @@
+{
+  "fixture": "id_containment/milestone_id_case",
+  "source_authority": {
+    "master_recurrence_row": 4,
+    "partition_finding": "A12:F-A12-01",
+    "incident_summary": "TUIBBS v1-MVP milestone-prefixed M{n}-D{nn} IDs mis-tokenized as bare-D produced 51 HIGH + 3 MEDIUM phantom_id/id_schema_drift; fixed by R5 MD-family + canonicalizer + Explicit-non-references allowlist (PR #111 / 861047c2)"
+  },
+  "spec_section_heading": "spec",
+  "roadmap_section_heading": "roadmap",
+  "expected_spec_ids": {
+    "fr_ids": ["FR-1"],
+    "nfr_ids": ["NFR-1"],
+    "sc_ids": [],
+    "g_ids": [],
+    "d_ids": ["D01"],
+    "md_ids": ["M1-D01", "M1-D02", "M2-D01", "M2-D02", "M3-D01"]
+  },
+  "expected_phantom_violations": ["D02", "D03", "D04", "D05"],
+  "expected_signatures_findings_count": 0,
+  "expected_semantic_check_result_type": "str",
+  "expected_failure_substring": "Contract #9: roadmap contains 4 IDs not in spec",
+  "expected_contains_fr_1": true,
+  "expected_milestone_ids_resolve_distinctly": true,
+  "notes": "Post-fix oracle, RECONCILED to span-aware dedup at the PR #112↔master merge (master PR #111 / commit 861047c2 chose span-aware over value-global). The R5 MD family resolves M1-D01 != M2-D01 distinctly — the load-bearing recurrence-#4 fix — so ZERO milestone IDs collapse to bare-D phantoms (M{n}-D{nn} are all in spec md_ids; md_in_phantoms stays empty). SPAN-AWARE CHANGE (was value-global): a bare-D token is suppressed only when its CHARACTER SPAN is inside an MD match, NOT when its VALUE merely matches an MD tail. Consequences for this fixture: (1) the standalone prose `D01` in the spec section ('…not the same `D01`') is its own span, so spec d_ids = ['D01'] (was [] under value-global). (2) The roadmap prose sequence indices D01..D05 ('reference D0X as roadmap-internal index') are all standalone spans; D01 ∈ spec, so phantoms = D02/D03/D04/D05 (4, was 3) and the failure message says '4 IDs not in spec'. The live extract_roadmap_ids/spec_parser still has NO 'Explicit non-references' allowlist for prose bare-D tokens, so the deterministic literal set-containment comparator reports them. The milestone-collapse recurrence the fixture pins (M{n}-D{nn} mis-tokenized as bare-D) remains proven cured: expected_milestone_ids_resolve_distinctly:true and no M{n}-D{nn} ID appears in the phantom set."
+}

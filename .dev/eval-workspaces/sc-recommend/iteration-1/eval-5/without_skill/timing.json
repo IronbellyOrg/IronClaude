@@ -1,0 +1,7 @@
+{
+  "total_tokens": 70169,
+  "duration_ms": 47904,
+  "total_duration_seconds": 47.9,
+  "tool_uses": 3,
+  "summary": "Top pick: Notion official hosted MCP at https://mcp.notion.com/mcp. First-party, OAuth, hosted (no infra). makenotion local is soft-deprecated. Runners-up documented for headless / Python-extensible cases."
+}

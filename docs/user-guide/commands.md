@@ -1,5 +1,7 @@
 # SC Commands Reference
 
+<!-- markdownlint-disable MD040 MD051 -->
+
 **Complete SuperClaude Framework Command Reference**
 
 > This file serves two purposes: quick navigation for Claude Code and learning resource for humans.
@@ -86,7 +88,7 @@ src/superclaude/commands/
 ├── document.md        # /sc:document - Documentation
 ├── git.md             # /sc:git - Git Operations
 ├── estimate.md        # /sc:estimate - Development Estimation
-├── reflect.md         # /sc:reflect - Task Reflection
+├── reflect.md         # /sc:reflect - Tiered Reflection
 ├── spec-panel.md      # /sc:spec-panel - Expert Spec Review (414 lines)
 ├── business-panel.md  # /sc:business-panel - Business Analysis
 ├── index-repo.md      # /sc:index-repo - Repository Indexing
@@ -209,7 +211,7 @@ src/superclaude/skills/confidence-check/SKILL.md  # Confidence check skill
 |---------|---------|------|
 | [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` |
 | [`/sc:estimate`](#scestimate---development-estimation) | Time/complexity estimation | `estimate.md` |
-| [`/sc:reflect`](#screflect---task-reflection) | Progress validation | `reflect.md` |
+| [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` |
 | `/sc:load` | Load session | `load.md` |
 | `/sc:save` | Save session | `save.md` |
 
@@ -997,25 +999,34 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 ---
 
-### `/sc:reflect` - Task Reflection
+### `/sc:reflect` - Tiered Reflection
 
-**When to use:** Need to check progress and validate work.
+**When to use:** Audit a proposed plan against its spec before execution (UC-1), or audit completed work for adherence and deviations after execution (UC-2). Reviewer-side, structurally-independent — not single-agent self-review.
 
 **Syntax:**
 
 ```
-/sc:reflect [--type task|session|completion] [--analyze] [--validate]
+/sc:reflect [--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <ref>] [--depth quick|standard|deep] [--tier 1|2|auto] [--reviewers N] [--remediate]
 ```
 
 **Examples:**
 
 ```bash
-/sc:reflect --type task --analyze      # Current approach validation
-/sc:reflect --type session --validate  # Session analysis
-/sc:reflect --type completion          # Readiness check
+/sc:reflect --mode pre --spec docs/spec.md --tasklist .dev/tasklists/feat.md   # UC-1 coverage/gap audit
+/sc:reflect --mode post --diff HEAD~1..HEAD --tasklist .dev/tasklists/feat.md  # UC-2 deviation audit
+/sc:reflect --mode post --diff HEAD~1..HEAD --depth deep --remediate           # force Tier 2 + offer remediation
 ```
 
-**MCP servers:** serena
+**Legacy grammar** (preserved for `/sc:troubleshoot` Wave 6 and other v1 callers):
+
+```bash
+/sc:reflect --type task --analyze    # maps to --mode pre
+/sc:reflect --type task --validate   # maps to --mode post
+```
+
+> The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
+
+**MCP servers:** auggie, serena, context7, tavily, sequential
 
 ---
 

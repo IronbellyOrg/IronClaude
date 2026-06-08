@@ -1,0 +1,12 @@
+=== git check-ignore -v (negation pattern = NON-ignored = tracked; ignore pattern = ignored) ===
+.gitignore:122:!.claude/cache/sc-recommend-lookup.yaml	.claude/cache/sc-recommend-lookup.yaml
+exit=0
+.gitignore:123:!.claude/cache/sc-recommend-plugin.yaml	.claude/cache/sc-recommend-plugin.yaml
+exit=0
+.gitignore:127:.claude/cache/sc-recommend-events.jsonl	.claude/cache/sc-recommend-events.jsonl
+exit=0
+
+=== unambiguous plain check-ignore (1=tracked, 0=ignored) ===
+lookup plain exit=1
+plugin plain exit=1
+events plain exit=0

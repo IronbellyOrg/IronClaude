@@ -1,0 +1,32 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: skipped
+source: .dev/tasks/to-do/TASK-RF-20260602-sprint-auto-resume/
+destination: .dev/tasks/done/TASK-RF-20260602-sprint-auto-resume/
+source_sha256_before: null
+source_sha256_after_move: null
+sha_match: null
+gate_evaluation:
+  mode_post: pass                      # cond 1
+  status_success: fail                 # cond 2 (status: partial)
+  tasklist_completion_pct_1_0: pass    # cond 3 (31/31)
+  no_drift_no_regression: fail         # cond 4 (regression == 1: NEW-R1)
+  frontmatter_present: pass            # cond 5a
+  frontmatter_status_matches: pass     # cond 5b (status: Done)
+  no_citations_dropped: pass           # cond 6a
+  no_grounding_gaps: pass              # cond 6b
+  no_input_drift: pass                 # cond 7
+  no_user_decision_pending: pass       # cond 8 (CG-4 ruled YES -> needs_human_decision == false)
+  adversarial_result_present: pass     # cond 9 (tier 2, ensemble verdict present)
+gate_evaluation_failures: ["status_success", "no_drift_no_regression"]
+gate_passed: false
+citation_revalidation_at_promotion: false
+pending: false
+cross_fs_promotion: false
+checkpoint_path: null
+skip_reason: gate-failed
+fail_reason: null
+override_used: null
+rollback_command: null
+timestamp: "2026-06-03T11:51:07Z"

@@ -1,0 +1,15 @@
+{
+  "fixture": "verification/validation_complete_false_ships_case",
+  "source_authority": {
+    "master_recurrence_row": 12,
+    "partition_findings": ["A2b:F-A2b-004", "A4:F-A4-022"],
+    "incident_summary": "Validation/spec-fidelity declared CLEAN/PASS while implementation incomplete or production-path unreachable — the gate validated report frontmatter shape, not behavior (A2b:F-A2b-004 '8 sub-agents CLEAN with 3 CRITICAL bugs'; A4:F-A4-022 'v3.05 5 BLOCKING + tasklist_ready:false ships'). R1.6 convergence-aware gate requires validation_complete:true so the terminal report's PASS/FAIL bit is load-bearing. Contract #4 / master:§Flaw 4."
+  },
+  "verified_component": "superclaude.cli.roadmap.gates._spec_fidelity_validation_complete_true",
+  "verification_against": "this fixture .md content (frontmatter + body)",
+  "fixture_validation_complete_field": "false",
+  "fixture_high_severity_count": 0,
+  "expected_check_result_on_fixture": false,
+  "expected_check_result_if_flipped_true": true,
+  "expected_contract_4_invariant": "MUST FAIL pre-fix (a report with high_severity_count:0 but validation_complete:false / convergence_passed:false cleared the binary high-severity halt and shipped — gate validated frontmatter shape not completion), MUST PASS post-fix (_spec_fidelity_validation_complete_true returns False for this incomplete report, failing the gate closed; it returns True only when validation_complete:true, i.e. a genuinely-passing terminal report)."
+}

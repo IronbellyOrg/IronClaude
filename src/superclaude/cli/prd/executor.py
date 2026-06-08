@@ -263,6 +263,49 @@ _STEP_ARTIFACT_FILES: dict[str, str] = {
 }
 
 
+_STEP_ARTIFACT_PATTERNS: dict[str, list[str]] = {
+    "scope-discovery": ["scope-discovery*.md"],  # agent may drop the -raw suffix
+    "research-notes": ["research-notes*.md"],
+    "sufficiency-review": [],  # stable; exact match
+}
+# Empty/missing entry → fall back to exact-name behavior.
+
+
+def _pick_best_candidate(
+    candidates: list[tuple[Path, str]], *, preferred_root: Path
+) -> str:
+    """Stable multi-match tiebreak.
+
+    Priority (INV-006 — freshness MUST outrank raw size, else a stale longer
+    file from a prior failed run silently wins over the current output):
+      1. Inside preferred_root (task_dir) over external dirs.
+      2. Most recently modified (mtime).
+      3. Longest content.
+      4. Most specific path (fewest parts).
+    """
+    if not candidates:
+        return ""
+
+    def _key(item: tuple[Path, str]) -> tuple[int, float, int, int]:
+        path, content = item
+        try:
+            in_pref = (
+                1 if path.resolve().is_relative_to(preferred_root.resolve()) else 0
+            )
+        except ValueError:
+            in_pref = 0
+        try:
+            mtime = path.stat().st_mtime
+        except OSError:
+            # Candidate vanished or became unreadable between read_text() and
+            # ranking; content is already captured in memory, so treat it as
+            # oldest rather than crashing recoverable step recovery.
+            mtime = 0.0
+        return (in_pref, mtime, len(content), -len(path.parts))
+
+    return max(candidates, key=_key)[1]
+
+
 def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str:
     """Resolve the best content for gate evaluation and artifact persistence.
 
@@ -340,28 +383,69 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
     if not artifact_name:
         return ndjson_text
 
-    base_name = Path(artifact_name).name
-
     # Search task_dir and its parent (project root) — bounded scope
-    # to avoid searching unrelated directories.
-    search_roots = [task_dir]
+    # to avoid searching unrelated directories. Layer 2 (INV-005): also
+    # add containment-checked WHERE dirs from parsed-request.json so a
+    # variant document written into a writable WHERE source dir is still
+    # recoverable, without re-introducing unbounded widening.
+    search_roots: list[Path] = [task_dir]
     if task_dir.parent.exists():
         search_roots.append(task_dir.parent)
 
-    best_content = ""
-    for root in search_roots:
-        for match in root.rglob(base_name):
-            # Skip NDJSON output files, node_modules, and .git
-            skip_parts = {"node_modules", ".git", "__pycache__"}
-            if "-output.txt" in match.name or skip_parts & set(match.parts):
-                continue
-            try:
-                content = match.read_text(encoding="utf-8", errors="replace")
-                if len(content) > len(best_content):
-                    best_content = content
-            except OSError:
-                continue
+    # Hoisted so the per-candidate containment check below can re-validate every
+    # matched file against repo_root regardless of whether parsed-request.json
+    # contributed any WHERE roots.
+    repo_root = task_dir.parent if task_dir.parent.exists() else task_dir
 
+    parsed_path = task_dir / "parsed-request.json"
+    if parsed_path.exists():
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            parsed = {}
+        for where in parsed.get("WHERE") or []:
+            where_path = repo_root / where
+            # realpath containment (INV-005): reject traversal AND symlink escapes
+            try:
+                real = where_path.resolve(strict=True)
+                real.relative_to(repo_root.resolve())
+            except (ValueError, OSError):
+                continue
+            if where_path.is_symlink():  # reject symlinked roots outright
+                continue
+            if real.is_dir() and real not in search_roots:
+                search_roots.append(real)
+
+    patterns = _STEP_ARTIFACT_PATTERNS.get(step_id) or [Path(artifact_name).name]
+    candidates: list[tuple[Path, str]] = []
+    for root in search_roots:
+        if not root.exists():
+            continue
+        for pattern in patterns:
+            for match in root.rglob(pattern):
+                if "-output.txt" in match.name or (
+                    {"node_modules", ".git", "__pycache__"} & set(match.parts)
+                ):
+                    continue
+                # INV-005 (per-candidate): a matched file may itself be — or sit
+                # under — a symlink that escapes repo_root even when its WHERE
+                # root was validated. Re-resolve and re-check containment before
+                # reading so a symlinked candidate cannot leak content from
+                # outside the contained roots.
+                try:
+                    match.resolve(strict=True).relative_to(repo_root.resolve())
+                except (ValueError, OSError):
+                    continue
+                try:
+                    content = match.read_text(encoding="utf-8", errors="replace")
+                except OSError:
+                    continue
+                if content.strip():
+                    candidates.append((match, content))
+
+    best_content = _pick_best_candidate(candidates, preferred_root=task_dir)
+    # Zero-match (INV-006a/INV-009): best_content == "" → caller falls back to
+    # ndjson_text exactly as today (the only non-regressing default).
     return best_content if best_content.strip() else ndjson_text
 
 
@@ -467,6 +551,17 @@ class PrdExecutor:
                 step_result = self._execute_step(step_id, step_name, builder_name)
                 self._step_results.append(step_result)
                 result.step_results.append(step_result)
+
+                # Deterministically bind --spec FILES into parsed-request.json
+                # right after parse-request persists it and before
+                # scope-discovery (the next iteration) reads it. This is the
+                # one chokepoint the LLM cannot evict (R3).
+                if (
+                    step_id == "parse-request"
+                    and step_result.status.is_success
+                    and self._config.spec_files
+                ):
+                    self._persist_bound_specs()
 
                 # STRICT gate failure halts pipeline
                 if step_result.status.is_failure:
@@ -609,15 +704,26 @@ class PrdExecutor:
         output_text = _extract_text_from_stream_json(raw_output) if raw_output else ""
 
         # Resolve best content: prefer files written to disk by the
-        # subprocess over extracted NDJSON commentary
+        # subprocess over extracted NDJSON commentary.
+        #
+        # INV-010 (binding contract — do NOT collapse these two channels):
+        #   * output_text (NDJSON)  -> _determine_status, for EXIT_RECOMMENDATION/
+        #     HALT/CONTINUE sentinel + QA verdict detection. These sentinels live
+        #     ONLY in the assistant's stdout commentary, never in the disk artifact.
+        #   * gate_content (disk-resolved; NDJSON only as the zero-match fallback)
+        #     -> _evaluate_gate (min_lines + semantic_checks) and
+        #     _persist_step_artifact (canonical-name write for resume).
+        # A future refactor that feeds gate_content into _determine_status (or
+        # vice-versa) would silently strip sentinel detection of its input and
+        # break HALT/verdict handling. Keep these two inputs independent.
         gate_content = _resolve_step_content(
             step_id, self._config.task_dir, output_text
         )
 
-        # Determine status (uses NDJSON text for sentinel detection)
+        # Determine status (uses NDJSON output_text for sentinel detection — INV-010)
         status = self._determine_status(exit_code, output_text, step_id)
 
-        # Gate evaluation (uses resolved content — disk file or NDJSON)
+        # Gate evaluation (uses resolved disk gate_content — INV-010)
         gate = GATE_CRITERIA.get(step_id)
         if gate and status.is_success:
             gate_passed = self._evaluate_gate(step_id, gate, gate_content)
@@ -627,6 +733,12 @@ class PrdExecutor:
                 else:
                     status = PrdStepStatus.VALIDATION_FAIL
                 self._tui.update_step(step_id, gate_state="FAIL")
+                # R5: make silent degradation loud. When authoritative --spec
+                # files were bound but scope-discovery still fails its
+                # (non-fatal) STANDARD gate, the run is continuing on a thin
+                # foundation despite the operator naming specs. Surface it.
+                if step_id == "scope-discovery" and self._bound_spec_paths():
+                    self._warn_spec_degradation()
             else:
                 self._tui.update_step(step_id, gate_state="PASS")
 
@@ -1171,6 +1283,124 @@ class PrdExecutor:
                 duration_seconds=0,
                 exit_code=-1,
             )
+
+    # -------------------------------------------------------------------
+    # Spec binding (--spec FILE deterministic ingestion)
+    # -------------------------------------------------------------------
+
+    def _bind_specs(self, parsed: dict) -> dict:
+        """Force authoritative ``--spec`` files into a parsed-request dict.
+
+        Deterministic, pure-Python, post-LLM, pre-consumer. Adds a Python-owned
+        ``SPECS`` array (objects: ``path``, ``size``, ``inlined``,
+        ``truncated``) and prepends each spec's parent directory into the
+        existing ``WHERE`` array so downstream scope-discovery/investigation
+        steps cannot evict the operator's authoritative inputs.
+
+        Idempotent: re-binding produces an identical ``SPECS`` array and never
+        duplicates ``WHERE`` entries. No-op (returns *parsed* unchanged) when no
+        ``spec_files`` are configured. Mutates and returns *parsed*.
+        """
+        spec_files = list(self._config.spec_files or [])
+        if not spec_files:
+            return parsed
+
+        # Dedup duplicate --spec values (order-preserving): identical inputs must
+        # not produce duplicate SPECS entries / repeated --file attachments.
+        _seen: set[str] = set()
+        _deduped: list[str] = []
+        for sp in spec_files:
+            key = str(Path(sp))
+            if key not in _seen:
+                _seen.add(key)
+                _deduped.append(sp)
+        spec_files = _deduped
+
+        specs: list[dict] = []
+        parent_dirs: list[str] = []
+        for sp in spec_files:
+            p = Path(sp)
+            try:
+                size = p.stat().st_size
+            except OSError:
+                size = 0
+            specs.append(
+                {
+                    "path": str(p),
+                    "size": size,
+                    "inlined": False,  # Phase 1: paths-only binding
+                    "truncated": False,
+                }
+            )
+            parent = str(p.parent)
+            if parent not in parent_dirs:
+                parent_dirs.append(parent)
+
+        existing_where = list(parsed.get("WHERE") or [])
+        # Prepend spec parent dirs (dedup, order-preserving, idempotent).
+        merged_where: list[str] = []
+        for d in parent_dirs:
+            if d not in existing_where and d not in merged_where:
+                merged_where.append(d)
+        merged_where.extend(existing_where)
+
+        parsed["SPECS"] = specs
+        parsed["WHERE"] = merged_where
+        return parsed
+
+    def _persist_bound_specs(self) -> None:
+        """Read parsed-request.json, bind specs, and re-persist.
+
+        Called from the Stage-A loop after parse-request persists the artifact
+        and before scope-discovery reads it. Fails soft: a missing/corrupt
+        artifact or write error leaves the pipeline running on the LLM's
+        original WHERE (degraded, but not crashed).
+        """
+        parsed_path = self._config.task_dir / "parsed-request.json"
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return
+        bound = self._bind_specs(parsed)
+        try:
+            parsed_path.write_text(json.dumps(bound, indent=2) + "\n", encoding="utf-8")
+        except OSError:
+            return
+
+    def _warn_spec_degradation(self) -> None:
+        """Loudly warn when bound specs did not lift scope-discovery past its gate.
+
+        R5: the scope-discovery gate is intentionally STANDARD (non-fatal), so a
+        thin scope doc would otherwise let the run continue silently on a weak
+        foundation even though the operator named authoritative specs. Surface
+        it to stderr and the run log.
+        """
+        import click
+
+        specs = ", ".join(self._bound_spec_paths())
+        message = (
+            "WARNING: scope-discovery failed its quality gate even though "
+            f"authoritative --spec files were provided ({specs}). The pipeline "
+            "is continuing on a thin foundation; verify the agent actually read "
+            "each spec in full."
+        )
+        click.echo(message, err=True)
+        self._logger.log_gate_result("scope-discovery", False, message)
+
+    def _bound_spec_paths(self) -> list[str]:
+        """Authoritative spec paths for this run: from config, else from the
+        persisted SPECS array in parsed-request.json. On `prd resume`, --spec is
+        not re-passed, so config.spec_files is empty even though the original run
+        bound SPECS; reading the persisted array makes R5 fire on any run path."""
+        if self._config.spec_files:
+            return list(self._config.spec_files)
+        parsed_path = self._config.task_dir / "parsed-request.json"
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        specs = parsed.get("SPECS") or []
+        return [s["path"] for s in specs if isinstance(s, dict) and s.get("path")]
 
     @staticmethod
     def _estimate_turns(step_id: str) -> int:

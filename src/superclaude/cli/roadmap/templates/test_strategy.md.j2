@@ -1,0 +1,54 @@
+---
+complexity_class: {{ frontmatter.complexity_class }}
+validation_philosophy: {{ frontmatter.validation_philosophy }}
+validation_milestones: {{ frontmatter.validation_milestones }}
+work_milestones: {{ frontmatter.work_milestones }}
+interleave_ratio: {{ frontmatter.interleave_ratio }}
+major_issue_policy: {{ frontmatter.major_issue_policy }}
+spec_source: {{ frontmatter.spec_source | default("") }}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+---
+
+## Issue Classification
+
+| Severity | Action | Gate Impact |
+| --- | --- | --- |
+{% for row in issue_classification | default([]) %}
+| {{ row.severity }} | {{ row.action | default("") }} | {{ row.gate_impact | default("") }} |
+{% endfor %}
+
+## Validation Milestones
+
+{% for row in validation_milestone_map | default([]) %}
+- {{ row.milestone }}{% if row.validates is defined %} — {{ row.validates }}{% endif %}
+
+{% endfor %}
+
+## Test Categories
+
+{% for category in test_categories | default([]) %}
+- {{ category }}
+{% endfor %}
+
+## Test-Implementation Interleaving Strategy
+
+{{ interleaving_strategy | default("") }}
+
+## Risk-Based Test Prioritization
+
+{% for item in risk_based_prioritization | default([]) %}
+- {{ item }}
+{% endfor %}
+
+## Acceptance Criteria per Milestone
+
+{% for row in acceptance_criteria | default([]) %}
+- **{{ row.milestone }}**: {{ row.criteria | default("") }}
+{% endfor %}
+
+## Quality Gates Between Milestones
+
+{% for gate in quality_gates | default([]) %}
+- {{ gate }}
+{% endfor %}

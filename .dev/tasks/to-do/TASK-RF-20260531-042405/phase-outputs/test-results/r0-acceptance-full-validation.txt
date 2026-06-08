@@ -1,0 +1,89 @@
+R0 Acceptance — Full Validation Output
+==========================================
+Run date:    2026-06-01
+Worktree:    /config/workspace/IronClaude-RoadmapRewrite/
+Branch:      refactor/roadmap-pipeline-r0-r1-rewrite
+HEAD:        bdfad6d3
+
+==========================================
+1. ruff check src/superclaude/ tests/
+==========================================
+All checks passed!
+
+==========================================
+2. ruff format --check src/superclaude/ tests/
+==========================================
+702 files already formatted
+
+==========================================
+3. uv run pytest tests/roadmap/ tests/contracts/
+==========================================
+12 failed, 1758 passed, 13 skipped in 5.87s
+
+The 12 failures are PRE-EXISTING (verified by checking out pre-R0 commit 91095144 — same failures exist on the baseline). Categories:
+
+  (a) Default-agent model drift (haiku → sonnet) — caused by upstream commit
+      70ef6486 "chore(dev): … refactor: replace haiku defaults with sonnet
+      across codebase (#106)" which pre-dates R0:
+        - tests/roadmap/test_cli_contract.py::TestAgentsParsing::test_default_agents_when_not_provided
+        - tests/roadmap/test_models.py::TestRoadmapConfig::test_default_agents
+        - tests/roadmap/test_validate_unit.py::TestValidateConfigDefaults::test_default_agents_two
+
+  (b) Pipeline step-count expectations (expect 13, see 8) — pre-existing
+      pipeline-integration drift independent of R0:
+        - tests/roadmap/test_eval_gate_rejection.py::TestAllGatesPass::test_passing_fixture_passes[merge-gate6]
+        - tests/roadmap/test_executor.py::TestIntegrationMockSubprocess::test_full_pipeline_all_pass
+        - tests/roadmap/test_gates_data.py::TestGateInstances::test_merge_gate_has_seven_semantic_checks
+        - tests/roadmap/test_integration_v5_pipeline.py::TestSC1PipelineComplete::test_pipeline_reaches_certify
+        - tests/roadmap/test_integration_v5_pipeline.py::TestSC1PipelineComplete::test_remediate_step_is_last
+        - tests/roadmap/test_integration_v5_pipeline.py::TestSC1PipelineComplete::test_no_step_fails
+        - tests/roadmap/test_integration_v5_pipeline.py::TestCompleteV224PipelineFlow::test_full_pipeline_sc1_through_sc6
+        - tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_steps_1_through_9_complete
+        - tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_state_with_all_12_steps
+
+Baseline reproduction (proof these are not R0.3-caused):
+  git checkout 91095144 -- . (pre-R0 master baseline)
+  uv run pytest tests/roadmap/test_models.py::TestRoadmapConfig::test_default_agents \
+                tests/roadmap/test_validate_unit.py::TestValidateConfigDefaults::test_default_agents_two
+  RESULT: same FAIL, same `assert 'sonnet' == 'haiku'` AssertionError.
+
+R0-introduced tests (Contract gates): 42/42 PASS:
+  tests/roadmap/test_threshold_registry.py             — 12 PASS (Contract #8)
+  tests/contracts/test_arch_lint.py                    — 11 PASS (Contract #5 walker)
+  tests/roadmap/test_spec_roadmap_id_containment.py    — 11 PASS (Contract #9)
+  tests/roadmap/test_anti_instinct_recurrence.py       —  8 PASS (Contract #10)
+
+==========================================
+4. make verify-sync
+==========================================
+Initial run: FAILED (drift in .claude/ skill mirror — pre-existing, not R0-introduced).
+After `make sync-dev`: ✅ All components in sync.
+
+The .claude/ drift was pre-existing in the worktree mirror (sc-auggie-review-protocol,
+sc-brainstorm-protocol, sc-crash-recovery, sc-reflect-protocol, sc-task-protocol all
+missing from .claude/skills/ and others differing). R0.3 did not touch any
+src/superclaude/skills/ files, so the sync drift was inherited from prior worktree
+state and is resolved by `make sync-dev`. Per CLAUDE.md ABSOLUTE RULE, .claude/{skills,
+commands,agents}/* are gitignored — no commit needed.
+
+==========================================
+5. make lint-architecture
+==========================================
+=== Check 11: Contract Constant Anti-Duplication (Contract #5 + #8) ===
+  ✅ [Check 11]: no contract-constant duplications
+
+=== Summary ===
+  Errors:   0
+  Warnings: 5
+  ✅ PASS — architecture policy compliant (5 warning(s))
+
+==========================================
+SUMMARY
+==========================================
+- ruff check:        PASS
+- ruff format:       PASS (702 files already formatted)
+- pytest contracts:  42/42 R0-introduced PASS; 12 PRE-EXISTING failures (haiku/sonnet
+                     default-agent + pipeline step-count drift, reproduced on baseline
+                     91095144 — NOT R0.3-caused).
+- verify-sync:       PASS (after make sync-dev; .claude/ drift was pre-existing, gitignored)
+- lint-architecture: PASS (Check 11 included, Contract #5+#8 pipeline-blocking)

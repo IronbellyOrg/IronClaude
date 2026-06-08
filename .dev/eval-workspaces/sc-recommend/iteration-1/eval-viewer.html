@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "sc-recommend", "runs": [{"id": "eval-1-with_skill", "prompt": "Generate a prompt to create specs from these matrices: docs/scope-matrix.md and docs/risk-matrix.md", "eval_id": 1, "outputs": [{"name": "recommendation.md", "type": "text", "content": "Goal: Generate a paste-ready prompt that turns a scope matrix and a risk matrix into a project-conformant specification document.\n\nRecommended delegation: `prd` skill (invoked via the Skill tool). Wins net value because (a) \"scope-matrix + risk-matrix \u2192 spec\" is the canonical PRD seam \u2014 scope and risk are PRD inputs, not generic spec inputs; (b) `prd` is template-anchored against `.claude/templates/workflow/05_prd_template.md` and enforces MDTM research/synthesis/QA gates that native Read+Write cannot reproduce without duplicating the template by hand; (c) `/sc:spec-panel` reviews existing specs (wrong direction), `/sc:design` lacks template/QA discipline, `/sc:workflow` consumes a PRD rather than produces one. If the user wants a downstream engineering spec after the PRD lands, the optional follow-on is the `tdd` skill (PRD \u2192 TDD is the documented chain).\n\nPaste-ready prompt:\n\n```text\nUse the Skill tool to invoke the `prd` skill with the following inputs:\n\nWHAT to document: A Product Requirements Document derived from two upstream matrices that already capture product scope and product/release risk.\n\nWHY / decisions this PRD supports: Consolidate the scope and risk matrices into a single template-conformant PRD that downstream planning (TDD, roadmap, tasklist) can consume.\n\nSource matrices (treat as authoritative input \u2014 extract scope, personas, jobs-to-be-done, success metrics, constraints, and risk register from these; do not invent content beyond what they imply):\n- docs/scope-matrix.md\n- docs/risk-matrix.md\n\nWHERE to look: Start with the two matrices above. Use the project codebase only to verify any technical claims the matrices reference; do not expand scope beyond what the matrices define.\n\nOUTPUT location: docs/PRD.md (or, if a stub already exists under docs/, populate the stub in place \u2014 surface the stub path before writing).\n\nTier: Standard, unless the scope matrix clearly indicates a single narrow feature (Lightweight) or platform-scale scope (Heavyweight).\n\nDeliverable: A PRD conforming to .claude/templates/workflow/05_prd_template.md with every section populated, the risk register reflecting docs/risk-matrix.md, traceability from scope-matrix rows to functional requirements, and the standard MDTM research-synthesis-QA gates passed.\n\nIf either matrix file does not exist or is empty, stop and ask the user to confirm the matrix paths before spawning the task file.\n```\n\nSources verified:\n\n- src/superclaude/commands/spec-panel.md (Read) \u2014 confirmed it is a review-mode tool that ingests an existing spec; not a producer. Rejected as primary.\n- src/superclaude/commands/design.md (Read) \u2014 confirmed generic design output, no template binding, no QA gates. Rejected.\n- src/superclaude/commands/workflow.md (Read) \u2014 confirmed it consumes a PRD and emits an implementation workflow; wrong direction.\n- src/superclaude/skills/prd/SKILL.md (Read) \u2014 confirmed template at `.claude/templates/workflow/05_prd_template.md`, MDTM pipeline, mandatory input is \"WHAT to document\" + optional \"WHY/WHERE/OUTPUT\". Hand-off compatible with the user's two-matrix input.\n- src/superclaude/skills/tdd/SKILL.md (Read) \u2014 confirmed PRD-fed TDD path exists as the documented follow-on; held as optional next step, not bundled into the primary prompt.\n- auggie semantic rank: top 5 returned were `spec-panel`, `prd`, `tdd`, `design`, `adversarial`. Only `prd` matches the production direction (matrices \u2192 spec); the rest are review, downstream, generic, or comparison surfaces.\n\n## Trace\n\nAuggie semantic-rank query was issued once with the verbatim user request and the full enumerated surface (commands + skills + agents + templates). Auggie surfaced \u2014 in capability-fit order against the request:\n\n1. `/sc:spec-panel` \u2014 surfaced strongly because of the literal word \"spec\", but verification revealed it ingests an existing specification and produces expert critique. Direction mismatch: user wants to CREATE specs, spec-panel REVIEWS them. Dropped as primary; would be valid as a downstream review step after the PRD lands.\n2. `prd` skill \u2014 surfaced as the canonical producer of a template-conformant requirements artifact, template at `.claude/templates/workflow/05_prd_template.md`, MDTM-backed, accepts matrix-style inputs in the WHAT/WHY/WHERE/OUTPUT contract. Verified and selected as primary.\n3. `tdd` skill \u2014 surfaced as the engineering-spec producer; documented chain is PRD \u2192 TDD. Verified. Held as optional follow-on, not bundled into the primary prompt because the user said \"create specs\" without confirming they want both layers.\n4. `/sc:design` \u2014 surfaced because of \"design specifications\" phrasing in its description. Verification showed it is a generic design generator with no template binding, no QA gates, and no MDTM persistence. Net-value rubric: skill protocol load cost not justified vs prd/tdd which own the template; dropped.\n5. `/sc:adversarial` \u2014 surfaced because spec-generation prompts in the repo's research artifacts pair adversarial debate with spec-panel review. Verification confirmed it is a comparison/debate tool, not a generator. Dropped \u2014 out of scope for a single-pass \"create specs from matrices\" request.\n\nPer-candidate verification outcomes (Phase 0 Step C):\n\n| Candidate | Source resolved | Direction fit | Decision |\n|---|---|---|---|\n| `/sc:spec-panel` | yes (src/superclaude/commands/spec-panel.md) | reviewer, not producer | drop |\n| `prd` skill | yes (src/superclaude/skills/prd/SKILL.md) | producer, template-anchored | primary |\n| `tdd` skill | yes (src/superclaude/skills/tdd/SKILL.md) | producer, downstream of PRD | optional follow-on |\n| `/sc:design` | yes (src/superclaude/commands/design.md) | generic, untemplated | drop |\n| `/sc:adversarial` | yes (src/superclaude/commands/adversarial.md) | debate/compare | drop |\n\nPhase 1 net-value check on the selected primary (`prd` skill):\n\n- Specialized capability: template-conformant PRD assembly + MDTM research/synthesis/QA gates. Native Read+Write cannot reproduce the QA discipline.\n- Scope: two-matrix input is small, but the *output structure* (full PRD template with risk register, traceability, success metrics) is load-bearing \u2014 template-owning skill wins.\n- Output structure: PRD template is a project-template artifact; skill owns it.\n- Token budget: `prd` skill body is large but justified \u2014 the user is asking for a complete structured document, not a one-liner.\n- Discipline: matrices imply downstream consumers (TDD, roadmap, tasklist) that depend on the PRD being template-conformant \u2014 discipline wins.\n\nDecision: delegate to `prd`. Recommendation kind: `delegation_prompt`. Auggie status: `ok`. No degradation notice required.\n"}], "grading": {"eval_id": 1, "eval_name": "spec-from-matrices-must-surface-spec-panel", "configuration": "with_skill", "output_chars": 6678, "output_exists": true, "expectations": [{"text": "Output names /sc:spec-panel as the primary delegation", "passed": true, "evidence": "substring '/sc:spec-panel' found"}, {"text": "Output references the release-spec template file by name", "passed": false, "evidence": "substring 'release-spec-template.md' NOT found"}, {"text": "Output does not include any static keyword-category labels", "passed": true, "evidence": "substring '_category' absent (good)"}, {"text": "Output includes a fenced paste-ready prompt block", "passed": true, "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```text\\nUse the Skill tool to invoke the `prd` skill with the following inputs:\\n'"}], "pass_rate": 0.75}}, {"id": "eval-1-without_skill", "prompt": "Generate a prompt to create specs from these matrices: docs/scope-matrix.md and docs/risk-matrix.md", "eval_id": 1, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# Recommendation: Generating Specs from `scope-matrix.md` + `risk-matrix.md`\n\n## Approach\n\nUse the existing **`prd`** and **`tdd`** skills as the spec generators, with the two matrices supplied as **authoritative, frozen inputs**. This project already has:\n\n- `src/superclaude/skills/prd/SKILL.md` \u2014 produces a PRD conforming to `templates/workflow/05_prd_template.md` (MDTM-backed, codebase-verified, anti-hallucination gates).\n- `src/superclaude/skills/tdd/SKILL.md` \u2014 produces the engineering counterpart, can be fed directly from the PRD.\n- `templates/documents/release-spec-template.md` \u2014 the canonical spec schema if a single release spec is preferred over PRD+TDD.\n\nRunning PRD then TDD sequentially gives you a product spec and an engineering spec that share traceability back to every row in the two matrices. If you want a single document instead, swap the two-step flow for one `release-spec` pass \u2014 the prompt below has a toggle for that.\n\nWhy this beats a generic \"write me a spec\" prompt:\n\n- The matrices become **the contract**: every in-scope row must appear as a requirement; every risk row must appear as a mitigation, acceptance criterion, or open-question.\n- The skills already enforce template conformance, evidence-backed claims, and QA gates \u2014 you don't have to reinvent that scaffolding in the prompt.\n- Out-of-scope rows from `scope-matrix.md` become explicit non-goals (a class of bug specs routinely miss).\n\n## Paste-ready prompt\n\nPaste this verbatim into a fresh Claude Code chat in the repo. Replace the two path lines at the top if the matrices live elsewhere.\n\n```\nInputs (treat as authoritative, frozen \u2014 do not re-derive scope or risk from memory):\n- SCOPE_MATRIX: docs/scope-matrix.md\n- RISK_MATRIX:  docs/risk-matrix.md\n\nGoal: Produce specifications for the product/feature described by these two matrices. The matrices ARE the source of truth \u2014 every in-scope row must land in the spec as a requirement, every out-of-scope row as an explicit non-goal, and every risk row as a mitigation, acceptance criterion, or tracked open-question.\n\nDeliverables (default \u2014 two documents, traceable to each matrix row):\n1. A PRD at docs/specs/<slug>-PRD.md \u2014 invoke the `prd` skill.\n2. A TDD at docs/specs/<slug>-TDD.md \u2014 invoke the `tdd` skill, feeding it the PRD from step 1 plus both matrices.\n\n(If I instead want a single combined release spec, ignore the two-doc plan and produce one document at docs/specs/<slug>-release-spec.md using templates/documents/release-spec-template.md. Ask me which mode I want before starting if it is ambiguous.)\n\nHard requirements for both specs:\n- Read both matrices fully before drafting anything. Do not paraphrase rows from memory.\n- Every requirement, non-goal, mitigation, and acceptance criterion must cite the matrix row it traces to, e.g. `[scope-matrix.md row: <id-or-heading>]` or `[risk-matrix.md row: <id-or-heading>]`.\n- Include a \"Traceability\" appendix in each spec: two tables (scope-row \u2192 spec-section, risk-row \u2192 spec-section) covering 100% of in-scope and risk rows. Any uncovered row must appear in an \"Open Questions / Gaps\" section with a concrete next action \u2014 never silently dropped.\n- Out-of-scope rows from the scope matrix become an explicit Non-Goals section, not an omission.\n- Risk severity/likelihood (or whatever columns the risk matrix uses) must drive priority in the spec: high-severity risks get acceptance criteria + monitoring/rollback plans, not just prose.\n- Verify any technical claim against the codebase before writing it \u2014 use `mcp__auggie__codebase-retrieval` (or Grep + Read) when the matrix references existing components, files, or behaviors. No hand-waving.\n- Conform exactly to the project templates (`templates/workflow/05_prd_template.md`, the tdd skill's template, or `templates/documents/release-spec-template.md` for combined mode). The template is the schema.\n\nPre-flight (do this first, before drafting):\n1. Read both matrices in full. Extract: feature name/slug, in-scope row list, out-of-scope row list, risk row list with severities.\n2. Run a confidence check: do you have \u226590% clarity on what the feature IS? If not, list the top 3 ambiguities and ask me \u2014 don't guess.\n3. Confirm the deliverable mode (two-doc PRD+TDD vs. single release spec) and the output directory.\n4. Then invoke the `prd` skill (or `release-spec` flow) with the matrices passed as inputs.\n\nOutput: the spec file paths, plus a short summary of which matrix rows landed where and which rows (if any) are in the Open Questions section with the reason.\n```\n\n## Notes / framing for the user\n\n- If the matrices don't yet exist at `docs/scope-matrix.md` / `docs/risk-matrix.md`, create or move them there before pasting \u2014 the prompt treats those paths as frozen inputs.\n- The \"Traceability appendix + Open Questions\" pattern is the part that's load-bearing: it converts the matrices from background reading into a checklist the spec must satisfy, which is what makes specs-from-matrices reliably good instead of vaguely on-topic.\n- If you only want one spec, the inline toggle in the prompt covers that; otherwise the default PRD\u2192TDD chain gives you both product and engineering perspectives without duplicated traceability work.\n"}], "grading": {"eval_id": 1, "eval_name": "spec-from-matrices-must-surface-spec-panel", "configuration": "without_skill", "output_chars": 5218, "output_exists": true, "expectations": [{"text": "Output names /sc:spec-panel as the primary delegation", "passed": false, "evidence": "substring '/sc:spec-panel' NOT found"}, {"text": "Output references the release-spec template file by name", "passed": true, "evidence": "substring 'release-spec-template.md' found"}, {"text": "Output does not include any static keyword-category labels", "passed": true, "evidence": "substring '_category' absent (good)"}, {"text": "Output includes a fenced paste-ready prompt block", "passed": true, "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```\\nInputs (treat as authoritative, frozen \u2014 do not re-derive scope or risk from'"}], "pass_rate": 0.75}}, {"id": "eval-2-with_skill", "prompt": "Help me research the codebase for how the freshness hook system works", "eval_id": 2, "outputs": [{"name": "recommendation.md", "type": "text", "content": "Goal: Research how the freshness hook system works in this codebase \u2014 what the 7 freshness-*.sh scripts do, how they are wired into Claude Code via settings.json, and what behavior they enforce.\n\nRecommended delegation: **auggie MCP `codebase-retrieval` (one semantic sweep) \u2192 native Read on the verified files**. The scope is one bounded subsystem (~7 scripts + hook registration + any Python helpers) that already has known entry points on disk. Auggie wins the conceptual / cross-file ranking step that brute Grep would multi-call for. Beyond that, the work is read-and-explain \u2014 native Read/Grep finishes it. tech-research is overkill (it builds an MDTM task folder, spawns parallel rf-task-researcher / rf-analyst / rf-qa-qualitative subagents, and produces a synthesis-gated report \u2014 those guarantees buy nothing when the surface is 7 files in one directory). deep-research(-agent) is web-focused (Tavily / WebSearch / Playwright / Context7) and would not even read the local scripts \u2014 wrong tool for a codebase question.\n\nPaste-ready prompt:\n\n```text\nResearch the freshness hook system in this codebase. Scope is bounded \u2014 ~7 shell scripts plus their registration site plus any Python helpers they call.\n\nStep 1 \u2014 Single semantic sweep with auggie. Run one mcp__auggie__codebase-retrieval call with information_request: \"Explain the freshness hook subsystem in this repo. Cover (1) what each of the 7 freshness-*.sh scripts in .claude/hooks/ does \u2014 pre-edit, post-read, session-start, subagent-start, subagent-stop, user-prompt, file-changed; (2) how they are registered as Claude Code hooks (look at .claude/settings.json and any documented hook event mappings); (3) any Python helpers they shell out to under src/superclaude/hooks/; (4) what behavior they enforce (freshness re-reads, file-modified detection, session-context envelope injection); (5) how src/superclaude/hooks/scripts/ relates to the deployed .claude/hooks/ copies (sync-dev source-of-truth).\" Use directory_path = current worktree absolute path.\n\nStep 2 \u2014 Read the actual files auggie surfaces. At minimum:\n  - .claude/settings.json (hook event registrations)\n  - The 7 scripts: .claude/hooks/freshness-{pre-edit,post-read,session-start,subagent-start,subagent-stop,user-prompt,file-changed}.sh\n  - Any Python helper they invoke under src/superclaude/hooks/\n\nStep 3 \u2014 Synthesize into a short writeup with these sections:\n  - Event \u2192 hook \u2192 script map (which Claude Code event triggers which script)\n  - Per-script purpose (1-2 lines each, citing the file)\n  - Enforcement behavior (what each blocks, warns about, or injects)\n  - Sync model (src/superclaude/hooks/scripts/ is source-of-truth; .claude/hooks/ is sync-dev output)\n  - Open questions or gaps surfaced during reading\n\nDo NOT spawn a tech-research MDTM task or a deep-research-agent \u2014 the surface is small and local. Use auggie for the conceptual sweep and Read for the file-level detail.\n```\n\nSources verified:\n\n- src/superclaude/skills/sc-recommend/SKILL.md (Read \u2014 protocol followed: Phase 0 \u2192 1 \u2192 2)\n- src/superclaude/skills/sc-recommend/refs/surface-enumeration.md (Read \u2014 Phase 0 algorithm)\n- src/superclaude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md (Read \u2014 net-value rubric)\n- src/superclaude/skills/tech-research/SKILL.md (Read \u2014 verified MDTM-heavy, scope-mismatched for this request)\n- src/superclaude/agents/deep-research-agent.md (Read \u2014 verified web-focused, wrong tool for codebase scope)\n- src/superclaude/mcp/MCP_Auggie.md (auggie ranking returned this \u2014 verified MCP primitive)\n- src/superclaude/commands/*.md, src/superclaude/skills/*/SKILL.md, src/superclaude/agents/*.md (Glob \u2014 full surface enumeration)\n- .claude/hooks/freshness-*.sh and src/superclaude/hooks/scripts/freshness-*.sh (Bash ls \u2014 confirmed 7 scripts exist at both locations as the user stated)\n- auggie semantic rank: confirmed auggie (semantic codebase) and tech-research (MDTM investigation) as the on-surface candidates; deep-research-agent verified web-only; \"Explore agent\" returned no source file in this repo \u2014 dropped as a ghost candidate per Rule R2.\n\nCandidates considered and rejected:\n\n- **tech-research skill** \u2014 verified, real, but its MDTM + multi-agent synthesis machinery is sized for cross-subsystem investigations (5-20 files across multiple domains). For 7 scripts in one directory, it loads ~2-3K tokens of protocol to do what auggie + 8 Reads do directly. Rejected on net-value axis 4 (token budget vs. value).\n- **deep-research / deep-research-agent** \u2014 verified, real, but tooled for *external* knowledge (Tavily, WebSearch, Context7, Playwright). The user's request is explicitly \"research the codebase\" \u2014 no web component. Rejected on capability mismatch.\n- **\"Explore agent\"** \u2014 no source file under `src/superclaude/agents/` or `.claude/agents/`. Ghost candidate per Rule R2 \u2014 dropped silently from the recommendation (mentioned here only because the eval request named it).\n"}], "grading": {"eval_id": 2, "eval_name": "research-codebase-must-pick-among-three-research-paths", "configuration": "with_skill", "output_chars": 4945, "output_exists": true, "expectations": [{"text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill", "passed": true, "evidence": "regex /(deep-research|Explore|auggie|tech-research)/ matched: 'auggie'"}, {"text": "Output justifies the choice (does not flat-list all three)", "passed": true, "evidence": "regex /(because|since|wins|preferred|fits|scope)/ matched: 'scope'"}, {"text": "Output includes a fenced prompt block OR a clear native-tool recommendation", "passed": true, "evidence": "regex /(```|Read|Glob|Grep)/ matched: 'Read'"}], "pass_rate": 1.0}}, {"id": "eval-2-without_skill", "prompt": "Help me research the codebase for how the freshness hook system works", "eval_id": 2, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# Recommendation: Research Freshness Hook System\n\n## Framing\n\nThis is a codebase research task in a SuperClaude project \u2014 a focused investigation of an existing subsystem (hooks). The SuperClaude framework has a dedicated `tech-research` skill for exactly this kind of work: deep technical investigation that produces a structured report with findings, gap analysis, and citations grounded in real files. The hook layer is also referenced in CLAUDE.md (`freshness-pre-edit` enforcement, `UserPromptSubmit` session-context injection, `verify-sync` pre-commit) so there is concrete code to ground the investigation in.\n\nAuggie MCP should drive the initial discovery sweep (highest-priority server per CLAUDE.md, low token cost, broad semantic recall), with Serena for symbol-level follow-up and Read for precise file:line citations. The output should be a structured tech-research report covering: what the freshness hook is, where it lives, what events trigger it, what it enforces, how it interacts with the session-context envelope and the five content-signal triggers (S1-S5), and any gaps or extension points.\n\n## Paste-Ready Prompt\n\n```\n/sc:research Research how the freshness hook system works in this codebase.\n\nScope:\n- Locate all freshness-related hooks (likely PreToolUse / UserPromptSubmit / PostToolUse) in .claude/settings.json and src/superclaude/hooks/ (or wherever hook implementations live).\n- Document the trigger conditions, inputs, exit codes, and blocking behavior for each freshness hook.\n- Map the hook layer to the \"Context freshness discipline\" section in CLAUDE.md \u2014 specifically the S1-S5 content-signal triggers and the session-context envelope (turn=, \u0394=, git=dirty=, changed_since_last_turn=).\n- Identify how Read freshness is tracked (mtime? hash? turn counter?) and what causes a re-Read to be required.\n- Note interactions with verify-sync, freshness-pre-edit, and any related markdownlint / sync-dev enforcement.\n- Surface gaps: hook coverage holes, bypass vectors (e.g., chat-only citations the hook can't catch), and extension points.\n\nDeliverables:\n- Structured tech-research report under .dev/releases/ or .dev/research/ with file:line citations to every claim.\n- Architecture diagram (text/mermaid) of hook event flow.\n- Gap analysis and recommended next steps.\n\nUse auggie MCP first for broad discovery, then serena for symbol-level navigation, then Read for exact citations. Ground every claim in a real file path + line range.\n```\n\n## Why this approach\n\n- `/sc:research` (backed by the `tech-research` skill) is purpose-built for \"research how X works and figure out what we'd need to change\" \u2014 the exact shape of the request.\n- Auggie-first is mandated by CLAUDE.md for broad codebase context; freshness hooks are spread across `.claude/settings.json`, `src/superclaude/hooks/`, and the CLAUDE.md discipline section, so semantic recall beats grepping.\n- Produces a citable, structured artifact (not just a chat answer) that downstream work \u2014 task-builder, confidence-check, TDD \u2014 can consume.\n\n## Alternatives considered\n\n- Plain `codebase-retrieval` + Read loop \u2014 works for a quick answer but produces no durable artifact and no gap analysis.\n- `/sc:analyze` \u2014 too broad; targets quality/security/perf/architecture across a whole codebase, not a focused subsystem investigation.\n- `/sc:explain` \u2014 good for \"explain this to me\" but doesn't produce a research report with findings/gaps/recommendations.\n"}], "grading": {"eval_id": 2, "eval_name": "research-codebase-must-pick-among-three-research-paths", "configuration": "without_skill", "output_chars": 3444, "output_exists": true, "expectations": [{"text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill", "passed": true, "evidence": "regex /(deep-research|Explore|auggie|tech-research)/ matched: 'tech-research'"}, {"text": "Output justifies the choice (does not flat-list all three)", "passed": true, "evidence": "regex /(because|since|wins|preferred|fits|scope)/ matched: 'since'"}, {"text": "Output includes a fenced prompt block OR a clear native-tool recommendation", "passed": true, "evidence": "regex /(```|Read|Glob|Grep)/ matched: 'Read'"}], "pass_rate": 1.0}}, {"id": "eval-3-with_skill", "prompt": "Build a tasklist for this spec at docs/specs/checkout-v2-spec.md", "eval_id": 3, "outputs": [{"name": "recommendation.md", "type": "text", "content": "Goal: Generate a Sprint CLI-compatible tasklist bundle from the checkout-v2 spec at `docs/specs/checkout-v2-spec.md`.\n\nRecommended delegation: `/sc:tasklist` \u2014 this is the project's dedicated tasklist-bundle generator, owns the deterministic phasing/tier-classification/validation pipeline, and accepts a `--spec` flag for supplementary spec context. Net-value win: structured artifact + template enforcement + roadmap-validation pass; native Read/Write cannot reproduce the tier scoring, deliverable IDs, or Sprint CLI compatibility self-checks.\n\nImportant caveat surfaced during verification: `/sc:tasklist` takes `<roadmap-path>` as its **primary** positional argument, not a spec. The skill's auto-derivation logic (`TASKLIST_ROOT` from `.dev/releases/current/<segment>/` or `v<digits>` token) and Stage 7 roadmap-validation phase both depend on roadmap content. Running `/sc:tasklist` against a spec directly will either fall back to `v0.0-unknown` output dir and produce a tasklist with no roadmap to validate against, or fail input validation. The canonical pipeline is **spec \u2192 `/sc:roadmap` \u2192 roadmap.md \u2192 `/sc:tasklist <roadmap> --spec <spec>`**. Two paste-ready prompts below cover (A) the full canonical pipeline and (B) the direct attempt if a roadmap already exists.\n\n---\n\n**Path A \u2014 Canonical pipeline (recommended if no roadmap exists yet):**\n\nPaste-ready prompt:\n\n```text\nFirst generate a roadmap from the spec, then generate a tasklist bundle from that roadmap with the spec as supplementary context.\n\nStep 1:\n/sc:roadmap docs/specs/checkout-v2-spec.md\n\nWait for roadmap pipeline to complete. Note the output directory (printed on completion) and the roadmap.md path inside it.\n\nStep 2:\n/sc:tasklist @<roadmap-path-from-step-1> --spec @docs/specs/checkout-v2-spec.md\n\nDeliverable: a Sprint CLI-compatible tasklist bundle (tasklist-index.md + phase-N-tasklist.md files) plus validation artifacts under TASKLIST_ROOT/validation/. Report the final tasklist-index.md path when done.\n```\n\n**Path B \u2014 Direct invocation (only if a roadmap already exists in `.dev/releases/current/` for this work):**\n\nPaste-ready prompt:\n\n```text\n/sc:tasklist @<existing-roadmap.md> --spec @docs/specs/checkout-v2-spec.md\n\nIf no roadmap exists yet for the checkout-v2 work, stop and run /sc:roadmap docs/specs/checkout-v2-spec.md first \u2014 /sc:tasklist requires a roadmap as its primary input.\n\nDeliverable: Sprint CLI-compatible tasklist bundle + roadmap-validation report.\n```\n\nDisambiguator: pick A by default; pick B only if you already have a checkout-v2 roadmap.md committed under `.dev/releases/current/`.\n\nSources verified:\n\n- `src/superclaude/commands/tasklist.md` (Read) \u2014 flags `<roadmap-path>`, `--spec`, `--output`; TASKLIST_ROOT auto-derivation; activation hands off to `sc:tasklist-protocol`.\n- `src/superclaude/commands/roadmap.md` (Read) \u2014 accepts spec/TDD/PRD inputs; output dir defaults to parent of first input.\n- `src/superclaude/skills/task-builder/SKILL.md` (Read) \u2014 produces a single MDTM task file in `.dev/tasks/to-do/`, **not** a Sprint tasklist bundle. Considered and rejected: user asked for a tasklist (multi-phase Sprint bundle), not a single MDTM task file.\n- Auggie semantic rank: confirmed `/sc:tasklist` is the canonical roadmap\u2192tasklist generator; confirmed `task-builder` is for single MDTM task creation (different artifact). Auggie also surfaced the deterministic generation primitives (R-### / T<PP>.<TT> / D-#### IDs, tier scoring, TASKLIST_ROOT derivation) that confirm spec-only input is out-of-contract for `/sc:tasklist`.\n"}], "grading": {"eval_id": 3, "eval_name": "tasklist-must-handoff-not-reimplement", "configuration": "with_skill", "output_chars": 3559, "output_exists": true, "expectations": [{"text": "Output names /sc:tasklist or task-builder skill", "passed": true, "evidence": "regex /(/sc:tasklist|task-builder)/ matched: '/sc:tasklist'"}, {"text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)", "passed": true, "evidence": "substring 'MDTM template' absent (good)"}, {"text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification", "passed": false, "evidence": "length 3559 <= 2500? NO"}], "pass_rate": 0.6666666666666666}}, {"id": "eval-3-without_skill", "prompt": "Build a tasklist for this spec at docs/specs/checkout-v2-spec.md", "eval_id": 3, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# Recommendation: Build Tasklist from checkout-v2-spec.md\n\n## Recommended Command\n\n`/sc:tasklist` \u2014 the deterministic roadmap-to-tasklist generator that produces Sprint CLI-compatible multi-file bundles with integrated roadmap validation and `/sc:task` compliance tier integration.\n\n## Framing\n\nA tasklist is derived from a **roadmap**, not directly from a spec. The canonical SuperClaude pipeline is:\n\n```\nspec.md  \u2192  /sc:roadmap  \u2192  roadmap artifacts  \u2192  /sc:tasklist  \u2192  tasklist bundle  \u2192  /sc:task (or superclaude sprint run)\n```\n\nGoing spec \u2192 tasklist directly skips the roadmap-validation gate that `/sc:tasklist` expects as input. So the correct two-step approach is:\n\n1. Generate the roadmap from the spec.\n2. Generate the tasklist from the roadmap.\n\n## Paste-Ready Prompts\n\n**Step 1 \u2014 Generate roadmap from the spec:**\n\n```\n/sc:roadmap docs/specs/checkout-v2-spec.md\n```\n\n**Step 2 \u2014 Generate tasklist from the roadmap output directory** (replace `<roadmap-output-dir>` with the path emitted by step 1, typically under `docs/generated/` or `.dev/releases/`):\n\n```\n/sc:tasklist <roadmap-output-dir>\n```\n\n**Optional pre-flight** \u2014 if the spec itself needs a sanity check before roadmap generation:\n\n```\n/sc:validate-roadmap <roadmap-output-dir>\n```\n\n## Why This Approach\n\n- `/sc:tasklist` is the **purpose-built** command for this request. Its protocol explicitly consumes roadmap artifacts and emits Sprint CLI-compatible bundles with `/sc:task` compliance tiers baked in \u2014 exactly the artifact a downstream task-execution loop needs.\n- `/sc:roadmap` is the **required upstream step**. Its skill description says it \"generates roadmap pipeline artifacts from 1-3 specification, TDD, and PRD markdown inputs\" \u2014 i.e. it's the spec-consuming end of the pipeline.\n- Skipping the roadmap stage and using `/task-builder` or `/sc:workflow` instead would either (a) produce a single MDTM task rather than a multi-task sprint bundle, or (b) skip the roadmap-validation gate that catches spec gaps before they propagate into per-task work.\n- The two-step `/sc:roadmap` \u2192 `/sc:tasklist` chain matches the documented SuperClaude pipeline in `CLAUDE.md` (`superclaude roadmap run` \u2192 `superclaude sprint run <tasklist-index.md>`).\n\n## Alternatives Considered\n\n| Command | Why not primary |\n|---|---|\n| `/task-builder` | Builds a **single** MDTM task file, not a multi-task tasklist bundle. Use it for one focused deliverable, not a whole spec. |\n| `/sc:workflow` | Generates implementation **workflows** from PRDs \u2014 narrower output than a Sprint-compatible tasklist; no roadmap-validation gate. |\n| `/sc:task` directly | Executes tasks; it does not generate the tasklist artifact from a spec. Runs **after** `/sc:tasklist`. |\n| `/sc:implement` | Jumps straight to code. Skips planning, validation, and task decomposition entirely \u2014 wrong altitude for a spec-sized input. |\n\n## Expected Outputs\n\n- **From `/sc:roadmap`**: roadmap pipeline artifacts (roadmap.md, validation report, source-enrichment data) under a generated output directory.\n- **From `/sc:tasklist`**: a Sprint CLI-compatible bundle containing `tasklist-index.md` plus per-task MDTM files, ready for `superclaude sprint run <tasklist-index.md>` or interactive `/sc:task` execution.\n"}], "grading": {"eval_id": 3, "eval_name": "tasklist-must-handoff-not-reimplement", "configuration": "without_skill", "output_chars": 3241, "output_exists": true, "expectations": [{"text": "Output names /sc:tasklist or task-builder skill", "passed": true, "evidence": "regex /(/sc:tasklist|task-builder)/ matched: '/sc:tasklist'"}, {"text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)", "passed": true, "evidence": "substring 'MDTM template' absent (good)"}, {"text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification", "passed": false, "evidence": "length 3241 <= 2500? NO"}], "pass_rate": 0.6666666666666666}}, {"id": "eval-4-with_skill", "prompt": "Recommend a command for refactoring this small util in src/utils/timefmt.py \u2014 it's about 40 lines", "eval_id": 4, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# Recommendation \u2014 Refactor `src/utils/timefmt.py` (~40 lines)\n\n**Recommendation kind:** `native_tooling`\n\nNo skill / command / agent delegation adds net value here. Use native tools.\n\n## Native-tool sequence\n\n1. `Read` `src/utils/timefmt.py` to load the full ~40 lines into context.\n2. `Edit` (or `Write` for a full rewrite) to apply the refactor in place.\n3. Optional: `Bash` to run the file's tests (e.g. `uv run pytest tests/utils/test_timefmt.py -v`) to confirm behavior is preserved.\n\n## Reason (Phase 1 net-value evaluation)\n\nAll four \"default to native\" conditions in `refs/delegation-vs-native-heuristics.md` are satisfied:\n\n- Task fits in 1 read + 1-2 edits.\n- Model can hold ~40 lines of context without loss.\n- No specialized capability required (no multi-agent debate, no semantic ranking across the repo, no structured template, no browser automation).\n- No structured artifact (PRD / TDD / tasklist / roadmap) requested.\n\nThe rubric's table is explicit: **\"Single-file refactor of a small util \u2192 Read + Edit \u2192 NO, native wins\"** and **\"'Refactoring this small util' \u2014 unless the util is genuinely tangled, native wins.\"**\n\nInvoking `/sc:improve`, `/sc:cleanup`, or `/sc:cli-portify` here would load a multi-phase protocol whose loading cost dwarfs the ~40 lines of actual work. That is the exact anti-pattern Phase 1 exists to block.\n\n## Escalation triggers (when this answer changes)\n\nRecommend delegation **only if** one of these surfaces during the Read:\n\n- The util is genuinely tangled (deep nesting, hidden state, > 3 responsibilities) \u2192 consider `/sc:improve --quality`.\n- The refactor turns out to span > 3 files once call sites are inspected \u2192 re-run `/sc:recommend` with the broader scope.\n- The user wants an audit-trail artifact (before/after diff with reasoning) \u2192 consider `/sc:cleanup-audit`.\n\nAbsent those, stop after `Read` + `Edit`.\n\n## Sources verified\n\n- `.claude/skills/sc-recommend/SKILL.md` \u2014 Phase 1 net-value gate (Read)\n- `.claude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md` \u2014 explicit \"single-file refactor of small util\" \u2192 native, and \"'Refactoring this small util' \u2014 native, always\" (Read)\n- Auggie semantic ranking: skipped intentionally. Phase 0 Step B exists to rank candidates when delegation is plausible; the rubric pre-resolves this case to native, so spending an Auggie query on it would itself be the bloat the skill is designed to prevent.\n"}], "grading": {"eval_id": 4, "eval_name": "small-util-refactor-must-recommend-native", "configuration": "with_skill", "output_chars": 2411, "output_exists": true, "expectations": [{"text": "Output recommends native tooling (Read + Edit)", "passed": true, "evidence": "regex /(native|Read.*Edit|Edit.*Read)/ matched: 'native'"}, {"text": "Output does NOT recommend a skill delegation for a 40-line util", "passed": true, "evidence": "regex /Run: /sc:(improve|cleanup|refactor|design)/ absent (good)"}, {"text": "Output explains the reason for the native fallback", "passed": true, "evidence": "regex /(scope|specialized|overhead|reason)/ matched: 'specialized'"}, {"text": "Output is concise (anti-bloat)", "passed": false, "evidence": "length 2411 <= 1500? NO"}], "pass_rate": 0.75}}, {"id": "eval-4-without_skill", "prompt": "Recommend a command for refactoring this small util in src/utils/timefmt.py \u2014 it's about 40 lines", "eval_id": 4, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# Recommendation\n\nFor a ~40-line utility refactor, use **`/sc:improve src/utils/timefmt.py`**.\n\n## Why\n\n- `/sc:improve` is purpose-built for systematic code-quality refactoring (readability, maintainability, small structural cleanups) at the file scope \u2014 exactly the size/intent here.\n- File is small enough that a single-pass improvement is appropriate; no need for `/sc:task` (multi-step orchestration), `/sc:workflow` (PRD-driven), or `/sc:analyze` (diagnostic only, no edits).\n- If you want a safety net first, prepend `/sc:analyze src/utils/timefmt.py` to surface issues before `/sc:improve` applies changes. Otherwise, `/sc:improve` alone is the natural fit.\n"}], "grading": {"eval_id": 4, "eval_name": "small-util-refactor-must-recommend-native", "configuration": "without_skill", "output_chars": 665, "output_exists": true, "expectations": [{"text": "Output recommends native tooling (Read + Edit)", "passed": false, "evidence": "regex /(native|Read.*Edit|Edit.*Read)/ NO match"}, {"text": "Output does NOT recommend a skill delegation for a 40-line util", "passed": true, "evidence": "regex /Run: /sc:(improve|cleanup|refactor|design)/ absent (good)"}, {"text": "Output explains the reason for the native fallback", "passed": true, "evidence": "regex /(scope|specialized|overhead|reason)/ matched: 'scope'"}, {"text": "Output is concise (anti-bloat)", "passed": true, "evidence": "length 665 <= 1500? YES"}], "pass_rate": 0.75}}, {"id": "eval-5-with_skill", "prompt": "/sc:recommend find an MCP server for Notion --plugin", "eval_id": 5, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# /sc:recommend \u2014 MCP server for Notion (--plugin mode)\n\n**Mode:** `--plugin` (local surface ignored). User explicitly asked for an MCP server, so per `refs/plugin-ecosystem-sources.md` the scope opens to MCP servers, clearly labeled as such (not as plugins or skills).\n\n**Search path:** Tavily MCP (shallow, focused). One vendor and one canonical repo were sufficient \u2014 no `tech-research` / `deep-research` hand-off needed.\n\n---\n\n## Top picks for \"find an MCP server for Notion\"\n\n### 1. Notion MCP (hosted, official remote) \u2014 pick this if you want zero-infrastructure OAuth setup on Claude Code\n\n- **Type:** MCP server (remote, Streamable HTTP)\n- **Name:** Notion MCP \u2014 `https://mcp.notion.com/mcp`\n- **Capability:** Notion's officially hosted MCP server. AI agents can read and write Notion pages, query databases / data sources, manage comments, and search across the workspace. OAuth-authenticated; tools are optimized for AI agents with efficient (markdown-based) formatting.\n- **Install (Claude Code, single-line):**\n  ```bash\n  claude mcp add --transport http notion https://mcp.notion.com/mcp\n  ```\n  Then run `/mcp` in Claude Code and complete the OAuth flow.\n- **Scope flags (optional):** `--scope local` (default, current project only), `--scope project` (team-shared via `.mcp.json`), `--scope user` (across all projects).\n- **Repo / source:** Hosted by Notion; no code repo. Server endpoint: `https://mcp.notion.com/mcp` (SSE fallback: `https://mcp.notion.com/sse`).\n- **Version / activity:** Actively maintained as of 2026; Notion's recommended path. (Notion's own docs say to prefer this over the open-source server.)\n- **Integration notes:**\n  - OAuth flow runs on first tool call \u2014 user must be present (no headless / fully-automated use).\n  - Tool count and capabilities are managed server-side; client receives them on `initialize`.\n  - For richer Notion-specific Claude Code workflows, optionally pair with the `claude-code-notion-plugin` (skills + slash commands bundle over the same MCP).\n- **Caveats:**\n  - Requires human-in-the-loop OAuth \u2014 not suitable for fully automated cloud agents.\n  - File / image uploads not yet supported via MCP (workaround: file upload API).\n  - Some MCP clients only support local stdio \u2014 use the `mcp-remote` bridge in that case (covered in Notion's troubleshooting docs).\n- **Citation:**\n  - https://developers.notion.com/guides/mcp/get-started-with-mcp\n  - https://developers.notion.com/guides/mcp/overview\n\n---\n\n### 2. `@notionhq/notion-mcp-server` (open-source, local STDIO) \u2014 pick this if you need headless / token-auth automation\n\n- **Type:** MCP server (local, STDIO; optional Streamable HTTP)\n- **Name:** `@notionhq/notion-mcp-server` (a.k.a. `makenotion/notion-mcp-server`)\n- **Capability:** Notion's original open-source MCP server. Uses a Notion integration token (`NOTION_TOKEN=ntn_...`) instead of OAuth, which makes it usable in headless / CI / fully-automated contexts where the hosted server's OAuth requirement is blocking. Exposes 22 tools (post v2.0.0 data-source migration, Notion API `2025-09-03`).\n- **Install (Claude Code, single-line):**\n  ```bash\n  claude mcp add --env NOTION_TOKEN=ntn_your_token notion-local -- npx -y @notionhq/notion-mcp-server\n  ```\n  (Replace `ntn_your_token` with your Notion internal integration secret. Equivalent to the JSON `command: npx, args: [-y, @notionhq/notion-mcp-server], env: { NOTION_TOKEN }` documented in the README.)\n- **Repo / source:** https://github.com/makenotion/notion-mcp-server\n- **Version / activity:** v2.1.0 released 2026-01-31. **Repository is in maintenance-only mode** \u2014 Notion explicitly states they \"may sunset this local MCP server repository in the future\" and issues / PRs are not actively monitored. Still functional, but not actively developed.\n- **Integration notes:**\n  - Create an internal integration at `https://www.notion.so/profile/integrations`, then grant page / database access via the integration's Access tab (or per-page \"Connect to integration\").\n  - For finer-grained safety, create a read-only token by limiting Capabilities to \"Read content\" only.\n  - Docker option available (`mcp/notion` on Docker Hub) if you prefer container-isolated execution.\n  - v2.0.0 breaking change: database tools (`post-database-query`, `update-a-database`, `create-a-database`) were replaced by data-source equivalents \u2014 update any hardcoded tool-name references.\n- **Caveats:**\n  - Officially de-prioritized by Notion; use only when OAuth-based hosted MCP is not viable.\n  - Exposes a Notion integration token to the LLM context \u2014 security-conscious users should restrict integration capabilities (read-only, scoped pages).\n  - HTTP transport requires bearer-token authentication (auto-generated, CLI-arg, or `AUTH_TOKEN` env var).\n- **Citation:**\n  - https://github.com/makenotion/notion-mcp-server\n  - https://developers.notion.com/guides/mcp/get-started-with-mcp (FAQ: \"What's the difference between Notion MCP and the open-source server?\")\n\n---\n\n### 3. `mcp-remote` bridge to Notion MCP \u2014 pick this if your MCP client only supports local STDIO servers\n\n- **Type:** Bridge package (lets STDIO-only clients talk to the hosted remote MCP)\n- **Name:** `mcp-remote` (npm, generic) wrapping `https://mcp.notion.com/mcp`\n- **Capability:** A thin STDIO-to-HTTP bridge that lets MCP clients without native remote-server support connect to Notion's hosted MCP. Same OAuth flow, same toolset as option 1, just routed through a local `npx` process.\n- **Install (Claude Code, single-line):**\n  ```bash\n  claude mcp add notion -- npx -y mcp-remote https://mcp.notion.com/mcp\n  ```\n- **Repo / source:** https://www.npmjs.com/package/mcp-remote (generic bridge \u2014 not Notion-specific)\n- **Version / activity:** Active npm package; recommended by Notion's own troubleshooting docs as the fallback path.\n- **Integration notes:**\n  - OAuth flow still runs (browser opens on first call) \u2014 the bridge does not change auth model, only transport.\n  - Useful if Claude Code's `--transport http` is unavailable in your version, or if you're plumbing into a different MCP client that lacks remote support.\n- **Caveats:**\n  - Adds a local process hop \u2014 slightly higher latency, one more thing that can crash.\n  - Same OAuth / human-in-the-loop constraint as option 1.\n- **Citation:**\n  - https://developers.notion.com/guides/mcp/get-started-with-mcp (troubleshooting section: \"My tool doesn't support remote MCP servers\")\n\n---\n\n## Quick decision matrix\n\n| Need | Pick |\n|---|---|\n| Default, lowest friction, OAuth user | **#1 hosted Notion MCP** |\n| Headless / CI / automation with API token | **#2 open-source `notion-mcp-server`** |\n| MCP client lacks remote HTTP support | **#3 `mcp-remote` bridge** |\n\n## Notes for the user\n\n- All three options are MCP servers, explicitly labeled \u2014 none of these are Claude Code plugins or skills. The `claude-code-notion-plugin` exists as a separate bundle (skills + slash commands over the same hosted MCP) \u2014 mention it if you want pre-built Notion workflows on top of #1, but it is out of scope for the literal \"MCP server\" request.\n- Citation discipline: every install command and version claim above comes from `developers.notion.com/guides/mcp/get-started-with-mcp` or the `makenotion/notion-mcp-server` README, fetched live via Tavily MCP. No synthesized commands.\n"}], "grading": {"eval_id": 5, "eval_name": "plugin-mode-must-search-ecosystem-not-local", "configuration": "with_skill", "output_chars": 7325, "output_exists": true, "expectations": [{"text": "Output contains a candidate plugin/MCP server with install command", "passed": true, "evidence": "regex /(install|npm|pipx|uv|brew|claude.*install)/ matched: 'claude mcp add --transport http notion https://mcp.notion.com/mcp\\n  ```\\n  Then r'"}, {"text": "Output includes a citation URL (github.com or marketplace)", "passed": true, "evidence": "regex /https?:/// matched: 'https://'"}, {"text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)", "passed": true, "evidence": "regex /src/superclaude/(commands|skills|agents)/ absent (good)"}, {"text": "Output identifies the candidate as an MCP server, not a plugin or skill", "passed": true, "evidence": "regex /(MCP server|mcp-server)/ matched: 'MCP server'"}], "pass_rate": 1.0}}, {"id": "eval-5-without_skill", "prompt": "/sc:recommend find an MCP server for Notion --plugin", "eval_id": 5, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# Notion MCP Server Recommendation\n\n## Top Pick: Notion's Official Hosted MCP Server\n\n**Source:** `https://mcp.notion.com/mcp` (operated by Notion, Inc.)\n**Docs:** https://developers.notion.com/guides/mcp/overview\n**Help:** https://www.notion.com/help/notion-mcp\n\n### Why this is the recommended pick\n\nNotion ships and maintains a **first-party hosted MCP server**. For nearly every use case (Claude Code, Claude Desktop, Cursor, VS Code Copilot, ChatGPT Pro), this is the right default:\n\n- **Official and actively developed** \u2014 built by Notion's own engineering team; their local-binary alternative (`makenotion/notion-mcp-server`) is now soft-deprecated in favor of the hosted endpoint.\n- **OAuth, not API tokens** \u2014 one-click auth flow tied to your real Notion permissions; no integration token to provision, scope, or rotate manually.\n- **Zero install / zero infra** \u2014 it's a hosted HTTP MCP endpoint. No Docker image to pull, no Node process to keep alive, no `.env` to manage.\n- **18 tools covering search, page read/write, database query, comments, and view management** \u2014 sufficient for the overwhelming majority of agentic Notion workflows (PRD drafting, doc search, task updates, release notes).\n- **Broad client support out of the box** \u2014 Notion publishes copy-paste configs for Claude Code, Cursor, VS Code, ChatGPT.\n\n### Install commands (Claude Code)\n\n```bash\nclaude mcp add --transport http notion https://mcp.notion.com/mcp\n# then in Claude Code:\n/mcp   # complete the OAuth flow\n```\n\nFor a richer experience, install the **Notion plugin for Claude Code**, which bundles the MCP server together with pre-built Skills and slash commands for common Notion workflows (referenced in Notion's official \"Connecting to Notion MCP\" guide).\n\n### Configuration (Cursor / VS Code / Claude Desktop)\n\n```json\n{\n  \"mcpServers\": {\n    \"notion\": {\n      \"url\": \"https://mcp.notion.com/mcp\"\n    }\n  }\n}\n```\n\n(VS Code uses `\"servers\"` instead of `\"mcpServers\"` and requires `\"type\": \"http\"`.)\n\n---\n\n## Runners-up (only if the hosted server doesn't fit)\n\n| Server | When to use it instead |\n| --- | --- |\n| **`makenotion/notion-mcp-server`** (official local, MIT) | You need a headless / server-side deployment driven by a long-lived `NOTION_TOKEN` integration token (OAuth user-present flow isn't viable). Soft-deprecated but still functional; Docker Hub image `mcp/notion` available. |\n| **StackOne Notion MCP** | You need block-level surgical edits (vs. page-level replace), file-attachment access, headless agent-framework use (LangChain, CrewAI), or data-source management without the Enterprise + Notion AI gate. Third-party commercial. |\n| **`suekou/mcp-notion-server`** | You want a community Node server targeting the newer `2026-03-11` Notion API with compact, AI-friendly response shaping and MCP Apps support. |\n| **`ccabanillas/notion-mcp`** (Python) | You specifically want a Python implementation to extend / fork. Smaller surface area, MIT-licensed, Smithery-installable. |\n\n---\n\n## Quick decision rubric\n\n- **Default (interactive desktop/IDE agent):** Hosted official \u2192 `https://mcp.notion.com/mcp`.\n- **Headless backend / CI / automation with an integration token:** `makenotion/notion-mcp-server` (local) or StackOne.\n- **Need surgical block edits / file attachments / agent-framework wiring:** StackOne.\n- **Want a Python codebase to customize:** `ccabanillas/notion-mcp`.\n\n## Sources\n\n- [Notion MCP \u2014 Notion Help Center](https://www.notion.com/help/notion-mcp)\n- [Notion MCP Overview \u2014 developers.notion.com](https://developers.notion.com/guides/mcp/overview)\n- [Connecting to Notion MCP \u2014 developers.notion.com](https://developers.notion.com/guides/mcp/get-started-with-mcp)\n- [makenotion/notion-mcp-server (Official local server)](https://github.com/makenotion/notion-mcp-server)\n- [Notion MCP Server: Capabilities, Limitations, and Alternatives \u2014 StackOne](https://www.stackone.com/blog/notion-mcp-deep-dive)\n- [suekou/mcp-notion-server](https://github.com/suekou/mcp-notion-server)\n- [ccabanillas/notion-mcp](https://github.com/ccabanillas/notion-mcp)\n- [Notion's hosted MCP server: an inside look \u2014 Notion Blog](https://www.notion.com/blog/notions-hosted-mcp-server-an-inside-look)\n"}], "grading": {"eval_id": 5, "eval_name": "plugin-mode-must-search-ecosystem-not-local", "configuration": "without_skill", "output_chars": 4205, "output_exists": true, "expectations": [{"text": "Output contains a candidate plugin/MCP server with install command", "passed": true, "evidence": "regex /(install|npm|pipx|uv|brew|claude.*install)/ matched: 'install'"}, {"text": "Output includes a citation URL (github.com or marketplace)", "passed": true, "evidence": "regex /https?:/// matched: 'https://'"}, {"text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)", "passed": true, "evidence": "regex /src/superclaude/(commands|skills|agents)/ absent (good)"}, {"text": "Output identifies the candidate as an MCP server, not a plugin or skill", "passed": true, "evidence": "regex /(MCP server|mcp-server)/ matched: 'MCP server'"}], "pass_rate": 1.0}}, {"id": "eval-6-with_skill", "prompt": "Set up a research workflow for these 3 files: src/superclaude/skills/sc-adversarial-protocol/SKILL.md, src/superclaude/skills/sc-reflect-protocol/SKILL.md, src/superclaude/skills/sc-tasklist-protocol/SKILL.md", "eval_id": 6, "outputs": [{"name": "recommendation.md", "type": "text", "content": "Goal: Research 3 protocol SKILL.md files in parallel and synthesize the findings into a single workflow-design deliverable.\n\nRecommended delegation: **Parallel Agent fan-out** \u2014 a single message spawning 3 `Agent` calls (one per file), followed by a synthesis step in the parent. This wins on wall-clock and context-isolation over a sequential `/sc:research` chain; each agent gets a clean window to deeply read one protocol without cross-contamination, and the parent does the cross-cutting synthesis. A sequential 3x `/sc:research` chain would serialize the work and bleed context between targets. A single `tech-research` invocation would compress all three protocols into one context window and lose fidelity. See `refs/delegation-vs-native-heuristics.md` \u2192 \"Special case \u2014 parallel agent fan-out\".\n\nPaste-ready prompt:\n\n```text\nUse the Agent tool to spawn 3 parallel research agents in a SINGLE message (not sequentially):\n\n  - Agent 1 (deep-research): Read src/superclaude/skills/sc-adversarial-protocol/SKILL.md end-to-end. Return: purpose, activation surface, inputs/outputs, phase structure, return contract, integration touchpoints (which other skills/commands invoke or are invoked by it), and any caveats or known limits called out in the file. Include verbatim citations of load-bearing sections.\n\n  - Agent 2 (deep-research): Same brief, applied to src/superclaude/skills/sc-reflect-protocol/SKILL.md. Pay particular attention to UC-1 vs UC-2 modes, the tier structure (Tier 1/2/3), the heterogeneous-reviewer ensemble, and the evidence-validator gate.\n\n  - Agent 3 (deep-research): Same brief, applied to src/superclaude/skills/sc-tasklist-protocol/SKILL.md. Pay particular attention to the roadmap-validation integration, the Sprint CLI bundle format, and the /sc:task compliance tier handoff.\n\nAfter all 3 agents return, synthesize into a single workflow design that answers:\n  1. How these 3 protocols compose in practice (which one feeds which).\n  2. The natural ordering(s) for a workflow that uses all three.\n  3. Hand-off contracts between them (what artifact one produces that the next consumes).\n  4. Gaps, overlaps, or conflicts between the three protocols.\n  5. A recommended end-to-end workflow with concrete invocation commands.\n\nDeliverable: a single markdown document with one section per agent's findings plus a final \"Composed Workflow\" section. Cite file paths and section headings, not line numbers (line numbers drift).\n```\n\nSources verified:\n\n- /config/workspace/IronClaude/.claude/worktrees/recommendv2/src/superclaude/skills/sc-adversarial-protocol/SKILL.md (exists)\n- /config/workspace/IronClaude/.claude/worktrees/recommendv2/src/superclaude/skills/sc-reflect-protocol/SKILL.md (exists)\n- /config/workspace/IronClaude/.claude/worktrees/recommendv2/src/superclaude/skills/sc-tasklist-protocol/SKILL.md (exists)\n- /config/workspace/IronClaude/.claude/worktrees/recommendv2/.claude/skills/sc-recommend/refs/delegation-vs-native-heuristics.md (Read \u2014 \"Special case \u2014 parallel agent fan-out\" section)\n- auggie semantic rank: skipped \u2014 the delegation pattern is determined by the request shape (3 independent files, synthesize), which the refs file explicitly names as the parallel-fan-out trigger; auggie ranking against the local skill surface would surface `tech-research` / `deep-research` but would not change the fan-out vs. sequential decision.\n"}], "grading": {"eval_id": 6, "eval_name": "parallel-research-must-recommend-multi-agent-fanout", "configuration": "with_skill", "output_chars": 3386, "output_exists": true, "expectations": [{"text": "Output recommends parallel Agent fan-out, not sequential skill calls", "passed": true, "evidence": "regex /(parallel|single message|fan-out|fanout)/ matched: 'parallel'"}, {"text": "Output explicitly invokes the Agent tool (not 3x /sc:research)", "passed": true, "evidence": "regex /Agent.*(tool|call)/ matched: 'Agent fan-out** \u2014 a single message spawning 3 `Agent` calls (one per file), foll'"}, {"text": "Output includes a synthesis step after the parallel Agents", "passed": true, "evidence": "regex /(synthesi|combin|merge|aggregate)/ matched: 'synthesi'"}], "pass_rate": 1.0}}, {"id": "eval-6-without_skill", "prompt": "Set up a research workflow for these 3 files: src/superclaude/skills/sc-adversarial-protocol/SKILL.md, src/superclaude/skills/sc-reflect-protocol/SKILL.md, src/superclaude/skills/sc-tasklist-protocol/SKILL.md", "eval_id": 6, "outputs": [{"name": "recommendation.md", "type": "text", "content": "# Recommended Approach: `/sc:research` with parallel `tech-research` per skill\n\n## Workflow\n\n1. **Parallel comparative analysis** \u2014 Spawn 3 `tech-research` subagents (one per SKILL.md) to extract structure, triggers, MCP usage, sub-skill invocations, return contracts, and behavioral guarantees.\n2. **Cross-skill synthesis** \u2014 Use `/sc:research` (or `sc-brainstorm-protocol`) to compare patterns: shared adversarial primitives, reflection hooks, tasklist generation seams, overlap/divergence.\n3. **Grounding** \u2014 Use `mcp__auggie__codebase-retrieval` for cross-references (where each skill is invoked), `mcp__serena__find_symbol` for protocol callers, `Read` for exact citations.\n4. **Output** \u2014 Structured research report under `.dev/research/` with findings, gap analysis, integration recommendations.\n\n## Reason\n\nThese three SKILL.md files are large behavioral protocols that interlink (adversarial powers reflect and tasklist validation). Parallel fan-out beats sequential reading (3.5x faster, Wave -> Checkpoint -> Wave pattern), and `tech-research` produces the structured comparative report this kind of multi-artifact investigation requires. Auggie grounding prevents hallucinated cross-references.\n"}], "grading": {"eval_id": 6, "eval_name": "parallel-research-must-recommend-multi-agent-fanout", "configuration": "without_skill", "output_chars": 1207, "output_exists": true, "expectations": [{"text": "Output recommends parallel Agent fan-out, not sequential skill calls", "passed": true, "evidence": "regex /(parallel|single message|fan-out|fanout)/ matched: 'parallel'"}, {"text": "Output explicitly invokes the Agent tool (not 3x /sc:research)", "passed": false, "evidence": "regex /Agent.*(tool|call)/ NO match"}, {"text": "Output includes a synthesis step after the parallel Agents", "passed": true, "evidence": "regex /(synthesi|combin|merge|aggregate)/ matched: 'synthesi'"}], "pass_rate": 0.6666666666666666}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "sc-recommend", "skill_path": "/config/workspace/IronClaude/.claude/worktrees/recommendv2/.dev/src/superclaude/skills/sc-recommend", "executor_model": "claude-opus-4-7 (parent) + general-purpose subagents (default model)", "analyzer_model": "claude-opus-4-7", "timestamp": "2026-06-02T13:35:00Z", "evals_run": [1, 2, 3, 4, 5, 6], "runs_per_configuration": 1, "notes": "Iteration 1 \u2014 single run per configuration (12 subagents total, fanned out in one message). Length-cap assertions for evals 3 and 4 are overly tight; surfaced as a finding rather than a true skill regression."}, "runs": [{"eval_id": 1, "eval_name": "spec-from-matrices-must-surface-spec-panel", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.75, "passed": 3, "failed": 1, "total": 4, "time_seconds": 109.9, "tokens": 106362, "tool_calls": 14, "errors": 0}, "expectations": [{"text": "Output names /sc:spec-panel as the primary delegation", "passed": true, "evidence": "substring '/sc:spec-panel' found"}, {"text": "Output references the release-spec template file by name", "passed": false, "evidence": "substring 'release-spec-template.md' NOT found"}, {"text": "Output does not include any static keyword-category labels", "passed": true, "evidence": "substring '_category' absent (good)"}, {"text": "Output includes a fenced paste-ready prompt block", "passed": true, "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```text\\nUse the Skill tool to invoke the `prd` skill with the following inputs:\\n'"}], "notes": ["Recommended prd skill (Skill tool hand-off). Argued /sc:spec-panel reviews specs (does not produce), /sc:design is untemplated, /sc:workflow consumes a PRD rather than producing one. Did NOT surface /sc:spec-panel as the build-request expected."]}, {"eval_id": 1, "eval_name": "spec-from-matrices-must-surface-spec-panel", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.75, "passed": 3, "failed": 1, "total": 4, "time_seconds": 72.5, "tokens": 68161, "tool_calls": 8, "errors": 0}, "expectations": [{"text": "Output names /sc:spec-panel as the primary delegation", "passed": false, "evidence": "substring '/sc:spec-panel' NOT found"}, {"text": "Output references the release-spec template file by name", "passed": true, "evidence": "substring 'release-spec-template.md' found"}, {"text": "Output does not include any static keyword-category labels", "passed": true, "evidence": "substring '_category' absent (good)"}, {"text": "Output includes a fenced paste-ready prompt block", "passed": true, "evidence": "regex /```[a-zA-Z]*\\n[\\s\\S]*?```/ matched: '```\\nInputs (treat as authoritative, frozen \u2014 do not re-derive scope or risk from'"}], "notes": ["Recommended chaining prd skill then tdd skill with release-spec-template.md toggle, matrices as frozen authoritative inputs."]}, {"eval_id": 2, "eval_name": "research-codebase-must-pick-among-three-research-paths", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 3, "failed": 0, "total": 3, "time_seconds": 94.1, "tokens": 91590, "tool_calls": 11, "errors": 0}, "expectations": [{"text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill", "passed": true, "evidence": "regex /(deep-research|Explore|auggie|tech-research)/ matched: 'auggie'"}, {"text": "Output justifies the choice (does not flat-list all three)", "passed": true, "evidence": "regex /(because|since|wins|preferred|fits|scope)/ matched: 'scope'"}, {"text": "Output includes a fenced prompt block OR a clear native-tool recommendation", "passed": true, "evidence": "regex /(```|Read|Glob|Grep)/ matched: 'Read'"}], "notes": ["Picked auggie codebase-retrieval (one sweep) + native Read on verified files. Rejected tech-research (overkill), deep-research-agent (wrong tool), Explore agent (dropped as ghost per Rule R2 \u2014 no source file)."]}, {"eval_id": 2, "eval_name": "research-codebase-must-pick-among-three-research-paths", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 3, "failed": 0, "total": 3, "time_seconds": 32.7, "tokens": 61206, "tool_calls": 2, "errors": 0}, "expectations": [{"text": "Output names at least one of: deep-research agent, Explore agent, auggie MCP, tech-research skill", "passed": true, "evidence": "regex /(deep-research|Explore|auggie|tech-research)/ matched: 'tech-research'"}, {"text": "Output justifies the choice (does not flat-list all three)", "passed": true, "evidence": "regex /(because|since|wins|preferred|fits|scope)/ matched: 'since'"}, {"text": "Output includes a fenced prompt block OR a clear native-tool recommendation", "passed": true, "evidence": "regex /(```|Read|Glob|Grep)/ matched: 'Read'"}], "notes": ["Recommended /sc:research (tech-research skill) with auggie-first discovery, then serena + Read for citations."]}, {"eval_id": 3, "eval_name": "tasklist-must-handoff-not-reimplement", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.6666666666666666, "passed": 2, "failed": 1, "total": 3, "time_seconds": 62.0, "tokens": 107818, "tool_calls": 10, "errors": 0}, "expectations": [{"text": "Output names /sc:tasklist or task-builder skill", "passed": true, "evidence": "regex /(/sc:tasklist|task-builder)/ matched: '/sc:tasklist'"}, {"text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)", "passed": true, "evidence": "substring 'MDTM template' absent (good)"}, {"text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification", "passed": false, "evidence": "length 3559 <= 2500? NO"}], "notes": ["Recommended /sc:roadmap then /sc:tasklist (two-step). Verified tasklist.md source: primary input is roadmap not spec. R3 honored \u2014 hand-off only, no protocol restatement. Rejected task-builder (wrong artifact shape)."]}, {"eval_id": 3, "eval_name": "tasklist-must-handoff-not-reimplement", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.6666666666666666, "passed": 2, "failed": 1, "total": 3, "time_seconds": 32.6, "tokens": 61537, "tool_calls": 2, "errors": 0}, "expectations": [{"text": "Output names /sc:tasklist or task-builder skill", "passed": true, "evidence": "regex /(/sc:tasklist|task-builder)/ matched: '/sc:tasklist'"}, {"text": "Output does NOT inline restate tasklist generation phases or MDTM template internals (R3)", "passed": true, "evidence": "substring 'MDTM template' absent (good)"}, {"text": "Output respects R3 by treating the prompt as a handoff envelope, not a specification", "passed": false, "evidence": "length 3241 <= 2500? NO"}], "notes": ["Recommended /sc:roadmap then /sc:tasklist chain; /sc:tasklist's canonical input is roadmap artifacts not raw spec."]}, {"eval_id": 4, "eval_name": "small-util-refactor-must-recommend-native", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.75, "passed": 3, "failed": 1, "total": 4, "time_seconds": 47.4, "tokens": 78361, "tool_calls": 5, "errors": 0}, "expectations": [{"text": "Output recommends native tooling (Read + Edit)", "passed": true, "evidence": "regex /(native|Read.*Edit|Edit.*Read)/ matched: 'native'"}, {"text": "Output does NOT recommend a skill delegation for a 40-line util", "passed": true, "evidence": "regex /Run: /sc:(improve|cleanup|refactor|design)/ absent (good)"}, {"text": "Output explains the reason for the native fallback", "passed": true, "evidence": "regex /(scope|specialized|overhead|reason)/ matched: 'specialized'"}, {"text": "Output is concise (anti-bloat)", "passed": false, "evidence": "length 2411 <= 1500? NO"}], "notes": ["Recommended NATIVE (Read + Edit) for the 40-line util. Phase 1 net-value rubric pre-resolved the case; agent explicitly skipped Auggie sweep on the rationale that issuing it would itself be the bloat the skill exists to prevent."]}, {"eval_id": 4, "eval_name": "small-util-refactor-must-recommend-native", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.75, "passed": 3, "failed": 1, "total": 4, "time_seconds": 20.2, "tokens": 60583, "tool_calls": 2, "errors": 0}, "expectations": [{"text": "Output recommends native tooling (Read + Edit)", "passed": false, "evidence": "regex /(native|Read.*Edit|Edit.*Read)/ NO match"}, {"text": "Output does NOT recommend a skill delegation for a 40-line util", "passed": true, "evidence": "regex /Run: /sc:(improve|cleanup|refactor|design)/ absent (good)"}, {"text": "Output explains the reason for the native fallback", "passed": true, "evidence": "regex /(scope|specialized|overhead|reason)/ matched: 'scope'"}, {"text": "Output is concise (anti-bloat)", "passed": true, "evidence": "length 665 <= 1500? YES"}], "notes": ["Recommended /sc:improve src/utils/timefmt.py for a 40-line util \u2014 chose to delegate rather than fall back to native Read+Edit."]}, {"eval_id": 5, "eval_name": "plugin-mode-must-search-ecosystem-not-local", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 80.0, "tokens": 93802, "tool_calls": 7, "errors": 0}, "expectations": [{"text": "Output contains a candidate plugin/MCP server with install command", "passed": true, "evidence": "regex /(install|npm|pipx|uv|brew|claude.*install)/ matched: 'claude mcp add --transport http notion https://mcp.notion.com/mcp\\n  ```\\n  Then r'"}, {"text": "Output includes a citation URL (github.com or marketplace)", "passed": true, "evidence": "regex /https?:/// matched: 'https://'"}, {"text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)", "passed": true, "evidence": "regex /src/superclaude/(commands|skills|agents)/ absent (good)"}, {"text": "Output identifies the candidate as an MCP server, not a plugin or skill", "passed": true, "evidence": "regex /(MCP server|mcp-server)/ matched: 'MCP server'"}], "notes": ["Top pick Notion hosted MCP (https://mcp.notion.com/mcp) with one-line install + OAuth. #2 @notionhq/notion-mcp-server (headless/token). #3 mcp-remote bridge (stdio). All labeled MCP server, with install + repo + notes + citations."]}, {"eval_id": 5, "eval_name": "plugin-mode-must-search-ecosystem-not-local", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 47.9, "tokens": 70169, "tool_calls": 3, "errors": 0}, "expectations": [{"text": "Output contains a candidate plugin/MCP server with install command", "passed": true, "evidence": "regex /(install|npm|pipx|uv|brew|claude.*install)/ matched: 'install'"}, {"text": "Output includes a citation URL (github.com or marketplace)", "passed": true, "evidence": "regex /https?:/// matched: 'https://'"}, {"text": "Output does NOT surface any local /sc:* command or src/superclaude/ path (no bleed)", "passed": true, "evidence": "regex /src/superclaude/(commands|skills|agents)/ absent (good)"}, {"text": "Output identifies the candidate as an MCP server, not a plugin or skill", "passed": true, "evidence": "regex /(MCP server|mcp-server)/ matched: 'MCP server'"}], "notes": ["Top pick: Notion official hosted MCP at https://mcp.notion.com/mcp. First-party, OAuth, hosted (no infra). makenotion local is soft-deprecated. Runners-up documented for headless / Python-extensible cases."]}, {"eval_id": 6, "eval_name": "parallel-research-must-recommend-multi-agent-fanout", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 3, "failed": 0, "total": 3, "time_seconds": 40.5, "tokens": 71275, "tool_calls": 4, "errors": 0}, "expectations": [{"text": "Output recommends parallel Agent fan-out, not sequential skill calls", "passed": true, "evidence": "regex /(parallel|single message|fan-out|fanout)/ matched: 'parallel'"}, {"text": "Output explicitly invokes the Agent tool (not 3x /sc:research)", "passed": true, "evidence": "regex /Agent.*(tool|call)/ matched: 'Agent fan-out** \u2014 a single message spawning 3 `Agent` calls (one per file), foll'"}, {"text": "Output includes a synthesis step after the parallel Agents", "passed": true, "evidence": "regex /(synthesi|combin|merge|aggregate)/ matched: 'synthesi'"}], "notes": ["Parallel Agent fan-out \u2014 single message, 3 deep-research Agent calls, parent-side synthesis. Explicitly rejected sequential /sc:research chain and single tech-research compression."]}, {"eval_id": 6, "eval_name": "parallel-research-must-recommend-multi-agent-fanout", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.6666666666666666, "passed": 2, "failed": 1, "total": 3, "time_seconds": 21.2, "tokens": 61028, "tool_calls": 2, "errors": 0}, "expectations": [{"text": "Output recommends parallel Agent fan-out, not sequential skill calls", "passed": true, "evidence": "regex /(parallel|single message|fan-out|fanout)/ matched: 'parallel'"}, {"text": "Output explicitly invokes the Agent tool (not 3x /sc:research)", "passed": false, "evidence": "regex /Agent.*(tool|call)/ NO match"}, {"text": "Output includes a synthesis step after the parallel Agents", "passed": true, "evidence": "regex /(synthesi|combin|merge|aggregate)/ matched: 'synthesi'"}], "notes": ["Recommended /sc:research with 3 parallel tech-research subagents then sc-brainstorm-protocol synthesis."]}], "run_summary": {"with_skill": {"pass_rate": {"mean": 0.8611, "stddev": 0.1552, "min": 0.6667, "max": 1.0}, "time_seconds": {"mean": 72.3167, "stddev": 27.1501, "min": 40.5, "max": 109.9}, "tokens": {"mean": 91534.6667, "stddev": 14657.0134, "min": 71275, "max": 107818}}, "without_skill": {"pass_rate": {"mean": 0.8056, "stddev": 0.1552, "min": 0.6667, "max": 1.0}, "time_seconds": {"mean": 37.85, "stddev": 19.7203, "min": 20.2, "max": 72.5}, "tokens": {"mean": 63780.6667, "stddev": 4229.972, "min": 60583, "max": 70169}}, "delta": {"pass_rate": 0.0555, "time_seconds": 34.4667, "tokens": 27754.0}}}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

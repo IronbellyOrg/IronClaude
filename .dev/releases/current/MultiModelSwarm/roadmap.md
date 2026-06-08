@@ -1,528 +1,508 @@
 ---
-spec_id: SPEC-MULTIMODEL-SWARM
 spec_source: "merged-requirements.compressed.md"
-complexity_score: 0.85
+complexity_score: 0.82
 complexity_class: HIGH
 primary_persona: architect
 adversarial: true
 base_variant: "A"
-variant_scores: "A:81 B:74"
-convergence_score: 0.55
+variant_scores: "A:84 B:71"
+convergence_score: 0.72
 ---
-
-# Multi-Model Swarm Orchestrator — Project Roadmap
+# MultiModel Swarm Orchestrator (`superclaude swarm`) — Project Roadmap
 
 ## Executive Summary
 
-This roadmap delivers `superclaude swarm`, a new top-level CLI verb that orchestrates N concurrent model workers against a single target through a deterministic four-wave pipeline (preflight → dispatch → normalize → reduce). It replaces the prior attention-mediated "single message, N tool calls" parallelism and the retired shell `swarm_dispatch.sh` with a code-enforced Python `ThreadPoolExecutor` invoked through the existing `superclaude.execution.parallel.ParallelExecutor`. The system is caller-agnostic: it carries zero Claude-Code-isms in its job spec, result contract, CLI surface, or monitoring contract, so any language can drive it via `subprocess.run(["superclaude", "swarm", "run", ...])`.
+This roadmap delivers `superclaude swarm` — a new top-level CLI verb representing the third orchestration primitive in the SuperClaude framework: single-shot parallel fan-out, distinct from `sprint` (sequential-phase) and `roadmap` (generative-graph). The orchestrator dispatches N workers in true Python-process parallelism against external T2-proxy models, normalizes each worker's output through a pluggable Recipe Protocol, and emits a durable return contract. Policy (prompts, templates, normalizers) lives in a bundled lens registry; mechanism (parallel dispatch, invariants, observability) lives in the CLI package; the caller owns choice. The marquee migration target is `sc-bare-review`, which collapses from a script-driven SKILL.md to a ~60-line thin caller over `--lens bare-review`.
 
-The architecture decomposes into 35+ components across six subsystems (orchestrator modules, recipe registry, lens registry, transport layer, templates, data models) and must carry forward five parent IMM invariants verbatim plus seven INV-xxx fault-finder remediations. The defining architectural tension is the **merge boundary**: `normalize+merge` mode performs mechanical concatenation only, and four structural guards (docstring contract, ≤30 LOC ceiling, PR-review discipline, boundary test) exist to prevent it from ever drifting into scoring, deduplication, or judging — that responsibility stays exclusively with the unchanged `/sc:adversarial` scored-merge pipeline.
+**Business Impact:** Converts attention-mediated parallelism (fragile, Claude-tool-call-dependent) into code-enforced ThreadPoolExecutor parallelism (deterministic, cross-language callable via `subprocess.run`). Establishes a reusable fan-out primitive that any current or future harness can drive, eliminates a class of dual-writer race conditions by retiring shell-script dispatch, and hardens prompt-injection defenses across all three prompt-input paths. Unlocks 7 additional review/analysis lenses on the same mechanism at marginal cost.
 
-**Business Impact:** Converts a fragile, attention-dependent multi-model review capability into a durable, resumable, observable CLI primitive reusable across 8 analytical lenses (bare-review, refactor-find, edge-case-hunt, spec-completeness, feasibility-probe, troubleshoot-hypothesis, doc-completeness, custom). It makes T2 swarm review a first-class, non-Claude-callable building block while migrating the existing `sc-bare-review` skill to a ~60-line thin caller with A/B-verified output parity, and lands first-class operational handoff (runbook, env readiness, rollback) so production adoption is not a byproduct of feature completion.
+**Complexity:** HIGH (0.82) — driven by code-enforced concurrency with multiple lock disciplines (JSONL append + atomic state rename), four structural guards on the merge boundary, dual prompt-input-path validation, and six invariant remediations (INV-001/002/003/010/014/016) that require test-first execution. Cross-cutting invariants IMM-3/4/5/6 and §11.5 must carry forward verbatim or stronger from the parent bare-review spec.
 
-**Complexity:** HIGH (0.85) — driven by module breadth (14+ orchestrator modules plus recipes and lenses), cross-cutting integration (new CLI verb + ParallelExecutor integration + 10-phase skill migration), verbatim invariant enforcement (5 IMM + 7 INV + §11.5 across 3 prompt-input paths), concurrency correctness (lock-coordinated JSONL, atomic state transitions, resume with manifest rehydration), and a multi-rule schema/registry validation surface.
-
-**Critical path:** M1 (data models + module shape) → M2 (preflight + lens registry + injection guard + INV-005/007 pool guards) → M3 (dispatch + concurrency) → M4 (normalize + recipes + per-lens templates) → M5 (reduce + merge + status) → M6 (resume + manifest) → M7 (observability + full CLI surface) → M8 (skill migration + enumerated migration items + per-IMM/INV test suite) → M9 (operational handoff). M2→M3→M4→M5 is the irreducible wave-pipeline spine; M6 depends on M5's merge regeneration, M8 cannot complete until pipeline and contract are stable, and M9 finalizes production handoff before release.
+**Critical path:** Foundation & domain models (M1, includes transport stub) → Transport & Recipe layers (M2) → Lens registry (M3, includes pre-commit hook wiring) → Wave 0 preflight (M4) → Wave 1 dispatch (M5, callability checkpoint) → Wave 2/3 normalize+reduce+merge (M6) → CLI surface & resilience (M7, owns detached lifecycle end-to-end) → invariant test suite split as M8a (IMM) + M8b (INV+boundary) → sc-bare-review migration & A/B parity (M9). Concurrency (M5) and the merge boundary (M6) are the highest-risk segments; the migration gate (M9) cannot close until A/B parity is observed.
 
 **Key architectural decisions:**
 
-- Code-enforced parallelism via `ParallelExecutor`/`ThreadPoolExecutor` (IMM-3, INV-002), retiring shell dispatch and the PIPE_BUF assumption entirely.
-- Mechanical-only merge isolated to a ≤30 LOC module behind four structural guards (FR-012, NFR-008/009, AC-011/012/018); no scoring engine is introduced.
-- Manifest as durable source-of-truth for resume (INV-016): resume rehydrates the resolved lens verbatim and never re-resolves unless `--force-relens` is passed.
-- Production handoff is a first-class milestone (M9), not a documentation afterthought — runbook, environment readiness check, rollback procedure, and lens contribution policy ship as named deliverables with owners.
+- Three-layer mechanism/policy/caller separation (AC-001 structural preamble): orchestrator owns mechanism, lens registry + Recipe Protocol own policy, caller owns choice — enforced by module boundaries, not convention.
+- CLI is the orchestrator home, not SKILL.md (AC-002 structural preamble): ThreadPoolExecutor enforces parallelism in code where prose cannot; durable observability, detached mode, and resume become first-class.
+- Manifest-as-source-of-truth for resume (INV-016/FR-044): `manifest.resolved_lens_entry` is the durable definition of "what this swarm was supposed to do"; registry mutations between runs never affect a resumed job.
 
 **Open risks requiring resolution before M1:**
 
-- T2 proxy endpoint availability and env-var contract (`T2ProxyUrl`/`T2ProxyKey`/`T2Model0N`) must be confirmed reachable in CI/dev before dispatch can be exercised end-to-end (Dependency #8); until then dispatch is validated only against the stub transport.
-- OQ-006 (concurrent `--output` dir protection), OQ-008 (empty-pool failure contract), and OQ-009 (`caller_metadata.suspect` precedence) require named owners before M1 exit so the data models freeze cleanly.
+- OQ-007 (workers > configured T2Models guard: warn-vs-STOP) and OQ-008 (empty-pool failure path) shape the preflight contract and the WorkerSpec floor semantics; both must be confirmed during M1 design so `status_policy` and `WorkerSpec` fields do not require rework.
 
 ## Milestone Summary
 
 |ID|Title|Type|Priority|Effort|Dependencies|Deliverables|Risk|
 |----|-------|------|----------|--------|--------------|--------------|------|
-|M1|Foundation, Module Shape & Data Models|Foundation|P0|L|—|29|LOW|
-|M2|Preflight, Schema, Lens Registry & Injection Guard (Wave 0)|Core|P0|XL|M1|29|HIGH|
-|M3|Dispatch & Concurrency (Wave 1)|Core|P0|XL|M2|26|MEDIUM|
-|M4|Normalize & Recipe Registry (Wave 2)|Core|P0|L|M3|13|MEDIUM|
-|M5|Reduce, Merge, Status & Result Contract (Wave 3)|Core|P0|L|M4|11|HIGH|
-|M6|Resume, Crash Recovery & Manifest|Reliability|P1|M|M5|8|MEDIUM|
-|M7|Observability, TUI, Detached & Full CLI Surface|Operability|P1|L|M5|17|LOW|
-|M8|Migration, Test Discipline & Hardening|Migration|P1|M|M6,M7|13|MEDIUM|
-|M9|Operational Handoff|Release|P1|S|M8|6|MEDIUM|
+|M1|Foundation & Domain Models|Foundation|P0|L|—|20|Medium|
+|M2|Transport & Recipe Layers|Foundation|P0|M|M1|13|Medium|
+|M3|Lens Registry & Validator|Feature|P0|M|M1, M2|17|Medium|
+|M4|Wave 0 — Preflight|Feature|P0|L|M1, M3|12|High|
+|M5|Wave 1 — Parallel Dispatch|Feature|P0|L|M2, M4|12|High|
+|M6|Wave 2/3 — Normalize, Reduce, Merge|Feature|P0|XL|M2, M5|14|High|
+|M7|CLI Surface, Observability, Resilience|Feature|P0|L|M4, M6|34|Medium|
+|M8a|IMM Invariant Test Suite|Quality|P0|M|M5, M6, M7|7|Medium|
+|M8b|INV + Boundary Test Suite|Quality|P0|M|M5, M6, M7|10|Medium|
+|M9|sc-bare-review Migration & A/B Parity|Migration|P1|M|M8a, M8b|5|Medium|
 
 ## Dependency Graph
 
 ```
-M1 (Foundation) → M2 (Preflight/Lens/Guard) → M3 (Dispatch) → M4 (Normalize) → M5 (Reduce/Merge)
-                                                                                    ├─→ M6 (Resume/Manifest) ─┐
-                                                                                    └─→ M7 (Observability/CLI) ┤
-                                                                                                              └─→ M8 (Migration) ─→ M9 (Operational Handoff)
+M1 ──┬──► M2 ──┬──► M3 ──► M4 ──► M5 ──► M6 ──► M7 ──┬──► M8a ──► M9
+     │         │                  ▲       ▲       ▲   └──► M8b ──► M9
+     └─────────┴──► M4 (schema)   │       │       │
+               M2 ──► M5 (transport)      │       │
+                         M2 ──► M6 (recipes)      │
+                                   M4 ──► M7 (preflight/resume)
+                                           M5,M6,M7 ──► M8a/M8b
 ```
 
-- M1 has no prerequisites (foundation).
-- M2 → M1 (data models, schema dataclasses).
-- M3 → M2 (preflight + resolved lens entry feed dispatch).
-- M4 → M3 (worker outputs feed normalization).
-- M5 → M4 (normalized worker outputs feed reduce + merge).
-- M6 → M5 (resume regenerates merge; needs reduce + manifest).
-- M7 → M5 (full CLI surface + monitoring wrap a stable pipeline).
-- M8 → M6, M7 (skill migration requires resumable pipeline + complete contract surface).
-- M9 → M8 (operational handoff depends on migrated skill + validated release candidate).
+Critical path: M1 → M2 → M3 → M4 → M5 → M6 → M7 → (M8a ∥ M8b) → M9. M3 and M2 share the M1 foundation; M3 additionally consumes M2 recipe names for `recipe_name` resolution. M5 forks on both M4 (preflight artifacts) and M2 (transport). M8a (IMM-3/4/5/6 + §11.5) and M8b (INV-001/002/003/010/014 + §10.2 boundary + validate-lenses + detached + non-precluding) run in parallel after M7; both gate M9.
 
-## M1: Foundation, Module Shape & Data Models
+## M1: Foundation & Domain Models
 
-**Objective:** Establish the `cli/swarm/` package mirroring `cli/sprint/`, the Click group entry point, and every dataclass the pipeline serializes. | **Duration:** Weeks 1–2 | **Entry:** repo green on `make verify-sync`; Python ≥3.10 + UV toolchain confirmed; named owners assigned for OQ-006/OQ-008/OQ-009 | **Exit:** all 20 data models defined and round-trip serializable; `superclaude swarm --help` lists the group; module tree matches sprint shape.
+**Objective:** Create the `cli/swarm/` package mirroring `cli/sprint/`, all domain dataclasses, JSON Schema host, config, atomic state I/O, the atomic-write utility (IMM-6), and the Transport Protocol package + stub transport to unblock SC-002 stub-parallelism authoring during M5/M6. Structural ACs AC-001/AC-002/AC-004 carry forward as preamble obligations enforced at module-boundary review. | **Duration:** 2 wk (W1–W2) | **Entry:** repo clean, parent bare-review v1.3.0-draft invariants reviewed | **Exit:** package importable; all DM dataclasses defined + round-trip serialize/deserialize (contract/source-of-truth records ResultContract/Manifest/DoneSentinel frozen; accumulator/state records mutable by design — F-P1-3); atomic-write utility passes mid-write kill test; `superclaude swarm` group resolves with no subcommands wired; stub transport returns deterministic responses; OQ-007/OQ-008 resolved (status_policy + WorkerSpec fields stable).
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|AC-001|Python ≥3.10 + UV mandate|Enforce UV for all swarm operations; no `python -m`/`pip install`|build|—|all swarm scripts run via `uv run`; CI rejects bare pip/python invocations|S|P0|
-|2|AC-002|New `superclaude swarm` CLI verb|Register swarm as top-level verb, not a sprint/roadmap subcommand|cli|—|`superclaude swarm` resolves; not nested under sprint/roadmap|S|P0|
-|3|AC-003|Mirror sprint module shape|`cli/swarm/` file layout mirrors `cli/sprint/` for operator familiarity|cli|AC-002|module filenames map 1:1 to sprint equivalents where roles align|S|P0|
-|4|AC-006|Click ≥8.0.0 CLI group|Use Click group + subcommands for the swarm verb|cli|AC-002|group + subcommand registration via Click ≥8.0.0|S|P0|
-|5|AC-019|Source-of-truth discipline|Edits land in `src/superclaude/` then `make sync-dev`; never edit `.claude/` directly|build|—|`make verify-sync` passes; no direct `.claude/` edits|S|P0|
-|6|NFR-015|Module shape mirror verification|Assert `cli/swarm/` mirrors `cli/sprint/` for operator familiarity|cli|AC-003|structural test confirms parallel module roles|S|P1|
-|7|COMP-001|swarm_group|Click group entry point exporting subcommands|cli/swarm/__init__.py|AC-006|exports run/status/logs/attach/kill/scaffold/validate/validate-lenses placeholders|S|P0|
-|8|COMP-003|SwarmConfig|Configuration dataclass + path resolution|cli/swarm/config.py|—|resolves output dir, env vars, defaults; immutable dataclass|S|P0|
-|9|COMP-004|models module|Aggregates JobSpec/WorkerSpec/ResultContract/WorkerResult/SwarmState/EventRecord dataclasses|cli/swarm/models.py|—|all dataclasses importable; JSON round-trip lossless|M|P0|
-|10|COMP-031|Transport Protocol|Protocol interface all transports implement|cli/swarm/transports/__init__.py|COMP-004|defines `send(prompt,timeout)->WorkerResult` contract|S|P0|
-|11|DM-001|JobSpec|Top-level job specification dataclass|models|COMP-004|spec_version:str; job_id:str; created:str; caller:CallerInfo; lens:str; custom_prompt_dir:str?; workers:WorkerSpec; transport:TransportSpec; prompt:PromptSpec; target:TargetSpec; normalization:NormalizationSpec; output:OutputSpec; amalgamation_mode:enum(raw/normalize/normalize+merge); status_policy:StatusPolicy; recommended_next_command_template:str; recommended_next_command_substitutions:dict; runtime:RuntimeSpec|M|P0|
-|12|DM-002|WorkerSpec|Worker configuration dataclass|models|COMP-004|count:int; models:list[str]; timeout_sec:int; temperature:float; retry.on_5xx:bool; retry.on_5xx_backoff_sec:int; retry.on_4xx:bool; retry.on_timeout:bool|S|P0|
-|13|DM-003|TargetSpec|Target ingestion config|models|COMP-004|kind:str; path:str; truncation.line_cap:int; truncation.byte_floor:int; delimiters.open:str; delimiters.close:str; injection_guard.enabled:bool; injection_guard.required_substring:str|S|P0|
-|14|DM-004|TransportSpec|Transport config|models|COMP-004|kind:str; base_url_env:str; api_key_env:str|S|P0|
-|15|DM-005|PromptSpec|Prompt definition (verbatim system/user)|models|COMP-004|system:str(verbatim); user_template:str(verbatim); variables:dict|S|P0|
-|16|DM-006|NormalizationSpec|Normalization config|models|COMP-004|recipe:str; template_path:str; schema_version:str; recipe_args:dict; on_parse_error.salvage:bool; on_parse_error.retain_raw:bool|S|P0|
-|17|DM-007|OutputSpec|Output config|models|COMP-004|dir:str; filename_template:str; lens_name:str; atomic_write:bool; emit_meta_sidecar:bool|S|P0|
-|18|DM-008|StatusPolicy|Status determination policy|models|COMP-004|floor:int; success_first:bool; partial_threshold:int|S|P0|
-|19|DM-009|RuntimeSpec|Runtime config|models|COMP-004|mode:enum(inline/detached); log_level:str; on_completion.write_done_sentinel:bool; on_completion.print_contract_to_stdout:bool|S|P0|
-|20|DM-010|LensEntry|Lens registry entry dataclass|models|COMP-004|name:str; description:str; system_prompt_fragment:str; user_template:str; output_template_path:str; recipe_name:str; default_workers:int; default_target_line_cap:int; suspect:bool; tier:str; recommended_next_command_template:str; acceptance_notes:str; stability:enum(stable/experimental)|M|P0|
-|21|DM-011|ResolvedLensEntry|Snapshot of lens captured in manifest|models|DM-010|name:str; system_prompt_fragment:str; user_template:str; recipe_name:str; default_workers:int; suspect:bool; tier:str; recommended_next_command_template:str; stability:str|S|P0|
-|22|DM-012|ResultContract|Final job result contract|models|COMP-004|contract_version:str; status:enum; job_id:str; started:str; finished:str; elapsed_ms:int; caller:CallerInfo; lens:str; lens_source:str; target.path:str; target.checksum:str; target.truncated:bool; target.truncation_line_cap:int; workers_requested:int; workers_succeeded:int; workers_failed:int; output_files:list[WorkerResult]; amalgamation_mode:str; merged_path:str?; caller_metadata:CallerMetadata; recommended_next_command:str; artifacts:Artifacts|M|P0|
-|23|DM-013|WorkerResult|Per-worker output entry|models|COMP-004|index:int; path:str; raw_path:str; meta_path:str; final_path:str; model_id:str; model_label:str; bytes:int; status:enum; http_code:int?; attempts:int; elapsed_ms:int|S|P0|
-|24|DM-014|SwarmState|Persistent state file dataclass|models|COMP-004|state:enum(preflight_ok/dispatching/normalizing/reducing/terminal); job_id:str; updated:str|S|P0|
-|25|DM-015|EventRecord|JSONL event entry|models|COMP-004|event_type:enum(worker_start/worker_progress/worker_done/wave_transition/terminal); timestamp:str; worker_index:int?; payload:dict|S|P0|
-|26|DM-016|Manifest|Preflight artifact|models|DM-011|contract_version:str; job_id:str; resolved_lens_entry:ResolvedLensEntry; preflight.target_checksum:str; preflight.workers_requested:int; preflight.transport_kind:str|S|P0|
-|27|DM-017|DoneSentinel|Terminal marker (`done.json`)|models|COMP-004|atomic_write:bool(true); terminal_status:str; contract_path:str|S|P0|
-|28|DM-018|Artifacts|Path bundle embedded in contract|models|DM-012|manifest_path:str; state_path:str; event_log_jsonl:str; event_log_md:str; done_sentinel:str|S|P0|
-|29|DM-019|CallerInfo|Caller metadata|models|COMP-004|skill:str?; skill_version:str?; invocation_label:str; kind:enum(claude/cli/subprocess)|S|P0|
+|1|COMP-001|`swarm_group` Click group export|Public Click group entry point exposed at `superclaude swarm` in `cli/swarm/__init__.py`|swarm/__init__|—|`superclaude swarm --help` resolves; group registered in CLI entrypoint; no subcommands required yet|S|P0|
+|2|COMP-003|`SwarmConfig` dataclass + path resolution|Global config + output/job path resolution in `config.py`|config|—|resolves `--output` dir; job_id path layout deterministic; env-var names centralized|S|P0|
+|3|COMP-004|`models` domain container module|Hosts all swarm dataclasses in `models.py`|models|DM-001..DM-006,DM-008|imports COMP-005-free; all dataclasses constructible; frozen where spec'd|S|P0|
+|4|COMP-005|`schema` module — JSON Schema + validators|JSON Schema for job spec, cross-field validators, §11.5 required-substring rule on `prompt.system`|schema|COMP-004|schema loads; cross-field rule rejects floor>count; §11.5 substring rule wired (invoked in M4)|M|P0|
+|5|COMP-010|`state` module — atomic state I/O|`.swarm-state.json` read/write with atomic rename in `state.py`|state|COMP-004|write→read round-trips; transitions atomic via os.replace; concurrent read never sees partial|S|P0|
+|6|COMP-018|`transports` package + stub transport (early bind)|Pluggable HTTP transport package skeleton; `stub.py` deterministic test transport bound in M1 to unblock SC-002 stub-parallelism authoring during M5/M6|transports|DM-010|package exposes Protocol; selection by `transport.kind` skeleton present; `stub.py` returns deterministic responses; SC-002 fixtures can author against it|S|P0|
+|7|DM-001|`JobSpec` dataclass|Validated job specification driving dispatch|models|COMP-004|spec_version:str; job_id:str(`<ISO>-<lens>-<short-hash>`); created:str-ISO8601; caller:dict{skill,skill_version,invocation_label,kind}; lens:str\|None; custom_prompt_dir:str\|None; workers:WorkerSpec; transport:dict{kind,base_url_env,api_key_env}; prompt:dict{system,user_template,variables}; target:dict{kind,path,truncation{line_cap,byte_floor},delimiters{open,close},injection_guard{enabled,required_substring}}; normalization:dict{recipe,template_path,schema_version,recipe_args,on_parse_error{salvage,retain_raw}}; output:dict{dir,filename_template,lens_name,atomic_write,emit_meta_sidecar}; amalgamation_mode:Literal[raw,normalize,normalize+merge]=normalize; status_policy:dict{floor,success_first,partial_threshold}; recommended_next_command_template:str; recommended_next_command_substitutions:dict; runtime:dict{mode,log_level,on_completion{write_done_sentinel,print_contract_to_stdout}}|L|P0|
+|8|DM-002|`WorkerSpec` dataclass|Worker-fleet configuration|models|DM-001|count:int(≥status_policy.floor); models:list[str](env-resolved if absent); timeout_sec:int=180; temperature:float=0.2; retry:dict{on_5xx:int=1,on_5xx_backoff_sec:int=2,on_4xx:int=0,on_timeout:int=0}|S|P0|
+|9|DM-003|`ResultContract` dataclass|Terminal-state return contract → `return-contract.yaml`|models|DM-004|contract_version:str=1.0; status:Literal[success,partial,failed]; job_id:str; started:str-ISO8601; finished:str-ISO8601; elapsed_ms:int; caller:dict{skill,skill_version,invocation_label}; lens:str\|None; lens_source:Literal[registry,custom]\|None; target:dict{path,checksum,truncated,truncation_line_cap}; workers_requested:int; workers_succeeded:int; workers_failed:int; output_files:list[WorkerResult]; amalgamation_mode:Literal[raw,normalize,normalize+merge]; merged_path:str\|None; caller_metadata:dict{suspect,tier}; recommended_next_command:str; artifacts:dict{manifest_path,state_path,event_log_jsonl,event_log_md,done_sentinel}|M|P0|
+|10|DM-004|`WorkerResult` dataclass|Per-worker outcome element in result contract|models|DM-001|index:int; path:str\|None; raw_path:str\|None; meta_path:str; model_id:str; model_label:str; bytes:int; status:Literal[success,timeout,parse_error,proxy_error]; http_code:int; attempts:int; elapsed_ms:int|S|P0|
+|11|DM-005|`SwarmState` dataclass|`.swarm-state.json` durable run-state|models|COMP-010|state:Literal[preflight_ok,dispatching,normalizing,reducing,terminal]; job_id:str; last_transition_timestamp:str; current_wave:str; worker_progress_map:dict|S|P0|
+|12|DM-006|`EventRecord` dataclass|JSONL event-log row (append-only)|models|DM-001|event_type:Literal[worker_start,worker_progress,worker_done,wave_transition,final]; timestamp:str; worker_index:int\|None; payload:dict|S|P0|
+|13|DM-008|`Manifest` (`manifest.json`) model|Durable definition of intended swarm behavior|models|DM-007(field)|contract_version:str; job_id:str; resolved_lens_entry:dict{name,system_prompt_fragment,user_template,recipe_name,default_workers,suspect,tier,recommended_next_command_template,stability}; additional_preflight_resolved_fields:dict|M|P0|
+|14|DM-010|`TransportProtocol` interface|Pluggable HTTP transport contract (defined in M1, httpx impl in M2)|transports/__init__|COMP-018|`dispatch(body:dict, timeout_sec:int) -> dict`; returns parsed JSON or raises typed transport errors for 4xx/5xx/timeout|S|P0|
+|15|FR-047|Atomic-write idempotency utility (IMM-6)|Every output file written via write-to-tmp + `os.replace` + deterministic filename|state/util|COMP-003|tmp file in same dir; os.replace rename; mid-write kill leaves no partial at final path; deterministic filename|M|P0|
+|16|NFR-004|Atomic-write durability guarantee|All output files atomically written; state transitions atomic; durable across crashes|state/util|FR-047|crash during write → previous content intact; no zero-byte finals|M|P0|
+|17|NFR-007|Module layout mirrors `cli/sprint/`|Package shape mirrors sprint for operator continuity (binds structural AC-004)|swarm/*|COMP-001|file-by-file structural parity audit vs `cli/sprint/`; naming aligned|S|P0|
+|18|AC-005|ThreadPoolExecutor via `ParallelExecutor` (operational)|Operational AC: reuse `superclaude.execution.parallel.ParallelExecutor`; no direct `concurrent.futures` in dispatch.py; enforced by grep audit in SC-008|swarm/*|COMP-001|line-item visibility maintained; grep audit asserted in M8b (SC-008); enforcement begins at M5|S|P0|
+|19|AC-016|`caller.kind` informational only (operational)|Operational AC: never used for control-flow routing|swarm/*|COMP-001|line-item visibility maintained; grep audit gates this AC; routing-free assertion in M8b (SC-015)|S|P0|
+|20|AC-017|Parent-spec IMM-N invariants carry forward verbatim or stronger (operational)|IMM-3/4/5/6 + §11.5 inherited from bare-review v1.3.0-draft; no weakening; M8a verifies|swarm/*|—|line-item visibility maintained; all IMM-N + §11.5 tests pass in M8a; no invariant weakened vs parent|S|P0|
+
+**Structural ACs as M1 preambles (per merge improvement I4):** AC-001 (three-layer separation), AC-002 (CLI orchestrator home), AC-004 (module-layout mirror via NFR-007). These are module-boundary properties verified at PR-review time; they bind this milestone's Objective and are enforced by the module-organisation deliverables above, not duplicated as separate table rows. Operational ACs (AC-005/AC-009/AC-011/AC-014/AC-015/AC-016/AC-017) retain line-item visibility where their enforcement requires active mechanisms (grep audit, LOC ceiling, CI rule).
 
 ### Integration Points — M1
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|swarm_group (COMP-001)|Click group registry|Partial (placeholders)|M1|all subcommands (M2/M3/M7)|
-|Transport Protocol (COMP-031)|Protocol interface|Defined|M1|openai_compat/stub transports (M3)|
-|models module exports|Dataclass registry|Yes|M1|preflight, dispatch, reduce, contract emitters|
+|`swarm_group` Click group|CLI group registration|Group created, registered in `superclaude` entrypoint; subcommands deferred|M1|M7 (COMP-002 attaches subcommands)|
+|atomic-write utility|Shared utility|Defined in M1|M1|M4, M5, M6 (all output writers)|
+|`SwarmState` serializer|State registry|Read/write wired in M1|M1|M4, M5, M6, M7|
+|`TransportProtocol` + `stub.py`|Strategy interface + test double|Stub bound in M1 (early — merge I5)|M1|M5 (dispatch), M8a (stub-parallelism SC-002), M2 (httpx ref impl)|
 
 ### Milestone Dependencies — M1
 
 - None (foundation milestone).
 
+### Open Questions — M1
+
+|#|ID|Question|Impact|Resolution Owner|Target|
+|---|---|---|---|---|---|
+|1|OQ-007|Workers > configured T2Models guard (INV-005): warn-on-exceed-with-defaults (V1) or STOP (V2)?|Determines preflight worker-count handling + WorkerSpec semantics; gates M1 dataclass freeze|architect|M1 exit (W2) — recommended: warn|
+|2|OQ-008|Empty-pool failure path (INV-007): write `failed/env-missing` contract OR pre-output-dir abort?|Determines preflight failure-contract shape + status_policy semantics|architect|M1 exit (W2) — recommended: write-on-failure when output dir creatable; pre-output-dir abort otherwise|
+
 ### Risk Assessment and Mitigation — M1
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|Data model churn forces downstream rewrites|MEDIUM|MEDIUM|Field changes ripple into schema, contract, manifest|Freeze DM field sets at M1 exit; version via spec_version/contract_version; review against §4/§5 before exit|architect|
-|2|Module shape drifts from sprint, harming operator familiarity|LOW|LOW|Operator confusion, review friction|NFR-015 structural test asserts 1:1 role mapping|backend|
-|3|OQ-006/008/009 left unresolved when models freeze|MEDIUM|MEDIUM|Schema fields locked without binding decisions, forcing M2 rework|Named owners assigned at M1 entry; resolution required for M1 exit|architect|
+|1|Domain-model rework if OQ-007/OQ-008 resolved late|Medium|Low|WorkerSpec/status_policy field churn|Forced resolution at M1 exit (OQ rows above bind exit gate); design `status_policy` for both warn and STOP semantics|architect|
+|2|Atomic-write utility incorrect on non-POSIX-rename filesystems|Medium|Low|IMM-6 violated silently|Restrict to same-dir tmp + os.replace; document filesystem assumption; mid-write kill test in M8a|backend|
+|3|Data-model field mismatch with parent extraction|High|Low|Downstream modules break on schema drift|Cross-reference every DM-NNN field against extraction.md; field-count assertion tests in M1 exit suite|architect|
 
-## M2: Preflight, Schema, Lens Registry & Injection Guard (Wave 0)
+## M2: Transport & Recipe Layers
 
-**Objective:** Build Wave 0 — JSON Schema validation, lens resolution/materialization, the 8-entry lens registry + validator, the §11.5 prompt-injection guard enforced identically across all 3 prompt-input paths, and the INV-005/INV-007 worker-pool guards. | **Duration:** Weeks 3–4 | **Entry:** M1 data models defined (contract records frozen; accumulator/state records mutable by design — F-P1-3) | **Exit:** `swarm validate` and `swarm validate-lenses` pass on the bundled registry; injection guard enforced on lens / JSON-Schema / custom-prompt-dir paths; empty-target guard STOPs before dispatch; worker-vs-pool guard (INV-005) and empty-pool failure semantics (INV-007) operational; OQ-007/008/010 resolved.
+**Objective:** Implement the httpx reference Transport (DM-010 from M1) and build the open-class Recipe Protocol registry with all six normalizers and the `custom-py:` dynamic loader. Stub transport already wired in M1. | **Duration:** 1 wk (W3) | **Entry:** M1 models + stub transport defined | **Exit:** `RecipeProtocol.normalize` stable; REGISTRY dict resolves all six recipes; `custom-py:mod:func` loader resolves a sample callable; httpx transport returns parsed JSON for live T2 proxy.
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|COMP-005|schema module|JSON Schema for job spec + cross-field validators + §11.5 required-substring rule|cli/swarm/schema.py|DM-001|validates all DM-001 subfields; enforces §11.5 substring on prompt.system|M|P0|
-|2|COMP-006|preflight (Wave 0)|Lens resolution + materialization; custom-prompt-dir guard parity; state init|cli/swarm/preflight.py|COMP-005,COMP-022|resolves lens; materializes prompts; writes manifest; sets preflight_ok|L|P0|
-|3|FR-019|Job spec JSON Schema validation|Validate job spec with cross-field rules incl. §11.5 required-substring on `prompt.system`|schema|COMP-005|invalid specs rejected pre-dispatch; §11.5 substring rule enforced|M|P0|
-|4|FR-020|Lens-driven defaults expansion|`lens` field expands system/user_template/recipe/template_path/workers.count/line_cap/filename_template/lens_name/next_command_template/suspect/tier from LENSES[lens]|preflight|COMP-022|all listed fields populated from registry entry at preflight|M|P0|
-|5|FR-021|Custom-prompt-dir escape hatch|When `lens==custom` AND `custom_prompt_dir` set, read `<dir>/system.txt`,`user.txt`,`meta.yaml`|preflight|FR-020|3 files read + materialized; missing file → failed contract|M|P0|
-|6|§11.5|Prompt-injection guard|Target wrapped in `<<<TARGET>>>`/`<<<END TARGET>>>`; data-vs-instructions separation in system prompt; enforced across all 3 prompt-input paths|preflight|COMP-005|delimiters applied; required-substring present on lens, JSON-Schema, and custom-prompt-dir paths|M|P0|
-|7|INV-003|Custom-prompt-dir identical guard|Custom-prompt-dir applies identical §11.5 substring check as lens-driven and schema paths|preflight|§11.5|`--custom-prompt-dir` preflight check rejects missing substring|S|P0|
-|8|INV-014|Escape-hatch isomorphism|Lens-driven and `--custom-prompt-dir` paths have parity for injection-guard enforcement|preflight|INV-003|parity test: both paths reject identical guard violation|S|P0|
-|9|INV-005|Worker-count vs model-pool guard|Validate `workers.count` against configured T2 model pool count; resolution semantics per OQ-007|preflight|DM-002,OQ-007|workers_exceed_pool detected; behavior matches OQ-007 resolution (warn-with-defaults vs STOP); test covers both branches|M|P0|
-|10|INV-007|Empty-pool failure contract|When configured T2 model pool empty: write `failed`/`env-missing` contract when output dir creatable; pre-output abort otherwise|preflight|AC-017,OQ-008|empty pool detected pre-dispatch; structured failed contract emitted when output dir creatable; bare abort otherwise; resolves OQ-008|M|P0|
-|11|IMM-4|Empty-target guard|Target with <50 non-whitespace bytes after truncation → write `failed`/`target-too-small` and STOP before dispatch|preflight|—|49-byte target produces failed contract; no dispatch occurs|S|P0|
-|12|COMP-022|LENSES dict + helpers|Registry dict + LensEntry dataclass + helper accessors|cli/swarm/lenses/__init__.py|DM-010|registry loads 8 entries; helpers resolve by name|M|P0|
-|13|COMP-023|_validate (lens validator)|Validator: file refs resolve; recipe registered; suspect↔suspect_files coupling; name uniqueness; §11.5 substring|cli/swarm/lenses/_validate.py|COMP-022|all 5 assertions enforced; non-conforming entry fails|M|P0|
-|14|U-008|swarm validate-lenses logic|Iterate LENSES; assert file refs resolve; recipe_name registered; suspect:true entries include `{suspect_files}` in next-cmd template; name uniqueness; system_prompt_fragment contains §11.5 substring|_validate|COMP-023|all assertions run over bundled registry|M|P0|
-|15|FR-009|Lens registry (8 entries)|Bundle bare-review, refactor-find, edge-case-hunt, spec-completeness, feasibility-probe, troubleshoot-hypothesis, doc-completeness, custom|lenses|COMP-022|8 entries present; 7 non-custom pass validator|S|P0|
-|16|FR-007|swarm validate subcommand|Validate job-spec file without dispatching|commands|COMP-005|exits 0 on valid spec, non-zero with diagnostics on invalid|S|P0|
-|17|FR-008|swarm validate-lenses subcommand|Validate bundled lens registry|commands|U-008|exits 0 when registry passes; reports first failure otherwise; failure semantics per OQ-010|S|P0|
-|17a|FR-LENSREG.NS|normalizer_strategy field|Each `LENSES` entry declares `normalizer_strategy` matching the prompt's expected output shape; validator asserts a registered Recipe matches the strategy|cli/swarm/lenses/registry.py|FR-LENSREG.VALIDATOR|validate-lenses fails when `normalizer_strategy` is missing or unmatched|S|P0|
-|18|FR-024|--auto-inject-guard flag|Backward-compat: auto-prepend canonical §11.5 sentence for existing custom-prompt-dir users|preflight|FR-021,§11.5|flag prepends sentence; absent → required-substring still enforced|S|P1|
-|19|COMP-024|bare_review lens|Unscaffolded native-instinct review lens; suspect:true; tier:T2; workers:3|lenses/bare_review.py|COMP-022|entry passes validator; suspect_files in next-cmd template|S|P0|
-|20|COMP-025|refactor_find lens|Smallest cleanups for correctness/readability/efficiency; tier:T2-code; workers:3|lenses/refactor_find.py|COMP-022|entry passes validator; stability:experimental|S|P1|
-|21|COMP-026|edge_case_hunt lens|"What inputs/states break this?"; tier:T2-edge; workers:4|lenses/edge_case_hunt.py|COMP-022|entry passes validator; default_workers=4|S|P1|
-|22|COMP-027|spec_completeness lens|"What's missing in this spec?"; tier:T2-spec; workers:3|lenses/spec_completeness.py|COMP-022|entry passes validator|S|P1|
-|23|COMP-028|feasibility_probe lens|"Would this approach work?"; tier:T2-feas; workers:3|lenses/feasibility_probe.py|COMP-022|entry passes validator|S|P1|
-|24|COMP-029|troubleshoot_hypothesis lens|"Most likely root cause?"; tier:T2-tshoot; workers:4|lenses/troubleshoot_hypothesis.py|COMP-022|entry passes validator; default_workers=4|S|P1|
-|25|COMP-030|doc_completeness lens|"What's missing in this doc?"; tier:T2-doc; workers:3|lenses/doc_completeness.py|COMP-022|entry passes validator|S|P1|
-|26|DM-020|CallerMetadata (output)|Lens/caller-attached metadata resolved at preflight|preflight|DM-010,OQ-009|suspect:bool(from lens or caller); tier:str; precedence per OQ-009|S|P0|
-|27|NFR-003|Security: prompt-injection enforcement|Injection-guard delimiters + required-substring enforced at preflight across all 3 paths|preflight|§11.5,INV-003|negative test: end-marker-containing target neutralized|M|P0|
-|28|NFR-012|Lens-registry PR review discipline|Every new lens requires real caller, §11.5 substring, normalizer-output-shape alignment, real downstream command, extra scrutiny for suspect:true|process|COMP-023|review checklist documented; CI hook tracked under OQ-001|S|P1|
-|29|AC-013|No Claude-Code-isms|Zero Claude tool names in job spec, result contract, CLI surface, monitoring contract|cli|—|grep audit finds no Claude-tool references in contract surfaces|S|P0|
+|1|COMP-013|`openai_compat.py` httpx transport|Production transport: httpx-based POST with T2 proxy env resolution + typed 4xx/5xx/timeout exceptions|transports/openai_compat|DM-010,COMP-018|`dispatch()` returns parsed JSON on 200; raises TransportAuthError on 401; TransportError on 5xx; TransportTimeoutError on timeout|M|P0|
+|2|COMP-014|`recipes` package — normalizer registry|Open-class registry exposing Recipe Protocol + REGISTRY dict + `custom-py:` loader|recipes|DM-009|REGISTRY maps name→callable; `custom-py:mod:func` dynamic import works; unknown name raises|M|P0|
+|3|DM-009|`RecipeProtocol` interface|Interface implemented by every normalizer|recipes/__init__|COMP-014|`normalize(raw_text:str, args:dict, template_path:str\|None) -> tuple[str,dict]`; returns normalized markdown + metadata; raises ParseError on unsalvageable input|S|P0|
+|4|COMP-027|Recipe `bare_review_v1`|Ports existing `t2_normalize.py` logic into Recipe Protocol|recipes|DM-009|byte-equivalent normalization vs `t2_normalize.py` on fixture set; returns (md,meta)|M|P0|
+|5|COMP-028|Recipe `findings_table_v1`|Extracted findings-table shape normalizer|recipes|DM-009|emits findings-table markdown; meta includes row count|S|P1|
+|6|COMP-029|Recipe `hypothesis_table_v1`|Hypothesis-table shape normalizer|recipes|DM-009|emits hypothesis-table markdown; meta populated|S|P1|
+|7|COMP-030|Recipe `verdict_only_v1`|Verdict-only shape normalizer|recipes|DM-009|emits verdict block; meta populated|S|P1|
+|8|COMP-031|Recipe `passthrough`|Identity normalizer for non-Python harness post-processing|recipes|DM-009|returns raw text unchanged + empty meta; never raises ParseError|S|P0|
+|9|COMP-032|Recipe `custom` — dynamic loader|Dynamic loader for `custom-py:module:func`|recipes|COMP-014|resolves `custom-py:` spec to callable; import errors surface actionable message|S|P1|
+|10|FR-031|Recipe registry (open-class)|Provide `recipes/` registry with Recipe Protocol; ship all six recipes|recipes|COMP-014,COMP-027..032|REGISTRY contains bare_review_v1, findings_table_v1, hypothesis_table_v1, verdict_only_v1, passthrough, custom; each conforms to Protocol|S|P0|
+|11|AC-006|Transport layer pluggable (operational)|Transport Protocol with `openai_compat.py` (Phase-1 ref) + `stub.py` (test, bound M1)|transports|COMP-018|transport selected by spec field; no httpx import in dispatch logic outside transport|S|P0|
+|12|AC-007|Recipe Protocol open-class with `custom-py:` loader (operational)|`custom-py:<module>:<callable>` Python-only; non-Python harnesses use `passthrough`|recipes|COMP-014|open-class extension verified by adding a recipe without core edits; passthrough documented for non-Python callers|S|P0|
+|13|NFR-006|Merge module LOC ceiling (preamble)|Document `merge.py` body ≤30 LOC excl imports + docstring; allowed/disallowed list set here; boundary test enforces in M8b|recipes-doc|COMP-014|LOC ceiling documented in design rationale; M6 implements; M8b SC-012 enforces|S|P0|
 
 ### Integration Points — M2
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|LENSES dict (COMP-022)|Registry dict|Yes|M2|preflight (FR-020), validator (U-008), manifest snapshot (M1/M6)|
-|recipe_name references in lenses|Cross-registry binding|Resolved at validate time|M2|recipe registry (M4) — validator asserts registration|
-|JSON Schema cross-field validators (COMP-005)|Validator chain|Yes|M2|`swarm validate`, preflight|
-|3 prompt-input paths (lens / schema / custom-dir)|Strategy paths|Yes|M2|injection-guard enforcement (§11.5, INV-003, INV-014)|
-|T2 model pool env contract|Preflight guard binding|Yes|M2|INV-005 worker-vs-pool check, INV-007 empty-pool failure|
+|Recipe `REGISTRY` dict|Registry (open-class)|Populated with 6 recipes in M2|M2|M3 (recipe_name resolution), M6 (Wave 2 invocation)|
+|`custom-py:` dynamic loader|Dynamic dispatch|Loader wired in M2|M2|M3 (validator), M6|
+|`openai_compat.py` httpx transport|Strategy implementation|Registered in M2 (alongside M1 stub)|M2|M5 (production dispatch)|
 
 ### Milestone Dependencies — M2
 
-- M1 (DM-001 JobSpec, DM-010 LensEntry, DM-011 ResolvedLensEntry, COMP-005 schema target dataclasses).
+- M1 (domain models for `DM-009`; `DM-010` interface; `COMP-018` package + stub).
 
 ### Open Questions — M2
 
 |#|ID|Question|Impact|Resolution Owner|Target|
 |---|---|---|---|---|---|
-|1|OQ-001|Should `validate-lenses` run as a pre-commit hook by default?|Determines NFR-012 enforcement mechanism and CI wiring|devops|Before M2 exit|
-|2|OQ-007|Workers > configured T2Models guard (INV-005): warn-on-exceed-with-defaults vs STOP?|Affects preflight worker-count handling and dispatch safety|architect|Before M2 exit (gates M3 entry)|
-|3|OQ-008|Empty-pool failure path (INV-007): `failed`/`env-missing` contract when output dir creatable; pre-output abort otherwise|Determines preflight failure semantics when T2 pool empty|architect|Before M2 exit (resolved via INV-007)|
-|4|OQ-009|`caller_metadata.suspect` propagation — lens-only or caller-overridable precedence?|Blocks DM-020 precedence rule|architect|Before M2 exit|
-|5|OQ-010|`validate-lenses` failure semantics — exit code, blocking vs warning?|Blocks CI integration of FR-008/U-008|devops|Before M2 exit|
+|1|OQ-005|Per-model overrides (e.g., per-model temperature) within one swarm?|Shapes Transport/WorkerSpec arg threading|architect|Deferred until a real lens asks; revisit before M5 dispatch finalization|
 
 ### Risk Assessment and Mitigation — M2
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|Lens-registry sprawl: every new lens ships a built-in entry, registry bloats|MEDIUM|MEDIUM|Maintenance burden, untested speculative lenses|PR-review discipline requires real caller; entries without a real caller deferred to `custom-py:` + caller-side prompts|security|
-|2|Custom-prompt-dir guard parity gap|MEDIUM|MEDIUM|Existing users' `system.txt` lacks §11.5 sentence → injection exposure|`--auto-inject-guard` flag for backward compatibility during migration; INV-014 parity test|security|
-|3|Injection guard bypass via target containing end-marker|HIGH|LOW|Target data interpreted as instructions|Delimiters + required-substring + dedicated test (target-containing-end-marker)|security|
-|4|INV-007 empty-pool path emits unclear failure to callers|MEDIUM|MEDIUM|Caller can't distinguish env-missing from other failure modes|Structured `failed`/`env-missing` contract with explicit reason field; documented in OPS-002 (M9)|architect|
+|1|`bare_review_v1` diverges from `t2_normalize.py`|High|Medium|M9 A/B parity fails|Port logic verbatim; fixture-based byte-equivalence test in M8a; freeze `t2_normalize.py` as golden reference|backend|
+|2|`custom-py:` loader becomes arbitrary-code-exec vector|Medium|Low|Security surface widened|Python-only, caller-supplied module path; document trust boundary; never auto-resolve from untrusted spec fields|security|
 
-## M3: Dispatch & Concurrency (Wave 1)
+## M3: Lens Registry & Validator
 
-**Objective:** Build Wave 1 — true-parallel `ThreadPoolExecutor` dispatch via `ParallelExecutor`, the httpx + stub transports, per-worker timeout/retry, atomic state, and dual-format event logging. | **Duration:** Weeks 5–6 | **Entry:** M2 preflight emits resolved lens + manifest; OQ-007/008 resolved | **Exit:** N stub workers dispatch concurrently (IMM-3 verified); timeout/retry policy enforced; all writes atomic and confined to `--output`; `swarm run` executes Wave 0→1 end-to-end against stub.
+**Objective:** Build the bundled lens registry (`LensEntry` frozen dataclass + 8 entries) and the `_validate` submodule, plus the `validate-lenses` validation that hooks into `make verify-sync` + pre-commit (OQ-001 resolved by M3 exit per merge improvement I6). | **Duration:** 1.5 wk (W4–W5.5) | **Entry:** M1 models + M2 recipe REGISTRY available | **Exit:** `LENSES` dict resolves 8 entries; validator passes on bundled registry; every entry's `recipe_name` resolves against M2 REGISTRY; §11.5 substring present in each `system_prompt_fragment`; `suspect:true` entries include `{suspect_files}` in next-cmd template; OQ-001 resolved and `validate-lenses` wired into `make verify-sync` + pre-commit.
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|COMP-002|commands module|Click subcommands wiring run through preflight→dispatch (grows in M7)|cli/swarm/commands.py|COMP-006,COMP-007|`swarm run` invokes Wave 0→1; subcommand registered|M|P0|
-|2|COMP-007|dispatch (Wave 1)|httpx ThreadPoolExecutor via ParallelExecutor; per-worker outcome recording|cli/swarm/dispatch.py|COMP-031,COMP-011,COMP-012|N workers dispatched concurrently; every worker outcome recorded|L|P0|
-|3|COMP-011|state module|`.swarm-state.json` atomic read/write|cli/swarm/state.py|DM-014|state transitions via tmp+os.replace; never partial|S|P0|
-|4|COMP-012|logging_ module|Dual JSONL (append-only, lock-coordinated) + Markdown event log|cli/swarm/logging_.py|DM-015|JSONL appends lock-coordinated; md log human-readable|M|P0|
-|5|COMP-032|openai_compat transport|httpx implementation (Phase-1 reference transport)|cli/swarm/transports/openai_compat.py|COMP-031,AC-017|sends to T2 proxy; returns WorkerResult with http_code/attempts|M|P0|
-|6|COMP-033|deterministic-fixture transport|Deterministic test fixture|cli/swarm/transports/stub.py|COMP-031|fixed deterministic outputs; enables parallelism test|S|P0|
-
-|7|FR-001|swarm run subcommand|Execute swarm job from spec file, stdin, or `--lens` shortcut|commands|COMP-002|all 3 input modes dispatch a job|M|P0|
-|8|FR-017|Per-worker timeout + retry policy|180s default timeout; 5xx retry-once with backoff; 4xx/timeout/network no retry by default (caller-overridable); always record outcome|dispatch|COMP-007|timeout aborts worker; 5xx retried once; 4xx not retried by default; outcome recorded|M|P0|
-|9|FR-022|openai_compat transport (httpx)|Phase-1 reference transport via httpx|transports|COMP-032|reachable T2 proxy returns parsed body|M|P0|
-|10|FR-023|deterministic-fixture transport|Deterministic test-fixture transport|transports|COMP-033|tests run without network|S|P0|
-|11|FR-026|Dual-format log emission|`execution-log.jsonl` (append-only, lock-coordinated) + `execution-log.md` (human)|logging_|COMP-012|both files emitted; JSONL parseable; concurrent appends not interleaved|S|P0|
-|12|IMM-3|True-parallel dispatch|One ParallelGroup, N workers, code-enforced parallelism replacing attention-mediated tool calls|dispatch|COMP-007,AC-004|fixture-worker parallelism test: N workers overlap in wall-clock|M|P0|
-|13|IMM-6|Atomic-write idempotency|Every output file via write-to-tmp + os.replace + deterministic filename|all writers|COMP-011|mid-write kill leaves no partial file; rerun idempotent|S|P0|
-|14|INV-002|Python-only concurrency|`swarm_dispatch.sh` retired; ThreadPoolExecutor owns dispatch end-to-end; PIPE_BUF assumption deprecated|dispatch|AC-004|no shell dispatch path exists; concurrency purely Python|S|P0|
-|15|NFR-001|Concurrency via ParallelExecutor|ThreadPoolExecutor only; invoked via `superclaude.execution.parallel.ParallelExecutor`|dispatch|AC-004|dispatch routes through ParallelExecutor, not raw threads|S|P0|
-|16|NFR-002|Atomicity of state transitions|All transitions via tmp+os.replace; lock-coordinated JSONL via threading.Lock|state,logging_|COMP-011|no partial state files; appends serialized by lock|S|P0|
-|17|NFR-010|Per-worker hard timeout|180s default, configurable via `workers.timeout_sec`|dispatch|FR-017|worker exceeding timeout aborted and recorded|S|P0|
-|18|NFR-011|Retry policy|Single 5xx retry with backoff; 0 retries on 4xx/timeout/network by default (caller-overridable)|dispatch|FR-017|retry matrix matches policy exactly|S|P0|
-|19|NFR-013|Filesystem constraint|No writes outside `--output` directory|all writers|—|attempted out-of-dir write rejected/tested|S|P0|
-|20|NFR-014|No cross-invocation caching|Responses not cached across runs|dispatch|—|two identical runs both hit transport|S|P1|
-|21|AC-004|ParallelExecutor invocation mandate|ThreadPoolExecutor invoked via `superclaude.execution.parallel.ParallelExecutor`|dispatch|—|no direct ThreadPoolExecutor instantiation in swarm code|S|P0|
-|22|AC-005|httpx transport library|httpx is the HTTP transport for Phase-1 reference impl|transports|—|openai_compat uses httpx|S|P0|
-|23|AC-010|No routing to Anthropic models|Dispatch never targets Anthropic models|dispatch|—|transport config audit shows no Anthropic endpoints|S|P0|
-|24|AC-014|No writes outside --output|Enforce output-dir confinement|all writers|NFR-013|path guard rejects escapes|S|P0|
-|25|AC-015|No cross-invocation response caching|No response cache layer|dispatch|NFR-014|no cache module present|S|P1|
-|26|AC-017|T2 proxy endpoint env contract|T2 proxy via `T2ProxyUrl`/`T2ProxyKey`/`T2Model0N` env vars|transports|—|transport reads endpoint+key+model from env at Wave 0|S|P0|
+|1|COMP-016|`lenses` package — LENS REGISTRY|Bundled-policy registry exposing `LENSES` dict + `LensEntry` + helpers|lenses|DM-007|`LENSES` resolves all entries; helpers return entry by name; KeyError actionable|M|P0|
+|2|DM-007|`LensEntry` frozen dataclass|Single registered lens definition|lenses/__init__|COMP-016|name:str(kebab-unique); description:str; system_prompt_fragment:str(verbatim,§11.5 substring); user_template:str({target_content}); output_template_path:str\|None; recipe_name:str(Protocol name or `custom-py:mod:func`); default_workers:int(2-4); default_target_line_cap:int=4000; suspect:bool; tier:str; recommended_next_command_template:str({compare_files}+optional{suspect_files}); acceptance_notes:str; stability:Literal[stable,experimental]=experimental|S|P0|
+|3|COMP-017|`lenses._validate` validator submodule|Validate registry: file refs resolve, recipe resolution incl `custom-py:`, suspect→suspect_files coupling, name uniqueness, §11.5 substring|lenses/_validate|COMP-016,COMP-014|detects missing templates, unregistered recipes, suspect-without-{suspect_files}, dupes, missing §11.5 substring; exit non-zero with diagnostics|M|P0|
+|4|COMP-019|Lens `bare-review` (stable)|First-class stable lens for sc-bare-review migration|lenses/bare_review|DM-007,COMP-027|stable; suspect:true; tier T2; default_workers=3; recipe bare_review_v1; next-cmd `/sc:adversarial --compare {compare_files} --suspect-source {suspect_files}`; §11.5 present|S|P0|
+|5|COMP-020|Lens `refactor-find` (experimental)|Refactor-opportunity finder lens|lenses/refactor_find|DM-007|experimental; tier T2-code; default_workers=3; suspect:false; recipe + template resolve; §11.5 present|S|P1|
+|6|COMP-021|Lens `edge-case-hunt` (experimental)|Edge-case discovery lens|lenses/edge_case_hunt|DM-007|experimental; tier T2-edge; default_workers=4; suspect:false; recipe + template resolve; §11.5 present|S|P1|
+|7|COMP-022|Lens `spec-completeness` (experimental)|Spec-gap discovery lens|lenses/spec_completeness|DM-007|experimental; tier T2-spec; default_workers=3; suspect:false; recipe + template resolve; §11.5 present|S|P1|
+|8|COMP-023|Lens `feasibility-probe` (experimental)|Feasibility-assessment lens|lenses/feasibility_probe|DM-007|experimental; tier T2-feas; default_workers=3; suspect:false; recipe + template resolve; §11.5 present|S|P1|
+|9|COMP-024|Lens `troubleshoot-hypothesis` (experimental)|Hypothesis-generation lens|lenses/troubleshoot_hypothesis|DM-007|experimental; tier T2-tshoot; default_workers=4; suspect:false; recipe hypothesis_table_v1; §11.5 present|S|P1|
+|10|COMP-025|Lens `doc-completeness` (experimental)|Documentation-gap lens|lenses/doc_completeness|DM-007|experimental; tier T2-doc; default_workers=3; suspect:false; recipe + template resolve; §11.5 present|S|P1|
+|11|COMP-026|Lens `custom` (escape hatch)|Caller-supplied lens via `--custom-prompt-dir`|lenses/custom|DM-007|reads system.txt/user.txt/meta.yaml; injection-guard parity enforced (INV-003); never ships prompt content|S|P0|
+|12|FR-038|Bundled lens registry (8 entries)|Registry at `cli/swarm/lenses/` with `LensEntry` + 8 entries|lenses|COMP-016..026|8 entries present; only bare-review + custom non-experimental policy honored; all except bare-review+custom ship experimental|M|P0|
+|13|FR-039|Lens-driven defaults expansion|When `lens` set, preflight expands defaults into spec|lenses|COMP-016|expands prompt.system, prompt.user_template, normalization.recipe, normalization.template_path, workers.count, target.truncation.line_cap, output.filename_template, output.lens_name, recommended_next_command_template, caller_metadata.suspect, caller_metadata.tier; caller overrides lens; missing→schema error|M|P0|
+|14|FR-040|Lens entry PR-review discipline|PR reviewers verify real caller, §11.5 sentence, normalizer fit, downstream-cmd validity, suspect scrutiny|lenses|FR-038|CONTRIBUTING/PR-template checklist exists; reviewer sign-off required for new entries|S|P1|
+|15|FR-009|`swarm validate-lenses` validation (wired to verify-sync + pre-commit)|Validate bundled registry incl `custom-py:` resolution, suspect coupling, uniqueness, §11.5 substring; hooked into `make verify-sync` + pre-commit by M3 exit (OQ-001 resolved per merge I6)|lenses/_validate|COMP-017|exit 0 on valid registry; non-zero + diagnostics on each failure class; `make verify-sync` invokes it; pre-commit hook entry installed|M|P0|
+|16|NFR-008|PR-review gates for lens entries|Governance gate for new lens entries|lenses|FR-040|gate enumerated in PR template; covers real-caller, injection-guard, normalizer-fit, downstream-cmd, suspect justification|S|P1|
+|17|AC-003|Lens registry bundled inside CLI package (operational)|Policy curation lives at `cli/swarm/lenses/` as plain Python dataclasses, not a plugin system|lenses|COMP-016|no separate plugin loader; entries are in-package dataclasses; grep confirms zero plugin-loader imports|S|P0|
 
 ### Integration Points — M3
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|ParallelExecutor (existing)|DI / executor injection|Yes|M3|dispatch (IMM-3, NFR-001)|
-|Transport registry (Protocol impls)|Strategy selection|Yes|M3|dispatch selects openai_compat vs stub by TransportSpec.kind|
-|threading.Lock JSONL coordinator|Callback/lock wiring|Yes|M3|logging_ append path (NFR-002)|
-|`swarm run` (FR-001)|Click subcommand binding|Yes|M3|operators + non-Claude callers|
+|`LENSES` dict|Registry|Populated with 8 entries in M3|M3|M4 (lens resolution), M7 (`scaffold`, `--lens`)|
+|`validate-lenses` validator|Validation hook|Wired into `make verify-sync` + pre-commit at M3 exit (OQ-001 resolved per merge I6)|M3|CI, M7 (CLI command wrapper)|
+|`recipe_name` → REGISTRY binding|Cross-registry reference|Each entry's recipe_name validated against M2 REGISTRY|M3|M6 (Wave 2)|
 
 ### Milestone Dependencies — M3
 
-- M2 (preflight resolved lens entry + manifest feed dispatch; schema-validated WorkerSpec; OQ-007/008 resolved).
-- M1 (DM-013 WorkerResult, DM-014 SwarmState, DM-015 EventRecord, COMP-031 Transport Protocol).
+- M1 (`DM-007`, models); M2 (recipe REGISTRY for `recipe_name` resolution).
 
 ### Open Questions — M3
 
 |#|ID|Question|Impact|Resolution Owner|Target|
 |---|---|---|---|---|---|
-|1|OQ-005|Per-model overrides (e.g., per-model temperature) within one swarm?|Affects WorkerSpec/dispatch model-dimension handling|architect|Defer until a real lens requires it|
-|2|OQ-006|Concurrent-`--output`-dir protection?|Risk of two jobs clobbering one output dir|architect|Defer for v1; document caller-must-avoid|
+|1|OQ-002|Per-lens version pinning (`--lens-version v2`)?|Affects LensEntry schema + manifest rehydration|architect|Deferred until lens definitions mutate frequently in production|
 
 ### Risk Assessment and Mitigation — M3
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|ThreadPoolExecutor surprise: threading behavior unexpected by developers|LOW|MEDIUM|Subtle concurrency bugs in maintenance|Documented in dispatch.py docstring; tested with stub transport; routed through ParallelExecutor|backend|
-|2|T2 proxy unreachable blocks end-to-end dispatch test|MEDIUM|MEDIUM|Wave 1 cannot be exercised against real transport|Validate against stub transport (COMP-033) as primary CI path; gate openai_compat tests behind env presence|devops|
-|3|JSONL append interleaving under concurrency corrupts log|MEDIUM|LOW|Unparseable observability stream|threading.Lock-coordinated appends (NFR-002); concurrency append test|backend|
+|1|Lens-registry sprawl|Medium|High|Registry bloat; unused entries|PR-review requires real caller (FR-040/NFR-008); entries without caller deferred to `custom-py:` + caller-side prompts; ship 6 as experimental|architect|
+|2|Experimental lenses promoted to stable without a real caller|Medium|Medium|Stability contract eroded|Promotion to `stable` gated on production caller wiring; default `experimental`|architect|
+|3|Pre-commit hook drag (validate-lenses too slow)|Low|Low|Developer friction|Validator caches resolved registry; fast-path skip on no `cli/swarm/lenses/` changes|backend|
 
-## M4: Normalize & Recipe Registry (Wave 2)
+## M4: Wave 0 — Preflight
 
-**Objective:** Build Wave 2 — the Recipe Protocol + REGISTRY with 6 normalizers, the custom-py dynamic loader, per-worker normalization with parse-error salvage, and the per-lens output templates. | **Duration:** Weeks 7–8 | **Entry:** M3 emits per-worker raw outputs | **Exit:** each worker output normalized by its lens recipe; parse_error→success salvage promotion works; raw/normalize/normalize+merge modes select correct recipe path; each non-custom lens has a matching output template that validator and normalize agree on.
+**Objective:** Implement the preflight wave: JSON Schema validation, lens resolution + manifest materialization, env resolution, target read/truncate/checksum with IMM-4 empty-target guard, §11.5-delimited prompt composition across all three input paths, and manifest + state emission. | **Duration:** 2 wk (W5.5–W7.5) | **Entry:** M3 lens registry + M1 schema available | **Exit:** valid spec → `manifest.json` + `.swarm-state.json (preflight_ok)`; 49-byte target → `failed/target-too-small` before any dispatch; custom-prompt-dir without §11.5 substring STOPs; manifest captures full `resolved_lens_entry`.
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|COMP-008|normalize (Wave 2)|Wave 2 dispatcher + Recipe Protocol invocation + recipe registry lookup|cli/swarm/normalize.py|COMP-015|selects recipe per worker; applies normalization; emits meta sidecar|M|P0|
-|2|COMP-015|Recipe Protocol + REGISTRY|Protocol interface + REGISTRY dict + custom-py: loader|cli/swarm/recipes/__init__.py|DM-006|6 recipes registered; protocol enforces normalize signature|M|P0|
-|3|COMP-016|bare_review_v1 recipe|Ports `t2_normalize.py` logic for bare-review lens|cli/swarm/recipes/bare_review_v1.py|COMP-015|output matches bare-review compressed-table shape|M|P0|
-|4|COMP-017|findings_table_v1 recipe|Extracted shape for findings-table lenses|cli/swarm/recipes/findings_table_v1.py|COMP-015|produces findings-table normalized output|S|P1|
-|5|COMP-018|hypothesis_table_v1 recipe|Hypothesis-table normalizer|cli/swarm/recipes/hypothesis_table_v1.py|COMP-015|produces hypothesis-table output|S|P1|
-|6|COMP-019|verdict_only_v1 recipe|Verdict-only normalizer|cli/swarm/recipes/verdict_only_v1.py|COMP-015|produces verdict-only output|S|P1|
-|7|COMP-020|passthrough recipe|Pass-through normalizer (raw-mode shape)|cli/swarm/recipes/passthrough.py|COMP-015|returns input unchanged (raw mode)|S|P0|
-|8|COMP-021|custom (custom-py loader)|Dynamic `custom-py:module:func` loader|cli/swarm/recipes/custom.py|COMP-015|loads + invokes external recipe by module:func spec|M|P1|
-|9|FR-010|Recipe Protocol registry (6 normalizers)|Register bare_review_v1, findings_table_v1, hypothesis_table_v1, verdict_only_v1, passthrough, custom-py dynamic loader|recipes|COMP-015|all 6 resolvable by name; custom-py loads dynamically|M|P0|
-|10|FR-028|Parse-error salvage promotion|Wave 2 promotes `parse_error → success` on §7.4 salvage|normalize|COMP-008|salvageable parse_error reclassified success; meta records salvage|S|P0|
-|11|COMP-034|bare-review output template|Compressed-markdown findings table template|refs/templates/bare-review-output.md|COMP-016|template renders bare-review findings table|S|P0|
-|12|COMP-035|Per-lens output templates|Lens-specific output shape templates for each non-custom bundled lens (refactor-find, edge-case-hunt, spec-completeness, feasibility-probe, troubleshoot-hypothesis, doc-completeness)|refs/templates/<lens>-output.md|COMP-017,COMP-018,COMP-019|each non-custom lens has a matching output template; validator asserts recipe↔template alignment|M|P1|
-|13|AC-011|No scoring/dedup/reorder in recipes|Recipes constrained to shape transforms; no scoring, deduplication, reordering, rewriting, or filtering|normalize|—|recipe output preserves all findings; no judging transforms applied|S|P0|
+|1|COMP-006|`preflight` module (Wave 0)|Lens resolution + materialization; custom-prompt-dir guard parity (INV-003); target ingest/checksum; IMM-4 guard|preflight|COMP-005,COMP-016,COMP-010|orchestrates FR-017..023; emits manifest + state; STOPs on guard/IMM-4 failures|L|P0|
+|2|FR-017|JSON Schema validation of job spec|Validate spec via JSON Schema + cross-field rules + §11.5 required-substring on `prompt.system`|preflight|COMP-005|invalid spec → exit 2; §11.5 substring rule enforced on `prompt.system`; cross-field rules run|M|P0|
+|3|FR-018|Lens resolution + manifest materialization|Resolve `--lens` against registry; snapshot `resolved_lens_entry` into `manifest.json`|preflight|COMP-016,DM-008|manifest captures name, system_prompt_fragment, user_template, recipe_name, default_workers, suspect, tier, recommended_next_command_template, stability|M|P0|
+|4|FR-019|Environment resolution|Resolve env vars `T2ProxyUrl`, `T2ProxyKey`, `T2Model0N` defaults|preflight|COMP-003|env vars resolved; missing→actionable error; model list expanded from `T2Model0N`|S|P0|
+|5|FR-020|Target read, truncate, checksum (IMM-4)|Read + truncate target; sha256[:12] provenance checksum; IMM-4 empty-target guard|preflight|COMP-003|<50 non-whitespace bytes after truncation → `failed/target-too-small` contract, STOP before dispatch; checksum recorded|M|P0|
+|6|FR-021|Prompt composition with §11.5 injection-guard delimiters|Wrap target in `<<<TARGET>>>`/`<<<END TARGET>>>`; system prompt states data-vs-instructions separation; enforce across all 3 input paths|preflight|FR-017|delimiters applied; system prompt contains separation statement; INV-003/INV-014 parity across lens, JSON-Schema, custom-prompt-dir paths|M|P0|
+|7|FR-022|Manifest + state emission at preflight|Emit `manifest.json` + `.swarm-state.json (preflight_ok)`|preflight|COMP-010,DM-008|both files written atomically; state=preflight_ok|S|P0|
+|8|FR-023|Custom-prompt-dir guard parity (INV-003 fix)|When `lens=='custom'`, read system.txt/user.txt/meta.yaml; §11.5 substring check identical to other paths|preflight|FR-021,COMP-026|absent substring → STOP with actionable error; `--auto-inject-guard` opts into auto-prepend|M|P0|
+|9|FR-044|Manifest-as-source-of-truth (INV-016 fix)|`manifest.resolved_lens_entry` is durable definition; registry mutations don't affect resumed job|preflight|FR-018,DM-008|manifest is authoritative for resume; mutation test (M8b) confirms isolation|S|P0|
+|10|NFR-002|Prompt-injection guard enforcement|§11.5 enforced across JSON Schema (`prompt.system`), lens validator (PR-time), `--custom-prompt-dir` preflight|preflight|FR-021, FR-023|all 3 paths enforce substring; STOP default; `--auto-inject-guard` opt-in|M|P0|
+|11|AC-012|No file modification outside `--output` (operational)|Orchestrator must not modify target file or any file outside `--output`|preflight|COMP-006|target opened read-only; writes confined to `--output`; audit test in M8b|S|P0|
+|12|AC-014|No auto-detection of lens from target (operational)|Caller must explicitly pick lens|preflight|COMP-006|no content-sniffing; missing lens → error, never inferred|S|P0|
 
 ### Integration Points — M4
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|Recipe REGISTRY dict (COMP-015)|Registry dict|Yes|M4|normalize (recipe selection), lens validator (M2 asserts registration)|
-|custom-py:module:func loader (COMP-021)|Dynamic dispatch / plugin loader|Yes|M4|caller-supplied recipes via NormalizationSpec.recipe|
-|recipe selection in normalize|Dispatch table (recipe_name→callable)|Yes|M4|Wave 2 per-worker normalization|
-|amalgamation_mode→recipe path|Strategy branch (raw/normalize/normalize+merge)|Yes|M4|reduce (M5) consumes normalized outputs|
-|Per-lens template ↔ recipe alignment|Registry cross-validation|Yes|M4|U-008 lens validator (M2) asserts template path resolves|
+|`manifest.json` (`resolved_lens_entry`)|Durable source-of-truth|Materialized at preflight in M4|M4|M5 (dispatch reads prompt), M7 (resume rehydration)|
+|§11.5 substring check|Validation gate (3-path)|Wired across schema + custom-prompt-dir in M4; PR-time in M3|M4|M5, M8a (SC-006 injection test)|
+|`.swarm-state.json` transition `preflight_ok`|State transition|Emitted in M4|M4|M5, M7 (status/watch)|
 
 ### Milestone Dependencies — M4
 
-- M3 (per-worker raw outputs + WorkerResult records feed normalization).
-- M2 (lens recipe_name references resolved against this registry).
+- M1 (schema module, state, models); M3 (lens registry for resolution).
 
 ### Risk Assessment and Mitigation — M4
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|Recipe drifts toward scoring/filtering, violating AC-011|HIGH|LOW|Normalizer silently judges findings|Recipes constrained to shape transforms; boundary reinforced by AC-011; M5 merge guards independent|architect|
-|2|custom-py loader executes arbitrary caller code|MEDIUM|MEDIUM|Untrusted recipe code runs in process|Loader scoped to explicit `custom-py:module:func`; documented trust boundary; no auto-discovery|security|
-|3|Salvage promotion masks genuine worker failure|MEDIUM|LOW|parse_error wrongly counted as success, skewing IMM-5 status|Salvage limited to §7.4 conditions; meta sidecar records salvage provenance|backend|
-|4|Per-lens template ↔ recipe drift|MEDIUM|MEDIUM|Downstream commands receive malformed tables|U-008 validator asserts template path resolves and recipe output shape matches template|backend|
+|1|Custom-prompt-dir guard parity backward-compat break|Medium|Medium|Existing `--custom-prompt-dir` callers STOP unexpectedly|`--auto-inject-guard` flag preserves callers during migration window; document required §11.5 sentence|backend|
+|2|Resume + lens-mutation inconsistency|Medium|Medium|Stale/inconsistent dispatch on `--resume`|Default rehydrates from `manifest.resolved_lens_entry` (INV-001); `--force-relens` opts into re-resolution; both paths tested in M8b|architect|
+|3|IMM-4 byte-count miscounts whitespace-heavy targets|Medium|Low|False reject/accept of small targets|Count non-whitespace bytes post-truncation; 49-byte boundary test (SC-003) in M8a|backend|
 
-## M5: Reduce, Merge, Status & Result Contract (Wave 3)
+## M5: Wave 1 — Parallel Dispatch
 
-**Objective:** Build Wave 3 — success-first status determination, the ≤30 LOC mechanical-merge module behind four structural guards, the three amalgamation modes, and the final result contract emission. | **Duration:** Weeks 9–10 | **Entry:** M4 normalized outputs available | **Exit:** IMM-5 status matrix verified; merge produces all sections in slot-index order with provenance header only; `return-contract.yaml` emitted; boundary test green and CI-protected.
+**Objective:** Implement code-enforced true-parallel dispatch via `ParallelExecutor` (ThreadPoolExecutor), per-worker httpx HTTP dispatch with JSON-escaped bodies, retry policy, hard timeout, and lock-coordinated worker-lifecycle event logging. Retire the V2 shell dispatch script. Vertical-slice callability checkpoint (merge improvement I2): `swarm validate` + `swarm run` against stub transport must invoke Wave 1 end-to-end via the M1 `swarm` group, proving dispatch is callable before M7's full flag surface lands. | **Duration:** 2 wk (W7.5–W9.5) | **Entry:** M4 preflight artifacts + M2 transport available | **Exit:** N workers run in one ParallelGroup (elapsed ≈ max, not Σ); each worker writes `.raw` + `.meta.json`; 5xx retried once, 4xx/timeout/network no retry by default (caller-overridable); no shell-script dispatch path exists; vertical-slice callability checkpoint passes (swarm validate + swarm run against stub transport invokes Wave 1 end-to-end).
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|COMP-009|reduce (Wave 3)|Status determination (IMM-5) + resume merge regen (INV-010)|cli/swarm/reduce.py|COMP-010,DM-012|computes status; emits contract; triggers merge in normalize+merge mode|M|P0|
-|2|COMP-010|merge module|Mechanical concat only; ≤30 LOC; PR-review-discipline guarded|cli/swarm/merge.py|—|concats N sections in slot order with provenance header; no other transforms|S|P0|
-|3|IMM-5|Success-first status determination|`M==N`→success; `2≤M<N`→partial; `M<2`→failed; `M==N==2`→success; floor+success_first configurable (floor=2, success_first=true)|reduce|DM-008|parametrized status test covers M==N / 2≤M<N / M<2 / M==N==2|M|P0|
-|4|FR-011|Three amalgamation modes|`raw` (Wave 2 pass-through); `normalize` (default, Recipe per worker); `normalize+merge` (normalize + Wave 3 mechanical concat)|reduce|COMP-010|each mode produces correct artifact set|M|P0|
-|5|FR-012|Mechanical merge module (4 guards)|Module ≤30 LOC; read each worker's `final_path`, strip frontmatter, prepend `## From {model_label} ({elapsed_ms}ms)`, concat in slot-index order; no reorder/dedup/scoring/winner/claim-rewriting. Four guards: explicit allowed/disallowed ops in docstring; ≤30 LOC ceiling; PR-review boundary note; boundary test `test_merge_mechanical_only.py`|merge|COMP-010|all 4 guards present and enforced|M|P0|
-|6|FR-018|Result contract emission|`return-contract.yaml` with status, job_id, lens, amalgamation_mode, output_files (index/paths/model_id/status/http_code/attempts), merged_path, caller_metadata, recommended_next_command, artifacts|reduce|DM-012|contract contains all listed fields; valid YAML|M|P0|
-|7|NFR-008|Merge module ≤30 LOC|`swarm/merge.py` body ≤30 LOC (excluding imports + docstring)|merge|COMP-010|LOC count assertion passes in CI|S|P0|
-|8|NFR-009|Boundary enforcement test|`tests/swarm/test_merge_mechanical_only.py` asserts 3-worker concat yields all 3 sections in slot-index order, provenance header only; CI flags PRs touching this file|merge|FR-012|boundary test green; CI rule active on file path|S|P0|
-|9|AC-012|No new merge/diff/scoring engine|`/sc:adversarial` remains the scored-merge pipeline; swarm introduces none|merge|AC-011|no scoring/diff engine code in swarm|S|P0|
-|10|AC-018|merge.py body ≤30 LOC|Hard LOC ceiling on merge module body|merge|NFR-008|enforced LOC ceiling|S|P0|
-|11|AC-011|No scoring/dedup/reorder/rewrite/filter (merge)|No scoring, deduplication, reordering, rewriting, or filtering of worker findings in merge path|merge|—|merge output preserves every worker section verbatim+ordered|S|P0|
+|1|COMP-007|`dispatch` module (Wave 1)|httpx-based ThreadPoolExecutor dispatch via `execution.parallel.ParallelExecutor`; timeout, retry, sidecar, event logging|dispatch|COMP-018,COMP-011|all N workers in one ParallelGroup; per-worker timeout + retry honored; sidecars emitted|L|P0|
+|2|FR-024|True-parallel dispatch via ThreadPoolExecutor (IMM-3)|Single Python ThreadPoolExecutor via `ParallelExecutor`; all N workers in one ParallelGroup|dispatch|COMP-007|stub-worker test: elapsed ≈ max(per_worker)+ε, not Σ; parallelism code-enforced not attention-mediated|L|P0|
+|3|FR-025|Per-worker HTTP dispatch (httpx)|Build body via `json.dumps` (never shell-interpolated); POST via httpx with per-worker timeout; write `.raw` + `.meta.json`|dispatch|COMP-018|body JSON-escaped; httpx POST; `.raw` + `.meta.json` sidecar written atomically per worker|M|P0|
+|4|FR-026|Retry policy|On 5xx: retry once after `retry.on_5xx_backoff_sec`; on 4xx/timeout/network: no retry by default (caller-overridable); always-record|dispatch|FR-025|5xx→1 retry; 4xx/timeout/network→0 retry by default (caller-overridable); every worker recorded (no silent drops)|M|P0|
+|5|FR-027|Per-worker hard timeout|Apply per-worker hard timeout (default 180s)|dispatch|FR-025|worker exceeding timeout → `timeout` status, no retry; does not block siblings|S|P0|
+|6|FR-028|Event log emission (worker lifecycle)|Emit `worker_start`/`worker_progress`/`worker_done` under `threading.Lock`-guarded append|dispatch|COMP-011|three event types emitted; append lock-guarded; ordering preserved per worker|M|P0|
+|7|FR-041|Python-only dispatch (INV-002 fix)|Python threads call httpx directly; V2 `swarm_dispatch.sh` retired; PIPE_BUF assumption documented as deprecated|dispatch|FR-024|no shell-script dispatch path exists; dual-writer race eliminated; deprecation noted in `docs/swarm-design-rationale.md`|M|P0|
+|8|NFR-001|Code-enforced parallelism|Parallelism inside Python process via ThreadPoolExecutor, NOT attention-mediated|dispatch|FR-024|IMM-3 stub-parallelism test passes; no Claude-tool-call dependency in dispatch|M|P0|
+|9|NFR-003|No shell interpolation|HTTP bodies built via `json.dumps` with target via `--arg`-equivalent; never shell-interpolated|dispatch|FR-025|grep audit: no shell string interpolation of target/body; injection-resistant body construction|S|P0|
+|10|NFR-005|Lock-coordinated append for event log|JSONL writes under `threading.Lock`; `.swarm-state.json` under lock + atomic rename|dispatch|COMP-011|concurrent appends never interleave; state updates atomic; stress test in M8b|M|P0|
+|11|COMP-011|`logging_` module|Dual JSONL + Markdown event log; lock-coordinated append (defined here since dispatch is first emitter)|logging_|DM-006|JSONL append-only lock-guarded; Markdown human log; both durable|M|P0|
+|12|AC-011|No Anthropic-model routing (operational)|Workers route only to T2-proxy-compatible external models|dispatch|FR-025|no Anthropic endpoints; transport targets T2 proxy only; grep audit|S|P0|
 
 ### Integration Points — M5
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|StatusPolicy (DM-008)|Config injection|Yes|M5|reduce status determination (IMM-5)|
-|merged.md / return-contract.yaml|Output artifact emission|Yes|M5|callers, resume merge regen (M6), CLI status (M7)|
-|recommended_next_command template|String-substitution wiring|Yes|M5|contract emission (FR-018), downstream `/sc:adversarial`|
+|`ParallelExecutor` ThreadPoolExecutor|Concurrency engine (DI)|All workers placed in one ParallelGroup in M5|M5|M6 (consumes `.raw` outputs), M8a (IMM-3 SC-002)|
+|`threading.Lock`-guarded JSONL appender|Callback/lock-coordinated writer|Wired into worker lifecycle in M5|M5|M7 (monitoring), M8b (lock stress)|
+|Transport `dispatch()` binding|Strategy selection|Bound from M2 transport per `transport.kind`|M5|M8a (stub-transport tests)|
+|Vertical-slice callability path (`swarm validate` + `swarm run`)|Exit criterion|`swarm validate` + `swarm run --transport stub` invokes Wave 1 e2e at M5 exit (merge I2)|M5|M7 (full flag surface)|
 
 ### Milestone Dependencies — M5
 
-- M4 (normalized per-worker outputs feed reduce + merge).
-- M1 (DM-008 StatusPolicy, DM-012 ResultContract, DM-013 WorkerResult).
-
-### Open Questions — M5
-
-|#|ID|Question|Impact|Resolution Owner|Target|
-|---|---|---|---|---|---|
-|1|OQ-003|Should `recommended_next_command` ever be auto-executed via `--auto-handoff`?|Affects contract semantics and caller automation surface|architect|Defer for v1|
+- M4 (preflight artifacts: composed prompt, manifest); M2 (httpx transport implementation).
 
 ### Risk Assessment and Mitigation — M5
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|Merge boundary erosion: normalize+merge drifts into judging via incremental PRs|HIGH|MEDIUM|Silent loss of caller-facing neutrality; trust violation|Four structural guards (docstring + ≤30 LOC + PR review + boundary test) + CI rule on boundary test|architect|
-|2|Status determination edge cases (M==N==2 ambiguity)|MEDIUM|LOW|Wrong terminal status misleads callers|Parametrized IMM-5 test covers all branches incl. M==N==2→success|backend|
-|3|Contract field omission breaks non-Claude callers|MEDIUM|LOW|Downstream parsing fails|FR-018 field-completeness test against DM-012 schema|backend|
+|1|ThreadPoolExecutor surprise (operators expect process/async)|Low|Medium|Misuse / wrong perf expectations|Document model in `dispatch.py` docstring; test with stub transport; rationale in `docs/swarm-design-rationale.md`|backend|
+|2|Lock contention degrades parallelism under high N|Medium|Low|Throughput loss|Lock guards only append/state-write, not HTTP; measure under stub load; keep critical section minimal|performance|
+|3|Residual shell-dispatch references survive retirement|Medium|Low|INV-002 violated; dual-writer race returns|`tests/swarm/test_concurrency_python_only.py` (SC-008) asserts no shell path exercised; grep-audit in CI|backend|
+|4|Vertical-slice callability checkpoint slips|Medium|Low|Dispatch un-callable until M7 full flag surface|`swarm run --transport stub --spec <inline-spec.yaml>` exit-gate at M5 exit; failing checkpoint blocks M6 entry|architect|
 
-## M6: Resume, Crash Recovery & Manifest
+## M6: Wave 2/3 — Normalize, Reduce, Merge
 
-**Objective:** Make jobs resumable from the manifest as durable source-of-truth: rehydrate lens verbatim, skip succeeded workers, re-dispatch the rest, re-run Wave 2, and regenerate merge unconditionally. | **Duration:** Weeks 11–12 | **Entry:** M5 reduce + merge stable | **Exit:** `swarm run --resume` skips workers reporting `status: success`; merge regenerated when `amalgamation_mode==normalize+merge`; `--force-relens` re-resolves; lens mutations between runs do not affect resumed jobs.
+**Objective:** Implement Wave 2 (Recipe invocation per worker, parse-error salvage promotion, atomic final write) and Wave 3 (IMM-5 success-first status, three amalgamation modes, mechanical merge ≤30 LOC with structural guards, return contract + done sentinel emission). | **Duration:** 2 wk (W9.5–W11.5) | **Entry:** M5 dispatch produces `.raw` files; M2 recipes available | **Exit:** Wave 2 normalizes each worker atomically; salvage promotes parse_error→success; IMM-5 status parametrized cases pass; `merge.py` body ≤30 LOC, mechanical-concat-only boundary test passes; `return-contract.yaml` + `done.json` emitted.
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|INV-001|Resume rehydrates lens from manifest|Resume reads `manifest.resolved_lens_entry` verbatim; does NOT re-resolve from current LENSES; `--force-relens` opts into re-resolution|reduce,preflight|DM-016|resumed job uses manifest lens; registry edits ignored unless --force-relens|M|P0|
-|2|INV-010|Resume regenerates merged.md|Resume regenerates `merged.md` unconditionally after re-dispatched workers' Wave 2 completes when `amalgamation_mode==normalize+merge`|reduce|COMP-009|stale merge never persists; provenance reflects re-dispatch|S|P0|
-|3|INV-016|Manifest as durable source-of-truth|Manifest is the record of "what this swarm was supposed to do"; resume honors it; lens-registry mutations between runs do not affect resumed jobs|preflight|DM-016|manifest immutable across resume; mutation test passes|S|P0|
-|4|FR-015|Resume + crash recovery|`swarm run --resume <job_id>` re-runs Wave 0 in resume mode; skips workers whose `.meta.json` reports `status: success`; re-dispatches remaining; re-runs Wave 2; regenerates merge|commands,preflight|INV-001,INV-010|succeeded workers skipped; remaining re-dispatched; merge regenerated|L|P0|
-|5|FR-016|Manifest emission|Emit manifest with `resolved_lens_entry` snapshot at preflight including verbatim system_prompt_fragment, user_template, recipe_name, defaults, suspect, tier, stability|preflight|DM-011,DM-016|manifest captures full resolved lens snapshot at Wave 0|M|P0|
-|6|FR-025|--force-relens flag|On resume, ignore manifest's `resolved_lens_entry`, re-resolve from current registry|commands|INV-001|flag triggers re-resolution; default path uses manifest|S|P1|
-|7|NFR-005|Crash recovery semantics|Resume from manifest with worker-level skip; merge regeneration on resume; manifest as source-of-truth|preflight,reduce|FR-015|kill-then-resume reaches terminal state with no duplicate work|M|P0|
-|8|NFR-006|Schema evolution forward-compat|`spec_version` forward-compat best-effort; orchestrator at 1.1 loads specs at 1.0|schema|—|1.1 orchestrator loads 1.0 spec without error|S|P1|
+|1|COMP-008|`normalize` module (Wave 2 dispatcher)|Wave 2 dispatcher; hosts Recipe Protocol interface use + registry lookup|normalize|COMP-014|invokes configured Recipe per worker; atomic write to deterministic final path|M|P0|
+|2|COMP-009|`reduce` module (Wave 3)|Status determination per IMM-5; resume merge regeneration (INV-010); contract emission|reduce|COMP-015,COMP-010|computes status; regenerates merge on resume; writes contract|M|P0|
+|3|COMP-015|`merge` module (mechanical concat)|Mechanical concat ONLY; body ≤30 LOC; allowed/disallowed ops in docstring; PR-review guarded|merge|COMP-009|≤30 LOC excl imports/docstring; concat in slot-index order with provenance header; no reorder/dedup/score|M|P0|
+|4|FR-029|Recipe Protocol invocation per worker|For each worker, invoke configured Recipe; atomic write to deterministic final path (IMM-6)|normalize|COMP-008,FR-047|each `.raw`→Recipe→final atomically; deterministic path; sidecar updated|M|P0|
+|5|FR-030|Parse-error salvage promotion|Promote `parse_error → success` if §7.4 salvage succeeds|normalize|FR-029|salvageable parse_error → success; unsalvageable retains parse_error + raw retained|M|P0|
+|6|FR-032|Success-first status determination (IMM-5)|`M==N`→success first; `2≤M<N`→partial; `M<2`→failed; `M==N==2`→success; floor/success_first per-job configurable|reduce|COMP-009|parametrized cases pass: M==N, M==N==2, 2≤M<N, M<2; defaults floor=2, success_first=true|M|P0|
+|7|FR-033|Three amalgamation modes|Support `raw` (Wave 2 pass-through), `normalize` (default, Recipe per worker), `normalize+merge` (normalize + mechanical concat)|reduce|COMP-008,COMP-015|raw skips Recipe; normalize runs Recipe; normalize+merge runs Recipe then concat|M|P0|
+|8|FR-034|Mechanical merge with structural guards|Module ≤30 LOC; read each `final_path`, strip frontmatter, prepend `## From {model_label} ({elapsed_ms}ms)`, concat in slot-index order; no reorder/dedup/scoring/winner/claim-rewriting|merge|COMP-015|boundary test passes; LOC ≤30; CI rule flags boundary-test changes|M|P0|
+|9|FR-035|Merge edge cases|`M=0`/`M=1`→`merged_path=null`; `M≥2`→merged with only successful workers; `--resume`+`normalize+merge` ALWAYS regenerates `merged.md` (INV-010)|reduce|COMP-015|null on M<2; merged contains only successes; resume regenerates unconditionally|S|P0|
+|10|FR-036|Return contract emission|Write `return-contract.yaml` with version, status, job_id, timing, target info, worker counts, output_files, amalgamation_mode, merged_path, caller_metadata, recommended_next_command, artifacts|reduce|DM-003|all ResultContract fields populated; YAML stdlib-parseable|M|P0|
+|11|FR-037|Done sentinel emission|Write `done.json` atomically; emit final event; exit 0 (status lives in contract, not RC)|reduce|FR-047|`done.json` written last, atomically; final event emitted; exit 0 even on partial/failed status|S|P0|
+|12|NFR-014|Idempotency on re-dispatch|Wave 2 re-runs over all `.raw`; existing successes re-write deterministically (no-op outcome)|normalize|FR-029|re-run produces byte-identical finals; no duplicate side-effects|S|P0|
+|13|AC-009|No scored merge / dedup / reorder in orchestrator (operational)|Scored merging stays `/sc:adversarial`'s job; `normalize+merge` mechanical-concat-only|merge|FR-034|grep/AST audit: no scoring/dedup/reorder ops in merge.py; boundary test guards in M8b|S|P0|
+|14|AC-015|No auto-execution of `recommended_next_command` (operational)|Always a suggestion, never an action|reduce|FR-036|`recommended_next_command` printed only; never executed by orchestrator; grep audit|S|P0|
 
 ### Integration Points — M6
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|Manifest resolved_lens_entry (DM-016)|Durable source-of-truth snapshot|Yes|M6|resume rehydration (INV-001), preflight resume mode|
-|`.meta.json` per-worker status|Skip-decision lookup|Yes|M6|resume worker-skip logic (FR-015)|
-|--force-relens flag|Conditional re-resolution branch|Yes|M6|preflight (overrides manifest lens)|
+|Recipe invocation per worker|Registry dispatch|Wave 2 looks up `normalization.recipe` in REGISTRY in M6|M6|M9 (bare_review_v1 parity)|
+|`return-contract.yaml` emitter|Output contract|Assembled from DM-003 in M6|M6|M7 (CLI relays), M9 (A/B parity)|
+|`done.json` terminal sentinel|Completion signal|Written atomically last in M6|M6|M7 (monitoring `until [ -f done.json ]`)|
 
 ### Milestone Dependencies — M6
 
-- M5 (reduce + merge must exist before merge regeneration on resume).
-- M1 (DM-011 ResolvedLensEntry, DM-016 Manifest).
-
-### Open Questions — M6
-
-|#|ID|Question|Impact|Resolution Owner|Target|
-|---|---|---|---|---|---|
-|1|OQ-002|Per-lens version pinning (`--lens-version v2`)?|Affects manifest snapshot + resume re-resolution semantics|architect|Defer until lens definitions mutate frequently in production|
+- M5 (Wave 1 `.raw` outputs + callability checkpoint passed); M2 (Recipe REGISTRY).
 
 ### Risk Assessment and Mitigation — M6
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|Resume + lens-mutation interaction breaks resume|MEDIUM|MEDIUM|Resumed job uses wrong lens, producing inconsistent output|`--resume` rehydrates from manifest by default; `--force-relens` opts into re-resolution; tests cover both paths|architect|
-|2|Schema evolution drag: spec_version evolution breaks loaders|LOW|LOW|Old specs fail under new orchestrator|Forward-compat best-effort: 1.1 loads 1.0; version-skew test|backend|
-|3|Stale merge provenance after partial re-dispatch|MEDIUM|LOW|Merge lies about which workers contributed|INV-010 unconditional merge regen on resume in normalize+merge mode|backend|
+|1|Merge boundary erosion (drift into judging)|High|Medium|Boundary vs `/sc:adversarial` blurred; scope creep|Four structural guards: docstring allowed/disallowed list + ≤30 LOC ceiling + PR-review boundary note + `test_merge_mechanical_only.py` (SC-012); CI rule flags boundary-test changes|architect|
+|2|IMM-5 ordering bug at `M==N==2` boundary|High|Low|Wrong terminal status reported to caller|Success-first ordering explicit; parametrized status test (SC-004) covers M==N==2; defaults floor=2|backend|
+|3|Resume fails to regenerate `merged.md` (INV-010)|Medium|Medium|Stale merge artifact on resume|Wave 3 regenerates `merged.md` unconditionally when mode==normalize+merge; `test_resume_regenerates_merge.py` (SC-010)|backend|
 
-## M7: Observability, TUI, Detached & Full CLI Surface
+## M7: CLI Surface, Observability, Resilience
 
-**Objective:** Complete the operator surface — three-layer durable monitoring, the opt-in Rich TUI, tmux detached mode, the done sentinel, and the remaining swarm subcommands (status/logs/attach/kill/scaffold). | **Duration:** Weeks 13–14 | **Entry:** M5 pipeline + contract stable | **Exit:** all 8 subcommands functional; `--tui` opt-in only (non-TTY callers get no control sequences); detached jobs survive caller death; three monitoring patterns demonstrated.
+**Objective:** Wire all 9 Click subcommands and run flags onto the wave pipeline; deliver the three durable observability layers and three monitoring patterns; the opt-in TUI; detached (tmux) mode owned end-to-end (per merge improvement I7 — `tmux.py` placed here so SC-014 detached lifecycle is gated within one milestone, no zombie window); crash recovery + resume; and the non-precluding contract surface. | **Duration:** 2 wk (W11.5–W13.5; compressed from 3wk per merge improvement I1 by deferring P1 items FR-005/006/007/014/015 + COMP-013 to a slim follow-on; P0 scope intact) | **Entry:** M6 wave pipeline complete; M4 preflight resume hooks available | **Exit:** all 9 subcommands functional; exit codes 0/2/3/10 correct; `--resume` skips successes + regenerates merge; detached job survives caller termination + `attach`/`kill` work; non-TTY callers receive no control sequences; header-grep audit shows zero Claude tool-name references.
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|COMP-013|tui|Rich Live dashboard, flag-gated `--tui`, NOT default|cli/swarm/tui.py|AC-007|renders only when `--tui`; no control sequences on non-TTY|M|P1|
-|2|COMP-014|tmux|Detached-run wrapper (mirrors sprint/tmux.py)|cli/swarm/tmux.py|AC-008|launches detached job; survives caller exit|M|P1|
-|3|INV-012|TUI opt-in via --tui|TUI opt-in via `--tui` flag, NOT default; non-TTY callers do not get terminal control sequences|tui|COMP-013|default run emits plain output; `--tui` enables dashboard|S|P0|
-|4|FR-002|swarm status subcommand|Show state of job (terminal or in-flight)|commands|COMP-011|reads `.swarm-state.json`; reports current phase/status|S|P0|
-|5|FR-003|swarm logs subcommand|Tail or dump job's execution log|commands|COMP-012|tails JSONL / dumps md log|S|P0|
-|6|FR-004|swarm attach subcommand|Re-attach to detached (tmux) job's TUI|commands|COMP-014|re-attaches to running detached session|S|P1|
-|7|FR-005|swarm kill subcommand|Terminate running detached job|commands|COMP-014|terminates session; writes terminal state|S|P1|
-|8|FR-006|swarm scaffold subcommand|Emit starter job-spec file for named lens|commands|COMP-022|writes valid starter spec for given `--lens`|S|P1|
-|9|FR-013|Three monitoring patterns|`Bash run_in_background + until [ -f done.json ]`; `Monitor` tailing JSONL; `swarm status --watch`|commands,logging_|FR-027|all three patterns documented + demonstrated|S|P1|
-|10|FR-014|Detached mode via tmux|tmux wrapper (mirrors sprint/tmux.py); `--detached` flag|tmux|COMP-014|`--detached` launches background job; inline remains default|M|P1|
-|11|FR-027|Done sentinel emission|`done.json` on terminal state via atomic write|reduce,state|IMM-6|terminal state writes done.json atomically|S|P0|
-|12|NFR-004|Observability: three-layer durable monitoring|`.swarm-state.json` + `execution-log.jsonl` + `execution-log.md` + `done.json`|state,logging_|FR-027|all four artifacts emitted and consistent|S|P0|
-|13|NFR-016|Contract surface non-precluding|Zero Claude tool names in job spec/result contract/CLI/monitoring; detached mode guarantees caller-death survival|cli,tmux|AC-013|grep audit clean; detached job survives caller kill|S|P0|
-|14|AC-007|Rich ≥13.0.0 for --tui|Rich for opt-in dashboard, NOT default|tui|INV-012|Rich used only behind `--tui`|S|P1|
-|15|AC-008|tmux for detached mode|tmux required for detached (optional; inline default)|tmux|—|detached requires tmux; inline needs no tmux|S|P1|
-|16|AC-009|No external framework integration|No openharness/openhands/OpenAI Assistants SDK/LangGraph/CrewAI; design non-precluding|cli|—|no such deps imported; integration seams documented|S|P1|
-|17|AC-016|No streaming/function-calling/vision (Phase 1)|Phase 1 excludes streaming, function-calling, vision input (parent §7.3)|transports|—|transport rejects/omits these modes in Phase 1|S|P1|
+|1|COMP-002|`commands` module|Click subcommand definitions (run, status, logs, attach, kill, scaffold, validate, validate-lenses)|commands|COMP-001,COMP-006,COMP-007,COMP-008,COMP-009|all subcommands registered under group; each dispatches to correct wave/module|L|P0|
+|2|COMP-012|`tui` module|Rich Live dashboard, flag-gated `--tui` (NOT default — INV-012)|tui|COMP-011|dashboard renders worker progress; only on `--tui` + TTY; non-TTY → no control sequences|M|P1|
+|3|COMP-013|`tmux` module|Detached-run wrapper mirroring `sprint/tmux.py`; end-to-end ownership in M7 (merge I7)|tmux|COMP-002|spawns detached tmux session; reattach + kill lifecycle; mirrors sprint pattern; SC-014 gating test owned within M7|M|P1|
+|4|FR-001|New top-level CLI verb `superclaude swarm`|Click group at `cli/swarm/` separate from sprint/roadmap; third primitive|commands|COMP-001|`superclaude swarm` resolves; distinct from sprint/roadmap|S|P0|
+|5|FR-002|CLI subcommand `swarm run`|Execute a swarm job from spec file, stdin, or `--lens` shortcut|commands|COMP-002|`swarm run <spec.yaml>` dispatches full pipeline; stdin + `--lens` paths work|M|P0|
+|6|FR-003|CLI subcommand `swarm status`|Show job state (terminal or in-flight); `--watch` refreshes every 1s via Rich table|commands|COMP-010|`swarm status [--watch]` reads `.swarm-state.json`; watch refreshes 1s|S|P0|
+|7|FR-004|CLI subcommand `swarm logs`|Tail or dump a job's execution log|commands|COMP-011|`swarm logs` tails/dumps JSONL + Markdown logs|S|P0|
+|8|FR-005|CLI subcommand `swarm attach`|Re-attach to a detached (tmux) job's TUI|commands|COMP-013|`swarm attach <job_id>` reconnects to tmux session|S|P1|
+|9|FR-006|CLI subcommand `swarm kill`|Terminate a running detached job|commands|COMP-013|`swarm kill <job_id>` terminates session; state updated|S|P1|
+|10|FR-007|CLI subcommand `swarm scaffold`|Emit a starter job-spec file for a named lens|commands|COMP-016|`swarm scaffold --lens <name>` writes valid starter spec|S|P1|
+|11|FR-008|CLI subcommand `swarm validate`|Validate a job-spec file without dispatching|commands|COMP-005|`swarm validate <spec.yaml>` runs schema + cross-field; exit 2 on failure; no dispatch|S|P0|
+|12|FR-010|`swarm run --lens <name>` flag|Resolve lens-registry entry; caller may omit prompt/recipe/template fields|commands|FR-018|`--lens` resolves; omitted fields filled from lens defaults|S|P0|
+|13|FR-011|`swarm run --custom-prompt-dir <path>` flag|When `--lens custom`, point at dir with system.txt/user.txt/meta.yaml|commands|FR-023|`--custom-prompt-dir` read; guard parity enforced|S|P0|
+|14|FR-012|`swarm run --auto-inject-guard` flag|Backward-compat; auto-prepends canonical §11.5 sentence|commands|FR-023|absent §11.5 substring + flag → auto-prepend; without flag → STOP|S|P0|
+|15|FR-013|`swarm run --amalgamation-mode {raw,normalize,normalize+merge}` flag|Select amalgamation mode (default normalize)|commands|FR-033|flag selects mode; default normalize; invalid value rejected|S|P0|
+|16|FR-014|`swarm run --tui` flag|Opt-in Rich Live dashboard (NOT default — INV-012)|commands|COMP-012|`--tui` enables dashboard; non-TTY callers unaffected|S|P1|
+|17|FR-015|`swarm run --force-relens` flag|On `--resume`, ignore manifest's `resolved_lens_entry` and re-resolve from current registry|commands|FR-043|default rehydrates from manifest; `--force-relens` re-resolves|S|P1|
+|18|FR-016|Exit codes|`0`=reached Wave 3; `2`=spec validation failure; `3`=preflight failure; `10`=orchestrator internal error|commands|COMP-002|all four codes returned in correct conditions; status lives in contract not RC|S|P0|
+|19|FR-042|Crash semantics|Orchestrator crash mid-dispatch: state retains last-known; completed workers have sidecars; no `done.json`|state|COMP-010|post-crash inspection shows partial progress recoverable; no false `done.json`|M|P0|
+|20|FR-043|`swarm run --resume <job_id>` workflow|Re-run Wave 0 in resume mode: rehydrate lens from manifest (INV-001); skip successes; re-dispatch rest; re-run Wave 2; regenerate merge (INV-010); reduce + contract|commands|FR-044,COMP-009|6-step resume path executes; successes skipped; merge regenerated when mode==normalize+merge|L|P0|
+|21|FR-045|Three durable observability layers|`.swarm-state.json` (atomic on transition), `execution-log.jsonl` (append-only, lock-coordinated), `execution-log.md` (human), `done.json` (terminal sentinel)|logging_|COMP-011,COMP-010|all four artifacts emitted + durable across crash|M|P0|
+|22|FR-046|Three monitoring caller patterns|`Bash run_in_background`+`until [ -f done.json ]`; `Monitor` tool tailing JSONL; `swarm status --watch` Rich table|logging_|FR-045, FR-003|all three patterns documented + functional against live job|M|P1|
+|23|FR-048|Detached mode via tmux (end-to-end ownership in M7)|`--detached` via tmux wrapper mirroring `sprint/tmux.py`; detached + `--resume` + `attach`/`kill` lifecycle; SC-014 gating test owned here (merge I7)|tmux|COMP-013|`--detached` job survives caller termination; full lifecycle works|M|P1|
+|24|FR-050|Non-precluding contract surface|Job spec, result contract, CLI surface, monitoring contract have zero Claude tool-name references; `caller.kind` informational only; `subprocess.run`-callable|commands|DM-001,DM-003|header-grep audit (SC-015) passes; `caller.kind` never routes|M|P0|
+|25|NFR-010|Spec-version forward compatibility|Orchestrator at `1.1` can load specs at `1.0`; forward-compat best-effort|schema|FR-017|1.1 orchestrator loads 1.0 spec; unknown future fields tolerated best-effort|S|P1|
+|26|NFR-011|Cross-language callability|`subprocess.run(["superclaude","swarm","run",...])` from any language; JSON/YAML stdlib-parseable contracts|commands|FR-050|subprocess invocation from non-Python harness works; contracts stdlib-parseable|S|P0|
+|27|NFR-012|TUI opt-in (output discipline)|Rich Live dashboard NOT default; non-TTY callers receive no terminal control sequences|tui|COMP-012|default run emits no control sequences; `--tui` + TTY required for dashboard|S|P0|
+|28|AC-008|No third-party agent-harness integration in scope (operational)|openharness/openhands/Assistants/LangGraph/CrewAI out of scope; contract non-precluding|commands|FR-050|no harness-specific code; contract surface harness-agnostic|S|P0|
+|29|AC-010|No streaming, function-calling, or vision input (operational, Phase 1)|Inherited from parent spec §7.3|transports|COMP-018|transport rejects/ignores streaming/function-calling/vision in Phase 1|S|P1|
+|30|AC-013|No response caching across invocations (operational)|Each invocation re-dispatches|dispatch|COMP-007|no cache layer; identical inputs re-dispatch|S|P1|
+|31|FR-031b|tmux + sprint/tmux.py mirror enforcement|Confirm M7 tmux.py mirrors `sprint/tmux.py` for operator continuity|tmux|COMP-013|directory + function-signature parity audit vs sprint/tmux.py|S|P1|
+|32|FR-046b|Bash `until [ -f done.json ]` documentation|Document non-TTY monitoring caller pattern with copy-paste recipe|logging_-doc|FR-046|recipe in `docs/swarm-monitoring.md`|S|P1|
+|33|FR-046c|`Monitor` tool JSONL tailing documentation|Document JSONL-tailing pattern with `--line-buffered`|logging_-doc|FR-046|recipe in `docs/swarm-monitoring.md`|S|P1|
+|34|FR-046d|`swarm status --watch` user-doc|Document Rich watch pattern + TTY caveats|logging_-doc|FR-003|recipe in `docs/swarm-monitoring.md`|S|P1|
 
 ### Integration Points — M7
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|Click subcommand registration (COMP-002)|Subcommand registry|Yes|M7|status/logs/attach/kill/scaffold/run/validate/validate-lenses|
-|done.json sentinel|Event binding / completion signal|Yes|M7|monitoring patterns (FR-013), non-Claude pollers|
-|tmux session wrapper (COMP-014)|Process detachment wiring|Yes|M7|attach/kill subcommands, detached runs|
-|Rich Live dashboard (COMP-013)|Flag-gated render binding|Yes|M7|`--tui` interactive sessions only|
+|9 Click subcommands|CLI dispatch table|All subcommands registered onto `swarm_group` in M7|M7|M9 (thin caller exec's `swarm run`)|
+|`run` flag set (8 flags)|CLI option binding|Flags bound to pipeline params in M7|M7|M9, human callers|
+|tmux detached wrapper|Process-lifecycle binding|Wired in M7 end-to-end (mirrors sprint/tmux.py; merge I7)|M7|M8b (SC-014 end-to-end gated here)|
+|Monitoring patterns (3)|Observability callbacks|JSONL tail + done.json sentinel + status --watch wired in M7|M7|external callers, M8b|
 
 ### Milestone Dependencies — M7
 
-- M5 (stable pipeline + contract; status/logs read reduce artifacts).
-- M3 (COMP-002 commands, COMP-011 state, COMP-012 logging_ extended here).
+- M6 (wave pipeline + contract); M4 (preflight resume rehydration).
 
 ### Open Questions — M7
 
 |#|ID|Question|Impact|Resolution Owner|Target|
 |---|---|---|---|---|---|
-|1|OQ-004|Prometheus / OpenMetrics output at event boundaries?|Affects observability surface + event-record schema|devops|Defer for v1|
+|1|OQ-003|Should `recommended_next_command` ever be auto-executed via `--auto-handoff`?|Affects AC-015 boundary + CLI flag surface|architect|Deferred; AC-015 holds (suggestion-only) for v1|
+|2|OQ-004|Prometheus / OpenMetrics output at event boundaries?|Affects observability layer + logging_ module|devops|Deferred beyond v1|
+|3|OQ-006|Concurrent-`--output`-dir protection?|Affects state/lock model for shared output dirs|architect|Deferred; document caller-must-avoid for v1|
 
 ### Risk Assessment and Mitigation — M7
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|Tmux dependency for detached mode|LOW|LOW|Detached unavailable without tmux|Detached optional; inline default (same posture as sprint)|devops|
-|2|TUI control sequences leak into non-TTY caller output|MEDIUM|LOW|Corrupts machine-readable output for non-Claude callers|INV-012: `--tui` opt-in only; non-TTY path emits plain output|frontend|
-|3|Claude-ism creeps into monitoring contract|MEDIUM|LOW|Breaks NFR-016 caller-agnosticism|grep audit in CI (AC-013/NFR-016); contract surface review|architect|
+|1|Tmux dependency unavailable in caller environment|Medium|Medium|Detached mode fails|Detached mode optional; inline mode default; preflight detects tmux + actionable error|devops|
+|2|Schema evolution drag as `spec_version` advances|Low|Low|Forward-compat maintenance burden|1.1 loads 1.0 best-effort; version-gate cross-field rules; document evolution policy|architect|
+|3|TUI control sequences leak to non-TTY callers|Medium|Low|Corrupted contract output for `subprocess.run` callers|TUI strictly `--tui` + TTY gated (NFR-012/INV-012); non-TTY test in M8b|frontend|
+|4|Claude tool-name reference leaks into contract surface|Medium|Low|Non-precluding contract (NFR-011) violated|Header-grep audit (SC-015) over models.py, schema.py, contract YAML, `--help`|architect|
+|5|2wk M7 compression skips P1 finish|Medium|Medium|FR-005/006/007/014/015 + COMP-013 P1 polish slips to follow-on|Merge I1 explicitly scopes follow-on; P0 row set above kept intact; tracked in release notes|architect|
 
-## M8: Migration, Test Discipline & Hardening
+## M8a: IMM Invariant Test Suite
 
-**Objective:** Migrate `sc-bare-review` to a ~60-line thin caller with A/B-verified output parity, prove non-Claude caller compatibility, land enumerated migration deliverables (source-first sync, package entry registration, legacy shell retirement, release notes), and land the full per-IMM / per-INV acceptance test suite as enumerated test items. | **Duration:** Weeks 15–16 | **Entry:** M6 (resumable pipeline) + M7 (complete CLI + contract surface) done | **Exit:** SKILL.md migrated; `scripts/*.sh` deleted only after A/B parity passes; non-Python caller produces identical contract; all enumerated TEST items green.
+**Objective:** Author acceptance tests for the IMM-3/4/5/6 invariants plus §11.5 prompt-injection-guard tests. M8a runs in parallel with M8b (merge improvement I3 — splits a single dense invariant milestone into two reviewer-parallel halves) and uses the M1-bound deterministic stub transport. | **Duration:** 0.5 wk (W13.5–W14, parallel with M8b) | **Entry:** M5/M6/M7 complete | **Exit:** SC-002..SC-006 pass green; full suite runs via `uv run pytest tests/swarm/`.
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|FR-029|SKILL.md migration|Rewrite sc-bare-review SKILL.md as ~60-line thin caller building `--lens bare-review` job spec, exec CLI, relay return contract|src/superclaude/skills/sc-bare-review/SKILL.md|FR-001,FR-018,COMP-016|thin caller ~60 lines; lens:bare-review; contract relayed; parity gate passes before legacy deletion|L|P1|
-|2|FR-030|Non-Claude caller compatibility|Invocation via `subprocess.run(["superclaude","swarm","run","--detached",spec_path])` from any language|cli|FR-014,FR-018|non-Python subprocess produces identical result contract|M|P1|
-|3|NFR-007|Test coverage (per-IMM + per-INV)|Per-IMM acceptance test + per-INV remediation test live in `tests/swarm/`; gated by enumerated TEST items below|tests/swarm/|all milestones|every IMM + INV has a passing dedicated test|L|P0|
-|4|MIG-001|Source-first sync workflow|All migration edits land in `src/superclaude/` then `make sync-dev`; generated `.claude/` copies never edited directly|release|AC-019,FR-029|src updated; `make sync-dev` run; `make verify-sync` clean; no direct `.claude/` edits|M|P0|
-|5|MIG-002|Package entry registration|Register swarm CLI package and command group in distributable CLI entry points|release|COMP-001,COMP-002|`superclaude swarm --help` lists subcommands; package imports clean; entry point installs cleanly|M|P0|
-|6|MIG-003|Legacy shell retirement|Remove `scripts/*.sh` from `sc-bare-review` skill package after A/B parity gate passes|release|TEST-003|shell scripts removed; no legacy dispatch refs in skill; legacy code path absent|M|P1|
-|7|MIG-004|Release notes + operator migration note|Document new CLI invocation, resume behavior, prompt guard requirement, custom prompt migration path|docs|MIG-001|run examples; resume notes; `--auto-inject-guard` migration; custom prompt path documented|S|P1|
-|8|TEST-001|IMM acceptance suite|Validate IMM-3 parallelism (stub-worker overlap), IMM-4 empty-target STOP (49-byte), IMM-5 status matrix (M==N/2≤M<N/M<2/M==N==2), IMM-6 atomic-write mid-write kill, §11.5 end-marker target safety|tests/swarm/|IMM-3,IMM-4,IMM-5,IMM-6,§11.5|each IMM case has a dedicated passing test|L|P0|
-|9|TEST-002|INV remediation suite|Validate INV-001 manifest lens rehydration; INV-002 Python-only dispatch (no shell); INV-003 custom-prompt-dir identical guard; INV-005 worker-vs-pool guard; INV-007 empty-pool failure contract; INV-010 resume merge regen; INV-014 escape-hatch isomorphism|tests/swarm/|all INV ids|each INV remediation has a dedicated passing test|L|P0|
-|10|TEST-003|Bare-review parity test|Compare thin-caller output against current bare-review output on identical targets|tests/swarm/|FR-029,COMP-016|same target → equivalent normalized output; contract relayed; gates MIG-003|M|P0|
-|11|TEST-004|Bundled lens validation gate|Run `swarm validate-lenses` against all non-custom bundled entries|tests/swarm/|U-008,FR-008,FR-009|7 non-custom entries pass validator in CI|M|P0|
-|12|TEST-005|Non-Claude caller integration|Invoke CLI via subprocess from a non-Python harness; compare returned contract|tests/swarm/|FR-030,NFR-016|subprocess invocation succeeds; detached supported; contract identical to Claude invocation|M|P1|
-|13|TEST-006|Mechanical merge boundary test|Assert 3-worker concat preserves slot order and applies no transforms beyond provenance header; CI flags PRs touching test file|tests/swarm/test_merge_mechanical_only.py|FR-012,NFR-009|3 sections in slot order; no transforms beyond header; CI rule active|M|P0|
-|14|TEST-007|Resume crash recovery E2E|Verify successful workers skipped, remaining workers redispatched, Wave 2 reruns, merge regenerates|tests/swarm/|FR-015,NFR-005,INV-010|kill-then-resume reaches terminal state with no duplicate work; merge regenerated|L|P0|
-|15|TEST-008|Wire deterministic-fixture transport into integration suite|Replace network-mock paths with wired-in deterministic-fixture transport for full M3-M5 integration coverage; connects fixture-based dispatch validation to end-to-end pipeline tests|tests/swarm/|COMP-033,FR-023|integration suite runs end-to-end against wired-in deterministic-fixture transport; CI passes without external network|M|P0|
+|1|NFR-013a|IMM-N test coverage|Every IMM-N invariant + §11.5 has an acceptance test|tests/swarm|—|tests exist for IMM-3/4/5/6 + §11.5|S|P0|
+|2|SC-002|IMM-3 stub-worker parallelism test|N stub workers complete within `max(per_worker_elapsed)+ε`, NOT `Σ`|tests/swarm|FR-024,COMP-018|elapsed asserts ≈ max + ε; defined-worker fleet via stub transport|S|P0|
+|3|SC-003|IMM-4 49-byte target test|Target <50 non-whitespace bytes → `failed/target-too-small` before dispatch|tests/swarm|FR-020|49-byte target → failed contract; zero dispatch calls|S|P0|
+|4|SC-004|IMM-5 parametrized status test|Cover `M==N`, `M==N==2`, `2≤M<N`, `M<2` with success_first=true ordering|tests/swarm|FR-032|all four cases assert correct terminal status|S|P0|
+|5|SC-005|IMM-6 mid-write kill test|Process killed during output write leaves no partial file at deterministic final path|tests/swarm|FR-047|kill mid-write → no partial final; previous content intact|S|P0|
+|6|SC-006|§11.5 target-containing-end-marker test|Target text containing `<<<END TARGET>>>` literal does not allow injection past delimiter|tests/swarm|FR-021|embedded end-marker neutralized; instructions not escaped|S|P0|
+|7|SC-001b|bare_review_v1 byte-equivalence fixture test|`bare_review_v1` recipe produces byte-equivalent normalization vs `t2_normalize.py` on fixture set (golden reference)|tests/swarm|COMP-027|fixture suite passes byte-equivalent assertion; golden ref frozen|S|P0|
 
-### Integration Points — M8
+### Integration Points — M8a
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|sc-bare-review thin caller|Skill→CLI invocation binding|Yes|M8|Claude Code skill runtime; A/B harness (TEST-003)|
-|return-contract.yaml (FR-018)|Caller-agnostic contract consumption|Yes|M8|non-Claude callers (FR-030), skill relay (FR-029)|
-|src→.claude sync pipeline|Release pipeline binding|Yes|M8|`make sync-dev` / `make verify-sync` on every migration edit|
-|Package CLI entry point|Distributable registration|Yes|M8|`superclaude swarm` discoverable post-install|
+|Stub transport fixture|Test DI/strategy|Bound from M1 stub for IMM tests in M8a|M8a|CI, M9 (parity harness reuse)|
+|`bare_review_v1` golden fixtures|Golden reference|Pinned in M8a; frozen against `t2_normalize.py`|M8a|M9 (A/B parity)|
 
-### Milestone Dependencies — M8
+### Milestone Dependencies — M8a
 
-- M6 (resumable pipeline required for production-grade migration).
-- M7 (full CLI surface + detached mode + complete contract required by thin caller and non-Claude callers).
+- M5 (dispatch), M6 (normalize/reduce/merge), M7 (CLI/resume/detached) — runs in parallel with M8b.
 
-### Risk Assessment and Mitigation — M8
+### Risk Assessment and Mitigation — M8a
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|A/B parity regression: thin caller output diverges from current bare-review|MEDIUM|MEDIUM|Migration blocked; behavior change for existing skill|TEST-003 parity test on identical targets gates MIG-003 legacy deletion|qa|
-|2|Premature `scripts/*.sh` deletion before parity proven|MEDIUM|LOW|Loss of working fallback during migration|MIG-003 sequenced strictly after TEST-003 passes|architect|
-|3|Non-Claude caller contract mismatch|MEDIUM|LOW|External integrations break|TEST-005 cross-language subprocess test asserts identical contract|backend|
-|4|Skill migration bypasses source-of-truth rules|HIGH|LOW|Generated dev copies drift from source|MIG-001 source-first sync; `make verify-sync` gate; never stage generated `.claude/` content|release|
-|5|Boundary test (TEST-006) becomes a weak gate|HIGH|LOW|Merge module begins filtering or rewriting findings|CI flags test changes; PR review treats boundary test as protected|architect|
+|1|Mid-write kill test (SC-005) flaky across OSes|Medium|Medium|CI instability|Use signal-based deterministic kill point; same-dir tmp guarantee; retry-tolerant assertion on final-path absence|qa|
+|2|Stub transport drifts from real T2 proxy semantics|Medium|Low|Tests pass but production differs|Pin stub to documented OpenAI-compat response shape; periodic contract check against real proxy in M9|backend|
 
-## M9: Operational Handoff
+## M8b: INV + Boundary Test Suite
 
-**Objective:** Land first-class operational rollout deliverables — runbook, environment readiness check, observability procedure, rollback, lens contribution policy, and post-release metrics review — so production adoption is not a byproduct of feature completion. | **Duration:** Week 17 (explicit buffer: this milestone absorbs late-cycle slack rather than padding earlier milestones) | **Entry:** M8 release candidate available; A/B parity passed; all enumerated TEST items green | **Exit:** operators can run, monitor, resume, and troubleshoot swarm jobs using documented commands and contracts; rollback procedure validated.
+**Objective:** Author acceptance tests for INV-001/002/003/010/014 + §10.2 merge-boundary, validate-lenses, detached-lifecycle, and non-precluding-surface checks. Runs in parallel with M8a. | **Duration:** 0.5 wk (W13.5–W14, parallel with M8a) | **Entry:** M5/M6/M7 complete | **Exit:** SC-007..SC-015 pass green; CI rule guarding merge-boundary test active.
 
 |#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
 |---|---|---|---|---|---|---|---|---|
-|1|OPS-001|Operator runbook|Document run/status/logs/watch/resume/kill/attach workflows with single-line commands|docs|M7,M8|commands enumerated; single-line examples; contract paths explained; doc markdownlint-clean + each example command exits 0 against fixture (automated)|M|P1|
-|2|OPS-002|Environment readiness check|Document and validate Python ≥3.10, UV, httpx, Click, Rich, tmux (optional), and T2 proxy prerequisites; align with INV-007 env-missing contract|ops|M2,M3|prerequisite checklist; readiness script; INV-007 env-missing path referenced; T2 env vars documented|S|P1|
-|3|OPS-003|Observability procedure|Define how to monitor state file, JSONL log, Markdown log, done sentinel; map artifacts to debugging workflows|ops|FR-013,NFR-004|four monitoring artifacts documented; debugging recipes provided|S|P1|
-|4|OPS-004|Rollback procedure|Describe reverting skill caller to previous release; disabling detached rollout; preserving in-flight artifacts|ops|M8,MIG-003|skill rollback steps; detached disable steps; artifact preservation rules; documented + markdownlint-clean (covered by operational summary)|S|P1|
-|5|OPS-005|Lens contribution policy|Document review requirements for adding/changing lens entries (real caller, §11.5 substring, recipe/template alignment, downstream command, suspect scrutiny)|docs|NFR-012,U-008|policy doc covers all 5 review criteria; references registry validator (U-008)|S|P1|
-|6|OPS-006|Post-release metrics review|Review validation failures, env-missing contracts, resume usage, and custom prompt guard failures after rollout|ops|M8|metrics enumerated; review window scheduled post-release; findings feed backlog|S|P2|
+|1|NFR-013b|INV+boundary test coverage|Every INV-NNN invariant + §10.2 boundary has an acceptance test|tests/swarm|—|tests exist for INV-001/002/003/010/014 + §10.2 merge boundary|S|P0|
+|2|NFR-006|Merge module LOC ceiling|`merge.py` body ≤30 LOC excl imports + docstring; allowed/disallowed in docstring; boundary test enforces|tests/swarm|FR-034|LOC counter asserts ≤30; docstring lists allowed/disallowed|S|P0|
+|3|SC-007|INV-001 resume-uses-manifest-lens test|`--resume` reads `resolved_lens_entry` from manifest, ignores mutated registry|tests/swarm|FR-043, FR-044|`test_resume_uses_manifest_lens.py`: mutated registry ignored on resume|S|P0|
+|4|SC-008|INV-002 concurrency-python-only test|No shell-script dispatch path exercised; all parallelism via Python ThreadPoolExecutor|tests/swarm|FR-041|`test_concurrency_python_only.py`: no shell path; ParallelExecutor used|S|P0|
+|5|SC-009|INV-003 custom-prompt-dir injection-guard test|`--custom-prompt-dir` without §11.5 substring STOPs; with `--auto-inject-guard` prepends canonical sentence|tests/swarm|FR-023, FR-012|`test_custom_prompt_dir_injection_guard.py`: STOP vs auto-prepend both verified|S|P0|
+|6|SC-010|INV-010 resume-regenerates-merge test|`--resume` + `normalize+merge` always regenerates `merged.md` after Wave 2|tests/swarm|FR-035|`test_resume_regenerates_merge.py`: merge regenerated unconditionally|S|P0|
+|7|SC-011|INV-014 escape-hatch-guard-parity test|Escape-hatch path enforces injection guard identically to lens-driven + JSON-Schema paths|tests/swarm|FR-021, FR-023|`test_escape_hatch_guard_parity.py`: parity across all 3 paths|S|P0|
+|8|SC-012|Merge-boundary mechanical-only test (§10.2)|3-worker concat → all 3 sections in slot-index order, only provenance header added; module body ≤30 LOC|tests/swarm|FR-034,NFR-006|`test_merge_mechanical_only.py`: order preserved, no transforms; LOC ≤30; CI flags changes|S|P0|
+|9|SC-013|`validate-lenses` exit-code test|Exit 0 on valid 8-entry registry; non-zero + diagnostics for missing templates, unregistered recipes, suspect-without-{suspect_files}, dupes, missing §11.5|tests/swarm|FR-009|all failure classes produce non-zero + diagnostic; valid registry → exit 0|S|P0|
+|10|SC-014|Detached + resume + attach end-to-end test|Long-running job survives caller termination, resumes via `swarm run --resume`, attaches via `swarm attach`, terminates via `swarm kill`|tests/swarm|FR-048, FR-043|full detached lifecycle demonstrated end-to-end|M|P1|
+|11|SC-015|Non-precluding contract-surface audit|Header-grep: zero Claude tool-name references in models.py, schema.py, result-contract YAML, CLI `--help`|tests/swarm|FR-050|grep audit returns zero matches across all four surfaces|S|P0|
+
+### Integration Points — M8b
+
+|Artifact|Type|Wired|Milestone|Consumed By|
+|---|---|---|---|---|
+|Merge-boundary CI rule|CI guard|Flags any change to `test_merge_mechanical_only.py` in M8b|M8b|ongoing PR review|
+|Detached-lifecycle marker|Test gating|tmux-available marker pinned in M8b|M8b|CI, M9 (resume regression)|
+
+### Milestone Dependencies — M8b
+
+- M5 (dispatch), M6 (normalize/reduce/merge), M7 (CLI/resume/detached) — runs in parallel with M8a.
+
+### Risk Assessment and Mitigation — M8b
+
+|#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
+|---|---|---|---|---|---|---|
+|1|Detached lifecycle test (SC-014) requires tmux in CI|Medium|Medium|CI cannot run SC-014|Gate SC-014 behind tmux-available marker; provide local-run instructions; inline-mode fallback tests always run|qa|
+|2|Merge-boundary CI rule causes review friction|Low|Medium|PRs touching merge area blocked|CI rule advises reviewer sign-off; not a hard block; documented in CONTRIBUTING|architect|
+|3|Parallel M8a/M8b coordination drift|Low|Low|Test infra duplication / shared fixtures conflict|Stub-transport + fixture directory layout finalized in M5; both halves consume same fixtures|qa|
+
+## M9: sc-bare-review Migration & A/B Parity
+
+**Objective:** Rewrite `sc-bare-review` SKILL.md as a ~60-line thin caller over `--lens bare-review`, run an A/B parity test against current output, observe production parity across a window, and delete the legacy `scripts/*.sh`. | **Duration:** 1 wk (W14–W15) | **Entry:** M8a + M8b invariant suites green | **Exit:** SKILL.md ~60 lines; `scripts/*.sh` deleted; A/B parity observed (byte-equivalent modulo timestamps/checksums); backward-compat path documented for `--custom-prompt-dir` users.
+
+|#|ID|Title|Description|Comp|Deps|AC|Eff|Pri|
+|---|---|---|---|---|---|---|---|---|
+|1|COMP-033|`sc-bare-review` thin-caller SKILL.md|~60-line skill that builds `--lens bare-review` job spec, exec's `superclaude swarm run`, relays return contract|sc-bare-review|COMP-001,COMP-019|SKILL.md ~60 lines; builds spec; exec's CLI; relays contract; no orchestration prose|M|P1|
+|2|FR-049|sc-bare-review migration to thin caller|Rewrite SKILL.md as thin caller; A/B parity test against current output; `scripts/*.sh` deleted|sc-bare-review|COMP-033|migration complete; A/B parity test exists + passes; legacy scripts removed|M|P1|
+|3|SC-001|A/B parity acceptance|`swarm run --lens bare-review ... --workers 3` produces `return-contract.yaml` byte-equivalent (modulo timestamps + checksums) to today's sc-bare-review output|tests/swarm|FR-049,COMP-027|A/B harness asserts byte-equivalence modulo volatile fields|M|P1|
+|4|SC-016|Migration completeness|After Phase 9: SKILL.md ~60 lines, all `scripts/*.sh` deleted, production parity observed across A/B window|sc-bare-review|FR-049,SC-001|line count ≤~60; zero `scripts/*.sh`; parity window observed clean|S|P1|
+|5|NFR-009|Backward compatibility migration path|`--auto-inject-guard` preserves existing `--custom-prompt-dir` callers during §11.5 enforcement rollout|sc-bare-review|FR-012|documented migration window; flag preserves callers; sunset plan noted|S|P1|
 
 ### Integration Points — M9
 
 |Artifact|Type|Wired|Milestone|Consumed By|
 |---|---|---|---|---|
-|runbook → CLI surface|Operator workflow binding|Yes|M9|operators; on-call|
-|return-contract.yaml → troubleshooting|Diagnostic contract binding|Yes|M9|incident response; support|
-|lens contribution policy → PR review|Governance hook|Yes|M9|future lens authors; validator (U-008)|
-|post-release metrics → backlog|Feedback loop|Yes|M9|maintainers; next-iteration planning|
+|`sc-bare-review` thin caller|Caller→CLI binding|SKILL.md exec's `swarm run --lens bare-review` in M9|M9|production review workflow|
+|A/B parity harness|Test/validation|Compares thin-caller output vs legacy in M9|M9|release gate|
 
 ### Milestone Dependencies — M9
 
-- M8 (release candidate must exist; A/B parity must pass before runbook finalization).
-- M7 (CLI surface must be final before runbook documents commands).
-- M2 (INV-007 env-missing contract referenced by OPS-002).
+- M8a + M8b (both invariant suites must be green before migration cutover).
 
 ### Risk Assessment and Mitigation — M9
 
 |#|Risk|Severity|Likelihood|Impact|Mitigation|Owner|
 |---|---|---|---|---|---|---|
-|1|Rollout starts without operator observability|MEDIUM|LOW|Incidents take longer to diagnose|Publish OPS-001 runbook and OPS-003 observability procedure before release|release|
-|2|Documentation diverges from CLI contract|MEDIUM|MEDIUM|Operators run wrong commands or expect wrong artifacts|OPS-001 examples verified against final CLI flags; OPS-002 readiness script CI-tested|scribe|
-|3|Environment readiness gaps surface in production|MEDIUM|MEDIUM|Jobs fail due to missing tmux or T2 env vars|OPS-002 readiness check; INV-007 structured env-missing contract|devops|
-|4|Rollback procedure untested before incident|MEDIUM|LOW|Rollback fails when needed|OPS-004 documented + markdownlint-clean during M9; rollback steps covered by the operational summary (DECISIONS-RESOLVED.md)|release|
+|1|A/B parity fails due to `bare_review_v1` normalization drift|High|Medium|Migration blocked; rollback needed|Port `t2_normalize.py` verbatim (M2); fixture byte-equivalence (SC-001b in M8a); keep legacy path until parity window closes clean|backend|
+|2|Premature `scripts/*.sh` deletion before parity confirmed|Medium|Low|Loss of rollback path|Delete scripts only after parity window observed clean (SC-016); retain in git history|architect|
+|3|Existing `--custom-prompt-dir` callers break on §11.5 enforcement|Medium|Medium|Caller-facing regression|`--auto-inject-guard` (NFR-009) during migration window; comms + docs before enforcement default|backend|
 
 ## Resource Requirements and Dependencies
 
@@ -530,166 +510,102 @@ M1 (Foundation) → M2 (Preflight/Lens/Guard) → M3 (Dispatch) → M4 (Normaliz
 
 |Dependency|Required By Milestone|Status|Fallback|
 |---|---|---|---|
-|Python ≥3.10|M1|Available|None (hard requirement)|
-|UV (build tool)|M1|Available|None (CLAUDE.md CRITICAL rule)|
-|httpx|M3|Add to deps|None for openai_compat; stub transport covers tests|
-|Click ≥8.0.0|M1|Available (existing dep)|None|
-|Rich ≥13.0.0|M7|Available (existing dep)|Plain-text output when `--tui` not used|
-|pytest ≥7.0.0|M3 (tests onward)|Available (existing dep)|None|
-|tmux|M7|Available (optional)|Inline mode (default) needs no tmux|
-|T2 proxy endpoint (`T2ProxyUrl`/`T2ProxyKey`/`T2Model0N`)|M3|Must confirm reachable|Stub transport for CI/dev; INV-007 structured env-missing contract at runtime|
-|`superclaude.execution.parallel.ParallelExecutor`|M3|Available (internal)|None (AC-004 mandate)|
-|Parent spec: bare-review v1.3.0-draft|M2, M8|Available|None (IMM invariants carry forward)|
-|`/sc:adversarial`|M5 (next-cmd reference)|Available (downstream)|Referenced only; not invoked by swarm|
+|`superclaude.execution.parallel.ParallelExecutor`|M5|Available (internal)|None — mandated by AC-005|
+|`httpx`|M2, M5|Available (PyPI)|`requests` (would require transport rewrite)|
+|`click`|M1, M7|Available (existing dep)|None|
+|`rich`|M7|Available (existing dep)|Plain-text status fallback (TUI is opt-in)|
+|`tmux`|M7|System dependency, may be absent|Inline mode default; detached gated on tmux presence|
+|`threading.Lock` / `os.replace`|M1, M5|Python stdlib|None|
+|T2 proxy (OpenAI-compatible, `T2ProxyUrl`/`T2ProxyKey`/`T2Model0N`)|M5|External service|Stub transport (M1-bound) for tests; STOP with env-missing contract in prod|
+|Lens template files (`refs/templates/<lens>-output.md`)|M3|To be authored per stable lens|Lens fails validation if missing|
+|Parent spec `bare-review v1.3.0-draft` (IMM-N, §11.5, §7.4)|M1, M6, M8a|Available (reference)|None — invariants inherited verbatim|
+|`/sc:adversarial` downstream command|M3, M6|Available|Lens `recommended_next_command` is suggestion-only (AC-015)|
+|`sprint/tmux.py` (mirrored pattern)|M7|Available (internal)|None|
 
 ### Infrastructure Requirements
 
-- CI runner with Python ≥3.10 + UV; network-isolated stub-transport test lane plus an opt-in live lane gated on T2 proxy env presence.
-- CI rule to flag PRs touching `tests/swarm/test_merge_mechanical_only.py` (NFR-009 / TEST-006 boundary protection).
-- Optional pre-commit hook for `swarm validate-lenses` (per OQ-001 / OQ-010 resolution at M2 exit).
-- Filesystem write confinement: jobs write only under `--output` (NFR-013/AC-014); CI asserts no out-of-dir writes.
-- Documentation pipeline that regenerates OPS-001 examples from final CLI `--help` output to prevent drift.
+- Python ≥3.10 with UV-managed environment; `uv run pytest tests/swarm/` as the test entrypoint.
+- CI runner with optional tmux for SC-014 (detached lifecycle), gated behind a tmux-available marker.
+- Network egress to the T2 proxy for production runs; deterministic stub transport for all CI/test runs (no live proxy in CI).
+- `make verify-sync` + pre-commit hook surface for `validate-lenses` (OQ-001 resolved and wired at M3 exit per merge improvement I6).
+- CI rule that flags any change to `tests/swarm/test_merge_mechanical_only.py` (merge-boundary guard).
 
 ## Risk Register
 
 |ID|Risk|Affected Milestones|Probability|Impact|Mitigation|Owner|
 |----|------|---------------------|-------------|--------|------------|-------|
-|R-001|Data model churn forces downstream rewrites|M1|MEDIUM|MEDIUM|Freeze DM field sets at M1 exit; version via spec_version/contract_version|architect|
-|R-002|OQ-006/008/009 unresolved when models freeze|M1|MEDIUM|MEDIUM|Named owners assigned at M1 entry; OQ-008 resolved via INV-007 at M2|architect|
-|R-003|Lens-registry sprawl: every new lens ships built-in entry|M2|MEDIUM|MEDIUM|PR-review discipline; speculative lenses deferred to `custom-py:` + caller-side prompts|security|
-|R-004|Merge boundary erosion: normalize+merge drifts into judging|M4,M5|MEDIUM|HIGH|Four structural guards + CI rule on TEST-006|architect|
-|R-005|Resume + lens-mutation interaction breaks resume|M6|MEDIUM|MEDIUM|`--resume` rehydrates from manifest by default; `--force-relens` opts in|architect|
-|R-006|Tmux dependency for detached mode|M7,M9|LOW|LOW|Detached optional; inline default|devops|
-|R-007|ThreadPoolExecutor threading behavior surprises developers|M3|MEDIUM|LOW|Documented in dispatch.py docstring; stub-transport tests; routed via ParallelExecutor|backend|
-|R-008|Custom-prompt-dir guard parity: existing `system.txt` lacks §11.5 sentence|M2,M8|MEDIUM|MEDIUM|`--auto-inject-guard` backward-compat flag; INV-014 parity test; MIG-004 release notes|security|
-|R-009|Schema evolution drag: spec_version evolution breaks loaders|M6|LOW|LOW|Forward-compat best-effort; version-skew test|backend|
-|R-010|T2 proxy unreachable blocks live dispatch validation|M3,M8,M9|MEDIUM|MEDIUM|Stub transport as primary CI path; live tests gated on env; INV-007 structured failure|devops|
-|R-011|A/B parity regression in sc-bare-review migration|M8|MEDIUM|MEDIUM|TEST-003 parity test gates MIG-003; `bare_review_v1` ports `t2_normalize.py` verbatim|qa|
-|R-012|custom-py loader executes untrusted caller code|M4|MEDIUM|MEDIUM|Explicit `custom-py:module:func` only; no auto-discovery; documented trust boundary|security|
-|R-013|Validation-coverage gap (consolidated from B's R-014/R-015/R-016)|M8|MEDIUM|HIGH|TEST-001 through TEST-007 enumerated; per-IMM + per-INV cases each have a dedicated assertion|qa|
-|R-014|Lens-registry PR review weakens over time|M2,M9|MEDIUM|MEDIUM|OPS-005 lens contribution policy + U-008 validator + NFR-012 enforcement|security|
-|R-015|INV-007 empty-pool path emits unclear failure to callers|M2,M9|MEDIUM|MEDIUM|Structured `failed`/`env-missing` contract with reason field; OPS-002 documents env contract|architect|
-|R-016|Operational readiness gap (rollback / runbook / env)|M9|MEDIUM|MEDIUM|M9 dedicated milestone: OPS-001/OPS-002/OPS-004 first-class deliverables; rollback rehearsed|release|
-|R-017|TUI control sequences leak into non-TTY caller output|M7|LOW|MEDIUM|INV-012: `--tui` opt-in only; non-TTY path emits plain output|frontend|
-|R-018|Skill migration bypasses source-of-truth rules|M8|LOW|HIGH|MIG-001 source-first sync; `make verify-sync` gate; never stage generated `.claude/` content|release|
-|R-019|Documentation diverges from CLI contract|M9|MEDIUM|MEDIUM|OPS-001 examples regenerated from final `--help`; CI verifies parity|scribe|
+|R-01|Merge boundary erosion (drift into judging/scoring)|M6, M8b|Medium|High|Four structural guards (docstring allowed/disallowed + ≤30 LOC + PR-review note + boundary test SC-012) + CI rule flagging boundary-test changes|architect|
+|R-02|Lens-registry sprawl|M3|High|Medium|PR-review requires real caller (FR-040/NFR-008); no-caller entries deferred to `custom-py:`; 6 entries ship experimental|architect|
+|R-03|Resume + lens-mutation interaction|M4, M7|Medium|Medium|Default rehydrates from `manifest.resolved_lens_entry` (INV-001); `--force-relens` opt-in; both paths tested (SC-007)|architect|
+|R-04|Tmux dependency for detached mode|M7, M8b|Medium|Medium|Detached optional; inline default; tmux-presence preflight; SC-014 gated behind marker|devops|
+|R-05|ThreadPoolExecutor surprise (process/async expectation)|M5|Medium|Low|Documented in dispatch docstring + design rationale; stub-tested (SC-002/SC-008)|backend|
+|R-06|Custom-prompt-dir guard parity backward-compat|M4, M9|Medium|Medium|`--auto-inject-guard` flag during migration window (NFR-009); parity test SC-011|backend|
+|R-07|Schema evolution drag (`spec_version`)|M7|Low|Low|1.1 loads 1.0 best-effort; version-gated cross-field rules; documented policy|architect|
+|R-08|`bare_review_v1` normalization drift vs `t2_normalize.py`|M2, M9|Medium|High|Verbatim port; fixture byte-equivalence (SC-001b in M8a); legacy path retained until A/B window clean (SC-001)|backend|
+|R-09|IMM-5 success-first ordering bug at boundaries|M6, M8a|Low|High|Explicit success-first ordering; parametrized status test SC-004 incl M==N==2|backend|
+|R-10|OQ-007/OQ-008 unresolved at M1 exit blocks model freeze|M1|Low|Medium|Forced resolution at M1 exit (OQ-007/OQ-008 row gates); status_policy designed for both warn and STOP semantics|architect|
+|R-11|Data-model field mismatch with parent extraction|M1, M2|Low|High|Cross-reference every DM-NNN field against extraction.md; field-count assertion tests in M1 exit suite|architect|
+|R-12|`custom-py:` loader becomes arbitrary-code-exec vector|M2|Low|Medium|Python-only, caller-supplied module path; document trust boundary; never auto-resolve from untrusted spec fields|security|
+|R-13|Vertical-slice callability checkpoint slips at M5 exit|M5|Low|Medium|Exit-gate `swarm run --transport stub` blocks M6 entry until passing; merge I2|architect|
+|R-14|TUI control-sequence leak to non-TTY callers|M7, M8b|Low|Medium|TUI strictly `--tui` + TTY gated (NFR-012/INV-012); non-TTY test in M8b|frontend|
+|R-15|Claude tool-name reference leaks into contract surface|M7, M8b|Low|Medium|Header-grep audit (SC-015) over models.py, schema.py, contract YAML, `--help`|architect|
+|R-16|M7 2-week compression skips P1 finish|M7|Medium|Medium|Merge I1 explicitly scopes P1 follow-on (FR-005/006/007/014/015 + COMP-013); P0 row set intact; tracked in release notes|architect|
+|R-17|Parallel M8a/M8b coordination drift|M8a, M8b|Low|Low|Stub-transport + fixture directory layout finalized at M5; both halves consume same fixtures|qa|
+|R-18|Pre-commit `validate-lenses` hook drag|M3|Low|Low|Validator caches resolved registry; fast-path skip on no `cli/swarm/lenses/` changes|backend|
 
 ## Success Criteria and Validation Approach
 
 |Criterion|Metric|Target|Validation Method|Milestone|
 |---|---|---|---|---|
-|All IMM-N acceptance tests pass|IMM-3/4/5/6 + §11.5 tests|100% pass|TEST-001 suite via `uv run pytest tests/swarm/ -m imm`|M3,M5,M8|
-|All INV-xxx remediation tests pass|INV-001/002/003/005/007/010/014 tests|100% pass|TEST-002 suite via `uv run pytest tests/swarm/ -m inv`|M2,M3,M5,M6,M8|
-|A/B parity: thin caller vs current bare-review|Output equivalence on identical targets|Byte/structure equivalence|TEST-003 A/B harness diff on shared corpus; gates MIG-003|M8|
-|`swarm validate-lenses` passes for bundled registry|Non-custom entries passing|7/7 pass on `make verify-sync`|TEST-004 + `superclaude swarm validate-lenses` in CI|M2,M8|
-|Non-Claude caller integration|Contract equivalence cross-language|Identical result contract|TEST-005 `subprocess.run` from non-Python lang|M8|
-|Merge boundary mechanical-only invariant|3-worker concat: sections in slot order, provenance header only|0 non-mechanical transforms|TEST-006 boundary test + CI file-touch rule|M5,M8|
-|Resume + crash recovery end-to-end|Succeeded workers skipped; merge regenerated|Skip + regen verified|TEST-007 kill-then-resume integration test|M6,M8|
-|Migration completes through enumerated steps|MIG-001..MIG-004 all done; legacy shell removed|Production migration verified|MIG-001 source-first sync; MIG-002 entry point; MIG-003 post-parity deletion; MIG-004 notes|M8|
-|Operational handoff complete|OPS-001..OPS-006 published and reviewed|Runbook + readiness + rollback + policy live|release-readiness = green targeted swarm suite + operator has read the operational summary (DECISIONS-RESOLVED.md)|M9|
+|SC-001 A/B parity|Contract byte-equivalence (modulo timestamps/checksums)|100% equivalent|A/B harness vs legacy bare-review|M9|
+|SC-001b bare_review_v1 fixture parity|Byte-equivalent vs `t2_normalize.py`|100% match on fixtures|Golden fixture test|M8a|
+|SC-002 IMM-3 parallelism|Elapsed vs max(per-worker)|≈ max + ε (not Σ)|Stub-worker parallelism test|M8a|
+|SC-003 IMM-4 empty-target|49-byte target outcome|`failed/target-too-small`, zero dispatch|Boundary test|M8a|
+|SC-004 IMM-5 status|Status across M==N/M==N==2/2≤M<N/M<2|All correct, success-first|Parametrized status test|M8a|
+|SC-005 IMM-6 atomicity|Partial file after mid-write kill|None at final path|Mid-write kill test|M8a|
+|SC-006 §11.5 injection|Embedded `<<<END TARGET>>>` outcome|No injection past delimiter|End-marker test|M8a|
+|SC-007 INV-001 resume lens|Lens source on resume|Manifest, not mutated registry|`test_resume_uses_manifest_lens.py`|M8b|
+|SC-008 INV-002 python-only|Shell dispatch path exercised|None; ThreadPoolExecutor only|`test_concurrency_python_only.py`|M8b|
+|SC-009 INV-003 guard|Custom-prompt-dir without §11.5|STOP / auto-prepend with flag|`test_custom_prompt_dir_injection_guard.py`|M8b|
+|SC-010 INV-010 resume merge|`merged.md` on resume+normalize+merge|Always regenerated|`test_resume_regenerates_merge.py`|M8b|
+|SC-011 INV-014 parity|Guard enforcement across 3 paths|Identical|`test_escape_hatch_guard_parity.py`|M8b|
+|SC-012 merge boundary|Sections order + transforms + LOC|Slot order, provenance-only, ≤30 LOC|`test_merge_mechanical_only.py`|M8b|
+|SC-013 validate-lenses|Exit codes per failure class|0 valid / non-zero + diagnostics|Validator exit-code test|M8b|
+|SC-014 detached lifecycle|Survive termination + attach/kill|Full lifecycle works|End-to-end detached test|M8b|
+|SC-015 non-precluding surface|Claude tool-name references|Zero across 4 surfaces|Header-grep audit|M8b|
+|SC-016 migration completeness|SKILL.md lines + scripts + parity window|≤~60 lines, 0 scripts, clean window|Migration audit|M9|
+|M5 vertical-slice callability|`swarm validate` + `swarm run --transport stub` invokes Wave 1 e2e|Exit 0; full pipeline traversed|Exit-gate test at M5|M5|
 
 ## Decision Summary
 
 |Decision|Chosen|Alternatives Considered|Rationale|
 |----------|--------|------------------------|----------|
-|Concurrency model|Python ThreadPoolExecutor via ParallelExecutor (A:9 / B:7 on architectural fidelity)|Shell `swarm_dispatch.sh` (retired); attention-mediated tool calls|Code-enforced parallelism is deterministic and testable; removes PIPE_BUF fragility (IMM-3, INV-002, AC-004)|
-|Milestone decomposition|Wave-aligned 8 milestones + dedicated M9 operational handoff|B's concern-bundled 8 milestones (A:9 / B:7)|A's wave-alignment traces 1:1 to architecture document and produces sharper exit criteria; B's M8 operational discipline grafted in as M9 to capture rollout discipline gap|
-|Foundation scope|29-item M1 (A) with field-level types|45-item M1 enumerating all ACs (B:6 on coherence)|29 items at L effort is achievable in 2 weeks; AC declarations distributed across milestones where they bind to code|
-|Amalgamation boundary|Mechanical concat only, ≤30 LOC, 4 guards (A:9 / B:9)|Scoring/dedup merge engine; reuse `/sc:adversarial`|Preserves caller-facing neutrality; scoring stays in `/sc:adversarial` (AC-011/012, FR-012, TEST-006)|
-|Resume source-of-truth|Manifest `resolved_lens_entry` snapshot|Re-resolve from live LENSES each run|Manifest immunity to registry mutation; deterministic resume; `--force-relens` escape hatch (INV-001/016)|
-|Injection guard surface|Enforce §11.5 across all 3 prompt-input paths|Lens-path-only enforcement|Escape-hatch isomorphism closes custom-prompt-dir bypass (INV-003/014, NFR-003)|
-|Caller surface|Zero Claude-isms; subprocess-callable|Claude-tool-coupled contract|Enables non-Claude callers + detached survival (AC-013, NFR-016, FR-030)|
-|TUI default|Opt-in `--tui` only|TUI default|Non-TTY callers must get clean machine-readable output (INV-012, AC-007)|
-|Transport (Phase 1)|httpx openai_compat + stub|aiohttp; provider SDKs|httpx fits sync ThreadPool model; stub enables deterministic CI (AC-005, FR-022/023)|
-|OQ-007/008 timing|Resolved at M2 exit (gates M3 entry)|Defer to architect decision (A) vs commit as M4 items (B:9 on OQ handling)|Pre-resolution prevents schema/dispatch rework; INV-005/INV-007 make resolutions actionable|
-|Operational rollout|Dedicated M9 milestone (OPS-001..006) — grafts B's discipline (B:9 on ops rollout) onto A's wave spine|Distributed across M7/M8 (A:6 on ops)|Production handoff is engineering discipline, not byproduct; runbook+rollback get named owners|
-|Validation strategy|Embedded per-wave IMM/INV tests + enumerated TEST-001..007 in M8 (B:8 on validation)|Single dedicated validation milestone (B) vs distributed only (A:7)|Convergent path: catch defects at wave introduction time, consolidate cross-cutting integration tests in M8 without a separate 2-week gate|
-|Migration enumeration|MIG-001..MIG-004 explicit items in M8 (B's contribution)|Monolithic FR-029 (A elision)|Prevents "forgot to register package entry" / "deleted shell scripts before parity" failures|
+|Orchestrator home|CLI package (`cli/swarm/`)|SKILL.md prose orchestration|Code enforces parallelism + invariants where prose cannot; `subprocess.run`-callable; durable observability/detached/resume first-class (AC-002 structural preamble)|
+|Concurrency engine|Python ThreadPoolExecutor via `ParallelExecutor`|Shell `swarm_dispatch.sh`; asyncio; multiprocessing|Eliminates dual-writer race + PIPE_BUF assumption; reuses internal abstraction; I/O-bound HTTP fits threads (INV-002/AC-005)|
+|Policy curation|Bundled in-package lens dataclasses|Separate plugin system|Simpler governance; PR-review discipline; no plugin loader surface (AC-003)|
+|Merge semantics|Mechanical concat ≤30 LOC, 4 guards|Scored/dedup/winner-select merge|Keeps scoring as `/sc:adversarial`'s job; prevents boundary erosion (AC-009/R-01)|
+|Resume source-of-truth|`manifest.resolved_lens_entry` (rehydrate)|Re-resolve from live registry|Registry mutations must not alter a resumed job; `--force-relens` opt-in (INV-001/INV-016)|
+|Injection-guard policy|STOP by default, `--auto-inject-guard` opt-in|Always auto-inject; warn-only|Security-first across 3 input paths; backward-compat flag for migration (NFR-002/NFR-009)|
+|TUI default|Opt-in `--tui` only|TUI on by default|Non-TTY callers must not receive control sequences (NFR-012/INV-012)|
+|Variant scoring (A vs B)|Variant A as merge base; A:84 B:71|Variant B as base; 50/50 hybrid|A wins D2 (recipe placement), D7 (integration-points depth), D8-operational (line-item visibility) cleanly; B's vertical-slice (D6) + compression (D1) folded in as targeted merge improvements I1/I2|
+|Timeline target|14 weeks (compressed from A's 16)|A's 16 weeks; B's 12 weeks|Debate-resolved compromise: keep A's milestone graph, compress M7 (3→2wk via P1 follow-on) + M3 (2→1.5wk via parallelizable lens entries); B's 12wk too aggressive on M8 density|
+|Invariant test split|M8a (IMM) ∥ M8b (INV+boundary)|Single dense M8|Per merge improvement I3: subdivision enables reviewer parallelism without expanding total schedule|
+|Detached-mode lifecycle ownership|M7 owns `tmux.py` end-to-end|M4 hosts `tmux.py`, M7 hosts attach/kill|Per merge improvement I7: avoids 3-week zombie window where infra exists with no driver; SC-014 gated within one milestone|
+|AC classification|Structural ACs as M1 preambles; operational ACs as line items|All ACs as line items; all ACs as preambles|Per merge improvement I4: AC-001/AC-002/AC-004 are module-boundary properties (preambles); AC-005/AC-009/AC-011/AC-014/AC-015/AC-016/AC-017 require active enforcement (grep audit / LOC ceiling / CI rule) and benefit from line-item visibility|
 
 ## Timeline Estimates
 
 |Milestone|Duration|Start|End|Key Milestones|
 |---|---|---|---|---|
-|M1|2 weeks|Week 1|Week 2|20 data models defined (contract/source-of-truth records frozen; accumulator/state records mutable by design — F-P1-3); module shape mirrors sprint; OQ-006/008/009 owners assigned|
-|M2|2 weeks|Week 3|Week 4|Wave 0 preflight; 8-lens registry + validator; §11.5 across 3 paths; INV-005/007 guards; OQ-007/008/010 resolved|
-|M3|2 weeks|Week 5|Week 6|Wave 1 parallel dispatch; httpx + stub transports; atomic state + logs|
-|M4|2 weeks|Week 7|Week 8|Wave 2 recipe registry (6 normalizers); salvage promotion; per-lens output templates|
-|M5|2 weeks|Week 9|Week 10|Wave 3 status + ≤30 LOC merge (4 guards); result contract|
-|M6|2 weeks|Week 11|Week 12|Resume from manifest; merge regeneration; `--force-relens`|
-|M7|2 weeks|Week 13|Week 14|8 subcommands; opt-in TUI; tmux detached; three monitoring patterns|
-|M8|2 weeks|Week 15|Week 16|sc-bare-review thin-caller migration; A/B parity; MIG-001..004; TEST-001..007 enumerated|
-|M9 (explicit buffer)|1 week|Week 17|Week 17|Operational handoff: runbook, env readiness, rollback, lens contribution policy, post-release metrics|
+|M1 Foundation & Domain Models|2 wk|W1|W2|Package + all DM dataclasses + atomic-write utility + stub transport (early bind) + OQ-007/OQ-008 resolved|
+|M2 Transport & Recipe Layers|1 wk|W3|W3|httpx transport + Recipe protocol + 6 recipes + custom-py loader|
+|M3 Lens Registry & Validator|1.5 wk|W4|W5.5|8 lens entries + validator + validate-lenses wired into verify-sync + pre-commit (OQ-001 resolved)|
+|M4 Wave 0 — Preflight|2 wk|W5.5|W7.5|Schema + lens materialization + IMM-4 + §11.5 composition|
+|M5 Wave 1 — Parallel Dispatch|2 wk|W7.5|W9.5|ThreadPoolExecutor dispatch + retry/timeout + event log + shell retired + vertical-slice callability checkpoint|
+|M6 Wave 2/3 — Normalize, Reduce, Merge|2 wk|W9.5|W11.5|IMM-5 status + 3 amalgamation modes + mechanical merge + contract|
+|M7 CLI Surface, Observability, Resilience|2 wk|W11.5|W13.5|9 subcommands + resume + detached end-to-end + monitoring + non-precluding surface (P1 follow-on tracked separately)|
+|M8a IMM Invariant Test Suite|0.5 wk|W13.5|W14|SC-001b/SC-002..SC-006 green|
+|M8b INV + Boundary Test Suite|0.5 wk|W13.5|W14|SC-007..SC-015 green + merge-boundary CI rule|
+|M9 sc-bare-review Migration & A/B Parity|1 wk|W14|W15|Thin caller + A/B parity + scripts deleted|
 
-**Total estimated duration:** 17 weeks (8 implementation milestones × 2 weeks + 1 dedicated operational-handoff week). Buffer is labeled explicitly via M9 rather than distributed as padding inside earlier milestones. M6 and M7 may overlap given both depend only on M5, compressing nominal duration to ~15 weeks if resourced in parallel.
-
-## Spec Coverage Traceability
-
-This appendix maps roadmap-local derived identifiers (FR-*, NFR-*) back to their spec sources and binds spec-manifest files to the roadmap items that own them. FR-* and NFR-* are roadmap-internal handles for functional and non-functional acceptance criteria; the spec uses IMM-*, INV-*, U-*, AC-*, DM-*, COMP-*, and section-anchor IDs (e.g., §11.5, §1.4, §3, §6.4, §7, §7.4, §8, §8.3, §10) as its native identifier vocabulary.
-
-### Spec-Manifest File Bindings
-
-|File|Owning Roadmap Item(s)|Milestone|Purpose|
-|---|---|---|---|
-|`docs/swarm-design-rationale.md`|OPS-001 (runbook), OPS-005 (lens contribution policy), Decision Summary|M9|Captures wave-pipeline rationale, merge-boundary discipline, manifest-as-source-of-truth, and lens-registry curation policy referenced by the operator runbook and lens contribution policy.|
-|`tests/swarm/test_concurrency_python_only.py`|TEST-002 (INV-002 row), INV-002|M3, M8|Asserts Python-only ThreadPoolExecutor dispatch; verifies `swarm_dispatch.sh` retirement and PIPE_BUF assumption removal.|
-|`tests/swarm/test_custom_prompt_dir_injection_guard.py`|TEST-002 (INV-003 row), INV-003|M2, M8|Asserts the §11.5 required-substring guard applies identically on the `--custom-prompt-dir` escape-hatch path.|
-|`tests/swarm/test_escape_hatch_guard_parity.py`|TEST-002 (INV-014 row), INV-014|M2, M8|Asserts lens-driven and `--custom-prompt-dir` paths reject the same guard violation, closing the escape-hatch isomorphism gap.|
-|`tests/swarm/test_resume_regenerates_merge.py`|TEST-002 (INV-010 row), TEST-007, INV-010|M6, M8|Asserts `merged.md` is regenerated unconditionally on resume when `amalgamation_mode == normalize+merge`.|
-|`tests/swarm/test_resume_uses_manifest_lens.py`|TEST-002 (INV-001 row), INV-001, INV-016|M6, M8|Asserts resume rehydrates the lens verbatim from `manifest.resolved_lens_entry` and ignores registry mutations unless `--force-relens` is passed.|
-|`tests/swarm/test_merge_mechanical_only.py`|TEST-006, FR-012, NFR-009|M5, M8|Asserts 3-worker concat yields all 3 sections in slot-index order with provenance header only (already cited in TEST-006 / NFR-009 above; restated here for completeness).|
-
-### Derived FR-* Provenance (Spec Source)
-
-|Roadmap ID|Spec Source|Binding|
-|---|---|---|
-|FR-001|§3 (CLI surface)|`swarm run` subcommand registration|
-|FR-002|§3 (CLI surface)|`swarm status` subcommand|
-|FR-003|§3 (CLI surface), §10 (observability)|`swarm logs` subcommand|
-|FR-004|§3 (CLI surface), §10 (detached/attach)|`swarm attach` subcommand|
-|FR-005|§3 (CLI surface), §10 (detached lifecycle)|`swarm kill` subcommand|
-|FR-006|§3 (CLI surface), §6.4 (lens scaffolding)|`swarm scaffold` subcommand|
-|FR-007|§6 (job-spec validation)|`swarm validate` subcommand|
-|FR-008|§6.4 (lens registry), U-008|`swarm validate-lenses` subcommand|
-|FR-009|§6.4 (8-lens registry)|Bundled lens registry (bare-review, refactor-find, edge-case-hunt, spec-completeness, feasibility-probe, troubleshoot-hypothesis, doc-completeness, custom)|
-|FR-010|§7 (Recipe Protocol)|6-recipe normalizer registry + custom-py: dynamic loader|
-|FR-011|§8 (amalgamation modes)|raw / normalize / normalize+merge mode selection|
-|FR-012|§8.3 (mechanical merge), AC-011, AC-012, AC-018|Mechanical merge module with four structural guards|
-|FR-013|§10 (monitoring patterns)|Three monitoring patterns (background+sentinel, JSONL tail, status --watch)|
-|FR-014|§10 (detached mode)|tmux-backed detached runs|
-|FR-015|INV-001, INV-010|Resume + crash recovery|
-|FR-016|DM-016, INV-016|Manifest emission with resolved_lens_entry snapshot|
-|FR-017|§7 (transport + retry policy)|Per-worker timeout + retry policy|
-|FR-018|DM-012 (ResultContract)|Result contract emission (`return-contract.yaml`)|
-|FR-019|§6, §11.5|Job spec JSON Schema validation including required-substring rule|
-|FR-020|§6.4 (lens-driven defaults)|Lens-driven defaults expansion at preflight|
-|FR-021|INV-003, INV-014|`--custom-prompt-dir` escape-hatch path|
-|FR-022|§7 (openai-compatible transport)|httpx-based openai_compat transport|
-|FR-023|§7 (test fixture transport)|Deterministic-fixture stub transport|
-|FR-024|§11.5, INV-003 (backward compat)|`--auto-inject-guard` flag for legacy custom-prompt-dir users|
-|FR-025|INV-001|`--force-relens` flag (opt-in re-resolution on resume)|
-|FR-026|§10 (dual-format logs)|`execution-log.jsonl` (lock-coordinated) + `execution-log.md`|
-|FR-027|IMM-6 (atomic terminal sentinel)|`done.json` terminal-state sentinel|
-|FR-028|§7.4 (parse-error salvage)|Wave 2 parse_error → success salvage promotion|
-|FR-029|§13 (skill migration), parent IMM (bare-review)|`sc-bare-review` SKILL.md migration to ~60-line thin caller|
-|FR-030|§1.4 (caller agnosticism), AC-013|Non-Claude caller compatibility via `subprocess.run`|
-
-### Derived NFR-* Provenance (Spec Source)
-
-|Roadmap ID|Spec Source|Binding|
-|---|---|---|
-|NFR-001|IMM-3, INV-002, AC-004|Concurrency via `ParallelExecutor` (ThreadPoolExecutor only)|
-|NFR-002|IMM-6|Atomicity of state transitions and JSONL appends|
-|NFR-003|§11.5, INV-003, INV-014|Prompt-injection guard enforcement across all 3 prompt-input paths|
-|NFR-004|§10 (three-layer observability)|`.swarm-state.json` + JSONL + Markdown log + `done.json`|
-|NFR-005|INV-001, INV-010, INV-016|Crash recovery / resume semantics|
-|NFR-006|§6 (schema evolution)|`spec_version` forward-compat best-effort|
-|NFR-007|All IMM + INV invariants|Per-IMM + per-INV acceptance test coverage|
-|NFR-008|§8.3, AC-018|Merge module body ≤30 LOC|
-|NFR-009|§8.3, FR-012|Mechanical-merge boundary test + CI file-touch rule|
-|NFR-010|§7 (transport policy)|Per-worker hard timeout (180s default)|
-|NFR-011|§7 (retry policy)|Retry policy (single 5xx retry; 0 retries on 4xx/timeout/network by default, caller-overridable)|
-|NFR-012|U-008, OPS-005|Lens-registry PR-review discipline|
-|NFR-013|§10 (output confinement), AC-014|Filesystem writes confined to `--output` directory|
-|NFR-014|§7 (no caching mandate)|No cross-invocation response caching|
-|NFR-015|§3 (module shape mirror)|`cli/swarm/` structural parity with `cli/sprint/`|
-|NFR-016|§1.4, AC-013|Contract surface non-precluding (no Claude-isms; subprocess-callable; detached survives caller death)|
+**Total estimated duration:** 14 weeks (W1–W15; M8a and M8b run concurrently within W13.5–W14)

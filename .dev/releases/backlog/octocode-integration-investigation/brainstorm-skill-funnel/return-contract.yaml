@@ -1,0 +1,39 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-20260530-044428/brainstorm-skill-funnel/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-20260530-044428/brainstorm-skill-funnel/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RESEARCH-20260530-044428/brainstorm-skill-funnel/adversarial/
+domain: architecture
+strategy: systematic
+proposal_count: 3
+proposal_lenses: [architect, analyzer, scribe]
+proposal_models: [opus, sonnet, haiku]
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+    artifact: ../octocode-fit-analysis.md
+  - source: research-deep
+    quality_tier: primary
+    artifact: ../octocode-research.md
+  - source: prior-brainstorms
+    quality_tier: primary
+    artifact: ../brainstorm/
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - Skill naming (3-way merged on octocode-deep-dive)
+  - task-mode timing (v1 vs v1.1)
+  - Cache invalidation policy deferred
+  - Slash-command discoverability deferred
+
+# Telemetry block (non-stable)
+wave_durations_ms:
+  wave_0: ~30000
+  wave_1: ~60000
+  wave_2a: ~10000  # enrichment was reading existing artifacts, not new fetches
+  wave_2b: ~30000
+  wave_3: ~590000  # 3 parallel proposal agents
+  wave_4: ~120000  # debate-transcript + merged-requirements synthesis
+
+agent_spec: "opus:architect:'design for cleanliness + extensibility; minimize coupling between skill and callers',sonnet:analyzer:'design for measurability + observability; instrumentation + token-cost discipline + rate-limit budget',haiku:scribe:'design for clear contracts + reusability; input/output schemas + caller-facing docs'"

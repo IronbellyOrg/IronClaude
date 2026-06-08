@@ -12,8 +12,12 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .models import CheckpointEntry
+
+if TYPE_CHECKING:
+    from .recovery import RecoveryBundle
 
 # Matches `Checkpoint Report Path: <path>`. Tolerates markdown-bold wrapping
 # of the label (``**Checkpoint Report Path:**``) and optional surrounding
@@ -210,7 +214,9 @@ def recover_missing_checkpoints(
     manifest: list[CheckpointEntry],
     artifacts_dir: Path,
     phase_tasklists: dict[int, Path],
-) -> list[CheckpointEntry]:
+    *,
+    return_bundle: bool = False,
+) -> list[CheckpointEntry] | RecoveryBundle:
     """Regenerate missing checkpoint reports from evidence files.
 
     For every entry in ``manifest`` with ``exists == False`` that also has no
@@ -231,6 +237,11 @@ def recover_missing_checkpoints(
 
     ``phase_tasklists`` maps phase number → phase tasklist path; entries
     whose phase is absent from the map are skipped (cannot be recovered).
+
+    When ``return_bundle`` is True, the recovered manifest is wrapped in a
+    :class:`~superclaude.cli.sprint.recovery.RecoveryBundle` for the v4.4.0
+    unified recovery surface; otherwise the list of ``CheckpointEntry`` is
+    returned unchanged (byte-identical to v4.2.x behavior).
     """
     out: list[CheckpointEntry] = []
     for entry in manifest:
@@ -285,6 +296,26 @@ def recover_missing_checkpoints(
                 recovered=True,
                 recovery_source=recovery_source,
             )
+        )
+
+    if return_bundle:
+        # v4.4.0 forward-compat: wrap the recovered manifest in a RecoveryBundle
+        # for the unified recovery surface. Lazy import avoids the
+        # recovery -> models -> checkpoints -> recovery cycle (researcher 2 §1.7).
+        from .recovery import RecoveryBundle, RecoveryStatus
+
+        all_recovered = all(e.exists for e in out)
+        return RecoveryBundle(
+            bundle_id=f"verify-checkpoints-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S')}",
+            affected_phase=out[0].phase if out else 0,
+            verb="verify-checkpoints",
+            affected_tasks=[],
+            artifacts_produced=[entry.expected_path for entry in out],
+            artifacts_replaced={},
+            source_tasklist_sha256="",
+            end_tasklist_sha256=None,
+            status=RecoveryStatus.SUCCESS if all_recovered else RecoveryStatus.PARTIAL,
+            rerun_attempt=1,
         )
 
     return out

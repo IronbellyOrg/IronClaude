@@ -1,0 +1,47 @@
+---
+total_diff_points: {{ frontmatter.total_diff_points }}
+shared_assumptions_count: {{ frontmatter.shared_assumptions_count }}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+variant_a: {{ frontmatter.variant_a | default("") }}
+variant_b: {{ frontmatter.variant_b | default("") }}
+---
+
+## Shared Assumptions and Agreements
+
+{% for assumption in shared_assumptions | default([]) %}
+- {{ assumption }}
+{% endfor %}
+
+## Divergence Points
+
+{% for dp in divergence_points %}
+{{ dp.n | default(loop.index) }}. {{ dp.description }}
+
+{% if dp.variant_a_position is defined %}
+   - Variant A: {{ dp.variant_a_position }}
+{% endif %}
+{% if dp.variant_b_position is defined %}
+   - Variant B: {{ dp.variant_b_position }}
+{% endif %}
+{% if dp.impact is defined %}
+   - Impact: {{ dp.impact }}
+{% endif %}
+{% endfor %}
+
+## Areas Where One Variant Is Stronger
+
+{% for area in stronger_areas | default([]) %}
+{% if area is string %}
+- {{ area }}
+{% else %}
+- **{{ area.area }}**{% if area.variant is defined %} (stronger: {{ area.variant }}){% endif %}{% if area.rationale is defined %} — {{ area.rationale }}{% endif %}
+
+{% endif %}
+{% endfor %}
+
+## Areas Requiring Debate
+
+{% for debate in debate_areas | default([]) %}
+- {{ debate }}
+{% endfor %}

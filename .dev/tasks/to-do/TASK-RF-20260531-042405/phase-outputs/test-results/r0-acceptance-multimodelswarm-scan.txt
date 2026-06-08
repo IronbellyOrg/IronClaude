@@ -1,0 +1,24 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Roadmap: /config/workspace/IronClaude/.dev/releases/Current/MultiModelSwarm/roadmap.md
+Roadmap size: 78760 bytes
+Total obligations found: 3
+
+Severity counts:
+  HIGH: 0
+  MEDIUM: 3
+  LOW: 0
+
+undischarged_obligations: 2
+
+HIGH-undischarged: 0
+
+--- First 5 undischarged (any sev) ---
+  [MEDIUM] line 457: term='stub' component='validate'
+  [MEDIUM] line 464: term='mock' component='paths'
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Pre-fix FP lines (per Phase 3 record):
+  L207: '|4|COMP-012|logging_ module|Dual JSONL (append-only, lock-coordinated) + Markdown event log|cli/swarm/logging_.py|DM-015|JSONL appends lock-'
+  L211: '|7|FR-001|swarm run subcommand|Execute swarm job from spec file, stdin, or `--lens` shortcut|commands|COMP-002|all 3 input modes dispatch a '
+  L213: '|9|FR-022|openai_compat transport (httpx)|Phase-1 reference transport via httpx|transports|COMP-032|reachable T2 proxy returns parsed body|M'
+
+Obligations emitted on previously-FP lines (207/211/213): 0

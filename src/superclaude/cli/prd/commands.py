@@ -44,6 +44,17 @@ def prd_group():
     help="Source directories to focus on (repeatable).",
 )
 @click.option(
+    "--spec",
+    "-s",
+    multiple=True,
+    type=click.Path(exists=True, dir_okay=False, resolve_path=True),
+    help=(
+        "Authoritative spec FILE to deterministically ingest (repeatable). "
+        "Unlike --where (directories), each --spec is force-bound into the "
+        "pipeline after request parsing so the LLM cannot drop it."
+    ),
+)
+@click.option(
     "--output",
     "-o",
     default=None,
@@ -80,6 +91,7 @@ def run(
     request: str,
     product: str | None,
     where: tuple[str, ...],
+    spec: tuple[str, ...],
     output: str | None,
     tier: str,
     max_turns: int,
@@ -105,6 +117,7 @@ def run(
             request,
             product=product,
             where=where if where else None,
+            spec=spec if spec else None,
             output=output,
             tier=tier,
             max_turns=max_turns,

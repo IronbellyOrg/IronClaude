@@ -1,0 +1,38 @@
+input_tree_sha256: "computed_from_file_list_below"
+file_count: 9
+generated: "2026-06-01T17:55:00Z"
+
+# Driving spec (BUILD-REQUEST §R1.1 + §MVR §5 + §Contract #8)
+file_list:
+  - path: ".dev/troubleshoot/roadmap-pipeline-retrospective/wave4-task-spec/BUILD-REQUEST-roadmap-pipeline-rewrite.md"
+    sha256: "4782e56a503b191b811887ee90ab86e921631d10c8afcc88f1e2064535879c7e"
+    role: spec
+  # Diff under audit (commit daa10416 vs parent 1c56b50f)
+  - path: "src/superclaude/contracts/__init__.py"
+    sha256: "7dd5ad068ef0f25d8ef2922b9441688e42dfa03695e73261c4b834dad7cc1c76"
+    role: diff
+  - path: "src/superclaude/tools/arch_lint.py"
+    sha256: "6643050f8639b43c5aad8abce72eb88a850bd29edebc9b2bf7571ec7632ade17"
+    role: diff
+  - path: "src/superclaude/cli/roadmap/fingerprint.py"
+    sha256: "72aad1526d1de4d1601004c5ddd7d4257474a4a5334af3709938f4daa94892f0"
+    role: diff
+  - path: "src/superclaude/cli/roadmap/spec_structural_audit.py"
+    sha256: "d91d3ff6556cfacb8d7476962df4179917f29385e8a0ffd6eeedb3cad8c96efa"
+    role: diff
+  - path: "src/superclaude/cli/roadmap/gates.py"
+    sha256: "57fb16dddda92301cc275c38d9f37ec391e1577d2f55acd31e02d997d8279147"
+    role: diff
+  - path: "src/superclaude/cli/roadmap/fidelity_checker.py"
+    sha256: "f0dcef1e76b64abc8ce3ad800942c9d1b9e96f237a813794bb0e7f580fe528bd"
+    role: diff
+  - path: "tests/contracts/test_arch_lint.py"
+    sha256: "99191ab4672ab6c65fe42616b3aa6a2a3c7b69afe6e9683e3be4bdcc1ac1d282"
+    role: diff
+  - path: "tests/roadmap/test_threshold_registry.py"
+    sha256: "1b465d9829d486054d20e484e555e7e130a46f2c45097b569d880edaa4a931d6"
+    role: diff
+
+commit_under_audit: "daa10416"
+parent_commit: "1c56b50f"
+worktree: "/config/workspace/IronClaude-RoadmapRewrite/"

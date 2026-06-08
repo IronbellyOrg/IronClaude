@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "superclaude"
-version = "4.2.0"
+version = "4.3.5"
 description = "AI-enhanced development framework for Claude Code - pytest plugin with optional skills"
 readme = "README.md"
 license = {text = "MIT"}
@@ -37,6 +37,7 @@ dependencies = [
     "rich>=13.0.0",
     "pyyaml>=6.0",
     "jsonschema>=4.0.0",
+    "jinja2>=3.0",
     "pexpect>=4.9",
     "httpx>=0.27",
 ]

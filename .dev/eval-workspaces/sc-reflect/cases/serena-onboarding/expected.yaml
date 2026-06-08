@@ -1,0 +1,28 @@
+# STUB — V3-Serena-medium eval scaffold. Human contract doc (grader reads evals/evals.json).
+# Case: serena-onboarding — FR-RV3-MED.2 (cold-start onboarding bootstrap, Wave 0.7b).
+mode: post
+use_case: UC-2
+
+# --- FR-2.1 cold start: --onboard + empty memory + tool available → bootstrap runs ---
+cold_start: { onboarding_ran: true, onboarding_succeeded: true, onboarding_memories_written: [project_structure, suggested_commands] }
+
+# --- FR-2.2 silent-fail guard: post-onboarding list_memories delta ≤ 0 ---
+silent_fail: { onboarding_ran: true, onboarding_succeeded: false, warn_emitted: "onboarding completed but no new memories written" }
+
+# --- FR-2.3 context-excluded: WARN, NOT a hard STOP ---
+context_excluded: { onboarding_ran: false, onboarding_skipped_reason: context-excluded, status: success, warn_emitted: true }
+
+# --- FR-2.4 warm start: list_memories non-empty → skip ---
+warm_start: { onboarding_ran: false, onboarding_skipped_reason: memories-present }
+
+# --- FR-2.5 no --onboard: never runs, never creates .serena/ implicitly ---
+no_flag: { onboarding_ran: false, dot_serena_created: false }
+
+# --- FR-2.6 precedence: do NOT overwrite global/memory_maintenance ---
+memory_maintenance_preserved: true
+
+# --- NFR-7 budget: breach → abort, never consume the waves' budget ---
+budget_breach: { onboarding_budget_exceeded: true, onboarding_succeeded: false, waves_budget_consumed_by_onboarding: false }
+
+tier_reached: 1
+escalation_reason: null

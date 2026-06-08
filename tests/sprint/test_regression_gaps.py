@@ -427,6 +427,7 @@ class TestExecutorTimeoutPath:
             def __init__(self):
                 self.returncode = None
                 self.pid = 77777
+                self.stdin = None
                 self._poll_count = 0
 
             def poll(self):

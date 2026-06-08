@@ -1,0 +1,24 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 12 items
+
+tests/roadmap/test_tool_write_step_generate.py::test_generate_schema_loads PASSED [  8%]
+tests/roadmap/test_tool_write_step_generate.py::test_generate_schema_id_pattern_matches_contracts PASSED [ 16%]
+tests/roadmap/test_tool_write_step_generate.py::test_valid_output_passes_schema PASSED [ 25%]
+tests/roadmap/test_tool_write_step_generate.py::test_wrong_type_fails_schema PASSED [ 33%]
+tests/roadmap/test_tool_write_step_generate.py::test_missing_milestones_fails_schema PASSED [ 41%]
+tests/roadmap/test_tool_write_step_generate.py::test_render_parity PASSED [ 50%]
+tests/roadmap/test_tool_write_step_generate.py::test_rendered_generate_satisfies_gate_frontmatter PASSED [ 58%]
+tests/roadmap/test_tool_write_step_generate.py::test_generate_rejects_phantom_id PASSED [ 66%]
+tests/roadmap/test_tool_write_step_generate.py::test_id_check_skips_when_spec_ids_empty PASSED [ 75%]
+tests/roadmap/test_tool_write_step_generate.py::test_render_step_tool_write_with_id_check_rejects_invalid PASSED [ 83%]
+tests/roadmap/test_tool_write_step_generate.py::test_generate_registry_key_distinct PASSED [ 91%]
+tests/roadmap/test_tool_write_step_generate.py::test_build_generate_prompt_tool_write_emits_json_contract PASSED [100%]
+
+============================== 12 passed in 0.22s ==============================

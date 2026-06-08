@@ -1,0 +1,22 @@
+=== Step 7.4 validation — Phase 7 R1.2 — 2026-06-01T21:45:05Z ===
+Worktree: /config/workspace/IronClaude-RoadmapRewrite (NOT BareReview per tasklist; corrected per sc:reflect UC-1 line-drift note)
+
+=== pytest envelope + 3 regression-guarded files ===
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_remediation_tasklist_generated PASSED [ 95%]
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_certification_report_generated PASSED [ 96%]
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_certification_report_passes_gate PASSED [ 96%]
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_remediation_tasklist_passes_gate PASSED [ 97%]
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_state_with_all_12_steps PASSED [ 98%]
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_pipeline_status_transitions PASSED [ 98%]
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_build_certify_step PASSED [ 99%]
+tests/roadmap/test_pipeline_integration.py::TestE2EFullPipeline::test_e2e_full_flow_validation_to_certification PASSED [100%]
+
+============================= 150 passed in 0.40s ==============================
+
+=== ruff check ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+=== ruff format --check ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+3 files already formatted

@@ -1,0 +1,12 @@
+🔄 Syncing src/superclaude/ → .claude/ for local development...
+✅ Sync complete.
+   Skills:    25 directories
+   Agents:    38 files
+   Commands:  41 files
+   Hooks:     12 files
+   Templates: 15 files
+
+--- PROVENANCE NOTE (Step 2.14) ---
+The .claude/ mirror regenerated above is gitignored sync-dev OUTPUT and MUST NEVER be staged.
+Only src/superclaude/ is edited and staged. The byte-identity audit tests assert SRC==MIRROR,
+which is why sync-dev is run after each src/ edit phase.

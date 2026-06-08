@@ -1,0 +1,12 @@
+=== sync-dev + verify-sync ===
+✅ All components in sync.
+verify_exit=0
+=== markdownlint current SKILL.md (all rules) ===
+136
+=== markdownlint baseline /tmp/skill-preedit-f2.md (all rules) ===
+136
+=== evals.json JSON validity ===
+JSON_VALID
+=== residual old-token check (expect 0 at the 3 sites) ===
+SKILL.md:230 activation_message: 0
+wave0 expected.yaml activation_message: 0

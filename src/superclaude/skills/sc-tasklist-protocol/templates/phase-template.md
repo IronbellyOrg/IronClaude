@@ -8,7 +8,7 @@ Each phase file is a **self-contained execution unit**. It contains only the tas
 
 ## Phase Heading and Goal
 
-```
+```text
 # Phase N -- <Phase Name>
 ```
 
@@ -19,7 +19,7 @@ Each phase file is a **self-contained execution unit**. It contains only the tas
 
 ## Task Format
 
-```
+```text
 ### T<PP>.<TT> -- <Task Title>
 ```
 
@@ -100,7 +100,7 @@ The first Acceptance Criteria bullet MUST name a specific, objectively verifiabl
 
 ## Inline Checkpoints
 
-```
+```text
 ### Checkpoint: Phase <P> / Tasks <start>-<end>
 ```
 
@@ -116,10 +116,59 @@ Deterministic name format:
 
 ## End-of-Phase Checkpoint (Mandatory)
 
-Every phase file MUST end with:
+Every phase file MUST end with an end-of-phase checkpoint as its last *checkpoint*:
 
-```
+```text
 ### Checkpoint: End of Phase <N>
 ```
 
-This checkpoint serves as the gate for the next phase and must include all standard checkpoint fields.
+This checkpoint serves as the gate for the next phase and must include all standard checkpoint fields. When reflect gating is enabled (the default; disabled by `--no-reflect`), the templated post-execution reflection task below is the **sole** task permitted to follow this checkpoint and is the absolute last task in the file.
+
+## Terminal Post-Execution Reflection Task (when reflect gating is enabled)
+
+> Mirror of the SKILL.md Section 6B inline copy — kept in sync for human review. When reflect gating is enabled, the generator appends exactly ONE fixed terminal task per phase file, AFTER the end-of-phase checkpoint. It uses the standard Sprint-CLI task shape, is Tier EXEMPT (reflect is the auditor, so it is **exempt from the artifact-referencing Acceptance-Criteria minimum**), carries a `**Reflect Report Path:**` (not a Checkpoint Report Path), and its `<phase-commit-range>` is resolved by the Sprint executor at run time (never a fabricated SHA). The spawn directive uses `/sc:reflect` (never the `sc:task` execution command).
+
+```markdown
+### T<PP>.<final> -- Post-Execution Reflection: sc:reflect --mode post
+
+| Field | Value |
+|---|---|
+| Roadmap Item IDs | <all R-### in this phase, comma-separated> |
+| Why | Independent post-execution deviation audit of every task in Phase <PP>, in a fresh session, after all phase work completes. |
+| Effort | S |
+| Risk | Low |
+| Risk Drivers | None |
+| Tier | EXEMPT  (* reflect is the auditor; it is not itself tier-verified *) |
+| Confidence | [██████████] 100% |
+| Requires Confirmation | No |
+| Critical Path Override | No |
+| Verification Method | Skip verification (reflect IS the verification) |
+| MCP Requirements | None |
+| Fallback Allowed | Yes |
+| Sub-Agent Delegation | Required (fresh-session reflect ensemble) |
+| Deliverable IDs | D-RF<PP> |
+
+**Reflect Report Path:** `TASKLIST_ROOT/validation/reflect-post/phase-<PP>/REPORT.md`
+
+**Spawn Directive (fresh session):** Spawn a NEW agent/session and run:
+`/sc:reflect --mode post --remediate --tasklist TASKLIST_ROOT/phase-<PP>-tasklist.md --diff <phase-commit-range> --depth <DETERMINISTIC_DEPTH_for_phase_PP> --tier <DETERMINISTIC_TIER_for_phase_PP> --executor-model <EXECUTOR_CLASS> --output TASKLIST_ROOT/validation/reflect-post/phase-<PP>/`
+(The reflect agent uses the default subagent model; `--executor-model` is the reflect-native exclusion flag naming the class that ran the phase's work — it does not select a model. Never the `sc:task` execution command.)
+
+**Steps:**
+1. **[VERIFICATION]** Resolve `<phase-commit-range>` = the git range covering all of Phase <PP>'s task commits.
+2. **[VERIFICATION]** Spawn a fresh session and invoke the Spawn Directive above (reflect audits the committed diff — cross-session-safe).
+3. **[COMPLETION]** Confirm `REPORT.md` exists at the Reflect Report Path and surface its deviation counts (authorized/necessary/drift/regression).
+
+**Acceptance Criteria:** (exactly 4 bullets)
+- File `TASKLIST_ROOT/validation/reflect-post/phase-<PP>/REPORT.md` exists with a deviation-taxonomy summary.
+- Zero `regression`-class deviations, OR a `--remediate` Tier-3 task was authored for each.
+- Reflect ran with executor-disjoint reviewers (the `<EXECUTOR_CLASS>` passed via `--executor-model` was excluded from the reviewer pool).
+- Report includes the per-task verdict matrix for Phase <PP>.
+
+**Validation:**
+- Manual check: reviewer confirms the deviation counts in REPORT.md.
+- Evidence: the generated reflect REPORT.md.
+
+**Dependencies:** all regular + checkpoint tasks in Phase <PP>.
+**Rollback:** N/A (reflect is read-only audit; promotion is gated separately).
+```

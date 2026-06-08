@@ -17,6 +17,7 @@ from .models import Finding
 def build_remediation_prompt(
     target_file: str,
     findings: list[Finding],
+    tool_write: bool = False,
 ) -> str:
     """Build a remediation agent prompt for a single target file.
 
@@ -26,7 +27,23 @@ def build_remediation_prompt(
     - Findings to Fix section (per-finding blocks with 6 detail fields)
     - Constraints section
 
-    Pure function: no I/O, no subprocess, no side effects (NFR-004).
+    Parameters
+    ----------
+    target_file:
+        Path (as string) to the single file the remediation agent may edit.
+    findings:
+        The validation findings to fix in ``target_file``.
+    tool_write:
+        R1.4 Step 9.11 surface-consistency switch. This is a file-EDIT-instruction
+        prompt: it directs an agent to apply targeted edits and emits NO
+        roadmap-ID-bearing artifact, so there is no render path and no
+        ``roadmap_ids`` to constrain (no §MVR §3 / Contract #3 phantom-ID subset
+        check applies). The flag exists only to keep the builder signature
+        consistent with the other R1.4 dual-write prompt builders; when ``True``
+        it may append a structured-output hint, but because remediate has no
+        tool-write render hook the LOAD-BEARING guarantee is that the default
+        (``tool_write=False``) returned prompt is BYTE-IDENTICAL to the
+        pre-R1.4 prompt.
     """
     lines: list[str] = []
 
@@ -77,6 +94,19 @@ def build_remediation_prompt(
         "the whole section."
     )
     lines.append("")
+
+    if tool_write:
+        # Surface-consistency only. remediate emits NO roadmap-ID-bearing
+        # artifact and has no tool-write render hook, so this hint changes
+        # nothing about how the agent's file edits are validated. It is appended
+        # AFTER the byte-identical default body so that
+        # build_remediation_prompt(target_file, findings) ==
+        # build_remediation_prompt(target_file, findings, tool_write=False).
+        lines.append(
+            "When you have finished applying the edits, emit a brief structured "
+            "summary of the changes you made (one line per finding ID)."
+        )
+        lines.append("")
 
     return "\n".join(lines)
 

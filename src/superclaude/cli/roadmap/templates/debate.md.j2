@@ -1,0 +1,44 @@
+---
+convergence_score: {{ "%.2f" | format(frontmatter.convergence_score | float) }}
+rounds_completed: {{ frontmatter.rounds_completed }}
+generated: {{ frontmatter.generated | default("") }}
+generator: {{ frontmatter.generator | default("") }}
+variant_a: {{ frontmatter.variant_a | default("") }}
+variant_b: {{ frontmatter.variant_b | default("") }}
+---
+
+# Adversarial Debate Transcript
+
+A structured debate between the two roadmap variants. Each round records the
+position taken by Variant A and Variant B, followed by a convergence assessment
+summarizing where the variants agree and where disputes remain.
+
+{% for r in rounds %}
+### Round {{ r.round }}
+
+**Variant A position:** {{ r.variant_a_position }}
+
+**Variant B position:** {{ r.variant_b_position }}
+
+{% if r.exchange is defined %}
+**Exchange:** {{ r.exchange }}
+
+{% endif %}
+{% endfor %}
+## Convergence Assessment
+
+{% if convergence_assessment.summary is defined %}
+{{ convergence_assessment.summary }}
+
+{% endif %}
+### Agreements
+
+{% for agreement in convergence_assessment.agreements %}
+- {{ agreement }}
+{% endfor %}
+
+### Remaining Disputes
+
+{% for dispute in convergence_assessment.remaining_disputes %}
+- {{ dispute }}
+{% endfor %}

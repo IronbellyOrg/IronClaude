@@ -15,6 +15,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from superclaude.contracts import THRESHOLDS
+
 
 @dataclass
 class Fingerprint:
@@ -27,6 +29,12 @@ class Fingerprint:
 
 # FR-MOD3.1 + OQ-011: Common non-specific constants to exclude.
 # Aligned with 4-char regex minimum.
+#
+# Addition criteria: a token belongs here ONLY if it is an ALL-CAPS prose word
+# (RFC emphasis, format name, status annotation) that the spec author would
+# never expect to appear verbatim in an implementation-level roadmap. If you
+# add a token, add a unit test in test_fingerprint.py with a representative
+# fixture line.
 _EXCLUDED_CONSTANTS = frozenset(
     {
         # Boolean/sentinel
@@ -45,6 +53,7 @@ _EXCLUDED_CONSTANTS = frozenset(
         # Formats/standards
         "YAML",
         "JSON",
+        "HTML",
         "STRICT",
         "STANDARD",
         "EXEMPT",
@@ -54,10 +63,12 @@ _EXCLUDED_CONSTANTS = frozenset(
         "FAIL",
         "TODO",
         "NOTE",
+        "UNADDRESSED",
         # RFC/spec emphasis words (common ALL_CAPS in PRD/spec prose)
         "MUST",
         "SHALL",
         "SHOULD",
+        "WILL",
         "MANDATORY",
         "REQUIRED",
         "OPTIONAL",
@@ -168,7 +179,7 @@ def extract_code_fingerprints(content: str) -> list[Fingerprint]:
 def check_fingerprint_coverage(
     spec_content: str,
     roadmap_content: str,
-    min_coverage_ratio: float = 0.7,
+    min_coverage_ratio: float = THRESHOLDS["fingerprint.coverage_min"],
 ) -> tuple[int, int, list[str], float]:
     """Check that spec fingerprints appear in roadmap.
 
@@ -202,7 +213,7 @@ def check_fingerprint_coverage(
 def fingerprint_gate_passed(
     spec_content: str,
     roadmap_content: str,
-    min_coverage_ratio: float = 0.7,
+    min_coverage_ratio: float = THRESHOLDS["fingerprint.coverage_min"],
 ) -> bool:
     """FR-MOD3.4: Threshold gate logic.
 

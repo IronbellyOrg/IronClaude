@@ -1,0 +1,15 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collected 1969 items / 1960 deselected / 1 skipped / 9 selected
+
+tests/roadmap/test_tool_write_step_extract.py .                          [ 11%]
+tests/roadmap/test_tool_write_step_extract_tdd.py .                      [ 22%]
+tests/roadmap/test_tool_write_step_generate.py .                         [ 33%]
+tests/roadmap/test_tool_write_step_merge.py ......                       [100%]
+
+================ 9 passed, 1 skipped, 1960 deselected in 0.52s =================

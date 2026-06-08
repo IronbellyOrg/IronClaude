@@ -33,6 +33,11 @@ from superclaude.cli.sprint.models import (
     PhaseStatus,
     SprintConfig,
 )
+from superclaude.cli.sprint.recovery import (
+    RecoveryBundle,
+    RecoveryStatus,
+    merge_recovery_bundle,
+)
 
 # ---------------------------------------------------------------------------
 # extract_checkpoint_paths()
@@ -564,3 +569,126 @@ class TestVerifyCheckpointsCLI:
         result = runner.invoke(verify_checkpoints, [str(tmp_path)])
         assert result.exit_code != 0
         assert "tasklist-index.md" in result.output
+
+    def test_phase_option_is_rejected(self, tmp_path: Path):
+        """Contract lock: verify-checkpoints supports neither --phase nor --quiet.
+
+        Regression guard for the rerun-tasks auto-invoke that shelled out with
+        `--recover --phase N --quiet` and crashed with "No such option: --phase".
+        The command's surface is the positional OUTPUT_DIR plus --recover/--json.
+        """
+        runner = CliRunner()
+        result = runner.invoke(
+            verify_checkpoints, [str(tmp_path), "--recover", "--phase", "13"]
+        )
+        assert result.exit_code == 2, result.output
+        assert "No such option" in result.output
+
+        # --quiet is independently unsupported.
+        result_quiet = runner.invoke(
+            verify_checkpoints, [str(tmp_path), "--recover", "--quiet"]
+        )
+        assert result_quiet.exit_code == 2, result_quiet.output
+        assert "No such option" in result_quiet.output
+
+
+# ---------------------------------------------------------------------------
+# Wave / Phase 3 — merge_recovery_bundle → RecoveryBundle / RecoveryStatus
+# ---------------------------------------------------------------------------
+
+
+def _full_recovery_manifest(tmp_path: Path) -> tuple[Path, RecoveryBundle]:
+    """Seed a phase-3-filtered recovery workspace and a RecoveryBundle that,
+    when merged, completes cleanly and yields ``RecoveryStatus.SUCCESS``.
+
+    Layout mirrors the canonical SprintConfig: ``release_dir`` == tmp_path so
+    ``_resolve_release_dir(index)`` (= index.parent for a top-level index)
+    resolves results to ``<tmp_path>/results``. The prior phase-3 canonical
+    artifacts (task output + result.json) are written so the 7-step merge has
+    real files to rename/replace, and a ``task-results.json`` sidecar is placed
+    in the bundle dir so Step 7 refreshes result-json without recording a
+    failure — the precondition for a SUCCESS (not PARTIAL) terminal status.
+    """
+    index = tmp_path / "tasklist-index.md"
+    p3 = tmp_path / "phase-3-tasklist.md"
+    index.write_text(f"# Sprint\n\n| # | File |\n|---|------|\n| 3 | {p3.name} |\n")
+    p3.write_text(
+        "### Checkpoint: End of Phase 3\n"
+        "Checkpoint Report Path: checkpoints/CP-P03-END.md\n"
+    )
+
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    # Prior canonical artifacts for the affected task (will be preserved as
+    # .failed-<ts> and replaced by the rerun's produced output).
+    (results_dir / "phase-3-task-T03.01-output.txt").write_text("stale output")
+    (results_dir / "phase-3-result.json").write_text(
+        json.dumps(
+            {
+                "phase": 3,
+                "task_results": [
+                    {"task": {"task_id": "T03.01"}, "status": "failed"},
+                    {"task": {"task_id": "T03.02"}, "status": "passed"},
+                ],
+                "recovery_history": [],
+            }
+        )
+        + "\n"
+    )
+
+    # Bundle dir holds the rerun's produced artifacts + the sidecar.
+    bundle_dir = results_dir / "rerun-bundle"
+    bundle_dir.mkdir()
+    produced_output = bundle_dir / "phase-3-task-T03.01-output.txt"
+    produced_output.write_text("fresh rerun output")
+    (bundle_dir / "task-results.json").write_text(
+        json.dumps([{"task": {"task_id": "T03.01"}, "status": "passed"}]) + "\n"
+    )
+
+    bundle = RecoveryBundle(
+        bundle_id="rerun-20260602T000000Z",
+        affected_phase=3,
+        affected_tasks=["T03.01"],
+        artifacts_produced=[produced_output],
+    )
+    return index, bundle
+
+
+class TestRecoverMissingReturnsRecoveryBundle:
+    def test_merge_sets_status_success_and_end_sha(self, tmp_path: Path):
+        index, bundle = _full_recovery_manifest(tmp_path)
+        merge_recovery_bundle(bundle, index, release_dir=tmp_path)
+        assert bundle.status == RecoveryStatus.SUCCESS
+        assert bundle.status.is_terminal is True
+        # end_tasklist_sha256 is populated at finalize from the on-disk index.
+        assert bundle.end_tasklist_sha256
+        assert len(bundle.end_tasklist_sha256) == 64
+
+    def test_merge_preserves_prior_output_and_writes_fresh(self, tmp_path: Path):
+        index, bundle = _full_recovery_manifest(tmp_path)
+        results_dir = tmp_path / "results"
+        merge_recovery_bundle(bundle, index, release_dir=tmp_path)
+        # Canonical output now carries the rerun body...
+        canonical = results_dir / "phase-3-task-T03.01-output.txt"
+        assert canonical.read_text() == "fresh rerun output"
+        # ...and the prior output survives as a forensic .failed-<ts> rename.
+        preserved = list(results_dir.glob("phase-3-task-T03.01-output.failed-*.txt"))
+        assert len(preserved) == 1
+        assert preserved[0].read_text() == "stale output"
+        assert bundle.artifacts_replaced[canonical] == preserved[0]
+
+    def test_merge_refreshes_result_json_and_appends_history(self, tmp_path: Path):
+        index, bundle = _full_recovery_manifest(tmp_path)
+        results_dir = tmp_path / "results"
+        merge_recovery_bundle(bundle, index, release_dir=tmp_path)
+        data = json.loads((results_dir / "phase-3-result.json").read_text())
+        # Affected task's entry refreshed from the sidecar (status now passed),
+        # untouched task preserved.
+        by_id = {r["task"]["task_id"]: r for r in data["task_results"]}
+        assert by_id["T03.01"]["status"] == "passed"
+        assert by_id["T03.02"]["status"] == "passed"
+        # A SUCCESS RecoveryBundleRef was appended to recovery_history.
+        assert len(data["recovery_history"]) == 1
+        ref = data["recovery_history"][0]
+        assert ref["bundle_id"] == bundle.bundle_id
+        assert ref["status"] == RecoveryStatus.SUCCESS.value

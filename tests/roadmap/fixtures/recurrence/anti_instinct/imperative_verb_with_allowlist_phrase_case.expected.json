@@ -1,0 +1,20 @@
+{
+  "fixture": "anti_instinct/imperative_verb_with_allowlist_phrase_case",
+  "source_authority": {
+    "master_recurrence_row": 6,
+    "sc_reflect_finding": "M8 — substring-match FN",
+    "report_path": "/config/workspace/IronClaude/.dev/reflect/phase-3-r0.2-uc2-validation/REPORT.md",
+    "report_section": "MEDIUM Finding",
+    "incident_summary": "Phase 3 (commit f41ea931) introduced the Layer 6 anti-instinct allowlist short-circuit at obligation_scanner.py:280, which runs BEFORE the imperative-verb checks at lines 313-356. sc:reflect UC-2 empirically verified that a probe line of the form 'Build stub transport now | temporary stub transport — must be replaced in M2' was silently allowlisted (obligations=0, high=0, undischarged=0) because the substring 'stub transport' triggered _is_allowlisted before the imperative verb 'Build' could prove the line was genuine scaffolding work. The allowlist subtracts from FPs only (Contract #10) — masking a real obligation is a Contract #10 regression.",
+    "fix_approach": "B — extend _is_allowlisted to also probe an imperative-verb-paired-with-SCAFFOLD-term regex; if both an allowlist phrase AND an imperative-verb pair are present in the same line, the imperative verb wins and the line is NOT allowlisted."
+  },
+  "expected_total_obligations": 3,
+  "expected_high_findings": 3,
+  "expected_undischarged_count": 3,
+  "expected_contract_10_invariant": "MUST FAIL pre-fix (line silently allowlisted, 0 obligations), MUST PASS post-fix (imperative-verb override emits all 3 SCAFFOLD-term obligations: 2x 'stub' + 1x 'temporary')",
+  "expected_scaffold_terms_emitted": [
+    "stub",
+    "stub",
+    "temporary"
+  ]
+}

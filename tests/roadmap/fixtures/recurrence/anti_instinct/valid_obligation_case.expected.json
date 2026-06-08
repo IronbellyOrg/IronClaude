@@ -1,0 +1,13 @@
+{
+  "fixture": "anti_instinct/valid_obligation_case",
+  "source_authority": {
+    "purpose": "anti-regression guard for Contract #10 — proves the allowlist did not over-broaden",
+    "incident_summary": "A genuine scaffolding obligation: M1 says 'Build stub authentication module' (imperative verb + scaffold term) and the later milestone M2 contains NO discharge phrase (no 'replace stub' / 'wire stub' / 'integrate auth' / 'remove stub'). The scanner MUST still emit a HIGH undischarged finding here — if it does not, the Layer 6 allowlist has over-broadened.",
+    "test_invariant": "If this fixture stops emitting a HIGH undischarged finding after the allowlist lands, the allowlist over-broadened and the change must be reverted."
+  },
+  "expected_min_total_obligations": 1,
+  "expected_min_high_findings": 1,
+  "expected_min_undischarged_count": 1,
+  "expected_phrase_NOT_in_allowlist": "Build stub authentication module",
+  "expected_contract_10_invariant": "Allowlist subtracts from FPs only — never silently masks a genuine obligation"
+}

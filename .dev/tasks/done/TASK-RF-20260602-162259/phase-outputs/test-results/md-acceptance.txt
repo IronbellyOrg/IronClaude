@@ -1,0 +1,11 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+extract ["<root>: 'frontmatter' is a required property", "<root>: 'functional_requirements' is a required property", "<root>: 'non_functional_requirements' is a required property"]
+extract_tdd ["<root>: 'frontmatter' is a required property", "<root>: 'functional_requirements' is a required property", "<root>: 'non_functional_requirements' is a required property"]
+generate ["<root>: 'frontmatter' is a required property", "<root>: 'milestones' is a required property"]
+merge ["<root>: 'frontmatter' is a required property", "<root>: 'milestones' is a required property"]
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+extract roadmap_ids pattern errors: [] -> PASS
+extract_tdd roadmap_ids pattern errors: [] -> PASS
+generate roadmap_ids pattern errors: [] -> PASS
+merge roadmap_ids pattern errors: [] -> PASS
+ALL_NO_ROADMAP_IDS_ERROR True

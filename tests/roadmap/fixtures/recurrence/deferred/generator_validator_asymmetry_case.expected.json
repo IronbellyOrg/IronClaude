@@ -1,0 +1,10 @@
+{
+  "fixture": "deferred/generator_validator_asymmetry_case",
+  "source_authority": {
+    "master_recurrence_row": 10,
+    "partition_findings": ["A1b:F-A1b-005", "A12:F-A12-03"],
+    "incident_summary": "Generator/validator asymmetry: validators are deterministic, generators non-deterministic; every fix adds a downstream validator and none constrain the generator (A1b:F-A1b-005 generator-silent Phase-7 ID drift caught post-hoc; A12:F-A12-03 multi-release harden-orchestration-around-broken-comparator anti-pattern)."
+  },
+  "deferred": true,
+  "reason": "Meta-pattern, not a single scanner input. This is the architectural meta-driver describing the shape of every other recurrence (each fix adds a downstream validator; none constrain the non-deterministic generator). R1.4 tool-write generator-side constraints address it structurally (attested in R1.4 Findings), so it has no isolated fixture input with verifiable expected values."
+}

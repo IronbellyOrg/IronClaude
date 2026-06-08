@@ -1,0 +1,48 @@
+# STUB — V3-Serena eval scaffold (FR-RV3-LOW.8). Seed memory inventory the run reads at Wave 0/5.
+# Encodes the FR-8 discriminating scenarios for the retention sweep (research §6 Case 5):
+#
+#   C1 (unbounded loud-gap): total slug-prefixed entries = 25, of which 24 match
+#     read_only_memory_patterns → deletable = 25 - 24 = 1. After deleting the 1 deletable, 24
+#     read-only remain > 20 → invariant unmeetable by deletion → memory_retention_unbounded: true + WARN.
+#   slug-migration (rename): one entry uses an old slug that should rename to a migrated slug;
+#     on v1.5+ the `mem:` cross-refs propagate; on <v1.5 the rename is skipped (degrade).
+#   pre-v1.5 version scenario: a variant where serena_version = "<v1.5" → write-only/no-retention,
+#     degraded_components ∋ serena:pre-v1.5-no-rename-propagation.
+#   C4 zero/all-stale: a variant with an EMPTY seed set (first-ever run) → sweep_invoked: true with
+#     all-zero counts; and an all-stale (>90d) variant where the just-written current-pass entry
+#     must be PROTECTED from the age sweep.
+
+inventory_count: 25
+readonly_count: 24            # 24 match read_only_memory_patterns → deletable = 1 (C1 trap)
+deletable_count: 1
+
+read_only_memory_patterns:
+  - "reflect/policy-*"
+  - "reflect/pinned-*"
+
+entries:
+  # 24 read-only (sample; full list elided in this STUB)
+  - name: reflect/policy-001
+    readonly: true
+    age_days: 200
+  - name: reflect/pinned-baseline
+    readonly: true
+    age_days: 400
+  # ... (22 more reflect/policy-* / reflect/pinned-* entries, all readonly) ...
+  # 1 deletable, over-cap + stale
+  - name: reflect/last-pass-demo
+    readonly: false
+    age_days: 120           # >90d → expired, deletable
+  # slug-migration target
+  - name: reflect/last-pass-oldslug
+    readonly: false
+    rename_to: reflect/last-pass-newslug   # mem: refs must propagate on v1.5+
+
+# Variant fixtures the case documents (the run selects per scenario):
+variants:
+  pre_v1_5:
+    serena_version: "<v1.5"   # → write-only/no-retention; degrade serena:pre-v1.5-no-rename-propagation
+  zero_first_run:
+    inventory_count: 0        # C4: sweep_invoked true, all-zero counts
+  all_stale:
+    every_entry_age_days: 365 # C4: current-pass entry protected from the age sweep

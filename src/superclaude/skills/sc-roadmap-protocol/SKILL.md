@@ -108,7 +108,7 @@ sc:roadmap executes in 5 waves (0-4). Each wave has entry criteria, behavioral i
 
 > **Relationship to CLI**: `sc:roadmap-protocol` is the inference-layer skill; the deterministic counterpart is the `superclaude roadmap run` CLI (`src/superclaude/cli/roadmap/executor.py`). The Waves below organize behavioral instructions for orchestrators reading this skill; the CLI executes a flat 14-step pipeline. Both surfaces converge on the same artifacts (`roadmap.md`, `extraction.md`, `test-strategy.md`, plus CLI-only validation/certification outputs), but threshold semantics differ — see the inference-only note below.
 
-The CLI emits the following 14 step IDs in pipeline order (see `_get_all_step_ids` at `cli/roadmap/executor.py:2281-2300`):
+The CLI emits the following 14 step IDs in pipeline order (see `_get_all_step_ids` at `cli/roadmap/executor.py:2785-2806`):
 
 1. `extract`
 2. `generate-{agent_a.id}` (e.g. `generate-opus-architect`)
@@ -120,10 +120,10 @@ The CLI emits the following 14 step IDs in pipeline order (see `_get_all_step_id
 8. `anti-instinct`
 9. `test-strategy`
 10. `spec-fidelity`
-11. `wiring-verification`
-12. `deviation-analysis`
-13. `remediate`
-14. `certify`
+11. `deviation-analysis`
+12. `remediate`
+13. `certify`
+14. `verify-implementation` — **R1.5 / §MVR §4 terminal verification step.** This step **replaced** the former `wiring-verification` step (net step delta 0; 14 IDs total, satisfying Acceptance Gate #6 `step_count ≤ 14`). It AST-links the merged roadmap/tasklist back to the spec FRs carried in `envelope.spec_ids` and is gated by a `CodeAssertion`-only, fail-closed gate (no fail-open default) — see "R0/R1 Substrate Architecture" below.
 
 **Wave ↔ CLI step mapping** (each Wave below corresponds to one or more CLI steps; Waves are pedagogical/orchestration units, CLI steps are atomic gate-bounded executions):
 
@@ -131,19 +131,30 @@ The CLI emits the following 14 step IDs in pipeline order (see `_get_all_step_id
 |------|-------------------|-------|
 | Wave 0 (Prerequisites) | (none) | Skill-only — CLI performs equivalent input validation via `_validate_input_files` and config parsing. |
 | Wave 1A (Spec Consolidation) | (none in roadmap CLI) | Multi-spec consolidation is a skill-side `Skill sc:adversarial-protocol` invocation. The roadmap CLI does not perform multi-spec consolidation as a pipeline step. |
-| Wave 1B (Detection & Analysis) | `extract` | CLI emits a single-pass `extract` step using `build_extract_prompt` / `build_extract_prompt_tdd` (see B-7). |
+| Wave 1B (Detection & Analysis) | `extract` | CLI emits a single-pass `extract` step. **R1.4 tool-write:** the step is now a tool-write generator — the LLM emits JSON validated against `templates/tool_schemas/extract.schema.json` (or `extract_tdd.schema.json` for TDD inputs), and `extraction.md` is rendered deterministically from the validated tool output via `templates/extract.md.j2` (`tool_writer.py`). The generator-side constraint enforces `roadmap_ids ⊆ envelope.spec_ids ∪ envelope.accepted_deviations` (Contract #3). See `refs/extraction-pipeline.md`. |
 | Wave 2 (Planning & Template Selection) | `generate-{a}`, `generate-{b}`, `diff`, `debate`, `score`, `merge` | CLI generates variants in parallel, then runs the structured-debate prompt flow inline (`build_debate_prompt`, `_DEPTH_INSTRUCTIONS`); skill mode invokes `Skill sc:adversarial-protocol`. The CLI does NOT delegate to a separate `sc:adversarial-protocol` skill (see B-8). |
 | Wave 3 (Generation) | `anti-instinct`, `test-strategy` | CLI's `anti-instinct` and `test-strategy` steps produce post-merge guard-rail and strategy artifacts. |
-| Wave 4 (Validation) | `spec-fidelity`, `wiring-verification`, `deviation-analysis`, `remediate`, `certify` | CLI uses gate criteria (`SPEC_FIDELITY_GATE`, `WIRING_GATE`, `DEVIATION_ANALYSIS_GATE`, `REMEDIATE_GATE`) — NOT `quality-engineer` / `self-review` sub-agent dispatch (see B-6). The skill's quality-engineer and self-review dispatch in Wave 4 is inference-only and non-canonical for CLI parity. |
+| Wave 4 (Validation) | `spec-fidelity`, `deviation-analysis`, `remediate`, `certify`, `verify-implementation` (terminal) | CLI uses gate criteria (`SPEC_FIDELITY_GATE_CONVERGENCE_AWARE`, `DEVIATION_ANALYSIS_GATE`, `REMEDIATE_GATE`, plus the terminal `verify-implementation` `CodeAssertion`-only gate) — NOT `quality-engineer` / `self-review` sub-agent dispatch (see B-6). The former `wiring-verification`/`WIRING_GATE` was REPLACED by `verify-implementation` (R1.5). `SPEC_FIDELITY_GATE_CONVERGENCE_AWARE` (R1.6, `gates.py:1363`, registered `gates.py:1578`) is convergence-aware: it runs the base severity checks plus `_spec_fidelity_validation_complete_true` and a runtime-safe `assert_convergence_passed` `CodeAssertion`, replacing the deleted `gate=None if config.convergence_enabled` convergence bypass. The skill's quality-engineer and self-review dispatch in Wave 4 is inference-only and non-canonical for CLI parity. |
 | Post-Wave (Completion) | (none) | Skill-only session-persistence and final-message steps. |
 
 ### Inference-Only Thresholds
 
 The following thresholds in this skill are **inference heuristics**, NOT CLI gate behavior. When operating against the CLI directly, treat these as documentation-only heuristics and prefer the CLI gate criteria as the canonical pass/fail mechanism.
 
-- **Convergence routing (Wave 1A Step 2e, Wave 2 Step 3e)**: `convergence_score >= 0.6 → PASS`, `>= 0.5 → PARTIAL`, `< 0.5 → FAIL`. The CLI's gate criteria only validate `convergence_score ∈ [0.0, 1.0]` as a validity check; pass/fail routing on this score is a skill-layer decision. See `cli/roadmap/validate_gates.py` for the actual CLI gate criteria.
+- **Convergence routing (Wave 1A Step 2e, Wave 2 Step 3e)**: `convergence_score >= 0.6 → PASS`, `>= 0.5 → PARTIAL`, `< 0.5 → FAIL`. The CLI's gate criteria only validate `convergence_score ∈ [0.0, 1.0]` as a validity check at the debate stage; pass/fail routing on this score at the debate stage is a skill-layer decision. See `cli/roadmap/validate_gates.py` for the actual CLI gate criteria. **R1.6 note (canonical, not inference):** the CLI now enforces convergence downstream at the `spec-fidelity` step via `SPEC_FIDELITY_GATE_CONVERGENCE_AWARE` (`gates.py:1363`), whose runtime-safe `assert_convergence_passed` `CodeAssertion` is a real fail-closed gate — it replaced the deleted `gate=None if config.convergence_enabled` bypass.
 - **Validation aggregate thresholds (Wave 4, `refs/validation.md`)**: `PASS ≥ 85%`, `REVISE 70-84%`, `REJECT < 70%`. The CLI does not compute an aggregate validation score and does not run a `REVISE` loop; it uses per-gate boolean criteria from `validate_gates.py` (`REFLECT_GATE`, `ADVERSARIAL_MERGE_GATE`).
 - **Agent count range (Section 5)**: `2-10 agents`. The CLI's `roadmap run` defaults to `opus:architect,sonnet:architect` (2) and does not enforce a 2-10 bound; `roadmap validate` defaults to a single agent. The 2-10 range is an inference recommendation for the skill surface.
+
+### R0/R1 Substrate Architecture
+
+The R0-bridge + R1-substrate rewrite (per the roadmap-pipeline Brittleness-Elimination Contract) inverted four brittleness-driving substrates. The following are **canonical CLI facts**, not inference heuristics:
+
+- **Canonical contracts SoT (`superclaude.contracts`, R0.3 + R1.1).** `src/superclaude/contracts/__init__.py` is the single source of truth for `ID_PATTERNS`, `CONVERGENCE_THRESHOLDS`, `GATE_FIELD_NAMES`, `THRESHOLDS`, and `RETURN_CONTRACTS` (per-skill return-type schemas). Arch-lint (Makefile `lint-architecture` Check 11) blocks CI if any of these constants is re-defined elsewhere. **There is no `superclaude.contracts.parsers` submodule** — the module is a constants/schema registry, not a parser host (the frontmatter parser is owned by the envelope module; see below).
+- **Typed `PipelineEnvelope` (R1.2, `cli/roadmap/envelope.py`).** Per-step Python post-extractors write a typed envelope with sidecar JSON persistence; the LLM never writes gate-pass counts or IDs directly. **Frontmatter is derived exactly once** by the Python post-step extractors registered in `POST_EXTRACTORS` (`envelope.py:690`) via existing `spec_parser` helpers (Contract #6 forbids new parsers). Consumers read typed state via the actual `PipelineEnvelope` fields — `envelope.spec_ids` / `envelope.counts` / `envelope.findings` / `envelope.convergence` / `envelope.accepted_deviations` (`envelope.py:128`) — **not** via an `envelope.frontmatter` accessor (no such field exists on the dataclass). After the R1.6 dual-write cutover, markdown is render-only output, not the interchange substrate.
+- **Tool-write generators (R1.4).** All 9 LLM steps (`extract`, `generate`, `diff`, `debate`, `score`, `merge`, `spec_fidelity`, plus `test_strategy`, `certify`, `reflect` for the validate/certify paths) emit JSON validated against `templates/tool_schemas/<step>.schema.json`; markdown artifacts are rendered deterministically from the validated tool output by Jinja templates (`templates/<step>.md.j2`) via `tool_writer.py`. The generator-side constraint enforces `roadmap_ids ⊆ envelope.spec_ids ∪ envelope.accepted_deviations` (Contract #3) at production time rather than catching phantom IDs after the fact.
+- **`GateCriteria.code_assertions` slot + CI-vs-runtime split (R1.3 + R1.6).** `GateCriteria` (`cli/pipeline/models.py:132`) carries a `code_assertions` list of `CodeAssertion` predicates (`code_assertions` field at `models.py:153`). Each `CodeAssertion` (`models.py:91`) has a `ci_only` flag (`models.py:128`, default `False`). The `gate_passed` evaluator (`cli/pipeline/gates.py:20`) skips `ci_only=True` assertions in the live path (`gates.py:112`) and preserves a skip-path when envelope/repo_root are not plumbed (`gates.py:99-105`). **CI-only (source-tree/AST) assertions** — e.g. `assert_step_reachable` (`code_assertions.py:27`, `ci_only=True`) — are enforced exclusively in tests (the dispatch-reachability invariant) and are **skipped in the live gate path**. **Runtime-safe assertions** — e.g. `assert_convergence_passed` and `assert_envelope_artifacts_present` (`ci_only=False`) — inspect only produced artifacts and DO fire in the live gate. No source-tree AST assertion fires at production runtime.
+- **`verify-implementation` terminal step (R1.5).** The terminal step (step 14, replacing `wiring-verification`) uses a `CodeAssertion`-only, fail-closed gate. For each FR in `envelope.spec_ids`, it either finds an importable callable, finds a match via the `fidelity_checker` AST scan, or matches an accepted deviation — there is **no fail-open default**.
+- **Fail-closed everywhere (R1.6 cleanup).** The fail-open `fidelity_checker` defaults, the `gates.py:_cross_refs_resolve` `return True` structural stub, and the `executor.py` `gate=None if config.convergence_enabled` convergence bypass were all deleted. Zero `return True` fragility stubs remain in `src/superclaude/cli/` (Acceptance Gate #7, CI-enforced by `tests/roadmap/test_no_fragility_stubs.py`).
 
 ### Cosmetic-Gate Auto-Remediation Lane
 
@@ -305,6 +316,8 @@ When this lane is active and a gate failure classifies as `is_pure_cosmetic=True
 **Exit Criteria**: Validation complete. Trigger `sc:save` with validation results (final). Emit: `"Wave 4 complete: validation score X.XX (STATUS)."` (or skip message if `--no-validate`)
 
 ### Post-Wave: Completion
+
+> **CLI terminal step (R1.5):** In the canonical CLI pipeline, the `verify-implementation` step (step 14) runs after `certify` as the terminal gate — it AST-links the merged roadmap/tasklist FRs back to `envelope.spec_ids` under a fail-closed `CodeAssertion`-only gate (`_run_verify_implementation` in `executor.py:2314`). The skill-mode completion steps below are the inference-layer equivalent.
 
 After Wave 4, perform completion steps:
 

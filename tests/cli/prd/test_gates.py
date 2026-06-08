@@ -10,6 +10,7 @@ import pytest
 from superclaude.cli.prd.gates import (
     _check_b2_self_contained,
     _check_no_placeholders,
+    _check_no_truncation_marker,
     _check_parallel_instructions,
     _check_parsed_request_fields,
     _check_prd_template_sections,
@@ -241,3 +242,31 @@ class TestGateExceptionWrapping:
         assert "crasher" in result
         assert "crashed" in result
         assert "intentional crash" in result
+
+
+class TestCheckNoTruncationMarker:
+    """[AC9] _check_no_truncation_marker flags silently-truncated content.
+
+    Detects the inline truncation marker emitted by _read_file
+    ("\\n\\n[TRUNCATED — file exceeds 50KB inline limit]", em-dash) via the
+    "[TRUNCATED" substring, plus content whose rstrip() ends with "...".
+    """
+
+    def test_clean_content_passes(self) -> None:
+        assert (
+            _check_no_truncation_marker(
+                "clean full content with no truncation markers at all"
+            )
+            is True
+        )
+
+    def test_truncated_marker_fails(self) -> None:
+        content = "body of the document\n\n[TRUNCATED — file exceeds 50KB inline limit]"
+        result = _check_no_truncation_marker(content)
+        assert isinstance(result, str)
+        assert "truncat" in result.lower()
+
+    def test_trailing_ellipsis_fails(self) -> None:
+        result = _check_no_truncation_marker("the document ends abruptly here ...")
+        assert isinstance(result, str)
+        assert "truncat" in result.lower()

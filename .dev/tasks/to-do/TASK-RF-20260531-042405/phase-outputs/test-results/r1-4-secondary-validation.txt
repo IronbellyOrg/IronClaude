@@ -1,0 +1,59 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude-RoadmapRewrite/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+rootdir: /config/workspace/IronClaude-RoadmapRewrite
+configfile: pyproject.toml
+plugins: superclaude-4.2.0
+collecting ... collected 47 items
+
+tests/roadmap/test_tool_write_step_test_strategy.py::test_test_strategy_schema_loads PASSED [  2%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_valid_output_passes_schema PASSED [  4%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_missing_frontmatter_field_fails PASSED [  6%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_invalid_complexity_class_fails PASSED [  8%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_render_parity PASSED [ 10%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_rendered_satisfies_gate_frontmatter PASSED [ 12%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_render_step_tool_write_roundtrip PASSED [ 14%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_render_step_tool_write_rejects_invalid PASSED [ 17%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_test_strategy_registry_key_distinct PASSED [ 19%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_test_strategy_tool_definition PASSED [ 21%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_build_prompt_tool_write_emits_json_contract PASSED [ 23%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_build_prompt_default_byte_identical PASSED [ 25%]
+tests/roadmap/test_tool_write_step_test_strategy.py::test_no_hardcoded_thresholds PASSED [ 27%]
+tests/roadmap/test_tool_write_step_certify.py::test_certify_schema_loads PASSED [ 29%]
+tests/roadmap/test_tool_write_step_certify.py::test_valid_output_passes_schema PASSED [ 31%]
+tests/roadmap/test_tool_write_step_certify.py::test_missing_frontmatter_field_fails PASSED [ 34%]
+tests/roadmap/test_tool_write_step_certify.py::test_invalid_result_enum_fails PASSED [ 36%]
+tests/roadmap/test_tool_write_step_certify.py::test_result_requires_finding_id PASSED [ 38%]
+tests/roadmap/test_tool_write_step_certify.py::test_render_parity PASSED [ 40%]
+tests/roadmap/test_tool_write_step_certify.py::test_rendered_certify_satisfies_gate PASSED [ 42%]
+tests/roadmap/test_tool_write_step_certify.py::test_render_step_tool_write_passes_gate PASSED [ 44%]
+tests/roadmap/test_tool_write_step_certify.py::test_render_step_tool_write_roundtrip PASSED [ 46%]
+tests/roadmap/test_tool_write_step_certify.py::test_render_step_tool_write_rejects_invalid PASSED [ 48%]
+tests/roadmap/test_tool_write_step_certify.py::test_render_step_tool_write_dual_write_proof PASSED [ 51%]
+tests/roadmap/test_tool_write_step_certify.py::test_certify_registry_key_distinct PASSED [ 53%]
+tests/roadmap/test_tool_write_step_certify.py::test_certify_config_flag_defaults_false PASSED [ 55%]
+tests/roadmap/test_tool_write_step_certify.py::test_certify_tool_definition PASSED [ 57%]
+tests/roadmap/test_tool_write_step_certify.py::test_build_certification_prompt_tool_write_emits_json_contract PASSED [ 59%]
+tests/roadmap/test_tool_write_step_certify.py::test_build_certification_prompt_default_byte_identical PASSED [ 61%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_reflect_schema_loads PASSED [ 63%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_valid_output_passes_schema PASSED [ 65%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_missing_frontmatter_field_fails PASSED [ 68%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_invalid_severity_enum_fails PASSED [ 70%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_render_parity PASSED [ 72%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_rendered_satisfies_reflect_gate PASSED [ 74%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_render_step_tool_write_roundtrip PASSED [ 76%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_render_step_tool_write_rejects_invalid PASSED [ 78%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_reflect_registry_key_distinct PASSED [ 80%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_reflect_tool_definition PASSED [ 82%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_build_prompt_tool_write_emits_json_contract PASSED [ 85%]
+tests/roadmap/test_tool_write_step_validate_reflect.py::test_build_prompt_default_byte_identical PASSED [ 87%]
+tests/roadmap/test_tool_write_step_remediation.py::test_remediation_has_no_tool_write_registry_entry PASSED [ 89%]
+tests/roadmap/test_tool_write_step_remediation.py::test_remediation_prompt_builder_has_tool_write_kwarg PASSED [ 91%]
+tests/roadmap/test_tool_write_step_remediation.py::test_remediation_prompt_default_is_byte_identical_to_tool_write_false PASSED [ 93%]
+tests/roadmap/test_tool_write_step_remediation.py::test_remediation_prompt_no_roadmap_ids_contract3_constraint PASSED [ 95%]
+tests/roadmap/test_tool_write_step_remediation.py::test_remediation_prompt_tool_write_true_preserves_default_prefix PASSED [ 97%]
+tests/roadmap/test_tool_write_step_remediation.py::test_roadmap_config_tool_write_remediate_default_false PASSED [100%]
+
+============================== 47 passed in 0.30s ==============================

@@ -429,6 +429,14 @@ from superclaude.cli.swarm import swarm_group  # noqa: E402,I001  # intentional:
 
 main.add_command(swarm_group, name="swarm")
 
+from superclaude.cli.recommend import recommend_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(recommend_group, name="recommend")
+
+from superclaude.cli.init_lite import init_lite_command  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(init_lite_command, name="init-lite")
+
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,44 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.claude/worktrees/SprintCLIWireDead/.dev/reflect/pre-sprint-cli-tasklist-revalidate-20260603181005/REPORT.md
+confidence_calibrated: 0.91
+depth: standard
+
+validates_prior_audit: .dev/reflect/pre-sprint-cli-tasklist-20260603114816/REPORT.md
+high_findings_closed:
+  H-A: closed   # gate_outcome retyped (spec H4 + Steps 3.1/3.2/4.1 consistent)
+  H-B: closed   # Step 2.6 monitor.py supersede decision
+  H-C: closed   # Phase RC RC.1-RC.4 (aggregate_task_results, watchdog lift, per-worker timers, O_EXCL)
+reviewer_caught_incomplete_fixes:
+  - "Step 3.1 dataclass def still had gate_outcome: dict|None (H-A) — fixed"
+  - "RC.1 aggregate_task_results call shape used non-existent phase= kwarg — fixed to phase.number positional"
+
+coverage_pct_roadmap_axis: 1.00     # was 0.82
+coverage_pct_findings_axis: 1.00
+
+remaining_open_medium:
+  - "M-A: H2 concurrent-spawn gate is a no-op factory, not real ≥4-process repro"
+  - "M-B: declared-upstream fan-in injection not concretely implemented"
+  - "M-C: per-stage full-suite regression + call-site sweep partial"
+  - "M-D: --resume has no Stage-2 docs item"
+
+citations_total: 12
+citations_revalidated: 6
+citations_dropped: 0
+evidence_validator_ran: true
+
+reviewer_count: 1
+reviewer_models: [gpt-5.5]
+merge_method: single-reviewer-plus-orchestrator-fix
+calibrator_diversity: full   # reviewer (gpt-5.5) disjoint from orchestrator (opus)
+
+input_sha256:
+  spec: 83030bde9ee45c2e54c2020e2b8bfd5ee5b78b94537127838c92a89400c149dc
+  tasklist: 4341bc4b2eaf2bcd5e0df9b1017e781593913a73b84d9d181293bb379954e781
+input_drift_detected: false
+
+needs_human_decision: true   # operator chooses: execute now (accept MEDIUMs) vs close M-A/M-D first
+regression_present: false
+promotion_action: not-applicable

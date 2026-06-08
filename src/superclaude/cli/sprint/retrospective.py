@@ -2,7 +2,7 @@
 
 Runs once, blocking, at the very end of a sprint. Consumes the
 per-phase summaries collected by :class:`.summarizer.SummaryWorker`,
-aggregates them programmatically across phases, asks Haiku for a 4-8
+aggregates them programmatically across phases, asks Sonnet for a 4-8
 sentence narrative, and writes ``results/release-retrospective.md``.
 
 Aggregation captures four cross-phase patterns:
@@ -15,10 +15,10 @@ Aggregation captures four cross-phase patterns:
    awareness.
 
 All failures are silently logged so the retrospective never aborts a
-successful sprint. Haiku subprocess failure writes the retrospective
+successful sprint. Sonnet subprocess failure writes the retrospective
 without a narrative section (Section 6.3).
 
-Spec refs: §3.2 (F10), §6.3 (Haiku subprocess), §6.4 (hook ordering),
+Spec refs: §3.2 (F10), §6.3 (Sonnet subprocess), §6.4 (hook ordering),
 §7.6 (ReleaseRetrospective dataclass).
 """
 
@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Optional
 
 from .models import SprintConfig, SprintResult
-from .summarizer import PhaseSummary, invoke_haiku
+from .summarizer import PhaseSummary, invoke_sonnet
 
 _logger = logging.getLogger("superclaude.sprint.retrospective")
 
@@ -231,7 +231,7 @@ def _render_retrospective_markdown(retro: ReleaseRetrospective) -> str:
             [
                 "## Narrative",
                 "",
-                "_Narrative unavailable (Haiku subprocess failed or skipped)._",
+                "_Narrative unavailable (Sonnet subprocess failed or skipped)._",
                 "",
             ]
         )
@@ -325,16 +325,16 @@ class RetrospectiveGenerator:
         )
 
     def narrate(self, retro: ReleaseRetrospective) -> str:
-        """Invoke Haiku for a narrative, skipping when there is no content.
+        """Invoke Sonnet for a narrative, skipping when there is no content.
 
-        A retrospective with zero phase outcomes conveys nothing Haiku
+        A retrospective with zero phase outcomes conveys nothing Sonnet
         could usefully summarise (e.g. an interrupted sprint that never
         ran a phase); calling out to a subprocess in that case only
         burns time and pollutes test environments that mock subprocess.
         """
         if not retro.phase_outcomes:
             return ""
-        return invoke_haiku(_build_retrospective_narrative_prompt(retro))
+        return invoke_sonnet(_build_retrospective_narrative_prompt(retro))
 
     def write(self, retro: ReleaseRetrospective) -> Optional[Path]:
         target = self.config.results_dir / "release-retrospective.md"

@@ -1,0 +1,30 @@
+contract_version: "1.0"
+mode: post
+spec_path: /config/workspace/IronClaude/.claude/worktrees/BareReview/.dev/troubleshoot/roadmap-pipeline-retrospective/wave4-task-spec/BUILD-REQUEST-roadmap-pipeline-rewrite.md
+tasklist_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260531-042405/TASK-RF-20260531-042405.md
+diff_range: 91095144..bdfad6d3
+worktree: /config/workspace/IronClaude-RoadmapRewrite
+commits:
+  - hash: 6cee1eb1
+    subject: "feat(roadmap/contracts): R0.1 Spec-ID registry + Contract #9 MERGE_GATE enforcement"
+    files_changed: 8
+    insertions: 778
+  - hash: f41ea931
+    subject: "feat(roadmap/anti-instinct): R0.2 Layer 6 phrase allowlist + Contract #10 fixtures"
+    files_changed: 11
+    insertions: 433
+  - hash: 665d34ca
+    subject: "fix(roadmap/anti-instinct): M8 imperative-verb overrides allowlist short-circuit"
+    files_changed: 4
+    insertions: 122
+  - hash: bdfad6d3
+    subject: "feat(roadmap/contracts): R0.3 superclaude.contracts SoT + arch-lint + Contract #5+#8 CI gate"
+    files_changed: 10
+    insertions: 780
+diff_stat:
+  files_changed_total: 29
+  insertions_total: 2107
+  deletions_total: 16
+env_aliases_resolved: 3
+t2_model_class_diversity: full
+t2_vendor_diversity: single   # all Anthropic — single vendor (warn-only v1)
