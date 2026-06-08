@@ -1,0 +1,72 @@
+contract_version: "1.3.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-reuse-audit-20260607/REPORT.md
+confidence_calibrated: 0.86
+escalation_rule_matched: null   # --depth deep hard-override (§5.1), not a rubric rule
+
+# UC-2 deviation taxonomy
+tasklist_completion_pct: null   # no MDTM tasklist; spec-driven review
+deviation_count_by_class:
+  authorized: 3
+  necessary: 1
+  drift: 2          # SKILL.md:1755 (must-fix), SKILL.md:1624 (cosmetic)
+  regression: 0
+deviation_register_path: .dev/reflect/post-reuse-audit-20260607/REPORT.md
+grounding_gaps_path: null
+
+# Reuse-Miss neighbour sweep (§6.1 step 4a — meta, on this diff)
+reuse_sweep_ran: true
+reuse_audit_path: null
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type: { reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 0 }
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: false
+neighbour_search_degraded: false
+max_overlap_score: null
+# note: candidates_scanned=0 — diff is markdown-only, no code symbols to fingerprint
+
+# Hallucination guard
+citations_total: 8
+citations_revalidated: 8
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+reviewer_count: 2
+reviewer_personas: [analyzer/architect, qa]
+merge_method: inline-convergence   # both reviewers independently surfaced the same finding
+adversarial_convergence: high
+t2_model_class_diversity: degraded   # persona-diverse; model-class not independently pinned
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false   # both drifts are authorized-class fixes of an own-introduced defect
+needs_human_decision: false             # finding is clear + fixable, not ambiguous
+spec_is_wrong: false                    # but note: spec carries a stale _bind_specs ground-truth (inherited)
+
+# Promotion
+promotion_action: skipped
+promotion_skip_reason: user-flag        # --no-promote (adapter would also be unresolved)
+
+# Findings summary
+findings:
+  - id: D1
+    class: drift
+    severity: must-fix
+    site: src/superclaude/skills/sc-reflect-protocol/SKILL.md:1755
+    desc: "§17.6 Testability Map still asserts contract_version == \"1.2.0\" after bump to 1.3.0"
+  - id: D2
+    class: drift
+    severity: cosmetic
+    site: src/superclaude/skills/sc-reflect-protocol/SKILL.md:1624
+    desc: "runs.jsonl example skill_version still 1.2.0"
+  - id: N1
+    class: note
+    severity: inherited-spec-gap
+    site: .dev/brainstorms/.../merged-requirements.md:20-21
+    desc: "_bind_specs ground-truth pair does not exist in tree; spec-side staleness, not impl deviation"

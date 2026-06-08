@@ -4,8 +4,7 @@
 
 ---
 
-BUILD_REQUEST
-==============
+## BUILD_REQUEST
 
 GOAL: Create a comprehensive Technical Design Document (TDD) for [COMPONENT] by researching the actual codebase, synthesizing findings into template-aligned sections, and assembling the final document. The TDD will be written to [OUTPUT_PATH].
 
@@ -27,6 +26,24 @@ cross-validation with CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED tags."]
 Do NOT create task items that reference architecture marked [CODE-CONTRADICTED]
 or [UNVERIFIED]. Phase 2 agents will do full cross-validation, but avoid
 building on obviously stale foundations.
+
+REUSE_AUDIT_REQUIREMENTS:
+[The research notes `## REUSE_AUDIT` section (from the A.3 step-2a `reuse-auditor`
+delegation) lists prior-art neighbours for every proposed component. The task file
+MUST encode these as follows:
+
+- **Phase 2:** carry a reuse-neighbour investigation item per proposed component that
+  re-confirms (or refreshes) the `reuse-auditor` verdict against the shipped codebase,
+  citing grounded `file:line` neighbours.
+- **Phase 5:** a synthesis instruction to render the "## Reuse & Consolidation Audit"
+  TDD section (see refs/synthesis-mapping.md) from the REUSE_AUDIT findings.
+- `confident-duplicate` verdicts become **design constraints** (reuse / mirror / extract,
+  per the recorded verdict — NOT a fresh build).
+- `maybe-related` verdicts become **design questions** surfaced for the reader.
+- The builder **MUST NOT** instruct importing across a documented module-boundary ban —
+  use `mirror-shape` or `extract-shared` (the `reuse-auditor` records which).
+This audit is **advisory** at TDD/pre-build time; the verdict recorded here is the same
+one `sc:reflect --mode post` will recompute against the shipped diff.]
 
 TEMPLATE 02 PATTERN MAPPING FOR THIS SKILL (if Template 02):
 

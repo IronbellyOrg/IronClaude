@@ -1,0 +1,54 @@
+stage: post
+candidates_scanned: 2
+neighbours_found: 5
+max_overlap: 0.91
+degraded: []
+sampled: false
+findings:
+  - candidate: "_inject_provenance_fields"
+    capability_tag: "post-subprocess YAML frontmatter metadata injection for LLM-produced roadmap artifacts"
+    neighbours:
+      - ref: "src/superclaude/cli/roadmap/executor.py:678"
+        snippet: "def _inject_pipeline_diagnostics("
+      - ref: "src/superclaude/cli/roadmap/executor.py:688"
+        snippet: "content = output_file.read_text(encoding=\"utf-8\").lstrip(\"\\n\\r\\t \")"
+      - ref: "src/superclaude/cli/roadmap/executor.py:712"
+        snippet: "output_file.write_text(new_content, encoding=\"utf-8\")"
+      - ref: "src/superclaude/cli/sprint/preflight.py:76"
+        snippet: "def _inject_source_field(markdown: str) -> str:"
+      - ref: "src/superclaude/cli/sprint/preflight.py:222"
+        snippet: "result_md = _inject_source_field(report.to_markdown())"
+    C_cap: 0.91
+    C_shape: 0.88
+    C_aug: 0.86
+    S_reuse: 0.90
+    confidence: 0.94
+    tier: confident-duplicate
+    verdict: extract-shared
+    shape_divergence: false
+    consolidation:
+      N: 2
+      recommend_centralize: true
+      centralize_target: "src/superclaude/cli/roadmap/executor.py::_inject_frontmatter_fields"
+    evidence_grounded: true
+
+  - candidate: "validate_session_id"
+    capability_tag: "filesystem-safe hook session-id allowlist guard"
+    neighbours:
+      - ref: "src/superclaude/cli/eval/loader.py:135"
+        snippet: "def validate_eval_id(eval_id: str) -> None:"
+      - ref: "src/superclaude/cli/eval/artifact_layout.py:240"
+        snippet: "if not isinstance(eval_id, str) or not _EVAL_ID_PATH_SAFETY_PATTERN.match(eval_id):"
+    C_cap: 0.54
+    C_shape: 0.52
+    C_aug: 0.64
+    S_reuse: 0.55
+    confidence: 0.82
+    tier: distinct
+    verdict: distinct
+    shape_divergence: false
+    consolidation:
+      N: 1
+      recommend_centralize: false
+      centralize_target: null
+    evidence_grounded: true
