@@ -114,6 +114,12 @@ _PHASE_ALLOWED_REFS: dict[str, list[str]] = {
 
 _FILE_SIZE_THRESHOLD = 50_000  # 50KB: inline vs --file cutoff
 
+# Phase 1.5 (--spec): steps that consume authoritative spec files. These are
+# the steps whose prompts carry the AUTHORITATIVE-SPECS block (see
+# prompts._authoritative_specs_block); attaching the spec via --file delivers
+# its content to the agent instead of relying on the agent to Read the path.
+_SPEC_FILE_STEPS: frozenset[str] = frozenset({"scope-discovery", "investigation"})
+
 
 # ---------------------------------------------------------------------------
 # PrdClaudeProcess
@@ -162,22 +168,27 @@ class PrdClaudeProcess(ClaudeProcess):
 
     @staticmethod
     def _build_file_args(config: PrdConfig, step_id: str) -> list[str]:
-        """Build --file args for refs files allowed by this step.
+        """Build --file args for refs files allowed by this step, plus
+        authoritative --spec files for the steps that consume them.
 
         GAP-003: Each subprocess receives only refs files permitted
         for its phase. Files > 50KB are passed as --file args;
         files < 50KB would be inlined in the prompt by the prompt
         builder (not handled here).
+
+        Phase 1.5 (--spec): for the spec-consuming steps in
+        ``_SPEC_FILE_STEPS`` (scope-discovery, investigation), each
+        authoritative ``config.spec_files`` entry is attached via ``--file``
+        so the agent receives the spec's *content* directly rather than only
+        a path it is told to Read. This reuses the existing ``--file``
+        mechanism instead of introducing a parallel one.
         """
         # Normalize step_id: "investigation-3" -> "investigation"
         base_step = step_id.rsplit("-", 1)[0] if step_id[-1:].isdigit() else step_id
 
-        allowed = _PHASE_ALLOWED_REFS.get(base_step, [])
-        if not allowed:
-            return []
-
         file_args: list[str] = []
-        for ref_name in allowed:
+
+        for ref_name in _PHASE_ALLOWED_REFS.get(base_step, []):
             ref_path = config.skill_refs_dir / ref_name
             if ref_path.is_file():
                 try:
@@ -186,6 +197,11 @@ class PrdClaudeProcess(ClaudeProcess):
                     continue
                 if size > _FILE_SIZE_THRESHOLD:
                     file_args.extend(["--file", str(ref_path)])
+
+        if base_step in _SPEC_FILE_STEPS:
+            for spec_path in getattr(config, "spec_files", None) or []:
+                if Path(spec_path).is_file():
+                    file_args.extend(["--file", spec_path])
 
         return file_args
 
