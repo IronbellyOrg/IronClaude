@@ -322,7 +322,7 @@ For report validation, you are always authorized to fix issues in-place:
 19. **Prose count accuracy** — Verify quantitative claims in Overview/descriptions match actual implementation. If the overview says "refactors 7 functions" but the checklist only touches 4, that's a FAIL.
 20. **Template section cross-reference** — Read actual templates referenced by the task file, verify §N references match real content. If an item says "per template §A3" confirm that section actually exists and says what the item claims.
 
-#### Structural Gate Additions (TB-Add-1 through TB-Add-8, imported from sc:tasklist 17-point gate per CB-3 per-check classification)
+#### Structural Gate Additions (TB-Add-1, TB-Add-3 through TB-Add-8, imported from sc:tasklist 17-point gate per CB-3 per-check classification)
 
 These additions close specific structural gaps that sc:tasklist's pre-write gate catches but task-builder's task-integrity historically did not. Each cites its source check ID for traceability. Additive only -- no existing check is weakened.
 
@@ -332,12 +332,11 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
     Title-only or placeholder-only items reinforce the self-contained-item invariant by failing the
     5-field schema. Error message format: "Item X.Y contains 'TBD'/'TODO' on line N -- replace with
     concrete description". Use Grep on the task file to detect.
-22. **TB-Add-2: Item count bounds (sc:tasklist check 13). ADVISORY-fail until calibrated.** Track has ≥3 and ≤40 checklist items; single-track tasks have ≥3 and ≤50. Bounds are speculative without empirical `.dev/tasks/done/` calibration; until calibration completes this check emits an ADVISORY warning (surface in report, do NOT block PASS). Calibration trigger: when `.dev/tasks/done/` accumulates ≥10 completed tasks across ≥3 task_types, re-evaluate the bounds and promote to blocking.
-23. **TB-Add-3: Clarification adjacency (sc:tasklist check 14).** If the task has Open Questions, each blocked checklist item that depends on a question MUST reference the open question by index in its Context field (e.g., "Blocked by Open Question OQ-2"). Unreferenced blocked items leave the executor guessing whether a question must be resolved first.
-24. **TB-Add-4: Circular dependency detection (sc:tasklist check 15).** Item-to-item dependencies form a DAG. No item depends (via Context/Action references) on a later item that depends back on it. Build a directed graph of item-references-item edges; assert acyclic. Cycles cause execution deadlock.
-25. **TB-Add-5: Granularity check / XL splitting (sc:tasklist check 16).** If an item is flagged as `complex`, `multi-file`, or otherwise XL (per item 10 atomicity), it must either be split into subtasks (Template 02 nesting) OR include a critical-rule-aware comment justifying single-item handling. Adapted to task-builder's lack of XL effort labels -- uses the same intent as sc:tasklist's check 16.
-26. **TB-Add-6: Confidence/Verification format consistency (sc:tasklist check 17).** All Verification fields use the same `Verify: ...` prefix; all Acceptance Criteria entries use the `- ✅` or `- [x]` form per Template 01/02 conventions. Inconsistent format suggests partial template adherence or copy-paste from incompatible sources.
-27. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).**
+22. **TB-Add-3: Clarification adjacency (sc:tasklist check 14).** If the task has Open Questions, each blocked checklist item that depends on a question MUST reference the open question by index in its Context field (e.g., "Blocked by Open Question OQ-2"). Unreferenced blocked items leave the executor guessing whether a question must be resolved first.
+23. **TB-Add-4: Circular dependency detection (sc:tasklist check 15).** Item-to-item dependencies form a DAG. No item depends (via Context/Action references) on a later item that depends back on it. Build a directed graph of item-references-item edges; assert acyclic. Cycles cause execution deadlock.
+24. **TB-Add-5: Granularity check / XL splitting (sc:tasklist check 16).** If an item is flagged as `complex`, `multi-file`, or otherwise XL (per item 10 atomicity), it must either be split into subtasks (Template 02 nesting) OR include a critical-rule-aware comment justifying single-item handling. Adapted to task-builder's lack of XL effort labels -- uses the same intent as sc:tasklist's check 16.
+25. **TB-Add-6: Confidence/Verification format consistency (sc:tasklist check 17).** All Verification fields use the same `Verify: ...` prefix; all Acceptance Criteria entries use the `- ✅` or `- [x]` form per Template 01/02 conventions. Inconsistent format suggests partial template adherence or copy-paste from incompatible sources.
+26. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).**
     If the task file contains an `## Execution Context` block with a `**Source areas:**` line, every
     named source area MUST reappear in at least one item's Context field. Drift between the header
     summary and item bodies indicates the header was generated from stale/independent input rather
@@ -354,7 +353,7 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
     The header-wide hidden-input guard (R-039) is the producer-side enforcement; TB-Add-7 may
     additionally re-run `grep -cE "src/|/.*:[0-9]+"` against the block range as a consumer-side
     spot check, FAILing if count > 0.
-28. **TB-Add-8: Per-item Context evidence binding (PR-01 REVISE acceptance criterion -- INV-015
+27. **TB-Add-8: Per-item Context evidence binding (PR-01 REVISE acceptance criterion -- INV-015
     scope-confinement).** Every per-item Context field that references a code surface
     (a function, class, module, config field, or specific file) MUST include at least one file:line
     citation OR a `<!-- evidence-absence: ... -->` justified-absence comment explaining why no
