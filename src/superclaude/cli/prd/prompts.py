@@ -47,6 +47,71 @@ def _read_file(path: Path, max_bytes: int = 50_000) -> str:
     return content
 
 
+class MissingArtifactError(FileNotFoundError):
+    """A REQUIRED upstream artifact is absent because its producer step failed.
+
+    Subclasses ``FileNotFoundError`` so any un-converted read path still treats
+    it as a missing file; the executor catches it at the ``_build_prompt`` call
+    site and converts it to a graceful HALT instead of an uncaught traceback.
+    """
+
+    def __init__(self, path: Path, producer_step: str) -> None:
+        self.path = path
+        self.producer_step = producer_step
+        super().__init__(
+            f"Required artifact {path.name} is missing — its producer step "
+            f"'{producer_step}' did not complete successfully. Path: {path}"
+        )
+
+
+class MalformedArtifactError(MissingArtifactError):
+    """A REQUIRED upstream artifact is present but unparseable (invalid JSON).
+
+    Subclasses ``MissingArtifactError`` so the executor's existing
+    ``except MissingArtifactError`` call site catches it unchanged and converts
+    it to the same graceful HALT — a present-but-corrupt artifact is the same
+    crash-class as a missing one (its producer wrote garbage instead of valid
+    JSON). Sets the same ``path``/``producer_step`` attributes as the parent so
+    the HALT path keeps working, but carries an accurate "malformed" message.
+    """
+
+    def __init__(self, path: Path, producer_step: str) -> None:
+        # Intentionally bypasses the parent __init__ message (which says
+        # "is missing"); a malformed file IS present, so the wording differs.
+        self.path = path
+        self.producer_step = producer_step
+        FileNotFoundError.__init__(
+            self,
+            f"Required artifact {path.name} is malformed/unparseable — its "
+            f"producer step '{producer_step}' did not write valid JSON. "
+            f"Path: {path}",
+        )
+
+
+def _read_required(path: Path, producer_step: str, max_bytes: int = 50_000) -> str:
+    """Read a REQUIRED text artifact, raising MissingArtifactError if absent."""
+    if not path.is_file():
+        raise MissingArtifactError(path, producer_step)
+    return _read_file(path, max_bytes)
+
+
+def _load_json_required(path: Path, producer_step: str) -> dict:
+    """Load a REQUIRED JSON artifact.
+
+    Raises ``MissingArtifactError`` if the file is absent and
+    ``MalformedArtifactError`` if it is present but not valid JSON. Both are
+    caught by the executor's ``except MissingArtifactError`` call site and
+    converted to a graceful HALT, so a corrupt artifact can no longer escape
+    ``run()`` as an uncaught ``json.JSONDecodeError``.
+    """
+    if not path.is_file():
+        raise MissingArtifactError(path, producer_step)
+    try:
+        return _load_json(path)
+    except json.JSONDecodeError as exc:
+        raise MalformedArtifactError(path, producer_step) from exc
+
+
 def _today() -> str:
     """Return today's date in ISO format."""
     return date.today().isoformat()
@@ -155,7 +220,9 @@ def build_scope_discovery_prompt(
     context_summaries: list[str] | None = None,
 ) -> str:
     """Step 3: Explore the codebase to understand the product scope."""
-    parsed = _load_json(config.task_dir / "parsed-request.json")
+    parsed = _load_json_required(
+        config.task_dir / "parsed-request.json", "parse-request"
+    )
     if parsed.get("WHERE"):
         where_clause = "\nFocus on these directories:\n" + "\n".join(
             "- " + d for d in parsed["WHERE"]
@@ -254,8 +321,12 @@ def build_research_notes_prompt(
     context_summaries: list[str] | None = None,
 ) -> str:
     """Step 4: Produce structured research notes from scope discovery."""
-    scope_content = _read_file(config.task_dir / "scope-discovery-raw.md")
-    parsed = _load_json(config.task_dir / "parsed-request.json")
+    scope_content = _read_required(
+        config.task_dir / "scope-discovery-raw.md", "scope-discovery"
+    )
+    parsed = _load_json_required(
+        config.task_dir / "parsed-request.json", "parse-request"
+    )
 
     ctx = ""
     if context_summaries:
@@ -337,7 +408,9 @@ def build_sufficiency_review_prompt(
     context_summaries: list[str] | None = None,
 ) -> str:
     """Step 5: Review research notes for completeness before proceeding."""
-    notes_content = _read_file(config.task_dir / "research-notes.md")
+    notes_content = _read_required(
+        config.task_dir / "research-notes.md", "research-notes"
+    )
 
     ctx = ""
     if context_summaries:
@@ -437,7 +510,7 @@ def build_task_file_prompt(
     context_summaries: list[str] | None = None,
 ) -> str:
     """Step 7: Build the MDTM task file from research notes + refs."""
-    notes = _read_file(config.task_dir / "research-notes.md")
+    notes = _read_required(config.task_dir / "research-notes.md", "research-notes")
     build_template = _read_file(config.skill_refs_dir / "build-request-template.md")
     agent_prompts = _read_file(config.skill_refs_dir / "agent-prompts.md")
     synth_mapping = _read_file(config.skill_refs_dir / "synthesis-mapping.md")

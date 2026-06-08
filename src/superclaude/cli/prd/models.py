@@ -153,6 +153,16 @@ class PrdStepStatus(Enum):
         )
 
     @property
+    def is_hard_failure(self) -> bool:
+        """True if the step crashed/timed-out/exhausted (a production failure, not a clean exit-0 quality failure)."""
+        return self in (
+            PrdStepStatus.ERROR,
+            PrdStepStatus.TIMEOUT,
+            PrdStepStatus.QA_FAIL_EXHAUSTED,
+            PrdStepStatus.HALT,
+        )
+
+    @property
     def needs_fix_cycle(self) -> bool:
         """True if this status should trigger a fix cycle retry."""
         return self in (
@@ -232,6 +242,10 @@ class PrdStepResult(StepResult):
     agent_type: str = ""
     fix_cycle: int = 0
     qa_verdict: Optional[str] = None
+    # Optional step-level halt reason. Set when a step returns HALT for a
+    # specific, nameable cause (e.g. a missing required artifact) so the reason
+    # is available to callers/tests beyond the generic pipeline-level template.
+    halt_reason: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------

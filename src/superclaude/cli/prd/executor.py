@@ -563,14 +563,28 @@ class PrdExecutor:
                 ):
                     self._persist_bound_specs()
 
-                # STRICT gate failure halts pipeline
+                # Halt on any hard execution failure (ERROR/TIMEOUT/
+                # QA_FAIL_EXHAUSTED/HALT) regardless of gate tier, OR on a
+                # STRICT-gate failure (preserving existing STRICT semantics).
+                # The intentional non-fatal STANDARD VALIDATION_FAIL path
+                # (exit 0, artifact written) is excluded from is_hard_failure
+                # and is STANDARD-tier, so it does not halt here.
                 if step_result.status.is_failure:
                     gate = GATE_CRITERIA.get(step_id)
-                    if gate and gate.enforcement_tier == "STRICT":
+                    strict_gate_fail = bool(
+                        gate and gate.enforcement_tier == "STRICT"
+                    )
+                    if step_result.status.is_hard_failure or strict_gate_fail:
                         result.outcome = "halt"
                         result.halt_step = step_id
-                        result.halt_reason = (
-                            f"STRICT gate failure: {step_result.status.value}"
+                        # Prefer a step-provided reason (e.g. Atom 2's
+                        # missing-artifact message) so the specific cause
+                        # surfaces at the pipeline level; otherwise fall back
+                        # to the generic hard-failure / STRICT-gate template.
+                        result.halt_reason = step_result.halt_reason or (
+                            f"hard failure: {step_result.status.value}"
+                            if step_result.status.is_hard_failure
+                            else f"STRICT gate failure: {step_result.status.value}"
                         )
                         break
 
@@ -668,8 +682,29 @@ class PrdExecutor:
             )
         self._ledger.allocate(turns_needed)
 
-        # Build prompt
-        prompt = self._build_prompt(builder_name, step_id=step_id)
+        # Build prompt. A REQUIRED upstream artifact may be missing (its
+        # producer step failed without writing it). The required-read helpers
+        # in prompts.py raise MissingArtifactError in that case; catch it here
+        # at the real call site (NOT inside _build_prompt, which tests
+        # monkeypatch) and convert it to a graceful HALT. HALT is a hard
+        # failure (Atom 1), so the Stage-A loop halts the pipeline cleanly
+        # instead of letting the exception escape run() as a raw traceback.
+        from .prompts import MalformedArtifactError, MissingArtifactError
+
+        try:
+            prompt = self._build_prompt(builder_name, step_id=step_id)
+        except MissingArtifactError as exc:
+            # MalformedArtifactError is a subclass, caught here unchanged; derive
+            # the verb so a present-but-corrupt artifact does not read as "missing".
+            verb = "malformed" if isinstance(exc, MalformedArtifactError) else "missing"
+            return PrdStepResult(
+                status=PrdStepStatus.HALT,
+                exit_code=-1,
+                halt_reason=(
+                    f"{verb} required artifact {exc.path.name} "
+                    f"(producer: {exc.producer_step})"
+                ),
+            )
 
         # Create output files
         output_file = self._config.task_dir / f"{step_id}-output.txt"
