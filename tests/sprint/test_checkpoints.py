@@ -570,6 +570,27 @@ class TestVerifyCheckpointsCLI:
         assert result.exit_code != 0
         assert "tasklist-index.md" in result.output
 
+    def test_phase_option_is_rejected(self, tmp_path: Path):
+        """Contract lock: verify-checkpoints supports neither --phase nor --quiet.
+
+        Regression guard for the rerun-tasks auto-invoke that shelled out with
+        `--recover --phase N --quiet` and crashed with "No such option: --phase".
+        The command's surface is the positional OUTPUT_DIR plus --recover/--json.
+        """
+        runner = CliRunner()
+        result = runner.invoke(
+            verify_checkpoints, [str(tmp_path), "--recover", "--phase", "13"]
+        )
+        assert result.exit_code == 2, result.output
+        assert "No such option" in result.output
+
+        # --quiet is independently unsupported.
+        result_quiet = runner.invoke(
+            verify_checkpoints, [str(tmp_path), "--recover", "--quiet"]
+        )
+        assert result_quiet.exit_code == 2, result_quiet.output
+        assert "No such option" in result_quiet.output
+
 
 # ---------------------------------------------------------------------------
 # Wave / Phase 3 — merge_recovery_bundle → RecoveryBundle / RecoveryStatus
