@@ -1,0 +1,96 @@
+contract_version: "1.2.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/audit.log
+confidence_calibrated: 0.94
+escalation_rule_matched: 2
+onboarding_ran: false
+coverage_pct: null
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/deviation-register.yaml
+grounding_gaps_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/grounding-gaps.yaml
+hunk_to_declaration_map_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/hunk-to-declaration-map.yaml
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: true
+verification_invocations: 4
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+input_sha256:
+  tasklist: c2c5b16af03373cbbda93b700b65cf833fc12ec4ba92ce52999a8b43f2ca7eab
+  spec: null
+input_tree_sha256: addc7922e1f138a6bdb8d9b041d15eb19d8ac362dcf84f99303ad2186f86ba6b
+input_tree_file_count: 38
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 11
+citations_revalidated: 11
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts:
+  - task_id: TASK-RF-20260604-102137
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.94
+    evidence_anchor: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/REPORT.md
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: moved
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260604-102137
+promotion_destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260604-102137
+promotion_log_path: /config/workspace/IronClaude/.dev/reflect/post-TASK-RF-20260604-102137-20260606T020255Z/promotion-log.yaml
+promotion_gate_passed: true
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: "mv /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260604-102137 /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260604-102137"
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

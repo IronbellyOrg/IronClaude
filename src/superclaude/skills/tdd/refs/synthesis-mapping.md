@@ -117,6 +117,20 @@ Related documents and external references.
 ## 28. Glossary
 Term definitions.
 
+## Reuse & Consolidation Audit (if new components proposed)
+Advisory pre-build reuse analysis, rendered from the research-notes `## REUSE_AUDIT`
+findings (A.3 step-2a `reuse-auditor` delegation). One row per proposed component:
+
+| Proposed component | Nearest prior art (file:line) | tier | Verdict | Disposition |
+
+`tier ∈ {confident-duplicate, maybe-related, distinct}`; `Verdict ∈ {reuse-by-import,
+mirror-shape, extract-shared, distinct}`. **L3 rows** (`S_reuse ≥ 0.82` AND
+`confidence ≥ 0.85` AND `verdict ≠ distinct`) carry the **ADVISORY-BLOCKING-PREVIEW**
+banner: *"Building this as a new component will be classified Drift and BLOCK promotion
+at `sc:reflect --mode post`. Recommended action before build: `<verdict>`."* The verdict
+recorded here is the same one `--mode post` recomputes against the shipped diff. Omit the
+whole section when no new components are proposed (pure documentation of existing design).
+
 ## Document History
 Version table.
 
@@ -142,7 +156,7 @@ Maps synth files to TDD template sections and their source research files. Synth
 | `synth-06-error-security.md` | 12. Error Handling & Edge Cases, 13. Security Considerations | security research, all subsystem research, web research (security patterns, threat models), 00-prd-extraction.md (Section 4: Technical Requirements — security and error-handling constraints) |
 | `synth-07-observability-testing.md` | 14. Observability & Monitoring, 15. Testing Strategy | architecture overview, integration points, web research (SLO benchmarks, testing patterns), 00-prd-extraction.md (Section 3: Success Metrics — KPIs to translate into observability targets; Section 2: ACs — acceptance criteria driving test coverage) |
 | `synth-08-perf-deps-migration.md` | 16. Accessibility, 17. Performance Budgets, 18. Dependencies, 19. Migration & Rollout | PRD extraction, architecture overview, all subsystem research, web research (performance benchmarks) |
-| `synth-09-risks-alternatives-ops.md` | 20. Risks, 21. Alternatives Considered, 22. Open Questions, 23. Timeline, 24. Release Criteria, 25. Operational Readiness, 26. Cost | PRD extraction, all research files, web research (industry practices), gaps log |
+| `synth-09-risks-alternatives-ops.md` | 20. Risks, 21. Alternatives Considered, 22. Open Questions, 23. Timeline, 24. Release Criteria, 25. Operational Readiness, 26. Cost, **Reuse & Consolidation Audit** (advisory — only when new components proposed) | PRD extraction, all research files, web research (industry practices), gaps log, **research-notes `## REUSE_AUDIT`** |
 
 **PRD extraction fallback:** When `00-prd-extraction.md` is absent (no PRD provided), synthesis agents skip PRD-sourced content for that mapping row and note "PRD source unavailable -- requirements derived from feature description and codebase research" in the synthesis file. Do not fail or block on the missing file.
 

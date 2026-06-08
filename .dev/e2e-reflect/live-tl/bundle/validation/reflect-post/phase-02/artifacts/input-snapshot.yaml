@@ -1,0 +1,20 @@
+# Input tree snapshot (§4.0 Step 0.4) — UC-2 post-execution audit, Phase 2
+# Phase 2 work is UNTRACKED (no commits); the audited "diff" is the working tree.
+input_tree_sha256: working-tree-untracked  # no git commit range; see REPORT §"Diff resolution"
+input_tree_file_count: 6
+file_list:
+  - path: .dev/e2e-reflect/live-tl/bundle/phase-2-tasklist.md          # the driving tasklist
+    sha256: cdee242a5107d97a15dbac28841dbd4342fc07a1d840ecbf3c59f1a8bfb00125
+  - path: .dev/e2e-reflect/tl-1/work/index.md                          # T02.01 deliverable (D-0003)
+    sha256: 69b30b03acca597115017070ae16e6375fcaaff3e84059d04db79d68251274e0
+  - path: .dev/e2e-reflect/tl-1/work/glossary.md                       # T02.02 deliverable (D-0004)
+    sha256: 1b738a49b29a22610ed4483fc56f0307e9bf80b3f1c11c78f4861f8444382463
+  - path: .dev/e2e-reflect/live-tl/bundle/artifacts/D-0003/evidence.md # D-0003 evidence (present, live path)
+    sha256: 0b10f7006f0e2b2651f3440044588f68b766cf7306460b43668e0e4866699c46
+  - path: .dev/e2e-reflect/live-tl/bundle/artifacts/D-0004/evidence.md # D-0004 evidence (present, live path)
+    sha256: afcbed39c152515ece0c68f7d3566d81ac04cdafa6fb2f752cca8539ac1aafb7
+  - path: .dev/e2e-reflect/live-tl/bundle/checkpoints/CP-P02-END.md    # T02.03 checkpoint (status PASS)
+    sha256: 28be30cad763599ca8763f0eac88c238c4e33e673db9e23c99ba3aa2272956a0
+# Note: unlike Phase 1 (where the canonical live D-0002 evidence was ABSENT — DV-01),
+# BOTH D-0003 and D-0004 evidence files are present at the canonical live path. The
+# Phase-1 [COMPLETION]-step Drift did NOT recur in Phase 2.

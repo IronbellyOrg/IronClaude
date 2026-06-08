@@ -552,6 +552,17 @@ class PrdExecutor:
                 self._step_results.append(step_result)
                 result.step_results.append(step_result)
 
+                # Deterministically bind --spec FILES into parsed-request.json
+                # right after parse-request persists it and before
+                # scope-discovery (the next iteration) reads it. This is the
+                # one chokepoint the LLM cannot evict (R3).
+                if (
+                    step_id == "parse-request"
+                    and step_result.status.is_success
+                    and self._config.spec_files
+                ):
+                    self._persist_bound_specs()
+
                 # STRICT gate failure halts pipeline
                 if step_result.status.is_failure:
                     gate = GATE_CRITERIA.get(step_id)
@@ -722,6 +733,12 @@ class PrdExecutor:
                 else:
                     status = PrdStepStatus.VALIDATION_FAIL
                 self._tui.update_step(step_id, gate_state="FAIL")
+                # R5: make silent degradation loud. When authoritative --spec
+                # files were bound but scope-discovery still fails its
+                # (non-fatal) STANDARD gate, the run is continuing on a thin
+                # foundation despite the operator naming specs. Surface it.
+                if step_id == "scope-discovery" and self._bound_spec_paths():
+                    self._warn_spec_degradation()
             else:
                 self._tui.update_step(step_id, gate_state="PASS")
 
@@ -1266,6 +1283,124 @@ class PrdExecutor:
                 duration_seconds=0,
                 exit_code=-1,
             )
+
+    # -------------------------------------------------------------------
+    # Spec binding (--spec FILE deterministic ingestion)
+    # -------------------------------------------------------------------
+
+    def _bind_specs(self, parsed: dict) -> dict:
+        """Force authoritative ``--spec`` files into a parsed-request dict.
+
+        Deterministic, pure-Python, post-LLM, pre-consumer. Adds a Python-owned
+        ``SPECS`` array (objects: ``path``, ``size``, ``inlined``,
+        ``truncated``) and prepends each spec's parent directory into the
+        existing ``WHERE`` array so downstream scope-discovery/investigation
+        steps cannot evict the operator's authoritative inputs.
+
+        Idempotent: re-binding produces an identical ``SPECS`` array and never
+        duplicates ``WHERE`` entries. No-op (returns *parsed* unchanged) when no
+        ``spec_files`` are configured. Mutates and returns *parsed*.
+        """
+        spec_files = list(self._config.spec_files or [])
+        if not spec_files:
+            return parsed
+
+        # Dedup duplicate --spec values (order-preserving): identical inputs must
+        # not produce duplicate SPECS entries / repeated --file attachments.
+        _seen: set[str] = set()
+        _deduped: list[str] = []
+        for sp in spec_files:
+            key = str(Path(sp))
+            if key not in _seen:
+                _seen.add(key)
+                _deduped.append(sp)
+        spec_files = _deduped
+
+        specs: list[dict] = []
+        parent_dirs: list[str] = []
+        for sp in spec_files:
+            p = Path(sp)
+            try:
+                size = p.stat().st_size
+            except OSError:
+                size = 0
+            specs.append(
+                {
+                    "path": str(p),
+                    "size": size,
+                    "inlined": False,  # Phase 1: paths-only binding
+                    "truncated": False,
+                }
+            )
+            parent = str(p.parent)
+            if parent not in parent_dirs:
+                parent_dirs.append(parent)
+
+        existing_where = list(parsed.get("WHERE") or [])
+        # Prepend spec parent dirs (dedup, order-preserving, idempotent).
+        merged_where: list[str] = []
+        for d in parent_dirs:
+            if d not in existing_where and d not in merged_where:
+                merged_where.append(d)
+        merged_where.extend(existing_where)
+
+        parsed["SPECS"] = specs
+        parsed["WHERE"] = merged_where
+        return parsed
+
+    def _persist_bound_specs(self) -> None:
+        """Read parsed-request.json, bind specs, and re-persist.
+
+        Called from the Stage-A loop after parse-request persists the artifact
+        and before scope-discovery reads it. Fails soft: a missing/corrupt
+        artifact or write error leaves the pipeline running on the LLM's
+        original WHERE (degraded, but not crashed).
+        """
+        parsed_path = self._config.task_dir / "parsed-request.json"
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return
+        bound = self._bind_specs(parsed)
+        try:
+            parsed_path.write_text(json.dumps(bound, indent=2) + "\n", encoding="utf-8")
+        except OSError:
+            return
+
+    def _warn_spec_degradation(self) -> None:
+        """Loudly warn when bound specs did not lift scope-discovery past its gate.
+
+        R5: the scope-discovery gate is intentionally STANDARD (non-fatal), so a
+        thin scope doc would otherwise let the run continue silently on a weak
+        foundation even though the operator named authoritative specs. Surface
+        it to stderr and the run log.
+        """
+        import click
+
+        specs = ", ".join(self._bound_spec_paths())
+        message = (
+            "WARNING: scope-discovery failed its quality gate even though "
+            f"authoritative --spec files were provided ({specs}). The pipeline "
+            "is continuing on a thin foundation; verify the agent actually read "
+            "each spec in full."
+        )
+        click.echo(message, err=True)
+        self._logger.log_gate_result("scope-discovery", False, message)
+
+    def _bound_spec_paths(self) -> list[str]:
+        """Authoritative spec paths for this run: from config, else from the
+        persisted SPECS array in parsed-request.json. On `prd resume`, --spec is
+        not re-passed, so config.spec_files is empty even though the original run
+        bound SPECS; reading the persisted array makes R5 fire on any run path."""
+        if self._config.spec_files:
+            return list(self._config.spec_files)
+        parsed_path = self._config.task_dir / "parsed-request.json"
+        try:
+            parsed = json.loads(parsed_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        specs = parsed.get("SPECS") or []
+        return [s["path"] for s in specs if isinstance(s, dict) and s.get("path")]
 
     @staticmethod
     def _estimate_turns(step_id: str) -> int:

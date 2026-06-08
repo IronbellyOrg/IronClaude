@@ -1,0 +1,62 @@
+# Deviation ledger (§10 4-category taxonomy) — Phase 1 post-execution audit
+# Categories: authorized | necessary | drift | regression
+# Precedence (§10.5): Regression > Drift > Necessary > Authorized
+deviations:
+  - id: DV-01
+    task_id: T01.02
+    deviation_class: drift
+    title: "T01.02 [COMPLETION] step skipped — canonical D-0002 evidence never written"
+    expected: >-
+      Step 6 [COMPLETION] of T01.02 + Acceptance Criterion 4 require evidence at
+      .dev/e2e-reflect/live-tl/bundle/artifacts/D-0002/evidence.md
+      (mirroring the D-0001 evidence the T01.01 executor wrote correctly).
+    actual: >-
+      The live target artifacts/D-0002/ directory does not exist. The only D-0002
+      evidence on disk is the Jun-4 seed fixture at
+      .dev/e2e-reflect/tl-1/bundle/artifacts/D-0002/evidence.md (stale seed tree,
+      NOT the canonical TASKLIST_ROOT=.dev/e2e-reflect/live-tl/bundle target).
+    signals_matched:
+      - "Diff/deliverable maps to tasklist item, but a required step produced no artifact (unmapped completion)"
+      - "No commit-body rationale, no inline NOTE/TODO/FIXME, no task-log entry explaining the omission"
+      - "Does NOT contradict any acceptance criterion of the DELIVERABLE (glossary.md is correct: 3 terms, deterministic)"
+      - "Handoff phase-1-task-T01.02 reported status:pass / exit 0 with the COMPLETION step silently un-run"
+    gold_standard_ref:
+      - "phase-1-tasklist.md:96 (Step 6 [COMPLETION] record evidence under …/D-0002/evidence.md)"
+      - "phase-1-tasklist.md:103 (Acceptance Criterion 4: evidence path records the verification)"
+      - "CP-P01-END.md V3 / E2 (checkpoint independently caught the same gap)"
+    evidence: "live bundle artifacts/ contains only D-0001/ (verified via find); D-0002 absent at live path"
+    why_not_regression: >-
+      Nothing was contradicted or broken — the deliverable glossary.md satisfies all its
+      content criteria and no previously-passing test fails. This is a silent INCOMPLETION
+      (work not done), not a violation of a documented commitment → Drift, not Regression.
+    remediation: "Authorize-or-revert decision required (§10.3). --remediate offers a Tier-3 task to write the missing D-0002 evidence."
+    decision_required: authorize-or-backfill
+
+  - id: DV-02
+    task_id: T01.03
+    deviation_class: necessary
+    title: "Checkpoint emitted status:FAIL against its own status:PASS acceptance criterion (correct, forced, documented)"
+    expected: >-
+      T01.03 Acceptance Criterion 1 literally requires CP-P01-END.md to contain `status: PASS`.
+    actual: >-
+      CP-P01-END.md contains `status: FAIL` (gate BLOCK) because upstream V3 (D-0001 AND D-0002
+      evidence recorded) is unmet due to DV-01.
+    signals_matched:
+      - "Divergence forced by a constraint discovered during execution (missing D-0002 evidence)"
+      - "Documented inline with explicit rationale (the checkpoint report's Root cause + Gate decision sections)"
+      - "Does NOT contradict the checkpoint's PURPOSE ('verify Phase 1 scaffold artifacts') — reporting PASS would be a falsehood"
+    gold_standard_ref:
+      - "phase-1-tasklist.md:158 (AC1: file exists and contains status: PASS)"
+      - "phase-1-tasklist.md:136 (Purpose: verify Phase 1 scaffold artifacts before post-execution reflection)"
+      - "CP-P01-END.md (Root cause + Gate decision: FAIL->BLOCK rationale documented inline)"
+    evidence: "CP-P01-END.md:3 (status: FAIL); checkpoint is read-only and correctly refused to write missing D-0002 evidence"
+    why_necessary_not_drift: >-
+      The deviation from the optimistic `status: PASS` criterion is forced by on-disk reality and
+      is documented with full rationale inline → §10.2 Necessary, not §10.3 Drift. The checkpoint
+      behaved exactly as designed: surface the upstream gap rather than mask it.
+    remediation: "Documentation note — the checkpoint's AC should read 'accurately reports PASS/FAIL', not 'must contain status: PASS'. No revert."
+    decision_required: none
+
+# Non-deviations (recorded for completeness):
+# - T01.01: all 4 acceptance criteria met; D-0001 evidence written to the correct live path. deviation_class: none.
+# - T01.02 deliverable glossary.md: content criteria fully met (Alpha/Beta/Gamma, deterministic). The only gap is the evidence step (DV-01).

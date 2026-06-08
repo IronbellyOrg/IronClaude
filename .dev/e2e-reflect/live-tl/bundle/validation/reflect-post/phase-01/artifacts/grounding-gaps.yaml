@@ -1,0 +1,4 @@
+# Grounding gaps (§10.6) — evidence-insufficient findings that could not be classified.
+# Phase 1: every divergence was classifiable with sufficient on-disk evidence (see deviation-ledger.yaml).
+# This file parses to a zero-element list → "empty" per the §14.5.2 canonical definition.
+findings: []
