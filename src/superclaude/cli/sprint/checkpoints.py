@@ -493,26 +493,53 @@ def _discover_phase_artifacts(artifacts_dir: Path, phase_number: int) -> list[Pa
     return sorted(matches)
 
 
+# Executor gate substrings (executor._check_checkpoint_pass does a case-insensitive
+# substring match for these on the report body). A recovered/re-stamped report's
+# verdict is ALWAYS UNKNOWN, but the renderer interpolates caller-supplied fields
+# (entry.name, the tasklist verification block, evidence paths) verbatim — so a
+# tasklist whose verification prose literally contains one of these tokens could
+# make an UNKNOWN report read as PASS at the gate (the DEV-2 regression). This
+# matcher neutralizes the exact gate substrings in interpolated text.
+_GATE_PASS_TOKEN_RE = re.compile(r"(STATUS|\*\*RESULT\*\*):(\s*)PASS", re.IGNORECASE)
+
+
+def _neutralize_gate_tokens(text: str) -> str:
+    """Break the executor gate substrings ``STATUS: PASS`` / ``**RESULT**: PASS``
+    (case-insensitive) by inserting a space before the colon, so the exact gate
+    substring no longer survives in ``body.upper()`` while the text stays human
+    readable (e.g. ``STATUS: PASS`` -> ``STATUS : PASS``). Idempotent: already
+    neutralized text (with the space before the colon) no longer matches.
+    """
+    return _GATE_PASS_TOKEN_RE.sub(lambda m: f"{m.group(1)} :{m.group(2)}PASS", text)
+
+
 def _render_recovered_checkpoint(
     *,
     entry: CheckpointEntry,
     verification_block: str,
     evidence: list[Path],
 ) -> str:
-    """Build the body of an auto-recovered checkpoint report."""
+    """Build the body of an auto-recovered checkpoint report.
+
+    All caller-supplied interpolated fields (``entry.name``, the verification
+    block, evidence paths) are passed through :func:`_neutralize_gate_tokens` so
+    a verbatim ``STATUS: PASS`` / ``**RESULT**: PASS`` in tasklist prose can never
+    make this UNKNOWN report read as PASS at ``_check_checkpoint_pass`` (DEV-2).
+    """
     timestamp = datetime.now(timezone.utc).isoformat()
+    safe_name = _neutralize_gate_tokens(entry.name)
     evidence_lines = (
-        "\n".join(f"- `{p}`" for p in evidence)
+        "\n".join(f"- `{_neutralize_gate_tokens(str(p))}`" for p in evidence)
         if evidence
         else "- _(no matching artifacts discovered under artifacts_dir)_"
     )
-    verification_section = (
+    verification_section = _neutralize_gate_tokens(
         verification_block
         or "_(no verification block found in the originating tasklist)_"
     )
-    return (
+    body = (
         "---\n"
-        f"checkpoint: {entry.name}\n"
+        f"checkpoint: {safe_name}\n"
         f"phase: {entry.phase}\n"
         "recovered: true\n"
         f"generated_at: {timestamp}\n"
@@ -523,7 +550,7 @@ def _render_recovered_checkpoint(
         "`recover_missing_checkpoints()` from the artifacts produced during\n"
         "the phase. Treat the status below as provisional — the original\n"
         "real-time verification did not occur.\n\n"
-        f"## Checkpoint: {entry.name}\n\n"
+        f"## Checkpoint: {safe_name}\n\n"
         f"- **Phase:** {entry.phase}\n"
         f"- **Expected report path:** `{entry.expected_path}`\n\n"
         "## Verification Criteria (copied from tasklist)\n\n"
@@ -535,3 +562,6 @@ def _render_recovered_checkpoint(
         "manually inspect the evidence artifacts listed above to confirm the\n"
         "acceptance criteria were met.\n"
     )
+    # Belt-and-suspenders: guarantee the assembled body carries neither gate
+    # token regardless of how any field was constructed (idempotent re-pass).
+    return _neutralize_gate_tokens(body)

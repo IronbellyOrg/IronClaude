@@ -1325,6 +1325,35 @@ def _mirror_checkpoint_to_release_dir(config: SprintConfig, phase: int) -> None:
         click.echo(f"checkpoint mirror failed: {exc}")
 
 
+def _primary_checkpoint_rerun_argv(
+    config: SprintConfig, phase: int, checkpoint_tid: str
+) -> list[str]:
+    """Build the argv for the PRIMARY post-merge checkpoint re-run subprocess.
+
+    The nested ``rerun-tasks`` command declares a REQUIRED ``INDEX_PATH``
+    positional (``commands.py`` ``@click.argument("index_path", ...)``). Omitting
+    it makes the subprocess exit 2 ("Missing argument 'INDEX_PATH'"), which
+    ``check=False`` would swallow — so PRIMARY would re-run nothing and write no
+    fresh verdict (the DEV-1 regression). ``config.index_path`` is the absolute
+    resolved index (set in ``load_sprint_config``), so it is cwd-independent and
+    is exactly the positional the command needs. Extracted to a helper so the
+    argv shape is unit-testable via the real Click command.
+    """
+    return [
+        "uv",
+        "run",
+        "superclaude",
+        "sprint",
+        "rerun-tasks",
+        str(config.index_path),
+        "--phase",
+        str(phase),
+        "--tasks",
+        checkpoint_tid,
+        "--no-verify-checkpoints",
+    ]
+
+
 def run_rerun_tasks(
     config: SprintConfig,
     *,
@@ -1613,21 +1642,19 @@ def run_rerun_tasks(
                     release_recovery_lock(lock_path)
                     lock_path = None
                 try:
-                    subprocess.run(
-                        [
-                            "uv",
-                            "run",
-                            "superclaude",
-                            "sprint",
-                            "rerun-tasks",
-                            "--phase",
-                            str(phase),
-                            "--tasks",
-                            checkpoint_tid,
-                            "--no-verify-checkpoints",
-                        ],
+                    _primary_result = subprocess.run(
+                        _primary_checkpoint_rerun_argv(config, phase, checkpoint_tid),
                         check=False,
                     )
+                    # Surface a non-zero PRIMARY re-run loudly (keep check=False so a
+                    # genuine checkpoint re-failure propagates as a FAIL gate rather
+                    # than raising) — a silently-failed re-run is the DEV-1 trap.
+                    if _primary_result.returncode != 0:
+                        click.echo(
+                            f"Post-merge checkpoint re-run for {checkpoint_tid} "
+                            f"(phase {phase}) exited {_primary_result.returncode}; "
+                            f"the end-of-phase verdict was not refreshed."
+                        )
                 except OSError as exc:
                     click.echo(f"checkpoint re-run invocation failed: {exc}")
                 # Path-asymmetry guard: land the regenerated report where

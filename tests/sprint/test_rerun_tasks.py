@@ -597,3 +597,67 @@ class TestRerunTargetsPassed:
             encoding="utf-8",
         )
         assert _rerun_targets_passed(result_path, ["T07.11"]) is False
+
+
+class TestPrimaryCheckpointRerunArgv:
+    """DEV-1 (Regression, HIGH) — the PRIMARY post-merge checkpoint re-run argv
+    MUST carry the required ``INDEX_PATH`` positional. On the base commit the
+    inline argv omitted it, so the nested ``rerun-tasks`` exited 2 ('Missing
+    argument INDEX_PATH'), was swallowed by ``check=False``, and PRIMARY re-ran
+    nothing. These tests pin the argv shape via the ``_primary_checkpoint_rerun_argv``
+    helper and assert it parses through the real Click command (no exit-2 usage
+    error)."""
+
+    def _config(self, tmp_path: Path):
+        index = tmp_path / "tasklist-index.md"
+        index.write_text("# index\n", encoding="utf-8")
+        release = tmp_path
+        return SprintConfig(
+            index_path=index,
+            release_dir=release,
+            phases=[Phase(number=1, file=index, name="Phase 1")],
+        )
+
+    def test_primary_argv_includes_index_path_positional(self, tmp_path: Path):
+        from superclaude.cli.sprint.rerun_tasks import _primary_checkpoint_rerun_argv
+
+        config = self._config(tmp_path)
+        argv = _primary_checkpoint_rerun_argv(config, 1, "T01.05")
+        # Prefix is the uv-run wrapper; the Click command sees everything after it.
+        assert argv[:5] == ["uv", "run", "superclaude", "sprint", "rerun-tasks"]
+        # The required INDEX_PATH positional must be the first arg to the command,
+        # and must be the resolved absolute index path.
+        assert argv[5] == str(config.index_path)
+        assert (
+            "--phase" in argv
+            and "--tasks" in argv
+            and "--no-verify-checkpoints" in argv
+        )
+
+    def test_primary_argv_parses_through_click_command(self, tmp_path: Path):
+        from click.testing import CliRunner
+
+        from superclaude.cli.sprint.commands import rerun_tasks as rerun_tasks_cmd
+        from superclaude.cli.sprint.rerun_tasks import _primary_checkpoint_rerun_argv
+
+        config = self._config(tmp_path)
+        argv = _primary_checkpoint_rerun_argv(config, 1, "T01.05")
+        cmd_args = argv[5:]  # strip the "uv run superclaude sprint rerun-tasks" prefix
+        result = CliRunner().invoke(rerun_tasks_cmd, cmd_args)
+        # DEV-1: the fixed argv must NOT trip the missing-positional usage error.
+        assert "Missing argument 'INDEX_PATH'" not in result.output
+        # Click usage errors exit 2; a parsed command exits 0/1 (runtime), never 2.
+        assert result.exit_code != 2
+
+    def test_base_argv_without_positional_is_rejected(self, tmp_path: Path):
+        """Control: the pre-fix argv shape (no INDEX_PATH positional) IS rejected
+        by the real command with exit-2 'Missing argument' — documenting the
+        exact DEV-1 mechanism the fix closes."""
+        from click.testing import CliRunner
+
+        from superclaude.cli.sprint.commands import rerun_tasks as rerun_tasks_cmd
+
+        base_args = ["--phase", "1", "--tasks", "T01.05", "--no-verify-checkpoints"]
+        result = CliRunner().invoke(rerun_tasks_cmd, base_args)
+        assert result.exit_code == 2
+        assert "Missing argument 'INDEX_PATH'" in result.output

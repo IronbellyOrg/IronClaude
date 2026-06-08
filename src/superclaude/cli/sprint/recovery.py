@@ -578,9 +578,12 @@ def merge_recovery_bundle(
                         rel_dest = Path(*parts[idx:])
                         break
                 canonical_dest = canonical_root / rel_dest
-                landed = (
-                    canonical_dest.is_file() and canonical_dest.stat().st_size > 0
-                ) or (declared.is_file() and declared.stat().st_size > 0)
+                # Verify the CANONICAL mirror ONLY. A cwd-resolved declared path
+                # that is NOT the canonical destination must never count as
+                # landed — otherwise a stale/pre-existing non-canonical file
+                # masks a deliverable that relocation never landed in canonical
+                # (the DEV-3 silent-SUCCESS hole).
+                landed = canonical_dest.is_file() and canonical_dest.stat().st_size > 0
                 if not landed:
                     failures.append(f"deliverable-not-landed:{task_id}:{rel_dest}")
 
