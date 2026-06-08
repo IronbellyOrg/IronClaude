@@ -229,15 +229,11 @@ class PreflightError(Exception):
         env_missing_contract_path: Optional[str] = None,
     ) -> None:
         if not failures:
-            raise ValueError(
-                "PreflightError requires at least one failure"
-            )
+            raise ValueError("PreflightError requires at least one failure")
         self.failures: list[PreflightFailure] = list(failures)
         self.env_missing_contract_path: Optional[str] = env_missing_contract_path
         rules = ", ".join(f.rule for f in failures)
-        super().__init__(
-            f"Preflight failed {len(failures)} rule(s): {rules}"
-        )
+        super().__init__(f"Preflight failed {len(failures)} rule(s): {rules}")
 
 
 @dataclass
@@ -325,9 +321,7 @@ def resolve_lens(name: str) -> LensEntry:
     return _lens_resolver(name)
 
 
-def materialize_lens_defaults(
-    job: JobSpec, lens_entry: LensEntry
-) -> ResolvedLensEntry:
+def materialize_lens_defaults(job: JobSpec, lens_entry: LensEntry) -> ResolvedLensEntry:
     """Capture the resolved-lens snapshot for the manifest.
 
     T02.02 scope: produce the immutable :class:`ResolvedLensEntry`
@@ -530,10 +524,7 @@ def expand_lens_defaults(
         spec.workers.count = lens_entry.default_workers
 
     # --- Target truncation (line_cap overridable per §4.2) --------------
-    if (
-        spec.target.truncation.line_cap <= 0
-        or spec.target.truncation.line_cap == 4000
-    ):
+    if spec.target.truncation.line_cap <= 0 or spec.target.truncation.line_cap == 4000:
         spec.target.truncation.line_cap = lens_entry.default_target_line_cap
 
     # --- Output block (filename_template + lens_name) --------------------
@@ -758,9 +749,7 @@ def read_custom_prompt_dir(
                 PreflightFailure(
                     rule=RULE_CUSTOM_PROMPT_DIR_MISSING,
                     path="custom_prompt_dir",
-                    message=(
-                        f"custom_prompt_dir is not a directory: {str(base)!r}."
-                    ),
+                    message=(f"custom_prompt_dir is not a directory: {str(base)!r}."),
                     reason="custom-prompt-dir-missing",
                 )
             ]
@@ -789,8 +778,7 @@ def read_custom_prompt_dir(
                     rule=RULE_CUSTOM_PROMPT_DIR_MISSING,
                     path=f"custom_prompt_dir/{filename}",
                     message=(
-                        f"{filename} under custom_prompt_dir is unreadable: "
-                        f"{exc}."
+                        f"{filename} under custom_prompt_dir is unreadable: {exc}."
                     ),
                     reason="custom-prompt-dir-missing",
                 )
@@ -878,9 +866,7 @@ def _count_non_whitespace_bytes(payload: bytes) -> int:
     return sum(1 for byte in payload if byte not in whitespace)
 
 
-def _truncate_target(
-    target_bytes: bytes, line_cap: int
-) -> tuple[bytes, bool]:
+def _truncate_target(target_bytes: bytes, line_cap: int) -> tuple[bytes, bool]:
     """Truncate ``target_bytes`` to the first ``line_cap`` lines.
 
     Returns the (possibly-truncated) bytes and a ``was_truncated`` flag.
@@ -1108,9 +1094,9 @@ def emit_env_missing_contract(
             "kind": job.caller.kind,
         },
         "lens": job.lens,
-        "lens_source": "registry" if job.lens and job.lens != "custom" else (
-            "custom" if job.lens == "custom" else ""
-        ),
+        "lens_source": "registry"
+        if job.lens and job.lens != "custom"
+        else ("custom" if job.lens == "custom" else ""),
         "target": {
             "path": job.target.path,
             "checksum": "",
@@ -1137,9 +1123,7 @@ def emit_env_missing_contract(
 
     import yaml  # local import keeps the module-level import set tight
 
-    payload = yaml.safe_dump(
-        envelope, sort_keys=True, default_flow_style=False
-    )
+    payload = yaml.safe_dump(envelope, sort_keys=True, default_flow_style=False)
 
     target_path = confine_path(out / ENV_MISSING_CONTRACT_FILENAME, out)
     fd, tmp_name = tempfile.mkstemp(
@@ -1227,8 +1211,7 @@ def check_pool_size(
     """
     if policy not in ("warn", "stop"):
         raise ValueError(
-            f"check_pool_size: policy must be 'warn' or 'stop', got "
-            f"{policy!r}."
+            f"check_pool_size: policy must be 'warn' or 'stop', got {policy!r}."
         )
     if not workers_exceed_pool(workers_count, pool):
         return []
@@ -1407,6 +1390,7 @@ def emit_manifest(
     job_id: str = "",
     workers_requested: int = 0,
     contract_version: str = "1.0",
+    caller_metadata: Optional[CallerMetadata] = None,
 ) -> Path:
     """T06.05 / FR-016 -- atomic Wave-0 manifest emit.
 
@@ -1481,6 +1465,12 @@ def emit_manifest(
             target_checksum=target_checksum,
             workers_requested=workers_requested,
             transport_kind=transport_kind,
+        ),
+        # F-P2-2 -- stamp the resolved CallerMetadata when supplied; defaults
+        # to a fresh CallerMetadata() so existing callers that do not pass it
+        # get the same backward-compatible default the dataclass would.
+        caller_metadata=(
+            caller_metadata if caller_metadata is not None else CallerMetadata()
         ),
     )
     written = write_manifest(manifest, output_dir)
@@ -1567,6 +1557,73 @@ def _default_target_loader(path: str) -> bytes:
     return Path(path).read_bytes()
 
 
+_CUSTOM_LENS_NAME: str = "custom"
+"""FR-021 sentinel lens name that activates the custom-prompt-dir escape hatch.
+
+Mirrors ``schema.CUSTOM_LENS_NAME``; the schema cross-field rule rejects a
+non-empty ``custom_prompt_dir`` unless ``lens == 'custom'``, so this preflight
+read fires on exactly the spec shape the schema authorizes.
+"""
+
+
+def _apply_custom_prompt_dir(
+    spec_dict: dict[str, Any], *, auto_inject_guard: bool
+) -> None:
+    """F-P2-1 -- populate prompt fields from ``custom_prompt_dir`` in place.
+
+    When ``spec_dict["lens"] == "custom"`` and ``spec_dict["custom_prompt_dir"]``
+    is a non-empty string, read the FR-021 three-file directory via
+    :func:`read_custom_prompt_dir` and write the results onto
+    ``spec_dict["prompt"]`` (``system`` / ``user_template`` / ``variables``).
+
+    This runs BEFORE schema validation in :func:`run_preflight` so the §11.5
+    cross-field rule (``prompt.system`` must contain
+    ``target.injection_guard.required_substring``) validates the
+    directory-sourced system prompt rather than an empty placeholder -- the
+    directory is the source of truth for the custom escape hatch.
+
+    No-op for every non-custom spec or any spec without a ``custom_prompt_dir``.
+    Propagates the reader's structured :class:`PreflightError` on a missing
+    directory / missing file / invalid ``meta.yaml`` / §11.5 guard failure
+    (INV-003 / INV-014).
+    """
+    if not isinstance(spec_dict, dict):
+        return
+    if spec_dict.get("lens") != _CUSTOM_LENS_NAME:
+        return
+    custom_dir = spec_dict.get("custom_prompt_dir")
+    if not isinstance(custom_dir, str) or not custom_dir:
+        return
+
+    # §11.5 required substring, read defensively from the spec dict. An empty
+    # value disables the reader's guard check (the schema layer separately
+    # rejects an empty substring when the guard is enabled, so a real custom
+    # spec carries the canonical sentence here).
+    required_substring = ""
+    target = spec_dict.get("target")
+    if isinstance(target, dict):
+        guard = target.get("injection_guard")
+        if isinstance(guard, dict):
+            value = guard.get("required_substring")
+            if isinstance(value, str):
+                required_substring = value
+
+    system, user_template, meta = read_custom_prompt_dir(
+        custom_dir,
+        required_substring=required_substring,
+        auto_inject_guard=auto_inject_guard,
+    )
+
+    prompt = spec_dict.get("prompt")
+    if not isinstance(prompt, dict):
+        prompt = {}
+        spec_dict["prompt"] = prompt
+    prompt["system"] = system
+    prompt["user_template"] = user_template
+    variables = meta.get("variables", {})
+    prompt["variables"] = variables if isinstance(variables, dict) else {}
+
+
 # ---------------------------------------------------------------------------
 # run_preflight -- the Wave 0 entrypoint
 # ---------------------------------------------------------------------------
@@ -1580,6 +1637,7 @@ def run_preflight(
     output_dir: Optional[str | os.PathLike[str]] = None,
     pool_policy: PoolPolicy = DEFAULT_POOL_POLICY,
     caller_metadata_override: Optional[CallerMetadata] = None,
+    auto_inject_guard: bool = False,
 ) -> PreflightResult:
     """Execute Wave 0 against ``job_spec``; return :class:`PreflightResult`.
 
@@ -1622,9 +1680,27 @@ def run_preflight(
             entry; when supplied, every field on ``override`` wins
             field-by-field per :func:`resolve_caller_metadata`. See
             ``docs/swarm/oq-resolutions.md`` for the OQ-009 record.
+        auto_inject_guard: FR-021 / FR-024 -- forwarded to
+            :func:`read_custom_prompt_dir` on the ``lens == 'custom'``
+            escape-hatch path (F-P2-1). When ``True`` the canonical
+            §11.5 sentence is auto-prepended to a legacy ``system.txt``
+            that lacks it before the substring check fires. No effect on
+            the lens-driven / inline-prompt paths.
     """
-    # ----- Phase 1: schema validation (fatal on first batch) -------------
+    # ----- Phase 0: FR-021 custom-prompt-dir read (F-P2-1) ----------------
+    # When the spec uses the ``custom`` escape hatch with a
+    # ``custom_prompt_dir`` set, read ``system.txt`` / ``user.txt`` /
+    # ``meta.yaml`` from the directory and populate the prompt fields
+    # BEFORE schema validation, so the §11.5 cross-field rule
+    # (``prompt.system`` must contain the required substring) sees the
+    # real directory-sourced system prompt rather than an empty
+    # placeholder. The reader raises a structured :class:`PreflightError`
+    # for a missing directory / missing file / invalid meta / §11.5 guard
+    # failure (INV-003 / INV-014), which propagates verbatim.
     spec_dict = _coerce_dict(job_spec)
+    _apply_custom_prompt_dir(spec_dict, auto_inject_guard=auto_inject_guard)
+
+    # ----- Phase 1: schema validation (fatal on first batch) -------------
     try:
         schema.validate_or_raise(spec_dict)
     except SchemaValidationError as err:
@@ -1695,9 +1771,7 @@ def run_preflight(
             PreflightFailure(
                 rule=RULE_TARGET_UNREADABLE,
                 path="target.path",
-                message=(
-                    f"target.path is not readable: {exc.strerror or exc}."
-                ),
+                message=(f"target.path is not readable: {exc.strerror or exc}."),
                 reason="target-unreadable",
             )
         )
@@ -1734,9 +1808,7 @@ def run_preflight(
     pool_seq = list(pool) if pool is not None else list(job.workers.models)
     empty_pool_failures = check_empty_pool(pool_seq)
     failures.extend(empty_pool_failures)
-    if not empty_pool_failures and workers_exceed_pool(
-        job.workers.count, pool_seq
-    ):
+    if not empty_pool_failures and workers_exceed_pool(job.workers.count, pool_seq):
         # OQ-007 resolution branch. ``warn`` (V1, default) clamps the
         # JobSpec workers.count to the pool size and logs WARNING so
         # downstream phases (manifest emit, dispatch) see a coherent
@@ -1755,11 +1827,7 @@ def run_preflight(
                 job.job_id,
             )
         else:
-            failures.extend(
-                check_pool_size(
-                    job.workers.count, pool_seq, policy="stop"
-                )
-            )
+            failures.extend(check_pool_size(job.workers.count, pool_seq, policy="stop"))
 
     if failures:
         # INV-007 / OQ-008 -- when the empty-pool guard fired, attempt
@@ -1786,6 +1854,10 @@ def run_preflight(
             workers_requested=job.workers.count,
             transport_kind=job.transport.kind,
         ),
+        # F-P2-2 -- stamp the resolved CallerMetadata (lens default, or the
+        # OQ-009 caller override when supplied) so the value persists in
+        # manifest.json and survives executor restart / resume.
+        caller_metadata=resolved_caller_metadata,
     )
     state = SwarmState(
         state="preflight_ok",
@@ -1874,9 +1946,7 @@ def resume_mode(
 
     if force_relens:
         live_entry: LensEntry = resolve_lens(snapshot.name)
-        live_snapshot: ResolvedLensEntry = ResolvedLensEntry.from_lens(
-            live_entry
-        )
+        live_snapshot: ResolvedLensEntry = ResolvedLensEntry.from_lens(live_entry)
         return JobSpec(
             job_id=manifest.job_id,
             lens=live_snapshot.name,
@@ -1902,9 +1972,7 @@ def resume_mode(
             user_template=snapshot.user_template,
         ),
         normalization=NormalizationSpec(recipe=snapshot.recipe_name),
-        recommended_next_command_template=(
-            snapshot.recommended_next_command_template
-        ),
+        recommended_next_command_template=(snapshot.recommended_next_command_template),
     )
 
 

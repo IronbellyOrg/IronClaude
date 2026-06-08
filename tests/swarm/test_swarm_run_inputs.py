@@ -41,7 +41,6 @@ import pytest
 from click.testing import CliRunner
 
 from superclaude.cli.swarm.commands import (
-    EXIT_INVALID,
     EXIT_OK,
     EXIT_USAGE,
     _build_spec_from_lens,
@@ -53,7 +52,6 @@ from superclaude.cli.swarm.schema import (
     CURRENT_SPEC_VERSION,
     validate,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures -- minimal preflight-valid spec + on-disk target/output helpers
@@ -110,14 +108,18 @@ def _minimal_runnable_spec(tmp_path: Path) -> dict[str, Any]:
             },
         },
         "transport": {
-            "kind": "openai_compat",
+            # F-P3-1 -- the input-mode wiring tests use the deterministic,
+            # network-free ``stub`` transport so run_cmd's concrete-transport
+            # resolver (which replaced ``transport=None``) constructs without
+            # the live T2 proxy env contract. ``--transport openai_compat``
+            # override coverage is exercised separately with env set.
+            "kind": "stub",
             "base_url_env": "T2ProxyUrl",
             "api_key_env": "T2ProxyKey",
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -366,10 +368,19 @@ def test_lens_mode_dispatches_end_to_end(
 def test_lens_mode_transport_override_propagates(
     tmp_path: Path,
     fake_dispatch: dict[str, Any],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """AC: ``--transport openai_compat`` overrides the stub default."""
     target = _write_target(tmp_path)
     output_dir = tmp_path / "lens-out"
+
+    # F-P3-1 -- run_cmd now constructs the concrete openai_compat transport
+    # before dispatch, which reads the T2 proxy env contract (AC-017). Set a
+    # complete contract so the resolver succeeds and dispatch is reached; the
+    # assertion below still verifies the manifest carries the overridden kind.
+    monkeypatch.setenv("T2ProxyUrl", "https://proxy.example/v1")
+    monkeypatch.setenv("T2ProxyKey", "test-key-not-real")
+    monkeypatch.setenv("T2Model01", "gpt-5-codex")
 
     runner = CliRunner()
     result = runner.invoke(
@@ -386,8 +397,7 @@ def test_lens_mode_transport_override_propagates(
         ],
     )
     assert result.exit_code == EXIT_OK, (
-        f"transport override failed: exit={result.exit_code}\n"
-        f"stderr:\n{result.stderr}"
+        f"transport override failed: exit={result.exit_code}\nstderr:\n{result.stderr}"
     )
     pr = fake_dispatch["preflight_result"]
     assert pr.manifest.preflight.transport_kind == "openai_compat"
@@ -436,7 +446,9 @@ def test_three_modes_resolve_to_equivalent_jobspec(
 
     captures: list[Any] = []
 
-    def _record_dispatch(preflight_result: Any, transport: Any = None, **_: Any) -> list[Any]:
+    def _record_dispatch(
+        preflight_result: Any, transport: Any = None, **_: Any
+    ) -> list[Any]:
         captures.append(preflight_result)
         return []
 
@@ -514,9 +526,7 @@ def test_spec_path_plus_lens_exits_usage(tmp_path: Path) -> None:
 def test_stdin_plus_lens_exits_usage() -> None:
     """AC: --stdin + --lens -> :data:`EXIT_USAGE`."""
     runner = CliRunner()
-    result = runner.invoke(
-        run_cmd, ["--stdin", "--lens", "bare-review"], input="{}"
-    )
+    result = runner.invoke(run_cmd, ["--stdin", "--lens", "bare-review"], input="{}")
     assert result.exit_code == EXIT_USAGE
     assert "mutually exclusive" in result.stderr
 
@@ -531,7 +541,14 @@ def test_help_documents_all_three_input_modes() -> None:
     runner = CliRunner()
     result = runner.invoke(run_cmd, ["--help"])
     assert result.exit_code == 0
-    for token in ("SPEC_PATH", "--stdin", "--lens", "--target", "--output", "--transport"):
+    for token in (
+        "SPEC_PATH",
+        "--stdin",
+        "--lens",
+        "--target",
+        "--output",
+        "--transport",
+    ):
         assert token in result.output, f"--help missing {token!r}"
     # The lens-shortcut help string names FR-020 expansion explicitly so
     # operators learn it's a full-spec shortcut rather than a parsing

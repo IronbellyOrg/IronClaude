@@ -18,7 +18,7 @@ asserted in :func:`test_writers_invoke_confine_path` below.
 
 from __future__ import annotations
 
-import os
+import ast
 import sys
 from pathlib import Path
 
@@ -32,7 +32,6 @@ from superclaude.cli.swarm.state import (
     confine_path,
     write_state,
 )
-
 
 # ---------------------------------------------------------------------------
 # confine_path -- core guard semantics.
@@ -307,3 +306,140 @@ def test_state_module_exposes_confinement_symbols() -> None:
 
     assert "confine_path" in state_mod.__all__
     assert "OutputConfinementError" in state_mod.__all__
+
+
+# ---------------------------------------------------------------------------
+# F-P3-7 -- production CALL-SITE confinement (AST), not just substring.
+#
+# ``test_writers_invoke_confine_path`` above is substring-only: it passes
+# even if a production call site forgets ``output_dir=`` (so confinement is
+# silently skipped) or if a writer module merely mentions ``confine_path`` in
+# a comment. These AST checks assert the actual run / kill call sites in
+# ``commands.py`` pass ``output_dir=`` to ``write_state`` and ``Logger``, that
+# the env-missing / manifest writer FUNCTIONS in ``preflight.py`` actually
+# invoke ``confine_path`` inside their bodies, and the vacuity guards prove
+# the AST checker fails when the kwarg / call is dropped (so a regression
+# cannot pass silently).
+# ---------------------------------------------------------------------------
+
+
+_COMMANDS_PATH = "src/superclaude/cli/swarm/commands.py"
+_PREFLIGHT_PATH = "src/superclaude/cli/swarm/preflight.py"
+
+
+def _parse(relpath: str) -> ast.Module:
+    return ast.parse(Path(relpath).read_text(encoding="utf-8"))
+
+
+def _call_simple_name(call: ast.Call) -> str | None:
+    """The simple callee name for ``foo(...)`` or ``obj.foo(...)``."""
+    func = call.func
+    if isinstance(func, ast.Name):
+        return func.id
+    if isinstance(func, ast.Attribute):
+        return func.attr
+    return None
+
+
+def _calls_named(tree: ast.AST, names: set[str]) -> list[ast.Call]:
+    return [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call) and _call_simple_name(node) in names
+    ]
+
+
+def _has_kwarg(call: ast.Call, kw: str) -> bool:
+    return any(k.arg == kw for k in call.keywords)
+
+
+def _function_def(tree: ast.AST, name: str) -> ast.FunctionDef:
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == name:
+            return node
+    raise AssertionError(f"function {name!r} not found")
+
+
+def test_commands_write_state_callsites_pass_output_dir() -> None:
+    """F-P3-7: every ``write_state`` call in commands.py passes ``output_dir=``.
+
+    Covers the inline-run state transitions (via ``_write_swarm_state`` ->
+    ``_write_state``) and the kill path's two ``write_state`` calls. A call
+    site that omits ``output_dir`` would bypass confinement -- the exact gap
+    the substring-only test cannot see.
+    """
+    tree = _parse(_COMMANDS_PATH)
+    calls = _calls_named(tree, {"write_state", "_write_state"})
+    assert calls, "expected write_state call sites in commands.py"
+    offenders = [c.lineno for c in calls if not _has_kwarg(c, "output_dir")]
+    assert not offenders, (
+        "write_state call(s) in commands.py missing output_dir= "
+        f"(NFR-013 confinement bypass) at line(s) {offenders}"
+    )
+
+
+def test_commands_logger_construction_passes_output_dir() -> None:
+    """F-P3-7: the production ``Logger`` construction passes ``output_dir=``.
+
+    The run path builds the dual-format logger as ``_Logger(...)``; without
+    ``output_dir`` the logger skips the ``confine_path`` branch entirely
+    (the F-P3-6 gap). Assert the call site carries the kwarg.
+    """
+    tree = _parse(_COMMANDS_PATH)
+    calls = _calls_named(tree, {"Logger", "_Logger"})
+    assert calls, "expected a Logger construction in commands.py"
+    offenders = [c.lineno for c in calls if not _has_kwarg(c, "output_dir")]
+    assert not offenders, (
+        "Logger construction(s) in commands.py missing output_dir= "
+        f"(NFR-013 confinement bypass) at line(s) {offenders}"
+    )
+
+
+def test_preflight_writer_functions_invoke_confine_path() -> None:
+    """F-P3-7: the env-missing + manifest writer FUNCTIONS call confine_path.
+
+    Function-scoped (not module-substring): each writer's body must contain
+    a ``confine_path(...)`` call so the write is confined before the file is
+    materialised.
+    """
+    tree = _parse(_PREFLIGHT_PATH)
+    for fn_name in ("emit_env_missing_contract", "write_manifest"):
+        fn = _function_def(tree, fn_name)
+        confine_calls = _calls_named(fn, {"confine_path"})
+        assert confine_calls, (
+            f"{fn_name} must invoke confine_path inside its body "
+            "(NFR-013 / AC-014 writer confinement)"
+        )
+
+
+def test_callsite_ast_check_is_not_vacuous() -> None:
+    """F-P3-7 vacuity guard: the AST kwarg check detects a missing output_dir.
+
+    If this assertion ever inverted (a kwarg-less call reported as having the
+    kwarg), the call-site tests above would pass vacuously. Pin both polarities.
+    """
+    missing = _calls_named(ast.parse("write_state(p, s)\n"), {"write_state"})
+    assert missing and not _has_kwarg(missing[0], "output_dir"), (
+        "vacuity: a write_state(...) without output_dir must be detectable"
+    )
+    present = _calls_named(
+        ast.parse("write_state(p, s, output_dir=d)\n"), {"write_state"}
+    )
+    assert present and _has_kwarg(present[0], "output_dir"), (
+        "vacuity: a write_state(..., output_dir=d) must register the kwarg"
+    )
+
+
+def test_confine_path_callsite_ast_check_is_not_vacuous() -> None:
+    """F-P3-7 vacuity guard: the function-body confine_path check is real.
+
+    A function with no confine_path call must register zero confine_path
+    calls (so ``test_preflight_writer_functions_invoke_confine_path`` cannot
+    pass for a writer that dropped the guard).
+    """
+    no_guard = ast.parse("def w(p, out):\n    return open(p, 'w')\n")
+    assert not _calls_named(_function_def(no_guard, "w"), {"confine_path"})
+    with_guard = ast.parse(
+        "def w(p, out):\n    t = confine_path(p, out)\n    return t\n"
+    )
+    assert _calls_named(_function_def(with_guard, "w"), {"confine_path"})

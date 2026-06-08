@@ -90,8 +90,51 @@ FORBIDDEN_CALL_TARGETS: frozenset[tuple[str, str]] = frozenset(
 # Plain-text tokens that must not appear anywhere -- including
 # docstrings and comments -- because the retired script name has no
 # legitimate use even as documentation.
-FORBIDDEN_TEXT_TOKENS: tuple[str, ...] = (
-    "swarm_dispatch.sh",
+FORBIDDEN_TEXT_TOKENS: tuple[str, ...] = ("swarm_dispatch.sh",)
+
+# RW-2 / OQ-7.1 -- M7 detached-session lifecycle allow-list.
+#
+# INV-002 guards the swarm DISPATCH surface: the Wave-1 fan-out
+# (``dispatch.py``) and the transports (``transports/*.py``) must route
+# concurrency through ``ParallelExecutor`` + threaded ``httpx`` and must
+# NEVER shell out -- mixing Python lock-guarded JSONL appends with
+# shell-side PIPE_BUF-atomic appends reopens the dual-writer race.
+#
+# The M7 detached-run lifecycle is a different surface entirely. Per
+# AC-008 (``docs/swarm/runbook.md`` "tmux is Optional") the ``--detached``
+# mode manages a tmux session (create / attach / kill) so a long fan-out
+# survives caller exit. tmux is a process supervisor, not a dispatch
+# concurrency mechanism, so the tmux lifecycle wrapper is authorized to
+# use ``subprocess`` / ``shlex``. The scanner narrows accordingly:
+#
+#   * ``tmux.py``     -- the M7 tmux lifecycle wrapper. Exempt from BOTH
+#                        the import scan (it imports ``subprocess`` +
+#                        ``shlex``) and the call scan (it invokes
+#                        ``subprocess.run`` for session create/attach/kill).
+#   * ``commands.py`` -- the ``run`` command's ``_launch_detached_run``
+#                        delegates to ``tmux.launch_detached`` and imports
+#                        ``subprocess`` ONLY to reference
+#                        ``subprocess.CalledProcessError`` in an except
+#                        clause. It is exempt from the IMPORT scan only;
+#                        it remains STRICT under the CALL scan, so any real
+#                        ``subprocess.run(...)`` added to commands.py would
+#                        still be flagged.
+#
+# Everything else under the swarm package -- ``dispatch.py``,
+# ``transports/*.py``, ``state.py``, ``logging_.py``, ``preflight.py``,
+# ``reduce.py``, ``normalize.py``, ``models.py``, ``schema.py`` -- stays
+# under the strict guard.
+LIFECYCLE_IMPORT_ALLOWLIST: frozenset[str] = frozenset({"tmux.py", "commands.py"})
+LIFECYCLE_CALL_ALLOWLIST: frozenset[str] = frozenset({"tmux.py"})
+
+# Modules that MUST remain under the strict guard no matter what -- a
+# vacuity guard so a future over-broad allow-list cannot silently exempt
+# the dispatch/transport fan-out (the actual INV-002 surface).
+STRICT_DISPATCH_SURFACES: tuple[str, ...] = (
+    "dispatch.py",
+    "transports/openai_compat.py",
+    "transports/stub.py",
+    "transports/__init__.py",
 )
 
 # This test file documents the rule by naming the forbidden tokens; it
@@ -106,9 +149,7 @@ def _iter_swarm_py_sources() -> list[Path]:
     return [
         p
         for p in SWARM_DIR.rglob("*.py")
-        if p.is_file()
-        and "__pycache__" not in p.parts
-        and p.resolve() != SELF_PATH
+        if p.is_file() and "__pycache__" not in p.parts and p.resolve() != SELF_PATH
     ]
 
 
@@ -213,8 +254,7 @@ def test_no_shell_scripts_in_swarm_package() -> None:
     )
     assert not shell_files, (
         "INV-002 violation: shell scripts present in swarm package "
-        "(dispatch must be Python-only):\n  "
-        + "\n  ".join(str(p) for p in shell_files)
+        "(dispatch must be Python-only):\n  " + "\n  ".join(str(p) for p in shell_files)
     )
 
 
@@ -229,9 +269,16 @@ def test_no_subprocess_or_shell_imports_in_swarm_sources() -> None:
     """
     offenders: list[str] = []
     for source in _iter_swarm_py_sources():
+        # RW-2 / OQ-7.1 -- skip the M7 lifecycle surfaces authorized to
+        # import the process-management family (tmux wrapper + the
+        # detached-launch delegation in commands.py).
+        if source.name in LIFECYCLE_IMPORT_ALLOWLIST:
+            continue
         import_hits, _ = _scan_module(source)
         for lineno, name in import_hits:
-            offenders.append(f"  {source.relative_to(REPO_ROOT)}:{lineno}: import {name}")
+            offenders.append(
+                f"  {source.relative_to(REPO_ROOT)}:{lineno}: import {name}"
+            )
     assert not offenders, (
         "INV-002 violation: shell-dispatch module imported in swarm sources. "
         "Concurrency must route through ParallelExecutor + httpx only:\n"
@@ -248,13 +295,20 @@ def test_no_shell_dispatch_calls_in_swarm_sources() -> None:
     """
     offenders: list[str] = []
     for source in _iter_swarm_py_sources():
+        # RW-2 / OQ-7.1 -- skip ONLY the tmux lifecycle wrapper (it invokes
+        # subprocess.run for session create/attach/kill). commands.py is
+        # deliberately NOT call-exempt: it delegates to tmux and never calls
+        # subprocess itself, so the strict call guard still applies to it.
+        if source.name in LIFECYCLE_CALL_ALLOWLIST:
+            continue
         _, call_hits = _scan_module(source)
         for lineno, target in call_hits:
-            offenders.append(f"  {source.relative_to(REPO_ROOT)}:{lineno}: {target}(...)")
+            offenders.append(
+                f"  {source.relative_to(REPO_ROOT)}:{lineno}: {target}(...)"
+            )
     assert not offenders, (
         "INV-002 violation: shell-dispatch call detected in swarm sources. "
-        "Dispatch must go through ParallelExecutor + httpx:\n"
-        + "\n".join(offenders)
+        "Dispatch must go through ParallelExecutor + httpx:\n" + "\n".join(offenders)
     )
 
 
@@ -361,9 +415,7 @@ def test_audit_detects_mutation_retired_token() -> None:
     regression in the substring check would not silently green the
     suite.
     """
-    synthetic = (
-        "module docstring mentioning swarm_dispatch.sh as a regression\n"
-    )
+    synthetic = "module docstring mentioning swarm_dispatch.sh as a regression\n"
     hits = [
         lineno
         for lineno, line in enumerate(synthetic.splitlines(), start=1)
@@ -394,4 +446,51 @@ def test_forbidden_sets_are_nonempty() -> None:
     assert FORBIDDEN_TEXT_TOKENS, (
         "FORBIDDEN_TEXT_TOKENS must include retired script names; "
         "an empty tuple would render the token audit a no-op."
+    )
+
+
+def test_dispatch_and_transport_surfaces_are_never_allowlisted() -> None:
+    """RW-2 vacuity guard: the M3 dispatch/transport surfaces stay strict.
+
+    The RW-2 narrowing exempts only the M7 tmux lifecycle surfaces
+    (``tmux.py`` from both scans; ``commands.py`` from the import scan).
+    This guard makes loud any future over-broad allow-list that would
+    silently exempt the actual INV-002 dispatch surface -- ``dispatch.py``
+    and the transports must NEVER appear in either allow-list, so a real
+    shell-out regression there is always caught.
+    """
+    for surface in STRICT_DISPATCH_SURFACES:
+        basename = surface.rsplit("/", 1)[-1]
+        assert basename not in LIFECYCLE_IMPORT_ALLOWLIST, (
+            f"INV-002 regression risk: {surface} is in the import allow-list; "
+            "the dispatch/transport fan-out must stay under the strict guard."
+        )
+        assert basename not in LIFECYCLE_CALL_ALLOWLIST, (
+            f"INV-002 regression risk: {surface} is in the call allow-list; "
+            "the dispatch/transport fan-out must stay under the strict guard."
+        )
+    # The strict surfaces must actually exist and be scanned (not silently
+    # absent), so the guard is not vacuous.
+    scanned = {str(p.relative_to(SWARM_DIR)) for p in _iter_swarm_py_sources()}
+    for surface in STRICT_DISPATCH_SURFACES:
+        assert surface in scanned, (
+            f"INV-002 audit cannot see {surface}; the dispatch/transport "
+            "surface must be present in the scan set."
+        )
+
+
+def test_lifecycle_allowlist_is_minimal() -> None:
+    """RW-2: the lifecycle allow-list contains only the authorized surfaces.
+
+    Guards against allow-list creep -- only the tmux wrapper and the
+    detached-launch delegation in commands.py are authorized to touch the
+    process-management family (AC-008 detached mode).
+    """
+    assert LIFECYCLE_IMPORT_ALLOWLIST == frozenset({"tmux.py", "commands.py"}), (
+        "RW-2 import allow-list drifted; only tmux.py (M7 lifecycle) and "
+        "commands.py (detached-launch delegation) are authorized."
+    )
+    assert LIFECYCLE_CALL_ALLOWLIST == frozenset({"tmux.py"}), (
+        "RW-2 call allow-list drifted; only tmux.py may invoke subprocess "
+        "(commands.py delegates to it and must stay call-strict)."
     )

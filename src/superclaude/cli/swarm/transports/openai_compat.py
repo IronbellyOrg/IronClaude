@@ -103,7 +103,6 @@ from superclaude.cli.swarm.config import (
 )
 from superclaude.cli.swarm.models import WorkerResult
 
-
 __all__ = [
     "OpenAICompatTransport",
     "TransportConfig",
@@ -334,6 +333,25 @@ class OpenAICompatTransport:
                 http_code=None,
                 elapsed_ms=elapsed_ms,
                 body="",
+            )
+        except httpx.RequestError as exc:
+            # F-P3-5 -- non-timeout transport / network failures (connection
+            # refused, DNS failure, read error, protocol error, ...) must NOT
+            # escape ``send`` and lose model identity. If they propagated, the
+            # dispatch ``except Exception`` fallback (dispatch.py:180-187)
+            # builds a bare ``proxy_error`` WorkerResult with no ``model_id`` /
+            # ``model_label`` -- so the failed slot could not be attributed to
+            # the model that produced it. Routing through ``_build_result``
+            # here preserves this transport's model identity. ``http_code`` is
+            # None because no HTTP response was received. ``httpx.TimeoutException``
+            # is a ``RequestError`` subclass but is handled above, so this
+            # branch is the "other network/transport" bucket only.
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            return self._build_result(
+                status="proxy_error",
+                http_code=None,
+                elapsed_ms=elapsed_ms,
+                body=str(exc),
             )
 
         elapsed_ms = int((time.monotonic() - start) * 1000)

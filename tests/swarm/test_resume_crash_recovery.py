@@ -320,9 +320,7 @@ def test_resume_skips_succeeded_workers_and_redispatches_remaining(
             preflight_result.manifest.preflight.workers_requested
         )
         captured["job_id"] = preflight_result.manifest.job_id
-        captured["transport_kind"] = (
-            preflight_result.manifest.preflight.transport_kind
-        )
+        captured["transport_kind"] = preflight_result.manifest.preflight.transport_kind
         captured["resolved_lens_name"] = (
             preflight_result.manifest.resolved_lens_entry.name
         )
@@ -358,6 +356,7 @@ def test_resume_skips_succeeded_workers_and_redispatches_remaining(
         return list(worker_results)
 
     import superclaude.cli.swarm.normalize as normalize_mod
+
     monkeypatch.setattr(normalize_mod, "normalize_wave2", _fake_normalize)
 
     runner = CliRunner()
@@ -409,6 +408,7 @@ def test_resume_all_workers_succeeded_skips_redispatch(
         return []
 
     import superclaude.cli.swarm.dispatch as dispatch_mod
+
     monkeypatch.setattr(dispatch_mod, "dispatch_wave1", _fake_dispatch)
 
     runner = CliRunner()
@@ -449,6 +449,7 @@ def test_resume_regenerates_merged_md(
     # via the mechanical_merge module; monkeypatch the merge module to
     # return a deterministic body so the assertion is byte-stable.
     import superclaude.cli.swarm.merge as merge_mod
+
     monkeypatch.setattr(
         merge_mod,
         "mechanical_merge",
@@ -481,14 +482,20 @@ def test_resume_transport_override_wins_over_manifest(
     # Two slots remaining so dispatch is actually invoked.
     _write_succeeded_sidecar(out_dir, slot_index=0)
 
+    # F-P3-1 -- the resume redispatch path now constructs the concrete
+    # transport before dispatch. With ``--transport openai_compat`` selected,
+    # the resolver reads the T2 proxy env contract (AC-017); set a complete
+    # contract so construction succeeds and the faked dispatch is reached.
+    monkeypatch.setenv("T2ProxyUrl", "https://proxy.example/v1")
+    monkeypatch.setenv("T2ProxyKey", "test-key-not-real")
+    monkeypatch.setenv("T2Model01", "gpt-5-codex")
+
     captured: dict[str, Any] = {}
 
     def _fake_dispatch(
         preflight_result: Any, transport: Any = None, **kwargs: Any
     ) -> list[WorkerResult]:
-        captured["transport_kind"] = (
-            preflight_result.manifest.preflight.transport_kind
-        )
+        captured["transport_kind"] = preflight_result.manifest.preflight.transport_kind
         return [
             WorkerResult(index=i, status="success")
             for i in range(preflight_result.manifest.preflight.workers_requested)

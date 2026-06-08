@@ -25,7 +25,6 @@ from typing import Any
 
 import pytest
 
-from superclaude.cli.swarm import preflight
 from superclaude.cli.swarm.models import (
     LensEntry,
     Manifest,
@@ -45,7 +44,6 @@ from superclaude.cli.swarm.schema import (
     CANONICAL_INJECTION_GUARD_SENTENCE,
     CURRENT_SPEC_VERSION,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -205,9 +203,7 @@ def test_read_custom_prompt_dir_batches_missing_files(tmp_path: Path) -> None:
         "custom_prompt_dir/user.txt",
         "custom_prompt_dir/meta.yaml",
     ]
-    assert all(
-        f.rule == RULE_CUSTOM_PROMPT_DIR_MISSING for f in failures
-    )
+    assert all(f.rule == RULE_CUSTOM_PROMPT_DIR_MISSING for f in failures)
 
 
 # ---------------------------------------------------------------------------
@@ -261,9 +257,7 @@ def test_read_custom_prompt_dir_guard_uses_central_helper_path_label(
     _write_three_files(tmp_path, system="no guard here")
 
     with pytest.raises(PreflightError) as excinfo:
-        read_custom_prompt_dir(
-            tmp_path, required_substring="must-appear-substring"
-        )
+        read_custom_prompt_dir(tmp_path, required_substring="must-appear-substring")
 
     failure = excinfo.value.failures[0]
     assert failure.path == "custom_prompt_dir/system.txt"
@@ -282,9 +276,9 @@ def test_read_custom_prompt_dir_invalid_yaml_raises(tmp_path: Path) -> None:
         read_custom_prompt_dir(tmp_path)
 
     failures = excinfo.value.failures
-    assert any(
-        f.rule == RULE_CUSTOM_PROMPT_DIR_META_INVALID for f in failures
-    ), f"Expected meta-invalid failure; got {failures}"
+    assert any(f.rule == RULE_CUSTOM_PROMPT_DIR_META_INVALID for f in failures), (
+        f"Expected meta-invalid failure; got {failures}"
+    )
 
 
 def test_read_custom_prompt_dir_non_mapping_meta_raises(
@@ -297,7 +291,8 @@ def test_read_custom_prompt_dir_non_mapping_meta_raises(
         read_custom_prompt_dir(tmp_path)
 
     failure = next(
-        f for f in excinfo.value.failures
+        f
+        for f in excinfo.value.failures
         if f.rule == RULE_CUSTOM_PROMPT_DIR_META_INVALID
     )
     assert "mapping" in failure.message
@@ -311,8 +306,7 @@ def test_read_custom_prompt_dir_scalar_meta_raises(tmp_path: Path) -> None:
         read_custom_prompt_dir(tmp_path)
 
     assert any(
-        f.rule == RULE_CUSTOM_PROMPT_DIR_META_INVALID
-        for f in excinfo.value.failures
+        f.rule == RULE_CUSTOM_PROMPT_DIR_META_INVALID for f in excinfo.value.failures
     )
 
 
@@ -437,13 +431,18 @@ def test_custom_prompt_dir_contents_round_trip_into_manifest(
         prompt_user=user,
         variables=meta.get("variables", {}),
     )
+    # F-P2-1: run_preflight now reads custom_prompt_dir itself, so point it at
+    # the real on-disk directory created above (the _custom_spec default is a
+    # non-existent placeholder path). The reader re-populates prompt.* with the
+    # same values the manual read produced, so the round-trip assertion holds.
+    spec["custom_prompt_dir"] = str(prompt_dir)
 
     previous = set_lens_resolver(lambda _name: _custom_lens_entry())
     try:
         target_path = tmp_path / "target.py"
-        target_payload = (
-            "def f():\n    pass\n" * 50
-        ).encode("utf-8")  # > 50 non-whitespace bytes
+        target_payload = ("def f():\n    pass\n" * 50).encode(
+            "utf-8"
+        )  # > 50 non-whitespace bytes
         target_path.write_bytes(target_payload)
         spec["target"]["path"] = str(target_path)
 
@@ -486,3 +485,157 @@ def test_read_custom_prompt_dir_meta_variables_survive_json_round_trip(
     payload = json.dumps(meta, sort_keys=True)
     assert json.loads(payload) == meta
     assert meta["variables"]["nested"]["flags"] == ["a", "b", "c"]
+
+
+# ---------------------------------------------------------------------------
+# F-P2-1 -- production wiring: run_preflight reads custom_prompt_dir itself
+# ---------------------------------------------------------------------------
+#
+# These tests prove the F-P2-1 fix: run_preflight (not just the caller) consumes
+# the custom_prompt_dir directory when lens == "custom". The wiring runs BEFORE
+# schema validation, so it is observable through whether the §11.5 cross-field
+# rule passes: with an EMPTY inline prompt.system, preflight can only succeed if
+# it read system.txt from the directory and populated prompt.system before the
+# schema check.
+
+
+def _custom_spec_empty_prompt(custom_dir: str, target_path: str) -> dict[str, Any]:
+    """Custom-lens spec with EMPTY inline prompt fields + a custom_prompt_dir.
+
+    The empty inline ``prompt.system`` is the key: only the F-P2-1 wiring
+    (run_preflight reading the directory before schema validation) can make
+    this spec pass the §11.5 cross-field rule.
+    """
+    spec = _custom_spec(
+        lens="custom",
+        prompt_system="",
+        prompt_user="",
+        variables={},
+    )
+    spec["custom_prompt_dir"] = custom_dir
+    spec["target"]["path"] = target_path
+    return spec
+
+
+def _target_payload() -> bytes:
+    return ("def f():\n    pass\n" * 50).encode("utf-8")  # > 50 non-whitespace bytes
+
+
+def test_run_preflight_reads_custom_prompt_dir_and_passes_guard(
+    tmp_path: Path,
+) -> None:
+    """F-P2-1: empty inline prompt.system + valid custom dir -> preflight OK.
+
+    Proves run_preflight read system.txt (which carries the §11.5 sentence)
+    and populated prompt.system BEFORE the schema cross-field rule fired.
+    Without the wiring the empty prompt.system fails §11.5 and preflight raises.
+    """
+    prompt_dir = tmp_path / "prompts"
+    prompt_dir.mkdir()
+    _write_three_files(prompt_dir)  # system.txt carries the canonical sentence
+
+    spec = _custom_spec_empty_prompt(str(prompt_dir), str(tmp_path / "t.py"))
+
+    previous = set_lens_resolver(lambda _name: _custom_lens_entry())
+    try:
+        result = run_preflight(spec, target_loader=lambda _p: _target_payload())
+    finally:
+        set_lens_resolver(previous)
+
+    assert result.manifest.resolved_lens_entry.name == "custom"
+
+
+def test_run_preflight_custom_dir_missing_system_substring_raises(
+    tmp_path: Path,
+) -> None:
+    """F-P2-1: custom dir whose system.txt lacks the §11.5 sentence -> failure.
+
+    The reader enforces the guard on system.txt and run_preflight surfaces the
+    structured injection-guard failure (path names the directory seam).
+    """
+    prompt_dir = tmp_path / "prompts"
+    prompt_dir.mkdir()
+    _write_three_files(prompt_dir, system="bare prompt without the guard sentence")
+
+    spec = _custom_spec_empty_prompt(str(prompt_dir), str(tmp_path / "t.py"))
+
+    previous = set_lens_resolver(lambda _name: _custom_lens_entry())
+    try:
+        with pytest.raises(PreflightError) as excinfo:
+            run_preflight(spec, target_loader=lambda _p: _target_payload())
+    finally:
+        set_lens_resolver(previous)
+
+    failure = excinfo.value.failures[0]
+    assert failure.rule == RULE_INJECTION_GUARD
+    assert failure.path == "custom_prompt_dir/system.txt"
+
+
+def test_run_preflight_custom_dir_missing_raises(tmp_path: Path) -> None:
+    """F-P2-1: a non-existent custom_prompt_dir -> structured preflight failure."""
+    spec = _custom_spec_empty_prompt(
+        str(tmp_path / "does-not-exist"), str(tmp_path / "t.py")
+    )
+
+    previous = set_lens_resolver(lambda _name: _custom_lens_entry())
+    try:
+        with pytest.raises(PreflightError) as excinfo:
+            run_preflight(spec, target_loader=lambda _p: _target_payload())
+    finally:
+        set_lens_resolver(previous)
+
+    assert excinfo.value.failures[0].rule == RULE_CUSTOM_PROMPT_DIR_MISSING
+
+
+def test_run_preflight_custom_dir_auto_inject_guard(tmp_path: Path) -> None:
+    """F-P2-1 / FR-024: --auto-inject-guard prepends the §11.5 sentence.
+
+    A legacy system.txt lacking the canonical sentence passes preflight when
+    auto_inject_guard=True because the reader prepends it before the guard
+    check, and run_preflight threads the flag through.
+    """
+    prompt_dir = tmp_path / "prompts"
+    prompt_dir.mkdir()
+    _write_three_files(prompt_dir, system="legacy system prompt, no guard yet")
+
+    spec = _custom_spec_empty_prompt(str(prompt_dir), str(tmp_path / "t.py"))
+
+    previous = set_lens_resolver(lambda _name: _custom_lens_entry())
+    try:
+        result = run_preflight(
+            spec,
+            target_loader=lambda _p: _target_payload(),
+            auto_inject_guard=True,
+        )
+    finally:
+        set_lens_resolver(previous)
+
+    assert result.manifest.resolved_lens_entry.name == "custom"
+
+
+def test_run_preflight_custom_dir_populates_prompt_variables(
+    tmp_path: Path,
+) -> None:
+    """F-P2-1: meta.yaml variables flow into the JobSpec the reader populates.
+
+    Verified indirectly via a target_loader closure that captures the resolved
+    JobSpec is overkill; instead assert preflight succeeds with a meta.yaml that
+    carries variables (the reader writes them onto prompt.variables before
+    schema, and schema accepts the populated dict).
+    """
+    prompt_dir = tmp_path / "prompts"
+    prompt_dir.mkdir()
+    _write_three_files(
+        prompt_dir,
+        meta="variables:\n  audience: senior\n  rigor: high\n",
+    )
+
+    spec = _custom_spec_empty_prompt(str(prompt_dir), str(tmp_path / "t.py"))
+
+    previous = set_lens_resolver(lambda _name: _custom_lens_entry())
+    try:
+        result = run_preflight(spec, target_loader=lambda _p: _target_payload())
+    finally:
+        set_lens_resolver(previous)
+
+    assert result.manifest.resolved_lens_entry.name == "custom"

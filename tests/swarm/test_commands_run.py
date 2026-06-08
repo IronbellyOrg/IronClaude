@@ -49,7 +49,6 @@ from superclaude.cli.swarm.schema import (
     CURRENT_SPEC_VERSION,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -92,8 +91,7 @@ def _minimal_valid_spec() -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -166,6 +164,12 @@ def _runnable_spec(tmp_path: Path) -> dict[str, Any]:
     )
     spec["target"]["path"] = str(target)
     spec["output"]["dir"] = str(tmp_path / "out")
+    # F-P3-1 -- the run-dispatch wiring path uses the deterministic,
+    # network-free ``stub`` transport so the concrete-transport resolver
+    # (which replaced the historical ``transport=None`` no-op) constructs
+    # without requiring the live T2 proxy env contract. The openai_compat
+    # transport surface is covered directly in ``test_openai_compat.py``.
+    spec["transport"]["kind"] = "stub"
     return spec
 
 
@@ -199,9 +203,7 @@ def test_run_cmd_help_lists_all_input_modes() -> None:
         "--transport",
         "--auto-inject-guard",
     ):
-        assert token in result.output, (
-            f"--help missing {token!r}:\n{result.output}"
-        )
+        assert token in result.output, f"--help missing {token!r}:\n{result.output}"
 
 
 def test_run_cmd_help_via_main_swarm_group() -> None:
@@ -245,9 +247,7 @@ def test_run_cmd_conflicting_modes_exits_usage(tmp_path: Path) -> None:
 def test_run_cmd_stdin_plus_lens_exits_usage() -> None:
     """AC: --stdin + --lens together -> EXIT_USAGE."""
     runner = CliRunner()
-    result = runner.invoke(
-        run_cmd, ["--stdin", "--lens", "bare-review"], input="{}"
-    )
+    result = runner.invoke(run_cmd, ["--stdin", "--lens", "bare-review"], input="{}")
     assert result.exit_code == EXIT_USAGE
     assert "mutually exclusive" in result.stderr
 
@@ -305,7 +305,9 @@ def test_run_cmd_spec_file_mode_invokes_preflight_and_dispatch(
 
     captured: dict[str, Any] = {}
 
-    def _fake_dispatch(preflight_result: Any, transport: Any = None, **kwargs: Any) -> list[Any]:
+    def _fake_dispatch(
+        preflight_result: Any, transport: Any = None, **kwargs: Any
+    ) -> list[Any]:
         captured["preflight_result"] = preflight_result
         captured["transport"] = transport
         return []
@@ -330,9 +332,16 @@ def test_run_cmd_spec_file_mode_invokes_preflight_and_dispatch(
     preflight_result = captured["preflight_result"]
     assert preflight_result.manifest.job_id == "job-run-cmd"
     assert preflight_result.manifest.preflight.workers_requested == 3
-    # The T03.01 wiring path passes ``transport=None`` until
-    # T03.05 / T03.07 land the concrete implementations.
-    assert captured["transport"] is None
+    # F-P3-1 -- run_cmd now resolves a CONCRETE transport before dispatch
+    # (the historical ``transport=None`` made dispatch a no-op). The
+    # fixture uses ``stub`` so the resolved transport is a StubTransport.
+    from superclaude.cli.swarm.transports.stub import StubTransport
+
+    assert captured["transport"] is not None, (
+        "run_cmd must pass a concrete transport to dispatch_wave1 (F-P3-1); "
+        "transport=None is the no-op that dispatched zero workers"
+    )
+    assert isinstance(captured["transport"], StubTransport)
 
     # Stdout success line names the input mode and worker count.
     assert "mode=spec-file" in result.stdout
@@ -382,7 +391,9 @@ def test_run_cmd_target_override_propagates_to_preflight(
 
     captured: dict[str, Any] = {}
 
-    def _fake_dispatch(preflight_result: Any, transport: Any = None, **kwargs: Any) -> list[Any]:
+    def _fake_dispatch(
+        preflight_result: Any, transport: Any = None, **kwargs: Any
+    ) -> list[Any]:
         captured["ok"] = True
         return []
 
@@ -410,8 +421,8 @@ def test_run_cmd_target_override_propagates_to_preflight(
 def test_dispatch_wave1_transport_none_returns_empty() -> None:
     """T03.01 contract: ``transport=None`` -> empty result list."""
     from superclaude.cli.swarm.dispatch import dispatch_wave1
-    from superclaude.cli.swarm.preflight import PreflightResult
     from superclaude.cli.swarm.models import Manifest, PreflightSummary, SwarmState
+    from superclaude.cli.swarm.preflight import PreflightResult
 
     manifest = Manifest(
         contract_version="1.0",
@@ -469,3 +480,72 @@ def test_dispatch_wave1_with_transport_calls_send_per_worker() -> None:
     assert len(results) == 3
     # Worker indices are stamped in slot order.
     assert [r.index for r in results] == [0, 1, 2]
+
+
+# ---------------------------------------------------------------------------
+# F-P3-1 regression -- real stub dispatch is NOT a no-op
+# ---------------------------------------------------------------------------
+
+
+def test_run_cmd_stub_transport_dispatches_workers_not_noop(
+    tmp_path: Path,
+) -> None:
+    """F-P3-1: ``swarm run --transport stub`` dispatches N workers, not zero.
+
+    This is the critical regression: before the fix, ``run_cmd`` recorded
+    ``transport.kind`` on the manifest but passed ``transport=None`` to
+    :func:`dispatch_wave1`, which short-circuits to an empty list -- so a
+    real ``swarm run`` produced ``results=0`` with no worker artifacts or
+    dispatch log events. This test runs the REAL dispatch (no monkeypatch)
+    against the deterministic stub transport and asserts results == workers
+    and that dispatch log events were emitted.
+    """
+    target = tmp_path / "target.py"
+    target.write_text(
+        "# F-P3-1 stub-dispatch regression target\n"
+        + "def hello() -> str:\n    return 'real stub dispatch, not a no-op'\n"
+        + "# padding to clear the IMM-4 non-whitespace byte floor\n" * 6,
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "out"
+
+    runner = CliRunner()
+    result = runner.invoke(
+        run_cmd,
+        [
+            "--lens",
+            "bare-review",
+            "--transport",
+            "stub",
+            "--target",
+            str(target),
+            "--output",
+            str(output_dir),
+        ],
+    )
+
+    assert result.exit_code == EXIT_OK, (
+        f"stub-transport run must succeed; got {result.exit_code}\n"
+        f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+    )
+    # bare-review default_workers=3 -> results must equal worker count,
+    # NOT zero (the F-P3-1 no-op signature was ``results=0``).
+    assert "workers=3" in result.stdout, result.stdout
+    assert "results=3" in result.stdout, (
+        "F-P3-1 regression: stub dispatch produced a non-3 result count; "
+        f"the transport may still be a no-op:\n{result.stdout}"
+    )
+
+    # Dispatch log events must be present (the logger is wired when an
+    # output dir is supplied; dispatch emits wave_transition +
+    # worker_start / worker_done events).
+    jsonl = output_dir / "execution-log.jsonl"
+    assert jsonl.is_file(), f"execution-log.jsonl missing under {output_dir}"
+    log_body = jsonl.read_text(encoding="utf-8")
+    assert "worker_done" in log_body, (
+        "no worker_done events in the execution log -- dispatch did not "
+        f"fan out workers:\n{log_body}"
+    )
+    assert log_body.count("worker_done") == 3, (
+        f"expected exactly 3 worker_done events (one per worker slot); log:\n{log_body}"
+    )

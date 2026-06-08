@@ -51,18 +51,24 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-016 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L103)
 # names ``contract_version``, ``job_id``, ``resolved_lens_entry``, and three
 # dotted ``preflight.*`` sub-fields. The three sub-fields collapse into a
 # single nested :class:`PreflightSummary` dataclass (same pattern as
-# ``RetryPolicy`` on WorkerSpec and ``ContractTarget`` on ResultContract),
-# yielding 4 top-level keys here.
+# ``RetryPolicy`` on WorkerSpec and ``ContractTarget`` on ResultContract).
+#
+# F-P2-2 adds a fifth top-level field, ``caller_metadata`` (DM-020), so a
+# caller-supplied OQ-009 override (suspect / tier) provided at Wave 0 persists
+# in ``manifest.json`` and survives executor restart / resume rather than
+# living only in-memory on PreflightResult. The field is versioned by the
+# manifest's ``contract_version`` and defaulted (backward-compatible). See
+# ``src/superclaude/cli/swarm/models.py::Manifest`` and the F-P2-2 remediation.
 EXPECTED_TOP_LEVEL_FIELDS: tuple[str, ...] = (
     "contract_version",
     "job_id",
     "resolved_lens_entry",
     "preflight",
+    "caller_metadata",
 )
 
 
@@ -218,8 +224,7 @@ def _populated_lens() -> LensEntry:
         name="bare_review",
         description="Unscaffolded native-instinct review",
         system_prompt_fragment=(
-            "You are reviewing the block between <<<TARGET>>> and "
-            "<<<END TARGET>>>."
+            "You are reviewing the block between <<<TARGET>>> and <<<END TARGET>>>."
         ),
         user_template="Review the target block.\n\nTarget:\n{target}\n",
         output_template_path="templates/bare_review.md",
@@ -286,9 +291,7 @@ def test_resolved_lens_entry_preserved_verbatim_through_round_trip() -> None:
         restored.resolved_lens_entry.system_prompt_fragment
         == snapshot.system_prompt_fragment
     )
-    assert (
-        restored.resolved_lens_entry.user_template == snapshot.user_template
-    )
+    assert restored.resolved_lens_entry.user_template == snapshot.user_template
 
 
 def test_resolved_lens_entry_rehydrated_as_dataclass_not_dict() -> None:
@@ -363,7 +366,4 @@ def test_round_trip_decouples_manifest_from_originating_lens_entry() -> None:
     # Restored manifest still carries the snapshot's original values.
     restored = from_json(Manifest, encoded)
     assert restored.resolved_lens_entry.system_prompt_fragment != "MUTATED"
-    assert (
-        restored.resolved_lens_entry.recommended_next_command_template
-        != "MUTATED"
-    )
+    assert restored.resolved_lens_entry.recommended_next_command_template != "MUTATED"

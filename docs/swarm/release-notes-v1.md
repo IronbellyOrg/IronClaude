@@ -5,7 +5,7 @@
 > migration from the legacy `sc-bare-review` shell-dispatch path to
 > the `superclaude swarm run --lens bare-review` CLI. Cross-link the
 > [operator runbook](./runbook.md) (OPS-001, M9) for day-2 workflows
-> (`status` / `logs` / `watch` / `kill` / `attach`).
+> (`status` / `status --watch` / `logs` / `kill` / `attach`).
 
 ## What changed
 
@@ -37,7 +37,7 @@ command. Examples are copy-pasteable verbatim.
 
 ```bash
 export T2ProxyUrl="https://proxy.example.com/v1"
-export T2ProxyKey="sk-redacted"
+export T2ProxyKey="your_t2_proxy_key_here"
 export T2Model01="gpt-5-codex"
 export T2Model02="qwen2.5-coder-32b"
 export T2Model03="deepseek-coder-v3"
@@ -275,7 +275,7 @@ from the v1 surface:
 | --- | --- |
 | `swarm status <job_id>` | Read `.swarm-state.json` + `execution-log.jsonl`; works without tmux. |
 | `swarm logs <job_id>` | Tail `execution-log.jsonl`; works without tmux. |
-| `swarm watch <job_id>` | Live dashboard. Falls back to plain text on non-TTY (INV-012). |
+| `swarm status <job_id> --watch` | Live phase-progress watch loop (polls `.swarm-state.json`). Falls back to plain text on non-TTY (INV-012). |
 | `swarm attach <job_id>` | Re-enter the detached tmux session. Requires tmux. |
 | `swarm kill <job_id>` | Terminate a detached job. Requires tmux. |
 | `swarm validate <spec.json>` | DM-001 schema check on an authored spec. |

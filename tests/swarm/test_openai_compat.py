@@ -43,7 +43,6 @@ from superclaude.cli.swarm.transports.openai_compat import (
     read_env,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures & helpers.
 # ---------------------------------------------------------------------------
@@ -90,20 +89,17 @@ def test_openai_compat_uses_httpx() -> None:
     """AC-005 -- httpx is the underlying HTTP library."""
     import importlib
 
-    module = importlib.import_module(
-        "superclaude.cli.swarm.transports.openai_compat"
-    )
-    source = (
-        __import__("inspect").getsource(module)
-    )
-    assert "import httpx" in source, (
-        "openai_compat.py must import httpx (AC-005)."
-    )
+    module = importlib.import_module("superclaude.cli.swarm.transports.openai_compat")
+    source = __import__("inspect").getsource(module)
+    assert "import httpx" in source, "openai_compat.py must import httpx (AC-005)."
 
 
 def test_openai_compat_satisfies_transport_protocol() -> None:
     """COMP-032 -- structural conformance with the Transport Protocol."""
-    handler = lambda _request: httpx.Response(200, content=_success_body())
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=_success_body())
+
     with _make_transport(handler) as transport:
         assert isinstance(transport, Transport)
 
@@ -223,6 +219,32 @@ def test_send_timeout_maps_to_timeout_status() -> None:
     assert result.elapsed_ms >= 0
 
 
+def test_send_request_error_maps_to_proxy_error_preserving_model_identity() -> None:
+    """F-P3-5: a non-timeout ``httpx.RequestError`` does not escape ``send``.
+
+    Connection / DNS / read errors (``httpx.ConnectError`` here, a
+    ``RequestError`` subclass that is NOT a ``TimeoutException``) must be
+    converted to a ``proxy_error`` WorkerResult built through
+    ``_build_result`` so the failed slot keeps this transport's ``model_id`` /
+    ``model_label``. If the error escaped, the dispatch ``except Exception``
+    fallback would build a bare ``proxy_error`` with no model identity.
+    """
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("simulated connection refused")
+
+    with _make_transport(handler) as transport:
+        result = transport.send("p", timeout=5)
+
+    assert result.status == "proxy_error"
+    assert result.http_code is None
+    assert result.attempts == 1
+    assert result.elapsed_ms >= 0
+    # Model identity preserved through the error path (the F-P3-5 fix).
+    assert result.model_id == _MODEL
+    assert result.model_label == _MODEL
+
+
 # ---------------------------------------------------------------------------
 # Constructor guards.
 # ---------------------------------------------------------------------------
@@ -244,7 +266,9 @@ def test_constructor_rejects_empty_fields(
 
 
 def test_endpoint_strips_trailing_slash() -> None:
-    handler = lambda _r: httpx.Response(200, content=_success_body())
+    def handler(_r: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=_success_body())
+
     client = httpx.Client(transport=httpx.MockTransport(handler))
     transport = OpenAICompatTransport(
         base_url=_BASE_URL + "/",

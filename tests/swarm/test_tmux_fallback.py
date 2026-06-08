@@ -30,9 +30,8 @@ from typing import Any
 import pytest
 from click.testing import CliRunner
 
-from superclaude.cli.swarm.commands import EXIT_OK, EXIT_USAGE, run_cmd
 from superclaude.cli.swarm import tmux as swarm_tmux
-
+from superclaude.cli.swarm.commands import EXIT_OK, EXIT_USAGE, run_cmd
 
 # ---------------------------------------------------------------------------
 # Shared minimal spec -- mirrors test_commands_run._minimal_valid_spec but
@@ -42,8 +41,8 @@ from superclaude.cli.swarm import tmux as swarm_tmux
 
 def _runnable_spec(tmp_path: Path) -> dict[str, Any]:
     """Return a JobSpec dict with on-disk target/output paths under ``tmp_path``."""
-    from superclaude.cli.swarm.schema import CURRENT_SPEC_VERSION
     from superclaude.cli.swarm.preflight import CANONICAL_INJECTION_GUARD_SENTENCE
+    from superclaude.cli.swarm.schema import CURRENT_SPEC_VERSION
 
     target = tmp_path / "target.py"
     target.write_text(
@@ -77,14 +76,17 @@ def _runnable_spec(tmp_path: Path) -> dict[str, Any]:
             },
         },
         "transport": {
-            "kind": "openai_compat",
+            # F-P3-1 -- inline ``swarm run`` now constructs a concrete
+            # transport before dispatch. Use the network-free ``stub`` so the
+            # tmux-fallback inline test reaches dispatch without the live T2
+            # proxy env contract (the detached tests exit before dispatch).
+            "kind": "stub",
             "base_url_env": "T2ProxyUrl",
             "api_key_env": "T2ProxyKey",
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -219,7 +221,9 @@ def test_run_cmd_inline_default_succeeds_without_tmux(
 
     captured: dict[str, Any] = {}
 
-    def _fake_dispatch(preflight_result: Any, transport: Any = None, **kwargs: Any) -> list[Any]:
+    def _fake_dispatch(
+        preflight_result: Any, transport: Any = None, **kwargs: Any
+    ) -> list[Any]:
         captured["preflight_result"] = preflight_result
         return []
 

@@ -37,7 +37,10 @@ from superclaude.cli.swarm import preflight
 from superclaude.cli.swarm.models import (
     CallerMetadata,
     LensEntry,
+    Manifest,
     ResolvedLensEntry,
+    from_json,
+    to_json,
 )
 from superclaude.cli.swarm.preflight import (
     MIN_TARGET_NON_WHITESPACE_BYTES,
@@ -49,7 +52,6 @@ from superclaude.cli.swarm.schema import (
     CANONICAL_INJECTION_GUARD_SENTENCE,
     CURRENT_SPEC_VERSION,
 )
-
 
 # ---------------------------------------------------------------------------
 # DM-020 dataclass surface
@@ -195,9 +197,7 @@ def _minimal_valid_spec() -> dict[str, Any]:
             "api_key_env": "T2ProxyKey",
         },
         "prompt": {
-            "system": (
-                "You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
-            ),
+            "system": ("You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE),
             "user_template": "Review: {{target}}",
             "variables": {},
         },
@@ -327,3 +327,87 @@ def test_manifest_resolved_lens_carries_caller_metadata_inputs(
 def test_resolve_caller_metadata_is_exported() -> None:
     """Public surface gate -- the helper must be exported."""
     assert "resolve_caller_metadata" in preflight.__all__
+
+
+# ---------------------------------------------------------------------------
+# F-P2-2 -- Manifest.caller_metadata persistence + JSON round-trip
+# ---------------------------------------------------------------------------
+
+
+def test_manifest_field_carries_caller_metadata_default() -> None:
+    """F-P2-2: Manifest has a defaulted CallerMetadata field (no-arg safe)."""
+    m = Manifest()
+    assert isinstance(m.caller_metadata, CallerMetadata)
+    assert m.caller_metadata == CallerMetadata()
+
+
+def test_manifest_persists_resolved_lens_default_caller_metadata(
+    lens_resolver_stub, target_loader
+) -> None:
+    """F-P2-2: Wave 0 stamps the lens-default CallerMetadata onto the manifest.
+
+    Previously the resolved value lived only on PreflightResult; now it is on
+    ``manifest.caller_metadata`` so it survives executor restart / resume.
+    """
+    result = run_preflight(_minimal_valid_spec(), target_loader=target_loader)
+    assert result.manifest.caller_metadata == CallerMetadata(suspect=True, tier="T2")
+    # Consistency: the manifest field matches the in-memory resolved value.
+    assert result.manifest.caller_metadata == result.caller_metadata
+
+
+def test_manifest_persists_caller_override(lens_resolver_stub, target_loader) -> None:
+    """F-P2-2: an OQ-009 caller override diverging from the lens default
+    persists on the manifest (the gap the remediation closes)."""
+    override = CallerMetadata(suspect=False, tier="T1")
+    result = run_preflight(
+        _minimal_valid_spec(),
+        target_loader=target_loader,
+        caller_metadata_override=override,
+    )
+    # Lens default is suspect=True/tier=T2; the override must win AND persist.
+    assert result.manifest.caller_metadata == CallerMetadata(suspect=False, tier="T1")
+
+
+def test_manifest_caller_metadata_survives_json_round_trip(
+    lens_resolver_stub, target_loader
+) -> None:
+    """F-P2-2: caller_metadata round-trips byte-identically through JSON
+    (INV-016) and the override is recoverable from manifest.json alone."""
+    override = CallerMetadata(suspect=False, tier="T1")
+    result = run_preflight(
+        _minimal_valid_spec(),
+        target_loader=target_loader,
+        caller_metadata_override=override,
+    )
+    payload = to_json(result.manifest)
+    rehydrated = from_json(Manifest, payload)
+    # Byte-identical round-trip + the override is recoverable from JSON alone.
+    assert to_json(rehydrated) == payload
+    assert rehydrated.caller_metadata == CallerMetadata(suspect=False, tier="T1")
+
+
+def test_emit_manifest_stamps_caller_metadata(tmp_path) -> None:
+    """F-P2-2: emit_manifest accepts and persists an explicit caller_metadata."""
+    from superclaude.cli.swarm.preflight import emit_manifest
+
+    out = emit_manifest(
+        ResolvedLensEntry(
+            name="bare-review",
+            system_prompt_fragment="frag " + CANONICAL_INJECTION_GUARD_SENTENCE,
+            user_template="u",
+            recipe_name="bare-review-v1",
+            default_workers=3,
+            suspect=True,
+            tier="T2",
+            recommended_next_command_template="sc:reflect on {job_id}",
+            stability="stable",
+        ),
+        "a" * 64,
+        "openai_compat",
+        output_dir=tmp_path,
+        job_id="job-emit-callermeta",
+        workers_requested=3,
+        caller_metadata=CallerMetadata(suspect=False, tier="T1"),
+    )
+    loaded = from_json(Manifest, out.read_text(encoding="utf-8"))
+    assert loaded.caller_metadata == CallerMetadata(suspect=False, tier="T1")

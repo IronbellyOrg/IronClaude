@@ -286,9 +286,13 @@ Where:
 - `<rule>` is one of the stable `_validate.RULE_*` constants
   (`lens.file_ref_unresolved`, `lens.recipe_unregistered`,
   `lens.suspect_files_coupling`, `lens.name_duplicate`,
-  `lens.injection_substring_missing`). Tests grep on the rule
+  `lens.injection_substring_missing`,
+  `lens.normalizer_strategy_unmatched`). Tests grep on the rule
   identifier, not the message phrasing, so copy edits don't break
-  the suite.
+  the suite. The sixth rule (`lens.normalizer_strategy_unmatched`,
+  the COMP-023 normalizer-strategy assertion added under
+  FR-LENSREG.NS / T02.21) is enforced alongside the prior five; see
+  `docs/dev/lens-contribution-policy.md` §1.
 - `<path>` is the dotted path to the offending field on the
   `LensEntry` (e.g. `system_prompt_fragment`,
   `output_template_path`). Empty paths render as `<root>` for parity

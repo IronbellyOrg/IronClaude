@@ -152,6 +152,18 @@ def test_swarm_module_imports_without_error() -> None:
 
     import superclaude.cli.swarm as swarm_pkg
 
-    reloaded = importlib.reload(swarm_pkg)
-    assert hasattr(reloaded, "swarm_group")
-    assert set(EXPECTED_PLACEHOLDERS).issubset(set(reloaded.swarm_group.commands))
+    # ``importlib.reload`` re-executes ``__init__`` and rebinds the module's
+    # ``swarm_group`` attribute to a FRESH Click group. ``superclaude.cli.main``
+    # already registered the ORIGINAL group at import time, so leaving the
+    # reloaded object in ``sys.modules`` pollutes global state -- a later
+    # ``main.commands["swarm"] is swarm_group`` identity check (see
+    # ``test_non_claude_caller``) would then compare the original group against
+    # the reloaded one and spuriously fail depending on collection order.
+    # Restore the original binding in ``finally`` so the reload stays local.
+    original_group = swarm_pkg.swarm_group
+    try:
+        reloaded = importlib.reload(swarm_pkg)
+        assert hasattr(reloaded, "swarm_group")
+        assert set(EXPECTED_PLACEHOLDERS).issubset(set(reloaded.swarm_group.commands))
+    finally:
+        swarm_pkg.swarm_group = original_group

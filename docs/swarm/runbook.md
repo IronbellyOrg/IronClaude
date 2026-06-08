@@ -1,8 +1,9 @@
 # MultiModelSwarm Operator Runbook
 
 > **Status:** Phase 1 stub. Fleshed out in M9 (OPS-001) with run / status /
-> logs / watch / resume / kill / attach workflows. This file currently records
-> the AC-001 environment mandate so the guard test has a documentation anchor.
+> status --watch / logs / resume / kill / attach workflows. This file currently
+> records the AC-001 environment mandate so the guard test has a documentation
+> anchor.
 
 ## Environment Mandate (AC-001)
 
@@ -124,7 +125,7 @@ mandatory.
 
 ```bash
 export T2ProxyUrl="https://proxy.example.com/v1"
-export T2ProxyKey="sk-redacted"
+export T2ProxyKey="your_t2_proxy_key_here"
 export T2Model01="gpt-5-codex"
 ```
 
@@ -132,7 +133,7 @@ export T2Model01="gpt-5-codex"
 
 ```bash
 export T2ProxyUrl="https://proxy.example.com/v1"
-export T2ProxyKey="sk-redacted"
+export T2ProxyKey="your_t2_proxy_key_here"
 export T2Model01="gpt-5-codex"
 export T2Model02="mistral-large-2407"
 export T2Model03="qwen2.5-coder-32b"
