@@ -1,0 +1,139 @@
+### scoped ruff format on modified files
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+2 files reformatted, 4 files left unchanged
+
+### scoped ruff check on modified files
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+scoped-check-exit=0
+
+### make lint (global ruff check . + lint-architecture)
+🔍 Checking architecture policy compliance...
+
+=== Check 1/2: Bidirectional Command ↔ Skill Links ===
+  ✅ [Check 1]: adversarial → sc-adversarial-protocol
+  ✅ [Check 1]: auggie-review → sc-auggie-review-protocol
+  ✅ [Check 1]: brainstorm → sc-brainstorm-protocol
+  ✅ [Check 1]: cleanup-audit → sc-cleanup-audit-protocol
+  ✅ [Check 1]: cli-portify → sc-cli-portify-protocol
+  ✅ [Check 1]: init-lite → sc-init-lite-protocol
+  ✅ [Check 1]: pm → sc-pm-protocol
+  ❌ ERROR [Check 1]: src/superclaude/commands/recommend.md has ## Activation but no matching skill directory: sc-recommend-protocol
+  ✅ [Check 1]: reflect → sc-reflect-protocol
+  ✅ [Check 1]: release-split → sc-release-split-protocol
+  ✅ [Check 1]: review-translation → sc-review-translation-protocol
+  ✅ [Check 1]: roadmap → sc-roadmap-protocol
+  ✅ [Check 1]: tasklist → sc-tasklist-protocol
+  ✅ [Check 1]: task → sc-task-protocol
+  ✅ [Check 1]: troubleshoot → sc-troubleshoot-protocol
+  ✅ [Check 1]: validate-roadmap → sc-validate-roadmap-protocol
+  ✅ [Check 1]: validate-tests → sc-validate-tests-protocol
+  ✅ [Check 2]: sc-adversarial-protocol ← adversarial.md
+  ✅ [Check 2]: sc-auggie-review-protocol ← auggie-review.md
+  ✅ [Check 2]: sc-brainstorm-protocol ← brainstorm.md
+  ✅ [Check 2]: sc-cleanup-audit-protocol ← cleanup-audit.md
+  ✅ [Check 2]: sc-cli-portify-protocol ← cli-portify.md
+  ✅ [Check 2]: sc-init-lite-protocol ← init-lite.md
+  ✅ [Check 2]: sc-pm-protocol ← pm.md
+  ✅ [Check 2]: sc-reflect-protocol ← reflect.md
+  ✅ [Check 2]: sc-release-split-protocol ← release-split.md
+  ✅ [Check 2]: sc-review-translation-protocol ← review-translation.md
+  ✅ [Check 2]: sc-roadmap-protocol ← roadmap.md
+  ✅ [Check 2]: sc-tasklist-protocol ← tasklist.md
+  ✅ [Check 2]: sc-task-protocol ← task.md
+  ✅ [Check 2]: sc-troubleshoot-protocol ← troubleshoot.md
+  ✅ [Check 2]: sc-validate-roadmap-protocol ← validate-roadmap.md
+  ✅ [Check 2]: sc-validate-tests-protocol ← validate-tests.md
+
+=== Check 3/4: Command Size Limits ===
+  ⚠️  WARN [Check 3]: brainstorm.md (201 lines, warn threshold 200)
+  ⚠️  WARN [Check 3]: reflect.md (272 lines, warn threshold 200)
+  ⚠️  WARN [Check 3]: spawn.md (210 lines, warn threshold 200)
+  ⚠️  WARN [Check 3]: spec-panel.md (462 lines, warn threshold 200)
+  ⚠️  WARN [Check 3]: troubleshoot.md (201 lines, warn threshold 200)
+
+=== Check 6: Activation Section Present (for paired commands) ===
+  ✅ [Check 6]: adversarial.md has ## Activation
+  ✅ [Check 6]: auggie-review.md has ## Activation
+  ✅ [Check 6]: brainstorm.md has ## Activation
+  ✅ [Check 6]: cleanup-audit.md has ## Activation
+  ✅ [Check 6]: cli-portify.md has ## Activation
+  ✅ [Check 6]: init-lite.md has ## Activation
+  ✅ [Check 6]: pm.md has ## Activation
+  ✅ [Check 6]: reflect.md has ## Activation
+  ✅ [Check 6]: release-split.md has ## Activation
+  ✅ [Check 6]: review-translation.md has ## Activation
+  ✅ [Check 6]: roadmap.md has ## Activation
+  ✅ [Check 6]: tasklist.md has ## Activation
+  ✅ [Check 6]: task.md has ## Activation
+  ✅ [Check 6]: troubleshoot.md has ## Activation
+  ✅ [Check 6]: validate-roadmap.md has ## Activation
+  ✅ [Check 6]: validate-tests.md has ## Activation
+
+=== Check 8: Skill Frontmatter Completeness ===
+  ✅ [Check 8]: sc-adversarial-protocol frontmatter complete
+  ✅ [Check 8]: sc-auggie-review-protocol frontmatter complete
+  ✅ [Check 8]: sc-brainstorm-protocol frontmatter complete
+  ✅ [Check 8]: sc-cleanup-audit-protocol frontmatter complete
+  ✅ [Check 8]: sc-cli-portify-protocol frontmatter complete
+  ✅ [Check 8]: sc-init-lite-protocol frontmatter complete
+  ✅ [Check 8]: sc-pm-protocol frontmatter complete
+  ✅ [Check 8]: sc-reflect-protocol frontmatter complete
+  ✅ [Check 8]: sc-release-split-protocol frontmatter complete
+  ✅ [Check 8]: sc-review-translation-protocol frontmatter complete
+  ✅ [Check 8]: sc-roadmap-protocol frontmatter complete
+  ✅ [Check 8]: sc-tasklist-protocol frontmatter complete
+  ✅ [Check 8]: sc-task-protocol frontmatter complete
+  ✅ [Check 8]: sc-troubleshoot-protocol frontmatter complete
+  ✅ [Check 8]: sc-validate-roadmap-protocol frontmatter complete
+  ✅ [Check 8]: sc-validate-tests-protocol frontmatter complete
+
+=== Check 9: Protocol Naming Consistency ===
+  ✅ [Check 9]: sc:adversarial-protocol ends in -protocol
+  ✅ [Check 9]: sc:auggie-review-protocol ends in -protocol
+  ✅ [Check 9]: sc:brainstorm-protocol ends in -protocol
+  ✅ [Check 9]: sc:cleanup-audit-protocol ends in -protocol
+  ✅ [Check 9]: sc-cli-portify-protocol ends in -protocol
+  ✅ [Check 9]: sc:init-lite-protocol ends in -protocol
+  ✅ [Check 9]: sc:pm-protocol ends in -protocol
+  ✅ [Check 9]: sc:reflect-protocol ends in -protocol
+  ✅ [Check 9]: sc:release-split-protocol ends in -protocol
+  ✅ [Check 9]: sc:review-translation-protocol ends in -protocol
+  ✅ [Check 9]: sc:roadmap-protocol ends in -protocol
+  ✅ [Check 9]: sc:tasklist-protocol ends in -protocol
+  ✅ [Check 9]: sc:task-protocol ends in -protocol
+  ✅ [Check 9]: sc:troubleshoot-protocol ends in -protocol
+  ✅ [Check 9]: sc-validate-roadmap-protocol ends in -protocol
+  ✅ [Check 9]: sc:validate-tests-protocol ends in -protocol
+
+=== Check 10: Workspace Suffix Blocklist ===
+  ✅ [Check 10]: no *-workspace directories under .claude/skills/
+
+=== Check 11: Contract Constant Anti-Duplication (Contract #5 + #8) ===
+  ✅ [Check 11]: no contract-constant duplications
+
+=== Checks 5/7: NEEDS DESIGN (skipped) ===
+  ℹ️  Check 5 (inline protocol detection) — pending design
+  ℹ️  Check 7 (activation references correct skill) — pending design
+
+=== Summary ===
+  Errors:   1
+  Warnings: 5
+  ❌ FAIL — 1 error(s) found. Fix before proceeding.
+make: *** [Makefile:364: lint-architecture] Error 1
+make-lint-exit=2
+
+### format idempotency check (ruff format --check on modified files)
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+6 files already formatted
+format-check-exit=0
+
+### full-repo ruff check . (lint-architecture pre-empted it under make)
+All checks passed!
+
+### ANALYSIS
+- ruff (lint + format) is GREEN for all 6 modified files and for the whole repo (ruff check . = All checks passed!).
+- make lint FAILED only on the custom lint-architecture check with 1 PRE-EXISTING error:
+    src/superclaude/commands/recommend.md has ## Activation but no matching skill directory: sc-recommend-protocol
+  This .md file is NOT modified by this task and is byte-identical to origin/master (git diff --quiet confirmed).
+  Per the Step 6.3 completion gate, pre-existing/unrelated lint errors are NOTED, not fixed out-of-scope.

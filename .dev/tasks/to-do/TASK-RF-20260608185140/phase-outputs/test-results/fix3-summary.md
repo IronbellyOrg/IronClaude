@@ -1,0 +1,6 @@
+# FIX-3 Summary — landing-verify OR-clause masks stranding (DEV-3, Drift MED)
+
+- **New positive test:** `tests/sprint/test_recovery.py::TestMergeRecoveryBundle::test_merge_partial_when_declared_not_landed_in_canonical` — SUCCESS-reachable bundle (sidecar present), NO deliverable tree under the bundle root (relocation copies nothing), and a stale pre-existing file at a NON-canonical declared path; asserts the merge reports PARTIAL with a `deliverable-not-landed:` failure and the canonical dest never materializes.
+- **FAIL-on-base:** confirmed (`fix3-test-fail-on-base.txt`) — base reports `RecoveryStatus.SUCCESS` (the masking bug: the OR's `declared.is_file()` clause counted the stale non-canonical file as landed). 1 failed; existing relocate test still passed.
+- **PASS-on-fix:** confirmed (`fix3-test-pass-on-fix.txt`) — 2 passed (new case + existing `test_merge_relocates_deliverable_trees_or_partials`).
+- **Fix applied:** `recovery.py` landing-verify now checks the canonical mirror ONLY — dropped the `or (declared.is_file() and declared.stat().st_size > 0)` clause so `landed = canonical_dest.is_file() and size>0`. Relocation-skip guard and the 3-subtree (artifacts/evidence/checkpoints) relocation scope unchanged (spec-mandated).

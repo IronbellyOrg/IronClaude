@@ -1,0 +1,13 @@
+--- ruff check ---
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+--- ruff format --check ---
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Would reformat: src/superclaude/cli/sprint/recovery.py
+Would reformat: tests/sprint/test_checkpoints.py
+Would reformat: tests/sprint/test_recovery.py
+Would reformat: tests/sprint/test_rerun_tasks.py
+4 files would be reformatted, 114 files already formatted
+
+--- after ruff format (idempotent re-check) ---
+118 files already formatted

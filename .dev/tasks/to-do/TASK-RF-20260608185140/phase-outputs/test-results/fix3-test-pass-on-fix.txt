@@ -1,0 +1,15 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python3
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0
+collecting ... collected 16 items / 14 deselected / 2 selected
+
+tests/sprint/test_recovery.py::TestMergeRecoveryBundle::test_merge_relocates_deliverable_trees_or_partials PASSED [ 50%]
+tests/sprint/test_recovery.py::TestMergeRecoveryBundle::test_merge_partial_when_declared_not_landed_in_canonical PASSED [100%]
+
+======================= 2 passed, 14 deselected in 0.19s =======================

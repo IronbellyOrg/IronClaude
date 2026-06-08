@@ -1,0 +1,75 @@
+contract: deviation-ledger
+mode: post
+diff: b05e0fe1..HEAD
+commit: c0d56f18
+classification_precedence: "Regression > Drift > Necessary > Authorized"
+
+deviations:
+  - id: DEV-1
+    title: "PRIMARY post-merge checkpoint re-run subprocess omits required INDEX_PATH positional → exit 2, swallowed by check=False"
+    deviation_class: regression
+    severity: HIGH
+    file: src/superclaude/cli/sprint/rerun_tasks.py
+    lines: "1616-1630"
+    spec_ref: "Task item 4.3 acceptance: 're-run that single task ... so it writes a FRESH real verdict'"
+    evidence: "Independently reproduced: `uv run superclaude sprint rerun-tasks --phase 1 --tasks T01.05 --no-verify-checkpoints` → exit 2, 'Missing argument INDEX_PATH'. rerun-tasks declares a required @click.argument('index_path') (commands.py:721). The argv has no positional. check=False (rerun_tasks.py:~1630) swallows the failure."
+    impact: "Fix-4.3 PRIMARY mechanism is dead on arrival — it re-runs nothing, never writes a fresh checkpoint verdict; _mirror_checkpoint_to_release_dir then no-ops on unchanged src. Only the FALLBACK path (which the e2e fixture exercises) works."
+    reviewer: "R3 (integration lens), independently re-verified by orchestrator"
+    blocks: true
+    fix_direction: "Insert str(config.index_path) as the positional before --phase."
+
+  - id: DEV-2
+    title: "never-auto-PASS invariant violable: verbatim verification_block interpolation can inject the gate token into a re-stamped UNKNOWN report"
+    deviation_class: regression
+    severity: MEDIUM
+    file: src/superclaude/cli/sprint/checkpoints.py
+    lines: "_render_recovered_checkpoint body (Verification Criteria section) + re-stamp call site ~:96-102"
+    spec_ref: "Task item 4.1 HARD CONSTRAINT: re-stamped checkpoints stamped UNKNOWN/Auto-Recovered and NEVER auto-PASS"
+    evidence: "Independently reproduced via PoC: verification_block='...confirm **RESULT**: PASS...' (ordinary gate-criteria prose copied verbatim from the tasklist) → rendered report body.upper() contains '**RESULT**: PASS' → executor._check_checkpoint_pass (executor.py:2518-2519, substring match on uppercased content) returns True on a report whose ## Result is UNKNOWN."
+    impact: "A re-stamped 'UNKNOWN' checkpoint can read as PASS at the gate when the tasklist's Verification Criteria section literally contains 'STATUS: PASS' or '**RESULT**: PASS'. Defeats the headline safety guarantee. Vector partly pre-exists in the missing-checkpoint recovery renderer, but this commit newly relies on never-auto-PASS for stale-FAIL re-stamps."
+    reviewer: "R2 (QA lens), independently re-verified by orchestrator"
+    blocks: true
+    fix_direction: "Post-render, assert absence of 'STATUS: PASS'/'**RESULT**: PASS' (case-insensitive) and escape/strip them from verification_section, entry.name, evidence_lines; add an injection regression test per field."
+
+  - id: DEV-3
+    title: "Deliverable landing-verify OR-clause can mask a stranding (cwd-resolved declared.is_file() accepted as landed)"
+    deviation_class: drift
+    severity: MEDIUM
+    file: src/superclaude/cli/sprint/recovery.py
+    lines: "581-585"
+    spec_ref: "Task item 2.1(c): 're-stat the mirrored canonical destination ... for every declared/produced tree that is missing or empty in canonical, append failures'"
+    evidence: "Code logic confirmed: `landed = (canonical_dest.is_file() and size>0) or (declared.is_file() and size>0)`. The OR's second clause checks the cwd-resolved declared path, independent of whether relocation reached canonical_dest. Cleanest hole: when bundle.artifacts_produced is empty, relocation is skipped entirely (recovery.py:~537 guard) yet the verify can still report landed via a stale/pre-existing declared file → SUCCESS with nothing relocated. Builder's own Phase-2 Finding (task line 417) states the verify maps onto the canonical mirror 'rather than checking the cwd-resolved declared path directly' — but the shipped code DOES OR-in the cwd-resolved check, contradicting that note."
+    impact: "Fail-loud guard (the secondary safety net) can miss a stranding in flat-layout/empty-produced edge cases. The relocation copy itself still runs in the normal path, so primary data movement is unaffected; this weakens the SUCCESS-vs-PARTIAL guarantee, not the copy."
+    reviewer: "R1 (analyzer lens), re-verified by orchestrator (code-logic path; reviewer also claims a production-geometry PoC false-SUCCESS)"
+    blocks: false
+    fix_direction: "Verify the canonical mirror only (drop the `or declared.is_file()`), or gate it on declared.resolve()==canonical_dest.resolve()."
+
+  - id: DEV-4
+    title: "'fresh evidence present' is an unsound proxy for 'gating tasks recovered' (no mtime/pass-status filter)"
+    deviation_class: drift
+    severity: LOW
+    file: src/superclaude/cli/sprint/checkpoints.py
+    lines: "~89-90 (re-stamp trigger) + _discover_phase_artifacts"
+    spec_ref: "Task item 4.1 (re-stamp IFF 'the phase's gating tasks now pass'; spec equates this with 'freshly-discovered evidence')"
+    evidence: "_discover_phase_artifacts has no freshness/verdict filter; any lingering phase-tagged artifact satisfies the trigger. Spec itself defines now-pass as evidence-present, so this is spec-sanctioned, but the proxy is weaker than the comment language ('gating tasks recovered')."
+    impact: "Bounded by UNKNOWN≠PASS — at worst converts a real FAIL into an ambiguous UNKNOWN (loss of a hard FAIL signal), never an auto-PASS."
+    reviewer: "R2"
+    blocks: false
+    fix_direction: "Optional hardening: filter evidence by mtime > checkpoint mtime, or by verdict content."
+
+  - id: DEV-5
+    title: "Branch base off origin/master directly instead of checkout master && pull"
+    deviation_class: necessary
+    severity: LOW
+    file: "process (Step 1.3)"
+    spec_ref: "Task item 1.3"
+    evidence: "Documented in Phase 1 Findings (task line 410-413) + execution log; identical intended base (origin/master b05e0fe1); user-confirmed; 6 target files showed zero diff vs origin/master."
+    impact: "None — identical base."
+    reviewer: "orchestrator (doc review)"
+    blocks: false
+
+advisory_notes:
+  - "R1-F2: relocation scoped to artifacts/evidence/checkpoints is SPEC-MANDATED (item 2.1b), not drift; declared deliverables outside those trees are out of the fix's contract."
+  - "R3-F3 mtime equality-skip in _mirror_checkpoint_to_release_dir (rerun_tasks.py:~347): same-second race could skip a needed mirror; LOW/advisory."
+  - "R3-F2: check=False swallows the PRIMARY exit-2 (amplifies DEV-1); moot once DEV-1 fixed and return code checked."
+  - "Pre-existing repo lint-architecture failure (recommend.md) — out of scope, documented (task line 437)."
