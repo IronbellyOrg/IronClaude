@@ -520,6 +520,89 @@ class TestRecoverMissingCheckpoints:
         assert result[0].exists is False
         assert result[0].recovered is False
 
+    def test_recover_reevaluates_stale_fail_to_unknown(self, tmp_path: Path):
+        """Defect-2 regression (positive): with ``reevaluate_stale=True``, an
+        EXISTING stale FAIL/BLOCKED end-of-phase checkpoint whose phase has
+        recovered (fresh passing evidence present) is re-stamped to
+        UNKNOWN/Auto-Recovered — never left verbatim, and NEVER auto-PASS."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        # Fresh passing evidence for the phase-3 gating tasks.
+        (tmp_path / "artifacts" / "D-0013").mkdir(parents=True)
+        (tmp_path / "artifacts" / "D-0013" / "config.md").write_text(
+            "Task T03.01 delivered configuration module."
+        )
+        (tmp_path / "artifacts" / "D-0014").mkdir()
+        (tmp_path / "artifacts" / "D-0014" / "util.md").write_text(
+            "Task T03.02 delivered utilities."
+        )
+        # Pre-seed an EXISTING stale FAIL checkpoint report (agent-written
+        # status: fail frontmatter + a FAIL ## Result body).
+        checkpoints_dir = tmp_path / "checkpoints"
+        checkpoints_dir.mkdir(parents=True, exist_ok=True)
+        (checkpoints_dir / "CP-P03-END.md").write_text(
+            "---\n"
+            "checkpoint: End of Phase 3\n"
+            "phase: 3\n"
+            "status: fail\n"
+            "generated_at: 2026-06-01T00:00:00Z\n"
+            "---\n\n"
+            "## Result\n\n"
+            "`FAIL` — gating tasks did not pass.\n",
+            encoding="utf-8",
+        )
+
+        manifest = build_manifest(index, tmp_path)
+        recovered = recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+
+        end_entry = next(
+            e
+            for e in recovered
+            if e.phase == 3 and e.expected_path.name == "CP-P03-END.md"
+        )
+        body = end_entry.expected_path.read_text(encoding="utf-8")
+        # Stale FAIL verdict was re-stamped, not left verbatim.
+        assert "recovered: true" in body
+        assert "Auto-Recovered" in body
+        assert "`UNKNOWN`" in body
+        assert "status: fail" not in body
+        # NEVER auto-PASS — the executor's _check_checkpoint_pass PASS tokens
+        # must be absent from the re-stamped report.
+        upper = body.upper()
+        assert "STATUS: PASS" not in upper
+        assert "**RESULT**: PASS" not in upper
+        assert end_entry.recovered is True
+
+    def test_recover_preserves_fail_when_tasks_still_failing(self, tmp_path: Path):
+        """Defect-2 regression (negative): when the phase's gating tasks did NOT
+        recover (no fresh passing evidence), the re-stamp branch must NOT fire —
+        the stale FAIL verdict is preserved verbatim."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        # No passing evidence seeded ⇒ the now-pass precondition is NOT met.
+        checkpoints_dir = tmp_path / "checkpoints"
+        checkpoints_dir.mkdir(parents=True, exist_ok=True)
+        end_report = checkpoints_dir / "CP-P03-END.md"
+        stale = (
+            "---\n"
+            "checkpoint: End of Phase 3\n"
+            "phase: 3\n"
+            "status: fail\n"
+            "generated_at: 2026-06-01T00:00:00Z\n"
+            "---\n\n"
+            "## Result\n\n"
+            "`FAIL` — gating tasks did not pass.\n"
+        )
+        end_report.write_text(stale, encoding="utf-8")
+
+        manifest = build_manifest(index, tmp_path)
+        recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+
+        # Stale FAIL preserved byte-identically — no UNKNOWN re-stamp fired.
+        assert end_report.read_text(encoding="utf-8") == stale
+
 
 # ---------------------------------------------------------------------------
 # Wave 3 — verify-checkpoints CLI subcommand

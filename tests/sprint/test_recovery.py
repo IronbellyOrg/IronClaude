@@ -324,6 +324,71 @@ class TestMergeRecoveryBundle:
         assert entries[0]["status"] == "fail_recoverable"
         assert bundle.status is RecoveryStatus.PARTIAL
 
+    def test_merge_relocates_deliverable_trees_or_partials(self, tmp_path: Path):
+        """Defect-1 regression: a rerun's TASKLIST_ROOT deliverable trees written
+        into the bundle root must be relocated to the canonical TASKLIST_ROOT — or
+        the merge must fail loudly (PARTIAL with a ``deliverable-not-landed:`` audit
+        entry). It must NEVER report SUCCESS while deliverables stay stranded inside
+        the bundle (the pre-Fix-1 silent-data-loss behavior)."""
+        source_index, _release_dir, results_dir = _seed_release(tmp_path, phase=7)
+        bundle = _bundle_with_sidecar(
+            tmp_path, bundle_id="rerun-strand", phase=7, task_ids=["T07.11"]
+        )
+        # Fixture geometry: _bundle_with_sidecar anchors the placeholder DIRECTLY
+        # in bundle_dir, so bundle.artifacts_produced[0].parent.parent (the same
+        # formula Step 3.5 uses to derive bundle_root) resolves to tmp_path/"bundles"
+        # here — NOT the production <bundle>/results/ nesting. Seed the deliverable
+        # trees under that derived bundle_root so test-seed and relocation-read agree.
+        bundle_root = bundle.artifacts_produced[0].parent.parent
+        module_src = bundle_root / "artifacts" / "D-0711" / "module.py"
+        module_src.parent.mkdir(parents=True, exist_ok=True)
+        module_src.write_text("print('rerun deliverable')", encoding="utf-8")
+        proof_src = bundle_root / "evidence" / "T07.11" / "proof.md"
+        proof_src.parent.mkdir(parents=True, exist_ok=True)
+        proof_src.write_text("evidence body", encoding="utf-8")
+
+        # Canonical destinations are mirrored under the canonical TASKLIST_ROOT
+        # (= source_index.parent, which is tmp_path in this fixture).
+        canonical_root = source_index.parent
+        module_dest = canonical_root / "artifacts" / "D-0711" / "module.py"
+        proof_dest = canonical_root / "evidence" / "T07.11" / "proof.md"
+
+        merge_recovery_bundle(
+            bundle,
+            source_index,
+            release_dir=tmp_path,
+            expected_deliverables={"T07.11": [module_dest, proof_dest]},
+        )
+
+        # Load-bearing coupling (REPORT Test-A spec): EITHER the trees landed in
+        # canonical with content preserved AND status SUCCESS, OR status PARTIAL
+        # with a non-empty failures list carrying a deliverable-not-landed entry.
+        audit_log = results_dir / "recovery-audit.log"
+        merge_events = [
+            json.loads(line)
+            for line in audit_log.read_text(encoding="utf-8").splitlines()
+            if line.strip() and json.loads(line).get("event") == "merge_recovery_bundle"
+        ]
+        assert merge_events, "merge must write a merge_recovery_bundle audit event"
+        failures = merge_events[-1].get("failures", [])
+
+        landed = (
+            module_dest.is_file()
+            and module_dest.read_text(encoding="utf-8") == "print('rerun deliverable')"
+            and proof_dest.is_file()
+            and proof_dest.read_text(encoding="utf-8") == "evidence body"
+        )
+        if bundle.status is RecoveryStatus.SUCCESS:
+            assert landed, (
+                "SUCCESS requires the deliverable trees to have landed in "
+                "canonical with content preserved (never stranded-but-SUCCESS)"
+            )
+        else:
+            assert bundle.status is RecoveryStatus.PARTIAL
+            assert any(f.startswith("deliverable-not-landed:") for f in failures), (
+                "a stranded deliverable must produce a deliverable-not-landed failure"
+            )
+
 
 # ---------------------------------------------------------------------------
 # write_recovery_audit_log — shared JSONL audit writer

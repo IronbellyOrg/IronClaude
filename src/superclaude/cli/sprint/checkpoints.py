@@ -210,12 +210,55 @@ def write_manifest(entries: list[CheckpointEntry], output_path: Path) -> None:
     tmp.replace(output_path)
 
 
+# Verdict tokens a checkpoint report may carry (consistent with the
+# PASS|FAIL|...|BLOCKED|SKIP matcher used by summarizer.py).
+_CHECKPOINT_VERDICT_RE = re.compile(
+    r"\b(PASS|FAIL|BLOCKED|SKIP|UNKNOWN)\b", re.IGNORECASE
+)
+
+
+def _parse_checkpoint_verdict(path: Path) -> str | None:
+    """Best-effort: read the current verdict token from an EXISTING checkpoint
+    report. Inspects a ``status:``/``verdict:`` frontmatter key first (only
+    within the leading ``---`` fenced block), then the ``## Result`` body
+    section. Returns the uppercased token (e.g. ``"FAIL"``) or ``None`` when no
+    verdict can be read. Used by the Fix-2 stale-verdict re-evaluation path —
+    the recovered-report template itself writes no ``status:`` frontmatter key,
+    so a stale FAIL/BLOCKED can only have been written by an agent.
+    """
+    try:
+        content = path.read_text(errors="replace")
+    except OSError:
+        return None
+    lines = content.splitlines()
+    # Frontmatter block (between the first two --- fences).
+    if lines and lines[0].strip() == "---":
+        for line in lines[1:]:
+            if line.strip() == "---":
+                break
+            key_match = re.match(
+                r"\s*(?:status|verdict)\s*:\s*(.+?)\s*$", line, re.IGNORECASE
+            )
+            if key_match:
+                token = _CHECKPOINT_VERDICT_RE.search(key_match.group(1))
+                if token:
+                    return token.group(1).upper()
+    # ## Result body token (the form recovered reports and many agents use).
+    result_idx = content.find("## Result")
+    if result_idx != -1:
+        token = _CHECKPOINT_VERDICT_RE.search(content[result_idx:])
+        if token:
+            return token.group(1).upper()
+    return None
+
+
 def recover_missing_checkpoints(
     manifest: list[CheckpointEntry],
     artifacts_dir: Path,
     phase_tasklists: dict[int, Path],
     *,
     return_bundle: bool = False,
+    reevaluate_stale: bool = False,
 ) -> list[CheckpointEntry] | RecoveryBundle:
     """Regenerate missing checkpoint reports from evidence files.
 
@@ -242,11 +285,66 @@ def recover_missing_checkpoints(
     :class:`~superclaude.cli.sprint.recovery.RecoveryBundle` for the v4.4.0
     unified recovery surface; otherwise the list of ``CheckpointEntry`` is
     returned unchanged (byte-identical to v4.2.x behavior).
+
+    ``reevaluate_stale`` (Fix-2 FALLBACK; default False ⇒ behavior unchanged):
+    when True, an EXISTING checkpoint file whose current verdict is FAIL or
+    BLOCKED is re-stamped to ``UNKNOWN``/Auto-Recovered (via the same recovered
+    report template) IFF the phase's gating tasks have recovered — determined
+    from freshly-discovered evidence under ``artifacts_dir`` for that phase. It
+    is NEVER auto-stamped PASS (the UNKNOWN-not-PASS hard constraint). When the
+    gating tasks have not recovered (no fresh evidence), the stale FAIL/BLOCKED
+    verdict is preserved unchanged. With ``reevaluate_stale=False`` the existing
+    idempotent no-op (existing file returned unchanged) is byte-identical.
     """
     out: list[CheckpointEntry] = []
     for entry in manifest:
         # Refresh existence — a previous iteration may have written the file.
         if entry.expected_path.is_file():
+            # Fix-2 FALLBACK: optionally re-evaluate an EXISTING stale verdict.
+            # The default (reevaluate_stale=False) skips straight to the
+            # historical idempotent no-op below (append unchanged + continue).
+            if reevaluate_stale and entry.phase in phase_tasklists:
+                stale_verdict = _parse_checkpoint_verdict(entry.expected_path)
+                if stale_verdict in ("FAIL", "BLOCKED"):
+                    # "Now-passing" is the same evidence-to-phase association the
+                    # recovery path uses: fresh evidence discovered under
+                    # artifacts_dir for this phase ⇒ gating tasks recovered.
+                    evidence = _discover_phase_artifacts(artifacts_dir, entry.phase)
+                    if evidence:
+                        # Re-stamp the stale FAIL/BLOCKED to UNKNOWN/Auto-Recovered
+                        # (NEVER auto-PASS — the UNKNOWN-not-PASS hard constraint).
+                        verification_block = _extract_verification_block(
+                            phase_tasklists[entry.phase], entry.name
+                        )
+                        report = _render_recovered_checkpoint(
+                            entry=entry,
+                            verification_block=verification_block,
+                            evidence=evidence,
+                        )
+                        entry.expected_path.parent.mkdir(parents=True, exist_ok=True)
+                        entry.expected_path.write_text(report)
+                        recovery_source = (
+                            ", ".join(
+                                str(p.relative_to(artifacts_dir.parent))
+                                if p.is_relative_to(artifacts_dir.parent)
+                                else str(p)
+                                for p in evidence
+                            )
+                            + f" (stale {stale_verdict} re-stamped to UNKNOWN)"
+                        )
+                        out.append(
+                            CheckpointEntry(
+                                phase=entry.phase,
+                                name=entry.name,
+                                expected_path=entry.expected_path,
+                                exists=True,
+                                recovered=True,
+                                recovery_source=recovery_source,
+                            )
+                        )
+                        continue
+                    # No fresh evidence ⇒ gating tasks did NOT recover: fall
+                    # through and preserve the stale FAIL/BLOCKED verdict.
             out.append(
                 CheckpointEntry(
                     phase=entry.phase,
