@@ -93,8 +93,8 @@ Phase-1 **excludes** streaming, function-calling/tool-use, and vision input — 
 
 ## What a run emits today
 
-After a successful `swarm run ... --output <dir>` (stub or proxy), `<dir>` contains
-**exactly four** files:
+After a successful **fresh** `swarm run ... --output <dir>` (stub or proxy — i.e. *not*
+`--resume`), `<dir>` contains **exactly four** files:
 
 | File | Shape | Doc |
 |---|---|---|
@@ -103,12 +103,20 @@ After a successful `swarm run ... --output <dir>` (stub or proxy), `<dir>` conta
 | `manifest.json` | Lens snapshot + preflight summary + caller metadata (resume anchor) | [Command Ref → run artifacts](command-reference.md#run-artifacts) |
 | `.swarm-state.json` | Coarse wave phase (`preflight_ok`…`terminal`) | [Command Ref → status](command-reference.md#swarm-status) |
 
-**Not** emitted by the current run path: `merged.md`, `return-contract.yaml`,
-`done.json`, and the per-worker `*.md` / `*.meta.json` outputs — these belong to the
-pending **M5** Wave 2/3 writer. (A missing proxy env contract fails the run at transport
-construction with a clear `missing: …` diagnostic and exit `1`, writing only
-`manifest.json` + `.swarm-state.json` — see
-[User Guide §6c](user-guide.md#6c-if-the-env-is-missing).)
+**Not** emitted by the fresh run path: `merged.md`, `return-contract.yaml`,
+`done.json`, and the per-worker `*.md` / `*.meta.json` outputs — the fresh path is
+dispatch-only (Wave 0 + Wave 1), so the Wave 2/3 amalgamation writer (**M5**) is not yet
+wired into it. (A missing proxy env contract fails the run at transport construction with
+a clear `missing: …` diagnostic and exit `1`, writing only `manifest.json` +
+`.swarm-state.json` — see [User Guide §6c](user-guide.md#6c-if-the-env-is-missing).)
+
+> **Resume mode is different.** `swarm run --resume` re-runs **Wave 2 normalize +
+> Wave 3 reduce** (`reduce_wave3`), so a resumed job's `<dir>` *additionally* contains
+> `return-contract.yaml` and `done.json`, plus **`merged.md` when
+> `amalgamation_mode == normalize+merge`** and the per-worker normalized outputs. The
+> four-file set above is the **fresh-run** contract only. See
+> [User Guide §8](user-guide.md#8-resuming-a-partial-job) and
+> [Command Ref → run artifacts](command-reference.md#run-artifacts).
 
 The `--output` **flag** is what wires these artifacts. A spec-file run *without*
 `--output` dispatches but writes nothing to disk.

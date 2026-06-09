@@ -230,8 +230,8 @@ missing, nested tmux, illegal `JOB_ID`, or `--output` not a directory).
 
 ## Run artifacts
 
-After a successful `swarm run … --output <DIR>` (stub or proxy), `<DIR>` contains
-**exactly four** files:
+After a successful **fresh** `swarm run … --output <DIR>` (stub or proxy — *not*
+`--resume`), `<DIR>` contains **exactly four** files:
 
 | File | Format | Key fields |
 |---|---|---|
@@ -240,10 +240,19 @@ After a successful `swarm run … --output <DIR>` (stub or proxy), `<DIR>` conta
 | `execution-log.md` | Markdown | `- [<ts>] <event_type> worker=<i\|->: <k=v …>` — same stream, human-rendered. |
 | `manifest.json` | JSON | `contract_version`, `job_id`, `resolved_lens_entry` (durable lens snapshot), `preflight` (`target_checksum` / `workers_requested` / `transport_kind`), `caller_metadata` (`suspect` / `tier`). |
 
-**Not** emitted by today's run path: `merged.md`, `return-contract.yaml`, `done.json`,
-per-worker `*.md` / `*.meta.json` (pending M5). **Exception:** preflight writes
-`return-contract.yaml` (`status: failed`, `reason: env-missing`) on the INV-007
-env-missing path. Full schemas: [Lens Catalog](lens-catalog.md) and the dataclass
-definitions in `cli/swarm/models.py`.
+**Not** emitted by the **fresh** run path: `merged.md`, `return-contract.yaml`,
+`done.json`, per-worker `*.md` / `*.meta.json` — the fresh path is dispatch-only
+(Wave 0 + Wave 1), so the Wave 2/3 amalgamation writer (M5) is not wired into it.
+**Exception:** preflight writes `return-contract.yaml` (`status: failed`,
+`reason: env-missing`) on the INV-007 env-missing path.
+
+**`--resume` emits more.** `swarm run --resume` re-runs Wave 2 normalize + Wave 3
+reduce (`reduce_wave3`), so a resumed job's `<DIR>` *additionally* contains
+`return-contract.yaml` and `done.json`, plus `merged.md` when
+`amalgamation_mode == normalize+merge` and the per-worker normalized outputs. The
+four-file set above is the fresh-run contract only.
+
+Full schemas: [Lens Catalog](lens-catalog.md) and the dataclass definitions in
+`cli/swarm/models.py`.
 
 > `.swarm-state.json` is a dotfile — `ls` hides it; use `ls -A`.
