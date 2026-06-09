@@ -854,6 +854,7 @@ Agent:
       SPEC_PATH: <spec_path or NONE>
       DEPTH: <max(tcs-derived depth, standard)>   # POST floor per O4 — never quick
       TASK_FILE: ${TASK_FILE}
+      POST_REFLECT_MODE: <halt (default) | wrapper>   # omission ⇒ halt (byte-identical HALT item)
 
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
@@ -1869,6 +1870,20 @@ The complete BUILD_REQUEST template is embedded in **A.9** above. This section d
   suppressed with a `header-leak-suppressed` annotation. Specific
   `path.py:NN` references belong in per-item Context fields and
   `research/*.md` (the evidence venue), never in this header.
+- `POST_REFLECT_MODE` — A sub-field of the `POST_REFLECT_GATE` block
+  controlling how the emitted Phase-N POST reflection item discharges the
+  gate. Values: `halt` (default) | `wrapper`. Omission implies `halt`; when
+  `halt`, the M1-frozen byte-identical HALT item is preserved (the manual
+  `/sc:reflect --mode post` paste-ready command + `reflect_post: PENDING`
+  sentinel + STOP for a fresh-session operator), so a build with no
+  `POST_REFLECT_MODE` (or `=halt`) yields a byte-identical tasklist to today
+  (NFR-3 reversibility). When `wrapper`, the Phase-N item's **Action** instead
+  shells out (Bash, never Agent/Task — the wrapper is a top-level subprocess
+  that escapes the Agent-tool nesting limit) to
+  `superclaude reflect run {TASK_FILE} --depth {DEPTH}` (the TCS-resolved
+  `{DEPTH}`, floored at `standard` per O4), with the Done item gated on BOTH
+  the wrapper exit code AND the written-back `reflect_post.verdict == pass`.
+  Strictly-additive: the M1-frozen required-field schema is preserved.
 
 **COMMON PHASE PATTERNS** (included in BUILD_REQUEST to guide the builder):
 
@@ -1991,12 +2006,26 @@ tags:
 
 ## Phase N: [Final Phase — includes completion items]
 
+**POST_REFLECT_MODE branch (emit exactly ONE arm for the penultimate item):**
+When `POST_REFLECT_MODE` is unset or `halt`, emit the **halt arm** below BYTE-IDENTICAL (NFR-3 reversibility — a `halt`/unset build yields a tasklist identical to today). When `POST_REFLECT_MODE: wrapper`, emit the **wrapper arm** instead (Bash shell-out to the top-level `superclaude reflect run` subprocess). G5 asymmetry (deliberate): the wrapper arm's `<BASE>` defaults to `master` (OQ1, matching this repo's `origin/HEAD → master`), which intentionally differs from the halt arm's `git merge-base HEAD <integration>` — both are correct for their context.
+
+**Halt arm (`POST_REFLECT_MODE: halt` / unset — default):**
+
 - [ ] **N.{X-1} — Independent post-execution reflection gate (fresh session, HALT)**
   - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per project memory `feedback_sc_reflect_vs_inline_rfqa`, an independent `/sc:reflect --mode post` ensemble catches spec-literal-token, invariant-arithmetic, and integration/orphan blindspots that same-frame QA misses.
   - **Action**: Do NOT run reflect inside this session. Write `reflect_post: PENDING` to this file's frontmatter, then STOP and surface this paste-ready command for the operator to run in a NEW session: `/sc:reflect --mode post --remediate --diff <BASE>..HEAD --tasklist {TASK_FILE} [--spec {SPEC_PATH}] --depth {DEPTH} --executor-model {EXECUTOR_CLASS}` — where `<BASE>` is the commit recorded at task start (frontmatter `start_commit`, or `git merge-base HEAD <integration>` if unset), `{DEPTH}` is floored at `standard` per O4 (the POST gate NEVER runs `--depth quick`), and the spawned reflect agent uses the default subagent model. The gate command uses `/sc:reflect` and never the `sc:task` execution command.
   - **Output**: Frontmatter `reflect_post: PENDING`; paste-ready `/sc:reflect --mode post` command surfaced for a fresh session.
   - **Verification**: `reflect_post` is PENDING and the operator has the exact `/sc:reflect` command. The item does NOT self-resolve.
   - **Completion gate**: Operator has run `/sc:reflect --mode post` in a fresh session and recorded its verdict (`reflect_post: {verdict, run_id, report}`) in frontmatter. Only THEN may the Update-status-to-Done item proceed (HALT per `feedback_human_decision_items_must_halt`).
+
+**Wrapper arm (`POST_REFLECT_MODE: wrapper`):**
+
+- [ ] **N.{X-1} — Independent post-execution reflection gate (automated wrapper, fail-closed)**
+  - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per project memory `feedback_sc_reflect_vs_inline_rfqa`, an independent reflect ensemble catches spec-literal-token, invariant-arithmetic, and integration/orphan blindspots that same-frame QA misses. The wrapper launches `/sc:reflect --mode post` as a **top-level `claude --print` subprocess**, which escapes the in-session nesting limit so reflect's Tier-2 ensemble actually fans out.
+  - **Action**: Run the POST reflect gate as a **Bash** shell-out (NFR-7 — the wrapper is a top-level subprocess; do NOT re-enter it through any in-session delegation surface): `superclaude reflect run {TASK_FILE} --depth {DEPTH}` — where `{DEPTH}` is the TCS-resolved depth floored at `standard` per O4 (the POST gate NEVER runs `--depth quick`). The wrapper derives `<BASE>` itself (frontmatter `start_commit`, else `git merge-base HEAD master` per OQ1/G5), launches reflect, parses `return-contract.yaml`, derives the fail-closed verdict, and atomically writes the structured `reflect_post:` block back into this file's frontmatter.
+  - **Output**: Frontmatter `reflect_post: {verdict, status, run_id, tier_reached, report, contract, reason, deviations, head, reviewed_at}` written by the wrapper, plus a `<output>/wrapper-result.yaml` sidecar. The wrapper process exit code is the fail-closed verdict code (pass 0 / halted 10 / degraded 11 / blocked 2).
+  - **Verification**: The wrapper exited 0 AND the written-back `reflect_post.verdict == pass`. Any other verdict (`halted`/`degraded`/`blocked`) is a non-zero exit and a non-`pass` written-back verdict.
+  - **Completion gate**: BOTH the wrapper exit code is 0 AND `reflect_post.verdict == pass` (FR-7 dual gate). Only THEN may the Update-status-to-Done item proceed. On any other verdict, HALT and route the wrapper's `report` + `reason` + `deviations` into this tasklist's `### Open Questions` (HALT per `feedback_human_decision_items_must_halt`); use `/task` (never `/sc:task`) for any re-execution.
 
 - [ ] **N.X — Update task status to Done**
   - **Context**: All phases complete.
@@ -2105,7 +2134,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 18. **Testing in generated task files.** When the BUILD_REQUEST specifies TESTING_REQUIREMENTS other than NONE or N/A, the builder MUST encode testing checklist items in the generated task file. Testing items must specify: test file paths, test commands, coverage thresholds (if applicable), and verification that tests pass. Testing items are placed after implementation items and before QA gate items. A generated task file that requires testing items (TESTING_REQUIREMENTS is not NONE or N/A) but omits them is a MALFORMED output.
 
-19. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a fresh-session reflect handoff item. The item MUST NOT run reflect inline in the executor's biased context; it writes a `reflect_post: PENDING` sentinel and HALTs until the operator records the verdict in a fresh session. The handoff command uses `/sc:reflect` for the gate and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED` is a MALFORMED output.
+19. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a reflect handoff item. The item MUST NOT run reflect inline in the executor's biased context. Under `POST_REFLECT_MODE: halt` (default/unset) it writes a `reflect_post: PENDING` sentinel and HALTs until the operator records the verdict in a fresh session; under `POST_REFLECT_MODE: wrapper` it instead shells out (Bash) to the top-level `superclaude reflect run` subprocess, which writes the verdict back, and the Done item gates on the wrapper exit code AND `reflect_post.verdict == pass`. The handoff command uses `/sc:reflect` (when `POST_REFLECT_MODE` is `halt`/unset) OR a Bash `superclaude reflect run` shell-out (when `POST_REFLECT_MODE` is `wrapper`); `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED` is a MALFORMED output.
 
 **Precedence rule:** When a BUILD_REQUEST contains both SKILL PHASES TO ENCODE and QA_GATE_REQUIREMENTS, the SKILL PHASES TO ENCODE field is authoritative. QA_GATE_REQUIREMENTS serves as a structured summary and quick reference. For the standalone task-builder (which has no SKILL PHASES TO ENCODE), QA_GATE_REQUIREMENTS is the sole authority for QA gate encoding.
 

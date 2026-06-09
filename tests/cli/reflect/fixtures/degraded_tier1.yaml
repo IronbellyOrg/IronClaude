@@ -1,0 +1,29 @@
+contract_version: "1.3.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: /tmp/reflect-out/REPORT.md
+audit_log_path: /tmp/reflect-out/audit.log
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+# T2 fields are null/absent at Tier 1 (NOT degradation in themselves);
+# the degradation is the expected-T2-but-ran-T1 tier miss (trigger 6).
+t2_model_class_diversity: null
+t2_vendor_diversity: null
+adversarial_unavailable: null
+merge_method: null
+adversarial_convergence_score: null
+verification_ran: true
+verification_skip_reason: null
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+serena_summary_corroboration: unavailable
+degraded_components: []

@@ -433,6 +433,10 @@ from superclaude.cli.init_lite import init_lite_command  # noqa: E402,I001  # in
 
 main.add_command(init_lite_command, name="init-lite")
 
+from superclaude.cli.reflect.commands import reflect_group  # noqa: E402,I001  # intentional: deferred subcommand registration to avoid circular imports
+
+main.add_command(reflect_group, name="reflect")
+
 
 if __name__ == "__main__":
     main()
