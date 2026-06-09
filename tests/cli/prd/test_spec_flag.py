@@ -33,6 +33,7 @@ from superclaude.cli.prd.gates import GATE_CRITERIA
 from superclaude.cli.prd.models import PrdConfig
 from superclaude.cli.prd.process import PrdClaudeProcess
 from superclaude.cli.prd.prompts import (
+    _TRUNCATION_MARKER,
     _authoritative_specs_block,
     _render_investigation_prompt,
     build_investigation_prompt,
@@ -457,8 +458,10 @@ class TestResumeCarriesSpecs:
 
 
 # ===========================================================================
-# Phase 1.5 -- spec content delivered via the existing --file mechanism
-# (reuses PrdClaudeProcess._build_file_args rather than a parallel path)
+# Spec content is delivered INLINE in the prompt (see _authoritative_specs_block).
+# The cloud-only --file mechanism was removed, so the PRD subprocess argv
+# carries NO --file flag for any step; these tests assert its absence and that
+# the inline block embeds real content / falls back safely for missing paths.
 # ===========================================================================
 
 
@@ -474,42 +477,72 @@ def _spec_config(tmp_path: Path, spec_files: list[str]) -> PrdConfig:
     )
 
 
-class TestSpecFileAttach:
-    def test_scope_discovery_attaches_each_spec(self, tmp_path: Path) -> None:
+class TestSpecFileNotAttached:
+    """After the --file removal, the PRD subprocess argv carries NO --file flag
+    for any step even when spec_files is set — spec/ref content reaches the
+    agent inline via the prompt, not via the cloud-only --file mechanism."""
+
+    @staticmethod
+    def _command(cfg: PrdConfig, step_id: str, tmp_path: Path) -> list[str]:
+        proc = PrdClaudeProcess(
+            config=cfg,
+            step_id=step_id,
+            prompt="p",
+            output_file=tmp_path / "out.jsonl",
+            error_file=tmp_path / "err.txt",
+        )
+        return proc.build_command()
+
+    def test_scope_discovery_emits_no_file_flag(self, tmp_path: Path) -> None:
         a = tmp_path / "A.md"
         b = tmp_path / "B.md"
         a.write_text("a", encoding="utf-8")
         b.write_text("b", encoding="utf-8")
         cfg = _spec_config(tmp_path, [str(a), str(b)])
 
-        args = PrdClaudeProcess._build_file_args(cfg, "scope-discovery")
+        cmd = self._command(cfg, "scope-discovery", tmp_path)
 
-        assert args == ["--file", str(a), "--file", str(b)]
+        assert "--file" not in cmd
 
-    def test_investigation_numbered_step_attaches_specs(self, tmp_path: Path) -> None:
+    def test_investigation_numbered_step_emits_no_file_flag(
+        self, tmp_path: Path
+    ) -> None:
         spec = tmp_path / "SPEC.md"
         spec.write_text("s", encoding="utf-8")
         cfg = _spec_config(tmp_path, [str(spec)])
 
         # "investigation-3" must normalize to "investigation".
-        args = PrdClaudeProcess._build_file_args(cfg, "investigation-3")
+        cmd = self._command(cfg, "investigation-3", tmp_path)
 
-        assert "--file" in args
-        assert str(spec) in args
+        assert "--file" not in cmd
 
-    def test_parse_request_does_not_attach_specs(self, tmp_path: Path) -> None:
-        spec = tmp_path / "SPEC.md"
-        spec.write_text("s", encoding="utf-8")
-        cfg = _spec_config(tmp_path, [str(spec)])
 
-        # parse-request runs BEFORE binding and is not a spec-consuming step.
-        assert PrdClaudeProcess._build_file_args(cfg, "parse-request") == []
+class TestAuthoritativeSpecsBlockInline:
+    """Hardened Option B: existing specs are inlined (50KB-capped via the reused
+    _read_file); a missing/stale path falls back to a path-only line WITHOUT
+    raising (validates the Path(p).is_file() guard)."""
 
-    def test_no_specs_no_args(self, tmp_path: Path) -> None:
-        cfg = _spec_config(tmp_path, [])
-        assert PrdClaudeProcess._build_file_args(cfg, "scope-discovery") == []
+    def test_existing_spec_content_is_inlined(self, tmp_path: Path) -> None:
+        spec = tmp_path / "real.md"
+        spec.write_text("ZZ_UNIQUE_MARKER_inline\n", encoding="utf-8")
 
-    def test_missing_spec_file_skipped(self, tmp_path: Path) -> None:
-        missing = tmp_path / "gone.md"  # never created
-        cfg = _spec_config(tmp_path, [str(missing)])
-        assert PrdClaudeProcess._build_file_args(cfg, "scope-discovery") == []
+        out = _authoritative_specs_block([str(spec)])
+
+        assert "ZZ_UNIQUE_MARKER_inline" in out
+        assert "AUTHORITATIVE SPECIFICATIONS" in out
+
+    def test_oversized_spec_is_truncated(self, tmp_path: Path) -> None:
+        spec = tmp_path / "big.md"
+        spec.write_text("B" * 50_001, encoding="utf-8")
+
+        out = _authoritative_specs_block([str(spec)])
+
+        assert _TRUNCATION_MARKER in out
+
+    def test_missing_spec_path_does_not_raise(self, tmp_path: Path) -> None:
+        missing = "/nope/does-not-exist.md"
+
+        # Must NOT raise FileNotFoundError — validates the Path.is_file() guard.
+        out = _authoritative_specs_block([missing])
+
+        assert missing in out

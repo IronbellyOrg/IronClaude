@@ -1,0 +1,28 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0, anyio-4.13.0
+collected 160 items
+
+tests/cli/prd/test_cli_smoke.py ......                                   [  3%]
+tests/cli/prd/test_config.py .                                           [  4%]
+tests/cli/prd/test_e2e.py .............                                  [ 12%]
+tests/cli/prd/test_executor.py .......                                   [ 16%]
+tests/cli/prd/test_filtering.py ..........                               [ 23%]
+tests/cli/prd/test_gates.py .......................                      [ 37%]
+tests/cli/prd/test_integration.py .........                              [ 43%]
+tests/cli/prd/test_inventory.py .......                                  [ 47%]
+tests/cli/prd/test_models.py .......                                     [ 51%]
+tests/cli/prd/test_path_resolution.py ........                           [ 56%]
+tests/cli/prd/test_prompt_builders_dual_mode.py ..........               [ 63%]
+tests/cli/prd/test_prompts.py ..........                                 [ 69%]
+tests/cli/prd/test_research_notes_roundtrip.py ..                        [ 70%]
+tests/cli/prd/test_resolve_step_content.py ..........                    [ 76%]
+tests/cli/prd/test_resume_skip.py .......                                [ 81%]
+tests/cli/prd/test_spec_flag.py ..............................           [100%]
+
+============================= 160 passed in 0.57s ==============================

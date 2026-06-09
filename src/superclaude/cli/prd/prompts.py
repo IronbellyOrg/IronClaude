@@ -125,16 +125,36 @@ def _authoritative_specs_block(spec_paths: list[str] | None) -> str:
     the no-spec path. When specs are present, returns a block (prefixed with a
     blank line) instructing the agent to Read each authoritative spec in full.
 
-    Phase 1 (paths-only): the block carries paths, not inlined content.
+    Hardened Option B: each EXISTING spec's content is inlined via
+    ``_read_file`` (50KB cap + ``_TRUNCATION_MARKER``) under a
+    ``--- SPEC: <path> ---`` header; any non-existent/stale path falls back to
+    a path-only line via a ``Path(p).is_file()`` guard (never reading a missing
+    file, so the block never raises ``FileNotFoundError``).
     """
     if not spec_paths:
         return ""
-    listed = "\n".join("- " + p for p in spec_paths if p)
+    sections: list[str] = []
+    for p in spec_paths:
+        if not p:
+            continue
+        if Path(p).is_file():
+            sections.append(f"--- SPEC: {p} ---\n{_read_file(Path(p))}")
+        else:
+            # Missing/stale/moved path (e.g. a resumed run whose persisted
+            # parsed-request SPECS point at a since-removed file): fall back to
+            # a path-only line and NEVER _read_file it, so the block cannot
+            # raise FileNotFoundError inside build_scope_discovery_prompt
+            # (which the executor catches only as MissingArtifactError).
+            sections.append("- " + p)
+    listed = "\n\n".join(sections)
     return (
         "\n\nAUTHORITATIVE SPECIFICATIONS -- these files are the operator's "
         "ground truth for this PRD. You MUST Read each one IN FULL before "
         "drawing conclusions, and treat their contents as overriding any "
-        "inference from directory names or structure:\n" + listed
+        "inference from directory names or structure. Content inlined below a "
+        "`--- SPEC: <path> ---` header is the file verbatim (truncated if "
+        "large); any spec shown only as a path line must be Read from disk:\n"
+        + listed
     )
 
 

@@ -1,14 +1,14 @@
 """PRD pipeline process management -- subprocess lifecycle for PRD agents.
 
 Extends the base ``ClaudeProcess`` with PRD-specific prompt construction,
-phase-aware ``--file`` arg scoping, subprocess timeout enforcement via
+inline prompt-based spec/ref delivery, subprocess timeout enforcement via
 external watchdog, and launch retry with exponential backoff.
 
 NFR-PRD.1: Zero ``async def`` or ``await`` in this module.
 NFR-PRD.7: No imports from superclaude.cli.sprint or superclaude.cli.roadmap.
 NFR-PRD.12/GAP-011: Retry up to 2 times with exponential backoff on transient failures.
 NFR-PRD.13/F-004: Subprocess timeout via Popen watchdog (SIGTERM -> 5s -> SIGKILL).
-GAP-003: Phase-aware ``--file`` arg scoping.
+GAP-003: Spec/ref content delivered inline in the prompt (no ``--file`` flag).
 """
 
 from __future__ import annotations
@@ -87,41 +87,6 @@ def _is_transient_failure(exit_code: int, stderr_text: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Phase-to-allowed-refs mapping (GAP-003)
-# ---------------------------------------------------------------------------
-
-# Maps step IDs to the list of refs files each phase is allowed to read.
-# Files > 50KB are passed as --file args; files < 50KB are inlined in prompt.
-_PHASE_ALLOWED_REFS: dict[str, list[str]] = {
-    "parse-request": [],
-    "scope-discovery": [],
-    "research-notes": [],
-    "sufficiency-review": [],
-    "template-triage": ["build-request-template.md"],
-    "build-task-file": ["build-request-template.md", "operational-guidance.md"],
-    "verify-task-file": ["validation-checklists.md"],
-    "preparation": ["operational-guidance.md"],
-    "investigation": ["operational-guidance.md"],
-    "research-qa": ["validation-checklists.md"],
-    "web-research": ["operational-guidance.md"],
-    "synthesis": ["synthesis-mapping.md", "operational-guidance.md"],
-    "synthesis-qa": ["validation-checklists.md"],
-    "assembly": ["synthesis-mapping.md", "operational-guidance.md"],
-    "structural-qa": ["validation-checklists.md"],
-    "qualitative-qa": ["validation-checklists.md"],
-    "present-complete": [],
-}
-
-_FILE_SIZE_THRESHOLD = 50_000  # 50KB: inline vs --file cutoff
-
-# Phase 1.5 (--spec): steps that consume authoritative spec files. These are
-# the steps whose prompts carry the AUTHORITATIVE-SPECS block (see
-# prompts._authoritative_specs_block); attaching the spec via --file delivers
-# its content to the agent instead of relying on the agent to Read the path.
-_SPEC_FILE_STEPS: frozenset[str] = frozenset({"scope-discovery", "investigation"})
-
-
-# ---------------------------------------------------------------------------
 # PrdClaudeProcess
 # ---------------------------------------------------------------------------
 
@@ -130,7 +95,7 @@ class PrdClaudeProcess(ClaudeProcess):
     """PRD-specific subprocess extending the pipeline base ClaudeProcess.
 
     Adds:
-    - Phase-aware ``--file`` arg construction (GAP-003)
+    - Inline prompt-based spec/ref delivery (GAP-003; no ``--file`` flag)
     - Subprocess timeout enforcement via Popen watchdog (NFR-PRD.13/F-004)
     - Launch retry with exponential backoff (NFR-PRD.12/GAP-011)
     """
@@ -151,9 +116,6 @@ class PrdClaudeProcess(ClaudeProcess):
         self._max_retries = max_retries
         self._retry_delays = [5.0, 15.0]  # exponential backoff
 
-        # Build --file args from phase-allowed refs
-        file_args = self._build_file_args(config, step_id)
-
         super().__init__(
             prompt=prompt,
             output_file=output_file,
@@ -163,47 +125,7 @@ class PrdClaudeProcess(ClaudeProcess):
             permission_flag=config.permission_flag,
             timeout_seconds=timeout_seconds,
             output_format="stream-json",
-            extra_args=file_args,
         )
-
-    @staticmethod
-    def _build_file_args(config: PrdConfig, step_id: str) -> list[str]:
-        """Build --file args for refs files allowed by this step, plus
-        authoritative --spec files for the steps that consume them.
-
-        GAP-003: Each subprocess receives only refs files permitted
-        for its phase. Files > 50KB are passed as --file args;
-        files < 50KB would be inlined in the prompt by the prompt
-        builder (not handled here).
-
-        Phase 1.5 (--spec): for the spec-consuming steps in
-        ``_SPEC_FILE_STEPS`` (scope-discovery, investigation), each
-        authoritative ``config.spec_files`` entry is attached via ``--file``
-        so the agent receives the spec's *content* directly rather than only
-        a path it is told to Read. This reuses the existing ``--file``
-        mechanism instead of introducing a parallel one.
-        """
-        # Normalize step_id: "investigation-3" -> "investigation"
-        base_step = step_id.rsplit("-", 1)[0] if step_id[-1:].isdigit() else step_id
-
-        file_args: list[str] = []
-
-        for ref_name in _PHASE_ALLOWED_REFS.get(base_step, []):
-            ref_path = config.skill_refs_dir / ref_name
-            if ref_path.is_file():
-                try:
-                    size = ref_path.stat().st_size
-                except OSError:
-                    continue
-                if size > _FILE_SIZE_THRESHOLD:
-                    file_args.extend(["--file", str(ref_path)])
-
-        if base_step in _SPEC_FILE_STEPS:
-            for spec_path in getattr(config, "spec_files", None) or []:
-                if Path(spec_path).is_file():
-                    file_args.extend(["--file", spec_path])
-
-        return file_args
 
     def start_with_retry(self) -> subprocess.Popen:
         """Launch the process with retry on transient failures.
