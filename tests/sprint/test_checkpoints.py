@@ -124,6 +124,58 @@ class TestExtractCheckpointPaths:
             "End of Phase 3",
         ]
 
+    def test_release_prefixed_path_not_doubled(self, tmp_path: Path):
+        """Regression: a checkpoint path that already carries release_dir's
+        trailing segments (release-prefixed form) must NOT be re-nested under
+        release_dir. This was the path-doubling defect: an absent prefixed
+        checkpoint resolved to ``.../bundle/.dev/rel/bundle/checkpoints/...``."""
+        release_dir = tmp_path / ".dev" / "rel" / "bundle"
+        release_dir.mkdir(parents=True)
+        phase_file = release_dir / "phase-2-tasklist.md"
+        # Declared path is release-prefixed (starts with release_dir's tail);
+        # the target file is intentionally NOT created.
+        phase_file.write_text(
+            "### Checkpoint: End of Phase 2\n"
+            "**Checkpoint Report Path:** `.dev/rel/bundle/checkpoints/CP-P02-END.md`\n"
+        )
+        result = extract_checkpoint_paths(phase_file, release_dir)
+        assert len(result) == 1
+        _, path = result[0]
+        # Resolves to the single, un-doubled location under release_dir.
+        assert path == (release_dir / "checkpoints" / "CP-P02-END.md").resolve()
+        # And the release tail appears exactly once — no `bundle/.dev/rel/bundle`.
+        assert ".dev/rel/bundle/.dev/rel/bundle" not in str(path)
+
+    def test_release_prefixed_resolution_independent_of_existence(self, tmp_path: Path):
+        """The prefixed path must resolve to the SAME location whether or not
+        the target file exists on disk — the old ``candidate.exists()`` selector
+        made present checkpoints resolve correctly and absent ones double."""
+        release_dir = tmp_path / ".dev" / "rel" / "bundle"
+        (release_dir / "checkpoints").mkdir(parents=True)
+        phase_file = release_dir / "phase-1-tasklist.md"
+        phase_file.write_text(
+            "### Checkpoint: End of Phase 1\n"
+            "**Checkpoint Report Path:** `.dev/rel/bundle/checkpoints/CP-P01-END.md`\n"
+        )
+        expected = (release_dir / "checkpoints" / "CP-P01-END.md").resolve()
+        # Absent target.
+        assert extract_checkpoint_paths(phase_file, release_dir)[0][1] == expected
+        # Present target — must resolve identically (no asymmetry).
+        (release_dir / "checkpoints" / "CP-P01-END.md").write_text("x")
+        assert extract_checkpoint_paths(phase_file, release_dir)[0][1] == expected
+
+    def test_bare_relative_still_joined_onto_release_dir(self, tmp_path: Path):
+        """Contract-lock: a bare release-relative path (no overlap with
+        release_dir's tail) still joins onto release_dir, unchanged by the
+        idempotent-resolution fix."""
+        phase_file = tmp_path / "phase-1-tasklist.md"
+        phase_file.write_text(
+            "### Checkpoint: End of Phase 1\n"
+            "**Checkpoint Report Path:** `checkpoints/CP-P01-END.md`\n"
+        )
+        result = extract_checkpoint_paths(phase_file, tmp_path)
+        assert result[0][1] == (tmp_path / "checkpoints" / "CP-P01-END.md").resolve()
+
 
 # ---------------------------------------------------------------------------
 # verify_checkpoint_files()
@@ -519,6 +571,285 @@ class TestRecoverMissingCheckpoints:
         assert missing_path.exists() is False
         assert result[0].exists is False
         assert result[0].recovered is False
+
+    def test_recover_reevaluates_stale_fail_to_unknown(self, tmp_path: Path):
+        """Defect-2 regression (positive): with ``reevaluate_stale=True``, an
+        EXISTING stale FAIL/BLOCKED end-of-phase checkpoint whose phase has
+        recovered (fresh passing evidence present) is re-stamped to
+        UNKNOWN/Auto-Recovered — never left verbatim, and NEVER auto-PASS."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        # Fresh passing evidence for the phase-3 gating tasks.
+        (tmp_path / "artifacts" / "D-0013").mkdir(parents=True)
+        (tmp_path / "artifacts" / "D-0013" / "config.md").write_text(
+            "Task T03.01 delivered configuration module."
+        )
+        (tmp_path / "artifacts" / "D-0014").mkdir()
+        (tmp_path / "artifacts" / "D-0014" / "util.md").write_text(
+            "Task T03.02 delivered utilities."
+        )
+        # Pre-seed an EXISTING stale FAIL checkpoint report (agent-written
+        # status: fail frontmatter + a FAIL ## Result body).
+        checkpoints_dir = tmp_path / "checkpoints"
+        checkpoints_dir.mkdir(parents=True, exist_ok=True)
+        (checkpoints_dir / "CP-P03-END.md").write_text(
+            "---\n"
+            "checkpoint: End of Phase 3\n"
+            "phase: 3\n"
+            "status: fail\n"
+            "generated_at: 2026-06-01T00:00:00Z\n"
+            "---\n\n"
+            "## Result\n\n"
+            "`FAIL` — gating tasks did not pass.\n",
+            encoding="utf-8",
+        )
+
+        manifest = build_manifest(index, tmp_path)
+        recovered = recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+
+        end_entry = next(
+            e
+            for e in recovered
+            if e.phase == 3 and e.expected_path.name == "CP-P03-END.md"
+        )
+        body = end_entry.expected_path.read_text(encoding="utf-8")
+        # Stale FAIL verdict was re-stamped, not left verbatim.
+        assert "recovered: true" in body
+        assert "Auto-Recovered" in body
+        assert "`UNKNOWN`" in body
+        assert "status: fail" not in body
+        # NEVER auto-PASS — the executor's _check_checkpoint_pass PASS tokens
+        # must be absent from the re-stamped report.
+        upper = body.upper()
+        assert "STATUS: PASS" not in upper
+        assert "**RESULT**: PASS" not in upper
+        assert end_entry.recovered is True
+
+    def test_recover_preserves_fail_when_tasks_still_failing(self, tmp_path: Path):
+        """Defect-2 regression (negative): when the phase's gating tasks did NOT
+        recover (no fresh passing evidence), the re-stamp branch must NOT fire —
+        the stale FAIL verdict is preserved verbatim."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        # No passing evidence seeded ⇒ the now-pass precondition is NOT met.
+        checkpoints_dir = tmp_path / "checkpoints"
+        checkpoints_dir.mkdir(parents=True, exist_ok=True)
+        end_report = checkpoints_dir / "CP-P03-END.md"
+        stale = (
+            "---\n"
+            "checkpoint: End of Phase 3\n"
+            "phase: 3\n"
+            "status: fail\n"
+            "generated_at: 2026-06-01T00:00:00Z\n"
+            "---\n\n"
+            "## Result\n\n"
+            "`FAIL` — gating tasks did not pass.\n"
+        )
+        end_report.write_text(stale, encoding="utf-8")
+
+        manifest = build_manifest(index, tmp_path)
+        recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+
+        # Stale FAIL preserved byte-identically — no UNKNOWN re-stamp fired.
+        assert end_report.read_text(encoding="utf-8") == stale
+
+    def test_recovered_report_never_injects_gate_tokens(self, tmp_path: Path):
+        """DEV-2 (Regression, MED): the recovered/re-stamped checkpoint renderer
+        interpolates ``entry.name``, the verification block, and evidence paths.
+        The executor gate reader (``_check_checkpoint_pass``) does a case-
+        insensitive substring match for ``STATUS: PASS`` / ``**RESULT**: PASS``.
+        If any interpolated field carries those tokens verbatim, a re-stamped
+        UNKNOWN report reads as PASS at the gate. This test injects the gate
+        tokens into EACH interpolated field separately and asserts the rendered
+        report contains NEITHER token (uppercased) while the ## Result line still
+        reads UNKNOWN. Pre-fix the renderer interpolates verbatim ⇒ FAIL."""
+        from superclaude.cli.sprint.checkpoints import _render_recovered_checkpoint
+
+        token_a = "STATUS: PASS"
+        token_b = "**RESULT**: PASS"
+
+        def _assert_clean(body: str, where: str):
+            upper = body.upper()
+            assert token_a not in upper, f"{token_a} leaked via {where}"
+            assert token_b.upper() not in upper, f"{token_b} leaked via {where}"
+            # The genuine verdict must remain UNKNOWN/Auto-Recovered.
+            assert "`UNKNOWN`" in body
+            assert "Auto-Recovered" in body
+
+        # 1) Injected via entry.name
+        entry_name = CheckpointEntry(
+            phase=3,
+            name=f"End of Phase 3 -- {token_b} expected",
+            expected_path=tmp_path / "checkpoints" / "CP-P03-END.md",
+            exists=True,
+        )
+        body_name = _render_recovered_checkpoint(
+            entry=entry_name,
+            verification_block="- gating tasks green",
+            evidence=[tmp_path / "artifacts" / "D-1" / "proof.md"],
+        )
+        _assert_clean(body_name, "entry.name")
+
+        # 2) Injected via the verification block (the realistic vector — prose
+        #    copied verbatim from the tasklist's verification criteria).
+        entry = CheckpointEntry(
+            phase=3,
+            name="End of Phase 3",
+            expected_path=tmp_path / "checkpoints" / "CP-P03-END.md",
+            exists=True,
+        )
+        body_vblock = _render_recovered_checkpoint(
+            entry=entry,
+            verification_block=f"- Gate requires {token_b} from the smoke suite\n- confirm {token_a} in CI",
+            evidence=[tmp_path / "artifacts" / "D-1" / "proof.md"],
+        )
+        _assert_clean(body_vblock, "verification_block")
+
+        # 3) Injected via an evidence path component
+        body_evid = _render_recovered_checkpoint(
+            entry=entry,
+            verification_block="- gating tasks green",
+            evidence=[tmp_path / "artifacts" / "STATUS: PASS" / "proof.md"],
+        )
+        _assert_clean(body_evid, "evidence path")
+
+    def _seed_stale_checkpoint(
+        self, tmp_path: Path, verdict: str, *, frontmatter: bool
+    ):
+        """Seed an existing stale CP-P03-END.md with the given verdict, optionally
+        carrying a ``status:`` frontmatter key. Returns the report path + content."""
+        checkpoints_dir = tmp_path / "checkpoints"
+        checkpoints_dir.mkdir(parents=True, exist_ok=True)
+        report = checkpoints_dir / "CP-P03-END.md"
+        if frontmatter:
+            content = (
+                "---\n"
+                "checkpoint: End of Phase 3\n"
+                "phase: 3\n"
+                f"status: {verdict.lower()}\n"
+                "generated_at: 2026-06-01T00:00:00Z\n"
+                "---\n\n"
+                "## Result\n\n"
+                f"`{verdict}` — gating tasks did not pass.\n"
+            )
+        else:
+            # NO status: frontmatter key — only a ## Result body token, exercising
+            # the body-only parse path that the existing positive test never hits.
+            content = (
+                "---\n"
+                "checkpoint: End of Phase 3\n"
+                "phase: 3\n"
+                "generated_at: 2026-06-01T00:00:00Z\n"
+                "---\n\n"
+                "## Result\n\n"
+                f"`{verdict}` — gating tasks did not pass.\n"
+            )
+        report.write_text(content, encoding="utf-8")
+        return report, content
+
+    def _seed_phase3_evidence(self, tmp_path: Path):
+        """Seed fresh passing evidence for the phase-3 gating tasks."""
+        (tmp_path / "artifacts" / "D-0013").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "artifacts" / "D-0013" / "config.md").write_text(
+            "Task T03.01 delivered configuration module."
+        )
+        (tmp_path / "artifacts" / "D-0014").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "artifacts" / "D-0014" / "util.md").write_text(
+            "Task T03.02 delivered utilities."
+        )
+
+    def test_recover_reevaluates_stale_blocked_to_unknown(self, tmp_path: Path):
+        """FIX-4: the re-stamp branch fires on ``BLOCKED`` as well as ``FAIL``
+        (the trigger is ``in ("FAIL", "BLOCKED")``) — the existing positive test
+        only covers FAIL, leaving the BLOCKED arm unexercised."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        self._seed_phase3_evidence(tmp_path)
+        report, _ = self._seed_stale_checkpoint(tmp_path, "BLOCKED", frontmatter=True)
+
+        manifest = build_manifest(index, tmp_path)
+        recovered = recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+        end_entry = next(
+            e
+            for e in recovered
+            if e.phase == 3 and e.expected_path.name == "CP-P03-END.md"
+        )
+        body = end_entry.expected_path.read_text(encoding="utf-8")
+        assert "recovered: true" in body
+        assert "Auto-Recovered" in body
+        assert "`UNKNOWN`" in body
+        assert "status: blocked" not in body
+        upper = body.upper()
+        assert "STATUS: PASS" not in upper and "**RESULT**: PASS" not in upper
+        assert end_entry.recovered is True
+
+    def test_recover_reevaluates_body_only_stale_verdict(self, tmp_path: Path):
+        """FIX-4: a stale verdict carried ONLY in the ``## Result`` body (no
+        ``status:`` frontmatter) is parsed and re-stamped — the existing positive
+        test seeds both, so the body-only parse path is otherwise untested."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        self._seed_phase3_evidence(tmp_path)
+        report, _ = self._seed_stale_checkpoint(tmp_path, "FAIL", frontmatter=False)
+
+        manifest = build_manifest(index, tmp_path)
+        recovered = recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+        end_entry = next(
+            e
+            for e in recovered
+            if e.phase == 3 and e.expected_path.name == "CP-P03-END.md"
+        )
+        body = end_entry.expected_path.read_text(encoding="utf-8")
+        # Body-only stale FAIL was read and re-stamped to UNKNOWN/Auto-Recovered.
+        assert "Auto-Recovered" in body
+        assert "`UNKNOWN`" in body
+        assert end_entry.recovered is True
+
+    def test_recover_restamp_is_idempotent_on_second_run(self, tmp_path: Path):
+        """FIX-4: re-stamping is idempotent — once a stale FAIL is re-stamped to
+        UNKNOWN, a second ``reevaluate_stale=True`` pass must NOT re-fire (the
+        UNKNOWN verdict is no longer FAIL/BLOCKED, so the branch is inert)."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        self._seed_phase3_evidence(tmp_path)
+        report, _ = self._seed_stale_checkpoint(tmp_path, "FAIL", frontmatter=True)
+
+        manifest = build_manifest(index, tmp_path)
+        recover_missing_checkpoints(
+            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+        after_first = report.read_text(encoding="utf-8")
+        assert "`UNKNOWN`" in after_first  # first pass re-stamped it
+
+        # Second pass over the now-UNKNOWN report must leave it byte-identical.
+        manifest2 = build_manifest(index, tmp_path)
+        recover_missing_checkpoints(
+            manifest2, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
+        )
+        after_second = report.read_text(encoding="utf-8")
+        assert after_second == after_first
+
+    def test_recover_default_off_preserves_fail_even_with_evidence(
+        self, tmp_path: Path
+    ):
+        """FIX-4: with ``reevaluate_stale=False`` (default), an existing stale FAIL
+        is left UNTOUCHED even when fresh passing evidence IS present — proving the
+        re-stamp is gated strictly on the flag, not on evidence presence."""
+        index, _, _, p3 = _seed_sprint(tmp_path)
+        self._seed_phase3_evidence(tmp_path)  # evidence present...
+        report, stale = self._seed_stale_checkpoint(tmp_path, "FAIL", frontmatter=True)
+
+        manifest = build_manifest(index, tmp_path)
+        recover_missing_checkpoints(
+            manifest,
+            tmp_path / "artifacts",
+            {3: p3},  # ...but reevaluate_stale defaults False
+        )
+        # Default-off ⇒ the stale FAIL is preserved byte-identically.
+        assert report.read_text(encoding="utf-8") == stale
 
 
 # ---------------------------------------------------------------------------

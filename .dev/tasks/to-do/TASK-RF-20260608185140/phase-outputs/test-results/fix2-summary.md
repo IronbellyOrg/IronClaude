@@ -1,0 +1,6 @@
+# FIX-2 Summary — never-auto-PASS gate-token injection (DEV-2, Regression MED)
+
+- **New positive test:** `tests/sprint/test_checkpoints.py::TestRecoverMissingCheckpoints::test_recovered_report_never_injects_gate_tokens` — injects `STATUS: PASS` and `**RESULT**: PASS` into EACH interpolated field (`entry.name`, verification block, evidence path) separately; asserts the rendered body (uppercased) contains NEITHER token and `## Result` still reads `UNKNOWN`/Auto-Recovered.
+- **FAIL-on-base:** confirmed (`fix2-test-fail-on-base.txt`) — rendered report contained `**RESULT**: PASS` via `entry.name` interpolation. 1 failed.
+- **PASS-on-fix:** confirmed (`fix2-test-pass-on-fix.txt`) — 4 passed (injection test + the existing `verification_block_copied`, `reevaluates_stale`, `preserves_fail` tests still green, proving no positive-behavior regression in the renderer).
+- **Fix applied:** added `_neutralize_gate_tokens()` + `_GATE_PASS_TOKEN_RE` in `checkpoints.py`; `_render_recovered_checkpoint` now neutralizes the gate substrings (inserts a space before the colon → `STATUS : PASS`, human-readable, idempotent) in `safe_name`, `verification_section`, and each evidence line, plus a final whole-body neutralize guard. The hard-coded `## Result` UNKNOWN line and the `executor.py` gate reader are unchanged.

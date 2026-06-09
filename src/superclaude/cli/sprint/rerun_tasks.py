@@ -1264,6 +1264,96 @@ def _print_investigation_summary(phase_result_json: Path, nominated: list[str]) 
     click.echo(f"    nominated      : {', '.join(nominated)}")
 
 
+def _end_of_phase_checkpoint_task_id(phase_file: Path, phase: int) -> Optional[str]:
+    """Return the T-ID of the runnable end-of-phase checkpoint task, or None.
+
+    Scans ``phase_file`` for a ``### T<PP>.<NN> -- Checkpoint:`` task block whose
+    ``Checkpoint Report Path:`` resolves to ``CP-P{phase:02d}-END.md`` — the file
+    ``executor._check_checkpoint_pass`` reads. Such a task is a valid
+    ``rerun-tasks`` target (selectable by ``TASK_BLOCK_PATTERN``); re-running it
+    writes a fresh real verdict. Returns None when no runnable end-of-phase
+    checkpoint task exists, in which case the caller uses the
+    ``verify-checkpoints --reevaluate-stale`` re-stamp fallback (research 03 §3).
+    """
+    try:
+        content = phase_file.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    target = f"CP-P{phase:02d}-END.md"
+    heading_re = re.compile(r"^###\s+(T\d{2}\.\d{2})\s*--\s*Checkpoint:", re.MULTILINE)
+    path_re = re.compile(
+        r"Checkpoint\s+Report\s+Path:\s*\*{0,2}\s*`?([^\s`\n*]+)`?", re.IGNORECASE
+    )
+    for block_match in TASK_BLOCK_PATTERN.finditer(content):
+        block = block_match.group(0)
+        if heading_re.match(block) is None:
+            continue
+        path_match = path_re.search(block)
+        if path_match and path_match.group(1).strip().endswith(target):
+            return block_match.group(1)
+    return None
+
+
+def _mirror_checkpoint_to_release_dir(config: SprintConfig, phase: int) -> None:
+    """Path-asymmetry guard (research 03 §4): ensure the regenerated/re-stamped
+    end-of-phase checkpoint report is present where ``_check_checkpoint_pass``
+    reads it — ``config.release_dir/checkpoints/CP-Pxx-END.md``.
+
+    The ``verify-checkpoints`` recover subprocess and the rerun merge land the
+    report under ``config.index_path.parent/checkpoints``; in the ``sc:tasklist``
+    subdir layout that directory differs from ``release_dir``. This mirrors the
+    report across when they diverge. No-op when the two coincide, when no source
+    report exists, or when the destination is already at least as new (so it
+    never clobbers a fresher real verdict).
+    """
+    name = f"CP-P{phase:02d}-END.md"
+    src = config.index_path.parent / "checkpoints" / name
+    dest = config.release_dir / "checkpoints" / name
+    if src == dest or not src.is_file():
+        return
+    if dest.is_file():
+        try:
+            if src.stat().st_mtime <= dest.stat().st_mtime:
+                return
+        except OSError:
+            return
+    try:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest)
+        click.echo(f"Mirrored end-of-phase checkpoint {name} to {dest.parent}.")
+    except OSError as exc:
+        click.echo(f"checkpoint mirror failed: {exc}")
+
+
+def _primary_checkpoint_rerun_argv(
+    config: SprintConfig, phase: int, checkpoint_tid: str
+) -> list[str]:
+    """Build the argv for the PRIMARY post-merge checkpoint re-run subprocess.
+
+    The nested ``rerun-tasks`` command declares a REQUIRED ``INDEX_PATH``
+    positional (``commands.py`` ``@click.argument("index_path", ...)``). Omitting
+    it makes the subprocess exit 2 ("Missing argument 'INDEX_PATH'"), which
+    ``check=False`` would swallow — so PRIMARY would re-run nothing and write no
+    fresh verdict (the DEV-1 regression). ``config.index_path`` is the absolute
+    resolved index (set in ``load_sprint_config``), so it is cwd-independent and
+    is exactly the positional the command needs. Extracted to a helper so the
+    argv shape is unit-testable via the real Click command.
+    """
+    return [
+        "uv",
+        "run",
+        "superclaude",
+        "sprint",
+        "rerun-tasks",
+        str(config.index_path),
+        "--phase",
+        str(phase),
+        "--tasks",
+        checkpoint_tid,
+        "--no-verify-checkpoints",
+    ]
+
+
 def run_rerun_tasks(
     config: SprintConfig,
     *,
@@ -1481,8 +1571,21 @@ def run_rerun_tasks(
                             produced[0].parent / "task-results.json",
                             json.dumps(_refreshed, indent=2) + "\n",
                         )
+            # Thread the affected tasks' declared deliverables into the merge so
+            # Step 3.5 can verify each rerun-produced tree landed canonically and
+            # fail loudly (PARTIAL) if any was stranded in the bundle. Computed
+            # here (not in recovery.py) to preserve the no-import-cycle constraint
+            # — recovery is imported BY this module.
+            expected_deliverables = (
+                {tid: _declared_deliverables(phase_obj.file, tid) for tid in resolved}
+                if phase_obj is not None
+                else None
+            )
             merge_recovery_bundle(
-                recovery, config.index_path, release_dir=config.release_dir
+                recovery,
+                config.index_path,
+                release_dir=config.release_dir,
+                expected_deliverables=expected_deliverables,
             )
             finalize_checkboxes_on_success(phase_obj.file, resolved, bundle)
             restore_info = None  # finalized — suppress the finally restore
@@ -1505,31 +1608,89 @@ def run_rerun_tasks(
                     "Rerun did not bring all target tasks to PASS; merge skipped."
                 )
 
-        # Step 14 — auto-invoke verify-checkpoints --recover (gated; TDD §T9).
+        # Step 14 — post-merge end-of-phase checkpoint re-verification (Fix-2;
+        # gated; TDD §T9). After a successful merge the gated end-of-phase
+        # checkpoint may still read a stale FAIL/BLOCKED verdict. Two paths:
+        #   PRIMARY  — when the phase has a runnable `### T<PP>.<NN> -- Checkpoint:`
+        #              task whose report is CP-Pxx-END.md, re-run that single task
+        #              so it writes a FRESH real verdict (Fix-1 Step 3.5 in the
+        #              nested merge lands it canonically).
+        #   FALLBACK — otherwise invoke `verify-checkpoints --recover
+        #              --reevaluate-stale` so an existing stale FAIL/BLOCKED whose
+        #              phase recovered is re-stamped to UNKNOWN/Auto-Recovered.
+        # Neither path auto-PASSes; a checkpoint whose gating tasks did not
+        # recover keeps its FAIL verdict. `checkpoint_gate_mode` is orthogonal
+        # (research 03 §1) and is NOT keyed on here.
         if exit_code == 0 and merge_back and not no_verify_checkpoints:
-            try:
-                subprocess.run(
-                    [
-                        "uv",
-                        "run",
-                        "superclaude",
-                        "sprint",
-                        "verify-checkpoints",
-                        # OUTPUT_DIR positional: the directory that contains
-                        # tasklist-index.md. `index_path` is absolute (resolved
-                        # in load_sprint_config), so `.parent` is cwd-independent
-                        # and is the dir verify-checkpoints derives index/
-                        # checkpoint/artifacts paths from. NOTE: do NOT pass
-                        # config.release_dir — it resolves to the grandparent in
-                        # the sc:tasklist subdir layout, where tasklist-index.md
-                        # does not live. verify-checkpoints has no --phase/--quiet.
-                        str(config.index_path.parent),
-                        "--recover",
-                    ],
-                    check=False,
+            checkpoint_tid = (
+                _end_of_phase_checkpoint_task_id(phase_obj.file, phase)
+                if phase_obj is not None
+                else None
+            )
+            if checkpoint_tid is not None:
+                # PRIMARY — re-run the runnable end-of-phase checkpoint task.
+                # Release the per-phase recovery lock first so the nested rerun
+                # can acquire it (acquire_recovery_lock raises on a live
+                # same-phase lock); --no-verify-checkpoints breaks recursion. If
+                # the checkpoint task fails again, that failure propagates (no
+                # false SUCCESS) and the gate stays FAIL.
+                click.echo(
+                    f"Post-merge: re-running end-of-phase checkpoint task "
+                    f"{checkpoint_tid} for phase {phase} to refresh its verdict."
                 )
-            except OSError as exc:
-                click.echo(f"verify-checkpoints invocation failed: {exc}")
+                if lock_path is not None:
+                    release_recovery_lock(lock_path)
+                    lock_path = None
+                try:
+                    _primary_result = subprocess.run(
+                        _primary_checkpoint_rerun_argv(config, phase, checkpoint_tid),
+                        check=False,
+                    )
+                    # Surface a non-zero PRIMARY re-run loudly (keep check=False so a
+                    # genuine checkpoint re-failure propagates as a FAIL gate rather
+                    # than raising) — a silently-failed re-run is the DEV-1 trap.
+                    if _primary_result.returncode != 0:
+                        click.echo(
+                            f"Post-merge checkpoint re-run for {checkpoint_tid} "
+                            f"(phase {phase}) exited {_primary_result.returncode}; "
+                            f"the end-of-phase verdict was not refreshed."
+                        )
+                except OSError as exc:
+                    click.echo(f"checkpoint re-run invocation failed: {exc}")
+                # Path-asymmetry guard: land the regenerated report where
+                # _check_checkpoint_pass reads it.
+                _mirror_checkpoint_to_release_dir(config, phase)
+            else:
+                # FALLBACK — re-stamp an existing stale FAIL/BLOCKED checkpoint.
+                try:
+                    subprocess.run(
+                        [
+                            "uv",
+                            "run",
+                            "superclaude",
+                            "sprint",
+                            "verify-checkpoints",
+                            # OUTPUT_DIR positional: the directory that contains
+                            # tasklist-index.md. `index_path` is absolute (resolved
+                            # in load_sprint_config), so `.parent` is cwd-independent
+                            # and is the dir verify-checkpoints derives index/
+                            # checkpoint/artifacts paths from. NOTE: do NOT pass
+                            # config.release_dir — it resolves to the grandparent in
+                            # the sc:tasklist subdir layout, where tasklist-index.md
+                            # does not live. verify-checkpoints has no --phase/--quiet.
+                            str(config.index_path.parent),
+                            "--recover",
+                            "--reevaluate-stale",
+                        ],
+                        check=False,
+                    )
+                except OSError as exc:
+                    click.echo(f"verify-checkpoints invocation failed: {exc}")
+                # Path-asymmetry guard (REQUIRED): the recover subprocess
+                # re-stamps at index_path.parent/checkpoints, which in the
+                # sc:tasklist subdir layout differs from release_dir/checkpoints
+                # where _check_checkpoint_pass reads. Mirror across if diverged.
+                _mirror_checkpoint_to_release_dir(config, phase)
 
         return exit_code
     finally:

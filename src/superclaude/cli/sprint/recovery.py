@@ -383,12 +383,17 @@ def merge_recovery_bundle(
     source_index: Path,
     *,
     release_dir: Optional[Path] = None,
+    expected_deliverables: Optional[dict[str, list[Path]]] = None,
 ) -> None:
     """Apply a RecoveryBundle's rerun artifacts back into the canonical results.
 
-    7-step canonical merge sequence (TDD §T5, lines 86-99). Each step emits
-    a ``debug_log`` trace event tagged with ``bundle_id`` for audit
-    traceability. All file writes use the atomic tmp + replace pattern
+    Canonical merge sequence (TDD §T5, lines 86-99): Steps 1-7 reconcile the
+    ``results/phase-N-*`` file families, plus an inserted Step 3.5 that
+    relocates the rerun's TASKLIST_ROOT deliverable trees (``artifacts/``,
+    ``evidence/``, ``checkpoints/``) from the bundle root back to the canonical
+    TASKLIST_ROOT and fails loudly when a declared deliverable does not land.
+    Each step emits a ``debug_log`` trace event tagged with ``bundle_id`` for
+    audit traceability. All file writes use the atomic tmp + replace pattern
     (researcher 2 §1.6) so partial writes cannot corrupt prior state.
 
     Called by ``rerun_tasks.run_rerun_tasks`` today; v4.4.0 will add
@@ -409,6 +414,14 @@ def merge_recovery_bundle(
             ``config._resolve_release_dir`` logic the loader uses — NOT a naive
             ``source_index.parent``, which is wrong when the index lives under a
             ``tasklist/`` subdirectory.
+        expected_deliverables: Optional map of ``task_id`` -> declared
+            deliverable Paths for the affected tasks (computed by the caller via
+            ``rerun_tasks._declared_deliverables``; default ``None`` preserves
+            the verb-agnostic behavior). When supplied, Step 3.5 verifies each
+            declared deliverable landed at its mirrored canonical destination and
+            appends a ``deliverable-not-landed:<task>:<rel>`` entry to the
+            failure list (downgrading status to PARTIAL) for any that did not —
+            so a stranded deliverable can never be silently reported as SUCCESS.
     """
     import shutil
 
@@ -498,6 +511,81 @@ def merge_recovery_bundle(
                     shutil.copy2(produced, err_canonical)
                 except OSError as exc:
                     failures.append(f"copy-errors:{task_id}:{exc}")
+
+    # Step 3.5 — relocate + verify TASKLIST_ROOT deliverable trees.
+    # Rerun agents write declared deliverable trees (artifacts/, evidence/,
+    # checkpoints/) into the bundle ROOT because the rerun sub-index pins
+    # TASKLIST_ROOT to the bundle. Steps 1-3 only reconcile the
+    # results/phase-N-* file families, so without this step those trees stay
+    # stranded inside the bundle while the merge still reports SUCCESS (silent
+    # data loss — the Defect-1 root cause). This step copies each tree back to
+    # the canonical TASKLIST_ROOT (source_index.parent) and, when the caller
+    # declares expected deliverables, fails loudly (appends to ``failures``,
+    # downgrading status to PARTIAL via the flip below) for any declared tree
+    # that does not land. It NEVER auto-PASSes a stranded deliverable.
+    debug_log(
+        _recovery_logger,
+        "merge_step_3_5_relocate_deliverables",
+        bundle_id=bundle_id,
+    )
+    canonical_root = source_index.parent
+    bundle_root = (
+        bundle.artifacts_produced[0].parent.parent
+        if bundle.artifacts_produced
+        else None
+    )
+    if bundle_root is not None:
+        for subtree in ("artifacts", "evidence", "checkpoints"):
+            src_tree = bundle_root / subtree
+            if not src_tree.is_dir():
+                continue
+            for produced_file in src_tree.rglob("*"):
+                if not produced_file.is_file():
+                    continue
+                rel = produced_file.relative_to(bundle_root)
+                dest = canonical_root / rel
+                try:
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    # Preserve any clobbered canonical file as .failed-<mtime>
+                    # (mirrors the Step 1/2/3 clobber-preserve idiom).
+                    if dest.exists():
+                        orig_ts = int(dest.stat().st_mtime)
+                        preserved = dest.with_name(
+                            dest.stem + f".failed-{orig_ts}" + dest.suffix
+                        )
+                        dest.rename(preserved)
+                        bundle.artifacts_replaced[dest] = preserved
+                    # Per-file atomic copy (mirrors the tmp + replace idiom).
+                    tmp = dest.with_suffix(dest.suffix + ".tmp")
+                    shutil.copy2(produced_file, tmp)
+                    tmp.replace(dest)
+                except OSError as exc:
+                    failures.append(f"relocate-deliverable:{subtree}:{rel}:{exc}")
+
+    # Verify each declared deliverable landed at its mirrored canonical
+    # destination; a missing/empty tree appends a deliverable-not-landed
+    # failure so the status flip downgrades to PARTIAL (never silent SUCCESS).
+    if expected_deliverables is not None:
+        for task_id, declared_paths in expected_deliverables.items():
+            for declared in declared_paths:
+                # Map the declared path onto its mirrored canonical destination
+                # by its subtree segment; declared paths resolve against cwd,
+                # which need not equal canonical_root, so check the mirror.
+                parts = declared.parts
+                rel_dest: Path = Path(declared.name)
+                for idx, part in enumerate(parts):
+                    if part in ("artifacts", "evidence", "checkpoints"):
+                        rel_dest = Path(*parts[idx:])
+                        break
+                canonical_dest = canonical_root / rel_dest
+                # Verify the CANONICAL mirror ONLY. A cwd-resolved declared path
+                # that is NOT the canonical destination must never count as
+                # landed — otherwise a stale/pre-existing non-canonical file
+                # masks a deliverable that relocation never landed in canonical
+                # (the DEV-3 silent-SUCCESS hole).
+                landed = canonical_dest.is_file() and canonical_dest.stat().st_size > 0
+                if not landed:
+                    failures.append(f"deliverable-not-landed:{task_id}:{rel_dest}")
 
     # Step 4 — Write phase-N-rerun-manifest.json atomically.
     debug_log(_recovery_logger, "merge_step_4_write_manifest", bundle_id=bundle_id)

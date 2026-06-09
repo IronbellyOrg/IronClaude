@@ -37,6 +37,47 @@ CHECKPOINT_HEADING_PATTERN: re.Pattern[str] = re.compile(
 )
 
 
+def _resolve_checkpoint_path(release_dir: Path, raw_path: str) -> Path:
+    """Resolve a declared checkpoint path against ``release_dir``, idempotently.
+
+    Declared ``Checkpoint Report Path:`` values come in three shapes:
+
+    * **absolute** — used verbatim.
+    * **release-relative** (``checkpoints/CP.md``) — joined onto ``release_dir``.
+    * **release-prefixed** (``.dev/<release>/bundle/checkpoints/CP.md``) — the
+      path already carries ``release_dir``'s own trailing components, so a naive
+      ``release_dir / candidate`` would duplicate that prefix (the path-doubling
+      defect). We strip the longest leading run of ``candidate`` that matches
+      ``release_dir``'s trailing components before joining, which makes the join
+      idempotent: a release-prefixed path resolves to the same location whether
+      or not it was prefixed.
+
+    Resolution is purely lexical — it does **not** probe the cwd or the
+    filesystem — so the result is deterministic regardless of the process
+    working directory or whether the target file exists yet. (The previous
+    implementation branched on ``candidate.exists()``, which made a
+    release-prefixed path resolve correctly only when its target already
+    existed, doubling the prefix otherwise.)
+    """
+    candidate = Path(raw_path)
+    if candidate.is_absolute():
+        return candidate
+
+    rd_parts = release_dir.parts
+    cand_parts = candidate.parts
+    # Longest k where release_dir's last k parts == candidate's first k parts.
+    overlap = 0
+    for k in range(min(len(rd_parts), len(cand_parts)), 0, -1):
+        if rd_parts[-k:] == cand_parts[:k]:
+            overlap = k
+            break
+
+    remainder = cand_parts[overlap:]
+    if not remainder:
+        return release_dir.resolve()
+    return (release_dir / Path(*remainder)).resolve()
+
+
 def extract_checkpoint_paths(
     phase_file: Path,
     release_dir: Path,
@@ -83,16 +124,7 @@ def extract_checkpoint_paths(
         if not name:
             name = Path(raw_path).name
 
-        candidate = Path(raw_path)
-        if candidate.is_absolute():
-            resolved = candidate
-        elif candidate.exists():
-            # Accept a relative path as-is when it already resolves (repo-root
-            # invocations), matching how sprint agents write checkpoint files.
-            resolved = candidate.resolve()
-        else:
-            resolved = (release_dir / candidate).resolve()
-
+        resolved = _resolve_checkpoint_path(release_dir, raw_path)
         results.append((name, resolved))
 
     return results
@@ -210,12 +242,55 @@ def write_manifest(entries: list[CheckpointEntry], output_path: Path) -> None:
     tmp.replace(output_path)
 
 
+# Verdict tokens a checkpoint report may carry (consistent with the
+# PASS|FAIL|...|BLOCKED|SKIP matcher used by summarizer.py).
+_CHECKPOINT_VERDICT_RE = re.compile(
+    r"\b(PASS|FAIL|BLOCKED|SKIP|UNKNOWN)\b", re.IGNORECASE
+)
+
+
+def _parse_checkpoint_verdict(path: Path) -> str | None:
+    """Best-effort: read the current verdict token from an EXISTING checkpoint
+    report. Inspects a ``status:``/``verdict:`` frontmatter key first (only
+    within the leading ``---`` fenced block), then the ``## Result`` body
+    section. Returns the uppercased token (e.g. ``"FAIL"``) or ``None`` when no
+    verdict can be read. Used by the Fix-2 stale-verdict re-evaluation path —
+    the recovered-report template itself writes no ``status:`` frontmatter key,
+    so a stale FAIL/BLOCKED can only have been written by an agent.
+    """
+    try:
+        content = path.read_text(errors="replace")
+    except OSError:
+        return None
+    lines = content.splitlines()
+    # Frontmatter block (between the first two --- fences).
+    if lines and lines[0].strip() == "---":
+        for line in lines[1:]:
+            if line.strip() == "---":
+                break
+            key_match = re.match(
+                r"\s*(?:status|verdict)\s*:\s*(.+?)\s*$", line, re.IGNORECASE
+            )
+            if key_match:
+                token = _CHECKPOINT_VERDICT_RE.search(key_match.group(1))
+                if token:
+                    return token.group(1).upper()
+    # ## Result body token (the form recovered reports and many agents use).
+    result_idx = content.find("## Result")
+    if result_idx != -1:
+        token = _CHECKPOINT_VERDICT_RE.search(content[result_idx:])
+        if token:
+            return token.group(1).upper()
+    return None
+
+
 def recover_missing_checkpoints(
     manifest: list[CheckpointEntry],
     artifacts_dir: Path,
     phase_tasklists: dict[int, Path],
     *,
     return_bundle: bool = False,
+    reevaluate_stale: bool = False,
 ) -> list[CheckpointEntry] | RecoveryBundle:
     """Regenerate missing checkpoint reports from evidence files.
 
@@ -242,11 +317,66 @@ def recover_missing_checkpoints(
     :class:`~superclaude.cli.sprint.recovery.RecoveryBundle` for the v4.4.0
     unified recovery surface; otherwise the list of ``CheckpointEntry`` is
     returned unchanged (byte-identical to v4.2.x behavior).
+
+    ``reevaluate_stale`` (Fix-2 FALLBACK; default False ⇒ behavior unchanged):
+    when True, an EXISTING checkpoint file whose current verdict is FAIL or
+    BLOCKED is re-stamped to ``UNKNOWN``/Auto-Recovered (via the same recovered
+    report template) IFF the phase's gating tasks have recovered — determined
+    from freshly-discovered evidence under ``artifacts_dir`` for that phase. It
+    is NEVER auto-stamped PASS (the UNKNOWN-not-PASS hard constraint). When the
+    gating tasks have not recovered (no fresh evidence), the stale FAIL/BLOCKED
+    verdict is preserved unchanged. With ``reevaluate_stale=False`` the existing
+    idempotent no-op (existing file returned unchanged) is byte-identical.
     """
     out: list[CheckpointEntry] = []
     for entry in manifest:
         # Refresh existence — a previous iteration may have written the file.
         if entry.expected_path.is_file():
+            # Fix-2 FALLBACK: optionally re-evaluate an EXISTING stale verdict.
+            # The default (reevaluate_stale=False) skips straight to the
+            # historical idempotent no-op below (append unchanged + continue).
+            if reevaluate_stale and entry.phase in phase_tasklists:
+                stale_verdict = _parse_checkpoint_verdict(entry.expected_path)
+                if stale_verdict in ("FAIL", "BLOCKED"):
+                    # "Now-passing" is the same evidence-to-phase association the
+                    # recovery path uses: fresh evidence discovered under
+                    # artifacts_dir for this phase ⇒ gating tasks recovered.
+                    evidence = _discover_phase_artifacts(artifacts_dir, entry.phase)
+                    if evidence:
+                        # Re-stamp the stale FAIL/BLOCKED to UNKNOWN/Auto-Recovered
+                        # (NEVER auto-PASS — the UNKNOWN-not-PASS hard constraint).
+                        verification_block = _extract_verification_block(
+                            phase_tasklists[entry.phase], entry.name
+                        )
+                        report = _render_recovered_checkpoint(
+                            entry=entry,
+                            verification_block=verification_block,
+                            evidence=evidence,
+                        )
+                        entry.expected_path.parent.mkdir(parents=True, exist_ok=True)
+                        entry.expected_path.write_text(report)
+                        recovery_source = (
+                            ", ".join(
+                                str(p.relative_to(artifacts_dir.parent))
+                                if p.is_relative_to(artifacts_dir.parent)
+                                else str(p)
+                                for p in evidence
+                            )
+                            + f" (stale {stale_verdict} re-stamped to UNKNOWN)"
+                        )
+                        out.append(
+                            CheckpointEntry(
+                                phase=entry.phase,
+                                name=entry.name,
+                                expected_path=entry.expected_path,
+                                exists=True,
+                                recovered=True,
+                                recovery_source=recovery_source,
+                            )
+                        )
+                        continue
+                    # No fresh evidence ⇒ gating tasks did NOT recover: fall
+                    # through and preserve the stale FAIL/BLOCKED verdict.
             out.append(
                 CheckpointEntry(
                     phase=entry.phase,
@@ -395,26 +525,53 @@ def _discover_phase_artifacts(artifacts_dir: Path, phase_number: int) -> list[Pa
     return sorted(matches)
 
 
+# Executor gate substrings (executor._check_checkpoint_pass does a case-insensitive
+# substring match for these on the report body). A recovered/re-stamped report's
+# verdict is ALWAYS UNKNOWN, but the renderer interpolates caller-supplied fields
+# (entry.name, the tasklist verification block, evidence paths) verbatim — so a
+# tasklist whose verification prose literally contains one of these tokens could
+# make an UNKNOWN report read as PASS at the gate (the DEV-2 regression). This
+# matcher neutralizes the exact gate substrings in interpolated text.
+_GATE_PASS_TOKEN_RE = re.compile(r"(STATUS|\*\*RESULT\*\*):(\s*)PASS", re.IGNORECASE)
+
+
+def _neutralize_gate_tokens(text: str) -> str:
+    """Break the executor gate substrings ``STATUS: PASS`` / ``**RESULT**: PASS``
+    (case-insensitive) by inserting a space before the colon, so the exact gate
+    substring no longer survives in ``body.upper()`` while the text stays human
+    readable (e.g. ``STATUS: PASS`` -> ``STATUS : PASS``). Idempotent: already
+    neutralized text (with the space before the colon) no longer matches.
+    """
+    return _GATE_PASS_TOKEN_RE.sub(lambda m: f"{m.group(1)} :{m.group(2)}PASS", text)
+
+
 def _render_recovered_checkpoint(
     *,
     entry: CheckpointEntry,
     verification_block: str,
     evidence: list[Path],
 ) -> str:
-    """Build the body of an auto-recovered checkpoint report."""
+    """Build the body of an auto-recovered checkpoint report.
+
+    All caller-supplied interpolated fields (``entry.name``, the verification
+    block, evidence paths) are passed through :func:`_neutralize_gate_tokens` so
+    a verbatim ``STATUS: PASS`` / ``**RESULT**: PASS`` in tasklist prose can never
+    make this UNKNOWN report read as PASS at ``_check_checkpoint_pass`` (DEV-2).
+    """
     timestamp = datetime.now(timezone.utc).isoformat()
+    safe_name = _neutralize_gate_tokens(entry.name)
     evidence_lines = (
-        "\n".join(f"- `{p}`" for p in evidence)
+        "\n".join(f"- `{_neutralize_gate_tokens(str(p))}`" for p in evidence)
         if evidence
         else "- _(no matching artifacts discovered under artifacts_dir)_"
     )
-    verification_section = (
+    verification_section = _neutralize_gate_tokens(
         verification_block
         or "_(no verification block found in the originating tasklist)_"
     )
-    return (
+    body = (
         "---\n"
-        f"checkpoint: {entry.name}\n"
+        f"checkpoint: {safe_name}\n"
         f"phase: {entry.phase}\n"
         "recovered: true\n"
         f"generated_at: {timestamp}\n"
@@ -425,7 +582,7 @@ def _render_recovered_checkpoint(
         "`recover_missing_checkpoints()` from the artifacts produced during\n"
         "the phase. Treat the status below as provisional — the original\n"
         "real-time verification did not occur.\n\n"
-        f"## Checkpoint: {entry.name}\n\n"
+        f"## Checkpoint: {safe_name}\n\n"
         f"- **Phase:** {entry.phase}\n"
         f"- **Expected report path:** `{entry.expected_path}`\n\n"
         "## Verification Criteria (copied from tasklist)\n\n"
@@ -437,3 +594,6 @@ def _render_recovered_checkpoint(
         "manually inspect the evidence artifacts listed above to confirm the\n"
         "acceptance criteria were met.\n"
     )
+    # Belt-and-suspenders: guarantee the assembled body carries neither gate
+    # token regardless of how any field was constructed (idempotent re-pass).
+    return _neutralize_gate_tokens(body)

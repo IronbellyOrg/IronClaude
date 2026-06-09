@@ -655,12 +655,22 @@ def kill(force: bool):
     help="Auto-generate missing checkpoint reports from evidence artifacts.",
 )
 @click.option(
+    "--reevaluate-stale",
+    is_flag=True,
+    help=(
+        "When recovering, re-stamp an existing stale FAIL/BLOCKED checkpoint "
+        "whose phase has recovered to UNKNOWN/Auto-Recovered (never auto-PASS)."
+    ),
+)
+@click.option(
     "--json",
     "as_json",
     is_flag=True,
     help="Emit the manifest as machine-readable JSON instead of a table.",
 )
-def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
+def verify_checkpoints(
+    output_dir: Path, recover: bool, reevaluate_stale: bool, as_json: bool
+):
     """Verify (and optionally recover) checkpoint reports for a sprint.
 
     OUTPUT_DIR is a sprint release directory — the one that contains
@@ -690,7 +700,12 @@ def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
         except Exception as exc:  # noqa: BLE001
             raise click.ClickException(f"Phase discovery failed: {exc}") from exc
         phase_tasklists = {p.number: p.file for p in phases}
-        manifest = recover_missing_checkpoints(manifest, artifacts_dir, phase_tasklists)
+        manifest = recover_missing_checkpoints(
+            manifest,
+            artifacts_dir,
+            phase_tasklists,
+            reevaluate_stale=reevaluate_stale,
+        )
 
     manifest_path = output_dir / "manifest.json"
     write_manifest(manifest, manifest_path)

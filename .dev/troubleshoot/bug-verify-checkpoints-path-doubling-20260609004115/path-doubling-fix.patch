@@ -1,0 +1,133 @@
+diff --git a/src/superclaude/cli/sprint/checkpoints.py b/src/superclaude/cli/sprint/checkpoints.py
+index d64fd1d4..ef4dcdd6 100644
+--- a/src/superclaude/cli/sprint/checkpoints.py
++++ b/src/superclaude/cli/sprint/checkpoints.py
+@@ -37,6 +37,47 @@ CHECKPOINT_HEADING_PATTERN: re.Pattern[str] = re.compile(
+ )
+ 
+ 
++def _resolve_checkpoint_path(release_dir: Path, raw_path: str) -> Path:
++    """Resolve a declared checkpoint path against ``release_dir``, idempotently.
++
++    Declared ``Checkpoint Report Path:`` values come in three shapes:
++
++    * **absolute** — used verbatim.
++    * **release-relative** (``checkpoints/CP.md``) — joined onto ``release_dir``.
++    * **release-prefixed** (``.dev/<release>/bundle/checkpoints/CP.md``) — the
++      path already carries ``release_dir``'s own trailing components, so a naive
++      ``release_dir / candidate`` would duplicate that prefix (the path-doubling
++      defect). We strip the longest leading run of ``candidate`` that matches
++      ``release_dir``'s trailing components before joining, which makes the join
++      idempotent: a release-prefixed path resolves to the same location whether
++      or not it was prefixed.
++
++    Resolution is purely lexical — it does **not** probe the cwd or the
++    filesystem — so the result is deterministic regardless of the process
++    working directory or whether the target file exists yet. (The previous
++    implementation branched on ``candidate.exists()``, which made a
++    release-prefixed path resolve correctly only when its target already
++    existed, doubling the prefix otherwise.)
++    """
++    candidate = Path(raw_path)
++    if candidate.is_absolute():
++        return candidate
++
++    rd_parts = release_dir.parts
++    cand_parts = candidate.parts
++    # Longest k where release_dir's last k parts == candidate's first k parts.
++    overlap = 0
++    for k in range(min(len(rd_parts), len(cand_parts)), 0, -1):
++        if rd_parts[-k:] == cand_parts[:k]:
++            overlap = k
++            break
++
++    remainder = cand_parts[overlap:]
++    if not remainder:
++        return release_dir.resolve()
++    return (release_dir / Path(*remainder)).resolve()
++
++
+ def extract_checkpoint_paths(
+     phase_file: Path,
+     release_dir: Path,
+@@ -83,16 +124,7 @@ def extract_checkpoint_paths(
+         if not name:
+             name = Path(raw_path).name
+ 
+-        candidate = Path(raw_path)
+-        if candidate.is_absolute():
+-            resolved = candidate
+-        elif candidate.exists():
+-            # Accept a relative path as-is when it already resolves (repo-root
+-            # invocations), matching how sprint agents write checkpoint files.
+-            resolved = candidate.resolve()
+-        else:
+-            resolved = (release_dir / candidate).resolve()
+-
++        resolved = _resolve_checkpoint_path(release_dir, raw_path)
+         results.append((name, resolved))
+ 
+     return results
+diff --git a/tests/sprint/test_checkpoints.py b/tests/sprint/test_checkpoints.py
+index ccebbfad..6782938c 100644
+--- a/tests/sprint/test_checkpoints.py
++++ b/tests/sprint/test_checkpoints.py
+@@ -124,6 +124,58 @@ class TestExtractCheckpointPaths:
+             "End of Phase 3",
+         ]
+ 
++    def test_release_prefixed_path_not_doubled(self, tmp_path: Path):
++        """Regression: a checkpoint path that already carries release_dir's
++        trailing segments (release-prefixed form) must NOT be re-nested under
++        release_dir. This was the path-doubling defect: an absent prefixed
++        checkpoint resolved to ``.../bundle/.dev/rel/bundle/checkpoints/...``."""
++        release_dir = tmp_path / ".dev" / "rel" / "bundle"
++        release_dir.mkdir(parents=True)
++        phase_file = release_dir / "phase-2-tasklist.md"
++        # Declared path is release-prefixed (starts with release_dir's tail);
++        # the target file is intentionally NOT created.
++        phase_file.write_text(
++            "### Checkpoint: End of Phase 2\n"
++            "**Checkpoint Report Path:** `.dev/rel/bundle/checkpoints/CP-P02-END.md`\n"
++        )
++        result = extract_checkpoint_paths(phase_file, release_dir)
++        assert len(result) == 1
++        _, path = result[0]
++        # Resolves to the single, un-doubled location under release_dir.
++        assert path == (release_dir / "checkpoints" / "CP-P02-END.md").resolve()
++        # And the release tail appears exactly once — no `bundle/.dev/rel/bundle`.
++        assert ".dev/rel/bundle/.dev/rel/bundle" not in str(path)
++
++    def test_release_prefixed_resolution_independent_of_existence(self, tmp_path: Path):
++        """The prefixed path must resolve to the SAME location whether or not
++        the target file exists on disk — the old ``candidate.exists()`` selector
++        made present checkpoints resolve correctly and absent ones double."""
++        release_dir = tmp_path / ".dev" / "rel" / "bundle"
++        (release_dir / "checkpoints").mkdir(parents=True)
++        phase_file = release_dir / "phase-1-tasklist.md"
++        phase_file.write_text(
++            "### Checkpoint: End of Phase 1\n"
++            "**Checkpoint Report Path:** `.dev/rel/bundle/checkpoints/CP-P01-END.md`\n"
++        )
++        expected = (release_dir / "checkpoints" / "CP-P01-END.md").resolve()
++        # Absent target.
++        assert extract_checkpoint_paths(phase_file, release_dir)[0][1] == expected
++        # Present target — must resolve identically (no asymmetry).
++        (release_dir / "checkpoints" / "CP-P01-END.md").write_text("x")
++        assert extract_checkpoint_paths(phase_file, release_dir)[0][1] == expected
++
++    def test_bare_relative_still_joined_onto_release_dir(self, tmp_path: Path):
++        """Contract-lock: a bare release-relative path (no overlap with
++        release_dir's tail) still joins onto release_dir, unchanged by the
++        idempotent-resolution fix."""
++        phase_file = tmp_path / "phase-1-tasklist.md"
++        phase_file.write_text(
++            "### Checkpoint: End of Phase 1\n"
++            "**Checkpoint Report Path:** `checkpoints/CP-P01-END.md`\n"
++        )
++        result = extract_checkpoint_paths(phase_file, tmp_path)
++        assert result[0][1] == (tmp_path / "checkpoints" / "CP-P01-END.md").resolve()
++
+ 
+ # ---------------------------------------------------------------------------
+ # verify_checkpoint_files()

@@ -1,0 +1,28 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python3
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0
+collecting ... collected 16 items / 14 deselected / 2 selected
+
+tests/sprint/test_recovery.py::TestMergeRecoveryBundle::test_merge_relocates_deliverable_trees_or_partials PASSED [ 50%]
+tests/sprint/test_recovery.py::TestMergeRecoveryBundle::test_merge_partial_when_declared_not_landed_in_canonical FAILED [100%]
+
+=================================== FAILURES ===================================
+_ TestMergeRecoveryBundle.test_merge_partial_when_declared_not_landed_in_canonical _
+tests/sprint/test_recovery.py:438: in test_merge_partial_when_declared_not_landed_in_canonical
+    assert bundle.status is RecoveryStatus.PARTIAL, (
+E   AssertionError: a declared deliverable absent from canonical must downgrade to PARTIAL even when a stale non-canonical declared file exists
+E   assert <RecoveryStatus.SUCCESS: 'success'> is <RecoveryStatus.PARTIAL: 'partial'>
+E    +  where <RecoveryStatus.SUCCESS: 'success'> = RecoveryBundle(bundle_id='rerun-notland', affected_phase=7, verb='rerun-tasks', affected_tasks=['T07.11'], artifacts_produced=[PosixPath('/tmp/pytest-of-abc/pytest-82/test_merge_partial_when_declar0/bundles/rerun-notland/phase-7-task-T07.11-output.txt')], artifacts_replaced={}, source_tasklist_sha256='', end_tasklist_sha256='b0f35002c9f0fc2251acfc386dc8e9499f6ab530b7b4af05e7bcb07a79172489', status=<RecoveryStatus.SUCCESS: 'success'>, rerun_attempt=1).status
+E    +  and   <RecoveryStatus.PARTIAL: 'partial'> = RecoveryStatus.PARTIAL
+=========================== short test summary info ============================
+FAILED tests/sprint/test_recovery.py::TestMergeRecoveryBundle::test_merge_partial_when_declared_not_landed_in_canonical - AssertionError: a declared deliverable absent from canonical must downgrade to PARTIAL even when a stale non-canonical declared file exists
+assert <RecoveryStatus.SUCCESS: 'success'> is <RecoveryStatus.PARTIAL: 'partial'>
+ +  where <RecoveryStatus.SUCCESS: 'success'> = RecoveryBundle(bundle_id='rerun-notland', affected_phase=7, verb='rerun-tasks', affected_tasks=['T07.11'], artifacts_produced=[PosixPath('/tmp/pytest-of-abc/pytest-82/test_merge_partial_when_declar0/bundles/rerun-notland/phase-7-task-T07.11-output.txt')], artifacts_replaced={}, source_tasklist_sha256='', end_tasklist_sha256='b0f35002c9f0fc2251acfc386dc8e9499f6ab530b7b4af05e7bcb07a79172489', status=<RecoveryStatus.SUCCESS: 'success'>, rerun_attempt=1).status
+ +  and   <RecoveryStatus.PARTIAL: 'partial'> = RecoveryStatus.PARTIAL
+================== 1 failed, 1 passed, 14 deselected in 0.23s ==================

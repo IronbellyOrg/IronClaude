@@ -1,0 +1,39 @@
+contract: deviation-ledger
+mode: post
+diff: c0d56f1804ac3c032ea932c9b66458185cec36c7..HEAD
+commit: ec51903a
+tasklist: .dev/tasks/to-do/TASK-RF-20260608185140/TASK-RF-20260608185140.md
+classification_precedence: "Regression > Drift > Necessary > Authorized"
+
+summary:
+  authorized: 0
+  necessary: 1
+  drift: 0
+  regression: 0
+  total: 1
+
+deviations:
+  - id: RD-1
+    title: "FIX-1 implemented as a helper extraction (_primary_checkpoint_rerun_argv) rather than the literal inline argv edit specified in Step 2.2"
+    deviation_class: necessary
+    severity: LOW
+    file: src/superclaude/cli/sprint/rerun_tasks.py
+    lines: "1328-1356, 1645-1657"
+    spec_ref: "Tasklist Step 2.2: 'EDIT that argv to insert str(config.index_path) ... immediately after the rerun-tasks element'"
+    evidence: "Implementer extracted _primary_checkpoint_rerun_argv(config, phase, checkpoint_tid) and the PRIMARY branch calls it. The required INDEX_PATH positional (str(config.index_path)) is correctly placed after 'rerun-tasks' and before '--phase'; returncode!=0 emits a click.echo warning; check=False preserved. Documented in the Task Summary 'Deviations from Process' with the unit-testability rationale; QA-gate PASS."
+    impact: "None functional. Fulfills the FIX-1 intent (positional + warn) and makes the argv permanently unit-testable. Contradicts no acceptance criterion."
+    blocks: false
+    remediation: "None — documented and approved."
+
+compliant_hunks:
+  - "FIX-2 (checkpoints.py _neutralize_gate_tokens + per-field application + whole-body guard) — maps to Step 3.2, on-spec."
+  - "FIX-3 (recovery.py canonical-mirror-only landing check) — maps to Step 4.2, on-spec (preferred removal form)."
+  - "FIX-4 (4 new TestRecoverMissingCheckpoints tests) — maps to Steps 5.1-5.4, on-spec."
+  - "New positive tests (FIX-1 PRIMARY argv x3, FIX-2 injection, FIX-3 relocation PARTIAL) — map to Phases 2-4, on-spec."
+
+regression_check:
+  method: "uv run pytest tests/sprint/ -q (verification triangle, §6.1 step 5.5)"
+  result: "1172 passed, 0 failed (exit 0)"
+  gate_reader_unchanged: true   # executor.py _check_checkpoint_pass not in diff
+  out_of_scope_untouched: true  # exactly 6 files (3 src + 3 test); DEV-4, _mirror race, recommend.md, .claude/ all untouched
+  regressions_detected: 0

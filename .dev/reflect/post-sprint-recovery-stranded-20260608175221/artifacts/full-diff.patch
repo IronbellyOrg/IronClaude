@@ -1,0 +1,669 @@
+diff --git a/src/superclaude/cli/sprint/checkpoints.py b/src/superclaude/cli/sprint/checkpoints.py
+index d64fd1d4..5f42a6a6 100644
+--- a/src/superclaude/cli/sprint/checkpoints.py
++++ b/src/superclaude/cli/sprint/checkpoints.py
+@@ -210,12 +210,55 @@ def write_manifest(entries: list[CheckpointEntry], output_path: Path) -> None:
+     tmp.replace(output_path)
+ 
+ 
++# Verdict tokens a checkpoint report may carry (consistent with the
++# PASS|FAIL|...|BLOCKED|SKIP matcher used by summarizer.py).
++_CHECKPOINT_VERDICT_RE = re.compile(
++    r"\b(PASS|FAIL|BLOCKED|SKIP|UNKNOWN)\b", re.IGNORECASE
++)
++
++
++def _parse_checkpoint_verdict(path: Path) -> str | None:
++    """Best-effort: read the current verdict token from an EXISTING checkpoint
++    report. Inspects a ``status:``/``verdict:`` frontmatter key first (only
++    within the leading ``---`` fenced block), then the ``## Result`` body
++    section. Returns the uppercased token (e.g. ``"FAIL"``) or ``None`` when no
++    verdict can be read. Used by the Fix-2 stale-verdict re-evaluation path —
++    the recovered-report template itself writes no ``status:`` frontmatter key,
++    so a stale FAIL/BLOCKED can only have been written by an agent.
++    """
++    try:
++        content = path.read_text(errors="replace")
++    except OSError:
++        return None
++    lines = content.splitlines()
++    # Frontmatter block (between the first two --- fences).
++    if lines and lines[0].strip() == "---":
++        for line in lines[1:]:
++            if line.strip() == "---":
++                break
++            key_match = re.match(
++                r"\s*(?:status|verdict)\s*:\s*(.+?)\s*$", line, re.IGNORECASE
++            )
++            if key_match:
++                token = _CHECKPOINT_VERDICT_RE.search(key_match.group(1))
++                if token:
++                    return token.group(1).upper()
++    # ## Result body token (the form recovered reports and many agents use).
++    result_idx = content.find("## Result")
++    if result_idx != -1:
++        token = _CHECKPOINT_VERDICT_RE.search(content[result_idx:])
++        if token:
++            return token.group(1).upper()
++    return None
++
++
+ def recover_missing_checkpoints(
+     manifest: list[CheckpointEntry],
+     artifacts_dir: Path,
+     phase_tasklists: dict[int, Path],
+     *,
+     return_bundle: bool = False,
++    reevaluate_stale: bool = False,
+ ) -> list[CheckpointEntry] | RecoveryBundle:
+     """Regenerate missing checkpoint reports from evidence files.
+ 
+@@ -242,11 +285,66 @@ def recover_missing_checkpoints(
+     :class:`~superclaude.cli.sprint.recovery.RecoveryBundle` for the v4.4.0
+     unified recovery surface; otherwise the list of ``CheckpointEntry`` is
+     returned unchanged (byte-identical to v4.2.x behavior).
++
++    ``reevaluate_stale`` (Fix-2 FALLBACK; default False ⇒ behavior unchanged):
++    when True, an EXISTING checkpoint file whose current verdict is FAIL or
++    BLOCKED is re-stamped to ``UNKNOWN``/Auto-Recovered (via the same recovered
++    report template) IFF the phase's gating tasks have recovered — determined
++    from freshly-discovered evidence under ``artifacts_dir`` for that phase. It
++    is NEVER auto-stamped PASS (the UNKNOWN-not-PASS hard constraint). When the
++    gating tasks have not recovered (no fresh evidence), the stale FAIL/BLOCKED
++    verdict is preserved unchanged. With ``reevaluate_stale=False`` the existing
++    idempotent no-op (existing file returned unchanged) is byte-identical.
+     """
+     out: list[CheckpointEntry] = []
+     for entry in manifest:
+         # Refresh existence — a previous iteration may have written the file.
+         if entry.expected_path.is_file():
++            # Fix-2 FALLBACK: optionally re-evaluate an EXISTING stale verdict.
++            # The default (reevaluate_stale=False) skips straight to the
++            # historical idempotent no-op below (append unchanged + continue).
++            if reevaluate_stale and entry.phase in phase_tasklists:
++                stale_verdict = _parse_checkpoint_verdict(entry.expected_path)
++                if stale_verdict in ("FAIL", "BLOCKED"):
++                    # "Now-passing" is the same evidence-to-phase association the
++                    # recovery path uses: fresh evidence discovered under
++                    # artifacts_dir for this phase ⇒ gating tasks recovered.
++                    evidence = _discover_phase_artifacts(artifacts_dir, entry.phase)
++                    if evidence:
++                        # Re-stamp the stale FAIL/BLOCKED to UNKNOWN/Auto-Recovered
++                        # (NEVER auto-PASS — the UNKNOWN-not-PASS hard constraint).
++                        verification_block = _extract_verification_block(
++                            phase_tasklists[entry.phase], entry.name
++                        )
++                        report = _render_recovered_checkpoint(
++                            entry=entry,
++                            verification_block=verification_block,
++                            evidence=evidence,
++                        )
++                        entry.expected_path.parent.mkdir(parents=True, exist_ok=True)
++                        entry.expected_path.write_text(report)
++                        recovery_source = (
++                            ", ".join(
++                                str(p.relative_to(artifacts_dir.parent))
++                                if p.is_relative_to(artifacts_dir.parent)
++                                else str(p)
++                                for p in evidence
++                            )
++                            + f" (stale {stale_verdict} re-stamped to UNKNOWN)"
++                        )
++                        out.append(
++                            CheckpointEntry(
++                                phase=entry.phase,
++                                name=entry.name,
++                                expected_path=entry.expected_path,
++                                exists=True,
++                                recovered=True,
++                                recovery_source=recovery_source,
++                            )
++                        )
++                        continue
++                    # No fresh evidence ⇒ gating tasks did NOT recover: fall
++                    # through and preserve the stale FAIL/BLOCKED verdict.
+             out.append(
+                 CheckpointEntry(
+                     phase=entry.phase,
+diff --git a/src/superclaude/cli/sprint/commands.py b/src/superclaude/cli/sprint/commands.py
+index 1d197312..ee91b44c 100644
+--- a/src/superclaude/cli/sprint/commands.py
++++ b/src/superclaude/cli/sprint/commands.py
+@@ -654,13 +654,23 @@ def kill(force: bool):
+     is_flag=True,
+     help="Auto-generate missing checkpoint reports from evidence artifacts.",
+ )
++@click.option(
++    "--reevaluate-stale",
++    is_flag=True,
++    help=(
++        "When recovering, re-stamp an existing stale FAIL/BLOCKED checkpoint "
++        "whose phase has recovered to UNKNOWN/Auto-Recovered (never auto-PASS)."
++    ),
++)
+ @click.option(
+     "--json",
+     "as_json",
+     is_flag=True,
+     help="Emit the manifest as machine-readable JSON instead of a table.",
+ )
+-def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
++def verify_checkpoints(
++    output_dir: Path, recover: bool, reevaluate_stale: bool, as_json: bool
++):
+     """Verify (and optionally recover) checkpoint reports for a sprint.
+ 
+     OUTPUT_DIR is a sprint release directory — the one that contains
+@@ -690,7 +700,12 @@ def verify_checkpoints(output_dir: Path, recover: bool, as_json: bool):
+         except Exception as exc:  # noqa: BLE001
+             raise click.ClickException(f"Phase discovery failed: {exc}") from exc
+         phase_tasklists = {p.number: p.file for p in phases}
+-        manifest = recover_missing_checkpoints(manifest, artifacts_dir, phase_tasklists)
++        manifest = recover_missing_checkpoints(
++            manifest,
++            artifacts_dir,
++            phase_tasklists,
++            reevaluate_stale=reevaluate_stale,
++        )
+ 
+     manifest_path = output_dir / "manifest.json"
+     write_manifest(manifest, manifest_path)
+diff --git a/src/superclaude/cli/sprint/recovery.py b/src/superclaude/cli/sprint/recovery.py
+index 6b4097a6..8ea6cbcf 100644
+--- a/src/superclaude/cli/sprint/recovery.py
++++ b/src/superclaude/cli/sprint/recovery.py
+@@ -383,12 +383,17 @@ def merge_recovery_bundle(
+     source_index: Path,
+     *,
+     release_dir: Optional[Path] = None,
++    expected_deliverables: Optional[dict[str, list[Path]]] = None,
+ ) -> None:
+     """Apply a RecoveryBundle's rerun artifacts back into the canonical results.
+ 
+-    7-step canonical merge sequence (TDD §T5, lines 86-99). Each step emits
+-    a ``debug_log`` trace event tagged with ``bundle_id`` for audit
+-    traceability. All file writes use the atomic tmp + replace pattern
++    Canonical merge sequence (TDD §T5, lines 86-99): Steps 1-7 reconcile the
++    ``results/phase-N-*`` file families, plus an inserted Step 3.5 that
++    relocates the rerun's TASKLIST_ROOT deliverable trees (``artifacts/``,
++    ``evidence/``, ``checkpoints/``) from the bundle root back to the canonical
++    TASKLIST_ROOT and fails loudly when a declared deliverable does not land.
++    Each step emits a ``debug_log`` trace event tagged with ``bundle_id`` for
++    audit traceability. All file writes use the atomic tmp + replace pattern
+     (researcher 2 §1.6) so partial writes cannot corrupt prior state.
+ 
+     Called by ``rerun_tasks.run_rerun_tasks`` today; v4.4.0 will add
+@@ -409,6 +414,14 @@ def merge_recovery_bundle(
+             ``config._resolve_release_dir`` logic the loader uses — NOT a naive
+             ``source_index.parent``, which is wrong when the index lives under a
+             ``tasklist/`` subdirectory.
++        expected_deliverables: Optional map of ``task_id`` -> declared
++            deliverable Paths for the affected tasks (computed by the caller via
++            ``rerun_tasks._declared_deliverables``; default ``None`` preserves
++            the verb-agnostic behavior). When supplied, Step 3.5 verifies each
++            declared deliverable landed at its mirrored canonical destination and
++            appends a ``deliverable-not-landed:<task>:<rel>`` entry to the
++            failure list (downgrading status to PARTIAL) for any that did not —
++            so a stranded deliverable can never be silently reported as SUCCESS.
+     """
+     import shutil
+ 
+@@ -499,6 +512,78 @@ def merge_recovery_bundle(
+                 except OSError as exc:
+                     failures.append(f"copy-errors:{task_id}:{exc}")
+ 
++    # Step 3.5 — relocate + verify TASKLIST_ROOT deliverable trees.
++    # Rerun agents write declared deliverable trees (artifacts/, evidence/,
++    # checkpoints/) into the bundle ROOT because the rerun sub-index pins
++    # TASKLIST_ROOT to the bundle. Steps 1-3 only reconcile the
++    # results/phase-N-* file families, so without this step those trees stay
++    # stranded inside the bundle while the merge still reports SUCCESS (silent
++    # data loss — the Defect-1 root cause). This step copies each tree back to
++    # the canonical TASKLIST_ROOT (source_index.parent) and, when the caller
++    # declares expected deliverables, fails loudly (appends to ``failures``,
++    # downgrading status to PARTIAL via the flip below) for any declared tree
++    # that does not land. It NEVER auto-PASSes a stranded deliverable.
++    debug_log(
++        _recovery_logger,
++        "merge_step_3_5_relocate_deliverables",
++        bundle_id=bundle_id,
++    )
++    canonical_root = source_index.parent
++    bundle_root = (
++        bundle.artifacts_produced[0].parent.parent
++        if bundle.artifacts_produced
++        else None
++    )
++    if bundle_root is not None:
++        for subtree in ("artifacts", "evidence", "checkpoints"):
++            src_tree = bundle_root / subtree
++            if not src_tree.is_dir():
++                continue
++            for produced_file in src_tree.rglob("*"):
++                if not produced_file.is_file():
++                    continue
++                rel = produced_file.relative_to(bundle_root)
++                dest = canonical_root / rel
++                try:
++                    dest.parent.mkdir(parents=True, exist_ok=True)
++                    # Preserve any clobbered canonical file as .failed-<mtime>
++                    # (mirrors the Step 1/2/3 clobber-preserve idiom).
++                    if dest.exists():
++                        orig_ts = int(dest.stat().st_mtime)
++                        preserved = dest.with_name(
++                            dest.stem + f".failed-{orig_ts}" + dest.suffix
++                        )
++                        dest.rename(preserved)
++                        bundle.artifacts_replaced[dest] = preserved
++                    # Per-file atomic copy (mirrors the tmp + replace idiom).
++                    tmp = dest.with_suffix(dest.suffix + ".tmp")
++                    shutil.copy2(produced_file, tmp)
++                    tmp.replace(dest)
++                except OSError as exc:
++                    failures.append(f"relocate-deliverable:{subtree}:{rel}:{exc}")
++
++    # Verify each declared deliverable landed at its mirrored canonical
++    # destination; a missing/empty tree appends a deliverable-not-landed
++    # failure so the status flip downgrades to PARTIAL (never silent SUCCESS).
++    if expected_deliverables is not None:
++        for task_id, declared_paths in expected_deliverables.items():
++            for declared in declared_paths:
++                # Map the declared path onto its mirrored canonical destination
++                # by its subtree segment; declared paths resolve against cwd,
++                # which need not equal canonical_root, so check the mirror.
++                parts = declared.parts
++                rel_dest: Path = Path(declared.name)
++                for idx, part in enumerate(parts):
++                    if part in ("artifacts", "evidence", "checkpoints"):
++                        rel_dest = Path(*parts[idx:])
++                        break
++                canonical_dest = canonical_root / rel_dest
++                landed = (
++                    canonical_dest.is_file() and canonical_dest.stat().st_size > 0
++                ) or (declared.is_file() and declared.stat().st_size > 0)
++                if not landed:
++                    failures.append(f"deliverable-not-landed:{task_id}:{rel_dest}")
++
+     # Step 4 — Write phase-N-rerun-manifest.json atomically.
+     debug_log(_recovery_logger, "merge_step_4_write_manifest", bundle_id=bundle_id)
+     manifest_path = results_dir / f"phase-{phase}-rerun-manifest.json"
+diff --git a/src/superclaude/cli/sprint/rerun_tasks.py b/src/superclaude/cli/sprint/rerun_tasks.py
+index bb095bb4..3e6421c1 100644
+--- a/src/superclaude/cli/sprint/rerun_tasks.py
++++ b/src/superclaude/cli/sprint/rerun_tasks.py
+@@ -1264,6 +1264,67 @@ def _print_investigation_summary(phase_result_json: Path, nominated: list[str])
+     click.echo(f"    nominated      : {', '.join(nominated)}")
+ 
+ 
++def _end_of_phase_checkpoint_task_id(phase_file: Path, phase: int) -> Optional[str]:
++    """Return the T-ID of the runnable end-of-phase checkpoint task, or None.
++
++    Scans ``phase_file`` for a ``### T<PP>.<NN> -- Checkpoint:`` task block whose
++    ``Checkpoint Report Path:`` resolves to ``CP-P{phase:02d}-END.md`` — the file
++    ``executor._check_checkpoint_pass`` reads. Such a task is a valid
++    ``rerun-tasks`` target (selectable by ``TASK_BLOCK_PATTERN``); re-running it
++    writes a fresh real verdict. Returns None when no runnable end-of-phase
++    checkpoint task exists, in which case the caller uses the
++    ``verify-checkpoints --reevaluate-stale`` re-stamp fallback (research 03 §3).
++    """
++    try:
++        content = phase_file.read_text(encoding="utf-8", errors="replace")
++    except OSError:
++        return None
++    target = f"CP-P{phase:02d}-END.md"
++    heading_re = re.compile(r"^###\s+(T\d{2}\.\d{2})\s*--\s*Checkpoint:", re.MULTILINE)
++    path_re = re.compile(
++        r"Checkpoint\s+Report\s+Path:\s*\*{0,2}\s*`?([^\s`\n*]+)`?", re.IGNORECASE
++    )
++    for block_match in TASK_BLOCK_PATTERN.finditer(content):
++        block = block_match.group(0)
++        if heading_re.match(block) is None:
++            continue
++        path_match = path_re.search(block)
++        if path_match and path_match.group(1).strip().endswith(target):
++            return block_match.group(1)
++    return None
++
++
++def _mirror_checkpoint_to_release_dir(config: SprintConfig, phase: int) -> None:
++    """Path-asymmetry guard (research 03 §4): ensure the regenerated/re-stamped
++    end-of-phase checkpoint report is present where ``_check_checkpoint_pass``
++    reads it — ``config.release_dir/checkpoints/CP-Pxx-END.md``.
++
++    The ``verify-checkpoints`` recover subprocess and the rerun merge land the
++    report under ``config.index_path.parent/checkpoints``; in the ``sc:tasklist``
++    subdir layout that directory differs from ``release_dir``. This mirrors the
++    report across when they diverge. No-op when the two coincide, when no source
++    report exists, or when the destination is already at least as new (so it
++    never clobbers a fresher real verdict).
++    """
++    name = f"CP-P{phase:02d}-END.md"
++    src = config.index_path.parent / "checkpoints" / name
++    dest = config.release_dir / "checkpoints" / name
++    if src == dest or not src.is_file():
++        return
++    if dest.is_file():
++        try:
++            if src.stat().st_mtime <= dest.stat().st_mtime:
++                return
++        except OSError:
++            return
++    try:
++        dest.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(src, dest)
++        click.echo(f"Mirrored end-of-phase checkpoint {name} to {dest.parent}.")
++    except OSError as exc:
++        click.echo(f"checkpoint mirror failed: {exc}")
++
++
+ def run_rerun_tasks(
+     config: SprintConfig,
+     *,
+@@ -1481,8 +1542,21 @@ def run_rerun_tasks(
+                             produced[0].parent / "task-results.json",
+                             json.dumps(_refreshed, indent=2) + "\n",
+                         )
++            # Thread the affected tasks' declared deliverables into the merge so
++            # Step 3.5 can verify each rerun-produced tree landed canonically and
++            # fail loudly (PARTIAL) if any was stranded in the bundle. Computed
++            # here (not in recovery.py) to preserve the no-import-cycle constraint
++            # — recovery is imported BY this module.
++            expected_deliverables = (
++                {tid: _declared_deliverables(phase_obj.file, tid) for tid in resolved}
++                if phase_obj is not None
++                else None
++            )
+             merge_recovery_bundle(
+-                recovery, config.index_path, release_dir=config.release_dir
++                recovery,
++                config.index_path,
++                release_dir=config.release_dir,
++                expected_deliverables=expected_deliverables,
+             )
+             finalize_checkboxes_on_success(phase_obj.file, resolved, bundle)
+             restore_info = None  # finalized — suppress the finally restore
+@@ -1505,31 +1579,91 @@ def run_rerun_tasks(
+                     "Rerun did not bring all target tasks to PASS; merge skipped."
+                 )
+ 
+-        # Step 14 — auto-invoke verify-checkpoints --recover (gated; TDD §T9).
++        # Step 14 — post-merge end-of-phase checkpoint re-verification (Fix-2;
++        # gated; TDD §T9). After a successful merge the gated end-of-phase
++        # checkpoint may still read a stale FAIL/BLOCKED verdict. Two paths:
++        #   PRIMARY  — when the phase has a runnable `### T<PP>.<NN> -- Checkpoint:`
++        #              task whose report is CP-Pxx-END.md, re-run that single task
++        #              so it writes a FRESH real verdict (Fix-1 Step 3.5 in the
++        #              nested merge lands it canonically).
++        #   FALLBACK — otherwise invoke `verify-checkpoints --recover
++        #              --reevaluate-stale` so an existing stale FAIL/BLOCKED whose
++        #              phase recovered is re-stamped to UNKNOWN/Auto-Recovered.
++        # Neither path auto-PASSes; a checkpoint whose gating tasks did not
++        # recover keeps its FAIL verdict. `checkpoint_gate_mode` is orthogonal
++        # (research 03 §1) and is NOT keyed on here.
+         if exit_code == 0 and merge_back and not no_verify_checkpoints:
+-            try:
+-                subprocess.run(
+-                    [
+-                        "uv",
+-                        "run",
+-                        "superclaude",
+-                        "sprint",
+-                        "verify-checkpoints",
+-                        # OUTPUT_DIR positional: the directory that contains
+-                        # tasklist-index.md. `index_path` is absolute (resolved
+-                        # in load_sprint_config), so `.parent` is cwd-independent
+-                        # and is the dir verify-checkpoints derives index/
+-                        # checkpoint/artifacts paths from. NOTE: do NOT pass
+-                        # config.release_dir — it resolves to the grandparent in
+-                        # the sc:tasklist subdir layout, where tasklist-index.md
+-                        # does not live. verify-checkpoints has no --phase/--quiet.
+-                        str(config.index_path.parent),
+-                        "--recover",
+-                    ],
+-                    check=False,
++            checkpoint_tid = (
++                _end_of_phase_checkpoint_task_id(phase_obj.file, phase)
++                if phase_obj is not None
++                else None
++            )
++            if checkpoint_tid is not None:
++                # PRIMARY — re-run the runnable end-of-phase checkpoint task.
++                # Release the per-phase recovery lock first so the nested rerun
++                # can acquire it (acquire_recovery_lock raises on a live
++                # same-phase lock); --no-verify-checkpoints breaks recursion. If
++                # the checkpoint task fails again, that failure propagates (no
++                # false SUCCESS) and the gate stays FAIL.
++                click.echo(
++                    f"Post-merge: re-running end-of-phase checkpoint task "
++                    f"{checkpoint_tid} for phase {phase} to refresh its verdict."
+                 )
+-            except OSError as exc:
+-                click.echo(f"verify-checkpoints invocation failed: {exc}")
++                if lock_path is not None:
++                    release_recovery_lock(lock_path)
++                    lock_path = None
++                try:
++                    subprocess.run(
++                        [
++                            "uv",
++                            "run",
++                            "superclaude",
++                            "sprint",
++                            "rerun-tasks",
++                            "--phase",
++                            str(phase),
++                            "--tasks",
++                            checkpoint_tid,
++                            "--no-verify-checkpoints",
++                        ],
++                        check=False,
++                    )
++                except OSError as exc:
++                    click.echo(f"checkpoint re-run invocation failed: {exc}")
++                # Path-asymmetry guard: land the regenerated report where
++                # _check_checkpoint_pass reads it.
++                _mirror_checkpoint_to_release_dir(config, phase)
++            else:
++                # FALLBACK — re-stamp an existing stale FAIL/BLOCKED checkpoint.
++                try:
++                    subprocess.run(
++                        [
++                            "uv",
++                            "run",
++                            "superclaude",
++                            "sprint",
++                            "verify-checkpoints",
++                            # OUTPUT_DIR positional: the directory that contains
++                            # tasklist-index.md. `index_path` is absolute (resolved
++                            # in load_sprint_config), so `.parent` is cwd-independent
++                            # and is the dir verify-checkpoints derives index/
++                            # checkpoint/artifacts paths from. NOTE: do NOT pass
++                            # config.release_dir — it resolves to the grandparent in
++                            # the sc:tasklist subdir layout, where tasklist-index.md
++                            # does not live. verify-checkpoints has no --phase/--quiet.
++                            str(config.index_path.parent),
++                            "--recover",
++                            "--reevaluate-stale",
++                        ],
++                        check=False,
++                    )
++                except OSError as exc:
++                    click.echo(f"verify-checkpoints invocation failed: {exc}")
++                # Path-asymmetry guard (REQUIRED): the recover subprocess
++                # re-stamps at index_path.parent/checkpoints, which in the
++                # sc:tasklist subdir layout differs from release_dir/checkpoints
++                # where _check_checkpoint_pass reads. Mirror across if diverged.
++                _mirror_checkpoint_to_release_dir(config, phase)
+ 
+         return exit_code
+     finally:
+diff --git a/tests/sprint/test_checkpoints.py b/tests/sprint/test_checkpoints.py
+index ccebbfad..13f4f5ba 100644
+--- a/tests/sprint/test_checkpoints.py
++++ b/tests/sprint/test_checkpoints.py
+@@ -520,6 +520,89 @@ class TestRecoverMissingCheckpoints:
+         assert result[0].exists is False
+         assert result[0].recovered is False
+ 
++    def test_recover_reevaluates_stale_fail_to_unknown(self, tmp_path: Path):
++        """Defect-2 regression (positive): with ``reevaluate_stale=True``, an
++        EXISTING stale FAIL/BLOCKED end-of-phase checkpoint whose phase has
++        recovered (fresh passing evidence present) is re-stamped to
++        UNKNOWN/Auto-Recovered — never left verbatim, and NEVER auto-PASS."""
++        index, _, _, p3 = _seed_sprint(tmp_path)
++        # Fresh passing evidence for the phase-3 gating tasks.
++        (tmp_path / "artifacts" / "D-0013").mkdir(parents=True)
++        (tmp_path / "artifacts" / "D-0013" / "config.md").write_text(
++            "Task T03.01 delivered configuration module."
++        )
++        (tmp_path / "artifacts" / "D-0014").mkdir()
++        (tmp_path / "artifacts" / "D-0014" / "util.md").write_text(
++            "Task T03.02 delivered utilities."
++        )
++        # Pre-seed an EXISTING stale FAIL checkpoint report (agent-written
++        # status: fail frontmatter + a FAIL ## Result body).
++        checkpoints_dir = tmp_path / "checkpoints"
++        checkpoints_dir.mkdir(parents=True, exist_ok=True)
++        (checkpoints_dir / "CP-P03-END.md").write_text(
++            "---\n"
++            "checkpoint: End of Phase 3\n"
++            "phase: 3\n"
++            "status: fail\n"
++            "generated_at: 2026-06-01T00:00:00Z\n"
++            "---\n\n"
++            "## Result\n\n"
++            "`FAIL` — gating tasks did not pass.\n",
++            encoding="utf-8",
++        )
++
++        manifest = build_manifest(index, tmp_path)
++        recovered = recover_missing_checkpoints(
++            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
++        )
++
++        end_entry = next(
++            e
++            for e in recovered
++            if e.phase == 3 and e.expected_path.name == "CP-P03-END.md"
++        )
++        body = end_entry.expected_path.read_text(encoding="utf-8")
++        # Stale FAIL verdict was re-stamped, not left verbatim.
++        assert "recovered: true" in body
++        assert "Auto-Recovered" in body
++        assert "`UNKNOWN`" in body
++        assert "status: fail" not in body
++        # NEVER auto-PASS — the executor's _check_checkpoint_pass PASS tokens
++        # must be absent from the re-stamped report.
++        upper = body.upper()
++        assert "STATUS: PASS" not in upper
++        assert "**RESULT**: PASS" not in upper
++        assert end_entry.recovered is True
++
++    def test_recover_preserves_fail_when_tasks_still_failing(self, tmp_path: Path):
++        """Defect-2 regression (negative): when the phase's gating tasks did NOT
++        recover (no fresh passing evidence), the re-stamp branch must NOT fire —
++        the stale FAIL verdict is preserved verbatim."""
++        index, _, _, p3 = _seed_sprint(tmp_path)
++        # No passing evidence seeded ⇒ the now-pass precondition is NOT met.
++        checkpoints_dir = tmp_path / "checkpoints"
++        checkpoints_dir.mkdir(parents=True, exist_ok=True)
++        end_report = checkpoints_dir / "CP-P03-END.md"
++        stale = (
++            "---\n"
++            "checkpoint: End of Phase 3\n"
++            "phase: 3\n"
++            "status: fail\n"
++            "generated_at: 2026-06-01T00:00:00Z\n"
++            "---\n\n"
++            "## Result\n\n"
++            "`FAIL` — gating tasks did not pass.\n"
++        )
++        end_report.write_text(stale, encoding="utf-8")
++
++        manifest = build_manifest(index, tmp_path)
++        recover_missing_checkpoints(
++            manifest, tmp_path / "artifacts", {3: p3}, reevaluate_stale=True
++        )
++
++        # Stale FAIL preserved byte-identically — no UNKNOWN re-stamp fired.
++        assert end_report.read_text(encoding="utf-8") == stale
++
+ 
+ # ---------------------------------------------------------------------------
+ # Wave 3 — verify-checkpoints CLI subcommand
+diff --git a/tests/sprint/test_recovery.py b/tests/sprint/test_recovery.py
+index d8c89bbb..cc79c2a3 100644
+--- a/tests/sprint/test_recovery.py
++++ b/tests/sprint/test_recovery.py
+@@ -324,6 +324,71 @@ class TestMergeRecoveryBundle:
+         assert entries[0]["status"] == "fail_recoverable"
+         assert bundle.status is RecoveryStatus.PARTIAL
+ 
++    def test_merge_relocates_deliverable_trees_or_partials(self, tmp_path: Path):
++        """Defect-1 regression: a rerun's TASKLIST_ROOT deliverable trees written
++        into the bundle root must be relocated to the canonical TASKLIST_ROOT — or
++        the merge must fail loudly (PARTIAL with a ``deliverable-not-landed:`` audit
++        entry). It must NEVER report SUCCESS while deliverables stay stranded inside
++        the bundle (the pre-Fix-1 silent-data-loss behavior)."""
++        source_index, _release_dir, results_dir = _seed_release(tmp_path, phase=7)
++        bundle = _bundle_with_sidecar(
++            tmp_path, bundle_id="rerun-strand", phase=7, task_ids=["T07.11"]
++        )
++        # Fixture geometry: _bundle_with_sidecar anchors the placeholder DIRECTLY
++        # in bundle_dir, so bundle.artifacts_produced[0].parent.parent (the same
++        # formula Step 3.5 uses to derive bundle_root) resolves to tmp_path/"bundles"
++        # here — NOT the production <bundle>/results/ nesting. Seed the deliverable
++        # trees under that derived bundle_root so test-seed and relocation-read agree.
++        bundle_root = bundle.artifacts_produced[0].parent.parent
++        module_src = bundle_root / "artifacts" / "D-0711" / "module.py"
++        module_src.parent.mkdir(parents=True, exist_ok=True)
++        module_src.write_text("print('rerun deliverable')", encoding="utf-8")
++        proof_src = bundle_root / "evidence" / "T07.11" / "proof.md"
++        proof_src.parent.mkdir(parents=True, exist_ok=True)
++        proof_src.write_text("evidence body", encoding="utf-8")
++
++        # Canonical destinations are mirrored under the canonical TASKLIST_ROOT
++        # (= source_index.parent, which is tmp_path in this fixture).
++        canonical_root = source_index.parent
++        module_dest = canonical_root / "artifacts" / "D-0711" / "module.py"
++        proof_dest = canonical_root / "evidence" / "T07.11" / "proof.md"
++
++        merge_recovery_bundle(
++            bundle,
++            source_index,
++            release_dir=tmp_path,
++            expected_deliverables={"T07.11": [module_dest, proof_dest]},
++        )
++
++        # Load-bearing coupling (REPORT Test-A spec): EITHER the trees landed in
++        # canonical with content preserved AND status SUCCESS, OR status PARTIAL
++        # with a non-empty failures list carrying a deliverable-not-landed entry.
++        audit_log = results_dir / "recovery-audit.log"
++        merge_events = [
++            json.loads(line)
++            for line in audit_log.read_text(encoding="utf-8").splitlines()
++            if line.strip() and json.loads(line).get("event") == "merge_recovery_bundle"
++        ]
++        assert merge_events, "merge must write a merge_recovery_bundle audit event"
++        failures = merge_events[-1].get("failures", [])
++
++        landed = (
++            module_dest.is_file()
++            and module_dest.read_text(encoding="utf-8") == "print('rerun deliverable')"
++            and proof_dest.is_file()
++            and proof_dest.read_text(encoding="utf-8") == "evidence body"
++        )
++        if bundle.status is RecoveryStatus.SUCCESS:
++            assert landed, (
++                "SUCCESS requires the deliverable trees to have landed in "
++                "canonical with content preserved (never stranded-but-SUCCESS)"
++            )
++        else:
++            assert bundle.status is RecoveryStatus.PARTIAL
++            assert any(f.startswith("deliverable-not-landed:") for f in failures), (
++                "a stranded deliverable must produce a deliverable-not-landed failure"
++            )
++
+ 
+ # ---------------------------------------------------------------------------
+ # write_recovery_audit_log — shared JSONL audit writer

@@ -324,6 +324,127 @@ class TestMergeRecoveryBundle:
         assert entries[0]["status"] == "fail_recoverable"
         assert bundle.status is RecoveryStatus.PARTIAL
 
+    def test_merge_relocates_deliverable_trees_or_partials(self, tmp_path: Path):
+        """Defect-1 regression: a rerun's TASKLIST_ROOT deliverable trees written
+        into the bundle root must be relocated to the canonical TASKLIST_ROOT — or
+        the merge must fail loudly (PARTIAL with a ``deliverable-not-landed:`` audit
+        entry). It must NEVER report SUCCESS while deliverables stay stranded inside
+        the bundle (the pre-Fix-1 silent-data-loss behavior)."""
+        source_index, _release_dir, results_dir = _seed_release(tmp_path, phase=7)
+        bundle = _bundle_with_sidecar(
+            tmp_path, bundle_id="rerun-strand", phase=7, task_ids=["T07.11"]
+        )
+        # Fixture geometry: _bundle_with_sidecar anchors the placeholder DIRECTLY
+        # in bundle_dir, so bundle.artifacts_produced[0].parent.parent (the same
+        # formula Step 3.5 uses to derive bundle_root) resolves to tmp_path/"bundles"
+        # here — NOT the production <bundle>/results/ nesting. Seed the deliverable
+        # trees under that derived bundle_root so test-seed and relocation-read agree.
+        bundle_root = bundle.artifacts_produced[0].parent.parent
+        module_src = bundle_root / "artifacts" / "D-0711" / "module.py"
+        module_src.parent.mkdir(parents=True, exist_ok=True)
+        module_src.write_text("print('rerun deliverable')", encoding="utf-8")
+        proof_src = bundle_root / "evidence" / "T07.11" / "proof.md"
+        proof_src.parent.mkdir(parents=True, exist_ok=True)
+        proof_src.write_text("evidence body", encoding="utf-8")
+
+        # Canonical destinations are mirrored under the canonical TASKLIST_ROOT
+        # (= source_index.parent, which is tmp_path in this fixture).
+        canonical_root = source_index.parent
+        module_dest = canonical_root / "artifacts" / "D-0711" / "module.py"
+        proof_dest = canonical_root / "evidence" / "T07.11" / "proof.md"
+
+        merge_recovery_bundle(
+            bundle,
+            source_index,
+            release_dir=tmp_path,
+            expected_deliverables={"T07.11": [module_dest, proof_dest]},
+        )
+
+        # Load-bearing coupling (REPORT Test-A spec): EITHER the trees landed in
+        # canonical with content preserved AND status SUCCESS, OR status PARTIAL
+        # with a non-empty failures list carrying a deliverable-not-landed entry.
+        audit_log = results_dir / "recovery-audit.log"
+        merge_events = [
+            json.loads(line)
+            for line in audit_log.read_text(encoding="utf-8").splitlines()
+            if line.strip() and json.loads(line).get("event") == "merge_recovery_bundle"
+        ]
+        assert merge_events, "merge must write a merge_recovery_bundle audit event"
+        failures = merge_events[-1].get("failures", [])
+
+        landed = (
+            module_dest.is_file()
+            and module_dest.read_text(encoding="utf-8") == "print('rerun deliverable')"
+            and proof_dest.is_file()
+            and proof_dest.read_text(encoding="utf-8") == "evidence body"
+        )
+        if bundle.status is RecoveryStatus.SUCCESS:
+            assert landed, (
+                "SUCCESS requires the deliverable trees to have landed in "
+                "canonical with content preserved (never stranded-but-SUCCESS)"
+            )
+        else:
+            assert bundle.status is RecoveryStatus.PARTIAL
+            assert any(f.startswith("deliverable-not-landed:") for f in failures), (
+                "a stranded deliverable must produce a deliverable-not-landed failure"
+            )
+
+    def test_merge_partial_when_declared_not_landed_in_canonical(self, tmp_path: Path):
+        """DEV-3 (Drift, MED): the landing-verify must check the CANONICAL mirror
+        only. A declared deliverable resolves against cwd, which need not equal
+        the canonical root; if relocation never lands the tree in canonical but a
+        stale/pre-existing file exists at the non-canonical declared path, the
+        pre-fix OR-clause (``... or declared.is_file()``) reports it as landed and
+        the merge silently reports SUCCESS. Here the bundle has a sidecar (SUCCESS
+        reachable) and NO deliverable tree under the bundle root (so relocation
+        copies nothing), yet a stale declared file exists at a NON-canonical path.
+        Pre-fix: SUCCESS (the masking bug). Post-fix: PARTIAL with a
+        ``deliverable-not-landed:`` failure."""
+        source_index, _release_dir, results_dir = _seed_release(tmp_path, phase=7)
+        bundle = _bundle_with_sidecar(
+            tmp_path, bundle_id="rerun-notland", phase=7, task_ids=["T07.11"]
+        )
+        # Deliberately seed NO artifacts/ tree under the bundle root → relocation
+        # copies nothing, so the canonical destination is never created.
+        canonical_root = source_index.parent
+        canonical_dest = canonical_root / "artifacts" / "D-0711" / "module.py"
+        assert not canonical_dest.exists()
+        # Stale, pre-existing file at a NON-canonical declared path (resolves
+        # against a cwd-like location, NOT under canonical_root).
+        stale_declared = tmp_path / "stale_cwd" / "artifacts" / "D-0711" / "module.py"
+        stale_declared.parent.mkdir(parents=True, exist_ok=True)
+        stale_declared.write_text("stale pre-existing content", encoding="utf-8")
+        assert stale_declared.resolve() != canonical_dest.resolve()
+
+        merge_recovery_bundle(
+            bundle,
+            source_index,
+            release_dir=tmp_path,
+            expected_deliverables={"T07.11": [stale_declared]},
+        )
+
+        audit_log = results_dir / "recovery-audit.log"
+        merge_events = [
+            json.loads(line)
+            for line in audit_log.read_text(encoding="utf-8").splitlines()
+            if line.strip() and json.loads(line).get("event") == "merge_recovery_bundle"
+        ]
+        assert merge_events, "merge must write a merge_recovery_bundle audit event"
+        failures = merge_events[-1].get("failures", [])
+
+        # The deliverable never reached canonical, so the merge MUST NOT report
+        # SUCCESS via the stale non-canonical declared file.
+        assert bundle.status is RecoveryStatus.PARTIAL, (
+            "a declared deliverable absent from canonical must downgrade to "
+            "PARTIAL even when a stale non-canonical declared file exists"
+        )
+        assert any(f.startswith("deliverable-not-landed:") for f in failures), (
+            "the canonical mirror is missing — a deliverable-not-landed failure "
+            "must be recorded (the OR-clause must not mask it)"
+        )
+        # And the canonical destination genuinely never materialized.
+        assert not canonical_dest.exists()
+
 
 # ---------------------------------------------------------------------------
 # write_recovery_audit_log — shared JSONL audit writer
