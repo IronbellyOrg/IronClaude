@@ -1,5 +1,9 @@
 # MultiModelSwarm Operator Runbook
 
+> 📚 Part of the [swarm documentation](./README.md). New here? Start with the
+> [User Guide](./user-guide.md); for flags and exit codes see the
+> [Command Reference](./command-reference.md).
+>
 > **Status:** Phase 1 stub. Fleshed out in M9 (OPS-001) with run / status /
 > status --watch / logs / resume / kill / attach workflows. This file currently
 > records the AC-001 environment mandate so the guard test has a documentation

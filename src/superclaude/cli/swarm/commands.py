@@ -38,7 +38,7 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Mapping, Optional
+from typing import Any, Callable, Mapping, Optional
 
 import click
 
@@ -347,10 +347,7 @@ def _format_lens_failure(failure: LensValidationFailure) -> str:
     phrasing can evolve.
     """
     path = failure.path or "<root>"
-    return (
-        f"  - {failure.rule} @ {path}: {failure.message} "
-        f"(lens={failure.lens_name})"
-    )
+    return f"  - {failure.rule} @ {path}: {failure.message} (lens={failure.lens_name})"
 
 
 def _emit_lens_failures(
@@ -519,11 +516,13 @@ def _resolve_run_transport(
       when the contract is incomplete; callers surface that as a structured
       env-missing failure (``EXIT_INVALID``) rather than dispatching nothing.
 
-    A single transport is shared across all N worker slots because
-    :func:`dispatch_wave1` accepts one transport for the whole wave. Per-slot
-    model differentiation (one ``OpenAICompatTransport`` per ``T2Model0N``
-    slot) is intentionally **out of scope** for the no-op fix; it would
-    require extending the dispatch signature and is tracked separately.
+    This builds a SINGLE transport bound to the first configured model. For
+    heterogeneous per-slot model fan-out (one ``OpenAICompatTransport`` per
+    ``T2Model0N`` slot), use :func:`_resolve_run_transport_factory`, which
+    ``run_cmd`` and the resume path call to pass ``transport_for_slot`` into
+    :func:`dispatch_wave1`. This single-transport helper is retained as the
+    stub-branch builder that the factory delegates to (stub differentiation
+    adds no value -- see the factory docstring).
 
     Args:
         transport_kind: the resolved ``transport.kind`` (one of
@@ -563,6 +562,127 @@ def _resolve_run_transport(
             api_key=config.api_key,
             model=config.models[0],
         )
+    raise ValueError(
+        f"swarm run: unknown transport kind {transport_kind!r}; "
+        f"expected one of {_TRANSPORT_KINDS}"
+    )
+
+
+class ModelPoolTooSmallError(RuntimeError):
+    """Raised when the openai_compat model pool is smaller than the worker count.
+
+    The per-slot factory binds worker slot ``i`` to env model ``pool[i % len]``.
+    INV-005 guards ``workers.count`` against ``spec.workers.models`` (lens
+    placeholders), NOT the actual ``T2Model0N`` env pool the factory uses, so a
+    job can pass preflight yet have fewer real models than workers. Without this
+    guard those extra slots would silently wrap and *reuse* a model (D2). We
+    fail loudly instead so the operator either adds ``T2Model0N`` slots or
+    reduces ``workers.count``.
+    """
+
+    def __init__(self, pool_size: int, workers_requested: int) -> None:
+        self.pool_size = pool_size
+        self.workers_requested = workers_requested
+        super().__init__(
+            f"T2 model pool has {pool_size} model(s) but the job requests "
+            f"{workers_requested} worker(s); each worker binds a distinct "
+            f"T2Model0N slot. Set at least {workers_requested} T2Model0N "
+            f"slot(s), or reduce workers.count to <= {pool_size}."
+        )
+
+
+def _resolve_run_transport_factory(
+    transport_kind: str,
+    *,
+    models: Optional[list[str]] = None,
+    env: Optional[Mapping[str, str]] = None,
+    workers_requested: Optional[int] = None,
+) -> Callable[[int], Any]:
+    """Build a per-slot transport factory ``(slot_index) -> Transport``.
+
+    This is the heterogeneous-fan-out generalisation of
+    :func:`_resolve_run_transport`. ``dispatch_wave1`` calls the returned
+    factory once per worker slot, so each slot can be bound to a *different*
+    model -- the actual "MultiModelSwarm" behaviour:
+
+    * ``stub``          -- delegates to :func:`_resolve_run_transport` for a
+      single deterministic :class:`StubTransport` shared across all slots.
+      Stub output is a pure function of ``(model_id, prompt)`` and the stub
+      pool carries only lens placeholder ids, so per-slot differentiation
+      adds no value here; the single-model behaviour is preserved verbatim.
+    * ``openai_compat`` -- reads the T2 proxy env contract (AC-017) **once**
+      via :func:`read_env` (raising :class:`TransportEnvError` here, at
+      build time, so the caller surfaces env-missing before dispatch). Slot
+      ``i`` is bound to env model ``T2Model0N`` at index ``i % len(pool)``.
+      When ``workers_requested`` is supplied, the builder raises
+      :class:`ModelPoolTooSmallError` if the env pool is smaller than the
+      worker count (D2 guard) -- this is the env-pool check INV-005 does NOT
+      perform (it validates against ``spec.workers.models`` placeholders, not
+      the live ``T2Model0N`` pool), so without it extra slots would silently
+      wrap and reuse a model. With a sufficient pool each slot gets a
+      *distinct* model. One :class:`OpenAICompatTransport` is built per unique
+      model and cached, so repeated slots on the same model reuse the client.
+
+    Args:
+        transport_kind: resolved ``transport.kind`` (one of
+            :data:`_TRANSPORT_KINDS`).
+        models: model identifiers. For ``stub`` the first non-empty entry
+            becomes the stub ``model_id``. **Ignored for ``openai_compat``**
+            -- the wire models come from the env contract (``T2Model0N``),
+            never from ``spec.workers.models`` (which carries placeholders on
+            the ``--lens`` path).
+        env: optional environment mapping forwarded to :func:`read_env`
+            (defaults to ``os.environ``). Exposed for deterministic tests.
+        workers_requested: the number of worker slots that will be dispatched.
+            When provided (the run/resume paths always do), ``openai_compat``
+            raises :class:`ModelPoolTooSmallError` if the env pool has fewer
+            models than this, preventing silent model reuse via wraparound (D2).
+            ``None`` skips the check (e.g. direct unit construction).
+
+    Returns:
+        A callable ``(slot_index: int) -> Transport``.
+
+    Raises:
+        TransportEnvError: ``openai_compat`` selected but the T2 env contract
+            is incomplete (raised eagerly, before any slot is dispatched).
+        ModelPoolTooSmallError: ``openai_compat`` env pool smaller than
+            ``workers_requested`` (raised eagerly, before any slot is dispatched).
+        ValueError: ``transport_kind`` is not a recognised kind.
+    """
+    if transport_kind == "stub":
+        # Single shared stub for every slot (single-model behaviour preserved).
+        shared = _resolve_run_transport("stub", models=models, env=env)
+        return lambda _slot: shared
+    if transport_kind == "openai_compat":
+        from superclaude.cli.swarm.transports.openai_compat import (
+            OpenAICompatTransport,
+            read_env,
+        )
+
+        config = read_env(env)  # eager: raises TransportEnvError if incomplete
+        pool = [m for m in config.models if m]
+        if not pool:  # defensive -- read_env raises before reaching here
+            raise ValueError("swarm run: openai_compat model pool is empty")
+        # D2 guard: fail loudly when the real env pool is smaller than the
+        # worker count instead of silently wrapping (pool[i % len]) and reusing
+        # models. INV-005 only checks spec placeholders, not this env pool.
+        if workers_requested is not None and len(pool) < workers_requested:
+            raise ModelPoolTooSmallError(len(pool), workers_requested)
+        cache: dict[str, Any] = {}
+
+        def _factory(slot_index: int) -> Any:
+            model = pool[slot_index % len(pool)]
+            transport = cache.get(model)
+            if transport is None:
+                transport = OpenAICompatTransport(
+                    base_url=config.base_url,
+                    api_key=config.api_key,
+                    model=model,
+                )
+                cache[model] = transport
+            return transport
+
+        return _factory
     raise ValueError(
         f"swarm run: unknown transport kind {transport_kind!r}; "
         f"expected one of {_TRANSPORT_KINDS}"
@@ -735,9 +855,7 @@ def _build_spec_from_lens(lens_name: str) -> dict[str, Any]:
             "success_first": True,
             "partial_threshold": 2,
         },
-        "recommended_next_command_template": (
-            entry.recommended_next_command_template
-        ),
+        "recommended_next_command_template": (entry.recommended_next_command_template),
         "recommended_next_command_substitutions": {},
         "runtime": {
             "mode": "inline",
@@ -948,9 +1066,9 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
         raise click.exceptions.Exit(EXIT_USAGE)
 
     output_section = spec_dict.get("output", {}) or {}
-    output_dir_value = output_section.get("dir", "") if isinstance(
-        output_section, dict
-    ) else ""
+    output_dir_value = (
+        output_section.get("dir", "") if isinstance(output_section, dict) else ""
+    )
     if not isinstance(output_dir_value, str) or not output_dir_value:
         click.echo(
             "swarm run --detached: output.dir is required to stage the "
@@ -980,8 +1098,7 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
         _os.replace(tmp_path, snapshot_path)
     except OSError as exc:
         click.echo(
-            f"swarm run --detached: cannot stage spec snapshot "
-            f"{snapshot_path}: {exc}",
+            f"swarm run --detached: cannot stage spec snapshot {snapshot_path}: {exc}",
             err=True,
         )
         try:
@@ -1002,9 +1119,7 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
     import subprocess as _subprocess
 
     try:
-        session = swarm_tmux.launch_detached(
-            job_id_value, child_argv, cwd=output_path
-        )
+        session = swarm_tmux.launch_detached(job_id_value, child_argv, cwd=output_path)
     except swarm_tmux.TmuxUnavailableError as exc:
         # Race: tmux disappeared between availability check and launch.
         click.echo(f"swarm run --detached: {exc}", err=True)
@@ -1017,22 +1132,19 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
         # A live session with this job_id already exists -- refusing to
         # clobber is the launcher's job (idempotency belongs to kill).
         click.echo(
-            f"swarm run --detached: cannot launch session "
-            f"{target_session!r}: {exc}",
+            f"swarm run --detached: cannot launch session {target_session!r}: {exc}",
             err=True,
         )
         raise click.exceptions.Exit(EXIT_INVALID)
     except _subprocess.CalledProcessError as exc:
         click.echo(
-            f"swarm run --detached: tmux launch failed (exit "
-            f"{exc.returncode}): {exc}",
+            f"swarm run --detached: tmux launch failed (exit {exc.returncode}): {exc}",
             err=True,
         )
         raise click.exceptions.Exit(EXIT_INVALID)
 
     click.echo(
-        f"swarm run: detached job_id={job_id_value} session={session} "
-        f"mode={input_mode}"
+        f"swarm run: detached job_id={job_id_value} session={session} mode={input_mode}"
     )
     raise click.exceptions.Exit(EXIT_OK)
 
@@ -1409,15 +1521,19 @@ def run_cmd(
         spec_dict.get("workers", {}) if isinstance(spec_dict, dict) else {}
     )
     resolved_models = (
-        workers_section.get("models", [])
-        if isinstance(workers_section, dict)
-        else []
+        workers_section.get("models", []) if isinstance(workers_section, dict) else []
     )
     try:
-        run_transport = _resolve_run_transport(
-            resolved_transport_kind, models=resolved_models
+        # Per-slot factory enables heterogeneous multi-model fan-out: each
+        # worker slot binds to a distinct ``T2Model0N`` model (openai_compat).
+        # ``read_env`` runs eagerly inside the factory builder, so an
+        # incomplete env contract still surfaces here (before dispatch).
+        run_transport_factory = _resolve_run_transport_factory(
+            resolved_transport_kind,
+            models=resolved_models,
+            workers_requested=preflight_result.manifest.preflight.workers_requested,
         )
-    except TransportEnvError as exc:
+    except (TransportEnvError, ModelPoolTooSmallError) as exc:
         click.echo(
             f"swarm run: cannot construct {resolved_transport_kind!r} "
             f"transport -- {exc}",
@@ -1436,7 +1552,7 @@ def run_cmd(
         )
 
     worker_results = dispatch_wave1(
-        preflight_result, transport=run_transport, logger=logger
+        preflight_result, transport_for_slot=run_transport_factory, logger=logger
     )
 
     # F-P3-3 -- Wave 1 is the terminal wave for this T03.01 run body (the
@@ -1501,9 +1617,7 @@ def run_cmd(
 # ``…-NN-….meta.json``. The capture group extracts the slot index; the
 # trailing slug is non-greedy so multi-segment model slugs (``-1-5-pro``)
 # still match a single ``NN`` pair at the leftmost position.
-_META_SLOT_INDEX_RE: re.Pattern[str] = re.compile(
-    r"-(\d+)-[^/\\]+\.meta\.json$"
-)
+_META_SLOT_INDEX_RE: re.Pattern[str] = re.compile(r"-(\d+)-[^/\\]+\.meta\.json$")
 
 
 def discover_succeeded_slots(
@@ -1715,9 +1829,7 @@ def _run_resume_branch(
         raise click.exceptions.Exit(EXIT_USAGE)
 
     try:
-        rehydrated_spec: JobSpec = resume_mode(
-            manifest_path, force_relens=force_relens
-        )
+        rehydrated_spec: JobSpec = resume_mode(manifest_path, force_relens=force_relens)
     except KeyError as exc:
         click.echo(
             f"swarm run --resume --force-relens: lens "
@@ -1772,9 +1884,7 @@ def _run_resume_branch(
                 transport_kind=resolved_transport_kind,
             ),
         )
-        synthetic_state = _SwarmState(
-            state="preflight_ok", job_id=manifest_obj.job_id
-        )
+        synthetic_state = _SwarmState(state="preflight_ok", job_id=manifest_obj.job_id)
         synthetic_preflight = _PreflightResult(
             manifest=synthetic_manifest, state=synthetic_state
         )
@@ -1789,19 +1899,38 @@ def _run_resume_branch(
         )
 
         try:
-            resume_transport = _resolve_run_transport(
+            # Guard against the ORIGINAL worker count (not len(remaining_indices)):
+            # resume maps each remaining slot back to its original index, so the
+            # env pool must cover pool[original_index] for every remaining slot.
+            resume_transport_factory = _resolve_run_transport_factory(
                 resolved_transport_kind,
                 models=list(rehydrated_spec.workers.models),
+                workers_requested=workers_requested,
             )
-        except _TransportEnvError as exc:
+        except (_TransportEnvError, ModelPoolTooSmallError) as exc:
             click.echo(
                 f"swarm run --resume: cannot construct "
                 f"{resolved_transport_kind!r} transport -- {exc}",
                 err=True,
             )
             raise click.exceptions.Exit(EXIT_INVALID)
+
+        # Per-slot model identity must survive resume. dispatch_wave1 fans out
+        # synthetic slot indices 0..K-1 for the K remaining workers, but the
+        # per-slot factory keys the model off the slot index -- so without this
+        # translation a worker that originally ran on ``pool[3]`` and failed
+        # would be retried on ``pool[0]`` (a different model). Map each
+        # synthetic position back to its ORIGINAL slot index before the factory
+        # picks the model, so the resumed worker re-runs on the same model it
+        # was first assigned (INV-016 verbatim-rehydration spirit).
+        def _resume_slot_transport(new_pos: int) -> Any:
+            original_index = remaining_indices[new_pos]
+            return resume_transport_factory(original_index)
+
         raw_redispatched = dispatch_wave1(
-            synthetic_preflight, transport=resume_transport, logger=None
+            synthetic_preflight,
+            transport_for_slot=_resume_slot_transport,
+            logger=None,
         )
 
         # Reindex returned slots (0..K-1) onto the original slot
@@ -2137,10 +2266,7 @@ def status_cmd(
                 break
 
             iterations += 1
-            if (
-                watch_max_iterations is not None
-                and iterations >= watch_max_iterations
-            ):
+            if watch_max_iterations is not None and iterations >= watch_max_iterations:
                 break
             time.sleep(watch_interval)
     except KeyboardInterrupt:
@@ -2213,10 +2339,7 @@ def _validate_job_id(
         # A corrupt state file is the status surface's problem, not
         # ours. The log file may still be intact and useful for
         # post-mortem; surface the corruption only when --job pins it.
-        return (
-            f"swarm logs: {state_path} is unreadable; cannot verify --job "
-            f"{job_id!r}"
-        )
+        return f"swarm logs: {state_path} is unreadable; cannot verify --job {job_id!r}"
     if state is None:
         return None
     if state.job_id != job_id:
@@ -2342,10 +2465,7 @@ def _follow_log(
                 break
 
             iterations += 1
-            if (
-                watch_max_iterations is not None
-                and iterations > watch_max_iterations
-            ):
+            if watch_max_iterations is not None and iterations > watch_max_iterations:
                 break
 
             time.sleep(watch_interval)
@@ -3050,8 +3170,7 @@ def scaffold_cmd(lens_name: str, output_path: Optional[Path]) -> None:
     if lens_name not in LENSES:
         known = ", ".join(n for n in LENS_NAMES if n != "custom")
         click.echo(
-            f"swarm scaffold: unknown lens {lens_name!r}; "
-            f"known lenses: {known}",
+            f"swarm scaffold: unknown lens {lens_name!r}; known lenses: {known}",
             err=True,
         )
         raise click.exceptions.Exit(EXIT_USAGE)
@@ -3079,8 +3198,7 @@ def scaffold_cmd(lens_name: str, output_path: Optional[Path]) -> None:
     # Confirmation lands on stderr so stdout stays clean for callers
     # that combine ``--output`` with a piped consumer.
     click.echo(
-        f"swarm scaffold: wrote starter spec for lens "
-        f"{lens_name!r} to {output_path}",
+        f"swarm scaffold: wrote starter spec for lens {lens_name!r} to {output_path}",
         err=True,
     )
     raise click.exceptions.Exit(EXIT_OK)

@@ -1,5 +1,8 @@
 # Swarm Transport Limits — Phase 1 (AC-010 / T07.20)
 
+> 📚 Part of the [swarm documentation](./README.md). See also the
+> [User Guide → real proxy](./user-guide.md#6-running-against-a-real-model-proxy).
+
 This page documents the **deliberate transport-feature exclusions** that
 apply to the Phase-1 swarm deployment. The same limits are inherited
 verbatim from the parent `sc-bare-review` spec §7.3 ("Transport

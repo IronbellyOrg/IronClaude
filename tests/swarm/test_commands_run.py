@@ -306,10 +306,15 @@ def test_run_cmd_spec_file_mode_invokes_preflight_and_dispatch(
     captured: dict[str, Any] = {}
 
     def _fake_dispatch(
-        preflight_result: Any, transport: Any = None, **kwargs: Any
+        preflight_result: Any,
+        transport: Any = None,
+        *,
+        transport_for_slot: Any = None,
+        **kwargs: Any,
     ) -> list[Any]:
         captured["preflight_result"] = preflight_result
         captured["transport"] = transport
+        captured["transport_for_slot"] = transport_for_slot
         return []
 
     # The run_cmd body does a lazy import; patch the source module so
@@ -332,16 +337,28 @@ def test_run_cmd_spec_file_mode_invokes_preflight_and_dispatch(
     preflight_result = captured["preflight_result"]
     assert preflight_result.manifest.job_id == "job-run-cmd"
     assert preflight_result.manifest.preflight.workers_requested == 3
-    # F-P3-1 -- run_cmd now resolves a CONCRETE transport before dispatch
-    # (the historical ``transport=None`` made dispatch a no-op). The
-    # fixture uses ``stub`` so the resolved transport is a StubTransport.
+    # F-P3-1 + per-slot fan-out -- run_cmd now passes a CONCRETE per-slot
+    # transport factory (``transport_for_slot``) so dispatch binds each worker
+    # to a model; the historical ``transport=None`` made dispatch a no-op. The
+    # fixture uses ``stub`` so every slot resolves to a StubTransport.
     from superclaude.cli.swarm.transports.stub import StubTransport
 
-    assert captured["transport"] is not None, (
-        "run_cmd must pass a concrete transport to dispatch_wave1 (F-P3-1); "
-        "transport=None is the no-op that dispatched zero workers"
+    factory = captured["transport_for_slot"]
+    assert factory is not None and callable(factory), (
+        "run_cmd must pass a per-slot transport factory to dispatch_wave1 "
+        "(F-P3-1); transport_for_slot=None is the no-op that dispatched zero "
+        "workers"
     )
-    assert isinstance(captured["transport"], StubTransport)
+    # Exercise every slot the wave will fan out (not just slot 0), so the test
+    # proves cross-slot fan-out, not a single-slot happy path. The stub branch
+    # shares one StubTransport across all slots (single-model behaviour
+    # preserved); each slot must still resolve to a concrete StubTransport.
+    slot_transports = [factory(i) for i in range(3)]
+    assert all(isinstance(t, StubTransport) for t in slot_transports)
+    assert all(t is slot_transports[0] for t in slot_transports), (
+        "stub branch must share one transport across slots (single-model "
+        "behaviour preserved)"
+    )
 
     # Stdout success line names the input mode and worker count.
     assert "mode=spec-file" in result.stdout

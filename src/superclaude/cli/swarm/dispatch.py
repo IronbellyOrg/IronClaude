@@ -115,7 +115,6 @@ from superclaude.cli.swarm.preflight import PreflightResult
 from superclaude.cli.swarm.transports import Transport
 from superclaude.execution.parallel import ParallelExecutor, Task
 
-
 __all__ = ["dispatch_wave1", "retry_policy"]
 
 
@@ -319,6 +318,13 @@ def _run_worker(
                     "http_code": result.http_code,
                     "attempts": result.attempts,
                     "elapsed_ms": result.elapsed_ms,
+                    # FR-PER-SLOT -- record which model produced this slot so
+                    # heterogeneous (per-worker) model fan-out is observable in
+                    # the execution log. The transport stamps ``model_id`` /
+                    # ``model_label`` on every WorkerResult (success and
+                    # proxy_error alike) so a failed slot is still attributable.
+                    "model_id": result.model_id,
+                    "model_label": result.model_label,
                 },
             )
         )
@@ -329,6 +335,7 @@ def dispatch_wave1(
     preflight_result: PreflightResult,
     transport: Optional[Transport] = None,
     *,
+    transport_for_slot: Optional[Callable[[int], Transport]] = None,
     prompt: str = "",
     parallel_executor: Optional[ParallelExecutor] = None,
     worker_spec: Optional[WorkerSpec] = None,
@@ -358,9 +365,20 @@ def dispatch_wave1(
             drives the fan-out count.
         transport: a :class:`Transport` implementation
             (e.g. ``OpenAICompatTransport``, ``StubTransport``).
-            When ``None`` the function returns an empty list -- this
-            is the wire-only path used by the T03.01 smoke test;
-            real runs always supply a transport.
+            Shared across all N worker slots. When both ``transport``
+            and ``transport_for_slot`` are ``None`` the function
+            returns an empty list -- the wire-only path used by the
+            T03.01 smoke test; real runs always supply one or the other.
+        transport_for_slot: optional per-slot transport factory
+            ``(slot_index) -> Transport``. When supplied it takes
+            precedence over ``transport`` and is invoked once per
+            worker slot, so each slot can be bound to a *different*
+            model (heterogeneous multi-model fan-out -- one
+            ``OpenAICompatTransport`` per ``T2Model0N`` slot). When
+            ``None`` the single shared ``transport`` is used for every
+            slot (the legacy single-model path). The factory MUST be
+            cheap / idempotent per slot; ``run_cmd`` caches one
+            transport per unique model behind it.
         prompt: the fully-assembled prompt body to send. Passed
             verbatim to ``transport.send`` (the transport MUST NOT
             re-normalize per COMP-031). Defaults to an empty string
@@ -388,7 +406,7 @@ def dispatch_wave1(
         ``index`` (0..N-1). Empty list when ``transport`` is ``None``
         or ``workers_requested == 0``.
     """
-    if transport is None:
+    if transport is None and transport_for_slot is None:
         return []
 
     workers_requested = preflight_result.manifest.preflight.workers_requested
@@ -427,7 +445,18 @@ def dispatch_wave1(
         # late-binding closure trap that would collapse every task
         # onto the loop's terminal value).
         def _call() -> WorkerResult:
-            return _run_worker(slot_index, transport, prompt, effective_spec, logger)
+            # Per-slot transport takes precedence: each worker can be
+            # bound to a different model (heterogeneous fan-out). Falls
+            # back to the single shared transport when no factory is
+            # supplied (legacy single-model path).
+            slot_transport = (
+                transport_for_slot(slot_index)
+                if transport_for_slot is not None
+                else transport
+            )
+            return _run_worker(
+                slot_index, slot_transport, prompt, effective_spec, logger
+            )
 
         return _call
 
@@ -457,9 +486,7 @@ def dispatch_wave1(
         if isinstance(outcome, WorkerResult):
             results.append(outcome)
         else:
-            results.append(
-                WorkerResult(index=index, status="proxy_error", attempts=1)
-            )
+            results.append(WorkerResult(index=index, status="proxy_error", attempts=1))
 
     # T03.10 -- closing wave_transition. M4 normalize / M5 reduce will
     # stamp their own transitions; dispatch closes its own wave so the
