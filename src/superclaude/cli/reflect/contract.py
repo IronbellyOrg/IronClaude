@@ -39,6 +39,23 @@ _VERIFICATION_SKIP_EXEMPTIONS = frozenset(
 
 _DEVIATION_KEYS = ("authorized", "necessary", "drift", "regression")
 
+# F2 (fail-closed): load-bearing booleans whose halt/degrade triggers use strict
+# identity (`is True` / `is False`). A malformed-but-truthy value (e.g. the string
+# "true" or the int 1) is NOT `is True`, so the trigger would silently not fire and
+# a contract could leak to PASS. When any of these is PRESENT and non-None but not
+# an actual bool, route BLOCKED (mirrors the malformed-degraded-components guard).
+_LOAD_BEARING_BOOL_FIELDS = frozenset(
+    {
+        "regression_present",
+        "unauthorized_deviation_present",
+        "needs_human_decision",
+        "user_decision_required",
+        "adversarial_unavailable",
+        "input_drift_detected",
+        "verification_ran",
+    }
+)
+
 
 # ---------------------------------------------------------------------------
 # Parsing
@@ -129,6 +146,14 @@ def derive_verdict(
         return _make_result(
             Verdict.BLOCKED, reason="timeout", contract=contract, child_rc=child_rc
         )
+    # F0 (fail-closed): ANY non-zero exit vetoes a present contract before its
+    # success fields are trusted. The 124 timeout above is now a labelled subset;
+    # every other non-zero rc routes BLOCKED/child-crash (spec Section 6 row 1,
+    # FR-8). contract is passed through (it may be present) for telemetry.
+    if child_rc != 0:
+        return _make_result(
+            Verdict.BLOCKED, reason="child-crash", contract=contract, child_rc=child_rc
+        )
     if contract is None:
         reason = "child-crash" if child_rc != 0 else "contract-missing"
         return _make_result(
@@ -165,6 +190,20 @@ def derive_verdict(
         )
 
     tier_reached = contract.get("tier_reached")
+
+    # F2 (fail-closed): a PRESENT load-bearing boolean that is not an actual bool
+    # is malformed -> BLOCKED before any degraded/halted/pass decision. Absent or
+    # None fields flow normally; only present non-bool values block.
+    for _field in _LOAD_BEARING_BOOL_FIELDS:
+        if _field in contract:
+            _value = contract[_field]
+            if _value is not None and not isinstance(_value, bool):
+                return _make_result(
+                    Verdict.BLOCKED,
+                    reason="malformed-contract-boolean",
+                    contract=contract,
+                    child_rc=child_rc,
+                )
 
     # -- 2. DEGRADED (chain-critical loss -> audit untrustworthy) -------------
     degraded_reason = _degraded_reason(
@@ -264,6 +303,10 @@ def _degraded_reason(
 
 def _halted_reason(contract: dict) -> str | None:
     """Return a halted reason slug for the first audit-found problem, else None."""
+    # F5: a `status: failed` contract halts (exit 10, already correct) with the
+    # accurate `status-failed` slug instead of falling through to `tier-mismatch`.
+    if contract.get("status") == "failed":
+        return "status-failed"
     if contract.get("status") == "partial":
         return "status-partial"
     if contract.get("regression_present") is True:

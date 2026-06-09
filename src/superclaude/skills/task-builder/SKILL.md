@@ -855,6 +855,7 @@ Agent:
       DEPTH: <max(tcs-derived depth, standard)>   # POST floor per O4 — never quick
       TASK_FILE: ${TASK_FILE}
       POST_REFLECT_MODE: <halt (default) | wrapper>   # omission ⇒ halt (byte-identical HALT item)
+      EXECUTOR_CLASS: <executor model class, e.g. opus|sonnet|haiku, or NONE>   # resolved from BUILD_REQUEST / EXECUTOR_MODEL_CLASS env / project default; backs {EXECUTOR_CLASS} + persisted as executor_model_class: in frontmatter (audit F3)
 
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
@@ -1946,6 +1947,8 @@ template_schema_doc: ".claude/templates/workflow/0[1|2]_mdtm_template_[generic|c
 estimation: "[estimated duration]"
 task_type: static
 spec_path: "[driving spec/PRD/TDD path resolved at A.2, or empty if none]"
+executor_model_class: "[executor model class from EXECUTOR_CLASS, or empty if NONE]"   # populated at BUILD time; reflect wrapper resolves --executor-model from this (audit F3)
+start_commit: "[commit SHA recorded at task start by the Phase-1 start item, or empty]"   # populated at task-START time (Phase-1 start item); reflect wrapper resolves <BASE> from this (audit F3)
 reflect_pre:
   verdict: pass | fail | skipped
   coverage_pct: <float | null>
@@ -2001,6 +2004,8 @@ tags:
 
 - [ ] **1.2 — [Step Title]**
   ...
+
+<!-- POST_REFLECT_GATE start_commit capture (audit F3): when `POST_REFLECT_GATE: ENABLED`, the generated Phase-1 task-start item (the one that sets `status: "🟠 Doing"` + `start_date`) MUST ALSO write `start_commit: <git rev-parse HEAD>` to this file's frontmatter alongside the status/start_date updates. This gives the reflect wrapper a precise `<BASE>` (frontmatter `start_commit`) instead of the `git merge-base` fallback (src/superclaude/cli/reflect/config.py:50-56,185-190). Conditioned on POST_REFLECT_GATE: ENABLED — no behavior change for non-reflect builds. Additive; existing status/start_date wording preserved. See Critical Rule #20. -->
 
 ---
 
@@ -2135,6 +2140,8 @@ The QA agent (A.10) validates the generated task file against these criteria:
 18. **Testing in generated task files.** When the BUILD_REQUEST specifies TESTING_REQUIREMENTS other than NONE or N/A, the builder MUST encode testing checklist items in the generated task file. Testing items must specify: test file paths, test commands, coverage thresholds (if applicable), and verification that tests pass. Testing items are placed after implementation items and before QA gate items. A generated task file that requires testing items (TESTING_REQUIREMENTS is not NONE or N/A) but omits them is a MALFORMED output.
 
 19. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a reflect handoff item. The item MUST NOT run reflect inline in the executor's biased context. Under `POST_REFLECT_MODE: halt` (default/unset) it writes a `reflect_post: PENDING` sentinel and HALTs until the operator records the verdict in a fresh session; under `POST_REFLECT_MODE: wrapper` it instead shells out (Bash) to the top-level `superclaude reflect run` subprocess, which writes the verdict back, and the Done item gates on the wrapper exit code AND `reflect_post.verdict == pass`. The handoff command uses `/sc:reflect` (when `POST_REFLECT_MODE` is `halt`/unset) OR a Bash `superclaude reflect run` shell-out (when `POST_REFLECT_MODE` is `wrapper`); `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED` is a MALFORMED output.
+
+20. **POST reflect gate persists `executor_model_class` + `start_commit` (audit F3).** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST populate `executor_model_class:` in the generated frontmatter from the `EXECUTOR_CLASS` schema field (empty ONLY when `EXECUTOR_CLASS` is `NONE`), and the generated Phase-1 task-start item MUST record `start_commit:` (the `git rev-parse HEAD` captured at task start, alongside the `status: "🟠 Doing"` / `start_date` updates). Rationale: the reflect wrapper resolves `--executor-model` and `<BASE>` from these two frontmatter keys (`src/superclaude/cli/reflect/config.py:50-56,185-190`); omitting them makes the wrapper fall back to dropping `--executor-model` and to `git merge-base` for `<BASE>`, silently weakening reflect's executor-disjoint anti-self-confirmation guarantee (audit finding F3). The requirement is strictly additive — the halt-arm POST item text is byte-identical otherwise (NFR-3 reversibility) — and `executor_model_class:` is populated at BUILD time while `start_commit:` is populated at task-START time.
 
 **Precedence rule:** When a BUILD_REQUEST contains both SKILL PHASES TO ENCODE and QA_GATE_REQUIREMENTS, the SKILL PHASES TO ENCODE field is authoritative. QA_GATE_REQUIREMENTS serves as a structured summary and quick reference. For the standalone task-builder (which has no SKILL PHASES TO ENCODE), QA_GATE_REQUIREMENTS is the sole authority for QA gate encoding.
 

@@ -199,3 +199,78 @@ def test_benign_degraded_component_does_not_over_halt() -> None:
     )
     assert result.verdict is Verdict.PASS
     assert result.verdict.exit_code == 0
+
+
+def test_nonzero_child_exit_with_present_success_contract_blocks() -> None:
+    """F0: a non-zero, non-124 child rc vetoes a PRESENT success contract.
+
+    Pre-fix, ``child_rc=1`` + ``pass.yaml`` reached PASS (the fail-closed hole).
+    Post-fix it routes BLOCKED / exit 2 / reason ``child-crash`` BEFORE the
+    contract's success fields are trusted; the 124 timeout case remains a
+    distinct labelled subset (proven by the companion assertion).
+    """
+    result = derive_verdict(
+        _load("pass.yaml"), expected_tier=2, allow_single_vendor=False, child_rc=1
+    )
+    assert result.verdict is Verdict.BLOCKED
+    assert result.verdict.exit_code == 2
+    assert result.reason == "child-crash"
+
+    # Companion: rc 124 with the SAME contract is still timeout (a subset).
+    timeout = derive_verdict(
+        _load("pass.yaml"), expected_tier=2, allow_single_vendor=False, child_rc=124
+    )
+    assert timeout.verdict is Verdict.BLOCKED
+    assert timeout.verdict.exit_code == 2
+    assert timeout.reason == "timeout"
+
+
+def test_malformed_truthy_load_bearing_boolean_blocks() -> None:
+    """F2: a PRESENT load-bearing boolean that is truthy-but-not-bool BLOCKS.
+
+    ``regression_present: "true"`` (str) and ``needs_human_decision: 1`` (int)
+    are truthy but NOT ``is True``, so pre-fix they bypassed the halt triggers
+    and a success contract leaked to PASS. Post-fix they route BLOCKED / exit 2
+    / reason ``malformed-contract-boolean``. The control proves valid contracts
+    are NOT over-blocked.
+    """
+    str_contract = _load("pass.yaml")
+    str_contract["regression_present"] = "true"
+    str_result = derive_verdict(
+        str_contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert str_result.verdict is Verdict.BLOCKED
+    assert str_result.verdict.exit_code == 2
+    assert str_result.reason == "malformed-contract-boolean"
+
+    int_contract = _load("pass.yaml")
+    int_contract["needs_human_decision"] = 1
+    int_result = derive_verdict(
+        int_contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert int_result.verdict is Verdict.BLOCKED
+    assert int_result.verdict.exit_code == 2
+    assert int_result.reason == "malformed-contract-boolean"
+
+    # Control: a proper-bool / absent-field contract still passes (no over-block).
+    control = derive_verdict(
+        _load("pass.yaml"), expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert control.verdict is Verdict.PASS
+    assert control.verdict.exit_code == 0
+
+
+def test_status_failed_halts_with_status_failed_reason() -> None:
+    """F5: a ``status: failed`` contract halts with reason ``status-failed``.
+
+    The exit code was already correct (10, halted); pre-fix the reason slug was
+    the misleading ``tier-mismatch``. The fix is reason-slug-only.
+    """
+    contract = _load("pass.yaml")
+    contract["status"] = "failed"
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.HALTED
+    assert result.verdict.exit_code == 10
+    assert result.reason == "status-failed"

@@ -129,7 +129,12 @@ def write_reflect_post(
     NOT used (it drops the nested ``deviations`` mapping).
     """
     raw = tasklist_path.read_bytes()
-    text = raw.decode("utf-8")
+    # F1: normalize CRLF -> LF for matching + splice-index computation, mirroring
+    # the canonical ``extract_frontmatter`` parser (frontmatter.py). ``raw`` (the
+    # ORIGINAL bytes) is preserved for the race guard below. FR-6 byte-preservation
+    # is about not corrupting/reordering body CONTENT, not preserving CR bytes:
+    # we normalize the whole working text to LF and write LF-consistent output.
+    text = raw.decode("utf-8").replace("\r\n", "\n")
 
     fm_match = _FRONTMATTER_RE.search(text)
     if fm_match is None:
@@ -282,6 +287,9 @@ def _read_existing_reflect_post(tasklist_path: Path) -> dict | None:
         text = tasklist_path.read_text(encoding="utf-8")
     except OSError:
         return None
+    # F1: normalize CRLF -> LF before matching (mirror extract_frontmatter) so a
+    # CRLF-saved tasklist's reflect_post block parses (read-only path, no write).
+    text = text.replace("\r\n", "\n")
     fm_match = _FRONTMATTER_RE.search(text)
     if fm_match is None:
         return None
@@ -338,13 +346,26 @@ class ReflectRunner:
         return " ".join(parts)
 
     def _claude_argv_preview(self) -> str:
-        """Render the ``claude`` argv for dry-run WITHOUT constructing ClaudeProcess."""
+        """Render the ``claude`` argv for dry-run WITHOUT constructing ClaudeProcess.
+
+        F6: byte-matches ``ClaudeProcess.build_command()`` (pipeline/process.py)
+        flag set AND order so ``--print-command`` shows the argv that actually
+        runs. The FR-12 dry-run-never-constructs guarantee forbids building a real
+        ``ClaudeProcess`` here (enforced by ``test_dry_run_never_launches``), so
+        the order is mirrored literally: ``--print --verbose
+        --dangerously-skip-permissions --no-session-persistence --tools default
+        --max-turns <N> --output-format stream-json [--model <M>]`` (``--model``
+        appended last, only when set, matching the builder's conditional).
+        """
         config = self.config
-        return (
-            "claude --print --verbose --output-format stream-json "
-            f"--model {config.model} --dangerously-skip-permissions "
-            f"--max-turns {config.max_turns}"
+        argv = (
+            "claude --print --verbose --dangerously-skip-permissions "
+            "--no-session-persistence --tools default "
+            f"--max-turns {config.max_turns} --output-format stream-json"
         )
+        if config.model:
+            argv += f" --model {config.model}"
+        return argv
 
     # -- orchestration ----------------------------------------------------
 

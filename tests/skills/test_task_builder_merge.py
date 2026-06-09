@@ -516,3 +516,19 @@ class TestPR03DnspSyntheticFinding:
         # repeat-same-partition cases so they are not regressions.
         for body in (skill_text, rf_qa_text, rf_analyst_text):
             assert "INV-012" in body
+
+
+def test_f3_post_reflect_persists_executor_class_and_start_commit(
+    skill_text: str,
+) -> None:
+    """Audit F3: the task-builder must define EXECUTOR_CLASS in the
+    POST_REFLECT_GATE schema and render executor_model_class: + start_commit:
+    in the generated frontmatter template, so the reflect wrapper can resolve
+    --executor-model and <BASE> from frontmatter (config.py:50-56,185-190)."""
+    # Schema field backing the {EXECUTOR_CLASS} placeholder.
+    assert "EXECUTOR_CLASS:" in skill_text
+    # Generated-frontmatter template keys.
+    assert "executor_model_class:" in skill_text
+    assert "start_commit:" in skill_text
+    # Critical Rule binding the persistence requirement.
+    assert "persists `executor_model_class` + `start_commit`" in skill_text

@@ -134,3 +134,39 @@ def test_writeback_compare_mismatch_bails_and_sidecars(tmp_path) -> None:
     # ...but the runner downgrades it to blocked on stale; that downgrade is
     # exercised end-to-end in
     # test_runner_e2e.test_e2e_frontmatter_stale_downgrades_pass_to_blocked.
+
+
+def test_crlf_tasklist_writeback_round_trip(tmp_path) -> None:
+    """F1: a CRLF-saved tasklist write-back returns ``written`` (not
+    ``frontmatter-missing``) and preserves body content.
+
+    Pre-fix, ``_FRONTMATTER_RE`` (which excludes ``\\r``) failed to match a
+    ``---\\r\\n`` opening delimiter, so ``write_reflect_post`` returned
+    ``frontmatter-missing`` and the runner downgraded a clean PASS to BLOCKED.
+    Post-fix the decoded text is CRLF-normalized before matching (mirroring the
+    canonical ``extract_frontmatter``). CR bytes are written for real on disk.
+    """
+    crlf_text = _TASKLIST.replace("\n", "\r\n")
+    assert b"\r\n" in crlf_text.encode("utf-8")  # CR bytes are genuinely present
+    path = tmp_path / "TASK-WB-CRLF.md"
+    path.write_bytes(crlf_text.encode("utf-8"))
+
+    status = write_reflect_post(
+        path, _pass_result(), head="deadbeef", reviewed_at="2026-06-09T00:00:00Z"
+    )
+    assert status == "written"
+
+    new_text = path.read_text(encoding="utf-8")
+    fm = yaml.safe_load(_FM_RE.search(new_text).group(1))
+    block = fm["reflect_post"]
+    assert isinstance(block, dict)
+    assert block["verdict"] == "pass"
+    # Sibling frontmatter keys survive.
+    assert fm["id"] == "TASK-WB-0001"
+    assert fm["title"] == "Write-back test"
+
+    # Body content preserved under LF normalization (the chosen F1 approach
+    # writes LF-consistent output; FR-6 protects body CONTENT, not CR bytes).
+    original_body_lf = _body_after_frontmatter(_TASKLIST).replace("\r\n", "\n")
+    new_body_lf = _body_after_frontmatter(new_text).replace("\r\n", "\n")
+    assert new_body_lf == original_body_lf

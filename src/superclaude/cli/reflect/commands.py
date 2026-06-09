@@ -145,6 +145,39 @@ def run(
     except ValueError as exc:
         # A config / preflight STOP is blocked -> exit 2 (Section 6).
         click.echo(f"Error: {exc}", err=True)
+        # F4 (FR-7: a sidecar ALWAYS records the verdict whenever an output dir is
+        # reservable). A config-STOP short-circuits before the runner exists, so
+        # the runner's own always-write sidecar never fires. Resolve the output
+        # dir from the explicit --output (no cleanly reusable default-dir helper
+        # exists without re-running the failing resolve_config, so the default
+        # <task-dir>/reflect/post/<sha> case is an accepted skip). Sidecar-write
+        # failure must never mask the original config error.
+        if output:
+            from .models import ReflectResult, Verdict
+            from .runner import write_sidecar
+
+            try:
+                output_path = Path(output).resolve()
+                output_path.mkdir(parents=True, exist_ok=True)
+                blocked = ReflectResult(
+                    verdict=Verdict.BLOCKED,
+                    status=None,
+                    tier_reached=None,
+                    reason="config-error",
+                    report_path=None,
+                    contract_path=None,
+                    deviations={},
+                    child_exit_code=None,
+                    write_status="not-attempted",
+                )
+                write_sidecar(
+                    output_path,
+                    blocked,
+                    env_alias_count=0,
+                    write_status="not-attempted",
+                )
+            except OSError:
+                pass
         sys.exit(_BLOCKED_EXIT)
 
     # --tmux opt-in: delegate to the detached-window mechanic (fail-closed).
