@@ -178,6 +178,66 @@ Run each research file one by one.
         assert isinstance(result, str)
         assert "Phase 2" in result
 
+    def test_check_parallel_final_completion_phase_exempt_live_repro(self) -> None:
+        # Live repro: heavyweight task with parallel work phases 2-6 and a
+        # sequential final completion phase 7. The completion phase must NOT
+        # trip the gate (it previously HALTed build-task-file).
+        content = """
+## Phase 1: Setup
+Sequential setup.
+
+## Phase 2: Deep Investigation
+Run 9 research agents in parallel.
+
+## Phase 3: Research Gate
+Run gate agents in parallel.
+
+## Phase 4: Web Research
+Run web agents in parallel.
+
+## Phase 5: Synthesis
+Run synthesis agents in parallel.
+
+## Phase 6: Assembly & Validation
+Run lens QA agents in parallel.
+
+## Phase 7: Present to User & Complete Task
+Present the summary and mark the task done. Sequential.
+"""
+        assert _check_parallel_instructions(content) is True
+
+    def test_check_parallel_final_completion_phase_exempt_short(self) -> None:
+        # A short task whose final phase is a completion phase: exempt it.
+        content = """
+## Phase 1: Setup
+Sequential setup.
+
+## Phase 2: Build
+Process components in parallel.
+
+## Phase 3: Present & Complete
+Present results to the user and mark complete. Sequential.
+"""
+        assert _check_parallel_instructions(content) is True
+
+    def test_check_parallel_final_work_phase_still_checked(self) -> None:
+        # The final phase is exempt ONLY when its heading marks it a completion
+        # phase. A final WORK phase (not completion-titled) missing parallelism
+        # is still flagged -- no over-exemption.
+        content = """
+## Phase 1: Setup
+Sequential setup.
+
+## Phase 2: Investigation
+Run agents in parallel.
+
+## Phase 3: Synthesis
+Process each synthesis file one at a time.
+"""
+        result = _check_parallel_instructions(content)
+        assert isinstance(result, str)
+        assert "Phase 3" in result
+
 
 class TestCheckPrdTemplateSections:
     """Detect missing critical PRD sections."""
