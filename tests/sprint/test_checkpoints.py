@@ -124,6 +124,58 @@ class TestExtractCheckpointPaths:
             "End of Phase 3",
         ]
 
+    def test_release_prefixed_path_not_doubled(self, tmp_path: Path):
+        """Regression: a checkpoint path that already carries release_dir's
+        trailing segments (release-prefixed form) must NOT be re-nested under
+        release_dir. This was the path-doubling defect: an absent prefixed
+        checkpoint resolved to ``.../bundle/.dev/rel/bundle/checkpoints/...``."""
+        release_dir = tmp_path / ".dev" / "rel" / "bundle"
+        release_dir.mkdir(parents=True)
+        phase_file = release_dir / "phase-2-tasklist.md"
+        # Declared path is release-prefixed (starts with release_dir's tail);
+        # the target file is intentionally NOT created.
+        phase_file.write_text(
+            "### Checkpoint: End of Phase 2\n"
+            "**Checkpoint Report Path:** `.dev/rel/bundle/checkpoints/CP-P02-END.md`\n"
+        )
+        result = extract_checkpoint_paths(phase_file, release_dir)
+        assert len(result) == 1
+        _, path = result[0]
+        # Resolves to the single, un-doubled location under release_dir.
+        assert path == (release_dir / "checkpoints" / "CP-P02-END.md").resolve()
+        # And the release tail appears exactly once — no `bundle/.dev/rel/bundle`.
+        assert ".dev/rel/bundle/.dev/rel/bundle" not in str(path)
+
+    def test_release_prefixed_resolution_independent_of_existence(self, tmp_path: Path):
+        """The prefixed path must resolve to the SAME location whether or not
+        the target file exists on disk — the old ``candidate.exists()`` selector
+        made present checkpoints resolve correctly and absent ones double."""
+        release_dir = tmp_path / ".dev" / "rel" / "bundle"
+        (release_dir / "checkpoints").mkdir(parents=True)
+        phase_file = release_dir / "phase-1-tasklist.md"
+        phase_file.write_text(
+            "### Checkpoint: End of Phase 1\n"
+            "**Checkpoint Report Path:** `.dev/rel/bundle/checkpoints/CP-P01-END.md`\n"
+        )
+        expected = (release_dir / "checkpoints" / "CP-P01-END.md").resolve()
+        # Absent target.
+        assert extract_checkpoint_paths(phase_file, release_dir)[0][1] == expected
+        # Present target — must resolve identically (no asymmetry).
+        (release_dir / "checkpoints" / "CP-P01-END.md").write_text("x")
+        assert extract_checkpoint_paths(phase_file, release_dir)[0][1] == expected
+
+    def test_bare_relative_still_joined_onto_release_dir(self, tmp_path: Path):
+        """Contract-lock: a bare release-relative path (no overlap with
+        release_dir's tail) still joins onto release_dir, unchanged by the
+        idempotent-resolution fix."""
+        phase_file = tmp_path / "phase-1-tasklist.md"
+        phase_file.write_text(
+            "### Checkpoint: End of Phase 1\n"
+            "**Checkpoint Report Path:** `checkpoints/CP-P01-END.md`\n"
+        )
+        result = extract_checkpoint_paths(phase_file, tmp_path)
+        assert result[0][1] == (tmp_path / "checkpoints" / "CP-P01-END.md").resolve()
+
 
 # ---------------------------------------------------------------------------
 # verify_checkpoint_files()

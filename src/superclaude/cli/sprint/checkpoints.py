@@ -37,6 +37,47 @@ CHECKPOINT_HEADING_PATTERN: re.Pattern[str] = re.compile(
 )
 
 
+def _resolve_checkpoint_path(release_dir: Path, raw_path: str) -> Path:
+    """Resolve a declared checkpoint path against ``release_dir``, idempotently.
+
+    Declared ``Checkpoint Report Path:`` values come in three shapes:
+
+    * **absolute** — used verbatim.
+    * **release-relative** (``checkpoints/CP.md``) — joined onto ``release_dir``.
+    * **release-prefixed** (``.dev/<release>/bundle/checkpoints/CP.md``) — the
+      path already carries ``release_dir``'s own trailing components, so a naive
+      ``release_dir / candidate`` would duplicate that prefix (the path-doubling
+      defect). We strip the longest leading run of ``candidate`` that matches
+      ``release_dir``'s trailing components before joining, which makes the join
+      idempotent: a release-prefixed path resolves to the same location whether
+      or not it was prefixed.
+
+    Resolution is purely lexical — it does **not** probe the cwd or the
+    filesystem — so the result is deterministic regardless of the process
+    working directory or whether the target file exists yet. (The previous
+    implementation branched on ``candidate.exists()``, which made a
+    release-prefixed path resolve correctly only when its target already
+    existed, doubling the prefix otherwise.)
+    """
+    candidate = Path(raw_path)
+    if candidate.is_absolute():
+        return candidate
+
+    rd_parts = release_dir.parts
+    cand_parts = candidate.parts
+    # Longest k where release_dir's last k parts == candidate's first k parts.
+    overlap = 0
+    for k in range(min(len(rd_parts), len(cand_parts)), 0, -1):
+        if rd_parts[-k:] == cand_parts[:k]:
+            overlap = k
+            break
+
+    remainder = cand_parts[overlap:]
+    if not remainder:
+        return release_dir.resolve()
+    return (release_dir / Path(*remainder)).resolve()
+
+
 def extract_checkpoint_paths(
     phase_file: Path,
     release_dir: Path,
@@ -83,16 +124,7 @@ def extract_checkpoint_paths(
         if not name:
             name = Path(raw_path).name
 
-        candidate = Path(raw_path)
-        if candidate.is_absolute():
-            resolved = candidate
-        elif candidate.exists():
-            # Accept a relative path as-is when it already resolves (repo-root
-            # invocations), matching how sprint agents write checkpoint files.
-            resolved = candidate.resolve()
-        else:
-            resolved = (release_dir / candidate).resolve()
-
+        resolved = _resolve_checkpoint_path(release_dir, raw_path)
         results.append((name, resolved))
 
     return results
