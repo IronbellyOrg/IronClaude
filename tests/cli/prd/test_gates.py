@@ -151,7 +151,8 @@ class TestCheckB2SelfContained:
 
 
 class TestCheckParallelInstructions:
-    """Validate parallel keywords in phases 2-5."""
+    """Validate parallel keywords in work phases (>=2), with the final
+    completion/presentation phase exempt."""
 
     def test_check_parallel_instructions(self) -> None:
         content = """
@@ -233,6 +234,26 @@ Run agents in parallel.
 
 ## Phase 3: Synthesis
 Process each synthesis file one at a time.
+"""
+        result = _check_parallel_instructions(content)
+        assert isinstance(result, str)
+        assert "Phase 3" in result
+
+    def test_check_parallel_final_incomplete_phase_not_exempted(self) -> None:
+        # Regression (PR #154 review r3383060121): the completion-signal match
+        # must be word-boundary anchored. A final WORK phase whose heading
+        # merely CONTAINS a signal as a substring ("Incomplete" contains
+        # "complete") must NOT be exempted -- it is real work and missing
+        # parallelism must still be flagged.
+        content = """
+## Phase 1: Setup
+Sequential setup.
+
+## Phase 2: Investigation
+Run agents in parallel.
+
+## Phase 3: Incomplete Work Reconciliation
+Process each leftover item one at a time.
 """
         result = _check_parallel_instructions(content)
         assert isinstance(result, str)

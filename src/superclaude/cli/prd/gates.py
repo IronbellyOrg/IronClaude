@@ -242,7 +242,15 @@ def _check_parallel_instructions(content: str) -> bool | str:
             heading_line = content[
                 phase_match.start() : line_end if line_end != -1 else len(content)
             ].lower()
-            if any(sig in heading_line for sig in completion_signals):
+            # Word-boundary match so a signal does not fire on an unintended
+            # superstring (e.g. "complete" must not match "incomplete", and
+            # "present" must not match "representation"). \b before the signal
+            # anchors it to a word start; the partial stems ("finaliz") still
+            # match their full words ("finalize"/"finalization").
+            if any(
+                re.search(r"\b" + re.escape(sig), heading_line)
+                for sig in completion_signals
+            ):
                 continue
         start = phase_match.end()
         end = later_phases[i + 1].start() if i + 1 < len(later_phases) else len(content)
