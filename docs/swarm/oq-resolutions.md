@@ -1,5 +1,8 @@
 # MultiModelSwarm — Open Question Resolutions
 
+> 📚 Part of the [swarm documentation](./README.md). This is a maintainer-facing
+> design-rationale record; for usage start with the [User Guide](./user-guide.md).
+
 This file records resolutions to the OQ rows tracked in
 `.dev/releases/Current/MultiModelSwarm/roadmap.md`. Each entry pins the
 chosen branch, the rationale, the implementation surface, and the

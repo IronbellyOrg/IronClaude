@@ -1,5 +1,9 @@
 # MultiModelSwarm v1 — Release Notes (MIG-004)
 
+> 📚 Part of the [swarm documentation](./README.md). New here? Start with the
+> [User Guide](./user-guide.md); for flags and exit codes see the
+> [Command Reference](./command-reference.md).
+>
 > **Status:** Phase 8 / M8 exit deliverable. Authored under
 > tasklist row T08.08 (R-141 / MIG-004 / D-0122) for the operator
 > migration from the legacy `sc-bare-review` shell-dispatch path to

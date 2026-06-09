@@ -1,5 +1,14 @@
 # Swarm Monitoring Patterns (FR-013 / T07.10)
 
+> 📚 Part of the [swarm documentation](./README.md). New here? Start with the
+> [User Guide](./user-guide.md).
+>
+> ⚠️ **Implementation status.** Pattern 1 below depends on the `done.json` terminal
+> sentinel, which is written by the Wave-3 reduce path (`reduce.py`, the pending **M5**
+> milestone). The current dispatch-only `swarm run` does **not** emit `done.json` on the
+> success path (it *is* written by `swarm kill --output`). Until M5 lands, prefer
+> Pattern 3 (`status --watch`, which reads `.swarm-state.json` reaching `terminal`).
+
 Three durable monitoring patterns are supported against any running
 swarm job. All three read the **caller-agnostic** observability artifacts
 written under the job's `--output` directory:
