@@ -1028,6 +1028,40 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 **MCP servers:** auggie, serena, context7, tavily, sequential
 
+#### `superclaude reflect run` (CLI auto-fix wrapper)
+
+**When to use:** Run the post-execution reflect gate non-interactively (CI, sprint hooks, headless pipelines) when you want a fail-closed exit code and, optionally, a bounded auto-fix loop. This is the CLI **engine**, distinct from the `/sc:reflect` **skill** above.
+
+**Engine vs. skill:** The wrapper does not re-implement reflection. It launches `/sc:reflect --mode post` as a **top-level `claude --print` subprocess** (so Tier-2 heterogeneous fan-out is preserved — a nested call would collapse it), parses the resulting `return-contract.yaml`, derives a fail-closed 4-state verdict, and writes a `reflect_post:` block back into the task file's frontmatter. The process exit code is the verdict code: **pass `0`, halted `10`, degraded `11`, blocked `2`**. Only a clean, full, non-degraded Tier-2 pass exits `0`.
+
+**Syntax:**
+
+```
+superclaude reflect run <tasklist> [--fix/--no-fix] [--max-fix-iterations N] [--base <ref>] [--promote/--no-promote] [--depth standard|deep] [--tmux] [--resume] [--dry-run] [--print-command] [--output <dir>] [--timeout <sec>] [--allow-single-vendor]
+```
+
+**Wrapper-specific flags:**
+
+| Flag | Default | Purpose |
+|------|---------|---------|
+| `--fix` / `--no-fix` | `--no-fix` | Run the bounded audit → apply → re-verify auto-fix loop. When enabled, the wrapper consumes the skill's `remediation_task_path` and auto-runs the corrective `/task`. |
+| `--max-fix-iterations N` | `2` | Max apply → verify cycles before a terminal HALT. |
+| `--base <ref>` | (none) | Explicit audit base ref (single ref vs. working tree). Highest precedence — overrides frontmatter `start_commit` + merge-base. |
+| `--promote` / `--no-promote` | `--promote` | Allow reflect's gated Wave-7 promotion. The default is now **on**; pass `--no-promote` to suppress it. |
+
+**Headless auto-authoring:** Because the wrapper launches the skill under `claude --print` (no TTY), the skill's `--remediate` handoff **auto-accepts and authors** the corrective MDTM without the interactive yes/no prompt — but only for AUTO-FIXABLE registers (Drift / Necessary). HUMAN-REQUIRED registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable, emit `remediation_task_path: null`, and the wrapper terminal-HALTs rather than auto-applying a human-decision change. The skill never executes `/task` itself; the wrapper's auto-fix loop is the sole consumer that runs the authored path. This handoff rides on return-contract `contract_version: 1.4.0`, which adds the `remediation_task_path` field the loop reads (it never guesses a "newest `TASK-RF-*`" directory).
+
+**Examples:**
+
+```bash
+superclaude reflect run path/to/TASK.md                                  # audit-only gate, fail-closed exit code
+superclaude reflect run path/to/TASK.md --fix --max-fix-iterations 3     # bounded auto-fix loop
+superclaude reflect run path/to/TASK.md --base origin/master --no-promote
+superclaude reflect run path/to/TASK.md --tmux --depth deep              # watch live in a detached window
+```
+
+> Full reference (verdict matrix, sentinel/`--tmux` mechanics, recursion breaker, sidecar, and the complete auto-fix state machine): see `docs/guides/reflect-cli-tools-guide.md`.
+
 ---
 
 ## 🔀 Visual Map: When to Use What
