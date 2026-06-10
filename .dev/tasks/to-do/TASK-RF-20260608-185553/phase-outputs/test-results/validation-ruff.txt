@@ -1,0 +1,14 @@
+=== ruff check src/ tests/ ===
+All checks passed!
+=== ruff format --check src/ tests/ ===
+Would reformat: tests/cli/prd/test_executor.py
+Would reformat: tests/cli/prd/test_resolve_step_content.py
+2 files would be reformatted, 807 files already formatted
+=== package LOC (G4 NFR-1 budget) ===
+  249 src/superclaude/cli/reflect/commands.py
+  222 src/superclaude/cli/reflect/config.py
+  282 src/superclaude/cli/reflect/contract.py
+   30 src/superclaude/cli/reflect/__init__.py
+  111 src/superclaude/cli/reflect/models.py
+  474 src/superclaude/cli/reflect/runner.py
+ 1368 total

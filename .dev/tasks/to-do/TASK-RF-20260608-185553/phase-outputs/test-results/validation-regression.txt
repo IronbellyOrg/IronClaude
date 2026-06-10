@@ -1,0 +1,19 @@
+tests/cli/prd/test_executor.py .......                                   [ 29%]
+tests/cli/prd/test_filtering.py ..........                               [ 34%]
+tests/cli/prd/test_gates.py .......................                      [ 47%]
+tests/cli/prd/test_integration.py .........                              [ 51%]
+tests/cli/prd/test_inventory.py .......                                  [ 55%]
+tests/cli/prd/test_models.py ......                                      [ 58%]
+tests/cli/prd/test_path_resolution.py ........                           [ 63%]
+tests/cli/prd/test_prompt_builders_dual_mode.py ..........               [ 68%]
+tests/cli/prd/test_prompts.py .........                                  [ 73%]
+tests/cli/prd/test_research_notes_roundtrip.py ..                        [ 74%]
+tests/cli/prd/test_resolve_step_content.py ..........                    [ 80%]
+tests/cli/prd/test_resume_skip.py .......                                [ 83%]
+tests/cli/prd/test_spec_flag.py ..............................           [100%]
+
+============================= 185 passed in 0.59s ==============================
+
+
+=== RESULT NOTE ===
+Overall: PASSED. 185 passed, 0 failed (tests/cli/reflect/ + tests/cli/prd/). No regressions from the cli/main.py reflect_group registration. No failures attributable to this task.

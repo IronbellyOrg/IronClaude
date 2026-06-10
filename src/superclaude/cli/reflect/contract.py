@@ -121,6 +121,9 @@ def _make_result(
         deviations=_extract_deviations(contract),
         child_exit_code=child_rc,
         write_status="",
+        # FR-8: the wrapper only READS the path reflect emits; it never guesses
+        # a "newest TASK-RF-* dir". Defaults to None when reflect did not author one.
+        remediation_task_path=c.get("remediation_task_path"),
     )
 
 
@@ -323,3 +326,41 @@ def _halted_reason(contract: dict) -> str | None:
     if deviations["drift"] > 0:
         return "drift"
     return None
+
+
+def classify_fix(contract: dict, deviations: dict[str, int]) -> str:
+    """Pure AUTO-FIXABLE vs HUMAN-REQUIRED carve-out (D4 / contract Section 4).
+
+    Returns one of ``"human-required"`` / ``"auto-fixable"`` / ``"none"``.
+
+    HUMAN-REQUIRED on ANY hard signal: ``regression_present``,
+    ``needs_human_decision``, ``user_decision_required``,
+    ``unauthorized_deviation_present`` (each ``is True``), or
+    ``deviation_count_by_class.regression > 0``. AUTO-FIXABLE only when, with NO
+    hard signal, the register is solely drift/necessary
+    (``drift > 0 or necessary > 0``). Otherwise ``"none"`` (clean).
+
+    PURE: no Click, no subprocess, no I/O -- keys off the SAME existing contract
+    fields ``_halted_reason`` reads (no new parse).
+
+    LOAD-BEARING INVARIANT: the grounding-gaps -> HUMAN-REQUIRED carve-out
+    (merged-requirements Section 3 / contract Section 4) rests ENTIRELY on
+    reflect's contract guarantee that ``needs_human_decision is True`` IFF
+    ``grounding-gaps.yaml`` is non-empty (SKILL.md:754). This wrapper does NOT
+    re-parse grounding-gaps; a grounding-gaps-only audit surfaces as
+    ``needs_human_decision`` and therefore classifies ``human-required`` ->
+    terminal HALT, never auto-promoted. Consulted ONLY on a trustworthy HALTED
+    result (DEGRADED/BLOCKED are terminal upstream in ``derive_verdict`` and
+    re-guarded in the runner loop).
+    """
+    if (
+        contract.get("regression_present") is True
+        or contract.get("needs_human_decision") is True
+        or contract.get("user_decision_required") is True
+        or contract.get("unauthorized_deviation_present") is True
+        or deviations.get("regression", 0) > 0
+    ):
+        return "human-required"
+    if deviations.get("drift", 0) > 0 or deviations.get("necessary", 0) > 0:
+        return "auto-fixable"
+    return "none"

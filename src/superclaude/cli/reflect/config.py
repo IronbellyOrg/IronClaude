@@ -78,12 +78,24 @@ def _git(cwd: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
-def _resolve_base(cwd: Path, frontmatter: dict[str, str], base_branch: str) -> str:
-    """Derive ``<BASE>`` per the FR-3 chain.
+def _resolve_base(
+    cwd: Path,
+    frontmatter: dict[str, str],
+    base_branch: str,
+    base_override: str | None = None,
+) -> str:
+    """Derive ``<BASE>`` per the FR-6 precedence chain.
 
-    frontmatter ``start_commit`` -> else ``git merge-base HEAD <base_branch>``
-    -> else raise ``ValueError("base-unresolved")``.
+    ``--base`` override -> frontmatter ``start_commit`` ->
+    ``git merge-base HEAD <base_branch>`` -> else raise
+    ``ValueError("base-unresolved")``.
+
+    The ``base_override`` value is stored VERBATIM as a SINGLE ref: no ``..``
+    range parsing/splitting is performed (F3 de-range invariant, FR-6). The
+    diff against this ref is the working-tree diff reflect computes downstream.
     """
+    if base_override is not None and base_override.strip():
+        return base_override.strip()
     start_commit = frontmatter.get(_FRONTMATTER_START_COMMIT_KEY, "").strip()
     if start_commit:
         return start_commit
@@ -124,6 +136,9 @@ def resolve_config(
     print_command: bool = False,
     resume: bool = False,
     base_branch: str = _DEFAULT_BASE_BRANCH,
+    base_override: str | None = None,
+    fix: bool = False,
+    max_fix_iterations: int = 2,
 ) -> ReflectConfig:
     """Resolve CLI args + frontmatter + git state into a ``ReflectConfig``.
 
@@ -164,8 +179,8 @@ def resolve_config(
     # -- git cwd: the tasklist's own directory (git -C discovers the repo root) --
     git_cwd = resolved_tasklist.parent
 
-    # -- <BASE> via FR-3 chain; <HEAD> via rev-parse --
-    base = _resolve_base(git_cwd, frontmatter, base_branch)
+    # -- <BASE> via FR-6 precedence chain (--base override first); <HEAD> via rev-parse --
+    base = _resolve_base(git_cwd, frontmatter, base_branch, base_override=base_override)
     try:
         head = _git(git_cwd, "rev-parse", "HEAD")
     except (OSError, subprocess.SubprocessError) as exc:
@@ -219,4 +234,7 @@ def resolve_config(
         dry_run=dry_run,
         print_command=print_command,
         resume=resume,
+        base_override=base_override,
+        fix=fix,
+        max_fix_iterations=max_fix_iterations,
     )

@@ -110,6 +110,26 @@ If yes: an MDTM task file will be written under .dev/tasks/to-do/.
 If no:  the report at <report_path> is the final deliverable.
 ```
 
+## Headless auto-accept under `--print` (FR-9)
+
+The opt-in prompt above is for **interactive** runs. When reflect runs **non-interactively**
+(the reflect-wrapper launches it as `claude --print`, with **no TTY** — `--print` mode is the
+headless signal; this is distinct from the `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` recursion-breaker,
+which is the nested-gate suppressor, not the headless signal), `--remediate` MUST **auto-accept and
+author** the corrective MDTM **without presenting the yes/no prompt** — but ONLY for **AUTO-FIXABLE**
+registers (solely §10.3 Drift and/or §10.2 Necessary). The authored path is then emitted as
+`remediation_task_path` (§9.1) for the wrapper to auto-run.
+
+For **HUMAN-REQUIRED** registers (any §10.4 Regression, or `needs_human_decision: true` from a
+non-empty `grounding-gaps.yaml`), the headless branch authors **nothing auto-runnable**: the
+BUILD_REQUEST carries `needs_human_decision: true` (see `HANDOFF_MEMORY_KEY` mapping below and
+SKILL.md §"Will Not") to prompt human resolution, and `remediation_task_path: null` is emitted — so
+the wrapper terminal-HALTs and never auto-applies a human-decision change
+(honoring `feedback_human_decision_items_must_halt`). The §"Will Not" invariant (reflect AUTHORS but
+NEVER EXECUTES `/task`) is preserved in BOTH branches — only the AUTHORING accept gate changes under
+`--print`, never the execution gate. The Authorized/Necessary-only short-circuit (below) still yields
+`remediation_task_path: null`.
+
 ## Default-remediation guidance per deviation class
 
 Drives whether Wave 6 even reaches the opt-in prompt for a given register row.

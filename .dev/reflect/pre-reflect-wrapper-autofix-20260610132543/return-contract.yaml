@@ -1,0 +1,101 @@
+contract_version: "1.3.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: .dev/reflect/pre-reflect-wrapper-autofix-20260610132543/REPORT.md
+confidence_calibrated: 0.89
+
+# UC-1 coverage
+coverage_pct: 0.92
+coverage_undefined: false
+best_practice_grade: 4
+unmapped_requirements: []   # none fully unmapped; 4 PARTIAL (NFR-2, NFR-5, AC-7, AC-9)
+partial_requirements:
+  - id: NFR-2
+    gap: G4 — cost-band doc (contract §7) not verified by Step 7.3 (checks §§2-6 only)
+  - id: NFR-5
+    gap: G3 — companion-worktree (ReflectInTaskLists) hold/coordination not operationally gated
+  - id: AC-7
+    gap: G2 — no dedicated emit↔read byte-for-byte field-name test in Phase 6
+  - id: AC-9
+    gap: G1 — PG6.1 AC→test mapping says "AC-1..AC-8"; AC-9 covered operationally by full-suite run, not in mapping
+
+verdict: proceed-with-changes
+
+findings:
+  - id: F1
+    severity: HIGH
+    blocking: true
+    title: "Base acquisition impossible — origin/master has no cli/reflect; canonical base is uncommitted/staged in wrapper-onto-master"
+    evidence:
+      - "git ls-tree origin/master -- src/superclaude/cli/reflect/ → empty (origin/master 1b0264f1)"
+      - "wrapper-onto-master HEAD e97aa4fd: git ls-tree HEAD -- cli/reflect empty; git status shows A/AM (staged, never committed)"
+      - "tasklist Step 1.3 (:163) checkout -b ... origin/master; Step 1.4 (:167) expects files PRESENT"
+      - "Step 1.3/1.4 failure clauses say 'mark this item complete' (masked-continue, not HALT)"
+    consequence: "Phases 2-7 edit files that do not exist; tasklist unexecutable as written"
+  - id: F2
+    severity: MEDIUM
+    blocking: false
+    title: "Apply-step rc discarded — failed /task apply treated as completed cycle"
+    evidence: ["Step 4.4 (:283-285) _apply_remediation -> int", "Step 4.5 (:287-289) discards rc"]
+  - id: F3
+    severity: MEDIUM
+    blocking: false
+    title: "FR-5 ownership contradiction — spec says wrapper forces O2 --no-promote; U6/Step 3.2 defer to generator"
+    evidence: ["merged-requirements.md:129-130 'the wrapper forces --no-promote'", "tasklist U6 (:139) 'NO wrapper-side O2 force'", "promote default flips True (Step 3.2) → fail-open if generator omits --no-promote"]
+  - id: G1
+    severity: MEDIUM
+    title: "AC-9 absent from PG6.1 AC->test mapping (AC-1..AC-8 only); covered operationally by full-suite run"
+  - id: G2
+    severity: MEDIUM
+    title: "AC-7 emit<->read field-name agreement not directly falsified in Phase 6 (deferred to PG5.3 QA)"
+  - id: G3
+    severity: MEDIUM
+    inferred: true
+    title: "NFR-5 companion-worktree coordination stated but not operationally gated"
+  - id: G4
+    severity: LOW
+    title: "NFR-2 contract §7 cost-band doc not in Step 7.3 conformance scope"
+  - id: G5
+    severity: LOW
+    inferred: true
+    title: "executor_model_class / reflect_post consumption not pinned by a Phase-6 test"
+
+clean_confirmed:
+  - "dataclass field ordering (Step 2.1) — all existing ReflectConfig fields non-default; append safe"
+  - "Click group-callback marker placement (Step 3.3) feasible — reflect_group callback exists commands.py:39-54"
+  - "classify_fix purity + human-wins ordering + DEGRADED/BLOCKED-never-autofixed guard (Step 4.1/4.5)"
+  - "marker exact-'1' truthiness + negative controls (Step 3.3/6.3)"
+  - "audit-child marker export safe — audit is /sc:reflect not `superclaude reflect run`"
+  - "SoT discipline: src/ edits + make sync-dev; never stage .claude/ (Phase 5/PG5.4)"
+  - "bootstrap-exemption: inline /sc:reflect POST gate, not a `superclaude reflect run` shell-out"
+  - "all R1/R2/R3 file:line anchors MATCH against wrapper-onto-master"
+
+# Hallucination guard
+citations_total: 12
+citations_revalidated: 12
+citations_dropped: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true   # treated as flag-not-clean; mitigated by orchestrator-side re-verification
+
+# Tier 2
+reviewer_cards:
+  - .dev/reflect/pre-reflect-wrapper-autofix-20260610132543/reviewer-cards/coverage.md
+  - .dev/reflect/pre-reflect-wrapper-autofix-20260610132543/reviewer-cards/safety.md
+  - .dev/reflect/pre-reflect-wrapper-autofix-20260610132543/reviewer-cards/executability.md
+reviewer_models: [sonnet, sonnet, opus]
+reviewer_personas: [analyzer, qa, refactorer]
+merge_method: adversarial-inline
+t2_model_class_diversity: degraded   # 2x sonnet + 1x opus; lens diversity full
+calibrator_diversity: degraded       # orchestrator(opus) collides with reviewer-3(opus)
+
+# Asymmetric-cost flags
+needs_human_decision: true           # F1 base strategy + F3 spec-owner reconciliation
+user_decision_required: true         # F3 FR-5 ownership is a spec-owner call
+unauthorized_deviation_present: false
+regression_present: false
+blocked_by_low_confidence: false
+
+remediation_offered: false           # --remediate not set; audit-first

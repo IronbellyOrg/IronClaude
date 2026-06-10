@@ -79,6 +79,11 @@ class ReflectConfig:
     dry_run: bool
     print_command: bool
     resume: bool
+    # Auto-fix evolution (D1/D3/D6): appended AFTER all existing non-default
+    # fields to respect the dataclass field-ordering rule.
+    base_override: str | None
+    fix: bool
+    max_fix_iterations: int
 
     @property
     def contract_path(self) -> Path:
@@ -104,6 +109,11 @@ class ReflectResult:
     deviations: dict[str, int] = field(default_factory=dict)
     child_exit_code: int | None = None
     write_status: str = ""
+    # Auto-fix loop bookkeeping (D1/D3/FR-3) + consumed remediation pointer
+    # (FR-8). Defaulted so all 5 hand-built construction sites stay valid.
+    fix_iterations: int = 0
+    fix_converged: bool = False
+    remediation_task_path: str | None = None
 
     @property
     def outcome(self) -> str:

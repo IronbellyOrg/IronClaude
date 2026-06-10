@@ -1,0 +1,53 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/reflectWrapper/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/reflectWrapper
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collecting ... collected 41 items
+
+tests/cli/reflect/test_cli_smoke.py::test_group_help_shows_run PASSED    [  2%]
+tests/cli/reflect/test_cli_smoke.py::test_run_help_shows_all_spec9_flags PASSED [  4%]
+tests/cli/reflect/test_cli_smoke.py::test_dry_run_never_launches PASSED  [  7%]
+tests/cli/reflect/test_cli_smoke.py::test_print_command_prints_and_never_launches PASSED [  9%]
+tests/cli/reflect/test_cli_smoke.py::test_nonexistent_tasklist_is_nonzero PASSED [ 12%]
+tests/cli/reflect/test_cli_smoke.py::test_print_command_argv_preview_matches_build_command PASSED [ 14%]
+tests/cli/reflect/test_cli_smoke.py::test_config_stop_writes_blocked_sidecar PASSED [ 17%]
+tests/cli/reflect/test_no_nesting_guard.py::test_layer_a_wrapper_branch_is_bash_shellout PASSED [ 19%]
+tests/cli/reflect/test_no_nesting_guard.py::test_layer_b_wrapper_module_has_no_agent_imports PASSED [ 21%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_pass PASSED               [ 24%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_halted PASSED             [ 26%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_degraded PASSED           [ 29%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_blocked_no_contract PASSED [ 31%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_blocked_timeout PASSED    [ 34%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_blocked_child_crash PASSED [ 36%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_resume_clean_head_skips_launch PASSED [ 39%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_resume_stale_head_launches PASSED [ 41%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_frontmatter_stale_downgrades_pass_to_blocked PASSED [ 43%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_frontmatter_missing_downgrades_pass_to_blocked PASSED [ 46%]
+tests/cli/reflect/test_verdict_mapping.py::test_pass_full_tier2 PASSED   [ 48%]
+tests/cli/reflect/test_verdict_mapping.py::test_halted_regression PASSED [ 51%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_serena PASSED   [ 53%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_expected_t2_ran_t1 PASSED [ 56%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_degraded_without_flag PASSED [ 58%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_pass_with_flag PASSED [ 60%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_missing_contract PASSED [ 63%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_timeout PASSED   [ 65%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_child_crash_no_contract PASSED [ 68%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_unknown_major_version PASSED [ 70%]
+tests/cli/reflect/test_verdict_mapping.py::test_tolerant_unknown_field_1x PASSED [ 73%]
+tests/cli/reflect/test_verdict_mapping.py::test_serena_summary_corroboration_unavailable_not_degraded PASSED [ 75%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_skip_exemption_not_degraded PASSED [ 78%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_not_run_unexempted_is_degraded PASSED [ 80%]
+tests/cli/reflect/test_verdict_mapping.py::test_extrapolated_citations_do_not_gate PASSED [ 82%]
+tests/cli/reflect/test_verdict_mapping.py::test_benign_degraded_component_does_not_over_halt PASSED [ 85%]
+tests/cli/reflect/test_verdict_mapping.py::test_nonzero_child_exit_with_present_success_contract_blocks PASSED [ 87%]
+tests/cli/reflect/test_verdict_mapping.py::test_malformed_truthy_load_bearing_boolean_blocks PASSED [ 90%]
+tests/cli/reflect/test_verdict_mapping.py::test_status_failed_halts_with_status_failed_reason PASSED [ 92%]
+tests/cli/reflect/test_writeback.py::test_writeback_success_preserves_body PASSED [ 95%]
+tests/cli/reflect/test_writeback.py::test_writeback_compare_mismatch_bails_and_sidecars PASSED [ 97%]
+tests/cli/reflect/test_writeback.py::test_crlf_tasklist_writeback_round_trip PASSED [100%]
+
+============================== 41 passed in 0.19s ==============================

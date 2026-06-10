@@ -1,0 +1,14 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260608-182553-reflect-cli-wrapper/seed-brief.md
+merged_output_path: .dev/brainstorms/20260608-182553-reflect-cli-wrapper/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: .dev/brainstorms/20260608-182553-reflect-cli-wrapper/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []

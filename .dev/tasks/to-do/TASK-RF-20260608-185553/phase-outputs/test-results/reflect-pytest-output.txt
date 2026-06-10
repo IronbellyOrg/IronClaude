@@ -1,0 +1,44 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/reflectWrapper/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/reflectWrapper
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collecting ... collected 33 items
+
+tests/cli/reflect/test_cli_smoke.py::test_group_help_shows_run PASSED    [  3%]
+tests/cli/reflect/test_cli_smoke.py::test_run_help_shows_all_spec9_flags PASSED [  6%]
+tests/cli/reflect/test_cli_smoke.py::test_dry_run_never_launches PASSED  [  9%]
+tests/cli/reflect/test_cli_smoke.py::test_print_command_prints_and_never_launches PASSED [ 12%]
+tests/cli/reflect/test_cli_smoke.py::test_nonexistent_tasklist_is_nonzero PASSED [ 15%]
+tests/cli/reflect/test_no_nesting_guard.py::test_layer_a_wrapper_branch_is_bash_shellout PASSED [ 18%]
+tests/cli/reflect/test_no_nesting_guard.py::test_layer_b_wrapper_module_has_no_agent_imports PASSED [ 21%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_pass PASSED               [ 24%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_halted PASSED             [ 27%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_degraded PASSED           [ 30%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_blocked_no_contract PASSED [ 33%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_blocked_timeout PASSED    [ 36%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_blocked_child_crash PASSED [ 39%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_resume_clean_head_skips_launch PASSED [ 42%]
+tests/cli/reflect/test_runner_e2e.py::test_e2e_resume_stale_head_launches PASSED [ 45%]
+tests/cli/reflect/test_verdict_mapping.py::test_pass_full_tier2 PASSED   [ 48%]
+tests/cli/reflect/test_verdict_mapping.py::test_halted_regression PASSED [ 51%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_serena PASSED   [ 54%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_expected_t2_ran_t1 PASSED [ 57%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_degraded_without_flag PASSED [ 60%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_pass_with_flag PASSED [ 63%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_missing_contract PASSED [ 66%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_timeout PASSED   [ 69%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_child_crash_no_contract PASSED [ 72%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_unknown_major_version PASSED [ 75%]
+tests/cli/reflect/test_verdict_mapping.py::test_tolerant_unknown_field_1x PASSED [ 78%]
+tests/cli/reflect/test_verdict_mapping.py::test_serena_summary_corroboration_unavailable_not_degraded PASSED [ 81%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_skip_exemption_not_degraded PASSED [ 84%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_not_run_unexempted_is_degraded PASSED [ 87%]
+tests/cli/reflect/test_verdict_mapping.py::test_extrapolated_citations_do_not_gate PASSED [ 90%]
+tests/cli/reflect/test_verdict_mapping.py::test_benign_degraded_component_does_not_over_halt PASSED [ 93%]
+tests/cli/reflect/test_writeback.py::test_writeback_success_preserves_body PASSED [ 96%]
+tests/cli/reflect/test_writeback.py::test_writeback_compare_mismatch_bails_and_sidecars PASSED [100%]
+
+============================== 33 passed in 0.33s ==============================

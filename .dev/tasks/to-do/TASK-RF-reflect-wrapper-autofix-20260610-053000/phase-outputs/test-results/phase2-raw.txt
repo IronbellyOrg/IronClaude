@@ -1,0 +1,39 @@
+===== PYTEST: uv run pytest tests/cli/reflect/ -v =====
+40 passed, 1 failed in 0.24s
+
+PASSED (40):
+  test_cli_smoke.py::test_nonexistent_tasklist_is_nonzero
+  test_cli_smoke.py::test_print_command_argv_preview_matches_build_command
+  test_cli_smoke.py::test_config_stop_writes_blocked_sidecar
+  test_no_nesting_guard.py::test_layer_b_wrapper_module_has_no_agent_imports
+  test_runner_e2e.py::test_e2e_pass
+  test_runner_e2e.py::test_e2e_halted
+  test_runner_e2e.py::test_e2e_degraded
+  test_runner_e2e.py::test_e2e_blocked_no_contract
+  test_runner_e2e.py::test_e2e_blocked_timeout
+  test_runner_e2e.py::test_e2e_blocked_child_crash
+  test_runner_e2e.py::test_e2e_resume_clean_head_skips_launch
+  test_runner_e2e.py::test_e2e_resume_stale_head_launches
+  test_runner_e2e.py::test_e2e_frontmatter_stale_downgrades_pass_to_blocked
+  test_runner_e2e.py::test_e2e_frontmatter_missing_downgrades_pass_to_blocked
+  test_verdict_mapping.py:: (18 tests) all PASSED
+  test_writeback.py:: (3 tests) all PASSED
+
+FAILED (1):
+  test_no_nesting_guard.py::test_layer_a_wrapper_branch_is_bash_shellout
+    ValueError: substring not found
+    at _extract_wrapper_branch -> text.index(marker)
+    marker = "**Mode `2` / `auto-resolved-2` (§6.3, DEFAULT) — wrapper shell-out, remediate:**"
+    SOURCE READ: src/superclaude/skills/task-builder/SKILL.md  (NOT a reflect-wrapper file)
+
+  >>> PRE-EXISTING ON THE PRISTINE BASE <<<
+  Verified by stashing models.py+config.py and re-running: the test fails
+  IDENTICALLY (1 failed in 0.02s) with my Phase 2 changes removed. Therefore
+  NOT introduced by Phase 2. The marker is task-builder SKILL Mode-2 content
+  (generator-side, out of this wrapper task's scope).
+
+===== RUFF CHECK: uv run ruff check src/superclaude/cli/reflect/ =====
+All checks passed!
+
+===== RUFF FORMAT CHECK: uv run ruff format --check src/superclaude/cli/reflect/ =====
+6 files already formatted

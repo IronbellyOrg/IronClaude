@@ -1,0 +1,54 @@
+contract_version: "1.4.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: .dev/tasks/to-do/TASK-RF-reflect-wrapper-autofix-20260610-053000/phase-outputs/reviews/deep-reflect/REPORT.md
+audit_log_path: .dev/tasks/to-do/TASK-RF-reflect-wrapper-autofix-20260610-053000/phase-outputs/reviews/deep-reflect/return-contract.yaml
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # --depth deep hard override (forced Tier 2)
+
+# UC-2 specific
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 1
+  necessary: 4
+  drift: 0
+  regression: 0
+deviation_register_path: .dev/tasks/to-do/TASK-RF-reflect-wrapper-autofix-20260610-053000/phase-outputs/reviews/deep-reflect/REPORT.md
+grounding_gaps_path: null   # one [INFERRED] cross-component item; non-blocking (see REPORT §Grounding Gaps)
+
+# Input integrity
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 22
+citations_revalidated: 22
+citations_dropped: 0
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 artifacts
+reviewer_models: [sonnet, haiku]
+reviewer_personas: [safety-fail-closed, operational-qa]
+executor_class_source: flag
+executor_class_resolved: true        # --executor-model opus; reviewers disjoint (sonnet, haiku)
+executor_exclusion_degraded: false
+t2_model_class_diversity: degraded   # 2 reviewers (no non-Anthropic 3rd alias)
+calibrator_diversity: degraded       # only Anthropic classes available; inline calibration
+merge_method: adversarial-inline     # both reviewers converged PASS; no competing verdict to debate
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: true                  # FR-5 prose ("wrapper forces --no-promote") contradicts U6/§9/contract §5 (generator forces it); code follows the authoritative resolution
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+
+# Promotion (suppressed by --no-promote)
+promotion_action: skipped
+promotion_skip_reason: user-flag
+promotion_gate_passed: null
+
+verdict: PASS

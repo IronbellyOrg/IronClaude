@@ -30,7 +30,7 @@ import yaml
 
 from superclaude.cli.pipeline.process import ClaudeProcess
 
-from .contract import derive_verdict, parse_contract
+from .contract import classify_fix, derive_verdict, parse_contract
 from .models import ReflectConfig, ReflectResult, Verdict
 
 # The three model-class aliases reflect resolves at Wave 0 for Tier-2 topology.
@@ -44,6 +44,13 @@ _MODEL_ALIAS_ENV_VARS = (
 _FRONTMATTER_RE = re.compile(r"^---[ \t]*\n(.*?)\n---[ \t]*$", re.MULTILINE | re.DOTALL)
 # Top-level ``reflect_post:`` key line (column-0, no indent).
 _REFLECT_POST_KEY_RE = re.compile(r"^reflect_post\s*:")
+
+# FR-2 / contract Section 3.1 recursion breaker. Exported == "1" into EVERY child
+# the wrapper spawns inside the fix subtree (the audit AND the auto-run /task), so
+# any nested ``superclaude reflect run`` terminal gate self-suppresses (exits 0).
+# The audit is ``/sc:reflect`` (NOT ``superclaude reflect run``) so it does NOT
+# self-suppress; only the auto-run ``/task``'s OWN terminal gate does.
+_WRAPPER_MARKER = "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE"
 
 
 class _IndentDumper(yaml.SafeDumper):
@@ -210,6 +217,9 @@ def write_sidecar(
         "child_exit_code": result.child_exit_code,
         "env_alias_count": env_alias_count,
         "write_status": write_status,
+        # FR-3: auto-fix loop bookkeeping (sidecar-only; NOT in reflect_post: per U5).
+        "fix_iterations": result.fix_iterations,
+        "fix_converged": result.fix_converged,
     }
     sidecar_path = output_dir / "wrapper-result.yaml"
     _atomic_write_text(
@@ -346,6 +356,10 @@ class ReflectRunner:
         if config.spec_path is not None:
             parts += ["--spec", str(config.spec_path)]
         parts += ["--depth", config.depth]
+        # FR-1: under --fix, reflect AUTHORS (never runs) the corrective MDTM and
+        # emits its path as `remediation_task_path`; the wrapper auto-runs it.
+        if config.fix:
+            parts.append("--remediate")
         if config.executor_model:
             parts += ["--executor-model", config.executor_model]
         parts += ["--output", str(config.output_dir)]
@@ -375,10 +389,70 @@ class ReflectRunner:
 
     # -- orchestration ----------------------------------------------------
 
+    def _audit_once(self) -> ReflectResult:
+        """Launch ONE reflect audit, parse the pinned contract, derive the verdict.
+
+        Faithful extraction of run() steps (4)-(5): construct the audit
+        ``ClaudeProcess``, start/wait, ``parse_contract`` the pinned
+        ``return-contract.yaml``, ``derive_verdict``, and return the
+        ``ReflectResult`` (with ``contract_path`` filled). The bounded fix-loop
+        (Step 4.5) calls this once per audit; the SAME ``config.base`` /
+        working-tree diff is reused on every re-audit (NFR-4 idempotent re-verify).
+        """
+        config = self.config
+        expected_tier = 2 if config.depth in {"standard", "deep"} else 1
+        config.output_dir.mkdir(parents=True, exist_ok=True)
+        proc = ClaudeProcess(
+            prompt=self._build_prompt(),
+            output_file=config.output_dir / "reflect-stdout.json",
+            error_file=config.output_dir / "reflect-stderr.log",
+            model=config.model,
+            timeout_seconds=config.timeout_seconds,
+            max_turns=config.max_turns,  # G1: explicit, never the primitive's 100.
+            output_format="stream-json",
+            # Contract 3.1: marker exported into the audit child too. The audit is
+            # /sc:reflect (not `superclaude reflect run`), so it does NOT self-suppress;
+            # build_env() overlays this on the full inherited env (process.py:97-112).
+            env_vars={_WRAPPER_MARKER: "1"},
+        )
+        proc.start()
+        rc = proc.wait()
+        contract = parse_contract(config.contract_path)
+        result = derive_verdict(
+            contract,
+            expected_tier=expected_tier,
+            allow_single_vendor=config.allow_single_vendor,
+            child_rc=rc,
+        )
+        result.contract_path = str(config.contract_path)
+        return result
+
+    def _apply_remediation(self, remediation_task_path: str, iteration: int) -> int:
+        """Auto-run the corrective MDTM as a SECOND top-level ClaudeProcess (FR-1/D3).
+
+        Launches ``/task <remediation_task_path>`` with the recursion-breaker
+        marker exported (== "1"), so the corrective tasklist's OWN terminal
+        ``superclaude reflect run`` gate self-suppresses. THINNESS (NFR-1): this
+        launches ONLY via ``ClaudeProcess`` -- never a raw ``subprocess.run`` /
+        ``Popen``. Returns the child rc; the loop fails closed on a non-zero rc.
+        """
+        config = self.config
+        proc = ClaudeProcess(
+            prompt=f"/task {remediation_task_path}",
+            output_file=config.output_dir / f"fix-{iteration}-stdout.json",
+            error_file=config.output_dir / f"fix-{iteration}-stderr.log",
+            model=config.model,
+            timeout_seconds=config.timeout_seconds,
+            max_turns=config.max_turns,
+            output_format="stream-json",
+            env_vars={_WRAPPER_MARKER: "1"},
+        )
+        proc.start()
+        return proc.wait()
+
     def run(self) -> ReflectResult:
         """Execute the wrapper run and return the derived ``ReflectResult``."""
         config = self.config
-        expected_tier = 2 if config.depth in {"standard", "deep"} else 1
 
         # (1) Preflight (no ClaudeProcess construction -- FR-12 safe).
         blocker = preflight(config)
@@ -454,30 +528,52 @@ class ReflectRunner:
                 )
                 return result
 
-        # (4) Launch reflect as a top-level claude --print subprocess (FR-1).
-        config.output_dir.mkdir(parents=True, exist_ok=True)
-        proc = ClaudeProcess(
-            prompt=prompt,
-            output_file=config.output_dir / "reflect-stdout.json",
-            error_file=config.output_dir / "reflect-stderr.log",
-            model=config.model,
-            timeout_seconds=config.timeout_seconds,
-            max_turns=config.max_turns,  # G1: explicit, never the primitive's 100.
-            output_format="stream-json",
-            env_vars=None,  # FR-10: bare real-env overlay (no custom scrub).
-        )
-        proc.start()
-        rc = proc.wait()
+        # (4-5) Bounded audit -> classify -> apply -> re-verify loop (FR-1/FR-3, D1/D3).
+        # Termination is guaranteed by BOTH the `max` bound and the
+        # PASS/not-fix/untrusted/classification/cannot-repair/failed-apply breaks (NFR-3).
+        iteration = 1
+        max_iters = config.max_fix_iterations
+        while True:
+            result = self._audit_once()  # SAME --base reused every re-audit (NFR-4)
+            # Converged: a clean PASS exits 0.
+            if result.verdict is Verdict.PASS:
+                break
+            # Audit-only (no --fix): a single audit, no loop.
+            if not config.fix:
+                break
+            # Untrusted audit: DEGRADED/BLOCKED are terminal -- NEVER auto-fixed,
+            # even if the deviations dict coincidentally carries drift>0 (contract
+            # Section 4; mirrors derive_verdict blocked->degraded->halted->pass).
+            if result.verdict is not Verdict.HALTED:
+                break
+            # Trustworthy HALTED: classify the carve-out off the just-parsed contract.
+            contract = parse_contract(config.contract_path)
+            if classify_fix(contract or {}, result.deviations) != "auto-fixable":
+                break  # human-required / none -> terminal HALT, NO apply, NO promote.
+            # Need a remediation pointer to repair (FR-8 consume; never guess a dir).
+            remediation = result.remediation_task_path
+            if not remediation:
+                break  # cannot repair -> terminal HALT (merged-requirements:182-184).
+            # FR-3 bound: at most `max` apply->verify cycles.
+            if iteration > max_iters:
+                break
+            # (B) APPLY the corrective MDTM as a SECOND top-level subprocess.
+            apply_rc = self._apply_remediation(remediation, iteration)
+            if apply_rc != 0:
+                # Fail-closed: a failed /task apply must NOT be re-audited (it would
+                # score partial/garbage state and risk a misleading verdict). Leave
+                # `result` at its HALTED verdict (NEVER PASS); surface WHY in the
+                # sidecar reason (write_sidecar serializes `reason`). This breaks
+                # BEFORE incrementing -> no audit#(k+1) on a failed apply.
+                result.reason = (
+                    f"fix-apply-failed (rc={apply_rc}, prior={result.reason})"
+                )
+                break
+            iteration += 1  # RE-VERIFY on the next loop turn.
 
-        # (5) Parse the pinned contract and derive the verdict.
-        contract = parse_contract(config.contract_path)
-        result = derive_verdict(
-            contract,
-            expected_tier=expected_tier,
-            allow_single_vendor=config.allow_single_vendor,
-            child_rc=rc,
-        )
-        result.contract_path = str(config.contract_path)
+        # Bookkeeping (FR-3): completed apply->verify cycles + convergence flag.
+        result.fix_iterations = iteration - 1
+        result.fix_converged = result.verdict is Verdict.PASS
 
         # (6) Atomic race-safe write-back + always-write sidecar.
         reviewed_at = datetime.now(timezone.utc).isoformat()

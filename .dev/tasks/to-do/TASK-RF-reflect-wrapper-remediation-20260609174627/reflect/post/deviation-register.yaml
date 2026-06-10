@@ -1,0 +1,74 @@
+deviation_register_version: "1.0"
+mode: post
+audit: "post-remediation reflect (UC-2, deep single-pass grounded)"
+auditor_model_class: opus
+diff_basis: "working-tree delta vs 015e7285 (HEAD==base; git diff 015e7285..HEAD empty)"
+diff_scope: "src/superclaude/cli/reflect/ + skills/task-builder/SKILL.md + tests/cli/reflect/ + tests/skills/test_task_builder_merge.py (8 files, +294/-6)"
+test_result: "110 passed (tests/cli/reflect + tests/skills/test_task_builder_merge.py)"
+overall_verdict: clean-pass
+
+findings:
+  - id: F0
+    severity: HIGH
+    status: fixed-correctly
+    evidence: "contract.py non-zero rc -> BLOCKED/child-crash, after 124 timeout block, before contract-trust; 124 stays timeout subset"
+    test: "tests/cli/reflect/test_verdict_mapping.py::test_nonzero_child_exit_with_present_success_contract_blocks"
+  - id: F1
+    severity: MEDIUM
+    status: fixed-correctly
+    evidence: "runner.py raw bytes preserved for race guard; text CRLF->LF normalized; _read_existing_reflect_post normalized; returns 'written', body content preserved"
+    test: "tests/cli/reflect/test_writeback.py::test_crlf_tasklist_writeback_round_trip"
+  - id: F2
+    severity: MEDIUM-LOW
+    status: fixed-correctly
+    evidence: "contract.py frozenset of exactly 7 fields; isinstance(bool) present-non-None-non-bool -> BLOCKED/malformed-contract-boolean; valid contracts not over-blocked"
+    test: "tests/cli/reflect/test_verdict_mapping.py::test_malformed_truthy_load_bearing_boolean_blocks"
+  - id: F3
+    severity: MEDIUM
+    status: fixed-correctly
+    operator_option: a
+    evidence: "SKILL.md EXECUTOR_CLASS schema; executor_model_class:; start_commit:; start-commit capture note; Critical Rule #20; config.py:50-56 read-side; diff +7/-0 additive (NFR-3); src/.claude in sync (grep=3 both)"
+    test: "tests/skills/test_task_builder_merge.py::test_f3_post_reflect_persists_executor_class_and_start_commit"
+  - id: F4
+    severity: LOW
+    status: fixed-correctly
+    evidence: "commands.py config-STOP writes BLOCKED wrapper-result.yaml when --output resolvable; OSError swallowed (try/except OSError: pass); sys.exit fires regardless; default-dir case = pre-authorized accepted skip"
+    test: "tests/cli/reflect/test_cli_smoke.py::test_config_stop_writes_blocked_sidecar"
+  - id: F5
+    severity: LOW
+    status: fixed-correctly
+    evidence: "contract.py status==failed -> 'status-failed' FIRST branch in _halted_reason (before partial); exit stays HALTED/10"
+    test: "tests/cli/reflect/test_verdict_mapping.py::test_status_failed_halts_with_status_failed_reason"
+  - id: F6
+    severity: LOW
+    status: fixed-correctly
+    evidence: "runner.py preview byte-matches process.py build_command flag set+order; --model conditional/last; perm-flag default matches and not overridden; no ClaudeProcess constructed (FR-12)"
+    test: "tests/cli/reflect/test_cli_smoke.py::test_print_command_argv_preview_matches_build_command"
+
+deviations:
+  - id: D-F1
+    category: necessary-deviation
+    pre_authorized: true
+    description: "F1 normalizes whole working text to LF and writes LF-consistent output (does not preserve CR bytes). Register recommendation explicitly permitted normalize \\r\\n. FR-6 interpreted as body-CONTENT preservation, not CR-byte preservation. Sound."
+  - id: D-F4
+    category: necessary-deviation
+    pre_authorized: true
+    description: "F4 writes the blocked sidecar only when --output is explicitly resolvable; the default <task-dir>/reflect/post/<sha> case is skipped (re-running failing resolve_config would re-trigger the error). Register recommendation explicitly permitted documenting FR-7 as 'whenever an output dir is reservable'. Sound."
+  - id: D-POST-DIFF
+    category: necessary-deviation
+    pre_authorized: false
+    description: "POST reflect audited the working-tree delta vs 015e7285 instead of the literal --diff 015e7285..HEAD, because the remediation was executed but not committed (the F1 task loop commits only on explicit user authorization), so HEAD==015e7285 and ..HEAD is empty. The audited content is identical to what would be committed."
+
+drift: []
+regression: []
+authorized_expansion: []
+
+scope_discipline:
+  spec_amendment: none
+  claude_dir_staged: none
+  sot_sync: in-sync
+  source_additivity: "contract.py +43/-0, commands.py +33/-0, SKILL.md +7/-0; runner.py -6 confined to rewritten F1/F6 functions"
+
+refuted_findings_status:
+  - id: R1
+    note: "Strict tier equality — correctly remained out of scope (theoretical-only; tier_reached:3 HALTs fail-closed). No action taken; correct."

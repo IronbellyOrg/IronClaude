@@ -35,6 +35,14 @@ _EXIT_SENTINEL_NAME = ".reflect-exitcode"
 # Fail-closed exit code for a missing/unreadable sentinel (Verdict.BLOCKED).
 _BLOCKED_EXIT = 2
 
+# Recursion-breaker (FR-2 / contract Section 3). When the wrapper auto-runs a
+# corrective ``/task`` (or its audit) as a child ``claude --print`` subprocess,
+# it exports this env var == "1" into that child. If that child's own terminal
+# reflect gate fires ``superclaude reflect run`` again, this guard makes it
+# immediately exit 0 BEFORE any audit -- breaking the recursion. The truthy
+# value is EXACTLY the string "1"; absent/empty/"0"/"2"/any-other do NOT suppress.
+_WRAPPER_MARKER_ENV = "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE"
+
 
 @click.group("reflect")
 def reflect_group():
@@ -51,7 +59,18 @@ def reflect_group():
         superclaude reflect run path/to/TASK.md --tmux
         superclaude reflect run path/to/TASK.md --depth deep --print-command
     """
-    pass
+    # FR-2 recursion breaker (contract Section 3). This GROUP callback runs
+    # during parsing BEFORE the ``run`` subcommand's ``exists=True`` tasklist
+    # argument is validated, so a nested gate on a SINCE-MOVED file still exits
+    # 0 cleanly ("immediately exits 0 ... before any audit"). Placing the check
+    # here -- not inside ``run()``'s body -- is load-bearing: an in-body check
+    # cannot pre-empt Click's parse-time path validation. Truthiness is EXACTLY
+    # the string "1" (absent/empty/"0"/"2"/any-other run normally).
+    if os.environ.get(_WRAPPER_MARKER_ENV, "").strip() == "1":
+        click.echo(
+            "reflect-wrapper recursion breaker: nested gate suppressed", err=True
+        )
+        sys.exit(0)
 
 
 @reflect_group.command()
@@ -70,8 +89,8 @@ def reflect_group():
 @click.option(
     "--promote/--no-promote",
     "promote",
-    default=False,
-    help="Allow reflect's gated Wave-7 promotion (default: --no-promote, audit-only).",
+    default=True,
+    help="Allow reflect's gated Wave-7 promotion (default: --promote). O2 callers pass --no-promote.",
 )
 @click.option(
     "--timeout",
@@ -105,6 +124,27 @@ def reflect_group():
     is_flag=True,
     help="Skip the launch when the prior reflect_post is a pass on the current HEAD.",
 )
+@click.option(
+    "--fix/--no-fix",
+    "fix",
+    default=False,
+    help="Run the bounded audit->apply->re-verify auto-fix loop (gate default --fix).",
+)
+@click.option(
+    "--max-fix-iterations",
+    type=int,
+    default=2,
+    help="Max apply->verify cycles before terminal HALT (D3, default 2).",
+)
+@click.option(
+    "--base",
+    "base_override",
+    default=None,
+    help=(
+        "Explicit audit base ref (single ref vs working tree). Highest precedence "
+        "over frontmatter start_commit + merge-base."
+    ),
+)
 def run(
     tasklist: str,
     tmux: bool,
@@ -116,6 +156,9 @@ def run(
     allow_single_vendor: bool,
     dry_run: bool,
     resume: bool,
+    fix: bool,
+    max_fix_iterations: int,
+    base_override: str | None,
 ) -> None:
     """Execute the POST reflect gate for TASKLIST.
 
@@ -141,6 +184,9 @@ def run(
             dry_run=dry_run,
             print_command=print_command,
             resume=resume,
+            fix=fix,
+            max_fix_iterations=max_fix_iterations,
+            base_override=base_override,
         )
     except ValueError as exc:
         # A config / preflight STOP is blocked -> exit 2 (Section 6).
@@ -246,12 +292,19 @@ def _build_inner_command(config) -> list[str]:
         "--timeout",
         str(config.timeout_seconds),
     ]
-    if config.promote:
-        cmd.append("--promote")
+    # Forward promote EXPLICITLY in both directions. Since the --promote default
+    # flipped to True (FR-5), an absent flag in the inner reinvocation would
+    # default to promote-on -- so a --tmux + --no-promote outer call must emit
+    # --no-promote explicitly, else the inner foreground run would silently promote.
+    cmd.append("--promote" if config.promote else "--no-promote")
     if config.allow_single_vendor:
         cmd.append("--allow-single-vendor")
     if config.resume:
         cmd.append("--resume")
+    # Forward --base so --tmux + --base does not silently lose the base ref in the
+    # inner foreground reinvocation (R1 Section 1b gap). Single-ref pass-through, no `..` range.
+    if config.base_override:
+        cmd += ["--base", config.base_override]
     return cmd
 
 

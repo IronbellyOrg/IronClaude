@@ -1,0 +1,46 @@
+# /sc:brainstorm return contract
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260608-191030-reflect-flag-post-gate/seed-brief.md
+merged_output_path: .dev/brainstorms/20260608-191030-reflect-flag-post-gate/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: .dev/brainstorms/20260608-191030-reflect-flag-post-gate/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+# --- telemetry (non-stable) ---
+telemetry:
+  strategy: systematic
+  depth: deep
+  base_variant: "opus:architect (V1)"
+  variants:
+    - "opus:architect (V1) — selected base, combined 0.962"
+    - "haiku:qa (V3) — combined 0.905"
+    - "opus:refactorer (V2) — combined 0.875"
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',opus:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
+  models_resolved:
+    opus: claude-opus-4-8
+    haiku: qwen3.6-plus
+  invariant_probe:
+    total_findings: 6
+    high_unaddressed: 0
+    load_bearing_fix: "INV-002 — unified wrapper-availability fallback ladder (resolve risk-mode first; auto→2 + wrapper-absent degrades to manual-HALT, never inline Mode 1)"
+  token_usage_est:
+    variant_generation: 287135   # measured subagent_tokens V1+V2+V3
+    merge_execution: 166185      # measured
+    orchestration: ~60000        # est (diff/debate/scoring/probe/plan)
+  wave_status:
+    wave_0: complete
+    wave_1: complete
+    wave_2a: complete
+    wave_2b: complete
+    wave_3: complete (PASS, convergence 0.82)
+    wave_4: complete (handoff=none)

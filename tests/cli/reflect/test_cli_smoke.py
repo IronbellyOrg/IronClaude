@@ -23,6 +23,11 @@ _SPEC9_FLAGS = [
     "--allow-single-vendor",
     "--dry-run",
     "--resume",
+    # Auto-fix evolution flags (D1/D3/D6).
+    "--fix",
+    "--no-fix",
+    "--max-fix-iterations",
+    "--base",
 ]
 
 

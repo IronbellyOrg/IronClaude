@@ -332,7 +332,7 @@ The fallback path is **loud, never silent**: every F-step writes to audit.log; t
 
 ### 4.6 Wave 6 — Tier-3 remediation handoff (detailed step addition, FR-RV3-MED.3)
 
-Wave 6 runs ONLY when `--remediate` is accepted (Tier 3). Immediately BEFORE the task-builder invocation, reflect writes a warm-start handoff so the remediation conversation does not re-derive Waves 1-5 context.
+Wave 6 runs ONLY when `--remediate` is accepted (Tier 3). Acceptance is **interactive** (the yes/no opt-in prompt in `refs/remediation-handoff.md`) OR **headless auto-accept** (FR-9): under non-interactive `claude --print` (no TTY — the reflect-wrapper's launch mode), `--remediate` auto-accepts and authors the corrective MDTM WITHOUT the yes/no prompt for **AUTO-FIXABLE** registers (solely Drift/Necessary), while **HUMAN-REQUIRED** registers (any Regression, or `needs_human_decision: true`) author nothing auto-runnable and emit `remediation_task_path: null` (see `refs/remediation-handoff.md` "Headless auto-accept under `--print`"). Either way reflect AUTHORS but NEVER runs `/task` (§"Will Not"). Immediately BEFORE the task-builder invocation, reflect writes a warm-start handoff so the remediation conversation does not re-derive Waves 1-5 context.
 
 **Step 6.0 (handoff write — BEFORE the task-builder spawn).**
 
@@ -341,8 +341,9 @@ Wave 6 runs ONLY when `--remediate` is accepted (Tier 3). Immediately BEFORE the
 3. **Fallback (the realistic default — tool context-excluded, FR-3.3):** write the same inline-built summary blob via `mcp__serena__write_memory` under the same key; emit `handoff_persist_method: write_memory_fallback`; still pass the key to task-builder.
 4. **Both-fail (FR-3.4):** if both the tool AND `write_memory` fail, emit `handoff_persist_failed: true`, surface findings to task-builder WITHOUT the handoff key, and NEVER block the report.
 5. **Pass the key forward:** invoke task-builder with the handoff key so it `read_memory`s the blob for a warm start.
+6. **Capture + emit the authored MDTM path (FR-8):** AFTER the task-builder spawn returns, capture the absolute path of the MDTM file it wrote under `.dev/tasks/to-do/` (`refs/remediation-handoff.md`) and emit it as the §9.1 `remediation_task_path` field. This is the path-EMISSION only — reflect AUTHORS but NEVER runs `/task` (the §"Will Not" invariant is preserved); the reflect-wrapper auto-fix loop is the sole consumer that auto-runs it. Emit `remediation_task_path: null` in the degenerate / not-authored cases (the Authorized/Necessary-only short-circuit per `refs/remediation-handoff.md`, and the not-accepted `handoff_memory_key: null` case below).
 
-**Degenerate no-op (FR-3.5):** when `--remediate` is NOT accepted (no Tier 3), Step 6.0 never runs and `handoff_memory_key: null`. This is expected, not a failure.
+**Degenerate no-op (FR-3.5):** when `--remediate` is NOT accepted (no Tier 3), Step 6.0 never runs, `handoff_memory_key: null`, and `remediation_task_path: null`. This is expected, not a failure.
 
 The handoff write is ordered strictly BEFORE the task-builder spawn. The signature of `prepare_for_new_conversation` is unverified (OQ-M1) and the tool is absent in `claude-code`/`ide-assistant` contexts — the `write_memory` fallback is the default path and the implementer is directed to OQ-M1 resolution rather than wiring assumed parameters (FR-3.6).
 
@@ -648,10 +649,10 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
-### 9.1 Stable contract (contract_version: 1.3.0)
+### 9.1 Stable contract (contract_version: 1.4.0)
 
 ```yaml
-contract_version: "1.3.0"
+contract_version: "1.4.0"
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -742,6 +743,7 @@ calibrator_diversity: full | degraded
 remediation_offered: bool
 remediation_accepted: bool | null
 task_file_path: <path> | null
+remediation_task_path: <abs path> | null   # FR-8: absolute path of the MDTM file rf-task-builder wrote in Wave 6; null when no remediation authored. The reflect-wrapper auto-fix loop READS this to auto-run /task; it never guesses a "newest TASK-RF-* dir".
 handoff_memory_key: <serena-memory-name> | null   # FR-3 (reflect/handoff-{slug}-{timestamp}; null when no Tier 3)
 
 # Asymmetric-cost flags (downstream automation must respect these)
@@ -788,7 +790,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
 promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.3.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.4.0`.
 
 ### 9.2 Telemetry (non-stable)
 
@@ -1624,7 +1626,7 @@ Operators using Prometheus's `json_exporter`, StatsD's `dogstatsd-json`, or Open
 **Cross-run aggregation (`.dev/reflect/runs.jsonl`).** A one-line JSON summary is appended to `.dev/reflect/runs.jsonl` at end-of-run. Schema is a subset of `metrics.json` with only the cross-run-comparable fields:
 
 ```json
-{"run_id": "...", "timestamp": "...", "skill_version": "1.3.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
+{"run_id": "...", "timestamp": "...", "skill_version": "1.4.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
 ```
 
 The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
@@ -1755,7 +1757,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
 | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
 | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.3.0"` |
+| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.4.0"` |
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |

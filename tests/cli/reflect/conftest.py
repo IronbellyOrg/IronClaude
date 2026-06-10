@@ -136,3 +136,53 @@ def make_claude_process_stub():
         return factory
 
     return _builder
+
+
+@pytest.fixture
+def make_claude_process_sequence():
+    """Return a SEQUENCE-aware Idiom-B factory builder for the bounded fix-loop.
+
+    Usage::
+
+        factory = make_claude_process_sequence([
+            ("autofixable_drift.yaml", 0),   # audit #1
+            (None, 0),                        # apply #1 (a /task launch -> writes NO contract)
+            ("postfix_pass.yaml", 0),         # audit #2 (re-verify)
+        ])
+        with patch("superclaude.cli.reflect.runner.ClaudeProcess", side_effect=factory):
+            ...
+
+    Each successive ``ClaudeProcess(**kwargs)`` construction pops the next
+    ``(fixture_name, rc)`` step. ``fixture_name=None`` writes NO
+    ``return-contract.yaml`` (the apply ``/task`` launch case) -- so a FRESH
+    contract is written ONLY by audit steps, per-``.wait()`` (U9: the re-audit
+    reads the post-fix contract, never a stale one). When the sequence is
+    exhausted, further constructions default to ``(None, 0)``.
+    """
+
+    def _builder(steps: list[tuple[str | None, int]]):
+        state = {"i": 0}
+
+        def factory(**kwargs):
+            idx = state["i"]
+            state["i"] += 1
+            fixture_name, rc = steps[idx] if idx < len(steps) else (None, 0)
+            output_file = Path(kwargs["output_file"])
+            output_dir = output_file.parent
+            mock = MagicMock()
+            mock.start.return_value = None
+
+            def _wait() -> int:
+                if fixture_name is not None:
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    (output_dir / "return-contract.yaml").write_bytes(
+                        (FIXTURES_DIR / fixture_name).read_bytes()
+                    )
+                return rc
+
+            mock.wait.side_effect = _wait
+            return mock
+
+        return factory
+
+    return _builder
