@@ -4,6 +4,27 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### reflect — audit-only wrapper → bounded auto-fix engine (contract 1.4.0)
+
+#### Added (reflect CLI)
+
+- `--fix/--no-fix` flag on `superclaude reflect run` (gate default **`--fix`**). When `--fix`, the audit runs with `--remediate` so reflect *authors* (never runs) a Tier-3 corrective MDTM file; on an AUTO-FIXABLE verdict with a present `remediation_task_path`, the wrapper auto-executes `/task <path>` as its own top-level `claude --print` subprocess, then re-runs the audit to verify. Reflect stays read-only; the wrapper is the sole mutator-orchestrator.
+- `--max-fix-iterations N` flag (default **2**): bounds the audit→apply→re-verify loop. After N apply→verify cycles without convergence to PASS, terminal HALT (exit 10), no promote; the sidecar records `fix_iterations` and `fix_converged: bool`.
+- `--base <ref>` flag (highest precedence). Resolution chain in `config.py`: **explicit `--base` > frontmatter `start_commit` > `git merge-base HEAD master`**. A phase-N gate passes `--base <phase-N-start-sha>` to audit only phase-N work. The F3 de-range is preserved: `--diff <BASE>` is a SINGLE ref vs the working tree, never a `<BASE>..HEAD` commit range.
+- `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` recursion breaker: the wrapper exports `=1` into every child it spawns inside the fix subtree (the reflect audit subprocess AND every auto-run `/task`). The primary breaker lives in the `reflect` **group callback**, which runs during Click parsing — so a nested `superclaude reflect run` immediately **exits 0** ("nested gate suppressed") BEFORE the `run` subcommand's `exists=True` tasklist-arg validation, even when the file has since moved. Truthiness is exactly the string `"1"`.
+- Pure `classify_fix` carve-out (`contract.py`) off existing contract fields only: **AUTO-FIXABLE** ⇔ HALTED caused solely by `drift>0` and/or `necessary`-class items with no `regression_present`, `needs_human_decision`, `user_decision_required`, or grounding-gaps; **HUMAN-REQUIRED** ⇔ any of those triggers (or a `degraded`/`blocked` verdict). Auto-fix applies to the AUTO-FIXABLE path only.
+- `remediation_task_path` contract field — reflect's Wave 6 emits the absolute path of the MDTM file `rf-task-builder` wrote (null when none authored) into `return-contract.yaml`; the wrapper reads it to auto-execute rather than guessing the newest `TASK-RF-*` dir. Skill `sc-reflect-protocol` contract bumped **`1.3.0 → 1.4.0`**.
+- Headless `--remediate` auto-authoring: under `--print` (wrapper) mode there is no human to "accept" a Tier-3 offer, so `--remediate` authors the corrective file non-interactively and sets `remediation_task_path`. A HUMAN-REQUIRED deviation set still authors nothing auto-runnable (BUILD_REQUEST with `needs_human_decision: true`) and the wrapper HALTs.
+
+#### Changed (reflect CLI)
+
+- `--promote/--no-promote` default flipped **`False → True`** (FR-5): promote-by-default. The wrapper never force-sets `--no-promote` — it has no O2-detection surface, so the **generator** passes `--no-promote` explicitly on its O2 per-phase gate calls; a defaulted O2 promote is a harmless no-op (reflect's Wave-7 finds no per-phase adapter and safely skips `adapter-unresolved`), never a mis-promote.
+- `_build_inner_command` now forwards `--promote/--no-promote` **and** `--base` explicitly under `--tmux`, so a `--tmux + --no-promote` (or `--tmux + --base`) outer call does not silently default to promote-on or lose the base ref in the inner foreground reinvocation.
+
+#### Guarantees (reflect CLI)
+
+- Fail-closed: DEGRADED and BLOCKED verdicts are never auto-fixed; a failed `/task` apply HALTs (never silently passes); thinness holds (no `cli.sprint`/`cli.roadmap` import, no `async`, `ClaudeProcess`-only launch). Test suite: **75 passed / 1 justified xfail**.
+
 ### Sprint CLI — wire the per-task execution path + runner-owned typed handoff (Stages 0-3, TASK-RF-SPRINTCLI-WIRE-DEAD-20260603-024610)
 
 #### Added (sprint CLI)

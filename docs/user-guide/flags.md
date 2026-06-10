@@ -156,6 +156,8 @@
 
 > This table lists the most-used flags. For the full surface (promotion controls, `--coverage-floor`, tier pins, MCP toggles, etc.) run `/sc:reflect --help` or see the `/sc:reflect` command reference.
 
+**CLI wrapper:** The `superclaude reflect run` CLI wrapper layers auto-fix flags on top of this skill surface — `--fix/--no-fix`, `--max-fix-iterations`, and `--base` — and flips `--promote` on by default. See [docs/guides/reflect-cli-tools-guide.md](../guides/reflect-cli-tools-guide.md) for the full CLI surface.
+
 **Legacy grammar (preserved for `/sc:troubleshoot` Wave 6 and other v1 callers):**
 
 | Flag | Purpose | Maps to |

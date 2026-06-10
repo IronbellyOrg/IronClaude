@@ -92,7 +92,10 @@ superclaude sprint run <tasklist-index.md>
 superclaude roadmap run <spec.md>
 superclaude roadmap validate <output-dir>
 superclaude tasklist run <roadmap-dir>
+superclaude reflect run <tasklist.md> --fix
 ```
+
+See `docs/guides/reflect-cli-tools-guide.md` for the reflect gate (validate → auto-fix → verify → promote).
 
 ### Run tests
 
