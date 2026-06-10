@@ -205,11 +205,17 @@ class PortifyProcess(ClaudeProcess):
         for d in add_dirs:
             add_dir_args.extend(["--add-dir", str(d)])
 
-        # Insert before -p
+        # Anchor: insert --add-dir flags after `--output-format <value>`. The
+        # base build_command() emits `--output-format` unconditionally and the
+        # next element is its value, so the splice point is index+2. The prompt
+        # is delivered via stdin (no `-p` ever in argv since 4799719), so the
+        # legacy `cmd.index("-p")` lookup was dead code that always fell into
+        # the except branch.
         try:
-            p_idx = cmd.index("-p")
-            cmd[p_idx:p_idx] = add_dir_args
-        except ValueError:
+            anchor_idx = cmd.index("--output-format")
+            insert_at = anchor_idx + 2  # skip flag + value
+            cmd[insert_at:insert_at] = add_dir_args
+        except ValueError:  # pragma: no cover -- defensive: base contract violated
             cmd.extend(add_dir_args)
 
         return cmd
