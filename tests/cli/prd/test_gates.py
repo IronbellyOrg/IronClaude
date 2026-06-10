@@ -134,6 +134,28 @@ class TestCheckVerdictField:
         result = _check_verdict_field(content)
         assert result is not True
 
+    @pytest.mark.parametrize(
+        "shape",
+        [
+            "- **Verdict:** ✅ **PASS**",  # the live research-qa repro
+            "## Verdict: ✅ PASS — CONTINUE",
+            "### Verdict: 🟢 FAIL",
+            "- Verdict: ✅ PASS",
+            "**Verdict**: ❌ FAIL",
+        ],
+    )
+    def test_check_verdict_field_accepts_decorated_shapes(self, shape: str) -> None:
+        """Agents decorate verdicts with heading/bullet prefixes, bold wrapping,
+        emoji, and bold-wrapped values; all are accepted as long as the colon +
+        uppercase PASS/FAIL are present (the unified line-anchored regex)."""
+        content = f"## QA Report\n\n{shape}\n\nRationale follows.\n"
+        assert _check_verdict_field(content) is True
+
+    def test_check_verdict_field_rejects_rationale_heading_without_value(self) -> None:
+        """A 'Verdict rationale' heading with no PASS/FAIL value must not match."""
+        content = "## Verdict rationale\n\nWe weighed the evidence.\n"
+        assert _check_verdict_field(content) is not True
+
 
 class TestCheckB2SelfContained:
     """Catch 'see above' violations in checklist items."""

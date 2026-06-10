@@ -44,20 +44,21 @@ def _check_verdict_field(content: str) -> bool | str:
     json_match = re.search(r'"verdict"\s*:\s*"(PASS|FAIL)"', content)
     if json_match:
         return True
-    # Markdown format (case-insensitive key, case-sensitive value).
-    # Explicit alternation over exactly the three valid shapes:
-    #   Verdict: PASS   |   **Verdict**: PASS   |   **Verdict:** PASS
-    # The prior permissive character-class form also accepted shapes
-    # with no colon at all (e.g. "Verdict PASS") — strictly too loose.
-    # Key is case-insensitive (Verdict / verdict / VERDICT); the colon may sit
-    # inside or outside bold markers; the PASS/FAIL value may itself be
-    # bold-wrapped. Covers every real QA-agent shape, e.g. "Verdict: PASS",
-    # "**Verdict**: PASS", "**Verdict:** PASS", "**Verdict:** **PASS**",
-    # "**VERDICT: PASS**". Anchored to a line start (MULTILINE) so prose
-    # mentions of "fail" cannot trip it; the PASS/FAIL value stays
-    # case-sensitive via the scoped (?i:) on the key only.
+    # Markdown format (case-insensitive key, case-sensitive value). Agents
+    # decorate the verdict line freely -- heading prefixes ("## Verdict: ..."),
+    # list bullets ("- **Verdict:** ..."), bold wrapping (inside OR outside the
+    # colon), emoji ("✅ PASS"), and bold-wrapped values ("**PASS**"). Match the
+    # whole class with a single line-anchored pattern: from a line start, allow
+    # any run of non-word / non-colon decoration (``[^\w\n:]*`` -> bullets,
+    # ``#``, ``*``, spaces, emoji, ``—``), the word "Verdict", optional bold
+    # before the colon, the REQUIRED colon, then more non-word/non-colon
+    # decoration, then the case-sensitive value.
+    #   * COLON required           -> rejects "Verdict PASS"
+    #   * decoration excludes ':'  -> rejects "Verdict::: PASS"
+    #   * decoration excludes \w   -> a "PASS" buried in prose is not matched
+    #   * value stays PASS|FAIL    -> rejects lowercase "pass"
     md_match = re.search(
-        r"(?m)^\s*\*{0,2}\s*(?i:verdict)\s*(?:\*\*\s*:|:\s*\*\*|:)\s*\*{0,2}\s*(PASS|FAIL)\b",
+        r"(?:^|\n)[^\w\n:]*[Vv]erdict[^\w\n:]*:[^\w\n:]*(PASS|FAIL)",
         content,
     )
     if md_match:
