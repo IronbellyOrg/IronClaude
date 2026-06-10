@@ -1,0 +1,20 @@
+===== PYTEST: uv run pytest tests/cli/reflect/ =====
+1 failed, 40 passed in 0.21s
+
+FAILED (1, PRE-EXISTING / OUT OF SCOPE — same task-builder Layer-A test as Phases 2/3):
+  test_no_nesting_guard.py::test_layer_a_wrapper_branch_is_bash_shellout
+    ValueError: substring not found  (reads task-builder/SKILL.md Mode-2 marker)
+
+PASSED (40) — all reflect-logic tests green, including the e2e single-audit paths that assert
+mock_cls.assert_called_once(): the new audit env_vars={marker:"1"} only ADDS a kwarg and does
+NOT change call counts; the bounded loop breaks after one audit when --fix is unset (every
+existing e2e test omits --fix, so call_count stays 1).
+
+  Confirmed: test_runner_e2e.py (10) + test_verdict_mapping.py (19) = 29 passed in isolation.
+
+===== RUFF CHECK: uv run ruff check src/superclaude/cli/reflect/ =====
+All checks passed!  (after removing a dead `failed_apply_rc` local — the failed-apply rc is
+surfaced via result.reason, which write_sidecar serializes.)
+
+===== RUFF FORMAT CHECK: uv run ruff format --check src/superclaude/cli/reflect/ =====
+initial: Would reformat: runner.py  -> ran `ruff format` (1 reformatted) -> re-check: 6 files already formatted (CLEAN)

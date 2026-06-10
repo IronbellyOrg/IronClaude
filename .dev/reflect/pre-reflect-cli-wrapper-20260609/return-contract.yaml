@@ -1,0 +1,62 @@
+contract_version: "1.3.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/reflect/pre-reflect-cli-wrapper-20260609/REPORT.md
+audit_log_path: null
+confidence_calibrated: 0.88
+escalation_rule_matched: 4          # S_domains>=3 would escalate; capped at T1 (factual source-verified findings)
+
+# UC-1 specific
+coverage_pct: 0.90                  # effective (presence 1.00; 3 fidelity gaps)
+coverage_undefined: false
+unmapped_requirements: []           # every FR/NFR has >=1 addressing item
+best_practice_grade: 4
+fidelity_gaps:
+  - id: G1
+    severity: high
+    requirement: "spec-§8 / seed-success-criterion"
+    title: "--max-turns left at ClaudeProcess default 100; never set/tested/flagged"
+    addressing_items: [3.5]
+    recommendation: "pass explicit max_turns sized for T2 (config knob ~200-300) + assert in test"
+  - id: G2
+    severity: medium
+    requirement: "spec-§9 / resolved-OQ-6"
+    title: "--resume declared (models/config/CLI) but skip-on-clean-HEAD behavior unimplemented in runner"
+    addressing_items: [2.1, 2.2, 4.1]
+    recommendation: "implement runner short-circuit in Step 3.5 + test, OR drop flag from v1 scope"
+  - id: G3
+    severity: medium
+    requirement: "FR-3 depth passthrough"
+    title: "wrapper-arm template emits no --depth {DEPTH}; complex tasklist silently runs at standard"
+    addressing_items: [5.3]
+    recommendation: "Step 5.3 wrapper-arm should emit `superclaude reflect run {TASK_FILE} --depth {DEPTH}`"
+  - id: G4
+    severity: low
+    requirement: "NFR-1 <=~400 LOC"
+    title: "LOC budget never measured (only qualitative thinness QA)"
+    addressing_items: [PG7.2]
+    recommendation: "optional: add `wc -l` assertion to Step 7.1/PG7.2"
+  - id: G5
+    severity: low
+    requirement: "FR-3 base derivation (informational)"
+    title: "halt-arm uses merge-base <integration>; wrapper config defaults master"
+    addressing_items: [2.2, 5.3]
+    recommendation: "acceptable (OQ1 master is correct); recorded for conscious asymmetry"
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false       # inline re-Read (orchestrator), all citations source-verified this turn
+
+# asymmetric-cost flags
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+regression_present: false           # n/a (pre-execution)
+
+# promotion (UC-1 → not applicable)
+promotion_action: not-applicable

@@ -1,0 +1,59 @@
+contract_version: "1.3.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/reflect/pre-task-rf-194013-20260609103200/REPORT.md
+audit_log_path: .dev/reflect/pre-task-rf-194013-20260609103200/artifacts/coverage-map.yaml
+confidence_calibrated: 0.89
+escalation_rule_matched: 8
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: 1.0
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 5
+missing_implementations: []
+
+# Soft findings (covered-with-refinement; NOT unmapped)
+soft_findings:
+  - id: S1
+    severity: low
+    requirement: FR-1
+    summary: "unknown-token MALFORMED-input STOP documented at Step 2.1 + asserted by V1, but not authored as an explicit branch in the A.9 producer prose (Step 2.4)"
+    recommendation: "add 7th bullet to Step 2.4: unknown --reflect/REFLECT_POST_MODE token -> MALFORMED-input STOP before §5/auto resolution"
+  - id: S2
+    severity: low
+    requirement: FR-12
+    summary: "Mode-2 spec threading relies on pre-existing frontmatter spec_path (:1933); no step writes/asserts it; V13 only checks Mode-1 --spec"
+    recommendation: "add assertion (e) to Step 5.3 walkthrough: Mode-2 template references frontmatter spec_path and that field exists"
+  - id: S3
+    severity: info
+    requirement: "§13 acceptance tests"
+    summary: "most ATs are (c)-class unreachable (no build_tasklist() entry point); Step 5.5 tests only string/marker subset; behavioral correctness leans on PG5.1/PG5.2"
+    recommendation: "no change required (correctly scoped); ensure Step 5.3 tags each §13 AT tested|(c)-unreachable"
+  - id: S4
+    severity: info
+    requirement: NFR-4
+    summary: "extensibility is an emergent design property with no discrete verification step"
+    recommendation: "no change required; PG5.2 qualitative naturally confirms monotone-extensible dial"
+
+# Hallucination guard
+citations_total: 0          # citations are spec §-refs / FR-IDs in docs read in full this turn; no code file:line under review
+citations_revalidated: 0
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false   # inline grounding: both source docs read in full this turn; UC-1 zero-code-citation pass (NOT the post-mode vacuous-success rule)
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+needs_human_decision: false
+user_decision_required: false
+
+per_task_verdicts: []
+
+# Promotion (UC-1 has no completed work to promote)
+promotion_action: not-applicable

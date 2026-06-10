@@ -1,0 +1,6 @@
+=== V15 byte-identity check (Step 5.4) ===
+live  : SKILL.md:2089-2094 (§6.4 halt arm)
+snap  : v15-anchor-snapshot.md fenced block
+live line count: 6 ; snap line count: 6
+--- diff snap vs live (empty = byte-identical) ---
+DIFF_RC=0

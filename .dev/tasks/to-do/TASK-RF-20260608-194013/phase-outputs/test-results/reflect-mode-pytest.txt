@@ -1,0 +1,43 @@
+=== pytest (re-run after fixes) ===
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/reflectWrapper/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/reflectWrapper
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collecting ... collected 22 items
+
+tests/skills/test_reflect_mode_validation.py::TestFixturesPresent::test_fixture_exists[mode1_ok.md] PASSED [  4%]
+tests/skills/test_reflect_mode_validation.py::TestFixturesPresent::test_fixture_exists[mode1_with_wrapper.md] PASSED [  9%]
+tests/skills/test_reflect_mode_validation.py::TestFixturesPresent::test_fixture_exists[mode1_with_remediate.md] PASSED [ 13%]
+tests/skills/test_reflect_mode_validation.py::TestFixturesPresent::test_fixture_exists[mode2_ok.md] PASSED [ 18%]
+tests/skills/test_reflect_mode_validation.py::TestFixturesPresent::test_fixture_exists[mode2_with_inline.md] PASSED [ 22%]
+tests/skills/test_reflect_mode_validation.py::TestFixturesPresent::test_fixture_exists[none_ok.md] PASSED [ 27%]
+tests/skills/test_reflect_mode_validation.py::TestAtValidation1::test_mode1_with_wrapper_fails_v6 PASSED [ 31%]
+tests/skills/test_reflect_mode_validation.py::TestAtValidation1::test_mode2_with_inline_fails_v8 PASSED [ 36%]
+tests/skills/test_reflect_mode_validation.py::TestAtValidation1::test_mode1_with_remediate_fails_v9 PASSED [ 40%]
+tests/skills/test_reflect_mode_validation.py::TestModeMatchVerdictMatrix::test_verdict_matrix PASSED [ 45%]
+tests/skills/test_reflect_mode_validation.py::TestModeMatchVerdictMatrix::test_none_fixture_has_no_reflect_post_key PASSED [ 50%]
+tests/skills/test_reflect_mode_validation.py::TestRfQaMarkers::test_tb_add_9_present_and_regex_shaped PASSED [ 54%]
+tests/skills/test_reflect_mode_validation.py::TestRfQaMarkers::test_checklist_count_bumped_to_29 PASSED [ 59%]
+tests/skills/test_reflect_mode_validation.py::TestRfQaMarkers::test_region_heading_through_tb_add_9 PASSED [ 63%]
+tests/skills/test_reflect_mode_validation.py::TestRfQaMarkers::test_eighth_value_present PASSED [ 68%]
+tests/skills/test_reflect_mode_validation.py::TestRfQaMarkers::test_mode_match_authored_here PASSED [ 72%]
+tests/skills/test_reflect_mode_validation.py::TestSkillMarkers::test_eight_value_oracle_in_frontmatter PASSED [ 77%]
+tests/skills/test_reflect_mode_validation.py::TestSkillMarkers::test_at_plumbing_1_precedence_order PASSED [ 81%]
+tests/skills/test_reflect_mode_validation.py::TestSkillMarkers::test_resolve_auto_predicate_present PASSED [ 86%]
+tests/skills/test_reflect_mode_validation.py::TestSkillMarkers::test_mode_templates_present PASSED [ 90%]
+tests/skills/test_reflect_mode_validation.py::TestSkillMarkers::test_rule_19_fr3_fix_conditions_inline_prohibition_on_mode PASSED [ 95%]
+tests/skills/test_reflect_mode_validation.py::TestSkillMarkers::test_rule_20_left_intact PASSED [100%]
+
+============================== 22 passed in 0.04s ==============================
+PYTEST_RC=0
+
+=== ruff check ===
+All checks passed!
+RUFF_CHECK_RC=0
+
+=== ruff format --check ===
+1 file already formatted
+RUFF_FORMAT_RC=0

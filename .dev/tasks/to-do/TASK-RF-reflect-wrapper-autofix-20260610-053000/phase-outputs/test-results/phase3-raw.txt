@@ -1,0 +1,31 @@
+===== PYTEST: uv run pytest tests/cli/reflect/ =====
+1 failed, 40 passed in 0.21s
+
+FAILED (1, PRE-EXISTING / OUT OF SCOPE — same as Phase 2):
+  test_no_nesting_guard.py::test_layer_a_wrapper_branch_is_bash_shellout
+    ValueError: substring not found  (reads task-builder/SKILL.md Mode-2 marker; generator-side)
+
+PASSED (40) — includes:
+  test_cli_smoke.py::test_run_help_shows_all_spec9_flags  PASSED
+    (the _SPEC9_FLAGS whitelist test is a SUBSET-presence check, not exact-match, so adding
+     the new --fix/--no-fix/--max-fix-iterations/--base flags does NOT break it; the whitelist
+     will still be extended in Step 6.9 to ASSERT the new flags.)
+  all test_verdict_mapping.py (18), test_runner_e2e.py (10), test_writeback.py (3),
+  test_cli_smoke.py (3), test_no_nesting_guard.py::test_layer_b (1)
+
+===== RUFF CHECK: uv run ruff check src/superclaude/cli/reflect/ =====
+All checks passed!
+
+===== RUFF FORMAT CHECK (initial): uv run ruff format --check src/superclaude/cli/reflect/ =====
+Would reformat: src/superclaude/cli/reflect/commands.py
+1 file would be reformatted, 5 files already formatted
+
+  -> ran `uv run ruff format src/superclaude/cli/reflect/`: 1 file reformatted, 5 unchanged
+  -> re-check: 6 files already formatted  (CLEAN)
+
+===== MANUAL VERIFICATION (recursion-breaker guard, FR-2) =====
+marker="1" + run /nonexistent/since-moved.md  -> exit_code=0, "recursion breaker: nested gate suppressed"
+marker UNSET + run /nonexistent.md            -> exit_code=2 (NOT suppressed; normal exists=True validation)
+marker="0" + run /nonexistent.md             -> exit_code=2, no suppress msg
+marker="2" + run /nonexistent.md             -> exit_code=2, no suppress msg
+marker="1" + `reflect --help`                -> exit_code=0, Usage shown, NOT suppressed (group --help eager-exits before callback)

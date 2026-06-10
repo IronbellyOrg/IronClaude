@@ -1,0 +1,16 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Using CPython 3.13.11
+Creating virtual environment at: .venv
+   Building superclaude @ file:///config/workspace/IronClaude/.claude/worktrees/reflectWrapper
+      Built superclaude @ file:///config/workspace/IronClaude/.claude/worktrees/reflectWrapper
+Installed 20 packages in 9ms
+0 10 11 2
+---RUFF CHECK---
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+---RUFF FORMAT---
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Would reformat: src/superclaude/cli/reflect/config.py
+1 file would be reformatted, 3 files already formatted
+All checks passed!
+4 files already formatted

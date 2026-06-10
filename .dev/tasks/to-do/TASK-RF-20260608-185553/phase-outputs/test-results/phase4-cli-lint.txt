@@ -1,0 +1,34 @@
+=== reflect run --help ===
+Usage: superclaude reflect run [OPTIONS] TASKLIST
+
+  Execute the POST reflect gate for TASKLIST.
+
+  TASKLIST is the absolute path to the MDTM task file whose ``reflect_post:``
+  frontmatter block this command writes back. The process exit code is the
+  fail-closed verdict code (pass 0 / halted 10 / degraded 11 / blocked 2).
+
+Options:
+  --tmux                    Run inside a detached tmux window to watch live.
+  --print-command           Print the composed claude argv + prompt and exit
+                            without launching.
+  --promote / --no-promote  Allow reflect's gated Wave-7 promotion (default:
+                            --no-promote, audit-only).
+  --timeout INTEGER         Subprocess timeout seconds (default 3600).
+  --depth [standard|deep]   Reflect depth passthrough (POST never runs quick).
+  --output TEXT             Pinned output dir (default <task-
+                            dir>/reflect/post/<sha>/).
+  --allow-single-vendor     Do not HALT on single-vendor Tier-2 diversity.
+  --dry-run                 Derive + preflight + construct command, but do not
+                            launch or edit the task file.
+  --resume                  Skip the launch when the prior reflect_post is a
+                            pass on the current HEAD.
+  --help                    Show this message and exit.
+=== superclaude --help (reflect line) ===
+  reflect        Run the post-execution reflect gate as a top-level...
+=== RUFF CHECK ===
+All checks passed!
+=== RUFF FORMAT ===
+Would reformat: src/superclaude/cli/reflect/commands.py
+1 file would be reformatted, 6 files already formatted
+All checks passed!
+7 files already formatted

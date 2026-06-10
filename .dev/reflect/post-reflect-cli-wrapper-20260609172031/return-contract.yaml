@@ -1,0 +1,69 @@
+contract_version: "1.3.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: ".dev/reflect/post-reflect-cli-wrapper-20260609172031/REPORT.md"
+audit_log_path: ".dev/reflect/post-reflect-cli-wrapper-20260609172031/audit.log"
+confidence_calibrated: 0.82
+escalation_rule_matched: 3   # UC-2 regression candidate (child-crash vs §6) -> forced T2 debate; also --depth deep
+
+# UC-2 specific
+tasklist_completion_pct: 1.0   # all 35 build items verified done; verification triangle reproduced green
+deviation_count_by_class:
+  authorized: 0
+  necessary: 2
+  drift: 0
+  regression: 1
+deviation_register_path: ".dev/reflect/post-reflect-cli-wrapper-20260609172031/deviation-register.yaml"
+grounding_gaps_path: ".dev/reflect/post-reflect-cli-wrapper-20260609172031/grounding-gaps.yaml"
+
+# Verification triangle (§6.1 step 5.5) — run by the auditor, reproduced independently
+verification_ran: true
+verification_invocations: 6
+verification_failures: 0
+verification_regressions_detected: 0   # no test broke; the regression is a latent fail-closed-path gap vs §6, not a broken test
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # auditor-performed re-Read pass; every cited file:line independently re-read (no dropped citations)
+
+# Tier 2 ensemble
+reviewer_cards:
+  - "incident-response-code-reviewer (correctness/verdict-map lens)"
+  - "quality-engineer (edge-case/atomicity lens)"
+  - "auggie-reviewer (spec-conformance/thinness lens)"
+t2_model_class_diversity: degraded   # 3 heterogeneous agent-personas/lenses; per-subagent resolved model class not independently verified
+t2_vendor_diversity: multi           # env aliases span claude + gpt-5.5 + qwen (executor=opus excluded from reviewer pool)
+merge_method: inline-synthesis       # orchestrator merged 3 reviewer cards + 1 blind calibrator; sc-adversarial skill not formally invoked
+adversarial_convergence_score: 0.82  # blind-calibrator overall on the finding set
+calibrator_diversity: full           # calibrator class (opus) disjoint from reviewer lenses
+
+# Asymmetric-cost flags
+regression_present: true             # child-crash-with-success-contract can reach PASS, contradicting §6 row 1 (fail-closed hole)
+unauthorized_deviation_present: false
+needs_human_decision: true           # FR-5 (contract-driven) vs §6 (child-crash->blocked) is a genuine spec-interpretation call
+user_decision_required: true
+spec_is_wrong: false
+cannot_validate_without_user_input: false
+blocked_by_low_confidence: false
+input_drift_detected: false
+
+# Executor exclusion (anti-self-confirmation)
+executor_class_source: flag          # --executor-model opus
+executor_class_resolved: true
+executor_exclusion_degraded: false   # opus removed from reviewer pool; reviewers disjoint from executor
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_skip_reason: gate-failed   # §14.5.2 cond 2 (status==success) and cond 4 (regression==0) fail; no mutation
+promotion_adapter: task              # tasklist under .dev/tasks/to-do/TASK-* ; dest would be .dev/tasks/done/
+promotion_gate_passed: false
+
+# Remediation (--remediate set)
+remediation_offered: true
+remediation_accepted: null           # awaiting operator decision

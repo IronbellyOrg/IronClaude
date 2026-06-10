@@ -1,0 +1,80 @@
+contract_version: "1.3.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-reflect-flag-postgate-20260609202335/REPORT.md
+audit_log_path: .dev/reflect/post-reflect-flag-postgate-20260609202335/audit.log
+confidence_calibrated: 0.93
+
+# Diff resolution note
+diff_requested: "ab2dae1a..HEAD"
+diff_requested_resolved_empty: true          # HEAD == ab2dae1a; work is uncommitted/staged
+diff_effective: "git diff ab2dae1a (staged worktree)"   # captures the actual work
+diff_effective_files: 9                       # 2 src + 1 test + 6 fixtures
+
+# UC-2 specifics
+tasklist_completion_pct: 0.90                 # all impl/QA items done+verified; Phase-6 POST gate (this run) + Update-to-Done intentionally open
+deviation_count_by_class:
+  authorized: 0
+  necessary: 2          # V1-`0` inclusion (spec-internal inconsistency, correct direction); Mode-1 Context self-ref inlined
+  drift: 0
+  regression: 0
+deviation_register_path: .dev/reflect/post-reflect-flag-postgate-20260609202335/deviation-ledger.yaml
+grounding_gaps_path: null                     # empty — every hunk classified
+
+# Verification triangle (§6.1 step 5.5) — independently run, not task-log self-report
+verification_ran: true
+verification_invocations: 4                   # pytest, ruff check, ruff format --check, make verify-sync
+verification_failures: 0
+verification_regressions_detected: 0
+pytest_result: "22 passed"
+ruff_check: clean
+ruff_format_check: clean
+verify_sync: "All components in sync"
+v15_byte_identity: confirmed                  # SKILL.md:2089-2094 line-identical to snapshot
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble (heterogeneous, multi-vendor; executor=opus excluded)
+reviewer_models: [sonnet, haiku]              # → gpt-5.5 (OpenAI), qwen3.6-plus (Qwen) per ~/.aienv routing
+reviewer_personas: [analyzer, qa]
+t2_model_class_diversity: degraded            # N=2 (opus removed as executor; only 3 classes available)
+t2_vendor_diversity: multi                    # Anthropic-excluded; OpenAI + Qwen reviewers
+calibrator_diversity: full                    # calibrator=opus, disjoint from {sonnet,haiku} reviewers
+executor_class_source: flag                   # --executor-model opus
+executor_class_resolved: true
+executor_exclusion_degraded: false            # N=2 floor satisfied
+adversarial_unavailable: false
+merge_method: orchestrator-synthesis          # 2-reviewer fan-out; no blocking disagreement to debate
+
+# Input integrity
+input_drift_detected: false
+head_at_run: ab2dae1a7445cd30c2602ac6a41c4848265aac3d
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: true                           # spec §9.1 V1 + §10.3 enum omissions (impl resolved correctly); upstream follow-up
+needs_human_decision: false
+user_decision_required: false
+cannot_validate_without_user_input: false
+
+# Tier 3 (--remediate)
+remediation_offered: true
+remediation_recommended: false                # no drift/regression; only out-of-scope spec follow-ups + clerical
+task_file_path: null
+
+# Promotion (§14.5) — correctly NOT fired
+promotion_action: skipped
+promotion_skip_reason: gate-failed
+promotion_gate_passed: false
+promotion_gate_failed_conditions:
+  - "cond 3: tasklist_completion_pct != 1.0 (Phase-6 POST gate + Update-to-Done intentionally open)"
+  - "cond 5b: frontmatter status '🟠 Doing' != done (this run IS the Phase-6 gate)"
+promotion_note: "Correct outcome — the task is mid-flight; this reflect run is its Phase-6 POST gate. Promotion would be wrong."

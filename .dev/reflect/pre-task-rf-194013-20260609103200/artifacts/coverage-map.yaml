@@ -1,0 +1,56 @@
+coverage_map_version: "1.0"
+mode: pre
+spec: .dev/brainstorms/20260608-191030-reflect-flag-post-gate/merged-requirements.md
+tasklist: .dev/tasks/to-do/TASK-RF-20260608-194013/TASK-RF-20260608-194013.md
+
+# Each spec requirement → the task step(s) that cover it. status: covered | soft | gap
+functional_requirements:
+  FR-1: { desc: "one dial {none,0,1,2,auto}, default 2, MALFORMED on unknown", steps: ["2.1 (Input doc)", "2.2/2.4 (parse+resolve)", "4.1 V1"], status: soft, note: "unknown-token→MALFORMED-input STOP documented at 2.1 + asserted by V1(value-set), but NOT authored as an explicit branch in the A.9 producer prose (Step 2.4 lists 6 sub-behaviors, none is input-token rejection)" }
+  FR-2: { desc: "none disables gate, reflect_post omitted", steps: ["3.2 §6.1", "3.1 sentinel"], status: covered }
+  FR-3: { desc: "mode 1 inline audit-only", steps: ["3.2 §6.2", "3.5 Rule19 FR-3 fix"], status: covered }
+  FR-4: { desc: "mode 2 wrapper Bash shell-out (default)", steps: ["3.2 §6.3"], status: covered }
+  FR-5: { desc: "auto resolves 1|2 deterministically", steps: ["2.4 predicate", "3.2 §6.5"], status: covered }
+  FR-6: { desc: "subsumes legacy via total §5 map", steps: ["2.3", "2.4 §5 map"], status: covered }
+  FR-7: { desc: "HALT + reflect_post write-back all modes", steps: ["3.2"], status: covered }
+  FR-8: { desc: "--remediate scope mode-fixed; Tier-3→Open Questions", steps: ["3.2"], status: covered }
+  FR-9: { desc: "single producer at A.9", steps: ["2.2", "2.4", "4.1 MODE-MATCH"], status: covered }
+  FR-10: { desc: "wrapper-availability probe + frozen fallback ladder", steps: ["2.4 W probe + ladder"], status: covered }
+  FR-11: { desc: "mode-1 nesting guard, runtime self-check primary", steps: ["3.2 §6.2 precondition+HALT branch"], status: covered }
+  FR-12: { desc: "--spec threading preserved all modes", steps: ["2.1 (flag adjacent to --spec)", "3.2 Mode1 [--spec]", "4.1 V13"], status: soft, note: "Mode-2 spec via pre-existing frontmatter spec_path (:1933, re-verified Step 1.1); no step writes/asserts spec_path frontmatter for Mode 2 — relies on it pre-existing. V13 only checks Mode-1 --spec." }
+  FR-13: { desc: "advisory WARNING on fixed-1 risk", steps: ["2.4 §10.4 WARNING"], status: covered }
+
+non_functional_requirements:
+  NFR-1: { desc: "no reflect-logic duplication", steps: ["3.2 (invoke/shell only)", "3.3"], status: covered }
+  NFR-2: { desc: "byte-for-byte reversibility (halt arm)", steps: ["1.1 snapshot", "3.2 §6.4 byte-identical", "5.4 V15 diff"], status: covered }
+  NFR-3: { desc: "single SoT for mode (1 field, 1 producer)", steps: ["3.1 field", "2.4 A.9"], status: covered }
+  NFR-4: { desc: "extensibility (monotone ordinal domain)", steps: ["(design property; PG5.2 qualitative may probe)"], status: soft, note: "emergent design property, not a discrete edit/verification; acceptable" }
+  NFR-5: { desc: "determinism (pure arithmetic, resolved band)", steps: ["2.4 predicate reads resolved band INV-004"], status: covered }
+  NFR-6: { desc: "SoT discipline (src/ → sync-dev, never .claude/)", steps: ["5.1", "every step 'edit src/ only'"], status: covered }
+  NFR-7: { desc: "no-nesting guard testable", steps: ["3.2", "4.1 V6/V8"], status: covered }
+  NFR-8: { desc: "fail-closed posture", steps: ["2.4 ladder→HALT", "3.2 degraded-halt"], status: covered }
+
+section_level:
+  "§4 auto predicate (+§4.4 INV-004 resolved band)": { steps: ["2.4", "3.3"], status: covered }
+  "§4.5 executor-disjointness trade-off table": { steps: ["3.2 §6.2 Context"], status: covered }
+  "§5 knob reconciliation old→new map (+§5.3 halt)": { steps: ["2.4", "3.2 §6.4"], status: covered }
+  "§6 per-mode templates §6.1–§6.5": { steps: ["3.2"], status: covered }
+  "§7 depth/TCS reconciliation (O4 preserved)": { steps: ["3.3", "2.3 DEPTH sub-field removal"], status: covered }
+  "§8 wrapper fallback ladder §8.1–§8.3": { steps: ["2.4"], status: covered }
+  "§9 V1–V16 + active map + MODE-MATCH": { steps: ["4.1", "3.4 summary bullet", "3.5 route-to-TB-Add-9"], status: covered }
+  "§10 plumbing/precedence §10.1–§10.4": { steps: ["2.2", "2.3", "2.4", "3.1", "3.6"], status: covered }
+  "§13 acceptance-test matrix": { steps: ["5.5 (mechanical subset)", "5.3 (AT→property/V map; flags (c)-class unreachable)"], status: soft, note: "many ATs are (c)-class (need non-existent build_tasklist() entry point); only string/content-marker subset is mechanically tested — acknowledged honestly" }
+
+open_questions:
+  OQ-1: { desc: "7-vs-8 reflect_post_mode value set (LOAD-BEARING spec internal inconsistency)", steps: ["3.1", "4.1", "5.3"], status: covered, note: "8-value union is the only internally-consistent oracle; correctly identified, resolved, with operator-HALT option at Step 3.1" }
+  OQ-2: { desc: "rf-qa integration shape (single TB-Add-9)", steps: ["4.1"], status: covered }
+  OQ-3: { desc: "exactly two files", steps: ["scope"], status: covered }
+  OQ-4: { desc: ":847 15-field byte-identical tripwire", steps: ["2.3"], status: covered }
+  OQ-5: { desc: ":1423 PRE cross-ref cosmetic rename", steps: ["3.6"], status: covered }
+  OQ-6: { desc: ":2094 MODE-MATCH citation imprecision", steps: ["5.3", "PG5.1"], status: covered }
+
+tally:
+  total_requirements: 21          # 13 FR + 8 NFR
+  covered: 17
+  soft: 4                         # FR-1, FR-12, NFR-4, (+§13 at section level)
+  gap: 0                          # zero UNMAPPED requirements
+  coverage_pct: 1.0               # all 21 mapped; "soft" = covered-with-refinement-opportunity, not unmapped

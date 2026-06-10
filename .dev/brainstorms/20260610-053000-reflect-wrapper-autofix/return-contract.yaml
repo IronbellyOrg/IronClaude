@@ -1,0 +1,20 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260610-053000-reflect-wrapper-autofix/seed-brief.md
+merged_output_path: .dev/brainstorms/20260610-053000-reflect-wrapper-autofix/merged-requirements.md
+convergence_score: null   # adversarial fan-out skipped by design (pre-decided spec)
+adversarial_artifacts_dir: null
+domain: architecture
+proposal_count: 1
+enrichment_used:
+  - source: codebase
+    quality_tier: primary   # grounded against wrapper-onto-master + sc-reflect-protocol
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+notes: >
+  Adversarial Wave 3 deliberately skipped: the 7 driving decisions were pre-decided
+  and grounded; a divergent multi-model variant-debate would re-litigate settled
+  load-bearing choices and burn ~150k tokens for no convergence gain. merged-requirements
+  synthesized directly from the grounded brief. Downstream artifacts: the cross-team
+  contract (.dev/handoffs/reflect-wrapper-contract.md) + a /task-builder tasklist.

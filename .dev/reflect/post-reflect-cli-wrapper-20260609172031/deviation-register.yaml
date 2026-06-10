@@ -1,0 +1,171 @@
+deviation_register_version: "1.0"
+mode: post
+diff_range: "b05e0fe1..HEAD (commit 015e7285)"
+
+findings:
+  - id: F0
+    class: regression
+    severity: HIGH
+    title: "Non-zero child exit with a present success-shaped contract can reach PASS (exit 0)"
+    file: "src/superclaude/cli/reflect/contract.py:128-136, 192-196"
+    corroborating: "src/superclaude/cli/reflect/runner.py:443-453 (rc passed straight in, no pre-filter)"
+    evidence: |
+      derive_verdict() treats a non-zero child_rc as BLOCKED only in two cases:
+      child_rc==124 (timeout, line 128, unconditional) and `contract is None`
+      (line 132). When the contract IS present and parseable, any other non-zero
+      exit code is NOT routed to blocked; control flows through the degraded/
+      halted checks and can return Verdict.PASS (exit 0) when status=="success"
+      and tier_reached==expected_tier (line 193).
+    spec_clause: |
+      §6 verdict table, line 79: "contract missing/unparseable, CHILD CRASH,
+      frontmatter unwritable, or preflight STOP | blocked | 2". A child crash
+      (non-zero exit) is listed as a blocked trigger. The implementation honors
+      it only when no contract was written.
+    tension: |
+      FR-5 (line 25) says the verdict is "contract-driven" — derive from contract
+      fields, never invent a verdict the contract doesn't support. A literal
+      contract-driven reading would trust a present success contract regardless
+      of exit code. §6 row 1 + FR-8 fail-closed + §11 invariant probe argue the
+      opposite: a non-zero exit means the run did not cleanly complete and a
+      fail-closed gate must not PASS. The timeout (124) special-case shows the
+      author already accepts "exit code can veto a contract" — but applies it
+      to only one non-zero code, leaving the asymmetry.
+    reachability: |
+      Bounded: requires reflect to write a complete status:success/tier-2 contract
+      AND then the process to exit non-zero (not 124). A clean run exits 0; a
+      crashed run usually leaves an absent/partial contract (caught). Narrow
+      window, but it is exactly the silent-degraded-PASS the spec exists to block.
+    recommendation: |
+      Block any non-zero child_rc before trusting contract fields, mirroring the
+      124 handling, e.g. immediately after the timeout check:
+        if child_rc != 0: return _make_result(Verdict.BLOCKED, reason="child-crash", contract=contract, child_rc=child_rc)
+      OR, if the contract-driven reading is intended, make that explicit in the
+      spec (§6) and document why a present success contract overrides a crash exit.
+    decision_needed_by_user: true
+    remediable: true
+
+  - id: F1
+    class: necessary   # latent quality gap within authorized scope; parser asymmetry
+    severity: MEDIUM
+    title: "CRLF tasklist false-negative: write-back parser stricter than canonical parser"
+    file: "src/superclaude/cli/reflect/runner.py:44, 131-135, 465-467"
+    corroborating: "src/superclaude/cli/pipeline/frontmatter.py (extract_frontmatter normalizes \\r\\n; write_reflect_post does not)"
+    evidence: |
+      _FRONTMATTER_RE = ^---[ \t]*\n(.*?)\n---[ \t]*$ ; on a CRLF-saved tasklist
+      the opening delimiter (---\r\n) is not matched ([ \t]* excludes \r), so
+      write_reflect_post returns "frontmatter-missing", and runner.py:465-467
+      downgrades a clean PASS to BLOCKED (exit 2). The canonical extract_frontmatter
+      explicitly normalizes CRLF for exactly this reason. Fail-closed (not
+      corrupting). Tasklists here are LF-only on Linux, so real-world hit is low.
+    spec_clause: "FR-6 (read bytes -> parse frontmatter -> body byte-preserved)"
+    recommendation: "Normalize \\r\\n for splice-point location (or use \\r?\\n in the delimiters); add a CRLF write-back round-trip test."
+    decision_needed_by_user: false
+    remediable: true
+
+  - id: F2
+    class: necessary
+    severity: MEDIUM-LOW
+    title: "Malformed-but-truthy load-bearing booleans bypass halt/degrade triggers"
+    file: "src/superclaude/cli/reflect/contract.py:234, 259, 269-276"
+    evidence: |
+      Triggers use identity checks (is True/is False). A malformed contract value
+      such as regression_present: \"true\" (string) or needs_human_decision: 1 is
+      truthy but not `is True`, so the trigger does not fire; combined with
+      status:success/tier-2 it could reach PASS. Reflect emits proper YAML bools,
+      so the real producer is unlikely to send these — but a fail-closed consumer
+      should route malformed load-bearing booleans to blocked.
+    spec_clause: "FR-11 / FR-8 trigger fields; NFR-8 (fail on missing load-bearing fields)"
+    recommendation: "When a load-bearing boolean field is present but not a bool, route to blocked (or coerce conservatively)."
+    decision_needed_by_user: false
+    remediable: true
+
+  - id: F3
+    class: necessary
+    severity: MEDIUM
+    title: "task-builder omits start_commit + executor_model_class -> wrapper-arm anti-self-confirmation softened"
+    file: "src/superclaude/skills/task-builder/SKILL.md:1948 (writes spec_path only)"
+    corroborating: "src/superclaude/cli/reflect/config.py:50-56 (reads executor_model_class + start_commit from frontmatter)"
+    evidence: |
+      The generated-frontmatter template writes spec_path: but no start_commit:
+      or executor_model_class: line. The wrapper reads executor_model_class from
+      frontmatter (env-first), so in the common path --executor-model is omitted
+      unless EXECUTOR_MODEL_CLASS env is set; reflect then emits
+      executor_class_resolved:false + a WARN ("anti-self-confirmation guarantee
+      weakened"). That field is NOT in the wrapper's FR-11 degradation set, so a
+      wrapper-arm POST gate can PASS green while reflect ran with a weakened
+      executor-disjoint guarantee — the spec's central thesis. <BASE> also falls
+      back to git merge-base HEAD master.
+    spec_clause: "FR-3 (executor-model from frontmatter/env, base chain) + §1/§11 central thesis (executor-disjoint)"
+    note: "FR-3 explicitly designs both as optional with fallbacks (OQ1/OQ2), so NOT a spec violation — a design-acknowledged softness worth a follow-up."
+    recommendation: |
+      Either (a) have task-builder persist executor_model_class: (and optionally
+      start_commit:) into generated frontmatter so the exclusion fires in the
+      common path, or (b) add executor_class_resolved==false to the wrapper's
+      FR-11 degraded set so a weakened-exclusion run HALTs rather than greens.
+    decision_needed_by_user: true
+    remediable: true
+
+  - id: F4
+    class: necessary
+    severity: LOW
+    title: "FR-7 'sidecar always written' violated on config/preflight-STOP path"
+    file: "src/superclaude/cli/reflect/commands.py:145-148"
+    evidence: |
+      On resolve_config ValueError, the handler echoes + sys.exit(2) without
+      writing wrapper-result.yaml. The runner's own blocker path does write a
+      sidecar, but a config-layer STOP short-circuits before the runner exists.
+      For some STOPs (tasklist-missing) the output dir is unresolvable, so
+      'always' is partly impossible. Fail-closed (exit 2).
+    spec_clause: "FR-7 / §6 ('a wrapper-result.yaml sidecar ALWAYS records ...')"
+    recommendation: "When an output dir is resolvable, emit a minimal blocked sidecar before exiting; otherwise document FR-7 as 'whenever an output dir is reservable'."
+    decision_needed_by_user: false
+    remediable: true
+
+  - id: F5
+    class: necessary
+    severity: LOW
+    title: "status:failed routed to halted with misleading reason 'tier-mismatch'"
+    file: "src/superclaude/cli/reflect/contract.py:265-282, 198-204"
+    evidence: |
+      _halted_reason checks status=='partial' but not 'failed'. A status:failed
+      contract with no other trigger falls through to the pass guard, fails
+      status=='success', and returns HALTED reason 'tier-mismatch'. Exit code is
+      correct (10, fail-closed); only the operator-facing reason slug misleads.
+    spec_clause: "§6 / FR-8 (status:failed is a stable contract state)"
+    recommendation: "Add `if contract.get('status') == 'failed': return 'status-failed'` in _halted_reason."
+    decision_needed_by_user: false
+    remediable: true
+
+  - id: F6
+    class: necessary
+    severity: LOW
+    title: "Dry-run claude argv preview drifts from real build_command()"
+    file: "src/superclaude/cli/reflect/runner.py:340-347"
+    corroborating: "src/superclaude/cli/pipeline/process.py:73-95 (real build_command)"
+    evidence: |
+      _claude_argv_preview omits --no-session-persistence and --tools default and
+      reorders --output-format vs the real ClaudeProcess.build_command(). Preview-
+      only (FR-12 path never constructs ClaudeProcess); cannot affect the real
+      subprocess; the load-bearing PROMPT string is accurate. Cosmetic, but a
+      --print-command operator sees an argv that differs from what runs.
+    spec_clause: "§8 argv shape (informational)"
+    recommendation: "Render the preview from a non-launching ClaudeProcess(...).build_command() so the dry-run cannot lie about what runs."
+    decision_needed_by_user: false
+    remediable: true
+
+refuted_findings:
+  - id: R1
+    title: "Strict tier equality (tier_reached==expected_tier) rejects clean tier_reached:3"
+    file: "src/superclaude/cli/reflect/contract.py:193"
+    verdict: "REFUTED as a practical bug (theoretical only)"
+    rationale: |
+      Raised by the QA reviewer; independently refuted by the correctness reviewer.
+      The wrapper never sends --remediate, so reflect Tier-3 (Wave 6) cannot fire;
+      tier_reached is only ever 1 or 2 in wrapper runs. A hypothetical tier_reached:3
+      contract HALTS (exit 10), which is fail-closed, not a pass-leak. Defensive
+      hardening (>= expected_tier) is optional, not required for safety.
+
+documented_executor_deviations_verified_sound:
+  - "FR-12 alias-count relocation from preflight() to ReflectRunner.run (keeps preflight construction-free; build_env never strips aliases). Documented in Phase 3 Findings. Sound."
+  - "Model-source seam: §9 has no --model flag; commands.py sources ANTHROPIC_MODEL env with _DEFAULT_MODEL fallback (keeps §9 option set exact). Documented in Phase 4 Findings. Sound."
+  - "tier-mismatch->halted fallback added for status:success-but-tier!=expected (never a false pass). Documented. Sound (and see F5 for the reason-slug refinement)."

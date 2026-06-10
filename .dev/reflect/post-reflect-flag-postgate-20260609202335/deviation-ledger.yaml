@@ -1,0 +1,54 @@
+deviations:
+  - id: D1
+    class: necessary
+    severity: low
+    title: "TB-Add-9 V1 accepts `0`; literal spec §9.1 V1 enumeration omits it"
+    hunk_ref: "src/superclaude/agents/rf-qa.md:386"
+    gold_standard: ".dev/brainstorms/20260608-191030-reflect-flag-post-gate/merged-requirements.md:724 (§9.1 V1) vs :95-100 (FR-1) / :833 (§10.2)"
+    signals_matched:
+      - "rf-qa V1 set {none,0,1,2,auto} ⊃ spec §9.1 V1 set {1,2,auto,none}"
+      - "FR-1 + §10.2 declare `0` a valid alias of `none` — higher authority than the §9.1 table cell"
+    rationale: >
+      Spec-internal inconsistency (FR-1/§10.2 include `0`; §9.1 V1 enumeration omits it). The
+      implementer resolved it in the safe direction by accepting the documented-valid `0` token.
+      Excluding it would have wrongly MALFORMED a legal input. Parallels the already-flagged
+      OQ-1 §10.3 7-vs-8 omission. Implementation is correct; the spec cell is incomplete.
+    remediation: "upstream spec follow-up (correct §9.1 V1 + §10.3 enumerations) — OUT OF SCOPE for this 2-file task"
+    blocking: false
+
+  - id: D2
+    class: necessary
+    severity: low
+    title: "Mode-1 Context inlines a self-referential spec pointer"
+    hunk_ref: "src/superclaude/skills/task-builder/SKILL.md:2072"
+    gold_standard: "spec §6.2 :483-484 ('see §4 of the spec for when Mode 1 is acceptable')"
+    signals_matched:
+      - "emitted Context replaces 'see §4 of the spec' with the inlined meaning"
+    rationale: >
+      The literal §6.2 template contains a self-referential 'see §4 of the spec' pointer that
+      would be a dangling reference inside a generated tasklist. The executor inlined the
+      semantic content. Authorized by the §6 preamble (placeholders resolved at A.9).
+    remediation: none
+    blocking: false
+
+advisories:
+  - id: A1
+    title: "pytest is a bounded supplement (V10-V14 + e2e emitter shape not unit-tested)"
+    note: >
+      Structural limit transparently scoped by the task (Step 5.5 + research 06): the builder is
+      an LLM-driven markdown emitter with no callable build_tasklist() entry point. Authoritative
+      V1-V16 enforcement is the rf-qa TB-Add-9 build-time gate, not the pytest. Not a defect; not
+      a false completion claim.
+    blocking: false
+  - id: A2
+    title: "Step 5.1 checkbox unchecked while work completed"
+    note: "make verify-sync independently confirmed 'All components in sync'; the unchecked box is clerical only."
+    blocking: false
+
+summary:
+  authorized: 0
+  necessary: 2
+  drift: 0
+  regression: 0
+  advisories: 2
+  blocking: 0

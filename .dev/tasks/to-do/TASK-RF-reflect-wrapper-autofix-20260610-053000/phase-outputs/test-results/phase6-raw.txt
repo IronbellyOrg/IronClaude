@@ -1,0 +1,33 @@
+===== PYTEST: uv run pytest tests/cli/reflect/ =====
+75 passed, 1 xfailed in 0.28s
+
+New test files added this phase:
+  test_marker_suppression.py      (AC-1)  5 tests
+  test_classify_fix.py            (AC-3)  11 tests
+  test_fix_loop.py                (AC-2/AC-4 + falsifiers)  7 tests
+  test_promote_plumbing.py        (AC-5)  3 tests
+  test_base_precedence.py         (AC-6 + U7)  6 tests
+  test_no_nesting_guard.py        (AC-8 thinness, +3 guards)  now 5 tests
+New fixtures: autofixable_drift.yaml, autofixable_drift_no_path.yaml,
+  human_required_needs_decision.yaml, postfix_pass.yaml (1.4.0),
+  + degraded_with_drift.yaml, blocked_with_drift.yaml (falsifiers)
+conftest.py: added make_claude_process_sequence (sequence-aware Idiom-B factory)
+test_cli_smoke.py: _SPEC9_FLAGS extended with --fix/--no-fix/--max-fix-iterations/--base
+
+The 1 xfailed: test_no_nesting_guard.py::test_layer_a_wrapper_branch_is_bash_shellout
+  -> xfail(strict=False). Cross-component: asserts task-builder SKILL Mode-2 wrapper
+     marker `auto-resolved-2`, which is GENERATOR-side content (companion worktree),
+     absent on this wrapper-only canonical base AND on origin/master (grep-confirmed
+     0 hits both). Adding it = coupling to unmerged generator work (NFR-5 forbids).
+     Auto-recovers (XPASS) when the generator lands. NOT a wrapper regression.
+
+===== RUFF CHECK: uv run ruff check src/superclaude/cli/reflect/ tests/cli/reflect/ src/superclaude/skills/sc-reflect-protocol/ =====
+All checks passed!
+
+  (NOTE: repo-wide `ruff check src/ tests/` reports 127 errors and `ruff format --check
+   src/ tests/` wants 102 files reformatted -- these are PRE-EXISTING in unrelated dirs
+   like tests/swarm/* that this task did NOT touch (git diff a5343f57 -- tests/swarm = empty).
+   Reformatting them would be a massive out-of-scope change. My files are scoped-clean.)
+
+===== RUFF FORMAT CHECK: uv run ruff format --check src/superclaude/cli/reflect/ tests/cli/reflect/ =====
+19 files already formatted   (after `ruff format tests/cli/reflect/` reformatted my 4 new test files)

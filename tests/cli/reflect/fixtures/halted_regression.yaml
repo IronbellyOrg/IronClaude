@@ -1,0 +1,27 @@
+contract_version: "1.3.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /tmp/reflect-out/REPORT.md
+audit_log_path: /tmp/reflect-out/audit.log
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 1
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+adversarial_unavailable: false
+merge_method: adversarial
+adversarial_convergence_score: 0.82
+verification_ran: true
+verification_skip_reason: null
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+regression_present: true
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+serena_summary_corroboration: unavailable
+degraded_components: []

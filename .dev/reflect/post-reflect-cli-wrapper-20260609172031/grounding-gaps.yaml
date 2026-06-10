@@ -1,0 +1,19 @@
+grounding_gaps_version: "1.0"
+# Findings that require a human decision (not evidence-insufficient — these are
+# fully grounded, but resolution is a spec-interpretation / design call the
+# auditor must not make unilaterally).
+
+findings:
+  - hunk_ref: "src/superclaude/cli/reflect/contract.py:128-136"
+    evidence_missing: "none — fully grounded; the gap is a spec-interpretation conflict, not missing evidence"
+    why_not_classifiable: "§6 row 1 ('child crash -> blocked') and FR-5 ('contract-driven verdict') give opposite answers for the non-zero-exit-with-present-contract case; the correct resolution is a human call"
+    next_evidence_needed: "Operator decides: should a non-zero child exit (other than 124) block PASS even when a status:success contract exists? (Recommended: yes, mirror the 124 handling — fail-closed.)"
+    owner: user
+    decision_needed_by_user: true
+
+  - hunk_ref: "src/superclaude/skills/task-builder/SKILL.md:1948 + src/superclaude/cli/reflect/config.py:50-56"
+    evidence_missing: "none — grounded; the gap is a design-acknowledged softness (OQ1/OQ2)"
+    why_not_classifiable: "FR-3 designs executor_model_class/start_commit as optional-with-fallback, so omitting them from generated frontmatter is not a spec violation — but it softens the spec's central executor-disjoint thesis in the common wrapper path"
+    next_evidence_needed: "Operator decides whether to (a) persist executor_model_class: in generated frontmatter, or (b) add executor_class_resolved==false to the wrapper FR-11 degraded set"
+    owner: user
+    decision_needed_by_user: true

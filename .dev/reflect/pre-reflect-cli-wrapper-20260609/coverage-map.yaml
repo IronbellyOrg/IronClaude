@@ -1,0 +1,48 @@
+# UC-1 pre-execution coverage map
+# spec: .dev/brainstorms/20260608-182553-reflect-cli-wrapper/merged-requirements.md
+# tasklist: .dev/tasks/to-do/TASK-RF-20260608-185553/TASK-RF-20260608-185553.md
+# Each requirement → addressing checklist item(s). fidelity: full | partial | gap
+
+functional_requirements:
+  FR-1-top-level-launch: { items: [3.5, 6.6], fidelity: full,    note: "ClaudeProcess top-level subprocess; no-nesting guard test" }
+  FR-2-skill-is-sot: { items: [2.3, 6.6, PG7.2], fidelity: full, note: "contract.py reads fields only; thinness QA" }
+  FR-3-input-derivation: { items: [2.2, 5.3], fidelity: partial, note: "base/spec/executor-model derived; DEPTH passthrough NOT baked into wrapper-arm (see G3)" }
+  FR-4-pinned-output-dir: { items: [2.2], fidelity: full,        note: "output_dir default + .claude STOP" }
+  FR-5-contract-driven-verdict: { items: [2.3], fidelity: full,      note: "parse_contract + derive_verdict + contract_version gate" }
+  FR-6-frontmatter-writeback: { items: [3.1, 3.2], fidelity: full,   note: "atomic compare-before-write + _IndentDumper" }
+  FR-7-dual-gate-signal: { items: [3.3, 4.1, 5.3], fidelity: full, note: "exit code + reflect_post block + sidecar" }
+  FR-8-fail-closed-halt: { items: [2.1, 4.1], fidelity: full,   note: "Verdict.exit_code pass=0/halted=10/degraded=11/blocked=2" }
+  FR-9-audit-only-default: { items: [3.5, 4.1], fidelity: full,   note: "--no-promote hard prompt flag, default" }
+  FR-10-headless-env-parity: { items: [3.4, 3.5], fidelity: full,   note: "bare build_env, env_vars=None; verified process.py:97-112" }
+  FR-11-degradation-detect: { items: [2.3, 3.4], fidelity: full,   note: "chain-critical HALT subset + preflight" }
+  FR-12-dry-run: { items: [3.5, 4.1, 6.3], fidelity: full, note: "no-launch path + smoke tests" }
+
+non_functional_requirements:
+  NFR-1-thinness: { items: [PG7.2], fidelity: partial,   note: "qualitative thinness QA only; <=~400 LOC budget never measured (G4)" }
+  NFR-2-reuse-first: { items: [3.5], fidelity: full }
+  NFR-3-reversibility: { items: [5.3, 6.6], fidelity: full,   note: "byte-identical halt arm + Layer-A guard" }
+  NFR-4-fail-closed-posture: { items: [2.3, PG7.2], fidelity: full }
+  NFR-5-bounded-runtime: { items: [2.2, 3.5], fidelity: partial, note: "timeout 3600 covered; turn ceiling (max_turns) NOT covered (G1)" }
+  NFR-6-sot-discipline: { items: [5.5, 7.2], fidelity: full }
+  NFR-7-no-nesting-guard: { items: [5.3, 6.6], fidelity: full }
+  NFR-8-unknown-field-tol: { items: [2.3, 6.1, 6.2], fidelity: full }
+
+scope_and_contract:
+  s8-claude-argv-max-turns: { items: [], fidelity: gap,            note: "spec §8 lists --max-turns <N>; never resolved; ClaudeProcess default=100 (G1)" }
+  s9-resume-flag-behavior: { items: [2.1, 2.2, 4.1], fidelity: gap, note: "flag declared everywhere; skip-on-clean-HEAD behavior unimplemented in runner (G2)" }
+  s5-window-mechanic: { items: [4.1, 4.2], fidelity: full }
+  s11-invariant-probe: { items: [2.3, PG7.1, PG7.2], fidelity: full, note: "verify non-degraded T2 from contract" }
+
+seed_success_criteria:
+  zero-human-common-path: { fidelity: partial, note: "at risk from G1 (turn ceiling can HALT common path for medium/complex)" }
+  executor-disjoint: { fidelity: full }
+  verdict-writeback-gate: { fidelity: full }
+  deviations-halt-no-commit: { fidelity: full }
+  small-reversible-sot: { fidelity: full }
+
+summary:
+  requirements_total: 20          # FR-1..12 + NFR-1..8
+  requirements_with_item: 20
+  coverage_pct_presence: 1.00
+  requirements_with_fidelity_gap: 3   # §8 max_turns, §9 resume-behavior, FR-3 depth-passthrough
+  coverage_pct_effective: 0.90
