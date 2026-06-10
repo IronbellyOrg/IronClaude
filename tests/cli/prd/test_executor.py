@@ -197,3 +197,68 @@ def test_persist_step_artifact_writes_canonical_name(tmp_path):
     artifact = task_dir / "research-notes.md"
     assert artifact.exists() is True
     assert artifact.read_text(encoding="utf-8") == content
+
+
+# ---------------------------------------------------------------------------
+# _evaluate_gate: advisory semantic checks are non-fatal (the live PRD path)
+# ---------------------------------------------------------------------------
+
+
+def _gate_with(check):
+    from superclaude.cli.pipeline.models import GateCriteria
+
+    return GateCriteria(
+        required_frontmatter_fields=[],
+        min_lines=0,
+        enforcement_tier="STRICT",
+        semantic_checks=[check],
+    )
+
+
+def _check(name, advisory):
+    from superclaude.cli.pipeline.models import SemanticCheck
+
+    # check_fn returns a failure string (never True) -> the check "fails".
+    return SemanticCheck(
+        name=name,
+        check_fn=lambda c: f"{name} failed",
+        failure_message=f"{name} msg",
+        advisory=advisory,
+    )
+
+
+def test_evaluate_gate_advisory_failure_does_not_halt(executor, caplog):
+    """An advisory semantic check that fails must NOT fail the gate (the PRD
+    executor path -- _evaluate_gate, not pipeline.gates.gate_passed)."""
+    import logging
+
+    gate = _gate_with(_check("advisory_check", advisory=True))
+    with caplog.at_level(logging.WARNING, logger="superclaude.prd.executor"):
+        result = executor._evaluate_gate("some-step", gate, "body line\nmore\n")
+    assert result is True
+    assert any(
+        "advisory_check" in r.getMessage() and "some-step" in r.getMessage()
+        for r in caplog.records
+    )
+
+
+def test_evaluate_gate_non_advisory_failure_still_halts(executor):
+    gate = _gate_with(_check("strict_check", advisory=False))
+    result = executor._evaluate_gate("some-step", gate, "body line\nmore\n")
+    assert result is False
+
+
+def test_evaluate_gate_advisory_then_strict_still_halts(executor):
+    from superclaude.cli.pipeline.models import GateCriteria
+
+    gate = GateCriteria(
+        required_frontmatter_fields=[],
+        min_lines=0,
+        enforcement_tier="STRICT",
+        semantic_checks=[
+            _check("advisory_check", advisory=True),
+            _check("strict_check", advisory=False),
+        ],
+    )
+    result = executor._evaluate_gate("some-step", gate, "body line\nmore\n")
+    assert result is False
