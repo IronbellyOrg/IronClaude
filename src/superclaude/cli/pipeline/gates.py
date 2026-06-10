@@ -93,9 +93,14 @@ def gate_passed(
                 detail = result if isinstance(result, str) else check.failure_message
                 if getattr(check, "advisory", False):
                     # Advisory: record a WARNING but do NOT fail the gate.
+                    # Include the output_file so the warning is traceable back
+                    # to the producing gate/artifact when many gates run in a
+                    # pipeline (PR #155 review r3385326536).
                     _log.warning(
-                        "Advisory gate check '%s' did not pass (non-fatal): %s",
+                        "Advisory gate check '%s' did not pass (non-fatal) "
+                        "for %s: %s",
                         check.name,
+                        output_file,
                         detail,
                     )
                     continue

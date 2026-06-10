@@ -399,7 +399,10 @@ class TestAdvisorySemanticCheck:
             ok, reason = gate_passed(f, gc)
         assert ok is True
         assert reason is None
-        assert any("advisory_check" in r.getMessage() for r in caplog.records)
+        # The warning names both the check and the producing artifact so it is
+        # traceable in a multi-gate run (PR #155 review r3385326536).
+        messages = [r.getMessage() for r in caplog.records]
+        assert any("advisory_check" in m and "adv.md" in m for m in messages)
 
     def test_non_advisory_failure_still_halts(self, make_file) -> None:
         gc = GateCriteria(
