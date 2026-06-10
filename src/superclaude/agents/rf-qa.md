@@ -295,7 +295,7 @@ For report validation, you are always authorized to fix issues in-place:
 
 ### What You Verify (Task Integrity)
 
-#### Checklist (28 items)
+#### Checklist (29 items)
 
 1. **Frontmatter schema** — YAML frontmatter is well-formed AND contains all required fields with non-empty values: `id`, `title`, `status`, `created`, `type`, `template`, `tracks`. Not just "parses as valid YAML" — every mandatory field must be present. Missing fields = FAIL.
 2. **Checklist format** — All items use `- [ ]` format (not `- []` or `* [ ]`)
@@ -327,7 +327,7 @@ For report validation, you are always authorized to fix issues in-place:
 19. **Prose count accuracy** — Verify quantitative claims in Overview/descriptions match actual implementation. If the overview says "refactors 7 functions" but the checklist only touches 4, that's a FAIL.
 20. **Template section cross-reference** — Read actual templates referenced by the task file, verify §N references match real content. If an item says "per template §A3" confirm that section actually exists and says what the item claims.
 
-#### Structural Gate Additions (TB-Add-1 through TB-Add-7, imported from sc:tasklist 17-point gate per CB-3 per-check classification)
+#### Structural Gate Additions (TB-Add-1 through TB-Add-9, imported from sc:tasklist 17-point gate per CB-3 per-check classification)
 
 These additions close specific structural gaps that sc:tasklist's pre-write gate catches but task-builder's task-integrity historically did not. Each cites its source check ID for traceability. Additive only — no existing check is weakened.
 
@@ -376,6 +376,35 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
     Use Read + Grep on each item's Context paragraph to verify a file:line pattern or evidence-absence
     comment is present. Error message format: "Item X.Y Context references `[surface]` but contains no
     file:line citation and no evidence-absence justification — add either".
+
+29. **TB-Add-9: POST reflect mode/shape match (spec §9 V1–V16 + MODE-MATCH / FR-9 single-producer).**
+    Read the frontmatter oracle `reflect_post_mode` FIRST (the single producer's recorded mode, NFR-3),
+    then assert the emitted penultimate final-phase item's shape matches it. **Per-mode active assertions**
+    (run only the subset active for the resolved mode): `none` → V1, V2, V3; `1`/`auto-resolved-1` → V1, V2,
+    V3, V4, V5, V6, V9, V11, V12, V13, V14; `2`/`auto-resolved-2` → V1, V2, V3, V4, V7, V8, V10, V11, V12,
+    V13, V14; `halt`/`2-degraded-halt`/`auto-resolved-2-degraded-halt` → V1, V2, V3, V4, V15, V16.
+    **Assertions V1–V16:** V1 — `REFLECT_POST_MODE` in BUILD_REQUEST ∈ `{none,0,1,2,auto}`; V2 — frontmatter
+    `reflect_post_mode` ∈ the 8-value set `{none, 1, 2, auto-resolved-1, auto-resolved-2, halt, 2-degraded-halt,
+    auto-resolved-2-degraded-halt}`; V3 — item count matches mode (`none`→0, else→1); V4 — item is penultimate
+    (immediately before Update-status-to-Done); V5 — Mode-1 Action has inline `/sc:reflect --mode post --depth
+    standard`; V6 — Mode-1 Action has NO `superclaude reflect run` / Bash shell-out; V7 — Mode-2 Action has Bash
+    `superclaude reflect run {TASK_FILE}`; V8 — Mode-2 Action has NO inline `/sc:reflect` nor any `Agent`/`Task`/
+    `subagent` spawn; V9 — Mode-1 Action has NO `--remediate`; V10 — Mode-2 remediation delegated to the wrapper
+    (not re-authored inline); V11 — sentinel discipline: modes 1/2 write `reflect_post: {verdict,…}`,
+    `halt`/`*-degraded-halt` write `reflect_post: PENDING`, `none` omits the key; V12 — both active modes HALT/STOP
+    on non-pass (no self-resolve); V13 — `{SPEC_PATH}` threading matches (`--spec {SPEC_PATH}` present iff
+    `spec_path` set); V14 — `{BASE}` resolution guidance present; V15 — `halt`/`*-degraded-halt` item is
+    byte-identical to the legacy fresh-session HALT template (after placeholder substitution); V16 —
+    degraded/manual mode records `reflect_post_mode` ∈ `{halt, 2-degraded-halt, auto-resolved-2-degraded-halt}`
+    (and degraded carries the wrapper-absent marker). **MODE-MATCH (the FR-9 single-producer invariant):**
+    `reflect_post_mode == 1`/`auto-resolved-1` ⇒ V5 ∧ V6 ∧ V9; `== 2`/`auto-resolved-2` ⇒ V7 ∧ V8 ∧ V10;
+    `== none` ⇒ V3 (no item; `reflect_post:` absent); `∈ {halt, 2-degraded-halt, auto-resolved-2-degraded-halt}`
+    ⇒ V15 ∧ V16. Any disagreement between `reflect_post_mode` and the emitted Action shape = MALFORMED. The reused
+    invariants (penultimate position, HALT on non-pass, `reflect_post` write-back, `/sc:reflect` for the gate and
+    `/task` — never `/sc:task` — for re-execution) are carried unchanged. Error message format: "Item N.{X-1} has
+    `reflect_post_mode: 2` but Action contains inline `/sc:reflect` — fails V8 (MODE-MATCH mismatch)". Verdict on
+    fail = MALFORMED (retry max-2 per Critical Rule #12, then halt). Use Read + Grep on the frontmatter
+    `reflect_post_mode` field and the penultimate item's Action to detect.
 
 ---
 

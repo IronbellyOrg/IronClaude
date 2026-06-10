@@ -40,6 +40,8 @@ The skill needs five pieces of information to produce a well-researched task fil
 
 5. **--spec <path> — driving spec/PRD/TDD** (optional) — The path to the driving specification, PRD, or TDD that the task implements. When supplied it is threaded into the PRE reflect gate's coverage audit (the `--mode pre --spec <path>` call at A.10.7) and baked into the templated POST reflect item's command, so the post-execution deviation audit can check the executed work against the original spec. Resolved in priority order: explicit `--spec <path>` → an `@file` reference in the GOAL → a `SPEC:`/`PRD:`/`TDD:` field in a BUILD_REQUEST file → none. Written to the generated tasklist frontmatter as `spec_path:`. Examples: `--spec .dev/proposals/reflect-in-task-builder.md`, `--spec docs/specs/auth-system-prd.md`.
 
+6. **--reflect <none|0|1|2|auto> — POST reflect gate dial** (optional) — Picks the *form* and *rigor* of the POST reflection gate emitted as the penultimate item of the generated tasklist's final phase. Ordinal domain `{none, 0, 1, 2, auto}`, where `0` is an accepted alias of `none`; **default `2`**. `none`/`0` emits no POST item (the final phase goes straight to `Update task status to Done`); `1` emits an inline same-session audit-only `/sc:reflect --mode post --depth standard`; `2` (default) emits a Bash shell-out to `superclaude reflect run`; `auto` resolves deterministically to `1` or `2` at A.9 via the existing TCS predicate (§4). It governs **only the POST template** — it does NOT touch the PRE reflect gate (A.10.7). It **subsumes** the legacy `POST_REFLECT_GATE: ENABLED|DISABLED` and the sibling wrapper's `POST_REFLECT_MODE: wrapper|halt` as deprecated read-time aliases (resolved via the §5 old→new map; an explicit `--reflect` wins on precedence — §10). The effective mode is resolved **once** at A.9 and recorded in frontmatter as `reflect_post_mode:`. An unknown token (∉ `{none, 0, 1, 2, auto}`) is a MALFORMED-input STOP. Examples: `--reflect 1`, `--reflect none`, `--reflect auto`.
+
 ### Effective Prompt Examples
 
 **Strong — explicit goal with scope and deliverables:**
@@ -199,6 +201,7 @@ Break the user's request into structured components:
 - **OUTPUTS**: Specific deliverables, paths, formats (if stated)
 - **CONTEXT**: Files, directories, components mentioned (if any)
 - **SPEC_PATH**: The driving spec/PRD/TDD path, resolved in priority order (explicit `--spec <path>` → an `@file` reference in GOAL → a `SPEC:`/`PRD:`/`TDD:` field in BUILD_REQUEST → none); written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` and the POST item's `{SPEC_PATH}` placeholder
+- **REFLECT_POST_MODE**: The POST reflect gate dial, resolved in precedence order (explicit `--reflect <none|0|1|2|auto>` flag → a `REFLECT_POST_MODE:` field in a BUILD_REQUEST → the legacy `POST_REFLECT_GATE`×`POST_REFLECT_MODE` §5 alias map → default `2`); `0` is an accepted alias of `none`. The raw token is parsed here at A.2, but the effective mode `m` is resolved **once** at A.9 (FR-9) — including the `auto` predicate (§4) and the wrapper-availability probe (§8) — and written to the generated tasklist frontmatter as `reflect_post_mode:`. An unknown token (∉ `{none, 0, 1, 2, auto}`) is a MALFORMED-input STOP. Governs the POST template only (not the PRE gate)
 
 **Triage into Scenario A or B:**
 
@@ -850,12 +853,14 @@ Agent:
       builder violates this signal — e.g., emitting the block under SUPPRESS,
       or omitting the block under REQUIRED.]
 
-    POST_REFLECT_GATE: ENABLED
-      SPEC_PATH: <spec_path or NONE>
-      DEPTH: <max(tcs-derived depth, standard)>   # POST floor per O4 — never quick
+    REFLECT_POST_MODE: 2          # one of: none | 0 | 1 | 2 | auto   (default 2 when absent)
+      SPEC_PATH: <spec_path or NONE>     # threaded to Mode 1 inline / Mode 2 wrapper (§12)
+      # DEPTH is no longer an author-settable POST sub-field: it is mode-derived
+      # (1→standard, 2→deep, halt→max(TCS,standard)) — single producer, §7.
       TASK_FILE: ${TASK_FILE}
-      POST_REFLECT_MODE: <halt (default) | wrapper>   # omission ⇒ halt (byte-identical HALT item)
       EXECUTOR_CLASS: <executor model class, e.g. opus|sonnet|haiku, or NONE>   # resolved from BUILD_REQUEST / EXECUTOR_MODEL_CLASS env / project default; backs {EXECUTOR_CLASS} + persisted as executor_model_class: in frontmatter (audit F3)
+      # Accepts deprecated aliases POST_REFLECT_MODE: wrapper(≡2)|halt(→halt position)
+      #   and POST_REFLECT_GATE: ENABLED|DISABLED(≡none) — §5 map, precedence step 3.
 
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
@@ -1047,6 +1052,38 @@ Agent:
     6. Create the task file using PART 2 structure (incremental writing)
     7. Return the task file path as your final output
 ```
+
+**POST reflect mode resolution — the single A.9 producer (FR-9).** The effective POST mode `m` is resolved **exactly once, here at A.9**, before the BUILD_REQUEST is populated; no downstream surface (frontmatter writer, emitted item, rf-qa) recomputes it (FR-9, NFR-3). It governs the POST template only — the PRE gate (A.10.7) is untouched.
+
+**Validate the token first (FR-1).** The `--reflect` / `REFLECT_POST_MODE` token MUST be one of `{none, 0, 1, 2, auto}` (`0` ≡ `none`). An unknown token is a **MALFORMED-input STOP** — apply the Critical Rule #12 MALFORMED mediation (retry max-2, then halt). This runs **before** any §5 alias-map or `auto` resolution, so the single A.9 producer owns input validation.
+
+**Precedence (§10.1, highest wins, first match):** (1) an explicit `--reflect <value>` flag on the build invocation; (2) a `REFLECT_POST_MODE:` field in a BUILD_REQUEST; (3) the legacy §5 alias map; (4) default `2`. When a higher-precedence source is present, the lower legacy alias fields are ignored and a one-line build-log note is written: `--reflect <v> wins; legacy POST_REFLECT_* ignored`.
+
+**§5 legacy alias map** (consulted only when precedence 1–2 are absent) — every legacy `POST_REFLECT_GATE` × `POST_REFLECT_MODE` cell maps to one `m`: `POST_REFLECT_GATE: DISABLED` (any `POST_REFLECT_MODE`) → `none`; `ENABLED`/absent × `halt`/absent → `halt`; `ENABLED`/absent × `wrapper` → `2`. Both legacy fields are deprecated read-time aliases, not surviving inputs.
+
+**`auto` predicate (§4 — reuses the existing TCS machinery; NO second complexity model, NFR-1/NFR-5).** Read the same `TCS`, `S5`, `S6` already computed for the POST `--depth` (the `## Reflect Depth (Deterministic TCS)` section), using the **resolved** depth band (after overrides O1/O2/O3 and the bounded ±4 tiebreaker, §4.4/INV-004 — so the mode choice never diverges from the baked depth at the band edge). Apply the frozen 2-stage, 3-term, first-match-wins predicate:
+
+```text
+RESOLVE_AUTO(TCS, S5, S6, W):
+  # Stage 1 — risk-mode from the signals (wrapper-independent; S5/S6 before the band).
+  if   S6 == 1:     risk_mode := 2     # refactor/remediation class → regression risk
+  elif S5 > 0:      risk_mode := 2     # any human-decision / OQ-blocked item
+  elif TCS >= 35:   risk_mode := 2     # 'deep' band (forced Tier-2)
+  else:             risk_mode := 1     # else → proportionate inline standard audit
+  # Stage 2 — apply wrapper availability to the resolved risk-mode.
+  if risk_mode == 1:  return 1                  # Mode 1 needs no wrapper
+  if W == true:       return 2                  # wrapper present → shell-out
+  else:               return "2-degraded-halt"  # wrapper ABSENT but risk demanded Mode 2
+                                                # → manual-HALT; NEVER silently inline Mode 1
+```
+
+**Wrapper-availability probe `W` (§8.1).** A read-only, build-time check that the `reflect` subcommand is registered (`superclaude reflect --help` exits 0 / `superclaude --help` lists `reflect`). Computed **once** and reused by both the `auto` predicate (Stage 2) and the fallback ladder; adds no state.
+
+**Unified fallback ladder (§8.2).** A **resolved** risk-Mode 2 (a fixed `--reflect 2` OR `auto→2`) with `W == false` degrades to the §6.4 manual-HALT item — recording `reflect_post_mode: 2-degraded-halt` (fixed-2) or `auto-resolved-2-degraded-halt` (auto→2). It NEVER degrades to Mode 1 (which would silently break the executor-disjointness the risk profile demanded) and NEVER STOPs the build (the manual gate is the correct fail-closed default, NFR-8). A resolved Mode 1 needs no wrapper and is emitted unchanged.
+
+**Advisory WARNING on under-rigorous fixed-1 (§10.4 / FR-13).** When the resolved request is a **fixed** `--reflect 1` (NOT `auto`) AND (`S6 == 1 ∨ S5 > 0`), write a **non-blocking** build-log WARNING: `auto would have selected Mode 2; Mode 1 is not executor-disjoint — confirm intent`. The fixed-1 request is **honored** (no STOP, no override of operator authority) — the §6.2 Mode-1 item is still produced with `reflect_post_mode: 1`. A footgun guard, not a gate.
+
+The resolved `m` is baked into the `REFLECT_POST_MODE:` BUILD_REQUEST field (above) and written once to the generated frontmatter as `reflect_post_mode:` (§10.3, the single oracle).
 
 **Spawning:** Use `Agent` tool with `subagent_type: "rf-task-builder"` and `mode: "bypassPermissions"`. For multi-track, spawn one builder per track — all in a single message for parallel execution.
 
@@ -1422,7 +1459,7 @@ After the qualitative gate (A.10.5) passes and the DM-005 phase contract (A.10.6
 --output ${TASK_DIR}reflect/pre/
 ```
 
-Do **NOT** pass `--executor-model` at PRE — no executor has run in `--mode pre`, so excluding an executor class is a category error (it is a POST-only concern, see A.9 `POST_REFLECT_GATE`).
+Do **NOT** pass `--executor-model` at PRE — no executor has run in `--mode pre`, so excluding an executor class is a category error (it is a POST-only concern, see A.9 `REFLECT_POST_MODE`).
 
 **Route the verdict (advisory-blocking).** Consume reflect's return contract (`status`, `coverage_pct`, `unmapped_requirements`, `run_id`). Then:
 
@@ -1871,20 +1908,24 @@ The complete BUILD_REQUEST template is embedded in **A.9** above. This section d
   suppressed with a `header-leak-suppressed` annotation. Specific
   `path.py:NN` references belong in per-item Context fields and
   `research/*.md` (the evidence venue), never in this header.
-- `POST_REFLECT_MODE` — A sub-field of the `POST_REFLECT_GATE` block
-  controlling how the emitted Phase-N POST reflection item discharges the
-  gate. Values: `halt` (default) | `wrapper`. Omission implies `halt`; when
-  `halt`, the M1-frozen byte-identical HALT item is preserved (the manual
-  `/sc:reflect --mode post` paste-ready command + `reflect_post: PENDING`
-  sentinel + STOP for a fresh-session operator), so a build with no
-  `POST_REFLECT_MODE` (or `=halt`) yields a byte-identical tasklist to today
-  (NFR-3 reversibility). When `wrapper`, the Phase-N item's **Action** instead
-  shells out (Bash, never Agent/Task — the wrapper is a top-level subprocess
-  that escapes the Agent-tool nesting limit) to
-  `superclaude reflect run {TASK_FILE} --depth {DEPTH}` (the TCS-resolved
-  `{DEPTH}`, floored at `standard` per O4), with the Done item gated on BOTH
-  the wrapper exit code AND the written-back `reflect_post.verdict == pass`.
-  Strictly-additive: the M1-frozen required-field schema is preserved.
+- `REFLECT_POST_MODE` — The POST reflect gate **dial** (the single field that subsumes the
+  legacy `POST_REFLECT_GATE` and the sibling wrapper's `POST_REFLECT_MODE` — both now
+  **deprecated read-time aliases**, §5/§10). Value: `none | 0 | 1 | 2 | auto` (default `2`
+  when absent; `0` ≡ `none`). The effective mode `m` is resolved **once** at A.9 (§10.1
+  precedence: explicit `--reflect` flag → this field → §5 legacy alias map → default `2`) and
+  recorded in the generated frontmatter as `reflect_post_mode:` (the single oracle, NFR-3).
+  Per-mode emitted Phase-N item (§6): `none` → no item (`reflect_post:` key omitted);
+  `1`/`auto-resolved-1` → inline same-session audit-only `/sc:reflect --mode post --depth
+  standard` (no `--remediate`, no wrapper, no Agent/Task); `2`/`auto-resolved-2` (DEFAULT) →
+  Bash shell-out `superclaude reflect run {TASK_FILE}` (never Agent/Task — the wrapper is a
+  top-level subprocess escaping the Agent-tool nesting limit); `halt` / `2-degraded-halt` /
+  `auto-resolved-2-degraded-halt` → the byte-identical legacy manual fresh-session HALT item
+  (the `/sc:reflect --mode post --remediate …` paste-ready command + `reflect_post: PENDING`
+  sentinel + STOP), reached via legacy `POST_REFLECT_MODE: halt` or §8 wrapper-absent
+  degradation under a resolved Mode 2 (NFR-2 byte-for-byte reversibility). `DEPTH` is no longer
+  an author-settable POST sub-field — it is mode-derived (§7). Strictly-additive: the M1-frozen
+  required-field schema is preserved (the `POST_REFLECT_GATE` → `REFLECT_POST_MODE` rename is
+  top-level-field-count-neutral).
 
 **COMMON PHASE PATTERNS** (included in BUILD_REQUEST to guide the builder):
 
@@ -1957,7 +1998,8 @@ reflect_pre:
   run_id: "[reflect run id]"
   report: "[TASK_DIR]reflect/pre/report.md"
   reviewed_at: "YYYY-MM-DDTHH:MM:SSZ"
-reflect_post: ""   # PENDING sentinel set by the final-phase POST reflect item; operator records {verdict, run_id, report} in a fresh session
+reflect_post_mode: "[resolved POST reflect mode — one of: none | 1 | 2 | auto-resolved-1 | auto-resolved-2 | halt | 2-degraded-halt | auto-resolved-2-degraded-halt; the single oracle (NFR-3), written once by the A.9 producer at generation time]"
+reflect_post: ""   # PENDING sentinel — present ONLY for halt / 2-degraded-halt / auto-resolved-2-degraded-halt (operator records {verdict, run_id, report} in a fresh session); for modes 1/2 the block is written by the inline run / wrapper respectively; OMITTED entirely for mode none
 related_docs:
 - path: "[relevant file]"
   description: "[why it's relevant]"
@@ -2005,16 +2047,44 @@ tags:
 - [ ] **1.2 — [Step Title]**
   ...
 
-<!-- POST_REFLECT_GATE start_commit capture (audit F3): when `POST_REFLECT_GATE: ENABLED`, the generated Phase-1 task-start item (the one that sets `status: "🟠 Doing"` + `start_date`) MUST ALSO write `start_commit: <git rev-parse HEAD>` to this file's frontmatter alongside the status/start_date updates. This gives the reflect wrapper a precise `<BASE>` (frontmatter `start_commit`) instead of the `git merge-base` fallback (src/superclaude/cli/reflect/config.py:50-56,185-190). Conditioned on POST_REFLECT_GATE: ENABLED — no behavior change for non-reflect builds. Additive; existing status/start_date wording preserved. See Critical Rule #20. -->
+<!-- POST reflect start_commit capture (audit F3): when the resolved `reflect_post_mode` is ANY non-`none` value (i.e. `1` | `2` | `auto-resolved-1` | `auto-resolved-2` | `halt` | `2-degraded-halt` | `auto-resolved-2-degraded-halt`), the generated Phase-1 task-start item (the one that sets `status: "🟠 Doing"` + `start_date`) MUST ALSO write `start_commit: <git rev-parse HEAD>` to this file's frontmatter alongside the status/start_date updates. This gives the reflect wrapper (Mode 2) and the manual fresh-session command (halt/degraded) a precise `<BASE>` (frontmatter `start_commit`) instead of the `git merge-base` fallback (src/superclaude/cli/reflect/config.py:50-56,185-190). Conditioned on `reflect_post_mode != none` — no behavior change for `--reflect none` builds. Additive; existing status/start_date wording preserved. See Critical Rule #20. -->
 
 ---
 
 ## Phase N: [Final Phase — includes completion items]
 
-**POST_REFLECT_MODE branch (emit exactly ONE arm for the penultimate item):**
-When `POST_REFLECT_MODE` is unset or `halt`, emit the **halt arm** below BYTE-IDENTICAL (NFR-3 reversibility — a `halt`/unset build yields a tasklist identical to today). When `POST_REFLECT_MODE: wrapper`, emit the **wrapper arm** instead (Bash shell-out to the top-level `superclaude reflect run` subprocess). G5 asymmetry (deliberate): the wrapper arm's `<BASE>` defaults to `master` (OQ1, matching this repo's `origin/HEAD → master`), which intentionally differs from the halt arm's `git merge-base HEAD <integration>` — both are correct for their context.
+**`reflect_post_mode` branch — emit EXACTLY ONE form for the penultimate item (§6).** The A.9
+producer resolves `reflect_post_mode` once (precedence + `auto` predicate + wrapper probe — see
+A.9). Emit the single arm matching the resolved mode. Every non-`none` arm is the **penultimate**
+item (immediately before `Update task status to Done`, preserving anti-orphaning per Critical
+Rule 15), HALTs on any non-pass verdict (append report + reason to `### Open Questions` and STOP),
+and writes `reflect_post` back (FR-7); the gate command uses `/sc:reflect` (or the Bash
+`superclaude reflect run` shell-out for Mode 2) and never `/sc:task`; `/task` (never `/sc:task`)
+for any re-execution.
 
-**Halt arm (`POST_REFLECT_MODE: halt` / unset — default):**
+**`none` (§6.1) — no item.** When `reflect_post_mode: none`, emit NO POST item: the final phase
+goes straight from the last QA/validation item to `Update task status to Done`, and the
+`reflect_post:` frontmatter key is omitted entirely.
+
+**Mode `1` / `auto-resolved-1` (§6.2) — inline same-session, audit-only:**
+
+- [ ] **N.{X-1} — Inline post-execution reflect audit (same session, audit-only, HALT)**
+  - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame; this item adds a `/sc:reflect --mode post` audit at `--depth standard`. NOTE: this audit runs in the SAME session as the executor, so it is NOT executor-disjoint — it shares the executor's representational frame (Mode 1 is acceptable only for low TCS with no human-decision/refactor signal). It is audit-only (no remediation). PRECONDITION: this `/task` executor MUST be top-level. If this executor is itself an Agent-tool subagent, an inline `/sc:reflect` silently loses reflect's Tier-2 fan-out (`reference_subagent_cannot_nest_skill_fanout`) — in that case do NOT run a degraded audit; HALT per the Verification branch below.
+  - **Action**: Confirm this executor is top-level (not an Agent/Task subagent). Then, in THIS session, run the skill `/sc:reflect --mode post --depth standard --diff {BASE}..HEAD --tasklist {TASK_FILE} [--spec {SPEC_PATH}] --executor-model {EXECUTOR_CLASS}` as a top-level skill invocation (NOT via Agent/Task, NOT a shell-out, and WITHOUT `--remediate`). Capture reflect's return contract.
+  - **Output**: Frontmatter `reflect_post: {verdict, run_id, report, reviewed_at}` written from the inline reflect contract; `reflect_post_mode: 1` (or `auto-resolved-1`).
+  - **Verification**: If the executor is an Agent-tool subagent → write `reflect_post: {verdict: blocked, reason: mode1-nested-executor}` and HALT (do NOT proceed to Done). Else, `reflect_post.verdict` is recorded from the inline run and the report path exists.
+  - **Completion gate**: `reflect_post.verdict == pass` (clean, full audit) → the Update-status-to-Done item may proceed. ANY other verdict (or a `blocked` nested-executor result) HALTs; append the report + reason to `### Open Questions` and STOP (HALT per `feedback_human_decision_items_must_halt`). The item NEVER auto-proceeds on non-pass.
+
+**Mode `2` / `auto-resolved-2` (§6.3, DEFAULT) — wrapper shell-out, remediate:**
+
+- [ ] **N.{X-1} — Independent post-execution reflect gate (wrapper subprocess, HALT)**
+  - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. This item shells out to the `superclaude reflect run` wrapper, which launches `/sc:reflect --mode post` as a TOP-LEVEL subprocess (escaping the Agent-tool nesting limit so reflect's Tier-2 heterogeneous-reviewer fan-out actually runs), at `--depth deep --remediate`, executor-disjoint. Per `feedback_sc_reflect_vs_inline_rfqa`, this catches spec-literal, invariant-arithmetic, and orphan blindspots that same-frame QA misses.
+  - **Action**: Run, as a Bash shell-out (NEVER via Agent/Task, per `reference_subagent_cannot_nest_skill_fanout`): `superclaude reflect run {TASK_FILE}`. The wrapper derives `--diff {BASE}..HEAD`, `--depth {DEPTH}` (TCS-passthrough, floored `standard` per O4; `deep` for this default mode), `--spec` (from frontmatter `spec_path`), and `--executor-model {EXECUTOR_CLASS}`, runs reflect with `--remediate`, and writes the `reflect_post:` verdict block back fail-closed. Do NOT run reflect inline.
+  - **Output**: Frontmatter `reflect_post: {verdict, status, run_id, tier_reached, report, contract, reason, deviations, head, reviewed_at}` written by the wrapper; `reflect_post_mode: 2` (or `auto-resolved-2`).
+  - **Verification**: The wrapper exited and `reflect_post.verdict ∈ {pass, halted, degraded, blocked}` is recorded. Only `pass` (exit 0) clears the gate.
+  - **Completion gate**: `reflect_post.verdict == pass` → the Update-status-to-Done item may proceed. ANY of `halted | degraded | blocked` HALTs. If remediation surfaced a Tier-3 corrective task, append it (report + reason + deviations) to `### Open Questions` and STOP — NEVER auto-execute the corrective tasklist (the wrapper's `--no-promote` default enforces audit-only; `feedback_human_decision_items_must_halt`).
+
+**Mode `halt` / `2-degraded-halt` / `auto-resolved-2-degraded-halt` (§6.4) — retained manual fresh-session item (BYTE-IDENTICAL to the legacy template, NFR-2 / V15).** Reached via legacy `POST_REFLECT_MODE: halt`, or via §8 wrapper-absent degradation under a resolved Mode 2 (fixed `--reflect 2` → `2-degraded-halt`; `auto→2` → `auto-resolved-2-degraded-halt`). Emit the item below verbatim; for the two `*-degraded-halt` variants ONLY, append a single `<!-- wrapper-absent: degraded from Mode 2 -->` comment to the Context (the gate text is otherwise byte-untouched):
 
 - [ ] **N.{X-1} — Independent post-execution reflection gate (fresh session, HALT)**
   - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per project memory `feedback_sc_reflect_vs_inline_rfqa`, an independent `/sc:reflect --mode post` ensemble catches spec-literal-token, invariant-arithmetic, and integration/orphan blindspots that same-frame QA misses.
@@ -2023,14 +2093,7 @@ When `POST_REFLECT_MODE` is unset or `halt`, emit the **halt arm** below BYTE-ID
   - **Verification**: `reflect_post` is PENDING and the operator has the exact `/sc:reflect` command. The item does NOT self-resolve.
   - **Completion gate**: Operator has run `/sc:reflect --mode post` in a fresh session and recorded its verdict (`reflect_post: {verdict, run_id, report}`) in frontmatter. Only THEN may the Update-status-to-Done item proceed (HALT per `feedback_human_decision_items_must_halt`).
 
-**Wrapper arm (`POST_REFLECT_MODE: wrapper`):**
-
-- [ ] **N.{X-1} — Independent post-execution reflection gate (automated wrapper, fail-closed)**
-  - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per project memory `feedback_sc_reflect_vs_inline_rfqa`, an independent reflect ensemble catches spec-literal-token, invariant-arithmetic, and integration/orphan blindspots that same-frame QA misses. The wrapper launches `/sc:reflect --mode post` as a **top-level `claude --print` subprocess**, which escapes the in-session nesting limit so reflect's Tier-2 ensemble actually fans out.
-  - **Action**: Run the POST reflect gate as a **Bash** shell-out (NFR-7 — the wrapper is a top-level subprocess; do NOT re-enter it through any in-session delegation surface): `superclaude reflect run {TASK_FILE} --depth {DEPTH}` — where `{DEPTH}` is the TCS-resolved depth floored at `standard` per O4 (the POST gate NEVER runs `--depth quick`). The wrapper derives `<BASE>` itself (frontmatter `start_commit`, else `git merge-base HEAD master` per OQ1/G5), launches reflect, parses `return-contract.yaml`, derives the fail-closed verdict, and atomically writes the structured `reflect_post:` block back into this file's frontmatter.
-  - **Output**: Frontmatter `reflect_post: {verdict, status, run_id, tier_reached, report, contract, reason, deviations, head, reviewed_at}` written by the wrapper, plus a `<output>/wrapper-result.yaml` sidecar. The wrapper process exit code is the fail-closed verdict code (pass 0 / halted 10 / degraded 11 / blocked 2).
-  - **Verification**: The wrapper exited 0 AND the written-back `reflect_post.verdict == pass`. Any other verdict (`halted`/`degraded`/`blocked`) is a non-zero exit and a non-`pass` written-back verdict.
-  - **Completion gate**: BOTH the wrapper exit code is 0 AND `reflect_post.verdict == pass` (FR-7 dual gate). Only THEN may the Update-status-to-Done item proceed. On any other verdict, HALT and route the wrapper's `report` + `reason` + `deviations` into this tasklist's `### Open Questions` (HALT per `feedback_human_decision_items_must_halt`); use `/task` (never `/sc:task`) for any re-execution.
+**`auto` (§6.5).** `auto` emits §6.2 (resolved to 1) or §6.3 (resolved to 2) **verbatim**, writing `reflect_post_mode: auto-resolved-1` / `auto-resolved-2` (or, when `auto→2` and the wrapper is absent, the §6.4 manual-HALT item with `reflect_post_mode: auto-resolved-2-degraded-halt`). No third template body exists (NFR-4 — the resolved mode reuses the fixed-mode bodies). An OPTIONAL one-line provenance prefix MAY be added to the chosen item's Context: `Resolved by --reflect auto → Mode {N} (predicate: S6={s6}, S5={s5}, TCS={tcs}).`
 
 - [ ] **N.X — Update task status to Done**
   - **Context**: All phases complete.
@@ -2082,7 +2145,7 @@ The QA agent (A.10) validates the generated task file against these criteria:
 - [ ] TB-Add-6: Uniform `Verify: ...` prefix and consistent Acceptance Criteria form
 - [ ] TB-Add-7: Every `## Execution Context` "Source areas:" entry reappears in at least one item Context; block contains no file:line citations (INACTIVE if no Execution Context block)
 - [ ] TB-Add-8: Every per-item Context referencing a code surface carries a file:line citation OR an `<!-- evidence-absence: ... -->` comment (PR-01 INV-015 scope-confinement)
-- [ ] POST reflect item present and positioned penultimate (immediately before Update-status-to-Done) when POST_REFLECT_GATE is ENABLED — MALFORMED if omitted
+- [ ] POST reflect item matches the resolved `reflect_post_mode` (the single oracle): mode `none` → 0 items (no `reflect_post:` key); modes `1`/`2`/`auto-resolved-{1,2}`/`halt`/`2-degraded-halt`/`auto-resolved-2-degraded-halt` → exactly 1 item, positioned penultimate (immediately before Update-status-to-Done), whose Action shape matches the mode. The rf-qa Task Integrity `TB-Add-9` (V1–V16 + per-mode active map + MODE-MATCH) is the authority for the full assertion set. MALFORMED on count, position, or mode/shape mismatch
 
 ---
 
@@ -2139,9 +2202,9 @@ The QA agent (A.10) validates the generated task file against these criteria:
 
 18. **Testing in generated task files.** When the BUILD_REQUEST specifies TESTING_REQUIREMENTS other than NONE or N/A, the builder MUST encode testing checklist items in the generated task file. Testing items must specify: test file paths, test commands, coverage thresholds (if applicable), and verification that tests pass. Testing items are placed after implementation items and before QA gate items. A generated task file that requires testing items (TESTING_REQUIREMENTS is not NONE or N/A) but omits them is a MALFORMED output.
 
-19. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a reflect handoff item. The item MUST NOT run reflect inline in the executor's biased context. Under `POST_REFLECT_MODE: halt` (default/unset) it writes a `reflect_post: PENDING` sentinel and HALTs until the operator records the verdict in a fresh session; under `POST_REFLECT_MODE: wrapper` it instead shells out (Bash) to the top-level `superclaude reflect run` subprocess, which writes the verdict back, and the Done item gates on the wrapper exit code AND `reflect_post.verdict == pass`. The handoff command uses `/sc:reflect` (when `POST_REFLECT_MODE` is `halt`/unset) OR a Bash `superclaude reflect run` shell-out (when `POST_REFLECT_MODE` is `wrapper`); `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED` is a MALFORMED output.
+19. **POST reflect gate in generated task files.** When `reflect_post_mode` resolves (from `--reflect` / `REFLECT_POST_MODE`, default `2`; §10 precedence: explicit `--reflect` > `REFLECT_POST_MODE` field > legacy `POST_REFLECT_GATE`×`POST_REFLECT_MODE` §5 alias map > default `2`) to any value other than `none`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), the reflect handoff item whose **form matches the resolved mode**: `none` → no item (and no `reflect_post:` key); `1`/`auto-resolved-1` → an INLINE same-session `/sc:reflect --mode post --depth standard` audit-only item (no `--remediate`, no `superclaude reflect run`, no Agent/Task); `2`/`auto-resolved-2` → a Bash shell-out `superclaude reflect run {TASK_FILE}` (never Agent/Task — the wrapper is a top-level subprocess); `halt`/`2-degraded-halt`/`auto-resolved-2-degraded-halt` → the byte-identical legacy fresh-session manual-HALT item that writes `reflect_post: PENDING` and STOPs for an operator to run reflect in a new session. The "MUST NOT run reflect inline in the executor's biased context" prohibition applies to modes `2` / `halt` / `*-degraded-halt` — it does **NOT** apply to Mode 1, which DOES run `/sc:reflect` inline (same-session, audit-only) guarded by the FR-11 top-level-executor precondition + the nested-executor HALT branch. Every non-`none` item HALTs on any non-pass verdict (routing report + reason into `### Open Questions`), writes `reflect_post` back, uses `/sc:reflect` (or the Bash `superclaude reflect run` shell-out for Mode 2) for the gate, and `/task` (never `/sc:task`) for any re-execution. Shape validation is owned by the rf-qa Task Integrity `TB-Add-9` (the V1–V16 matrix + per-mode active-assertion map + MODE-MATCH, keyed on the `reflect_post_mode` oracle): any mode/shape mismatch, wrong count, or wrong position is a MALFORMED output (retry max-2 per Critical Rule #12, then halt).
 
-20. **POST reflect gate persists `executor_model_class` + `start_commit` (audit F3).** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST populate `executor_model_class:` in the generated frontmatter from the `EXECUTOR_CLASS` schema field (empty ONLY when `EXECUTOR_CLASS` is `NONE`), and the generated Phase-1 task-start item MUST record `start_commit:` (the `git rev-parse HEAD` captured at task start, alongside the `status: "🟠 Doing"` / `start_date` updates). Rationale: the reflect wrapper resolves `--executor-model` and `<BASE>` from these two frontmatter keys (`src/superclaude/cli/reflect/config.py:50-56,185-190`); omitting them makes the wrapper fall back to dropping `--executor-model` and to `git merge-base` for `<BASE>`, silently weakening reflect's executor-disjoint anti-self-confirmation guarantee (audit finding F3). The requirement is strictly additive — the halt-arm POST item text is byte-identical otherwise (NFR-3 reversibility) — and `executor_model_class:` is populated at BUILD time while `start_commit:` is populated at task-START time.
+20. **POST reflect gate persists `executor_model_class` + `start_commit` (audit F3).** When the resolved `reflect_post_mode` (the §10 oracle: from `--reflect` / `REFLECT_POST_MODE`, default `2`) is **any value other than `none`** — i.e. `1` | `2` | `auto-resolved-1` | `auto-resolved-2` | `halt` | `2-degraded-halt` | `auto-resolved-2-degraded-halt` — the builder MUST populate `executor_model_class:` in the generated frontmatter from the `EXECUTOR_CLASS` schema field (empty ONLY when `EXECUTOR_CLASS` is `NONE`), and the generated Phase-1 task-start item MUST record `start_commit:` (the `git rev-parse HEAD` captured at task start, alongside the `status: "🟠 Doing"` / `start_date` updates). Rationale: the Mode-2 reflect wrapper resolves `--executor-model` and `<BASE>` from these two frontmatter keys (`src/superclaude/cli/reflect/config.py:50-56,185-190`), and the `halt` / `*-degraded-halt` manual fresh-session command consumes the same `<BASE>` (frontmatter `start_commit`) + `{EXECUTOR_CLASS}`; omitting them makes the wrapper fall back to dropping `--executor-model` and to `git merge-base` for `<BASE>`, silently weakening reflect's executor-disjoint anti-self-confirmation guarantee (audit finding F3). NOTE: this trigger was retargeted from the now-retired `POST_REFLECT_GATE: ENABLED` field onto the `reflect_post_mode` oracle — keying it on the deprecated alias would dead-trigger for the default `REFLECT_POST_MODE: 2` build and silently re-open F3. The requirement is strictly additive — the `halt` / `*-degraded-halt` POST item text is byte-identical otherwise (NFR-2 reversibility) — and `executor_model_class:` is populated at BUILD time while `start_commit:` is populated at task-START time. Mode `none` (no gate, no wrapper, no `<BASE>` consumer) needs neither key.
 
 **Precedence rule:** When a BUILD_REQUEST contains both SKILL PHASES TO ENCODE and QA_GATE_REQUIREMENTS, the SKILL PHASES TO ENCODE field is authoritative. QA_GATE_REQUIREMENTS serves as a structured summary and quick reference. For the standalone task-builder (which has no SKILL PHASES TO ENCODE), QA_GATE_REQUIREMENTS is the sole authority for QA gate encoding.
 
@@ -2188,6 +2251,16 @@ All S* are non-negative integers read directly from the tasklist/spec; the formu
 - **O4 — POST-gate depth floor (HARD RULE, no exceptions):** the POST gate depth ∈ {`standard`, `deep`} — it may **NEVER** be `quick`. `--depth quick` disables reflect's regression-escalation rubric, and the POST gate audits executed code, which is exactly where that escalation matters most. When the band yields `quick`, the POST command is emitted with `--depth standard` (the PRE call may still use `quick`, since no diff exists pre-execution).
 
 Within ±4 TCS of a band edge (the span an S2 ±1 disagreement can traverse), the orchestrator may apply one bounded inference — "are these N FER-distinct dirs truly distinct *logical* subsystems?" — recorded as `tcs_boundary_inference: {applied, from, to, reason}` in the sign-off block for auditability. Outside the ±4 windows, no inference is permitted.
+
+### Mode/Depth Reconciliation (`--reflect` dial)
+
+The `--reflect` dial (§7) layers ON TOP of the TCS machinery above — it adds **no second depth model** (NFR-1); the `auto` rule is a thin band-reading wrapper over the single TCS producer:
+
+- **Mode fixes depth for the fixed dial positions:** `--reflect 1` → `--depth standard`; `--reflect 2` → `--depth deep`. `auto` reads the **resolved** TCS band (after O1/O2/O3 + the ±4 tiebreaker) to pick the mode, and the chosen mode then dictates its own depth (`auto→1` = standard, `auto→2` = deep) — so the mode choice and the baked depth cannot diverge at the band edge (§4.4 / INV-004).
+- **O4 (POST never `quick`) is preserved and strengthened.** For modes `1` / `2` and `auto→{1,2}`, depth is `standard` or `deep` by construction, so O4's "never `quick`" floor is automatically satisfied — a redundant-but-true invariant rf-qa still asserts (`--depth quick` on any non-`halt` mode = MALFORMED). For the retained `halt` / `2-degraded-halt` / `auto-resolved-2-degraded-halt` mode, O4 applies exactly as today (`max(TCS-band, standard)`).
+- **O1/O2/O3 are NOT removed.** They continue to govern the `{DEPTH}` passthrough for the `halt` mode and the wrapper-passthrough depth value. (O1 `S5>0` ⇒ floor standard and O2 `S6=1` ⇒ force deep are *also* expressed at the mode layer for `auto` — §4 Stage 1 returns Mode 2 for `S5>0` or `S6=1`, which is `deep` — so O1/O2 and the `auto` FER agree by construction.)
+
+This is a documentation reconciliation only: NO depth-derivation logic is authored into any emitted item (NFR-1); depth is resolved once by the existing TCS producer and passed through.
 
 ---
 
