@@ -347,6 +347,23 @@ class TestCheckNoTruncationMarker:
         assert isinstance(result, str)
         assert "truncat" in result.lower()
 
+
+class TestBuildTaskFileGateAdvisoryWiring:
+    """Lock the intent: on the build-task-file gate, parallel_instructions is
+    ADVISORY (non-fatal) while task_phases_present and b2_self_contained stay
+    STRICT/halting."""
+
+    def test_parallel_instructions_is_advisory_others_strict(self) -> None:
+        from superclaude.cli.prd.gates import GATE_CRITERIA
+
+        checks = {
+            c.name: c
+            for c in (GATE_CRITERIA["build-task-file"].semantic_checks or [])
+        }
+        assert checks["parallel_instructions"].advisory is True
+        assert checks["task_phases_present"].advisory is False
+        assert checks["b2_self_contained"].advisory is False
+
     def test_trailing_ellipsis_fails(self) -> None:
         result = _check_no_truncation_marker("the document ends abruptly here ...")
         assert isinstance(result, str)

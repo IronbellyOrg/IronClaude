@@ -316,12 +316,18 @@ def _make_semantic_check(
     name: str,
     fn: Callable[[str], bool | str],
     failure_message: str,
+    advisory: bool = False,
 ) -> SemanticCheck:
-    """Build a SemanticCheck with crash-safe wrapper."""
+    """Build a SemanticCheck with crash-safe wrapper.
+
+    ``advisory=True`` marks the check non-fatal: a failure is logged as a
+    warning but does not halt the gate (see pipeline.gates.gate_passed).
+    """
     return SemanticCheck(
         name=name,
         check_fn=_safe_check(name, fn),
         failure_message=failure_message,
+        advisory=advisory,
     )
 
 
@@ -429,10 +435,15 @@ GATE_CRITERIA: dict[str, GateCriteria] = {
                 _check_b2_self_contained,
                 "Checklist items reference external content",
             ),
+            # Advisory (non-fatal): the parallel-instructions heuristic is
+            # brittle (heading + literal-keyword matching) and a false positive
+            # halts a long run, whereas the worst case it guards against (a task
+            # that runs agents serially) is merely slower. Warn, do not halt.
             _make_semantic_check(
                 "parallel_instructions",
                 _check_parallel_instructions,
                 "Later phases missing parallel execution instructions",
+                advisory=True,
             ),
         ],
     ),

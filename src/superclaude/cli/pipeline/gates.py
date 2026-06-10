@@ -11,10 +11,13 @@ NFR-003: No subprocess import. NFR-007: No sprint/roadmap imports.
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from .frontmatter import extract_frontmatter
 from .models import GateCriteria
+
+_log = logging.getLogger("superclaude.pipeline.gates")
 
 
 def gate_passed(
@@ -88,6 +91,14 @@ def gate_passed(
             result = check.check_fn(content)
             if result is not True:
                 detail = result if isinstance(result, str) else check.failure_message
+                if getattr(check, "advisory", False):
+                    # Advisory: record a WARNING but do NOT fail the gate.
+                    _log.warning(
+                        "Advisory gate check '%s' did not pass (non-fatal): %s",
+                        check.name,
+                        detail,
+                    )
+                    continue
                 return (
                     False,
                     f"Semantic check '{check.name}' failed: {detail}",

@@ -80,11 +80,18 @@ class GateMode(Enum):
 
 @dataclass
 class SemanticCheck:
-    """Pure Python check applied to file content. No LLM invocation."""
+    """Pure Python check applied to file content. No LLM invocation.
+
+    ``advisory`` checks WARN but never fail the gate: when an advisory check
+    returns a failure, the STRICT semantic-check loop logs a warning and
+    proceeds instead of halting. Default ``False`` preserves the behavior of
+    every existing check (a failure fails the gate).
+    """
 
     name: str
     check_fn: Callable[[str], bool | str]
     failure_message: str
+    advisory: bool = False
 
 
 @dataclass
