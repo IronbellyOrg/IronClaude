@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import logging
 import re
 import signal
 import time
@@ -60,6 +61,8 @@ from .models import (
 from .monitor import PrdMonitor
 from .process import PrdClaudeProcess
 from .tui import PrdTUI
+
+_log = logging.getLogger("superclaude.prd.executor")
 
 # Prompt builders -- imported lazily in _get_prompt_builder to avoid
 # pulling all 19 builders into the module namespace upfront.
@@ -847,16 +850,39 @@ class PrdExecutor:
                 return False
 
         # Run semantic checks
+        advisory_notes: list[str] = []
         if gate.semantic_checks:
             for check in gate.semantic_checks:
                 result = check.check_fn(content)
                 if result is not True:
                     msg = result if isinstance(result, str) else check.failure_message
+                    if getattr(check, "advisory", False):
+                        # Advisory: a failure is non-fatal -- record a warning
+                        # (with step_id + check name + the producing artifact's
+                        # output_file for traceability) and continue instead of
+                        # halting. Mirrors pipeline.gates.gate_passed.
+                        _log.warning(
+                            "Advisory gate check '%s' did not pass (non-fatal) "
+                            "for step '%s': %s",
+                            check.name,
+                            step_id,
+                            msg,
+                        )
+                        advisory_notes.append(f"{check.name}: {msg}")
+                        continue
                     self._diagnostics.record_gate_failure(
                         step_id, msg, gate.enforcement_tier
                     )
                     self._logger.log_gate_result(step_id, False, msg)
                     return False
+
+        if advisory_notes:
+            self._logger.log_gate_result(
+                step_id,
+                True,
+                "All checks passed (advisory: " + "; ".join(advisory_notes) + ")",
+            )
+            return True
 
         self._logger.log_gate_result(step_id, True, "All checks passed")
         return True

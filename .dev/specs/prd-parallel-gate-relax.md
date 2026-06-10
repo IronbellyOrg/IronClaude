@@ -118,6 +118,23 @@ _make_semantic_check(
 ```
 `task_phases_present` and `b2_self_contained` are untouched (stay STRICT/halting).
 
+### 5.3a ADDENDUM — the PRD executor uses a SECOND evaluator (`_evaluate_gate`)
+**Critical correction (discovered post-#155).** There are **two** runtime
+semantic-check evaluators, and the PRD pipeline uses the *other* one:
+- `pipeline/gates.py:gate_passed` (changed in §5.2) — used by the generic
+  pipeline path, **but the PRD executor never calls it**.
+- `prd/executor.py:_evaluate_gate` (executor.py:825-862, invoked at `:764`) —
+  the **live PRD path**. It re-implements the semantic-check loop and, before
+  this fix, halted on the first non-`True` check regardless of `advisory`.
+
+PR #155 changed only `gate_passed`, so it did **not** actually relax the PRD
+runtime — the build-task-file halt persisted. The advisory branch MUST also be
+added to `_evaluate_gate`: on an `advisory` check failure, log a WARNING (module
+logger `superclaude.prd.executor`, including `step_id` + check name + detail for
+traceability) and `continue` instead of `return False`; surface the advisory
+note on the final passing `log_gate_result`. (Tech-debt note: the two evaluators
+should eventually be consolidated to a single source of truth; out of scope here.)
+
 ### 5.4 Disposition of prior detection fixes
 - **Keep PR #154** (completion-phase exemption) — already merged, harmless, and
   it makes the now-advisory warning fire less spuriously (more signal, less noise).
