@@ -127,10 +127,12 @@ The exact option set and defaults below are read from
 - `--print-command` — print the composed `claude` argv + prompt and exit without
   launching.
 - `--output <dir>` — pinned output directory.
-  **Default: `<task-dir>/reflect/post/<sha>/`.** It must **not** resolve under
+  **Default: `<task-dir>/reflect/post/<short-sha>/`** (the short SHA is `HEAD[:12]`,
+  the 12-char prefix of the resolved HEAD). It must **not** resolve under
   `.claude/{skills,agents,commands}` (a reflect STOP → exit 2).
-- `--allow-single-vendor` — do not HALT on single-vendor Tier-2 reviewer
-  diversity (suppresses the single-vendor degradation trigger).
+- `--allow-single-vendor` — do not flag **DEGRADED** (exit 11) on single-vendor
+  Tier-2 reviewer diversity (suppresses the single-vendor degradation trigger;
+  single-vendor is a DEGRADED signal, not a HALTED one).
 - `--timeout <seconds>` — subprocess timeout. **Default: `3600`.** A child
   timeout (rc `124`) routes to `blocked` (exit 2).
 

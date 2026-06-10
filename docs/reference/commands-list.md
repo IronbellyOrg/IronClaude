@@ -25,7 +25,6 @@ Complete list of all 30 slash commands available in SuperClaude Framework v4.1.9
 - **`/analyze`** - Code and architecture analysis
 - **`/troubleshoot`** - Debugging and troubleshooting
 - **`/reflect`** - Reflection and retrospectives
-- **`superclaude reflect run`** - CLI validate→auto-fix→verify→promote gate (bounded auto-fix loop; see [the reflect CLI guide](../guides/reflect-cli-tools-guide.md))
 
 ### 📚 Documentation
 

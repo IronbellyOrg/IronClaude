@@ -28,7 +28,7 @@ The `superclaude reflect run` CLI is undocumented (0 hits across 230 doc files).
 
 Must cover, grounded in `commands.py` + `runner.py` + merged-requirements §1/§3:
 - The validate→review→auto-fix→verify→promote engine (the §1 state machine) and how it differs from the audit-only v1.
-- **Full flag surface**: `--fix/--no-fix`, `--max-fix-iterations` (default 2), `--base`, `--promote/--no-promote` (default **--promote**), `--depth standard|deep`, `--tmux`, `--resume`, `--dry-run`, `--print-command`, `--output`, `--executor-model`, `--allow-single-vendor`, `--timeout`.
+- **Full flag surface**: `--fix/--no-fix`, `--max-fix-iterations` (default 2), `--base`, `--promote/--no-promote` (default **--promote**), `--depth standard|deep`, `--tmux`, `--resume`, `--dry-run`, `--print-command`, `--output`, `--allow-single-vendor`, `--timeout`. (NOTE: `--executor-model` is NOT a CLI flag on `run` — the executor class is resolved via the `EXECUTOR_MODEL_CLASS` env var / `executor_model_class` frontmatter in `config.py`; it is a `/sc:reflect` *skill* flag only.)
 - **AUTO-FIXABLE vs HUMAN-REQUIRED carve-out** (`classify_fix`): drift/necessary → auto-fix; regression / needs_human_decision / user_decision_required / unauthorized / grounding-gaps → terminal HALT.
 - **Exit codes**: 0 pass / 10 halted / 11 degraded / 2 blocked.
 - **`SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` recursion breaker** + `--max-fix-iterations` bound (dual termination).
