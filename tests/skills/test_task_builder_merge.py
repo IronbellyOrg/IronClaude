@@ -63,10 +63,10 @@ class TestPR06StructuralGateAdditions:
     validation checklist."""
 
     def test_rf_qa_checklist_count_extended(self, rf_qa_text: str) -> None:
-        # Was 20 items; PR-06 grows it by 7 (TB-Add-1..7) -> 27. PR-01 then
-        # adds TB-Add-8 -> 28. After both landings the count must be >= 27.
-        # We assert the post-PR-01 final state to keep the test current.
-        assert "#### Checklist (28 items)" in rf_qa_text
+        # Was 20 items; PR-06 grows it by 7 (TB-Add-1..7) -> 27. PR-01 adds
+        # TB-Add-8 -> 28. The --reflect dial adds TB-Add-9 -> 29. We assert the
+        # current final state to keep the test current.
+        assert "#### Checklist (29 items)" in rf_qa_text
 
     @pytest.mark.parametrize(
         "tag",
@@ -186,8 +186,9 @@ class TestPR01ExecutionContextHeader:
 
     def test_rf_qa_adds_tb_add_8(self, rf_qa_text: str) -> None:
         # PR-01 REVISE acceptance criterion: rf-qa task-integrity grows by one
-        # more item to enforce per-item evidence binding (INV-015).
-        assert "#### Checklist (28 items)" in rf_qa_text
+        # more item to enforce per-item evidence binding (INV-015). Count is now
+        # 29 after the --reflect dial added TB-Add-9.
+        assert "#### Checklist (29 items)" in rf_qa_text
         assert "TB-Add-8" in rf_qa_text
         assert "INV-015" in rf_qa_text  # rationale cited
 

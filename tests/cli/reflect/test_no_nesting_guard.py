@@ -17,15 +17,23 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 _SKILL_SRC = _REPO_ROOT / "src/superclaude/skills/task-builder/SKILL.md"
 _RUNNER_SRC = _REPO_ROOT / "src/superclaude/cli/reflect/runner.py"
 
-_NESTING_TOKENS = ("Task(", "subagent_type", "Agent tool", "via Agent", "Task tool")
+# Actual agent-routing tokens (a real Agent/Task invocation). Prose tokens like
+# "via Agent" are intentionally NOT included: the Mode-2 Action legitimately reads
+# "NEVER via Agent/Task" as a prohibition, which must not trip the no-nesting guard.
+_NESTING_TOKENS = ("Task(", "subagent_type")
 
 
 def _extract_wrapper_branch(text: str) -> str:
-    """Return the text of the ``Wrapper arm`` block in the Phase-N template."""
-    marker = "**Wrapper arm (`POST_REFLECT_MODE: wrapper`):**"
+    """Return the text of the Mode-2 wrapper block in the Phase-N template.
+
+    The ``--reflect`` dial replaced the legacy ``Wrapper arm
+    (POST_REFLECT_MODE: wrapper)`` heading with the per-mode ``Mode 2`` template;
+    the Bash ``superclaude reflect run`` shell-out behaviour is unchanged.
+    """
+    marker = "**Mode `2` / `auto-resolved-2` (§6.3, DEFAULT) — wrapper shell-out, remediate:**"
     start = text.index(marker)
-    # The wrapper arm ends at the next Update-status-to-Done item.
-    end = text.index("**N.X — Update task status to Done**", start)
+    # The Mode-2 block ends where the next mode (halt) heading begins.
+    end = text.index("**Mode `halt`", start)
     return text[start:end]
 
 
