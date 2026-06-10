@@ -364,3 +364,70 @@ class TestFrontmatterAliasGroups:
         )
         assert ok is True
         assert reason is None
+
+
+class TestAdvisorySemanticCheck:
+    """SemanticCheck.advisory: a failing advisory check WARNs but does not
+    fail the STRICT gate; non-advisory checks still halt."""
+
+    BODY = "---\ntitle: T\n---\nbody line one\nbody line two\nbody line three\n"
+
+    def _adv(self, name: str, advisory: bool) -> SemanticCheck:
+        # check_fn returns a failure string (never True) -> the check "fails".
+        return SemanticCheck(
+            name=name,
+            check_fn=lambda c: f"{name} failed",
+            failure_message=f"{name} msg",
+            advisory=advisory,
+        )
+
+    def test_advisory_default_is_false(self) -> None:
+        sc = SemanticCheck(name="x", check_fn=lambda c: True, failure_message="m")
+        assert sc.advisory is False
+
+    def test_advisory_failure_does_not_fail_gate(self, make_file, caplog) -> None:
+        import logging
+
+        gc = GateCriteria(
+            required_frontmatter_fields=["title"],
+            min_lines=3,
+            enforcement_tier="STRICT",
+            semantic_checks=[self._adv("advisory_check", advisory=True)],
+        )
+        f = make_file("adv.md", self.BODY)
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.gates"):
+            ok, reason = gate_passed(f, gc)
+        assert ok is True
+        assert reason is None
+        # The warning names both the check and the producing artifact so it is
+        # traceable in a multi-gate run (PR #155 review r3385326536).
+        messages = [r.getMessage() for r in caplog.records]
+        assert any("advisory_check" in m and "adv.md" in m for m in messages)
+
+    def test_non_advisory_failure_still_halts(self, make_file) -> None:
+        gc = GateCriteria(
+            required_frontmatter_fields=["title"],
+            min_lines=3,
+            enforcement_tier="STRICT",
+            semantic_checks=[self._adv("strict_check", advisory=False)],
+        )
+        f = make_file("strict.md", self.BODY)
+        ok, reason = gate_passed(f, gc)
+        assert ok is False
+        assert "strict_check" in reason
+
+    def test_advisory_fail_then_strict_fail_still_halts(self, make_file) -> None:
+        # Advisory failure is skipped; the following non-advisory failure halts.
+        gc = GateCriteria(
+            required_frontmatter_fields=["title"],
+            min_lines=3,
+            enforcement_tier="STRICT",
+            semantic_checks=[
+                self._adv("advisory_check", advisory=True),
+                self._adv("strict_check", advisory=False),
+            ],
+        )
+        f = make_file("mixed.md", self.BODY)
+        ok, reason = gate_passed(f, gc)
+        assert ok is False
+        assert "strict_check" in reason
