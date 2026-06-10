@@ -126,9 +126,14 @@ the clean OR successfully auto-fixed path only.
 `--promote/--no-promote` default flips to **`--promote`**.
 - **O1 (whole tasklist):** promote-by-default; the `task` adapter applies
   (`.dev/tasks/to-do/TASK-*`).
-- **O2 (per-phase):** the wrapper **forces `--no-promote`** — no per-phase
-  adapter exists and adding one would thicken the wrapper. Per-phase gates
-  auto-fix-and-verify but do NOT promote. Promotion is tasklist/release-level only.
+- **O2 (per-phase):** the wrapper does **NOT** force `--no-promote` — it
+  promotes by default like every other invocation (U6: the wrapper has no
+  O2-detection surface, so forcing would require thickening it). The **generator**
+  passes `--no-promote` explicitly on its O2 gate calls (contract §5); when it
+  does not, reflect's Wave-7 finds no per-phase adapter and safely skips
+  (`adapter-unresolved`), so a defaulted O2 promote is a harmless no-op, never a
+  mis-promote. Per-phase gates auto-fix-and-verify; promotion lands once at the
+  tasklist/release level.
 No per-phase promotion adapter is added (reflect stays SoT for promotion).
 
 ### FR-6 — Per-phase base (D6)
@@ -235,7 +240,7 @@ reached while the marker is `=1`, the wrapper self-suppresses (exit 0).
 | Auto-applying a human-decision change | FR-4 carve-out: regression/needs_human/user_decision/gaps → terminal HALT |
 | Non-converging fix loop burns tokens forever | FR-3 `--max-fix-iterations` (default 2) → HALT |
 | Wrapper can't find authored remediation file | FR-8 `remediation_task_path` contract field (no dir-guessing) |
-| O2 promotes with no adapter → silent skip or wrong dir | FR-5 O2 forces `--no-promote` |
+| O2 promotes with no adapter → silent skip or wrong dir | Generator passes `--no-promote` on O2 (contract §5); if omitted, reflect Wave-7 safely skips (`adapter-unresolved`) — wrapper never forces it |
 | Phase-N gate audits whole-task scope | FR-6 `--base <phase-N-start-sha>` |
 | Generators re-derive the contract and drift | single authoritative `.dev/handoffs/reflect-wrapper-contract.md` |
 
