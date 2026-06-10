@@ -20,8 +20,8 @@ from superclaude.cli.cli_portify.process import PortifyProcess
 from superclaude.cli.pipeline.process import (
     ClaudeProcess,
     PromptTooLargeForArgv,
+    _parse_prompt_max_bytes,
 )
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -91,7 +91,9 @@ class TestPortifyAnchor:
         assert max(len(arg.encode("utf-8")) for arg in cmd) < 128 * 1024
 
         # Phase 2: real subprocess via stand-in confirms stdin transport.
-        with patch.object(PortifyProcess, "build_command", return_value=_stdin_echo_argv()):
+        with patch.object(
+            PortifyProcess, "build_command", return_value=_stdin_echo_argv()
+        ):
             result = proc.run()
         assert result.exit_code == 0
         assert (tmp_path / "out.md").read_bytes() == payload.encode("utf-8")
@@ -126,9 +128,7 @@ class TestPromptMaxBytesGuard:
     def test_prompt_max_bytes_guard(self, tmp_path, monkeypatch):
         """T-004: prompt > PROMPT_MAX_BYTES raises before any handle/process is created."""
         # Shrink the cap so we can test cheaply without allocating 16 MiB.
-        monkeypatch.setattr(
-            "superclaude.cli.pipeline.process.PROMPT_MAX_BYTES", 1024
-        )
+        monkeypatch.setattr("superclaude.cli.pipeline.process.PROMPT_MAX_BYTES", 1024)
 
         out_file = tmp_path / "out.txt"
         err_file = tmp_path / "err.txt"
@@ -151,16 +151,16 @@ class TestPromptMaxBytesGuard:
 
     def test_prompt_under_cap_passes_guard(self, tmp_path, monkeypatch):
         """A prompt at or below PROMPT_MAX_BYTES does not raise from the guard."""
-        monkeypatch.setattr(
-            "superclaude.cli.pipeline.process.PROMPT_MAX_BYTES", 1024
-        )
+        monkeypatch.setattr("superclaude.cli.pipeline.process.PROMPT_MAX_BYTES", 1024)
         proc = ClaudeProcess(
             prompt="x" * 1024,  # exactly at cap -- not over
             output_file=tmp_path / "out.txt",
             error_file=tmp_path / "err.txt",
         )
         # Patch build_command so we don't actually shell out to a missing claude.
-        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+        with patch.object(
+            ClaudeProcess, "build_command", return_value=_stdin_echo_argv()
+        ):
             proc.start()
             rc = proc.wait()
         assert rc == 0
@@ -183,7 +183,9 @@ class TestChunkedStdinWrite:
             output_file=tmp_path / "out.txt",
             error_file=tmp_path / "err.txt",
         )
-        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+        with patch.object(
+            ClaudeProcess, "build_command", return_value=_stdin_echo_argv()
+        ):
             proc.start()
             rc = proc.wait()
         assert rc == 0
@@ -199,12 +201,16 @@ class TestChunkedStdinWrite:
             output_file=tmp_path / "out.txt",
             error_file=tmp_path / "err.txt",
         )
-        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+        with patch.object(
+            ClaudeProcess, "build_command", return_value=_stdin_echo_argv()
+        ):
             proc.start()
             rc = proc.wait()
         assert rc == 0
         received = (tmp_path / "out.txt").read_bytes()
-        assert received == payload.encode("utf-8"), "UTF-8 multibyte must not split or mojibake"
+        assert received == payload.encode("utf-8"), (
+            "UTF-8 multibyte must not split or mojibake"
+        )
 
     def test_terminate_during_stdin_write_no_hang(self, tmp_path):
         """T-005: SIGTERM on a child that is not draining stdin completes within budget."""
@@ -252,7 +258,9 @@ class TestChunkedStdinWrite:
         cmd = proc.build_command()
         assert "-p" not in cmd, "empty prompt must not synthesize a -p argv element"
 
-        with patch.object(ClaudeProcess, "build_command", return_value=_stdin_echo_argv()):
+        with patch.object(
+            ClaudeProcess, "build_command", return_value=_stdin_echo_argv()
+        ):
             proc.start()
             rc = proc.wait()
         assert rc == 0
@@ -324,9 +332,13 @@ class TestToolWriteMode:
 
         # stdout landed in the .log sidecar, NOT in output_file.
         log_sidecar = out_file.with_suffix(".log")
-        assert log_sidecar.exists(), "tool_write_mode must open the .log sibling for stdout"
+        assert log_sidecar.exists(), (
+            "tool_write_mode must open the .log sibling for stdout"
+        )
         assert log_sidecar.read_text() == "ROUTED_TO_STDOUT"
-        assert not out_file.exists(), "output_file is reserved for the LLM in tool_write_mode"
+        assert not out_file.exists(), (
+            "output_file is reserved for the LLM in tool_write_mode"
+        )
 
         # validate_tool_write_output() returns False when output_file is missing/empty.
         assert proc.validate_tool_write_output() is False
@@ -391,3 +403,68 @@ class TestArgvByteSizeInvariant:
         # Defensive: prompt content is not anywhere in argv.
         assert huge not in cmd
         assert not any(huge in arg for arg in cmd)
+
+
+# ---------------------------------------------------------------------------
+# P-003b -- defensive SUPERCLAUDE_PROMPT_MAX_BYTES parsing (no import-time raise)
+# ---------------------------------------------------------------------------
+
+
+class TestPromptMaxBytesEnvParse:
+    """A misconfigured SUPERCLAUDE_PROMPT_MAX_BYTES must never raise at import
+    time -- ``_parse_prompt_max_bytes`` falls back to the default (with a logged
+    warning) instead of propagating ValueError. Exercises the helper directly
+    rather than mutating the process environment.
+    """
+
+    _DEFAULT = 16 * 1024 * 1024
+
+    def test_non_integer_returns_default_with_warning(self, caplog):
+        """A non-integer string falls back to the default and logs a warning."""
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.process"):
+            result = _parse_prompt_max_bytes("16MB")
+        assert result == self._DEFAULT
+        assert any(
+            "SUPERCLAUDE_PROMPT_MAX_BYTES" in rec.message for rec in caplog.records
+        )
+
+    def test_empty_string_returns_default_with_warning(self, caplog):
+        """An empty string is non-integer; falls back to the default with a warning."""
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.process"):
+            result = _parse_prompt_max_bytes("")
+        assert result == self._DEFAULT
+        assert any(
+            "SUPERCLAUDE_PROMPT_MAX_BYTES" in rec.message for rec in caplog.records
+        )
+
+    def test_zero_returns_default_with_warning(self, caplog):
+        """A non-positive value (0) falls back to the default with a warning."""
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.process"):
+            result = _parse_prompt_max_bytes("0")
+        assert result == self._DEFAULT
+        assert any("non-positive" in rec.message for rec in caplog.records)
+
+    def test_negative_returns_default_with_warning(self, caplog):
+        """A non-positive value (-1) falls back to the default with a warning."""
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.process"):
+            result = _parse_prompt_max_bytes("-1")
+        assert result == self._DEFAULT
+        assert any("non-positive" in rec.message for rec in caplog.records)
+
+    def test_valid_integer_string_is_parsed_without_warning(self, caplog):
+        """A valid integer string is parsed and emits no env-var warning."""
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.process"):
+            result = _parse_prompt_max_bytes("2048")
+        assert result == 2048
+        assert not any(
+            "SUPERCLAUDE_PROMPT_MAX_BYTES" in rec.message for rec in caplog.records
+        )
+
+    def test_none_returns_default_without_warning(self, caplog):
+        """An absent var (None) returns the default and emits no warning."""
+        with caplog.at_level(logging.WARNING, logger="superclaude.pipeline.process"):
+            result = _parse_prompt_max_bytes(None)
+        assert result == self._DEFAULT
+        assert not any(
+            "SUPERCLAUDE_PROMPT_MAX_BYTES" in rec.message for rec in caplog.records
+        )

@@ -21,11 +21,40 @@ from typing import Callable, Optional
 _log = logging.getLogger("superclaude.pipeline.process")
 
 
+def _parse_prompt_max_bytes(raw: Optional[str], default: int = 16 * 1024 * 1024) -> int:
+    """Parse SUPERCLAUDE_PROMPT_MAX_BYTES defensively.
+
+    A misconfigured env var must never hard-fail module import. Invalid or
+    non-positive values fall back to the default with a logged warning.
+    """
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        _log.warning(
+            "Invalid SUPERCLAUDE_PROMPT_MAX_BYTES=%r (not an integer); "
+            "falling back to default %d bytes.",
+            raw,
+            default,
+        )
+        return default
+    if value <= 0:
+        _log.warning(
+            "SUPERCLAUDE_PROMPT_MAX_BYTES=%d is non-positive; "
+            "falling back to default %d bytes.",
+            value,
+            default,
+        )
+        return default
+    return value
+
+
 # Default 16 MiB; env-overridable for operators with exotic workflows.
 # This is a sanity guard, not a kernel limit -- Linux MAX_ARG_STRLEN no
 # longer applies because the prompt is delivered via stdin (since 4799719).
-PROMPT_MAX_BYTES: int = int(
-    os.environ.get("SUPERCLAUDE_PROMPT_MAX_BYTES", 16 * 1024 * 1024)
+PROMPT_MAX_BYTES: int = _parse_prompt_max_bytes(
+    os.environ.get("SUPERCLAUDE_PROMPT_MAX_BYTES")
 )
 
 
@@ -205,7 +234,7 @@ class ClaudeProcess:
             view = memoryview(payload)
             offset = 0
             while offset < len(view):
-                chunk = view[offset:offset + self._STDIN_CHUNK_SIZE]
+                chunk = view[offset : offset + self._STDIN_CHUNK_SIZE]
                 while True:
                     try:
                         n = os.write(fd, chunk)
