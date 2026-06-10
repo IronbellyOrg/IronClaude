@@ -146,7 +146,7 @@ def resolve_config(
         tasklist_path: Explicit path to the MDTM tasklist (no cwd guessing).
         depth: ``standard`` | ``deep`` (``quick`` is floored to ``standard``).
         spec_path: Explicit ``--spec`` override; else frontmatter ``spec_path``.
-        output_dir: Explicit ``--output``; else ``<task-dir>/reflect/post/<sha>/``.
+        output_dir: Explicit ``--output``; else ``<task-dir>/reflect/post/<short-sha>/`` (``HEAD[:12]``).
         model: Non-empty Claude model (empty would omit ``--model``).
         timeout: Subprocess timeout seconds (default 3600).
         max_turns: Per-process turn ceiling (G1; default 250, never None).

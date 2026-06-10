@@ -107,12 +107,12 @@ def reflect_group():
 @click.option(
     "--output",
     default=None,
-    help="Pinned output dir (default <task-dir>/reflect/post/<sha>/).",
+    help="Pinned output dir (default <task-dir>/reflect/post/<short-sha>/).",
 )
 @click.option(
     "--allow-single-vendor",
     is_flag=True,
-    help="Do not HALT on single-vendor Tier-2 diversity.",
+    help="Do not flag DEGRADED (exit 11) on single-vendor Tier-2 diversity.",
 )
 @click.option(
     "--dry-run",
@@ -128,7 +128,7 @@ def reflect_group():
     "--fix/--no-fix",
     "fix",
     default=False,
-    help="Run the bounded audit->apply->re-verify auto-fix loop (gate default --fix).",
+    help="Run the bounded audit->apply->re-verify auto-fix loop (Click default --no-fix; the O1/O2 gates pass --fix).",
 )
 @click.option(
     "--max-fix-iterations",
