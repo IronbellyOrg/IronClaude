@@ -156,6 +156,7 @@ The `--ask` flag restricts Auggie to retrieval/non-editing tools — exactly wha
 auggie --print \
        --output-format json \
        --ask \
+       --wait-for-indexing \
        --workspace-root <repo-root> \
        --max-turns <8 quick | 16 standard | 24 deep> \
        ${AUGGIE_MODEL:+--model "$AUGGIE_MODEL"} \
@@ -175,7 +176,8 @@ auggie --print \
 >   Steps: `tail -n +2` strips the `--max-turns` preamble line; `jq -r '.result'` unwraps the outer envelope; `sed -n '/^```json$/,/^```$/p'` extracts the fenced inner block; `sed '1d;$d'` drops the opening and closing fence markers; final `jq '.'` validates and pretty-prints. If `jq` parse fails, save the raw response and downgrade status to `partial`.
 > - **`--instruction-file` requires a real path**: `mkdir -p <output-dir>` before writing the prompt file. Auggie reads the file from disk, not stdin.
 > - **`--workspace-root` matters**: must point to the repo root (`git rev-parse --show-toplevel`), not the diff path or PR subtree. Auggie's index is scoped to this directory.
-> - **Indexer cold-start**: if `auggie-stderr.log` mentions "indexing" or "not ready", retry with `--wait-for-indexing` once before treating as a failure.
+> - **`--wait-for-indexing` is mandatory, not optional**: it blocks codebase retrieval until the (server-side) workspace index finishes absorbing the current tree. Without it, a PR that **adds new files** races the async index — retrieval runs before the new files are indexed, and Auggie *fabricates their contents* (plausible signatures/fields that do not exist) and grades them with high confidence. This is the most dangerous Auggie failure mode because the hallucinated findings look real. There is no CLI index-status probe (`auggie context` only reports per-session token stats) and no `index`/`sync` subcommand, so this flag is the only proactive control. It costs latency (the first index of a cold repo can be slow) but that is strictly cheaper than a chunk of fabricated "critical" findings. Observed in TUIBBS PR #32 (2026-06-09): the entire all-new `internal/modules/health/*` chunk was hallucinated; the pre-existing-file chunks grounded correctly. The Wave-3 file:line grounding pass is the backstop, but `--wait-for-indexing` is the prevention.
+> - **Indexer cold-start**: if `auggie-stderr.log` still mentions "indexing" or "not ready" despite `--wait-for-indexing`, retry once before treating as a failure.
 
 4. For `--depth deep`, after the initial pass spawn one **per-persona Auggie call** for each focus area not adequately covered (security, architecture, performance), reusing the same diff but a persona-specialized prompt. Aggregate the per-persona JSON outputs alongside the main pass.
 5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3.
@@ -188,7 +190,7 @@ auggie --print \
 |----------|----------|----------|
 | Auggie exits non-zero on a chunk | Retry once with `--max-turns +50%` | If still failing, log chunk as `chunk_skipped`, continue |
 | Auggie returns non-JSON output | Parse what's parseable; log unparseable tail | Mark `partial` status |
-| Auggie indexer not ready | Pass `--wait-for-indexing` and retry | Same as above |
+| Auggie indexer not ready | `--wait-for-indexing` is already in the base invocation; if still flagged, retry once | Same as above |
 | Auggie not on PATH (post-Wave-0) | STOP with clear message | None |
 
 ---

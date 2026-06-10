@@ -195,12 +195,28 @@ def _check_b2_self_contained(content: str) -> bool | str:
 
 
 def _check_parallel_instructions(content: str) -> bool | str:
-    """Check that phases 2-5 contain parallel execution keywords.
+    """Check that work phases (>=2) contain parallel execution keywords.
 
-    Validates that later phases include 'parallel', 'concurrent',
-    'simultaneously', or 'batch' instructions.
+    Validates that work phases include 'parallel', 'concurrent',
+    'simultaneously', or 'batch' instructions. Phase 1 (setup) is exempt (the
+    check starts at phase 2). The final phase is ALSO exempt when its heading
+    marks it a sequential completion/presentation phase (per the anti-orphaning
+    convention that the last phase presents results and marks the task done) --
+    parallelism does not apply to that bookend. A final phase that is NOT a
+    completion phase (e.g. a 2-phase task whose Phase 2 is real work) is still
+    checked, so short tasks keep their enforcement.
     """
     parallel_keywords = ["parallel", "concurrent", "simultaneously", "batch"]
+    # Heading signals that mark a phase as sequential completion/presentation.
+    completion_signals = [
+        "present",
+        "complete",
+        "finaliz",
+        "sign-off",
+        "sign off",
+        "wrap-up",
+        "wrap up",
+    ]
     # Find phase sections 2+
     phase_sections = list(
         re.finditer(
@@ -213,8 +229,29 @@ def _check_parallel_instructions(content: str) -> bool | str:
     if not later_phases:
         return True  # No later phases to check
 
+    max_phase = max(int(m.group(1)) for m in phase_sections)
+
     # Check content between each later phase heading and next heading
     for i, phase_match in enumerate(later_phases):
+        # Exempt the final phase when its heading marks it a sequential
+        # completion/presentation phase (anti-orphaning); parallelism is N/A
+        # there. The full heading line is needed because the match ends at the
+        # phase number, before the descriptive title.
+        if int(phase_match.group(1)) == max_phase:
+            line_end = content.find("\n", phase_match.end())
+            heading_line = content[
+                phase_match.start() : line_end if line_end != -1 else len(content)
+            ].lower()
+            # Word-boundary match so a signal does not fire on an unintended
+            # superstring (e.g. "complete" must not match "incomplete", and
+            # "present" must not match "representation"). \b before the signal
+            # anchors it to a word start; the partial stems ("finaliz") still
+            # match their full words ("finalize"/"finalization").
+            if any(
+                re.search(r"\b" + re.escape(sig), heading_line)
+                for sig in completion_signals
+            ):
+                continue
         start = phase_match.end()
         end = later_phases[i + 1].start() if i + 1 < len(later_phases) else len(content)
         section_text = content[start:end].lower()
