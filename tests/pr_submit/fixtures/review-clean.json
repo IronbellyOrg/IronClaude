@@ -1,0 +1,12 @@
+{
+  "reviews": [
+    {
+      "author": {"login": "augment-code[bot]"},
+      "authorAssociation": "NONE",
+      "state": "COMMENTED",
+      "body": "Reviewed — no Medium-or-higher findings.",
+      "has_findings": false
+    }
+  ],
+  "comments": []
+}

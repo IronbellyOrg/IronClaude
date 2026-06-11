@@ -233,6 +233,12 @@ uv.lock
 # Sprint runner transient exitcode marker. Anchored to repo root only so that
 # in-tree archive/release artifacts under .dev/releases/ remain tracked.
 /.sprint-exitcode
+# sc:pr-submit operator-local run-logs + the probe-locked detection contract.
+# The shipped src/.../detection-contract.md stays locked:false (generic, distributable);
+# the operator's REAL locked contract + write-ahead run-logs are fork-specific and
+# NEVER tracked. (See sc-pr-submit-protocol; arm path = DetectionContract.for_arming().)
+.dev/pr-monitor/
+
 # Sprint runner transient state directory (post-FU-001 default). Holds
 # .sprint-exitcode and other ephemeral per-run state; never tracked.
 .dev/sprint-state/

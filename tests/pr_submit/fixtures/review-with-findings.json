@@ -1,0 +1,20 @@
+{
+  "reviews": [
+    {
+      "author": {"login": "augment-code[bot]"},
+      "authorAssociation": "NONE",
+      "state": "COMMENTED",
+      "body": "Found 1 issue.",
+      "has_findings": true
+    }
+  ],
+  "comments": [
+    {
+      "user": {"login": "augment-code[bot]"},
+      "path": "src/app/db.py",
+      "line": 88,
+      "body": "Database connection is never closed on the error path.",
+      "id": 3002
+    }
+  ]
+}

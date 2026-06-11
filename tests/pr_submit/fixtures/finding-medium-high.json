@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "path": "src/app/util.py",
+      "line": 42,
+      "body": "Broad `except Exception` swallows errors and will hide future bugs.",
+      "severity_hint": "medium",
+      "category": "anti-pattern",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 3101
+    },
+    {
+      "path": "src/app/db.py",
+      "line": 88,
+      "body": "Database connection is never closed on the error path — an unbounded resource leak.",
+      "severity_hint": "high",
+      "category": "resource-leak",
+      "confidence": "high",
+      "in_diff": true,
+      "comment_id": 3102
+    }
+  ]
+}

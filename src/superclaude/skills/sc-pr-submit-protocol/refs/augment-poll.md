@@ -1,0 +1,49 @@
+# Augment Poll (C2) — the poller contract
+
+This ref pins the poll surface and timing for the in-session Monitor. The poll **script**
+(`scripts/poll-augment-review.sh`) performs a single `gh`/`gh api` poll and emits one JSON line; the
+**FSM** (`superclaude.pr_submit`) does the backoff arithmetic. This split keeps `gh` out of the
+deterministic core (NFR-6) — the script touches `gh`, the core decides.
+
+> Every `gh`/`gh api` call below pins `--repo IronbellyOrg/IronClaude` (FR-1.3 / AC-7). A bare `gh`
+> without `--repo` is a defect (T-104 greps for it).
+
+## Poll surfaces (FR-2.1)
+
+Primary, the exact `--json` field set from the spec:
+
+```bash
+gh pr view <N> --repo IronbellyOrg/IronClaude --json number,url,headRefName,headRefOid,baseRefName,reviews,comments
+```
+
+- `headRefOid` = the head SHA (used by INV-001 `sha_attributed_to_our_push` and the inline-reply
+  `commit_id`).
+- `reviews` = `{author{login}, authorAssociation, state, body, submittedAt, url}`.
+- `comments` = PR conversation comments (NOT inline review comments).
+
+REST surfaces (inline-comment ids / `in_reply_to_id` are not on `gh pr view`, so REST is required):
+
+```bash
+gh api repos/IronbellyOrg/IronClaude/pulls/<N>/reviews
+gh api repos/IronbellyOrg/IronClaude/pulls/<N>/comments
+gh api repos/IronbellyOrg/IronClaude/commits/<headSHA>/check-runs   # only if the probe shows emission_shape==check_run
+```
+
+Classification is pure against the probe-locked `DetectionContract` (`detection-contract.md`): key on
+`augment_bot_login`; three states no-review / clean / findings (T-201/202/203).
+
+## Interval, timeout, backoff (FR-2.3 / FR-2.5 / NFR-2)
+
+- **Interval ≥ 30s.** A value below 30 is **rejected, not rounded** ("minimum is 30 seconds", T-111).
+- **Timeout default 1800s** (~30 min), configurable; **wall-clock since entering wait** (T-221/T-222).
+- **Exponential backoff on 403 / 429 / secondary-limit:** `30 → 60 → 120 → … → cap 300s`, resetting
+  on a successful poll (T-231). The backoff **counts toward the wall-clock timeout**.
+
+## Division of labour (the NFR-6 seam)
+
+- The **poll script** does ONE `gh`/`gh api` poll and returns a status line (`polling` / `clean` /
+  `findings`, plus the raw payload for classification). It performs no arithmetic and holds no state.
+- The **FSM** owns the backoff arithmetic (which interval to use next, whether the cap or the timeout
+  is reached) and the state transitions. This keeps the `gh` I/O isolated to the script and the
+  deterministic decisions in `superclaude.pr_submit` (NFR-6). The ref explicitly assigns the backoff
+  arithmetic to the FSM, never the script.

@@ -1,0 +1,17 @@
+{
+  "note": "INV-015 / AC-13: a finding whose fix PASSED the targeted validation gates but whose change drifted an untested behavior. The audit flags validated_not_verified (the OUTPUT-side residual), distinct from the FR-3.5 input-side verify-before-remediate filter.",
+  "finding": {
+    "path": "src/app/handler.py",
+    "line": 120,
+    "body": "Normalize the input before dispatch.",
+    "severity_hint": "medium",
+    "category": "correctness",
+    "in_diff": true,
+    "verification_status": "verified",
+    "comment_id": 9001
+  },
+  "validation_status": "validated",
+  "behavioral_test_failures": [
+    "test_legacy_flow drifted: expected 200, got 500 (an untested behavior the fix changed)"
+  ]
+}
