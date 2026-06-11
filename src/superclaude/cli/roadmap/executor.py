@@ -1803,10 +1803,19 @@ def _write_convergence_report(
     lines.append("| LOW | 0 |")
     lines.append(f"| **Total** | {high_count} |")
     lines.append("")
-    if high_count == 0:
+    # Key the prose off ``passed`` (the same field that drives the FAIL header
+    # and ``validation_complete``), not off ``high_count`` alone: a run can halt
+    # for a non-count reason with ``high_count == 0``, and the body must not then
+    # claim the roadmap "is consistent" while the header says FAIL.
+    if passed:
         lines.append(
             "No HIGH-severity spec-fidelity deviations remain; the roadmap is "
             "consistent with the spec ID universe and the accepted-deviation set."
+        )
+    elif high_count == 0:
+        lines.append(
+            "Convergence did not pass for a non-count reason (see Convergence "
+            "Result / Halt Reason above); no HIGH-severity deviations were recorded."
         )
     else:
         lines.append(
@@ -2064,8 +2073,8 @@ def _write_deviation_analysis_output(
             "",
             "| Disposition | Count |",
             "|-------------|-------|",
-            f"| Fix in roadmap | {routing_fix_roadmap} |",
-            f"| No action required | {routing_no_action} |",
+            f"| Fix in roadmap | {len([x for x in routing_fix_roadmap.split(',') if x.strip()])} |",
+            f"| No action required | {len([x for x in routing_no_action.split(',') if x.strip()])} |",
             f"| Unclassified | {unclassified_count} |",
             "",
         ]
