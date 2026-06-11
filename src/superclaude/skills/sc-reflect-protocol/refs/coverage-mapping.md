@@ -6,32 +6,77 @@ produces three §9.1 contract fields: `coverage matrix`, `coverage_pct`, and
 `unmapped_requirements`. It also derives the `S_dev_density` structural signal
 consumed by the §5.3 tier-decision rubric.
 
-The algorithm is **deterministic**: identical inputs (spec text + tasklist
+The MATCHING LOOP is **deterministic**: identical inputs (spec text + tasklist
 text + flags) produce identical outputs. No LLM heuristic is permitted in the
 matching loop — only regex extraction and rule-based ID normalization.
+Extraction (stage 1) is two-pass per SKILL.md Step 1B.0 (D13): Pass 1 stays
+regex-only and authoritative for labeled IDs; Pass 2 is quote-pinned inference
+whose every output is citation-validated at the Wave-5 evidence-validator gate.
+The determinism boundary is the matcher, not the extractor.
 
 ## Spec-to-tasklist coverage map algorithm
 
 The pipeline runs in five stages:
 
-1. **Parse spec.** Read the spec file and extract candidate requirement IDs
+1. **Parse spec (two-pass, SKILL.md Step 1B.0).**
+   **Pass 1 (regex, authoritative):** extract candidate requirement IDs
    using the regex patterns documented in *Requirement-ID parsing rules*
-   below. Emit `R_spec = { id_1, id_2, ..., id_M }` as an ordered set
-   (insertion-ordered for determinism).
+   below, then apply range-notation expansion: a token `<PREFIX>-NNN..MMM`
+   (or `<PREFIX>-NNN-MMM`, numeric both sides, right greater than left)
+   expands to the enumerated set (`SPEC-001..021` yields 21 IDs).
+   Each parsed ID also gets a deterministic REQUIREMENT SPAN for dedup:
+   a heading-borne ID owns its section (to the next same-or-higher
+   heading or next parsed ID, whichever comes first); a list-item-borne
+   ID owns that item including indented continuations; an inline-prose
+   ID owns its paragraph.
+   **Pass 2 (inference, the requirements-analyst mandate):** read the FULL
+   spec body and enumerate requirement-shaped content Pass 1 missed
+   (MUST/SHALL/MUST-NOT imperatives, acceptance criteria, constraint
+   bullets, enumerated deliverables, requirement-bearing headings). Each
+   finding becomes a synthetic row `INF-NNN` carrying a verbatim quote
+   (max 2 sentences) + a `file:line` citation; a row missing either is
+   dropped at emission. An inferred row whose quote overlaps ANY line of
+   a parsed requirement's SPAN is dropped (parsed wins): on a well-labeled
+   spec where the ID and its MUST-body sit on different lines, the span
+   rule keeps Pass 2 near-zero-row instead of duplicating every labeled
+   requirement.
+   Emit `R_spec = { id_1, id_2, ..., id_M }` as an ordered set
+   (insertion-ordered for determinism; Pass-1 rows first, then Pass-2
+   rows in document order), with per-row `source: parsed | inferred`.
 2. **Parse tasklist.** Read the tasklist file (or tasklist directory's
    `index.md`) and extract task IDs and any requirement-ID references
    embedded in task descriptions. Emit `R_tasklist = { ref_1, ..., ref_K }`
    as an ordered set.
-3. **Run bipartite matching.** For each `r ∈ R_spec`, search `R_tasklist`
-   for a match (exact, then fuzzy if enabled). See *Bipartite matching
+3. **Run bipartite matching.** For each `r ∈ R_spec`: PARSED rows use the
+   pre-D13 passes UNCHANGED (exact, then fuzzy if enabled). INFERRED rows
+   (which carry no ID token) use the deterministic CONTAINMENT RULE: case-fold
+   the row's verbatim quote and each tasklist item's text, strip a fixed
+   stopword set (articles, conjunctions, prepositions, auxiliaries), and
+   match when >= 0.6 of the quote's remaining content words appear in a
+   single task item's text (ties broken by highest ratio, then first task
+   in tasklist order; below threshold = `none`). The rule is pure string
+   arithmetic: no LLM in any matching path. See *Bipartite matching
    heuristics* below. Emit a per-requirement match record
-   `{ requirement_id, matched_task_ids: [...], match_method: exact|fuzzy|none }`.
+   `{ requirement_id, matched_task_ids: [...], match_method: exact|fuzzy|containment|none, source: parsed|inferred }`.
 4. **Emit coverage matrix.** Serialize the per-requirement match records as
-   `coverage matrix` (a list, one row per spec requirement). This is the
-   reviewer-facing artifact.
-5. **Compute summary fields.** `coverage_pct = matched_count / total_count`
-   (rounded to 4 decimals). `unmapped_requirements = [ids where match_method == none]`.
-   When `total_count == 0`, see *Requirement-ID parsing rules* fallback below.
+   `coverage matrix` (a list, one row per spec requirement, each row
+   carrying its `source` column). This is the reviewer-facing artifact.
+   Inferred rows additionally appear in the report's
+   `## Inferred requirements (Pass 2)` table (id, quote, citation, match
+   result) per SKILL.md Step 1B.0.
+5. **Compute summary fields (contract 1.5.0, additive).**
+   `coverage_pct = matched_parsed_count / parsed_total_count` (PARSED-ONLY,
+   pre-D13 semantics unchanged; null when parsed_total is 0), AND
+   `coverage_pct_union = matched_count / total_count` over the union set
+   (rounded to 4 decimals; the inference-inclusive number reflect's own
+   gates consume). `unmapped_requirements = [parsed ids where
+   match_method == none]` (pre-D13 semantics); `unmapped_requirements_union`
+   adds the unmatched `INF-NNN` rows. `S_dev_density` (reflect-internal)
+   uses the union denominator. When the union `total_count == 0`, see
+   *Requirement-ID parsing rules* fallback below. When
+   `inferred_count > parsed_count`, the Step 1B.2b parse-density guard
+   fires (`coverage_degraded: parsed-sparse`; table-wide Tier-1 stop
+   pre-filter).
 
 The matching loop runs in O(M × K) worst case. For typical specs
 (M < 100) and tasklists (K < 200) this is well under one second of
@@ -55,6 +100,28 @@ When enabled, unmatched spec IDs are re-tried after normalization:
 If a normalized spec ID equals a normalized tasklist ID, mark
 `match_method: fuzzy` and surface in the report header so a reviewer
 can audit the normalization.
+
+**Containment pass (INF rows only, D13).** Inferred rows never carry an ID
+token, so the exact and fuzzy passes cannot apply. They use the containment
+rule defined at stage 3: case-folded, stopword-stripped content-word
+containment >= 0.6 against a single task item (best ratio wins, first-in-order
+tiebreak, below threshold = `none`, emitted as `match_method: containment`).
+Pure string arithmetic; deterministic for identical inputs; no LLM.
+
+```text
+Pseudocode addendum (D13; parsed branch is the original, unchanged):
+
+def match_row(r, R_tasklist, fuzzy=False):
+    if r.source == "parsed":
+        return original_match(r, R_tasklist, fuzzy)   # exact -> fuzzy passes above
+    words = content_words(casefold(r.quote))           # stopwords stripped
+    best = argmax_over_tasks(t: |words & content_words(casefold(t.text))| / |words|)
+    if best.ratio >= 0.6:
+        return {"requirement_id": r.id, "matched_task_ids": [best.task_id],
+                "match_method": "containment", "source": "inferred"}
+    return {"requirement_id": r.id, "matched_task_ids": [],
+            "match_method": "none", "source": "inferred"}
+```
 
 ```text
 Pseudocode (deterministic, no randomness):
@@ -165,8 +232,9 @@ blocks (fenced ` ``` ` regions) are skipped to avoid false positives
 from example snippets.
 
 **Zero-ID fallback (per §4 Wave 1B, Step 1B.2).** When BOTH `R_spec` and
-the requirement references in `R_tasklist` are empty (the regex extracts
-zero IDs across spec + tasklist), the algorithm sets:
+the requirement references in `R_tasklist` are empty across BOTH extraction
+passes (the regex extracts zero IDs AND Pass-2 inference emits zero valid
+quote-pinned rows), the algorithm sets:
 
 - `coverage_undefined: true`
 - `coverage_pct: null`
