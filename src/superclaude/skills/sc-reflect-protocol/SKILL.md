@@ -32,7 +32,7 @@ This protocol is built around three structural mechanisms that single-model self
 
 1. **Heterogeneous reviewer ensemble at Tier 2** — reviewers run on different model classes (haiku / sonnet / optional qwen-or-kimi) so per-model representational bias does not stack. Empirical support: HDEE, LLM-TOPLA, Wisdom of Silicon Crowd. The merge judge is *deliberately a different class than every debater* (weak-judge-strong-debaters per Khan ICML 2024 Oral, Kenton NeurIPS 2024).
 2. **Blind calibration of every reviewer card** — `confidence-calibrator` re-grades each reviewer's findings without the formation context, so the merged verdict weights *calibrated* scores rather than self-reported ones.
-3. **Mandatory evidence-validator gate on the final report** — every `file:line` citation in the merged reflection report is independently re-Read; unfounded citations are *dropped, not downgraded*. A report that ships with no dropped citations is treated as suspicious, not clean.
+3. **Mandatory evidence-validator gate on the final report** — every `file:line` citation in the merged reflection report is independently re-Read; unfounded citations are *dropped, not downgraded*. A report that ships with no dropped citations is treated as suspicious, not clean. Inferred-requirement rows from Step 1B.0 Pass 2 (D13) are citations and are validated identically: a row whose verbatim quote does not match its cited spec lines is dropped (recorded in the Inferred-requirements postscript, counted in `citations_dropped`) AND `coverage_pct_union`, `unmapped_requirements_union`, and `S_dev_density` are recomputed over the surviving union before the report finalizes.
 
 **Two modes, one protocol.**
 
@@ -297,9 +297,13 @@ Emit `onboarding_ran: true` (with `onboarding_succeeded` and, on success, `onboa
 
 ### 4.1 Wave 1 — Detailed step additions
 
+**Step 1B.0 (two-pass requirement extraction, UC-1; D13 coverage hardening).** Extraction runs in two passes before any matching. **Pass 1 (deterministic, authoritative for labeled IDs):** run the `ID_REGEX` extraction per `refs/coverage-mapping.md`, unchanged, PLUS range-notation expansion: a parsed token of the form `<PREFIX>-NNN..MMM` (or `<PREFIX>-NNN-MMM` where both sides are numeric and the right exceeds the left) expands to the enumerated ID set (`SPEC-001..021` yields 21 IDs). For dedup purposes each parsed ID also gets a deterministic REQUIREMENT SPAN: a heading-borne ID owns its section (to the next same-or-higher heading or next parsed ID, whichever first); a list-item-borne ID owns that item including indented continuations; an inline-prose ID owns its paragraph. **Pass 2 (inference; the requirements-analyst mandate):** read the FULL spec body and enumerate requirement-shaped content Pass 1 missed: imperative MUST/SHALL/MUST-NOT statements, acceptance criteria, constraint bullets, enumerated deliverables, and requirement-bearing headings. Emit each as a synthetic row with sequential id `INF-NNN`, and EVERY inferred row MUST carry (a) a verbatim quote of the source span (max 2 sentences) and (b) a `file:line` citation into the spec. An inferred row missing either is INVALID and is dropped at emission (it never enters the matrix). Deduplication: an inferred row whose quote overlaps ANY line of a parsed requirement's SPAN is dropped (the parsed row wins); this keeps Pass 2 near-zero-row on well-labeled specs whose ID and body sit on different lines. Matching: the bipartite matching of `refs/coverage-mapping.md` runs UNCHANGED for parsed rows; INF rows (which have no ID token to match) use the deterministic containment rule defined in `refs/coverage-mapping.md` (case-folded content-word containment, threshold 0.6, stopwords removed, single-task best match). Every matrix row carries `source: parsed | inferred`. Contract fields (per the §9.4 additive-evolution policy, contract 1.5.0): `coverage_pct` and `unmapped_requirements` KEEP their pre-D13 parsed-only semantics (no consumer impact); the NEW fields `coverage_pct_union` and `unmapped_requirements_union` carry the union numbers; `S_dev_density` (reflect-internal) uses the union denominator. Inferred rows are listed in the report under an `## Inferred requirements (Pass 2)` table (id, quote, citation, match result). Determinism boundary: Pass 1 and all matching stay LLM-free; inference is confined to Pass-2 enumeration, where every output is quote-pinned and policed by the Wave-5 evidence-validator (an inferred row whose quote does not match its cited lines is dropped AND `coverage_pct_union`, `unmapped_requirements_union`, and `S_dev_density` are recomputed before the report finalizes).
+
 **Step 1B.1 (zero-task guard, UC-1).** Before any coverage-pct computation: if the parsed tasklist contains `total_tasks == 0` and mode is UC-1, STOP with `empty_input` flag and `status: partial`, return `coverage_pct: null` with `coverage_undefined: true` in the contract. Do NOT proceed to T1/T2.
 
-**Step 1B.2 (coverage_undefined route).** If the spec/tasklist parse produces zero requirement IDs (no `T-NNN`, no checklist items, no headings to map), set `coverage_undefined: true`, route directly to T2 (no T1 stop possible), and surface in the report header. `coverage_pct` is not computed. The 0.90 T1 floor cannot pass vacuously (0/0 ≠ PASS).
+**Step 1B.2 (coverage_undefined route).** If the spec/tasklist parse produces zero requirement IDs across BOTH passes (no `T-NNN`, no checklist items, no headings to map, and Pass-2 inference emitted zero valid rows), set `coverage_undefined: true`, route directly to T2 (no T1 stop possible), and surface in the report header. `coverage_pct` is not computed. The 0.90 T1 floor cannot pass vacuously (0/0 ≠ PASS).
+
+**Step 1B.2b (parse-density guard, UC-1; D13 coverage hardening).** After Step 1B.0, when `inferred_count > parsed_count` (the spec's labeling is sparse relative to its requirement content), emit `coverage_degraded: parsed-sparse` in the report header, `tier_decision.yaml`, and the return contract, and FORBID the Tier-1 stop: the flag is a TABLE-WIDE pre-filter on §5.3 (no STOP row may fire while it is set; see the precedence paragraph after the §5.3 table), routing to Tier 2 (same loud-never-silent posture as the Step 1B.2 zero-ID route). Explicit user pins (`--tier 1`, `--depth quick`) override the pre-filter per §5.1 precedence, with a loud WARN naming the overridden flag. The guard compares row counts only; it never blocks the run and never alters the matrix.
 
 **Step 1B.3 (cross-task interaction-effects scan, UC-2 tasklist-scope only).** When mode is UC-2 AND the tasklist contains ≥3 completed tasks, run the symbol-overlap scan:
 
@@ -375,7 +379,7 @@ Structural signals from Wave 1B:
 
 - `S_scope` — touched-file count from diff (UC-2) or tasklist-item count (UC-1)
 - `S_domains` — distinct domains touched (code, infra, docs, tests, config — counted from file paths)
-- `S_dev_density` — for UC-2 only: ratio of unmapped diff hunks to total hunks; for UC-1: ratio of unmapped spec requirements to total requirements
+- `S_dev_density` — for UC-2 only: ratio of unmapped diff hunks to total hunks; for UC-1: ratio of unmapped spec requirements to total requirements (D13: computed over the UNION requirement set, parsed + inferred)
 
 (See `refs/reflection-rubric.md` for full dimension definitions, scoring criteria, and the calibrator-selection algorithm with disjoint-set rule.)
 
@@ -383,8 +387,8 @@ Structural signals from Wave 1B:
 
 | # | Condition | Decision |
 |---|-----------|----------|
-| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
-| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` | STOP at T1 with WARN if `S_dev_density > 0.05` |
+| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
+| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` | STOP at T1 with WARN if `S_dev_density > 0.05` |
 | 3 | UC-2 AND any single hunk classified as `Regression` candidate by Wave 1 | **ESCALATE** (regression must be debated by ≥2 reviewers; structural mechanism, not a confidence question) |
 | 3a | UC-2 AND a Reuse-Miss at rung L3 mapped to Drift or Regression (§10.8) | **ESCALATE** (a shipped high-confidence duplicate is debated by ≥2 reviewers — same asymmetric-cost logic as rule 3 Regression) |
 | 4 | `S_domains ≥ 3` | ESCALATE (multi-domain reflection cannot be reliably done by a single reviewer card) |
@@ -395,6 +399,8 @@ Structural signals from Wave 1B:
 
 Default `<coverage-floor>` is **0.90**. `--coverage-floor 0.95` is an optional high-safety override.
 
+**Pre-filter precedence (D13).** `coverage_undefined` and `coverage_degraded` are TABLE-WIDE pre-filters, not row conjuncts alone: when either flag is set, NO STOP row (1, 2, or the row-8 default) may fire and the run routes to Tier 2; the row-1/row-2 conjuncts are redundant safeties, the pre-filter is authoritative. Explicit user pins outrank the pre-filter: `--tier 1`, `--depth quick`, and `--no-escalate` (all §5.1) proceed at the pinned tier and emit a loud WARN naming the overridden flag; the §5.1 calibrator-failure row also proceeds at T1 but already forces `status: partial` with a re-run recommendation, and its WARN names the degraded flag too. The coverage-floor comparison in row 1 reads `coverage_pct` (parsed semantics, §9.1).
+
 ### 5.4 tier_decision.yaml audit artifact (composite-score recording)
 
 V2's priority-rule logic (§5.3) is the deciding mechanism. V5's 5-signal composite_score is recorded in `<output>/artifacts/tier_decision.yaml` for audit visibility:
@@ -402,6 +408,7 @@ V2's priority-rule logic (§5.3) is the deciding mechanism. V5's 5-signal compos
 ```yaml
 selected_tier: 1 | 2
 fired_rule_number: <int>           # which §5.3 rule fired (deterministic first-match)
+coverage_degraded: <string> | null # "parsed-sparse" when the Step 1B.2b guard fired (D13); table-wide pre-filter, explains a forced T2 regardless of which STOP row would have fired
 composite_score: <float 0-10>      # V5 5-signal sum
 per_signal_breakdown:
   scope_size: <0-2>
@@ -488,16 +495,17 @@ The chain replaces "think_about_collected_information" — instead of asking the
 
 ### 6.1.1 `execute_shell_command` safety envelope (FR-RV3-MED.4)
 
-`execute_shell_command` runs **non-mutating verification only** (tests/linters/type-checkers/build). Serena executes the command via `subprocess.Popen(command, shell=True)` with **no upstream allowlist or sandbox** (Serena Security Audit #380), so the entire safety envelope is **consumer-side**. A first-token allowlist is *necessary but not sufficient* — under `shell=True` an allowlisted first verb still permits a chained mutation (e.g. `pytest ; rm -rf src`). The envelope therefore validates the **whole command structure**, not just the first token. All eight controls are mandatory:
+`execute_shell_command` runs **non-mutating verification only** (tests/linters/type-checkers/build). Serena executes the command via `subprocess.Popen(command, shell=True)` with **no upstream allowlist or sandbox** (Serena Security Audit #380), so the entire safety envelope is **consumer-side**. A first-token allowlist is *necessary but not sufficient* — under `shell=True` an allowlisted first verb still permits a chained mutation (e.g. `pytest ; rm -rf src`). The envelope therefore validates the **whole command structure**, not just the first token. All nine controls are mandatory:
 
 - **(a) Template construction, not prose assembly.** The command MUST be built from a fixed allowlisted-verb template with arguments supplied as a vetted token list. The command string is NEVER assembled from raw spec/tasklist prose (untrusted by definition).
-- **(b) Verb allowlist.** The first token MUST be in `{pytest, ruff, mypy, make, uv, npm, tsc, cargo}`; otherwise the command is rejected with `verify_blocked: true` + `verify_blocked_reason: "verb '<v>' not in allowlist"` and is **not** invoked.
+- **(b) Verb allowlist.** The first token MUST be in `{pytest, ruff, mypy, make, uv, npm, tsc, cargo}`; otherwise the command is rejected with `verify_blocked: true` + `verify_blocked_reason: "verb '<v>' not in allowlist"` and is **not** invoked. The allowlist is checked against the **base** verification command's first token, NOT against the fixed protocol-added `timeout` / `env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` wrapper prefix from controls (d)/(i) — those wrappers are protocol-authored, never user-supplied verbs, so `timeout` and `env` are never themselves allowlisted as selectable verbs.
 - **(c) Structural metacharacter rejection (the load-bearing C1 control).** Reject outright with `verify_blocked: true` + `verify_blocked_reason: "metachar-denied"` any command containing a shell control character — semicolon `;`, pipe `|`, ampersand `&`, dollar `$`, backtick `` ` ``, redirect `>` / `<`, newline, or parentheses `(` `)`. This validates the whole command structure; a denylist of mutation *verbs* alone is insufficient against `shell=True` composition. Such a command is **never** passed to `execute_shell_command`.
 - **(d) Per-call timeout.** Wrap every command as `timeout <N> <cmd>` with default **120s, max 600s** (Serena's tool-level timeout is unverified, so the wrap is consumer-side). A timeout kills the command, records `exit_code: 124` + `verify_timeout_hit: true`, classifies it Grounding Gap, and the run continues.
 - **(e) Output cap.** Pass `max_answer_chars=51200` (50 KB, tighter than the 200 KB Serena default) plus a defensive tail-truncate of captured stdout/stderr.
 - **(f) `cwd` scoping.** Scope `cwd` to the affected subtree (blast-radius reduction).
 - **(g) Per-invocation audit artifact (M-ARC1).** Each invocation is appended to `<output>/verify-logs/invocations.yaml` as an array entry `{cmd, exit_code, duration_ms, stdout_path, stderr_path, blocked_reason, deviation_class}`. The step-5.5 audit row references this artifact via its `evidence_ref` field — the per-invocation data is **NEVER inlined** into the fixed 5-field per-step audit row.
 - **(h) `--no-verify`.** Disables the verification triangle globally (`verification_skip_reason: --no-verify`).
+- **(i) Wrapper-marker strip (verification subprocess only).** After the base verification command passes controls (a)–(c) and the no-mutation gate, the step-5.5 invocation MUST be executed as the fixed protocol-authored wrapper `timeout <N> env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE <validated base command>`, so the verification subprocess does NOT inherit `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` from a parent reflect-wrapper run. Without this strip, a verification command that itself invokes `superclaude reflect run` (e.g. the reflect CLI's own tests) trips the `commands.py` recursion-breaker guard and self-suppresses, producing a false degraded/null-convergence outcome on a clean audit. This strip applies **only** to the non-mutating verification/build/test subprocess class governed by this envelope. It does **NOT** authorize clearing, unsetting, or overwriting the marker for reflect audits, emitted reflect gate commands, or auto-run corrective `/task` execution — those children MUST keep `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` so nested-gate suppression remains intact. `env -u` here is a fixed wrapper prefix, **not** a user-selectable allowlisted verb (control (b) still validates the base command's first token). The strip preserves controls (d)–(h): the `timeout <N>` wrap from (d) remains the outer wrapper, the executed command is recorded in `<output>/verify-logs/invocations.yaml` per (g), and when `--no-verify` (h) disables the triangle no marker-stripping wrapper runs at all.
 
 **No-mutation gate.** Independently of (b)/(c), any command matching the mutation denylist (`git commit`/`git push`, `pip install`, `rm`, or any redirect to a repo path outside `<output>/`) is rejected with `verify_blocked_reason: "mutation-denied"` and never invoked. In-test side effects (a test that writes fixtures within its own scope) are best-effort only (OQ-M7) — the gate governs the *command*, not the test internals.
 
@@ -566,7 +574,7 @@ Every reusable agent is mapped to a wave; no agent is duplicated inline.
 |-------|------|------|------|----------|
 | `root-cause-analyst` | 1C | UC-2 | Investigate any deviation candidate found in Wave 1B; produce hypothesis card with `deviation_class` field | Inline orchestrator card |
 | `self-review` | 1C | UC-2 (low-stakes) | Cheap 4-question completion pass (tests / edge cases / requirements / rollback) when `S_scope ≤ 3 files` AND `--depth quick` | Inline 4-question template |
-| `requirements-analyst` | 1B | UC-1 | Build the spec-to-tasklist coverage map; surface unmapped requirements | Inline orchestrator analysis |
+| `requirements-analyst` | 1B | UC-1 | Build the spec-to-tasklist coverage map via the Step 1B.0 two-pass extraction (regex Pass 1 + quote-pinned inference Pass 2, D13); surface unmapped requirements across the union set | Inline orchestrator analysis |
 | `confidence-calibrator` | 1D, 3C | both | Blind re-grade per the 5-dim reflection rubric; the dominant anti-anchoring mechanism (calibrator-model ≠ reviewer-model class — see §11.3 disjoint-set rule) | Inline orchestrator calibration with `calibration: inline-fallback` marker |
 | `rf-qa` | 3B | UC-2 (structural) | Adversarial-stance structural QA on diff hunks; runs with `fix_authorization: false` (reflection never auto-fixes) | Inline orchestrator pass on `S_scope ≤ 3` |
 | `rf-qa-qualitative` | 3B | UC-2 (documents) | Adversarial-stance content-level QA when the artifact under review is a document (PRD, TDD, tech-ref) | Skip; UC-2 still runs with `rf-qa` only |
@@ -649,10 +657,10 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
-### 9.1 Stable contract (contract_version: 1.4.0)
+### 9.1 Stable contract (contract_version: 1.5.0)
 
 ```yaml
-contract_version: "1.4.0"
+contract_version: "1.5.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -663,9 +671,12 @@ escalation_rule_matched: <int 1-8> | null
 onboarding_ran: <bool>                # FR-2 (Wave 0.7b one-shot --onboard bootstrap; false when gated off)
 
 # UC-1 specific
-coverage_pct: <float 0.0-1.0> | null
-coverage_undefined: <bool>           # true when no parseable requirement IDs
-unmapped_requirements: [<list>]
+coverage_pct: <float 0.0-1.0> | null            # PARSED-ONLY denominator; pre-D13 semantics UNCHANGED (consumer-safe per the 9.4 additive policy)
+coverage_pct_union: <float 0.0-1.0> | null      # NEW (1.5.0, D13): union denominator (parsed + inferred rows) per Step 1B.0; reflect-internal gates read this
+coverage_undefined: <bool>           # true when no parseable requirement IDs across BOTH extraction passes
+coverage_degraded: <string> | null   # NEW (1.5.0, D13): "parsed-sparse" when inferred_count > parsed_count (Step 1B.2b); table-wide T1-stop pre-filter
+unmapped_requirements: [<list>]                 # PARSED-ONLY; pre-D13 semantics unchanged
+unmapped_requirements_union: [<list>]           # NEW (1.5.0, D13): union set incl. unmatched INF-NNN rows
 best_practice_grade: <int 0-5> | null
 implementation_coverage_pct: <float 0.0-1.0> | null   # FR-1 (null when the kind-guard never fired — C5)
 missing_implementations:                              # FR-1
@@ -790,7 +801,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
 promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.4.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.5.0`.
 
 ### 9.2 Telemetry (non-stable)
 
@@ -848,6 +859,7 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
 | **`sc-task-protocol` end-of-task hook** | Inline post-execution | `status`, `tier_reached`, `deviation_count_by_class`, `confidence_calibrated`, `needs_human_decision` | `status: success AND confidence_calibrated ≥ 0.85` → mark task done; `deviation_count_by_class.regression > 0` → escalate to troubleshoot; `needs_human_decision: true` → surface Grounding Gaps to user. |
 | **`sc:roadmap` validation gate** | Roadmap pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `best_practice_grade` | `coverage_pct < 0.90 OR unmapped_requirements != []` → roadmap re-runs spec coverage; `best_practice_grade < 3` → flag for review. |
 | **`sc:tasklist` generator gate** | Tasklist pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `coverage_undefined` | `coverage_undefined: true` → tasklist generator emits "spec is too sparse for tasklist generation; provide more detail"; `coverage_pct < 0.90` → emit warning. |
+| **Any UC-1 consumer (advisory, D13)** | Optional read | `coverage_degraded`, `coverage_pct_union`, `unmapped_requirements_union` | NON-GATING advisory: `coverage_degraded: "parsed-sparse"` MAY be surfaced as a "spec labeling is sparse; coverage was inference-assisted" warning; the union fields give the inference-inclusive view. Existing consumers need no change (their fields kept parsed-only semantics at 1.5.0). |
 | **`task-builder` skill** | Wave 6 (T3) handoff | `report_path`, `deviation_register_path`, `grounding_gaps_path`, `needs_human_decision` | Reads the three paths to materialize BUILD_REQUEST; `needs_human_decision: true` → BUILD_REQUEST template prompts for user resolution before task is built. |
 | **Wave 7 promotion adapters (in-skill)** | Internal consumer | All 9-condition-gate inputs: `mode`, `status`, `tasklist_completion_pct`, `deviation_count_by_class.{drift,regression}`, `citations_dropped`, `input_drift_detected`, `needs_human_decision`, `user_decision_required`, `convergence_score`, `tier_reached`, frontmatter check | Per §14.5.2 gate; all 9 must pass for mutation; any fail → `promotion_action: skipped/rejected`. |
 | **CI (`make reflect-eval` / `make reflect-eval-quick`)** | grader.py | All fields under "Per-task verdict array" + `status` + `evidence_validator_ran` + `audit_log_path` | Used to score the 6 grading dimensions in §12.1 and assert per-iteration `grading.json` thresholds. |
@@ -1045,7 +1057,7 @@ The orchestrator interprets validator output as:
 
 - `citations_total == 0 AND mode == post` → **`status: partial`** with a "vacuous-success" diagnostic in the report header. A UC-2 post-execution verdict that cites zero files cannot have meaningfully verified anything. This rule does NOT apply to UC-1 (`mode == pre`), where a verdict citing zero files is legitimate (the verdict is about spec coverage, not file evidence) — UC-1 may emit `status: success` with `citations_total == 0`.
 - `citations_total > 0 AND 0 dropped` → `status: success`, but **audit-log a `zero-drop-flag: true` marker** so meta-eval can spot-check.
-- `≥1 dropped` → `status: partial`; the report's "Grounding Gaps" section enumerates dropped citations and the original claim text.
+- `≥1 dropped` → `status: partial`; the report's "Grounding Gaps" section enumerates dropped citations and the original claim text. EXCEPTION (D13): dropped INFERRED-REQUIREMENT rows (Step 1B.0 Pass 2) are enumerated in the Inferred-requirements postscript instead, never in Grounding Gaps; they still count in `citations_dropped` and still force `status: partial`, and the three union/internal coverage fields are recomputed per the Wave-5 rule.
 - Validator subprocess crash → fall back to inline citation re-Read, mark `evidence_validator_ran: false`, force `status: partial`.
 
 The `--no-evidence-validator` flag exists for debugging only; using it forces `status: partial` and emits a loud WARN in chat.
@@ -1528,7 +1540,7 @@ Frontmatter-vs-verdict mismatch (gate condition 5b) is a first-class **Drift** s
 | T2 (2-3 reviewers + adversarial debate) | ~10-25k | ~35-70k | 8-15 min | ~52 turns (`T2-midpoint`) |
 | T3 added | +0 | +20-40k | +5-10 min | +~30 turns |
 
-Targets, not caps. Hard kill at 1.25× estimate per sc-brainstorm convention.
+Targets, not caps. Hard kill at 1.25× estimate per sc-brainstorm convention. (D13 note: in UC-1 the qa-persona reviewer brief now carries the spec body as grounding hunks per `refs/reviewer-spec.md`, adding roughly spec-length tokens to ONE T2 reviewer's brief; the T2 band already absorbs typical spec sizes, but very large specs push toward the band's upper edge.)
 
 **Token-to-turn conversion (consumed by §4.0 Step 0.9 budget routing).** The midpoint values are derived as: `turns ≈ claude_tokens_midpoint / 1000`, i.e., `1 turn ≈ 1k claude-orchestration tokens` at the band midpoint. This conversion is the load-bearing assumption behind §4.0 Step 0.9's `T1-midpoint = 6` and `T2-midpoint = 52` integer anchors. The conversion is approximate (real turn-to-token ratios vary with prompt complexity, tool-call density, and per-call overhead), but is fixed for the purpose of budget-routing arithmetic — callers should NOT recompute it. If §15 band midpoints change, §4.0 Step 0.9 anchors MUST be updated in lockstep. (The machine-readable mirror of this table is `refs/cost-profile.yaml`, regenerated via `make sync-cost-profile`.)
 
@@ -1626,7 +1638,7 @@ Operators using Prometheus's `json_exporter`, StatsD's `dogstatsd-json`, or Open
 **Cross-run aggregation (`.dev/reflect/runs.jsonl`).** A one-line JSON summary is appended to `.dev/reflect/runs.jsonl` at end-of-run. Schema is a subset of `metrics.json` with only the cross-run-comparable fields:
 
 ```json
-{"run_id": "...", "timestamp": "...", "skill_version": "1.4.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
+{"run_id": "...", "timestamp": "...", "skill_version": "1.5.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
 ```
 
 The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
@@ -1757,7 +1769,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
 | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
 | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.4.0"` |
+| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.5.0"` |
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |

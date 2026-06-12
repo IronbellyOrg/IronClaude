@@ -97,7 +97,7 @@ The generator produces exactly **N+1 files** during generation (Stages 1-6) wher
 
 **Naming**: Phase files MUST use the `phase-N-tasklist.md` convention (canonical Sprint CLI convention). Do not emit mixed aliases unless explicitly requested.
 
-**Phase heading**: MUST be `# Phase N -- <Name>` (level 1 heading, em-dash separator, name <= 50 chars).
+**Phase heading**: each phase file starts with a leading YAML frontmatter block (carrying `executor_model_class` for the O2 reflect-wrapper gate) immediately followed by `# Phase N -- <Name>` (level 1 heading, em-dash separator, name <= 50 chars). The frontmatter block is REQUIRED when reflect gating is enabled (the default) — it is the O2 gate's `reflect_post` writeback target, and a frontmatter-less phase file makes the wrapper return `frontmatter-missing` and BLOCK (exit 2). Under `--no-reflect` (no O2 gate) the block may be omitted, in which case `# Phase N -- <Name>` is the first line.
 
 **Index references**: The "Phase Files" table in the index MUST contain **literal filenames** (e.g., `phase-1-tasklist.md`), not path-prefixed references, so the Sprint CLI regex can discover them.
 
@@ -854,13 +854,17 @@ Table schema:
 
 Each phase file is a **self-contained execution unit**. It contains only the tasks for that phase plus inline checkpoints. It does NOT contain registries, traceability matrices, templates, or completion protocol instructions (the Sprint executor injects those).
 
-#### Phase Heading and Goal
+#### Phase Frontmatter and Heading
 
 ```text
+---
+executor_model_class: "<EXECUTOR_CLASS>"
+start_commit: "<PHASE_N_START_SHA>"
+---
 # Phase N -- <Phase Name>
 ```
 
-The heading MUST be a level-1 heading (`#`) with an em-dash separator. The phase name portion must not exceed 50 characters. This format is required for Sprint CLI TUI display name extraction.
+Each phase file begins with a minimal YAML frontmatter block — `executor_model_class` (consumed by the O2 wrapper gate as the `--executor-model` reviewer-exclusion class, contract §6) and optionally `start_commit` — immediately followed by the `# Phase N -- <Name>` heading. **Do NOT seed a `reflect_post:` key or a `# reflect_post` comment line inside the frontmatter:** the wrapper appends the `reflect_post:` block into this frontmatter itself (the block's mere existence is the "room" it needs), and a `#`-prefixed comment line would be mis-read as the phase heading by the Sprint `_extract_phase_name` scanner (it returns the first `#` line). The heading MUST be a level-1 heading (`#`) with an em-dash separator. The phase name portion must not exceed 50 characters. This format is required for Sprint CLI TUI display name extraction; the `count_tasks_in_file` / `parse_tasklist` / `_extract_phase_name` parsers tolerate the leading `---` block (it carries no `### T` task heading and, with no `#` comment, no false phase heading).
 
 Include a one-paragraph phase goal (2-3 sentences max, derived from roadmap).
 
@@ -1035,15 +1039,15 @@ checkpoint report path is fixed at
 
 #### Post-Execution Reflection Task (Terminal — when reflect gating is enabled)
 
-When reflect gating is enabled (default; disabled by `--no-reflect`), append exactly ONE fixed terminal task to each phase file, AFTER the End-of-Phase Checkpoint above. This is the sole task permitted to follow the end-of-phase checkpoint (per the amended checkpoint-is-last invariant set — Self-Check #6 and structural checks #18/#19/#20). It uses the standard Sprint-CLI task shape (metadata table + body sections), is Tier EXEMPT (reflect is the auditor, not itself tier-verified, so it is exempt from the artifact-referencing Acceptance-Criteria minimum), and carries a `**Reflect Report Path:**` (not a Checkpoint Report Path). `<phase-commit-range>` is a placeholder the Sprint executor resolves at execution time — never a fabricated SHA. The spawn directive uses `/sc:reflect` (never the `sc:task` execution command).
+When reflect gating is enabled (default; disabled by `--no-reflect`), append exactly ONE fixed terminal task to each phase file, AFTER the End-of-Phase Checkpoint above. This is the sole task permitted to follow the end-of-phase checkpoint (per the amended checkpoint-is-last invariant set — Self-Check #6 and structural checks #18/#19/#20). It uses the standard Sprint-CLI task shape (metadata table + body sections), is Tier EXEMPT (reflect is the auditor, not itself tier-verified, so it is exempt from the artifact-referencing Acceptance-Criteria minimum), and carries a `**Reflect Report Path:**` (not a Checkpoint Report Path). `<PHASE_N_START_SHA>` is a placeholder resolved at execution time by the task's Step-1 `[VERIFICATION]` (the phase's start commit, a single ref vs the working tree) — never a fabricated generation-time SHA. The gate is a flat `superclaude reflect run` Bash shell-out wrapped in the `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` recursion-breaker skip guard (never the `sc:task` execution command; re-execution uses `/task`).
 
-```markdown
-### T<PP>.<final> -- Post-Execution Reflection: sc:reflect --mode post
+````markdown
+### T<PP>.<final> -- Post-Execution Reflection: superclaude reflect run (wrapper shell-out)
 
 | Field | Value |
 |---|---|
 | Roadmap Item IDs | <all R-### in this phase, comma-separated> |
-| Why | Independent post-execution deviation audit of every task in Phase <PP>, in a fresh session, after all phase work completes. |
+| Why | Independent post-execution deviation audit of every task in Phase <PP>, run by the reflect wrapper after all phase work completes (the wrapper spawns an executor-disjoint reflect ensemble internally). |
 | Effort | S |
 | Risk | Low |
 | Risk Drivers | None |
@@ -1054,33 +1058,43 @@ When reflect gating is enabled (default; disabled by `--no-reflect`), append exa
 | Verification Method | Skip verification (reflect IS the verification) |
 | MCP Requirements | None |
 | Fallback Allowed | Yes |
-| Sub-Agent Delegation | Required (fresh-session reflect ensemble) |
+| Sub-Agent Delegation | No (flat `superclaude reflect run` Bash shell-out; the wrapper spawns the executor-disjoint reflect ensemble internally) |
 | Deliverable IDs | D-RF<PP> |
 
 **Reflect Report Path:** `TASKLIST_ROOT/validation/reflect-post/phase-<PP>/REPORT.md`
 
-**Spawn Directive (fresh session):** Spawn a NEW agent/session and run:
-`/sc:reflect --mode post --remediate --tasklist TASKLIST_ROOT/phase-<PP>-tasklist.md --diff <phase-commit-range> --depth <DETERMINISTIC_DEPTH_for_phase_PP> --tier <DETERMINISTIC_TIER_for_phase_PP> --executor-model <EXECUTOR_CLASS> --output TASKLIST_ROOT/validation/reflect-post/phase-<PP>/`
-(The reflect agent uses the default subagent model; `--executor-model` is the reflect-native exclusion flag naming the class that ran the phase's work, so reflect removes it from the reviewer pool — it does not select a model. Never the `sc:task` execution command.)
+**Gate Command (flat wrapper shell-out, recursion-guarded):** Run, as a single Bash command, the §3.2 skip guard followed by the wrapper invocation:
+```bash
+if [ "${SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE:-0}" = "1" ]; then
+  echo "reflect-wrapper recursion breaker: nested gate suppressed"; exit 0
+fi
+superclaude reflect run TASKLIST_ROOT/phase-<PP>-tasklist.md --depth deep --fix --no-promote --base <PHASE_N_START_SHA> --output TASKLIST_ROOT/validation/reflect-post/phase-<PP>/
+```
+
+`--depth deep` is fixed (contract §2 — no `--tier`, no TCS-derived depth at the POST gate). `--no-promote` is REQUIRED (contract §5 — there is no per-phase promotion adapter). `--base <PHASE_N_START_SHA>` is a runtime-resolved placeholder pinning the audit to this phase's work as a SINGLE ref vs the working tree (NOT a `<base>..HEAD` range); see Step 1. `<EXECUTOR_CLASS>` is NOT passed as a flag — the wrapper sources the reviewer-exclusion class from the phase file's frontmatter `executor_model_class` (contract §6). The wrapper spawns the reflect ensemble internally; the gate uses `superclaude reflect run`, never the `sc:task` execution command (re-execution uses `/task`). Emit NO `--reflect`, NO `--max-turns`, and no agent-spawn directive.
 
 **Steps:**
-1. **[VERIFICATION]** Resolve `<phase-commit-range>` = the git range covering all of Phase <PP>'s task commits.
-2. **[VERIFICATION]** Spawn a fresh session and invoke the Spawn Directive above (reflect audits the committed diff — cross-session-safe).
+
+1. **[VERIFICATION]** Resolve `<PHASE_N_START_SHA>` at execution time = the SHA of the commit immediately preceding Phase <PP>'s first task commit (e.g. the recorded phase-start SHA, or `git rev-parse` of the prior phase's end). It is a SINGLE ref — the wrapper diffs it against the working tree, NOT a `<base>..HEAD` range. Substitute the resolved SHA into the Gate Command's `--base` before invoking it. `<PHASE_N_START_SHA>` is a placeholder, NEVER pre-filled with a fabricated generation-time SHA.
+2. **[VERIFICATION]** Run the Gate Command above. The wrapper spawns the executor-disjoint reflect ensemble internally and runs the bounded `--fix` audit→apply→re-verify loop; consume its exit code (only `0` completes the gate; `10`/`11`/`2` FAIL and are surfaced).
 3. **[COMPLETION]** Confirm `REPORT.md` exists at the Reflect Report Path and surface its deviation counts (authorized/necessary/drift/regression).
 
 **Acceptance Criteria:** (exactly 4 bullets)
+
 - File `TASKLIST_ROOT/validation/reflect-post/phase-<PP>/REPORT.md` exists with a deviation-taxonomy summary.
-- Zero `regression`-class deviations, OR a `--remediate` Tier-3 task was authored for each.
-- Reflect ran with executor-disjoint reviewers (the `<EXECUTOR_CLASS>` passed via `--executor-model` was excluded from the reviewer pool).
+- The wrapper exited `0` (clean OR auto-fixed-and-verified by the bounded `--fix` loop); exit `10`/`11`/`2` FAILS the gate and is surfaced.
+- Reflect ran with executor-disjoint reviewers (the class in the phase file's frontmatter `executor_model_class` was excluded from the reviewer pool).
 - Report includes the per-task verdict matrix for Phase <PP>.
 
 **Validation:**
+
 - Manual check: reviewer confirms the deviation counts in REPORT.md.
 - Evidence: the generated reflect REPORT.md.
 
 **Dependencies:** all regular + checkpoint tasks in Phase <PP>.
 **Rollback:** N/A (reflect is read-only audit; promotion is gated separately).
-```
+
+````
 
 ---
 
@@ -1125,7 +1139,7 @@ Before finalizing output, verify all of the following:
 2. Every phase file referenced in the index exists in the output bundle
 3. Phase numbers are contiguous (1, 2, 3, ..., N) with no gaps
 4. All task IDs match `T<PP>.<TT>` format (zero-padded, 2-digit)
-5. Every phase file starts with `# Phase N -- <Name>` (level 1 heading, em-dash separator)
+5. Every phase file starts with a leading `---` YAML frontmatter block (carrying `executor_model_class` for the O2 reflect-wrapper gate, providing the block the wrapper writes `reflect_post:` back into) immediately followed by `# Phase N -- <Name>` (level 1 heading, em-dash separator). This block is REQUIRED when reflect gating is enabled (the default) — it is the O2 writeback target; a frontmatter-less phase file makes the wrapper return `frontmatter-missing` → BLOCKED (exit 2). It may be omitted ONLY under `--no-reflect`, in which case `# Phase N -- <Name>` is the first line. The Sprint CLI parsers (`_extract_phase_name`, `count_tasks_in_file`, `parse_tasklist`) are frontmatter-tolerant (the block carries no `### T` task heading and no `#` line, so it disturbs neither task-count nor phase-name extraction).
 6. Every phase file ends with an end-of-phase checkpoint task — the last *checkpoint* in the phase (per checks 18-20); when reflect gating is enabled (default), the templated post-reflection task is the sole task permitted to follow that checkpoint and is the absolute last task in the file
 7. No phase file contains Deliverable Registry, Traceability Matrix, or template sections
 8. The index contains literal phase filenames (e.g., `phase-1-tasklist.md`) in at least one table cell

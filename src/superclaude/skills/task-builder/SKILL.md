@@ -38,7 +38,7 @@ The skill needs five pieces of information to produce a well-researched task fil
 
 4. **BUILD_REQUEST file path** (optional) — A `.md` file containing a structured build request. Used for programmatic invocation by other skills or when the request is too complex for a one-line prompt. The file should contain GOAL, WHY, OUTPUTS, CONTEXT, and optionally TEMPLATE preference.
 
-5. **`--spec <path>` -- driving spec/PRD/TDD** (optional) -- The path to the driving specification, PRD, or TDD that the task implements. When supplied it is threaded into the PRE reflect gate's coverage audit (the `--mode pre --spec <path>` call at A.10.7) and baked into the templated POST reflect item's command, so the post-execution deviation audit can check the executed work against the original spec. Resolved in priority order: explicit `--spec <path>` -> an `@file` reference in the GOAL -> a `SPEC:`/`PRD:`/`TDD:` field in a BUILD_REQUEST file -> none. Written to the generated tasklist frontmatter as `spec_path:`. Examples: `--spec .dev/proposals/reflect-in-task-builder.md`, `--spec docs/specs/auth-system-prd.md`.
+5. **`--spec <path>` -- driving spec/PRD/TDD** (optional) -- The path to the driving specification, PRD, or TDD that the task implements. When supplied it is threaded into the PRE reflect gate's coverage audit (the `--mode pre --spec <path>` call at A.10.7). The O1 POST gate is a flat `superclaude reflect run` wrapper shell-out that does NOT take `--spec` (it audits the executed diff via the wrapper's own base resolution), so `--spec` flows to the PRE gate only. Resolved in priority order: explicit `--spec <path>` -> an `@file` reference in the GOAL -> a `SPEC:`/`PRD:`/`TDD:` field in a BUILD_REQUEST file -> none. Written to the generated tasklist frontmatter as `spec_path:`. Examples: `--spec .dev/proposals/reflect-in-task-builder.md`, `--spec docs/specs/auth-system-prd.md`.
 
 ### Skill-Delegated Build Requests
 
@@ -279,7 +279,7 @@ Break the user's request into structured components:
 - **WHY**: Why this task is needed (if stated)
 - **OUTPUTS**: Specific deliverables, paths, formats (if stated)
 - **CONTEXT**: Files, directories, components mentioned (if any)
-- **SPEC_PATH**: The driving spec/PRD/TDD path, resolved in priority order (explicit `--spec <path>` -> an `@file` reference in GOAL -> a `SPEC:`/`PRD:`/`TDD:` field in BUILD_REQUEST -> none); written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` and the POST item's `{SPEC_PATH}` placeholder
+- **SPEC_PATH**: The driving spec/PRD/TDD path, resolved in priority order (explicit `--spec <path>` -> an `@file` reference in GOAL -> a `SPEC:`/`PRD:`/`TDD:` field in BUILD_REQUEST -> none); written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` (the O1 POST wrapper shell-out does not take `--spec`; the spec is consumed by the PRE gate only)
 
 **Triage into Scenario A or B:**
 
@@ -1071,9 +1071,11 @@ Agent:
       NO specific path.py:NN references in this block -- those belong in per-item Context fields.
 
     POST_REFLECT_GATE: ENABLED
-      SPEC_PATH: <spec_path or NONE>
-      DEPTH: <max(tcs-derived depth, standard)>   # POST floor per O4, never quick
       TASK_FILE: ${TASK_FILE}
+      # O1 emits the FLAT wrapper shell-out `superclaude reflect run ${TASK_FILE} --depth deep --fix --promote`
+      # behind the SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE skip guard. No SPEC_PATH/DEPTH is threaded into the POST
+      # emission: --depth is fixed `deep`, and the wrapper resolves the audit base from frontmatter `start_commit`
+      # and the reviewer-exclusion class from frontmatter `executor_model_class`. (PRE still consumes `--spec`.)
 
     DOCUMENTATION STALENESS WARNINGS:
     [If doc cross-validator researcher found issues, list the specific
@@ -1721,7 +1723,7 @@ QUALITY GATES:
 
 REFLECT GATES:
   PRE  (--mode pre):  [PASS coverage=0.94 depth=standard tcs=22] | [FAIL coverage=0.71 see Open Questions] | [SKIPPED no-spec]
-  POST (--mode post): emitted as final-phase item N.{X-1} (the executor runs /sc:reflect via a subagent at the end of the run)
+  POST (superclaude reflect run): emitted as the penultimate final-phase item N.{X-1} — a flat wrapper shell-out (`--depth deep --fix --promote`) behind the recursion-breaker skip guard
 
 TASK FOLDER: ${TASK_DIR}
   research/   [list each research file and its topic]
@@ -2147,6 +2149,9 @@ assigned_to: "orchestrator"
 template_schema_doc: ".claude/templates/workflow/0[1|2]_mdtm_template_[generic|complex]_task.md"
 estimation: "[estimated duration]"
 task_type: static
+start_commit: "<git merge-base HEAD <integration-branch>, captured at build time — the O1 wrapper's audit base when --base is omitted>"
+executor_model_class: "<executor model-class alias, e.g. sonnet — passed to reflect as --executor-model for anti-self-confirmation>"
+# reflect_post: written back by the `superclaude reflect run` wrapper at execution time — leave room, do NOT hand-author or lock.
 related_docs:
 - path: "[relevant file]"
   description: "[why it's relevant]"
@@ -2156,6 +2161,8 @@ tags:
 ---
 
 # [Task Title]
+
+> **Frontmatter population (O1 wrapper gate keys, contract §6):** at build time the builder MUST capture `start_commit` as `git merge-base HEAD <integration-branch>` (resolve `<integration-branch>` from `git symbolic-ref --short refs/remotes/origin/HEAD`, falling back to whichever of `origin/master`/`origin/main` exists; pass it explicitly when the project integrates onto a differently-named branch) — this is the O1 wrapper's audit base when `--base` is omitted. It MUST also record `executor_model_class` (the executor's model-class alias, e.g. `sonnet`) so reflect can exclude the executor from its reviewer panel. `reflect_post:` is left as a room comment — the wrapper writes it back; never hand-author or lock it.
 
 ## Task Overview
 
@@ -2190,12 +2197,12 @@ tags:
 
 ## Phase N: [Final Phase — includes completion items]
 
-- [ ] **N.{X-1} -- Independent post-execution reflection gate (run via subagent)**
-  - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per project memory `feedback_sc_reflect_vs_inline_rfqa`, an independent `/sc:reflect --mode post` ensemble catches spec-literal-token, invariant-arithmetic, and integration/orphan blindspots that same-frame QA misses.
-  - **Action**: Spawn a subagent that runs `/sc:reflect --mode post --remediate --diff <BASE> --tasklist {TASK_FILE} [--spec {SPEC_PATH}] --depth {DEPTH} --executor-model {EXECUTOR_CLASS}` -- where `<BASE>` is the branch's fork point from its integration branch, computed as `git merge-base HEAD <integration-branch>`, where `<integration-branch>` defaults to the repo's ACTUAL default branch -- resolve it with `git symbolic-ref --short refs/remotes/origin/HEAD` (yields e.g. `origin/main` or `origin/master`), falling back to whichever of `origin/master`/`origin/main` exists if that symbolic ref is unset. Do NOT hardcode `origin/master`: when the project integrates onto a DIFFERENTLY-named branch (e.g. `integration`), pass it explicitly rather than relying on the default. Pass `<BASE>` as a SINGLE ref (NOT `<BASE>..HEAD`) so reflect diffs it against the current **working tree** -- this captures the task's changes whether committed, staged, or left as unstaged edits to tracked files. **Caveat -- brand-new untracked files are NOT captured:** `git diff <BASE>` omits files that have never been `git add`-ed, and reflect performs no separate untracked-file enumeration, so newly-created task artifacts escape the audit. Run `git add -A` (or otherwise stage new files) BEFORE this gate so the working-tree diff includes them. **Do NOT use `start_commit..HEAD`:** `start_commit` (the HEAD captured at task start) silently becomes a WRONG base in two common cases -- (a) the work is left **uncommitted** (the usual `/task` outcome: it edits the working tree but does not commit, so a `..HEAD` range audits none of the task's changes), and (b) an **unrelated commit interleaves** on the branch after task start (so `start_commit..HEAD` spans foreign work). `start_commit` is retained in frontmatter for provenance only, never as the diff base. `{DEPTH}` is floored at `standard` per O4 (the POST gate NEVER runs `--depth quick`), and `{EXECUTOR_CLASS}` is this executor's model class so reflect excludes it from its audit panel. Running reflect inside a subagent supplies the clean, executor-disjoint context that prevents self-rubber-stamping, so NO separate human session is needed. The gate command uses `/sc:reflect` and never `/sc:task`; any re-execution uses `/task`.
-  - **Output**: The reflect subagent returns; record its `{verdict, run_id, report}` to this file's frontmatter `reflect_post`. If reflect surfaces deviations, apply the remediations or append them to `### Open Questions` (never delete existing items).
-  - **Verification**: `reflect_post` in frontmatter holds the subagent's `{verdict, run_id, report}` (not empty), and any flagged deviations were remediated or logged to Open Questions.
-  - **Completion gate**: The reflect subagent has returned and its verdict is recorded in `reflect_post`. THEN the Update-status-to-Done item proceeds.
+- [ ] **N.{X-1} -- Independent post-execution reflection gate (wrapper shell-out)**
+  - **Context**: All implementation/test/QA items above are complete. The inline rf-qa gates ran in THIS executor's frame and cannot perform an executor-disjoint audit. Per the reflect-wrapper contract, the canonical POST gate is a flat `superclaude reflect run` Bash shell-out: the wrapper internally runs reflect's POST audit as a disjoint `claude --print` subprocess (the executor-disjoint context that prevents self-rubber-stamping per `feedback_sc_reflect_vs_inline_rfqa`) and, with `--fix`, runs a bounded audit→apply→re-verify loop before writing `reflect_post:` back to this file's frontmatter itself.
+  - **Action**: Ensure new task artifacts are staged so the working-tree diff is complete (`git add -A` — the wrapper's audit omits never-`git add`-ed files). Then emit the recursion-breaker-guarded wrapper shell-out as a single Bash command: first the §3.2 skip guard `if [ "${SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE:-0}" = "1" ]; then echo "reflect-wrapper recursion breaker: nested gate suppressed"; exit 0; fi`, then `superclaude reflect run {TASK_FILE} --depth deep --fix --promote`. `{TASK_FILE}` is the absolute tasklist path (the wrapper absolutizes its positional). NO `--base` is passed — the wrapper resolves the audit base from frontmatter `start_commit` as a SINGLE ref diffed against the working tree (so uncommitted task edits ARE audited; this is why a single-ref base is correct where a `start_commit..HEAD` range would not be). Base precedence is `--base` > frontmatter `start_commit` > `git merge-base HEAD master` (contract §6). `--depth deep` is fixed (O1 forces Tier-2 fan-out); `--fix` runs the bounded auto-fix loop; `--promote` lets the `task` adapter move the tasklist dir to `done/` on a clean/auto-fixed PASS. Emit NO `--reflect`, NO `--max-turns`, NO `<base>..HEAD` range, and no agent-spawn directive of any kind (the gate is a flat shell-out, never a subagent — per NFR-7 it carries none of the nesting tokens). Consume the EXIT CODE: only `0` completes the gate (clean OR auto-fixed-and-verified); `10` (halted — human-required deviations / non-convergent fix loop), `11` (degraded — audit untrustworthy), and `2` (blocked — child crash / missing-or-bad contract) all FAIL → surface the wrapper report and HALT before Update-status-to-Done. The gate uses `superclaude reflect run` and never `/sc:task`; any re-execution uses `/task`.
+  - **Output**: The wrapper returns and writes `reflect_post: {verdict, run_id, report}` back to this file's frontmatter itself (do NOT hand-author or lock it). If the wrapper surfaces unresolved deviations (exit 10/11/2), apply remediations or append them to `### Open Questions` (never delete existing items).
+  - **Verification**: The wrapper exited `0`; frontmatter `reflect_post` holds a non-empty `{verdict, run_id, report}` written by the wrapper; any flagged deviations were remediated or logged to Open Questions.
+  - **Completion gate**: The wrapper exited 0 (clean or auto-fixed-and-verified, and promoted). THEN the Update-status-to-Done item proceeds.
 
 - [ ] **N.X — Update task status to Done**
   - **Context**: All phases complete.
@@ -2250,7 +2257,7 @@ The QA agents (A.10 + A.10.25 + A.10.5) validate the generated task file against
 - [ ] TB-Add-6: Uniform `Verify: ...` prefix and consistent Acceptance Criteria form
 - [ ] TB-Add-7: Every `## Execution Context` "Source areas:" entry reappears in at least one item Context; block contains no file:line citations (INACTIVE if no Execution Context block)
 - [ ] TB-Add-8: Every per-item Context referencing a code surface carries a file:line citation OR an `<!-- evidence-absence: ... -->` comment (PR-01 INV-015 scope-confinement)
-- [ ] POST reflect item present and positioned penultimate (immediately before Update-status-to-Done) when POST_REFLECT_GATE is ENABLED; the item must be the SELF-RUN form (spawns a reflect subagent and records the verdict), NOT a human-handoff/HALT. MALFORMED if omitted or if it halts for a human.
+- [ ] POST reflect item present and positioned penultimate (immediately before Update-status-to-Done) when POST_REFLECT_GATE is ENABLED; the item must be the FLAT wrapper shell-out form (`superclaude reflect run … --depth deep --fix --promote` wrapped in the `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` skip guard, consuming the exit code so only `0` proceeds), NFR-7-clean (no agent-spawn / nesting tokens), and emitting no `--reflect`/`<base>..HEAD`. MALFORMED if omitted, or if it emits the legacy self-run reflect-subagent form or a human-handoff/HALT form.
 
 ---
 
@@ -2309,7 +2316,7 @@ The QA agents (A.10 + A.10.25 + A.10.5) validate the generated task file against
 
 19. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
 
-20. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a SELF-RUN reflect item. The item instructs the executor to spawn a subagent that runs `/sc:reflect --mode post` with the resolved args, then record reflect's `{verdict, run_id, report}` to the `reflect_post` frontmatter and remediate or log any deviations before proceeding to Update-status-to-Done. Running reflect in a subagent supplies the executor-disjoint context, so the item MUST NOT halt for a human or defer to a separate session. The gate command uses `/sc:reflect`, and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED`, or that emits a human-handoff/HALT form instead of the self-run form, is a MALFORMED output.
+20. **POST reflect gate in generated task files.** When the BUILD_REQUEST specifies `POST_REFLECT_GATE: ENABLED`, the builder MUST emit, as the penultimate item of the final phase (immediately before the `Update task status to Done` item, preserving anti-orphaning per the validation checklist), a FLAT wrapper shell-out item: a single Bash command that runs `superclaude reflect run {TASK_FILE} --depth deep --fix --promote` wrapped in the `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` recursion-breaker skip guard (contract §2/§3.2). The item consumes the wrapper's EXIT CODE — only `0` lets Update-status-to-Done proceed; `10`/`11`/`2` FAIL and surface the wrapper report. The wrapper itself runs reflect's POST audit as an executor-disjoint subprocess and writes `reflect_post:` back to frontmatter, so the gate item MUST NOT halt for a human or defer to a separate session, and MUST NOT hand-author `reflect_post`. The gate command uses `superclaude reflect run`, and `/task` (never `/sc:task`) for any re-execution. A generated task file that omits the POST reflect item when `POST_REFLECT_GATE: ENABLED`, or that emits the legacy self-run reflect-subagent form or a human-handoff/HALT form instead of the wrapper shell-out, is a MALFORMED output.
 
 **Precedence rule:** When a BUILD_REQUEST contains both SKILL PHASES TO ENCODE and QA_GATE_REQUIREMENTS, the SKILL PHASES TO ENCODE field is authoritative. QA_GATE_REQUIREMENTS serves as a structured summary and quick reference. For the standalone task-builder (which has no SKILL PHASES TO ENCODE), QA_GATE_REQUIREMENTS is the sole authority for QA gate encoding.
 
@@ -2317,7 +2324,7 @@ The QA agents (A.10 + A.10.25 + A.10.5) validate the generated task file against
 
 ## Reflect Depth (Deterministic TCS)
 
-The PRE reflect gate (A.10.7) and the templated POST item both derive reflect's `--depth` from a **Tasklist Complexity Score (TCS)**: a pure-arithmetic score computed from observable signals on the finished MDTM file + BUILD_REQUEST + spec. No inference is used except a single bounded tiebreaker within +/-4 TCS of a band edge (see below). Each signal carries a **frozen extraction rule (FER)** so two implementers compute the same integer from the same inputs.
+The PRE reflect gate (A.10.7) derives reflect's `--depth` from a **Tasklist Complexity Score (TCS)**: a pure-arithmetic score computed from observable signals on the finished MDTM file + BUILD_REQUEST + spec. (The O1 POST gate does NOT consume the TCS-derived depth — it is a wrapper shell-out fixed at `--depth deep`; see O4.) No inference is used except a single bounded tiebreaker within +/-4 TCS of a band edge (see below). Each signal carries a **frozen extraction rule (FER)** so two implementers compute the same integer from the same inputs.
 
 ### TCS Signals
 
@@ -2353,7 +2360,7 @@ All S* are non-negative integers read directly from the tasklist/spec; the formu
 - **O1: Any `S5 > 0` (human-decision item) => floor `--depth standard`.** A decision or open-question item must get at least the rubric-escalation path.
 - **O2: `S6 = 1` (file-level refactor/remediation `type:`) => force `--depth deep`.** Matches reflect's own unconditional-T2 rule for regression-class surfaces.
 - **O3: Item-count cap:** if checklist item count > 40 (single-track > 50) => floor `--depth standard` even if TCS is low (a large tasklist is never "quick" to audit).
-- **O4: POST-gate depth floor (HARD RULE, no exceptions):** the POST gate depth is one of {`standard`, `deep`}: it may **NEVER** be `quick`. `--depth quick` disables reflect's regression-escalation rubric, and the POST gate audits executed code, which is exactly where that escalation matters most. When the band yields `quick`, the POST command is emitted with `--depth standard` (the PRE call may still use `quick`, since no diff exists pre-execution).
+- **O4: POST-gate depth is fixed `deep` (HARD RULE, no exceptions):** the O1 POST wrapper shell-out always emits `--depth deep` (Tier-2 heterogeneous fan-out per contract §2). This trivially satisfies the historical floor that the POST depth never be `quick` — `--depth quick` disables reflect's regression-escalation rubric, and the POST gate audits executed code, which is exactly where that escalation matters most. The TCS-derived depth is consumed by the PRE call ONLY (the PRE call may still use `quick`, since no diff exists pre-execution); it is NOT threaded into the POST item.
 
 Within +/-4 TCS of a band edge (the span an S2 +/-1 disagreement can traverse), the orchestrator may apply one bounded inference, "are these N FER-distinct dirs truly distinct *logical* subsystems?", recorded as `tcs_boundary_inference: {applied, from, to, reason}` in the sign-off block for auditability. Outside the +/-4 windows, no inference is permitted.
 

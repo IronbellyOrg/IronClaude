@@ -11,7 +11,7 @@ Wave 5 MUST NOT introduce findings that were not already classified upstream. Un
 The header block is the first content in the emitted artifact. It is rendered as a fenced YAML block so downstream parsers (sprint TurnLedger, CI) can lift fields without Markdown parsing.
 
 ```yaml
-contract_version: 1.2.0
+contract_version: 1.5.0
 status: success | partial | needs_human_decision
 mode: pre | post
 tier_reached: 1 | 2
@@ -21,6 +21,7 @@ citations_revalidated: <int>          # M ≤ citations_total; equals citations_
 citations_dropped: <int>              # sample-count when sampled; absolute when full_reread
 citations_inferred: <int>             # count of [INFERRED]-tagged claims
 citation_budget_policy: full_reread | sampled
+coverage_degraded: parsed-sparse | null   # D13 Step 1B.2b guard; null when labeling density is healthy (UC-1 only; omit in post mode)
 ```
 
 Required fields (header is invalid if any are missing):
@@ -32,6 +33,10 @@ Required fields (header is invalid if any are missing):
 - `confidence_calibrated` — calibrator-derived score; self-reported confidence is NOT permitted in this field.
 - `citations_total / citations_revalidated / citations_dropped / citations_inferred` — see budget-policy band below.
 - `citation_budget_policy` — `full_reread` when `citations_total ≤ 20`; `sampled` otherwise.
+
+## Inferred requirements (Pass 2) section (UC-1, D13)
+
+When Step 1B.0 Pass 2 emitted any `INF-NNN` rows, the report includes an `## Inferred requirements (Pass 2)` section rendering one table row per inferred requirement: `| INF id | Verbatim quote | Citation (file:line) | Match result |`. Rows the Wave-5 evidence-validator dropped (quote does not match the cited lines) are listed in a one-line POSTSCRIPT inside this section with the drop reason; dropped INF rows go here and NEVER to the Grounding Gaps section (Grounding Gaps is for report-claim gaps per its own rules). A dropped INF row counts as a dropped citation for the header's `citations_dropped` and therefore forces `status: partial` per the existing dropped-citation rule. The recompute scope is exactly: `coverage_pct_union`, `unmapped_requirements_union`, and `S_dev_density` are recomputed over the surviving union before the report finalizes (the parsed-only `coverage_pct` and `unmapped_requirements` are unaffected by INF drops). When Pass 2 emitted zero rows, the section is omitted entirely (do not emit an empty header). This section is distinct from `[INFERRED]`-tagged report claims below: INF rows are spec-extraction artifacts with load-bearing citations, not non-load-bearing inference chains.
 
 ## Grounded vs [INFERRED] tagging conventions
 

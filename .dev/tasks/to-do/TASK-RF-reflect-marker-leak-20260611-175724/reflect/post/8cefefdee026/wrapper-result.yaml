@@ -1,0 +1,16 @@
+verdict: degraded
+status: success
+tier_reached: 2
+reason: single-reviewer-fallback
+report: /config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-marker-leak-20260611-175724/reflect/post/8cefefdee026/REPORT.md
+contract: /config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-marker-leak-20260611-175724/reflect/post/8cefefdee026/return-contract.yaml
+deviations:
+  authorized: 1
+  necessary: 1
+  drift: 0
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

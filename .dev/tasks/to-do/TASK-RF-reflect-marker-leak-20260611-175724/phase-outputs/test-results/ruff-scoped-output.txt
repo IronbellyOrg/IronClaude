@@ -1,0 +1,18 @@
+# Scoped ruff raw output capture (F1 fix)
+# Task: TASK-RF-reflect-marker-leak-20260611-175724
+# Captured: 2026-06-11T18:59:02Z
+# Cwd: /config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring
+
+====================================================================
+$ uv run ruff format --check tests/cli/reflect/test_marker_suppression.py
+====================================================================
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+1 file already formatted
+[exit code: 0]
+
+====================================================================
+$ uv run ruff check src/superclaude/cli/reflect/ tests/cli/reflect/
+====================================================================
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+[exit code: 0]

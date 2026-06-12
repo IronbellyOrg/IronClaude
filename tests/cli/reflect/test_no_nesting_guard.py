@@ -47,38 +47,46 @@ _NESTING_TOKENS = ("Task(", "subagent_type")
 
 
 def _extract_wrapper_branch(text: str) -> str:
-    """Return the text of the Mode-2 wrapper block in the Phase-N template.
+    """Return the O1 terminal reflect-gate block from the task-builder SKILL.
 
-    The ``--reflect`` dial replaced the legacy ``Wrapper arm
-    (POST_REFLECT_MODE: wrapper)`` heading with the per-mode ``Mode 2`` template;
-    the Bash ``superclaude reflect run`` shell-out behaviour is unchanged.
+    Anchored on the flat wrapper-shell-out item heading (the exact literal the
+    builder emits for the penultimate final-phase item) and bounded at the next
+    checklist bullet (``- [ ] **N.X`` -- the Update-status-to-Done item). The
+    block carries the SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE skip-guard + the
+    ``superclaude reflect run ... --depth deep --fix --promote`` Bash shell-out.
+
+    Fence-agnostic: ``str.index`` matches the unique substring regardless of any
+    surrounding ``` fences or ``---`` rules in the templated MDTM example.
     """
-    marker = "**Mode `2` / `auto-resolved-2` (§6.3, DEFAULT) — wrapper shell-out, remediate:**"
-    start = text.index(marker)
-    # The Mode-2 block ends where the next mode (halt) heading begins.
-    end = text.index("**Mode `halt`", start)
+    anchor = "Independent post-execution reflection gate (wrapper shell-out)"
+    start = text.index(anchor)
+    # Bound at the next checklist item (the Update-status-to-Done bullet).
+    end = text.index("- [ ] **N.X", start)
     return text[start:end]
 
 
 @pytest.mark.xfail(
     reason=(
-        "Cross-component: this Layer-A guard asserts the task-builder SKILL Mode-2 "
-        "wrapper shell-out block (marker `auto-resolved-2`), which is GENERATOR-side "
-        "content emitted by the companion worktree (reflect/f3-hygiene-stage105-e2e). "
-        "It is absent on this wrapper-only canonical base (and on origin/master). "
-        "Adding it here would couple the wrapper to unmerged generator work, which "
-        "NFR-5 forbids. XPASSes (auto-recovers) once the generator's task-builder "
-        "Mode-2 block lands. Out of scope for TASK-RF-reflect-wrapper-autofix."
+        "The Layer-A marker was migrated from the abandoned `Mode 2` / "
+        "`auto-resolved-2` (§6.3) dial taxonomy (PR #157 closed) to the flat "
+        "`superclaude reflect run` contract shape. The helper now anchors on the "
+        "O1 wrapper-shell-out item heading emitted by THIS worktree's "
+        "task-builder/SKILL.md and the test passes against the live O1 emission, "
+        "so it reports XPASS. Kept strict=False (OQ-1) to record the stale-marker "
+        "migration without going red on a half-wired tree."
     ),
     strict=False,
 )
 def test_layer_a_wrapper_branch_is_bash_shellout() -> None:
-    """The wrapper arm is a Bash CLI shell-out with the TCS depth baked (G3)."""
+    """O1 terminal gate is a guarded Bash CLI shell-out (contract §2 / §3.2)."""
     text = _SKILL_SRC.read_text(encoding="utf-8")
     branch = _extract_wrapper_branch(text)
-    # POSITIVE: invokes the CLI as a shell command with the depth passthrough.
+    # POSITIVE -- the flat O1 shell-out (contract §2):
     assert "superclaude reflect run" in branch
-    assert "--depth" in branch
+    assert "--depth deep" in branch
+    assert "--fix" in branch
+    # POSITIVE -- the recursion-breaker skip-guard marker (contract §3.2):
+    assert "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE" in branch
     # NEGATIVE: must NOT route through the Agent/Task tool surface (NFR-7).
     for token in _NESTING_TOKENS:
         assert token not in branch, f"NFR-7 violation: nesting token {token!r}"
