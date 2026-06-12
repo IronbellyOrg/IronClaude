@@ -369,14 +369,12 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
                 # task_dir.
                 if "prd" not in match.name.lower():
                     continue
-                # Exclude the build-task-file MDTM task (TASK-PRD-*.md): it
-                # also contains "prd" but is the task spec that drives Stage B,
-                # not the assembled PRD. Without this, the task_dir search
-                # selects the task file and breaks before reaching the real
-                # assembled PRD that assembly writes to the output dir
-                # (task_dir.parent), failing the min-lines gate on the wrong
-                # document.
-                if match.name.upper().startswith("TASK-"):
+                # Exclude only the build-task-file MDTM task (TASK-PRD-*.md):
+                # it also contains "prd" but is the task spec that drives Stage
+                # B, not the assembled PRD. Keep the pattern narrow so a real
+                # assembled PRD for a product slug such as task-tracker-prd.md
+                # remains eligible.
+                if match.name.upper().startswith("TASK-PRD-"):
                     continue
                 try:
                     content = match.read_text(encoding="utf-8", errors="replace")
@@ -584,9 +582,7 @@ class PrdExecutor:
                 # and is STANDARD-tier, so it does not halt here.
                 if step_result.status.is_failure:
                     gate = GATE_CRITERIA.get(step_id)
-                    strict_gate_fail = bool(
-                        gate and gate.enforcement_tier == "STRICT"
-                    )
+                    strict_gate_fail = bool(gate and gate.enforcement_tier == "STRICT")
                     if step_result.status.is_hard_failure or strict_gate_fail:
                         result.outcome = "halt"
                         result.halt_step = step_id

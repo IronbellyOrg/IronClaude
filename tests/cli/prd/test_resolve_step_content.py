@@ -251,6 +251,21 @@ def test_assembly_excludes_task_file_and_picks_real_prd(tmp_path: Path) -> None:
     assert "task" not in result
 
 
+def test_assembly_allows_task_slug_prd_filename(tmp_path: Path) -> None:
+    """A legitimate assembled PRD may start with a product slug of ``task-``."""
+    parent = tmp_path / "out-task-slug"
+    parent.mkdir()
+    task_dir = parent / "prd-task-tracker"
+    task_dir.mkdir()
+
+    real = _write_lines(task_dir / "task-tracker-prd.md", 900, prefix="prd")
+
+    result = _resolve_step_content("assembly", task_dir, "ndjson commentary")
+
+    assert result == real
+    assert len(result.splitlines()) >= 800
+
+
 def test_assembly_falls_back_to_ndjson_when_only_task_file_present(
     tmp_path: Path,
 ) -> None:
