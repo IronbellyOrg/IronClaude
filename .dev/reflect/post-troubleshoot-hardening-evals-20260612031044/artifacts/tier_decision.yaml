@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 4          # S_domains >= 3 (code, tests, schema/config, fixtures)
+composite_score: 7.0
+per_signal_breakdown:
+  scope_size: 2               # 28 tracked harness files, 23677 insertions across full diff
+  task_count: 2               # 78 checklist items / multi-milestone M1-M5
+  blast_radius: 1             # tests/-only; no src/ or .claude/ mutation (out-of-scope respected)
+  spec_density: 0             # near-zero unmapped hunks; harness maps tightly to NFR-1/§8.3
+  ambiguity_signals: 2        # E4 heal-commit SHA discrepancy is a deviation candidate
+escalation_reason: "multi-domain harness (code+tests+schema+fixtures) AND E4 heal-commit correction is a deviation candidate warranting >=2-reviewer debate"

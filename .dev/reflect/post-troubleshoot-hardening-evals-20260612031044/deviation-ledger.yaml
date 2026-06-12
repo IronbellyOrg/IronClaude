@@ -1,0 +1,16 @@
+# UC-2 deviation ledger — 4-category taxonomy. 0 Drift, 0 Regression.
+- ref: "tests/troubleshoot/backtest/_impl_guard.py:25-40"
+  class: authorized
+  rationale: "NEW=CATCH half skip-guarded on impl-ref file existence pending sibling impl branch. Spec-sanctioned partial-by-design (tasklist description + RELEASE-SPEC NFR-1 predicted-until-built posture; backtest_status default not_run). Self-clearing skipif, not dead test."
+  evidence: "_impl_guard.py requires_hardening_impl keyed on FOUNDATION_REFS existence; tasklist frontmatter 'OLD=MISS green now, NEW=CATCH skip-guarded'."
+- ref: "tests/troubleshoot/backtest/test_backtest_e4.py:14-19"
+  class: necessary
+  rationale: "Spec/research cited E4 HEAD-heal as 20693bb8; verified merged heal is acd5631f(#158). Harness documents the discrepancy inline and pins replay base to pre-fix PARENT 1b0264f1 (where bug IS present), NOT HEAD. Forced by on-disk reality, documented inline, contradicts no acceptance criterion (criterion='replay at pre-fix parent', satisfied)."
+  evidence: "Both 20693bb8 and acd5631f exist in git; acd5631f is merged #158 on master; b97c9960 (fix) UNMERGED; git_replay.py:56 stores prefix_parent 1b0264f1. Executor's own QA (qa-final-consolidated-findings.md) independently flagged + corrected this in-cycle."
+# Advisory (non-ledger) note — routed neither to Drift nor blocking:
+# S-1 (haiku): "_impl_guard.py prose 'OLD=MISS runs UNCONDITIONALLY' is precise relative to the
+#   impl-ref dependency (its contrastive meaning) but not absolute — module-level pytestmark skipif
+#   (test_backtest_e4.py:41) also gates OLD=MISS when the pre-fix parent is absent on a shallow CI
+#   clone. Contradicts NO acceptance criterion (spec MANDATES the CI skip-guard). LOW advisory,
+#   doc-precision only. Suggested (non-blocking) remediation: tighten the docstring wording to
+#   'runs without an impl-ref dependency' to avoid the 'absolute-unconditional' reading."

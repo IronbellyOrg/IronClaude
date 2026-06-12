@@ -1,0 +1,141 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# eval_cli_doc_parity — doc⇆CLI flag-parity gate for `superclaude eval run`.
+#
+# CADENCE (operator-facing metadata; not enforced by the eval framework):
+#   - On every PR touching the `eval run` Click option block in
+#     src/superclaude/cli/eval/commands.py, or the FR-CLI1 flag references in
+#     docs/eval/suites-guide.md.
+#   - Nightly via the CI scheduled job alongside the rest of the cliEval roster.
+#
+# WHAT THIS SUITE GUARDS:
+#   The documented `superclaude eval run` flag surface stays in sync with the
+#   flags the CLI actually exposes. `eval run`'s docstring advertises "the twelve
+#   FR-CLI1 flags" and docs/eval/suites-guide.md references each of them. If a
+#   flag is renamed/removed/dropped from `--help` by a refactor of the Click
+#   option block, the docs silently drift and operators paste invocations that
+#   error out. These evals diff the LIVE `superclaude eval run --help` text against
+#   the twelve documented flag long-names and assert each is present.
+#
+# WHY home_strategy=ephemeral:
+#   `superclaude eval run --help` reads nothing from $HOME or the working tree and
+#   exits 0 with no MCP/HOME state. The default ephemeral HOME is correct and keeps
+#   the suite fully host-independent.
+#
+# WHY no_pty=skip:
+#   The PTY harness drives a Claude Code subprocess; matching the rest of the eval
+#   inventory keeps `--no-pty` semantics uniform across suites.
+#
+# Evidence (fresh-context, captured at authoring time):
+#   - `superclaude eval run --help` (live, exit 0) enumerated exactly twelve
+#     options: --suite, --parallel, --eval, --no-mcp, --no-pty, --output-dir,
+#     --keep-home, --timeout-mult, --max-disk-mb, --json, --verbose, --junit; and
+#     rendered --suite as [required].
+#   - House style (eval_smoke.yaml / installer_sync_drift.yaml): inputs[].prompt
+#     carries the Claude prompt; expects[] is a list of single-key objects
+#     ({stdout:{contains:...}}, {exit_code:{equals:0}}).
+name: eval_cli_doc_parity
+version: "1.0"
+description: "Doc⇆CLI flag-parity gate: asserts the twelve documented `superclaude eval run` flags stay in sync with `superclaude eval run --help`. Cadence: on-PR + nightly."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: git,                          failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: DP1
+    title: "eval run --help exposes the core safety flags (--suite/--no-pty/--no-mcp/--json)"
+    category: doc-parity
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # DP1 — drive `superclaude eval run --help` and assert the four most
+    # operator-load-bearing documented flags appear in the help text. These are
+    # the flags the suites-guide.md "safest dry-run shape" line depends on
+    # (`--suite <name> --no-pty --no-mcp --json`). --help exits 0 without HOME or
+    # MCP state, so the assertions are host-independent. Split from DP2 so a
+    # failure localizes which half of the flag surface drifted.
+    inputs:
+      - prompt: "Run `superclaude eval run --help` via the Bash tool and print the full stdout verbatim. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "--suite"
+      - stdout:
+          contains: "--no-pty"
+      - stdout:
+          contains: "--no-mcp"
+      - stdout:
+          contains: "--json"
+
+  - id: DP2
+    title: "eval run --help exposes the remaining documented FR-CLI1 flags"
+    category: doc-parity
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # DP2 — drive the same `superclaude eval run --help` and assert the remaining
+    # eight of the twelve documented FR-CLI1 flags appear: --eval, --parallel,
+    # --keep-home, --timeout-mult, --max-disk-mb, --output-dir, --junit, --verbose.
+    # Together with DP1's four, this pins the full twelve-flag surface advertised
+    # by the `eval run` docstring and referenced throughout suites-guide.md.
+    inputs:
+      - prompt: "Run `superclaude eval run --help` via the Bash tool and print the full stdout verbatim. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "--eval"
+      - stdout:
+          contains: "--parallel"
+      - stdout:
+          contains: "--keep-home"
+      - stdout:
+          contains: "--timeout-mult"
+      - stdout:
+          contains: "--max-disk-mb"
+      - stdout:
+          contains: "--output-dir"
+      - stdout:
+          contains: "--junit"
+      - stdout:
+          contains: "--verbose"
+
+  - id: DP3
+    title: "eval run --help still marks --suite as [required] (contract guard)"
+    category: doc-parity
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # DP3 — drive `superclaude eval run --help` and assert the `--suite` option is
+    # still rendered as `[required]`. This is the documented contract (a suite must
+    # always be named) and distinguishes a real Click option line from incidental
+    # prose: the `[required]` marker only appears on a genuine required option.
+    # Catches the regression where `--suite` loses `required=True` (which would
+    # silently change the documented invocation contract while keeping the long
+    # name present, so DP1 alone would not catch it).
+    inputs:
+      - prompt: "Run `superclaude eval run --help` via the Bash tool and print the full stdout verbatim. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "[required]"

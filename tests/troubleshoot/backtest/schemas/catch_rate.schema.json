@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://superclaude.dev/troubleshoot/backtest/catch_rate.schema.json",
+  "title": "sc:troubleshoot pipeline-hardening catch-rate report",
+  "description": "Schema for `catch-rate.json` emitted by the E1-E5 differential backtest harness. Producer: `tests.troubleshoot.backtest.catch_rate.CatchRateReport.to_dict()`. Writer: `catch_rate_report.write_catch_rate_report`. Drives NFR-1 `backtest_status`. The anti-vacuity derivation (all-5-CATCH AND each with negative_witness AND non-null card_path -> complete) is enforced in `CatchRateReport.__post_init__`, not by this schema; the schema documents the required field shape + enums.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "generated_at",
+    "contract_version",
+    "backtest_status",
+    "total_escapes",
+    "caught",
+    "missed",
+    "catch_rate",
+    "escapes",
+    "proxy_limitation"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Opaque identifier stamped on the backtest run."
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO 8601 wall-clock timestamp marking report generation."
+    },
+    "contract_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Semantic version of the catch-rate output contract."
+    },
+    "backtest_status": {
+      "$ref": "#/$defs/backtestStatus"
+    },
+    "total_escapes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of escape records (the catch_rate denominator). 5 for a full E1-E5 run; 0 for a not_run report. The waiver-re-green meta-scenario is EXCLUDED (it backs NFR-4, not NFR-1)."
+    },
+    "caught": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of escapes with verdict CATCH."
+    },
+    "missed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of escapes with verdict MISS."
+    },
+    "catch_rate": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "caught / total_escapes (0.0 when total_escapes == 0)."
+    },
+    "escapes": {
+      "type": "array",
+      "description": "Per-escape differential records (E1-E5).",
+      "items": {"$ref": "#/$defs/escapeResult"}
+    },
+    "proxy_limitation": {
+      "type": "string",
+      "minLength": 1,
+      "description": "REQUIRED serialized note recording that NEW=CATCH is a documentation-presence proxy (so it cannot be dropped from the artifact / oversold). minLength 1 makes it required-HONEST, not merely required-present: an empty caveat cannot ship in the JSON SoT."
+    }
+  },
+  "$defs": {
+    "backtestStatus": {
+      "type": "string",
+      "enum": [
+        "not_run",
+        "partial",
+        "complete"
+      ],
+      "description": "RELEASE-SPEC sec 4.5 backtest_status enum. Default not_run."
+    },
+    "escapeId": {
+      "type": "string",
+      "pattern": "^E[0-9]+$",
+      "description": "This schema's OWN escape-id pattern (E1..E5). Declared fresh here; NOT reused from summary.schema.json, which carries no escape-id/eval-id pattern $def."
+    },
+    "escapeResult": {
+      "type": "object",
+      "required": [
+        "escape_id",
+        "wave",
+        "verdict",
+        "negative_witness",
+        "card_path",
+        "detail"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "escape_id": {"$ref": "#/$defs/escapeId"},
+        "wave": {
+          "type": "string",
+          "description": "The H-wave (e.g. H1..H4) the escape maps to in RELEASE-SPEC sec 8.3."
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "CATCH",
+            "MISS"
+          ],
+          "description": "CATCH = new H-gate would catch; MISS = not proven caught."
+        },
+        "negative_witness": {
+          "type": "boolean",
+          "description": "True iff the OLD=MISS negative witness was observed for this escape."
+        },
+        "card_path": {
+          "type": ["string", "null"],
+          "description": "Path to the NEW=CATCH proof surface (impl-ref card); null until impl refs land. A null card_path blocks complete (anti-vacuity)."
+        },
+        "detail": {
+          "type": "string",
+          "description": "Human-readable note on the observed differential."
+        }
+      }
+    }
+  }
+}
