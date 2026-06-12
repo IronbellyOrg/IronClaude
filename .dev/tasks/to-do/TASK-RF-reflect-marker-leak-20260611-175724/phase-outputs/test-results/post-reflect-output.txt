@@ -1,0 +1,5 @@
+### PRE-RUN ENV ASSERTION: SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE is <absent/UNSET>
+reflect: degraded (single-reviewer-fallback)
+  report: /config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-marker-leak-20260611-175724/reflect/post/8cefefdee026/REPORT.md
+  contract: /config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-marker-leak-20260611-175724/reflect/post/8cefefdee026/return-contract.yaml
+### POST_REFLECT_EXIT_CODE=11

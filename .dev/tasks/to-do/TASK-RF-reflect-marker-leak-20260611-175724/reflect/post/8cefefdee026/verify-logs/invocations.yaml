@@ -1,0 +1,23 @@
+# §6.1 step 5.5 verification triangle — independent re-run by the auditor.
+# The marker-strip under audit was DOGFOODED: each command wrapped with
+# `env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` (the marker WAS present in this run's env: value "1").
+- cmd: "timeout 300 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/cli/reflect/test_marker_suppression.py -q"
+  exit_code: 0
+  result: "6 passed in 0.14s"
+  deviation_class: none
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff format --check src/superclaude/skills/sc-reflect-protocol/ tests/cli/reflect/test_marker_suppression.py"
+  exit_code: 0
+  result: "2 files already formatted"
+  deviation_class: none
+- cmd: "timeout 120 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run ruff check tests/cli/reflect/test_marker_suppression.py"
+  exit_code: 0
+  result: "All checks passed!"
+  deviation_class: none
+- cmd: "timeout 180 env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE make verify-sync"
+  exit_code: 0
+  result: "All components in sync."
+  deviation_class: none
+# Adversarial probe (NOT a verification command — a test-robustness simulation):
+- probe: "delete control-(i) bullet from §6.1.1, re-evaluate the regression test's two assertions"
+  result: "both assertions remain True → test false-passes on surgical control-(i) removal (control (b):494 duplicates the sentinel string)"
+  deviation_class: none   # quality finding, not a deviation of the work vs spec
