@@ -1,0 +1,9 @@
+{"timestamp": "2026-06-10T14:29:26.684431+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": true, "message": "All checks passed (advisory: advisory_check: advisory_check failed)"}
+{"timestamp": "2026-06-10T14:29:26.685520+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
+{"timestamp": "2026-06-10T14:29:26.686464+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
+{"timestamp": "2026-06-10T14:29:27.298884+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": true, "message": "All checks passed (advisory: advisory_check: advisory_check failed)"}
+{"timestamp": "2026-06-10T14:29:27.299790+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
+{"timestamp": "2026-06-10T14:29:27.300670+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
+{"timestamp": "2026-06-10T15:22:23.932491+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": true, "message": "All checks passed (advisory: advisory_check: advisory_check failed)"}
+{"timestamp": "2026-06-10T15:22:23.933330+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
+{"timestamp": "2026-06-10T15:22:23.934159+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}

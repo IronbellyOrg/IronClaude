@@ -1,0 +1,42 @@
+contract_version: "1.2.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: .dev/reflect/post-prd-document-capture-hotfix-20260607212717/REPORT.md
+confidence_calibrated: 0.93
+escalation_rule_matched: 2
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 4
+  necessary: 1
+  drift: 0
+  regression: 0
+verification_ran: true
+verification_failures: 0
+verification_regressions_detected: 0
+
+# Hallucination guard
+citations_total: 7
+citations_revalidated: 7
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Tier 2 (not run)
+tier2_ran: false
+t2_model_class_diversity: null
+
+# Promotion
+promotion_action: skipped
+promotion_skip_reason: deferred-pending-PR-merge
+promotion_gate_passed: true

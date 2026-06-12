@@ -1,0 +1,49 @@
+contract_version: "1.3.0"
+status: partial          # 1 Drift finding (gate cond-4) → not promotable as-is
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-prd-halt-hard-failure-20260608121957/REPORT.md
+confidence_calibrated: 0.86
+escalation_rule_matched: null   # forced by --depth deep (§5.1 hard override)
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 2     # halt_reason field add (N1), tuple-idiom (N2) — from Tier-1, re-affirmed
+  drift: 1         # NEW (Tier-2): step-level halt_reason orphaned; never surfaces at pipeline level
+  regression: 0
+deviation_register_path: .dev/reflect/post-prd-halt-hard-failure-20260608121957/REPORT.md
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble
+reviewer_models: [sonnet, haiku, opus]
+reviewer_personas: [analyzer, qa, refactorer]
+t2_model_class_diversity: full
+t2_vendor_diversity: single        # all Anthropic — warn-only (§19.1)
+executor_class_resolved: true
+executor_class_source: log-heuristic   # executor = opus (this session)
+executor_exclusion_degraded: true  # reviewer-3 shares executor class (opus); independence weakened, flagged
+merge_method: orchestrator-inline  # sc-adversarial not separately invoked; convergence computed inline
+adversarial_convergence_score: 0.83  # 3/3 reviewers converged on Finding A; strong cross-class agreement
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: true   # 1 Drift
+needs_human_decision: true             # Drift finding + uncommitted work → operator decision
+user_decision_required: true
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_adapter: task
+promotion_skip_reason: gate-failed     # cond-4 (drift==0) fails; also work uncommitted + user said no auto-mutate
+promotion_gate_passed: false
+promotion_source: .dev/tasks/to-do/TASK-RF-20260608-021500
+promotion_destination: .dev/tasks/done/TASK-RF-20260608-021500
