@@ -362,11 +362,21 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
                 if "-output.txt" in match.name:
                     continue
                 # Only a PRD-named file is the assembled PRD. The pipeline
-                # always writes the assembled document as PRD_*.md; a bare
-                # markdown-heading probe would false-match Stage A artifact
-                # files (research-notes.md, sufficiency-review.md, ...)
-                # that the executor persists into task_dir.
+                # writes the assembled document with "prd" in its name
+                # (e.g. <product-slug>-prd.md); a bare markdown-heading probe
+                # would false-match Stage A artifact files (research-notes.md,
+                # sufficiency-review.md, ...) that the executor persists into
+                # task_dir.
                 if "prd" not in match.name.lower():
+                    continue
+                # Exclude the build-task-file MDTM task (TASK-PRD-*.md): it
+                # also contains "prd" but is the task spec that drives Stage B,
+                # not the assembled PRD. Without this, the task_dir search
+                # selects the task file and breaks before reaching the real
+                # assembled PRD that assembly writes to the output dir
+                # (task_dir.parent), failing the min-lines gate on the wrong
+                # document.
+                if match.name.upper().startswith("TASK-"):
                     continue
                 try:
                     content = match.read_text(encoding="utf-8", errors="replace")
