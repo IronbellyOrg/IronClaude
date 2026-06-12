@@ -93,6 +93,11 @@ the wrapper → reflect → new remediation → … forever.
 
 2. **Generators (obligations):**
    - MUST NOT clear, unset, or overwrite `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE`.
+   - Exception: executors MAY remove `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` only from
+     ordinary verification/build/test subprocess environments that cannot emit or
+     execute reflect gates; they MUST preserve it for reflect audits, reflect gate
+     commands, and auto-run `/task` execution so nested-gate suppression remains
+     intact.
    - SHOULD additionally **skip emitting / skip executing** the gate when the
      marker is already `"1"` at gate time (belt-and-suspenders). A safe emission
      shape:
