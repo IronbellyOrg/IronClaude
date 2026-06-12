@@ -56,6 +56,10 @@ Explicit only — three activation paths:
 
 This command does ONLY parse + environment-validate + handoff. It parses the flags, verifies the PR target is the fork (`IronbellyOrg/IronClaude`, never upstream), and hands off to the protocol skill via the Activation section below. The full behavioral specification — the FSM, the detection contract, severity routing, verify-before-remediate, troubleshoot dispatch, validation gates, the push triad, reply/resolve, and the loop guard — lives in the skill.
 
+## Arming (R1 detection probe, T-210)
+
+`--monitor 0` always works (it just opens the PR). To arm at `--monitor >= 1`, the detection contract must be locked. The shipped `refs/detection-contract.md` ships `locked: false`, so a fresh clone safely HALTs ("probe first"). To arm on this fork, run the R1 probe once against a PR the Augment App has reviewed (capture `augment_bot_login`, `emission_shape`, `findings_locus`, etc.), write the gitignored operator-local override `.dev/pr-monitor/detection-contract.locked.md` with `locked: true`, and the arm path (`DetectionContract.for_arming()`) prefers it. The repo-specific bot identity therefore never ships in the distributable skill.
+
 ## Activation
 
 **MANDATORY**: Before executing any protocol steps, invoke:
