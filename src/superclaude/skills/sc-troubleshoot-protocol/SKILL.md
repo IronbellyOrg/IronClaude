@@ -59,6 +59,17 @@ The skill returns a structured dictionary on completion:
 | `diagnosability_context_card_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-context.md`; `null` only when `--no-diagnosability-audit` was set or Wave 1.6 was not reached |
 | `diagnosability_tasklist_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-tasklist.md`; populated when verdict ∈ {partial, insufficient} AND tasklist was emitted; `null` for sufficient/unknown/skipped |
 | `diagnosability_hard_stop` | bool | `true` when Wave 1.6 fired the hard-stop and skipped Waves 1.7-4; mutually informative with existing `status: partial` |
+| `contract_version` | semver string | Output-contract semver, default `1.0.0`. Additive version stamp for the Pipeline Hardening Closure fields below (FR-13); existing consumers reading only the prior fields are unaffected (NFR-6). Distinct from `target_release`. |
+| `pipeline_hardening_applicable` | bool | `true` when Wave 4.5 H0 classifies the issue as a pipeline escape / boundary change; default `false`. Set exactly once by H0. |
+| `pipeline_hardening_verdict` | enum `pass \| blocked \| advisory \| not_applicable` | Deterministic aggregation of the H0–H5 statuses + `waiver_status` per `refs/hardening-output-contract.md` §5.4; default `not_applicable`. Once a waiver is latched the verdict is `blocked`/`advisory` and is never re-greened to `pass`/`success` by a downstream stage. |
+| `waiver_status` | enum `none \| latched` | One-way latch; default `none`. `none`→`latched` only; once `latched`, `pipeline_hardening_verdict` ∈ {blocked, advisory}. |
+| `backtest_status` | enum `not_run \| partial \| complete` | E1–E5 replay coverage state; default `not_run`. Production-facing pipeline-health signoff stays `advisory` until `complete`. |
+| `off_path_review_decision` | enum `required \| performed \| waived_with_rationale \| not_required` | Wave 4.5 H5 off-path-review decision; default `not_required`. |
+| `runtime_entrypoint_card_path` | string \| null | Absolute path to the H1 runtime-entrypoint card; `null` before H1 runs. |
+| `contract_ledger_path` | string \| null | Absolute path to the H2 contract-enumeration ledger; `null` before H2 runs. |
+| `unmask_sweep_path` | string \| null | Absolute path to the H3 unmask/sweep/classifier card; `null` before H3 runs. |
+| `effective_input_card_path` | string \| null | Absolute path to the H4 effective-input manifest; `null` before H4 runs. |
+| `known_escapes_caught` | list | List of `{escape_id, wave, card_path, status}` objects; default `[]`. Membership requires a cited passing wave/card (`status=PASS`) per the anti-inflation rule. |
 
 **`test_is_wrong` derivation rule** (applied during Wave 5 synthesis): set `test_is_wrong=true` when the chosen diagnosis names a test file (not production code) as the file requiring change, AND one of these conditions holds:
 
@@ -85,6 +96,7 @@ Wave 1.7: Tier 1 — Hypothesis Formation ← always; consumes Wave 1.5 Document
 Wave 2: Confidence Gate              ← decides escalation via refs/escalation-rubric.md
 Wave 3: Tier 2 — Parallel Hypotheses (conditional)
 Wave 4: Tier 2 — Adversarial Fix Debate (conditional, requires ≥2 viable fixes)
+Wave 4.5: Pipeline Hardening Closure ← conditional, when pipeline_hardening_applicable=true (issue topology); runs gates H0-H5; loads the 6 hardening refs
 Wave 5: Synthesis + Report        ← always finalises; loads refs/report-template.md
                                     Wave 1.6 hard-stop edge: → Wave 5 (skip Waves 1.7-4); sets diagnosability_hard_stop=true and status=partial
 Wave 6: Tier 3 — Remediation Chain (conditional, requires --fix + user accept)
@@ -382,6 +394,26 @@ Verification command (run before publishing): for each `tier2-*-hypothesis.md` (
 
 ---
 
+### Wave 4.5: Pipeline Hardening Closure
+
+**Goal**: When the diagnosed issue is a *pipeline escape* (a defect at a runtime / generated-artifact / shared-contract / review-input boundary), prove the invariant at the same boundary where the escape can recur — before the report closes. This wave closes the E1–E5 escape class via reusable, mechanism-based gates H0–H5. Full mode spec: `refs/pipeline-hardening-closure.md`.
+
+**Trigger**: Topology-driven, **not** a CLI flag (NFR-5). This wave runs after Tier-1 diagnosis is settled (and after any Tier-2 waves) and before report closure. H0 sets `pipeline_hardening_applicable=true` when the issue touches a trigger boundary (CLI/subprocess, file/stdin/prompt delivery, generated-artifact parser, gate/severity/status enum, duplicated evaluator, persisted/resume state, review/audit selector, sibling pipeline, prior-escape unmask); otherwise it sets `false` and records the boundary scan that justifies the skip. When `applicable=false`, skip H1–H5 and proceed to Wave 5.
+
+**Steps** (when `pipeline_hardening_applicable=true`):
+
+1. **H0 — Applicability + mechanism** (`refs/pipeline-hardening-closure.md`): emit the typed boundary-scan rows, a feature-agnostic mechanism statement, and the candidate `known_escapes_caught` set (each ID justified by the wave/card that catches it). A bare "looks local" rationale is invalid. H1–H5 cannot be silently skipped — each emits `PASS` / `FAIL` / `N/A` with a rationale/waiver.
+2. **H1 — Runtime-entrypoint verification** (`refs/runtime-entrypoint-verification.md`): build the runtime-entrypoint card; the replay must reach the production boundary (not a helper/mock), with a negative witness (fix-reverted → FAIL) for every forbidden interpretation. Record `runtime_entrypoint_card_path`.
+3. **H2 — Contract enumeration** (`refs/contract-enumeration.md`): build the producer/transformer/consumer ledger and sweep sibling pipelines / duplicate evaluators. FAIL on an empty ledger, an unclassified live consumer, or generic proof used for a product path without proving the product path reaches it. Record `contract_ledger_path`.
+4. **H3 — Unmask and sweep** (`refs/unmask-and-sweep.md`): run full generated artifacts through the small formal allow-list grammar (word-boundary matching; substring containment is never behavior-controlling), with positive + sibling-negative + full-artifact-mixed fixtures and per-consumer HALT/WARN/CONTINUE assertions; document `K_true`/`K_swept`. Record `unmask_sweep_path`.
+5. **H4 — Effective-input proof** (`refs/effective-input-proof.md`): when an independent review/audit/reflect gate consumes an indirect selector, prove `|included_files ∩ runtime_surface_claim|` is correct (fail closed on absent / empty-despite-changes / non-reproducible / non-empty-but-wrong-surface — `E>0` is not sufficient). Record `effective_input_card_path`.
+6. **H5 — Off-path reviewer rule** (`refs/pipeline-hardening-closure.md`): set `off_path_review_decision` ∈ `required | performed | waived_with_rationale | not_required`. A waiver is invalid if it merely says tests pass / reviewer independent / command exists / issue looks local. A valid `waived_with_rationale` sets the one-way `waiver_status` latch.
+7. **Verdict aggregation** (`refs/hardening-output-contract.md`): compute `pipeline_hardening_verdict` ∈ `pass | blocked | advisory | not_applicable` deterministically from the H0–H5 statuses + `waiver_status` per the §5.4 truth table. `FAIL` is sticky; a `latched` waiver forces the verdict into `{blocked, advisory}` and can never be re-greened to `pass`/`success` by a downstream stage. Populate the additive Output Contract fields (see Output Contract above).
+
+**Exit criteria**: `pipeline_hardening_verdict` computed, `waiver_status` set, the four `*_card_path`/`*_path` fields recorded for every wave that ran, and `known_escapes_caught` populated (membership earned per the anti-inflation rule). The verdict + evidence paths are carried into the Wave 5 report (Pipeline Hardening Closure section). When `applicable=false`, the recorded reason + boundary scan are carried into Wave 5 instead.
+
+---
+
 ### Wave 5: Synthesis + Report
 
 **Goal**: Produce one diagnosis report at `<output-dir>/REPORT.md` regardless of which tier ran.
@@ -400,6 +432,7 @@ Verification command (run before publishing): for each `tier2-*-hypothesis.md` (
    - Alternative Fixes Considered (Tier 2 only — the losing proposals from the debate, with one-line reason each)
    - Risk + Rollback (what to watch after applying)
    - Next Steps (Tier 1: rerun with `--depth deep` if needed; Tier 2 without `--fix`: re-invoke with `--fix` to authorize remediation; Tier 2 with `--fix`: confirm to proceed to Wave 6)
+   - Pipeline Hardening Closure (only when `pipeline_hardening_applicable=true` from Wave 4.5): render `pipeline_hardening_verdict` (`pass`/`blocked`/`advisory`/`not_applicable`), `waiver_status`, `off_path_review_decision`, the H0–H5 evidence-card paths (`runtime_entrypoint_card_path`/`contract_ledger_path`/`unmask_sweep_path`/`effective_input_card_path`), and `known_escapes_caught`; use `NOT PROVEN` blockers when any required proof is absent. When `applicable=false`, render the one-sentence reason + the boundary scan instead. Section template in `refs/report-template.md`.
 
    **Sprint-failure recovery hint.** When the diagnosed target is a `superclaude sprint run` phase that failed on a *subset* of its tasks from a transient cause (API outage, timeout, rate limit — not a logic defect), the Proposed Fix / Next Steps SHOULD surface `superclaude sprint rerun-tasks <tasklist-index.md> --phase N --tasks T<…>` as the surgical recovery: it re-executes only the named failed tasks and merges results back, instead of re-running the whole phase via `--start N`. Recommend `--dry-run` first to preview the plan, and note `--restore` rolls back a botched merge. (Per-task statuses live in `phase-N-result.json`; tasks classified `fail_recoverable` are the usual candidates.)
 
@@ -544,5 +577,11 @@ These are targets, not hard caps. Auggie tokens are offloaded to a free / low-co
 | `refs/report-template.md` | Wave 5 |
 | `refs/remediation-handoff.md` | Wave 6 |
 | `refs/diagnosability-audit.md` | Wave 1.6 (audit query templates, fallback paths, sufficiency rubric, complexity gate, context card template, tasklist rules + hard constraints, T4 worked example) |
+| `refs/pipeline-hardening-closure.md` | Wave 4.5 (mode skeleton, H0 applicability + boundary-scan schema, H5 off-path-reviewer rule) |
+| `refs/hardening-output-contract.md` | Wave 4.5 (verdict-aggregation truth table, output-contract field schema, waiver / no-re-greening latch) |
+| `refs/runtime-entrypoint-verification.md` | Wave 4.5 (H1 runtime-entrypoint card + negative-witness rule) |
+| `refs/contract-enumeration.md` | Wave 4.5 (H2 contract ledger + empty-ledger FAIL + sibling sweep) |
+| `refs/unmask-and-sweep.md` | Wave 4.5 (H3 classifier + allow-list grammar + word-boundary/near-miss fixtures) |
+| `refs/effective-input-proof.md` | Wave 4.5 (H4 fail-closed effective-input manifest) |
 
 Each ref is loaded only by the wave that needs it. Do not pre-load.

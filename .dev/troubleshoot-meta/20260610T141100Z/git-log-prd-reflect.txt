@@ -1,0 +1,80 @@
+1b0264f1 2026-06-10 fix(pipeline): robust large-prompt stdin delivery (chunked write + size guard) + cli_portify --add-dir anchor (#156)  (HEAD -> master, origin/master, origin/HEAD)
+eb9a2633 2026-06-10 fix(prd): make parallel-instructions gate advisory (warn, don't halt) (#155)
+445dab7a 2026-06-10 fix(pipeline): parse SUPERCLAUDE_PROMPT_MAX_BYTES defensively to avoid import-time hard-fail  (origin/fix/pipeline-stdin-large-prompts)
+879bb64f 2026-06-10 fix(test): update stale assertions superseded by the --reflect dial  (origin/reflectWrapper, reflectWrapper)
+0ecc3f82 2026-06-10 fix(prd): include output_file in advisory gate warning for traceability  (origin/fix/prd-parallel-gate-advisory)
+3a2db5f0 2026-05-01 test(pipeline): argv byte-size invariant for huge prompts
+39739bc2 2026-05-01 test(pipeline): pin tool_write_mode contract
+b9fc4132 2026-05-01 fix(pipeline): chunked stdin write with EINTR retry, error capture, finally-close
+2b132f79 2026-05-01 feat(pipeline): pre-spawn size guard + capture encoded prompt for reuse
+ab0d1e8f 2026-05-01 feat(pipeline): add PROMPT_MAX_BYTES and PromptTooLargeForArgv exception
+b17ae06e 2026-05-01 fix(cli_portify): anchor --add-dir on --output-format instead of dead -p lookup
+e1dce941 2026-06-10 fix(prd): make parallel-instructions gate advisory (warn, don't halt)
+e97aa4fd 2026-06-09 fix(prd): exempt sequential completion phase from parallel-instructions gate (#154)  (feat/reflect-wrapper-onto-master)
+10723863 2026-06-09 fix(task-builder): base POST-reflect --diff on merge-base working-tree, not start_commit (#153)
+ecadfe47 2026-06-10 feat(task-builder): add --reflect <none|0|1|2|auto> POST-gate dial
+fc9d4732 2026-06-10 docs(auggie-review): make --wait-for-indexing mandatory in the base invocation  (origin/fix/prd-parallel-gate-final-phase-exempt, origin/chore/auggie-review-wait-for-indexing)
+d240c6b8 2026-06-09 fix(task-builder): correct POST-reflect diff-base doc gaps  (origin/fix/task-builder-post-reflect-diff-base)
+ff65a278 2026-06-09 fix(prd): word-boundary completion-signal match in parallel gate
+ab2dae1a 2026-06-09 fix(reflect): remediate seven POST-reflect audit findings (F0-F6) in the reflect wrapper
+efc5cc62 2026-06-09 fix(prd): exempt sequential completion phase from parallel-instructions gate
+68da27c4 2026-06-09 fix(task-builder): base POST-reflect --diff on merge-base working-tree, not start_commit
+d878bc6d 2026-06-09 feat(swarm): per-worker model differentiation + MultiModelSwarm docs & E2E tests (#152)
+015e7285 2026-06-09 feat(reflect): add superclaude reflect run fail-closed POST-gate wrapper
+a96e3eaf 2026-06-09 feat(swarm): per-worker model differentiation + MultiModelSwarm docs & E2E tests
+7601ad25 2026-06-09 fix(prd): deliver specs/refs inline instead of via cloud-only --file flag (#151)
+235f59ee 2026-06-09 fix(prd): deliver specs/refs inline instead of via cloud-only --file flag  (origin/fix/prd-local-file-no-session-token)
+94d5baa0 2026-06-08 fix(sprint): recovery deliverable-stranding + checkpoint robustness (incl. path-doubling) (#150)
+ac80f176 2026-06-08 feat(task-builder): converge rigorflow task-builder, rf agents, and MDTM templates (incl. #138 sc:reflect) (#144)
+b0de1479 2026-06-08 feat(swarm): MultiModelSwarm orchestrator (M1-M8) + 7-HALT remediation [WIP draft] (#148)
+f131592f 2026-06-08 fix(prd): harden artifact-read crash paths (F2/F4/F5) + halt-on-hard-failure plumbing (#149)
+39e83480 2026-06-08 Merge remote-tracking branch 'origin/master' into fix/prd-document-capture-hotfix  (origin/fix/prd-document-capture-hotfix)
+309210c9 2026-06-08 fix(task-builder): RESTORE self-run POST reflect gate + S5 decision-point [HUMAN-JUDGMENT, DO NOT AUTO-REVERT]  (origin/feature/task-builder-merge)
+2c20b970 2026-06-08 merge: resolve master into feature/task-builder-merge (SKILL.md reflect-gate + TCS S6)  (feature/task-builder-merge)
+1bca452d 2026-06-08 fix(prd): harden artifact-read crash paths (F2/F4/F5) + halt-on-hard-failure plumbing
+7c86cbd5 2026-06-08 test(task-builder): supersede TB-Add-2 guards for clayphi's intentional removal (804eb4f4)
+348e9400 2026-06-08 fix(task-builder): close PR #144 reflect follow-ups (exec-context test supersession + stable L-range anchor)
+8197762a 2026-06-08 docs(swarm): apply 7 resolved HALT decisions to MMS planning artifacts (F-P1-3/F-P3-4/F-P7-1/F-P9-1/F-P9-3/F-P9-2)
+b05e0fe1 2026-06-07 fix(prd): pin canonical output paths + harden recovery for document-capture gate failure (#147)
+ae1fb73a 2026-06-08 Merge origin/master into fix/prd-document-capture-hotfix  (fix/prd-document-capture-hotfix)
+5495ba28 2026-06-07 feat(reuse-audit): reuse-auditor agent + sc-reflect/tdd integration (#146)
+1d262fda 2026-06-07 fix(sprint): rerun-tasks verify-checkpoints option mismatch (drop --phase/--quiet, add OUTPUT_DIR positional) (#145)
+3a552d24 2026-06-07 fix(reflect): F3a/F3b guard hygiene + Stage 10.5/post-reflect e2e evidence (#142)
+3ed3430d 2026-06-07 chore(reflect): archive pass-recovered audit artifacts (#141)
+3a76e2b3 2026-06-07 feat(prd): add --spec FILE for deterministic spec ingestion (Phase 1 + 1.5) (#140)
+1cf4f6b6 2026-06-07 docs(reuse-audit): address PR #146 review — clarify reuse-auditor output contract + wiring  (origin/feat/HolisticAudit, feat/HolisticAudit)
+efd6a493 2026-06-07 fix(prd): address PR #147 review — fail-safe ranking, per-candidate symlink guard, prompt/docstring sync
+f0552ac4 2026-06-07 fix(prd): pin canonical output paths + harden recovery for document-capture gate failure
+ebcda53f 2026-06-07 docs(reuse-audit): agent eval (PASS) + Tier-2 reflect report
+bd7ee01e 2026-06-06 feat(reuse-audit): reuse-auditor agent + sc-reflect/tdd integration
+55cd0edd 2026-06-07 fix(prd): dedup --spec values + fire R5   resume-path WARN from persisted SPECS (PR #140)  (origin/feature/prd-input-spec, feature/prd-input-spec)
+d317541d 2026-06-07 fix(sprint): rerun-tasks verify-checkpoints option mismatch (drop --phase/--quiet, add OUTPUT_DIR positional)  (origin/fix/sprint-rerun-verify-checkpoints, fix/sprint-rerun-verify-checkpoints)
+4f0a60fb 2026-06-07 feat(task-builder): converge rigorflow task-builder + rf agents + MDTM templates (incl. #138 sc:reflect)
+ff1a3f10 2026-06-07 fix(sprint): rerun-tasks verify-checkpoints option mismatch (drop --phase/--quiet, add OUTPUT_DIR positional)  (origin/feature/prd-spec-flag, feature/prd-spec-flag)
+9e521e2d 2026-06-06 test(reflect): e2e evidence — Stage 10.5 pre-reflect + terminal post-reflect gates  (origin/reflect/f3-hygiene-stage105-e2e, reflect/f3-hygiene-stage105-e2e)
+93f4383b 2026-06-05 fix(reflect): F3a/F3b — e2e-surfaced template guard hygiene
+e6ebacc5 2026-06-06 test(reflect): e2e evidence — Stage 10.5 pre-reflect + terminal post-reflect gates  (origin/ReflectInTaskList, ReflectInTaskList)
+0e813c33 2026-06-06 chore(reflect): archive pass-recovered audit artifacts  (origin/chore/reflect-pass-recovered-artifacts, chore/reflect-pass-recovered-artifacts)
+6060c5a8 2026-06-06 feat(prd): add --spec FILE for deterministic spec ingestion (Phase 1 + 1.5)
+236fe30a 2026-06-05 docs(swarm): MultiModelSwarm dir consolidation + deep reflect remediation artifacts
+7c46ba58 2026-06-05 feat(swarm): Multi-Model Swarm orchestrator (M1-M8, WIP) consolidated from BareReview
+67199ad1 2026-06-05 fix(reflect): F3a/F3b — e2e-surfaced template guard hygiene
+7dd3f9bd 2026-06-04 feat(reflect): wire /sc:reflect PRE+POST gates into task-builder and sc:tasklist pipelines (#138)
+ee15ed5f 2026-06-04 feat(reflect): wire /sc:reflect PRE+POST gates into task-builder and sc:tasklist pipelines
+5d660ca9 2026-06-04 feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation (#124)
+b49541e6 2026-06-03 feat(sprint): v4.3.5 auto-resume default for run/rerun-tasks + UC-2 reflection remediation
+80fd3520 2026-06-04 docs(sc-reflect): remediate PR #133 critiques — tasklist wording, --task-log row, headlined flags, duplicate-copy sync (#135)
+2262256b 2026-06-04 docs(sc-reflect): remediate PR #133 critiques — tasklist wording, --task-log row, headlined flags, duplicate-copy sync  (origin/docs/pr133-reflect-critique-remediation, fix/holisticThinking, docs/pr133-reflect-critique-remediation)
+b9724e49 2026-06-04 docs(sc-reflect): align command + user-guide docs with v2.0.0 tiered protocol surface (#133)
+ebace10c 2026-06-03 docs(dev): MultiModelSwarm run artifacts + sprint/task backlog brainstorms + PR123 brief (#130)
+4f4a2134 2026-06-04 docs(ataraxy): add AtaraxyLabs eval plan + reflect-remediation bundle  (origin/docs/ataraxy-labs-eval-plan-remediation, docs/ataraxy-labs-eval-plan-remediation)
+2ea470c1 2026-06-04 docs(sc-reflect): align command + user-guide docs with v2.0.0 tiered protocol surface  (origin/docs/sc-reflect-surface-sync, docs/sc-reflect-surface-sync, ReflectInTaskLists)
+66050658 2026-06-04 WIP on docs/sc-reflect-surface-sync: 1a00efb2 Roadmap pipeline brittleness-elimination (R0 bridge + R1 substrate rewrite) (#112)  (refs/stash)
+6690af8d 2026-06-04 index on docs/sc-reflect-surface-sync: 1a00efb2 Roadmap pipeline brittleness-elimination (R0 bridge + R1 substrate rewrite) (#112)
+de5f22d9 2026-06-04 chore(releases): add Current/ MultiModelSwarm + SprintRunReflect run artifacts
+1a00efb2 2026-06-03 Roadmap pipeline brittleness-elimination (R0 bridge + R1 substrate rewrite) (#112)
+68f645c1 2026-06-03 feat(sprint-cli): wire dead per-task execution path + typed handoff + bounded parallelism (Stages 0-3 + RC) (#120)
+238d6583 2026-06-03 feat(sc:recommend): lookup-cache layer (Haiku hot/cold dispatch + --eval pipeline + plugin eval gate) (#127)
+e188c644 2026-06-03 feat(skills): add ccsession-tag session manager skill (#123)
+99bdf77d 2026-06-03 docs(reflect): add sprint progress-report template + TUI-upgrade brainstorm handoff  (origin/chore/sprint-progress-report-template)
+5af4bce8 2026-06-03 feat(sc-reflect-protocol): 8 low-complexity Serena adoptions (FR-RV3-LOW.1-8) + audit remediation (#122)

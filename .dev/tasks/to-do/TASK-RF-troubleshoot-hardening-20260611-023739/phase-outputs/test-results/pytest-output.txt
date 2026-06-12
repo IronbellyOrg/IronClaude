@@ -1,0 +1,30 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.13.0
+collecting ... collected 18 items
+
+tests/troubleshoot/test_hardening_h0.py::test_h0_applicability_skip_requires_boundary_scan PASSED [  5%]
+tests/troubleshoot/test_hardening_h0.py::test_h0_boundary_scan_schema_rejects_bare_local_reason PASSED [ 11%]
+tests/troubleshoot/test_hardening_h1.py::test_h1_runtime_card_requires_negative_and_positive_witness PASSED [ 16%]
+tests/troubleshoot/test_hardening_h2.py::test_h2_empty_ledger_fails PASSED [ 22%]
+tests/troubleshoot/test_hardening_h2.py::test_h2_sibling_sweep_required_when_concept_shared PASSED [ 27%]
+tests/troubleshoot/test_hardening_h3.py::test_h3_word_boundary_rejects_incomplete_representation PASSED [ 33%]
+tests/troubleshoot/test_hardening_h3.py::test_h3_small_grammar_rejects_setext_and_decorated_verdicts PASSED [ 38%]
+tests/troubleshoot/test_hardening_h3.py::test_h3_sweep_card_requires_k_true_k_swept_and_mixed_fixture PASSED [ 44%]
+tests/troubleshoot/test_hardening_h4.py::test_h4_nonempty_wrong_surface_fails_closed PASSED [ 50%]
+tests/troubleshoot/test_hardening_h4.py::test_h4_manifest_schema_requires_intersection_proof PASSED [ 55%]
+tests/troubleshoot/test_hardening_output_contract.py::test_output_contract_backward_compat PASSED [ 61%]
+tests/troubleshoot/test_hardening_output_contract.py::test_backtest_status_keeps_pipeline_health_advisory_until_complete PASSED [ 66%]
+tests/troubleshoot/test_hardening_output_contract.py::test_report_closure_section_not_proven_blockers PASSED [ 72%]
+tests/troubleshoot/test_hardening_verdict.py::test_waiver_latch_one_way PASSED [ 77%]
+tests/troubleshoot/test_hardening_verdict.py::test_h5_decision_maps_to_status_and_latch PASSED [ 83%]
+tests/troubleshoot/test_hardening_verdict.py::test_known_escapes_requires_cited_card PASSED [ 88%]
+tests/troubleshoot/test_hardening_verdict.py::test_verdict_aggregation_from_h_statuses PASSED [ 94%]
+tests/troubleshoot/test_hardening_verdict.py::test_downstream_success_cannot_override_latched_hardening_verdict PASSED [100%]
+
+============================== 18 passed in 0.03s ==============================
