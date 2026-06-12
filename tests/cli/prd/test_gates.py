@@ -107,12 +107,19 @@ class TestCheckVerdictField:
 
     @pytest.mark.parametrize(
         "shape",
-        ["Verdict: PASS", "**Verdict**: PASS", "**Verdict:** PASS"],
+        [
+            "Verdict: PASS",
+            "**Verdict**: PASS",
+            "**Verdict:** PASS",
+            "**Verdict:** **PASS**",
+            "**VERDICT: PASS**",
+            "**VERDICT:** **FAIL**",
+        ],
     )
     def test_check_verdict_field_accepts_valid_markdown_shapes(
         self, shape: str
     ) -> None:
-        """The three legitimate markdown verdict shapes are accepted."""
+        """Legitimate markdown verdict shapes are accepted."""
         content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
         assert _check_verdict_field(content) is True
 
@@ -357,8 +364,7 @@ class TestBuildTaskFileGateAdvisoryWiring:
         from superclaude.cli.prd.gates import GATE_CRITERIA
 
         checks = {
-            c.name: c
-            for c in (GATE_CRITERIA["build-task-file"].semantic_checks or [])
+            c.name: c for c in (GATE_CRITERIA["build-task-file"].semantic_checks or [])
         }
         assert checks["parallel_instructions"].advisory is True
         assert checks["task_phases_present"].advisory is False

@@ -371,10 +371,10 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
                     continue
                 # Exclude only the build-task-file MDTM task (TASK-PRD-*.md):
                 # it also contains "prd" but is the task spec that drives Stage
-                # B, not the assembled PRD. Keep the pattern narrow so a real
-                # assembled PRD for a product slug such as task-tracker-prd.md
-                # remains eligible.
-                if match.name.upper().startswith("TASK-PRD-"):
+                # B, not the assembled PRD. Keep the pattern narrow and
+                # case-sensitive so a real assembled PRD for a product slug such
+                # as task-prd-tracker-prd.md remains eligible.
+                if match.name.startswith("TASK-PRD-"):
                     continue
                 try:
                     content = match.read_text(encoding="utf-8", errors="replace")

@@ -266,6 +266,21 @@ def test_assembly_allows_task_slug_prd_filename(tmp_path: Path) -> None:
     assert len(result.splitlines()) >= 800
 
 
+def test_assembly_allows_task_prd_slug_filename(tmp_path: Path) -> None:
+    """The task artifact exclusion is case-sensitive to the MDTM prefix."""
+    parent = tmp_path / "out-task-prd-slug"
+    parent.mkdir()
+    task_dir = parent / "prd-task-prd-tracker"
+    task_dir.mkdir()
+
+    real = _write_lines(task_dir / "task-prd-tracker-prd.md", 900, prefix="prd")
+
+    result = _resolve_step_content("assembly", task_dir, "ndjson commentary")
+
+    assert result == real
+    assert len(result.splitlines()) >= 800
+
+
 def test_assembly_falls_back_to_ndjson_when_only_task_file_present(
     tmp_path: Path,
 ) -> None:
