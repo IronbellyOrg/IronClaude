@@ -1,0 +1,156 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+   Building superclaude @ file:///config/workspace/IronClaude
+      Built superclaude @ file:///config/workspace/IronClaude
+Uninstalled 1 package in 9ms
+Installed 1 package in 6ms
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collected 1071 items
+
+tests/sprint/diagnostic/test_debug_logger.py .......................     [  2%]
+tests/sprint/diagnostic/test_diagnostics.py ................             [  3%]
+tests/sprint/diagnostic/test_instrumentation.py ........................ [  5%]
+......                                                                   [  6%]
+tests/sprint/diagnostic/test_level_0.py .........                        [  7%]
+tests/sprint/diagnostic/test_level_1.py ..........                       [  8%]
+tests/sprint/diagnostic/test_level_2.py ......                           [  8%]
+tests/sprint/diagnostic/test_level_3.py .....                            [  9%]
+tests/sprint/diagnostic/test_negative.py .........                       [ 10%]
+tests/sprint/e2e_real/test_e2e_abort_restore.py ...                      [ 10%]
+tests/sprint/e2e_real/test_e2e_lock_and_retry_cap.py ...                 [ 10%]
+tests/sprint/e2e_real/test_e2e_rerun_happy_path.py .                     [ 10%]
+tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py ..                 [ 10%]
+tests/sprint/test_anti_instinct_sprint.py .................              [ 12%]
+tests/sprint/test_backward_compat_regression.py ..................       [ 14%]
+tests/sprint/test_checkpoints.py ....................................... [ 17%]
+                                                                         [ 17%]
+tests/sprint/test_cli_contract.py ................                       [ 19%]
+tests/sprint/test_config.py ............................................ [ 23%]
+....                                                                     [ 23%]
+tests/sprint/test_context_injection.py ..................                [ 25%]
+tests/sprint/test_diagnostics.py ..                                      [ 25%]
+tests/sprint/test_e2e_halt.py .....                                      [ 26%]
+tests/sprint/test_e2e_success.py .F....                                  [ 26%]
+tests/sprint/test_e2e_trailing.py ...........                            [ 27%]
+tests/sprint/test_execute_sprint_integration.py .....                    [ 28%]
+tests/sprint/test_executor.py .......................................... [ 32%]
+................................................                         [ 36%]
+tests/sprint/test_gate_display_state.py ....................             [ 38%]
+tests/sprint/test_integration_halt.py .....                              [ 38%]
+tests/sprint/test_integration_lifecycle.py .....                         [ 39%]
+tests/sprint/test_integration_signal.py .....                            [ 39%]
+tests/sprint/test_kpi_contract.py ....                                   [ 40%]
+tests/sprint/test_kpi_report.py ........................                 [ 42%]
+tests/sprint/test_models.py ............................................ [ 46%]
+........................................................................ [ 53%]
+..........................                                               [ 55%]
+tests/sprint/test_monitor.py ...........................                 [ 58%]
+tests/sprint/test_multi_phase.py ..                                      [ 58%]
+tests/sprint/test_nfr_benchmarks.py .......                              [ 59%]
+tests/sprint/test_phase5_negative_validation.py ........................ [ 61%]
+.                                                                        [ 61%]
+tests/sprint/test_phase8_halt_fix.py ............................        [ 64%]
+tests/sprint/test_preflight.py ......................................... [ 67%]
+................                                                         [ 69%]
+tests/sprint/test_process.py .........................................   [ 73%]
+tests/sprint/test_recovery.py ..............                             [ 74%]
+tests/sprint/test_regression_gaps.py ................................... [ 77%]
+..                                                                       [ 77%]
+tests/sprint/test_rerun_tasks.py .............                           [ 79%]
+tests/sprint/test_rerun_tasks_e2e.py ...                                 [ 79%]
+tests/sprint/test_rerun_tasks_failure_modes.py ........                  [ 80%]
+tests/sprint/test_resolve_release_dir.py ........                        [ 80%]
+tests/sprint/test_resume_semantics.py .........                          [ 81%]
+tests/sprint/test_retrospective.py ................                      [ 83%]
+tests/sprint/test_shadow_mode.py ...............                         [ 84%]
+tests/sprint/test_state_dir_isolation.py ....                            [ 85%]
+tests/sprint/test_summarizer.py .........................                [ 87%]
+tests/sprint/test_tmux.py .............                                  [ 88%]
+tests/sprint/test_tui.py ..........                                      [ 89%]
+tests/sprint/test_tui_gate_column.py ........                            [ 90%]
+tests/sprint/test_tui_monitor.py .....                                   [ 90%]
+tests/sprint/test_tui_task_updates.py ....                               [ 91%]
+tests/sprint/test_tui_v2_wave1.py ...................................... [ 94%]
+.                                                                        [ 94%]
+tests/sprint/test_tui_v2_wave2.py ..................................     [ 97%]
+tests/sprint/test_watchdog.py .....                                      [ 98%]
+tests/sprint/test_wiring_budget_scenarios.py ........                    [ 99%]
+tests/sprint/test_wiring_integration.py ....                             [ 99%]
+tests/sprint/test_wiring_mode_resolution.py ....                         [ 99%]
+tests/sprint/test_wiring_performance.py .                                [100%]
+
+=================================== FAILURES ===================================
+_______________ TestE2ESuccess.test_jsonl_events_for_each_phase ________________
+tests/sprint/test_e2e_success.py:142: in test_jsonl_events_for_each_phase
+    assert len(events) == 8
+E   AssertionError: assert 9 == 8
+E    +  where 9 = len([{'event': 'sprint_start', 'index': '/tmp/claude-1000/pytest-of-abc/pytest-15/test_jsonl_events_for_each_pha0/tasklist.../pytest-of-abc/pytest-15/test_jsonl_events_for_each_pha0/phase-3-tasklist.md', 'phase_name': 'Test Phase 3', ...}, ...])
+----------------------------- Captured stdout call -----------------------------
+╭──────── SUPERCLAUDE SPRINT RUNNER == test_jsonl_events_for_each_pha0 ────────╮
+│                                                                              │
+│  test_jsonl_events_for_each_pha0    Elapsed: 0m 1s                           │
+│                                                                              │
+│    #  Phase                              Status       Duration   Turns    O  │
+│    1  Test Phase 1                        PASS              0s       -       │
+│    2  Test Phase 2                        PASS              0s       -       │
+│    3  Test Phase 3                        PASS              0s       -       │
+│                                                                              │
+│  Phases ████████████████████ 100% 3/3    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+│  0/0                                                                         │
+│                                                                              │
+│  Summary: Phase 3 summary ready:                                             │
+│  /tmp/claude-1000/pytest-of-abc/pytest-15/test_jsonl_events_for_each_pha0/r  │
+│  esults/phase-3-summary.md                                                   │
+│                                                                              │
+│  ╭─────────────────────────── Sprint Complete ────────────────────────────╮  │
+│  │ Result:    ALL PHASES PASSED                                           │  │
+│  │ Duration:  0m 1s                                                       │  │
+│  │ Turns:     0 total  (avg 0.0/phase)                                    │  │
+│  │ Tokens:    in=0  out=0                                                 │  │
+│  │ Output:    282 B                                                       │  │
+│  │ Files:     3                                                           │  │
+│  │ Log:                                                                   │  │
+│  │ /tmp/claude-1000/pytest-of-abc/pytest-15/test_jsonl_events_for_each_ph │  │
+│  │ a0/execution-log.md                                                    │  │
+│  ╰────────────────────────────────────────────────────────────────────────╯  │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+----------------------------- Captured stderr call -----------------------------
+[INFO] Phase 1: pass (0s)
+[INFO] Phase 2: pass (0s)
+[INFO] Phase 3: pass (0s)
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.sprint.config:config.py:428 No task headings (### T<PP>.<TT>) found in tasklist content
+WARNING  superclaude.sprint.config:config.py:428 No task headings (### T<PP>.<TT>) found in tasklist content
+WARNING  superclaude.sprint.config:config.py:428 No task headings (### T<PP>.<TT>) found in tasklist content
+=============================== warnings summary ===============================
+tests/sprint/diagnostic/test_diagnostics.py: 11 warnings
+tests/sprint/diagnostic/test_level_0.py: 2 warnings
+tests/sprint/diagnostic/test_negative.py: 3 warnings
+  <string>:15: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_crash
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_diagnostics.py:221: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.CRASH
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_error_halt
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_diagnostics.py:228: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.ERROR
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_unknown_when_no_evidence
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_diagnostics.py:241: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.UNKNOWN
+
+tests/sprint/diagnostic/test_negative.py::TestCorruptData::test_classifier_with_empty_bundle
+  /config/workspace/IronClaude/tests/sprint/diagnostic/test_negative.py:109: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    cat = classifier.classify(bundle)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/sprint/test_e2e_success.py::TestE2ESuccess::test_jsonl_events_for_each_phase
+================= 1 failed, 1070 passed, 20 warnings in 46.58s =================

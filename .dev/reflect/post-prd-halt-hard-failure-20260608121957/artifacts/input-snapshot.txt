@@ -1,0 +1,6 @@
+36cd741da2f2d714848aee856fe4b54bcd2d0a452fc1f592d4a06e9b1a4dff50  src/superclaude/cli/prd/models.py
+17abfb8f305710383c481b44ea4acf45ea96834a387ad5bfba6c5af62d063c57  src/superclaude/cli/prd/executor.py
+bb155f89e43f48314c341a06d75da7023a5f9863e42e6e3daeac7bf1a18e663a  src/superclaude/cli/prd/prompts.py
+838aa80dddb88863c837b1bc6bf34a5feea241b675380ae96d1eed096833794f  tests/cli/prd/test_models.py
+f51b877e113f0cd44fb3a5116aa9af7ac2837dff3da9d353480def84a5344fe7  tests/cli/prd/test_e2e.py
+993d8f7bbdea34f2f7fce2c189004283bc3c3fc6be37fabe3dab1b8834808bdc  .dev/tasks/to-do/TASK-RF-20260608-021500/TASK-RF-20260608-021500.md

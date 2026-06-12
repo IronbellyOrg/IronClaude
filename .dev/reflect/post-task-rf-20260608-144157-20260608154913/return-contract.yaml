@@ -1,0 +1,67 @@
+contract_version: "1.3.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/post-task-rf-20260608-144157-20260608154913/REPORT.md
+confidence_calibrated: 0.92
+
+# UC-2 verdict
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 5
+  necessary: 0
+  drift: 0
+  regression: 0
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+
+# Verification triangle
+verification_ran: true
+verification_invocations: 2          # ruff + pytest
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_inferred: 1                # intra-file F2-vs-Atom2 authorship boundary (provenance only)
+citation_budget_policy: full_reread
+evidence_validator_ran: true         # inline re-Read gate (§11.2) — flagged anchors re-Read before report
+
+# Tier 2 ensemble
+reviewer_count: 3
+reviewer_personas: [root-cause-analyst, quality-engineer, refactoring-expert]
+merge_method: convergent             # all 3 reviewers agreed; no adversarial split to merge
+adversarial_unavailable: false
+convergence: unanimous-SOUND
+
+# Asymmetric flags
+needs_human_decision: false
+user_decision_required: false        # correctness verdict unambiguous; promotion offered separately
+blocked_by_low_confidence: false
+input_drift_detected: false
+
+# Promotion (Wave 7) — gate PASS, execution offered to operator (uncommitted-code context)
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260608-144157
+promotion_destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260608-144157
+promotion_gate_passed: true
+promotion_action: moved              # operator chose move+commit+push
+promotion_rollback_command: "mv .dev/tasks/done/TASK-RF-20260608-144157 .dev/tasks/to-do/TASK-RF-20260608-144157"
+commit: 1bca452d
+pushed_to: origin/fix/prd-document-capture-hotfix
+gate_evaluation:
+  mode_post: pass
+  status_success: pass
+  tasklist_completion_pct_1_0: pass
+  no_drift_no_regression: pass
+  frontmatter_present: pass
+  frontmatter_status_matches: pass   # status: "🟢 Done"
+  no_citations_dropped: pass
+  no_grounding_gaps: pass            # audit limitation is a provenance caveat, not a blocking gap
+  no_input_drift: pass
+  no_user_decision_pending: pass
+  adversarial_result_present: pass   # tier 2 converged, convergence not null

@@ -1,0 +1,166 @@
+🔍 Verifying src/superclaude/ ↔ .claude/ sync...
+
+=== Skills ===
+  ✅ ccsession-tag
+  ✅ confidence-check
+  ✅ prd
+  ✅ sc-adversarial-protocol
+  ✅ sc-auggie-review-protocol
+  ⚠️  DIFFERS: sc-bare-review
+      Files src/superclaude/skills/sc-bare-review/scripts/t2_dispatch.sh and .claude/skills/sc-bare-review/scripts/t2_dispatch.sh differ
+      Files src/superclaude/skills/sc-bare-review/scripts/t2_normalize.py and .claude/skills/sc-bare-review/scripts/t2_normalize.py differ
+      Files src/superclaude/skills/sc-bare-review/scripts/t2_preflight.sh and .claude/skills/sc-bare-review/scripts/t2_preflight.sh differ
+      Files src/superclaude/skills/sc-bare-review/SKILL.md and .claude/skills/sc-bare-review/SKILL.md differ
+  ✅ sc-brainstorm-protocol
+  ✅ sc-cleanup-audit-protocol
+  ✅ sc-cli-portify-protocol
+  ⚠️  DIFFERS: sc-crash-recovery
+      Files src/superclaude/skills/sc-crash-recovery/refs/pipelines.md and .claude/skills/sc-crash-recovery/refs/pipelines.md differ
+      Files src/superclaude/skills/sc-crash-recovery/refs/report-template.md and .claude/skills/sc-crash-recovery/refs/report-template.md differ
+  ❌ MISSING in .claude/skills/: sc-init-lite-protocol
+  ✅ sc-pm-protocol
+  ✅ sc-recommend
+  ⚠️  DIFFERS: sc-reflect-protocol
+      Files src/superclaude/skills/sc-reflect-protocol/SKILL.md and .claude/skills/sc-reflect-protocol/SKILL.md differ
+  ✅ sc-release-split-protocol
+  ✅ sc-review-translation-protocol
+  ✅ sc-roadmap-protocol
+  ⚠️  DIFFERS: sc-tasklist-protocol
+      Files src/superclaude/skills/sc-tasklist-protocol/SKILL.md and .claude/skills/sc-tasklist-protocol/SKILL.md differ
+      Files src/superclaude/skills/sc-tasklist-protocol/templates/index-template.md and .claude/skills/sc-tasklist-protocol/templates/index-template.md differ
+      Files src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md and .claude/skills/sc-tasklist-protocol/templates/phase-template.md differ
+  ✅ sc-task-protocol
+  ✅ sc-troubleshoot-protocol
+  ✅ sc-validate-roadmap-protocol
+  ✅ sc-validate-tests-protocol
+  ✅ task
+  ⚠️  DIFFERS: task-builder
+      Files src/superclaude/skills/task-builder/SKILL.md and .claude/skills/task-builder/SKILL.md differ
+  ✅ tdd
+  ✅ tech-reference
+  ✅ tech-research
+  ❌ MISSING in src/superclaude/skills/: sc-persona-research-protocol (not distributable!)
+  ❌ MISSING in src/superclaude/skills/: sc-recommend-protocol (not distributable!)
+
+=== Agents ===
+  ✅ audit-analyzer.md
+  ✅ audit-comparator.md
+  ✅ audit-consolidator.md
+  ✅ audit-scanner.md
+  ✅ audit-validator.md
+  ✅ auggie-reviewer.md
+  ✅ backend-architect.md
+  ✅ business-panel-experts.md
+  ✅ confidence-calibrator.md
+  ✅ debate-orchestrator.md
+  ✅ deep-research-agent.md
+  ✅ deep-research.md
+  ✅ devops-architect.md
+  ✅ evidence-validator.md
+  ✅ frontend-architect.md
+  ✅ learning-guide.md
+  ✅ merge-executor.md
+  ✅ performance-engineer.md
+  ✅ pm-agent.md
+  ✅ python-expert.md
+  ✅ quality-engineer.md
+  ✅ refactoring-expert.md
+  ✅ repo-index.md
+  ✅ requirements-analyst.md
+  ✅ rf-analyst.md
+  ✅ rf-assembler.md
+  ✅ rf-qa.md
+  ✅ rf-qa-qualitative.md
+  ✅ rf-task-builder.md
+  ✅ rf-task-executor.md
+  ✅ rf-task-researcher.md
+  ✅ rf-team-lead.md
+  ✅ root-cause-analyst.md
+  ✅ security-engineer.md
+  ✅ self-review.md
+  ✅ socratic-mentor.md
+  ✅ system-architect.md
+  ✅ technical-writer.md
+
+=== Commands ===
+  ✅ adversarial.md
+  ✅ agent.md
+  ✅ analyze.md
+  ✅ auggie-review.md
+  ✅ brainstorm.md
+  ✅ build.md
+  ✅ business-panel.md
+  ✅ cleanup-audit.md
+  ✅ cleanup.md
+  ✅ cli-portify.md
+  ✅ design.md
+  ✅ document.md
+  ✅ estimate.md
+  ✅ explain.md
+  ✅ git.md
+  ✅ help.md
+  ✅ implement.md
+  ✅ improve.md
+  ✅ index.md
+  ✅ index-repo.md
+  ❌ MISSING in .claude/commands/sc/: init-lite.md
+  ✅ load.md
+  ✅ pm.md
+  ✅ recommend.md
+  ⚠️  DIFFERS: reflect.md
+  ✅ release-split.md
+  ✅ research.md
+  ✅ review-translation.md
+  ✅ roadmap.md
+  ✅ save.md
+  ✅ sc.md
+  ✅ select-tool.md
+  ✅ spawn.md
+  ✅ spec-panel.md
+  ⚠️  DIFFERS: tasklist.md
+  ✅ task.md
+  ✅ tdd.md
+  ✅ test.md
+  ✅ troubleshoot.md
+  ✅ validate-roadmap.md
+  ✅ validate-tests.md
+  ✅ workflow.md
+
+=== Hooks ===
+  ✅ auggie-flag-clear.sh
+  ✅ freshness-file-changed.sh
+  ✅ freshness-post-read.sh
+  ✅ freshness-pre-edit.sh
+  ✅ freshness-session-start.sh
+  ✅ freshness-subagent-start.sh
+  ✅ freshness-subagent-stop.sh
+  ✅ freshness-user-prompt.sh
+  ✅ offer-pr-review.sh
+  ✅ reject-workspace-writes.sh
+  ✅ sc-recommend-phase0.sh
+
+=== Templates ===
+  ✅ workflow/05_prd_template.md
+  ✅ workflow/03_project_plan_template.md
+  ✅ workflow/06_architecture_proposal_template.md
+  ✅ workflow/02_mdtm_template_complex_task.md
+  ✅ workflow/04_feature_brief_template.md
+  ✅ workflow/changelog_template.md
+  ✅ workflow/01_mdtm_template_generic_task.md
+  ✅ workflow/99_mdtm_template_generic_task_old.md
+  ✅ documents/operational_guide_template.md
+  ✅ documents/GFxAI_Master_Documentation_Template.md
+  ✅ documents/supplemental-doc-creation-checklist.md
+  ✅ documents/release-spec-template.md
+  ✅ documents/supplemental_doc_template.md
+  ✅ documents/technical_reference_template.md
+  ✅ documents/readme_template.md
+
+=== Installer Registration ===
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+make: *** [Makefile:168: verify-sync] Error 1
