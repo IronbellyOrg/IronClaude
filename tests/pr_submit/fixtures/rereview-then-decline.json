@@ -1,0 +1,6 @@
+{
+  "max_rounds": 2,
+  "review_state": "findings",
+  "rereview_outcome": ["declined"],
+  "expected": {"round_counter": 0, "fallback_engaged": true, "auggie_review_invoked": true}
+}

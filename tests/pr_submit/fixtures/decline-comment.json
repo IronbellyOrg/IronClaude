@@ -1,0 +1,12 @@
+{
+  "reviews": [],
+  "comments": [
+    {
+      "user": {"login": "augment-code[bot]"},
+      "createdAt": "2026-06-12T10:00:00Z",
+      "body": "This PR is abnormally large (over 1000 files changed). I won't review it automatically. To request a review, comment \"augment review\".",
+      "id": 4001
+    }
+  ],
+  "expected": {"state": "declined"}
+}

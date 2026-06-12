@@ -1,0 +1,8 @@
+{
+  "max_rounds": 1,
+  "cycles": [
+    {"round": 0, "observation": "declined"},
+    {"round": 1, "observation": "declined"}
+  ],
+  "expected": {"auggie_review_invoked_count": 1, "effective_max_rounds": 1}
+}

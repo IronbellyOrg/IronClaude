@@ -1,0 +1,12 @@
+{
+  "reviews": [
+    {
+      "author": {"login": "github-actions[bot]"},
+      "authorAssociation": "NONE",
+      "state": "COMMENTED",
+      "body": "CI run summary.",
+      "has_findings": true
+    }
+  ],
+  "comments": []
+}

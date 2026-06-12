@@ -1,0 +1,6 @@
+{
+  "max_rounds": 2,
+  "review_state": "findings",
+  "rereview_outcome": ["attributed"],
+  "expected": {"round_counter": 1, "rereview_request_count": 1, "terminal": "TERMINAL_CLEAN"}
+}

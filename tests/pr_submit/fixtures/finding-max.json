@@ -1,0 +1,504 @@
+{
+  "findings": [
+    {
+      "path": "src/mod0.py",
+      "line": 1,
+      "body": "Issue 0 in module 0.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4000
+    },
+    {
+      "path": "src/mod1.py",
+      "line": 2,
+      "body": "Issue 1 in module 1.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4001
+    },
+    {
+      "path": "src/mod2.py",
+      "line": 3,
+      "body": "Issue 2 in module 2.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4002
+    },
+    {
+      "path": "src/mod3.py",
+      "line": 4,
+      "body": "Issue 3 in module 3.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4003
+    },
+    {
+      "path": "src/mod4.py",
+      "line": 5,
+      "body": "Issue 4 in module 4.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4004
+    },
+    {
+      "path": "src/mod5.py",
+      "line": 6,
+      "body": "Issue 5 in module 5.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4005
+    },
+    {
+      "path": "src/mod6.py",
+      "line": 7,
+      "body": "Issue 6 in module 6.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4006
+    },
+    {
+      "path": "src/mod7.py",
+      "line": 8,
+      "body": "Issue 7 in module 7.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4007
+    },
+    {
+      "path": "src/mod8.py",
+      "line": 9,
+      "body": "Issue 8 in module 8.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4008
+    },
+    {
+      "path": "src/mod9.py",
+      "line": 10,
+      "body": "Issue 9 in module 9.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4009
+    },
+    {
+      "path": "src/mod10.py",
+      "line": 11,
+      "body": "Issue 10 in module 10.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4010
+    },
+    {
+      "path": "src/mod11.py",
+      "line": 12,
+      "body": "Issue 11 in module 11.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4011
+    },
+    {
+      "path": "src/mod12.py",
+      "line": 13,
+      "body": "Issue 12 in module 12.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4012
+    },
+    {
+      "path": "src/mod13.py",
+      "line": 14,
+      "body": "Issue 13 in module 13.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4013
+    },
+    {
+      "path": "src/mod14.py",
+      "line": 15,
+      "body": "Issue 14 in module 14.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4014
+    },
+    {
+      "path": "src/mod15.py",
+      "line": 16,
+      "body": "Issue 15 in module 15.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4015
+    },
+    {
+      "path": "src/mod16.py",
+      "line": 17,
+      "body": "Issue 16 in module 16.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4016
+    },
+    {
+      "path": "src/mod17.py",
+      "line": 18,
+      "body": "Issue 17 in module 17.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4017
+    },
+    {
+      "path": "src/mod18.py",
+      "line": 19,
+      "body": "Issue 18 in module 18.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4018
+    },
+    {
+      "path": "src/mod19.py",
+      "line": 20,
+      "body": "Issue 19 in module 19.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4019
+    },
+    {
+      "path": "src/mod20.py",
+      "line": 21,
+      "body": "Issue 20 in module 20.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4020
+    },
+    {
+      "path": "src/mod21.py",
+      "line": 22,
+      "body": "Issue 21 in module 21.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4021
+    },
+    {
+      "path": "src/mod22.py",
+      "line": 23,
+      "body": "Issue 22 in module 22.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4022
+    },
+    {
+      "path": "src/mod23.py",
+      "line": 24,
+      "body": "Issue 23 in module 23.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4023
+    },
+    {
+      "path": "src/mod24.py",
+      "line": 25,
+      "body": "Issue 24 in module 24.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4024
+    },
+    {
+      "path": "src/mod25.py",
+      "line": 26,
+      "body": "Issue 25 in module 25.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4025
+    },
+    {
+      "path": "src/mod26.py",
+      "line": 27,
+      "body": "Issue 26 in module 26.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4026
+    },
+    {
+      "path": "src/mod27.py",
+      "line": 28,
+      "body": "Issue 27 in module 27.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4027
+    },
+    {
+      "path": "src/mod28.py",
+      "line": 29,
+      "body": "Issue 28 in module 28.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4028
+    },
+    {
+      "path": "src/mod29.py",
+      "line": 30,
+      "body": "Issue 29 in module 29.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4029
+    },
+    {
+      "path": "src/mod30.py",
+      "line": 31,
+      "body": "Issue 30 in module 30.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4030
+    },
+    {
+      "path": "src/mod31.py",
+      "line": 32,
+      "body": "Issue 31 in module 31.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4031
+    },
+    {
+      "path": "src/mod32.py",
+      "line": 33,
+      "body": "Issue 32 in module 32.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4032
+    },
+    {
+      "path": "src/mod33.py",
+      "line": 34,
+      "body": "Issue 33 in module 33.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4033
+    },
+    {
+      "path": "src/mod34.py",
+      "line": 35,
+      "body": "Issue 34 in module 34.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4034
+    },
+    {
+      "path": "src/mod35.py",
+      "line": 36,
+      "body": "Issue 35 in module 35.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4035
+    },
+    {
+      "path": "src/mod36.py",
+      "line": 37,
+      "body": "Issue 36 in module 36.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4036
+    },
+    {
+      "path": "src/mod37.py",
+      "line": 38,
+      "body": "Issue 37 in module 37.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4037
+    },
+    {
+      "path": "src/mod38.py",
+      "line": 39,
+      "body": "Issue 38 in module 38.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4038
+    },
+    {
+      "path": "src/mod39.py",
+      "line": 40,
+      "body": "Issue 39 in module 39.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4039
+    },
+    {
+      "path": "src/mod40.py",
+      "line": 41,
+      "body": "Issue 40 in module 40.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4040
+    },
+    {
+      "path": "src/mod41.py",
+      "line": 42,
+      "body": "Issue 41 in module 41.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4041
+    },
+    {
+      "path": "src/mod42.py",
+      "line": 43,
+      "body": "Issue 42 in module 42.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4042
+    },
+    {
+      "path": "src/mod43.py",
+      "line": 44,
+      "body": "Issue 43 in module 43.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4043
+    },
+    {
+      "path": "src/mod44.py",
+      "line": 45,
+      "body": "Issue 44 in module 44.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4044
+    },
+    {
+      "path": "src/mod45.py",
+      "line": 46,
+      "body": "Issue 45 in module 45.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4045
+    },
+    {
+      "path": "src/mod46.py",
+      "line": 47,
+      "body": "Issue 46 in module 46.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4046
+    },
+    {
+      "path": "src/mod47.py",
+      "line": 48,
+      "body": "Issue 47 in module 47.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4047
+    },
+    {
+      "path": "src/mod48.py",
+      "line": 49,
+      "body": "Issue 48 in module 48.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4048
+    },
+    {
+      "path": "src/mod49.py",
+      "line": 50,
+      "body": "Issue 49 in module 49.",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": true,
+      "comment_id": 4049
+    }
+  ]
+}

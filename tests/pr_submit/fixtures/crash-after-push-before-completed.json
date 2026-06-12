@@ -1,0 +1,12 @@
+{
+  "note": "A run-log fragment for the INV-007 crash window: one prior completed push, then a push_initiated with NO matching push_completed (the crash happened after fsync of push_initiated but before push_completed). Branch-A recovery (target reachable on the remote) synthesizes push_completed{recovered:true}, resumes S5, with NO second actual push.",
+  "events": [
+    {"event_type": "push_completed", "target_sha": "sha1",
+     "idempotency_key": "push:run1:c1:pre1:feature/x"},
+    {"event_type": "push_initiated", "target_sha": "sha2",
+     "idempotency_key": "push:run1:c2:pre2:feature/x",
+     "run_id": "run1", "cycle_id": "c2", "pre_push_sha": "pre2",
+     "target_branch": "feature/x", "target_remote": "origin"}
+  ],
+  "expected": {"push_count": 2, "resume_state": "S5_AWAITING_REREVIEW", "recovered": true}
+}

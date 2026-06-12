@@ -1,0 +1,9 @@
+{
+  "note": "Findings the in-session /sc:auggie-review fallback produces when Augment declines an abnormally-large PR. Re-graded through verify-before-remediate (FR-9.4) before remediation.",
+  "findings": [
+    {"path": "src/app/db.py", "line": 88, "body": "connection leak on the error path",
+     "severity_hint": "high", "category": "correctness", "in_diff": true,
+     "verification_status": "verified", "comment_id": 9101}
+  ],
+  "expected": {"auggie_review_invoked_count": 1, "effective_max_rounds": 1, "fallback_round_counter": 1}
+}

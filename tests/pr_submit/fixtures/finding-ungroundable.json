@@ -1,0 +1,15 @@
+{
+  "findings": [
+    {
+      "path": "src/legacy/helper.py",
+      "line": 5,
+      "body": "Augment recommends a change here, but the cited location yields no applicable edit (the remediation lands no grounded change in the diff).",
+      "severity_hint": "medium",
+      "category": "correctness",
+      "confidence": "medium",
+      "in_diff": false,
+      "verification_status": "verified",
+      "comment_id": 7001
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "max_rounds": 2,
+  "cycles": [
+    {
+      "round": 0,
+      "findings": [
+        {"path": "src/a.py", "line": 1, "body": "bug 1", "severity_hint": "medium",
+         "category": "correctness", "in_diff": true, "verification_status": "verified", "comment_id": 8001}
+      ]
+    },
+    {
+      "round": 1,
+      "findings": [
+        {"path": "src/a.py", "line": 2, "body": "bug 2", "severity_hint": "medium",
+         "category": "correctness", "in_diff": true, "verification_status": "verified", "comment_id": 8002}
+      ]
+    },
+    {
+      "round": 2,
+      "findings": []
+    }
+  ],
+  "expected": {"round_counter": 2, "push_count": 2, "terminal": "TERMINAL_CLEAN"}
+}

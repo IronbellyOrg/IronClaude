@@ -1,0 +1,13 @@
+{
+  "reviews": [],
+  "comments": [
+    {
+      "user": {"login": "augment-code[bot]"},
+      "createdAt": "2026-06-12T08:00:00Z",
+      "body": "abnormally large diff — comment \"augment review\" to proceed.",
+      "id": 4000
+    }
+  ],
+  "watermark": "2026-06-12T09:30:00Z",
+  "expected": {"is_decline_with_watermark": false, "state_without_watermark": "declined"}
+}
