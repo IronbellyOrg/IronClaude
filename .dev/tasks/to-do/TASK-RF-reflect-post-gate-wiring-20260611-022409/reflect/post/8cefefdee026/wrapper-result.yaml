@@ -1,0 +1,16 @@
+verdict: degraded
+status: success
+tier_reached: 2
+reason: null-convergence
+report: /config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-post-gate-wiring-20260611-022409/reflect/post/8cefefdee026/REPORT.md
+contract: /config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-post-gate-wiring-20260611-022409/reflect/post/8cefefdee026/return-contract.yaml
+deviations:
+  authorized: 2
+  necessary: 2
+  drift: 0
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

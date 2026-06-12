@@ -1,0 +1,52 @@
+# Deviation ledger — UC-2 post-execution audit
+# Gold standard: reflect-wrapper-contract.md (§2/§3/§5/§6) + the tasklist's authorized Open Questions
+deviations:
+  - id: D1
+    deviation_class: authorized
+    hunk_ref: "src/superclaude/skills/task-builder/SKILL.md:2316-2319 (Critical Rule 20) + :2197-2205 (O1 item)"
+    summary: "start_commit reversed to BE the O1 diff base (was 'never as the diff base'); wrapper shell-out declared CANONICAL (was MALFORMED)."
+    gold_standard: "Contract §6 base-resolution (--base > start_commit > merge-base, single ref vs working tree). Tasklist OQ-2 RESOLVED → AUTHORIZED by operator 2026-06-11."
+    rationale: "Operator-authorized reversal; the old prohibition conflated the ..HEAD RANGE form with the valid single-ref form."
+
+  - id: D2
+    deviation_class: authorized
+    hunk_ref: "src/superclaude/skills/task-builder/SKILL.md:2149 + :2164 (frontmatter template + population note)"
+    summary: "Generated-tasklist start_commit seeded from `git merge-base HEAD <integration-branch>` rather than task-start HEAD."
+    gold_standard: "Tasklist OQ-2 sub-point (GAP-3) RESOLVED → operator chose merge-base (robust-against-interleaving)."
+    rationale: "Contract leaves start_commit derivation open; operator selected the more robust seed."
+
+  - id: D3
+    deviation_class: necessary
+    hunk_ref: "src/superclaude/skills/sc-tasklist-protocol/SKILL.md:857-867 + templates/phase-template.md:11-20"
+    summary: "O2 phase-file frontmatter omits the `# reflect_post` room comment (kept on O1 task files)."
+    gold_standard: "Sprint `_extract_phase_name` (config.py:149-157) returns the first `# `-prefixed line → a `# reflect_post` comment would be mis-read as the phase heading."
+    rationale: "Mechanically forced + documented inline and in task log P5.5. Independently reproduced: BAD shape → phase_name='reflect_post: written back by the wrapper'. The fix is correct; O1/task-file asymmetry is sound (_extract_phase_name never runs on MDTM task files)."
+
+  - id: D4
+    deviation_class: necessary
+    hunk_ref: "src/superclaude/skills/task-builder/SKILL.md:2202 (O1) + sc-tasklist-protocol/SKILL.md:1062-1067 (O2 Step 1)"
+    summary: "`git add -A` staging guidance + an in-task [VERIFICATION] --base runtime-resolution step added around the bare contract gate line."
+    gold_standard: "Contract §2 base = single ref vs WORKING TREE; `git diff <base>` omits never-added files. Runtime SHA resolution required because phase files are generated before phases execute (research 04 GAP-1)."
+    rationale: "Necessary executor guidance so the working-tree diff is complete and --base is never a fabricated generation-time SHA. Contract-consistent (no forbidden flag added)."
+
+# Rejected reviewer findings (evidence-validator DROPPED — refuted against the contract)
+rejected_findings:
+  - id: R1.1
+    reviewer: "sonnet:analyzer"
+    claim: "O2 emits relative TASKLIST_ROOT/... instead of contract's <ABS_PHASE_FILE>."
+    refutation: "Wrapper absolutizes its positional (commands.py:79 resolve_path=True; config.py:165 .resolve()); --output likewise (commands.py:206). Contract's <ABS_PHASE_FILE_PATH> describes what the wrapper consumes, not a literal emission requirement. Token is PRE-EXISTING (identical at HEAD:sc-tasklist-protocol/SKILL.md:1063) — not introduced by this diff."
+  - id: R1.2
+    reviewer: "sonnet:analyzer"
+    claim: "O2 prose 'optionally start_commit' weakens a contract-required key."
+    refutation: "Contract §6 note: with --base on the gate line (canonical path), frontmatter start_commit is the 'equivalent alternative' (precedence --base > start_commit). O2 emits --base <PHASE_N_START_SHA>, so frontmatter start_commit IS optional. Prose is conformant. (executor_model_class — the genuinely-required O2 key — is correctly mandatory.)"
+  - id: R2.6
+    reviewer: "haiku:qa"
+    claim: "O1 --promote vs O2 --no-promote is a drift to confirm."
+    refutation: "Contract §5 MANDATES this asymmetry: O1 task adapter promotes; O2 has no per-phase adapter so --no-promote is REQUIRED. Correct by design."
+
+# Resolved verification observations (NOT grounding gaps — fully diagnosed)
+verification_observations:
+  - cluster: "6 failures in test_cli_smoke.py + test_promote_plumbing.py"
+    diagnosis: "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1 leaked into the audit session env (reflect runs AS a gate). Wrapper recursion-breaker fires → 'nested gate suppressed'. PROVEN: `env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` → all 10 pass. Not a deliverable regression (deliverable touches zero src/superclaude/cli/ code)."
+  - cluster: "2 failures in test_rerun_tasks_e2e.py"
+    diagnosis: "Subprocess 'Rerun failed (fileno)' — file-descriptor sandbox artifact in e2e real-subprocess tests. Structurally impossible to be deliverable-caused (no Sprint engine code touched). Task log P5.5 documents these as pre-existing (proven via git stash)."

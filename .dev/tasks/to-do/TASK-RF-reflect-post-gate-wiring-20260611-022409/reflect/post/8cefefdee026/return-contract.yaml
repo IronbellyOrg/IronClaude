@@ -1,0 +1,66 @@
+contract_version: "1.3.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: "/config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-post-gate-wiring-20260611-022409/reflect/post/8cefefdee026/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-post-gate-wiring-20260611-022409/reflect/post/8cefefdee026/artifacts/deliverable.diff"
+confidence_calibrated: 0.92
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+onboarding_ran: false
+
+# UC-2 deviation audit
+tasklist_completion_pct: 1.0   # all implementation/test/validation items done + verified; 6.3 is THIS gate, 6.4 is the post-gate status flip
+deviation_count_by_class:
+  authorized: 2
+  necessary: 2
+  drift: 0
+  regression: 0
+deviation_register_path: "/config/workspace/IronClaude/.claude/worktrees/ReflectGateWiring/.dev/tasks/to-do/TASK-RF-reflect-post-gate-wiring-20260611-022409/reflect/post/8cefefdee026/artifacts/deviation-ledger.yaml"
+grounding_gaps_path: null   # empty — no evidence-insufficient findings
+
+# Verification triangle (§6.1 step 5.5)
+verification_ran: true
+verification_invocations: 6
+verification_failures: 8   # 6 cli-smoke/promote (env-marker leakage) + 2 e2e (subprocess fileno) — ALL environment artifacts, NOT deliverable regressions
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 24
+citations_revalidated: 24
+citations_dropped: 0            # zero fabricated file:line — all citations re-Read clean
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+reviewer_findings_rejected: 3   # R1.1 / R1.2 / R2.6 all refuted against contract §5/§6 + wrapper .resolve() — dropped, not downgraded
+
+# Tier 2 artifacts
+reviewer_cards: ["sonnet:analyzer (contract-conformance)", "haiku:qa (regression/test-correctness)"]
+merge_method: adversarial
+t2_model_class_diversity: full   # sonnet + haiku; executor class (opus) excluded per §7.1 — disjoint partition
+calibrator_diversity: full
+executor_class_source: flag      # --executor-model opus
+executor_class_resolved: true
+executor_exclusion_degraded: false
+
+# Input integrity
+input_drift_detected: false
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+spec_is_wrong: false
+blocked_by_low_confidence: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null   # offered; nothing to remediate (0 drift / 0 regression / 0 grounding-gaps)
+task_file_path: null
+
+# Promotion (suppressed by --no-promote)
+promotion_action: skipped
+promotion_skip_reason: user-flag   # --no-promote
+promotion_adapter: null
+promotion_gate_passed: null
