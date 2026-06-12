@@ -4,6 +4,18 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### reflect — D13 coverage hardening: inference-assisted extraction + parse-density guard (contract 1.5.0)
+
+#### Added (reflect skill)
+
+- Two-pass requirement extraction (`sc-reflect-protocol` SKILL.md Step 1B.0): Pass 1 stays deterministic/LLM-free (regex ID extraction + range-notation expansion, e.g. `SPEC-001..021` → 21 IDs); Pass 2 reads the full spec body and enumerates requirement-shaped content Pass 1 missed, emitting synthetic `INF-NNN` rows that each MUST carry a verbatim quote + `file:line` citation (an inferred row missing either is dropped at emission and never enters the matrix).
+- Parse-density guard (Step 1B.2b): when `inferred_count > parsed_count` (sparse labeling relative to requirement content), emits `coverage_degraded: parsed-sparse` and forbids the Tier-1 stop — a table-wide §5.3 pre-filter routing to Tier 2 (explicit `--tier 1` / `--depth quick` pins still override, with a loud WARN).
+- Wave-5 evidence-validator now polices inferred rows identically: an `INF-NNN` row whose quote does not match its cited spec lines is dropped, counted in `citations_dropped`, and `coverage_pct_union` / `unmapped_requirements_union` / `S_dev_density` are recomputed over the surviving union before the report finalizes.
+
+#### Changed (reflect skill)
+
+- Return contract bumped **`1.4.0 → 1.5.0`** (§9.4 additive-only): NEW fields `coverage_pct_union`, `unmapped_requirements_union`, `coverage_degraded`. `coverage_pct` and `unmapped_requirements` KEEP pre-D13 parsed-only semantics, so existing consumers need no change (major-only CLI validator tolerates the minor bump).
+
 ### reflect — audit-only wrapper → bounded auto-fix engine (contract 1.4.0)
 
 #### Added (reflect CLI)
