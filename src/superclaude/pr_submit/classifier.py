@@ -57,6 +57,17 @@ def _entry_has_findings(review: dict) -> bool:
     return isinstance(count, int) and count > 0
 
 
+def _comment_has_findings(comment: dict) -> bool:
+    """True when an Augment-authored inline comment carries a finding signal."""
+    if _entry_has_findings(comment):
+        return True
+    return bool(
+        comment.get("path")
+        and isinstance(comment.get("line"), int)
+        and comment.get("body")
+    )
+
+
 def classify(payload: dict, contract: Any) -> str:
     """Return the review state for ``payload`` against ``contract`` (pure).
 
@@ -81,6 +92,6 @@ def classify(payload: dict, contract: Any) -> str:
     # (findings_locus == comments[]). Only the Augment author is parsed (T-212).
     if any(_entry_has_findings(r) for r in augment_reviews):
         return STATE_FINDINGS
-    if _augment_entries(comments, bot_login):
+    if any(_comment_has_findings(c) for c in _augment_entries(comments, bot_login)):
         return STATE_FINDINGS
     return STATE_CLEAN

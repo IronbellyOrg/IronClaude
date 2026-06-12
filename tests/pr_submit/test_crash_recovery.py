@@ -107,32 +107,32 @@ def test_fm6_crash_after_push_before_reply_no_refix(tmp_path):
         }
     )
     # No reply yet. On resume the fix is already recorded → not re-applied.
-    assert rl.record_idempotent("processed_finding_ids", fk) is False  # skip re-fix
+    assert rl.check_idempotent("processed_finding_ids", fk) is False  # skip re-fix
     # The reply is still pending (not yet in replied set).
-    assert rl.record_idempotent("replied_comment_ids", 600) is True
+    assert rl.check_idempotent("replied_comment_ids", 600) is True
 
 
 @pytest.mark.recovery
 def test_fm7_crash_after_reply_before_resolve(tmp_path):
     """FM-7: crash after reply before resolve → resolve the missing thread, no duplicate reply."""
     rl = RunLog(7, tmp_path)
-    rl.record_idempotent("replied_comment_ids", 700)
+    rl.check_idempotent("replied_comment_ids", 700)
     rl.append({"event_type": "reply_posted", "comment_id": 700})
     # Resume: reply already done (skip duplicate), resolve still pending.
-    assert rl.record_idempotent("replied_comment_ids", 700) is False
-    assert rl.record_idempotent("resolved_thread_ids", "PRRT_700") is True
+    assert rl.check_idempotent("replied_comment_ids", 700) is False
+    assert rl.check_idempotent("resolved_thread_ids", "PRRT_700") is True
 
 
 @pytest.mark.recovery
 def test_fm8_duplicate_payload_idempotency_skip(tmp_path):
     """FM-8: duplicate review/poll payload → idempotency_skip, no route/fix/reply."""
     rl = RunLog(8, tmp_path)
-    assert rl.record_idempotent("processed_review_ids", 880) is True
+    assert rl.check_idempotent("processed_review_ids", 880) is True
     rl.append(
         {"event_type": "findings_normalized", "review_id": 880}
     )  # records the review id
     assert (
-        rl.record_idempotent("processed_review_ids", 880) is False
+        rl.check_idempotent("processed_review_ids", 880) is False
     )  # duplicate skipped
 
 

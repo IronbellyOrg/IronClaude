@@ -60,6 +60,40 @@ def test_t202_augment_clean(contract):
     assert classify(payload, contract) == "clean"
 
 
+def test_t202_augment_summary_comment_without_finding_signal_clean(contract):
+    """T-202: Augment-authored non-finding summary comment does not imply findings."""
+    payload = {
+        "reviews": [
+            {"author": {"login": AUGMENT}, "state": "COMMENTED", "has_findings": False}
+        ],
+        "comments": [
+            {
+                "user": {"login": AUGMENT},
+                "body": "Reviewed — no Medium-or-higher findings.",
+            }
+        ],
+    }
+    assert classify(payload, contract) == "clean"
+
+
+def test_t203_augment_inline_comment_finding_signal(contract):
+    """T-203: Augment-authored inline comments with location/body signal findings."""
+    payload = {
+        "reviews": [
+            {"author": {"login": AUGMENT}, "state": "COMMENTED", "has_findings": False}
+        ],
+        "comments": [
+            {
+                "user": {"login": AUGMENT},
+                "path": "src/app/db.py",
+                "line": 88,
+                "body": "Leak.",
+            }
+        ],
+    }
+    assert classify(payload, contract) == "findings"
+
+
 def test_t203_augment_findings(contract):
     """T-203: Augment review with findings → state = findings."""
     # Phase 10: swap for load_fixture("review-with-findings.json").

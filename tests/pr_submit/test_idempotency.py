@@ -17,10 +17,10 @@ def test_tn01_replay_findings_reply_once_per_thread(tmp_path):
     rl = RunLog(42, tmp_path)
     comment_id = 7001
     # First reply: newly recorded → proceed.
-    assert rl.record_idempotent("replied_comment_ids", comment_id) is True
+    assert rl.check_idempotent("replied_comment_ids", comment_id) is True
     rl.append({"event_type": "reply_posted", "comment_id": comment_id})
     # Replay (second poll surfaces the same finding) → already replied → skip.
-    assert rl.record_idempotent("replied_comment_ids", comment_id) is False
+    assert rl.check_idempotent("replied_comment_ids", comment_id) is False
     # Exactly one reply_posted event in the log.
     replies = [e for e in rl.read_events() if e["event_type"] == "reply_posted"]
     assert len(replies) == 1
@@ -32,14 +32,14 @@ def test_tn01_replay_findings_reply_once_per_thread(tmp_path):
 def test_tn02_reply_tracking_persisted_across_polls(tmp_path):
     """T-N02: reply-tracking persists across polls — rebuilt state still shows the replied id."""
     rl = RunLog(8, tmp_path)
-    rl.record_idempotent("replied_comment_ids", 9009)
+    rl.check_idempotent("replied_comment_ids", 9009)
     rl.append({"event_type": "reply_posted", "comment_id": 9009})
     # Simulate a new poll cycle: a fresh RunLog over the SAME dir rebuilds from JSONL.
     rl2 = RunLog(8, tmp_path)
     state = rl2.rebuild_state()
     assert 9009 in state["replied_comment_ids"]
     # The dedup still fires on the persisted set.
-    assert rl2.record_idempotent("replied_comment_ids", 9009) is False
+    assert rl2.check_idempotent("replied_comment_ids", 9009) is False
 
 
 def test_fresh_comment_no_double_fix(tmp_path):
@@ -69,9 +69,9 @@ def test_fresh_comment_no_double_fix(tmp_path):
 
     rl = RunLog(13, tmp_path)
     # First fix proceeds and is recorded under the fix_key.
-    assert rl.record_idempotent("processed_finding_ids", original.fix_key) is True
+    assert rl.check_idempotent("processed_finding_ids", original.fix_key) is True
     rl.append({"event_type": "fix_applied", "fix_key": original.fix_key})
     # The fresh comment hashes to the SAME fix_key → skip → no second fix.
-    assert rl.record_idempotent("processed_finding_ids", fresh.fix_key) is False
+    assert rl.check_idempotent("processed_finding_ids", fresh.fix_key) is False
     fixes = [e for e in rl.read_events() if e["event_type"] == "fix_applied"]
     assert len(fixes) == 1  # exactly one fix despite two comments

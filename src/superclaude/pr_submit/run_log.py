@@ -86,15 +86,21 @@ class RunLog:
     # --- writing ---------------------------------------------------------- #
 
     def _last_event_id(self) -> int:
+        """Highest ``event_id`` in the existing JSONL — the resume continuation point.
+
+        Consistent with :meth:`read_events` (FM-12): a corrupt/non-parseable line is
+        SURFACED (propagates ``json.JSONDecodeError`` / ``ValueError``), never silently
+        skipped. The JSONL is authoritative (NFR-6), so a corrupt log must halt as
+        ``terminal_failed`` rather than let the constructor half-trust a partial
+        ``event_id`` and then crash on the next rebuild (the inconsistency that would
+        otherwise let writes succeed while state reconstruction fails on the same file).
+        """
         last = 0
         for line in self.jsonl_path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if not line:
                 continue
-            try:
-                last = max(last, int(json.loads(line).get("event_id", 0)))
-            except (ValueError, json.JSONDecodeError):
-                continue
+            last = max(last, int(json.loads(line).get("event_id", 0)))
         return last
 
     def append(self, event: dict) -> dict:
@@ -132,7 +138,14 @@ class RunLog:
     # --- reading / state -------------------------------------------------- #
 
     def read_events(self) -> list[dict]:
-        """Return all events from the authoritative JSONL, in order."""
+        """Return all events from the authoritative JSONL, in order.
+
+        A corrupt/non-parseable line is SURFACED (raises ``json.JSONDecodeError``),
+        never silently skipped: the JSONL is authoritative (NFR-6), so corruption must
+        halt as ``terminal_failed`` (FM-12 — "surfaced, not silently trusted") rather
+        than drop real events and rebuild wrong state. :meth:`_last_event_id` applies
+        the same rule, so construction and rebuild are consistent on the same file.
+        """
         if not self.jsonl_path.exists():
             return []
         events = []
@@ -197,12 +210,22 @@ class RunLog:
 
     # --- idempotency ------------------------------------------------------ #
 
-    def record_idempotent(self, set_name: str, key) -> bool:
-        """Record ``key`` in an idempotency set; append ``idempotency_skip`` if already present.
+    def check_idempotent(self, set_name: str, key) -> bool:
+        """Check ``key`` against an idempotency set; append ``idempotency_skip`` if already present.
 
-        Returns True if newly recorded (the action should proceed), False if the key
-        was already present (the action is skipped and an ``idempotency_skip`` event
-        is appended). Dedup of fixes is keyed on ``fix_key`` (comment_id-independent).
+        This is a CHECK-ONLY operation on the proceed path — it does NOT itself
+        record ``key``. The idempotency sets (§11.4) are derived in
+        :meth:`rebuild_state` from the DOMAIN events the caller appends, so durable
+        membership is established by the caller's write-ahead of that domain event
+        (``fix_applied`` → ``processed_finding_ids``, ``reply_posted`` →
+        ``replied_comment_ids``, etc.) on the very next line, NOT by this method.
+
+        Returns True if the key is absent (the action should proceed — the caller
+        MUST then append the domain event that durably records it), or False if the
+        key is already present (the action is skipped and an ``idempotency_skip``
+        event IS appended here). The single-threaded write-ahead core (§11.1) means
+        there is no concurrent re-entry between the True return and the caller's
+        append. Dedup of fixes is keyed on ``fix_key`` (comment_id-independent, INV-009).
         """
         if set_name not in IDEMPOTENCY_SETS:
             raise ValueError(f"unknown idempotency set: {set_name!r}")

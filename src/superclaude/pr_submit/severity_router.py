@@ -151,6 +151,10 @@ def route(finding: Finding) -> str:
         decision = ROUTE_FIX
     else:
         decision = ROUTE_REPORT_ONLY
-    # Invariant guard: the conflicting form is never produced.
-    assert decision != "--depth quick --fix"
+    # Invariant guard: the conflicting form is never produced. Use an explicit
+    # raise (not ``assert``) so the guard survives ``python -O``.
+    if decision == "--depth quick --fix":
+        raise RuntimeError(
+            "invariant violated: severity router must never emit '--depth quick --fix'"
+        )
     return decision
