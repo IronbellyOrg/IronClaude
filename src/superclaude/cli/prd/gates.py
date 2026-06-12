@@ -49,12 +49,15 @@ def _check_verdict_field(content: str) -> bool | str:
     #   Verdict: PASS   |   **Verdict**: PASS   |   **Verdict:** PASS
     # The prior permissive character-class form also accepted shapes
     # with no colon at all (e.g. "Verdict PASS") — strictly too loose.
+    # Key is case-insensitive (Verdict / verdict / VERDICT); the colon may sit
+    # inside or outside bold markers; the PASS/FAIL value may itself be
+    # bold-wrapped. Covers every real QA-agent shape, e.g. "Verdict: PASS",
+    # "**Verdict**: PASS", "**Verdict:** PASS", "**Verdict:** **PASS**",
+    # "**VERDICT: PASS**". Anchored to a line start (MULTILINE) so prose
+    # mentions of "fail" cannot trip it; the PASS/FAIL value stays
+    # case-sensitive via the scoped (?i:) on the key only.
     md_match = re.search(
-        r"(?:^|\n)\s*(?:"
-        r"\*\*[Vv]erdict\*\*\s*:\s*|"
-        r"\*\*[Vv]erdict:\*\*\s+|"
-        r"[Vv]erdict\s*:\s*"
-        r")(PASS|FAIL)",
+        r"(?m)^\s*\*{0,2}\s*(?i:verdict)\s*(?:\*\*\s*:|:\s*\*\*|:)\s*\*{0,2}\s*(PASS|FAIL)\b",
         content,
     )
     if md_match:

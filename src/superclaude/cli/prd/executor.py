@@ -362,11 +362,19 @@ def _resolve_step_content(step_id: str, task_dir: Path, ndjson_text: str) -> str
                 if "-output.txt" in match.name:
                     continue
                 # Only a PRD-named file is the assembled PRD. The pipeline
-                # always writes the assembled document as PRD_*.md; a bare
-                # markdown-heading probe would false-match Stage A artifact
-                # files (research-notes.md, sufficiency-review.md, ...)
-                # that the executor persists into task_dir.
+                # writes the assembled document with "prd" in its name
+                # (e.g. <product-slug>-prd.md); a bare markdown-heading probe
+                # would false-match Stage A artifact files (research-notes.md,
+                # sufficiency-review.md, ...) that the executor persists into
+                # task_dir.
                 if "prd" not in match.name.lower():
+                    continue
+                # Exclude only the build-task-file MDTM task (TASK-PRD-*.md):
+                # it also contains "prd" but is the task spec that drives Stage
+                # B, not the assembled PRD. Keep the pattern narrow and
+                # case-sensitive so a real assembled PRD for a product slug such
+                # as task-prd-tracker-prd.md remains eligible.
+                if match.name.startswith("TASK-PRD-"):
                     continue
                 try:
                     content = match.read_text(encoding="utf-8", errors="replace")
@@ -574,9 +582,7 @@ class PrdExecutor:
                 # and is STANDARD-tier, so it does not halt here.
                 if step_result.status.is_failure:
                     gate = GATE_CRITERIA.get(step_id)
-                    strict_gate_fail = bool(
-                        gate and gate.enforcement_tier == "STRICT"
-                    )
+                    strict_gate_fail = bool(gate and gate.enforcement_tier == "STRICT")
                     if step_result.status.is_hard_failure or strict_gate_fail:
                         result.outcome = "halt"
                         result.halt_step = step_id
