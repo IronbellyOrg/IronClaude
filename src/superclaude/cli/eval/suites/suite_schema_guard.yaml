@@ -1,0 +1,95 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# suite_schema_guard — meta-gate that every shipped suite manifest stays loadable.
+#
+# CADENCE (operator-facing metadata; not enforced by the eval framework):
+#   - On every PR touching src/superclaude/cli/eval/suites/*.yaml or the loader /
+#     schema (loader.py, suite.schema.json).
+#   - Nightly via the CI scheduled job alongside the rest of the cliEval roster.
+#
+# WHAT THIS SUITE GUARDS:
+#   Every manifest in the suites/ directory still parses + schema-validates. The
+#   loader validates EACH discovered manifest during `eval list` (FR-SCH1/T01.04);
+#   a malformed manifest (schema violation, bad eval-id per FR-SCH2, unresolved
+#   capability) makes the loader exit 2 instead of emitting the list. So a clean
+#   `eval list --json` (exit 0) is the meta-proof that the whole library loads.
+#   SG2 adds a deep, post-expansion validate of a representative suite via
+#   `eval describe` (which also re-checks expanded eval ids).
+#
+# WHY home_strategy=ephemeral:
+#   `superclaude eval list/describe` discover manifests from the installed package's
+#   suites directory, not from $HOME or cwd. The default ephemeral HOME is correct
+#   and keeps the suite host-independent.
+#
+# WHY no_pty=skip:
+#   The PTY harness drives a Claude Code subprocess; matching the rest of the eval
+#   inventory keeps `--no-pty` semantics uniform across suites.
+#
+# Evidence (fresh-context, captured at authoring time):
+#   - `eval list --json` returns a JSON array of {name, version, eval_count} and
+#     exits 0 only when every manifest validates (loader.py validate_manifest;
+#     a malformed manifest -> SchemaError -> exit 2).
+#   - `eval describe --suite <name>` emits the validated, post-parameterize-expansion
+#     manifest envelope and exits 0 on success.
+name: suite_schema_guard
+version: "1.0"
+description: "Meta-gate: asserts every suites/*.yaml still loads + schema-validates (clean `eval list --json`) and that a representative suite deep-validates via `eval describe`. Cadence: on-PR + nightly."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: jq,                           failure_mode: hard }
+  - { name: git,                          failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: SG1
+    title: "eval list --json validates the whole suite library (loader exit 0)"
+    category: schema-guard
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # SG1 — `superclaude eval list --json` discovers + schema-validates every
+    # manifest in suites/. A malformed manifest makes the loader exit 2 (it never
+    # reaches the JSON emit), so asserting exit 0 + the presence of the always-
+    # shipped `real` suite proves the entire library currently loads. This is the
+    # cheapest possible "all manifests valid" gate.
+    inputs:
+      - prompt: "Run `superclaude eval list --json` via the Bash tool and print the full stdout. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: '"name": "real"'
+
+  - id: SG2
+    title: "eval describe deep-validates a representative suite (post-expansion ids)"
+    category: schema-guard
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # SG2 — `superclaude eval describe --suite eval_cli_doc_parity` runs the full
+    # validation pipeline (schema + FR-SCH2 id regex + capability resolution +
+    # parameterize expansion + post-expansion id re-check) and renders the envelope.
+    # Exit 0 + the suite name in stdout proves a representative manifest deep-
+    # validates, not merely that it was discovered. eval_cli_doc_parity is chosen as
+    # the representative because it ships alongside this guard.
+    inputs:
+      - prompt: "Run `superclaude eval describe --suite eval_cli_doc_parity` via the Bash tool and print the full stdout. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "eval_cli_doc_parity"

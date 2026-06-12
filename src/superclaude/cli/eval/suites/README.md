@@ -17,6 +17,9 @@ T01.04).
 |-----------------------|------------------------------------------------------------------------------------------|------------------|
 | `suite.schema.json`   | JSON Schema (Draft 2020-12) that every `*.yaml` manifest validates against (DM-011).     | Excluded from the suite glob (`*.yaml` only). |
 | `real.yaml`           | The 15-eval real-world suite (E1..E15) — v1's sole shipped suite (frozen at T05.01).     | Discovered by `discover_suite_manifests`. |
+| `eval_cli_doc_parity.yaml` | Doc⇆CLI parity gate: documented `eval run` flags stay in sync with `eval run --help` (ships with `/sc:cli-eval`). | Discovered by `discover_suite_manifests`. |
+| `cli_eval_skill_contract.yaml` | Deliverable-wiring gate: the `/sc:cli-eval` command + protocol skill + 3 agents stay wired.        | Discovered by `discover_suite_manifests`. |
+| `suite_schema_guard.yaml` | Meta-gate: every `suites/*.yaml` still loads + schema-validates (`eval list` exit 0).               | Discovered by `discover_suite_manifests`. |
 | `__init__.py`         | Exports `SCHEMA_PATH`. Not a manifest.                                                   | Ignored by the glob. |
 | `<other>.yaml`        | Any future suite manifest authored under the naming rules in §"Filename rules".          | Discovered alongside `real.yaml`. |
 | `*_callbacks.py`      | Optional sibling Python module exporting D-4 YAML-callback escape-hatch functions.       | Imported lazily by suites that name `callback:` entries; not a manifest. |

@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=../../../cli/eval/suites/suite.schema.json
+#
+# TEMPLATE — copy into src/superclaude/cli/eval/suites/<stem>.yaml and fill in.
+# Mirror eval_smoke.yaml / installer_sync_drift.yaml. Stem MUST equal `name:`.
+# Validate before declaring done:  uv run superclaude eval describe --suite <stem>
+#
+# Header comment convention: state WHAT the suite guards, the EVIDENCE (file:line cites),
+# WHY the isolation strategy, and WHY no_pty. (See installer_sync_drift.yaml for the exemplar.)
+name: <stem>                      # snake_case, == filename stem
+version: "1.0"
+description: "<one-line operator-facing summary of what this suite guards>."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:                # HARD gates — missing binary aborts the run
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: jq,                            failure_mode: hard }
+  # add make / git / uv as the evals require
+
+optional_capabilities: []         # SOFT gates — missing capability skips gated evals
+
+evals:
+  - id: E1                        # FR-SCH2: ^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$
+    title: "<what this eval asserts>"
+    category: <category>
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: ephemeral    # ephemeral | seeded | shared
+    no_pty: skip                  # PTY-driven evals carry this
+    # Body is a Claude prompt that drives a single shell command and reports stdout.
+    inputs:
+      - prompt: "Run `<command>` via Bash and print the full stdout. Do not modify anything else."
+        # expect_tool_call: Bash   # optional
+    expects:
+      - stdout:
+          contains: "<substring that proves success>"
+      - exit_code:
+          equals: 0
+      # defence-in-depth: also assert the failure markers are ABSENT
+      # - stdout:
+      #     not_contains: "<failure marker>"
