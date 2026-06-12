@@ -125,7 +125,14 @@ class TestCheckVerdictField:
 
     @pytest.mark.parametrize(
         "shape",
-        ["Verdict PASS", "Verdict::: PASS", "Verdict***PASS", "verdict pass"],
+        [
+            "Verdict PASS",
+            "Verdict::: PASS",
+            "Verdict***PASS",
+            "verdict pass",
+            "Verdict: PASSING",
+            "Verdict: FAILURE",
+        ],
     )
     def test_check_verdict_field_rejects_invalid_shapes(self, shape: str) -> None:
         """Malformed verdict shapes (no colon, junk separators, lowercase
@@ -142,6 +149,7 @@ class TestCheckVerdictField:
             "### Verdict: 🟢 FAIL",
             "- Verdict: ✅ PASS",
             "**Verdict**: ❌ FAIL",
+            "## VERDICT: ✅ PASS",
         ],
     )
     def test_check_verdict_field_accepts_decorated_shapes(self, shape: str) -> None:

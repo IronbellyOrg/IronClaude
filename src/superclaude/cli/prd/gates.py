@@ -50,15 +50,16 @@ def _check_verdict_field(content: str) -> bool | str:
     # colon), emoji ("✅ PASS"), and bold-wrapped values ("**PASS**"). Match the
     # whole class with a single line-anchored pattern: from a line start, allow
     # any run of non-word / non-colon decoration (``[^\w\n:]*`` -> bullets,
-    # ``#``, ``*``, spaces, emoji, ``—``), the word "Verdict", optional bold
-    # before the colon, the REQUIRED colon, then more non-word/non-colon
-    # decoration, then the case-sensitive value.
+    # ``#``, ``*``, spaces, emoji, ``—``), a case-insensitive "Verdict"
+    # label, optional bold before the colon, the REQUIRED colon, then more
+    # non-word/non-colon decoration, then the case-sensitive value.
     #   * COLON required           -> rejects "Verdict PASS"
     #   * decoration excludes ':'  -> rejects "Verdict::: PASS"
     #   * decoration excludes \w   -> a "PASS" buried in prose is not matched
     #   * value stays PASS|FAIL    -> rejects lowercase "pass"
+    #   * value is word-bounded    -> rejects "PASSING" / "FAILURE"
     md_match = re.search(
-        r"(?:^|\n)[^\w\n:]*[Vv]erdict[^\w\n:]*:[^\w\n:]*(PASS|FAIL)",
+        r"(?:^|\n)[^\w\n:]*(?i:verdict)[^\w\n:]*:[^\w\n:]*(PASS|FAIL)(?!\w)",
         content,
     )
     if md_match:
