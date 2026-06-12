@@ -4,11 +4,15 @@ The create pipeline REUSES three existing components. Do not reimplement them. C
 spelling against each command's own file if anything below looks stale (they are the source of truth):
 `src/superclaude/commands/{spec-panel,adversarial,document}.md`.
 
+**Invocation form matters.** `adversarial` has a backing protocol skill, so invoke it via the **Skill**
+tool (`Skill sc:adversarial-protocol`). `spec-panel` and `document` are **command-only** (their
+protocol is inline in the command file — there is no `sc:spec-panel` / `sc:document` skill), so invoke
+them as **commands** (`/sc:spec-panel …`, `/sc:document …`), NOT via the `Skill` tool.
+
 ## /sc:spec-panel — multi-expert critique (create W2)
 
 ```text
-Skill sc:spec-panel
-  @<design-spec>.md --mode critique --focus requirements,architecture
+/sc:spec-panel @<design-spec>.md --mode critique --focus requirements,architecture
 ```
 
 - `--mode`: `discussion | critique | socratic` (use `critique` to pressure-test the eval design).
@@ -42,8 +46,7 @@ generate the competing designs; Mode A when you already have them.
 ## /sc:document — docs update (create W6)
 
 ```text
-Skill sc:document
-  docs/eval/suites-guide.md --type guide
+/sc:document docs/eval/suites-guide.md --type guide
 ```
 
 Or delegate to the `technical-writer` agent for the inventory-table edits. Targets:

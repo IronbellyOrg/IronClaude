@@ -78,7 +78,8 @@ claim (flags, schema fields) in the Wave-0 digest.
 
 ### W2 — Critique with the multi-expert panel (REUSE)
 
-Invoke: `Skill sc:spec-panel` with `@<stem>-spec.md --mode critique --focus requirements,architecture`.
+Invoke the `/sc:spec-panel` command: `@<stem>-spec.md --mode critique --focus requirements,architecture`
+(spec-panel is command-only — its protocol is inline in the command, there is no `sc:spec-panel` skill).
 Fold the panel's findings back into the spec. Do not reimplement a review panel.
 
 ### W3 — Produce 2-3 competing designs + debate/merge (REUSE)
@@ -105,7 +106,8 @@ error. Do not mark create complete on an unvalidated manifest.
 ### W6 — Document (REUSE)
 
 Update the inventory in `docs/eval/suites-guide.md` and the "what lives in this directory" table in
-`src/superclaude/cli/eval/suites/README.md` via `Skill sc:document` (or the `technical-writer` agent).
+`src/superclaude/cli/eval/suites/README.md` via the `/sc:document` command (or the `technical-writer`
+agent — `document` is command-only, so use the command, not a `Skill` call).
 Optionally run `evidence-validator` over the doc edits to confirm every cite resolves.
 
 **Create return contract**: see the Return Contract section.
@@ -168,13 +170,13 @@ stubbed PASS is never reported as a real eval pass.
 
 ## Delegation Pattern
 
-| Agent / Skill | Role | Pipeline | Instantiation |
+| Agent / Skill / Command | Role | Pipeline | Instantiation |
 |---------------|------|----------|---------------|
 | `eval-docs-loader` | Fresh-context digest (cited) | both | Task, Wave 0 |
-| `Skill sc:spec-panel` | Multi-expert spec critique | create W2 | Skill (REUSE) |
+| `/sc:spec-panel` (command) | Multi-expert spec critique | create W2 | Command (REUSE — no backing skill) |
 | `Skill sc:adversarial-protocol` | Debate/merge + variant generation | create W3 | Skill (REUSE) |
 | `eval-suite-author` | Schema-first manifest authoring + self-validate | create W4 | Task |
-| `Skill sc:document` / `technical-writer` | Docs inventory updates | create W6 | Skill/Task (REUSE) |
+| `/sc:document` (command) / `technical-writer` | Docs inventory updates | create W6 | Command/Task (REUSE — no backing skill) |
 | `evidence-validator` | Optional doc-citation re-check | create W6 | Task (REUSE) |
 | `eval-run-reporter` | summary.json parse + operator report | run W5 | Task |
 

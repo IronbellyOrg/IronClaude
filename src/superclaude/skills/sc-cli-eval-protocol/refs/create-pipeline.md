@@ -20,7 +20,8 @@ Ground every flag/schema claim in the Wave-0 digest, not memory.
 
 ## W2 — Critique (REUSE /sc:spec-panel)
 
-`Skill sc:spec-panel` with `@<stem>-spec.md --mode critique --focus requirements,architecture`.
+Invoke the `/sc:spec-panel` command: `@<stem>-spec.md --mode critique --focus requirements,architecture`
+(spec-panel is command-only — no `sc:spec-panel` skill; invoke the command, not a `Skill` call).
 Fold findings into the spec. Record the panel output in the design dir. Do NOT build a review panel.
 
 ## W3 — Competing designs + debate/merge (REUSE /sc:adversarial)
@@ -53,8 +54,9 @@ NOT done until `eval describe` is green.
 
 - `docs/eval/suites-guide.md`: add the new suite to the inventory table (stem, eval_count, purpose).
 - `src/superclaude/cli/eval/suites/README.md`: add a row to "What lives in this directory".
-Use `Skill sc:document` or the `technical-writer` agent. Optionally run `evidence-validator` over the
-edits so every cite resolves. Keep markdownlint (MD025) + yamllint (indent-sequences) happy.
+Use the `/sc:document` command or the `technical-writer` agent (document is command-only — invoke the
+command, not a `Skill` call). Optionally run `evidence-validator` over the edits so every cite
+resolves. Keep markdownlint (MD025) + yamllint (indent-sequences) happy.
 
 ## Completion criteria
 

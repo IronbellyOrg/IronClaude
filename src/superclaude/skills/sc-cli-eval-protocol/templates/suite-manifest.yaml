@@ -1,6 +1,8 @@
-# yaml-language-server: $schema=../../../cli/eval/suites/suite.schema.json
+# yaml-language-server: $schema=./suite.schema.json
 #
 # TEMPLATE — copy into src/superclaude/cli/eval/suites/<stem>.yaml and fill in.
+# The `$schema=./suite.schema.json` above is correct for the DESTINATION (suites/), matching every
+# shipped suite (eval_smoke.yaml etc.); it does not resolve from this templates/ dir by design.
 # Mirror eval_smoke.yaml / installer_sync_drift.yaml. Stem MUST equal `name:`.
 # Validate before declaring done:  uv run superclaude eval describe --suite <stem>
 #
