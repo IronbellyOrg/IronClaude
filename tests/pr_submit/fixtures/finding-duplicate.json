@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "path": "src/auth.py",
+      "line": 42,
+      "body": "Missing authorization check on the write endpoint.",
+      "severity_hint": "high",
+      "category": "security",
+      "confidence": "high",
+      "in_diff": true,
+      "comment_id": 100
+    }
+  ]
+}

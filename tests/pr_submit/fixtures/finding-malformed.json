@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "path": "",
+      "line": 0,
+      "body": "Augment reported a defect but emitted no resolvable file:line — structurally ungroundable (EC-9).",
+      "severity_hint": "garbled-not-a-tier",
+      "category": null,
+      "confidence": null,
+      "in_diff": true,
+      "comment_id": 6001
+    }
+  ]
+}

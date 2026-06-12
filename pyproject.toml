@@ -137,6 +137,10 @@ markers = [
     "agent_regression: Agent spec extension regression tests (Phase 6, R7 mitigation)",
     "imm: Immediate-priority swarm acceptance tests (IMM-3/4/5/6 + §11.5) -- NFR-007 / T08.03",
     "inv: Invariant remediation swarm tests (INV-001/002/003/005/007/010/014) -- NFR-007 / T08.03",
+    "loop_guard: Loop-guard / round-counter fence-post tests (INV-001)",
+    "autonomy: Autonomy-tier gate tests (zero-edit-no-push, etc.)",
+    "recovery: Crash-recovery / resume reconstruction tests (FM-1..12)",
+    "p0: P0 priority acceptance tests",
 ]
 
 [tool.coverage.run]

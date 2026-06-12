@@ -1,0 +1,14 @@
+{
+  "findings": [
+    {
+      "path": "src/app/db.py",
+      "line": 88,
+      "body": "Database connection is never closed on the error path — an unbounded resource leak.",
+      "severity_hint": "high",
+      "category": "resource-leak",
+      "confidence": "high",
+      "in_diff": true,
+      "comment_id": 3002
+    }
+  ]
+}

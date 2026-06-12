@@ -1,0 +1,28 @@
+{
+  "max_rounds": 2,
+  "note": "Three successive re-reviews each still carrying a residual finding. With max_rounds=2 the >= gate fires at round_counter==2, so the third fix cycle never opens — exactly 2 pushes, counter exactly 2 (T-626-OFF-BY-ONE).",
+  "cycles": [
+    {
+      "round": 0,
+      "findings": [
+        {"path": "src/a.py", "line": 1, "body": "residual 1", "severity_hint": "medium",
+         "category": "correctness", "in_diff": true, "verification_status": "verified", "comment_id": 8101}
+      ]
+    },
+    {
+      "round": 1,
+      "findings": [
+        {"path": "src/a.py", "line": 2, "body": "residual 2", "severity_hint": "medium",
+         "category": "correctness", "in_diff": true, "verification_status": "verified", "comment_id": 8102}
+      ]
+    },
+    {
+      "round": 2,
+      "findings": [
+        {"path": "src/a.py", "line": 3, "body": "residual 3", "severity_hint": "medium",
+         "category": "correctness", "in_diff": true, "verification_status": "verified", "comment_id": 8103}
+      ]
+    }
+  ],
+  "expected": {"round_counter": 2, "push_count": 2, "terminal": "HALT_MAX_ROUNDS"}
+}

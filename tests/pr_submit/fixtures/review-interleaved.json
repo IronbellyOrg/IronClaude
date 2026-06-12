@@ -1,0 +1,19 @@
+{
+  "reviews": [
+    {
+      "author": {"login": "octocat"},
+      "authorAssociation": "MEMBER",
+      "state": "APPROVED",
+      "body": "LGTM from a human reviewer.",
+      "has_findings": false
+    },
+    {
+      "author": {"login": "augment-code[bot]"},
+      "authorAssociation": "NONE",
+      "state": "COMMENTED",
+      "body": "Found 1 issue.",
+      "has_findings": true
+    }
+  ],
+  "comments": []
+}

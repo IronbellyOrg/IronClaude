@@ -59,15 +59,17 @@ fi
 
 cat <<EOF
 <sc-auggie-review-offer source="post-pr-create-hook">
-A PR was just created ($TARGET_HINT). Offer the user the option to run an Auggie-powered code review on it before continuing other work.
+A PR was just created ($TARGET_HINT). Offer the user the option to run a PR-review pass on it before continuing other work — either a one-shot Auggie review, or the auto-remediation monitor.
 
-Suggested invocation: $INVOKE_HINT
+Suggested invocations:
+  - $INVOKE_HINT
+  - /sc:pr-submit --monitor 1 (arm an in-session monitor that polls for the Augment review, re-grades + verifies findings, and proposes fixes; higher ordinals fix/push/reply/resolve)
 
 Ask the user with this exact framing (do not paraphrase the trigger condition):
 
-  "I noticed you just opened $TARGET_HINT. Want me to run an Auggie-powered code review on it now (/sc:auggie-review)? It will post the report to the PR and offer a remediation chain if findings warrant it."
+  "I noticed you just opened $TARGET_HINT. Want me to run a code review on it now? Options: a one-shot Auggie review (/sc:auggie-review), or arm the PR-review auto-remediation monitor (/sc:pr-submit --monitor 1, which polls for the Augment review and proposes fixes — raise the ordinal for more autonomy)."
 
-Wait for the user's response. Do not auto-invoke /sc:auggie-review without confirmation. If the user declines, do not bring it up again in this session.
+Wait for the user's response. Do not auto-invoke /sc:auggie-review OR /sc:pr-submit, and never arm a monitor, without explicit confirmation; never imply level-3 autonomy without an explicit --monitor 3. If the user declines, do not bring it up again in this session.
 </sc-auggie-review-offer>
 EOF
 

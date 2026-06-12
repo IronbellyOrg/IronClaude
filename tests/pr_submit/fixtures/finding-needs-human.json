@@ -1,0 +1,15 @@
+{
+  "findings": [
+    {
+      "path": "src/migrations/0007_drop_column.py",
+      "line": 12,
+      "body": "Migration drops a column without a backfill plan — needs a human decision before remediation.",
+      "severity_hint": "high",
+      "category": "data-integrity",
+      "confidence": "high",
+      "in_diff": true,
+      "comment_id": 5001,
+      "needs_human_decision": true
+    }
+  ]
+}
