@@ -1,0 +1,66 @@
+contract_version: "1.3.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: "/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/.dev/reflect/post-troubleshoot-hardening-evals-20260612031044/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/.dev/reflect/post-troubleshoot-hardening-evals-20260612031044/audit.log"
+confidence_calibrated: 0.81
+escalation_rule_matched: 4
+run_id: "post-troubleshoot-hardening-evals-20260612031044"
+
+# UC-2
+tasklist_completion_pct: 0.974          # 76/78 checklist items; 2 unchecked = terminal reflect-gate(this run) + Done-flip
+deviation_count_by_class:
+  authorized: 1                          # skip-guarded NEW=CATCH half (spec-sanctioned partial-by-design)
+  necessary: 1                           # E4 heal-commit re-citation 20693bb8 -> acd5631f(#158), replay base pinned 1b0264f1
+  drift: 0
+  regression: 0
+deviation_register_path: "/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/.dev/reflect/post-troubleshoot-hardening-evals-20260612031044/deviation-ledger.yaml"
+grounding_gaps_path: null
+
+verification_ran: true
+verification_invocations: 2              # pytest + ruff
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Input integrity
+input_tree_file_count: 28
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true                     # §11.2 audit marker (non-trivial report, zero drops)
+
+# Tier 2
+reviewer_cards: ["/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/.dev/reflect/post-troubleshoot-hardening-evals-20260612031044/reviewer-cards/card-1-sonnet-analyzer.md", "/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/.dev/reflect/post-troubleshoot-hardening-evals-20260612031044/reviewer-cards/card-2-haiku-qa.md"]
+adversarial_unavailable: false
+merge_method: adversarial-inline        # converging reviewers; orchestrator-merged (both agree pass_with_findings, no Drift/Regression)
+t2_model_class_diversity: full
+t2_vendor_diversity: multi              # claude(opus calibrator) + openai(sonnet=gpt-5.5) + qwen(haiku=qwen3.6-plus)
+calibrator_diversity: full             # calibrator=opus disjoint from reviewers {sonnet,haiku}
+executor_class_source: flag
+executor_class_resolved: true
+executor_exclusion_degraded: false     # opus excluded; sonnet+haiku still satisfy N=2
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false                    # the E4 SHA cite was stale-on-disk; harness corrected it (Necessary), spec not wrong on its criteria
+user_decision_required: false
+needs_human_decision: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null              # surfaced to operator; self-run check does not auto-accept
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_adapter: task
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed      # cond 3 (completion!=1.0) + cond 5b (frontmatter status "Doing" not "done")

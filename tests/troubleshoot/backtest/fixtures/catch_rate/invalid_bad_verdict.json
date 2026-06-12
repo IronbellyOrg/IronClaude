@@ -1,0 +1,14 @@
+{
+  "run_id": "bad-verdict-001",
+  "generated_at": "2026-06-12T00:00:00Z",
+  "contract_version": "1.0.0",
+  "backtest_status": "partial",
+  "total_escapes": 1,
+  "caught": 0,
+  "missed": 1,
+  "catch_rate": 0.0,
+  "escapes": [
+    {"escape_id": "E1", "wave": "H1", "verdict": "WRONG", "negative_witness": true, "card_path": null, "detail": "verdict not in {CATCH,MISS}"}
+  ],
+  "proxy_limitation": "NEW=CATCH is a documentation-presence proxy."
+}

@@ -1,0 +1,18 @@
+{
+  "run_id": "anti-vacuity-001",
+  "generated_at": "2026-06-12T00:00:00Z",
+  "contract_version": "1.0.0",
+  "backtest_status": "partial",
+  "total_escapes": 5,
+  "caught": 5,
+  "missed": 0,
+  "catch_rate": 1.0,
+  "escapes": [
+    {"escape_id": "E1", "wave": "H1", "verdict": "CATCH", "negative_witness": false, "card_path": "refs/runtime-entrypoint-verification.md", "detail": "CATCH but witness missing -> blocks complete"},
+    {"escape_id": "E2", "wave": "H3", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/unmask-and-sweep.md", "detail": "fully caught"},
+    {"escape_id": "E3", "wave": "H3", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/unmask-and-sweep.md", "detail": "fully caught"},
+    {"escape_id": "E4", "wave": "H2", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/contract-enumeration.md", "detail": "fully caught"},
+    {"escape_id": "E5", "wave": "H4", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/effective-input-proof.md", "detail": "fully caught"}
+  ],
+  "proxy_limitation": "All 5 CATCH but E1 lacks a negative_witness -> anti-vacuity forces partial, NOT complete."
+}

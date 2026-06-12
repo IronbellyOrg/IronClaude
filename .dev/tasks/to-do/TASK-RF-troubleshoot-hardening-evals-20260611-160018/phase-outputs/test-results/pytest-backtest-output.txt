@@ -1,0 +1,94 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.13.0
+collecting ... collected 49 items
+
+tests/troubleshoot/backtest/test_backtest_e1.py::test_backtest_e1_old_protocol_misses_local_path_file PASSED [  2%]
+tests/troubleshoot/backtest/test_backtest_e1.py::test_backtest_e1_new_gate_catches_via_h1_ref SKIPPEDnded yet (absent at
+/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-
+evals/src/superclaude/skills/sc-troubleshoot-protocol/refs/runtime-
+entrypoint-verification.md). The matching OLD=MISS half runs
+unconditionally. Un-skips automatically once feat/troubleshoot-pipeline-
+hardening lands this ref.)                                               [  4%]
+tests/troubleshoot/backtest/test_backtest_e2.py::test_backtest_e2_old_protocol_misses_final_phase_false_positive PASSED [  6%]
+tests/troubleshoot/backtest/test_backtest_e2.py::test_backtest_e2_new_gate_catches_via_unmask_and_sweep_ref SKIPPED at
+/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-
+evals/src/superclaude/skills/sc-troubleshoot-protocol/refs/unmask-and-
+sweep.md). The matching OLD=MISS half runs unconditionally. Un-skips
+automatically once feat/troubleshoot-pipeline-hardening lands this ref.) [  8%]
+tests/troubleshoot/backtest/test_backtest_e3.py::test_backtest_e3_old_protocol_misses_advisory_severity PASSED [ 10%]
+tests/troubleshoot/backtest/test_backtest_e3.py::test_backtest_e3_new_gate_catches_via_unmask_and_sweep_ref SKIPPED at
+/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-
+evals/src/superclaude/skills/sc-troubleshoot-protocol/refs/unmask-and-
+sweep.md). The matching OLD=MISS half runs unconditionally. Un-skips
+automatically once feat/troubleshoot-pipeline-hardening lands this ref.) [ 12%]
+tests/troubleshoot/backtest/test_backtest_e4.py::test_backtest_e4_old_protocol_misses_second_consumer PASSED [ 14%]
+tests/troubleshoot/backtest/test_backtest_e4.py::test_backtest_e4_new_gate_catches_via_contract_enumeration_ref SKIPPEDsent at
+/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-
+evals/src/superclaude/skills/sc-troubleshoot-protocol/refs/contract-
+enumeration.md). The matching OLD=MISS half runs unconditionally. Un-
+skips automatically once feat/troubleshoot-pipeline-hardening lands this
+ref.)                                                                    [ 16%]
+tests/troubleshoot/backtest/test_backtest_e5.py::test_backtest_e5_old_protocol_misses_wrong_diff_surface PASSED [ 18%]
+tests/troubleshoot/backtest/test_backtest_e5.py::test_backtest_e5_new_gate_catches_via_effective_input_ref SKIPPEDbsent at
+/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-
+evals/src/superclaude/skills/sc-troubleshoot-protocol/refs/effective-
+input-proof.md). The matching OLD=MISS half runs unconditionally. Un-
+skips automatically once feat/troubleshoot-pipeline-hardening lands this
+ref.)                                                                    [ 20%]
+tests/troubleshoot/backtest/test_backtest_status_separation.py::test_backtest_status_keeps_signoff_advisory_until_complete PASSED [ 22%]
+tests/troubleshoot/backtest/test_backtest_status_separation.py::test_backtest_status_partial_exposes_missing_escape_ids PASSED [ 24%]
+tests/troubleshoot/backtest/test_backtest_status_separation.py::test_backtest_status_complete_may_mirror_run_level_verdict PASSED [ 26%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py::test_backtest_escape_collected_into_catch_rate[E1] SKIPPEDSS negative witnesses are
+asserted in test_backtest_e1..e5.py.)                                    [ 28%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py::test_backtest_escape_collected_into_catch_rate[E2] SKIPPEDSS negative witnesses are
+asserted in test_backtest_e1..e5.py.)                                    [ 30%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py::test_backtest_escape_collected_into_catch_rate[E3] SKIPPEDSS negative witnesses are
+asserted in test_backtest_e1..e5.py.)                                    [ 32%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py::test_backtest_escape_collected_into_catch_rate[E4] SKIPPEDSS negative witnesses are
+asserted in test_backtest_e1..e5.py.)                                    [ 34%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py::test_backtest_escape_collected_into_catch_rate[E5] SKIPPEDSS negative witnesses are
+asserted in test_backtest_e1..e5.py.)                                    [ 36%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py::test_backtest_catch_rate_report_drives_status PASSED [ 38%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py::test_backtest_aggregation_complete_and_partial_derivations PASSED [ 40%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_catch_rate_schema_is_well_formed PASSED [ 42%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_render_output_validates_against_schema PASSED [ 44%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_schema_pins_required_set_and_enums PASSED [ 46%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_post_init_raises_on_mismatched_status PASSED [ 48%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_contract_violation_when_counts_unbalanced PASSED [ 51%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_derivation_complete_partial_not_run PASSED [ 53%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_anti_vacuity_all_catch_missing_witness_is_partial PASSED [ 55%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_anti_vacuity_all_catch_missing_card_is_partial PASSED [ 57%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_complete_claim_with_null_card_raises PASSED [ 59%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_proxy_limitation_is_serialized PASSED [ 61%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_unresolved_card_paths_existing_vs_fabricated PASSED [ 63%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_valid_fixtures_validate PASSED [ 65%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_invalid_fixtures_fail_validation[invalid_bad_status.json] PASSED [ 67%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_invalid_fixtures_fail_validation[invalid_bad_verdict.json] PASSED [ 69%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py::test_backtest_writer_emits_to_tmp_path_only PASSED [ 71%]
+tests/troubleshoot/backtest/test_git_replay_integration.py::test_backtest_real_worktree_checkout_lands_on_prefix_parent PASSED [ 73%]
+tests/troubleshoot/backtest/test_git_replay_integration.py::test_backtest_replay_leaves_no_leaked_worktree PASSED [ 75%]
+tests/troubleshoot/backtest/test_git_replay_unit.py::test_backtest_checkout_worktree_issues_detached_add_with_commitish_unchanged PASSED [ 77%]
+tests/troubleshoot/backtest/test_git_replay_unit.py::test_backtest_checkout_worktree_teardown_fires_even_when_body_raises PASSED [ 79%]
+tests/troubleshoot/backtest/test_git_replay_unit.py::test_backtest_replay_escapes_has_exactly_five_bare_parent_shas PASSED [ 81%]
+tests/troubleshoot/backtest/test_git_replay_unit.py::test_backtest_escape_by_id_round_trips_and_rejects_unknown PASSED [ 83%]
+tests/troubleshoot/backtest/test_path_resolution.py::test_backtest_repo_root_resolves_to_pyproject PASSED [ 85%]
+tests/troubleshoot/backtest/test_replay_executor.py::test_backtest_executor_stub_invoker_returns_result PASSED [ 87%]
+tests/troubleshoot/backtest/test_replay_executor.py::test_backtest_executor_missing_invoker_yields_error PASSED [ 89%]
+tests/troubleshoot/backtest/test_replay_executor.py::test_backtest_executor_raising_invoker_folds_into_error PASSED [ 91%]
+tests/troubleshoot/backtest/test_replay_executor.py::test_backtest_resolve_callable_module_level_function PASSED [ 93%]
+tests/troubleshoot/backtest/test_replay_executor.py::test_backtest_resolve_callable_class_bound_method PASSED [ 95%]
+tests/troubleshoot/backtest/test_replay_executor.py::test_backtest_in_process_executor_satisfies_replay_executor_protocol PASSED [ 97%]
+tests/troubleshoot/backtest/test_waiver_regreen.py::test_waiver_latch_one_way_blocks_downstream_regreen SKIPPEDt (absent at
+/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-
+evals/src/superclaude/skills/sc-troubleshoot-protocol/refs/hardening-
+output-contract.md). The matching OLD=MISS half runs unconditionally.
+Un-skips automatically once feat/troubleshoot-pipeline-hardening lands
+this ref.)                                                               [100%]
+
+======================= 38 passed, 11 skipped in 10.26s ========================
