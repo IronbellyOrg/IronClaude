@@ -1,0 +1,10 @@
+input_tree_file_count: 3
+file_list:
+  - path: src/superclaude/skills/sc-reflect-protocol/SKILL.md
+    sha256: 9aef71e5eee138b4c259dfa5cad4eb6f034e3dfaeabcdd15a86b59d678bc2c96
+  - path: tests/cli/reflect/test_marker_suppression.py
+    sha256: 973dc05d99b0a8b39a81844b0439ce352fad50065d9bd708f001f7491b5979bd
+  - path: .dev/tasks/to-do/TASK-RF-reflect-marker-leak-20260611-175724/TASK-RF-reflect-marker-leak-20260611-175724.md
+    sha256: ded3adbba2359abfb92a3464a9de6962598cd0d4836bbac2012f2f6ad6fdadf7
+input_drift_detected: false
+recompute_note: SHAs stable across Wave 0 → Wave 5 (no edits performed by this read-only audit).
