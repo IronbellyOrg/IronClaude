@@ -32,14 +32,19 @@ def test_hook_points_at_src_source():
 
 
 def test_t701_offer_mentions_both_commands():
-    """T-701: a successful `gh pr create` → stdout mentions BOTH /sc:auggie-review and /sc:pr-submit --monitor."""
+    """T-701: a successful `gh pr create` → stdout mentions BOTH /sc:auggie-review and /sc:pr-submit --monitor.
+
+    Uses an unrelated third-party repo (``acme/widgets``) to prove the hook is
+    repo-agnostic: it fires on any ``gh pr create`` and extracts the PR URL generically,
+    never keyed to one fork slug.
+    """
     payload = {
         "tool_name": "Bash",
         "tool_input": {
-            "command": "gh pr create --repo IronbellyOrg/IronClaude --base master --head feature/x --title t --body b"
+            "command": "gh pr create --repo acme/widgets --base main --head feature/x --title t --body b"
         },
         "tool_response": {
-            "stdout": "https://github.com/IronbellyOrg/IronClaude/pull/42",
+            "stdout": "https://github.com/acme/widgets/pull/42",
             "error": "",
         },
     }
@@ -68,9 +73,7 @@ def test_t703_failed_pr_create_exits_zero():
     """T-703: a failed `gh pr create` (error non-empty) → exit 0, no offer."""
     payload = {
         "tool_name": "Bash",
-        "tool_input": {
-            "command": "gh pr create --repo IronbellyOrg/IronClaude --head feature/x"
-        },
+        "tool_input": {"command": "gh pr create --repo acme/widgets --head feature/x"},
         "tool_response": {
             "stdout": "",
             "error": "pull request create failed: a pull request already exists",

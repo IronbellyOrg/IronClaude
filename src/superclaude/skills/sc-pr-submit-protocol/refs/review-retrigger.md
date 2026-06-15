@@ -6,9 +6,9 @@ This ref documents the **S5a re-trigger**: a push does **NOT** auto-trigger an A
 skill must **post a re-trigger comment** and then poll for the attributed re-review.
 
 > **NOTE (core-purity boundary, NFR-6 / T-104, NOT T-N50).** This ref documents a `gh api …
-> repos/IronbellyOrg/IronClaude/issues/<N>/comments` POST surface, so it CARRIES a `gh` token **by
+> repos/<owner/repo>/issues/<N>/comments` POST surface, so it CARRIES a `gh` token **by
 > design** — exactly like `thread-reply.md` and `augment-poll.md`. It is therefore covered by the
-> **T-104 fork-pin** test path and is DELIBERATELY EXCLUDED from the zero-token `CORE_PURE_FILES`
+> **T-104 repo-pin** test path and is DELIBERATELY EXCLUDED from the zero-token `CORE_PURE_FILES`
 > (T-N50) set. The decision *whether/when* to re-trigger lives in the deterministic core (`do_retrigger`
 > seam); the `gh api` I/O lives in `scripts/retrigger-review.sh`.
 
@@ -22,12 +22,12 @@ loop can actually advance (the V1.0 loop assumed pushes auto-triggered reviews �
 The re-trigger is one pinned issue-comment POST, mirroring `thread-reply.md`'s single-summary surface:
 
 ```bash
-gh api --method POST repos/IronbellyOrg/IronClaude/issues/<N>/comments -f body="auggie review"
+gh api --method POST repos/<owner/repo>/issues/<N>/comments -f body="auggie review"
 ```
 
-- **Fork-pin:** the path names `repos/IronbellyOrg/IronClaude/...` (the fork) — a bare `gh api
-  .../comments` or an upstream path is a **T-104-class defect**. `gh api` takes no `--repo`; the repo is
-  the path segment.
+- **Repo-pin:** the path names the RESOLVED `repos/<owner/repo>/...` (origin's `owner/repo`) — a bare
+  `gh api .../comments` or an upstream-parent path is a **T-104-class defect**. `gh api` takes no
+  `--repo`; the repo is the path segment.
 - **Body token:** exactly `auggie review` (one of the contract's `accepted_trigger_phrases`).
 - The actual POST is performed by `scripts/retrigger-review.sh --pr <N>` (the script wraps this in the
   shared `set -euo pipefail` / `die()` / arg-guard / `command -v gh` shape with a SoT footer).

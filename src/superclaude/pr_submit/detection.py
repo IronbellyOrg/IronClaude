@@ -32,16 +32,25 @@ _CONTRACT_PATH = (
     / "detection-contract.md"
 )
 
-# Operator-local locked contract (gitignored). Populated by the R1 probe with this
-# fork's REAL Augment values; NEVER committed. The arm path prefers it when present.
-_LOCAL_OVERRIDE_PATH = Path(
-    "/config/workspace/IronClaude/.dev/pr-monitor/detection-contract.locked.md"
-)
+# Operator-local locked contract (gitignored). Populated by the R1 probe with the
+# target repo's REAL Augment values; NEVER committed. The arm path prefers it when
+# present. Resolved RELATIVE TO THE CWD (the repo root the operator runs sc:pr-submit
+# from) — NOT a hardcoded absolute path — so the monitor works in any checkout. A
+# module-level ``_LOCAL_OVERRIDE_PATH`` override wins when set (the monkeypatch seam).
+_LOCAL_OVERRIDE_REL = Path(".dev/pr-monitor/detection-contract.locked.md")
+_LOCAL_OVERRIDE_PATH: Path | None = None
 
 
 def _local_override_path() -> Path:
-    """Return the operator-local locked-contract path (indirection for testability)."""
-    return _LOCAL_OVERRIDE_PATH
+    """Return the operator-local locked-contract path (indirection for testability).
+
+    Honors a module-level ``_LOCAL_OVERRIDE_PATH`` when set (the test monkeypatch seam);
+    otherwise resolves ``<cwd>/.dev/pr-monitor/detection-contract.locked.md`` fresh on
+    each call, so the path tracks the repo the operator is actually working in.
+    """
+    if _LOCAL_OVERRIDE_PATH is not None:
+        return Path(_LOCAL_OVERRIDE_PATH)
+    return Path.cwd() / _LOCAL_OVERRIDE_REL
 
 
 def _as_str_list(value, default: list[str]) -> list[str]:

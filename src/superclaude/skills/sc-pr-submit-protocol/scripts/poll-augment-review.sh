@@ -20,9 +20,11 @@ set -euo pipefail
 die() { printf 'poll-augment-review: %s\n' "$1" >&2; exit "${2:-1}"; }
 
 PR=""
+REPO=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --pr) PR="${2:-}"; shift 2 ;;
+        --repo) REPO="${2:-}"; shift 2 ;;
         *) die "unknown argument: $1" 2 ;;
     esac
 done
@@ -32,8 +34,16 @@ done
 command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH" 2
 command -v jq >/dev/null 2>&1 || die "jq not found on PATH" 2
 
-# Single poll of the PR. Every gh call pins --repo IronbellyOrg/IronClaude (FR-1.3).
-PR_JSON="$(gh pr view "$PR" --repo IronbellyOrg/IronClaude \
+# Resolve the target repo (owner/repo). The SKILL normally passes --repo; absent it,
+# resolve from the current checkout (gh repo view reads the local repo identity, then
+# parse the origin remote). This de-hardcodes the poll off any one fork (FR-1.3
+# generalized): the --repo pin is COMPUTED, never a literal owner/repo.
+REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
+[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
+[ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
+
+# Single poll of the PR. Every gh call pins the RESOLVED --repo "$REPO" (FR-1.3).
+PR_JSON="$(gh pr view "$PR" --repo "$REPO" \
     --json number,url,headRefName,headRefOid,baseRefName,reviews,comments 2>/dev/null || true)"
 
 if [ -z "$PR_JSON" ]; then
@@ -49,7 +59,7 @@ fi
 # `.comments`, NOT here. Surfacing only inline comments would make `declined` unreachable
 # in production (the classifier never sees the decline). The classifier's finding-comment
 # rule requires path+line, so the path-less conversation comments are not miscounted.
-COMMENTS_JSON="$(gh api "repos/IronbellyOrg/IronClaude/pulls/${PR}/comments" 2>/dev/null || echo '[]')"
+COMMENTS_JSON="$(gh api "repos/${REPO}/pulls/${PR}/comments" 2>/dev/null || echo '[]')"
 
 # Coarse state: any review present => let the FSM classify; none => polling. The
 # authoritative three-state classification is done by superclaude.pr_submit.classify

@@ -457,37 +457,42 @@ def run_validation_gates(results: dict[str, bool]) -> str:
     return "validated"
 
 
-PR_TARGET_REPO = "IronbellyOrg/IronClaude"
+def pr_target_ok(pr_url: str, target_repo: str) -> bool:
+    """Whether ``pr_url`` targets ``target_repo`` — the VG-6 / FM-11 misroute check.
 
-
-def pr_target_ok(pr_url: str) -> bool:
-    """Whether a PR URL targets the fork (`IronbellyOrg/IronClaude`) — the VG-6 / FM-11 check.
-
-    A returned URL whose owner/repo is NOT the fork (e.g. the public upstream) is a
-    misroute → the caller HALTs (`terminal_failed`) and instructs the operator to
-    close it (T-108 / FM-11). Core-pure: a pure string check, no version-control
-    command tokens.
+    ``target_repo`` is the RESOLVED ``owner/repo`` of the origin remote, NOT a
+    hardcoded constant: the SKILL resolves it at runtime (origin's ``nameWithOwner``,
+    fallback the origin remote URL) and passes it in. A returned URL whose owner/repo is
+    NOT ``target_repo`` (e.g. the host CLI silently defaulted the PR onto the upstream
+    PARENT of a fork) is a misroute → the caller HALTs (`terminal_failed`) and instructs
+    the operator to close it (T-108 / FM-11). Core-pure: a pure string check, no
+    version-control command tokens.
     """
-    if not pr_url:
+    if not pr_url or not target_repo:
         return False
-    return f"/{PR_TARGET_REPO}/" in pr_url or pr_url.rstrip("/").endswith(
-        PR_TARGET_REPO
-    )
+    return f"/{target_repo}/" in pr_url or pr_url.rstrip("/").endswith(target_repo)
 
 
-def origin_ok(origin_url: str) -> bool:
-    """Whether the `origin` remote is the fork `IronbellyOrg/IronClaude` (pre-PR check, T-106).
+def origin_ok(origin_url: str, target_repo: str) -> bool:
+    """Whether the `origin` remote URL matches the resolved ``target_repo`` (pre-PR check, T-106).
 
-    Accepts https or ssh remote URLs — a substring match on the fork's owner/repo
-    works for both (and for a trailing repo-suffix). A wrong origin → HALT before
-    opening the PR. Core-pure: a pure string check (the SKILL runs the actual remote
-    query and passes its result here).
+    ``target_repo`` is the resolved ``owner/repo`` the PR is meant to land on (the
+    SKILL resolves it from origin at runtime, never a module constant). Accepts https
+    or ssh remote URLs — a substring match on ``owner/repo`` works for both (and for a
+    trailing repo-suffix). A mismatch (origin points somewhere other than the intended
+    target) → HALT before opening the PR. Core-pure: a pure string check (the SKILL
+    runs the actual remote query and passes its result here).
     """
-    return bool(origin_url) and PR_TARGET_REPO in origin_url
+    return bool(origin_url) and bool(target_repo) and target_repo in origin_url
 
 
 def needs_rebase(commits_behind: int) -> bool:
-    """Whether the branch is behind `origin/master` and must rebase before create (T-107)."""
+    """Whether the branch is behind its base branch (``origin/<default-branch>``) and must rebase before create (T-107).
+
+    Pure arithmetic: ``commits_behind`` is computed by the SKILL against the repo's
+    ACTUAL default branch (resolved by the SKILL from the repo's ``defaultBranchRef``, or
+    the explicit ``--base`` override) — not a literal ``master`` assumption.
+    """
     return commits_behind > 0
 
 

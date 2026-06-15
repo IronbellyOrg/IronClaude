@@ -1,8 +1,12 @@
 """Static-grep / core-purity tests (spec FR-1.3 / AC-9, §6.3).
 
-T-104: every `gh` command in the skill sources + the hook is fork-scoped — `gh pr`/
-`gh repo` pin `--repo IronbellyOrg/IronClaude`; `gh api` paths are
-`repos/IronbellyOrg/IronClaude/...` (gh api takes no --repo flag). T-N50: the
+T-104: every `gh` command in the skill sources + the hook is REPO-scoped to the
+resolved origin repo — `gh pr`/`gh repo` pin `--repo <owner/repo>` (or ARE the
+`gh repo view` resolution idiom that reads origin's `owner/repo`); `gh api` paths are
+`repos/<owner/repo>/...` (gh api takes no --repo flag); `graphql` calls carry the repo
+in their query vars. The repo is RESOLVED at runtime (origin's `nameWithOwner`,
+fallback the origin remote URL), never a hardcoded fork — a BARE `gh pr`/`gh api` that
+would silently default onto an upstream parent is the defect this greps for. T-N50: the
 core-pure file set (state-machine.md, severity-routing.md, loop-guard.md AND
 fsm.py/severity_router.py/loop_guard.py) contains ZERO `gh`/`git` tokens. T-N40: no
 `--depth quick --fix` conflict is ever emitted. T-N41: the deterministic core never
@@ -19,10 +23,12 @@ SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-pr-submit-protoco
 HOOK = REPO_ROOT / "src" / "superclaude" / "hooks" / "scripts" / "offer-pr-review.sh"
 PR_SUBMIT_PKG = REPO_ROOT / "src" / "superclaude" / "pr_submit"
 
-FORK = "IronbellyOrg/IronClaude"
-
 # Real gh command invocations (not the substring "gh" in prose like "through").
 _GH_CMD = re.compile(r"\bgh\s+(pr|api|repo|release|run|auth|search|workflow)\b")
+# The `gh repo view` resolution idiom — the de-hardcoding primitive. It reads the
+# CURRENT checkout's `owner/repo` (so downstream calls can pin `--repo "$REPO"`); it
+# has no target to misroute, so it counts as repo-scoped on its own.
+_REPO_RESOLVE = re.compile(r"\bgh\s+repo\s+view\b")
 # The T-N50 core-pure file set.
 CORE_PURE_FILES = [
     SKILL_DIR / "refs" / "state-machine.md",
@@ -89,17 +95,30 @@ def _command_lines(path: Path):
     return out
 
 
-def _fork_scoped(line: str) -> bool:
-    """A gh command line is fork-scoped if it names the fork, pins --repo, or is graphql."""
-    return FORK in line or "--repo" in line or "graphql" in line
+def _repo_scoped(line: str) -> bool:
+    """A gh command line is repo-scoped if it pins --repo, targets a `repos/<owner/repo>/`
+    API path, is a `graphql` call, or IS the `gh repo view` resolution idiom.
+
+    This is the generalized safety property: the prior implementation required the
+    literal fork slug, but the repo is now RESOLVED at runtime — so "scoped" means the
+    call carries an explicit repo reference (computed, not bare), never a hardcoded
+    owner/repo. A bare `gh pr`/`gh api` with none of these would silently default onto
+    an upstream parent → the defect.
+    """
+    return (
+        "--repo" in line
+        or "repos/" in line
+        or "graphql" in line
+        or _REPO_RESOLVE.search(line) is not None
+    )
 
 
-def test_t104_every_gh_call_is_fork_scoped():
-    """T-104: every ACTUAL gh command in the skill sources + hook is scoped to the fork."""
+def test_t104_every_gh_call_is_repo_scoped():
+    """T-104: every ACTUAL gh command in the skill sources + hook is scoped to the resolved repo."""
     offenders: list[str] = []
     for path in _skill_and_hook_files():
         for lineno, line in _command_lines(path):
-            if _GH_CMD.search(line) and not _fork_scoped(line):
+            if _GH_CMD.search(line) and not _repo_scoped(line):
                 offenders.append(
                     f"{path.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
                 )
@@ -157,17 +176,26 @@ POLL_SCRIPT = (
 
 
 def test_t105_runtime_repo_pin():
-    """T-105 (FR-1.3 / AC-7): the poll script's RUNTIME gh commands pin the fork.
+    """T-105 (FR-1.3 / AC-7): the poll script's RUNTIME gh commands pin the RESOLVED repo.
 
     The runtime complement to T-104's static grep: T-104 proves no UNSCOPED gh
     command exists anywhere in the skill sources; T-105 asserts the ACTUAL gh
-    invocations the poll script will run at runtime carry the fork pin —
-    every `gh pr` line includes `--repo IronbellyOrg/IronClaude`, and every
-    `gh api` line targets `repos/IronbellyOrg/IronClaude/...` or `graphql`
-    (`gh api` takes no `--repo` flag). This guards FM-11 / the PR-target fork
+    invocations the poll script will run at runtime carry a COMPUTED repo pin —
+    every `gh pr` line includes `--repo` (the resolved `$REPO`, never bare), and every
+    `gh api` line targets a `repos/.../` path or `graphql` (`gh api` takes no `--repo`
+    flag). The de-hardcoding generalizes the prior literal-fork pin to a resolved pin:
+    the script first RESOLVES the repo (origin's `nameWithOwner`, fallback the origin
+    remote) and threads it through every call. This guards FM-11 / the PR-target
     discipline at the level of the commands actually executed, not just prose.
     """
     assert POLL_SCRIPT.exists(), f"poll script missing: {POLL_SCRIPT}"
+    # The script MUST resolve the target repo at runtime (the de-hardcoding mechanism) —
+    # never assume a literal owner/repo.
+    script_text = POLL_SCRIPT.read_text(encoding="utf-8")
+    assert "nameWithOwner" in script_text, (
+        "poll script does not resolve the target repo (expected `gh repo view --json nameWithOwner`)"
+    )
+
     pr_lines: list[str] = []
     api_lines: list[str] = []
     for _lineno, line in _command_lines(POLL_SCRIPT):
@@ -180,19 +208,19 @@ def test_t105_runtime_repo_pin():
     assert pr_lines, "no runtime `gh pr` command found in the poll script"
     assert api_lines, "no runtime `gh api` command found in the poll script"
 
-    pr_offenders = [line.strip() for line in pr_lines if f"--repo {FORK}" not in line]
+    pr_offenders = [line.strip() for line in pr_lines if "--repo" not in line]
     assert not pr_offenders, (
-        "runtime `gh pr` lines missing `--repo IronbellyOrg/IronClaude`:\n"
+        "runtime `gh pr` lines missing a `--repo <resolved>` pin (bare → upstream-default risk):\n"
         + "\n".join(pr_offenders)
     )
 
     api_offenders = [
         line.strip()
         for line in api_lines
-        if f"repos/{FORK}" not in line and "graphql" not in line
+        if "repos/" not in line and "graphql" not in line
     ]
     assert not api_offenders, (
-        "runtime `gh api` lines not pinned to repos/IronbellyOrg/IronClaude or graphql:\n"
+        "runtime `gh api` lines not pinned to a repos/<owner/repo>/ path or graphql:\n"
         + "\n".join(api_offenders)
     )
 
@@ -207,20 +235,20 @@ def test_tn51_run_log_redacts_credentials_static():
 # --- V1.1 static gates (FR-8/FR-9, addendum §6.5) ----------------------------
 
 
-def test_t1101_retrigger_gh_is_fork_scoped():
+def test_t1101_retrigger_gh_is_repo_scoped():
     """T-1101 (FR-8): every gh command in the gh-BEARING re-trigger surfaces
-    (review-retrigger.md + retrigger-review.sh) is FORK-PINNED to
-    repos/IronbellyOrg/IronClaude (NOT bare gh api, NOT upstream).
+    (review-retrigger.md + retrigger-review.sh) is REPO-PINNED to the resolved
+    `repos/<owner/repo>/...` (NOT bare gh api, NOT an upstream parent).
 
     These two files carry a gh token by design (the issue-comment POST surface), so they
-    live on the T-104 fork-pin path, NOT the zero-token T-N50 set. (The broad
+    live on the T-104 repo-pin path, NOT the zero-token T-N50 set. (The broad
     test_t104 already scans them via SKILL_DIR.rglob; this is the tighter dedicated assert.)
     """
     offenders: list[str] = []
     for path in (REVIEW_RETRIGGER_REF, RETRIGGER_SCRIPT):
         assert path.exists(), f"re-trigger surface missing: {path}"
         for lineno, line in _command_lines(path):
-            if _GH_CMD.search(line) and not _fork_scoped(line):
+            if _GH_CMD.search(line) and not _repo_scoped(line):
                 offenders.append(
                     f"{path.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
                 )
