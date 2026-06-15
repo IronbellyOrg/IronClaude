@@ -1678,15 +1678,16 @@ Do **NOT** pass `--executor-model` at PRE: no executor has run in `--mode pre`, 
 ```yaml
 reflect_pre:
   verdict: pass | fail | skipped   # skipped LEGAL ONLY when spec_path is null (reason: no-spec); a skipped verdict with a resolved spec is MALFORMED
+  skip_reason: no-spec | null      # REQUIRED `no-spec` when verdict: skipped; null (or omitted) for verdict: pass | fail
   coverage_pct: <float | null>
   depth: quick | standard | deep
   tcs: <int>
-  run_id: <reflect run id>   # MUST be a real reflect run id; never deferred / n/a / pending / empty
-  report: ${TASK_DIR}reflect/pre/report.md
+  run_id: <reflect run id | n/a>   # real reflect run id when spec_path resolved (verdict: pass|fail); `n/a` ONLY when verdict: skipped (no-spec). Never deferred / pending / empty.
+  report: ${TASK_DIR}reflect/pre/report.md | null   # report path when spec_path resolved; null when verdict: skipped (no-spec)
   reviewed_at: <ISO-ts>
 ```
 
-**Mandatory-run check (hard STOP, the enforcement, not advisory).** Before proceeding to A.11, verify ON DISK that reflect actually executed: the report file at `${TASK_DIR}reflect/pre/report.md` MUST exist AND `reflect_pre.run_id` MUST be a real reflect run id. A `run_id` of `deferred` / `n/a` / `pending` / empty, OR a `verdict: skipped` while `spec_path` is non-null, OR a missing report file when a spec resolved, ALL mean the PRE gate did not run: this is a MALFORMED run. Do NOT present A.11. Either invoke reflect now and complete the gate, or, ONLY if the `sc:reflect-protocol` skill probe genuinely fails, log a hard blocker per Rule 14 with the specific failure. Substituting another gate's coverage result (e.g. the A.10.25 alignment verdict) for an actual reflect run is explicitly NOT permitted.
+**Mandatory-run check (hard STOP, the enforcement, not advisory).** This check is conditional on spec resolution. **When `spec_path` resolved (`verdict` ∈ {`pass`, `fail`}):** before proceeding to A.11, verify ON DISK that reflect actually executed — the report file at `${TASK_DIR}reflect/pre/report.md` MUST exist AND `reflect_pre.run_id` MUST be a real reflect run id. A `run_id` of `deferred` / `n/a` / `pending` / empty, OR a `verdict: skipped` while `spec_path` is non-null, OR a missing report file when a spec resolved, ALL mean the PRE gate did not run: this is a MALFORMED run. **When `spec_path` is null (`verdict: skipped`, `skip_reason: no-spec`):** reflect legitimately did not run — `run_id: n/a` and `report: null` are the CORRECT recorded values, NOT a MALFORMED run; the report-exists / real-run_id requirements do NOT apply and MUST NOT be used to fabricate a `run_id` or a report file. On a MALFORMED run, do NOT present A.11. Either invoke reflect now and complete the gate, or, ONLY if the `sc:reflect-protocol` skill probe genuinely fails, log a hard blocker per Rule 14 with the specific failure. Substituting another gate's coverage result (e.g. the A.10.25 alignment verdict) for an actual reflect run is explicitly NOT permitted.
 
 **Loop policy: max 0 auto-loops.** The PRE gate NEVER re-invokes the builder automatically: a `fail` verdict is surfaced for operator action only (avoiding the unattended-mutation failure mode). Reflect's findings are spec-level and may require human judgment, unlike the bounded auto-fix of the rf-* gates.
 
