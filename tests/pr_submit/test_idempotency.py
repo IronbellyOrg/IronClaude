@@ -17,10 +17,10 @@ def test_tn01_replay_findings_reply_once_per_thread(tmp_path):
     rl = RunLog(42, tmp_path)
     comment_id = 7001
     # First reply: newly recorded → proceed.
-    assert rl.record_idempotent("replied_comment_ids", comment_id) is True
+    assert rl.check_idempotent("replied_comment_ids", comment_id) is True
     rl.append({"event_type": "reply_posted", "comment_id": comment_id})
     # Replay (second poll surfaces the same finding) → already replied → skip.
-    assert rl.record_idempotent("replied_comment_ids", comment_id) is False
+    assert rl.check_idempotent("replied_comment_ids", comment_id) is False
     # Exactly one reply_posted event in the log.
     replies = [e for e in rl.read_events() if e["event_type"] == "reply_posted"]
     assert len(replies) == 1
@@ -32,14 +32,14 @@ def test_tn01_replay_findings_reply_once_per_thread(tmp_path):
 def test_tn02_reply_tracking_persisted_across_polls(tmp_path):
     """T-N02: reply-tracking persists across polls — rebuilt state still shows the replied id."""
     rl = RunLog(8, tmp_path)
-    rl.record_idempotent("replied_comment_ids", 9009)
+    rl.check_idempotent("replied_comment_ids", 9009)
     rl.append({"event_type": "reply_posted", "comment_id": 9009})
     # Simulate a new poll cycle: a fresh RunLog over the SAME dir rebuilds from JSONL.
     rl2 = RunLog(8, tmp_path)
     state = rl2.rebuild_state()
     assert 9009 in state["replied_comment_ids"]
     # The dedup still fires on the persisted set.
-    assert rl2.record_idempotent("replied_comment_ids", 9009) is False
+    assert rl2.check_idempotent("replied_comment_ids", 9009) is False
 
 
 def test_fresh_comment_no_double_fix(tmp_path):
@@ -69,10 +69,10 @@ def test_fresh_comment_no_double_fix(tmp_path):
 
     rl = RunLog(13, tmp_path)
     # First fix proceeds and is recorded under the fix_key.
-    assert rl.record_idempotent("processed_finding_ids", original.fix_key) is True
+    assert rl.check_idempotent("processed_finding_ids", original.fix_key) is True
     rl.append({"event_type": "fix_applied", "fix_key": original.fix_key})
     # The fresh comment hashes to the SAME fix_key → skip → no second fix.
-    assert rl.record_idempotent("processed_finding_ids", fresh.fix_key) is False
+    assert rl.check_idempotent("processed_finding_ids", fresh.fix_key) is False
     fixes = [e for e in rl.read_events() if e["event_type"] == "fix_applied"]
     assert len(fixes) == 1  # exactly one fix despite two comments
 
@@ -82,17 +82,17 @@ def test_fresh_comment_no_double_fix(tmp_path):
 
 def test_t1120_auggie_review_invoked_at_most_once(tmp_path):
     """T-1120 / T-AUGGIE-AT-MOST-ONCE: the 6th idempotency set is the durable
-    strict-once gate — record_idempotent("auggie_review_invoked", pr) returns True
+    strict-once gate — check_idempotent("auggie_review_invoked", pr) returns True
     the first time and False on replay, emitting an idempotency_skip (INV-R2)."""
     assert "auggie_review_invoked" in IDEMPOTENCY_SETS
     assert len(IDEMPOTENCY_SETS) == 6  # 5→6, NOT a "4"/reconcile framing
     rl = RunLog(55, tmp_path)
     pr = 55
     # First fallback invoke: newly recorded → proceed.
-    assert rl.record_idempotent("auggie_review_invoked", pr) is True
+    assert rl.check_idempotent("auggie_review_invoked", pr) is True
     rl.append({"event_type": EventType.AUGGIE_FALLBACK_INVOKED.value, "pr_number": pr})
     # Replay (a second decline later) → already invoked → skip.
-    assert rl.record_idempotent("auggie_review_invoked", pr) is False
+    assert rl.check_idempotent("auggie_review_invoked", pr) is False
     # The set folds the pr_number exactly once.
     state = rl.rebuild_state()
     assert state["auggie_review_invoked"] == [pr]
@@ -106,7 +106,7 @@ def test_t1124_auggie_strict_once_survives_resume(tmp_path, load_fixture):
     fixture = load_fixture("decline-twice.json")
     pr = 55
     rl = RunLog(pr, tmp_path)
-    assert rl.record_idempotent("auggie_review_invoked", pr) is True
+    assert rl.check_idempotent("auggie_review_invoked", pr) is True
     rl.append({"event_type": EventType.AUGGIE_FALLBACK_INVOKED.value, "pr_number": pr})
     # New poll cycle / resume: a fresh RunLog rebuilds the set from the JSONL.
     rl2 = RunLog(pr, tmp_path)
@@ -119,4 +119,4 @@ def test_t1124_auggie_strict_once_survives_resume(tmp_path, load_fixture):
         == fixture["expected"]["auggie_review_invoked_count"]
     )
     # The dedup still fires on the persisted set after resume.
-    assert rl2.record_idempotent("auggie_review_invoked", pr) is False
+    assert rl2.check_idempotent("auggie_review_invoked", pr) is False

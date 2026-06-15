@@ -44,6 +44,21 @@ def _local_override_path() -> Path:
     return _LOCAL_OVERRIDE_PATH
 
 
+def _as_str_list(value, default: list[str]) -> list[str]:
+    """Coerce a YAML field to a list of strings without char-splitting a scalar.
+
+    ``list("auggie review")`` yields ``['a','u','g',...]`` — so a YAML field mistyped as
+    a scalar string (``accepted_trigger_phrases: auggie review``) would silently shred a
+    trigger phrase into characters. Treat a bare string as a one-element list; fall back
+    to ``default`` when the value is falsy/absent.
+    """
+    if not value:
+        return list(default)
+    if isinstance(value, str):
+        return [value]
+    return list(value)
+
+
 class DetectionContractLocked(RuntimeError):
     """Raised when the detection contract is not locked (``locked != true``).
 
@@ -97,8 +112,8 @@ class DetectionContract:
         """Build a contract from a parsed YAML mapping (no lock enforcement)."""
         return cls(
             augment_bot_login=data.get("augment_bot_login"),
-            augment_author_association=list(
-                data.get("augment_author_association") or []
+            augment_author_association=_as_str_list(
+                data.get("augment_author_association"), []
             ),
             augment_app_slug=data.get("augment_app_slug"),
             emission_shape=data.get("emission_shape"),
@@ -114,9 +129,9 @@ class DetectionContract:
                 "decline_retrigger_regex",
                 "comment\\s+[\"'`]?(augment|auggie|augmentcode)\\s+review[\"'`]?",
             ),
-            accepted_trigger_phrases=list(
-                data.get("accepted_trigger_phrases")
-                or ["auggie review", "augment review", "augmentcode review"]
+            accepted_trigger_phrases=_as_str_list(
+                data.get("accepted_trigger_phrases"),
+                ["auggie review", "augment review", "augmentcode review"],
             ),
         )
 

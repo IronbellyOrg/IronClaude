@@ -775,6 +775,15 @@ def _run_fallback(result: SkillResult, config: RunConfig) -> None:
     fallback_findings = list(config.fallback_findings)
     result.findings = fallback_findings
 
+    # needs_human_decision pre-gate (FR-4.4 / EC-7) — mirror the main loop, which gates
+    # on the full cycle_findings BEFORE verify. A human-decision finding HALTs regardless
+    # of verification status AND before the no-verified→TERMINAL_CLEAN path below;
+    # otherwise an unverified human-decision fallback finding would be silently auto-
+    # defaulted to clean (a needs_human_decision item must HALT, never auto-default).
+    if ordinal >= 3 and any(f.needs_human_decision for f in fallback_findings):
+        result.state = MonitorState.HALT_HUMAN
+        return
+
     # verify-before-remediate (FR-9.4): fallback findings are NOT trusted verbatim.
     verified = [f for f in fallback_findings if config.verify(f)]
     if not verified:
@@ -782,10 +791,6 @@ def _run_fallback(result: SkillResult, config: RunConfig) -> None:
         result.fallback_round_counter += 1
         result.state = MonitorState.TERMINAL_CLEAN
         result.summary_posted = True
-        return
-
-    if ordinal >= 3 and any(f.needs_human_decision for f in verified):
-        result.state = MonitorState.HALT_HUMAN
         return
 
     if not gate_edit(ordinal):

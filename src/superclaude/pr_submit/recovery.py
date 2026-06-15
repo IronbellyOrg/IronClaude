@@ -126,10 +126,17 @@ def resolve_crash_window(
         # the monitor would wait forever at S5 for a re-review the App was never asked
         # for, burning the timeout budget). If the re-trigger WAS already emitted for
         # this cycle, resume at ``S5_AWAITING_REREVIEW`` (avoid a double-post — INV-R1).
+        # Attribution requires a KNOWN cycle_id that matches. When the dangling
+        # push carries no cycle_id we CANNOT attribute a prior re-trigger to it, so
+        # fail safe to "not emitted" → resume at S5A_RETRIGGER_REVIEW and (re)post the
+        # re-trigger. Treating an unknown cycle_id as "already emitted" (the prior
+        # ``cycle_id is None or ...`` short-circuit) could strand the monitor at S5
+        # waiting for a re-review that was never requested. A possibly-duplicate
+        # re-trigger comment is benign; a forever-wait is not.
         cycle_id = dangling.get("cycle_id")
-        retrigger_emitted = any(
+        retrigger_emitted = cycle_id is not None and any(
             ev.get("event_type") == EventType.REREVIEW_REQUESTED.value
-            and (cycle_id is None or ev.get("cycle_id") == cycle_id)
+            and ev.get("cycle_id") == cycle_id
             for ev in run_log.read_events()
         )
         resume_state = (

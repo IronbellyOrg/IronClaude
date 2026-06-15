@@ -66,7 +66,8 @@ skill refuses to arm until the R1 probe locks the contract (T-210, "probe first"
 | `summary_posted` | bool | Whether the single clean-re-review summary thread was posted. |
 | `applied_edits` | int | Grounded edits applied this run (INV-016 predicate 5). |
 | `rereview_request_count` | int | S5a `auggie review` re-trigger comments posted (INV-R1; monotone, `<= max_rounds`). |
-| `fallback_invoked` | bool | Whether the oversized-PR `/sc:auggie-review` fallback was invoked (INV-R2 strict-once; at most once per PR). |
+| `fallback_engaged` | bool | Whether the oversized-PR `/sc:auggie-review` fallback was engaged (a `declined` was observed). |
+| `auggie_review_invoked` | bool | Whether `/sc:auggie-review` was actually invoked (INV-R2 strict-once; at most once per PR). |
 | `fallback_round_counter` | int | The SEPARATE single-shot fallback counter (cap 1, independent of `round_counter`). |
 | `run_log_path` | string | The authoritative `monitor-run-<PR>.jsonl`. |
 

@@ -236,12 +236,18 @@ class RunLog:
 
     # --- idempotency ------------------------------------------------------ #
 
-    def record_idempotent(self, set_name: str, key) -> bool:
-        """Record ``key`` in an idempotency set; append ``idempotency_skip`` if already present.
+    def check_idempotent(self, set_name: str, key) -> bool:
+        """CHECK ``key`` against an idempotency set (does NOT itself persist membership).
 
-        Returns True if newly recorded (the action should proceed), False if the key
-        was already present (the action is skipped and an ``idempotency_skip`` event
-        is appended). Dedup of fixes is keyed on ``fix_key`` (comment_id-independent).
+        This is a CHECK-ONLY operation on the proceed path: it returns True when ``key``
+        is ABSENT (the action should proceed) but does NOT record ``key`` — durable
+        membership is established by the caller write-ahead-appending the corresponding
+        DOMAIN event (``fix_applied`` → ``processed_finding_ids``, ``reply_posted`` →
+        ``replied_comment_ids``, ``auggie_fallback_invoked`` → ``auggie_review_invoked``,
+        etc.), which :meth:`rebuild_state` folds into the set. Returns False when ``key``
+        is already present (the action is skipped and an ``idempotency_skip`` event IS
+        appended here). The caller MUST append the domain event on the very next line
+        after a True return. Dedup of fixes is keyed on ``fix_key`` (comment_id-independent).
         """
         if set_name not in IDEMPOTENCY_SETS:
             raise ValueError(f"unknown idempotency set: {set_name!r}")

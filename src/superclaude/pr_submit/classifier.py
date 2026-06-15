@@ -48,6 +48,33 @@ def _augment_entries(entries: Any, bot_login: str | None) -> list[dict]:
     return [e for e in entries if isinstance(e, dict) and _login_of(e) == bot_login]
 
 
+def _entry_ts(entry: dict) -> Any:
+    """Best-effort timestamp for a comment OR review entry.
+
+    Comments carry ``createdAt`` / ``created_at``; review objects carry ``submittedAt``
+    (and sometimes ``createdAt``). Checking all three keeps the watermark/staleness
+    logic consistent whether a decline arrives as a comment or as a review — without
+    this, a decline-as-review (only ``submittedAt``) would bypass staleness (FR-9.5).
+    """
+    return entry.get("createdAt") or entry.get("created_at") or entry.get("submittedAt")
+
+
+def _is_newer(ts: Any, watermark: Any) -> bool:
+    """True iff ``ts`` is strictly newer than ``watermark``, compared fail-safe.
+
+    GitHub timestamps are ISO-8601 strings (lexicographically orderable). If either
+    side is absent, or the two are not order-comparable (e.g. a ``datetime`` vs a
+    string), return False — a non-comparable/absent timestamp is treated as NOT newer
+    rather than raising ``TypeError`` (fail-safe staleness; FR-9.5).
+    """
+    if ts is None or watermark is None:
+        return False
+    try:
+        return ts > watermark
+    except TypeError:
+        return False
+
+
 def _entry_has_findings(review: dict) -> bool:
     """True when a single Augment review object self-signals findings.
 
@@ -91,8 +118,9 @@ def is_decline(comment: dict, contract: Any, *, watermark: Any = None) -> bool:
     if not re.search(retrigger_re, body, re.IGNORECASE):
         return False
     if watermark is not None:
-        created = comment.get("createdAt") or comment.get("created_at")
-        if created is None or not (created > watermark):
+        # Use _entry_ts (incl. submittedAt) so a decline arriving as a review object —
+        # not just a comment — is still staleness-checked (FR-9.5). Fail-safe compare.
+        if not _is_newer(_entry_ts(comment), watermark):
             return False
     return True
 
@@ -109,10 +137,7 @@ def _is_attributed_review(review: dict, watermark: Any) -> bool:
         return False
     if watermark is None:
         return True
-    ts = (
-        review.get("createdAt") or review.get("created_at") or review.get("submittedAt")
-    )
-    return ts is not None and ts > watermark
+    return _is_newer(_entry_ts(review), watermark)
 
 
 def classify(payload: dict, contract: Any, *, watermark: Any = None) -> str:
@@ -174,8 +199,18 @@ def classify(payload: dict, contract: Any, *, watermark: Any = None) -> str:
     # FR-9.5), so it is excluded from the findings-comment count.
     if any(_entry_has_findings(r) for r in augment_reviews):
         return STATE_FINDINGS
+    # A finding-comment must carry inline context (path + integer line + body) — a
+    # bare/summary Augment comment with no locus is NOT a finding (restores the V1.0
+    # guard the V1.1 refactor dropped). This also keeps conversation/issue comments
+    # (which have no path/line — e.g. the App's "Review completed" summary) from
+    # being miscounted once the poller surfaces them alongside inline comments.
     finding_comments = [
-        c for c in augment_comments if not is_decline(c, contract, watermark=None)
+        c
+        for c in augment_comments
+        if not is_decline(c, contract, watermark=None)
+        and c.get("path")
+        and isinstance(c.get("line"), int)
+        and c.get("body")
     ]
     if finding_comments:
         return STATE_FINDINGS
