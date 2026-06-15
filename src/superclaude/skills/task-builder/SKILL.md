@@ -1651,9 +1651,9 @@ failure_mode: retry-into-max-cycle-then-Open-Questions
 
 ### A.10.7: PRE Reflect Gate
 
-After the qualitative gate (A.10.5) passes and the DM-005 phase contract (A.10.6) is recorded, run an independent PRE reflect gate against the just-built tasklist BEFORE presenting results (A.11). This is the cheapest executor-disjoint anti-bias check: the three rf-* gates above verify the tasklist is *present and internally correct*, but they run in the same orchestrator frame and cannot confirm it is *spec-literal-correct and coverage-complete*. The gate is **advisory-blocking**: it records a sign-off verdict and may surface a remediation offer, but it NEVER auto-mutates the tasklist.
+After the qualitative gate (A.10.5) passes and the DM-005 phase contract (A.10.6) is recorded, run an independent PRE reflect gate against the just-built tasklist BEFORE presenting results (A.11). This is the cheapest executor-disjoint anti-bias check: the three rf-* gates above verify the tasklist is *present and internally correct*, but they run in the same orchestrator frame and cannot confirm it is *spec-literal-correct and coverage-complete*. The gate is **advisory-blocking** in ONE narrow sense ONLY: its verdict does not auto-mutate the tasklist and does not auto-re-invoke the builder. "Advisory" NEVER means the reflect run is optional. When a `--spec` resolves, running reflect to completion is MANDATORY; deferring or skipping it for ANY reason (cost, runtime, context length, the skill-under-edit, an unratified spec, or coverage already shown by another gate) is a PROTOCOL VIOLATION, not a permitted degrade.
 
-**Resolve depth and spec.** Compute the Tasklist Complexity Score (see `## Reflect Depth (Deterministic TCS)`) from the finished MDTM file -> `pre_depth` (`quick`/`standard`/`deep`; `quick` is permitted at PRE because no diff exists yet). Resolve `spec_path` per the A.2 priority order. If no spec resolves, the gate degrades to `verdict: skipped` (UC-1 coverage is spec-dependent) and proceeds to A.11.
+**Resolve depth and spec.** Compute the Tasklist Complexity Score (see `## Reflect Depth (Deterministic TCS)`) from the finished MDTM file -> `pre_depth` (`quick`/`standard`/`deep`; `quick` is permitted at PRE because no diff exists yet). Resolve `spec_path` per the A.2 priority order. `verdict: skipped` is legal in EXACTLY ONE case: `spec_path` is null (no `--spec` resolves), and the only `skip_reason` that exists is `no-spec`. In that one case the gate degrades to `verdict: skipped` (UC-1 coverage is spec-dependent) and proceeds to A.11. If a spec resolves, `skipped` is FORBIDDEN and reflect MUST run.
 
 **Spawn reflect directly.** Invoke `Skill sc:reflect-protocol` via the Agent/Task tool using the **default subagent model** (no model-routing flag), mirroring how `/sc:brainstorm` Wave 3 invokes `Skill sc-adversarial-protocol`. Pass the flag string:
 
@@ -1677,14 +1677,16 @@ Do **NOT** pass `--executor-model` at PRE: no executor has run in `--mode pre`, 
 
 ```yaml
 reflect_pre:
-  verdict: pass | fail | skipped
+  verdict: pass | fail | skipped   # skipped LEGAL ONLY when spec_path is null (reason: no-spec); a skipped verdict with a resolved spec is MALFORMED
   coverage_pct: <float | null>
   depth: quick | standard | deep
   tcs: <int>
-  run_id: <reflect run id>
+  run_id: <reflect run id>   # MUST be a real reflect run id; never deferred / n/a / pending / empty
   report: ${TASK_DIR}reflect/pre/report.md
   reviewed_at: <ISO-ts>
 ```
+
+**Mandatory-run check (hard STOP, the enforcement, not advisory).** Before proceeding to A.11, verify ON DISK that reflect actually executed: the report file at `${TASK_DIR}reflect/pre/report.md` MUST exist AND `reflect_pre.run_id` MUST be a real reflect run id. A `run_id` of `deferred` / `n/a` / `pending` / empty, OR a `verdict: skipped` while `spec_path` is non-null, OR a missing report file when a spec resolved, ALL mean the PRE gate did not run: this is a MALFORMED run. Do NOT present A.11. Either invoke reflect now and complete the gate, or, ONLY if the `sc:reflect-protocol` skill probe genuinely fails, log a hard blocker per Rule 14 with the specific failure. Substituting another gate's coverage result (e.g. the A.10.25 alignment verdict) for an actual reflect run is explicitly NOT permitted.
 
 **Loop policy: max 0 auto-loops.** The PRE gate NEVER re-invokes the builder automatically: a `fail` verdict is surfaced for operator action only (avoiding the unattended-mutation failure mode). Reflect's findings are spec-level and may require human judgment, unlike the bounded auto-fix of the rf-* gates.
 
