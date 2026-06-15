@@ -44,20 +44,41 @@ def _check_verdict_field(content: str) -> bool | str:
     json_match = re.search(r'"verdict"\s*:\s*"(PASS|FAIL)"', content)
     if json_match:
         return True
-    # Markdown format (case-insensitive key, case-sensitive value).
-    # Explicit alternation over exactly the three valid shapes:
-    #   Verdict: PASS   |   **Verdict**: PASS   |   **Verdict:** PASS
-    # The prior permissive character-class form also accepted shapes
-    # with no colon at all (e.g. "Verdict PASS") — strictly too loose.
-    # Key is case-insensitive (Verdict / verdict / VERDICT); the colon may sit
-    # inside or outside bold markers; the PASS/FAIL value may itself be
-    # bold-wrapped. Covers every real QA-agent shape, e.g. "Verdict: PASS",
-    # "**Verdict**: PASS", "**Verdict:** PASS", "**Verdict:** **PASS**",
-    # "**VERDICT: PASS**". Anchored to a line start (MULTILINE) so prose
-    # mentions of "fail" cannot trip it; the PASS/FAIL value stays
-    # case-sensitive via the scoped (?i:) on the key only.
+    # Markdown format (case-insensitive key, case-sensitive value). Agents
+    # decorate the verdict line freely -- heading prefixes ("## Verdict: ..."),
+    # list bullets ("- **Verdict:** ..."), ordered-list prefixes ("1. Verdict:
+    # ..." / "1) Verdict: ..."), blockquotes ("> Verdict: ..."), bold/underscore
+    # wrapping around the label or value, emoji as a LINE prefix or value
+    # decoration ("✅ Verdict: ..." / "Verdict: ✅ PASS"), and wrapped values
+    # ("**PASS**" / "__PASS__"). The line-prefix class ``[^\w\s:*]+`` covers #, -,
+    # +, >, emoji, and dashes but EXCLUDES * and _ (those are handled solely by
+    # the adjacent ``[_*]*`` emphasis run, so the two classes never overlap -> no
+    # quadratic ReDoS); ordered-list prefixes are matched separately as
+    # ``\d+[.)]\s+``. After the REQUIRED colon, one non-letter/non-digit/
+    # non-colon class consumes value-side decoration before the case-sensitive
+    # PASS|FAIL value.
+    #   * COLON required              -> rejects "Verdict PASS"
+    #   * decoration excludes ':'     -> rejects "Verdict::: PASS"
+    #   * prefix excludes prose words -> a "PASS" buried in prose is not matched
+    #   * value stays PASS|FAIL       -> rejects lowercase "pass"
+    #   * no trailing letter          -> rejects "PASSING" / "FAILURE"
+    #   * no PASS/FAIL pairing        -> rejects unfilled template placeholders:
+    #                                    "PASS/FAIL", "PASS or FAIL", "PASS | FAIL",
+    #                                    "PASS (or FAIL)", "PASS, FAIL", AND their
+    #                                    decorated variants "__PASS__ / __FAIL__",
+    #                                    "**PASS** / **FAIL**". The guard consumes
+    #                                    closing emphasis + "(" before the
+    #                                    separator, so decoration no longer slips
+    #                                    past it. Plain trailing prose such as
+    #                                    "PASS — CONTINUE" or "PASS or FAILURE
+    #                                    expected" is still accepted (word-bounded,
+    #                                    same-line: [ \t] never spans a newline).
+    # Every decoration class is single and *-quantified once with no overlapping
+    # neighbour, so long ``*``/``_`` runs stay linear (ReDoS-safe to 40k chars).
     md_match = re.search(
-        r"(?m)^\s*\*{0,2}\s*(?i:verdict)\s*(?:\*\*\s*:|:\s*\*\*|:)\s*\*{0,2}\s*(PASS|FAIL)\b",
+        r"(?:^|\n)\s*(?:[^\w\s:*]+\s*|\d+[.)]\s+)?[_*]*(?i:verdict)[_*]*\s*:"
+        r"[^a-zA-Z0-9\n:]*(PASS|FAIL)(?![A-Za-z])"
+        r"(?![ \t_*(]*(?:[/|,]|(?i:or)\b)[ \t_*()]*(?:PASS|FAIL)(?![A-Za-z]))",
         content,
     )
     if md_match:

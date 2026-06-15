@@ -125,7 +125,14 @@ class TestCheckVerdictField:
 
     @pytest.mark.parametrize(
         "shape",
-        ["Verdict PASS", "Verdict::: PASS", "Verdict***PASS", "verdict pass"],
+        [
+            "Verdict PASS",
+            "Verdict::: PASS",
+            "Verdict***PASS",
+            "verdict pass",
+            "Verdict: PASSING",
+            "Verdict: FAILURE",
+        ],
     )
     def test_check_verdict_field_rejects_invalid_shapes(self, shape: str) -> None:
         """Malformed verdict shapes (no colon, junk separators, lowercase
@@ -133,6 +140,166 @@ class TestCheckVerdictField:
         content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
         result = _check_verdict_field(content)
         assert result is not True
+
+    @pytest.mark.parametrize(
+        "shape",
+        [
+            "- **Verdict:** ✅ **PASS**",  # the live research-qa repro
+            "## Verdict: ✅ PASS — CONTINUE",
+            "### Verdict: 🟢 FAIL",
+            "- Verdict: ✅ PASS",
+            "**Verdict**: ❌ FAIL",
+            "## VERDICT: ✅ PASS",
+        ],
+    )
+    def test_check_verdict_field_accepts_decorated_shapes(self, shape: str) -> None:
+        """Agents decorate verdicts with heading/bullet prefixes, bold wrapping,
+        emoji, and bold-wrapped values; all are accepted as long as the colon +
+        uppercase PASS/FAIL are present (the unified line-anchored regex)."""
+        content = f"## QA Report\n\n{shape}\n\nRationale follows.\n"
+        assert _check_verdict_field(content) is True
+
+    @pytest.mark.parametrize(
+        "shape",
+        [
+            "1. Verdict: PASS",
+            "1. **Verdict:** PASS",
+            "10. __Verdict__: FAIL",
+            "_Verdict_: PASS",
+            "__Verdict__: FAIL",
+            "Verdict: _PASS_",
+            "Verdict: __FAIL__",
+            "1. __Verdict__: ✅ __PASS__",
+        ],
+    )
+    def test_check_verdict_field_accepts_numbered_and_underscore_emphasis(
+        self, shape: str
+    ) -> None:
+        """Numbered lists and underscore emphasis are valid markdown verdicts."""
+        content = f"## QA Report\n\n{shape}\n\nRationale follows.\n"
+        assert _check_verdict_field(content) is True
+
+    @pytest.mark.parametrize(
+        "shape",
+        [
+            "✅ Verdict: PASS",
+            "🔴 Verdict: FAIL",
+            "✅ **Verdict:** PASS",
+            "> Verdict: PASS",
+            ">> Verdict: FAIL",
+            "1) Verdict: PASS",
+            "2) __Verdict__: FAIL",
+        ],
+    )
+    def test_check_verdict_field_accepts_emoji_and_blockquote_prefixes(
+        self, shape: str
+    ) -> None:
+        """Emoji used as a LINE prefix, blockquote markers, and ``N)`` ordered-list
+        prefixes are valid decoration around a markdown verdict line. False-HALT on
+        a legitimately-decorated verdict is the expensive failure mode this gate
+        must avoid; value-side emoji was already accepted, line-prefix emoji is the
+        symmetric case."""
+        content = f"## QA Report\n\n{shape}\n\nRationale follows.\n"
+        assert _check_verdict_field(content) is True
+
+    @pytest.mark.parametrize(
+        "shape",
+        [
+            "1. Verdict PASS",
+            "1. Verdict::: PASS",
+            "1. Verdict: PASSING",
+            "1. Verdict: pass",
+            "__Verdict__ PASS",
+            "__Verdict__::: FAIL",
+            "Verdict: _PASSING_",
+            "Verdict: __FAILURE__",
+        ],
+    )
+    def test_check_verdict_field_rejects_numbered_and_underscore_malformed_shapes(
+        self, shape: str
+    ) -> None:
+        """New markdown support must preserve colon and uppercase value strictness."""
+        content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
+        result = _check_verdict_field(content)
+        assert result is not True
+
+    def test_check_verdict_field_rejects_rationale_heading_without_value(self) -> None:
+        """A 'Verdict rationale' heading with no PASS/FAIL value must not match."""
+        content = "## Verdict rationale\n\nWe weighed the evidence.\n"
+        assert _check_verdict_field(content) is not True
+
+    @pytest.mark.parametrize(
+        "shape",
+        [
+            "Verdict: PASS/FAIL",
+            "Verdict: FAIL/PASS",
+            "Verdict: PASS / FAIL",
+            "Verdict: PASS or FAIL",
+            "Verdict: PASS OR FAIL",
+            "1. Verdict: PASS/FAIL",
+            "**Verdict:** PASS or FAIL",
+            # Decorated / punctuated pairings: closing emphasis or "(" between the
+            # first value and the separator must NOT let the placeholder slip past
+            # the guard (D6 regression).
+            "Verdict: __PASS__ / __FAIL__",
+            "Verdict: **PASS** / **FAIL**",
+            "Verdict: PASS | FAIL",
+            "Verdict: PASS (or FAIL)",
+            "Verdict: PASS, FAIL",
+            "1. __Verdict__: **PASS** | **FAIL**",
+        ],
+    )
+    def test_check_verdict_field_rejects_template_pass_fail_pairing(
+        self, shape: str
+    ) -> None:
+        """A 'PASS/FAIL' or 'PASS or FAIL' template placeholder is not a decision
+        and must be rejected, not treated as a PASS verdict. The guard also covers
+        decorated/punctuated pairings (``__PASS__ / __FAIL__``, ``PASS | FAIL``,
+        ``PASS (or FAIL)``, ``PASS, FAIL``)."""
+        content = f"## QA Report\n\n{shape}\n\nDetails follow.\n"
+        result = _check_verdict_field(content)
+        assert result is not True
+
+    @pytest.mark.parametrize(
+        "shape",
+        [
+            "Verdict: PASS — CONTINUE",
+            "Verdict: PASS, proceed to next phase",
+            "Verdict: PASS (all checks green)",
+            "Verdict: FAIL orchestration aborted",
+            # D5 guard: the pairing lookahead must be same-line and
+            # word-bounded, so a real single verdict followed by prose that
+            # merely starts with "or"/"/" + a PASS|FAIL-prefixed word is accepted.
+            "Verdict: PASS or FAILURE expected",
+            "Verdict: PASS or PASSED later",
+            "Verdict: PASS or FAILS fast",
+            "Verdict: PASS\nor FAIL would have aborted",
+        ],
+    )
+    def test_check_verdict_field_accepts_value_with_trailing_prose(
+        self, shape: str
+    ) -> None:
+        """The PASS/FAIL pairing guard must not reject a real single verdict that
+        is merely followed by ordinary trailing prose."""
+        content = f"## QA Report\n\n{shape}\n\nRationale follows.\n"
+        assert _check_verdict_field(content) is True
+
+    def test_check_verdict_field_no_redos_on_pathological_value_run(self) -> None:
+        """A long ``*`` run before a near-miss value must stay linear-time.
+
+        The earlier value-side ``[^\\w\\n:_]*[_*]*(PASS|FAIL)`` form had two
+        adjacent star-quantified classes that both match ``*``, causing
+        quadratic backtracking (ReDoS). The single non-overlapping class must
+        keep this bounded; 40k ``*`` chars resolve in well under a second.
+        """
+        import time
+
+        content = "Verdict: " + "*" * 40_000 + "PAXS"
+        start = time.perf_counter()
+        result = _check_verdict_field(content)
+        elapsed = time.perf_counter() - start
+        assert result is not True
+        assert elapsed < 1.0, f"verdict regex took {elapsed:.3f}s (possible ReDoS)"
 
 
 class TestCheckB2SelfContained:
