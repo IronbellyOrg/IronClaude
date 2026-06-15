@@ -1,0 +1,18 @@
+{
+  "run_id": "full-001",
+  "generated_at": "2026-06-12T00:00:00Z",
+  "contract_version": "1.0.0",
+  "backtest_status": "complete",
+  "total_escapes": 5,
+  "caught": 5,
+  "missed": 0,
+  "catch_rate": 1.0,
+  "escapes": [
+    {"escape_id": "E1", "wave": "H1", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/runtime-entrypoint-verification.md", "detail": "H1 negative witness recorded"},
+    {"escape_id": "E2", "wave": "H3", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/unmask-and-sweep.md", "detail": "H3 word-boundary classifier"},
+    {"escape_id": "E3", "wave": "H3", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/unmask-and-sweep.md", "detail": "H3 K_swept==K_true sweep"},
+    {"escape_id": "E4", "wave": "H2", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/contract-enumeration.md", "detail": "H2 ledger both consumers"},
+    {"escape_id": "E5", "wave": "H4", "verdict": "CATCH", "negative_witness": true, "card_path": "refs/effective-input-proof.md", "detail": "H4 fail-closed selector"}
+  ],
+  "proxy_limitation": "NEW=CATCH is a documentation-presence proxy; this complete report presumes the impl refs landed."
+}

@@ -1,0 +1,95 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# cli_eval_skill_contract — deliverable-wiring gate for the /sc:cli-eval skill.
+#
+# CADENCE (operator-facing metadata; not enforced by the eval framework):
+#   - On every PR touching src/superclaude/{commands/cli-eval.md,
+#     skills/sc-cli-eval-protocol/**, agents/eval-*.md}.
+#   - Nightly via the CI scheduled job alongside the rest of the cliEval roster.
+#
+# WHAT THIS SUITE GUARDS:
+#   The /sc:cli-eval deliverable stays wired together as authored: the thin
+#   command, the protocol skill, and the three gap agents all exist in the source
+#   of truth, AND the command actually hands off to the skill (the Activation
+#   contract) while the skill keeps BOTH pipelines (create + run). This is the
+#   /sc:cli-eval analogue of installer_sync_drift: it guards THIS feature's
+#   structural integrity rather than the whole installer. It deliberately does NOT
+#   re-run `make verify-sync` (installer_sync_drift owns that) — it checks the
+#   source-of-truth wiring that a refactor could silently break.
+#
+# WHY home_strategy=shared:
+#   These evals read repository working-tree files (src/superclaude/...). Following
+#   the installer_sync_drift precedent, a shared HOME guarantees the eval sees the
+#   real repo tree; an ephemeral/seeded HOME could mask the files under test. The
+#   checks are read-only (grep/test), so sharing HOME introduces no contamination.
+#
+# WHY no_pty=skip:
+#   The PTY harness drives a Claude Code subprocess; matching the rest of the eval
+#   inventory keeps `--no-pty` semantics uniform across suites.
+#
+# Evidence (fresh-context, captured at authoring time):
+#   - Command: src/superclaude/commands/cli-eval.md (Activation -> "Skill sc:cli-eval-protocol").
+#   - Skill:   src/superclaude/skills/sc-cli-eval-protocol/SKILL.md (## CREATE PIPELINE / ## RUN PIPELINE).
+#   - Agents:  src/superclaude/agents/{eval-docs-loader,eval-suite-author,eval-run-reporter}.md.
+name: cli_eval_skill_contract
+version: "1.0"
+description: "Deliverable-wiring gate for /sc:cli-eval: asserts the command + protocol skill + three gap agents exist and the command activates the skill that keeps both pipelines. Cadence: on-PR + nightly."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: git,                          failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: CE1
+    title: "the /sc:cli-eval deliverable files all exist in the source of truth"
+    category: skill-contract
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # CE1 — assert the command, the protocol skill SKILL.md, and the three gap
+    # agents are all present under src/superclaude/. A missing file means the
+    # feature was partially deleted/renamed without updating the rest; the echoed
+    # "CLI_EVAL_FILES_OK" sentinel only prints when every `test -f` passes.
+    inputs:
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `for f in src/superclaude/commands/cli-eval.md src/superclaude/skills/sc-cli-eval-protocol/SKILL.md src/superclaude/agents/eval-docs-loader.md src/superclaude/agents/eval-suite-author.md src/superclaude/agents/eval-run-reporter.md; do test -f \"$f\" || { echo \"MISSING: $f\"; exit 1; }; done && echo CLI_EVAL_FILES_OK`. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "CLI_EVAL_FILES_OK"
+      - stdout:
+          not_contains: "MISSING:"
+
+  - id: CE2
+    title: "command activates the protocol skill AND the skill keeps both pipelines"
+    category: skill-contract
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # CE2 — the Activation contract: the thin command must hand off to
+    # `Skill sc:cli-eval-protocol`, and the skill must still declare BOTH the
+    # CREATE and RUN pipelines. A refactor that drops the handoff (skill never
+    # loads) or removes a pipeline branch passes CE1 but is a broken deliverable;
+    # CE2 catches it. The sentinel "CLI_EVAL_WIRED" prints only when all three
+    # greps match.
+    inputs:
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `grep -q 'Skill sc:cli-eval-protocol' src/superclaude/commands/cli-eval.md && grep -q '## CREATE PIPELINE' src/superclaude/skills/sc-cli-eval-protocol/SKILL.md && grep -q '## RUN PIPELINE' src/superclaude/skills/sc-cli-eval-protocol/SKILL.md && echo CLI_EVAL_WIRED`. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "CLI_EVAL_WIRED"

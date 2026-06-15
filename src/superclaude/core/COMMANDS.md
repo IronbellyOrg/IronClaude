@@ -72,6 +72,11 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 
 - **Auto-Persona**: Analyzer, Architect, DevOps, QA, Refactorer
 - **MCP**: Sequential (cross-cutting synthesis), Serena (import chains), Context7 (framework patterns)
+
+**`/cli-eval create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--eval <id>] [--agents opus,sonnet,haiku]`** — cliEval suite lifecycle: author a new eval suite (propose→critique→debate→author→schema-validate→document) or interactively select + supervise a run of an existing suite (advanced profile)
+
+- **Auto-Persona**: Architect, Analyzer, QA, Scribe
+- **MCP**: Sequential, Context7, Serena
 - **Tools**: [Read, Grep, Glob, Bash(git/wc/find/du), TodoWrite, Task, Write]
 - **Subagents**: audit-scanner (Haiku), audit-analyzer (Sonnet), audit-comparator (Sonnet), audit-consolidator (Sonnet), audit-validator (Sonnet)
 

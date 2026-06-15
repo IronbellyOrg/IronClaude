@@ -189,7 +189,9 @@ def test_where_traversal_escape_excluded_inv005(tmp_path: Path) -> None:
     outside = tmp_path / "outside"
     outside.mkdir()
     # Longer than anything in-bounds — would win on size if not excluded.
-    escaped_content = _write_lines(outside / "scope-discovery.md", 200, prefix="escaped")
+    escaped_content = _write_lines(
+        outside / "scope-discovery.md", 200, prefix="escaped"
+    )
 
     (task_dir / "parsed-request.json").write_text(
         '{"GOAL": "g", "WHERE": ["../outside"]}', encoding="utf-8"
@@ -215,3 +217,87 @@ def test_zero_match_returns_ndjson_fallback(tmp_path: Path) -> None:
     result = _resolve_step_content("scope-discovery", task_dir, ndjson_text)
 
     assert result == ndjson_text
+
+
+# ---------------------------------------------------------------------------
+# Assembly gate content resolution (TASK-PRD-*.md exclusion)
+# ---------------------------------------------------------------------------
+
+
+def test_assembly_excludes_task_file_and_picks_real_prd(tmp_path: Path) -> None:
+    """The assembly gate must read the assembled PRD, not the TASK-PRD task file.
+
+    The build-task-file MDTM task (``TASK-PRD-{slug}.md``) lives in task_dir and
+    also contains "prd", so the ``"prd" in name`` filter matches it. Because the
+    assembly search visits task_dir before task_dir.parent and breaks on the
+    first dir with a candidate, the task file was being selected and the real
+    assembled PRD (written to the output dir = task_dir.parent) was never seen —
+    failing the min_lines gate on the wrong document. The TASK- exclusion fixes
+    this.
+    """
+    parent = tmp_path / "out"
+    parent.mkdir()
+    task_dir = parent / "prd-myproduct"
+    task_dir.mkdir()
+    # build-task-file artifact in task_dir — contains "prd", must be excluded.
+    _write_lines(task_dir / "TASK-PRD-myproduct.md", 450, prefix="task")
+    # The real assembled PRD lives in the output dir (task_dir.parent).
+    real = _write_lines(parent / "myproduct-prd.md", 900, prefix="prd")
+
+    result = _resolve_step_content("assembly", task_dir, "ndjson commentary")
+
+    assert result == real, "assembly must select the assembled PRD, not the task file"
+    assert len(result.splitlines()) >= 800
+    assert "task" not in result
+
+
+def test_assembly_allows_task_slug_prd_filename(tmp_path: Path) -> None:
+    """A legitimate assembled PRD may start with a product slug of ``task-``."""
+    parent = tmp_path / "out-task-slug"
+    parent.mkdir()
+    task_dir = parent / "prd-task-tracker"
+    task_dir.mkdir()
+
+    real = _write_lines(task_dir / "task-tracker-prd.md", 900, prefix="prd")
+
+    result = _resolve_step_content("assembly", task_dir, "ndjson commentary")
+
+    assert result == real
+    assert len(result.splitlines()) >= 800
+
+
+def test_assembly_allows_task_prd_slug_filename(tmp_path: Path) -> None:
+    """The task artifact exclusion is case-sensitive to the MDTM prefix."""
+    parent = tmp_path / "out-task-prd-slug"
+    parent.mkdir()
+    task_dir = parent / "prd-task-prd-tracker"
+    task_dir.mkdir()
+
+    real = _write_lines(task_dir / "task-prd-tracker-prd.md", 900, prefix="prd")
+
+    result = _resolve_step_content("assembly", task_dir, "ndjson commentary")
+
+    assert result == real
+    assert len(result.splitlines()) >= 800
+
+
+def test_assembly_falls_back_to_ndjson_when_only_task_file_present(
+    tmp_path: Path,
+) -> None:
+    """If the only "prd" file is the excluded TASK-PRD task file, fall through.
+
+    Guards that the TASK- exclusion does not accidentally return the task file;
+    with no real PRD on disk the assembly branch yields no candidate and the
+    resolver falls back to the NDJSON text.
+    """
+    parent = tmp_path / "out2"
+    parent.mkdir()
+    task_dir = parent / "prd-only-task"
+    task_dir.mkdir()
+    _write_lines(task_dir / "TASK-PRD-only.md", 450, prefix="task")
+
+    ndjson_text = "assembly commentary — no assembled PRD written yet"
+    result = _resolve_step_content("assembly", task_dir, ndjson_text)
+
+    assert result == ndjson_text
+    assert "task" not in result

@@ -64,7 +64,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 1. **Parse arguments** → resolve `--type` (auto-detect if absent), `--scope`, `--depth`, etc.
 2. **Validate environment** → at least one of MCPs is available (or `--no-mcp` is set); output dir is writable.
 3. **Hand off to the skill** via the Activation section below.
-4. **On skill return**, surface: REPORT path, tier reached, confidence, chosen fix, and (if `--fix`) the Tier 3 remediation offer.
+4. **On skill return**, surface: REPORT path, tier reached, confidence, chosen fix, (if `--fix`) the Tier 3 remediation offer, and (if `pipeline_hardening_applicable`) the Pipeline Hardening Closure verdict + evidence-card paths.
 
 **Three tiers under the hood**:
 
@@ -105,7 +105,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ### Quick Tier 1 diagnosis (most common)
 
-```
+```text
 /sc:troubleshoot "NameError: name 'Path' is not defined at eval_run.py:142"
 # - Auto-detects --type bug
 # - Spawns root-cause-analyst with auggie + serena grounding
@@ -116,7 +116,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ### Tier 2 auto-escalation on intermittent symptom
 
-```
+```text
 /sc:troubleshoot "flaky CI test, passes locally, fails ~1/5 runs since session-pool refactor"
 # - Tier 1 produces a hypothesis but the "intermittent" keyword forces escalation
 # - 3 specialist agents (quality-engineer, root-cause-analyst, refactoring-expert) fan out in parallel
@@ -127,7 +127,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ### Force deep pass + remediation offer
 
-```
+```text
 /sc:troubleshoot "scratch-root allowlist accepts /etc/foo" --type security --depth deep --fix
 # - --depth deep forces Tier 2 regardless of Tier 1 confidence
 # - --type security raises the escalation threshold (security_caution rule)
@@ -138,7 +138,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ### Suppress escalation (quick second opinion)
 
-```
+```text
 /sc:troubleshoot "off-by-one in pagination" --no-escalate
 # - Caps at Tier 1; never fans out to Tier 2 even if rubric would have escalated
 # - Useful when the user is confident the bug is small and wants a fast read
@@ -146,7 +146,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ### Native-tools-only mode
 
-```
+```text
 /sc:troubleshoot "something's wrong with the worker" --no-mcp
 # - Skip auggie/serena/context7/tavily; use Read/Grep/Glob/Bash only
 # - Tier 1 quality degrades; flagged in REPORT.md's Grounding Gaps
@@ -166,6 +166,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Run `evidence-validator` in Wave 5 to drop any unfounded `file:line` citations before REPORT.md ships
 - Run `confidence-calibrator` after every hypothesis card to defeat self-grading anchoring bias
 - Offer the Tier 3 remediation chain only when `--fix` is set AND REPORT.md status is `success`
+- Auto-trigger the Pipeline Hardening Closure mode (Wave 4.5) on boundary topology when the diagnosed issue is a pipeline escape — no new CLI flag; the skill computes the verdict + evidence paths and the command only advertises/surfaces them (thin command, NFR-5)
 
 **Will Not:**
 

@@ -35,7 +35,14 @@ def resume(run_log_path) -> dict:
     from pathlib import Path
 
     path = Path(run_log_path)
-    output_dir = path.parent if path.is_file() else path
+    # A path that looks like a run-log file (``.jsonl`` suffix) OR is an existing
+    # file resolves to its parent dir. The suffix check is load-bearing: a
+    # not-yet-created ``monitor-run-<PR>.jsonl`` (resume before the file exists, or
+    # a typo'd path) returns False from ``is_file()`` and would otherwise be
+    # mis-detected as a directory — RunLog would then ``mkdir`` the file path and
+    # look for the JSONL *inside* it.
+    is_file_path = path.is_file() or path.suffix == ".jsonl"
+    output_dir = path.parent if is_file_path else path
     # Recover the PR number from the filename ``monitor-run-<PR>.jsonl`` when present.
     pr_number = 0
     if path.name.startswith("monitor-run-") and path.name.endswith(".jsonl"):

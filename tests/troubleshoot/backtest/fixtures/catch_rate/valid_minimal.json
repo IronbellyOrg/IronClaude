@@ -1,0 +1,12 @@
+{
+  "run_id": "minimal-001",
+  "generated_at": "2026-06-12T00:00:00Z",
+  "contract_version": "1.0.0",
+  "backtest_status": "not_run",
+  "total_escapes": 0,
+  "caught": 0,
+  "missed": 0,
+  "catch_rate": 0.0,
+  "escapes": [],
+  "proxy_limitation": "NEW=CATCH is a documentation-presence proxy; complete is unreachable until impl refs land."
+}

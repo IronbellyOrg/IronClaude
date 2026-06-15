@@ -200,6 +200,42 @@ When the 3-round cap is reached for an `issue_slug`, append a cap-specific parag
 - **Self-review** (Tier 2 only): <result>
 - **Task file** (Tier 3 only): <path>
 - **Audit log**: <path>
+
+## Pipeline Hardening Closure
+
+Rendered only when `pipeline_hardening_applicable=true`. When `false`, collapse this section to a single line — `Pipeline hardening not applicable: <reason>` — and omit the rest.
+
+**Applicable**: <true|false>
+**Closure verdict**: <pass|blocked|advisory|not_applicable>
+**Waiver status**: <none|latched>
+**Backtest status**: <not_run|partial|complete>
+**Off-path review**: <required|performed|waived_with_rationale|not_required>
+
+**Wave statuses**:
+
+- **H0 Applicability + Boundary Scan**: <PASS|FAIL|N/A> — <one-line>
+- **H1 Runtime-Entrypoint Verification**: <PASS|FAIL|N/A> — <one-line>
+- **H2 Contract Enumeration**: <PASS|FAIL|N/A> — <one-line>
+- **H3 Unmask + Sweep**: <PASS|FAIL|N/A> — <one-line>
+- **H4 Effective-Input Proof**: <PASS|FAIL|N/A> — <one-line>
+- **H5 Off-Path Reviewer + Waiver**: <PASS|FAIL|N/A> — <one-line>
+
+**Evidence cards** (render the path when the wave ran, otherwise `—`):
+
+- Runtime-entrypoint card: <runtime_entrypoint_card_path>
+- Contract ledger: <contract_ledger_path>
+- Unmask/sweep card: <unmask_sweep_path>
+- Effective-input card: <effective_input_card_path>
+
+**Known escapes caught**: <list of {escape_id, wave, card_path, status}, or "None claimed">
+
+**Closure blockers** (omit when `Closure verdict` is `pass`; render only the line(s) that apply, verbatim):
+
+- NOT PROVEN — failed hardening wave: <wave>
+- NOT PROVEN — mandatory runtime proof waived or absent
+- NOT PROVEN — unrationalized N/A: <wave>
+- ADVISORY — closure relies on waived/substituted proof
+- ADVISORY — scoped closure with rationalized N/A
 ````
 
 ## Rendering rules
@@ -256,3 +292,14 @@ Mutually exclusive with `Test is wrong: true` **by construction, not by tiebreak
 
 - Omit the Documentation Context section entirely.
 - Surface "Documentation grounding skipped by `--no-doc-discovery` — diagnosis is not weighted against documented behavior or restrictions" in Grounding Gaps.
+
+## Pipeline Hardening Closure rule
+
+The **Pipeline Hardening Closure** section (inside the template block) renders the Pipeline Hardening Closure mode's verdict and evidence. It is governed by `refs/hardening-output-contract.md` (the §5.4 verdict-aggregation truth table and §5.5 field schema). Rendering rules:
+
+- **Render only when applicable.** When `pipeline_hardening_applicable=false`, collapse the section to the single line `Pipeline hardening not applicable: <reason>` (truth-table row 1). Never claim closure for a non-applicable run.
+- **Closure verdict is the four-token enum** `pass | blocked | advisory | not_applicable`. `advisory` is a first-class outcome and MUST appear in the enum — a three-token Closure verdict is a defect.
+- **Emit `NOT PROVEN` blockers for absent required proof.** When the verdict is `blocked` (any H1–H5 `FAIL`, a latched waiver with a mandatory probe absent/waived without an accepted substitute, or an unrationalized `N/A`), render the matching `NOT PROVEN — …` line from the §5.4 truth table verbatim. `NOT PROVEN` is stronger than ordinary confidence language and is reserved for absent/failed required proof (FR-13 AC3).
+- **`advisory` differs from `blocked`.** `advisory` (truth-table rows 5 and 6) means closure relies on waived/substituted proof or a rationalized `N/A` with no hard failure — render the matching `ADVISORY — …` line, NOT a `NOT PROVEN` blocker. `blocked` is a hard failure; `advisory` is a rationalized or accepted-substitute closure. Neither may be rendered as a plain `success`.
+- **Downstream may not re-green.** A `blocked`/`advisory` closure verdict is rendered as `success_with_hardening_blocker` / `success_with_hardening_advisory` by any downstream stage that has its own success enum; downstream `task-builder` / `sc:reflect` / `sc:adversarial` / report-rendering stages may append findings but may NOT convert `blocked`/`advisory` into `pass`/`success` (§5.4 downstream no-override rule).
+- **Backtest status is separate from the verdict.** `not_run`/`partial` keep the production-facing pipeline-health signoff `advisory` even when the run-level `Closure verdict` is `pass`; only `complete` may mirror the verdict.

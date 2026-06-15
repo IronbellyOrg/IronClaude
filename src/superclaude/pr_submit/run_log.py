@@ -87,15 +87,21 @@ class RunLog:
     # --- writing ---------------------------------------------------------- #
 
     def _last_event_id(self) -> int:
+        """Highest ``event_id`` in the existing JSONL — the resume continuation point.
+
+        Consistent with :meth:`read_events` (FM-12): a corrupt/non-parseable line is
+        SURFACED (propagates ``json.JSONDecodeError`` / ``ValueError``), never silently
+        skipped. The JSONL is authoritative (NFR-6), so a corrupt log must halt as
+        ``terminal_failed`` rather than let the constructor half-trust a partial
+        ``event_id`` and then crash on the next rebuild (the inconsistency that would
+        otherwise let writes succeed while state reconstruction fails on the same file).
+        """
         last = 0
         for line in self.jsonl_path.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if not line:
                 continue
-            try:
-                last = max(last, int(json.loads(line).get("event_id", 0)))
-            except (ValueError, json.JSONDecodeError):
-                continue
+            last = max(last, int(json.loads(line).get("event_id", 0)))
         return last
 
     def append(self, event: dict) -> dict:
@@ -133,7 +139,14 @@ class RunLog:
     # --- reading / state -------------------------------------------------- #
 
     def read_events(self) -> list[dict]:
-        """Return all events from the authoritative JSONL, in order."""
+        """Return all events from the authoritative JSONL, in order.
+
+        A corrupt/non-parseable line is SURFACED (raises ``json.JSONDecodeError``),
+        never silently skipped: the JSONL is authoritative (NFR-6), so corruption must
+        halt as ``terminal_failed`` (FM-12 — "surfaced, not silently trusted") rather
+        than drop real events and rebuild wrong state. :meth:`_last_event_id` applies
+        the same rule, so construction and rebuild are consistent on the same file.
+        """
         if not self.jsonl_path.exists():
             return []
         events = []

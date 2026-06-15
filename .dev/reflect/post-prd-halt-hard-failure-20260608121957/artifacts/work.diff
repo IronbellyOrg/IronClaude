@@ -1,0 +1,416 @@
+diff --git a/src/superclaude/cli/prd/executor.py b/src/superclaude/cli/prd/executor.py
+index 667fbe7f..776c086e 100644
+--- a/src/superclaude/cli/prd/executor.py
++++ b/src/superclaude/cli/prd/executor.py
+@@ -563,14 +563,24 @@ class PrdExecutor:
+                 ):
+                     self._persist_bound_specs()
+ 
+-                # STRICT gate failure halts pipeline
++                # Halt on any hard execution failure (ERROR/TIMEOUT/
++                # QA_FAIL_EXHAUSTED/HALT) regardless of gate tier, OR on a
++                # STRICT-gate failure (preserving existing STRICT semantics).
++                # The intentional non-fatal STANDARD VALIDATION_FAIL path
++                # (exit 0, artifact written) is excluded from is_hard_failure
++                # and is STANDARD-tier, so it does not halt here.
+                 if step_result.status.is_failure:
+                     gate = GATE_CRITERIA.get(step_id)
+-                    if gate and gate.enforcement_tier == "STRICT":
++                    strict_gate_fail = bool(
++                        gate and gate.enforcement_tier == "STRICT"
++                    )
++                    if step_result.status.is_hard_failure or strict_gate_fail:
+                         result.outcome = "halt"
+                         result.halt_step = step_id
+                         result.halt_reason = (
+-                            f"STRICT gate failure: {step_result.status.value}"
++                            f"hard failure: {step_result.status.value}"
++                            if step_result.status.is_hard_failure
++                            else f"STRICT gate failure: {step_result.status.value}"
+                         )
+                         break
+ 
+@@ -668,8 +678,26 @@ class PrdExecutor:
+             )
+         self._ledger.allocate(turns_needed)
+ 
+-        # Build prompt
+-        prompt = self._build_prompt(builder_name, step_id=step_id)
++        # Build prompt. A REQUIRED upstream artifact may be missing (its
++        # producer step failed without writing it). The required-read helpers
++        # in prompts.py raise MissingArtifactError in that case; catch it here
++        # at the real call site (NOT inside _build_prompt, which tests
++        # monkeypatch) and convert it to a graceful HALT. HALT is a hard
++        # failure (Atom 1), so the Stage-A loop halts the pipeline cleanly
++        # instead of letting the exception escape run() as a raw traceback.
++        from .prompts import MissingArtifactError
++
++        try:
++            prompt = self._build_prompt(builder_name, step_id=step_id)
++        except MissingArtifactError as exc:
++            return PrdStepResult(
++                status=PrdStepStatus.HALT,
++                exit_code=-1,
++                halt_reason=(
++                    f"missing required artifact {exc.path.name} "
++                    f"(producer: {exc.producer_step})"
++                ),
++            )
+ 
+         # Create output files
+         output_file = self._config.task_dir / f"{step_id}-output.txt"
+diff --git a/src/superclaude/cli/prd/models.py b/src/superclaude/cli/prd/models.py
+index 4ea2f30a..e82b36cf 100644
+--- a/src/superclaude/cli/prd/models.py
++++ b/src/superclaude/cli/prd/models.py
+@@ -152,6 +152,16 @@ class PrdStepStatus(Enum):
+             PrdStepStatus.VALIDATION_FAIL,
+         )
+ 
++    @property
++    def is_hard_failure(self) -> bool:
++        """True if the step crashed/timed-out/exhausted (a production failure, not a clean exit-0 quality failure)."""
++        return self in (
++            PrdStepStatus.ERROR,
++            PrdStepStatus.TIMEOUT,
++            PrdStepStatus.QA_FAIL_EXHAUSTED,
++            PrdStepStatus.HALT,
++        )
++
+     @property
+     def needs_fix_cycle(self) -> bool:
+         """True if this status should trigger a fix cycle retry."""
+@@ -232,6 +242,10 @@ class PrdStepResult(StepResult):
+     agent_type: str = ""
+     fix_cycle: int = 0
+     qa_verdict: Optional[str] = None
++    # Optional step-level halt reason. Set when a step returns HALT for a
++    # specific, nameable cause (e.g. a missing required artifact) so the reason
++    # is available to callers/tests beyond the generic pipeline-level template.
++    halt_reason: Optional[str] = None
+ 
+ 
+ # ---------------------------------------------------------------------------
+diff --git a/src/superclaude/cli/prd/prompts.py b/src/superclaude/cli/prd/prompts.py
+index 40c09165..6d69d37e 100644
+--- a/src/superclaude/cli/prd/prompts.py
++++ b/src/superclaude/cli/prd/prompts.py
+@@ -47,6 +47,37 @@ def _read_file(path: Path, max_bytes: int = 50_000) -> str:
+     return content
+ 
+ 
++class MissingArtifactError(FileNotFoundError):
++    """A REQUIRED upstream artifact is absent because its producer step failed.
++
++    Subclasses ``FileNotFoundError`` so any un-converted read path still treats
++    it as a missing file; the executor catches it at the ``_build_prompt`` call
++    site and converts it to a graceful HALT instead of an uncaught traceback.
++    """
++
++    def __init__(self, path: Path, producer_step: str) -> None:
++        self.path = path
++        self.producer_step = producer_step
++        super().__init__(
++            f"Required artifact {path.name} is missing — its producer step "
++            f"'{producer_step}' did not complete successfully. Path: {path}"
++        )
++
++
++def _read_required(path: Path, producer_step: str, max_bytes: int = 50_000) -> str:
++    """Read a REQUIRED text artifact, raising MissingArtifactError if absent."""
++    if not path.is_file():
++        raise MissingArtifactError(path, producer_step)
++    return _read_file(path, max_bytes)
++
++
++def _load_json_required(path: Path, producer_step: str) -> dict:
++    """Load a REQUIRED JSON artifact, raising MissingArtifactError if absent."""
++    if not path.is_file():
++        raise MissingArtifactError(path, producer_step)
++    return _load_json(path)
++
++
+ def _today() -> str:
+     """Return today's date in ISO format."""
+     return date.today().isoformat()
+@@ -155,7 +186,9 @@ def build_scope_discovery_prompt(
+     context_summaries: list[str] | None = None,
+ ) -> str:
+     """Step 3: Explore the codebase to understand the product scope."""
+-    parsed = _load_json(config.task_dir / "parsed-request.json")
++    parsed = _load_json_required(
++        config.task_dir / "parsed-request.json", "parse-request"
++    )
+     if parsed.get("WHERE"):
+         where_clause = "\nFocus on these directories:\n" + "\n".join(
+             "- " + d for d in parsed["WHERE"]
+@@ -254,8 +287,12 @@ def build_research_notes_prompt(
+     context_summaries: list[str] | None = None,
+ ) -> str:
+     """Step 4: Produce structured research notes from scope discovery."""
+-    scope_content = _read_file(config.task_dir / "scope-discovery-raw.md")
+-    parsed = _load_json(config.task_dir / "parsed-request.json")
++    scope_content = _read_required(
++        config.task_dir / "scope-discovery-raw.md", "scope-discovery"
++    )
++    parsed = _load_json_required(
++        config.task_dir / "parsed-request.json", "parse-request"
++    )
+ 
+     ctx = ""
+     if context_summaries:
+@@ -337,7 +374,9 @@ def build_sufficiency_review_prompt(
+     context_summaries: list[str] | None = None,
+ ) -> str:
+     """Step 5: Review research notes for completeness before proceeding."""
+-    notes_content = _read_file(config.task_dir / "research-notes.md")
++    notes_content = _read_required(
++        config.task_dir / "research-notes.md", "research-notes"
++    )
+ 
+     ctx = ""
+     if context_summaries:
+@@ -437,7 +476,7 @@ def build_task_file_prompt(
+     context_summaries: list[str] | None = None,
+ ) -> str:
+     """Step 7: Build the MDTM task file from research notes + refs."""
+-    notes = _read_file(config.task_dir / "research-notes.md")
++    notes = _read_required(config.task_dir / "research-notes.md", "research-notes")
+     build_template = _read_file(config.skill_refs_dir / "build-request-template.md")
+     agent_prompts = _read_file(config.skill_refs_dir / "agent-prompts.md")
+     synth_mapping = _read_file(config.skill_refs_dir / "synthesis-mapping.md")
+diff --git a/tests/cli/prd/test_e2e.py b/tests/cli/prd/test_e2e.py
+index d67d5045..1a0bb92e 100644
+--- a/tests/cli/prd/test_e2e.py
++++ b/tests/cli/prd/test_e2e.py
+@@ -708,3 +708,186 @@ def test_e2e_ac10_no_where_contamination_when_pinned(
+     # No variant document was left contaminating the WHERE source dir.
+     assert not list(where_dir.glob("scope-discovery*"))
+     assert not list(where_dir.glob("research-notes*"))
++
++
++# ---------------------------------------------------------------------------
++# Scenario 7: Atom 1 -- hard-failure halt semantics (halt-on-hard-failure)
++# ---------------------------------------------------------------------------
++
++
++@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
++@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
++def test_e2e_standard_tier_error_halts_pipeline(
++    mock_synth_mapping, mock_process_cls, standard_e2e_config
++):
++    """[Atom 1] A STANDARD-tier step that hard-ERRORs halts the pipeline.
++
++    scope-discovery is a STANDARD-tier gate. Under the OLD halt logic (which
++    keyed off the downstream gate's enforcement_tier == "STRICT"), a STANDARD
++    step returning ERROR would NOT halt -- this test would fail. Under Atom 1
++    (halt on is_hard_failure regardless of tier), the ERROR halts at
++    scope-discovery with a "hard failure" reason and research-notes never runs.
++    """
++    mock_synth_mapping.return_value = [
++        {"synth_file": "section-overview.md"},
++    ]
++
++    # scope-discovery subprocess exits non-zero -> _determine_status -> ERROR.
++    base_factory = _mock_process_factory(
++        step_overrides={"scope-discovery": (1, "boom: subprocess crashed\n")},
++    )
++    executed_steps: list[str] = []
++
++    def tracking_factory(**kwargs):
++        executed_steps.append(kwargs["step_id"])
++        return base_factory(**kwargs)
++
++    mock_process_cls.side_effect = tracking_factory
++
++    executor = PrdExecutor(standard_e2e_config)
++    executor._build_prompt = lambda builder_name, step_id=None: (
++        f"Mock prompt for {builder_name}"
++    )
++
++    result = executor.run()
++
++    # The STANDARD-tier ERROR halts the pipeline (Atom 1 behavior).
++    assert result.outcome == "halt"
++    assert result.halt_step == "scope-discovery"
++    assert result.halt_reason is not None
++    assert "hard failure" in result.halt_reason
++    # research-notes (the next Stage-A step) must never execute.
++    assert "research-notes" not in executed_steps
++
++
++@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
++@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
++def test_e2e_standard_tier_validation_fail_does_not_halt(
++    mock_synth_mapping, mock_process_cls, standard_e2e_config
++):
++    """[Atom 1] A STANDARD-tier VALIDATION_FAIL (exit 0) does NOT halt.
++
++    scope-discovery exits 0 but emits too few lines to clear its STANDARD gate,
++    yielding VALIDATION_FAIL. VALIDATION_FAIL is excluded from is_hard_failure
++    and the gate is STANDARD (not STRICT), so the loop must continue past
++    scope-discovery -- preserving the intentional non-fatal STANDARD path.
++    """
++    mock_synth_mapping.return_value = [
++        {"synth_file": "section-overview.md"},
++        {"synth_file": "section-requirements.md"},
++        {"synth_file": "section-architecture.md"},
++    ]
++
++    # scope-discovery exits 0 with far fewer than the 50-line gate floor and no
++    # recovery variant -> gate fails STANDARD -> VALIDATION_FAIL (non-fatal).
++    short_output = "short scope output\nEXIT_RECOMMENDATION: CONTINUE\n"
++    base_factory = _mock_process_factory(
++        step_overrides={"scope-discovery": (0, short_output)},
++    )
++    executed_steps: list[str] = []
++
++    def tracking_factory(**kwargs):
++        executed_steps.append(kwargs["step_id"])
++        return base_factory(**kwargs)
++
++    mock_process_cls.side_effect = tracking_factory
++
++    executor = PrdExecutor(standard_e2e_config)
++    executor._build_prompt = lambda builder_name, step_id=None: (
++        f"Mock prompt for {builder_name}"
++    )
++
++    result = executor.run()
++
++    # The STANDARD VALIDATION_FAIL must NOT halt the pipeline at scope-discovery.
++    assert result.halt_step != "scope-discovery"
++    # The loop continued past scope-discovery to the next Stage-A step.
++    assert "research-notes" in executed_steps
++
++
++# ---------------------------------------------------------------------------
++# Scenario 8: Atom 2 -- typed missing-artifact guard (graceful HALT)
++# ---------------------------------------------------------------------------
++
++
++@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
++def test_missing_required_artifact_yields_graceful_halt(
++    mock_process_cls, standard_e2e_config
++):
++    """[Atom 2] A missing REQUIRED upstream artifact yields a graceful HALT.
++
++    Drives the REAL ``_build_prompt`` (NOT the monkeypatched stub used elsewhere
++    in this file): ``build_research_notes_prompt`` performs a REQUIRED read of
++    ``scope-discovery-raw.md``, which is absent in the fixture task_dir. Under the
++    pre-Atom-2 code an uncaught ``FileNotFoundError`` would escape; under Atom 2
++    the required-read helper raises ``MissingArtifactError`` which the call-site
++    catch converts to a ``PrdStepStatus.HALT`` whose ``halt_reason`` names the
++    missing artifact and its producer step. No subprocess is launched because the
++    prompt build raises before subprocess creation.
++    """
++    executor = PrdExecutor(standard_e2e_config)
++    # Intentionally do NOT stub _build_prompt -- the real builder must run so the
++    # MissingArtifactError -> HALT conversion is actually exercised.
++
++    result = executor._run_subprocess_step(
++        "research-notes", "Research Notes", "build_research_notes_prompt"
++    )
++
++    assert result.status == PrdStepStatus.HALT
++    assert result.halt_reason is not None
++    assert "scope-discovery-raw.md" in result.halt_reason
++    assert "scope-discovery" in result.halt_reason
++    # The graceful HALT short-circuits before any subprocess is created.
++    mock_process_cls.assert_not_called()
++
++
++@patch("superclaude.cli.prd.executor.PrdClaudeProcess")
++@patch("superclaude.cli.prd.executor.load_synthesis_mapping")
++def test_e2e_scope_discovery_error_halts_before_research_notes(
++    mock_synth_mapping, mock_process_cls, standard_e2e_config
++):
++    """[Atom 2 e2e] Reproduces the original crash; now a graceful halt.
++
++    Original bug: scope-discovery hard-ERRORs (non-zero exit, so no
++    ``scope-discovery-raw.md`` artifact), the Stage-A loop did NOT halt (gate is
++    STANDARD), and research-notes then crashed reading the missing artifact with
++    an uncaught ``FileNotFoundError`` that escaped ``run()``. With Atoms 1+2 in
++    place the pipeline HALTS at scope-discovery, research-notes never executes,
++    and ``run()`` returns a result instead of raising.
++    """
++    task_dir = standard_e2e_config.task_dir
++    mock_synth_mapping.return_value = [
++        {"synth_file": "section-overview.md"},
++    ]
++
++    # scope-discovery exits non-zero AND writes no artifact -> ERROR.
++    base_factory = _mock_process_factory(
++        step_overrides={"scope-discovery": (1, "scope-discovery crashed fast\n")},
++    )
++    executed_steps: list[str] = []
++
++    def tracking_factory(**kwargs):
++        executed_steps.append(kwargs["step_id"])
++        return base_factory(**kwargs)
++
++    mock_process_cls.side_effect = tracking_factory
++
++    executor = PrdExecutor(standard_e2e_config)
++    executor._build_prompt = lambda builder_name, step_id=None: (
++        f"Mock prompt for {builder_name}"
++    )
++
++    # run() must COMPLETE and return a result -- no uncaught FileNotFoundError.
++    result = executor.run()
++
++    assert result is not None
++    assert result.finished_at is not None
++    # Halts at scope-discovery with a reason that attributes the halt.
++    assert result.outcome == "halt"
++    assert result.halt_step == "scope-discovery"
++    assert result.halt_reason
++    assert "hard failure" in result.halt_reason
++    # The hard ERROR meant no artifact was ever written (the original crash seed).
++    assert not (task_dir / "scope-discovery-raw.md").exists()
++    # research-notes -- the step that originally crashed -- never runs.
++    assert "research-notes" not in executed_steps
+diff --git a/tests/cli/prd/test_models.py b/tests/cli/prd/test_models.py
+index 11284e62..edbce6b8 100644
+--- a/tests/cli/prd/test_models.py
++++ b/tests/cli/prd/test_models.py
+@@ -87,6 +87,39 @@ class TestPrdStepStatusProperties:
+             assert not status.is_failure, f"{status.name} should not be failure"
+             assert status.needs_fix_cycle, f"{status.name} should need fix cycle"
+ 
++    def test_is_hard_failure_membership(self) -> None:
++        """is_hard_failure is True only for crash/timeout/exhausted/halt.
++
++        Excludes VALIDATION_FAIL and QA_FAIL — the load-bearing exclusions that
++        preserve the non-fatal STANDARD gate-quality path (a clean exit-0 quality
++        failure must NOT halt the pipeline).
++        """
++        # Hard failures: True
++        for status in (
++            PrdStepStatus.ERROR,
++            PrdStepStatus.TIMEOUT,
++            PrdStepStatus.QA_FAIL_EXHAUSTED,
++            PrdStepStatus.HALT,
++        ):
++            assert status.is_hard_failure, f"{status.name} should be hard failure"
++
++        # Everything else: False — including the load-bearing exclusions
++        # VALIDATION_FAIL (non-fatal STANDARD gate-quality path) and QA_FAIL.
++        for status in (
++            PrdStepStatus.VALIDATION_FAIL,
++            PrdStepStatus.QA_FAIL,
++            PrdStepStatus.PASS,
++            PrdStepStatus.PASS_NO_SIGNAL,
++            PrdStepStatus.PASS_NO_REPORT,
++            PrdStepStatus.SKIPPED,
++            PrdStepStatus.INCOMPLETE,
++            PrdStepStatus.PENDING,
++            PrdStepStatus.RUNNING,
++        ):
++            assert not status.is_hard_failure, (
++                f"{status.name} should not be hard failure"
++            )
++
+ 
+ class TestPrdPipelineResultResumeCommand:
+     """Verify correct CLI string generation on halt."""

@@ -1,12 +1,20 @@
 # Tier 3 Remediation Handoff (Wave 6)
 
-Loaded only when `--fix` is set and Wave 5 produced a `success` (not `partial`) report. Drives the offer + task-builder chain.
+Loaded only when `--fix` is set and Wave 5 produced a `success` (not `partial`) report. Drives the offer + task-builder chain. This `success AND --fix` load precondition is reconciled with the Pipeline Hardening Closure verdict below: within this load path, a `blocked`/`advisory` hardening verdict prevents a plain-`success` handoff (see **Pipeline hardening verdict gating**).
+
+## Pipeline hardening verdict gating
+
+When the Pipeline Hardening Closure mode ran (`pipeline_hardening_applicable=true`), this handoff carries its verdict and reconciles success-gating with the §5.4 downstream no-override rule (governed by `refs/hardening-output-contract.md`):
+
+- **Load precondition unchanged.** The handoff still loads only when `--fix` is set AND Wave 5 produced a `success` (not `partial`) report. The hardening verdict does not relax that precondition; it constrains how a loaded handoff renders.
+- **`blocked`/`advisory` prevents a plain-`success` handoff.** Within the `success AND --fix` load path, a `pipeline_hardening_verdict` of `blocked` or `advisory` renders the downstream result as `success_with_hardening_blocker` or `success_with_hardening_advisory` respectively — never plain `success`.
+- **One-way latch carried downstream.** `waiver_status=latched` forces `pipeline_hardening_verdict ∈ {blocked, advisory}` and is carried into the `BUILD_REQUEST` (see Phase A). A downstream `task-builder` / `sc:reflect` / `sc:adversarial` / report-rendering stage may append findings but may **not** convert `blocked`/`advisory` into `pass`/`success` (spec §5.4 L411). The four-token verdict (`pass | blocked | advisory | not_applicable`) is preserved end-to-end; `advisory` is never dropped.
 
 ## The user offer
 
 After Wave 5, before invoking `task-builder`, the skill surfaces this prompt verbatim (substituting bracketed fields). The user answers yes/no.
 
-```
+```text
 Tier 3 remediation chain is available for this fix.
 
 The chain will:
@@ -24,6 +32,10 @@ Files that will change:
 
 Expected task complexity: <generic | complex>
 
+Pipeline hardening verdict: <pass | blocked | advisory | not_applicable>   (waiver_status: <none | latched>)
+  When blocked/advisory: closure is NOT clean — this hands off as success_with_hardening_<blocker|advisory>;
+  a downstream stage may append findings but may NOT upgrade it to success.
+
 Proceed with task-builder?  [yes / no]
 ```
 
@@ -39,7 +51,7 @@ Proceed with task-builder?  [yes / no]
 
 Invoke the `task-builder` skill via `Skill`. The `BUILD_REQUEST` is constructed from the report:
 
-```
+```text
 BUILD_REQUEST:
   TEMPLATE: <generic | complex>
   GOAL: Apply the fix described in <abs-path-to-REPORT.md>
@@ -53,6 +65,11 @@ BUILD_REQUEST:
     - REPORT.md: <abs-path>
     - Audit log: <abs-path>
     - Hypothesis card (chosen): <abs-path>
+  PIPELINE_HARDENING:
+    pipeline_hardening_verdict: <pass | blocked | advisory | not_applicable>
+    waiver_status: <none | latched>
+    # Carried so the downstream task-builder/reflect/adversarial stage receives the latched
+    # verdict and MUST NOT re-green a blocked/advisory closure to pass/success (spec §5.4 L411).
 ```
 
 **Template selection**:
@@ -79,7 +96,7 @@ Reflect can return:
 
 The skill **never** auto-executes the task. It surfaces the path and the literal command:
 
-```
+```text
 Task file ready: <abs-path>
 
 To execute, run:
@@ -97,7 +114,7 @@ Only fires if the user comes back and explicitly invokes the validation step. Th
 
 The user runs (or the skill is re-invoked with a flag like `--validate-task <path>`):
 
-```
+```text
 /sc:reflect --type task --validate <task-file>
 ```
 

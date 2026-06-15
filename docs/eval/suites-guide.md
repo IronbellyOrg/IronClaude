@@ -50,8 +50,11 @@ each suite below; see also §"Troubleshooting".
 | 9 | `installer_sync_drift` | 1 | Recurring CI/nightly | stash@{0} | `make verify-sync` doesn't regress |
 | 10 | `hook_latency_drift` | 3 | Recurring nightly | stash@{0} | Hook telemetry schema + latency budgets |
 | 11 | `agent_grounding_drift` | 2 | Recurring nightly | stash@{0} | Grounding agents drop bad citations |
+| 12 | `eval_cli_doc_parity` | 3 | On-PR + nightly | ✓ | Documented `eval run` flags stay in sync with `--help` |
+| 13 | `cli_eval_skill_contract` | 2 | On-PR + nightly | ✓ | `/sc:cli-eval` command + skill + agents stay wired |
+| 14 | `suite_schema_guard` | 2 | On-PR + nightly | ✓ | Every `suites/*.yaml` still loads + schema-validates |
 
-**Total: 30 evals across 11 suites.**
+**Total: 37 evals across 14 suites.** (Suites #12–#14 ship with the `/sc:cli-eval` skill.)
 
 ### Restoring stashed suites
 
