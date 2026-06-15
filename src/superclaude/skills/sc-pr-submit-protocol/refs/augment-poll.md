@@ -30,7 +30,20 @@ gh api repos/IronbellyOrg/IronClaude/commits/<headSHA>/check-runs   # only if th
 ```
 
 Classification is pure against the probe-locked `DetectionContract` (`detection-contract.md`): key on
-`augment_bot_login`; three states no-review / clean / findings (T-201/202/203).
+`augment_bot_login`; four states no-review / clean / findings / **declined** (T-201/202/203 + FR-9.1).
+The V1.1 `declined` state fires when an Augment-authored comment matches BOTH probe-locked decline
+regexes (`decline_phrase_regex` "abnormally large" AND `decline_retrigger_regex` "comment
+augment/auggie/augmentcode review"), watermark-aware (a stale pre-watermark decline is ignored, EC-23).
+The decline ARITHMETIC (the both-regex AND, the watermark comparison, the strict-once routing) stays in
+the deterministic core; only the decline raw-surfacing comes from this poll script — the same
+script-polls / FSM-decides seam as the other states. The decline is posted by the App as a **PR
+conversation comment** (the `gh pr view --json comments` surface, equivalently `issues/<N>/comments` —
+the same surface `retrigger-review.sh` posts to), NOT as an inline review comment. The poll script
+therefore **merges** the conversation comments (`.comments` from `gh pr view`) with the inline review
+comments (`pulls/<N>/comments`) into the emitted `comments` array, so the classifier sees the decline;
+surfacing only the inline comments would make `declined` unreachable in production. (The classifier's
+finding-comment rule requires `path`+`line`, so the path-less conversation comments are never miscounted
+as findings.)
 
 ## Interval, timeout, backoff (FR-2.3 / FR-2.5 / NFR-2)
 

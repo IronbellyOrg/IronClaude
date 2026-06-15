@@ -21,6 +21,11 @@ findings_locus: "<reviews[].body|comments[]|check_run.output>"  # JSON path to t
 severity_field_path: "<jsonpath-or-null>"            # Augment's self-reported severity, if any (hint only)
 review_completeness_signal: "<state==COMMENTED|presence-of-summary-marker>"  # "review finished" marker
 probe_evidence: "<abs-path to captured gh json>"     # provenance for the lock (real captured JSON)
+# V1.1 decline-detection (addendum §6.2 / FR-9.1) — baked defaults; both regexes must match an
+# Augment-authored comment for a "declined". accepted_trigger_phrases = our operator re-trigger tokens.
+decline_phrase_regex: 'abnormally\s+large'
+decline_retrigger_regex: 'comment\s+["''`]?(augment|auggie|augmentcode)\s+review["''`]?'
+accepted_trigger_phrases: ["auggie review", "augment review", "augmentcode review"]
 locked: false                                        # R1 flips this to true; build BLOCKS while false
 ```
 

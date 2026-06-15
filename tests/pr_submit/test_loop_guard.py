@@ -138,3 +138,90 @@ def test_t_vanished_mono_irrevocable():
         rc.on_rereview(review_observed=True, sha_attributed_to_our_push=False) is False
     )
     assert rc.value == 2
+
+
+# --- V1.1 INV-R1/R3 + deferred increment + fallback cap-1 (addendum §5) -------
+# These ADD to the file; the INV-001 fence-post tests above are LEFT UNCHANGED and
+# still pass — guarding the verbatim INV-001 preservation.
+
+
+@pytest.mark.inv
+def test_deferred_increment_gated_on_attributed():
+    """The relocated increment is gated on `"attributed"`, NOT optimistic: a push whose
+    re-trigger poll times out does NOT advance `round_counter` (contrast the legacy
+    optimistic tick). Reuses the rereview-then-decline scenario shape."""
+    # timeout outcome → push happens, but no tick.
+    timed_out = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=2,
+            findings=[_f(1)],
+            rereview_outcome=["timeout"],
+        )
+    )
+    assert timed_out.push_count == 1 and timed_out.round_counter == 0
+    # attributed outcome → tick.
+    attributed = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=2,
+            findings=[_f(1)],
+            rereview_outcome=["attributed"],
+        )
+    )
+    assert attributed.push_count == 1 and attributed.round_counter == 1
+
+
+@pytest.mark.inv
+def test_inv_r1_rereview_request_count_monotone_and_bounded():
+    """INV-R1: `rereview_request_count` is monotone and `<= max_rounds`."""
+    result = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=2,
+            findings=[_f(1)],
+            rereview_findings=[[_f(2)], [_f(3)], [_f(4)]],
+        )
+    )
+    assert result.rereview_request_count <= 2  # <= max_rounds
+    assert result.rereview_request_count == result.push_count  # one re-trigger per push
+
+
+@pytest.mark.inv
+def test_inv_r3_clamp_monotone_and_counters_independent():
+    """INV-R3: the fallback clamp is monotone non-increasing and the two counters
+    (`round_counter`, `fallback_round_counter`) are INDEPENDENT — advancing one never
+    moves the other."""
+    result = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=5,
+            findings=[_f(1)],
+            rereview_findings=[[_f(2)]],
+            rereview_outcome=["attributed", "declined"],
+            fallback_findings=[_f(9)],
+        )
+    )
+    # round_counter advanced once (the attributed Augment round) then FROZE.
+    assert result.round_counter == 1
+    # the fallback advanced only its own counter, and clamped the budget to 1.
+    assert result.fallback_round_counter == 1
+    assert result.effective_max_rounds == 1  # monotone clamp, 5 → 1
+
+
+@pytest.mark.inv
+def test_fallback_round_counter_cap_one():
+    """The fallback counter is capped at 1: `should_halt(fallback_round_counter, 1)` halts
+    after one fallback cycle (no second fallback remediation)."""
+    assert should_halt(0, 1) is False  # the one fallback cycle may open
+    assert should_halt(1, 1) is True  # ...and is the last (cap-1, >= gate)
+    # End-to-end: the fallback never runs more than one remediation cycle.
+    result = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=2,
+            review_state="declined",
+            fallback_findings=[_f(9)],
+        )
+    )
+    assert result.fallback_round_counter == 1

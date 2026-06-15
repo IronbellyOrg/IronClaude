@@ -1,0 +1,12 @@
+{
+  "reviews": [],
+  "comments": [
+    {
+      "user": {"login": "augment-code[bot]"},
+      "createdAt": "2026-06-12T11:00:00Z",
+      "body": "This PR is abnormally large. Comment `augment review` to trigger a new review.",
+      "id": 4003
+    }
+  ],
+  "expected": {"state": "declined"}
+}

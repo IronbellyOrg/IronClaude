@@ -13,7 +13,7 @@ import json
 import pytest
 
 from superclaude.pr_submit.fsm import RunConfig, run_skill
-from superclaude.pr_submit.models import Finding
+from superclaude.pr_submit.models import EventType, Finding
 from superclaude.pr_submit.run_log import RunLog, fix_key
 
 
@@ -156,3 +156,64 @@ def test_rebuild_from_jsonl_is_authoritative(tmp_path):
     assert state["reply_count"] == 1
     assert "abc123" in state["pushed_commit_shas"]
     assert 55 in state["replied_comment_ids"]
+
+
+# --- V1.1 closed-enum count + new-event folds (addendum §6.1/§6.3) ------------
+
+
+def test_eventtype_is_37_members_with_v11_events():
+    """The closed EventType enum has EXACTLY 37 members, including the 4 V1.1
+    re-review/fallback events. This test FAILS if a future edit drifts the count."""
+    assert len(EventType) == 37
+    assert len(list(EventType)) == 37
+    # The 4 new V1.1 members exist with their exact identifier=value strings.
+    assert EventType.REREVIEW_REQUESTED.value == "rereview_requested"
+    assert EventType.DECLINE_DETECTED.value == "decline_detected"
+    assert EventType.AUGGIE_FALLBACK_INVOKED.value == "auggie_fallback_invoked"
+    assert EventType.MAX_ROUNDS_CLAMPED.value == "max_rounds_clamped"
+
+
+def test_new_v11_events_pass_closed_enum_append_validation(tmp_path):
+    """Each new event_type is a valid closed-enum value — append() does NOT raise."""
+    rl = RunLog(31, tmp_path)
+    for member in (
+        EventType.REREVIEW_REQUESTED,
+        EventType.DECLINE_DETECTED,
+        EventType.AUGGIE_FALLBACK_INVOKED,
+        EventType.MAX_ROUNDS_CLAMPED,
+    ):
+        rec = rl.append({"event_type": member.value})
+        assert rec["event_type"] == member.value
+    # And an UNKNOWN event_type still raises (the closed set is enforced).
+    with pytest.raises(ValueError):
+        rl.append({"event_type": "not_a_real_event"})
+
+
+def test_max_rounds_clamped_monotone_min_fold_inv_r3(tmp_path):
+    """INV-R3: appending two MAX_ROUNDS_CLAMPED events with DIFFERENT
+    effective_max_rounds rebuilds to the SMALLER (monotone non-increasing). The
+    higher value is ordered AFTER the lower one to prove it never raises the result."""
+    rl = RunLog(41, tmp_path)
+    # Seed default: never-clamped → None.
+    assert rl.rebuild_state()["effective_max_rounds"] is None
+    rl.append(
+        {"event_type": EventType.MAX_ROUNDS_CLAMPED.value, "effective_max_rounds": 1}
+    )
+    # A LATER, HIGHER clamp must NOT raise the rebuilt value back up.
+    rl.append(
+        {"event_type": EventType.MAX_ROUNDS_CLAMPED.value, "effective_max_rounds": 3}
+    )
+    assert rl.rebuild_state()["effective_max_rounds"] == 1
+
+
+def test_rereview_count_and_auggie_set_folds(tmp_path):
+    """REREVIEW_REQUESTED events count into rereview_request_count (INV-R1 IDIOM A);
+    AUGGIE_FALLBACK_INVOKED folds the pr_number into the auggie_review_invoked set
+    (INV-R2 IDIOM B)."""
+    rl = RunLog(99, tmp_path)
+    rl.append({"event_type": EventType.REREVIEW_REQUESTED.value})
+    rl.append({"event_type": EventType.REREVIEW_REQUESTED.value})
+    rl.append({"event_type": EventType.AUGGIE_FALLBACK_INVOKED.value, "pr_number": 99})
+    state = rl.rebuild_state()
+    assert state["rereview_request_count"] == 2
+    assert state["auggie_review_invoked"] == [99]

@@ -1,0 +1,12 @@
+{
+  "reviews": [],
+  "comments": [
+    {
+      "user": {"login": "augment-code[bot]"},
+      "createdAt": "2026-06-12T09:00:00Z",
+      "body": "The diff is abnormally large; comment 'auggie review' to trigger a manual review.",
+      "id": 4002
+    }
+  ],
+  "expected": {"state": "declined"}
+}

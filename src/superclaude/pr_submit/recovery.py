@@ -5,8 +5,11 @@ event for an idempotency key is ``push_initiated`` with no matching ``push_compl
 (the crash window), the monitor MUST NOT create another commit or push until it
 queries the remote for ``target_sha`` and branches three ways:
 
-- **A (reachable)** → append ``push_completed{recovered:true}``, resume in
-  ``S5_AWAITING_REREVIEW``;
+- **A (reachable)** → append ``push_completed{recovered:true}``, then resume at
+  ``S5A_RETRIGGER_REVIEW`` when no ``rereview_requested`` event is yet attributable to
+  the landed push's cycle (the crash fell between push and re-trigger, so the re-trigger
+  comment still needs posting — V1.1 / OQ-1), else ``S5_AWAITING_REREVIEW`` (the re-trigger
+  already went out — avoid a double-post, INV-R1);
 - **B (not reachable)** → append ``push_aborted_or_not_landed{recovered:true}``,
   re-drive the push for the SAME cycle **without recomputing the fix**;
 - **C (ambiguous tip)** → ``HALT_HUMAN`` with the original fields + observed remote SHA.
@@ -107,7 +110,7 @@ def resolve_crash_window(
     }
 
     if remote_reachable is True:
-        # Branch A: the push landed — synthesize the missing completion, resume S5.
+        # Branch A: the push landed — synthesize the missing completion.
         run_log.append(
             {
                 "event_type": EventType.PUSH_COMPLETED.value,
@@ -115,7 +118,33 @@ def resolve_crash_window(
                 **common,
             }
         )
-        return BRANCH_A_LANDED, MonitorState.S5_AWAITING_REREVIEW
+        # OQ-1 (V1.1 / FR-8): a push does NOT auto-trigger an Augment re-review — the
+        # S5a re-trigger comment must be posted first. If NO re-trigger comment is yet
+        # attributable to THIS landed push's cycle (no ``rereview_requested`` event for
+        # the dangling cycle_id), the crash happened BETWEEN the push and the re-trigger
+        # post, so resume at ``S5A_RETRIGGER_REVIEW`` to POST the re-trigger (otherwise
+        # the monitor would wait forever at S5 for a re-review the App was never asked
+        # for, burning the timeout budget). If the re-trigger WAS already emitted for
+        # this cycle, resume at ``S5_AWAITING_REREVIEW`` (avoid a double-post — INV-R1).
+        # Attribution requires a KNOWN cycle_id that matches. When the dangling
+        # push carries no cycle_id we CANNOT attribute a prior re-trigger to it, so
+        # fail safe to "not emitted" → resume at S5A_RETRIGGER_REVIEW and (re)post the
+        # re-trigger. Treating an unknown cycle_id as "already emitted" (the prior
+        # ``cycle_id is None or ...`` short-circuit) could strand the monitor at S5
+        # waiting for a re-review that was never requested. A possibly-duplicate
+        # re-trigger comment is benign; a forever-wait is not.
+        cycle_id = dangling.get("cycle_id")
+        retrigger_emitted = cycle_id is not None and any(
+            ev.get("event_type") == EventType.REREVIEW_REQUESTED.value
+            and ev.get("cycle_id") == cycle_id
+            for ev in run_log.read_events()
+        )
+        resume_state = (
+            MonitorState.S5_AWAITING_REREVIEW
+            if retrigger_emitted
+            else MonitorState.S5A_RETRIGGER_REVIEW
+        )
+        return BRANCH_A_LANDED, resume_state
 
     if remote_reachable is False:
         # Branch B: not landed — re-drive the push for the SAME cycle WITHOUT

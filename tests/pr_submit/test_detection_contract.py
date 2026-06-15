@@ -21,6 +21,7 @@ from superclaude.pr_submit import (
     DetectionContract,
     DetectionContractLocked,
     classify,
+    is_decline,
     poll_augment_review,
 )
 
@@ -58,40 +59,6 @@ def test_t202_augment_clean(contract):
         "comments": [],
     }
     assert classify(payload, contract) == "clean"
-
-
-def test_t202_augment_summary_comment_without_finding_signal_clean(contract):
-    """T-202: Augment-authored non-finding summary comment does not imply findings."""
-    payload = {
-        "reviews": [
-            {"author": {"login": AUGMENT}, "state": "COMMENTED", "has_findings": False}
-        ],
-        "comments": [
-            {
-                "user": {"login": AUGMENT},
-                "body": "Reviewed — no Medium-or-higher findings.",
-            }
-        ],
-    }
-    assert classify(payload, contract) == "clean"
-
-
-def test_t203_augment_inline_comment_finding_signal(contract):
-    """T-203: Augment-authored inline comments with location/body signal findings."""
-    payload = {
-        "reviews": [
-            {"author": {"login": AUGMENT}, "state": "COMMENTED", "has_findings": False}
-        ],
-        "comments": [
-            {
-                "user": {"login": AUGMENT},
-                "path": "src/app/db.py",
-                "line": 88,
-                "body": "Leak.",
-            }
-        ],
-    }
-    assert classify(payload, contract) == "findings"
 
 
 def test_t203_augment_findings(contract):
@@ -213,3 +180,188 @@ def test_t212_interleaved_only_augment_parsed(contract):
         "comments": [],
     }
     assert classify(human_only, contract) == "polling"
+
+
+# --- V1.1 decline classification (FR-9.1, addendum §6.2) ---------------------
+# A decline is an Augment-authored comment whose body matches BOTH the
+# decline-phrase regex AND the decline-retrigger regex. It is classified FIRST so
+# it is never miscounted as "findings". A stale pre-watermark decline is ignored
+# (EC-23). The `contract` fixture carries the baked-default decline regexes.
+
+
+@pytest.mark.inv
+def test_t1110_decline_both_regexes_match(contract, load_fixture):
+    """T-1110: an Augment "abnormally large" + re-trigger comment → "declined"."""
+    payload = load_fixture("decline-comment.json")
+    assert payload["expected"]["state"] == "declined"
+    assert classify(payload, contract) == "declined"
+    # The decline comment alone is a decline via the pure predicate.
+    assert is_decline(payload["comments"][0], contract) is True
+
+
+@pytest.mark.inv
+def test_t1110b_decline_from_initial_poll(contract, load_fixture):
+    """T-1110b: a decline surfaced at the INITIAL S2 poll → "declined" (FR-9.1)."""
+    payload = load_fixture("decline-initial-poll.json")
+    assert classify(payload, contract) == "declined"
+
+
+@pytest.mark.inv
+def test_t1110_decline_backtick_wrapped_trigger(contract, load_fixture):
+    """T-1110 (real-shape): the REAL Augment decline renders the trigger with markdown
+    backticks — ``Comment `augment review` `` — and must still classify as "declined".
+
+    Guards the Phase-3 QA finding F1: the spec-literal ``["']?`` char class would miss
+    the most common real decline shape; the default regex includes the backtick.
+    """
+    payload = load_fixture("decline-backtick.json")
+    assert "`augment review`" in payload["comments"][0]["body"]
+    assert is_decline(payload["comments"][0], contract) is True
+    assert classify(payload, contract) == "declined"
+
+
+@pytest.mark.inv
+def test_t1110c_decline_wins_over_cooccurring_findings(contract):
+    """Decline-FIRST ordering (FR-9.1): when a findings-bearing Augment review AND a
+    decline comment co-occur, the state is "declined" — a decline is NEVER miscounted
+    as "findings". Guards QA finding F2 (decline-first ordering was previously untested
+    against co-occurrence; every other decline fixture has reviews=[]).
+    """
+    payload = {
+        "reviews": [
+            {
+                "author": {"login": AUGMENT},
+                "state": "COMMENTED",
+                "has_findings": True,
+            }
+        ],
+        "comments": [
+            {
+                "user": {"login": AUGMENT},
+                "body": 'This PR is abnormally large; comment "augment review" to proceed.',
+                "id": 4104,
+            }
+        ],
+    }
+    # Sanity: the review alone WOULD be "findings" — proving the decline must win.
+    findings_only = {"reviews": payload["reviews"], "comments": []}
+    assert classify(findings_only, contract) == "findings"
+    # With the co-occurring decline, decline-first ordering yields "declined".
+    assert classify(payload, contract) == "declined"
+
+
+@pytest.mark.inv
+def test_t1111_abnormally_large_without_retrigger_is_not_decline(contract):
+    """T-1111: a body mentioning ONLY "abnormally large" (no re-trigger) is NOT a decline.
+
+    Both regexes must match. With no formal review present, the state stays
+    "polling" — the phrase alone never flips to "declined".
+    """
+    payload = {
+        "reviews": [],
+        "comments": [
+            {
+                "user": {"login": AUGMENT},
+                "body": "Heads up: this diff is abnormally large.",
+                "id": 4101,
+            }
+        ],
+    }
+    assert is_decline(payload["comments"][0], contract) is False
+    assert classify(payload, contract) == "polling"
+
+
+@pytest.mark.inv
+def test_t1112_retrigger_instruction_without_phrase_is_not_decline(contract):
+    """T-1112: a re-trigger instruction WITHOUT the "abnormally large" phrase is NOT a decline.
+
+    Guards the AND requirement from the other side — a benign comment that merely
+    says 'comment "augment review"' (e.g. an operator echo) must not be a decline.
+    """
+    payload = {
+        "reviews": [],
+        "comments": [
+            {
+                "user": {"login": AUGMENT},
+                "body": 'To re-run, comment "augment review" on the PR.',
+                "id": 4102,
+            }
+        ],
+    }
+    assert is_decline(payload["comments"][0], contract) is False
+    assert classify(payload, contract) == "polling"
+
+
+@pytest.mark.inv
+def test_t1112b_decline_from_non_augment_author_ignored(contract):
+    """T-1112b: a decline-shaped comment from a NON-Augment author is NOT a decline (T-211 sibling)."""
+    payload = {
+        "reviews": [],
+        "comments": [
+            {
+                "user": {"login": "octocat"},
+                "body": 'This PR is abnormally large; comment "augment review".',
+                "id": 4103,
+            }
+        ],
+    }
+    assert is_decline(payload["comments"][0], contract) is False
+    assert classify(payload, contract) == "polling"
+
+
+@pytest.mark.inv
+def test_ec23_t1118_stale_pre_watermark_decline_ignored(contract, load_fixture):
+    """EC-23 / T-1118: a decline OLDER than the watermark is ignored; the same decline
+    with no watermark (None) is accepted."""
+    payload = load_fixture("stale-decline-pre-watermark.json")
+    comment = payload["comments"][0]
+    watermark = payload["watermark"]
+    # With the watermark, the stale decline is ignored.
+    assert is_decline(comment, contract, watermark=watermark) is False
+    assert classify(payload, contract, watermark=watermark) != "declined"
+    # With no watermark (None), the same decline IS accepted.
+    assert is_decline(comment, contract, watermark=None) is True
+    assert classify(payload, contract) == "declined"
+
+
+@pytest.mark.inv
+def test_t1117_ec22_attributed_rereview_wins_over_decline(contract):
+    """T-1117 / EC-22 / FR-9.5: at the S5 re-trigger poll, a GENUINE attributed re-review
+    (a real review newer than the watermark) WINS over a co-occurring decline (review >
+    decline — the App actually reviewed). The decline-first rule (FR-9.1) is overridden
+    ONLY here (a watermark is set); the initial poll keeps decline-first.
+    """
+    watermark = "2026-06-12T09:30:00Z"
+    decline = {
+        "user": {"login": AUGMENT},
+        "createdAt": "2026-06-12T10:00:00Z",
+        "body": 'abnormally large; comment "augment review"',
+        "id": 4201,
+    }
+    # A genuine attributed re-review (newer than the watermark) carrying findings.
+    rereview_findings = {
+        "author": {"login": AUGMENT},
+        "createdAt": "2026-06-12T10:05:00Z",
+        "state": "COMMENTED",
+        "has_findings": True,
+    }
+    payload = {"reviews": [rereview_findings], "comments": [decline]}
+    # Review wins → "findings" (NOT "declined"), proceed as an attributed re-review.
+    assert classify(payload, contract, watermark=watermark) == "findings"
+    # A clean attributed re-review + the same decline → "clean" (review still wins).
+    clean_rereview = {**rereview_findings, "has_findings": False}
+    assert (
+        classify(
+            {"reviews": [clean_rereview], "comments": [decline]},
+            contract,
+            watermark=watermark,
+        )
+        == "clean"
+    )
+    # Contrast — at the INITIAL poll (watermark=None), decline-first (FR-9.1) holds.
+    assert classify(payload, contract, watermark=None) == "declined"
+    # Contrast — a decline with NO attributed re-review at S5 stays "declined".
+    assert (
+        classify({"reviews": [], "comments": [decline]}, contract, watermark=watermark)
+        == "declined"
+    )

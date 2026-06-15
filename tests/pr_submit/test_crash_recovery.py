@@ -192,7 +192,10 @@ def test_crash_window_no_double_push(tmp_path, load_fixture):
 
     Scenario mirrors crash-after-push-before-completed.json: one prior completed push
     + one dangling push_initiated. Branch A (target reachable on the remote) → append
-    push_completed{recovered:true}; push_count==2, resume S5; NO second actual push.
+    push_completed{recovered:true}; push_count==2; NO second actual push. Per V1.1/OQ-1,
+    since NO rereview_requested event exists for the dangling cycle (the crash fell
+    between push and re-trigger), recovery resumes at S5A_RETRIGGER_REVIEW to post the
+    re-trigger comment.
     """
     # Parity: the dedicated fixture encodes exactly one dangling push_initiated
     # (a push_initiated whose idempotency_key has no matching push_completed).
@@ -242,7 +245,9 @@ def test_crash_window_no_double_push(tmp_path, load_fixture):
     branch, resume_state = resolve_crash_window(rl, dangling, remote_reachable=True)
 
     assert branch == BRANCH_A_LANDED
-    assert resume_state == MonitorState.S5_AWAITING_REREVIEW
+    # OQ-1: no rereview_requested for the dangling cycle → resume at S5a to POST the
+    # re-trigger (the crash fell between push and re-trigger).
+    assert resume_state == MonitorState.S5A_RETRIGGER_REVIEW
     state = rl.rebuild_state()
     assert state["push_count"] == 2  # both pushes now completed
     # The synthesized completion is flagged recovered.
@@ -257,6 +262,38 @@ def test_crash_window_no_double_push(tmp_path, load_fixture):
         e for e in rl.read_events() if e["event_type"] == "push_initiated"
     ]
     assert len(initiated_after) == len(initiated_before)
+
+
+@pytest.mark.recovery
+def test_crash_window_branch_a_retrigger_already_emitted(tmp_path):
+    """OQ-1 (V1.1): Branch A resumes at S5_AWAITING_REREVIEW (NOT S5a) when a
+    rereview_requested event was already emitted for the dangling cycle — the re-trigger
+    comment already went out, so re-posting it would double-post (INV-R1).
+    """
+    rl = RunLog(96, tmp_path)
+    # Dangling push_initiated for cycle c1 (the crash window).
+    rl.append(
+        {
+            "event_type": "push_initiated",
+            "target_sha": "shaX",
+            "idempotency_key": "push:r:c1:preX:feat",
+            "run_id": "r",
+            "cycle_id": "c1",
+            "pre_push_sha": "preX",
+            "target_branch": "feat",
+            "target_remote": "origin",
+        }
+    )
+    # The re-trigger comment for THIS cycle was already posted before the crash.
+    rl.append({"event_type": "rereview_requested", "cycle_id": "c1"})
+
+    dangling = detect_crash_window(rl)
+    assert dangling is not None
+    branch, resume_state = resolve_crash_window(rl, dangling, remote_reachable=True)
+
+    assert branch == BRANCH_A_LANDED
+    # re-trigger already emitted for cycle c1 → resume awaiting the re-review (no re-post).
+    assert resume_state == MonitorState.S5_AWAITING_REREVIEW
 
 
 @pytest.mark.recovery

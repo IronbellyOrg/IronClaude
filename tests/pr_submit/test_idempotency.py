@@ -8,8 +8,8 @@ fresh `comment_id` with the same `path+line+body` hashes to the same `fix_key`
 
 from __future__ import annotations
 
-from superclaude.pr_submit.models import Finding
-from superclaude.pr_submit.run_log import RunLog, fix_key
+from superclaude.pr_submit.models import EventType, Finding
+from superclaude.pr_submit.run_log import IDEMPOTENCY_SETS, RunLog, fix_key
 
 
 def test_tn01_replay_findings_reply_once_per_thread(tmp_path):
@@ -75,3 +75,48 @@ def test_fresh_comment_no_double_fix(tmp_path):
     assert rl.check_idempotent("processed_finding_ids", fresh.fix_key) is False
     fixes = [e for e in rl.read_events() if e["event_type"] == "fix_applied"]
     assert len(fixes) == 1  # exactly one fix despite two comments
+
+
+# --- V1.1 6th idempotency set: auggie_review_invoked (INV-R2 strict-once) -----
+
+
+def test_t1120_auggie_review_invoked_at_most_once(tmp_path):
+    """T-1120 / T-AUGGIE-AT-MOST-ONCE: the 6th idempotency set is the durable
+    strict-once gate — check_idempotent("auggie_review_invoked", pr) returns True
+    the first time and False on replay, emitting an idempotency_skip (INV-R2)."""
+    assert "auggie_review_invoked" in IDEMPOTENCY_SETS
+    assert len(IDEMPOTENCY_SETS) == 6  # 5→6, NOT a "4"/reconcile framing
+    rl = RunLog(55, tmp_path)
+    pr = 55
+    # First fallback invoke: newly recorded → proceed.
+    assert rl.check_idempotent("auggie_review_invoked", pr) is True
+    rl.append({"event_type": EventType.AUGGIE_FALLBACK_INVOKED.value, "pr_number": pr})
+    # Replay (a second decline later) → already invoked → skip.
+    assert rl.check_idempotent("auggie_review_invoked", pr) is False
+    # The set folds the pr_number exactly once.
+    state = rl.rebuild_state()
+    assert state["auggie_review_invoked"] == [pr]
+    skips = [e for e in rl.read_events() if e["event_type"] == "idempotency_skip"]
+    assert len(skips) == 1
+
+
+def test_t1124_auggie_strict_once_survives_resume(tmp_path, load_fixture):
+    """T-1124: the strict-once gate survives a resume — a second RunLog over the same
+    dir rebuilds the auggie_review_invoked set and the gate still skips (INV-R2)."""
+    fixture = load_fixture("decline-twice.json")
+    pr = 55
+    rl = RunLog(pr, tmp_path)
+    assert rl.check_idempotent("auggie_review_invoked", pr) is True
+    rl.append({"event_type": EventType.AUGGIE_FALLBACK_INVOKED.value, "pr_number": pr})
+    # New poll cycle / resume: a fresh RunLog rebuilds the set from the JSONL.
+    rl2 = RunLog(pr, tmp_path)
+    state = rl2.rebuild_state()
+    assert pr in state["auggie_review_invoked"]
+    assert len(state["auggie_review_invoked"]) == 1
+    # Even across the two declines in the fixture, the invoke is recorded once.
+    assert (
+        len(state["auggie_review_invoked"])
+        == fixture["expected"]["auggie_review_invoked_count"]
+    )
+    # The dedup still fires on the persisted set after resume.
+    assert rl2.check_idempotent("auggie_review_invoked", pr) is False

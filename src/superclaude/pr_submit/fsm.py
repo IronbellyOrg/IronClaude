@@ -142,6 +142,17 @@ def should_halt_rounds(round_counter: int, max_rounds: int) -> bool:
     return loop_guard_should_halt(round_counter, max_rounds)
 
 
+def clamp_max_rounds(effective: int, hard: int = 1) -> int:
+    """INV-R3 fallback clamp: ``min(effective, hard)`` (default ``hard=1``, single-shot).
+
+    A pure one-liner mirroring the gate-predicate style. The V1.1 oversized-PR
+    auggie-review fallback clamps the effective round budget to 1 on engage — a
+    one-way, monotone non-increasing clamp (the run-log monotone-min fold guarantees
+    a later higher value never raises it back; this helper provides the clamp value).
+    """
+    return min(effective, hard)
+
+
 def evaluate_push_decision(
     *,
     monitor_ordinal: int,
@@ -609,11 +620,38 @@ def transition(
     if edge == (MonitorState.S6_REPLYING, "replied"):
         return MonitorState.RESOLVING
     if edge == (MonitorState.RESOLVING, "resolved"):
+        # V1.1 (FR-8.1): after resolve, route to S5a to post the re-trigger comment
+        # BEFORE awaiting the re-review (a push does NOT auto-trigger an Augment
+        # re-review). The increment is NOT here; INV-001's edge is below.
+        return MonitorState.S5A_RETRIGGER_REVIEW
+    if edge == (MonitorState.S5A_RETRIGGER_REVIEW, "retriggered"):
+        # The re-trigger comment was posted → await the re-review (INV-R1). The
+        # re-trigger itself does NOT tick round_counter.
         return MonitorState.S5_AWAITING_REREVIEW
     if edge == (MonitorState.S5_AWAITING_REREVIEW, "rereview_attributed"):
         return MonitorState.S2_CLASSIFY  # loop-guard increments at this edge (INV-001)
     if edge == (MonitorState.S5_AWAITING_REREVIEW, "timeout"):
         return MonitorState.TERMINAL_TIMEOUT
+    if edge == (MonitorState.S5_AWAITING_REREVIEW, "declined"):
+        # V1.1 (FR-9): a decline observed at the S5 re-trigger poll → oversized-PR
+        # auggie-review fallback (S5b). Sibling of rereview_attributed/timeout; the
+        # INV-001 edge above is unchanged.
+        return MonitorState.S5B_AUGGIE_FALLBACK
+    if edge == (MonitorState.S2_CLASSIFY, "declined"):
+        # V1.1 (FR-9.1): a decline observed at the INITIAL S2 poll → fallback (S5b).
+        return MonitorState.S5B_AUGGIE_FALLBACK
+    if edge == (MonitorState.S5B_AUGGIE_FALLBACK, "fallback_findings"):
+        # The fallback /sc:auggie-review produced findings → re-enter classification
+        # ONCE under the clamp (no loop-back).
+        return MonitorState.S2_CLASSIFY
+    if edge == (MonitorState.S5B_AUGGIE_FALLBACK, "fallback_skip"):
+        # Single-shot fallback terminal selector (FR-10, OQ-2 reuse): clean residual →
+        # TERMINAL_CLEAN; residual findings remain → HALT_MAX_ROUNDS.
+        return (
+            MonitorState.HALT_MAX_ROUNDS
+            if ctx.get("fallback_residual_findings")
+            else MonitorState.TERMINAL_CLEAN
+        )
 
     # Unknown edge: stay put (defensive; real runs never hit this).
     return state
@@ -665,7 +703,20 @@ class RunConfig:
     # Optional multi-round sequence: each entry is the residual finding set observed
     # at the next re-review (drives the loop-guard off-by-one tests, Phase 8).
     rereview_findings: list[list[Finding]] = field(default_factory=list)
-    review_state: str = "findings"  # "polling" | "clean" | "findings"
+    review_state: str = "findings"  # "polling" | "clean" | "findings" | "declined"
+    # V1.1 (addendum §6.4): per-cycle attributed-re-review outcome sequence, indexed
+    # by cycle_index — each is "attributed" | "declined" | "timeout". When EMPTY
+    # (legacy callers), each pushed cycle defaults to "attributed" so the optimistic
+    # INV-001 tick (max_rounds=N ⇒ N pushes) is preserved verbatim. When NON-EMPTY,
+    # explicit per-index outcomes are honored and any missing trailing index defaults
+    # to "timeout" (a push WITHOUT an attributed re-review does NOT tick round_counter).
+    rereview_outcome: list[str] = field(default_factory=list)
+    # V1.1 oversized-PR fallback (R2/R3): the findings the in-session /sc:auggie-review
+    # fallback produces (re-graded through verify-before-remediate, FR-9.4 — NOT trusted
+    # verbatim), and an optional post-fallback residual set that routes the single-shot
+    # fallback's terminal selector (residual present ⇒ HALT_MAX_ROUNDS, else TERMINAL_CLEAN).
+    fallback_findings: list[Finding] = field(default_factory=list)
+    fallback_residual_findings: list[Finding] = field(default_factory=list)
     # Side-effect seams (defaults keep the core pure / recording-only).
     arm_monitor: Callable[..., None] = _noop
     verify: Callable[[Finding], bool] = _default_verify
@@ -674,6 +725,123 @@ class RunConfig:
     do_push: Callable[..., None] = _noop
     do_reply: Callable[..., None] = _noop
     do_resolve: Callable[..., None] = _noop
+    # V1.1 seams (addendum §6.4) — both default to the module-level `_noop` (NOT inline
+    # lambdas, to avoid the dataclass self-binding trap). do_retrigger = the S5a
+    # re-trigger comment-post; invoke_auggie_review = the S5b fallback
+    # `> Skill sc:auggie-review-protocol` invocation. The real version-control / Skill
+    # I/O lives in SKILL.md — these stay recording-only seams (NFR-6 core purity).
+    do_retrigger: Callable[..., None] = _noop
+    invoke_auggie_review: Callable[..., None] = _noop
+
+
+def _run_fallback(result: SkillResult, config: RunConfig) -> None:
+    """Single-shot oversized-PR auggie-review fallback (S5b — FR-9/FR-10, R2/R3).
+
+    Engaged when a ``declined`` is observed (at the initial S2 poll or the S5 re-trigger
+    poll). Records the INV-R3 monotone clamp ONCE (``effective_max_rounds → min(., 1)``),
+    invokes ``/sc:auggie-review`` AT MOST ONCE (INV-R2 strict-once, guarded by the
+    ``auggie_review_invoked`` flag), and re-enters the remediation pipeline EXACTLY ONCE
+    under the clamp with NO loop-back and NO second invoke/re-trigger. ``round_counter``
+    is FROZEN at entry — the fallback uses only ``fallback_round_counter``; the two
+    counters are INDEPENDENT and neither re-opens the other's loop. The fallback's single
+    push makes ``push_count <= max_rounds + 1`` hold for the whole run (INV-R2).
+    """
+    result.decline_detected = True
+    result.fallback_engaged = True
+    # Visibly enter S5b (transition()'s S2/S5 → S5B_AUGGIE_FALLBACK target); the terminal
+    # selector below overwrites result.state, but this materializes the topology entry.
+    result.state = MonitorState.S5B_AUGGIE_FALLBACK
+    # INV-R3: one-way monotone clamp to 1, recorded once (a later re-entry never raises it).
+    base = (
+        result.effective_max_rounds
+        if result.effective_max_rounds is not None
+        else config.max_rounds
+    )
+    result.effective_max_rounds = clamp_max_rounds(base)
+
+    # INV-R2: invoke /sc:auggie-review AT MOST ONCE per PR (strict-once).
+    if not result.auggie_review_invoked:
+        config.invoke_auggie_review(pr_number=config.pr_number)
+        result.auggie_review_invoked = True
+
+    # Single fallback cycle, capped at 1 (structural termination, not merely budget).
+    if loop_guard_should_halt(
+        result.fallback_round_counter, result.effective_max_rounds
+    ):
+        result.state = MonitorState.HALT_MAX_ROUNDS
+        return
+
+    ordinal = config.monitor_ordinal
+    fallback_findings = list(config.fallback_findings)
+    result.findings = fallback_findings
+
+    # needs_human_decision pre-gate (FR-4.4 / EC-7) — mirror the main loop, which gates
+    # on the full cycle_findings BEFORE verify. A human-decision finding HALTs regardless
+    # of verification status AND before the no-verified→TERMINAL_CLEAN path below;
+    # otherwise an unverified human-decision fallback finding would be silently auto-
+    # defaulted to clean (a needs_human_decision item must HALT, never auto-default).
+    if ordinal >= 3 and any(f.needs_human_decision for f in fallback_findings):
+        result.state = MonitorState.HALT_HUMAN
+        return
+
+    # verify-before-remediate (FR-9.4): fallback findings are NOT trusted verbatim.
+    verified = [f for f in fallback_findings if config.verify(f)]
+    if not verified:
+        # Nothing grounded to remediate → the fallback converges clean.
+        result.fallback_round_counter += 1
+        result.state = MonitorState.TERMINAL_CLEAN
+        result.summary_posted = True
+        return
+
+    if not gate_edit(ordinal):
+        result.state = MonitorState.PROPOSED
+        result.applied_edits = 0
+        result.proposal = PROPOSE_PROMPT
+        return
+
+    result.applied_edits = config.apply_edits(verified)
+    result.validation_status = config.run_validation(findings=verified)
+    if result.validation_status != "validated":
+        result.state = MonitorState.VALIDATION_FAIL
+        return
+
+    # G-push: the fallback's budget gate uses fallback_round_counter (NOT the frozen
+    # round_counter) against the clamped effective_max_rounds.
+    decision = evaluate_push_decision(
+        monitor_ordinal=ordinal,
+        validation_status=result.validation_status,
+        needs_human_decision=any(f.needs_human_decision for f in verified),
+        round_counter=result.fallback_round_counter,
+        max_rounds=result.effective_max_rounds,
+        applied_edits=result.applied_edits,
+    )
+    result.push_decision = decision
+    if not decision.authorized:
+        result.state = (
+            MonitorState.S4_HALT_BEFORE_PUSH
+            if ordinal < 3
+            else push_fail_state(decision)
+        )
+        return
+
+    # The fallback's single push (contributes at most ONE push — INV-R2).
+    config.do_push(pre_push_sha=None)
+    result.push_count += 1
+    config.do_reply(applied_edits=result.applied_edits, findings=verified)
+    result.reply_count += 1
+    config.do_resolve(findings=verified)
+    result.fallback_round_counter += (
+        1  # the SEPARATE fallback counter (NOT round_counter)
+    )
+
+    # Single-shot terminal selector (no loop-back): residual remains → HALT_MAX_ROUNDS,
+    # else converged → TERMINAL_CLEAN (OQ-2 reuse of the existing terminals).
+    if config.fallback_residual_findings:
+        result.findings = list(config.fallback_residual_findings)
+        result.state = MonitorState.HALT_MAX_ROUNDS
+    else:
+        result.state = MonitorState.TERMINAL_CLEAN
+    result.summary_posted = True
 
 
 def run_skill(config: RunConfig | None = None, **overrides) -> SkillResult:
@@ -709,6 +877,12 @@ def run_skill(config: RunConfig | None = None, **overrides) -> SkillResult:
         # A clean re-review posts exactly ONE summary thread (FR-6.5, T-642).
         result.state = MonitorState.TERMINAL_CLEAN
         result.summary_posted = True
+        return result
+    if config.review_state == "declined":
+        # V1.1 (FR-9.1): an "abnormally large" decline observed at the INITIAL S2 poll
+        # → Augment will not auto-review → engage the single-shot auggie-review fallback
+        # (S5b). round_counter stays frozen at 0; the fallback uses fallback_round_counter.
+        _run_fallback(result, config)
         return result
 
     # Multi-round loop: cycle 0 is `findings`; subsequent residuals come from
@@ -787,9 +961,48 @@ def run_skill(config: RunConfig | None = None, **overrides) -> SkillResult:
         config.do_reply(applied_edits=result.applied_edits, findings=verified)
         result.reply_count += 1
         config.do_resolve(findings=verified)
+
+        # S5a (FR-8.1/8.6): a push does NOT auto-trigger an Augment re-review — post the
+        # re-trigger comment (the trigger token lives in the bash script, never the core),
+        # but ONLY when this cycle actually pushed (applied_edits > 0). The re-trigger
+        # itself does NOT tick round_counter (INV-R1).
+        if result.applied_edits > 0:
+            # S5a: visibly enter the re-trigger state, then post the comment (the state
+            # is overwritten by S5_AWAITING_REREVIEW below — materialized for topology
+            # fidelity with transition()'s RESOLVING→S5A→S5 edges).
+            result.state = MonitorState.S5A_RETRIGGER_REVIEW
+            config.do_retrigger(pr_number=config.pr_number)
+            result.rereview_request_count += 1
         result.state = MonitorState.S5_AWAITING_REREVIEW
 
-        # Re-review attributed to our push: tick the monotonic round counter (INV-001).
+        # Determine the attributed re-review outcome for THIS cycle. Explicit
+        # rereview_outcome wins; an EMPTY sequence (legacy callers) defaults every cycle
+        # to "attributed" so INV-001's optimistic tick (max_rounds=N ⇒ N pushes) is
+        # preserved verbatim; a NON-EMPTY but shorter sequence defaults missing trailing
+        # indices to "timeout" (a push WITHOUT an attributed re-review does NOT tick).
+        # NB: the `"attributed"` OUTCOME token (this run_skill vocabulary) is the thing
+        # the SKILL surfaces as transition()'s `"rereview_attributed"` EDGE event / a
+        # ROUND_INCREMENTED run-log event — two deliberately distinct vocabularies (an
+        # outcome token vs an FSM edge name); they are NOT the same string by design.
+        if cycle_index < len(config.rereview_outcome):
+            outcome = config.rereview_outcome[cycle_index]
+        else:
+            outcome = "attributed" if not config.rereview_outcome else "timeout"
+
+        if outcome == "declined":
+            # Decline observed at the S5 re-trigger poll (FR-9) → single-shot fallback
+            # (S5b). round_counter is NOT ticked for this cycle (no attributed re-review).
+            _run_fallback(result, config)
+            break
+        if outcome == "timeout":
+            # Push WITHOUT an attributed re-review → round_counter does NOT advance
+            # (T-PUSH-WITHOUT-REREVIEW-NO-TICK / EC-18).
+            result.state = MonitorState.TERMINAL_TIMEOUT
+            break
+
+        # outcome == "attributed": the SINGLE relocated INV-001 increment site. Fires
+        # AFTER the push (monotonicity) and BEFORE the next iteration's top-of-loop
+        # should_halt_rounds gate (so max_rounds=N ⇒ N pushes is preserved verbatim).
         result.round_counter += 1
 
         # If there is a next residual cycle, loop; else clean re-review terminates

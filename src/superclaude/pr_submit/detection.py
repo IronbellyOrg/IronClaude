@@ -1,8 +1,8 @@
 """Detection-contract loader + poll surface for the ``sc:pr-submit`` core.
 
 Exposes :func:`poll_augment_review` (returns one of ``"polling"`` / ``"clean"`` /
-``"findings"``) and :class:`DetectionContract` (the probe-locked constant from
-spec §7). The loader raises :class:`DetectionContractLocked` when ``locked`` is
+``"findings"`` / ``"declined"``) and :class:`DetectionContract` (the probe-locked
+constant from spec §7). The loader raises :class:`DetectionContractLocked` when ``locked`` is
 ``false`` or absent — the **T-210** arm gate ("probe first").
 
 NFR-6 core purity: the real review fetch is performed by the bash poller
@@ -44,6 +44,21 @@ def _local_override_path() -> Path:
     return _LOCAL_OVERRIDE_PATH
 
 
+def _as_str_list(value, default: list[str]) -> list[str]:
+    """Coerce a YAML field to a list of strings without char-splitting a scalar.
+
+    ``list("auggie review")`` yields ``['a','u','g',...]`` — so a YAML field mistyped as
+    a scalar string (``accepted_trigger_phrases: auggie review``) would silently shred a
+    trigger phrase into characters. Treat a bare string as a one-element list; fall back
+    to ``default`` when the value is falsy/absent.
+    """
+    if not value:
+        return list(default)
+    if isinstance(value, str):
+        return [value]
+    return list(value)
+
+
 class DetectionContractLocked(RuntimeError):
     """Raised when the detection contract is not locked (``locked != true``).
 
@@ -70,14 +85,35 @@ class DetectionContract:
     review_completeness_signal: str | None = None
     probe_evidence: str | None = None
     locked: bool = False
+    # --- V1.1 decline-detection fields (addendum §6.2 / FR-9.1) ---
+    # Baked defaults so an unprobed contract still classifies declines. Both
+    # regexes must match (case-insensitively) an Augment-authored comment for it to
+    # be a decline; ``accepted_trigger_phrases`` is the canonical operator re-trigger
+    # token set (NOT the App's bait — see memory reference_augment_review_triggers).
+    # NOTE (necessary deviation from spec §6.2 literal default): the retrigger char
+    # class includes the backtick ``` ` ``` in addition to ``"``/``'`` because the
+    # real Augment decline renders the trigger as ``Comment `augment review` `` with
+    # markdown backticks; the spec's literal ``["']?`` would miss the most common
+    # real shape (Phase 3 QA domain-accuracy finding F1).
+    decline_phrase_regex: str = r"abnormally\s+large"
+    decline_retrigger_regex: str = (
+        "comment\\s+[\"'`]?(augment|auggie|augmentcode)\\s+review[\"'`]?"
+    )
+    accepted_trigger_phrases: list[str] = field(
+        default_factory=lambda: [
+            "auggie review",
+            "augment review",
+            "augmentcode review",
+        ]
+    )
 
     @classmethod
     def from_yaml(cls, data: dict) -> "DetectionContract":
         """Build a contract from a parsed YAML mapping (no lock enforcement)."""
         return cls(
             augment_bot_login=data.get("augment_bot_login"),
-            augment_author_association=list(
-                data.get("augment_author_association") or []
+            augment_author_association=_as_str_list(
+                data.get("augment_author_association"), []
             ),
             augment_app_slug=data.get("augment_app_slug"),
             emission_shape=data.get("emission_shape"),
@@ -86,6 +122,17 @@ class DetectionContract:
             review_completeness_signal=data.get("review_completeness_signal"),
             probe_evidence=data.get("probe_evidence"),
             locked=bool(data.get("locked", False)),
+            decline_phrase_regex=data.get(
+                "decline_phrase_regex", r"abnormally\s+large"
+            ),
+            decline_retrigger_regex=data.get(
+                "decline_retrigger_regex",
+                "comment\\s+[\"'`]?(augment|auggie|augmentcode)\\s+review[\"'`]?",
+            ),
+            accepted_trigger_phrases=_as_str_list(
+                data.get("accepted_trigger_phrases"),
+                ["auggie review", "augment review", "augmentcode review"],
+            ),
         )
 
     @classmethod
@@ -168,7 +215,8 @@ def poll_augment_review(
     """Classify the current review state for ``pr_num``.
 
     Returns ``"polling"`` (no Augment review yet), ``"clean"`` (Augment reviewed,
-    no findings), or ``"findings"`` (Augment reviewed with findings). When no
+    no findings), ``"findings"`` (Augment reviewed with findings), or ``"declined"``
+    (Augment posted an "abnormally large" decline; FR-9.1). When no
     ``payload`` is supplied, the seam :func:`_fetch_payload` provides it (tests
     inject fixtures via ``mock_gh``). Classification is delegated to the pure
     :func:`~superclaude.pr_submit.classifier.classify` against the contract.

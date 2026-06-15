@@ -42,7 +42,13 @@ if [ -z "$PR_JSON" ]; then
     exit 0
 fi
 
-# Inline review comments carry ids / path / line the reply step needs.
+# Inline review comments carry ids / path / line the reply step needs. These are
+# MERGED with the PR conversation (issue) comments from `gh pr view ... --json comments`
+# below — the Augment "abnormally large" DECLINE is posted as a CONVERSATION comment
+# (the same issues/<N>/comments surface retrigger-review.sh posts to), so it lives in
+# `.comments`, NOT here. Surfacing only inline comments would make `declined` unreachable
+# in production (the classifier never sees the decline). The classifier's finding-comment
+# rule requires path+line, so the path-less conversation comments are not miscounted.
 COMMENTS_JSON="$(gh api "repos/IronbellyOrg/IronClaude/pulls/${PR}/comments" 2>/dev/null || echo '[]')"
 
 # Coarse state: any review present => let the FSM classify; none => polling. The
@@ -55,6 +61,7 @@ printf '%s' "$PR_JSON" | jq -c \
     --arg state "$STATE" \
     --argjson comments "$COMMENTS_JSON" \
     '{pr:.number, url:.url, head_sha:.headRefOid, base:.baseRefName,
-      state:$state, reviews:(.reviews // []), comments:$comments}'
+      state:$state, reviews:(.reviews // []),
+      comments:((.comments // []) + $comments)}'
 
 exit 0

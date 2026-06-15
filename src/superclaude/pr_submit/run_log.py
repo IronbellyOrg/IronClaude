@@ -23,13 +23,14 @@ from pathlib import Path
 
 from .models import EventType
 
-# The 5 idempotency sets (§11.4).
+# The 6 idempotency sets (§11.4 + V1.1 addendum §6.3).
 IDEMPOTENCY_SETS = (
     "processed_review_ids",
     "processed_finding_ids",  # keyed on fix_key
     "replied_comment_ids",
     "resolved_thread_ids",
     "pushed_commit_shas",
+    "auggie_review_invoked",  # keyed on pr_number — INV-R2 strict-once fallback gate
 )
 
 _VALID_EVENT_VALUES = frozenset(e.value for e in EventType)
@@ -106,13 +107,13 @@ class RunLog:
     def append(self, event: dict) -> dict:
         """Append a validated, redacted event with a monotonic ``event_id`` and fsync.
 
-        Raises :class:`ValueError` if ``event_type`` is not one of the 33 closed
+        Raises :class:`ValueError` if ``event_type`` is not one of the 37 closed
         enum values (the run-log writer validates against ``models.EventType``).
         """
         event_type = event.get("event_type")
         if event_type not in _VALID_EVENT_VALUES:
             raise ValueError(
-                f"unknown event_type: {event_type!r} (not one of the 33 §11.3 events)"
+                f"unknown event_type: {event_type!r} (not one of the 37 §11.3 events)"
             )
         self._event_id += 1
         record = {
@@ -158,7 +159,7 @@ class RunLog:
     def rebuild_state(self) -> dict:
         """Fold the authoritative JSONL into a state snapshot (the NFR-6 rebuild path).
 
-        Reconstructs the FSM state, ``round_counter``, the 5 idempotency sets, and
+        Reconstructs the FSM state, ``round_counter``, the 6 idempotency sets, and
         ``push_count``/``reply_count`` from the event stream. This is the source of
         truth on any snapshot/JSONL disagreement.
         """
@@ -168,6 +169,10 @@ class RunLog:
             "round_counter": 0,
             "push_count": 0,
             "reply_count": 0,
+            # V1.1 (addendum §6.3): re-trigger count (INV-R1) and the monotone-min
+            # effective_max_rounds clamp (INV-R3; None = never clamped).
+            "rereview_request_count": 0,
+            "effective_max_rounds": None,
             "last_event_id": 0,
             **{s: [] for s in IDEMPOTENCY_SETS},
         }
@@ -179,6 +184,27 @@ class RunLog:
                 state["state"] = ev["state_after"]
             if et == EventType.ROUND_INCREMENTED.value:
                 state["round_counter"] += 1
+            elif et == EventType.REREVIEW_REQUESTED.value:
+                # IDIOM A (count fold) — INV-R1 monotone re-trigger count.
+                state["rereview_request_count"] += 1
+            elif (
+                et == EventType.AUGGIE_FALLBACK_INVOKED.value
+                and ev.get("pr_number") is not None
+            ):
+                # IDIOM B (add-to-set fold) — INV-R2 strict-once, keyed on pr_number.
+                sets["auggie_review_invoked"].add(ev["pr_number"])
+            elif (
+                et == EventType.MAX_ROUNDS_CLAMPED.value
+                and ev.get("effective_max_rounds") is not None
+            ):
+                # IDIOM C (monotone-min fold) — INV-R3: one-way non-increasing clamp.
+                # A later higher value never raises the rebuilt value; None means
+                # never-clamped, so the first clamp seeds it.
+                prev = state["effective_max_rounds"]
+                clamp = ev["effective_max_rounds"]
+                state["effective_max_rounds"] = (
+                    clamp if prev is None else min(prev, clamp)
+                )
             elif et == EventType.PUSH_COMPLETED.value:
                 state["push_count"] += 1
                 if ev.get("target_sha"):
@@ -211,21 +237,17 @@ class RunLog:
     # --- idempotency ------------------------------------------------------ #
 
     def check_idempotent(self, set_name: str, key) -> bool:
-        """Check ``key`` against an idempotency set; append ``idempotency_skip`` if already present.
+        """CHECK ``key`` against an idempotency set (does NOT itself persist membership).
 
-        This is a CHECK-ONLY operation on the proceed path — it does NOT itself
-        record ``key``. The idempotency sets (§11.4) are derived in
-        :meth:`rebuild_state` from the DOMAIN events the caller appends, so durable
-        membership is established by the caller's write-ahead of that domain event
-        (``fix_applied`` → ``processed_finding_ids``, ``reply_posted`` →
-        ``replied_comment_ids``, etc.) on the very next line, NOT by this method.
-
-        Returns True if the key is absent (the action should proceed — the caller
-        MUST then append the domain event that durably records it), or False if the
-        key is already present (the action is skipped and an ``idempotency_skip``
-        event IS appended here). The single-threaded write-ahead core (§11.1) means
-        there is no concurrent re-entry between the True return and the caller's
-        append. Dedup of fixes is keyed on ``fix_key`` (comment_id-independent, INV-009).
+        This is a CHECK-ONLY operation on the proceed path: it returns True when ``key``
+        is ABSENT (the action should proceed) but does NOT record ``key`` — durable
+        membership is established by the caller write-ahead-appending the corresponding
+        DOMAIN event (``fix_applied`` → ``processed_finding_ids``, ``reply_posted`` →
+        ``replied_comment_ids``, ``auggie_fallback_invoked`` → ``auggie_review_invoked``,
+        etc.), which :meth:`rebuild_state` folds into the set. Returns False when ``key``
+        is already present (the action is skipped and an ``idempotency_skip`` event IS
+        appended here). The caller MUST append the domain event on the very next line
+        after a True return. Dedup of fixes is keyed on ``fix_key`` (comment_id-independent).
         """
         if set_name not in IDEMPOTENCY_SETS:
             raise ValueError(f"unknown idempotency set: {set_name!r}")

@@ -28,10 +28,21 @@ CORE_PURE_FILES = [
     SKILL_DIR / "refs" / "state-machine.md",
     SKILL_DIR / "refs" / "severity-routing.md",
     SKILL_DIR / "refs" / "loop-guard.md",
+    # V1.1: the auggie-fallback ref carries NO gh token (it documents the
+    # `> Skill sc:auggie-review-protocol` invocation + a flag table, not a gh api call),
+    # so it joins the zero-token set. The gh-BEARING review-retrigger.md + retrigger-review.sh
+    # are DELIBERATELY excluded (covered by the T-104 / T-1101 fork-pin path instead) —
+    # mirroring how thread-reply.md / augment-poll.md are excluded for the same reason.
+    SKILL_DIR / "refs" / "auggie-fallback.md",
     PR_SUBMIT_PKG / "fsm.py",
     PR_SUBMIT_PKG / "severity_router.py",
     PR_SUBMIT_PKG / "loop_guard.py",
 ]
+
+AUGGIE_REVIEW_CMD = REPO_ROOT / "src" / "superclaude" / "commands" / "auggie-review.md"
+RETRIGGER_SCRIPT = SKILL_DIR / "scripts" / "retrigger-review.sh"
+REVIEW_RETRIGGER_REF = SKILL_DIR / "refs" / "review-retrigger.md"
+AUGGIE_FALLBACK_REF = SKILL_DIR / "refs" / "auggie-fallback.md"
 
 
 def _skill_and_hook_files() -> list[Path]:
@@ -191,3 +202,80 @@ def test_tn51_run_log_redacts_credentials_static():
     text = (PR_SUBMIT_PKG / "run_log.py").read_text(encoding="utf-8")
     assert "_REDACTION_PATTERNS" in text
     assert "[REDACTED]" in text
+
+
+# --- V1.1 static gates (FR-8/FR-9, addendum §6.5) ----------------------------
+
+
+def test_t1101_retrigger_gh_is_fork_scoped():
+    """T-1101 (FR-8): every gh command in the gh-BEARING re-trigger surfaces
+    (review-retrigger.md + retrigger-review.sh) is FORK-PINNED to
+    repos/IronbellyOrg/IronClaude (NOT bare gh api, NOT upstream).
+
+    These two files carry a gh token by design (the issue-comment POST surface), so they
+    live on the T-104 fork-pin path, NOT the zero-token T-N50 set. (The broad
+    test_t104 already scans them via SKILL_DIR.rglob; this is the tighter dedicated assert.)
+    """
+    offenders: list[str] = []
+    for path in (REVIEW_RETRIGGER_REF, RETRIGGER_SCRIPT):
+        assert path.exists(), f"re-trigger surface missing: {path}"
+        for lineno, line in _command_lines(path):
+            if _GH_CMD.search(line) and not _fork_scoped(line):
+                offenders.append(
+                    f"{path.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
+                )
+    assert not offenders, "Unscoped gh in re-trigger surfaces:\n" + "\n".join(offenders)
+
+
+def test_t1105_retrigger_token_in_script_not_core():
+    """T-1105 (FR-8): the `auggie review` POST token lives in the bash script, while the
+    FSM (the posting-decision core) holds NO hard-coded trigger literal — the FSM decides
+    WHETHER/WHEN to re-trigger via the `do_retrigger` seam; the script carries the token.
+
+    NOTE: `detection.py`'s `accepted_trigger_phrases` legitimately contains the phrases for
+    DETECTION (recognizing an operator/App trigger), which is the contract's RECOGNITION
+    side — distinct from the POSTING side this test guards. So this test scopes to fsm.py.
+    """
+    script = RETRIGGER_SCRIPT.read_text(encoding="utf-8")
+    assert "auggie review" in script  # the script emits the trigger token
+    # The FSM must NOT hard-code the POSTED trigger literal.
+    fsm_src = (PR_SUBMIT_PKG / "fsm.py").read_text(encoding="utf-8").lower()
+    assert "auggie review" not in fsm_src, "hard-coded trigger literal in fsm.py"
+
+
+def test_t1115_auggie_fallback_flag_parity():
+    """T-1115 (FR-9.3): the auggie-fallback ref's invocation flag string matches the
+    flags the auggie-review command actually defines (no drift)."""
+    fallback = AUGGIE_FALLBACK_REF.read_text(encoding="utf-8")
+    cmd = AUGGIE_REVIEW_CMD.read_text(encoding="utf-8")
+    flag_string = "--depth quick --remediation-offer --auggie-model claude-sonnet-4-6"
+    # The byte-exact fallback invocation string is present in the ref.
+    assert flag_string in fallback
+    # Each flag the ref uses is a REAL option defined in auggie-review.md's option TABLE
+    # (binding, not loose substring): every flag appears as a `| `--flag`` ...` table row.
+    for flag in ("--depth", "--remediation-offer", "--auggie-model"):
+        assert f"| `{flag}`" in cmd, (
+            f"fallback flag {flag!r} is not a defined option row in auggie-review.md"
+        )
+    # `--depth quick`: `quick` must be an accepted VALUE on the --depth option row.
+    depth_row = next(
+        (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--depth`")), ""
+    )
+    assert "quick" in depth_row, "`quick` is not an accepted value on the --depth row"
+    # `--auggie-model claude-sonnet-4-6`: the model is the documented --auggie-model example.
+    model_row = next(
+        (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--auggie-model`")),
+        "",
+    )
+    assert "claude-sonnet-4-6" in model_row, (
+        "claude-sonnet-4-6 is not the documented --auggie-model example"
+    )
+    # The INVOCATION line itself must NOT pass --no-post-pr (post-pr defaults true for a
+    # PR target). The ref may MENTION --no-post-pr in prose ("must NOT be passed"); guard
+    # the actual `> Skill ...` invocation line, not the whole document.
+    invocation_lines = [
+        ln for ln in fallback.splitlines() if "sc:auggie-review-protocol" in ln
+    ]
+    assert invocation_lines, "no fallback invocation line found in auggie-fallback.md"
+    for ln in invocation_lines:
+        assert "--no-post-pr" not in ln, f"invocation passes --no-post-pr: {ln}"

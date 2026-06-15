@@ -1,7 +1,8 @@
 """Canonical data models for the ``sc:pr-submit`` deterministic core.
 
-Defines the closed run-log event enum (exactly 33 members — the 32 from spec
-§11.3 plus ``push_aborted_or_not_landed`` from §12.1), the severity tiers, the
+Defines the closed run-log event enum (exactly 37 members — the 32 from spec
+§11.3 plus ``push_aborted_or_not_landed`` from §12.1, plus the 4 V1.1
+re-review/fallback events from addendum §6.1), the severity tiers, the
 single-FSM state lexicon (spec §5.1; Python identifiers drop the spec's prime, so
 ``S4'_HALT_BEFORE_PUSH`` becomes ``S4_HALT_BEFORE_PUSH``), and the ``Finding`` /
 ``SkillResult`` dataclasses the test bodies assert against.
@@ -17,12 +18,15 @@ from enum import Enum
 
 
 class EventType(str, Enum):
-    """Closed enum of run-log event types — EXACTLY 33 members.
+    """Closed enum of run-log event types — EXACTLY 37 members.
 
     The 32 event types listed in spec §11.3 (merged-spec.md:724-731) PLUS
     ``push_aborted_or_not_landed`` (spec §12.1 line 771 — the crash-window
-    not-landed branch). The run-log writer validates every appended event
-    against this closed set; an event outside it is a programming error.
+    not-landed branch) — the 33 prior members — PLUS the 4 V1.1
+    re-review/fallback events (``rereview_requested``, ``decline_detected``,
+    ``auggie_fallback_invoked``, ``max_rounds_clamped``; addendum §6.1). The
+    run-log writer validates every appended event against this closed set; an
+    event outside it is a programming error.
     """
 
     # --- lifecycle / setup (§11.3) ---
@@ -68,6 +72,11 @@ class EventType(str, Enum):
     TERMINAL_FAILED = "terminal_failed"
     # --- crash-window not-landed branch (§12.1 line 771) — the 33rd ---
     PUSH_ABORTED_OR_NOT_LANDED = "push_aborted_or_not_landed"
+    # --- V1.1 re-review / fallback events (addendum §6.1) — the 34th-37th ---
+    REREVIEW_REQUESTED = "rereview_requested"
+    DECLINE_DETECTED = "decline_detected"
+    AUGGIE_FALLBACK_INVOKED = "auggie_fallback_invoked"
+    MAX_ROUNDS_CLAMPED = "max_rounds_clamped"
 
 
 class Severity(str, Enum):
@@ -102,6 +111,9 @@ class MonitorState(str, Enum):
     S6_REPLYING = "S6_REPLYING"
     RESOLVING = "RESOLVING"
     S5_AWAITING_REREVIEW = "S5_AWAITING_REREVIEW"
+    # --- V1.1 re-trigger / fallback working states (non-terminal, addendum §6.1) ---
+    S5A_RETRIGGER_REVIEW = "S5a_RETRIGGER_REVIEW"
+    S5B_AUGGIE_FALLBACK = "S5b_AUGGIE_FALLBACK"
     PROPOSED = "PROPOSED"
     REPORT_ONLY = "REPORT_ONLY"
     # --- terminals ---
@@ -185,6 +197,20 @@ class SkillResult:
     # The L1 user-facing proposal text ("fix these? y/n"), set only when the FSM
     # ends in PROPOSED (the L1 ceiling proposes but applies no edits, T-402).
     proposal: str | None = None
+    # --- V1.1 re-trigger / fallback fields (addendum §6.1) ---
+    # ``rereview_request_count`` counts S5a re-trigger comments (INV-R1, monotone,
+    # <= max_rounds); ``fallback_engaged``/``auggie_review_invoked`` flag the R2
+    # single-shot /sc:auggie-review fallback (INV-R2 strict-once);
+    # ``decline_detected`` flags an Augment "abnormally large" decline (FR-9.1);
+    # ``effective_max_rounds`` is the INV-R3 monotone clamp (None = never clamped);
+    # ``fallback_round_counter`` is the SEPARATE cap-1 fallback counter (independent
+    # of ``round_counter``).
+    rereview_request_count: int = 0
+    fallback_engaged: bool = False
+    auggie_review_invoked: bool = False
+    decline_detected: bool = False
+    effective_max_rounds: int | None = None
+    fallback_round_counter: int = 0
 
 
 @dataclass

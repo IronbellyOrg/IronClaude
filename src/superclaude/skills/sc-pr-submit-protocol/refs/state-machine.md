@@ -34,6 +34,10 @@ Working states:
 - `S6_REPLYING` — reply on the finding thread citing the fix + SHA + passing validation.
 - `RESOLVING` — resolve the thread (after the reply).
 - `S5_AWAITING_REREVIEW` — waiting for the re-review attributed to our pushed SHA.
+- `S5a_RETRIGGER_REVIEW` (Python `S5A_RETRIGGER_REVIEW`) — V1.1 (FR-8): post the re-trigger comment
+  (a push does NOT auto-trigger an Augment re-review) BEFORE awaiting the re-review. Non-terminal.
+- `S5b_AUGGIE_FALLBACK` (Python `S5B_AUGGIE_FALLBACK`) — V1.1 (FR-9/FR-10): the single-shot oversized-PR
+  `/sc:auggie-review` fallback engaged on an Augment "abnormally large" decline. Non-terminal.
 - `PROPOSED` — L1 ceiling: present "fix these? y/n", apply NO edits.
 - `REPORT_ONLY` — a finding routed here is reported, not remediated; consumes NO round.
 
@@ -83,6 +87,36 @@ ceiling never reaches `S4_PUSHING`/`S6_REPLYING`/`RESOLVING`. The edge is:
 `S3_DIAGNOSE → S3_FIXING → S7_VALIDATING → S4'_HALT_BEFORE_PUSH` (the `G-push` ordinal check
 `ordinal >= 3` fails at L2, so the push branch is never taken). This edge is described abstractly
 here (the actual edit/validation I/O is the SKILL's job; this ref stays core-pure).
+
+### 5.2b V1.1 re-trigger + decline-fallback topology (S5a / S5b — FR-8/FR-9/FR-10)
+
+V1.1 adds two non-terminal states and their edges. **INV-001's increment edge
+`S5_AWAITING_REREVIEW → S2_CLASSIFY` (on `review_observed ∧ sha_attributed_to_our_push`) is
+UNCHANGED** — the re-trigger does not move the increment; V1.1 only RELOCATES *when* the attributed
+re-review is observed (after S5a posts the re-trigger), not the edge it ticks on.
+
+New edges:
+
+- **`RESOLVING → S5a_RETRIGGER_REVIEW`** (re-trigger emission, INV-R1): after reply+resolve, and only
+  when `applied_edits > 0`, post the re-trigger comment. The re-trigger does NOT tick `round_counter`.
+- **`S5a_RETRIGGER_REVIEW → S5_AWAITING_REREVIEW`**: the comment is posted; await the attributed re-review.
+- **`S5_AWAITING_REREVIEW → S5b_AUGGIE_FALLBACK`** and **`S2_CLASSIFY → S5b_AUGGIE_FALLBACK`** (decline):
+  an Augment "abnormally large" decline observed at the S5 re-trigger poll OR the initial S2 poll routes
+  to the fallback. The `needs_human_decision ⇒ HALT_HUMAN` pre-gate override still short-circuits ahead
+  of this routing.
+- **`S5b_AUGGIE_FALLBACK → S2_CLASSIFY`** (fallback re-enter under the clamp): the fallback
+  `/sc:auggie-review` produced findings → re-enter classification ONCE under `effective_max_rounds=1`
+  (INV-R3), invoking `/sc:auggie-review` at most once (INV-R2 strict-once) with NO loop-back.
+- **`S5b_AUGGIE_FALLBACK → TERMINAL_CLEAN | HALT_MAX_ROUNDS`** (`fallback_skip` terminal selector): the
+  single-shot fallback terminates — `TERMINAL_CLEAN` when the residual is clean, `HALT_MAX_ROUNDS` when
+  residual findings remain (OQ-2 reuse of the existing terminals). The fallback advances only
+  `fallback_round_counter` (cap 1); `round_counter` is FROZEN at fallback entry — the two counters are
+  independent (INV-R3).
+
+This FSM remains the COMPLETE single-source enumeration of reachable states (so the C6 row-by-row
+assertions still hold over the expanded state set). NOTE: addendum §6.5 omits `state-machine.md` from
+its build-target list, but the FSM single-source-of-truth invariant REQUIRES S5a/S5b be defined here —
+this MOD is a deliberate, flagged addendum-coverage gap (recorded in the task's Phase 6 Findings).
 
 ## 5.3 G-push — the 5-predicate runtime conjunction (INV-016, verbatim)
 

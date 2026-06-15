@@ -27,6 +27,37 @@ Load-bearing consequences:
   (T-VANISHED-MONO).
 - **User-facing label** = `round_counter + 1` (so the first cycle reads as "round 1").
 
+## INV-R1 / INV-R2 / INV-R3 — V1.1 re-trigger + fallback (verbatim normative)
+
+V1.1 layers two re-review/fallback behaviors on top of INV-001 WITHOUT changing it. INV-001's edge,
+its `>=` gate, monotonicity, and `max_rounds=N ⇒ N pushes` are PRESERVED verbatim; V1.1 only RELOCATES
+the increment site (from an optimistic post-resolve tick to the real attributed re-review observed
+AFTER the S5a re-trigger). The two counters below are INDEPENDENT and neither can re-open the other's loop.
+
+> **INV-R1 (re-trigger boundedness).** A re-trigger comment is emitted at most once per
+> completed push cycle, on the `RESOLVING → S5a_RETRIGGER_REVIEW` edge, and only when
+> `applied_edits > 0`. `rereview_request_count` is monotonic and
+> `rereview_request_count <= max_rounds`. The re-trigger does **not** itself increment
+> `round_counter`; INV-001's edge and gate are unchanged.
+>
+> **INV-R2 (auggie strict-once + total-push bound).** `/sc:auggie-review` is invoked **at
+> most once per PR**, guarded by the durable `auggie_review_invoked` idempotency set
+> (comment-independent, survives resume). The fallback contributes **at most one** push.
+> Consequently `push_count <= max_rounds + 1` for the whole run.
+>
+> **INV-R3 (clamp monotonicity / deterministic termination).** On fallback engage
+> `effective_max_rounds := min(effective_max_rounds, 1)` — a one-way, monotone
+> non-increasing clamp recorded once. The fallback sub-loop (`fallback_round_counter`,
+> cap 1, no loop-back, no auggie re-invoke) guarantees termination structurally, not merely
+> by budget. INV-001's monotonic `round_counter` and its `>=` HALT gate are preserved
+> verbatim; the two counters are **independent** and neither can re-open the other's loop.
+
+- **`fallback_round_counter` is a SEPARATE counter** from `round_counter`, with its own increment site
+  (the single fallback remediation cycle) and the strict-once cap-1 clamp (`should_halt(fallback_round_counter, 1)`
+  halts after one fallback cycle). `round_counter` is FROZEN at fallback entry — the fallback advances
+  only `fallback_round_counter`. The clamp is recorded once via the `max_rounds_clamped` event (the
+  run-log monotone-min fold guarantees a later higher value never raises it back).
+
 ## §11 — Run-log schema (the write-ahead JSONL substrate)
 
 ### Authority (§11.1)
@@ -48,10 +79,12 @@ preceded by a **write-ahead** record fsynced BEFORE the side effect.
 Default `<output-dir>` = `/config/workspace/IronClaude/.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/`
 unless `--resume` supplies an existing log dir.
 
-### The 33 event types (§11.3 + §12.1)
+### The 37 event types (§11.3 + §12.1 + V1.1 §6.1)
 
-The closed `EventType` enum has EXACTLY 33 members — the 32 from §11.3 plus
-`push_aborted_or_not_landed` (§12.1, the crash-window not-landed branch):
+The closed `EventType` enum has EXACTLY 37 members — the 32 from §11.3 plus
+`push_aborted_or_not_landed` (§12.1, the crash-window not-landed branch) — the 33 prior — plus the 4
+V1.1 re-review/fallback events (`rereview_requested`, `decline_detected`, `auggie_fallback_invoked`,
+`max_rounds_clamped`; addendum §6.1):
 `run_started`, `environment_check`, `pr_create_attempted`, `pr_created`, `monitor_armed`,
 `baseline_captured`, `poll_attempt`, `poll_result`, `api_backoff`, `classifier_unknown_shape`,
 `review_detected`, `findings_normalized`, `finding_verified`, `finding_unverified`,
@@ -59,13 +92,27 @@ The closed `EventType` enum has EXACTLY 33 members — the 32 from §11.3 plus
 `fix_applied`, `validation_started`, `validation_completed`, `push_decision`, `push_initiated`,
 `push_completed`, `reply_posted`, `thread_resolved`, `idempotency_skip`, `terminal_clean`,
 `terminal_timeout`, `terminal_max_rounds`, `terminal_halted`, `terminal_failed`,
-`push_aborted_or_not_landed`.
+`push_aborted_or_not_landed`, `rereview_requested`, `decline_detected`, `auggie_fallback_invoked`,
+`max_rounds_clamped`.
 
 Each line carries `schema_version`, a unique+monotonic `event_id`, `event_type`, `timestamp`,
 `run_id`, `pr{repo,number,url,base,head}`, `state_before`, `state_after`,
 `round_index`/`round_counter`, and `payload`.
 
-### The 5 idempotency sets (§11.4)
+> **Producer side of the 4 V1.1 events (NFR-6 boundary).** Per NFR-6 the deterministic core
+> (`fsm.py`/`run_skill`) DECIDES but does not write the run-log — it imports no `run_log` and emits no
+> events (exactly as it does not emit `round_incremented`/`push_completed` in V1.0). The SKILL's
+> orchestration is the PRODUCER that appends these events as its waves act, so the §6.3 rebuild folds
+> have a source: **S5a re-trigger (Wave 6, `applied_edits > 0`) → `rereview_requested`** (folded into
+> `rereview_request_count`, INV-R1); **`declined` classification → `decline_detected`**; **fallback
+> engage (Wave 6b) → `auggie_fallback_invoked{pr_number}`** (folded into the durable
+> `auggie_review_invoked` set, INV-R2) **and `max_rounds_clamped{effective_max_rounds}`** (monotone-min
+> fold, INV-R3). The SHA-attribution that resolves a re-review to `"attributed"` (gating the relocated
+> INV-001 increment) is likewise a poll-side decision (`refs/review-retrigger.md` §3: re-review SHA
+> matches `pushed_commit_shas`, newer than the watermark) surfaced to the core as the resolved outcome
+> token — not computed inside the pure FSM.
+
+### The 6 idempotency sets (§11.4 + V1.1 §6.3)
 
 Maintained in materialized state; an `idempotency_skip` event is appended when an action is skipped:
 
@@ -76,3 +123,5 @@ Maintained in materialized state; an `idempotency_skip` event is appended when a
 - `replied_comment_ids` — prevents duplicate thread replies (thread-scoped `reply_key`).
 - `resolved_thread_ids` — prevents duplicate resolution calls.
 - `pushed_commit_shas` — the SHA set INV-001 attributes re-reviews against.
+- `auggie_review_invoked` — **keyed on `pr_number`** (comment-independent, survives resume); the durable
+  INV-R2 strict-once gate that guarantees `/sc:auggie-review` is invoked at most once per PR.
