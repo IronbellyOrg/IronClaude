@@ -42,11 +42,11 @@ scripts), and the §10 VAL validator.
 
 | Input | Required | Notes |
 |-------|----------|-------|
-| `--monitor {0,1,2,3}` | Yes (defaults to 0) | The autonomy ceiling. 0 = open PR only (byte-identical to today). |
+| `--monitor {0,1,2,3}` | No (defaults to 1) | The autonomy ceiling. Explicit 0 = open PR only (byte-identical to today). |
 | PR context (`--head`, `--base`, `--title`, `--body`) OR an existing PR number | Yes | To open or attach to the PR. |
 | `--max-rounds` | No (default 2, hard cap 5) | Reject `> 5`. |
 | `--poll-interval` | No (default 30) | Reject `< 30` with "minimum is 30 seconds". |
-| `--timeout` | No (default 1800s) | Wall-clock since entering wait. |
+| `--timeout` | No (default 600s) | Wall-clock since entering wait. |
 | `--resume <abs-run-log-path>` | No | Reconstruct state from JSONL (§12). |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's
@@ -87,7 +87,7 @@ Wave 7: Loop / terminate          ← loads refs/loop-guard.md
 ```
 
 - **Wave 0 (all ordinals):** resolve the target repo once (`REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"`, fallback parse `git remote get-url origin`) and the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`); open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."`; confirm `git remote -v` shows origin = `$REPO`; rebase if behind `origin/<base>`; verify the returned URL's `owner/repo` equals `$REPO` (a CLI that defaulted onto an upstream parent is a misroute → HALT). Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1). The `offer-pr-review.sh` hook may then mention `sc:pr-submit --monitor`.
-- **Wave 1 (L1+):** load the locked contract via `superclaude.pr_submit.DetectionContract.for_arming()` — this prefers the **operator-local** locked override (gitignored `.dev/pr-monitor/detection-contract.locked.md`, populated by the R1 probe with this fork's real Augment values) and falls back to the SHIPPED `refs/detection-contract.md` (which stays `locked: false`). **Refuse to arm if no locked contract resolves** (T-210, "probe first"). Initialize the output-dir + run-log + baseline, then call the **`Monitor` tool** with the poll loop wrapping `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 1800s); each emitted JSON line advances the FSM. Arm exactly once at L1+ (T-109); never at L0 (T-110).
+- **Wave 1 (L1+):** load the locked contract via `superclaude.pr_submit.DetectionContract.for_arming()` — this prefers the **operator-local** locked override (gitignored `.dev/pr-monitor/detection-contract.locked.md`, populated by the R1 probe with this fork's real Augment values) and falls back to the SHIPPED `refs/detection-contract.md` (which stays `locked: false`). **Refuse to arm if no locked contract resolves** (T-210, "probe first"). Initialize the output-dir + run-log + baseline, then call the **`Monitor` tool** with the poll loop wrapping `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each emitted JSON line advances the FSM. Arm exactly once at L1+ (T-109); never at L0 (T-110).
 - **Wave 2:** load `refs/severity-routing.md`; call `remap_severity(finding)` from `superclaude.pr_submit` and map the remapped tier to its troubleshoot route (Medium → `--fix`; High/Critical → `--depth deep --fix`; Low/Nit → report-only). NEVER emit `--depth quick --fix`.
 - **Wave 3:** load `refs/finding-verify.md`; spawn the `evidence-validator` agent (read-only) to confirm each finding's cited file:line exists and the defect reproduces. `unverified` → REPORT_ONLY, consuming NO round.
 - **Wave 4:** load `refs/troubleshoot-dispatch.md`; for VERIFIED findings only, `> Skill sc:troubleshoot-protocol` for diagnosis. **At L1 (G-edit `ordinal < 2`): PROPOSE "fix these? y/n" and apply NO edits.** At L2+ the skill applies the diagnosed edits ITSELF in the working tree (troubleshoot does NOT auto-apply — `sc:pr-submit` owns edit application in `S3_FIXING`).
