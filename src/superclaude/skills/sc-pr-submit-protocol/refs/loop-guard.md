@@ -76,8 +76,8 @@ preceded by a **write-ahead** record fsynced BEFORE the side effect.
 <output-dir>/troubleshoot/round-<N>/         # per-round troubleshoot prompts/outputs
 ```
 
-Default `<output-dir>` = `/config/workspace/IronClaude/.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/`
-unless `--resume` supplies an existing log dir.
+Default `<output-dir>` = `<repo-root>/.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/` (cwd-relative; the
+repo the operator runs `sc:pr-submit` from) unless `--resume` supplies an existing log dir.
 
 ### The 37 event types (§11.3 + §12.1 + V1.1 §6.1)
 

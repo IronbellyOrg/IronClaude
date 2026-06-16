@@ -266,14 +266,20 @@ class RunLog:
     # --- output-dir resolution ------------------------------------------- #
 
     @staticmethod
-    def default_output_dir(pr_number: int, timestamp: str) -> Path:
-        """Default ``<output-dir>`` = ``.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/`` (§11.2).
+    def default_output_dir(
+        pr_number: int, timestamp: str, base_dir: str | Path | None = None
+    ) -> Path:
+        """Default ``<output-dir>`` = ``<base>/.dev/pr-monitor/pr-<N>-<YYYYMMDDHHMMSS>/`` (§11.2).
 
-        ``timestamp`` is supplied by the caller (the SKILL) so this stays pure.
+        ``base_dir`` defaults to the cwd (the repo root the operator invoked
+        sc:pr-submit from) — repo-relative, NOT a hardcoded absolute path — so the
+        run-log lands under the target repo's ``.dev/`` in any checkout. An explicit
+        ``--output-dir`` overrides this entirely (the SKILL hands it straight to
+        ``RunLog`` instead of calling here). ``timestamp`` is supplied by the caller
+        (the SKILL) so this stays pure.
         """
-        return Path(
-            f"/config/workspace/IronClaude/.dev/pr-monitor/pr-{pr_number}-{timestamp}"
-        )
+        base = Path(base_dir) if base_dir is not None else Path.cwd()
+        return base / ".dev" / "pr-monitor" / f"pr-{pr_number}-{timestamp}"
 
     def round_dirs(self, round_n: int) -> tuple[Path, Path]:
         """Create + return the ``validation/round-<N>/`` and ``troubleshoot/round-<N>/`` subdirs."""

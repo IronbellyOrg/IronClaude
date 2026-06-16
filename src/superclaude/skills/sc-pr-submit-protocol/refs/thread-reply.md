@@ -1,15 +1,15 @@
 # Thread Reply + Resolve (C4) — the reply/resolve contract
 
 This ref pins the exact reply + resolve surfaces for a remediated finding. The order is
-**reply-FIRST-then-resolve** (T-601 → T-602). Every call pins the fork
-(`--repo IronbellyOrg/IronClaude` for `gh pr`; `repos/IronbellyOrg/IronClaude/...` path for
-`gh api`). The wrapper script `scripts/reply-resolve-thread.sh` implements this; this ref is its
-contract.
+**reply-FIRST-then-resolve** (T-601 → T-602). Every call pins the RESOLVED origin repo
+(`--repo <owner/repo>` for `gh pr`; `repos/<owner/repo>/...` path for `gh api`; the GraphQL
+`owner`/`repo` vars are split from the same resolved `owner/repo`). The wrapper script
+`scripts/reply-resolve-thread.sh` implements this; this ref is its contract.
 
 ## 1. Reply — REST `in_reply_to` (FR-6.1)
 
 ```bash
-gh api --method POST repos/IronbellyOrg/IronClaude/pulls/<N>/comments/<COMMENT_ID>/replies -f body="<reply-text>"
+gh api --method POST repos/<owner/repo>/pulls/<N>/comments/<COMMENT_ID>/replies -f body="<reply-text>"
 ```
 
 - `<COMMENT_ID>` MUST be a **top-level review comment** (replies-to-replies are unsupported) — it is
@@ -46,7 +46,7 @@ gh api graphql -f query='
         }
       }
     }
-  }' -f owner=IronbellyOrg -f repo=IronClaude -F pr=<N>
+  }' -f owner=<owner> -f repo=<repo> -F pr=<N>
 ```
 
 **(b) Resolve it** (mutation input = the matched thread node `id`):
@@ -69,6 +69,6 @@ gh api graphql -f query='
   §11.4) — append an `idempotency_skip` run-log event rather than re-mutating. Reply idempotency is
   the thread-scoped `reply_key` (no duplicate annotations, NFR-1).
 - **Single summary thread:** a clean re-review posts **exactly one** summary thread (the conversation
-  comment via `gh api --method POST repos/IronbellyOrg/IronClaude/issues/<N>/comments -f body=...`),
+  comment via `gh api --method POST repos/<owner/repo>/issues/<N>/comments -f body=...`),
   NOT one comment per finding (T-642). The §17 residual summary (FR-6.4) uses the same single-thread
   surface.

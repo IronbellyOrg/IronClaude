@@ -5,15 +5,15 @@ This ref pins the poll surface and timing for the in-session Monitor. The poll *
 **FSM** (`superclaude.pr_submit`) does the backoff arithmetic. This split keeps `gh` out of the
 deterministic core (NFR-6) — the script touches `gh`, the core decides.
 
-> Every `gh`/`gh api` call below pins `--repo IronbellyOrg/IronClaude` (FR-1.3 / AC-7). A bare `gh`
-> without `--repo` is a defect (T-104 greps for it).
+> Every `gh`/`gh api` call below pins the RESOLVED `--repo <owner/repo>` (origin's `nameWithOwner`,
+> FR-1.3 / AC-7). A bare `gh` without `--repo` is a defect (T-104 greps for it).
 
 ## Poll surfaces (FR-2.1)
 
 Primary, the exact `--json` field set from the spec:
 
 ```bash
-gh pr view <N> --repo IronbellyOrg/IronClaude --json number,url,headRefName,headRefOid,baseRefName,reviews,comments
+gh pr view <N> --repo <owner/repo> --json number,url,headRefName,headRefOid,baseRefName,reviews,comments
 ```
 
 - `headRefOid` = the head SHA (used by INV-001 `sha_attributed_to_our_push` and the inline-reply
@@ -24,9 +24,9 @@ gh pr view <N> --repo IronbellyOrg/IronClaude --json number,url,headRefName,head
 REST surfaces (inline-comment ids / `in_reply_to_id` are not on `gh pr view`, so REST is required):
 
 ```bash
-gh api repos/IronbellyOrg/IronClaude/pulls/<N>/reviews
-gh api repos/IronbellyOrg/IronClaude/pulls/<N>/comments
-gh api repos/IronbellyOrg/IronClaude/commits/<headSHA>/check-runs   # only if the probe shows emission_shape==check_run
+gh api repos/<owner/repo>/pulls/<N>/reviews
+gh api repos/<owner/repo>/pulls/<N>/comments
+gh api repos/<owner/repo>/commits/<headSHA>/check-runs   # only if the probe shows emission_shape==check_run
 ```
 
 Classification is pure against the probe-locked `DetectionContract` (`detection-contract.md`): key on

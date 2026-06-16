@@ -26,7 +26,7 @@ Explicit only — three activation paths:
 | `--monitor {0,1,2,3}` | Yes (default 0) | The autonomy ceiling on a single FSM. 0 = open PR only (byte-identical to today). |
 | PR context (`--head`/`--base`/`--title`/`--body`) OR an existing PR number | Yes | To open or attach to the PR. |
 
-**STOP** if `--monitor >= 1` and the PR cannot be confirmed on `IronbellyOrg/IronClaude`, or if `detection-contract.md` is `locked: false` (run the R1 probe first — T-210).
+**STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, via `gh repo view --json nameWithOwner`), or if `detection-contract.md` is `locked: false` (run the R1 probe first — T-210).
 
 ## Usage
 
@@ -35,7 +35,7 @@ Explicit only — three activation paths:
 /sc:pr-submit --monitor 1 --head feature/x                                 # arm + poll + propose (no edits)
 /sc:pr-submit --monitor 2 --head feature/x                                 # + fix locally, HALT before push
 /sc:pr-submit --monitor 3 --max-rounds 3 --head feature/x                  # full loop: fix→push→reply→resolve
-/sc:pr-submit --resume /config/workspace/IronClaude/.dev/pr-monitor/pr-42-.../monitor-run-42.jsonl
+/sc:pr-submit --resume <repo-root>/.dev/pr-monitor/pr-42-.../monitor-run-42.jsonl
 ```
 
 ## Options
@@ -46,7 +46,7 @@ Explicit only — three activation paths:
 | `--max-rounds N` | 2 | Remediation cycles; hard cap 5 (reject >5). |
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
 | `--timeout S` | 1800 | Review-wait wall-clock timeout (~30 min). |
-| `--base <branch>` | master | PR base branch on the fork. |
+| `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view --json defaultBranchRef`), overridable here. |
 | `--head <branch>` | — | PR head branch. |
 | `--title` / `--body` | — | PR title / body. |
 | `--output-dir <dir>` | `.dev/pr-monitor/pr-<N>-<ts>/` | Run-log + artifacts dir. |
@@ -54,11 +54,11 @@ Explicit only — three activation paths:
 
 ## Behavioral Flow
 
-This command does ONLY parse + environment-validate + handoff. It parses the flags, verifies the PR target is the fork (`IronbellyOrg/IronClaude`, never upstream), and hands off to the protocol skill via the Activation section below. The full behavioral specification — the FSM, the detection contract, severity routing, verify-before-remediate, troubleshoot dispatch, validation gates, the push triad, reply/resolve, and the loop guard — lives in the skill.
+This command does ONLY parse + environment-validate + handoff. It parses the flags, verifies the PR target is the resolved origin repo (origin's `owner/repo`, never an upstream parent the host's CLI might default to), and hands off to the protocol skill via the Activation section below. The full behavioral specification — the FSM, the detection contract, severity routing, verify-before-remediate, troubleshoot dispatch, validation gates, the push triad, reply/resolve, and the loop guard — lives in the skill.
 
 ## Arming (R1 detection probe, T-210)
 
-`--monitor 0` always works (it just opens the PR). To arm at `--monitor >= 1`, the detection contract must be locked. The shipped `refs/detection-contract.md` ships `locked: false`, so a fresh clone safely HALTs ("probe first"). To arm on this fork, run the R1 probe once against a PR the Augment App has reviewed (capture `augment_bot_login`, `emission_shape`, `findings_locus`, etc.), write the gitignored operator-local override `.dev/pr-monitor/detection-contract.locked.md` with `locked: true`, and the arm path (`DetectionContract.for_arming()`) prefers it. The repo-specific bot identity therefore never ships in the distributable skill.
+`--monitor 0` always works (it just opens the PR). To arm at `--monitor >= 1`, the detection contract must be locked. The shipped `refs/detection-contract.md` ships `locked: false`, so a fresh clone safely HALTs ("probe first"). To arm on a given repo, run the R1 probe once against a PR the Augment App has reviewed (capture `augment_bot_login`, `emission_shape`, `findings_locus`, etc.), write the gitignored operator-local override `<repo-root>/.dev/pr-monitor/detection-contract.locked.md` with `locked: true`, and the arm path (`DetectionContract.for_arming()`) prefers it (resolved relative to the cwd). The repo-specific bot identity therefore never ships in the distributable skill.
 
 ## Activation
 
@@ -75,9 +75,9 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 ## Boundaries
 
-**Will:** open the PR on the fork with `--repo IronbellyOrg/IronClaude` pinned; arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling.
+**Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling.
 
-**Will Not:** run headless / imply a daemon; push to `upstream` or `master`; auto-lock the detection contract; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
+**Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; auto-lock the detection contract; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
 
 ## Related Commands
 

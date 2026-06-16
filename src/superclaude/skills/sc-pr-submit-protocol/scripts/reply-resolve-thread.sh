@@ -11,7 +11,8 @@
 # Exit    : 0 on success or idempotent skip; 2 on usage error; 3 on a permissions
 #           HALT (resolve needs PR read+write).
 # Spec    : merged-spec.md FR-6.1/FR-6.2; research/06 §2.2/§2.3. All gh I/O is
-#           isolated here (NFR-6). gh api paths pin repos/IronbellyOrg/IronClaude/...
+#           isolated here (NFR-6). gh api paths pin the RESOLVED repos/${REPO}/...
+#           (origin's owner/repo, computed at runtime — never a literal fork).
 #
 # Source of truth lives in src/superclaude/; do not edit the .claude/ mirror.
 
@@ -20,6 +21,7 @@ set -euo pipefail
 die() { printf 'reply-resolve-thread: %s\n' "$1" >&2; exit "${2:-1}"; }
 
 PR=""
+REPO=""
 COMMENT_ID=""
 BODY_FILE=""
 THREAD_PATH=""
@@ -28,6 +30,7 @@ DO_RESOLVE=1
 while [ $# -gt 0 ]; do
     case "$1" in
         --pr) PR="${2:-}"; shift 2 ;;
+        --repo) REPO="${2:-}"; shift 2 ;;
         --comment-id) COMMENT_ID="${2:-}"; shift 2 ;;
         --body-file) BODY_FILE="${2:-}"; shift 2 ;;
         --path) THREAD_PATH="${2:-}"; shift 2 ;;
@@ -44,9 +47,18 @@ done
 command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH" 2
 command -v jq >/dev/null 2>&1 || die "jq not found on PATH" 2
 
+# Resolve the target repo (owner/repo). The SKILL normally passes --repo; absent it,
+# resolve from the current checkout (gh repo view, then the origin remote). Every gh
+# api / graphql target below is COMPUTED from this — never a literal owner/repo.
+REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
+[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
+[ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
+REPO_OWNER="${REPO%%/*}"
+REPO_NAME="${REPO##*/}"
+
 # --- Step 1: reply FIRST (REST in_reply_to). The comment_id is a top-level review comment. ---
 gh api --method POST \
-    "repos/IronbellyOrg/IronClaude/pulls/${PR}/comments/${COMMENT_ID}/replies" \
+    "repos/${REPO}/pulls/${PR}/comments/${COMMENT_ID}/replies" \
     -f body="$(cat "$BODY_FILE")" >/dev/null \
     || die "reply POST failed for comment ${COMMENT_ID}" 1
 
@@ -65,7 +77,7 @@ THREADS_JSON="$(gh api graphql -f query='
         }
       }
     }
-  }' -f owner=IronbellyOrg -f repo=IronClaude -F pr="$PR" 2>/dev/null || true)"
+  }' -f owner="$REPO_OWNER" -f repo="$REPO_NAME" -F pr="$PR" 2>/dev/null || true)"
 
 [ -n "$THREADS_JSON" ] || die "could not query review threads (needs PR read+write?)" 3
 

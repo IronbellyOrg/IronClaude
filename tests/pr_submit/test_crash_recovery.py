@@ -162,12 +162,30 @@ def test_fm10_needs_human_terminal_halted():
 
 @pytest.mark.recovery
 def test_fm11_misrouted_pr_terminal_failed():
-    """FM-11: a misrouted PR URL (wrong owner) → terminal_failed; do not monitor."""
+    """FM-11: a misrouted PR URL (wrong owner/repo) → terminal_failed; do not monitor.
+
+    The target repo is RESOLVED from origin and passed in (not a hardcoded fork) — the
+    misroute check is the same for any ``owner/repo``.
+    """
     from superclaude.pr_submit.fsm import pr_target_ok  # owner verification helper
 
-    assert pr_target_ok("https://github.com/IronbellyOrg/IronClaude/pull/5") is True
+    # This project's own resolved origin.
+    repo = "IronbellyOrg/IronClaude"
     assert (
-        pr_target_ok("https://github.com/SuperClaude-Org/SuperClaude_Framework/pull/5")
+        pr_target_ok("https://github.com/IronbellyOrg/IronClaude/pull/5", repo) is True
+    )
+    assert (
+        pr_target_ok(
+            "https://github.com/SuperClaude-Org/SuperClaude_Framework/pull/5", repo
+        )
+        is False
+    )
+    # And generically, for an unrelated repo (de-hardcoding proof).
+    assert (
+        pr_target_ok("https://github.com/acme/widgets/pull/5", "acme/widgets") is True
+    )
+    assert (
+        pr_target_ok("https://github.com/contoso/gadgets/pull/5", "acme/widgets")
         is False
     )
 
