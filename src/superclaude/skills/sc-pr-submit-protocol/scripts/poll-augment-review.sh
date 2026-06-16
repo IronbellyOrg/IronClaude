@@ -39,7 +39,7 @@ command -v jq >/dev/null 2>&1 || die "jq not found on PATH" 2
 # parse the origin remote). This de-hardcodes the poll off any one fork (FR-1.3
 # generalized): the --repo pin is COMPUTED, never a literal owner/repo.
 REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
-[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
+[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
 
 # Single poll of the PR. Every gh call pins the RESOLVED --repo "$REPO" (FR-1.3).

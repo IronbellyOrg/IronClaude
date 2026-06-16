@@ -16,6 +16,7 @@ imports the anthropic SDK (FR-G1 ban).
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -96,21 +97,32 @@ def _command_lines(path: Path):
 
 
 def _repo_scoped(line: str) -> bool:
-    """A gh command line is repo-scoped if it pins --repo, targets a `repos/<owner/repo>/`
-    API path, is a `graphql` call, or IS the `gh repo view` resolution idiom.
+    """A gh command line is repo-scoped if it pins a whole-token ``--repo``, is a
+    ``gh api`` call carrying a ``repos/<owner/repo>/`` path or ``graphql``, or IS the
+    ``gh repo view`` resolution idiom.
 
     This is the generalized safety property: the prior implementation required the
     literal fork slug, but the repo is now RESOLVED at runtime — so "scoped" means the
     call carries an explicit repo reference (computed, not bare), never a hardcoded
     owner/repo. A bare `gh pr`/`gh api` with none of these would silently default onto
     an upstream parent → the defect.
+
+    The match is structure-anchored, NOT a loose substring (D3 hardening): a trailing
+    ``#`` comment is stripped first (so ``gh pr create … # see repos/docs`` does NOT
+    pass), ``--repo`` is matched as a whole token (so ``--reposcope`` does NOT pass), and
+    ``repos/``/``graphql`` only count when they ride on an actual ``gh api`` command (so
+    an incidental ``# graphql`` mention does NOT pass). These three holes were real
+    bypasses of the prior unanchored ``in``-substring predicate.
     """
-    return (
-        "--repo" in line
-        or "repos/" in line
-        or "graphql" in line
-        or _REPO_RESOLVE.search(line) is not None
-    )
+    code = re.sub(r"\s+#.*$", "", line)  # strip a trailing shell / markdown comment
+    if re.search(r"--repo\b", code):  # whole-token --repo (gh pr / gh repo)
+        return True
+    if _REPO_RESOLVE.search(code) is not None:  # the `gh repo view` resolution idiom
+        return True
+    # repos/ path or graphql must be on an actual `gh api` invocation, not anywhere.
+    if re.search(r"\bgh\s+api\b", code) and ("repos/" in code or "graphql" in code):
+        return True
+    return False
 
 
 def test_t104_every_gh_call_is_repo_scoped():
@@ -307,3 +319,85 @@ def test_t1115_auggie_fallback_flag_parity():
     assert invocation_lines, "no fallback invocation line found in auggie-fallback.md"
     for ln in invocation_lines:
         assert "--no-post-pr" not in ln, f"invocation passes --no-post-pr: {ln}"
+
+
+# --- D2: $REPO origin-URL resolution fallback (sed) -------------------------
+
+_RESOLUTION_SCRIPTS = (
+    SKILL_DIR / "scripts" / "poll-augment-review.sh",
+    SKILL_DIR / "scripts" / "retrigger-review.sh",
+    SKILL_DIR / "scripts" / "reply-resolve-thread.sh",
+)
+
+# Every remote-URL shape `git remote get-url origin` can emit, → the expected owner/repo.
+_REMOTE_URL_FORMS = {
+    "https://github.com/acme/widgets.git": "acme/widgets",
+    "https://github.com/acme/widgets": "acme/widgets",
+    "git@github.com:acme/widgets.git": "acme/widgets",  # scp-style ssh
+    "ssh://git@github.com/acme/widgets.git": "acme/widgets",  # url-style ssh (D2 fix)
+    "git@gitlab.com:acme/widgets.git": "acme/widgets",  # non-github host
+}
+
+
+def test_repo_resolution_sed_handles_all_url_forms():
+    """D2: the $REPO origin-URL fallback `sed` program in each script must resolve EVERY
+    remote-URL shape to a clean `owner/repo` — including url-style ssh (`ssh://…`), which
+    the pre-D2 sed left as a malformed non-empty value that slipped past the empty-guard.
+
+    The sed program is EXTRACTED from each script (not hardcoded here) so the test tracks
+    the real resolution logic and cannot silently drift from it.
+    """
+    sed_re = re.compile(r"sed -E '([^']*)'")
+    for script in _RESOLUTION_SCRIPTS:
+        assert script.exists(), f"resolution script missing: {script}"
+        match = next(
+            (
+                sed_re.search(line)
+                for line in script.read_text(encoding="utf-8").splitlines()
+                if "git remote get-url origin" in line and sed_re.search(line)
+            ),
+            None,
+        )
+        assert match, f"no `sed -E '…'` origin-URL fallback found in {script.name}"
+        program = match.group(1)
+        for url, expected in _REMOTE_URL_FORMS.items():
+            result = subprocess.run(
+                ["sed", "-E", program],
+                input=url,
+                text=True,
+                capture_output=True,
+                timeout=5,
+            )
+            got = result.stdout.strip()
+            assert got == expected, (
+                f"{script.name}: sed resolved {url!r} → {got!r}, expected {expected!r}"
+            )
+
+
+# --- D3: _repo_scoped is structure-anchored, not a loose substring ----------
+
+
+def test_repo_scoped_rejects_bare_gh_bypasses():
+    """D3: the tightened `_repo_scoped` must REJECT bare/upstream-defaulting gh lines that
+    the prior unanchored `in`-substring predicate let through, while still ACCEPTING every
+    genuinely repo-scoped form."""
+    # Bare gh defects that MUST NOT be classified as scoped (these were real bypasses):
+    bypasses = [
+        "gh pr create --base x --head y  # see repos/docs",  # trailing-comment repos/
+        "gh pr create --reposcope foo",  # --repo as a substring of --reposcope
+        "gh pr merge 42 --merge  # graphql endpoint",  # incidental graphql in a comment
+        "gh pr create --title t --body b",  # genuinely bare (no scope at all)
+    ]
+    for line in bypasses:
+        assert _repo_scoped(line) is False, f"bare gh line wrongly scoped: {line!r}"
+    # Genuinely scoped forms that MUST still pass:
+    scoped = [
+        'gh pr view "$PR" --repo "$REPO" --json number',
+        "gh pr view <N> --repo <owner/repo> --json number",
+        'gh api "repos/${REPO}/pulls/${PR}/comments"',
+        "gh api repos/<owner/repo>/pulls/<N>/reviews",
+        "gh api graphql -f query='...'",
+        'REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"',
+    ]
+    for line in scoped:
+        assert _repo_scoped(line) is True, f"scoped gh line wrongly rejected: {line!r}"

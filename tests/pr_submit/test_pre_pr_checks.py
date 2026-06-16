@@ -102,3 +102,23 @@ def test_t108_prefix_collision_does_not_falsely_pass():
     assert (
         pr_target_ok("https://github.com/acme/widgets/pull/7", "acme/widgets") is True
     )
+
+
+def test_t106_origin_substring_collision_does_not_falsely_pass():
+    """origin_ok must NOT falsely pass when the target is a string-PREFIX of the origin's
+    repo (the ``/owner/repo`` boundary guard, symmetric with ``pr_target_ok``).
+
+    e.g. target ``acme/widgets`` against an origin of ``acme/widgets-upstream`` /
+    ``acme/widgets-fork`` is a different repo → must be rejected. The exact repo (in
+    https, scp-style ssh, and url-style ssh forms, with/without ``.git``) still passes.
+    """
+    # Prefix-collision origins → rejected (the de-hardcoding-audit D1 regression guard).
+    assert (
+        origin_ok("https://github.com/acme/widgets-upstream.git", "acme/widgets")
+        is False
+    )
+    assert origin_ok("git@github.com:acme/widgets-fork.git", "acme/widgets") is False
+    # The exact repo passes across all remote-URL shapes, incl. url-style ssh.
+    assert origin_ok("https://github.com/acme/widgets.git", "acme/widgets") is True
+    assert origin_ok("git@github.com:acme/widgets.git", "acme/widgets") is True
+    assert origin_ok("ssh://git@github.com/acme/widgets.git", "acme/widgets") is True

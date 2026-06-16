@@ -478,12 +478,30 @@ def origin_ok(origin_url: str, target_repo: str) -> bool:
 
     ``target_repo`` is the resolved ``owner/repo`` the PR is meant to land on (the
     SKILL resolves it from origin at runtime, never a module constant). Accepts https
-    or ssh remote URLs — a substring match on ``owner/repo`` works for both (and for a
-    trailing repo-suffix). A mismatch (origin points somewhere other than the intended
-    target) → HALT before opening the PR. Core-pure: a pure string check (the SKILL
-    runs the actual remote query and passes its result here).
+    and ssh remote URLs, with or without a trailing ``.``-prefixed VCS suffix. The repo
+    is the URL's TRAILING component, so the match is BOUNDARY-anchored — ``owner`` must
+    follow a ``/`` (https / ssh-url form) or ``:`` (scp-style ``user@host:owner/repo``)
+    separator, and ``repo`` must be followed by end-of-string or a ``.``-prefixed suffix
+    — NOT a bare substring. A bare substring would falsely pass ``acme/widgets`` against
+    an origin of ``acme/widgets-upstream``; the boundary anchor rejects it. A mismatch
+    (origin points somewhere other than the intended target) → HALT before opening the
+    PR. Core-pure: a pure string check (the SKILL runs the actual remote query and
+    passes its result here).
     """
-    return bool(origin_url) and bool(target_repo) and target_repo in origin_url
+    if not origin_url or not target_repo:
+        return False
+    stripped = origin_url.rstrip("/")
+    if stripped == target_repo:
+        return True
+    for sep in ("/", ":"):
+        marker = sep + target_repo
+        idx = stripped.rfind(marker)
+        if idx == -1:
+            continue
+        rest = stripped[idx + len(marker) :]
+        if rest == "" or rest.startswith("."):
+            return True
+    return False
 
 
 def needs_rebase(commits_behind: int) -> bool:

@@ -42,7 +42,7 @@ command -v gh >/dev/null 2>&1 || die "gh CLI not found on PATH" 127
 # resolve from the current checkout (gh repo view, then the origin remote). The
 # issue-comment POST target is COMPUTED — never a literal owner/repo (de-hardcoded).
 REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
-[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
+[ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
 
 # Post the re-trigger comment on the PR conversation thread (issue-comment surface).
