@@ -13,17 +13,18 @@
 
 ## What changed
 
-The `sc-bare-review` skill is now a **~60-line thin caller** over the
-swarm CLI. Preflight, parallel dispatch, normalization, atomic writes,
-and contract emission moved out of
-`src/superclaude/skills/sc-bare-review/scripts/*.sh` and into the
+The `sc-bare-review` skill is now an **80-line thin caller** over the
+swarm CLI (completed by the M8/M9 corrective migration
+`TASK-RF-bare-review-migration-20260616-045915`). Preflight, parallel
+dispatch, normalization, atomic writes, and contract emission moved out
+of `src/superclaude/skills/sc-bare-review/scripts/*.sh` and into the
 bundled `bare-review` lens
 (`src/superclaude/cli/swarm/lenses/bare_review.py`) plus the
 `bare-review-v1` recipe
 (`src/superclaude/cli/swarm/recipes/bare_review_v1.py`). The shell
 scripts (`t2_preflight.sh`, `t2_dispatch.sh`, `t2_normalize.py`) are
-retired by MIG-003 (T08.07) **after** the A/B parity gate
-(TEST-003 / T08.11) goes green.
+retired in the same corrective task (WS-C) **after** the rebuilt
+CLI-vs-frozen-golden parity gate goes green.
 
 The skill's user-facing flag surface
 (`--target`, `--output`, `--reviewers`, `--target-line-cap`,
