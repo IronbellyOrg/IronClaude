@@ -1,0 +1,80 @@
+schema_version: "1.0.0"
+test_id: E4
+run_index: 2
+verdict: PASS
+verdict_reason: >-
+  All seven acceptance criteria satisfied. Freeze block in sc-task-protocol SKILL.md
+  is byte-identical to the BASE preservation record (DIFF_EXIT=0). The baseline record
+  is self-consistent (I1b matched both STOP+FREEZE invariant lines). Both safety gates
+  (test_is_wrong present-to-user / no-auto-fix; docs remediation present-to-user /
+  no-auto-insert) are present. Exactly one backend declaration with the backend-neutral
+  clause. Incident artifacts are rebound to the diagnostic backend (report_path/REPORT.md
+  + audit_log_path) and no legacy verdict artifacts (rca-verdict|solution-verdict) remain.
+  Report-template MUST-NOT-change rules present. No forensic/troubleshoot backend tokens
+  leaked into the frozen TFEP block.
+worktree: /config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend
+
+commands:
+  - id: I1
+    command: "sed -n '/\\*\\*Step 1: Halt and freeze\\*\\*/,/FREEZE.*implementation/p' $T1 > live; diff -u base live"
+    exit: 0
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: I1b
+    command: "rg -n \"STOP.* testing immediately|FREEZE.*implementation.*no further code changes permitted\" $BASE"
+    exit: 0
+    stdout_sha256: 6d6296b1c8c203bfd83531c14ece9fdd792539559d15b5c8c2bc3ea3b386638e
+  - id: I2a
+    command: "rg -n \"test_is_wrong == true.*Present to user|Do NOT auto-fix tests\" $T1"
+    exit: 0
+    stdout_sha256: 83a9efb08102d55a6855e9a8772a5a8d089857540d508c6690b83b3f7434a67b
+  - id: I2b
+    command: "rg -n \"remediation_target == .docs.*present to user|Do NOT auto-insert\" $T1"
+    exit: 0
+    stdout_sha256: 07ce1937e6fda01928af2b054fb69abbe117b7a6f3c6593809db4ac2bb630e56
+  - id: I3count
+    command: "rg -c \"\\*\\*Diagnostic backend:\\*\\*\" $T1"
+    exit: 0
+    stdout_sha256: 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865
+  - id: I3neutral
+    command: "rg -n \"backend-neutral|swapping the backend changes only this declaration\" $T1"
+    exit: 0
+    stdout_sha256: 745e4d9da283d9de44b344fea100ab2b274d11eb38b001cdc4d3169f56f3d0c6
+  - id: I4a
+    command: "rg -n \"Diagnostic artifacts.*report_path.*REPORT\\.md.*audit_log_path\" $T1"
+    exit: 0
+    stdout_sha256: 5dad8080ff36088351a48e6eab9a9bb1b988cfd50d42420e50c677c8c460fc56
+  - id: I4b
+    command: "rg -c \"rca-verdict|solution-verdict\" $T1"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: I5
+    command: "rg -n \"Files that MUST NOT change|behavior_is_documented\" $R1"
+    exit: 0
+    stdout_sha256: a820d20c6e4812ffe6136722372c60fab02595a9ecd25af0ed0be49630a8e76b
+  - id: I6
+    command: "rg -n \"forensic|troubleshoot\" live"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+
+criteria:
+  AC4.1_freeze_diff_exit_0: PASS
+  AC4.2_both_gates: PASS
+  AC4.3_one_decl_plus_neutral_clause: PASS
+  AC4.4_incident_rebind_and_verdict_absent: PASS
+  AC4.5_report_template_rules: PASS
+  AC4.6_zero_forensic_troubleshoot_in_freeze: PASS
+  AC4.7_baseline_self_consistent: PASS
+
+normalized_observations:
+  freeze_diff_exit: 0
+  baseline_self_consistent: true
+  gate_test_is_wrong: true
+  gate_docs: true
+  backend_decl_count: 1
+  neutral_clause: true
+  incident_rebind: true
+  verdict_artifacts_absent: true
+  report_template_rules: true
+  freeze_backend_token_absent: true
+
+normalized_observation_digest: 1c6bb52e67cd1d72190461abb077a88ad2a5cd75a2ac3741065404ed711ede95

@@ -153,6 +153,20 @@ Pick the line(s) that apply:
 - Tier 2 with `--fix`, awaiting user accept: "Reply **yes** to proceed to the task-builder remediation chain, or apply the fix manually."
 - Tier 3 chain completed (post-`/task`): "Run `/sc:reflect --type task --validate <task-file>` before committing."
 
+## TFEP Consumer
+
+Emitted ONLY when `caller=task-unified`. This block is the report-rendered echo of the `return-contract.yaml` adapter fields the task-protocol TFEP consumer reads (see `sc:troubleshoot-protocol` Wave 5 step 4.5 and the Output Contract adapter rows). Omit this section entirely for non-TFEP callers.
+
+```yaml
+status: <success|partial|failed>
+test_is_wrong: <bool>
+recommended_escalation: <none|retry|escalate_depth|halt>
+tasklist_insertion_path: <abs-path|null>
+remediation_target: <test|code|docs|none>
+root_cause_summary: <text>
+solution_summary: <text>
+```
+
 ### Hard-stop variant (when `diagnosability_hard_stop=true`)
 
 When the Wave 1.6 hard-stop fired, REPLACE the Diagnosis section (and skip Evidence / Proposed Fix / Alternative Fixes / Risk + Rollback) with the following block, then render only this Next Steps variant:

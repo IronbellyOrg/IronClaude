@@ -1,0 +1,108 @@
+schema_version: "1.0.0"
+test_id: E2
+test_name: "Adapter Contract Round-Trip"
+run_index: 1
+verdict: PASS
+verdict_reason: >-
+  All 7 acceptance criteria satisfied. AC2.1: all 21 field-matrix cells >=1
+  (min cell = 1). AC2.2: TFEP adapter rows in P1 == 5. AC2.3: contract_version
+  semver default 1.1.0 present in P1. AC2.4: recommended_escalation enum
+  (none/retry/escalate_depth/halt) present in BOTH P1 and R1. AC2.5:
+  remediation_target enum (test/code/docs/none) present in BOTH P1 and R1.
+  AC2.6: exactly one Diagnostic-backend declaration in T1. AC2.7
+  (falsification): zero producer-internal field leak (tier_reached/confidence:/
+  escalation_reason) in the R1 "## TFEP Consumer" block (grep exit 1).
+  NOTE on probe-pattern artifact: the verbatim Probe 4/5 commands use an
+  ESCAPED pipe ("none\\|retry...") which rg treats as a LITERAL "|" character.
+  R1 renders the enum with plain pipes (<none|retry|...>) so it matches; P1
+  renders the same enum inside a markdown table with table-escaped pipes
+  ("none\\|retry\\|...") so the literal-"|" pattern does NOT match P1. This is
+  a rendering/escaping artifact of the probe pattern, NOT a real absence: the
+  enum tokens are semantically present in P1 (SKILL.md lines 73 and 75) and in
+  R1 (report-template.md lines 163 and 165). The normalized observations record
+  the semantic truth (rec_esc_enum_P1/R1 and rem_tgt_enum_P1/R1 all true),
+  which is what AC2.4/AC2.5 grade.
+worktree: /config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend
+commands:
+  - id: P1
+    command: 'for f in 7 fields; do for file in T1 P1 R1; do rg -c "$f" "$file"; done; done'
+    exit_code: 0
+    stdout_sha256: e558b13688d87a1297940419dd45d292a1257e2a5a4ad2d47eb4fe303a7c4e34
+  - id: P2
+    command: 'rg -c "TFEP adapter field \(contract v1.1.0" $P1'
+    exit_code: 0
+    stdout_sha256: f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06
+  - id: P3
+    command: 'rg -n "Output-contract semver, default .1\.1\.0" $P1'
+    exit_code: 0
+    stdout_sha256: 838e82ffe09d68d1a7b0a6abfe552cb8bd009263fcfbc5b66db68485024546e2
+  - id: P4
+    command: 'rg -n "none\|retry\|escalate_depth\|halt" $P1 $R1'
+    exit_code: 0
+    stdout_sha256: c765db0aaa743f9dba2e4cca257d3944ffeff3063507c86272df7fd0fe43d3d6
+  - id: P5
+    command: 'rg -n "test\|code\|docs\|none" $P1 $R1'
+    exit_code: 0
+    stdout_sha256: f6ebde45444370a08be7ef04b8c998c7f77bfa1a5af76140f26083642f31fb4d
+  - id: P6
+    command: 'rg -c "Diagnostic backend.*troubleshoot" $T1'
+    exit_code: 0
+    stdout_sha256: 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865
+  - id: P7
+    command: "sed -n '/## TFEP Consumer/,/^### /p' $R1 | rg -n 'tier_reached|confidence:|escalation_reason'"
+    exit_code: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+criteria:
+  - id: AC2.1
+    class: DETERMINISTIC
+    expected: "all 21 field-matrix cells >=1"
+    observed: "min cell = 1 (status/test_is_wrong/recommended_escalation/tasklist_insertion_path/remediation_target/root_cause_summary/solution_summary x T1/P1/R1)"
+    result: PASS
+    evidence_ref: "findings.md Probe 1"
+  - id: AC2.2
+    class: DETERMINISTIC
+    expected: "adapter rows == 5"
+    observed: "5"
+    result: PASS
+    evidence_ref: "findings.md Probe 2"
+  - id: AC2.3
+    class: DETERMINISTIC
+    expected: "contract_version 1.1.0 present in P1"
+    observed: "P1 line 62: contract_version semver, Output-contract semver, default `1.1.0`"
+    result: PASS
+    evidence_ref: "findings.md Probe 3"
+  - id: AC2.4
+    class: DETERMINISTIC
+    expected: "recommended_escalation enum (none/retry/escalate_depth/halt) in BOTH P1 and R1"
+    observed: "P1 line 73 (table-escaped pipes) + R1 line 163 (plain pipes); both present"
+    result: PASS
+    evidence_ref: "findings.md Probe 4"
+  - id: AC2.5
+    class: DETERMINISTIC
+    expected: "remediation_target enum (test/code/docs/none) in BOTH P1 and R1"
+    observed: "P1 line 75 (table-escaped pipes) + R1 line 165 (plain pipes); both present"
+    result: PASS
+    evidence_ref: "findings.md Probe 5"
+  - id: AC2.6
+    class: DETERMINISTIC
+    expected: "exactly one Diagnostic-backend declaration in T1"
+    observed: "1"
+    result: PASS
+    evidence_ref: "findings.md Probe 6"
+  - id: AC2.7
+    class: DETERMINISTIC
+    expected: "zero producer-internal field leak in R1 ## TFEP Consumer block (grep exit 1)"
+    observed: "0 hits, grep exit 1"
+    result: PASS
+    evidence_ref: "findings.md Probe 7"
+normalized_observations:
+  field_matrix_min_cell: 1
+  adapter_row_count: 5
+  contract_version_present: true
+  rec_esc_enum_P1: true
+  rec_esc_enum_R1: true
+  rem_tgt_enum_P1: true
+  rem_tgt_enum_R1: true
+  backend_decl_count: 1
+  tfep_consumer_leak_count: 0
+normalized_observation_digest: 202f96f6aa6f2ec96f6818ea58e2bcc325b19c9578a8f65664678122bda12bf8

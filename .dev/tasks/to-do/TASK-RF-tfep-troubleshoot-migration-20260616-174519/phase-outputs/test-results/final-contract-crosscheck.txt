@@ -1,0 +1,29 @@
+Final Adapter-Contract Producer/Consumer Cross-Check (Step 7.2)
+================================================================
+Date: 2026-06-16
+
+Per R-003 §5 adapter-contract gate: every token the task-protocol TFEP consumer reads
+after the migration MUST have a producer in src/superclaude/skills/sc-troubleshoot-protocol/
+(Output Contract row and/or report-template ## TFEP Consumer block).
+
+Consumer tokens checked (the fields §4.5 reads from the return contract):
+status, test_is_wrong, recommended_escalation, tasklist_insertion_path.
+
+Token cross-check (rg -c counts):
+
+| Consumer token          | consumer (sc-task-protocol) | producer (troubleshoot SKILL Output Contract) | producer (report-template TFEP Consumer) | Resolved? |
+|-------------------------|-----------------------------|------------------------------------------------|------------------------------------------|-----------|
+| status                  | 6                           | 23                                             | 8                                        | YES       |
+| test_is_wrong           | 3                           | 8                                              | 9                                        | YES       |
+| recommended_escalation  | 5                           | 6                                              | 1                                        | YES       |
+| tasklist_insertion_path | 2                           | 3                                              | 1                                        | YES       |
+
+DETERMINATION: PASS
+Every consumer token has a matching producer on BOTH the troubleshoot Output Contract
+(SKILL.md) and the report-template ## TFEP Consumer block. No consumer-side token is left
+without a producer. The adapter contract is closed (producer/consumer integrity holds).
+
+(The other 3 adapter summary fields the consumer composes the plan from — remediation_target,
+root_cause_summary, solution_summary — were verified present as Output Contract rows + TFEP
+Consumer keys in PG4; status/test_is_wrong/recommended_escalation/tasklist_insertion_path are
+the gating/branching tokens checked here per R-003 §5.)

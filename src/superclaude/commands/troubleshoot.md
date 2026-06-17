@@ -5,7 +5,7 @@ category: analysis
 complexity: advanced
 mcp-servers: [auggie, serena, context7, tavily, sequential]
 personas: [analyzer, performance, security, qa, refactorer, devops]
-argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-doc-discovery] [--no-mcp]"
+argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-doc-discovery] [--no-mcp] [--context <path>] [--caller <name>]"
 ---
 
 # /sc:troubleshoot - Tiered Issue Diagnosis
@@ -56,15 +56,17 @@ The trigger is intentionally pushy because the most common reason users skip a d
 | `--output-dir` | `.dev/troubleshoot/<slug>-<timestamp>/` | Where REPORT.md, hypothesis cards, fix proposals, adversarial artifacts, and audit log are written. |
 | `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (release artifacts + architectural docs + semantic restrictions). Useful when the codebase has no formal docs or the user has already grounded the symptom externally; the resulting diagnosis is NOT weighted against documented behavior and the report records the skip in Grounding Gaps. |
 | `--no-mcp` | `false` | Run in native-tools-only mode (skip auggie/serena/context7/tavily). Tier 1 quality degrades; surfaced in the report. |
+| `--context` | (none) | Path to a caller-supplied context file (e.g. TFEP `context.yaml` consumer brief). Ingested in Wave 0; recorded in the audit-log header and echoed in the Wave 5 return. |
+| `--caller` | (none) | Name of the invoking pipeline/command (e.g. `task-unified`). When set, Wave 5 emits a `return-contract.yaml` adapter and the audit header records `caller:`. |
 
 ## Behavioral Summary
 
 The full multi-wave protocol lives in the skill. The command file performs only:
 
-1. **Parse arguments** → resolve `--type` (auto-detect if absent), `--scope`, `--depth`, etc.
+1. **Parse arguments** → resolve `--type` (auto-detect if absent), `--scope`, `--depth`, `--context`, `--caller`, etc.
 2. **Validate environment** → at least one of MCPs is available (or `--no-mcp` is set); output dir is writable.
 3. **Hand off to the skill** via the Activation section below.
-4. **On skill return**, surface: REPORT path, tier reached, confidence, chosen fix, (if `--fix`) the Tier 3 remediation offer, and (if `pipeline_hardening_applicable`) the Pipeline Hardening Closure verdict + evidence-card paths.
+4. **On skill return**, surface: REPORT path, tier reached, confidence, chosen fix, (if `--fix`) the Tier 3 remediation offer, and (if `pipeline_hardening_applicable`) the Pipeline Hardening Closure verdict + evidence-card paths, and (if `caller=task-unified`) the emitted `return-contract.yaml` path.
 
 **Three tiers under the hood**:
 

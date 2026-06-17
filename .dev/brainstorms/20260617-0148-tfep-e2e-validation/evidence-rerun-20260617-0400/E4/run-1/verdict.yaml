@@ -1,0 +1,104 @@
+schema_version: "1.0.0"
+test_id: E4
+test_name: "Safety-Invariant Preservation"
+run_index: 1
+verdict: PASS
+verdict_reason: >-
+  All seven acceptance criteria satisfied. The TFEP freeze block in T1 is byte-identical
+  to the preserved baseline (DIFF_EXIT=0); the baseline is self-consistent (I1b two hits);
+  both asymmetric remediation gates (test_is_wrong present-to-user/no-auto-fix, docs
+  present-to-user/no-auto-insert) are present; exactly one Diagnostic-backend declaration
+  exists alongside the backend-neutral clause; incident artifacts are rebound to
+  report_path/audit_log_path with zero forensic verdict files (rca-verdict/solution-verdict
+  count == 0); report-template asymmetric rules are present; and the freeze block contains
+  no forensic/troubleshoot backend token (NEG_EXIT=1).
+worktree: /config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend
+commands:
+  - id: I1
+    command: "diff -u /tmp/e4v2r1_base.txt /tmp/e4v2r1_live.txt; echo DIFF_EXIT=$?"
+    exit: 0
+    stdout_sha256: 327c85eae567b5a517c17066b33e66d149791d23b38d6a362d289138ed6b05e4
+  - id: I1b
+    command: "rg -n \"STOP.* testing immediately|FREEZE.*implementation.*no further code changes permitted\" $BASE"
+    exit: 0
+    stdout_sha256: d0bd9f270fbc04e4b002b7a9fb9d6c1b5096601e7d7b07f625621838ab4ac67a
+  - id: I2a
+    command: "rg -n \"test_is_wrong == true.*Present to user|Do NOT auto-fix tests\" $T1"
+    exit: 0
+    stdout_sha256: 6f350ffadcc8f6348e3d2da6688b628a0cba02959f88edc61452cb5c13c7c07a
+  - id: I2b
+    command: "rg -n \"remediation_target == .docs.*present to user|Do NOT auto-insert\" $T1"
+    exit: 0
+    stdout_sha256: 28d90341ce50caa67d916603c675a811105f18f096e729ed2e723f7031132c14
+  - id: I3_count
+    command: "rg -c \"\\*\\*Diagnostic backend:\\*\\*\" $T1"
+    exit: 0
+    stdout_sha256: 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+  - id: I3_neutral
+    command: "rg -n \"backend-neutral|swapping the backend changes only this declaration\" $T1"
+    exit: 0
+    stdout_sha256: ea8e1824f92661dd313a0e4e03ee76609d59fccda5ed34ea2f99ca2cfafca611
+  - id: I4a
+    command: "rg -n \"Diagnostic artifacts.*report_path.*REPORT\\.md.*audit_log_path\" $T1; echo EXIT=$?"
+    exit: 0
+    stdout_sha256: 6e0e76b122afd825c9dc083cddc5d9b7b7a9feaade4f02f02a785adfe3bf679d
+  - id: I4b
+    command: "rg -c \"rca-verdict|solution-verdict\" $T1"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: I5
+    command: "rg -n \"Files that MUST NOT change|behavior_is_documented\" $R1"
+    exit: 0
+    stdout_sha256: b2484ec73f401b6c8965966022c6ab2665c9c030186fb84811d2ad51a37be336
+  - id: I6
+    command: "rg -n \"forensic|troubleshoot\" /tmp/e4v2r1_live.txt; echo NEG_EXIT=$?"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+criteria:
+  - id: AC4.1
+    expected: "DIFF_EXIT=0 (freeze block byte-identical to baseline)"
+    observed: "DIFF_EXIT=0; diff produced no output"
+    result: PASS
+    evidence_ref: "findings.md#I1"
+  - id: AC4.2
+    expected: "both asymmetric gates present (test_is_wrong + docs)"
+    observed: "I2a 1 hit (line 224); I2b 1 hit (line 225)"
+    result: PASS
+    evidence_ref: "findings.md#I2"
+  - id: AC4.3
+    expected: "exactly one Diagnostic-backend declaration + neutral clause present"
+    observed: "rg -c == 1; neutral clause present (line 137)"
+    result: PASS
+    evidence_ref: "findings.md#I3"
+  - id: AC4.4
+    expected: "I4a >=1 hit AND I4b == 0"
+    observed: "I4a 1 hit (line 260); I4b count==0 (rg exit 1, no matches)"
+    result: PASS
+    evidence_ref: "findings.md#I4"
+  - id: AC4.5
+    expected: "report-template asymmetric rules present"
+    observed: "I5 multiple hits (lines 92,276,285,291,297)"
+    result: PASS
+    evidence_ref: "findings.md#I5"
+  - id: AC4.6
+    expected: "zero forensic/troubleshoot in freeze block (NEG_EXIT=1)"
+    observed: "I6 0 hits, NEG_EXIT=1"
+    result: PASS
+    evidence_ref: "findings.md#I6"
+  - id: AC4.7
+    expected: "I1b >=1 hit (baseline self-consistent)"
+    observed: "I1b 2 hits (lines 11,12), exit 0"
+    result: PASS
+    evidence_ref: "findings.md#I1b"
+normalized_observations:
+  freeze_diff_exit: 0
+  baseline_self_consistent: true
+  gate_test_is_wrong: true
+  gate_docs: true
+  backend_decl_count: 1
+  neutral_clause: true
+  incident_rebind: true
+  verdict_artifacts_absent: true
+  report_template_rules: true
+  freeze_backend_token_absent: true
+normalized_observation_digest: 1c6bb52e67cd1d72190461abb077a88ad2a5cd75a2ac3741065404ed711ede95

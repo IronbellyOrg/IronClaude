@@ -1,0 +1,113 @@
+schema_version: "1.0.0"
+test_id: E3
+run_index: 2
+verdict: PASS
+verdict_reason: >-
+  All acceptance criteria AC3.1–AC3.9 satisfied. The protocol chain resolves
+  continuously: task-protocol writes context.yaml (H1), invokes /sc:troubleshoot
+  with the exact diagnosis-only flag shape and NO --fix (H2), troubleshoot-protocol
+  gates the return-contract emission on caller=task-unified (H4) and returns its path
+  (H5), and task-protocol consumes the six branch keys with a documented first-match-wins
+  precedence (H6). Both falsification probes hold — FIX_TOTAL==FIX_PROHIBITION (2==2,
+  every --fix occurrence sits inside a prohibition clause) and zero --tier/--intent
+  tokens across all five files.
+worktree: /config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend
+commands:
+  - id: H1
+    command: 'rg -n "Write context to .\{output_dir\}/context\.yaml" $T1'
+    exit: 0
+    stdout_sha256: bec90da4de51cc89067f72e8bd6176f4b14dd001de8804383f2562b53ed30fed
+  - id: H2
+    command: 'rg -nF "/sc:troubleshoot --caller task-unified --context {context_path} --output-dir {output_dir} --depth {depth}" $T1'
+    exit: 0
+    stdout_sha256: bd00f59fb1c9472260bea2113ac78b159c9fdbeede5e74fd50e82c061021a3ac
+  - id: H3
+    command: 'rg -n "Pass NO .--fix" $T1'
+    exit: 0
+    stdout_sha256: bd00f59fb1c9472260bea2113ac78b159c9fdbeede5e74fd50e82c061021a3ac
+  - id: H4
+    command: 'rg -n "return-contract" $P1'
+    exit: 0
+    stdout_sha256: 9e1eeaf730a21b44df6d2d4a7f45ebcb536b3ef7b975f53c6ea4b87428c9c007
+  - id: H5
+    command: 'rg -n "Emit TFEP return-contract|return-contract\.yaml.*written and its path returned" $P1'
+    exit: 0
+    stdout_sha256: dab12159721654926adb71cc1f1f59d467282f7e81f1c8279ff5c90d162288e6
+  - id: H6
+    command: 'rg -n "first match wins|test_is_wrong == true|remediation_target == .docs.|status == .success.|recommended_escalation == .none.|recommended_escalation == .retry.|recommended_escalation == .escalate_depth.|recommended_escalation == .halt." $T1'
+    exit: 0
+    stdout_sha256: 24cfe7f4b8c0ad585fc3d885025ce17e20ecf3aa712b7ac149ada0796cd71e3f
+  - id: H7
+    command: 'rg -n "increment .escalation_count.|FULL STOP" $T1'
+    exit: 0
+    stdout_sha256: 05e449073aa776984b1d34c3acf0a4520a34a79317219e72ef2ff70000117f61
+  - id: H8
+    command: 'rg -n "1st TFEP trigger|2nd TFEP trigger|systemic failure OR ≥3 new failing tests|3rd TFEP trigger|--depth standard|--depth deep" $T1'
+    exit: 0
+    stdout_sha256: 4002c528cd6ac38140d15ebc43b10afbf7a16ba905ad202071a24c596ef6fd44
+  - id: H9
+    command: 'TOTAL=$(rg -c -- "--fix" $T1); PROHIB=$(rg -c "NO .--fix|Pass NO .--fix|with NO --fix" $T1); echo "FIX_TOTAL=$TOTAL FIX_PROHIBITION=$PROHIB"'
+    exit: 0
+    stdout_sha256: a6d556b28bf9141a8dda8c34d96fc16fdd85bab57f30c93e29dccda4204873bb
+  - id: H10
+    command: 'rg -c -- "--tier|--intent" $T1 $C1 $P1 src/superclaude/commands/task.md src/superclaude/skills/sc-troubleshoot-protocol/refs/report-template.md'
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+criteria:
+  - id: AC3.1
+    class: DETERMINISTIC
+    pass: true
+    note: "H1 — context.yaml write present (T1:205)."
+  - id: AC3.2
+    class: DETERMINISTIC
+    pass: true
+    note: "H2 — exact invocation shape present verbatim (T1:215)."
+  - id: AC3.3
+    class: DETERMINISTIC
+    pass: true
+    note: "H4+H5 — return-contract emission gated on caller=task-unified (P1:148,471) and path returned (P1:481)."
+  - id: AC3.4
+    class: DETERMINISTIC
+    pass: true
+    note: "H6 — six branch keys present plus 'first match wins' precedence note (T1:222-230)."
+  - id: AC3.5
+    class: DETERMINISTIC
+    pass: true
+    note: "H7 — increment escalation_count + FULL STOP present (T1:213,228-230,270)."
+  - id: AC3.6
+    class: DETERMINISTIC
+    pass: true
+    note: "H8 — depth-mapping ladder present (T1:210-213,268-270)."
+  - id: AC3.7
+    class: DETERMINISTIC
+    pass: true
+    note: "H9 — FIX_TOTAL==FIX_PROHIBITION (2==2); both --fix occurrences inside prohibition clauses (T1:215,239)."
+  - id: AC3.8
+    class: DETERMINISTIC
+    pass: true
+    note: "H10 — zero --tier/--intent across all five files (exit 1, per-file 0)."
+  - id: AC3.9
+    class: JUDGMENT
+    pass: true
+    note: >-
+      Chain-continuous: the task-protocol emits {context_path} then invokes troubleshoot
+      with that context and --depth (H2); troubleshoot maps Output Contract → 7-field wire
+      schema gated on caller=task-unified (H4) and returns return-contract.yaml's path (H5);
+      task-protocol then consumes status/test_is_wrong/remediation_target/recommended_escalation
+      branch keys (H6). Producer wire schema and consumer branch predicates reference the same
+      field set with no missing hop — anchored on H2, H4, H5, H6 only.
+normalized_observations:
+  branch_keys_found_count: 6
+  chain_continuous: true
+  fix_prohibition: 2
+  fix_total: 2
+  h1: true
+  h2: true
+  h3: true
+  h4: true
+  h5: true
+  h6: true
+  h7: true
+  h8: true
+  tier_intent_count: 0
+normalized_observation_digest: 1409a638d2732284d04b19c0571305d5f59593a40eadfbcbaa06630ee490078c

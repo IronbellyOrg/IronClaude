@@ -1,0 +1,67 @@
+suite: tfep-e2e-validation
+policy: strict_12_of_12_green_plus_digest_identity
+generated_at: "2026-06-17T04:00:00Z"
+version: v2-post-probe-fix
+overall_gate: GREEN
+suite_failure_class: none
+total_runs: 12
+passed: 12
+failed: 0
+
+per_test:
+  - test_id: E1
+    test_name: "Residual-Integrity & Sync-Parity"
+    source_root: .dev/brainstorms/20260617-0148-tfep-e2e-validation/evidence/E1
+    runs:
+      - {run: 1, verdict: PASS, digest_first12: 443baab42cb2}
+      - {run: 2, verdict: PASS, digest_first12: 443baab42cb2}
+      - {run: 3, verdict: PASS, digest_first12: 443baab42cb2}
+    verdicts_unanimous: true
+    digests_identical: true
+    test_status: PASS
+
+  - test_id: E2
+    test_name: "Adapter Contract Round-Trip"
+    source_root: .dev/brainstorms/20260617-0148-tfep-e2e-validation/evidence/E2
+    runs:
+      - {run: 1, verdict: PASS, digest_first12: 202f96f6aa6f}
+      - {run: 2, verdict: PASS, digest_first12: 202f96f6aa6f}
+      - {run: 3, verdict: PASS, digest_first12: 202f96f6aa6f}
+    verdicts_unanimous: true
+    digests_identical: true
+    test_status: PASS
+
+  - test_id: E3
+    test_name: "Protocol-Chain Resolution"
+    source_root: .dev/brainstorms/20260617-0148-tfep-e2e-validation/evidence-rerun-20260617-0400/E3
+    runs:
+      - {run: 1, verdict: PASS, digest_first12: 18f526d247a6}
+      - {run: 2, verdict: PASS, digest_first12: 18f526d247a6}
+      - {run: 3, verdict: PASS, digest_first12: 18f526d247a6}
+    verdicts_unanimous: true
+    digests_identical: true
+    test_status: PASS
+
+  - test_id: E4
+    test_name: "Safety-Invariant Preservation"
+    source_root: .dev/brainstorms/20260617-0148-tfep-e2e-validation/evidence-rerun-20260617-0400/E4
+    runs:
+      - {run: 1, verdict: PASS, digest_first12: 1c6bb52e67cd}
+      - {run: 2, verdict: PASS, digest_first12: 1c6bb52e67cd}
+      - {run: 3, verdict: PASS, digest_first12: 1c6bb52e67cd}
+    verdicts_unanimous: true
+    digests_identical: true
+    test_status: PASS
+
+migration_validated: true
+
+notes: >-
+  GREEN under strict 12/12-PASS + 4x3/3 byte-identical-digest policy. E1/E2 are the
+  unchanged v1 GREEN runs; E3/E4 are the corrected v2 re-run. The v1->v2 delta closed
+  three probe/schema (instrumentation) defects with NO migration change: (1) E4-I4a
+  regex was corrected so the rebound "Diagnostic artifacts ... report_path ... REPORT.md
+  ... audit_log_path" line matches as intended; (2) E4-I1b regex was corrected so the
+  baseline STOP/FREEZE self-consistency invariant lines match; (3) E3 branch_keys probe
+  was made digest-deterministic so the six-branch first-match-wins ladder observation
+  produces identical normalized digests across all three runs. With those probe fixes,
+  E3 and E4 moved DISAGREE->PASS, yielding 12/12 PASS with per-test digest identity.

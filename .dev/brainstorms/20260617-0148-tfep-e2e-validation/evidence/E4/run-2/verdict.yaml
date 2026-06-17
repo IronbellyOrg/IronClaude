@@ -1,0 +1,109 @@
+schema_version: "1.0.0"
+test_id: E4
+run_index: 2
+verdict: PASS
+verdict_reason: >-
+  All six safety invariants are substantively preserved. AC4.1 (the load-bearing
+  freeze byte-identity gate) PASSES: diff -u of the baseline fenced freeze block
+  against the live $T1 extract returns DIFF_EXIT=0. AC4.2 both remediation gates
+  present (test_is_wrong -> present to user / do NOT auto-fix; docs -> present /
+  do NOT auto-insert). AC4.3 exactly one Diagnostic-backend declaration plus the
+  backend-neutral clause. AC4.4 incident artifacts rebound to report_path
+  (REPORT.md) + audit_log_path on $T1:260 and ZERO rca-verdict/solution-verdict
+  tokens. AC4.5 report-template MUST-NOT-change + behavior_is_documented rules
+  present in $R1. AC4.6 zero forensic/troubleshoot tokens in the freeze block
+  (NEG_EXIT=1). AC4.7 baseline self-consistent (contains the verbatim freeze text
+  on lines 11-12 and a fenced verbatim block byte-identical to live). NOTE: two
+  literal probe regexes as-written (I1 cross-check, I4a) returned exit 1 due to
+  over-strict separator assumptions in the PROBE regex itself (STOP** vs "STOP.",
+  3-byte em-dash under LC_ALL=C vs "..", and report_path`␣(REPORT.md vs
+  "report_path .REPORT"); od -c confirmed the bytes). These are probe-regex
+  artifacts, not content gaps -- every invariant's content is confirmed present
+  by the deterministic criteria. Substantive verdict: PASS.
+worktree: /config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend
+commands:
+  - id: I1_freeze_byte_identity_diff
+    command: "diff -u /tmp/e4r2_base.txt /tmp/e4r2_live.txt; echo DIFF_EXIT=$?  (base extracted via awk first-fence block from $BASE; live via sed range on $T1)"
+    exit: 0
+    stdout_sha256: 49f6be09cd9bde2d8e27987df4cacf91eeb32fe633985e9ecd8092a91d784f24
+  - id: I1_baseline_crosscheck_literal
+    command: "rg -n -e \"STOP. testing immediately|FREEZE.*implementation .. no further code changes permitted\" $BASE; echo EXIT=$?"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    note: >-
+      Literal-spec regex artifact (STOP** not STOP.; 3-byte em-dash vs ".."). Baseline
+      content confirmed present by diagnostic greps: 'STOP' @11,17 and 'no further code
+      changes permitted' @12. baseline_hits=2 substantively.
+  - id: I2a_gate_test_is_wrong
+    command: "rg -n \"test_is_wrong == true.*Present to user|Do NOT auto-fix tests\" $T1"
+    exit: 0
+    stdout_sha256: 83a9efb08102d55a6855e9a8772a5a8d089857540d508c6690b83b3f7434a67b
+  - id: I2b_gate_docs
+    command: "rg -n \"remediation_target == .docs.*present to user|Do NOT auto-insert\" $T1"
+    exit: 0
+    stdout_sha256: 07ce1937e6fda01928af2b054fb69abbe117b7a6f3c6593809db4ac2bb630e56
+  - id: I3a_backend_decl_count
+    command: "rg -c \"\\*\\*Diagnostic backend:\\*\\*\" $T1"
+    exit: 0
+    stdout_sha256: 4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865
+  - id: I3b_neutral_clause
+    command: "rg -n \"backend-neutral|swapping the backend changes only this declaration\" $T1"
+    exit: 0
+    stdout_sha256: 745e4d9da283d9de44b344fea100ab2b274d11eb38b001cdc4d3169f56f3d0c6
+  - id: I4a_incident_rebind_literal
+    command: "rg -n \"Diagnostic artifacts.*report_path .REPORT\\.md.*audit_log_path\" $T1"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    note: >-
+      Literal-spec regex artifact (actual is report_path`␣(REPORT.md, not
+      "report_path .REPORT"). Content confirmed at $T1:260 with all tokens
+      (Diagnostic artifacts, report_path, REPORT.md, audit_log_path) co-occurring;
+      a .*-separator variant matches the line. incident_rebind=true substantively.
+  - id: I4b_verdict_artifacts_absent
+    command: "rg -c \"rca-verdict|solution-verdict\" $T1"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    note: "exit 1 = zero matches = EXPECTED (verdict artifacts absent)."
+  - id: I5_report_template_rules
+    command: "rg -n \"Files that MUST NOT change|behavior_is_documented\" $R1"
+    exit: 0
+    stdout_sha256: a820d20c6e4812ffe6136722372c60fab02595a9ecd25af0ed0be49630a8e76b
+  - id: I6_falsification_freeze_block
+    command: "rg -n \"forensic|troubleshoot\" /tmp/e4r2_live.txt; echo NEG_EXIT=$?"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    note: "exit 1 = zero matches = EXPECTED (NEG_EXIT=1: no forensic/troubleshoot in freeze block)."
+criteria:
+  - id: AC4.1
+    desc: "Freeze block byte-identical to baseline (DIFF_EXIT=0)"
+    result: PASS
+  - id: AC4.2
+    desc: "Both remediation gates present (test_is_wrong present-to-user/no-auto-fix; docs present/no-auto-insert)"
+    result: PASS
+  - id: AC4.3
+    desc: "Exactly one Diagnostic-backend declaration + backend-neutral clause"
+    result: PASS
+  - id: AC4.4
+    desc: "Incident artifacts from report_path/audit_log_path + zero verdict artifacts"
+    result: PASS
+  - id: AC4.5
+    desc: "report-template MUST-NOT-change / behavior_is_documented rules present"
+    result: PASS
+  - id: AC4.6
+    desc: "Zero forensic/troubleshoot tokens in freeze block (NEG_EXIT=1)"
+    result: PASS
+  - id: AC4.7
+    desc: "Baseline self-consistent (verbatim freeze text present + fenced block byte-identical to live)"
+    result: PASS
+normalized_observations:
+  backend_decl_count: 1
+  baseline_hits: 2
+  freeze_backend_token_count: 0
+  freeze_diff_exit: 0
+  gate_docs: true
+  gate_test_is_wrong: true
+  incident_rebind: true
+  neutral_clause: true
+  report_template_rules: true
+  verdict_artifact_tokens_absent: true
+normalized_observation_digest: a6698219b1b44c3525e577f7ed14cd6a00fad0dc421160b677713f01efdebe60

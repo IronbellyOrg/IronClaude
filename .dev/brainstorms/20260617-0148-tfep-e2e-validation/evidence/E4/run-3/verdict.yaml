@@ -1,0 +1,83 @@
+schema_version: "1.0.0"
+test_id: E4
+run_index: 3
+verdict: FAIL
+verdict_reason: >-
+  AC4.1 (freeze byte-identity DIFF_EXIT=0) PASSED: the live freeze block in
+  sc-task-protocol/SKILL.md is byte-identical to the verbatim baseline in
+  freeze-block-preserved.md. AC4.2/AC4.3/AC4.5/AC4.6 PASSED. However two
+  literal probes returned 0 matches against their stated EXPECT(>=1):
+  I1b (baseline non-empty cross-check, feeds AC4.7) and I4a (incident
+  report_path/audit_log_path rebind, feeds AC4.4). BOTH are probe-regex
+  strictness defects, NOT invariant regressions: I1b's pattern "STOP. testing"
+  uses a single '.' where the markdown bold "**STOP** testing" has two '*'
+  chars; I4a's pattern "report_path .REPORT\.md" expects a single space+char
+  where the real text is "report_path` (REPORT.md)" (backtick-space-paren).
+  The underlying content is verifiably present (plain grep on BASE finds
+  "STOP testing"; line 260 of T1 contains report_path/audit_log_path/REPORT.md;
+  relaxed intent patterns match). Per the mechanical "PASS iff ALL criteria"
+  gate, run-3 records FAIL on the literal exit codes. The SAFETY INVARIANT
+  ITSELF IS PRESERVED (AC4.1 byte-identity holds). A re-spec with corrected
+  I1b/I4a regexes would yield PASS.
+worktree: /config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend
+commands:
+  - id: I1_freeze_diff
+    command: "diff -u /tmp/e4r3_base.txt /tmp/e4r3_live.txt  (base=awk fence-extract of BASE; live=sed range of T1)"
+    exit: 0
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: I1b_baseline_xcheck
+    command: "rg -n 'STOP. testing immediately|FREEZE.*implementation .. no further code changes permitted' $BASE"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: I2a_gate_test_is_wrong
+    command: "rg -n 'test_is_wrong == true.*Present to user|Do NOT auto-fix tests' $T1"
+    exit: 0
+    stdout_sha256: 6f350ffadcc8f6348e3d2da6688b628a0cba02959f88edc61452cb5c13c7c07a
+  - id: I2b_gate_docs
+    command: "rg -n 'remediation_target == .docs.*present to user|Do NOT auto-insert' $T1"
+    exit: 0
+    stdout_sha256: 28d90341ce50caa67d916603c675a811105f18f096e729ed2e723f7031132c14
+  - id: I3a_backend_decl_count
+    command: "rg -c '\\*\\*Diagnostic backend:\\*\\*' $T1"
+    exit: 0
+    stdout_sha256: 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b
+  - id: I3b_neutral_clause
+    command: "rg -n 'backend-neutral|swapping the backend changes only this declaration' $T1"
+    exit: 0
+    stdout_sha256: ea8e1824f92661dd313a0e4e03ee76609d59fccda5ed34ea2f99ca2cfafca611
+  - id: I4a_incident_rebind
+    command: "rg -n 'Diagnostic artifacts.*report_path .REPORT\\.md.*audit_log_path' $T1"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: I4b_verdict_artifacts_absent
+    command: "rg -c 'rca-verdict|solution-verdict' $T1"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  - id: I5_report_template_rules
+    command: "rg -n 'Files that MUST NOT change|behavior_is_documented' $R1"
+    exit: 0
+    stdout_sha256: b2484ec73f401b6c8965966022c6ab2665c9c030186fb84811d2ad51a37be336
+  - id: I6_falsification_freeze_clean
+    command: "rg -n 'forensic|troubleshoot' /tmp/e4r3_live.txt"
+    exit: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+criteria:
+  AC4.1_freeze_diff_exit_0: PASS
+  AC4.2_both_gates: PASS
+  AC4.3_one_decl_plus_neutral_clause: PASS
+  AC4.4_incident_rebind_and_zero_verdict_artifacts: FAIL
+  AC4.5_report_template_rules: PASS
+  AC4.6_zero_forensic_troubleshoot_in_freeze_block: PASS
+  AC4.7_baseline_self_consistent: FAIL
+normalized_observations:
+  backend_decl_count: 1
+  baseline_hits: 0
+  freeze_backend_token_count: 0
+  freeze_diff_exit: 0
+  gate_docs: true
+  gate_test_is_wrong: true
+  incident_rebind: false
+  neutral_clause: true
+  report_template_rules: true
+  verdict_artifact_tokens_absent: true
+normalized_observation_digest: 4c755bc4d688266ed76f0368f3a89c9beb91c34d989844b9294d9514d2746f25
