@@ -1,0 +1,17 @@
+Phase 5 sync + verify-sync result
+===================================
+Date: 2026-06-16
+
+$ make sync-dev   → done
+$ make verify-sync → ✅ All components in sync.  EXIT=0 (no DIFFERS/MISSING)
+Staged .claude/ paths: NONE (gitignored sync-dev output).
+
+Phase 5 edited src/superclaude/skills/sc-task-protocol/SKILL.md §4.5:
+- Step 3 tier→depth mapping: 1st→--depth standard; 2nd(escalation)/systemic/≥3 new tests→--depth deep; 3rd→FULL STOP.
+- Step 3 dispatch: /sc:troubleshoot --caller task-unified --context {context_path} --output-dir {output_dir} --depth {depth}; NO --fix.
+- Step 4 read line: "diagnostic return contract emitted by troubleshoot" + named adapter fields.
+- Step 4 status branches aligned to recommended_escalation enum (none/retry/escalate_depth/halt) + test_is_wrong intact.
+- Step 5: tasklist_insertion_path read; plan composed from remediation_target/root_cause_summary/solution_summary; append-not-replace clause; ownership note.
+- Step 1 freeze block: UNCHANGED (Change 6).
+
+VERDICT: PASS — verify-sync exit 0, no drift, no .claude/ staged.

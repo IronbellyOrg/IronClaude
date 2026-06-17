@@ -1,0 +1,28 @@
+Phase 2 sync + verify-sync result
+===================================
+Date: 2026-06-16
+
+$ make sync-dev
+  Skills:    29 directories
+  Agents:    42 files
+  Commands:  44 files
+  Hooks:     12 files
+  Templates: 15 files
+
+$ make verify-sync
+  ... (all components compared)
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+  ✅ All components in sync.
+EXIT=0  (no DIFFERS / MISSING lines)
+
+$ git status --porcelain
+ M src/superclaude/commands/task.md
+ M src/superclaude/skills/sc-task-protocol/SKILL.md
+?? .dev/tasks/to-do/TASK-RF-tfep-troubleshoot-migration-20260616-174519/
+
+Staged .claude/ paths: NONE
+(.claude/ mirror is gitignored output of sync-dev; only src/ paths appear.
+CLAUDE.md ABSOLUTE RULE honored — no .claude/ path staged.)
+
+VERDICT: PASS — verify-sync exit 0, no drift, no .claude/ staged.

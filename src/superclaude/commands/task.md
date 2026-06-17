@@ -45,7 +45,7 @@ Key flags: `--strategy`, `--compliance`, `--verify`, `--skip-compliance`, `--for
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--no-escalation` | `false` | Bypass TFEP (Test Failure Escalation Protocol) triggers. When set, agents may fix test failures directly without structured forensic analysis. **WARNING**: Using `--no-escalation` voids TFEP protection against ad-hoc fixes. |
+| `--no-escalation` | `false` | Bypass TFEP (Test Failure Escalation Protocol) triggers. When set, agents may fix test failures directly without structured diagnostic escalation analysis. **WARNING**: Using `--no-escalation` voids TFEP protection against ad-hoc fixes. |
 
 ## Classification (MANDATORY FIRST OUTPUT)
 

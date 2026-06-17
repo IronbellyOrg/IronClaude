@@ -1,0 +1,30 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260617-0148-tfep-e2e-validation/seed-brief.md
+merged_output_path: .dev/brainstorms/20260617-0148-tfep-e2e-validation/merged-requirements.md
+convergence_score: 0.88
+adversarial_artifacts_dir: .dev/brainstorms/20260617-0148-tfep-e2e-validation/adversarial/
+domain: process
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+
+telemetry:
+  agent_spec: "opus:qa:'design exhaustive e2e validation tests with binary acceptance criteria and explicit falsification checks',sonnet:analyzer:'prioritize deterministic evidence-anchored verdicts and 3x reproducibility and surface non-determinism risks',haiku:devops:'prioritize delegable subagent automation and audit-trail evidence artifacts and cross-run aggregation'"
+  models_resolved:
+    opus: claude-opus-4-8
+    sonnet: gpt-5.5
+    haiku: qwen3.6-plus
+  proposals: [proposal-A-qa.md, proposal-B-analyzer.md, proposal-C-devops.md]
+  base_selected: proposal-A-qa.md
+  artifacts:
+    - diff-analysis.md
+    - debate-transcript.md
+    - base-selection.md
+    - refactor-plan.md
+    - merge-log.md
+    - merged-requirements.md (merged output)

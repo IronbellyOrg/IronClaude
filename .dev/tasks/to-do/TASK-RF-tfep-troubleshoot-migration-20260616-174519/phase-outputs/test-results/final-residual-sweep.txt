@@ -1,0 +1,28 @@
+Final Residual-Reference Sweep (Step 7.1)
+==========================================
+Date: 2026-06-16
+
+--- A: /sc:forensic OR bare-forensic in the two task-protocol files ---
+$ rg -n "/sc:forensic|\bforensic\b" src/superclaude/skills/sc-task-protocol/SKILL.md src/superclaude/commands/task.md
+ZERO hits.
+
+--- B: /sc:forensic across src/ ---
+$ rg -n "/sc:forensic" src/
+ZERO hits in src/.
+
+--- C: /sc:forensic across docs/ (intentional historical refs allowed, not a failure) ---
+$ rg "/sc:forensic" docs/ | wc -l
+0 hits in docs/.
+
+--- Out-of-scope note ---
+The bare word "forensic" appears as generic vocabulary in unrelated src files
+(cli-eval, sc-crash-recovery, sc-brainstorm-protocol, sc-reflect-protocol, sc-cli-eval-protocol).
+These are NOT the /sc:forensic TFEP backend and are NOT in the two task-protocol files; they are
+pre-existing generic usages outside this migration's confined scope (TFEP §4.5 + task.md:48 +
+troubleshoot surfaces). They do not affect the determination.
+
+DETERMINATION: PASS
+- The two task-protocol files (sc-task-protocol/SKILL.md, commands/task.md) have ZERO
+  /sc:forensic / bare-forensic hits.
+- src/ has ZERO /sc:forensic hits.
+Per R-005 G3 post-rename verification, the migration left no live forensic residue in scope.

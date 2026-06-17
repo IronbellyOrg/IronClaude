@@ -1,0 +1,115 @@
+suite: TFEP-troubleshoot-backend E2E validation
+policy: strict_12_of_12_green_plus_digest_identity
+generated_at: "2026-06-17"
+overall_gate: INDETERMINATE
+suite_failure_class: cross_run_disagreement
+total_runs: 12
+passed: 10
+failed: 2
+
+per_test:
+  - test_id: E1
+    test_name: "Residual-Integrity & Sync-Parity"
+    runs:
+      - { run: 1, verdict: PASS, digest: "443baab42cb2" }
+      - { run: 2, verdict: PASS, digest: "443baab42cb2" }
+      - { run: 3, verdict: PASS, digest: "443baab42cb2" }
+    verdicts_unanimous: true
+    digests_identical: true
+    test_status: PASS
+
+  - test_id: E2
+    test_name: "Adapter Contract Round-Trip"
+    runs:
+      - { run: 1, verdict: PASS, digest: "202f96f6aa6f" }
+      - { run: 2, verdict: PASS, digest: "202f96f6aa6f" }
+      - { run: 3, verdict: PASS, digest: "202f96f6aa6f" }
+    verdicts_unanimous: true
+    digests_identical: true
+    test_status: PASS
+
+  - test_id: E3
+    test_name: "Protocol-Chain Resolution"
+    runs:
+      - { run: 1, verdict: PASS, digest: "cf4ead44b902" }
+      - { run: 2, verdict: PASS, digest: "1409a638d273" }
+      - { run: 3, verdict: PASS, digest: "cf4ead44b902" }
+    verdicts_unanimous: true
+    digests_identical: false
+    test_status: DISAGREE
+
+  - test_id: E4
+    test_name: "Safety-Invariant Preservation"
+    runs:
+      - { run: 1, verdict: FAIL, digest: "4c755bc4d688" }
+      - { run: 2, verdict: PASS, digest: "a6698219b1b4" }
+      - { run: 3, verdict: FAIL, digest: "4c755bc4d688" }
+    verdicts_unanimous: false
+    digests_identical: false
+    test_status: DISAGREE
+
+divergences:
+  - test_id: E3
+    divergence_on: digest
+    differing_runs: [2]
+    detail: >-
+      Verdicts unanimous PASS across all 3 runs (every AC3.1–AC3.9 holds in each).
+      Digest splits because the normalized_observations key `branch_keys_found_count`
+      is 8 in run-1/run-3 vs 6 in run-2 for the SAME H6 probe (AC3.4). All three runs
+      matched the identical H6 content (six branch keys + "first match wins" precedence
+      note at T1:222-230); run-2 normalized the count to the 6 semantic branch keys while
+      run-1/run-3 counted 8 matched lines (6 keys + first-match-wins + an extra escalation
+      line). chain_continuous=true and h1..h8=true are byte-identical across all 3 runs.
+    probe_id: "E3 H6 (AC3.4) — branch_keys_found_count normalization"
+    cause_class: digest_schema_looseness
+
+  - test_id: E4
+    divergence_on: verdict_and_digest
+    differing_runs: [1, 3]
+    detail: >-
+      run-2 PASS, run-1 & run-3 FAIL. The load-bearing safety gate AC4.1 (freeze block
+      byte-identity, DIFF_EXIT=0) PASSES in ALL THREE runs, and AC4.2/AC4.3/AC4.5/AC4.6
+      PASS in all three. The split is confined to two literal probe-regex commands that
+      under-match real file punctuation: (a) AC4.4 / probe I4a (incident-rebind)
+      "Diagnostic artifacts.*report_path .REPORT\\.md.*audit_log_path" returns 0 hits
+      because T1:260 is "report_path` (REPORT.md)" — backtick+space+paren (3 chars) where
+      the probe's " ." matches only space+one char; a loosened ".*"-separator probe matches
+      L260, and the clause-2 falsification (zero rca-verdict/solution-verdict) PASSES in all
+      runs. (b) AC4.7 / probe I1b (baseline cross-check) "STOP. testing" expects 1 char where
+      BASE has "**STOP** testing" (3 chars), and " .. " (2 dots) cannot span the single-codepoint
+      em-dash "—". run-2 graded these two AC on substantive content (PASS); run-1/run-3 bound
+      the verdict to the literal exit codes (FAIL). No run found a content/invariant regression;
+      incident_rebind normalized true(run-2)/false(run-1,3) and baseline_hits 2(run-2)/0(run-1,3)
+      are the only differing normalized keys, both probe-instrument artifacts.
+    probe_id: "E4 I4a (AC4.4 incident-rebind) and E4 I1b/C2 (AC4.7 baseline cross-check)"
+    cause_class: test_probe_artifact
+
+migration_substantively_validated: true
+
+recommended_test_fixes:
+  - test_id: E4
+    probe_id: I4a (AC4.4)
+    fix: >-
+      Replace the literal separator in the incident-rebind regex
+      "Diagnostic artifacts.*report_path .REPORT\\.md.*audit_log_path" with a tolerant
+      ".*" between report_path and REPORT.md:
+      "Diagnostic artifacts.*report_path.*REPORT\\.md.*audit_log_path"
+      so it matches the backtick+space+paren rendering at T1:260.
+  - test_id: E4
+    probe_id: I1b / C2 (AC4.7)
+    fix: >-
+      Fix the baseline cross-check regex to match BASE markdown bold + em-dash punctuation:
+      use "STOP.* testing immediately" (tolerate the "**" around STOP) and replace the
+      " .. " em-dash span with ".*" — e.g.
+      "STOP.* testing immediately|FREEZE.*implementation.*no further code changes permitted".
+      (Note the freeze block itself is byte-identical via AC4.1/DIFF_EXIT=0; only the
+      self-consistency cross-check regex is over-strict.)
+  - test_id: E3
+    probe_id: H6 (AC3.4) — branch_keys_found_count
+    fix: >-
+      Make the digest deterministic by defining branch_keys_found_count from the fixed set of
+      6 semantic branch keys (test_is_wrong, remediation_target==docs, status==success,
+      recommended_escalation in {none,retry,escalate_depth,halt}) rather than the raw rg match-line
+      count, OR exclude branch_keys_found_count from normalized_observations (it is not an AC
+      input — AC3.4 only requires presence of all six keys + the precedence note, which all 3 runs
+      confirmed). Either change makes E3's 3 digests byte-identical.

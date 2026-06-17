@@ -1,0 +1,131 @@
+schema_version: "1.0.0"
+test_id: E3
+test_name: "Protocol-Chain Resolution"
+run_index: 1
+verdict: PASS
+verdict_reason: >-
+  All deterministic criteria (AC3.1-AC3.8) satisfied: context bound to
+  {context_path} (H1); exact dispatch shape present with --caller task-unified
+  / --context / --output-dir / --depth (H2); NO --fix prohibition carried on
+  dispatch (H3); Wave 0 ingest + Wave 5 emit both gated on caller=task-unified
+  (H4/H5); all six branch keys + first-match-wins note present (H6); loop
+  discipline increment escalation_count + FULL STOP present (H7); depth map all
+  three ordinals present (H8); falsification FIX_TOTAL==FIX_PROHIBITION (2==2,
+  H9); zero --tier/--intent across all five files (H10). Anchored judgment
+  AC3.9 confirms a continuous chain.
+worktree: /config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend
+commands:
+  - id: H1
+    command: 'rg -n "Write context to .\{output_dir\}/context\.yaml" src/superclaude/skills/sc-task-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: a090c4ab8646735b0ab0cab9f5b690c970ef12192348c5950fd214f48f58f2b9
+  - id: H2
+    command: 'rg -nF "/sc:troubleshoot --caller task-unified --context {context_path} --output-dir {output_dir} --depth {depth}" src/superclaude/skills/sc-task-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: 551b4a1e8ae5beb86fcc858cf2aafac42e012a99d27fcd0bb6aea6501771de14
+  - id: H3
+    command: 'rg -n "Pass NO .--fix" src/superclaude/skills/sc-task-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: 551b4a1e8ae5beb86fcc858cf2aafac42e012a99d27fcd0bb6aea6501771de14
+  - id: H4a
+    command: 'rg -nF "When `caller=task-unified`, mark Wave 5 to emit `return-contract.yaml`" src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: 04e6e843b0b53437088162d8c228824c715509f2ae995834260897517c31fba7
+  - id: H4b
+    command: 'rg -n "return-contract" src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: 16698616945d311c8467c164ca3dce56360792b0d188decbfe45545998189ba3
+  - id: H5
+    command: 'rg -n "Emit TFEP return-contract|return-contract\.yaml.*written and its path returned" src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: ce41931c6c94b97abdd491e8a7ec6981839043fd3744ff4d94c86c017e1fcbd5
+  - id: H6
+    command: 'rg -n "first match wins|test_is_wrong == true|remediation_target == .docs.|status == .success.|recommended_escalation == .none.|recommended_escalation == .retry.|recommended_escalation == .escalate_depth.|recommended_escalation == .halt." src/superclaude/skills/sc-task-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: 6f014d7089be5d215a61e03e18a916c41a1a1883d8f1aa5305e2875e19d64d68
+  - id: H7
+    command: 'rg -n "increment .escalation_count.|FULL STOP" src/superclaude/skills/sc-task-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: a41d960d2732bce4da1ce26ab5432320fb43c0365600745e1d15712fcf3967a8
+  - id: H8
+    command: 'rg -n "1st TFEP trigger|2nd TFEP trigger|systemic failure OR ≥3 new failing tests|3rd TFEP trigger|--depth standard|--depth deep" src/superclaude/skills/sc-task-protocol/SKILL.md'
+    exit_code: 0
+    stdout_sha256: 1d7b9deda194e30a92b3335f7c3f9ebcc61ed472558082c1b92d0958894cc484
+  - id: H9
+    command: 'TOTAL=$(rg -c -- "--fix" T1); PROHIB=$(rg -c "NO .--fix|Pass NO .--fix|with NO --fix" T1); echo "FIX_TOTAL=$TOTAL FIX_PROHIBITION=$PROHIB"'
+    exit_code: 0
+    stdout_sha256: f3b26b45481d6e90426bf6ba64ee8a15819d85eec7082b3543283a6e2f70eef7
+  - id: H10
+    command: 'rg -c -- "--tier|--intent" T1 C1 P1 src/superclaude/commands/task.md src/superclaude/skills/sc-troubleshoot-protocol/refs/report-template.md'
+    exit_code: 1
+    stdout_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+criteria:
+  - id: AC3.1
+    class: DETERMINISTIC
+    expected: "H1 exit 0 — context bound to {context_path}"
+    observed: "H1 exit 0; line 205 binds {output_dir}/context.yaml to {context_path}"
+    result: PASS
+    evidence_ref: "findings.md#H1"
+  - id: AC3.2
+    class: DETERMINISTIC
+    expected: "H2 exact dispatch shape (--caller task-unified, --context, --output-dir, --depth)"
+    observed: "H2 exit 0; line 215 contains exact fixed-string dispatch"
+    result: PASS
+    evidence_ref: "findings.md#H2"
+  - id: AC3.3
+    class: DETERMINISTIC
+    expected: "H4 ingest + H5 emit gated on caller=task-unified"
+    observed: "H4a/H4b exit 0 (Wave 0 ingest line 148); H5 exit 0 (Wave 5 step 4.5 line 471 + exit-criteria line 481)"
+    result: PASS
+    evidence_ref: "findings.md#H4 findings.md#H5"
+  - id: AC3.4
+    class: DETERMINISTIC
+    expected: "H6 all six branch keys + first-match-wins note"
+    observed: "H6 exit 0; 8 distinct branch keys incl. first-match-wins, test_is_wrong==true, remediation_target==docs, status==success, escalation none/retry/escalate_depth/halt"
+    result: PASS
+    evidence_ref: "findings.md#H6"
+  - id: AC3.5
+    class: DETERMINISTIC
+    expected: "H7 increment + FULL STOP"
+    observed: "H7 exit 0; increment escalation_count (lines 228,229) + FULL STOP (lines 213,229,230,270)"
+    result: PASS
+    evidence_ref: "findings.md#H7"
+  - id: AC3.6
+    class: DETERMINISTIC
+    expected: "H8 depth map all three ordinals"
+    observed: "H8 exit 0; 1st->standard (210), 2nd->deep (211), 3rd->FULL STOP (213); standard/deep present"
+    result: PASS
+    evidence_ref: "findings.md#H8"
+  - id: AC3.7
+    class: DETERMINISTIC
+    expected: "FIX_TOTAL == FIX_PROHIBITION"
+    observed: "FIX_TOTAL=2 FIX_PROHIBITION=2"
+    result: PASS
+    evidence_ref: "findings.md#H9"
+  - id: AC3.8
+    class: DETERMINISTIC
+    expected: "H10 zero --tier/--intent across all five files"
+    observed: "H10 exit 1 (no matches) -> 0 occurrences"
+    result: PASS
+    evidence_ref: "findings.md#H10"
+  - id: AC3.9
+    class: JUDGMENT
+    expected: "one bounded conclusion: chain continuous — every required output has a later producer/ingester anchor (cite H2/H4/H5/H6 only)"
+    observed: "Chain continuous: dispatch (H2:215) -> ingest gate (H4:148) -> emit (H5:471,481) -> consumer branch ladder (H6:222-230). Each step's required output has a later ingester."
+    result: PASS
+    evidence_ref: "findings.md#AC3.9"
+normalized_observations:
+  h1: true
+  h2: true
+  h3: true
+  h4: true
+  h5: true
+  h6: true
+  h7: true
+  h8: true
+  fix_total: 2
+  fix_prohibition: 2
+  tier_intent_count: 0
+  branch_keys_found_count: 8
+  chain_continuous: true
+normalized_observation_digest: cf4ead44b9029fbf70b1976594630ff7edb7605281a76a87710b39dabef21108

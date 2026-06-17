@@ -1,0 +1,22 @@
+Phase 3 sync + verify-sync result
+===================================
+Date: 2026-06-16
+
+$ make sync-dev   → done
+$ make verify-sync
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+  ✅ All components in sync.
+EXIT=0  (no DIFFERS / MISSING)
+
+$ git status --porcelain (modified src):
+ M src/superclaude/commands/task.md
+ M src/superclaude/commands/troubleshoot.md
+ M src/superclaude/skills/sc-task-protocol/SKILL.md
+ M src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+
+Staged .claude/ paths: NONE (.claude/ mirror is gitignored sync-dev output).
+
+VERDICT: PASS — verify-sync exit 0, no drift, no .claude/ staged.
+Phase 3 edited: src/superclaude/commands/troubleshoot.md (argument-hint, 2 Options rows,
+parse step, surface list) + src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+(Wave 0 parse sentence, new step 6, STOP condition, TARGET header keys, SUMMARY footer keys).

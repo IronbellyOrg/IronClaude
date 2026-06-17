@@ -4,6 +4,8 @@ description: Unified task execution with intelligent workflow management, MCP co
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 ---
 
+<!-- markdownlint-disable MD041 MD040 -->
+
 > **NOTE**: Classification has already been performed by the `/sc:task` command before this skill was invoked. The classification header has already been emitted. Do NOT emit it again. This skill handles **execution only** for STANDARD and STRICT tier tasks.
 >
 > If for any reason no classification header was emitted before this skill was invoked, emit one now using ONLY the tier values STRICT, STANDARD, LIGHT, or EXEMPT (no other values are valid).
@@ -134,6 +136,8 @@ Route to appropriate verification based on tier and paths:
 
 **CRITICAL**: When tests fail during the Verification Phase (Section 4), agents MUST follow this protocol. Ad-hoc fixes are PROHIBITED.
 
+**Diagnostic backend:** `troubleshoot` (the `/sc:troubleshoot` skill; see `sc:troubleshoot-protocol`). The TFEP references below are backend-neutral — swapping the backend changes only this declaration and the invocation string.
+
 #### TFEP Prohibition Rules (VIOLATION-level)
 
 These rules apply to ALL compliance tiers that run tests (STRICT, STANDARD):
@@ -169,7 +173,7 @@ Before implementation begins, the agent MUST record a test baseline:
 - **3 or more new tests** fail simultaneously (indicates a systemic issue, not a simple typo).
 - **Runtime exceptions in implementation code** (TypeError, AttributeError, KeyError, etc. in the code being tested, not in the test scaffolding itself).
 
-**Escalation gradient (within-TFEP, for future forensic integration):**
+**Escalation gradient (within-TFEP, for diagnostic-backend escalation):**
 
 - Repeated failure (same test cluster fails after fix attempt) → escalate from light to standard
 - Multi-file blast radius from recent changes → escalate
@@ -200,33 +204,41 @@ When TFEP triggers, execute the following steps:
 - `test_baseline`: the pre-implementation test baseline
 - `escalation_count`: which TFEP trigger this is (1, 2, or 3)
 
-4. Write context to `{output_dir}/context.yaml`.
+4. Write context to `{output_dir}/context.yaml` — this file is the `{context_path}` passed to the diagnostic backend in Step 3.
 
-**Step 3: Invoke forensic**
-5. Determine the forensic tier based on escalation count:
+**Step 3: Invoke diagnostic escalation**
+5. Determine the diagnostic depth based on escalation count and failure severity:
 
-- 1st trigger → `--tier light --intent triage`
-- 2nd trigger → `--tier standard`
-- 3rd trigger → **FULL STOP**. Report to user. Do not attempt further fixes.
+- 1st TFEP trigger → `--depth standard`
+- 2nd TFEP trigger (escalation) → `--depth deep`
+- systemic failure OR ≥3 new failing tests → `--depth deep`
+- 3rd TFEP trigger → **FULL STOP** (report to user, no further fixes)
 
-6. Invoke: `/sc:forensic --tier {tier} --intent triage --caller task-unified --context {context_path} --output {output_dir} --depth quick`
-7. The forensic pipeline runs autonomously through all its phases and returns a structured return contract.
+6. Invoke: `/sc:troubleshoot --caller task-unified --context {context_path} --output-dir {output_dir} --depth {depth}` where `{depth}` is determined by the depth mapping above (this step's bullets): `--depth standard` for the 1st/simple TFEP trigger, and `--depth deep` for a systemic failure, ≥3 new failing tests, or a 2nd (escalation) trigger. Pass NO `--fix` — TFEP invokes troubleshoot for DIAGNOSIS ONLY; remediation insertion and resume stay with task-protocol.
+7. The diagnostic escalation backend runs autonomously through all its phases and returns a structured return contract.
 
-**Step 4: Consume forensic results**
-8. Read the forensic return contract from `{output_dir}/return-contract.yaml`.
+**Step 4: Consume diagnostic results**
+8. Read the diagnostic return contract emitted by troubleshoot from `{output_dir}/return-contract.yaml` (the TFEP adapter contract; see `sc:troubleshoot-protocol` Wave 5 emission and Output Contract fields `status`, `test_is_wrong`, `recommended_escalation`, `tasklist_insertion_path`, `remediation_target`, `root_cause_summary`, `solution_summary`).
 9. Handle based on status:
 
+Evaluate the branches top-to-bottom, first match wins; the asymmetric-cost gates (`test_is_wrong`, `remediation_target == "docs"`) are checked first.
+
 - If `test_is_wrong == true`: Present to user for review. Do NOT auto-fix tests.
-- If `status == "success"`: Proceed to Step 5 (tasklist insertion).
-- If `status == "partial"` or `recommended_escalation != "none"`: Increment `escalation_count` and return to Step 3.
-- If `status == "failed"`: Report to user, halt execution.
+- If `remediation_target == "docs"`: present to user for spec/stakeholder review. Do NOT auto-insert a code remediation.
+- If `status == "success"`: proceed to Step 5 (insert remediation plan + resume).
+- If `recommended_escalation == "none"`: remediation ready — insert the adjudicated plan and resume (Step 5). (A `status == "partial"` diagnosis is routed by `recommended_escalation` — normally `retry`/`escalate_depth` per the backend derivation — not auto-resumed here.)
+- If `recommended_escalation == "retry"`: re-run `/sc:troubleshoot` once at the SAME `--depth` (re-enter Step 3; increment `escalation_count`).
+- If `recommended_escalation == "escalate_depth"`: re-invoke `/sc:troubleshoot` at `--depth deep` (re-enter Step 3; increment `escalation_count`). If the run was already at `--depth deep`, there is no deeper level — treat as FULL STOP.
+- If `recommended_escalation == "halt"` (or `status == "failed"`): **FULL STOP** — report to user, no further fixes (immediate FULL STOP regardless of `escalation_count`).
 
 **Step 5: Tasklist insertion**
-10. Read `tasklist_insertion_path` from the return contract.
+10. Read `tasklist_insertion_path` from the return contract; when it is `null` (the default in diagnosis-only mode), compose the block from the summary fields per item 11.
 11. Insert the remediation block into the current tasklist:
     - Add `## Failure Remediation Plan (Adjudicated)` heading.
-    - Insert remediation tasks BEFORE existing test/verification tasks.
+    - Compose the plan body from the adapter fields `remediation_target`, `root_cause_summary`, and `solution_summary` (read from the return contract).
+    - Insert remediation tasks BEFORE existing test/verification tasks (append-not-replace: existing test/verification tasks are preserved; the adjudicated plan is inserted ahead of them).
     - Preserve original tasklist structure — append, don't replace.
+    - (Remediation ownership: troubleshoot diagnoses and emits the contract under --caller task-unified with NO --fix; task-protocol owns this insertion and the Step 6 resume — see the Diagnostic backend declaration.)
 
 **Step 6: Resume**
 12. Resume execution with `--compliance strict` starting from the inserted remediation tasks.
@@ -244,19 +256,19 @@ After each TFEP resolution (success or escalation), produce `tfep-incident-repor
 - **Trigger**: {which threshold rule fired}
 - **Escalation count**: {1, 2, or 3}
 - **Failing tests**: {test names and classification}
-- **Root cause**: {summary from rca-verdict.md}
-- **Solution**: {summary from solution-verdict.md}
+- **Root cause**: {`root_cause_summary` from the return contract}
+- **Solution**: {`solution_summary` from the return contract}
 - **Outcome**: {success / escalated / failed}
-- **Forensic artifacts**: {path to output_dir}
+- **Diagnostic artifacts**: troubleshoot `report_path` (REPORT.md), `audit_log_path` (audit.log), and any additional diagnostic artifacts emitted by the backend
 ```
 
-This report is committed to git alongside other forensic artifacts.
+This report is committed to git alongside other diagnostic artifacts.
 
 #### Escalation Budget
 
 ```
-1st TFEP trigger  → /sc:forensic --tier light --intent triage    (~5-8K tokens)
-2nd TFEP trigger  → /sc:forensic --tier standard                 (~15-20K tokens)
+1st TFEP trigger  → /sc:troubleshoot --caller task-unified --depth standard
+2nd TFEP trigger (escalation, systemic, or ≥3 new failing tests)  → /sc:troubleshoot --caller task-unified --depth deep
 3rd TFEP trigger  → FULL STOP. Report to user. Do not attempt further fixes.
 ```
 

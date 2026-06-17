@@ -59,7 +59,7 @@ The skill returns a structured dictionary on completion:
 | `diagnosability_context_card_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-context.md`; `null` only when `--no-diagnosability-audit` was set or Wave 1.6 was not reached |
 | `diagnosability_tasklist_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-tasklist.md`; populated when verdict ∈ {partial, insufficient} AND tasklist was emitted; `null` for sufficient/unknown/skipped |
 | `diagnosability_hard_stop` | bool | `true` when Wave 1.6 fired the hard-stop and skipped Waves 1.7-4; mutually informative with existing `status: partial` |
-| `contract_version` | semver string | Output-contract semver, default `1.0.0`. Additive version stamp for the Pipeline Hardening Closure fields below (FR-13); existing consumers reading only the prior fields are unaffected (NFR-6). Distinct from `target_release`. |
+| `contract_version` | semver string | Output-contract semver, default `1.1.0`. Additive version stamp for the Pipeline Hardening Closure fields (FR-13) and the TFEP adapter fields (`recommended_escalation`, `tasklist_insertion_path`, `remediation_target`, `root_cause_summary`, `solution_summary`); existing consumers reading only the prior fields are unaffected (NFR-6). Distinct from `target_release`. |
 | `pipeline_hardening_applicable` | bool | `true` when Wave 4.5 H0 classifies the issue as a pipeline escape / boundary change; default `false`. Set exactly once by H0. |
 | `pipeline_hardening_verdict` | enum `pass \| blocked \| advisory \| not_applicable` | Deterministic aggregation of the H0–H5 statuses + `waiver_status` per `refs/hardening-output-contract.md` §5.4; default `not_applicable`. Once a waiver is latched the verdict is `blocked`/`advisory` and is never re-greened to `pass`/`success` by a downstream stage. |
 | `waiver_status` | enum `none \| latched` | One-way latch; default `none`. `none`→`latched` only; once `latched`, `pipeline_hardening_verdict` ∈ {blocked, advisory}. |
@@ -70,6 +70,11 @@ The skill returns a structured dictionary on completion:
 | `unmask_sweep_path` | string \| null | Absolute path to the H3 unmask/sweep/classifier card; `null` before H3 runs. |
 | `effective_input_card_path` | string \| null | Absolute path to the H4 effective-input manifest; `null` before H4 runs. |
 | `known_escapes_caught` | list | List of `{escape_id, wave, card_path, status}` objects; default `[]`. Membership requires a cited passing wave/card (`status=PASS`) per the anti-inflation rule. |
+| `recommended_escalation` | enum `none\|retry\|escalate_depth\|halt` | TFEP adapter field (contract v1.1.0+). Forward-looking recommendation to the caller, synthesized from `status` + `tier_reached` + `confidence` + the Wave 5 Next Steps section. `none` = remediation ready; `retry` = re-run at same depth; `escalate_depth` = re-run deeper; `halt` = full stop. |
+| `tasklist_insertion_path` | string \| null (abs path) | TFEP adapter field (contract v1.1.0+). Path to the adjudicated remediation-plan block the caller (task-protocol) should insert into its tasklist; null when no remediation is proposed (e.g. `recommended_escalation: halt`). Distinct from `task_file_path` (Tier-3 MDTM file) and `diagnosability_tasklist_path` (instrumentation tasklist). |
+| `remediation_target` | enum `test\|code\|docs\|none` | TFEP adapter field (contract v1.1.0+). Which artifact the proposed remediation targets, composed from the asymmetric-cost gates: `test` when `test_is_wrong` is true (paired with `test_file_path`); `docs` when `behavior_is_documented` indicates a doc gap; `code` otherwise; `none` when `recommended_escalation: halt`. |
+| `root_cause_summary` | string | TFEP adapter field (contract v1.1.0+). One-to-three sentence root-cause summary, extracted verbatim or condensed from the REPORT.md **Diagnosis** section (Wave 5). Empty string when diagnosis is inconclusive. |
+| `solution_summary` | string | TFEP adapter field (contract v1.1.0+). One-to-three sentence proposed-solution summary, extracted from the REPORT.md **Proposed Fix** / **Next Steps** section (Wave 5). Empty string when no fix is proposed (e.g. `recommended_escalation: halt`). |
 
 **`test_is_wrong` derivation rule** (applied during Wave 5 synthesis): set `test_is_wrong=true` when the chosen diagnosis names a test file (not production code) as the file requiring change, AND one of these conditions holds:
 
@@ -112,7 +117,7 @@ Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-
 
 **Steps**:
 
-1. Parse flags. Required: issue description OR `--scope`. Optional: `--type`, `--depth`, `--fix`, `--no-escalate`, `--models`, `--output-dir`, `--no-mcp`, `--no-diagnosability-audit`, `--diagnosability-handoff`, `--reset-diagnosability-rounds`.
+1. Parse flags. Required: issue description OR `--scope`. Optional: `--type`, `--depth`, `--fix`, `--no-escalate`, `--models`, `--output-dir`, `--no-mcp`, `--no-diagnosability-audit`, `--diagnosability-handoff`, `--reset-diagnosability-rounds`, `--context`, `--caller`.
 2. Auto-detect `--type` if not provided. Use keyword + structural cues from the issue description:
    - Stack trace, exception name, `undefined`/`null`/`NameError` → `bug`
    - "tsc", "ts(", "compiled", "lint", "build", `make`, CI log fragments → `build`
@@ -135,12 +140,16 @@ fix_authorized: <bool>
 no_escalate: <bool>
 mcps_available: <auggie|serena|context7|tavily|sequential|none>
 output_dir: <abs-path>
+caller: <name|none>
+context_path: <abs-path|none>
 -->
 ```
 
+6. If `--caller` is set, record it in the audit header `caller:` field (see the TARGET header below). If `--context <path>` is set, read it (the caller brief) and resolve it to an absolute path; STOP if the path is unreadable. When `caller=task-unified`, mark Wave 5 to emit `return-contract.yaml` (see Wave 5).
+
 **Exit criteria**: input validated, output dir created, audit log opened. Emit "Wave 0 complete: type=<type> depth=<depth>".
 
-**STOP conditions**: missing input, conflicting flags (`--depth quick` with `--fix`), `--depth deep` on under-specified input, `--output-dir` not writable.
+**STOP conditions**: missing input, conflicting flags (`--depth quick` with `--fix`), `--depth deep` on under-specified input, `--output-dir` not writable, `--context` path unreadable.
 
 ---
 
@@ -453,8 +462,13 @@ hypothesis_count: <N>
 adversarial_invoked: <bool>
 fix_authorized: <bool>
 duration_sec: <N>
+caller: <name|none>
+context_path: <abs-path|none>
+return_contract_path: <abs-path|none>
 -->
 ```
+
+4.5. **Emit TFEP return-contract (conditional, when `caller=task-unified`)** — write `<output-dir>/return-contract.yaml` mapping the Output Contract fields to the TFEP-consumed schema: `status`, `test_is_wrong`, `recommended_escalation`, `tasklist_insertion_path`, `remediation_target`, `root_cause_summary`, `solution_summary`. Source the asymmetric-cost gates from `test_is_wrong`/`test_file_path`/`behavior_is_documented`; source `root_cause_summary` from the REPORT.md Diagnosis (step 2) and `solution_summary` from the REPORT.md Proposed Fix / Next Steps; derive `recommended_escalation` from `status`+`tier_reached`+`confidence`. Derivation clarifications: copy `status` from the Output Contract `status` computed in step 3 (values `success|partial|failed`). Default `tasklist_insertion_path` to `null` in this diagnosis-only TFEP mode — under the remediation-ownership decision the task-protocol composes the `## Failure Remediation Plan (Adjudicated)` block from `remediation_target`/`root_cause_summary`/`solution_summary`, so this field is non-null ONLY if troubleshoot itself wrote a standalone adjudicated remediation-plan file under `<output-dir>/` (do not invent a new mandatory artifact; the default is `null`). `test_file_path` is intentionally NOT duplicated into this 7-field wire set: when `remediation_target=test` the test path remains available via the broader Output Contract / REPORT.md, and the consumer's asymmetric-cost branch presents to the user (it does not auto-fix), so the path need not be in the wire contract. Path-valued fields in the emitted `return-contract.yaml` are ABSOLUTE paths. For `recommended_escalation` use this deterministic tie-break hint: `status=failed` or a hard-stop → `halt`; `status=partial` with low confidence → `escalate_depth`; `status=partial` at tier < 2 → `retry`; `status=success` → `none` (the consumer-side action mapping lives in the task-protocol consumer, Phase 5). Record `return_contract_path` in the audit footer (SUMMARY block). NOTE: TFEP invokes troubleshoot for DIAGNOSIS ONLY and does NOT pass `--fix` (per the task-protocol remediation-ownership decision) — this step emits the contract but does NOT apply any remediation. The same fields are ALSO rendered as the `## TFEP Consumer` section of REPORT.md (per `refs/report-template.md`) when `caller=task-unified`.
 
 5. Surface to the user in chat:
    - One-paragraph summary
@@ -462,8 +476,9 @@ duration_sec: <N>
    - The chosen fix (concise)
    - Tier reached + confidence
    - Next-step recommendation
+   - (if `caller=task-unified`) the emitted `return-contract.yaml` path.
 
-**Exit criteria**: `REPORT.md` written, audit log finalized, user notified. If `--fix` is not set, return the output contract and STOP.
+**Exit criteria**: `REPORT.md` written, audit log finalized, user notified. If `--fix` is not set, return the output contract and STOP. When `caller=task-unified`, `return-contract.yaml` is written and its path returned.
 
 ---
 

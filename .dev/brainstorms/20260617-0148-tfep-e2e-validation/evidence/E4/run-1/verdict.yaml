@@ -1,0 +1,114 @@
+schema_version: "1.0.0"
+test_id: E4
+test_name: "Safety-Invariant Preservation"
+run_index: 1
+verdict: FAIL
+verdict_reason: >-
+  AC4.1/AC4.2/AC4.3/AC4.5/AC4.6 PASS: the live Step-1 freeze block is byte-identical to the
+  recorded baseline (DIFF_EXIT=0), both asymmetric remediation gates (test_is_wrong, docs)
+  are present, exactly one **Diagnostic backend:** declaration plus the backend-neutral clause
+  exist, the report-template asymmetric rules are present, and the freeze block contains zero
+  forensic/troubleshoot backend tokens. However AC4.4 and AC4.7 FAIL *as the literal probe
+  commands are specified*. AC4.4 clause-1 (incident-rebind) regex
+  "Diagnostic artifacts.*report_path .REPORT\.md.*audit_log_path" returns 0 hits because the
+  actual line-260 text is "`report_path` (REPORT.md)" — the ` .` in the probe matches only
+  one char between report_path and REPORT, but the file has backtick+space+open-paren (3 chars);
+  a loosened "report_path.*REPORT\.md.*audit_log_path" matches line 260, confirming the CONTENT
+  is present and correct. AC4.7 baseline cross-check
+  "STOP. testing immediately|FREEZE.*implementation .. no further code changes permitted" returns
+  0 hits on BASE because BASE text is "**STOP** testing immediately." (probe `STOP. testing`
+  expects 1 char between STOP and " testing" but file has `** ` = 3 chars) and the em-dash `—`
+  is one UTF-8 codepoint that ` .. ` (2 dots) cannot span. Both failures are probe-regex /
+  content-punctuation-spacing mismatches, NOT safety-invariant regressions — the underlying
+  invariants are intact. Verdict is FAIL strictly because the deterministic AC are bound to the
+  literal commands and 2 of 7 do not produce their EXPECT result.
+worktree: "/config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend"
+commands:
+  - id: C1
+    command: "diff -u /tmp/e4r1_base.txt /tmp/e4r1_live.txt; echo DIFF_EXIT=$?"
+    exit: 0
+    stdout_sha256: "49f6be09cd9bde2d8e27987df4cacf91eeb32fe633985e9ecd8092a91d784f24"
+  - id: C2
+    command: "rg -n \"STOP. testing immediately|FREEZE.*implementation .. no further code changes permitted\" $BASE"
+    exit: 1
+    stdout_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  - id: C3
+    command: "rg -n \"test_is_wrong == true.*Present to user|Do NOT auto-fix tests\" $T1"
+    exit: 0
+    stdout_sha256: "83a9efb08102d55a6855e9a8772a5a8d089857540d508c6690b83b3f7434a67b"
+  - id: C4
+    command: "rg -n \"remediation_target == .docs.*present to user|Do NOT auto-insert\" $T1"
+    exit: 0
+    stdout_sha256: "07ce1937e6fda01928af2b054fb69abbe117b7a6f3c6593809db4ac2bb630e56"
+  - id: C5
+    command: "rg -c \"\\*\\*Diagnostic backend:\\*\\*\" $T1"
+    exit: 0
+    stdout_sha256: "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  - id: C6
+    command: "rg -n \"backend-neutral|swapping the backend changes only this declaration\" $T1"
+    exit: 0
+    stdout_sha256: "745e4d9da283d9de44b344fea100ab2b274d11eb38b001cdc4d3169f56f3d0c6"
+  - id: C7
+    command: "rg -n \"Diagnostic artifacts.*report_path .REPORT\\.md.*audit_log_path\" $T1"
+    exit: 1
+    stdout_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  - id: C8
+    command: "rg -c \"rca-verdict|solution-verdict\" $T1"
+    exit: 1
+    stdout_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  - id: C9
+    command: "rg -n \"Files that MUST NOT change|behavior_is_documented\" $R1"
+    exit: 0
+    stdout_sha256: "a820d20c6e4812ffe6136722372c60fab02595a9ecd25af0ed0be49630a8e76b"
+  - id: C10
+    command: "rg -n \"forensic|troubleshoot\" /tmp/e4r1_live.txt"
+    exit: 1
+    stdout_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+criteria:
+  - id: AC4.1
+    expected: "freeze block byte-identical to baseline (DIFF_EXIT=0)"
+    observed: "DIFF_EXIT=0; live and base both 130 bytes, identical"
+    result: PASS
+    evidence_ref: "C1; findings.md I1"
+  - id: AC4.2
+    expected: "both asymmetric gates present (test_is_wrong + docs)"
+    observed: "gate_test_is_wrong matched (L224), gate_docs matched (L225)"
+    result: PASS
+    evidence_ref: "C3, C4; findings.md I2"
+  - id: AC4.3
+    expected: "exactly one Diagnostic-backend declaration + neutral clause"
+    observed: "backend_decl_count=1; neutral clause matched (L137)"
+    result: PASS
+    evidence_ref: "C5, C6; findings.md I3"
+  - id: AC4.4
+    expected: "incident artifacts from report_path/audit_log_path AND zero rca-verdict/solution-verdict"
+    observed: "incident_rebind literal probe=0 hits (FAIL clause-1; content present at L260 via loosened regex); verdict tokens count=0 (PASS clause-2)"
+    result: FAIL
+    evidence_ref: "C7 (fail), C8 (pass); findings.md I4"
+  - id: AC4.5
+    expected: "report-template asymmetric rules present"
+    observed: "matched at L92/276/285/291/297"
+    result: PASS
+    evidence_ref: "C9; findings.md I5"
+  - id: AC4.6
+    expected: "zero forensic/troubleshoot tokens in freeze block (NEG_EXIT=1)"
+    observed: "freeze_backend_token_count=0; NEG_EXIT=1"
+    result: PASS
+    evidence_ref: "C10; findings.md I6"
+  - id: AC4.7
+    expected: "baseline self-consistent: >=1 hit on BASE cross-check"
+    observed: "baseline_hits=0 (EXIT=1); probe regex mismatches BASE punctuation (** and em-dash)"
+    result: FAIL
+    evidence_ref: "C2; findings.md I1-crosscheck"
+normalized_observations:
+  freeze_diff_exit: 0
+  baseline_hits: 0
+  gate_test_is_wrong: true
+  gate_docs: true
+  backend_decl_count: 1
+  neutral_clause: true
+  incident_rebind: false
+  verdict_artifact_tokens_absent: true
+  report_template_rules: true
+  freeze_backend_token_count: 0
+normalized_observation_digest: "4c755bc4d688266ed76f0368f3a89c9beb91c34d989844b9294d9514d2746f25"
