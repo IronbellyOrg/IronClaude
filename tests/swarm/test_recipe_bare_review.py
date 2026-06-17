@@ -261,6 +261,107 @@ def test_dispatcher_keeps_parse_error_when_body_is_unrecoverable(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# 3b -- FR-028 regression: per-worker status threads through the SHARED
+# recipe_args path. The production caller forwards ONE shared recipe_args
+# dict to every worker (no per-worker ``status`` key); the dispatcher must
+# inject ``worker.status`` per call so the recipe's §7.4 salvage gate sees
+# the real upstream status. These tests deliberately OMIT ``status`` from
+# recipe_args -- before the fix the recipe defaulted to ``"success"`` and
+# never entered the salvage branch, so a recoverable parse_error reviewer
+# was silently left failed (M undercount -> aggregate ``partial``).
+# ---------------------------------------------------------------------------
+
+
+def test_dispatcher_threads_per_worker_status_for_salvage(tmp_path):
+    """parse_error worker + recoverable body is PROMOTED to success even
+    when recipe_args carries no ``status`` key (real shared-args shape)."""
+    body = (FIXTURES_DIR / "salvage.raw.txt").read_text(encoding="utf-8")
+    worker = _make_worker(tmp_path, 7, status="parse_error", body=body)
+
+    # NOTE: no "status" key -- this is the production shared-args shape.
+    [out] = normalize_wave2(
+        [worker],
+        "bare-review-v1",
+        recipe_args={
+            "target": FIXED_TARGET,
+            "target_checksum": FIXED_CHECKSUM,
+            "target_truncated": False,
+            "model_id": worker.model_id,
+            "model_label": worker.model_label,
+            "caller_label": "",
+            "elapsed_ms": worker.elapsed_ms,
+            "generated": FIXED_GENERATED,
+        },
+    )
+
+    assert out.status == "success"
+    meta = json.loads(Path(worker.meta_path).read_text(encoding="utf-8"))
+    assert meta["salvaged"] is True
+    assert meta["status"] == "success"
+
+
+def test_dispatcher_unrecoverable_parse_error_stays_failed_shared_args(tmp_path):
+    """parse_error worker with no findings AND no verdict stays
+    parse_error even when recipe_args omits ``status`` (shared-args
+    shape) -- per-worker status is threaded, salvage gate rejects."""
+    body = "this body has no findings table and no verdict heading\n"
+    worker = _make_worker(tmp_path, 8, status="parse_error", body=body)
+
+    # NOTE: no "status" key -- production shared-args shape.
+    [out] = normalize_wave2(
+        [worker],
+        "bare-review-v1",
+        recipe_args={
+            "target": FIXED_TARGET,
+            "target_checksum": FIXED_CHECKSUM,
+            "target_truncated": False,
+            "model_id": worker.model_id,
+            "model_label": worker.model_label,
+            "caller_label": "",
+            "elapsed_ms": worker.elapsed_ms,
+            "generated": FIXED_GENERATED,
+        },
+    )
+
+    assert out.status == "parse_error"
+    meta = json.loads(Path(worker.meta_path).read_text(encoding="utf-8"))
+    assert meta["salvaged"] is False
+    assert meta["status"] == "parse_error"
+    assert not Path(worker.final_path).exists()
+
+
+def test_dispatcher_shared_args_mixed_statuses(tmp_path):
+    """ONE shared recipe_args dict (no ``status`` key) drives a mixed
+    batch: the success worker stays success, the recoverable parse_error
+    worker is promoted, and the unrecoverable parse_error worker stays
+    failed. Proves the per-worker injection is per-call, not global."""
+    ok_body = (FIXTURES_DIR / "basic_findings.raw.txt").read_text(encoding="utf-8")
+    salvage_body = (FIXTURES_DIR / "salvage.raw.txt").read_text(encoding="utf-8")
+    dead_body = "no findings table and no verdict heading\n"
+
+    w_ok = _make_worker(tmp_path, 10, status="success", body=ok_body)
+    w_salvage = _make_worker(tmp_path, 11, status="parse_error", body=salvage_body)
+    w_dead = _make_worker(tmp_path, 12, status="parse_error", body=dead_body)
+
+    shared_args = {
+        "target": FIXED_TARGET,
+        "target_checksum": FIXED_CHECKSUM,
+        "target_truncated": False,
+        "caller_label": "",
+        "generated": FIXED_GENERATED,
+    }
+    outs = normalize_wave2(
+        [w_ok, w_salvage, w_dead],
+        "bare-review-v1",
+        recipe_args=shared_args,
+    )
+
+    assert [o.status for o in outs] == ["success", "success", "parse_error"]
+    # Shared dict not mutated by the per-worker status injection.
+    assert "status" not in shared_args
+
+
+# ---------------------------------------------------------------------------
 # 4 -- AC-011 boundary -- findings preserved verbatim (no scoring/dedup)
 # ---------------------------------------------------------------------------
 
