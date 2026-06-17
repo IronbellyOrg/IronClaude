@@ -27,10 +27,11 @@ from .models import Finding, MonitorState, PushDecision, SkillResult
 from .severity_router import ROUTE_REPORT_ONLY, remap_severity, route
 
 # Defaults (spec FR-1.1 / FR-2.3).
+DEFAULT_MONITOR = 1
 DEFAULT_MAX_ROUNDS = 2
 HARD_CAP_MAX_ROUNDS = 5
 MIN_POLL_INTERVAL = 30
-DEFAULT_TIMEOUT = 1800
+DEFAULT_TIMEOUT = 600
 
 POLL_INTERVAL_ERROR = "minimum is 30 seconds"
 MAX_ROUNDS_ERROR = "--max-rounds hard cap is 5"
@@ -48,7 +49,7 @@ PROPOSE_PROMPT = "fix these? y/n"
 class SkillArgs:
     """Parsed `sc:pr-submit` flags."""
 
-    monitor: int = 0
+    monitor: int = DEFAULT_MONITOR
     max_rounds: int = DEFAULT_MAX_ROUNDS
     poll_interval: int = MIN_POLL_INTERVAL
     timeout: int = DEFAULT_TIMEOUT
@@ -62,14 +63,16 @@ class SkillArgs:
 
     @property
     def armed(self) -> bool:
-        """The monitor arms only at ordinal >= 1 (G-arm). L0 never arms (T-103/T-110)."""
+        """The monitor arms only at ordinal >= 1 (G-arm). Explicit L0 never arms (T-110)."""
         return self.monitor >= 1
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
     """Build the argparse parser for the `sc:pr-submit` command surface."""
     parser = argparse.ArgumentParser(prog="sc:pr-submit", add_help=False)
-    parser.add_argument("--monitor", type=int, choices=[0, 1, 2, 3], default=0)
+    parser.add_argument(
+        "--monitor", type=int, choices=[0, 1, 2, 3], default=DEFAULT_MONITOR
+    )
     parser.add_argument(
         "--max-rounds", dest="max_rounds", type=int, default=DEFAULT_MAX_ROUNDS
     )
@@ -715,7 +718,7 @@ def _default_apply_edits(findings: list[Finding]) -> int:
 class RunConfig:
     """Injected seams + inputs for :func:`run_skill` (keeps the core pure/testable)."""
 
-    monitor_ordinal: int = 0
+    monitor_ordinal: int = DEFAULT_MONITOR
     max_rounds: int = DEFAULT_MAX_ROUNDS
     poll_interval: int = MIN_POLL_INTERVAL
     timeout: int = DEFAULT_TIMEOUT

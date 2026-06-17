@@ -1,0 +1,64 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-1-postaudit/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-1-postaudit/audit.log
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep forced Tier 2
+
+# UC-2 specific
+tasklist_completion_pct: 1.00
+deviation_count_by_class:
+  authorized: 2
+  necessary: 2
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-1-postaudit/deviation-register.md
+grounding_gaps_path: null
+verification_ran: true
+verification_invocations: 9
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Input integrity
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 22
+citations_revalidated: 22
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 artifacts
+reviewer_cards:
+  - reviewer-1-analyzer-sonnet (root-cause-analyst)
+  - reviewer-2-qa-adversarial-sonnet (quality-engineer)
+merge_method: heterogeneous-ensemble-converged
+t2_model_class_diversity: degraded   # haiku reviewer hit transient network error; re-run on sonnet; calibrator on haiku
+calibrator_diversity: full           # calibrator (haiku) disjoint from reviewer classes used for merge
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: true                  # DEV-C: tasklist "18 top-level keys" off-by-one; code+test correct at 19
+needs_human_decision: false
+user_decision_required: false
+
+# Out-of-scope non-finding (recorded for transparency, NOT a Phase-1 deviation)
+out_of_scope_findings:
+  - finding: "make verify-sync fails in current tree"
+    cause: "sc-recommend-protocol skill drift (.claude/ present, src/superclaude/skills/ missing)"
+    why_out_of_scope: "Unrelated to swarm work; introduced at HEAD 02582ca0 (#175), long after Phase-1 PRs #148/#152 in diff range b0de1479^..d878bc6d. Not caused by any T01.xx task."
+
+# Promotion (suppressed — this is a read-only independent audit; folder already in .dev/releases/complete/)
+promotion_action: not-applicable
+promotion_adapter: null
+
+# Verdict
+phase_verdict: COMPLETE
+agrees_with_baseline: true
+baseline_report: /config/workspace/IronClaude/.dev/releases/complete/MultiModelSwarm/tasklist/validation/sc-reflect-post-phase-1-report.md

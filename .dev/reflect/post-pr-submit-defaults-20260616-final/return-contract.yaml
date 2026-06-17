@@ -1,0 +1,70 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-final/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-final/audit.log
+confidence_calibrated: 0.93
+escalation_rule_matched: 4   # §5.3 rule 4 — S_domains >= 3 (code, tests, docs)
+
+# UC-2 specific
+tasklist_completion_pct: 1.0   # all 5 implementation + 2 process (sync/test) items verified done; items 8-9 are the gate itself + post-gate commit
+deviation_count_by_class:
+  authorized: 0
+  necessary: 1
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-final/deviation-ledger.yaml
+grounding_gaps_path: null
+
+# Verification triangle (§6.1 step 5.5 — default-on, ran)
+verification_ran: true
+verification_invocations: 2          # pytest tests/pr_submit ; make verify-sync
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+regression_present: false
+
+# Input integrity
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 1                 # D1 advisory completeness nit (pr-submit.md:18)
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble
+reviewer_cards:
+  - reviewer-1 (haiku / quality-engineer / regression+test-integrity stance)
+  - reviewer-2 (sonnet / refactoring-expert / doc-CLI-parity+completeness stance)
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: inline-synthesis-converged   # N=2 ensemble; both reviewers independently converged
+t2_model_class_diversity: full             # haiku + sonnet (distinct classes)
+t2_vendor_diversity: single                # warn-only in v1.0
+calibrator_diversity: degraded             # inline 5-dim blind calibration (calibrator agent not spawned for N=2 trivial change)
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present_flag: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion (UC-2) — suppressed by --no-promote
+promotion_action: skipped
+promotion_skip_reason: user-flag
+promotion_adapter: null
+promotion_gate_passed: null
+
+# Telemetry
+degraded_components: ["calibrator-inline-fallback", "t2-single-vendor"]
+fallback_path: null
+head: 0f9c8d366daa9c234624ab8e93f25f39b59566bf
+reviewed_at: "2026-06-16T22:31:00+00:00"

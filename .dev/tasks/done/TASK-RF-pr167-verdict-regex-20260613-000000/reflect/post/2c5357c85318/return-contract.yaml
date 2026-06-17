@@ -1,0 +1,84 @@
+contract_version: "1.5.0"
+status: partial   # NEW D6 MEDIUM drift (decorated-pairing bypass) + task procedurally Blocked
+mode: post
+tier_reached: 2   # --depth deep forced
+run_label: "R4 (first audit of post-D5-fix state; supersedes R3 in r3-superseded/)"
+report_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/audit.log
+confidence_calibrated: 0.91
+escalation_rule_matched: null   # --depth deep hard override (not a rubric rule)
+
+# UC-2 specific
+tasklist_completion_pct: 0.90   # Steps 1.1-4.2 done (10/11 checklist items); Step 4.3 Done UNCHECKED
+deviation_count_by_class:
+  authorized: 2   # D1 core fix, D4 pairing-guard intent
+  necessary: 2    # D2 ReDoS, D5 false-negative fix
+  drift: 2        # D3 cosmetic reflow (LOW), D6 decorated-pairing bypass (MEDIUM, NEW)
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/deviation-ledger.yaml
+grounding_gaps_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/grounding-gaps.yaml
+
+# Verification triangle (independently re-executed by this audit)
+verification_ran: true
+verification_invocations: 6   # 2 pytest + ruff check + ruff format + adversarial probe + reviewer-1 probe
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+tests_targeted: "49 passed (TestCheckVerdictField)"
+tests_broad: "69 passed (tests/cli/prd/test_gates.py)"
+ruff_check: "All checks passed"
+ruff_format: "2 files already formatted"
+redos_status: "RESOLVED — 5 pathological 40k-char inputs all <1ms (max 0.91ms)"
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0   # all R4 citations re-Read current; prior task-log '445-447' staleness corrected to :493
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # inline orchestrator re-Read (every cited file:line verified current)
+
+# Tier 2 ensemble
+reviewer_count: 2
+reviewer_models: [sonnet, haiku]   # gpt-5.5 / qwen3.6-plus via aliases
+reviewer_personas: [regex-correctness (root-cause-analyst), scope-fidelity (quality-engineer)]
+t2_model_class_diversity: full     # 3 aliases resolved (opus/sonnet/haiku distinct)
+t2_vendor_diversity: multi         # Anthropic + OpenAI + Qwen
+calibrator_diversity: full         # calibrator class (opus orchestrator) disjoint from reviewers (sonnet,haiku)
+merge_method: ensemble-convergence # both reviewers independently confirmed D6; no contested verdict
+adversarial_unavailable: false
+convergence: "high — D6 confirmed by 2 independent probes; deviation classes agree (1 minor D5 nuance, immaterial)"
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false   # D6 is incomplete-authorized, not unauthorized
+drift_present: true                      # D6 MEDIUM
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: true             # operator must accept/defer/remediate D6 before Done
+
+# Promotion (default-on UC-2; gate evaluated, BLOCKED)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000
+promotion_destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-pr167-verdict-regex-20260613-000000
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass                    # cond 1
+  status_success: fail               # cond 2 — status partial
+  tasklist_completion_pct_1_0: fail  # cond 3 — Step 4.3 unchecked (0.90)
+  no_drift_no_regression: fail       # cond 4 — drift=2 (D3 low, D6 medium)
+  frontmatter_present: pass          # cond 5a
+  frontmatter_status_matches: fail   # cond 5b — status "🔴 Blocked", not done
+  no_citations_dropped: pass         # cond 6a
+  no_grounding_gaps: pass            # cond 6b — grounding-gaps empty
+  no_input_drift: pass               # cond 7
+  no_user_decision_pending: fail     # cond 8 — user_decision_required (accept/defer D6)
+  adversarial_result_present: pass   # cond 9 — ensemble converged
+gate_evaluation_failures: [status_success, tasklist_completion_pct_1_0, no_drift_no_regression, frontmatter_status_matches, no_user_decision_pending]
+
+# Tier 3
+remediation_offered: true   # --remediate set
+remediation_accepted: null  # awaiting operator
+task_file_path: null

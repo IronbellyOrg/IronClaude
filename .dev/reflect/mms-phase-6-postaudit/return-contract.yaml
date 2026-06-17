@@ -1,0 +1,60 @@
+skill: sc-reflect-protocol
+mode: post
+contract_version: "1.5.0"
+status: success
+tier_reached: 2
+depth: deep
+phase: 6
+phase_title: "Resume, Crash Recovery & Manifest"
+milestone: M6
+diff_range: "b0de1479^..d878bc6d"
+scope: src/superclaude/cli/swarm
+generated_at: "2026-06-15"
+
+confidence_calibrated: 0.94
+escalation_rule_matched: "depth-deep-hard-override"   # §5.1 --depth deep ALWAYS escalates to T2
+
+coverage_pct: 1.0
+tasklist_completion_pct: 1.0
+per_task_verdicts_count: 10
+
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+input_drift_detected: false
+
+# Evidence-validator gate
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+citations_total: 21
+citations_revalidated: 21
+citations_dropped: 0
+citations_inferred: 0
+zero_drop_flag: true   # §11.2 soft flag — citations are named symbols/constants, freshly-written code; consistent with clean verdict not vacuous pass
+
+# Tier-2 ensemble
+t2_model_class_diversity: full   # reviewer A=sonnet, reviewer B=haiku, orchestrator=opus (3 classes, pairwise disjoint)
+reviewer_models: [sonnet, haiku]
+reviewer_verdicts_converged: true   # both reviewers independently returned 10/10 COMPLETE, 0 deviations
+merge_method: ensemble-convergence
+
+# Live verification triangle
+verification_ran: true
+phase_6_targeted_tests_passed: 109
+full_swarm_suite_passed: 2212
+full_swarm_suite_skipped: 26
+full_swarm_suite_failed: 0
+
+checkpoint_files_present: ["phase-6-cp1.md", "phase-6-cp2.md"]
+
+report_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-6-postaudit/REPORT.md
+output_dir: /config/workspace/IronClaude/.dev/reflect/mms-phase-6-postaudit
+
+phase_verdict: COMPLETE
+baseline_agreement: agree   # see REPORT.md §6 for the one nuance (tier 2 vs baseline tier 1; same verdict)

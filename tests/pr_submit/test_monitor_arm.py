@@ -1,7 +1,7 @@
 """Monitor-arming tests (spec FR-1.5/FR-2.4).
 
-T-109 `--monitor 1` → Monitor armed exactly once; T-110 `--monitor 0` → Monitor
-NEVER armed (the zero-regression guard, AC-1); T-230 session close mid-poll →
+T-109 `--monitor 1` → Monitor armed exactly once; T-110 explicit `--monitor 0` →
+Monitor NEVER armed (the open-only opt-out guard, AC-1); T-230 session close mid-poll →
 run-log records the interruption and `--resume` reconstructs (logging + resume
 only — no code assertion beyond that, per FR-2.4; the run-log writer and the
 resume rebuild are exercised by test_run_log / test_crash_recovery in Phase 8).
@@ -33,7 +33,7 @@ def test_t109_monitor_armed_exactly_once_at_l1():
 
 
 def test_t110_monitor_never_armed_at_l0():
-    """T-110: `--monitor 0` NEVER arms the Monitor (zero-regression guard, AC-1)."""
+    """T-110: explicit `--monitor 0` NEVER arms the Monitor (open-only opt-out, AC-1)."""
     recorder = _ArmRecorder()
     result = run_skill(
         RunConfig(monitor_ordinal=0, arm_monitor=recorder, review_state="polling")

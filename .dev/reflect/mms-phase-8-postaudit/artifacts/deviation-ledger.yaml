@@ -1,0 +1,77 @@
+deviation_ledger_version: "1.0"
+mode: post
+phase: 8
+scope: src/superclaude/cli/swarm + tests/swarm + skills/sc-bare-review
+deviations:
+  - id: DEV-1
+    task: T08.01
+    class: regression
+    title: "sc-bare-review SKILL.md never migrated to thin caller"
+    evidence:
+      - "src/superclaude/skills/sc-bare-review/SKILL.md (231 lines; AC requires <=80)"
+      - "SKILL.md:35-37 self-describes as 'thin orchestrator over three bundled scripts'"
+      - "SKILL.md:89,113,127 invokes scripts/t2_preflight.sh, t2_dispatch.sh, t2_normalize.py"
+    rationale: "AC: '~60-line thin caller; lens bare-review'. Validation: 'wc -l <=80'. Shipped file is the legacy 231-line shell orchestrator; the live production path is still the legacy shell. Contradicts the AC -> Regression."
+  - id: DEV-2
+    task: T08.07
+    class: regression
+    title: "MIG-003 legacy scripts/*.sh NOT retired"
+    evidence:
+      - "src/superclaude/skills/sc-bare-review/scripts/t2_preflight.sh present"
+      - "scripts/t2_dispatch.sh present; scripts/t2_normalize.py present"
+      - "SKILL.md:89,113 still dispatch the scripts (not status-note-only)"
+    rationale: "AC: 'Shell scripts removed; legacy code path absent'. All three scripts present and actively dispatched. Contradicts AC -> Regression."
+  - id: DEV-3
+    task: T08.17
+    class: regression
+    title: "TEST-008 named deliverable tests/swarm/integration/conftest.py absent"
+    evidence:
+      - "tests/swarm/integration/ directory does not exist (ls -> No such file)"
+      - "never committed in any branch (git log --all empty)"
+      - "tasklist T08.17 deliverable + validation 'uv run pytest tests/swarm/integration/'"
+    rationale: "Named deliverable and entire integration dir absent; no equivalent integration-suite wiring exists. Validation command cannot pass. Contradicts AC -> Regression."
+  - id: DEV-4
+    task: T08.11
+    class: drift
+    title: "A/B parity gate compares recipe-vs-library, not skill-vs-skill / CLI"
+    evidence:
+      - "tests/swarm/test_bare_review_parity.py:38-41 module docstring 'Why not drive the actual CLI subprocess'"
+      - "test imports legacy t2_normalize.py vs BareReviewV1 recipe class (:56,:69,:99)"
+      - "17 passed (skipif on LEGACY_SCRIPT.exists() resolves FALSE -> test runs, proving scripts present)"
+    rationale: "Test is green and well-built, but it never exercises the thin-caller SKILL.md (which does not exist) nor the CLI subprocess. The 'A/B' is library-surface equivalence, documented in-test. Does not contradict a passing-test commitment (it passes) but silently narrows the gate's claimed scope -> Drift. Note: its green (not skipped) state is the on-disk proof DEV-1/DEV-2 never happened."
+  - id: DEV-5
+    task: T08.14
+    class: drift
+    title: "Named deliverable tests/swarm/test_subprocess_caller.py absent; capability covered elsewhere"
+    evidence:
+      - "tests/swarm/test_subprocess_caller.py does not exist (never committed)"
+      - "tests/swarm/test_non_claude_caller.py covers inline (test_sh_wrapper..., test_subprocess_run...) AND detached (test_detached_invocation_via_subprocess_run:542)"
+    rationale: "The TEST-005 named file is missing, but the substantive AC (cross-language subprocess wrapper, inline + detached, contract identity) is functionally satisfied by test_non_claude_caller.py (T08.02). Capability present, named artifact absent -> Drift (not Regression)."
+  - id: DEV-6
+    task: T08.13
+    class: drift
+    title: "validate-lenses CI lane not wired into .github/workflows/"
+    evidence:
+      - "tests/swarm/test_validate_lenses_ci.py present, 12 passed"
+      - "no .github/workflows/ file runs `swarm validate-lenses` (only indirect via pytest in test.yml)"
+    rationale: "AC: 'CI lane runs validator on every PR'. The test exists and passes (and is run by the generic pytest CI lane), but there is no dedicated workflow invocation of `swarm validate-lenses`. Partial AC miss -> Drift."
+  - id: DEV-7
+    task: T08.08
+    class: drift
+    title: "Release notes document a thin-caller migration surface that does not exist"
+    evidence:
+      - "docs/swarm/release-notes-v1.md:37,49,67,85 document `swarm run --lens bare-review` as the new entry point"
+      - "shipped SKILL.md still legacy-script orchestrator (DEV-1)"
+    rationale: "Doc is complete and well-formed (OPS-001 cross-link, resume, --auto-inject-guard, examples all present) but its premise (migration shipped) is contradicted by the live skill. Documentation drift, not a code regression -> Drift."
+  - id: DEV-8
+    task: "checkpoints cp1/cp2"
+    class: regression
+    title: "Checkpoint reports assert disk-falsifiable completion claims"
+    evidence:
+      - "phase-8-cp1.md:22,34,36,43,55,67 claim SKILL.md '59 lines' thin caller (disk: 231)"
+      - "phase-8-cp2.md:21,33,42,54 claim scripts directory 'removed/gone' (disk: 3 scripts present)"
+      - "phase-8-cp2.md:25,33,52 claim parity test '17 SKIPPED' wholesale (disk: 17 PASSED)"
+    rationale: "The verification record itself certifies the opposite of on-disk reality for the migration deliverables. Meta-regression: false completion attestation on the critical path."
+grounding_gaps: []
+notes:
+  - "Exec logs only exist through T08.14; T08.15-T08.18 have no output files; only cp1+cp2 checkpoints exist (cp3/cp4 absent). Phase-8 sprint execution appears to have halted ~T08.14. Some deliverables (T08.15/16 tests) landed via later commits (Jun 8) and pass; T08.14/T08.17 named deliverables never landed."

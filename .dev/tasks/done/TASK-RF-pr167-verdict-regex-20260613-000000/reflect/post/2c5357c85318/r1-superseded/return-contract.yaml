@@ -1,0 +1,75 @@
+contract_version: "1.3.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/audit.log"
+confidence_calibrated: 0.88
+escalation_rule_matched: null   # --depth deep hard override forced Tier 2
+
+# UC-2 specific
+tasklist_completion_pct: 0.78   # 7 of 9 checklist items done; Step 4.2 + 4.3 unchecked
+deviation_count_by_class:
+  authorized: 1
+  necessary: 0
+  drift: 3
+  regression: 0
+deviation_register_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/deviation-ledger.yaml"
+grounding_gaps_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/grounding-gaps.yaml"
+
+verification_ran: true
+verification_invocations: 5   # pytest x2, ruff check, ruff format, independent regex/timing harness
+verification_failures: 0
+verification_regressions_detected: 0   # no STATED-criterion regression; ReDoS is a Drift-class quality regression (D2)
+verification_skip_reason: null
+
+# Input integrity
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 1   # practical-exploitability assessment of D2 ReDoS
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # inline re-Read + empirical re-execution of every load-bearing claim
+
+# Tier 2 artifacts
+reviewer_cards:
+  - "reviewer-1 (sonnet/analyzer): regex correctness + ReDoS"
+  - "reviewer-2 (haiku/qa): coverage + scope discipline"
+  - "reviewer-3 (sonnet/refactorer): deviation classification"
+adversarial_unavailable: false
+merge_method: orchestrator-inline-empirical   # reviewer claims cross-validated by re-execution, not sc-adversarial subprocess
+adversarial_convergence_score: null
+t2_model_class_diversity: degraded   # sonnet+haiku+sonnet (2 distinct classes; opus reserved as calibrator)
+t2_vendor_diversity: single
+
+# Asymmetric-cost flags
+regression_present: false   # taxonomy-Regression (criterion-anchored); D2 is Drift-class quality regression
+unauthorized_deviation_present: true   # D2/D3/D4 are unauthorized (drift)
+spec_is_wrong: false
+needs_human_decision: true   # grounding-gaps.yaml non-empty
+user_decision_required: true
+
+# Promotion (UC-2) — gate evaluated, multiple conditions fail
+promotion_action: skipped
+promotion_adapter: task
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass
+  status_success: fail            # status == partial
+  tasklist_completion_pct_1_0: fail   # 0.78
+  no_drift_no_regression: fail    # drift == 3
+  frontmatter_present: pass
+  frontmatter_status_matches: fail    # status "🟠 Doing", not "🟢 Done"
+  no_citations_dropped: pass
+  no_grounding_gaps: fail         # grounding-gaps.yaml non-empty
+  no_input_drift: pass
+  no_user_decision_pending: fail  # needs_human_decision == true
+  adversarial_result_present: n/a # inline merge
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null   # awaiting operator

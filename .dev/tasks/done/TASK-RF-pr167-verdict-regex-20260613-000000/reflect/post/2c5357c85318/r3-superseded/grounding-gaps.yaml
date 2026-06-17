@@ -1,0 +1,24 @@
+# Evidence-insufficient / out-of-scope findings (NOT the 4-category ledger).
+# R3: grounding-gap #1 RESOLVED by the operator remediation; blocking set is now EMPTY.
+run_label: "R3 (post-grounding-gap-#1 remediation; supersedes r2-superseded/grounding-gaps.yaml)"
+findings: []   # no blocking grounding gaps -> needs_human_decision: false
+
+resolved:
+  - id: grounding-gap-#1
+    hunk_ref: "src/superclaude/cli/prd/gates.py value side"
+    was: >
+      `Verdict: PASS/FAIL` / `Verdict: PASS or FAIL` accepted-as-PASS by all three regex generations.
+      Required an operator product decision (the R2 gate-8 blocker).
+    resolution: >
+      Operator chose 'tighten now' [2026-06-13 13:07] and added a pairing-guard lookahead.
+      Re-verified live in R3: all 7 placeholder pairings now rejected. RESOLVED.
+    note: "The remediation's implementation introduced D5 (see deviation-ledger.yaml) — fixable one-liner, separate from this gap's resolution."
+
+non_goals:   # surfaced for transparency; NOT blocking (decision_needed_by_user: false)
+  - id: prefix-shapes
+    hunk_ref: "src/superclaude/cli/prd/gates.py prefix alternation"
+    observation: "`1)`-style ordered lists and `>` blockquote-prefixed verdicts are rejected."
+    why_non_blocking: >
+      Step 2.2 specifies `1.` numbered prefix and underscore emphasis only; these prefixes are not
+      contract-required accept shapes. Non-goal, not a defect.
+    decision_needed_by_user: false
