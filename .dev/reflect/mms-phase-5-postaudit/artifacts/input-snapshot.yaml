@@ -1,0 +1,11 @@
+input_tree_sha256: derived-at-runtime
+file_list:
+  - path: .dev/releases/complete/MultiModelSwarm/tasklist/phase-5-tasklist.md
+    role: tasklist
+  - path: .dev/releases/complete/MultiModelSwarm/merged-requirements.compressed.md
+    role: spec
+file_count: 2
+diff_range: b0de1479^..d878bc6d
+diff_range_resolved: f131592fe3094e222aad17cf82a5b0309ffcdb89..d878bc6d04f9751cda8db744dd5ea6fce84eb77d
+scope: src/superclaude/cli/swarm
+input_drift_detected: false

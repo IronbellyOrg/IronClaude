@@ -1626,14 +1626,22 @@ def run_cmd(
 
     # B-1 / AC-1.4 -- --reviewers overrides the worker (reviewer) count.
     # Legacy ``t2_preflight.sh`` required an integer in [2, 4]; mirror that
-    # invariant here. The value is applied to ``spec_dict.workers.count``
-    # AND ``workers.models`` is resized to N placeholder slots so the
-    # INV-005 model-pool guard (preflight.py) admits ``count == 4`` instead
-    # of clamping it back to the lens-default pool size of 3. NOTE: the
-    # ``expand_lens_defaults`` ``count == 4`` reset (preflight.py:523) is
-    # test-only -- it is never invoked on this inline ``run_preflight`` path
-    # (which calls ``materialize_lens_defaults``, not ``expand_lens_defaults``),
-    # so no accompanying preflight tweak is needed to keep a user value of 4.
+    # invariant here. ``workers.count`` is overridden in every input mode
+    # (a legitimate operator ergonomic). ``workers.models``, however, is
+    # resized to N placeholder slots ONLY in lens mode: there
+    # ``_build_spec_from_lens`` already seeds ``workers.models`` with
+    # ``lens-default-model-{i}`` placeholders (they never reach the wire),
+    # so growing them to N slots is what lets the INV-005 model-pool guard
+    # (preflight.py) admit ``count == 4`` instead of clamping it back to the
+    # lens-default pool size of 3. In spec-file / --stdin mode the caller
+    # supplies ``workers.models`` themselves (often REAL model IDs);
+    # overwriting those with placeholders silently clobbered caller models
+    # (Augment PR #178 MEDIUM), so we leave them intact and let the INV-005
+    # warn-with-defaults guard clamp ``count`` to the real pool size if
+    # ``--reviewers`` exceeds it. NOTE: the ``expand_lens_defaults``
+    # ``count == 4`` reset (preflight.py:523) is test-only -- never invoked
+    # on this inline ``run_preflight`` path (which calls
+    # ``materialize_lens_defaults``), so no preflight tweak is needed.
     if reviewers is not None:
         if reviewers < 2 or reviewers > 4:
             click.echo(
@@ -1644,9 +1652,10 @@ def run_cmd(
             raise click.exceptions.Exit(EXIT_USAGE)
         workers_override = spec_dict.setdefault("workers", {})
         workers_override["count"] = reviewers
-        workers_override["models"] = [
-            f"lens-default-model-{i}" for i in range(reviewers)
-        ]
+        if mode == "lens":
+            workers_override["models"] = [
+                f"lens-default-model-{i}" for i in range(reviewers)
+            ]
 
     # B-2 -- --target-line-cap overrides target truncation line_cap (legacy
     # ``t2_preflight.sh --target-line-cap``, default 4000). The value threads

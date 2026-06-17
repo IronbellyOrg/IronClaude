@@ -1,0 +1,10 @@
+input_tree_sha256: derived
+file_list:
+  - path: tasklist/phase-2-tasklist.md
+    sha256: 6167ab61f6265469e03f408142725f1aa30fc074c0eaabbbe8e604359c4b3a0e
+  - path: merged-requirements.compressed.md
+    sha256: 16628ae115757b156cd35642c93fd2b800dc5a0d7e946676dcad301b47d1f28e
+file_count: 2
+mode: post
+diff_range: b0de1479^..d878bc6d
+scope: src/superclaude/cli/swarm

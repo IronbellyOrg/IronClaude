@@ -1,0 +1,12 @@
+selected_tier: 2
+fired_rule_number: null   # --depth deep hard override (§5.1) forces Tier 2 regardless of rubric
+coverage_degraded: null
+composite_score: 7.5
+per_signal_breakdown:
+  scope_size: 1     # >10 files touched
+  task_count: 2     # 29 tasks
+  blast_radius: 1
+  spec_density: 1
+  ambiguity_signals: 0
+escalation_reason: "depth_deep_explicit_override (also rule 4 S_domains>=3 would have escalated independently)"
+notes: "Baseline ran Tier 1 (pinned). This audit ran --depth deep -> Tier 2 forced; rubric would also escalate via rule 4 (3 domains: code/tests/docs)."

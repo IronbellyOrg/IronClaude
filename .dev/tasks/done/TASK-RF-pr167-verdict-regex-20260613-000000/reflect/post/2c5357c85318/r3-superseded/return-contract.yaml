@@ -1,0 +1,89 @@
+contract_version: "1.5.0"
+status: partial   # new D5 MEDIUM drift + incomplete terminal step; grounding-gap #1 now RESOLVED
+mode: post
+tier_reached: 2
+run_label: "R3 (post-grounding-gap-#1 remediation; supersedes R2 in r2-superseded/)"
+report_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/audit.log"
+confidence_calibrated: 0.93   # confidence in the AUDIT (every claim re-executed live)
+escalation_rule_matched: null   # --depth deep hard override forced Tier 2
+
+# UC-2 specific
+tasklist_completion_pct: 0.91   # 10 of 11 checklist items; Step 4.3 (terminal Done flip) unchecked
+deviation_count_by_class:
+  authorized: 2   # D1 core fix + D2 ReDoS remediation
+  necessary: 0
+  drift: 2        # D5 MEDIUM (new) + D3 LOW (cosmetic reflow)
+  regression: 0
+deviation_register_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/deviation-ledger.yaml"
+grounding_gaps_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/grounding-gaps.yaml"
+
+verification_ran: true
+verification_invocations: 7   # pytest x2, ruff check, ruff format, live accept/reject+ReDoS probe, fix-comparison verify, scope/provenance check
+verification_failures: 0
+verification_regressions_detected: 0   # D5 is a latent false-negative (drift), not a previously-passing-test failure; suite is green
+verification_skip_reason: null
+
+# Input integrity
+input_drift_detected: false
+input_tree_sha256: "n/a-inline-skill-run"
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 1   # 'FAIL-safe residual edge extremely rare' is a likelihood generalization
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # inline re-Read + live re-execution of every load-bearing claim, incl. Reviewer-1's escalated finding
+citation_revalidation_at_promotion: false   # audit-first; no code mutated by this run
+
+# Tier 2 artifacts
+reviewer_cards:
+  - "reviewer-1 (analyzer): ReDoS-safe + escalated false-negative (missing word-boundary + newline span) -> 0.55 correctness / ~0.97 safety"
+  - "reviewer-2 (qa): scope/coverage clean; pairing guard = Authorized expansion; stale reflect_post flagged -> 0.74"
+adversarial_unavailable: false
+merge_method: orchestrator-inline-empirical   # reviewer claims cross-validated by live re-execution
+adversarial_convergence_score: null   # inline-empirical merge (no sc-adversarial subprocess); blocks promotion cond 9
+t2_model_class_diversity: degraded   # 2 distinct reviewer classes; opus reserved as calibrator
+t2_vendor_diversity: single
+calibrator_diversity: full   # opus calibrator disjoint from reviewer classes
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: true   # D5 MEDIUM + D3 LOW are unauthorized drift
+spec_is_wrong: false
+needs_human_decision: false   # grounding-gap #1 RESOLVED; gap #2 is a non-goal (decision_needed_by_user: false)
+user_decision_required: false
+blocked_by_low_confidence: false
+
+# Promotion (UC-2) — gate evaluated, still fails; blocker shifted from gaps to D5
+promotion_action: skipped
+promotion_adapter: task
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass
+  status_success: fail            # partial (D5)
+  tasklist_completion_pct_1_0: fail   # 0.91 (Step 4.3 unchecked)
+  no_drift_no_regression: fail    # drift == 2 (D5 MEDIUM + D3 LOW)
+  frontmatter_present: pass
+  frontmatter_status_matches: fail    # status "🔴 Blocked"
+  no_citations_dropped: pass
+  no_grounding_gaps: pass         # RESOLVED in R3 (gap #1 fixed; gap #2 non-blocking)
+  no_input_drift: pass
+  no_user_decision_pending: pass  # RESOLVED in R3 (needs_human_decision == false)
+  adversarial_result_present: fail   # cond 9: tier_reached==2 AND convergence_score==null
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null   # awaiting operator; one-line direct fix recommended over task-builder
+remediation_task_path: null
+
+# Per-task verdict array
+per_task_verdicts:
+  - task_id: "TASK-RF-pr167-verdict-regex-20260613-000000"
+    status: partial
+    deviation_class: drift   # D5 MEDIUM dominant; D3 LOW; D1/D2 authorized
+    citations_dropped: 0
+    per_task_validation_strength: 0.78   # down from R2 0.93 — new MEDIUM false-negative in the bug class under repair
+    evidence_anchor: "reflect/post/2c5357c85318/REPORT.md"

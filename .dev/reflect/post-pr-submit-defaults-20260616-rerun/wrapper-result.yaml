@@ -1,0 +1,16 @@
+verdict: degraded
+status: success
+tier_reached: 1
+reason: degraded-tier1
+report: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-rerun/REPORT.md
+contract: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-rerun/return-contract.yaml
+deviations:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

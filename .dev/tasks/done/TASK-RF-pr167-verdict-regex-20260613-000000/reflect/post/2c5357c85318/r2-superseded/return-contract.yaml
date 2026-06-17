@@ -1,0 +1,89 @@
+contract_version: "1.5.0"   # R2 re-run after D2 remediation; ADDITIVE 1.5.0 fields included
+status: partial   # grounding-gaps non-empty (pre-existing template false-positive) -> needs_human_decision
+mode: post
+tier_reached: 2
+run_label: "R2 (post-D2-remediation re-run; supersedes R1 in r1-superseded/)"
+report_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/audit.log"
+confidence_calibrated: 0.93   # up from R1 0.88 — D2 verified-resolved
+escalation_rule_matched: null   # --depth deep hard override forced Tier 2
+
+# UC-2 specific
+tasklist_completion_pct: 0.91   # 10 of 11 checklist items done; only Step 4.3 (terminal Done flip) unchecked
+deviation_count_by_class:
+  authorized: 2   # D1 core fix + D2 operator-directed remediation (documented in task log)
+  necessary: 0
+  drift: 1        # D3 cosmetic reflow only
+  regression: 0
+deviation_register_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/deviation-ledger.yaml"
+grounding_gaps_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-pr167-verdict-regex-20260613-000000/reflect/post/2c5357c85318/grounding-gaps.yaml"
+
+verification_ran: true
+verification_invocations: 6   # pytest x2, ruff check, ruff format, value-side ReDoS harness, label-side adversarial probe
+verification_failures: 0
+verification_regressions_detected: 0   # D2 ReDoS RESOLVED; no criterion-anchored regression
+verification_skip_reason: null
+
+# Input integrity
+input_drift_detected: false
+input_tree_sha256: "n/a-inline-skill-run"
+
+# Hallucination guard
+citations_total: 16
+citations_revalidated: 16
+citations_dropped: 0
+citations_inferred: 1   # 'no new ReDoS vector' generalization beyond the probed inputs
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # inline re-Read + empirical re-execution of every load-bearing claim
+citation_revalidation_at_promotion: false   # Wave 6 did not mutate files (audit-first; remediation only offered)
+
+# Tier 2 artifacts
+reviewer_cards:
+  - "reviewer-1 (sonnet/analyzer): regex correctness + ReDoS re-probe -> 0.96"
+  - "reviewer-2 (haiku/qa): coverage + scope discipline + D3/D4 -> 0.92"
+adversarial_unavailable: false
+merge_method: orchestrator-inline-empirical   # reviewer claims cross-validated by live re-execution
+adversarial_convergence_score: null   # inline-empirical merge (no sc-adversarial subprocess); blocks promotion cond 9
+t2_model_class_diversity: degraded   # sonnet + haiku (2 distinct classes; opus reserved as calibrator)
+t2_vendor_diversity: single
+calibrator_diversity: full   # opus calibrator disjoint from sonnet/haiku reviewers
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: true   # D3 cosmetic reflow is unauthorized (drift), LOW
+spec_is_wrong: false
+needs_human_decision: true   # grounding-gaps.yaml non-empty (pre-existing template false-positive)
+user_decision_required: true
+blocked_by_low_confidence: false
+
+# Promotion (UC-2) — gate evaluated, fails on non-code conditions
+promotion_action: skipped
+promotion_adapter: task
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass
+  status_success: fail            # status == partial
+  tasklist_completion_pct_1_0: fail   # 0.91 (Step 4.3 unchecked)
+  no_drift_no_regression: fail    # drift == 1 (D3)
+  frontmatter_present: pass
+  frontmatter_status_matches: fail    # status "🔴 Blocked", not "🟢 Done"
+  no_citations_dropped: pass
+  no_grounding_gaps: fail         # grounding-gaps.yaml non-empty (pre-existing)
+  no_input_drift: pass
+  no_user_decision_pending: fail  # needs_human_decision == true
+  adversarial_result_present: fail   # cond 9: tier_reached==2 AND convergence_score==null
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null   # awaiting operator; lighter direct path recommended over task-builder
+remediation_task_path: null
+
+# Per-task verdict array
+per_task_verdicts:
+  - task_id: "TASK-RF-pr167-verdict-regex-20260613-000000"
+    status: partial
+    deviation_class: drift   # D3 LOW only; D1/D2 authorized
+    citations_dropped: 0
+    per_task_validation_strength: 0.93
+    evidence_anchor: "reflect/post/2c5357c85318/REPORT.md"
