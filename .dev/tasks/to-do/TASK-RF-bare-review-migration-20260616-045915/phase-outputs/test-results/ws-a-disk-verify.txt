@@ -1,0 +1,2 @@
+80 src/superclaude/skills/sc-bare-review/SKILL.md
+grep_exit=1

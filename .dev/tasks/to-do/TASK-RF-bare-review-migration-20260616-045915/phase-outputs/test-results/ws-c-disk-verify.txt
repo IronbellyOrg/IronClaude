@@ -1,0 +1,21 @@
+### src scripts/ ###
+total 8
+drwxr-xr-x 2 abc abc 4096 Jun 16 22:21 .
+drwxr-xr-x 4 abc abc 4096 Jun 16 18:13 ..
+---src refs---
+total 12
+drwxr-xr-x 3 abc abc 4096 Jun 16 22:21 .
+drwxr-xr-x 4 abc abc 4096 Jun 16 18:13 ..
+drwxr-xr-x 2 abc abc 4096 Jun 16 17:47 templates
+---mirror scripts---
+total 8
+drwxr-xr-x 2 abc abc 4096 Jun 16 22:30 .
+drwxr-xr-x 4 abc abc 4096 Jun 16 17:59 ..
+---mirror refs---
+total 12
+drwxr-xr-x 3 abc abc 4096 Jun 16 22:30 .
+drwxr-xr-x 4 abc abc 4096 Jun 16 17:59 ..
+drwxr-xr-x 2 abc abc 4096 Jun 16 17:59 templates
+---survivor check (both trees)---
+-rw-r--r-- 1 abc abc 5749 Jun 16 22:29 .claude/skills/sc-bare-review/refs/templates/bare-review-output.md
+-rw-r--r-- 1 abc abc 5749 Jun 16 17:47 src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md

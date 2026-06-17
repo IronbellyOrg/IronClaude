@@ -1,0 +1,37 @@
+src/superclaude/cli/swarm/recipes/__init__.py:9:    - ``bare-review-v1``       -- ports t2_normalize.py (bare-review lens).
+src/superclaude/skills/sc-bare-review/refs/templates/bare-review-output.md:121:gate against the legacy `t2_normalize.py` script (TEST-003 / M8 gate); the
+src/superclaude/cli/swarm/recipes/bare_review_v1.py:4:``src/superclaude/skills/sc-bare-review/scripts/t2_normalize.py`` into a
+src/superclaude/cli/swarm/recipes/bare_review_v1.py:89:# Constants -- mirror t2_normalize.py verbatim (byte-identity parity).
+src/superclaude/cli/swarm/recipes/bare_review_v1.py:105:# Helpers -- mirror t2_normalize.py verbatim.
+src/superclaude/cli/swarm/recipes/bare_review_v1.py:217:    :mod:`superclaude.skills.sc-bare-review.scripts.t2_normalize` (legacy
+src/superclaude/cli/swarm/commands.py:1392:        "Integer in the inclusive range [2, 4] (legacy t2_preflight.sh "
+src/superclaude/cli/swarm/commands.py:1405:        "t2_preflight.sh --target-line-cap, default 4000). When omitted, "
+src/superclaude/cli/swarm/commands.py:1417:        "t2_preflight.sh --timeout-sec / T2Timeout, default 180). When "
+src/superclaude/cli/swarm/commands.py:1429:        "t2_preflight.sh --label), stamped onto per-reviewer output "
+src/superclaude/cli/swarm/commands.py:1628:    # Legacy ``t2_preflight.sh`` required an integer in [2, 4]; mirror that
+src/superclaude/cli/swarm/commands.py:1652:    # ``t2_preflight.sh --target-line-cap``, default 4000). The value threads
+src/superclaude/cli/swarm/commands.py:1665:    # ``t2_preflight.sh --timeout-sec`` / ``T2Timeout``, default 180). Applied
+src/superclaude/cli/swarm/commands.py:1674:    # ``t2_preflight.sh --label``), stamped onto per-reviewer output
+src/superclaude/cli/swarm/commands.py:1847:        # hand-off purpose). Mirrors legacy ``t2_normalize.py:293-295``: compare =
+tests/swarm/test_recipe_bare_review.py:4:legacy ``t2_normalize.py``):
+tests/swarm/test_recipe_bare_review.py:18:``t2_normalize.py`` via importlib) is now provided by the permanent
+tests/swarm/test_recipe_bare_review.py:52:# what ``t2_dispatch`` would have stamped on the meta sidecar; the
+tests/swarm/test_bare_review_golden_regen.py:4:**real** legacy ``t2_normalize.py`` aggregator against the fixed fixture corpus
+tests/swarm/test_bare_review_golden_regen.py:12:survives the WS-C deletion of ``t2_normalize.py`` (no legacy script needed at run
+tests/swarm/test_bare_review_golden_regen.py:18:legacy ``t2_normalize`` — so ``legacy(args) == CLI-recipe(args)`` for identical
+tests/swarm/test_bare_review_golden_regen.py:64:    / "t2_normalize.py"
+tests/swarm/test_bare_review_golden_regen.py:152:    """Import the standalone ``t2_normalize.py`` via importlib."""
+tests/swarm/test_bare_review_golden_regen.py:154:        "t2_normalize_legacy_for_golden_regen", str(LEGACY_SCRIPT)
+tests/swarm/test_bare_review_golden_regen.py:264:        f"legacy t2_normalize.py missing at {LEGACY_SCRIPT}; the golden must be "
+tests/swarm/test_bare_review_golden_regen.py:278:            sys, "argv", ["t2_normalize.py", "--manifest", str(manifest_path)]
+tests/swarm/test_e2e_user_guide.py:155:    # reviewer paths (legacy t2_normalize parity), not shipped verbatim.
+tests/swarm/test_e2e_user_guide.py:163:    frontmatter (legacy t2_preflight.sh --label parity)."""
+tests/swarm/test_e2e_user_guide.py:293:    error (legacy ``t2_preflight.sh`` invariant)."""
+tests/swarm/test_bare_review_parity.py:13:``t2_normalize.py`` aggregator at run time and self-skipped once that script was
+tests/swarm/test_bare_review_parity.py:15:script at run time**, so it survives WS-C's deletion of ``t2_normalize.py``. The
+tests/swarm/test_bare_review_parity.py:19:port of legacy ``t2_normalize``, the frozen golden equals what the live CLI
+tests/swarm/test_bare_review_parity.py:46:tokens. No reference to ``t2_normalize.py`` or any ``scripts/t2_*`` path.
+tests/swarm/fixtures/bare_review_v1/golden/README.md:5:normalized markdown the legacy `t2_normalize.py` aggregator produced, so the
+tests/swarm/fixtures/bare_review_v1/golden/README.md:8:survives WS-C's deletion of `t2_normalize.py`.
+tests/swarm/fixtures/bare_review_v1/golden/README.md:28:legacy `t2_normalize` — so `legacy(args) == CLI-recipe(args)` for identical
+tests/swarm/fixtures/bare_review_v1/golden/README.md:75:`t2_normalize.py` to be present (pre-WS-C). **Post-deletion**, re-blessing must

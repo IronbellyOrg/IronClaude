@@ -1,16 +1,11 @@
-"""T04.03 -- ``bare-review-v1`` recipe parity tests (R-088 / COMP-016 / D-0070).
+"""``bare-review-v1`` recipe tests (R-088 / COMP-016 / D-0070).
 
-Two-layer coverage:
+Legacy-independent recipe coverage (post M8/M9 migration -- WS-C retires the
+legacy ``t2_normalize.py``):
 
-1. **A/B parity gate (TEST-003)**: every raw fixture under
-   ``tests/swarm/fixtures/bare_review_v1/`` is fanned through both
-   paths -- the legacy
-   ``src/superclaude/skills/sc-bare-review/scripts/t2_normalize.py``
-   script and the new
-   :class:`superclaude.cli.swarm.recipes.bare_review_v1.BareReviewV1`
-   recipe -- with a deterministic ``generated`` timestamp threaded
-   through both, and the per-reviewer normalized markdown is asserted
-   byte-identical. This pins the M8 bare-review parity gate.
+1. **Recipe salvage-flag semantics**: the recipe's ``salvaged`` flag is True iff
+   the input status was ``parse_error`` and the recipe recovered non-empty text
+   (the §7.4 promotion in semantic form).
 
 2. **REGISTRY surface**: the ``bare-review-v1`` slot resolves to a
    Recipe-conforming object (no longer the M2-era ``None`` sentinel),
@@ -18,20 +13,19 @@ Two-layer coverage:
    (raw read → recipe call → atomic ``final_path`` write → meta sidecar
    emission → salvage promotion on ``parse_error``).
 
-The legacy script lives outside the Python package (``src/superclaude/
-skills/sc-bare-review/scripts/`` has no ``__init__.py``), so the helper
-loads it via :mod:`importlib.util` and invokes ``main()`` in-process
-with a monkeypatched ``iso_now`` and a stubbed ``sys.argv``. That lets
-both legacy and recipe stamp the same ``generated`` field and produce
-byte-identical frontmatter without subprocess overhead.
+The legacy-vs-recipe **byte-identity** A/B parity (formerly here as
+``test_legacy_vs_recipe_byte_identical``, which imported the standalone legacy
+``t2_normalize.py`` via importlib) is now provided by the permanent
+**CLI-vs-frozen-golden** gate in ``tests/swarm/test_bare_review_parity.py``: it
+drives ``superclaude swarm run --lens bare-review`` and asserts byte-equality
+against a golden frozen from the real legacy output -- so the parity coverage
+survives the WS-C deletion of the legacy script (this file no longer depends on
+it at run time).
 """
 
 from __future__ import annotations
 
-import importlib.util
 import json
-import sys
-import types
 from pathlib import Path
 from typing import Any
 
@@ -42,24 +36,12 @@ from superclaude.cli.swarm.normalize import normalize_wave2
 from superclaude.cli.swarm.recipes import REGISTRY, NormalizedResult, Recipe
 from superclaude.cli.swarm.recipes.bare_review_v1 import BareReviewV1
 
-
 # ---------------------------------------------------------------------------
 # Fixture corpus
 # ---------------------------------------------------------------------------
 
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "bare_review_v1"
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-LEGACY_SCRIPT = (
-    REPO_ROOT
-    / "src"
-    / "superclaude"
-    / "skills"
-    / "sc-bare-review"
-    / "scripts"
-    / "t2_normalize.py"
-)
 
 FIXED_GENERATED = "2026-06-01T11:19:39Z"
 FIXED_CHECKSUM = "deadbeefcafe"
@@ -77,83 +59,6 @@ FIXTURES: list[tuple[str, str]] = [
     ("freeform_fallback.raw.txt", "success"),
     ("odd_cites.raw.txt", "success"),
 ]
-
-
-# ---------------------------------------------------------------------------
-# Legacy loader
-# ---------------------------------------------------------------------------
-
-
-def _load_legacy() -> types.ModuleType:
-    """Import the standalone ``t2_normalize.py`` script as a module."""
-    assert LEGACY_SCRIPT.exists(), (
-        f"legacy script missing at {LEGACY_SCRIPT} -- parity gate cannot run"
-    )
-    spec = importlib.util.spec_from_file_location(
-        "t2_normalize_legacy_for_parity", str(LEGACY_SCRIPT)
-    )
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-def _run_legacy(
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Path,
-    raw_text: str,
-    status: str,
-    elapsed_ms: int,
-    model_id: str,
-    model_label: str,
-    caller_label: str,
-) -> str:
-    """Stage a one-reviewer manifest, run legacy main(), return final md."""
-    tmp_path.mkdir(parents=True, exist_ok=True)
-    raw_path = tmp_path / "reviewer.raw.md"
-    meta_path = tmp_path / "reviewer.meta.json"
-    final_path = tmp_path / "reviewer.final.md"
-    contract_path = tmp_path / "return-contract.yaml"
-    manifest_path = tmp_path / "manifest.json"
-
-    raw_path.write_text(raw_text, encoding="utf-8")
-    meta_path.write_text(
-        json.dumps({"status": status, "elapsed_ms": elapsed_ms}),
-        encoding="utf-8",
-    )
-
-    manifest = {
-        "target": FIXED_TARGET,
-        "target_checksum": FIXED_CHECKSUM,
-        "target_truncated": False,
-        "caller_label": caller_label,
-        "reviewers_requested": 1,
-        "contract_path": str(contract_path),
-        "reviewers": [
-            {
-                "model_id": model_id,
-                "model_label": model_label,
-                "raw_path": str(raw_path),
-                "meta_path": str(meta_path),
-                "final_path": str(final_path),
-            }
-        ],
-    }
-    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-
-    legacy = _load_legacy()
-    monkeypatch.setattr(legacy, "iso_now", lambda: FIXED_GENERATED)
-    monkeypatch.setattr(
-        sys, "argv", ["t2_normalize.py", "--manifest", str(manifest_path)]
-    )
-    exit_code = legacy.main()
-    assert exit_code == 0
-
-    # On §7.4-stays-failed branches the legacy script does not write a
-    # final file -- mirror the recipe's empty-text return in that case.
-    if not final_path.exists():
-        return ""
-    return final_path.read_text(encoding="utf-8")
 
 
 def _run_recipe(
@@ -181,51 +86,13 @@ def _run_recipe(
 
 
 # ---------------------------------------------------------------------------
-# 1 -- A/B parity gate
+# 1 -- Recipe salvage-flag semantics (byte-identity parity now lives in the
+# CLI-vs-frozen-golden gate at tests/swarm/test_bare_review_parity.py)
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("filename,status", FIXTURES)
-def test_legacy_vs_recipe_byte_identical(
-    monkeypatch, tmp_path, filename: str, status: str
-):
-    """Legacy ``t2_normalize`` and ``BareReviewV1`` emit byte-identical
-    markdown for every fixture in the corpus. The deterministic
-    ``generated`` field neutralises the only wall-clock-dependent
-    frontmatter value; everything else is mechanical."""
-    raw_text = (FIXTURES_DIR / filename).read_text(encoding="utf-8")
-    elapsed_ms = 12345
-    model_id = "test-model-id"
-    model_label = "Test Model Label"
-    caller_label = "parity-gate"
-
-    # Each call needs its own tmp subdir so legacy stages cleanly.
-    legacy_md = _run_legacy(
-        monkeypatch,
-        tmp_path / "legacy",
-        raw_text,
-        status,
-        elapsed_ms,
-        model_id,
-        model_label,
-        caller_label,
-    )
-    (tmp_path / "legacy").mkdir(exist_ok=True)
-
-    recipe_result = _run_recipe(
-        raw_text, status, elapsed_ms, model_id, model_label, caller_label
-    )
-
-    assert recipe_result.text == legacy_md, (
-        f"byte parity broke for {filename!r}: "
-        f"legacy={len(legacy_md)} bytes, recipe={len(recipe_result.text)} bytes"
-    )
-
-
-@pytest.mark.parametrize("filename,status", FIXTURES)
-def test_recipe_salvage_flag_matches_status_transition(
-    filename: str, status: str
-):
+def test_recipe_salvage_flag_matches_status_transition(filename: str, status: str):
     """Recipe's ``salvaged`` flag is True iff input status was
     ``parse_error`` and the recipe recovered non-empty text. Mirrors the
     legacy §7.4 promotion in semantic (not byte) form."""
@@ -301,9 +168,7 @@ def _make_worker(
 def test_dispatcher_routes_success_worker_through_bare_review_v1(tmp_path):
     """normalize_wave2 picks the registered recipe and writes the
     rendered body to final_path; meta sidecar records the recipe."""
-    body = (FIXTURES_DIR / "basic_findings.raw.txt").read_text(
-        encoding="utf-8"
-    )
+    body = (FIXTURES_DIR / "basic_findings.raw.txt").read_text(encoding="utf-8")
     worker = _make_worker(tmp_path, 0, status="success", body=body)
 
     [out] = normalize_wave2(

@@ -1,0 +1,35 @@
+### full swarm suite (post-deletion) ###
+.................................                                        [ 99%]
+tests/swarm/test_workerspec.py .....................                     [100%]
+
+====================== 2212 passed, 27 skipped in 11.54s =======================
+
+### parity + recipe gates -v (must RUN, not skip) ###
+tests/swarm/test_bare_review_parity.py::test_cli_bodies_byte_match_frozen_golden[all-success] PASSED [  3%]
+tests/swarm/test_bare_review_parity.py::test_cli_bodies_byte_match_frozen_golden[partial-with-timeout] PASSED [  7%]
+tests/swarm/test_bare_review_parity.py::test_cli_bodies_byte_match_frozen_golden[salvage-promoted] PASSED [ 11%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_aggregate_status[all-success] PASSED [ 14%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_aggregate_status[partial-with-timeout] PASSED [ 18%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_aggregate_status[salvage-promoted] PASSED [ 22%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_per_slot_status_and_counts[all-success] PASSED [ 25%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_per_slot_status_and_counts[partial-with-timeout] PASSED [ 29%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_per_slot_status_and_counts[salvage-promoted] PASSED [ 33%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_suspect_and_adversarial_handoff[all-success] PASSED [ 37%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_suspect_and_adversarial_handoff[partial-with-timeout] PASSED [ 40%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_suspect_and_adversarial_handoff[salvage-promoted] PASSED [ 44%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_output_files_length[all-success] PASSED [ 48%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_output_files_length[partial-with-timeout] PASSED [ 51%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_output_files_length[salvage-promoted] PASSED [ 55%]
+tests/swarm/test_bare_review_parity.py::test_bare_review_lens_prompt_ends_with_canonical_injection_guard PASSED [ 59%]
+tests/swarm/test_recipe_bare_review.py::test_recipe_salvage_flag_matches_status_transition[basic_findings.raw.txt-success] PASSED [ 62%]
+tests/swarm/test_recipe_bare_review.py::test_recipe_salvage_flag_matches_status_transition[salvage.raw.txt-parse_error] PASSED [ 66%]
+tests/swarm/test_recipe_bare_review.py::test_recipe_salvage_flag_matches_status_transition[verdict_only.raw.txt-success] PASSED [ 70%]
+tests/swarm/test_recipe_bare_review.py::test_recipe_salvage_flag_matches_status_transition[freeform_fallback.raw.txt-success] PASSED [ 74%]
+tests/swarm/test_recipe_bare_review.py::test_recipe_salvage_flag_matches_status_transition[odd_cites.raw.txt-success] PASSED [ 77%]
+tests/swarm/test_recipe_bare_review.py::test_registry_resolves_bare_review_v1_to_recipe PASSED [ 81%]
+tests/swarm/test_recipe_bare_review.py::test_registry_bare_review_v1_protocol_callable PASSED [ 85%]
+tests/swarm/test_recipe_bare_review.py::test_dispatcher_routes_success_worker_through_bare_review_v1 PASSED [ 88%]
+tests/swarm/test_recipe_bare_review.py::test_dispatcher_promotes_parse_error_via_salvage_flag PASSED [ 92%]
+tests/swarm/test_recipe_bare_review.py::test_dispatcher_keeps_parse_error_when_body_is_unrecoverable PASSED [ 96%]
+tests/swarm/test_recipe_bare_review.py::test_recipe_preserves_all_findings_including_duplicates PASSED [100%]
+============================== 27 passed in 0.38s ==============================

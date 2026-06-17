@@ -894,6 +894,124 @@ def _lens_injection_substring(entry: LensEntry) -> str:
     return CANONICAL_INJECTION_GUARD_SENTENCE
 
 
+# ---------------------------------------------------------------------------
+# WS-0 (M8/M9 corrective migration) -- inline-path Wave 1->2->3 helpers.
+#
+# The pre-WS-0 inline ``run_cmd`` body was the T03.01 stub: it dispatched
+# Wave 1 then emitted a grep-friendly stdout line and exited, with NO
+# normalize/reduce -- so a fresh ``swarm run --lens bare-review`` produced
+# neither ``return-contract.yaml`` nor normalized per-reviewer bodies (only
+# ``--resume`` ran the full pipeline). These helpers let the inline path
+# mirror the resume branch's dispatch -> normalize_wave2 -> reduce_wave3 flow,
+# plus the NET-NEW per-reviewer path-stamping that nothing else performs on a
+# fresh run (dispatch sets only ``WorkerResult.index``; the resume reader
+# ``discover_succeeded_slots`` only recovers paths from sidecars a prior run
+# wrote -- there is no prior run for a first dispatch).
+# ---------------------------------------------------------------------------
+
+
+def _slugify_model(value: str, fallback: str) -> str:
+    """Filesystem-safe model slug for the per-reviewer output filename.
+
+    Mirrors the ``{model_slug}`` segment the resume reader recovers from the
+    ``{lens}-{index:02d}-{model_slug}`` filename. Collapses runs of
+    non-``[A-Za-z0-9._-]`` characters to a single dash so the slug never
+    introduces a spurious ``-NN-`` segment that the slot-index regex could
+    mis-parse, and falls back to a stable ``slotNN`` when the model id/label
+    is empty (e.g. a proxy_error worker the transport could not attribute).
+    """
+    slug = re.sub(r"[^A-Za-z0-9._-]+", "-", (value or "").strip()).strip("-._")
+    return slug or fallback
+
+
+def _read_truncated_target(job: "JobSpec") -> str:
+    """Return the truncated target body for inline prompt assembly (B-5).
+
+    Re-derives the same truncated block preflight fed the checksum (IMM-4):
+    reads ``job.target.path`` and applies the Wave-0 ``_truncate_target``
+    policy with ``job.target.truncation.line_cap``. Preflight has already
+    validated readability, so an OSError here is defensive only -- it returns
+    an empty string rather than crashing the run, and the stub transport
+    (which ignores the prompt) is unaffected either way.
+    """
+    from superclaude.cli.swarm.preflight import _truncate_target
+
+    try:
+        raw_bytes = Path(job.target.path).read_bytes()
+    except OSError:
+        return ""
+    truncated, _was_truncated = _truncate_target(
+        raw_bytes, job.target.truncation.line_cap
+    )
+    return truncated.decode("utf-8", errors="replace")
+
+
+def _assemble_inline_prompt(job: "JobSpec", target_text: str) -> str:
+    """Assemble the inline worker prompt from the resolved lens spec (B-5).
+
+    The pre-WS-0 inline path dispatched with the default empty ``prompt=""``,
+    so workers received no review instruction (cosmetic under ``--transport
+    stub``, which returns canned bodies regardless; wrong for ``openai_compat``).
+    The resume branch has no reusable assembly helper -- it rehydrates persisted
+    state and likewise dispatches with an empty prompt -- so the inline path
+    assembles directly from ``job.prompt`` (lens ``system_prompt_fragment`` +
+    ``user_template``), injecting the truncated target between the lens
+    ``<<<TARGET>>>`` / ``<<<END TARGET>>>`` delimiters. ``str.replace`` (not
+    ``str.format``) is used because the target body routinely contains literal
+    braces (code) that would break ``format``.
+    """
+    system_fragment = job.prompt.system or ""
+    user_template = job.prompt.user_template or ""
+    user_prompt = user_template.replace("{target_content}", target_text)
+    if system_fragment and user_prompt:
+        return f"{system_fragment}\n\n{user_prompt}"
+    return system_fragment or user_prompt
+
+
+def _stamp_inline_worker_paths(
+    workers: list[WorkerResult],
+    output_dir: Path,
+    lens_name: str,
+    filename_template: str,
+) -> list[WorkerResult]:
+    """Populate ``final_path`` / ``meta_path`` / ``raw_path`` on fresh workers.
+
+    NET-NEW for WS-0: nothing else stamps these on a first dispatch
+    (``dispatch_wave1`` sets only ``index``; transports set ``body`` /
+    ``model_id`` / ``model_label``; the resume reader only recovers paths from
+    sidecars a prior run wrote). ``normalize_wave2`` writes each normalized
+    body to ``final_path``, so without this stamping no per-reviewer ``.md``
+    body lands on disk. The naming mirrors the resume reader contract
+    (``discover_succeeded_slots``): the canonical ``{lens}-{index:02d}-
+    {model_slug}`` base with sibling ``.final.md`` / ``.raw.md`` /
+    ``.meta.json`` suffixes. ``dataclasses.replace`` drops the non-dataclass
+    ``.body`` attribute the transport stashed, so it is re-attached.
+    """
+    import dataclasses
+
+    template = filename_template or "{lens}-{index:02d}-{model_slug}.md"
+    stamped: list[WorkerResult] = []
+    for worker in workers:
+        slug = _slugify_model(
+            worker.model_label or worker.model_id, f"slot{worker.index:02d}"
+        )
+        rendered = template.format(
+            lens=lens_name, index=worker.index, model_slug=slug
+        )
+        base = rendered[:-3] if rendered.endswith(".md") else rendered
+        replaced = dataclasses.replace(
+            worker,
+            final_path=str(output_dir / f"{base}.final.md"),
+            meta_path=str(output_dir / f"{base}.meta.json"),
+            raw_path=str(output_dir / f"{base}.raw.md"),
+        )
+        body = getattr(worker, "body", None)
+        if body is not None:
+            replaced.body = body
+        stamped.append(replaced)
+    return stamped
+
+
 def _resolve_input_mode(
     spec_path: Optional[Path],
     stdin_mode: bool,
@@ -1265,6 +1383,55 @@ def _emit_preflight_failures(
     ),
 )
 @click.option(
+    "--reviewers",
+    "reviewers",
+    type=int,
+    default=None,
+    help=(
+        "B-1 -- override the bare-review reviewer (worker) count. "
+        "Integer in the inclusive range [2, 4] (legacy t2_preflight.sh "
+        "AC-1.4 invariant). When omitted, the lens default (3 for "
+        "bare-review) is preserved. workers.models is resized to match "
+        "so the INV-005 model-pool guard admits the requested count."
+    ),
+)
+@click.option(
+    "--target-line-cap",
+    "target_line_cap",
+    type=int,
+    default=None,
+    help=(
+        "B-2 -- override the target truncation line cap (legacy "
+        "t2_preflight.sh --target-line-cap, default 4000). When omitted, "
+        "the lens default (4000 for bare-review) is preserved. The value "
+        "threads through to target.truncation.line_cap."
+    ),
+)
+@click.option(
+    "--timeout-sec",
+    "timeout_sec",
+    type=int,
+    default=None,
+    help=(
+        "B-3 -- override the per-worker timeout in seconds (legacy "
+        "t2_preflight.sh --timeout-sec / T2Timeout, default 180). When "
+        "omitted, the 180s default is preserved. Applied to "
+        "workers.timeout_sec and threaded into dispatch via worker_spec."
+    ),
+)
+@click.option(
+    "--label",
+    "label",
+    type=str,
+    default=None,
+    help=(
+        "B-4 -- override the caller invocation label (legacy "
+        "t2_preflight.sh --label), stamped onto per-reviewer output "
+        "frontmatter via the recipe caller_label. When omitted, the "
+        "default ``swarm-run-lens-<lens>`` label is preserved."
+    ),
+)
+@click.option(
     "--force-relens",
     "force_relens",
     is_flag=True,
@@ -1309,6 +1476,10 @@ def run_cmd(
     target_path: Optional[Path],
     output_dir: Optional[Path],
     transport_kind: Optional[str],
+    reviewers: Optional[int],
+    target_line_cap: Optional[int],
+    timeout_sec: Optional[int],
+    label: Optional[str],
     force_relens: bool,
     detached: bool,
     auto_inject_guard: bool,
@@ -1453,6 +1624,75 @@ def run_cmd(
     if transport_kind is not None:
         spec_dict.setdefault("transport", {})["kind"] = transport_kind
 
+    # B-1 / AC-1.4 -- --reviewers overrides the worker (reviewer) count.
+    # Legacy ``t2_preflight.sh`` required an integer in [2, 4]; mirror that
+    # invariant here. ``workers.count`` is overridden in every input mode
+    # (a legitimate operator ergonomic). ``workers.models``, however, is
+    # resized to N placeholder slots ONLY in lens mode: there
+    # ``_build_spec_from_lens`` already seeds ``workers.models`` with
+    # ``lens-default-model-{i}`` placeholders (they never reach the wire),
+    # so growing them to N slots is what lets the INV-005 model-pool guard
+    # (preflight.py) admit ``count == 4`` instead of clamping it back to the
+    # lens-default pool size of 3. In spec-file / --stdin mode the caller
+    # supplies ``workers.models`` themselves (often REAL model IDs);
+    # overwriting those with placeholders silently clobbered caller models
+    # (Augment PR #178 MEDIUM), so we leave them intact and let the INV-005
+    # warn-with-defaults guard clamp ``count`` to the real pool size if
+    # ``--reviewers`` exceeds it. NOTE: the ``expand_lens_defaults``
+    # ``count == 4`` reset (preflight.py:523) is test-only -- never invoked
+    # on this inline ``run_preflight`` path (which calls
+    # ``materialize_lens_defaults``), so no preflight tweak is needed.
+    if reviewers is not None:
+        if reviewers < 2 or reviewers > 4:
+            click.echo(
+                f"swarm run: --reviewers must be an integer in [2, 4] (got "
+                f"{reviewers}); legacy AC-1.4 invariant",
+                err=True,
+            )
+            raise click.exceptions.Exit(EXIT_USAGE)
+        workers_override = spec_dict.setdefault("workers", {})
+        workers_override["count"] = reviewers
+        if mode == "lens":
+            workers_override["models"] = [
+                f"lens-default-model-{i}" for i in range(reviewers)
+            ]
+
+    # B-2 -- --target-line-cap overrides target truncation line_cap (legacy
+    # ``t2_preflight.sh --target-line-cap``, default 4000). The value threads
+    # straight through to ``target.truncation.line_cap`` and is NOT silently
+    # overwritten: the preflight ``line_cap == 4000`` default-substitution
+    # (preflight.py:527) lives in ``expand_lens_defaults``, which is test-only
+    # and never runs on this inline ``run_preflight`` path, so a non-4000 user
+    # value survives unchanged. ``materialize_lens_defaults`` does not touch
+    # line_cap. (R2 B-2 honored; no accompanying preflight tweak required.)
+    if target_line_cap is not None:
+        spec_dict.setdefault("target", {}).setdefault("truncation", {})[
+            "line_cap"
+        ] = target_line_cap
+
+    # B-3 -- --timeout-sec overrides the per-worker timeout (legacy
+    # ``t2_preflight.sh --timeout-sec`` / ``T2Timeout``, default 180). Applied
+    # to ``workers.timeout_sec`` here; Step 2.7 builds the inline ``worker_spec``
+    # from this field and threads it into ``dispatch_wave1(worker_spec=...)`` so
+    # the timeout actually reaches the §7 retry/timeout matrix (the pre-WS-0
+    # inline dispatch passed no worker_spec, so the timeout was never honored).
+    if timeout_sec is not None:
+        spec_dict.setdefault("workers", {})["timeout_sec"] = timeout_sec
+
+    # B-4 -- --label overrides the caller invocation label (legacy
+    # ``t2_preflight.sh --label``), stamped onto per-reviewer output
+    # frontmatter. It is applied to ``caller.invocation_label`` (the
+    # canonical caller field) AND surfaced as ``normalization.recipe_args
+    # .caller_label`` so the bare-review-v1 recipe (which reads
+    # ``args.get("caller_label")`` at recipes/bare_review_v1.py:255) stamps it
+    # when Step 2.7 threads ``recipe_args`` into ``normalize_wave2``. Only set
+    # when supplied so the legacy empty-label default is preserved on omission.
+    if label is not None:
+        spec_dict.setdefault("caller", {})["invocation_label"] = label
+        spec_dict.setdefault("normalization", {}).setdefault("recipe_args", {})[
+            "caller_label"
+        ] = label
+
     try:
         preflight_result = run_preflight(
             spec_dict,
@@ -1551,14 +1791,110 @@ def run_cmd(
             preflight_result.manifest.job_id,
         )
 
-    worker_results = dispatch_wave1(
-        preflight_result, transport_for_slot=run_transport_factory, logger=logger
+    # WS-0 (B-5) -- assemble the worker prompt + worker_spec from the resolved
+    # spec so the inline path feeds workers the real review instruction and the
+    # --timeout-sec budget (the pre-WS-0 stub dispatched with prompt="" and
+    # worker_spec=None). For --transport stub the prompt is ignored (canned
+    # bodies); for openai_compat it carries the lens system fragment + the
+    # truncated target between the <<<TARGET>>> delimiters.
+    from superclaude.cli.swarm.models import from_dict as _from_dict
+
+    inline_job = _from_dict(JobSpec, spec_dict)
+    assembled_prompt = _assemble_inline_prompt(
+        inline_job, _read_truncated_target(inline_job)
     )
 
-    # F-P3-3 -- Wave 1 is the terminal wave for this T03.01 run body (the
-    # M5 normalize/reduce pipeline is wired separately); flip the state to
-    # ``terminal`` so ``swarm status`` reports completion and ``swarm kill``
-    # finds an already-terminal record.
+    worker_results = dispatch_wave1(
+        preflight_result,
+        transport_for_slot=run_transport_factory,
+        prompt=assembled_prompt,
+        worker_spec=inline_job.workers,
+        logger=logger,
+    )
+
+    # WS-0 (B-5 HEADLINE) -- replace the T03.01 dispatch-only stub with the full
+    # post-dispatch pipeline, mirroring the resume branch: stamp the NET-NEW
+    # per-reviewer output paths (nothing else does on a fresh run), run
+    # normalize_wave2 (recipe ``bare-review-v1``) to write the normalized
+    # per-reviewer bodies to ``final_path``, then reduce_wave3 -- which emits
+    # ``return-contract.yaml`` via its INTERNAL emit_contract (reduce.py:722).
+    # We do NOT add a separate emit_contract call: the resume branch we mirror
+    # calls only reduce_wave3, and a redundant explicit call would double-emit.
+    # The contract is enriched with the lens ``suspect``/``tier`` (caller_metadata)
+    # and the ``--suspect-source`` recommended-next-command so the bare-review
+    # return contract is complete (closing the R3 §1.4 inline-vs-resume asymmetry).
+    recipe_name = inline_job.normalization.recipe
+    if state_output_dir is not None and recipe_name:
+        from superclaude.cli.swarm.normalize import normalize_wave2
+        from superclaude.cli.swarm.reduce import reduce_wave3
+
+        stamped_workers = _stamp_inline_worker_paths(
+            worker_results,
+            state_output_dir,
+            inline_job.output.lens_name or (lens or ""),
+            inline_job.output.filename_template,
+        )
+        # normalize_wave2 forwards a single recipe_args dict to every worker; the
+        # bare-review-v1 recipe reads target / target_checksum / caller_label from
+        # it (per-worker model_id is uniform on the single-model stub / parity
+        # path). caller_label arrives via spec ``normalization.recipe_args`` (the
+        # --label override); target + checksum are supplied here from preflight.
+        recipe_args = dict(inline_job.normalization.recipe_args or {})
+        recipe_args.setdefault("target", inline_job.target.path)
+        recipe_args.setdefault(
+            "target_checksum",
+            preflight_result.manifest.preflight.target_checksum,
+        )
+        normalized_workers = normalize_wave2(
+            stamped_workers,
+            recipe_name=recipe_name,
+            recipe_args=recipe_args,
+        )
+        # PG2 C1 -- populate the recommended-next-command substitutions from the
+        # succeeded reviewers' final_paths so the contract carries a COPY-PASTEABLE
+        # ``/sc:adversarial --compare ... --suspect-source ...`` (the bare-review
+        # hand-off purpose). Mirrors legacy ``t2_normalize.py:293-295``: compare =
+        # ``<existing-review>`` + the success paths; suspect = the success paths (or
+        # ``<no-bare-files>`` when none succeeded). Any caller-supplied substitution
+        # in the spec still wins (setdefault). Without this the lens template's
+        # ``{compare_files}``/``{suspect_files}`` placeholders render unsubstituted.
+        succeeded_final_paths = [
+            w.final_path
+            for w in normalized_workers
+            if w.status == "success" and w.final_path
+        ]
+        next_cmd_subs = dict(
+            inline_job.recommended_next_command_substitutions or {}
+        )
+        next_cmd_subs.setdefault(
+            "suspect_files",
+            ",".join(succeeded_final_paths) if succeeded_final_paths else "<no-bare-files>",
+        )
+        next_cmd_subs.setdefault(
+            "compare_files",
+            ",".join(["<existing-review>", *succeeded_final_paths]),
+        )
+        reduce_wave3(
+            normalized_workers,
+            mode=inline_job.amalgamation_mode,
+            output_dir=state_output_dir,
+            workers_requested=(
+                preflight_result.manifest.preflight.workers_requested
+            ),
+            status_policy=inline_job.status_policy,
+            job_id=preflight_result.manifest.job_id,
+            lens=inline_job.output.lens_name or (lens or ""),
+            caller_metadata=preflight_result.caller_metadata,
+            recommended_next_command_template=(
+                inline_job.recommended_next_command_template
+            ),
+            recommended_next_command_substitutions=next_cmd_subs,
+            resume=False,
+        )
+
+    # F-P3-3 -- flip ``terminal`` AFTER the reduce wave (the stub flipped it
+    # immediately after dispatch). ``swarm status`` / ``swarm kill`` see
+    # completion only once the contract + normalized bodies are on disk.
     if state_output_dir is not None:
         _write_swarm_state(
             state_output_dir,
@@ -1566,10 +1902,8 @@ def run_cmd(
             preflight_result.manifest.job_id,
         )
 
-    # Return-contract emission stub -- M5 replaces this with the real
-    # :class:`ResultContract` writer (DM-012). For T03.01 we emit a
-    # single grep-friendly line on stdout so the smoke test has a
-    # stable success signal independent of the M5 writer landing.
+    # Single grep-friendly success line -- preserved verbatim so the documented
+    # stdout signature (and the e2e tests pinning it) stays stable.
     click.echo(
         f"swarm run: dispatched job (mode={mode}, "
         f"workers={preflight_result.manifest.preflight.workers_requested}, "

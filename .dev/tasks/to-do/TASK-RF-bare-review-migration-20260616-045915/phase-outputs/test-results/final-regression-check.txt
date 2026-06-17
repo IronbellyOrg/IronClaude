@@ -1,0 +1,13 @@
+### full swarm suite ###
+.................................                                        [ 99%]
+tests/swarm/test_workerspec.py .....................                     [100%]
+
+====================== 2212 passed, 27 skipped in 11.40s =======================
+
+### make verify-sync ###
+✅ All components in sync.
+verify_sync_exit=0
+
+### bare-review gates RUN (not skip) post-deletion ###
+
+============================== 27 passed in 0.82s ==============================

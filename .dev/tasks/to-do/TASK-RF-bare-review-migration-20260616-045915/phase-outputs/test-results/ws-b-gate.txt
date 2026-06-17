@@ -1,0 +1,46 @@
+### parity -v ###
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 16 items
+
+tests/swarm/test_bare_review_parity.py::test_cli_bodies_byte_match_frozen_golden[all-success] PASSED [  6%]
+tests/swarm/test_bare_review_parity.py::test_cli_bodies_byte_match_frozen_golden[partial-with-timeout] PASSED [ 12%]
+tests/swarm/test_bare_review_parity.py::test_cli_bodies_byte_match_frozen_golden[salvage-promoted] PASSED [ 18%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_aggregate_status[all-success] PASSED [ 25%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_aggregate_status[partial-with-timeout] PASSED [ 31%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_aggregate_status[salvage-promoted] PASSED [ 37%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_per_slot_status_and_counts[all-success] PASSED [ 43%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_per_slot_status_and_counts[partial-with-timeout] PASSED [ 50%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_per_slot_status_and_counts[salvage-promoted] PASSED [ 56%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_suspect_and_adversarial_handoff[all-success] PASSED [ 62%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_suspect_and_adversarial_handoff[partial-with-timeout] PASSED [ 68%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_suspect_and_adversarial_handoff[salvage-promoted] PASSED [ 75%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_output_files_length[all-success] PASSED [ 81%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_output_files_length[partial-with-timeout] PASSED [ 87%]
+tests/swarm/test_bare_review_parity.py::test_cli_contract_output_files_length[salvage-promoted] PASSED [ 93%]
+tests/swarm/test_bare_review_parity.py::test_bare_review_lens_prompt_ends_with_canonical_injection_guard PASSED [100%]
+
+============================== 16 passed in 0.35s ==============================
+
+### full swarm suite -q ###
+tests/swarm/test_tmux_detached.py .............ssssss                    [ 91%]
+tests/swarm/test_tmux_fallback.py ....                                   [ 91%]
+tests/swarm/test_transport_protocol.py .........                         [ 92%]
+tests/swarm/test_transportspec.py ...................                    [ 92%]
+tests/swarm/test_tui.py ............                                     [ 93%]
+tests/swarm/test_uv_enforcement.py ...                                   [ 93%]
+tests/swarm/test_validate_all_lenses.py ..................               [ 94%]
+tests/swarm/test_validate_cmd.py .............                           [ 95%]
+tests/swarm/test_validate_lenses_ci.py ............                      [ 95%]
+tests/swarm/test_validate_lenses_cmd.py .............                    [ 96%]
+tests/swarm/test_worker_state_event.py ................................. [ 97%]
+.................................                                        [ 99%]
+tests/swarm/test_workerspec.py .....................                     [100%]
+
+====================== 2217 passed, 27 skipped in 11.60s =======================
+
+### ruff check parity ###
+All checks passed!

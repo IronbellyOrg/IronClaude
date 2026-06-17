@@ -1,0 +1,102 @@
+contract_version: "1.5.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/2355bfe1ec48/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/2355bfe1ec48/audit.log
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # forced T2 via --depth deep (hard override, §5.1)
+
+# Scope
+diff_requested: "02582ca0..HEAD"
+diff_audited: "0f9c8d36..HEAD"   # re-scoped: 0f9c8d36 (pr-submit #176) is already on origin/master, unrelated
+diff_scope_note: "pr-submit #176 excluded as pre-merged/out-of-task; WS-B/C/D/E complete-but-uncommitted in working tree, NOT in committed range (see REPORT S1/S2)"
+
+# UC-2 deviation audit (committed WS-0 + WS-A)
+tasklist_completion_pct: 0.982   # 107/109 checklist items; remaining = PC.5 (this gate) + PC.6 (mark Done)
+deviation_count_by_class:
+  authorized: 0      # work is on-spec, not expansion beyond tasklist
+  necessary: 1       # N1 inline target re-read (tasklist-sanctioned, Step 2.6)
+  drift: 0
+  regression: 0
+deviation_register_path: null    # rendered inline in REPORT.md
+grounding_gaps_path: null
+
+# Verification triangle (§6.1 step 5.5) — ran against working tree
+verification_ran: true
+verification_invocations: 4      # full swarm suite, targeted bare-review tests, verify-sync, live stub run
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+verification_evidence:
+  swarm_suite: "2212 passed, 27 skipped"
+  bare_review_core: "50 passed, 1 skipped"
+  verify_sync: "exit 0"
+  skill_md_lines: 80
+  skill_md_t2_refs: 0
+  live_stub_run: "emitted return-contract.yaml + 3 normalized .final.md"
+  parity_gate: "green vs frozen golden (byte-faithful)"
+
+# Hallucination guard
+citations_total: 16              # reviewer findings examined
+citations_revalidated: 16
+citations_dropped: 5             # refuted deviation claims (Card1 #1/#2/#3, Card2 #6/#7)
+citations_inferred: 4            # [INFERRED] forward observations
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: false            # healthy non-zero drop (§11.2)
+
+# Tier 2 ensemble
+reviewer_cards:
+  - /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/2355bfe1ec48/reviewer-cards/card-1-pipeline.md
+  - /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/2355bfe1ec48/reviewer-cards/card-2-tests-contract.md
+reviewer_models: [gpt-5.5, qwen3.6-plus]   # sonnet-class, haiku-class
+reviewer_personas: [analyzer, qa]
+merge_method: evidence-validated-synthesis   # cards agreed with each other but disagreed with ground truth; evidence-validator is the decisive gate, not adversarial debate
+adversarial_convergence_score: null
+adversarial_unavailable: false
+t2_model_class_diversity: degraded   # 2 classes (executor=opus excluded per §7.1)
+t2_vendor_diversity: multi           # gpt + qwen
+calibrator_diversity: full           # calibrator=opus disjoint from {sonnet, haiku}
+executor_class_source: flag          # --executor-model opus
+executor_class_resolved: true
+executor_exclusion_degraded: true    # opus removed from pool; no distinct non-executor 3rd class
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+cannot_validate_without_user_input: false
+user_decision_required: false
+needs_human_decision: false          # for the COMMITTED audit; NB the task itself has a separate pending OPS-004 HALT (S3)
+blocked_by_low_confidence: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: false          # declined — nothing to remediate in committed work
+remediation_recommendation: "Do NOT build a corrective task. Commit WS-B/C/D/E, then run the task's PC.5 wrapper (git add -A + superclaude reflect run <tasklist> --depth deep --fix --promote). Resolve OPS-004 tabletop HALT before PC.6."
+task_file_path: null
+remediation_task_path: null
+
+# Promotion (Wave 7) — UC-2
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915
+promotion_destination: null
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass
+  status_success: fail              # status partial
+  tasklist_completion_pct_1_0: fail # 107/109
+  no_drift_no_regression: pass
+  frontmatter_present: pass
+  frontmatter_status_matches: fail  # 🟠 Doing, not done
+  no_citations_dropped: pass        # 0 citations dropped FROM THE FINAL REPORT (the 5 drops are refuted reviewer claims, never entered the report as grounded)
+  no_grounding_gaps: pass
+  no_input_drift: pass
+  no_user_decision_pending: pass
+  adversarial_result_present: pass  # T2 ran, evidence-validated synthesis produced
+gate_evaluation_failures: [status_success, tasklist_completion_pct_1_0, frontmatter_status_matches]
+
+degraded_components: [env-aliases-3rd-class]   # executor-exclusion left N=2 reviewers

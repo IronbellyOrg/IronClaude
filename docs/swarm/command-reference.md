@@ -42,10 +42,20 @@ merge + ResultContract are the pending M5 milestone — see
 | `--target` | PATH | Override `target.path` on the resolved spec. Required with `--lens`. |
 | `--output` | DIR | Output directory. **Wires all observability artifacts** — without it, a spec-file run dispatches but writes nothing. Required with `--lens` / `--resume`. |
 | `--transport` | `stub`\|`openai_compat` | Override `transport.kind`. `stub` (default for `--lens`) = in-process, no network. `openai_compat` = real T2 proxy. |
+| `--reviewers` | INT | B-1 override of the bare-review reviewer (worker) count. Integer in the inclusive range `[2, 4]` (legacy `t2_preflight.sh` AC-1.4 invariant). Omitted → lens default (3 for bare-review) preserved; `workers.models` is resized to match so the INV-005 model-pool guard admits the requested count. |
+| `--target-line-cap` | INT | B-2 override of the target truncation line cap (legacy `t2_preflight.sh --target-line-cap`, default `4000`). Omitted → lens default (4000 for bare-review) preserved. Threads through to `target.truncation.line_cap`. |
+| `--timeout-sec` | INT | B-3 override of the per-worker timeout in seconds (legacy `t2_preflight.sh --timeout-sec` / `T2Timeout`, default `180`). Omitted → 180s default preserved. Applied to `workers.timeout_sec` and threaded into dispatch via `worker_spec`. |
+| `--label` | TEXT | B-4 override of the caller invocation label (legacy `t2_preflight.sh --label`), stamped onto per-reviewer output frontmatter via the recipe `caller_label`. Omitted → default `swarm-run-lens-<lens>` label preserved. |
 | `--force-relens` | — | With `--resume`: re-resolve lens-derived prompt/recipe fields from the **current** registry (FR-025). Requires `--resume`. |
 | `--detached` | — | Launch inside a `tmux` session `swarm-<job_id>` (FR-014). Mutually exclusive with `--resume`. Exits `2` if tmux is unavailable — no silent inline fallback. |
-| `--auto-inject-guard` | — | Prepend the canonical §11.5 injection-guard sentence to a custom `system.txt` that lacks it (idempotent, opt-in). Only relevant with `--custom-prompt-dir`. |
-| `--custom-prompt-dir` | DIR | Escape-hatch prompt directory for `--lens custom` (FR-021). |
+| `--auto-inject-guard` | — | Prepend the canonical §11.5 injection-guard sentence to a custom-prompt-dir `system.txt` that lacks it (idempotent, opt-in). Relevant only when migrating legacy custom-prompt-dir layouts that predate §11.5 framing. |
+
+> **Note — custom prompt directory is not a `run` flag.** The custom prompt
+> directory is the JobSpec `custom_prompt_dir` field (FR-021), authored in a spec
+> file and validated only for the `custom` lens (`custom_prompt_dir` requires the
+> `custom` lens — see [`swarm validate`](#swarm-validate)). It is **not** a
+> `swarm run` CLI option; only `--auto-inject-guard` (above) is the run-time flag
+> that interacts with a custom-prompt-dir `system.txt`.
 
 ### Exit codes
 
