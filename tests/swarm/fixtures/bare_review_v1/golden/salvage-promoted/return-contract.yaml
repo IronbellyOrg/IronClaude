@@ -1,0 +1,28 @@
+contract_version: "1.0"
+status: success
+target: "<<TARGET>>"
+target_checksum: "c8ce0d9b805943cb7aa8b27f36d4c951a92f37648fde216bc89084abc67cecba"
+target_truncated: false
+reviewers_requested: 3
+reviewers_succeeded: 3
+output_files:
+  - path: "<<OUTPUT_DIR>>/bare-review-01-m.md"
+    model_id: ""
+    model_label: ""
+    bytes: 1226
+    status: success
+    elapsed_ms: 0
+  - path: "<<OUTPUT_DIR>>/bare-review-02-m.md"
+    model_id: ""
+    model_label: ""
+    bytes: 674
+    status: success
+    elapsed_ms: 0
+  - path: "<<OUTPUT_DIR>>/bare-review-03-m.md"
+    model_id: ""
+    model_label: ""
+    bytes: 834
+    status: success
+    elapsed_ms: 0
+suspect: true
+recommended_next_command: "/sc:adversarial --compare <existing-review>,<<OUTPUT_DIR>>/bare-review-01-m.md,<<OUTPUT_DIR>>/bare-review-02-m.md,<<OUTPUT_DIR>>/bare-review-03-m.md --suspect-source <<OUTPUT_DIR>>/bare-review-01-m.md,<<OUTPUT_DIR>>/bare-review-02-m.md,<<OUTPUT_DIR>>/bare-review-03-m.md"

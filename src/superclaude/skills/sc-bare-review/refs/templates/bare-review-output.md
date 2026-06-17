@@ -117,17 +117,19 @@ must:
 4. Assert the findings-table column header row matches verbatim:
    `| ID | Sev | Claim | Cite | SelfConf |`.
 
-See `tests/swarm/test_recipe_bare_review.py` for the byte-identity parity
-gate against the legacy `t2_normalize.py` script (TEST-003 / M8 gate); the
-render test above is a lighter shape check kept in sync with this template.
+See `tests/swarm/test_bare_review_parity.py` for the permanent byte-identity
+parity gate (the live `swarm run --lens bare-review` CLI vs a frozen golden;
+M8/M9 migration), and `tests/swarm/test_recipe_bare_review.py` for the
+recipe-level registry / dispatcher / salvage-flag coverage; the render test
+above is a lighter shape check kept in sync with this template.
 
 ---
 
 ## Provenance
 
-- Parent skill template: `src/superclaude/skills/sc-bare-review/refs/output-template.md`
-  (kept in place for the legacy bash/Python pipeline under `scripts/`).
-- Wave-2 recipe: `src/superclaude/cli/swarm/recipes/bare_review_v1.py`
-  (`BareReviewV1.render_markdown` emits this exact shape).
+- Canonical source: `src/superclaude/cli/swarm/recipes/bare_review_v1.py`
+  (`BareReviewV1.render_markdown` emits this exact shape). The legacy
+  `refs/output-template.md` + `scripts/` pipeline were retired in the M8/M9
+  migration (WS-C); this swarm-aware template is the surviving reference.
 - Spec anchors: merged-requirements §4.1 (template), §4.2 (field semantics),
   §7.4 (parse-error salvage), §12 (template path pin).

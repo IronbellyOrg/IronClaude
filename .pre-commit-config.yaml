@@ -34,7 +34,8 @@ repos:
             .*package-lock\.json$|
             .*pnpm-lock\.yaml$|
             .*\.min\.js$|
-            .*\.min\.css$
+            .*\.min\.css$|
+            tests/swarm/fixtures/bare_review_v1/golden/.*
           )$
 
   # Additional secret patterns (from CLAUDE.md)
@@ -78,7 +79,8 @@ repos:
             CHANGELOG\.md|
             .*node_modules.*|
             .*\.min\.md$|
-            \.dev/.*
+            \.dev/.*|
+            tests/swarm/fixtures/bare_review_v1/golden/.*
           )$
 
   # YAML linting

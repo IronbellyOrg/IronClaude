@@ -47,12 +47,12 @@ superclaude swarm run --lens bare-review --target <target> --output <output-dir>
 ## Return Contract (§3.3) — written on every invocation including failure
 
 ```yaml
-contract_version: "1.0"
-status: success | partial | failed   # IMM-5 success-first: M==N→success; 2≤M<N→partial; M<2→failed
-target: <absolute>; target_checksum: <sha256>; reviewers_requested: <N>; reviewers_succeeded: <M>
-output_files: [ { path, model_id, status: success|timeout|parse_error|proxy_error }, … ]
-suspect: true   # always — suspect by construction
-recommended_next_command: "/sc:adversarial --compare <existing-review>,<bare1>,… --suspect-source <bare1>,…"
+contract_version: "1.0"; status: success | partial | failed   # IMM-5: M==N→success; 2≤M<N→partial; M<2→failed
+target: { path: <abs>, checksum: <sha256>, truncated: <bool>, truncation_line_cap: <N> }
+workers_requested: <N>; workers_succeeded: <M>; workers_failed: <N-M>   # M = #successes
+output_files: [ { index, path, raw_path, meta_path, final_path, model_id, model_label, status } ]
+caller_metadata: { suspect: true, tier: T2 }   # suspect always — by construction
+recommended_next_command: "/sc:adversarial --compare <existing>,<bare…> --suspect-source <bare…>"
 ```
 
 ## Failure Modes (§8) & Boundaries (§3.4)

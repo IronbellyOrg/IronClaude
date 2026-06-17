@@ -1,0 +1,16 @@
+verdict: degraded
+status: partial
+tier_reached: 2
+reason: degraded-model-diversity
+report: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/2355bfe1ec48/REPORT.md
+contract: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/2355bfe1ec48/return-contract.yaml
+deviations:
+  authorized: 0
+  necessary: 1
+  drift: 0
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false
