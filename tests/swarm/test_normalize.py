@@ -213,7 +213,15 @@ def test_recipe_args_forwarded(tmp_path, install_recipe):
         recipe_args={"cap": 4000, "lens": "bare-review"},
     )
     assert captured["raw"] == "hello"
-    assert captured["args"] == {"cap": 4000, "lens": "bare-review"}
+    # FR-028: the dispatcher forwards recipe_args verbatim EXCEPT it
+    # injects the per-worker ``status`` (here the default "success") into
+    # a per-worker copy so the recipe's §7.4 salvage gate sees the real
+    # upstream status. The original recipe_args dict is not mutated.
+    assert captured["args"] == {
+        "cap": 4000,
+        "lens": "bare-review",
+        "status": "success",
+    }
 
 
 # ---------------------------------------------------------------------------

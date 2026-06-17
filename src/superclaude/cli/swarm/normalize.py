@@ -436,6 +436,17 @@ def _normalize_one(
 
     raw = _read_raw(worker)
 
+    # FR-028: thread the per-worker status into a per-worker copy of the
+    # shared ``recipe_args``. ``normalize_wave2`` forwards ONE shared dict
+    # to every worker; without this injection the recipe's §7.4 salvage
+    # gate (e.g. ``BareReviewV1`` reading ``args["status"]``) would see the
+    # caller's static value (or its ``"success"`` default) for every
+    # worker, so a recoverable ``parse_error`` reviewer is never promoted
+    # (M undercount -> aggregate ``partial``). Inject ONLY ``status`` --
+    # never per-worker timing (e.g. ``elapsed_ms``), which would break the
+    # deterministic frozen-golden byte-equality in the parity gate.
+    args = {**args, "status": worker.status}
+
     try:
         result = recipe.normalize(raw, args)
     except Exception as exc:  # noqa: BLE001 -- intentional broad catch
