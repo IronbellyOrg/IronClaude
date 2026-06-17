@@ -1,0 +1,111 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-rerun/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-rerun/audit.log
+confidence_calibrated: 0.96
+escalation_rule_matched: 2          # §5.3 rule 2 → STOP at T1
+onboarding_ran: false
+
+# UC-2 specific
+tasklist_completion_pct: 1.0        # all 7 code/build/test items verified; items 8-9 are this gate + the commit step
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null       # zero deviations
+grounding_gaps_path: null           # empty
+
+# Verification triangle (§6.1 step 5.5, default-on)
+verification_ran: true
+verification_invocations: 2         # make verify-sync, uv run pytest tests/pr_submit
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Input integrity
+input_tree_sha256: n/a-single-pass  # standard-depth T1; no mid-run drift guard tripped
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 11
+citations_revalidated: 11
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true        # inline re-Read (Tier 1, standard depth)
+zero_drop_flag: true                # §11.2 — honest flag; expected on a trivial default-value diff
+
+# Tier 2 artifacts (not reached)
+reviewer_cards: []
+adversarial_unavailable: false
+merge_method: null
+t2_model_class_diversity: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Per-task verdicts
+per_task_verdicts:
+  - task_id: "item-1-fsm.py"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.97
+    evidence_anchor: src/superclaude/pr_submit/fsm.py:30-74,698-701
+  - task_id: "item-2-test_skill_parse.py"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.97
+    evidence_anchor: tests/pr_submit/test_skill_parse.py:54-84
+  - task_id: "item-3-commands/pr-submit.md"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: src/superclaude/commands/pr-submit.md:8,26,45
+  - task_id: "item-4-SKILL.md"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md:45,49,89
+  - task_id: "item-5-augment-poll.md"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.95
+    evidence_anchor: src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md:51
+  - task_id: "item-6-sync"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.98
+    evidence_anchor: "make verify-sync → All components in sync"
+  - task_id: "item-7-pytest"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.98
+    evidence_anchor: "uv run pytest tests/pr_submit → 185 passed"
+
+# Cross-task interaction effects
+interaction_effects_scanned: false   # single coherent change set; symbol-overlap is intentional (all touch the monitor default), not a risk
+interaction_effects_findings: 0
+
+# Promotion (UC-2 — §14.5) — suppressed
+promotion_action: skipped
+promotion_skip_reason: user-flag     # --no-promote set
+promotion_adapter: task
+promotion_gate_passed: null
+# NOTE: even absent --no-promote, the gate would block: tasklist still under .dev/tasks/to-do/,
+#       frontmatter status: in-progress (cond 5b), diff is uncommitted working-tree, items 8-9 open.

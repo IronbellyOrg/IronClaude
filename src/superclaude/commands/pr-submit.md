@@ -5,7 +5,7 @@ category: quality
 complexity: advanced
 mcp-servers: [sequential, serena, auggie]
 personas: [analyzer, architect, security, qa, devops]
-argument-hint: "--monitor {0,1,2,3} [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 1800] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--output-dir <dir>] [--resume <run-log.jsonl>]"
+argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--output-dir <dir>] [--resume <run-log.jsonl>]"
 version: "1.0"
 ---
 
@@ -23,7 +23,7 @@ Explicit only — three activation paths:
 
 | Input | Required | Notes |
 |-------|----------|-------|
-| `--monitor {0,1,2,3}` | Yes (default 0) | The autonomy ceiling on a single FSM. 0 = open PR only (byte-identical to today). |
+| `--monitor {0,1,2,3}` | No (default 1) | The autonomy ceiling on a single FSM. Explicit 0 = open PR only (byte-identical to today). |
 | PR context (`--head`/`--base`/`--title`/`--body`) OR an existing PR number | Yes | To open or attach to the PR. |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, via `gh repo view --json nameWithOwner`), or if `detection-contract.md` is `locked: false` (run the R1 probe first — T-210).
@@ -42,10 +42,10 @@ Explicit only — three activation paths:
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--monitor {0,1,2,3}` | 0 | Capability ceiling (G-arm/G-edit/G-push gates). |
+| `--monitor {0,1,2,3}` | 1 | Capability ceiling (G-arm/G-edit/G-push gates). |
 | `--max-rounds N` | 2 | Remediation cycles; hard cap 5 (reject >5). |
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
-| `--timeout S` | 1800 | Review-wait wall-clock timeout (~30 min). |
+| `--timeout S` | 600 | Review-wait wall-clock timeout (~10 min). |
 | `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view --json defaultBranchRef`), overridable here. |
 | `--head <branch>` | — | PR head branch. |
 | `--title` / `--body` | — | PR title / body. |

@@ -1,0 +1,10 @@
+# Evidence-insufficient findings (NOT the 4-category ledger). Per SKILL §10.6.
+# R4: grounding-gap #1 (plain template PASS/FAIL false-positive) RESOLVED by the
+# pairing guard. The R4 ensemble found that resolution is INCOMPLETE for decorated/
+# punctuated variants — but that is a fully-evidenced code defect (D6), so it lives in
+# deviation-ledger.yaml as Drift/MEDIUM, NOT here. No evidence-INSUFFICIENT findings remain.
+grounding_gaps_version: "1.0"
+run_label: "R4 (post-D5-fix; supersedes r3-superseded/grounding-gaps.yaml)"
+mode: post
+findings: []
+needs_human_decision: false   # no evidence gaps; D6 is a classified defect with a verified-available fix

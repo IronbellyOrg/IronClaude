@@ -1,0 +1,72 @@
+deviation_ledger_version: "1.0"
+mode: post
+gold_standard: "TASK-RF-pr167-verdict-regex-20260613-000000.md (Key Objectives + Key Constraints)"
+deviations:
+  - id: D1
+    hunk_ref: "src/superclaude/cli/prd/gates.py:64 (_check_verdict_field md_match regex)"
+    class: authorized
+    severity: none
+    title: "Numbered-list + underscore-emphasis acceptance with preserved strictness"
+    rationale: >
+      Core authorized work. Maps to Key Objectives 1-2. Independently verified: all 8
+      required accept shapes and all 8 required reject shapes pass, rationale-heading
+      guard rejects, JSON verdict preserved, colon+uppercase+word-boundary strictness intact.
+    gold_standard_ref: "tasklist lines 79-80, 118-119; Step 2.1/2.2"
+    evidence: "31/31 cases via independent ground-truth harness; 53/53 pytest pass; ruff clean"
+    is_real: true
+    remediation: none
+
+  - id: D2
+    hunk_ref: "src/superclaude/cli/prd/gates.py:64 (regex value-side `[^\\w\\n:_]*[_*]*(PASS|FAIL)[_*]*`)"
+    class: drift
+    severity: medium
+    title: "Quadratic-backtracking (ReDoS) robustness regression newly introduced by the underscore-support change"
+    rationale: >
+      The working-tree change introduced adjacent overlapping star quantifiers
+      ([^\w\n:_]* and [_*]* both match '*'). On a long run of '*'/decoration chars
+      before a near-miss value, the engine backtracks quadratically. Baseline (@2c5357c8)
+      and committed HEAD (65bac7ed) stay <1ms at 40k chars; working tree = 5599ms.
+      Does NOT violate any STATED acceptance criterion (no perf criterion exists), no
+      inline rationale -> Drift. In engineering terms it is a complexity regression vs
+      the prior linear forms. Practical exploitability is LOW (requires pathological
+      ~tens-of-thousands-char input unlikely from real gate content) -> severity MEDIUM,
+      not HIGH (down-adjudicated from Reviewer-1's HIGH).
+    gold_standard_ref: "prior linear regex forms @2c5357c8 and @65bac7ed"
+    evidence: >
+      Timing harness: N=8k FINAL=224.91ms (ORIG 0.08 / INTERMED 0.15); N=20k FINAL=1385.27ms;
+      N=40k FINAL=5599.31ms; doubling N -> ~4x time = quadratic. Verified candidate fix
+      (single non-overlapping class `[^a-zA-Z0-9\n:]*(PASS|FAIL)(?![A-Za-z])`) keeps 31/31
+      cases AND drops 40k to 0.67ms.
+    is_real: true
+    remediation: "Tier-3 candidate (verified): replace adjacent `[^\\w\\n:_]*[_*]*...[_*]*` value-side groups with one non-overlapping class."
+
+  - id: D3
+    hunk_ref: "tests/cli/prd/test_gates.py:428 (TestBuildTaskFileGateAdvisoryWiring dict-comprehension reflow)"
+    class: drift
+    severity: low
+    title: "Unrelated formatting reflow in an out-of-scope test (committed in 65bac7ed)"
+    rationale: >
+      A 2-line -> 1-line dict-comprehension reflow on TestBuildTaskFileGateAdvisoryWiring,
+      unrelated to the verdict parser. Task constraint says 'no unrelated tests restructured'.
+      Pure formatting (ruff-format-shaped), zero behavioral change. In-scope FILE but
+      out-of-scope test. Committed, not in the working-tree delta.
+    gold_standard_ref: "tasklist lines 109-111, 155 (no unrelated tests restructured)"
+    evidence: "git diff 2c5357c8 -- tests/cli/prd/test_gates.py hunk @@ -357,8 +428,7 @@; git log -S confirms commit 65bac7ed"
+    is_real: true
+    remediation: "Advisory only; harmless. Optionally revert the reflow to keep the diff minimal."
+
+  - id: D4
+    hunk_ref: "TASK-RF-pr167-verdict-regex-20260613-000000.md:199-227 (Task Summary) vs :191,195 (Steps 4.2/4.3 unchecked)"
+    class: drift
+    severity: high
+    title: "Task Summary prematurely claims completion while mandatory gates are unrun"
+    rationale: >
+      Task Summary records 'Completion Date: 2026-06-13' and 'Blockers Logged: None' /
+      'None unresolved', but Step 4.2 (SELF-RUN post-execution reflect gate) and Step 4.3
+      (mark Done) are unchecked `[ ]` and frontmatter status is still '🟠 Doing'. The
+      documentation asserts a terminal state the checklist has not reached. This is a
+      documentation-vs-reality Drift and independently blocks Wave-7 promotion.
+    gold_standard_ref: "tasklist lines 6, 120, 181-195 (mandatory ordered checklist; Done only after reflect_post recorded)"
+    evidence: "Read of tasklist: status '🟠 Doing' (line 6); Step 4.2 `- [ ]` (line 191); Step 4.3 `- [ ]` (line 195); Summary `Completion Date: 2026-06-13` (line 201)"
+    is_real: true
+    remediation: "This reflect run IS the post-execution gate; record reflect_post, then Step 4.3 may mark Done only after D2 is resolved or explicitly accepted."

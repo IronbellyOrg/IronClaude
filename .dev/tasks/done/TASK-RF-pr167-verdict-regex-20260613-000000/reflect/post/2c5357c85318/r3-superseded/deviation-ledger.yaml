@@ -1,0 +1,79 @@
+deviation_ledger_version: "1.0"
+run_label: "R3 (post-grounding-gap-#1 remediation; supersedes R2 in r2-superseded/)"
+mode: post
+gold_standard: "TASK-RF-pr167-verdict-regex-20260613-000000.md (Key Objectives + Key Constraints)"
+deviations:
+  - id: D1
+    hunk_ref: "src/superclaude/cli/prd/gates.py _check_verdict_field md_match regex (≈:72)"
+    class: authorized
+    severity: none
+    title: "Numbered-list + underscore-emphasis acceptance with preserved strictness"
+    rationale: >
+      Core authorized work (Key Objectives 1-2). Re-verified live in R3: 10/10 accept shapes,
+      9/9 core reject shapes, rationale-heading guard rejects, JSON verdict preserved,
+      colon+uppercase+word-boundary strictness intact, no broadening to \w.
+    gold_standard_ref: "tasklist Step 2.1/2.2; constraints :132-133"
+    evidence: "R3 live-function probe (_r3_probe.py): 0 mismatches across 24 spec shapes; 65/65 pytest; ruff clean"
+    is_real: true
+    remediation: none
+
+  - id: D2
+    hunk_ref: "src/superclaude/cli/prd/gates.py value side `[^a-zA-Z0-9\\n:]*(PASS|FAIL)(?![A-Za-z])`"
+    class: authorized
+    severity: none
+    title: "ReDoS (quadratic backtracking) RESOLVED — single non-overlapping value class + guard test"
+    rationale: >
+      Operator-directed R1/R2 remediation; remains resolved in R3. Linear time re-verified across
+      ALL quantifiers including the new pairing-guard lookahead.
+    gold_standard_ref: "prior linear regex forms; task log [2026-06-13 12:41]"
+    evidence: "R3 timing: value *x40k 0.59ms, _x40k 0.61ms, label *x40k 0.08ms, prefix #x40k 0.33ms, pairing-tail 0.01ms"
+    is_real: true
+    remediation: "Complete."
+
+  - id: D5
+    hunk_ref: "src/superclaude/cli/prd/gates.py pairing-guard lookahead `(?!\\s*(?:/|(?i:or))\\s*(?:PASS|FAIL))` (≈:74)"
+    class: drift
+    severity: medium
+    title: "Pairing guard over-rejects real verdicts (newline-spanning \\s* + missing value word-boundary)"
+    rationale: >
+      The grounding-gap #1 remediation (Authorized expansion, operator-directed [2026-06-13 13:07])
+      added a negative lookahead to reject `PASS/FAIL`/`PASS or FAIL` template placeholders. Its
+      implementation (a) uses `\s*` which spans newlines, and (b) omits a trailing word-boundary on
+      the inner `(?:PASS|FAIL)`. Result: genuine single verdicts whose trailing prose begins with
+      `or`/`/` + a PASS|FAIL-prefixed token are wrongly REJECTED — a false negative in the exact bug
+      class PR #167 fixes. Latent: no test covers these shapes; contradicts the stated intent of the
+      operator's own `test_check_verdict_field_accepts_value_with_trailing_prose`. Drift (not
+      Regression) because no written acceptance criterion or previously-passing test is contradicted;
+      MEDIUM because trigger inputs are realistic and the failure mode is the targeted bug class.
+    gold_standard_ref: "PR #167 troubleshoot REPORT.md (false-negative elimination intent); guard's own trailing-prose accept test"
+    evidence: >
+      R3 live re-execution (_r3_verify.py): `Verdict: PASS or FAILURE expected` -> reject;
+      `PASS or PASSED later` -> reject; `PASS or FAILS fast` -> reject; `PASS or FAILover cluster` -> reject;
+      `Verdict: PASS\nor FAIL ...` -> reject. Reviewer-1 independently escalated and confirmed.
+    is_real: true
+    remediation: >
+      One-line fix (verified): lookahead -> `(?![ \t]*(?:/|(?i:or))[ \t]*(?:PASS|FAIL)(?![A-Za-z]))`.
+      Flips the 5 false-negatives to accept; all 7 template placeholders stay rejected; all core
+      controls unchanged. Add 2-3 regression tests. Residual rare edge `PASS or FAIL-safe` still rejects.
+
+  - id: D3
+    hunk_ref: "tests/cli/prd/test_gates.py TestBuildTaskFileGateAdvisoryWiring dict-comprehension reflow (≈:485)"
+    class: drift
+    severity: low
+    title: "Unrelated formatting reflow in an out-of-scope test (committed in 65bac7ed)"
+    rationale: >
+      2-line -> 1-line dict-comprehension reflow on a test class unrelated to the verdict parser.
+      Pure ruff-format-shaped, zero behavioral change. In-scope FILE, out-of-scope test. Task
+      constraint :169 'no unrelated tests restructured'. Committed (in 65bac7ed), not working-tree.
+      Unchanged since R1/R2.
+    gold_standard_ref: "tasklist :169"
+    evidence: "git show 65bac7ed contains it; 2bd821f3 does not; Reviewer-2 confirmed cosmetic"
+    is_real: true
+    remediation: "Advisory; harmless. Optionally revert to keep the diff strictly two-purpose."
+
+resolved_since_r2:
+  - id: grounding-gap-#1
+    note: "Template `Verdict: PASS/FAIL` false-positive RESOLVED by the operator pairing guard; 7/7 placeholders now rejected (re-verified live). Was the gate-8 needs_human_decision blocker."
+notes:
+  - "D4 (R1 premature-completion process drift) remains RESOLVED."
+  - "The PASS/FAIL pairing EXPANSION is Authorized (operator-directed); D5 is the implementation defect within it."

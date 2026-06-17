@@ -1,0 +1,36 @@
+# UC-2 deviation ledger — every diff hunk classified per §10 taxonomy.
+# Result: ZERO deviations. Every hunk maps 1:1 to a tasklist checklist item.
+deviations: []
+summary:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+hunk_mapping:
+  - hunk: "src/superclaude/pr_submit/fsm.py:30 DEFAULT_MONITOR = 1 (new const)"
+    maps_to: "checklist item 1 (fsm.py defaults + parser wiring)"
+    class: none-planned-work
+  - hunk: "src/superclaude/pr_submit/fsm.py:34 DEFAULT_TIMEOUT 1800 -> 600"
+    maps_to: "checklist item 1"
+    class: none-planned-work
+  - hunk: "src/superclaude/pr_submit/fsm.py:52 SkillArgs.monitor default -> DEFAULT_MONITOR"
+    maps_to: "checklist item 1"
+    class: none-planned-work
+  - hunk: "src/superclaude/pr_submit/fsm.py:74 parser --monitor default -> DEFAULT_MONITOR"
+    maps_to: "checklist item 1"
+    class: none-planned-work
+  - hunk: "src/superclaude/pr_submit/fsm.py:721 RunConfig.monitor_ordinal -> DEFAULT_MONITOR"
+    maps_to: "checklist item 1"
+    class: none-planned-work
+  - hunk: "tests/pr_submit/test_skill_parse.py T-103 rename + new explicit --monitor 0 test + timeout 600 assert"
+    maps_to: "checklist item 2 (test_skill_parse.py default assertions, preserve --monitor 0)"
+    class: none-planned-work
+  - hunk: "src/superclaude/commands/pr-submit.md argument-hint + flag table (monitor default 1, timeout 600)"
+    maps_to: "checklist item 3 (command doc)"
+    class: none-planned-work
+  - hunk: "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md input table + Wave1 prose (monitor 1, timeout 600)"
+    maps_to: "checklist item 4 (protocol doc)"
+    class: none-planned-work
+  - hunk: "src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md timeout 600"
+    maps_to: "checklist item 5 (augment-poll ref)"
+    class: none-planned-work

@@ -1,0 +1,13 @@
+input_tree_sha256_components:
+  - path: .dev/tasks/to-do/TASK-pr-submit-defaults-20260616/task.md
+    sha256: ddd5d946f2e0b9a5b1c8b3b96713e52d2159a433380966dec4fdcb77426e874f
+  - path: src/superclaude/commands/pr-submit.md
+    sha256: 895784b0dae07ad96cef6b5492a92ae7fe248d9501bf4f144cfb703f57b8257a
+  - path: src/superclaude/pr_submit/fsm.py
+    sha256: abb4ade41b08cfaa46062225649847be863bf354efd45bca27d2069025c844a3
+  - path: src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+    sha256: 258423b2e8878136f874b58ed4b73f9524abed09c4708c9e4286534cb2da2694
+  - path: src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md
+    sha256: db0a5f33538081b1b48f7eef5f3eb671e1913d0fcd88ccfdb940b71e3b01b591
+  - path: tests/pr_submit/test_skill_parse.py
+    sha256: 626407ce0b8c8b50826cf5828abf53fa2e1260279b246534117f82ff19cafe55

@@ -1,0 +1,56 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-2-postaudit/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-2-postaudit/audit.log
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # --depth deep hard override
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 3
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-2-postaudit/artifacts/deviation-ledger.yaml
+grounding_gaps_path: null
+
+# verification triangle
+verification_ran: true
+verification_invocations: 2
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# input integrity
+input_drift_detected: false
+
+# hallucination guard
+citations_total: 27
+citations_revalidated: 27
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble
+t2_model_class_diversity: full          # sonnet=gpt-5.5, opus=claude-opus-4-8, haiku=qwen3.6-plus
+t2_vendor_diversity: multi
+merge_method: single-reviewer-fallback  # adversarial sub-skill not separately spawned; grounded single-pass + calibrated
+calibrator_diversity: full
+
+# asymmetric flags
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+spec_is_wrong: false
+user_decision_required: false
+
+# promotion
+promotion_action: not-applicable        # work-unit already resides in .dev/releases/complete/ (no current->complete move pending)
+promotion_adapter: none
+promotion_gate_passed: null
+
+verdict: COMPLETE

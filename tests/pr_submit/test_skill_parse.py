@@ -1,7 +1,7 @@
 """Skill flag/parse tests (spec FR-1.1/FR-1.2/FR-1.6/FR-1.7).
 
 T-101 `--monitor` choices {0,1,2,3} (argparse); T-102 `--max-rounds` default=2,
-hard cap=5, reject >5; T-103 no `--monitor` → not armed; T-111 `--poll-interval 10`
+hard cap=5, reject >5; T-103 no `--monitor` → armed at default L1; T-111 `--poll-interval 10`
 → reject "minimum is 30 seconds"; T-112 `--timeout 60` honored; T-113 `--resume`
 captured (full JSONL state rebuild is exercised by test_crash_recovery).
 """
@@ -12,6 +12,7 @@ import pytest
 
 from superclaude.pr_submit.fsm import (
     DEFAULT_MAX_ROUNDS,
+    DEFAULT_MONITOR,
     DEFAULT_TIMEOUT,
     POLL_INTERVAL_ERROR,
     parse_args,
@@ -53,9 +54,16 @@ def test_t_max_rounds_zero_allowed():
         parse_args(["--max-rounds", "-1"])
 
 
-def test_t103_default_monitor_zero_not_armed():
-    """T-103: with no `--monitor`, the default is 0 and the monitor is NOT armed."""
+def test_t103_default_monitor_one_armed():
+    """T-103: with no `--monitor`, the default is 1 and the monitor IS armed."""
     args = parse_args([])
+    assert args.monitor == DEFAULT_MONITOR == 1
+    assert args.armed is True
+
+
+def test_explicit_monitor_zero_not_armed():
+    """Explicit `--monitor 0` still preserves the open-only, not-armed path."""
+    args = parse_args(["--monitor", "0"])
     assert args.monitor == 0
     assert args.armed is False
 
@@ -71,9 +79,9 @@ def test_t111_poll_interval_below_30_rejected():
 
 
 def test_t112_timeout_honored():
-    """T-112: `--timeout 60` is honored; the default is 1800s."""
+    """T-112: `--timeout 60` is honored; the default is 600s."""
     assert parse_args(["--timeout", "60"]).timeout == 60
-    assert parse_args([]).timeout == DEFAULT_TIMEOUT == 1800
+    assert parse_args([]).timeout == DEFAULT_TIMEOUT == 600
 
 
 def test_t113_resume_path_captured():

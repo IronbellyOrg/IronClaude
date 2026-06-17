@@ -48,7 +48,7 @@ as findings.)
 ## Interval, timeout, backoff (FR-2.3 / FR-2.5 / NFR-2)
 
 - **Interval ≥ 30s.** A value below 30 is **rejected, not rounded** ("minimum is 30 seconds", T-111).
-- **Timeout default 1800s** (~30 min), configurable; **wall-clock since entering wait** (T-221/T-222).
+- **Timeout default 600s** (~10 min), configurable; **wall-clock since entering wait** (T-221/T-222).
 - **Exponential backoff on 403 / 429 / secondary-limit:** `30 → 60 → 120 → … → cap 300s`, resetting
   on a successful poll (T-231). The backoff **counts toward the wall-clock timeout**.
 
