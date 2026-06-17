@@ -1,0 +1,76 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-5-postaudit/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-5-postaudit/audit.log
+confidence_calibrated: 0.95
+escalation_rule_matched: null   # --depth deep forced Tier 2 (hard override, §5.1), no rubric rule fired
+onboarding_ran: false
+
+# UC-2 specific
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 1
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-5-postaudit/artifacts/deviation-ledger.yaml
+grounding_gaps_path: null
+
+# Verification triangle
+verification_ran: true
+verification_invocations: 10
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+t2_model_class_diversity: degraded   # convergent single-orchestrator deep pass; no divergent verdict to debate (see REPORT §Tier note)
+merge_method: single-reviewer-fallback
+adversarial_unavailable: false
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+
+# Per-task verdicts
+per_task_verdicts:
+  - {task_id: T05.01, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.96, evidence_anchor: "src/superclaude/cli/swarm/reduce.py:554 reduce_wave3 + test_reduce.py 22 PASS"}
+  - {task_id: T05.02, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.97, evidence_anchor: "src/superclaude/cli/swarm/merge.py:50 (8 body LOC) + test_merge_mechanical_only.py 8 PASS"}
+  - {task_id: T05.03, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.97, evidence_anchor: "reduce.py:157 determine_status + test_imm5_status.py 30 PASS"}
+  - {task_id: T05.04, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.95, evidence_anchor: "reduce.py:275 select_mode + test_amalgamation_modes.py 22 PASS"}
+  - {task_id: T05.05, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.96, evidence_anchor: "merge.py docstring + boundary-guard.yml + test_merge_boundary_guards.py 21 PASS"}
+  - {task_id: T05.06, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.93, evidence_anchor: "phase-5-cp1.md on disk (CP1)"}
+  - {task_id: T05.07, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.96, evidence_anchor: "reduce.py:368 emit_contract + DM012 19-key surface + test_contract_emission.py 34 PASS"}
+  - {task_id: T05.08, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.96, evidence_anchor: "test_merge_loc_ceiling.py 2 PASS; strict awk = 8 LOC"}
+  - {task_id: T05.09, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.95, evidence_anchor: "test_merge_mechanical_only.py 8 PASS + boundary-guard.yml path triggers"}
+  - {task_id: T05.10, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.96, evidence_anchor: "test_no_scoring_engine.py 70 PASS"}
+  - {task_id: T05.10a, status: success, deviation_class: necessary, citations_dropped: 0, per_task_validation_strength: 0.90, evidence_anchor: "CP2 folded into CP3 (phase-5-cp3.md); CP2 artifact absent on disk by design"}
+  - {task_id: T05.11, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.95, evidence_anchor: "test_merge_no_transforms.py 8 PASS"}
+  - {task_id: T05.12, status: success, deviation_class: none, citations_dropped: 0, per_task_validation_strength: 0.95, evidence_anchor: "phase-5-cp3.md on disk (CP3, end-of-phase)"}
+
+# Cross-task interaction-effects
+interaction_effects_scanned: true
+interaction_effects_findings: 0
+
+# Promotion
+promotion_action: not-applicable   # sprint-phase reflect (release already in .dev/releases/complete/); not a to-do work-unit
+promotion_adapter: null
+
+# Agreement with baseline
+baseline_report: /config/workspace/IronClaude/.dev/releases/complete/MultiModelSwarm/tasklist/validation/sc-reflect-post-phase-5-report.md
+baseline_agreement: agree
+baseline_disagreements: []

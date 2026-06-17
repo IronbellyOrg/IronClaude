@@ -1,0 +1,25 @@
+# Evidence-insufficient or out-of-scope findings routed here (NOT the 4-category ledger).
+# Non-empty -> needs_human_decision: true, status: partial.
+findings:
+  - hunk_ref: "src/superclaude/cli/prd/gates.py:64 (value side, all three regex generations)"
+    evidence_missing: "Whether the operator considers a template/placeholder verdict line a valid PASS is a product decision, not derivable from the tasklist."
+    why_not_classifiable: >
+      `Verdict: PASS/FAIL` and `Verdict: PASS or FAIL` are accepted as PASS by ALL THREE
+      regex forms (baseline @2c5357c8, committed HEAD @65bac7ed, and the working tree).
+      It is therefore PRE-EXISTING behavior, not a deviation introduced by this work-unit,
+      and out of this task's stated scope.
+    next_evidence_needed: >
+      User decision: file a separate follow-up to tighten the value to a hard
+      `(PASS|FAIL)\b` with no trailing `/`/word, or accept template lines as valid.
+    owner: user
+    decision_needed_by_user: true
+
+  - hunk_ref: "src/superclaude/cli/prd/gates.py:64 (prefix alternation)"
+    evidence_missing: "Whether `1)`-style ordered lists and `>` blockquote-prefixed verdicts must be accepted."
+    why_not_classifiable: >
+      `1) Verdict: PASS` and `> Verdict: PASS` are rejected. Neither is a contract-required
+      accept shape (Step 2.2 specifies `1.` numbered prefix and underscore emphasis only),
+      so this is a non-goal, not a defect — surfaced only as a realistic-agent-shape gap.
+    next_evidence_needed: "User decision on whether to broaden prefix support in a future change."
+    owner: user
+    decision_needed_by_user: false

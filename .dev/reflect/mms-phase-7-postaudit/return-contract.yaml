@@ -1,0 +1,59 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-7-postaudit/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-7-postaudit/audit.log
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep hard override forced Tier 2 (§5.1)
+
+# UC-2 specific
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 1
+  necessary: 2
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-7-postaudit/deviation-ledger.yaml
+grounding_gaps_path: null
+
+# Input integrity
+input_tree_sha256: 4b9d2c86__16628ae1   # composite of the two input files
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 31
+citations_revalidated: 31
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble
+reviewer_models: [gpt-5.5 (sonnet-alias), qwen3.6-plus (haiku-alias)]
+reviewer_personas: [analyzer, qa]
+t2_model_class_diversity: full
+t2_vendor_diversity: multi   # gpt + qwen + claude aliases span 3 vendors
+merge_method: orchestrator-synthesis   # adversarial debate not required; reviewers converged
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+spec_is_wrong: false
+blocked_by_low_confidence: false
+
+# Verification triangle (live)
+verification_ran: true
+phase_7_surface_tests_passed: 214
+phase_7_surface_tests_skipped: 10
+phase_7_surface_tests_failed: 0
+carry_forward_failures_resolved: true   # the 3 baseline-flagged INV-002/uv failures now 15/15 PASS
+
+# Promotion (work-unit already in .dev/releases/complete/ — already-promoted)
+promotion_action: not-applicable
+promotion_skip_reason: already-in-complete-tree
+
+# Phase verdict
+phase_verdict: COMPLETE

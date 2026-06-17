@@ -1,0 +1,14 @@
+input_tree_sha256: computed-inline
+file_list:
+  - path: .dev/tasks/to-do/TASK-pr-submit-defaults-20260616/task.md
+    sha256: 43882200d98d4034e6681e7d71e7ba1736fbd9ff37286606046329e3cdfdd362
+file_count: 1
+mode: post
+diff_ref: HEAD
+diff_files:
+  - src/superclaude/commands/pr-submit.md
+  - src/superclaude/pr_submit/fsm.py
+  - src/superclaude/skills/sc-pr-submit-protocol/SKILL.md
+  - src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md
+  - tests/pr_submit/test_skill_parse.py
+head_sha: 0f9c8d366daa9c234624ab8e93f25f39b59566bf

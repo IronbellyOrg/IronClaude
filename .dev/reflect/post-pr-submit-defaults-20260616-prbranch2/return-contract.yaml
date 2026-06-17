@@ -1,0 +1,79 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch2/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch2/audit.log
+confidence_calibrated: 0.92
+escalation_rule_matched: 4   # S_domains >= 3 (code + tests + docs)
+
+# UC-2
+tasklist_completion_pct: 1.0   # all 7 implementation items done + independently verified (items 8 reflect-gate=this run, 9 commit/PR=post-gate)
+deviation_count_by_class:
+  authorized: 0
+  necessary: 1     # RunConfig.monitor_ordinal 0->DEFAULT_MONITOR coherence companion change (reclassified from prior run's "drift")
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch2/deviation-ledger.yaml
+grounding_gaps_path: null
+
+# Verification triangle (run via orchestrator Bash; serena execute_shell_command unavailable -> fail-open)
+verification_ran: true
+verification_invocations: 3   # pytest, ruff format --check, make verify-sync
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+regression_present: false
+
+# Input integrity
+input_tree_sha256_stable: true
+input_tree_file_count: 6
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0           # zero-drop on a small fully-verified surface; flagged per 11.2 but corroborated by 2 independent reviewers + orchestrator re-Read
+citations_inferred: 1          # line-608 "safe defensive floor" interpretation (structurally argued, not a contradiction)
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # inline (agent not spawned); orchestrator re-Read all load-bearing citations
+zero_drop_flag: true
+
+# Tier 2 ensemble
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch2/reviewer-cards/card-1-analyzer.md
+  - /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch2/reviewer-cards/card-2-qa.md
+reviewer_models: [gpt-5.5, qwen3.6-plus]
+reviewer_personas: [analyzer, qa]
+reviewer_vendors: [openai-compat, qwen]
+adversarial_artifacts_dir: null     # sc-adversarial NOT invoked: 2 cards converged (no competing verdict to debate)
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: inline-synthesis-converged
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+calibrator_diversity: degraded      # calibrator agent not spawned; inline 5-dim calibration (calibrator-inline-fallback)
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+remediation_task_path: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present_flag: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion (UC-2) — SUPPRESSED
+promotion_action: skipped
+promotion_skip_reason: user-flag    # --no-promote
+promotion_gate_passed: null         # not evaluated under --no-promote; would also fail cond 3/5b (tasklist in-progress, items 8-9 open)
+
+degraded_components:
+  - "calibrator:inline-fallback"
+  - "adversarial:not-invoked-cards-converged"
+  - "serena:execute_shell_command-unavailable (verification via orchestrator Bash)"

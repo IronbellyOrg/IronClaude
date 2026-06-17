@@ -1,0 +1,25 @@
+# UC-2 deviation ledger -- MultiModelSwarm Phase 5 post-execution audit
+# Taxonomy: §10 sc-reflect-protocol (authorized / necessary / drift / regression)
+deviations:
+  - id: DEV-01
+    class: necessary
+    task: T05.10a
+    summary: >
+      Checkpoint CP2 (T05.10a, "boundary gate, tasks 7-10 verified") was folded
+      into the end-of-phase CP3 checkpoint rather than written as a standalone
+      phase-5-cp2.md artifact.
+    evidence:
+      - "phase-5-cp1.md and phase-5-cp3.md present on disk; phase-5-cp2.md absent"
+      - "T05.12 acceptance contract requires only T05.01..T05.11 completion, not an intermediate CP2 artifact"
+      - "Established 'back-half' fold pattern documented from Phase 4 (per baseline report §9 and §7)"
+    gold_standard_ref: "phase-5-tasklist.md:359-377 (T05.10a is Tier EXEMPT checkpoint); T05.12:417-436"
+    contradicts_acceptance_criterion: false
+    rationale_documented: true   # rationale in CP3
+    default_remediation: "documentation note only (already captured in CP3); no Tier-3 task"
+    precedence_applied: "§10.5 -- not Drift (rationale documented), not Authorized (no spec amendment) -> Necessary"
+
+summary:
+  authorized: 0
+  necessary: 1
+  drift: 0
+  regression: 0

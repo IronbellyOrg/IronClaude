@@ -1,0 +1,26 @@
+# UC-2 deviation ledger — 4-category taxonomy (§10)
+deviations:
+  - hunk: src/superclaude/pr_submit/fsm.py:721
+    symbol: RunConfig.monitor_ordinal
+    change: "default 0 -> DEFAULT_MONITOR (1)"
+    deviation_class: necessary
+    mapped_tasklist_item: "item 1 (fsm.py defaults) — companion change, not separately enumerated"
+    gold_standard_ref: "task.md Goal: 'Change --monitor omitted/default behavior from 0 to 1'"
+    rationale: >
+      Required for default-behavior coherence across the pure-core seam. run_skill reads
+      ordinal = config.monitor_ordinal (fsm.py:800,890); had RunConfig stayed 0 while the
+      parser default became 1, a bare RunConfig() would execute at L0 — half-implementing
+      the stated goal. No test relied on the old 0 RunConfig default (all callers pass
+      monitor_ordinal= explicitly). Contradicts no acceptance criterion. 191/191 pass.
+    note: >
+      Prior run (prbranch, Tier 2 DEGRADED model diversity) recorded this as 1 DRIFT.
+      This run (Tier 2 FULL multi-vendor diversity + independent re-grounding) reclassifies
+      it as NECESSARY — both heterogeneous reviewers independently rejected the drift call
+      with the same coherence rationale.
+
+# All other hunks map cleanly to tasklist items 1-5 (authorized, in-scope); not logged as deviations:
+#   fsm.py DEFAULT_MONITOR const + DEFAULT_TIMEOUT 1800->600 + SkillArgs.monitor + parser default  -> item 1
+#   test_skill_parse.py (rename + new explicit-0 test + timeout assert)                            -> item 2
+#   pr-submit.md / SKILL.md / augment-poll.md default-doc edits                                    -> items 3/4/5
+
+regression: []   # none — verification triangle clean (191 passed, ruff clean, sync clean)

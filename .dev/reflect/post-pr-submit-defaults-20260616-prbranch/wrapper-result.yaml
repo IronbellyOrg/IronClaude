@@ -1,0 +1,16 @@
+verdict: degraded
+status: success
+tier_reached: 2
+reason: degraded-model-diversity
+report: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch/REPORT.md
+contract: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch/return-contract.yaml
+deviations:
+  authorized: 0
+  necessary: 0
+  drift: 1
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

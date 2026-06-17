@@ -1,0 +1,65 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch/audit.log
+confidence_calibrated: 0.81
+escalation_rule_matched: 6   # C=0.81 < 0.85; reinforced by rule 4 (literal 3-domain heuristic)
+onboarding_ran: false
+
+# UC-2 specific
+tasklist_completion_pct: 1.0   # implementation items 1-7 all verified done; items 8 (this gate) + 9 (commit/PR) are post-gate by design
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 1          # LOW: argument-hint --monitor not bracketed (pr-submit.md:8)
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch/deviation-ledger.yaml
+grounding_gaps_path: null   # grounding-gaps.yaml is empty (findings: [])
+verification_ran: true
+verification_invocations: 2   # verify-sync + pytest
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+regression_present: false
+
+# Input integrity
+input_tree_sha256: 43882200d98d4034e6681e7d71e7ba1736fbd9ff37286606046329e3cdfdd362   # single-file tasklist tree
+input_tree_file_count: 1
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/reflect/post-pr-submit-defaults-20260616-prbranch/artifacts/input-snapshot.yaml
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 12
+citations_revalidated: 12
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true   # audit-flagged per §11.2; every citation independently re-confirmed
+
+# Tier 2 artifacts
+reviewer_models: [gpt-5.5, qwen3.6-plus]
+reviewer_personas: [analyzer, qa]
+reviewer_vendors: [openai, qwen]
+adversarial_convergence_score: 0.85   # converge on all material substance; one LOW divergence
+adversarial_unavailable: false
+merge_method: synthesis   # 2-reviewer substantial convergence; direct merge, no full debate needed
+t2_model_class_diversity: degraded   # 2 of 3 classes used to keep calibrator class disjoint
+t2_vendor_diversity: multi
+calibrator_diversity: full   # calibrator class (opus) disjoint from both reviewer classes
+executor_class_resolved: false   # owner=Claude in frontmatter; model class not explicitly recorded
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+unauthorized_deviation_present: false   # the 1 drift is LOW + within an in-scope item
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion (suppressed)
+promotion_action: skipped
+promotion_skip_reason: user-flag   # --no-promote
+promotion_gate_passed: null

@@ -1,0 +1,53 @@
+deviation_ledger_version: "1.0"
+mode: post
+diff_ref: HEAD (working tree)
+total_hunks_classified: 6   # files; mechanical-default-flip change
+deviations:
+  - id: N1
+    class: necessary
+    severity: low
+    files:
+      - src/superclaude/pr_submit/fsm.py:65            # `armed` docstring: dropped T-103 ref, added "Explicit L0"
+      - src/superclaude/pr_submit/fsm.py:721           # RunConfig.monitor_ordinal default 0 -> DEFAULT_MONITOR
+      - tests/pr_submit/test_monitor_arm.py:4-7,35-36  # docstrings: "zero-regression guard" -> "open-only opt-out"
+    mapped_tasklist_item: "Goal scope: 'Update source, tests, ...' (companion of checklist items 1-2)"
+    spec_section: "AC-1 / T-103 / T-110 semantic reframing"
+    rationale: >
+      Coherence companions forced by the authorized default flip (--monitor 0->1).
+      RunConfig's default must track DEFAULT_MONITOR or the injected-seam path would
+      contradict the parser default. The docstring/terminology changes (zero-regression
+      guard -> explicit open-only opt-out; removing T-103 from the `armed` docstring since
+      T-103 now demonstrates "armed at default L1", not "never arms") keep inline
+      documentation truthful. No acceptance criterion is contradicted; explicit
+      `--monitor 0` -> armed=False is still proven by test_explicit_monitor_zero_not_armed
+      and test_t110_monitor_never_armed_at_l0.
+    gold_standard_ref: "task.md Goal (source+tests scope) + diff self-reframing"
+    default_remediation: "Documentation note only — none required; the reframing is internally consistent."
+    evidence_verified: true
+    aligns_with_prior_run: "prbranch2 necessary:1 (same companion-change classification)"
+
+advisory_completeness_notes:
+  - id: A1
+    severity: low
+    type: completeness-nit (NOT a deviation — unchanged pre-existing line, not a diff hunk)
+    file: src/superclaude/commands/pr-submit.md:18
+    observation: >
+      The "Direct:" Triggers prose still reads "the user runs `/sc:pr-submit --monitor {0,1,2,3}`",
+      framing direct invocation around an explicit --monitor flag even though line 26 now marks
+      --monitor optional (default 1). Cosmetic: the prose remains technically accurate (a user MAY
+      pass --monitor), but for full coherence with the optional-default surface it could read
+      "the user runs `/sc:pr-submit [--monitor {0,1,2,3}]`".
+    blocking: false
+    recommended_change: >
+      OPTIONAL polish — in src/superclaude/commands/pr-submit.md:18, wrap `--monitor {0,1,2,3}`
+      in brackets to signal optionality, then `make sync-dev`. Verify with
+      `grep -n 'Direct' src/superclaude/commands/pr-submit.md`.
+
+regression_scan:
+  previously_passing_tests_now_failing: 0
+  pytest_result: "191 passed"
+  verify_sync: "All components in sync"
+  behavior_safety_note: >
+    Armed-by-default does NOT create unsafe auto-execution: arming still requires a locked
+    detection contract (T-210), and all edit/push capability gates remain ordinal-based
+    (G-arm/G-edit/G-push) and unchanged. The default flip changes only the entry posture.

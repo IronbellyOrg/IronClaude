@@ -1,0 +1,61 @@
+deviation_ledger_version: "1.0"
+run_label: "R2 (post-D2-remediation; supersedes R1 in r1-superseded/deviation-ledger.yaml)"
+mode: post
+gold_standard: "TASK-RF-pr167-verdict-regex-20260613-000000.md (Key Objectives + Key Constraints)"
+deviations:
+  - id: D1
+    hunk_ref: "src/superclaude/cli/prd/gates.py:66 (_check_verdict_field md_match regex)"
+    class: authorized
+    severity: none
+    title: "Numbered-list + underscore-emphasis acceptance with preserved strictness"
+    rationale: >
+      Core authorized work (Key Objectives 1-2). Independently re-verified in R2: all 8
+      required accept shapes and all 8 required reject shapes pass, rationale-heading guard
+      rejects, JSON verdict preserved, colon+uppercase+word-boundary strictness intact.
+    gold_standard_ref: "tasklist Step 2.1/2.2; constraints :132-133"
+    evidence: "8/8 accept + 13/13 reject via fresh live-function harness; 54/54 pytest; ruff clean (R2)"
+    is_real: true
+    remediation: none
+
+  - id: D2
+    hunk_ref: "src/superclaude/cli/prd/gates.py:66 (value side now `[^a-zA-Z0-9\\n:]*(PASS|FAIL)(?![A-Za-z])`)"
+    class: authorized   # RESOLVED in R2: was drift/medium in R1, now operator-directed remediation
+    severity: none
+    title: "ReDoS (quadratic backtracking) RESOLVED — single non-overlapping value-side class + guard test"
+    rationale: >
+      R1 found adjacent overlapping star quantifiers ([^\w\n:_]* and [_*]*) causing quadratic
+      backtracking (5599ms @ 40k). Operator (task log [2026-06-13 12:41]) applied the R1-verified
+      fix: collapsed to one non-overlapping class. R2 re-execution confirms linear time and a new
+      regression guard test. Operator-directed + documented in the task log + maps to the Follow-Up
+      item -> Authorized expansion, no longer Drift.
+    gold_standard_ref: "prior linear regex forms @2c5357c8/@65bac7ed; task log [2026-06-13 12:41]"
+    evidence: >
+      R2 live-function timing: N=8k 0.27ms, N=20k 0.34ms, N=40k 0.73ms (was 224/1385/5599ms).
+      Reviewer-1 adversarial label-side/prefix re-probe: no new vector (worst 1.9ms@40k).
+      Guard test test_check_verdict_field_no_redos_on_pathological_value_run (test_gates.py:201-216).
+    is_real: true
+    remediation: "Complete. No further action."
+
+  - id: D3
+    hunk_ref: "tests/cli/prd/test_gates.py:445-447 (TestBuildTaskFileGateAdvisoryWiring dict-comprehension reflow)"
+    class: drift
+    severity: low
+    title: "Unrelated formatting reflow in an out-of-scope test (committed in 65bac7ed)"
+    rationale: >
+      A 2-line -> 1-line dict-comprehension reflow on TestBuildTaskFileGateAdvisoryWiring,
+      unrelated to the verdict parser. Task constraint (:169) says 'no unrelated tests restructured'.
+      Pure formatting (ruff-format-shaped), zero behavioral change. In-scope FILE but out-of-scope
+      test. Unchanged since R1. This is the ONLY remaining deviation.
+    gold_standard_ref: "tasklist :169 (no unrelated tests restructured)"
+    evidence: "git diff 2c5357c8 -- tests/cli/prd/test_gates.py hunk @@ -357,8 +445,7 @@; Reviewer-2 confirmed still present, cosmetic"
+    is_real: true
+    remediation: "Advisory only; harmless. Optionally revert the reflow to keep the diff strictly two-purpose."
+
+  # D4 (R1 premature-completion process drift) RESOLVED in R2 -> removed from active ledger.
+  # Evidence: frontmatter status '🔴 Blocked' (:6), Task Summary 'Not completed' (:215),
+  # Step 4.2 now [x] (:205), Step 4.3 correctly [ ] (:209). Documentation matches reality.
+resolved_since_r1:
+  - id: D2
+    note: "ReDoS fix applied + guard test; linear time re-verified. Drift/medium -> Authorized."
+  - id: D4
+    note: "Documentation now accurately reflects blocked state. Drift/high(process) -> resolved."

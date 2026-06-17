@@ -1,0 +1,81 @@
+# Deviation ledger — R4 (post-D5-fix, first audit of final state)
+# Gold standard: TASK-RF-pr167-verdict-regex-20260613-000000.md (Key Objectives + Key Constraints)
+# 4-category taxonomy per SKILL §10. Precedence: Regression > Drift > Necessary > Authorized.
+deviation_ledger_version: "1.0"
+run_label: "R4 (post-D5-fix; supersedes R3 in r3-superseded/)"
+mode: post
+reviewed_at: "2026-06-13T13:31:00+00:00"
+diff_under_audit: "src/superclaude/cli/prd/gates.py + tests/cli/prd/test_gates.py (committed 2bd821f3,65bac7ed + uncommitted working tree)"
+
+deviations:
+  - id: D1
+    title: "Core verdict regex fix — numbered-list prefixes + underscore emphasis acceptance"
+    deviation_class: authorized
+    severity: none
+    gold_standard_ref: "tasklist Objective 1 (line 93), Step 2.1 (line 165)"
+    evidence: "gates.py:71 prefix group `(?:#{1,6}\\s+|[-*+]\\s+|\\d+\\.\\s+)?` + label emphasis `[_*]*`; all 3 required accept shapes verified True (probe + 49 TestCheckVerdictField pass)"
+    rationale: "Exactly the scoped objective. Boundary honored — enumerated prefixes, not arbitrary word chars."
+
+  - id: D2
+    title: "ReDoS hardening — collapse overlapping value-side decoration into one non-overlapping class"
+    deviation_class: necessary
+    severity: none
+    gold_standard_ref: "task log [2026-06-13 12:41] (line 318); inline comment gates.py:67-69"
+    evidence: "gates.py:72 value-side single class `[^a-zA-Z0-9\\n:]*(PASS|FAIL)`; independently re-verified linear — 5 pathological 40k-char inputs all <1ms (probe + reviewer-1)"
+    rationale: "ReDoS discovered during execution (R1), documented inline with rationale, contradicts no acceptance criterion. Forced technical correction = Necessary."
+
+  - id: D3
+    title: "Cosmetic dict-comprehension reflow in pre-existing TestBuildTaskFileGateAdvisoryWiring"
+    deviation_class: drift
+    severity: low
+    gold_standard_ref: "test_gates.py:493 (current); class at :484; Follow-Up Items line 362 ('unrelated to the verdict fix')"
+    evidence: "committed hunk reflows `{c.name: c\\n for c in (...)}` to single line; no tasklist item references this test"
+    rationale: "Silent unrelated formatter byproduct in an allowed file. No criterion contradicted. LOW, acknowledged in task log. (Prior task-log citation '445-447' is STALE — actual line 493.)"
+
+  - id: D4
+    title: "PASS/FAIL template-pairing guard (reject placeholder pairings) — operator-authorized scope expansion"
+    deviation_class: authorized
+    severity: none
+    gold_standard_ref: "task log [2026-06-13 13:07] (line 333) 'operator decision: tighten now, scope expanded'"
+    evidence: "gates.py:73 lookahead `(?![ \\t]*(?:/|(?i:or))[ \\t]*(?:PASS|FAIL)(?![A-Za-z]))`; plain placeholders `PASS/FAIL`,`PASS or FAIL` correctly rejected (probe + reviewer-1)"
+    rationale: "Beyond original tasklist scope but explicitly operator-approved and recorded in the task log = Authorized expansion. Implementation incomplete — see D6."
+
+  - id: D5
+    title: "Pairing-guard false-negative fix — same-line, word-bounded lookahead (\\s* -> [ \\t], +trailing (?![A-Za-z]))"
+    deviation_class: necessary
+    severity: none
+    gold_standard_ref: "task log [2026-06-13 13:22] (line 347); R3 report finding"
+    evidence: "4 D5 prose cases (`PASS or FAILURE expected`, multi-line `PASS\\nor FAIL`) verified True (probe + 49 tests)"
+    rationale: "Repaired a false-negative the D4 guard introduced in the exact PR#167 bug class; documented inline, restores (does not contradict) the acceptance criterion = Necessary."
+
+  - id: D6
+    title: "NEW (R4): decorated/punctuated template-pairing bypass — pairing guard incompletely implemented"
+    deviation_class: drift
+    severity: medium
+    gold_standard_ref: "documented invariant gates.py:63-66 ('rejects Verdict: PASS/FAIL / Verdict: PASS or FAIL — placeholder, not a decision'); root cause gates.py:72-73"
+    evidence: |
+      Independently confirmed by TWO probes (orchestrator + reviewer-1, sonnet). The pairing lookahead (line 73)
+      runs immediately after the captured PASS|FAIL value, BEFORE consuming closing value decoration, so any
+      decoration/punctuation between the first value and the `/`|`or` separator bypasses the guard. Falsely
+      ACCEPTED as real PASS verdicts (expected reject):
+        Verdict: __PASS__ / __FAIL__        accept=True
+        Verdict: **PASS** / **FAIL**        accept=True
+        Verdict: PASS / __FAIL__            accept=True
+        Verdict: __PASS__ or __FAIL__       accept=True
+        Verdict: `PASS` / `FAIL`            accept=True
+        Verdict: PASS (or FAIL)             accept=True
+        Verdict: PASS [or FAIL]             accept=True
+        Verdict: PASS | FAIL                accept=True
+        Verdict: PASS <!-- or FAIL -->      accept=True
+    rationale: |
+      Incomplete delivery of the authorized D4 expansion. Does NOT regress the CORE PR#167 objective
+      (numbered-list/underscore acceptance is correct), but it is the exact false-positive class the
+      pairing guard was added to close — a real QA/PRD template emitting a decorated/piped placeholder
+      would be mis-accepted as a passing gate. Drift/MEDIUM (silent gap vs documented intent), not a
+      Regression against a literal tasklist criterion (tasklist never required a pairing guard).
+
+deviation_count_by_class:
+  authorized: 2   # D1, D4
+  necessary: 2    # D2, D5
+  drift: 2        # D3 (low), D6 (medium, NEW)
+  regression: 0

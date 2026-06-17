@@ -1,0 +1,69 @@
+contract_version: "1.5.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-8-postaudit/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-8-postaudit/audit.log
+confidence_calibrated: 0.93
+escalation_rule_matched: 3   # UC-2 regression candidate -> escalate (also --depth deep forced T2)
+
+# UC-2 specific
+tasklist_completion_pct: 0.69   # 9 of 13 work tasks complete
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 4
+  regression: 4
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/mms-phase-8-postaudit/artifacts/deviation-ledger.yaml
+grounding_gaps_path: null
+
+# Input integrity
+input_tree_sha256: 657dfbd91e73ac8cb6e423d160752fee655825cbbdb6733993f8984b770d3974
+input_tree_file_count: 2
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 28
+citations_revalidated: 28
+citations_dropped: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 artifacts
+reviewer_models: [sonnet/gpt-5.5, opus/claude-opus-4-8, "haiku/qwen3.6-plus (FAILED-network)"]
+reviewer_personas: [analyzer, refactorer, "qa (failed)"]
+reviewers_completed: 2
+merge_method: heterogeneous-reviewer-merge
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+
+# Asymmetric-cost flags
+regression_present: true
+unauthorized_deviation_present: true
+cannot_validate_without_user_input: false
+spec_is_wrong: false
+needs_human_decision: false
+
+# Per-task verdicts (UC-2 multi-task)
+per_task_verdicts:
+  - { task_id: T08.01, status: failed,  deviation_class: regression, evidence_anchor: "src/superclaude/skills/sc-bare-review/SKILL.md:35-127 (231 lines)" }
+  - { task_id: T08.02, status: success, deviation_class: none,       evidence_anchor: "tests/swarm/test_non_claude_caller.py (6 passed,1 skip)" }
+  - { task_id: T08.03, status: success, deviation_class: none,       evidence_anchor: "pytest -m imm (79 passed) / -m inv (107 passed)" }
+  - { task_id: T08.04, status: success, deviation_class: none,       evidence_anchor: ".pre-commit-config.yaml:124 + docs/dev/migration-skill.md" }
+  - { task_id: T08.05, status: success, deviation_class: none,       evidence_anchor: "superclaude swarm --help -> 8 subcommands" }
+  - { task_id: T08.07, status: failed,  deviation_class: regression, evidence_anchor: "skills/sc-bare-review/scripts/{t2_preflight.sh,t2_dispatch.sh,t2_normalize.py} present" }
+  - { task_id: T08.08, status: partial, deviation_class: drift,      evidence_anchor: "docs/swarm/release-notes-v1.md (complete doc, false premise)" }
+  - { task_id: T08.09, status: success, deviation_class: none,       evidence_anchor: "tests/swarm/test_imm_suite.py (12 passed)" }
+  - { task_id: T08.10, status: success, deviation_class: none,       evidence_anchor: "tests/swarm/test_inv_suite.py (15 passed)" }
+  - { task_id: T08.11, status: partial, deviation_class: drift,      evidence_anchor: "tests/swarm/test_bare_review_parity.py:38-99 (17 passed; recipe-vs-library)" }
+  - { task_id: T08.13, status: partial, deviation_class: drift,      evidence_anchor: "test 12 passed; no .github/workflows validate-lenses lane" }
+  - { task_id: T08.14, status: partial, deviation_class: drift,      evidence_anchor: "test_subprocess_caller.py absent; covered by test_non_claude_caller.py" }
+  - { task_id: T08.15, status: success, deviation_class: none,       evidence_anchor: "test_merge_mechanical_only.py (8 passed) + boundary-guard.yml:30,54" }
+  - { task_id: T08.16, status: success, deviation_class: none,       evidence_anchor: "tests/swarm/test_resume_crash_recovery.py (18 passed)" }
+  - { task_id: T08.17, status: failed,  deviation_class: regression, evidence_anchor: "tests/swarm/integration/ absent (never committed)" }
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_skip_reason: gate-failed
+promotion_gate_passed: false
