@@ -299,6 +299,73 @@ def test_reviewers_flag_rejects_out_of_range(runner, target, tmp_path):
     assert result.exit_code == EXIT_USAGE, result.output
 
 
+# WS-0 B-1 regression — --reviewers must NOT clobber a spec-file/--stdin caller's
+# real ``workers.models`` (Augment PR #178 MEDIUM). The placeholder resize is gated
+# to lens mode; spec-file/stdin keep their real model IDs and rely on the INV-005
+# warn-with-defaults clamp if --reviewers exceeds the pool. (spec-file and --stdin
+# share the same ``mode != "lens"`` branch, so these spec-file tests cover stdin too.)
+def test_reviewers_preserves_real_models_in_spec_file_mode(runner, target, tmp_path, monkeypatch):
+    """Augment PR #178 MEDIUM: in spec-file mode ``--reviewers N`` overrides the worker
+    COUNT without overwriting caller-supplied real model IDs in ``workers.models``.
+    Captures the spec dict at the ``run_preflight`` boundary (the only place
+    ``workers.models`` is behaviorally consumed) and asserts the real IDs survived."""
+    import superclaude.cli.swarm.preflight as swarm_preflight
+
+    spec = tmp_path / "job.json"
+    out = tmp_path / "rev-specfile-out"
+    _run(runner, "scaffold", "--lens", "bare-review", "--output", str(spec))
+    doc = json.loads(spec.read_text())
+    doc["target"]["path"] = str(target)
+    doc["output"]["dir"] = str(out)
+    doc["workers"]["count"] = 3
+    doc["workers"]["models"] = ["alpha-model", "beta-model", "gamma-model"]
+    spec.write_text(json.dumps(doc, indent=2))
+
+    captured: dict = {}
+    real_run_preflight = swarm_preflight.run_preflight
+
+    def _capturing_run_preflight(spec_dict, **kwargs):
+        workers = spec_dict.get("workers", {})
+        captured["models"] = list(workers.get("models", []))
+        captured["count"] = workers.get("count")
+        return real_run_preflight(spec_dict, **kwargs)
+
+    monkeypatch.setattr(swarm_preflight, "run_preflight", _capturing_run_preflight)
+    result = _run(
+        runner, "run", str(spec), "--reviewers", "3",
+        "--output", str(out), "--transport", "stub",
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    assert captured["models"] == ["alpha-model", "beta-model", "gamma-model"]
+    assert captured["count"] == 3
+    assert not any(m.startswith("lens-default-model-") for m in captured["models"])
+
+
+def test_reviewers_does_not_inflate_spec_file_pool(runner, target, tmp_path):
+    """Augment PR #178 MEDIUM: ``--reviewers`` must not fabricate placeholder models to
+    pad a spec-file caller's real pool. With a real 2-model pool + ``--reviewers 4`` the
+    INV-005 warn-with-defaults guard clamps the count to the real pool size (2); the OLD
+    code synthesized 4 placeholders and dispatched 4. The clamp is the observable proof
+    the real pool was preserved."""
+    spec = tmp_path / "job.json"
+    out = tmp_path / "rev-clamp-out"
+    _run(runner, "scaffold", "--lens", "bare-review", "--output", str(spec))
+    doc = json.loads(spec.read_text())
+    doc["target"]["path"] = str(target)
+    doc["output"]["dir"] = str(out)
+    doc["workers"]["count"] = 2
+    doc["workers"]["models"] = ["alpha-model", "beta-model"]
+    spec.write_text(json.dumps(doc, indent=2))
+
+    result = _run(
+        runner, "run", str(spec), "--reviewers", "4",
+        "--output", str(out), "--transport", "stub",
+    )
+    assert result.exit_code == EXIT_OK, result.output
+    manifest = json.loads((out / MANIFEST_FILENAME).read_text())
+    assert manifest["preflight"]["workers_requested"] == 2
+
+
 # ---------------------------------------------------------------------------
 # §5 Inspecting results — status / logs / manifest
 # ---------------------------------------------------------------------------
