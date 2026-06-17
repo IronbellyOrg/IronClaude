@@ -34,3 +34,15 @@ The migration WORK is complete and content-clean (0 regressions/drift/unauthoriz
 2. Re-run the PC.5 reflect wrapper on the committed range (expected: clean, possibly still exit 11 model-diversity degrade — benign).
 3. Mark the task Done (PC.6).
 4. (Post-release, non-blocking) human runs the OPS-004 rollback tabletop rehearsal + stamps the sign-off.
+
+---
+
+## Re-run result (PC.5, full committed range) — 2026-06-17
+
+After committing WS-B/C/D/E (+ post-completion fixes) as **`93f613de`** on `feat/sc-bare-review-m8m9-migration`, the PC.5 reflect wrapper was re-run on the now-committed full WS-0..WS-E range.
+
+- **reflect_exit: 11** (same benign `degraded-model-diversity` — executor=opus excluded → 2 reviewer classes; vendor diversity multi gpt+qwen; calibrator full). Report/contract: `reflect/post/93f613de3ec6/`.
+- **Content audit CLEAN across the full range:** deviations authorized 0 / **necessary 3** (FR-028 parity-vs-golden choice; command-reference WS-0-flag backfill; test_quickstart subset-flip — plus the documented worktree-exec & WS-E-location process deviations) / **drift 0 / regression 0**; `regression_present false`, `unauthorized_deviation_present false`; verification ran, **0 failures / 0 regressions**; `tasklist_completion_pct 0.991` (108/109, the 1 = PC.6 terminal flip, gated on this reflect).
+- **The remaining promotion-gate failures are NOT defects:** `status_success`/`tasklist_completion_pct_1_0`/`frontmatter_status_matches` are gate-time-intrinsic (PC.6 is gated on this reflect — chicken-and-egg); `no_grounding_gaps`/`no_user_decision_pending` are BOTH the single **OPS-004 tabletop rehearsal HALT** (reflect verified the sign-off is correctly UNSTAMPED, with a PENDING record + HIGH follow-up). REPORT: *"`status: partial` is driven only by gate-time-intrinsic incompleteness ... and the OPS-004 human-decision HALT — not by any defect."*
+
+**Disposition:** benign exit-11 + content-clean full-range audit → per the PC.5 carve-out + memory `reference_reflect_exit11_degraded_benign` + the user's authorization, the task was marked **🟢 Done** (PC.6). The OPS-004 tabletop rehearsal sign-off remains an open **HIGH human follow-up** (non-blocking; it gates only the sign-off stamp, not task completion per Step 6.6).
