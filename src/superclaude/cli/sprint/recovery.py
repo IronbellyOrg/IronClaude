@@ -20,6 +20,7 @@ import logging
 import os
 import signal
 import socket
+import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
@@ -348,6 +349,15 @@ def _register_lock_release(lock_path: Path) -> None:
                 release_recovery_lock(_lp)
                 if callable(_prev):
                     _prev(signum, frame)
+                else:
+                    # No chained handler (prev is SIG_DFL or SIG_IGN). Restore the
+                    # prior disposition and, for SIG_DFL, re-raise so the signal's
+                    # termination semantics are preserved rather than silently
+                    # swallowed after releasing the lock (PR #184 review). SIG_IGN
+                    # is left ignored (restored, not re-raised).
+                    signal.signal(signum, _prev)
+                    if _prev == signal.SIG_DFL:
+                        os.kill(os.getpid(), signum)
 
             signal.signal(sig, _handler)
         except (ValueError, OSError):
@@ -401,46 +411,70 @@ def _acquire_pid_lock(
 
     max_attempts = 3
     for _attempt in range(max_attempts):
+        # Atomic create-with-content (R1.1, hardened per PR #184 review): write the
+        # FULL payload into a temp file in the lock dir, then os.link() it into place.
+        # os.link() is atomic on POSIX (incl. NFSv3) and fails with FileExistsError if
+        # the lock already exists, so the lockfile only ever becomes visible already
+        # fully written. This closes the empty-file window of the previous
+        # os.open(O_EXCL)-then-os.write approach, where a second process could read a
+        # just-created-but-unwritten lock, mis-classify the live holder as dead via
+        # JSONDecodeError, reclaim it, and proceed concurrently — defeating the lock.
+        # The temp fd is closed and the temp path unlinked in `finally`, so neither
+        # leaks on a write error or a refusal.
+        tmp_fd, tmp_name = tempfile.mkstemp(
+            dir=str(lock_path.parent), prefix=".lock.tmp."
+        )
         try:
-            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
-        except FileExistsError:
-            # A lock already exists — inspect the prior holder.
             try:
-                prior = json.loads(lock_path.read_text(encoding="utf-8"))
-                prior_pid = int(prior.get("pid", 0))
-                prior_ts = prior.get("timestamp", "")
-                prior_starttime = prior.get("starttime")
-            except (OSError, ValueError, json.JSONDecodeError):
-                # Corrupt/partial/torn lockfile — treat holder as dead.
-                prior_pid = 0
-                prior_ts = ""
-                prior_starttime = None
-
-            if not force and _pid_is_alive(prior_pid, prior_starttime):
-                if held_message is not None:
-                    msg = held_message(prior_pid, prior_ts)
-                else:
-                    msg = (
-                        f"Recovery lock held by PID {prior_pid} since {prior_ts}. "
-                        f"Remove `{lock_path}` if the prior process crashed."
-                    )
-                raise click.ClickException(msg)
-
-            # Stale (or force-reclaimed) lock — unlink and retry the
-            # exclusive create. Tolerate a concurrent reclaimer winning the
-            # unlink race (FileNotFoundError).
+                os.write(tmp_fd, encoded)
+            finally:
+                os.close(tmp_fd)
             try:
-                lock_path.unlink()
-            except FileNotFoundError:
-                pass
+                os.link(tmp_name, lock_path)
+            except FileExistsError:
+                # A lock already exists — and (link-after-write) it is a COMPLETE
+                # file, never partial. Inspect the prior holder.
+                try:
+                    prior = json.loads(lock_path.read_text(encoding="utf-8"))
+                    prior_pid = int(prior.get("pid", 0))
+                    prior_ts = prior.get("timestamp", "")
+                    prior_starttime = prior.get("starttime")
+                except (OSError, ValueError, json.JSONDecodeError):
+                    # A genuinely corrupt lockfile (e.g. disk fault) — treat as dead.
+                    prior_pid = 0
+                    prior_ts = ""
+                    prior_starttime = None
+
+                if not force and _pid_is_alive(prior_pid, prior_starttime):
+                    if held_message is not None:
+                        msg = held_message(prior_pid, prior_ts)
+                    else:
+                        msg = (
+                            f"Recovery lock held by PID {prior_pid} since {prior_ts}. "
+                            f"Remove `{lock_path}` if the prior process crashed."
+                        )
+                    raise click.ClickException(msg)
+
+                # Stale (or force-reclaimed) lock — unlink and retry the link.
+                # Tolerate a concurrent reclaimer winning the unlink race.
+                try:
+                    lock_path.unlink()
+                except FileNotFoundError:
+                    pass
+                except OSError:
+                    pass
+                continue
+            else:
+                _register_lock_release(lock_path)
+                return lock_path
+        finally:
+            # Always remove the temp file: when the link succeeded, lock_path holds an
+            # independent hard link to the same inode (content survives); when it did
+            # not (refused / retrying), this prevents a temp-file leak.
+            try:
+                os.unlink(tmp_name)
             except OSError:
                 pass
-            continue
-        else:
-            os.write(fd, encoded)
-            os.close(fd)
-            _register_lock_release(lock_path)
-            return lock_path
 
     # Exhausted bounded retries — a live holder almost certainly exists.
     raise click.ClickException(

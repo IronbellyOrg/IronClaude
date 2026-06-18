@@ -1561,10 +1561,14 @@ def run_rerun_tasks(
         # = bundle/results). The only nesting is recovery-lock(canonical/phase-N)
         # ⊃ run-lock(bundle) over DISJOINT paths — no wait-for cycle. rerun-tasks
         # MUST NOT acquire the canonical run lock.
-        assert sub_config.results_dir != config.results_dir, (
-            "rerun sub_config must use an isolated bundle results_dir "
-            "(run-lock/recovery-lock disjoint-path invariant)"
-        )
+        # Runtime check (NOT assert): this disjoint-path invariant is load-bearing
+        # for deadlock-freedom, so it must survive `python -O` (which strips
+        # asserts). PR #184 review.
+        if sub_config.results_dir == config.results_dir:
+            raise RuntimeError(
+                "rerun sub_config must use an isolated bundle results_dir "
+                "(run-lock/recovery-lock disjoint-path invariant)"
+            )
         rerun_error: Optional[BaseException] = None
         try:
             execute_sprint(sub_config)

@@ -1735,6 +1735,52 @@ def execute_sprint(config: SprintConfig):
 
     _dbg = _logging.getLogger(_DBG_NAME)
 
+    # Release-scoped run lock (R4): acquire as the FIRST thing after
+    # SignalHandler.install() + the claude preflight and BEFORE ANY shared-state
+    # write to config.results_dir — i.e. before SprintLogger construction /
+    # logger.write_header, the .isolation orphan cleanup, and
+    # execute_preflight_phases (PR #184 review moved this earlier: the lock now
+    # guards the release dir before the header/log writes that previously raced).
+    # acquire_run_lock mkdir's <results_dir>/.recovery-locks itself, so results_dir
+    # need not pre-exist. Prevents two concurrent `sprint run` processes from
+    # colliding on the same release directory (the confirmed phase-boundary SIGSEGV
+    # root cause). The lock's own atexit/SIGINT/SIGTERM handlers chain to (do not
+    # clobber) the sprint SignalHandler; the finally block below is the
+    # authoritative release.
+    import sys as _sys
+
+    import click as _click
+
+    from .recovery import acquire_run_lock
+
+    _run_lock_path = None
+    if getattr(config, "ignore_run_lock", False):
+        _run_lock_path = acquire_run_lock(config.results_dir, force=True)
+        _warn = (
+            "WARNING: --ignore-run-lock set; reclaimed the release run-lock "
+            "even if a live holder existed. Concurrent runs on the same "
+            "release dir can corrupt state."
+        )
+        try:
+            _dbg.warning(_warn)
+        except Exception:
+            pass
+        print(_warn, file=_sys.stderr)
+    else:
+        try:
+            _run_lock_path = acquire_run_lock(config.results_dir)
+        except _click.ClickException as _lock_exc:
+            # Live-holder refusal: convert to a non-zero exit sentinel so the
+            # outer tmux command (and the --no-tmux foreground path) reports
+            # the failure rather than silently exiting (R4.3).
+            try:
+                signal_handler.uninstall()
+            except Exception:
+                pass
+            print(_lock_exc.format_message(), file=_sys.stderr)
+            _write_exit_sentinel(config, 1)
+            raise SystemExit(1)
+
     logger = SprintLogger(config)
     tui = SprintTUI(config)
     monitor = OutputMonitor(Path("/dev/null"))  # reset per phase
@@ -1796,47 +1842,6 @@ def execute_sprint(config: SprintConfig):
     all_gate_results: list[TrailingGateResult] = []
 
     logger.write_header(sprint_result)
-
-    # Release-scoped run lock (R4): acquire AFTER SignalHandler.install() and
-    # the claude preflight, BEFORE any shared-state mutation (the .isolation
-    # orphan cleanup and execute_preflight_phases). Prevents two concurrent
-    # `sprint run` processes from colliding on the same release directory (the
-    # empirically confirmed phase-boundary SIGSEGV root cause). The lock's own
-    # atexit/SIGINT/SIGTERM handlers chain to (do not clobber) the sprint
-    # SignalHandler; the finally block below is the authoritative release.
-    import sys as _sys
-
-    import click as _click
-
-    from .recovery import acquire_run_lock
-
-    _run_lock_path = None
-    if getattr(config, "ignore_run_lock", False):
-        _run_lock_path = acquire_run_lock(config.results_dir, force=True)
-        _warn = (
-            "WARNING: --ignore-run-lock set; reclaimed the release run-lock "
-            "even if a live holder existed. Concurrent runs on the same "
-            "release dir can corrupt state."
-        )
-        try:
-            _dbg.warning(_warn)
-        except Exception:
-            pass
-        print(_warn, file=_sys.stderr)
-    else:
-        try:
-            _run_lock_path = acquire_run_lock(config.results_dir)
-        except _click.ClickException as _lock_exc:
-            # Live-holder refusal: convert to a non-zero exit sentinel so the
-            # outer tmux command (and the --no-tmux foreground path) reports
-            # the failure rather than silently exiting (R4.3).
-            try:
-                signal_handler.uninstall()
-            except Exception:
-                pass
-            print(_lock_exc.format_message(), file=_sys.stderr)
-            _write_exit_sentinel(config, 1)
-            raise SystemExit(1)
 
     tui.start()
 

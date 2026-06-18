@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from unittest.mock import patch
-
-import os
 
 import click
 import pytest
@@ -599,8 +598,11 @@ class TestRunLock:
         with pytest.raises(click.ClickException):
             acquire_run_lock(tmp_path)
 
-    def test_run_lock_atomic_oexcl_loser_refused(self, tmp_path: Path, monkeypatch):
-        # Case 5: O_EXCL loser is refused and never overwrites the winner.
+    def test_run_lock_atomic_link_loser_refused(self, tmp_path: Path, monkeypatch):
+        # Case 5: the atomic-create loser is refused and never overwrites the winner.
+        # Acquisition is now temp-file + os.link (PR #184 review: link-after-write
+        # eliminates the empty-file window), so the loser is the one whose os.link
+        # raises FileExistsError. (os.open is NOT patched — mkstemp uses it.)
         winner_payload = {"pid": os.getpid(), "starttime": None, "timestamp": "winner"}
         lock_path = _write_run_lock(tmp_path, winner_payload)
         original = lock_path.read_text(encoding="utf-8")
@@ -610,7 +612,7 @@ class TestRunLock:
 
         # Concurrent winner already holds the lock and is alive; the bounded
         # retry exhausts and the acquirer refuses, never clobbering the payload.
-        monkeypatch.setattr(os, "open", _always_exists)
+        monkeypatch.setattr(os, "link", _always_exists)
         monkeypatch.setattr(os, "kill", lambda pid, sig: None)  # alive
         with pytest.raises(click.ClickException):
             acquire_run_lock(tmp_path)
@@ -640,14 +642,18 @@ class TestRunLock:
             return None
 
         monkeypatch.setattr(_signal, "signal", _capture)
-        # Make the "previous" handler SIG_DFL (non-callable) so the handler's
-        # chain step is skipped and does not abort the test.
+        # Previous handler is SIG_DFL: the handler restores SIG_DFL and re-raises via
+        # os.kill so SIGTERM is NOT swallowed (PR #184 review). Capture os.kill so the
+        # re-raise is recorded rather than actually terminating the test process.
         monkeypatch.setattr(_signal, "getsignal", lambda sig: _signal.SIG_DFL)
+        killed: list = []
+        monkeypatch.setattr(os, "kill", lambda pid, sig: killed.append((pid, sig)))
         path = acquire_run_lock(tmp_path)
         assert path.exists()
         assert _signal.SIGTERM in handlers
         handlers[_signal.SIGTERM](_signal.SIGTERM, None)
         assert not path.exists()
+        assert killed == [(os.getpid(), _signal.SIGTERM)]  # re-raised, not swallowed
 
     def test_run_lock_released_on_sigint(self, tmp_path: Path, monkeypatch):
         # Case 8: lock released by the SIGINT handler (closes R1.2 weakness).
@@ -660,14 +666,18 @@ class TestRunLock:
             return None
 
         monkeypatch.setattr(_signal, "signal", _capture)
-        # Make the "previous" handler SIG_DFL (non-callable) so chaining to it
-        # does not raise KeyboardInterrupt (the real default SIGINT handler).
+        # Previous handler is SIG_DFL: handler restores SIG_DFL and re-raises via
+        # os.kill so SIGINT is NOT swallowed (PR #184 review). Capture os.kill so the
+        # re-raise is recorded rather than terminating the test process.
         monkeypatch.setattr(_signal, "getsignal", lambda sig: _signal.SIG_DFL)
+        killed: list = []
+        monkeypatch.setattr(os, "kill", lambda pid, sig: killed.append((pid, sig)))
         path = acquire_run_lock(tmp_path)
         assert path.exists()
         assert _signal.SIGINT in handlers
         handlers[_signal.SIGINT](_signal.SIGINT, None)
         assert not path.exists()
+        assert killed == [(os.getpid(), _signal.SIGINT)]  # re-raised, not swallowed
 
     def test_run_lock_force_bypasses_live_holder(self, tmp_path: Path, monkeypatch):
         # Case 9: force=True reclaims even a live holder.
@@ -737,9 +747,7 @@ class TestRunLock:
         # os.kill succeeds (PID appears alive) ...
         monkeypatch.setattr(os, "kill", lambda pid, sig: None)
         # ... but the current starttime differs from the recorded "1000".
-        monkeypatch.setattr(
-            _recovery, "_read_proc_starttime", lambda pid: "9999"
-        )
+        monkeypatch.setattr(_recovery, "_read_proc_starttime", lambda pid: "9999")
         path = acquire_run_lock(tmp_path)
         try:
             assert path.exists()
