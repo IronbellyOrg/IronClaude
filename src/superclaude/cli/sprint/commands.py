@@ -279,7 +279,12 @@ def run(
     # fork/heap segfault (H-A). See .dev/troubleshoot/bug-rich-render-none-*.
     import faulthandler
 
-    faulthandler.enable(all_threads=True)
+    # Don't clobber a faulthandler config an outer harness may have set (e.g. a
+    # custom output file via PYTHONFAULTHANDLER); only enable if not already on
+    # (PR #181 review, low). The default handler writes to stderr, which is what
+    # the crash-capture diagnostic wants.
+    if not faulthandler.is_enabled():
+        faulthandler.enable(all_threads=True)
 
     from click.core import ParameterSource
 
