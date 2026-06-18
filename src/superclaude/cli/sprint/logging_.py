@@ -248,6 +248,51 @@ class SprintLogger:
             }
         )
 
+    def write_session_reset(
+        self, phase: int, task_id: str, attempt: int, exhausted_model: str
+    ) -> None:
+        """Emit a `session_reset` JSONL event — one per account-rotation re-spawn.
+
+        429 recovery (spec §4): a single-account 429 triggers a fresh
+        ``--no-session-persistence`` subprocess (a new routing decision = a chance
+        at a different account). Each such re-route is recorded for observability.
+        Mirrors :meth:`write_task_complete`'s dict-build + ``self._jsonl(...)``
+        idiom (thread-safe via the existing ``_jsonl_lock``).
+        """
+        self._jsonl(
+            {
+                "event": "session_reset",
+                "phase": phase,
+                "task_id": task_id,
+                "attempt": attempt,
+                "exhausted_model": exhausted_model,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
+    def write_account_exhaustion_halt(
+        self, phase: int, task_id: str, exhausted_model: str, session_resets: int
+    ) -> None:
+        """Emit an `account_exhaustion_halt` JSONL event — the final re-route halt.
+
+        429 recovery (spec §4): emitted when a re-spawn loop concludes
+        ``HALT_MODEL_SWITCH`` (all accounts cooling down, or the per-task reset
+        budget exhausted). Records the exhausted model and the number of resets
+        spent so the operator/log-analysis can see the re-route gave up and a
+        model switch is needed. Mirrors :meth:`write_task_complete`'s idiom
+        (thread-safe via ``_jsonl_lock``).
+        """
+        self._jsonl(
+            {
+                "event": "account_exhaustion_halt",
+                "phase": phase,
+                "task_id": task_id,
+                "exhausted_model": exhausted_model,
+                "session_resets": session_resets,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+
     def write_phase_rerun_complete(
         self,
         phase: int,
@@ -291,6 +336,15 @@ class SprintLogger:
             if sprint.halt_phase:
                 f.write(f"**Halted at**: Phase {sprint.halt_phase}\n")
                 f.write(f"**Resume**: `{sprint.resume_command()}`\n")
+                # 429 recovery (spec §4 Layer 5): on a provider/account-exhaustion
+                # halt, append the full re-route rationale block (names the
+                # exhausted model + the single-line model-switch resume command).
+                # Empty string for any non-exhaustion halt, so this is a no-op then.
+                exhaustion_block = sprint.account_exhaustion_output()
+                if exhaustion_block:
+                    f.write("\n")
+                    f.write(exhaustion_block)
+                    f.write("\n")
 
     def _jsonl(self, data: dict):
         # The lock makes the serialize+append atomic w.r.t. other threads; the

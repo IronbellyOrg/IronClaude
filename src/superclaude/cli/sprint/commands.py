@@ -230,6 +230,15 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     help="Non-interactive assent for the auto-resume confirmation prompt "
     "(also honored via SUPERCLAUDE_SPRINT_ASSUME_YES=1 or CI=1).",
 )
+@click.option(
+    "--max-session-resets",
+    "max_session_resets",
+    type=int,
+    default=8,
+    show_default=True,
+    help="Max account-rotation re-spawns per phase (shared across the phase's "
+    "tasks) before halting for a model switch (provider exhaustion recovery).",
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -255,6 +264,7 @@ def run(
     task_parallelism: int,
     fresh: bool,
     assume_yes: bool,
+    max_session_resets: int,
 ):
     """Execute a sprint from a tasklist index.
 
@@ -366,6 +376,7 @@ def run(
         handoff_enabled=handoff_enabled,
         resume_task_id=resume_task_id,
         task_parallelism=task_parallelism,
+        max_session_resets=max_session_resets,
     )
 
     # Thread tmux session name into config when relaunched by launch_in_tmux

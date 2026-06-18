@@ -1,0 +1,2 @@
+{"type":"assistant","message":{"usage":{"output_tokens":88}}}
+{"type":"result","subtype":"success","is_error":true,"api_error_status":null,"result":"API Error: The operation timed out."}

@@ -295,6 +295,7 @@ def load_sprint_config(
     handoff_enabled: bool = True,
     resume_task_id: str = "",
     task_parallelism: int = 1,
+    max_session_resets: int = 8,
 ) -> SprintConfig:
     """Load and validate a complete sprint configuration.
 
@@ -366,6 +367,7 @@ def load_sprint_config(
         handoff_enabled=handoff_enabled,
         resume_task_id=resume_task_id,
         task_parallelism=task_parallelism,
+        max_session_resets=max_session_resets,
     )
 
     # Validate that the requested range yields at least one active phase

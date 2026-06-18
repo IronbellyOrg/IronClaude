@@ -27,6 +27,8 @@ import os
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from superclaude.cli.sprint.config import PHASE_FILE_PATTERN
 from superclaude.cli.sprint.models import (
     GateOutcome,
@@ -38,6 +40,7 @@ from superclaude.cli.sprint.models import (
 )
 from superclaude.cli.sprint.recovery import acquire_recovery_lock
 from superclaude.cli.sprint.rerun_tasks import (
+    _classify_transcript,
     _rerun_targets_passed,
     build_rerun_bundle_dir,
     build_sub_index,
@@ -50,6 +53,8 @@ from superclaude.cli.sprint.rerun_tasks import (
     select_default_recoverable_tasks,
     walk_dependencies,
 )
+
+_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "exhaustion"
 
 # Imports above mirror the production surface under test. ``build_rerun_bundle_dir``,
 # ``build_sub_index``, ``flip_target_checkboxes``, ``restore_checkboxes_on_abort``,
@@ -326,6 +331,124 @@ class TestTranscriptFallback:
         statuses = dict(failed)
         assert statuses.get("T07.12") is TaskStatus.FAIL_RECOVERABLE
         assert "T07.13" not in statuses  # PASS pruned
+
+
+# ---------------------------------------------------------------------------
+# 429 recovery (spec §4 G / OQ-2 option a): a re-routed account-exhaustion
+# failure must NOT be auto-nominated for a product-bug rerun bundle (UX
+# contract #4). The exclusion lives in select_default_recoverable_tasks (the
+# directed seam) AND, because that function only ever selects fail_recoverable
+# (so a provider-exhausted task — status "fail_provider_exhausted" — is already
+# excluded there by status), the realistic leak is the legacy transcript-
+# discovery fallback (nominates ALL non-PASS); the run_rerun_tasks caller filters
+# FAIL_PROVIDER_EXHAUSTED out of that fallback. Both surfaces are pinned below.
+# ---------------------------------------------------------------------------
+
+
+class TestProviderExhaustionNominationExclusion:
+    @pytest.mark.unit
+    def test_select_default_excludes_provider_exhausted_keeps_recoverable(
+        self, tmp_path: Path
+    ):
+        # Realistic phase-result.json: one clean fail_recoverable (nominated),
+        # one provider-exhausted task (status "fail_provider_exhausted" +
+        # failure_class "provider_exhaustion" — NOT nominated).
+        result_path = tmp_path / "phase-3-result.json"
+        result_path.write_text(
+            json.dumps(
+                {
+                    "task_results": [
+                        {
+                            "task": {"task_id": "T03.01"},
+                            "status": "fail_recoverable",
+                            "failure_class": "",
+                        },
+                        {
+                            "task": {"task_id": "T03.02"},
+                            "status": "fail_provider_exhausted",
+                            "failure_class": "provider_exhaustion",
+                        },
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        assert select_default_recoverable_tasks(result_path) == ["T03.01"]
+
+    @pytest.mark.unit
+    def test_select_default_failure_class_guard_excludes_even_if_recoverable(
+        self, tmp_path: Path
+    ):
+        # Defensive guard: even a (hypothetical) fail_recoverable entry carrying
+        # failure_class "provider_exhaustion" is excluded by the explicit guard,
+        # so the exclusion holds if the status/class coupling ever changes.
+        result_path = tmp_path / "phase-3-result.json"
+        result_path.write_text(
+            json.dumps(
+                {
+                    "task_results": [
+                        {
+                            "task": {"task_id": "T03.10"},
+                            "status": "fail_recoverable",
+                            "failure_class": "provider_exhaustion",
+                        },
+                    ]
+                }
+            ),
+            encoding="utf-8",
+        )
+        assert select_default_recoverable_tasks(result_path) == []
+
+    @pytest.mark.unit
+    def test_transcript_fallback_classifies_exhaustion_distinctly(self, tmp_path: Path):
+        # The realistic leak: when a phase has only provider-exhausted failures,
+        # select_default returns [] → the transcript fallback runs. Confirm the
+        # fallback classifies a normal FAIL_TERMINAL task and a 429 task
+        # distinctly, then that the caller's exclusion predicate keeps the
+        # terminal task (IS nominated) and drops the exhausted one (NOT nominated).
+        _write_transcript(
+            tmp_path,
+            3,
+            "T03.20",  # genuine task failure → FAIL_TERMINAL → nominated
+            [
+                {"type": "assistant", "message": {"usage": {"output_tokens": 128}}},
+                {
+                    "type": "result",
+                    "is_error": True,
+                    "subtype": "error_during_execution",
+                    "result": "Tool execution failed: pytest exited 1",
+                },
+            ],
+        )
+        _write_transcript(
+            tmp_path,
+            3,
+            "T03.21",  # account-exhaustion 429 → FAIL_PROVIDER_EXHAUSTED → excluded
+            [
+                {"type": "assistant", "message": {"usage": {"output_tokens": 64}}},
+                {
+                    "type": "result",
+                    "subtype": "success",
+                    "is_error": True,
+                    "api_error_status": 429,
+                    "result": (
+                        "API Error: Request rejected (429) · This request would "
+                        "exceed your account's rate limit. Please try again later."
+                    ),
+                },
+            ],
+        )
+        statuses = dict(discover_failed_tasks_from_transcripts(tmp_path, 3))
+        assert statuses["T03.20"] is TaskStatus.FAIL_TERMINAL
+        assert statuses["T03.21"] is TaskStatus.FAIL_PROVIDER_EXHAUSTED
+        # The run_rerun_tasks caller filters FAIL_PROVIDER_EXHAUSTED out of the
+        # fallback-derived nominations (mirrors the comprehension in the caller).
+        nominated = [
+            tid
+            for tid, st in discover_failed_tasks_from_transcripts(tmp_path, 3)
+            if st is not TaskStatus.FAIL_PROVIDER_EXHAUSTED
+        ]
+        assert nominated == ["T03.20"]  # terminal kept, exhausted excluded
 
 
 # ---------------------------------------------------------------------------
@@ -661,3 +784,45 @@ class TestPrimaryCheckpointRerunArgv:
         result = CliRunner().invoke(rerun_tasks_cmd, base_args)
         assert result.exit_code == 2
         assert "Missing argument 'INDEX_PATH'" in result.output
+
+
+# ---------------------------------------------------------------------------
+# 429 recovery — offline classifier alignment with the live detector
+# ---------------------------------------------------------------------------
+
+
+class TestClassifyTranscriptProviderExhaustion:
+    """The offline ``_classify_transcript`` must agree with the live
+    ``detect_provider_failure`` on the SAME exhaustion fixtures: a 429 is
+    intercepted as FAIL_PROVIDER_EXHAUSTED (today, pre-branch, it would return
+    FAIL_TERMINAL/FAIL_RECOVERABLE — RED→GREEN), while a genuine task failure
+    with no 429 is NOT over-captured (stays FAIL_TERMINAL)."""
+
+    def test_single_account_429_classifies_provider_exhausted(self):
+        text = (_FIXTURES / "single_account_429.jsonl").read_text()
+        assert _classify_transcript(text) is TaskStatus.FAIL_PROVIDER_EXHAUSTED
+
+    def test_all_account_cooldown_classifies_provider_exhausted(self):
+        text = (_FIXTURES / "all_account_cooldown.jsonl").read_text()
+        assert _classify_transcript(text) is TaskStatus.FAIL_PROVIDER_EXHAUSTED
+
+    def test_real_failure_not_over_captured(self):
+        # No api_error_status:429, no 429 body → detector returns NONE → the
+        # existing ladder still classifies it FAIL_TERMINAL (false-positive guard).
+        text = (_FIXTURES / "task_failure_real.jsonl").read_text()
+        assert _classify_transcript(text) is TaskStatus.FAIL_TERMINAL
+
+    def test_completed_then_trailing_429_recovers_not_exhausted(self):
+        # Edge #1 (spec §5 / UX contract #5): a task that emitted a success
+        # envelope BEFORE a trailing 429 must classify PASS_RECOVERED (recover),
+        # NOT FAIL_PROVIDER_EXHAUSTED. The offline classifier must agree with the
+        # live `_task_completed_before_overrun` gate (shared completion-evidence
+        # core) so resume does NOT re-run an already-completed task. Reuses the
+        # real single-account 429 fixture as the trailing terminal so the 429 body
+        # matches the detector exactly.
+        success_line = (
+            '{"type":"result","subtype":"success","is_error":false,'
+            '"result":"Task complete."}\n'
+        )
+        text = success_line + (_FIXTURES / "single_account_429.jsonl").read_text()
+        assert _classify_transcript(text) is TaskStatus.PASS_RECOVERED

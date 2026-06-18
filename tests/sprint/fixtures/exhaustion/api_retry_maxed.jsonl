@@ -1,0 +1,2 @@
+{"type":"system","subtype":"api_retry","error_status":429,"error":"rate_limit","attempt":10,"max_retries":10}
+{"type":"result","subtype":"success","is_error":true,"api_error_status":429,"result":"API Error: Request rejected (429) · This request would exceed your account's rate limit. Please try again later."}

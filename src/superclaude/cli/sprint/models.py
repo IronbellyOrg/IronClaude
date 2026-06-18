@@ -50,6 +50,7 @@ class TaskStatus(Enum):
     PASS_RECOVERED = "pass_recovered"  # non-zero exit but evidence of success
     FAIL_TERMINAL = "fail"
     FAIL_RECOVERABLE = "fail_recoverable"
+    FAIL_PROVIDER_EXHAUSTED = "fail_provider_exhausted"  # infra: 429/account-exhaustion (re-route, not product-bug)
     INCOMPLETE = "incomplete"
     SKIPPED = "skipped"
 
@@ -62,6 +63,7 @@ class TaskStatus(Enum):
         return self in (
             TaskStatus.FAIL_TERMINAL,
             TaskStatus.FAIL_RECOVERABLE,
+            TaskStatus.FAIL_PROVIDER_EXHAUSTED,
             TaskStatus.INCOMPLETE,
         )
 
@@ -186,6 +188,10 @@ class TaskResult:
     gate_outcome: GateOutcome = GateOutcome.PENDING
     reimbursement_amount: int = 0
     output_path: str = ""
+    # Provider/account-exhaustion (429) recovery evidence (spec §4 Layer 2).
+    failure_class: str = ""
+    session_resets: int = 0
+    exhausted_model: str = ""
 
     def to_dict(self) -> dict:
         """Serialize to a JSON-safe dict (v4.3.0 phase-N-result.json payload).
@@ -213,6 +219,9 @@ class TaskResult:
             "gate_outcome": self.gate_outcome.value,
             "reimbursement_amount": self.reimbursement_amount,
             "output_path": str(self.output_path),
+            "failure_class": self.failure_class,
+            "session_resets": self.session_resets,
+            "exhausted_model": self.exhausted_model,
         }
 
     @classmethod
@@ -237,6 +246,11 @@ class TaskResult:
             gate_outcome=GateOutcome(data["gate_outcome"]),
             reimbursement_amount=data["reimbursement_amount"],
             output_path=data["output_path"],
+            # New v4.3.0 fields — .get() defaults so OLD payloads round-trip
+            # (mirrors HandoffRecord.from_dict; NOT the hard-keyed style above).
+            failure_class=data.get("failure_class", ""),
+            session_resets=data.get("session_resets", 0),
+            exhausted_model=data.get("exhausted_model", ""),
         )
 
     @property
@@ -402,6 +416,7 @@ class PhaseStatus(Enum):
     PASS_MISSING_CHECKPOINT = "pass_missing_checkpoint"
     INCOMPLETE = "incomplete"
     HALT = "halt"
+    PROVIDER_EXHAUSTED = "provider_exhausted"
     TIMEOUT = "timeout"
     ERROR = "error"
     SKIPPED = "skipped"
@@ -417,6 +432,7 @@ class PhaseStatus(Enum):
             PhaseStatus.PASS_MISSING_CHECKPOINT,
             PhaseStatus.INCOMPLETE,
             PhaseStatus.HALT,
+            PhaseStatus.PROVIDER_EXHAUSTED,
             PhaseStatus.TIMEOUT,
             PhaseStatus.ERROR,
             PhaseStatus.SKIPPED,
@@ -588,6 +604,11 @@ class SprintConfig(PipelineConfig):
     # sequential (the safe default — preserves byte-identical legacy behavior);
     # K>1 enables dependency-respecting bounded parallelism via the DAG scheduler.
     task_parallelism: int = 1
+    # 429 recovery (spec §7 P5): max account-rotation re-spawns per task before a
+    # provider-exhaustion halt for a model switch. Read by the per-phase
+    # SessionResetPolicy(max_session_resets=config.max_session_resets) (P3); this
+    # closes the 4-hop CLI chain so the operator flag overrides the hardcoded 8.
+    max_session_resets: int = 8
 
     def _derive_tasklist_id(self) -> str:
         """Derive a stable tasklist identifier for the default state_dir path.
@@ -751,6 +772,11 @@ class PhaseResult(StepResult):
     # v4.3.0: granular task evidence for rerun-tasks (TDD §T6)
     task_results: list["TaskResult"] = field(default_factory=list)
     recovery_history: list["RecoveryBundleRef"] = field(default_factory=list)
+    # 429 recovery: phase-level account-exhaustion halt signal (spec §4). Set by
+    # the single-session path (PROVIDER_EXHAUSTED) and derived from per-task
+    # `failure_class` on the per-task path; persisted via _write_phase_result_json.
+    halt_reason: str = ""
+    exhausted_model: str = ""
 
     @property
     def duration_seconds(self) -> float:
@@ -818,14 +844,98 @@ class SprintResult:
     def total_files_changed(self) -> int:
         return sum(r.files_changed for r in self.phase_results)
 
+    def _exhaustion_halt(self) -> tuple[str, str] | None:
+        """Return ``(halt_task_id, exhausted_model)`` for a provider-exhaustion halt.
+
+        A 429 account-exhaustion halt is recovered by a MODEL SWITCH, not by
+        re-running the same model at the same phase (``--start``) — that model's
+        account pool is exhausted. This inspects the halted phase's persisted
+        ``halt_reason`` (set by the single-session ``PROVIDER_EXHAUSTED`` path and
+        derived from per-task ``failure_class`` on the per-task path) and returns
+        the specific exhausted task id + resolved model so the resume UX can
+        suggest an alternate alias. Returns ``None`` for any non-exhaustion halt.
+        """
+        if self.halt_phase is None:
+            return None
+        halted = next(
+            (r for r in self.phase_results if r.phase.number == self.halt_phase),
+            None,
+        )
+        if halted is None or halted.halt_reason != "provider_exhaustion":
+            return None
+        halt_task_id = next(
+            (
+                tr.task.task_id
+                for tr in halted.task_results
+                if tr.failure_class == "provider_exhaustion"
+            ),
+            halted.last_task_id,
+        )
+        return halt_task_id, halted.exhausted_model
+
     def resume_command(self) -> str:
-        if self.halt_phase is not None:
-            end = self.config.end_phase or max(p.number for p in self.config.phases)
-            return (
-                f"superclaude sprint run {self.config.index_path} "
-                f"--start {self.halt_phase} --end {end}"
+        if self.halt_phase is None:
+            return ""
+        exhaustion = self._exhaustion_halt()
+        if exhaustion is not None:
+            # Provider/account exhaustion → re-route via a model switch. Import
+            # locally to avoid a module-load dependency on the aienv reader.
+            from .aienv import suggest_alternate_model
+
+            halt_task_id, exhausted_model = exhaustion
+            suggested = (
+                suggest_alternate_model(exhausted_model) if exhausted_model else None
             )
-        return ""
+            if suggested:
+                end = self.config.end_phase or max(p.number for p in self.config.phases)
+                if halt_task_id:
+                    return (
+                        f"superclaude sprint run {self.config.index_path} "
+                        f"--resume {halt_task_id} --model {suggested}"
+                    )
+                # R2-H6: single-session halt has no per-task id → emit a phase-level
+                # resume that STILL carries the model switch (the re-route lever),
+                # rather than dropping ``--model`` and silently re-running the
+                # exhausted model.
+                return (
+                    f"superclaude sprint run {self.config.index_path} "
+                    f"--start {self.halt_phase} --end {end} --model {suggested}"
+                )
+            # None-safe: no distinct alternate alias found — fall through to the
+            # phase-level resume so the operator still has a paste-ready command
+            # (they switch the model manually); never fabricate a ``--model``.
+        end = self.config.end_phase or max(p.number for p in self.config.phases)
+        return (
+            f"superclaude sprint run {self.config.index_path} "
+            f"--start {self.halt_phase} --end {end}"
+        )
+
+    def account_exhaustion_output(self) -> str:
+        """Render the full account-exhaustion halt block, or ``""`` if N/A.
+
+        Wraps :func:`build_account_exhaustion_halt` for the single place a
+        multi-section block fits (the markdown execution-log summary). Returns
+        ``""`` for any non-exhaustion halt so callers can unconditionally append
+        the result. ``remaining_tasks`` is left empty here — the per-phase
+        outcomes already recorded in the summary cover progress; the block's
+        load-bearing content is the rationale + the single-line resume command.
+        """
+        exhaustion = self._exhaustion_halt()
+        if exhaustion is None:
+            return ""
+        from .aienv import suggest_alternate_model
+
+        halt_task_id, exhausted_model = exhaustion
+        suggested = (
+            suggest_alternate_model(exhausted_model) if exhausted_model else None
+        )
+        return build_account_exhaustion_halt(
+            self.config,
+            halt_task_id,
+            exhausted_model,
+            suggested,
+            remaining_tasks=[],
+        )
 
 
 @dataclass
@@ -1067,6 +1177,89 @@ def build_resume_output(
         lines.append(f"- Consumed: {ledger.consumed} turns")
         lines.append(f"- Available: {ledger.available()} turns")
         lines.append(f"- Suggested budget for resume: {budget_suggestion} turns")
+
+    return "\n".join(lines)
+
+
+def build_account_exhaustion_halt(
+    config: SprintConfig,
+    halt_task_id: str,
+    exhausted_model: str,
+    suggested_model: str | None,
+    remaining_tasks: list[TaskEntry],
+    ledger: TurnLedger | None = None,
+) -> str:
+    """Build the HALT output for an account/provider-exhaustion stop.
+
+    Distinct from :func:`build_resume_output`: a 429 account-exhaustion halt is
+    NOT recovered by re-running with more turns — every routed CLIProxyAPI
+    account for ``exhausted_model`` is cooling down via the provider, so the only
+    re-route that helps is a *model switch*. When the P5 suggester found a
+    distinct alternate (``suggested_model``), the resume command carries
+    ``--model {suggested_model}`` on a SINGLE line (the operator's terminal
+    cannot paste a multi-line command). When no alternate exists
+    (``suggested_model is None``), the message names the exhausted model and
+    gives generic recovery guidance WITHOUT fabricating an alias (edge case #7).
+
+    Args:
+        config: Sprint configuration (for ``index_path`` in the resume command).
+        halt_task_id: The task ID to resume from.
+        exhausted_model: The resolved model whose account pool is exhausted.
+        suggested_model: A distinct alternate alias to switch to, or ``None``.
+        remaining_tasks: Tasks not yet attempted, in execution order.
+        ledger: Optional TurnLedger for an informational budget block.
+
+    Returns:
+        Formatted HALT output string (single-line resume command).
+    """
+    remaining_count = len(remaining_tasks)
+
+    lines = [
+        "## HALT — Account / Provider Exhaustion",
+        "",
+        (
+            f"The model `{exhausted_model}` is exhausted: all routed CLIProxyAPI "
+            "accounts for it are cooling down via the provider, so re-spawning a "
+            "fresh session cannot reach a non-exhausted account — only a model "
+            "switch re-routes to a different account pool."
+        ),
+        "",
+    ]
+
+    if suggested_model:
+        lines += [
+            "### Resume Command (switch model)",
+            "```",
+            f"superclaude sprint run {config.index_path} --resume {halt_task_id} --model {suggested_model}",
+            "```",
+        ]
+    else:
+        lines += [
+            "### Recovery",
+            (
+                "- No alternate model alias was found in your environment. "
+                "Configure an alternate model alias (e.g. in `~/.aienv`) whose "
+                "account pool is not exhausted, or wait for the provider "
+                "rate-limit window to clear, then resume."
+            ),
+            "",
+            "### Resume Command",
+            "```",
+            f"superclaude sprint run {config.index_path} --resume {halt_task_id}",
+            "```",
+        ]
+
+    lines += ["", f"### Remaining Tasks ({remaining_count})"]
+    for task in remaining_tasks:
+        lines.append(f"- {task.task_id}: {task.title}")
+
+    if ledger:
+        lines += [
+            "",
+            "### Budget Status",
+            f"- Consumed: {ledger.consumed} turns",
+            f"- Available: {ledger.available()} turns",
+        ]
 
     return "\n".join(lines)
 

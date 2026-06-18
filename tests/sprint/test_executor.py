@@ -30,6 +30,7 @@ from superclaude.cli.sprint.models import (
     TaskStatus,
     TurnLedger,
 )
+from superclaude.cli.sprint.recovery_policy import SessionResetPolicy
 
 
 def _make_config(tmp_path: Path, num_phases: int = 2) -> SprintConfig:
@@ -433,6 +434,322 @@ class TestExecuteSprintIntegrationCoverage:
         assert captured[0].outcome == SprintOutcome.HALTED
         assert captured[0].halt_phase == 1
 
+    def _run_single_session_provider_cooldown(self, tmp_path, *, returncode: int = 1):
+        config = _make_config(tmp_path, num_phases=1)
+        transcript = (
+            Path(__file__).resolve().parent
+            / "fixtures"
+            / "exhaustion"
+            / "all_account_cooldown.jsonl"
+        ).read_text()
+
+        class _CooldownPopen:
+            def __init__(self):
+                self.returncode = returncode
+                self.pid = 1004
+                self.stdin = None
+                self._poll = 0
+
+            def poll(self):
+                self._poll += 1
+                return None if self._poll <= 1 else returncode
+
+            def wait(self, timeout=None):
+                self.returncode = returncode
+                return returncode
+
+        def _factory(*args, **kwargs):
+            phase = config.phases[0]
+            output = config.output_file(phase)
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(transcript)
+            return _CooldownPopen()
+
+        captured = []
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.sprint.notify._notify"),
+            patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
+        ):
+            logger = MagicMock()
+            logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))
+            logger_cls.return_value = logger
+            with pytest.raises(SystemExit) as exc:
+                execute_sprint(config)
+            assert exc.value.code == 1
+
+        return config, captured[0]
+
+    @pytest.mark.integration
+    def test_execute_sprint_provider_cooldown_halts_with_provider_status(
+        self, tmp_path
+    ):
+        _config, result = self._run_single_session_provider_cooldown(tmp_path)
+
+        assert result.outcome == SprintOutcome.HALTED
+        assert result.halt_phase == 1
+        assert result.phase_results[0].status == PhaseStatus.PROVIDER_EXHAUSTED
+
+    @pytest.mark.integration
+    def test_execute_sprint_provider_cooldown_writes_no_diagnostic_bundle(
+        self, tmp_path
+    ):
+        config, result = self._run_single_session_provider_cooldown(tmp_path)
+
+        assert result.phase_results[0].status == PhaseStatus.PROVIDER_EXHAUSTED
+        assert PhaseStatus.PROVIDER_EXHAUSTED.is_failure is False
+        assert not (config.results_dir / "phase-1-diagnostic.md").exists()
+
+    @pytest.mark.integration
+    def test_execute_sprint_provider_cooldown_exit_zero_writes_no_preliminary_result(
+        self, tmp_path
+    ):
+        with patch(
+            "superclaude.cli.sprint.executor._write_preliminary_result",
+            side_effect=AssertionError(
+                "provider exhaustion must skip preliminary result"
+            ),
+        ):
+            config, result = self._run_single_session_provider_cooldown(
+                tmp_path, returncode=0
+            )
+
+        assert result.outcome == SprintOutcome.HALTED
+        assert result.halt_phase == 1
+        assert result.phase_results[0].status == PhaseStatus.PROVIDER_EXHAUSTED
+        assert result.phase_results[0].exit_code == 0
+        result_text = config.result_file(config.phases[0]).read_text()
+        assert "EXIT_RECOMMENDATION: CONTINUE" not in result_text
+        assert "provider_exhausted" in result_text
+        assert not (config.results_dir / "phase-1-diagnostic.md").exists()
+
+    @pytest.mark.integration
+    def test_execute_sprint_per_task_provider_exhaustion_halts_and_surfaces_ux(
+        self, tmp_path
+    ):
+        # Regression (post-completion cross-phase QA, 2026-06-18): a provider-
+        # exhaustion 429 on the PER-TASK spawn path must HALT the sprint AND set
+        # halt_phase, so the P5 exhaustion-aware halt UX fires. Before the fix the
+        # per-task block persisted halt_reason but `continue`d — leaving
+        # outcome != HALTED and halt_phase=None, so SprintResult._exhaustion_halt
+        # returned None and account_exhaustion_output()/the model-switch resume
+        # command were never surfaced (the headline P5 deliverable, dead on the
+        # realistic per-task path). Drives execute_sprint over a TASK-bearing phase
+        # (so the `if tasks:` per-task branch runs) with _run_task_subprocess
+        # patched to emit an all-account-cooldown transcript.
+        cooldown = (
+            Path(__file__).resolve().parent
+            / "fixtures"
+            / "exhaustion"
+            / "all_account_cooldown.jsonl"
+        ).read_text()
+
+        pf = tmp_path / "phase-1-tasklist.md"
+        pf.write_text(
+            "# Phase 1\n\n### T01.01 -- Do thing\n\n**Dependencies:** None\n\nBody.\n"
+        )
+        index = tmp_path / "tasklist-index.md"
+        index.write_text("- phase-1-tasklist.md\n")
+        config = SprintConfig(
+            index_path=index,
+            release_dir=tmp_path,
+            phases=[Phase(number=1, file=pf, name="Phase 1")],
+            start_phase=1,
+            end_phase=1,
+            max_turns=5,
+            wiring_gate_mode="off",
+            wiring_gate_scope="none",
+        )
+
+        def _fake_task_subprocess(task, config, phase, prior_context=""):
+            out = config.task_output_file(phase, task)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(cooldown)
+            return 1, 0, len(cooldown.encode())
+
+        captured = []
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.sprint.executor._run_task_subprocess",
+                side_effect=_fake_task_subprocess,
+            ),
+            patch("superclaude.cli.sprint.notify._notify"),
+            patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
+        ):
+            logger = MagicMock()
+            logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))
+            logger_cls.return_value = logger
+            with pytest.raises(SystemExit):
+                execute_sprint(config)
+
+        result = captured[0]
+        # The sprint HALTED on the per-task path (not silently continued).
+        assert result.outcome == SprintOutcome.HALTED
+        assert result.halt_phase == 1
+        assert result.phase_results[0].halt_reason == "provider_exhaustion"
+        # The P5 halt UX now fires (was "" before the fix because halt_phase was None).
+        assert result.account_exhaustion_output() != ""
+        assert "claude-opus-4-8" in result.account_exhaustion_output()
+        # P6 observability: the per-task halt emitted an account_exhaustion_halt event.
+        assert logger.write_account_exhaustion_halt.called
+
+    @pytest.mark.integration
+    def test_execute_sprint_single_session_single_account_retries_then_halts(
+        self, tmp_path
+    ):
+        # Coverage gap (post-completion QA): the single-session SINGLE_ACCOUNT_LIMIT
+        # RETRY_NEW_SESSION branch + cap→halt (spec §6 single-session case) was
+        # untested — every prior single-session provider test used the all-account
+        # cooldown fixture (fast-halt on attempt 1). With max_session_resets=2 and a
+        # single-account 429 on every attempt, the loop re-spawns once then halts at
+        # the cap. Also asserts the P6 events fire (write_session_reset on RETRY,
+        # write_account_exhaustion_halt on the final halt) — previously unguarded.
+        config = _make_config(tmp_path, num_phases=1)
+        config.max_session_resets = 2
+        transcript = (
+            Path(__file__).resolve().parent
+            / "fixtures"
+            / "exhaustion"
+            / "single_account_429.jsonl"
+        ).read_text()
+
+        class _Popen:
+            def __init__(self):
+                self.returncode = 1
+                self.pid = 2004
+                self.stdin = None
+                self._poll = 0
+
+            def poll(self):
+                self._poll += 1
+                return None if self._poll <= 1 else 1
+
+            def wait(self, timeout=None):
+                self.returncode = 1
+                return 1
+
+        def _factory(*args, **kwargs):
+            phase = config.phases[0]
+            output = config.output_file(phase)
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(transcript)
+            return _Popen()
+
+        captured = []
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.sprint.notify._notify"),
+            patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
+        ):
+            logger = MagicMock()
+            logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))
+            logger_cls.return_value = logger
+            with pytest.raises(SystemExit):
+                execute_sprint(config)
+
+        result = captured[0]
+        assert result.outcome == SprintOutcome.HALTED
+        assert result.halt_phase == 1
+        assert result.phase_results[0].status == PhaseStatus.PROVIDER_EXHAUSTED
+        # RETRY_NEW_SESSION fired at least once before the cap halt (the branch a
+        # mutation-test proved was uncovered), and the final halt was recorded.
+        assert logger.write_session_reset.call_count >= 1
+        assert logger.write_account_exhaustion_halt.call_count == 1
+
+    @pytest.mark.integration
+    def test_execute_sprint_single_session_completed_then_429_recovers(self, tmp_path):
+        # Regression D2 (reflect post-completion): a single-session phase that
+        # completed substantive work BEFORE a trailing 429 must RECOVER
+        # (PASS_RECOVERED), NOT be mis-halted as PROVIDER_EXHAUSTED (spec edge #1 /
+        # UX contract #5). The per-task path already guarded this; the single-session
+        # path omitted the completion-evidence gate. Drives the single-session
+        # execute_sprint path.
+        config = _make_config(tmp_path, num_phases=1)
+        single_429 = (
+            Path(__file__).resolve().parent
+            / "fixtures"
+            / "exhaustion"
+            / "single_account_429.jsonl"
+        ).read_text()
+        completed_then_429 = (
+            '{"type":"result","subtype":"success","is_error":false,'
+            '"result":"Task complete."}\n'
+        ) + single_429
+
+        class _Popen:
+            def __init__(self):
+                self.returncode = 1
+                self.pid = 3004
+                self.stdin = None
+                self._poll = 0
+
+            def poll(self):
+                self._poll += 1
+                return None if self._poll <= 1 else 1
+
+            def wait(self, timeout=None):
+                self.returncode = 1
+                return 1
+
+        def _factory(*args, **kwargs):
+            phase = config.phases[0]
+            output = config.output_file(phase)
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(completed_then_429)
+            return _Popen()
+
+        captured = []
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.sprint.notify._notify"),
+            patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
+        ):
+            logger = MagicMock()
+            logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))
+            logger_cls.return_value = logger
+            # PASS_RECOVERED is success-family → execute_sprint completes (no halt).
+            try:
+                execute_sprint(config)
+            except SystemExit as exc:  # pragma: no cover - must NOT halt
+                raise AssertionError(
+                    f"completed-then-429 single-session phase halted (exit {exc.code})"
+                ) from exc
+
+        result = captured[0]
+        assert result.phase_results[0].status == PhaseStatus.PASS_RECOVERED
+        assert result.outcome != SprintOutcome.HALTED
+        assert result.halt_phase is None
+        # No re-route halt was attempted (the completion gate short-circuited).
+        assert not logger.write_account_exhaustion_halt.called
+
     def test_execute_sprint_timeout_exit_code_124(self, tmp_path):
         config = _make_config(tmp_path, num_phases=1)
 
@@ -621,6 +938,241 @@ class TestPerTaskOrchestration:
     def _fail_factory(task, config, phase):
         """Subprocess factory that always fails."""
         return (1, 5, 512)
+
+    @staticmethod
+    def _fixture_text(name: str) -> str:
+        return (
+            Path(__file__).resolve().parent / "fixtures" / "exhaustion" / name
+        ).read_text()
+
+    @staticmethod
+    def _make_scripted_factory(scripts):
+        calls = {"n": 0}
+
+        def factory(task, config, phase):
+            index = min(calls["n"], len(scripts) - 1)
+            exit_code, transcript = scripts[index]
+            calls["n"] += 1
+            output_path = config.task_output_file(phase, task)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(transcript)
+            return exit_code, 0, len(transcript.encode())
+
+        return factory, calls
+
+    @staticmethod
+    def _make_threadsafe_repeating_factory(script):
+        import threading
+
+        calls = {"n": 0}
+        lock = threading.Lock()
+        exit_code, transcript = script
+
+        def factory(task, config, phase):
+            with lock:
+                calls["n"] += 1
+            output_path = config.task_output_file(phase, task)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(transcript)
+            return exit_code, 0, len(transcript.encode())
+
+        return factory, calls
+
+    @staticmethod
+    def _independent_tasks(count: int = 4) -> list[TaskEntry]:
+        return [
+            TaskEntry(task_id=f"T02.{i:02d}", title=f"Task {i}")
+            for i in range(1, count + 1)
+        ]
+
+    @pytest.mark.integration
+    def test_provider_exhaustion_single_429_then_clean_passes(self, tmp_path):
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+        factory, calls = self._make_scripted_factory(
+            [
+                (1, self._fixture_text("single_account_429.jsonl")),
+                (0, self._fixture_text("clean_pass.jsonl")),
+            ]
+        )
+
+        results, remaining, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=factory,
+            reset_policy=SessionResetPolicy(max_session_resets=8),
+        )
+
+        assert calls["n"] == 2
+        assert remaining == []
+        assert results[0].status == TaskStatus.PASS
+        assert results[0].session_resets == 1
+
+    @pytest.mark.integration
+    def test_provider_exhaustion_completed_then_trailing_429_recovers(self, tmp_path):
+        # Edge #1 (spec §5 / UX contract #5): a task that completed its substantive
+        # work (emitted a success envelope) BEFORE a trailing 429 must RECOVER
+        # (PASS_RECOVERED) and NOT be re-spawned — the detector sees the LAST result
+        # event (the 429) but the completion-evidence gate short-circuits ahead of
+        # the re-route. Mirrors the offline `_classify_transcript` guard so live and
+        # offline agree on identical transcripts. Reuses the real 429 fixture as the
+        # trailing terminal so the body matches the detector exactly.
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+        completed_then_429 = (
+            '{"type":"result","subtype":"success","is_error":false,'
+            '"result":"Task complete."}\n'
+        ) + self._fixture_text("single_account_429.jsonl")
+        factory, calls = self._make_scripted_factory([(1, completed_then_429)])
+
+        results, _remaining, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=factory,
+            reset_policy=SessionResetPolicy(max_session_resets=8),
+        )
+
+        assert calls["n"] == 1  # completion gate short-circuits — no re-spawn
+        assert results[0].status == TaskStatus.PASS_RECOVERED
+        assert results[0].session_resets == 0
+
+    @pytest.mark.integration
+    def test_provider_exhaustion_cooldown_first_attempt_halts_fast(self, tmp_path):
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+        factory, calls = self._make_scripted_factory(
+            [(1, self._fixture_text("all_account_cooldown.jsonl"))]
+        )
+
+        results, _remaining, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=factory,
+            reset_policy=SessionResetPolicy(max_session_resets=8),
+        )
+
+        assert calls["n"] == 1
+        assert results[0].status == TaskStatus.FAIL_PROVIDER_EXHAUSTED
+        assert results[0].exhausted_model == "claude-opus-4-8"
+
+    @pytest.mark.integration
+    def test_provider_exhaustion_single_429_stops_at_cap(self, tmp_path):
+        import json
+
+        from superclaude.cli.sprint.executor import _write_phase_result_json
+        from superclaude.cli.sprint.models import PhaseResult
+
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+        cap = 8
+        factory, calls = self._make_threadsafe_repeating_factory(
+            (1, self._fixture_text("single_account_429.jsonl"))
+        )
+
+        results, _remaining, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=factory,
+            reset_policy=SessionResetPolicy(max_session_resets=cap),
+        )
+        now = datetime.now(timezone.utc)
+        phase_result = PhaseResult(
+            phase=phase,
+            status=PhaseStatus.ERROR,
+            exit_code=1,
+            started_at=now,
+            finished_at=now,
+            task_results=results,
+            halt_reason="provider_exhaustion",
+            exhausted_model=results[0].exhausted_model,
+        )
+        _write_phase_result_json(config, phase, phase_result)
+        payload = json.loads(config.phase_result_json(phase).read_text())
+
+        assert calls["n"] == cap
+        assert results[0].status == TaskStatus.FAIL_PROVIDER_EXHAUSTED
+        assert payload["halt_reason"] == "provider_exhaustion"
+
+    @pytest.mark.integration
+    def test_provider_exhaustion_single_429_then_real_failure_falls_through(
+        self, tmp_path
+    ):
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+        factory, calls = self._make_scripted_factory(
+            [
+                (1, self._fixture_text("single_account_429.jsonl")),
+                (1, self._fixture_text("task_failure_real.jsonl")),
+            ]
+        )
+
+        results, _remaining, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=factory,
+            reset_policy=SessionResetPolicy(max_session_resets=8),
+        )
+
+        assert calls["n"] == 2
+        assert results[0].status == TaskStatus.FAIL_TERMINAL
+
+    @pytest.mark.integration
+    def test_provider_exhaustion_parallel_latch_bounds_spawn_storm(self, tmp_path):
+        config = _make_config(tmp_path, num_phases=1)
+        config.task_parallelism = 4
+        phase = config.phases[0]
+        tasks = self._independent_tasks(4)
+        cap = 3
+        reset_policy = SessionResetPolicy(max_session_resets=cap)
+        factory, calls = self._make_threadsafe_repeating_factory(
+            (1, self._fixture_text("single_account_429.jsonl"))
+        )
+
+        results, _remaining, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=factory,
+            reset_policy=reset_policy,
+        )
+
+        assert reset_policy._latch_tripped is True
+        assert cap <= calls["n"] <= cap + (len(tasks) - 1)
+        assert calls["n"] < len(tasks) * cap
+        assert any(r.status == TaskStatus.FAIL_PROVIDER_EXHAUSTED for r in results)
+
+    @pytest.mark.integration
+    def test_provider_exhaustion_single_worker_stops_exactly_at_small_cap(
+        self, tmp_path
+    ):
+        config = _make_config(tmp_path, num_phases=1)
+        phase = config.phases[0]
+        tasks = self._make_tasks(1)
+        cap = 3
+        factory, calls = self._make_threadsafe_repeating_factory(
+            (1, self._fixture_text("single_account_429.jsonl"))
+        )
+
+        results, _remaining, _gate_results = execute_phase_tasks(
+            tasks,
+            config,
+            phase,
+            _subprocess_factory=factory,
+            reset_policy=SessionResetPolicy(max_session_resets=cap),
+        )
+
+        assert calls["n"] == cap
+        assert results[0].status == TaskStatus.FAIL_PROVIDER_EXHAUSTED
 
     def test_per_task_spawns_one_subprocess_per_task(self, tmp_path):
         config = _make_config(tmp_path, num_phases=1)

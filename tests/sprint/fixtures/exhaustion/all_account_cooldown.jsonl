@@ -1,0 +1,3 @@
+{"type":"assistant","message":{"usage":{"output_tokens":120}}}
+{"type":"assistant","message":{"usage":{"output_tokens":340}}}
+{"type":"result","subtype":"success","is_error":true,"api_error_status":429,"result":"API Error: Request rejected (429) · All credentials for model claude-opus-4-8 are cooling down via provider claude"}

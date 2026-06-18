@@ -95,6 +95,36 @@ class TestSprintTUI:
         assert "PASS" in output
         assert "Foundation" in output
 
+    def test_render_phase_table_provider_exhausted(self):
+        # 429 recovery (PC.2 regression guard): the TUI phase row renders
+        # PhaseStatus.PROVIDER_EXHAUSTED without raising. The renderer indexes
+        # STATUS_STYLES[status] directly (tui.py), so a missing mapping would
+        # KeyError on the exact account-exhaustion halt this feature surfaces.
+        config = _make_config()
+        tui = SprintTUI(config, console=Console(file=StringIO(), width=80))
+
+        now = datetime.now(timezone.utc)
+        sr = SprintResult(
+            config=config,
+            outcome=SprintOutcome.HALTED,
+            halt_phase=1,
+            phase_results=[
+                PhaseResult(
+                    phase=config.phases[0],
+                    status=PhaseStatus.PROVIDER_EXHAUSTED,
+                    exit_code=1,
+                    started_at=now - timedelta(seconds=30),
+                    finished_at=now,
+                    halt_reason="provider_exhaustion",
+                    exhausted_model="claude-opus-4-8",
+                ),
+            ],
+        )
+        tui.update(sr, MonitorState(), None)
+        output = _render_to_string(tui)  # must not raise (KeyError regression guard)
+        assert "EXHAUSTED" in output
+        assert "Foundation" in output
+
     def test_render_stall_thinking(self):
         import time
 

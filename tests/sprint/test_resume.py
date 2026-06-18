@@ -152,6 +152,46 @@ class TestResumePlanner:
         assert roles["T03.01"] == "last_completed"
         assert roles["T03.02"] == "next_unfinished"
 
+    def test_resume_reruns_provider_exhausted_task(self, tmp_path):
+        """429 recovery: a phase-N-result.json with a ``fail_provider_exhausted``
+        task is re-run by the planner with NO planner code change — the ZERO-EDIT
+        auto-routing (``_coerce_task_status → TaskStatus(value)`` + ``not is_success``
+        filter). Robust across the P4 PhaseStatus.PROVIDER_EXHAUSTED addition:
+        ``_is_pass_family`` tolerates the unknown top-level phase status today (→
+        non-passing interrupt) and stays non-passing (is_terminal, not is_success)
+        after P4."""
+        results = tmp_path / "results"
+        results.mkdir()
+        for n in (1, 2, 3):
+            (tmp_path / f"phase-{n}-tasklist.md").write_text(_task_block(f"T0{n}.01"))
+        index = _write_index(tmp_path, (1, 2, 3))
+        events = _complete_phase(results, 1) + _complete_phase(results, 2)
+        (results / "phase-3-result.json").write_text(
+            json.dumps(
+                {
+                    "phase": 3,
+                    "status": "provider_exhausted",
+                    "task_results": [
+                        {"task": {"task_id": "T03.01"}, "status": "pass"},
+                        {
+                            "task": {"task_id": "T03.02"},
+                            "status": "fail_provider_exhausted",
+                        },
+                    ],
+                }
+            )
+        )
+        events += [
+            {"event": "phase_start", "phase": 3},
+            {"event": "phase_complete", "phase": 3, "status": "provider_exhausted"},
+        ]
+        _write_log(tmp_path, events)
+
+        plan = ResumePlanner().plan(index)
+
+        assert plan.granularity is Granularity.TASK
+        assert "T03.02" in plan.rerun_task_ids
+
     def test_resume_pass_recovered_counts_as_completed(self, tmp_path):
         """PR #124: a per-task result with status 'pass_recovered' is a SUCCESS.
 

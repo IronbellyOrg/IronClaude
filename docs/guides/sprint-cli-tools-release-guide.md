@@ -70,6 +70,7 @@ superclaude sprint run <index_path> [options]
 - `--yes` / `-y` non-interactive assent for auto-resume confirmation; also honored via `SUPERCLAUDE_SPRINT_ASSUME_YES=1` or `CI=1`
 - `--max-turns N` max turns per phase
 - `--model MODEL` set Claude model
+- `--max-session-resets N` max account-rotation re-spawns per phase (a shared budget across the phase's tasks, not per individual task) before a provider-exhaustion halt for a model switch (429 recovery: a fresh subprocess re-routes to a different CLIProxyAPI account). Default: `8`
 - `--dry-run` discovery/validation only; with default auto-resume it also prints `ResumePlan`, `DriftAssessment`, and `BoundaryReport` without executing
 - `--no-tmux` run in foreground even if tmux is available
 - `--permission-flag` permission mode passed to Claude CLI

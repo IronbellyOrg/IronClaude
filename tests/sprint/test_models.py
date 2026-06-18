@@ -25,6 +25,7 @@ from superclaude.cli.sprint.models import (
     TaskResult,
     TaskStatus,
     TurnLedger,
+    build_account_exhaustion_halt,
 )
 
 # ---------------------------------------------------------------------------
@@ -47,6 +48,7 @@ class TestPhaseStatus:
             "PREFLIGHT_PASS",
             "INCOMPLETE",
             "HALT",
+            "PROVIDER_EXHAUSTED",
             "TIMEOUT",
             "ERROR",
             "SKIPPED",
@@ -64,6 +66,7 @@ class TestPhaseStatus:
             (PhaseStatus.PASS_MISSING_CHECKPOINT, True),
             (PhaseStatus.INCOMPLETE, True),
             (PhaseStatus.HALT, True),
+            (PhaseStatus.PROVIDER_EXHAUSTED, True),
             (PhaseStatus.TIMEOUT, True),
             (PhaseStatus.ERROR, True),
             (PhaseStatus.SKIPPED, True),
@@ -83,6 +86,7 @@ class TestPhaseStatus:
             (PhaseStatus.PASS_MISSING_CHECKPOINT, True),
             (PhaseStatus.INCOMPLETE, False),
             (PhaseStatus.HALT, False),
+            (PhaseStatus.PROVIDER_EXHAUSTED, False),
             (PhaseStatus.TIMEOUT, False),
             (PhaseStatus.ERROR, False),
             (PhaseStatus.SKIPPED, False),
@@ -102,6 +106,7 @@ class TestPhaseStatus:
             (PhaseStatus.PASS_MISSING_CHECKPOINT, False),
             (PhaseStatus.INCOMPLETE, True),
             (PhaseStatus.HALT, True),
+            (PhaseStatus.PROVIDER_EXHAUSTED, False),
             (PhaseStatus.TIMEOUT, True),
             (PhaseStatus.ERROR, True),
             (PhaseStatus.SKIPPED, False),
@@ -110,10 +115,18 @@ class TestPhaseStatus:
     def test_is_failure(self, status, expected):
         assert status.is_failure is expected
 
+    @pytest.mark.unit
+    def test_provider_exhausted_terminal_not_failure(self):
+        assert PhaseStatus.PROVIDER_EXHAUSTED.value == "provider_exhausted"
+        assert PhaseStatus.PROVIDER_EXHAUSTED.is_terminal is True
+        assert PhaseStatus.PROVIDER_EXHAUSTED.is_success is False
+        assert PhaseStatus.PROVIDER_EXHAUSTED.is_failure is False
+
     def test_values(self):
         assert PhaseStatus.PENDING.value == "pending"
         assert PhaseStatus.PASS.value == "pass"
         assert PhaseStatus.HALT.value == "halt"
+        assert PhaseStatus.PROVIDER_EXHAUSTED.value == "provider_exhausted"
 
 
 # ---------------------------------------------------------------------------
@@ -382,6 +395,87 @@ class TestSprintResult:
         cmd = sr.resume_command()
         assert "--start 3" in cmd
         assert "--end 5" in cmd
+
+    def test_resume_command_single_session_exhaustion_keeps_model(self, monkeypatch):
+        # R2-H6 (reflect drift): a single-session provider-exhaustion halt has no
+        # per-task id, but the resume command must STILL carry the model switch (the
+        # re-route lever) as a phase-level `--start ... --model`, not silently
+        # re-run the exhausted model.
+        monkeypatch.setenv("ANTHROPIC_DEFAULT_OPUS_MODEL", "claude-opus-4-8")
+        monkeypatch.setenv("ANTHROPIC_DEFAULT_SONNET_MODEL", "claude-sonnet-4-5")
+        cfg = _make_config()
+        halted = _make_phase_result(
+            phase=cfg.phases[0],
+            status=PhaseStatus.PROVIDER_EXHAUSTED,
+            exit_code=1,
+            halt_reason="provider_exhaustion",
+            exhausted_model="claude-opus-4-8",
+            last_task_id="",  # single-session: no per-task id
+        )
+        sr = SprintResult(config=cfg, halt_phase=1, phase_results=[halted])
+        cmd = sr.resume_command()
+        assert "--start 1" in cmd
+        assert "--model sonnet" in cmd
+        assert "--resume" not in cmd  # single-session → phase-level resume
+
+    def test_resume_command_per_task_exhaustion_uses_resume_model(self, monkeypatch):
+        # The per-task counterpart: a task-id IS present → `--resume <task> --model`.
+        monkeypatch.setenv("ANTHROPIC_DEFAULT_OPUS_MODEL", "claude-opus-4-8")
+        monkeypatch.setenv("ANTHROPIC_DEFAULT_SONNET_MODEL", "claude-sonnet-4-5")
+        cfg = _make_config()
+        halted = _make_phase_result(
+            phase=cfg.phases[0],
+            status=PhaseStatus.ERROR,
+            exit_code=1,
+            halt_reason="provider_exhaustion",
+            exhausted_model="claude-opus-4-8",
+            last_task_id="T01.07",
+        )
+        sr = SprintResult(config=cfg, halt_phase=1, phase_results=[halted])
+        cmd = sr.resume_command()
+        assert "--resume T01.07" in cmd
+        assert "--model sonnet" in cmd
+
+
+class TestBuildAccountExhaustionHalt:
+    """Golden-string tests for the P5 account-exhaustion halt UX builder."""
+
+    def test_single_line_resume_with_model_switch(self):
+        cfg = _make_config()
+        remaining = [
+            TaskEntry(task_id="T03.14", title="Do thing", description="d"),
+            TaskEntry(task_id="T03.15", title="Next thing", description="d"),
+        ]
+        msg = build_account_exhaustion_halt(
+            cfg,
+            halt_task_id="T03.14",
+            exhausted_model="claude-opus-4-8",
+            suggested_model="sonnet",
+            remaining_tasks=remaining,
+        )
+        # Exactly ONE line carries the resume command (terminal cannot paste
+        # multi-line), and it carries both the task id and the model switch.
+        resume_lines = [ln for ln in msg.splitlines() if "--resume" in ln]
+        assert len(resume_lines) == 1
+        assert "--resume T03.14" in resume_lines[0]
+        assert "--model sonnet" in resume_lines[0]
+        # The exhausted model is named and the CLIProxyAPI re-route rationale present.
+        assert "claude-opus-4-8" in msg
+        assert "CLIProxyAPI" in msg
+
+    def test_none_suggested_does_not_fabricate_model(self):
+        cfg = _make_config()
+        msg = build_account_exhaustion_halt(
+            cfg,
+            halt_task_id="T03.14",
+            exhausted_model="claude-opus-4-8",
+            suggested_model=None,
+            remaining_tasks=[],
+        )
+        # Names the exhausted model + gives generic guidance, but NEVER fabricates
+        # a `--model <alias>` value when no distinct alternate exists.
+        assert "claude-opus-4-8" in msg
+        assert "--model" not in msg
 
     # ------------------------------------------------------------------
     # TUI v2 Wave 1 aggregate properties (v3.7)
@@ -1122,6 +1216,74 @@ class TestFailRecoverableStatus:
         assert TaskStatus("fail") is TaskStatus.FAIL_TERMINAL
         assert TaskStatus.FAIL_TERMINAL.is_failure is True
         assert TaskStatus.FAIL_TERMINAL.is_success is False
+
+
+# ---------------------------------------------------------------------------
+# 429 recovery — TaskStatus.FAIL_PROVIDER_EXHAUSTED infra status + TaskResult
+# back-compat serialization of the 3 new exhaustion fields (spec §4 Layer 2)
+# ---------------------------------------------------------------------------
+
+
+class TestProviderExhaustedStatus:
+    """FAIL_PROVIDER_EXHAUSTED is an infra *failure* (resume re-runs it) that must
+    never be a success. Placement is load-bearing for resume routing."""
+
+    @pytest.mark.unit
+    def test_provider_exhausted_value_and_membership(self):
+        status = TaskStatus.FAIL_PROVIDER_EXHAUSTED
+        assert status.value == "fail_provider_exhausted"
+        assert status.is_failure is True
+        assert status.is_success is False
+        # Round-trips by value (the resume planner's TaskStatus(value) lookup).
+        assert (
+            TaskStatus("fail_provider_exhausted") is TaskStatus.FAIL_PROVIDER_EXHAUSTED
+        )
+
+
+class TestTaskResultExhaustionBackCompat:
+    """The 3 new TaskResult fields (failure_class/session_resets/exhausted_model)
+    use ``.get()`` defaults in from_dict so OLD phase-N-result.json round-trips."""
+
+    @pytest.mark.backward_compat
+    def test_taskresult_from_dict_old_payload_round_trips(self):
+        now = datetime.now(timezone.utc).isoformat()
+        old = {  # NO failure_class / session_resets / exhausted_model keys
+            "task": {
+                "task_id": "T01.01",
+                "title": "Old payload",
+                "description": "",
+                "dependencies": [],
+                "command": "",
+                "classifier": "",
+            },
+            "status": "pass",
+            "turns_consumed": 5,
+            "exit_code": 0,
+            "started_at": now,
+            "finished_at": now,
+            "output_bytes": 12,
+            "gate_outcome": "pass",
+            "reimbursement_amount": 0,
+            "output_path": "",
+        }
+        tr = TaskResult.from_dict(old)  # must NOT raise (would KeyError if hard-keyed)
+        assert tr.failure_class == ""
+        assert tr.session_resets == 0
+        assert tr.exhausted_model == ""
+
+    @pytest.mark.backward_compat
+    def test_taskresult_new_fields_round_trip(self):
+        tr = _make_task_result(
+            status=TaskStatus.FAIL_PROVIDER_EXHAUSTED,
+            failure_class="provider_exhaustion",
+            session_resets=3,
+            exhausted_model="claude-opus-4-8",
+        )
+        rt = TaskResult.from_dict(tr.to_dict())
+        assert rt.status is TaskStatus.FAIL_PROVIDER_EXHAUSTED
+        assert rt.failure_class == "provider_exhaustion"
+        assert rt.session_resets == 3
+        assert rt.exhausted_model == "claude-opus-4-8"
 
 
 # ---------------------------------------------------------------------------
