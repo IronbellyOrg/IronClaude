@@ -103,6 +103,13 @@ class SprintTUI:
             console=self.console,
             refresh_per_second=2,
             screen=False,
+            # H-C probe (TASK-RF-faulthandler-redirect): Rich's default
+            # redirect_stdout/stderr=True funnels watchdog print()/logger output
+            # from other threads into this Live's Console buffer — the suspected
+            # cross-thread source of the Thread-1 "NoneType" render crash.
+            # Disabling the redirect isolates the refresh thread as sole writer.
+            redirect_stdout=False,
+            redirect_stderr=False,
         )
         self._live.start()
         return self._live

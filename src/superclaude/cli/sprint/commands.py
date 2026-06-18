@@ -273,6 +273,14 @@ def run(
     task-level path). Explicit --start/--end (even --start 1) or --fresh
     disables auto-detection and preserves today's exact behavior.
     """
+    # Diagnostic (TASK-RF-faulthandler-redirect): enable all-threads fault
+    # dumping so the next real Rich Live refresh-thread crash (Thread-1) prints
+    # a Python-vs-C stack, distinguishing a concurrency TypeError (H-C) from a
+    # fork/heap segfault (H-A). See .dev/troubleshoot/bug-rich-render-none-*.
+    import faulthandler
+
+    faulthandler.enable(all_threads=True)
+
     from click.core import ParameterSource
 
     from .config import load_sprint_config
