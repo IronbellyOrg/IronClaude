@@ -1,0 +1,75 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/reflect/post-fr028-20260617_0400/REPORT.md
+confidence_calibrated: 0.88
+escalation_rule_matched: null   # forced T2 via --depth deep (§5.1 hard override)
+
+# Scope
+diff_audited: "e89e40ce..d2ad3cbd"   # FR-028 fix on branch fix/swarm-normalize-perworker-status-fr028
+diff_scope_note: "Un-audited FR-028 remediation (the migration itself was reflected ×2 at PC.5). 3 files, +121/-1: normalize.py (1 hunk) + 2 test files."
+
+# UC-2 deviation audit
+tasklist_completion_pct: null   # not a tasklist work-unit; single-commit fix
+deviation_count_by_class:
+  authorized: 1    # the FR-028 fix is an explicitly user-authorized remediation
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null   # rendered inline in REPORT.md
+grounding_gaps_path: null
+
+# Verification triangle (ran against the FR-028 worktree)
+verification_ran: true
+verification_invocations: 3      # full swarm suite, parity gate, other-lens recipe tests
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+verification_evidence:
+  swarm_suite: "2215 passed, 27 skipped, 0 failed"
+  golden_parity: "16 passed"
+  other_lens_recipe_tests: "119 passed (findings-table + hypothesis-table + verdict-only — no regression from the shared-args change)"
+
+# Hallucination guard
+citations_total: 4
+citations_revalidated: 4
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true   # 0 drops on a small 2-finding report — flagged per §11.2 (both findings independently re-Read + confirmed grounded; low risk given report size)
+
+# Tier 2 ensemble
+reviewer_cards:
+  - .dev/reflect/post-fr028-20260617_0400/reviewer-cards/card-1-analyzer.md
+  - .dev/reflect/post-fr028-20260617_0400/reviewer-cards/card-2-qa.md
+reviewer_models: [sonnet, haiku]   # 3rd (fable) requested but UNAVAILABLE (access-gated)
+reviewer_personas: [analyzer, qa]
+merge_method: convergent-synthesis   # both cards agreed (sound/PASS); no competing verdicts to debate
+adversarial_convergence_score: null  # no conflict — sc-adversarial debate not required when verdicts converge
+adversarial_unavailable: false
+t2_model_class_diversity: degraded   # fable unavailable → 2 classes (sonnet, haiku), executor=opus excluded per §7.1
+t2_vendor_diversity: single          # both Anthropic-class (warn-only, v1)
+calibrator_diversity: degraded       # inline calibration (disjoint 3rd non-reviewer class unavailable)
+executor_class_resolved: true
+executor_class_source: flag          # executor=opus excluded from reviewer pool
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+
+# Tier 3
+remediation_offered: false   # no --remediate; findings are LOW non-blocking follow-ups
+remediation_accepted: null
+
+# Promotion (Wave 7)
+promotion_action: not-applicable   # FR-028 fix is a branch commit, NOT a .dev/tasks/to-do/TASK-* work-unit
+promotion_adapter: none
+promotion_gate_passed: null
+
+degraded_components: ["reviewer:fable-unavailable", "calibrator:inline-fallback", "t2-vendor:single"]

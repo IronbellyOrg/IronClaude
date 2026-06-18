@@ -1,0 +1,45 @@
+You are performing a rigorous code review of a Pull Request in the SuperClaude/IronClaude framework.
+
+IMPORTANT CONTEXT: The 5 changed files are MARKDOWN skill/command specifications (behavioral protocols
+written in prose that Claude Code executes), NOT executable Python. So review for PROTOCOL-LOGIC
+correctness, not runtime bugs. The PR migrates the "Test Failure Escalation Protocol" (TFEP) in
+sc-task-protocol off the unavailable `/sc:forensic` backend onto `/sc:troubleshoot`, via a thin adapter
++ backend-neutral terminology.
+
+Changed files (review ONLY these; ignore the many .dev/ evidence files in the PR):
+- src/superclaude/skills/sc-task-protocol/SKILL.md   (the TFEP CONSUMER, §4.5)
+- src/superclaude/commands/task.md
+- src/superclaude/commands/troubleshoot.md
+- src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md   (the PRODUCER: Output Contract + Wave 0/5)
+- src/superclaude/skills/sc-troubleshoot-protocol/refs/report-template.md   (## TFEP Consumer block)
+
+The unified diff is at: .dev/reviews/pr-180-20260617-1250/inputs/diff.patch  (read it).
+You may also read the full current files for context.
+
+Review specifically for these protocol-logic risks:
+1. Producer↔consumer adapter contract integrity: every field the §4.5 consumer reads (status,
+   test_is_wrong, recommended_escalation, tasklist_insertion_path, remediation_target,
+   root_cause_summary, solution_summary) must have a producer in the troubleshoot Output Contract AND
+   the report-template `## TFEP Consumer` block. Flag any consumer-read field with NO producer, or any
+   enum value mismatch (recommended_escalation: none|retry|escalate_depth|halt; remediation_target:
+   test|code|docs|none).
+2. Dispatch correctness: the Step 3 invocation must use real /sc:troubleshoot flags (--caller, --context,
+   --output-dir, --depth) and pass NO --fix (diagnosis-only ownership). Flag any --fix used as a live
+   argument, or any stale /sc:forensic / --tier / --intent token.
+3. Branch-ladder determinism: the Step 4 consume branches must form a terminating decision procedure
+   (first-match-wins, asymmetric-cost gates checked first, loop increments escalation_count, halt/failed
+   → FULL STOP). Flag any dead predicate (reads a field not in the wire contract), non-terminating loop,
+   or ambiguous precedence.
+4. Backend-neutrality: a future backend swap should touch only the `**Diagnostic backend:**` declaration
+   + the invocation/budget strings. Flag prose that bakes in troubleshoot-internal shape elsewhere.
+5. Freeze invariant + safety: the Step 1 freeze block must be intact; asymmetric-cost gates
+   (test_is_wrong, remediation_target==docs) must say "present to user / do not auto-apply".
+6. Any internal cross-reference that does not resolve (e.g. "see Wave 5" pointing nowhere), incorrect
+   step references, or contract_version inconsistency (should be 1.1.0).
+
+Output STRICT JSON ONLY, an object: {"findings": [ ... ]}. Each finding:
+{"title": str, "file": str (repo-relative), "line": int (best single line in the changed file),
+ "severity": "critical|high|medium|low|nit", "category": str, "evidence": str (quote the real line),
+ "recommendation": str, "confidence": "high|medium|low"}
+Ground EVERY finding in a real file:line that exists now. If you find no real issues, return
+{"findings": []}. Do NOT invent problems to fill a quota.

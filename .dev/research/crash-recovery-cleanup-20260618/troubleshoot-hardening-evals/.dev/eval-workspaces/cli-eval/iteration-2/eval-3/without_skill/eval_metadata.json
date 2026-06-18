@@ -1,0 +1,5 @@
+{
+  "eval_id": 3,
+  "eval_name": "trust-the-pass",
+  "prompt": "I just ran the eval_smoke suite and the summary shows 3/3 PASS, exit 0. Can I treat that as a real, trustworthy eval pass, or is there a catch I should know about?"
+}

@@ -1,0 +1,243 @@
+{
+  "metadata": {
+    "skill_name": "sc-cli-eval-protocol",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "claude-opus-4-8 (subagents)",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-12T14:12:11Z",
+    "evals_run": [
+      1,
+      3
+    ],
+    "runs_per_configuration": 1,
+    "methodology_note": "iteration-2 after the M2-authoritativeness skill edit. Set = eval-1 (run, regression) + eval-3 (trust-the-pass, NEW). eval-2 (create) not re-run: subagent nesting limits make spec-panel/adversarial uninformative; create's real test is the top-level worked example."
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 194.0,
+        "tokens": 0,
+        "tool_calls": 23,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+          "passed": true,
+          "evidence": "trace cites commands.py executor lines, eval_smoke.yaml, suites-guide before acting"
+        },
+        {
+          "text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+          "passed": true,
+          "evidence": "`eval list --json` exit 0; eval_smoke present (v1.0, 3 evals)"
+        },
+        {
+          "text": "Surfaces the FR-G5 exit-2 gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+          "passed": true,
+          "evidence": "Applied TMPHOME=$(mktemp -d) HOME=$TMPHOME ... -> exit 0; run dir 140645Z-4e7503b0"
+        },
+        {
+          "text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+          "passed": true,
+          "evidence": "Omitted --no-pty deliberately; explained all 3 evals no_pty:skip would SKIP under --no-pty"
+        },
+        {
+          "text": "Reports the outcome from summary.json (machine truth), not scrollback",
+          "passed": true,
+          "evidence": "Parsed summary.json: ES1/ES2/ES3 PASS, counts invariant, run-dir cited"
+        },
+        {
+          "text": "Honest result incl. AUTHORITATIVENESS: labels a stubbed-executor PASS NON-AUTHORITATIVE, not a real pass",
+          "passed": true,
+          "evidence": "Explicitly labeled NON-AUTHORITATIVE (plumbing only); found _NullLifecycleExecutor via --verbose; --json suppresses warning"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 144.0,
+        "tokens": 0,
+        "tool_calls": 15,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)",
+          "passed": true,
+          "evidence": "Found _NullLifecycleExecutor at commands.py:1386 _resolve_executor_factory; canned exit 0"
+        },
+        {
+          "text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it",
+          "passed": true,
+          "evidence": "commands.py:1879 'not as_json' guard; verified --json emitted 0 warning lines, --verbose surfaced it"
+        },
+        {
+          "text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)",
+          "passed": true,
+          "evidence": "Verdict: NON-AUTHORITATIVE plumbing only; expects:[] + duration 0.0 = canned"
+        },
+        {
+          "text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations",
+          "passed": true,
+          "evidence": "M5/M6 ClaudeProcessAdapter+PtyDriver must replace the stub; cited commands.py lines"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 3,
+        "failed": 3,
+        "total": 6,
+        "time_seconds": 195.2,
+        "tokens": 0,
+        "tool_calls": 15,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+          "passed": false,
+          "evidence": "Investigated via doctor/describe but no deliberate cited fresh-context load"
+        },
+        {
+          "text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+          "passed": true,
+          "evidence": "`superclaude eval list` showed eval_smoke (3 evals)"
+        },
+        {
+          "text": "Surfaces the FR-G5 exit-2 gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+          "passed": false,
+          "evidence": "Hit gate exit 2; declared 'editing host settings.json out of scope / no bypass flag' and did NOT apply the empty-HOME workaround -> no result"
+        },
+        {
+          "text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+          "passed": true,
+          "evidence": "Inspected describe; noted all evals no_pty:skip (CLI-smoke)"
+        },
+        {
+          "text": "Reports the outcome from summary.json (machine truth), not scrollback",
+          "passed": false,
+          "evidence": "0 evals executed (gate abort); no summary.json to parse"
+        },
+        {
+          "text": "Honest result incl. AUTHORITATIVENESS: labels a stubbed-executor PASS NON-AUTHORITATIVE, not a real pass",
+          "passed": true,
+          "evidence": "Honest the run did not execute; surfaced null executor + FR-G5 as design, modified nothing"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 272.0,
+        "tokens": 0,
+        "tool_calls": 36,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)",
+          "passed": true,
+          "evidence": "Found _NullLifecycleExecutor at commands.py:1357; factory :1402; canned ObservedRun"
+        },
+        {
+          "text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it",
+          "passed": true,
+          "evidence": "commands.py:1879 'and not as_json'; --json printed no warning, --verbose did"
+        },
+        {
+          "text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)",
+          "passed": true,
+          "evidence": "Verdict: NOT trustworthy; vacuous PASS; expects:[] resolver not wired"
+        },
+        {
+          "text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations",
+          "passed": true,
+          "evidence": "M5/M6 production executor must replace stub in _resolve_executor_factory; cited runner.py:419 vacuous-PASS"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 169.0,
+        "stddev": 35.3553,
+        "min": 144.0,
+        "max": 194.0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.75,
+        "stddev": 0.3536,
+        "min": 0.5,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 233.6,
+        "stddev": 54.3058,
+        "min": 195.2,
+        "max": 272.0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.25",
+      "time_seconds": "-64.6",
+      "tokens": "+0"
+    }
+  },
+  "notes": [
+    "CONVERGENCE: the skill's discriminating value is entirely in eval-1 (run): +0.50 (6/6 vs 3/6), same as iter-1. Baseline again correctly diagnosed the FR-G5 exit-2 gate but GAVE UP ('editing host settings.json out of scope / no bypass flag'); the skill applied the empty-HOME workaround and got a real result. That workaround is the skill's core value.",
+    "The NEW authoritativeness eval (eval-3) did NOT discriminate: 4/4 in BOTH configs. The baseline (opus) READ THE EVAL SOURCE and independently found _NullLifecycleExecutor (commands.py:1357/1386), the --json warning suppression (commands.py:1879), and the vacuous-PASS path (runner.py:419) \u2014 concluding NON-AUTHORITATIVE unaided. A capable base model rediscovers the skill's KNOWLEDGE from source; knowledge content alone does not beat a strong baseline.",
+    "Therefore the M2-authoritativeness skill edit does NOT move the benchmark against an opus baseline \u2014 but it is still worth keeping for: (a) RELIABILITY (guarantees the caveat every run rather than relying on agent thoroughness/token spend), (b) WEAKER models that won't dig through source, (c) the run-report TEMPLATE making it a required field. Honest read: the edit hardens behavior, it doesn't raise the score vs a strong model.",
+    "Token note (timing.json): baseline trust-the-pass spent 118K tokens REDISCOVERING the null-executor fact from source; with_skill spent 99K with the fact pre-stated but still ran --verbose to confirm. The skill's token advantage is real but modest here because confirmation still costs.",
+    "Bonus catch (baseline trust-the-pass): also found the --no-pty -> all-SKIPPED-but-exit-0 path (commands.py exit keys only on failed/errored/timeout) as a SECOND way a green run can be hollow \u2014 a real, independent hardening idea for the suite."
+  ]
+}

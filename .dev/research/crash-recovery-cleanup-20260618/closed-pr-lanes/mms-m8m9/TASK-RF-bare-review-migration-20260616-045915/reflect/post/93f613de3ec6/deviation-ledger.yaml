@@ -1,0 +1,66 @@
+# Deviation ledger — UC-2 post-execution audit of TASK-RF-bare-review-migration @ 93f613de
+# Diff: 0f9c8d36..93f613de (effective). 4-category taxonomy (§10). Drift=0, Regression=0.
+
+deviations:
+  - id: DEV-1
+    class: necessary
+    title: "Worktree execution — path substitution for hardcoded cd /config/workspace/IronClaude"
+    evidence: "task log lines 659-660 (Execution Log DEVIATION note)"
+    rationale: >
+      Tasklist commands hardcode `cd /config/workspace/IronClaude` (main workspace, on a
+      DIFFERENT branch fix/lint-arch-...). Running gates there would test the wrong code.
+      All gates ran in the mms-m8m9 worktree on the migration branch. Documented, per memory
+      feedback_worktree_discipline. Contradicts no spec acceptance criterion.
+    remediation: none
+
+  - id: DEV-2
+    class: necessary
+    title: "WS-E SUPERSEDED notices applied to canonical MAIN-workspace cp1/cp2 (untracked), not in commit 93f613de"
+    evidence: >
+      Notices PRESENT at /config/workspace/IronClaude/.dev/releases/complete/MultiModelSwarm/tasklist/phase-8-cp{1,2}.md
+      (grep -l SUPERSEDED). ABSENT from worktree copies + commit 93f613de (git show --stat 93f613de -- .dev/releases/ empty).
+      Tasklist Phase 7 (lines 572-582) explicitly defines WS-E as edits to "archived/untracked records under .dev/releases/complete/" with no sync/test gate.
+    rationale: >
+      The phase-8 checkpoint records are untracked MMS archive artifacts that live canonically in the
+      main workspace; the tasklist authorizes editing them there. PC.1 (line 588-590) requires only on-disk
+      verification, not commit-tracking. Deliverable EXISTS and is correctly located. Reviewer A concurs (acceptable, not drift).
+    remediation: none
+
+  - id: DEV-3
+    class: necessary
+    title: "FR-028 parity gate drives salvage as 3 successes (vs §7.4 parse_error→success promotion)"
+    evidence: >
+      normalize.py:526-558 forwards one shared recipe_args to every worker, never injecting per-worker worker.status;
+      recipe salvage branch (recipes/bare_review_v1.py:249-286) needs args["status"]=="parse_error".
+      test_bare_review_parity.py:175-212 documents salvage driven as 3 successes to match frozen golden.
+      git: shared-args design originates in b0de14792 (PR#148 swarm M1-M8), an ANCESTOR of base 0f9c8d36 → PRE-EXISTING.
+    rationale: >
+      The salvage-promotion gap is pre-existing CLI infrastructure (built phases 1-7), NOT introduced by this M8/M9
+      tasklist. Fixing it touches shared normalize_wave2 (resume path + all lenses) → out of scope, requires its own
+      full-suite QA. Salvage LOGIC remains unit-tested (test_recipe_bare_review.py:95, :202). Parity gate is HONEST:
+      drives salvage to match the frozen golden and documents the divergence inline (not a silent false assertion).
+      Logged as HIGH follow-up. Both independent reviewers (gpt-5.5 0.91, qwen 0.95) classify Necessary not Regression.
+    remediation: "SEPARATE corrective task (thread per-worker status into normalize_wave2; status-ONLY, never elapsed_ms — determinism caveat per PG4). Optional, operator-decided."
+
+  - id: DEV-4
+    class: necessary
+    title: "PG6 C2 fix edited docs/swarm/command-reference.md (pre-existing non-WS-D file)"
+    evidence: "task log line 639, 861 — added the 4 WS-0 flags to command-reference.md"
+    rationale: >
+      Closed a WS-0-completeness gap in the flag-authority doc so the OPS doc set is accurate. Documented gate-driven
+      necessary deviation. Contradicts no acceptance criterion.
+    remediation: none
+
+  - id: DEV-5
+    class: necessary
+    title: "Step 2.9 also updated test_quickstart_lens_bare_review_emits_four_artifacts (exact-set → subset)"
+    evidence: "task log lines 738, 888-891 — exact-4-set `==` changed to subset `<=`"
+    rationale: >
+      WS-0 inverts the inline-path emission contract that test pinned; the Step 2.10 no-regressions gate mandated the
+      update. Documented gate-driven necessary deviation beyond Step 2.9's named scope.
+    remediation: none
+
+# DRIFT: none. Every diff hunk in 0f9c8d36..93f613de maps to a WS item or a documented necessary deviation.
+#        Reviewer A independently confirmed (incl. .pre-commit-config.yaml golden-dir excludes → map to WS-B golden tree).
+# REGRESSION: none. swarm suite 2212 passed/27 skipped/0 failed; parity+recipe RUN-and-PASS post-deletion; verify-sync 0;
+#        no contradicted acceptance criterion. FR-028 is pre-existing (b0de14792), not introduced here.

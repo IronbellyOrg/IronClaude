@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "sc-cli-eval-protocol", "runs": [{"id": "eval-1-with_skill-run-1", "prompt": "I want to run the eval_smoke suite from this project's eval pipeline and see the results. Walk me through selecting and supervising the run, then tell me what happened.", "eval_id": 1, "outputs": [{"name": "trace.md", "type": "text", "content": "# /sc:cli-eval run \u2014 eval_smoke \u2014 Step Trace (with_skill, iteration-2)\n\nDate: 2026-06-12. Working dir (worktree):\n`/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\nMode: non-interactive subagent (AskUserQuestion steps replaced by \"state the menu, pick default\").\nConstraints honored: UV only; every command capped with `timeout 180`; read-only except this output trace.\n\n---\n\n## Wave 0 \u2014 Fresh-context load (mandatory, both pipelines)\n\nPer SKILL.md Wave 0, the contract surface is re-read and cited before any action. (A live run would\ndelegate this to the `eval-docs-loader` agent; as a constrained subagent I read the canonical sources\ndirectly.)\n\nFresh-context citations (all re-read this turn):\n\n- **Exit codes** \u2014 `src/superclaude/cli/eval/exit_codes.py:21-24`: `SUCCESS=0`, `FAILURES=1`,\n  `USAGE_ERROR=2` (operator misuse / config / harness / **FR-G5 coverage gate**), `INTERRUPTED=3`.\n- **Suite manifest** \u2014 `src/superclaude/cli/eval/suites/eval_smoke.yaml:29-113`: `name: eval_smoke`,\n  `version: \"1.0\"`, 3 evals **ES1/ES2/ES3, each `no_pty: skip`**, `home_strategy: ephemeral`,\n  `timeout_sec` 60/60/120. So a `--no-pty` run SKIPs the whole suite (CI-canary, not a real pass).\n- **`eval run` flag surface** \u2014 `src/superclaude/cli/eval/commands.py:1555-1650`: `--suite`,\n  `--parallel`, `--eval`, `--no-mcp`, `--no-pty`, `--output-dir`, `--keep-home`, `--timeout-mult`,\n  `--max-disk-mb`, `--json`, `--verbose`, `--junit`. (Confirms the run command adds NO new flags.)\n- **AUTHORITATIVENESS \u2014 the executor** \u2014 `commands.py:1357-1405`: `_resolve_executor_factory()`\n  unconditionally returns a factory that constructs `_NullLifecycleExecutor` (production\n  `ClaudeProcessAdapter`+`PtyDriver` lands at milestone M5/M6, NOT yet wired). The factory is tagged\n  `produces_null_executor = True`. `_NullLifecycleExecutor.observe()` returns canned\n  `exit_code=0, stdout=\"\", stderr=\"\", duration=0.0` \u2014 no subprocess spawned.\n- **Warning + its `--json` suppression** \u2014 `commands.py:1879-1885`: when the factory\n  `produces_null_executor` **and `not as_json`**, the runner emits to stderr:\n  `eval run: WARNING: _NullLifecycleExecutor active \u2014 non-production executor selected; run results\n  MUST NOT be treated as authoritative.` The `--json` guard suppresses it for clean machine output \u2014\n  this is exactly the line the skill's W5 / eval-run-reporter spec mandates capturing via `--verbose`.\n- **FR-G5 + empty-HOME workaround** \u2014 `docs/eval/suites-guide.md:32-35, 526-537`: the FR-G5 doctor\n  preflight checks every `~/.claude/settings.json` PreToolUse/PostToolUse matcher against the suite;\n  uncovered matchers \u2192 exit 2 `coverage gate FAILED`. Workaround: `TMPHOME=$(mktemp -d) && HOME=$TMPHOME\n  uv run superclaude eval run --suite <name> --no-mcp; rm -rf \"$TMPHOME\"` (empty HOME has no matchers).\n- **AC12 scratch-root allowlist** \u2014 discovered at runtime (see Step W3-probe): `--output-dir` must\n  resolve under `/tmp/eval-runs/` or `<repo>/.dev/eval-runs/`; arbitrary `--output-dir` \u2192 exit 2.\n- **Host preflight** \u2014 `command -v claude jq make git` \u2192 all present\n  (`/config/.local/bin/claude`, `/usr/bin/jq`, `/usr/bin/make`, `/usr/bin/git`); the 4 `failure_mode:\n  hard` binaries are satisfied. Host `HOME=/config`, `~/.claude/settings.json` exists (3043 bytes) \u2192\n  FR-G5 is a live risk \u2192 empty-HOME workaround required for a real run.\n\nGate: no canonical source missing/moved. Digest complete. Proceed to run branch.\n\n---\n\n## RUN PIPELINE\n\n### W1 \u2014 Enumerate via the CLI\n\n```\ntimeout 180 uv run superclaude eval list --json\n```\nEXIT=0. Returned a JSON array of 13 suites. `eval_smoke` present: `{ \"name\": \"eval_smoke\",\n\"version\": \"1.0\", \"eval_count\": 3 }`. (Going through the loader, not scraping the dir, so the menu\nmatches what `eval run --suite` accepts.)\n\n### W2 \u2014 Interactive selection (menu I WOULD show; default picked)\n\nMenu (AskUserQuestion in a live run):\n```\n1. adversarial_merge_consistency \u2014 v1.0 \u2014 3 evals\n2. agent_grounding_drift \u2014 v1.0 \u2014 2 evals\n3. audit_wiring_guard \u2014 v1.0 \u2014 2 evals\n4. eval_cli_doc_parity \u2014 v1.0 \u2014 3 evals\n5. eval_smoke \u2014 v1.0 \u2014 3 evals        <-- DEFAULT (task target)\n6. freshness_blocks_unread_edit \u2014 v1.0 \u2014 3 evals\n7. frontier_vs_cheap_combo \u2014 v1.0 \u2014 4 evals\n8. hook_latency_drift \u2014 v1.0 \u2014 3 evals\n9. installer_sync_drift \u2014 v1.0 \u2014 1 eval\n10. model_capability_matrix \u2014 v1.0 \u2014 8 evals\n11. real \u2014 v1.0 \u2014 17 evals\n12. task_classification_contract \u2014 v1.0 \u2014 2 evals\n13. tasklist_deterministic_shape \u2014 v1.0 \u2014 1 eval\n```\nSelected: **eval_smoke** (all 3 evals, no `--eval` filter).\n\nDrill-in:\n```\ntimeout 180 uv run superclaude eval describe --suite eval_smoke\n```\nEXIT=0. Confirmed ES1/ES2/ES3, all `no_pty: skip`, `home_strategy: ephemeral`, timeouts 60/60/120s.\n\n### W3 \u2014 Confirm invocation + flags (menu I WOULD show; default picked) + gotchas surfaced\n\n**Gotcha 1 \u2014 FR-G5 coverage gate (exit 2):** host `~/.claude/settings.json` is populated, so a run\nunder the real `$HOME` risks `coverage gate FAILED`. \u2192 use the empty-HOME workaround.\n\n**Gotcha 2 \u2014 `--no-pty` \u2192 SKIPPED:** every eval_smoke entry is `no_pty: skip`, so `--no-pty` would\nshort-circuit ALL 3 to SKIPPED (`skip_reason=\"--no-pty\"`, exit 0). That is the CI-canary path, NOT a\nreal pass. To get real PASS/FAIL I must OMIT `--no-pty`.\n\n**Authoritativeness decision (skill W5):** prefer `--verbose` over `--json` so the\n`_NullLifecycleExecutor` warning is NOT suppressed. Chosen invocation (default):\n```\nTMPHOME=$(mktemp -d) && HOME=$TMPHOME uv run superclaude eval run \\\n  --suite eval_smoke --no-mcp --verbose --junit ; rm -rf \"$TMPHOME\"\n```\n(omit `--no-pty` for a real run; omit `--output-dir` so the default FR-G4 layout under\n`<repo>/.dev/eval-runs/` stays inside the AC12 allowlist; `--no-mcp` for host-agnostic gates.)\n\n### W3-probe \u2014 first attempt hit AC12 (my error, corrected)\n\n```\nTMPHOME=$(mktemp -d) && HOME=$TMPHOME timeout 180 uv run superclaude eval run \\\n  --suite eval_smoke --no-mcp --verbose --junit --output-dir \"$TMPHOME/evalout\"\n```\nEXIT=2 \u2014 NOT FR-G5. The `--output-dir` under `$TMPHOME` escaped the **AC12 scratch-root allowlist**\n(`/tmp/eval-runs/` or `<repo>/.dev/eval-runs/`). Corrected by dropping `--output-dir`.\n\n### W4 \u2014 Run (bounded foreground; 0.01s so no background needed)\n\n```\nTMPHOME=$(mktemp -d) && HOME=$TMPHOME timeout 180 uv run superclaude eval run \\\n  --suite eval_smoke --no-mcp --verbose --junit ; rm -rf \"$TMPHOME\"\n```\nEXIT=0. Captured output (decisive):\n```\neval run: WARNING: _NullLifecycleExecutor active \u2014 non-production executor selected;\n  run results MUST NOT be treated as authoritative.\nrun 140645Z-4e7503b0: 3P/0F/0S/0E/0I/0T in 0.01s ->\n  .../.dev/eval-runs/2026-06-12/140645Z-4e7503b0\n```\nThe `MUST NOT be treated as authoritative` warning fired on the `--verbose` path. **This is the\nauthoritativeness tell.** Because `--no-pty` was omitted, the `no_pty: skip` short-circuit did NOT\nfire \u2014 the evals went \"through\" the executor path, but that path is the null stub returning canned\nexit 0 in 0.01s with no `claude` subprocess.\n\n### W4-contrast \u2014 `--json` suppresses the warning (proves the skill's W5 point)\n\n```\nTMPHOME=$(mktemp -d) && HOME=$TMPHOME timeout 180 uv run superclaude eval run \\\n  --suite eval_smoke --no-mcp --json 2>&1 | grep -c \"MUST NOT be treated as authoritative\"\n```\nResult: **0** warning lines. Confirms `--json` hides the non-production-executor warning \u2014 which is\nexactly why the protocol mandates a `--verbose` run for the authoritativeness probe.\n\n### W5 \u2014 Parse summary.json + report\n\nRun dir: `<repo>/.dev/eval-runs/2026-06-12/140645Z-4e7503b0/`\nFiles: `summary.{md,json,yaml}`, `junit.xml`, `per-eval/`, `homes/` (empty).\n\n`summary.json` (truth): `totals: passed=3 failed=0 skipped=0 errored=0 interrupted=0 timeout=0`;\n`counts.manifest_n=3 kept_k=3 skipped_s=0`. Each eval ES1/ES2/ES3: `status: \"PASS\"`,\n`duration_sec: 0.0`, **`expects: []`** (no assertions evaluated), **`artifacts: {}`** (no preserved\nHOME). `homes/` dir is empty \u2014 null executor returned PASS so HOMEs were removed (none to forensically\npreserve).\n\nProcess exit reconciliation: exit 0 \u2194 totals (0 failed/errored/timeout). Consistent \u2014 but the PASS is\nthe stub's canned `exit_code=0`, NOT a real eval assertion pass.\n\n**Verdict: PASS (3/3), but NON-AUTHORITATIVE (plumbing only).** See report.md.\n"}], "grading": {"expectations": [{"text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)", "passed": true, "evidence": "trace cites commands.py executor lines, eval_smoke.yaml, suites-guide before acting"}, {"text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)", "passed": true, "evidence": "`eval list --json` exit 0; eval_smoke present (v1.0, 3 evals)"}, {"text": "Surfaces the FR-G5 exit-2 gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result", "passed": true, "evidence": "Applied TMPHOME=$(mktemp -d) HOME=$TMPHOME ... -> exit 0; run dir 140645Z-4e7503b0"}, {"text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior", "passed": true, "evidence": "Omitted --no-pty deliberately; explained all 3 evals no_pty:skip would SKIP under --no-pty"}, {"text": "Reports the outcome from summary.json (machine truth), not scrollback", "passed": true, "evidence": "Parsed summary.json: ES1/ES2/ES3 PASS, counts invariant, run-dir cited"}, {"text": "Honest result incl. AUTHORITATIVENESS: labels a stubbed-executor PASS NON-AUTHORITATIVE, not a real pass", "passed": true, "evidence": "Explicitly labeled NON-AUTHORITATIVE (plumbing only); found _NullLifecycleExecutor via --verbose; --json suppresses warning"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}, "execution_metrics": {"total_tool_calls": 23, "errors_encountered": 0}, "timing": {"total_duration_seconds": 194.0}}}, {"id": "eval-1-without_skill-run-1", "prompt": "I want to run the eval_smoke suite from this project's eval pipeline and see the results. Walk me through selecting and supervising the run, then tell me what happened.", "eval_id": 1, "outputs": [{"name": "report.md", "type": "text", "content": "# Report \u2014 Running the `eval_smoke` suite\n\n## What I set out to do\nSelect and supervise a run of the `eval_smoke` suite via this project's\n`superclaude eval` CLI, then report what happened.\n\n## How I selected the run\n1. `superclaude eval --help` -> four subcommands: `describe`, `doctor`, `list`, `run`.\n2. `superclaude eval list` -> confirmed **`eval_smoke (version 1.0, 3 evals)`** exists.\n3. `superclaude eval describe --suite eval_smoke` -> 3 CLI-smoke evals:\n   - **ES1** \u2014 `eval doctor --json --no-mcp` reports capabilities\n   - **ES2** \u2014 `eval list --json` enumerates manifests\n   - **ES3** \u2014 `eval run --suite real --no-pty` skips all real evals + emits artifacts\n   - All three are marked `no_pty: skip`, so a `--no-pty` invocation would skip the\n     entire suite. The supervised run therefore had to keep the PTY harness enabled.\n4. `superclaude eval doctor --json --no-mcp` -> **all hard preconditions pass**\n   (claude 2.1.175, make, jq, git, `~/.claude/` present). Soft skips only: the 3 MCP\n   servers (skipped via `--no-mcp`, none on PATH) and the vendored PTY harness\n   (`src/superclaude/cli/eval/pty/__init__.py` not present \u2014 `vendored.ptytest` soft-skip).\n\n## How I supervised it, and what happened\nI ran (PTY enabled, MCP skipped, all reporters on):\n```\nsuperclaude eval run --suite eval_smoke --no-mcp --json --verbose --junit \\\n  --keep-home --output-dir <dir>\n```\n\nTwo terminal outcomes, both **exit 2 (harness-level rejection)** \u2014 the suite's\n3 evals never executed:\n\n- **Attempt 1 (custom output dir): `ScratchRootViolation`.** The AC12 scratch-root\n  allowlist permits writes only under `/tmp/eval-runs/` or `<repo>/.dev/eval-runs/`.\n  The requested SAVE-OUTPUTS path lives under `.dev/eval-workspaces/...`, outside both\n  roots, so `--output-dir` could not be used as the live run target. I retargeted to\n  the canonical `.dev/eval-runs/` root.\n\n- **Attempt 2 (canonical root): FR-G5 hook-matcher coverage gate FAILED.** Before any\n  worker dispatch, `eval run` runs a mandatory coverage gate that reads the host's\n  `~/.claude/settings.json`, finds every PostToolUse matcher mentioning an\n  auggie/airis MCP prefix, and requires the suite under test to contain at least one\n  eval that exercises each. Three host matchers are uncovered by `eval_smoke`:\n  ```\n  PostToolUse: mcp__auggie__.*\n  PostToolUse: mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*\n  PostToolUse: mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*\n  ```\n  `eval_smoke` is a CLI-only smoke suite \u2014 none of ES1/ES2/ES3 issue an auggie MCP\n  tool call \u2014 so the gate fails closed and exits 2.\n\n## Why this is the correct (not worked-around) result\n- The gate is **unconditional** in `eval run` (`src/superclaude/cli/eval/commands.py:1822`);\n  there is no flag to bypass it. `--no-mcp` only marks the MCP *servers* as\n  skipped-by-flag in the doctor capability report \u2014 it does not remove the\n  *hook matchers* from `settings.json`, which is what the FR-G5 gate inspects.\n- `default_matcher_filter` (`src/superclaude/cli/eval/coverage.py:192`) deliberately\n  scopes the gate to auggie/airis MCP matchers; those matchers are genuinely present\n  in this host's `settings.json` (verified independently with `jq`).\n- The only \"fix\" would be editing the host's `~/.claude/settings.json` to drop those\n  matchers, or running a suite whose evals cover them (e.g. `real`). Both are out of\n  scope for a read-only supervision task, so I stopped at the honest terminal state.\n\n## Artifacts produced\nThe gate wrote its forensic trail under\n`.dev/eval-runs/eval-smoke-supervised/.dev/eval-runs/2026-06-12/140627Z-77556236/`:\n```\ncoverage_missing:mcp__auggie__._\ncoverage_missing:mcp__auggie__.__mcp__airis-mcp-gateway__auggie_._\ncoverage_missing:mcp__auggie__.__mcp__auggie-mcp__.__mcp__airis-mcp-gateway__auggie_._\n```\nNo `summary.{md,json,yaml}`, no `junit.xml`, no per-eval HOMEs \u2014 the gate\nshort-circuits ahead of execution, exactly as the FR-G5 contract specifies.\n\n## Bottom line\n`eval_smoke` was correctly selected and the run was supervised to a deterministic\nterminal outcome: **exit 2, harness-level rejection at the FR-G5 coverage preflight.**\nThe suite's 3 evals did not run because the host carries auggie/airis PostToolUse\nhook matchers that a CLI-only smoke suite does not exercise. This is the gate working\nas designed, not a flaky failure. To see ES1\u2013ES3 actually execute, either run on a\nhost whose `settings.json` has no uncovered auggie/airis matchers, or point the\ngate at a suite (e.g. `real`) whose evals cover them.\n"}, {"name": "trace.md", "type": "text", "content": "# Trace \u2014 Supervised `eval_smoke` run\n\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\nDate: 2026-06-12. All Python via `uv run`. Each command capped at `timeout 180`.\n\n## Step 1 \u2014 Discover the eval surface\n\n```\nuv run superclaude eval --help\n```\nExit: 0. Subcommands: `describe`, `doctor`, `list`, `run`.\n\n## Step 2 \u2014 Select the suite (list + run help)\n\n```\nuv run superclaude eval list\nuv run superclaude eval run --help\n```\nExit: 0 / 0. `eval_smoke (version 1.0, 3 evals)` present in the catalog (13 suites total).\nRun flags noted: `--suite` (required), `--no-mcp`, `--no-pty`, `--output-dir`,\n`--json`, `--verbose`, `--junit`, `--keep-home`. Exit-code contract:\n0 = all terminal PASS/SKIP/XFAIL; 1 = some FAIL/ERROR/TIMEOUT/XPASS;\n2 = harness rejection; 3 = operator interrupt.\n\n## Step 3 \u2014 Inspect the chosen suite\n\n```\nuv run superclaude eval describe --suite eval_smoke\n```\nExit: 0. 3 evals (ES1 `eval doctor --json --no-mcp`, ES2 `eval list --json`,\nES3 `eval run --suite real --no-pty`). All 3 carry `no_pty: skip` (a `--no-pty`\nrun would skip the whole suite). Required hard binaries: claude>=0.5.0, jq, make, git.\n\n## Step 4 \u2014 Preflight host preconditions\n\n```\nuv run superclaude eval doctor --json --no-mcp\n```\nExit: 0. All HARD rows pass (claude 2.1.175, make, jq, git, ~/.claude present).\nSoft skips: 3 MCP servers (`--no-mcp`) and `vendored.ptytest` (PTY harness NOT\nvendored at `src/superclaude/cli/eval/pty/__init__.py`). Standalone doctor does\nNOT request the coverage gate (`coverage_gate.requested=false`).\n\n## Step 5 \u2014 First run attempt (custom output dir) \u2014 REJECTED\n\n```\nuv run superclaude eval run --suite eval_smoke --no-mcp --json --verbose --junit \\\n  --keep-home --output-dir .dev/eval-workspaces/.../outputs/eval-run\n```\nExit: 2. `ScratchRootViolation` \u2014 AC12 scratch-root allowlist permits only\n`/tmp/eval-runs/` and `<repo>/.dev/eval-runs/`. The required SAVE-OUTPUTS path is\noutside both, so `--output-dir` could not extend the allowlist to it.\nDecision: retarget to the canonical `.dev/eval-runs/` root, copy artifacts out after.\n\n## Step 6 \u2014 Second run attempt (canonical root) \u2014 HALTED BY GATE\n\n```\nuv run superclaude eval run --suite eval_smoke --no-mcp --json --verbose --junit \\\n  --keep-home --output-dir .dev/eval-runs/eval-smoke-supervised\n```\nExit: 2. Halted at the FR-G5 / D-0075 hook-matcher **coverage gate**, BEFORE any\nworker dispatch. Uncovered matcher patterns (all PostToolUse, all auggie/airis MCP):\n```\nPostToolUse: mcp__auggie__.*\nPostToolUse: mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*\nPostToolUse: mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*\n```\n\n## Step 7 \u2014 Ground the failure\n\n```\ngrep -rn \"coverage gate FAILED|coverage_gate\" src/superclaude/cli/eval/   # commands.py:1822, coverage.py\njq -r '.hooks.PostToolUse[]?.matcher | select(test(\"mcp__auggie|airis\"))' ~/.claude/settings.json\n```\nConfirmed the 3 matchers are real PostToolUse registrations in the host's\n`~/.claude/settings.json`. `coverage_gate()` in `src/superclaude/cli/eval/commands.py:1822`\nruns unconditionally in `eval run` (no bypass flag); `coverage.py:192` `default_matcher_filter`\nonly enforces auggie/airis MCP matchers; `eval_smoke` issues no such MCP tool call,\nso each matcher is \"uncovered\" and the gate fails closed (exit 2).\n\n## Step 8 \u2014 Capture gate artifacts\n\n```\nfind .dev/eval-runs/eval-smoke-supervised -type f\n```\nGate wrote one forensic file per uncovered matcher under the run dir:\n`coverage_missing:mcp__auggie__._`, `\u2026__mcp__airis-mcp-gateway__auggie_._`,\n`\u2026__mcp__auggie-mcp__.__mcp__airis-mcp-gateway__auggie_._`.\nNo `summary.{md,json,yaml}` / `junit.xml` and no per-eval HOMEs were produced \u2014\nthe gate short-circuits ahead of execution by design.\n\n## Outcome\n\nThe `eval_smoke` suite did NOT execute its 3 evals. The run is a deterministic,\nreproducible **harness-level rejection (exit 2)** at the FR-G5 coverage preflight,\ncaused by the host's auggie/airis PostToolUse hook matchers having no covering eval\nin this CLI-only smoke suite. Not pivoted around (no flag exists; host settings.json\nis out of scope / read-only).\n"}], "grading": {"expectations": [{"text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)", "passed": false, "evidence": "Investigated via doctor/describe but no deliberate cited fresh-context load"}, {"text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)", "passed": true, "evidence": "`superclaude eval list` showed eval_smoke (3 evals)"}, {"text": "Surfaces the FR-G5 exit-2 gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result", "passed": false, "evidence": "Hit gate exit 2; declared 'editing host settings.json out of scope / no bypass flag' and did NOT apply the empty-HOME workaround -> no result"}, {"text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior", "passed": true, "evidence": "Inspected describe; noted all evals no_pty:skip (CLI-smoke)"}, {"text": "Reports the outcome from summary.json (machine truth), not scrollback", "passed": false, "evidence": "0 evals executed (gate abort); no summary.json to parse"}, {"text": "Honest result incl. AUTHORITATIVENESS: labels a stubbed-executor PASS NON-AUTHORITATIVE, not a real pass", "passed": true, "evidence": "Honest the run did not execute; surfaced null executor + FR-G5 as design, modified nothing"}], "summary": {"passed": 3, "failed": 3, "total": 6, "pass_rate": 0.5}, "execution_metrics": {"total_tool_calls": 15, "errors_encountered": 0}, "timing": {"total_duration_seconds": 195.2}}}, {"id": "eval-3-with_skill-run-1", "prompt": "I just ran the eval_smoke suite and the summary shows 3/3 PASS, exit 0. Can I treat that as a real, trustworthy eval pass, or is there a catch I should know about?", "eval_id": 3, "outputs": [{"name": "trace.md", "type": "text", "content": "# Trace \u2014 \"Can I trust the eval_smoke 3/3 PASS?\"\n\nQuestion: is the 3/3 PASS / exit 0 from `eval_smoke` a real, trustworthy eval pass?\nMethod: read the skill + reporter authoritativeness contract, locate the executor in source,\nthen empirically reproduce verbose vs --json to establish which executor produced the PASS.\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\n\n## Step 1 \u2014 Read protocol + reporter authoritativeness contract\n- Read `src/superclaude/skills/sc-cli-eval-protocol/SKILL.md`.\n  - W5 (lines 138-147): reporter MUST \"establish which executor produced the result\"; a\n    non-production/stubbed executor emits a `results MUST NOT be treated as authoritative`\n    warning that is \"suppressed by `--json`\"; such a run is \"NON-AUTHORITATIVE (plumbing only)\".\n  - Error-handling row (line 190): \"Non-production/stubbed executor (canned PASS) \u2192 Label run\n    NON-AUTHORITATIVE \u2026 Re-run `--verbose` to surface the warning `--json` suppressed.\"\n- Read `src/superclaude/skills/sc-cli-eval-protocol/refs/run-pipeline.md`.\n  - W4 (lines 49-53): \"Authoritativeness probe: prefer `--verbose` over \u2026 `--json` \u2026 The harness\n    may run a non-production executor (e.g. a milestone-gated `_NullLifecycleExecutor` that emits\n    canned PASS before the real PTY executor lands).\"\n- Read `src/superclaude/agents/eval-run-reporter.md`.\n  - Lines 20-26: \"A PASS is only as authoritative as the executor that produced it \u2026 a green\n    `summary.json` can be a *plumbing* pass, not a real one.\"\n\n## Step 2 \u2014 Locate the executor in source\n- `grep -rn \"_NullLifecycleExecutor|authoritative|MUST NOT\" src/superclaude/cli/eval/`\n  \u2192 `src/superclaude/cli/eval/commands.py` (executor class + warning).\n- Read `commands.py:1357-1476`:\n  - `class _NullLifecycleExecutor` (1357): \"Zero-side-effect LifecycleExecutor for the M2/M3\n    surface. Production wiring (ClaudeProcessAdapter + PtyDriver) lands in M5 / M6 \u2026\".\n  - `.observe()` (1377-1383) returns a hardcoded `ObservedRun(exit_code=0, stdout=\"\", stderr=\"\",\n    duration_sec=0.0)` \u2014 i.e. a CANNED PASS with no subprocess.\n  - `_resolve_executor_factory()` (1386-1405): \"Until then this factory returns the\n    `_NullLifecycleExecutor`.\" Tags the factory `produces_null_executor = True`.\n  - `_run_one_spec` docstring (1408-1442): \"for now every spec that survives the `--no-pty`\n    short-circuit returns PASS via the null executor.\"\n- Read `commands.py:1850-1909` (warning emission):\n  - 1858: `executor_factory = _resolve_executor_factory()`.\n  - 1879-1885: `if getattr(executor_factory, \"produces_null_executor\", False) and not as_json:`\n    \u2192 emits to stderr `eval run: WARNING: _NullLifecycleExecutor active \u2014 non-production executor\n    selected; run results MUST NOT be treated as authoritative.`\n  - The `and not as_json` clause is the documented `--json` SUPPRESSION (comment 1866-1869).\n\n## Step 3 \u2014 eval_smoke suite shape\n- `grep -n \"no_pty|version|id:\" src/superclaude/cli/eval/suites/eval_smoke.yaml`:\n  - version \"1.0\"; evals ES1/ES2/ES3; ALL carry `no_pty: skip` (lines 55,76,98).\n  - Implication: WITH `--no-pty` \u2192 all 3 SKIP (exit 0). WITHOUT `--no-pty` (the user's case,\n    since they saw 3 PASS) \u2192 all 3 flow through the null executor \u2192 canned PASS.\n\n## Step 4 \u2014 Empirical: verbose run (warning surfaces)\nCommand (empty-HOME workaround per W3, default scratch root = repo `.dev/eval-runs/`):\n```\nTMPHOME=$(mktemp -d) && timeout 120 env HOME=$TMPHOME uv run superclaude eval run \\\n  --suite eval_smoke --verbose --no-mcp 2>&1 | head -70; rm -rf \"$TMPHOME\"\n```\nOutput (EXIT=0):\n```\neval run: WARNING: _NullLifecycleExecutor active \u2014 non-production executor selected; run results MUST NOT be treated as authoritative.\nrun 140633Z-71832b0f: 3P/0F/0S/0E/0I/0T in 0.01s -> .../.dev/eval-runs/2026-06-12/140633Z-71832b0f\n```\n\u2192 3 PASS, exit 0, **and** the non-authoritative WARNING. (A first attempt with\n`--output-dir \"$TMPHOME/out\"` exited 2 via the AC12 scratch-root allowlist; rerun without it.)\n\n## Step 5 \u2014 Empirical: --json run (warning suppressed)\n```\nTMPHOME=$(mktemp -d) && env HOME=$TMPHOME uv run superclaude eval run --suite eval_smoke \\\n  --json --no-mcp 2>&1 | grep -i \"WARNING|authoritative|NullLifecycle\"; rm -rf \"$TMPHOME\"\n```\nOnly match: the unrelated UV `VIRTUAL_ENV=/lsiopy \u2026 will be ignored` line. The\n`_NullLifecycleExecutor` / \"MUST NOT be treated as authoritative\" line is ABSENT \u2014 exactly the\n`not as_json` suppression at commands.py:1879. This is why the user's `--json`/summary view showed\na clean 3/3 PASS with no caveat.\n\n## Step 6 \u2014 Empirical: summary.json shape (canned PASS)\n```\nsuite=\u2026/eval_smoke.yaml ver=1.0\ncounts={'manifest_n':3,'expanded_n_prime':3,'kept_k':3,'skipped_s':0,...}\nstatuses=[('ES1','PASS',0.0),('ES2','PASS',0.0),('ES3','PASS',0.0)]\n```\nEvery eval: `status=PASS, duration_sec=0.0` \u2014 the literal canned `ObservedRun(...,duration_sec=0.0)`\nfrom `_NullLifecycleExecutor.observe()` (commands.py:1382). No subprocess was spawned; 0.0s and\nempty stdout/stderr are the tell.\n\n## Conclusion\nExecutor = `_NullLifecycleExecutor` (commands.py:1357), returned by `_resolve_executor_factory`\n(1402) for the current M2/M3 milestone. The 3/3 PASS is a PLUMBING pass, NON-AUTHORITATIVE. The\nreal `ClaudeProcessAdapter + PtyDriver` executor lands at M5/M6; until then no `eval_smoke` PASS\nexercises real CLI behavior.\n"}], "grading": {"expectations": [{"text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)", "passed": true, "evidence": "Found _NullLifecycleExecutor at commands.py:1386 _resolve_executor_factory; canned exit 0"}, {"text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it", "passed": true, "evidence": "commands.py:1879 'not as_json' guard; verified --json emitted 0 warning lines, --verbose surfaced it"}, {"text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)", "passed": true, "evidence": "Verdict: NON-AUTHORITATIVE plumbing only; expects:[] + duration 0.0 = canned"}, {"text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations", "passed": true, "evidence": "M5/M6 ClaudeProcessAdapter+PtyDriver must replace the stub; cited commands.py lines"}], "summary": {"passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0}, "execution_metrics": {"total_tool_calls": 15, "errors_encountered": 0}, "timing": {"total_duration_seconds": 144.0}}}, {"id": "eval-3-without_skill-run-1", "prompt": "I just ran the eval_smoke suite and the summary shows 3/3 PASS, exit 0. Can I treat that as a real, trustworthy eval pass, or is there a catch I should know about?", "eval_id": 3, "outputs": [{"name": "trace.md", "type": "text", "content": "# Trace \u2014 \"Can I trust the 3/3 PASS from eval_smoke?\"\n\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\nDate: 2026-06-12. Read-only investigation (one probe run into a scratch `--output-dir`).\n\n## Step 1 \u2014 Locate eval CLI + smoke suite\n- `find src/superclaude/cli/eval -type f` \u2192 exit 0. Found suite `src/superclaude/cli/eval/suites/eval_smoke.yaml`, plus `commands.py`, `runner.py`, `models.py`, `run_report.py`, `exit_codes.py`, `orchestrator.py`.\n\n## Step 2 \u2014 Read the smoke suite\n- `Read eval_smoke.yaml` \u2192 exit 0.\n  - 3 evals: ES1 (`eval doctor`), ES2 (`eval list`), ES3 (`eval run --suite real --no-pty`).\n  - **Every eval carries `no_pty: skip`.**\n  - The suite header comment states: \"--no-pty skips the whole suite\" and ES3's body itself runs `real` with `--no-pty`, which \"short-circuits all 15 real evals via the PTY-skip path.\"\n\n## Step 3 \u2014 Read exit-code contract\n- `Read exit_codes.py` \u2192 SUCCESS=0, FAILURES=1, USAGE_ERROR=2, INTERRUPTED=3.\n- `models.py`: `SKIPPED_STATUSES = {SKIPPED, INTERRUPTED}`, `PASSED_STATUSES = {PASS, XFAIL}`, `FAILED_STATUSES = {FAIL, XPASS}`. SKIPPED is neither passed nor failed.\n\n## Step 4 \u2014 Read final exit-code decision (commands.py:1986-2004)\n- Exit code is decided **only** by:\n  `if totals.failed>0 or totals.errored>0 or totals.timeout>0: exit 1; else exit 0`.\n- SKIPPED contributes to none of those \u2192 **an all-SKIPPED run exits 0 (clean).**\n- `eval run --help` confirms verbatim: \"`0` \u2014 every expanded eval reached a terminal **PASS / SKIPPED / XFAIL** outcome.\"\n\n## Step 5 \u2014 Confirm host capabilities\n- `uv run superclaude eval doctor --json --no-mcp` \u2192 exit 0. claude/make/jq/git all `passed:true`. So binaries are NOT the blocker.\n\n## Step 6 \u2014 Run eval_smoke with --no-pty (scratch output dir)\n- `env HOME=/tmp/empty_home uv run superclaude eval run --suite eval_smoke --no-pty --no-mcp --json --output-dir .dev/eval-runs/smoke-nopty-probe2` \u2192 **EXIT=0**.\n  - All 3 evals: `status:\"SKIPPED\"`, `skip_reason:\"--no-pty\"`, `expects:[]`, `duration_sec:0.0`.\n  - totals: passed=0, failed=0, **skipped=3**.\n  - (A first attempt with my real `$HOME` hit the FR-G5 hook-matcher coverage gate \u2192 exit 2, stderr \"coverage gate FAILED \u2014 uncovered matcher patterns: mcp__auggie__.*\". Host-specific pre-run gate, unrelated to suite outcome. Re-ran with empty HOME to clear it.)\n\n## Step 7 \u2014 Run a single eval on the REAL (PTY) path \u2014 the decisive test\n- `env HOME=/tmp/empty_home2 uv run superclaude eval run --suite eval_smoke --no-mcp --json --eval ES2 --output-dir .dev/eval-runs/smoke-pty-probe` \u2192 **EXIT=0**.\n  - ES2: `status:\"PASS\"`, **`duration_sec:0.0`**, **`expects:[]`**, `skip_reason:null`.\n  - `started_at == finished_at`; whole-run `duration_sec: 0.0045`.\n  - A real Claude PTY drive of \"run `superclaude eval list --json`\" cannot finish in 4 ms \u2192 the eval body and its assertions never actually ran. PASS was emitted anyway.\n\n## Step 8 \u2014 Root-cause in source\n- `runner.py:_classify_outcome` (400-422): docstring + code \u2014\n  `if all(result.passed for result in state.expects): return \"PASS\"`.\n  Comment: **\"An empty `expects` tuple with no harness failure is `PASS` by design.\"** (`all()` over `[]` is vacuously True.)\n- `commands.py:_NullLifecycleExecutor` (1357-1383): `spawn`/`inject` are no-ops; `observe` returns canned `ObservedRun(exit_code=0, stdout=\"\", stderr=\"\", duration_sec=0.0)`.\n- `commands.py:_resolve_executor_factory` (1386-1405): unconditionally returns `_NullLifecycleExecutor`, tagged `produces_null_executor=True`. Docstring: \"Production wiring (ClaudeProcessAdapter + PtyDriver) lands ... (M5/M6). Until then this factory returns the _NullLifecycleExecutor.\"\n- `commands.py:_run_one_spec` (1408-1476): wires `expect_callables=()` \u2014 **empty by design**. Docstring step 3: \"Wires the executor + an **empty `expect_callables`** tuple. The expects resolver ... lands in a follow-up; for now every spec that survives the `--no-pty` short-circuit returns PASS via the null executor.\"\n- `commands.py:1879`: there IS an operator WARNING (\"_NullLifecycleExecutor active \u2014 run results MUST NOT be treated as authoritative\") \u2014 but it is **suppressed when `--json` is passed** (`and not as_json`) and goes to stderr only.\n\n## Conclusion of trace\nTwo independent reasons the 3/3 PASS is not a real eval pass:\n1. The smoke suite is built so the only documented green path is `--no-pty`, which marks all 3 evals SKIPPED (not PASS) yet still exits 0.\n2. Even on the non-`--no-pty` path, the CLI is wired to a `_NullLifecycleExecutor` with `expect_callables=()`, so evals return a **vacuous PASS** (zero assertions, 0.0s) without spawning Claude or checking anything. The production PTY executor (M5/M6) is not yet wired in.\n"}], "grading": {"expectations": [{"text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)", "passed": true, "evidence": "Found _NullLifecycleExecutor at commands.py:1357; factory :1402; canned ObservedRun"}, {"text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it", "passed": true, "evidence": "commands.py:1879 'and not as_json'; --json printed no warning, --verbose did"}, {"text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)", "passed": true, "evidence": "Verdict: NOT trustworthy; vacuous PASS; expects:[] resolver not wired"}, {"text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations", "passed": true, "evidence": "M5/M6 production executor must replace stub in _resolve_executor_factory; cited runner.py:419 vacuous-PASS"}], "summary": {"passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0}, "execution_metrics": {"total_tool_calls": 36, "errors_encountered": 0}, "timing": {"total_duration_seconds": 272.0}}}], "previous_feedback": {}, "previous_outputs": {"eval-1-with_skill-run-1": [{"name": "report.md", "type": "text", "content": "# eval_smoke run \u2014 outcome report\n\n## Selection (via CLI, not a dir scrape)\n- `uv run superclaude eval list --json` \u2192 exit 0; eval_smoke present (v1.0, 3 evals).\n- `uv run superclaude eval describe --suite eval_smoke` \u2192 exit 0; ES1/ES2/ES3, each `no_pty: skip`, ephemeral HOME.\n- Non-interactive: menu I would have shown = A (--no-pty CI-canary skip), B (real run under FR-G5 empty-HOME workaround, DEFAULT), C (show gate fire, then B). Chose C then B.\n\n## Gotchas surfaced\n1. FR-G5 coverage gate (exit 2): host has /config/.claude/settings.json; eval_smoke covers none of its matchers.\n   `uv run superclaude eval run --suite eval_smoke --no-mcp --json` \u2192 exit 2:\n     coverage gate FAILED \u2014 uncovered: PostToolUse mcp__auggie__.* (and 2 wider variants).\n   Exit 2 = harness/usage gate, NOT an eval failure, NOT a pass.\n   Workaround (empty HOME = no matchers):\n     TMPHOME=$(mktemp -d) && HOME=$TMPHOME uv run superclaude eval run --suite eval_smoke --no-mcp --json; rm -rf \"$TMPHOME\"  \u2192 exit 0\n2. --no-pty \u2192 SKIPPED: all 3 evals are no_pty:skip, so --no-pty short-circuits the whole suite to SKIPPED (not a pass). Omitted --no-pty; handled FR-G5 via the workaround instead.\n\n## Outcome (parsed from on-disk summary.json \u2014 machine truth)\nRun-dir: .dev/eval-runs/2026-06-12/134335Z-07aca9f1/   (FR-G4 layout intact: summary.{md,json,yaml} + per-eval/ES{1,2,3}/artifacts/ + empty homes/)\n| Eval | Status | Duration | skip_reason | error_class |\n| ES1  | PASS   | 0.0s     | -           | -           |\n| ES2  | PASS   | 0.0s     | -           | -           |\n| ES3  | PASS   | 0.0s     | -           | -           |\ncounts: manifest_n=3, expanded_n_prime=3, kept_k=3, skipped_s=0 (invariant holds)\ntotals: 3 passed / 0 failed / 0 skipped / 0 errored / 0 interrupted / 0 timeout\nProcess exit code: 0 (clean). Preserved failed-HOME paths: NONE (no non-PASS eval; homes/ empty, expected for all-PASS without --keep-home).\n\n## Honesty caveat \u2014 NOT an authoritative pass\nProduction PTY executor lands at M5/M6 and is NOT on disk. Current harness uses _NullLifecycleExecutor (canned exit 0), so the 3 PASSes are the plumbing path, not real eval execution. A --verbose re-run surfaced:\n  eval run: WARNING: _NullLifecycleExecutor active \u2014 run results MUST NOT be treated as authoritative.\n(--json suppresses that warning by design; re-ran --verbose specifically to surface it.)\n\n## Bottom line\nSelected via CLI; supervised across 3 bounded runs. FR-G5 fired (exit 2) as predicted; empty-HOME workaround cleared it (exit 0). summary.json = 3/3 PASS, exit 0 \u2014 a clean harness/plumbing run, NOT yet an authoritative eval pass (needs M5/M6 PTY executor). All-SKIPPED --no-pty path is likewise not a pass.\n\n## Run-dirs created\n- .dev/eval-runs/2026-06-12/134326Z-1d7a5f28/  \u2014 FR-G5 abort (no summary)\n- .dev/eval-runs/2026-06-12/134335Z-07aca9f1/  \u2014 workaround run (--json); summary present\n- .dev/eval-runs/2026-06-12/134348Z-3b12db34/  \u2014 workaround run (--verbose); summary present\n"}, {"name": "trace.md", "type": "text", "content": "# Trace \u2014 /sc:cli-eval run --suite eval_smoke (with_skill, iteration-1)\n\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\nDate: 2026-06-12. Non-interactive subagent: AskUserQuestion replaced by stated-menu + sensible default.\nPipeline selected: **run** (`$1 = run`).\n\n---\n\n## Wave 0 \u2014 Mandatory fresh-context load (citations)\n\nRe-read the live eval CLI/contract surface directly (the protocol delegates this to the\n`eval-docs-loader` agent; as a subagent I performed the reads and cite them here). Authority for\nevery flag/field below is these reads, not a remembered contract.\n\n| Concern | Source read | Cited fact |\n|---|---|---|\n| `eval` subcommands + flags | `src/superclaude/cli/eval/commands.py` | `@click.group(\"eval\")` (L762) with `doctor` (L767), `list` (L924), `describe` (L1205), `run` (L1553). `eval run` flags: `--suite` (required), `--parallel` (default `RunOrchestrator.DEFAULT_PARALLEL`, clamp 1..15 L1692-1695), `--eval` (repeatable), `--no-mcp`, `--no-pty`, `--output-dir`, `--keep-home`, `--timeout-mult` (default 1.0, must be >0 L1697), `--max-disk-mb` (default `DEFAULT_DISK_BUDGET_MB`, 0 disables), `--json`, `--verbose`, `--junit`. |\n| Exit codes | `src/superclaude/cli/eval/exit_codes.py` | `SUCCESS=0`, `FAILURES=1`, `USAGE_ERROR=2` (operator misuse / harness / FR-G5), `INTERRUPTED=3`. |\n| `eval run` exit map | `commands.py` L1678-1687, L1989-2004 | 0 = all PASS/SKIPPED/XFAIL no breach; 1 = any FAIL/ERRORED/TIMEOUT/XPASS; 2 = harness rejection (scratch-root, suite-not-found, disk-budget, FR-G5); 3 = interrupted. |\n| FR-G5 coverage gate | `commands.py` L1813-1829 | Runs BEFORE worker dispatch: `coverage_gate(settings_path=~/.claude/settings.json, suite=specs, ...)`; on `not coverage.passed` prints uncovered-matcher roster to stderr and `sys.exit(COVERAGE_GATE_FAILED_EXIT_CODE)` (=2). Missing/unreadable settings.json \u21d2 empty matcher set \u21d2 green. |\n| `--no-pty` \u2192 SKIPPED | `commands.py` L1887-1905 | In `run_one`: `if no_pty and spec.no_pty == \"skip\": return EvalOutcome(status=\"SKIPPED\", skip_reason=\"--no-pty\", skip_flag_triggered=\"--no-pty\")` before any HOME setup. |\n| **M2 null-executor** | `commands.py` L1357-1404 (`_NullLifecycleExecutor`, `_resolve_executor_factory`) | Production PTY executor (ClaudeProcessAdapter + PtyDriver) lands at M5/M6 and is NOT on disk. Current factory returns `_NullLifecycleExecutor` which returns canned `exit_code=0`. L1879-1885: emits stderr `WARNING: _NullLifecycleExecutor active \u2014 run results MUST NOT be treated as authoritative` **only when `not as_json`** (the `--json` guard suppresses it). |\n| summary.json schema + status enum | `src/superclaude/cli/eval/models.py` | `RunSummary` 11 fields (L820-832); `RunCounts` (manifest_n/expanded_n_prime/kept_k/skipped_s/flag); `RunTotals` (passed/failed/skipped/errored/interrupted/timeout); `EvalOutcome` 9 fields incl. `status`, `skip_reason`, `artifacts`, `error_class`. `EVAL_STATUSES` 8-literal enum (L49-62): PASS/FAIL/ERRORED/TIMEOUT/INTERRUPTED/SKIPPED/XFAIL/XPASS. SKIPPED \u2260 PASS. |\n| Artifact layout + run-id | `src/superclaude/cli/eval/artifact_layout.py` | `<output_root>/.dev/eval-runs/<YYYY-MM-DD>/<run-id>/` (L76 `RUN_DIR_PREFIX`); run-id = `<HHMMSSZ>-<8hex sha256(suite+\\n+started_at)>` (L151-171). Output root defaults to `Path.cwd()` (`commands.py` `_default_output_dir` L1331-1339), independent of `$HOME`. |\n| HOME preservation | `commands.py` L1606-1614, runner wiring | `--keep-home` preserves per-eval HOME on PASS (default removes). Non-PASS evals keep HOME for forensics; path surfaces in that eval's `artifacts{}`. |\n| Suite manifest + gotchas | `suites/eval_smoke.yaml`, `docs/eval/suites-guide.md` | eval_smoke v1.0, 3 evals (ES1/ES2/ES3), all `no_pty: skip`, `ephemeral` HOME. suites-guide \u00a7preflight confirms FR-G5 gate semantics + per-suite workarounds. |\n\n**Host preconditions probed (Bash, read-only):**\n- Platform = `Linux` \u21d2 doctor will not refuse (AC1/R-109 Linux-only).\n- `claude` = `2.1.175` at `/config/.local/bin/claude` \u2265 0.5.0 (HARD ok); `~/.claude/` present.\n- **`~/.claude/settings.json` EXISTS** at `/config/.claude/settings.json` \u21d2 FR-G5 gate is LIVE and will fire for `eval_smoke` (no covering matchers).\n\nGate check: no canonical source missing/moved. Digest complete. Proceeding.\n\n---\n\n## W1 \u2014 Enumerate via CLI\n\n```\nuv run superclaude eval list --json        # exit 0\n```\n12 suites returned; `eval_smoke` present: `{\"name\":\"eval_smoke\",\"version\":\"1.0\",\"eval_count\":3}`. Menu sourced from CLI, not a dir scrape.\n\n## W2 \u2014 Describe eval_smoke\n\n```\nuv run superclaude eval describe --suite eval_smoke    # exit 0\n```\nConfirmed ES1/ES2/ES3, each `no_pty: skip`, `isolation.home_strategy: ephemeral`, `timeout_sec` 60/60/120.\n\n## W3 \u2014 Invocation + gotchas (menu I would have shown; default chosen)\n\nAskUserQuestion suppressed (non-interactive). Menu I would have presented:\n- **A** \u2014 CI-canary skip: `eval run --suite eval_smoke --no-pty --no-mcp --json` \u2192 all-SKIPPED (NOT pass).\n- **B (DEFAULT)** \u2014 real run under FR-G5 empty-HOME workaround: `TMPHOME=$(mktemp -d) HOME=$TMPHOME uv run superclaude eval run --suite eval_smoke --no-mcp ...; rm -rf \"$TMPHOME\"`.\n- **C** \u2014 real run WITHOUT workaround first (demonstrate exit-2 gate), then B.\n\nChosen: **C then B** (forensic: show the gate fire, then clear it). All commands bounded with `timeout 180`.\n\n## W4 \u2014 Monitor live runs (bounded foreground; runs are sub-second under M2 null-executor)\n\n| # | Command | Exit | Result |\n|---|---|---|---|\n| 1 | `uv run superclaude eval run --suite eval_smoke --no-mcp --json` (no workaround) | **2** | FR-G5 coverage gate FAILED \u2014 stderr named uncovered PostToolUse matchers (`mcp__auggie__.*`, ...). No summary.json written (aborted pre-dispatch). |\n| 2 | `env HOME=$TMPHOME uv run superclaude eval run --suite eval_smoke --no-mcp --json` | **0** | Gate cleared (empty HOME = no matchers). summary.json written. `--json` suppressed the null-executor WARNING. |\n| 3 | `env HOME=$TMPHOME uv run superclaude eval run --suite eval_smoke --no-mcp --verbose` | **0** | stderr emitted `WARNING: _NullLifecycleExecutor active \u2014 run results MUST NOT be treated as authoritative`. verbose line: `3P/0F/0S/0E/0I/0T`. |\n\nRun #1 stderr (forensic):\n```\neval doctor: coverage gate FAILED \u2014 uncovered matcher patterns:\n  - PostToolUse: mcp__auggie__.*\n  - PostToolUse: mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*\n  - PostToolUse: mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*\n```\n\n## W5 \u2014 Parse summary.json (machine truth, NOT scrollback)\n\nRun-dir (run #2): `.dev/eval-runs/2026-06-12/134335Z-07aca9f1/`\n`jq` over `summary.json`:\n- `counts`: manifest_n=3, expanded_n_prime=3, kept_k=3, skipped_s=0, kept_plus_skipped_equals_n_prime=true.\n- `totals`: passed=3, failed=0, skipped=0, errored=0, interrupted=0, timeout=0.\n- Per-eval: ES1/ES2/ES3 all `status:PASS`, `duration_sec:0.0`, `skip_reason:null`, `error_class:null`, `artifacts:{}`.\n- FR-G4 layout intact: `summary.{md,json,yaml}` + `per-eval/ES{1,2,3}/artifacts/` + empty `homes/`.\n- Preserved failed-HOMEs: NONE (no non-PASS eval; `homes/` empty, consistent with all-PASS + no `--keep-home`).\n\n**Honesty note:** the 3/3 PASS is the **M2 `_NullLifecycleExecutor` canned-exit-0 path**, surfaced by the run #3 WARNING. It is NOT an authoritative validation of the ES1-ES3 prompts (no Claude subprocess ran). Reported as a clean harness/plumbing run, not a substantive green.\n\n## Run-dirs produced\n- `.dev/eval-runs/2026-06-12/134326Z-1d7a5f28/` \u2014 run #1, FR-G5 abort, no summary.\n- `.dev/eval-runs/2026-06-12/134335Z-07aca9f1/` \u2014 run #2 (`--json`), summary present.\n- `.dev/eval-runs/2026-06-12/134348Z-3b12db34/` \u2014 run #3 (`--verbose`), summary present.\n"}], "eval-1-without_skill-run-1": [{"name": "report.md", "type": "text", "content": "# Report \u2014 `eval_smoke` run (what happened)\n\n## TL;DR\n\nI selected and ran the **`eval_smoke`** suite through the `superclaude eval` CLI. It **did not run any of its 3 evals** \u2014 the run stopped at a precondition gate and exited with **code 2** (harness-level rejection). The cause is a configuration mismatch on this host, not a bug in the suite or the evals.\n\n## How I selected and supervised the run\n\n1. **Discovered the surface**: `superclaude eval --help` \u2192 subcommands `list`, `describe`, `doctor`, `run`.\n2. **Confirmed the suite exists**: `superclaude eval list` showed `eval_smoke (version 1.0, 3 evals)`.\n3. **Read what it does**: `superclaude eval describe --suite eval_smoke`. The 3 evals (ES1/ES2/ES3) drive the `claude` CLI to run `eval doctor`, `eval list`, and `eval run --suite real` and assert on their stdout/exit codes. The suite uses a PTY (`capture_tty: true`) and each eval is marked `no_pty: skip`.\n4. **Checked preconditions**: `superclaude eval doctor --json` \u2192 no hard failures (claude 2.1.175, make, jq, git all present). Three soft skips, including the PTY harness not being vendored.\n5. **Ran it (supervised, backgrounded with a log + timeouts)**: `superclaude eval run --suite eval_smoke --output-dir .dev/eval-runs/eval_smoke-iter1 --junit --json --verbose`.\n\n## What happened\n\nThe run halted **before executing a single eval**, with this on stderr and **exit code 2**:\n\n```\neval doctor: coverage gate FAILED \u2014 uncovered matcher patterns:\n  - PostToolUse: mcp__auggie__.*\n  - PostToolUse: mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*\n  - PostToolUse: mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*\n```\n\n### Why (root cause)\n\nThe `eval run` path enforces an **FR-G5 hook-matcher coverage gate** before dispatching any work. It reads `~/.claude/settings.json`, finds every MCP-prefixed `PostToolUse` hook matcher registered there, and requires that **at least one eval in the suite exercises each matcher**. This host's `settings.json` registers three `auggie` PostToolUse matchers, but the three CLI-smoke evals never touch auggie MCP tools \u2014 so all three matchers are \"uncovered\" and the gate fails closed.\n\nI confirmed this is a configuration mismatch, not a transient issue:\n- `--no-mcp` does **not** help \u2014 the gate reads the *static hook registrations* in settings.json, not MCP runtime availability. Re-running with `--no-mcp` produced the identical failure (exit 2).\n- The run directory contains **only** coverage artifacts (`coverage_missing:<pattern>.json`, one per uncovered matcher) and **no per-eval HOME directories**, proving the gate short-circuited before any eval ran.\n\n### Two other things worth knowing\n\nThese wouldn't have mattered today (the gate stops the run first), but they shape what a \"successful\" run looks like at the current milestone:\n- **No PTY harness yet**: `eval doctor` flags `vendored.ptytest` as not present (\"vendored at M2\"), and every eval has `no_pty: skip`.\n- **Null executor at M2**: the run's executor factory returns a `_NullLifecycleExecutor` (the real `claude`-driving PTY executor lands at M5/M6). So even past the gate, the evals would currently run through a stubbed executor / be skipped rather than truly driving `claude`.\n\n## Bottom line\n\n- **Suite selected:** `eval_smoke` (3 evals).\n- **Result:** 0 evals ran; **exit 2** at the FR-G5 coverage gate.\n- **Cause:** host `~/.claude/settings.json` registers 3 auggie `PostToolUse` hook matchers that the smoke suite doesn't cover. Read-only constraint honored \u2014 nothing modified to \"make it pass.\"\n\n### To actually get the suite green (operator choices \u2014 not done here, would require write access)\n\n1. Add a smoke eval that exercises an auggie MCP tool so the registered matchers are covered; **or**\n2. Run on a host whose `settings.json` has no uncovered MCP `PostToolUse` matchers; **and**\n3. Once the M5/M6 PTY executor + vendored `ptytest` land, run with the PTY harness (not `--no-pty`, which would skip the suite) so the evals truly drive the `claude` CLI.\n"}, {"name": "run.log", "type": "binary", "mime": "application/octet-stream", "data_uri": "data:application/octet-stream;base64,d2FybmluZzogYFZJUlRVQUxfRU5WPS9sc2lvcHlgIGRvZXMgbm90IG1hdGNoIHRoZSBwcm9qZWN0IGVudmlyb25tZW50IHBhdGggYC52ZW52YCBhbmQgd2lsbCBiZSBpZ25vcmVkOyB1c2UgYC0tYWN0aXZlYCB0byB0YXJnZXQgdGhlIGFjdGl2ZSBlbnZpcm9ubWVudCBpbnN0ZWFkCmV2YWwgZG9jdG9yOiBjb3ZlcmFnZSBnYXRlIEZBSUxFRCDigJQgdW5jb3ZlcmVkIG1hdGNoZXIgcGF0dGVybnM6CiAgLSBQb3N0VG9vbFVzZTogbWNwX19hdWdnaWVfXy4qCiAgLSBQb3N0VG9vbFVzZTogbWNwX19hdWdnaWVfXy4qfG1jcF9fYWlyaXMtbWNwLWdhdGV3YXlfX2F1Z2dpZV8uKgogIC0gUG9zdFRvb2xVc2U6IG1jcF9fYXVnZ2llX18uKnxtY3BfX2F1Z2dpZS1tY3BfXy4qfG1jcF9fYWlyaXMtbWNwLWdhdGV3YXlfX2F1Z2dpZV8uKgo="}, {"name": "trace.md", "type": "text", "content": "# Trace \u2014 Running the `eval_smoke` suite (baseline / without_skill)\n\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\nDate: 2026-06-12\nGoal: select and supervise a run of the `eval_smoke` suite via the `superclaude eval` CLI, then report what happened.\n\nAll Python invoked through UV. Every shell command capped with `timeout`. No source files modified (read-only except this outputs dir).\n\n---\n\n## Step 1 \u2014 Discover the eval surface\n\n```\nmkdir -p .dev/eval-workspaces/cli-eval/iteration-1/run-eval-smoke/without_skill/outputs/\nuv run superclaude eval --help\n```\nExit code: **0**\n\nSubcommands: `describe`, `doctor`, `list`, `run`. Harness = \"the cliEval real-eval harness\".\n\n## Step 2 \u2014 Enumerate suites and read the run contract\n\n```\nuv run superclaude eval list          # EXIT 0\nuv run superclaude eval run --help     # EXIT 0\n```\n\n`eval list` confirmed `eval_smoke (version 1.0, 3 evals)` is present (12 suites total).\n\n`run --help` documented the exit-code contract:\n- `0` \u2014 every eval reached PASS / SKIPPED / XFAIL, no breach.\n- `1` \u2014 at least one FAIL / ERRORED / TIMEOUT / XPASS.\n- `2` \u2014 harness-level rejection (invalid flag, scratch-root violation, suite not found, disk-budget exceeded, **coverage-gate failure**).\n- `3` \u2014 operator interrupt (SIGINT/SIGTERM).\n\nNotable flags: `--suite` (required), `--parallel` (default 8), `--output-dir` (AC12 scratch-root allowlisted), `--no-mcp`, `--no-pty`, `--junit`, `--json`, `--verbose`.\n\n## Step 3 \u2014 Inspect the `eval_smoke` manifest\n\n```\nuv run superclaude eval describe --suite eval_smoke\n```\nExit code: **0**\n\nThe suite drives the `claude` CLI to execute three CLI-smoke prompts:\n- **ES1** \u2014 `superclaude eval doctor --json --no-mcp` reports capabilities (expects stdout contains `\"capabilities\"`, exit 0).\n- **ES2** \u2014 `superclaude eval list --json` enumerates manifests (expects `\"name\": \"real\"`, exit 0).\n- **ES3** \u2014 `superclaude eval run --suite real --no-pty --no-mcp --junit --json` skips all real evals and emits artifacts (expects `summary.json`, exit 0).\n\nSuite defaults: `capture_tty: true`, `per_eval_timeout_sec: 120`. Every eval carries `no_pty: skip` (running with `--no-pty` skips the whole suite). Required hard binaries: `claude (>=0.5.0)`, `jq`, `make`, `git`.\n\n## Step 4 \u2014 Preconditions check (`eval doctor`)\n\n```\nuv run superclaude eval doctor --json\nwhich claude; claude --version\n```\nExit code: **0**\n\n- All HARD rows PASS: `claude` = `/config/.local/bin/claude` (v2.1.175), `make`, `jq`, `git` all on PATH; `~/.claude/` exists.\n- `hard_failures: []`.\n- Soft skips (non-blocking): `mcp_server.auggie-mcp`, `mcp_server.airis-mcp-gateway`, **`vendored.ptytest`** (PTY harness not vendored \u2014 `src/superclaude/cli/eval/pty/__init__.py` not found, \"vendored at M2\").\n\n## Step 5 \u2014 First launch attempt (rejected: scratch-root)\n\n```\nuv run superclaude eval run --suite eval_smoke --parallel 3 \\\n  --output-dir .dev/eval-workspaces/.../outputs/eval-run --junit --json --verbose\n```\nExit code: **2**\n\nRejected with `ScratchRootViolation`: the required outputs path under `.dev/eval-workspaces/` escapes the AC12 allowlist. Allowed roots are only `/tmp/eval-runs/`, `<repo>/.dev/eval-runs/`, or a path passed via `--output-dir` (call-scoped extension). Reference: `docs/eval/scratch-roots.md`.\n\n**Decision:** point `--output-dir` at the allowed `<repo>/.dev/eval-runs/eval_smoke-iter1` scratch root; the required `outputs/` dir receives this trace + report + the run log.\n\n## Step 6 \u2014 Second launch (past scratch-root, blocked by coverage gate)\n\n```\nmkdir -p .dev/eval-runs/eval_smoke-iter1\nuv run superclaude eval run --suite eval_smoke --parallel 3 \\\n  --output-dir .dev/eval-runs/eval_smoke-iter1 --junit --json --verbose\n```\nExit code: **2**\n\nOutput:\n```\neval doctor: coverage gate FAILED \u2014 uncovered matcher patterns:\n  - PostToolUse: mcp__auggie__.*\n  - PostToolUse: mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*\n  - PostToolUse: mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*\n```\n\n## Step 7 \u2014 Root-cause the coverage-gate failure (read-only)\n\nRead `src/superclaude/cli/eval/commands.py` (run path) and `src/superclaude/cli/eval/coverage.py`:\n- The **FR-G5 hook-matcher coverage gate** (`coverage_gate(...)`, commands.py ~L1822) runs **before any worker dispatch**, with **no skip flag** in `run`.\n- It reads `~/.claude/settings.json`, extracts PostToolUse hook matchers matching the MCP-tool-prefix filter, and requires that **some eval in the suite reference each such matcher**.\n- The host's `settings.json` registers three auggie PostToolUse matchers; the three CLI-smoke evals don't touch auggie MCP tools, so all three matchers are uncovered \u2192 gate fails \u2192 exit 2.\n\nConfirmed host matchers:\n```\njq -r '.hooks.PostToolUse[]?.matcher' /config/.claude/settings.json | grep -i auggie\n# mcp__auggie__.*\n# mcp__auggie__.*|mcp__airis-mcp-gateway__auggie_.*\n# mcp__auggie__.*|mcp__auggie-mcp__.*|mcp__airis-mcp-gateway__auggie_.*\n```\n\n## Step 8 \u2014 Reconfirm with `--no-mcp` (gate still fails)\n\n```\nuv run superclaude eval run --suite eval_smoke --output-dir .dev/eval-runs/eval_smoke-iter1 --no-mcp\n```\nExit code: **2** (identical three uncovered patterns).\n\n`--no-mcp` marks MCP *capabilities* as skipped but does NOT relax the coverage gate, which reads the static hook registrations in `settings.json`, not MCP runtime availability.\n\n## Step 9 \u2014 Inspect run-dir artifacts + confirm null executor\n\n```\nfind .dev/eval-runs/eval_smoke-iter1/.dev -type f\ngrep -n \"_NullLifecycleExecutor|produces_null_executor|_resolve_executor_factory\" src/superclaude/cli/eval/commands.py\n```\n\n- Run dir contains ONLY a coverage-artifact subtree (`coverage_missing:<pattern>` JSON files, one per uncovered matcher) under timestamped run folders. **No per-eval HOME directories were created** \u2014 confirming the gate short-circuits before any eval executes.\n- `_resolve_executor_factory()` returns a `_NullLifecycleExecutor` tagged `produces_null_executor = True` (\"vendored at M2\"; real `ClaudeProcessAdapter + PtyDriver` lands at M5/M6). So even past the gate, every eval would run through a null runner and the missing PTY harness (`vendored.ptytest` soft-skip + per-eval `no_pty: skip`) would skip them.\n\nSample artifact (`coverage_missing:mcp__auggie__._`):\n```json\n{ \"coverage_missing\": true, \"covered_by\": [], \"event\": \"PostToolUse\",\n  \"pattern\": \"mcp__auggie__.*\", \"settings_source\": \"/config/.claude/settings.json\" }\n```\n\n---\n\n## Outcome\n\nThe `eval_smoke` suite **did not execute any of its 3 evals**. The run halts at the FR-G5 hook-matcher coverage gate with **exit code 2** (harness-level rejection), because the host's `~/.claude/settings.json` registers three auggie PostToolUse hook matchers that no smoke-suite eval covers. This is a host/suite configuration mismatch, not a defect in the eval logic. No source files or settings were modified (read-only constraint honored).\n"}], "eval-2-with_skill-run-1": [{"name": "eval_cli_doc_parity.yaml", "type": "text", "content": "# yaml-language-server: $schema=./suite.schema.json\n#\n# eval_cli_doc_parity \u2014 doc\u21c6CLI flag-parity gate for `superclaude eval run`.\n#\n# CADENCE (operator-facing metadata; not enforced by the eval framework):\n#   - On every PR touching the `eval run` Click option block in\n#     src/superclaude/cli/eval/commands.py, or the FR-CLI1 flag references in\n#     docs/eval/suites-guide.md.\n#   - Nightly via the CI scheduled job alongside the rest of the cliEval roster.\n#\n# WHAT THIS SUITE GUARDS:\n#   The documented `superclaude eval run` flag surface stays in sync with the\n#   flags the CLI actually exposes. `eval run`'s docstring advertises \"the twelve\n#   FR-CLI1 flags\" and docs/eval/suites-guide.md references each of them. If a\n#   flag is renamed/removed/dropped from `--help` by a refactor of the Click\n#   option block, the docs silently drift and operators paste invocations that\n#   error out. These evals diff the LIVE `superclaude eval run --help` text against\n#   the twelve documented flag long-names and assert each is present.\n#\n# WHY home_strategy=ephemeral:\n#   `superclaude eval run --help` reads nothing from $HOME or the working tree and\n#   exits 0 with no MCP/HOME state. The default ephemeral HOME is correct and keeps\n#   the suite fully host-independent.\n#\n# WHY no_pty=skip:\n#   The PTY harness drives a Claude Code subprocess; matching the rest of the eval\n#   inventory keeps `--no-pty` semantics uniform across suites.\n#\n# Evidence (fresh-context, captured at authoring time):\n#   - `superclaude eval run --help` (live, exit 0) enumerated exactly twelve\n#     options: --suite, --parallel, --eval, --no-mcp, --no-pty, --output-dir,\n#     --keep-home, --timeout-mult, --max-disk-mb, --json, --verbose, --junit; and\n#     rendered --suite as [required].\n#   - House style (eval_smoke.yaml / installer_sync_drift.yaml): inputs[].prompt\n#     carries the Claude prompt; expects[] is a list of single-key objects\n#     ({stdout:{contains:...}}, {exit_code:{equals:0}}).\nname: eval_cli_doc_parity\nversion: \"1.0\"\ndescription: \"Doc\u21c6CLI flag-parity gate: asserts the twelve documented `superclaude eval run` flags stay in sync with `superclaude eval run --help`. Cadence: on-PR + nightly.\"\n\ndefaults:\n  per_eval_timeout_sec: 120\n  per_eval_memory_mb: 512\n  capture_tty: true\n  keep_home_on_success: false\n\nrequired_binaries:\n  - { name: claude, min_version: \"0.5.0\", failure_mode: hard }\n  - { name: git,                          failure_mode: hard }\n\noptional_capabilities: []\n\nevals:\n  - id: DP1\n    title: \"eval run --help exposes the core safety flags (--suite/--no-pty/--no-mcp/--json)\"\n    category: doc-parity\n    requires: []\n    timeout_sec: 60\n    isolation:\n      home_strategy: ephemeral\n    no_pty: skip\n    # DP1 \u2014 drive `superclaude eval run --help` and assert the four most\n    # operator-load-bearing documented flags appear in the help text. These are\n    # the flags the suites-guide.md \"safest dry-run shape\" line depends on\n    # (`--suite <name> --no-pty --no-mcp --json`). --help exits 0 without HOME or\n    # MCP state, so the assertions are host-independent. Split from DP2 so a\n    # failure localizes which half of the flag surface drifted.\n    inputs:\n      - prompt: \"Run `superclaude eval run --help` via the Bash tool and print the full stdout verbatim. This is read-only; do not modify anything.\"\n        expect_tool_call: Bash\n    expects:\n      - exit_code:\n          equals: 0\n      - stdout:\n          contains: \"--suite\"\n      - stdout:\n          contains: \"--no-pty\"\n      - stdout:\n          contains: \"--no-mcp\"\n      - stdout:\n          contains: \"--json\"\n\n  - id: DP2\n    title: \"eval run --help exposes the remaining documented FR-CLI1 flags\"\n    category: doc-parity\n    requires: []\n    timeout_sec: 60\n    isolation:\n      home_strategy: ephemeral\n    no_pty: skip\n    # DP2 \u2014 drive the same `superclaude eval run --help` and assert the remaining\n    # eight of the twelve documented FR-CLI1 flags appear: --eval, --parallel,\n    # --keep-home, --timeout-mult, --max-disk-mb, --output-dir, --junit, --verbose.\n    # Together with DP1's four, this pins the full twelve-flag surface advertised\n    # by the `eval run` docstring and referenced throughout suites-guide.md.\n    inputs:\n      - prompt: \"Run `superclaude eval run --help` via the Bash tool and print the full stdout verbatim. This is read-only; do not modify anything.\"\n        expect_tool_call: Bash\n    expects:\n      - exit_code:\n          equals: 0\n      - stdout:\n          contains: \"--eval\"\n      - stdout:\n          contains: \"--parallel\"\n      - stdout:\n          contains: \"--keep-home\"\n      - stdout:\n          contains: \"--timeout-mult\"\n      - stdout:\n          contains: \"--max-disk-mb\"\n      - stdout:\n          contains: \"--output-dir\"\n      - stdout:\n          contains: \"--junit\"\n      - stdout:\n          contains: \"--verbose\"\n\n  - id: DP3\n    title: \"eval run --help still marks --suite as [required] (contract guard)\"\n    category: doc-parity\n    requires: []\n    timeout_sec: 60\n    isolation:\n      home_strategy: ephemeral\n    no_pty: skip\n    # DP3 \u2014 drive `superclaude eval run --help` and assert the `--suite` option is\n    # still rendered as `[required]`. This is the documented contract (a suite must\n    # always be named) and distinguishes a real Click option line from incidental\n    # prose: the `[required]` marker only appears on a genuine required option.\n    # Catches the regression where `--suite` loses `required=True` (which would\n    # silently change the documented invocation contract while keeping the long\n    # name present, so DP1 alone would not catch it).\n    inputs:\n      - prompt: \"Run `superclaude eval run --help` via the Bash tool and print the full stdout verbatim. This is read-only; do not modify anything.\"\n        expect_tool_call: Bash\n    expects:\n      - exit_code:\n          equals: 0\n      - stdout:\n          contains: \"[required]\"\n"}, {"name": "trace.md", "type": "text", "content": "# Trace \u2014 create `eval_cli_doc_parity` suite (with_skill)\n\nPipeline: `/sc:cli-eval create` (skill `sc:cli-eval-protocol`). Subagent run; the\nnesting-limited steps (`/sc:spec-panel`, `/sc:adversarial`) are described, not\nexecuted (cannot fan out further from a subagent).\n\n## Wave 0 \u2014 Mandatory fresh-context load (CITED)\n\nRe-read the live contract surface before authoring (no reasoning from memory):\n\n1. `src/superclaude/commands/cli-eval.md` \u2014 command shape, create pipeline steps,\n   `--name` must equal `name:`.\n2. `src/superclaude/skills/sc-cli-eval-protocol/SKILL.md` \u2014 W1..W6 create flow;\n   done-ness = `eval describe` exit 0 + appears in `eval list --json`; only\n   schema-known keys; meaningful assertions (not just exit_code 0).\n3. `refs/create-pipeline.md` \u2014 per-step detail; design artifacts under\n   `.dev/eval-workspaces/cli-eval/design/`.\n4. `refs/eval-contracts.md` \u2014 reading-aid map (digest is authority).\n5. `src/superclaude/cli/eval/suites/suite.schema.json` \u2014 top-level required:\n   name, version, description, defaults, required_binaries, optional_capabilities,\n   evals; `additionalProperties:false`. eval entry requires `id`+`title`; optional\n   `category/requires/timeout_sec/isolation/inputs/expects/parameterize/no_pty`.\n   id regex `^[A-Z][A-Za-z0-9]*([0-9]+(\\.[0-9]+)?)?$`; version regex\n   `^[0-9]+\\.[0-9]+(\\.[0-9]+)?$`; `no_pty` enum only `\"skip\"`;\n   `isolation.home_strategy` \u2208 {ephemeral,seeded,shared}.\n6. `src/superclaude/cli/eval/suites/eval_smoke.yaml` \u2014 house style: `inputs[].prompt`\n   carries the Claude prompt; `expects[]` is a list of single-key objects\n   (`{stdout:{contains:...}}`, `{exit_code:{equals:0}}`); `# yaml-language-server`\n   schema header line; `no_pty: skip` per entry.\n7. `src/superclaude/cli/eval/suites/installer_sync_drift.yaml` \u2014 house style:\n   `inputs[].prompt` + optional `expect_tool_call: Bash`; `expects[]` supports\n   `{stdout:{not_contains:...}}`; CADENCE/WHAT/WHY comment headers.\n8. `src/superclaude/cli/eval/suites/README.md` \u2014 filename rules: `.yaml`,\n   snake_case stem, stem == `name:`.\n\n### Live CLI surface (load-bearing \u2014 the parity contract guards THIS)\n\nCommand: `timeout 180 uv run superclaude eval run --help`  \u2192 **EXIT=0**\nEnumerated exactly twelve options (the documented FR-CLI1 set):\n`--suite` (required), `--parallel`, `--eval`, `--no-mcp`, `--no-pty`,\n`--output-dir`, `--keep-home`, `--timeout-mult`, `--max-disk-mb`, `--json`,\n`--verbose`, `--junit`. Docstring text: \"the twelve FR-CLI1 flags\". `--suite`\nrendered with the `[required]` marker.\n\nCommand: `grep ... commands.py` (option block) \u2014 confirmed the options are real\nClick options on the `eval run` group, not prose.\n\nSupporting docs grep: `docs/eval/suites-guide.md` references the same flags\n(`--suite`, `--no-pty`, `--no-mcp`, `--json`, `--keep-home`, `--timeout-mult`,\n`--max-disk-mb`, `--eval`, `--parallel`) \u2014 confirms these are the *documented*\nsurface the eval must keep in sync.\n\n## W1 \u2014 Design spec\nWrote `.dev/eval-workspaces/cli-eval/design/eval_cli_doc_parity-spec.md` (guard\ntarget, scenarios\u2192evals DP1/DP2/DP3, ephemeral isolation, capabilities, cadence,\nassertion strategy, Wave-0 citations).\n\n## W2 \u2014 Critique (DESCRIBED \u2014 nesting limit)\nWould invoke: `Skill sc:spec-panel @eval_cli_doc_parity-spec.md --mode critique\n--focus requirements,architecture`. Expected critique + folded resolution:\nsubstring-on-long-name could match prose \u2192 mitigated by DP3's `[required]` guard\n(only appears on a genuine required option); DP1/DP2 split kept for failure\nlocalization; substring on `--flag` tokens is stable across Click/rich-click\nreflows. Folded in: keep split + DP3.\n\n## W3 \u2014 Competing designs + debate/merge (DESCRIBED \u2014 nesting limit)\nWould invoke: `Skill sc:adversarial-protocol --source eval_cli_doc_parity-spec.md\n--generate eval-suite --agents opus,sonnet,haiku`. Three variants:\n(A) single eval, all 12 flags in one contains chain \u2014 loses localization;\n(B) 3-eval split DP1/DP2/DP3 \u2014 failure-localizing + `[required]` contract guard;\n(C) parameterize one-eval-per-flag (12 expanded) \u2014 verbose, FR-SCH2 id-regex risk\non generated ids. Merge verdict: **B** (chosen). Proceeded with B.\n\n## W4 \u2014 Author schema-first\nWrote `src/superclaude/cli/eval/suites/eval_cli_doc_parity.yaml`. stem == `name:`\n== `eval_cli_doc_parity`. Only schema-known keys. Three evals (DP1/DP2/DP3) each\ndrive `superclaude eval run --help` via Bash and assert documented flags present;\n`expect_tool_call: Bash`; `no_pty: skip`; `home_strategy: ephemeral`.\n\n## W5 \u2014 Validate (done-ness gate)\n\nCommand: `timeout 180 uv run superclaude eval describe --suite eval_cli_doc_parity`\n\u2192 **EXIT=0** (rendered the full validated manifest; loader accepted it).\n\nCommand: `timeout 180 uv run superclaude eval list --json | <filter>`\n\u2192 **EXIT=0**, suite discovered: `{\"name\":\"eval_cli_doc_parity\",\"version\":\"1.0\",\"eval_count\":3}`.\n\nBoth halves of the done-ness gate pass. No fix loop needed (validated on first\nauthor pass).\n\n## W6 \u2014 Document (NOT executed)\nOut of scope for this subagent run (task said: do not touch other source files;\ndeliverable is the suite + validation). Docs inventory updates\n(`docs/eval/suites-guide.md`, `suites/README.md`) noted as the follow-up the full\ncreate pipeline performs.\n\n## Outputs written\n- `eval_cli_doc_parity.yaml` (copy of the authored manifest)\n- `trace.md` (this file)\n- `report.md` (final answer)\n- Source deliverable: `src/superclaude/cli/eval/suites/eval_cli_doc_parity.yaml`\n- Design spec: `.dev/eval-workspaces/cli-eval/design/eval_cli_doc_parity-spec.md`\n"}], "eval-2-without_skill-run-1": [{"name": "doc_flag_parity.yaml", "type": "text", "content": "# yaml-language-server: $schema=./suite.schema.json\n#\n# doc_flag_parity \u2014 documentation \u2194 CLI flag-drift gate for `eval run`.\n#\n# CADENCE (operator-facing metadata; not enforced by the eval framework):\n#   - On every PR touching src/superclaude/cli/eval/commands.py\n#     (the `eval_run` @click.option block) OR\n#     docs/user-guide/eval-pipeline.md (the `eval run` flag table).\n#   - Nightly via CI scheduled job on the integration branch.\n#\n# WHAT THIS SUITE GUARDS:\n#   The documented `superclaude eval run` flag table in\n#   docs/user-guide/eval-pipeline.md (the \"| `--flag` | TYPE | default |\"\n#   table at eval-pipeline.md:162-174) must stay in sync with the live\n#   `superclaude eval run --help` output (the twelve @click.option flags\n#   on `eval_run`, commands.py:1553-1668). Two drift directions:\n#\n#     1. DOC \u2192 CLI drift (DP1): a flag documented in the table was\n#        removed or renamed in the CLI. Each documented flag token MUST\n#        still appear verbatim in `eval run --help` stdout. If `--keep-home`\n#        is documented but the option was deleted/renamed, DP1's\n#        `stdout: contains \"--keep-home\"` assertion fails.\n#\n#     2. CLI \u2192 DOC drift (DP2): a flag the CLI gained was never added to\n#        the doc table. DP2 has Claude read BOTH surfaces, diff the flag\n#        sets in both directions, and print an explicit verdict line.\n#        The assertion pins the in-sync verdict token and forbids the\n#        drift marker \u2014 so a CLI-only flag (present in --help, absent from\n#        the table) is caught even though `contains` alone cannot express\n#        \"no extra flags\".\n#\n# WHY home_strategy=shared:\n#   DP2 must read the real working-tree doc (docs/user-guide/eval-pipeline.md);\n#   an ephemeral $HOME has no repo checkout to read. Both evals are strictly\n#   read-only (they run `--help` and `cat`/Read the doc; nothing writes to\n#   $HOME), so sharing HOME is safe \u2014 no cross-eval contamination.\n#\n# WHY no_pty=skip:\n#   Every eval drives a Claude Code PTY subprocess; `--no-pty` short-circuits\n#   each eval with status SKIPPED (DOC-OQ3 / R-077 / D-0077), matching the\n#   rest of the eval inventory so `--no-pty` semantics stay uniform.\n#\n# Hypothesis under test:\n#   The twelve flags documented at eval-pipeline.md:162-174\n#   (--suite, --parallel, --eval, --no-mcp, --no-pty, --output-dir,\n#   --keep-home, --timeout-mult, --max-disk-mb, --json, --verbose, --junit)\n#   are exactly the flags emitted by `superclaude eval run --help`. Any\n#   add/remove/rename on either side trips DP1 or DP2.\nname: doc_flag_parity\nversion: \"1.0\"\ndescription: \"Documentation \u2194 CLI flag-drift gate: the documented `superclaude eval run` flag table (docs/user-guide/eval-pipeline.md) must match `superclaude eval run --help`. Cadence: on-PR (commands.py / eval-pipeline.md) + nightly via CI.\"\n\ndefaults:\n  per_eval_timeout_sec: 120\n  per_eval_memory_mb: 512\n  capture_tty: true\n  keep_home_on_success: false\n\nrequired_binaries:\n  - { name: claude, min_version: \"0.5.0\", failure_mode: hard }\n  - { name: git,                          failure_mode: hard }\n\noptional_capabilities: []\n\nevals:\n  - id: DP1\n    title: \"Every documented `eval run` flag appears in `eval run --help`\"\n    category: doc-cli-parity\n    requires: []\n    timeout_sec: 90\n    isolation:\n      home_strategy: shared\n    no_pty: skip\n    # DP1 \u2014 DOC \u2192 CLI direction. The doc flag table at\n    # docs/user-guide/eval-pipeline.md:162-174 enumerates twelve flags.\n    # This eval drives Claude to run `superclaude eval run --help` via\n    # Bash and print the full stdout; the assertions then require each of\n    # the twelve documented flag tokens to be present in the help text.\n    # A flag that was renamed (e.g. --keep-home \u2192 --preserve-home) or\n    # deleted in commands.py without a matching doc edit fails the\n    # corresponding `contains` assertion. exit_code 0 confirms `--help`\n    # itself is well-formed.\n    inputs:\n      - prompt: \"Run `superclaude eval run --help` from the repository root via the Bash tool and print the full stdout verbatim. Do not modify any files; this is read-only.\"\n        expect_tool_call: Bash\n    expects:\n      - exit_code:\n          equals: 0\n      - stdout:\n          contains: \"--suite\"\n      - stdout:\n          contains: \"--parallel\"\n      - stdout:\n          contains: \"--eval\"\n      - stdout:\n          contains: \"--no-mcp\"\n      - stdout:\n          contains: \"--no-pty\"\n      - stdout:\n          contains: \"--output-dir\"\n      - stdout:\n          contains: \"--keep-home\"\n      - stdout:\n          contains: \"--timeout-mult\"\n      - stdout:\n          contains: \"--max-disk-mb\"\n      - stdout:\n          contains: \"--json\"\n      - stdout:\n          contains: \"--verbose\"\n      - stdout:\n          contains: \"--junit\"\n\n  - id: DP2\n    title: \"Bidirectional flag-set diff: doc table \u2194 `eval run --help` agree exactly\"\n    category: doc-cli-parity\n    requires: []\n    timeout_sec: 120\n    isolation:\n      home_strategy: shared\n    no_pty: skip\n    # DP2 \u2014 bidirectional. DP1 catches doc\u2192CLI drift (a documented flag\n    # missing from --help) but `stdout: contains` cannot express \"the CLI\n    # has NO flag the doc omits\". DP2 closes the CLI\u2192doc gap: Claude reads\n    # BOTH the live `superclaude eval run --help` output AND the documented\n    # flag table in docs/user-guide/eval-pipeline.md, extracts the\n    # `--flag` token set from each (ignore the always-present `--help`),\n    # and diffs them in both directions. It then prints exactly one\n    # verdict line:\n    #   - \"FLAG_PARITY: IN_SYNC\" when the two sets are identical, or\n    #   - \"FLAG_PARITY: DRIFT\" plus the offending flags when they differ.\n    # The assertions pin the IN_SYNC token and forbid the DRIFT marker, so\n    # either drift direction fails the eval.\n    inputs:\n      - prompt: |\n          You are auditing documentation/CLI flag parity for `superclaude eval run`. Do this read-only \u2014 do not modify any files.\n\n          1. Run `superclaude eval run --help` via the Bash tool and collect every long option token it lists under \"Options:\" (the `--xxx` entries). Exclude the universal `--help` entry.\n          2. Read docs/user-guide/eval-pipeline.md and find the `eval run` flag table (the Markdown table whose rows look like `| `--flag` | TYPE | default | description |`). Collect every `--flag` token from that table.\n          3. Compare the two flag sets in BOTH directions:\n             - flags in --help but NOT in the doc table (CLI gained an undocumented flag), and\n             - flags in the doc table but NOT in --help (doc lists a flag the CLI no longer has).\n          4. Print EXACTLY ONE verdict line as the LAST line of your output:\n             - If the two sets are identical, print: `FLAG_PARITY: IN_SYNC (<N> flags)` where <N> is the count.\n             - Otherwise print: `FLAG_PARITY: DRIFT` followed by the offending flags grouped by direction.\n        expect_tool_call: Bash\n    expects:\n      - exit_code:\n          equals: 0\n      - stdout:\n          contains: \"FLAG_PARITY: IN_SYNC\"\n      - stdout:\n          not_contains: \"FLAG_PARITY: DRIFT\"\n"}, {"name": "report.md", "type": "text", "content": "# report.md \u2014 `doc_flag_parity` cliEval suite\n\n## What was built\nA new cliEval suite that guards documentation/CLI flag parity for `superclaude\neval run`: the documented flag table in `docs/user-guide/eval-pipeline.md`\n(lines 162-174) must stay in sync with the live `superclaude eval run --help`\noutput (the twelve `@click.option` flags on `eval_run`, commands.py:1553-1668).\n\n## Where the suite is\n- Source of truth: `src/superclaude/cli/eval/suites/doc_flag_parity.yaml`\n- Copy with this report: `<this dir>/doc_flag_parity.yaml`\nDiscovered directly from src/ (`eval list` \u2192 `doc_flag_parity (version 1.0, 2 evals)`).\n`cli/eval/suites/` is part of the Python package and is NOT mirrored to `.claude/`\nby `make sync-dev` (that target syncs only skills/agents/commands/templates), so\nno sync step is needed and `verify-sync` is unaffected.\n\n## How it works (2 evals, both no_pty: skip, home_strategy: shared, read-only)\n- DP1 (DOC->CLI): runs `eval run --help`; asserts exit_code==0 plus one\n  `stdout: contains \"<flag>\"` per documented flag (12). Fails if a documented\n  flag was removed/renamed in the CLI.\n- DP2 (CLI->DOC, bidirectional): diffs the `--help` flag set against the doc\n  table both ways and prints one verdict line; asserts `contains\n  \"FLAG_PARITY: IN_SYNC\"` and `not_contains \"FLAG_PARITY: DRIFT\"`. Closes the\n  \"CLI gained an undocumented flag\" gap that `contains` alone cannot express.\nTogether: any add/remove/rename on either surface trips DP1 or DP2.\n\n## Verified valid \u2014 YES\n| Check | Command | Result |\n|---|---|---|\n| Schema validation | `eval describe --suite doc_flag_parity` | exit 0, full render (validate_manifest ran) |\n| Discovery | `eval list` | `doc_flag_parity (version 1.0, 2 evals)`, exit 0 |\n| Loader direct | `loader.validate_manifest(path)` | OK -> 2 EvalSpecs ['DP1','DP2'] |\n| Assertion rows | `Expect.from_mapping(each row)` | OK -> all 16 rows resolve to real primitives |\n| Contract true today | `eval run --help` | exit 0; all 12 flags present; doc table lists exactly those 12 |\n\nPasses every validation layer: JSON-schema, filename rules (stem==name==\n`doc_flag_parity`), discovery, and declarative-assertion resolution. The encoded\ninvariant is also true today (12 flags, both surfaces agree).\n\n## Caveat on the full end-to-end run\n`eval run --suite doc_flag_parity --no-pty ...` exits 2 on this host \u2014 but at an\nFR-G5 matcher-coverage preflight (`coverage gate FAILED \u2014 uncovered matcher\npatterns: PostToolUse: mcp__auggie__.*`) that fires BEFORE any suite is reached.\nConfirmed host-environment condition, not a suite defect: the shipped\n`eval_smoke` suite exits 2 with the identical message on the same host. On a host\nthat passes `eval doctor --check-coverage`, the suite proceeds through the runner\nexactly like `eval_smoke`; validity does not depend on that host gate, and every\nhost-independent layer passes.\n\n## Suggested cadence (encoded in the manifest header)\nOn every PR touching commands.py (eval_run option block) or eval-pipeline.md\n(flag table), and nightly in CI.\n"}, {"name": "trace.md", "type": "text", "content": "# trace.md \u2014 authoring + validating `doc_flag_parity` cliEval suite\n\nTask: author a new eval suite that checks the documented `superclaude eval run`\nflags stay in sync with `superclaude eval run --help`, set it up properly, and\nverify it is actually valid.\n\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\nAll `uv run` lines emit a benign `VIRTUAL_ENV=/lsiopy ... ignored` warning (harness env), omitted below.\n\n---\n\n## Step 1 \u2014 Survey the eval suite surface\n\n```\nls -la src/superclaude/cli/eval/suites/          # exit 0 \u2014 15 manifests + schema + README\nfind src/superclaude/cli/eval -type f            # exit 0 \u2014 loader.py, expect.py, commands.py, etc.\n```\n\nRead for the contract:\n- `suites/suite.schema.json` \u2014 manifest schema (required keys: name, version, description, defaults, required_binaries, optional_capabilities, evals).\n- `suites/README.md` \u2014 filename rules: stem `[a-z][a-z0-9_]*`, stem == `name:`, `.yaml` only; authoring checklist says validate via `eval describe --suite <stem>`.\n- `suites/installer_sync_drift.yaml` \u2014 closest precedent: a \"drift guard\" suite that drives Claude to run a command and asserts on stdout/exit_code.\n- `suites/audit_wiring_guard.yaml` + `suites/eval_smoke.yaml` \u2014 confirm the prompt\u2192Bash\u2192`stdout: contains`/`exit_code: equals` pattern and the `no_pty: skip` convention.\n- `expect.py` \u2014 the 7 declarative primitives (file, jsonl, settings_json, exit_code, stderr, stdout, duration); stdout supports `contains` / `regex` / `not_contains`.\n\n## Step 2 \u2014 Pin the two parity surfaces\n\n```\ngrep -n '@eval_group.command(\"run\")' ... commands.py     # eval_run at line 1553\nRead commands.py:1553-1668                                # 12 @click.option flags on eval_run\ngrep -n '--flag tokens' docs/user-guide/eval-pipeline.md  # flag table at lines 162-174\n```\n\nAuthoritative `eval run` flag set (both sources agree): `--suite --parallel --eval\n--no-mcp --no-pty --output-dir --keep-home --timeout-mult --max-disk-mb --json\n--verbose --junit` (12 flags; `--help` is universal and excluded).\n\n```\nuv run superclaude eval run --help        # exit 0 \u2014 all 12 flags present verbatim in Options:\n```\n\n## Step 3 \u2014 Author the suite (source of truth)\n\nWrote `src/superclaude/cli/eval/suites/doc_flag_parity.yaml`:\n- name/stem `doc_flag_parity` (snake_case, stem == name \u2192 README filename rules satisfied).\n- DP1: prompts Claude to run `eval run --help`; asserts `exit_code == 0` and one\n  `stdout: contains \"<flag>\"` per documented flag (12 rows). Catches DOC\u2192CLI drift\n  (a documented flag removed/renamed in the CLI).\n- DP2: prompts Claude to diff the `--help` flag set against the doc table in BOTH\n  directions and emit a single verdict line; asserts `stdout: contains\n  \"FLAG_PARITY: IN_SYNC\"` and `stdout: not_contains \"FLAG_PARITY: DRIFT\"`. Closes\n  the CLI\u2192DOC gap that `contains` alone cannot express.\n- `home_strategy: shared` (DP2 reads the working-tree doc; both evals read-only),\n  `no_pty: skip` (matches inventory convention).\n\n## Step 4 \u2014 Validate\n\n```\nuv run superclaude eval describe --suite doc_flag_parity      # DESCRIBE_EXIT=0 \u2014 schema-valid, full render\nuv run superclaude eval list | grep doc_flag_parity           # LIST_EXIT=0 \u2014 \"doc_flag_parity (version 1.0, 2 evals)\"\n```\n\nDefence-in-depth via the loader directly:\n\n```\nuv run python -c \"loader.validate_manifest(path); Expect.from_mapping(each expects row)\"\n# VALIDATE_EXIT=0\n# validate_manifest: OK -> 2 EvalSpec(s): ['DP1', 'DP2']\n# Expect.from_mapping: OK (16 assertion rows resolved to real primitives)\n```\n\nEnd-to-end runnable check via the `--no-pty` skip path (as `eval_smoke` ES3 does):\n\n```\nuv run superclaude eval run --suite doc_flag_parity --no-pty --no-mcp --json --output-dir /tmp/tmp.XXXX\n# RUN_EXIT=2 \u2014 rejected: --output-dir escaped AC12 scratch-root allowlist (operator error, not suite)\n\nuv run superclaude eval run --suite doc_flag_parity --no-pty --no-mcp --json --junit --verbose \\\n  --output-dir /tmp/eval-runs/doc_flag_parity_validate\n# RUN_EXIT=2 \u2014 \"eval doctor: coverage gate FAILED \u2014 uncovered matcher patterns: PostToolUse: mcp__auggie__.*\"\n```\n\nIsolated whether the gate is host-level or suite-level:\n\n```\nuv run superclaude eval run --suite eval_smoke --no-pty --no-mcp --output-dir /tmp/eval-runs/smoke_probe\n# SMOKE_EXIT=2 \u2014 SAME FR-G5 coverage-gate failure on the SHIPPED eval_smoke suite\n```\n\n\u2192 Conclusion: the FR-G5 matcher-coverage preflight (eval-pipeline.md:251-252) fires\non this host's settings.json for EVERY `eval run` before any suite is reached. It is\na host-environment condition, identical for the shipped `eval_smoke` suite, NOT a\ndefect in `doc_flag_parity`. The manifest's validity is fully established by the\nschema/discovery/loader/expect layers above, which do not depend on the host gate.\n\n## Step 5 \u2014 Place + sync\n\n```\ncp src/superclaude/cli/eval/suites/doc_flag_parity.yaml <outputs>/doc_flag_parity.yaml   # exit 0\ngrep sync-dev Makefile; sed -n '109,130p' Makefile\n# sync-dev mirrors only skills/agents/commands/templates \u2192 .claude/.\n# cli/eval/suites/ is part of the Python package, read directly from src/ by the loader,\n# NOT mirrored to .claude/ \u2192 no sync step needed; verify-sync unaffected.\n```\n\nThe suite lives in the single source of truth (`src/superclaude/cli/eval/suites/`)\nand is discovered there directly. No `.claude/` copy exists or is required.\n"}], "eval-3-with_skill-run-1": [{"name": "trace.md", "type": "text", "content": "# Trace \u2014 Inspect `installer_sync_drift` + `--no-pty` safety verdict\n\nPipeline: `/sc:cli-eval run` (inspection-only path, non-interactive). Branch: `run`.\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\nDate: 2026-06-12\n\n## Wave 0 \u2014 Mandatory fresh-context load (re-read + cite)\n\nPer the protocol, I re-read the live contract surface before asserting any flag/behavior.\nThe authority for `--no-pty` semantics is the schema field + the operator guide \u2014 not memory.\n\n| # | Source re-read | What it establishes | Citation |\n|---|----------------|---------------------|----------|\n| 1 | `src/superclaude/commands/cli-eval.md` | This is the `run` pipeline; W2 drills via `eval describe`; W3 surfaces `--no-pty` skip + FR-G5 gotchas | cli-eval.md:50-52 |\n| 2 | `src/superclaude/skills/sc-cli-eval-protocol/SKILL.md` | RUN W2 surfaces `no_pty: skip` markers; Error-Handling row: \"All evals SKIPPED (`--no-pty`) \u2192 report as skipped, NOT pass\" | SKILL.md:116-119, 184 |\n| 3 | `.../refs/run-pipeline.md` | `--no-pty` \u2192 SKIPPED with `skip_reason=\"--no-pty\"` and **exit 0**; \"CI-canary path, NOT a real pass. For real PASS/FAIL, omit `--no-pty`\" | run-pipeline.md:33-35 |\n| 4 | `.../refs/eval-contracts.md` | Map only (not truth); points at suite.schema.json + suites-guide.md as the cite targets; `no_pty` enum = only `\"skip\"` | eval-contracts.md:6, 20, 52 |\n| 5 | `src/superclaude/cli/eval/suites/suite.schema.json` | **Authoritative `no_pty` semantics**: enum `[\"skip\"]`; when `\"skip\"`, `eval run --no-pty` short-circuits the eval \u2192 `EvalOutcome` status `SKIPPED`, `skip_reason=\"--no-pty\"`, `skip_flag_triggered=\"--no-pty\"` **before any HOME setup**; advisory, no effect when `--no-pty` absent | suite.schema.json:153-157 |\n| 6 | `src/superclaude/cli/eval/suites/installer_sync_drift.yaml` | The suite manifest itself (see W-inspect below) | installer_sync_drift.yaml:32-90 |\n| 7 | `docs/eval/suites-guide.md` | Operator gotcha: every `no_pty: skip` eval short-circuits to SKIPPED + exit 0 under `--no-pty`; \"To actually exercise the evals, omit `--no-pty`.\" FR-G5 empty-HOME workaround. | suites-guide.md:547-554, 526-537 |\n\n**Gate check**: no canonical source missing/moved. Digest complete. Proceeding.\n\n## W-inspect \u2014 Inspect the suite via the CLI (not by opening the YAML blindly)\n\n### Command 1 \u2014 describe through the CLI\n```bash\ntimeout 120 uv run superclaude eval describe --suite installer_sync_drift\n```\nEXIT=0. Output (validated manifest, YAML):\n- `name: installer_sync_drift`, `version: '1.0'`, `eval_count` (see list) = 1.\n- `defaults`: `per_eval_timeout_sec: 180`, `per_eval_memory_mb: 512`, `capture_tty: true`, `keep_home_on_success: false`.\n- `required_binaries` (all `failure_mode: hard`): `claude>=0.5.0`, `make`, `uv`, `git`.\n- `optional_capabilities: []`.\n- **evals[0]**: `id: S1` \u2014 \"make verify-sync \u2014 src/ vs .claude/ parity + installer registration\"\n  - `category: installer-sync`, `timeout_sec: 180`\n  - `isolation.home_strategy: shared`\n  - **`no_pty: skip`**  \u2190 the load-bearing marker\n  - input: prompt instructing Claude Code (via PTY) to run `make verify-sync` and report exit + stdout; `expect_tool_call: Bash`.\n  - expects: `exit_code == 0`; stdout `not_contains` each of `drift detected`, `MISSING from _FRESHNESS_SCRIPTS`, `STALE in _FRESHNESS_SCRIPTS`, `\u274c DRIFT`.\n\n### Command 2 \u2014 confirm it is in the registered library\n```bash\ntimeout 120 uv run superclaude eval list --json | (filter installer_sync_drift)\n```\nEXIT=0 \u2192 `{'eval_count': 1, 'name': 'installer_sync_drift', 'version': '1.0'}`.\nConfirms exactly **1 eval** and a schema-valid, loadable suite.\n\n### Corroboration (read of YAML, allowed)\n`installer_sync_drift.yaml:50-90` matches the CLI output 1:1; the in-file comment block\n`installer_sync_drift.yaml:29-31` states `no_pty=skip` exists to keep `--no-pty` semantics\nuniform across the inventory (the PTY harness drives a Claude Code subprocess).\n\n## W-answer \u2014 the actual question\n\n`--no-pty` semantics (suite.schema.json:153-157, run-pipeline.md:33-35, suites-guide.md:549-554):\nrunning `eval run --no-pty` short-circuits every `no_pty: skip` eval to **SKIPPED**\n(`skip_reason=\"--no-pty\"`, `skip_flag_triggered=\"--no-pty\"`), **before HOME setup**, exit 0.\n\nThis suite has **1/1** evals tagged `no_pty: skip` (S1). Therefore `--no-pty` skips the\n**entire** suite \u2014 0 assertions evaluated, `make verify-sync` never invoked. Exercises NOTHING.\nThat is the CI-canary path (proves the harness wiring), not a real pass. SKIPPED \u2260 PASS\n(SKILL.md:184; eval-contracts.md:37).\n\nFor a real run: **omit `--no-pty`** so the PTY harness drives Claude Code \u2192 `make verify-sync`.\nBecause the host `~/.claude/settings.json` carries hook matchers, the FR-G5 coverage gate\n(exit 2) applies; use the empty-HOME workaround (suites-guide.md:535-537):\n```bash\nTMPHOME=$(mktemp -d) && HOME=$TMPHOME uv run superclaude eval run --suite installer_sync_drift --no-mcp; rm -rf \"$TMPHOME\"\n```\n\n## Commands + exit codes summary\n| Command | Exit |\n|---|---|\n| `uv run superclaude eval describe --suite installer_sync_drift` | 0 |\n| `uv run superclaude eval list --json` (filtered) | 0 |\n| grep `docs/eval/suites-guide.md` (no-pty / FR-G5) | 0 |\n\nNo files modified (read-only inspection + this trace/report).\n"}], "eval-3-without_skill-run-1": [{"name": "trace.md", "type": "text", "content": "# Trace \u2014 inspect installer_sync_drift suite + --no-pty safety check\n\nWorking dir: `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals`\n\n## Step 1 \u2014 List suites, create output dir\n- `ls src/superclaude/cli/eval/suites/` \u2192 exit 0. Confirmed `installer_sync_drift.yaml` exists.\n- `mkdir -p .dev/eval-workspaces/.../outputs/` \u2192 exit 0.\n\n## Step 2 \u2014 Read the suite manifest + schema (parallel)\n- `Read src/superclaude/cli/eval/suites/installer_sync_drift.yaml` \u2192 exit 0.\n  - 1 eval: `S1` \"make verify-sync \u2014 src/ vs .claude/ parity + installer registration\".\n  - `defaults`: per_eval_timeout_sec 180, capture_tty true, keep_home_on_success false.\n  - `required_binaries`: claude (>=0.5.0, hard), make (hard), uv (hard), git (hard).\n  - `S1.isolation.home_strategy: shared`; `S1.no_pty: skip`.\n  - Header comment (lines 28-31) states `no_pty=skip` rationale: the PTY harness drives a Claude Code subprocess; uniform `--no-pty` semantics across suites.\n- `Read suite.schema.json` \u2192 exit 0.\n  - `no_pty` property (schema lines 153-157): enum `[\"skip\"]`. Doc string: when set to `\"skip\"`, `superclaude eval run --no-pty` short-circuits the eval \u2192 `EvalOutcome` status `SKIPPED`, `skip_reason=\"--no-pty\"`, `skip_flag_triggered=\"--no-pty\"`, BEFORE any HOME setup. Advisory metadata; does NOT affect runs not invoked with `--no-pty`.\n\n## Step 3 \u2014 Locate runner code handling no_pty\n- `grep -rln \"no_pty|skip_flag_triggered|--no-pty\" src/superclaude/cli/eval/*.py`\n  \u2192 run_report.py, commands.py, models.py, runner.py, orchestrator.py.\n- `grep -n \"no_pty\" src/superclaude/cli/eval/*.py` \u2192 real short-circuit lives in `commands.py`:\n  - `commands.py:1894`: `if no_pty and spec.no_pty == \"skip\":`\n  - `models.py:101-143`: `EvalSpec.no_pty: str | None`, parsed from manifest `data.get(\"no_pty\")`.\n\n## Step 4 \u2014 Read the short-circuit implementation\n- `Read commands.py:1880-1920` \u2192 exit 0. Confirmed `run_one()` returns an\n  `EvalOutcome(status=\"SKIPPED\", skip_reason=\"--no-pty\", skip_flag_triggered=\"--no-pty\", duration_sec=0.0)`\n  and RETURNS before calling `_run_one_spec(...)` (no HomeIsolation.setup, no PTY, no `make verify-sync`).\n\n## Step 5 \u2014 Confirm eval count + CLI surface\n- `grep -c \"^  - id:\" installer_sync_drift.yaml` \u2192 `1` (single eval; the whole suite's only eval is the one tagged skip).\n- `uv run superclaude eval run --help` \u2192 exit 0. Confirms `--no-pty` flag exists (\"Run without the vendored PTY harness (degrades stdout capture)\") and `--suite TEXT` accepts name/stem/path.\n\n## Conclusion\nS1 is the only eval, it carries `no_pty: skip`, and `commands.py:1894` short-circuits it to SKIPPED under `--no-pty`. Therefore `superclaude eval run --suite installer_sync_drift --no-pty` exercises NOTHING \u2014 `make verify-sync` never runs.\n"}]}, "benchmark": {"metadata": {"skill_name": "sc-cli-eval-protocol", "skill_path": "<path/to/skill>", "executor_model": "claude-opus-4-8 (subagents)", "analyzer_model": "<model-name>", "timestamp": "2026-06-12T14:12:11Z", "evals_run": [1, 3], "runs_per_configuration": 1, "methodology_note": "iteration-2 after the M2-authoritativeness skill edit. Set = eval-1 (run, regression) + eval-3 (trust-the-pass, NEW). eval-2 (create) not re-run: subagent nesting limits make spec-panel/adversarial uninformative; create's real test is the top-level worked example."}, "runs": [{"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 194.0, "tokens": 0, "tool_calls": 23, "errors": 0}, "expectations": [{"text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)", "passed": true, "evidence": "trace cites commands.py executor lines, eval_smoke.yaml, suites-guide before acting"}, {"text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)", "passed": true, "evidence": "`eval list --json` exit 0; eval_smoke present (v1.0, 3 evals)"}, {"text": "Surfaces the FR-G5 exit-2 gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result", "passed": true, "evidence": "Applied TMPHOME=$(mktemp -d) HOME=$TMPHOME ... -> exit 0; run dir 140645Z-4e7503b0"}, {"text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior", "passed": true, "evidence": "Omitted --no-pty deliberately; explained all 3 evals no_pty:skip would SKIP under --no-pty"}, {"text": "Reports the outcome from summary.json (machine truth), not scrollback", "passed": true, "evidence": "Parsed summary.json: ES1/ES2/ES3 PASS, counts invariant, run-dir cited"}, {"text": "Honest result incl. AUTHORITATIVENESS: labels a stubbed-executor PASS NON-AUTHORITATIVE, not a real pass", "passed": true, "evidence": "Explicitly labeled NON-AUTHORITATIVE (plumbing only); found _NullLifecycleExecutor via --verbose; --json suppresses warning"}], "notes": []}, {"eval_id": 3, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 144.0, "tokens": 0, "tool_calls": 15, "errors": 0}, "expectations": [{"text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)", "passed": true, "evidence": "Found _NullLifecycleExecutor at commands.py:1386 _resolve_executor_factory; canned exit 0"}, {"text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it", "passed": true, "evidence": "commands.py:1879 'not as_json' guard; verified --json emitted 0 warning lines, --verbose surfaced it"}, {"text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)", "passed": true, "evidence": "Verdict: NON-AUTHORITATIVE plumbing only; expects:[] + duration 0.0 = canned"}, {"text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations", "passed": true, "evidence": "M5/M6 ClaudeProcessAdapter+PtyDriver must replace the stub; cited commands.py lines"}], "notes": []}, {"eval_id": 1, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.5, "passed": 3, "failed": 3, "total": 6, "time_seconds": 195.2, "tokens": 0, "tool_calls": 15, "errors": 0}, "expectations": [{"text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)", "passed": false, "evidence": "Investigated via doctor/describe but no deliberate cited fresh-context load"}, {"text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)", "passed": true, "evidence": "`superclaude eval list` showed eval_smoke (3 evals)"}, {"text": "Surfaces the FR-G5 exit-2 gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result", "passed": false, "evidence": "Hit gate exit 2; declared 'editing host settings.json out of scope / no bypass flag' and did NOT apply the empty-HOME workaround -> no result"}, {"text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior", "passed": true, "evidence": "Inspected describe; noted all evals no_pty:skip (CLI-smoke)"}, {"text": "Reports the outcome from summary.json (machine truth), not scrollback", "passed": false, "evidence": "0 evals executed (gate abort); no summary.json to parse"}, {"text": "Honest result incl. AUTHORITATIVENESS: labels a stubbed-executor PASS NON-AUTHORITATIVE, not a real pass", "passed": true, "evidence": "Honest the run did not execute; surfaced null executor + FR-G5 as design, modified nothing"}], "notes": []}, {"eval_id": 3, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 272.0, "tokens": 0, "tool_calls": 36, "errors": 0}, "expectations": [{"text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)", "passed": true, "evidence": "Found _NullLifecycleExecutor at commands.py:1357; factory :1402; canned ObservedRun"}, {"text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it", "passed": true, "evidence": "commands.py:1879 'and not as_json'; --json printed no warning, --verbose did"}, {"text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)", "passed": true, "evidence": "Verdict: NOT trustworthy; vacuous PASS; expects:[] resolver not wired"}, {"text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations", "passed": true, "evidence": "M5/M6 production executor must replace stub in _resolve_executor_factory; cited runner.py:419 vacuous-PASS"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 169.0, "stddev": 35.3553, "min": 144.0, "max": 194.0}, "tokens": {"mean": 0.0, "stddev": 0.0, "min": 0, "max": 0}}, "without_skill": {"pass_rate": {"mean": 0.75, "stddev": 0.3536, "min": 0.5, "max": 1.0}, "time_seconds": {"mean": 233.6, "stddev": 54.3058, "min": 195.2, "max": 272.0}, "tokens": {"mean": 0.0, "stddev": 0.0, "min": 0, "max": 0}}, "delta": {"pass_rate": "+0.25", "time_seconds": "-64.6", "tokens": "+0"}}, "notes": ["CONVERGENCE: the skill's discriminating value is entirely in eval-1 (run): +0.50 (6/6 vs 3/6), same as iter-1. Baseline again correctly diagnosed the FR-G5 exit-2 gate but GAVE UP ('editing host settings.json out of scope / no bypass flag'); the skill applied the empty-HOME workaround and got a real result. That workaround is the skill's core value.", "The NEW authoritativeness eval (eval-3) did NOT discriminate: 4/4 in BOTH configs. The baseline (opus) READ THE EVAL SOURCE and independently found _NullLifecycleExecutor (commands.py:1357/1386), the --json warning suppression (commands.py:1879), and the vacuous-PASS path (runner.py:419) \u2014 concluding NON-AUTHORITATIVE unaided. A capable base model rediscovers the skill's KNOWLEDGE from source; knowledge content alone does not beat a strong baseline.", "Therefore the M2-authoritativeness skill edit does NOT move the benchmark against an opus baseline \u2014 but it is still worth keeping for: (a) RELIABILITY (guarantees the caveat every run rather than relying on agent thoroughness/token spend), (b) WEAKER models that won't dig through source, (c) the run-report TEMPLATE making it a required field. Honest read: the edit hardens behavior, it doesn't raise the score vs a strong model.", "Token note (timing.json): baseline trust-the-pass spent 118K tokens REDISCOVERING the null-executor fact from source; with_skill spent 99K with the fact pre-stated but still ran --verbose to confirm. The skill's token advantage is real but modest here because confirmation still costs.", "Bonus catch (baseline trust-the-pass): also found the --no-pty -> all-SKIPPED-but-exit-0 path (commands.py exit keys only on failed/errored/timeout) as a SECOND way a green run can be hollow \u2014 a real, independent hardening idea for the suite."]}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

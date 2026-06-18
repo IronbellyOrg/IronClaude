@@ -1,0 +1,17 @@
+# Grounding gaps — findings requiring human decision (§10.6). Non-empty → needs_human_decision: true, status: partial.
+findings:
+  - hunk_ref: "docs/swarm/rollback-procedure.md:Tabletop Rehearsal Sign-Off appendix"
+    evidence_missing: "Sign-off table Date/Rehearser/Outcome deliberately UNSTAMPED — requires a human to execute the rollback rehearsal against a scratch/fixture env."
+    why_not_classifiable: "This is a genuine needs_human_decision HALT (OPS-004/R-153), not a defect. Per feedback_human_decision_items_must_halt the stamp must NEVER be auto-applied."
+    next_evidence_needed: "Human operator runs the rollback tabletop rehearsal and stamps the appendix."
+    owner: user
+    decision_needed_by_user: true
+    correctly_handled: true   # executor wrote PENDING record + HIGH follow-up; appendix verified UNSTAMPED on disk this run
+
+  - hunk_ref: "TASK frontmatter status + Step PC.6 (close-out)"
+    evidence_missing: "Task status is '🟠 Doing'; PC.6 (status→Done) is gated on THIS post-reflect passing (documented chicken-and-egg). Closing out requires an operator decision (commit on the fork is user-authorized per CLAUDE.md)."
+    why_not_classifiable: "Not a defect — intrinsic gate-time incompleteness. Reflect does NOT flip frontmatter; the operator does after reviewing this report."
+    next_evidence_needed: "Operator resolves OPS-004 HALT, then runs PC.6 to flip status→Done."
+    owner: user
+    decision_needed_by_user: true
+    correctly_handled: true

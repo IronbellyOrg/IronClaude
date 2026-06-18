@@ -1,0 +1,91 @@
+# UC-2 deviation ledger — 4-category taxonomy (§10). Tier-2 interactive re-run.
+# Evidence-validated by orchestrator (opus, disjoint from sonnet/haiku reviewers).
+# Supersedes the stale 2026-06-18T06:04 headless ledger: ALL 5 prior deviations
+# (D1,D2,D3,D6,D7) are REMEDIATED in the current tree; this ledger records the
+# post-fix state + the residual LOW-severity items the fresh ensemble surfaced.
+
+prior_deviations_status:
+  D1_logger_methods_HIGH_regression: RESOLVED      # write_session_reset/write_account_exhaustion_halt now on SprintLogger (logging_.py +54); non-mock guard test_logging_events.py:40-41
+  D2_single_session_completion_gate_MED_regression: RESOLVED  # executor.py:2153 _task_completed_before_overrun → PASS_RECOVERED (cites Edge #1 / UX #5)
+  D3_dead_halt_block_drift: RESOLVED               # account_exhaustion_output() now called logging_.py:343 (write_summary)
+  D6_timeout_predicate_drift: RESOLVED             # monitor.py:336-338 conjunctive is_error AND api_error_status is None AND body
+  D7_ctrlc_during_429_drift: RESOLVED             # executor.py:2143 `if not signal_handler.shutdown_requested and signal.kind in (...)`
+
+deviations:
+  - id: A1
+    deviation_class: authorized
+    severity: LOW
+    title: "Nominator exclusion lives in rerun_tasks.py (not recovery.py)"
+    file: "src/superclaude/cli/sprint/rerun_tasks.py:1180-1189"
+    requirement: "Spec Source Areas named recovery.py; tasklist OQ-2 DECIDED option a = filter in select_default_recoverable_tasks."
+    actual: "Exclusion of failure_class=='provider_exhaustion' implemented in select_default_recoverable_tasks (defensive double-check on top of the status filter). Matches operator-decided OQ-2 option a → Authorized, non-blocking."
+    evidence: "rerun_tasks.py:1180 (status filter) + :1188 (failure_class guard); tasklist OQ-2 decision."
+
+  - id: N1
+    deviation_class: necessary
+    severity: LOW
+    title: "tui.py STATUS_STYLES/STATUS_ICONS entries for PhaseStatus.PROVIDER_EXHAUSTED"
+    file: "src/superclaude/cli/sprint/tui.py"
+    requirement: "Not in spec §4 module list; a new PhaseStatus without a TUI mapping breaks rendering."
+    actual: "Adds magenta style+icon; documented as the PC.2 cross-phase regression fix; render test added (test_tui.py). Forced + documented → Necessary, non-blocking."
+    evidence: "phase-outputs/reports/final-aggregate.md; tui.py; test_tui.py:test_render_phase_table_provider_exhausted."
+
+  - id: N2
+    deviation_class: necessary
+    severity: LOW
+    title: "2 pre-existing e2e fileno failures in test_rerun_tasks_e2e.py"
+    file: "tests/sprint/test_rerun_tasks_e2e.py"
+    requirement: "Suite green."
+    actual: "2 failures: `Rerun failed (fileno)` — a CliRunner/pytest stdout-capture artifact (no real terminal fileno). File is NOT in this diff; failures are environmental and pre-existing, NOT attributable to the 429-recovery work. Documented in final-fixes-applied.md."
+    evidence: "pytest output: `assert 1 == 0 … Rerun failed (fileno)`; git diff --stat 59b9e2a2 -- test_rerun_tasks_e2e.py is empty."
+
+  - id: R1-F3
+    deviation_class: drift
+    severity: LOW
+    title: "Per-attempt turns_consumed/output_bytes not accumulated across re-route spawns"
+    file: "src/superclaude/cli/sprint/executor.py:1031-1040,1067-1081,1125-1144"
+    requirement: "Spec is silent on turn-accounting across re-route attempts (not a stated requirement)."
+    actual: "On RETRY the loop `continue`s; the next spawn overwrites turns_consumed/output_bytes, so ledger reconciliation + persisted TaskResult reflect only the LAST spawn. Real but low-impact: single-account 429s typically fail fast with ~0 output tokens (cf. `_is_transient_failure` is_error+0-tokens). Unspecified silent choice, no inline rationale → Drift, but functionally negligible."
+    evidence: "executor.py:1031-1040 (per-spawn assign), :1067-1081 (continue, no accumulate), :1125-1144 (reconcile uses last). Reviewer 1 (sonnet)."
+
+  - id: R2-H6
+    deviation_class: drift
+    severity: LOW
+    title: "Single-session resume_command may drop --model when halt_task_id is empty"
+    file: "src/superclaude/cli/sprint/models.py:866-901"
+    requirement: "UX contract #6: resume names the exhausted model + suggests a distinct model."
+    actual: "resume_command() gates `if suggested and halt_task_id:`. On the SINGLE-SESSION path halt_task_id falls back to last_task_id (typically '') so a valid suggestion is dropped, emitting the --start/--end resume without --model. The PER-TASK path (the common recovery case) carries a real task id and works. Mitigation: the full halt block account_exhaustion_output() (wired into write_summary, logging_.py:343) STILL surfaces the exhausted model + suggestion, so the operator is not deprived of the suggestion overall. LOW drift; the inline comment documents only the no-alternate fallback, not the empty-id case."
+    evidence: "models.py:889 truthiness guard; :866-873 halt_task_id fallback to last_task_id. Reviewer 2 (haiku); orchestrator re-read."
+
+  - id: R1-F1
+    deviation_class: drift
+    severity: LOW
+    title: "Doc-vs-code: cap labeled 'per task' but implemented as a shared per-phase budget"
+    file: "src/superclaude/cli/sprint/recovery_policy.py:41 ; docs/guides/sprint-cli-tools-release-guide.md:73"
+    requirement: "Spec Q4: reset budget is 'per-run / in-memory'; Q5: cap is a sprint-wide backstop against a dead pool."
+    actual: "SessionResetPolicy is constructed once per phase (executor.py:1355) and shared across sequential tasks, so _exhaustion_attempts accumulates phase-wide. The IMPLEMENTATION matches spec Q4/Q5 (per-run shared budget; the docstring lines 33/35-36 say so explicitly). BUT the field comment recovery_policy.py:41 ('per-task re-spawn cap') and the release guide line 73 ('per task') contradict the shared semantics. Behavior is spec-consistent; only the documentation is inconsistent. NOT a regression."
+    evidence: "recovery_policy.py:33,35-36 (shared/per-run) vs :41 (per-task) — internal contradiction; executor.py:1355 per-phase construction; spec §8 Q4/Q5. Reviewer 1 (sonnet); orchestrator re-read recovery_policy.py."
+
+  - id: R1-F2
+    deviation_class: drift
+    severity: LOW
+    title: "Parallel latch overshoot may emit duplicate account_exhaustion_halt events"
+    file: "src/superclaude/cli/sprint/executor.py:1066-1100"
+    requirement: "Spec §5 edge #3: spawn is UNLOCKED; total spawns ≤ cap+(K-1), strictly < K×cap (explicitly NOT ≤ cap)."
+    actual: "Up to K-1 in-flight workers may already be mid-spawn when the latch trips; each can increment _exhaustion_attempts past cap and emit its own write_account_exhaustion_halt. This is WITHIN the spec's acknowledged ≤cap+(K-1) overshoot envelope — the storm bound holds. Residual concern is telemetry duplication (session_resets/halt events can exceed cap), not a control-flow defect. Spec-consistent behavior; LOW drift on observability only."
+    evidence: "executor.py:1067 (increment under guard), :1085 (latch trip), :1090-1100 (halt event); spec §5 edge #3 lines 294-298. Reviewer 1 (sonnet)."
+
+  - id: R3-003
+    deviation_class: necessary
+    severity: LOW
+    title: "Resume-safety test asserts inclusion of exhausted task, not exclusion of prior successful task"
+    file: "tests/sprint/test_resume.py:175-193"
+    requirement: "UX contract #5/#7: never re-run validated-successful tasks; re-attempt only the exhausted task + everything after."
+    actual: "Test fixture has T03.01=pass, T03.02=fail_provider_exhausted; asserts Granularity.TASK + 'T03.02' in rerun_task_ids, but no `T03.01 not in rerun_task_ids`. The exclusion is existing handoff-skip behavior tested elsewhere (resume/planner), so the gap is a weak-assertion nit, not a functional hole. Recommend adding the exclusion assertion."
+    evidence: "test_resume.py:175-179 (fixture), :192-193 (membership-only assertion). Reviewer 3 (sonnet)."
+
+dropped_findings:
+  - id: R3-001
+    reason: "FALSE POSITIVE — spec §2 line 66-67 LITERALLY pins `\"model\":\"<synthetic>\"` ('note literal') as the real harness-injected terminal-assistant signature. The fixture single_account_429.jsonl is faithful to the verbatim ground-truth, not a placeholder. Dropped (counts toward citations_dropped)."
+  - id: R3-002
+    reason: "AUTHORIZED, not a gap — aienv.py:9-26 documents OQ-1 operator-DECIDED option A (os.environ reader); option B (literal ~/.aienv file parse) was 'documented, NOT shipped'. The env= seam test correctly exercises the SHIPPED reader. The spec §6 'parse a fixture ~/.aienv' line is stale relative to the OQ-1 decision. Dropped (counts toward citations_dropped)."

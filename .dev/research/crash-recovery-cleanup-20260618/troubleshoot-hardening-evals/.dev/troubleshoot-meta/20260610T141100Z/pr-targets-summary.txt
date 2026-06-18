@@ -1,0 +1,197 @@
+=== PR 151 ===
+TITLE: fix(prd): deliver specs/refs inline instead of cloud-only --file flag
+The PRD CLI pipeline passed **local filesystem paths** to `claude --file` — a **cloud-download mechanism** (`file_id:relative_path`) that requires `CLAUDE_CODE_SESSION_ACCESS_TOKEN`. In a headless `--spec` run with no session token, the `claude` subprocess exits 1 in ~0.3 s with `Error: Session token required for file downloads`, crashlooping the pipeline at `scope-discovery`. PRD was the **only** pipeline emitting `--file`; roadmap / tasklist / validate already forbid it (FR-003/FR-023) and deliver content inline.
+## The fix (3 files)
+- **`src/superclaude/cli/prd/process.py`** — remove both `--file` emissions, the `_build_file_args` method, its `extra_args=file_args` wiring, and the three now-dead constants (`_PHASE_ALLOWED_REFS` / `_FILE_SIZE_THRESHOLD` / `_SPEC_FILE_STEPS`); de-`--file` the module + class docstrings.
+- **`src/superclaude/cli/prd/prompts.py`** — upgrade `_authoritative_specs_block` to inline each existing spec's content via the reused `_read_file` (50 KB cap + `_TRUNCATION_MARKER`) under a `--- SPEC: <path> ---` header, behind a **mandatory `Path(p).is_file()` guard**. Missing/stale paths fall back to a path-only line and never call `_read_file` — so a resumed run with stale `parsed-request.json` SPECS paths cannot re-introduce a crash via a bare `FileNotFoundError`. Signature + both call sites unchanged; empty-input `""` contract and the substrings `AUTHORITATIVE SPECIFICATIONS` / `MUST Read each one IN FULL` preserved.
+- **`tests/cli/prd/test_spec_flag.py`** — `TestSpecFileAttach` → `TestSpecFileNotAttached` (asserts `--file` absence via `build_command()`) + new `TestAuthoritativeSpecsBlockInline` (content-inline / >50 KB truncation / missing-path no-raise); empty-input lock retained.
+This matches the no-`--file` contract the roadmap/tasklist/validate pipelines already enforce. No pipeline redesign; executor crashloop hardening is out of scope (separate follow-up).
+## Test evidence
+- `grep -rn '"--file"' src/superclaude/cli/prd/` → **0 matches**
+- `uv run pytest tests/cli/prd/ -q` → **160 passed** (== pre-change baseline)
+- `import superclaude.cli.prd.{process,prompts}` → OK
+- Out-of-scope base-class test `tests/pipeline/test_process.py` left untouched
+`/sc:reflect --mode post` (UC-2, Tier 1, calibrated confidence 0.95): **PASS — 0 drift / 0 regression**, 4/4 objectives spec-conformant. Report committed at `.dev/reflect/post-prd-local-file-20260609105644/REPORT.md`.
+- Driving spec: `.dev/specs/prd-local-file-delivery-fix.md` (hardened Option B)
+- Task file: `.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/`
+FILES:
+.dev/reflect/post-prd-local-file-20260609105644/REPORT.md
+.dev/reflect/post-prd-local-file-20260609105644/return-contract.yaml
+.dev/specs/prd-local-file-delivery-fix.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/TASK-RF-prd-local-file-20260609-005242.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/discovery/.start_commit
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/discovery/phase1-anchor-reverify.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/discovery/phase1-baseline.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/discovery/phase2-deadconst-grep.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reports/final-consolidation.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reports/git-scope-check.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reviews/final-qa-fidelity.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reviews/final-qa-qualitative.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reviews/final-qa-structural.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reviews/qa-consolidated-findings.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reviews/qa-fix-applied.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/reviews/qa-verification.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/test-results/phase1-baseline-pytest.txt
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/test-results/phase5-grep-guard.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/test-results/phase5-grep-guard.txt
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/test-results/phase5-pytest-summary.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/test-results/phase5-pytest.txt
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/test-results/phase5-sync.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/phase-outputs/test-results/phase5-sync.txt
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/analyst-completeness-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/analyst-cross-validation-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/qa-qualitative-operational-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/qa-qualitative-sufficiency-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/qa-research-depth-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/qa-research-gap-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/qa-task-research-alignment-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/qa-task-validation-b2-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/qa/qa-task-validation-structure-report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/reflect/pre/report.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/research-notes.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/research/01-process-py-file-args.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/research/02-prompts-and-siblings.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/research/03-template-and-tests.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/research/04-gap-fill-resolutions.md
+.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/research/qa/qa-research-evidence-report.md
+src/superclaude/cli/prd/process.py
+src/superclaude/cli/prd/prompts.py
+tests/cli/prd/test_spec_flag.py
+=== PR 154 ===
+TITLE: fix(prd): exempt sequential completion phase from parallel-instructions gate
+`_check_parallel_instructions` (gates.py) enforced the parallel-keyword requirement on **every** phase ≥2 — despite its `"phases 2-5"` docstring. It false-positived on the final **sequential completion/presentation phase** and **HALTed a live heavyweight PRD run** at `build-task-file`:
+Phase 7 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)
+Ground truth from the run: the generated task's parallel work phases run **2→6** (investigation, gates, web-research, synthesis, assembly — all passed), and only **Phase 7 "Present to User & Complete Task"** (sequential by anti-orphaning convention) lacked parallel keywords.
+## Fix
+Exempt the final phase **only when its heading marks it a completion phase** (`present`/`complete`/`finaliz`/`sign-off`/`wrap-up`). A final phase that is **not** completion-titled (e.g. a 2-phase task whose Phase 2 is real work) is **still checked** — so short tasks keep enforcement and the existing `test_check_parallel_instructions_missing` stays green. Phase 1 (setup) remains exempt as before (the check starts at phase 2). Net rule: **exempt the bookends (setup + completion), enforce the middle work phases.**
+Two options were debated (artifacts in `.dev/troubleshoot/parallel-gate-fix/adversarial/`): **clamp-to-2–5** vs **exempt-final-phase**. Clamp-2–5 was **rejected** — it leaves short-task false positives (completion phase ≤5 still trips), drops legitimate work phases 6+ (false negatives), and encodes a "≤5 work phases" convention the heavyweight template itself violates (work runs to phase 6). Implementation then revealed the *pure positional* exempt-final form would break the legitimate 2-phase work-phase test, so the exemption is gated on a **completion-heading signal** — faithful to the intent, with no over-exemption.
+## Tests
++3 (live 7-phase repro, short completion-phase exemption, final work-phase still enforced); both pre-existing gate tests preserved. `uv run pytest tests/cli/prd/` → **163 passed**.
+`cli/prd/gates.py` + `tests/cli/prd/test_gates.py` (+ decision-provenance docs under `.dev/`). No other pipeline changes.
+FILES:
+.dev/troubleshoot/parallel-gate-fix/adversarial/base-selection.md
+.dev/troubleshoot/parallel-gate-fix/adversarial/debate-transcript.md
+.dev/troubleshoot/parallel-gate-fix/adversarial/diff-analysis.md
+.dev/troubleshoot/parallel-gate-fix/adversarial/recommendation.md
+.dev/troubleshoot/parallel-gate-fix/option-A-clamp-2-5.md
+.dev/troubleshoot/parallel-gate-fix/option-B-exempt-final-phase.md
+src/superclaude/cli/prd/gates.py
+src/superclaude/skills/sc-auggie-review-protocol/SKILL.md
+tests/cli/prd/test_gates.py
+=== PR 155 ===
+TITLE: fix(prd): make parallel-instructions gate advisory (warn, don't halt)
+`_check_parallel_instructions` is a **STRICT** semantic check on the `build-task-file` gate. Its heuristic detection (loose `Phase \d` heading matching + literal-keyword matching) has **false-positived twice** on well-formed generated task files, each time **HALTing a ~25-minute heavyweight PRD run**:
+1. flagged the sequential final **completion** phase (Phase 7) — patched by #154;
+2. after #154, flagged "Phase 2" because the regex also matched Task-Log `### Phase N - … Findings` placeholder headings, and the loop tripped on the empty `Phase 2 - Codebase Research Findings`.
+**Cost asymmetry:** a false positive halts a long, expensive run; the failure the gate guards against (a task that runs agents serially instead of in parallel) is merely *slower, not wrong*. A hard gate inverts that asymmetry.
+## Fix
+Add a **per-check advisory severity** to the gate framework rather than chasing detection bugs forever:
+- `SemanticCheck.advisory: bool = False` (`pipeline/models.py`).
+- The STRICT semantic-check loop (`pipeline/gates.py`) **logs a WARNING and proceeds** when an `advisory` check fails, instead of failing the gate.
+- Mark **only** `parallel_instructions` advisory (`prd/gates.py`). `task_phases_present` and `b2_self_contained` stay STRICT/halting.
+This removes the failure **class** (no hard gate can FP-halt a good run) while preserving the signal as a non-fatal warning, and is **robust to all future detection brittleness** (a wrong advisory warning is harmless). Reusable for any other gate.
+## Why advisory (vs alternatives, decided via /sc:design)
+- vs **lenient hard gate**: still a hard gate → can still FP-halt; keeps chasing brittleness.
+`_check_parallel_instructions` itself is unchanged — only its *severity* drops. #154's completion-exemption is kept (makes the warning fire less spuriously); no further detection fixes needed.
+Every existing `SemanticCheck` defaults `advisory=False` → identical behavior; `gate_passed` return contract unchanged. Only `parallel_instructions` changes severity.
+## Tests (+5)
+advisory failure → gate PASS + WARNING logged; non-advisory failure still halts; advisory-then-strict still halts; `advisory` defaults False; build-task-file wiring lock (parallel advisory, other two strict). `tests/pipeline/` **418 passed**; `tests/cli/prd/` **164 passed**. Verified live: the previously-halted task file now passes `build-task-file` with the advisory warning logged.
+`pipeline/models.py` + `pipeline/gates.py` + `prd/gates.py` + tests + design spec (`.dev/specs/prd-parallel-gate-relax.md`). Additive framework change; no other gate affected.
+FILES:
+.dev/specs/prd-parallel-gate-relax.md
+src/superclaude/cli/pipeline/gates.py
+src/superclaude/cli/pipeline/models.py
+src/superclaude/cli/prd/gates.py
+tests/cli/prd/test_gates.py
+tests/pipeline/test_gates.py
+=== PR 138 ===
+TITLE: feat(reflect): wire /sc:reflect PRE+POST gates into task-builder & sc:tasklist pipelines
+Wires `/sc:reflect` into **both** tasklist-generating pipelines, adding an executor-disjoint reflection layer that closes the same-frame rf-qa blindspot documented in `feedback_sc_reflect_vs_inline_rfqa`. Implements both design proposals (`reflect-in-task-builder.md`, `reflect-in-sc-tasklist.md`) as strictly-additive markdown edits, plus the S4 token-set trim.
+- New **A.10.7 PRE reflect gate** — advisory-blocking, `Skill sc:reflect-protocol`, never auto-mutates (`feedback_human_decision_items_must_halt`)
+- `--spec` thread (A.2 `SPEC_PATH`) + frontmatter `spec_path`/`reflect_pre`/`reflect_post`
+- A.9 BUILD_REQUEST `POST_REFLECT_GATE` field + **Critical Rule #19** (MALFORMED-on-omission)
+- Templated fresh-session **POST reflect item** (penultimate, HALT) + A.11 `REFLECT GATES` block
+- New **Stage 10.5 pre-reflect fan-out** (N parallel agents, fenced after the patch chain)
+- Templated **terminal POST reflect task** per phase (Tier EXEMPT) + `phase-template.md` mirror
+- Per-phase deterministic **COMPLEXITY_SCORE** (`multifile` signal dropped)
+- `--no-reflect` escape hatch (command Usage/Arguments + skill `argument-hint`)
+- Index **Pre-Reflect Sign-off** column + `reflect_pre_summary` + `index-template.md` mirror
+- `validation/reflect-pre|post/` + `depth-map.yaml` directory convention
+- **Regression** subset baseline-equivalent (0 green→red; the 28 `TestCanonicalFixtureParity` failures are a pre-existing worktree fixture artifact)
+- Independently audited by **`/sc:reflect --mode post`** (run `post-TASK-RF-20260604-042055-20260604T120400`): deviations **Authorized 1 / Necessary 0 / Drift 0 / Regression 0**
+- Built + executed via the dogfood work-unit `TASK-RF-20260604-042055` (included under `.dev/`, with both PRE and POST reflect reports).
+FILES:
+.dev/proposals/reflect-in-sc-tasklist.md
+.dev/proposals/reflect-in-task-builder.md
+.dev/proposals/reflect-pre-sc-tasklist.md
+.dev/proposals/reflect-pre-task-builder.md
+.dev/proposals/reflect-pre2-sc-tasklist.md
+.dev/proposals/reflect-pre2-task-builder.md
+.dev/reflect/post-TASK-RF-20260604-042055-20260604T120400/REPORT.md
+.dev/reflect/post-TASK-RF-20260604-042055-20260604T120400/artifacts/effective-diff.patch
+.dev/reflect/post-TASK-RF-20260604-042055-20260604T120400/deviation-ledger.yaml
+.dev/reflect/post-TASK-RF-20260604-042055-20260604T120400/return-contract.yaml
+.dev/reflect/pre-TASK-RF-20260604-042055-20260604/REPORT.md
+.dev/reflect/pre-TASK-RF-20260604-042055-20260604/return-contract.yaml
+.dev/tasks/to-do/TASK-RF-20260604-042055/TASK-RF-20260604-042055.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/discovery/phase1-anchor-reverify.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/discovery/phase1-baseline.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/discovery/phase2-s4-trim-verify.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/plans/phase4-verdict.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/reports/final-consolidation.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/reports/git-scope-check.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/reviews/final-qa-qualitative.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/reviews/final-qa.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase1-baseline-pytest.txt
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase2-sync-dev.txt
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase2-verify.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase3-markdownlint-BASELINE.txt
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase3-sync-dev.txt
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase3-verify.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase4-regression-pytest.txt
+.dev/tasks/to-do/TASK-RF-20260604-042055/phase-outputs/test-results/phase4-regression-summary.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/qa/analyst-completeness-report.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/qa/qa-qualitative-review.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/qa/qa-research-gate-report.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/qa/qa-task-validation-report.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/research-notes.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/research/01-taskbuilder-skill-anchors.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/research/02-tasklist-skill-anchors.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/research/03-tasklist-command-and-templates.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/research/04-test-verification-impact.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/research/05-patterns-conventions-sync-reflect.md
+.dev/tasks/to-do/TASK-RF-20260604-042055/research/06-mdtm-template-and-examples.md
+src/superclaude/commands/tasklist.md
+src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+src/superclaude/skills/sc-tasklist-protocol/templates/index-template.md
+src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md
+src/superclaude/skills/task-builder/SKILL.md
+=== PR 144 ===
+TITLE: feat(task-builder): converge rigorflow task-builder, rf agents, and MDTM templates (incl. #138 sc:reflect)
+The converged rigorflow task-builder pipeline, additive over `master`:
+Exactly 11 files. No other paths are touched.
+## #138 sc:reflect carry-forward
+This branch was prepared off a pin that predated #138, so the #138 `sc:reflect` wiring was explicitly carried forward into the converged `SKILL.md` (otherwise this PR would have regressed it). Adaptations:
+- **PRE gate (A.10.7)**, the **`--spec` input**, and the deterministic **TCS depth score** are kept as authored in #138.
+- **POST gate is self-run.** Instead of #138's halt-for-human handoff, the templated final-phase POST item spawns a reflect subagent, records `{verdict, run_id, report}` to frontmatter, remediates or logs deviations, then proceeds to mark the task Done. The subagent supplies the executor-disjoint context, so no separate operator session is needed.
+- **Reflect frontmatter** (`spec_path`, `reflect_pre`, `reflect_post`) is defined in the MDTM templates (templates-as-schema; the builder populates them).
+- IC's new numbered rule lands as rule 20 here (this converged file already had a rule 19).
+- The dangling `feedback_human_decision_items_must_halt` reference (no backing memory file in the repo) was dropped.
+- Confirmed additive: across these 11 files, `master` added only #138 (to `SKILL.md`) since the merge base; the other 10 had zero commits, so nothing newer is clobbered.
+- Four independent QA passes (decision-coverage, self-run/halt-removal, IC-fidelity/ASCII, template/cross-file consistency) all returned PASS.
+FILES:
+src/superclaude/agents/rf-analyst.md
+src/superclaude/agents/rf-assembler.md
+src/superclaude/agents/rf-qa-qualitative.md
+src/superclaude/agents/rf-qa.md
+src/superclaude/agents/rf-task-builder.md
+src/superclaude/agents/rf-task-executor.md
+src/superclaude/agents/rf-task-researcher.md
+src/superclaude/agents/rf-team-lead.md
+src/superclaude/skills/task-builder/SKILL.md
+src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+src/superclaude/templates/workflow/02_mdtm_template_complex_task.md
+tests/audit/test_dynamic_enumeration_inv_010.py
+tests/audit/test_hidden_input_guard.py
+tests/audit/test_sequencing_PR06_before_PR04.py
+tests/skills/test_task_builder_merge.py

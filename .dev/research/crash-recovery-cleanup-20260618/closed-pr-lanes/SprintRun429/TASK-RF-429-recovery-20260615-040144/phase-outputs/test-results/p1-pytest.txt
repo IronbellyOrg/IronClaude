@@ -1,0 +1,51 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.0, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/SprintRun429/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/SprintRun429
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.13.0
+collecting ... collected 39 items
+
+tests/sprint/test_monitor.py::TestPatterns::test_task_id_pattern PASSED  [  2%]
+tests/sprint/test_monitor.py::TestPatterns::test_task_id_multiple PASSED [  5%]
+tests/sprint/test_monitor.py::TestPatterns::test_tool_pattern PASSED     [  7%]
+tests/sprint/test_monitor.py::TestPatterns::test_tool_pattern_multiple PASSED [ 10%]
+tests/sprint/test_monitor.py::TestPatterns::test_files_changed_pattern PASSED [ 12%]
+tests/sprint/test_monitor.py::TestPatterns::test_files_changed_multiple_verbs PASSED [ 15%]
+tests/sprint/test_monitor.py::TestOutputMonitor::test_initial_state PASSED [ 17%]
+tests/sprint/test_monitor.py::TestOutputMonitor::test_detects_new_content PASSED [ 20%]
+tests/sprint/test_monitor.py::TestOutputMonitor::test_detects_tool_usage PASSED [ 23%]
+tests/sprint/test_monitor.py::TestOutputMonitor::test_stop_terminates_thread PASSED [ 25%]
+tests/sprint/test_monitor.py::TestOutputMonitor::test_reset_clears_state PASSED [ 28%]
+tests/sprint/test_monitor.py::TestOutputMonitor::test_handles_missing_file PASSED [ 30%]
+tests/sprint/test_monitor.py::TestOutputMonitor::test_incremental_read PASSED [ 33%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_detects_error_max_turns_last_line PASSED [ 35%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_no_false_positive_on_success PASSED [ 38%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_no_false_positive_on_other_error PASSED [ 41%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_empty_output PASSED [ 43%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_missing_file PASSED [ 46%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_truncated_ndjson PASSED [ 48%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_multiple_lines_only_checks_last PASSED [ 51%]
+tests/sprint/test_monitor.py::TestDetectErrorMaxTurns::test_trailing_whitespace PASSED [ 53%]
+tests/sprint/test_monitor.py::TestCountTurnsFromOutput::test_counts_assistant_turns PASSED [ 56%]
+tests/sprint/test_monitor.py::TestCountTurnsFromOutput::test_zero_turns_on_empty PASSED [ 58%]
+tests/sprint/test_monitor.py::TestCountTurnsFromOutput::test_zero_turns_missing_file PASSED [ 61%]
+tests/sprint/test_monitor.py::TestCountTurnsFromOutput::test_no_assistant_messages PASSED [ 64%]
+tests/sprint/test_monitor.py::TestCountTurnsFromOutput::test_many_turns PASSED [ 66%]
+tests/sprint/test_monitor.py::TestCountTurnsFromOutput::test_handles_malformed_json_lines PASSED [ 69%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_single_account_429 PASSED [ 71%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_all_account_cooldown_captures_model PASSED [ 74%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_operation_timeout PASSED [ 76%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_task_failure_real_is_none PASSED [ 79%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_clean_pass_is_none PASSED [ 82%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_api_retry_maxed_still_single_account PASSED [ 84%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_truncated_ndjson_is_none PASSED [ 87%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_empty_output_is_none PASSED [ 89%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_missing_file_is_none PASSED [ 92%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_subtype_trap_keys_on_is_error_not_subtype PASSED [ 94%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_429_with_neither_body_conservative_default PASSED [ 97%]
+tests/sprint/test_monitor.py::TestDetectProviderFailure::test_text_core_matches_path_wrapper PASSED [100%]
+
+============================== 39 passed in 2.00s ==============================

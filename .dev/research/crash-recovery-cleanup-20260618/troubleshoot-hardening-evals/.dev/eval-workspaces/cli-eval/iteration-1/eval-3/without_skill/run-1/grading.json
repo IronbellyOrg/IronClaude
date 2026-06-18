@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Inspects the suite via `superclaude eval describe` (through the CLI)",
+      "passed": true,
+      "evidence": "trace: `eval describe --suite installer_sync_drift` exit 0; `eval list --json` confirms eval_count 1"
+    },
+    {
+      "text": "Reports isolation strategy (shared HOME), timeouts, and the no_pty markers",
+      "passed": true,
+      "evidence": "report: home_strategy=shared, timeout_sec=180, no_pty:skip on S1, all 4 hard binaries"
+    },
+    {
+      "text": "Correct --no-pty verdict: it short-circuits S1 to SKIPPED and exercises nothing; real run omits --no-pty (+ FR-G5 workaround)",
+      "passed": true,
+      "evidence": "Verdict: running with --no-pty exercises NOTHING; cited commands.py:1894 short-circuit; real run on default PTY path"
+    },
+    {
+      "text": "Grounds flag/behavior claims in re-read sources, not memory",
+      "passed": true,
+      "evidence": "Cites installer_sync_drift.yaml:57, suite.schema.json:153-157, commands.py:1894"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 12,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 97.0
+  }
+}

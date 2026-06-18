@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+      "passed": false,
+      "evidence": "Investigated via doctor/describe but no deliberate cited fresh-context load"
+    },
+    {
+      "text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+      "passed": true,
+      "evidence": "`superclaude eval list` showed eval_smoke (3 evals)"
+    },
+    {
+      "text": "Surfaces the FR-G5 exit-2 gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+      "passed": false,
+      "evidence": "Hit gate exit 2; declared 'editing host settings.json out of scope / no bypass flag' and did NOT apply the empty-HOME workaround -> no result"
+    },
+    {
+      "text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+      "passed": true,
+      "evidence": "Inspected describe; noted all evals no_pty:skip (CLI-smoke)"
+    },
+    {
+      "text": "Reports the outcome from summary.json (machine truth), not scrollback",
+      "passed": false,
+      "evidence": "0 evals executed (gate abort); no summary.json to parse"
+    },
+    {
+      "text": "Honest result incl. AUTHORITATIVENESS: labels a stubbed-executor PASS NON-AUTHORITATIVE, not a real pass",
+      "passed": true,
+      "evidence": "Honest the run did not execute; surfaced null executor + FR-G5 as design, modified nothing"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 3,
+    "total": 6,
+    "pass_rate": 0.5
+  },
+  "execution_metrics": {
+    "total_tool_calls": 15,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 195.2
+  }
+}

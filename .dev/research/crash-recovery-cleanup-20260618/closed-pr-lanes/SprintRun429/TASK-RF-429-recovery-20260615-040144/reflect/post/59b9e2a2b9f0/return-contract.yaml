@@ -1,0 +1,80 @@
+contract_version: "1.5.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/reflect/post/59b9e2a2b9f0/REPORT.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/reflect/post/59b9e2a2b9f0/audit.log"
+confidence_calibrated: 0.91
+escalation_rule_matched: null   # --depth deep forced T2 (§5.1 hard override)
+note: "Interactive Tier-2 RE-RUN. Supersedes the 2026-06-18T06:04 headless contract. The headless run flagged 2 regressions (D1,D2) + 3 drift (D3,D6,D7); ALL FIVE are REMEDIATED in the current tree with real (non-mock) test guards. status:partial here is driven by residual LOW-severity polish items + the work-unit not being formally closed (frontmatter still '🟠 Doing'), NOT by any functional regression."
+
+# UC-2 specific
+tasklist_completion_pct: 0.99   # implementation + all prior-deviation remediations complete; open items = this reflect gate + the operator close. The recovery path now FUNCTIONS (D1/D2 fixed).
+deviation_count_by_class:
+  authorized: 1     # A1 nominator exclusion (OQ-2 option a)
+  necessary: 3      # N1 tui mapping; N2 pre-existing e2e fileno (environmental); R3-003 weak resume-safety assertion
+  drift: 4          # R1-F3 turns-accounting (LOW), R2-H6 single-session resume --model (LOW), R1-F1 doc-vs-code cap label (LOW), R1-F2 latch telemetry overshoot (LOW) — ALL non-blocking-by-impact; spec-consistent behavior with doc/observability/edge nits
+  regression: 0     # all prior regressions (D1 HIGH, D2 MED) FIXED + guarded
+deviation_register_path: ".dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/reflect/post/59b9e2a2b9f0/deviation-ledger.yaml"
+grounding_gaps_path: ".dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/reflect/post/59b9e2a2b9f0/grounding-gaps.yaml"
+
+verification_ran: true
+verification_invocations: 3   # changed-files suite (352 pass) + full sprint suite (1235 pass / 2 pre-existing fileno fail) + direct hasattr probe
+verification_failures: 2      # both pre-existing fileno e2e (test_rerun_tasks_e2e.py — NOT in diff, CliRunner stdout-capture artifact)
+verification_regressions_detected: 0   # D1 hasattr probe now TRUE (methods exist); no regression on the 429-recovery surface
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 2          # R3-001 (false positive: <synthetic> is spec-pinned), R3-002 (authorized: OQ-1 option A os.environ reader)
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # orchestrator re-Read every cited file:line (recovery_policy.py, models.py:866-901, executor.py:1903-1908, monitor.py, logging_.py, fixtures, aienv.py)
+
+# Tier 2 artifacts
+reviewer_cards: ["reviewer-1 (sonnet→gpt-5.5, executor control flow + concurrency)", "reviewer-2 (haiku→qwen3.6-plus, detector/models/aienv/logging)", "reviewer-3 (sonnet→gpt-5.5, spec coverage + test authenticity + UX)"]
+t2_model_class_diversity: full     # sonnet + haiku reviewers; executor class opus EXCLUDED (--executor-model opus)
+t2_vendor_diversity: multi         # gpt-5.5 (sonnet alias) + qwen3.6-plus (haiku alias) — genuine cross-vendor per ~/.aienv routing
+calibrator_diversity: full         # calibrator=opus disjoint from {sonnet,haiku}
+executor_class_source: flag        # --executor-model opus
+executor_class_resolved: true
+executor_exclusion_degraded: false
+merge_method: inline-orchestrator-merge   # reviewers' findings were complementary, not competing; merged via direct per-finding evidence-validation (re-Read), not sc-adversarial debate
+adversarial_unavailable: false     # not invoked (no competing verdicts to debate); inline merge sufficient
+convergence_score: null            # sc-adversarial not invoked → null by construction; does NOT change the promotion outcome (gate already blocks on conds 2/3/4/5b/6a)
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null   # awaiting operator
+remediation_task_path: null  # AUTO-FIXABLE register (drift/necessary only; zero regressions) — offer first, author on accept
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false    # CHANGED from the headless run (was true) — D1/D2 remediated + verified
+unauthorized_deviation_present: true   # 4 LOW drift items (non-blocking-by-impact but unauthorized)
+blocked_by_low_confidence: false
+spec_is_wrong: false         # one spec line (§6 'parse a fixture ~/.aienv') is STALE vs OQ-1 option A, but the spec is not wrong about the feature
+user_decision_required: false
+needs_human_decision: false  # grounding-gaps.yaml is EMPTY (the headless run's single gap is resolved at executor.py:1903-1908)
+
+# Promotion (UC-2) — BLOCKED (work-unit not formally closed)
+promotion_action: skipped
+promotion_skip_reason: gate-failed
+promotion_gate_passed: false
+gate_evaluation:
+  mode_post: pass
+  status_success: fail            # status=partial (residual LOW drift + open close items)
+  tasklist_completion_pct_1_0: fail   # 0.99 — reflect gate + operator close still open
+  no_drift_no_regression: fail    # drift=4 (all LOW); regression=0
+  frontmatter_present: pass
+  frontmatter_status_matches: fail   # frontmatter status="🟠 Doing", not done
+  no_citations_dropped: fail      # 2 dropped (both correct drops — gate working, not a clean-pass smell)
+  no_grounding_gaps: pass         # grounding-gaps.yaml EMPTY (improved vs headless)
+  no_input_drift: pass            # input_tree_sha256 stable across the run
+  no_user_decision_pending: pass  # needs_human_decision=false, user_decision_required=false (improved vs headless)
+  adversarial_result_present: fail  # tier_reached==2 AND convergence_score==null (cond 9 blocks T2 promotion)
+
+input_tree_sha256: "8ec54da0e5e54c7d616c3fdf5cf46a8ded91ac48b513d4ffb8f410b323800ddf"
+input_drift_detected: false

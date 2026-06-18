@@ -1,0 +1,5 @@
+{
+  "eval_id": 1,
+  "eval_name": "run-eval-smoke",
+  "prompt": "I want to run the eval_smoke suite from this project's eval pipeline and see the results. Walk me through selecting and supervising the run, then tell me what happened."
+}

@@ -1,0 +1,3 @@
+{"pr":173,"url":"https://github.com/IronbellyOrg/IronClaude/pull/173","head_sha":"b9378c72e2d5acc12607316b10ef377110f7c5a3","base":"master","state":"polling","reviews":[],"comments":[]}
+
+{"event":"terminal_halted","status":"blocked","reason":"PR head feat/troubleshoot-pipeline-hardening is behind origin/master; approved pr-submit monitor scripts/core from origin/master are absent on the checked-out PR head, so the monitor cannot be confirmed/executed on the target branch without rebasing first.","pr":173,"head":"feat/troubleshoot-pipeline-hardening","base":"master"}

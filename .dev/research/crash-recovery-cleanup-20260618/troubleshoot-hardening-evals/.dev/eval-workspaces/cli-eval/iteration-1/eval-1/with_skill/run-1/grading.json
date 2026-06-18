@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+      "passed": true,
+      "evidence": "trace.md cites commands.py, exit_codes.py, artifact_layout.py, models.py, eval_smoke.yaml, suites-guide before acting"
+    },
+    {
+      "text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+      "passed": true,
+      "evidence": "report.md: `eval list --json` -> exit 0; eval_smoke present (v1.0, 3 evals)"
+    },
+    {
+      "text": "Surfaces the FR-G5 exit-2 coverage gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+      "passed": true,
+      "evidence": "report.md lines 9-14: gate fired exit 2; TMPHOME=$(mktemp -d) HOME=$TMPHOME workaround cleared it -> exit 0"
+    },
+    {
+      "text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+      "passed": true,
+      "evidence": "report.md line 15: all 3 evals no_pty:skip so --no-pty short-circuits the whole suite to SKIPPED (not a pass)"
+    },
+    {
+      "text": "Reports the outcome from summary.json (machine truth), not scrollback",
+      "passed": true,
+      "evidence": "report.md lines 17-25: parsed on-disk summary.json at .dev/eval-runs/2026-06-12/134335Z-07aca9f1/ (3/3 PASS, counts invariant)"
+    },
+    {
+      "text": "Honest result: does not call a SKIPPED/failed run a pass; surfaces the M2 _NullLifecycleExecutor non-authoritative caveat",
+      "passed": true,
+      "evidence": "report.md lines 27-33: explicitly flags _NullLifecycleExecutor canned-PASS; 'NOT yet an authoritative eval pass'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 22,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 241.5
+  }
+}

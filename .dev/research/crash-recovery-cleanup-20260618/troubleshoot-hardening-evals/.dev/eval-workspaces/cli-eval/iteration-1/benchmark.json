@@ -1,0 +1,331 @@
+{
+  "metadata": {
+    "skill_name": "sc-cli-eval-protocol",
+    "skill_path": "/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/src/superclaude/skills/sc-cli-eval-protocol",
+    "executor_model": "claude-opus-4-8 (subagents, general-purpose)",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-12T13:56:38Z",
+    "evals_run": [
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 1,
+    "methodology_note": "1 run per eval per config (6 subagent runs total). The pass-rate stddev reflects BETWEEN-EVAL difficulty spread, NOT run-to-run flakiness \u2014 no repeated-run flakiness signal was collected this iteration."
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 241.5,
+        "tokens": 0,
+        "tool_calls": 22,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+          "passed": true,
+          "evidence": "trace.md cites commands.py, exit_codes.py, artifact_layout.py, models.py, eval_smoke.yaml, suites-guide before acting"
+        },
+        {
+          "text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+          "passed": true,
+          "evidence": "report.md: `eval list --json` -> exit 0; eval_smoke present (v1.0, 3 evals)"
+        },
+        {
+          "text": "Surfaces the FR-G5 exit-2 coverage gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+          "passed": true,
+          "evidence": "report.md lines 9-14: gate fired exit 2; TMPHOME=$(mktemp -d) HOME=$TMPHOME workaround cleared it -> exit 0"
+        },
+        {
+          "text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+          "passed": true,
+          "evidence": "report.md line 15: all 3 evals no_pty:skip so --no-pty short-circuits the whole suite to SKIPPED (not a pass)"
+        },
+        {
+          "text": "Reports the outcome from summary.json (machine truth), not scrollback",
+          "passed": true,
+          "evidence": "report.md lines 17-25: parsed on-disk summary.json at .dev/eval-runs/2026-06-12/134335Z-07aca9f1/ (3/3 PASS, counts invariant)"
+        },
+        {
+          "text": "Honest result: does not call a SKIPPED/failed run a pass; surfaces the M2 _NullLifecycleExecutor non-authoritative caveat",
+          "passed": true,
+          "evidence": "report.md lines 27-33: explicitly flags _NullLifecycleExecutor canned-PASS; 'NOT yet an authoritative eval pass'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 224.6,
+        "tokens": 0,
+        "tool_calls": 21,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Re-reads the suite schema + house-style templates + CLI surface and cites them (fresh-context load)",
+          "passed": true,
+          "evidence": "trace cites `eval run --help` (12 flags + --suite [required]), suite.schema.json, eval_smoke.yaml, installer_sync_drift.yaml, suites/README.md"
+        },
+        {
+          "text": "Routes critique + debate/merge through the reused skills (/sc:spec-panel, /sc:adversarial) rather than reinventing them",
+          "passed": true,
+          "evidence": "Described W2 /sc:spec-panel --mode critique and W3 /sc:adversarial --generate eval-suite --agents opus,sonnet,haiku with a merge verdict (variant B)"
+        },
+        {
+          "text": "Authors the manifest schema-first in house style: stem == name, only schema-known keys, meaningful expects (not bare exit_code:0)",
+          "passed": true,
+          "evidence": "eval_cli_doc_parity.yaml: stem==name, 3 evals DP1/DP2/DP3, positive substring per documented flag + [required] guard"
+        },
+        {
+          "text": "Validates with `superclaude eval describe --suite <stem>` to loader exit 0 before declaring done",
+          "passed": true,
+          "evidence": "`eval describe --suite eval_cli_doc_parity` -> exit 0; also appears in `eval list --json` (eval_count 3)"
+        },
+        {
+          "text": "Does not invent schema fields / CLI flags",
+          "passed": true,
+          "evidence": "Only schema-known keys; validated clean on first pass (no fix loop)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 110.2,
+        "tokens": 0,
+        "tool_calls": 15,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Inspects the suite via `superclaude eval describe` (through the CLI)",
+          "passed": true,
+          "evidence": "trace: `eval describe --suite installer_sync_drift` exit 0; corroborated against the yaml"
+        },
+        {
+          "text": "Reports isolation strategy (shared HOME), timeouts, and the no_pty markers",
+          "passed": true,
+          "evidence": "report: home_strategy shared, timeout_sec 180, no_pty:skip on S1, hard binaries listed"
+        },
+        {
+          "text": "Correct --no-pty verdict: it short-circuits S1 to SKIPPED and exercises nothing; real run omits --no-pty (+ FR-G5 workaround)",
+          "passed": true,
+          "evidence": "Verdict: --no-pty exercises NOTHING (SKIPPED, skip_reason=--no-pty); real run omits --no-pty and clears FR-G5 via empty-HOME workaround"
+        },
+        {
+          "text": "Grounds flag/behavior claims in re-read sources, not memory",
+          "passed": true,
+          "evidence": "Cites suite.schema.json:153-157, run-pipeline.md:33-35, suites-guide.md:549-554"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 3,
+        "failed": 3,
+        "total": 6,
+        "time_seconds": 199.4,
+        "tokens": 0,
+        "tool_calls": 16,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+          "passed": false,
+          "evidence": "Discovered the surface via `eval --help` only; no file:line contract citations / no deliberate fresh-context load"
+        },
+        {
+          "text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+          "passed": true,
+          "evidence": "report.md step 2: `superclaude eval list` showed eval_smoke (3 evals)"
+        },
+        {
+          "text": "Surfaces the FR-G5 exit-2 coverage gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+          "passed": false,
+          "evidence": "Hit the gate (exit 2) but did NOT apply the workaround; concluded it 'would require write access' / a different host -> no result obtained"
+        },
+        {
+          "text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+          "passed": true,
+          "evidence": "report.md step #3 'to actually get green': not --no-pty, which would skip the suite"
+        },
+        {
+          "text": "Reports the outcome from summary.json (machine truth), not scrollback",
+          "passed": false,
+          "evidence": "0 evals executed; run aborted at the gate so there was no summary.json to parse"
+        },
+        {
+          "text": "Honest result: does not call a SKIPPED/failed run a pass; surfaces the M2 _NullLifecycleExecutor non-authoritative caveat",
+          "passed": true,
+          "evidence": "report.md lines 38, 44: surfaces null executor at M2 and that nothing was modified to 'make it pass'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 4,
+        "failed": 1,
+        "total": 5,
+        "time_seconds": 285.7,
+        "tokens": 0,
+        "tool_calls": 28,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Re-reads the suite schema + house-style templates + CLI surface and cites them (fresh-context load)",
+          "passed": true,
+          "evidence": "Engaged the schema/loader directly: ran loader.validate_manifest() and Expect.from_mapping to ground the manifest shape"
+        },
+        {
+          "text": "Routes critique + debate/merge through the reused skills (/sc:spec-panel, /sc:adversarial) rather than reinventing them",
+          "passed": false,
+          "evidence": "No critique/debate step at all; authored a single design unaided (the reuse pipeline is the skill's contribution)"
+        },
+        {
+          "text": "Authors the manifest schema-first in house style: stem == name, only schema-known keys, meaningful expects (not bare exit_code:0)",
+          "passed": true,
+          "evidence": "doc_flag_parity.yaml: stem==name, 2 evals, bidirectional flag diff with IN_SYNC/DRIFT verdict"
+        },
+        {
+          "text": "Validates with `superclaude eval describe --suite <stem>` to loader exit 0 before declaring done",
+          "passed": true,
+          "evidence": "`eval describe --suite doc_flag_parity` -> exit 0; `eval list` shows '2 evals'; loader.validate_manifest passed"
+        },
+        {
+          "text": "Does not invent schema fields / CLI flags",
+          "passed": true,
+          "evidence": "Validated four ways; no schema violations reported"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 97.0,
+        "tokens": 0,
+        "tool_calls": 12,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Inspects the suite via `superclaude eval describe` (through the CLI)",
+          "passed": true,
+          "evidence": "trace: `eval describe --suite installer_sync_drift` exit 0; `eval list --json` confirms eval_count 1"
+        },
+        {
+          "text": "Reports isolation strategy (shared HOME), timeouts, and the no_pty markers",
+          "passed": true,
+          "evidence": "report: home_strategy=shared, timeout_sec=180, no_pty:skip on S1, all 4 hard binaries"
+        },
+        {
+          "text": "Correct --no-pty verdict: it short-circuits S1 to SKIPPED and exercises nothing; real run omits --no-pty (+ FR-G5 workaround)",
+          "passed": true,
+          "evidence": "Verdict: running with --no-pty exercises NOTHING; cited commands.py:1894 short-circuit; real run on default PTY path"
+        },
+        {
+          "text": "Grounds flag/behavior claims in re-read sources, not memory",
+          "passed": true,
+          "evidence": "Cites installer_sync_drift.yaml:57, suite.schema.json:153-157, commands.py:1894"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 192.1,
+        "stddev": 71.4291,
+        "min": 110.2,
+        "max": 241.5
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.7667,
+        "stddev": 0.2517,
+        "min": 0.5,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 194.0333,
+        "stddev": 94.4644,
+        "min": 97.0,
+        "max": 285.7
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.23",
+      "time_seconds": "-1.9",
+      "tokens": "+0"
+    }
+  },
+  "notes": [
+    "Eval 1 (run-eval-smoke) is where the skill earns its value: +0.50 (with 6/6 vs baseline 3/6). Baseline correctly diagnosed the FR-G5 exit-2 gate but GAVE UP ('would require write access / a different host'); the skill applied the documented empty-HOME (TMPHOME/HOME) workaround and parsed a real summary.json. The workaround is the single highest-leverage thing the skill teaches.",
+    "Eval 3 (inspect-suite-safety) is NON-DISCRIMINATING: 4/4 in BOTH configs. A capable base model reads the manifest + schema and answers the --no-pty question correctly unaided. This eval guards against regression but produces ~zero skill-value signal; consider making it harder (mixed-no_pty suite where the verdict is subtler) or treating it as a triggering/regression check only.",
+    "Eval 2 (create) delta is modest (+0.20): the baseline authored AND schema-validated a valid manifest unaided. The skill's differentiator is the PROCESS (spec-panel critique + adversarial debate/merge + doc-update), captured by a single assertion (B2). Manifest validity alone does not discriminate \u2014 the rigor does.",
+    "CROSS-CUTTING IMPROVEMENT SIGNAL (both agents found it): the eval runner currently uses an M2 _NullLifecycleExecutor that emits canned PASS and a 'results MUST NOT be treated as authoritative' warning (suppressed by --json, shown by --verbose). The production PTY executor lands M5/M6. The skill's run pipeline + eval-run-reporter should EXPLICITLY require surfacing this non-authoritative caveat so an operator never mistakes a plumbing PASS for a real one. -> fold into iteration 2.",
+    "Token cost (from timing.json; aggregator left the column 0 due to a script quirk): with_skill eval-1 used 169K tokens vs baseline 97K \u2014 the workaround path costs more but is the only one that returns an actual result. Across all evals with_skill ~mean 127K vs baseline ~106K.",
+    "with_skill pass-rate stddev is 0 (3/3 evals at 1.0); baseline spread (0.5-1.0) is driven entirely by per-eval difficulty, reinforcing that the skill's value is concentrated on the operationally hard eval (run), not the knowledge-recall eval (inspect)."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "create-doc-parity-suite",
+  "prompt": "Author a new eval suite for this project that checks the documented `superclaude eval run` flags stay in sync with `superclaude eval run --help`. Set it up properly and make sure it's actually valid.",
+  "assertions": [
+    "Re-reads the suite schema + house-style templates + CLI surface and cites them (fresh-context load)",
+    "Routes critique + debate/merge through the reused skills (/sc:spec-panel, /sc:adversarial) rather than reinventing them",
+    "Authors the manifest schema-first in house style: stem == name, only schema-known keys, meaningful expects (not bare exit_code:0)",
+    "Validates with `superclaude eval describe --suite <stem>` to loader exit 0 before declaring done",
+    "Does not invent schema fields / CLI flags"
+  ]
+}

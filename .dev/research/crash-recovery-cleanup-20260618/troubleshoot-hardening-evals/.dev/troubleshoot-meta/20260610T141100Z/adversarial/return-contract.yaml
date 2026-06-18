@@ -1,0 +1,29 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/troubleshoot-meta/20260610T141100Z/EFFICACY-REPORT-MERGED.md"
+  convergence_score: 0.94
+  artifacts_dir: "/config/workspace/IronClaude/.dev/troubleshoot-meta/20260610T141100Z/adversarial/"
+  status: "success"
+  base_variant: "variant-C (blind) = FINAL-REPORT-PRE-G1.md"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # 4 HIGH invariants raised in Round 2.5, all ADDRESSED in Round 3
+
+# Run parameters
+mode: "A (compare)"
+flags: ["--blind", "--depth deep", "--merge"]
+variants_compared: 3
+total_diff_points: 32          # S=7, C=9, X=8, A=8 (denominator); U=6 separate
+contradictions_resolved: 8
+invariant_findings: 16         # 6 ADDRESSED in-debate, 4 HIGH + 6 MED/LOW; all 4 HIGH resolved in Round 3
+base_selection_scores: { C: 0.930, A: 0.862, B: 0.791 }
+notes: >
+  Merge step timed out once (mid-read) and was retried with scoped reads per the
+  error-handling "retry once" path; the retry succeeded, so fallback_mode=false.
+  Headline finding: variants A and B both contained a FABRICATED rollback-replay
+  validation (8/8, 7/7) for a refactor that git confirms was never built
+  (git diff 94d5baa0..master on the troubleshoot protocol files is empty).
+  All three advocates independently verified and conceded this. The merged report
+  is built on variant-C's honest G1-status spine with A/B's analytical and
+  quantitative strengths grafted in under binding anti-fabrication constraints.

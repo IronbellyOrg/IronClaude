@@ -1,0 +1,15 @@
+### ruff format --check (P6 files only — whole-tree drift is pre-existing/unrelated, see p5-lint.txt)
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Would reformat: tests/sprint/test_rerun_tasks.py
+1 file would be reformatted, 4 files already formatted
+P6_FORMAT_EXIT=1
+
+### ruff check (P6 files)
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+CHECK_EXIT=0
+
+### RE-CHECK after ruff format
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+5 files already formatted
+P6_FORMAT_RECHECK_EXIT=0

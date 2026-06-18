@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# doc_flag_parity — documentation ↔ CLI flag-drift gate for `eval run`.
+#
+# CADENCE (operator-facing metadata; not enforced by the eval framework):
+#   - On every PR touching src/superclaude/cli/eval/commands.py
+#     (the `eval_run` @click.option block) OR
+#     docs/user-guide/eval-pipeline.md (the `eval run` flag table).
+#   - Nightly via CI scheduled job on the integration branch.
+#
+# WHAT THIS SUITE GUARDS:
+#   The documented `superclaude eval run` flag table in
+#   docs/user-guide/eval-pipeline.md (the "| `--flag` | TYPE | default |"
+#   table at eval-pipeline.md:162-174) must stay in sync with the live
+#   `superclaude eval run --help` output (the twelve @click.option flags
+#   on `eval_run`, commands.py:1553-1668). Two drift directions:
+#
+#     1. DOC → CLI drift (DP1): a flag documented in the table was
+#        removed or renamed in the CLI. Each documented flag token MUST
+#        still appear verbatim in `eval run --help` stdout. If `--keep-home`
+#        is documented but the option was deleted/renamed, DP1's
+#        `stdout: contains "--keep-home"` assertion fails.
+#
+#     2. CLI → DOC drift (DP2): a flag the CLI gained was never added to
+#        the doc table. DP2 has Claude read BOTH surfaces, diff the flag
+#        sets in both directions, and print an explicit verdict line.
+#        The assertion pins the in-sync verdict token and forbids the
+#        drift marker — so a CLI-only flag (present in --help, absent from
+#        the table) is caught even though `contains` alone cannot express
+#        "no extra flags".
+#
+# WHY home_strategy=shared:
+#   DP2 must read the real working-tree doc (docs/user-guide/eval-pipeline.md);
+#   an ephemeral $HOME has no repo checkout to read. Both evals are strictly
+#   read-only (they run `--help` and `cat`/Read the doc; nothing writes to
+#   $HOME), so sharing HOME is safe — no cross-eval contamination.
+#
+# WHY no_pty=skip:
+#   Every eval drives a Claude Code PTY subprocess; `--no-pty` short-circuits
+#   each eval with status SKIPPED (DOC-OQ3 / R-077 / D-0077), matching the
+#   rest of the eval inventory so `--no-pty` semantics stay uniform.
+#
+# Hypothesis under test:
+#   The twelve flags documented at eval-pipeline.md:162-174
+#   (--suite, --parallel, --eval, --no-mcp, --no-pty, --output-dir,
+#   --keep-home, --timeout-mult, --max-disk-mb, --json, --verbose, --junit)
+#   are exactly the flags emitted by `superclaude eval run --help`. Any
+#   add/remove/rename on either side trips DP1 or DP2.
+name: doc_flag_parity
+version: "1.0"
+description: "Documentation ↔ CLI flag-drift gate: the documented `superclaude eval run` flag table (docs/user-guide/eval-pipeline.md) must match `superclaude eval run --help`. Cadence: on-PR (commands.py / eval-pipeline.md) + nightly via CI."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: git,                          failure_mode: hard }
+
+optional_capabilities: []
+
+evals:
+  - id: DP1
+    title: "Every documented `eval run` flag appears in `eval run --help`"
+    category: doc-cli-parity
+    requires: []
+    timeout_sec: 90
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # DP1 — DOC → CLI direction. The doc flag table at
+    # docs/user-guide/eval-pipeline.md:162-174 enumerates twelve flags.
+    # This eval drives Claude to run `superclaude eval run --help` via
+    # Bash and print the full stdout; the assertions then require each of
+    # the twelve documented flag tokens to be present in the help text.
+    # A flag that was renamed (e.g. --keep-home → --preserve-home) or
+    # deleted in commands.py without a matching doc edit fails the
+    # corresponding `contains` assertion. exit_code 0 confirms `--help`
+    # itself is well-formed.
+    inputs:
+      - prompt: "Run `superclaude eval run --help` from the repository root via the Bash tool and print the full stdout verbatim. Do not modify any files; this is read-only."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "--suite"
+      - stdout:
+          contains: "--parallel"
+      - stdout:
+          contains: "--eval"
+      - stdout:
+          contains: "--no-mcp"
+      - stdout:
+          contains: "--no-pty"
+      - stdout:
+          contains: "--output-dir"
+      - stdout:
+          contains: "--keep-home"
+      - stdout:
+          contains: "--timeout-mult"
+      - stdout:
+          contains: "--max-disk-mb"
+      - stdout:
+          contains: "--json"
+      - stdout:
+          contains: "--verbose"
+      - stdout:
+          contains: "--junit"
+
+  - id: DP2
+    title: "Bidirectional flag-set diff: doc table ↔ `eval run --help` agree exactly"
+    category: doc-cli-parity
+    requires: []
+    timeout_sec: 120
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # DP2 — bidirectional. DP1 catches doc→CLI drift (a documented flag
+    # missing from --help) but `stdout: contains` cannot express "the CLI
+    # has NO flag the doc omits". DP2 closes the CLI→doc gap: Claude reads
+    # BOTH the live `superclaude eval run --help` output AND the documented
+    # flag table in docs/user-guide/eval-pipeline.md, extracts the
+    # `--flag` token set from each (ignore the always-present `--help`),
+    # and diffs them in both directions. It then prints exactly one
+    # verdict line:
+    #   - "FLAG_PARITY: IN_SYNC" when the two sets are identical, or
+    #   - "FLAG_PARITY: DRIFT" plus the offending flags when they differ.
+    # The assertions pin the IN_SYNC token and forbid the DRIFT marker, so
+    # either drift direction fails the eval.
+    inputs:
+      - prompt: |
+          You are auditing documentation/CLI flag parity for `superclaude eval run`. Do this read-only — do not modify any files.
+
+          1. Run `superclaude eval run --help` via the Bash tool and collect every long option token it lists under "Options:" (the `--xxx` entries). Exclude the universal `--help` entry.
+          2. Read docs/user-guide/eval-pipeline.md and find the `eval run` flag table (the Markdown table whose rows look like `| `--flag` | TYPE | default | description |`). Collect every `--flag` token from that table.
+          3. Compare the two flag sets in BOTH directions:
+             - flags in --help but NOT in the doc table (CLI gained an undocumented flag), and
+             - flags in the doc table but NOT in --help (doc lists a flag the CLI no longer has).
+          4. Print EXACTLY ONE verdict line as the LAST line of your output:
+             - If the two sets are identical, print: `FLAG_PARITY: IN_SYNC (<N> flags)` where <N> is the count.
+             - Otherwise print: `FLAG_PARITY: DRIFT` followed by the offending flags grouped by direction.
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "FLAG_PARITY: IN_SYNC"
+      - stdout:
+          not_contains: "FLAG_PARITY: DRIFT"

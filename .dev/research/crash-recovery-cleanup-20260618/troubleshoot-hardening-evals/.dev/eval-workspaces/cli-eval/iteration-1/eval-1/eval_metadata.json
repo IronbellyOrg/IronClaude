@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "run-eval-smoke",
+  "prompt": "I want to run the eval_smoke suite from this project's eval pipeline and see the results. Walk me through selecting and supervising the run, then tell me what happened.",
+  "assertions": [
+    "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+    "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+    "Surfaces the FR-G5 exit-2 coverage gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+    "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+    "Reports the outcome from summary.json (machine truth), not scrollback",
+    "Honest result: does not call a SKIPPED/failed run a pass; surfaces the M2 _NullLifecycleExecutor non-authoritative caveat"
+  ]
+}

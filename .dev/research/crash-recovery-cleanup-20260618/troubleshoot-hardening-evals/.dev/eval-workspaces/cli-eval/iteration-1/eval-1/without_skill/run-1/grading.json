@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "Re-reads the live eval contract surface and cites it before acting (fresh-context load)",
+      "passed": false,
+      "evidence": "Discovered the surface via `eval --help` only; no file:line contract citations / no deliberate fresh-context load"
+    },
+    {
+      "text": "Enumerates suites via `superclaude eval list --json` (not a directory scrape)",
+      "passed": true,
+      "evidence": "report.md step 2: `superclaude eval list` showed eval_smoke (3 evals)"
+    },
+    {
+      "text": "Surfaces the FR-G5 exit-2 coverage gate AND applies the empty-HOME (TMPHOME/HOME) workaround to get a result",
+      "passed": false,
+      "evidence": "Hit the gate (exit 2) but did NOT apply the workaround; concluded it 'would require write access' / a different host -> no result obtained"
+    },
+    {
+      "text": "Explains the `--no-pty` -> SKIPPED short-circuit behavior",
+      "passed": true,
+      "evidence": "report.md step #3 'to actually get green': not --no-pty, which would skip the suite"
+    },
+    {
+      "text": "Reports the outcome from summary.json (machine truth), not scrollback",
+      "passed": false,
+      "evidence": "0 evals executed; run aborted at the gate so there was no summary.json to parse"
+    },
+    {
+      "text": "Honest result: does not call a SKIPPED/failed run a pass; surfaces the M2 _NullLifecycleExecutor non-authoritative caveat",
+      "passed": true,
+      "evidence": "report.md lines 38, 44: surfaces null executor at M2 and that nothing was modified to 'make it pass'"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 3,
+    "total": 6,
+    "pass_rate": 0.5
+  },
+  "execution_metrics": {
+    "total_tool_calls": 16,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 199.4
+  }
+}
