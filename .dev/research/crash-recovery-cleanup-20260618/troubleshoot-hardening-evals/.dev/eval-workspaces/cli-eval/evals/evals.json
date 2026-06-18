@@ -1,0 +1,27 @@
+{
+  "skill_name": "sc-cli-eval-protocol",
+  "notes": "Tests for /sc:cli-eval (create + run pipelines). Subagent caveat: AskUserQuestion is non-interactive in a subagent and /sc:spec-panel + /sc:adversarial cannot nest their fan-out inside a subagent, so the create-pipeline runs degrade to 'plan + execute the non-nested parts'. Assertions are biased toward protocol beats that survive that limit: fresh-context re-read, schema-first validation via `eval describe`, FR-G5 + --no-pty gotcha handling, CLI-not-dirscrape enumeration, and no-silent-pass reporting.",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "run-eval-smoke",
+      "prompt": "I want to run the eval_smoke suite from this project's eval pipeline and see the results. Walk me through selecting and supervising the run, then tell me what happened.",
+      "expected_output": "Re-reads the live eval CLI/contract surface first; enumerates suites via `superclaude eval list --json` (not by scraping the suites dir); confirms the exact `eval run` invocation and surfaces the FR-G5 exit-2 coverage gate (with the empty-HOME TMPHOME/HOME workaround) and the --no-pty -> SKIPPED behavior; runs eval_smoke; parses summary.json (not scrollback) and reports per-eval status/run-dir honestly, never calling a SKIPPED/failed run a pass.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "create-doc-parity-suite",
+      "prompt": "Author a new eval suite for this project that checks the documented `superclaude eval run` flags stay in sync with `superclaude eval run --help`. Set it up properly and make sure it's actually valid.",
+      "expected_output": "Re-reads the suite schema + CLI surface first; drafts a design and (in a full run) critiques via /sc:spec-panel and merges competing designs via /sc:adversarial; authors suites/<stem>.yaml schema-first in the house style (stem==name, only schema-known keys, meaningful expects); and validates with `uv run superclaude eval describe --suite <stem>` (loader exit 0) before declaring done — does not hand back an unvalidated manifest or invent schema fields.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "inspect-suite-safety",
+      "prompt": "Before I run the installer_sync_drift eval suite, show me what's inside it and tell me whether running it with --no-pty will actually exercise anything.",
+      "expected_output": "Uses `superclaude eval describe --suite installer_sync_drift` (via the CLI) to show the eval(s), isolation strategy (shared HOME), timeouts, and no_pty markers; correctly explains that because the eval carries no_pty: skip, running with --no-pty short-circuits it to SKIPPED (skip_reason=--no-pty) and exercises nothing — i.e. for a real run, omit --no-pty (and handle FR-G5 via the empty-HOME workaround). Grounds the flag/behavior claims in the re-read contract, not memory.",
+      "files": []
+    }
+  ]
+}

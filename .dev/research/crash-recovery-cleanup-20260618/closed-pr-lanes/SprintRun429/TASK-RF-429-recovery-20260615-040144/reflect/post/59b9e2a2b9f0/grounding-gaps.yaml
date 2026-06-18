@@ -1,0 +1,12 @@
+# Grounding gaps (§10.6) — evidence-insufficient findings requiring human decision.
+# Tier-2 interactive re-run 59b9e2a2b9f0. Supersedes the headless run's single gap.
+#
+# RESOLVED (was in the headless ledger): the K>1 latch-halt exhausted_model
+# preservation concern. executor.py:1903-1908 implements "first NON-EMPTY
+# exhausted_model wins" aggregation — a latch-precheck task (model='') does NOT
+# erase the tripping worker's captured model, so the resume UX names a concrete
+# model on the parallel path. Comment at :1903-1906 describes exactly this case.
+#
+# Every finding this pass was classifiable against real code + the spec; none
+# were evidence-insufficient. Canonical empty.
+findings: []

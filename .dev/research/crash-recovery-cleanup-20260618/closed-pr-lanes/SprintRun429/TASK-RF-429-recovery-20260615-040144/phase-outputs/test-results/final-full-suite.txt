@@ -1,0 +1,1221 @@
+######## FULL SUITE: uv run pytest ########
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.0, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/SprintRun429
+configfile: pyproject.toml
+testpaths: tests
+plugins: superclaude-4.3.5, anyio-4.13.0
+collected 10874 items / 1 skipped
+
+tests/audit/test_ac_validation.py ...................................... [  0%]
+..                                                                       [  0%]
+tests/audit/test_agent_regression.py ................................... [  0%]
+.......                                                                  [  0%]
+tests/audit/test_already_tracked.py .......                              [  0%]
+tests/audit/test_anti_lazy.py ........                                   [  0%]
+tests/audit/test_artifact_emitter.py ...........                         [  0%]
+tests/audit/test_auto_config.py ...........                              [  1%]
+tests/audit/test_axis_column_populated.py ..........                     [  1%]
+tests/audit/test_batch_decomposer.py ...............                     [  1%]
+tests/audit/test_batch_retry.py ...........                              [  1%]
+tests/audit/test_benchmark.py .........                                  [  1%]
+tests/audit/test_budget.py .............................                 [  1%]
+tests/audit/test_budget_caveat.py ......                                 [  1%]
+tests/audit/test_checkpoint.py ......                                    [  1%]
+tests/audit/test_classification.py ..............                        [  2%]
+tests/audit/test_concurrent_isolation.py ........                        [  2%]
+tests/audit/test_consolidation.py ............                           [  2%]
+tests/audit/test_coverage.py .......                                     [  2%]
+tests/audit/test_credential_scanner.py ..............                    [  2%]
+tests/audit/test_dead_code.py ........                                   [  2%]
+tests/audit/test_dependency_graph.py ..........                          [  2%]
+tests/audit/test_dir_assessment.py ............                          [  2%]
+tests/audit/test_dnsp_all_agents_fail_bypass.py ........................ [  2%]
+..........................                                               [  3%]
+tests/audit/test_dnsp_dedup_collapse.py .......................          [  3%]
+tests/audit/test_dnsp_does_not_serialize_cohort.py ..................... [  3%]
+...........                                                              [  3%]
+tests/audit/test_dnsp_twice_exhaust.py ................................. [  3%]
+.                                                                        [  3%]
+tests/audit/test_docs_audit.py .............                             [  4%]
+tests/audit/test_drift_axis_inactive_when_no_goal_baseline.py .........  [  4%]
+tests/audit/test_dry_run.py ............                                 [  4%]
+tests/audit/test_duplication.py .........                                [  4%]
+tests/audit/test_dynamic_enumeration_inv_010.py .......s...............  [  4%]
+tests/audit/test_dynamic_imports.py ............                         [  4%]
+tests/audit/test_env_matrix.py ................                          [  4%]
+tests/audit/test_escalation.py ............                              [  4%]
+tests/audit/test_eval_wiring_multifile.py .........                      [  5%]
+tests/audit/test_evidence_bound_tb_add_8.py ..........                   [  5%]
+tests/audit/test_execution_context_full.py .....                         [  5%]
+tests/audit/test_execution_context_minimal_buildrequest.py ......        [  5%]
+tests/audit/test_execution_context_no_file_paths.py .....                [  5%]
+tests/audit/test_filetype_rules.py ......................                [  5%]
+tests/audit/test_five_axes_overlay.py ..........                         [  5%]
+tests/audit/test_full_docs_audit.py ...................                  [  5%]
+tests/audit/test_gitignore_checker.py ........                           [  5%]
+tests/audit/test_hidden_input_guard.py .......................           [  5%]
+tests/audit/test_inherited_verdict_freshness_inv_002.py ................ [  6%]
+........                                                                 [  6%]
+tests/audit/test_inherited_verdict_present.py ...........                [  6%]
+tests/audit/test_invariant_preservation_NFR_6_through_10.py ...........F [  6%]
+.......                                                                  [  6%]
+tests/audit/test_known_issues.py ............                            [  6%]
+tests/audit/test_known_issues_lifecycle.py ............                  [  6%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py ....................       [  6%]
+tests/audit/test_nfr_conv_6_self_contained.py ..........                 [  6%]
+tests/audit/test_nfr_conv_9_zero_trust.py .............................. [  7%]
+.....                                                                    [  7%]
+tests/audit/test_profile_generator.py .................                  [  7%]
+tests/audit/test_profiler.py .............................               [  7%]
+tests/audit/test_regression_halt_pass1_fail2.py ........................ [  7%]
+...                                                                      [  7%]
+tests/audit/test_report_completeness.py ...........                      [  8%]
+tests/audit/test_report_depth.py ..................                      [  8%]
+tests/audit/test_report_limitations.py .......                           [  8%]
+tests/audit/test_resume.py .......                                       [  8%]
+tests/audit/test_scanner_schema.py .............                         [  8%]
+tests/audit/test_self_audit_inv_019.py ........................          [  8%]
+tests/audit/test_sequencing_PR06_before_PR04.py ........................ [  8%]
+.....                                                                    [  8%]
+tests/audit/test_severity_floor_unweakened.py ........                   [  9%]
+tests/audit/test_slow_shrink_continues.py ....................           [  9%]
+tests/audit/test_spot_check.py ..........                                [  9%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py ................ [  9%]
+...........                                                              [  9%]
+tests/audit/test_tiered_keep.py .............                            [  9%]
+tests/audit/test_tool_orchestrator.py ................                   [  9%]
+tests/audit/test_validation.py .........                                 [  9%]
+tests/audit/test_validation_output.py ........                           [ 10%]
+tests/audit/test_wiring_analyzer.py ...................                  [ 10%]
+tests/audit/test_wiring_gate.py ........................................ [ 10%]
+.......................................                                  [ 10%]
+tests/audit/test_wiring_integration.py ....                              [ 10%]
+tests/audit-trail/test_audit_writer.py ......................            [ 11%]
+tests/cli/eval/test_artifact_layout.py ...................               [ 11%]
+tests/cli/eval/test_artifact_reproducibility.py ........                 [ 11%]
+tests/cli/eval/test_atomic_setup.py ...................                  [ 11%]
+tests/cli/eval/test_ban_import_rule.py ...                               [ 11%]
+tests/cli/eval/test_capability_classifications.py ....................   [ 11%]
+tests/cli/eval/test_capability_dataclass.py ................             [ 11%]
+tests/cli/eval/test_capability_gates.py ..................               [ 12%]
+tests/cli/eval/test_capability_report.py ..........                      [ 12%]
+tests/cli/eval/test_claude_process_adapter.py ..........FF.              [ 12%]
+tests/cli/eval/test_config.py ......                                     [ 12%]
+tests/cli/eval/test_containment.py ...............................       [ 12%]
+tests/cli/eval/test_coverage_gate.py ...........................         [ 12%]
+tests/cli/eval/test_coverage_gate_integration.py ......                  [ 12%]
+tests/cli/eval/test_defense_in_depth.py ...................              [ 13%]
+tests/cli/eval/test_describe.py .........................                [ 13%]
+tests/cli/eval/test_disk_budget.py .................................     [ 13%]
+tests/cli/eval/test_doctor.py .......................................... [ 14%]
+......                                                                   [ 14%]
+tests/cli/eval/test_doctor_version.py .............                      [ 14%]
+tests/cli/eval/test_eval_context.py .............................        [ 14%]
+tests/cli/eval/test_eval_group.py .....                                  [ 14%]
+tests/cli/eval/test_eval_id_regex.py ................................... [ 14%]
+................................                                         [ 15%]
+tests/cli/eval/test_eval_lifecycle.py ......................             [ 15%]
+tests/cli/eval/test_eval_outcome.py ........................             [ 15%]
+tests/cli/eval/test_eval_result.py ................                      [ 15%]
+tests/cli/eval/test_eval_run.py ................F.                       [ 15%]
+tests/cli/eval/test_exit_codes.py .s.s.                                  [ 15%]
+tests/cli/eval/test_expect_duration.py ...................               [ 16%]
+tests/cli/eval/test_expect_exit_code.py ....................             [ 16%]
+tests/cli/eval/test_expect_failure.py .............                      [ 16%]
+tests/cli/eval/test_expect_file.py ..................                    [ 16%]
+tests/cli/eval/test_expect_jsonl.py ...................                  [ 16%]
+tests/cli/eval/test_expect_primitives.py ...........................     [ 16%]
+tests/cli/eval/test_expect_result.py ............                        [ 17%]
+tests/cli/eval/test_expect_settings_json.py .....................        [ 17%]
+tests/cli/eval/test_expect_stdio.py .......................              [ 17%]
+tests/cli/eval/test_hard_guard_real_home.py ......                       [ 17%]
+tests/cli/eval/test_home_isolation.py ...........................        [ 17%]
+tests/cli/eval/test_home_isolation_extend.py ........................... [ 18%]
+............                                                             [ 18%]
+tests/cli/eval/test_hook_adapter.py ............                         [ 18%]
+tests/cli/eval/test_isolation_dataclass.py ............................. [ 18%]
+...                                                                      [ 18%]
+tests/cli/eval/test_isolation_layers_probe.py .............              [ 18%]
+tests/cli/eval/test_list.py ...................                          [ 18%]
+tests/cli/eval/test_mcp_retry_once.py ..........................         [ 19%]
+tests/cli/eval/test_no_mcp_skip.py ...........s                          [ 19%]
+tests/cli/eval/test_no_pty_exclusion.py ..............                   [ 19%]
+tests/cli/eval/test_no_shared_state.py ..........                        [ 19%]
+tests/cli/eval/test_orchestrator.py ......................               [ 19%]
+tests/cli/eval/test_parallel_15.py .......                               [ 19%]
+tests/cli/eval/test_path_containment.py ................................ [ 20%]
+...............                                                          [ 20%]
+tests/cli/eval/test_path_traversal.py ...............                    [ 20%]
+tests/cli/eval/test_perf_home_setup.py .                                 [ 20%]
+tests/cli/eval/test_perf_resource_bounds.py ..                           [ 20%]
+tests/cli/eval/test_phase_report_probe.py .........................      [ 20%]
+tests/cli/eval/test_pty_driver.py .....................                  [ 20%]
+tests/cli/eval/test_pty_lifecycle.py .....                               [ 20%]
+tests/cli/eval/test_pty_stream.py ..............................         [ 21%]
+tests/cli/eval/test_reporter.py .........................                [ 21%]
+tests/cli/eval/test_reporter_contract.py ....                            [ 21%]
+tests/cli/eval/test_retention_policy.py ....s.                           [ 21%]
+tests/cli/eval/test_retry_policy.py ...........                          [ 21%]
+tests/cli/eval/test_run_report.py ...................                    [ 21%]
+tests/cli/eval/test_run_summary.py .........................             [ 21%]
+tests/cli/eval/test_runner_class.py ...........                          [ 21%]
+tests/cli/eval/test_schema_id_rejection.py ....................          [ 22%]
+tests/cli/eval/test_schema_load.py .............                         [ 22%]
+tests/cli/eval/test_schema_validate.py ..............                    [ 22%]
+tests/cli/eval/test_scratch_root_allowlist.py ....................       [ 22%]
+tests/cli/eval/test_scratch_root_policy.py ..................            [ 22%]
+tests/cli/eval/test_signal_handling.py .........................         [ 22%]
+tests/cli/eval/test_single_command.py ..                                 [ 23%]
+tests/cli/eval/test_suite_loader.py .........................            [ 23%]
+tests/cli/eval/test_suite_runtime.py .......                             [ 23%]
+tests/cli/eval/test_summary_schema.py .................                  [ 23%]
+tests/cli/eval/test_symlink_attacks.py ..............                    [ 23%]
+tests/cli/eval/test_validation_commands.py .................FFFFF.       [ 23%]
+tests/cli/prd/test_cli_smoke.py ......                                   [ 23%]
+tests/cli/prd/test_config.py .                                           [ 23%]
+tests/cli/prd/test_e2e.py .............                                  [ 23%]
+tests/cli/prd/test_executor.py ..........                                [ 24%]
+tests/cli/prd/test_filtering.py ..........                               [ 24%]
+tests/cli/prd/test_gates.py ...............................              [ 24%]
+tests/cli/prd/test_integration.py .........                              [ 24%]
+tests/cli/prd/test_inventory.py .......                                  [ 24%]
+tests/cli/prd/test_models.py .......                                     [ 24%]
+tests/cli/prd/test_path_resolution.py ........                           [ 24%]
+tests/cli/prd/test_prompt_builders_dual_mode.py ..........               [ 24%]
+tests/cli/prd/test_prompts.py ..........                                 [ 24%]
+tests/cli/prd/test_research_notes_roundtrip.py ..                        [ 24%]
+tests/cli/prd/test_resolve_step_content.py ..............                [ 25%]
+tests/cli/prd/test_resume_skip.py .......                                [ 25%]
+tests/cli/prd/test_spec_flag.py ..............................           [ 25%]
+tests/cli/reflect/test_base_precedence.py ......                         [ 25%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 25%]
+tests/cli/reflect/test_cli_smoke.py .......                              [ 25%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 25%]
+tests/cli/reflect/test_fix_loop.py .......                               [ 25%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 25%]
+tests/cli/reflect/test_no_nesting_guard.py X....                         [ 25%]
+tests/cli/reflect/test_promote_plumbing.py ...                           [ 25%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 25%]
+tests/cli/reflect/test_verdict_mapping.py ...................            [ 26%]
+tests/cli/reflect/test_writeback.py ...                                  [ 26%]
+tests/cli/test_cli_registration.py .F.....                               [ 26%]
+tests/cli/test_init_lite.py ............................................ [ 26%]
+                                                                         [ 26%]
+tests/cli/test_install_failures.py ....                                  [ 26%]
+tests/cli/test_install_hooks.py FFFFFF..F...F.                           [ 26%]
+tests/cli/test_tdd_extract_prompt.py ................................... [ 27%]
+.................................                                        [ 27%]
+tests/cli/test_verify_sync_hooks.py .......                              [ 27%]
+tests/cli_portify/integration/test_orchestration.py .................... [ 27%]
+..........                                                               [ 27%]
+tests/cli_portify/test_analyze_workflow.py .......                       [ 27%]
+tests/cli_portify/test_brainstorm_gaps.py ................               [ 27%]
+tests/cli_portify/test_cli.py .......................                    [ 28%]
+tests/cli_portify/test_config.py ..............................          [ 28%]
+tests/cli_portify/test_contracts.py ....................                 [ 28%]
+tests/cli_portify/test_convergence.py ...................                [ 28%]
+tests/cli_portify/test_design_pipeline.py .........                      [ 28%]
+tests/cli_portify/test_diagnostics.py ................                   [ 29%]
+tests/cli_portify/test_discover_components.py .......................... [ 29%]
+....................................                                     [ 29%]
+tests/cli_portify/test_executor.py ..................................... [ 29%]
+...........                                                              [ 30%]
+tests/cli_portify/test_failures.py ..................................... [ 30%]
+................................                                         [ 30%]
+tests/cli_portify/test_gate_policy.py ............                       [ 30%]
+tests/cli_portify/test_logging.py .................                      [ 30%]
+tests/cli_portify/test_mock_harness.py ................................. [ 31%]
+                                                                         [ 31%]
+tests/cli_portify/test_models.py ....................................... [ 31%]
+.......................                                                  [ 31%]
+tests/cli_portify/test_monitor.py ...................................... [ 32%]
+...                                                                      [ 32%]
+tests/cli_portify/test_nfr006_module_order.py ..........                 [ 32%]
+tests/cli_portify/test_panel_report.py ..........                        [ 32%]
+tests/cli_portify/test_panel_review.py ....................              [ 32%]
+tests/cli_portify/test_portify_gates.py ................................ [ 32%]
+.......                                                                  [ 32%]
+tests/cli_portify/test_process.py .................................      [ 33%]
+tests/cli_portify/test_prompts.py ..............                         [ 33%]
+tests/cli_portify/test_resolution.py ..............................      [ 33%]
+tests/cli_portify/test_resume.py ....................................    [ 33%]
+tests/cli_portify/test_review.py ...................                     [ 34%]
+tests/cli_portify/test_section_hashing.py ......                         [ 34%]
+tests/cli_portify/test_semantic_checks.py .............................. [ 34%]
+...................................                                      [ 34%]
+tests/cli_portify/test_synthesize_spec.py .........                      [ 34%]
+tests/cli_portify/test_tui.py ......................................     [ 35%]
+tests/cli_portify/test_validate_config.py ..........................     [ 35%]
+tests/contracts/test_arch_lint.py ...................                    [ 35%]
+tests/hooks/test_auggie_first.py .....                                   [ 35%]
+tests/hooks/test_auggie_flag_clear_mcp_prefix.py ....                    [ 35%]
+tests/hooks/test_freshness_pre_edit_create_case.py ...                   [ 35%]
+tests/integration/test_pytest_plugin.py ...........                      [ 35%]
+tests/integration/test_sprint_wiring.py ..............                   [ 35%]
+tests/integration/test_wiring_e2e_shadow.py .                            [ 35%]
+tests/pipeline/test_behavioral.py ....................                   [ 36%]
+tests/pipeline/test_combined_m2_pass.py ...........                      [ 36%]
+tests/pipeline/test_conflict_detector.py ...............                 [ 36%]
+tests/pipeline/test_conflict_review.py ............                      [ 36%]
+tests/pipeline/test_contract_extractor.py ............                   [ 36%]
+tests/pipeline/test_dataflow_graph.py ........                           [ 36%]
+tests/pipeline/test_dataflow_pass.py ...............                     [ 36%]
+tests/pipeline/test_decompose.py .........                               [ 36%]
+tests/pipeline/test_deliverable.py .............                         [ 37%]
+tests/pipeline/test_diagnostic_chain.py ...........                      [ 37%]
+tests/pipeline/test_executor.py .........                                [ 37%]
+tests/pipeline/test_fmea_classifier.py ...........                       [ 37%]
+tests/pipeline/test_fmea_domains.py .......                              [ 37%]
+tests/pipeline/test_fmea_promotion.py ...........                        [ 37%]
+tests/pipeline/test_full_flow.py ............                            [ 37%]
+tests/pipeline/test_gate_performance.py ....                             [ 37%]
+tests/pipeline/test_gates.py ....................................        [ 37%]
+tests/pipeline/test_guard_analyzer.py .........                          [ 38%]
+tests/pipeline/test_guard_pass.py ......                                 [ 38%]
+tests/pipeline/test_guard_resolution.py ..........                       [ 38%]
+tests/pipeline/test_integration_decompose.py ........                    [ 38%]
+tests/pipeline/test_invariant_pass.py ........                           [ 38%]
+tests/pipeline/test_invariants.py ......................                 [ 38%]
+tests/pipeline/test_models.py .....................                      [ 38%]
+tests/pipeline/test_mutation_inventory.py .......                        [ 38%]
+tests/pipeline/test_parallel.py ......                                   [ 38%]
+tests/pipeline/test_process.py ...............                           [ 38%]
+tests/pipeline/test_process_hooks.py ........                            [ 39%]
+tests/pipeline/test_process_stdin.py ...................                 [ 39%]
+tests/pipeline/test_release_gate_validation.py ....s..                   [ 39%]
+tests/pipeline/test_state_detector.py ..........                         [ 39%]
+tests/pipeline/test_thread_safety.py ..........                          [ 39%]
+tests/pipeline/test_trailing_gate.py ................................... [ 39%]
+............                                                             [ 39%]
+tests/pipeline/test_verification_emitter.py .........                    [ 40%]
+tests/pr_submit/test_autonomy_gates.py .......                           [ 40%]
+tests/pr_submit/test_crash_recovery.py ...............                   [ 40%]
+tests/pr_submit/test_detection_contract.py ..........                    [ 40%]
+tests/pr_submit/test_edge_cases.py ...................                   [ 40%]
+tests/pr_submit/test_finding_verify.py ...                               [ 40%]
+tests/pr_submit/test_hook_update.py ....                                 [ 40%]
+tests/pr_submit/test_idempotency.py ...                                  [ 40%]
+tests/pr_submit/test_loop_guard.py .........                             [ 40%]
+tests/pr_submit/test_monitor_arm.py ...                                  [ 40%]
+tests/pr_submit/test_pre_pr_checks.py ...                                [ 40%]
+tests/pr_submit/test_rate_limit.py ....                                  [ 40%]
+tests/pr_submit/test_reply_resolve.py ..........                         [ 40%]
+tests/pr_submit/test_run_log.py ......                                   [ 40%]
+tests/pr_submit/test_severity_router.py ......                           [ 40%]
+tests/pr_submit/test_skill_parse.py ...........                          [ 41%]
+tests/pr_submit/test_static_grep.py ......                               [ 41%]
+tests/pr_submit/test_timeout.py .....                                    [ 41%]
+tests/pr_submit/test_troubleshoot_seed.py ....                           [ 41%]
+tests/pr_submit/test_validated_not_verified.py ...                       [ 41%]
+tests/pr_submit/test_validation_gate.py .........                        [ 41%]
+tests/recommend/test_best_model.py ........                              [ 41%]
+tests/recommend/test_cache.py ........                                   [ 41%]
+tests/recommend/test_cli_registration.py ...                             [ 41%]
+tests/recommend/test_dispatch.py .......                                 [ 41%]
+tests/recommend/test_eval_pipeline.py .....                              [ 41%]
+tests/recommend/test_plugin_eval.py ........                             [ 41%]
+tests/recommend/test_telemetry.py .........                              [ 41%]
+tests/roadmap/test_accept_spec_change.py ............................... [ 42%]
+..............                                                           [ 42%]
+tests/roadmap/test_anti_instinct_integration.py ........................ [ 42%]
+......                                                                   [ 42%]
+tests/roadmap/test_anti_instinct_recurrence.py ........                  [ 42%]
+tests/roadmap/test_backward_compat.py .................                  [ 42%]
+tests/roadmap/test_certify_gate_eval.py ......                           [ 42%]
+tests/roadmap/test_certify_gates.py .............                        [ 42%]
+tests/roadmap/test_certify_prompts.py .................................. [ 43%]
+....                                                                     [ 43%]
+tests/roadmap/test_cli_contract.py ................                      [ 43%]
+tests/roadmap/test_compression_integration.py ....................       [ 43%]
+tests/roadmap/test_convergence.py ...................................... [ 43%]
+.....................                                                    [ 44%]
+tests/roadmap/test_convergence_e2e.py ......                             [ 44%]
+tests/roadmap/test_convergence_smoke.py .....                            [ 44%]
+tests/roadmap/test_convergence_wiring.py ............                    [ 44%]
+tests/roadmap/test_cosmetic_remediator.py .............................. [ 44%]
+....                                                                     [ 44%]
+tests/roadmap/test_dispatch_reachability.py .......                      [ 44%]
+tests/roadmap/test_dry_run.py .........                                  [ 44%]
+tests/roadmap/test_embed_inputs.py ....                                  [ 44%]
+tests/roadmap/test_eval_convergence_multirun.py .............            [ 44%]
+tests/roadmap/test_eval_finding_lifecycle.py ........................... [ 45%]
+............                                                             [ 45%]
+tests/roadmap/test_eval_gate_ordering.py ........................        [ 45%]
+tests/roadmap/test_eval_gate_rejection.py ...........................s.. [ 45%]
+...........................................................              [ 46%]
+tests/roadmap/test_executor.py ......................................... [ 46%]
+..............................                                           [ 46%]
+tests/roadmap/test_file_passing.py ....                                  [ 46%]
+tests/roadmap/test_fingerprint.py ...................................... [ 47%]
+.                                                                        [ 47%]
+tests/roadmap/test_gate_empty_target.py ...............                  [ 47%]
+tests/roadmap/test_gates_data.py ....................................... [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+.........................................                                [ 49%]
+tests/roadmap/test_generation_phantom_id_prevention.py .......           [ 49%]
+tests/roadmap/test_halt.py ........                                      [ 49%]
+tests/roadmap/test_inline_fallback.py ......                             [ 49%]
+tests/roadmap/test_integration_contracts.py ............................ [ 49%]
+....                                                                     [ 50%]
+tests/roadmap/test_integration_v5_pipeline.py .......................... [ 50%]
+..                                                                       [ 50%]
+tests/roadmap/test_merge_completeness.py ........                        [ 50%]
+tests/roadmap/test_models.py .............................               [ 50%]
+tests/roadmap/test_nfr_compliance.py ...............                     [ 50%]
+tests/roadmap/test_no_fragility_stubs.py .                               [ 50%]
+tests/roadmap/test_obligation_scanner.py ............................... [ 51%]
+........................s                                                [ 51%]
+tests/roadmap/test_obligation_scanner_extract_component_context.py ..... [ 51%]
+..                                                                       [ 51%]
+tests/roadmap/test_obligation_scanner_meta_context.py .................. [ 51%]
+.................                                                        [ 51%]
+tests/roadmap/test_parallel.py .....                                     [ 51%]
+tests/roadmap/test_parser_consistency.py ............................... [ 51%]
+......................................................s                  [ 52%]
+tests/roadmap/test_phase7_hardening.py ................................. [ 52%]
+                                                                         [ 52%]
+tests/roadmap/test_pipeline_envelope.py .........                        [ 52%]
+tests/roadmap/test_pipeline_integration.py ...........                   [ 52%]
+tests/roadmap/test_prd_cli.py ......                                     [ 53%]
+tests/roadmap/test_prd_prompts.py ...........................            [ 53%]
+tests/roadmap/test_progress.py ..........                                [ 53%]
+tests/roadmap/test_prompts.py ...........                                [ 53%]
+tests/roadmap/test_recurrence_regression.py ......sssss......s...s..     [ 53%]
+tests/roadmap/test_remediate.py ........................................ [ 54%]
+.........................................                                [ 54%]
+tests/roadmap/test_remediate_executor.py ............................... [ 54%]
+.........................                                                [ 54%]
+tests/roadmap/test_remediate_parser.py ................................. [ 55%]
+.....                                                                    [ 55%]
+tests/roadmap/test_remediate_prompts.py ........................         [ 55%]
+tests/roadmap/test_remediation.py ..                                     [ 55%]
+tests/roadmap/test_resume.py .....                                       [ 55%]
+tests/roadmap/test_resume_pipeline_states.py .........................   [ 55%]
+tests/roadmap/test_resume_restore.py ..........................          [ 56%]
+tests/roadmap/test_retrospective.py ...........                          [ 56%]
+tests/roadmap/test_retry_contract.py ..                                  [ 56%]
+tests/roadmap/test_semantic_layer.py ................................... [ 56%]
+.                                                                        [ 56%]
+tests/roadmap/test_spec_fidelity.py ..............................       [ 56%]
+tests/roadmap/test_spec_parser.py ................................ssssss [ 57%]
+ssss                                                                     [ 57%]
+tests/roadmap/test_spec_patch_cycle.py ....................              [ 57%]
+tests/roadmap/test_spec_roadmap_id_containment.py ................       [ 57%]
+tests/roadmap/test_spec_structural_audit.py ..........................   [ 57%]
+tests/roadmap/test_state.py ..........                                   [ 57%]
+tests/roadmap/test_structural_checkers.py .............................. [ 58%]
+.......................s........                                         [ 58%]
+tests/roadmap/test_threshold_registry.py .......................         [ 58%]
+tests/roadmap/test_tool_write_step_certify.py ................           [ 58%]
+tests/roadmap/test_tool_write_step_debate.py .............               [ 58%]
+tests/roadmap/test_tool_write_step_diff.py ...........                   [ 58%]
+tests/roadmap/test_tool_write_step_extract.py .........                  [ 59%]
+tests/roadmap/test_tool_write_step_extract_tdd.py ............           [ 59%]
+tests/roadmap/test_tool_write_step_generate.py ............              [ 59%]
+tests/roadmap/test_tool_write_step_merge.py ....................         [ 59%]
+tests/roadmap/test_tool_write_step_remediation.py ......                 [ 59%]
+tests/roadmap/test_tool_write_step_score.py ................             [ 59%]
+tests/roadmap/test_tool_write_step_spec_fidelity.py .................... [ 59%]
+                                                                         [ 59%]
+tests/roadmap/test_tool_write_step_test_strategy.py .............        [ 59%]
+tests/roadmap/test_tool_write_step_validate_reflect.py .............     [ 60%]
+tests/roadmap/test_validate_cli.py ....................                  [ 60%]
+tests/roadmap/test_validate_defects.py ...............                   [ 60%]
+tests/roadmap/test_validate_executor.py ...............                  [ 60%]
+tests/roadmap/test_validate_gates.py .......................             [ 60%]
+tests/roadmap/test_validate_resume_failure.py ..                         [ 60%]
+tests/roadmap/test_validate_sc001_sc003.py ........                      [ 60%]
+tests/roadmap/test_validate_unit.py ..............                       [ 60%]
+tests/roadmap/test_verify_implementation.py .........                    [ 61%]
+tests/roadmap/test_vocabulary.py ..........                              [ 61%]
+tests/sc-roadmap/compliance/test_critical_corrections.py ssssssss.ssss   [ 61%]
+tests/sc-roadmap/compliance/test_mcp_circuit_breakers.py sssssssssss     [ 61%]
+tests/sc-roadmap/compliance/test_path_conventions.py ..sss.ssss.         [ 61%]
+tests/sc-roadmap/compliance/test_task_tool_pattern.py ssssssss           [ 61%]
+tests/sc-roadmap/compliance/test_todowrite_states.py ssssss.             [ 61%]
+tests/sc-roadmap/integration/test_adversarial_pipeline.py .............. [ 61%]
+.......................                                                  [ 61%]
+tests/sc-roadmap/integration/test_full_pipeline.py sssssssssssssss       [ 62%]
+tests/sc-roadmap/integration/test_return_contract_routing.py ........... [ 62%]
+.................................                                        [ 62%]
+tests/sc-roadmap/integration/test_wave1_pipeline.py ....                 [ 62%]
+tests/sc-roadmap/integration/test_wave2_pipeline.py .........            [ 62%]
+tests/sc-roadmap/integration/test_wave3_pipeline.py .......              [ 62%]
+tests/sc-roadmap/integration/test_wave4_validation.py ................s. [ 62%]
+.s                                                                       [ 62%]
+tests/sc-roadmap/integration/test_wave5_completion.py .ss....sssss       [ 62%]
+tests/sc-roadmap/unit/test_artifact_generation.py .ssssssssssssss        [ 63%]
+tests/sc-roadmap/unit/test_complexity_scoring.py ............            [ 63%]
+tests/sc-roadmap/unit/test_domain_analysis.py .............              [ 63%]
+tests/sc-roadmap/unit/test_extraction.py .................               [ 63%]
+tests/sc-roadmap/unit/test_milestone_generation.py ............s....     [ 63%]
+tests/sc-roadmap/unit/test_persona_activation.py ...........             [ 63%]
+tests/sc-roadmap/unit/test_spec_validation.py ................s          [ 63%]
+tests/sc-roadmap/unit/test_template_discovery.py ....s.s.ssss            [ 64%]
+tests/skills/test_repo_inventory_nongit.py .....                         [ 64%]
+tests/skills/test_task_builder_merge.py ................................ [ 64%]
+..................................                                       [ 64%]
+tests/sprint/diagnostic/test_debug_logger.py .......................     [ 64%]
+tests/sprint/diagnostic/test_diagnostics.py ................             [ 65%]
+tests/sprint/diagnostic/test_instrumentation.py ........................ [ 65%]
+......                                                                   [ 65%]
+tests/sprint/diagnostic/test_level_0.py .........                        [ 65%]
+tests/sprint/diagnostic/test_level_1.py ..........                       [ 65%]
+tests/sprint/diagnostic/test_level_2.py ......                           [ 65%]
+tests/sprint/diagnostic/test_level_3.py .....                            [ 65%]
+tests/sprint/diagnostic/test_negative.py .........                       [ 65%]
+tests/sprint/e2e_real/test_e2e_abort_restore.py ...                      [ 65%]
+tests/sprint/e2e_real/test_e2e_isolation_smoke.py .                      [ 65%]
+tests/sprint/e2e_real/test_e2e_lock_and_retry_cap.py ...                 [ 65%]
+tests/sprint/e2e_real/test_e2e_rerun_happy_path.py .                     [ 65%]
+tests/sprint/e2e_real/test_e2e_resume.py ...                             [ 65%]
+tests/sprint/e2e_real/test_e2e_resume_drift_stop.py .                    [ 65%]
+tests/sprint/e2e_real/test_e2e_resume_fresh.py ..                        [ 65%]
+tests/sprint/e2e_real/test_e2e_resume_multiphase.py .                    [ 65%]
+tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py ..                 [ 65%]
+tests/sprint/e2e_real/test_e2e_turn_count.py .                           [ 65%]
+tests/sprint/test_aienv.py ......                                        [ 65%]
+tests/sprint/test_anti_instinct_sprint.py .................              [ 66%]
+tests/sprint/test_backward_compat_regression.py ..................       [ 66%]
+tests/sprint/test_checkpoints.py ....................................... [ 66%]
+...........                                                              [ 66%]
+tests/sprint/test_cli_contract.py .................                      [ 66%]
+tests/sprint/test_config.py ............................................ [ 67%]
+....                                                                     [ 67%]
+tests/sprint/test_context_injection.py ..................                [ 67%]
+tests/sprint/test_diagnostics.py ..                                      [ 67%]
+tests/sprint/test_e2e_halt.py .....                                      [ 67%]
+tests/sprint/test_e2e_success.py ......                                  [ 67%]
+tests/sprint/test_e2e_trailing.py ...........                            [ 67%]
+tests/sprint/test_execute_sprint_integration.py .....                    [ 67%]
+tests/sprint/test_executor.py .......................................... [ 68%]
+..............................................................           [ 68%]
+tests/sprint/test_gate_display_state.py ....................             [ 68%]
+tests/sprint/test_handoff_backward_compat.py ..                          [ 68%]
+tests/sprint/test_handoff_concurrency.py .                               [ 68%]
+tests/sprint/test_handoff_crash_consistency.py .                         [ 68%]
+tests/sprint/test_handoff_performance.py ..                              [ 68%]
+tests/sprint/test_handoff_record.py ....                                 [ 68%]
+tests/sprint/test_handoff_store.py .....                                 [ 68%]
+tests/sprint/test_integration_halt.py .....                              [ 69%]
+tests/sprint/test_integration_lifecycle.py .....                         [ 69%]
+tests/sprint/test_integration_signal.py .....                            [ 69%]
+tests/sprint/test_kpi_contract.py ....                                   [ 69%]
+tests/sprint/test_kpi_report.py ........................                 [ 69%]
+tests/sprint/test_models.py ............................................ [ 69%]
+........................................................................ [ 70%]
+...................................                                      [ 70%]
+tests/sprint/test_monitor.py .......................................     [ 71%]
+tests/sprint/test_multi_phase.py ..                                      [ 71%]
+tests/sprint/test_nfr_benchmarks.py .......                              [ 71%]
+tests/sprint/test_per_task_env_isolation.py ...                          [ 71%]
+tests/sprint/test_phase5_negative_validation.py ........................ [ 71%]
+.                                                                        [ 71%]
+tests/sprint/test_phase8_halt_fix.py ............................        [ 71%]
+tests/sprint/test_poll_watchdog_ceiling.py ...                           [ 71%]
+tests/sprint/test_preflight.py ......................................... [ 72%]
+................                                                         [ 72%]
+tests/sprint/test_process.py ........................................... [ 72%]
+.....                                                                    [ 72%]
+tests/sprint/test_recovery.py ................                           [ 72%]
+tests/sprint/test_recovery_policy.py .......                             [ 72%]
+tests/sprint/test_regression_gaps.py ................................... [ 73%]
+..                                                                       [ 73%]
+tests/sprint/test_rerun_tasks.py ..........................              [ 73%]
+tests/sprint/test_rerun_tasks_e2e.py .FF                                 [ 73%]
+tests/sprint/test_rerun_tasks_failure_modes.py ........                  [ 73%]
+tests/sprint/test_resolve_release_dir.py ........                        [ 73%]
+tests/sprint/test_resume.py ..........................                   [ 73%]
+tests/sprint/test_resume_backward_compat.py ..                           [ 73%]
+tests/sprint/test_resume_contract.py ...                                 [ 73%]
+tests/sprint/test_resume_semantics.py .........                          [ 74%]
+tests/sprint/test_retrospective.py ................                      [ 74%]
+tests/sprint/test_scheduler.py .........                                 [ 74%]
+tests/sprint/test_shadow_mode.py ...............                         [ 74%]
+tests/sprint/test_sprint_docs_cli_parity.py ..                           [ 74%]
+tests/sprint/test_stage1_wiring.py ....                                  [ 74%]
+tests/sprint/test_state_dir_isolation.py ....                            [ 74%]
+tests/sprint/test_summarizer.py .........................                [ 74%]
+tests/sprint/test_tmux.py .............                                  [ 74%]
+tests/sprint/test_tui.py FF........                                      [ 74%]
+tests/sprint/test_tui_gate_column.py ........                            [ 75%]
+tests/sprint/test_tui_monitor.py .....                                   [ 75%]
+tests/sprint/test_tui_task_updates.py ....                               [ 75%]
+tests/sprint/test_tui_v2_wave1.py ...................................... [ 75%]
+.                                                                        [ 75%]
+tests/sprint/test_tui_v2_wave2.py ..................................     [ 75%]
+tests/sprint/test_turn_ledger_concurrency.py .                           [ 75%]
+tests/sprint/test_watchdog.py .....                                      [ 75%]
+tests/sprint/test_wiring_budget_scenarios.py ........                    [ 75%]
+tests/sprint/test_wiring_integration.py ....                             [ 75%]
+tests/sprint/test_wiring_mode_resolution.py ....                         [ 75%]
+tests/sprint/test_wiring_performance.py .                                [ 75%]
+tests/swarm/test_amalgamation_modes.py ......................            [ 76%]
+tests/swarm/test_attach_cmd.py ..........s                               [ 76%]
+tests/swarm/test_auto_inject_guard.py .................                  [ 76%]
+tests/swarm/test_bare_review_parity.py .................                 [ 76%]
+tests/swarm/test_bundled_lenses.py ..................................... [ 76%]
+............                                                             [ 77%]
+tests/swarm/test_caller_metadata.py .....................                [ 77%]
+tests/swarm/test_cli_registration.py .....s.                             [ 77%]
+tests/swarm/test_commands_run.py ..............                          [ 77%]
+tests/swarm/test_concurrency_python_only.py ............                 [ 77%]
+tests/swarm/test_config.py ................                              [ 77%]
+tests/swarm/test_contract_emission.py .................................. [ 78%]
+                                                                         [ 78%]
+tests/swarm/test_contract_surface.py ................................... [ 78%]
+.s                                                                       [ 78%]
+tests/swarm/test_crash_recovery_e2e.py .....                             [ 78%]
+tests/swarm/test_custom_prompt_dir.py .......................            [ 78%]
+tests/swarm/test_custom_prompt_dir_injection_guard.py ......             [ 78%]
+tests/swarm/test_dispatch.py ..........                                  [ 78%]
+tests/swarm/test_done_sentinel.py ...........                            [ 78%]
+tests/swarm/test_dual_log_emission.py ......                             [ 78%]
+tests/swarm/test_e2e_real_proxy.py ssssssssssssss                        [ 79%]
+tests/swarm/test_e2e_user_guide.py .................                     [ 79%]
+tests/swarm/test_escape_hatch_guard_parity.py .........                  [ 79%]
+tests/swarm/test_force_relens.py ............                            [ 79%]
+tests/swarm/test_imm3_parallel.py ....                                   [ 79%]
+tests/swarm/test_imm4_empty_target.py .............                      [ 79%]
+tests/swarm/test_imm5_status.py ..............................           [ 79%]
+tests/swarm/test_imm6_atomic_write.py ...........                        [ 79%]
+tests/swarm/test_imm_suite.py ............                               [ 80%]
+tests/swarm/test_injection_guard_all_paths.py ......................     [ 80%]
+tests/swarm/test_inv005_pool_guard.py .....................              [ 80%]
+tests/swarm/test_inv007_empty_pool.py ..............                     [ 80%]
+tests/swarm/test_inv012_tui_opt_in.py ............s.                     [ 80%]
+tests/swarm/test_inv_suite.py ...............                            [ 80%]
+tests/swarm/test_jobspec.py .........................                    [ 81%]
+tests/swarm/test_kill_cmd.py ...............s                            [ 81%]
+tests/swarm/test_lens_defaults.py ..................                     [ 81%]
+tests/swarm/test_lens_validator.py ............................          [ 81%]
+tests/swarm/test_lensentry.py ..............................             [ 81%]
+tests/swarm/test_lenses_registry.py ........................             [ 82%]
+tests/swarm/test_logging.py .......                                      [ 82%]
+tests/swarm/test_logs_cmd.py ...................                         [ 82%]
+tests/swarm/test_manifest.py ..........................                  [ 82%]
+tests/swarm/test_manifest_durable.py .............                       [ 82%]
+tests/swarm/test_manifest_emission.py ...................                [ 82%]
+tests/swarm/test_merge_boundary_guards.py .....................          [ 83%]
+tests/swarm/test_merge_loc_ceiling.py ..                                 [ 83%]
+tests/swarm/test_merge_mechanical_only.py ........                       [ 83%]
+tests/swarm/test_merge_no_transforms.py ........                         [ 83%]
+tests/swarm/test_model_pool_guard.py ......                              [ 83%]
+tests/swarm/test_models_frozen.py .......                                [ 83%]
+tests/swarm/test_models_round_trip.py .................................. [ 83%]
+....................................................                     [ 84%]
+tests/swarm/test_module_shape.py ................................        [ 84%]
+tests/swarm/test_nfr002_atomicity.py ......                              [ 84%]
+tests/swarm/test_no_anthropic_routing.py .........                       [ 84%]
+tests/swarm/test_no_claude_isms.py .....................                 [ 84%]
+tests/swarm/test_no_external_frameworks.py ....................          [ 84%]
+tests/swarm/test_no_response_cache.py ...........                        [ 85%]
+tests/swarm/test_no_scoring_engine.py .................................. [ 85%]
+....................................                                     [ 85%]
+tests/swarm/test_non_claude_caller.py .....s.                            [ 85%]
+tests/swarm/test_normalizationspec.py .........................          [ 86%]
+tests/swarm/test_normalize.py ................                           [ 86%]
+tests/swarm/test_normalizer_strategy.py ......................           [ 86%]
+tests/swarm/test_openai_compat.py .....................                  [ 86%]
+tests/swarm/test_output_confinement.py ........................          [ 86%]
+tests/swarm/test_outputspec.py ....................                      [ 86%]
+tests/swarm/test_parallel_executor_routing.py .........                  [ 87%]
+tests/swarm/test_parse_error_salvage.py ...................              [ 87%]
+tests/swarm/test_per_lens_templates.py ..........................        [ 87%]
+tests/swarm/test_preflight.py .......................                    [ 87%]
+tests/swarm/test_prompt_injection_neutralization.py .........            [ 87%]
+tests/swarm/test_promptspec.py ......................                    [ 87%]
+tests/swarm/test_recipe_bare_review.py ................                  [ 88%]
+tests/swarm/test_recipe_custom_py.py ..................................  [ 88%]
+tests/swarm/test_recipe_findings_table.py .............................  [ 88%]
+tests/swarm/test_recipe_hypothesis_table.py ............................ [ 88%]
+......                                                                   [ 89%]
+tests/swarm/test_recipe_no_judging.py ..........................         [ 89%]
+tests/swarm/test_recipe_passthrough.py ...............                   [ 89%]
+tests/swarm/test_recipe_protocol.py ...........................          [ 89%]
+tests/swarm/test_recipe_registry.py ...........................          [ 89%]
+tests/swarm/test_recipe_verdict_only.py ................................ [ 90%]
+........................                                                 [ 90%]
+tests/swarm/test_reduce.py ......................                        [ 90%]
+tests/swarm/test_resolvedlens.py ..............................          [ 90%]
+tests/swarm/test_result_contract.py .................................... [ 91%]
+..............                                                           [ 91%]
+tests/swarm/test_resume_crash_recovery.py ..................             [ 91%]
+tests/swarm/test_resume_regenerates_merge.py .................           [ 91%]
+tests/swarm/test_resume_uses_manifest_lens.py .............              [ 91%]
+tests/swarm/test_retry_policy.py ......................                  [ 91%]
+tests/swarm/test_runtimespec.py .......................                  [ 92%]
+tests/swarm/test_scaffold_cmd.py ...........................             [ 92%]
+tests/swarm/test_schema.py ........................                      [ 92%]
+tests/swarm/test_schema_forward_compat.py ............                   [ 92%]
+tests/swarm/test_schema_injection_substring.py ......................... [ 92%]
+                                                                         [ 92%]
+tests/swarm/test_sentinel_artifacts_caller.py .......................... [ 93%]
+......................                                                   [ 93%]
+tests/swarm/test_state.py ...........                                    [ 93%]
+tests/swarm/test_status_cmd.py .....................                     [ 93%]
+tests/swarm/test_statuspolicy.py ................                        [ 93%]
+tests/swarm/test_stub_transport.py ............                          [ 93%]
+tests/swarm/test_swarm_run_inputs.py .................                   [ 94%]
+tests/swarm/test_t2_env_contract.py .............                        [ 94%]
+tests/swarm/test_targetspec.py ..............................            [ 94%]
+tests/swarm/test_three_layer_artifacts.py .............                  [ 94%]
+tests/swarm/test_tmux_detached.py .............ssssss                    [ 94%]
+tests/swarm/test_tmux_fallback.py ....                                   [ 94%]
+tests/swarm/test_transport_protocol.py .........                         [ 94%]
+tests/swarm/test_transportspec.py ...................                    [ 95%]
+tests/swarm/test_tui.py ............                                     [ 95%]
+tests/swarm/test_uv_enforcement.py ...                                   [ 95%]
+tests/swarm/test_validate_all_lenses.py ..................               [ 95%]
+tests/swarm/test_validate_cmd.py .............                           [ 95%]
+tests/swarm/test_validate_lenses_ci.py ............                      [ 95%]
+tests/swarm/test_validate_lenses_cmd.py .............                    [ 95%]
+tests/swarm/test_worker_state_event.py ................................. [ 96%]
+.................................                                        [ 96%]
+tests/swarm/test_workerspec.py .....................                     [ 96%]
+tests/tasklist/test_autowire.py .........                                [ 96%]
+tests/tasklist/test_prd_cli.py ...                                       [ 96%]
+tests/tasklist/test_prd_prompts.py ..........                            [ 96%]
+tests/tasklist/test_tasklist_cli.py ............................         [ 97%]
+tests/tasklist/test_tasklist_fidelity.py .....................           [ 97%]
+tests/test_cleanup_audit_structure.py .................................. [ 97%]
+....                                                                     [ 97%]
+tests/troubleshoot/backtest/test_backtest_e1.py ..                       [ 97%]
+tests/troubleshoot/backtest/test_backtest_e2.py ..                       [ 97%]
+tests/troubleshoot/backtest/test_backtest_e3.py ..                       [ 97%]
+tests/troubleshoot/backtest/test_backtest_e4.py .F                       [ 97%]
+tests/troubleshoot/backtest/test_backtest_e5.py ..                       [ 97%]
+tests/troubleshoot/backtest/test_backtest_status_separation.py ...       [ 97%]
+tests/troubleshoot/backtest/test_catch_rate_aggregation.py .......       [ 97%]
+tests/troubleshoot/backtest/test_catch_rate_schema.py .................. [ 97%]
+.                                                                        [ 97%]
+tests/troubleshoot/backtest/test_git_replay_integration.py ..            [ 97%]
+tests/troubleshoot/backtest/test_git_replay_unit.py ....                 [ 97%]
+tests/troubleshoot/backtest/test_path_resolution.py .                    [ 98%]
+tests/troubleshoot/backtest/test_replay_executor.py ......               [ 98%]
+tests/troubleshoot/backtest/test_waiver_regreen.py .                     [ 98%]
+tests/troubleshoot/test_hardening_h0.py ..                               [ 98%]
+tests/troubleshoot/test_hardening_h1.py .                                [ 98%]
+tests/troubleshoot/test_hardening_h2.py ..                               [ 98%]
+tests/troubleshoot/test_hardening_h3.py ...                              [ 98%]
+tests/troubleshoot/test_hardening_h4.py ..                               [ 98%]
+tests/troubleshoot/test_hardening_output_contract.py ...                 [ 98%]
+tests/troubleshoot/test_hardening_verdict.py .....                       [ 98%]
+tests/unit/test_cli_install.py .................                         [ 98%]
+tests/unit/test_confidence.py ............s                              [ 98%]
+tests/unit/test_reflexion.py .........                                   [ 98%]
+tests/unit/test_reflexion_pollution_guard.py s                           [ 98%]
+tests/unit/test_review_translation.py .................................. [ 98%]
+..........                                                               [ 99%]
+tests/unit/test_self_check.py ..............                             [ 99%]
+tests/unit/test_token_budget.py ............                             [ 99%]
+tests/v3.3/test_broken_wiring_detection.py ..                            [ 99%]
+tests/v3.3/test_fidelity_checker.py ....                                 [ 99%]
+tests/v3.3/test_gate_rollout_modes.py .............                      [ 99%]
+tests/v3.3/test_integration_regression.py ......                         [ 99%]
+tests/v3.3/test_reachability_eval.py ..........                          [ 99%]
+tests/v3.3/test_session_summary.py .........                             [ 99%]
+tests/v3.3/test_turnledger_lifecycle.py .....                            [ 99%]
+tests/v3.3/test_wiring_points_e2e.py ................................    [ 99%]
+tests/v3.3/test_zero_files_analyzed.py .E                                [100%]
+
+==================================== ERRORS ====================================
+_ ERROR at teardown of TestZeroFilesAnalyzedFail.test_zero_files_analyzed_returns_fail _
+tests/roadmap/conftest.py:149: in audit_trail
+    summary = helper.summary()
+              ^^^^^^^^^^^^^^
+E   AttributeError: 'AuditTrailHelper' object has no attribute 'summary'
+------------------------------ Captured log call -------------------------------
+WARNING  superclaude.cli.audit.wiring_gate:wiring_gate.py:702 0 files analyzed in non-empty source directory /tmp/pytest-of-abc/pytest-175/test_zero_files_analyzed_retur0/src (skipped=3) — returning FAIL per FR-5.1
+--------------------------- Captured stdout teardown ---------------------------
+
+============================================================
+  v3.3 Audit Trail Session Summary
+============================================================
+  Total:              76
+  Passed:             76
+  Failed:             0
+  Skipped:            0
+  Wiring Coverage:    100.0%
+============================================================
+  JSONL:    /tmp/pytest-of-abc/pytest-175/v3.3-results0/audit.jsonl
+  Summary:  /tmp/pytest-of-abc/pytest-175/v3.3-results0/summary.json
+============================================================
+=================================== FAILURES ===================================
+___ TestInvariant3_PersistentArtifact.test_task_id_naming_pattern_preserved ____
+tests/audit/test_invariant_preservation_NFR_6_through_10.py:334: in test_task_id_naming_pattern_preserved
+    assert not bad, (
+E   AssertionError: NFR-CONV.8 persistent-.dev/tasks/-artifact: task-id naming pattern drifted; non-matching dirs: ['TASK-TECHREF-20260603-021348', 'TASK-STDIN-RECON-REMEDIATION-20260501', 'TASK-RF-reflect-post-gate-wiring-20260611-022409', 'TASK-MULTIMODELSWARM-AUDIT-REMEDIATION-20260531', 'TASK-RF-troubleshoot-hardening-evals-20260611-160018']
+E   assert not ['TASK-TECHREF-20260603-021348', 'TASK-STDIN-RECON-REMEDIATION-20260501', 'TASK-RF-reflect-post-gate-wiring-20260611-0..., 'TASK-RF-troubleshoot-hardening-evals-20260611-160018', 'TASK-RF-merge-prompt-wiring-directive-20260525-160000', ...]
+__________ test_ruff_flags_synthetic_anthropic_import_under_cli_eval ___________
+tests/cli/eval/test_claude_process_adapter.py:457: in test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+    assert "TID251" in result.stdout, (
+E   AssertionError: Expected TID251 ban-api violation in ruff output; got: ''
+E   assert 'TID251' in ''
+E    +  where '' = CompletedProcess(args=['/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.venv/bin/python', '-m', 'ruff', 'che... stdout='', stderr='/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.venv/bin/python: No module named ruff\n').stdout
+___________________ test_ruff_passes_on_real_adapter_module ____________________
+tests/cli/eval/test_claude_process_adapter.py:481: in test_ruff_passes_on_real_adapter_module
+    assert result.returncode == 0, (
+E   AssertionError: adapter module trips its own ban rule: '' '/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.venv/bin/python: No module named ruff\n'
+E   assert 1 == 0
+E    +  where 1 = CompletedProcess(args=['/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.venv/bin/python', '-m', 'ruff', 'che... stdout='', stderr='/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.venv/bin/python: No module named ruff\n').returncode
+____________________ test_d0072_spec_documents_flag_wiring _____________________
+tests/cli/eval/test_eval_run.py:698: in test_d0072_spec_documents_flag_wiring
+    assert D0072_SPEC_PATH.is_file(), (
+E   AssertionError: D-0072 spec missing at /config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/cliEval/artifacts/D-0072/spec.md; T04.10 AC requires spec.md to be authored alongside the test file.
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/cliEval/artifacts/D-0072/spec.md').is_file
+_____________________ test_evidence_root_directory_exists ______________________
+tests/cli/eval/test_validation_commands.py:145: in test_evidence_root_directory_exists
+    assert EVIDENCE_ROOT.is_dir(), (
+E   AssertionError: OPS-004 evidence root missing: .dev/releases/current/cliEval/evidence/T06.11. Re-run the §6 reproduction recipe to populate it.
+E   assert False
+E    +  where False = is_dir()
+E    +    where is_dir = PosixPath('/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/cliEval/evidence/T06.11').is_dir
+_________ test_evidence_log_present_with_exit_code[01-targeted-pytest] _________
+tests/cli/eval/test_validation_commands.py:165: in test_evidence_log_present_with_exit_code
+    assert log.is_file(), f"Evidence log missing: {log.relative_to(REPO_ROOT)}"
+E   AssertionError: Evidence log missing: .dev/releases/current/cliEval/evidence/T06.11/01-targeted-pytest.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/cliEval/evidence/T06.11/01-targeted-pytest.log').is_file
+________ test_evidence_log_present_with_exit_code[02-make-verify-sync] _________
+tests/cli/eval/test_validation_commands.py:165: in test_evidence_log_present_with_exit_code
+    assert log.is_file(), f"Evidence log missing: {log.relative_to(REPO_ROOT)}"
+E   AssertionError: Evidence log missing: .dev/releases/current/cliEval/evidence/T06.11/02-make-verify-sync.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/cliEval/evidence/T06.11/02-make-verify-sync.log').is_file
+___________ test_evidence_log_present_with_exit_code[03-eval-doctor] ___________
+tests/cli/eval/test_validation_commands.py:165: in test_evidence_log_present_with_exit_code
+    assert log.is_file(), f"Evidence log missing: {log.relative_to(REPO_ROOT)}"
+E   AssertionError: Evidence log missing: .dev/releases/current/cliEval/evidence/T06.11/03-eval-doctor.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/cliEval/evidence/T06.11/03-eval-doctor.log').is_file
+___________ test_evidence_log_present_with_exit_code[04-eval-run-E1] ___________
+tests/cli/eval/test_validation_commands.py:165: in test_evidence_log_present_with_exit_code
+    assert log.is_file(), f"Evidence log missing: {log.relative_to(REPO_ROOT)}"
+E   AssertionError: Evidence log missing: .dev/releases/current/cliEval/evidence/T06.11/04-eval-run-E1.log
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/cliEval/evidence/T06.11/04-eval-run-E1.log').is_file
+___________________ test_top_level_command_roster_unchanged ____________________
+tests/cli/test_cli_registration.py:78: in test_top_level_command_roster_unchanged
+    assert not unexpected, (
+E   AssertionError: unexpected top-level commands present (update EXPECTED_TOP_LEVEL_COMMANDS deliberately): ['reflect', 'swarm']
+E   assert not frozenset({'reflect', 'swarm'})
+______________________ test_case_1_missing_target_creates ______________________
+tests/cli/test_install_hooks.py:143: in test_case_1_missing_target_creates
+    assert ok, msg
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_case_1_missing_target_cre0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_1_missing_target_cre0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_1_missing_target_cre0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_1_missing_target_cre0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=2
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+______________________ test_case_2_empty_target_settings _______________________
+tests/cli/test_install_hooks.py:164: in test_case_2_empty_target_settings
+    assert ok, msg
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_case_2_empty_target_setti0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_2_empty_target_setti0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_2_empty_target_setti0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_2_empty_target_setti0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=2
+E     💾 Backup: /tmp/pytest-of-abc/pytest-175/test_case_2_empty_target_setti0/home/.claude/settings.json.bak.20260618T050419Z
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+____________________ test_case_3_unrelated_events_preserved ____________________
+tests/cli/test_install_hooks.py:199: in test_case_3_unrelated_events_preserved
+    assert ok, msg
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_case_3_unrelated_events_p0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_3_unrelated_events_p0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_3_unrelated_events_p0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_3_unrelated_events_p0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=2
+E     💾 Backup: /tmp/pytest-of-abc/pytest-175/test_case_3_unrelated_events_p0/home/.claude/settings.json.bak.20260618T050419Z
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+__________________ test_case_4a_same_event_different_matcher ___________________
+tests/cli/test_install_hooks.py:241: in test_case_4a_same_event_different_matcher
+    assert ok, msg
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_case_4a_same_event_differ0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4a_same_event_differ0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4a_same_event_differ0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4a_same_event_differ0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=2
+E     💾 Backup: /tmp/pytest-of-abc/pytest-175/test_case_4a_same_event_differ0/home/.claude/settings.json.bak.20260618T050419Z
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+_________________ test_case_4b_collision_skipped_without_force _________________
+tests/cli/test_install_hooks.py:264: in test_case_4b_collision_skipped_without_force
+    assert ok, msg
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_case_4b_collision_skipped0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4b_collision_skipped0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4b_collision_skipped0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4b_collision_skipped0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=1 skipped-collision=1 (use --force to replace)
+E     💾 Backup: /tmp/pytest-of-abc/pytest-175/test_case_4b_collision_skipped0/home/.claude/settings.json.bak.20260618T050419Z
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+__________________ test_case_4c_collision_replaced_with_force __________________
+tests/cli/test_install_hooks.py:283: in test_case_4c_collision_replaced_with_force
+    assert ok, msg
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_case_4c_collision_replace0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4c_collision_replace0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4c_collision_replace0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_4c_collision_replace0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=1 replaced=1
+E     💾 Backup: /tmp/pytest-of-abc/pytest-175/test_case_4c_collision_replace0/home/.claude/settings.json.bak.20260618T050419Z
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+_______________________ test_case_7_backup_before_write ________________________
+tests/cli/test_install_hooks.py:347: in test_case_7_backup_before_write
+    assert ok, msg
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_case_7_backup_before_writ0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_7_backup_before_writ0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_7_backup_before_writ0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_case_7_backup_before_writ0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=2
+E     💾 Backup: /tmp/pytest-of-abc/pytest-175/test_case_7_backup_before_writ0/home/.claude/settings.json.bak.20260618T050419Z
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+___________________ test_smoke_install_then_reinstall_force ____________________
+tests/cli/test_install_hooks.py:415: in test_smoke_install_then_reinstall_force
+    assert ok1, msg1
+E   AssertionError: ✅ Copied 9 hook script(s) to /tmp/pytest-of-abc/pytest-175/test_smoke_install_then_reinst0/home/.claude/hooks:
+E        - freshness-session-start.sh
+E        - freshness-user-prompt.sh
+E        - freshness-pre-edit.sh
+E        - freshness-post-read.sh
+E        - freshness-file-changed.sh
+E        - freshness-subagent-start.sh
+E        - freshness-subagent-stop.sh
+E        - auggie-flag-clear.sh
+E        - session-init.sh
+E
+E     ❌ Failed to copy 3 script(s):
+E        - reject-workspace-writes.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_smoke_install_then_reinst0/pkg/hooks/scripts/reject-workspace-writes.sh
+E        - offer-pr-review.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_smoke_install_then_reinst0/pkg/hooks/scripts/offer-pr-review.sh
+E        - sc-recommend-phase0.sh: source missing at /tmp/pytest-of-abc/pytest-175/test_smoke_install_then_reinst0/pkg/hooks/scripts/sc-recommend-phase0.sh
+E
+E     📋 settings.json merge: events=2 added=2
+E
+E     📦 Seeded 1 data file(s):
+E        - auggie-projects.txt
+E   assert False
+_ TestRerunTasksRoundTrip.test_rerun_renames_originals_flips_checkboxes_emits_event_runs_verify_checkpoints _
+tests/sprint/test_rerun_tasks_e2e.py:257: in test_rerun_renames_originals_flips_checkboxes_emits_event_runs_verify_checkpoints
+    assert result.exit_code == 0, result.output
+E   AssertionError: ╭───────────── SUPERCLAUDE SPRINT RUNNER == rerun-20260618T050652 ─────────────╮
+E     │                                                                              │
+E     │  rerun-20260618T050652    Elapsed: 0m 0s                                     │
+E     │                                                                              │
+E     │    #  Phase                              Status       Duration   Turns    O  │
+E     │    7  Phase 7                           RUNNING             0s       -       │
+E     │                                                                              │
+E     │  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+E     │  0/2                                                                         │
+E     │                                                                              │
+E     │  ╭─────────────────────────── ACTIVE: Phase 7 ────────────────────────────╮  │
+E     │  │ File:    phase-7r-tasklist.md                                          │  │
+E     │  │ Status:  RUNNING -- waiting...                                         │  │
+E     │  │                                                                        │  │
+E     │  │ Prompt:  Phase 7                                                       │  │
+E     │  │ Agent:   —                                                             │  │
+E     │  │                                                                        │  │
+E     │  │ Last task:     T07.11                                                  │  │
+E     │  │ Last tool:     -                                                       │  │
+E     │  │ Output size:   0 B  (+0.0 B/s)                                         │  │
+E     │  │ Files changed: 0                                                       │  │
+E     │  │                                                                        │  │
+E     │  │ Activity:                                                              │  │
+E     │  │   —                                                                    │  │
+E     │  │   —                                                                    │  │
+E     │  │   —                                                                    │  │
+E     │  ╰────────────────────────────────────────────────────────────────────────╯  │
+E     │                                                                              │
+E     ╰──────────────────────────────────────────────────────────────────────────────╯Rerun failed (fileno); source restored, no merge.
+E
+E   assert 1 == 0
+E    +  where 1 = <Result SystemExit(1)>.exit_code
+_ TestRerunTasksMergeBackNoForce.test_merge_back_succeeds_without_force_merge __
+tests/sprint/test_rerun_tasks_e2e.py:380: in test_merge_back_succeeds_without_force_merge
+    assert result.exit_code == 0, result.output
+E   AssertionError: ╭───────────── SUPERCLAUDE SPRINT RUNNER == rerun-20260618T050652 ─────────────╮
+E     │                                                                              │
+E     │  rerun-20260618T050652    Elapsed: 0m 0s                                     │
+E     │                                                                              │
+E     │    #  Phase                              Status       Duration   Turns    O  │
+E     │    7  Phase 7                           RUNNING             0s       -       │
+E     │                                                                              │
+E     │  Phases ░░░░░░░░░░░░░░░░░░░░   0% 0/1    Tasks ░░░░░░░░░░░░░░░░░░░░   0%     │
+E     │  0/2                                                                         │
+E     │                                                                              │
+E     │  ╭─────────────────────────── ACTIVE: Phase 7 ────────────────────────────╮  │
+E     │  │ File:    phase-7r-tasklist.md                                          │  │
+E     │  │ Status:  RUNNING -- waiting...                                         │  │
+E     │  │                                                                        │  │
+E     │  │ Prompt:  Phase 7                                                       │  │
+E     │  │ Agent:   —                                                             │  │
+E     │  │                                                                        │  │
+E     │  │ Last task:     T07.11                                                  │  │
+E     │  │ Last tool:     -                                                       │  │
+E     │  │ Output size:   0 B  (+0.0 B/s)                                         │  │
+E     │  │ Files changed: 0                                                       │  │
+E     │  │                                                                        │  │
+E     │  │ Activity:                                                              │  │
+E     │  │   —                                                                    │  │
+E     │  │   —                                                                    │  │
+E     │  │   —                                                                    │  │
+E     │  ╰────────────────────────────────────────────────────────────────────────╯  │
+E     │                                                                              │
+E     ╰──────────────────────────────────────────────────────────────────────────────╯Rerun failed (fileno); source restored, no merge.
+E
+E   assert 1 == 0
+E    +  where 1 = <Result SystemExit(1)>.exit_code
+_______________ TestStatusMappings.test_all_statuses_have_styles _______________
+tests/sprint/test_tui.py:47: in test_all_statuses_have_styles
+    assert status in STATUS_STYLES, f"Missing style for {status}"
+E   AssertionError: Missing style for PhaseStatus.PROVIDER_EXHAUSTED
+E   assert <PhaseStatus.PROVIDER_EXHAUSTED: 'provider_exhausted'> in {<PhaseStatus.PASS: 'pass'>: 'bold green', <PhaseStatus.PASS_NO_SIGNAL: 'pass_no_signal'>: 'green', <PhaseStatus.PASS_NO_REPORT: 'pass_no_report'>: 'green', <PhaseStatus.PASS_RECOVERED: 'pass_recovered'>: 'green', ...}
+_______________ TestStatusMappings.test_all_statuses_have_icons ________________
+tests/sprint/test_tui.py:51: in test_all_statuses_have_icons
+    assert status in STATUS_ICONS, f"Missing icon for {status}"
+E   AssertionError: Missing icon for PhaseStatus.PROVIDER_EXHAUSTED
+E   assert <PhaseStatus.PROVIDER_EXHAUSTED: 'provider_exhausted'> in {<PhaseStatus.PASS: 'pass'>: '[green]PASS[/]', <PhaseStatus.PASS_NO_SIGNAL: 'pass_no_signal'>: '[green]PASS[/]', <Phas...NO_REPORT: 'pass_no_report'>: '[green]PASS[/]', <PhaseStatus.PASS_RECOVERED: 'pass_recovered'>: '[green]PASS✓[/]', ...}
+________ test_backtest_e4_new_gate_catches_via_contract_enumeration_ref ________
+tests/troubleshoot/backtest/test_backtest_e4.py:105: in test_backtest_e4_new_gate_catches_via_contract_enumeration_ref
+    assert "gate_passed" in low and "_evaluate_gate" in low, (
+E   AssertionError: H2 ref must require BOTH gate_passed AND _evaluate_gate consumers be classified
+E   assert ('gate_passed' in '# contract enumeration (h2)\n\nh2 builds a producer/transformer/consumer **ledger** for the changed contract (a field....g. a generic gate, a product-specific evaluator, a trailing gate, and a remediation-dispatch path — before closure.\n')
+=============================== warnings summary ===============================
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_source
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_mirror
+tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant3_PersistentArtifact::test_canonical_subdirs_all_present
+tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant4_ZeroTrustQA::test_pass_bullet_byte_identical
+tests/audit/test_nfr_conv_9_zero_trust.py::TestNfrConv2DocumentationPage::test_doc_names_nfr_conv_2
+  /config/workspace/IronClaude/.dev/worktrees/SprintRun429/.venv/lib/python3.13/site-packages/_pytest/fixtures.py:1312: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+  Instance attributes set in this fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use @classmethod decorator and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/cli/eval/test_pty_lifecycle.py::test_real_claude_help_spawn_and_transcript
+tests/cli/eval/test_pty_lifecycle.py::test_lifecycle_prompt_ready_and_input_injection
+tests/cli/eval/test_pty_lifecycle.py::test_lifecycle_timeout_reaps_child
+tests/cli/eval/test_pty_lifecycle.py::test_lifecycle_transcript_persisted_end_to_end
+tests/cli/eval/test_signal_handling.py::test_pty_driver_terminate_kills_real_subprocess
+  /config/.local/share/uv/python/cpython-3.13.11-linux-x86_64-gnu/lib/python3.13/pty.py:95: DeprecationWarning: This process (pid=812475) is multi-threaded, use of forkpty() may lead to deadlocks in the child.
+    pid, fd = os.forkpty()
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_wrong_operand_state_mutation_detected
+  /config/workspace/IronClaude/.dev/worktrees/SprintRun429/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_loaded_start_index' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+tests/pipeline/test_release_gate_validation.py::TestKnownBugPatterns::test_sentinel_ambiguity_detected
+  /config/workspace/IronClaude/.dev/worktrees/SprintRun429/src/superclaude/cli/pipeline/invariant_pass.py:107: UserWarning: Duplicate variable_name '_replayed_event_offset' in scope 'class-level' (occurrence #2)
+    warnings = check_duplicate_variables(entries)
+
+tests/sprint/diagnostic/test_diagnostics.py: 11 warnings
+tests/sprint/diagnostic/test_level_0.py: 2 warnings
+tests/sprint/diagnostic/test_negative.py: 3 warnings
+  <string>:15: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_crash
+  /config/workspace/IronClaude/.dev/worktrees/SprintRun429/tests/sprint/diagnostic/test_diagnostics.py:221: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.CRASH
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_error_halt
+  /config/workspace/IronClaude/.dev/worktrees/SprintRun429/tests/sprint/diagnostic/test_diagnostics.py:228: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.ERROR
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_unknown_when_no_evidence
+  /config/workspace/IronClaude/.dev/worktrees/SprintRun429/tests/sprint/diagnostic/test_diagnostics.py:241: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.UNKNOWN
+
+tests/sprint/diagnostic/test_negative.py::TestCorruptData::test_classifier_with_empty_bundle
+  /config/workspace/IronClaude/.dev/worktrees/SprintRun429/tests/sprint/diagnostic/test_negative.py:109: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    cat = classifier.classify(bundle)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/audit/test_invariant_preservation_NFR_6_through_10.py::TestInvariant3_PersistentArtifact::test_task_id_naming_pattern_preserved
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_flags_synthetic_anthropic_import_under_cli_eval
+FAILED tests/cli/eval/test_claude_process_adapter.py::test_ruff_passes_on_real_adapter_module
+FAILED tests/cli/eval/test_eval_run.py::test_d0072_spec_documents_flag_wiring
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_root_directory_exists
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[01-targeted-pytest]
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[02-make-verify-sync]
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[03-eval-doctor]
+FAILED tests/cli/eval/test_validation_commands.py::test_evidence_log_present_with_exit_code[04-eval-run-E1]
+FAILED tests/cli/test_cli_registration.py::test_top_level_command_roster_unchanged
+FAILED tests/cli/test_install_hooks.py::test_case_1_missing_target_creates - ...
+FAILED tests/cli/test_install_hooks.py::test_case_2_empty_target_settings - A...
+FAILED tests/cli/test_install_hooks.py::test_case_3_unrelated_events_preserved
+FAILED tests/cli/test_install_hooks.py::test_case_4a_same_event_different_matcher
+FAILED tests/cli/test_install_hooks.py::test_case_4b_collision_skipped_without_force
+FAILED tests/cli/test_install_hooks.py::test_case_4c_collision_replaced_with_force
+FAILED tests/cli/test_install_hooks.py::test_case_7_backup_before_write - Ass...
+FAILED tests/cli/test_install_hooks.py::test_smoke_install_then_reinstall_force
+FAILED tests/sprint/test_rerun_tasks_e2e.py::TestRerunTasksRoundTrip::test_rerun_renames_originals_flips_checkboxes_emits_event_runs_verify_checkpoints
+FAILED tests/sprint/test_rerun_tasks_e2e.py::TestRerunTasksMergeBackNoForce::test_merge_back_succeeds_without_force_merge
+FAILED tests/sprint/test_tui.py::TestStatusMappings::test_all_statuses_have_styles
+FAILED tests/sprint/test_tui.py::TestStatusMappings::test_all_statuses_have_icons
+FAILED tests/troubleshoot/backtest/test_backtest_e4.py::test_backtest_e4_new_gate_catches_via_contract_enumeration_ref
+ERROR tests/v3.3/test_zero_files_analyzed.py::TestZeroFilesAnalyzedFail::test_zero_files_analyzed_returns_fail
+= 23 failed, 10705 passed, 146 skipped, 1 xpassed, 32 warnings, 1 error in 216.64s (0:03:36) =
+PYTEST_EXIT=1
+
+######## backward_compat marker ########
+=============== 20 passed, 1 skipped, 10854 deselected in 7.01s ================
+
+######## ruff check src/ tests/ ########
+   |
+help: Organize imports
+
+Found 127 errors.
+[*] 99 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).
+RUFF_CHECK_EXIT=1
+
+######## ruff format --check src/ tests/ (whole tree) ########
+Would reformat: tests/troubleshoot/test_hardening_verdict.py
+105 files would be reformatted, 924 files already formatted
+RUFF_FORMAT_EXIT=1
+
+######## PC.2 ANALYSIS (executor) ########
+Full suite: 23 failed, 10705 passed, 146 skipped, 1 xpassed, 1 error (216s).
+backward_compat marker: 20 passed, 1 skipped (exit 0).
+SCOPED ruff check + format on this task's 19 files: All checks passed / 19 files
+already formatted (exit 0). Whole-tree ruff (127 check + 105 format) is PRE-EXISTING
+drift in unrelated modules — zero in this task's files.
+
+REGRESSION CLASSIFICATION (git stash baseline method):
+- Stashed all task changes, re-ran the exact 23-failure node-id set on the CLEAN tree
+  -> 21 failed, 38 passed. The 2 that flipped to PASS on the clean tree are:
+    tests/sprint/test_tui.py::TestStatusMappings::test_all_statuses_have_styles
+    tests/sprint/test_tui.py::TestStatusMappings::test_all_statuses_have_icons
+  => these were the ONLY regression from this task (P4 added PhaseStatus.PROVIDER_EXHAUSTED
+     without TUI style/icon mappings). FIXED: added PhaseStatus.PROVIDER_EXHAUSTED to
+     STATUS_STYLES ("bold magenta") + STATUS_ICONS ("[magenta]EXHAUSTED[/]") in tui.py.
+     Verified: tests/sprint/test_tui.py -> 10 passed.
+- The remaining 21 failures FAIL on the clean tree too => PRE-EXISTING, NOT caused by
+  this task. They live entirely in modules this task never touched:
+    2x tests/sprint/test_rerun_tasks_e2e.py  (environmental "(fileno)" TUI-on-captured-
+       stream error; explicit --tasks path = ManualNominator, untouched by the P6 exclusion)
+    tests/audit/..., tests/cli/eval/... (4), tests/cli/test_install_hooks.py (8),
+    tests/cli/test_cli_registration.py, tests/troubleshoot/backtest/..., tests/v3.3/...
+  (This task only changed src/superclaude/cli/sprint/* + tests/sprint/* + docs + KNOWLEDGE.md;
+   none of these failing modules import the changed sprint code.)
+
+POST-FIX SPRINT SUITE: tests/sprint/ (minus the 2 pre-existing e2e fileno failures)
+  -> 1228 passed. No cross-phase regression from P1-P6 remains.
+
+VERDICT: This task's contribution is GREEN (1228 sprint tests pass, 19 task files
+ruff-clean). The 21 remaining full-suite failures are pre-existing/unrelated and out of
+scope for the 429-recovery task; documented here rather than fixed.

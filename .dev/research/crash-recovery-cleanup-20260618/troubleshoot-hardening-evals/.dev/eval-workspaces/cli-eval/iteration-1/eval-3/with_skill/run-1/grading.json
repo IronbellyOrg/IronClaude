@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Inspects the suite via `superclaude eval describe` (through the CLI)",
+      "passed": true,
+      "evidence": "trace: `eval describe --suite installer_sync_drift` exit 0; corroborated against the yaml"
+    },
+    {
+      "text": "Reports isolation strategy (shared HOME), timeouts, and the no_pty markers",
+      "passed": true,
+      "evidence": "report: home_strategy shared, timeout_sec 180, no_pty:skip on S1, hard binaries listed"
+    },
+    {
+      "text": "Correct --no-pty verdict: it short-circuits S1 to SKIPPED and exercises nothing; real run omits --no-pty (+ FR-G5 workaround)",
+      "passed": true,
+      "evidence": "Verdict: --no-pty exercises NOTHING (SKIPPED, skip_reason=--no-pty); real run omits --no-pty and clears FR-G5 via empty-HOME workaround"
+    },
+    {
+      "text": "Grounds flag/behavior claims in re-read sources, not memory",
+      "passed": true,
+      "evidence": "Cites suite.schema.json:153-157, run-pipeline.md:33-35, suites-guide.md:549-554"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 15,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 110.2
+  }
+}

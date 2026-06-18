@@ -1,0 +1,3 @@
+reflect: degraded (null-convergence)
+  report: .dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/reflect/post/59b9e2a2b9f0/REPORT.md
+  contract: /config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/reflect/post/59b9e2a2b9f0/return-contract.yaml

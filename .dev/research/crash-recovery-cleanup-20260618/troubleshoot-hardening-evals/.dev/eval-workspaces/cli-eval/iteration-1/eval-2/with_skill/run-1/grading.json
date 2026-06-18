@@ -1,0 +1,42 @@
+{
+  "expectations": [
+    {
+      "text": "Re-reads the suite schema + house-style templates + CLI surface and cites them (fresh-context load)",
+      "passed": true,
+      "evidence": "trace cites `eval run --help` (12 flags + --suite [required]), suite.schema.json, eval_smoke.yaml, installer_sync_drift.yaml, suites/README.md"
+    },
+    {
+      "text": "Routes critique + debate/merge through the reused skills (/sc:spec-panel, /sc:adversarial) rather than reinventing them",
+      "passed": true,
+      "evidence": "Described W2 /sc:spec-panel --mode critique and W3 /sc:adversarial --generate eval-suite --agents opus,sonnet,haiku with a merge verdict (variant B)"
+    },
+    {
+      "text": "Authors the manifest schema-first in house style: stem == name, only schema-known keys, meaningful expects (not bare exit_code:0)",
+      "passed": true,
+      "evidence": "eval_cli_doc_parity.yaml: stem==name, 3 evals DP1/DP2/DP3, positive substring per documented flag + [required] guard"
+    },
+    {
+      "text": "Validates with `superclaude eval describe --suite <stem>` to loader exit 0 before declaring done",
+      "passed": true,
+      "evidence": "`eval describe --suite eval_cli_doc_parity` -> exit 0; also appears in `eval list --json` (eval_count 3)"
+    },
+    {
+      "text": "Does not invent schema fields / CLI flags",
+      "passed": true,
+      "evidence": "Only schema-known keys; validated clean on first pass (no fix loop)"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 21,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 224.6
+  }
+}

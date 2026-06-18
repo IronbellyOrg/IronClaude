@@ -1,0 +1,11 @@
+{
+  "eval_id": 3,
+  "eval_name": "trust-the-pass",
+  "prompt": "I just ran the eval_smoke suite and the summary shows 3/3 PASS, exit 0. Can I treat that as a real, trustworthy eval pass, or is there a catch I should know about?",
+  "assertions": [
+    "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)",
+    "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it",
+    "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)",
+    "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations"
+  ]
+}

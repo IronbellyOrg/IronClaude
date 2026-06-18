@@ -1,0 +1,96 @@
+contract_version: "1.5.0"
+status: partial            # content-clean; partial is GATE-TIME-INTRINSIC (PC.6 deferred) + human HALT, NOT a content defect
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/93f613de3ec6/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/93f613de3ec6/audit.log
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # forced T2 by --depth deep (§5.1 hard override)
+
+# Diff scoping
+diff_supplied: "02582ca0..93f613de"
+diff_effective: "0f9c8d36..93f613de"   # base over-captured PR#176 (0f9c8d36); pr_submit/* excluded as out-of-scope-authorized
+
+# UC-2 specific
+tasklist_completion_pct: 0.991          # 108/109; the 1 unchecked = PC.6 terminal status-flip, gated on THIS reflect passing (documented chicken-and-egg)
+deviation_count_by_class:
+  authorized: 0
+  necessary: 3                          # FR-028 parity-vs-golden choice; command-reference.md flag backfill; test_quickstart subset-flip (+ worktree-exec & WS-E-location process deviations, documented)
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/93f613de3ec6/deviation-ledger.yaml
+grounding_gaps_path: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915/reflect/post/93f613de3ec6/grounding-gaps.yaml
+
+# Verification triangle (live, this run)
+verification_ran: true
+verification_invocations: 4
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+regression_present: false
+
+# Hallucination guard
+citations_total: 31
+citations_revalidated: 31
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true        # §11.2 — zero-drop is an audit flag, not a clean signal; here well-founded (disk-verified + 2 independent reviewers + EV spot-checks)
+
+# Tier 2 ensemble
+reviewer_cards:
+  - reviewer-A:root-cause-analyst:sonnet(gpt-5.5):PASS:0.91
+  - reviewer-B:quality-engineer:haiku(qwen):PASS:0.95
+adversarial_convergence_score: 0.93     # both PASS, no competing classifications → high convergence
+adversarial_unavailable: false
+merge_method: convergent-pass           # both reviewers independently converged; no debate needed
+t2_model_class_diversity: degraded      # executor=opus excluded → only 2 classes (sonnet, haiku)
+t2_vendor_diversity: multi              # gpt-5.5 + qwen3.6-plus
+calibrator_diversity: full              # calibrator=opus disjoint from {sonnet, haiku}
+executor_class_source: flag             # --executor-model opus
+executor_class_resolved: true
+executor_exclusion_degraded: true       # opus exclusion dropped reviewer count to N=2 floor (still valid)
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+user_decision_required: true            # OPS-004 tabletop rehearsal sign-off (human HALT) + close-out (commit/PC.6) needs operator
+needs_human_decision: true              # grounding-gaps non-empty (OPS-004 human-decision item)
+
+# Promotion (UC-2, default-on) — Wave 7
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/tasks/to-do/TASK-RF-bare-review-migration-20260616-045915
+promotion_destination: null
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass                       # cond 1
+  status_success: fail                  # cond 2 (status partial)
+  tasklist_completion_pct_1_0: fail     # cond 3 (108/109; PC.6 deferred)
+  no_drift_no_regression: pass          # cond 4 (drift 0, regression 0)
+  frontmatter_present: pass             # cond 5a
+  frontmatter_status_matches: fail      # cond 5b (status "🟠 Doing")
+  no_citations_dropped: pass            # cond 6a
+  no_grounding_gaps: fail               # cond 6b (OPS-004 human-decision entry)
+  no_input_drift: pass                  # cond 7
+  no_user_decision_pending: fail        # cond 8 (OPS-004 HALT)
+  adversarial_result_present: pass      # cond 9 (T2, convergence present)
+gate_evaluation_failures: [status_success, tasklist_completion_pct_1_0, frontmatter_status_matches, no_grounding_gaps, no_user_decision_pending]
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null
+remediation_task_path: null             # no drift/regression to remediate; migration is content-complete
+
+# Verdict summary
+verdict: content-clean / promotion-blocked-intrinsic
+verdict_reason: >
+  The M8/M9 migration genuinely shipped — every headline deliverable independently
+  disk-verified, swarm suite 2212 passed/27 skipped/0 failed, parity+recipe RUN-and-PASS
+  post-deletion, verify-sync exit 0. Deviation audit is CLEAN (0 drift, 0 regression).
+  status: partial is gate-time-intrinsic (PC.6 terminal flip is gated on this very reflect)
+  + the OPS-004 tabletop-rehearsal human HALT — NOT a content defect.

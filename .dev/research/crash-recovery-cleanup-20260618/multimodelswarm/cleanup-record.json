@@ -1,0 +1,95 @@
+{
+  "archive_dir": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm",
+  "mms_complete_copy": {
+    "action": "copied-original-preserved",
+    "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/claude-worktree-mms-m8m9__complete-untracked-4file-copy__copied-original-preserved",
+    "file_count": 4,
+    "files": [
+      "merged-requirements.compressed.md",
+      "tasklist/phase-8-cp1.md",
+      "tasklist/phase-8-cp2.md",
+      "tasklist/phase-9-tasklist.md"
+    ],
+    "source": "/config/workspace/IronClaude/.claude/worktrees/mms-m8m9/.dev/releases/complete/MultiModelSwarm"
+  },
+  "moved": [
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/main-current__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/claude-worktree-fr028-fr028__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.claude/worktrees/fr028-fr028/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/claude-worktree-sc-cli-eval__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.claude/worktrees/sc-cli-eval/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/claude-worktree-wf_3cd03e8d-30a-12__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.claude/worktrees/wf_3cd03e8d-30a-12/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/dev-worktree-SprintRun429__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/worktrees/SprintRun429/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/dev-worktree-cli-eval-v2__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/worktrees/cli-eval-v2/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/dev-worktree-fix-sprint-rerun-pass-recovered__lowercase-current__moved",
+      "file_count": 21,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/worktrees/fix-sprint-rerun-pass-recovered/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/dev-worktree-reflect-pass-recovered-artifacts__lowercase-current__moved",
+      "file_count": 21,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/worktrees/reflect-pass-recovered-artifacts/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/dev-worktree-tfep-troubleshoot-backend__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/worktrees/tfep-troubleshoot-backend/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/dev-worktree-troubleshoot-hardening__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening/.dev/releases/current/MultiModelSwarm"
+    },
+    {
+      "anti_instinct": "FAIL",
+      "archive": "/config/workspace/IronClaude/.dev/research/crash-recovery-cleanup-20260618/multimodelswarm/dev-worktree-troubleshoot-hardening-evals__lowercase-current__moved",
+      "file_count": 29,
+      "hash": "8df1f5f74613",
+      "source": "/config/workspace/IronClaude/.dev/worktrees/troubleshoot-hardening-evals/.dev/releases/current/MultiModelSwarm"
+    }
+  ],
+  "skipped": []
+}

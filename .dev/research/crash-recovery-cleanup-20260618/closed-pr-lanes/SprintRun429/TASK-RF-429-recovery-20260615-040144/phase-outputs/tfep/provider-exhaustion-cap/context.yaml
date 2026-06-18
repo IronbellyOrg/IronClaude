@@ -1,0 +1,70 @@
+task_description: "Resume SprintRun429 TASK-RF-429-recovery-20260615-040144; implement Phase 4 policy/executor re-spawn loop tests and verify."
+escalation_count: 1
+trigger: "3 or more new tests failed simultaneously"
+caller: "task-unified"
+compliance_tier: "STRICT"
+output_dir: ".dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/phase-outputs/tfep/provider-exhaustion-cap"
+
+test_names:
+  - "tests/sprint/test_executor.py::TestPerTaskOrchestration::test_provider_exhaustion_single_429_stops_at_cap"
+  - "tests/sprint/test_executor.py::TestPerTaskOrchestration::test_provider_exhaustion_parallel_latch_bounds_spawn_storm"
+  - "tests/sprint/test_executor.py::TestPerTaskOrchestration::test_provider_exhaustion_single_worker_stops_exactly_at_small_cap"
+
+test_files:
+  - "tests/sprint/test_executor.py"
+
+test_baseline:
+  source: "uv run pytest tests/sprint/test_models.py tests/sprint/test_monitor.py tests/sprint/test_rerun_tasks.py tests/sprint/test_resume.py --collect-only -q"
+  collected_count: 232
+  note: "Baseline was collected before this task's edits. New tests in test_recovery_policy.py and added TestPerTaskOrchestration provider-exhaustion tests are not in the baseline."
+
+failing_tests_classification:
+  - name: "test_provider_exhaustion_single_429_stops_at_cap"
+    classification: "New"
+  - name: "test_provider_exhaustion_parallel_latch_bounds_spawn_storm"
+    classification: "New"
+  - name: "test_provider_exhaustion_single_worker_stops_exactly_at_small_cap"
+    classification: "New"
+
+expected_behavior:
+  summary: "A single-account 429 re-spawn loop should stop after exactly max_session_resets subprocess spawns; K>1 latch storm should stay within cap <= total_spawns <= cap + (K - 1) and below K * cap."
+  details:
+    - "cap=8 single worker should produce calls['n'] == 8."
+    - "cap=3 single worker should produce calls['n'] == 3."
+    - "cap=3, K=4 parallel storm should produce total calls within 3..6."
+
+actual_behavior:
+  summary: "Observed cap + 1 behavior for single worker and an oversized K>1 spawn storm."
+  details:
+    - "cap=8 single worker produced calls['n'] == 9."
+    - "cap=3 single worker produced calls['n'] == 4."
+    - "cap=3, K=4 parallel produced calls['n'] == 9, above cap + (K - 1) == 6."
+
+error_output: |
+  FAILED tests/sprint/test_executor.py::TestPerTaskOrchestration::test_provider_exhaustion_single_429_stops_at_cap
+    assert calls["n"] == cap
+    E   assert 9 == 8
+
+  FAILED tests/sprint/test_executor.py::TestPerTaskOrchestration::test_provider_exhaustion_parallel_latch_bounds_spawn_storm
+    assert cap <= calls["n"] <= cap + (len(tasks) - 1)
+    E   AssertionError: assert 9 <= (3 + (4 - 1))
+
+  FAILED tests/sprint/test_executor.py::TestPerTaskOrchestration::test_provider_exhaustion_single_worker_stops_exactly_at_small_cap
+    assert calls["n"] == cap
+    E   assert 4 == 3
+
+  Test run summary: 3 failed, 104 passed in 1.91s.
+
+changes_made:
+  - file: "tests/sprint/test_recovery_policy.py"
+    description: "New truth-table tests for SessionResetPolicy.decide."
+  - file: "tests/sprint/test_executor.py"
+    description: "Added SessionResetPolicy import, scripted transcript factory helpers, and six provider-exhaustion executor loop tests."
+
+relevant_existing_code:
+  - file: "src/superclaude/cli/sprint/recovery_policy.py"
+    note: "SessionResetPolicy.decide returns RETRY_NEW_SESSION when attempt < max_session_resets and HALT_MODEL_SWITCH at attempt == cap."
+  - file: "src/superclaude/cli/sprint/executor.py"
+    note: "_run_one_task initializes attempt = 0, calls reset_policy.decide(signal.kind, attempt), then increments attempt after RETRY_NEW_SESSION. This may be an off-by-one if max_session_resets is intended to cap total spawns rather than retries after the first spawn."
+
+hypothesis_for_forensic_review: "The executor loop likely passes a zero-based attempt count to a policy whose boundary semantics are being tested as a one-based spawn cap, causing cap + 1 spawns. Forensic should adjudicate whether the tests encode the task spec correctly or whether max_session_resets is intended to mean extra retries rather than total spawns."

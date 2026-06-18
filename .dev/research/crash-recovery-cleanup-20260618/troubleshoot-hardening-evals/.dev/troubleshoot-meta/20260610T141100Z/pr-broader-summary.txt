@@ -1,0 +1,159 @@
+# 140
+feat(prd): add --spec FILE for deterministic spec ingestion (Phase 1 + 1.5)
+2026-06-08T00:45:48Z
+3a76e2b3d3c9397eecce70ff93254be8fc831fba
+## Summary
+
+Adds `superclaude prd run --spec FILE` (repeatable, file-validated) — a deterministic way to feed
+**authoritative spec files** into the PRD pipeline, distinct from `--where` (directories).
+
+**Root cause fixed:** `--where` is stored on `PrdConfig` but never injected into the parse-request
+prompt; the LLM invents its own `WHERE` list, which scope-discovery then consumes. A `--where` input
+was observed being silently replaced by an LLM guess, producing a thin scope doc. `--spec` binds the
+named files at the one chokepoint the LLM cannot evict.
+
+## How it works
+
+# 147
+fix(prd): pin canonical output paths + harden recovery for document-capture gate failure
+2026-06-08T01:01:57Z
+b05e0fe1fddf3152009db51436d67438447dff56
+## Problem
+
+`superclaude prd run` document steps fail their line-count gate on ~24 lines of NDJSON commentary instead of the agent's real document (root-cause confidence 0.95). Un-pinned prompts let agents invent a variant filename in a writable WHERE source dir; executor recovery only rglob'd the exact canonical name and fell back to the short NDJSON, so the STRICT research-notes gate HALTed the run. A contamination loop followed (agents wrote into WHERE dirs that later steps re-ingested).
+
+## Fix — adversarial-debate-decided layered hotfix (`merged-solution.md`, convergence 0.86)
+
+- **Layer 1 (prompts.py):** `_artifact_path_for_step` mirror helper + `CRITICAL -- Output Location:` pin in the 4 un-pinned document builders (scope-discovery, research-notes, sufficiency-review, preparation).
+- **Layer 2 (executor.py):** `_STEP_ARTIFACT_PATTERNS`, bounded WHERE search roots with realpath containment + symlink rejection (INV-005), pattern-aware candidate search, and `_pick_best_candidate` freshness-over-size tiebreak (INV-006). `_resolve_step_content` stays 3-arg; WHERE read internally from `parsed-request.json`.
+- **Layer 3:** `_check_no_truncation_marker` in gates.py (define-only, **not** wired) + INV-010 split-guard comment preserving the NDJSON `output_text` vs disk `gate_content` contract.
+
+## Tests & verification
+
+# 149
+fix(prd): harden artifact-read crash paths (F2/F4/F5) + halt-on-hard-failure plumbing
+2026-06-08T18:37:13Z
+f131592fe3094e222aad17cf82a5b0309ffcdb89
+## Summary
+
+PRD-pipeline durability hardening. Closes the three reflect follow-ups (F2/F4/F5) from a Tier-2 deep `/sc:reflect` audit of the document-capture two-atom crash fix, plus the Atom-1 `is_hard_failure`/`halt_reason` plumbing they depend on.
+
+- **F2 — typed malformed-artifact guard** (`prompts.py`): adds `MalformedArtifactError(MissingArtifactError)`; `_load_json_required` now wraps the parse in `try/except json.JSONDecodeError`, so a present-but-corrupt required artifact converts to the existing graceful HALT (subclass-caught at the executor `_build_prompt` call site) instead of an uncaught `json.JSONDecodeError` escaping `run()`. Executor verb-derivation tweak so the HALT reads "malformed" (not "missing") for a present-but-corrupt file.
+- **F4 — consistency-guard test** (`test_prompts.py`): pins the inline REQUIRED-read `(producer_step, filename)` pairs to `executor._STEP_ARTIFACT_FILES` (in-test import only — no circular-import coupling). Complements, does not duplicate, `test_prompt_executor_mapping_sync`.
+- **F5 — strengthened assertion** (`test_e2e.py`): `test_e2e_standard_tier_validation_fail_does_not_halt` now asserts scope-discovery's recorded status `== PrdStepStatus.VALIDATION_FAIL` (real enum symbol), so it can no longer pass for the wrong reason.
+- **Prerequisite** (`models.py`): `PrdStepStatus.is_hard_failure` property + `PrdStepResult.halt_reason` field (Atom-1 plumbing consumed by the executor HALT loop).
+
+## Validation
+
+- `uv run ruff check` clean on all edited files
+# 151
+fix(prd): deliver specs/refs inline instead of cloud-only --file flag
+2026-06-09T12:20:52Z
+7601ad2548e232ce89219908f726d4e35fe41412
+## Root cause
+
+The PRD CLI pipeline passed **local filesystem paths** to `claude --file` — a **cloud-download mechanism** (`file_id:relative_path`) that requires `CLAUDE_CODE_SESSION_ACCESS_TOKEN`. In a headless `--spec` run with no session token, the `claude` subprocess exits 1 in ~0.3 s with `Error: Session token required for file downloads`, crashlooping the pipeline at `scope-discovery`. PRD was the **only** pipeline emitting `--file`; roadmap / tasklist / validate already forbid it (FR-003/FR-023) and deliver content inline.
+
+## The fix (3 files)
+
+- **`src/superclaude/cli/prd/process.py`** — remove both `--file` emissions, the `_build_file_args` method, its `extra_args=file_args` wiring, and the three now-dead constants (`_PHASE_ALLOWED_REFS` / `_FILE_SIZE_THRESHOLD` / `_SPEC_FILE_STEPS`); de-`--file` the module + class docstrings.
+- **`src/superclaude/cli/prd/prompts.py`** — upgrade `_authoritative_specs_block` to inline each existing spec's content via the reused `_read_file` (50 KB cap + `_TRUNCATION_MARKER`) under a `--- SPEC: <path> ---` header, behind a **mandatory `Path(p).is_file()` guard**. Missing/stale paths fall back to a path-only line and never call `_read_file` — so a resumed run with stale `parsed-request.json` SPECS paths cannot re-introduce a crash via a bare `FileNotFoundError`. Signature + both call sites unchanged; empty-input `""` contract and the substrings `AUTHORITATIVE SPECIFICATIONS` / `MUST Read each one IN FULL` preserved.
+- **`tests/cli/prd/test_spec_flag.py`** — `TestSpecFileAttach` → `TestSpecFileNotAttached` (asserts `--file` absence via `build_command()`) + new `TestAuthoritativeSpecsBlockInline` (content-inline / >50 KB truncation / missing-path no-raise); empty-input lock retained.
+
+This matches the no-`--file` contract the roadmap/tasklist/validate pipelines already enforce. No pipeline redesign; executor crashloop hardening is out of scope (separate follow-up).
+
+# 153
+fix(task-builder): base POST-reflect --diff on merge-base working-tree, not start_commit
+2026-06-10T02:46:33Z
+10723863389b8fce9cf9474b3f628c963725daf8
+## Problem
+The task-builder's generated **POST-reflect gate item** emitted:
+```
+/sc:reflect --mode post --diff <start_commit>..HEAD ...
+```
+where `start_commit` is `git rev-parse HEAD` captured at task start (frontmatter `start_commit`). That base is **wrong in two common cases**:
+
+1. **Uncommitted work (the usual `/task` outcome).** `/task` edits the working tree but does not commit, so a `<base>..HEAD` *commit range* audits **none** of the task's changes.
+2. **Interleaved commits.** If an unrelated commit lands on the branch after task start, `start_commit..HEAD` spans **foreign work**.
+
+Both were hit live while auditing the PRD `--file` fix (#151): `start_commit` (`ac80f176`) pointed before an unrelated sprint-recovery commit, and the PRD work was uncommitted on top — so `ac80f176..HEAD` covered only the foreign commit. The reflect run had to be hand-retargeted to the working-tree diff.
+
+# 154
+fix(prd): exempt sequential completion phase from parallel-instructions gate
+2026-06-10T02:46:58Z
+e97aa4fd2a9d317abdc19f6ce2b5ccd35497df0e
+## Problem
+`_check_parallel_instructions` (gates.py) enforced the parallel-keyword requirement on **every** phase ≥2 — despite its `"phases 2-5"` docstring. It false-positived on the final **sequential completion/presentation phase** and **HALTed a live heavyweight PRD run** at `build-task-file`:
+
+```
+Phase 7 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)
+```
+
+Ground truth from the run: the generated task's parallel work phases run **2→6** (investigation, gates, web-research, synthesis, assembly — all passed), and only **Phase 7 "Present to User & Complete Task"** (sequential by anti-orphaning convention) lacked parallel keywords.
+
+## Fix
+Exempt the final phase **only when its heading marks it a completion phase** (`present`/`complete`/`finaliz`/`sign-off`/`wrap-up`). A final phase that is **not** completion-titled (e.g. a 2-phase task whose Phase 2 is real work) is **still checked** — so short tasks keep enforcement and the existing `test_check_parallel_instructions_missing` stays green. Phase 1 (setup) remains exempt as before (the check starts at phase 2). Net rule: **exempt the bookends (setup + completion), enforce the middle work phases.**
+
+# 155
+fix(prd): make parallel-instructions gate advisory (warn, don't halt)
+2026-06-10T05:13:30Z
+eb9a2633bfc49b96f2a677fd907a68976f2a5fd9
+## Problem
+`_check_parallel_instructions` is a **STRICT** semantic check on the `build-task-file` gate. Its heuristic detection (loose `Phase \d` heading matching + literal-keyword matching) has **false-positived twice** on well-formed generated task files, each time **HALTing a ~25-minute heavyweight PRD run**:
+1. flagged the sequential final **completion** phase (Phase 7) — patched by #154;
+2. after #154, flagged "Phase 2" because the regex also matched Task-Log `### Phase N - … Findings` placeholder headings, and the loop tripped on the empty `Phase 2 - Codebase Research Findings`.
+
+**Cost asymmetry:** a false positive halts a long, expensive run; the failure the gate guards against (a task that runs agents serially instead of in parallel) is merely *slower, not wrong*. A hard gate inverts that asymmetry.
+
+## Fix
+Add a **per-check advisory severity** to the gate framework rather than chasing detection bugs forever:
+- `SemanticCheck.advisory: bool = False` (`pipeline/models.py`).
+- The STRICT semantic-check loop (`pipeline/gates.py`) **logs a WARNING and proceeds** when an `advisory` check fails, instead of failing the gate.
+- Mark **only** `parallel_instructions` advisory (`prd/gates.py`). `task_phases_present` and `b2_self_contained` stay STRICT/halting.
+# 138
+feat(reflect): wire /sc:reflect PRE+POST gates into task-builder & sc:tasklist pipelines
+2026-06-04T20:50:01Z
+7dd3f9bd387bcff7827e1453296efaab469d70fe
+## Summary
+
+Wires `/sc:reflect` into **both** tasklist-generating pipelines, adding an executor-disjoint reflection layer that closes the same-frame rf-qa blindspot documented in `feedback_sc_reflect_vs_inline_rfqa`. Implements both design proposals (`reflect-in-task-builder.md`, `reflect-in-sc-tasklist.md`) as strictly-additive markdown edits, plus the S4 token-set trim.
+
+### task-builder (Proposal 1)
+- New **A.10.7 PRE reflect gate** — advisory-blocking, `Skill sc:reflect-protocol`, never auto-mutates (`feedback_human_decision_items_must_halt`)
+- `--spec` thread (A.2 `SPEC_PATH`) + frontmatter `spec_path`/`reflect_pre`/`reflect_post`
+- A.9 BUILD_REQUEST `POST_REFLECT_GATE` field + **Critical Rule #19** (MALFORMED-on-omission)
+- Templated fresh-session **POST reflect item** (penultimate, HALT) + A.11 `REFLECT GATES` block
+- New deterministic **Tasklist Complexity Score (TCS)** section (depth mapping + O1–O4 overrides)
+- S4 token-set trim → `{after Phase \d+, depends_on:}`
+
+# 142
+fix(reflect): F3a/F3b guard hygiene + Stage 10.5/post-reflect e2e evidence
+2026-06-08T00:46:24Z
+3a552d24f889118fb0962d77addd9beb06b96ce0
+## Summary
+
+Two genuinely-new changes on top of `master` (the Stage 10.5 + terminal post-reflect wiring already shipped via #138; this branch was cut clean off `origin/master` to avoid reverting #137):
+
+1. **`fix(reflect): F3a/F3b — e2e-surfaced template guard hygiene`** — surfaced by the 9-agent e2e sweep of #138.
+   - **F3a:** the terminal post-reflection task's negative-guard prose is emitted verbatim into generated tasklists, where a literal `/sc:task` token trips a strict "no /sc:task in generated output" scanner. Reworded the five emitted-output guards to `never the \`sc:task\` execution command` (drops the slash-prefixed token, keeps the warning). Legitimate `/sc:task` references unchanged.
+   - **F3b:** harden the TCS S6 frozen-extraction rule so a quoted-emoji `type: "🔧 Refactor"` value is normalized before matching (previously could read S6=0 and fail to fire override O2 → force `--depth deep`).
+
+2. **`test(reflect): e2e evidence`** — full live run of `/sc:tasklist` (Stages 1–10.5) on a sandbox roadmap, then a `superclaude sprint run` execution of the generated 2-phase bundle, under `.dev/e2e-reflect/`.
+
+## E2E result (live-tl)
+
+# 144
+feat(task-builder): converge rigorflow task-builder, rf agents, and MDTM templates (incl. #138 sc:reflect)
+2026-06-08T19:22:17Z
+ac80f176389572eaa8c902764dc91cb2a3fac2a1
+## What this delivers
+
+The converged rigorflow task-builder pipeline, additive over `master`:
+
+- `src/superclaude/skills/task-builder/SKILL.md`
+- 8 `src/superclaude/agents/rf-*.md` (analyst, assembler, qa, qa-qualitative, task-builder, task-researcher, task-executor, team-lead)
+- 2 `src/superclaude/templates/workflow/0{1,2}_mdtm_template_*.md`
+
+Exactly 11 files. No other paths are touched.
+
+## #138 sc:reflect carry-forward

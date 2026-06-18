@@ -1,0 +1,42 @@
+{
+  "expectations": [
+    {
+      "text": "Re-reads the suite schema + house-style templates + CLI surface and cites them (fresh-context load)",
+      "passed": true,
+      "evidence": "Engaged the schema/loader directly: ran loader.validate_manifest() and Expect.from_mapping to ground the manifest shape"
+    },
+    {
+      "text": "Routes critique + debate/merge through the reused skills (/sc:spec-panel, /sc:adversarial) rather than reinventing them",
+      "passed": false,
+      "evidence": "No critique/debate step at all; authored a single design unaided (the reuse pipeline is the skill's contribution)"
+    },
+    {
+      "text": "Authors the manifest schema-first in house style: stem == name, only schema-known keys, meaningful expects (not bare exit_code:0)",
+      "passed": true,
+      "evidence": "doc_flag_parity.yaml: stem==name, 2 evals, bidirectional flag diff with IN_SYNC/DRIFT verdict"
+    },
+    {
+      "text": "Validates with `superclaude eval describe --suite <stem>` to loader exit 0 before declaring done",
+      "passed": true,
+      "evidence": "`eval describe --suite doc_flag_parity` -> exit 0; `eval list` shows '2 evals'; loader.validate_manifest passed"
+    },
+    {
+      "text": "Does not invent schema fields / CLI flags",
+      "passed": true,
+      "evidence": "Validated four ways; no schema violations reported"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 1,
+    "total": 5,
+    "pass_rate": 0.8
+  },
+  "execution_metrics": {
+    "total_tool_calls": 28,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 285.7
+  }
+}

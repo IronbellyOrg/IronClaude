@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)",
+      "passed": true,
+      "evidence": "Found _NullLifecycleExecutor at commands.py:1386 _resolve_executor_factory; canned exit 0"
+    },
+    {
+      "text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it",
+      "passed": true,
+      "evidence": "commands.py:1879 'not as_json' guard; verified --json emitted 0 warning lines, --verbose surfaced it"
+    },
+    {
+      "text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)",
+      "passed": true,
+      "evidence": "Verdict: NON-AUTHORITATIVE plumbing only; expects:[] + duration 0.0 = canned"
+    },
+    {
+      "text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations",
+      "passed": true,
+      "evidence": "M5/M6 ClaudeProcessAdapter+PtyDriver must replace the stub; cited commands.py lines"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 15,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 144.0
+  }
+}

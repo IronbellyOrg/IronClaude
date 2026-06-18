@@ -1,0 +1,17 @@
+docs/eval/suites-guide.md
+src/superclaude/agents/eval-docs-loader.md
+src/superclaude/agents/eval-run-reporter.md
+src/superclaude/agents/eval-suite-author.md
+src/superclaude/cli/eval/suites/README.md
+src/superclaude/cli/eval/suites/cli_eval_skill_contract.yaml
+src/superclaude/cli/eval/suites/eval_cli_doc_parity.yaml
+src/superclaude/cli/eval/suites/suite_schema_guard.yaml
+src/superclaude/commands/cli-eval.md
+src/superclaude/skills/sc-cli-eval-protocol/SKILL.md
+src/superclaude/skills/sc-cli-eval-protocol/__init__.py
+src/superclaude/skills/sc-cli-eval-protocol/refs/create-pipeline.md
+src/superclaude/skills/sc-cli-eval-protocol/refs/eval-contracts.md
+src/superclaude/skills/sc-cli-eval-protocol/refs/integration-map.md
+src/superclaude/skills/sc-cli-eval-protocol/refs/run-pipeline.md
+src/superclaude/skills/sc-cli-eval-protocol/templates/run-report.md
+src/superclaude/skills/sc-cli-eval-protocol/templates/suite-manifest.yaml

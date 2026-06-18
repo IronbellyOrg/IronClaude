@@ -1,0 +1,14 @@
+# Phase 4 (P3) lint — Step 4.8 (final, post-autofix)
+
+## ruff format --check (P3 files)
+7 files already formatted
+format_check_exit=0
+
+## ruff check (P3 files)
+All checks passed!
+check_exit=0
+
+## NOTE: two auto-fixes applied during 4.8 (prescribed ruff tools only):
+## 1. ruff check --fix executor.py — I001 import sort (recovery_policy import was inserted before .notify)
+## 2. ruff format test_executor.py — prior session's test additions were unformatted
+## Repo-wide 'ruff format --check src/ tests/' still reports PRE-EXISTING drift (swarm/*, etc.) NOT touched by P3 (see p1-lint.txt note).

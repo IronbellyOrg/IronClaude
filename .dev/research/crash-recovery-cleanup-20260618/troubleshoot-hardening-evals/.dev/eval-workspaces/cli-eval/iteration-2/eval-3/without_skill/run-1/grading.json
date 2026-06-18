@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Determines which executor produced the PASS (finds the non-production/_NullLifecycleExecutor)",
+      "passed": true,
+      "evidence": "Found _NullLifecycleExecutor at commands.py:1357; factory :1402; canned ObservedRun"
+    },
+    {
+      "text": "Explains `--json` suppresses the non-authoritative warning while `--verbose` surfaces it",
+      "passed": true,
+      "evidence": "commands.py:1879 'and not as_json'; --json printed no warning, --verbose did"
+    },
+    {
+      "text": "Correct verdict: the 3/3 PASS is NON-AUTHORITATIVE / not trustworthy (plumbing pass)",
+      "passed": true,
+      "evidence": "Verdict: NOT trustworthy; vacuous PASS; expects:[] resolver not wired"
+    },
+    {
+      "text": "States what unblocks a real pass (M5/M6 production PTY executor) with grounded citations",
+      "passed": true,
+      "evidence": "M5/M6 production executor must replace stub in _resolve_executor_factory; cited runner.py:419 vacuous-PASS"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "total_tool_calls": 36,
+    "errors_encountered": 0
+  },
+  "timing": {
+    "total_duration_seconds": 272.0
+  }
+}

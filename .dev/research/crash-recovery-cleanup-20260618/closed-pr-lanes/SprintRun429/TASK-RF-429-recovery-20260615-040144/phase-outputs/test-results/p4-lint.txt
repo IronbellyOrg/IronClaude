@@ -1,0 +1,437 @@
+## uv run ruff format --check src/ tests/
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Would reformat: src/superclaude/cli/pipeline/gates.py
+Would reformat: src/superclaude/cli/prd/prompts.py
+Would reformat: src/superclaude/cli/roadmap/prompts.py
+Would reformat: src/superclaude/cli/sprint/executor.py
+Would reformat: src/superclaude/cli/swarm/lenses/_validate.py
+Would reformat: src/superclaude/cli/swarm/lenses/bare_review.py
+Would reformat: src/superclaude/cli/swarm/lenses/doc_completeness.py
+Would reformat: src/superclaude/cli/swarm/lenses/edge_case_hunt.py
+Would reformat: src/superclaude/cli/swarm/lenses/feasibility_probe.py
+Would reformat: src/superclaude/cli/swarm/lenses/refactor_find.py
+Would reformat: src/superclaude/cli/swarm/lenses/spec_completeness.py
+Would reformat: src/superclaude/cli/swarm/logging_.py
+Would reformat: src/superclaude/cli/swarm/models.py
+Would reformat: src/superclaude/cli/swarm/normalize.py
+Would reformat: src/superclaude/cli/swarm/recipes/__init__.py
+Would reformat: src/superclaude/cli/swarm/recipes/bare_review_v1.py
+Would reformat: src/superclaude/cli/swarm/recipes/custom.py
+Would reformat: src/superclaude/cli/swarm/recipes/findings_table_v1.py
+Would reformat: src/superclaude/cli/swarm/recipes/hypothesis_table_v1.py
+Would reformat: src/superclaude/cli/swarm/recipes/passthrough.py
+Would reformat: src/superclaude/cli/swarm/recipes/verdict_only_v1.py
+Would reformat: src/superclaude/cli/swarm/reduce.py
+Would reformat: src/superclaude/cli/swarm/schema.py
+Would reformat: src/superclaude/cli/swarm/tmux.py
+Would reformat: src/superclaude/cli/swarm/transports/stub.py
+Would reformat: tests/cli/prd/test_e2e.py
+Would reformat: tests/cli/prd/test_executor.py
+Would reformat: tests/sprint/test_executor.py
+Would reformat: tests/swarm/test_attach_cmd.py
+Would reformat: tests/swarm/test_auto_inject_guard.py
+Would reformat: tests/swarm/test_bare_review_parity.py
+Would reformat: tests/swarm/test_bundled_lenses.py
+Would reformat: tests/swarm/test_contract_emission.py
+Would reformat: tests/swarm/test_contract_surface.py
+Would reformat: tests/swarm/test_crash_recovery_e2e.py
+Would reformat: tests/swarm/test_custom_prompt_dir_injection_guard.py
+Would reformat: tests/swarm/test_dispatch.py
+Would reformat: tests/swarm/test_done_sentinel.py
+Would reformat: tests/swarm/test_dual_log_emission.py
+Would reformat: tests/swarm/test_e2e_user_guide.py
+Would reformat: tests/swarm/test_escape_hatch_guard_parity.py
+Would reformat: tests/swarm/test_imm4_empty_target.py
+Would reformat: tests/swarm/test_imm5_status.py
+Would reformat: tests/swarm/test_imm6_atomic_write.py
+Would reformat: tests/swarm/test_injection_guard_all_paths.py
+Would reformat: tests/swarm/test_inv005_pool_guard.py
+Would reformat: tests/swarm/test_inv007_empty_pool.py
+Would reformat: tests/swarm/test_inv012_tui_opt_in.py
+Would reformat: tests/swarm/test_inv_suite.py
+Would reformat: tests/swarm/test_kill_cmd.py
+Would reformat: tests/swarm/test_lens_defaults.py
+Would reformat: tests/swarm/test_lens_validator.py
+Would reformat: tests/swarm/test_lensentry.py
+Would reformat: tests/swarm/test_logging.py
+Would reformat: tests/swarm/test_logs_cmd.py
+Would reformat: tests/swarm/test_manifest_durable.py
+Would reformat: tests/swarm/test_merge_loc_ceiling.py
+Would reformat: tests/swarm/test_merge_mechanical_only.py
+Would reformat: tests/swarm/test_merge_no_transforms.py
+Would reformat: tests/swarm/test_models_round_trip.py
+Would reformat: tests/swarm/test_module_shape.py
+Would reformat: tests/swarm/test_nfr002_atomicity.py
+Would reformat: tests/swarm/test_no_anthropic_routing.py
+Would reformat: tests/swarm/test_no_claude_isms.py
+Would reformat: tests/swarm/test_no_external_frameworks.py
+Would reformat: tests/swarm/test_no_response_cache.py
+Would reformat: tests/swarm/test_no_scoring_engine.py
+Would reformat: tests/swarm/test_non_claude_caller.py
+Would reformat: tests/swarm/test_normalize.py
+Would reformat: tests/swarm/test_parallel_executor_routing.py
+Would reformat: tests/swarm/test_parse_error_salvage.py
+Would reformat: tests/swarm/test_per_lens_templates.py
+Would reformat: tests/swarm/test_preflight.py
+Would reformat: tests/swarm/test_prompt_injection_neutralization.py
+Would reformat: tests/swarm/test_recipe_bare_review.py
+Would reformat: tests/swarm/test_recipe_custom_py.py
+Would reformat: tests/swarm/test_recipe_findings_table.py
+Would reformat: tests/swarm/test_recipe_hypothesis_table.py
+Would reformat: tests/swarm/test_recipe_no_judging.py
+Would reformat: tests/swarm/test_recipe_passthrough.py
+Would reformat: tests/swarm/test_recipe_protocol.py
+Would reformat: tests/swarm/test_recipe_registry.py
+Would reformat: tests/swarm/test_recipe_verdict_only.py
+Would reformat: tests/swarm/test_reduce.py
+Would reformat: tests/swarm/test_resolvedlens.py
+Would reformat: tests/swarm/test_resume_regenerates_merge.py
+Would reformat: tests/swarm/test_scaffold_cmd.py
+Would reformat: tests/swarm/test_schema.py
+Would reformat: tests/swarm/test_schema_forward_compat.py
+Would reformat: tests/swarm/test_schema_injection_substring.py
+Would reformat: tests/swarm/test_state.py
+Would reformat: tests/swarm/test_three_layer_artifacts.py
+Would reformat: tests/swarm/test_tmux_detached.py
+Would reformat: tests/swarm/test_transport_protocol.py
+Would reformat: tests/swarm/test_validate_all_lenses.py
+Would reformat: tests/swarm/test_validate_cmd.py
+Would reformat: tests/swarm/test_validate_lenses_ci.py
+Would reformat: tests/swarm/test_validate_lenses_cmd.py
+Would reformat: tests/swarm/test_worker_state_event.py
+Would reformat: tests/swarm/test_workerspec.py
+Would reformat: tests/troubleshoot/test_hardening_h0.py
+Would reformat: tests/troubleshoot/test_hardening_h1.py
+Would reformat: tests/troubleshoot/test_hardening_h2.py
+Would reformat: tests/troubleshoot/test_hardening_h3.py
+Would reformat: tests/troubleshoot/test_hardening_h4.py
+Would reformat: tests/troubleshoot/test_hardening_output_contract.py
+Would reformat: tests/troubleshoot/test_hardening_verdict.py
+107 files would be reformatted, 919 files already formatted
+
+## uv run ruff check targeted files
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1918:1
+     |
+1916 |                     monitor.reset(output_path, phase_file=phase.file)
+1917 |                     monitor.start()
+1918 |
+     | ^^^^
+1919 |                     # Update tmux tail pane if running in tmux
+1920 |                     if config.tmux_session_name:
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1922:1
+     |
+1920 |                     if config.tmux_session_name:
+1921 |                         update_tail_pane(config.tmux_session_name, output_path)
+1922 |
+     | ^^^^
+1923 |                     # Launch claude with isolation env vars. H1 (Path A): KEEP the
+1924 |                     # phase-scoped CLAUDE_WORK_DIR (the per-phase copy dir at
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1944:1
+     |
+1942 |                     deadline = time.monotonic() + proc_manager.timeout_seconds
+1943 |                     logger.write_phase_start(phase, started_at)
+1944 |
+     | ^^^^
+1945 |                     debug_log(_dbg, "PHASE_BEGIN", phase=phase.number, file=str(phase.file))
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1946:1
+     |
+1945 |                     debug_log(_dbg, "PHASE_BEGIN", phase=phase.number, file=str(phase.file))
+1946 |
+     | ^^^^
+1947 |                     tui.update(sprint_result, monitor.state, phase)
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1948:1
+     |
+1947 |                     tui.update(sprint_result, monitor.state, phase)
+1948 |
+     | ^^^^
+1949 |                     # Poll loop: wait for process to finish while updating TUI
+1950 |                     # Enforces monotonic timeout via deadline check.
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1963:1
+     |
+1961 |                             proc_manager.terminate()
+1962 |                             break
+1963 |
+     | ^^^^
+1964 |                         ms = monitor.state
+1965 |                         _elapsed = time.monotonic() - _poll_start
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1966:1
+     |
+1964 |                         ms = monitor.state
+1965 |                         _elapsed = time.monotonic() - _poll_start
+1966 |
+     | ^^^^
+1967 |                         debug_log(
+1968 |                             _dbg,
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1979:1
+     |
+1977 |                             stall_status=ms.stall_status,
+1978 |                         )
+1979 |
+     | ^^^^
+1980 |                         # --- Watchdog: startup-stall check (no events received yet) ---
+1981 |                         if (
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:1998:1
+     |
+1996 |                             if config.stall_action == "kill":
+1997 |                                 import sys
+1998 |
+     | ^^^^
+1999 |                                 print(
+2000 |                                     f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2011:1
+     |
+2009 |                                 # warn action: log and continue
+2010 |                                 import sys
+2011 |
+     | ^^^^
+2012 |                                 print(
+2013 |                                     f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2018:1
+     |
+2016 |                                     file=sys.stderr,
+2017 |                                 )
+2018 |
+     | ^^^^
+2019 |                         # --- Watchdog: mid-stall check (events seen, then silence) ---
+2020 |                         if (
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2037:1
+     |
+2035 |                             if config.stall_action == "kill":
+2036 |                                 import sys
+2037 |
+     | ^^^^
+2038 |                                 print(
+2039 |                                     f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2049:1
+     |
+2047 |                                 # warn action: log and continue
+2048 |                                 import sys
+2049 |
+     | ^^^^
+2050 |                                 print(
+2051 |                                     f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2055:1
+     |
+2053 |                                     file=sys.stderr,
+2054 |                                 )
+2055 |
+     | ^^^^
+2056 |                         # Reset single-fire guard when output resumes
+2057 |                         if _stall_acted and ms.stall_seconds == 0.0:
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2059:1
+     |
+2057 |                         if _stall_acted and ms.stall_seconds == 0.0:
+2058 |                             _stall_acted = False
+2059 |
+     | ^^^^
+2060 |                         # Update TUI at ~2 Hz (monitor thread handles data extraction)
+2061 |                         # Wrap in try/except so a display glitch cannot abort the sprint
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2066:1
+     |
+2064 |                         except Exception as _tui_exc:
+2065 |                             import sys
+2066 |
+     | ^^^^
+2067 |                             print(
+2068 |                                 f"[TUI] Display error (continuing sprint): {_tui_exc}",
+     |
+help: Remove whitespace from blank line
+
+W293 [*] Blank line contains whitespace
+    --> src/superclaude/cli/sprint/executor.py:2072:1
+     |
+2070 |                             )
+2071 |                         time.sleep(0.5)
+2072 |
+     | ^^^^
+2073 |                     # Safely read exit code: returncode may be None if terminate raced.
+2074 |                     # Use _timed_out flag instead of assigning directly to returncode.
+     |
+help: Remove whitespace from blank line
+
+Found 17 errors.
+[*] 17 fixable with the `--fix` option.
+
+## uv run ruff format touched P4 files
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+2 files reformatted, 2 files left unchanged
+
+## uv run ruff format --check touched P4 files
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+4 files already formatted
+
+## uv run ruff check targeted files after format
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+## uv run ruff format --check src/ tests/ after touched-format
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Would reformat: src/superclaude/cli/pipeline/gates.py
+Would reformat: src/superclaude/cli/prd/prompts.py
+Would reformat: src/superclaude/cli/roadmap/prompts.py
+Would reformat: src/superclaude/cli/swarm/lenses/_validate.py
+Would reformat: src/superclaude/cli/swarm/lenses/bare_review.py
+Would reformat: src/superclaude/cli/swarm/lenses/doc_completeness.py
+Would reformat: src/superclaude/cli/swarm/lenses/edge_case_hunt.py
+Would reformat: src/superclaude/cli/swarm/lenses/feasibility_probe.py
+Would reformat: src/superclaude/cli/swarm/lenses/refactor_find.py
+Would reformat: src/superclaude/cli/swarm/lenses/spec_completeness.py
+Would reformat: src/superclaude/cli/swarm/logging_.py
+Would reformat: src/superclaude/cli/swarm/models.py
+Would reformat: src/superclaude/cli/swarm/normalize.py
+Would reformat: src/superclaude/cli/swarm/recipes/__init__.py
+Would reformat: src/superclaude/cli/swarm/recipes/bare_review_v1.py
+Would reformat: src/superclaude/cli/swarm/recipes/custom.py
+Would reformat: src/superclaude/cli/swarm/recipes/findings_table_v1.py
+Would reformat: src/superclaude/cli/swarm/recipes/hypothesis_table_v1.py
+Would reformat: src/superclaude/cli/swarm/recipes/passthrough.py
+Would reformat: src/superclaude/cli/swarm/recipes/verdict_only_v1.py
+Would reformat: src/superclaude/cli/swarm/reduce.py
+Would reformat: src/superclaude/cli/swarm/schema.py
+Would reformat: src/superclaude/cli/swarm/tmux.py
+Would reformat: src/superclaude/cli/swarm/transports/stub.py
+Would reformat: tests/cli/prd/test_e2e.py
+Would reformat: tests/cli/prd/test_executor.py
+Would reformat: tests/swarm/test_attach_cmd.py
+Would reformat: tests/swarm/test_auto_inject_guard.py
+Would reformat: tests/swarm/test_bare_review_parity.py
+Would reformat: tests/swarm/test_bundled_lenses.py
+Would reformat: tests/swarm/test_contract_emission.py
+Would reformat: tests/swarm/test_contract_surface.py
+Would reformat: tests/swarm/test_crash_recovery_e2e.py
+Would reformat: tests/swarm/test_custom_prompt_dir_injection_guard.py
+Would reformat: tests/swarm/test_dispatch.py
+Would reformat: tests/swarm/test_done_sentinel.py
+Would reformat: tests/swarm/test_dual_log_emission.py
+Would reformat: tests/swarm/test_e2e_user_guide.py
+Would reformat: tests/swarm/test_escape_hatch_guard_parity.py
+Would reformat: tests/swarm/test_imm4_empty_target.py
+Would reformat: tests/swarm/test_imm5_status.py
+Would reformat: tests/swarm/test_imm6_atomic_write.py
+Would reformat: tests/swarm/test_injection_guard_all_paths.py
+Would reformat: tests/swarm/test_inv005_pool_guard.py
+Would reformat: tests/swarm/test_inv007_empty_pool.py
+Would reformat: tests/swarm/test_inv012_tui_opt_in.py
+Would reformat: tests/swarm/test_inv_suite.py
+Would reformat: tests/swarm/test_kill_cmd.py
+Would reformat: tests/swarm/test_lens_defaults.py
+Would reformat: tests/swarm/test_lens_validator.py
+Would reformat: tests/swarm/test_lensentry.py
+Would reformat: tests/swarm/test_logging.py
+Would reformat: tests/swarm/test_logs_cmd.py
+Would reformat: tests/swarm/test_manifest_durable.py
+Would reformat: tests/swarm/test_merge_loc_ceiling.py
+Would reformat: tests/swarm/test_merge_mechanical_only.py
+Would reformat: tests/swarm/test_merge_no_transforms.py
+Would reformat: tests/swarm/test_models_round_trip.py
+Would reformat: tests/swarm/test_module_shape.py
+Would reformat: tests/swarm/test_nfr002_atomicity.py
+Would reformat: tests/swarm/test_no_anthropic_routing.py
+Would reformat: tests/swarm/test_no_claude_isms.py
+Would reformat: tests/swarm/test_no_external_frameworks.py
+Would reformat: tests/swarm/test_no_response_cache.py
+Would reformat: tests/swarm/test_no_scoring_engine.py
+Would reformat: tests/swarm/test_non_claude_caller.py
+Would reformat: tests/swarm/test_normalize.py
+Would reformat: tests/swarm/test_parallel_executor_routing.py
+Would reformat: tests/swarm/test_parse_error_salvage.py
+Would reformat: tests/swarm/test_per_lens_templates.py
+Would reformat: tests/swarm/test_preflight.py
+Would reformat: tests/swarm/test_prompt_injection_neutralization.py
+Would reformat: tests/swarm/test_recipe_bare_review.py
+Would reformat: tests/swarm/test_recipe_custom_py.py
+Would reformat: tests/swarm/test_recipe_findings_table.py
+Would reformat: tests/swarm/test_recipe_hypothesis_table.py
+Would reformat: tests/swarm/test_recipe_no_judging.py
+Would reformat: tests/swarm/test_recipe_passthrough.py
+Would reformat: tests/swarm/test_recipe_protocol.py
+Would reformat: tests/swarm/test_recipe_registry.py
+Would reformat: tests/swarm/test_recipe_verdict_only.py
+Would reformat: tests/swarm/test_reduce.py
+Would reformat: tests/swarm/test_resolvedlens.py
+Would reformat: tests/swarm/test_resume_regenerates_merge.py
+Would reformat: tests/swarm/test_scaffold_cmd.py
+Would reformat: tests/swarm/test_schema.py
+Would reformat: tests/swarm/test_schema_forward_compat.py
+Would reformat: tests/swarm/test_schema_injection_substring.py
+Would reformat: tests/swarm/test_state.py
+Would reformat: tests/swarm/test_three_layer_artifacts.py
+Would reformat: tests/swarm/test_tmux_detached.py
+Would reformat: tests/swarm/test_transport_protocol.py
+Would reformat: tests/swarm/test_validate_all_lenses.py
+Would reformat: tests/swarm/test_validate_cmd.py
+Would reformat: tests/swarm/test_validate_lenses_ci.py
+Would reformat: tests/swarm/test_validate_lenses_cmd.py
+Would reformat: tests/swarm/test_worker_state_event.py
+Would reformat: tests/swarm/test_workerspec.py
+Would reformat: tests/troubleshoot/test_hardening_h0.py
+Would reformat: tests/troubleshoot/test_hardening_h1.py
+Would reformat: tests/troubleshoot/test_hardening_h2.py
+Would reformat: tests/troubleshoot/test_hardening_h3.py
+Would reformat: tests/troubleshoot/test_hardening_h4.py
+Would reformat: tests/troubleshoot/test_hardening_output_contract.py
+Would reformat: tests/troubleshoot/test_hardening_verdict.py
+105 files would be reformatted, 921 files already formatted
+full_format_status=1

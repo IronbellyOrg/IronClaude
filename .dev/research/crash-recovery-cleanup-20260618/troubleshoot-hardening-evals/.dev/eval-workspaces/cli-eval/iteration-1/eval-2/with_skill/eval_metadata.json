@@ -1,0 +1,5 @@
+{
+  "eval_id": 2,
+  "eval_name": "create-doc-parity-suite",
+  "prompt": "Author a new eval suite for this project that checks the documented `superclaude eval run` flags stay in sync with `superclaude eval run --help`. Set it up properly and make sure it's actually valid."
+}
