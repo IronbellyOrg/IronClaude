@@ -1,0 +1,16 @@
+verdict: degraded
+status: partial
+tier_reached: 2
+reason: degraded-model-diversity
+report: /config/workspace/IronClaude/.claude/worktrees/segfault-repro/.dev/tasks/to-do/TASK-RF-sprint-runlock-20260617-020000/reflect/post/0f9c8d366daa/REPORT.md
+contract: /config/workspace/IronClaude/.claude/worktrees/segfault-repro/.dev/tasks/to-do/TASK-RF-sprint-runlock-20260617-020000/reflect/post/0f9c8d366daa/return-contract.yaml
+deviations:
+  authorized: 1
+  necessary: 2
+  drift: 3
+  regression: 1
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

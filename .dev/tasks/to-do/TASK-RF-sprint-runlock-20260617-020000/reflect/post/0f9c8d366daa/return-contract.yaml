@@ -1,0 +1,91 @@
+contract_version: "1.5.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: "/config/workspace/IronClaude/.claude/worktrees/segfault-repro/.dev/tasks/to-do/TASK-RF-sprint-runlock-20260617-020000/reflect/post/0f9c8d366daa/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.claude/worktrees/segfault-repro/.dev/tasks/to-do/TASK-RF-sprint-runlock-20260617-020000/reflect/post/0f9c8d366daa/audit.log"
+confidence_calibrated: 0.90
+escalation_rule_matched: 3   # UC-2 regression candidate -> debate by >=2 reviewers (also --depth deep forced T2)
+
+# UC-2 specific
+tasklist_completion_pct: 0.92   # 49/49 checkboxes checked, but R5 acceptance unmet in default path + R8 assertions not added
+deviation_count_by_class:
+  authorized: 1
+  necessary: 2
+  drift: 3
+  regression: 1
+deviation_register_path: "/config/workspace/IronClaude/.claude/worktrees/segfault-repro/.dev/tasks/to-do/TASK-RF-sprint-runlock-20260617-020000/reflect/post/0f9c8d366daa/deviation-ledger.yaml"
+grounding_gaps_path: null   # grounding-gaps.yaml is empty (findings: [])
+
+# Verification triangle (default-on UC-2)
+verification_ran: true
+verification_invocations: 5
+verification_failures: 2     # 2 pre-existing test_rerun_tasks_e2e failures (NOT caused by this diff)
+verification_regressions_detected: 0   # the 2 failures reproduce at clean HEAD -> not attributable to the work
+verification_skip_reason: null
+verification_evidence: >
+  test_recovery.py = 29 passed (incl. 13 new TestRunLock + phase-lock round-trip).
+  R8 set (test_recovery + test_rerun_tasks + test_resume + test_rerun_tasks_failure_modes) = 81 passed.
+  e2e test_e2e_lock_and_retry_cap.py = 3 passed (incl. byte-exact test_concurrent_lock_aborts_with_pid).
+  Broad tests/sprint (minus e2e_real) = 1168 passed, 2 failed. The 2 failures
+  (test_rerun_tasks_e2e.py: 'Rerun failed (fileno)') REPRODUCE AT CLEAN HEAD via stash -> pre-existing,
+  environmental (CliRunner/TUI .fileno()), unrelated to the run-lock work.
+
+# Hallucination guard
+citations_total: 24
+citations_revalidated: 24
+citations_dropped: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 artifacts
+reviewer_cards:
+  - "reviewer-briefs/card-root-cause-R4R5R6.md"
+  - "reviewer-briefs/card-quality-R7R8.md"
+  - "reviewer-briefs/card-python-R1R2R3.md"
+adversarial_artifacts_dir: null   # inline synthesis (sc-adversarial not invoked; convergence was high)
+adversarial_convergence_score: 0.94   # 3/3 reviewers converged on the D1 headline (R5 tmux drop)
+adversarial_unavailable: false
+merge_method: inline-synthesis
+t2_model_class_diversity: degraded   # heterogeneity via persona/scope, not distinct model vendors
+t2_vendor_diversity: single
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: true             # D1 (R5 tmux escape-hatch broken in default path)
+unauthorized_deviation_present: true # D3, D4, D5 (drift)
+spec_is_wrong: false
+user_decision_required: true         # remediation of D1 (HIGH) needs an authorize/fix decision
+needs_human_decision: false          # grounding-gaps.yaml is empty
+
+# Per-task verdict (single work-unit)
+per_task_verdicts:
+  - task_id: "TASK-RF-sprint-runlock-20260617-020000"
+    status: partial
+    deviation_class: regression
+    citations_dropped: 0
+    per_task_validation_strength: 0.85
+    evidence_anchor: "deviation-ledger.yaml"
+
+interaction_effects_scanned: false   # single work-unit; R1B.3 cross-task scan not applicable
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: null
+promotion_destination: null
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass
+  status_success: fail                 # status == partial
+  tasklist_completion_pct_1_0: fail    # R5 acceptance unmet in default path
+  no_drift_no_regression: fail         # drift=3, regression=1
+  frontmatter_present: pass
+  frontmatter_status_matches: fail     # frontmatter status == "🟠 Doing", not done
+  no_citations_dropped: pass
+  no_grounding_gaps: pass
+  no_input_drift: pass
+  no_user_decision_pending: fail       # user_decision_required == true
+  adversarial_result_present: n/a
