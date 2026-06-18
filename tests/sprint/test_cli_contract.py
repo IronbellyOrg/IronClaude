@@ -48,6 +48,13 @@ class TestCLIContract:
         assert "--dangerously-skip-permissions" in result.output
         assert "--allow-hierarchical-permissions" in result.output
 
+    def test_run_help_exposes_max_session_resets(self):
+        # 429 recovery (P5): the --max-session-resets flag must be registered on
+        # the run command (cheapest guard that the 4-hop chain's entry exists).
+        result = self.runner.invoke(sprint_group, ["run", "--help"])
+        assert result.exit_code == 0
+        assert "--max-session-resets" in result.output
+
     def test_hidden_internal_option_not_exposed(self):
         result = self.runner.invoke(sprint_group, ["run", "--help"])
         assert result.exit_code == 0

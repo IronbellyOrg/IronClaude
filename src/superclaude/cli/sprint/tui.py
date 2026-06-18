@@ -50,6 +50,10 @@ STATUS_STYLES = {
     PhaseStatus.HALT: "bold red",
     PhaseStatus.TIMEOUT: "bold red",
     PhaseStatus.ERROR: "bold red",
+    # 429 recovery: an account/provider-exhaustion halt is infra, not a product
+    # bug — distinct magenta so an operator reads it as "switch model / add
+    # accounts", not "debug the task".
+    PhaseStatus.PROVIDER_EXHAUSTED: "bold magenta",
     PhaseStatus.RUNNING: "bold yellow",
     PhaseStatus.PENDING: "dim",
     PhaseStatus.SKIPPED: "dim strikethrough",
@@ -66,6 +70,7 @@ STATUS_ICONS = {
     PhaseStatus.HALT: "[red]HALT[/]",
     PhaseStatus.TIMEOUT: "[red]TIMEOUT[/]",
     PhaseStatus.ERROR: "[red]ERROR[/]",
+    PhaseStatus.PROVIDER_EXHAUSTED: "[magenta]EXHAUSTED[/]",
     PhaseStatus.RUNNING: "[yellow]RUNNING[/]",
     PhaseStatus.PENDING: "[dim]pending[/]",
     PhaseStatus.SKIPPED: "[dim]skipped[/]",

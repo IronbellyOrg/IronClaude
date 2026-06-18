@@ -12,6 +12,8 @@ import logging
 import re
 import threading
 import time
+from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 
 from .config import count_tasks_in_file
@@ -32,6 +34,14 @@ FILES_CHANGED_PATTERN = re.compile(
 # Pattern for detecting budget exhaustion in NDJSON output
 ERROR_MAX_TURNS_PATTERN = re.compile(r'"subtype"\s*:\s*"error_max_turns"')
 PROMPT_TOO_LONG_PATTERN = re.compile(r'"Prompt is too long"')
+
+# Patterns for discriminating provider/account-exhaustion 429 bodies (spec §2).
+# ``_RE_ALL_ACCOUNT``'s named group ``model`` captures the resolved model for the
+# P5 alias suggester; ``_RE_SINGLE_ACCOUNT`` distinguishes the single-account body.
+_RE_ALL_ACCOUNT = re.compile(
+    r"All credentials for model (?P<model>.+?) are cooling down via provider"
+)
+_RE_SINGLE_ACCOUNT = re.compile(r"would exceed your account's rate limit")
 
 
 def detect_error_max_turns(output_path: Path) -> bool:
@@ -248,6 +258,183 @@ def count_turns_from_output(output_path: Path) -> int:
             count += 1
 
     return count
+
+
+class ProviderFailure(Enum):
+    """Discriminator for provider/account-exhaustion signals in a transcript.
+
+    Returned by :func:`detect_provider_failure` / :func:`_provider_failure_from_text`
+    and consumed by ``SessionResetPolicy.decide`` (recovery_policy.py) and the
+    offline ``_classify_transcript`` (rerun_tasks.py).  String-valued to mirror
+    the project's enum convention (see ``TaskStatus``/``PhaseStatus`` in models.py).
+    """
+
+    NONE = "none"
+    SINGLE_ACCOUNT_LIMIT = "single_account_limit"
+    ALL_ACCOUNT_COOLDOWN = "all_account_cooldown"
+    OPERATION_TIMEOUT = "operation_timeout"
+
+
+@dataclass(frozen=True)
+class ProviderFailureSignal:
+    """Result of provider-failure detection on one transcript.
+
+    ``kind`` is the discriminator; ``resolved_model`` carries the model captured
+    from an all-account cooldown body (e.g. ``claude-opus-4-8``) for the P5 alias
+    suggester, and is ``None`` for every other kind.
+    """
+
+    kind: ProviderFailure
+    resolved_model: str | None = None
+
+
+def _provider_failure_from_text(text: str) -> ProviderFailureSignal:
+    """Classify a transcript body for provider/account-exhaustion (spec §2/§4).
+
+    Mirrors the ``_classify_transcript`` parse loop (rerun_tasks.py): scans every
+    line, keeps the LAST ``{"type":"result"}`` event (overwrite, no break), and
+    discriminates on that event's ``is_error`` + ``api_error_status`` + ``result``
+    body.  Keys ONLY on ``is_error``/``api_error_status`` — NEVER on ``subtype``
+    (a 429's subtype is ``"success"``).  Shared core called by both the live path
+    wrapper :func:`detect_provider_failure` and the offline ``_classify_transcript``
+    so the two paths agree.
+    """
+    result_event: dict | None = None
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            event = json.loads(line)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if not isinstance(event, dict):
+            continue
+        if event.get("type") == "result":
+            result_event = event  # keep last — no break
+
+    if result_event is None:
+        return ProviderFailureSignal(ProviderFailure.NONE)
+
+    is_error = bool(result_event.get("is_error"))
+    api_error_status = result_event.get("api_error_status")
+    body = str(result_event.get("result", ""))
+
+    if is_error and api_error_status == 429:
+        cooldown = _RE_ALL_ACCOUNT.search(body)
+        if cooldown:
+            return ProviderFailureSignal(
+                ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+                resolved_model=cooldown.group("model"),
+            )
+        if _RE_SINGLE_ACCOUNT.search(body):
+            return ProviderFailureSignal(ProviderFailure.SINGLE_ACCOUNT_LIMIT)
+        # 429 with neither body — conservative default: rotate (don't halt).
+        return ProviderFailureSignal(ProviderFailure.SINGLE_ACCOUNT_LIMIT)
+
+    if (
+        is_error
+        and api_error_status is None
+        and body == "API Error: The operation timed out."
+    ):
+        # Spec §2 conjunctive predicate: OPERATION_TIMEOUT requires is_error too —
+        # a non-error result carrying this exact body (implausible, but the spec
+        # predicate is conjunctive) must not be mis-classified as a timeout.
+        return ProviderFailureSignal(ProviderFailure.OPERATION_TIMEOUT)
+
+    return ProviderFailureSignal(ProviderFailure.NONE)
+
+
+def detect_provider_failure(output_path: Path) -> ProviderFailureSignal:
+    """Detect a provider/account-exhaustion signal in a subprocess transcript.
+
+    Path wrapper around :func:`_provider_failure_from_text`, mirroring
+    :func:`detect_error_max_turns`'s OSError-tolerant read + empty guard.  Takes
+    only ``output_path`` (stderr is 0 bytes for a 429 per spec §0).  A torn or
+    partial transcript degrades to ``NONE`` so no false re-spawn occurs.
+    """
+    try:
+        text = output_path.read_text(errors="replace")
+    except (FileNotFoundError, OSError):
+        return ProviderFailureSignal(ProviderFailure.NONE)
+
+    if not text.strip():
+        return ProviderFailureSignal(ProviderFailure.NONE)
+
+    return _provider_failure_from_text(text)
+
+
+# Completion-evidence detection: shared by the per-task recovery gate in
+# executor.py (``_task_completed_before_overrun``) AND the offline classifier in
+# rerun_tasks.py (``_classify_transcript``) so the LIVE and OFFLINE paths agree on
+# edge #1 — a task that finished its substantive work BEFORE a terminal overrun
+# (``error_max_turns``) or trailing 429 must RECOVER, not be re-routed/re-run.
+# Lives here (the shared detector module both callers already import) to avoid the
+# deliberate executor↔rerun_tasks lazy-import cycle.
+_TASK_SUCCESS_ENVELOPE_PATTERN = re.compile(
+    r'"subtype"\s*:\s*"success"|"(?:type|subtype)"\s*:\s*"task_complete"'
+)
+
+# A SECOND, tail-only class of completion evidence: a strong completion verdict
+# emitted in the final assistant turns when the agent finished its deliverable
+# but overran the turn budget BEFORE emitting a structured
+# ``success``/``task_complete`` envelope. Deliberately conservative (strong
+# verdict phrases, not a bare "PASS") and applied only to the tail of the stream
+# — a task that overran *mid-work* does not end on a completion verdict, while
+# one that overran *after completing* does, so tail-scoping preserves the
+# completed-after-overrun vs overran-mid-work distinction the recovery gate exists
+# to protect.
+_TASK_TAIL_COMPLETION_PATTERN = re.compile(
+    r"VERDICT:\s*PASS"
+    r"|EXIT_RECOMMENDATION:\s*CONTINUE"
+    r'|"result"\s*:\s*"Pass"'
+    r"|ACCEPTANCE CRITERIA[^\n]{0,40}ALL MET",
+    re.IGNORECASE,
+)
+_TASK_TAIL_COMPLETION_WINDOW = 15
+
+
+def completed_before_overrun_from_text(text: str) -> bool:
+    """Return True iff the transcript shows completion evidence BEFORE its
+    terminal (last non-empty) line.
+
+    Two classes of completion evidence are recognized, in order:
+
+    1. **Structured success envelope** — a successful
+       ``{"type":"result","subtype":"success"}`` (or agent ``task_complete``)
+       envelope anywhere in the pre-terminal lines.
+    2. **Tail completion verdict** — a strong completion verdict
+       (:data:`_TASK_TAIL_COMPLETION_PATTERN`) within the last
+       :data:`_TASK_TAIL_COMPLETION_WINDOW` pre-terminal lines (the artifact-only
+       overrun where the agent finished + wrote its deliverable but tripped the
+       turn ceiling before a structured envelope).
+
+    The scan is over the lines strictly BEFORE the terminal line, so the terminal
+    overrun / trailing-429 line itself can never be mistaken for completion
+    evidence. Callers gate recovery on this when the terminal line is an
+    ``error_max_turns`` overrun OR a trailing 429 (the LAST result event is a
+    failure but the task already completed). Returns False for empty text or when
+    neither class appears. No file/network/subprocess access.
+    """
+    if not text.strip():
+        return False
+
+    lines = [ln.strip() for ln in text.strip().splitlines() if ln.strip()]
+    if not lines:
+        return False
+
+    # Class 1: a structured success/task_complete envelope anywhere strictly
+    # before the terminal (last non-empty) line.
+    for line in lines[:-1]:
+        if _TASK_SUCCESS_ENVELOPE_PATTERN.search(line):
+            return True
+
+    # Class 2: a strong completion verdict in the TAIL of the pre-terminal lines.
+    for line in lines[:-1][-_TASK_TAIL_COMPLETION_WINDOW:]:
+        if _TASK_TAIL_COMPLETION_PATTERN.search(line):
+            return True
+
+    return False
 
 
 class OutputMonitor:

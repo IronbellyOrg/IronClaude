@@ -41,7 +41,14 @@ from .models import (
     TaskStatus,
     TurnLedger,
 )
-from .monitor import OutputMonitor, detect_error_max_turns, detect_prompt_too_long
+from .monitor import (
+    OutputMonitor,
+    ProviderFailure,
+    completed_before_overrun_from_text,
+    detect_error_max_turns,
+    detect_prompt_too_long,
+    detect_provider_failure,
+)
 from .notify import notify_phase_complete, notify_sprint_complete
 from .process import (
     ClaudeProcess,
@@ -49,6 +56,7 @@ from .process import (
     build_task_context,
     count_turns_from_stream_json,
 )
+from .recovery_policy import Action, SessionResetPolicy
 from .scheduler import CycleError, topological_launch_order
 from .tmux import update_summary_pane, update_tail_pane
 from .tui import SprintTUI
@@ -972,6 +980,8 @@ def _run_one_task(
     shadow_metrics: ShadowGateMetrics | None = None,
     remediation_log: DeferredRemediationLog | None = None,
     lock=None,
+    reset_policy: SessionResetPolicy | None = None,
+    logger=None,
 ) -> tuple[TaskResult, TrailingGateResult | None]:
     """Execute one task: spawn → classify → reconcile budget → post-task hooks.
 
@@ -983,38 +993,135 @@ def _run_one_task(
     ``lock=None`` (K=1) there is no locking and behavior is identical to the
     former inline block.
     """
-    if subprocess_factory is not None:
-        exit_code, turns_consumed, output_bytes = subprocess_factory(
-            task, config, phase
-        )
-    else:
-        exit_code, turns_consumed, output_bytes = _run_task_subprocess(
-            task, config, phase, prior_context=prior_context
-        )
-
-    finished_at = datetime.now(timezone.utc)
-
-    # Determine task status from exit code.
     task_output_path = config.task_output_file(phase, task)
-    if exit_code == 0:
-        status = TaskStatus.PASS
-    elif exit_code == 124:
-        status = TaskStatus.INCOMPLETE
-    elif detect_error_max_turns(task_output_path) and _task_completed_before_overrun(
-        task_output_path
-    ):
-        # Budget overrun (error_max_turns) AFTER completing substantive work:
-        # the task emitted a successful result before the terminal overrun
-        # envelope, so recover instead of failing the phase. Completion
-        # evidence outranks the transient-failure classification below.
-        # (#121, ported into the shared helper so BOTH K=1 and K>1 recover.)
-        status = TaskStatus.PASS_RECOVERED
-    elif _is_transient_failure(task_output_path):
-        status = TaskStatus.FAIL_RECOVERABLE
-    else:
-        status = TaskStatus.FAIL_TERMINAL
-
     guard = lock if lock is not None else contextlib.nullcontext()
+
+    # Exhaustion bookkeeping (populated only on the provider-failure path;
+    # default "" / 0 otherwise so a non-exhaustion task serializes empty).
+    # `attempt`/`session_resets` are this worker's local SNAPSHOT of the SHARED
+    # `reset_policy._exhaustion_attempts` budget ordinal (claimed under `guard`);
+    # they are NOT a private per-worker counter — the shared budget is what bounds
+    # a K>1 storm to cap+(K-1) (see the re-spawn loop below).
+    attempt = 0
+    session_resets = 0
+    failure_class = ""
+    exhausted_model = ""
+
+    # Bounded re-spawn loop for 429/account-exhaustion recovery. When reset_policy
+    # is None (callers/tests without it) the body runs exactly once — a single
+    # spawn + the unchanged status ladder — preserving byte-identical legacy
+    # behavior. The SPAWN stays UNLOCKED (the concurrency win); the sprint-wide
+    # halt latch is the ONLY shared state, checked AND tripped under ``guard``.
+    while True:
+        # Latch precheck (LOCKED): once any worker has tripped the sprint-wide
+        # halt, skip this spawn and classify as a provider-exhaustion halt — no
+        # further account rotation can help.
+        if reset_policy is not None:
+            with guard:
+                _latched = reset_policy._latch_tripped
+            if _latched:
+                exit_code, turns_consumed, output_bytes = 1, 0, 0
+                finished_at = datetime.now(timezone.utc)
+                status = TaskStatus.FAIL_PROVIDER_EXHAUSTED
+                failure_class = "provider_exhaustion"
+                session_resets = attempt
+                break
+
+        # Spawn UNLOCKED (the slow part; concurrency here is the wall-clock win).
+        if subprocess_factory is not None:
+            exit_code, turns_consumed, output_bytes = subprocess_factory(
+                task, config, phase
+            )
+        else:
+            exit_code, turns_consumed, output_bytes = _run_task_subprocess(
+                task, config, phase, prior_context=prior_context
+            )
+
+        finished_at = datetime.now(timezone.utc)
+
+        # 429/account-exhaustion re-route (only when a policy is threaded).
+        # The detector keys on the LAST result event; decide() returns RETRY/HALT
+        # ONLY for the two 429 signals — NONE and OPERATION_TIMEOUT fall through to
+        # the normal status ladder below.
+        if reset_policy is not None:
+            signal = detect_provider_failure(task_output_path)
+            if signal.kind in (
+                ProviderFailure.SINGLE_ACCOUNT_LIMIT,
+                ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+            ):
+                # Edge #1: a clean-success-then-trailing-429 (substantive work
+                # completed before the terminal 429 envelope) must RECOVER, not
+                # re-route — the LAST result event is a 429 but the task is done.
+                if _task_completed_before_overrun(task_output_path):
+                    status = TaskStatus.PASS_RECOVERED
+                    break
+                # Consume ONE unit of the SPRINT-WIDE reset budget UNDER the lock
+                # and snapshot the global attempt ordinal. Sharing the budget (via
+                # the policy's `_exhaustion_attempts`) rather than a per-worker
+                # counter is what bounds a K>1 storm to `cap + (K-1)`: the lock
+                # serialises budget claims, so once the budget reaches the cap only
+                # the ≤K-1 workers already mid-(unlocked-)spawn overshoot, never a
+                # full `K × cap` storm (spec §4 Layer 3 / edge case #3). A clean or
+                # non-429 spawn never reaches here, so it never burns the budget.
+                with guard:
+                    reset_policy._exhaustion_attempts += 1
+                    attempt = reset_policy._exhaustion_attempts
+                action = reset_policy.decide(signal.kind, attempt)
+                if action is Action.RETRY_NEW_SESSION:
+                    session_resets = attempt
+                    # Observability (P6): record this account-rotation re-route.
+                    # _jsonl is thread-safe (its own lock), so emit outside guard.
+                    if logger is not None:
+                        logger.write_session_reset(
+                            phase.number,
+                            task.task_id,
+                            attempt,
+                            signal.resolved_model or "",
+                        )
+                    continue  # re-spawn → fresh session → new routing decision
+                # Action.HALT_MODEL_SWITCH: trip the sprint-wide latch (LOCKED) and
+                # halt this task for an operator model switch.
+                with guard:
+                    reset_policy._latch_tripped = True
+                status = TaskStatus.FAIL_PROVIDER_EXHAUSTED
+                failure_class = "provider_exhaustion"
+                session_resets = attempt
+                exhausted_model = signal.resolved_model or ""
+                # Observability (P6): the re-spawn loop gave up (all accounts
+                # cooling down, or the reset budget hit the cap) — record the
+                # final halt. Emitted only by the worker that trips the latch, so
+                # latch-precheck halts on other workers don't double-emit.
+                if logger is not None:
+                    logger.write_account_exhaustion_halt(
+                        phase.number,
+                        task.task_id,
+                        exhausted_model,
+                        session_resets,
+                    )
+                break
+            # NONE / OPERATION_TIMEOUT → fall through to the normal status ladder.
+
+        # Determine task status from exit code (unchanged ladder). The
+        # provider-failure branch above sits ABOVE the _is_transient_failure
+        # branch and BELOW the PASS_RECOVERED gate, both preserved here.
+        if exit_code == 0:
+            status = TaskStatus.PASS
+        elif exit_code == 124:
+            status = TaskStatus.INCOMPLETE
+        elif detect_error_max_turns(
+            task_output_path
+        ) and _task_completed_before_overrun(task_output_path):
+            # Budget overrun (error_max_turns) AFTER completing substantive work:
+            # the task emitted a successful result before the terminal overrun
+            # envelope, so recover instead of failing the phase. Completion
+            # evidence outranks the transient-failure classification below.
+            # (#121, ported into the shared helper so BOTH K=1 and K>1 recover.)
+            status = TaskStatus.PASS_RECOVERED
+        elif _is_transient_failure(task_output_path):
+            status = TaskStatus.FAIL_RECOVERABLE
+        else:
+            status = TaskStatus.FAIL_TERMINAL
+        break
     with guard:
         if ledger is not None:
             actual = max(turns_consumed, 0)
@@ -1032,6 +1139,9 @@ def _run_one_task(
             started_at=started_at,
             finished_at=finished_at,
             output_bytes=output_bytes,
+            failure_class=failure_class,
+            session_resets=session_resets,
+            exhausted_model=exhausted_model,
         )
 
         # Post-task wiring hook: run wiring analysis per config.wiring_gate_mode
@@ -1059,6 +1169,7 @@ def _execute_phase_tasks_parallel(
     sprint_result: "SprintResult | None" = None,
     logger: "SprintLogger | None" = None,
     handoff_store=None,
+    reset_policy: SessionResetPolicy | None = None,
 ) -> tuple[list[TaskResult], list[str], list[TrailingGateResult]]:
     """Bounded parallel per-task execution (Stage 3, K>1 only).
 
@@ -1142,6 +1253,8 @@ def _execute_phase_tasks_parallel(
             shadow_metrics=shadow_metrics,
             remediation_log=remediation_log,
             lock=lock,
+            reset_policy=reset_policy,
+            logger=logger,
         )
         if logger is not None:
             logger.write_task_complete(
@@ -1203,6 +1316,7 @@ def execute_phase_tasks(
     sprint_result: "SprintResult | None" = None,
     logger: "SprintLogger | None" = None,
     handoff_store=None,
+    reset_policy: SessionResetPolicy | None = None,
 ) -> tuple[list[TaskResult], list[str], list[TrailingGateResult]]:
     """Per-task subprocess orchestration loop.
 
@@ -1234,6 +1348,15 @@ def execute_phase_tasks(
     if not tasks:
         return results, remaining, gate_results
 
+    # 429 recovery: construct the per-phase SessionResetPolicy ONCE (when not
+    # injected) so its sprint-wide `_latch_tripped` and reset budget are SHARED
+    # across every worker in this phase (K>1) and the sequential path (K=1). The
+    # getattr bridges until P5 adds SprintConfig.max_session_resets (defaults 8).
+    if reset_policy is None:
+        reset_policy = SessionResetPolicy(
+            max_session_resets=getattr(config, "max_session_resets", 8)
+        )
+
     # Stage 3 (H6): bounded parallel execution when --task-parallelism K>1 and
     # there is more than one task. K==1 (the default) falls through to the
     # unchanged sequential loop below, preserving byte-identical legacy behavior.
@@ -1251,6 +1374,7 @@ def execute_phase_tasks(
             sprint_result=sprint_result,
             logger=logger,
             handoff_store=handoff_store,
+            reset_policy=reset_policy,
         )
 
     for i, task in enumerate(tasks):
@@ -1345,6 +1469,8 @@ def execute_phase_tasks(
             shadow_metrics=shadow_metrics,
             remediation_log=remediation_log,
             lock=None,
+            reset_policy=reset_policy,
+            logger=logger,
         )
         if gate_result is not None:
             gate_results.append(gate_result)
@@ -1763,6 +1889,24 @@ def execute_sprint(config: SprintConfig):
                     task_results=task_results,
                 )
 
+                # 429 recovery: the per-task path collapses the phase to ERROR
+                # (not PROVIDER_EXHAUSTED), so the phase-level halt signal would be
+                # lost. Derive it from the persisted per-task `failure_class` so the
+                # halt-UX can detect exhaustion regardless of spawn path (IP-3/IP-5).
+                _provider_exhausted = False
+                for _tr in task_results:
+                    if _tr.failure_class != "provider_exhaustion":
+                        continue
+                    _provider_exhausted = True
+                    phase_result.halt_reason = "provider_exhaustion"
+                    # Prefer a NON-EMPTY resolved model: a latch-precheck task carries
+                    # failure_class but an empty exhausted_model (it skipped its spawn,
+                    # so it never saw the cooldown body), while the latch-TRIPPING worker
+                    # holds the real model. Capture the first non-empty so the halt UX
+                    # can suggest a concrete model switch instead of generic guidance.
+                    if _tr.exhausted_model and not phase_result.exhausted_model:
+                        phase_result.exhausted_model = _tr.exhausted_model
+
                 # v3.2-T02: Run post-phase wiring hook for per-task phases too
                 phase_result = run_post_phase_wiring_hook(
                     phase,
@@ -1778,192 +1922,264 @@ def execute_sprint(config: SprintConfig):
                 _write_phase_result_json(config, phase, phase_result)
                 # Refresh TUI with completed phase (current_phase=None resets active panel)
                 tui.update(sprint_result, MonitorState(), None)
+                # 429 recovery: a per-task provider-exhaustion halt MUST stop the
+                # sprint (re-routing is exhausted; only a model switch helps) AND set
+                # `halt_phase` so the exhaustion-aware halt UX fires —
+                # `SprintResult._exhaustion_halt` gates on `halt_phase is not None`,
+                # so without this the persisted halt_reason is dead and the
+                # single-line model-switch resume command is never surfaced. Mirrors
+                # the single-session `PROVIDER_EXHAUSTED` halt below. Non-exhaustion
+                # per-task outcomes keep the existing `continue` semantics unchanged.
+                if _provider_exhausted:
+                    sprint_result.outcome = SprintOutcome.HALTED
+                    sprint_result.halt_phase = phase.number
+                    break
                 continue
 
-            # Per-phase isolation directory: exactly one file (the phase file)
+            # Per-phase isolation directory: exactly one file (the phase file).
+            # The directory contents are refreshed per session-reset attempt below.
             isolation_dir = config.results_dir / ".isolation" / f"phase-{phase.number}"
-            isolation_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(phase.file, isolation_dir / phase.file.name)
 
             try:
-                # Reset monitor for this phase. Pass phase.file so the
-                # TUI v2 dual progress bar (F3) knows how many tasks live
-                # in the phase without re-scanning every poll tick.
-                output_path = config.output_file(phase)
-                monitor.reset(output_path, phase_file=phase.file)
-                monitor.start()
-
-                # Update tmux tail pane if running in tmux
-                if config.tmux_session_name:
-                    update_tail_pane(config.tmux_session_name, output_path)
-
-                # Launch claude with isolation env vars. H1 (Path A): KEEP the
-                # phase-scoped CLAUDE_WORK_DIR (the per-phase copy dir at
-                # isolation_dir) and ADD only the settings + plugin isolation
-                # keys so this per-phase session gets its own settings/plugin
-                # dirs without losing the phase work-dir scoping. setup_isolation's
-                # own CLAUDE_WORK_DIR is the whole release dir, which would clobber
-                # the phase scope, so it is deliberately NOT merged here.
-                _layers = setup_isolation(config, scope=f"phase-{phase.number}")
-                _phase_env_vars = {
-                    "CLAUDE_WORK_DIR": str(
-                        isolation_dir
-                    ),  # KEEP phase-scoped (re-pinned)
-                    "CLAUDE_SETTINGS_DIR": _layers.env_vars["CLAUDE_SETTINGS_DIR"],
-                    "CLAUDE_PLUGIN_DIR": _layers.env_vars["CLAUDE_PLUGIN_DIR"],
-                }
-                proc_manager = ClaudeProcess(config, phase, env_vars=_phase_env_vars)
-                proc_manager.start()
+                reset_policy = SessionResetPolicy(
+                    max_session_resets=getattr(config, "max_session_resets", 8)
+                )
+                attempt = 0
+                status: PhaseStatus | None = None
+                exhausted_model = ""
                 started_at = datetime.now(timezone.utc)
-                # Use monotonic clock for deadline enforcement to be immune to NTP adjustments
-                deadline = time.monotonic() + proc_manager.timeout_seconds
-                logger.write_phase_start(phase, started_at)
+                while True:
+                    shutil.rmtree(isolation_dir, ignore_errors=True)
+                    isolation_dir.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(phase.file, isolation_dir / phase.file.name)
 
-                debug_log(_dbg, "PHASE_BEGIN", phase=phase.number, file=str(phase.file))
+                    # Reset monitor for this phase. Pass phase.file so the
+                    # TUI v2 dual progress bar (F3) knows how many tasks live
+                    # in the phase without re-scanning every poll tick.
+                    output_path = config.output_file(phase)
+                    monitor.reset(output_path, phase_file=phase.file)
+                    monitor.start()
 
-                tui.update(sprint_result, monitor.state, phase)
+                    # Update tmux tail pane if running in tmux
+                    if config.tmux_session_name:
+                        update_tail_pane(config.tmux_session_name, output_path)
 
-                # Poll loop: wait for process to finish while updating TUI
-                # Enforces monotonic timeout via deadline check.
-                _timed_out = False
-                _stall_acted = False  # single-fire guard for watchdog
-                _poll_start = time.monotonic()
-                while proc_manager._process.poll() is None:
-                    if signal_handler.shutdown_requested:
-                        proc_manager.terminate()
-                        break
-                    if time.monotonic() > deadline:
-                        # Timeout reached: kill the process, exit loop
-                        _timed_out = True
-                        proc_manager.terminate()
-                        break
-
-                    ms = monitor.state
-                    _elapsed = time.monotonic() - _poll_start
+                    # Launch claude with isolation env vars. H1 (Path A): KEEP the
+                    # phase-scoped CLAUDE_WORK_DIR (the per-phase copy dir at
+                    # isolation_dir) and ADD only the settings + plugin isolation
+                    # keys so this per-phase session gets its own settings/plugin
+                    # dirs without losing the phase work-dir scoping. setup_isolation's
+                    # own CLAUDE_WORK_DIR is the whole release dir, which would clobber
+                    # the phase scope, so it is deliberately NOT merged here.
+                    _layers = setup_isolation(config, scope=f"phase-{phase.number}")
+                    _phase_env_vars = {
+                        "CLAUDE_WORK_DIR": str(
+                            isolation_dir
+                        ),  # KEEP phase-scoped (re-pinned)
+                        "CLAUDE_SETTINGS_DIR": _layers.env_vars["CLAUDE_SETTINGS_DIR"],
+                        "CLAUDE_PLUGIN_DIR": _layers.env_vars["CLAUDE_PLUGIN_DIR"],
+                    }
+                    proc_manager = ClaudeProcess(
+                        config, phase, env_vars=_phase_env_vars
+                    )
+                    proc_manager.start()
+                    attempt_started_at = datetime.now(timezone.utc)
+                    # Use monotonic clock for deadline enforcement to be immune to NTP adjustments
+                    deadline = time.monotonic() + proc_manager.timeout_seconds
+                    logger.write_phase_start(phase, attempt_started_at)
 
                     debug_log(
-                        _dbg,
-                        "poll_tick",
-                        phase=phase.number,
-                        pid=proc_manager._process.pid,
-                        poll_result="running",
-                        elapsed=round(_elapsed, 1),
-                        output_bytes=ms.output_bytes,
-                        growth_rate=round(ms.growth_rate_bps, 1),
-                        stall_seconds=round(ms.stall_seconds, 1),
-                        stall_status=ms.stall_status,
+                        _dbg, "PHASE_BEGIN", phase=phase.number, file=str(phase.file)
                     )
 
-                    # --- Watchdog: startup-stall check (no events received yet) ---
-                    if (
-                        config.startup_stall_timeout > 0
-                        and ms.events_received == 0
-                        and ms.stall_seconds > config.startup_stall_timeout
-                        and not _stall_acted
-                    ):
-                        _stall_acted = True
-                        debug_log(
-                            _dbg,
-                            "startup_stall_triggered",
-                            phase=phase.number,
-                            action=config.stall_action,
-                            stall_seconds=round(ms.stall_seconds, 1),
-                            pid=proc_manager._process.pid,
-                        )
-                        if config.stall_action == "kill":
-                            import sys
+                    tui.update(sprint_result, monitor.state, phase)
 
-                            print(
-                                f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
-                                f"{config.startup_stall_timeout}s, no events received) — "
-                                f"killing phase {phase.number}",
-                                file=sys.stderr,
-                            )
+                    # Poll loop: wait for process to finish while updating TUI
+                    # Enforces monotonic timeout via deadline check.
+                    _timed_out = False
+                    _stall_acted = False  # single-fire guard for watchdog
+                    _poll_start = time.monotonic()
+                    while proc_manager._process.poll() is None:
+                        if signal_handler.shutdown_requested:
+                            proc_manager.terminate()
+                            break
+                        if time.monotonic() > deadline:
+                            # Timeout reached: kill the process, exit loop
                             _timed_out = True
                             proc_manager.terminate()
                             break
-                        else:
-                            # warn action: log and continue
-                            import sys
 
-                            print(
-                                f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
-                                f"{config.startup_stall_timeout}s, no events received) — "
-                                f"warning for phase {phase.number}",
-                                file=sys.stderr,
-                            )
+                        ms = monitor.state
+                        _elapsed = time.monotonic() - _poll_start
 
-                    # --- Watchdog: mid-stall check (events seen, then silence) ---
-                    if (
-                        config.stall_timeout > 0
-                        and ms.stall_seconds > config.stall_timeout
-                        and ms.events_received > 0  # only after stream began
-                        and not _stall_acted
-                    ):
-                        _stall_acted = True
                         debug_log(
                             _dbg,
-                            "watchdog_triggered",
+                            "poll_tick",
                             phase=phase.number,
-                            action=config.stall_action,
-                            stall_seconds=round(ms.stall_seconds, 1),
                             pid=proc_manager._process.pid,
+                            poll_result="running",
+                            elapsed=round(_elapsed, 1),
+                            output_bytes=ms.output_bytes,
+                            growth_rate=round(ms.growth_rate_bps, 1),
+                            stall_seconds=round(ms.stall_seconds, 1),
+                            stall_status=ms.stall_status,
                         )
-                        if config.stall_action == "kill":
+
+                        # --- Watchdog: startup-stall check (no events received yet) ---
+                        if (
+                            config.startup_stall_timeout > 0
+                            and ms.events_received == 0
+                            and ms.stall_seconds > config.startup_stall_timeout
+                            and not _stall_acted
+                        ):
+                            _stall_acted = True
+                            debug_log(
+                                _dbg,
+                                "startup_stall_triggered",
+                                phase=phase.number,
+                                action=config.stall_action,
+                                stall_seconds=round(ms.stall_seconds, 1),
+                                pid=proc_manager._process.pid,
+                            )
+                            if config.stall_action == "kill":
+                                import sys
+
+                                print(
+                                    f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
+                                    f"{config.startup_stall_timeout}s, no events received) — "
+                                    f"killing phase {phase.number}",
+                                    file=sys.stderr,
+                                )
+                                _timed_out = True
+                                proc_manager.terminate()
+                                break
+                            else:
+                                # warn action: log and continue
+                                import sys
+
+                                print(
+                                    f"[WATCHDOG] Startup-stall detected ({ms.stall_seconds:.0f}s > "
+                                    f"{config.startup_stall_timeout}s, no events received) — "
+                                    f"warning for phase {phase.number}",
+                                    file=sys.stderr,
+                                )
+
+                        # --- Watchdog: mid-stall check (events seen, then silence) ---
+                        if (
+                            config.stall_timeout > 0
+                            and ms.stall_seconds > config.stall_timeout
+                            and ms.events_received > 0  # only after stream began
+                            and not _stall_acted
+                        ):
+                            _stall_acted = True
+                            debug_log(
+                                _dbg,
+                                "watchdog_triggered",
+                                phase=phase.number,
+                                action=config.stall_action,
+                                stall_seconds=round(ms.stall_seconds, 1),
+                                pid=proc_manager._process.pid,
+                            )
+                            if config.stall_action == "kill":
+                                import sys
+
+                                print(
+                                    f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
+                                    f"{config.stall_timeout}s) — killing phase {phase.number}",
+                                    file=sys.stderr,
+                                )
+                                _timed_out = True
+                                proc_manager.terminate()
+                                break
+                            else:
+                                # warn action: log and continue
+                                import sys
+
+                                print(
+                                    f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
+                                    f"{config.stall_timeout}s) — warning for phase {phase.number}",
+                                    file=sys.stderr,
+                                )
+
+                        # Reset single-fire guard when output resumes
+                        if _stall_acted and ms.stall_seconds == 0.0:
+                            _stall_acted = False
+
+                        # Update TUI at ~2 Hz (monitor thread handles data extraction)
+                        # Wrap in try/except so a display glitch cannot abort the sprint
+                        try:
+                            tui.update(sprint_result, monitor.state, phase)
+                        except Exception as _tui_exc:
                             import sys
 
                             print(
-                                f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
-                                f"{config.stall_timeout}s) — killing phase {phase.number}",
+                                f"[TUI] Display error (continuing sprint): {_tui_exc}",
                                 file=sys.stderr,
                             )
-                            _timed_out = True
-                            proc_manager.terminate()
+                        time.sleep(0.5)
+
+                    # Safely read exit code: returncode may be None if terminate raced.
+                    # Use _timed_out flag instead of assigning directly to returncode.
+                    raw_rc = proc_manager._process.returncode
+                    if _timed_out:
+                        exit_code = 124
+                    else:
+                        exit_code = raw_rc if raw_rc is not None else -1
+                    monitor.stop()
+                    finished_at = datetime.now(timezone.utc)
+                    _phase_dur = (finished_at - started_at).total_seconds()
+                    _attempt_dur = (finished_at - attempt_started_at).total_seconds()
+                    debug_log(
+                        _dbg,
+                        "PHASE_END",
+                        phase=phase.number,
+                        exit_code=exit_code,
+                        duration=round(_attempt_dur, 1),
+                    )
+                    signal = detect_provider_failure(config.output_file(phase))
+                    # D7: a Ctrl-C landing on a 429 transcript must INTERRUPT, not
+                    # re-spawn — skip the 429 re-route when shutdown was requested so
+                    # the loop falls through to the INTERRUPTED classification below.
+                    if not signal_handler.shutdown_requested and signal.kind in (
+                        ProviderFailure.SINGLE_ACCOUNT_LIMIT,
+                        ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+                    ):
+                        # Edge #1 (spec §5 / UX contract #5): a single-session phase
+                        # that completed substantive work BEFORE a trailing 429 must
+                        # RECOVER, not re-route — the detector keys on the LAST result
+                        # event (the 429) but the phase is done. Mirror the per-task
+                        # completion-evidence gate (executor.py ~1055) so live and
+                        # offline classification agree on identical transcripts.
+                        if _task_completed_before_overrun(config.output_file(phase)):
+                            status = PhaseStatus.PASS_RECOVERED
                             break
-                        else:
-                            # warn action: log and continue
-                            import sys
-
-                            print(
-                                f"[WATCHDOG] Mid-stall detected ({ms.stall_seconds:.0f}s > "
-                                f"{config.stall_timeout}s) — warning for phase {phase.number}",
-                                file=sys.stderr,
+                        reset_policy._exhaustion_attempts += 1
+                        attempt = reset_policy._exhaustion_attempts
+                        action = reset_policy.decide(signal.kind, attempt)
+                        if action is Action.RETRY_NEW_SESSION:
+                            # Observability (P6): record the account-rotation re-route
+                            # on the single-session path (no per-task id → "").
+                            if logger is not None:
+                                logger.write_session_reset(
+                                    phase.number,
+                                    "",
+                                    attempt,
+                                    signal.resolved_model or "",
+                                )
+                            continue  # re-spawn → fresh session → new routing decision
+                        status = PhaseStatus.PROVIDER_EXHAUSTED
+                        exhausted_model = signal.resolved_model or ""
+                        # Observability (P6): the single-session re-spawn loop gave
+                        # up — record the final account-exhaustion halt.
+                        if logger is not None:
+                            logger.write_account_exhaustion_halt(
+                                phase.number,
+                                "",
+                                exhausted_model,
+                                attempt,
                             )
-
-                    # Reset single-fire guard when output resumes
-                    if _stall_acted and ms.stall_seconds == 0.0:
-                        _stall_acted = False
-
-                    # Update TUI at ~2 Hz (monitor thread handles data extraction)
-                    # Wrap in try/except so a display glitch cannot abort the sprint
-                    try:
-                        tui.update(sprint_result, monitor.state, phase)
-                    except Exception as _tui_exc:
-                        import sys
-
-                        print(
-                            f"[TUI] Display error (continuing sprint): {_tui_exc}",
-                            file=sys.stderr,
-                        )
-                    time.sleep(0.5)
-
-                # Safely read exit code: returncode may be None if terminate raced.
-                # Use _timed_out flag instead of assigning directly to returncode.
-                raw_rc = proc_manager._process.returncode
-                if _timed_out:
-                    exit_code = 124
-                else:
-                    exit_code = raw_rc if raw_rc is not None else -1
-                monitor.stop()
-                finished_at = datetime.now(timezone.utc)
-                _phase_dur = (finished_at - started_at).total_seconds()
-                debug_log(
-                    _dbg,
-                    "PHASE_END",
-                    phase=phase.number,
-                    exit_code=exit_code,
-                    duration=round(_phase_dur, 1),
-                )
+                        break
+                    break
 
                 # If shutdown was requested during the poll loop, classify as
                 # INTERRUPTED rather than letting _determine_phase_status see
@@ -1978,10 +2194,10 @@ def execute_sprint(config: SprintConfig):
 
                 # Write a preliminary result sentinel so _determine_phase_status()
                 # always finds a result file for exit_code=0 phases that wrote no report.
-                # Guard: only for successful exits; non-zero paths must not reach this.
-                if exit_code == 0:
+                # Guard: only for successful exits that have not already short-circuited.
+                if exit_code == 0 and status is None:
                     _wrote_preliminary = _write_preliminary_result(
-                        config, phase, started_at.timestamp()
+                        config, phase, attempt_started_at.timestamp()
                     )
                     debug_log(
                         _dbg,
@@ -1989,16 +2205,18 @@ def execute_sprint(config: SprintConfig):
                         path=f"{'executor-preliminary (option_d)' if _wrote_preliminary else 'agent-written/option_a_or_noop'}",
                     )
 
-                # Determine phase status
-                status = _determine_phase_status(
-                    exit_code=exit_code,
-                    result_file=config.result_file(phase),
-                    output_file=config.output_file(phase),
-                    config=config,
-                    phase=phase,
-                    started_at=started_at.timestamp(),
-                    error_file=config.error_file(phase),
-                )
+                # Determine phase status unless provider exhaustion already
+                # short-circuited the single-session path before the normal ladder.
+                if status is None:
+                    status = _determine_phase_status(
+                        exit_code=exit_code,
+                        result_file=config.result_file(phase),
+                        output_file=config.output_file(phase),
+                        config=config,
+                        phase=phase,
+                        started_at=started_at.timestamp(),
+                        error_file=config.error_file(phase),
+                    )
 
                 # Wave 2: checkpoint enforcement gate (v3.7). Respects
                 # config.checkpoint_gate_mode (off/shadow/soft/full). Shadow is
@@ -2055,6 +2273,10 @@ def execute_sprint(config: SprintConfig):
                     tokens_out=monitor.state.tokens_out,
                 )
 
+                if status == PhaseStatus.PROVIDER_EXHAUSTED:
+                    phase_result.halt_reason = "provider_exhaustion"
+                    phase_result.exhausted_model = exhausted_model
+
                 # v3.2-T02: Run post-phase wiring hook for every claude-mode phase
                 phase_result = run_post_phase_wiring_hook(
                     phase,
@@ -2100,6 +2322,11 @@ def execute_sprint(config: SprintConfig):
                 tui.update(sprint_result, monitor.state, None)
 
                 # Decide: continue or halt?
+                if status == PhaseStatus.PROVIDER_EXHAUSTED:
+                    sprint_result.outcome = SprintOutcome.HALTED
+                    sprint_result.halt_phase = phase.number
+                    break
+
                 if status.is_failure:
                     # Collect diagnostics for the failed phase
                     try:
@@ -2289,102 +2516,30 @@ def _is_transient_failure(output_path: Path) -> bool:
     return False
 
 
-# A successful per-task completion envelope: a result line whose subtype is
-# "success", or an agent task_complete envelope. Used by
-# ``_task_completed_before_overrun`` to detect completion evidence that gates
-# per-task recovery from ``error_max_turns``.
-_TASK_SUCCESS_ENVELOPE_PATTERN = re.compile(
-    r'"subtype"\s*:\s*"success"|"(?:type|subtype)"\s*:\s*"task_complete"'
-)
-
-# A SECOND, tail-only class of completion evidence: a strong completion verdict
-# emitted in the final assistant turns when the agent finished its deliverable
-# but overran the turn budget BEFORE emitting a structured
-# ``success``/``task_complete`` envelope (e.g. TUIBBS V1 MVP sprint Phase 7 /
-# task T07.05, whose deliverable was complete and green on disk but whose stream
-# carried no success envelope). Deliberately conservative (strong verdict
-# phrases, not a bare "PASS") and applied only to the tail of the stream by
-# ``_task_completed_before_overrun`` — a task that overran *mid-work* does not
-# end on a completion verdict, while one that overran *after completing* does,
-# so tail-scoping preserves the completed-after-overrun vs overran-mid-work
-# distinction the recovery gate exists to protect.
-_TASK_TAIL_COMPLETION_PATTERN = re.compile(
-    r"VERDICT:\s*PASS"
-    r"|EXIT_RECOMMENDATION:\s*CONTINUE"
-    r'|"result"\s*:\s*"Pass"'
-    r"|ACCEPTANCE CRITERIA[^\n]{0,40}ALL MET",
-    re.IGNORECASE,
-)
-_TASK_TAIL_COMPLETION_WINDOW = 15
-
-
 def _task_completed_before_overrun(output_path: Path) -> bool:
     """Return True iff the per-task NDJSON stream shows completion evidence
-    BEFORE its terminal ``error_max_turns`` envelope.
+    BEFORE its terminal overrun/failure envelope.
 
-    This is the completion-evidence gate for per-task recovery. A task that
-    overran *after* finishing its substantive work shows completion evidence in
-    the lines preceding the terminal ``{"type":"result","subtype":"error_max_turns"}``
-    envelope; a task that overran *without* finishing does not. Recovery is
-    GATED on this — ``error_max_turns`` alone is NOT sufficient (that would mask
-    a task that overran without finishing).
+    Path wrapper around :func:`monitor.completed_before_overrun_from_text` (the
+    shared completion-evidence text core, also used by the offline classifier in
+    ``rerun_tasks._classify_transcript`` so the LIVE and OFFLINE paths agree on
+    edge #1). This is the completion-evidence gate for per-task recovery: a task
+    that overran *after* finishing its substantive work (terminal
+    ``error_max_turns`` OR trailing 429) shows completion evidence in the lines
+    preceding the terminal line; a task that failed *without* finishing does not.
+    Recovery is GATED on this — the terminal failure envelope alone is NOT
+    sufficient (that would mask a task that overran without finishing).
 
-    Two classes of completion evidence are recognized, in order:
-
-    1. **Structured success envelope** — a successful
-       ``{"type":"result","subtype":"success"}`` (or agent ``task_complete``)
-       envelope anywhere in the pre-terminal lines.
-    2. **Tail completion verdict** — a strong completion verdict
-       (``_TASK_TAIL_COMPLETION_PATTERN``) within the last
-       ``_TASK_TAIL_COMPLETION_WINDOW`` pre-terminal lines. This recovers the
-       *artifact-only* overrun where the agent finished and wrote its
-       deliverable + evidence but tripped the turn ceiling before emitting a
-       structured envelope (the motivating case: TUIBBS V1 MVP sprint Phase 7 /
-       task T07.05). The verdict scan is **tail-scoped on purpose**: a task
-       that overran mid-work does not end on a completion verdict, while one
-       that overran after completing does, so confining the scan to the tail
-       preserves the completed-after-overrun vs overran-mid-work distinction
-       (a casual mid-stream "PASS" cannot trigger recovery).
-
-    This helper is only meaningful when called for a stream whose terminal line
-    is the ``error_max_turns`` envelope (i.e. ``detect_error_max_turns`` is
-    already True); it scans the lines strictly BEFORE that terminal line so the
-    error line itself can never be mistaken for completion evidence.
-
-    Returns False when the file is missing/unreadable/empty, or when neither
-    class of completion evidence appears before the terminal
-    ``error_max_turns`` line. Reads the file defensively (mirroring
-    ``detect_error_max_turns``); performs no network or subprocess calls.
+    Returns False when the file is missing/unreadable/empty. Reads the file
+    defensively (mirroring ``detect_error_max_turns``); performs no network or
+    subprocess calls.
     """
     try:
         content = output_path.read_text(errors="replace")
     except (FileNotFoundError, OSError):
         return False
 
-    if not content.strip():
-        return False
-
-    lines = [ln.strip() for ln in content.strip().splitlines() if ln.strip()]
-    if not lines:
-        return False
-
-    # Class 1: a structured success/task_complete envelope anywhere in the
-    # lines strictly before the terminal (last non-empty) line, which is the
-    # error_max_turns envelope on the gated-recovery path.
-    for line in lines[:-1]:
-        if _TASK_SUCCESS_ENVELOPE_PATTERN.search(line):
-            return True
-
-    # Class 2: a strong completion verdict in the TAIL (last
-    # ``_TASK_TAIL_COMPLETION_WINDOW`` pre-terminal lines). Tail-scoped on
-    # purpose — a task that overran mid-work does not end on a completion
-    # verdict, while one that overran after completing does. This recovers the
-    # artifact-only overrun (no success envelope) that Class 1 misses.
-    for line in lines[:-1][-_TASK_TAIL_COMPLETION_WINDOW:]:
-        if _TASK_TAIL_COMPLETION_PATTERN.search(line):
-            return True
-
-    return False
+    return completed_before_overrun_from_text(content)
 
 
 def _classify_from_result_file(
@@ -2690,6 +2845,10 @@ def _write_phase_result_json(
         "finished_at": result.finished_at.isoformat(),
         "task_results": [tr.to_dict() for tr in result.task_results],
         "recovery_history": result.recovery_history,
+        # 429 recovery: phase-level account-exhaustion halt signal (read side
+        # uses .get("halt_reason", "") for back-compat with pre-v4.3 files).
+        "halt_reason": result.halt_reason,
+        "exhausted_model": result.exhausted_model,
         "tasklist_sha256": _content_sha256_excluding_rerun_block(phase.file),
         # F-3/CG-2: whitespace-normalized hash alongside the exact hash.
         "tasklist_sha256_ws": _content_sha256_ws_excluding_rerun_block(phase.file),

@@ -263,3 +263,63 @@ Secondary hazard: the roadmap pipeline's `remediate` step may attempt cosmetic e
 The C-track operational unblock for this issue used class waiver `V-PFX-1` registered in `/config/workspace/TUIBBS-scp/.dev/releases/current/v1-MVP/deviation-registry.json` `waivers` array. After the durable A-track fix landed, V-PFX-1 was retired (status `RETIRED` with retirement metadata; entry preserved for audit). The authoring task is `/config/workspace/TUIBBS-scp/.dev/tasks/{to-do,done}/TASK-RF-20260531-044100/`.
 
 **Files touched:** src/superclaude/cli/roadmap/spec_parser.py, src/superclaude/cli/roadmap/structural_checkers.py, tests/roadmap/test_structural_checkers.py
+
+---
+
+## 2026-06-18: Sprint Run 429 / Account-Exhaustion Recovery — re-route, never wait (TASK-RF-429-recovery-20260615-040144)
+
+**Headline rule: a sprint 429 is recovered by RE-ROUTING, never by waiting.** A 429
+from the routed CLIProxyAPI means ONE account hit its 5h/7d rate-limit window — the
+pool holds ~8 accounts, and because every sprint subprocess launches with
+`--no-session-persistence`, *a fresh subprocess is a new session is a new routing
+decision is a chance at a different account*. So recovery spawns a fresh subprocess
+(account rotation) or suggests a model-alias switch; it never sleeps/backs-off.
+
+### Context
+
+Before this work, a 429 silently halted the sprint (`SprintOutcome.HALTED` + `break`)
+with no recovery. The detector + bounded re-spawn loop turn that into automatic
+account rotation, with a clean halt + model-switch resume UX only when rotation can't help.
+
+### The load-bearing rules (each cost real design/debugging time)
+
+- **Detect on the LAST `{"type":"result"}` event's `is_error` + `api_error_status`,
+  NEVER `subtype`.** A 429's `subtype` is `"success"` (the subtype-trap). The
+  `api_retry` event's field is `error_status` (a *different* field — don't confuse it
+  with the result event's `api_error_status`).
+- **Four-way discrimination:** all-account cooldown (`/All credentials … cooling down
+  via provider/`) → **halt + model switch on ANY attempt** (re-spawning is futile);
+  single-account limit (`would exceed your account's rate limit`) → **re-spawn
+  (rotate), bounded by the reset cap, then halt**; operation timeout
+  (`api_error_status==null` + timeout body) and genuine task failure (no 429 body) →
+  existing ladder, NO re-spawn.
+- **`FAIL_PROVIDER_EXHAUSTED` is infra, not a product bug.** It's a *failure* (in
+  `TaskStatus.is_failure` so resume re-runs it) but must NEVER trip the
+  DiagnosticCollector/FailureClassifier product-bug bundle. Consequently
+  `PhaseStatus.PROVIDER_EXHAUSTED` goes in `is_terminal` but NOT in `is_failure`, so
+  the single-session phase path halts WITHOUT writing a spurious
+  `phase-N-diagnostic.md` (UX-contract #4).
+- **`--max-session-resets` (default 8 ≈ pool size)** bounds the per-task re-spawn loop.
+  The spawn is UNLOCKED (the concurrency win); the sprint-wide halt latch is the only
+  shared state (checked/tripped under the lock). The K>1 storm bound is therefore
+  `≤ cap + (K−1)` AND `< K×cap` — NOT strictly `≤ cap`, because up to K−1 workers may
+  be mid-(unlocked-)spawn when the latch trips.
+- **Resume gets a fresh reset budget** (a new process = a new `SessionResetPolicy`).
+- **Halt UX is wired at the real seam.** The operator-facing resume command lives in
+  `SprintResult.resume_command()` (consumed by `tui.py` + `logging_.py`), NOT the
+  dead `build_resume_output`. On a `halt_reason=="provider_exhaustion"` halt it emits a
+  SINGLE-LINE `superclaude sprint run … --resume <task> --model <suggested>` (the
+  terminal can't paste multi-line); the alias suggester (`aienv.py`) reads
+  `os.environ` (option A — `~/.aienv` is bash-`source`d only by `scripts/ic`; no Python
+  parses the file) and is None-safe (never fabricates an alias).
+- **`rerun-tasks` excludes provider-exhausted tasks from auto-nomination.** The
+  directed guard in `select_default_recoverable_tasks` is defensive (it only ever
+  selects `fail_recoverable`, so a `fail_provider_exhausted` task is already excluded
+  by status); the *actual* leak was the legacy transcript-discovery fallback, which is
+  filtered at the `run_rerun_tasks` caller.
+
+**Originating work:** `.dev/tasks/to-do/TASK-RF-429-recovery-20260615-040144/`,
+spec `.dev/brainstorms/sprint-429-recovery-spec.md`. **Files:**
+`src/superclaude/cli/sprint/{monitor,models,recovery_policy,aienv,executor,commands,config,logging_,rerun_tasks}.py`,
+`tests/sprint/{test_monitor,test_models,test_recovery_policy,test_aienv,test_executor,test_cli_contract,test_sprint_docs_cli_parity,test_rerun_tasks,test_resume}.py`,
+`docs/guides/sprint-cli-tools-release-guide.md`.

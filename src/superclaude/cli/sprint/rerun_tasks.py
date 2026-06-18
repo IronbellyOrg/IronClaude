@@ -39,6 +39,11 @@ import click
 
 from .debug_logger import debug_log
 from .models import PhaseResult, SprintConfig, TaskResult, TaskStatus
+from .monitor import (
+    ProviderFailure,
+    _provider_failure_from_text,
+    completed_before_overrun_from_text,
+)
 from .recovery import (
     ManualNominator,
     RecoveryBundle,
@@ -578,6 +583,26 @@ def _classify_transcript(text: str) -> TaskStatus:
 
     subtype = str(result_event.get("subtype", ""))
     is_error = bool(result_event.get("is_error")) or subtype.startswith("error")
+
+    # Provider/account-exhaustion (429) intercepts the is_error/transient ladder:
+    # a single-account 429 has is_error==true AND an api_retry event, so without
+    # this branch it would mis-classify as FAIL_RECOVERABLE/FAIL_TERMINAL. Reuse
+    # the shared detector core so the offline classifier and the live
+    # detect_provider_failure agree on the same transcripts (no re-read, no dup).
+    _sig = _provider_failure_from_text(text)
+    if _sig.kind in (
+        ProviderFailure.SINGLE_ACCOUNT_LIMIT,
+        ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+    ):
+        # Edge #1 (spec §5 / UX contract #5): a task that COMPLETED its
+        # substantive work before a trailing 429 must RECOVER, not be re-run.
+        # Mirror the live path's `_task_completed_before_overrun` gate via the
+        # shared completion-evidence core so the offline classifier and the live
+        # `detect_provider_failure` agree on identical transcripts (no live/offline
+        # divergence; PASS_RECOVERED ∈ is_success so resume does NOT re-run it).
+        if completed_before_overrun_from_text(text):
+            return TaskStatus.PASS_RECOVERED
+        return TaskStatus.FAIL_PROVIDER_EXHAUSTED
 
     if not is_error and total_output_tokens > 0:
         return TaskStatus.PASS
@@ -1154,6 +1179,14 @@ def select_default_recoverable_tasks(phase_result_json: Path) -> list[str]:
     for entry in data.get("task_results", []) if isinstance(data, dict) else []:
         if not isinstance(entry, dict) or entry.get("status") != "fail_recoverable":
             continue
+        # 429 recovery (spec §4 G / OQ-2 option a, operator-decided): never
+        # auto-nominate a re-routed account-exhaustion failure for a product-bug
+        # rerun bundle (UX-contract #4). Defensive: a provider-exhausted task
+        # normally carries status "fail_provider_exhausted" (already excluded by
+        # the check above), but this guards the persisted ``failure_class`` directly
+        # so the exclusion holds even if the status/class coupling ever changes.
+        if entry.get("failure_class") == "provider_exhaustion":
+            continue
         task = entry.get("task")
         task_id = (
             task.get("task_id") if isinstance(task, dict) else entry.get("task_id")
@@ -1424,11 +1457,20 @@ def run_rerun_tasks(
                 config.phase_result_json(phase_obj)
             )
             if not default_ids:  # legacy fallback (pre-v4.3.0 sprint)
+                # 429 recovery (spec §4 G / OQ-2 option a): the transcript-discovery
+                # fallback nominates ALL non-PASS tasks — which would include a
+                # re-routed account-exhaustion failure. Exclude FAIL_PROVIDER_EXHAUSTED
+                # here too so UX-contract #4 holds on the realistic path where a phase
+                # has ONLY provider-exhausted failures (select_default returns [] →
+                # this fallback runs). This completes option (a): select_default's
+                # status filter never sees a fail_recoverable provider-exhausted task,
+                # so the actual auto-nomination leak is this transcript path.
                 default_ids = [
                     tid
                     for tid, _status in discover_failed_tasks_from_transcripts(
                         config.results_dir, phase
                     )
+                    if _status is not TaskStatus.FAIL_PROVIDER_EXHAUSTED
                 ]
             nominated = ManualNominator(phase, default_ids).nominate({})
         if not nominated:

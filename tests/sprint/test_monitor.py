@@ -1,15 +1,24 @@
 """Tests for sprint monitor — signal extraction from output files."""
 
 import time
+from pathlib import Path
+
+import pytest
 
 from superclaude.cli.sprint.monitor import (
     FILES_CHANGED_PATTERN,
     TASK_ID_PATTERN,
     TOOL_PATTERN,
     OutputMonitor,
+    ProviderFailure,
+    ProviderFailureSignal,
+    _provider_failure_from_text,
     count_turns_from_output,
     detect_error_max_turns,
+    detect_provider_failure,
 )
+
+_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "exhaustion"
 
 
 class TestPatterns:
@@ -229,3 +238,106 @@ class TestCountTurnsFromOutput:
         )
         # Should still count the valid assistant lines
         assert count_turns_from_output(output) == 2
+
+
+class TestDetectProviderFailure:
+    """Tests for provider/account-exhaustion detection (P1, spec §2/§4).
+
+    Covers the four-way discrimination over the six exhaustion fixtures plus the
+    OSError/parse-tolerance edges, the subtype-trap, the conservative default,
+    and the shared-core equivalence between the text core and the path wrapper.
+    """
+
+    # --- fixture-driven four-way discrimination ----------------------------
+
+    @pytest.mark.unit
+    def test_single_account_429(self):
+        sig = detect_provider_failure(_FIXTURES / "single_account_429.jsonl")
+        assert sig.kind is ProviderFailure.SINGLE_ACCOUNT_LIMIT
+
+    @pytest.mark.unit
+    def test_all_account_cooldown_captures_model(self):
+        sig = detect_provider_failure(_FIXTURES / "all_account_cooldown.jsonl")
+        assert sig.kind is ProviderFailure.ALL_ACCOUNT_COOLDOWN
+        assert sig.resolved_model == "claude-opus-4-8"
+
+    @pytest.mark.unit
+    def test_operation_timeout(self):
+        sig = detect_provider_failure(_FIXTURES / "operation_timeout.jsonl")
+        assert sig.kind is ProviderFailure.OPERATION_TIMEOUT
+
+    @pytest.mark.unit
+    def test_task_failure_real_is_none(self):
+        sig = detect_provider_failure(_FIXTURES / "task_failure_real.jsonl")
+        assert sig.kind is ProviderFailure.NONE
+
+    @pytest.mark.unit
+    def test_clean_pass_is_none(self):
+        sig = detect_provider_failure(_FIXTURES / "clean_pass.jsonl")
+        assert sig.kind is ProviderFailure.NONE
+
+    @pytest.mark.unit
+    def test_api_retry_maxed_still_single_account(self):
+        # attempt==max_retries==10 is only corroborating; the LAST result event
+        # is the load-bearing classification (edge case #6).
+        sig = detect_provider_failure(_FIXTURES / "api_retry_maxed.jsonl")
+        assert sig.kind is ProviderFailure.SINGLE_ACCOUNT_LIMIT
+
+    # --- OSError / parse tolerance edges -----------------------------------
+
+    @pytest.mark.unit
+    def test_truncated_ndjson_is_none(self, tmp_path):
+        output = tmp_path / "output.txt"
+        output.write_text('{"type":"result","sub')
+        assert detect_provider_failure(output).kind is ProviderFailure.NONE
+
+    @pytest.mark.unit
+    def test_empty_output_is_none(self, tmp_path):
+        output = tmp_path / "output.txt"
+        output.write_text("")
+        assert detect_provider_failure(output).kind is ProviderFailure.NONE
+
+    @pytest.mark.unit
+    def test_missing_file_is_none(self, tmp_path):
+        output = tmp_path / "nonexistent.txt"
+        assert detect_provider_failure(output).kind is ProviderFailure.NONE
+
+    # --- subtype-trap + conservative default -------------------------------
+
+    @pytest.mark.unit
+    def test_subtype_trap_keys_on_is_error_not_subtype(self, tmp_path):
+        # subtype is "success" EVEN THOUGH is_error is true on a 429 — a detector
+        # that keyed on subtype would return NONE here (the trap).
+        output = tmp_path / "output.txt"
+        output.write_text(
+            '{"type":"result","subtype":"success","is_error":true,'
+            '"api_error_status":429,'
+            '"result":"API Error: Request rejected (429) · This request would '
+            "exceed your account's rate limit. Please try again later.\"}\n"
+        )
+        assert (
+            detect_provider_failure(output).kind is ProviderFailure.SINGLE_ACCOUNT_LIMIT
+        )
+
+    @pytest.mark.unit
+    def test_429_with_neither_body_conservative_default(self, tmp_path):
+        # 429 with no recognizable body → conservative SINGLE_ACCOUNT_LIMIT.
+        output = tmp_path / "output.txt"
+        output.write_text(
+            '{"type":"result","subtype":"success","is_error":true,'
+            '"api_error_status":429,"result":"API Error: Request rejected (429)"}\n'
+        )
+        assert (
+            detect_provider_failure(output).kind is ProviderFailure.SINGLE_ACCOUNT_LIMIT
+        )
+
+    # --- shared-core equivalence -------------------------------------------
+
+    @pytest.mark.unit
+    def test_text_core_matches_path_wrapper(self):
+        path = _FIXTURES / "all_account_cooldown.jsonl"
+        from_text = _provider_failure_from_text(path.read_text())
+        from_path = detect_provider_failure(path)
+        assert from_text == from_path
+        assert isinstance(from_text, ProviderFailureSignal)
+        assert from_text.kind is ProviderFailure.ALL_ACCOUNT_COOLDOWN

@@ -1,0 +1,2 @@
+{"type":"assistant","message":{"usage":{"output_tokens":210}}}
+{"type":"result","subtype":"error_during_execution","is_error":true,"result":"Tool execution failed: pytest exited 1"}
