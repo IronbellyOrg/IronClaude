@@ -1554,6 +1554,17 @@ def run_rerun_tasks(
             start_phase=phase,
             end_phase=phase,
         )
+        # Non-deadlock composition (R6): the run lock is release-scoped on
+        # results_dir; rerun-tasks holds ONLY its phase-scoped recovery lock on
+        # the canonical results_dir, while the inner execute_sprint acquires its
+        # run lock on the disjoint bundle dir (release_dir=bundle ⇒ results_dir
+        # = bundle/results). The only nesting is recovery-lock(canonical/phase-N)
+        # ⊃ run-lock(bundle) over DISJOINT paths — no wait-for cycle. rerun-tasks
+        # MUST NOT acquire the canonical run lock.
+        assert sub_config.results_dir != config.results_dir, (
+            "rerun sub_config must use an isolated bundle results_dir "
+            "(run-lock/recovery-lock disjoint-path invariant)"
+        )
         rerun_error: Optional[BaseException] = None
         try:
             execute_sprint(sub_config)

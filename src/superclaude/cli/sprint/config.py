@@ -296,6 +296,7 @@ def load_sprint_config(
     resume_task_id: str = "",
     task_parallelism: int = 1,
     max_session_resets: int = 8,
+    ignore_run_lock: bool = False,
 ) -> SprintConfig:
     """Load and validate a complete sprint configuration.
 
@@ -368,6 +369,7 @@ def load_sprint_config(
         resume_task_id=resume_task_id,
         task_parallelism=task_parallelism,
         max_session_resets=max_session_resets,
+        ignore_run_lock=ignore_run_lock,
     )
 
     # Validate that the requested range yields at least one active phase

@@ -6,6 +6,11 @@ import json
 from pathlib import Path
 from unittest.mock import patch
 
+import os
+
+import click
+import pytest
+
 from superclaude.cli.sprint.recovery import (
     ManualNominator,
     RecoveryBundle,
@@ -13,9 +18,11 @@ from superclaude.cli.sprint.recovery import (
     RecoveryStatus,
     ReflectReportNominator,
     acquire_recovery_lock,
+    acquire_run_lock,
     compute_tasklist_sha256,
     merge_recovery_bundle,
     release_recovery_lock,
+    release_run_lock,
     retry_count_for_task,
     write_recovery_audit_log,
 )
@@ -513,3 +520,230 @@ class TestRecoverySurfaceSmoke:
         ]
         assert retry_count_for_task(phase_result, "T07.11") == 1
         assert retry_count_for_task(phase_result, "T99.99") == 0
+
+
+# ---------------------------------------------------------------------------
+# R7 — Release-scoped run lock (13-case matrix)
+# ---------------------------------------------------------------------------
+
+
+def _write_run_lock(tmp_path: Path, payload: dict) -> Path:
+    """Pre-write a run.lock under tmp_path/.recovery-locks with ``payload``."""
+    locks_dir = tmp_path / ".recovery-locks"
+    locks_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = locks_dir / "run.lock"
+    lock_path.write_text(json.dumps(payload), encoding="utf-8")
+    return lock_path
+
+
+class TestRunLock:
+    def test_run_lock_acquire_creates_file_with_payload(self, tmp_path: Path):
+        # Case 1: acquire creates the lockfile with a pid+payload.
+        path = acquire_run_lock(tmp_path)
+        try:
+            assert path == tmp_path / ".recovery-locks" / "run.lock"
+            assert path.exists()
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            assert payload["pid"] == os.getpid()
+            assert "starttime" in payload
+            assert "timestamp" in payload
+            assert "hostname" in payload
+        finally:
+            release_run_lock(path)
+
+    def test_run_lock_live_holder_refused_naming_pid(self, tmp_path: Path):
+        # Case 2: a live holder raises ClickException naming PID + timestamp.
+        holder_pid = os.getpid()  # self is guaranteed alive
+        ts = "2026-06-17T00:00:00+00:00"
+        _write_run_lock(
+            tmp_path,
+            {"pid": holder_pid, "starttime": None, "timestamp": ts},
+        )
+        with pytest.raises(click.ClickException) as excinfo:
+            acquire_run_lock(tmp_path)
+        msg = excinfo.value.format_message()
+        assert str(holder_pid) in msg
+        assert ts in msg
+        assert "--ignore-run-lock" in msg
+
+    def test_run_lock_reclaims_stale_dead_pid(self, tmp_path: Path, monkeypatch):
+        # Case 3: stale dead-PID lock is reclaimed (os.kill -> ProcessLookupError).
+        _write_run_lock(
+            tmp_path,
+            {"pid": 424242, "starttime": None, "timestamp": "t"},
+        )
+
+        def _dead(pid, sig):
+            raise ProcessLookupError
+
+        monkeypatch.setattr(os, "kill", _dead)
+        path = acquire_run_lock(tmp_path)
+        try:
+            assert path.exists()
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            assert payload["pid"] == os.getpid()
+        finally:
+            release_run_lock(path)
+
+    def test_run_lock_permission_error_treated_alive(self, tmp_path: Path, monkeypatch):
+        # Case 4: PermissionError from os.kill -> treated alive -> refuse.
+        _write_run_lock(
+            tmp_path,
+            {"pid": 424242, "starttime": None, "timestamp": "t"},
+        )
+
+        def _perm(pid, sig):
+            raise PermissionError
+
+        monkeypatch.setattr(os, "kill", _perm)
+        with pytest.raises(click.ClickException):
+            acquire_run_lock(tmp_path)
+
+    def test_run_lock_atomic_oexcl_loser_refused(self, tmp_path: Path, monkeypatch):
+        # Case 5: O_EXCL loser is refused and never overwrites the winner.
+        winner_payload = {"pid": os.getpid(), "starttime": None, "timestamp": "winner"}
+        lock_path = _write_run_lock(tmp_path, winner_payload)
+        original = lock_path.read_text(encoding="utf-8")
+
+        def _always_exists(*args, **kwargs):
+            raise FileExistsError
+
+        # Concurrent winner already holds the lock and is alive; the bounded
+        # retry exhausts and the acquirer refuses, never clobbering the payload.
+        monkeypatch.setattr(os, "open", _always_exists)
+        monkeypatch.setattr(os, "kill", lambda pid, sig: None)  # alive
+        with pytest.raises(click.ClickException):
+            acquire_run_lock(tmp_path)
+        assert lock_path.read_text(encoding="utf-8") == original
+
+    def test_run_lock_released_on_atexit(self, tmp_path: Path, monkeypatch):
+        # Case 6: lock released via the atexit-registered callback.
+        import atexit
+
+        captured = []
+        monkeypatch.setattr(atexit, "register", lambda fn, *a, **k: captured.append(fn))
+        path = acquire_run_lock(tmp_path)
+        assert path.exists()
+        assert captured, "no atexit callback was registered"
+        for fn in captured:
+            fn()
+        assert not path.exists()
+
+    def test_run_lock_released_on_sigterm(self, tmp_path: Path, monkeypatch):
+        # Case 7: lock released by the SIGTERM handler.
+        import signal as _signal
+
+        handlers = {}
+
+        def _capture(sig, handler):
+            handlers[sig] = handler
+            return None
+
+        monkeypatch.setattr(_signal, "signal", _capture)
+        # Make the "previous" handler SIG_DFL (non-callable) so the handler's
+        # chain step is skipped and does not abort the test.
+        monkeypatch.setattr(_signal, "getsignal", lambda sig: _signal.SIG_DFL)
+        path = acquire_run_lock(tmp_path)
+        assert path.exists()
+        assert _signal.SIGTERM in handlers
+        handlers[_signal.SIGTERM](_signal.SIGTERM, None)
+        assert not path.exists()
+
+    def test_run_lock_released_on_sigint(self, tmp_path: Path, monkeypatch):
+        # Case 8: lock released by the SIGINT handler (closes R1.2 weakness).
+        import signal as _signal
+
+        handlers = {}
+
+        def _capture(sig, handler):
+            handlers[sig] = handler
+            return None
+
+        monkeypatch.setattr(_signal, "signal", _capture)
+        # Make the "previous" handler SIG_DFL (non-callable) so chaining to it
+        # does not raise KeyboardInterrupt (the real default SIGINT handler).
+        monkeypatch.setattr(_signal, "getsignal", lambda sig: _signal.SIG_DFL)
+        path = acquire_run_lock(tmp_path)
+        assert path.exists()
+        assert _signal.SIGINT in handlers
+        handlers[_signal.SIGINT](_signal.SIGINT, None)
+        assert not path.exists()
+
+    def test_run_lock_force_bypasses_live_holder(self, tmp_path: Path, monkeypatch):
+        # Case 9: force=True reclaims even a live holder.
+        ts = "2026-06-17T00:00:00+00:00"
+        _write_run_lock(
+            tmp_path,
+            {"pid": os.getpid(), "starttime": None, "timestamp": ts},
+        )
+        monkeypatch.setattr(os, "kill", lambda pid, sig: None)  # alive
+        # Confirm force=False would refuse.
+        with pytest.raises(click.ClickException):
+            acquire_run_lock(tmp_path)
+        path = acquire_run_lock(tmp_path, force=True)
+        try:
+            assert path.exists()
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            assert payload["pid"] == os.getpid()
+        finally:
+            release_run_lock(path)
+
+    def test_run_lock_corrupt_json_reclaimed(self, tmp_path: Path):
+        # Case 10: corrupt/torn JSON is tolerated -> treated dead -> reclaimed.
+        locks_dir = tmp_path / ".recovery-locks"
+        locks_dir.mkdir(parents=True, exist_ok=True)
+        (locks_dir / "run.lock").write_text("{not valid json", encoding="utf-8")
+        path = acquire_run_lock(tmp_path)
+        try:
+            assert path.exists()
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            assert payload["pid"] == os.getpid()
+        finally:
+            release_run_lock(path)
+
+    def test_run_lock_double_release_idempotent(self, tmp_path: Path):
+        # Case 11: double release_run_lock is a no-op.
+        path = acquire_run_lock(tmp_path)
+        release_run_lock(path)
+        assert not path.exists()
+        # Second release must not raise and must not change state.
+        release_run_lock(path)
+        assert not path.exists()
+
+    def test_run_and_recovery_locks_coexist_distinct_paths(self, tmp_path: Path):
+        # Case 12: run lock + recovery lock coexist (distinct paths, no error).
+        phase_lock = acquire_recovery_lock(tmp_path, phase=7)
+        run_lock = acquire_run_lock(tmp_path)
+        try:
+            assert phase_lock == tmp_path / ".recovery-locks" / "phase-7.lock"
+            assert run_lock == tmp_path / ".recovery-locks" / "run.lock"
+            assert phase_lock.exists()
+            assert run_lock.exists()
+            assert phase_lock != run_lock
+        finally:
+            release_recovery_lock(phase_lock)
+            release_run_lock(run_lock)
+
+    def test_run_lock_pid_reuse_starttime_mismatch_reclaimed(
+        self, tmp_path: Path, monkeypatch
+    ):
+        # Case 13: live PID but starttime mismatch -> treated dead -> reclaimed.
+        from superclaude.cli.sprint import recovery as _recovery
+
+        _write_run_lock(
+            tmp_path,
+            {"pid": 424242, "starttime": "1000", "timestamp": "t"},
+        )
+        # os.kill succeeds (PID appears alive) ...
+        monkeypatch.setattr(os, "kill", lambda pid, sig: None)
+        # ... but the current starttime differs from the recorded "1000".
+        monkeypatch.setattr(
+            _recovery, "_read_proc_starttime", lambda pid: "9999"
+        )
+        path = acquire_run_lock(tmp_path)
+        try:
+            assert path.exists()
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            assert payload["pid"] == os.getpid()
+        finally:
+            release_run_lock(path)

@@ -19,6 +19,7 @@ import json
 import logging
 import os
 import signal
+import socket
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
@@ -39,6 +40,8 @@ __all__ = [
     "write_recovery_audit_log",
     "acquire_recovery_lock",
     "release_recovery_lock",
+    "acquire_run_lock",
+    "release_run_lock",
     "retry_count_for_task",
     "merge_recovery_bundle",
     # Re-exports for downstream consumers (rerun_tasks.py, sprint repair v4.4.0):
@@ -272,6 +275,180 @@ def write_recovery_audit_log(audit_log_path: Path, event: dict) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _read_proc_starttime(pid: int) -> Optional[str]:
+    """Return field 22 (``starttime``) from ``/proc/<pid>/stat`` as a string.
+
+    The starttime (process start time in clock ticks since boot) uniquely
+    identifies a process across PID reuse. Returns ``None`` when ``/proc`` is
+    absent (non-Linux / minimal container), the file cannot be read, or the
+    field cannot be parsed — callers then degrade to PID-only liveness.
+
+    The second field (``comm``) is wrapped in parentheses and may itself
+    contain spaces and parentheses, so we split on the substring AFTER the
+    LAST ``)`` and index field 22 (1-based) = index 19 of the post-comm tokens
+    (fields 3..N map to post-comm indices 0..N-3; field 22 → index 19).
+    """
+    try:
+        with open(f"/proc/{pid}/stat", encoding="utf-8") as f:
+            data = f.read()
+        after_comm = data[data.rindex(")") + 1 :]
+        fields = after_comm.split()
+        return fields[19]
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def _pid_is_alive(pid: int, recorded_starttime: Optional[str]) -> bool:
+    """Return whether ``pid`` is a live process, mitigating PID-reuse.
+
+    ``pid <= 0`` is never alive. Otherwise ``os.kill(pid, 0)`` probes the
+    process: ``ProcessLookupError`` ⇒ dead, ``PermissionError`` ⇒ alive (PID
+    exists, owned by another user). When the probe says alive AND
+    ``recorded_starttime`` is not ``None``, the current
+    ``/proc/<pid>/stat`` starttime is compared against the recorded value;
+    a mismatch means the PID was recycled into a different process, so the
+    original holder is treated as dead (its stale lock is reclaimable).
+    """
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        # PID exists, owned by another user — treat as alive.
+        return True
+    if recorded_starttime is not None:
+        current = _read_proc_starttime(pid)
+        if current is not None and current != recorded_starttime:
+            # Recycled PID — the recorded holder is gone.
+            return False
+    return True
+
+
+def _register_lock_release(lock_path: Path) -> None:
+    """Register atexit + SIGINT/SIGTERM release for ``lock_path``.
+
+    The ``atexit`` handler covers normal-return and unhandled-exception
+    paths. Signal handlers for BOTH SIGINT and SIGTERM release the lock and
+    then CHAIN to the previous handler (release-and-return semantics) so the
+    sprint's own ``SignalHandler`` is not clobbered and the test process is
+    not killed. Registration is guarded so it degrades silently in non-main
+    threads / restricted test contexts where signal handling is unavailable.
+    """
+    import atexit
+
+    atexit.register(lambda: release_recovery_lock(lock_path))
+
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        try:
+            prev = signal.getsignal(sig)
+
+            def _handler(signum, frame, _prev=prev, _lp=lock_path):
+                release_recovery_lock(_lp)
+                if callable(_prev):
+                    _prev(signum, frame)
+
+            signal.signal(sig, _handler)
+        except (ValueError, OSError):
+            # signal.signal()/getsignal() may fail in non-main threads or in
+            # test contexts where signal handling is restricted. atexit still
+            # covers normal exit.
+            pass
+
+
+def _acquire_pid_lock(
+    lock_path: Path,
+    *,
+    force: bool = False,
+    payload_extra: Optional[dict] = None,
+    held_message=None,
+) -> Path:
+    """Atomically acquire an exclusive PID lock at ``lock_path``.
+
+    Shared hardened core for both the phase recovery lock and the
+    release-scoped run lock. Behavior:
+
+    - **Atomic acquisition (R1.1):** ``os.open(O_CREAT|O_EXCL|O_WRONLY)``
+      eliminates the exists-then-write TOCTOU window. On ``FileExistsError``
+      the prior holder is read (corrupt/partial JSON ⇒ treated as dead),
+      liveness is tested via ``_pid_is_alive`` (PID-reuse aware, R3), a LIVE
+      holder raises ``click.ClickException`` unless ``force=True``, and an
+      otherwise dead/forced lock is unlinked (tolerating a concurrent
+      reclaimer's ``FileNotFoundError``) and the exclusive create is RETRIED,
+      bounded to 3 attempts to prevent reclaimer livelock.
+    - **Payload:** ``{"pid", "starttime", "timestamp"}`` merged with
+      ``payload_extra``. ``starttime`` mitigates PID reuse (R3).
+    - **Release registration (R1.2):** atexit + SIGINT/SIGTERM (see
+      ``_register_lock_release``).
+
+    ``held_message`` is an optional ``callable(prior_pid, prior_ts) -> str``
+    producing the live-holder ``ClickException`` message; when ``None`` the
+    byte-exact phase-lock message is used.
+    """
+    # Local import: click is a CLI dependency; lazy-import keeps recovery.py
+    # importable by tests that don't need the CLI shim.
+    import click
+
+    payload = {
+        "pid": os.getpid(),
+        "starttime": _read_proc_starttime(os.getpid()),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    if payload_extra:
+        payload.update(payload_extra)
+    encoded = json.dumps(payload).encode("utf-8")
+
+    max_attempts = 3
+    for _attempt in range(max_attempts):
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        except FileExistsError:
+            # A lock already exists — inspect the prior holder.
+            try:
+                prior = json.loads(lock_path.read_text(encoding="utf-8"))
+                prior_pid = int(prior.get("pid", 0))
+                prior_ts = prior.get("timestamp", "")
+                prior_starttime = prior.get("starttime")
+            except (OSError, ValueError, json.JSONDecodeError):
+                # Corrupt/partial/torn lockfile — treat holder as dead.
+                prior_pid = 0
+                prior_ts = ""
+                prior_starttime = None
+
+            if not force and _pid_is_alive(prior_pid, prior_starttime):
+                if held_message is not None:
+                    msg = held_message(prior_pid, prior_ts)
+                else:
+                    msg = (
+                        f"Recovery lock held by PID {prior_pid} since {prior_ts}. "
+                        f"Remove `{lock_path}` if the prior process crashed."
+                    )
+                raise click.ClickException(msg)
+
+            # Stale (or force-reclaimed) lock — unlink and retry the
+            # exclusive create. Tolerate a concurrent reclaimer winning the
+            # unlink race (FileNotFoundError).
+            try:
+                lock_path.unlink()
+            except FileNotFoundError:
+                pass
+            except OSError:
+                pass
+            continue
+        else:
+            os.write(fd, encoded)
+            os.close(fd)
+            _register_lock_release(lock_path)
+            return lock_path
+
+    # Exhausted bounded retries — a live holder almost certainly exists.
+    raise click.ClickException(
+        f"Could not acquire lock `{lock_path}` after {max_attempts} attempts; "
+        f"a live run may exist."
+    )
+
+
 def acquire_recovery_lock(results_dir: Path, phase: int) -> Path:
     """Create an exclusive recovery lock for ``phase`` under ``results_dir``.
 
@@ -282,73 +459,59 @@ def acquire_recovery_lock(results_dir: Path, phase: int) -> Path:
     stale lock is reclaimed. atexit + SIGTERM handlers auto-release the
     lock on normal exit and signal-driven termination (TDD T8.5).
     """
-    # Local import: click is a CLI dependency; lazy-import keeps recovery.py
-    # importable by tests that don't need the CLI shim.
-    import atexit
-
-    import click
-
     locks_dir = results_dir / ".recovery-locks"
     locks_dir.mkdir(parents=True, exist_ok=True)
     lock_path = locks_dir / f"phase-{phase}.lock"
-
-    if lock_path.exists():
-        try:
-            prior = json.loads(lock_path.read_text(encoding="utf-8"))
-            prior_pid = int(prior.get("pid", 0))
-            prior_ts = prior.get("timestamp", "")
-        except (OSError, ValueError, json.JSONDecodeError):
-            prior_pid = 0
-            prior_ts = ""
-
-        alive = False
-        if prior_pid > 0:
-            try:
-                os.kill(prior_pid, 0)
-                alive = True
-            except ProcessLookupError:
-                alive = False
-            except PermissionError:
-                # PID exists, owned by another user — treat as alive.
-                alive = True
-
-        if alive:
-            raise click.ClickException(
-                f"Recovery lock held by PID {prior_pid} since {prior_ts}. "
-                f"Remove `{lock_path}` if the prior process crashed."
-            )
-
-        # Stale lock — reclaim.
-        try:
-            lock_path.unlink()
-        except OSError:
-            pass
-
-    payload = {
-        "pid": os.getpid(),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-    lock_path.write_text(json.dumps(payload), encoding="utf-8")
-
-    atexit.register(lambda: release_recovery_lock(lock_path))
-
-    def _sigterm_handler(signum, frame):
-        release_recovery_lock(lock_path)
-
-    try:
-        signal.signal(signal.SIGTERM, _sigterm_handler)
-    except (ValueError, OSError):
-        # signal.signal() may fail in non-main threads or in test contexts
-        # where signal handling is restricted. atexit still covers normal exit.
-        pass
-
-    return lock_path
+    return _acquire_pid_lock(lock_path)
 
 
 def release_recovery_lock(lock_path: Path) -> None:
     """Idempotently unlink ``lock_path``; safe to call from atexit or signals."""
     try:
         lock_path.unlink()
+    except OSError:
+        pass
+
+
+def acquire_run_lock(results_dir: Path, *, force: bool = False) -> Path:
+    """Acquire the release-scoped run lock under ``results_dir``.
+
+    Lock file: ``<results_dir>/.recovery-locks/run.lock`` (same directory as
+    the phase locks, distinct filename so the two lock families never
+    collide). JSON payload ``{"pid", "starttime", "timestamp", "hostname"}``.
+
+    A LIVE holder with ``force=False`` raises ``click.ClickException`` naming
+    the holder PID + timestamp + the ``--ignore-run-lock`` remediation hint
+    (R2.2). A dead-PID stale lock — the SIGKILL/SIGSEGV safety net, since
+    atexit/signal handlers do not run on those — is reclaimed (R2.3).
+    ``force=True`` reclaims even a live holder.
+    """
+    locks_dir = results_dir / ".recovery-locks"
+    locks_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = locks_dir / "run.lock"
+
+    def _held_message(prior_pid, prior_ts):
+        return (
+            f"Sprint run-lock held by PID {prior_pid} since {prior_ts}. "
+            f"Re-run with --ignore-run-lock if that process crashed."
+        )
+
+    return _acquire_pid_lock(
+        lock_path,
+        force=force,
+        payload_extra={"hostname": socket.gethostname()},
+        held_message=_held_message,
+    )
+
+
+def release_run_lock(path: Path) -> None:
+    """Idempotently unlink the run lock at ``path``.
+
+    Best-effort: safe to call from atexit, signal handlers, or directly, and
+    safe to call twice (double-release is a no-op).
+    """
+    try:
+        path.unlink()
     except OSError:
         pass
 

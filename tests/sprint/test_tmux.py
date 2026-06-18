@@ -268,3 +268,23 @@ class TestBuildForegroundCommand:
         cmd = tmux._build_foreground_command(config)
         idx = cmd.index("--state-dir")
         assert cmd[idx + 1] == str(custom)
+
+    def test_ignore_run_lock_survives_tmux_relaunch(self, tmp_path):
+        """R5 regression guard (reflect D1): the run-lock escape hatch must be
+        re-emitted into the inner --no-tmux argv, or it silently reverts to
+        False in the tmux-inner worker and the hatch only works under --no-tmux.
+        """
+        config = _make_config(tmp_path)
+        config.ignore_run_lock = True
+        cmd = tmux._build_foreground_command(config)
+        assert "--ignore-run-lock" in cmd, (
+            "--ignore-run-lock must survive the tmux relaunch (re-emitted in "
+            "_build_foreground_command); threading onto SprintConfig alone is "
+            "insufficient because the relaunch is a fresh subprocess built from argv"
+        )
+
+    def test_ignore_run_lock_absent_by_default(self, tmp_path):
+        """The flag must NOT appear when not requested (default False)."""
+        config = _make_config(tmp_path)
+        cmd = tmux._build_foreground_command(config)
+        assert "--ignore-run-lock" not in cmd

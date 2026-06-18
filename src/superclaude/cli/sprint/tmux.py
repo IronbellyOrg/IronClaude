@@ -207,6 +207,13 @@ def _build_foreground_command(config: SprintConfig) -> list[str]:
         cmd.extend(["--stall-timeout", str(config.stall_timeout)])
     if config.stall_action != "warn":
         cmd.extend(["--stall-action", config.stall_action])
+    # R5: the run-lock escape hatch must survive the tmux relaunch. The relaunch
+    # is a NEW subprocess that only sees this rebuilt argv (threading the flag onto
+    # SprintConfig alone is insufficient — the inner worker reconstructs config from
+    # argv), so --ignore-run-lock must be re-emitted here or it silently reverts to
+    # False in the inner worker and the escape hatch only works under --no-tmux.
+    if config.ignore_run_lock:
+        cmd.append("--ignore-run-lock")
     return cmd
 
 

@@ -609,6 +609,10 @@ class SprintConfig(PipelineConfig):
     # SessionResetPolicy(max_session_resets=config.max_session_resets) (P3); this
     # closes the 4-hop CLI chain so the operator flag overrides the hardcoded 8.
     max_session_resets: int = 8
+    # Run-lock escape hatch (R5): carries the --ignore-run-lock flag through the
+    # tmux relaunch config reconstruction so the inner worker reclaims even a
+    # live run-lock holder (loud warning; does NOT kill the other process).
+    ignore_run_lock: bool = False
 
     def _derive_tasklist_id(self) -> str:
         """Derive a stable tasklist identifier for the default state_dir path.

@@ -239,6 +239,15 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
     help="Max account-rotation re-spawns per phase (shared across the phase's "
     "tasks) before halting for a model switch (provider exhaustion recovery).",
 )
+@click.option(
+    "--ignore-run-lock",
+    "ignore_run_lock",
+    is_flag=True,
+    default=False,
+    help="Reclaim the release run-lock even if a live holder exists (loud "
+    "warning; does NOT kill the other process). Unsafe — use only if a prior "
+    "run crashed and left a stale lock.",
+)
 @click.pass_context
 def run(
     ctx: click.Context,
@@ -265,6 +274,7 @@ def run(
     fresh: bool,
     assume_yes: bool,
     max_session_resets: int,
+    ignore_run_lock: bool,
 ):
     """Execute a sprint from a tasklist index.
 
@@ -377,6 +387,7 @@ def run(
         resume_task_id=resume_task_id,
         task_parallelism=task_parallelism,
         max_session_resets=max_session_resets,
+        ignore_run_lock=ignore_run_lock,
     )
 
     # Thread tmux session name into config when relaunched by launch_in_tmux
