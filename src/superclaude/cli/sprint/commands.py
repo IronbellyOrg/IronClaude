@@ -280,9 +280,11 @@ def run(
     import faulthandler
 
     # Don't clobber a faulthandler config an outer harness may have set (e.g. a
-    # custom output file via PYTHONFAULTHANDLER); only enable if not already on
-    # (PR #181 review, low). The default handler writes to stderr, which is what
-    # the crash-capture diagnostic wants.
+    # custom output file via faulthandler.enable(file=...), or external stderr
+    # redirection — note PYTHONFAULTHANDLER only *enables* the handler, it does
+    # not set an output file); only enable if not already on (PR #182 review,
+    # low). The default handler writes to stderr, which is what the crash-capture
+    # diagnostic wants.
     if not faulthandler.is_enabled():
         faulthandler.enable(all_threads=True)
 
