@@ -76,6 +76,7 @@ superclaude sprint run <index_path> [options]
 - `--permission-flag` permission mode passed to Claude CLI
 - `--force-fidelity-fail 'reason'` Bypass spec fidelity check
   - supported values: `--dangerously-skip-permissions` (default) and `--allow-hierarchical-permissions`
+- `--ignore-run-lock` reclaim the release-level run-lock even if a live holder exists (loud warning; does NOT kill the other process). Unsafe — use only when a prior `sprint run` crashed and left a stale lock; concurrent runs on the same release dir can corrupt state
   
 ### Examples
 

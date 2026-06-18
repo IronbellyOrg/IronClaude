@@ -1,0 +1,134 @@
+ledger_version: "1.0"
+mode: post
+audited_diff: "git diff 0f9c8d366daa (working tree vs HEAD; HEAD==0f9c8d366daa)"
+spec: ".dev/brainstorms/20260617-sprint-runlock/merged-requirements.md"
+
+deviations:
+  - id: D1
+    title: "--ignore-run-lock silently dropped on the DEFAULT (tmux) execution path"
+    requirement: R5
+    deviation_class: regression
+    severity: HIGH
+    file_line:
+      - "src/superclaude/cli/sprint/tmux.py:176-210 (_build_foreground_command re-emits a flag subset; --ignore-run-lock absent)"
+      - "src/superclaude/cli/sprint/commands.py:410 (tmux is the default path: `if not no_tmux and is_tmux_available(): launch_in_tmux(config)`)"
+      - "src/superclaude/cli/sprint/executor.py:1688-1689 (force=True gated on config.ignore_run_lock, which the inner tmux worker never receives)"
+      - "src/superclaude/cli/sprint/models.py:591-594 (field comment claims it 'survives the tmux relaunch config reconstruction' — contradicted)"
+    evidence: >
+      `sprint run` defaults to tmux. launch_in_tmux -> _build_foreground_command rebuilds the inner
+      `--no-tmux` CLI as a fresh subprocess, re-emitting --debug/--stall-timeout/--stall-action/--model/
+      --state-dir but NOT --ignore-run-lock. Per R4.3 the run lock is acquired in that inner worker, whose
+      config.ignore_run_lock defaults back to False. A user passing --ignore-run-lock under the default path
+      is still refused by a live holder. Spec R5 explicitly requires survival across the tmux relaunch.
+      Convergent finding from 3/3 independent reviewers (confidence 0.90-0.97).
+    classification_rationale: >
+      §10.4: contradicts an explicit spec constraint (R5 'survives the tmux relaunch config reconstruction')
+      AND the code's own docstring asserts behavior it does not deliver. Precedence §10.5 Regression > Drift.
+    remediation: >
+      Add `if config.ignore_run_lock: cmd.append("--ignore-run-lock")` to _build_foreground_command
+      (tmux.py ~210), mirroring the sibling flag-re-emission blocks; add a tmux-relaunch survival test.
+
+  - id: D2
+    title: "R1.2 signal handler CHAINS to previous handler instead of restore-default-and-re-raise; exit code wrong when no prior handler"
+    requirement: R1.2
+    deviation_class: necessary
+    severity: MED
+    file_line:
+      - "src/superclaude/cli/sprint/recovery.py:236-241 (_handler: release then `if callable(_prev): _prev(signum, frame)`)"
+      - "spec merged-requirements.md:34 ('restores default disposition and re-raises so exit codes stay correct')"
+    evidence: >
+      The chain design is the defensible way to satisfy R4.1 ('lock signal handlers must chain to, not
+      clobber, the sprint SignalHandler'). In-sprint, _prev IS the sprint handler (callable) so chaining works.
+      But when _prev is non-callable (SIG_DFL/SIG_IGN — the phase-lock / bare-invocation case), the handler
+      releases the lock then RETURNS NORMALLY: the signal is swallowed, the process does not terminate, and
+      the exit code is not 130 (SIGINT) / 143 (SIGTERM). The R1.2 exit-code-correctness clause is unmet in
+      that case. R7 cases 7/8 stub getsignal->SIG_DFL, so they neither exercise chaining nor assert exit code.
+    classification_rationale: >
+      §10.2 Necessary deviation — forced by the R4.1 chain requirement and documented inline; but it diverges
+      from R1.2's exit-code clause. Surfaced for adjudication (re-raise when _prev non-callable, or document).
+    remediation: >
+      When _prev is not callable, restore default disposition and re-raise the signal so exit code is correct;
+      OR document the deliberate divergence from R1.2 line 34.
+
+  - id: D3
+    title: "fd leak + un-released lockfile if os.write raises in _acquire_pid_lock success branch"
+    requirement: R1.1
+    deviation_class: drift
+    severity: MED
+    file_line:
+      - "src/superclaude/cli/sprint/recovery.py:329-330 (os.write(fd, encoded); os.close(fd) — no try/finally)"
+    evidence: >
+      In the success branch fd = os.open(...) is followed by os.write then os.close with no try/finally.
+      If os.write raises (ENOSPC/EIO), os.close(fd) is skipped (fd leak) and the freshly-created lockfile is
+      left on disk un-released (no _register_lock_release reached). Low probability (small JSON write to a
+      just-created file) hence MED. Latent defect not in spec, no inline rationale.
+    classification_rationale: "§10.3 Drift — silent latent defect, unmapped to any spec line, no rationale."
+    remediation: "Wrap as `try: os.write(fd, encoded) finally: os.close(fd)`."
+
+  - id: D4
+    title: "R8 unmet: no run-lock acquire/release assertions added to resume or tmux launch tests"
+    requirement: R8
+    deviation_class: drift
+    severity: MED
+    file_line:
+      - "tests/sprint/test_resume.py (no run_lock / acquire_run_lock references)"
+      - "tests/sprint/test_tmux.py (no run_lock / acquire_run_lock references)"
+      - "src/superclaude/cli/sprint/executor.py:1685-1713,2284-2290 (entry-acquire + finally-release wiring shipped but unasserted at integration level)"
+    evidence: >
+      R8 explicitly requires 'Add new assertions in resume/tmux launch tests that the run lock is acquired at
+      execute_sprint entry and released on exit.' Neither file received such assertions. The integration
+      wiring is covered only at the unit level (lock primitive), not at execute_sprint entry/exit.
+    classification_rationale: "§10.3 Drift — an explicit spec requirement (R8) not delivered; coverage gap, non-functional-blocking."
+    remediation: "Add integration assertions in test_resume.py / test_tmux.py for acquire-at-entry and release-on-exit."
+
+  - id: D5
+    title: "Authoritative-release window gap: acquire is outside the try/finally; failures in 1715-1725 rely on atexit backstop"
+    requirement: R4.1
+    deviation_class: drift
+    severity: LOW
+    file_line:
+      - "src/superclaude/cli/sprint/executor.py:1685-1713 (acquire, OUTSIDE the try at 1727)"
+      - "src/superclaude/cli/sprint/executor.py:1715-1725 (tui.start / orphan rmtree / execute_preflight_phases run before the try)"
+    evidence: >
+      An exception between successful acquisition and entering the try at 1727 (tui.start 1715, rmtree 1718,
+      execute_preflight_phases 1725) skips the finally's release_run_lock; only the atexit/signal backstop
+      (recovery.py:230) releases the lock. R4.1 mandates acquire-before-preflight, so the window is inherent;
+      the executor comment 'the finally block below is the authoritative release' is slightly inaccurate for
+      this window. Not a leak on live process exit (atexit covers it).
+    classification_rationale: "§10.3 Drift — minor accuracy gap vs the inline 'authoritative release' claim; atexit mitigates."
+    remediation: "Optional: tighten comment, or move the acquire just inside the try while preserving R4.1 ordering."
+
+  - id: D6
+    title: "_acquire_pid_lock signature expanded beyond spec (payload_extra, held_message) to share the core"
+    requirement: R1
+    deviation_class: necessary
+    severity: LOW
+    file_line:
+      - "src/superclaude/cli/sprint/recovery.py:249-255 (signature adds payload_extra, held_message vs spec '(lock_path, *, force)')"
+    evidence: >
+      Spec R1 specified `_acquire_pid_lock(lock_path, *, force=False) -> Path`. Implementation adds
+      payload_extra and held_message so the single core serves both the phase lock (byte-exact message,
+      {pid,timestamp,starttime}) and the run lock (hostname payload, run-lock message). Documented inline.
+    classification_rationale: "§10.2 Necessary — required to make the core genuinely shared per R1's 'both benefit' mandate."
+    remediation: "None; document only."
+
+  - id: D7
+    title: "Phase-lock payload grew a starttime key (was {pid,timestamp})"
+    requirement: R8
+    deviation_class: authorized
+    severity: LOW
+    file_line:
+      - "src/superclaude/cli/sprint/recovery.py:282-286 (_acquire_pid_lock always writes starttime)"
+    evidence: >
+      acquire_recovery_lock now writes {pid,starttime,timestamp}. No in-repo consumer reads the phase-lock
+      file body strictly (e2e + failure-mode tests write their own {pid,timestamp} and assert only the
+      message; round-trip test asserts existence). Reader tolerates absence. Byte-exact ABORT MESSAGE
+      preserved (verified: e2e test_concurrent_lock_aborts_with_pid passes). Low residual risk.
+    classification_rationale: "§10.1 Authorized expansion — schema growth implicitly authorized by R1's shared-core mandate; R8 byte-exact surface (the message) preserved."
+    remediation: "None."
+
+test_quality_notes:
+  - "R7: all 13 cases present and named (test_recovery.py:529-738). Verified by 29 passing tests."
+  - "Weak assertion — case 5 (O_EXCL loser, :591) patches os.open to ALWAYS raise FileExistsError, exercising the bounded-retry-exhaustion branch, not a single-iteration race; coarse ClickException assertion conflates two refusal paths."
+  - "Weak coverage — cases 7/8 (SIGTERM/SIGINT, :621/:641) stub getsignal->SIG_DFL so the chain-to-previous-handler branch (D2) is never fired; a broken chain would still pass."
+  - "Gap — case 2 (:543) uses starttime:None, so the starttime-MATCH-alive liveness branch is untested in combination with the PID-naming surface."

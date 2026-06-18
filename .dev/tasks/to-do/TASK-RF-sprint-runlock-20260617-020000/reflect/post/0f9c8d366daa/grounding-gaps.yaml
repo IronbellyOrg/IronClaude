@@ -1,0 +1,2 @@
+# All findings carry direct file:line evidence that survived re-Read. No evidence-insufficient findings.
+findings: []

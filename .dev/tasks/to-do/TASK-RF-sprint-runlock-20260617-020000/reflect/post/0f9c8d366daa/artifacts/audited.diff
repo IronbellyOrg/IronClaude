@@ -1,0 +1,738 @@
+diff --git a/src/superclaude/cli/sprint/commands.py b/src/superclaude/cli/sprint/commands.py
+index ee91b44c..55833375 100644
+--- a/src/superclaude/cli/sprint/commands.py
++++ b/src/superclaude/cli/sprint/commands.py
+@@ -230,6 +230,15 @@ def _check_fidelity(index_path: Path) -> tuple[bool, str]:
+     help="Non-interactive assent for the auto-resume confirmation prompt "
+     "(also honored via SUPERCLAUDE_SPRINT_ASSUME_YES=1 or CI=1).",
+ )
++@click.option(
++    "--ignore-run-lock",
++    "ignore_run_lock",
++    is_flag=True,
++    default=False,
++    help="Reclaim the release run-lock even if a live holder exists (loud "
++    "warning; does NOT kill the other process). Unsafe — use only if a prior "
++    "run crashed and left a stale lock.",
++)
+ @click.pass_context
+ def run(
+     ctx: click.Context,
+@@ -255,6 +264,7 @@ def run(
+     task_parallelism: int,
+     fresh: bool,
+     assume_yes: bool,
++    ignore_run_lock: bool,
+ ):
+     """Execute a sprint from a tasklist index.
+ 
+@@ -351,6 +361,7 @@ def run(
+         handoff_enabled=handoff_enabled,
+         resume_task_id=resume_task_id,
+         task_parallelism=task_parallelism,
++        ignore_run_lock=ignore_run_lock,
+     )
+ 
+     # Thread tmux session name into config when relaunched by launch_in_tmux
+diff --git a/src/superclaude/cli/sprint/config.py b/src/superclaude/cli/sprint/config.py
+index b24e883c..9a97cb80 100644
+--- a/src/superclaude/cli/sprint/config.py
++++ b/src/superclaude/cli/sprint/config.py
+@@ -295,6 +295,7 @@ def load_sprint_config(
+     handoff_enabled: bool = True,
+     resume_task_id: str = "",
+     task_parallelism: int = 1,
++    ignore_run_lock: bool = False,
+ ) -> SprintConfig:
+     """Load and validate a complete sprint configuration.
+ 
+@@ -366,6 +367,7 @@ def load_sprint_config(
+         handoff_enabled=handoff_enabled,
+         resume_task_id=resume_task_id,
+         task_parallelism=task_parallelism,
++        ignore_run_lock=ignore_run_lock,
+     )
+ 
+     # Validate that the requested range yields at least one active phase
+diff --git a/src/superclaude/cli/sprint/executor.py b/src/superclaude/cli/sprint/executor.py
+index 165f8d0b..11cd3767 100644
+--- a/src/superclaude/cli/sprint/executor.py
++++ b/src/superclaude/cli/sprint/executor.py
+@@ -1671,6 +1671,47 @@ def execute_sprint(config: SprintConfig):
+ 
+     logger.write_header(sprint_result)
+ 
++    # Release-scoped run lock (R4): acquire AFTER SignalHandler.install() and
++    # the claude preflight, BEFORE any shared-state mutation (the .isolation
++    # orphan cleanup and execute_preflight_phases). Prevents two concurrent
++    # `sprint run` processes from colliding on the same release directory (the
++    # empirically confirmed phase-boundary SIGSEGV root cause). The lock's own
++    # atexit/SIGINT/SIGTERM handlers chain to (do not clobber) the sprint
++    # SignalHandler; the finally block below is the authoritative release.
++    import sys as _sys
++
++    import click as _click
++
++    from .recovery import acquire_run_lock
++
++    _run_lock_path = None
++    if getattr(config, "ignore_run_lock", False):
++        _run_lock_path = acquire_run_lock(config.results_dir, force=True)
++        _warn = (
++            "WARNING: --ignore-run-lock set; reclaimed the release run-lock "
++            "even if a live holder existed. Concurrent runs on the same "
++            "release dir can corrupt state."
++        )
++        try:
++            _dbg.warning(_warn)
++        except Exception:
++            pass
++        print(_warn, file=_sys.stderr)
++    else:
++        try:
++            _run_lock_path = acquire_run_lock(config.results_dir)
++        except _click.ClickException as _lock_exc:
++            # Live-holder refusal: convert to a non-zero exit sentinel so the
++            # outer tmux command (and the --no-tmux foreground path) reports
++            # the failure rather than silently exiting (R4.3).
++            try:
++                signal_handler.uninstall()
++            except Exception:
++                pass
++            print(_lock_exc.format_message(), file=_sys.stderr)
++            _write_exit_sentinel(config, 1)
++            raise SystemExit(1)
++
+     tui.start()
+ 
+     # Startup orphan cleanup: remove stale isolation dirs from crashed previous runs
+@@ -2236,6 +2277,17 @@ def execute_sprint(config: SprintConfig):
+             tui.stop()
+         except Exception:
+             pass
++        # Release the release-scoped run lock (R4.2). Best-effort and isolated
++        # so a release failure cannot mask the real sprint outcome; a no-op when
++        # no lock was acquired (acquisition raised). The lock's atexit/signal
++        # handlers remain the backstop for SIGKILL/SIGSEGV-adjacent cases.
++        try:
++            if _run_lock_path is not None:
++                from .recovery import release_run_lock
++
++                release_run_lock(_run_lock_path)
++        except Exception:
++            pass
+         try:
+             signal_handler.uninstall()
+         except Exception:
+diff --git a/src/superclaude/cli/sprint/models.py b/src/superclaude/cli/sprint/models.py
+index 83748d6f..390d8c3b 100644
+--- a/src/superclaude/cli/sprint/models.py
++++ b/src/superclaude/cli/sprint/models.py
+@@ -588,6 +588,10 @@ class SprintConfig(PipelineConfig):
+     # sequential (the safe default — preserves byte-identical legacy behavior);
+     # K>1 enables dependency-respecting bounded parallelism via the DAG scheduler.
+     task_parallelism: int = 1
++    # Run-lock escape hatch (R5): carries the --ignore-run-lock flag through the
++    # tmux relaunch config reconstruction so the inner worker reclaims even a
++    # live run-lock holder (loud warning; does NOT kill the other process).
++    ignore_run_lock: bool = False
+ 
+     def _derive_tasklist_id(self) -> str:
+         """Derive a stable tasklist identifier for the default state_dir path.
+diff --git a/src/superclaude/cli/sprint/recovery.py b/src/superclaude/cli/sprint/recovery.py
+index a9510ffa..b1a0605f 100644
+--- a/src/superclaude/cli/sprint/recovery.py
++++ b/src/superclaude/cli/sprint/recovery.py
+@@ -19,6 +19,7 @@ import json
+ import logging
+ import os
+ import signal
++import socket
+ from dataclasses import dataclass, field
+ from datetime import datetime, timezone
+ from enum import Enum
+@@ -39,6 +40,8 @@ __all__ = [
+     "write_recovery_audit_log",
+     "acquire_recovery_lock",
+     "release_recovery_lock",
++    "acquire_run_lock",
++    "release_run_lock",
+     "retry_count_for_task",
+     "merge_recovery_bundle",
+     # Re-exports for downstream consumers (rerun_tasks.py, sprint repair v4.4.0):
+@@ -272,6 +275,180 @@ def write_recovery_audit_log(audit_log_path: Path, event: dict) -> None:
+ # ---------------------------------------------------------------------------
+ 
+ 
++def _read_proc_starttime(pid: int) -> Optional[str]:
++    """Return field 22 (``starttime``) from ``/proc/<pid>/stat`` as a string.
++
++    The starttime (process start time in clock ticks since boot) uniquely
++    identifies a process across PID reuse. Returns ``None`` when ``/proc`` is
++    absent (non-Linux / minimal container), the file cannot be read, or the
++    field cannot be parsed — callers then degrade to PID-only liveness.
++
++    The second field (``comm``) is wrapped in parentheses and may itself
++    contain spaces and parentheses, so we split on the substring AFTER the
++    LAST ``)`` and index field 22 (1-based) = index 19 of the post-comm tokens
++    (fields 3..N map to post-comm indices 0..N-3; field 22 → index 19).
++    """
++    try:
++        with open(f"/proc/{pid}/stat", encoding="utf-8") as f:
++            data = f.read()
++        after_comm = data[data.rindex(")") + 1 :]
++        fields = after_comm.split()
++        return fields[19]
++    except (OSError, ValueError, IndexError):
++        return None
++
++
++def _pid_is_alive(pid: int, recorded_starttime: Optional[str]) -> bool:
++    """Return whether ``pid`` is a live process, mitigating PID-reuse.
++
++    ``pid <= 0`` is never alive. Otherwise ``os.kill(pid, 0)`` probes the
++    process: ``ProcessLookupError`` ⇒ dead, ``PermissionError`` ⇒ alive (PID
++    exists, owned by another user). When the probe says alive AND
++    ``recorded_starttime`` is not ``None``, the current
++    ``/proc/<pid>/stat`` starttime is compared against the recorded value;
++    a mismatch means the PID was recycled into a different process, so the
++    original holder is treated as dead (its stale lock is reclaimable).
++    """
++    if pid <= 0:
++        return False
++    try:
++        os.kill(pid, 0)
++    except ProcessLookupError:
++        return False
++    except PermissionError:
++        # PID exists, owned by another user — treat as alive.
++        return True
++    if recorded_starttime is not None:
++        current = _read_proc_starttime(pid)
++        if current is not None and current != recorded_starttime:
++            # Recycled PID — the recorded holder is gone.
++            return False
++    return True
++
++
++def _register_lock_release(lock_path: Path) -> None:
++    """Register atexit + SIGINT/SIGTERM release for ``lock_path``.
++
++    The ``atexit`` handler covers normal-return and unhandled-exception
++    paths. Signal handlers for BOTH SIGINT and SIGTERM release the lock and
++    then CHAIN to the previous handler (release-and-return semantics) so the
++    sprint's own ``SignalHandler`` is not clobbered and the test process is
++    not killed. Registration is guarded so it degrades silently in non-main
++    threads / restricted test contexts where signal handling is unavailable.
++    """
++    import atexit
++
++    atexit.register(lambda: release_recovery_lock(lock_path))
++
++    for sig in (signal.SIGINT, signal.SIGTERM):
++        try:
++            prev = signal.getsignal(sig)
++
++            def _handler(signum, frame, _prev=prev, _lp=lock_path):
++                release_recovery_lock(_lp)
++                if callable(_prev):
++                    _prev(signum, frame)
++
++            signal.signal(sig, _handler)
++        except (ValueError, OSError):
++            # signal.signal()/getsignal() may fail in non-main threads or in
++            # test contexts where signal handling is restricted. atexit still
++            # covers normal exit.
++            pass
++
++
++def _acquire_pid_lock(
++    lock_path: Path,
++    *,
++    force: bool = False,
++    payload_extra: Optional[dict] = None,
++    held_message=None,
++) -> Path:
++    """Atomically acquire an exclusive PID lock at ``lock_path``.
++
++    Shared hardened core for both the phase recovery lock and the
++    release-scoped run lock. Behavior:
++
++    - **Atomic acquisition (R1.1):** ``os.open(O_CREAT|O_EXCL|O_WRONLY)``
++      eliminates the exists-then-write TOCTOU window. On ``FileExistsError``
++      the prior holder is read (corrupt/partial JSON ⇒ treated as dead),
++      liveness is tested via ``_pid_is_alive`` (PID-reuse aware, R3), a LIVE
++      holder raises ``click.ClickException`` unless ``force=True``, and an
++      otherwise dead/forced lock is unlinked (tolerating a concurrent
++      reclaimer's ``FileNotFoundError``) and the exclusive create is RETRIED,
++      bounded to 3 attempts to prevent reclaimer livelock.
++    - **Payload:** ``{"pid", "starttime", "timestamp"}`` merged with
++      ``payload_extra``. ``starttime`` mitigates PID reuse (R3).
++    - **Release registration (R1.2):** atexit + SIGINT/SIGTERM (see
++      ``_register_lock_release``).
++
++    ``held_message`` is an optional ``callable(prior_pid, prior_ts) -> str``
++    producing the live-holder ``ClickException`` message; when ``None`` the
++    byte-exact phase-lock message is used.
++    """
++    # Local import: click is a CLI dependency; lazy-import keeps recovery.py
++    # importable by tests that don't need the CLI shim.
++    import click
++
++    payload = {
++        "pid": os.getpid(),
++        "starttime": _read_proc_starttime(os.getpid()),
++        "timestamp": datetime.now(timezone.utc).isoformat(),
++    }
++    if payload_extra:
++        payload.update(payload_extra)
++    encoded = json.dumps(payload).encode("utf-8")
++
++    max_attempts = 3
++    for _attempt in range(max_attempts):
++        try:
++            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
++        except FileExistsError:
++            # A lock already exists — inspect the prior holder.
++            try:
++                prior = json.loads(lock_path.read_text(encoding="utf-8"))
++                prior_pid = int(prior.get("pid", 0))
++                prior_ts = prior.get("timestamp", "")
++                prior_starttime = prior.get("starttime")
++            except (OSError, ValueError, json.JSONDecodeError):
++                # Corrupt/partial/torn lockfile — treat holder as dead.
++                prior_pid = 0
++                prior_ts = ""
++                prior_starttime = None
++
++            if not force and _pid_is_alive(prior_pid, prior_starttime):
++                if held_message is not None:
++                    msg = held_message(prior_pid, prior_ts)
++                else:
++                    msg = (
++                        f"Recovery lock held by PID {prior_pid} since {prior_ts}. "
++                        f"Remove `{lock_path}` if the prior process crashed."
++                    )
++                raise click.ClickException(msg)
++
++            # Stale (or force-reclaimed) lock — unlink and retry the
++            # exclusive create. Tolerate a concurrent reclaimer winning the
++            # unlink race (FileNotFoundError).
++            try:
++                lock_path.unlink()
++            except FileNotFoundError:
++                pass
++            except OSError:
++                pass
++            continue
++        else:
++            os.write(fd, encoded)
++            os.close(fd)
++            _register_lock_release(lock_path)
++            return lock_path
++
++    # Exhausted bounded retries — a live holder almost certainly exists.
++    raise click.ClickException(
++        f"Could not acquire lock `{lock_path}` after {max_attempts} attempts; "
++        f"a live run may exist."
++    )
++
++
+ def acquire_recovery_lock(results_dir: Path, phase: int) -> Path:
+     """Create an exclusive recovery lock for ``phase`` under ``results_dir``.
+ 
+@@ -282,73 +459,59 @@ def acquire_recovery_lock(results_dir: Path, phase: int) -> Path:
+     stale lock is reclaimed. atexit + SIGTERM handlers auto-release the
+     lock on normal exit and signal-driven termination (TDD T8.5).
+     """
+-    # Local import: click is a CLI dependency; lazy-import keeps recovery.py
+-    # importable by tests that don't need the CLI shim.
+-    import atexit
+-
+-    import click
+-
+     locks_dir = results_dir / ".recovery-locks"
+     locks_dir.mkdir(parents=True, exist_ok=True)
+     lock_path = locks_dir / f"phase-{phase}.lock"
++    return _acquire_pid_lock(lock_path)
+ 
+-    if lock_path.exists():
+-        try:
+-            prior = json.loads(lock_path.read_text(encoding="utf-8"))
+-            prior_pid = int(prior.get("pid", 0))
+-            prior_ts = prior.get("timestamp", "")
+-        except (OSError, ValueError, json.JSONDecodeError):
+-            prior_pid = 0
+-            prior_ts = ""
+-
+-        alive = False
+-        if prior_pid > 0:
+-            try:
+-                os.kill(prior_pid, 0)
+-                alive = True
+-            except ProcessLookupError:
+-                alive = False
+-            except PermissionError:
+-                # PID exists, owned by another user — treat as alive.
+-                alive = True
+-
+-        if alive:
+-            raise click.ClickException(
+-                f"Recovery lock held by PID {prior_pid} since {prior_ts}. "
+-                f"Remove `{lock_path}` if the prior process crashed."
+-            )
+ 
+-        # Stale lock — reclaim.
+-        try:
+-            lock_path.unlink()
+-        except OSError:
+-            pass
++def release_recovery_lock(lock_path: Path) -> None:
++    """Idempotently unlink ``lock_path``; safe to call from atexit or signals."""
++    try:
++        lock_path.unlink()
++    except OSError:
++        pass
+ 
+-    payload = {
+-        "pid": os.getpid(),
+-        "timestamp": datetime.now(timezone.utc).isoformat(),
+-    }
+-    lock_path.write_text(json.dumps(payload), encoding="utf-8")
+ 
+-    atexit.register(lambda: release_recovery_lock(lock_path))
++def acquire_run_lock(results_dir: Path, *, force: bool = False) -> Path:
++    """Acquire the release-scoped run lock under ``results_dir``.
+ 
+-    def _sigterm_handler(signum, frame):
+-        release_recovery_lock(lock_path)
++    Lock file: ``<results_dir>/.recovery-locks/run.lock`` (same directory as
++    the phase locks, distinct filename so the two lock families never
++    collide). JSON payload ``{"pid", "starttime", "timestamp", "hostname"}``.
+ 
+-    try:
+-        signal.signal(signal.SIGTERM, _sigterm_handler)
+-    except (ValueError, OSError):
+-        # signal.signal() may fail in non-main threads or in test contexts
+-        # where signal handling is restricted. atexit still covers normal exit.
+-        pass
++    A LIVE holder with ``force=False`` raises ``click.ClickException`` naming
++    the holder PID + timestamp + the ``--ignore-run-lock`` remediation hint
++    (R2.2). A dead-PID stale lock — the SIGKILL/SIGSEGV safety net, since
++    atexit/signal handlers do not run on those — is reclaimed (R2.3).
++    ``force=True`` reclaims even a live holder.
++    """
++    locks_dir = results_dir / ".recovery-locks"
++    locks_dir.mkdir(parents=True, exist_ok=True)
++    lock_path = locks_dir / "run.lock"
+ 
+-    return lock_path
++    def _held_message(prior_pid, prior_ts):
++        return (
++            f"Sprint run-lock held by PID {prior_pid} since {prior_ts}. "
++            f"Re-run with --ignore-run-lock if that process crashed."
++        )
+ 
++    return _acquire_pid_lock(
++        lock_path,
++        force=force,
++        payload_extra={"hostname": socket.gethostname()},
++        held_message=_held_message,
++    )
+ 
+-def release_recovery_lock(lock_path: Path) -> None:
+-    """Idempotently unlink ``lock_path``; safe to call from atexit or signals."""
++
++def release_run_lock(path: Path) -> None:
++    """Idempotently unlink the run lock at ``path``.
++
++    Best-effort: safe to call from atexit, signal handlers, or directly, and
++    safe to call twice (double-release is a no-op).
++    """
+     try:
+-        lock_path.unlink()
++        path.unlink()
+     except OSError:
+         pass
+ 
+diff --git a/src/superclaude/cli/sprint/rerun_tasks.py b/src/superclaude/cli/sprint/rerun_tasks.py
+index ed0c972e..1d7d8889 100644
+--- a/src/superclaude/cli/sprint/rerun_tasks.py
++++ b/src/superclaude/cli/sprint/rerun_tasks.py
+@@ -1512,6 +1512,17 @@ def run_rerun_tasks(
+             start_phase=phase,
+             end_phase=phase,
+         )
++        # Non-deadlock composition (R6): the run lock is release-scoped on
++        # results_dir; rerun-tasks holds ONLY its phase-scoped recovery lock on
++        # the canonical results_dir, while the inner execute_sprint acquires its
++        # run lock on the disjoint bundle dir (release_dir=bundle ⇒ results_dir
++        # = bundle/results). The only nesting is recovery-lock(canonical/phase-N)
++        # ⊃ run-lock(bundle) over DISJOINT paths — no wait-for cycle. rerun-tasks
++        # MUST NOT acquire the canonical run lock.
++        assert sub_config.results_dir != config.results_dir, (
++            "rerun sub_config must use an isolated bundle results_dir "
++            "(run-lock/recovery-lock disjoint-path invariant)"
++        )
+         rerun_error: Optional[BaseException] = None
+         try:
+             execute_sprint(sub_config)
+diff --git a/tests/sprint/test_recovery.py b/tests/sprint/test_recovery.py
+index 7d1f858f..d5b312f3 100644
+--- a/tests/sprint/test_recovery.py
++++ b/tests/sprint/test_recovery.py
+@@ -6,6 +6,11 @@ import json
+ from pathlib import Path
+ from unittest.mock import patch
+ 
++import os
++
++import click
++import pytest
++
+ from superclaude.cli.sprint.recovery import (
+     ManualNominator,
+     RecoveryBundle,
+@@ -13,9 +18,11 @@ from superclaude.cli.sprint.recovery import (
+     RecoveryStatus,
+     ReflectReportNominator,
+     acquire_recovery_lock,
++    acquire_run_lock,
+     compute_tasklist_sha256,
+     merge_recovery_bundle,
+     release_recovery_lock,
++    release_run_lock,
+     retry_count_for_task,
+     write_recovery_audit_log,
+ )
+@@ -513,3 +520,230 @@ class TestRecoverySurfaceSmoke:
+         ]
+         assert retry_count_for_task(phase_result, "T07.11") == 1
+         assert retry_count_for_task(phase_result, "T99.99") == 0
++
++
++# ---------------------------------------------------------------------------
++# R7 — Release-scoped run lock (13-case matrix)
++# ---------------------------------------------------------------------------
++
++
++def _write_run_lock(tmp_path: Path, payload: dict) -> Path:
++    """Pre-write a run.lock under tmp_path/.recovery-locks with ``payload``."""
++    locks_dir = tmp_path / ".recovery-locks"
++    locks_dir.mkdir(parents=True, exist_ok=True)
++    lock_path = locks_dir / "run.lock"
++    lock_path.write_text(json.dumps(payload), encoding="utf-8")
++    return lock_path
++
++
++class TestRunLock:
++    def test_run_lock_acquire_creates_file_with_payload(self, tmp_path: Path):
++        # Case 1: acquire creates the lockfile with a pid+payload.
++        path = acquire_run_lock(tmp_path)
++        try:
++            assert path == tmp_path / ".recovery-locks" / "run.lock"
++            assert path.exists()
++            payload = json.loads(path.read_text(encoding="utf-8"))
++            assert payload["pid"] == os.getpid()
++            assert "starttime" in payload
++            assert "timestamp" in payload
++            assert "hostname" in payload
++        finally:
++            release_run_lock(path)
++
++    def test_run_lock_live_holder_refused_naming_pid(self, tmp_path: Path):
++        # Case 2: a live holder raises ClickException naming PID + timestamp.
++        holder_pid = os.getpid()  # self is guaranteed alive
++        ts = "2026-06-17T00:00:00+00:00"
++        _write_run_lock(
++            tmp_path,
++            {"pid": holder_pid, "starttime": None, "timestamp": ts},
++        )
++        with pytest.raises(click.ClickException) as excinfo:
++            acquire_run_lock(tmp_path)
++        msg = excinfo.value.format_message()
++        assert str(holder_pid) in msg
++        assert ts in msg
++        assert "--ignore-run-lock" in msg
++
++    def test_run_lock_reclaims_stale_dead_pid(self, tmp_path: Path, monkeypatch):
++        # Case 3: stale dead-PID lock is reclaimed (os.kill -> ProcessLookupError).
++        _write_run_lock(
++            tmp_path,
++            {"pid": 424242, "starttime": None, "timestamp": "t"},
++        )
++
++        def _dead(pid, sig):
++            raise ProcessLookupError
++
++        monkeypatch.setattr(os, "kill", _dead)
++        path = acquire_run_lock(tmp_path)
++        try:
++            assert path.exists()
++            payload = json.loads(path.read_text(encoding="utf-8"))
++            assert payload["pid"] == os.getpid()
++        finally:
++            release_run_lock(path)
++
++    def test_run_lock_permission_error_treated_alive(self, tmp_path: Path, monkeypatch):
++        # Case 4: PermissionError from os.kill -> treated alive -> refuse.
++        _write_run_lock(
++            tmp_path,
++            {"pid": 424242, "starttime": None, "timestamp": "t"},
++        )
++
++        def _perm(pid, sig):
++            raise PermissionError
++
++        monkeypatch.setattr(os, "kill", _perm)
++        with pytest.raises(click.ClickException):
++            acquire_run_lock(tmp_path)
++
++    def test_run_lock_atomic_oexcl_loser_refused(self, tmp_path: Path, monkeypatch):
++        # Case 5: O_EXCL loser is refused and never overwrites the winner.
++        winner_payload = {"pid": os.getpid(), "starttime": None, "timestamp": "winner"}
++        lock_path = _write_run_lock(tmp_path, winner_payload)
++        original = lock_path.read_text(encoding="utf-8")
++
++        def _always_exists(*args, **kwargs):
++            raise FileExistsError
++
++        # Concurrent winner already holds the lock and is alive; the bounded
++        # retry exhausts and the acquirer refuses, never clobbering the payload.
++        monkeypatch.setattr(os, "open", _always_exists)
++        monkeypatch.setattr(os, "kill", lambda pid, sig: None)  # alive
++        with pytest.raises(click.ClickException):
++            acquire_run_lock(tmp_path)
++        assert lock_path.read_text(encoding="utf-8") == original
++
++    def test_run_lock_released_on_atexit(self, tmp_path: Path, monkeypatch):
++        # Case 6: lock released via the atexit-registered callback.
++        import atexit
++
++        captured = []
++        monkeypatch.setattr(atexit, "register", lambda fn, *a, **k: captured.append(fn))
++        path = acquire_run_lock(tmp_path)
++        assert path.exists()
++        assert captured, "no atexit callback was registered"
++        for fn in captured:
++            fn()
++        assert not path.exists()
++
++    def test_run_lock_released_on_sigterm(self, tmp_path: Path, monkeypatch):
++        # Case 7: lock released by the SIGTERM handler.
++        import signal as _signal
++
++        handlers = {}
++
++        def _capture(sig, handler):
++            handlers[sig] = handler
++            return None
++
++        monkeypatch.setattr(_signal, "signal", _capture)
++        # Make the "previous" handler SIG_DFL (non-callable) so the handler's
++        # chain step is skipped and does not abort the test.
++        monkeypatch.setattr(_signal, "getsignal", lambda sig: _signal.SIG_DFL)
++        path = acquire_run_lock(tmp_path)
++        assert path.exists()
++        assert _signal.SIGTERM in handlers
++        handlers[_signal.SIGTERM](_signal.SIGTERM, None)
++        assert not path.exists()
++
++    def test_run_lock_released_on_sigint(self, tmp_path: Path, monkeypatch):
++        # Case 8: lock released by the SIGINT handler (closes R1.2 weakness).
++        import signal as _signal
++
++        handlers = {}
++
++        def _capture(sig, handler):
++            handlers[sig] = handler
++            return None
++
++        monkeypatch.setattr(_signal, "signal", _capture)
++        # Make the "previous" handler SIG_DFL (non-callable) so chaining to it
++        # does not raise KeyboardInterrupt (the real default SIGINT handler).
++        monkeypatch.setattr(_signal, "getsignal", lambda sig: _signal.SIG_DFL)
++        path = acquire_run_lock(tmp_path)
++        assert path.exists()
++        assert _signal.SIGINT in handlers
++        handlers[_signal.SIGINT](_signal.SIGINT, None)
++        assert not path.exists()
++
++    def test_run_lock_force_bypasses_live_holder(self, tmp_path: Path, monkeypatch):
++        # Case 9: force=True reclaims even a live holder.
++        ts = "2026-06-17T00:00:00+00:00"
++        _write_run_lock(
++            tmp_path,
++            {"pid": os.getpid(), "starttime": None, "timestamp": ts},
++        )
++        monkeypatch.setattr(os, "kill", lambda pid, sig: None)  # alive
++        # Confirm force=False would refuse.
++        with pytest.raises(click.ClickException):
++            acquire_run_lock(tmp_path)
++        path = acquire_run_lock(tmp_path, force=True)
++        try:
++            assert path.exists()
++            payload = json.loads(path.read_text(encoding="utf-8"))
++            assert payload["pid"] == os.getpid()
++        finally:
++            release_run_lock(path)
++
++    def test_run_lock_corrupt_json_reclaimed(self, tmp_path: Path):
++        # Case 10: corrupt/torn JSON is tolerated -> treated dead -> reclaimed.
++        locks_dir = tmp_path / ".recovery-locks"
++        locks_dir.mkdir(parents=True, exist_ok=True)
++        (locks_dir / "run.lock").write_text("{not valid json", encoding="utf-8")
++        path = acquire_run_lock(tmp_path)
++        try:
++            assert path.exists()
++            payload = json.loads(path.read_text(encoding="utf-8"))
++            assert payload["pid"] == os.getpid()
++        finally:
++            release_run_lock(path)
++
++    def test_run_lock_double_release_idempotent(self, tmp_path: Path):
++        # Case 11: double release_run_lock is a no-op.
++        path = acquire_run_lock(tmp_path)
++        release_run_lock(path)
++        assert not path.exists()
++        # Second release must not raise and must not change state.
++        release_run_lock(path)
++        assert not path.exists()
++
++    def test_run_and_recovery_locks_coexist_distinct_paths(self, tmp_path: Path):
++        # Case 12: run lock + recovery lock coexist (distinct paths, no error).
++        phase_lock = acquire_recovery_lock(tmp_path, phase=7)
++        run_lock = acquire_run_lock(tmp_path)
++        try:
++            assert phase_lock == tmp_path / ".recovery-locks" / "phase-7.lock"
++            assert run_lock == tmp_path / ".recovery-locks" / "run.lock"
++            assert phase_lock.exists()
++            assert run_lock.exists()
++            assert phase_lock != run_lock
++        finally:
++            release_recovery_lock(phase_lock)
++            release_run_lock(run_lock)
++
++    def test_run_lock_pid_reuse_starttime_mismatch_reclaimed(
++        self, tmp_path: Path, monkeypatch
++    ):
++        # Case 13: live PID but starttime mismatch -> treated dead -> reclaimed.
++        from superclaude.cli.sprint import recovery as _recovery
++
++        _write_run_lock(
++            tmp_path,
++            {"pid": 424242, "starttime": "1000", "timestamp": "t"},
++        )
++        # os.kill succeeds (PID appears alive) ...
++        monkeypatch.setattr(os, "kill", lambda pid, sig: None)
++        # ... but the current starttime differs from the recorded "1000".
++        monkeypatch.setattr(
++            _recovery, "_read_proc_starttime", lambda pid: "9999"
++        )
++        path = acquire_run_lock(tmp_path)
++        try:
++            assert path.exists()
++            payload = json.loads(path.read_text(encoding="utf-8"))
++            assert payload["pid"] == os.getpid()
++        finally:
++            release_run_lock(path)
