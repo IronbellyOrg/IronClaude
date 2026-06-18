@@ -279,6 +279,13 @@ def run(
     # fork/heap segfault (H-A). See .dev/troubleshoot/bug-rich-render-none-*.
     import faulthandler
 
+    # Force all-threads fault dumping. We intentionally (re-)enable even if
+    # faulthandler is already on: an external enable (e.g. via PYTHONFAULTHANDLER)
+    # may NOT have set all_threads=True, and the per-thread stack — specifically
+    # the Rich Live refresh thread (Thread-1) — is exactly what this crash
+    # diagnostic needs (PR #182 review, medium). Output goes to stderr by default;
+    # a harness that needs a custom sink can set faulthandler.enable(file=...)
+    # AFTER this call.
     faulthandler.enable(all_threads=True)
 
     from click.core import ParameterSource

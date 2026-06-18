@@ -98,18 +98,26 @@ class SprintTUI:
     def start(self) -> Live:
         """Start the Live display and return it for the executor to use."""
         debug_log(_dbg, "tui_start")
+        # H-C probe (TASK-RF-faulthandler-redirect): Rich's default
+        # redirect_stdout/stderr=True funnels watchdog print()/logger output from
+        # other threads into this Live's Console buffer — the suspected cross-thread
+        # source of the Thread-1 "NoneType" render crash. Disabling the redirect
+        # isolates the refresh thread as sole writer, BUT then that cross-thread
+        # output hits the real terminal and can visually corrupt the Live UI
+        # (PR #181 review, medium). So the probe is OPT-IN: default keeps Rich's
+        # redirect (no corruption); set SUPERCLAUDE_SPRINT_RENDER_DIAG=1 to disable
+        # it for a crash-diagnosis run. faulthandler (commands.py) captures the next
+        # crash regardless, so leaving the probe off by default loses no diagnosis.
+        import os
+
+        _redirect = os.environ.get("SUPERCLAUDE_SPRINT_RENDER_DIAG") != "1"
         self._live = Live(
             self._render(),
             console=self.console,
             refresh_per_second=2,
             screen=False,
-            # H-C probe (TASK-RF-faulthandler-redirect): Rich's default
-            # redirect_stdout/stderr=True funnels watchdog print()/logger output
-            # from other threads into this Live's Console buffer — the suspected
-            # cross-thread source of the Thread-1 "NoneType" render crash.
-            # Disabling the redirect isolates the refresh thread as sole writer.
-            redirect_stdout=False,
-            redirect_stderr=False,
+            redirect_stdout=_redirect,
+            redirect_stderr=_redirect,
         )
         self._live.start()
         return self._live
