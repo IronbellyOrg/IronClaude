@@ -169,6 +169,98 @@ def test_t1123_single_shot_fallback_no_loopback(load_fixture):
 
 
 @pytest.mark.inv
+def test_fallback_invocation_is_pr_targeted_and_records_posted_output():
+    """S5b invokes PR-targeted auggie-review, posts to PR, and suppresses remediation offer."""
+    calls: list[dict] = []
+
+    def invoke(**kw):
+        calls.append(kw)
+        return {
+            "pr_review_url": "https://github.com/IronbellyOrg/IronClaude/pull/188#issuecomment-77",
+            "comment_id": 77,
+        }
+
+    result = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=2,
+            pr_number=188,
+            review_state="declined",
+            fallback_findings=[_ff(88)],
+            invoke_auggie_review=invoke,
+        )
+    )
+
+    assert calls == [
+        {
+            "pr_number": 188,
+            "target": 188,
+            "post_pr": True,
+            "no_remediation_offer": True,
+        }
+    ]
+    assert (
+        result.fallback_review_url
+        == "https://github.com/IronbellyOrg/IronClaude/pull/188#issuecomment-77"
+    )
+    assert result.fallback_review_comment_id == 77
+
+
+@pytest.mark.inv
+def test_fallback_only_findings_post_one_pr_followup_without_inline_resolution():
+    """Fallback-only findings with no inline ids reply once and skip inline resolution."""
+    replies: list[dict] = []
+    resolves: list[dict] = []
+    fallback_finding = _ff(88, comment_id=None)
+
+    result = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=2,
+            pr_number=188,
+            review_state="declined",
+            fallback_findings=[fallback_finding],
+            invoke_auggie_review=lambda **_: {
+                "review_url": "https://example.test/fallback",
+                "comment_id": 901,
+            },
+            do_reply=lambda **kw: replies.append(kw),
+            do_resolve=lambda **kw: resolves.append(kw),
+        )
+    )
+
+    assert result.reply_count == 1
+    assert len(replies) == 1
+    assert replies[0]["fallback_only"] is True
+    assert replies[0]["fallback_review_url"] == "https://example.test/fallback"
+    assert replies[0]["fallback_review_comment_id"] == 901
+    assert resolves == []
+
+
+@pytest.mark.inv
+def test_inline_fallback_findings_keep_normal_resolution_path():
+    """Findings with inline ids still use the normal reply plus resolve path."""
+    replies: list[dict] = []
+    resolves: list[dict] = []
+
+    result = run_skill(
+        RunConfig(
+            monitor_ordinal=3,
+            max_rounds=2,
+            pr_number=188,
+            review_state="declined",
+            fallback_findings=[_ff(88)],
+            do_reply=lambda **kw: replies.append(kw),
+            do_resolve=lambda **kw: resolves.append(kw),
+        )
+    )
+
+    assert result.reply_count == 1
+    assert replies[0]["fallback_only"] is False
+    assert len(resolves) == 1
+
+
+@pytest.mark.inv
 def test_t1125_round_counter_frozen_two_independent_counters():
     """T-1125 / INV-R3: `round_counter` is FROZEN at fallback entry; the fallback advances
     only `fallback_round_counter`. The two counters are independent."""

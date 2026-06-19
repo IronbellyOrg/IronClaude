@@ -44,7 +44,7 @@ REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null 
 
 # Single poll of the PR. Every gh call pins the RESOLVED --repo "$REPO" (FR-1.3).
 PR_JSON="$(gh pr view "$PR" --repo "$REPO" \
-    --json number,url,headRefName,headRefOid,baseRefName,reviews,comments 2>/dev/null || true)"
+    --json number,url,headRefName,headRefOid,baseRefName,reviews 2>/dev/null || true)"
 
 if [ -z "$PR_JSON" ]; then
     # Poll failed (rate limit / transient) — surface as still-polling; the FSM backs off.
@@ -52,14 +52,17 @@ if [ -z "$PR_JSON" ]; then
     exit 0
 fi
 
-# Inline review comments carry ids / path / line the reply step needs. These are
-# MERGED with the PR conversation (issue) comments from `gh pr view ... --json comments`
-# below — the Augment "abnormally large" DECLINE is posted as a CONVERSATION comment
-# (the same issues/<N>/comments surface retrigger-review.sh posts to), so it lives in
-# `.comments`, NOT here. Surfacing only inline comments would make `declined` unreachable
-# in production (the classifier never sees the decline). The classifier's finding-comment
-# rule requires path+line, so the path-less conversation comments are not miscounted.
-COMMENTS_JSON="$(gh api "repos/${REPO}/pulls/${PR}/comments" 2>/dev/null || echo '[]')"
+# Conversation comments carry path-less PR discussion such as Augment's oversized-PR
+# decline. Fetch them from the REST issue-comments endpoint; do not rely on the GraphQL
+# `gh pr view --json comments` surface because REST exposes the bot login as
+# `user.login=augmentcode[bot]` and is the same repo-scoped surface used for replies.
+ISSUE_COMMENTS_JSON="$(gh api "repos/${REPO}/issues/${PR}/comments" 2>/dev/null || echo '[]')"
+
+# Inline review comments carry ids / path / line the reply step needs. These are merged
+# with PR conversation comments above. Surfacing only inline comments would make
+# `declined` unreachable in production, while the classifier's finding-comment rule
+# requires path+line so path-less conversation comments are not miscounted.
+INLINE_COMMENTS_JSON="$(gh api "repos/${REPO}/pulls/${PR}/comments" 2>/dev/null || echo '[]')"
 
 # Coarse state: any review present => let the FSM classify; none => polling. The
 # authoritative three-state classification is done by superclaude.pr_submit.classify
@@ -69,9 +72,10 @@ STATE="$(printf '%s' "$PR_JSON" | jq -r '
 
 printf '%s' "$PR_JSON" | jq -c \
     --arg state "$STATE" \
-    --argjson comments "$COMMENTS_JSON" \
+    --argjson issue_comments "$ISSUE_COMMENTS_JSON" \
+    --argjson inline_comments "$INLINE_COMMENTS_JSON" \
     '{pr:.number, url:.url, head_sha:.headRefOid, base:.baseRefName,
       state:$state, reviews:(.reviews // []),
-      comments:((.comments // []) + $comments)}'
+      comments:(($issue_comments // []) + ($inline_comments // []))}'
 
 exit 0

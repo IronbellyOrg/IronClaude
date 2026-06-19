@@ -106,7 +106,7 @@ class DetectionContract:
     # real shape (Phase 3 QA domain-accuracy finding F1).
     decline_phrase_regex: str = r"abnormally\s+large"
     decline_retrigger_regex: str = (
-        "comment\\s+[\"'`]?(augment|auggie|augmentcode)\\s+review[\"'`]?"
+        "comment\\s+[\"'`*_]*(augment|auggie|augmentcode)\\s+review[\"'`*_]*"
     )
     accepted_trigger_phrases: list[str] = field(
         default_factory=lambda: [
@@ -136,7 +136,7 @@ class DetectionContract:
             ),
             decline_retrigger_regex=data.get(
                 "decline_retrigger_regex",
-                "comment\\s+[\"'`]?(augment|auggie|augmentcode)\\s+review[\"'`]?",
+                "comment\\s+[\"'`*_]*(augment|auggie|augmentcode)\\s+review[\"'`*_]*",
             ),
             accepted_trigger_phrases=_as_str_list(
                 data.get("accepted_trigger_phrases"),

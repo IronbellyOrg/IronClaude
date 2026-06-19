@@ -41,11 +41,22 @@ def _login_of(entry: dict) -> str | None:
     return entry.get("login")
 
 
-def _augment_entries(entries: Any, bot_login: str | None) -> list[dict]:
-    """Filter ``entries`` to those authored by the contract's Augment bot login."""
-    if not isinstance(entries, list) or not bot_login:
+def _augment_identities(contract: Any) -> set[str]:
+    """Return non-empty Augment identities accepted for this detection contract."""
+    identities = {
+        getattr(contract, "augment_bot_login", None),
+        getattr(contract, "augment_app_slug", None),
+    }
+    return {str(identity) for identity in identities if identity}
+
+
+def _augment_entries(entries: Any, augment_identities: set[str]) -> list[dict]:
+    """Filter ``entries`` to those authored by any configured Augment identity."""
+    if not isinstance(entries, list) or not augment_identities:
         return []
-    return [e for e in entries if isinstance(e, dict) and _login_of(e) == bot_login]
+    return [
+        e for e in entries if isinstance(e, dict) and _login_of(e) in augment_identities
+    ]
 
 
 def _entry_ts(entry: dict) -> Any:
@@ -105,8 +116,8 @@ def is_decline(comment: dict, contract: Any, *, watermark: Any = None) -> bool:
     """
     if not isinstance(comment, dict):
         return False
-    bot_login = getattr(contract, "augment_bot_login", None)
-    if not bot_login or _login_of(comment) != bot_login:
+    augment_identities = _augment_identities(contract)
+    if not augment_identities or _login_of(comment) not in augment_identities:
         return False
     phrase_re = getattr(contract, "decline_phrase_regex", None)
     retrigger_re = getattr(contract, "decline_retrigger_regex", None)
@@ -159,12 +170,12 @@ def classify(payload: dict, contract: Any, *, watermark: Any = None) -> str:
     ``watermark`` (keyword-only, default ``None``) is threaded into :func:`is_decline`
     so a stale pre-watermark decline is ignored (EC-23); ``None`` accepts any decline.
     """
-    bot_login = getattr(contract, "augment_bot_login", None)
+    augment_identities = _augment_identities(contract)
     reviews = payload.get("reviews") if isinstance(payload, dict) else None
     comments = payload.get("comments") if isinstance(payload, dict) else None
 
-    augment_reviews = _augment_entries(reviews, bot_login)
-    augment_comments = _augment_entries(comments, bot_login)
+    augment_reviews = _augment_entries(reviews, augment_identities)
+    augment_comments = _augment_entries(comments, augment_identities)
 
     # V1.1 decline check (FR-9.1) — runs BEFORE clean/findings/polling so an Augment
     # decline (which may arrive as a bare comment with no formal review) is never

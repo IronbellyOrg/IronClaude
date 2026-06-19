@@ -72,3 +72,18 @@ gh api graphql -f query='
   comment via `gh api --method POST repos/<owner/repo>/issues/<N>/comments -f body=...`),
   NOT one comment per finding (T-642). The §17 residual summary (FR-6.4) uses the same single-thread
   surface.
+
+## 5. Fallback-only PR conversation follow-up (FR-9)
+
+When S5b fallback findings come only from the PR-posted `/sc:auggie-review` output and do not carry valid
+Augment inline `comment_id` values or review-thread node ids, `sc:pr-submit` MUST NOT attempt inline reply
+or GraphQL resolution. Instead, it posts **exactly one** PR conversation follow-up comment on the issue-comments
+surface summarizing:
+
+- applied edits count and the pushed commit SHA or branch;
+- validation gates run and their pass/fail state;
+- residual findings or terminal state;
+- the posted fallback `/sc:auggie-review` output URL/comment id when available.
+
+This is still `sc:pr-submit`'s reply responsibility. `/sc:auggie-review` only produces/posts the fallback
+review report; it does not reply to Augment threads and does not push fixes.

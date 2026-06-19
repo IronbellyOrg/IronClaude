@@ -211,6 +211,8 @@ class SkillResult:
     decline_detected: bool = False
     effective_max_rounds: int | None = None
     fallback_round_counter: int = 0
+    fallback_review_url: str | None = None
+    fallback_review_comment_id: int | None = None
 
 
 @dataclass

@@ -787,7 +787,22 @@ def _run_fallback(result: SkillResult, config: RunConfig) -> None:
 
     # INV-R2: invoke /sc:auggie-review AT MOST ONCE per PR (strict-once).
     if not result.auggie_review_invoked:
-        config.invoke_auggie_review(pr_number=config.pr_number)
+        fallback_output = config.invoke_auggie_review(
+            pr_number=config.pr_number,
+            target=config.pr_number,
+            post_pr=True,
+            no_remediation_offer=True,
+        )
+        if isinstance(fallback_output, dict):
+            result.fallback_review_url = (
+                fallback_output.get("pr_review_url")
+                or fallback_output.get("url")
+                or fallback_output.get("review_url")
+            )
+            comment_id = fallback_output.get("comment_id")
+            result.fallback_review_comment_id = (
+                comment_id if isinstance(comment_id, int) else None
+            )
         result.auggie_review_invoked = True
 
     # Single fallback cycle, capped at 1 (structural termination, not merely budget).
@@ -853,9 +868,17 @@ def _run_fallback(result: SkillResult, config: RunConfig) -> None:
     # The fallback's single push (contributes at most ONE push — INV-R2).
     config.do_push(pre_push_sha=None)
     result.push_count += 1
-    config.do_reply(applied_edits=result.applied_edits, findings=verified)
+    fallback_only = not any(isinstance(f.comment_id, int) for f in verified)
+    config.do_reply(
+        applied_edits=result.applied_edits,
+        findings=verified,
+        fallback_only=fallback_only,
+        fallback_review_url=result.fallback_review_url,
+        fallback_review_comment_id=result.fallback_review_comment_id,
+    )
     result.reply_count += 1
-    config.do_resolve(findings=verified)
+    if not fallback_only:
+        config.do_resolve(findings=verified)
     result.fallback_round_counter += (
         1  # the SEPARATE fallback counter (NOT round_counter)
     )
