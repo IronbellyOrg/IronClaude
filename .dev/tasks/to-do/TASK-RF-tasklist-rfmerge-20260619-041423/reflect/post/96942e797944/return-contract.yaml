@@ -1,0 +1,95 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/post/96942e797944/REPORT.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/post/96942e797944/artifacts/audit.diff"
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # forced T2 via --depth deep (§5.1 hard override), not a rubric rule
+
+# --- audit scope note (NON-STANDARD INPUT RESOLUTION) ---
+audit_scope_note: >
+  --diff 300c06a6 is the tasklist's start_commit BASELINE (PR #180 TFEP migration),
+  not the work under audit. The RFMerger deliverable is uncommitted in the working
+  tree (5 files). Branch HEAD advanced through 5 unrelated sprint PRs (#181-#185)
+  since the baseline, so a naive 300c06a6..tree diff would over-capture ~3200 lines
+  of unrelated sprint work. Audit scoped to: git diff HEAD -- sc-tasklist-protocol/
+  + test_task_builder_merge.py + test_tasklist_cli.py (29 hunks, 654 insertions).
+
+# UC-2
+tasklist_completion_pct: 1.0   # all 7 FR behaviors implemented + tested green; 2 LOW test-rigor ACs partially met (see drift)
+deviation_count_by_class:
+  authorized: 0
+  necessary: 1
+  drift: 2
+  regression: 0
+deviation_register_path: ".dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/post/96942e797944/deviation-ledger.yaml"
+grounding_gaps_path: null
+
+verification_ran: true
+verification_invocations: 2
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true   # §11.2 - a zero-drop pass is audit-flagged, not treated as automatically clean
+
+# Tier 2 ensemble
+reviewer_cards: 3
+reviewer_models: [haiku, opus, haiku]
+reviewer_personas: [quality-engineer, root-cause-analyst, refactoring-expert]
+executor_class_source: flag        # --executor-model sonnet
+executor_class_resolved: true
+executor_exclusion_applied: true   # sonnet excluded from reviewer pool per §7.1
+t2_model_class_diversity: full     # haiku + opus, disjoint from executor (sonnet)
+merge_method: reviewer-convergence # 3 reviewers converged ADHERENT; single dissent (FR.1) verified + carried
+adversarial_convergence: high
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false   # 2 drift items are LOW test-rigor shortfalls, behavior correct
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+
+# Tier 3
+remediation_offered: true   # --remediate set
+remediation_accepted: null  # awaiting operator
+remediation_task_path: null # not yet authored (operator opt-in)
+
+# Promotion (Wave 7)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: ".dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/"
+promotion_destination: ".dev/tasks/done/TASK-RF-tasklist-rfmerge-20260619-041423/"
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass
+  status_success: pass
+  tasklist_completion_pct_1_0: pass
+  no_drift_no_regression: fail        # drift == 2 (D-1, D-2 LOW)
+  frontmatter_present: pass
+  frontmatter_status_matches: fail    # frontmatter status: "🟠 Doing" (executor flips to done AFTER this post-gate)
+  no_citations_dropped: pass
+  no_grounding_gaps: pass
+  no_input_drift: pass
+  no_user_decision_pending: pass
+  adversarial_result_present: pass
+gate_evaluation_failures: [no_drift_no_regression, frontmatter_status_matches]
+promotion_note: >
+  Promotion correctly suppressed. Two independent blocks: (1) drift>0 (cond 4),
+  (2) frontmatter still "Doing" (cond 5b) - the EXPECTED in-flight state, since the
+  executor records reflect_post and flips status->done only AFTER this gate passes.
+  No mutation performed.
+
+input_drift_detected: false
+input_tree_file_count: 7

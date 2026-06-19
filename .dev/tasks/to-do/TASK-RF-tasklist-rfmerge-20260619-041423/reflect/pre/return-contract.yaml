@@ -1,0 +1,58 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 2
+run_id: "20260619-pre-rfmerge-053514"
+report_path: "/config/workspace/IronClaude/.claude/worktrees/RFMerger-Tasklist/.dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/pre/report.md"
+audit_log_path: "/config/workspace/IronClaude/.claude/worktrees/RFMerger-Tasklist/.dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/pre/audit.log"
+confidence_calibrated: 0.91
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+
+# UC-1 coverage
+coverage_pct: 0.964
+coverage_pct_union: 0.964
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: ["NFR-RFMERGE.4"]
+unmapped_requirements_union: ["NFR-RFMERGE.4"]
+best_practice_grade: 4
+
+# Hallucination guard
+citations_total: 38
+citations_revalidated: 38
+citations_dropped: 1            # R1 FR.4 "no test step" claim dropped by evidence-validator re-Read
+citations_inferred: 6
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble
+reviewer_models: ["qwen3.6-plus(haiku)", "orchestration(default)", "claude-opus-4-8(opus)"]
+reviewer_personas: ["analyzer", "qa", "refactorer/architect"]
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+calibrator_diversity: full
+merge_method: adversarial
+adversarial_unavailable: false
+executor_class_source: flag        # frontmatter executor_model_class: sonnet
+executor_class_resolved: true
+executor_exclusion_degraded: false
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false        # the tasklist's OWN halting item (--spec removal) is correctly deferred to execution-time, not a reflect blocker
+cannot_validate_without_user_input: false
+blocked_by_low_confidence: false
+
+# Remediation
+remediation_offered: true          # --remediate set; advisories are best-practice, not regressions
+remediation_accepted: null
+remediation_task_path: null        # no Tier-3 corrective MDTM authored (no Drift/Regression; advisories only)
+
+# Input integrity
+input_drift_detected: false
+input_tree_file_count: 2
+
+# Degraded
+degraded_components: []
+fallback_path: null

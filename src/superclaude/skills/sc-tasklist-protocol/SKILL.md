@@ -46,7 +46,11 @@ Given a roadmap (unstructured or structured), produce a **canonical task list** 
 
 ## Input Contract
 
-You receive exactly one input: **the roadmap text**.
+You receive one **required** input — **the roadmap text** — and may receive
+**optional supplementary inputs** (`--spec <spec-path>`, the explicit
+`--tdd-file`/`--prd-file` flags, or auto-wired TDD/PRD paths from
+`.roadmap-state.json`; TDD-vs-PRD precedence is per §3.x; see §3.x Source
+Document Enrichment and §4.1a/§4.4a).
 
 The roadmap may contain:
 
@@ -54,7 +58,15 @@ The roadmap may contain:
 - Requirements, features, risks, success metrics, constraints
 - Vague items ("improve performance", "harden security")
 
-Treat the roadmap as the **only source of truth**.
+Treat the roadmap as the **primary source of truth** for task generation:
+every task MUST trace to a roadmap item (R-### traceability). Supplementary
+TDD/PRD inputs, when present, only **enrich** roadmap-derived tasks
+(specificity, acceptance criteria, validation, deployment phases) and the
+pre-reflect spec resolution (Stage 10.5) — they never originate tasks that lack
+a roadmap anchor. The roadmap is ALWAYS the final spec-resolution fallback
+(explicit `--spec` → auto-wired TDD/PRD → the roadmap itself), so every task
+always has a spec source. Without supplementary inputs, the generator works from
+the roadmap alone (the baseline behavior described in §3.x).
 
 ---
 
@@ -212,6 +224,29 @@ superclaude tasklist validate ./output   # auto-wires both files from state
 - If the auto-wired file path no longer exists on disk, a warning is emitted and the value is left as None
 
 The state file stores `tdd_file`, `prd_file`, and `input_type` alongside the existing `spec_file` and `spec_hash` fields.
+
+### 4.1d Execution Context Emission (P1 — deterministic)
+
+For each phase task produced by Step 4.4, optionally emit the task-level `## Execution Context` block defined in the Task Format above (`#### Task Format`). The emission is a pure function of already-computed deterministic metadata. It performs NO inference and NO live-codebase access, and it NEVER invents file paths.
+
+**Canonical input set:** The block's inputs are exactly `{resolved R-### refs, roadmap-supplied named source areas, roadmap-stated invariants}`, all extracted from the roadmap text; nothing else. There is no GOAL input to this generator (GOAL is a task-builder/BUILD_REQUEST concept, not a tasklist-generator input). Specific file paths are never emitted by this generator (roadmap-text-only input).
+
+**Emission rule (emit iff ≥1 resolvable roadmap ref):** Emit the block for a phase task **if and only if** the roadmap supplies at least one *resolvable* roadmap reference for that task. A `R-###` ref resolves iff it appears in the task's `Roadmap Item IDs` metadata field (non-empty); absent → does not resolve. The resolved `R-###` reference(s) are always listed under `References:`. This reuses the existing per-task `Roadmap Item IDs` metadata rather than building a new roadmap-ref scanner.
+
+**Source areas (deterministic extraction):** List under `Source areas:`, in roadmap appearance order, only tokens drawn from a CLOSED trigger set: (a) tokens introduced by an explicit `module:`/`component:`/`subsystem:`/`service:` label, OR (b) a backticked token whose immediately-preceding word is one of {module, component, subsystem, service}. Nothing else qualifies — never classify free prose, function names, or variables — and never a file path. De-dup case-insensitively, preserving first-appearance order. When the roadmap supplies none, omit `Source areas:` (degrade toward the References-only form).
+
+**Key constraints (deterministic selection):** List under `Key constraints:` the first 1-3 stated invariants in roadmap appearance order; if the item states >3, take the first 3 in appearance order; if it states 0, omit the field.
+
+**Form-selection decision table (exhaustive, mutually exclusive):**
+
+| Inputs present | Emitted form |
+|---|---|
+| ≥1 resolvable ref, 0 source areas, 0 invariants | References-only (`References:` only) |
+| ≥1 resolvable ref, ≥1 source area, 0 invariants | References + `Source areas:` |
+| ≥1 resolvable ref, 1-3 invariants (with or without source areas) | full (`References:` + `Source areas:` when present + `Key constraints:`) |
+| 0 resolvable refs | omit the block entirely |
+
+**Omission + determinism:** Omit the block entirely when no roadmap reference resolves for the task (no `References:` → no block). NEVER emit invented file paths in any sub-field. The block is a pure function of the roadmap text: the **same roadmap MUST always produce the same block** (same input → same output), preserving generation determinism.
 
 ### 4.2 Determine Phase Buckets
 
@@ -543,6 +578,8 @@ Map score -> label:
 
 ### 5.3 Compliance Tier Classification (mandatory, deterministic)
 
+**Pure-function invariant (P5 fence):** scored tiers are a **pure function of the roadmap text** — the §5.3/§5.4 scored-tier compute path takes **NO calibration/feedback input** (it MUST NOT read `feedback-log.md` or the P5 `## Tier Calibration Advisory`). The advisory is read-only and never feeds back into `tier_scores`; "same roadmap → same scored tiers" holds regardless of any `feedback-log.md`.
+
 Each task must include a **Compliance Tier** computed deterministically using the `/sc:task` classification algorithm.
 
 **Priority order:** `STRICT (1) > EXEMPT (2) > LIGHT (3) > STANDARD (4)`
@@ -682,7 +719,7 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 | Sprint Name | `<Roadmap Name or Short Description>` |
 | Generator Version | `Roadmap->Tasklist Generator v4.0` |
 | Generated | `<ISO-8601 date>` |
-| TASKLIST_ROOT | `<computed per Section 3.1>` |
+| TASKLIST_ROOT | `<computed per ### Tasklist Root (deterministic)>` |
 | Total Phases | `<N>` |
 | Total Tasks | `<count>` |
 | Total Deliverables | `<count>` |
@@ -838,6 +875,31 @@ Table schema:
 - `Quality Signal`: `pass | partial | rework-needed`
 - `Time Variance`: `under-estimate | on-target | over-estimate`
 
+#### Tier Calibration Advisory (P5 — RETAINED advisory-only)
+
+`## Tier Calibration Advisory`
+
+An **index-level**, **advisory-only** section **rendered at index assembly (Stage 4/5), after scored tiers are computed**. It reads the PRIOR-run
+`TASKLIST_ROOT/feedback-log.md` **best-effort and READ-ONLY** (the file may be absent on the first run — when absent, the whole section is omitted, no error) and compares each task's already-computed deterministically scored tier against the matching feedback row's `Override Tier`. It is the audit-first "advisory (logged but not blocking)" pattern: it **NEVER auto-applies** and **MUST NOT mutate** any task's scored `Tier`/`Confidence` field — scored tiers stay a pure function of the roadmap (see the §5.3 invariant). The §5.3 fence holds precisely because the scored-tier COMPUTE never reads the feedback-log; only this advisory RENDER reads it, and the render is read-only — it never writes the scored tiers, it only displays them next to the feedback's suggestion.
+
+**Match + threshold (reconciled to the Feedback Collection Template schema above).** The feedback-log columns are `Task ID | Original Tier | Override Tier | Override Reason | Completion Status | Quality Signal | Time Variance`. A feedback row matches a scored task when its **`Task ID`** equals the task's `T<PP>.<TT>`. A "matching override" is a matched row whose **`Override Tier`** is non-blank AND differs from the task's deterministically-scored tier. The advisory's `Feedback-suggested tier` column ← the row's `Override Tier`; the `Scored tier` column ← the task's current scored tier. (The spec's abstract `roadmap_item_id` / `task_signature` maps to the concrete `Task ID` in this generator's feedback-log, and the spec's abstract `suggested_tier` maps to `Override Tier`.) Render the section **only when ≥2 matching overrides exist** — with fewer than 2, omit the WHOLE section (no partial advisory).
+
+**Deterministic emission.** Emit exactly one advisory row per distinct `(Task ID, Override Tier)` pair, ordered ascending by `T<PP>.<TT>` (i.e. `Task ID`) then `Override Tier` ascending — so the section is byte-deterministic for a fixed feedback-log (a single `Task ID` with two distinct non-blank `Override Tier` values yields two rows, in `Override Tier` ascending order). The `Observed count` for a row is the number of feedback-log rows for that `(Task ID, Override Tier)` pair (1 for a single row; it aggregates repeated feedback appended across runs).
+
+**Malformed / empty / partial handling.** Rows missing `Task ID` or `Override Tier` are ignored (they cannot match). A malformed, empty, or partial feedback-log simply yields fewer matches; if the result is <2 matching overrides the whole section is omitted (no error). This is the same best-effort, fail-soft posture as the absent-file case.
+
+**Exact markdown output** (rows ordered ascending by `Task ID` then `Override Tier`; any row whose scored tier is `STRICT` and whose feedback suggests a lower tier carries an explicit ⚠ STRICT-downgrade warning):
+
+```markdown
+## Tier Calibration Advisory
+> Advisory only — scored tiers are unchanged. Feedback below is informational.
+| Task | Scored tier | Feedback-suggested tier | Observed count | Note |
+|------|-------------|-------------------------|----------------|------|
+| T<PP>.<TT> | STRICT | STANDARD | <n> | ⚠ STRICT-downgrade — review security implications before relying |
+```
+
+The whole section is a pure function of `(roadmap, feedback-log.md)` — same inputs → byte-identical section — and it never feeds back into the scored tier (so "same roadmap → same scored tiers" holds regardless of feedback; only this advisory varies with `feedback-log.md`).
+
 #### Glossary
 
 `## Glossary`
@@ -896,6 +958,15 @@ Each task uses this format:
 - `TASKLIST_ROOT/artifacts/D-####/spec.md`
 - `TASKLIST_ROOT/artifacts/D-####/notes.md`
 - `TASKLIST_ROOT/artifacts/D-####/evidence.md`
+
+**Execution Context** (optional, deterministic): a phase task MAY carry an optional task-level `## Execution Context` block — emitted per the Stage-4 deterministic emission rule (Section 4.1d) — that reuses the task-builder `References` / `Source areas` / `Key constraints` sub-field contract VERBATIM (the same sub-field names as `task-builder/SKILL.md`; Do NOT introduce a second, incompatible meaning of "Execution Context"). The block carries NO specific `file:line` references and NO `src/...` paths in its header (named source areas only, not file paths — mirroring task-builder's TB-Add-7 no-file-path discipline; specific paths are never emitted by this generator (roadmap-text-only input)), includes NO `Ensuring:` clause, and is strictly additive: it never duplicates or overrides the Acceptance Criteria, which remain the single source of truth. Exact shape:
+
+```markdown
+## Execution Context
+- References: <the resolved R-### roadmap reference(s); always present when the block is emitted>
+- Source areas: <named module(s)/area(s), not file paths; listed when the roadmap supplies them, omitted in the References-only degraded form>
+- Key constraints: <the first 1-3 stated invariants in roadmap appearance order; omitted when the roadmap supplies none>
+```
 
 **Deliverables:**
 
@@ -1186,6 +1257,17 @@ not a structural parse check.
 
 If any check 1-20 fails, fix it before writing any output file.
 
+### Gate-Results Evidence Artifact (Pre-Write, Mandatory)
+
+After the 20-check Self-Check above runs (and any failing check is fixed), serialize the gate result to `TASKLIST_ROOT/validation/gate-results.txt` as a passthrough evidence artifact — Stage 6 (gate-results) is the single source of truth that creates the `TASKLIST_ROOT/validation/` directory first; the later Stage-8 `mkdir -p` is an idempotent no-op. Write it as plain UTF-8 text (NOT JSON), one line per check in numeric order 1→20, each line using the exact format `CHECK <n> PASS: <check description>` when the check passed or `CHECK <n> FAIL: <offending task/file>` when it failed, followed by a single trailing summary line `GATE: PASS (20/20)` when all twenty checks passed or `GATE: FAIL (<n> failing)` when `<n>` checks failed.
+
+To keep the all-pass file byte-reproducible (same gate → same bytes), the `<check description>` and `<offending task/file>` placeholders are pinned to a single deterministic source string:
+
+- **`<check description>` (PASS lines)**: for ALL 20 checks, use the verbatim check text up to the first colon; if the check line has no colon, use the verbatim check title / first line as written in the Self-Check gate. (No discretionary "leading clause" or "first sentence" boundary.) The same gate therefore always serializes the same bytes.
+- **`<offending task/file>` (FAIL lines)**: name the first offending identifier in document order; if multiple offenders exist for one check (e.g. duplicate `D-####` (check 10), a circular dependency chain (check 15), a task-count violation (check 13)), comma-separate them in ascending `T<PP>.<TT>` / `D-####` order.
+
+The file serializes the FINAL gate state after all fixes — in practice always `GATE: PASS (20/20)`, since no output is written while any check fails (the check-1-20 gate above blocks any Write() on a failing gate, so a `GATE: FAIL` line never reaches a written bundle). Emit this file EVEN ON an all-pass gate — it is a passthrough evidence artifact recording which structural self-checks ran, not a failure log. It serializes the gate that just ran and is written alongside the validated bundle, consistent with the Write atomicity rule below (the bundle is validated in memory before any Write() call). `gate-results.txt` MUST exist before Stage 7 spawns any agent — Stage 7's validation agents inline its contents (see below), so it is an ordering prerequisite, not an optional artifact. This step serializes all 20 checks (not 17); it does not alter any existing check logic.
+
 ---
 
 ## Final Output Constraint
@@ -1254,10 +1336,12 @@ For each of the N phase files:
 3. Spawn **Agent A** with:
    - The full roadmap text
    - The phase file content for tasks 1 through `split` (first 50%+1 on odd count)
+   - The contents of `TASKLIST_ROOT/validation/gate-results.txt` (the orchestrator Reads `gate-results.txt` and inlines its full text into the spawn payload — the agent receives the text, not a path to resolve)
    - Validation instructions (below)
 4. Spawn **Agent B** with:
    - The full roadmap text
    - The phase file content for tasks `split+1` through `task_count`
+   - The contents of `TASKLIST_ROOT/validation/gate-results.txt` (the orchestrator Reads `gate-results.txt` and inlines its full text into the spawn payload — the agent receives the text, not a path to resolve)
    - Validation instructions (below)
 
 This produces **2N agents** total, all spawned via the `Task` tool (Agent) and run in parallel.
@@ -1265,6 +1349,8 @@ This produces **2N agents** total, all spawned via the `Task` tool (Agent) and r
 **Validation instructions for each agent**:
 
 > You are a tasklist validation agent. You receive a subset of tasks from a generated phase file and the source roadmap they were derived from.
+>
+> **Pre-validation gate context**: You also receive the contents of `TASKLIST_ROOT/validation/gate-results.txt` (the orchestrator Reads `gate-results.txt` and inlines its full text into this spawn payload — you receive the contents inline, not a path to resolve) — the serialized result of the generator's 20-check structural Self-Check (Stage 6), one `CHECK <n> PASS|FAIL` line per check plus a `GATE:` summary. Use it to cross-reference which structural self-checks already passed when assessing Drift, Contradictions, Omissions, Weakened criteria, and Invented content: it tells you which structural properties the generator already verified so you can focus your roadmap-fidelity judgement rather than re-deriving structural state. This context does not change the five validation dimensions below.
 >
 > For each task in your assigned range, check:
 >
@@ -1290,6 +1376,16 @@ This produces **2N agents** total, all spawned via the `Task` tool (Agent) and r
 After all 2N agents return, the orchestrator:
 
 1. Collects all findings into a single list
+   1a. **Synthetic-dnsp emission (P3 — reuses the task-builder DM-003 / DNSP Synthetic Finding Protocol VERBATIM):** When **≥1** Stage-7 validation agent succeeded AND **≥1** agent failed after exhausting its single retry (the `retry once before reporting error` primitive in the Stage gate below), the orchestrator synthesizes one HIGH-severity finding **per failed agent** in the standard finding-entry shape, using the DM-003 emission contract byte-for-byte:
+   - `severity: HIGH` (fixed; non-overridable — never demoted at merge)
+   - `source: "synthetic-dnsp"` (fixed sentinel; case-sensitive)
+   - `affected_range`: the failed agent's assigned phase/task slice — the Stage-7 fan-out unit it was spawned on (the phase file + task-index range, e.g. tasks `split+1` through `task_count`) — copied verbatim, byte-for-byte
+   - `evidence`: the canonical spawn-log path for the failed agent, or — when that log is unavailable — the stub `<!-- evidence-absence: no-spawn-log: <reason> -->` explicitly citing the absence (NEVER blank; the `<reason>` slot names why the log is absent, e.g. `no-spawn-log: tmpfs-cleared`)
+   - `recommendation`: the fixed byte-exact literal `Manual review required — partition agent failed twice` (em-dash preserved; case-sensitive; no leading/trailing whitespace; no suffix)
+   - `dedup_key`: the 2-element list `["<stage7_affected_range>", "retry-1"]` — the 2nd element is the pinned `retry-1` exhaust-point (Stage 7's ladder is a single retry, so the conformant member of the closed vocab `{retry-1, retry-2, gap-fill-round-1, gap-fill-round-2, gap-fill-round-3}` is `retry-1`; no vocabulary extension)
+   - `found_n_times`: `1` on first emission
+
+   The synthetic finding is emitted into the **normal findings stream** as a structured Markdown block (the same channel real findings use — NO sideband channel, NO out-of-band metadata) so it flows untouched through dedup/sort into Stage 8. The emission is **strictly additive** — it never replaces, drops, or coalesces a real finding (post-emit real-finding count = pre-emit real-finding count + synthetic count). The `affected_range` is a legitimate MAP onto the Stage-7 2N fan-out unit, not a copy of the task-builder partition-cohort machinery. The synthetic is **non-patchable** (it records that a validation agent failed, not a fixable defect): it carries no `Exact fix`, so it is treated as **FAIL until manual review** (per its fixed `recommendation` literal) rather than as an auto-resolvable defect. The synthetic persists in `ValidationReport.md` as a human-review gate. The P2 bounded patch loop (Stage 10 gate) EXCLUDES `source: "synthetic-dnsp"` records from its patchable monotonicity failing-set `F_k`: a persistent synthetic carrying the same `dedup_key` across passes is a DEDUP case (per the DM-003 cross-cycle rule reused here), NOT a regression — so it never spuriously trips the P2 monotonicity halt. Then PROCEED to step 2 (dedup).
 2. Deduplicates: if two agents (from the same phase split boundary or adjacent phases) report the same issue on the same task, keep only one entry
 3. Sorts by severity (High first), then by phase number, then by task ID
 4. Produces the consolidated findings list for Stage 8
@@ -1307,7 +1403,13 @@ When `--spec` was provided and supplementary_context was loaded in Step 4.1a, ea
 
 Findings merged into the same consolidated findings list used by Stage 8. Standard roadmap-only validation is unchanged for invocations without `--spec`.
 
-**Stage gate**: All 2N agents completed successfully. Findings merged and deduplicated. Zero agent failures (if an agent fails, retry once before reporting error).
+**Stage gate (some-vs-zero success branch — P3):** The per-agent single retry stays the recovery primitive: if an agent fails, retry it once before treating it as failed. After retry, branch on the agent-cohort success count (the three branches are mutually exclusive and exhaustive — every agent terminates as either succeeded or failed):
+
+- **ALL succeeded (zero failed):** the baseline case — no agent failed, so the orchestrator performs the **normal merge** of the real findings (steps 1–4 above), emits **NO** synthetic finding, and **PROCEEDS** to Stage 8 unchanged.
+- **≥1 succeeded AND ≥1 failed:** the orchestrator synthesizes one `synthetic-dnsp` finding per failed agent (per merge step 1a above) and **PROCEEDS** to Stage 8. Stage 8 MUST NOT be blocked by a single failed-then-synthesized agent when at least one sibling succeeded — the synthetic HIGH finding carries the failure forward into ValidationReport.md / PatchChecklist.md for human attention instead of aborting the stage.
+- **ZERO succeeded (all-agents-fail):** route to the **report-validation-error terminal** — report the validation error and do not return a clean bundle (no typed-error symbol is required by this prose). Emit **NO** synthetic finding (a synthetic among zero real findings is meaningless). This terminal is the conceptual analogue of the task-builder R-122 "Path A" all-agents-fail escalation MAPPED onto the Stage-7 case — that analogy is an explanatory aside, not the operative instruction; the operative instruction is "report the error / do not return a clean bundle." If a typed error is later desired for this zero-success route, that is a NEW implementation-time decision against this prose — NOT a reuse of any existing `StageError` symbol (none exists in current source).
+
+Findings are merged and deduplicated (steps 1a–4 above) before Stage 8 consumes them.
 
 ### Stage 8: Patch Plan Generation
 
@@ -1323,6 +1425,8 @@ Result: CLEAN — no drift detected across N phases and M tasks.
 ```
 
 Then skip Stages 9 and 10. The skill is complete.
+
+**Synthetic-dnsp short-circuit guard (P3):** A `source: "synthetic-dnsp"` finding IS a finding — the zero-finding short-circuit above MUST NOT be taken when one or more synthetic-dnsp records are present in the consolidated findings list. A present synthetic HIGH must flow into `ValidationReport.md` and force human attention (it is treated as FAIL until manual review per its fixed `recommendation` literal; it is recorded for manual review and the Stage-9 patch executor MUST NOT auto-resolve / auto-patch it). This guard only fences the synthetic-present case — the genuine zero-finding short-circuit (no real findings AND no synthetic findings) is unchanged.
 
 **Artifact 1: `TASKLIST_ROOT/validation/ValidationReport.md`**
 
@@ -1403,8 +1507,9 @@ Rules:
 - Diff intents are specific enough to execute without ambiguity
 - Cross-file consistency sweep items collected at the end
 - Suggested execution order listed (highest-impact files first)
+- **`source: "synthetic-dnsp"` findings are EXCLUDED from the actionable PatchChecklist** (P3): a synthetic-dnsp finding carries only `recommendation: Manual review required — partition agent failed twice` and no `Exact fix`, so it has no executable edit. It is recorded in `ValidationReport.md` under a dedicated **`## Manual Review Required (synthetic-dnsp)`** section (a human-review gate), and it does NOT generate any `- [ ]` item in `PatchChecklist.md`. Only real, patchable findings produce PatchChecklist items.
 
-**Stage gate**: Both artifacts written to `TASKLIST_ROOT/validation/`. Directory created via `Bash` (`mkdir -p`).
+**Stage gate**: Both artifacts written to `TASKLIST_ROOT/validation/`. Directory created via `Bash` (`mkdir -p`) — this `mkdir -p` is now idempotent and remains safe because the `TASKLIST_ROOT/validation/` directory already exists from Stage 6 (the gate-results artifact creates it earlier); `mkdir -p` is a no-op when the directory is already present.
 
 ### Stage 9: Patch Execution (Delegate to `sc:task`)
 
@@ -1424,7 +1529,11 @@ The `sc:task` skill handles:
 
 The orchestrator does NOT apply patches itself. Separation of concerns: the tasklist-protocol generates and validates; `sc:task` executes edits.
 
+**Synthetic-dnsp exclusion (P3):** `source: "synthetic-dnsp"` findings are NEVER fed to `sc:task` — they are absent from `PatchChecklist.md` by construction (per the Stage 8 PatchChecklist rule above) and remain solely in the `## Manual Review Required (synthetic-dnsp)` section of `ValidationReport.md`. The Stage-9 patch executor MUST NOT auto-resolve / auto-patch them; they persist as a human-review gate.
+
 **Stage gate**: `sc:task` reports completion. All checklist items addressed.
+
+**P2 loop-back target:** Stage 9 is the loop-back target re-entered by the P2 bounded patch loop (see the Stage-10 gate). On a loop-back, the orchestrator re-delegates `sc:task --compliance strict` against a **residual `PatchChecklist.md` scoped to `F_k`** — the patchable failing set computed at the end of the prior Stage-10 pass — and Stage 9 still delegates all patching to `sc:task` (the orchestrator never patches itself).
 
 ### Stage 10: Spot-Check Verification
 
@@ -1453,13 +1562,37 @@ Findings resolved: X/Y
 | L1 | UNRESOLVED | Cross-phase wording still inconsistent in T03.06 |
 ```
 
-**Stage gate**: All findings verified. If any remain `UNRESOLVED`, they are logged but the skill does NOT loop. The `ValidationReport.md` serves as the record for human review.
+**P2 bounded-loop iteration state.** When the P2 bounded patch loop runs, append a per-iteration loop-state table to this `## Verification Results` section so the PR-02 monotonicity/regression guards have the prior-pass state they require. Each row records, for pass `k`: the pass index `k`, the patchable failing-set cardinality `|F_{k-1}|` carried in from the prior pass, `|F_k|`, the PASS-set (items that passed at pass `k`), and the regression set (previously-PASS items now FAILing). This per-iteration history is the P2 loop's OWN independent `F_n` history — it is never collapsed with any other counter — and is sufficient to evaluate the regression-then-monotonicity-then-hard-cap ordering on each `k → k+1` transition:
+
+```text
+## P2 Bounded-Loop Iterations
+| Pass k | |F_{k-1}| | |F_k| | FAIL-set (F_k) | PASS-set | Regression set | Transition guard |
+|--------|----------|-------|----------------|----------|----------------|------------------|
+| 1 | — | 2 | T03.04, T05.09 | T01.01, T02.03 | — | initial pass |
+| 2 | 2 | 1 | T05.09 | T01.01, T02.03, T03.04 | — | shrank 2→1, no regression → finalize (cap k=2) |
+```
+
+(PASS-set and the FAIL-set `F_k` are DISJOINT in every pass: at pass 1 `T03.04` is failing; at pass 2 the re-patch flips `T03.04` to PASS and only `T05.09` remains in `F_2`.)
+
+**Stage gate (P2 — bounded patch loop, RETAINED: full-set-revalidation-and-guards):** After Stage 10, the skill MAY loop back to Stage 9 a bounded number of times to re-patch residual drift. The loop reuses the task-builder **PR-02 Retry Monotonicity Protocol** semantics VERBATIM and is capped at **at most ONE re-patch pass (2 TOTAL passes, `k ∈ {2}` — i.e. the pass set is k=1 (initial) and k=2 (the one re-patch) — NOT task-builder's 3-cap)**.
+
+Let `k` be the pass index (`k = 1` is the initial Stage 7→10 pass). At the end of pass `k`:
+
+1. **Compute `F_k` by re-running the FULL Stage-7 2N validation set** (reuse the Stage-7 fan-out primitive — a complete re-validation of every phase, NOT a subset re-read of only the previously-failing items), so regressions in previously-PASS items are detectable. The loop-back re-run applies the **same Stage-7 some-vs-zero gate** as the initial pass: a fresh agent exhaustion during a re-run emits a `synthetic-dnsp` as usual (≥1 sibling succeeded → synthesize + PROCEED), and a zero-success outcome on a re-run routes to the report-validation-error terminal — identical to the Stage-7 first-pass behavior. `F_k` is the **post-dedup cardinality** of the **patchable** failing findings: it EXCLUDES `source: "synthetic-dnsp"` records (a synthetic is non-patchable and persists across cycles by design — a DEDUP case, not a regression, per the DM-003 cross-cycle rule; counting it would spuriously trip the monotonicity halt). The synthetic still forces human review via Stage 8 — it is simply not part of the patchable monotonicity comparison.
+2. **Apply the PR-02 4-step ordering on each pass transition `k → k+1`, in this exact order, EXIT on the first match — `regression → monotonicity → hard-cap → proceed`:**
+   - **Regression check (precedence over monotonicity):** if any patchable item that PASSED at pass `k` is FAILing at pass `k+1`, HALT immediately and emit the byte-exact halt string `Regression detected on Item X.Y — previously PASS at cycle N, now FAIL. Halt overrides monotonicity check.` (em-dash preserved; `X.Y` = the regressed item id, `N` = the prior-PASS pass). Regression ALWAYS runs and exits BEFORE the monotonicity check.
+   - **Monotonicity check:** if `|F_k| > 0` AND `|F_{k+1}| >= |F_k|` (the patchable failing set did NOT strictly shrink), HALT and emit the byte-exact halt string `[HALT-MONOTONICITY] |F|=<n>` (with `<n>` = `|F_{k+1}|`). Consulted only after the regression check passes.
+   - **Hard-cap:** if `k+1 > 2` (i.e. one re-patch pass already ran), STOP — the cap is 2 TOTAL passes.
+   - **Proceed (loop):** otherwise, if `F_k` is non-empty AND `|F_k|` strictly shrank AND no regression AND `k < 2`, loop back to **Stage 9** — re-delegate `sc:task --compliance strict` against a **residual PatchChecklist scoped to `F_k`** — then re-run Stage 10.
+3. On any STOP outcome (clean: `F_k` empty | capped at `k=2` | monotonicity/regression halt), finalize `ValidationReport.md`. Findings that remain `UNRESOLVED` at termination are logged for human review (the bundle still ships; the loop is an advisory remediation, not a hard blocker). The P2 loop keeps its OWN independent `F_n` history (never collapsed with any other counter).
 
 ---
 
 ### Stage 10.5: Pre-Reflect Sign-off
 
-After Stage 10 (the final roadmap re-verification) completes, fan out one `/sc:reflect --mode pre --remediate` agent **per phase file in parallel** — the cheapest executor-disjoint anti-bias check on the generated bundle, validating each phase tasklist against its driving spec before any execution spend. This stage is **fenced after the Stage 8-10 patch chain**: Stage 9 mutates the phase files via `sc:task --compliance strict`, so a pre-reflect co-located with Stages 8-10 would race a file mid-patch (auditing pre-patch content that no longer exists). Running at Stage 10.5 guarantees every pre-reflect reads the final, validated phase content.
+After Stage 10 (the final roadmap re-verification) completes, fan out one `/sc:reflect --mode pre --remediate` agent **per phase file in parallel** — the cheapest executor-disjoint anti-bias check on the generated bundle, validating each phase tasklist against its driving spec before any execution spend. This stage is **fenced after the Stage 8-10 patch chain *including any P2 bounded loop-back iterations***: Stage 9 mutates the phase files via `sc:task --compliance strict`, so a pre-reflect co-located with Stages 8-10 would race a file mid-patch (auditing pre-patch content that no longer exists). The P2 bounded patch loop (Stage 10 gate) MUST fully converge/terminate — clean | capped at `k=2` | monotonicity-or-regression halt — BEFORE Stage 10.5 fans out. Running at Stage 10.5 guarantees every pre-reflect reads the final, validated phase content.
+
+**Non-overlap invariant (P2 ⟂ Stage-10.5, R-8):** `set(P2_loop_findings) ∩ set(stage_10_5_reflect_pre_findings) == ∅`. The two remediation surfaces are provably disjoint along three independent levers: (1) **distinct stage** — P2 operates on QA-gate `F_k` fix-cycle findings INSIDE the Stages 7→9→10 patch chain; Stage 10.5 reflect-pre operates on spec-coverage gaps computed AFTER Stage 10; (2) **distinct finding-source** — P2's findings are Stage-7 roadmap-validation drift items; Stage 10.5's are reflect-pre spec-coverage gaps; (3) **distinct remediation-ownership** — P2 patches via `sc:task --compliance strict` (it runs/mutates), while Stage 10.5 reflect-pre authors advisory findings but does not itself execute the loop. Because the P2 loop is fenced to fully terminate before Stage 10.5 begins, no finding can be in-flight in both surfaces simultaneously.
 
 **Reuse the Stage 7 fan-out primitive.** Dispatch the agents via the same `Task` (Agent) primitive Stage 7 uses for its 2N validation fan-out, but **N agents, not 2N** — one per phase file, all in a single parallel wave. Generation throughput (Stages 1-5) is untouched (no reflect runs during generation); the fan-out's wall-clock is the slowest single phase's pre-reflect, not the sum across phases (this is how the "parallel agent so it doesn't slow creation" requirement is satisfied — the fan-out is parallel across phases and runs after generation, not interleaved with the mutation chain).
 
@@ -1524,7 +1657,7 @@ COMPLEXITY_SCORE =
 
 ## Stage Completion Reporting Contract
 
-The skill executes in 11 stages with per-stage validation. Stage reporting uses the Task system (TaskCreate, TaskUpdate) for progress tracking.
+The skill executes in 11 stage entries (1–10 plus 10.5) with per-stage validation. Stage reporting uses the Task system (TaskCreate, TaskUpdate) for progress tracking. (The per-phase post-execution reflection is an executed task templated into each phase file, NOT a generator stage.)
 
 | Stage | Name | Validation Criteria |
 |-------|------|---------------------|
@@ -1534,7 +1667,7 @@ The skill executes in 11 stages with per-stage validation. Stage reporting uses 
 | 4 | Enrichment | All tasks have non-empty: Effort (XS/S/M/L/XL), Risk (Low/Medium/High), Tier (STANDARD/STRICT/EXEMPT/LIGHT), Confidence score |
 | 5 | File Emission | tasklist-index.md written; all phase files referenced in index exist on disk; no extra phase files written |
 | 6 | Self-Check | All Sprint Compatibility Self-Check assertions pass; no blocking failures |
-| 7 | Roadmap Validation | 2N agents completed; findings merged and deduplicated; zero agent failures |
+| 7 | Roadmap Validation | 2N agents spawned; per-agent single retry on failure; then the some-vs-zero branch — **≥1 succeeded → synthesize one `synthetic-dnsp` HIGH per failed agent + PROCEED** (a single failed-then-synthesized agent does NOT block the stage when a sibling succeeded); **zero succeeded → report validation error / escalate**. Findings merged and deduplicated. |
 | 8 | Patch Plan Generation | ValidationReport.md and PatchChecklist.md written to TASKLIST_ROOT/validation/; OR clean report if zero issues |
 | 9 | Patch Execution | sc:task --compliance strict completed against PatchChecklist.md; all checklist items addressed |
 | 10 | Spot-Check Verification | All findings from ValidationReport.md re-verified; results appended to report |
@@ -1543,6 +1676,8 @@ The skill executes in 11 stages with per-stage validation. Stage reporting uses 
 ### Gate Behavior
 
 **Structural gates** (blocking): For deterministic, structurally verifiable properties (non-empty output, valid ID format, field presence, ID collisions, agent completion), the skill checks minimal viability before advancing. If a stage's structurally verifiable criteria are not satisfied, the skill reports the failed criterion and attempts correction before advancing.
+
+**Stage 7 agent-completion gate (some-vs-zero branch — P3):** Stage 7's "agent completion" structural gate is NOT a strict all-must-succeed gate. After the per-agent single retry, it follows the some-vs-zero success branch: a single failed-then-synthesized agent does NOT abort the stage when ≥1 sibling succeeded — the failure is carried forward as a `synthetic-dnsp` HIGH finding into `ValidationReport.md` and the stage PROCEEDS. The gate only blocks (reports the validation error / escalates) in the ZERO-succeeded case.
 
 **Semantic gates** (advisory): For semantic properties (content quality, prose adequacy), validation is advisory -- logged via TaskUpdate but not blocking advancement.
 
@@ -1594,7 +1729,7 @@ Per-stage completion messages (in TaskUpdate description):
 - Stage 3: "Task Conversion: M tasks created, IDs T01.01-TNN.MM"
 - Stage 4: "Enrichment: all tasks have Effort/Risk/Tier/Confidence"
 - Stage 5: "File Emission: index + N phase files written"
-- Stage 6: "Self-Check: all 17 checks passed"
+- Stage 6: "Self-Check: all 20 checks passed"
 - Stage 7: "Roadmap Validation: 2N agents completed, M findings across N phases"
 - Stage 8: "Patch Plan: ValidationReport.md + PatchChecklist.md written, X high / Y medium / Z low issues" (or "Patch Plan: clean — no drift detected, stages 9-10 skipped")
 - Stage 9: "Patch Execution: PatchChecklist.md executed via sc:task --compliance strict"

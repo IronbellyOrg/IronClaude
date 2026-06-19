@@ -52,6 +52,15 @@ start_commit: "<PHASE_N_START_SHA>"
 - `TASKLIST_ROOT/artifacts/D-####/notes.md`
 - `TASKLIST_ROOT/artifacts/D-####/evidence.md`
 
+**Execution Context** (optional, deterministic): a phase task MAY carry an optional task-level `## Execution Context` block — emitted per the Stage-4 deterministic emission rule (Section 4.1d of `SKILL.md`) — reusing the task-builder `References` / `Source areas` / `Key constraints` sub-field contract VERBATIM. The block carries NO specific `file:line` references and NO `src/...` paths in its header (named source areas only, not file paths; specific paths are never emitted by this generator (roadmap-text-only input)), includes NO `Ensuring:` clause, and never duplicates or overrides the Acceptance Criteria (the single source of truth). Exact shape:
+
+```markdown
+## Execution Context
+- References: <the resolved R-### roadmap reference(s); always present when the block is emitted>
+- Source areas: <named module(s)/area(s), not file paths; listed when the roadmap supplies them, omitted in the References-only degraded form>
+- Key constraints: <the first 1-3 stated invariants in roadmap appearance order; omitted when the roadmap supplies none>
+```
+
 **Deliverables:**
 
 - 1-5 concrete outputs

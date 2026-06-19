@@ -1,0 +1,7 @@
+input_tree_sha256: derived
+file_list:
+  - path: spec.md
+    sha256: 671990ded6cc9c6e7b77559d6231f0e81ddb4fd854c2bc8a3186fb61064c6582
+  - path: TASK-RF-tasklist-rfmerge-20260619-041423.md
+    sha256: 76a03ee412015ea4475636a2750414f356a7ced80f219d49f8a2b6b243b89e25
+file_count: 2
