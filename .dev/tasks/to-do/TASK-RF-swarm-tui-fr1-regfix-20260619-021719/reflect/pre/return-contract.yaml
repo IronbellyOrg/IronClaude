@@ -1,0 +1,53 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 2
+run_id: "20260619T025149Z-preee9acb22"
+report_path: ".dev/tasks/to-do/TASK-RF-swarm-tui-fr1-regfix-20260619-021719/reflect/pre/report.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-swarm-tui-fr1-regfix-20260619-021719/reflect/pre/audit.log"
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # depth=deep hard override (TCS O2: type=Refactor) — rubric not consulted
+
+# UC-1 coverage (scoped corrective target: FR-1 + FR-5 sub-requirements only)
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 5
+tcs: 66
+depth: deep
+
+# Reviewer ensemble (Tier 2)
+reviewer_count: 2
+reviewer_models: ["sonnet", "haiku"]
+reviewer_personas: ["analyzer", "qa"]
+t2_model_class_diversity: degraded   # 2 classes (N=2 floor); non-blocking
+merge_method: orchestrator-synthesis
+adversarial_unavailable: false
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+spec_is_wrong: false
+cannot_validate_without_user_input: false
+
+remediation_offered: true   # --remediate set; PARTIAL closed in-line, no Tier-3 handoff needed
+remediation_accepted: false
+remediation_task_path: null
+
+# Verdict
+verdict: pass
+coverage_floor: 0.90
+reviewed_at: "2026-06-19T02:51:49Z"

@@ -1,0 +1,46 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 2
+run_id: "20260618-165434-tui-pre"
+report_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/pre/report.md"
+confidence_calibrated: 0.93
+
+# UC-1 coverage
+coverage_pct: 1.0                 # parsed-only denominator (8/8 labeled FR/NFR covered)
+coverage_pct_union: 0.96          # union (parsed + inferred): 12 covered + 1 partial of 13
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 5
+
+# Tier-2 ensemble
+reviewer_cards:
+  - "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/pre/reviewer-coverage-card.md"
+  - "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/pre/reviewer-spec-literal-card.md"
+adversarial_convergence_score: 0.92
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded   # heterogeneous personas (requirements-analyst + quality-engineer); model-class diversity not independently asserted in this nested run
+t2_effective_diversity: model-only
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+cannot_validate_without_user_input: false
+
+# Tier 3 (remediate offered; not needed — PASS)
+remediation_offered: true
+remediation_accepted: false
+remediation_task_path: null

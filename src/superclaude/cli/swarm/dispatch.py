@@ -422,6 +422,7 @@ def dispatch_wave1(
     # in wall-clock (IMM-3). Tests that want to exercise queueing
     # inject their own ParallelExecutor with a smaller max_workers.
     executor = parallel_executor or ParallelExecutor(max_workers=workers_requested)
+    executor.quiet = True  # FR-1: swarm dispatch path is silent; workers emit to files.
 
     # T03.10 / FR-026 -- coarse wave_transition events bracket the
     # per-worker stream so operators tailing ``execution-log.md`` see

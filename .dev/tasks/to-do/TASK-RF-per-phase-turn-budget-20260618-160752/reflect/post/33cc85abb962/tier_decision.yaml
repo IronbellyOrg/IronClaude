@@ -1,0 +1,13 @@
+selected_tier: 2
+fired_rule_number: null          # §5.1 hard override: --depth deep => ALWAYS escalate to T2 (rubric not evaluated)
+hard_override: "--depth deep"
+coverage_degraded: null
+composite_score: null            # not computed (override path)
+per_signal_breakdown:
+  scope_size: 2                  # 3 source/config files + 4 test files
+  task_count: 1                  # single MDTM tasklist, multi-phase internally
+  blast_radius: 1                # tightly bounded: 1 stmt deleted, 1 added, 1 small class, 2 add-sites, 1 arg-swap
+  spec_density: 0                # S_dev_density ~0 — every diff hunk maps to an R-item
+  ambiguity_signals: 0          # spec is fully resolved (OQ-1/OQ-2 closed)
+escalation_reason: "--depth deep hard override forces Tier 2 heterogeneous reviewer ensemble"
+reviewer_count: 3

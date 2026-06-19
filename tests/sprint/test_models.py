@@ -937,6 +937,53 @@ class TestTurnLedger:
         with pytest.raises(ValueError, match="non-negative"):
             ledger_neg.credit(reimbursed)
 
+    def test_per_phase_sizing_for_task_counts(self):
+        """TM-2 (R-3): a ledger sized max_turns × n reports available()==budget, consumed==0.
+
+        n ∈ {1, 5} are the reachable per-phase sizes (the legacy ``else 1`` floor
+        and a typical multi-task phase). The n=0 case is a MODEL-LEVEL DEFENSIVE
+        check ONLY — it is NOT a reachable executor path: the executor floors the
+        legacy branch via ``else 1`` (F-T3), so an initial_budget=0 ledger can
+        never be constructed by the sprint runner. It is pinned here purely to
+        document TurnLedger's arithmetic at the degenerate boundary.
+        """
+        max_turns = 100
+        for n in (1, 5):
+            ledger = TurnLedger(initial_budget=max_turns * n)
+            assert ledger.available() == max_turns * n
+            assert ledger.consumed == 0
+        # Model-level defensive n=0 (NOT reachable from the executor — see above).
+        zero = TurnLedger(initial_budget=max_turns * 0)
+        assert zero.available() == 0
+        assert zero.consumed == 0
+
+    def test_no_in_place_reset_and_consumed_monotonic(self):
+        """TM-6 (R-7): no in-place reset mutator + consumed is non-decreasing.
+
+        The per-phase model resets budget by constructing a FRESH ledger (an
+        object boundary), NOT by mutating a live instance — so TurnLedger
+        intentionally exposes NO ``reset``/``reallocate`` method, and ``consumed``
+        only ever increases on a live instance.
+
+        Asserts EXACTLY: hasattr(TurnLedger, 'reset') is False AND consumed is
+        non-decreasing across a sequence of debits.
+        """
+        # No in-place reset mutator (the absence IS the requirement).
+        assert hasattr(TurnLedger, "reset") is False
+        assert hasattr(TurnLedger, "reallocate") is False
+
+        # consumed is non-decreasing across a sequence of debits (intra-phase).
+        ledger = TurnLedger(initial_budget=100)
+        consumed_trace = [ledger.consumed]
+        for amount in (3, 0, 7, 5):
+            ledger.debit(amount)
+            consumed_trace.append(ledger.consumed)
+        assert all(
+            consumed_trace[i] <= consumed_trace[i + 1]
+            for i in range(len(consumed_trace) - 1)
+        ), f"consumed must be non-decreasing, got {consumed_trace}"
+        assert ledger.consumed == 15
+
 
 # ---------------------------------------------------------------------------
 # TurnLedger wiring extensions (Phase 2)

@@ -1,0 +1,21 @@
+# Grounding gaps — evidence-insufficient / human-decision items (NOT deviations).
+findings:
+  - hunk_ref: "repo-wide (out-of-scope debt)"
+    evidence_missing: >
+      Tasklist Key Objective 4 literally requires `uv run ruff check src/ tests/` to pass
+      repo-wide. It does NOT: 125 ruff-check errors + 102 ruff-format files. R3 verified this
+      debt is PRE-EXISTING and DISJOINT from all 7 task surfaces (intersection empty; a sample
+      debt file fails identically at the start_commit). The 7 task surfaces themselves pass
+      targeted `ruff check` AND `ruff format --check`, and the full tests/swarm/ suite is green
+      (2234 passed). The task's own Phase 4 Findings (lines 317-319) document this as an
+      accepted out-of-scope follow-up.
+    why_not_classifiable: >
+      Whether KO-4's repo-wide-ruff clause is "satisfied" is a scope-acceptance JUDGMENT, not
+      a code fact — the corrective work introduced no new lint/format debt, but the literal
+      repo-wide clause is unmet.
+    next_evidence_needed: >
+      User decision: ACCEPT the repo-wide ruff/format debt as pre-existing and out-of-scope for
+      this surgical corrective task (KO-4 satisfied at the task-surface level), OR spin a
+      separate repo-wide lint/format cleanup task before final acceptance.
+    owner: user
+    decision_needed_by_user: true

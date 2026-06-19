@@ -1,0 +1,28 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: ".dev/brainstorms/20260618-per-phase-turn-budget/seed-brief.md"
+merged_output_path: ".dev/brainstorms/20260618-per-phase-turn-budget/merged-requirements.md"
+convergence_score: 0.9
+adversarial_artifacts_dir: null   # proposals run as in-context Task agents (architect / refactorer / qa); not the full sc-adversarial 6-artifact set
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary   # direct Read + grep of executor.py / models.py / commands.py in this worktree
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "K-1: legacy-phase wiring-hook now receives a per-phase (max_turns x 1) ledger instead of the cumulative global pool — intended refinement, characterization-pinned (TM-7/TM-8)."
+  - "K-2: design assumes sequential phase execution with intra-phase K>1 fan-out."
+  - "K-3: assumes no package-external consumer reads the ledger's sprint-cumulative state (verified within executor.py only)."
+
+# --- telemetry (non-stable) ---
+proposals:
+  - lens: "minimal-blast-radius (system-architect)"
+  - lens: "clean-model refactor (refactoring-expert)"
+  - lens: "test & invariant (quality-engineer)"
+merge_decision: "fresh-construct per phase, placed at tasks-resolution point (~executor.py:1838) covering both task and legacy branches; no sprint wiring accumulator; gate unchanged as safety net"
+key_verification_overturned_a_proposal_claim: true
+overturned_claim: "Proposals B & C asserted the legacy path never consults the ledger; FALSIFIED — run_post_phase_wiring_hook(ledger=ledger) at executor.py:2285. Merge placement corrected to bind a fresh ledger on the legacy path too."
+anchor_drift_corrected: true
+note: "All file:line anchors in the originating topic (and the copied REPORT.md) were from branch worktree-segfault-repro and had drifted; merged-requirements.md carries worktree-verified anchors."

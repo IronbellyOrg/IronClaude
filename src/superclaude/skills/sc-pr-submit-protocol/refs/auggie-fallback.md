@@ -36,6 +36,8 @@ auto-review — it is NOT our operator re-trigger. The fallback is `sc:pr-submit
 | `--no-remediation-offer` | explicit | suppresses `/sc:auggie-review`'s advisory remediation offer; `sc:pr-submit` owns remediation under its clamp. |
 | `--auggie-model claude-sonnet-4-6` | claude-sonnet-4-6 | the reviewing model. |
 
+No `--remediation-offer` flag is passed here; fallback intentionally suppresses `/sc:auggie-review`'s advisory remediation offer because `sc:pr-submit` owns remediation under its clamp.
+
 ## 3. Strict-once + clamp + single-shot (the invariants)
 
 - **Strict-once (INV-R2):** the invocation is gated on the durable `auggie_review_invoked` idempotency

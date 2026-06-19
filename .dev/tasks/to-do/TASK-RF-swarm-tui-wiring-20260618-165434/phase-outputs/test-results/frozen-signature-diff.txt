@@ -1,0 +1,14 @@
+VERDICT: PASS -- no signature-line changes (empty diff for both frozen files).
+
+Step 4.4 -- Frozen-signature git-diff proof (C3 / AC-004 / NFR-001)
+Command: git diff 300c06a6d53287893a446db8e859f5f1bc5434d8 -- \
+           src/superclaude/cli/swarm/dispatch.py src/superclaude/execution/parallel.py
+Date: 2026-06-18
+
+Result: EMPTY diff (0 bytes, 0 lines). Neither dispatch.py nor parallel.py was
+modified by this task. The dispatch_wave1 signature (dispatch.py:334-343) and the
+ParallelExecutor class / __init__ / plan / execute signatures
+(parallel.py:80/100/103/169) are byte-for-byte unchanged vs the start_commit.
+The TUI poll loop lives entirely in run_cmd (commands.py), the caller -- never in
+dispatch_wave1. Corroborated by tests/swarm/test_run_tui_integration.py::
+test_frozen_signatures_unchanged (inspect.signature pin, green in Step 3.8/4.3).

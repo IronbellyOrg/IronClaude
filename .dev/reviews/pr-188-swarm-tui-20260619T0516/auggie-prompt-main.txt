@@ -1,0 +1,76 @@
+You are reviewing a code change for the repository at the workspace root. Your job is to identify problems — both narrow bugs and higher-level concerns — and report them as structured JSON.
+
+## Context
+
+Target: PR #188 — swarm `--tui` dashboard wiring + FR-1 single-writer Console regression fix (REG-1/DRIFT-2/3/4)
+PR title: feat(swarm): wire --tui dashboard (FR-1..FR-7) + FR-1 regression fix
+PR summary: Wires `swarm run --tui` via a non-daemon dispatch worker thread + main-thread file-tailing poll loop. REG-1: disarm the Rich Live stdout/stderr redirect in tui.py; gate ParallelExecutor worker-surface print() behind a `quiet` class attribute; set executor.quiet=True on the swarm dispatch path (ParallelExecutor.__init__(self, max_workers=10) must stay frozen). FR-5: guard poll-loop readers (try/except Exception, last-good retention, no busy-spin continue) and re-raise a captured worker exception BEFORE the SIGINT Exit(130). DRIFT-2: extend the FR-1 AST audit to flag unguarded print()/sys.stdout/sys.stderr writes on worker surfaces + a real-PTY smoke + DRIFT-3/DRIFT-4 regression tests.
+
+Diff range: origin/master...HEAD
+Files changed (7):
+- src/superclaude/cli/swarm/tui.py
+- src/superclaude/execution/parallel.py
+- src/superclaude/cli/swarm/dispatch.py
+- src/superclaude/cli/swarm/commands.py
+- tests/swarm/test_inv012_tui_opt_in.py
+- tests/swarm/test_run_tui_integration.py
+- tests/swarm/test_tail_events.py
+
+The full diff is available at: .dev/reviews/pr-188-swarm-tui-20260619T0516/inputs/diff.patch
+Read it with the `view` tool, then use your indexed codebase context to investigate. Pay special attention to: the threaded dispatch + poll loop in commands.py run_cmd (concurrency, exception masking, terminal restoration), the ParallelExecutor `quiet` gating (frozen __init__ signature), the Rich Live redirect change in tui.py, and whether the new tests genuinely fail against pre-fix code (non-vacuous).
+
+## Focus areas
+
+You MUST cover every focus area listed below. For each, search for the patterns described — do not just react to what's visible in the diff. Use codebase retrieval to find related call sites, similar patterns, and prior conventions.
+
+- security: hardcoded secrets, injection sinks, sensitive data in logs, race conditions in trust paths, missing input validation at boundaries. Cross-reference repo conventions.
+- architecture: layering violations (worker thread touching the Console/TUI), business logic in the wrong layer, missing abstractions, leaky abstractions, modules with too many responsibilities. Cross-reference how the swarm package separates dispatch/state/tui.
+- quality (correctness/concurrency/resource-leak/error-handling): off-by-one, null-deref/unwrap-on-None, untyped boundaries, swallowed exceptions, broad except clauses, thread join/teardown leaks, busy-spin, exception precedence inversions, KeyboardInterrupt vs Exception scoping. Cross-reference existing helpers (read_state, _tail_events, dispatch_wave1).
+- performance: unbounded loops, busy-spin without sleep, repeated parsing, synchronous calls blocking the render loop.
+- anti-patterns: god functions (>100 lines), copy-paste, primitive obsession, speculative generality, swallowing-then-continuing.
+- tests: new code with no tests, tests that don't exercise the new path, vacuous tests (would pass against pre-fix code), tests relying on time/threads/randomness without bounding, missing edge cases (empty/None/concurrent), PTY/skipif portability.
+- docs: new public behavior without docstrings, comments that contradict code.
+
+## Output contract (STRICT — your response must match this exactly)
+
+Respond with a single JSON object (a ```json fence is fine; no prose outside it). The shape is:
+
+{
+  "findings": [
+    {
+      "title": "<one-line summary, sentence case, no trailing period>",
+      "category": "<security|data-integrity|correctness|concurrency|resource-leak|error-handling|api-contract|performance|architecture|layering|coupling|anti-pattern|dead-code|tests|docs|logging|naming|style>",
+      "severity_hint": "<critical|high|medium|low|nit>",
+      "file": "<repo-relative path>",
+      "line": <integer line number in the file at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": <true|false>,
+      "evidence": "<exact code excerpt at the cited line(s), verbatim; null + confidence low if you cannot copy exact bytes>",
+      "why": "<2-4 sentences, concrete>",
+      "recommendation": "<1-3 sentences, concrete change>",
+      "cross_references": ["<repo-relative path:line>"],
+      "confidence": "<high|medium|low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "<multi-file concern not anchored to a single line>",
+      "category": "<as above>",
+      "severity_hint": "<as above>",
+      "affected_files": ["<repo-relative path>"],
+      "why": "<as above>",
+      "recommendation": "<as above>",
+      "confidence": "<as above>"
+    }
+  ],
+  "notes_for_orchestrator": "<optional notes — stale indexing, scope not covered>"
+}
+
+## Quality bar
+
+- Every finding must cite a real file:line. If you can't verify it, set confidence "low".
+- Do not invent file paths. Prefer in_diff findings; out-of-diff only when the diff makes them newly relevant.
+- 3-5 highest-signal findings per area, not exhaustive. Zero is fine if clean — do not pad.
+- Put architecture/layering/anti-pattern spanning concerns in cross_cutting_observations.
+
+Return only the JSON object. No additional text.

@@ -1,0 +1,58 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.0, pluggy-1.6.0 -- /config/workspace/IronClaude/.claude/worktrees/perPhaseturnBudget/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/perPhaseturnBudget
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 46 items
+
+tests/sprint/test_per_phase_budget.py::test_regression_3x5_no_global_pool_starvation PASSED [  2%]
+tests/sprint/test_per_phase_budget.py::test_per_phase_ledger_is_fresh_each_phase PASSED [  4%]
+tests/sprint/test_per_phase_budget.py::test_phase1_reimbursement_does_not_affect_phase2 PASSED [  6%]
+tests/sprint/test_per_phase_budget.py::test_legacy_phase_after_task_phase_has_fresh_ledger PASSED [  8%]
+tests/sprint/test_per_phase_budget.py::test_single_task_overspend_trips_safety_net PASSED [ 10%]
+tests/sprint/test_per_phase_budget.py::test_heavy_phase1_cannot_starve_phase2 PASSED [ 13%]
+tests/sprint/test_per_phase_budget.py::test_skip_and_python_phases_construct_no_ledger PASSED [ 15%]
+tests/sprint/test_per_phase_budget.py::test_kpi_wiring_totals_accumulate_across_phases PASSED [ 17%]
+tests/sprint/test_per_phase_budget.py::test_resume_window_sizes_phase_identically PASSED [ 19%]
+tests/sprint/test_models.py::TestTurnLedger::test_initial_available PASSED [ 21%]
+tests/sprint/test_models.py::TestTurnLedger::test_debit_reduces_available PASSED [ 23%]
+tests/sprint/test_models.py::TestTurnLedger::test_debit_monotonicity PASSED [ 26%]
+tests/sprint/test_models.py::TestTurnLedger::test_debit_negative_raises PASSED [ 28%]
+tests/sprint/test_models.py::TestTurnLedger::test_credit_increases_available PASSED [ 30%]
+tests/sprint/test_models.py::TestTurnLedger::test_credit_negative_raises PASSED [ 32%]
+tests/sprint/test_models.py::TestTurnLedger::test_available_formula PASSED [ 34%]
+tests/sprint/test_models.py::TestTurnLedger::test_can_launch_true PASSED [ 36%]
+tests/sprint/test_models.py::TestTurnLedger::test_can_launch_false_insufficient PASSED [ 39%]
+tests/sprint/test_models.py::TestTurnLedger::test_can_launch_exact_boundary PASSED [ 41%]
+tests/sprint/test_models.py::TestTurnLedger::test_can_remediate_true PASSED [ 43%]
+tests/sprint/test_models.py::TestTurnLedger::test_can_remediate_false PASSED [ 45%]
+tests/sprint/test_models.py::TestTurnLedger::test_can_remediate_exact_boundary PASSED [ 47%]
+tests/sprint/test_models.py::TestTurnLedger::test_defaults PASSED        [ 50%]
+tests/sprint/test_models.py::TestTurnLedger::test_zero_budget_available PASSED [ 52%]
+tests/sprint/test_models.py::TestTurnLedger::test_zero_budget_can_launch_false PASSED [ 54%]
+tests/sprint/test_models.py::TestTurnLedger::test_zero_budget_can_remediate_false PASSED [ 56%]
+tests/sprint/test_models.py::TestTurnLedger::test_over_budget_debit_makes_available_negative PASSED [ 58%]
+tests/sprint/test_models.py::TestTurnLedger::test_debit_zero_is_noop PASSED [ 60%]
+tests/sprint/test_models.py::TestTurnLedger::test_credit_zero_is_noop PASSED [ 63%]
+tests/sprint/test_models.py::TestTurnLedger::test_credit_exceeds_consumed_increases_available PASSED [ 65%]
+tests/sprint/test_models.py::TestTurnLedger::test_budget_monotonicity_consumed_never_decreases PASSED [ 67%]
+tests/sprint/test_models.py::TestTurnLedger::test_budget_monotonicity_across_many_operations PASSED [ 69%]
+tests/sprint/test_models.py::TestTurnLedger::test_exact_threshold_budget_can_launch PASSED [ 71%]
+tests/sprint/test_models.py::TestTurnLedger::test_exact_threshold_budget_can_remediate PASSED [ 73%]
+tests/sprint/test_models.py::TestTurnLedger::test_budget_decay_rate_08 PASSED [ 76%]
+tests/sprint/test_models.py::TestTurnLedger::test_max_sustainable_tasks_at_08 PASSED [ 78%]
+tests/sprint/test_models.py::TestTurnLedger::test_46_task_sprint_sustainability PASSED [ 80%]
+tests/sprint/test_models.py::TestTurnLedger::test_budget_exhaustion_property PASSED [ 82%]
+tests/sprint/test_models.py::TestTurnLedger::test_rate_boundary_validation PASSED [ 84%]
+tests/sprint/test_models.py::TestTurnLedger::test_per_phase_sizing_for_task_counts PASSED [ 86%]
+tests/sprint/test_models.py::TestTurnLedger::test_no_in_place_reset_and_consumed_monotonic PASSED [ 89%]
+tests/sprint/test_turn_ledger_concurrency.py::test_try_launch_grants_exactly_n_under_concurrency PASSED [ 91%]
+tests/sprint/test_turn_ledger_concurrency.py::test_try_launch_admits_exactly_task_count_under_kgt1 PASSED [ 93%]
+tests/sprint/test_multi_phase.py::TestThreePhaseHappyPath::test_three_phase_happy_path PASSED [ 95%]
+tests/sprint/test_multi_phase.py::TestHaltAtPhaseThree::test_halt_at_phase_three PASSED [ 97%]
+tests/sprint/test_multi_phase.py::TestTM7LegacyExecutionLogGolden::test_task_then_legacy_execution_log_golden PASSED [100%]
+
+============================== 46 passed in 4.33s ==============================

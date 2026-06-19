@@ -223,6 +223,8 @@ class TUI:
             console=self.console,
             refresh_per_second=self._refresh,
             screen=False,
+            redirect_stdout=False,
+            redirect_stderr=False,
         )
         self._live.start()
         return self._live

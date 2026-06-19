@@ -179,3 +179,113 @@ class TestHaltAtPhaseThree:
         assert result.phase_results[0].status == PhaseStatus.PASS
         assert result.phase_results[1].status == PhaseStatus.PASS
         assert result.phase_results[2].status == PhaseStatus.HALT
+
+
+class TestTM7LegacyExecutionLogGolden:
+    """TM-7 (R-6 / C2): legacy subprocess execution log is byte-equivalent.
+
+    GOLDEN characterization (promoted to a stable, regression-grade check). Pins
+    a sprint of **task phase → legacy (freeform) phase** under the per-phase
+    turn-budget model. The assertion is scoped STRICTLY to the legacy subprocess
+    EXECUTION LOG — phase order, PhaseStatus, exit_code — which the per-phase
+    refactor leaves unchanged. It deliberately does NOT assert any wiring
+    telemetry value: the wiring-input delta (legacy hook now receives a fresh
+    max_turns × 1 ledger) is the intentional R-6 refinement pinned by TM-13, and
+    TM-7 cannot and must not detect it.
+    """
+
+    def test_task_then_legacy_execution_log_golden(self, tmp_path):
+        # Phase 1 is a TASK phase (### T01.01 headings route to the per-task
+        # executor); Phase 2 is a LEGACY freeform phase (no task headings → single
+        # ClaudeProcess subprocess path).
+        p1 = tmp_path / "phase-1-tasklist.md"
+        p1.write_text(
+            "# Phase 1\n\n## Tasks\n\n"
+            "### T01.01 -- only task\n\n**Dependencies:** none\n\nBody.\n",
+            encoding="utf-8",
+        )
+        p2 = tmp_path / "phase-2-tasklist.md"
+        p2.write_text("# Phase 2: freeform legacy phase\n", encoding="utf-8")
+
+        index = tmp_path / "tasklist-index.md"
+        index.write_text("index\n", encoding="utf-8")
+
+        config = SprintConfig(
+            index_path=index,
+            release_dir=tmp_path,
+            phases=[
+                Phase(number=1, file=p1, name="Phase 1"),
+                Phase(number=2, file=p2, name="Phase 2"),
+            ],
+            start_phase=1,
+            end_phase=2,
+            max_turns=5,
+            wiring_gate_mode="off",
+            gate_rollout_mode="off",
+        )
+
+        def _task_subprocess(task, config, phase, prior_context=""):
+            # The single task in phase 1 succeeds.
+            return (0, 3, 100)
+
+        class _LegacyPopen:
+            def __init__(self):
+                self.returncode = 0
+                self.pid = 7000
+                self.stdin = None
+                self._poll = 0
+
+            def poll(self):
+                self._poll += 1
+                return None if self._poll <= 1 else 0
+
+            def wait(self, timeout=None):
+                self.returncode = 0
+                return 0
+
+        def _popen_factory(*args, **kwargs):
+            # Only the legacy phase (phase 2) reaches subprocess.Popen; write its
+            # result + output so the freeform path resolves to PASS/CONTINUE.
+            legacy_phase = config.phases[1]
+            config.results_dir.mkdir(parents=True, exist_ok=True)
+            config.result_file(legacy_phase).write_text(
+                "EXIT_RECOMMENDATION: CONTINUE\n"
+            )
+            config.output_file(legacy_phase).write_text("output phase 2\n")
+            return _LegacyPopen()
+
+        captured = []
+        with (
+            patch(
+                "superclaude.cli.sprint.executor.shutil.which",
+                return_value="/usr/bin/claude",
+            ),
+            patch(
+                "superclaude.cli.sprint.executor._run_task_subprocess",
+                side_effect=_task_subprocess,
+            ),
+            patch(
+                "superclaude.cli.pipeline.process.subprocess.Popen",
+                side_effect=_popen_factory,
+            ),
+            patch("superclaude.cli.pipeline.process.os.setpgrp"),
+            patch("superclaude.cli.sprint.notify._notify"),
+            patch("superclaude.cli.sprint.executor.SprintLogger") as logger_cls,
+        ):
+            logger = MagicMock()
+            logger.write_summary = MagicMock(side_effect=lambda sr: captured.append(sr))
+            logger_cls.return_value = logger
+            execute_sprint(config)
+
+        result = captured[0]
+
+        # GOLDEN execution log: (phase number, PhaseStatus, exit_code) in order.
+        # The legacy phase (2) is byte-equivalent to the baseline single-subprocess
+        # behavior: PASS, exit_code 0, running AFTER the task phase.
+        execution_log = [
+            (pr.phase.number, pr.status, pr.exit_code) for pr in result.phase_results
+        ]
+        assert execution_log == [
+            (1, PhaseStatus.PASS, 0),
+            (2, PhaseStatus.PASS, 0),
+        ]

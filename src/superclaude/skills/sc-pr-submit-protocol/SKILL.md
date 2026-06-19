@@ -42,7 +42,7 @@ scripts), and the §10 VAL validator.
 
 | Input | Required | Notes |
 |-------|----------|-------|
-| `--monitor {0,1,2,3}` | No (defaults to 1) | The autonomy ceiling. Explicit 0 = open PR only (byte-identical to today). |
+| `--monitor {0,1,2,3}` | No (defaults to 2) | The autonomy ceiling. Explicit 0 = open PR only (byte-identical to today). |
 | PR context (`--head`, `--base`, `--title`, `--body`) OR an existing PR number | Yes | To open or attach to the PR. |
 | `--max-rounds` | No (default 2, hard cap 5) | Reject `> 5`. |
 | `--poll-interval` | No (default 30) | Reject `< 30` with "minimum is 30 seconds". |

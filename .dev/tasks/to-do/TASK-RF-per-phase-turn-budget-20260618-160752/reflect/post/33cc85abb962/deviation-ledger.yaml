@@ -1,0 +1,10 @@
+# UC-2 deviation ledger — per-phase turn-budget audit
+# Reference of record for "what was expected": the FINAL spec (merged-requirements-FINAL.md, R-1..R-10, TM-0..TM-14).
+# Result: ZERO deviations across all 4 classes. The working-tree change is a faithful, in-blast-radius
+# implementation of the spec with no authorized/necessary/drift/regression divergence.
+findings: []
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0

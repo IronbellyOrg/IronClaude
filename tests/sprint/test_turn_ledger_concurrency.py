@@ -38,3 +38,32 @@ def test_try_launch_grants_exactly_n_under_concurrency() -> None:
     # Consumed exactly the granted allocations; never more than the budget.
     assert ledger.consumed == n_allowed * minimum
     assert ledger.available() < minimum  # no room for another launch
+
+
+@pytest.mark.thread_safety
+def test_try_launch_admits_exactly_task_count_under_kgt1() -> None:
+    """TM-12 (R-9): K>1 launch admission with a per-phase-shaped pool.
+
+    Sizes ``initial_budget = task_count × minimum_allocation`` (the per-phase
+    pool shape), then fans ``2 × task_count`` ``try_launch()`` calls across a
+    ThreadPoolExecutor. The RLock-protected atomic check-and-debit admits EXACTLY
+    ``task_count`` launches under contention — no over-admission.
+
+    Asserts EXACTLY: exactly ``task_count`` ``try_launch()`` calls succeed.
+    """
+    task_count = 8
+    minimum = 5
+    ledger = TurnLedger(initial_budget=task_count * minimum, minimum_allocation=minimum)
+
+    n_attempts = 2 * task_count  # twice the admissible count → exposes any race
+
+    def _attempt(_i: int) -> bool:
+        return ledger.try_launch()
+
+    with ThreadPoolExecutor(max_workers=min(16, n_attempts)) as pool:
+        outcomes = list(pool.map(_attempt, range(n_attempts)))
+
+    granted = sum(1 for ok in outcomes if ok)
+    assert granted == task_count, (
+        f"expected exactly {task_count} launches, got {granted}"
+    )
