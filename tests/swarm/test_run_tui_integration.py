@@ -514,6 +514,63 @@ def test_drift4_sigint_does_not_mask_worker_crash(tmp_path, monkeypatch) -> None
     assert stop_calls, "DRIFT-4: tui.stop() did not run before worker re-raise"
 
 
+def test_tui_init_error_does_not_mask_worker_crash(tmp_path, monkeypatch) -> None:
+    """F1 (FR-5): a TUI start() error must not mask a concurrent worker crash."""
+    worker_sentinel = RuntimeError("boom-F1-worker")
+    tui_sentinel = RuntimeError("boom-F1-tui-start")
+
+    def _boom_worker(*args, **kwargs):
+        raise worker_sentinel
+
+    def _boom_start(self):
+        raise tui_sentinel
+
+    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", _boom_worker)
+    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
+    monkeypatch.setattr(tui_mod.TUI, "start", _boom_start)
+
+    stop_calls: list[int] = []
+    real_stop = tui_mod.TUI.stop
+
+    def _stop_spy(self):
+        stop_calls.append(1)
+        return real_stop(self)
+
+    monkeypatch.setattr(tui_mod.TUI, "stop", _stop_spy)
+
+    target = _write_padded_target(tmp_path)
+    result = CliRunner().invoke(run_cmd, _tui_args(target, tmp_path / "f1mask"))
+
+    assert result.exception is worker_sentinel, (
+        "F1: a TUI start() error must not mask the worker crash; the worker "
+        f"exception must dominate. got {result.exception!r}\noutput:\n{result.output}"
+    )
+    assert stop_calls, "F1: tui.stop() did not run before the worker re-raise"
+
+
+def test_tui_init_error_surfaces_when_no_worker_crash(tmp_path, monkeypatch) -> None:
+    """F1 (FR-5): with no worker crash, a TUI start() error surfaces unmasked."""
+    tui_sentinel = RuntimeError("boom-F1-tui-only")
+
+    def _boom_start(self):
+        raise tui_sentinel
+
+    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
+    monkeypatch.setattr(tui_mod.TUI, "start", _boom_start)
+
+    target = _write_padded_target(tmp_path)
+    result = CliRunner().invoke(run_cmd, _tui_args(target, tmp_path / "f1only"))
+
+    assert result.exception is tui_sentinel, (
+        "F1: a TUI start() error with no worker crash must surface unmasked "
+        f"(not swallowed, not a clean exit); got exit={result.exit_code} "
+        f"exception={result.exception!r}\noutput:\n{result.output}"
+    )
+    assert result.exit_code != 0, (
+        f"F1: TUI start() error must yield a non-zero exit; got {result.exit_code}"
+    )
+
+
 # ---------------------------------------------------------------------------
 # FR-6 -- idempotent tui.stop() on clean / exception / SIGINT exit paths
 # ---------------------------------------------------------------------------

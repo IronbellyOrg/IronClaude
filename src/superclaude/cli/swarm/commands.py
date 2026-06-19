@@ -1923,6 +1923,7 @@ def run_cmd(
         )
         tui_obj: Optional[TUI] = None
         interrupted = False
+        tui_exc: Optional[BaseException] = None
         dispatch_thread.start()
         try:
             tui_obj = TUI()
@@ -1982,6 +1983,14 @@ def run_cmd(
             # read-only status --watch loop) -- a mutating run must reflect the
             # interruption in its exit code.
             interrupted = True
+        except Exception as exc:  # noqa: BLE001 -- surfaced AFTER the worker check
+            # FR-5: a TUI-side error (e.g. Rich Live startup failing on an odd
+            # terminal, or the FR-1 main-thread AssertionError) must NOT mask a
+            # concurrent worker crash. Capture it and let the post-loop block
+            # apply the precedence worker-crash -> SIGINT -> TUI-error below, so
+            # exc_box still dominates and this error is re-raised (never
+            # swallowed) only when no worker crash / interrupt occurred.
+            tui_exc = exc
         finally:
             # FR-6: tui.stop() ALWAYS runs first (idempotent, tui.py:230-234) so
             # the terminal is restored on the clean / exception / SIGINT paths.
@@ -1998,6 +2007,11 @@ def run_cmd(
         if interrupted:
             # tui.stop() + join() have already run; surface SIGINT as exit 130.
             raise click.exceptions.Exit(130)
+        if tui_exc is not None:
+            # FR-5: no worker crash and no SIGINT -> surface the TUI-side error
+            # unmasked (it was deferred behind the exc_box check above so a
+            # worker crash would have dominated).
+            raise tui_exc
         # No exception: re-bind worker_results VERBATIM from the result-box so
         # the downstream normalize/reduce/len(worker_results) continuation is
         # byte-equivalent to the synchronous path.
