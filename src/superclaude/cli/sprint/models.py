@@ -1019,6 +1019,14 @@ class TurnLedger:
     Tracks budget allocation, consumption, and reimbursement for sprint
     subprocesses. Enforces monotonicity: consumed can only increase.
 
+    Monotonicity is PER-INSTANCE (per-phase). Under the per-phase turn-budget
+    model (R-7) the sprint runner constructs a FRESH ``TurnLedger`` for every
+    phase — the per-phase reset is an object boundary, not an in-place mutation.
+    There is intentionally NO ``reset``/``reallocate`` method: ``consumed`` never
+    decreases on a live instance, and a new phase starts from a brand-new ledger
+    rather than rewinding an existing one. No state (budget, reimbursement, or
+    wiring counters) carries over between instances.
+
     Wiring analysis budget fields (NFR-004: all default to 0):
     - wiring_turns_used: cumulative turns consumed by wiring analysis
     - wiring_turns_credited: cumulative turns credited back from wiring analysis

@@ -1,0 +1,23 @@
+$ grep -rn "\.wiring_turns\|\.wiring_analyses\|turn_ledger=" src/superclaude/cli/sprint
+src/superclaude/cli/sprint/kpi.py:63:        return self.wiring_turns_used - self.wiring_turns_credited
+src/superclaude/cli/sprint/kpi.py:140:            f"  Turns used:       {self.wiring_turns_used}",
+src/superclaude/cli/sprint/kpi.py:141:            f"  Turns credited:   {self.wiring_turns_credited}",
+src/superclaude/cli/sprint/kpi.py:143:            f"  Analyses run:     {self.wiring_analyses_run}",
+src/superclaude/cli/sprint/kpi.py:193:        report.wiring_turns_used = turn_ledger.wiring_turns_used
+src/superclaude/cli/sprint/kpi.py:195:        report.wiring_turns_credited = max(0, turn_ledger.wiring_turns_credited)
+src/superclaude/cli/sprint/kpi.py:197:        report.wiring_analyses_run = turn_ledger.wiring_analyses_count
+src/superclaude/cli/sprint/models.py:1105:            self.wiring_turns_used += turns
+src/superclaude/cli/sprint/models.py:1106:            self.wiring_analyses_count += 1
+src/superclaude/cli/sprint/models.py:1125:            self.wiring_turns_credited += credit_amount
+src/superclaude/cli/sprint/executor.py:352:    accumulator is passed directly as ``build_kpi_report(..., turn_ledger=...)``.
+src/superclaude/cli/sprint/executor.py:2009:                sprint_wiring_totals.wiring_turns_used += ledger.wiring_turns_used
+src/superclaude/cli/sprint/executor.py:2010:                sprint_wiring_totals.wiring_turns_credited += (
+src/superclaude/cli/sprint/executor.py:2011:                    ledger.wiring_turns_credited
+src/superclaude/cli/sprint/executor.py:2013:                sprint_wiring_totals.wiring_analyses_count += (
+src/superclaude/cli/sprint/executor.py:2014:                    ledger.wiring_analyses_count
+src/superclaude/cli/sprint/executor.py:2400:                sprint_wiring_totals.wiring_turns_used += ledger.wiring_turns_used
+src/superclaude/cli/sprint/executor.py:2401:                sprint_wiring_totals.wiring_turns_credited += (
+src/superclaude/cli/sprint/executor.py:2402:                    ledger.wiring_turns_credited
+src/superclaude/cli/sprint/executor.py:2404:                sprint_wiring_totals.wiring_analyses_count += (
+src/superclaude/cli/sprint/executor.py:2405:                    ledger.wiring_analyses_count
+src/superclaude/cli/sprint/executor.py:2543:            turn_ledger=sprint_wiring_totals,
