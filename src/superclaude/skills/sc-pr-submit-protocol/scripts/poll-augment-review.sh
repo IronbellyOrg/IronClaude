@@ -56,13 +56,19 @@ fi
 # decline. Fetch them from the REST issue-comments endpoint; do not rely on the GraphQL
 # `gh pr view --json comments` surface because REST exposes the bot login as
 # `user.login=augmentcode[bot]` and is the same repo-scoped surface used for replies.
-ISSUE_COMMENTS_JSON="$(gh api "repos/${REPO}/issues/${PR}/comments" 2>/dev/null || echo '[]')"
+# `--paginate` fetches EVERY page (the REST default is only the first ~30, oldest-first),
+# so on a busy PR a recent decline / re-review thread beyond page 1 is never silently
+# dropped (which would misclassify the review state); `jq -s 'add'` flattens the
+# per-page arrays `--paginate` emits back into one array. Fail-soft to `[]` on any error.
+ISSUE_COMMENTS_JSON="$(gh api "repos/${REPO}/issues/${PR}/comments" --paginate 2>/dev/null | jq -s 'add // []' 2>/dev/null || echo '[]')"
 
 # Inline review comments carry ids / path / line the reply step needs. These are merged
 # with PR conversation comments above. Surfacing only inline comments would make
 # `declined` unreachable in production, while the classifier's finding-comment rule
-# requires path+line so path-less conversation comments are not miscounted.
-INLINE_COMMENTS_JSON="$(gh api "repos/${REPO}/pulls/${PR}/comments" 2>/dev/null || echo '[]')"
+# requires path+line so path-less conversation comments are not miscounted. `--paginate`
+# (+ `jq -s 'add'`) is mandatory here too: a busy PR's most recent inline findings live
+# beyond the first page, and dropping them would misclassify `findings` as `clean`.
+INLINE_COMMENTS_JSON="$(gh api "repos/${REPO}/pulls/${PR}/comments" --paginate 2>/dev/null | jq -s 'add // []' 2>/dev/null || echo '[]')"
 
 # Coarse state: any review present => let the FSM classify; none => polling. The
 # authoritative three-state classification is done by superclaude.pr_submit.classify

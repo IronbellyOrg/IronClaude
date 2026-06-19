@@ -2,12 +2,14 @@
 addendum FR-9.1).
 
 :func:`classify` is a pure function of ``(payload, contract)`` that returns one of
-``"polling"`` / ``"clean"`` / ``"findings"`` / ``"declined"``. It keys ONLY on
-``contract.augment_bot_login`` (never a literal string), so a different bot login
-is treated as "review not detected" (T-211) and interleaved Augment+human reviews
-parse only the Augment author (T-212). The V1.1 ``"declined"`` state (FR-9.1) is
-checked FIRST so an Augment "abnormally large" decline is never miscounted as
-``"findings"``; the decline predicate lives in the sibling pure fn :func:`is_decline`.
+``"polling"`` / ``"clean"`` / ``"findings"`` / ``"declined"``. It keys on the Augment
+IDENTITY SET ``{contract.augment_bot_login, contract.augment_app_slug}`` (never a literal
+string), so the same author rendered as ``augmentcode[bot]`` (REST) or ``augmentcode``
+(GraphQL app-slug) is recognized either way, while a different bot login is treated as
+"review not detected" (T-211) and interleaved Augment+human reviews parse only the Augment
+author (T-212). The V1.1 ``"declined"`` state (FR-9.1) is checked FIRST so an Augment
+"abnormally large" decline is never miscounted as ``"findings"``; the decline predicate
+lives in the sibling pure fn :func:`is_decline`.
 
 NFR-6 core purity: no review-fetch command tokens; the payload is already fetched.
 """
@@ -103,13 +105,15 @@ def _entry_has_findings(review: dict) -> bool:
 def is_decline(comment: dict, contract: Any, *, watermark: Any = None) -> bool:
     """True iff ``comment`` is an Augment "abnormally large" decline (FR-9.1 / FR-9.5).
 
-    A decline is an Augment-authored comment whose body matches BOTH
+    A decline is an Augment-authored comment (authored by any identity in the contract's
+    ``{augment_bot_login, augment_app_slug}`` set) whose body matches BOTH
     ``contract.decline_phrase_regex`` (default ``abnormally\\s+large``) AND
     ``contract.decline_retrigger_regex`` (default
-    ``comment ["']?(augment|auggie|augmentcode) review["']?``), case-insensitively,
-    AND that is newer than ``watermark``. A ``None`` watermark accepts any decline;
-    when a watermark is given, a comment whose ``createdAt``/``created_at`` is not
-    strictly newer is treated as a stale pre-watermark decline and ignored (EC-23).
+    ``comment ["'`*_]*(augment|auggie|augmentcode) review["'`*_]*`` — the ``*_`` wrappers
+    accept the Markdown-emphasized real shape ``comment "**_augment review_**"``),
+    case-insensitively, AND that is newer than ``watermark``. A ``None`` watermark accepts
+    any decline; when a watermark is given, a comment whose ``createdAt``/``created_at`` is
+    not strictly newer is treated as a stale pre-watermark decline and ignored (EC-23).
 
     Pure: no I/O, no ``gh``/``git`` tokens. A body matching only ``abnormally large``
     (no re-trigger instruction) is NOT a decline — both regexes must match.
