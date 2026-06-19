@@ -174,12 +174,23 @@ def _drive_sprint(
 
 @pytest.mark.regression
 def test_regression_3x5_no_global_pool_starvation(tmp_path):
-    """TM-0 (R-3): 3 phases × 5 tasks at --max-turns 100, each task ≥20 turns.
+    """TM-0 (R-3): 3 phases × 5 tasks at --max-turns 100, each task consuming 25 turns.
 
     Under the OLD global pool (max_turns × len(active_phases) = 100 × 3 = 300),
-    3 × 5 × 20 = 300 turns drained the shared pool and later phases' tasks were
-    SKIPPED → phase ERROR. Under the per-phase model each phase gets its own
-    500-turn pool (100 × 5), so NOTHING is starved.
+    3 × 5 × 25 = 375 turns OVERFLOW the single 300-turn pool: once cumulative
+    consumption passes 300 the per-task budget gate denies later launches, tasks
+    are recorded SKIPPED, and the phase maps to ERROR. Under the per-phase model
+    each phase gets its OWN fresh 500-turn pool (100 × 5) and 5 × 25 = 125 ≤ 500,
+    so NOTHING is starved.
+
+    NOTE (regression strength): 25 > 20 is deliberate. A 20-turn workload totals
+    exactly 15 × 20 = 300 and merely *fills* the old pool without overflowing it —
+    every task still launches (each launch needs only available >= minimum_allocation),
+    so the old code would NOT skip/ERROR and the starvation assertions below would
+    pass under it. 25/task (375 total) genuinely reproduces the starvation this
+    regression guards, so the 0-SKIPPED / SUCCESS assertions — not just the
+    structural per-phase-ledger assertions — distinguish old from new. (Spec TM-0
+    requires >= 20 turns/task; 25 satisfies it.)
 
     Asserts EXACTLY: 0 SKIPPED tasks; all 3 phases PASS; sprint SUCCESS; and
     ledger.available() == 500 at entry to EACH of the 3 phases.
@@ -187,9 +198,11 @@ def test_regression_3x5_no_global_pool_starvation(tmp_path):
     config = _make_task_config(tmp_path, phase_task_counts=[5, 5, 5], max_turns=100)
 
     def _subprocess(task, config, phase, prior_context=""):
-        # Every task consumes >= 20 turns (well past the global pool's per-phase
-        # share, but within this phase's own 500-turn budget).
-        return (0, 20, 100)
+        # Each task consumes 25 turns → 15 × 25 = 375 total, which OVERFLOWS the old
+        # global pool (300) and would starve later phases under it, while staying
+        # within each phase's own 500-turn budget (5 × 25 = 125) under the per-phase
+        # model.
+        return (0, 25, 100)
 
     with (
         _capture_ledgers() as ledgers,
