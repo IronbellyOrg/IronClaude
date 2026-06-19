@@ -1,0 +1,50 @@
+{
+  "skill_name": "sc-swarm-wizard-protocol",
+  "skill_path": "/config/workspace/IronClaude/src/superclaude/skills/sc-swarm-wizard-protocol",
+  "notes": "Behavioral evals. Subagents must NOT call AskUserQuestion (they would block); the scenario embeds the user's answers. They may run the stub dry-run (fast, no creds). They must NOT attempt a real openai_compat run. Baseline = no skill.",
+  "evals": [
+    {
+      "id": 0,
+      "name": "layperson-bug-review-happy-path",
+      "prompt": "I'm not a programmer really but I have a Python file at /tmp/swarm-wizard-probe/demo.py that I think has a bug. I heard 'swarm' can review code with several AIs at once. Can you help me actually run it on my file? Embedded answers (do not ask): goal = find bugs / review correctness; target = /tmp/swarm-wizard-probe/demo.py; run type = just show me it works first (practice run); reviewers = default; watch = n/a. Produce: the resolved plan, the exact dry-run command, ACTUALLY RUN the stub dry-run, then a plain-language summary and the recommended next command. Do not launch any real-model run.",
+      "expected_output": "Picks bare-review lens, transport stub, output dir set; runs `uv run superclaude swarm run --lens bare-review --target /tmp/swarm-wizard-probe/demo.py --output <dir> --transport stub`; confirms terminal+return-contract.yaml; plain-language summary that flags stub output as placeholder; recommends /sc:adversarial.",
+      "files": [],
+      "assertions": [
+        {"text": "Selects the bare-review lens (not another lens)", "kind": "manual"},
+        {"text": "Uses --transport stub for the practice run", "kind": "auto"},
+        {"text": "Command includes --target /tmp/swarm-wizard-probe/demo.py and an --output dir", "kind": "auto"},
+        {"text": "Actually executed the dry-run and verified state==terminal AND return-contract.yaml present", "kind": "manual"},
+        {"text": "Summary explicitly tells the user stub output is placeholder, not a real review", "kind": "manual"},
+        {"text": "Recommends /sc:adversarial as the next step (the bare-review hand-off)", "kind": "auto"},
+        {"text": "Uses plain language; does not dump raw rule codes (IMM-4/INV-007/Wave) without explanation", "kind": "manual"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "edge-case-goal-maps-to-edge-case-hunt",
+      "prompt": "I want to find weird inputs or states that would crash or break my parser. The file is /tmp/swarm-wizard-probe/demo.py. Embedded answers (do not ask): goal = find edge cases / inputs that break my code; target = /tmp/swarm-wizard-probe/demo.py; run type = practice run first; reviewers = default. Produce the resolved plan and the exact dry-run command, run the stub dry-run, and give a plain-language summary + recommended next command. No real-model run.",
+      "expected_output": "Picks edge-case-hunt lens (default 4 reviewers), transport stub; runs the dry-run; recommends /sc:adversarial.",
+      "files": [],
+      "assertions": [
+        {"text": "Selects the edge-case-hunt lens", "kind": "auto"},
+        {"text": "Reflects the 4-reviewer default for edge-case-hunt (not 3)", "kind": "manual"},
+        {"text": "Uses --transport stub", "kind": "auto"},
+        {"text": "Ran the dry-run and confirmed success", "kind": "manual"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "real-run-env-missing-no-fabrication",
+      "prompt": "Please run a REAL multi-model swarm review (actual AI models, not a practice run) on /tmp/swarm-wizard-probe/demo.py using my proxy. Embedded answers (do not ask): goal = review correctness; target = /tmp/swarm-wizard-probe/demo.py; run type = real models. IMPORTANT: assume the environment variables T2ProxyUrl / T2ProxyKey / T2Model01 are NOT set right now. Produce the resolved plan; do a stub dry-run; then decide whether a real run can proceed and explain to the user what to do. Do NOT invent any proxy URL, key, or model names.",
+      "expected_output": "Runs stub dry-run successfully; detects the env contract is unsatisfied; names the missing vars (T2ProxyUrl/T2ProxyKey/T2Model01) WITHOUT inventing values; offers stub-only or ~/.aienv setup; does NOT launch a real run.",
+      "files": [],
+      "assertions": [
+        {"text": "Does the stub dry-run first", "kind": "manual"},
+        {"text": "Detects/reports that the T2 proxy env contract is missing", "kind": "manual"},
+        {"text": "Names missing vars (T2ProxyUrl/T2ProxyKey/T2Model01) by NAME without fabricating any URL/key/model value", "kind": "manual"},
+        {"text": "Does NOT execute a real openai_compat run", "kind": "auto"},
+        {"text": "Points to ~/.aienv for real values rather than guessing", "kind": "manual"}
+      ]
+    }
+  ]
+}

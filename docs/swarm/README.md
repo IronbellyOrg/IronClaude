@@ -20,6 +20,7 @@ the CLI substrate behind the multi-model review/troubleshoot/spec workflows.
 
 | If you want to… | Read |
 |---|---|
+| **Be guided through swarm in plain language (no jargon)** | [**Swarm Wizard Guide** (`/sc:swarm-wizard`)](wizard-guide.md) |
 | Run your first swarm in 2 minutes | [User Guide → Quickstart](user-guide.md#1-quickstart-your-first-swarm-stub-transport) |
 | Step-by-step worked examples across use cases | [**User Guide**](user-guide.md) |
 | Look up a command's flags and exit codes | [**Command Reference**](command-reference.md) |
