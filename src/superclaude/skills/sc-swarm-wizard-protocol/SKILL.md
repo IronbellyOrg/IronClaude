@@ -5,7 +5,7 @@ category: development
 complexity: advanced
 mcp-servers: [sequential]
 personas: [scribe, devops, analyzer]
-allowed-tools: Read, Grep, Glob, Write, AskUserQuestion, TodoWrite, Task, Monitor, Bash(uv run superclaude swarm *), Bash(printenv *), Bash(ls *), Bash(wc *), Bash(test *), Bash(mkdir *)
+allowed-tools: Read, Grep, Glob, Write, AskUserQuestion, TodoWrite, Task, Monitor, Bash(uv run superclaude swarm *), Bash(ls *), Bash(wc *), Bash(test *), Bash(mkdir *)
 argument-hint: "[--goal <text>] [--target <path>] [--output <dir>] [--real] [--detached] [--advanced] [--yes]"
 ---
 
@@ -109,9 +109,10 @@ Still using `refs/interview.md` (mapping) and `refs/cli-contract.md` (rules):
    in tmux; if `openai_compat`, the env contract (`T2ProxyUrl`/`T2ProxyKey`/`T2Model01..09`) is satisfied.
    The full checklist is in `refs/cli-contract.md` §"Pre-flight the user can't see fail".
 3. **Registry sanity:** run `uv run superclaude swarm validate-lenses` and confirm it passes.
-4. (Advanced/JobSpec branch only) scaffold → fill `target.path`+`output.dir` → `uv run superclaude swarm
-   validate <spec>.json`. Carry the §11.5 injection-guard sentence verbatim; warn on `custom-py:` (it runs
-   arbitrary host code).
+4. (Advanced/JobSpec branch only) scaffold the spec, then author the completed JobSpec with the **Write**
+   tool (Write rewrites the whole file — no `Edit` grant needed; populate `target.path`+`output.dir` and
+   the other required fields), then `uv run superclaude swarm validate <spec>.json`. Carry the §11.5
+   injection-guard sentence verbatim; warn on `custom-py:` (it runs arbitrary host code).
 5. Choose an **idempotent output dir** (default `.dev/swarm-runs/<lens>-<ts>/`; if it exists, append `-N`,
    never overwrite).
 

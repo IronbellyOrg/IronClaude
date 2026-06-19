@@ -13,12 +13,13 @@ All commands prefixed `uv run`. Substitute the resolved plan values. `<OUT>` = t
 uv run superclaude swarm run --lens <LENS> --target <TARGET> --output <OUT> --transport stub
 ```
 
-Success check (do all three):
+Success check (do all three): confirm exit 0, then use the **Read** tool on `<OUT>/.swarm-state.json` and
+verify it contains `"state": "terminal"`, and confirm `<OUT>/return-contract.yaml` exists (`test -f`).
+Read the state file rather than shelling out to `grep` — the skill grants the `Read`/`Grep` tools but not
+`Bash(grep *)`, and the state file is tiny:
 
-```bash
-test -f <OUT>/.swarm-state.json && grep -q '"state": "terminal"' <OUT>/.swarm-state.json
-test -f <OUT>/return-contract.yaml
-```
+- `test -f <OUT>/.swarm-state.json` and `test -f <OUT>/return-contract.yaml` (existence)
+- Read `<OUT>/.swarm-state.json` → assert `state == "terminal"`
 
 Expect stdout to end `swarm run: dispatched job (mode=lens, workers=N, results=N)` and exit 0.
 

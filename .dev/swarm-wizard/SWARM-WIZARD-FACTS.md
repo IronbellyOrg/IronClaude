@@ -255,8 +255,11 @@ Naming/layout confirmed by inspecting the existing `pr-submit` command + `sc-pr-
   templates, command recipes, and the summary template into `refs/`/`templates/` (load per-wave on demand).
 - **NEVER write the skill/command into `.claude/`** — `.claude/{skills,commands}` is gitignored sync-dev
   output. Author in `src/`, then `make sync-dev` → `make verify-sync`. Only `git add` the `src/` side.
-- **Registration (after authoring):** update `src/superclaude/core/COMMANDS.md`, `ORCHESTRATOR.md`,
-  `FLAGS.md` (any new flags), `PERSONAS.md` (if persona auto-activation). Skipping = command invisible to routing.
+- **Registration (after authoring):** the developer guide *recommends* updating
+  `src/superclaude/core/COMMANDS.md` / `ORCHESTRATOR.md` / `FLAGS.md` / `PERSONAS.md`. ⚠ This is the
+  guide's ideal, NOT current repo practice: shipped commands like `pr-submit`, `reflect`, `roadmap`, and
+  `brainstorm` are **not** present in those core docs and route fine, so the "skipping = invisible to
+  routing" warning does not hold here. Match the exemplars — do not make unrelated core-doc edits.
 - skill-creator eval/iteration workspace → **`.dev/eval-workspaces/sc-swarm-wizard-protocol/`** (project
   override of the plugin's sibling-workspace convention), NEVER `.claude/skills/*-workspace/`.
 - **Quality bar** (from the developer guide): Input Contract with STOP/WARN gates; typed Return Contract

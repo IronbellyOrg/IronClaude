@@ -65,7 +65,9 @@ host code (no sandbox) — warn explicitly. Gate behind `--advanced`.
   - `T2ProxyKey` (bearer token) — required
   - `T2Model01` … `T2Model09` (dense, one per worker, **max 9**) — at least `T2Model01` required
   - Missing any → `TransportEnvError` → the run fails at Wave 0. Check before launch; report only the
-    missing **names**, never values.
+    missing **names**, never values. **Check presence without printing the value** — use
+    `test -n "${T2ProxyKey:-}"` (via the granted `Bash(test *)`), NOT `printenv`/`echo $T2ProxyKey`,
+    so a secret can never land in the transcript.
 - **`~/.aienv` convention** (operator memory, NOT code-enforced): base must start with `:4000/cli`, models
   `T2Model01..NN`. Use ONLY endpoints/models from `~/.aienv`. A wrong base fails late as a `proxy_error`.
 - No streaming / tool-calls / vision in Phase 1.
