@@ -63,7 +63,7 @@ The skill returns:
 
 The protocol runs in five waves. Each wave has explicit entry/exit criteria. Refs are loaded **per-wave**, never pre-loaded.
 
-```
+```text
 Wave 0: Resolve & Validate Target
 Wave 1: Collect Inputs (diff, metadata, file list)
 Wave 2: Auggie Deep Pass     ← loads refs/auggie-prompts.md
@@ -91,7 +91,7 @@ Wave 4: Post & Handoff       ← loads refs/remediation-handoff.md
 4. Compute `target_slug` (`pr-62`, `diff-master-HEAD`, `snapshot-src-superclaude-cli`) and create `--output-dir` (default `.dev/reviews/<target-slug>-<YYYYMMDDHHMMSS>/`).
 5. Emit machine-readable header to the audit log:
 
-```
+```text
 <!-- SC:AUGGIE-REVIEW:TARGET
 mode: <pr|diff|snapshot>
 slug: <target_slug>
@@ -159,7 +159,7 @@ auggie --print \
        --wait-for-indexing \
        --workspace-root <repo-root> \
        --max-turns <8 quick | 16 standard | 24 deep> \
-       ${AUGGIE_MODEL:+--model "$AUGGIE_MODEL"} \
+       --model "${AUGGIE_MODEL:-prism-b}" \
        --instruction-file <output-dir>/auggie-prompt-<chunk>.txt \
        > <output-dir>/auggie-raw-<chunk>.json 2>> <output-dir>/auggie-stderr.log
 ```
@@ -215,7 +215,7 @@ auggie --print \
    - Compare the `auggie-reviewer` agent's independent findings against the deduped Auggie findings. Findings present in only one source are marked accordingly (`source: auggie-only | claude-only | both`) and given a slight confidence adjustment in the rubric.
 7. Compose the final markdown report at `<output-dir>/REVIEW.md` using this structure:
 
-```markdown
+````markdown
 # Code Review: <target>
 
 **Target**: <PR #N | diff range | snapshot path>
@@ -276,13 +276,13 @@ auggie --print \
 - Persona cross-check: <enabled|disabled>
 - Token cost: Claude ≈ <N> (orchestration), Auggie ≈ <N> (deep pass)
 
-```
+````
 
 8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons.
 
 **Exit criteria**: `REVIEW.md` and `audit.log` written. Audit log includes the machine-readable summary header:
 
-```
+```text
 <!-- SC:AUGGIE-REVIEW:SUMMARY
 status: <success|partial>
 critical: <N> high: <N> medium: <N> low: <N> nit: <N>
@@ -303,6 +303,7 @@ duration_sec: <N>
 1. **Post to PR** (only if target is PR AND `--post-pr` AND `findings_count > 0`):
    - Summary comment: `gh pr review <PR> --comment --body-file <output-dir>/REVIEW.md`
    - Inline comments for each Critical and High finding (in `--depth deep` mode also for Medium):
+
      ```bash
      gh api repos/<owner>/<repo>/pulls/<PR>/comments \
         -f body="<finding-body>" \
@@ -311,6 +312,7 @@ duration_sec: <N>
         -F line=<LINE> \
         -f side=RIGHT
      ```
+
    - Capture the review URL from `gh pr view <PR> --json reviews -q '.reviews[-1].url'` and record it.
    - **Never** use `--approve` or `--request-changes`; this is a `--comment` review only. The human merges; the skill advises.
 2. **Surface results to the user** in the chat:

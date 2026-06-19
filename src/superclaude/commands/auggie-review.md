@@ -52,7 +52,7 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
 | `--remediation-offer` | `true` | After the review completes, offer to chain `/sc:design` → `task-builder` → `/sc:reflect --type task --analyze` → execute → `/sc:reflect --type task --validate` |
 | `--no-remediation-offer` | — | Suppress the remediation chain offer |
 | `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
-| `--auggie-model` | (auggie default) | Override the model auggie uses (e.g., `--auggie-model claude-sonnet-4-6`) |
+| `--auggie-model` | `prism-b` | Override the model auggie uses; when omitted and `AUGGIE_MODEL` is unset, uses `prism-b` (e.g., `--auggie-model <model-id>`) |
 
 ## Behavioral Flow
 
@@ -91,7 +91,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 
 ### Review a PR by number (most common)
 
-```
+```text
 /sc:auggie-review 62
 # - Auggie pass: indexed codebase context + diff → JSON findings
 # - Claude validates each file:line, dedupes, severity-tags
@@ -103,7 +103,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 
 ### Review uncommitted local changes
 
-```
+```text
 /sc:auggie-review --diff origin/master...HEAD --no-post-pr
 # - Same protocol, but target is git diff, no PR posting
 # - Useful pre-commit / pre-push self-review
@@ -111,7 +111,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 
 ### Snapshot review of a module (no diff)
 
-```
+```text
 /sc:auggie-review --snapshot src/superclaude/cli/ --focus architecture,anti-patterns
 # - Full-content review of the subtree, no diff baseline
 # - Auggie answers architecture-level questions; Claude grounds findings in real files
@@ -119,7 +119,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 
 ### Hook-driven post-PR-creation review
 
-```
+```text
 # After: gh pr create --title "..." --body "..."
 # The offer-pr-review.sh hook detects the gh pr create call,
 # prints a one-line offer to the assistant, who relays it to the user.
@@ -128,7 +128,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 
 ### Deep review with full remediation chain
 
-```
+```text
 /sc:auggie-review 62 --depth deep
 # After report posts, user accepts the remediation offer:
 #   1. /sc:design <report-path> --type architecture --format spec  → remediation spec
