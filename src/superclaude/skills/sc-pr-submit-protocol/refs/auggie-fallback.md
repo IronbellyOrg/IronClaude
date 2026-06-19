@@ -25,18 +25,16 @@ auto-review — it is NOT our operator re-trigger. The fallback is `sc:pr-submit
 ## 2. The fallback invocation (byte-exact flag string)
 
 ```text
-> Skill sc:auggie-review-protocol <PR-target> --depth quick --post-pr --no-remediation-offer --auggie-model claude-sonnet-4-6
+> Skill sc:auggie-review-protocol --depth quick --remediation-offer
 ```
 
 | Flag | Value | Why |
 |------|-------|-----|
-| `<PR-target>` | the active PR number or URL | forces PR-targeted review; this is not a bare diff fallback. |
 | `--depth quick` | quick | a single-pass review (this goes to `/sc:auggie-review`, a **review** — there is NO `--fix`, so it does NOT conflict with the severity-routing / troubleshoot-dispatch STOP on `--depth quick --fix`). |
-| `--post-pr` | explicit | the fallback review output must be posted to the PR and its URL/comment id recorded when available. |
-| `--no-remediation-offer` | explicit | suppresses `/sc:auggie-review`'s advisory remediation offer; `sc:pr-submit` owns remediation under its clamp. |
-| `--auggie-model claude-sonnet-4-6` | claude-sonnet-4-6 | the reviewing model. |
+| `--remediation-offer` | (default true) | chain into remediation after the review. |
+| `--post-pr` | (default true for a PR target) | the report is auto-posted to the PR; **no extra flag needed and `--no-post-pr` must NOT be passed**. |
 
-No `--remediation-offer` flag is passed here; fallback intentionally suppresses `/sc:auggie-review`'s advisory remediation offer because `sc:pr-submit` owns remediation under its clamp.
+No `--auggie-model` flag is passed here; fallback intentionally inherits `/sc:auggie-review`'s default reviewing model.
 
 ## 3. Strict-once + clamp + single-shot (the invariants)
 

@@ -301,15 +301,14 @@ def test_t1115_auggie_fallback_flag_parity():
     fallback = AUGGIE_FALLBACK_REF.read_text(encoding="utf-8")
     pr_submit_skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
     cmd = AUGGIE_REVIEW_CMD.read_text(encoding="utf-8")
-    flag_string = "--depth quick --post-pr --no-remediation-offer --auggie-model claude-sonnet-4-6"
+    flag_string = "--depth quick --remediation-offer"
     # The byte-exact fallback invocation string is present in the ref and the canonical
     # Wave 6b skill text.
     assert flag_string in fallback
     assert flag_string in pr_submit_skill
-    assert "--remediation-offer --auggie-model" not in fallback
     # Each flag the ref uses is a REAL option defined in auggie-review.md's option TABLE
     # (binding, not loose substring): every flag appears as a `| `--flag`` ...` table row.
-    for flag in ("--depth", "--post-pr", "--no-remediation-offer", "--auggie-model"):
+    for flag in ("--depth", "--remediation-offer"):
         assert f"| `{flag}`" in cmd, (
             f"fallback flag {flag!r} is not a defined option row in auggie-review.md"
         )
@@ -318,8 +317,7 @@ def test_t1115_auggie_fallback_flag_parity():
         (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--depth`")), ""
     )
     assert "quick" in depth_row, "`quick` is not an accepted value on the --depth row"
-    # The command's documented default model remains prism-b, even though the fallback
-    # intentionally pins its own reviewing model.
+    # The command's documented default model must match the protocol default.
     model_row = next(
         (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--auggie-model`")),
         "",
@@ -327,9 +325,9 @@ def test_t1115_auggie_fallback_flag_parity():
     assert "`prism-b`" in model_row, (
         "prism-b is not the documented --auggie-model default"
     )
-    # The INVOCATION itself must NOT pass --no-post-pr and must keep remediation ownership
-    # in sc:pr-submit via --no-remediation-offer. Guard only the actual fenced/inline
-    # `> Skill ...` command text, not prose around it.
+    # The INVOCATION itself must NOT pass --no-post-pr and must NOT pass --auggie-model
+    # (fallback inherits /sc:auggie-review's default model). The ref may MENTION either
+    # flag in prose; guard only the actual fenced/inline `> Skill ...` command text.
     invocation_lines = [
         ln.strip()
         for ln in fallback.splitlines()
@@ -341,12 +339,7 @@ def test_t1115_auggie_fallback_flag_parity():
     assert invocation_lines, "no fallback invocation found in fallback docs or skill"
     for ln in invocation_lines:
         assert "--no-post-pr" not in ln, f"invocation passes --no-post-pr: {ln}"
-        assert "--no-remediation-offer" in ln, (
-            f"invocation does not suppress remediation offer: {ln}"
-        )
-        assert "--auggie-model claude-sonnet-4-6" in ln, (
-            f"invocation does not pin fallback model: {ln}"
-        )
+        assert "--auggie-model" not in ln, f"invocation passes --auggie-model: {ln}"
 
 
 def test_auggie_review_protocol_defaults_to_prism_b():
