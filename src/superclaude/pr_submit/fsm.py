@@ -27,7 +27,7 @@ from .models import Finding, MonitorState, PushDecision, SkillResult
 from .severity_router import ROUTE_REPORT_ONLY, remap_severity, route
 
 # Defaults (spec FR-1.1 / FR-2.3).
-DEFAULT_MONITOR = 1
+DEFAULT_MONITOR = 2
 DEFAULT_MAX_ROUNDS = 2
 HARD_CAP_MAX_ROUNDS = 5
 MIN_POLL_INTERVAL = 30

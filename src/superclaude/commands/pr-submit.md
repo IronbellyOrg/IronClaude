@@ -23,7 +23,7 @@ Explicit only — three activation paths:
 
 | Input | Required | Notes |
 |-------|----------|-------|
-| `--monitor {0,1,2,3}` | No (default 1) | The autonomy ceiling on a single FSM. Explicit 0 = open PR only (byte-identical to today). |
+| `--monitor {0,1,2,3}` | No (default 2) | The autonomy ceiling on a single FSM. Explicit 0 = open PR only (byte-identical to today). |
 | PR context (`--head`/`--base`/`--title`/`--body`) OR an existing PR number | Yes | To open or attach to the PR. |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's `owner/repo`, via `gh repo view --json nameWithOwner`), or if `detection-contract.md` is `locked: false` (run the R1 probe first — T-210).
@@ -42,7 +42,7 @@ Explicit only — three activation paths:
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--monitor {0,1,2,3}` | 1 | Capability ceiling (G-arm/G-edit/G-push gates). |
+| `--monitor {0,1,2,3}` | 2 | Capability ceiling (G-arm/G-edit/G-push gates). |
 | `--max-rounds N` | 2 | Remediation cycles; hard cap 5 (reject >5). |
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
 | `--timeout S` | 600 | Review-wait wall-clock timeout (~10 min). |
