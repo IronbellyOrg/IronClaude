@@ -52,7 +52,7 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
 | `--remediation-offer` | `true` | After the review completes, offer to chain `/sc:design` → `task-builder` → `/sc:reflect --type task --analyze` → execute → `/sc:reflect --type task --validate` |
 | `--no-remediation-offer` | — | Suppress the remediation chain offer |
 | `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
-| `--auggie-model` | `prism-b` | Override the model auggie uses; omitted uses `prism-b` (e.g., `--auggie-model <model-id>`) |
+| `--auggie-model` | `prism-b` | Override the model auggie uses; when omitted and `AUGGIE_MODEL` is unset, uses `prism-b` (e.g., `--auggie-model <model-id>`) |
 
 ## Behavioral Flow
 

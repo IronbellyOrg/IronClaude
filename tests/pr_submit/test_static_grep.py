@@ -321,19 +321,19 @@ def test_t1115_auggie_fallback_flag_parity():
     assert "`prism-b`" in model_row, (
         "prism-b is not the documented --auggie-model default"
     )
-    # The INVOCATION line itself must NOT pass --no-post-pr (post-pr defaults true for a
+    # The INVOCATION itself must NOT pass --no-post-pr (post-pr defaults true for a
     # PR target) and must NOT pass --auggie-model (fallback inherits /sc:auggie-review's
-    # default model). The ref may MENTION either flag in prose; guard the actual
-    # `> Skill ...` invocation line, not the whole document.
+    # default model). The ref may MENTION either flag in prose; guard only the actual
+    # fenced/inline `> Skill ...` command text, not prose around it.
     invocation_lines = [
-        ln
-        for source in (fallback, pr_submit_skill)
-        for ln in source.splitlines()
-        if "sc:auggie-review-protocol" in ln
+        ln.strip()
+        for ln in fallback.splitlines()
+        if ln.strip().startswith("> Skill sc:auggie-review-protocol")
     ]
-    assert invocation_lines, (
-        "no fallback invocation line found in fallback docs or skill"
+    invocation_lines += re.findall(
+        r"`(> Skill sc:auggie-review-protocol[^`]*)`", pr_submit_skill
     )
+    assert invocation_lines, "no fallback invocation found in fallback docs or skill"
     for ln in invocation_lines:
         assert "--no-post-pr" not in ln, f"invocation passes --no-post-pr: {ln}"
         assert "--auggie-model" not in ln, f"invocation passes --auggie-model: {ln}"
