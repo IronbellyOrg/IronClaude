@@ -30,6 +30,24 @@ This index provides comprehensive access to all SuperClaude Framework developmen
 - [Contributing to Components](contributing-code.md#contributing-to-components) - Agent, command, and mode development
 - [File Validation](contributing-code.md#file-validation) - Context file verification methods
 
+### 🌿 [Git Standards and Repository Protocols](git-standards-protocols.md)
+
+**Purpose**: Git workflow, branching strategy, commit conventions, PR protocol, code review, release/hotfix, and CI automation standards  
+**Target Audience**: All contributors and maintainers working with branches, commits, and pull requests  
+**Length**: ~880 lines; consolidated git/repository governance reference
+
+**Key Sections**:
+
+- [Repository Structure](git-standards-protocols.md#section-1-repository-structure) - Layout and ownership
+- [Branching Strategy](git-standards-protocols.md#section-2-branching-strategy) - Branch model and naming
+- [Commit Standards](git-standards-protocols.md#section-3-commit-standards) - Conventional commit conventions
+- [Pull Request Protocol](git-standards-protocols.md#section-4-pull-request-protocol) - PR lifecycle and targets
+- [Code Review Standards](git-standards-protocols.md#section-5-code-review-standards) - Review expectations
+- [Release and Tagging Protocol](git-standards-protocols.md#section-6-release-and-tagging-protocol) - Versioning and tags
+- [Hotfix Procedures](git-standards-protocols.md#section-7-hotfix-procedures) - Emergency fix flow
+- [GitHub Actions and Automation](git-standards-protocols.md#section-8-github-actions-and-automation) - CI/CD pipelines
+- [Security and Access Controls](git-standards-protocols.md#section-9-security-and-access-controls) - Access governance
+
 ### 🏗️ [Context Architecture Guide](technical-architecture.md)
 
 **Purpose**: Understanding how context files work and are structured  
