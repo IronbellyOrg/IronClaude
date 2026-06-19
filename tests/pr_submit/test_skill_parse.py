@@ -1,7 +1,7 @@
 """Skill flag/parse tests (spec FR-1.1/FR-1.2/FR-1.6/FR-1.7).
 
 T-101 `--monitor` choices {0,1,2,3} (argparse); T-102 `--max-rounds` default=2,
-hard cap=5, reject >5; T-103 no `--monitor` → armed at default L1; T-111 `--poll-interval 10`
+hard cap=5, reject >5; T-103 no `--monitor` → armed at default L2; T-111 `--poll-interval 10`
 → reject "minimum is 30 seconds"; T-112 `--timeout 60` honored; T-113 `--resume`
 captured (full JSONL state rebuild is exercised by test_crash_recovery).
 """
@@ -54,10 +54,10 @@ def test_t_max_rounds_zero_allowed():
         parse_args(["--max-rounds", "-1"])
 
 
-def test_t103_default_monitor_one_armed():
-    """T-103: with no `--monitor`, the default is 1 and the monitor IS armed."""
+def test_t103_default_monitor_two_armed():
+    """T-103: with no `--monitor`, the default is 2 and the monitor IS armed."""
     args = parse_args([])
-    assert args.monitor == DEFAULT_MONITOR == 1
+    assert args.monitor == DEFAULT_MONITOR == 2
     assert args.armed is True
 
 
