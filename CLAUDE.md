@@ -73,7 +73,7 @@ uv run python script.py          # Execute scripts
 
 **Current v4.2.0 Architecture**: Python package with slash commands
 
-```
+```text
 # Claude Code Configuration (v4.2.0)
 .claude/
 ├── settings.json        # User settings
@@ -257,13 +257,18 @@ def test_with_budget(token_budget):
 
 **CRITICAL**: When running multiple Claude Code sessions in parallel, use `git worktree` to avoid conflicts.
 
-```bash
-# Create worktree for integration branch
-cd ~/github/SuperClaude_Framework
-git worktree add ../SuperClaude_Framework-integration integration
+**ABSOLUTE RULE — worktree location is `./.dev/worktrees/`, NEVER `.claude/worktrees/`.**
+Every worktree this project creates MUST live under `<repo>/.dev/worktrees/<name>/`. Do **not** use the
+`EnterWorktree` tool (it hardcodes `.claude/worktrees/`, which is gitignored sync-dev territory) — instead
+create worktrees explicitly with `git worktree add .dev/worktrees/<name> <branch>`. Add `.dev/worktrees/`
+to `.gitignore` if it is not already ignored, so nested worktree checkouts never get staged.
 
-# Create worktree for feature branch
-git worktree add ../SuperClaude_Framework-feature feature/pm-agent
+```bash
+# Create a worktree for a feature branch (canonical location)
+git worktree add .dev/worktrees/pm-agent -b feature/pm-agent origin/master
+
+# Create a worktree for an existing branch
+git worktree add .dev/worktrees/integration integration
 ```
 
 **Benefits**:
@@ -275,14 +280,14 @@ git worktree add ../SuperClaude_Framework-feature feature/pm-agent
 
 **Usage**:
 
-- Session A: Open `~/github/SuperClaude_Framework/` (current branch)
-- Session B: Open `~/github/SuperClaude_Framework-integration/` (integration)
-- Session C: Open `~/github/SuperClaude_Framework-feature/` (feature branch)
+- Session A: Open `<repo>/` (current branch)
+- Session B: Open `<repo>/.dev/worktrees/integration/` (integration)
+- Session C: Open `<repo>/.dev/worktrees/pm-agent/` (feature branch)
 
 **Cleanup**:
 
 ```bash
-git worktree remove ../SuperClaude_Framework-integration
+git worktree remove .dev/worktrees/integration
 ```
 
 ## 📝 Key Documentation Files

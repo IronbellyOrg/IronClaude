@@ -230,6 +230,9 @@ uv.lock
 /prd-dry-run-*/
 # Eval-runs workspace (research/eval scratch).
 .dev/eval-runs/
+# Git worktrees — canonical location is .dev/worktrees/<name>/ (never .claude/worktrees/).
+# Nested worktree checkouts must never be staged.
+.dev/worktrees/
 # Sprint runner transient exitcode marker. Anchored to repo root only so that
 # in-tree archive/release artifacts under .dev/releases/ remain tracked.
 /.sprint-exitcode
