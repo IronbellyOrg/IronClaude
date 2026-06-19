@@ -22,7 +22,7 @@ Open Claude Code in your project and type:
 The wizard will ask, in plain English:
 
 1. **What do you want to do?** (find bugs, find edge cases, audit docs, …)
-2. **What should I look at?** (a file or folder)
+2. **What should I look at?** (a single file — swarm reviews one file's contents per run)
 3. **A safe practice run first, or real AI models?**
 
 That's usually all it needs. It then runs a **free, instant practice run** to prove everything is wired up,
@@ -198,7 +198,7 @@ Most people never need this; the built-in lenses cover the common cases.
 | Flag | Meaning |
 |---|---|
 | `--goal <text>` | Pre-fill what you want to do (skips the first question). |
-| `--target <path>` | Pre-fill the file/folder to review. |
+| `--target <path>` | Pre-fill the file to review (a single file; a directory fails preflight). |
 | `--output <dir>` | Where results go (default `.dev/swarm-runs/<lens>-<timestamp>/`). |
 | `--real` | Signal you want real models. A practice run still happens first. |
 | `--detached` | Prefer a background run over a live dashboard. |

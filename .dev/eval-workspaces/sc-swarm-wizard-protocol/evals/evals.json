@@ -1,5 +1,6 @@
 {
-  "skill_name": "sc-swarm-wizard-protocol",
+  "skill_name": "sc:swarm-wizard-protocol",
+  "skill_dir": "sc-swarm-wizard-protocol",
   "skill_path": "/config/workspace/IronClaude/src/superclaude/skills/sc-swarm-wizard-protocol",
   "notes": "Behavioral evals. Subagents must NOT call AskUserQuestion (they would block); the scenario embeds the user's answers. They may run the stub dry-run (fast, no creds). They must NOT attempt a real openai_compat run. Baseline = no skill.",
   "evals": [

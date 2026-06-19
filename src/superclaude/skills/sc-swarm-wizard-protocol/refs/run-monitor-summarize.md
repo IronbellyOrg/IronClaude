@@ -39,12 +39,19 @@ uv run superclaude swarm run --lens <LENS> --target <TARGET> --output <OUT_REAL>
   --transport openai_compat --reviewers <N> --tui
 ```
 
-Background / fire-and-forget (returns a JOB_ID immediately):
+Background / fire-and-forget. `--detached` prints a status line (NOT a bare id) on stdout:
+
+```text
+swarm run: detached job_id=<ID> session=swarm-<ID> mode=<mode>
+```
+
+Read that line and extract the `job_id=` value as `<ID>` (don't assume stdout IS the id — capturing
+the whole line and passing it to `attach`/`kill` will fail). Then use `<ID>`:
 
 ```bash
-JOB=$(uv run superclaude swarm run --lens <LENS> --target <TARGET> --output <OUT_REAL> \
-        --transport openai_compat --detached)
-# later: uv run superclaude swarm attach "$JOB"   |   uv run superclaude swarm kill "$JOB"
+uv run superclaude swarm run --lens <LENS> --target <TARGET> --output <OUT_REAL> --transport openai_compat --detached
+# read job_id=<ID> from the printed line, then:
+# uv run superclaude swarm attach <ID>   |   uv run superclaude swarm kill <ID>
 ```
 
 Wizard tailing on the user's behalf (non-TTY) — arm a Monitor and poll state, do NOT add `--tui`:
@@ -54,10 +61,12 @@ Wizard tailing on the user's behalf (non-TTY) — arm a Monitor and poll state, 
 - Completion = `<OUT_REAL>/.swarm-state.json` `state == "terminal"`. For inline runs there is **no
   `done.json`** — never block on it.
 
-Detached completion (the only place `done.json` appears):
+Detached completion: `done.json` is the sentinel that appears for detached/resume runs — but poll for it
+via the granted CLI rather than a raw `sleep` loop (`Bash(sleep *)` is not in `allowed-tools`). Use
+`status --watch` (it blocks until terminal), or arm a `Monitor` on the run dir:
 
 ```bash
-until [ -f <OUT_REAL>/done.json ]; do sleep 2; done   # detached/resume ONLY
+uv run superclaude swarm status --output <OUT_REAL> --watch --watch-interval 2   # blocks until terminal
 ```
 
 Live phase/log inspection any time:
