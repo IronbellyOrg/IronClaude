@@ -47,6 +47,14 @@ CORE_PURE_FILES = [
 ]
 
 AUGGIE_REVIEW_CMD = REPO_ROOT / "src" / "superclaude" / "commands" / "auggie-review.md"
+AUGGIE_REVIEW_SKILL = (
+    REPO_ROOT
+    / "src"
+    / "superclaude"
+    / "skills"
+    / "sc-auggie-review-protocol"
+    / "SKILL.md"
+)
 RETRIGGER_SCRIPT = SKILL_DIR / "scripts" / "retrigger-review.sh"
 REVIEW_RETRIGGER_REF = SKILL_DIR / "refs" / "review-retrigger.md"
 AUGGIE_FALLBACK_REF = SKILL_DIR / "refs" / "auggie-fallback.md"
@@ -287,13 +295,16 @@ def test_t1115_auggie_fallback_flag_parity():
     """T-1115 (FR-9.3): the auggie-fallback ref's invocation flag string matches the
     flags the auggie-review command actually defines (no drift)."""
     fallback = AUGGIE_FALLBACK_REF.read_text(encoding="utf-8")
+    pr_submit_skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
     cmd = AUGGIE_REVIEW_CMD.read_text(encoding="utf-8")
-    flag_string = "--depth quick --remediation-offer --auggie-model claude-sonnet-4-6"
-    # The byte-exact fallback invocation string is present in the ref.
+    flag_string = "--depth quick --remediation-offer"
+    # The byte-exact fallback invocation string is present in the ref and the canonical
+    # Wave 6b skill text.
     assert flag_string in fallback
+    assert flag_string in pr_submit_skill
     # Each flag the ref uses is a REAL option defined in auggie-review.md's option TABLE
     # (binding, not loose substring): every flag appears as a `| `--flag`` ...` table row.
-    for flag in ("--depth", "--remediation-offer", "--auggie-model"):
+    for flag in ("--depth", "--remediation-offer"):
         assert f"| `{flag}`" in cmd, (
             f"fallback flag {flag!r} is not a defined option row in auggie-review.md"
         )
@@ -302,23 +313,37 @@ def test_t1115_auggie_fallback_flag_parity():
         (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--depth`")), ""
     )
     assert "quick" in depth_row, "`quick` is not an accepted value on the --depth row"
-    # `--auggie-model claude-sonnet-4-6`: the model is the documented --auggie-model example.
+    # The command's documented default model must match the protocol default.
     model_row = next(
         (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--auggie-model`")),
         "",
     )
-    assert "claude-sonnet-4-6" in model_row, (
-        "claude-sonnet-4-6 is not the documented --auggie-model example"
+    assert "`prism-b`" in model_row, (
+        "prism-b is not the documented --auggie-model default"
     )
     # The INVOCATION line itself must NOT pass --no-post-pr (post-pr defaults true for a
-    # PR target). The ref may MENTION --no-post-pr in prose ("must NOT be passed"); guard
-    # the actual `> Skill ...` invocation line, not the whole document.
+    # PR target) and must NOT pass --auggie-model (fallback inherits /sc:auggie-review's
+    # default model). The ref may MENTION either flag in prose; guard the actual
+    # `> Skill ...` invocation line, not the whole document.
     invocation_lines = [
-        ln for ln in fallback.splitlines() if "sc:auggie-review-protocol" in ln
+        ln
+        for source in (fallback, pr_submit_skill)
+        for ln in source.splitlines()
+        if "sc:auggie-review-protocol" in ln
     ]
-    assert invocation_lines, "no fallback invocation line found in auggie-fallback.md"
+    assert invocation_lines, (
+        "no fallback invocation line found in fallback docs or skill"
+    )
     for ln in invocation_lines:
         assert "--no-post-pr" not in ln, f"invocation passes --no-post-pr: {ln}"
+        assert "--auggie-model" not in ln, f"invocation passes --auggie-model: {ln}"
+
+
+def test_auggie_review_protocol_defaults_to_prism_b():
+    """The primary /sc:auggie-review Auggie invocation defaults to prism-b."""
+    skill = AUGGIE_REVIEW_SKILL.read_text(encoding="utf-8")
+    assert '--model "${AUGGIE_MODEL:-prism-b}"' in skill
+    assert '${AUGGIE_MODEL:+--model "$AUGGIE_MODEL"}' not in skill
 
 
 # --- D2: $REPO origin-URL resolution fallback (sed) -------------------------
