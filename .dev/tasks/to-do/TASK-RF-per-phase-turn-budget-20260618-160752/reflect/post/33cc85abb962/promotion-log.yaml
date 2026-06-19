@@ -1,0 +1,40 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: skipped
+source: ".dev/tasks/to-do/TASK-RF-per-phase-turn-budget-20260618-160752"
+destination: ".dev/tasks/done/TASK-RF-per-phase-turn-budget-20260618-160752"
+source_sha256_before: null
+source_sha256_after_move: null
+sha_match: null
+gate_evaluation:
+  mode_post: pass                          # cond 1
+  status_success: pass                     # cond 2 (reflect verdict status: success)
+  tasklist_completion_pct_1_0: fail        # cond 3 — 45/47 (0.957); items 305 (this gate) + 307 (status->Done) unchecked
+  no_drift_no_regression: pass             # cond 4 — 0 drift, 0 regression
+  frontmatter_present: pass                # cond 5a — status field present
+  frontmatter_status_matches: fail         # cond 5b — frontmatter is "🟠 Doing", not a terminal "done"
+  no_citations_dropped: pass               # cond 6a
+  no_grounding_gaps: pass                  # cond 6b
+  no_input_drift: pass                     # cond 7
+  no_user_decision_pending: pass           # cond 8
+  adversarial_result_present: n/a          # cond 9 — verdicts converged via inline synthesis; tier 2 with no F3-null
+gate_evaluation_failures: ["tasklist_completion_pct_1_0", "frontmatter_status_matches"]
+gate_passed: false
+citation_revalidation_at_promotion: false
+pending: false
+cross_fs_promotion: false
+checkpoint_path: null
+skip_reason: gate-failed
+fail_reason: null
+override_used: null
+rollback_command: null
+timestamp: "2026-06-18T18:45:00Z"
+note: >
+  Promotion correctly declined. The reflect VERDICT is clean (status: success, zero deviations,
+  zero regressions, 46/46 targeted tests pass). The two failing gate conditions are not defects in
+  the work — they are the in-flight gate ceremony: item 305 (this POST reflect gate) and item 307
+  (the status->Done flip) are unchecked by construction because the task runs reflect BEFORE marking
+  itself done. Once the task workflow consumes this clean verdict (exit 0) and flips frontmatter to
+  a terminal "🟢 Done" + checks the final items, conditions 3 and 5b resolve and the folder is
+  eligible to move to .dev/tasks/done/. Reflect does not auto-flip task status or force-promote.

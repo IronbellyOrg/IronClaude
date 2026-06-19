@@ -1,0 +1,90 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-per-phase-turn-budget-20260618-160752/reflect/post/33cc85abb962/REPORT.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-per-phase-turn-budget-20260618-160752/reflect/post/33cc85abb962/audit.log"
+confidence_calibrated: 0.91
+escalation_rule_matched: null   # --depth deep hard-override forced Tier 2 (no rubric eval)
+onboarding_ran: false
+
+# UC-2 specific
+tasklist_completion_pct: 0.957   # 45/47 checklist items; 2 unchecked = (a) this POST reflect gate, (b) the final status->Done flip
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: ".dev/tasks/to-do/TASK-RF-per-phase-turn-budget-20260618-160752/reflect/post/33cc85abb962/deviation-ledger.yaml"
+grounding_gaps_path: null   # grounding-gaps.yaml is empty (zero rows)
+
+# Verification triangle (independently executed)
+verification_ran: true
+verification_invocations: 4
+verification_failures: 0     # within the spec's §6 4-file scope
+verification_regressions_detected: 0
+verification_skip_reason: null
+regression_present: false
+
+# Input integrity
+input_sha256:
+  tasklist: "aa520c2130ae0f1414aaedf1c6ed572ee044c01391232a09b64a820c3609542d"
+  spec: "4e88bfaf6b17ea4b88d2d638dcc305fbec1b473db095c0569826e45770a381ab"
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 24
+citations_revalidated: 24
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false   # Wave 6 authored no file mutation
+
+# Tier 2 artifacts
+reviewer_cards:
+  - "reviewer 1 (root-cause-analyst / analyzer lens) — spec compliance R-1..R-10"
+  - "reviewer 2 (quality-engineer / qa lens) — test fidelity TM-0..TM-14"
+  - "reviewer 3 (refactoring-expert / correctness lens) — accumulator + blast-radius + thread-safety"
+adversarial_artifacts_dir: null   # verdicts converged; inline synthesis (no competing-verdict debate needed)
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: inline-convergent-synthesis
+t2_model_class_diversity: degraded   # harness runs subagents on one underlying model class; persona/context diversity only
+t2_vendor_diversity: single
+calibrator_diversity: degraded       # inline calibration; disjoint-set not enforceable in this harness
+
+# executor anti-self-confirmation
+executor_class_source: flag   # --executor-model sonnet
+executor_class_resolved: true
+executor_exclusion_degraded: false   # orchestrator (opus) + subagents are not the sonnet executor's own frame; structural disjointness honored at the role level, model-class-level degraded (see t2_model_class_diversity)
+
+# Tier 3 (--remediate)
+remediation_offered: true
+remediation_accepted: false   # zero deviations -> nothing to remediate; degenerate no-op
+task_file_path: null
+remediation_task_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion (Wave 7)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: ".dev/tasks/to-do/TASK-RF-per-phase-turn-budget-20260618-160752"
+promotion_destination: ".dev/tasks/done/TASK-RF-per-phase-turn-budget-20260618-160752"
+promotion_log_path: ".dev/tasks/to-do/TASK-RF-per-phase-turn-budget-20260618-160752/reflect/post/33cc85abb962/promotion-log.yaml"
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed   # conditions 3 (completion 0.957 != 1.0) and 5b (frontmatter "Doing" != done) fail; both resolve once the task workflow flips status->Done after consuming this clean verdict
+promotion_fail_reason: null
+promotion_cross_fs: false
+
+# Tier-2 telemetry
+degraded_components: ["t2-model-class-diversity", "calibrator-diversity", "ruff-binary-unavailable"]
+fallback_path: null

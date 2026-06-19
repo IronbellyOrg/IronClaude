@@ -1,0 +1,79 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: ".dev/reflect/post-perPhaseturnBudget-20260619/REPORT.md"
+audit_log_path: ".dev/reflect/post-perPhaseturnBudget-20260619/REPORT.md"
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep hard-override forced Tier 2 (no rubric eval)
+
+# UC-2 specific
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 4     # regression-marker registration; module-scope accumulator; TM-9 in-test ERROR derivation; TM-11 no code==1 pin
+  drift: 0         # gating drift; the two reviewer "drift" labels reclassified on merge (see REPORT §Deviations)
+  regression: 0
+deviation_register_path: ".dev/reflect/post-perPhaseturnBudget-20260619/REPORT.md"
+grounding_gaps_path: null   # GG1/GG2 are advisory doc-truth/[INFERRED] notes, NOT decision-needed-by-user gaps; recorded in REPORT body, not as gating gaps
+
+# audit scope
+audit_base: "33cc85abb962d03b55d301ab9607ca9407c8507e"   # == HEAD; working-tree diff audited
+substantive_files_audited:
+  - "src/superclaude/cli/sprint/executor.py"
+  - "src/superclaude/cli/sprint/models.py"
+  - "pyproject.toml"
+  - "tests/sprint/test_per_phase_budget.py"
+  - "tests/sprint/test_models.py"
+  - "tests/sprint/test_turn_ledger_concurrency.py"
+  - "tests/sprint/test_multi_phase.py"
+verification_ran: true
+verification_invocations: 1   # qa reviewer re-ran the §6 suite
+verification_failures: 0
+verification_regressions_detected: 0
+regression_present: false
+
+# Hallucination guard
+citations_total: 7            # load-bearing citations independently re-Read at Wave 5
+citations_revalidated: 7
+citations_dropped: 0
+citations_inferred: 1         # GG2 latent-coupling note ([INFERRED])
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+
+# Tier 2 artifacts
+reviewer_cards:
+  - ".dev/reflect/post-perPhaseturnBudget-20260619/reviewer-cards/card-1-analyzer.md"
+  - ".dev/reflect/post-perPhaseturnBudget-20260619/reviewer-cards/card-2-qa.md"
+  - ".dev/reflect/post-perPhaseturnBudget-20260619/reviewer-cards/card-3-correctness.md"
+reviewer_personas: [analyzer, qa, refactorer]
+reviewer_confidences: [0.88, 0.86, 0.88]
+adversarial_unavailable: false
+merge_method: inline-convergent-synthesis   # all 3 verdicts converged on PASS; no competing-verdict debate needed
+adversarial_convergence_score: null         # inline synthesis (verdicts converged); not an sc-adversarial debate
+t2_model_class_diversity: degraded          # single-vendor harness — reviewers are disjoint CONTEXTS, persona-diverse, but one model class
+t2_vendor_diversity: single
+calibrator_diversity: degraded              # inline calibration in this frame
+executor_class_source: frontmatter          # executor_model_class: sonnet
+executor_class_resolved: true
+executor_exclusion_degraded: false          # reviewers are disjoint subagent contexts; orchestrator (opus) ≠ executor (sonnet)
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present_flag: false
+unauthorized_deviation_present: false        # the 4 Necessary deviations are documented/forced; none unauthorized
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion (Wave 7) — SUPPRESSED in this in-session re-audit
+promotion_action: skipped
+promotion_skip_reason: in-session-reaudit-executor-frame   # canonical disjoint gate already ran (CLI wrapper); user owns the archive/move decision
+promotion_gate_would_pass: true             # all 9 §14.5.2 conditions satisfied (status success, completion 1.0, 0 drift/regression, frontmatter Done, 0 citations dropped, no input drift, no user-decision pending)
+promotion_note: "Task is marked Done in-place under .dev/tasks/to-do/. The §14.5.2 gate would PASS; operator may archive to .dev/tasks/done/ if desired. Not auto-moved from the executor's own frame."
+
+# Relationship to the canonical executor-disjoint audit
+canonical_audit: ".dev/tasks/to-do/TASK-RF-per-phase-turn-budget-20260618-160752/reflect/post/33cc85abb962/REPORT.md"
+canonical_audit_verdict: "CLEAN (0 deviations, 0 regressions, 46/46 green); exit 11 DEGRADED purely on single-vendor model diversity"
+in_session_audit_agreement: agree   # this pass independently confirms the canonical clean verdict

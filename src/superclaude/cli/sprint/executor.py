@@ -332,6 +332,31 @@ class AggregatedPhaseReport:
         return "\n".join(lines) + "\n"
 
 
+@dataclass
+class _SprintWiringTotals:
+    """Sprint-level READ-ONLY wiring-telemetry accumulator (R-10 / OQ-1 Position A).
+
+    After the per-phase TurnLedger reset (R-1/R-2), the post-loop ``ledger`` is
+    only the LAST phase's instance, so passing it to ``build_kpi_report`` would
+    collapse the persisted ``gate-kpi-report.md`` wiring totals from
+    sprint-cumulative to last-phase-only (the D-4 regression). This accumulator
+    restores sprint-cumulative fidelity by summing each phase's wiring counters
+    after that phase's wiring hook runs.
+
+    It is OBSERVABILITY-ONLY: it is NEVER read by ``try_launch()`` /
+    ``available()`` / ``can_run_wiring_gate()``, so it reintroduces no shared
+    budget pool — only telemetry is aggregated sprint-wide; the budget stays
+    strictly per-phase (R-3/R-4). Its three attribute names exactly match the
+    ``kpi.py:192-197`` read contract (``wiring_turns_used`` @193,
+    ``wiring_turns_credited`` @195, ``wiring_analyses_count`` @197), so the
+    accumulator is passed directly as ``build_kpi_report(..., turn_ledger=...)``.
+    """
+
+    wiring_turns_used: int = 0
+    wiring_turns_credited: int = 0
+    wiring_analyses_count: int = 0
+
+
 def aggregate_task_results(
     phase_number: int,
     task_results: list[TaskResult],
@@ -800,6 +825,19 @@ def run_post_phase_wiring_hook(
     returned status back onto the PhaseResult.
 
     This avoids duplicating wiring analysis logic for phase-level execution.
+
+    Ledger input — per-phase since the R-6 per-phase turn-budget change (K-1):
+    ``ledger`` is now the caller's FRESH per-phase ``TurnLedger`` (sized
+    ``max_turns × len(tasks)`` on the task path, ``max_turns × 1`` on the legacy
+    single-subprocess path), NOT the former cumulative sprint-global pool. This is
+    a DELIBERATE refinement, not a regression: ``can_run_wiring_gate`` requires
+    ``available() >= minimum_remediation_budget``, so under the old global pool a
+    late phase could silently skip its wiring analysis once the shared pool was
+    drained; with a fresh per-phase ledger every phase enters wiring with full
+    budget. The subprocess EXECUTION path itself is unchanged (R-6/C2 — the
+    execution log stays byte-equivalent); only this wiring-hook ledger input
+    differs, and that delta is pinned by TM-13 (TM-7 covers only the unchanged
+    subprocess execution log and cannot detect it).
     """
     # Build synthetic TaskEntry from the phase
     synthetic_task = TaskEntry(
@@ -1227,7 +1265,14 @@ def _execute_phase_tasks_parallel(
                     None,
                     "skip",
                 )
-        # Atomic budget gate.
+        # Atomic budget gate — PHASE-BUDGET SAFETY NET (R-5). With the per-phase
+        # ledger sized max_turns × len(tasks) (R-2), this gate can no longer fire
+        # from cross-phase pool starvation (a heavy earlier phase can no longer
+        # drain a later phase). It now only trips on a genuine WITHIN-PHASE
+        # overspend — N tasks collectively exceeding this phase's own budget — i.e.
+        # "phase budget exhausted", never a sprint-level limit. Control flow is
+        # unchanged: on a tripped gate this task (and, on the sequential path, all
+        # subsequent tasks) is recorded SKIPPED.
         if ledger is not None and not ledger.try_launch():
             return (
                 TaskResult(
@@ -1414,7 +1459,11 @@ def execute_phase_tasks(
                 )
                 continue
 
-        # Budget gate (atomic). try_launch checks can_launch AND debits the
+        # Budget gate (atomic) — PHASE-BUDGET SAFETY NET (R-5). With the per-phase
+        # ledger sized max_turns × len(tasks) (R-2), this gate no longer fires from
+        # cross-phase pool starvation; it trips only on a genuine within-phase
+        # overspend ("phase budget exhausted"), never a sprint-level limit. The gate
+        # CODE is unchanged. try_launch checks can_launch AND debits the
         # minimum_allocation as ONE atomic op under the ledger lock, so two
         # concurrent workers (K>1) cannot both pass the check then both debit and
         # over-commit the budget. Single-threaded (K=1) semantics are identical to
@@ -1818,14 +1867,25 @@ def execute_sprint(config: SprintConfig):
         PhaseSummarizer(config), on_summary_ready=_summary_fanout
     )
 
-    # --- v3.1 gap-remediation: infrastructure instantiation (T01–T06) ---
-    # T01 (BUG-001/P0): Construct TurnLedger for budget tracking
-    ledger = TurnLedger(
-        initial_budget=config.max_turns * len(config.active_phases),
-        reimbursement_rate=0.8,
-    )
+    # --- v3.1 gap-remediation: infrastructure instantiation (T02–T06) ---
+    # R-1 (per-phase turn-budget): the global pre-loop TurnLedger (formerly
+    # sized config.max_turns * len(config.active_phases)) was REMOVED. A fresh
+    # per-phase ledger is now constructed inside the loop at the tasks-resolution
+    # point (R-2) so per-phase budget independence is structural. The neighbors
+    # below (shadow_metrics, remediation_log, SprintGatePolicy, all_gate_results)
+    # legitimately accumulate across phases and intentionally remain pre-loop.
     # T02 (BUG-002/P0): Construct ShadowGateMetrics for anti-instinct telemetry
     shadow_metrics = ShadowGateMetrics()
+    # R-10 (OQ-1 Position A): sprint-level READ-ONLY wiring-telemetry accumulator.
+    # Constructed pre-loop alongside shadow_metrics so the per-phase ledger reset
+    # (R-1/R-2) does not silently collapse the persisted gate-kpi-report.md wiring
+    # totals to last-phase-only. Each phase's wiring counters are summed into this
+    # immediately after that phase's `run_post_phase_wiring_hook` call (both the
+    # task path and the legacy path), and THIS accumulator — not the last-phase
+    # ledger — is passed to build_kpi_report. It is observability-only: never read by
+    # try_launch()/available()/can_run_wiring_gate(), so it introduces no shared
+    # budget pool (R-3/R-4 budget independence is preserved).
+    sprint_wiring_totals = _SprintWiringTotals()
     # T03 (BUG-005/P2): Construct DeferredRemediationLog for failed gate persistence
     from superclaude.cli.pipeline.trailing_gate import DeferredRemediationLog
 
@@ -1882,6 +1942,31 @@ def execute_sprint(config: SprintConfig):
             # v3.1-T04: Per-task delegation — if phase has a task inventory,
             # delegate to execute_phase_tasks() instead of single ClaudeProcess.
             tasks = _parse_phase_tasks(phase, config)
+            # R-2/R-3 (per-phase turn-budget): construct a FRESH, phase-sized ledger
+            # here — after the python/skip `continue` guards (R-8: those phases never
+            # reach this point, so they allocate no ledger) and after tasks are
+            # resolved, BEFORE the `if tasks:` branch — so the single `ledger` binding
+            # serves BOTH the task branch (`ledger=` into execute_phase_tasks) and the
+            # legacy fall-through (`ledger=ledger` into the wiring hook). Sizing is
+            # `max_turns × len(tasks)`; the `else 1` floor is LOAD-BEARING — it floors
+            # the legacy single-subprocess path to `max_turns × 1` so an
+            # initial_budget=0 ledger can never arise. Because a new object is built
+            # every phase, per-phase budget independence is structural: at entry to
+            # execute_phase_tasks `ledger.available() == max_turns × len(tasks)` and
+            # `consumed == 0`, independent of any earlier phase (R-3).
+            #
+            # K-2 SEQUENTIAL-PHASE INVARIANT (load-bearing precondition for R-9):
+            # phases run serially via the `for phase in config.active_phases` loop
+            # above, with task-level fan-out confined WITHIN a phase
+            # (_execute_phase_tasks_parallel joins all workers before returning). The
+            # next phase's ledger is constructed only after the prior phase fully
+            # returns, so no worker can ever observe a half-built ledger and no
+            # straggler can cross a phase boundary. If a future change ever overlaps
+            # phases, this per-phase ledger would need explicit per-phase ownership.
+            ledger = TurnLedger(
+                initial_budget=config.max_turns * (len(tasks) if tasks else 1),
+                reimbursement_rate=0.8,
+            )
             if tasks:
                 started_at = datetime.now(timezone.utc)
                 logger.write_phase_start(phase, started_at)
@@ -1960,6 +2045,19 @@ def execute_sprint(config: SprintConfig):
                     phase_result,
                     ledger=ledger,
                     remediation_log=remediation_log,
+                )
+                # R-10 (task path add-site): fold this phase's wiring telemetry into
+                # the sprint-cumulative accumulator. READ-ONLY summation — the
+                # per-phase ledger is not mutated; this only reads the wiring counters
+                # the hook just updated. Keeps gate-kpi-report.md sprint-cumulative
+                # after the per-phase ledger reset (R-1/R-2). The accumulator is never
+                # consulted by try_launch()/available()/can_run_wiring_gate().
+                sprint_wiring_totals.wiring_turns_used += ledger.wiring_turns_used
+                sprint_wiring_totals.wiring_turns_credited += (
+                    ledger.wiring_turns_credited
+                )
+                sprint_wiring_totals.wiring_analyses_count += (
+                    ledger.wiring_analyses_count
                 )
 
                 sprint_result.phase_results.append(phase_result)
@@ -2324,12 +2422,33 @@ def execute_sprint(config: SprintConfig):
                     phase_result.exhausted_model = exhausted_model
 
                 # v3.2-T02: Run post-phase wiring hook for every claude-mode phase
+                # R-6 (K-1): on this legacy single-subprocess path, `ledger` is now
+                # the FRESH per-phase max_turns × 1 ledger constructed above (R-2),
+                # NOT the former cumulative sprint-global pool. This is the deliberate
+                # K-1 refinement (late legacy phases no longer silently skip wiring
+                # under an exhausted shared pool), pinned by TM-13 — NOT TM-7 (TM-7
+                # covers only the byte-equivalent subprocess execution log and cannot
+                # detect this wiring-input delta). The subprocess execution path
+                # itself (isolation, SessionResetPolicy, launch, monitor, PhaseResult
+                # assembly) is unchanged.
                 phase_result = run_post_phase_wiring_hook(
                     phase,
                     config,
                     phase_result,
                     ledger=ledger,
                     remediation_log=remediation_log,
+                )
+                # R-10 (legacy path add-site): fold this legacy phase's wiring
+                # telemetry into the sprint-cumulative accumulator. READ-ONLY
+                # summation — the per-phase ledger is not mutated. Mirrors the task
+                # path add-site so EVERY phase (task and legacy) contributes its
+                # wiring counters to the persisted gate-kpi-report.md totals.
+                sprint_wiring_totals.wiring_turns_used += ledger.wiring_turns_used
+                sprint_wiring_totals.wiring_turns_credited += (
+                    ledger.wiring_turns_credited
+                )
+                sprint_wiring_totals.wiring_analyses_count += (
+                    ledger.wiring_analyses_count
                 )
 
                 sprint_result.phase_results.append(phase_result)
@@ -2457,10 +2576,17 @@ def execute_sprint(config: SprintConfig):
         # T07 (BUG-007/P3): Build KPI report from accumulated gate results
         from superclaude.cli.sprint.kpi import build_kpi_report
 
+        # R-10 (arg swap): pass the sprint-level wiring accumulator — NOT the
+        # last-phase `ledger` — so the persisted gate-kpi-report.md reports
+        # SPRINT-CUMULATIVE wiring_turns_used / wiring_turns_credited /
+        # wiring_analyses_run. After the per-phase ledger reset (R-1/R-2) the
+        # post-loop `ledger` would be only the final phase's instance, collapsing
+        # these totals to last-phase-only (the D-4 regression). The accumulator
+        # exposes the three attribute names build_kpi_report reads at kpi.py:193/195/197.
         kpi_report = build_kpi_report(
             gate_results=all_gate_results,
             remediation_log=remediation_log,
-            turn_ledger=ledger,
+            turn_ledger=sprint_wiring_totals,
         )
         kpi_path = config.results_dir / "gate-kpi-report.md"
         kpi_path.write_text(kpi_report.format_report())

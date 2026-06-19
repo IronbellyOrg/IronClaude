@@ -141,6 +141,7 @@ markers = [
     "autonomy: Autonomy-tier gate tests (zero-edit-no-push, etc.)",
     "recovery: Crash-recovery / resume reconstruction tests (FM-1..12)",
     "p0: P0 priority acceptance tests",
+    "regression: Mandatory regression-gate tests (e.g. TM-0 per-phase turn-budget starvation guard)",
 ]
 
 [tool.coverage.run]
