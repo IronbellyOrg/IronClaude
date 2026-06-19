@@ -221,6 +221,53 @@ def test_t1110_decline_backtick_wrapped_trigger(contract, load_fixture):
 
 
 @pytest.mark.inv
+def test_live_markdown_decline_graphql_app_slug_classifies_declined():
+    """Live PR #188 shape: GraphQL author.login uses app slug, REST bot login differs."""
+    live_contract = DetectionContract(
+        augment_bot_login="augmentcode[bot]",
+        augment_app_slug="augmentcode",
+        locked=True,
+    )
+    comment = {
+        "author": {"login": "augmentcode"},
+        "body": 'This PR is abnormally large; comment "**_augment review_**" to continue.',
+        "id": 18801,
+    }
+    assert is_decline(comment, live_contract) is True
+    assert classify({"reviews": [], "comments": [comment]}, live_contract) == "declined"
+
+
+@pytest.mark.inv
+def test_live_markdown_decline_rest_bot_login_classifies_declined():
+    """Live PR #188 REST issue-comment shape: user.login is augmentcode[bot]."""
+    live_contract = DetectionContract(
+        augment_bot_login="augmentcode[bot]",
+        augment_app_slug="augmentcode",
+        locked=True,
+    )
+    comment = {
+        "user": {"login": "augmentcode[bot]"},
+        "body": 'This PR is abnormally large; comment "**_augment review_**" to continue.',
+        "id": 18802,
+    }
+    assert is_decline(comment, live_contract) is True
+    assert classify({"reviews": [], "comments": [comment]}, live_contract) == "declined"
+
+
+@pytest.mark.inv
+def test_live_markdown_decline_empty_identity_set_fail_safe():
+    """Empty contract identities do not accept matching decline text."""
+    empty_contract = DetectionContract(locked=True)
+    comment = {
+        "user": {"login": "augmentcode[bot]"},
+        "body": 'This PR is abnormally large; comment "**_augment review_**" to continue.',
+        "id": 18803,
+    }
+    assert is_decline(comment, empty_contract) is False
+    assert classify({"reviews": [], "comments": [comment]}, empty_contract) == "polling"
+
+
+@pytest.mark.inv
 def test_t1110c_decline_wins_over_cooccurring_findings(contract):
     """Decline-FIRST ordering (FR-9.1): when a findings-bearing Augment review AND a
     decline comment co-occur, the state is "declined" — a decline is NEVER miscounted

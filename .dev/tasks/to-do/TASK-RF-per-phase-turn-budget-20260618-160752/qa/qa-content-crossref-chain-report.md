@@ -142,5 +142,3 @@ local-file-bound), so no Tavily fallback applies.
 
 **Overall Verdict: PASS** — all requirement→code→test chains trace end-to-end;
 3 MINOR anchor-drift advisories, 0 broken links, 0 CRITICAL/IMPORTANT.
-
-

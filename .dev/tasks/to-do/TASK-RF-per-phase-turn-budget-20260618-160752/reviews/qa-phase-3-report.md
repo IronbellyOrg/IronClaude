@@ -108,5 +108,3 @@ Computation: confidence = VERIFIED / (TOTAL − UNVERIFIABLE) × 100 = 12 / (12 
 ## QA Complete
 
 **OVERALL VERDICT: PASS** — R-7 PASS, K-3 PASS. No issues found; no fixes applied. Phase 3 (Steps 3.1–3.2) is clean. Green light to proceed to Phase 4.
-
-

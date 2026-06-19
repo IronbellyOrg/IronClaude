@@ -113,4 +113,3 @@ guarded — see Adversarial Trace below.
 ---
 
 ## Overall Verdict: PASS — wiring-telemetry accumulation logic and TM-13 are numerically correct, attribute-aligned, read-only, both-add-site complete, sprint-cumulative (5=3+2 not 2), and read from the actual persisted gate-kpi-report.md. No CRITICAL/IMPORTANT/MINOR defect. One non-blocking coverage observation (O-1: legacy add-site not numerically exercised by TM-13).
-

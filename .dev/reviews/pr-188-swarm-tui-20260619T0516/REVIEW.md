@@ -43,7 +43,7 @@ The change is sound and well-tested. The single material finding the fallback su
 - **F8** FR-4 render-ceiling test is timing-sensitive (`test_run_tui_integration.py`); overlaps reflect **D2**. (auggie #8)
 - **F9** `_TuiSymbolVisitor` quiet-guard recognizes only the exact `if not self.quiet:` shape; overlaps reflect **D3**. (auggie #9)
 - **F10** render-glitch latch `except Exception: pass` on `tui_obj.update` swallows Rich errors silently (`commands.py:1965`) — intended FR-1 render-glitch latch; could log at debug. (auggie #10)
-- **CC3** No unforced real-TUI concurrent-dispatch test; the real-PTY smoke partially covers this; overlaps reflect **D1**. 
+- **CC3** No unforced real-TUI concurrent-dispatch test; the real-PTY smoke partially covers this; overlaps reflect **D1**.
 
 ## Audit
 

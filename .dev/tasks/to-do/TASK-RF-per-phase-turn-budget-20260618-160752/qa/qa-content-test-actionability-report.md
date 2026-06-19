@@ -126,5 +126,3 @@ None — `fix_authorization: false`, report-only.
 ---
 
 ## Overall Verdict: PASS — all 14 TM rows (TM-0..TM-14) assert exactly what spec §6 requires and pass for the right reason; 0 weakened/hollow/commented-out/trivially-truthy assertions and 0 wrong-reason (stub-bypass/over-broad-mock) failures found. Five MINOR optional-hardening soft-spots (F-1..F-5) documented; none blocks the gate.
-
-

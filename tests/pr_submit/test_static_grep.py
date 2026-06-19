@@ -15,9 +15,13 @@ imports the anthropic SDK (FR-G1 ban).
 
 from __future__ import annotations
 
+import json
+import os
 import re
 import subprocess
 from pathlib import Path
+
+from superclaude.pr_submit import DetectionContract, classify
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-pr-submit-protocol"
@@ -321,10 +325,9 @@ def test_t1115_auggie_fallback_flag_parity():
     assert "`prism-b`" in model_row, (
         "prism-b is not the documented --auggie-model default"
     )
-    # The INVOCATION itself must NOT pass --no-post-pr (post-pr defaults true for a
-    # PR target) and must NOT pass --auggie-model (fallback inherits /sc:auggie-review's
-    # default model). The ref may MENTION either flag in prose; guard only the actual
-    # fenced/inline `> Skill ...` command text, not prose around it.
+    # The INVOCATION itself must NOT pass --no-post-pr and must NOT pass --auggie-model
+    # (fallback inherits /sc:auggie-review's default model). The ref may MENTION either
+    # flag in prose; guard only the actual fenced/inline `> Skill ...` command text.
     invocation_lines = [
         ln.strip()
         for ln in fallback.splitlines()
@@ -344,6 +347,60 @@ def test_auggie_review_protocol_defaults_to_prism_b():
     skill = AUGGIE_REVIEW_SKILL.read_text(encoding="utf-8")
     assert '--model "${AUGGIE_MODEL:-prism-b}"' in skill
     assert '${AUGGIE_MODEL:+--model "$AUGGIE_MODEL"}' not in skill
+
+
+def test_poll_script_fetches_issue_and_inline_comments_without_pr_view_comments():
+    """Poll script emits issue comments plus inline comments, not gh-pr-view comments."""
+    script = POLL_SCRIPT.read_text(encoding="utf-8")
+    assert 'gh api "repos/${REPO}/issues/${PR}/comments"' in script
+    assert 'gh api "repos/${REPO}/pulls/${PR}/comments"' in script
+    pr_view_lines = [
+        line for _lineno, line in _command_lines(POLL_SCRIPT) if "gh pr view" in line
+    ]
+    assert pr_view_lines
+    assert all("comments" not in line for line in pr_view_lines)
+    assert "($issue_comments // []) + ($inline_comments // [])" in script
+    assert "(.comments // [])" not in script
+
+
+def test_poll_script_stubbed_issue_comments_classify_declined(tmp_path):
+    """A stubbed poll emits REST issue comments that the pure classifier recognizes as declined."""
+    gh = tmp_path / "gh"
+    gh.write_text(
+        """#!/usr/bin/env bash
+set -euo pipefail
+if [ "$1" = "repo" ]; then
+  printf '{"nameWithOwner":"IronbellyOrg/IronClaude"}'
+elif [ "$1" = "pr" ]; then
+  printf '{"number":188,"url":"https://example.test/pr/188","headRefName":"fix/x","headRefOid":"abc123","baseRefName":"master","reviews":[]}'
+elif [ "$1" = "api" ] && [[ "$2" == *"/issues/188/comments" ]]; then
+  printf '%s' '[{"user":{"login":"augmentcode[bot]"},"body":"This PR is abnormally large; comment \\\"**_augment review_**\\\" to continue.","id":18801}]'
+elif [ "$1" = "api" ] && [[ "$2" == *"/pulls/188/comments" ]]; then
+  printf '[]'
+else
+  printf 'unexpected gh call: %s\\n' "$*" >&2
+  exit 1
+fi
+""",
+        encoding="utf-8",
+    )
+    gh.chmod(0o755)
+    env = {**os.environ, "PATH": f"{tmp_path}:{os.environ['PATH']}"}
+    result = subprocess.run(
+        [str(POLL_SCRIPT), "--pr", "188", "--repo", "IronbellyOrg/IronClaude"],
+        text=True,
+        capture_output=True,
+        env=env,
+        timeout=10,
+        check=True,
+    )
+    payload = json.loads(result.stdout)
+    contract = DetectionContract(
+        augment_bot_login="augmentcode[bot]",
+        augment_app_slug="augmentcode",
+        locked=True,
+    )
+    assert classify(payload, contract) == "declined"
 
 
 # --- D2: $REPO origin-URL resolution fallback (sed) -------------------------

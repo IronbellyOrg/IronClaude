@@ -51,9 +51,11 @@ No `--auggie-model` flag is passed here; fallback intentionally inherits `/sc:au
 
 ## 4. Re-entry contract (FR-9.4)
 
-The fallback findings are **NOT trusted verbatim** — they re-enter verify-before-remediate (the
-`evidence-validator` content gate) before any edit, exactly like an Augment finding set. An
-all-unverified fallback set converges clean with no push.
+The fallback findings are **NOT trusted verbatim** — the posted fallback output is normalized into
+`fallback_findings`, then those findings re-enter verify-before-remediate (the `evidence-validator`
+content gate) before any edit, exactly like an Augment finding set. An all-unverified fallback set
+converges clean with no push. `/sc:auggie-review` does not push fixes and does not reply to Augment
+threads; `sc:pr-submit` owns the one clamped remediation cycle and any PR follow-up comment.
 
 ## 5. Terminal (OQ-2 reuse)
 

@@ -13,9 +13,9 @@ and refuses to arm against an unlocked contract — **T-210** mechanically enfor
 
 ```yaml
 # detection-contract.md — locked by R1 empirical probe (build BLOCKS while locked:false)
-augment_bot_login: "<PROBE-LOCKED>"                  # e.g. "augment-code[bot]" — NOT hard-guessed; lives in data
+augment_bot_login: "<PROBE-LOCKED>"                  # e.g. "augmentcode[bot]" — NOT hard-guessed; lives in data
 augment_author_association: ["NONE", "CONTRIBUTOR"]  # observed associations of the Augment author
-augment_app_slug: "augment-code"                     # GitHub App slug (confirm via probe)
+augment_app_slug: "augmentcode"                      # GitHub App slug (confirm via probe); accepted with bot login
 emission_shape: "<review|issue_comment|check_run>"   # which gh surface carries findings
 findings_locus: "<reviews[].body|comments[]|check_run.output>"  # JSON path to the findings
 severity_field_path: "<jsonpath-or-null>"            # Augment's self-reported severity, if any (hint only)
@@ -24,17 +24,21 @@ probe_evidence: "<abs-path to captured gh json>"     # provenance for the lock (
 # V1.1 decline-detection (addendum §6.2 / FR-9.1) — baked defaults; both regexes must match an
 # Augment-authored comment for a "declined". accepted_trigger_phrases = our operator re-trigger tokens.
 decline_phrase_regex: 'abnormally\s+large'
-decline_retrigger_regex: 'comment\s+["''`]?(augment|auggie|augmentcode)\s+review["''`]?'
+decline_retrigger_regex: 'comment\s+["''`*_]*(augment|auggie|augmentcode)\s+review["''`*_]*'
 accepted_trigger_phrases: ["auggie review", "augment review", "augmentcode review"]
 locked: false                                        # R1 flips this to true; build BLOCKS while false
 ```
 
 ## Consequences
 
-1. **The parser is generic (no literal login).** The classifier contains
-   `if login == contract.augment_bot_login`, **never** a literal string. The login lives in
-   data. A different bot login is treated as "review not detected" (T-211). When Augment and
-   human reviews are interleaved, only the Augment author is parsed (T-212).
+1. **The parser is generic (no literal login).** The classifier builds the non-empty identity
+   set `{contract.augment_bot_login, contract.augment_app_slug}`, **never** a literal string.
+   This accepts REST bot-login shape (`augmentcode[bot]`) and GraphQL app-slug shape
+   (`augmentcode`) when both are probe-locked in data. A different bot login is treated as
+   "review not detected" (T-211). When Augment and human reviews are interleaved, only the
+   Augment author is parsed (T-212). The default retrigger regex also matches the live
+   `comment "**_augment review_**"` Markdown wrapper while still requiring the separate
+   `abnormally\s+large` phrase.
 
 2. **The R1 lock gate.** The pre-flight asserts `contract.locked == true` and refuses to arm an
    unlocked contract — turning R1 from a "should" into a mechanically-enforced sequencing

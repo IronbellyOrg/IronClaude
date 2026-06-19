@@ -65,4 +65,3 @@
 ## Summary
 
 All 30 spec anchors across the four source files MATCH their spec-described locations and code shape as of 2026-06-18 in the `perPhaseturnBudget` worktree. **No anchor is DRIFTED.** No corrected line numbers are needed; Phase 2/3 edit items proceed against the spec's original anchors. Per Critical Rule, each edit item will still re-Read its anchor immediately before editing.
-

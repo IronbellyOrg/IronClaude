@@ -2,12 +2,14 @@
 addendum FR-9.1).
 
 :func:`classify` is a pure function of ``(payload, contract)`` that returns one of
-``"polling"`` / ``"clean"`` / ``"findings"`` / ``"declined"``. It keys ONLY on
-``contract.augment_bot_login`` (never a literal string), so a different bot login
-is treated as "review not detected" (T-211) and interleaved Augment+human reviews
-parse only the Augment author (T-212). The V1.1 ``"declined"`` state (FR-9.1) is
-checked FIRST so an Augment "abnormally large" decline is never miscounted as
-``"findings"``; the decline predicate lives in the sibling pure fn :func:`is_decline`.
+``"polling"`` / ``"clean"`` / ``"findings"`` / ``"declined"``. It keys on the Augment
+IDENTITY SET ``{contract.augment_bot_login, contract.augment_app_slug}`` (never a literal
+string), so the same author rendered as ``augmentcode[bot]`` (REST) or ``augmentcode``
+(GraphQL app-slug) is recognized either way, while a different bot login is treated as
+"review not detected" (T-211) and interleaved Augment+human reviews parse only the Augment
+author (T-212). The V1.1 ``"declined"`` state (FR-9.1) is checked FIRST so an Augment
+"abnormally large" decline is never miscounted as ``"findings"``; the decline predicate
+lives in the sibling pure fn :func:`is_decline`.
 
 NFR-6 core purity: no review-fetch command tokens; the payload is already fetched.
 """
@@ -41,11 +43,22 @@ def _login_of(entry: dict) -> str | None:
     return entry.get("login")
 
 
-def _augment_entries(entries: Any, bot_login: str | None) -> list[dict]:
-    """Filter ``entries`` to those authored by the contract's Augment bot login."""
-    if not isinstance(entries, list) or not bot_login:
+def _augment_identities(contract: Any) -> set[str]:
+    """Return non-empty Augment identities accepted for this detection contract."""
+    identities = {
+        getattr(contract, "augment_bot_login", None),
+        getattr(contract, "augment_app_slug", None),
+    }
+    return {str(identity) for identity in identities if identity}
+
+
+def _augment_entries(entries: Any, augment_identities: set[str]) -> list[dict]:
+    """Filter ``entries`` to those authored by any configured Augment identity."""
+    if not isinstance(entries, list) or not augment_identities:
         return []
-    return [e for e in entries if isinstance(e, dict) and _login_of(e) == bot_login]
+    return [
+        e for e in entries if isinstance(e, dict) and _login_of(e) in augment_identities
+    ]
 
 
 def _entry_ts(entry: dict) -> Any:
@@ -92,21 +105,23 @@ def _entry_has_findings(review: dict) -> bool:
 def is_decline(comment: dict, contract: Any, *, watermark: Any = None) -> bool:
     """True iff ``comment`` is an Augment "abnormally large" decline (FR-9.1 / FR-9.5).
 
-    A decline is an Augment-authored comment whose body matches BOTH
+    A decline is an Augment-authored comment (authored by any identity in the contract's
+    ``{augment_bot_login, augment_app_slug}`` set) whose body matches BOTH
     ``contract.decline_phrase_regex`` (default ``abnormally\\s+large``) AND
     ``contract.decline_retrigger_regex`` (default
-    ``comment ["']?(augment|auggie|augmentcode) review["']?``), case-insensitively,
-    AND that is newer than ``watermark``. A ``None`` watermark accepts any decline;
-    when a watermark is given, a comment whose ``createdAt``/``created_at`` is not
-    strictly newer is treated as a stale pre-watermark decline and ignored (EC-23).
+    ``comment ["'`*_]*(augment|auggie|augmentcode) review["'`*_]*`` — the ``*_`` wrappers
+    accept the Markdown-emphasized real shape ``comment "**_augment review_**"``),
+    case-insensitively, AND that is newer than ``watermark``. A ``None`` watermark accepts
+    any decline; when a watermark is given, a comment whose ``createdAt``/``created_at`` is
+    not strictly newer is treated as a stale pre-watermark decline and ignored (EC-23).
 
     Pure: no I/O, no ``gh``/``git`` tokens. A body matching only ``abnormally large``
     (no re-trigger instruction) is NOT a decline — both regexes must match.
     """
     if not isinstance(comment, dict):
         return False
-    bot_login = getattr(contract, "augment_bot_login", None)
-    if not bot_login or _login_of(comment) != bot_login:
+    augment_identities = _augment_identities(contract)
+    if not augment_identities or _login_of(comment) not in augment_identities:
         return False
     phrase_re = getattr(contract, "decline_phrase_regex", None)
     retrigger_re = getattr(contract, "decline_retrigger_regex", None)
@@ -159,12 +174,12 @@ def classify(payload: dict, contract: Any, *, watermark: Any = None) -> str:
     ``watermark`` (keyword-only, default ``None``) is threaded into :func:`is_decline`
     so a stale pre-watermark decline is ignored (EC-23); ``None`` accepts any decline.
     """
-    bot_login = getattr(contract, "augment_bot_login", None)
+    augment_identities = _augment_identities(contract)
     reviews = payload.get("reviews") if isinstance(payload, dict) else None
     comments = payload.get("comments") if isinstance(payload, dict) else None
 
-    augment_reviews = _augment_entries(reviews, bot_login)
-    augment_comments = _augment_entries(comments, bot_login)
+    augment_reviews = _augment_entries(reviews, augment_identities)
+    augment_comments = _augment_entries(comments, augment_identities)
 
     # V1.1 decline check (FR-9.1) — runs BEFORE clean/findings/polling so an Augment
     # decline (which may arrive as a bare comment with no formal review) is never

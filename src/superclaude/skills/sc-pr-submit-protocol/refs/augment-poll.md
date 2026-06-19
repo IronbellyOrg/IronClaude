@@ -13,37 +13,37 @@ deterministic core (NFR-6) — the script touches `gh`, the core decides.
 Primary, the exact `--json` field set from the spec:
 
 ```bash
-gh pr view <N> --repo <owner/repo> --json number,url,headRefName,headRefOid,baseRefName,reviews,comments
+gh pr view <N> --repo <owner/repo> --json number,url,headRefName,headRefOid,baseRefName,reviews
 ```
 
 - `headRefOid` = the head SHA (used by INV-001 `sha_attributed_to_our_push` and the inline-reply
   `commit_id`).
 - `reviews` = `{author{login}, authorAssociation, state, body, submittedAt, url}`.
-- `comments` = PR conversation comments (NOT inline review comments).
 
-REST surfaces (inline-comment ids / `in_reply_to_id` are not on `gh pr view`, so REST is required):
+REST surfaces supply all comments:
 
 ```bash
-gh api repos/<owner/repo>/pulls/<N>/reviews
+gh api repos/<owner/repo>/issues/<N>/comments
 gh api repos/<owner/repo>/pulls/<N>/comments
 gh api repos/<owner/repo>/commits/<headSHA>/check-runs   # only if the probe shows emission_shape==check_run
 ```
 
 Classification is pure against the probe-locked `DetectionContract` (`detection-contract.md`): key on
-`augment_bot_login`; four states no-review / clean / findings / **declined** (T-201/202/203 + FR-9.1).
-The V1.1 `declined` state fires when an Augment-authored comment matches BOTH probe-locked decline
-regexes (`decline_phrase_regex` "abnormally large" AND `decline_retrigger_regex` "comment
-augment/auggie/augmentcode review"), watermark-aware (a stale pre-watermark decline is ignored, EC-23).
-The decline ARITHMETIC (the both-regex AND, the watermark comparison, the strict-once routing) stays in
-the deterministic core; only the decline raw-surfacing comes from this poll script — the same
+the non-empty Augment identity set `{augment_bot_login, augment_app_slug}`; four states no-review /
+clean / findings / **declined** (T-201/202/203 + FR-9.1). The V1.1 `declined` state fires when an
+Augment-authored comment matches BOTH probe-locked decline regexes (`decline_phrase_regex` "abnormally
+large" AND `decline_retrigger_regex` "comment augment/auggie/augmentcode review", including quote,
+backtick, `*`, and `_` Markdown wrappers), watermark-aware (a stale pre-watermark decline is ignored,
+EC-23). The decline ARITHMETIC (the both-regex AND, the watermark comparison, the strict-once routing)
+stays in the deterministic core; only the decline raw-surfacing comes from this poll script — the same
 script-polls / FSM-decides seam as the other states. The decline is posted by the App as a **PR
-conversation comment** (the `gh pr view --json comments` surface, equivalently `issues/<N>/comments` —
-the same surface `retrigger-review.sh` posts to), NOT as an inline review comment. The poll script
-therefore **merges** the conversation comments (`.comments` from `gh pr view`) with the inline review
-comments (`pulls/<N>/comments`) into the emitted `comments` array, so the classifier sees the decline;
-surfacing only the inline comments would make `declined` unreachable in production. (The classifier's
-finding-comment rule requires `path`+`line`, so the path-less conversation comments are never miscounted
-as findings.)
+conversation comment** on `issues/<N>/comments`, NOT as an inline review comment. The poll script
+therefore **merges** REST issue comments (`issues/<N>/comments`, where REST may expose
+`user.login=augmentcode[bot]`) with inline review comments (`pulls/<N>/comments`), while GraphQL review
+authors may expose `author.login=augmentcode`. The classifier accepts either configured Augment identity
+and sees the decline; surfacing only inline comments would make `declined` unreachable in production.
+(The classifier's finding-comment rule requires `path`+`line`, so path-less conversation comments are
+never miscounted as findings.)
 
 ## Interval, timeout, backoff (FR-2.3 / FR-2.5 / NFR-2)
 

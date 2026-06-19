@@ -122,6 +122,3 @@ not skipped checks.
 ---
 
 ## Overall Verdict: PASS — no race, straggler, budget-coupling, or sizing defect found; per-phase budget + concurrency model is domain-correct against the FINAL spec (R-1..R-10, K-2). 2 non-blocking observations (1 intended behavior change, 1 design-doc anchor drift); 0 CRITICAL.
-
-
-

@@ -97,4 +97,3 @@ The §14.5.2 9-condition gate **would PASS** (mode post ✓, status success ✓,
 3. *(out-of-scope, pre-existing)* Track GG2 (legacy `try`/`finally` no-`except` sprint-abort coupling) as a separate issue if a legacy-phase crash should still emit a partial KPI report — NOT part of this change.
 
 **Nothing here blocks shipping.** The change is spec-conformant, regression-free, and the test suite is green.
-
