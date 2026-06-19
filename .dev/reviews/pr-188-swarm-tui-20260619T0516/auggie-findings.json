@@ -1,0 +1,216 @@
+{
+  "findings": [
+    {
+      "title": "Unconditional tui.py (Rich) import on every fresh-run, even without --tui",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/swarm/commands.py",
+      "line": 1881,
+      "line_range_end": 1881,
+      "in_diff": true,
+      "evidence": "    from superclaude.cli.swarm.tui import TUI, should_enable_tui",
+      "why": "This import is outside any conditional and executes on every fresh-run path, regardless of whether --tui was passed. tui.py imports Rich at module level (lines 45-49 of tui.py: `from rich.console import Console`, `from rich.live import Live`, etc.), so Rich is imported unconditionally on all fresh runs. The surrounding comment at line 1878-1879 claims 'no thread, no tail loop, no Rich/TUI import side effects (FR-2)', which is directly contradicted by this unconditional import.",
+      "recommendation": "Move the import inside the `else:` branch so it is deferred to only the TUI-active path, or guard it: `if tui: from superclaude.cli.swarm.tui import TUI, should_enable_tui` and provide a late-binding alternative for `should_enable_tui` on the non-TUI path.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/tui.py:45",
+        "src/superclaude/cli/swarm/tui.py:46",
+        "src/superclaude/cli/swarm/commands.py:1877"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "executor.quiet=True applied unconditionally on ALL swarm dispatch paths, not just TUI",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/swarm/dispatch.py",
+      "line": 425,
+      "line_range_end": 425,
+      "in_diff": true,
+      "evidence": "    executor.quiet = True  # FR-1: swarm dispatch path is silent; workers emit to files.",
+      "why": "This line runs unconditionally inside `dispatch_wave1` for every caller — including the non-TUI synchronous path in `commands.py:1886`. ParallelExecutor output was presumably intended by its authors for operator visibility (progress feedback), and silencing it globally changes observable behavior for all swarm runs. The PR summary frames this as a TUI single-writer concern (FR-1), but the guard belongs in the caller (where the TUI flag is known), not inside the shared dispatch function.",
+      "recommendation": "Pass `quiet` as a keyword argument to `dispatch_wave1` (defaulting to `False`) or set `executor.quiet` only when `_tui_active` is True in `commands.py` before calling dispatch, keeping `dispatch_wave1` unmodified.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/commands.py:1883",
+        "src/superclaude/cli/swarm/commands.py:1886",
+        "src/superclaude/execution/parallel.py:100"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "TUI initialization exception bypasses worker exception re-raise, masking worker crash",
+      "category": "error-handling",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/swarm/commands.py",
+      "line": 1927,
+      "line_range_end": 1997,
+      "in_diff": true,
+      "evidence": "        dispatch_thread.start()\n        try:\n            tui_obj = TUI()\n            tui_obj.start()\n            ...\n        except KeyboardInterrupt:\n            interrupted = True\n        finally:\n            if tui_obj is not None:\n                tui_obj.stop()\n            dispatch_thread.join()\n        if \"e\" in exc_box:\n            raise exc_box[\"e\"]",
+      "why": "If `TUI()` (line 1928) or `tui_obj.start()` (line 1929) raises any non-KeyboardInterrupt exception, it propagates through the `finally` block (stop + join run correctly) but then escapes the try/except/finally structure entirely. The `if 'e' in exc_box:` re-raise check at line 1996 is never reached, so any worker exception captured in `exc_box` is silently masked by the TUI init error. The same applies if an `AssertionError` fires from line 1961 — it is also not a `KeyboardInterrupt`, so it exits the try block and skips the exc_box check.",
+      "recommendation": "Wrap the entire `else:` block in an outer `try/finally` that checks `exc_box` before propagating any TUI-side exception, or restructure so TUI init errors do not prevent the worker exception re-raise from executing.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/commands.py:1996",
+        "src/superclaude/cli/swarm/commands.py:1961"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "dispatch_thread.join() has no timeout, blocking indefinitely on worker hang or SIGINT",
+      "category": "resource-leak",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/swarm/commands.py",
+      "line": 1992,
+      "line_range_end": 1992,
+      "in_diff": true,
+      "evidence": "            dispatch_thread.join()",
+      "why": "A non-daemon thread that hangs (e.g., a subprocess blocking on a network call) causes the main process to block forever at this join. On the SIGINT path (`interrupted = True`), the user's Ctrl-C is acknowledged but the process then waits indefinitely for the worker to finish — contradicting the expectation that SIGINT interrupts the run. Since the thread is non-daemon, the process also cannot be terminated by normal Python shutdown.",
+      "recommendation": "Pass a conservative `timeout=` (e.g., the per-worker `timeout_sec` plus a buffer) and surface an error or forcibly exit if the join times out; at minimum document that SIGINT may block for up to the worker timeout.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/commands.py:1978",
+        "src/superclaude/cli/swarm/commands.py:1984"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "FR-1 single-writer assert is a no-op under python -O (optimized mode)",
+      "category": "correctness",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/swarm/commands.py",
+      "line": 1961,
+      "line_range_end": 1964,
+      "in_diff": true,
+      "evidence": "                assert threading.get_ident() == main_ident, (\n                    \"FR-1 violation: tui.update must run on the main thread \"\n                    \"(single-writer Console topology)\"\n                )",
+      "why": "Python's `-O` flag strips `assert` statements. In an optimised production build the single-writer invariant enforcement silently disappears — the very regression the PR intends to guard (cross-thread Console write corrupting Rich Live) could recur without any diagnostic output. The assertion also has an exception-precedence side-effect: if it somehow fired in debug mode, the `AssertionError` would bypass `exc_box` (see finding above).",
+      "recommendation": "Replace with a conditional raise: `if threading.get_ident() != main_ident: raise RuntimeError(\"FR-1 violation…\")` so the check survives optimised builds and the error reaches the caller on all build configurations.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/commands.py:1927",
+        "tests/swarm/test_run_tui_integration.py:177"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Silent TUI no-op when --tui passed on a TTY without --output, with no user feedback",
+      "category": "api-contract",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/swarm/commands.py",
+      "line": 1883,
+      "line_range_end": 1884,
+      "in_diff": true,
+      "evidence": "    _tui_active = should_enable_tui(tui, sys.stdout) and state_output_dir is not None\n    if not _tui_active:",
+      "why": "When a user passes `--tui` on a real TTY but omits `--output`, `state_output_dir` is None, so `_tui_active` is False. The run silently proceeds without the dashboard. The `--tui` help text mentions requiring `--output`, but there is no explicit error message or warning at this site. The user has no way to know the TUI was silently skipped.",
+      "recommendation": "Add a `click.echo` warning (to stderr) when `tui and sys.stdout.isatty() and state_output_dir is None` to tell the user that `--tui` requires `--output` and the dashboard was not started.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/commands.py:1483"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "quiet is a class attribute on ParallelExecutor; per-instance mutation by dispatch.py is unexpected and untested",
+      "category": "anti-pattern",
+      "severity_hint": "low",
+      "file": "src/superclaude/execution/parallel.py",
+      "line": 100,
+      "line_range_end": 100,
+      "in_diff": true,
+      "evidence": "    quiet: bool = False  # FR-1: swarm dispatch can silence worker-thread prints.",
+      "why": "Class-level attribute assignment in Python creates a shared descriptor that is shadowed by per-instance assignment. `executor.quiet = True` in `dispatch.py:425` creates an instance attribute that shadows the class attribute, but this pattern is surprising and mutation of a caller-injected executor (passed via `parallel_executor=`) is unexpected by the injector. If a test re-uses the same injected executor across calls, the mutation from the first call persists silently. Additionally the frozen-signature test pins `__init__` but says nothing about `quiet`, leaving the attribute invisible to `inspect.signature` checks.",
+      "recommendation": "Move `quiet` to an `__init__` parameter with a default of `False`, or accept it as a keyword-only argument to `plan`/`execute`. Either approach makes the intent explicit and avoids mutating injected objects.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/dispatch.py:424",
+        "src/superclaude/cli/swarm/dispatch.py:425",
+        "tests/swarm/test_run_tui_integration.py:1749"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "FR-4 render-ceiling test assertion is timing-sensitive and can fail on slow CI",
+      "category": "tests",
+      "severity_hint": "low",
+      "file": "tests/swarm/test_run_tui_integration.py",
+      "line": 774,
+      "line_range_end": 778,
+      "in_diff": true,
+      "evidence": "    assert len(tail_calls) == ceiling, (\n        f\"FR-4: render loop must break at the ceiling ({ceiling} renders); \"\n        f\"got {len(tail_calls)} (a different count means the loop did not honor \"\n        \"the ceiling)\"\n    )",
+      "why": "The assertion expects EXACTLY `ceiling` (2) tail calls. The liveness check (`dispatch_thread.is_alive()`) appears BEFORE the ceiling check in the loop body, so if the worker finishes between the start of the poll loop and the first `is_alive()` call, there is only 1 tail call and the assertion fails. The `threading.Event().wait(0.3)` in `_slow_dispatch` makes this unlikely but not impossible: on a heavily loaded CI host the main thread can be starved for > 300ms before its first liveness check.",
+      "recommendation": "Assert `len(tail_calls) >= ceiling` (a lower bound) rather than exact equality, or redesign the observable to count ceiling-triggered breaks rather than tail calls so the assertion is independent of liveness-triggered early exit.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/commands.py:1972",
+        "src/superclaude/cli/swarm/commands.py:1975"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "_TuiSymbolVisitor quiet-guard detector only handles `if not self.quiet:` at one level of nesting",
+      "category": "tests",
+      "severity_hint": "low",
+      "file": "tests/swarm/test_inv012_tui_opt_in.py",
+      "line": 667,
+      "line_range_end": 735,
+      "in_diff": true,
+      "evidence": "    def _is_quiet_guard(self, node: ast.AST) -> bool:\n        return (\n            isinstance(node, ast.UnaryOp)\n            and isinstance(node.op, ast.Not)\n            and isinstance(node.operand, ast.Attribute)\n            and node.operand.attr == \"quiet\"\n            and isinstance(node.operand.value, ast.Name)\n            and node.operand.value.id == \"self\"\n        )",
+      "why": "The visitor only recognises the exact pattern `if not self.quiet:` as a guard. It does not recognise `if self.quiet: pass else: print(...)`, guard on a different attribute name, or a guard extracted into a helper. Any unguarded `print()` or `sys.stdout` write added outside `if not self.quiet:` in `parallel.py`'s worker methods (e.g. in a new helper called from `_execute_group`) would not be detected because the audit is per-file and non-transitive.",
+      "recommendation": "Document the audit's scope limitation explicitly in the test docstring (it is already partially documented), and add a negative test case (a synthetic guarded else-branch) to the mutation guard to prevent false confidence.",
+      "cross_references": [
+        "tests/swarm/test_inv012_tui_opt_in.py:760",
+        "tests/swarm/test_inv012_tui_opt_in.py:795"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "render glitch latch `except Exception: pass` on tui_obj.update swallows Rich internal errors silently",
+      "category": "error-handling",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/swarm/commands.py",
+      "line": 1965,
+      "line_range_end": 1971,
+      "in_diff": true,
+      "evidence": "                try:\n                    tui_obj.update(state, events)\n                except Exception:\n                    # FR-1 render-glitch latch: a render error must never abort\n                    # the run. (KeyboardInterrupt is BaseException, not Exception,\n                    # so SIGINT still propagates through to the finally / FR-6.)\n                    pass",
+      "why": "Swallowing all exceptions from `tui_obj.update` without any logging means operators running `--tui` have no visibility into repeated render failures. A corrupt `SwarmState` or a Rich internal assertion would cause a permanently blank dashboard while the run proceeds, with no indication that the TUI is non-functional.",
+      "recommendation": "Log the first N render errors at debug level (e.g., using the existing `logger` in scope) or keep a failure counter that emits a single warning after repeated failures, so the render-glitch latch remains non-fatal but is not completely silent.",
+      "cross_references": [
+        "src/superclaude/cli/swarm/tui.py:238",
+        "src/superclaude/cli/swarm/commands.py:1947"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "FR-2 single-writer isolation is incomplete: Rich is imported and executor is silenced on ALL fresh-run paths",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/cli/swarm/commands.py",
+        "src/superclaude/cli/swarm/dispatch.py",
+        "src/superclaude/execution/parallel.py"
+      ],
+      "why": "Two separate mechanism break the 'byte-identical non-TUI path' claim. First, `from superclaude.cli.swarm.tui import TUI, should_enable_tui` (commands.py:1881) runs unconditionally on every fresh run, importing Rich into the process. Second, `executor.quiet = True` (dispatch.py:425) silences ParallelExecutor stdout output for ALL swarm dispatches including the non-TUI synchronous path. Together these mean the non-TUI path changes observable behavior (silenced executor output) and acquires a new import-time dependency (Rich) relative to the pre-PR baseline.",
+      "recommendation": "Gate the tui.py import inside the `else:` branch (or inside a `if tui:` check). Move `executor.quiet = True` to the caller (`commands.py`) where `_tui_active` is known, passed as an argument to `dispatch_wave1`, or applied only on the TUI branch.",
+      "confidence": "high"
+    },
+    {
+      "title": "Layering violation: dispatch.py encodes TUI single-writer concern via unconditional quiet mutation",
+      "category": "layering",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/cli/swarm/dispatch.py",
+        "src/superclaude/execution/parallel.py"
+      ],
+      "why": "`dispatch_wave1` is a transport-agnostic fan-out function; it has no business knowing about the TUI single-writer constraint. Setting `executor.quiet = True` inside `dispatch_wave1` bleeds a presentation-layer concern (TUI console ownership) into the dispatch/execution layer. Any future caller of `dispatch_wave1` that wants executor progress output will silently get nothing and have no parameter to re-enable it.",
+      "recommendation": "Expose `quiet` as an explicit parameter of `dispatch_wave1` or of `ParallelExecutor.__init__`, and let the TUI-aware call site in `commands.py` opt in.",
+      "confidence": "high"
+    },
+    {
+      "title": "No test exercises the TUI-active path on a real concurrent dispatch with a real TUI object (unforced)",
+      "category": "tests",
+      "severity_hint": "low",
+      "affected_files": [
+        "tests/swarm/test_run_tui_integration.py",
+        "tests/swarm/test_inv012_tui_opt_in.py"
+      ],
+      "why": "Every test that exercises the TUI branch either monkeypatches `should_enable_tui` to always return `True` (forcing the gate) or uses a real PTY (which is POSIX-skipif-guarded). The monkeypatched tests never exercise the TTY gate logic itself. A future regression in `should_enable_tui` (e.g., treating a pipe as a TTY) would not be caught by any of the new tests.",
+      "recommendation": "Add a test that constructs a real `io.BytesIO` or mock stream, calls `should_enable_tui(True, stream)` directly, and asserts it returns `False` for non-TTY streams — keeping the gate unit-tested separately from the wiring tests.",
+      "confidence": "medium"
+    }
+  ],
+  "notes_for_orchestrator": "The diff does not touch authentication, secret handling, or trust paths, so no security findings were raised. The `_tail_events` tailer re-reads from byte offset on every poll (consistent with the existing `_drain_appended` pattern) — no performance finding raised there. The DRIFT-3 monkeypatch of `state_mod.read_state` correctly intercepts the deferred function-local import in commands.py because the import resolves the module attribute at call time, after monkeypatching; this was verified and is not a bug. The PTY smoke test does not monkeypatch `should_enable_tui` and relies on the slave fd being a real TTY — this is architecturally correct and was verified against the `isatty()` contract. The `_tui_args` helper is defined after its first call site in the test file but works correctly due to Python's module load ordering."
+}

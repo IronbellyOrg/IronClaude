@@ -1,0 +1,3 @@
+reflect: degraded (degraded-model-diversity)
+  report: .dev/tasks/to-do/TASK-RF-swarm-tui-fr1-regfix-20260619-021719/reflect/post/116a29c16519/REPORT.md
+  contract: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-fr1-regfix-20260619-021719/reflect/post/116a29c16519/return-contract.yaml

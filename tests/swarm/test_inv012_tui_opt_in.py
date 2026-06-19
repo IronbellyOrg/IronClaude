@@ -39,6 +39,7 @@ the INV-012 integration guard.
 
 from __future__ import annotations
 
+import ast
 import io
 import os
 import re
@@ -423,8 +424,7 @@ def _run_cmd_has_tui_flag() -> bool:
     once the flag lands the test activates automatically.
     """
     return any(
-        getattr(param, "name", None) == "tui"
-        or "--tui" in getattr(param, "opts", ())
+        getattr(param, "name", None) == "tui" or "--tui" in getattr(param, "opts", ())
         for param in run_cmd.params
     )
 
@@ -433,7 +433,7 @@ def _run_cmd_has_tui_flag() -> bool:
     sys.platform == "win32",
     reason="pty.openpty is POSIX-only; --tui PTY check skipped on Windows",
 )
-def test_pty_invocation_with_tui_flag_when_wired() -> None:
+def test_pty_invocation_with_tui_flag_when_wired(tmp_path: Path) -> None:
     """On a PTY with ``--tui``, ``swarm run`` -> Rich Live present.
 
     The task step says::
@@ -458,6 +458,21 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
 
     import pty  # POSIX-only; skipif above guards Windows.
 
+    # The --tui dashboard gate requires BOTH a TTY (the PTY below) AND an
+    # --output directory (so there is an execution-log.jsonl + .swarm-state.json
+    # to tail -- the G2 design decision: no --output => synchronous path, no
+    # dashboard). Provide a real --target (padded past the >=50 non-whitespace
+    # byte IMM-4 floor so preflight passes) and a fresh --output dir so the run
+    # reaches the dashboard instead of erroring at preflight.
+    target = tmp_path / "target.py"
+    target.write_text(
+        "# pty smoke target\n"
+        + "def hello() -> str:\n    return 'real stub dispatch'\n"
+        + "# padding to clear the IMM-4 non-whitespace byte floor\n" * 6,
+        encoding="utf-8",
+    )
+    output_dir = tmp_path / "out"
+
     primary_fd, secondary_fd = pty.openpty()
     try:
         if _superclaude_cli_available():
@@ -468,6 +483,12 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
                 "--tui",
                 "--lens",
                 "bare-review",
+                "--transport",
+                "stub",
+                "--target",
+                str(target),
+                "--output",
+                str(output_dir),
             ]
         else:
             cmd = [
@@ -479,6 +500,12 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
                 "--tui",
                 "--lens",
                 "bare-review",
+                "--transport",
+                "stub",
+                "--target",
+                str(target),
+                "--output",
+                str(output_dir),
             ]
         env = _piped_env()
         # The PTY path is the positive control for the opt-in: Rich must
@@ -540,44 +567,255 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_commands_module_does_not_construct_tui_outside_gate() -> None:
-    """Static audit: any ``TUI(`` construction in commands.py is gate-guarded.
+# ---------------------------------------------------------------------------
+# FR-1 single-writer Console topology -- AST import-graph reachability audit.
+#
+# The dispatch worker thread (Approach A) must NEVER touch the Console/Live:
+# its only output channel is the filesystem Logger. This audit proves -- via a
+# true AST walk, not a substring grep -- that NONE of the worker-side surfaces
+# (``dispatch.py``, ``execution/parallel.py``, and ``_run_worker`` which lives
+# in ``dispatch.py``) import Rich or the swarm ``tui`` module, nor reference the
+# names ``TUI`` / ``Live`` / ``Console`` / ``should_enable_tui``. A regression
+# that imported ``Live`` into ``dispatch.py`` (re-arming the #181/#182/#184
+# cross-thread render crash class) fails this audit. The audit is per-file (it
+# walks each module's own symbol table, not the whole call graph); the runtime
+# main-thread ``threading.get_ident()`` probe below is the transitive backstop.
+# ---------------------------------------------------------------------------
 
-    INV-012 enforcement depends on every wiring site routing through
-    :func:`should_enable_tui`. A direct ``TUI(`` instantiation that
-    doesn't sit inside an ``if should_enable_tui(...)`` block is an
-    enforcement gap regardless of how clean the helper-level tests
-    are. We grep the source so a future caller cannot silently bypass
-    the gate without flipping this guard red.
+# ``rich`` root covers rich.console / rich.live / rich.panel / rich.table.
+_FORBIDDEN_TUI_IMPORT_ROOTS = {"rich"}
+_FORBIDDEN_TUI_IMPORT_MODULES = {
+    "rich",
+    "rich.console",
+    "rich.live",
+    "rich.panel",
+    "rich.table",
+    "superclaude.cli.swarm.tui",
+}
+# Symbol names a worker-side module must never name (TUI surface + the gate).
+_FORBIDDEN_TUI_NAMES = {"TUI", "Live", "Console", "should_enable_tui"}
 
-    The audit is *conservative*: it allows zero ``TUI(`` constructions
-    in ``commands.py`` until the wiring task lands, and once the
-    wiring lands the same source line must be paired with a nearby
-    ``should_enable_tui`` reference (same function body). Failure to
-    pair the two surfaces here as an actionable error.
+
+class _TuiSymbolVisitor(ast.NodeVisitor):
+    """Collect forbidden TUI/Rich references and unguarded stdout writes."""
+
+    def __init__(self) -> None:
+        self.import_hits: list[tuple[int, str]] = []
+        self.name_hits: list[tuple[int, str]] = []
+        self.stdout_hits: list[tuple[int, str]] = []
+        self._quiet_guard_depth = 0
+
+    def _is_quiet_guard(self, node: ast.AST) -> bool:
+        return (
+            isinstance(node, ast.UnaryOp)
+            and isinstance(node.op, ast.Not)
+            and isinstance(node.operand, ast.Attribute)
+            and node.operand.attr == "quiet"
+            and isinstance(node.operand.value, ast.Name)
+            and node.operand.value.id == "self"
+        )
+
+    def _is_quiet_guarded(self) -> bool:
+        return self._quiet_guard_depth > 0
+
+    def _sys_stream_attr(self, node: ast.Attribute) -> str | None:
+        if (
+            isinstance(node.value, ast.Name)
+            and node.value.id == "sys"
+            and node.attr in {"stdout", "stderr"}
+        ):
+            return f"sys.{node.attr}"
+        if (
+            isinstance(node.value, ast.Attribute)
+            and isinstance(node.value.value, ast.Name)
+            and node.value.value.id == "sys"
+            and node.value.attr in {"stdout", "stderr"}
+        ):
+            return f"sys.{node.value.attr}.{node.attr}"
+        return None
+
+    def visit_Import(self, node: ast.Import) -> None:  # noqa: N802 -- ast API
+        for alias in node.names:
+            root = alias.name.split(".", 1)[0]
+            if root in _FORBIDDEN_TUI_IMPORT_ROOTS or (
+                alias.name in _FORBIDDEN_TUI_IMPORT_MODULES
+            ):
+                self.import_hits.append((node.lineno, alias.name))
+        self.generic_visit(node)
+
+    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:  # noqa: N802
+        module = node.module or ""
+        root = module.split(".", 1)[0]
+        if root in _FORBIDDEN_TUI_IMPORT_ROOTS or (
+            module in _FORBIDDEN_TUI_IMPORT_MODULES
+        ):
+            self.import_hits.append((node.lineno, module))
+        # Catch ``from superclaude.cli.swarm import tui`` and any
+        # ``from ... import TUI / Live / Console / should_enable_tui``.
+        for alias in node.names:
+            if alias.name == "tui" or alias.name in _FORBIDDEN_TUI_NAMES:
+                self.import_hits.append((node.lineno, f"{module}.{alias.name}"))
+        self.generic_visit(node)
+
+    def visit_If(self, node: ast.If) -> None:  # noqa: N802 -- ast API
+        if self._is_quiet_guard(node.test):
+            self._quiet_guard_depth += 1
+            try:
+                for stmt in node.body:
+                    self.visit(stmt)
+            finally:
+                self._quiet_guard_depth -= 1
+            for stmt in node.orelse:
+                self.visit(stmt)
+            return
+        self.generic_visit(node)
+
+    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802 -- ast API
+        if (
+            isinstance(node.func, ast.Name)
+            and node.func.id == "print"
+            and not self._is_quiet_guarded()
+        ):
+            self.stdout_hits.append((node.lineno, "print"))
+        self.generic_visit(node)
+
+    def visit_Name(self, node: ast.Name) -> None:  # noqa: N802 -- ast API
+        if node.id in _FORBIDDEN_TUI_NAMES:
+            self.name_hits.append((node.lineno, node.id))
+        self.generic_visit(node)
+
+    def visit_Attribute(self, node: ast.Attribute) -> None:  # noqa: N802
+        if node.attr in _FORBIDDEN_TUI_NAMES:
+            self.name_hits.append((node.lineno, node.attr))
+        stream_attr = self._sys_stream_attr(node)
+        if stream_attr is not None and not self._is_quiet_guarded():
+            self.stdout_hits.append((node.lineno, stream_attr))
+        self.generic_visit(node)
+
+
+_PARALLEL_WORKER_METHODS = {"plan", "execute", "_execute_group"}
+
+
+def _scan_tui_symbols(path: Path) -> _TuiSymbolVisitor:
+    """Parse ``path`` and return forbidden hits for its worker surface.
+
+    This audit is per-file and non-transitive: it scans the two known worker
+    surface modules' own ASTs, not the full call graph of every callable they
+    invoke. If a new dispatch-reachable worker surface moves elsewhere, add it
+    to ``worker_surfaces`` below.
     """
-    commands_path = (
-        Path(__file__).resolve().parent.parent.parent
-        / "src"
-        / "superclaude"
-        / "cli"
-        / "swarm"
-        / "commands.py"
+    source = path.read_text(encoding="utf-8")
+    tree = ast.parse(source, filename=str(path))
+    visitor = _TuiSymbolVisitor()
+    if path.name == "parallel.py":
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef) and node.name == "ParallelExecutor":
+                for item in node.body:
+                    if (
+                        isinstance(item, ast.FunctionDef)
+                        and item.name in _PARALLEL_WORKER_METHODS
+                    ):
+                        visitor.visit(item)
+        return visitor
+    visitor.visit(tree)
+    return visitor
+
+
+def test_worker_surfaces_have_zero_tui_reachability() -> None:
+    """FR-1: dispatch.py / parallel.py / _run_worker never touch TUI/stdout.
+
+    An AST audit proving the worker-side surfaces cannot import Rich or the
+    swarm ``tui`` module, reference ``TUI`` / ``Live`` / ``Console`` /
+    ``should_enable_tui``, or perform unguarded stdout/stderr writes. The audit
+    is per-file (non-transitive) and includes a MANDATORY vacuity guard plus
+    mutation guards so it cannot pass on a no-op.
+    """
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    dispatch_path = repo_root / "src" / "superclaude" / "cli" / "swarm" / "dispatch.py"
+    parallel_path = repo_root / "src" / "superclaude" / "execution" / "parallel.py"
+
+    worker_surfaces = [dispatch_path, parallel_path]
+    scanned = 0
+    for path in worker_surfaces:
+        assert path.is_file(), (
+            f"FR-1 audit target missing: {path}; cannot prove zero TUI reachability"
+        )
+        visitor = _scan_tui_symbols(path)
+        scanned += 1
+        assert not visitor.import_hits, (
+            f"FR-1 violation: {path.name} imports a forbidden TUI/Rich module "
+            f"(worker-side code must never touch the Console): "
+            f"{visitor.import_hits}"
+        )
+        assert not visitor.name_hits, (
+            f"FR-1 violation: {path.name} references a forbidden TUI symbol "
+            f"(TUI/Live/Console/should_enable_tui): {visitor.name_hits}"
+        )
+        assert not visitor.stdout_hits, (
+            f"FR-1 violation: {path.name} performs unguarded stdout/stderr "
+            f"writes on a worker surface: {visitor.stdout_hits}"
+        )
+
+    # _run_worker lives in dispatch.py, so scanning dispatch.py covers the
+    # ``_run_worker`` reachability requirement. Pin that fact so a future move
+    # of _run_worker to another module re-surfaces the coverage gap here.
+    dispatch_src = dispatch_path.read_text(encoding="utf-8")
+    assert "def _run_worker(" in dispatch_src, (
+        "_run_worker is expected to live in dispatch.py (covered by this "
+        "audit); if it moved, extend the worker_surfaces list to include "
+        "its new home so FR-1 reachability stays covered."
     )
-    assert commands_path.is_file(), (
-        f"commands.py not found at {commands_path}; INV-012 audit cannot run"
+
+    # Vacuity guard (MANDATORY): the audit must have actually scanned modules.
+    assert scanned >= 1, "FR-1 audit scanned zero modules -- audit is vacuous"
+
+    # Mutation guard: feed a synthetic source with the forbidden import and a
+    # forbidden name reference; the visitor MUST flag both, proving the audit
+    # cannot silently pass on a no-op.
+    synthetic = "import rich.live\nx = Live()\n"
+    mutant = _TuiSymbolVisitor()
+    mutant.visit(ast.parse(synthetic))
+    assert mutant.import_hits, (
+        "FR-1 mutation guard failed: visitor did NOT flag a synthetic "
+        "'import rich.live' -- the audit is not actually detecting imports"
     )
-    source = commands_path.read_text(encoding="utf-8")
-    # Strip comments / docstrings? A literal substring scan is enough --
-    # docstring mentions of ``TUI(`` would be code-quoted in backticks
-    # and pass the gate-pairing requirement just as a real call would
-    # (the docstring would mention should_enable_tui in the same block).
-    if "TUI(" not in source:
-        # No wiring yet: audit is vacuously satisfied. Test stays green
-        # so the wiring task can land without re-editing this file.
-        return
-    assert "should_enable_tui" in source, (
-        "commands.py constructs TUI(...) without referencing "
-        "should_enable_tui in the same module. INV-012 demands the "
-        "gate helper be consulted before instantiating the dashboard."
+    assert mutant.name_hits, (
+        "FR-1 mutation guard failed: visitor did NOT flag a synthetic 'Live' "
+        "reference -- the audit is not actually detecting name references"
+    )
+
+
+def test_stdout_write_detector_is_not_a_noop() -> None:
+    """FR-1 mutation guard: stdout writes are flagged unless quiet-gated."""
+    unguarded = """
+import sys
+print('x')
+sys.stdout.write('x')
+"""
+    mutant = _TuiSymbolVisitor()
+    mutant.visit(ast.parse(unguarded))
+    stdout_kinds = {kind for _, kind in mutant.stdout_hits}
+    assert "print" in stdout_kinds, (
+        "FR-1 stdout mutation guard failed: visitor did NOT flag a synthetic "
+        "unguarded print()"
+    )
+    assert any(kind.startswith("sys.stdout") for kind in stdout_kinds), (
+        "FR-1 stdout mutation guard failed: visitor did NOT flag a synthetic "
+        "unguarded sys.stdout write"
+    )
+
+    guarded = """
+import sys
+class Worker:
+    def run(self):
+        if not self.quiet:
+            print('x')
+            sys.stdout.write('x')
+            sys.stderr.flush()
+"""
+    guarded_mutant = _TuiSymbolVisitor()
+    guarded_mutant.visit(ast.parse(guarded))
+    assert not guarded_mutant.stdout_hits, (
+        "FR-1 stdout mutation guard failed: visitor flagged stdout writes "
+        "reachable only under if not self.quiet"
     )

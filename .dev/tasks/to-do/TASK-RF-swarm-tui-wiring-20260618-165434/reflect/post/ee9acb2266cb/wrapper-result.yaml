@@ -1,0 +1,16 @@
+verdict: halted
+status: partial
+tier_reached: 2
+reason: status-partial
+report: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/post/ee9acb2266cb/REPORT.md
+contract: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/post/ee9acb2266cb/return-contract.yaml
+deviations:
+  authorized: 3
+  necessary: 1
+  drift: 4
+  regression: 1
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

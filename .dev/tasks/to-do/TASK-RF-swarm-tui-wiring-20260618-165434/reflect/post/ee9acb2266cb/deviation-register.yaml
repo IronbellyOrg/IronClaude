@@ -1,0 +1,140 @@
+deviation_register_version: "1.0"
+mode: post
+tier_reached: 2
+diff_scope: "300c06a6 (start_commit) -> working tree, swarm-TUI target files"
+diff_retargeted: true
+diff_retarget_reason: >-
+  Supplied --diff 300c06a6 is the tasklist's start_commit (frontmatter
+  start_commit field), not the work product. PR #180 (TFEP migration) is
+  unrelated. The swarm-TUI work is uncommitted in the working tree; nothing in
+  commits #181..HEAD touched the target files, so diff 300c06a6 -- <target files>
+  == working-tree diff. Audited the working-tree changes to the 4 target files.
+
+deviations:
+  - id: REG-1
+    class: regression
+    severity: HIGH
+    fr: FR-1
+    gate: non-negotiable
+    files:
+      - "src/superclaude/cli/swarm/tui.py:221-226"
+      - "src/superclaude/execution/parallel.py:110-232"
+      - "src/superclaude/cli/swarm/dispatch.py:424"
+      - "src/superclaude/cli/swarm/commands.py:1880-1995"
+    finding: >-
+      FR-1 single-writer Console topology is substantively violated. The
+      background swarm-wave1 worker thread runs dispatch_wave1 -> ParallelExecutor,
+      whose plan()/execute()/_execute_group() emit unconditional print() to stdout
+      (parallel.py:110-232). swarm tui.py:221 starts rich.live.Live WITHOUT
+      redirect_stdout/redirect_stderr=False, so Rich's default redirect is armed
+      and funnels those cross-thread stdout writes through the Live/Console
+      machinery while the dashboard is active. This re-arms the exact #181/#182/#184
+      cross-thread render crash class the spec exists to kill. FR-1 acceptance
+      ("workers' only output channel is the filesystem; exactly one thread touches
+      the Console") is therefore false.
+    evidence_method: >-
+      Independently reproduced: a real run_cmd --tui run (gate forced open) emits
+      "Parallel Executor: Planning 3 tasks" / "Executing 3 tasks" to stdout from
+      the worker thread. tui.py:221-226 confirmed missing redirect args.
+    gold_standard: "merged-requirements.md FR-1 (lines 51-61) + rationale lines 40-47"
+    why_tests_missed_it: >-
+      test_inv012_tui_opt_in.py:655-713 audits symbol IMPORTS (rich/TUI/Live/Console),
+      not stdout/print writes -- the wrong invariant. All --tui integration tests run
+      on non-TTY CliRunner streams that cannot reproduce the TTY-only cross-thread race.
+    remediation: >-
+      Pass redirect_stdout=False, redirect_stderr=False to Live(...) in tui.py:221
+      AND silence ParallelExecutor's prints on the swarm dispatch path (disabling the
+      redirect alone lets worker prints corrupt the dashboard -- the PR#181 medium).
+      Tighten the FR-1 audit to also flag print(/sys.stdout/sys.stderr on dispatch.py
+      + parallel.py. Add a real-PTY --tui smoke that asserts no crash under concurrent
+      worker output.
+
+  - id: DRIFT-1
+    class: drift
+    severity: MED
+    fr: FR-2
+    files: ["src/superclaude/cli/swarm/commands.py:1880"]
+    finding: >-
+      `from superclaude.cli.swarm.tui import TUI, should_enable_tui` executes
+      unconditionally on every fresh run BEFORE the _tui_active gate (commands.py:1882),
+      pulling all of Rich into sys.modules even on a non-TTY / no --tui run. FR-2's
+      literal "no Rich import side effects" clause is contradicted. Behaviorally benign
+      (exit code / log / zero-ANSI unaffected, FR-2 test passes), but the test asserts
+      none of sys.modules so the clause passes vacuously. This same eager import is the
+      gateway to the REG-1 crash chain.
+    gold_standard: "merged-requirements.md FR-2 (lines 63-72)"
+    remediation: >-
+      Move `import TUI` into the else/_tui_active branch; import only should_enable_tui
+      eagerly. Add a sys.modules-absence assertion to the FR-2 test.
+
+  - id: DRIFT-2
+    class: drift
+    severity: MED
+    fr: FR-1
+    files: ["tests/swarm/test_inv012_tui_opt_in.py:655-713"]
+    finding: >-
+      The FR-1 AST audit is per-file (scans dispatch.py + parallel.py own symbol
+      tables), NOT the transitive call graph the acceptance text demands ("any callable
+      they invoke"). Combined with REG-1, the audit checks the wrong invariant entirely
+      (imports, not stdout writes), which is why the regression shipped green.
+    gold_standard: "merged-requirements.md FR-1 acceptance (lines 58-61)"
+    remediation: "Fold into REG-1 remediation (audit must flag stdout writes + cover invoked callables)."
+
+  - id: DRIFT-3
+    class: drift
+    severity: MED
+    fr: FR-5
+    files: ["src/superclaude/cli/swarm/commands.py:1944", "src/superclaude/cli/swarm/state.py:195"]
+    finding: >-
+      read_state() at commands.py:1944 is called OUTSIDE the render-glitch
+      try/except Exception (which wraps only tui_obj.update). The loop's only except is
+      KeyboardInterrupt. A read_state ValueError/JSONDecodeError propagates, runs the
+      finally (stop+join), and bypasses the `if "e" in exc_box: raise exc_box["e"]`
+      re-raise -- masking a concurrent worker crash behind a state-read error.
+      Mitigated by atomic write_state (os.replace) so torn reads are unlikely, but an
+      unexpected ValueError is unguarded. Narrow gap in the non-negotiable FR-5 guarantee.
+    gold_standard: "merged-requirements.md FR-5 (lines 99-105): a worker crash MUST NOT be hidden"
+    remediation: "Wrap read_state + _tail_events in the poll loop's defensive guard, or catch+log and continue."
+
+  - id: DRIFT-4
+    class: drift
+    severity: MED
+    fr: FR-5
+    files: ["src/superclaude/cli/swarm/commands.py:1984-1991"]
+    finding: >-
+      Exception precedence inversion: `if interrupted: raise Exit(130)` runs BEFORE
+      `if "e" in exc_box: raise exc_box["e"]`. A concurrent SIGINT during a real worker
+      crash exits 130 (clean "interrupted") and silently discards the worker exception
+      in exc_box -- the literal FR-5 masking failure mode. Edge (requires concurrent
+      SIGINT + crash); untested (FR-6 SIGINT test injects no concurrent worker exception).
+    gold_standard: "merged-requirements.md FR-5 (non-negotiable: exception not masked)"
+    remediation: "Surface/chain exc_box['e'] even on the SIGINT path, or check exc_box before raising Exit(130)."
+
+  - id: NEC-1
+    class: necessary
+    severity: LOW
+    fr: FR-6
+    files: ["src/superclaude/cli/swarm/commands.py:1984-1986"]
+    finding: >-
+      SIGINT surfaced as deterministic Exit(130) rather than a propagating
+      KeyboardInterrupt. FR-6 asks only for "an exit code reflecting interruption"; the
+      Task-Log documents that a raw KeyboardInterrupt under CliRunner yields exit 1, so
+      Exit(130) was chosen for a canonical, testable SIGINT code. Documented + rationalized.
+    gold_standard: "merged-requirements.md FR-6 (lines 111-119)"
+    remediation: "None -- documented necessary deviation that exceeds the spec's loose requirement."
+
+scope_additions_authorized:
+  - id: AUTH-1
+    files: ["src/superclaude/cli/swarm/commands.py:204-205"]
+    note: "_TUI_POLL_MAX_ITERATIONS / _TUI_POLL_INTERVAL_SEC anti-spin ceiling -- FR-4 explicitly permits (optional ceiling); tasklist Step made it mandatory. Tested."
+  - id: AUTH-2
+    files: ["src/superclaude/cli/swarm/commands.py:1956-1962"]
+    note: "Render-glitch latch (except Exception: pass around tui.update). Correctly scoped to Exception so KeyboardInterrupt propagates. Defensible hardening; would also swallow a genuine tui.update bug (acceptable for a dashboard)."
+  - id: AUTH-3
+    files: ["src/superclaude/cli/swarm/commands.py:1952-1955"]
+    note: "Runtime main-thread get_ident() assert before each tui.update -- directly mandated by FR-1 acceptance. Note: stripped under python -O (defense-in-depth, not load-bearing)."
+
+frozen_signatures_confirmed:
+  dispatch_wave1: "unchanged (dispatch.py:334-343; git diff 300c06a6 -- dispatch.py empty)"
+  parallel_executor: "unchanged (parallel.py; pinned by test_frozen_signatures_unchanged)"
+  tui_py: "unchanged by this task -- which is itself the root of REG-1 (the redirect default was never fixed for the threaded path)"

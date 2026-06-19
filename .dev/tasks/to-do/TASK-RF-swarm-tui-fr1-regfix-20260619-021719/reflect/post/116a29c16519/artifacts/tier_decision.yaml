@@ -1,0 +1,16 @@
+selected_tier: 2
+fired_rule_number: null        # forced by --depth deep (§5.1 hard override), not a rubric rule
+escalation_reason: "--depth deep hard override forces Tier 2 (deep audit of a non-negotiable FR-1/FR-5 regression-class fix)"
+coverage_degraded: null
+composite_score: 6.5           # recording only; not deciding
+per_signal_breakdown:
+  scope_size: 1                # 5 tracked + 2 untracked files (~7 surfaces)
+  task_count: 1               # single multi-phase corrective task
+  blast_radius: 2             # touches the swarm dispatch + execution core (cross-thread crash class)
+  spec_density: 1
+  ambiguity_signals: 1.5      # spec `unchanged_by_design` vs regfix necessity tension
+executor_model_class: sonnet  # --executor-model sonnet (excluded from reviewer pool, §7.1)
+reviewer_model_classes: ["analyzer-persona", "qa-persona", "refactorer-persona"]  # heterogeneous personas; Anthropic-only alias env, sonnet excluded
+calibrator_diversity: degraded  # only 3 Anthropic classes available; executor=sonnet, reviewers exclude sonnet
+t2_model_class_diversity: degraded  # Anthropic-only alias set (opus/sonnet/haiku); cross-vendor unavailable
+t2_vendor_diversity: single
