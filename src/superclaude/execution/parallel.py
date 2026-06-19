@@ -97,6 +97,8 @@ class ParallelExecutor:
         results = executor.execute(plan)
     """
 
+    quiet: bool = False  # FR-1: swarm dispatch can silence worker-thread prints.
+
     def __init__(self, max_workers: int = 10):
         self.max_workers = max_workers
 
@@ -107,8 +109,9 @@ class ParallelExecutor:
         Builds dependency graph and identifies parallel groups.
         """
 
-        print(f"⚡ Parallel Executor: Planning {len(tasks)} tasks")
-        print("=" * 60)
+        if not self.quiet:
+            print(f"⚡ Parallel Executor: Planning {len(tasks)} tasks")
+            print("=" * 60)
 
         # Find parallel groups using topological sort
         groups = []
@@ -161,8 +164,9 @@ class ParallelExecutor:
             speedup=speedup,
         )
 
-        print(plan)
-        print("=" * 60)
+        if not self.quiet:
+            print(plan)
+            print("=" * 60)
 
         return plan
 
@@ -173,14 +177,18 @@ class ParallelExecutor:
         Returns dict of task_id -> result
         """
 
-        print(f"\n🚀 Executing {plan.total_tasks} tasks in {len(plan.groups)} groups")
-        print("=" * 60)
+        if not self.quiet:
+            print(
+                f"\n🚀 Executing {plan.total_tasks} tasks in {len(plan.groups)} groups"
+            )
+            print("=" * 60)
 
         results = {}
         start_time = time.time()
 
         for group in plan.groups:
-            print(f"\n📦 {group}")
+            if not self.quiet:
+                print(f"\n📦 {group}")
             group_start = time.time()
 
             # Execute group in parallel
@@ -188,16 +196,18 @@ class ParallelExecutor:
             results.update(group_results)
 
             group_time = time.time() - group_start
-            print(f"   Completed in {group_time:.2f}s")
+            if not self.quiet:
+                print(f"   Completed in {group_time:.2f}s")
 
         total_time = time.time() - start_time
         actual_speedup = plan.sequential_time_estimate / total_time
 
-        print("\n" + "=" * 60)
-        print(f"✅ All tasks completed in {total_time:.2f}s")
-        print(f"   Estimated: {plan.parallel_time_estimate:.2f}s")
-        print(f"   Actual speedup: {actual_speedup:.1f}x")
-        print("=" * 60)
+        if not self.quiet:
+            print("\n" + "=" * 60)
+            print(f"✅ All tasks completed in {total_time:.2f}s")
+            print(f"   Estimated: {plan.parallel_time_estimate:.2f}s")
+            print(f"   Actual speedup: {actual_speedup:.1f}x")
+            print("=" * 60)
 
         return results
 
@@ -222,14 +232,16 @@ class ParallelExecutor:
                     task.result = result
                     results[task.id] = result
 
-                    print(f"   ✅ {task.description}")
+                    if not self.quiet:
+                        print(f"   ✅ {task.description}")
 
                 except Exception as e:
                     task.status = TaskStatus.FAILED
                     task.error = e
                     results[task.id] = None
 
-                    print(f"   ❌ {task.description}: {e}")
+                    if not self.quiet:
+                        print(f"   ❌ {task.description}: {e}")
 
         return results
 

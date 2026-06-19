@@ -38,7 +38,7 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
 
 import click
 
@@ -48,6 +48,7 @@ from superclaude.cli.swarm.lenses._validate import (
     validate_all,
 )
 from superclaude.cli.swarm.models import (
+    EventRecord,
     JobSpec,
     LensEntry,
     SwarmState,
@@ -59,6 +60,9 @@ from superclaude.cli.swarm.schema import (
     SchemaValidationFailure,
     validate,
 )
+
+if TYPE_CHECKING:
+    from superclaude.cli.swarm.logging_ import Logger
 
 __all__ = [
     "attach_cmd",
@@ -188,6 +192,20 @@ to the reader (same parameter name, no rename hazard).
 EXIT_OK: int = 0
 EXIT_INVALID: int = 1
 EXIT_USAGE: int = 2
+
+# INV-012 / FR-1 / FR-4 -- ``swarm run --tui`` render poll-loop tunables.
+#
+# The main-thread dashboard poll loop renders at ``1 / _TUI_POLL_INTERVAL_SEC``
+# Hz (2/s by default) while the non-daemon Wave 1 dispatch worker runs.
+# ``_TUI_POLL_MAX_ITERATIONS`` is a concrete anti-spin ceiling on the RENDER
+# loop only: ``None`` means unbounded in production (the loop exits when the
+# worker thread is no longer alive), while the test suite injects a small int
+# to prove the render spin is bounded. The ceiling guards ONLY the render
+# loop -- the subsequent ``join()`` still runs the non-daemon worker to
+# completion so ``execution-log.jsonl`` is never truncated (FR-5); the ceiling
+# NEVER truncates the worker.
+_TUI_POLL_INTERVAL_SEC: float = 0.5
+_TUI_POLL_MAX_ITERATIONS: Optional[int] = None
 
 
 def _format_failure(failure: SchemaValidationFailure) -> str:
@@ -995,9 +1013,7 @@ def _stamp_inline_worker_paths(
         slug = _slugify_model(
             worker.model_label or worker.model_id, f"slot{worker.index:02d}"
         )
-        rendered = template.format(
-            lens=lens_name, index=worker.index, model_slug=slug
-        )
+        rendered = template.format(lens=lens_name, index=worker.index, model_slug=slug)
         base = rendered[:-3] if rendered.endswith(".md") else rendered
         replaced = dataclasses.replace(
             worker,
@@ -1467,6 +1483,24 @@ def _emit_preflight_failures(
         "re-attach and ``swarm kill <job_id>`` to terminate."
     ),
 )
+@click.option(
+    "--tui",
+    "tui",
+    is_flag=True,
+    default=False,
+    help=(
+        "INV-012 / FR-1 -- render a live Rich progress dashboard while "
+        "Wave 1 dispatch runs on a non-daemon background thread. The main "
+        "thread is the SOLE console writer (FR-1 single-writer topology): "
+        "it tails ``execution-log.jsonl`` + ``.swarm-state.json`` from the "
+        "``--output`` directory at 2/s and feeds the dashboard, while the "
+        "dispatch worker routes ALL output through the filesystem logger. "
+        "Fresh-run only (NOT supported with --resume) and requires a TTY "
+        "(silently no-ops to the plain synchronous run on a non-TTY pipe). "
+        "Mutually exclusive with --detached (the dashboard requires a "
+        "foreground run)."
+    ),
+)
 @auto_inject_guard_option
 def run_cmd(
     spec_path: Optional[Path],
@@ -1482,6 +1516,7 @@ def run_cmd(
     label: Optional[str],
     force_relens: bool,
     detached: bool,
+    tui: bool,
     auto_inject_guard: bool,
 ) -> None:
     """Run a swarm job: Wave 0 preflight -> Wave 1 dispatch (T03.01 / FR-001).
@@ -1515,7 +1550,11 @@ def run_cmd(
         4. Run :func:`dispatch_wave1` (Wave 1) with the selected
            :class:`Transport`. The T03.01 path is a sequential
            reference body; T03.02 swaps in the real
-           :class:`ParallelExecutor`-driven fan-out.
+           :class:`ParallelExecutor`-driven fan-out. With ``--tui`` on a
+           TTY, this dispatch runs on a non-daemon background thread while
+           the main thread renders a live progress dashboard by tailing
+           ``execution-log.jsonl`` (fresh-run only; mutually exclusive
+           with ``--detached``).
         5. Emit a return-contract stub on stdout (M5 replaces this
            with the full :class:`ResultContract` writer).
     """
@@ -1551,6 +1590,17 @@ def run_cmd(
                 err=True,
             )
             raise click.exceptions.Exit(EXIT_USAGE)
+        # INV-012 / FR-3 -- --tui is not supported on the resume path in v1
+        # (TUI wiring is fresh-run only). Reject the combination loudly here,
+        # BEFORE _run_resume_branch runs, so the resume path never enters the
+        # TUI poll loop and --tui is not silently ignored on a resume run.
+        if tui:
+            click.echo(
+                "swarm run --tui: --tui is not supported with --resume "
+                "(v1 scope = fresh-run only; resume does not enter the TUI loop)",
+                err=True,
+            )
+            raise click.exceptions.Exit(EXIT_USAGE)
         if output_dir is None:
             click.echo(
                 "swarm run --resume: --output <dir> is required to locate "
@@ -1579,6 +1629,20 @@ def run_cmd(
         raise click.exceptions.Exit(EXIT_USAGE)
 
     mode, spec_dict = _resolve_input_mode(spec_path, stdin_mode, lens)
+
+    # INV-012 / FR-3 -- --tui and --detached are mutually exclusive: the live
+    # dashboard requires a foreground process to own the terminal, while
+    # --detached returns immediately after launching a background tmux session.
+    # This guard MUST fire BEFORE the ``if detached:`` branch below (which
+    # ``return``s before dispatch), so the combination errors instead of
+    # silently launching detached and ignoring --tui.
+    if tui and detached:
+        click.echo(
+            "swarm run --tui: --tui is mutually exclusive with "
+            "--detached (the live dashboard requires a foreground run)",
+            err=True,
+        )
+        raise click.exceptions.Exit(EXIT_USAGE)
 
     # T07.11 / FR-014 -- detached branch. Resolve overrides on the spec
     # snapshot so the child tmux invocation sees the same effective spec
@@ -1666,9 +1730,9 @@ def run_cmd(
     # value survives unchanged. ``materialize_lens_defaults`` does not touch
     # line_cap. (R2 B-2 honored; no accompanying preflight tweak required.)
     if target_line_cap is not None:
-        spec_dict.setdefault("target", {}).setdefault("truncation", {})[
-            "line_cap"
-        ] = target_line_cap
+        spec_dict.setdefault("target", {}).setdefault("truncation", {})["line_cap"] = (
+            target_line_cap
+        )
 
     # B-3 -- --timeout-sec overrides the per-worker timeout (legacy
     # ``t2_preflight.sh --timeout-sec`` / ``T2Timeout``, default 180). Applied
@@ -1804,13 +1868,140 @@ def run_cmd(
         inline_job, _read_truncated_target(inline_job)
     )
 
-    worker_results = dispatch_wave1(
-        preflight_result,
-        transport_for_slot=run_transport_factory,
-        prompt=assembled_prompt,
-        worker_spec=inline_job.workers,
-        logger=logger,
-    )
+    # INV-012 / FR-1 / FR-2 / FR-5 / FR-6 -- Approach A: when --tui is active on
+    # a TTY AND an --output directory exists (so there is an execution-log.jsonl
+    # + .swarm-state.json to tail), run the blocking dispatch_wave1 call on a
+    # NON-DAEMON background thread while the MAIN thread renders the live
+    # dashboard. The worker routes ALL output through the filesystem Logger;
+    # only the main thread touches the Console (FR-1 single-writer topology).
+    # When the gate is closed (no --tui, non-TTY, or no --output) the existing
+    # fully-synchronous call runs BYTE-IDENTICALLY -- no thread, no tail loop,
+    # no Rich/TUI import side effects (FR-2). dispatch_wave1's signature is
+    # unchanged (C3 / AC-004 / NFR-001); the poll loop lives here in the caller.
+    from superclaude.cli.swarm.tui import TUI, should_enable_tui
+
+    _tui_active = should_enable_tui(tui, sys.stdout) and state_output_dir is not None
+    if not _tui_active:
+        # FR-2 byte-identical fallback: the pre-existing synchronous dispatch.
+        worker_results = dispatch_wave1(
+            preflight_result,
+            transport_for_slot=run_transport_factory,
+            prompt=assembled_prompt,
+            worker_spec=inline_job.workers,
+            logger=logger,
+        )
+    else:
+        import threading
+
+        from superclaude.cli.swarm.state import read_state
+
+        # Result-box + exception-box: the non-daemon worker writes its return
+        # value (or captured BaseException) into these single-key dicts; the
+        # main thread reads them AFTER join() (mirrors the pipeline executor
+        # result-box pattern, with daemon flipped to False per FR-5).
+        result_box: dict = {}
+        exc_box: dict = {}
+
+        def _dispatch_worker() -> None:
+            # FR-1: the worker NEVER touches the Console -- it writes solely
+            # through the filesystem Logger. Any BaseException is captured and
+            # re-raised on the main thread AFTER tui.stop() (FR-5), preserving
+            # the existing PreflightError / Exit / EXIT_* semantics.
+            try:
+                result_box["v"] = dispatch_wave1(
+                    preflight_result,
+                    transport_for_slot=run_transport_factory,
+                    prompt=assembled_prompt,
+                    worker_spec=inline_job.workers,
+                    logger=logger,
+                )
+            except BaseException as exc:  # noqa: BLE001 -- re-raised on main thread
+                exc_box["e"] = exc
+
+        dispatch_thread = threading.Thread(
+            target=_dispatch_worker, name="swarm-wave1", daemon=False
+        )
+        tui_obj: Optional[TUI] = None
+        interrupted = False
+        dispatch_thread.start()
+        try:
+            tui_obj = TUI()
+            tui_obj.start()
+            offset = 0
+            state = None
+            events = []
+            iterations = 0
+            # FR-4 anti-spin ceiling: None = unbounded in production (exit when
+            # the worker dies); a small injected int in tests proves the render
+            # spin is bounded. Guards ONLY the render loop -- join() below still
+            # drains the non-daemon worker (ceiling never truncates the worker).
+            max_iterations = _TUI_POLL_MAX_ITERATIONS
+            # FR-1: capture the main thread identity once so each poll iteration
+            # can assert tui.update is invoked on the main thread (single-writer
+            # Console topology) -- caller-side, keeping tui.py unchanged (G4).
+            main_ident = threading.get_ident()
+            # Do-while render: always render at least once (even if the worker
+            # finishes before the first poll), then re-check liveness AFTER the
+            # render so the terminal frame is drawn before the loop exits.
+            while True:
+                try:
+                    state = read_state(state_output_dir / SWARM_STATE_FILENAME)
+                    events, offset = _tail_events(
+                        state_output_dir / EXECUTION_LOG_JSONL_FILENAME, offset
+                    )
+                except Exception:
+                    # FR-5: reader glitches must not bypass the post-loop worker
+                    # exception re-raise. Keep the last-good snapshot and still
+                    # run liveness / sleep below (no busy-spin continue).
+                    pass
+                # FR-1: assert the single-writer invariant immediately before
+                # EACH tui.update so any regression that drove rendering off the
+                # main thread fails loudly. Runs outside the render-glitch guard
+                # below so the AssertionError is never silently swallowed.
+                assert threading.get_ident() == main_ident, (
+                    "FR-1 violation: tui.update must run on the main thread "
+                    "(single-writer Console topology)"
+                )
+                try:
+                    tui_obj.update(state, events)
+                except Exception:
+                    # FR-1 render-glitch latch: a render error must never abort
+                    # the run. (KeyboardInterrupt is BaseException, not Exception,
+                    # so SIGINT still propagates through to the finally / FR-6.)
+                    pass
+                if not dispatch_thread.is_alive():
+                    break
+                iterations += 1
+                if max_iterations is not None and iterations >= max_iterations:
+                    break
+                time.sleep(_TUI_POLL_INTERVAL_SEC)
+        except KeyboardInterrupt:
+            # FR-6 SIGINT path: record it so we can surface a DETERMINISTIC
+            # SIGINT exit (128+2=130) AFTER the finally restores the terminal
+            # and drains the worker. We do NOT swallow it silently (unlike the
+            # read-only status --watch loop) -- a mutating run must reflect the
+            # interruption in its exit code.
+            interrupted = True
+        finally:
+            # FR-6: tui.stop() ALWAYS runs first (idempotent, tui.py:230-234) so
+            # the terminal is restored on the clean / exception / SIGINT paths.
+            # Then join() the non-daemon worker so execution-log.jsonl is fully
+            # flushed before the process can exit (FR-5 anti-truncation).
+            if tui_obj is not None:
+                tui_obj.stop()
+            dispatch_thread.join()
+        # FR-5: re-raise any captured worker exception AFTER tui.stop(), so the
+        # ORIGINAL exception/traceback reaches Click (unmasked) with the
+        # terminal already restored. This dominates a concurrent SIGINT.
+        if "e" in exc_box:
+            raise exc_box["e"]
+        if interrupted:
+            # tui.stop() + join() have already run; surface SIGINT as exit 130.
+            raise click.exceptions.Exit(130)
+        # No exception: re-bind worker_results VERBATIM from the result-box so
+        # the downstream normalize/reduce/len(worker_results) continuation is
+        # byte-equivalent to the synchronous path.
+        worker_results = result_box["v"]
 
     # WS-0 (B-5 HEADLINE) -- replace the T03.01 dispatch-only stub with the full
     # post-dispatch pipeline, mirroring the resume branch: stamp the NET-NEW
@@ -1863,12 +2054,12 @@ def run_cmd(
             for w in normalized_workers
             if w.status == "success" and w.final_path
         ]
-        next_cmd_subs = dict(
-            inline_job.recommended_next_command_substitutions or {}
-        )
+        next_cmd_subs = dict(inline_job.recommended_next_command_substitutions or {})
         next_cmd_subs.setdefault(
             "suspect_files",
-            ",".join(succeeded_final_paths) if succeeded_final_paths else "<no-bare-files>",
+            ",".join(succeeded_final_paths)
+            if succeeded_final_paths
+            else "<no-bare-files>",
         )
         next_cmd_subs.setdefault(
             "compare_files",
@@ -1878,9 +2069,7 @@ def run_cmd(
             normalized_workers,
             mode=inline_job.amalgamation_mode,
             output_dir=state_output_dir,
-            workers_requested=(
-                preflight_result.manifest.preflight.workers_requested
-            ),
+            workers_requested=(preflight_result.manifest.preflight.workers_requested),
             status_policy=inline_job.status_policy,
             job_id=preflight_result.manifest.job_id,
             lens=inline_job.output.lens_name or (lens or ""),
@@ -2856,6 +3045,71 @@ def _drain_appended(log_path: Path, start_pos: int) -> int:
             text = chunk.decode("utf-8", errors="replace")
         click.echo(text, nl=False)
     return new_pos
+
+
+def _tail_events(path: Path, offset: int) -> tuple[list[EventRecord], int]:
+    """Collect ``EventRecord``s appended to ``path`` since ``offset``.
+
+    INV-012 / FR-4. Byte-offset, exactly-once, partial-trailing-line-tolerant
+    JSONL tailer for the ``--tui`` main-thread poll loop. Mirrors the
+    ``_drain_appended`` seek/read/tell byte-offset bookkeeping
+    (:func:`_drain_appended`) but parses each complete line into an
+    :class:`~superclaude.cli.swarm.models.EventRecord` and **returns** the list
+    instead of echoing to stdout (the TUI is the sole console writer, FR-1).
+
+    Returns ``(events, new_offset)``. Two distinct disciplines distinguish a
+    complete-but-malformed line from a partial trailing line:
+
+    * **Complete (newline-terminated) lines:** the offset ADVANCES past every
+      complete line regardless of parse outcome. A complete line that fails
+      ``from_json`` (``json.JSONDecodeError`` / ``ValueError``) is SKIPPED
+      (omitted from the returned list) and the offset still advances past it,
+      so a corrupt complete line is never re-parsed -- no infinite reparse, no
+      permanent stall.
+    * **Partial trailing line (no terminating newline):** left UNCONSUMED --
+      the offset is NOT advanced past it, so the next poll re-reads it once the
+      writer finishes the line. A half-written JSON object is never fed to
+      ``from_json``.
+
+    A missing file returns ``([], offset)`` (the early-run window before the
+    worker creates ``execution-log.jsonl``).
+    """
+    from superclaude.cli.swarm.models import from_json
+
+    try:
+        with open(path, "rb") as fh:
+            fh.seek(offset)
+            chunk = fh.read()
+    except OSError:
+        # Missing file (early-run window) or transient read error: nothing new.
+        return [], offset
+    if not chunk:
+        return [], offset
+
+    # Only bytes up to and including the final ``\n`` are complete lines.
+    # Anything after the last newline is a partial trailing line: leave it
+    # unconsumed (do NOT advance the offset past it) so it is re-read whole on
+    # the next poll once the writer terminates it.
+    last_nl = chunk.rfind(b"\n")
+    if last_nl == -1:
+        # No complete line yet -- the entire chunk is a partial trailing line.
+        return [], offset
+    complete = chunk[: last_nl + 1]
+    new_offset = offset + len(complete)
+
+    events: list[EventRecord] = []
+    text = complete.decode("utf-8", errors="replace")
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            events.append(from_json(EventRecord, line))
+        except (json.JSONDecodeError, ValueError):
+            # Complete-but-malformed line: skip (omit from results); the offset
+            # already advances past it (computed above) so it never re-parses.
+            continue
+    return events, new_offset
 
 
 @click.command("logs")

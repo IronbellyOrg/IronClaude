@@ -1,0 +1,54 @@
+Step 4.1 -- ruff check (make lint surface)
+Command: uv run ruff check src/superclaude/cli/swarm/ tests/swarm/
+ruff version: 0.15.13
+Date: 2026-06-18
+
+=====================================================================
+VERDICT: THIS TASK INTRODUCES ZERO NEW RUFF ERRORS.
+=====================================================================
+
+The literal command reports 126 errors across ~90 files spanning nearly the
+ENTIRE swarm src + test tree. Error-code breakdown:
+    83  I001  (import block un-sorted)
+    24  E402  (module import not at top of file)
+    15  F401  (imported but unused)
+     1  N811 / 1 N806 / 1 F841 / 1 F821
+
+These are PRE-EXISTING and are a ruff-VERSION artifact: ruff 0.15.13 (this
+environment) flags import-sorting / import-placement across the whole codebase
+that the repo's pinned ruff did not. They are NOT introduced by this task and
+CANNOT be resolved without editing ~90 OUT-OF-SCOPE files (the task forbids
+touching files this task did not author). Per Step 4.1's fallback, these are
+logged as a pre-existing/out-of-scope blocker, not fixed here.
+
+---------------------------------------------------------------------
+THIS TASK'S 4 TOUCHED FILES -- ruff check result:
+  uv run ruff check src/superclaude/cli/swarm/commands.py \
+      tests/swarm/test_run_tui_integration.py \
+      tests/swarm/test_tail_events.py \
+      tests/swarm/test_inv012_tui_opt_in.py
+---------------------------------------------------------------------
+  src/superclaude/cli/swarm/commands.py   -> 1 error: F821 Undefined name `Logger`
+        at commands.py:1784 (`logger: Optional["Logger"] = None`).
+        PRE-EXISTING -- confirmed identical on HEAD:
+          git show HEAD:src/superclaude/cli/swarm/commands.py > /tmp/base.py
+          ruff check /tmp/base.py  => "Found 1 error" (same F821 Logger)
+        A pre-existing quoted-forward-ref to a deferred-imported type (the file
+        never imports `Logger` unquoted); unrelated to the --tui wiring and on a
+        line this task did not add.
+  tests/swarm/test_run_tui_integration.py -> 0 errors (NEW file, clean)
+  tests/swarm/test_tail_events.py         -> 0 errors (NEW file, clean)
+  tests/swarm/test_inv012_tui_opt_in.py   -> 0 errors (modified, clean)
+
+NEW ruff errors fixed during 4.1 (introduced by this task's first draft):
+  * F821 Undefined name `EventRecord` at the `_tail_events` return annotation
+    -> FIXED by adding `EventRecord` to the existing module-top
+       `from superclaude.cli.swarm.models import (...)` block (models is already
+       imported at module top; the deferred import inside `_tail_events` was
+       narrowed to `from_json`).
+  * F401 `pytest` imported but unused in test_run_tui_integration.py
+    -> FIXED by removing the unused `import pytest` (monkeypatch arrives via the
+       fixture parameter, not the pytest module).
+
+Net delta of this task on commands.py ruff error count: 1 (HEAD) -> 1 (now) = 0.
+Net new ruff errors across all 4 touched files: 0.

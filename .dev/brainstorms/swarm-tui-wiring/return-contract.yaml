@@ -1,0 +1,28 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/swarm-tui-wiring/seed-brief.md
+merged_output_path: .dev/brainstorms/swarm-tui-wiring/merged-requirements.md
+convergence_score: 0.92
+adversarial_artifacts_dir: .dev/brainstorms/swarm-tui-wiring/adversarial/
+domain: code
+proposal_count: 3
+recommended_approach: "A — threaded dispatch + main-thread file-tailing poller"
+design_stage_needed: false
+enrichment_used:
+  - source: codebase
+    quality_tier: primary   # direct Read/Grep verification of tui.py, commands.py, dispatch.py, sprint peer
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+telemetry:
+  models: [opus, sonnet, opus]
+  proposals:
+    - {id: A, model: opus, agent: system-architect, pick: A, design: task-builder}
+    - {id: B, model: sonnet, agent: system-architect, pick: A, design: task-builder}   # conceded A
+    - {id: C, model: opus, agent: refactoring-expert, pick: A, design: task-builder}
+  decisive_axis: crash-safety (C2) — single-thread-touches-Console
+  key_fact: "swarm tui.py:221-226 starts Live with default redirect_stdout/stderr=True (sprint trap armed)"
+  user_decisions:
+    - "D1: --tui fresh-run path only (v1); resume dispatch at 2264 excluded"
+    - "D2: --tui --detached = hard UsageError (mirror resume+detached reject at 1547)"
+  requirements_count: 7

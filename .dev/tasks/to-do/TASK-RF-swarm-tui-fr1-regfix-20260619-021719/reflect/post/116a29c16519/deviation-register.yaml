@@ -1,0 +1,103 @@
+# Reflect UC-2 Tier-2 POST deviation register
+# Task: TASK-RF-swarm-tui-fr1-regfix-20260619-021719
+# Diff: git diff 300c06a6d53287893a446db8e859f5f1bc5434d8 (start_commit -> working tree)
+# Reviewers: R1 quality-engineer (0.88), R2 root-cause-analyst (0.90), R3 refactoring-expert (0.96)
+# Convergent core verdict: 0 regression, 0 unauthorized drift; REG-1/DRIFT-2/3/4 correctly fixed.
+
+summary:
+  regression: 0
+  drift: 3          # all NON-BLOCKING (test-quality / future-proofing)
+  necessary: 2
+  authorized: 2
+  grounding_gaps: 1
+  blocking: 0
+
+deviations:
+  - id: A1
+    class: authorized
+    severity: info
+    title: "parallel.py (+42) and dispatch.py (+1) modified despite spec `unchanged_by_design`"
+    evidence:
+      - "src/superclaude/execution/parallel.py:100  (quiet: bool = False class attr)"
+      - "src/superclaude/execution/parallel.py:112-116,167-169,180-186,199-201,235-242  (prints gated `if not self.quiet:`)"
+      - "src/superclaude/cli/swarm/dispatch.py:425  (executor.quiet = True)"
+    gold_standard:
+      - "Tasklist Key Objective 1 (explicitly mandates silencing ParallelExecutor prints WITHOUT altering the frozen __init__)"
+      - "Parent deviation register REG-1 (the `unchanged` approach re-armed the crash)"
+    rationale: >
+      The original spec (merged-requirements.md frontmatter) listed parallel.py/dispatch.py
+      under `unchanged_by_design` (C3/AC-004). The REG-1 finding proved that posture
+      re-armed the #181 cross-thread crash. The regfix tasklist — the authoritative
+      gold-standard for THIS work — explicitly authorizes touching both in KO-1. The truly
+      frozen invariant `ParallelExecutor.__init__(self, max_workers=10)` is preserved verbatim
+      via a class-attribute + per-instance flip (R2 verified vs test_frozen_signatures_unchanged).
+    remediation: none
+
+  - id: A2
+    class: authorized
+    severity: info
+    title: "DRIFT-1 (eager TUI import) and NEC-1 (SIGINT Exit 130) deferred out-of-scope"
+    evidence:
+      - ".dev/tasks/to-do/TASK-RF-swarm-tui-fr1-regfix-20260619-021719/TASK-RF-swarm-tui-fr1-regfix-20260619-021719.md:327-328"
+    gold_standard: ["Tasklist 'Open Questions / Out-of-Scope Follow-Ups' section"]
+    rationale: "Explicitly documented as deliberate out-of-scope follow-ups per the task GOAL; not silently actioned (R2 confirmed)."
+    remediation: "follow-up task for DRIFT-1 (defer the TUI import into the _tui_active branch)"
+
+  - id: N1
+    class: necessary
+    severity: low
+    title: "ruff-format reflow hunks in commands.py on lines unrelated to the fix"
+    evidence:
+      - "src/superclaude/cli/swarm/commands.py  (_stamp_inline_worker_paths template.format; next_cmd_subs; line_cap assignment; workers_requested reflow)"
+    gold_standard: ["Tasklist Key constraint 'CI format gate: ruff format --check runs separately'"]
+    rationale: "Pure `ruff format` normalizations emitted when format was run on the touched file; R3 reproduced them on pristine HEAD. CI-format-parity churn, no behavior change."
+    remediation: none
+
+  - id: N2
+    class: necessary
+    severity: info
+    title: "FR-1 main-thread runtime assertion added caller-side in commands.py"
+    evidence:
+      - "src/superclaude/cli/swarm/commands.py  (assert threading.get_ident() == main_ident before each tui_obj.update)"
+    gold_standard: ["Spec FR-1 acceptance: 'a runtime assertion that TUI.update only ever runs on the main thread'"]
+    rationale: "Directly satisfies an FR-1 acceptance clause; placed outside the render-glitch guard so it is never swallowed (R1 verified F4)."
+    remediation: none
+
+  - id: D1
+    class: drift
+    severity: medium
+    title: "Real-PTY smoke is partially vacuous as a REG-1 cause-1 guard"
+    evidence:
+      - "tests/swarm/test_run_tui_integration.py:299-372 (test_tui_real_pty_no_crash_under_concurrent_worker_stdout)"
+    finding: >
+      INDEPENDENTLY VERIFIED (reflect ran the experiment): the smoke PASSES 5/5 with the
+      tui.py redirect fix reverted. The cross-thread Rich crash is nondeterministic, so the
+      smoke does not reliably trigger it and therefore does not deterministically guard
+      REG-1 cause 1. R1 raised it; reflect confirmed it.
+    mitigant: >
+      REG-1 protection is NOT dependent on this smoke. The structural AST audit
+      (test_worker_surfaces_have_zero_tui_reachability, non-vacuous with 2 mutation guards)
+      plus the redirect disarm itself carry the real coverage. R2 independently verified the
+      single-writer property is structural across the transitive worker call graph.
+    classification_note: "test-quality drift, NOT a code defect; non-blocking."
+    remediation: "Strengthen the smoke (deterministically force the race, e.g. drive many concurrent writes while Live is armed in a control variant) OR document the structural AST audit as the authoritative REG-1 guard and demote the smoke to a non-regression sanity check."
+
+  - id: D2
+    class: drift
+    severity: low
+    title: "DRIFT-3 regression test has timing-based non-determinism"
+    evidence:
+      - "tests/swarm/test_run_tui_integration.py:435-476 (test_drift3_reader_error_does_not_mask_worker_crash)"
+    finding: "R2 observed ~1 flake in 95+ runs; the underlying fix control flow is proven sound (not a code hole). The seam relies on poll-loop timing."
+    remediation: "Make the reader-raise seam deterministic (e.g. gate on an explicit iteration counter rather than first-call timing)."
+
+  - id: D3
+    class: drift
+    severity: low
+    title: "FR-1 stdout-write AST detector has narrow blind spots"
+    evidence:
+      - "tests/swarm/test_inv012_tui_opt_in.py:673-693 (visit_Call/visit_Attribute detect print()/sys.stdout/sys.stderr only)"
+    finding: "Detector flags print()/sys.stdout/sys.stderr but not os.write(1,...), Console().print, logging-to-stdout, or write-via-aliased-name. Sufficient for the current worker surfaces; a future REG-1-class write via an unhandled idiom could slip through."
+    remediation: "Optional future-proofing: extend the detector to os.write / aliased stream handles if a worker surface ever uses them."
+
+# REGRESSION: none found. All three reviewers + the reflect-run verification triangle agree.

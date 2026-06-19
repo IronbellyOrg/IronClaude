@@ -1,0 +1,9 @@
+$ uv run ruff check src/superclaude/cli/swarm/commands.py
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+$ uv run ruff format --check src/superclaude/cli/swarm/commands.py
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+1 file already formatted
+
+exit_codes: ruff_check=0 ruff_format=0

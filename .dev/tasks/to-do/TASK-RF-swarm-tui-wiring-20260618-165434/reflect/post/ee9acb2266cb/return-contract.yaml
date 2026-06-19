@@ -1,0 +1,87 @@
+contract_version: "1.5.0"
+status: partial            # a HIGH regression on a non-negotiable gate was found
+mode: post
+tier_reached: 2
+report_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/post/ee9acb2266cb/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/post/ee9acb2266cb/audit.log"
+confidence_calibrated: 0.25
+escalation_rule_matched: 3   # UC-2 regression candidate -> ESCALATE (also forced by --depth deep)
+
+# UC-2
+tasklist_completion_pct: 0.86   # 6/7 FRs behaviorally met; FR-1 non-negotiable gate substantively fails
+deviation_count_by_class:
+  authorized: 3
+  necessary: 1
+  drift: 4
+  regression: 1
+deviation_register_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/reflect/post/ee9acb2266cb/deviation-register.yaml"
+grounding_gaps_path: null   # every finding classified; no evidence-insufficient rows
+
+# Verification triangle (§6.1 step 5.5)
+verification_ran: true
+verification_invocations: 2          # full swarm-TUI suite + live --tui reproduction probe
+verification_failures: 0             # all 26 tests pass
+verification_regressions_detected: 0 # NOTE: the FR-1 regression is NOT a failing test -- the suite
+                                     # audits the wrong invariant; regression sourced from spec-contradiction
+                                     # analysis + manual TTY reproduction, not a pytest exit code
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 22
+citations_revalidated: 22
+citations_dropped: 0          # zero-drop on a non-trivial report is a flag, not a clean signal --
+                              # the load-bearing citation (FR-1 reproduction) was independently re-run
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+reviewer_count: 2             # executor=sonnet excluded from pool per §7.1; N=2 floor (opus-class + haiku-class)
+reviewer_models: ["opus-class (claude-opus-4-8)", "haiku-class (qwen3.6-plus)"]
+reviewer_personas: ["qa", "analyzer"]
+merge_method: adversarial-inline   # orchestrator-merged the divergent verdicts + resolved by independent reproduction
+adversarial_convergence_score: 0.30  # reviewers diverged hard (0.86 vs 0.18); resolved by evidence, not consensus
+adversarial_unavailable: false
+t2_model_class_diversity: full
+t2_vendor_diversity: multi    # anthropic (opus) / openai (sonnet=gpt-5.5) / qwen (haiku)
+calibrator_diversity: full    # calibrator class disjoint from reviewer classes
+executor_class_source: flag
+executor_class_resolved: true
+executor_exclusion_degraded: false   # N=2 floor satisfied after excluding sonnet
+
+# Input integrity
+input_drift_detected: false
+input_retargeted: true        # --diff was start_commit; re-scoped to working-tree work product (see register)
+
+# Asymmetric-cost flags
+regression_present: true
+unauthorized_deviation_present: true   # DRIFT-1..4 unmapped/unrationalized
+cannot_validate_without_user_input: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null    # pending operator decision
+remediation_task_path: null   # not yet authored (awaiting acceptance)
+
+# Promotion (UC-2) -- BLOCKED
+promotion_action: skipped
+promotion_adapter: task
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+gate_evaluation:
+  mode_post: pass
+  status_success: fail                  # status == partial
+  tasklist_completion_pct_1_0: fail     # 0.86
+  no_drift_no_regression: fail          # 1 regression + 4 drift
+  frontmatter_present: pass
+  frontmatter_status_matches: fail      # frontmatter status = "🟠 Doing", not done
+  no_citations_dropped: pass
+  no_grounding_gaps: pass
+  no_input_drift: pass
+  no_user_decision_pending: pass
+  adversarial_result_present: pass
+gate_evaluation_failures: [status_success, tasklist_completion_pct_1_0, no_drift_no_regression, frontmatter_status_matches]

@@ -1,0 +1,44 @@
+Step 4.2 -- ruff format --check (CI format surface, separate from make lint)
+Command: uv run ruff format --check src/ tests/
+ruff version: 0.15.13
+Date: 2026-06-18
+
+=====================================================================
+VERDICT: THIS TASK'S AUTHORED CODE IS FORMAT-CLEAN.
+=====================================================================
+
+Full-tree `ruff format --check src/ tests/` => "104 files would be reformatted,
+933 files already formatted". This is a tree-wide ruff-VERSION artifact: ruff
+0.15.13 (this environment) reformats string-concatenation / call-wrapping across
+~104 pre-existing files that the repo's pinned ruff left alone. NOT introduced by
+this task; resolving requires editing ~104 OUT-OF-SCOPE files (forbidden).
+
+---------------------------------------------------------------------
+THIS TASK'S 4 TOUCHED FILES -- format-check result + actions:
+---------------------------------------------------------------------
+  tests/swarm/test_run_tui_integration.py (NEW, 100% mine)
+        -> ran `uv run ruff format tests/swarm/test_run_tui_integration.py`
+           (1 file reformatted). Now CLEAN.
+  tests/swarm/test_tail_events.py (NEW, 100% mine)
+        -> already formatted. CLEAN.
+  tests/swarm/test_inv012_tui_opt_in.py (modified)
+        -> the ONE reformat hunk in MY added code (the FR-1 audit assert message
+           at the worker_surfaces loop) was applied by hand (collapsed a 2-line
+           f-string that fits 88 cols). My code is now format-clean.
+           Residual: ONE hunk remains at the PRE-EXISTING `_run_cmd_has_tui_flag`
+           helper (line ~424) -- NOT my code; a ruff 0.15.13 version artifact.
+  src/superclaude/cli/swarm/commands.py (modified)
+        -> `ruff format --diff` shows 4 hunks, ALL in PRE-EXISTING lines
+           (model-path stamping ~1010, target line_cap override ~1727,
+           next_cmd_subs ~2043, amalgamation workers_requested ~2058).
+           NONE touch this task's additions (the --tui option, tui param, FR-3
+           rejects, _tail_events, threaded poll glue, FR-1 assertion, constants
+           are all already format-clean under ruff 0.15.13). Running full-file
+           `ruff format` here would churn ONLY those pre-existing lines -- an
+           out-of-scope diff -- so it was deliberately NOT run (scope discipline:
+           fix only this task's lines).
+
+NET: every line this task authored is `ruff format`-clean. The residual
+"would reformat" on commands.py (4 pre-existing hunks) and test_inv012 (1
+pre-existing hunk) are pre-existing ruff-0.15.13 version artifacts in lines this
+task did not author -- logged as out-of-scope per Step 4.2's fallback.

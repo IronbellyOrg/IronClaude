@@ -1,0 +1,25 @@
+$ uv run ruff check src/superclaude/cli/swarm/tui.py src/superclaude/execution/parallel.py src/superclaude/cli/swarm/dispatch.py
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+$ uv run ruff format --check src/superclaude/cli/swarm/tui.py src/superclaude/execution/parallel.py src/superclaude/cli/swarm/dispatch.py
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+3 files already formatted
+
+$ uv run pytest tests/swarm/test_run_tui_integration.py::test_frozen_signatures_unchanged -v
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0, anyio-4.13.0
+collecting ... collected 1 item
+
+tests/swarm/test_run_tui_integration.py::test_frozen_signatures_unchanged PASSED [100%]
+
+============================== 1 passed in 0.17s ===============================
+
+exit_codes: ruff_check=0 ruff_format=0 pytest=0

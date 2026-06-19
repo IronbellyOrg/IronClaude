@@ -1,0 +1,16 @@
+verdict: degraded
+status: partial
+tier_reached: 2
+reason: degraded-model-diversity
+report: .dev/tasks/to-do/TASK-RF-swarm-tui-fr1-regfix-20260619-021719/reflect/post/116a29c16519/REPORT.md
+contract: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-fr1-regfix-20260619-021719/reflect/post/116a29c16519/return-contract.yaml
+deviations:
+  authorized: 2
+  necessary: 2
+  drift: 3
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false
