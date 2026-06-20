@@ -78,7 +78,7 @@ A topic string (free-form text). File references via `@<path>` are supported.
 /sc:brainstorm "add rate limiting to public API endpoints" --depth standard
 ```
 
-Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/security/backend personas; adversarial debate + merge.
+Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
 
 ### Deep incident post-mortem
 
@@ -86,7 +86,7 @@ Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with 
 /sc:brainstorm "deployment broke staging at 3am" --depth deep --strategy systematic
 ```
 
-Analyzer/security/devops personas; 5+ proposals; merge emphasizes observability + rollback strategies.
+Analyzer/devops personas; 5+ proposals; merge emphasizes observability + rollback strategies.
 
 ### Product feature with light research
 

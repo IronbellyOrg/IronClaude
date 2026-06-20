@@ -64,15 +64,6 @@ _FRESHNESS_SCRIPTS = [
     # check in `make verify-sync` requires every entry of
     # `src/superclaude/hooks/scripts/*.sh` to be a member of this list.
     "reject-workspace-writes.sh",
-    # Project-local PostToolUse hook for /sc:auggie-review. After a successful
-    # `gh pr create` Bash invocation, emits an offer to run the Auggie-powered
-    # code review on the new PR. Registered in this project's
-    # `.claude/settings.json` PostToolUse with the project-relative
-    # `$CLAUDE_PROJECT_DIR/.claude/hooks/offer-pr-review.sh` command — same
-    # pattern as `reject-workspace-writes.sh`, so it's listed here for the
-    # `=== Installer Registration ===` verify-sync gate, but is harmless when
-    # unregistered in unrelated projects.
-    "offer-pr-review.sh",
     # Project-local PreToolUse hook for /sc:recommend Phase 0. When the Skill
     # tool invokes `sc-recommend`, injects a context block reminding the model
     # that live surface enumeration + mandatory auggie semantic ranking +

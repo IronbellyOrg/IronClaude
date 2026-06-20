@@ -23,19 +23,6 @@
           }
         ]
       }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "description": "After a successful `gh pr create`, emit an offer to run /sc:auggie-review on the new PR. Hook is fail-open (exits 0 on any mismatch) and never blocks the tool. See src/superclaude/skills/sc-auggie-review-protocol/SKILL.md for the protocol the offer invokes.",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/offer-pr-review.sh",
-            "timeout": 3
-          }
-        ]
-      }
     ]
   }
 }

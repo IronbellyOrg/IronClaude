@@ -56,7 +56,7 @@ Each domain has 3 tiers: quick (3-5 Qs), standard (6-10 Qs), deep (10-20 Qs). Qu
 11. What's the simplest version that could work? Why isn't that enough?
 12. What's the riskiest assumption baked into the topic?
 13. If I gave you 2x the time, what would you change? If I gave you 0.5x, what would you cut?
-14. What would a security reviewer ask about this?
+14. What would an independent reviewer from another team flag as the riskiest part of this?
 15. What would a future maintainer curse you for missing?
 16. Is there an existing pattern in adjacent code that we should mirror or deliberately break from?
 17. What metric would prove this worked in prod?

@@ -96,7 +96,7 @@ topic (user)
 | `--no-codebase` | | No | `false` | Skip codebase context enrichment even if topic is code-related. |
 | `--research` | | No | auto | Force research enrichment. Values: `light` (→ `/sc:research --depth quick`), `deep` (→ `tech-research` skill), `none`. |
 | `--no-research` | | No | `false` | Skip research enrichment. |
-| `--personas` | | No | auto | Comma-separated persona list to use as advocates. Overrides auto-detection. Examples: `architect,security,frontend` |
+| `--personas` | | No | auto | Comma-separated persona list to use as advocates. Overrides auto-detection. Examples: `architect,security,frontend` (security is auto-excluded by default per §Auto-Exclusion; naming it here is how you opt in). |
 | `--models` | | No | `auto` | Comma-separated model alias list to rotate across proposals. Defaults to `opus,sonnet,haiku` (the 3 active aliases). |
 | `--blind` | | No | `false` | Pass-through to `/sc:adversarial --blind` (strip model identity before comparison). |
 | `--convergence` | | No | `0.75` | Pass-through to `/sc:adversarial --convergence`. Threshold tuned slightly lower than adversarial default (0.80) because brainstorm variants are MORE divergent by design. |
@@ -214,8 +214,9 @@ Spawn enrichment tasks in parallel via `Task` tool, based on domain + flags:
 
 1. **Persona selection** (priority order):
    - If `--personas` flag provided AND non-empty after trim: use literal list (already validated in Wave 0)
-   - Else if `--strategy enterprise`: `architect, security, devops, scribe, qa`
+   - Else if `--strategy enterprise`: `architect, analyzer, devops, scribe, qa`
    - Else: domain-aware default per `refs/agent-spec-builder.md` §Persona-Matrix (authoritative location — SPEC.md does not duplicate the table)
+   - **Apply `§Auto-Exclusion`** (`refs/agent-spec-builder.md`): `auto_excluded_personas = { security }`. Strip any excluded persona NOT named in an explicit `--personas` list, backfilling from the same priority list; emit one INFO per drop. Security is therefore never auto-selected (no domain default, no enterprise override, no pad/cycle) — it is reachable ONLY via explicit `--personas …,security`. This is a runtime backstop independent of the persona tables.
    - Pad/truncate to `--proposals` count
 2. **Model rotation**:
    - Read `--models` (default `opus,sonnet,haiku` — the 3 active aliases)
@@ -239,7 +240,7 @@ Spawn enrichment tasks in parallel via `Task` tool, based on domain + flags:
    - Hard kill: mid-Wave-3 abort if measured cumulative tokens > 1.25 × estimate
 6. **Output**: validated agent-spec string suitable for `/sc:adversarial --agents`. Example:
    ```
-   opus:architect:'prioritize maintainability and scaffolding',sonnet:security:'focus on OWASP Top 10 + supply-chain risks',haiku:devops:'deployment + observability'
+   opus:architect:'prioritize maintainability and scaffolding',sonnet:refactorer:'focus on technical debt + minimal-risk transformation paths',haiku:devops:'deployment + observability'
    ```
 
 **Dry-run gate**: If `--dry-run`:
@@ -489,7 +490,7 @@ Cases cover 6 domains × 3 strategies × 3 depths × {with/without enrichment} �
 | ID | Topic | Domain | Strategy | Depth | Handoff | Special |
 |----|-------|--------|----------|-------|---------|---------|
 | 1 | "add rate limiting to public API endpoints" | code | systematic | standard | none | Codebase enrichment expected |
-| 2 | "post-mortem: deployment broke staging at 3am" | incident | systematic | deep | none | Analyzer/security/devops personas |
+| 2 | "post-mortem: deployment broke staging at 3am" | incident | systematic | deep | none | Analyzer/devops personas (security only via explicit --personas) |
 | 3 | "AI-powered changelog summarizer feature" | product | agile | standard | none | Light research expected |
 | 4 | "migrate test suite from pytest to vitest" | code | systematic | quick | none | 2-proposal cap, quick depth |
 | 5 | "redesign error handling across the worker pool" | architecture | enterprise | deep | none | Codebase + research, 5 proposals |

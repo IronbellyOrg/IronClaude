@@ -209,8 +209,9 @@ Orchestrate parallel brainstorming via:
 
 1. **Persona selection** (priority order, per `refs/agent-spec-builder.md` §Persona-Matrix):
    - If `--personas` flag provided AND non-empty: use literal list (validated in Wave 0)
-   - Else if `--strategy enterprise`: `architect, security, devops, scribe, qa`
+   - Else if `--strategy enterprise`: `architect, analyzer, devops, scribe, qa`
    - Else: domain-aware default per `refs/agent-spec-builder.md` §Persona-Matrix table
+   - **Apply `§Auto-Exclusion`** (`refs/agent-spec-builder.md`): strip any `auto_excluded_personas` member (currently `security`) that is NOT present in an explicit `--personas` list, backfilling from the same priority list; emit one INFO per drop. This forbids a security lens unless the user explicitly names it.
    - Pad/truncate to `--proposals` count
 
 2. **Model rotation**:
@@ -240,7 +241,7 @@ Orchestrate parallel brainstorming via:
 6. **Final output**: validated agent-spec string. Example:
 
    ```
-   opus:architect:'prioritize maintainability and scaffolding',sonnet:security:'focus on OWASP Top 10 + supply-chain risks',haiku:devops:'deployment + observability'
+   opus:architect:'prioritize maintainability and scaffolding',sonnet:refactorer:'focus on technical debt + minimal-risk transformation paths',haiku:devops:'deployment + observability'
    ```
 
 **Dry-run gate**: If `--dry-run`:
