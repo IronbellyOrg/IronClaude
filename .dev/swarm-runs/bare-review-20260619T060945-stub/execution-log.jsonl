@@ -1,0 +1,8 @@
+{"event_type": "wave_transition", "payload": {"from": "preflight_ok", "to": "dispatching", "workers_requested": 3}, "timestamp": "2026-06-19T06:09:45.219796+00:00", "worker_index": null}
+{"event_type": "worker_start", "payload": {"timeout_sec": 180}, "timestamp": "2026-06-19T06:09:45.220109+00:00", "worker_index": 0}
+{"event_type": "worker_start", "payload": {"timeout_sec": 180}, "timestamp": "2026-06-19T06:09:45.220256+00:00", "worker_index": 1}
+{"event_type": "worker_done", "payload": {"attempts": 1, "elapsed_ms": 0, "http_code": 200, "model_id": "lens-default-model-0", "model_label": "lens-default-model-0", "status": "success"}, "timestamp": "2026-06-19T06:09:45.220492+00:00", "worker_index": 0}
+{"event_type": "worker_start", "payload": {"timeout_sec": 180}, "timestamp": "2026-06-19T06:09:45.220590+00:00", "worker_index": 2}
+{"event_type": "worker_done", "payload": {"attempts": 1, "elapsed_ms": 0, "http_code": 200, "model_id": "lens-default-model-0", "model_label": "lens-default-model-0", "status": "success"}, "timestamp": "2026-06-19T06:09:45.220719+00:00", "worker_index": 1}
+{"event_type": "worker_done", "payload": {"attempts": 1, "elapsed_ms": 0, "http_code": 200, "model_id": "lens-default-model-0", "model_label": "lens-default-model-0", "status": "success"}, "timestamp": "2026-06-19T06:09:45.220941+00:00", "worker_index": 2}
+{"event_type": "wave_transition", "payload": {"from": "dispatching", "results_collected": 3, "success_count": 3, "to": "dispatched"}, "timestamp": "2026-06-19T06:09:45.221262+00:00", "worker_index": null}

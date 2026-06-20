@@ -1,0 +1,26 @@
+---
+schema_version: "1.0"
+tier: "T2"
+suspect: false
+lens: "findings-table"
+reviewer_model_id: ""
+reviewer_model_label: ""
+target: "/tmp/swarm-wizard-probe/demo.py"
+target_checksum: "e42d1a9c094ce2af576a16275adbcef2c35cb75af1651c779541e7bf8186a9ea"
+target_truncated: false
+generated: "2026-06-19T06:09:41Z"
+caller_label: ""
+elapsed_ms: 0
+finding_count: 0
+---
+
+# T2-Findings Table (findings-table) — demo
+
+## Findings
+
+| ID | Locator | Finding | Detail | Action |
+|----|---------|---------|--------|--------|
+| F-00 | (no rows) | (no structured findings returned) | — | — |
+
+## Notes
+stub:lens-default-model-0:cf294076998cba58

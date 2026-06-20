@@ -1,0 +1,1894 @@
+diff --git a/src/superclaude/cli/swarm/commands.py b/src/superclaude/cli/swarm/commands.py
+index 54ddbb94..9af0c985 100644
+--- a/src/superclaude/cli/swarm/commands.py
++++ b/src/superclaude/cli/swarm/commands.py
+@@ -38,7 +38,7 @@ import time
+ import uuid
+ from datetime import datetime, timezone
+ from pathlib import Path
+-from typing import Any, Callable, Mapping, Optional
++from typing import TYPE_CHECKING, Any, Callable, Mapping, Optional
+
+ import click
+
+@@ -48,6 +48,7 @@ from superclaude.cli.swarm.lenses._validate import (
+     validate_all,
+ )
+ from superclaude.cli.swarm.models import (
++    EventRecord,
+     JobSpec,
+     LensEntry,
+     SwarmState,
+@@ -60,6 +61,9 @@ from superclaude.cli.swarm.schema import (
+     validate,
+ )
+
++if TYPE_CHECKING:
++    from superclaude.cli.swarm.logging_ import Logger
++
+ __all__ = [
+     "attach_cmd",
+     "auto_inject_guard_option",
+@@ -189,6 +193,20 @@ EXIT_OK: int = 0
+ EXIT_INVALID: int = 1
+ EXIT_USAGE: int = 2
+
++# INV-012 / FR-1 / FR-4 -- ``swarm run --tui`` render poll-loop tunables.
++#
++# The main-thread dashboard poll loop renders at ``1 / _TUI_POLL_INTERVAL_SEC``
++# Hz (2/s by default) while the non-daemon Wave 1 dispatch worker runs.
++# ``_TUI_POLL_MAX_ITERATIONS`` is a concrete anti-spin ceiling on the RENDER
++# loop only: ``None`` means unbounded in production (the loop exits when the
++# worker thread is no longer alive), while the test suite injects a small int
++# to prove the render spin is bounded. The ceiling guards ONLY the render
++# loop -- the subsequent ``join()`` still runs the non-daemon worker to
++# completion so ``execution-log.jsonl`` is never truncated (FR-5); the ceiling
++# NEVER truncates the worker.
++_TUI_POLL_INTERVAL_SEC: float = 0.5
++_TUI_POLL_MAX_ITERATIONS: Optional[int] = None
++
+
+ def _format_failure(failure: SchemaValidationFailure) -> str:
+     """Render one structured failure on a single human-readable line.
+@@ -995,9 +1013,7 @@ def _stamp_inline_worker_paths(
+         slug = _slugify_model(
+             worker.model_label or worker.model_id, f"slot{worker.index:02d}"
+         )
+-        rendered = template.format(
+-            lens=lens_name, index=worker.index, model_slug=slug
+-        )
++        rendered = template.format(lens=lens_name, index=worker.index, model_slug=slug)
+         base = rendered[:-3] if rendered.endswith(".md") else rendered
+         replaced = dataclasses.replace(
+             worker,
+@@ -1467,6 +1483,24 @@ def _emit_preflight_failures(
+         "re-attach and ``swarm kill <job_id>`` to terminate."
+     ),
+ )
++@click.option(
++    "--tui",
++    "tui",
++    is_flag=True,
++    default=False,
++    help=(
++        "INV-012 / FR-1 -- render a live Rich progress dashboard while "
++        "Wave 1 dispatch runs on a non-daemon background thread. The main "
++        "thread is the SOLE console writer (FR-1 single-writer topology): "
++        "it tails ``execution-log.jsonl`` + ``.swarm-state.json`` from the "
++        "``--output`` directory at 2/s and feeds the dashboard, while the "
++        "dispatch worker routes ALL output through the filesystem logger. "
++        "Fresh-run only (NOT supported with --resume) and requires a TTY "
++        "(silently no-ops to the plain synchronous run on a non-TTY pipe). "
++        "Mutually exclusive with --detached (the dashboard requires a "
++        "foreground run)."
++    ),
++)
+ @auto_inject_guard_option
+ def run_cmd(
+     spec_path: Optional[Path],
+@@ -1482,6 +1516,7 @@ def run_cmd(
+     label: Optional[str],
+     force_relens: bool,
+     detached: bool,
++    tui: bool,
+     auto_inject_guard: bool,
+ ) -> None:
+     """Run a swarm job: Wave 0 preflight -> Wave 1 dispatch (T03.01 / FR-001).
+@@ -1515,7 +1550,11 @@ def run_cmd(
+         4. Run :func:`dispatch_wave1` (Wave 1) with the selected
+            :class:`Transport`. The T03.01 path is a sequential
+            reference body; T03.02 swaps in the real
+-           :class:`ParallelExecutor`-driven fan-out.
++           :class:`ParallelExecutor`-driven fan-out. With ``--tui`` on a
++           TTY, this dispatch runs on a non-daemon background thread while
++           the main thread renders a live progress dashboard by tailing
++           ``execution-log.jsonl`` (fresh-run only; mutually exclusive
++           with ``--detached``).
+         5. Emit a return-contract stub on stdout (M5 replaces this
+            with the full :class:`ResultContract` writer).
+     """
+@@ -1551,6 +1590,17 @@ def run_cmd(
+                 err=True,
+             )
+             raise click.exceptions.Exit(EXIT_USAGE)
++        # INV-012 / FR-3 -- --tui is not supported on the resume path in v1
++        # (TUI wiring is fresh-run only). Reject the combination loudly here,
++        # BEFORE _run_resume_branch runs, so the resume path never enters the
++        # TUI poll loop and --tui is not silently ignored on a resume run.
++        if tui:
++            click.echo(
++                "swarm run --tui: --tui is not supported with --resume "
++                "(v1 scope = fresh-run only; resume does not enter the TUI loop)",
++                err=True,
++            )
++            raise click.exceptions.Exit(EXIT_USAGE)
+         if output_dir is None:
+             click.echo(
+                 "swarm run --resume: --output <dir> is required to locate "
+@@ -1580,6 +1630,20 @@ def run_cmd(
+
+     mode, spec_dict = _resolve_input_mode(spec_path, stdin_mode, lens)
+
++    # INV-012 / FR-3 -- --tui and --detached are mutually exclusive: the live
++    # dashboard requires a foreground process to own the terminal, while
++    # --detached returns immediately after launching a background tmux session.
++    # This guard MUST fire BEFORE the ``if detached:`` branch below (which
++    # ``return``s before dispatch), so the combination errors instead of
++    # silently launching detached and ignoring --tui.
++    if tui and detached:
++        click.echo(
++            "swarm run --tui: --tui is mutually exclusive with "
++            "--detached (the live dashboard requires a foreground run)",
++            err=True,
++        )
++        raise click.exceptions.Exit(EXIT_USAGE)
++
+     # T07.11 / FR-014 -- detached branch. Resolve overrides on the spec
+     # snapshot so the child tmux invocation sees the same effective spec
+     # as inline mode would have, then hand off to the tmux launcher. The
+@@ -1666,9 +1730,9 @@ def run_cmd(
+     # value survives unchanged. ``materialize_lens_defaults`` does not touch
+     # line_cap. (R2 B-2 honored; no accompanying preflight tweak required.)
+     if target_line_cap is not None:
+-        spec_dict.setdefault("target", {}).setdefault("truncation", {})[
+-            "line_cap"
+-        ] = target_line_cap
++        spec_dict.setdefault("target", {}).setdefault("truncation", {})["line_cap"] = (
++            target_line_cap
++        )
+
+     # B-3 -- --timeout-sec overrides the per-worker timeout (legacy
+     # ``t2_preflight.sh --timeout-sec`` / ``T2Timeout``, default 180). Applied
+@@ -1804,13 +1868,140 @@ def run_cmd(
+         inline_job, _read_truncated_target(inline_job)
+     )
+
+-    worker_results = dispatch_wave1(
+-        preflight_result,
+-        transport_for_slot=run_transport_factory,
+-        prompt=assembled_prompt,
+-        worker_spec=inline_job.workers,
+-        logger=logger,
+-    )
++    # INV-012 / FR-1 / FR-2 / FR-5 / FR-6 -- Approach A: when --tui is active on
++    # a TTY AND an --output directory exists (so there is an execution-log.jsonl
++    # + .swarm-state.json to tail), run the blocking dispatch_wave1 call on a
++    # NON-DAEMON background thread while the MAIN thread renders the live
++    # dashboard. The worker routes ALL output through the filesystem Logger;
++    # only the main thread touches the Console (FR-1 single-writer topology).
++    # When the gate is closed (no --tui, non-TTY, or no --output) the existing
++    # fully-synchronous call runs BYTE-IDENTICALLY -- no thread, no tail loop,
++    # no Rich/TUI import side effects (FR-2). dispatch_wave1's signature is
++    # unchanged (C3 / AC-004 / NFR-001); the poll loop lives here in the caller.
++    from superclaude.cli.swarm.tui import TUI, should_enable_tui
++
++    _tui_active = should_enable_tui(tui, sys.stdout) and state_output_dir is not None
++    if not _tui_active:
++        # FR-2 byte-identical fallback: the pre-existing synchronous dispatch.
++        worker_results = dispatch_wave1(
++            preflight_result,
++            transport_for_slot=run_transport_factory,
++            prompt=assembled_prompt,
++            worker_spec=inline_job.workers,
++            logger=logger,
++        )
++    else:
++        import threading
++
++        from superclaude.cli.swarm.state import read_state
++
++        # Result-box + exception-box: the non-daemon worker writes its return
++        # value (or captured BaseException) into these single-key dicts; the
++        # main thread reads them AFTER join() (mirrors the pipeline executor
++        # result-box pattern, with daemon flipped to False per FR-5).
++        result_box: dict = {}
++        exc_box: dict = {}
++
++        def _dispatch_worker() -> None:
++            # FR-1: the worker NEVER touches the Console -- it writes solely
++            # through the filesystem Logger. Any BaseException is captured and
++            # re-raised on the main thread AFTER tui.stop() (FR-5), preserving
++            # the existing PreflightError / Exit / EXIT_* semantics.
++            try:
++                result_box["v"] = dispatch_wave1(
++                    preflight_result,
++                    transport_for_slot=run_transport_factory,
++                    prompt=assembled_prompt,
++                    worker_spec=inline_job.workers,
++                    logger=logger,
++                )
++            except BaseException as exc:  # noqa: BLE001 -- re-raised on main thread
++                exc_box["e"] = exc
++
++        dispatch_thread = threading.Thread(
++            target=_dispatch_worker, name="swarm-wave1", daemon=False
++        )
++        tui_obj: Optional[TUI] = None
++        interrupted = False
++        dispatch_thread.start()
++        try:
++            tui_obj = TUI()
++            tui_obj.start()
++            offset = 0
++            state = None
++            events = []
++            iterations = 0
++            # FR-4 anti-spin ceiling: None = unbounded in production (exit when
++            # the worker dies); a small injected int in tests proves the render
++            # spin is bounded. Guards ONLY the render loop -- join() below still
++            # drains the non-daemon worker (ceiling never truncates the worker).
++            max_iterations = _TUI_POLL_MAX_ITERATIONS
++            # FR-1: capture the main thread identity once so each poll iteration
++            # can assert tui.update is invoked on the main thread (single-writer
++            # Console topology) -- caller-side, keeping tui.py unchanged (G4).
++            main_ident = threading.get_ident()
++            # Do-while render: always render at least once (even if the worker
++            # finishes before the first poll), then re-check liveness AFTER the
++            # render so the terminal frame is drawn before the loop exits.
++            while True:
++                try:
++                    state = read_state(state_output_dir / SWARM_STATE_FILENAME)
++                    events, offset = _tail_events(
++                        state_output_dir / EXECUTION_LOG_JSONL_FILENAME, offset
++                    )
++                except Exception:
++                    # FR-5: reader glitches must not bypass the post-loop worker
++                    # exception re-raise. Keep the last-good snapshot and still
++                    # run liveness / sleep below (no busy-spin continue).
++                    pass
++                # FR-1: assert the single-writer invariant immediately before
++                # EACH tui.update so any regression that drove rendering off the
++                # main thread fails loudly. Runs outside the render-glitch guard
++                # below so the AssertionError is never silently swallowed.
++                assert threading.get_ident() == main_ident, (
++                    "FR-1 violation: tui.update must run on the main thread "
++                    "(single-writer Console topology)"
++                )
++                try:
++                    tui_obj.update(state, events)
++                except Exception:
++                    # FR-1 render-glitch latch: a render error must never abort
++                    # the run. (KeyboardInterrupt is BaseException, not Exception,
++                    # so SIGINT still propagates through to the finally / FR-6.)
++                    pass
++                if not dispatch_thread.is_alive():
++                    break
++                iterations += 1
++                if max_iterations is not None and iterations >= max_iterations:
++                    break
++                time.sleep(_TUI_POLL_INTERVAL_SEC)
++        except KeyboardInterrupt:
++            # FR-6 SIGINT path: record it so we can surface a DETERMINISTIC
++            # SIGINT exit (128+2=130) AFTER the finally restores the terminal
++            # and drains the worker. We do NOT swallow it silently (unlike the
++            # read-only status --watch loop) -- a mutating run must reflect the
++            # interruption in its exit code.
++            interrupted = True
++        finally:
++            # FR-6: tui.stop() ALWAYS runs first (idempotent, tui.py:230-234) so
++            # the terminal is restored on the clean / exception / SIGINT paths.
++            # Then join() the non-daemon worker so execution-log.jsonl is fully
++            # flushed before the process can exit (FR-5 anti-truncation).
++            if tui_obj is not None:
++                tui_obj.stop()
++            dispatch_thread.join()
++        # FR-5: re-raise any captured worker exception AFTER tui.stop(), so the
++        # ORIGINAL exception/traceback reaches Click (unmasked) with the
++        # terminal already restored. This dominates a concurrent SIGINT.
++        if "e" in exc_box:
++            raise exc_box["e"]
++        if interrupted:
++            # tui.stop() + join() have already run; surface SIGINT as exit 130.
++            raise click.exceptions.Exit(130)
++        # No exception: re-bind worker_results VERBATIM from the result-box so
++        # the downstream normalize/reduce/len(worker_results) continuation is
++        # byte-equivalent to the synchronous path.
++        worker_results = result_box["v"]
+
+     # WS-0 (B-5 HEADLINE) -- replace the T03.01 dispatch-only stub with the full
+     # post-dispatch pipeline, mirroring the resume branch: stamp the NET-NEW
+@@ -1863,12 +2054,12 @@ def run_cmd(
+             for w in normalized_workers
+             if w.status == "success" and w.final_path
+         ]
+-        next_cmd_subs = dict(
+-            inline_job.recommended_next_command_substitutions or {}
+-        )
++        next_cmd_subs = dict(inline_job.recommended_next_command_substitutions or {})
+         next_cmd_subs.setdefault(
+             "suspect_files",
+-            ",".join(succeeded_final_paths) if succeeded_final_paths else "<no-bare-files>",
++            ",".join(succeeded_final_paths)
++            if succeeded_final_paths
++            else "<no-bare-files>",
+         )
+         next_cmd_subs.setdefault(
+             "compare_files",
+@@ -1878,9 +2069,7 @@ def run_cmd(
+             normalized_workers,
+             mode=inline_job.amalgamation_mode,
+             output_dir=state_output_dir,
+-            workers_requested=(
+-                preflight_result.manifest.preflight.workers_requested
+-            ),
++            workers_requested=(preflight_result.manifest.preflight.workers_requested),
+             status_policy=inline_job.status_policy,
+             job_id=preflight_result.manifest.job_id,
+             lens=inline_job.output.lens_name or (lens or ""),
+@@ -2858,6 +3047,71 @@ def _drain_appended(log_path: Path, start_pos: int) -> int:
+     return new_pos
+
+
++def _tail_events(path: Path, offset: int) -> tuple[list[EventRecord], int]:
++    """Collect ``EventRecord``s appended to ``path`` since ``offset``.
++
++    INV-012 / FR-4. Byte-offset, exactly-once, partial-trailing-line-tolerant
++    JSONL tailer for the ``--tui`` main-thread poll loop. Mirrors the
++    ``_drain_appended`` seek/read/tell byte-offset bookkeeping
++    (:func:`_drain_appended`) but parses each complete line into an
++    :class:`~superclaude.cli.swarm.models.EventRecord` and **returns** the list
++    instead of echoing to stdout (the TUI is the sole console writer, FR-1).
++
++    Returns ``(events, new_offset)``. Two distinct disciplines distinguish a
++    complete-but-malformed line from a partial trailing line:
++
++    * **Complete (newline-terminated) lines:** the offset ADVANCES past every
++      complete line regardless of parse outcome. A complete line that fails
++      ``from_json`` (``json.JSONDecodeError`` / ``ValueError``) is SKIPPED
++      (omitted from the returned list) and the offset still advances past it,
++      so a corrupt complete line is never re-parsed -- no infinite reparse, no
++      permanent stall.
++    * **Partial trailing line (no terminating newline):** left UNCONSUMED --
++      the offset is NOT advanced past it, so the next poll re-reads it once the
++      writer finishes the line. A half-written JSON object is never fed to
++      ``from_json``.
++
++    A missing file returns ``([], offset)`` (the early-run window before the
++    worker creates ``execution-log.jsonl``).
++    """
++    from superclaude.cli.swarm.models import from_json
++
++    try:
++        with open(path, "rb") as fh:
++            fh.seek(offset)
++            chunk = fh.read()
++    except OSError:
++        # Missing file (early-run window) or transient read error: nothing new.
++        return [], offset
++    if not chunk:
++        return [], offset
++
++    # Only bytes up to and including the final ``\n`` are complete lines.
++    # Anything after the last newline is a partial trailing line: leave it
++    # unconsumed (do NOT advance the offset past it) so it is re-read whole on
++    # the next poll once the writer terminates it.
++    last_nl = chunk.rfind(b"\n")
++    if last_nl == -1:
++        # No complete line yet -- the entire chunk is a partial trailing line.
++        return [], offset
++    complete = chunk[: last_nl + 1]
++    new_offset = offset + len(complete)
++
++    events: list[EventRecord] = []
++    text = complete.decode("utf-8", errors="replace")
++    for line in text.split("\n"):
++        line = line.strip()
++        if not line:
++            continue
++        try:
++            events.append(from_json(EventRecord, line))
++        except (json.JSONDecodeError, ValueError):
++            # Complete-but-malformed line: skip (omit from results); the offset
++            # already advances past it (computed above) so it never re-parses.
++            continue
++    return events, new_offset
++
++
+ @click.command("logs")
+ @click.option(
+     "--output",
+diff --git a/src/superclaude/cli/swarm/dispatch.py b/src/superclaude/cli/swarm/dispatch.py
+index 305f4d0e..cdf846c5 100644
+--- a/src/superclaude/cli/swarm/dispatch.py
++++ b/src/superclaude/cli/swarm/dispatch.py
+@@ -422,6 +422,7 @@ def dispatch_wave1(
+     # in wall-clock (IMM-3). Tests that want to exercise queueing
+     # inject their own ParallelExecutor with a smaller max_workers.
+     executor = parallel_executor or ParallelExecutor(max_workers=workers_requested)
++    executor.quiet = True  # FR-1: swarm dispatch path is silent; workers emit to files.
+
+     # T03.10 / FR-026 -- coarse wave_transition events bracket the
+     # per-worker stream so operators tailing ``execution-log.md`` see
+diff --git a/src/superclaude/cli/swarm/tui.py b/src/superclaude/cli/swarm/tui.py
+index c334134a..8b8f0fa9 100644
+--- a/src/superclaude/cli/swarm/tui.py
++++ b/src/superclaude/cli/swarm/tui.py
+@@ -223,6 +223,8 @@ class TUI:
+             console=self.console,
+             refresh_per_second=self._refresh,
+             screen=False,
++            redirect_stdout=False,
++            redirect_stderr=False,
+         )
+         self._live.start()
+         return self._live
+diff --git a/src/superclaude/execution/parallel.py b/src/superclaude/execution/parallel.py
+index f11fee6e..7d887613 100644
+--- a/src/superclaude/execution/parallel.py
++++ b/src/superclaude/execution/parallel.py
+@@ -97,6 +97,8 @@ class ParallelExecutor:
+         results = executor.execute(plan)
+     """
+
++    quiet: bool = False  # FR-1: swarm dispatch can silence worker-thread prints.
++
+     def __init__(self, max_workers: int = 10):
+         self.max_workers = max_workers
+
+@@ -107,8 +109,9 @@ class ParallelExecutor:
+         Builds dependency graph and identifies parallel groups.
+         """
+
+-        print(f"⚡ Parallel Executor: Planning {len(tasks)} tasks")
+-        print("=" * 60)
++        if not self.quiet:
++            print(f"⚡ Parallel Executor: Planning {len(tasks)} tasks")
++            print("=" * 60)
+
+         # Find parallel groups using topological sort
+         groups = []
+@@ -161,8 +164,9 @@ class ParallelExecutor:
+             speedup=speedup,
+         )
+
+-        print(plan)
+-        print("=" * 60)
++        if not self.quiet:
++            print(plan)
++            print("=" * 60)
+
+         return plan
+
+@@ -173,14 +177,18 @@ class ParallelExecutor:
+         Returns dict of task_id -> result
+         """
+
+-        print(f"\n🚀 Executing {plan.total_tasks} tasks in {len(plan.groups)} groups")
+-        print("=" * 60)
++        if not self.quiet:
++            print(
++                f"\n🚀 Executing {plan.total_tasks} tasks in {len(plan.groups)} groups"
++            )
++            print("=" * 60)
+
+         results = {}
+         start_time = time.time()
+
+         for group in plan.groups:
+-            print(f"\n📦 {group}")
++            if not self.quiet:
++                print(f"\n📦 {group}")
+             group_start = time.time()
+
+             # Execute group in parallel
+@@ -188,16 +196,18 @@ class ParallelExecutor:
+             results.update(group_results)
+
+             group_time = time.time() - group_start
+-            print(f"   Completed in {group_time:.2f}s")
++            if not self.quiet:
++                print(f"   Completed in {group_time:.2f}s")
+
+         total_time = time.time() - start_time
+         actual_speedup = plan.sequential_time_estimate / total_time
+
+-        print("\n" + "=" * 60)
+-        print(f"✅ All tasks completed in {total_time:.2f}s")
+-        print(f"   Estimated: {plan.parallel_time_estimate:.2f}s")
+-        print(f"   Actual speedup: {actual_speedup:.1f}x")
+-        print("=" * 60)
++        if not self.quiet:
++            print("\n" + "=" * 60)
++            print(f"✅ All tasks completed in {total_time:.2f}s")
++            print(f"   Estimated: {plan.parallel_time_estimate:.2f}s")
++            print(f"   Actual speedup: {actual_speedup:.1f}x")
++            print("=" * 60)
+
+         return results
+
+@@ -222,14 +232,16 @@ class ParallelExecutor:
+                     task.result = result
+                     results[task.id] = result
+
+-                    print(f"   ✅ {task.description}")
++                    if not self.quiet:
++                        print(f"   ✅ {task.description}")
+
+                 except Exception as e:
+                     task.status = TaskStatus.FAILED
+                     task.error = e
+                     results[task.id] = None
+
+-                    print(f"   ❌ {task.description}: {e}")
++                    if not self.quiet:
++                        print(f"   ❌ {task.description}: {e}")
+
+         return results
+
+diff --git a/tests/swarm/test_inv012_tui_opt_in.py b/tests/swarm/test_inv012_tui_opt_in.py
+index a22e8cf9..712c52c6 100644
+--- a/tests/swarm/test_inv012_tui_opt_in.py
++++ b/tests/swarm/test_inv012_tui_opt_in.py
+@@ -39,6 +39,7 @@ the INV-012 integration guard.
+
+ from __future__ import annotations
+
++import ast
+ import io
+ import os
+ import re
+@@ -423,8 +424,7 @@ def _run_cmd_has_tui_flag() -> bool:
+     once the flag lands the test activates automatically.
+     """
+     return any(
+-        getattr(param, "name", None) == "tui"
+-        or "--tui" in getattr(param, "opts", ())
++        getattr(param, "name", None) == "tui" or "--tui" in getattr(param, "opts", ())
+         for param in run_cmd.params
+     )
+
+@@ -433,7 +433,7 @@ def _run_cmd_has_tui_flag() -> bool:
+     sys.platform == "win32",
+     reason="pty.openpty is POSIX-only; --tui PTY check skipped on Windows",
+ )
+-def test_pty_invocation_with_tui_flag_when_wired() -> None:
++def test_pty_invocation_with_tui_flag_when_wired(tmp_path: Path) -> None:
+     """On a PTY with ``--tui``, ``swarm run`` -> Rich Live present.
+
+     The task step says::
+@@ -458,6 +458,21 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
+
+     import pty  # POSIX-only; skipif above guards Windows.
+
++    # The --tui dashboard gate requires BOTH a TTY (the PTY below) AND an
++    # --output directory (so there is an execution-log.jsonl + .swarm-state.json
++    # to tail -- the G2 design decision: no --output => synchronous path, no
++    # dashboard). Provide a real --target (padded past the >=50 non-whitespace
++    # byte IMM-4 floor so preflight passes) and a fresh --output dir so the run
++    # reaches the dashboard instead of erroring at preflight.
++    target = tmp_path / "target.py"
++    target.write_text(
++        "# pty smoke target\n"
++        + "def hello() -> str:\n    return 'real stub dispatch'\n"
++        + "# padding to clear the IMM-4 non-whitespace byte floor\n" * 6,
++        encoding="utf-8",
++    )
++    output_dir = tmp_path / "out"
++
+     primary_fd, secondary_fd = pty.openpty()
+     try:
+         if _superclaude_cli_available():
+@@ -468,6 +483,12 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
+                 "--tui",
+                 "--lens",
+                 "bare-review",
++                "--transport",
++                "stub",
++                "--target",
++                str(target),
++                "--output",
++                str(output_dir),
+             ]
+         else:
+             cmd = [
+@@ -479,6 +500,12 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
+                 "--tui",
+                 "--lens",
+                 "bare-review",
++                "--transport",
++                "stub",
++                "--target",
++                str(target),
++                "--output",
++                str(output_dir),
+             ]
+         env = _piped_env()
+         # The PTY path is the positive control for the opt-in: Rich must
+@@ -540,44 +567,255 @@ def test_pty_invocation_with_tui_flag_when_wired() -> None:
+ # ---------------------------------------------------------------------------
+
+
+-def test_commands_module_does_not_construct_tui_outside_gate() -> None:
+-    """Static audit: any ``TUI(`` construction in commands.py is gate-guarded.
++# ---------------------------------------------------------------------------
++# FR-1 single-writer Console topology -- AST import-graph reachability audit.
++#
++# The dispatch worker thread (Approach A) must NEVER touch the Console/Live:
++# its only output channel is the filesystem Logger. This audit proves -- via a
++# true AST walk, not a substring grep -- that NONE of the worker-side surfaces
++# (``dispatch.py``, ``execution/parallel.py``, and ``_run_worker`` which lives
++# in ``dispatch.py``) import Rich or the swarm ``tui`` module, nor reference the
++# names ``TUI`` / ``Live`` / ``Console`` / ``should_enable_tui``. A regression
++# that imported ``Live`` into ``dispatch.py`` (re-arming the #181/#182/#184
++# cross-thread render crash class) fails this audit. The audit is per-file (it
++# walks each module's own symbol table, not the whole call graph); the runtime
++# main-thread ``threading.get_ident()`` probe below is the transitive backstop.
++# ---------------------------------------------------------------------------
+
+-    INV-012 enforcement depends on every wiring site routing through
+-    :func:`should_enable_tui`. A direct ``TUI(`` instantiation that
+-    doesn't sit inside an ``if should_enable_tui(...)`` block is an
+-    enforcement gap regardless of how clean the helper-level tests
+-    are. We grep the source so a future caller cannot silently bypass
+-    the gate without flipping this guard red.
++# ``rich`` root covers rich.console / rich.live / rich.panel / rich.table.
++_FORBIDDEN_TUI_IMPORT_ROOTS = {"rich"}
++_FORBIDDEN_TUI_IMPORT_MODULES = {
++    "rich",
++    "rich.console",
++    "rich.live",
++    "rich.panel",
++    "rich.table",
++    "superclaude.cli.swarm.tui",
++}
++# Symbol names a worker-side module must never name (TUI surface + the gate).
++_FORBIDDEN_TUI_NAMES = {"TUI", "Live", "Console", "should_enable_tui"}
++
++
++class _TuiSymbolVisitor(ast.NodeVisitor):
++    """Collect forbidden TUI/Rich references and unguarded stdout writes."""
++
++    def __init__(self) -> None:
++        self.import_hits: list[tuple[int, str]] = []
++        self.name_hits: list[tuple[int, str]] = []
++        self.stdout_hits: list[tuple[int, str]] = []
++        self._quiet_guard_depth = 0
++
++    def _is_quiet_guard(self, node: ast.AST) -> bool:
++        return (
++            isinstance(node, ast.UnaryOp)
++            and isinstance(node.op, ast.Not)
++            and isinstance(node.operand, ast.Attribute)
++            and node.operand.attr == "quiet"
++            and isinstance(node.operand.value, ast.Name)
++            and node.operand.value.id == "self"
++        )
+
+-    The audit is *conservative*: it allows zero ``TUI(`` constructions
+-    in ``commands.py`` until the wiring task lands, and once the
+-    wiring lands the same source line must be paired with a nearby
+-    ``should_enable_tui`` reference (same function body). Failure to
+-    pair the two surfaces here as an actionable error.
++    def _is_quiet_guarded(self) -> bool:
++        return self._quiet_guard_depth > 0
++
++    def _sys_stream_attr(self, node: ast.Attribute) -> str | None:
++        if (
++            isinstance(node.value, ast.Name)
++            and node.value.id == "sys"
++            and node.attr in {"stdout", "stderr"}
++        ):
++            return f"sys.{node.attr}"
++        if (
++            isinstance(node.value, ast.Attribute)
++            and isinstance(node.value.value, ast.Name)
++            and node.value.value.id == "sys"
++            and node.value.attr in {"stdout", "stderr"}
++        ):
++            return f"sys.{node.value.attr}.{node.attr}"
++        return None
++
++    def visit_Import(self, node: ast.Import) -> None:  # noqa: N802 -- ast API
++        for alias in node.names:
++            root = alias.name.split(".", 1)[0]
++            if root in _FORBIDDEN_TUI_IMPORT_ROOTS or (
++                alias.name in _FORBIDDEN_TUI_IMPORT_MODULES
++            ):
++                self.import_hits.append((node.lineno, alias.name))
++        self.generic_visit(node)
++
++    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:  # noqa: N802
++        module = node.module or ""
++        root = module.split(".", 1)[0]
++        if root in _FORBIDDEN_TUI_IMPORT_ROOTS or (
++            module in _FORBIDDEN_TUI_IMPORT_MODULES
++        ):
++            self.import_hits.append((node.lineno, module))
++        # Catch ``from superclaude.cli.swarm import tui`` and any
++        # ``from ... import TUI / Live / Console / should_enable_tui``.
++        for alias in node.names:
++            if alias.name == "tui" or alias.name in _FORBIDDEN_TUI_NAMES:
++                self.import_hits.append((node.lineno, f"{module}.{alias.name}"))
++        self.generic_visit(node)
++
++    def visit_If(self, node: ast.If) -> None:  # noqa: N802 -- ast API
++        if self._is_quiet_guard(node.test):
++            self._quiet_guard_depth += 1
++            try:
++                for stmt in node.body:
++                    self.visit(stmt)
++            finally:
++                self._quiet_guard_depth -= 1
++            for stmt in node.orelse:
++                self.visit(stmt)
++            return
++        self.generic_visit(node)
++
++    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802 -- ast API
++        if (
++            isinstance(node.func, ast.Name)
++            and node.func.id == "print"
++            and not self._is_quiet_guarded()
++        ):
++            self.stdout_hits.append((node.lineno, "print"))
++        self.generic_visit(node)
++
++    def visit_Name(self, node: ast.Name) -> None:  # noqa: N802 -- ast API
++        if node.id in _FORBIDDEN_TUI_NAMES:
++            self.name_hits.append((node.lineno, node.id))
++        self.generic_visit(node)
++
++    def visit_Attribute(self, node: ast.Attribute) -> None:  # noqa: N802
++        if node.attr in _FORBIDDEN_TUI_NAMES:
++            self.name_hits.append((node.lineno, node.attr))
++        stream_attr = self._sys_stream_attr(node)
++        if stream_attr is not None and not self._is_quiet_guarded():
++            self.stdout_hits.append((node.lineno, stream_attr))
++        self.generic_visit(node)
++
++
++_PARALLEL_WORKER_METHODS = {"plan", "execute", "_execute_group"}
++
++
++def _scan_tui_symbols(path: Path) -> _TuiSymbolVisitor:
++    """Parse ``path`` and return forbidden hits for its worker surface.
++
++    This audit is per-file and non-transitive: it scans the two known worker
++    surface modules' own ASTs, not the full call graph of every callable they
++    invoke. If a new dispatch-reachable worker surface moves elsewhere, add it
++    to ``worker_surfaces`` below.
+     """
+-    commands_path = (
+-        Path(__file__).resolve().parent.parent.parent
+-        / "src"
+-        / "superclaude"
+-        / "cli"
+-        / "swarm"
+-        / "commands.py"
++    source = path.read_text(encoding="utf-8")
++    tree = ast.parse(source, filename=str(path))
++    visitor = _TuiSymbolVisitor()
++    if path.name == "parallel.py":
++        for node in tree.body:
++            if isinstance(node, ast.ClassDef) and node.name == "ParallelExecutor":
++                for item in node.body:
++                    if (
++                        isinstance(item, ast.FunctionDef)
++                        and item.name in _PARALLEL_WORKER_METHODS
++                    ):
++                        visitor.visit(item)
++        return visitor
++    visitor.visit(tree)
++    return visitor
++
++
++def test_worker_surfaces_have_zero_tui_reachability() -> None:
++    """FR-1: dispatch.py / parallel.py / _run_worker never touch TUI/stdout.
++
++    An AST audit proving the worker-side surfaces cannot import Rich or the
++    swarm ``tui`` module, reference ``TUI`` / ``Live`` / ``Console`` /
++    ``should_enable_tui``, or perform unguarded stdout/stderr writes. The audit
++    is per-file (non-transitive) and includes a MANDATORY vacuity guard plus
++    mutation guards so it cannot pass on a no-op.
++    """
++    repo_root = Path(__file__).resolve().parent.parent.parent
++    dispatch_path = repo_root / "src" / "superclaude" / "cli" / "swarm" / "dispatch.py"
++    parallel_path = repo_root / "src" / "superclaude" / "execution" / "parallel.py"
++
++    worker_surfaces = [dispatch_path, parallel_path]
++    scanned = 0
++    for path in worker_surfaces:
++        assert path.is_file(), (
++            f"FR-1 audit target missing: {path}; cannot prove zero TUI reachability"
++        )
++        visitor = _scan_tui_symbols(path)
++        scanned += 1
++        assert not visitor.import_hits, (
++            f"FR-1 violation: {path.name} imports a forbidden TUI/Rich module "
++            f"(worker-side code must never touch the Console): "
++            f"{visitor.import_hits}"
++        )
++        assert not visitor.name_hits, (
++            f"FR-1 violation: {path.name} references a forbidden TUI symbol "
++            f"(TUI/Live/Console/should_enable_tui): {visitor.name_hits}"
++        )
++        assert not visitor.stdout_hits, (
++            f"FR-1 violation: {path.name} performs unguarded stdout/stderr "
++            f"writes on a worker surface: {visitor.stdout_hits}"
++        )
++
++    # _run_worker lives in dispatch.py, so scanning dispatch.py covers the
++    # ``_run_worker`` reachability requirement. Pin that fact so a future move
++    # of _run_worker to another module re-surfaces the coverage gap here.
++    dispatch_src = dispatch_path.read_text(encoding="utf-8")
++    assert "def _run_worker(" in dispatch_src, (
++        "_run_worker is expected to live in dispatch.py (covered by this "
++        "audit); if it moved, extend the worker_surfaces list to include "
++        "its new home so FR-1 reachability stays covered."
+     )
+-    assert commands_path.is_file(), (
+-        f"commands.py not found at {commands_path}; INV-012 audit cannot run"
++
++    # Vacuity guard (MANDATORY): the audit must have actually scanned modules.
++    assert scanned >= 1, "FR-1 audit scanned zero modules -- audit is vacuous"
++
++    # Mutation guard: feed a synthetic source with the forbidden import and a
++    # forbidden name reference; the visitor MUST flag both, proving the audit
++    # cannot silently pass on a no-op.
++    synthetic = "import rich.live\nx = Live()\n"
++    mutant = _TuiSymbolVisitor()
++    mutant.visit(ast.parse(synthetic))
++    assert mutant.import_hits, (
++        "FR-1 mutation guard failed: visitor did NOT flag a synthetic "
++        "'import rich.live' -- the audit is not actually detecting imports"
++    )
++    assert mutant.name_hits, (
++        "FR-1 mutation guard failed: visitor did NOT flag a synthetic 'Live' "
++        "reference -- the audit is not actually detecting name references"
+     )
+-    source = commands_path.read_text(encoding="utf-8")
+-    # Strip comments / docstrings? A literal substring scan is enough --
+-    # docstring mentions of ``TUI(`` would be code-quoted in backticks
+-    # and pass the gate-pairing requirement just as a real call would
+-    # (the docstring would mention should_enable_tui in the same block).
+-    if "TUI(" not in source:
+-        # No wiring yet: audit is vacuously satisfied. Test stays green
+-        # so the wiring task can land without re-editing this file.
+-        return
+-    assert "should_enable_tui" in source, (
+-        "commands.py constructs TUI(...) without referencing "
+-        "should_enable_tui in the same module. INV-012 demands the "
+-        "gate helper be consulted before instantiating the dashboard."
++
++
++def test_stdout_write_detector_is_not_a_noop() -> None:
++    """FR-1 mutation guard: stdout writes are flagged unless quiet-gated."""
++    unguarded = """
++import sys
++print('x')
++sys.stdout.write('x')
++"""
++    mutant = _TuiSymbolVisitor()
++    mutant.visit(ast.parse(unguarded))
++    stdout_kinds = {kind for _, kind in mutant.stdout_hits}
++    assert "print" in stdout_kinds, (
++        "FR-1 stdout mutation guard failed: visitor did NOT flag a synthetic "
++        "unguarded print()"
++    )
++    assert any(kind.startswith("sys.stdout") for kind in stdout_kinds), (
++        "FR-1 stdout mutation guard failed: visitor did NOT flag a synthetic "
++        "unguarded sys.stdout write"
++    )
++
++    guarded = """
++import sys
++class Worker:
++    def run(self):
++        if not self.quiet:
++            print('x')
++            sys.stdout.write('x')
++            sys.stderr.flush()
++"""
++    guarded_mutant = _TuiSymbolVisitor()
++    guarded_mutant.visit(ast.parse(guarded))
++    assert not guarded_mutant.stdout_hits, (
++        "FR-1 stdout mutation guard failed: visitor flagged stdout writes "
++        "reachable only under if not self.quiet"
+     )
+diff --git a/tests/swarm/test_run_tui_integration.py b/tests/swarm/test_run_tui_integration.py
+new file mode 100644
+index 00000000..90e096d1
+--- /dev/null
++++ b/tests/swarm/test_run_tui_integration.py
+@@ -0,0 +1,851 @@
++"""INV-012 / FR-1..FR-7 -- ``swarm run --tui`` wiring integration tests.
++
++These tests exercise the ``--tui`` wiring landed in
++``cli/swarm/commands.py::run_cmd`` (Approach A: threaded dispatch + main-thread
++file-tailing poller). Each covers one functional requirement of the driving
++spec ``.dev/brainstorms/swarm-tui-wiring/merged-requirements.md``:
++
++    * FR-3  -- ``--tui --detached`` AND ``--resume --tui`` both rejected
++              (EXIT_USAGE), resume never enters the TUI loop.
++    * FR-2  -- byte-identical no-regression on a non-TTY (``--tui`` is a no-op).
++    * FR-5  -- a worker exception is re-raised UNMASKED after ``tui.stop()``.
++    * FR-6  -- idempotent ``tui.stop()`` on clean / exception / SIGINT paths;
++              SIGINT yields exit 130.
++    * FR-7  -- forced-TTY run drives the dashboard from the tailed
++              ``execution-log.jsonl`` (>=1 non-vacuous worker row, zero ANSI on
++              the non-TTY CliRunner stream).
++    * FR-4  -- the render poll loop's iteration ceiling bounds the spin while
++              ``join()`` still drains the non-daemon worker.
++    * C3/AC-004/NFR-001 -- ``dispatch_wave1`` / ``ParallelExecutor`` signatures
++              stay frozen.
++
++The forced-TTY seam monkeypatches ``should_enable_tui`` to ``True`` on the
++SOURCE module ``superclaude.cli.swarm.tui`` because ``run_cmd`` resolves it via
++a deferred function-local import (same idiom test_commands_run.py uses for
++``dispatch_wave1``). New tests are UNMARKED -- no ``tui`` pytest marker is
++registered and ``--strict-markers`` is on.
++"""
++
++from __future__ import annotations
++
++import contextlib
++import inspect
++import os
++import re
++import sys
++import threading
++
++import pytest
++from click.testing import CliRunner
++
++import superclaude.cli.swarm.dispatch as dispatch_mod
++import superclaude.cli.swarm.state as state_mod
++import superclaude.cli.swarm.tui as tui_mod
++from superclaude.cli.swarm import commands as commands_mod
++from superclaude.cli.swarm.commands import (
++    EXIT_OK,
++    EXIT_USAGE,
++    run_cmd,
++)
++from superclaude.cli.swarm.models import EventRecord, from_json
++from superclaude.cli.swarm.tui import _project_workers
++from superclaude.execution.parallel import ParallelExecutor
++
++# ANSI detection (mirrors test_inv012_tui_opt_in.py:69-88 _assert_no_ansi).
++_ANSI_CSI_RE = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
++_ANY_ESC_RE = re.compile(r"\x1b")
++
++
++def _assert_no_ansi(payload: str, *, source: str) -> None:
++    """Assert ``payload`` carries no terminal control sequences (INV-012)."""
++    csi_match = _ANSI_CSI_RE.search(payload)
++    esc_match = _ANY_ESC_RE.search(payload)
++    assert csi_match is None and esc_match is None, (
++        f"INV-012 violated: {source} contains terminal control bytes\n"
++        f"  CSI match: {csi_match!r}\n"
++        f"  ESC match: {esc_match!r}\n"
++        f"  payload (first 400 chars): {payload[:400]!r}"
++    )
++
++
++def _write_padded_target(tmp_path, name: str = "target.py"):
++    """Write a target file that clears the >=50 non-whitespace byte IMM-4 floor."""
++    target = tmp_path / name
++    target.write_text(
++        "# tui wiring integration target\n"
++        + "def hello() -> str:\n    return 'real stub dispatch'\n"
++        + "# padding to clear the IMM-4 non-whitespace byte floor\n" * 6,
++        encoding="utf-8",
++    )
++    return target
++
++
++# ---------------------------------------------------------------------------
++# FR-3 -- dual mutual-exclusion rejects (--tui --detached AND --resume --tui)
++# ---------------------------------------------------------------------------
++
++
++def test_fr3_tui_detached_rejected(tmp_path) -> None:
++    """FR-3 (a): ``--tui --detached`` -> EXIT_USAGE naming the incompatibility.
++
++    The fresh-run ``if tui and detached:`` guard fires before the detached
++    branch (which returns before dispatch), so the combination errors instead
++    of silently launching detached and ignoring ``--tui``.
++    """
++    target = _write_padded_target(tmp_path)
++    output_dir = tmp_path / "out"
++    runner = CliRunner()
++    result = runner.invoke(
++        run_cmd,
++        [
++            "--tui",
++            "--detached",
++            "--lens",
++            "bare-review",
++            "--transport",
++            "stub",
++            "--target",
++            str(target),
++            "--output",
++            str(output_dir),
++        ],
++    )
++    assert result.exit_code == EXIT_USAGE, (
++        f"--tui --detached must exit EXIT_USAGE (2); got {result.exit_code}\n"
++        f"output:\n{result.output}"
++    )
++    assert "--tui" in result.output and "--detached" in result.output, (
++        f"the reject must name the --tui/--detached incompatibility:\n{result.output}"
++    )
++
++
++def test_fr3_resume_tui_rejected_without_entering_tui_loop(
++    tmp_path, monkeypatch
++) -> None:
++    """FR-3 (b): ``--resume --tui`` -> EXIT_USAGE, resume never enters the TUI.
++
++    The ``if tui:`` guard inside the resume branch fires before
++    ``_run_resume_branch`` runs, so ``--tui`` is rejected (not silently
++    ignored) and the resume path provably never constructs the dashboard. A
++    sentinel ``TUI`` that raises on construction proves it is never built.
++    """
++
++    class _ExplodingTUI:
++        def __init__(self, *args, **kwargs):
++            raise AssertionError(
++                "FR-3 violation: TUI was constructed on the --resume path "
++                "(resume must reject --tui before entering the TUI loop)"
++            )
++
++    # Patch the SOURCE module so the deferred function-local import in run_cmd
++    # would pick up the exploding sentinel if the resume path ever built a TUI.
++    monkeypatch.setattr(tui_mod, "TUI", _ExplodingTUI)
++
++    output_dir = tmp_path / "out"
++    output_dir.mkdir()
++    runner = CliRunner()
++    result = runner.invoke(
++        run_cmd,
++        [
++            "--resume",
++            "some-job-id",
++            "--tui",
++            "--output",
++            str(output_dir),
++        ],
++    )
++    assert result.exit_code == EXIT_USAGE, (
++        f"--resume --tui must exit EXIT_USAGE (2); got {result.exit_code}\n"
++        f"output:\n{result.output}\nexc:{result.exception!r}"
++    )
++    assert "--tui" in result.output and "--resume" in result.output, (
++        f"the reject must name the --tui/--resume incompatibility:\n{result.output}"
++    )
++    # The exploding sentinel never fired -> TUI was never constructed -> the
++    # resume path did not enter the TUI loop. (If it had, result.exception
++    # would be the AssertionError above and exit_code would be 1.)
++    assert result.exception is None or isinstance(result.exception, SystemExit), (
++        f"resume path must not raise into the TUI loop; got {result.exception!r}"
++    )
++
++
++# ---------------------------------------------------------------------------
++# FR-1 -- TUI.update runs ONLY on the main thread (runtime probe)
++# ---------------------------------------------------------------------------
++
++
++def test_fr1_tui_update_only_runs_on_main_thread(tmp_path, monkeypatch) -> None:
++    """FR-1: every ``tui.update`` call is invoked on the main thread.
++
++    Monkeypatches ``TUI.update`` with a probe recording
++    ``threading.get_ident()`` on each call and drives a forced-TTY
++    ``run_cmd --tui`` so the poll loop actually renders. The mandatory vacuity
++    guard (``assert seen_idents``) proves the probe ran; the second assertion
++    proves the single-writer Console topology (dispatch runs on the worker
++    thread; only the main thread touches the Console).
++    """
++    main_ident = threading.get_ident()
++    seen_idents: list[int] = []
++    real_update = tui_mod.TUI.update
++
++    def _probe(self, state, events):
++        seen_idents.append(threading.get_ident())
++        return real_update(self, state, events)
++
++    monkeypatch.setattr(tui_mod.TUI, "update", _probe)
++    # Force the gate open: run_cmd resolves should_enable_tui via a deferred
++    # function-local import, so patch the SOURCE module.
++    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++
++    target = _write_padded_target(tmp_path)
++    output_dir = tmp_path / "out"
++    runner = CliRunner()
++    result = runner.invoke(
++        run_cmd,
++        [
++            "--tui",
++            "--lens",
++            "bare-review",
++            "--transport",
++            "stub",
++            "--target",
++            str(target),
++            "--output",
++            str(output_dir),
++        ],
++    )
++
++    assert result.exit_code == EXIT_OK, (
++        f"forced-TTY --tui run must succeed; got {result.exit_code}\n"
++        f"output:\n{result.output}\nexc:{result.exception!r}"
++    )
++    assert seen_idents, (
++        "TUI.update was never invoked -- the FR-1 main-thread assertion is "
++        "vacuous (the poll loop did not render)"
++    )
++    assert all(i == main_ident for i in seen_idents), (
++        f"FR-1 violation: TUI.update ran off the main thread: {seen_idents} "
++        f"vs main {main_ident}"
++    )
++
++
++# ---------------------------------------------------------------------------
++# FR-2 -- byte-identical no-regression on a non-TTY (--tui is a no-op)
++# ---------------------------------------------------------------------------
++
++
++def test_fr2_tui_is_noop_on_non_tty(tmp_path) -> None:
++    """FR-2: on a non-TTY, ``--tui`` triggers no thread/tail/Rich side effects.
++
++    Runs ``run_cmd`` twice with identical args -- once without ``--tui`` and
++    once with -- both to the default (non-TTY) CliRunner stream, and asserts an
++    identical exit code, identical ``worker_done`` event count, and ZERO ANSI
++    on BOTH. On a non-TTY ``should_enable_tui`` returns False, so ``--tui``
++    routes to the unchanged synchronous dispatch path (no divergence).
++    """
++    target = _write_padded_target(tmp_path)
++    out_off = tmp_path / "out_off"
++    out_on = tmp_path / "out_on"
++
++    def _invoke(extra: list[str], outdir) -> object:
++        return CliRunner().invoke(
++            run_cmd,
++            extra
++            + [
++                "--lens",
++                "bare-review",
++                "--transport",
++                "stub",
++                "--target",
++                str(target),
++                "--output",
++                str(outdir),
++            ],
++        )
++
++    result_off = _invoke([], out_off)
++    result_on = _invoke(["--tui"], out_on)
++
++    assert result_off.exit_code == EXIT_OK, (
++        f"baseline (no --tui) must succeed; got {result_off.exit_code}\n"
++        f"{result_off.output}"
++    )
++    assert result_on.exit_code == result_off.exit_code, (
++        "FR-2: --tui must not change the exit code on a non-TTY; "
++        f"got off={result_off.exit_code} on={result_on.exit_code}"
++    )
++
++    _assert_no_ansi(result_off.output, source="FR-2 baseline (no --tui)")
++    _assert_no_ansi(result_on.output, source="FR-2 --tui on a non-TTY")
++
++    log_off = (out_off / "execution-log.jsonl").read_text(encoding="utf-8")
++    log_on = (out_on / "execution-log.jsonl").read_text(encoding="utf-8")
++    assert log_off.count("worker_done") == log_on.count("worker_done") == 3, (
++        "FR-2: --tui must produce identical worker_done event content on a "
++        f"non-TTY; off={log_off.count('worker_done')} "
++        f"on={log_on.count('worker_done')}"
++    )
++
++
++# ---------------------------------------------------------------------------
++# REG-1 -- real-PTY smoke for concurrent worker stdout while Live is active
++# ---------------------------------------------------------------------------
++
++
++@pytest.mark.skipif(
++    sys.platform == "win32" or not hasattr(os, "openpty"),
++    reason="pty is POSIX-only",
++)
++def test_tui_real_pty_no_crash_under_concurrent_worker_stdout(
++    tmp_path, monkeypatch
++) -> None:
++    """REG-1: worker-thread stdout on a real PTY must not crash Rich Live."""
++    monkeypatch.setattr(commands_mod, "_TUI_POLL_INTERVAL_SEC", 0.01)
++    monkeypatch.setattr(commands_mod, "_TUI_POLL_MAX_ITERATIONS", 20)
++
++    real_dispatch = dispatch_mod.dispatch_wave1
++
++    def _dispatch_with_stdout(*args, **kwargs):
++        # Runs inside the swarm-wave1 worker thread. Delay briefly so the main
++        # thread has started Live, then write to the real PTY-backed stdout.
++        threading.Event().wait(0.05)
++        for index in range(3):
++            print(f"worker-stdout-race-{index}", flush=True)
++            threading.Event().wait(0.01)
++        return real_dispatch(*args, **kwargs)
++
++    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", _dispatch_with_stdout)
++
++    target = _write_padded_target(tmp_path)
++    output_dir = tmp_path / "pty"
++    master_fd, slave_fd = os.openpty()
++    captured: list[bytes] = []
++    exit_code = EXIT_OK
++    raised: BaseException | None = None
++
++    try:
++        with os.fdopen(slave_fd, "w", buffering=1, encoding="utf-8") as slave:
++            with contextlib.redirect_stdout(slave), contextlib.redirect_stderr(slave):
++                try:
++                    run_cmd.main(
++                        args=_tui_args(target, output_dir),
++                        prog_name="swarm run",
++                        standalone_mode=False,
++                    )
++                except SystemExit as exc:
++                    exit_code = int(exc.code or 0)
++                except BaseException as exc:  # noqa: BLE001 -- asserted below
++                    raised = exc
++                    exit_code = 1
++
++        os.set_blocking(master_fd, False)
++        while True:
++            try:
++                chunk = os.read(master_fd, 4096)
++            except BlockingIOError:
++                break
++            except OSError:
++                break
++            if not chunk:
++                break
++            captured.append(chunk)
++    finally:
++        os.close(master_fd)
++
++    output = b"".join(captured).decode("utf-8", errors="replace")
++    assert raised is None, (
++        "real-PTY --tui run must not raise under concurrent worker stdout; "
++        f"got {raised!r}\noutput:\n{output[:1000]}"
++    )
++    assert exit_code == EXIT_OK, (
++        f"real-PTY --tui run must exit cleanly; got {exit_code}\n"
++        f"output:\n{output[:1000]}"
++    )
++    assert "worker-stdout-race-" in output, (
++        "REG-1 smoke did not exercise concurrent worker stdout; PTY output was:\n"
++        f"{output[:1000]}"
++    )
++    assert "Traceback" not in output, (
++        "REG-1 violation: concurrent worker stdout under Live produced a traceback:\n"
++        f"{output[:1000]}"
++    )
++
++
++# ---------------------------------------------------------------------------
++# FR-5 -- a worker exception is re-raised UNMASKED after tui.stop()
++# ---------------------------------------------------------------------------
++
++
++def test_fr5_worker_exception_reraised_unmasked_after_stop(
++    tmp_path, monkeypatch
++) -> None:
++    """FR-5: the ORIGINAL worker exception reaches the caller, after stop()."""
++
++    def _boom(*args, **kwargs):
++        raise RuntimeError("boom-FR5")
++
++    # run_cmd resolves dispatch_wave1 via a deferred import from the dispatch
++    # source module; patch it there so the threaded worker calls the boom fake.
++    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", _boom)
++    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++
++    # Spy on TUI.stop to confirm it ran (terminal restored) before the re-raise.
++    stop_calls: list[int] = []
++    real_stop = tui_mod.TUI.stop
++
++    def _stop_spy(self):
++        stop_calls.append(1)
++        return real_stop(self)
++
++    monkeypatch.setattr(tui_mod.TUI, "stop", _stop_spy)
++
++    target = _write_padded_target(tmp_path)
++    output_dir = tmp_path / "out"
++    result = CliRunner().invoke(
++        run_cmd,
++        [
++            "--tui",
++            "--lens",
++            "bare-review",
++            "--transport",
++            "stub",
++            "--target",
++            str(target),
++            "--output",
++            str(output_dir),
++        ],
++    )
++
++    # (a) non-zero exit.
++    assert result.exit_code != 0, (
++        "FR-5: a worker exception must yield a non-zero exit; got "
++        f"{result.exit_code}\noutput:\n{result.output}"
++    )
++    # (b) the ORIGINAL exception/message reaches the caller (not masked).
++    assert isinstance(result.exception, RuntimeError), (
++        f"FR-5: original RuntimeError must reach the caller; got {result.exception!r}"
++    )
++    assert "boom-FR5" in str(result.exception), (
++        f"FR-5: original message must not be masked; got {result.exception!r}"
++    )
++    # (c) tui.stop() ran (idempotent teardown before the re-raise).
++    assert stop_calls, "FR-5: tui.stop() did not run before the worker re-raise"
++
++
++def test_drift3_reader_error_does_not_mask_worker_crash(tmp_path, monkeypatch) -> None:
++    """DRIFT-3: reader exceptions must not bypass worker crash re-raise."""
++    sentinel = RuntimeError("boom-DRIFT3-worker")
++
++    def _boom(*args, **kwargs):
++        raise sentinel
++
++    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", _boom)
++    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++
++    real_read_state = state_mod.read_state
++    read_failures: list[int] = []
++
++    def _read_state_raises_once(path):
++        if not read_failures:
++            read_failures.append(1)
++            raise ValueError("boom-DRIFT3-reader")
++        return real_read_state(path)
++
++    monkeypatch.setattr(state_mod, "read_state", _read_state_raises_once)
++
++    stop_calls: list[int] = []
++    real_stop = tui_mod.TUI.stop
++
++    def _stop_spy(self):
++        stop_calls.append(1)
++        return real_stop(self)
++
++    monkeypatch.setattr(tui_mod.TUI, "stop", _stop_spy)
++
++    target = _write_padded_target(tmp_path)
++    result = CliRunner().invoke(run_cmd, _tui_args(target, tmp_path / "drift3"))
++
++    assert read_failures, "DRIFT-3 regression seam did not raise the reader error"
++    assert result.exception is sentinel, (
++        "DRIFT-3: worker exception must dominate a reader error; got "
++        f"{result.exception!r}\noutput:\n{result.output}"
++    )
++    assert "boom-DRIFT3-reader" not in str(result.exception), (
++        f"DRIFT-3: reader error masked the worker crash: {result.exception!r}"
++    )
++    assert stop_calls, "DRIFT-3: tui.stop() did not run before worker re-raise"
++
++
++def test_drift4_sigint_does_not_mask_worker_crash(tmp_path, monkeypatch) -> None:
++    """DRIFT-4: worker crash dominates a concurrent SIGINT path."""
++    sentinel = RuntimeError("boom-DRIFT4-worker")
++
++    def _boom(*args, **kwargs):
++        raise sentinel
++
++    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", _boom)
++    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++
++    stop_calls: list[int] = []
++    real_stop = tui_mod.TUI.stop
++
++    def _stop_spy(self):
++        stop_calls.append(1)
++        return real_stop(self)
++
++    def _update_raises_kbd(self, state, events):
++        raise KeyboardInterrupt
++
++    monkeypatch.setattr(tui_mod.TUI, "stop", _stop_spy)
++    monkeypatch.setattr(tui_mod.TUI, "update", _update_raises_kbd)
++
++    target = _write_padded_target(tmp_path)
++    result = CliRunner().invoke(run_cmd, _tui_args(target, tmp_path / "drift4"))
++
++    assert result.exception is sentinel, (
++        "DRIFT-4: worker exception must dominate concurrent SIGINT; got "
++        f"exit={result.exit_code} exception={result.exception!r}\n"
++        f"output:\n{result.output}"
++    )
++    assert result.exit_code != 130, (
++        "DRIFT-4: concurrent worker crash must not be surfaced as clean SIGINT "
++        f"Exit(130); got {result.exit_code}"
++    )
++    assert stop_calls, "DRIFT-4: tui.stop() did not run before worker re-raise"
++
++
++# ---------------------------------------------------------------------------
++# FR-6 -- idempotent tui.stop() on clean / exception / SIGINT exit paths
++# ---------------------------------------------------------------------------
++
++
++def _tui_args(target, output_dir) -> list[str]:
++    return [
++        "--tui",
++        "--lens",
++        "bare-review",
++        "--transport",
++        "stub",
++        "--target",
++        str(target),
++        "--output",
++        str(output_dir),
++    ]
++
++
++def test_fr6_stop_runs_on_all_three_exit_paths(tmp_path, monkeypatch) -> None:
++    """FR-6: tui.stop() runs (idempotent) on clean / exception / SIGINT exits.
++
++    The SIGINT path additionally asserts the exit code is SPECIFICALLY 130
++    (128 + SIGINT 2), surfaced deterministically by the run_cmd glue after the
++    finally restores the terminal.
++    """
++    target = _write_padded_target(tmp_path)
++
++    # (a) CLEAN -- a forced-TTY run to completion: stop() called exactly once,
++    #     and a second explicit stop() is a no-op (idempotent).
++    with monkeypatch.context() as m:
++        m.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++        stop_calls: list[int] = []
++        captured: dict = {}
++        real_stop = tui_mod.TUI.stop
++
++        def _stop_spy(self):
++            stop_calls.append(1)
++            captured["tui"] = self
++            return real_stop(self)
++
++        m.setattr(tui_mod.TUI, "stop", _stop_spy)
++        result = CliRunner().invoke(run_cmd, _tui_args(target, tmp_path / "clean"))
++        assert result.exit_code == EXIT_OK, (
++            f"clean --tui run must succeed; got {result.exit_code}\n"
++            f"{result.output}\n{result.exception!r}"
++        )
++        assert len(stop_calls) == 1, (
++            f"FR-6 clean: stop() must be called exactly once during the run; "
++            f"got {len(stop_calls)}"
++        )
++        # A second explicit stop() must be a harmless no-op (idempotent).
++        captured["tui"].stop()
++        assert captured["tui"]._live is None, (
++            "FR-6 clean: stop() is not idempotent -- _live not cleared after a "
++            "second stop()"
++        )
++
++    # (b) EXCEPTION -- dispatch raises: stop() still runs (shares the FR-5 seam).
++    def _boom(*args, **kwargs):
++        raise RuntimeError("boom-FR6")
++
++    with monkeypatch.context() as m:
++        m.setattr(dispatch_mod, "dispatch_wave1", _boom)
++        m.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++        exc_stop_calls: list[int] = []
++        real_stop = tui_mod.TUI.stop
++
++        def _exc_stop_spy(self):
++            exc_stop_calls.append(1)
++            return real_stop(self)
++
++        m.setattr(tui_mod.TUI, "stop", _exc_stop_spy)
++        result = CliRunner().invoke(run_cmd, _tui_args(target, tmp_path / "exc"))
++        assert result.exit_code != 0, (
++            f"FR-6 exception: a worker exception must exit non-zero; got "
++            f"{result.exit_code}"
++        )
++        assert exc_stop_calls, "FR-6 exception: stop() did not run on the error path"
++
++    # (c) SIGINT -- KeyboardInterrupt during the poll loop: stop() runs AND the
++    #     exit code is SPECIFICALLY 130.
++    with monkeypatch.context() as m:
++        m.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++        sigint_stop_calls: list[int] = []
++        real_stop = tui_mod.TUI.stop
++
++        def _sigint_stop_spy(self):
++            sigint_stop_calls.append(1)
++            return real_stop(self)
++
++        def _update_raises_kbd(self, state, events):
++            raise KeyboardInterrupt
++
++        m.setattr(tui_mod.TUI, "stop", _sigint_stop_spy)
++        m.setattr(tui_mod.TUI, "update", _update_raises_kbd)
++        result = CliRunner().invoke(run_cmd, _tui_args(target, tmp_path / "sigint"))
++        assert result.exit_code == 130, (
++            f"FR-6 SIGINT: an uncaught KeyboardInterrupt must surface as exit "
++            f"130 (128+2); got {result.exit_code}\n{result.exception!r}"
++        )
++        assert sigint_stop_calls, (
++            "FR-6 SIGINT: stop() did not run on the interrupt path "
++            "(terminal not restored)"
++        )
++
++
++# ---------------------------------------------------------------------------
++# FR-7 -- forced-TTY run drives the dashboard from the tailed execution log
++# ---------------------------------------------------------------------------
++
++
++def test_fr7_forced_tty_run_drives_dashboard_from_tailed_log(
++    tmp_path, monkeypatch
++) -> None:
++    """FR-7: a forced-TTY ``--tui`` run projects >=1 worker row from the log.
++
++    Drives a real stub dispatch with the gate forced open, then projects the
++    durable ``execution-log.jsonl`` via ``_project_workers`` and asserts a
++    non-vacuous (advanced, non-pending) worker row sourced from the tailed log.
++    A ``_tail_events`` spy proves the dashboard tail path actually ran (the
++    regression guard: this path only executes when ``--tui`` is wired AND the
++    gate is open). The INV-012 companion asserts zero ANSI on the non-TTY
++    CliRunner stream.
++    """
++    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++
++    # Regression guard: spy on the module-level _tail_events so we can prove the
++    # --tui dashboard tail loop actually ran. If --tui were unwired (or the gate
++    # never opened), this spy would record zero calls and the assertion fails.
++    tail_calls: list[int] = []
++    real_tail = commands_mod._tail_events
++
++    def _tail_spy(path, offset):
++        tail_calls.append(1)
++        return real_tail(path, offset)
++
++    monkeypatch.setattr(commands_mod, "_tail_events", _tail_spy)
++
++    target = _write_padded_target(tmp_path)
++    output_dir = tmp_path / "out"
++    result = CliRunner().invoke(
++        run_cmd,
++        [
++            "--tui",
++            "--lens",
++            "bare-review",
++            "--transport",
++            "stub",
++            "--target",
++            str(target),
++            "--output",
++            str(output_dir),
++        ],
++    )
++
++    assert result.exit_code == EXIT_OK, (
++        f"forced-TTY --tui run must succeed; got {result.exit_code}\n"
++        f"output:\n{result.output}\nexc:{result.exception!r}"
++    )
++    # Regression guard: the dashboard tail path executed (proves --tui wired).
++    assert tail_calls, (
++        "FR-7: _tail_events was never called -- the --tui dashboard tail loop "
++        "did not run (regression: --tui unwired or gate never opened)"
++    )
++
++    # INV-012 companion: zero ANSI on the non-TTY CliRunner stream.
++    _assert_no_ansi(result.output, source="FR-7 run_cmd --tui")
++
++    # >=1 non-vacuous worker row sourced from the tailed execution-log.jsonl.
++    jsonl = output_dir / "execution-log.jsonl"
++    assert jsonl.is_file(), f"execution-log.jsonl missing under {output_dir}"
++    records = [
++        from_json(EventRecord, line)
++        for line in jsonl.read_text(encoding="utf-8").splitlines()
++        if line.strip()
++    ]
++    projected = _project_workers(records)
++    assert len(projected) >= 1, (
++        f"FR-7: projection must yield >=1 worker row from the tailed log; "
++        f"got {projected}"
++    )
++    advanced = [s for s in projected.values() if s.status != "pending"]
++    assert advanced, (
++        "FR-7: projection is vacuous -- every worker row is still 'pending'; "
++        f"no advanced row sourced from the log: {projected}"
++    )
++    # The stub transport stamps status='success' + model_label='stub-model-00'.
++    assert any(s.status == "success" for s in advanced), (
++        f"FR-7: expected a successful stub worker row; got {advanced}"
++    )
++
++
++# ---------------------------------------------------------------------------
++# FR-4 -- the render-loop iteration ceiling bounds the spin without
++#         truncating the non-daemon worker (anti-spin backstop).
++# ---------------------------------------------------------------------------
++
++
++def test_fr4_render_ceiling_bounds_spin_without_truncating_worker(
++    tmp_path, monkeypatch
++) -> None:
++    """FR-4: the render poll loop exits at the ceiling; join() still completes.
++
++    Injects a tiny ``_TUI_POLL_MAX_ITERATIONS`` ceiling and a worker that stays
++    alive PAST it (a bounded block after the real dispatch). Asserts (a) the
++    render loop exits after exactly ``ceiling`` renders -- bounded, no hang --
++    and (b) ``join()`` then completes so the worker is NOT truncated and the run
++    reaches its terminal ``EXIT_OK`` (the ceiling guarded only the render spin).
++    """
++    monkeypatch.setattr(tui_mod, "should_enable_tui", lambda *a, **k: True)
++    monkeypatch.setattr(commands_mod, "_TUI_POLL_INTERVAL_SEC", 0.0)
++    ceiling = 2
++    monkeypatch.setattr(commands_mod, "_TUI_POLL_MAX_ITERATIONS", ceiling)
++
++    # Wrap the real dispatch so the worker stays alive (a bounded ~0.3s block)
++    # well past the 2-iteration render ceiling, then returns the real result so
++    # the downstream continuation runs unchanged.
++    real_dispatch = dispatch_mod.dispatch_wave1
++
++    def _slow_dispatch(*args, **kwargs):
++        result = real_dispatch(*args, **kwargs)
++        threading.Event().wait(0.3)  # outlive the render ceiling; never set
++        return result
++
++    monkeypatch.setattr(dispatch_mod, "dispatch_wave1", _slow_dispatch)
++
++    # Count render iterations via the per-iteration _tail_events call.
++    tail_calls: list[int] = []
++    real_tail = commands_mod._tail_events
++
++    def _tail_spy(path, offset):
++        tail_calls.append(1)
++        return real_tail(path, offset)
++
++    monkeypatch.setattr(commands_mod, "_tail_events", _tail_spy)
++
++    target = _write_padded_target(tmp_path)
++    output_dir = tmp_path / "out"
++    result = CliRunner().invoke(
++        run_cmd,
++        [
++            "--tui",
++            "--lens",
++            "bare-review",
++            "--transport",
++            "stub",
++            "--target",
++            str(target),
++            "--output",
++            str(output_dir),
++        ],
++    )
++
++    # (a) the render loop exited AT THE CEILING (exactly `ceiling` renders while
++    #     the worker was still alive), not because the worker died -> bounded
++    #     spin, no hang.
++    assert len(tail_calls) == ceiling, (
++        f"FR-4: render loop must break at the ceiling ({ceiling} renders); "
++        f"got {len(tail_calls)} (a different count means the loop did not honor "
++        "the ceiling)"
++    )
++    # (b) after the ceiling broke the loop, join() completed and the run reached
++    #     its terminal EXIT_OK -- the non-daemon worker was NOT truncated.
++    assert result.exit_code == EXIT_OK, (
++        f"FR-4: join() must complete the worker after the render ceiling; the "
++        f"run must reach EXIT_OK. got {result.exit_code}\n"
++        f"output:\n{result.output}\nexc:{result.exception!r}"
++    )
++
++
++# ---------------------------------------------------------------------------
++# C3 / AC-004 / NFR-001 -- frozen signatures (dispatch_wave1 / ParallelExecutor)
++# ---------------------------------------------------------------------------
++
++
++def test_frozen_signatures_unchanged() -> None:
++    """C3/AC-004/NFR-001: dispatch_wave1 + ParallelExecutor signatures frozen.
++
++    The TUI wiring must NOT alter these signatures (the poll loop lives in the
++    caller, run_cmd, not in dispatch_wave1). Pinned via ``inspect.signature``
++    so any accidental drift introduced by the wiring fails here.
++    """
++    # dispatch_wave1: positional preflight_result, transport=None, then five
++    # keyword-only params transport_for_slot / prompt / parallel_executor /
++    # worker_spec / logger.
++    sig = inspect.signature(dispatch_mod.dispatch_wave1)
++    params = list(sig.parameters.values())
++    names = [p.name for p in params]
++    assert names == [
++        "preflight_result",
++        "transport",
++        "transport_for_slot",
++        "prompt",
++        "parallel_executor",
++        "worker_spec",
++        "logger",
++    ], f"dispatch_wave1 parameter names/order drifted: {names}"
++
++    kinds = {p.name: p.kind for p in params}
++    assert kinds["preflight_result"] == inspect.Parameter.POSITIONAL_OR_KEYWORD
++    assert kinds["transport"] == inspect.Parameter.POSITIONAL_OR_KEYWORD
++    assert sig.parameters["transport"].default is None
++    for kw in (
++        "transport_for_slot",
++        "prompt",
++        "parallel_executor",
++        "worker_spec",
++        "logger",
++    ):
++        assert kinds[kw] == inspect.Parameter.KEYWORD_ONLY, (
++            f"dispatch_wave1 param {kw!r} must stay keyword-only; got {kinds[kw]}"
++        )
++    assert sig.parameters["transport_for_slot"].default is None
++    assert sig.parameters["prompt"].default == ""
++    assert sig.parameters["parallel_executor"].default is None
++    assert sig.parameters["worker_spec"].default is None
++    assert sig.parameters["logger"].default is None
++
++    # ParallelExecutor: __init__(self, max_workers: int = 10) + plan + execute.
++    init_sig = inspect.signature(ParallelExecutor.__init__)
++    init_names = list(init_sig.parameters)
++    assert init_names == ["self", "max_workers"], (
++        f"ParallelExecutor.__init__ signature drifted: {init_names}"
++    )
++    assert init_sig.parameters["max_workers"].default == 10, (
++        "ParallelExecutor.__init__ max_workers default drifted from 10: "
++        f"{init_sig.parameters['max_workers'].default}"
++    )
++    assert callable(getattr(ParallelExecutor, "plan", None)), (
++        "ParallelExecutor.plan missing (NFR-001 frozen surface)"
++    )
++    assert callable(getattr(ParallelExecutor, "execute", None)), (
++        "ParallelExecutor.execute missing (NFR-001 frozen surface)"
++    )
+diff --git a/tests/swarm/test_tail_events.py b/tests/swarm/test_tail_events.py
+new file mode 100644
+index 00000000..4601a305
+--- /dev/null
++++ b/tests/swarm/test_tail_events.py
+@@ -0,0 +1,124 @@
++"""FR-4 -- ``_tail_events`` byte-offset / exactly-once / partial-line tailer.
++
++Focused unit tests for ``commands._tail_events(path, offset)`` -- the
++byte-offset JSONL tailer the ``--tui`` main-thread poll loop uses to read
++``EventRecord``s appended to ``execution-log.jsonl``. Pins the two distinct
++disciplines that distinguish a complete-but-malformed line from a partial
++trailing line:
++
++    * A PARTIAL trailing line (no terminating newline) is buffered: the offset
++      is NOT advanced past it, so the next poll re-reads it once complete and a
++      half-written JSON object is never fed to ``from_json``.
++    * A COMPLETE (newline-terminated) line ALWAYS advances the offset,
++      regardless of parse outcome: a corrupt complete line is skipped (omitted)
++      and advanced past, so it never re-parses (no infinite reparse / stall).
++
++Also confirms the tailed records project to a NON-VACUOUS worker row via
++``_project_workers``. New tests are UNMARKED.
++"""
++
++from __future__ import annotations
++
++from superclaude.cli.swarm.commands import _tail_events
++from superclaude.cli.swarm.models import EventRecord, to_json
++from superclaude.cli.swarm.tui import _project_workers
++
++
++def _line(rec: EventRecord) -> str:
++    """Serialize an EventRecord to one newline-terminated JSONL line."""
++    return to_json(rec) + "\n"
++
++
++_REC_START = EventRecord(
++    event_type="worker_start",
++    timestamp="2026-06-18T12:00:00+00:00",
++    worker_index=0,
++    payload={"model_label": "stub-model-00", "timeout_sec": 180},
++)
++_REC_DONE = EventRecord(
++    event_type="worker_done",
++    timestamp="2026-06-18T12:00:03+00:00",
++    worker_index=0,
++    payload={"status": "success", "elapsed_ms": 3210, "model_label": "stub-model-00"},
++)
++
++
++def test_tail_events_partial_line_buffered_then_exactly_once(tmp_path) -> None:
++    """Partial trailing line is buffered (no raise); completes next poll once."""
++    log = tmp_path / "execution-log.jsonl"
++    line1 = _line(_REC_START)
++    line2 = _line(_REC_DONE)
++
++    # 1) rec1 (complete) + a PARTIAL rec2 (no trailing newline).
++    split = 20
++    log.write_bytes((line1 + line2[:split]).encode("utf-8"))
++    events, offset = _tail_events(log, 0)
++    assert [e.event_type for e in events] == ["worker_start"], (
++        "only the complete line should be delivered; the partial line must NOT "
++        f"be delivered and must NOT raise: got {[e.event_type for e in events]}"
++    )
++    # Offset advanced exactly to the last complete newline (end of line1).
++    assert offset == len(line1.encode("utf-8")), (
++        f"offset must stop at the last complete newline; got {offset} "
++        f"expected {len(line1.encode('utf-8'))}"
++    )
++
++    # 2) Append the remainder of rec2 -> now a complete line.
++    with log.open("ab") as fh:
++        fh.write(line2[split:].encode("utf-8"))
++    events2, offset2 = _tail_events(log, offset)
++    assert [e.event_type for e in events2] == ["worker_done"], (
++        f"completed line must be delivered exactly once; got "
++        f"{[e.event_type for e in events2]}"
++    )
++
++    # 3) Third poll, no new bytes -> nothing re-delivered (exactly-once).
++    events3, offset3 = _tail_events(log, offset2)
++    assert events3 == [], f"exactly-once violated: re-delivered {events3}"
++    assert offset3 == offset2, "offset must not move when there are no new bytes"
++
++
++def test_tail_events_corrupt_complete_line_skipped_and_advanced(tmp_path) -> None:
++    """A COMPLETE-but-malformed line is skipped + advanced (no stall)."""
++    log = tmp_path / "execution-log.jsonl"
++    # A complete (newline-terminated) but malformed JSON line, then a valid one.
++    malformed = "{not valid json}\n"
++    valid = _line(_REC_DONE)
++    content = malformed + valid
++    log.write_bytes(content.encode("utf-8"))
++
++    events, offset = _tail_events(log, 0)
++    # (a) malformed skipped (not in list, no exception out of the helper);
++    # (c) the subsequent valid record delivered exactly once.
++    assert [e.event_type for e in events] == ["worker_done"], (
++        "a corrupt COMPLETE line must be skipped while the following valid "
++        f"record is delivered; got {[e.event_type for e in events]}"
++    )
++    # (b) offset advanced PAST the corrupt line (beyond ALL complete bytes).
++    assert offset == len(content.encode("utf-8")), (
++        f"offset must advance past the corrupt complete line; got {offset} "
++        f"expected {len(content.encode('utf-8'))}"
++    )
++
++    # (d) follow-up poll with no new bytes -> empty (no re-parse / no stall).
++    events_b, offset_b = _tail_events(log, offset)
++    assert events_b == [], (
++        f"corrupt complete line must not re-deliver / stall; got {events_b}"
++    )
++    assert offset_b == offset, "offset must not move with no new bytes"
++
++
++def test_tail_events_records_project_to_non_vacuous_worker_row(tmp_path) -> None:
++    """The tailed records project to >=1 advanced (non-pending) worker row."""
++    log = tmp_path / "execution-log.jsonl"
++    log.write_bytes((_line(_REC_START) + _line(_REC_DONE)).encode("utf-8"))
++
++    events, _offset = _tail_events(log, 0)
++    assert [e.event_type for e in events] == ["worker_start", "worker_done"]
++
++    projected = _project_workers(events)
++    assert len(projected) >= 1, "projection must yield >=1 worker row"
++    assert any(snap.status != "pending" for snap in projected.values()), (
++        "projection is vacuous: every worker row is still 'pending' -- a real "
++        f"advanced worker_done was not folded in: {projected}"
++    )

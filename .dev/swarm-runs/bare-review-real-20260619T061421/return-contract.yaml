@@ -1,0 +1,70 @@
+contract_version: '1.0'
+status: failed
+job_id: lens-bare-review-d8962cbb
+started: ''
+finished: ''
+elapsed_ms: 0
+caller:
+  skill: null
+  skill_version: null
+  invocation_label: ''
+  kind: cli
+lens: bare-review
+lens_source: ''
+target:
+  path: ''
+  checksum: ''
+  truncated: false
+  truncation_line_cap: 4000
+workers_requested: 3
+workers_succeeded: 0
+workers_failed: 3
+output_files:
+  - index: 0
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-00-kimi-k2.7-code.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-00-kimi-k2.7-code.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-00-kimi-k2.7-code.final.md
+    model_id: kimi-k2.7-code
+    model_label: kimi-k2.7-code
+    bytes: 66
+    status: proxy_error
+    http_code: 404
+    attempts: 1
+    elapsed_ms: 13
+  - index: 1
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-01-qwen3.6-plus.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-01-qwen3.6-plus.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-01-qwen3.6-plus.final.md
+    model_id: qwen3.6-plus
+    model_label: qwen3.6-plus
+    bytes: 66
+    status: proxy_error
+    http_code: 404
+    attempts: 1
+    elapsed_ms: 15
+  - index: 2
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-02-glm-5.1.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-02-glm-5.1.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-real-20260619T061421/bare-review-02-glm-5.1.final.md
+    model_id: glm-5.1
+    model_label: glm-5.1
+    bytes: 66
+    status: proxy_error
+    http_code: 404
+    attempts: 1
+    elapsed_ms: 12
+amalgamation_mode: normalize+merge
+merged_path: null
+caller_metadata:
+  suspect: true
+  tier: T2
+recommended_next_command: /sc:adversarial --compare <existing-review> --suspect-source <no-bare-files>
+artifacts:
+  manifest_path: ''
+  state_path: ''
+  event_log_jsonl: ''
+  event_log_md: ''
+  done_sentinel: ''

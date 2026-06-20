@@ -1,0 +1,70 @@
+contract_version: '1.0'
+status: success
+job_id: lens-bare-review-5c70af92
+started: ''
+finished: ''
+elapsed_ms: 0
+caller:
+  skill: null
+  skill_version: null
+  invocation_label: ''
+  kind: cli
+lens: bare-review
+lens_source: ''
+target:
+  path: ''
+  checksum: ''
+  truncated: false
+  truncation_line_cap: 4000
+workers_requested: 3
+workers_succeeded: 3
+workers_failed: 0
+output_files:
+  - index: 0
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-00-lens-default-model-0.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-00-lens-default-model-0.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-00-lens-default-model-0.final.md
+    model_id: lens-default-model-0
+    model_label: lens-default-model-0
+    bytes: 508
+    status: success
+    http_code: 200
+    attempts: 1
+    elapsed_ms: 0
+  - index: 1
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-01-lens-default-model-0.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-01-lens-default-model-0.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-01-lens-default-model-0.final.md
+    model_id: lens-default-model-0
+    model_label: lens-default-model-0
+    bytes: 508
+    status: success
+    http_code: 200
+    attempts: 1
+    elapsed_ms: 0
+  - index: 2
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-02-lens-default-model-0.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-02-lens-default-model-0.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-02-lens-default-model-0.final.md
+    model_id: lens-default-model-0
+    model_label: lens-default-model-0
+    bytes: 508
+    status: success
+    http_code: 200
+    attempts: 1
+    elapsed_ms: 0
+amalgamation_mode: normalize+merge
+merged_path: /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/merged.md
+caller_metadata:
+  suspect: true
+  tier: T2
+recommended_next_command: /sc:adversarial --compare <existing-review>,/config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-00-lens-default-model-0.final.md,/config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-01-lens-default-model-0.final.md,/config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-02-lens-default-model-0.final.md --suspect-source /config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-00-lens-default-model-0.final.md,/config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-01-lens-default-model-0.final.md,/config/workspace/IronClaude/.dev/swarm-runs/bare-review-20260619T060945-stub/bare-review-02-lens-default-model-0.final.md
+artifacts:
+  manifest_path: ''
+  state_path: ''
+  event_log_jsonl: ''
+  event_log_md: ''
+  done_sentinel: ''

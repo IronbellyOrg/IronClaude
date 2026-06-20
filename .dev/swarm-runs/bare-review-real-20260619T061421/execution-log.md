@@ -1,0 +1,8 @@
+- [2026-06-19T06:14:41.616770+00:00] wave_transition worker=-: from=preflight_ok to=dispatching workers_requested=3
+- [2026-06-19T06:14:41.654858+00:00] worker_start worker=0: timeout_sec=180
+- [2026-06-19T06:14:41.655460+00:00] worker_start worker=2: timeout_sec=180
+- [2026-06-19T06:14:41.655517+00:00] worker_start worker=1: timeout_sec=180
+- [2026-06-19T06:14:41.668504+00:00] worker_done worker=0: attempts=1 elapsed_ms=13 http_code=404 model_id=kimi-k2.7-code model_label=kimi-k2.7-code status=proxy_error
+- [2026-06-19T06:14:41.668784+00:00] worker_done worker=2: attempts=1 elapsed_ms=12 http_code=404 model_id=glm-5.1 model_label=glm-5.1 status=proxy_error
+- [2026-06-19T06:14:41.672168+00:00] worker_done worker=1: attempts=1 elapsed_ms=15 http_code=404 model_id=qwen3.6-plus model_label=qwen3.6-plus status=proxy_error
+- [2026-06-19T06:14:41.672530+00:00] wave_transition worker=-: from=dispatching results_collected=3 success_count=0 to=dispatched

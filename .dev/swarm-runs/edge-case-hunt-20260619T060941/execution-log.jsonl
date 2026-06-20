@@ -1,0 +1,10 @@
+{"event_type": "wave_transition", "payload": {"from": "preflight_ok", "to": "dispatching", "workers_requested": 4}, "timestamp": "2026-06-19T06:09:41.177541+00:00", "worker_index": null}
+{"event_type": "worker_start", "payload": {"timeout_sec": 180}, "timestamp": "2026-06-19T06:09:41.177846+00:00", "worker_index": 0}
+{"event_type": "worker_start", "payload": {"timeout_sec": 180}, "timestamp": "2026-06-19T06:09:41.178017+00:00", "worker_index": 1}
+{"event_type": "worker_done", "payload": {"attempts": 1, "elapsed_ms": 0, "http_code": 200, "model_id": "lens-default-model-0", "model_label": "lens-default-model-0", "status": "success"}, "timestamp": "2026-06-19T06:09:41.178360+00:00", "worker_index": 0}
+{"event_type": "worker_start", "payload": {"timeout_sec": 180}, "timestamp": "2026-06-19T06:09:41.178451+00:00", "worker_index": 2}
+{"event_type": "worker_start", "payload": {"timeout_sec": 180}, "timestamp": "2026-06-19T06:09:41.178666+00:00", "worker_index": 3}
+{"event_type": "worker_done", "payload": {"attempts": 1, "elapsed_ms": 0, "http_code": 200, "model_id": "lens-default-model-0", "model_label": "lens-default-model-0", "status": "success"}, "timestamp": "2026-06-19T06:09:41.178834+00:00", "worker_index": 1}
+{"event_type": "worker_done", "payload": {"attempts": 1, "elapsed_ms": 0, "http_code": 200, "model_id": "lens-default-model-0", "model_label": "lens-default-model-0", "status": "success"}, "timestamp": "2026-06-19T06:09:41.179083+00:00", "worker_index": 2}
+{"event_type": "worker_done", "payload": {"attempts": 1, "elapsed_ms": 0, "http_code": 200, "model_id": "lens-default-model-0", "model_label": "lens-default-model-0", "status": "success"}, "timestamp": "2026-06-19T06:09:41.179181+00:00", "worker_index": 3}
+{"event_type": "wave_transition", "payload": {"from": "dispatching", "results_collected": 4, "success_count": 4, "to": "dispatched"}, "timestamp": "2026-06-19T06:09:41.179687+00:00", "worker_index": null}

@@ -1,0 +1,7 @@
+src/superclaude/cli/swarm/tui.py
+src/superclaude/execution/parallel.py
+src/superclaude/cli/swarm/dispatch.py
+src/superclaude/cli/swarm/commands.py
+tests/swarm/test_inv012_tui_opt_in.py
+tests/swarm/test_run_tui_integration.py
+tests/swarm/test_tail_events.py

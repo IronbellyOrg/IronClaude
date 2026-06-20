@@ -1,0 +1,16 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/reflect-hardening/adversarial-uc2-reachability-design/decision-canonical-uc2-reachability.md"
+  convergence_score: 0.86
+  artifacts_dir: "/config/workspace/IronClaude/.dev/reflect-hardening/adversarial-uc2-reachability-design/adversarial"
+  status: "success"
+  base_variant: "C-canonical (FR-RH1 contracted-sink gate)"
+  unresolved_conflicts: 1   # B packaging: 1.7.0 stable minor vs advisory telemetry (needs_human_decision)
+  fallback_mode: true       # in-context adversarial reasoning, not separate advocate Task agents
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []  # INV-001 + INV-002 (HIGH) incorporated as binding preconditions P-1/P-2
+  notes:
+    - "Decision: C is canonical UC-2 gate owning contract 1.6.0; B refactored (not discarded) to 1.7.0-additive or advisory telemetry."
+    - "One 1.6.0 hosting both field families = technically feasible, rejected (unsafe without P-1, breaks C-040, forces 3-way merge)."
+    - "Two HIGH invariants carried as MANDATORY preconditions before any B+C coexistence (P-1 precedence, P-2 sufficiency)."
+    - "Feeds the operator's M-008 /sc:adversarial debate: C owns skill 1.6.0, A's CLI return-contract is separate, B is 1.7.0/telemetry."
