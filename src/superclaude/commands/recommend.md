@@ -5,7 +5,7 @@ category: utility
 complexity: standard
 mcp-servers: [auggie, tavily]
 personas: []
-argument-hint: "<goal description> [--plugin] [--eval <mode>]"
+argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"
 ---
 
 # /sc:recommend — Refined-Prompt Builder
@@ -23,6 +23,7 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>]"
 ```bash
 /sc:recommend <goal description>
 /sc:recommend <goal description> --plugin
+/sc:recommend <goal description> --plugin --minstar 1000
 /sc:recommend <goal description> --eval quick
 ```
 
@@ -32,8 +33,9 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>]"
 |------|-------------|
 | `--plugin` | Ignore the local project surface; search the Claude Code plugin marketplace + community skill repos instead. Out: install commands, repo URLs, capability summaries, citations. |
 | `--eval <mode>` | **Opt-in** per-row `best_model` evaluation, triggered on a cold-path cache insert. Modes: `none` (default — no eval), `quick` (opus ×1), `normal` (opus+sonnet ×2 each), `deep` (opus+sonnet+haiku ×3 each). Spawns parallel per-model subagents, grades their deliverables, aggregates per-model metrics, and writes a deterministic `best_model` into the lookup row. Auto-eval was rejected — evaluation runs **only** when `--eval` is passed. |
+| `--minstar <N>` | **`--plugin` mode only.** Minimum GitHub-star floor a candidate repo must meet to appear in the primary results. Default **500** — the floor applies even when the flag is omitted. Surviving GitHub candidates are sorted by stars descending; credible candidates with no own-repo star count (Anthropic-curated marketplace entries, non-GitHub sources, or skills nested inside a larger repo) are not dropped but moved to a separate "Bonus — not ranked by GitHub stars" section. `--minstar 0` disables the floor. Must be a non-negative integer. In default (local) mode `--minstar` has no stars to act on, so it is **warned-and-ignored**. |
 
-`--plugin` and `--eval` are the only flags. The skill picks the smallest delegation that wins; there is no `--alternatives` (multi-path output is automatic when two paths are genuinely distinct), no `--estimate`, no `--stream`, no `--community`, no language toggle.
+`--plugin`, `--eval`, and `--minstar` are the only flags. The skill picks the smallest delegation that wins; there is no `--alternatives` (multi-path output is automatic when two paths are genuinely distinct), no `--estimate`, no `--stream`, no `--community`, no `--maxstar`, no `--sort`, no language toggle.
 
 ## Behavioral Summary
 
@@ -90,6 +92,17 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 # each with install command, repo URL, version, integration notes, and citations.
 ```
 
+### Plugin search with a higher popularity floor
+
+```bash
+/sc:recommend "Find a Claude Code plugin for Notion sync" --plugin --minstar 2000
+
+# Output: primary section lists only repos with >= 2000 GitHub stars, sorted by
+# stars descending; a "Bonus — not ranked by GitHub stars" section lists credible
+# curated/non-GitHub/nested candidates separately. (Omit --minstar to use the
+# default 500 floor; --minstar 0 disables the floor entirely.)
+```
+
 ## Boundaries
 
 **Will:**
@@ -100,6 +113,8 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 - Emit refined paste-ready prompts that invoke existing skills/commands/agents
 - Recommend native tooling when delegation does not add net value
 - Switch to ecosystem search when `--plugin` is set
+- Apply a minimum-star floor (default 500) and sort by stars in `--plugin` mode, with a separate bonus section for credible candidates that have no own-repo star count
+- Warn and ignore `--minstar` in default (local) mode, where there are no stars to filter on
 - Cite every source it read
 
 **Will Not:**

@@ -159,7 +159,13 @@ the target's protocol.
 <PHASE-3 — PLUGIN>
 If --plugin is set, ignore the local surface and search the plugin/community
 ecosystem instead (see refs/plugin-ecosystem-sources.md). Do not mix local and
-plugin results.
+plugin results. Apply the --minstar floor (default 500, applied even when the
+flag is omitted; --minstar 0 disables): primary section lists candidates with
+own-repo GitHub stars >= floor, sorted by stars descending; a separate "Bonus —
+not ranked by GitHub stars" section lists credible candidates with no own-repo
+star count (curated / non-github / nested), never filtered by the floor. Capture
+each candidate's star count + source URL; never invent one. --minstar without
+--plugin is warned-and-ignored (local surface has no stars).
 </PHASE-3>
 
 <RULES (anti-fabrication — non-negotiable)>
