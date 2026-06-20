@@ -165,8 +165,11 @@ own-repo GitHub stars >= floor, sorted by stars descending; a separate "Bonus â€
 not ranked by GitHub stars" section lists credible candidates with no own-repo
 star count (curated / non-github / nested), never filtered by the floor. Capture
 each candidate's star count + source URL; never invent one. Reject an invalid
---minstar (negative or non-integer) with a STOP, matching SKILL.md's contract.
---minstar without --plugin is warned-and-ignored (local surface has no stars).
+--minstar (negative or non-integer) by emitting EXACTLY this STOP (matching
+SKILL.md): "--minstar requires a non-negative integer (e.g. --minstar 500). Use
+--minstar 0 to disable the floor." If --minstar is passed WITHOUT --plugin, emit
+EXACTLY this notice and then proceed with the local recommendation: "--minstar
+has no effect without --plugin (the local surface has no stars); ignoring it."
 </PHASE-3>
 
 <RULES (anti-fabrication â€” non-negotiable)>

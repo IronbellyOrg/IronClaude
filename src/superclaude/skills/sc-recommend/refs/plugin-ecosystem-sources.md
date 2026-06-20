@@ -106,8 +106,10 @@ Split the returned candidates into two sections:
 1. **Primary** — candidates whose own-repo GitHub star count is `>= N`. Sort **by stars descending**. Apply the existing top-3 discipline. Each record shows the `Stars` field with its source URL.
 2. **Bonus — not ranked by GitHub stars** — credible candidates with **no own-repo star count**. These are **never filtered by the floor** (the floor only applies to candidates that have a GitHub star count). Label each with the reason it is unranked:
    - `curated` — Anthropic-curated marketplace entry (no GitHub stars by design)
-   - `non-github` — the source is not a GitHub repo (or its star count was unreachable at lookup time)
+   - `non-github` — the source is not a GitHub repo
    - `nested` — the skill/plugin lives inside a larger repo; the repo's stars are not attributable to this component (e.g. a single skill inside `anthropic/skills`)
+
+   A GitHub repo whose star count is temporarily **unreachable at lookup time** is NOT relabeled `non-github`: surface it in the bonus section with a `Stars: n/a — stars unavailable` note (never a fabricated count), so a transient fetch failure is distinguishable from a genuinely non-GitHub source.
 
    Apply the same top-3 discipline to the bonus list.
 
