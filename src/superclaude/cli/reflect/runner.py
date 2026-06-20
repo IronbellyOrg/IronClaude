@@ -448,7 +448,21 @@ class ReflectRunner:
         if config.executor_model:
             parts += ["--executor-model", config.executor_model]
         parts += ["--output", str(config.output_dir)]
-        return " ".join(parts)
+        command = " ".join(parts)
+        # FR-INLINE: the headless `claude --print` agent that receives this prompt MUST
+        # execute the reflect run itself (top level), not delegate the whole run into a
+        # worker subagent. A delegated/nested run can spawn the Tier-2 reviewers, but their
+        # completion callbacks route to the top-level coordinator, NOT back to the nested
+        # runner -- so it cannot collect the reviewer cards and degrades to single-reviewer.
+        inline_directive = (
+            "\n\nExecute this reflect run INLINE, yourself, as the top-level orchestrator. "
+            "Do NOT delegate the whole run to a subagent. When the protocol reaches Wave 3 "
+            "(heterogeneous reviewers), Wave 3C (blind calibration), and Wave 4 (adversarial "
+            "merge), spawn those reviewers / calibrators / merge as YOUR OWN direct subagents "
+            "and collect their returned results yourself. A run delegated into a worker cannot "
+            "receive its reviewers' callbacks and will degrade to a single-reviewer fallback."
+        )
+        return command + inline_directive
 
     def _claude_argv_preview(self) -> str:
         """Render the ``claude`` argv for dry-run WITHOUT constructing ClaudeProcess.
