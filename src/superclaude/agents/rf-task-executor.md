@@ -12,8 +12,8 @@ tools:
   - Bash
   - Glob
   - Grep
-  - mcp__tavily__tavily-search
-  - mcp__tavily__tavily-extract
+  - mcp__tavily__tavily_search
+  - mcp__tavily__tavily_extract
   - WebFetch
   - WebSearch
   - NotebookEdit
@@ -350,7 +350,7 @@ Confirm they have content and match expectations.
 4. **REPORT PROGRESS** - Message the team with status updates
 5. **CLAIM TASKS** - Update task list when starting
 6. **BROADCAST COMPLETION** - So team knows when done
-7. **Tavily-first for any web operation** - Web search and web fetch are NOT part of your documented workflow. If a recovery scenario forces you to consult the web (e.g., investigating an obscure `automated_qa_workflow.sh` error before reporting `EXECUTION_ERROR`), the call MUST go through `mcp__tavily__tavily-search` or `mcp__tavily__tavily-extract` first. `WebSearch` / `WebFetch` are fallbacks; fall back ONLY when (a) the Tavily tool is not loaded / unavailable, (b) Tavily returns a tool-level error after one retry, or (c) Tavily returns an explicit rate-limit signal. Log the provider in your `EXECUTION_PROGRESS` or `EXECUTION_ERROR` message using the format: `web-lookup: provider=<tavily|WebSearch reason=...>`. Silently using `WebSearch` / `WebFetch` when Tavily is available is a protocol violation.
+7. **Tavily-first for any web operation** - Web search and web fetch are NOT part of your documented workflow. If a recovery scenario forces you to consult the web (e.g., investigating an obscure `automated_qa_workflow.sh` error before reporting `EXECUTION_ERROR`), the call MUST go through `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` first. `WebSearch` / `WebFetch` are fallbacks; fall back ONLY when (a) the Tavily tool is not loaded / unavailable, (b) Tavily returns a tool-level error after one retry, or (c) Tavily returns an explicit rate-limit signal. Log the provider in your `EXECUTION_PROGRESS` or `EXECUTION_ERROR` message using the format: `web-lookup: provider=<tavily|WebSearch reason=...>`. Silently using `WebSearch` / `WebFetch` when Tavily is available is a protocol violation.
 
 ## What NOT To Do
 
