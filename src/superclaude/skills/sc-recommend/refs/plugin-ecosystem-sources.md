@@ -53,6 +53,7 @@ Every plugin / skill returned to the user must include:
 | Capability summary | repo README first paragraph | One sentence, in the user's terms |
 | Install command | repo README / marketplace listing | **Single-line bash** (project memory: no heredocs) |
 | Repo URL | search result | Direct link to the source |
+| Stars | GitHub repo metadata / API | Own-repo GitHub star count + its source URL. Drives the `--minstar` floor + star-descending sort. `n/a — <curated\|non-github\|nested>` for bonus candidates with no own-repo count. |
 | Integration notes | README / docs | What the user needs to configure (auth, env vars, manifest entries) |
 | Version / last commit | repo metadata | Stale repos > 1 year without commits → flag explicitly |
 | Compatibility caveats | issues, README disclaimers | Known breakages, Claude Code version pins |
@@ -69,6 +70,7 @@ If the search finds nothing credible:
 
 ```text
 Plugin: <name>
+Stars: <count> (<source URL>)
 Capability: <one-sentence summary>
 Install: `<single-line bash command>`
 Repo: <URL>
@@ -77,6 +79,8 @@ Integration notes: <what to wire up>
 Caveats: <any>
 Source: <citation URL>
 ```
+
+For a bonus (unranked) candidate, the `Stars` line reads `Stars: n/a — <curated|non-github|nested>` and the candidate appears under the bonus section (see below), not the primary list.
 
 For multi-candidate output:
 
@@ -92,6 +96,40 @@ Top picks for "<user request>":
 3. <name> — pick this if <one-line disambiguator>.
    [full record block above]
 ```
+
+## `--minstar` floor + two-tier output
+
+`--minstar <N>` (default **500**, applied even when omitted; `--minstar 0` disables) sets a minimum GitHub-star floor on `--plugin` candidates. The delegated search MUST be instructed to capture each candidate's own-repo star count + source URL so the floor and sort can be enforced on the returned set.
+
+Split the returned candidates into two sections:
+
+1. **Primary** — candidates whose own-repo GitHub star count is `>= N`. Sort **by stars descending**. Apply the existing top-3 discipline. Each record shows the `Stars` field with its source URL.
+2. **Bonus — not ranked by GitHub stars** — credible candidates with **no own-repo star count**. These are **never filtered by the floor** (the floor only applies to candidates that have a GitHub star count). Label each with the reason it is unranked:
+   - `curated` — Anthropic-curated marketplace entry (no GitHub stars by design)
+   - `non-github` — the source is not a GitHub repo
+   - `nested` — the skill/plugin lives inside a larger repo; the repo's stars are not attributable to this component (e.g. a single skill inside `anthropic/skills`)
+
+   A GitHub repo whose star count is temporarily **unreachable at lookup time** is NOT relabeled `non-github`: surface it in the bonus section with a `Stars: n/a — stars unavailable` note (never a fabricated count), so a transient fetch failure is distinguishable from a genuinely non-GitHub source.
+
+   Apply the same top-3 discipline to the bonus list.
+
+Output layout:
+
+```text
+Top picks for "<user request>" (>= <N> stars, sorted by stars):
+
+1. <name> — <stars> stars — pick this if <disambiguator>.
+   [full record block]
+...
+
+Bonus — not ranked by GitHub stars (curated / non-GitHub / nested-in-larger-project):
+
+1. <name> — unranked: <curated|non-github|nested> — pick this if <disambiguator>.
+   [full record block, Stars: n/a — <reason>]
+...
+```
+
+If the floor removes every GitHub candidate but bonus candidates remain, show the bonus section with a one-line note: `"No candidate met the >= N star floor; showing unranked credible matches below. Lower the floor with --minstar <smaller>."` If nothing credible survives at all, fall back to the "found nothing credible" guidance above.
 
 ## Citation discipline
 

@@ -2,7 +2,7 @@
 name: sc-recommend
 description: "Build a refined, paste-ready prompt that hands the user's request off to the right local skill, command, agent, or native-tool sequence — only when delegation adds net value. Use this skill whenever the user asks 'which command should I use', 'how do I best prompt for X', 'help me invoke the right skill for Y', 'recommend a workflow for Z', or describes a task without naming a command. Also use proactively whenever the user pastes a goal that could plausibly map onto multiple skills/agents/commands in this repo and you would otherwise have to choose blindly. With --plugin, switches to ecosystem search (Claude plugin marketplaces + community skill repos) instead of the local project surface."
 allowed-tools: Read, Glob, Grep, Bash, mcp__auggie__codebase-retrieval, mcp__tavily__tavily-search, mcp__tavily__tavily-extract, WebFetch, WebSearch, Edit, Write, Agent, Task
-argument-hint: "[goal description] [--plugin]"
+argument-hint: "[goal description] [--plugin] [--minstar <N>]"
 category: utility
 ---
 
@@ -174,11 +174,27 @@ For every candidate, return:
 - one-sentence capability summary
 - install command (single-line bash)
 - repo URL
+- GitHub star count + source URL (or `Stars: n/a — <curated|non-github|nested>` for bonus candidates)
 - integration notes (what the user needs to wire up themselves)
 - version / compatibility caveats
 - citation (the URL the claim came from)
 
 See `refs/plugin-ecosystem-sources.md` for the full source list, query patterns, and result-format template.
+
+### Minimum-star floor + two-tier output (`--minstar`)
+
+`--minstar <N>` sets the minimum GitHub-star floor for `--plugin` candidates. Resolve the floor as `N = --minstar value if passed else 500` — the **500 floor applies even when the flag is omitted** (default-on). `--minstar 0` disables the floor. A negative or non-integer value is a STOP: `"--minstar requires a non-negative integer (e.g. --minstar 500). Use --minstar 0 to disable the floor."`
+
+**Local-mode guard (warn-and-ignore)**: `--minstar` only has meaning in `--plugin` mode. If `--minstar` is passed WITHOUT `--plugin`, emit exactly one notice — `"--minstar has no effect without --plugin (the local surface has no stars); ignoring it."` — then run the normal local recommendation (Phase 0-2). Never a STOP.
+
+**Delegated star capture**: because the ecosystem search is delegated (not run inline), the generated search prompt MUST instruct the delegate to capture each candidate's GitHub star count and its source URL. The skill then enforces the floor and the two-tier split on the returned set. A star count is a claim — Rule R1/citation discipline forbids inventing one; an undiscoverable count routes the candidate to the bonus section, never to a guessed number.
+
+**Two-tier output**:
+
+- **Primary** — candidates with a discoverable own-repo star count `>= N`, sorted by stars **descending**. Each shows a `Stars` field with its source URL. Keep the top-3 disambiguator discipline.
+- **Bonus — not ranked by GitHub stars** — credible candidates with no own-repo star count, **never filtered by the floor**, each labeled with the reason: `curated` (Anthropic-curated marketplace entry), `non-github` (source is not a GitHub repo), or `nested` (skill/plugin lives inside a larger repo whose stars are not attributable to it). Same top-3 discipline.
+
+If the floor removes every GitHub candidate but bonus candidates exist, surface the bonus section with a one-line note: `"No candidate met the >= N star floor; showing unranked credible matches below. Lower the floor with --minstar <smaller>."` If nothing credible survives at all, reuse the existing "found nothing credible" guidance.
 
 ### `--plugin --eval` adoption lifecycle (4 phases)
 
@@ -269,6 +285,7 @@ R3 enforces: **invoke, don't reimplement**. Duplicating a target's protocol inli
 - Emit refined paste-ready prompts that hand off to existing skills/commands/agents
 - Recommend native tooling when delegation does not add net value
 - Switch to ecosystem search when `--plugin` is set
+- Apply the `--minstar` floor (default 500) + star-descending sort in `--plugin` mode, with a separate bonus section for credible candidates that have no own-repo star count; warn-and-ignore `--minstar` in local mode
 - Cite every source it read
 
 **Will Not:**
