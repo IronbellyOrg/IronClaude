@@ -1,0 +1,8 @@
+{
+  "bytes": 631,
+  "recipe": "findings_table_v1",
+  "salvage_reason": "rejected_not_parse_error",
+  "salvaged": false,
+  "schema_version": "1.0",
+  "status": "success"
+}

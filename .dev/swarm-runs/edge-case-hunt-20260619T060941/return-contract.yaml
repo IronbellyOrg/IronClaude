@@ -1,0 +1,82 @@
+contract_version: '1.0'
+status: success
+job_id: lens-edge-case-hunt-d584e59b
+started: ''
+finished: ''
+elapsed_ms: 0
+caller:
+  skill: null
+  skill_version: null
+  invocation_label: ''
+  kind: cli
+lens: edge-case-hunt
+lens_source: ''
+target:
+  path: ''
+  checksum: ''
+  truncated: false
+  truncation_line_cap: 4000
+workers_requested: 4
+workers_succeeded: 4
+workers_failed: 0
+output_files:
+  - index: 0
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-00-lens-default-model-0.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-00-lens-default-model-0.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-00-lens-default-model-0.final.md
+    model_id: lens-default-model-0
+    model_label: lens-default-model-0
+    bytes: 631
+    status: success
+    http_code: 200
+    attempts: 1
+    elapsed_ms: 0
+  - index: 1
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-01-lens-default-model-0.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-01-lens-default-model-0.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-01-lens-default-model-0.final.md
+    model_id: lens-default-model-0
+    model_label: lens-default-model-0
+    bytes: 631
+    status: success
+    http_code: 200
+    attempts: 1
+    elapsed_ms: 0
+  - index: 2
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-02-lens-default-model-0.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-02-lens-default-model-0.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-02-lens-default-model-0.final.md
+    model_id: lens-default-model-0
+    model_label: lens-default-model-0
+    bytes: 631
+    status: success
+    http_code: 200
+    attempts: 1
+    elapsed_ms: 0
+  - index: 3
+    path: ''
+    raw_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-03-lens-default-model-0.raw.md
+    meta_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-03-lens-default-model-0.meta.json
+    final_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-03-lens-default-model-0.final.md
+    model_id: lens-default-model-0
+    model_label: lens-default-model-0
+    bytes: 631
+    status: success
+    http_code: 200
+    attempts: 1
+    elapsed_ms: 0
+amalgamation_mode: normalize+merge
+merged_path: /config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/merged.md
+caller_metadata:
+  suspect: false
+  tier: T2-edge
+recommended_next_command: /sc:adversarial --compare <existing-review>,/config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-00-lens-default-model-0.final.md,/config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-01-lens-default-model-0.final.md,/config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-02-lens-default-model-0.final.md,/config/workspace/IronClaude/.dev/swarm-runs/edge-case-hunt-20260619T060941/edge-case-hunt-03-lens-default-model-0.final.md
+artifacts:
+  manifest_path: ''
+  state_path: ''
+  event_log_jsonl: ''
+  event_log_md: ''
+  done_sentinel: ''

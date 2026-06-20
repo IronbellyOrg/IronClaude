@@ -1,0 +1,10 @@
+- [2026-06-19T06:09:41.177541+00:00] wave_transition worker=-: from=preflight_ok to=dispatching workers_requested=4
+- [2026-06-19T06:09:41.177846+00:00] worker_start worker=0: timeout_sec=180
+- [2026-06-19T06:09:41.178017+00:00] worker_start worker=1: timeout_sec=180
+- [2026-06-19T06:09:41.178360+00:00] worker_done worker=0: attempts=1 elapsed_ms=0 http_code=200 model_id=lens-default-model-0 model_label=lens-default-model-0 status=success
+- [2026-06-19T06:09:41.178451+00:00] worker_start worker=2: timeout_sec=180
+- [2026-06-19T06:09:41.178666+00:00] worker_start worker=3: timeout_sec=180
+- [2026-06-19T06:09:41.178834+00:00] worker_done worker=1: attempts=1 elapsed_ms=0 http_code=200 model_id=lens-default-model-0 model_label=lens-default-model-0 status=success
+- [2026-06-19T06:09:41.179083+00:00] worker_done worker=2: attempts=1 elapsed_ms=0 http_code=200 model_id=lens-default-model-0 model_label=lens-default-model-0 status=success
+- [2026-06-19T06:09:41.179181+00:00] worker_done worker=3: attempts=1 elapsed_ms=0 http_code=200 model_id=lens-default-model-0 model_label=lens-default-model-0 status=success
+- [2026-06-19T06:09:41.179687+00:00] wave_transition worker=-: from=dispatching results_collected=4 success_count=4 to=dispatched
