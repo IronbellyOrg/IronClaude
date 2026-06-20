@@ -1,6 +1,6 @@
 # Reviewer Specification
 
-This reference governs Wave 3A (T2 reviewer composition) of `sc-reflect-protocol`. It defines (1) the per-reviewer brief package shape materialized at Step 3B.0 and (2) the composition rules — model/persona rotation, the executor-class exclusion rule, post-removal logic, and the Khan ICML 2024 judge-class collision avoidance principle.
+This reference governs Wave 3A (T2 reviewer composition) of `sc-reflect-protocol`. It defines (1) the per-reviewer brief package shape materialized at Step 3B.0 and (2) the composition rules — model/persona rotation, the instance-level independence guarantee, rotation fill logic, and the Khan ICML 2024 judge-class collision avoidance principle.
 
 Consumed by: Wave 3A (T2 reviewer composition).
 
@@ -71,31 +71,27 @@ When Step 3B.0 completes, the contract emits `reviewer_briefs_materialized: <N>`
 
 Reviewers are heterogeneous by model class AND by persona, to maximise representational diversity (per Topic 2 research, Wisdom of Silicon Crowd, LLM-TOPLA). Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
 
-### Executor-class exclusion rule (anti-self-confirmation, structural)
+### Instance-level independence guarantee (anti-self-confirmation, structural)
 
-The *executor* (the agent whose work is under review) MUST NOT appear in the reviewer pool. Reflect resolves the executor's model class at Wave 0 step 0.5b (a new sub-step inserted between alias resolution and reviewer composition) from `--executor-model <class>` flag, the `EXECUTOR_MODEL_CLASS` env var, or — if neither is set — from the most-recent commit-author hint in the task log (heuristic; emit `executor_class_source: flag | env | log-heuristic | unknown` to telemetry). When the executor's class is in the candidate rotation, it is **removed** from the rotation; if removal drops reviewer count below the gate floor (N=2 minimum for T2), reflect emits `executor_exclusion_degraded: true` and degrades to T1 with WARN: `"executor class collides with reviewer pool; N=2 floor cannot be satisfied with disjoint set."` This rule extends the §11.3 disjoint-set principle (calibrator class disjoint from reviewer classes) to also separate **executor class from reviewer classes** — the three classes (executor, reviewers, calibrator) form a partition where collisions weaken the structural anti-self-confirmation guarantee.
+The executor's model class is NEVER removed from the reviewer pool. Self-confirmation is an instance-and-context phenomenon, not a model-class one (spec §1 thesis): the unreliable case is the same instance, carrying the formation context that produced the work, re-grading that work. A fresh, independently spawned reviewer is not that instance even when it runs on the same model class. Instance-level independence is guaranteed structurally by (1) fresh subagent spawn per reviewer (Wave 3, Step 3B), (2) a brief that carries no executor formation context, and (3) blind calibration of every card (§11.3). The `--executor-model <class>` flag and the `EXECUTOR_MODEL_CLASS` env var are accepted as recorded provenance and otherwise ignored: no class is removed, no tier is degraded, and `executor_exclusion_degraded` is not emitted. There is no Wave 0 step 0.5b executor-class-resolution sub-step.
 
-When `executor_class_source == unknown` (no flag, no env var, no log hint), reflect proceeds with the standard rotation and emits `executor_class_resolved: false` + WARN: `"executor class not resolved — anti-self-confirmation guarantee weakened; pass --executor-model to enforce."` This is fail-open by design: missing executor identity is not a STOP condition, but the weakened guarantee is logged loudly.
+**Class-diversity preference (prefer, never require).** A panel spanning more distinct classes catches more class-level blind spots, so reflect fills reviewer slots to prefer maximal model-class diversity from the resolved alias set. It NEVER drops a slot, degrades a tier, or excludes a class to honor this preference; `t2_model_class_diversity: full | degraded` is the soft signal, where `degraded` is a missed diversity bonus, NOT a weakened anti-self-confirmation guarantee.
 
 ### Reviewer rotation table
 
-| Reviewer count | Model rotation (BEFORE executor-class removal) | Persona rotation |
+| Reviewer count | Model rotation (class-diversity-preferring) | Persona rotation |
 |----------------|----------------|------------------|
 | 2 (`--reviewers 2`) | sonnet, haiku | analyzer, qa |
 | 3 (default) | sonnet, haiku, (qwen \| kimi \| deepseek if alias available; else opus) | analyzer, qa, refactorer |
 | 3 with `--strategy enterprise` | sonnet, haiku, opus | analyzer, qa, architect |
 
-### Post-removal logic
+### Rotation fill logic (no executor removal)
 
-Post-removal: if the executor is `sonnet`, the N=3 default rotation becomes `haiku, (qwen|kimi|deepseek|opus)` and reflect adds the next-available class from the resolved alias set to restore N=3, or degrades to N=2 if no replacement is available. The N=2 minimum is hard — below it, T2 cannot fire (see executor-exclusion-degraded path above).
+No class is removed on the basis of matching the executor's class. Reflect fills the rotation table row for the requested N, preferring distinct classes:
 
-Concretely, post-removal proceeds in this order:
-
-1. Resolve executor class from `--executor-model` / `EXECUTOR_MODEL_CLASS` / log heuristic.
-2. Remove the matching class entry from the rotation table row for the requested N.
-3. If post-removal count < N, attempt to backfill from the next available alias class (qwen, kimi, deepseek, opus — whichever is alias-resolvable and not already in the rotation).
-4. If backfill fails to reach N, attempt to satisfy the N=2 floor.
-5. If N=2 cannot be satisfied with a disjoint set, emit `executor_exclusion_degraded: true` and degrade to T1.
+1. Fill the rotation slots for the requested N from the resolved alias set, preferring maximal distinct-class coverage.
+2. If fewer than N distinct classes resolve, repeat a resolvable class to keep N slots filled (a fresh same-class reviewer is still instance-independent) rather than dropping a slot.
+3. The N=2 minimum is the hard T2 floor (spec §7.1): below it, T2 cannot fire. The floor is reached only when fewer than 2 reviewer slots can be filled at all, never because of an executor-class collision.
 
 ### Khan ICML 2024 judge-class collision avoidance
 
