@@ -97,6 +97,7 @@ The skill MUST resolve a mode (UC-1 or UC-2) before any wave runs.
   - `--promote-dry-run` — print the `mv` command + gate evaluation; perform no mutation.
   - `--promote-mode auto|task|sprint-release|none` — force a specific promotion adapter or disable selection. Default `auto`.
   - `--promote-resume <checkpoint-path>` — resume an interrupted cross-filesystem promotion from a `promotion-checkpoint.yaml`. See §14.5.5 for partial-state recovery semantics.
+- `--executor-model <class>` (back-compat / CLI flag) is ACCEPTED and IGNORED. Reflect does NOT class-exclude (instance-level independence, see the §7.1 instance-level independence guarantee): the named class stays in the reviewer pool, no tier degrade occurs, and no `executor_exclusion_degraded` signal is emitted. The flag is recorded provenance only.
 
 (See `refs/input-resolution.md` for per-flag expanded semantics and worked examples.)
 
@@ -628,17 +629,23 @@ Every reusable agent is mapped to a wave; no agent is duplicated inline.
 
 Reviewers are heterogeneous by model class, with persona supplied via the per-reviewer brief, to maximise representational diversity (Wisdom of Silicon Crowd, LLM-TOPLA). **All reviewers are spawned as the fixed read-only `reflect-reviewer` agent-type** (so each inherits the L1 read-only allowlist and cannot mutate the repo under audit); the **Persona rotation** column below is the brief-supplied lens, NOT a distinct all-tools persona agent-type. Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
 
-**Executor-class exclusion rule (anti-self-confirmation, structural).** The *executor* (the agent whose work is under review) MUST NOT appear in the reviewer pool. Reflect resolves the executor's model class at Wave 0 step 0.5b (a new sub-step inserted between alias resolution and reviewer composition) from `--executor-model <class>` flag, the `EXECUTOR_MODEL_CLASS` env var, or — if neither is set — from the most-recent commit-author hint in the task log (heuristic; emit `executor_class_source: flag | env | log-heuristic | unknown` to telemetry). When the executor's class is in the candidate rotation, it is **removed** from the rotation; if removal drops reviewer count below the gate floor (N=2 minimum for T2), reflect emits `executor_exclusion_degraded: true` and degrades to T1 with WARN: `"executor class collides with reviewer pool; N=2 floor cannot be satisfied with disjoint set."` This rule extends the §11.3 disjoint-set principle (calibrator class disjoint from reviewer classes) to also separate **executor class from reviewer classes** — the three classes (executor, reviewers, calibrator) form a partition where collisions weaken the structural anti-self-confirmation guarantee.
+**Instance-level independence guarantee (anti-self-confirmation, structural).** Self-confirmation is an *instance-and-context* phenomenon, not a model-class one: the unreliable case is the same instance, carrying the formation context that produced the work, re-grading that work (§1 thesis; Mehta, Towards AI, Mar 2026). A fresh, independently spawned reviewer is not that instance even when it runs on the same model class. The protocol therefore guarantees instance-level independence structurally and does NOT exclude any model class from the reviewer pool:
 
-When `executor_class_source == unknown` (no flag, no env var, no log hint), reflect proceeds with the standard rotation and emits `executor_class_resolved: false` + WARN: `"executor class not resolved — anti-self-confirmation guarantee weakened; pass --executor-model to enforce."` This is fail-open by design: missing executor identity is not a STOP condition, but the weakened guarantee is logged loudly.
+1. **Fresh subagent spawn.** Every Tier 2 reviewer is a new `Task` subagent (§4 Wave 3, Step 3B) in an isolated context, by construction not the executor instance.
+2. **No formation context.** The Step 3B brief carries only the T1 card excerpt, grounded `file:line` hunks, and a coverage slice, never the executor's reasoning trail.
+3. **Blind calibration.** Every reviewer card is re-graded by `confidence-calibrator` stripped of formation context (§11.3).
 
-| Reviewer count | Model rotation (BEFORE executor-class removal) | Persona rotation |
+These hold regardless of model class, so the founding thesis is satisfied at the instance/context level without any class exclusion. **The executor's model class is never removed from the reviewer pool;** removing it would only shrink the panel and delete a representational frame (executor `opus` + pool `{sonnet, haiku, opus}` minus `opus` yields the smaller, less-diverse `{sonnet, haiku}`), reducing diversity rather than increasing it. The `--executor-model <class>` flag and the `EXECUTOR_MODEL_CLASS` env var are accepted as recorded provenance and otherwise ignored: no class is removed, no tier is degraded, and `executor_exclusion_degraded` is not emitted. There is no Wave-0 step 0.5b executor-class-resolution sub-step.
+
+**Class-diversity preference (prefer, never require).** A fresh same-class reviewer still shares the executor's representational stack, so a panel that spans more distinct classes catches more class-level blind spots. Class diversity is therefore a soft good: reflect composes the panel to prefer maximal model-class diversity, filling reviewer slots from the resolved alias set (§4 Wave 0 routing table) to maximize the count of distinct classes in the panel. It NEVER drops a slot, degrades a tier, or excludes a class to honor this preference. Reflect emits `t2_model_class_diversity: full | degraded` as the diversity signal; `degraded` denotes a missed cross-class-diversity bonus, NOT a weakened anti-self-confirmation guarantee. There is no degraded-to-T1 path arising from any model class identity.
+
+| Reviewer count | Model rotation (class-diversity-preferring) | Persona rotation |
 |----------------|----------------|------------------|
 | 2 (`--reviewers 2`) | sonnet, haiku | analyzer, qa |
 | 3 (default) | sonnet, haiku, (qwen \| kimi \| deepseek if alias available; else opus) | analyzer, qa, refactorer |
 | 3 with `--strategy enterprise` | sonnet, haiku, opus | analyzer, qa, architect |
 
-Post-removal: if the executor is `sonnet`, the N=3 default rotation becomes `haiku, (qwen|kimi|deepseek|opus)` and reflect adds the next-available class from the resolved alias set to restore N=3, or degrades to N=2 if no replacement is available. The N=2 minimum is hard — below it, T2 cannot fire.
+The rotation is filled to prefer distinct classes; if fewer than `--reviewers` distinct classes resolve, reflect repeats a resolvable class (a fresh same-class reviewer is still instance-independent per the guarantee above) rather than dropping a slot. No reviewer is ever removed on the basis of matching the executor's class. The N=2 minimum is the hard T2 floor: below it, T2 cannot fire.
 
 The merge judge in Wave 4 is `sc-adversarial-protocol`'s internal scoring; per Khan et al. ICML 2024 Oral, the judge being a *different* class than the debaters is the right default. The protocol does not pin a judge model — sc-adversarial owns that selection.
 
@@ -672,7 +679,7 @@ Invocation pattern (all via `Skill <name>`, never `/sc:<command>`):
 
 ```
 Skill sc-adversarial-protocol with \
-  --compare <output>/reviewer-cards/card-1.md,card-2.md,card-3.md \
+  --compare <output>/reviewer-cards/reviewer-1-card.yaml,reviewer-2-card.yaml,reviewer-3-card.yaml \
   --depth standard \
   --focus correctness,coverage,deviation-classification \
   --output <output>/adversarial/
@@ -689,6 +696,8 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 - For the promotion gate: per §14.5.2 condition 9, `tier_reached == 2 AND convergence_score == null` blocks promotion regardless of other conditions. A Tier 2 run with no merged adversarial verdict cannot promote.
 - For non-promotion routing (e.g., sprint executor.py status routing): null `convergence_score` translates to `status: partial` AND `next_action: halt-phase-for-review`. Consumers MUST NOT route a null as a default-PASS or default-FAIL.
 
+**Wave 4 runtime exit STOP (ORCHESTRATOR-VERIFIES-ON-DISK) [EV-1].** This applies ONLY when Wave 4 runs (Tier 2; Tier-1 runs have no Wave 4 and no `adversarial/` dir, so the STOP does not apply to them). When Wave 4 runs, it is NOT complete until EITHER (a) the orchestrator reads disk (Glob/Bash, NOT a self-written field) and confirms `<output>/adversarial/merged-verdict.yaml` exists with `merge_method: adversarial` AND `<output>/reviewer-cards/` holds at least the resolved `--reviewers` count of blind-calibrated cards (minimum 2 per the §7.1 N=2 T2 floor, one card per reviewer), OR (b) a loud fallback legitimately fired and is corroborated on disk: `adversarial_unavailable: true` is set AND an audit.log F-step entry records the F2/F3 path (and `merge_method == single-reviewer-fallback` when the F2 path was taken). (RATIONALE: a real adversarial merge writes `merged-verdict.yaml` plus one calibrated card per reviewer; a raw file-count threshold is NOT used because a genuine merge legitimately writes only ~3 files into `adversarial/` -- the load-bearing evidence is the merged verdict + per-reviewer cards, not a fixed count.) The STOP catches the failure mode where a Wave-4 adversarial-merge attempt is reported complete but neither (a) the real merge artifacts are on disk nor (b) a corroborated loud fallback fired: that state is MALFORMED. On MALFORMED, do NOT advance past Wave 4 as if a merge succeeded AND do NOT halt-and-end: write a MALFORMED audit.log row and REMEDIATE -- re-run Wave 3-4 up to 2 additional times, or route to the loud F2/F3 fallback; HALT only if it remains MALFORMED after those bounded retries. (This STOP does NOT block the legitimate fallback path; it blocks silently treating an empty `adversarial/` dir, a missing `merged-verdict.yaml`, an illegal `merge_method`, or fewer reviewer-cards than reviewers as a successful merge.) The §12 eval-matrix detector (in the testability map) stays as belt-and-suspenders; this exit condition is the runtime gate.
+
 ---
 
 ## 9. Output Contract (Versioned)
@@ -698,7 +707,7 @@ Two-block contract: stable + telemetry. Written to `<output>/return-contract.yam
 ### 9.1 Stable contract (contract_version: 1.7.0)
 
 ```yaml
-contract_version: "1.7.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
+contract_version: "1.7.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.5.1: instance-level anti-self-confirmation (§7.1) replaces executor-class exclusion (removed NON-STABLE telemetry executor_class_source / executor_class_resolved / executor_exclusion_degraded -- no §9.3 consumer reads them, so non-breaking) AND adds EV-1 (Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK merge gate) + EV-2 (merge_method legal-values guard), both runtime/semantic with no stable-field change; 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -809,7 +818,7 @@ reviewer_cards: [<list of paths>] | []
 adversarial_artifacts_dir: <path> | null   # consumer-side remap from sc-adversarial's `artifacts_dir` field (see §8)
 adversarial_convergence_score: <float> | null
 adversarial_unavailable: <bool>      # F3 path
-merge_method: adversarial | single-reviewer-fallback   # F2 path
+merge_method: adversarial | single-reviewer-fallback   # F2 path. [EV-2] LEGAL VALUES ARE EXACTLY {adversarial, single-reviewer-fallback}: any other value (inline, convergence-inline, an in-context "convergence" of the cards) is MALFORMED -> reject. A non-adversarial merge is legal ONLY via the F2/F3 fallback (single-reviewer-fallback + adversarial_unavailable: true + audit.log). Reflect MUST NOT synthesize its own merge.
 t2_model_class_diversity: full | degraded
 t2_vendor_diversity: multi | single   # warn-only in v1.0
 t2_effective_diversity: full | model-only | vendor-only | none   # derived; combines both diversity axes
@@ -866,7 +875,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
 promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.7.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.7.0` (runtime/semantic hardening through 1.5.1 -- instance-level anti-self-confirmation §7.1, EV-1 Wave-4 merge gate, EV-2 merge_method guard -- and additive reachability fields 1.7.0).
 
 **Reachability field-presence & consistency (FR-RH1, R7).** The `reachability_*` block is **mandatory for every UC-2 return contract at `contract_version: "1.7.0"`** and optional/absent for UC-1. Invariants:
 
@@ -918,9 +927,6 @@ reviewer_vendors: [<list>]
 serena_checkpoints_path: <path>
 degraded_components: [<list>]   # e.g. ["auggie", "evidence-validator", "env-aliases"]
 fallback_path: null | F1 | F2 | F3
-executor_class_source: flag | env | log-heuristic | unknown
-executor_class_resolved: bool                                  # false → §7.1 anti-self-confirmation WARN emitted
-executor_exclusion_degraded: bool                              # true when executor class collision dropped reviewer count below N=2 → T1 fallback
 citations_dropped_extrapolated: <int>   # sampled-mode telemetry (recording, not deciding) — see §11.5
 memory_hits: <int>                       # serena read_memory hits in Wave 0
 memory_misses: <int>
@@ -1219,7 +1225,7 @@ IF disjoint set is empty (all available classes are reviewers):
 
 Telemetry field `calibrator_diversity: full | degraded` is emitted into `reflection-card.yaml`. The §12 eval rubric dimension "calibration discipline" includes the assertion: `calibrator_model_class NOT IN reviewer_model_classes`.
 
-**Three-way partition (executor / reviewers / calibrator).** The disjoint-set principle is extended from "calibrator ≠ reviewers" to a three-way partition: `executor_class`, `reviewer_classes`, and `calibrator_class` SHOULD be pairwise disjoint. §7.1's executor-class exclusion rule enforces `executor_class ∉ reviewer_classes` at Wave 3A reviewer composition; §11.3 enforces `calibrator_class ∉ reviewer_classes` at Wave 1D/3C. When all three pools cannot be made pairwise disjoint, the partition degrades and the affected pool emits its `*_diversity: degraded` telemetry. The grader assertion `executor_model_class NOT IN reviewer_model_classes` is asserted whenever `executor_class_resolved == true`.
+**Calibrator/reviewer disjoint-set (two-way).** The disjoint-set principle separates the calibrator class from the reviewer classes ONLY: `calibrator_class ∉ reviewer_classes`, enforced at Wave 1D/3C (§11.3). The executor class is deliberately NOT separated from the reviewer pool: per §7.1's instance-level independence guarantee, anti-self-confirmation is secured at the instance/context level (fresh subagent spawn, no formation context, blind calibration), so no executor-class exclusion is applied and no `executor_class ∉ reviewer_classes` assertion is graded. When the calibrator class cannot be made disjoint from the reviewer classes, the calibrator pool degrades and emits `calibrator_diversity: degraded` telemetry.
 
 For Tier 2, *every* reviewer card is calibrated by an independent calibrator instance in parallel (Wave 3C). Cards are passed to Wave 4 with calibrated scores attached; sc-adversarial-protocol's debate is weighted by calibrated confidence, not self-reported.
 
@@ -1434,7 +1440,7 @@ Three concrete forces shape the pick:
 | `root-cause-analyst` agent fails in Wave 1C | Inline orchestrator hypothesis card; mark `hypothesis_source: inline-fallback` | Continue |
 | `rf-qa` / `rf-qa-qualitative` fails in Wave 3 | Continue with remaining reviewers; if <2 reviewers complete, downgrade to T1 result with WARN | None |
 | All Tier 2 reviewers fail | Downgrade to T1 result; `status: partial`; recommend re-run | None |
-| `merged_output_path` from sc-adversarial does not exist on disk | FAIL Wave 4 (missing-file guard before status routing) | F2 |
+| `merged_output_path` from sc-adversarial does not exist on disk | EV-1 MALFORMED at Wave 4 (missing-file guard before status routing): bounded remediate, do NOT halt-and-end | F2 |
 | `input_drift` detected — input SHA changed mid-run | STOP at Wave 5 pre-synthesis; emit SHA pair; `status: partial` | None |
 | `empty_input` — zero-task tasklist in UC-1 | STOP at Wave 1; `coverage_undefined: true`; `status: partial` | None |
 | `coverage_undefined` — zero parseable IDs | Route directly to T2; no T1 stop possible; surface in report header | Continue |
@@ -1720,9 +1726,7 @@ Reflect emits a structured metrics file at `<output>/metrics.json` (and appends 
     "t2_model_class_diversity": "full | degraded",
     "t2_vendor_diversity": "multi | single",
     "t2_effective_diversity": "full | model-only | vendor-only | none",
-    "reviewer_count": <int>,
-    "executor_class_resolved": <bool>,
-    "executor_exclusion_degraded": <bool>
+    "reviewer_count": <int>
   },
   "evidence_validator": {
     "ran": <bool>,
@@ -1742,7 +1746,7 @@ Reflect emits a structured metrics file at `<output>/metrics.json` (and appends 
   },
   "adversarial": {
     "convergence_score": <float | null>,
-    "merge_method": "adversarial | single-reviewer-fallback",
+    "merge_method": "adversarial | single-reviewer-fallback",   // [EV-2] LEGAL VALUES ARE EXACTLY {adversarial, single-reviewer-fallback}; any other (inline, convergence-inline, in-context "convergence") is MALFORMED -> reject; non-adversarial merge legal ONLY via F2/F3 fallback; reflect MUST NOT synthesize its own merge
     "adversarial_unavailable": <bool>,
     "fallback_path": "null | F1 | F2 | F3"
   },
@@ -1919,7 +1923,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |
-| Adversarial delegation artifacts | `dir_count` | `<output>/adversarial/ min_files=6` |
+| Adversarial delegation artifacts | `file_present + card_count` | `<output>/adversarial/merged-verdict.yaml` present with `merge_method: adversarial` AND `<output>/reviewer-cards/` count `>= --reviewers` (min 2, the §7.1 N=2 T2 floor) |
 | Citation grounding (final report) | `citation_resolves` | `REPORT.md` |
 | Recommendation actionability | `yaml_list_contains` | `recommendation-scrutiny.yaml decision` |
 | Memory write optionality | `yaml_substring` | `telemetry memory_status` |
