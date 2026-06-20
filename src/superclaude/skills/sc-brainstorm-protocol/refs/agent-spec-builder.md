@@ -8,15 +8,16 @@ Default persona selection per domain (used when `--personas` not provided and `-
 
 | Domain | Default personas (priority order — truncate/pad to --proposals count) |
 |--------|----------------------------------------------------------------------|
-| `code` | `architect`, `refactorer`, `qa`, `backend`, `security`, `frontend`, `analyzer` |
-| `architecture` | `architect`, `analyzer`, `backend`, `security`, `devops`, `performance`, `scribe` |
-| `incident` | `analyzer`, `security`, `devops`, `qa`, `architect`, `backend`, `performance` |
-| `product` | `architect`, `frontend`, `scribe`, `analyzer`, `backend`, `qa`, `security` |
+| `code` | `architect`, `refactorer`, `qa`, `backend`, `frontend`, `analyzer` |
+| `architecture` | `architect`, `analyzer`, `backend`, `devops`, `performance`, `scribe` |
+| `incident` | `analyzer`, `devops`, `qa`, `architect`, `backend`, `performance` |
+| `product` | `architect`, `frontend`, `scribe`, `analyzer`, `backend`, `qa` |
 | `process` | `scribe`, `analyzer`, `architect`, `qa`, `mentor`, `devops`, `refactorer` |
-| `research` | `analyzer`, `architect`, `scribe`, `security`, `performance`, `backend`, `devops` |
+| `research` | `analyzer`, `architect`, `scribe`, `performance`, `backend`, `devops` |
 
 **Enterprise strategy override** (any domain, when `--strategy enterprise`):
-`architect`, `security`, `devops`, `scribe`, `qa` (in this order; truncate/pad to --proposals).
+`architect`, `analyzer`, `devops`, `scribe`, `qa` (in this order; truncate/pad to --proposals).
+(`analyzer` replaces the former `security` advocate — security is auto-excluded per §Auto-Exclusion; request it explicitly with `--personas …,security` to restore it, even in enterprise mode.)
 
 **Truncation/padding rules**:
 
@@ -24,6 +25,30 @@ Default persona selection per domain (used when `--personas` not provided and `-
 - If `proposals > len(default-list)`: cycle the list (e.g., for proposals=10 in code domain, add `architect, refactorer, qa` again starting from position 8).
 
 **Persona availability**: Verify each selected persona has a corresponding agent file at `src/superclaude/agents/<persona>.md` (or known persona alias). If a persona is unknown, substitute the next from the priority list and emit INFO log.
+
+## §Auto-Exclusion
+
+```
+auto_excluded_personas = { security }
+```
+
+Personas in `auto_excluded_personas` are **NEVER auto-selected** — not from a domain default, not from the enterprise override, and not from pad/cycle backfill. They are reachable **only** when named explicitly in `--personas`. This makes the brainstorm refuse to apply a security lens unless the user specifically asks for it.
+
+Apply this filter **AFTER** persona selection (the §Persona-Matrix / enterprise / `--personas` branch) and **BEFORE** §Model-Rotation:
+
+```
+explicit  = set(--personas)  if --personas is non-empty  else {}
+selected  = [p for p in selected if (p not in auto_excluded_personas) or (p in explicit)]
+# Backfill to --proposals from the SAME priority list (domain default or enterprise override),
+#   skipping any p in auto_excluded_personas UNLESS p in explicit.
+for each dropped persona p:
+    INFO: "Persona '<p>' excluded from auto-selection (not named in --personas). Substituted '<next>'."
+```
+
+Notes:
+
+- `--personas architect,security` (or any list naming `security`) keeps `security` — `explicit` contains it, so the filter does not drop it.
+- The guard is a runtime backstop: even if a future edit re-adds `security` to a §Persona-Matrix row or the enterprise override, it is still stripped from auto-selection here.
 
 ## §Model-Rotation
 
@@ -43,9 +68,9 @@ Active model aliases (resolved from `~/.bashrc`):
 |-----------|-------|------------------------|
 | 2 | quick | architect:opus, refactorer:sonnet |
 | 3 | standard | architect:opus, refactorer:sonnet, qa:haiku |
-| 5 | standard | architect:opus, refactorer:sonnet, qa:haiku, backend:opus, security:sonnet |
-| 5 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, security:sonnet |
-| 7 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, security:sonnet, frontend:haiku, analyzer:opus |
+| 5 | standard | architect:opus, refactorer:sonnet, qa:haiku, backend:opus, frontend:sonnet |
+| 5 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:sonnet |
+| 7 | deep | architect:opus, refactorer:opus, qa:haiku, backend:opus, frontend:haiku, analyzer:opus, architect:sonnet |
 
 ## §Instruction-Templates
 
@@ -57,7 +82,7 @@ Templates use single-quoted strings to allow shell-style serialization downstrea
 |---------|----------|
 | `architect` | `prioritize maintainability and extension scaffolding for {domain} domain` |
 | `analyzer` | `focus on root-cause analysis and evidence-based reasoning for {domain}` |
-| `security` | `focus on OWASP Top 10, supply-chain risks, and least-privilege; assume hostile environment` |
+| `security` | `focus on OWASP Top 10, supply-chain risks, and least-privilege; assume hostile environment` <!-- applied ONLY when security is explicitly requested via --personas; never auto-selected (see §Auto-Exclusion) --> |
 | `backend` | `focus on API contracts, data integrity, idempotency, and operational concerns` |
 | `frontend` | `focus on user experience, accessibility, error states, and responsive behavior` |
 | `qa` | `focus on test surface, edge cases, regression risk, and acceptance criteria` |
@@ -91,7 +116,7 @@ Build the agent-spec string from the list of `(persona, model, instruction)` tup
 **Final string example**:
 
 ```
-opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:security:'focus on OWASP Top 10, supply-chain risks, and least-privilege; assume hostile environment',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
+opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'
 ```
 
 ## §Validation
@@ -139,7 +164,7 @@ For unit/integration testing of the builder, the following inputs MUST produce t
 |-------|--------|
 | domain=code, proposals=2, depth=quick, strategy=systematic, default models | `opus:architect,sonnet:refactorer` |
 | domain=code, proposals=3, depth=standard, default | `opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
-| domain=incident, proposals=5, depth=deep, default | `opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',opus:security:'focus on OWASP Top 10, supply-chain risks, and least-privilege; assume hostile environment',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',opus:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',sonnet:architect:'prioritize maintainability and extension scaffolding for incident domain'` |
-| --strategy=enterprise, proposals=5, default models | `opus:architect:'prioritize maintainability and extension scaffolding for {domain} domain',sonnet:security:'focus on OWASP Top 10, supply-chain risks, and least-privilege; assume hostile environment',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',opus:scribe:'focus on documentation clarity, decision rationale, and audit trail',sonnet:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
+| domain=incident, proposals=5, depth=deep, default | `opus:analyzer:'focus on root-cause analysis and evidence-based reasoning for incident',opus:devops:'focus on deployment, observability, runbooks, and SLO impact for systematic delivery',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria',opus:architect:'prioritize maintainability and extension scaffolding for incident domain',sonnet:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'` |
+| --strategy=enterprise, proposals=5, default models | `opus:architect:'prioritize maintainability and extension scaffolding for {domain} domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for {domain}',haiku:devops:'focus on deployment, observability, runbooks, and SLO impact for enterprise delivery',opus:scribe:'focus on documentation clarity, decision rationale, and audit trail',sonnet:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'` |
 
 (Note: `{domain}` literal in row 4 is the post-sanitization fallback when domain happens to be empty/unsanitizable; in practice this shouldn't happen because Wave 1 classification always produces a value.)

@@ -4,7 +4,7 @@ description: "Interactive requirements discovery through Socratic dialogue and s
 category: orchestration
 complexity: advanced
 mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
-personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+personas: [architect, analyzer, frontend, backend, devops, project-manager]
 ---
 
 # /sc:brainstorm - Interactive Requirements Discovery
@@ -20,7 +20,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
 
 ## Context Trigger Pattern
 
-```
+```text
 /sc:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
 ```
 
@@ -36,7 +36,7 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
 
 Key behaviors:
 
-- Multi-persona orchestration across architecture, analysis, frontend, backend, security domains
+- Multi-persona orchestration across architecture, analysis, frontend, and backend domains
 - Advanced MCP coordination with intelligent routing for specialized analysis
 - Systematic execution with progressive dialogue enhancement and parallel exploration
 - Cross-session persistence with comprehensive requirements discovery documentation
@@ -69,7 +69,7 @@ Key behaviors:
 
 ### Systematic Product Discovery
 
-```
+```bash
 /sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
 # Multi-persona analysis: architect (system design), analyzer (feasibility), project-manager (requirements)
 # Sequential MCP provides structured exploration framework
@@ -77,23 +77,23 @@ Key behaviors:
 
 ### Agile Feature Exploration
 
-```
+```bash
 /sc:brainstorm "real-time collaboration features" --strategy agile --parallel
-# Parallel exploration paths with frontend, backend, and security personas
+# Parallel exploration paths with frontend and backend personas
 # Context7 and Magic MCP for framework and UI pattern analysis
 ```
 
 ### Enterprise Solution Validation
 
-```
+```bash
 /sc:brainstorm "enterprise data analytics platform" --strategy enterprise --validate
-# Comprehensive validation with security, devops, and architect personas
+# Comprehensive validation with devops and architect personas
 # Serena MCP for cross-session persistence and enterprise requirements tracking
 ```
 
 ### Cross-Session Refinement
 
-```
+```bash
 /sc:brainstorm "mobile app monetization strategy" --depth normal
 # Serena MCP manages cross-session context and iterative refinement
 # Progressive dialogue enhancement with memory-driven insights
