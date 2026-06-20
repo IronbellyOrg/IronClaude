@@ -174,7 +174,7 @@ For every candidate, return:
 - one-sentence capability summary
 - install command (single-line bash)
 - repo URL
-- GitHub star count + source URL (or `unranked: <curated|non-github|nested>` for bonus candidates)
+- GitHub star count + source URL (or `Stars: n/a — <curated|non-github|nested>` for bonus candidates)
 - integration notes (what the user needs to wire up themselves)
 - version / compatibility caveats
 - citation (the URL the claim came from)
