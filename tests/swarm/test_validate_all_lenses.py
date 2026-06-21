@@ -577,10 +577,10 @@ def test_required_substring_override_is_honored(
 # ---------------------------------------------------------------------------
 
 
-def test_bundled_registry_iterates_seven_non_custom_entries(
+def test_bundled_registry_iterates_eight_non_custom_entries(
     accepting_recipe_checker, accepting_file_resolver
 ) -> None:
-    """Against the bundled :data:`LENSES`, validate_all visits 7 non-custom
+    """Against the bundled :data:`LENSES`, validate_all visits 8 non-custom
     entries and skips ``custom`` -- confirmed by counting failures with a
     file-resolver that rejects every path.
 
@@ -598,11 +598,11 @@ def test_bundled_registry_iterates_seven_non_custom_entries(
         recipe_checker=accepting_recipe_checker,
         file_resolver=lambda path: False,
     )
-    # Exactly 7 non-custom entries → 7 failures.
-    assert len(failures) == 7
+    # Exactly 8 non-custom entries → 8 failures.
+    assert len(failures) == 8
     # No failure carries lens_name == 'custom'.
     assert all(f.lens_name != CUSTOM_LENS_NAME for f in failures)
-    # Failure lens_names match the 7 non-custom LENS_NAMES.
+    # Failure lens_names match the 8 non-custom LENS_NAMES.
     non_custom_names = [n for n in LENS_NAMES if n != CUSTOM_LENS_NAME]
     assert [f.lens_name for f in failures] == non_custom_names
     # First failing assertion is the file-ref one in every case.

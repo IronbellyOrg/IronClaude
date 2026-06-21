@@ -139,6 +139,8 @@ def resolve_config(
     base_override: str | None = None,
     fix: bool = False,
     max_fix_iterations: int = 2,
+    transport: str = "openai_compat",
+    reviewers: int = 3,
 ) -> ReflectConfig:
     """Resolve CLI args + frontmatter + git state into a ``ReflectConfig``.
 
@@ -153,6 +155,9 @@ def resolve_config(
         promote / allow_single_vendor / tmux / dry_run / print_command /
         resume: wrapper-side flags threaded through to the runner.
         base_branch: base for ``git merge-base`` fallback (default ``master``).
+        transport: Tier-2 worker transport (``openai_compat`` or ``stub``).
+        reviewers: Tier-2 reviewer slots; ``1`` is preserved as the negative
+            witness, otherwise values are clamped to ``[2,4]``.
 
     Returns:
         A fully-populated ``ReflectConfig``.
@@ -188,6 +193,15 @@ def resolve_config(
 
     # -- Depth floor (O4/FR-3 -- POST never runs quick) --
     resolved_depth = "standard" if depth == "quick" else depth
+
+    # -- Tier-2 ensemble transport/reviewer plumbing (§5.1) --
+    resolved_transport = (transport or "openai_compat").strip()
+    if resolved_transport not in {"openai_compat", "stub"}:
+        raise ValueError(
+            f"transport must be openai_compat or stub: {resolved_transport}"
+        )
+    raw_reviewers = int(reviewers)
+    resolved_reviewers = 1 if raw_reviewers == 1 else max(2, min(4, raw_reviewers))
 
     # -- Spec path: explicit arg, else frontmatter, only when one existing file --
     resolved_spec: Path | None = None
@@ -237,4 +251,6 @@ def resolve_config(
         base_override=base_override,
         fix=fix,
         max_fix_iterations=max_fix_iterations,
+        transport=resolved_transport,
+        reviewers=resolved_reviewers,
     )

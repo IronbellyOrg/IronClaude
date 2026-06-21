@@ -201,10 +201,10 @@ def test_target_line_cap_and_timeout_flags_accepted(runner, target, tmp_path):
 # §2 Validate the bundled lens registry
 # ---------------------------------------------------------------------------
 def test_validate_lenses_registry_ok(runner):
-    """User Guide §2: registry validates with 8 entries inspected, 7 validated."""
+    """User Guide §2: registry validates with 9 entries inspected, 8 validated."""
     result = _run(runner, "validate-lenses")
     assert result.exit_code == EXIT_OK, result.output
-    assert "registry OK (8 entries inspected, 7 validated)" in result.output
+    assert "registry OK (9 entries inspected, 8 validated)" in result.output
 
 
 def test_validate_lenses_warning_mode_exits_zero(runner):
