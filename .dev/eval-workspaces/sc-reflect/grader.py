@@ -13,10 +13,11 @@ Output format matches skill-creator grading.json schema:
 
 Inherits the 8 sc-brainstorm baseline assertion types (file_exists, frontmatter_field,
 section_present, section_enumerated, yaml_field, yaml_field_min, yaml_substring,
-dir_count) and extends with 10 new types per refs/grader-extensions.md:
+dir_count) and extends with 11 new types per refs/grader-extensions.md:
 citation_resolves, regex_present, regex_absent, yaml_list_contains,
-matrix_covers_items, checkpoint_logged, deviation_class_matches, path_exists,
-path_does_not_exist, falsifier_skeleton_present.
+yaml_list_len_eq, matrix_covers_items, checkpoint_logged,
+deviation_class_matches, path_exists, path_does_not_exist,
+falsifier_skeleton_present.
 
 Usage:
     python grader.py <iterations/iteration-N-dir>
@@ -185,6 +186,29 @@ def check_yaml_list_contains(assertion: dict, base_dir: Path) -> tuple[bool, str
     if expected in node:
         return True, f"List at {assertion['field_path']} contains {expected!r}; members={node}"
     return False, f"List at {assertion['field_path']} missing {expected!r}; members={node}"
+
+
+def check_yaml_list_len_eq(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+    target = base_dir / assertion["target"]
+    if not target.exists():
+        return False, f"YAML file missing: {assertion['target']}"
+    data = yaml.safe_load(target.read_text(encoding="utf-8")) or {}
+    list_field = assertion["list_field"]
+    count_field = assertion["count_field"]
+    items = data.get(list_field)
+    if not isinstance(items, list):
+        return False, f"{list_field!r} is not a list (got {type(items).__name__})"
+    try:
+        expected = int(data[count_field])
+    except KeyError:
+        return False, f"count field {count_field!r} missing"
+    except (TypeError, ValueError):
+        return False, f"count field {count_field!r} not an integer: {data.get(count_field)!r}"
+    actual = len(items)
+    if actual == expected:
+        return True, f"len({list_field}) == {count_field} == {actual}"
+    return False, f"len({list_field})={actual}, {count_field}={expected}"
+
 
 
 def check_matrix_covers_items(assertion: dict, base_dir: Path) -> tuple[bool, str]:
@@ -392,6 +416,8 @@ def check_assertion(assertion: dict, base_dir: Path) -> tuple[bool, str]:
         return check_regex_absent(assertion, base_dir)
     if a_type == "yaml_list_contains":
         return check_yaml_list_contains(assertion, base_dir)
+    if a_type == "yaml_list_len_eq":
+        return check_yaml_list_len_eq(assertion, base_dir)
     if a_type == "matrix_covers_items":
         return check_matrix_covers_items(assertion, base_dir)
     if a_type == "checkpoint_logged":

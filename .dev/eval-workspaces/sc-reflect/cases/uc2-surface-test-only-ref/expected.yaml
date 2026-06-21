@@ -1,0 +1,31 @@
+# Expected outcomes for uc2-surface-test-only-ref fixture.
+mode: post
+use_case: UC-2
+runtime_surface_requirements:
+  - FR-S9-07
+runtime_surface_sweep_ran: true
+runtime_surface_unreached: 1
+runtime_surface_degraded: false
+unreached_surfaces:
+  - requirement_id: FR-S9-07
+    symbol: superclaude.cli.ai_export.handle_ai_export
+    evidence_ref: with_skill/outputs/artifacts/runtime-surface-ledger.yaml
+deviations:
+  - deviation_class: regression
+    requirement_id: FR-S9-07
+    reason: /ai export surface has only test/comment referrers and no production caller
+deviation_counts:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 1
+tier_reached: 2
+regression_recall: 1.0
+calibrated_confidence_min: 0.85
+per_task_verdicts:
+  - task_id: 1
+    verdict: regression
+  - task_id: 2
+    verdict: clean_pass
+  - task_id: 3
+    verdict: regression

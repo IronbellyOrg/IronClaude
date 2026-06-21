@@ -64,6 +64,8 @@ When the diff under audit contains **more than 100 hunks**, taxonomy classificat
 - Does NOT contradict any acceptance criterion (this is what distinguishes drift from regression).
 - A `serena_summary_corroboration: disagree` (FR-5): the Serena change-summary contradicts the supplied diff, reinforcing the Drift classification. (`agree` / `partial` / `unavailable` do NOT boost Drift — `unavailable` is the cross-session no-signal default.)
 
+Runtime-surface note (FR-RSR): unmapped is not the same signal as unreached. A decided runtime-surface `UNREACHED` finding is governed by SKILL.md §10.9 and maps onto the existing taxonomy by evidence; an unmapped-but-not-contradictory UNREACHED maps here to Drift, while contradiction maps to Regression.
+
 **Gold-standard reference.** Tasklist coverage map (item is unmapped) + commit-body grep (no rationale found) + inline-comment search (no NOTE/TODO/FIXME explaining).
 
 **Default remediation.** Surface in report with `Authorize-or-revert decision required`. If `--remediate`, offer Tier 3 task to either (a) backfill spec to authorize, or (b) revert the drift.
@@ -117,6 +119,8 @@ A non-zero exit from the §6.1 step 5.5 verification triangle is **NOT** uniform
 The taxonomy is **4 categories**, not 5. There is no `unknown` deviation class.
 
 When a hunk **cannot be classified due to insufficient evidence** (distinct from multi-signal ambiguity, which is resolved by precedence above), the orchestrator does NOT add it to `deviation-ledger.yaml`. Instead, it writes a row to `<output>/grounding-gaps.yaml`.
+
+Runtime-surface UNREACHED-by-evidence (SKILL.md §10.9 / FR-RSR) follows the same structural separation: degraded, comment-ambiguous, oracle-routed, or rootwalk-incomplete reachability findings have no decided `UNREACHED` verdict to classify, so they route here as Grounding Gaps and remain outside `deviation-ledger.yaml`. Decided UNREACHED findings are not a 5th class; they map to Regression or Drift by evidence.
 
 **Required fields (byte-exact schema from spec §10.6):**
 

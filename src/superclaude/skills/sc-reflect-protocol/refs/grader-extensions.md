@@ -1,6 +1,6 @@
 # Grader DSL Extensions for sc-reflect
 
-This reference specifies the assertion types `grader.py` must implement for sc-reflect eval cases, **beyond** the 8 syntactic types inherited from sc-brainstorm's `grader.py`. All 9 types documented here are **truly new** — none exist in the baseline grader (verified against `.dev/eval-workspaces/sc-brainstorm/grader.py`, 279 lines).
+This reference specifies the assertion types `grader.py` must implement for sc-reflect eval cases, **beyond** the 8 syntactic types inherited from sc-brainstorm's `grader.py`. All semantic types documented here are **truly new** — none exist in the baseline grader (verified against `.dev/eval-workspaces/sc-brainstorm/grader.py`, 279 lines).
 
 Implementation pattern follows the baseline's `check_assertion(assertion: dict, base_dir: Path) -> tuple[bool, str]` dispatcher. Each new type adds another `if a_type == "..."` branch returning `(passed: bool, evidence: str)`. Sketches below assume `import yaml` (PyYAML) is available; the baseline grader's hand-rolled `parse_yaml_simple` is insufficient for nested YAML used by §12.4 / §12.5 / §14.5.7 assertions.
 
@@ -14,14 +14,15 @@ Baseline (sc-brainstorm, 8 syntactic): `file_exists`, `frontmatter_field`, `sect
 | 2 | `regex_present` | Pattern presence (seeded requirement mention) | Target file, `pattern` | `(passed, match_count)` | Low |
 | 3 | `regex_absent` | Pattern absence (false clean-pass detection) | Target file, `pattern` | `(passed, first_match_or_clean)` | Low |
 | 4 | `yaml_list_contains` | Nested YAML list-field membership | YAML file, `field_path`, `value` | `(passed, list_contents)` | Low |
-| 5 | `matrix_covers_items` | Coverage matrix covers ≥ threshold of source items | matrix YAML, source-fixture path, threshold | `(passed, coverage_ratio)` | Medium |
-| 6 | `checkpoint_logged` | `audit.log` has row for named checkpoint | audit.log JSONL, `checkpoint_name` | `(passed, matching_rows)` | Low |
-| 7 | `deviation_class_matches` | Report register tags annotated diff with same class | report deviation register, annotated fixture | `(passed, expected_vs_actual)` | Medium |
-| 8 | `path_exists` | Verify path exists post-promotion (§14.5.7) | Path string | `(passed, stat_info)` | Trivial |
-| 9 | `path_does_not_exist` | Inverse: source removed after move (§14.5.7) | Path string | `(passed, absence_evidence)` | Trivial |
-| 10 | `falsifier_skeleton_present` | `falsifier-suite/<case>.yaml` parses + meets skeleton-OR-active contract | Case YAML | `(passed, status_and_telemetry)` | Medium |
+| 5 | `yaml_list_len_eq` | Full-YAML list length equals scalar count field (FR-RSR count invariant) | YAML file, `list_field`, `count_field` | `(passed, len_vs_count)` | Low |
+| 6 | `matrix_covers_items` | Coverage matrix covers ≥ threshold of source items | matrix YAML, source-fixture path, threshold | `(passed, coverage_ratio)` | Medium |
+| 7 | `checkpoint_logged` | `audit.log` has row for named checkpoint | audit.log JSONL, `checkpoint_name` | `(passed, matching_rows)` | Low |
+| 8 | `deviation_class_matches` | Report register tags annotated diff with same class | report deviation register, annotated fixture | `(passed, expected_vs_actual)` | Medium |
+| 9 | `path_exists` | Verify path exists post-promotion (§14.5.7) | Path string | `(passed, stat_info)` | Trivial |
+| 10 | `path_does_not_exist` | Inverse: source removed after move (§14.5.7) | Path string | `(passed, absence_evidence)` | Trivial |
+| 11 | `falsifier_skeleton_present` | `falsifier-suite/<case>.yaml` parses + meets skeleton-OR-active contract | Case YAML | `(passed, status_and_telemetry)` | Medium |
 
-Count: **9 truly-new types** (rows 1–9 in the §12.4 / §14.5.7 specs plus #10 from §12.5). Including the falsifier assertion brings the new total to 10; the spec text in §12.4 enumerates 6 semantic types + §14.5.7 adds 2 path types + §12.5 adds 1 falsifier = **9 truly new** when `regex_present` and `regex_absent` are counted as one row (they are listed together in the §12.4 bullet). This document treats them as separate assertion types for implementation clarity.
+Count: **10 truly-new semantic groups** (the original §12.4 / §14.5.7 / §12.5 set plus the FR-RSR `yaml_list_len_eq` count-invariant checker). Treating `regex_present` and `regex_absent` as separate assertion types for implementation clarity, this document now lists 11 dispatcher branches beyond the 8 syntactic baseline types.
 
 ## citation_resolves
 
@@ -129,6 +130,39 @@ def check_yaml_list_contains(assertion: dict, base_dir: Path) -> tuple[bool, str
     if expected in node:
         return True, f"List at {assertion['field_path']} contains {expected!r}; members={node}"
     return False, f"List at {assertion['field_path']} missing {expected!r}; members={node}"
+```
+
+## yaml_list_len_eq
+
+```python
+def check_yaml_list_len_eq(assertion: dict, base_dir: Path) -> tuple[bool, str]: ...
+```
+
+**Semantics.** Load the YAML file with `yaml.safe_load` (NOT `parse_yaml_simple`), read a top-level list field and a top-level scalar count field, and pass only when `len(data[list_field]) == int(data[count_field])`. This is the FR-RSR count-invariant checker for `len(unreached_surfaces) == runtime_surface_unreached`; it computes the invariant from the two already-emitted contract fields and does not require or authorize a producer-emitted helper scalar such as `unreached_surfaces_len`.
+
+Assertion keys: `{target, list_field, count_field}`. Canonical FR-RSR usage: `{type: yaml_list_len_eq, target: with_skill/outputs/contract.yaml, list_field: unreached_surfaces, count_field: runtime_surface_unreached}`.
+
+```python
+def check_yaml_list_len_eq(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+    target = base_dir / assertion["target"]
+    if not target.exists():
+        return False, f"YAML file missing: {assertion['target']}"
+    data = yaml.safe_load(target.read_text(encoding="utf-8")) or {}
+    list_field = assertion["list_field"]
+    count_field = assertion["count_field"]
+    items = data.get(list_field)
+    if not isinstance(items, list):
+        return False, f"{list_field!r} is not a list (got {type(items).__name__})"
+    try:
+        expected = int(data[count_field])
+    except KeyError:
+        return False, f"count field {count_field!r} missing"
+    except (TypeError, ValueError):
+        return False, f"count field {count_field!r} not an integer: {data.get(count_field)!r}"
+    actual = len(items)
+    if actual == expected:
+        return True, f"len({list_field}) == {count_field} == {actual}"
+    return False, f"len({list_field})={actual}, {count_field}={expected}"
 ```
 
 ## matrix_covers_items

@@ -1,0 +1,31 @@
+# Expected outcomes for uc2-unwired-surface-passes fixture.
+mode: post
+use_case: UC-2
+runtime_surface_requirements:
+  - FR-S9-04
+runtime_surface_sweep_ran: true
+runtime_surface_unreached: 1
+runtime_surface_degraded: false
+unreached_surfaces:
+  - requirement_id: FR-S9-04
+    symbol: superclaude.cli.ai_spawn.handle_ai_spawn
+    evidence_ref: with_skill/outputs/artifacts/runtime-surface-ledger.yaml
+deviations:
+  - deviation_class: regression
+    requirement_id: FR-S9-04
+    reason: user-facing /ai Spawn surface is not reachable from a production entrypoint
+deviation_counts:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 1
+tier_reached: 2
+regression_recall: 1.0
+calibrated_confidence_min: 0.85
+per_task_verdicts:
+  - task_id: 1
+    verdict: regression
+  - task_id: 2
+    verdict: clean_pass
+  - task_id: 3
+    verdict: regression

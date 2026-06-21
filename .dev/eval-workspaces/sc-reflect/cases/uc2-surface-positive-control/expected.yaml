@@ -1,0 +1,25 @@
+# Expected outcomes for uc2-surface-positive-control fixture.
+mode: post
+use_case: UC-2
+runtime_surface_requirements:
+  - FR-S9-05
+runtime_surface_sweep_ran: true
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+deviations: []
+deviation_counts:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+tier_reached: 1
+regression_recall: 1.0
+calibrated_confidence_min: 0.85
+per_task_verdicts:
+  - task_id: 1
+    verdict: clean_pass
+  - task_id: 2
+    verdict: clean_pass
+  - task_id: 3
+    verdict: clean_pass

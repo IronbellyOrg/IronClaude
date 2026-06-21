@@ -1,0 +1,41 @@
+# UC2 degraded-backend runtime surface fixture — real unified git diff.
+
+diff --git a/.serena/project.yml b/.serena/project.yml
+index e69de29..311a36f 100644
+--- a/.serena/project.yml
++++ b/.serena/project.yml
+@@ -0,0 +1,4 @@
++language: python
++backend: none
++read_only: false
++note: synthetic eval fixture forcing reachability backend unavailable
+diff --git a/src/superclaude/cli/ai_backend_unavailable.py b/src/superclaude/cli/ai_backend_unavailable.py
+new file mode 100644
+index 0000000..75c3380
+--- /dev/null
++++ b/src/superclaude/cli/ai_backend_unavailable.py
+@@ -0,0 +1,17 @@
++"""Surface that cannot be statically evaluated when backend is unavailable."""
++
++from __future__ import annotations
++
++
++def handle_ai_backend_probe(request: dict[str, str]) -> dict[str, str]:
++    """Handle a user-facing /ai backend probe surface."""
++    return {"status": "unknown", "surface": "/ai", "backend": request.get("backend", "none")}
++
++
++__all__ = ["handle_ai_backend_probe"]
+diff --git a/tests/cli/test_ai_backend_unavailable.py b/tests/cli/test_ai_backend_unavailable.py
+new file mode 100644
+index 0000000..f51ac83
+--- /dev/null
++++ b/tests/cli/test_ai_backend_unavailable.py
+@@ -0,0 +1,7 @@
++from superclaude.cli.ai_backend_unavailable import handle_ai_backend_probe
++
++
++def test_handle_ai_backend_probe() -> None:
++    assert handle_ai_backend_probe({"backend": "none"}) == {
++        "status": "unknown", "surface": "/ai", "backend": "none"
++    }

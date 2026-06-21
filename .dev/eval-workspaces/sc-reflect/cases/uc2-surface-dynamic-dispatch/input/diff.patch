@@ -1,0 +1,86 @@
+# UC2 dynamic-dispatch runtime surface fixture — real unified git diff.
+# The surface handler is reached ONLY via a runtime string-keyed registry lookup
+# (decorator-registered, dispatched by a runtime key). No static call edge exists
+# from any production entrypoint to the handler, so static reachability is
+# genuinely UNDECIDABLE -> the degrade oracle (registry/string-dispatch category)
+# MUST route this to DEGRADE, never UNREACHED and never a false Regression.
+
+diff --git a/src/superclaude/cli/ai_registry.py b/src/superclaude/cli/ai_registry.py
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/src/superclaude/cli/ai_registry.py
+@@ -0,0 +1,29 @@
++"""Runtime command registry + string-keyed dispatcher for the /ai surface.
++
++Handlers register themselves via the @register("<name>") decorator into
++COMMAND_REGISTRY at import time. The production entrypoint run_cli() dispatches
++by a RUNTIME string key, so there is no static call edge from run_cli to any
++specific handler — reachability of a given handler is statically undecidable.
++"""
++
++from __future__ import annotations
++
++from typing import Callable
++
++COMMAND_REGISTRY: dict[str, Callable[[dict], dict]] = {}
++
++
++def register(name: str) -> Callable[[Callable[[dict], dict]], Callable[[dict], dict]]:
++    """Decorator: insert a handler into COMMAND_REGISTRY under a string key."""
++    def deco(fn: Callable[[dict], dict]) -> Callable[[dict], dict]:
++        COMMAND_REGISTRY[name] = fn
++        return fn
++    return deco
++
++
++def dispatch(name: str, request: dict) -> dict:
++    """Look the handler up by a runtime string key and invoke it."""
++    return COMMAND_REGISTRY[name](request)
++
++
++def run_cli(name: str, request: dict) -> dict:
++    """Production entrypoint — dispatches whatever command name the user passes."""
++    return dispatch(name, request)
+diff --git a/src/superclaude/cli/ai_spawn_dynamic.py b/src/superclaude/cli/ai_spawn_dynamic.py
+new file mode 100644
+index 0000000..b2c3d4e
+--- /dev/null
++++ b/src/superclaude/cli/ai_spawn_dynamic.py
+@@ -0,0 +1,18 @@
++"""User-facing /ai Spawn surface, reachable ONLY via the runtime registry.
++
++handle_spawn has NO direct static caller anywhere: it is inserted into
++COMMAND_REGISTRY by the @register("spawn") decorator and invoked only through
++dispatch(name, ...) where `name` is a runtime string. Whether a user can reach
++it depends on whether run_cli is ever called with name == "spawn" at runtime —
++a fact static analysis cannot decide. This is the registry/string-dispatch
++degrade-oracle category: DEGRADE, never UNREACHED, never Regression.
++"""
++
++from __future__ import annotations
++
++from superclaude.cli.ai_registry import register
++
++
++@register("spawn")
++def handle_spawn(request: dict) -> dict:
++    """Handle the /ai Spawn action (dispatched dynamically by string key)."""
++    return {"status": "queued", "surface": "/ai", "action": "Spawn"}
+diff --git a/tests/cli/test_ai_spawn_dynamic.py b/tests/cli/test_ai_spawn_dynamic.py
+new file mode 100644
+index 0000000..c3d4e5f
+--- /dev/null
++++ b/tests/cli/test_ai_spawn_dynamic.py
+@@ -0,0 +1,12 @@
++"""Tests for the dynamically-dispatched /ai Spawn handler.
++
++The test imports handle_spawn directly; it does not establish that any user can
++reach the handler through the production run_cli/dispatch path.
++"""
++
++from superclaude.cli.ai_spawn_dynamic import handle_spawn
++
++
++def test_handle_spawn_queues() -> None:
++    assert handle_spawn({}) == {"status": "queued", "surface": "/ai", "action": "Spawn"}

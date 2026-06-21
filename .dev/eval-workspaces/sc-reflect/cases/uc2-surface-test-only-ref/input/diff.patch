@@ -1,0 +1,47 @@
+# UC2 test-only runtime surface fixture — real unified git diff.
+
+diff --git a/src/superclaude/cli/ai_export.py b/src/superclaude/cli/ai_export.py
+new file mode 100644
+index 0000000..4e7f0c8
+--- /dev/null
++++ b/src/superclaude/cli/ai_export.py
+@@ -0,0 +1,18 @@
++"""User-facing /ai export handler.
++
++The handler is intentionally not registered with the production CLI, route
++table, registry, or [project.scripts] entrypoint in this fixture.
++"""
++
++from __future__ import annotations
++
++
++def handle_ai_export(request: dict[str, str]) -> dict[str, str]:
++    """Handle the /ai export action."""
++    export_id = request.get("export_id")
++    if not export_id:
++        return {"status": "error", "message": "export_id is required"}
++    return {"status": "ready", "surface": "/ai", "action": "export", "id": export_id}
++
++
++__all__ = ["handle_ai_export"]
+diff --git a/tests/cli/test_ai_export.py b/tests/cli/test_ai_export.py
+new file mode 100644
+index 0000000..677eb3a
+--- /dev/null
++++ b/tests/cli/test_ai_export.py
+@@ -0,0 +1,15 @@
++"""Test-only references to the /ai export surface.
++
++These imports intentionally do not establish production reachability.
++"""
++
++from superclaude.cli.ai_export import handle_ai_export
++
++
++def test_handle_ai_export_ready() -> None:
++    assert handle_ai_export({"export_id": "exp-1"}) == {
++        "status": "ready",
++        "surface": "/ai",
++        "action": "export",
++        "id": "exp-1",
++    }

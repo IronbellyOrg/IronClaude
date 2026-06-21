@@ -387,8 +387,8 @@ Structural signals from Wave 1B:
 
 | # | Condition | Decision |
 |---|-----------|----------|
-| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
-| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` | STOP at T1 with WARN if `S_dev_density > 0.05` |
+| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` AND NOT `surface_unreached` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
+| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` AND NOT `surface_unreached` | STOP at T1 with WARN if `S_dev_density > 0.05` |
 | 3 | UC-2 AND any single hunk classified as `Regression` candidate by Wave 1 | **ESCALATE** (regression must be debated by ≥2 reviewers; structural mechanism, not a confidence question) |
 | 3a | UC-2 AND a Reuse-Miss at rung L3 mapped to Drift or Regression (§10.8) | **ESCALATE** (a shipped high-confidence duplicate is debated by ≥2 reviewers — same asymmetric-cost logic as rule 3 Regression) |
 | 4 | `S_domains ≥ 3` | ESCALATE (multi-domain reflection cannot be reliably done by a single reviewer card) |
@@ -399,7 +399,7 @@ Structural signals from Wave 1B:
 
 Default `<coverage-floor>` is **0.90**. `--coverage-floor 0.95` is an optional high-safety override.
 
-**Pre-filter precedence (D13).** `coverage_undefined` and `coverage_degraded` are TABLE-WIDE pre-filters, not row conjuncts alone: when either flag is set, NO STOP row (1, 2, or the row-8 default) may fire and the run routes to Tier 2; the row-1/row-2 conjuncts are redundant safeties, the pre-filter is authoritative. Explicit user pins outrank the pre-filter: `--tier 1`, `--depth quick`, and `--no-escalate` (all §5.1) proceed at the pinned tier and emit a loud WARN naming the overridden flag; the §5.1 calibrator-failure row also proceeds at T1 but already forces `status: partial` with a re-run recommendation, and its WARN names the degraded flag too. The coverage-floor comparison in row 1 reads `coverage_pct` (parsed semantics, §9.1).
+**Pre-filter precedence (D13).** `coverage_undefined`, `coverage_degraded`, and `surface_unreached` are TABLE-WIDE pre-filters, not row conjuncts alone: when `coverage_undefined` or `coverage_degraded` is set, or when `surface_unreached` is set from a SUCCESSFUL runtime-surface sweep with `runtime_surface_unreached ≥ 1`, NO STOP row (1, 2, or the row-8 default) may fire and the run routes to Tier 2; the row-1/row-2 conjuncts are redundant safeties, the pre-filter is authoritative. Explicit user pins outrank the pre-filter: `--tier 1`, `--depth quick`, and `--no-escalate` (all §5.1) proceed at the pinned tier and emit a loud WARN naming the overridden flag; for `surface_unreached`, the pinned run also forces `status: partial`. A degrade-only runtime-surface run (`runtime_surface_unreached == 0`, regardless of `runtime_surface_degraded`) does NOT force Tier 2 through this pre-filter; its Grounding Gap path independently prevents a clean PASS. The §5.1 calibrator-failure row also proceeds at T1 but already forces `status: partial` with a re-run recommendation, and its WARN names the degraded flag too. The coverage-floor comparison in row 1 reads `coverage_pct` (parsed semantics, §9.1).
 
 ### 5.4 tier_decision.yaml audit artifact (composite-score recording)
 
@@ -409,6 +409,7 @@ V2's priority-rule logic (§5.3) is the deciding mechanism. V5's 5-signal compos
 selected_tier: 1 | 2
 fired_rule_number: <int>           # which §5.3 rule fired (deterministic first-match)
 coverage_degraded: <string> | null # "parsed-sparse" when the Step 1B.2b guard fired (D13); table-wide pre-filter, explains a forced T2 regardless of which STOP row would have fired
+surface_unreached: <string> | null # "runtime_surface_unreached" when the FR-RSR successful-sweep pre-filter forced T2; table-wide pre-filter, explains a forced T2 regardless of which STOP row would have fired
 composite_score: <float 0-10>      # V5 5-signal sum
 per_signal_breakdown:
   scope_size: <0-2>
@@ -461,6 +462,8 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 3. mcp__serena__find_symbol <relevant-symbol>          # symbol body
 3b. mcp__serena__find_implementations <symbol>         # polymorphic surface
 4. mcp__serena__find_referencing_symbols <symbol> include_info:true   # downstream impact + signatures
+4b'. Runtime-surface tagger (UC-2 only): classify diff-hunk symbols by resolved symbol kind/decorator against `refs/runtime-surface.md` allowlist; emit `runtime_surface_requirements` (requirement_id optional/null) and one audit.log row
+4b. Runtime-surface production-caller sweep (UC-2 only): extend the already-fetched step-4 referrers; partition production vs test/comment via `refs/runtime-surface.md`, consult degrade oracle + rootwalk before any UNREACHED, write `<output>/artifacts/runtime-surface-ledger.yaml`, and emit one audit.log row
 4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root, output_path=<output>/artifacts/reuse-audit.yaml)  # FR-REUSE.1 — outward reuse/consolidation neighbour search
     → agent RETURNS findings; orchestrator persists them to output_path, then consumes reuse-audit.yaml
       (per-candidate verdict/tier/neighbours; run-level max_overlap/degraded/sampled). stage=post is fixed here
@@ -480,6 +483,12 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 Step 2a (FR-2) resolves a diff hunk to its canonical declaration site before symbol lookup; on zero matches it emits `find_declaration_no_match`. Step 3b (FR-1) enumerates the polymorphic surface and fires for `kind ∈ {Interface, AbstractMethod, Protocol, Trait, Class}` — `Class` is **included** (C3) because non-Python LSPs report `Class` for traits/Protocols; on a `Class` a non-empty result IS the implementor surface and an empty result is "genuinely none" (no degrade). Both new steps are fail-open per §6.5 and emit one `audit.log` row each per the §4 per-step convention.
 
 Step 4's `include_info: true` (FR-3) is a **parameter add to the existing call, not a new step**: the v1.5 "Extended Symbol Information" return shape absorbed the old standalone referencing-snippets tool, so the referencing scan now also yields each referrer's signature/docstring. The run emits `references_extended_info_used: true` to `audit.log`, and the Wave-0 tool-inventory probe (OQ-1, via `serena_info` / `get_current_config`) records to the audit whether that defunct standalone referencing-snippets tool is present — the protocol uses the `include_info` path regardless and never wires the standalone tool.
+
+Step 4b' (FR-RSR.1) is the deterministic, LLM-free runtime-surface tagger. It runs in UC-2 only (never `--mode pre`) and keys off the diff hunk's resolved symbol kind/decorator from steps 2/2a/3 plus the `refs/runtime-surface.md` surface allowlist — **not** off a requirement id that may be mapped later in Wave 1B. It emits `runtime_surface_requirements: [<ids>]` when mapped ids exist; a surface hunk with no mapped requirement is still tagged with `requirement_id: null` and the sweep still runs. Non-surface diffs emit `runtime_surface_requirements: []`, `runtime_surface_sweep_ran: false`, and zero added runtime-surface cost. Kind-resolution failure routes to `DEGRADE` (FR-RSR.3/8 → §10.6 Grounding Gap), never silent-skip. It emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b'", timestamp, outcome, evidence_ref}`.
+
+Step 4b (FR-RSR.2/3/4/8) is a read-only production-caller sweep that **extends the already-fetched step-4 `find_referencing_symbols` result**; it does not add a second referrer-fetch call. For each tagged runtime-surface symbol, it partitions referrers into production vs test/comment using `refs/runtime-surface.md` (including inline-test markers such as Rust `#[cfg(test)]` and in-file `Test*`). It then writes `<output>/artifacts/runtime-surface-ledger.yaml` with one row per evaluated edge (`requirement_id`, `symbol`, `edge`, `status`, `production_referrers`, `evidence_ref`) and reduces edges to a per-symbol verdict under `DEGRADE-on-any-incompleteness > UNREACHED > REACHED`. The sweep MUST consult the degrade oracle (any row match → `DEGRADE`) and the entrypoint-rootwalk (`REACHED` from any enumerated root; partial enumeration → `DEGRADE`) before emitting any `UNREACHED`. It emits `runtime_surface_unreached` as a symbol count, `runtime_surface_degraded` when any symbol reduces to `DEGRADE`, and preserves `len(unreached_surfaces) == runtime_surface_unreached`. It reads the Wave-0 §0.5d availability surface rather than re-probing: `backend: none`, a chain-degraded availability report, Serena unavailable, or a `find_referencing_symbols` failure degrades the affected edge to §10.6 Grounding Gap, sets `runtime_surface_degraded: true`, appends `"runtime-surface:backend_unavailable"` to `degraded_components`, continues over remaining edges with no global abort, and NEVER STOPs. It writes only under `<output>/`, never emits a clean PASS for a tagged surface whose reachability could not be evaluated, and emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b", timestamp, outcome, evidence_ref}`.
+
+**Contract emission is mandatory and name-exact (FR-RSR.7).** Whenever the sweep ran (`runtime_surface_sweep_ran: true`), the §9.1 contract MUST carry ALL SIX `runtime_surface_*` fields by their exact names on EVERY path, including a fully-REACHED run. Map each per-symbol verdict ONLY through those fields — a REACHED symbol is `runtime_surface_unreached: 0` + `runtime_surface_degraded: false` + `unreached_surfaces: []`; a DEGRADE symbol is `runtime_surface_degraded: true` plus a §10.6 Grounding Gap (and is NOT added to `unreached_surfaces`); an UNREACHED symbol increments `runtime_surface_unreached` and adds one `unreached_surfaces[]` entry. Do NOT improvise alternative keys (`runtime_surface_reachable`, `reachability_path`, `static_caller_absent_is_expected`, etc.) — they are invisible to the §9.3 consumer map and break the contract. The dynamic/registry/decorator/[project.scripts]/reflection cases resolve to DEGRADE (oracle, FR-RSR.3), never a bespoke "reachable: true" — a confidently-traced dynamic path is still recorded as `runtime_surface_degraded: true` + Grounding Gap, because static reachability cannot soundly prove it.
 
 Step 7 (FR-4) is **conditional**: it fires only on the operationalized trigger predicate — a symbol whose step-2a `find_declaration` resolves to an `<ext:…>` path (a third-party dependency), NOT the vague "cites a third-party API by name". When the LSP has not indexed the dependency (no active venv / unindexed package), it fails open to `degraded_components: ["search_deps:lsp_unindexed"]` and the dependent claim stays marked `[INFERRED]` rather than `[VERIFIED]`. It emits one `audit.log` row per the §4 convention.
 
@@ -657,10 +666,10 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
-### 9.1 Stable contract (contract_version: 1.5.0)
+### 9.1 Stable contract (contract_version: 1.6.0)
 
 ```yaml
-contract_version: "1.5.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics
+contract_version: "1.6.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields)
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -707,6 +716,24 @@ verification_invocations: <int>            # FR-4 (count of verify-log invocatio
 verification_failures: <int>               # FR-4 (exit_code != 0 count)
 verification_regressions_detected: <int>   # FR-4 (taxonomy-classified Regression exits on a claimed-passing file)
 verification_skip_reason: tool-unavailable|read-only-project|--no-verify|null   # FR-4
+
+# Runtime-surface reachability (FR-RSR — UC-2)
+# MANDATORY EMISSION (FR-RSR.7): whenever runtime_surface_sweep_ran is true, ALL SIX fields
+# below MUST be emitted with these EXACT names on EVERY path — REACHED, DEGRADE, and UNREACHED
+# alike. Do NOT invent alternative field names (e.g. runtime_surface_reachable,
+# reachability_path, static_caller_absent_is_expected); those are NOT contract fields and a
+# consumer keyed on §9.3 will not see them. Record the per-symbol verdict ONLY through these
+# six fields:
+#   • REACHED  → runtime_surface_unreached: 0, runtime_surface_degraded: false, unreached_surfaces: []
+#   • DEGRADE  → runtime_surface_degraded: true (+ a §10.6 Grounding Gap row); the symbol is NOT in unreached_surfaces
+#   • UNREACHED→ runtime_surface_unreached: <count ≥ 1>, with one unreached_surfaces[] entry per UNREACHED symbol
+# The count invariant len(unreached_surfaces) == runtime_surface_unreached MUST hold every run.
+runtime_surface_requirements: [<list str>]          # FR-RSR.1 (surface requirement ids tagged from symbol kind/decorator; [] when none)
+runtime_surface_sweep_ran: <bool>                   # FR-RSR.2 (true only when ≥1 tagged surface triggered the sweep)
+runtime_surface_ledger_path: <abs path> | null      # FR-RSR.2 (<output>/artifacts/runtime-surface-ledger.yaml; null when sweep did not run)
+runtime_surface_unreached: <int>                    # FR-RSR.2/6 (count of SYMBOLS reduced to UNREACHED; 0 on a fully-REACHED run; drives §5.3 pre-filter)
+runtime_surface_degraded: <bool>                    # FR-RSR.3/8 (true when ≥1 symbol reduced to DEGRADE → §10.6 Grounding Gap; false on a fully-REACHED run)
+unreached_surfaces: [<list of UnreachedSurface>]    # FR-RSR.6 (one entry per UNREACHED symbol; [] on REACHED and on DEGRADE-only runs)
 
 # Reuse-Miss neighbour sweep (FR-REUSE — §6.1 step 4a / §10.8; UC-2). NO deviation_count_by_class.reuse_miss key (§17.7).
 reuse_sweep_ran: <bool>
@@ -801,7 +828,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
 promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.5.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.6.0`.
 
 ### 9.2 Telemetry (non-stable)
 
@@ -860,6 +887,7 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
 | **`sc:roadmap` validation gate** | Roadmap pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `best_practice_grade` | `coverage_pct < 0.90 OR unmapped_requirements != []` → roadmap re-runs spec coverage; `best_practice_grade < 3` → flag for review. |
 | **`sc:tasklist` generator gate** | Tasklist pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `coverage_undefined` | `coverage_undefined: true` → tasklist generator emits "spec is too sparse for tasklist generation; provide more detail"; `coverage_pct < 0.90` → emit warning. |
 | **Any UC-1 consumer (advisory, D13)** | Optional read | `coverage_degraded`, `coverage_pct_union`, `unmapped_requirements_union` | NON-GATING advisory: `coverage_degraded: "parsed-sparse"` MAY be surfaced as a "spec labeling is sparse; coverage was inference-assisted" warning; the union fields give the inference-inclusive view. Existing consumers need no change (their fields kept parsed-only semantics at 1.5.0). |
+| **Any UC-2 consumer (advisory, FR-RSR)** | Optional read | `runtime_surface_requirements`, `runtime_surface_sweep_ran`, `runtime_surface_ledger_path`, `runtime_surface_unreached`, `runtime_surface_degraded`, `unreached_surfaces` | NON-GATING advisory: runtime-surface fields MAY be surfaced for reachability diagnostics, but existing consumers need no load-bearing change; consumers that ignore unknown fields remain conforming under §9.4 read-and-ignore forward compatibility. |
 | **`task-builder` skill** | Wave 6 (T3) handoff | `report_path`, `deviation_register_path`, `grounding_gaps_path`, `needs_human_decision` | Reads the three paths to materialize BUILD_REQUEST; `needs_human_decision: true` → BUILD_REQUEST template prompts for user resolution before task is built. |
 | **Wave 7 promotion adapters (in-skill)** | Internal consumer | All 9-condition-gate inputs: `mode`, `status`, `tasklist_completion_pct`, `deviation_count_by_class.{drift,regression}`, `citations_dropped`, `input_drift_detected`, `needs_human_decision`, `user_decision_required`, `convergence_score`, `tier_reached`, frontmatter check | Per §14.5.2 gate; all 9 must pass for mutation; any fail → `promotion_action: skipped/rejected`. |
 | **CI (`make reflect-eval` / `make reflect-eval-quick`)** | grader.py | All fields under "Per-task verdict array" + `status` + `evidence_validator_ran` + `audit_log_path` | Used to score the 6 grading dimensions in §12.1 and assert per-iteration `grading.json` thresholds. |
@@ -1023,6 +1051,18 @@ A new/changed symbol that implements a capability an existing neighbour already 
 **Blocking bar (high):** a Reuse-Miss maps to a blocking class (Drift/Regression) **only at rung L3** — `S_reuse ≥ 0.82` **AND** `confidence ≥ 0.85` **AND** `verdict ≠ distinct`. Weaker signal (rung ≤ L2), any auggie-unavailable fallback finding, OR `maybe-related`/insufficient-grounding → **§10.6 Grounding Gaps** (NEVER `deviation-ledger.yaml`). The verdict vocabulary is `reuse-by-import | mirror-shape | extract-shared | distinct`, with the mechanical NFR-import-ban downgrade (`reuse-by-import` → `mirror-shape` across a banned edge) applied by the agent.
 
 **Default remediation.** Drift-mapped → "authorize-or-revert OR consolidate"; if `--remediate`, Tier-3 consolidate/backfill/revert. Regression-mapped → Tier-3 + §5.3 rule-3a Tier-2 escalation. There is **no** `deviation_count_by_class.reuse_miss` counter (§17.7); a blocking Reuse-Miss increments the Drift or Regression counter of the class it maps to (§14.5.2 cond 4).
+
+### 10.9 Runtime-surface UNREACHED (finding modifier — NOT a 5th deviation class)
+
+A runtime-surface finding with reduced verdict `UNREACHED` per §6.1 step 4b / `refs/runtime-surface.md` is **NOT a deviation class** — it **MAPS onto the existing 4 by evidence** (mirroring §10.8's finding-modifier shape and §10.4's by-evidence counter discipline). The mapping is totally ordered:
+
+1. **DEGRADE first:** if the oracle/rootwalk/comment/language/backend path could not soundly decide reachability, there is no decided UNREACHED verdict to map. Route to **§10.6 Grounding Gaps** with `needs_human_decision: true` and `status: partial`; do not write the finding to `deviation-ledger.yaml`.
+2. **Contradiction next:** a decided UNREACHED that contradicts a reachability acceptance criterion (for example, "user can reach X") maps to **§10.4 Regression** and increments ONLY `deviation_count_by_class.regression`. It NEVER increments `verification_regressions_detected`, which remains exit-code-sourced from §6.1 step 5.5 / §10.4.
+3. **Unmapped fallback:** a decided UNREACHED with no tasklist mapping and no contradicted reachability criterion maps to **§10.3 Drift**.
+
+If a decided UNREACHED is both contradiction and unmapped, **Regression wins** by §10.5 precedence; rationale or missing mapping does not override a contradiction. There is **no** 5th runtime-surface deviation class and no `deviation_count_by_class.runtime_surface` (or equivalent) counter (§17.7). Blocking counts flow only through the existing Drift/Regression counters of the class chosen by evidence.
+
+**Risk guard (spec §7).** False `UNREACHED → Regression` on idiomatic wiring can trigger unconditional T2/T3 and TurnLedger rollback, so counter hygiene is mandatory: Regression increments only `deviation_count_by_class.regression`; `verification_regressions_detected` remains exit-code-sourced and is never incremented by runtime-surface reachability evidence.
 
 ---
 
@@ -1638,7 +1678,7 @@ Operators using Prometheus's `json_exporter`, StatsD's `dogstatsd-json`, or Open
 **Cross-run aggregation (`.dev/reflect/runs.jsonl`).** A one-line JSON summary is appended to `.dev/reflect/runs.jsonl` at end-of-run. Schema is a subset of `metrics.json` with only the cross-run-comparable fields:
 
 ```json
-{"run_id": "...", "timestamp": "...", "skill_version": "1.5.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
+{"run_id": "...", "timestamp": "...", "skill_version": "1.6.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
 ```
 
 The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
@@ -1769,7 +1809,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
 | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
 | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.5.0"` |
+| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.6.0"` |
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |

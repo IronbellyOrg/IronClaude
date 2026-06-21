@@ -1,0 +1,30 @@
+# Expected outcomes for uc2-surface-degraded-backend fixture.
+mode: post
+use_case: UC-2
+runtime_surface_requirements:
+  - FR-S9-06
+runtime_surface_sweep_ran: true
+runtime_surface_unreached: 0
+runtime_surface_degraded: true
+unreached_surfaces: []
+grounding_gaps:
+  - source: runtime-surface
+    reason: backend_unavailable
+    needs_human_decision: true
+status: partial
+deviations: []
+deviation_counts:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+tier_reached: 1
+regression_recall: 1.0
+calibrated_confidence_min: 0.85
+per_task_verdicts:
+  - task_id: 1
+    verdict: partial_grounding_gap
+  - task_id: 2
+    verdict: partial_grounding_gap
+  - task_id: 3
+    verdict: partial_grounding_gap
