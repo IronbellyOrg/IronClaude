@@ -522,15 +522,15 @@ def build_reflect_contract(
         "adversarial_unavailable": adversarial_unavailable,
         "merge_method": merge_method,
         "adversarial_convergence_score": adversarial_convergence_score,
-        "verification_ran": True,
-        "verification_skip_reason": None,
+        "verification_ran": False,
+        "verification_skip_reason": "tool-unavailable",
         "citations_dropped": 0,
         "citations_dropped_extrapolated": 0,
         "input_drift_detected": False,
         "regression_present": regression_present,
         "unauthorized_deviation_present": unauthorized_deviation_present,
         "needs_human_decision": needs_human_decision,
-        "user_decision_required": needs_human_decision,
+        "user_decision_required": False,  # seam emits no user-decision signal; honest default (R2-F3, supersedes R6 Step 2.5 mirror mandate)
         "serena_summary_corroboration": "unavailable",
         "degraded_components": [],
     }

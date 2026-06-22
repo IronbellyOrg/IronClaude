@@ -9,7 +9,11 @@ import pytest
 
 from superclaude.cli.reflect.commands import reflect_group
 from superclaude.cli.reflect.config import resolve_config
-from superclaude.cli.reflect.contract import _degraded_reason, derive_verdict
+from superclaude.cli.reflect.contract import (
+    _VERIFICATION_SKIP_EXEMPTIONS,
+    _degraded_reason,
+    derive_verdict,
+)
 from superclaude.cli.reflect.ensemble import (
     _vendor_from_model_id,
     build_adversarial_prompt,
@@ -333,6 +337,64 @@ def test_u11_build_reflect_contract_threads_regression_fields() -> None:
         "drift": 0,
         "regression": 0,
     }
+
+
+def test_r2f2_build_reflect_contract_emits_honest_verification_fields() -> None:
+    """R2-F2 (PR#199 round-2): the Tier-2 seam emits honest verification fields.
+
+    The headless Tier-2 ensemble runs NO grounded/serena verification triangle, so
+    hard-coding ``verification_ran=True`` was factually false and made the
+    ``verification-skipped`` DEGRADE structurally unreachable on every Tier-2
+    contract (clean runs bypassed the verification-integrity gate). The seam now
+    emits ``verification_ran=False`` with the exempt skip reason ``tool-unavailable``
+    so contract.py Trigger 12 evaluates and EXEMPTS (no DEGRADE, no PASS regression).
+    """
+    workers = [
+        WorkerResult(index=0, status="success", model_id="model-a"),
+        WorkerResult(index=1, status="success", model_id="model-b"),
+    ]
+    contract = build_reflect_contract(workers, adversarial_convergence_score=0.86)
+    assert contract is not None
+    # Genuine bool via ``is`` (not ``== False``): the seam never ran verification.
+    assert contract["verification_ran"] is False
+    assert contract["verification_skip_reason"] == "tool-unavailable"
+    # The chosen skip reason MUST be a member of the read-only exemption set so the
+    # router exempts rather than degrades (read-only membership check on contract.py).
+    assert "tool-unavailable" in _VERIFICATION_SKIP_EXEMPTIONS
+
+
+def test_r2f3_user_decision_required_decoupled_from_needs_human_decision() -> None:
+    """R2-F3 (PR#199 round-2): user_decision_required is decoupled from needs_human_decision.
+
+    The two predicates are orthogonal per sc-reflect-protocol/SKILL.md:793-794, and
+    AdversarialResult carries no user_decision_required signal for the seam to mirror.
+    Previously the seam mirrored ``user_decision_required = needs_human_decision``,
+    which would fabricate a false ``user-decision-required`` HALTED route
+    (contract.py:321) once the producer emits ``needs_human_decision=True``. The seam
+    now emits an honest ``False`` default.
+
+    This KNOWINGLY SUPERSEDES the R6 task Step 2.5 line 212 mandate (commit 6bea38f2,
+    PR #200): "the three booleans plus the ``user_decision_required`` mirror, which
+    MUST mirror ``needs_human_decision``". That mandate is a drafting error — it
+    conflicts with the SKILL.md:793-794 schema, the divergent fixtures
+    (human_required_needs_decision.yaml = needs=true/user=false; e2e phase-01 =
+    needs=false/user=true) which a mirror cannot produce, and an independent
+    /sc:reflect --mode pre --depth deep validation (2026-06-22) confirming the revert.
+    """
+    workers = [
+        WorkerResult(index=0, status="success", model_id="model-a"),
+        WorkerResult(index=1, status="success", model_id="model-b"),
+    ]
+    contract = build_reflect_contract(
+        workers,
+        needs_human_decision=True,
+        adversarial_convergence_score=0.86,
+    )
+    assert contract is not None
+    # Decoupled: the seam honestly defaults user_decision_required to False even when
+    # needs_human_decision is True (genuine bool via ``is``).
+    assert contract["user_decision_required"] is False
+    assert contract["needs_human_decision"] is True
 
 
 def test_build_adversarial_prompt_shell_quotes_paths() -> None:
