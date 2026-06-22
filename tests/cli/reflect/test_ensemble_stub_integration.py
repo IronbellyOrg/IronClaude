@@ -26,7 +26,11 @@ from unittest.mock import patch
 from superclaude.cli.reflect import ensemble as ensemble_mod
 from superclaude.cli.reflect.config import resolve_config
 from superclaude.cli.reflect.contract import derive_verdict, parse_contract
-from superclaude.cli.reflect.ensemble import run_tier2_ensemble, stub_model_id
+from superclaude.cli.reflect.ensemble import (
+    AdversarialResult,
+    run_tier2_ensemble,
+    stub_model_id,
+)
 from superclaude.cli.reflect.models import Verdict
 from superclaude.cli.swarm.models import WorkerResult
 from superclaude.cli.swarm.transports.stub import StubTransport
@@ -36,8 +40,24 @@ from superclaude.cli.swarm.transports.stub import StubTransport
 _FIXED_SCORE = 0.86
 
 
-def _const_score(_paths: list[str], _out: Path) -> float:
-    return _FIXED_SCORE
+def _const_score(_paths: list[str], _out: Path) -> AdversarialResult:
+    # Clean-default result object (the widened seam shape): a non-None convergence
+    # score with no deviation/regression signal, so the existing PASS/DEGRADED
+    # tests that inject this stub keep their current verdicts. Booleans are genuine
+    # Python ``False``. Covers all three injection sites transitively.
+    return AdversarialResult(
+        convergence_score=_FIXED_SCORE,
+        regression_present=False,
+        unauthorized_deviation_present=False,
+        needs_human_decision=False,
+        deviation_count_by_class={
+            "authorized": 0,
+            "necessary": 0,
+            "drift": 0,
+            "regression": 0,
+        },
+        report_path=None,
+    )
 
 
 class _FailingTransport:
@@ -449,3 +469,63 @@ def test_i11b_tier1_audit_once_does_not_call_ensemble(temp_tasklist, patch_git) 
         ReflectRunner(tier1_config)._audit_once()
     spy_ensemble.assert_not_called()
     spy_proc.assert_called_once()
+
+
+def test_i12_seam_regression_does_not_pass(temp_tasklist, patch_git) -> None:
+    """I12 (FR-RH2 R6): a seam-reported regression MUST NOT route PASS.
+
+    Red-then-green acceptance: against the pre-R6 code (``build_reflect_contract``
+    hard-coded ``regression_present: False``) this asserted ``Verdict.PASS`` and
+    FAILED; after the seam widening the regression signal threads through to the
+    contract and ``derive_verdict`` routes HALTED (exit 10, reason
+    ``"regression"``) via ``_halted_reason``.
+
+    The ensemble is kept HEALTHY (distinct vendor-survivors → ``full`` diversity)
+    and ``convergence_score`` is NON-None (0.86) so the ``null-convergence``
+    DEGRADE trigger does NOT fire and mask the HALT (GAP-4 non-conflation).
+    """
+
+    def _regression_score(_paths: list[str], _out: Path) -> AdversarialResult:
+        # Genuine Python ``True``/``1`` (never "true") so the strict-identity
+        # ``is True`` halt trigger fires instead of self-BLOCKing on a non-bool.
+        return AdversarialResult(
+            convergence_score=_FIXED_SCORE,
+            regression_present=True,
+            unauthorized_deviation_present=False,
+            needs_human_decision=False,
+            deviation_count_by_class={
+                "authorized": 0,
+                "necessary": 0,
+                "drift": 0,
+                "regression": 1,
+            },
+            report_path=None,
+        )
+
+    config = _config(temp_tasklist, reviewers=3)
+    run_tier2_ensemble(
+        config,
+        transport_for_slot=_distinct_stub,
+        adversarial_score_fn=_regression_score,
+    )
+    contract = parse_contract(config.contract_path)
+    result = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=config.allow_single_vendor,
+        child_rc=0,
+    )
+
+    # HEADLINE acceptance: a reported regression does not route PASS.
+    assert result.verdict is not Verdict.PASS
+    # Sharpened: it routes the HALTED regression rung specifically.
+    assert result.verdict is Verdict.HALTED
+    assert result.verdict.exit_code == 10
+    assert result.reason == "regression"
+    # Provenance: the seam signal actually reached the contract (was hard-coded
+    # ``False`` before R6).
+    assert contract is not None
+    assert contract["regression_present"] is True
+    # Healthy-ensemble guard: a DEGRADE is not masking the HALT.
+    assert contract["t2_model_class_diversity"] == "full"
+    assert result.verdict is not Verdict.DEGRADED

@@ -68,8 +68,39 @@ ADVERSARIAL_SUBRUN_DIR = "t2-adversarial"
 CONTRACT_FILENAME = "return-contract.yaml"
 MZERO_CONTRACT_MISSING_SLUG = "contract-missing"
 
+
+@dataclasses.dataclass
+class AdversarialResult:
+    """Result object returned by the Tier-2 adversarial seam.
+
+    Widens the seam beyond a bare convergence float so real deviation/regression
+    signal can flow into ``build_reflect_contract``. Today only
+    ``convergence_score`` + ``report_path`` are LIVE (sourced from the score-only
+    ``/sc:adversarial`` Mode-A child); the three deviation booleans + per-class
+    counts default CLEAN until a producer-extension emits them (OQ-PRODUCER).
+
+    Load-bearing booleans (``regression_present``, ``unauthorized_deviation_present``,
+    ``needs_human_decision``) MUST be genuine Python ``bool`` — a non-bool routes
+    BLOCKED ``malformed-contract-boolean`` in ``contract.py``.
+    """
+
+    convergence_score: float | None
+    regression_present: bool = False
+    unauthorized_deviation_present: bool = False
+    needs_human_decision: bool = False
+    deviation_count_by_class: dict[str, int] = dataclasses.field(
+        default_factory=lambda: {
+            "authorized": 0,
+            "necessary": 0,
+            "drift": 0,
+            "regression": 0,
+        }
+    )
+    report_path: str | None = None
+
+
 TransportFactory = Callable[[int], Transport]
-AdversarialScoreFn = Callable[[list[str], Path], float | None]
+AdversarialScoreFn = Callable[[list[str], Path], AdversarialResult | None]
 
 # Vendor-distinct stub model pool so a credit-free ``--transport stub`` run is
 # genuinely PASS-eligible: each slot binds a DISTINCT model_id from a DISTINCT
@@ -218,24 +249,63 @@ def run_tier2_ensemble(
     swarm_contract_path = swarm_output_dir / CONTRACT_FILENAME
     emit_done_sentinel(swarm_contract.status, swarm_contract_path)
 
+    adversarial_result: AdversarialResult | None = None
     if adversarial_convergence_score is None and len(succeeded_final_paths) >= 2:
         if adversarial_score_fn is None:
-            adversarial_convergence_score = run_adversarial_scorer(
+            adversarial_result = run_adversarial_scorer(
                 succeeded_final_paths,
                 output_dir / ADVERSARIAL_SUBRUN_DIR,
                 config=config,
             )
         else:
-            adversarial_convergence_score = adversarial_score_fn(
+            adversarial_result = adversarial_score_fn(
                 succeeded_final_paths,
                 output_dir / ADVERSARIAL_SUBRUN_DIR,
             )
+        # A ``None`` result (child failure) leaves ``adversarial_convergence_score``
+        # at ``None`` so the null-convergence DEGRADE fallback is preserved; a
+        # pre-supplied score short-circuits the seam (this branch never runs).
+        if adversarial_result is not None:
+            adversarial_convergence_score = adversarial_result.convergence_score
+
+    # Destructure the seam result into contract-bound locals. Clean defaults apply
+    # when no seam ran (pre-supplied score / <2 survivors) OR the child failed
+    # (``adversarial_result is None``) — so a genuinely clean Tier-2 run still
+    # routes PASS (NFR-RH2.6 backward-compat).
+    regression_present = (
+        adversarial_result.regression_present
+        if adversarial_result is not None
+        else False
+    )
+    unauthorized_deviation_present = (
+        adversarial_result.unauthorized_deviation_present
+        if adversarial_result is not None
+        else False
+    )
+    needs_human_decision = (
+        adversarial_result.needs_human_decision
+        if adversarial_result is not None
+        else False
+    )
+    deviation_count_by_class = (
+        adversarial_result.deviation_count_by_class
+        if adversarial_result is not None
+        else None
+    )
+    adversarial_report_path = (
+        adversarial_result.report_path if adversarial_result is not None else None
+    )
 
     contract = build_reflect_contract(
         normalized_workers,
         swarm_merged_path=swarm_contract.merged_path,
         adversarial_convergence_score=adversarial_convergence_score,
         adversarial_unavailable=adversarial_unavailable,
+        regression_present=regression_present,
+        unauthorized_deviation_present=unauthorized_deviation_present,
+        needs_human_decision=needs_human_decision,
+        deviation_count_by_class=deviation_count_by_class,
+        adversarial_report_path=adversarial_report_path,
     )
     _emit_reflect_contract(config.contract_path, contract)
     return contract
@@ -246,13 +316,21 @@ def run_adversarial_scorer(
     output_dir: Path,
     *,
     config: ReflectConfig,
-) -> float | None:
-    """Launch the selected Mode-A scorer and parse its convergence score.
+) -> AdversarialResult | None:
+    """Launch the selected Mode-A scorer and wrap its output in an ``AdversarialResult``.
 
     The downstream merge step consumes swarm's per-reviewer ``final_path``
     artifacts (suspect-aware). No scoring, ranking, or dedup logic is added to
     ``swarm/merge.py``. The adversarial merge produces a convergence score
     recorded on the reflect contract.
+
+    Only ``convergence_score`` + ``report_path`` are populated LIVE here (the
+    score-only Mode-A child cannot supply reviewer-deviation signal); the three
+    deviation booleans + per-class counts default CLEAN on ``AdversarialResult``
+    (GAP-2 scope fork). A child-launch/parse failure still returns ``None`` so the
+    null-convergence DEGRADE fallback is preserved. ``regression_present`` is
+    NEVER auto-derived from a low/None convergence score (GAP-4 non-conflation:
+    low convergence is reviewer DISAGREEMENT → DEGRADE, not a regression).
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     prompt = build_adversarial_prompt(final_paths, output_dir)
@@ -268,7 +346,11 @@ def run_adversarial_scorer(
     proc.start()
     if proc.wait() != 0:
         return None
-    return extract_convergence_score(parse_adversarial_contract(output_dir))
+    parsed = parse_adversarial_contract(output_dir)
+    return AdversarialResult(
+        convergence_score=extract_convergence_score(parsed),
+        report_path=_extract_adversarial_report_path(parsed),
+    )
 
 
 def parse_adversarial_contract(output_dir: Path) -> dict[str, Any] | None:
@@ -357,14 +439,45 @@ def extract_convergence_score(contract: dict[str, Any] | None) -> float | None:
     return None
 
 
+def _extract_adversarial_report_path(contract: dict[str, Any] | None) -> str | None:
+    """Extract the merged report path from the adversarial return contract.
+
+    Mirrors ``extract_convergence_score``'s ``return_contract:`` unwrap. The
+    Mode-A child emits ``merged_output_path`` (string|null, schema research 02
+    §3); surface it as the adversarial ``report_path`` so the contract can prefer
+    it over the swarm ``merged.md`` subrun fallback. Returns ``None`` when absent
+    or non-string.
+    """
+    if not contract:
+        return None
+    inner = contract.get("return_contract")
+    if isinstance(inner, dict):
+        contract = inner
+    value = contract.get("merged_output_path")
+    return value if isinstance(value, str) and value else None
+
+
 def build_reflect_contract(
     workers: list[WorkerResult],
     *,
     swarm_merged_path: str | None = None,
     adversarial_convergence_score: float | None = None,
     adversarial_unavailable: bool = False,
+    regression_present: bool = False,
+    unauthorized_deviation_present: bool = False,
+    needs_human_decision: bool = False,
+    deviation_count_by_class: dict[str, int] | None = None,
+    adversarial_report_path: str | None = None,
 ) -> dict[str, Any] | None:
-    """Map swarm worker facts onto the reflect return-contract namespace."""
+    """Map swarm worker facts onto the reflect return-contract namespace.
+
+    The deviation/regression signal (``regression_present``,
+    ``unauthorized_deviation_present``, ``needs_human_decision``,
+    ``deviation_count_by_class``) is threaded from the adversarial seam result;
+    all four default CLEAN so a direct call or a seam-less Tier-2 run still emits
+    an all-zero, regression-free contract that routes PASS. Load-bearing booleans
+    are forwarded as genuine Python ``bool`` (never ``"true"``/``1``).
+    """
     succeeded = [worker for worker in workers if worker.status == "success"]
     reviewer_count = len(succeeded)
     if reviewer_count == 0:
@@ -372,7 +485,18 @@ def build_reflect_contract(
 
     tier_reached = 2 if reviewer_count >= 2 else 1
     merge_method = "adversarial" if reviewer_count >= 2 else "single-reviewer-fallback"
-    report_path = _select_report_path(succeeded, swarm_merged_path)
+    report_path = _select_report_path(
+        succeeded,
+        swarm_merged_path,
+        adversarial_report_path=adversarial_report_path,
+    )
+    if deviation_count_by_class is None:
+        deviation_count_by_class = {
+            "authorized": 0,
+            "necessary": 0,
+            "drift": 0,
+            "regression": 0,
+        }
 
     return {
         "contract_version": REFLECT_CONTRACT_VERSION,
@@ -382,12 +506,7 @@ def build_reflect_contract(
         "reviewer_count": reviewer_count,
         "report_path": report_path,
         "audit_log_path": None,
-        "deviation_count_by_class": {
-            "authorized": 0,
-            "necessary": 0,
-            "drift": 0,
-            "regression": 0,
-        },
+        "deviation_count_by_class": deviation_count_by_class,
         "t2_model_class_diversity": compute_model_class_diversity(succeeded),
         "t2_vendor_diversity": compute_vendor_diversity(succeeded),
         "adversarial_unavailable": adversarial_unavailable,
@@ -398,10 +517,10 @@ def build_reflect_contract(
         "citations_dropped": 0,
         "citations_dropped_extrapolated": 0,
         "input_drift_detected": False,
-        "regression_present": False,
-        "unauthorized_deviation_present": False,
-        "needs_human_decision": False,
-        "user_decision_required": False,
+        "regression_present": regression_present,
+        "unauthorized_deviation_present": unauthorized_deviation_present,
+        "needs_human_decision": needs_human_decision,
+        "user_decision_required": needs_human_decision,
         "serena_summary_corroboration": "unavailable",
         "degraded_components": [],
     }
@@ -488,7 +607,15 @@ def _slugify_model(value: str, index: int) -> str:
 def _select_report_path(
     succeeded: list[WorkerResult],
     swarm_merged_path: str | None,
+    *,
+    adversarial_report_path: str | None = None,
 ) -> str | None:
+    # Prefer the adversarial merged report when present (QA CRITICAL #2: keep the
+    # swarm ``merged.md`` only as a subrun-artifact fallback). When no adversarial
+    # report path is available the existing chain (swarm → worker final_path →
+    # None) is preserved unchanged, so current swarm-path assertions stay green.
+    if adversarial_report_path:
+        return adversarial_report_path
     if swarm_merged_path:
         return swarm_merged_path
     for worker in succeeded:

@@ -289,3 +289,46 @@ def test_u10_adversarial_contract_parse_real_shape(tmp_path) -> None:
     # Wrong-path / missing contract → None (graceful null-convergence fallback).
     assert parse_adversarial_contract(tmp_path / "nope") is None
     assert extract_convergence_score(None) is None
+
+
+def test_u11_build_reflect_contract_threads_regression_fields() -> None:
+    """U11 (R6): the widened builder threads the deviation/regression kwargs.
+
+    Isolates the contract-builder change from the full fan-out path: a direct call
+    with the new kwargs surfaces the regression signal, while a call WITHOUT them
+    keeps the clean defaults (so the clean Tier-2 path still PASSes).
+    """
+    workers = [
+        WorkerResult(index=0, status="success", model_id="model-a"),
+        WorkerResult(index=1, status="success", model_id="model-b"),
+    ]
+
+    # With the deviation kwargs: the signal threads through as genuine bool/int.
+    flagged = build_reflect_contract(
+        workers,
+        adversarial_convergence_score=0.86,
+        regression_present=True,
+        deviation_count_by_class={
+            "authorized": 0,
+            "necessary": 0,
+            "drift": 0,
+            "regression": 1,
+        },
+    )
+    assert flagged is not None
+    assert flagged["regression_present"] is True
+    assert flagged["deviation_count_by_class"]["regression"] == 1
+
+    # Clean default (no deviation kwargs): regression-free, all-zero counts.
+    clean = build_reflect_contract(workers, adversarial_convergence_score=0.86)
+    assert clean is not None
+    assert clean["regression_present"] is False
+    assert clean["unauthorized_deviation_present"] is False
+    assert clean["needs_human_decision"] is False
+    assert clean["user_decision_required"] is False
+    assert clean["deviation_count_by_class"] == {
+        "authorized": 0,
+        "necessary": 0,
+        "drift": 0,
+        "regression": 0,
+    }
