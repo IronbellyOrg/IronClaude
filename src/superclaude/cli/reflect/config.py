@@ -195,7 +195,7 @@ def resolve_config(
     resolved_depth = "standard" if depth == "quick" else depth
 
     # -- Tier-2 ensemble transport/reviewer plumbing (§5.1) --
-    resolved_transport = (transport or "openai_compat").strip()
+    resolved_transport = (transport or "openai_compat").strip().lower()
     if resolved_transport not in {"openai_compat", "stub"}:
         raise ValueError(
             f"transport must be openai_compat or stub: {resolved_transport}"

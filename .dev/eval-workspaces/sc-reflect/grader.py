@@ -193,6 +193,11 @@ def check_yaml_list_len_eq(assertion: dict, base_dir: Path) -> tuple[bool, str]:
     if not target.exists():
         return False, f"YAML file missing: {assertion['target']}"
     data = yaml.safe_load(target.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict):
+        return False, (
+            f"YAML root at {assertion['target']} is not a mapping "
+            f"(got {type(data).__name__})"
+        )
     list_field = assertion["list_field"]
     count_field = assertion["count_field"]
     items = data.get(list_field)

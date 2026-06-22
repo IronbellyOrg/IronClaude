@@ -12,6 +12,7 @@ from superclaude.cli.reflect.config import resolve_config
 from superclaude.cli.reflect.contract import _degraded_reason, derive_verdict
 from superclaude.cli.reflect.ensemble import (
     _vendor_from_model_id,
+    build_adversarial_prompt,
     build_reflect_contract,
     compute_model_class_diversity,
     resolve_t2_transport_factory,
@@ -332,3 +333,31 @@ def test_u11_build_reflect_contract_threads_regression_fields() -> None:
         "drift": 0,
         "regression": 0,
     }
+
+
+def test_build_adversarial_prompt_shell_quotes_paths() -> None:
+    """PR#199 F5: build_adversarial_prompt shell-quotes the path list + output_dir.
+
+    A path containing a space must stay a single shell argument (quoted), not be
+    split into several. The comma stays the --compare/--suspect-source delimiter.
+    """
+    prompt = build_adversarial_prompt(
+        ["/tmp/a b.final.md", "/tmp/c.final.md"], Path("/tmp/out dir")
+    )
+    assert "--output '/tmp/out dir'" in prompt
+    assert "--compare '/tmp/a b.final.md,/tmp/c.final.md'" in prompt
+    assert "--suspect-source '/tmp/a b.final.md,/tmp/c.final.md'" in prompt
+
+    # A clean path set needs no quoting (shlex.quote is a no-op).
+    clean = build_adversarial_prompt(["/tmp/a.md"], Path("/tmp/out"))
+    assert "--compare /tmp/a.md " in clean
+    assert clean.endswith("--output /tmp/out")
+
+
+def test_resolve_config_normalizes_transport_case(temp_tasklist, patch_git) -> None:
+    """PR#199 F4: resolve_config lowercases transport so programmatic callers
+    passing mixed-case values match the case-insensitive CLI option."""
+    config = resolve_config(
+        str(temp_tasklist), depth="standard", model="test-model", transport="STUB"
+    )
+    assert config.transport == "stub"

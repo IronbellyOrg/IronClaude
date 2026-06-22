@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import dataclasses
 import re
+import shlex
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
@@ -200,7 +201,9 @@ def run_tier2_ensemble(
         env=env,
     )
     worker_prompt = prompt or build_worker_prompt(config)
-    worker_spec = WorkerSpec(count=reviewers, models=[])
+    worker_spec = WorkerSpec(
+        count=reviewers, models=[], timeout_sec=config.timeout_seconds
+    )
     worker_results = dispatch_wave1(
         preflight,
         transport_for_slot=factory,
@@ -372,14 +375,21 @@ def parse_adversarial_contract(output_dir: Path) -> dict[str, Any] | None:
 
 
 def build_adversarial_prompt(final_paths: list[str], output_dir: Path) -> str:
-    """Build the literal sc:adversarial Mode-A invocation."""
+    """Build the literal sc:adversarial Mode-A invocation.
+
+    The comma-joined path list and ``output_dir`` are shell-quoted so a path
+    containing spaces (or other shell metacharacters) stays a single argument
+    instead of being split into several. The comma remains the ``--compare`` /
+    ``--suspect-source`` list delimiter, so a path containing a literal comma is
+    still ambiguous by construction — an accepted limitation of the
+    comma-delimited contract.
+    """
     compare_files = ",".join(final_paths)
-    suspect_files = ",".join(final_paths)
     return (
         "/sc:adversarial "
-        f"--compare {compare_files} "
-        f"--suspect-source {suspect_files} "
-        f"--output {output_dir}"
+        f"--compare {shlex.quote(compare_files)} "
+        f"--suspect-source {shlex.quote(compare_files)} "
+        f"--output {shlex.quote(str(output_dir))}"
     )
 
 
