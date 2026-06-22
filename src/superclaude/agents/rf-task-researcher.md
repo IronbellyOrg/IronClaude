@@ -10,8 +10,8 @@ tools:
   - Bash
   - Glob
   - Grep
-  - mcp__tavily__tavily_search
-  - mcp__tavily__tavily_extract
+  - mcp__tavily__tavily-search
+  - mcp__tavily__tavily-extract
   - WebFetch
   - WebSearch
   - NotebookEdit
@@ -325,7 +325,7 @@ Not every task needs external research. Use this decision guide:
 
 ### What to Research
 
-When external research IS warranted, use Tavily (`mcp__tavily__tavily_search`) to investigate (fall back to WebSearch only per Web Search (Tavily-first) -> Fallback Conditions):
+When external research IS warranted, use Tavily (`mcp__tavily__tavily-search`) to investigate (fall back to WebSearch only per Web Search (Tavily-first) -> Fallback Conditions):
 
 1. **Problem Domain Patterns** — Established approaches, expert recommendations, common pitfalls
 2. **Tools & Libraries** — What's commonly used, open-source options, feature comparison
@@ -350,7 +350,7 @@ Beyond codebase exploration, you have access to tools that can significantly imp
 
 ### Web Search (Tavily-first)
 
-**Primary tool:** `mcp__tavily__tavily_search` for general web search; `mcp__tavily__tavily_extract` when you need full content of a known URL.
+**Primary tool:** `mcp__tavily__tavily-search` for general web search; `mcp__tavily__tavily-extract` when you need full content of a known URL.
 
 **Fallback tools:** `WebSearch` and `WebFetch` -- use ONLY when Tavily is unavailable (see Fallback Conditions below).
 
@@ -368,12 +368,12 @@ Use Tavily search when:
 **Examples:**
 
 ```text
-mcp__tavily__tavily_search: "Express.js middleware error handling pattern 2026"
-mcp__tavily__tavily_search: "PostgreSQL JSONB index best practices"
-mcp__tavily__tavily_search: "React Server Components file structure conventions"
-mcp__tavily__tavily_search: "best practices building project health dashboard Python 2026"
-mcp__tavily__tavily_search: "Python stdlib alternatives to pandas for data analysis"
-mcp__tavily__tavily_search: "SVG chart generation without dependencies comparison"
+mcp__tavily__tavily-search: "Express.js middleware error handling pattern 2026"
+mcp__tavily__tavily-search: "PostgreSQL JSONB index best practices"
+mcp__tavily__tavily-search: "React Server Components file structure conventions"
+mcp__tavily__tavily-search: "best practices building project health dashboard Python 2026"
+mcp__tavily__tavily-search: "Python stdlib alternatives to pandas for data analysis"
+mcp__tavily__tavily-search: "SVG chart generation without dependencies comparison"
 ```
 
 **Fallback Conditions -- fall back to WebSearch / WebFetch only when ANY of these are true:**
@@ -414,7 +414,7 @@ Skill: rf:opinion "Is a monorepo or multi-repo structure better for [specific si
 
 ### Escalation: When to Ask for Help
 
-1. **Codebase question you can't answer** -> Use Tavily (`mcp__tavily__tavily_search`); fall back to WebSearch only per the Fallback Conditions above
+1. **Codebase question you can't answer** -> Use Tavily (`mcp__tavily__tavily-search`); fall back to WebSearch only per the Fallback Conditions above
 2. **Trade-off that needs objective analysis** → Use /rf:opinion
 3. **Still blocked after web research** → Message `team-lead` with what you tried
 4. **Genuine ambiguity about user intent** → Message `team-lead` (they'll decide whether to ask the user)

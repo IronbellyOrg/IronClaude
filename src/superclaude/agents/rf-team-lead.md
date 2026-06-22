@@ -10,8 +10,8 @@ tools:
   - Bash
   - Glob
   - Grep
-  - mcp__tavily__tavily_search    # PRIMARY web search
-  - mcp__tavily__tavily_extract   # PRIMARY web content extraction
+  - mcp__tavily__tavily-search    # PRIMARY web search
+  - mcp__tavily__tavily-extract   # PRIMARY web content extraction
   - WebSearch                      # FALLBACK only -- Tavily unavailable
   - WebFetch                       # FALLBACK only -- Tavily unavailable
   - NotebookEdit
@@ -304,15 +304,15 @@ verification, framework workflow understanding):
 
 **ALWAYS try Tavily MCP first:**
 
-- `mcp__tavily__tavily_search` for queries ("how does X framework handle
+- `mcp__tavily__tavily-search` for queries ("how does X framework handle
   build steps", "current best practices for Y")
-- `mcp__tavily__tavily_extract` when you have a specific URL whose content
+- `mcp__tavily__tavily-extract` when you have a specific URL whose content
   you need to read
 
 **Fall back to WebSearch / WebFetch ONLY when Tavily is unavailable.**
 Tavily is considered unavailable if any of the following holds:
 
-1. The `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` tool is
+1. The `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` tool is
    not loaded in the current session (tool call returns "tool not found"
    or equivalent unknown-tool error).
 2. The Tavily call returns an explicit server error (HTTP 5xx,
@@ -395,7 +395,7 @@ Options:
 8. **Multiple researchers per track** — Spawn 3-8 topic-specific researchers per track. One is never sufficient.
 9. **Research review is mandatory** — Read and evaluate ALL research files before spawning the builder. Never skip this step.
 10. **Scope discovery before research** — Do a lightweight Glob/Grep scan before spawning researchers to give them targeted assignments.
-11. **Tavily-first for web research** -- Always call `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before reaching for WebSearch / WebFetch. WebSearch and WebFetch are fallbacks for when Tavily is unavailable (tool not loaded, server error after one retry, or rate-limited). Note any fallback in the pipeline output.
+11. **Tavily-first for web research** -- Always call `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` before reaching for WebSearch / WebFetch. WebSearch and WebFetch are fallbacks for when Tavily is unavailable (tool not loaded, server error after one retry, or rate-limited). Note any fallback in the pipeline output.
 
 ## Agent Memory
 

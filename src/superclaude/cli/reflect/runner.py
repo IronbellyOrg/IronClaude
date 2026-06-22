@@ -454,6 +454,9 @@ class ReflectRunner:
         # worker subagent. A delegated/nested run can spawn the Tier-2 reviewers, but their
         # completion callbacks route to the top-level coordinator, NOT back to the nested
         # runner -- so it cannot collect the reviewer cards and degrades to single-reviewer.
+        # NOTE: this prose directive is best-effort defense-in-depth only; the STRUCTURAL
+        # enforcement is EV-1 (the Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK adversarial-merge gate
+        # in sc-reflect contract 1.5.1), which fails the run if reviewer cards are not on disk.
         inline_directive = (
             "\n\nExecute this reflect run INLINE, yourself, as the top-level orchestrator. "
             "Do NOT delegate the whole run to a subagent. When the protocol reaches Wave 3 "
