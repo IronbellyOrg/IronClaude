@@ -1,0 +1,13 @@
+.dev/eval-workspaces/sc-reflect/evals/evals.json
+.dev/eval-workspaces/sc-reflect/grader.py
+docs/guides/reflect-cli-tools-guide.md
+src/superclaude/cli/reflect/commands.py
+src/superclaude/cli/reflect/config.py
+src/superclaude/cli/reflect/models.py
+src/superclaude/cli/reflect/runner.py
+src/superclaude/cli/swarm/lenses/__init__.py
+src/superclaude/skills/sc-reflect-protocol/SKILL.md
+src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md
+src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
+src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+tests/cli/reflect/test_no_nesting_guard.py

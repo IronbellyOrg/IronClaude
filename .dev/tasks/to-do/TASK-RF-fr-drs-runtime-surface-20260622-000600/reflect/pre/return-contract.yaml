@@ -1,0 +1,42 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 2
+run_id: "pre-fr-drs-runtime-surface-20260622-001500"
+report_path: "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-fr-drs-runtime-surface-20260622-000600/reflect/pre/report.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-fr-drs-runtime-surface-20260622-000600/reflect/pre/audit.log"
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # depth-deep hard override (§5.1) forced Tier 2; no rubric row evaluated
+
+# UC-1 coverage (the load-bearing PRE output)
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 5
+
+# Tier-2 diversity (degraded — see report §Tier-2 note)
+t2_model_class_diversity: degraded
+merge_method: single-reviewer-fallback
+calibrator_diversity: degraded
+adversarial_unavailable: false
+
+# Hallucination guard
+citations_total: 21          # one per mapped requirement → tasklist item(s)
+citations_revalidated: 21
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+needs_human_decision: false
+user_decision_required: false
+
+input_drift_detected: false

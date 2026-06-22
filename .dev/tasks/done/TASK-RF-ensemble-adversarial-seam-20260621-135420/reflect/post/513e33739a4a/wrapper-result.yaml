@@ -1,0 +1,16 @@
+verdict: pass
+status: success
+tier_reached: 2
+reason: pass
+report: .dev/tasks/to-do/TASK-RF-ensemble-adversarial-seam-20260621-135420/reflect/post/513e33739a4a/REPORT.md
+contract: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-ensemble-adversarial-seam-20260621-135420/reflect/post/513e33739a4a/return-contract.yaml
+deviations:
+  authorized: 2
+  necessary: 2
+  drift: 0
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: true

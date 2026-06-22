@@ -1,0 +1,93 @@
+# Reuse & consolidation audit — FR-DRS runtime_surface sweep module
+# Stage: pre (advisory). Produced by reuse-auditor agent, 2026-06-21.
+# Verdict legend: reuse-by-import | mirror-shape | extract-shared | distinct
+stage: pre
+candidates_scanned: 6
+neighbours_found: 10
+max_overlap: 0.81
+key_boundary_fact: >
+  Verified reflect package guardrails (runner.py/config.py/models.py docstrings) ban imports from
+  cli/sprint and cli/roadmap ONLY — no ban on importing cli/audit. Importing audit heuristics is
+  mechanically legal but couples reflect product-path to cleanup-audit semantics; prefer reflect-local
+  or boundary-neutral helpers. No proposed component is a confident-duplicate under the two-floor guard.
+
+findings:
+  - candidate: "Surface symbol tagger"
+    capability: "classify diff-hunk symbols as runtime surfaces by language-specific symbol kind + decorator/registration evidence"
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.37
+    neighbours:
+      - src/superclaude/cli/audit/wiring_gate.py:164   # _safe_parse(): py-only AST parse helper
+      - src/superclaude/cli/audit/filetype_rules.py:7  # language/file-type table (py,ts,js,go,rs,java)
+      - src/superclaude/cli/audit/dead_code.py:37       # framework hook/entrypoint exclusion heuristics
+    decision: "Implement reflect-local; optionally reuse only small language constants after verifying semantics. Audit helpers don't parse diff hunks, resolve hunk-local symbols, or detect Click/Typer decorators."
+
+  - candidate: "Referrer finder"
+    capability: "find symbol referrers across repo with structured analysis when available + fail-open grep evidence on tool loss"
+    tier: maybe-related
+    verdict: distinct
+    shape_divergence: true
+    S_reuse: 0.67
+    neighbours:
+      - src/superclaude/cli/audit/dependency_graph.py:1    # 3-tier graph: static + grep evidence with confidence labels
+      - src/superclaude/cli/audit/dependency_graph.py:5    # Tier-A AST-resolved imports (high confidence)
+      - src/superclaude/cli/audit/dependency_graph.py:7    # Tier-B grep string refs (medium confidence)
+      - src/superclaude/cli/audit/tool_orchestrator.py:146 # ToolOrchestrator: pluggable static-tool orchestration + caching
+    decision: "Model the fail-open tiering after dependency_graph.py, but implement a SYMBOL-level finder locally — audit graph is FILE-level import/reference graphing, too broad for symbol referrer + comment/test partitioning."
+
+  - candidate: "Production-vs-test partitioner"
+    capability: "classify referrer evidence production/test/inline-test/comment via per-language path+syntax rules"
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.57
+    neighbours:
+      - src/superclaude/cli/audit/filetype_rules.py:10   # test path/name markers (test_*.py, *.test.ts, *.spec.js)
+      - src/superclaude/cli/audit/filetype_rules.py:110  # classify_file_type(): path/name-based test classification
+    decision: "Reuse the filename-marker LISTS only after reconciling semantics. Audit classifier defaults UNKNOWN->SOURCE; runtime-surface requires unknown/ambiguous->DEGRADE. Audit lacks inline-test scope + comment/docstring exclusion."
+
+  - candidate: "Degrade oracle"
+    capability: "turn static incompleteness + dynamic/runtime registration evidence into a DEGRADE verdict (not unsafe pass/regression)"
+    tier: maybe-related
+    verdict: distinct
+    S_reuse: 0.68
+    neighbours:
+      - src/superclaude/cli/audit/dynamic_imports.py:1   # dynamic-import-safe classification (KEEP:monitor default)
+      - src/superclaude/cli/audit/dynamic_imports.py:79  # scan_for_dynamic_imports(): line-scanning detector
+      - src/superclaude/cli/audit/dead_code.py:155       # entrypoint exclusion prior art
+    decision: "Reuse dynamic-import regex SCANNING/pattern data if convenient; implement the 4-category oracle separately. dynamic_imports maps to cleanup KEEP:monitor, NOT runtime-surface DEGRADE. Audit entrypoint detection is filename-pattern, not [project.scripts]/entry-point metadata resolution."
+
+  - candidate: "Entrypoint rootwalk (depth=1)"
+    capability: "enumerate runtime roots + bounded static walk toward candidate symbol; REACHED/UNREACHED/DEGRADE with fail-open"
+    tier: maybe-related
+    verdict: reuse-by-import   # STRONGEST overlap (S_reuse 0.81); adapt, do NOT drop-in
+    shape_divergence: true
+    S_reuse: 0.81
+    neighbours:
+      - src/superclaude/cli/audit/reachability.py:1    # AST call-chain reachability analyzer for wiring manifest validation
+      - src/superclaude/cli/audit/reachability.py:374  # class ReachabilityAnalyzer
+      - src/superclaude/cli/audit/reachability.py:591  # _bfs_reachable(): BFS path search root->target
+      - src/superclaude/cli/audit/reachability.py:740  # emit_reachability_report(): scalar frontmatter computation
+    domain_mismatches:
+      - "reachability.py:27 documents dynamic-dispatch false-negatives that report UNREACHABLE; runtime-surface requires such uncertainty to DEGRADE."
+      - "reachability.py:460 uses depth>50 guard; rootwalk contract is depth=1."
+      - "Python-only + manifest-required targets vs runtime-surface multi-language symbol-anchored."
+    decision: "Reuse-by-import for small stable BFS internals OR copy/adapt the BFS skeleton — but preserve depth=1 + DEGRADE-on-partial-enumeration. Boundary risk: importing reflect->audit couples product path to cleanup-audit; prefer extracting a boundary-neutral BFS helper if reused long-term."
+
+  - candidate: "Ledger writer + contract-scalar computer"
+    capability: "emit per-edge runtime-surface YAML ledger + reduce rows into 6 return-contract scalars with count invariant"
+    tier: distinct
+    verdict: distinct
+    S_reuse: 0.56
+    neighbours:
+      - src/superclaude/cli/reflect/ensemble.py:500  # _emit_reflect_contract(): simple YAML artifact writer (reflect-local)
+      - src/superclaude/cli/reflect/contract.py:65   # parse_contract(): defensive return-contract.yaml reader
+      - src/superclaude/cli/reflect/runner.py:66     # IndentDumper.increase_indent (yamllint-safe sequence indent)
+    decision: "Implement ledger row type + per-symbol reduction + 6-scalar computation directly from runtime-surface.md. Reuse only generic YAML style (IndentDumper for yamllint-safe sequences; see mem:reference_yamllint_indent_sequences_pyyaml). Generic YAML write is boilerplate, not a behavioural duplicate."
+
+summary:
+  - "No confident-duplicate. New module is reflect-local (src/superclaude/cli/reflect/runtime_surface.py)."
+  - "Highest-leverage reuse: adapt cli/audit/reachability.py BFS skeleton for the rootwalk (depth=1, DEGRADE-on-partial)."
+  - "Second: model fail-open static+grep tiering after cli/audit/dependency_graph.py (do NOT drop-in as symbol finder)."
+  - "Reuse pattern DATA (dynamic-import regexes, test-marker lists) but re-implement DEGRADE-defaulting semantics."
+  - "Open design question for TDD §6.4 / §21: import audit helpers directly vs extract boundary-neutral helpers vs reflect-local copy. Boundary is mechanically legal but semantically coupling."

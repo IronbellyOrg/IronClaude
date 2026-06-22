@@ -1,0 +1,105 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-ensemble-adversarial-seam-20260621-135420/reflect/post/513e33739a4a/REPORT.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-ensemble-adversarial-seam-20260621-135420/reflect/post/513e33739a4a/audit.log"
+confidence_calibrated: 0.92
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+
+# Scope resolution (the decisive finding)
+diff_arg_supplied: "530505a066d6bfefd43963af67e253ed3070e7af"
+diff_arg_scope_note: >-
+  The supplied --diff base (single ref → working-tree vs commit) spanned THREE
+  tasks: parent FR-RH2 (576aadff) + unrelated issue-3 UC-2 runtime-surface
+  (513e3373) + the R6 delta. The R6 deliverable is ENTIRELY UNCOMMITTED. Faithful
+  R6 audit scope = `git diff HEAD` (3 files / +271 / -21). HEAD ensemble.py still
+  hard-codes regression_present:False with no AdversarialResult class.
+audited_scope: "git diff HEAD (uncommitted working tree)"
+audited_files:
+  - src/superclaude/cli/reflect/ensemble.py
+  - tests/cli/reflect/test_ensemble_stub_integration.py
+  - tests/cli/reflect/test_ensemble_unit.py
+
+# UC-2 deviation taxonomy
+tasklist_completion_pct: 0.97   # PC.4 (this gate) + PC.5 (mark-done) pending by design
+deviation_count_by_class:
+  authorized: 2
+  necessary: 2
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+
+# Verification triangle (§6.1 step 5.5) — independently re-run, not task-log self-report
+verification_ran: true
+verification_invocations: 4
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+full_suite_result: "2353 passed, 26 skipped, 1 xpassed, 0 failed (tests/cli/reflect tests/swarm)"
+fr_rh2_7_frozen_diff_empty: true   # git diff HEAD -- contract.py models.py == empty
+nfr7_no_nesting_guard: pass
+ruff_check: pass
+ruff_format_check: pass
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_dropped_reviewer_findings: 1   # reviewer-claimed test failure; re-ran → 1 passed (env artifact), dropped
+citations_inferred: 1                     # reviewer-1 LOW latent ordering note (not producible today)
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble
+reviewer_count: 2
+reviewer_models: ["root-cause-analyst (analyzer lens)", "quality-engineer (qa lens)"]
+executor_class_source: flag
+executor_class_resolved: true
+executor_model_class: sonnet            # gpt-5.5 — excluded from reviewer pool (§7.1)
+executor_exclusion_degraded: false
+t2_model_class_diversity: full
+t2_vendor_diversity: multi              # opus=anthropic, sonnet=gpt-5.5, haiku=qwen3.6-plus
+merge_method: adversarial-inline        # both reviewers PASS; convergence high
+adversarial_convergence_score: 0.91
+calibrator_diversity: full
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+cannot_validate_without_user_input: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: false   # nothing to remediate — Authorized/Necessary only, zero Drift/Regression
+remediation_task_path: null
+
+# Promotion (Wave 7) — --promote NOT passed; gate evaluated, correctly skipped
+promotion_action: skipped
+promotion_adapter: task
+promotion_skip_reason: gate-failed
+promotion_gate_passed: false
+promotion_gate_failures:
+  - tasklist_completion_pct_1_0   # PC.4 (this gate) + PC.5 (mark-done) pending BY DESIGN
+  - frontmatter_status_matches    # frontmatter status == "🟠 Doing", not a terminal value
+promotion_note: >-
+  Promotion is correctly suppressed: this reflect run IS the task's PC.4 POST
+  reflect gate. The task marks itself Done (PC.5) only AFTER this gate returns
+  exit 0. Gate-skip here is the designed handshake, not a failure.
+
+# Per-task verdict (single work-unit)
+per_task_verdicts:
+  - task_id: "TASK-RF-ensemble-adversarial-seam-20260621-135420"
+    status: success
+    deviation_class: authorized
+    citations_dropped: 0
+    per_task_validation_strength: 0.92
+    evidence_anchor: "git diff HEAD + full-suite re-run (2353 passed) + I12 red-then-green"
+
+post_gate_verdict: PASS
+post_gate_exit_code_equivalent: 0

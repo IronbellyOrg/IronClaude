@@ -1,0 +1,58 @@
+mode: pre
+coverage_model: "18 groups = 10 FRs + 6 NFRs + blocker ordering + release checklist"
+coverage_pct: 0.917
+coverage_count:
+  covered: 15
+  partial: 3
+  missing: 0
+  weighted_covered: 16.5
+  total: 18
+requirements:
+  - id: FR-RSR.1
+    status: covered
+    evidence: "tasklist lines 82-83, 197-203"
+  - id: FR-RSR.2
+    status: covered
+    evidence: "tasklist lines 83, 201-203"
+  - id: FR-RSR.3
+    status: covered
+    evidence: "tasklist lines 82-83, 185-191"
+  - id: FR-RSR.4
+    status: covered
+    evidence: "tasklist lines 82-83, 185-187, 201-203"
+  - id: FR-RSR.5
+    status: covered
+    evidence: "tasklist lines 213-223"
+  - id: FR-RSR.6
+    status: covered
+    evidence: "tasklist lines 225-239"
+  - id: FR-RSR.7
+    status: covered
+    evidence: "tasklist lines 205-211"
+  - id: FR-RSR.8
+    status: covered
+    evidence: "tasklist lines 249-255"
+  - id: FR-RSR.9
+    status: covered
+    evidence: "tasklist lines 245-255"
+  - id: FR-RSR.10
+    status: partial
+    evidence: "tasklist lines 289-295 allow non-executed structural/deferred proof for required fail-before/pass-after and determinism gates"
+  - id: NFR-RSR.1
+    status: covered
+  - id: NFR-RSR.2
+    status: partial
+    evidence: "tasklist lines 293-295 permit determinism by inspection when the TDD requires a byte-identical two-run ledger"
+  - id: NFR-RSR.3
+    status: covered
+  - id: NFR-RSR.4
+    status: covered
+  - id: NFR-RSR.5
+    status: covered
+  - id: NFR-RSR.6
+    status: covered
+  - id: blocker-ordering
+    status: covered
+  - id: release-checklist
+    status: partial
+    evidence: "tasklist lines 349-351 can consume non-executed eval/determinism artifacts while TDD lines 992-998 require concrete release checks"

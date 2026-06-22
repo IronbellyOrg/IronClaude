@@ -1,0 +1,18 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 6 items
+
+tests/cli/reflect/test_ensemble_unit.py::test_u1_reflect_review_lens_registered_and_valid PASSED [ 16%]
+tests/cli/reflect/test_ensemble_unit.py::test_u2_reflect_review_lens_workers_and_model_pool_source PASSED [ 33%]
+tests/cli/reflect/test_ensemble_unit.py::test_transport_unknown_value_rejected_at_click_parse PASSED [ 50%]
+tests/cli/reflect/test_ensemble_unit.py::test_reviewers_one_is_preserved_before_clamp PASSED [ 66%]
+tests/cli/reflect/test_ensemble_unit.py::test_reviewers_outside_normal_range_clamp_to_two_four PASSED [ 83%]
+tests/cli/reflect/test_ensemble_unit.py::test_transport_resolves_default_and_stub PASSED [100%]
+
+============================== 6 passed in 0.15s ===============================
