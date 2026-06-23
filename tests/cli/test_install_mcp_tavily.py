@@ -95,6 +95,37 @@ def test_default_parameters_propagated(monkeypatch):
     assert argv[:3] == ["claude", "mcp", "add"]
 
 
+def test_default_parameters_without_api_key(monkeypatch):
+    """DEFAULT_PARAMETERS is injected even when the user supplies no API key (L1).
+
+    The ``env_args.extend([...])`` for DEFAULT_PARAMETERS fires independently of the
+    api-key branch, so the token must still reach the argv when ``prompt_for_api_key``
+    returns ``None`` — and no ``TAVILY_API_KEY=`` pair should be present.
+    """
+    captured = _patch_install_path(monkeypatch, None)  # user declines the key prompt
+
+    ok = install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+    )
+    assert ok is True
+
+    assert len(captured["calls"]) == 1
+    argv = captured["calls"][0]
+
+    # DEFAULT_PARAMETERS still injected, immediately after an -e flag.
+    assert _EXPECTED_DEFAULT_PARAMS_TOKEN in argv
+    idx = argv.index(_EXPECTED_DEFAULT_PARAMS_TOKEN)
+    assert argv[idx - 1] == "-e"
+
+    # No API-key env pair leaked into the argv when the key was declined.
+    assert not any(tok.startswith("TAVILY_API_KEY=") for tok in argv), (
+        f"unexpected TAVILY_API_KEY pair in argv when no key was given: {argv}"
+    )
+    # Still the pinned `claude mcp add` path.
+    assert "tavily-mcp@0.2.20" in argv
+    assert argv[:3] == ["claude", "mcp", "add"]
+
+
 def test_api_key_never_in_logged_command(monkeypatch, capsys):
     """The echoed "Running:" command masks the raw API key value (M1)."""
     secret = "SUPERSECRETKEY-do-not-log-9999"  # pragma: allowlist secret

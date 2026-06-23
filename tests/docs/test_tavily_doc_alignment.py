@@ -62,10 +62,23 @@ def _read(p: Path) -> str:
         return ""
 
 
+def test_iter_text_files_is_nonvacuous():
+    """The shared scanner yields a substantial file set — fails loudly if the
+    roots/exclusion logic ever regresses to 0 files (the vacuous-pass class this
+    file was already bitten by; M1)."""
+    files = list(_iter_text_files(_ROOTS))
+    assert len(files) > 100, (
+        f"doc-alignment scanner yielded only {len(files)} files from {_ROOTS}; "
+        "the drift guards below would pass vacuously"
+    )
+
+
 def test_tavily_version_single_pin():
     """Every `tavily-mcp@<ver>` in src/ + docs/ is pinned to 0.2.20 (X1 / H3)."""
+    files = list(_iter_text_files(_ROOTS))
+    assert files, "version-pin guard scanned 0 files (vacuous)"
     bad = []
-    for p in _iter_text_files(_ROOTS):
+    for p in files:
         for m in _VERSION_RE.finditer(_read(p)):
             if m.group(1) != "0.2.20":
                 bad.append((str(p.relative_to(_REPO)), m.group(1)))
@@ -74,11 +87,9 @@ def test_tavily_version_single_pin():
 
 def test_no_stale_mcp_tavily_token():
     """No stale `mcp.tavily` capability token in src/ + docs/ (X4 / H4); `mcp.tavily.com` is allowed."""
-    bad = [
-        str(p.relative_to(_REPO))
-        for p in _iter_text_files(_ROOTS)
-        if _STALE_TOKEN_RE.search(_read(p))
-    ]
+    files = list(_iter_text_files(_ROOTS))
+    assert files, "stale-token guard scanned 0 files (vacuous)"
+    bad = [str(p.relative_to(_REPO)) for p in files if _STALE_TOKEN_RE.search(_read(p))]
     assert not bad, (
         f"stale 'mcp.tavily' token (use 'mcp_server.tavily') found in: {bad}"
     )
@@ -86,8 +97,10 @@ def test_no_stale_mcp_tavily_token():
 
 def test_no_tavily_json_references():
     """No in-scope file references the deleted `tavily.json` config (X2)."""
+    files = list(_iter_text_files(_ROOTS))
+    assert files, "tavily.json-reference guard scanned 0 files (vacuous)"
     bad = []
-    for p in _iter_text_files(_ROOTS):
+    for p in files:
         text = _read(p)
         if "configs/tavily.json" in text or re.search(r"\btavily\.json\b", text):
             bad.append(str(p.relative_to(_REPO)))
@@ -100,8 +113,10 @@ def test_docs_no_default_params_duplication():
     The canonical value lives in `install_mcp.py` and `src/superclaude/mcp/MCP_Tavily.md`;
     the `docs/` tree must not restate it.
     """
+    docs_files = list(_iter_text_files([_REPO / "docs"]))
+    assert docs_files, "docs DEFAULT_PARAMETERS guard scanned 0 files (vacuous)"
     bad = []
-    for p in _iter_text_files([_REPO / "docs"]):
+    for p in docs_files:
         text = _read(p)
         if (
             '"search_depth"' in text

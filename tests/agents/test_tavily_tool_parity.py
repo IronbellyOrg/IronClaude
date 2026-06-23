@@ -46,8 +46,10 @@ def _split_frontmatter(text: str) -> tuple[str, str]:
 
 def test_prose_tavily_ids_are_declared():
     """referenced ⊆ declared — no file uses a Tavily tool it did not declare (X7)."""
+    files = _md_files()
+    assert files, "parity guard scanned 0 .md files (vacuous; M1)"
     violations = []
-    for f in _md_files():
+    for f in files:
         fm, body = _split_frontmatter(f.read_text(encoding="utf-8"))
         if not _TOOL_SURFACE_KEY.search(fm):
             continue
@@ -61,8 +63,10 @@ def test_prose_tavily_ids_are_declared():
 
 def test_documenting_files_have_exact_parity():
     """declared == referenced for files that document Tavily tools in prose (X7 bidirectional)."""
+    files = _md_files()
+    assert files, "parity guard scanned 0 .md files (vacuous; M1)"
     mismatches = []
-    for f in _md_files():
+    for f in files:
         fm, body = _split_frontmatter(f.read_text(encoding="utf-8"))
         if not _TOOL_SURFACE_KEY.search(fm):
             continue
@@ -81,8 +85,10 @@ def test_documenting_files_have_exact_parity():
 
 def test_rf_no_map_crawl():
     """X5 guard — no rf-* agent references map/crawl (confined to the research engine)."""
+    rf_files = sorted(_AGENTS_DIR.glob("rf-*.md"))
+    assert rf_files, "X5 guard found 0 rf-* agents (vacuous; M1)"
     offenders = []
-    for f in sorted(_AGENTS_DIR.glob("rf-*.md")):
+    for f in rf_files:
         text = f.read_text(encoding="utf-8")
         if "tavily-map" in text or "tavily-crawl" in text:
             offenders.append(f.name)

@@ -16,6 +16,7 @@ _TROUBLESHOOT_CMD = _SC / "commands" / "troubleshoot.md"
 _TROUBLESHOOT_SKILL = _SC / "skills" / "sc-troubleshoot-protocol" / "SKILL.md"
 _REFLECT_CMD = _SC / "commands" / "reflect.md"
 _REFLECT_SKILL = _SC / "skills" / "sc-reflect-protocol" / "SKILL.md"
+_BRAINSTORM_SKILL = _SC / "skills" / "sc-brainstorm-protocol" / "SKILL.md"
 
 _ALL_FOUR = [_TROUBLESHOOT_CMD, _TROUBLESHOOT_SKILL, _REFLECT_CMD, _REFLECT_SKILL]
 _FORBIDDEN_TOOLS = ["tavily-extract", "tavily-map", "tavily-crawl"]
@@ -34,6 +35,22 @@ def test_tier2_tool_id_parity():
         )
         for tool in _FORBIDDEN_TOOLS:
             assert tool not in text, f"{p.name} must not reference {tool} (X5)"
+
+
+def test_brainstorm_no_map_crawl():
+    """X5 — sc-brainstorm-protocol delegates to /sc:research and must NOT reference
+    extract/map/crawl directly (L2).
+
+    Brainstorm carries no ``mcp__tavily__*`` tool id of its own (it inherits the surface
+    via the /sc:research delegation), so it is intentionally excluded from ``_ALL_FOUR``
+    (which requires ``tavily-search``). This guard closes the X5 coverage gap for the
+    brainstorm consumer without falsely requiring a tool id it does not declare.
+    """
+    text = _read(_BRAINSTORM_SKILL)
+    for tool in _FORBIDDEN_TOOLS:
+        assert tool not in text, (
+            f"sc-brainstorm-protocol must not reference {tool} (X5 confinement)"
+        )
 
 
 def test_rate_cap_intact():
