@@ -314,12 +314,12 @@ class EvalOutcome:
       preserves equality and hashability; an empty tuple is the default for
       ``SKIPPED`` outcomes (no assertions executed).
     * ``skip_reason``         — free-form reason string when ``status`` is
-      ``SKIPPED`` (e.g. ``"capability 'mcp.tavily' unresolved"``). ``None``
+      ``SKIPPED`` (e.g. ``"capability 'mcp_server.tavily' unresolved"``). ``None``
       otherwise. DM-001 does not couple ``status == SKIPPED`` to a non-None
       reason — empty-skip rows are documented elsewhere (loader paths) and
       the model accepts both shapes.
     * ``skip_flag_triggered`` — name of the flag/capability that triggered
-      the skip (e.g. ``"mcp.tavily"``, ``"--include-skipped"``). ``None``
+      the skip (e.g. ``"mcp_server.tavily"``, ``"--include-skipped"``). ``None``
       when the skip was not flag-driven.
     * ``artifacts``           — mapping of artifact-name to absolute (or
       run-relative) path produced by the eval. Stored as an immutable

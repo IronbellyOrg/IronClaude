@@ -5,6 +5,8 @@ category: analysis
 tools:
   - mcp__tavily__tavily-search
   - mcp__tavily__tavily-extract
+  - mcp__tavily__tavily-map
+  - mcp__tavily__tavily-crawl
   - WebSearch
   - WebFetch
   - mcp__context7__resolve-library-id
@@ -35,6 +37,22 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
 2. **Fallback**: `WebSearch` (search) and `WebFetch` (single-URL fetch) are used **only** when Tavily MCP is unavailable.
 3. **Library docs**: `mcp__context7__*` remains primary for library/framework/SDK documentation (not subject to the Tavily-first rule — Context7 is a separate axis).
 
+### Discovery Routing (map/crawl — research engine only)
+
+- `mcp__tavily__tavily-map` — site-structure discovery: enumerate a site's URL graph before
+  targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
+- `mcp__tavily__tavily-crawl` — deep domain traversal: follow links across a domain to gather
+  many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, result set
+  truncated to a maximum of **50 URLs**.
+- Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when
+  exhaustive breadth is required. Per-tier gating lives in RESEARCH_CONFIG.md Depth Profiles.
+
+### `extract_depth` selection
+
+- `extract_depth: basic` for quick/standard profiles (single-pass, low-cost pages).
+- `extract_depth: advanced` for deep/exhaustive profiles, or when a content-rich / JS-heavy page
+  returns thin content under a basic extract.
+
 ### Detecting "Tavily unavailable"
 
 Treat Tavily MCP as unavailable, and fall back to WebSearch/WebFetch, when **any** of the following holds:
@@ -44,7 +62,7 @@ Treat Tavily MCP as unavailable, and fall back to WebSearch/WebFetch, when **any
 - A Tavily call returns an explicit rate-limit / quota-exceeded error.
 - A Tavily call returns an authentication error (missing/invalid API key).
 
-In every fallback event, record in the source citation table: `fallback_reason: <tavily_missing | tavily_error | tavily_rate_limit | tavily_auth>`.
+In every fallback event, record in the source citation table: `fallback_reason: <tavily_missing | tavily_error | tavily_rate_limit | tavily_auth | map_unsupported_fallback | crawl_unsupported_fallback>`. The Tavily-first rule and these fallbacks apply to all four operations (`tavily-search`, `tavily-extract`, `tavily-map`, `tavily-crawl`). Because `tavily-map` / `tavily-crawl` have no direct WebSearch/WebFetch equivalent, on fallback they degrade to iterative `WebSearch` discovery (losing site-graph / crawl breadth) — flag this fidelity loss with `map_unsupported_fallback` / `crawl_unsupported_fallback`.
 
 ### Never silent fallback
 

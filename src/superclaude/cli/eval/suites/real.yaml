@@ -38,6 +38,7 @@ optional_capabilities:
   - { name: mcp_server.auggie-mcp,        gate_flag: "--no-mcp", failure_mode: skip }
   - { name: mcp_server.airis-mcp-gateway, gate_flag: "--no-mcp", failure_mode: skip }
   - { name: mcp_server.serena,            gate_flag: "--no-mcp", failure_mode: skip }
+  - { name: mcp_server.tavily,            gate_flag: "--no-mcp", failure_mode: skip }
 
 evals:
   - id: E1
@@ -1614,5 +1615,30 @@ evals:
           path: logs/hook-errors.jsonl
           exists: true
           contains: '"disposition":"fail_open"'
+      - exit_code:
+          equals: 0
+
+  - id: E16
+    title: "tavily-search verification — Tavily MCP 0.2.x search tool fires"
+    category: mcp-verification
+    requires: [mcp_server.tavily]
+    timeout_sec: 90
+    isolation:
+      home_strategy: ephemeral
+    no_pty: skip
+    # C7 / TASK-RF-tavily-mcp-0-2-x — capability-gated verification vehicle for
+    # the Tavily 0.2.x upgrade. Proves the pinned `tavily-mcp@0.2.20` server is
+    # reachable and the `mcp__tavily__tavily-search` tool fires. Gated by
+    # `requires: [mcp_server.tavily]`: SKIPs cleanly under `--no-mcp` OR when the
+    # Tavily MCP server is unreachable / no TAVILY_API_KEY is configured
+    # (optional_capabilities failure_mode: skip), so the suite stays CI-safe
+    # without a key. NOTE: the task named this eval `E-tavily-search`, but the
+    # FR-SCH2 eval-id regex `^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$` forbids
+    # hyphens (validate_eval_id raises InvalidEvalId → exit 2), so it is `E16`
+    # (next in the E1–E15 sequence); the descriptive name is preserved in title.
+    inputs:
+      - prompt: "Use mcp__tavily__tavily-search to search the web for \"Tavily MCP server\" and report the top result title."
+        expect_tool_call: mcp__tavily__tavily-search
+    expects:
       - exit_code:
           equals: 0

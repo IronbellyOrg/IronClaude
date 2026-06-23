@@ -1,0 +1,40 @@
+# Phase 4 Validation — raw output (2026-06-23 13:25)
+
+===== uv run pytest tests/cli/eval/test_tavily_eval_capability.py -v =====
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 3 items
+
+tests/cli/eval/test_tavily_eval_capability.py::test_capabilities_registers_mcp_server_tavily PASSED [ 33%]
+tests/cli/eval/test_tavily_eval_capability.py::test_real_suite_has_tavily_capability_and_verification_eval PASSED [ 66%]
+tests/cli/eval/test_tavily_eval_capability.py::test_tavily_eval_gated_to_skip_without_key PASSED [100%]
+
+============================== 3 passed in 0.24s ===============================
+
+===== superclaude eval describe --suite real (exit code only; full output is large) =====
+describe exit: 0
+E16 + capability present (grep):
+- name: mcp_server.tavily
+- id: E16
+  - mcp_server.tavily
+    expect_tool_call: mcp__tavily__tavily-search
+
+===== ruff check (Phase 4 changed/new files) =====
+All checks passed!
+
+===== ruff format --check (Phase 4 py files) =====
+3 files already formatted
+
+===== REGRESSION CHECK: full tests/cli/eval/ dir (capabilities.py + real.yaml are widely depended on) =====
+Result: 8 failed, 1367 passed, 4 skipped.
+Roster test test_default_roster_contains_expected_binaries_and_mcp_servers: FIXED (added mcp_server.tavily to expected set — legit roster change per M2). Now 18 passed in test_capability_gates.py.
+
+The remaining 8 failures are PRE-EXISTING / ENVIRONMENTAL (NOT caused by this task; none reference tavily/capabilities/models/real.yaml):
+  - test_claude_process_adapter.py::test_ruff_* (x2): 'No module named ruff' — ruff not installed as a .venv python module (env).
+  - test_eval_run.py::test_d0072_spec_documents_flag_wiring: missing .dev/releases/current/cliEval/artifacts/D-0072/spec.md (worktree lacks release artifact).
+  - test_validation_commands.py::* (x5): missing .dev/releases/current/cliEval/evidence/T06.11 (worktree lacks evidence artifacts).

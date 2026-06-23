@@ -238,6 +238,14 @@ _DEFAULT_CAPABILITY_SPECS: tuple[_CapabilitySpec, ...] = (
         "--no-mcp",
         "AIRIS MCP gateway reachable",
     ),
+    _CapabilitySpec(
+        "mcp_server.tavily",
+        "tavily",
+        "mcp_server",
+        "skip",
+        "--no-mcp",
+        "Tavily MCP server reachable",
+    ),
 )
 
 

@@ -134,8 +134,9 @@ export MORPH_API_KEY="your_key_here"
 ### tavily 🔍
 
 **Purpose**: Web search and real-time information retrieval for research
+**Capabilities**: search, extraction, site-mapping, domain-crawl — see MCP_Tavily.md
 **Triggers**: `/sc:research` commands, "latest" information requests, current events, fact-checking
-**Requirements**: Node.js 16+, TAVILY_API_KEY (free tier available at <https://app.tavily.com>)
+**Requirements**: Node.js 18+, TAVILY_API_KEY (free tier available at <https://app.tavily.com>)
 
 ```bash
 # Automatic activation
@@ -270,7 +271,7 @@ docker compose restart api
     },
     "tavily": {
       "command": "npx",
-      "args": ["-y", "tavily-mcp@latest"],
+      "args": ["-y", "tavily-mcp@0.2.20"],
       "env": {"TAVILY_API_KEY": "${TAVILY_API_KEY}"}
     },
     "chrome-devtools": {

@@ -186,6 +186,8 @@ Orchestrate parallel brainstorming via:
    | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `Skill tech-research` with topic | `enrichment/research-deep.md` |
    | Otherwise | Skip enrichment | — |
 
+   Research depth/params are owned by `/sc:research` and `tech-research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
+
 2. **Quality-tier tracking** (mandatory per enrichment source):
    - `primary` — first-choice source ran cleanly
    - `fallback_1` — primary failed, used Serena (codebase) or WebSearch (research)
@@ -383,7 +385,7 @@ enrichment_artifact_sizes:
 | `sc-adversarial-protocol` missing | STOP with install instruction | None |
 | `--handoff task/tasklist` skill missing | STOP (no silent downgrade) | User must choose alternate handoff |
 | Codebase enrichment fails (Auggie down) | WARN, fall back to Serena `get_symbols_overview` (quality_tier=fallback_1) | Native Glob/Grep (quality_tier=fallback_2) |
-| Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1) | Skip (quality_tier=skipped) |
+| Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1; WebSearch fallback loses 0.2.x depth/map/crawl features) | Skip (quality_tier=skipped) |
 | Adversarial returns `convergence < 0.50` | FAIL Wave 3, skip Wave 4 | None |
 | Adversarial empty/unparseable response | **FAIL** (no synthetic 0.5 fallback) | None |
 | Adversarial structured but missing convergence_score, valid merged_output_path | PARTIAL with fallback 0.5 + warning | Continue |
