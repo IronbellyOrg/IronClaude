@@ -313,7 +313,7 @@ docker compose restart api
 
 **Common Issues:**
 
-- **No servers connected**: Check Node.js: `node --version` (need v16+)
+- **No servers connected**: Check Node.js: `node --version` (need v16+; Tavily and Auggie require v18+)
 - **Context7 fails**: Clear cache: `npm cache clean --force`
 - **Magic/Morphllm errors**: Expected without API keys (paid services)
 - **Server timeouts**: Restart Claude Code session
@@ -325,7 +325,7 @@ docker compose restart api
 # Restart Claude Code session
 
 # Check dependencies  
-node --version  # Should show v16+
+node --version  # Should show v16+ (v18+ required for Tavily and Auggie)
 
 # Test without MCP
 /sc:command --no-mcp
