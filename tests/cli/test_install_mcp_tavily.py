@@ -25,8 +25,14 @@ _EXPECTED_DEFAULT_PARAMS_TOKEN = (
 
 
 def test_tavily_registry_pins_0_2_20():
-    """The tavily registry command pins exactly tavily-mcp@0.2.20 over stdio (X1)."""
+    """The tavily registry command pins exactly tavily-mcp@0.2.20 over stdio (X1).
+
+    The pin is sourced from the ``TAVILY_MCP_VERSION`` constant (L3 single-SoT); the
+    literal ``0.2.20`` assertion stays as a backstop so an unintended bump fails here.
+    """
+    assert install_mcp.TAVILY_MCP_VERSION == "0.2.20"
     entry = install_mcp.MCP_SERVERS["tavily"]
+    assert entry["command"] == f"npx -y tavily-mcp@{install_mcp.TAVILY_MCP_VERSION}"
     assert entry["command"] == "npx -y tavily-mcp@0.2.20"
     assert entry["transport"] == "stdio"
 

@@ -25,6 +25,10 @@ AIRIS_GATEWAY = {
     "repository": "https://github.com/agiletec-inc/airis-mcp-gateway",
 }
 
+# Pinned Tavily MCP package version — single source of truth for the pin (review L3).
+# Docs/YAML keep the literal `tavily-mcp@0.2.20`, guarded by test_tavily_version_single_pin.
+TAVILY_MCP_VERSION = "0.2.20"
+
 # Individual MCP Server Registry (legacy, for users who prefer individual servers)
 # Adapted from commit d4a17fc with modern transport configuration
 MCP_SERVERS = {
@@ -78,7 +82,7 @@ MCP_SERVERS = {
         "name": "tavily",
         "description": "Web search and real-time information retrieval for deep research",
         "transport": "stdio",
-        "command": "npx -y tavily-mcp@0.2.20",
+        "command": f"npx -y tavily-mcp@{TAVILY_MCP_VERSION}",
         "required": False,
         "api_key_env": "TAVILY_API_KEY",
         "api_key_description": "Tavily API key for web search (get from https://app.tavily.com)",

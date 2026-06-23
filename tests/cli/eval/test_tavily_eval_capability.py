@@ -50,7 +50,8 @@ def test_real_suite_has_tavily_capability_and_verification_eval():
 def test_tavily_eval_gated_to_skip_without_key():
     """The eval SKIPs cleanly (not fails) when Tavily is unreachable / no key — failure_mode: skip."""
     raw = yaml.safe_load(_real_manifest_path().read_text(encoding="utf-8"))
-    cap = next(c for c in raw["optional_capabilities"] if c["name"] == _CAP)
+    cap = next((c for c in raw["optional_capabilities"] if c["name"] == _CAP), None)
+    assert cap is not None, f"{_CAP} missing from real suite optional_capabilities"
     assert cap["failure_mode"] == "skip"
     assert cap.get("gate_flag") == "--no-mcp"
     # The default-spec gate agrees, so non-real suites resolve the capability too (M2).

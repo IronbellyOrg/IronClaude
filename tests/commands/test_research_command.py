@@ -40,6 +40,11 @@ def test_research_tiers_match_config():
     )
 
     config = _CONFIG_MD.read_text(encoding="utf-8")
+    # Sanity: fail with a clear message if the Depth Profiles table is gone/renamed,
+    # rather than emitting four identical per-tier misses.
+    assert "| Profile |" in config, (
+        "RESEARCH_CONFIG.md missing the Depth Profiles table header (format changed?)"
+    )
     for t in _TIERS:
         assert re.search(rf"\|\s*{t}\s*\|", config), (
             f"RESEARCH_CONFIG.md missing Depth Profile row for '{t}'"

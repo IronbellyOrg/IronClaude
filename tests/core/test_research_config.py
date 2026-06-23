@@ -37,6 +37,10 @@ def test_each_depth_profile_names_concrete_params_and_tools():
     for p in _PROFILES:
         assert p in rows, f"missing Depth Profile row: {p}"
         cells = [c.strip() for c in rows[p].strip().strip("|").split("|")]
+        # The Depth Profiles table dedicates two cells to search_depth + extract_depth,
+        # each holding "basic" or "advanced"; require >=2 such cells so a row that drops
+        # one of the depth columns fails here. (If the table ever switches to abbreviations
+        # or numeric codes, update this token set alongside the table.)
         depth_vals = [c for c in cells if c in ("basic", "advanced")]
         assert len(depth_vals) >= 2, (
             f"{p} row lacks concrete search_depth + extract_depth values: {rows[p]}"
