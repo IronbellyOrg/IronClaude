@@ -11,7 +11,7 @@ Design (b) (telemetry-honesty narrowing) introduces the value
 ``"snapshot-children-only"``: emitted on the snapshot-success path to truthfully
 say "the ClaudeProcess children are grounded in the snapshot; the swarm workers
 are not." This test asserts the operator-visible ``ReflectResult.reviewer_isolation``
-(written at ``runner.py:682``) is that honest value on the clean-committable path,
+(written at ``runner.py:686``) is that honest value on the clean-committable path,
 while confirming the two children ARE still grounded (the value is honest, not a
 regression of grounding).
 
@@ -85,8 +85,11 @@ def test_disabled_path_unchanged_when_isolation_off(
     """Default-OFF is untouched: no snapshot, telemetry stays ``"disabled"``.
 
     Guards against the design-(b) edit leaking the new value onto the flag-off
-    (#153) path. Falsifier-relevant only as a regression guard; it passes both
-    before and after the fix because the default path never changes.
+    (#153) path. This is **falsifier-EXEMPT**: it is a default-path invariant lock
+    (a regression guard) that passes BOTH before and after the fix because the
+    flag-off path never changes, so per the project's falsifier-discipline rule it
+    is labeled exempt rather than fail-before/pass-after. (The load-bearing
+    falsifier is the first function above, which is NOT exempt.)
     """
     config = _config(temp_tasklist, isolate_reviewers=False)
     factory = make_claude_process_stub("pass.yaml", rc=0)

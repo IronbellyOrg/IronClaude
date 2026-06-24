@@ -99,9 +99,11 @@ class ReflectConfig:
     # (only meaningful when `isolate_reviewers` is True; False otherwise).
     isolate_reviewers: bool = False
     audit_tree_dirty: bool = False
-    # Set by ``runner.run()`` AFTER a successful snapshot is created: the path both
-    # review-class children (Tier-1 audit + adversarial scorer) ground in as their
-    # CWD. None when isolation is off or the gate STOPped (no child launches then).
+    # Set by ``runner.run()`` AFTER a successful snapshot is created: the path the
+    # two ClaudeProcess review children (Tier-1 audit + adversarial scorer) ground
+    # in as their CWD. The text-in/out Tier-2 swarm workers hold no CWD and read the
+    # live tasklist path (telemetry reports `snapshot-children-only`). None when
+    # isolation is off or the gate STOPped (no child launches then).
     reviewer_grounding_root: Path | None = None
 
     @property
