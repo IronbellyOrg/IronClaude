@@ -1,0 +1,16 @@
+verdict: degraded
+status: partial
+tier_reached: 2
+reason: degraded-model-diversity
+report: .dev/tasks/to-do/TASK-RF-reflect-d1d4-fix-20260623-192000/reflect/post/a6af8d6e3884/REPORT.md
+contract: /config/workspace/IronClaude/.dev/worktrees/reflect-reviewer-guard/.dev/tasks/to-do/TASK-RF-reflect-d1d4-fix-20260623-192000/reflect/post/a6af8d6e3884/return-contract.yaml
+deviations:
+  authorized: 1
+  necessary: 2
+  drift: 4
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

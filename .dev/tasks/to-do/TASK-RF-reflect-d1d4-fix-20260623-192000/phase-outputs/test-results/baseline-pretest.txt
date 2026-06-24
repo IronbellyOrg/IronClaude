@@ -1,0 +1,33 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/reflect-reviewer-guard
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collected 144 items
+
+tests/cli/reflect/test_base_precedence.py ......                         [  4%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 11%]
+tests/cli/reflect/test_claudeprocess_reflect_children_restricted.py .... [ 14%]
+.                                                                        [ 15%]
+tests/cli/reflect/test_cli_smoke.py .......                              [ 20%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 21%]
+tests/cli/reflect/test_ensemble_stub_integration.py .............        [ 30%]
+tests/cli/reflect/test_ensemble_unit.py ...................              [ 43%]
+tests/cli/reflect/test_fix_loop.py .......                               [ 48%]
+tests/cli/reflect/test_grader_yaml_root.py .                             [ 49%]
+tests/cli/reflect/test_isolate_reviewers_cli.py ......                   [ 53%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 57%]
+tests/cli/reflect/test_no_nesting_guard.py X.....                        [ 61%]
+tests/cli/reflect/test_promote_plumbing.py ...                           [ 63%]
+tests/cli/reflect/test_reviewer_brief_constraints.py ...                 [ 65%]
+tests/cli/reflect/test_reviewer_finding_parity.py .....                  [ 69%]
+tests/cli/reflect/test_reviewer_isolation_gate.py ....                   [ 72%]
+tests/cli/reflect/test_reviewer_readonly_tools.py .....                  [ 75%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 82%]
+tests/cli/reflect/test_verdict_mapping.py ...................            [ 95%]
+tests/cli/reflect/test_verify_denylist_git_mutations.py ...              [ 97%]
+tests/cli/reflect/test_writeback.py ...                                  [100%]
+
+======================== 143 passed, 1 xpassed in 0.49s ========================

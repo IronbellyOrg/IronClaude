@@ -1,0 +1,23 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/reflect-reviewer-guard
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collected 2 items
+
+tests/cli/reflect/test_reviewer_swarm_target_grounding.py F.             [100%]
+
+=================================== FAILURES ===================================
+________ test_snapshot_success_reports_children_only_not_full_snapshot _________
+tests/cli/reflect/test_reviewer_swarm_target_grounding.py:69: in test_snapshot_success_reports_children_only_not_full_snapshot
+    assert result.reviewer_isolation == "snapshot-children-only", (
+E   AssertionError: reviewer_isolation must report the honest 'snapshot-children-only' on the snapshot path (only the ClaudeProcess children are grounded; the text-in/out swarm workers read the live tasklist path), got 'snapshot'
+E   assert 'snapshot' == 'snapshot-children-only'
+E
+E     - snapshot-children-only
+E     + snapshot
+=========================== short test summary info ============================
+FAILED tests/cli/reflect/test_reviewer_swarm_target_grounding.py::test_snapshot_success_reports_children_only_not_full_snapshot
+========================= 1 failed, 1 passed in 0.16s ==========================
