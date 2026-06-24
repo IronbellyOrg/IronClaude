@@ -99,6 +99,8 @@ class ClaudeProcess:
         on_exit: Callable[[int, int | None], None] | None = None,
         env_vars: dict[str, str] | None = None,
         tool_write_mode: bool = False,
+        reviewer_profile: bool = False,
+        cwd: Path | None = None,
     ):
         self.prompt = prompt
         self.output_file = output_file
@@ -114,6 +116,17 @@ class ClaudeProcess:
         self._on_exit = on_exit
         self._extra_env_vars = env_vars
         self.tool_write_mode = tool_write_mode
+        # L1b restricted reviewer profile (design (a), profile-wins). When True,
+        # build_command() drops --dangerously-skip-permissions AND `--tools default`
+        # so reflect REVIEW children cannot mutate the repo under audit. Orthogonal
+        # to tool_write_mode (output plumbing): the profile wins on command
+        # construction regardless of tool_write_mode. Defaulted False so every
+        # existing (non-reflect) caller is byte-identical.
+        self.reviewer_profile = reviewer_profile
+        # L2 reviewer-isolation: when set, the child runs with this as its working
+        # directory (the `git worktree` snapshot grounding root) instead of the live
+        # shared worktree. Defaulted None so every existing caller is unaffected.
+        self.cwd = cwd
         self._process: Optional[subprocess.Popen] = None
         self._stdout_fh = None
         self._stderr_fh = None
@@ -128,15 +141,25 @@ class ClaudeProcess:
             "claude",
             "--print",
             "--verbose",
-            self.permission_flag,
-            "--no-session-persistence",
-            "--tools",
-            "default",
-            "--max-turns",
-            str(self.max_turns),
-            "--output-format",
-            self.output_format,
         ]
+        # L1b (design (a)): the restricted reviewer profile drops the blanket
+        # --dangerously-skip-permissions bypass AND the write-capable `--tools
+        # default` surface for reflect REVIEW children. The default profile
+        # (every existing sprint/roadmap caller) emits both, byte-identical to
+        # before. --no-session-persistence is KEPT in both profiles.
+        if not self.reviewer_profile:
+            cmd.append(self.permission_flag)
+        cmd.append("--no-session-persistence")
+        if not self.reviewer_profile:
+            cmd.extend(["--tools", "default"])
+        cmd.extend(
+            [
+                "--max-turns",
+                str(self.max_turns),
+                "--output-format",
+                self.output_format,
+            ]
+        )
         if self.model:
             cmd.extend(["--model", self.model])
         cmd.extend(self.extra_args)
@@ -188,6 +211,9 @@ class ClaudeProcess:
         }
         if hasattr(os, "setpgrp"):
             popen_kwargs["preexec_fn"] = os.setpgrp
+        # L2 reviewer-isolation: ground the child in the snapshot worktree when set.
+        if self.cwd is not None:
+            popen_kwargs["cwd"] = str(self.cwd)
 
         self._process = subprocess.Popen(self.build_command(), **popen_kwargs)
 

@@ -91,6 +91,18 @@ class ReflectConfig:
     # §5.1 `--reviewers`: int; default `3`; Tier-2 reviewer slots,
     # clamped to `[2,4]` except `1` is the negative-witness case.
     reviewers: int = 3
+    # L2 reviewer-isolation snapshot gate (`--isolate-reviewers`). PINNED OFF by
+    # default (flag-gated opt-in) so today's #153 dirty-tree-audit behavior is
+    # preserved and the Phase-9 POST gate is not self-bricked. When True, the
+    # runner STOPs on a non-committable target and otherwise grounds reviewers in
+    # a `git worktree` snapshot. `audit_tree_dirty` is the COR-5 probe result
+    # (only meaningful when `isolate_reviewers` is True; False otherwise).
+    isolate_reviewers: bool = False
+    audit_tree_dirty: bool = False
+    # Set by ``runner.run()`` AFTER a successful snapshot is created: the path both
+    # review-class children (Tier-1 audit + adversarial scorer) ground in as their
+    # CWD. None when isolation is off or the gate STOPped (no child launches then).
+    reviewer_grounding_root: Path | None = None
 
     @property
     def contract_path(self) -> Path:
@@ -121,6 +133,19 @@ class ReflectResult:
     fix_iterations: int = 0
     fix_converged: bool = False
     remediation_task_path: str | None = None
+    # L2 reviewer-isolation telemetry (pure telemetry — does NOT alter the verdict;
+    # the STOP happens in the runner before derive_verdict). Defaulted so all
+    # hand-built construction sites stay valid.
+    # reviewer_isolation: "disabled" (flag off)
+    #   | "snapshot-children-only" (a snapshot was created and the two ClaudeProcess
+    #     review children — Tier-1 audit child + adversarial scorer — are
+    #     snapshot-`cwd`-grounded, while the text-in/out swarm workers still read the
+    #     live tasklist path; the honest value, supersedes the pre-D1 overclaiming
+    #     "snapshot")
+    #   | "stopped-precondition" (gate STOPped before launch).
+    reviewer_isolation: str = "disabled"
+    audit_tree_dirty: bool = False
+    reviewer_grounding_root: str | None = None
 
     @property
     def outcome(self) -> str:

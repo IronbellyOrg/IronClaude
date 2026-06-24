@@ -309,6 +309,21 @@ def run_tier2_ensemble(
         needs_human_decision=needs_human_decision,
         deviation_count_by_class=deviation_count_by_class,
         adversarial_report_path=adversarial_report_path,
+        # L2 telemetry: reaching here means launch happened (the STOP path never
+        # builds a contract). "snapshot-children-only" iff a snapshot was created:
+        # only the ClaudeProcess review children (Tier-1 audit child + adversarial
+        # scorer) are snapshot-`cwd`-grounded; the text-in/out swarm workers still
+        # read the live tasklist path (D1 telemetry-honesty fix — was the overclaiming
+        # "snapshot"). "disabled" otherwise (the default flag-off path).
+        reviewer_isolation=(
+            "snapshot-children-only" if config.reviewer_grounding_root else "disabled"
+        ),
+        audit_tree_dirty=config.audit_tree_dirty,
+        reviewer_grounding_root=(
+            str(config.reviewer_grounding_root)
+            if config.reviewer_grounding_root
+            else None
+        ),
     )
     _emit_reflect_contract(config.contract_path, contract)
     return contract
@@ -345,6 +360,13 @@ def run_adversarial_scorer(
         timeout_seconds=config.timeout_seconds,
         max_turns=config.max_turns,
         output_format="stream-json",
+        # L1b (design (a)): the Mode-A adversarial scorer is a REVIEW-class child
+        # (it reads reviewer artifacts + writes a contract); it runs under the
+        # restricted reviewer profile so it cannot mutate the repo under audit.
+        reviewer_profile=True,
+        # L2: ground the scorer in the snapshot worktree when reviewer isolation is
+        # active (None otherwise -> live CWD, today's behavior).
+        cwd=config.reviewer_grounding_root,
     )
     proc.start()
     if proc.wait() != 0:
@@ -478,6 +500,9 @@ def build_reflect_contract(
     needs_human_decision: bool = False,
     deviation_count_by_class: dict[str, int] | None = None,
     adversarial_report_path: str | None = None,
+    reviewer_isolation: str = "disabled",
+    audit_tree_dirty: bool = False,
+    reviewer_grounding_root: str | None = None,
 ) -> dict[str, Any] | None:
     """Map swarm worker facts onto the reflect return-contract namespace.
 
@@ -533,6 +558,13 @@ def build_reflect_contract(
         "user_decision_required": False,  # seam emits no user-decision signal; honest default (R2-F3, supersedes R6 Step 2.5 mirror mandate)
         "serena_summary_corroboration": "unavailable",
         "degraded_components": [],
+        # L2 reviewer-isolation telemetry (pure telemetry; not verdict-bearing —
+        # the STOP happens in the runner before derive_verdict, so audit_tree_dirty
+        # is NOT registered in _LOAD_BEARING_BOOL_FIELDS). Defaulted CLEAN so a
+        # seam-less Tier-2 run or a direct call still emits a valid contract.
+        "reviewer_isolation": reviewer_isolation,
+        "audit_tree_dirty": audit_tree_dirty,
+        "reviewer_grounding_root": reviewer_grounding_root,
     }
 
 

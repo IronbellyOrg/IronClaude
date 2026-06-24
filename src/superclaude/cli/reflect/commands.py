@@ -161,6 +161,16 @@ def reflect_group():
         "over frontmatter start_commit + merge-base."
     ),
 )
+@click.option(
+    "--isolate-reviewers/--no-isolate-reviewers",
+    "isolate_reviewers",
+    default=False,
+    help=(
+        "Opt in to L2 reviewer-isolation: ground Wave-3 reviewers in an isolated "
+        "git-worktree snapshot; STOP on a non-committable (dirty/uncommitted) audit "
+        "target. OFF by default — preserves today's dirty-tree audit."
+    ),
+)
 def run(
     tasklist: str,
     tmux: bool,
@@ -177,6 +187,7 @@ def run(
     fix: bool,
     max_fix_iterations: int,
     base_override: str | None,
+    isolate_reviewers: bool,
 ) -> None:
     """Execute the POST reflect gate for TASKLIST.
 
@@ -207,6 +218,7 @@ def run(
             fix=fix,
             max_fix_iterations=max_fix_iterations,
             base_override=base_override,
+            isolate_reviewers=isolate_reviewers,
         )
     except ValueError as exc:
         # A config / preflight STOP is blocked -> exit 2 (Section 6).

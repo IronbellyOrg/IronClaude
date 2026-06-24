@@ -77,13 +77,14 @@ def test_nonexistent_tasklist_is_nonzero(cli_runner) -> None:
 def test_print_command_argv_preview_matches_build_command(
     cli_runner, temp_tasklist, patch_git
 ) -> None:
-    """F6: the --print-command argv preview byte-matches build_command()'s flag
-    set + order, and still never constructs ClaudeProcess (FR-12).
+    """F6: the --print-command argv preview byte-matches the RESTRICTED
+    ``build_command()`` for the Tier-1 review child (L1b, reviewer_profile=True),
+    and still never constructs ClaudeProcess (FR-12).
 
-    Pre-fix the preview omitted ``--no-session-persistence`` and
-    ``--tools default`` and reordered ``--output-format``. Post-fix it mirrors
-    ``ClaudeProcess.build_command()`` (pipeline/process.py): ``--max-turns``
-    precedes ``--output-format stream-json``.
+    Post-Phase-3 the restricted preview DROPS ``--tools default`` and
+    ``--dangerously-skip-permissions`` (the write/permission tokens) and keeps
+    ``--no-session-persistence``, mirroring the restricted ``build_command()``.
+    ``--max-turns`` precedes ``--output-format stream-json``.
     """
     with patch("superclaude.cli.reflect.runner.ClaudeProcess") as mock_cls:
         result = cli_runner.invoke(
@@ -91,9 +92,11 @@ def test_print_command_argv_preview_matches_build_command(
         )
     assert result.exit_code == 0
     out = result.output
-    # Previously-missing flags are now present.
+    # --no-session-persistence is still emitted in the restricted preview.
     assert "--no-session-persistence" in out
-    assert "--tools default" in out
+    # The restricted preview OMITS the write/permission tokens.
+    assert "--tools default" not in out
+    assert "--dangerously-skip-permissions" not in out
     # --output-format stream-json follows --max-turns (real builder order).
     assert "--max-turns" in out
     assert "--output-format stream-json" in out
