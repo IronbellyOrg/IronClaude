@@ -157,35 +157,35 @@ class _FakeGet:
         self.stdout = stdout
 
 
-def _get_output(version):
-    """Render a ``claude mcp get tavily`` body pinning ``tavily-mcp@<version>``."""
+def _get_output(version, scope="User config (available in all your projects)"):
+    """Render a ``claude mcp get tavily`` body pinning ``tavily-mcp@<version>`` at ``scope``."""
     return (
         "tavily:\n"
-        "  Scope: User config (available in all your projects)\n"
+        f"  Scope: {scope}\n"
         "  Type: stdio\n"
         "  Command: npx\n"
         f"  Args: -y tavily-mcp@{version}\n"
     )
 
 
-def _patch_already_installed(monkeypatch, registered_get_stdout, dummy_key="k-123"):
+def _patch_already_installed(monkeypatch, get_stdout, get_rc=0, dummy_key="k-123"):
     """Drive the *already-installed* branch of install_mcp_server deterministically.
 
-    ``check_mcp_server_installed`` -> True (name match). ``_run_command`` is intercepted:
-    a ``claude mcp get`` argv returns the supplied registration body; every other argv
-    (remove / add) returns a bare success and is captured. Returns the capture dict.
+    ``check_mcp_server_installed`` -> True (the cheap substring prefilter). ``_run_command`` is
+    intercepted: a ``claude mcp get`` argv returns ``get_stdout`` with exit code ``get_rc``
+    (``get_rc != 0`` simulates "no exact-name registration"); every other argv (remove / add)
+    returns a bare success and is captured. Returns the capture dict.
     """
     captured = {"calls": []}
 
     def fake_run_command(cmd, **kwargs):
         captured["calls"].append(list(cmd))
         if cmd[:3] == ["claude", "mcp", "get"]:
-            if registered_get_stdout is None:
-                # Simulate an unparseable / missing registration (non-zero rc).
+            if get_rc != 0:
                 fail = _FakeCompleted()
-                fail.returncode = 1  # type: ignore[attr-defined]
+                fail.returncode = get_rc  # type: ignore[attr-defined]
                 return fail
-            return _FakeGet(registered_get_stdout)
+            return _FakeGet(get_stdout if get_stdout is not None else "")
         return _FakeCompleted()
 
     monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
@@ -254,8 +254,20 @@ def test_dry_run_mismatch_does_not_remove(monkeypatch):
 
 
 def test_unparseable_registration_triggers_reregister(monkeypatch):
-    """If the registration cannot be read, fail toward re-registering (never a silent skip)."""
-    captured = _patch_already_installed(monkeypatch, None)  # `claude mcp get` returns rc!=0
+    """Malformed `claude mcp get` quoting must re-register, NOT crash the install (PR #204 r3476286558).
+
+    The server IS registered (exit 0) but its ``Args:`` line has an unbalanced quote, so
+    ``shlex.split`` would raise ``ValueError``. The parser swallows it -> registered command is
+    ``None`` -> mismatch -> remove + re-add. The load-bearing assertion is that the call returns
+    (no ``ValueError`` propagates).
+    """
+    malformed = (
+        "tavily:\n"
+        "  Scope: User config\n"
+        "  Command: npx\n"
+        '  Args: -y tavily-mcp@0.2.20 "unterminated\n'  # unbalanced quote
+    )
+    captured = _patch_already_installed(monkeypatch, malformed)  # exit 0, present-but-unparseable
 
     ok = install_mcp.install_mcp_server(
         install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
@@ -267,6 +279,57 @@ def test_unparseable_registration_triggers_reregister(monkeypatch):
     assert len(add_calls) == 1 and "tavily-mcp@0.2.20" in add_calls[0]
 
 
+def test_parse_command_returns_none_on_malformed_quoting():
+    """``_parse_mcp_get_command`` returns None (not raise) on unbalanced quoting (r3476286558)."""
+    assert install_mcp._parse_mcp_get_command('  Command: npx\n  Args: -y "oops\n') is None
+
+
+def test_substring_false_positive_installs_fresh_without_remove(monkeypatch):
+    """Substring prefilter hits but no EXACT-name registration -> fresh install, no destructive remove (r3476286564).
+
+    ``check_mcp_server_installed`` is an unscoped substring scan, so it can match a
+    similarly-named server. When ``claude mcp get <name>`` finds no exact registration
+    (exit != 0), the code must NOT issue a ``claude mcp remove`` (which would target the
+    wrong server / scope) — it installs fresh instead.
+    """
+    captured = _patch_already_installed(monkeypatch, None, get_rc=1)  # exact-name lookup fails
+
+    ok = install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+    )
+    assert ok is True
+
+    assert not any(c[:3] == ["claude", "mcp", "remove"] for c in captured["calls"]), (
+        f"must not remove on a substring-only false positive: {captured['calls']}"
+    )
+    add_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "add"]]
+    assert len(add_calls) == 1 and "tavily-mcp@0.2.20" in add_calls[0]
+
+
+def test_remove_targets_registered_scope_not_install_target(monkeypatch):
+    """The re-register remove targets the scope the server actually lives in, not the install target (r3476286564).
+
+    Stale tavily is registered at *project* scope; the install targets *user* scope. Removing
+    at ``--scope user`` would fail (it's not there). The remove must target ``--scope project``.
+    """
+    captured = _patch_already_installed(
+        monkeypatch, _get_output("0.1.2", scope="Project config (this project only)")
+    )
+
+    ok = install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+    )
+    assert ok is True
+
+    remove_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "remove"]]
+    assert len(remove_calls) == 1
+    assert "--scope" in remove_calls[0]
+    scope_idx = remove_calls[0].index("--scope")
+    assert remove_calls[0][scope_idx + 1] == "project", (
+        f"remove must target the registered (project) scope, not the install target: {remove_calls[0]}"
+    )
+
+
 def test_get_registered_mcp_command_parses_get_output(monkeypatch):
     """``get_registered_mcp_command`` normalizes ``claude mcp get`` into a comparable string."""
 
@@ -276,6 +339,14 @@ def test_get_registered_mcp_command_parses_get_output(monkeypatch):
 
     monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
     assert install_mcp.get_registered_mcp_command("tavily") == "npx -y tavily-mcp@0.2.20"
+
+
+def test_parse_scope_normalizes_scope_line():
+    """``_parse_mcp_get_scope`` maps the `Scope:` line to local|user|project (or None)."""
+    assert install_mcp._parse_mcp_get_scope("  Scope: User config (all projects)\n") == "user"
+    assert install_mcp._parse_mcp_get_scope("  Scope: Project config\n") == "project"
+    assert install_mcp._parse_mcp_get_scope("  Scope: Local config\n") == "local"
+    assert install_mcp._parse_mcp_get_scope("  Type: stdio\n") is None
 
 
 @pytest.mark.skipif(not os.getenv("TAVILY_API_KEY"), reason="requires TAVILY_API_KEY")
