@@ -23,7 +23,7 @@ If the roadmap has no name, use: `# TASKLIST INDEX -- Roadmap Execution Plan`
 | Sprint Name | `<Roadmap Name or Short Description>` |
 | Generator Version | `Roadmap->Tasklist Generator v4.0` |
 | Generated | `<ISO-8601 date>` |
-| TASKLIST_ROOT | `<computed per Section 3.1>` |
+| TASKLIST_ROOT | `<computed per ### Tasklist Root (deterministic)>` |
 | Total Phases | `<N>` |
 | Total Tasks | `<count>` |
 | Total Deliverables | `<count>` |
@@ -128,6 +128,17 @@ Rules:
 
 | Task ID | Original Tier | Override Tier | Override Reason | Completion Status | Quality Signal | Time Variance |
 |---:|---|---|---|---|---|---|
+
+### Tier Calibration Advisory (P5 — RETAINED advisory-only)
+
+`## Tier Calibration Advisory`
+
+- Index-level, **advisory-only**: reads the prior-run `TASKLIST_ROOT/feedback-log.md` READ-ONLY and **never mutates** scored `Tier`/`Confidence` (scored tiers stay a pure function of the roadmap).
+- Match: a feedback row matches when its `Task ID` equals the task's `T<PP>.<TT>`; suggested tier ← the row's `Override Tier` (non-blank, differs from the scored tier). One row per `(Task ID, Override Tier)` pair; `Observed count` = number of feedback rows for that pair.
+- Renders ONLY when ≥2 matching overrides exist (else the whole section is omitted); rows ordered ascending by `T<PP>.<TT>` then `Override Tier`; STRICT-downgrade rows carry a ⚠ warning.
+
+| Task | Scored tier | Feedback-suggested tier | Observed count | Note |
+|------|-------------|-------------------------|----------------|------|
 
 ### Glossary
 

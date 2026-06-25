@@ -1,0 +1,25 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.0, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.claude/worktrees/RFMerger-Tasklist
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collected 34 items
+
+tests/audit/test_inherited_verdict_freshness_inv_002.py ................ [ 47%]
+........                                                                 [ 70%]
+tests/audit/test_five_axes_overlay.py ..........                         [100%]
+
+=============================== warnings summary ===============================
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_source
+tests/audit/test_inherited_verdict_freshness_inv_002.py::TestFreshnessProcedureWiredInSkill::test_fix_cycle_header_present_in_mirror
+  /config/workspace/IronClaude/.claude/worktrees/RFMerger-Tasklist/.venv/lib/python3.13/site-packages/_pytest/fixtures.py:1312: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+  Instance attributes set in this fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use @classmethod decorator and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 34 passed, 2 warnings in 0.88s ========================

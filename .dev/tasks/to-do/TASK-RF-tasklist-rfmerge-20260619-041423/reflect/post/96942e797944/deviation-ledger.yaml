@@ -1,0 +1,75 @@
+ledger_version: "1.0"
+mode: post
+audit_scope: "working-tree RFMerger deliverable (5 files); --diff arg 300c06a6 resolved as start_commit baseline, NOT the commit's own patch; unrelated sprint PRs #181-#185 excluded"
+deviation_count_by_class:
+  authorized: 0
+  necessary: 1
+  drift: 2
+  regression: 0
+
+deviations:
+  - id: D-1
+    class: drift
+    severity: low
+    requirement: FR-RFMERGE.1 (AC#5)
+    hunk_ref: "tests/tasklist/test_tasklist_cli.py:521-596 (TestP1ContextArmedSteps)"
+    finding: >
+      Spec AC#5 mandates a "no-semantic-collision test [that] asserts this against
+      task-builder/SKILL.md:1066,1231" for the P1 Execution Context block. The
+      implemented tests assert sub-field-name presence UNILATERALLY (tasklist side
+      in TestP1ContextArmedSteps; task-builder side in separate PR-01 tests in
+      test_task_builder_merge.py) but no single test READS BOTH surfaces and
+      cross-validates that the P1 block introduces no second, incompatible
+      "Execution Context" meaning.
+    behavior_correct: true   # SKILL.md prose reuses the contract VERBATIM (no functional collision)
+    contradicts_criterion: false
+    gold_standard_ref: ".dev/releases/current/v3.8-RigorFlowMerger-tasklist/spec.md:210"
+    evidence:
+      - "spec.md:210 (AC#5 text)"
+      - "tests/tasklist/test_tasklist_cli.py:521-596 (unilateral, tasklist-side only)"
+      - "tests/skills/test_task_builder_merge.py (no cross-file P1 collision test; TestTasklistDnspMapsDM003 is P3-only)"
+    remediation: "Add a cross-file test that reads BOTH task-builder/SKILL.md and sc-tasklist-protocol/SKILL.md and asserts the P1 sub-field contract is identical (no divergent Execution Context semantics)."
+
+  - id: D-2
+    class: drift
+    severity: low
+    requirement: FR-RFMERGE.1 (AC#6 / no-Ensuring discipline)
+    hunk_ref: "tests/tasklist/test_tasklist_cli.py:545-567 (test_execution_context_mirror_in_phase_template)"
+    finding: >
+      The phase-template mirror test self-admits (comment at lines 407-408 of the
+      live file) that it does NOT carry the no-`Ensuring:`-clause parity assertion
+      on the phase-template.md side. A future edit could reintroduce an `Ensuring:`
+      clause into the phase-template mirror without any test catching it.
+    behavior_correct: true   # operative SKILL.md side IS guarded (asserts "NO `Ensuring:` clause")
+    contradicts_criterion: false
+    gold_standard_ref: ".dev/releases/current/v3.8-RigorFlowMerger-tasklist/spec.md:206"
+    evidence:
+      - "tests/tasklist/test_tasklist_cli.py:407-408 (test self-admits the omission)"
+      - "tests/tasklist/test_tasklist_cli.py:383 (SKILL.md side IS guarded)"
+    remediation: "Add `assert 'Ensuring' not in phase_template_text` (or equivalent) to the mirror test."
+
+  - id: D-3
+    class: necessary
+    severity: low
+    requirement: cross-cutting (doc hygiene; FR-RFMERGE.7-adjacent)
+    hunk_ref: "SKILL.md:722 + templates/index-template.md:26 ('Section 3.1' -> '### Tasklist Root (deterministic)')"
+    finding: >
+      Cross-reference updated from a stale section number ("Section 3.1") to a
+      heading anchor ("### Tasklist Root (deterministic)"). Not traceable to a
+      specific FR, but an incidental documentation-correctness fix made while
+      editing the file.
+    behavior_correct: true
+    contradicts_criterion: false
+    anchor_validated: "### Tasklist Root (deterministic) EXISTS at SKILL.md:77 (verified) -> NOT a dangling ref, NOT a regression"
+    gold_standard_ref: "src/superclaude/skills/sc-tasklist-protocol/SKILL.md:77"
+    remediation: "None required (benign, anchor valid)."
+
+regressions_detected: 0
+verification_triangle:
+  ran: true
+  changed_file_tests: "124 passed (tests/skills/test_task_builder_merge.py + tests/tasklist/test_tasklist_cli.py)"
+  collateral: "172 passed (tests/tasklist/ + tests/skills/) - no collateral regression"
+  exit_code: 0
+nfr_checks:
+  NFR-RFMERGE.3_sync_discipline: "PASS - .claude/ mirror in sync with src/ for all 3 touched skill files"
+  NFR-RFMERGE.5_dnsp_provenance: "PASS - synthetic-dnsp source literal reused verbatim from task-builder DM-003"
