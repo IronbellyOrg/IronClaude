@@ -6,11 +6,12 @@ must never construct ``ClaudeProcess`` (FR-12), asserted via ``assert_not_called
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import yaml
 
-from superclaude.cli.reflect.commands import reflect_group
+from superclaude.cli.reflect.commands import _build_inner_command, reflect_group
 
 _SPEC9_FLAGS = [
     "--tmux",
@@ -77,13 +78,14 @@ def test_nonexistent_tasklist_is_nonzero(cli_runner) -> None:
 def test_print_command_argv_preview_matches_build_command(
     cli_runner, temp_tasklist, patch_git
 ) -> None:
-    """F6: the --print-command argv preview byte-matches build_command()'s flag
-    set + order, and still never constructs ClaudeProcess (FR-12).
+    """F6: the --print-command argv preview byte-matches the RESTRICTED
+    ``build_command()`` for the Tier-1 review child (L1b, reviewer_profile=True),
+    and still never constructs ClaudeProcess (FR-12).
 
-    Pre-fix the preview omitted ``--no-session-persistence`` and
-    ``--tools default`` and reordered ``--output-format``. Post-fix it mirrors
-    ``ClaudeProcess.build_command()`` (pipeline/process.py): ``--max-turns``
-    precedes ``--output-format stream-json``.
+    Post-Phase-3 the restricted preview DROPS ``--tools default`` and
+    ``--dangerously-skip-permissions`` (the write/permission tokens) and keeps
+    ``--no-session-persistence``, mirroring the restricted ``build_command()``.
+    ``--max-turns`` precedes ``--output-format stream-json``.
     """
     with patch("superclaude.cli.reflect.runner.ClaudeProcess") as mock_cls:
         result = cli_runner.invoke(
@@ -91,15 +93,61 @@ def test_print_command_argv_preview_matches_build_command(
         )
     assert result.exit_code == 0
     out = result.output
-    # Previously-missing flags are now present.
+    # --no-session-persistence is still emitted in the restricted preview.
     assert "--no-session-persistence" in out
-    assert "--tools default" in out
+    # The restricted preview OMITS the write/permission tokens.
+    assert "--tools default" not in out
+    assert "--dangerously-skip-permissions" not in out
     # --output-format stream-json follows --max-turns (real builder order).
     assert "--max-turns" in out
     assert "--output-format stream-json" in out
     assert out.index("--max-turns") < out.index("--output-format stream-json")
     # FR-12: the preview must NOT construct ClaudeProcess.
     mock_cls.assert_not_called()
+
+
+def test_tmux_inner_command_forwards_isolate_reviewers(tmp_path) -> None:
+    """--tmux inner reinvocation preserves explicit reviewer isolation."""
+    config = SimpleNamespace(
+        tasklist_path=tmp_path / "TASK.md",
+        output_dir=tmp_path / "reflect-out",
+        depth="deep",
+        timeout_seconds=600,
+        transport="stub",
+        reviewers=3,
+        promote=True,
+        allow_single_vendor=False,
+        isolate_reviewers=True,
+        resume=False,
+        base_override=None,
+    )
+
+    cmd = _build_inner_command(config)
+
+    assert "--isolate-reviewers" in cmd
+    assert "--no-isolate-reviewers" not in cmd
+
+
+def test_tmux_inner_command_forwards_no_isolate_reviewers(tmp_path) -> None:
+    """--tmux inner reinvocation preserves explicit reviewer-isolation opt-out."""
+    config = SimpleNamespace(
+        tasklist_path=tmp_path / "TASK.md",
+        output_dir=tmp_path / "reflect-out",
+        depth="deep",
+        timeout_seconds=600,
+        transport="stub",
+        reviewers=3,
+        promote=True,
+        allow_single_vendor=False,
+        isolate_reviewers=False,
+        resume=False,
+        base_override=None,
+    )
+
+    cmd = _build_inner_command(config)
+
+    assert "--no-isolate-reviewers" in cmd
+    assert "--isolate-reviewers" not in cmd
 
 
 def test_config_stop_writes_blocked_sidecar(

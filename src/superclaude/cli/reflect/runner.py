@@ -31,6 +31,7 @@ import yaml
 from superclaude.cli.pipeline.process import ClaudeProcess
 from superclaude.cli.pipeline.process import ClaudeProcess as _ProductionClaudeProcess
 
+from .config import create_review_snapshot, teardown_review_snapshot
 from .contract import classify_fix, derive_verdict, parse_contract
 from .ensemble import run_tier2_ensemble
 from .models import ReflectConfig, ReflectResult, Verdict
@@ -222,6 +223,12 @@ def write_sidecar(
         # FR-3: auto-fix loop bookkeeping (sidecar-only; NOT in reflect_post: per U5).
         "fix_iterations": result.fix_iterations,
         "fix_converged": result.fix_converged,
+        # L2 reviewer-isolation telemetry (sidecar is the ONLY guaranteed emission on
+        # a precondition STOP, where no reflect contract is produced). Pure telemetry —
+        # does NOT alter the verdict. Mirrors the U5 fix_* sidecar-only precedent.
+        "reviewer_isolation": result.reviewer_isolation,
+        "audit_tree_dirty": result.audit_tree_dirty,
+        "reviewer_grounding_root": result.reviewer_grounding_root,
     }
     sidecar_path = output_dir / "wrapper-result.yaml"
     _atomic_write_text(
@@ -373,16 +380,20 @@ class ReflectRunner:
         F6: byte-matches ``ClaudeProcess.build_command()`` (pipeline/process.py)
         flag set AND order so ``--print-command`` shows the argv that actually
         runs. The FR-12 dry-run-never-constructs guarantee forbids building a real
-        ``ClaudeProcess`` here (enforced by ``test_dry_run_never_launches``), so
-        the order is mirrored literally: ``--print --verbose
-        --dangerously-skip-permissions --no-session-persistence --tools default
-        --max-turns <N> --output-format stream-json [--model <M>]`` (``--model``
-        appended last, only when set, matching the builder's conditional).
+        ``ClaudeProcess`` here (enforced by ``test_dry_run_never_launches``).
+
+        L1b (design (a)): the Tier-1 grounded-audit child runs under the
+        restricted reviewer profile (``reviewer_profile=True``), so its argv DROPS
+        ``--dangerously-skip-permissions`` AND ``--tools default``. The order is
+        mirrored literally to the restricted ``build_command()`` output: ``--print
+        --verbose --no-session-persistence --max-turns <N> --output-format
+        stream-json [--model <M>]`` (``--model`` appended last, only when set,
+        matching the builder's conditional).
         """
         config = self.config
         argv = (
-            "claude --print --verbose --dangerously-skip-permissions "
-            "--no-session-persistence --tools default "
+            "claude --print --verbose "
+            "--no-session-persistence "
             f"--max-turns {config.max_turns} --output-format stream-json"
         )
         if config.model:
@@ -439,6 +450,15 @@ class ReflectRunner:
                 # /sc:reflect (not `superclaude reflect run`), so it does NOT self-suppress;
                 # build_env() overlays this on the full inherited env (process.py:97-112).
                 env_vars={_WRAPPER_MARKER: "1"},
+                # L1b (design (a)): this Tier-1 grounded-audit child is a REVIEW-class
+                # launch, so it runs under the restricted reviewer profile (drops
+                # --dangerously-skip-permissions + `--tools default`) and cannot mutate
+                # the repo it audits. The remediation executor (_apply_remediation) is
+                # deliberately NOT restricted — it must retain write tools to apply fixes.
+                reviewer_profile=True,
+                # L2: ground the audit child in the snapshot worktree when reviewer
+                # isolation is active (None otherwise -> live CWD, today's behavior).
+                cwd=config.reviewer_grounding_root,
             )
             proc.start()
             rc = proc.wait()
@@ -474,6 +494,38 @@ class ReflectRunner:
         )
         proc.start()
         return proc.wait()
+
+    def _stopped_precondition(
+        self, config: ReflectConfig, env_alias_count: int, *, reason: str
+    ) -> ReflectResult:
+        """L2 STOP: build the ``stopped-precondition`` result + always-write sidecar.
+
+        The verdict stays ``BLOCKED`` (exit 2, unchanged fail-closed contract); only
+        ``status`` (``stopped-precondition``) + ``reason`` + the reviewer-isolation
+        telemetry are new. The sidecar is the ONLY guaranteed emission on this path
+        (no reflect contract is produced because no child launches).
+        """
+        result = ReflectResult(
+            verdict=Verdict.BLOCKED,
+            status="stopped-precondition",
+            tier_reached=None,
+            reason=reason,
+            report_path=None,
+            contract_path=None,
+            deviations={},
+            child_exit_code=None,
+            write_status="not-attempted",
+            reviewer_isolation="stopped-precondition",
+            audit_tree_dirty=config.audit_tree_dirty,
+            reviewer_grounding_root=None,
+        )
+        write_sidecar(
+            config.output_dir,
+            result,
+            env_alias_count=env_alias_count,
+            write_status="not-attempted",
+        )
+        return result
 
     def run(self) -> ReflectResult:
         """Execute the wrapper run and return the derived ``ReflectResult``."""
@@ -553,70 +605,111 @@ class ReflectRunner:
                 )
                 return result
 
+        # (3.6) L2 reviewer-isolation snapshot gate (only when --isolate-reviewers).
+        #       Placed AFTER the dry-run gate (FR-12 unaffected) and the resume
+        #       short-circuit, BEFORE the audit loop. The default (flag-off) path
+        #       skips this entirely, preserving today's #153 dirty-tree-audit
+        #       behavior byte-for-byte. COR-1: a dirty (uncommitted) audit target
+        #       cannot be captured by a committed-ref snapshot -> STOP rather than
+        #       audit a snapshot that omits it. Reviewers ground in the snapshot,
+        #       never the live shared worktree.
+        snapshot_path: Path | None = None
+        if config.isolate_reviewers:
+            if config.audit_tree_dirty:
+                return self._stopped_precondition(
+                    config, env_alias_count, reason="dirty"
+                )
+            snapshot_path, stop_reason = create_review_snapshot(config)
+            if stop_reason is not None:
+                return self._stopped_precondition(
+                    config, env_alias_count, reason=stop_reason
+                )
+            config.reviewer_grounding_root = snapshot_path
+
         # (4-5) Bounded audit -> classify -> apply -> re-verify loop (FR-1/FR-3, D1/D3).
         # Termination is guaranteed by BOTH the `max` bound and the
         # PASS/not-fix/untrusted/classification/cannot-repair/failed-apply breaks (NFR-3).
-        iteration = 1
-        max_iters = config.max_fix_iterations
-        while True:
-            result = self._audit_once()  # SAME --base reused every re-audit (NFR-4)
-            # Converged: a clean PASS exits 0.
-            if result.verdict is Verdict.PASS:
-                break
-            # Audit-only (no --fix): a single audit, no loop.
-            if not config.fix:
-                break
-            # Untrusted audit: DEGRADED/BLOCKED are terminal -- NEVER auto-fixed,
-            # even if the deviations dict coincidentally carries drift>0 (contract
-            # Section 4; mirrors derive_verdict blocked->degraded->halted->pass).
-            if result.verdict is not Verdict.HALTED:
-                break
-            # Trustworthy HALTED: classify the carve-out off the just-parsed contract.
-            contract = parse_contract(config.contract_path)
-            if classify_fix(contract or {}, result.deviations) != "auto-fixable":
-                break  # human-required / none -> terminal HALT, NO apply, NO promote.
-            # Need a remediation pointer to repair (FR-8 consume; never guess a dir).
-            remediation = result.remediation_task_path
-            if not remediation:
-                break  # cannot repair -> terminal HALT (merged-requirements:182-184).
-            # FR-3 bound: at most `max` apply->verify cycles.
-            if iteration > max_iters:
-                break
-            # (B) APPLY the corrective MDTM as a SECOND top-level subprocess.
-            apply_rc = self._apply_remediation(remediation, iteration)
-            if apply_rc != 0:
-                # Fail-closed: a failed /task apply must NOT be re-audited (it would
-                # score partial/garbage state and risk a misleading verdict). Leave
-                # `result` at its HALTED verdict (NEVER PASS); surface WHY in the
-                # sidecar reason (write_sidecar serializes `reason`). This breaks
-                # BEFORE incrementing -> no audit#(k+1) on a failed apply.
-                result.reason = (
-                    f"fix-apply-failed (rc={apply_rc}, prior={result.reason})"
-                )
-                break
-            iteration += 1  # RE-VERIFY on the next loop turn.
+        # The loop + write-back is wrapped in try/finally so the L2 snapshot is ALWAYS
+        # torn down (success / STOP / exception); the always-write sidecar runs INSIDE
+        # the try so the finally teardown never swallows it.
+        try:
+            iteration = 1
+            max_iters = config.max_fix_iterations
+            while True:
+                result = self._audit_once()  # SAME --base reused every re-audit (NFR-4)
+                # Converged: a clean PASS exits 0.
+                if result.verdict is Verdict.PASS:
+                    break
+                # Audit-only (no --fix): a single audit, no loop.
+                if not config.fix:
+                    break
+                # Untrusted audit: DEGRADED/BLOCKED are terminal -- NEVER auto-fixed,
+                # even if the deviations dict coincidentally carries drift>0 (contract
+                # Section 4; mirrors derive_verdict blocked->degraded->halted->pass).
+                if result.verdict is not Verdict.HALTED:
+                    break
+                # Trustworthy HALTED: classify the carve-out off the just-parsed contract.
+                contract = parse_contract(config.contract_path)
+                if classify_fix(contract or {}, result.deviations) != "auto-fixable":
+                    break  # human-required / none -> terminal HALT, NO apply, NO promote.
+                # Need a remediation pointer to repair (FR-8 consume; never guess a dir).
+                remediation = result.remediation_task_path
+                if not remediation:
+                    break  # cannot repair -> terminal HALT (merged-requirements:182-184).
+                # FR-3 bound: at most `max` apply->verify cycles.
+                if iteration > max_iters:
+                    break
+                # (B) APPLY the corrective MDTM as a SECOND top-level subprocess.
+                apply_rc = self._apply_remediation(remediation, iteration)
+                if apply_rc != 0:
+                    # Fail-closed: a failed /task apply must NOT be re-audited (it would
+                    # score partial/garbage state and risk a misleading verdict). Leave
+                    # `result` at its HALTED verdict (NEVER PASS); surface WHY in the
+                    # sidecar reason (write_sidecar serializes `reason`). This breaks
+                    # BEFORE incrementing -> no audit#(k+1) on a failed apply.
+                    result.reason = (
+                        f"fix-apply-failed (rc={apply_rc}, prior={result.reason})"
+                    )
+                    break
+                iteration += 1  # RE-VERIFY on the next loop turn.
 
-        # Bookkeeping (FR-3): completed apply->verify cycles + convergence flag.
-        result.fix_iterations = iteration - 1
-        result.fix_converged = result.verdict is Verdict.PASS
+            # Bookkeeping (FR-3): completed apply->verify cycles + convergence flag.
+            result.fix_iterations = iteration - 1
+            result.fix_converged = result.verdict is Verdict.PASS
 
-        # (6) Atomic race-safe write-back + always-write sidecar.
-        reviewed_at = datetime.now(timezone.utc).isoformat()
-        write_status = write_reflect_post(
-            config.tasklist_path,
-            result,
-            head=config.head,
-            reviewed_at=reviewed_at,
-        )
-        result.write_status = write_status
-        # FR-6: an unwritable/stale frontmatter must fail-closed (non-zero exit).
-        if write_status != "written" and result.verdict is Verdict.PASS:
-            result.verdict = Verdict.BLOCKED
-            result.reason = write_status or "frontmatter-unwritable"
-        write_sidecar(
-            config.output_dir,
-            result,
-            env_alias_count=env_alias_count,
-            write_status=write_status,
-        )
-        return result
+            # L2 telemetry: a snapshot was created (success path). Only the two
+            # ClaudeProcess review children are snapshot-`cwd`-grounded; the
+            # text-in/out swarm workers still read the live tasklist path, so the
+            # honest operator-visible value is "snapshot-children-only", NOT the
+            # overclaiming "snapshot" (D1 telemetry-honesty fix).
+            if snapshot_path is not None:
+                result.reviewer_isolation = "snapshot-children-only"
+                result.reviewer_grounding_root = str(snapshot_path)
+            result.audit_tree_dirty = config.audit_tree_dirty
+
+            # (6) Atomic race-safe write-back + always-write sidecar (INSIDE the try
+            #     so the finally teardown never swallows the guaranteed sidecar emit).
+            reviewed_at = datetime.now(timezone.utc).isoformat()
+            write_status = write_reflect_post(
+                config.tasklist_path,
+                result,
+                head=config.head,
+                reviewed_at=reviewed_at,
+            )
+            result.write_status = write_status
+            # FR-6: an unwritable/stale frontmatter must fail-closed (non-zero exit).
+            if write_status != "written" and result.verdict is Verdict.PASS:
+                result.verdict = Verdict.BLOCKED
+                result.reason = write_status or "frontmatter-unwritable"
+            write_sidecar(
+                config.output_dir,
+                result,
+                env_alias_count=env_alias_count,
+                write_status=write_status,
+            )
+            return result
+        finally:
+            # A-3: always tear down the snapshot (success / STOP / exception). Uses
+            # `git worktree remove --force`, never `rm -rf` / `git stash`.
+            if snapshot_path is not None:
+                teardown_review_snapshot(config, snapshot_path)

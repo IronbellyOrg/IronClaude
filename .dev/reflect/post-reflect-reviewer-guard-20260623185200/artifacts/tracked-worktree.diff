@@ -1,0 +1,805 @@
+diff --git a/docs/guides/reflect-cli-tools-guide.md b/docs/guides/reflect-cli-tools-guide.md
+index 1a00e9c1..3d385691 100644
+--- a/docs/guides/reflect-cli-tools-guide.md
++++ b/docs/guides/reflect-cli-tools-guide.md
+@@ -125,6 +125,14 @@ The exact option set and defaults below are read from
+   **Default: `openai_compat`.** Use `stub` for deterministic, credit-free CI.
+ - `--reviewers N` — Tier-2 reviewer slots. **Default: `3`.** Values 2-4 are
+   clamped to the supported range; `1` is preserved for the negative witness path.
++- `--isolate-reviewers` / `--no-isolate-reviewers` — opt in to L2 reviewer
++  isolation: ground the Wave-3 reviewers (Tier-1 audit child + adversarial scorer)
++  in an isolated `git worktree` snapshot of the committed audit ref, never the live
++  shared worktree, so a reviewer can never read another session's mid-commit state
++  or mutate the repository it is auditing. **Default: `--no-isolate-reviewers`** —
++  OFF preserves today's dirty-tree-audit behavior (#153) byte-for-byte. When ON, a
++  non-committable (dirty / uncommitted / unresolvable-base / HEAD-moved) audit
++  target STOPs with `status: stopped-precondition` → **BLOCKED** (exit 2).
+ - `--tmux` — run inside a detached tmux window so you can watch the run live.
+ - `--resume` — skip the launch when the prior `reflect_post` is a `pass` on the
+   current HEAD (clean-HEAD short-circuit).
+diff --git a/src/superclaude/cli/pipeline/process.py b/src/superclaude/cli/pipeline/process.py
+index 95317f9e..3b8b98b0 100644
+--- a/src/superclaude/cli/pipeline/process.py
++++ b/src/superclaude/cli/pipeline/process.py
+@@ -99,6 +99,8 @@ class ClaudeProcess:
+         on_exit: Callable[[int, int | None], None] | None = None,
+         env_vars: dict[str, str] | None = None,
+         tool_write_mode: bool = False,
++        reviewer_profile: bool = False,
++        cwd: Path | None = None,
+     ):
+         self.prompt = prompt
+         self.output_file = output_file
+@@ -114,6 +116,17 @@ class ClaudeProcess:
+         self._on_exit = on_exit
+         self._extra_env_vars = env_vars
+         self.tool_write_mode = tool_write_mode
++        # L1b restricted reviewer profile (design (a), profile-wins). When True,
++        # build_command() drops --dangerously-skip-permissions AND `--tools default`
++        # so reflect REVIEW children cannot mutate the repo under audit. Orthogonal
++        # to tool_write_mode (output plumbing): the profile wins on command
++        # construction regardless of tool_write_mode. Defaulted False so every
++        # existing (non-reflect) caller is byte-identical.
++        self.reviewer_profile = reviewer_profile
++        # L2 reviewer-isolation: when set, the child runs with this as its working
++        # directory (the `git worktree` snapshot grounding root) instead of the live
++        # shared worktree. Defaulted None so every existing caller is unaffected.
++        self.cwd = cwd
+         self._process: Optional[subprocess.Popen] = None
+         self._stdout_fh = None
+         self._stderr_fh = None
+@@ -128,15 +141,25 @@ class ClaudeProcess:
+             "claude",
+             "--print",
+             "--verbose",
+-            self.permission_flag,
+-            "--no-session-persistence",
+-            "--tools",
+-            "default",
+-            "--max-turns",
+-            str(self.max_turns),
+-            "--output-format",
+-            self.output_format,
+         ]
++        # L1b (design (a)): the restricted reviewer profile drops the blanket
++        # --dangerously-skip-permissions bypass AND the write-capable `--tools
++        # default` surface for reflect REVIEW children. The default profile
++        # (every existing sprint/roadmap caller) emits both, byte-identical to
++        # before. --no-session-persistence is KEPT in both profiles.
++        if not self.reviewer_profile:
++            cmd.append(self.permission_flag)
++        cmd.append("--no-session-persistence")
++        if not self.reviewer_profile:
++            cmd.extend(["--tools", "default"])
++        cmd.extend(
++            [
++                "--max-turns",
++                str(self.max_turns),
++                "--output-format",
++                self.output_format,
++            ]
++        )
+         if self.model:
+             cmd.extend(["--model", self.model])
+         cmd.extend(self.extra_args)
+@@ -188,6 +211,9 @@ class ClaudeProcess:
+         }
+         if hasattr(os, "setpgrp"):
+             popen_kwargs["preexec_fn"] = os.setpgrp
++        # L2 reviewer-isolation: ground the child in the snapshot worktree when set.
++        if self.cwd is not None:
++            popen_kwargs["cwd"] = str(self.cwd)
+
+         self._process = subprocess.Popen(self.build_command(), **popen_kwargs)
+
+diff --git a/src/superclaude/cli/reflect/commands.py b/src/superclaude/cli/reflect/commands.py
+index 808e1206..c2bd0791 100644
+--- a/src/superclaude/cli/reflect/commands.py
++++ b/src/superclaude/cli/reflect/commands.py
+@@ -161,6 +161,16 @@ def reflect_group():
+         "over frontmatter start_commit + merge-base."
+     ),
+ )
++@click.option(
++    "--isolate-reviewers/--no-isolate-reviewers",
++    "isolate_reviewers",
++    default=False,
++    help=(
++        "Opt in to L2 reviewer-isolation: ground Wave-3 reviewers in an isolated "
++        "git-worktree snapshot; STOP on a non-committable (dirty/uncommitted) audit "
++        "target. OFF by default — preserves today's dirty-tree audit."
++    ),
++)
+ def run(
+     tasklist: str,
+     tmux: bool,
+@@ -177,6 +187,7 @@ def run(
+     fix: bool,
+     max_fix_iterations: int,
+     base_override: str | None,
++    isolate_reviewers: bool,
+ ) -> None:
+     """Execute the POST reflect gate for TASKLIST.
+
+@@ -207,6 +218,7 @@ def run(
+             fix=fix,
+             max_fix_iterations=max_fix_iterations,
+             base_override=base_override,
++            isolate_reviewers=isolate_reviewers,
+         )
+     except ValueError as exc:
+         # A config / preflight STOP is blocked -> exit 2 (Section 6).
+diff --git a/src/superclaude/cli/reflect/config.py b/src/superclaude/cli/reflect/config.py
+index a7218b7b..501a1302 100644
+--- a/src/superclaude/cli/reflect/config.py
++++ b/src/superclaude/cli/reflect/config.py
+@@ -105,6 +105,119 @@ def _resolve_base(
+         raise ValueError("base-unresolved") from exc
+
+
++def _audit_tree_dirty(git_cwd: Path, base: str) -> bool:
++    """COR-5 (L2): True if tracked, in-scope (vs ``<base>``) paths are dirty.
++
++    The audit's file set is ``git diff --name-only <base> -- .``. The tree is
++    "dirty for the audit" if any of those paths also appears in ``git status
++    --porcelain=v1`` as a TRACKED modification. Untracked (``??``) entries do
++    NOT count (they are not part of the committed-ref diff a snapshot captures).
++
++    Fail-closed: any git error -> ``True`` (treat as dirty so the L2 gate STOPs
++    rather than snapshotting a tree that may omit the audit target). Reuses the
++    ``_git`` primitive (``config.py``). Only called when ``--isolate-reviewers``
++    is set; the default (flag-off) path never probes.
++    """
++    try:
++        scope = {
++            line.strip()
++            for line in _git(
++                git_cwd, "diff", "--name-only", base, "--", "."
++            ).splitlines()
++            if line.strip()
++        }
++        if not scope:
++            return False
++        for line in _git(git_cwd, "status", "--porcelain=v1").splitlines():
++            if not line.strip():
++                continue
++            status_code = line[:2]
++            path = line[3:].strip()
++            # Untracked entries (??) do not make the audit tree dirty.
++            if status_code == "??":
++                continue
++            # Rename entries "R  old -> new": the new path is the dirty one.
++            if " -> " in path:
++                path = path.split(" -> ", 1)[1].strip()
++            if path in scope:
++                return True
++        return False
++    except (OSError, subprocess.SubprocessError):
++        return True
++
++
++def create_review_snapshot(config) -> tuple[Path | None, str | None]:
++    """L2 (COR-2/A-2/A-3): create an isolated ``git worktree`` snapshot of the audit ref.
++
++    Lives in ``config.py`` (the subprocess-owning module) so ``runner.py`` stays
++    free of any raw ``subprocess`` import (NFR-1 thinness guard). Returns
++    ``(snapshot_path, None)`` on success, or ``(None, stop_reason)`` on a
++    precondition STOP. NEVER falls back to the live tree. Uses a REAL worktree
++    checkout (NOT an archive) so serena/auggie stay indexed (A-2).
++
++    Lifecycle:
++      1. PRE-CLEAN a leftover ``<output>/_review-snapshot`` via ``git worktree
++         remove --force`` (crash recovery); failure -> STOP ``snapshot-precleanup-failed``.
++      2. RE-RESOLVE HEAD immediately before ``worktree add`` and compare to the
++         config-time ``config.head``; drift -> STOP ``head-moved-precondition``
++         (the parallel-session HEAD-moved hazard, memory
++         ``feedback_parallel_sessions_share_index``).
++      3. ``git worktree add --detach <snapshot> <ref>``; any non-zero exit -> STOP
++         with the captured stderr in the reason (memory
++         ``reference_worktree_merge_head_path``: teardown uses ``git worktree
++         remove``, never ``rm -rf`` / ``git stash``).
++    """
++    git_cwd = config.tasklist_path.parent
++    snapshot = config.output_dir / "_review-snapshot"
++    # (1) Pre-clean a leftover snapshot from a crashed prior run.
++    if snapshot.exists():
++        try:
++            _git(git_cwd, "worktree", "remove", "--force", str(snapshot))
++        except (OSError, subprocess.SubprocessError):
++            return (None, "snapshot-precleanup-failed")
++    # (2a) COR-1 base-resolves check: the committability predicate requires
++    # `<base>` to resolve to a commit. If `<base>` does not name a commit, STOP
++    # `no-committable-ref` BEFORE the worktree add rather than snapshot against an
++    # unresolvable ref.
++    try:
++        _git(git_cwd, "rev-parse", "--verify", f"{config.base}^{{commit}}")
++    except (OSError, subprocess.SubprocessError):
++        return (None, "no-committable-ref")
++    # (2b) Re-resolve HEAD and compare to the config-time value (parallel-session race).
++    try:
++        current_head = _git(git_cwd, "rev-parse", "HEAD")
++    except (OSError, subprocess.SubprocessError):
++        return (None, "no-committable-ref")
++    if current_head != config.head:
++        return (None, "head-moved-precondition")
++    # (3) Real worktree checkout (NOT archive) so serena/auggie stay indexed.
++    config.output_dir.mkdir(parents=True, exist_ok=True)
++    try:
++        _git(git_cwd, "worktree", "add", "--detach", str(snapshot), current_head)
++    except subprocess.CalledProcessError as exc:
++        stderr = (exc.stderr or "").strip().replace("\n", " ")[:200]
++        return (None, f"worktree-add-failed: {stderr}")
++    except (OSError, subprocess.SubprocessError) as exc:
++        return (None, f"worktree-add-failed: {exc}")
++    return (snapshot, None)
++
++
++def teardown_review_snapshot(config, snapshot: Path) -> None:
++    """L2 teardown (A-3): remove the snapshot via ``git worktree remove --force``.
++
++    NEVER ``rm -rf`` / ``git stash`` (memory ``reference_worktree_merge_head_path``:
++    the snapshot's ``.git`` is a linked-worktree FILE; a filesystem delete orphans
++    the ``.git/worktrees/<name>`` admin entry). Best-effort: a teardown failure is
++    swallowed so the always-write sidecar still runs; the next run's pre-clean
++    handles any leftover.
++    """
++    git_cwd = config.tasklist_path.parent
++    try:
++        _git(git_cwd, "worktree", "remove", "--force", str(snapshot))
++    except (OSError, subprocess.SubprocessError):
++        pass
++
++
+ def _is_under_claude_protected(path: Path) -> bool:
+     """True if ``path`` is under ``.claude/{skills,agents,commands}`` (FR-4 STOP)."""
+     parts = path.parts
+@@ -141,6 +254,7 @@ def resolve_config(
+     max_fix_iterations: int = 2,
+     transport: str = "openai_compat",
+     reviewers: int = 3,
++    isolate_reviewers: bool = False,
+ ) -> ReflectConfig:
+     """Resolve CLI args + frontmatter + git state into a ``ReflectConfig``.
+
+@@ -194,6 +308,13 @@ def resolve_config(
+     # -- Depth floor (O4/FR-3 -- POST never runs quick) --
+     resolved_depth = "standard" if depth == "quick" else depth
+
++    # -- L2 (COR-5): probe the audit tree's cleanliness ONLY when reviewer
++    # isolation is opted in (`--isolate-reviewers`). The default (flag-off) path
++    # never probes, preserving today's #153 dirty-tree-audit behavior byte-for-byte.
++    resolved_audit_tree_dirty = (
++        _audit_tree_dirty(git_cwd, base) if isolate_reviewers else False
++    )
++
+     # -- Tier-2 ensemble transport/reviewer plumbing (§5.1) --
+     resolved_transport = (transport or "openai_compat").strip().lower()
+     if resolved_transport not in {"openai_compat", "stub"}:
+@@ -253,4 +374,6 @@ def resolve_config(
+         max_fix_iterations=max_fix_iterations,
+         transport=resolved_transport,
+         reviewers=resolved_reviewers,
++        isolate_reviewers=isolate_reviewers,
++        audit_tree_dirty=resolved_audit_tree_dirty,
+     )
+diff --git a/src/superclaude/cli/reflect/ensemble.py b/src/superclaude/cli/reflect/ensemble.py
+index 7d97209c..2ceea3c7 100644
+--- a/src/superclaude/cli/reflect/ensemble.py
++++ b/src/superclaude/cli/reflect/ensemble.py
+@@ -309,6 +309,18 @@ def run_tier2_ensemble(
+         needs_human_decision=needs_human_decision,
+         deviation_count_by_class=deviation_count_by_class,
+         adversarial_report_path=adversarial_report_path,
++        # L2 telemetry: reaching here means launch happened (the STOP path never
++        # builds a contract). "snapshot" iff reviewers were grounded in an isolated
++        # snapshot; "disabled" otherwise (the default flag-off path).
++        reviewer_isolation=(
++            "snapshot" if config.reviewer_grounding_root else "disabled"
++        ),
++        audit_tree_dirty=config.audit_tree_dirty,
++        reviewer_grounding_root=(
++            str(config.reviewer_grounding_root)
++            if config.reviewer_grounding_root
++            else None
++        ),
+     )
+     _emit_reflect_contract(config.contract_path, contract)
+     return contract
+@@ -345,6 +357,13 @@ def run_adversarial_scorer(
+         timeout_seconds=config.timeout_seconds,
+         max_turns=config.max_turns,
+         output_format="stream-json",
++        # L1b (design (a)): the Mode-A adversarial scorer is a REVIEW-class child
++        # (it reads reviewer artifacts + writes a contract); it runs under the
++        # restricted reviewer profile so it cannot mutate the repo under audit.
++        reviewer_profile=True,
++        # L2: ground the scorer in the snapshot worktree when reviewer isolation is
++        # active (None otherwise -> live CWD, today's behavior).
++        cwd=config.reviewer_grounding_root,
+     )
+     proc.start()
+     if proc.wait() != 0:
+@@ -478,6 +497,9 @@ def build_reflect_contract(
+     needs_human_decision: bool = False,
+     deviation_count_by_class: dict[str, int] | None = None,
+     adversarial_report_path: str | None = None,
++    reviewer_isolation: str = "disabled",
++    audit_tree_dirty: bool = False,
++    reviewer_grounding_root: str | None = None,
+ ) -> dict[str, Any] | None:
+     """Map swarm worker facts onto the reflect return-contract namespace.
+
+@@ -533,6 +555,13 @@ def build_reflect_contract(
+         "user_decision_required": False,  # seam emits no user-decision signal; honest default (R2-F3, supersedes R6 Step 2.5 mirror mandate)
+         "serena_summary_corroboration": "unavailable",
+         "degraded_components": [],
++        # L2 reviewer-isolation telemetry (pure telemetry; not verdict-bearing —
++        # the STOP happens in the runner before derive_verdict, so audit_tree_dirty
++        # is NOT registered in _LOAD_BEARING_BOOL_FIELDS). Defaulted CLEAN so a
++        # seam-less Tier-2 run or a direct call still emits a valid contract.
++        "reviewer_isolation": reviewer_isolation,
++        "audit_tree_dirty": audit_tree_dirty,
++        "reviewer_grounding_root": reviewer_grounding_root,
+     }
+
+
+diff --git a/src/superclaude/cli/reflect/models.py b/src/superclaude/cli/reflect/models.py
+index f16e15ee..ddbe95a2 100644
+--- a/src/superclaude/cli/reflect/models.py
++++ b/src/superclaude/cli/reflect/models.py
+@@ -91,6 +91,18 @@ class ReflectConfig:
+     # §5.1 `--reviewers`: int; default `3`; Tier-2 reviewer slots,
+     # clamped to `[2,4]` except `1` is the negative-witness case.
+     reviewers: int = 3
++    # L2 reviewer-isolation snapshot gate (`--isolate-reviewers`). PINNED OFF by
++    # default (flag-gated opt-in) so today's #153 dirty-tree-audit behavior is
++    # preserved and the Phase-9 POST gate is not self-bricked. When True, the
++    # runner STOPs on a non-committable target and otherwise grounds reviewers in
++    # a `git worktree` snapshot. `audit_tree_dirty` is the COR-5 probe result
++    # (only meaningful when `isolate_reviewers` is True; False otherwise).
++    isolate_reviewers: bool = False
++    audit_tree_dirty: bool = False
++    # Set by ``runner.run()`` AFTER a successful snapshot is created: the path both
++    # review-class children (Tier-1 audit + adversarial scorer) ground in as their
++    # CWD. None when isolation is off or the gate STOPped (no child launches then).
++    reviewer_grounding_root: Path | None = None
+
+     @property
+     def contract_path(self) -> Path:
+@@ -121,6 +133,14 @@ class ReflectResult:
+     fix_iterations: int = 0
+     fix_converged: bool = False
+     remediation_task_path: str | None = None
++    # L2 reviewer-isolation telemetry (pure telemetry — does NOT alter the verdict;
++    # the STOP happens in the runner before derive_verdict). Defaulted so all
++    # hand-built construction sites stay valid.
++    # reviewer_isolation: "disabled" (flag off) | "snapshot" (grounded in a snapshot)
++    #   | "stopped-precondition" (gate STOPped before launch).
++    reviewer_isolation: str = "disabled"
++    audit_tree_dirty: bool = False
++    reviewer_grounding_root: str | None = None
+
+     @property
+     def outcome(self) -> str:
+diff --git a/src/superclaude/cli/reflect/runner.py b/src/superclaude/cli/reflect/runner.py
+index 92406d9f..ccb4acf3 100644
+--- a/src/superclaude/cli/reflect/runner.py
++++ b/src/superclaude/cli/reflect/runner.py
+@@ -31,6 +31,7 @@ import yaml
+ from superclaude.cli.pipeline.process import ClaudeProcess
+ from superclaude.cli.pipeline.process import ClaudeProcess as _ProductionClaudeProcess
+
++from .config import create_review_snapshot, teardown_review_snapshot
+ from .contract import classify_fix, derive_verdict, parse_contract
+ from .ensemble import run_tier2_ensemble
+ from .models import ReflectConfig, ReflectResult, Verdict
+@@ -222,6 +223,12 @@ def write_sidecar(
+         # FR-3: auto-fix loop bookkeeping (sidecar-only; NOT in reflect_post: per U5).
+         "fix_iterations": result.fix_iterations,
+         "fix_converged": result.fix_converged,
++        # L2 reviewer-isolation telemetry (sidecar is the ONLY guaranteed emission on
++        # a precondition STOP, where no reflect contract is produced). Pure telemetry —
++        # does NOT alter the verdict. Mirrors the U5 fix_* sidecar-only precedent.
++        "reviewer_isolation": result.reviewer_isolation,
++        "audit_tree_dirty": result.audit_tree_dirty,
++        "reviewer_grounding_root": result.reviewer_grounding_root,
+     }
+     sidecar_path = output_dir / "wrapper-result.yaml"
+     _atomic_write_text(
+@@ -373,16 +380,20 @@ class ReflectRunner:
+         F6: byte-matches ``ClaudeProcess.build_command()`` (pipeline/process.py)
+         flag set AND order so ``--print-command`` shows the argv that actually
+         runs. The FR-12 dry-run-never-constructs guarantee forbids building a real
+-        ``ClaudeProcess`` here (enforced by ``test_dry_run_never_launches``), so
+-        the order is mirrored literally: ``--print --verbose
+-        --dangerously-skip-permissions --no-session-persistence --tools default
+-        --max-turns <N> --output-format stream-json [--model <M>]`` (``--model``
+-        appended last, only when set, matching the builder's conditional).
++        ``ClaudeProcess`` here (enforced by ``test_dry_run_never_launches``).
++
++        L1b (design (a)): the Tier-1 grounded-audit child runs under the
++        restricted reviewer profile (``reviewer_profile=True``), so its argv DROPS
++        ``--dangerously-skip-permissions`` AND ``--tools default``. The order is
++        mirrored literally to the restricted ``build_command()`` output: ``--print
++        --verbose --no-session-persistence --max-turns <N> --output-format
++        stream-json [--model <M>]`` (``--model`` appended last, only when set,
++        matching the builder's conditional).
+         """
+         config = self.config
+         argv = (
+-            "claude --print --verbose --dangerously-skip-permissions "
+-            "--no-session-persistence --tools default "
++            "claude --print --verbose "
++            "--no-session-persistence "
+             f"--max-turns {config.max_turns} --output-format stream-json"
+         )
+         if config.model:
+@@ -439,6 +450,15 @@ class ReflectRunner:
+                 # /sc:reflect (not `superclaude reflect run`), so it does NOT self-suppress;
+                 # build_env() overlays this on the full inherited env (process.py:97-112).
+                 env_vars={_WRAPPER_MARKER: "1"},
++                # L1b (design (a)): this Tier-1 grounded-audit child is a REVIEW-class
++                # launch, so it runs under the restricted reviewer profile (drops
++                # --dangerously-skip-permissions + `--tools default`) and cannot mutate
++                # the repo it audits. The remediation executor (_apply_remediation) is
++                # deliberately NOT restricted — it must retain write tools to apply fixes.
++                reviewer_profile=True,
++                # L2: ground the audit child in the snapshot worktree when reviewer
++                # isolation is active (None otherwise -> live CWD, today's behavior).
++                cwd=config.reviewer_grounding_root,
+             )
+             proc.start()
+             rc = proc.wait()
+@@ -475,6 +495,38 @@ class ReflectRunner:
+         proc.start()
+         return proc.wait()
+
++    def _stopped_precondition(
++        self, config: ReflectConfig, env_alias_count: int, *, reason: str
++    ) -> ReflectResult:
++        """L2 STOP: build the ``stopped-precondition`` result + always-write sidecar.
++
++        The verdict stays ``BLOCKED`` (exit 2, unchanged fail-closed contract); only
++        ``status`` (``stopped-precondition``) + ``reason`` + the reviewer-isolation
++        telemetry are new. The sidecar is the ONLY guaranteed emission on this path
++        (no reflect contract is produced because no child launches).
++        """
++        result = ReflectResult(
++            verdict=Verdict.BLOCKED,
++            status="stopped-precondition",
++            tier_reached=None,
++            reason=reason,
++            report_path=None,
++            contract_path=None,
++            deviations={},
++            child_exit_code=None,
++            write_status="not-attempted",
++            reviewer_isolation="stopped-precondition",
++            audit_tree_dirty=config.audit_tree_dirty,
++            reviewer_grounding_root=None,
++        )
++        write_sidecar(
++            config.output_dir,
++            result,
++            env_alias_count=env_alias_count,
++            write_status="not-attempted",
++        )
++        return result
++
+     def run(self) -> ReflectResult:
+         """Execute the wrapper run and return the derived ``ReflectResult``."""
+         config = self.config
+@@ -553,70 +605,107 @@ class ReflectRunner:
+                 )
+                 return result
+
++        # (3.6) L2 reviewer-isolation snapshot gate (only when --isolate-reviewers).
++        #       Placed AFTER the dry-run gate (FR-12 unaffected) and the resume
++        #       short-circuit, BEFORE the audit loop. The default (flag-off) path
++        #       skips this entirely, preserving today's #153 dirty-tree-audit
++        #       behavior byte-for-byte. COR-1: a dirty (uncommitted) audit target
++        #       cannot be captured by a committed-ref snapshot -> STOP rather than
++        #       audit a snapshot that omits it. Reviewers ground in the snapshot,
++        #       never the live shared worktree.
++        snapshot_path: Path | None = None
++        if config.isolate_reviewers:
++            if config.audit_tree_dirty:
++                return self._stopped_precondition(
++                    config, env_alias_count, reason="dirty"
++                )
++            snapshot_path, stop_reason = create_review_snapshot(config)
++            if stop_reason is not None:
++                return self._stopped_precondition(
++                    config, env_alias_count, reason=stop_reason
++                )
++            config.reviewer_grounding_root = snapshot_path
++
+         # (4-5) Bounded audit -> classify -> apply -> re-verify loop (FR-1/FR-3, D1/D3).
+         # Termination is guaranteed by BOTH the `max` bound and the
+         # PASS/not-fix/untrusted/classification/cannot-repair/failed-apply breaks (NFR-3).
+-        iteration = 1
+-        max_iters = config.max_fix_iterations
+-        while True:
+-            result = self._audit_once()  # SAME --base reused every re-audit (NFR-4)
+-            # Converged: a clean PASS exits 0.
+-            if result.verdict is Verdict.PASS:
+-                break
+-            # Audit-only (no --fix): a single audit, no loop.
+-            if not config.fix:
+-                break
+-            # Untrusted audit: DEGRADED/BLOCKED are terminal -- NEVER auto-fixed,
+-            # even if the deviations dict coincidentally carries drift>0 (contract
+-            # Section 4; mirrors derive_verdict blocked->degraded->halted->pass).
+-            if result.verdict is not Verdict.HALTED:
+-                break
+-            # Trustworthy HALTED: classify the carve-out off the just-parsed contract.
+-            contract = parse_contract(config.contract_path)
+-            if classify_fix(contract or {}, result.deviations) != "auto-fixable":
+-                break  # human-required / none -> terminal HALT, NO apply, NO promote.
+-            # Need a remediation pointer to repair (FR-8 consume; never guess a dir).
+-            remediation = result.remediation_task_path
+-            if not remediation:
+-                break  # cannot repair -> terminal HALT (merged-requirements:182-184).
+-            # FR-3 bound: at most `max` apply->verify cycles.
+-            if iteration > max_iters:
+-                break
+-            # (B) APPLY the corrective MDTM as a SECOND top-level subprocess.
+-            apply_rc = self._apply_remediation(remediation, iteration)
+-            if apply_rc != 0:
+-                # Fail-closed: a failed /task apply must NOT be re-audited (it would
+-                # score partial/garbage state and risk a misleading verdict). Leave
+-                # `result` at its HALTED verdict (NEVER PASS); surface WHY in the
+-                # sidecar reason (write_sidecar serializes `reason`). This breaks
+-                # BEFORE incrementing -> no audit#(k+1) on a failed apply.
+-                result.reason = (
+-                    f"fix-apply-failed (rc={apply_rc}, prior={result.reason})"
+-                )
+-                break
+-            iteration += 1  # RE-VERIFY on the next loop turn.
+-
+-        # Bookkeeping (FR-3): completed apply->verify cycles + convergence flag.
+-        result.fix_iterations = iteration - 1
+-        result.fix_converged = result.verdict is Verdict.PASS
+-
+-        # (6) Atomic race-safe write-back + always-write sidecar.
+-        reviewed_at = datetime.now(timezone.utc).isoformat()
+-        write_status = write_reflect_post(
+-            config.tasklist_path,
+-            result,
+-            head=config.head,
+-            reviewed_at=reviewed_at,
+-        )
+-        result.write_status = write_status
+-        # FR-6: an unwritable/stale frontmatter must fail-closed (non-zero exit).
+-        if write_status != "written" and result.verdict is Verdict.PASS:
+-            result.verdict = Verdict.BLOCKED
+-            result.reason = write_status or "frontmatter-unwritable"
+-        write_sidecar(
+-            config.output_dir,
+-            result,
+-            env_alias_count=env_alias_count,
+-            write_status=write_status,
+-        )
+-        return result
++        # The loop + write-back is wrapped in try/finally so the L2 snapshot is ALWAYS
++        # torn down (success / STOP / exception); the always-write sidecar runs INSIDE
++        # the try so the finally teardown never swallows it.
++        try:
++            iteration = 1
++            max_iters = config.max_fix_iterations
++            while True:
++                result = self._audit_once()  # SAME --base reused every re-audit (NFR-4)
++                # Converged: a clean PASS exits 0.
++                if result.verdict is Verdict.PASS:
++                    break
++                # Audit-only (no --fix): a single audit, no loop.
++                if not config.fix:
++                    break
++                # Untrusted audit: DEGRADED/BLOCKED are terminal -- NEVER auto-fixed,
++                # even if the deviations dict coincidentally carries drift>0 (contract
++                # Section 4; mirrors derive_verdict blocked->degraded->halted->pass).
++                if result.verdict is not Verdict.HALTED:
++                    break
++                # Trustworthy HALTED: classify the carve-out off the just-parsed contract.
++                contract = parse_contract(config.contract_path)
++                if classify_fix(contract or {}, result.deviations) != "auto-fixable":
++                    break  # human-required / none -> terminal HALT, NO apply, NO promote.
++                # Need a remediation pointer to repair (FR-8 consume; never guess a dir).
++                remediation = result.remediation_task_path
++                if not remediation:
++                    break  # cannot repair -> terminal HALT (merged-requirements:182-184).
++                # FR-3 bound: at most `max` apply->verify cycles.
++                if iteration > max_iters:
++                    break
++                # (B) APPLY the corrective MDTM as a SECOND top-level subprocess.
++                apply_rc = self._apply_remediation(remediation, iteration)
++                if apply_rc != 0:
++                    # Fail-closed: a failed /task apply must NOT be re-audited (it would
++                    # score partial/garbage state and risk a misleading verdict). Leave
++                    # `result` at its HALTED verdict (NEVER PASS); surface WHY in the
++                    # sidecar reason (write_sidecar serializes `reason`). This breaks
++                    # BEFORE incrementing -> no audit#(k+1) on a failed apply.
++                    result.reason = (
++                        f"fix-apply-failed (rc={apply_rc}, prior={result.reason})"
++                    )
++                    break
++                iteration += 1  # RE-VERIFY on the next loop turn.
++
++            # Bookkeeping (FR-3): completed apply->verify cycles + convergence flag.
++            result.fix_iterations = iteration - 1
++            result.fix_converged = result.verdict is Verdict.PASS
++
++            # L2 telemetry: reviewers grounded in the snapshot (success path).
++            if snapshot_path is not None:
++                result.reviewer_isolation = "snapshot"
++                result.reviewer_grounding_root = str(snapshot_path)
++            result.audit_tree_dirty = config.audit_tree_dirty
++
++            # (6) Atomic race-safe write-back + always-write sidecar (INSIDE the try
++            #     so the finally teardown never swallows the guaranteed sidecar emit).
++            reviewed_at = datetime.now(timezone.utc).isoformat()
++            write_status = write_reflect_post(
++                config.tasklist_path,
++                result,
++                head=config.head,
++                reviewed_at=reviewed_at,
++            )
++            result.write_status = write_status
++            # FR-6: an unwritable/stale frontmatter must fail-closed (non-zero exit).
++            if write_status != "written" and result.verdict is Verdict.PASS:
++                result.verdict = Verdict.BLOCKED
++                result.reason = write_status or "frontmatter-unwritable"
++            write_sidecar(
++                config.output_dir,
++                result,
++                env_alias_count=env_alias_count,
++                write_status=write_status,
++            )
++            return result
++        finally:
++            # A-3: always tear down the snapshot (success / STOP / exception). Uses
++            # `git worktree remove --force`, never `rm -rf` / `git stash`.
++            if snapshot_path is not None:
++                teardown_review_snapshot(config, snapshot_path)
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index 8e16eb42..509399bf 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -173,7 +173,7 @@ Wave 7:   Promotion Mutation (UC-2 only — §14.5 strict gate; default-on, --no
+             7.7 Update return-contract promotion_* fields (output-dir write only)
+ ```
+
+-Each wave has explicit entry/exit. Refs are loaded on-demand per wave, never pre-loaded. **The 7-wave count is structurally "6 review waves (0-6, all read-only outside `<output>/`) + 1 mutation wave (7)."** Wave 7's SRP boundary is intentional: every mutation-related concern (atomicity, rollback, partial-state recovery, forensic log) is concentrated in §14.5, NOT distributed across the review waves. Implementations MAY ship Wave 7 as a separate code path with its own entry/exit; reflect's contract guarantees that Waves 0-6 never mutate outside `<output>/` regardless.
++Each wave has explicit entry/exit. Refs are loaded on-demand per wave, never pre-loaded. **The 7-wave count is structurally "6 review waves (0-6, all read-only outside `<output>/`) + 1 mutation wave (7)."** Wave 7's SRP boundary is intentional: every mutation-related concern (atomicity, rollback, partial-state recovery, forensic log) is concentrated in §14.5, NOT distributed across the review waves. Implementations MAY ship Wave 7 as a separate code path with its own entry/exit; reflect's contract guarantees that Waves 0-6 never mutate outside `<output>/` regardless — enforced by L1 (the restricted read-only `reflect-reviewer` agent allowlist) + the Step 0.5e reviewer-isolation snapshot gate (reviewers ground in an isolated `git worktree` snapshot, never the live tree).
+
+ ### 4.0 Wave 0 — Detailed step additions
+
+@@ -260,6 +260,16 @@ read_only: <bool>                               # FR-4.7: read_only:true disable
+
+ **Fail-open (§6.5):** any parse failure of any field → set that field to its unavailable value (`backend: none` / `*_available: false` / `read_only` unconfirmed → treat triangle as disabled), emit the matching skip reason to the consuming FR's telemetry, and continue. This step never STOPs the skill. It emits one `audit.log` row per the §4 per-step convention with the four-field availability evidence.
+
++**Step 0.5e (reviewer-isolation snapshot gate — L2, opt-in via `--isolate-reviewers`).** When reviewer isolation is enabled (flag-gated opt-in; OFF by default so today's #153 dirty-tree-audit behavior is unchanged), the wrapper grounds every Wave-3 reviewer in an isolated `git worktree` snapshot rather than the live shared worktree, so a reviewer can never read another session's mid-commit state and can never mutate the repository it is auditing (reliability / data-loss-prevention). The gate runs in the Python wrapper (`cli/reflect/{config,runner,ensemble}.py`) AFTER the dry-run gate (FR-12 unaffected), and proceeds:
++
++1. **Cleanliness probe** — compute `audit_tree_dirty` = the tracked, in-scope (`git diff --name-only <base>`) paths that are dirty in `git status --porcelain=v1`. Untracked entries do not count. Fail-closed: any git error → treat as dirty.
++2. **STOP-on-non-committable predicate (COR-1)** — `committable = base resolves AND HEAD resolves AND not audit_tree_dirty`. If NOT committable, the wrapper STOPs with `status: stopped-precondition` (verdict BLOCKED, exit 2 — the fail-closed contract is unchanged) and `reason ∈ {dirty, no-committable-ref, head-moved-precondition, snapshot-precleanup-failed, worktree-add-failed}` (any non-zero `git worktree add` exit STOPs with the captured stderr, never falling back to the live tree). It never points reviewers at a committed-ref snapshot that omits the uncommitted target.
++3. **Snapshot creation (COR-2 / A-2)** — on the committable path, pre-clean a leftover `<output>/_review-snapshot`, re-resolve HEAD immediately before `git worktree add --detach <output>/_review-snapshot <ref>` and STOP `head-moved-precondition` on drift (the parallel-session HEAD-moved hazard), then create a REAL worktree checkout (NOT an archive, so serena/auggie stay indexed).
++4. **Per-reviewer grounding-root redirect** — every reviewer's `reviewer_grounding_root` is the snapshot path. The live-CWD review children (the Tier-1 audit child and the adversarial scorer) ground in `<snapshot>` via their `cwd`, never the live shared worktree; the text-in/out Tier-2 swarm workers hold NO repo CWD and instead receive review targets derived from `<snapshot>`.
++5. **`finally` teardown (A-3)** — the snapshot is always removed via `git worktree remove --force` (never `rm -rf` / `git stash`), on success / STOP / exception, while the always-write sidecar still emits inside the try.
++
++Telemetry `reviewer_isolation` (`disabled` | `snapshot` | `stopped-precondition`), `audit_tree_dirty`, and `reviewer_grounding_root` are emitted to the sidecar (the only guaranteed emission on a STOP) and the Tier-2 contract.
++
+ **Step 0.6 (vendor heterogeneity check).** For each resolved alias, extract the vendor (Anthropic / Qwen / Kimi / DeepSeek / OpenAI-compat / etc.) by alias-name heuristic. Emit one of `t2_vendor_diversity: multi` (≥2 vendors among resolved aliases) or `t2_vendor_diversity: single` (all aliases share one vendor). When `single`, emit a WARN with the suggested env-var override (full message body lives in `refs/ops-integration.md`). This is **warn-only in v1**; behaviour does not block. See §11.0 and the v1.1 deferred-hardening notes in §19.
+
+ **Step 0.7 (activate project + memory hydrate + onboarding-status parse, FR-6).** At Wave 0, after `mcp__serena__activate_project` and memory hydrate, derive whether project memory was bootstrapped — an input to `S_dev_density` calibration. The historical standalone onboarding-status tool was **DELETED in Serena v1.5.0**, so it is NOT called and NOT in `allowed-tools`; the signal is derived from the activation message instead:
+@@ -322,6 +332,8 @@ Emit `interaction_effects_scanned: true` in the contract when this step runs; `i
+
+ **Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, materialize one brief per reviewer at `<output>/reviewer-briefs/reviewer-<N>.md` containing: (a) T1 reflection card slice (the section relevant to this reviewer's persona); (b) reviewer-scoped grounding hunks (file:line excerpts from Wave 1A); (c) coverage-matrix slice (only the rows the reviewer is responsible for). Each brief is self-contained, so reviewers run truly in parallel without orchestrator round-trips.
+
++**Live-execution prohibition (L4, read-only reviewer).** A reviewer brief MUST NOT embed live-execution instructions: no "run pytest", no "run `git diff`", no "compute the baseline test count", no shell/git commands for the reviewer to execute. Reviewers are read-only (the fixed `reflect-reviewer` agent-type carries no Bash/`execute_shell_command`/Task tool) and audit ONLY the pre-computed hunks and matrices in the brief. Verification deltas arrive SOLELY via the FR-4 verification-results grounding hunk, produced by the orchestrator running the §6.1 step 5.5 verification triangle (`refs/reviewer-spec.md` `## Grounding hunks`) and surfaced as a hunk — verification is NEVER delegated to the reviewer. This preserves the existing "audit the supplied hunks/matrices" directives while forbidding any instruction that would have the reviewer execute anything.
++
+ (See `refs/reviewer-spec.md` for the brief template and worked examples.)
+
+ ### 4.5 Wave 5 — Detailed step addition
+@@ -504,7 +516,7 @@ The chain replaces "think_about_collected_information" — instead of asking the
+
+ ### 6.1.1 `execute_shell_command` safety envelope (FR-RV3-MED.4)
+
+-`execute_shell_command` runs **non-mutating verification only** (tests/linters/type-checkers/build). Serena executes the command via `subprocess.Popen(command, shell=True)` with **no upstream allowlist or sandbox** (Serena Security Audit #380), so the entire safety envelope is **consumer-side**. A first-token allowlist is *necessary but not sufficient* — under `shell=True` an allowlisted first verb still permits a chained mutation (e.g. `pytest ; rm -rf src`). The envelope therefore validates the **whole command structure**, not just the first token. All nine controls are mandatory:
++`execute_shell_command` runs **non-mutating verification only** (tests/linters/type-checkers/build). This is the **SOLE shell-execution surface** a reflect reviewer may touch — reviewers have no other sanctioned command-execution path, and the restricted `reflect-reviewer` agent (L1) carries no `Bash`/`execute_shell_command` tool at all, so this envelope governs only the orchestrator-driven §6.1 step 5.5 verification call. Serena executes the command via `subprocess.Popen(command, shell=True)` with **no upstream allowlist or sandbox** (Serena Security Audit #380), so the entire safety envelope is **consumer-side**. A first-token allowlist is *necessary but not sufficient* — under `shell=True` an allowlisted first verb still permits a chained mutation (e.g. `pytest ; rm -rf src`). The envelope therefore validates the **whole command structure**, not just the first token. Note that control (b)'s allowlist is a CLOSED set with `git` absent, so every git verb is already rejected here regardless of the no-mutation denylist below — the denylist's git-verb enumeration (L3) is a defense-in-depth backstop, not the closure of the Bash-tool/L1 incident vector. All nine controls are mandatory:
+
+ - **(a) Template construction, not prose assembly.** The command MUST be built from a fixed allowlisted-verb template with arguments supplied as a vetted token list. The command string is NEVER assembled from raw spec/tasklist prose (untrusted by definition).
+ - **(b) Verb allowlist.** The first token MUST be in `{pytest, ruff, mypy, make, uv, npm, tsc, cargo}`; otherwise the command is rejected with `verify_blocked: true` + `verify_blocked_reason: "verb '<v>' not in allowlist"` and is **not** invoked. The allowlist is checked against the **base** verification command's first token, NOT against the fixed protocol-added `timeout` / `env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` wrapper prefix from controls (d)/(i) — those wrappers are protocol-authored, never user-supplied verbs, so `timeout` and `env` are never themselves allowlisted as selectable verbs.
+@@ -516,7 +528,7 @@ The chain replaces "think_about_collected_information" — instead of asking the
+ - **(h) `--no-verify`.** Disables the verification triangle globally (`verification_skip_reason: --no-verify`).
+ - **(i) Wrapper-marker strip (verification subprocess only).** After the base verification command passes controls (a)–(c) and the no-mutation gate, the step-5.5 invocation MUST be executed as the fixed protocol-authored wrapper `timeout <N> env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE <validated base command>`, so the verification subprocess does NOT inherit `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE` from a parent reflect-wrapper run. Without this strip, a verification command that itself invokes `superclaude reflect run` (e.g. the reflect CLI's own tests) trips the `commands.py` recursion-breaker guard and self-suppresses, producing a false degraded/null-convergence outcome on a clean audit. This strip applies **only** to the non-mutating verification/build/test subprocess class governed by this envelope. It does **NOT** authorize clearing, unsetting, or overwriting the marker for reflect audits, emitted reflect gate commands, or auto-run corrective `/task` execution — those children MUST keep `SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE=1` so nested-gate suppression remains intact. `env -u` here is a fixed wrapper prefix, **not** a user-selectable allowlisted verb (control (b) still validates the base command's first token). The strip preserves controls (d)–(h): the `timeout <N>` wrap from (d) remains the outer wrapper, the executed command is recorded in `<output>/verify-logs/invocations.yaml` per (g), and when `--no-verify` (h) disables the triangle no marker-stripping wrapper runs at all.
+
+-**No-mutation gate.** Independently of (b)/(c), any command matching the mutation denylist (`git commit`/`git push`, `pip install`, `rm`, or any redirect to a repo path outside `<output>/`) is rejected with `verify_blocked_reason: "mutation-denied"` and never invoked. In-test side effects (a test that writes fixtures within its own scope) are best-effort only (OQ-M7) — the gate governs the *command*, not the test internals.
++**No-mutation gate.** Independently of (b)/(c), any command matching the mutation denylist (`git commit`/`git push`, the read-but-forbidden working-tree git verbs `git reset` / `git stash` / `git checkout` / `git clean` / `git rebase` / `git merge` / `git worktree` / `git restore` — i.e. `git <any mutation>` as a broad backstop — `pip install`, `rm`, or any redirect to a repo path outside `<output>/`) is rejected with `verify_blocked_reason: "mutation-denied"` and never invoked. In-test side effects (a test that writes fixtures within its own scope) are best-effort only (OQ-M7) — the gate governs the *command*, not the test internals. **(L3 defense-in-depth — NOT the incident vector.)** These git verbs are enumerated as a backstop only: control (b)'s verb allowlist is a CLOSED set (`{pytest, ruff, mypy, make, uv, npm, tsc, cargo}`) that already rejects EVERY git verb because `git` is absent from it, so no git command can reach this gate via the `execute_shell_command`/serena path. The reflect-reviewer mutation incident vector traveled the **Bash-tool / L1** path (all-tools reviewer personas), which L1 + L2 close; §6.1.1 governs only the `execute_shell_command`/serena verification path, so this denylist extension is strictly defense-in-depth and does not by itself close the incident vector.
+
+ ### 6.2 Citation-grounding via re-Read (anti-staleness)
+
+@@ -592,12 +604,13 @@ Every reusable agent is mapped to a wave; no agent is duplicated inline.
+ | `task-builder` (skill, not agent) | 6 | UC-2 (post-execution remediation) | Generate corrective MDTM task file from reflection findings | None; surface findings without remediation |
+ | `socratic-mentor` | 1C | UC-1 (deep) | Optional probing pass for `--depth deep` UC-1 when spec is ambiguous | Skip |
+ | `reuse-auditor` | 1A | both | Detect reuse/consolidation prior art for new/changed symbols (post) or proposed components (pre); fingerprint behaviour name-agnostically and return findings (verdict + tier + grounded neighbours) — **detection only, never classifies deviations or gates** | Inline grep-skeleton degrade (advisory-capped) |
++| `reflect-reviewer` | 3A | UC-2 | Read-only Tier-2 heterogeneous deviation-audit reviewer; audits completed work vs spec/tasklist and classifies each divergence under the 4-category taxonomy (Authorized expansion / Necessary deviation / Drift / Regression); persona supplied via the per-reviewer brief; restricted `tools:` allowlist (no Bash/Edit/Write/Task) so it cannot mutate the repo under audit (L1) | Inline orchestrator pass / single-reviewer degrade |
+
+ (See `refs/reviewer-spec.md` for the brief template and reviewer composition rotation details.)
+
+ ### 7.1 Reviewer composition rules (Wave 3A)
+
+-Reviewers are heterogeneous by model class AND by persona, to maximise representational diversity (Wisdom of Silicon Crowd, LLM-TOPLA). Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
++Reviewers are heterogeneous by model class, with persona supplied via the per-reviewer brief, to maximise representational diversity (Wisdom of Silicon Crowd, LLM-TOPLA). **All reviewers are spawned as the fixed read-only `reflect-reviewer` agent-type** (so each inherits the L1 read-only allowlist and cannot mutate the repo under audit); the **Persona rotation** column below is the brief-supplied lens, NOT a distinct all-tools persona agent-type. Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
+
+ **Executor-class exclusion rule (anti-self-confirmation, structural).** The *executor* (the agent whose work is under review) MUST NOT appear in the reviewer pool. Reflect resolves the executor's model class at Wave 0 step 0.5b (a new sub-step inserted between alias resolution and reviewer composition) from `--executor-model <class>` flag, the `EXECUTOR_MODEL_CLASS` env var, or — if neither is set — from the most-recent commit-author hint in the task log (heuristic; emit `executor_class_source: flag | env | log-heuristic | unknown` to telemetry). When the executor's class is in the candidate rotation, it is **removed** from the rotation; if removal drops reviewer count below the gate floor (N=2 minimum for T2), reflect emits `executor_exclusion_degraded: true` and degrades to T1 with WARN: `"executor class collides with reviewer pool; N=2 floor cannot be satisfied with disjoint set."` This rule extends the §11.3 disjoint-set principle (calibrator class disjoint from reviewer classes) to also separate **executor class from reviewer classes** — the three classes (executor, reviewers, calibrator) form a partition where collisions weaken the structural anti-self-confirmation guarantee.
+
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+index 7f56b110..057929d9 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+@@ -6,6 +6,16 @@ Consumed by: Wave 3A (T2 reviewer composition).
+
+ ---
+
++## Constraints (READ-ONLY)
++
++Wave-3A reviewers operate **read-only** (reliability / data-loss-prevention — a reviewer must never mutate the repository it is auditing):
++
++- **No file mutation.** A reviewer never edits, writes, moves, renames, or deletes any file. It only RETURNS structured deviation findings; the orchestrator persists them.
++- **No shell execution, no git.** A reviewer runs no `Bash` / `execute_shell_command` and no git verbs. Verification (tests/linters/build) is run by the orchestrator at §6.1 step 5.5 and surfaced to the reviewer as the FR-4 verification-results grounding hunk — never delegated to the reviewer to execute.
++- **Audits supplied evidence only.** A reviewer audits the pre-computed hunks, matrices, and verification-result blocks in its **self-contained** brief (plus what it can Read/Grep/Glob from its grounding root); the brief carries no live-execution instructions.
++
++These are the advisory, human-readable backstop to the mechanical L1 allowlist (the fixed `reflect-reviewer` agent-type carries no mutator tool) and the L2 snapshot grounding. The `self-contained` brief invariant (below) is unchanged.
++
+ ## Brief template
+
+ **Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, the orchestrator materializes one brief per reviewer at:
+@@ -71,7 +81,7 @@ When Step 3B.0 completes, the contract emits `reviewer_briefs_materialized: <N>`
+
+ ## Composition
+
+-Reviewers are heterogeneous by model class AND by persona, to maximise representational diversity (per Topic 2 research, Wisdom of Silicon Crowd, LLM-TOPLA). Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
++Reviewers are heterogeneous by model class, with persona supplied via the per-reviewer brief, to maximise representational diversity (per Topic 2 research, Wisdom of Silicon Crowd, LLM-TOPLA). **All reviewers are spawned as the fixed read-only `reflect-reviewer` agent-type** (so each inherits the L1 read-only allowlist and cannot mutate the repo under audit); the **Persona rotation** column below is the brief-supplied lens, NOT a distinct all-tools persona agent-type. Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
+
+ ### Executor-class exclusion rule (anti-self-confirmation, structural)
+
+diff --git a/tests/cli/reflect/test_cli_smoke.py b/tests/cli/reflect/test_cli_smoke.py
+index 6caaf979..684c6793 100644
+--- a/tests/cli/reflect/test_cli_smoke.py
++++ b/tests/cli/reflect/test_cli_smoke.py
+@@ -77,13 +77,14 @@ def test_nonexistent_tasklist_is_nonzero(cli_runner) -> None:
+ def test_print_command_argv_preview_matches_build_command(
+     cli_runner, temp_tasklist, patch_git
+ ) -> None:
+-    """F6: the --print-command argv preview byte-matches build_command()'s flag
+-    set + order, and still never constructs ClaudeProcess (FR-12).
+-
+-    Pre-fix the preview omitted ``--no-session-persistence`` and
+-    ``--tools default`` and reordered ``--output-format``. Post-fix it mirrors
+-    ``ClaudeProcess.build_command()`` (pipeline/process.py): ``--max-turns``
+-    precedes ``--output-format stream-json``.
++    """F6: the --print-command argv preview byte-matches the RESTRICTED
++    ``build_command()`` for the Tier-1 review child (L1b, reviewer_profile=True),
++    and still never constructs ClaudeProcess (FR-12).
++
++    Post-Phase-3 the restricted preview DROPS ``--tools default`` and
++    ``--dangerously-skip-permissions`` (the write/permission tokens) and keeps
++    ``--no-session-persistence``, mirroring the restricted ``build_command()``.
++    ``--max-turns`` precedes ``--output-format stream-json``.
+     """
+     with patch("superclaude.cli.reflect.runner.ClaudeProcess") as mock_cls:
+         result = cli_runner.invoke(
+@@ -91,9 +92,11 @@ def test_print_command_argv_preview_matches_build_command(
+         )
+     assert result.exit_code == 0
+     out = result.output
+-    # Previously-missing flags are now present.
++    # --no-session-persistence is still emitted in the restricted preview.
+     assert "--no-session-persistence" in out
+-    assert "--tools default" in out
++    # The restricted preview OMITS the write/permission tokens.
++    assert "--tools default" not in out
++    assert "--dangerously-skip-permissions" not in out
+     # --output-format stream-json follows --max-turns (real builder order).
+     assert "--max-turns" in out
+     assert "--output-format stream-json" in out

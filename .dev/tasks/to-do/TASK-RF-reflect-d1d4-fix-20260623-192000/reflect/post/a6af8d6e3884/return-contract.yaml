@@ -1,0 +1,75 @@
+contract_version: "1.5.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-reflect-d1d4-fix-20260623-192000/reflect/post/a6af8d6e3884/REPORT.md"
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep hard override (§5.1) forced Tier 2
+
+# UC-2
+diff_range: "188f731a..HEAD"
+head_sha: "a6af8d6e"
+tasklist_completion_pct: 0.95   # all phases + QA gates [x]; PC.5/PC.6 deliberately HALTed
+deviation_count_by_class:
+  authorized: 1     # D-A1 deferred design-(a) swarm-worker read surface (documented)
+  necessary: 2      # D-N1 PC.5 HALT, D-N2 PC.3 substitution
+  drift: 4          # D-D1 SKILL intro, D-D2 models comment, D-D3 test EXEMPT label, D-D4 test citation (ALL LOW)
+  regression: 0
+deviation_register_path: ".dev/tasks/to-do/TASK-RF-reflect-d1d4-fix-20260623-192000/reflect/post/a6af8d6e3884/REPORT.md#deviation-register-this-remediation"
+grounding_gaps_path: null
+
+# Original findings remediation
+original_findings_remediated: "4/4"   # D1 telemetry-honesty, D2 note, D3 citation, D4 verification
+d1_halt_discipline: held              # operator chose design (b); status RESOLVED, not auto-defaulted
+falsifier_discipline: genuine         # fail-before 'snapshot' != 'snapshot-children-only' -> pass-after
+
+# Verification triangle (run live this audit, marker stripped)
+verification_ran: true
+verification_command: "env -u SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE uv run pytest tests/cli/reflect/ -q"
+verification_result: "145 passed, 1 xpassed"
+verification_regressions_detected: 0
+verify_sync_clean: true
+claude_paths_staged: 0
+
+# Hallucination guard
+citations_total: 28
+citations_revalidated: 28
+citations_dropped: 0          # all NEW reviewer findings re-Read; all resolve
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true          # §11.2 zero-drop treated as a flag; 2 reviewer severities independently recalibrated
+
+# Tier 2 ensemble
+reviewer_cards:
+  - ".dev/tasks/to-do/TASK-RF-reflect-d1d4-fix-20260623-192000/reflect/post/a6af8d6e3884/reviewer-cards/card-1-telemetry-falsifier.md"
+  - ".dev/tasks/to-do/TASK-RF-reflect-d1d4-fix-20260623-192000/reflect/post/a6af8d6e3884/reviewer-cards/card-2-completeness-regression.md"
+reviewer_agent_type: reflect-reviewer   # read-only allowlist (L1) — cannot mutate the repo under audit
+t2_model_class_diversity: degraded      # single agent-type/vendor -> ensemble-pressure, not full anti-confirmation
+calibrator_diversity: degraded
+merge_method: orchestrator-blind-recalibration
+recalibrations_applied: 2               # R1 SKILL-intro MEDIUM->LOW; R2 PC.3 Drift->Necessary
+executor_class_source: flag             # --executor-model sonnet
+executor_class_resolved: true
+executor_exclusion_satisfied: true      # reviewers are reflect-reviewer (not sonnet self-confirmation)
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false   # the 4 Drift items are LOW documentation/process, none behavioral
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_skip_reason: user-flag        # --no-promote
+promotion_adapter_would_resolve: task   # tasklist under .dev/tasks/to-do/TASK-*; gate would also block on partial+drift>0
+promotion_gate_passed: false
+
+# Recommended next action
+recommended_next_action: >
+  Close D-D1 (reconcile the SKILL.md:263 Step 0.5e intro read-isolation sentence with the now-honest
+  item 4) and optionally the three cosmetic LOW residuals (models.py:94-99 comment, the second test's
+  falsifier-EXEMPT label, the runner.py:682->:686 docstring citation), then re-run
+  /sc:reflect --mode post to reach a clean `success`. The substantive D1-D4 work needs no rework.

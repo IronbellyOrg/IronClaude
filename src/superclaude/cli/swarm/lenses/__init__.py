@@ -1,6 +1,6 @@
 """Swarm lenses -- ``LENSES`` registry (COMP-022 / T02.14 + T02.23).
 
-This module is the **aggregator** for the eight built-in lens entries
+This module is the **aggregator** for the nine built-in lens entries
 the swarm pipeline consumes at Wave 0 preflight. It mirrors
 ``cli/swarm/recipes/__init__.py`` in role -- the registry surface is the
 dict ``LENSES`` keyed by ``LensEntry.name`` (hyphenated, per §4.2 and
@@ -9,7 +9,7 @@ the roadmap COMP-019..COMP-026 rows). Module-level helper
 unknown names so callers can wrap that into a structured preflight
 failure (:data:`preflight.RULE_UNKNOWN_LENS`).
 
-T02.23 lands the populated bodies for the seven non-custom entries
+T02.23 lands the populated bodies for the eight non-custom entries
 sourced from ``cli/swarm/lenses/<name>.py`` (COMP-024..030). Each
 module exports a ``LENS: LensEntry`` constant with the full DM-010 +
 FR-LENSREG.NS field set; the aggregator imports those constants and
@@ -18,7 +18,7 @@ remains a placeholder -- its prompt body flows in from
 ``--custom-prompt-dir`` at preflight per FR-021 / INV-003 and the
 COMP-023 lens validator (T02.15) intentionally skips it.
 
-Eight-entry inventory (mapped to roadmap COMP-024..COMP-030 + COMP-026):
+Nine-entry inventory (mapped to roadmap COMP-024..COMP-030 + COMP-026 + FR-RH2):
     - ``bare-review``            -- COMP-024, stable, suspect:true,
       tier T2, default_workers=3, recipe ``bare-review-v1``.
     - ``refactor-find``          -- COMP-025 (experimental).
@@ -29,6 +29,7 @@ Eight-entry inventory (mapped to roadmap COMP-024..COMP-030 + COMP-026):
     - ``troubleshoot-hypothesis``-- COMP-029 (experimental,
       default_workers=4, recipe ``hypothesis_table_v1``).
     - ``doc-completeness``       -- COMP-030 (experimental).
+    - ``reflect-review``         -- FR-RH2 reflect reviewer ensemble lens.
     - ``custom``                 -- COMP-026 escape-hatch placeholder
       (intentionally bypasses the lens validator -- contents flow in
       from ``--custom-prompt-dir`` at preflight per FR-021 / INV-003).
@@ -82,7 +83,7 @@ LENS_NAMES: tuple[str, ...] = (
     "reflect-review",
     "custom",
 )
-"""The eight well-known lens names in registry order.
+"""The nine well-known lens names in registry order.
 
 Exposed as a tuple so the order is preserved for documentation surfaces
 (`swarm validate-lenses` summary output, ``docs/dev/lens-contribution-policy.md``)
@@ -117,7 +118,7 @@ LENSES: dict[str, LensEntry] = {
 }
 """Registry mapping lens name → :class:`LensEntry`.
 
-Populated at module import: seven fully-populated entries
+Populated at module import: eight fully-populated entries
 (COMP-024..030, sourced from ``cli/swarm/lenses/<name>.py``) plus the
 ``custom`` escape-hatch placeholder (COMP-026). Callers should consult
 :func:`get_lens` rather than indexing this dict directly so unknown

@@ -1,0 +1,73 @@
+contract_version: "1.5.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: .dev/reflect/post-reflect-reviewer-guard-20260623185200/REPORT.md
+audit_log_path: .dev/reflect/post-reflect-reviewer-guard-20260623185200/REPORT.md
+confidence_calibrated: 0.87
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+
+# Diff-scope note: substantive work is UNCOMMITTED (working tree vs c9372152);
+# committed range c9372152..HEAD is only 2 forensics docs. Base corrected from the
+# 5-commits-behind frontmatter start_commit 530505a0 per the operator's election.
+
+# UC-2
+tasklist_completion_pct: 0.82   # 90/110 checklist items; 20 per-phase QA-lens spawns unchecked
+deviation_count_by_class:
+  authorized: 2
+  necessary: 1
+  drift: 2
+  regression: 0
+deviation_register_path: .dev/reflect/post-reflect-reviewer-guard-20260623185200/REPORT.md
+grounding_gaps_path: null
+
+# Verification triangle
+verification_ran: true
+verification_invocations: 1
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Hallucination guard
+citations_total: 31
+citations_revalidated: 31
+citations_dropped: 0           # all cited file:line resolve on re-Read
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 ensemble
+reviewer_cards: 2
+merge_method: orchestrator-synthesis   # 2 reviewers blind-recalibrated inline; no sc-adversarial seam in this manual run
+adversarial_unavailable: false
+adversarial_convergence_score: null
+t2_model_class_diversity: degraded     # single vendor (both reflect-reviewer/sonnet) -> ensemble-pressure, not full anti-confirmation
+calibrator_diversity: degraded
+
+# HALT discipline (the task's two needs_human_decision items)
+halt_l1b_precedence: DECIDED-by-operator      # design (a) via AskUserQuestion; not auto-defaulted
+halt_l5_dynamic_ledger: PENDING-deferred       # producer absent; no vacuous test authored
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: true     # D-1 (L2 swarm-grounding gap is unauthorized drift vs Step 0.5e item 4)
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+
+# Input integrity
+input_drift_detected: false
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_adapter: none
+promotion_skip_reason: adapter-unresolved   # tasklist is a worktree-root copy, not under .dev/tasks/to-do/TASK-*
+promotion_gate_passed: false                # status:partial + drift>0 would block §14.5.2 regardless
+
+# Remediation
+remediation_offered: false   # --remediate not set; offered in chat instead
+remediation_accepted: null
+remediation_task_path: null
+
+degraded_components: ["env-aliases:single-vendor", "task-dir-in-sibling-worktree", "adapter-unresolved"]

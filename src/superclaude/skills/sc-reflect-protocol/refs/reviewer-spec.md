@@ -6,6 +6,16 @@ Consumed by: Wave 3A (T2 reviewer composition).
 
 ---
 
+## Constraints (READ-ONLY)
+
+Wave-3A reviewers operate **read-only** (reliability / data-loss-prevention — a reviewer must never mutate the repository it is auditing):
+
+- **No file mutation.** A reviewer never edits, writes, moves, renames, or deletes any file. It only RETURNS structured deviation findings; the orchestrator persists them.
+- **No shell execution, no git.** A reviewer runs no `Bash` / `execute_shell_command` and no git verbs. Verification (tests/linters/build) is run by the orchestrator at §6.1 step 5.5 and surfaced to the reviewer as the FR-4 verification-results grounding hunk — never delegated to the reviewer to execute.
+- **Audits supplied evidence only.** A reviewer audits the pre-computed hunks, matrices, and verification-result blocks in its **self-contained** brief (plus what it can Read/Grep/Glob from its grounding root); the brief carries no live-execution instructions.
+
+These are the advisory, human-readable backstop to the mechanical L1 allowlist (the fixed `reflect-reviewer` agent-type carries no mutator tool) and the L2 snapshot grounding. The `self-contained` brief invariant (below) is unchanged.
+
 ## Brief template
 
 **Step 3B.0 (materialize per-reviewer brief packages).** Before spawning N reviewers, the orchestrator materializes one brief per reviewer at:
@@ -71,7 +81,7 @@ When Step 3B.0 completes, the contract emits `reviewer_briefs_materialized: <N>`
 
 ## Composition
 
-Reviewers are heterogeneous by model class AND by persona, to maximise representational diversity (per Topic 2 research, Wisdom of Silicon Crowd, LLM-TOPLA). Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
+Reviewers are heterogeneous by model class, with persona supplied via the per-reviewer brief, to maximise representational diversity (per Topic 2 research, Wisdom of Silicon Crowd, LLM-TOPLA). **All reviewers are spawned as the fixed read-only `reflect-reviewer` agent-type** (so each inherits the L1 read-only allowlist and cannot mutate the repo under audit); the **Persona rotation** column below is the brief-supplied lens, NOT a distinct all-tools persona agent-type. Reviewer counts are clamped by the §4 Wave 0 alias-routing table.
 
 ### Executor-class exclusion rule (anti-self-confirmation, structural)
 

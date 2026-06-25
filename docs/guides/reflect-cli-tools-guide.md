@@ -125,6 +125,14 @@ The exact option set and defaults below are read from
   **Default: `openai_compat`.** Use `stub` for deterministic, credit-free CI.
 - `--reviewers N` — Tier-2 reviewer slots. **Default: `3`.** Values 2-4 are
   clamped to the supported range; `1` is preserved for the negative witness path.
+- `--isolate-reviewers` / `--no-isolate-reviewers` — opt in to L2 reviewer
+  isolation: ground the Wave-3 reviewers (Tier-1 audit child + adversarial scorer)
+  in an isolated `git worktree` snapshot of the committed audit ref, never the live
+  shared worktree, so a reviewer can never read another session's mid-commit state
+  or mutate the repository it is auditing. **Default: `--no-isolate-reviewers`** —
+  OFF preserves today's dirty-tree-audit behavior (#153) byte-for-byte. When ON, a
+  non-committable (dirty / uncommitted / unresolvable-base / HEAD-moved) audit
+  target STOPs with `status: stopped-precondition` → **BLOCKED** (exit 2).
 - `--tmux` — run inside a detached tmux window so you can watch the run live.
 - `--resume` — skip the launch when the prior `reflect_post` is a `pass` on the
   current HEAD (clean-HEAD short-circuit).
