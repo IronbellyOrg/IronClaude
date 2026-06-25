@@ -106,12 +106,13 @@ def _resolve_base(
 
 
 def _audit_tree_dirty(git_cwd: Path, base: str) -> bool:
-    """COR-5 (L2): True if tracked, in-scope (vs ``<base>``) paths are dirty.
+    """COR-5 (L2): True if tracked, repo-scope (vs ``<base>``) paths are dirty.
 
-    The audit's file set is ``git diff --name-only <base> -- .``. The tree is
-    "dirty for the audit" if any of those paths also appears in ``git status
-    --porcelain=v1`` as a TRACKED modification. Untracked (``??``) entries do
-    NOT count (they are not part of the committed-ref diff a snapshot captures).
+    The audit's file set is ``git diff --name-only <base> -- .`` from the repo
+    root. The tree is "dirty for the audit" if any of those repo-relative paths
+    also appears in ``git status --porcelain=v1`` as a TRACKED modification.
+    Untracked (``??``) entries do NOT count (they are not part of the
+    committed-ref diff a snapshot captures).
 
     Fail-closed: any git error -> ``True`` (treat as dirty so the L2 gate STOPs
     rather than snapshotting a tree that may omit the audit target). Reuses the
@@ -119,16 +120,17 @@ def _audit_tree_dirty(git_cwd: Path, base: str) -> bool:
     is set; the default (flag-off) path never probes.
     """
     try:
+        repo_root = Path(_git(git_cwd, "rev-parse", "--show-toplevel"))
         scope = {
             line.strip()
             for line in _git(
-                git_cwd, "diff", "--name-only", base, "--", "."
+                repo_root, "diff", "--name-only", base, "--", "."
             ).splitlines()
             if line.strip()
         }
         if not scope:
             return False
-        for line in _git(git_cwd, "status", "--porcelain=v1").splitlines():
+        for line in _git(repo_root, "status", "--porcelain=v1").splitlines():
             if not line.strip():
                 continue
             status_code = line[:2]

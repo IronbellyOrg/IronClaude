@@ -335,6 +335,9 @@ def _build_inner_command(config) -> list[str]:
     cmd.append("--promote" if config.promote else "--no-promote")
     if config.allow_single_vendor:
         cmd.append("--allow-single-vendor")
+    cmd.append(
+        "--isolate-reviewers" if config.isolate_reviewers else "--no-isolate-reviewers"
+    )
     if config.resume:
         cmd.append("--resume")
     # Forward --base so --tmux + --base does not silently lose the base ref in the

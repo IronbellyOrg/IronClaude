@@ -18,7 +18,7 @@ import subprocess
 from unittest.mock import patch
 
 from superclaude.cli.reflect.commands import reflect_group
-from superclaude.cli.reflect.config import create_review_snapshot
+from superclaude.cli.reflect.config import _audit_tree_dirty, create_review_snapshot
 
 
 def _capture_resolve_config(monkeypatch):
@@ -73,6 +73,31 @@ def test_no_isolate_reviewers_flag_is_false(
     )
     assert result.exit_code == 2
     assert captured.get("isolate_reviewers") is False
+
+
+def test_audit_tree_dirty_checks_repo_root_scope(tmp_path) -> None:
+    """COR-5: task-dir tasklists still check the repo-wide audit diff."""
+    repo_root = tmp_path / "repo"
+    task_dir = repo_root / ".dev" / "tasks" / "to-do" / "TASK-RF-demo"
+    task_dir.mkdir(parents=True)
+    calls: list[tuple[str, tuple[str, ...]]] = []
+
+    def _fake_git(cwd, *args):
+        calls.append((str(cwd), args))
+        if args == ("rev-parse", "--show-toplevel"):
+            return str(repo_root)
+        if args[:2] == ("diff", "--name-only"):
+            assert cwd == repo_root
+            return "src/superclaude/cli/reflect/config.py"
+        if args == ("status", "--porcelain=v1"):
+            assert cwd == repo_root
+            return " M src/superclaude/cli/reflect/config.py"
+        raise AssertionError(args)
+
+    with patch("superclaude.cli.reflect.config._git", side_effect=_fake_git):
+        assert _audit_tree_dirty(task_dir, "base-ref") is True
+
+    assert (str(task_dir), ("rev-parse", "--show-toplevel")) in calls
 
 
 def test_isolate_reviewers_flag_in_help(cli_runner) -> None:

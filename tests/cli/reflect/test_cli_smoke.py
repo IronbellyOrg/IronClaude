@@ -6,11 +6,12 @@ must never construct ``ClaudeProcess`` (FR-12), asserted via ``assert_not_called
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import yaml
 
-from superclaude.cli.reflect.commands import reflect_group
+from superclaude.cli.reflect.commands import _build_inner_command, reflect_group
 
 _SPEC9_FLAGS = [
     "--tmux",
@@ -103,6 +104,50 @@ def test_print_command_argv_preview_matches_build_command(
     assert out.index("--max-turns") < out.index("--output-format stream-json")
     # FR-12: the preview must NOT construct ClaudeProcess.
     mock_cls.assert_not_called()
+
+
+def test_tmux_inner_command_forwards_isolate_reviewers(tmp_path) -> None:
+    """--tmux inner reinvocation preserves explicit reviewer isolation."""
+    config = SimpleNamespace(
+        tasklist_path=tmp_path / "TASK.md",
+        output_dir=tmp_path / "reflect-out",
+        depth="deep",
+        timeout_seconds=600,
+        transport="stub",
+        reviewers=3,
+        promote=True,
+        allow_single_vendor=False,
+        isolate_reviewers=True,
+        resume=False,
+        base_override=None,
+    )
+
+    cmd = _build_inner_command(config)
+
+    assert "--isolate-reviewers" in cmd
+    assert "--no-isolate-reviewers" not in cmd
+
+
+def test_tmux_inner_command_forwards_no_isolate_reviewers(tmp_path) -> None:
+    """--tmux inner reinvocation preserves explicit reviewer-isolation opt-out."""
+    config = SimpleNamespace(
+        tasklist_path=tmp_path / "TASK.md",
+        output_dir=tmp_path / "reflect-out",
+        depth="deep",
+        timeout_seconds=600,
+        transport="stub",
+        reviewers=3,
+        promote=True,
+        allow_single_vendor=False,
+        isolate_reviewers=False,
+        resume=False,
+        base_override=None,
+    )
+
+    cmd = _build_inner_command(config)
+
+    assert "--no-isolate-reviewers" in cmd
+    assert "--isolate-reviewers" not in cmd
 
 
 def test_config_stop_writes_blocked_sidecar(
