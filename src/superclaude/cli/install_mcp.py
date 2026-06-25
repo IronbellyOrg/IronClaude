@@ -495,6 +495,87 @@ def check_mcp_server_installed(server_name: str) -> bool:
         return False
 
 
+def _run_mcp_get(server_name: str) -> Optional[str]:
+    """Return the raw stdout of ``claude mcp get <name>``, or ``None``.
+
+    ``claude mcp get`` is an EXACT-name lookup (unlike the ``claude mcp list`` substring scan
+    behind :func:`check_mcp_server_installed`), so a non-``None`` return means a server named
+    exactly ``server_name`` is registered. ``None`` means it is not registered (non-zero exit)
+    or the command could not be run.
+    """
+    try:
+        result = _run_command(
+            ["claude", "mcp", "get", server_name],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (subprocess.TimeoutExpired, subprocess.SubprocessError):
+        return None
+
+    if result is None or result.returncode != 0:
+        return None
+    return result.stdout or None
+
+
+def _parse_mcp_get_command(output: str) -> Optional[str]:
+    """Normalize the ``Command:`` / ``Args:`` lines of ``claude mcp get`` into a single
+    ``"<command> <args>"`` string, e.g. ``"npx -y tavily-mcp@0.2.20"``.
+
+    Returns ``None`` when no ``Command:`` line is present, OR when the ``Args:`` line has
+    malformed/unbalanced quoting (``shlex.split`` raising ``ValueError``). The ValueError is
+    swallowed deliberately: an unparseable registration must be treated as "cannot confirm
+    up-to-date" and re-registered, never crash the install.
+    """
+    command_word: Optional[str] = None
+    args_str = ""
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("Command:"):
+            command_word = stripped.split(":", 1)[1].strip()
+        elif stripped.startswith("Args:"):
+            args_str = stripped.split(":", 1)[1].strip()
+
+    if not command_word:
+        return None
+
+    try:
+        tokens = [command_word] + (shlex.split(args_str) if args_str else [])
+    except ValueError:
+        return None
+    return " ".join(tokens)
+
+
+def _parse_mcp_get_scope(output: str) -> Optional[str]:
+    """Normalize the ``Scope:`` line of ``claude mcp get`` into ``local`` | ``user`` |
+    ``project``, or ``None`` when absent/unrecognized.
+
+    Used to target a re-register's ``claude mcp remove`` at the scope where the server
+    actually lives — never the (possibly different, possibly empty) install-target scope.
+    """
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("Scope:"):
+            words = stripped.split(":", 1)[1].strip().lower().split()
+            first = words[0] if words else ""
+            return first if first in ("local", "user", "project") else None
+    return None
+
+
+def get_registered_mcp_command(server_name: str) -> Optional[str]:
+    """Return the normalized ``command + args`` string of a registered MCP server.
+
+    Thin wrapper over ``claude mcp get`` parsing. Returns ``None`` when the server is not
+    registered OR its registration cannot be parsed (including malformed quoting). Callers
+    MUST treat ``None`` as "cannot confirm up-to-date" and reconcile — never as a match (fail
+    toward correctness, never toward a silent stale skip).
+    """
+    output = _run_mcp_get(server_name)
+    if output is None:
+        return None
+    return _parse_mcp_get_command(output)
+
+
 def prompt_for_api_key(
     server_name: str, env_var: str, description: str
 ) -> Optional[str]:
@@ -539,10 +620,66 @@ def install_mcp_server(
 
     click.echo(f"📦 Installing MCP server: {server_name}")
 
-    # Check if already installed
+    # Check if already installed — and, if so, reconcile version/command drift instead of
+    # blindly skipping. A name-only short-circuit silently strands users on a stale pin when
+    # the registry version is bumped (e.g. tavily-mcp 0.1.2 -> 0.2.20).
+    #
+    # check_mcp_server_installed() is only a cheap *substring* scan of `claude mcp list`, so it
+    # can false-positive on a similarly-named server or a match in another scope. Before doing
+    # anything destructive we re-confirm with `claude mcp get` (an EXACT-name lookup) and
+    # reconcile ONLY the precise server it returns — removing it from the scope where it
+    # actually lives, never a different (possibly empty) scope that would fail the install.
     if check_mcp_server_installed(server_name):
-        click.echo(f"   ✅ Already installed: {server_name}")
-        return True
+        registered_output = _run_mcp_get(server_name)
+        if registered_output is None:
+            # Substring matched but there is no exact-name registration to reconcile (a
+            # similarly-named server, or a non-exact list hit). Nothing of ours to remove —
+            # fall through and install fresh rather than removing the wrong server.
+            click.echo(
+                f"   ℹ️  No exact '{server_name}' registration to reconcile; installing fresh."
+            )
+        else:
+            expected_command = " ".join(shlex.split(command))
+            registered_command = _parse_mcp_get_command(registered_output)
+            if registered_command is not None and registered_command == expected_command:
+                click.echo(f"   ✅ Already installed and up to date: {server_name}")
+                return True
+
+            # Drift (version/command change) or an unparseable registration -> re-register.
+            registered_scope = _parse_mcp_get_scope(registered_output)
+            old_display = registered_command or "<unparseable registration>"
+            click.echo(
+                f"   ♻️  Re-registering {server_name}: {old_display} → {expected_command}"
+            )
+            if dry_run:
+                click.echo(
+                    f"   [DRY RUN] Would re-register {server_name} "
+                    f"({old_display} → {expected_command})"
+                )
+                return True
+
+            # Remove from the scope where the server actually lives (parsed from
+            # `claude mcp get`), NOT the install-target scope — the two can differ, and a
+            # remove aimed at the wrong scope would fail and abort the install. When the scope
+            # is unknown, omit --scope so the CLI removes it from whichever scope it exists in.
+            remove_cmd = ["claude", "mcp", "remove", server_name]
+            if registered_scope is not None and registered_scope != "local":
+                remove_cmd.extend(["--scope", registered_scope])
+            remove_result = _run_command(
+                remove_cmd, capture_output=True, text=True, timeout=60
+            )
+            if remove_result is None or remove_result.returncode != 0:
+                stderr = (
+                    remove_result.stderr.strip()
+                    if remove_result is not None and remove_result.stderr
+                    else "unknown error"
+                )
+                click.echo(
+                    f"   ❌ Could not remove stale {server_name} before re-register: {stderr}",
+                    err=True,
+                )
+                return False
+            # Fall through to the normal install path below to re-add at the expected version.
 
     # Handle API key requirements
     env_args = []
