@@ -147,6 +147,137 @@ def test_api_key_never_in_logged_command(monkeypatch, capsys):
     assert "TAVILY_API_KEY=***" in out
 
 
+class _FakeGet:
+    """Stand-in for ``claude mcp get`` output (returncode 0 + a structured stdout)."""
+
+    returncode = 0
+    stderr = ""
+
+    def __init__(self, stdout):
+        self.stdout = stdout
+
+
+def _get_output(version):
+    """Render a ``claude mcp get tavily`` body pinning ``tavily-mcp@<version>``."""
+    return (
+        "tavily:\n"
+        "  Scope: User config (available in all your projects)\n"
+        "  Type: stdio\n"
+        "  Command: npx\n"
+        f"  Args: -y tavily-mcp@{version}\n"
+    )
+
+
+def _patch_already_installed(monkeypatch, registered_get_stdout, dummy_key="k-123"):
+    """Drive the *already-installed* branch of install_mcp_server deterministically.
+
+    ``check_mcp_server_installed`` -> True (name match). ``_run_command`` is intercepted:
+    a ``claude mcp get`` argv returns the supplied registration body; every other argv
+    (remove / add) returns a bare success and is captured. Returns the capture dict.
+    """
+    captured = {"calls": []}
+
+    def fake_run_command(cmd, **kwargs):
+        captured["calls"].append(list(cmd))
+        if cmd[:3] == ["claude", "mcp", "get"]:
+            if registered_get_stdout is None:
+                # Simulate an unparseable / missing registration (non-zero rc).
+                fail = _FakeCompleted()
+                fail.returncode = 1  # type: ignore[attr-defined]
+                return fail
+            return _FakeGet(registered_get_stdout)
+        return _FakeCompleted()
+
+    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: True)
+    monkeypatch.setattr(install_mcp, "prompt_for_api_key", lambda *a, **k: dummy_key)
+    return captured
+
+
+def test_reregisters_on_version_mismatch(monkeypatch):
+    """A stale pin (0.1.2) registered while the registry wants 0.2.20 -> remove + re-add (M1 fix).
+
+    This is the core regression: ``install_mcp_server`` must NOT name-idempotently skip an
+    out-of-date server. It must remove the stale registration and re-add the pinned version.
+    """
+    captured = _patch_already_installed(monkeypatch, _get_output("0.1.2"))
+
+    ok = install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+    )
+    assert ok is True
+
+    # A `claude mcp remove tavily` must have fired before the re-add.
+    remove_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "remove"]]
+    assert len(remove_calls) == 1, f"expected exactly one remove, got: {captured['calls']}"
+    assert "tavily" in remove_calls[0]
+    assert "--scope" in remove_calls[0] and "user" in remove_calls[0]
+
+    # The re-add must register the *pinned* version, not the stale one.
+    add_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "add"]]
+    assert len(add_calls) == 1, f"expected exactly one add, got: {captured['calls']}"
+    assert "tavily-mcp@0.2.20" in add_calls[0]
+    assert "tavily-mcp@0.1.2" not in add_calls[0]
+
+    # Ordering: remove precedes add.
+    assert captured["calls"].index(remove_calls[0]) < captured["calls"].index(add_calls[0])
+
+
+def test_noop_when_already_up_to_date(monkeypatch):
+    """When the registered version already matches the pin, do nothing destructive (no remove/add)."""
+    captured = _patch_already_installed(monkeypatch, _get_output("0.2.20"))
+
+    ok = install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+    )
+    assert ok is True
+
+    # Only the `claude mcp get` probe ran; no remove, no add.
+    assert all(c[:3] == ["claude", "mcp", "get"] for c in captured["calls"]), (
+        f"up-to-date path must not remove/re-add: {captured['calls']}"
+    )
+    assert not any(c[:3] == ["claude", "mcp", "remove"] for c in captured["calls"])
+    assert not any(c[:3] == ["claude", "mcp", "add"] for c in captured["calls"])
+
+
+def test_dry_run_mismatch_does_not_remove(monkeypatch):
+    """``dry_run`` on a version mismatch announces the re-register but performs no removal/add."""
+    captured = _patch_already_installed(monkeypatch, _get_output("0.1.2"))
+
+    ok = install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=True
+    )
+    assert ok is True
+
+    assert not any(c[:3] == ["claude", "mcp", "remove"] for c in captured["calls"])
+    assert not any(c[:3] == ["claude", "mcp", "add"] for c in captured["calls"])
+
+
+def test_unparseable_registration_triggers_reregister(monkeypatch):
+    """If the registration cannot be read, fail toward re-registering (never a silent skip)."""
+    captured = _patch_already_installed(monkeypatch, None)  # `claude mcp get` returns rc!=0
+
+    ok = install_mcp.install_mcp_server(
+        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
+    )
+    assert ok is True
+
+    assert any(c[:3] == ["claude", "mcp", "remove"] for c in captured["calls"])
+    add_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "add"]]
+    assert len(add_calls) == 1 and "tavily-mcp@0.2.20" in add_calls[0]
+
+
+def test_get_registered_mcp_command_parses_get_output(monkeypatch):
+    """``get_registered_mcp_command`` normalizes ``claude mcp get`` into a comparable string."""
+
+    def fake_run_command(cmd, **kwargs):
+        assert cmd[:3] == ["claude", "mcp", "get"]
+        return _FakeGet(_get_output("0.2.20"))
+
+    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+    assert install_mcp.get_registered_mcp_command("tavily") == "npx -y tavily-mcp@0.2.20"
+
+
 @pytest.mark.skipif(not os.getenv("TAVILY_API_KEY"), reason="requires TAVILY_API_KEY")
 def test_live_tavily_search_smoke():
     """Minimal live presence check — SKIPPED in CI (no key). Confirms the pinned entry resolves."""

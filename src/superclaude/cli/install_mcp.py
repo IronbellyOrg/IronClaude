@@ -495,6 +495,49 @@ def check_mcp_server_installed(server_name: str) -> bool:
         return False
 
 
+def get_registered_mcp_command(server_name: str) -> Optional[str]:
+    """Return the normalized ``command + args`` string of a registered MCP server.
+
+    Parses ``claude mcp get <name>`` (its structured ``Command:`` / ``Args:`` lines) into a
+    single normalized string, e.g. ``"npx -y tavily-mcp@0.2.20"``, so callers can compare it
+    against the expected ``server_info["command"]`` and detect version/command drift.
+
+    Returns ``None`` when the server is not registered or the output cannot be parsed.
+    Callers MUST treat ``None`` as "cannot confirm up-to-date" and re-register — never as a
+    match (fail toward correctness, never toward a silent stale skip).
+    """
+    try:
+        result = _run_command(
+            ["claude", "mcp", "get", server_name],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except (subprocess.TimeoutExpired, subprocess.SubprocessError):
+        return None
+
+    if result is None or result.returncode != 0:
+        return None
+    output = result.stdout
+    if not output:
+        return None
+
+    command_word: Optional[str] = None
+    args_str = ""
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("Command:"):
+            command_word = stripped.split(":", 1)[1].strip()
+        elif stripped.startswith("Args:"):
+            args_str = stripped.split(":", 1)[1].strip()
+
+    if not command_word:
+        return None
+
+    tokens = [command_word] + (shlex.split(args_str) if args_str else [])
+    return " ".join(tokens)
+
+
 def prompt_for_api_key(
     server_name: str, env_var: str, description: str
 ) -> Optional[str]:
@@ -539,10 +582,46 @@ def install_mcp_server(
 
     click.echo(f"📦 Installing MCP server: {server_name}")
 
-    # Check if already installed
+    # Check if already installed — and, if so, reconcile version/command drift instead of
+    # blindly skipping. A name-only "already installed" short-circuit silently strands users
+    # on a stale pin when the registry version is bumped (e.g. tavily-mcp 0.1.2 -> 0.2.20).
     if check_mcp_server_installed(server_name):
-        click.echo(f"   ✅ Already installed: {server_name}")
-        return True
+        expected_command = " ".join(shlex.split(command))
+        registered_command = get_registered_mcp_command(server_name)
+        if registered_command is not None and registered_command == expected_command:
+            click.echo(f"   ✅ Already installed and up to date: {server_name}")
+            return True
+
+        # Drift (version bump / command change) or an unparseable registration -> re-register.
+        old_display = registered_command or "<unparseable registration>"
+        click.echo(
+            f"   ♻️  Re-registering {server_name}: {old_display} → {expected_command}"
+        )
+        if dry_run:
+            click.echo(
+                f"   [DRY RUN] Would re-register {server_name} "
+                f"({old_display} → {expected_command})"
+            )
+            return True
+
+        remove_cmd = ["claude", "mcp", "remove", server_name]
+        if scope != "local":
+            remove_cmd.extend(["--scope", scope])
+        remove_result = _run_command(
+            remove_cmd, capture_output=True, text=True, timeout=60
+        )
+        if remove_result is None or remove_result.returncode != 0:
+            stderr = (
+                remove_result.stderr.strip()
+                if remove_result is not None and remove_result.stderr
+                else "unknown error"
+            )
+            click.echo(
+                f"   ❌ Could not remove stale {server_name} before re-register: {stderr}",
+                err=True,
+            )
+            return False
+        # Fall through to the normal install path below to re-add at the expected version.
 
     # Handle API key requirements
     env_args = []
