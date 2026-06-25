@@ -1,0 +1,50 @@
+=== test_no_nesting_guard.py ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 6 items
+
+tests/cli/reflect/test_no_nesting_guard.py::test_layer_a_wrapper_branch_is_bash_shellout XPASSsolved-2` (§6.3) dial taxonomy (PR #157
+closed) to the flat `superclaude reflect run` contract shape. The helper
+now anchors on the O1 wrapper-shell-out item heading emitted by THIS
+worktree's task-builder/SKILL.md and the test passes against the live O1
+emission, so it reports XPASS. Kept strict=False (OQ-1) to record the
+stale-marker migration without going red on a half-wired tree.)          [ 16%]
+tests/cli/reflect/test_no_nesting_guard.py::test_layer_b_wrapper_module_has_no_agent_imports PASSED [ 33%]
+tests/cli/reflect/test_no_nesting_guard.py::test_no_sprint_or_roadmap_import_anywhere_in_reflect_pkg PASSED [ 50%]
+tests/cli/reflect/test_no_nesting_guard.py::test_no_async_await_anywhere_in_reflect_pkg PASSED [ 66%]
+tests/cli/reflect/test_no_nesting_guard.py::test_apply_remediation_launches_only_via_claudeprocess PASSED [ 83%]
+tests/cli/reflect/test_no_nesting_guard.py::test_ensemble_launches_only_via_claudeprocess_no_raw_subprocess PASSED [100%]
+
+========================= 5 passed, 1 xpassed in 0.02s =========================
+=== test_ensemble_unit.py ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 13 items
+
+tests/cli/reflect/test_ensemble_unit.py::test_u1_reflect_review_lens_registered_and_valid PASSED [  7%]
+tests/cli/reflect/test_ensemble_unit.py::test_u2_reflect_review_lens_workers_and_model_pool_source PASSED [ 15%]
+tests/cli/reflect/test_ensemble_unit.py::test_transport_unknown_value_rejected_at_click_parse PASSED [ 23%]
+tests/cli/reflect/test_ensemble_unit.py::test_reviewers_one_is_preserved_before_clamp PASSED [ 30%]
+tests/cli/reflect/test_ensemble_unit.py::test_reviewers_outside_normal_range_clamp_to_two_four PASSED [ 38%]
+tests/cli/reflect/test_ensemble_unit.py::test_transport_resolves_default_and_stub PASSED [ 46%]
+tests/cli/reflect/test_ensemble_unit.py::test_u3_openai_and_stub_factories_bind_distinct_slot_models PASSED [ 53%]
+tests/cli/reflect/test_ensemble_unit.py::test_u4_model_pool_too_small_raises_eagerly PASSED [ 61%]
+tests/cli/reflect/test_ensemble_unit.py::test_u5_model_class_diversity_uses_succeeded_worker_model_ids PASSED [ 69%]
+tests/cli/reflect/test_ensemble_unit.py::test_u6_verdict_map_and_derive_ordering_are_unchanged PASSED [ 76%]
+tests/cli/reflect/test_ensemble_unit.py::test_u8_swarm_merge_stays_mechanical_and_small PASSED [ 84%]
+tests/cli/reflect/test_ensemble_unit.py::test_u7_no_nesting_guard_extended_to_ensemble PASSED [ 92%]
+tests/cli/reflect/test_ensemble_unit.py::test_u9_no_forbidden_proxy_literals_in_executable_code PASSED [100%]
+
+============================== 13 passed in 0.19s ==============================

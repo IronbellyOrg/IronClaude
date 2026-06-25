@@ -1,0 +1,29 @@
+# Phase 6 Validation — raw output (2026-06-23 13:56)
+
+===== pytest tests/docs/test_tavily_doc_alignment.py =====
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 4 items
+
+tests/docs/test_tavily_doc_alignment.py::test_tavily_version_single_pin PASSED [ 25%]
+tests/docs/test_tavily_doc_alignment.py::test_no_stale_mcp_tavily_token PASSED [ 50%]
+tests/docs/test_tavily_doc_alignment.py::test_no_tavily_json_references PASSED [ 75%]
+tests/docs/test_tavily_doc_alignment.py::test_docs_no_default_params_duplication PASSED [100%]
+
+============================== 4 passed in 0.04s ===============================
+
+===== ruff check (Phase 6 changed files: FLAGS.md is core src; new test) =====
+All checks passed!
+(.md docs are not Python — ruff only lints the test .py)
+
+===== make verify-sync =====
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-sync exit: 0

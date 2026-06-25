@@ -1,0 +1,52 @@
+=== uv run pytest tests/cli/reflect -q ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collected 102 items
+
+tests/cli/reflect/test_base_precedence.py ......                         [  5%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 16%]
+tests/cli/reflect/test_cli_smoke.py .......                              [ 23%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 25%]
+tests/cli/reflect/test_ensemble_stub_integration.py .........            [ 34%]
+tests/cli/reflect/test_ensemble_unit.py .............                    [ 47%]
+tests/cli/reflect/test_fix_loop.py .......                               [ 53%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 59%]
+tests/cli/reflect/test_no_nesting_guard.py X.....                        [ 65%]
+tests/cli/reflect/test_promote_plumbing.py ...                           [ 68%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 78%]
+tests/cli/reflect/test_verdict_mapping.py ...................            [ 97%]
+tests/cli/reflect/test_writeback.py ...                                  [100%]
+
+======================== 101 passed, 1 xpassed in 0.42s ========================
+=== uv run pytest tests/swarm/test_merge_loc_ceiling.py tests/swarm/test_merge_mechanical_only.py -v ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collected 10 items
+
+tests/swarm/test_merge_loc_ceiling.py ..                                 [ 20%]
+tests/swarm/test_merge_mechanical_only.py ........                       [100%]
+
+============================== 10 passed in 0.15s ==============================
+=== TOUCHED-SURFACE ruff check (this task's files) ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+TOUCHED RUFF CHECK: CLEAN
+=== TOUCHED-SURFACE ruff format --check ===
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+7 files already formatted
+TOUCHED RUFF FORMAT: CLEAN
+=== make sync-dev + verify-sync (M-007) ===
+SYNC GATE: both exit 0
+=== repo-wide ruff (PRE-EXISTING, out-of-scope) summary ===
+Found 125 errors.
+102 files would be reformatted, 940 files already formatted

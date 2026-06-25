@@ -72,7 +72,7 @@ superclaude mcp --dry-run
 4. **playwright** - Cross-browser E2E testing and automation
 5. **serena** - Semantic code analysis and intelligent editing
 6. **morphllm-fast-apply** - Fast Apply capability for context-aware code modifications (requires API key)
-7. **tavily** - Web search and real-time information retrieval (requires API key)
+7. **tavily** - Web search, extraction, site-mapping, and domain-crawl (requires API key) — see MCP_Tavily.md
 8. **chrome-devtools** - Chrome DevTools debugging and performance analysis
 
 ### Documentation Files
@@ -95,7 +95,6 @@ superclaude mcp --dry-run
 - sequential.json
 - serena-docker.json
 - serena.json
-- tavily.json
 
 ## 📚 Core Documentation
 
@@ -149,7 +148,7 @@ All resources are included in both:
 
 ### Directory Structure
 
-```
+```text
 src/superclaude/
 ├── agents/          # 20 agent definitions
 ├── commands/        # 30 slash commands  

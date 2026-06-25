@@ -25,11 +25,21 @@ RF_ANALYST_PATH = REPO_ROOT / "src" / "superclaude" / "agents" / "rf-analyst.md"
 RF_TASK_BUILDER_PATH = (
     REPO_ROOT / "src" / "superclaude" / "agents" / "rf-task-builder.md"
 )
+# RFMerger P3: the sc-tasklist-protocol generator reuses (mirrors) the DM-003
+# synthetic-dnsp contract defined in task-builder/SKILL.md (the source of truth).
+TASKLIST_SKILL_PATH = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "sc-tasklist-protocol" / "SKILL.md"
+)
 
 
 @pytest.fixture(scope="module")
 def skill_text() -> str:
     return SKILL_PATH.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def tasklist_skill_text() -> str:
+    return TASKLIST_SKILL_PATH.read_text(encoding="utf-8")
 
 
 @pytest.fixture(scope="module")
@@ -532,3 +542,52 @@ class TestPR03DnspSyntheticFinding:
         # repeat-same-partition cases so they are not regressions.
         for body in (skill_text, rf_qa_text, rf_analyst_text):
             assert "INV-012" in body
+
+
+class TestTasklistDnspMapsDM003:
+    """RFMerger P3: the sc-tasklist-protocol generator's Stage-7 synthetic-dnsp
+    mapping REUSES the task-builder DM-003 contract verbatim (it is a consumer/
+    mirror of the contract, not a fork)."""
+
+    def test_tasklist_p3_reuses_dm003_contract(
+        self, tasklist_skill_text: str, skill_text: str
+    ) -> None:
+        # The fixed-value DM-003 fields appear in BOTH the task-builder source of
+        # truth and the tasklist generator that mirrors it.
+        for body in (skill_text, tasklist_skill_text):
+            assert 'source: "synthetic-dnsp"' in body
+            assert "severity: HIGH" in body
+            assert "Manual review required — partition agent failed twice" in body
+        # The tasklist side pins the Stage-7 single-retry exhaust-point to the
+        # existing closed-vocab member retry-1 (no vocabulary extension / fork).
+        assert "retry-1" in tasklist_skill_text
+        assert '["<stage7_affected_range>", "retry-1"]' in tasklist_skill_text
+
+
+class TestP1ExecutionContextNoSemanticCollision:
+    """RFMerger P1 (spec FR-RFMERGE.1 AC#5, spec.md:210): the no-semantic-collision
+    requirement — a SINGLE cross-file test that reads BOTH task-builder/SKILL.md
+    (the source contract at :1066,:1231) AND sc-tasklist-protocol/SKILL.md (the P1
+    block) and asserts they share the identical `## Execution Context` sub-field
+    contract, i.e. P1 introduces no second, incompatible 'Execution Context' meaning.
+    (POST-reflect D-1 remediation.)"""
+
+    def test_p1_execution_context_contract_identical_across_surfaces(
+        self, skill_text: str, tasklist_skill_text: str
+    ) -> None:
+        # Both surfaces define the SAME `## Execution Context` heading ...
+        for body in (skill_text, tasklist_skill_text):
+            assert "## Execution Context" in body
+        # ... reusing the IDENTICAL three sub-field names (no renamed/forked variant
+        # on either surface) — this is the cross-validation spec AC#5 mandates.
+        for sub_field in ("References", "Source areas", "Key constraints"):
+            assert sub_field in skill_text, (
+                f"task-builder/SKILL.md missing Execution Context sub-field {sub_field}"
+            )
+            assert sub_field in tasklist_skill_text, (
+                f"sc-tasklist-protocol/SKILL.md missing Execution Context sub-field "
+                f"{sub_field} — divergent (forked) meaning"
+            )
+        # ... and BOTH carry the no-file-path-in-header discipline (the shared
+        # contract invariant), so the two surfaces cannot diverge semantically.
+        assert "file:line" in skill_text and "file:line" in tasklist_skill_text

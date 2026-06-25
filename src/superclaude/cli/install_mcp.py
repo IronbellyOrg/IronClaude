@@ -5,6 +5,7 @@ Installs and manages MCP servers using the latest Claude Code API.
 Based on the installer logic from commit d4a17fc but adapted for modern Claude Code.
 """
 
+import json
 import os
 import platform
 import shlex
@@ -23,6 +24,10 @@ AIRIS_GATEWAY = {
     "mcp_config_url": "https://raw.githubusercontent.com/agiletec-inc/airis-mcp-gateway/main/config/mcp-config.template.json",
     "repository": "https://github.com/agiletec-inc/airis-mcp-gateway",
 }
+
+# Pinned Tavily MCP package version — single source of truth for the pin (review L3).
+# Docs/YAML keep the literal `tavily-mcp@0.2.20`, guarded by test_tavily_version_single_pin.
+TAVILY_MCP_VERSION = "0.2.20"
 
 # Individual MCP Server Registry (legacy, for users who prefer individual servers)
 # Adapted from commit d4a17fc with modern transport configuration
@@ -77,10 +82,11 @@ MCP_SERVERS = {
         "name": "tavily",
         "description": "Web search and real-time information retrieval for deep research",
         "transport": "stdio",
-        "command": "npx -y tavily-mcp@0.1.2",
+        "command": f"npx -y tavily-mcp@{TAVILY_MCP_VERSION}",
         "required": False,
         "api_key_env": "TAVILY_API_KEY",
         "api_key_description": "Tavily API key for web search (get from https://app.tavily.com)",
+        "default_parameters": {"search_depth": "basic", "max_results": 10},
     },
     "chrome-devtools": {
         "name": "chrome-devtools",
@@ -540,8 +546,10 @@ def install_mcp_server(
 
     # Handle API key requirements
     env_args = []
+    secret_env_names = set()  # env var names whose values must be masked in echoes (M1)
     if "api_key_env" in server_info:
         api_key_env = server_info["api_key_env"]
+        secret_env_names.add(api_key_env)
         api_key = prompt_for_api_key(
             server_name,
             api_key_env,
@@ -550,6 +558,15 @@ def install_mcp_server(
 
         if api_key:
             env_args = ["-e", f"{api_key_env}={api_key}"]
+
+    # Inject server-level DEFAULT_PARAMETERS as a repeatable -e pair (M1).
+    # Compact JSON (no spaces) keeps the value a single argv token; not a secret,
+    # so it is shown in full in echoed commands.
+    if "default_parameters" in server_info:
+        default_params_json = json.dumps(
+            server_info["default_parameters"], separators=(",", ":")
+        )
+        env_args.extend(["-e", f"DEFAULT_PARAMETERS={default_params_json}"])
 
     # Handle global binary requirement (e.g., auggie needs `npm install -g`)
     if "requires_global_binary" in server_info:
@@ -613,14 +630,23 @@ def install_mcp_server(
     # Add server command (split into parts)
     cmd.extend(shlex.split(command))
 
+    # Build a display-safe command that masks secret env values (e.g. the API key)
+    # while leaving non-secret tokens like DEFAULT_PARAMETERS visible in full (M1).
+    def _mask_secret(token: str) -> str:
+        if "=" in token:
+            key = token.split("=", 1)[0]
+            if key in secret_env_names:
+                return f"{key}=***"
+        return token
+
+    display_cmd = " ".join(_mask_secret(tok) for tok in cmd)
+
     if dry_run:
-        click.echo(f"   [DRY RUN] Would run: {' '.join(cmd)}")
+        click.echo(f"   [DRY RUN] Would run: {display_cmd}")
         return True
 
     try:
-        click.echo(
-            f"   Running: claude mcp add --transport {transport} {server_name} -- {command}"
-        )
+        click.echo(f"   Running: {display_cmd}")
         result = _run_command(cmd, capture_output=True, text=True, timeout=120)
 
         if result.returncode == 0:

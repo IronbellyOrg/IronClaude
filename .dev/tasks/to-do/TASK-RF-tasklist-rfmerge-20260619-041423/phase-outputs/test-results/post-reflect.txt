@@ -1,0 +1,3 @@
+reflect: degraded (null-convergence)
+  report: .dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/post/96942e797944/REPORT.md
+  contract: /config/workspace/IronClaude/.claude/worktrees/RFMerger-Tasklist/.dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/post/96942e797944/return-contract.yaml

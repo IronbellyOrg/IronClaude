@@ -1,0 +1,16 @@
+verdict: degraded
+status: success
+tier_reached: 2
+reason: null-convergence
+report: .dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/post/96942e797944/REPORT.md
+contract: /config/workspace/IronClaude/.claude/worktrees/RFMerger-Tasklist/.dev/tasks/to-do/TASK-RF-tasklist-rfmerge-20260619-041423/reflect/post/96942e797944/return-contract.yaml
+deviations:
+  authorized: 0
+  necessary: 1
+  drift: 2
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

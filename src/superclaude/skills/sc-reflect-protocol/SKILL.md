@@ -1740,6 +1740,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
 - Tag every claim as Grounded or `[INFERRED]`; drop claims that fit neither bucket.
 - Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
 - Fail-open on missing MCPs (auggie, serena, context7, tavily) — fall back to native tools and mark degraded.
+- Tavily evidence searches via `mcp__tavily__tavily-search` inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
 - Persist deviation patterns to per-project Serena memory with 90-day expiry.
 - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
 - **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.

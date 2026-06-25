@@ -2,6 +2,9 @@
 
 **Purpose**: Web search and real-time information retrieval for research and current events
 
+**Version**: `tavily-mcp@0.2.20` (pinned — see the `install_mcp.py` registry). This file is the
+canonical Tavily capability reference; other docs point here rather than restating the surface.
+
 ## Triggers
 
 - Web search requirements beyond Claude's knowledge cutoff
@@ -32,6 +35,50 @@
 
 Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
 
+## Tool Surface (Tavily MCP 0.2.x)
+
+The 0.2.x server exposes four tools:
+
+| Tool id | Operation | Notes |
+|---------|-----------|-------|
+| `mcp__tavily__tavily-search` | Web/news search with ranking + filtering | primary search |
+| `mcp__tavily__tavily-extract` | Full-text extraction from one or more URLs | page content |
+| `mcp__tavily__tavily-map` | Site-structure discovery (URL graph of a domain) | research engine only |
+| `mcp__tavily__tavily-crawl` | Deep domain traversal across linked pages | research engine only |
+
+### Parameters
+
+| Param | Values | Applies to |
+|-------|--------|-----------|
+| `search_depth` | `basic` \| `advanced` | search |
+| `extract_depth` | `basic` \| `advanced` | extract |
+| `topic` | `general` \| `news` | search |
+| `time_range` | `day` \| `week` \| `month` \| `year` | search |
+| `days` | integer (with `topic: news`) | search |
+| `include_domains` / `exclude_domains` | list of domains | search / map / crawl |
+| `max_results` | integer | search |
+
+### DEFAULT_PARAMETERS (server-level baseline)
+
+The server is installed with a server-level `DEFAULT_PARAMETERS` env var carrying the baseline
+`{"search_depth":"basic","max_results":10}`, injected at install time (the canonical value lives
+in the `install_mcp.py` registry — it is not restated elsewhere). Every Tavily call inherits this
+baseline unless a per-call tool argument overrides it.
+
+### Per-call override (X3 exception — M4, intentional)
+
+Per-call tool arguments override the server-level `DEFAULT_PARAMETERS`. This is a deliberate,
+mechanically-valid divergence, not a drift to be "corrected":
+
+- The `/sc:troubleshoot` Tier-2 focused query passes `search_depth: advanced` as a per-call
+  argument, overriding the server baseline `basic` for that one rate-limited query (≤2 queries) —
+  only hard cases reach Tier-2, so the cost is bounded.
+- The deep-research engine raises `search_depth` / `extract_depth` to `advanced` at the deep and
+  exhaustive Depth Profiles (see RESEARCH_CONFIG.md).
+
+These overrides are the documented exception to the `basic` baseline and MUST NOT be normalized
+back to `basic`.
+
 ## Search Capabilities
 
 - **Web Search**: General web searches with ranking algorithms
@@ -44,7 +91,7 @@ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
 
 ## Examples
 
-```
+```text
 "latest TypeScript features 2024" → Tavily (current technical information)
 "OpenAI GPT updates this week" → Tavily (recent news and updates)
 "quantum computing breakthroughs 2024" → Tavily (recent research)
@@ -57,14 +104,14 @@ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
 
 ### Basic Search
 
-```
+```text
 Query: "search term"
 → Returns: Ranked results with snippets
 ```
 
 ### Domain-Specific Search  
 
-```
+```text
 Query: "search term"
 Domains: ["arxiv.org", "github.com"]
 → Returns: Results from specified domains only
@@ -72,7 +119,7 @@ Domains: ["arxiv.org", "github.com"]
 
 ### Time-Filtered Search
 
-```
+```text
 Query: "search term"
 Recency: "week" | "month" | "year"
 → Returns: Recent results within timeframe
@@ -80,7 +127,7 @@ Recency: "week" | "month" | "year"
 
 ### Deep Content Search
 
-```
+```text
 Query: "search term"
 Extract: true
 → Returns: Full content extraction from top results
@@ -98,7 +145,7 @@ Extract: true
 
 ### Research Flow
 
-```
+```text
 1. Tavily: Initial broad search
 2. Sequential: Analyze and identify gaps
 3. Tavily: Targeted follow-up searches
@@ -108,7 +155,7 @@ Extract: true
 
 ### Fact-Checking Flow
 
-```
+```text
 1. Tavily: Search for claim verification
 2. Tavily: Find contradicting sources
 3. Sequential: Analyze evidence
@@ -117,7 +164,7 @@ Extract: true
 
 ### Competitive Analysis Flow
 
-```
+```text
 1. Tavily: Search competitor information
 2. Tavily: Search market trends
 3. Sequential: Comparative analysis
@@ -127,7 +174,7 @@ Extract: true
 
 ### Deep Research Flow (DR Agent)
 
-```
+```text
 1. Planning: Decompose research question
 2. Tavily: Execute planned searches
 3. Analysis: Assess URL complexity

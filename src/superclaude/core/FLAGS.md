@@ -69,7 +69,7 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 **--tavily**
 
 - Trigger: Web search requests, real-time information needs, research queries, current events
-- Behavior: Enable Tavily for web search and real-time information gathering
+- Behavior: Enable Tavily for search/extract/map/crawl — see MCP_Tavily.md
 
 **--frontend-verify**
 

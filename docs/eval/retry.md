@@ -73,7 +73,7 @@ superclaude eval run --suite real --eval E1 --eval E2
 ```
 
 > **CLI shape note (post cliEval Phase 5+6 remediation):** `eval run` takes the suite via the `--suite <token>` flag, not a positional argument. The canonical suite is `real.yaml`; `quick.yaml` is **deferred per DOC-OQ6**. Eval ids follow the strict FR-SCH2 regex — use `E1`, `E2.1`, `E15`, not zero-padded forms like `E01`.
-
+>
 > **Subset-run runtime warnings (post Phase 5+6 remediation):** A subset re-run
 > writes the same `summary.{md,json,yaml}` artifact set under its own run-dir
 > (independent of the original run). With `--verbose`, the post-run stdout line
@@ -136,7 +136,7 @@ evals:
   - id: E07
     title: "Tavily MCP search returns at least one result"
     requires:
-      - mcp.tavily       # capability gate
+      - mcp_server.tavily       # capability gate
       - MCP-flaky        # opt-in to R3-mit retry-once
     expects: [...]
 ```

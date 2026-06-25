@@ -1,0 +1,14 @@
+selected_tier: 2
+fired_rule_number: null
+forced_by: depth_deep
+coverage_degraded: null
+surface_unreached: null
+composite_score: 8.4
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 1.6
+  spec_density: 1.8
+  ambiguity_signals: 1.0
+escalation_reason: "--depth deep forced Tier 2; reviewer ensemble found pre-execution safety blockers despite high nominal requirement coverage"
+confidence_calibrated: 0.82

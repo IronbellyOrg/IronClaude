@@ -1,0 +1,37 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: REPORT.md
+confidence_calibrated: 0.91
+escalation_rule_matched: null   # --depth deep hard-override (§5.1) forced T2
+
+# UC-1 specific
+coverage_pct: 0.93              # 42/45 spec requirements covered; all 3 gaps are PARTIAL (traceability), none MISSING
+coverage_pct_union: 0.93
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []       # no requirement absent; 3 PARTIALs are inventory/traceability, not behavioral
+best_practice_grade: 4          # 0-5; one MED annotation gap + minor LOW items; all 7 load-bearing invariants PASS
+
+# Tier 2 ensemble
+reviewer_cards: [reviewer-1-analyzer-sonnet, reviewer-2-qa-haiku, reviewer-3-architect-opus]
+t2_model_class_diversity: full
+t2_vendor_diversity: single     # all Anthropic aliases (warn-only per §11.0 / §19.1)
+calibrator_diversity: full
+adversarial_convergence_score: 0.88   # strong cross-class agreement: faithful + high-coverage
+merge_method: adversarial
+
+# Hallucination guard (evidence-validator)
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0            # reviewer-3 independently re-Read every TDD citation vs real SKILL.md/grader/pyproject; all resolved
+citations_inferred: 0
+evidence_validator_ran: true
+zero_drop_flag: true           # §11.2: a zero-drop pass is treated as a flag, not a clean signal — see findings F1/F2 (spec-override, unflagged)
+
+# Asymmetric-cost flags
+needs_human_decision: false
+blocked_by_low_confidence: false
+spec_is_wrong: true            # KEY: the TDD is MORE correct than the spec on 2 points (edges→symbols; requirement_id nullability) — spec §4.5 has internal defects
+user_decision_required: false

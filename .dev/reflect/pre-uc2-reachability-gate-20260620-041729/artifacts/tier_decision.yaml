@@ -1,0 +1,11 @@
+selected_tier: 2
+fired_rule_number: null
+coverage_degraded: null
+composite_score: 7.5
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 1
+  blast_radius: 2
+  spec_density: 1.5
+  ambiguity_signals: 1
+escalation_reason: "--depth deep forced Tier 2; blocking ambiguity in proof bar and routing semantics prevents T1 stop."

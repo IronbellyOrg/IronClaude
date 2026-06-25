@@ -1,0 +1,62 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: ".dev/reflect/pre-tavily-built-tasklist-20260623110824/REPORT.md"
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+
+# UC-1 coverage
+coverage_pct: 0.97
+coverage_pct_union: 0.97
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 4
+
+# Input integrity
+input_sha256:
+  tasklist: "0024acaabd8069888a96a9708fd43beebe5fa95ad147fa73ca65d15564223438"
+  spec: "31e5cdb4964920768aeb54df34f6600a90ef6eac429a3ac4556860d6c33cb075"
+input_drift_detected: false
+
+# Hallucination guard
+citations_total: 11
+citations_revalidated: 11
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 note
+t2_model_class_diversity: degraded   # re-audit run orchestrator-grounded; prior run used gpt-5.5/qwen ensemble
+merge_method: single-reviewer-fallback
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false   # B1 resolved by user; no new blockers
+
+# Findings (advisory, non-blocking)
+findings:
+  - id: MINOR-1
+    class: drift-risk
+    where: "tasklist Step 6.1"
+    issue: "Node.js version edit lacks line scope; 7 'Node.js 16+' lines exist, spec scopes to mcp-servers.md:138 (Tavily) only; no test guards Node version"
+    recommendation: "Scope Step 6.1 to mcp-servers.md:138 explicitly"
+  - id: MINOR-2
+    class: cosmetic
+    where: "tasklist Step 5.8"
+    issue: "'four edited C5 files' inaccurate — only 2 SKILLs edited; test behavior correct"
+  - id: LOW-1
+    class: hygiene
+    where: "tasklist Step 7.4"
+    issue: "git add -A is broad; safe vs .claude/ (gitignored) and wrapper does not commit"
+  - id: LOW-2
+    class: coverage-edge
+    where: "tasklist Step 6.6 / T7"
+    issue: "plugins/ mirror outside drift-test scope (src/+docs/ only)"
+
+verdict: "PASS — clear to execute; optionally apply MINOR-1 first"

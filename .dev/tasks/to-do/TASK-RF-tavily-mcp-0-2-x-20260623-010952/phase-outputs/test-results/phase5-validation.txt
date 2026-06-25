@@ -1,0 +1,27 @@
+# Phase 5 Validation — raw output (2026-06-23 13:41)
+
+===== pytest (3 new C3/C4/C5 test files) =====
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 7 items
+
+tests/commands/test_research_command.py::test_research_command_no_param_duplication PASSED [ 14%]
+tests/commands/test_research_command.py::test_research_tiers_match_config PASSED [ 28%]
+tests/skills/test_brainstorm_protocol.py::test_brainstorm_no_tavily_param_duplication PASSED [ 42%]
+tests/skills/test_tier2_tavily_consistency.py::test_tier2_tool_id_parity PASSED [ 57%]
+tests/skills/test_tier2_tavily_consistency.py::test_rate_cap_intact PASSED [ 71%]
+tests/skills/test_tier2_tavily_consistency.py::test_fail_open_intact PASSED [ 85%]
+tests/skills/test_tier2_tavily_consistency.py::test_troubleshoot_search_depth_advanced PASSED [100%]
+
+============================== 7 passed in 0.03s ===============================
+
+===== ruff check (Phase 5 changed files + new tests) =====
+All checks passed!
+
+===== ruff format --check (new test files) =====
+3 files already formatted
