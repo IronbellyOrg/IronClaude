@@ -39,6 +39,7 @@ EXPECTED_LENS_NAMES: tuple[str, ...] = (
     "feasibility-probe",
     "troubleshoot-hypothesis",
     "doc-completeness",
+    "reflect-review",
     "custom",
 )
 
@@ -48,11 +49,11 @@ EXPECTED_LENS_NAMES: tuple[str, ...] = (
 # ---------------------------------------------------------------------------
 
 
-def test_registry_has_exactly_eight_entries() -> None:
-    assert len(LENSES) == 8
+def test_registry_has_exactly_nine_entries() -> None:
+    assert len(LENSES) == 9
 
 
-def test_registry_contains_eight_canonical_names() -> None:
+def test_registry_contains_nine_canonical_names() -> None:
     assert set(LENSES.keys()) == set(EXPECTED_LENS_NAMES)
 
 
@@ -124,9 +125,9 @@ def test_registry_entry_round_trips_to_resolved_snapshot(name: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_iter_lenses_yields_eight_entries_in_canonical_order() -> None:
+def test_iter_lenses_yields_nine_entries_in_canonical_order() -> None:
     yielded = list(iter_lenses())
-    assert len(yielded) == 8
+    assert len(yielded) == 9
     assert [entry.name for entry in yielded] == list(EXPECTED_LENS_NAMES)
     for entry in yielded:
         assert isinstance(entry, LensEntry)

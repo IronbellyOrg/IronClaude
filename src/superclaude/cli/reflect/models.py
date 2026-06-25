@@ -84,6 +84,13 @@ class ReflectConfig:
     base_override: str | None
     fix: bool
     max_fix_iterations: int
+    # §5.1 `--transport`: enum `{openai_compat, stub}`; default
+    # `openai_compat`; Tier-2 worker transport where `stub` is the
+    # deterministic, network-free, credit-free CI lane.
+    transport: str = "openai_compat"
+    # §5.1 `--reviewers`: int; default `3`; Tier-2 reviewer slots,
+    # clamped to `[2,4]` except `1` is the negative-witness case.
+    reviewers: int = 3
 
     @property
     def contract_path(self) -> Path:

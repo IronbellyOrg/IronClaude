@@ -81,8 +81,8 @@ PROJECT_PY: str = sys.executable
 # any future drift in the bundled registry size (intentional or not)
 # trips this gate first instead of being silently absorbed by an
 # inequality comparison.
-EXPECTED_NON_CUSTOM_COUNT: int = 7
-EXPECTED_TOTAL_COUNT: int = 8  # 7 non-custom + 1 custom escape-hatch
+EXPECTED_NON_CUSTOM_COUNT: int = 8
+EXPECTED_TOTAL_COUNT: int = 9  # 8 non-custom + 1 custom escape-hatch
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,64 @@
+# UC2 positive-control runtime surface fixture — real unified git diff.
+
+diff --git a/src/superclaude/cli/ai_status.py b/src/superclaude/cli/ai_status.py
+new file mode 100644
+index 0000000..4df8c2a
+--- /dev/null
++++ b/src/superclaude/cli/ai_status.py
+@@ -0,0 +1,15 @@
++"""Reachable /ai status runtime surface."""
++
++from __future__ import annotations
++
++
++def handle_ai_status(request: dict[str, str]) -> dict[str, str]:
++    """Handle the user-facing /ai status command."""
++    return {"status": "ok", "surface": "/ai", "action": "status"}
++
++
++def normalize_status_label(label: str) -> str:
++    """Pure internal helper; not a runtime surface."""
++    return label.strip().lower().replace(" ", "-")
++
++
++__all__ = ["handle_ai_status", "normalize_status_label"]
+diff --git a/src/superclaude/cli/main.py b/src/superclaude/cli/main.py
+index 30f0a11..8e78f90 100644
+--- a/src/superclaude/cli/main.py
++++ b/src/superclaude/cli/main.py
+@@ -12,6 +12,7 @@ import click
+ from superclaude.cli.doctor import doctor
+ from superclaude.cli.install import install
+ from superclaude.cli.mcp import mcp
++from superclaude.cli.ai_status import handle_ai_status
+
+
+ @click.group()
+@@ -38,6 +39,12 @@ def cli() -> None:
+     """SuperClaude command line interface."""
+
+
++@cli.command("ai-status")
++def ai_status() -> None:
++    """User-reachable /ai status runtime surface."""
++    click.echo(handle_ai_status({})["status"])
++
++
+ cli.add_command(doctor)
+ cli.add_command(install)
+ cli.add_command(mcp)
+diff --git a/tests/cli/test_ai_status.py b/tests/cli/test_ai_status.py
+new file mode 100644
+index 0000000..e9cd402
+--- /dev/null
++++ b/tests/cli/test_ai_status.py
+@@ -0,0 +1,13 @@
++from superclaude.cli.ai_status import handle_ai_status, normalize_status_label
++
++
++def test_handle_ai_status() -> None:
++    assert handle_ai_status({}) == {"status": "ok", "surface": "/ai", "action": "status"}
++
++
++def test_normalize_status_label() -> None:
++    assert normalize_status_label(" AI Ready ") == "ai-ready"

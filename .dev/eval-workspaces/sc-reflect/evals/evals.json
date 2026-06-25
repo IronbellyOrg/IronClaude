@@ -2,7 +2,7 @@
   "skill_name": "sc-reflect-protocol",
   "iteration": 1,
   "scope": "v1.0-ship-it-3-pilot-15-promotion-2-falsifier-skeleton-6-serena-v3-10-serena-v3-medium",
-  "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm). Reflect-V3-Serena adds 6 SCAFFOLDED serena cases (ids 21-26) covering FR-RV3-LOW.1–8: serena-find-implementations (FR-1), serena-find-declaration (FR-2, also hosts FR-3 references_extended_info), serena-search-deps (FR-4), serena-wave0-config (FR-6+FR-7), serena-memory-retention (FR-8), serena-summarize-changes (FR-5, pilot/ships-last per OQ-3). These are SCAFFOLDS — input fixtures + expected.yaml (STUB) + assertions[] targeting future with_skill/outputs/; not executed/graded in this task. See TASK-RF-20260602-135209.",
+  "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm). Reflect-V3-Serena adds 6 SCAFFOLDED serena cases (ids 21-26) covering FR-RV3-LOW.1–8: serena-find-implementations (FR-1), serena-find-declaration (FR-2, also hosts FR-3 references_extended_info), serena-search-deps (FR-4), serena-wave0-config (FR-6+FR-7), serena-memory-retention (FR-8), serena-summarize-changes (FR-5, pilot/ships-last per OQ-3). These are SCAFFOLDS — input fixtures + expected.yaml (STUB) + assertions[] targeting future with_skill/outputs/; not executed/graded in this task. See TASK-RF-20260602-135209. NOTE: FR-RSR UC-2 reachability cases live under cases/uc2-*/ (case_dir entries), not evals/uc2-*/; evals/ contains only this registry.",
   "evals": [
     {
       "id": 1,
@@ -1025,6 +1025,88 @@
         { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "evidence_validator_ran", "expected": "true", "text": "NFR-4: the Wave-5 evidence-validator re-Reads every cited file:line" },
         { "type": "checkpoint_logged", "target": "with_skill/outputs/audit.log", "value": "citation_revalidated", "text": "NFR-4: every REPORT.md file:line citation has a preceding re-Read within the §6.2 5-call window" }
       ]
+    },
+    {
+      "id": 37,
+      "name": "uc2-unwired-surface-passes",
+      "case_dir": "cases/uc2-unwired-surface-passes/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RSR.10 / TDD §15.2",
+      "description": "ACTIVE HEADLINE: an added /ai Spawn handler is referenced only from tests/comments and is not wired to any production entrypoint. Pre-change snapshot clean-passes; post-change skill must emit runtime_surface_unreached >= 1 and suppress clean PASS.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "regex_present", "target": "old_skill/outputs/REPORT.md", "pattern": "clean[_ -]?pass|status:\\s*success|no deviations", "text": "FAIL-pre baseline: old snapshot exhibits the clean-pass blind spot for the unwired surface" },
+        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "clean[_ -]?pass|status:\\s*success|no deviations", "text": "PASS-post: post-change report must not clean-PASS an unwired runtime surface" },
+        { "type": "yaml_field_min", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "min_value": 1, "text": "PASS-post: at least one runtime surface is classified UNREACHED" },
+        { "type": "regex_present", "target": "with_skill/outputs/REPORT.md", "pattern": "deviation_class:\\s*regression|Regression", "text": "PASS-post: unwired reachability contradiction is surfaced as Regression" }
+      ]
+    },
+    {
+      "id": 38,
+      "name": "uc2-surface-positive-control",
+      "case_dir": "cases/uc2-surface-positive-control/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RSR.10 / TDD §15.2",
+      "description": "Reachable positive control: an /ai status handler is wired through the production CLI, while a pure-internal helper demonstrates non-surface no-sweep behavior.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "expected": "0", "text": "Reachable surface emits zero unreached symbols" },
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_degraded", "expected": "false", "text": "Reachable positive control does not degrade" },
+        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "surface_unreached|UNREACHED|stop_reason", "text": "Reachable surface and pure-internal helper do not trigger unreached escalation or STOP" }
+      ]
+    },
+    {
+      "id": 39,
+      "name": "uc2-surface-dynamic-dispatch",
+      "case_dir": "cases/uc2-surface-dynamic-dispatch/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RSR.10 / TDD §15.2",
+      "description": "Dynamic dispatch companion: a /ai Spawn entrypoint is wired via [project.scripts], so static reachability must DEGRADE loudly and never increment Regression.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_degraded", "expected": "true", "text": "[project.scripts] dynamic wiring degrades instead of UNREACHED" },
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "expected": "0", "text": "Dynamic wiring is never counted as UNREACHED" },
+        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "deviation_class:\\s*regression|Regression", "text": "Dynamic wiring does not produce a false Regression" }
+      ]
+    },
+    {
+      "id": 40,
+      "name": "uc2-surface-degraded-backend",
+      "case_dir": "cases/uc2-surface-degraded-backend/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RSR.10 / TDD §15.2",
+      "description": "Backend unavailable companion: backend:none prevents static reachability evaluation, so the skill must file a Grounding Gap, continue, and suppress clean PASS without STOPing.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_degraded", "expected": "true", "text": "Backend unavailable marks runtime-surface sweep degraded" },
+        { "type": "regex_present", "target": "with_skill/outputs/REPORT.md", "pattern": "Grounding Gap|grounding[_ -]?gap|runtime-surface:backend_unavailable", "text": "Backend loss files a Grounding Gap / degraded component" },
+        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "STOP|HALT|stop_reason", "text": "Backend loss does not hard-STOP the skill" },
+        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "clean[_ -]?pass|status:\\s*success|no deviations", "text": "Backend loss does not clean-PASS an unevaluable tagged surface" }
+      ]
+    },
+    {
+      "id": 41,
+      "name": "uc2-surface-test-only-ref",
+      "case_dir": "cases/uc2-surface-test-only-ref/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RSR.10 / TDD §15.2",
+      "description": "Test-only reference companion: a /ai export handler is referenced only from tests/comments, yielding UNREACHED and asserting the count invariant via yaml_list_len_eq.",
+      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
+      "expected": "expected.yaml",
+      "assertions": [
+        { "type": "yaml_field_min", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "min_value": 1, "text": "Test-only referenced surface is classified UNREACHED" },
+        { "type": "yaml_list_len_eq", "target": "with_skill/outputs/contract.yaml", "list_field": "unreached_surfaces", "count_field": "runtime_surface_unreached", "text": "Count invariant holds: len(unreached_surfaces) == runtime_surface_unreached" },
+        { "type": "regex_present", "target": "with_skill/outputs/REPORT.md", "pattern": "UNREACHED|runtime_surface_unreached|deviation_class:\\s*regression|Regression", "text": "Test-only surface finding is surfaced in the report" }
+      ]
     }
   ],
   "grading_criteria": [
@@ -1040,6 +1122,7 @@
     "regex_present",
     "regex_absent",
     "yaml_list_contains",
+    "yaml_list_len_eq",
     "matrix_covers_items",
     "checkpoint_logged",
     "deviation_class_matches",

@@ -116,11 +116,14 @@ def test_templates_directory_has_six_or_more_files():
 
 
 def test_six_non_custom_lenses_are_specified():
-    """The 6 non-custom lenses (excluding bare-review which has its own
-    skill-side template + custom which is escape-hatch) are all
-    represented in :data:`LENS_TEMPLATE_SPECS`."""
+    """The 6 non-custom lenses are all represented in
+    :data:`LENS_TEMPLATE_SPECS`. ``bare-review`` is excluded (it has its
+    own skill-side template) and ``custom`` is excluded (escape-hatch).
+    ``reflect-review`` is ALSO excluded because it uses the ``passthrough``
+    (raw) recipe and a bespoke template, not a canonical-table recipe (like
+    bare-review), so it has no canonical-table marker to render."""
     specced = {spec[0] for spec in LENS_TEMPLATE_SPECS}
-    expected = set(LENS_NAMES) - {"bare-review", "custom"}
+    expected = set(LENS_NAMES) - {"bare-review", "reflect-review", "custom"}
     assert specced == expected, (
         f"Specced lens set {specced} drifted from non-custom registry "
         f"{expected}"

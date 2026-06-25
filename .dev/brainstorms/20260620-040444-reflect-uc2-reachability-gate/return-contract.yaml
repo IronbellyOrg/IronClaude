@@ -1,0 +1,29 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260620-040444-reflect-uc2-reachability-gate/seed-brief.md
+merged_output_path: .dev/brainstorms/20260620-040444-reflect-uc2-reachability-gate/merged-requirements.md
+convergence_score: 0.86
+adversarial_artifacts_dir: .dev/brainstorms/20260620-040444-reflect-uc2-reachability-gate/redteam/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "contract.py defense-in-depth trigger (edit 4.15) deferred — decide in landing task whether to add the redundant reachability_unreachable HALT trigger for producer-misWire safety, or keep the consumer fully decoupled."
+  - "Trigger mode: annotation-only (durable_sink:) vs annotation+semantic-fallback — merged design keeps the fallback with unproven-bias; tighten to annotation-only if halt-fatigue appears in eval."
+telemetry:
+  models_requested: [sonnet, haiku]
+  blind: true
+  depth: deep
+  strategy: systematic
+  redteam_agents: [quality-engineer, system-architect, backend-architect]
+  key_grounding:
+    - "SKILL.md:453-494 evidence chain"
+    - "SKILL.md:490 step 5.5 / SKILL.md:496-510 §6.1.1 envelope"
+    - "SKILL.md:392 §5.3 rule-3 escalation"
+    - "SKILL.md:952-1008 §10.4/§10.6 taxonomy + grounding gaps"
+    - "contract.py:313/315/319/356-363 verdict routing"
+    - "cost-profile.yaml T1=3-8k vs T2=35-70k"

@@ -59,6 +59,7 @@ from superclaude.cli.swarm.lenses.feasibility_probe import (
 from superclaude.cli.swarm.lenses.refactor_find import (
     LENS as _REFACTOR_FIND_LENS,
 )
+from superclaude.cli.swarm.lenses.reflect_review import LENS as _REFLECT_REVIEW_LENS
 from superclaude.cli.swarm.lenses.spec_completeness import (
     LENS as _SPEC_COMPLETENESS_LENS,
 )
@@ -78,6 +79,7 @@ LENS_NAMES: tuple[str, ...] = (
     "feasibility-probe",
     "troubleshoot-hypothesis",
     "doc-completeness",
+    "reflect-review",
     "custom",
 )
 """The eight well-known lens names in registry order.
@@ -110,6 +112,7 @@ LENSES: dict[str, LensEntry] = {
     "feasibility-probe": _FEASIBILITY_PROBE_LENS,
     "troubleshoot-hypothesis": _TROUBLESHOOT_HYPOTHESIS_LENS,
     "doc-completeness": _DOC_COMPLETENESS_LENS,
+    "reflect-review": _REFLECT_REVIEW_LENS,
     "custom": _custom_placeholder(),
 }
 """Registry mapping lens name → :class:`LensEntry`.

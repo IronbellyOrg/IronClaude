@@ -75,13 +75,15 @@ Convergence = the loop reaches `PASS`. Only a clean (or successfully auto-fixed)
 
 ### What it does
 
-Runs the post-execution reflect gate for a single MDTM task file. It launches
-`/sc:reflect --mode post` as a top-level `claude --print` subprocess (so Tier 2
-fans out across heterogeneous reviewers), parses the pinned
-`return-contract.yaml`, derives a fail-closed 4-state verdict, and — under
-`--fix` — runs a bounded auto-fix loop before writing a `reflect_post:` block
-back into the tasklist frontmatter. Only a clean, full, non-degraded Tier-2 pass
-exits `0`.
+Runs the post-execution reflect gate for a single MDTM task file. For Tier 2
+(`--depth standard|deep`), it routes through the local ensemble driver, which
+uses the swarm dispatch surface to fan out across heterogeneous reviewers and
+writes the pinned `return-contract.yaml`. The Tier-1 grounded path remains the
+single `/sc:reflect --mode post` top-level `claude --print` subprocess path. The
+wrapper parses `return-contract.yaml`, derives a fail-closed 4-state verdict,
+and — under `--fix` — runs a bounded auto-fix loop before writing a
+`reflect_post:` block back into the tasklist frontmatter. Only a clean, full,
+non-degraded Tier-2 pass exits `0`.
 
 ### Use when
 
@@ -119,6 +121,10 @@ The exact option set and defaults below are read from
   **Default: `--promote`.** O2 (per-phase) callers pass `--no-promote`.
 - `--depth standard|deep` — reflect depth passthrough (POST never runs quick).
   **Default: `standard`.** Callers force Tier 2 with `--depth deep`.
+- `--transport openai_compat|stub` — Tier-2 reviewer transport.
+  **Default: `openai_compat`.** Use `stub` for deterministic, credit-free CI.
+- `--reviewers N` — Tier-2 reviewer slots. **Default: `3`.** Values 2-4 are
+  clamped to the supported range; `1` is preserved for the negative witness path.
 - `--tmux` — run inside a detached tmux window so you can watch the run live.
 - `--resume` — skip the launch when the prior `reflect_post` is a `pass` on the
   current HEAD (clean-HEAD short-circuit).

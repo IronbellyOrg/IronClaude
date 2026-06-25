@@ -104,6 +104,22 @@ def reflect_group():
     default="standard",
     help="Reflect depth passthrough (POST never runs quick).",
 )
+# --transport enum guard (Whittaker sentinel/divergence).
+# transport_enum:
+#   accepted: [openai_compat, stub]
+#   unknown_value: "rejected at CLI parse (Click enum), before any dispatch -- non-zero exit, no partial run"
+@click.option(
+    "--transport",
+    type=click.Choice(["openai_compat", "stub"], case_sensitive=False),
+    default="openai_compat",
+    help="Tier-2 worker transport: openai_compat live proxy or stub credit-free CI lane.",
+)
+@click.option(
+    "--reviewers",
+    type=int,
+    default=3,
+    help="Tier-2 reviewer slots; default 3; 1 is the negative-witness degrade case.",
+)
 @click.option(
     "--output",
     default=None,
@@ -152,6 +168,8 @@ def run(
     promote: bool,
     timeout: int | None,
     depth: str,
+    transport: str,
+    reviewers: int,
     output: str | None,
     allow_single_vendor: bool,
     dry_run: bool,
@@ -175,6 +193,8 @@ def run(
         config = resolve_config(
             tasklist,
             depth=depth,
+            transport=transport,
+            reviewers=reviewers,
             output_dir=output,
             model=model,
             timeout=timeout,
@@ -291,6 +311,10 @@ def _build_inner_command(config) -> list[str]:
         config.depth,
         "--timeout",
         str(config.timeout_seconds),
+        "--transport",
+        config.transport,
+        "--reviewers",
+        str(config.reviewers),
     ]
     # Forward promote EXPLICITLY in both directions. Since the --promote default
     # flipped to True (FR-5), an absent flag in the inner reinvocation would

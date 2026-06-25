@@ -1,0 +1,52 @@
+# UC2 unwired runtime surface fixture — real unified git diff.
+
+diff --git a/src/superclaude/cli/ai_spawn.py b/src/superclaude/cli/ai_spawn.py
+new file mode 100644
+index 0000000..4b825dc
+--- /dev/null
++++ b/src/superclaude/cli/ai_spawn.py
+@@ -0,0 +1,19 @@
++"""User-facing /ai Spawn handler.
++
++FR-S9-04 requires users to reach /ai and invoke Spawn. This module adds the
++surface handler but does not wire it into any production CLI, route, registry,
++or [project.scripts] entrypoint.
++"""
++
++from __future__ import annotations
++
++
++def handle_ai_spawn(request: dict[str, str]) -> dict[str, str]:
++    """Handle the /ai Spawn action for the user-facing surface."""
++    prompt = request.get("prompt", "")
++    if not prompt:
++        return {"status": "error", "message": "prompt is required"}
++    return {"status": "queued", "surface": "/ai", "action": "Spawn"}
++
++
++__all__ = ["handle_ai_spawn"]
+diff --git a/tests/cli/test_ai_spawn.py b/tests/cli/test_ai_spawn.py
+new file mode 100644
+index 0000000..d8e8fca
+--- /dev/null
++++ b/tests/cli/test_ai_spawn.py
+@@ -0,0 +1,17 @@
++"""Tests for the /ai Spawn handler.
++
++The test intentionally imports handle_ai_spawn directly; it does not prove the
++handler is reachable from the production CLI or any runtime entrypoint.
++"""
++
++from superclaude.cli.ai_spawn import handle_ai_spawn
++
++
++def test_handle_ai_spawn_queues_prompt() -> None:
++    assert handle_ai_spawn({"prompt": "summon"}) == {
++        "status": "queued",
++        "surface": "/ai",
++        "action": "Spawn",
++    }
++
++
++def test_handle_ai_spawn_requires_prompt() -> None:
++    assert handle_ai_spawn({})["status"] == "error"

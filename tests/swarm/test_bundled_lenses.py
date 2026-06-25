@@ -61,11 +61,12 @@ NON_CUSTOM_LENS_MODULES: tuple[tuple[str, str], ...] = (
         "troubleshoot-hypothesis",
     ),
     ("superclaude.cli.swarm.lenses.doc_completeness", "doc-completeness"),
+    ("superclaude.cli.swarm.lenses.reflect_review", "reflect-review"),
 )
 
 
 # ---------------------------------------------------------------------------
-# Module shape -- each of the 7 modules exports a ``LENS`` constant.
+# Module shape -- each of the 8 modules exports a ``LENS`` constant.
 # ---------------------------------------------------------------------------
 
 
@@ -243,10 +244,10 @@ def test_validate_all_skips_custom_lens() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_registry_has_eight_entries() -> None:
-    assert len(LENSES) == 8
+def test_registry_has_nine_entries() -> None:
+    assert len(LENSES) == 9
 
 
-def test_registry_non_custom_count_is_seven() -> None:
+def test_registry_non_custom_count_is_eight() -> None:
     non_custom = [e for e in LENSES.values() if e.name != CUSTOM_LENS_NAME]
-    assert len(non_custom) == 7
+    assert len(non_custom) == 8

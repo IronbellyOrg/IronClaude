@@ -231,6 +231,11 @@ class OpenAICompatTransport:
             to the recipe convention (0.2 -- ``roadmap-haiku-architect.md``
             L100). Per-call override is not exposed at this Phase-1
             reference layer.
+        max_tokens: completion-token ceiling forwarded to the API. Defaults
+            to 4096 -- a robustness guard so the transport never relies on
+            the proxy/model default (which can truncate a thorough review).
+            4096 exceeds observed natural review completions (~1.9-2.1k
+            tokens) with headroom, so it does not bind in practice.
     """
 
     def __init__(
@@ -241,6 +246,7 @@ class OpenAICompatTransport:
         *,
         client: Optional[httpx.Client] = None,
         temperature: float = 0.2,
+        max_tokens: int = 4096,
     ) -> None:
         if not base_url:
             raise ValueError("OpenAICompatTransport.base_url must be non-empty")
@@ -253,6 +259,7 @@ class OpenAICompatTransport:
         self._api_key = api_key
         self._model = model
         self._temperature = temperature
+        self._max_tokens = max_tokens
         self._owns_client = client is None
         self._client = client if client is not None else httpx.Client()
 
@@ -316,6 +323,7 @@ class OpenAICompatTransport:
             "model": self._model,
             "messages": [{"role": "user", "content": prompt}],
             "temperature": self._temperature,
+            "max_tokens": self._max_tokens,
         }
 
         start = time.monotonic()
