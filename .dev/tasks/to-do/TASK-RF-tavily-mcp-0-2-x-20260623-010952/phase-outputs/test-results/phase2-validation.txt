@@ -1,0 +1,31 @@
+# Phase 2 Validation — raw output (2026-06-23 12:16)
+
+===== uv run pytest tests/cli/test_install_mcp_tavily.py -v =====
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 6 items
+
+tests/cli/test_install_mcp_tavily.py::test_tavily_registry_pins_0_2_20 PASSED [ 16%]
+tests/cli/test_install_mcp_tavily.py::test_default_parameters_field PASSED [ 33%]
+tests/cli/test_install_mcp_tavily.py::test_tavily_json_absent PASSED     [ 50%]
+tests/cli/test_install_mcp_tavily.py::test_default_parameters_propagated PASSED [ 66%]
+tests/cli/test_install_mcp_tavily.py::test_api_key_never_in_logged_command PASSED [ 83%]
+tests/cli/test_install_mcp_tavily.py::test_live_tavily_search_smoke SKIPPED [100%]
+
+========================= 5 passed, 1 skipped in 0.13s =========================
+
+===== uv run ruff check (scoped to changed files: install_mcp.py + new test) =====
+All checks passed!
+
+===== uv run ruff check src/ tests/  (full — PRE-EXISTING errors in unrelated files) =====
+Total ruff findings across src/ tests/: 125
+Findings touching MY changed files (install_mcp.py | test_install_mcp_tavily.py): 0
+(All findings are in unrelated files — swarm/**, etc. — pre-existing worktree .venv ruff 0.15.14 vs CI mismatch; out of task scope.)
+
+===== uv run ruff format --check (changed files) =====
+2 files already formatted

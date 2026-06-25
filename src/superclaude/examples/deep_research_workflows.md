@@ -414,6 +414,65 @@ Comprehensive analysis of "AI in healthcare 2024"
    - Visual evidence
 ```
 
+## Example 11: Discovery Routing with Map & Crawl (0.2.x tool surface)
+
+### Scenario
+
+Survey a documentation domain's structure, then go broad: "Audit the entire FastAPI docs site for
+async-related guidance"
+
+### Execution
+
+```bash
+/sc:research "FastAPI async guidance across the docs site" --depth deep
+```
+
+### Workflow (map → extract at the deep profile)
+
+```yaml
+1. Site-structure discovery (deep profile enables map; cap maps=2):
+   - mcp__tavily__tavily-map:
+       url: "https://fastapi.tiangolo.com"
+       include_domains: ["fastapi.tiangolo.com"]   # bound to T1/T2 source tier
+   - Returns: the site's URL graph (sections, pages)
+
+2. Targeted extraction of the high-value URLs found by map:
+   - mcp__tavily__tavily-extract:
+       urls: [ ".../async/", ".../advanced/async-sql/", ".../tutorial/..." ]
+       extract_depth: advanced        # deep profile → advanced
+   - Returns: full content of the selected pages only
+
+3. Synthesis:
+   - Combine mapped structure + extracted content into a coherent guide
+   - Backend tag: tavily (map + extract)
+```
+
+### Workflow (guarded crawl at the exhaustive profile only)
+
+```bash
+/sc:research "Exhaustive sweep of a vendor changelog domain" --depth exhaustive
+```
+
+```yaml
+1. Crawl is enabled ONLY at the exhaustive profile (cap crawls=1, ≤50 URLs):
+   - mcp__tavily__tavily-crawl:
+       url: "https://vendor.example.com/changelog"
+       include_domains: ["vendor.example.com"]
+       search_depth: advanced          # exhaustive profile → advanced
+   - Result set is truncated to a maximum of 50 URLs (cap enforced)
+
+2. If the domain exceeds 50 URLs:
+   - Note the truncation in the report; do NOT issue a second crawl (crawls=1 cap)
+   - Fall back to targeted map+extract on the highest-priority subsections
+
+3. Synthesis:
+   - Aggregate crawled pages; flag coverage limits from the 50-URL cap
+```
+
+> Map/crawl are confined to the deep-research engine. Per-tier gating, caps, and parameter
+> defaults are defined in RESEARCH_CONFIG.md (Depth Profiles, Discovery Routing) and the tool
+> surface in MCP_Tavily.md — this example does not restate them.
+
 ## Advanced Workflow Patterns
 
 ### Pattern 1: Iterative Deepening

@@ -47,7 +47,7 @@ category: mode
 ## Integration Points
 
 - Activates deep-research-agent automatically
-- Enables Tavily search capabilities
+- Enables Tavily capabilities: search, extraction, site-mapping, domain-crawl
 - Triggers Sequential for complex reasoning
 - Emphasizes TodoWrite for task tracking
 

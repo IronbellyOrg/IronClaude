@@ -51,14 +51,31 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
 | T3 | 0.5-0.7 | Community resources, user docs, verified social, Wikipedia |
 | T4 | 0.3-0.5 | User forums, unverified social, personal blogs, comments |
 
+**Domain filters:** Bind Tavily's `include_domains` / `exclude_domains` to the tiers above —
+use `include_domains` to bias `search` / `map` / `crawl` toward T1–T2 sources (academic,
+official docs, established media) and `exclude_domains` to suppress T4 sources (unverified
+social, comment threads).
+
 ## Depth Profiles
 
-| Profile | Sources | Hops | Iterations | Time | Confidence | Extraction |
-|---------|---------|------|------------|------|------------|------------|
-| quick | 10 | 1 | 1 | 2min | 0.6 | tavily_only |
-| standard | 20 | 3 | 2 | 5min | 0.7 | selective |
-| deep | 40 | 4 | 3 | 8min | 0.8 | comprehensive |
-| exhaustive | 50+ | 5 | 5 | 10min | 0.9 | all_sources |
+Tavily MCP version: **0.2.20** (pinned — see the `install_mcp.py` registry and `MCP_Tavily.md`).
+The server-level `DEFAULT_PARAMETERS` baseline is injected at install (canonical values live in
+`install_mcp.py` / `MCP_Tavily.md` — not duplicated here). Each profile below overrides
+`search_depth` / `extract_depth` per tier; per-call tool args override the server default.
+
+| Profile | Sources | Hops | Iterations | Time | Confidence | search_depth | extract_depth | Tools enabled |
+|---------|---------|------|------------|------|------------|--------------|---------------|---------------|
+| quick | 10 | 1 | 1 | 2min | 0.6 | basic | basic | search |
+| standard | 20 | 3 | 2 | 5min | 0.7 | basic | basic | search, extract |
+| deep | 40 | 4 | 3 | 8min | 0.8 | advanced | advanced | search, extract, map |
+| exhaustive | 50+ | 5 | 5 | 10min | 0.9 | advanced | advanced | search, extract, map, crawl |
+
+`search_depth: advanced` is used ONLY at the **deep** and **exhaustive** tiers; quick and
+standard stay `basic`. `tavily-map` is enabled at **deep and above**; `tavily-crawl` is enabled
+at the **exhaustive tier only**.
+
+**Discovery caps:** `maps=2` per research run, `crawls=1` per research run; a `tavily-crawl`
+result set is truncated to a maximum of **50 URLs**.
 
 ## Multi-Hop Patterns
 
@@ -68,6 +85,27 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
 | concept_deepening | Drill into concepts | Topic → Subtopics → Details → Examples | depth 4 |
 | temporal_progression | Follow chronology | Current → Recent → Historical → Origins | backward |
 | causal_chain | Trace cause/effect | Effect → Immediate → Root → Prevention | validated |
+
+## Discovery Routing
+
+| Operation | Tavily tool id | Use | Enabled at |
+|-----------|----------------|-----|-----------|
+| map | `mcp__tavily__tavily-map` | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
+| crawl | `mcp__tavily__tavily-crawl` | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
+
+Typical flow: `map` a domain to surface candidate URLs, then `extract` the high-value ones;
+escalate to `crawl` only at the **exhaustive** tier when broad coverage across a domain is
+required. Respect the caps (`maps=2`, `crawls=1`) and the 50-URL crawl truncation.
+
+## Recency Controls
+
+| Param | Use |
+|-------|-----|
+| `topic: news` | Switch search to the news index for current-events queries (default is `topic: general`) |
+| `time_range` | Bound results to a recent window (day / week / month / year) |
+| `days` | With `topic: news`, limit results to the last N days |
+
+Apply recency controls only when the query is time-sensitive.
 
 ## Extraction Routing
 

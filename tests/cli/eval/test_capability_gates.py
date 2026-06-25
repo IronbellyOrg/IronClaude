@@ -41,7 +41,11 @@ def _mcp_only_specs() -> tuple[_CapabilitySpec, ...]:
 
 
 def test_default_roster_contains_expected_binaries_and_mcp_servers() -> None:
-    """T01.11 Steps[2]: roster = claude/jq/make/git HARD + 3 MCP SOFT-SKIP."""
+    """T01.11 Steps[2]: roster = claude/jq/make/git HARD + 4 MCP SOFT-SKIP.
+
+    The MCP roster gained ``mcp_server.tavily`` (M2 mandatory registration for the
+    Tavily 0.2.x upgrade / TASK-RF-tavily-mcp-0-2-x) alongside auggie/auggie-mcp/airis.
+    """
     names = {spec.name for spec in _DEFAULT_CAPABILITY_SPECS}
     assert names == {
         "binary.claude",
@@ -51,6 +55,7 @@ def test_default_roster_contains_expected_binaries_and_mcp_servers() -> None:
         "mcp_server.auggie",
         "mcp_server.auggie-mcp",
         "mcp_server.airis-mcp-gateway",
+        "mcp_server.tavily",
     }
 
 

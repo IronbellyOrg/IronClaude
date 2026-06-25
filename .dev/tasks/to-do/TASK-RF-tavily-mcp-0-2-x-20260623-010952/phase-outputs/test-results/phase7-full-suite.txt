@@ -1,0 +1,61 @@
+# Phase 7 Full-Suite Validation — raw output (2026-06-23 13:58)
+
+===== FULL TAVILY SUITE (8 files) =====
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 28 items
+
+tests/cli/test_install_mcp_tavily.py::test_tavily_registry_pins_0_2_20 PASSED [  3%]
+tests/cli/test_install_mcp_tavily.py::test_default_parameters_field PASSED [  7%]
+tests/cli/test_install_mcp_tavily.py::test_tavily_json_absent PASSED     [ 10%]
+tests/cli/test_install_mcp_tavily.py::test_default_parameters_propagated PASSED [ 14%]
+tests/cli/test_install_mcp_tavily.py::test_api_key_never_in_logged_command PASSED [ 17%]
+tests/cli/test_install_mcp_tavily.py::test_live_tavily_search_smoke SKIPPED [ 21%]
+tests/agents/test_tavily_tool_parity.py::test_prose_tavily_ids_are_declared PASSED [ 25%]
+tests/agents/test_tavily_tool_parity.py::test_documenting_files_have_exact_parity PASSED [ 28%]
+tests/agents/test_tavily_tool_parity.py::test_rf_no_map_crawl PASSED     [ 32%]
+tests/agents/test_tavily_tool_parity.py::test_rf_fallback_provenance_present PASSED [ 35%]
+tests/core/test_research_config.py::test_each_depth_profile_names_concrete_params_and_tools PASSED [ 39%]
+tests/core/test_research_config.py::test_advanced_only_with_gating_language PASSED [ 42%]
+tests/core/test_research_config.py::test_discovery_caps_and_crawl_truncation_present PASSED [ 46%]
+tests/core/test_research_config.py::test_map_and_crawl_tool_ids_present PASSED [ 50%]
+tests/commands/test_research_command.py::test_research_command_no_param_duplication PASSED [ 53%]
+tests/commands/test_research_command.py::test_research_tiers_match_config PASSED [ 57%]
+tests/skills/test_brainstorm_protocol.py::test_brainstorm_no_tavily_param_duplication PASSED [ 60%]
+tests/skills/test_tier2_tavily_consistency.py::test_tier2_tool_id_parity PASSED [ 64%]
+tests/skills/test_tier2_tavily_consistency.py::test_rate_cap_intact PASSED [ 67%]
+tests/skills/test_tier2_tavily_consistency.py::test_fail_open_intact PASSED [ 71%]
+tests/skills/test_tier2_tavily_consistency.py::test_troubleshoot_search_depth_advanced PASSED [ 75%]
+tests/docs/test_tavily_doc_alignment.py::test_tavily_version_single_pin PASSED [ 78%]
+tests/docs/test_tavily_doc_alignment.py::test_no_stale_mcp_tavily_token PASSED [ 82%]
+tests/docs/test_tavily_doc_alignment.py::test_no_tavily_json_references PASSED [ 85%]
+tests/docs/test_tavily_doc_alignment.py::test_docs_no_default_params_duplication PASSED [ 89%]
+tests/cli/eval/test_tavily_eval_capability.py::test_capabilities_registers_mcp_server_tavily PASSED [ 92%]
+tests/cli/eval/test_tavily_eval_capability.py::test_real_suite_has_tavily_capability_and_verification_eval PASSED [ 96%]
+tests/cli/eval/test_tavily_eval_capability.py::test_tavily_eval_gated_to_skip_without_key PASSED [100%]
+
+======================== 27 passed, 1 skipped in 0.27s =========================
+
+===== ruff check (scoped to MY changed/new .py files) =====
+All checks passed!
+
+===== ruff format --check (scoped to MY changed/new .py files) =====
+12 files already formatted
+
+===== ruff check src/ tests/ (FULL — pre-existing swarm/** noise) =====
+Total findings: 125  | findings touching MY files: 0
+(All findings are pre-existing in unrelated files — documented in phase2/phase4 summaries.)
+
+===== make verify-sync =====
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.
+verify-sync exit: 0
+
+===== superclaude eval describe --suite real =====
+describe exit: 0
