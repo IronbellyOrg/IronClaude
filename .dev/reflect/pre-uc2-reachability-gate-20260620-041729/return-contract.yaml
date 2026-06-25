@@ -1,0 +1,119 @@
+contract_version: "1.5.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-gate-20260620-041729/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-gate-20260620-041729/audit.log
+confidence_calibrated: 0.86
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: null
+coverage_pct_union: null
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union:
+  - B1: Resolve unreachable proof-bar contradiction before task execution.
+  - B2: Resolve spec-absent/disable-path HALT contradiction before task execution.
+  - B3: Bump stable contract version for reachability fields.
+  - I1: Add wrapper-level --no-reachability plumbing and docs parity tests.
+  - I2: Add producer-level eval fixture for Step 5.6 detection.
+  - I3: Replace zero-cost claim with bounded incremental estimates and narrow semantic fallback.
+best_practice_grade: 2
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+reuse_sweep_ran: false
+reuse_audit_path: null
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type: {reuse_by_import: 0, mirror_shape: 0, extract_shared: 0, distinct: 0}
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: false
+neighbour_search_degraded: false
+max_overlap_score: null
+input_sha256:
+  tasklist: null
+  spec: 1a514deb0f96c64371c73d1b5bbd28679fb21f2f524d29f42ec12036bfd2089b
+input_tree_sha256: 1a514deb0f96c64371c73d1b5bbd28679fb21f2f524d29f42ec12036bfd2089b
+input_tree_file_count: 1
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-gate-20260620-041729/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 28
+citations_revalidated: 28
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-gate-20260620-041729/artifacts/requirements-review.md
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-gate-20260620-041729/artifacts/structural-qa-review.md
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-gate-20260620-041729/artifacts/qualitative-qa-review.md
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: true
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  serena_version: ">=v1.5"
+  serena_active_context: claude-code
+  serena_active_modes: [editing, interactive]
+  degraded_components: [adversarial-merge-not-run-inline-synthesis, env-aliases-not-inspected]
+  reviewer_personas: [requirements-analyst, rf-qa, rf-qa-qualitative]
+  onboarding_status: bootstrapped

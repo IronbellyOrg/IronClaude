@@ -1,0 +1,9 @@
+input_tree_sha256: ea2239cba82d1659b18d50ba5d441473d411a71a228a797250f570e2fc6e7470
+file_count: 3
+file_list:
+  - path: .dev/reflect-hardening/issue-1-uc2-reachability/spec.md
+    sha256: 7ced83bc03128d8a62d3f1765ed3c445e8b347a262645aca5e3dce77fddcfcf2
+  - path: .dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/TASK-RF-uc2-reachability-20260620-025931.md
+    sha256: 77e8a92257587c8b7e0b3fa5bf7c940d793e92efd3da811a1b399568815ee066
+  - path: .dev/reflect-hardening/issue-1-uc2-reachability/tdd.md
+    sha256: 80a469520648e2bd735a510b1926740b5056018bc837c4e13ef151ca4e5c4307

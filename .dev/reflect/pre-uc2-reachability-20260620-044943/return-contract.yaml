@@ -1,0 +1,110 @@
+contract_version: "1.5.0"
+status: failed
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-20260620-044943/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-20260620-044943/audit.log
+confidence_calibrated: 0.82
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: 0.917
+coverage_pct_union: 0.917
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union:
+  - FR-RSR.10: partial - no-runner branch can substitute structural completeness for fail-before/pass-after execution
+  - NFR-RSR.2: partial - determinism can be asserted by inspection instead of two-run byte compare
+  - release-checklist: partial - can inherit non-executed eval/determinism evidence
+best_practice_grade: 2
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 5
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-20260620-044943/artifacts/gap-register.yaml
+grounding_gaps_path: null
+input_sha256:
+  tasklist: 77e8a92257587c8b7e0b3fa5bf7c940d793e92efd3da811a1b399568815ee066
+  spec: 7ced83bc03128d8a62d3f1765ed3c445e8b347a262645aca5e3dce77fddcfcf2
+input_tree_sha256: ea2239cba82d1659b18d50ba5d441473d411a71a228a797250f570e2fc6e7470
+input_tree_file_count: 3
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-20260620-044943/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 31
+citations_revalidated: 31
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-20260620-044943/reviewer-cards/requirements-analyst.md
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-20260620-044943/reviewer-cards/qa-qualitative.md
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-uc2-reachability-20260620-044943/reviewer-cards/evidence-validator.md
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+telemetry:
+  degraded_components:
+    - env-aliases
+    - adversarial-merge-not-run-inline-synthesis
+  wave_durations_ms:
+    wave_0: 30000
+    wave_1: 220000
+    wave_2: 1000
+    wave_3: 221000
+    wave_4: 0
+    wave_5: 5000
+  reviewer_personas: [requirements-analyst, rf-qa-qualitative, evidence-validator]
+  serena_version: ">=v1.5"
+  serena_active_context: claude-code
+  serena_active_modes: [editing, interactive]
+  verification_availability:
+    backend: lsp
+    execute_shell_command_available: false
+    onboarding_available: true
+    read_only: unknown

@@ -1,0 +1,24 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collecting ... collected 12 items
+
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i1_positive_witness_real_fanout PASSED [  8%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i2_negative_witness_one_reviewer_degrades PASSED [ 16%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i3_partial_two_of_three_distinct_pass_eligible PASSED [ 25%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i4_partial_two_of_three_duplicate_class_degrades PASSED [ 33%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i5_m_one_from_three_single_reviewer_fallback PASSED [ 41%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i6_m_zero_blocked_exit2 PASSED [ 50%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i7_return_contract_shape_preserved PASSED [ 58%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i8_path_confinement_reflect_parses_only_toplevel PASSED [ 66%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i9_done_sentinel_dm017_shape PASSED [ 75%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i10_lens_brief_drives_worker_prompt PASSED [ 83%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i11_production_audit_once_routes_tier2_to_ensemble PASSED [ 91%]
+tests/cli/reflect/test_ensemble_stub_integration.py::test_i11b_tier1_audit_once_does_not_call_ensemble PASSED [100%]
+
+============================== 12 passed in 0.22s ==============================

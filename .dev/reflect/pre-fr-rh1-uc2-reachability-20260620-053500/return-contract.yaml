@@ -1,0 +1,75 @@
+contract_version: "1.5.0"
+run_id: "pre-fr-rh1-uc2-reachability-20260620-053500"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-fr-rh1-uc2-reachability-20260620-053500/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-fr-rh1-uc2-reachability-20260620-053500/audit.log
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep hard override forced Tier 2
+
+# UC-1 coverage (spec obligations R1-R9)
+coverage_pct: 1.0               # 9/9 obligations have an implementing AND a verifying item in the tasklist
+coverage_pct_union: 1.0
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 4          # calibrated across the 3-reviewer ensemble (analyzer 4.5 / qa 2.6 / refactorer 4)
+
+# Tier 2 ensemble
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-fr-rh1-uc2-reachability-20260620-053500/reviewer-cards/card-analyzer.md
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-fr-rh1-uc2-reachability-20260620-053500/reviewer-cards/card-qa.md
+  - /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect/pre-fr-rh1-uc2-reachability-20260620-053500/reviewer-cards/card-refactorer.md
+reviewer_models: ["sonnet (gpt-5.5)", "haiku (qwen3.6-plus)", "opus (claude-opus-4-8)"]
+reviewer_personas: ["analyzer", "qa", "refactorer"]
+reviewer_vendors: ["openai-compat", "qwen", "anthropic"]
+adversarial_convergence_score: 0.80   # high factual convergence (all 3 agree on coverage + the weak-verification set); divergence only on grade weighting
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+t2_effective_diversity: full
+calibrator_diversity: full
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+spec_is_wrong: false
+
+# Advisory verification-rigor recommendations (NOT coverage gaps — coverage is 1.0).
+# Surfaced for optional hardening; folded additively into the tasklist Open Questions.
+recommended_hardening:
+  - id: H1
+    obligation: R7
+    finding: "The 5 consistency invariants (gate_ran/skip/unreachable/unproven when-then rules) live as YAML pseudocode in SKILL.md; no dedicated executable assertion pins them."
+    recommendation: "Add test_reachability_consistency_invariants() to tests/cli/reflect/test_verdict_mapping.py."
+    severity: medium
+  - id: H2
+    obligation: R4/R7
+    finding: "The additive-minor invariant (no existing 1.5.0 field renamed/removed/retyped) is asserted as a constraint and eyeballed by adversarial QA, but no item diffs the 1.5.0 field set to prove it mechanically."
+    recommendation: "Add an additive-minor field-diff assertion (1.5.0 field set is a strict subset of 1.6.0)."
+    severity: medium
+  - id: H3
+    obligation: R8
+    finding: "Bounded-cost (caps: 1-3 turns/req, max 12, cap 36, 1 real boot) is verified by a stale-string search + semantic QA lens, not an executable assertion."
+    recommendation: "Add a grader/Testability-Map row asserting the bounded-cost fields are present and zero-cost claims absent."
+    severity: low
+  - id: H4
+    obligation: R1
+    finding: "The positive real-boot-proven Regression eval case is explicitly conditional/optional (the §6.1.1 envelope cannot boot a prod binary); the proof bar is covered only on the negative side."
+    recommendation: "Keep the real-boot-proven case as an integration/eval-hardening follow-up (spec R6 already permits deferral); ensure the negative falsifier (proxy/static cannot prove Regression) is active."
+    severity: low
+
+remediation_offered: false   # --remediate not passed
+remediation_accepted: null

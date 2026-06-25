@@ -1,0 +1,39 @@
+gaps:
+  - id: G1-false-completion-on-verification-failure
+    severity: critical
+    class: process_safety
+    requirement_refs: ["TDD §24.1", "TDD §24.2"]
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/TASK-RF-uc2-reachability-20260620-025931.md:223"
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/TASK-RF-uc2-reachability-20260620-025931.md:351"
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect-hardening/issue-1-uc2-reachability/tdd.md:977-998"
+    recommendation: "Change verification/release items from 'log blocker then mark complete' to 'log blocker and HALT / leave unchecked'."
+  - id: G2-eval-acceptance-downgraded-to-structural-inspection
+    severity: critical
+    class: acceptance_gate
+    requirement_refs: ["FR-RSR.10", "NFR-RSR.2", "TDD §24.1", "TDD §24.2"]
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/TASK-RF-uc2-reachability-20260620-025931.md:289-295"
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect-hardening/issue-1-uc2-reachability/spec.md:517-539"
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect-hardening/issue-1-uc2-reachability/tdd.md:987-998"
+    recommendation: "Make no-runner/no-producer a BLOCKED release state, or add a producer task that really executes old_skill and with_skill plus the two-run determinism check."
+  - id: G3-broad-git-add-a-stages-unrelated-dev-artifacts
+    severity: critical
+    class: source_control_safety
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/TASK-RF-uc2-reachability-20260620-025931.md:363"
+    recommendation: "Remove git add -A from the POST reflect wrapper command; use explicit pathspecs or run reflect from the diff base without staging."
+  - id: G4-runtime-surface-insertion-order-contradicts-research-anchor
+    severity: important
+    class: implementation_order
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/TASK-RF-uc2-reachability-20260620-025931.md:199-203"
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/research/01-skill-gather-gate-anchors.md:74-86"
+    recommendation: "Reconcile the order: either insert 4b'/4b between step 4 and existing 4a as the research anchor says, or update the research/TDD with a justified ordering change."
+  - id: G5-count-invariant-fallback-adds-seventh-field
+    severity: important
+    class: contract_scope
+    evidence:
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-20260620-025931/TASK-RF-uc2-reachability-20260620-025931.md:263"
+      - "/config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/reflect-hardening/issue-1-uc2-reachability/spec.md:445-449"
+    recommendation: "Make the full-YAML grader assertion mandatory; do not emit unreached_surfaces_len unless the spec/TDD are updated to include a seventh field."

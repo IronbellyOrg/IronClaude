@@ -1,0 +1,97 @@
+contract_version: "1.5.0"
+run_id: "pre-taskaudit-uc2-reachability-gate-r1r9"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-gate-20260620-043410/reflect/pre/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-uc2-reachability-gate-20260620-043410/reflect/pre/audit.log
+confidence_calibrated: 0.92
+escalation_rule_matched: null   # --depth deep hard-override forced Tier 2 (no rubric row)
+
+# UC-1 coverage (R1-R9 obligation audit)
+coverage_pct: 1.0               # parsed-semantics: 9/9 R1-R9 obligations mapped to implement+verify items
+coverage_pct_union: 1.0         # union (no inferred-only obligations beyond R1-R9)
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 5
+
+# Per-obligation coverage matrix (R1-R9)
+coverage_matrix:
+  - id: R1
+    name: "real-boot-only Regression (static => unproven only)"
+    implement_items: ["Phase 2 patch (L142)", "Phase 3 SKILL.md Step 5.6 (L152)", "Phase 3 deviation-mapping (L156)", "Phase 3 taxonomy ref (L158)"]
+    verify_items: ["Phase 2 stale-string verdict (L144)", "Phase 5 consumer test (L196)", "Phase 5 producer eval (L200)"]
+    covered: true
+  - id: R2
+    name: "--no-reachability telemetry-only (no GG / no needs_human_decision / no status:partial)"
+    implement_items: ["Phase 2 patch (L142)", "Phase 3 SKILL.md (L152)", "Phase 4 slash-cmd (L174)", "Phase 4 models.py (L176)", "Phase 4 config.py (L178)", "Phase 4 commands.py (L180)", "Phase 4 runner.py (L182)"]
+    verify_items: ["Phase 5 skip fixture (L194)", "Phase 5 test (L196)", "Phase 5 eval no-reachability-skip (L200)"]
+    covered: true
+  - id: R3
+    name: "spec-and-tasklist-absent telemetry-only"
+    implement_items: ["Phase 2 patch (L142)", "Phase 3 SKILL.md (L152)"]
+    verify_items: ["Phase 5 skip fixture (L194)", "Phase 5 test (L196)", "Phase 5 eval uc2-reachability-missing-inputs-skip (L200)"]
+    covered: true
+  - id: R4
+    name: "contract 1.6.0 (1.5.0 stays D13-only)"
+    implement_items: ["Phase 2 patch (L142)", "Phase 3 contract item (L154)", "Phase 3 report-template (L160)"]
+    verify_items: ["Phase 5 base fixture (L192)", "Phase 5 test (L196)", "Phase 6 contract-schema QA (L220)"]
+    covered: true
+  - id: R5
+    name: "wrapper plumbing (config + Click option + _build_prompt forward + docs + parity/smoke tests)"
+    implement_items: ["Phase 2 patch (L142)", "Phase 4 models.py reachability field (L176)", "Phase 4 config.py resolve (L178)", "Phase 4 commands.py Click+tmux (L180)", "Phase 4 runner.py _build_prompt (L182)", "Phase 4 docs guide (L184)"]
+    verify_items: ["Phase 5 help/prompt/docs-parity test (L198)", "Phase 5 pytest run (L202)"]
+    covered: true
+    notes: "All 5 R5 sub-parts present: (1) config field, (2) Click option, (3) _build_prompt forward, (4) docs, (5) parity/smoke."
+  - id: R6
+    name: "producer-level eval fixture (mandatory, distinct from consumer)"
+    implement_items: ["Phase 5 fixture proxy-oracle-unproven (L194)", "Phase 5 producer eval cases (L200)"]
+    verify_items: ["Phase 5 producer eval run (L204)", "Phase 5 QA producer-consumer-falsifiability (L206)", "Phase 6 testing QA (L222)"]
+    covered: true
+  - id: R7
+    name: "field presence/consistency (7 stable fields + consistency rules; UC-1 optional)"
+    implement_items: ["Phase 3 contract item exact R7 fields (L154)", "Phase 3 report-template (L160)"]
+    verify_items: ["Phase 5 base fixture lists 7 fields (L192)", "Phase 5 test (L196)", "Phase 6 contract-schema QA exact R7 fields (L220)"]
+    covered: true
+  - id: R8
+    name: "bounded cost (caps, not zero)"
+    implement_items: ["Phase 2 patch (L142)", "Phase 3 cost/ops item (L164)"]
+    verify_items: ["Phase 2 stale-string verdict reachability_gate_added_tokens:0 / _turns:0 (L144)", "Phase 6 semantic QA bounded cost (L224)"]
+    covered: true
+  - id: R9
+    name: "advisory-only semantic fallback (blocking requires explicit durable_sink/@sink)"
+    implement_items: ["Phase 2 patch (L142)", "Phase 3 SKILL.md (L152)", "Phase 3 deviation-mapping (L156)"]
+    verify_items: ["Phase 5 fixture semantic-advisory (L194)", "Phase 5 test not-DEGRADED-by-itself (L196)", "Phase 6 semantic QA advisory-only (L224)"]
+    covered: true
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 (forced by --depth deep; coverage-only PRE pass, no diff to debate)
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+
+# Tier 3
+remediation_offered: false      # --remediate set, but no gaps => no corrective tasklist authored
+remediation_accepted: null
+remediation_task_path: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+
+# Input integrity
+input_tree_file_count: 2

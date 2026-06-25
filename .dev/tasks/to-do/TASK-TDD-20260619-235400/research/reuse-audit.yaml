@@ -1,0 +1,87 @@
+stage: pre
+candidates_scanned: 4
+neighbours_found: 8
+max_overlap: 0.81
+degraded: []
+sampled: false
+findings:
+  - candidate: "src/superclaude/cli/reflect/ensemble.py"
+    capability_tag: "in-process parallel heterogeneous reviewer fan-out with normalized-artifact adversarial handoff"
+    neighbours:
+      - ref: "src/superclaude/cli/swarm/dispatch.py:344"
+        snippet: "Fan ``prompt`` across N workers via ``ParallelExecutor``."
+      - ref: "src/superclaude/cli/swarm/commands.py:619"
+        snippet: "Build a per-slot transport factory ``(slot_index) -> Transport``."
+      - ref: "src/superclaude/cli/swarm/reduce.py:578"
+        snippet: "Compute status, trigger merge, emit the final :class:`ResultContract`."
+      - ref: "src/superclaude/cli/swarm/lenses/bare_review.py:65"
+        snippet: "recommended_next_command_template=("
+    C_cap: 0.86
+    C_shape: 0.72
+    C_aug: 0.86
+    S_reuse: 0.81
+    confidence: 0.88
+    tier: maybe-related
+    verdict: reuse-by-import
+    shape_divergence: false
+    consolidation: {N: 2, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true
+  - candidate: "src/superclaude/cli/swarm/lenses/reflect_review.py"
+    capability_tag: "swarm lens entry for suspect T2 reflection reviewer briefs with adversarial next-command"
+    neighbours:
+      - ref: "src/superclaude/cli/swarm/lenses/bare_review.py:40"
+        snippet: "LENS: LensEntry = LensEntry("
+      - ref: "src/superclaude/cli/swarm/lenses/bare_review.py:63"
+        snippet: "suspect=True,"
+      - ref: "src/superclaude/cli/swarm/lenses/bare_review.py:64"
+        snippet: "tier=\"T2\","
+      - ref: "src/superclaude/cli/swarm/lenses/bare_review.py:66"
+        snippet: "\"/sc:adversarial --compare {compare_files} \""
+    C_cap: 0.84
+    C_shape: 0.74
+    C_aug: 0.82
+    S_reuse: 0.80
+    confidence: 0.84
+    tier: maybe-related
+    verdict: mirror-shape
+    shape_divergence: false
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true
+  - candidate: "src/superclaude/cli/swarm/lenses/templates/reflect-review-output.md"
+    capability_tag: "normalized per-reviewer reflection output template with pinned frontmatter and canonical sections"
+    neighbours:
+      - ref: "src/superclaude/cli/swarm/lenses/templates/feasibility-probe-output.md:44"
+        snippet: "## Canonical shape (what `verdict_only_v1.render_markdown` emits)"
+      - ref: "src/superclaude/cli/swarm/lenses/templates/feasibility-probe-output.md:52"
+        snippet: "reviewer_model_id: \"{reviewer_model_id}\""
+      - ref: "src/superclaude/cli/swarm/lenses/templates/feasibility-probe-output.md:98"
+        snippet: "`schema_version`, `tier`, `suspect`, and `lens` are pinned by the"
+    C_cap: 0.72
+    C_shape: 0.78
+    C_aug: 0.74
+    S_reuse: 0.74
+    confidence: 0.79
+    tier: maybe-related
+    verdict: mirror-shape
+    shape_divergence: false
+    consolidation: {N: 1, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true
+  - candidate: "tests/cli/reflect/test_ensemble_stub_integration.py"
+    capability_tag: "non-mocked stub-transport integration test for multi-reviewer success and one-reviewer negative witness"
+    neighbours:
+      - ref: "tests/swarm/test_commands_run.py:516"
+        snippet: "against the deterministic stub transport and asserts results == workers"
+      - ref: "tests/swarm/test_commands_run.py:548"
+        snippet: "# bare-review default_workers=3 -> results must equal worker count,"
+      - ref: "tests/swarm/test_commands_run.py:551"
+        snippet: "assert \"results=3\" in result.stdout"
+    C_cap: 0.77
+    C_shape: 0.75
+    C_aug: 0.76
+    S_reuse: 0.76
+    confidence: 0.81
+    tier: maybe-related
+    verdict: mirror-shape
+    shape_divergence: false
+    consolidation: {N: 2, recommend_centralize: false, centralize_target: null}
+    evidence_grounded: true

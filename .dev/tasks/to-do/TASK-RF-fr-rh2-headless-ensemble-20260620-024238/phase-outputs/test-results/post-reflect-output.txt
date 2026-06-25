@@ -1,0 +1,8 @@
+POST reflect gate (re-run, aienv sourced /cli/v1) started 2026-06-20 18:46:33
+T2ProxyUrl=http://192.168.133.101:4000/cli/v1
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+reflect: degraded (null-convergence)
+  report: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-fr-rh2-headless-ensemble-20260620-024238/reflect/post/63f1a8153d23/t2-swarm/merged.md
+  contract: /config/workspace/IronClaude/.dev/worktrees/ReflectHardening-3/.dev/tasks/to-do/TASK-RF-fr-rh2-headless-ensemble-20260620-024238/reflect/post/63f1a8153d23/return-contract.yaml
+POST_REFLECT_EXIT_CODE=11
+POST reflect gate finished 2026-06-20 18:56:40 rc=11

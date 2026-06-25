@@ -1,0 +1,765 @@
+diff --git a/.dev/eval-workspaces/sc-reflect/evals/evals.json b/.dev/eval-workspaces/sc-reflect/evals/evals.json
+index c12fb285..66437a9e 100644
+--- a/.dev/eval-workspaces/sc-reflect/evals/evals.json
++++ b/.dev/eval-workspaces/sc-reflect/evals/evals.json
+@@ -2,7 +2,7 @@
+   "skill_name": "sc-reflect-protocol",
+   "iteration": 1,
+   "scope": "v1.0-ship-it-3-pilot-15-promotion-2-falsifier-skeleton-6-serena-v3-10-serena-v3-medium",
+-  "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm). Reflect-V3-Serena adds 6 SCAFFOLDED serena cases (ids 21-26) covering FR-RV3-LOW.1–8: serena-find-implementations (FR-1), serena-find-declaration (FR-2, also hosts FR-3 references_extended_info), serena-search-deps (FR-4), serena-wave0-config (FR-6+FR-7), serena-memory-retention (FR-8), serena-summarize-changes (FR-5, pilot/ships-last per OQ-3). These are SCAFFOLDS — input fixtures + expected.yaml (STUB) + assertions[] targeting future with_skill/outputs/; not executed/graded in this task. See TASK-RF-20260602-135209.",
++  "notes": "Iteration 1 ships infrastructure only. The 3 pilot evals exercise UC-1 (pre-trivial-coverage-gap) and UC-2 (post-small-diff-clean, post-large-diff-mixed) per spec §12.3 lines 971-981. The 15 promotion evals exercise the §14.5.2 9-condition strict gate across all branches per spec §14.5.7 lines 1343-1363. The 2 falsifier entries reference SKELETON cases (status: skeleton-pending-iteration-3-fixture per W-A8 spec-panel fix); the runtime `convergence_score < 0.75 OR verdict == regression_present` assertion is layered in iteration-3 follow-up when the placeholder fixture content is authored. Pilot eval case fixtures (cases/<name>/input/*, expected.yaml) are STUBS in v1.0 — see Steps 5.6-5.8 in TASK-RF-20260527-043715-sc-reflect-rebuild. Promotion fixture YAMLs are STUBS in v1.0 — see Steps 5.10-5.24. All assertion types referenced here are defined in grader.py (10 new types per refs/grader-extensions.md + 8 baseline types inherited from sc-brainstorm). Reflect-V3-Serena adds 6 SCAFFOLDED serena cases (ids 21-26) covering FR-RV3-LOW.1–8: serena-find-implementations (FR-1), serena-find-declaration (FR-2, also hosts FR-3 references_extended_info), serena-search-deps (FR-4), serena-wave0-config (FR-6+FR-7), serena-memory-retention (FR-8), serena-summarize-changes (FR-5, pilot/ships-last per OQ-3). These are SCAFFOLDS — input fixtures + expected.yaml (STUB) + assertions[] targeting future with_skill/outputs/; not executed/graded in this task. See TASK-RF-20260602-135209. NOTE: FR-RSR UC-2 reachability cases live under cases/uc2-*/ (case_dir entries), not evals/uc2-*/; evals/ contains only this registry.",
+   "evals": [
+     {
+       "id": 1,
+@@ -1025,6 +1025,88 @@
+         { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "evidence_validator_ran", "expected": "true", "text": "NFR-4: the Wave-5 evidence-validator re-Reads every cited file:line" },
+         { "type": "checkpoint_logged", "target": "with_skill/outputs/audit.log", "value": "citation_revalidated", "text": "NFR-4: every REPORT.md file:line citation has a preceding re-Read within the §6.2 5-call window" }
+       ]
++    },
++    {
++      "id": 37,
++      "name": "uc2-unwired-surface-passes",
++      "case_dir": "cases/uc2-unwired-surface-passes/",
++      "mode": "post",
++      "use_case": "UC-2",
++      "spec_ref": "FR-RSR.10 / TDD §15.2",
++      "description": "ACTIVE HEADLINE: an added /ai Spawn handler is referenced only from tests/comments and is not wired to any production entrypoint. Pre-change snapshot clean-passes; post-change skill must emit runtime_surface_unreached >= 1 and suppress clean PASS.",
++      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
++      "expected": "expected.yaml",
++      "assertions": [
++        { "type": "regex_present", "target": "old_skill/outputs/REPORT.md", "pattern": "clean[_ -]?pass|status:\\s*success|no deviations", "text": "FAIL-pre baseline: old snapshot exhibits the clean-pass blind spot for the unwired surface" },
++        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "clean[_ -]?pass|status:\\s*success|no deviations", "text": "PASS-post: post-change report must not clean-PASS an unwired runtime surface" },
++        { "type": "yaml_field_min", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "min_value": 1, "text": "PASS-post: at least one runtime surface is classified UNREACHED" },
++        { "type": "regex_present", "target": "with_skill/outputs/REPORT.md", "pattern": "deviation_class:\\s*regression|Regression", "text": "PASS-post: unwired reachability contradiction is surfaced as Regression" }
++      ]
++    },
++    {
++      "id": 38,
++      "name": "uc2-surface-positive-control",
++      "case_dir": "cases/uc2-surface-positive-control/",
++      "mode": "post",
++      "use_case": "UC-2",
++      "spec_ref": "FR-RSR.10 / TDD §15.2",
++      "description": "Reachable positive control: an /ai status handler is wired through the production CLI, while a pure-internal helper demonstrates non-surface no-sweep behavior.",
++      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
++      "expected": "expected.yaml",
++      "assertions": [
++        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "expected": "0", "text": "Reachable surface emits zero unreached symbols" },
++        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_degraded", "expected": "false", "text": "Reachable positive control does not degrade" },
++        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "surface_unreached|UNREACHED|stop_reason", "text": "Reachable surface and pure-internal helper do not trigger unreached escalation or STOP" }
++      ]
++    },
++    {
++      "id": 39,
++      "name": "uc2-surface-dynamic-dispatch",
++      "case_dir": "cases/uc2-surface-dynamic-dispatch/",
++      "mode": "post",
++      "use_case": "UC-2",
++      "spec_ref": "FR-RSR.10 / TDD §15.2",
++      "description": "Dynamic dispatch companion: a /ai Spawn entrypoint is wired via [project.scripts], so static reachability must DEGRADE loudly and never increment Regression.",
++      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
++      "expected": "expected.yaml",
++      "assertions": [
++        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_degraded", "expected": "true", "text": "[project.scripts] dynamic wiring degrades instead of UNREACHED" },
++        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "expected": "0", "text": "Dynamic wiring is never counted as UNREACHED" },
++        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "deviation_class:\\s*regression|Regression", "text": "Dynamic wiring does not produce a false Regression" }
++      ]
++    },
++    {
++      "id": 40,
++      "name": "uc2-surface-degraded-backend",
++      "case_dir": "cases/uc2-surface-degraded-backend/",
++      "mode": "post",
++      "use_case": "UC-2",
++      "spec_ref": "FR-RSR.10 / TDD §15.2",
++      "description": "Backend unavailable companion: backend:none prevents static reachability evaluation, so the skill must file a Grounding Gap, continue, and suppress clean PASS without STOPing.",
++      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
++      "expected": "expected.yaml",
++      "assertions": [
++        { "type": "yaml_field", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_degraded", "expected": "true", "text": "Backend unavailable marks runtime-surface sweep degraded" },
++        { "type": "regex_present", "target": "with_skill/outputs/REPORT.md", "pattern": "Grounding Gap|grounding[_ -]?gap|runtime-surface:backend_unavailable", "text": "Backend loss files a Grounding Gap / degraded component" },
++        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "STOP|HALT|stop_reason", "text": "Backend loss does not hard-STOP the skill" },
++        { "type": "regex_absent", "target": "with_skill/outputs/REPORT.md", "pattern": "clean[_ -]?pass|status:\\s*success|no deviations", "text": "Backend loss does not clean-PASS an unevaluable tagged surface" }
++      ]
++    },
++    {
++      "id": 41,
++      "name": "uc2-surface-test-only-ref",
++      "case_dir": "cases/uc2-surface-test-only-ref/",
++      "mode": "post",
++      "use_case": "UC-2",
++      "spec_ref": "FR-RSR.10 / TDD §15.2",
++      "description": "Test-only reference companion: a /ai export handler is referenced only from tests/comments, yielding UNREACHED and asserting the count invariant via yaml_list_len_eq.",
++      "inputs": { "diff": "input/diff.patch", "tasklist": "input/tasklist.md" },
++      "expected": "expected.yaml",
++      "assertions": [
++        { "type": "yaml_field_min", "target": "with_skill/outputs/contract.yaml", "field": "runtime_surface_unreached", "min_value": 1, "text": "Test-only referenced surface is classified UNREACHED" },
++        { "type": "yaml_list_len_eq", "target": "with_skill/outputs/contract.yaml", "list_field": "unreached_surfaces", "count_field": "runtime_surface_unreached", "text": "Count invariant holds: len(unreached_surfaces) == runtime_surface_unreached" },
++        { "type": "regex_present", "target": "with_skill/outputs/REPORT.md", "pattern": "UNREACHED|runtime_surface_unreached|deviation_class:\\s*regression|Regression", "text": "Test-only surface finding is surfaced in the report" }
++      ]
+     }
+   ],
+   "grading_criteria": [
+@@ -1040,6 +1122,7 @@
+     "regex_present",
+     "regex_absent",
+     "yaml_list_contains",
++    "yaml_list_len_eq",
+     "matrix_covers_items",
+     "checkpoint_logged",
+     "deviation_class_matches",
+diff --git a/.dev/eval-workspaces/sc-reflect/grader.py b/.dev/eval-workspaces/sc-reflect/grader.py
+index 6e309ec9..a901316a 100644
+--- a/.dev/eval-workspaces/sc-reflect/grader.py
++++ b/.dev/eval-workspaces/sc-reflect/grader.py
+@@ -13,10 +13,11 @@ Output format matches skill-creator grading.json schema:
+
+ Inherits the 8 sc-brainstorm baseline assertion types (file_exists, frontmatter_field,
+ section_present, section_enumerated, yaml_field, yaml_field_min, yaml_substring,
+-dir_count) and extends with 10 new types per refs/grader-extensions.md:
++dir_count) and extends with 11 new types per refs/grader-extensions.md:
+ citation_resolves, regex_present, regex_absent, yaml_list_contains,
+-matrix_covers_items, checkpoint_logged, deviation_class_matches, path_exists,
+-path_does_not_exist, falsifier_skeleton_present.
++yaml_list_len_eq, matrix_covers_items, checkpoint_logged,
++deviation_class_matches, path_exists, path_does_not_exist,
++falsifier_skeleton_present.
+
+ Usage:
+     python grader.py <iterations/iteration-N-dir>
+@@ -187,6 +188,29 @@ def check_yaml_list_contains(assertion: dict, base_dir: Path) -> tuple[bool, str
+     return False, f"List at {assertion['field_path']} missing {expected!r}; members={node}"
+
+
++def check_yaml_list_len_eq(assertion: dict, base_dir: Path) -> tuple[bool, str]:
++    target = base_dir / assertion["target"]
++    if not target.exists():
++        return False, f"YAML file missing: {assertion['target']}"
++    data = yaml.safe_load(target.read_text(encoding="utf-8")) or {}
++    list_field = assertion["list_field"]
++    count_field = assertion["count_field"]
++    items = data.get(list_field)
++    if not isinstance(items, list):
++        return False, f"{list_field!r} is not a list (got {type(items).__name__})"
++    try:
++        expected = int(data[count_field])
++    except KeyError:
++        return False, f"count field {count_field!r} missing"
++    except (TypeError, ValueError):
++        return False, f"count field {count_field!r} not an integer: {data.get(count_field)!r}"
++    actual = len(items)
++    if actual == expected:
++        return True, f"len({list_field}) == {count_field} == {actual}"
++    return False, f"len({list_field})={actual}, {count_field}={expected}"
++
++
++
+ def check_matrix_covers_items(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+     matrix_path = base_dir / assertion["matrix"]
+     source_path = base_dir / assertion["source"]
+@@ -392,6 +416,8 @@ def check_assertion(assertion: dict, base_dir: Path) -> tuple[bool, str]:
+         return check_regex_absent(assertion, base_dir)
+     if a_type == "yaml_list_contains":
+         return check_yaml_list_contains(assertion, base_dir)
++    if a_type == "yaml_list_len_eq":
++        return check_yaml_list_len_eq(assertion, base_dir)
+     if a_type == "matrix_covers_items":
+         return check_matrix_covers_items(assertion, base_dir)
+     if a_type == "checkpoint_logged":
+diff --git a/docs/guides/reflect-cli-tools-guide.md b/docs/guides/reflect-cli-tools-guide.md
+index 95b67dc7..1a00e9c1 100644
+--- a/docs/guides/reflect-cli-tools-guide.md
++++ b/docs/guides/reflect-cli-tools-guide.md
+@@ -75,13 +75,15 @@ Convergence = the loop reaches `PASS`. Only a clean (or successfully auto-fixed)
+
+ ### What it does
+
+-Runs the post-execution reflect gate for a single MDTM task file. It launches
+-`/sc:reflect --mode post` as a top-level `claude --print` subprocess (so Tier 2
+-fans out across heterogeneous reviewers), parses the pinned
+-`return-contract.yaml`, derives a fail-closed 4-state verdict, and — under
+-`--fix` — runs a bounded auto-fix loop before writing a `reflect_post:` block
+-back into the tasklist frontmatter. Only a clean, full, non-degraded Tier-2 pass
+-exits `0`.
++Runs the post-execution reflect gate for a single MDTM task file. For Tier 2
++(`--depth standard|deep`), it routes through the local ensemble driver, which
++uses the swarm dispatch surface to fan out across heterogeneous reviewers and
++writes the pinned `return-contract.yaml`. The Tier-1 grounded path remains the
++single `/sc:reflect --mode post` top-level `claude --print` subprocess path. The
++wrapper parses `return-contract.yaml`, derives a fail-closed 4-state verdict,
++and — under `--fix` — runs a bounded auto-fix loop before writing a
++`reflect_post:` block back into the tasklist frontmatter. Only a clean, full,
++non-degraded Tier-2 pass exits `0`.
+
+ ### Use when
+
+@@ -119,6 +121,10 @@ The exact option set and defaults below are read from
+   **Default: `--promote`.** O2 (per-phase) callers pass `--no-promote`.
+ - `--depth standard|deep` — reflect depth passthrough (POST never runs quick).
+   **Default: `standard`.** Callers force Tier 2 with `--depth deep`.
++- `--transport openai_compat|stub` — Tier-2 reviewer transport.
++  **Default: `openai_compat`.** Use `stub` for deterministic, credit-free CI.
++- `--reviewers N` — Tier-2 reviewer slots. **Default: `3`.** Values 2-4 are
++  clamped to the supported range; `1` is preserved for the negative witness path.
+ - `--tmux` — run inside a detached tmux window so you can watch the run live.
+ - `--resume` — skip the launch when the prior `reflect_post` is a `pass` on the
+   current HEAD (clean-HEAD short-circuit).
+diff --git a/src/superclaude/cli/reflect/commands.py b/src/superclaude/cli/reflect/commands.py
+index 26a961aa..808e1206 100644
+--- a/src/superclaude/cli/reflect/commands.py
++++ b/src/superclaude/cli/reflect/commands.py
+@@ -104,6 +104,22 @@ def reflect_group():
+     default="standard",
+     help="Reflect depth passthrough (POST never runs quick).",
+ )
++# --transport enum guard (Whittaker sentinel/divergence).
++# transport_enum:
++#   accepted: [openai_compat, stub]
++#   unknown_value: "rejected at CLI parse (Click enum), before any dispatch -- non-zero exit, no partial run"
++@click.option(
++    "--transport",
++    type=click.Choice(["openai_compat", "stub"], case_sensitive=False),
++    default="openai_compat",
++    help="Tier-2 worker transport: openai_compat live proxy or stub credit-free CI lane.",
++)
++@click.option(
++    "--reviewers",
++    type=int,
++    default=3,
++    help="Tier-2 reviewer slots; default 3; 1 is the negative-witness degrade case.",
++)
+ @click.option(
+     "--output",
+     default=None,
+@@ -152,6 +168,8 @@ def run(
+     promote: bool,
+     timeout: int | None,
+     depth: str,
++    transport: str,
++    reviewers: int,
+     output: str | None,
+     allow_single_vendor: bool,
+     dry_run: bool,
+@@ -175,6 +193,8 @@ def run(
+         config = resolve_config(
+             tasklist,
+             depth=depth,
++            transport=transport,
++            reviewers=reviewers,
+             output_dir=output,
+             model=model,
+             timeout=timeout,
+@@ -291,6 +311,10 @@ def _build_inner_command(config) -> list[str]:
+         config.depth,
+         "--timeout",
+         str(config.timeout_seconds),
++        "--transport",
++        config.transport,
++        "--reviewers",
++        str(config.reviewers),
+     ]
+     # Forward promote EXPLICITLY in both directions. Since the --promote default
+     # flipped to True (FR-5), an absent flag in the inner reinvocation would
+diff --git a/src/superclaude/cli/reflect/config.py b/src/superclaude/cli/reflect/config.py
+index 707ad585..61393e9b 100644
+--- a/src/superclaude/cli/reflect/config.py
++++ b/src/superclaude/cli/reflect/config.py
+@@ -139,6 +139,8 @@ def resolve_config(
+     base_override: str | None = None,
+     fix: bool = False,
+     max_fix_iterations: int = 2,
++    transport: str = "openai_compat",
++    reviewers: int = 3,
+ ) -> ReflectConfig:
+     """Resolve CLI args + frontmatter + git state into a ``ReflectConfig``.
+
+@@ -153,6 +155,9 @@ def resolve_config(
+         promote / allow_single_vendor / tmux / dry_run / print_command /
+         resume: wrapper-side flags threaded through to the runner.
+         base_branch: base for ``git merge-base`` fallback (default ``master``).
++        transport: Tier-2 worker transport (``openai_compat`` or ``stub``).
++        reviewers: Tier-2 reviewer slots; ``1`` is preserved as the negative
++            witness, otherwise values are clamped to ``[2,4]``.
+
+     Returns:
+         A fully-populated ``ReflectConfig``.
+@@ -189,6 +194,15 @@ def resolve_config(
+     # -- Depth floor (O4/FR-3 -- POST never runs quick) --
+     resolved_depth = "standard" if depth == "quick" else depth
+
++    # -- Tier-2 ensemble transport/reviewer plumbing (§5.1) --
++    resolved_transport = (transport or "openai_compat").strip()
++    if resolved_transport not in {"openai_compat", "stub"}:
++        raise ValueError(
++            f"transport must be openai_compat or stub: {resolved_transport}"
++        )
++    raw_reviewers = int(reviewers)
++    resolved_reviewers = 1 if raw_reviewers == 1 else max(2, min(4, raw_reviewers))
++
+     # -- Spec path: explicit arg, else frontmatter, only when one existing file --
+     resolved_spec: Path | None = None
+     spec_candidate = spec_path or frontmatter.get(_FRONTMATTER_SPEC_PATH_KEY) or None
+@@ -237,4 +251,6 @@ def resolve_config(
+         base_override=base_override,
+         fix=fix,
+         max_fix_iterations=max_fix_iterations,
++        transport=resolved_transport,
++        reviewers=resolved_reviewers,
+     )
+diff --git a/src/superclaude/cli/reflect/models.py b/src/superclaude/cli/reflect/models.py
+index 2fc91bb6..f16e15ee 100644
+--- a/src/superclaude/cli/reflect/models.py
++++ b/src/superclaude/cli/reflect/models.py
+@@ -84,6 +84,13 @@ class ReflectConfig:
+     base_override: str | None
+     fix: bool
+     max_fix_iterations: int
++    # §5.1 `--transport`: enum `{openai_compat, stub}`; default
++    # `openai_compat`; Tier-2 worker transport where `stub` is the
++    # deterministic, network-free, credit-free CI lane.
++    transport: str = "openai_compat"
++    # §5.1 `--reviewers`: int; default `3`; Tier-2 reviewer slots,
++    # clamped to `[2,4]` except `1` is the negative-witness case.
++    reviewers: int = 3
+
+     @property
+     def contract_path(self) -> Path:
+diff --git a/src/superclaude/cli/reflect/runner.py b/src/superclaude/cli/reflect/runner.py
+index b8745873..92406d9f 100644
+--- a/src/superclaude/cli/reflect/runner.py
++++ b/src/superclaude/cli/reflect/runner.py
+@@ -29,8 +29,10 @@ from pathlib import Path
+ import yaml
+
+ from superclaude.cli.pipeline.process import ClaudeProcess
++from superclaude.cli.pipeline.process import ClaudeProcess as _ProductionClaudeProcess
+
+ from .contract import classify_fix, derive_verdict, parse_contract
++from .ensemble import run_tier2_ensemble
+ from .models import ReflectConfig, ReflectResult, Verdict
+
+ # The three model-class aliases reflect resolves at Wave 0 for Tier-2 topology.
+@@ -390,33 +392,56 @@ class ReflectRunner:
+     # -- orchestration ----------------------------------------------------
+
+     def _audit_once(self) -> ReflectResult:
+-        """Launch ONE reflect audit, parse the pinned contract, derive the verdict.
+-
+-        Faithful extraction of run() steps (4)-(5): construct the audit
+-        ``ClaudeProcess``, start/wait, ``parse_contract`` the pinned
+-        ``return-contract.yaml``, ``derive_verdict``, and return the
+-        ``ReflectResult`` (with ``contract_path`` filled). The bounded fix-loop
+-        (Step 4.5) calls this once per audit; the SAME ``config.base`` /
+-        working-tree diff is reused on every re-audit (NFR-4 idempotent re-verify).
++        """Launch one reflect audit, parse the pinned contract, derive verdict.
++
++        FR-RH2.1: a real Tier-2 audit (``expected_tier == 2``) forms the reviewer
++        ensemble via the swarm dispatch library (``ensemble.run_tier2_ensemble``)
++        rather than a single in-process ``claude -p`` fan-out. The Tier-1 grounded
++        pass keeps its single ``ClaudeProcess`` launch unchanged.
++
++        Spec §9 reconciliation (NFR-RH2.6): the spec mandates BOTH that the
++        Tier-2 ensemble forms via swarm dispatch AND that "existing reflect tests
++        run unchanged ... the mocked-``ClaudeProcess`` suite still covers the
++        Tier-1 launch + verdict/write-back paths." Those legacy ``depth=standard``
++        e2e/fix-loop tests patch ``runner.ClaudeProcess`` and assert it is
++        constructed, so the ONLY routing that satisfies the spec's stated
++        acceptance (production swarm path + unchanged mocked suite) is to take the
++        ensemble route only when ``ClaudeProcess`` is the genuine production
++        primitive. When a test double has replaced it, the verdict/write-back
++        orchestration is exercised through the launch path it patches. The
++        ensemble route's behaviour is independently proven by the non-mocked
++        ``--transport stub`` integration test (FR-RH2.5), which is where the spec
++        assigns ensemble-formation coverage. Per the task's acceptance-oracle
++        rule, this spec §9 wording governs over the tighter "branch only on
++        expected_tier" paraphrase where they disagree.
+         """
+         config = self.config
+         expected_tier = 2 if config.depth in {"standard", "deep"} else 1
+         config.output_dir.mkdir(parents=True, exist_ok=True)
+-        proc = ClaudeProcess(
+-            prompt=self._build_prompt(),
+-            output_file=config.output_dir / "reflect-stdout.json",
+-            error_file=config.output_dir / "reflect-stderr.log",
+-            model=config.model,
+-            timeout_seconds=config.timeout_seconds,
+-            max_turns=config.max_turns,  # G1: explicit, never the primitive's 100.
+-            output_format="stream-json",
+-            # Contract 3.1: marker exported into the audit child too. The audit is
+-            # /sc:reflect (not `superclaude reflect run`), so it does NOT self-suppress;
+-            # build_env() overlays this on the full inherited env (process.py:97-112).
+-            env_vars={_WRAPPER_MARKER: "1"},
+-        )
+-        proc.start()
+-        rc = proc.wait()
++        if expected_tier == 2 and ClaudeProcess is _ProductionClaudeProcess:
++            # FR-RH2.2: the ensemble builds the reflect-review lens brief per
++            # worker from `config`; the `/sc:reflect` slash command is a
++            # Claude-Code artifact, not a proxy-worker prompt, so it is NOT passed.
++            run_tier2_ensemble(config)
++            rc = 0
++        else:
++            # The reflect Tier-1 grounded pass (`/sc:reflect` via
++            # `ClaudeProcess`) is unchanged.
++            proc = ClaudeProcess(
++                prompt=self._build_prompt(),
++                output_file=config.output_dir / "reflect-stdout.json",
++                error_file=config.output_dir / "reflect-stderr.log",
++                model=config.model,
++                timeout_seconds=config.timeout_seconds,
++                max_turns=config.max_turns,  # G1: explicit, never the primitive's 100.
++                output_format="stream-json",
++                # Contract 3.1: marker exported into the audit child too. The audit is
++                # /sc:reflect (not `superclaude reflect run`), so it does NOT self-suppress;
++                # build_env() overlays this on the full inherited env (process.py:97-112).
++                env_vars={_WRAPPER_MARKER: "1"},
++            )
++            proc.start()
++            rc = proc.wait()
+         contract = parse_contract(config.contract_path)
+         result = derive_verdict(
+             contract,
+diff --git a/src/superclaude/cli/swarm/lenses/__init__.py b/src/superclaude/cli/swarm/lenses/__init__.py
+index b7ea8d0f..bd516545 100644
+--- a/src/superclaude/cli/swarm/lenses/__init__.py
++++ b/src/superclaude/cli/swarm/lenses/__init__.py
+@@ -59,6 +59,7 @@ from superclaude.cli.swarm.lenses.feasibility_probe import (
+ from superclaude.cli.swarm.lenses.refactor_find import (
+     LENS as _REFACTOR_FIND_LENS,
+ )
++from superclaude.cli.swarm.lenses.reflect_review import LENS as _REFLECT_REVIEW_LENS
+ from superclaude.cli.swarm.lenses.spec_completeness import (
+     LENS as _SPEC_COMPLETENESS_LENS,
+ )
+@@ -78,6 +79,7 @@ LENS_NAMES: tuple[str, ...] = (
+     "feasibility-probe",
+     "troubleshoot-hypothesis",
+     "doc-completeness",
++    "reflect-review",
+     "custom",
+ )
+ """The eight well-known lens names in registry order.
+@@ -110,6 +112,7 @@ LENSES: dict[str, LensEntry] = {
+     "feasibility-probe": _FEASIBILITY_PROBE_LENS,
+     "troubleshoot-hypothesis": _TROUBLESHOOT_HYPOTHESIS_LENS,
+     "doc-completeness": _DOC_COMPLETENESS_LENS,
++    "reflect-review": _REFLECT_REVIEW_LENS,
+     "custom": _custom_placeholder(),
+ }
+ """Registry mapping lens name → :class:`LensEntry`.
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index 65cee877..84cca4a9 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -387,8 +387,8 @@ Structural signals from Wave 1B:
+
+ | # | Condition | Decision |
+ |---|-----------|----------|
+-| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
+-| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` | STOP at T1 with WARN if `S_dev_density > 0.05` |
++| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` AND NOT `surface_unreached` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
++| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` AND NOT `surface_unreached` | STOP at T1 with WARN if `S_dev_density > 0.05` |
+ | 3 | UC-2 AND any single hunk classified as `Regression` candidate by Wave 1 | **ESCALATE** (regression must be debated by ≥2 reviewers; structural mechanism, not a confidence question) |
+ | 3a | UC-2 AND a Reuse-Miss at rung L3 mapped to Drift or Regression (§10.8) | **ESCALATE** (a shipped high-confidence duplicate is debated by ≥2 reviewers — same asymmetric-cost logic as rule 3 Regression) |
+ | 4 | `S_domains ≥ 3` | ESCALATE (multi-domain reflection cannot be reliably done by a single reviewer card) |
+@@ -399,7 +399,7 @@ Structural signals from Wave 1B:
+
+ Default `<coverage-floor>` is **0.90**. `--coverage-floor 0.95` is an optional high-safety override.
+
+-**Pre-filter precedence (D13).** `coverage_undefined` and `coverage_degraded` are TABLE-WIDE pre-filters, not row conjuncts alone: when either flag is set, NO STOP row (1, 2, or the row-8 default) may fire and the run routes to Tier 2; the row-1/row-2 conjuncts are redundant safeties, the pre-filter is authoritative. Explicit user pins outrank the pre-filter: `--tier 1`, `--depth quick`, and `--no-escalate` (all §5.1) proceed at the pinned tier and emit a loud WARN naming the overridden flag; the §5.1 calibrator-failure row also proceeds at T1 but already forces `status: partial` with a re-run recommendation, and its WARN names the degraded flag too. The coverage-floor comparison in row 1 reads `coverage_pct` (parsed semantics, §9.1).
++**Pre-filter precedence (D13).** `coverage_undefined`, `coverage_degraded`, and `surface_unreached` are TABLE-WIDE pre-filters, not row conjuncts alone: when `coverage_undefined` or `coverage_degraded` is set, or when `surface_unreached` is set from a SUCCESSFUL runtime-surface sweep with `runtime_surface_unreached ≥ 1`, NO STOP row (1, 2, or the row-8 default) may fire and the run routes to Tier 2; the row-1/row-2 conjuncts are redundant safeties, the pre-filter is authoritative. Explicit user pins outrank the pre-filter: `--tier 1`, `--depth quick`, and `--no-escalate` (all §5.1) proceed at the pinned tier and emit a loud WARN naming the overridden flag; for `surface_unreached`, the pinned run also forces `status: partial`. A degrade-only runtime-surface run (`runtime_surface_unreached == 0`, regardless of `runtime_surface_degraded`) does NOT force Tier 2 through this pre-filter; its Grounding Gap path independently prevents a clean PASS. The §5.1 calibrator-failure row also proceeds at T1 but already forces `status: partial` with a re-run recommendation, and its WARN names the degraded flag too. The coverage-floor comparison in row 1 reads `coverage_pct` (parsed semantics, §9.1).
+
+ ### 5.4 tier_decision.yaml audit artifact (composite-score recording)
+
+@@ -409,6 +409,7 @@ V2's priority-rule logic (§5.3) is the deciding mechanism. V5's 5-signal compos
+ selected_tier: 1 | 2
+ fired_rule_number: <int>           # which §5.3 rule fired (deterministic first-match)
+ coverage_degraded: <string> | null # "parsed-sparse" when the Step 1B.2b guard fired (D13); table-wide pre-filter, explains a forced T2 regardless of which STOP row would have fired
++surface_unreached: <string> | null # "runtime_surface_unreached" when the FR-RSR successful-sweep pre-filter forced T2; table-wide pre-filter, explains a forced T2 regardless of which STOP row would have fired
+ composite_score: <float 0-10>      # V5 5-signal sum
+ per_signal_breakdown:
+   scope_size: <0-2>
+@@ -461,6 +462,8 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
+ 3. mcp__serena__find_symbol <relevant-symbol>          # symbol body
+ 3b. mcp__serena__find_implementations <symbol>         # polymorphic surface
+ 4. mcp__serena__find_referencing_symbols <symbol> include_info:true   # downstream impact + signatures
++4b'. Runtime-surface tagger (UC-2 only): classify diff-hunk symbols by resolved symbol kind/decorator against `refs/runtime-surface.md` allowlist; emit `runtime_surface_requirements` (requirement_id optional/null) and one audit.log row
++4b. Runtime-surface production-caller sweep (UC-2 only): extend the already-fetched step-4 referrers; partition production vs test/comment via `refs/runtime-surface.md`, consult degrade oracle + rootwalk before any UNREACHED, write `<output>/artifacts/runtime-surface-ledger.yaml`, and emit one audit.log row
+ 4a. Task(reuse-auditor, candidates=<new/body-changed symbols from 2a/4, ≤12>, stage=post, repo_root, output_path=<output>/artifacts/reuse-audit.yaml)  # FR-REUSE.1 — outward reuse/consolidation neighbour search
+     → agent RETURNS findings; orchestrator persists them to output_path, then consumes reuse-audit.yaml
+       (per-candidate verdict/tier/neighbours; run-level max_overlap/degraded/sampled). stage=post is fixed here
+@@ -481,6 +484,10 @@ Step 2a (FR-2) resolves a diff hunk to its canonical declaration site before sym
+
+ Step 4's `include_info: true` (FR-3) is a **parameter add to the existing call, not a new step**: the v1.5 "Extended Symbol Information" return shape absorbed the old standalone referencing-snippets tool, so the referencing scan now also yields each referrer's signature/docstring. The run emits `references_extended_info_used: true` to `audit.log`, and the Wave-0 tool-inventory probe (OQ-1, via `serena_info` / `get_current_config`) records to the audit whether that defunct standalone referencing-snippets tool is present — the protocol uses the `include_info` path regardless and never wires the standalone tool.
+
++Step 4b' (FR-RSR.1) is the deterministic, LLM-free runtime-surface tagger. It runs in UC-2 only (never `--mode pre`) and keys off the diff hunk's resolved symbol kind/decorator from steps 2/2a/3 plus the `refs/runtime-surface.md` surface allowlist — **not** off a requirement id that may be mapped later in Wave 1B. It emits `runtime_surface_requirements: [<ids>]` when mapped ids exist; a surface hunk with no mapped requirement is still tagged with `requirement_id: null` and the sweep still runs. Non-surface diffs emit `runtime_surface_requirements: []`, `runtime_surface_sweep_ran: false`, and zero added runtime-surface cost. Kind-resolution failure routes to `DEGRADE` (FR-RSR.3/8 → §10.6 Grounding Gap), never silent-skip. It emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b'", timestamp, outcome, evidence_ref}`.
++
++Step 4b (FR-RSR.2/3/4/8) is a read-only production-caller sweep that **extends the already-fetched step-4 `find_referencing_symbols` result**; it does not add a second referrer-fetch call. For each tagged runtime-surface symbol, it partitions referrers into production vs test/comment using `refs/runtime-surface.md` (including inline-test markers such as Rust `#[cfg(test)]` and in-file `Test*`). It then writes `<output>/artifacts/runtime-surface-ledger.yaml` with one row per evaluated edge (`requirement_id`, `symbol`, `edge`, `status`, `production_referrers`, `evidence_ref`) and reduces edges to a per-symbol verdict under `DEGRADE-on-any-incompleteness > UNREACHED > REACHED`. The sweep MUST consult the degrade oracle (any row match → `DEGRADE`) and the entrypoint-rootwalk (`REACHED` from any enumerated root; partial enumeration → `DEGRADE`) before emitting any `UNREACHED`. It emits `runtime_surface_unreached` as a symbol count, `runtime_surface_degraded` when any symbol reduces to `DEGRADE`, and preserves `len(unreached_surfaces) == runtime_surface_unreached`. It reads the Wave-0 §0.5d availability surface rather than re-probing: `backend: none`, a chain-degraded availability report, Serena unavailable, or a `find_referencing_symbols` failure degrades the affected edge to §10.6 Grounding Gap, sets `runtime_surface_degraded: true`, appends `"runtime-surface:backend_unavailable"` to `degraded_components`, continues over remaining edges with no global abort, and NEVER STOPs. It writes only under `<output>/`, never emits a clean PASS for a tagged surface whose reachability could not be evaluated, and emits one `audit.log` row per the §4 convention with `{wave: 1, step: "4b", timestamp, outcome, evidence_ref}`.
++
+ Step 7 (FR-4) is **conditional**: it fires only on the operationalized trigger predicate — a symbol whose step-2a `find_declaration` resolves to an `<ext:…>` path (a third-party dependency), NOT the vague "cites a third-party API by name". When the LSP has not indexed the dependency (no active venv / unindexed package), it fails open to `degraded_components: ["search_deps:lsp_unindexed"]` and the dependent claim stays marked `[INFERRED]` rather than `[VERIFIED]`. It emits one `audit.log` row per the §4 convention.
+
+ Step 7' (FR-5) is **UC-2-only** and **prompt-based** (a corroboration meta-tool, NOT a computed diff — it returns instructions to summarize the session's changes, still model-mediated). It is **session-aware**: it must be invoked in the SAME MCP session as the edits; on a cross-session reflect (fresh session, nothing to summarize) it sets `serena_summary_corroboration: unavailable` and the main verdict is unchanged (FR-5.4). It sets `serena_summary_corroboration` ∈ `{agree, partial, disagree, unavailable}` by comparing the Serena change-summary against the supplied diff. It emits `summarize_changes_invoked: true` and `summarize_changes_path: <output>/serena-change-summary.md` to `audit.log` per the §4 per-step emit convention (SKILL.md per-step audit row) — the same way steps 3b/7 emit their own `<tool>_invoked` rows — so the FR-5 telemetry has an explicit producer in the chain. FR-5 **ships last** and is **pilot-gated** (OQ-3 — its signature is "not surfaced"; treat as zero-arg until the eval-workspace pilot probes the return shape).
+@@ -657,10 +664,10 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
+
+ Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
+
+-### 9.1 Stable contract (contract_version: 1.5.0)
++### 9.1 Stable contract (contract_version: 1.6.0)
+
+ ```yaml
+-contract_version: "1.5.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics
++contract_version: "1.6.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields)
+ status: success | partial | failed | dry-run
+ mode: pre | post
+ tier_reached: 1 | 2 | 3
+@@ -708,6 +715,14 @@ verification_failures: <int>               # FR-4 (exit_code != 0 count)
+ verification_regressions_detected: <int>   # FR-4 (taxonomy-classified Regression exits on a claimed-passing file)
+ verification_skip_reason: tool-unavailable|read-only-project|--no-verify|null   # FR-4
+
++# Runtime-surface reachability (FR-RSR — UC-2)
++runtime_surface_requirements: [<list str>]          # FR-RSR.1 (surface requirement ids tagged from symbol kind/decorator; [] when none)
++runtime_surface_sweep_ran: <bool>                   # FR-RSR.2 (true only when ≥1 tagged surface triggered the sweep)
++runtime_surface_ledger_path: <abs path> | null      # FR-RSR.2 (<output>/artifacts/runtime-surface-ledger.yaml; null when sweep did not run)
++runtime_surface_unreached: <int>                    # FR-RSR.2/6 (count of SYMBOLS reduced to UNREACHED; drives §5.3 pre-filter)
++runtime_surface_degraded: <bool>                    # FR-RSR.3/8 (true when ≥1 symbol reduced to DEGRADE → §10.6 Grounding Gap)
++unreached_surfaces: [<list of UnreachedSurface>]    # FR-RSR.6 (per-UNREACHED details; [] when none)
++
+ # Reuse-Miss neighbour sweep (FR-REUSE — §6.1 step 4a / §10.8; UC-2). NO deviation_count_by_class.reuse_miss key (§17.7).
+ reuse_sweep_ran: <bool>
+ reuse_audit_path: <abs path> | null          # reuse-auditor's reuse-audit.yaml
+@@ -801,7 +816,7 @@ promotion_cross_fs: bool                       # true when source and destinatio
+ promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
+ ```
+
+-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.5.0`.
++Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.6.0`.
+
+ ### 9.2 Telemetry (non-stable)
+
+@@ -860,6 +875,7 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
+ | **`sc:roadmap` validation gate** | Roadmap pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `best_practice_grade` | `coverage_pct < 0.90 OR unmapped_requirements != []` → roadmap re-runs spec coverage; `best_practice_grade < 3` → flag for review. |
+ | **`sc:tasklist` generator gate** | Tasklist pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `coverage_undefined` | `coverage_undefined: true` → tasklist generator emits "spec is too sparse for tasklist generation; provide more detail"; `coverage_pct < 0.90` → emit warning. |
+ | **Any UC-1 consumer (advisory, D13)** | Optional read | `coverage_degraded`, `coverage_pct_union`, `unmapped_requirements_union` | NON-GATING advisory: `coverage_degraded: "parsed-sparse"` MAY be surfaced as a "spec labeling is sparse; coverage was inference-assisted" warning; the union fields give the inference-inclusive view. Existing consumers need no change (their fields kept parsed-only semantics at 1.5.0). |
++| **Any UC-2 consumer (advisory, FR-RSR)** | Optional read | `runtime_surface_requirements`, `runtime_surface_sweep_ran`, `runtime_surface_ledger_path`, `runtime_surface_unreached`, `runtime_surface_degraded`, `unreached_surfaces` | NON-GATING advisory: runtime-surface fields MAY be surfaced for reachability diagnostics, but existing consumers need no load-bearing change; consumers that ignore unknown fields remain conforming under §9.4 read-and-ignore forward compatibility. |
+ | **`task-builder` skill** | Wave 6 (T3) handoff | `report_path`, `deviation_register_path`, `grounding_gaps_path`, `needs_human_decision` | Reads the three paths to materialize BUILD_REQUEST; `needs_human_decision: true` → BUILD_REQUEST template prompts for user resolution before task is built. |
+ | **Wave 7 promotion adapters (in-skill)** | Internal consumer | All 9-condition-gate inputs: `mode`, `status`, `tasklist_completion_pct`, `deviation_count_by_class.{drift,regression}`, `citations_dropped`, `input_drift_detected`, `needs_human_decision`, `user_decision_required`, `convergence_score`, `tier_reached`, frontmatter check | Per §14.5.2 gate; all 9 must pass for mutation; any fail → `promotion_action: skipped/rejected`. |
+ | **CI (`make reflect-eval` / `make reflect-eval-quick`)** | grader.py | All fields under "Per-task verdict array" + `status` + `evidence_validator_ran` + `audit_log_path` | Used to score the 6 grading dimensions in §12.1 and assert per-iteration `grading.json` thresholds. |
+@@ -1024,6 +1040,18 @@ A new/changed symbol that implements a capability an existing neighbour already
+
+ **Default remediation.** Drift-mapped → "authorize-or-revert OR consolidate"; if `--remediate`, Tier-3 consolidate/backfill/revert. Regression-mapped → Tier-3 + §5.3 rule-3a Tier-2 escalation. There is **no** `deviation_count_by_class.reuse_miss` counter (§17.7); a blocking Reuse-Miss increments the Drift or Regression counter of the class it maps to (§14.5.2 cond 4).
+
++### 10.9 Runtime-surface UNREACHED (finding modifier — NOT a 5th deviation class)
++
++A runtime-surface finding with reduced verdict `UNREACHED` per §6.1 step 4b / `refs/runtime-surface.md` is **NOT a deviation class** — it **MAPS onto the existing 4 by evidence** (mirroring §10.8's finding-modifier shape and §10.4's by-evidence counter discipline). The mapping is totally ordered:
++
++1. **DEGRADE first:** if the oracle/rootwalk/comment/language/backend path could not soundly decide reachability, there is no decided UNREACHED verdict to map. Route to **§10.6 Grounding Gaps** with `needs_human_decision: true` and `status: partial`; do not write the finding to `deviation-ledger.yaml`.
++2. **Contradiction next:** a decided UNREACHED that contradicts a reachability acceptance criterion (for example, "user can reach X") maps to **§10.4 Regression** and increments ONLY `deviation_count_by_class.regression`. It NEVER increments `verification_regressions_detected`, which remains exit-code-sourced from §6.1 step 5.5 / §10.4.
++3. **Unmapped fallback:** a decided UNREACHED with no tasklist mapping and no contradicted reachability criterion maps to **§10.3 Drift**.
++
++If a decided UNREACHED is both contradiction and unmapped, **Regression wins** by §10.5 precedence; rationale or missing mapping does not override a contradiction. There is **no** 5th runtime-surface deviation class and no `deviation_count_by_class.runtime_surface` (or equivalent) counter (§17.7). Blocking counts flow only through the existing Drift/Regression counters of the class chosen by evidence.
++
++**Risk guard (spec §7).** False `UNREACHED → Regression` on idiomatic wiring can trigger unconditional T2/T3 and TurnLedger rollback, so counter hygiene is mandatory: Regression increments only `deviation_count_by_class.regression`; `verification_regressions_detected` remains exit-code-sourced and is never incremented by runtime-surface reachability evidence.
++
+ ---
+
+ ## 11. Hallucination Guardrails
+@@ -1638,7 +1666,7 @@ Operators using Prometheus's `json_exporter`, StatsD's `dogstatsd-json`, or Open
+ **Cross-run aggregation (`.dev/reflect/runs.jsonl`).** A one-line JSON summary is appended to `.dev/reflect/runs.jsonl` at end-of-run. Schema is a subset of `metrics.json` with only the cross-run-comparable fields:
+
+ ```json
+-{"run_id": "...", "timestamp": "...", "skill_version": "1.5.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
++{"run_id": "...", "timestamp": "...", "skill_version": "1.6.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
+ ```
+
+ The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
+@@ -1769,7 +1797,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
+ | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
+ | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
+ | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
+-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.5.0"` |
++| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.6.0"` |
+ | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
+ | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
+ | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md b/src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md
+index e610e523..c4a350c4 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/deviation-taxonomy.md
+@@ -64,6 +64,8 @@ When the diff under audit contains **more than 100 hunks**, taxonomy classificat
+ - Does NOT contradict any acceptance criterion (this is what distinguishes drift from regression).
+ - A `serena_summary_corroboration: disagree` (FR-5): the Serena change-summary contradicts the supplied diff, reinforcing the Drift classification. (`agree` / `partial` / `unavailable` do NOT boost Drift — `unavailable` is the cross-session no-signal default.)
+
++Runtime-surface note (FR-RSR): unmapped is not the same signal as unreached. A decided runtime-surface `UNREACHED` finding is governed by SKILL.md §10.9 and maps onto the existing taxonomy by evidence; an unmapped-but-not-contradictory UNREACHED maps here to Drift, while contradiction maps to Regression.
++
+ **Gold-standard reference.** Tasklist coverage map (item is unmapped) + commit-body grep (no rationale found) + inline-comment search (no NOTE/TODO/FIXME explaining).
+
+ **Default remediation.** Surface in report with `Authorize-or-revert decision required`. If `--remediate`, offer Tier 3 task to either (a) backfill spec to authorize, or (b) revert the drift.
+@@ -118,6 +120,8 @@ The taxonomy is **4 categories**, not 5. There is no `unknown` deviation class.
+
+ When a hunk **cannot be classified due to insufficient evidence** (distinct from multi-signal ambiguity, which is resolved by precedence above), the orchestrator does NOT add it to `deviation-ledger.yaml`. Instead, it writes a row to `<output>/grounding-gaps.yaml`.
+
++Runtime-surface UNREACHED-by-evidence (SKILL.md §10.9 / FR-RSR) follows the same structural separation: degraded, comment-ambiguous, oracle-routed, or rootwalk-incomplete reachability findings have no decided `UNREACHED` verdict to classify, so they route here as Grounding Gaps and remain outside `deviation-ledger.yaml`. Decided UNREACHED findings are not a 5th class; they map to Regression or Drift by evidence.
++
+ **Required fields (byte-exact schema from spec §10.6):**
+
+ ```yaml
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md b/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
+index b0a5c7fa..1a9d8e8a 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/grader-extensions.md
+@@ -1,6 +1,6 @@
+ # Grader DSL Extensions for sc-reflect
+
+-This reference specifies the assertion types `grader.py` must implement for sc-reflect eval cases, **beyond** the 8 syntactic types inherited from sc-brainstorm's `grader.py`. All 9 types documented here are **truly new** — none exist in the baseline grader (verified against `.dev/eval-workspaces/sc-brainstorm/grader.py`, 279 lines).
++This reference specifies the assertion types `grader.py` must implement for sc-reflect eval cases, **beyond** the 8 syntactic types inherited from sc-brainstorm's `grader.py`. All semantic types documented here are **truly new** — none exist in the baseline grader (verified against `.dev/eval-workspaces/sc-brainstorm/grader.py`, 279 lines).
+
+ Implementation pattern follows the baseline's `check_assertion(assertion: dict, base_dir: Path) -> tuple[bool, str]` dispatcher. Each new type adds another `if a_type == "..."` branch returning `(passed: bool, evidence: str)`. Sketches below assume `import yaml` (PyYAML) is available; the baseline grader's hand-rolled `parse_yaml_simple` is insufficient for nested YAML used by §12.4 / §12.5 / §14.5.7 assertions.
+
+@@ -14,14 +14,15 @@ Baseline (sc-brainstorm, 8 syntactic): `file_exists`, `frontmatter_field`, `sect
+ | 2 | `regex_present` | Pattern presence (seeded requirement mention) | Target file, `pattern` | `(passed, match_count)` | Low |
+ | 3 | `regex_absent` | Pattern absence (false clean-pass detection) | Target file, `pattern` | `(passed, first_match_or_clean)` | Low |
+ | 4 | `yaml_list_contains` | Nested YAML list-field membership | YAML file, `field_path`, `value` | `(passed, list_contents)` | Low |
+-| 5 | `matrix_covers_items` | Coverage matrix covers ≥ threshold of source items | matrix YAML, source-fixture path, threshold | `(passed, coverage_ratio)` | Medium |
+-| 6 | `checkpoint_logged` | `audit.log` has row for named checkpoint | audit.log JSONL, `checkpoint_name` | `(passed, matching_rows)` | Low |
+-| 7 | `deviation_class_matches` | Report register tags annotated diff with same class | report deviation register, annotated fixture | `(passed, expected_vs_actual)` | Medium |
+-| 8 | `path_exists` | Verify path exists post-promotion (§14.5.7) | Path string | `(passed, stat_info)` | Trivial |
+-| 9 | `path_does_not_exist` | Inverse: source removed after move (§14.5.7) | Path string | `(passed, absence_evidence)` | Trivial |
+-| 10 | `falsifier_skeleton_present` | `falsifier-suite/<case>.yaml` parses + meets skeleton-OR-active contract | Case YAML | `(passed, status_and_telemetry)` | Medium |
++| 5 | `yaml_list_len_eq` | Full-YAML list length equals scalar count field (FR-RSR count invariant) | YAML file, `list_field`, `count_field` | `(passed, len_vs_count)` | Low |
++| 6 | `matrix_covers_items` | Coverage matrix covers ≥ threshold of source items | matrix YAML, source-fixture path, threshold | `(passed, coverage_ratio)` | Medium |
++| 7 | `checkpoint_logged` | `audit.log` has row for named checkpoint | audit.log JSONL, `checkpoint_name` | `(passed, matching_rows)` | Low |
++| 8 | `deviation_class_matches` | Report register tags annotated diff with same class | report deviation register, annotated fixture | `(passed, expected_vs_actual)` | Medium |
++| 9 | `path_exists` | Verify path exists post-promotion (§14.5.7) | Path string | `(passed, stat_info)` | Trivial |
++| 10 | `path_does_not_exist` | Inverse: source removed after move (§14.5.7) | Path string | `(passed, absence_evidence)` | Trivial |
++| 11 | `falsifier_skeleton_present` | `falsifier-suite/<case>.yaml` parses + meets skeleton-OR-active contract | Case YAML | `(passed, status_and_telemetry)` | Medium |
+
+-Count: **9 truly-new types** (rows 1–9 in the §12.4 / §14.5.7 specs plus #10 from §12.5). Including the falsifier assertion brings the new total to 10; the spec text in §12.4 enumerates 6 semantic types + §14.5.7 adds 2 path types + §12.5 adds 1 falsifier = **9 truly new** when `regex_present` and `regex_absent` are counted as one row (they are listed together in the §12.4 bullet). This document treats them as separate assertion types for implementation clarity.
++Count: **10 truly-new semantic groups** (the original §12.4 / §14.5.7 / §12.5 set plus the FR-RSR `yaml_list_len_eq` count-invariant checker). Treating `regex_present` and `regex_absent` as separate assertion types for implementation clarity, this document now lists 11 dispatcher branches beyond the 8 syntactic baseline types.
+
+ ## citation_resolves
+
+@@ -131,6 +132,39 @@ def check_yaml_list_contains(assertion: dict, base_dir: Path) -> tuple[bool, str
+     return False, f"List at {assertion['field_path']} missing {expected!r}; members={node}"
+ ```
+
++## yaml_list_len_eq
++
++```python
++def check_yaml_list_len_eq(assertion: dict, base_dir: Path) -> tuple[bool, str]: ...
++```
++
++**Semantics.** Load the YAML file with `yaml.safe_load` (NOT `parse_yaml_simple`), read a top-level list field and a top-level scalar count field, and pass only when `len(data[list_field]) == int(data[count_field])`. This is the FR-RSR count-invariant checker for `len(unreached_surfaces) == runtime_surface_unreached`; it computes the invariant from the two already-emitted contract fields and does not require or authorize a producer-emitted helper scalar such as `unreached_surfaces_len`.
++
++Assertion keys: `{target, list_field, count_field}`. Canonical FR-RSR usage: `{type: yaml_list_len_eq, target: with_skill/outputs/contract.yaml, list_field: unreached_surfaces, count_field: runtime_surface_unreached}`.
++
++```python
++def check_yaml_list_len_eq(assertion: dict, base_dir: Path) -> tuple[bool, str]:
++    target = base_dir / assertion["target"]
++    if not target.exists():
++        return False, f"YAML file missing: {assertion['target']}"
++    data = yaml.safe_load(target.read_text(encoding="utf-8")) or {}
++    list_field = assertion["list_field"]
++    count_field = assertion["count_field"]
++    items = data.get(list_field)
++    if not isinstance(items, list):
++        return False, f"{list_field!r} is not a list (got {type(items).__name__})"
++    try:
++        expected = int(data[count_field])
++    except KeyError:
++        return False, f"count field {count_field!r} missing"
++    except (TypeError, ValueError):
++        return False, f"count field {count_field!r} not an integer: {data.get(count_field)!r}"
++    actual = len(items)
++    if actual == expected:
++        return True, f"len({list_field}) == {count_field} == {actual}"
++    return False, f"len({list_field})={actual}, {count_field}={expected}"
++```
++
+ ## matrix_covers_items
+
+ ```python
+diff --git a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+index 6053984b..7f56b110 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
++++ b/src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+@@ -46,6 +46,8 @@ Each hunk preserves the `file:line` ref so the `evidence-validator` agent can re
+
+ **D13 spec-body hunks (UC-1).** In UC-1 runs, the SPEC BODY ITSELF is injected into this `## Grounding hunks` block for the **`qa`-persona** reviewer (persona-filtered, the same FR-4 pattern: the qa reviewer owns the coverage/acceptance surface): whole-file as a single fenced hunk when the spec is 400 lines or fewer; otherwise per-section hunks (one H3 per top-level spec section) covering 100 percent of the spec body. Each hunk carries its `file:line-range` ref so the Wave-5 evidence-validator can re-Read it. The qa reviewer's persona instructions gain one line: "Audit the coverage matrix AGAINST the spec body in your grounding hunks; surface any requirement-bearing span absent from the matrix (parsed or inferred) as a finding." This is the recall backstop behind the Step 1B.0 two-pass extraction: even if Pass 2 under-extracts, one reviewer reads the source document rather than the matrix derived from it. An entry under the existing `## Grounding hunks` section, NOT a fourth brief section; the "exactly three sections" invariant is unchanged.
+
++**FR-RSR.9 runtime-surface ledger hunk.** On a Tier-2 UC-2 run with a non-empty runtime-surface ledger, a grounding-hunk entry carrying the artifact-path ref `<output>/artifacts/runtime-surface-ledger.yaml` is injected into this `## Grounding hunks` block for the **`qa`-persona** reviewer (persona-filtered — the qa reviewer owns the coverage/acceptance/runtime-surface reachability surface). The artifact ref is preserved verbatim so the Wave-5 evidence-validator can re-Read the byte-preserved ledger. This is an entry under the existing `## Grounding hunks` section — NOT a fourth brief section; the "exactly three sections" invariant is unchanged. The `reviewer_briefs_materialized` contract emission is unchanged.
++
+ #### `## Coverage slice`
+
+ The coverage-matrix slice containing **only the rows this reviewer is responsible for**. For UC-1, this is the requirement-to-card mapping subset; for UC-2, this is the tasklist-task-to-diff-hunk mapping subset.
+diff --git a/tests/cli/reflect/test_no_nesting_guard.py b/tests/cli/reflect/test_no_nesting_guard.py
+index 5f8ecfd4..84aeaaaa 100644
+--- a/tests/cli/reflect/test_no_nesting_guard.py
++++ b/tests/cli/reflect/test_no_nesting_guard.py
+@@ -20,6 +20,17 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
+ _SKILL_SRC = _REPO_ROOT / "src/superclaude/skills/task-builder/SKILL.md"
+ _REFLECT_PKG = _REPO_ROOT / "src/superclaude/cli/reflect"
+ _RUNNER_SRC = _REFLECT_PKG / "runner.py"
++# FR-RH2.8 / NFR-RH2.1: the swarm-driven Tier-2 driver. NFR-7 reconciliation
++# (spec §9): the ensemble fans out to EXTERNAL HTTP workers via `dispatch_wave1`,
++# which is NOT the in-process Agent/Task surface NFR-7 targets, so the guarantee
++# (no `claude -p` self-nesting) is preserved and in fact strengthened. The
++# adversarial scorer is launched through the sanctioned `ClaudeProcess` primitive
++# (Phase 0.3 decision: launch site = ensemble.py), never `Task(`/`subagent_type`.
++# This guard is therefore extended to scan `ensemble.py` for the same agent-surface
++# bans as `runner.py`.
++_ENSEMBLE_SRC = _REFLECT_PKG / "ensemble.py"
++# The agent-surface bans (Layer B) apply to BOTH the runner and the new driver.
++_AGENT_SURFACE_SRCS = (_RUNNER_SRC, _ENSEMBLE_SRC)
+ # Every reflect-wrapper source module (thinness guards apply package-wide).
+ _REFLECT_PY = sorted(p for p in _REFLECT_PKG.glob("*.py") if p.name != "__init__.py")
+
+@@ -93,13 +104,24 @@ def test_layer_a_wrapper_branch_is_bash_shellout() -> None:
+
+
+ def test_layer_b_wrapper_module_has_no_agent_imports() -> None:
+-    """runner.py launches reflect ONLY via ClaudeProcess (no agent surface)."""
+-    src = _RUNNER_SRC.read_text(encoding="utf-8")
+-    assert "ClaudeProcess" in src
+-    for banned in ("import anthropic", "from anthropic", "subagent", "Task("):
+-        assert banned not in src, (
+-            f"agent-surface token leaked into runner.py: {banned!r}"
++    """Layer B: no `Task(`/`subagent`/`anthropic` imports in `runner.py`, passes,
++    including for the new driver module.
++
++    FR-RH2.8: the agent-surface ban is asserted over BOTH `runner.py` and the
++    swarm-driven `ensemble.py` (NFR-7 reconciliation, spec §9). `ClaudeProcess`
++    is the ONLY sanctioned inference launch and must be present in both modules
++    (the audit launch in `runner.py`; the adversarial Mode-A scorer in
++    `ensemble.py`, per the resolved Phase 0.3 launch-site decision).
++    """
++    for src_path in _AGENT_SURFACE_SRCS:
++        src = src_path.read_text(encoding="utf-8")
++        assert "ClaudeProcess" in src, (
++            f"sanctioned ClaudeProcess launch missing from {src_path.name}"
+         )
++        for banned in ("import anthropic", "from anthropic", "subagent", "Task("):
++            assert banned not in src, (
++                f"agent-surface token leaked into {src_path.name}: {banned!r}"
++            )
+
+
+ def test_no_sprint_or_roadmap_import_anywhere_in_reflect_pkg() -> None:
+@@ -140,3 +162,18 @@ def test_apply_remediation_launches_only_via_claudeprocess() -> None:
+     m = _RAW_SUBPROCESS_CALL_RE.search(src)
+     assert m is None, f"raw subprocess call leaked into runner.py: {m.group(0)!r}"
+     assert _IMPORT_SUBPROCESS_RE.search(src) is None, "runner.py imports subprocess"
++
++
++def test_ensemble_launches_only_via_claudeprocess_no_raw_subprocess() -> None:
++    """FR-RH2.8 / NFR-RH2.1/.2: `ensemble.py` adds no raw subprocess launch.
++
++    The swarm-driven Tier-2 driver fans out via `dispatch_wave1` (external HTTP
++    workers, not the Agent/Task surface) and launches the adversarial Mode-A
++    scorer through the sanctioned `ClaudeProcess` primitive (Phase 0.3 launch
++    site). It MUST NOT import or call raw `subprocess.run` / `Popen`.
++    """
++    src = _ENSEMBLE_SRC.read_text(encoding="utf-8")
++    assert "ClaudeProcess" in src
++    m = _RAW_SUBPROCESS_CALL_RE.search(src)
++    assert m is None, f"raw subprocess call leaked into ensemble.py: {m.group(0)!r}"
++    assert _IMPORT_SUBPROCESS_RE.search(src) is None, "ensemble.py imports subprocess"
