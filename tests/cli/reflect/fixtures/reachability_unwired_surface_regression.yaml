@@ -1,0 +1,39 @@
+contract_version: "1.7.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /tmp/reflect-out/REPORT.md
+audit_log_path: /tmp/reflect-out/audit.log
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 1
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+adversarial_unavailable: false
+merge_method: adversarial
+adversarial_convergence_score: 0.88
+verification_ran: true
+verification_skip_reason: null
+verification_regressions_detected: 1
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+regression_present: true
+unauthorized_deviation_present: false
+needs_human_decision: true
+user_decision_required: false
+serena_summary_corroboration: unavailable
+degraded_components: []
+# FR-RH1 R5 §5.3 positive-Regression falsifier: an unwired production surface whose
+# annotated contracted sink is UNOBSERVED by a REAL boot resolves to Regression (category C),
+# NOT a degrade-only pass (category B) and NOT a clean pass. The distinguishing precondition
+# vs the proxy-oracle-unproven case is reachability_real_boot_ran: true with unreachable >= 1.
+reachability_gate_ran: true
+reachability_ledger_path: /tmp/reflect-out/runtime-reachability-ledger.yaml
+reachability_requirements_scanned: 1
+reachability_unreachable: 1
+reachability_unproven: 0
+reachability_real_boot_ran: true
+reachability_skip_reason: null

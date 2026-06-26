@@ -67,6 +67,16 @@ The five dimensions (spec §5.2 line 331) are:
 - `0.40-0.69` — recommendations are directional but lack concrete targets
 - `< 0.40` — recommendations are platitudes; an executor cannot act on them
 
+**Contracted-sink reachability / oracle-admissibility (FR-RH1, UC-2) — folded into the five dimensions above; NOT a sixth dimension.** For every side-effect-bearing requirement with an explicit `durable_sink:` / `@sink` annotation, the calibrator additionally scores:
+
+- **Citation grounding (dim 1):** a completion claim is grounded ONLY if its oracle observes the *contracted* sink; evidence from a proxy sink (journald/slog/stdout/unit-pass/code-presence) is `[INFERRED]`, not grounded, and real-boot evidence anchors must resolve.
+- **Coverage completeness (dim 2):** every annotated side-effect requirement must carry a reachability ledger row (`reachable` / `unreachable` / `unproven`); an unevaluated annotated sink caps this dimension.
+- **Deviation-classification clarity (dim 3):** `unreachable` (real-boot-proven Regression) and `unproven` (Grounding Gap) must be distinguished *by evidence* — a static-only signal classified as Regression caps this dimension.
+- **Risk surface coverage (dim 4):** fail-open reachability (contracted sink never reached while unit tests pass) is the canonical risk this dimension exists to surface; an audit that reports "tests pass" over an unaddressed `unreachable`/`unproven` ledger row caps it.
+- **Recommendation actionability (dim 5):** an `unproven` gap's recommendation must name the concrete next evidence (boot the entrypoint and assert the contracted sink, or confirm the sink binding).
+
+Telemetry-only skips (`--no-reachability`, `spec-and-tasklist-absent`, `no-side-effect-requirements`) and advisory-only semantic fallback do NOT cap any dimension and never count against the score.
+
 **Threshold guidance.** Per spec §5.3, `C ≥ 0.90` is the strict T1 ceiling and `C ≥ 0.85` is the medium-confidence floor inherited from sc-troubleshoot. `C < 0.85` is an automatic ESCALATE.
 
 ---

@@ -11,7 +11,7 @@ Wave 5 MUST NOT introduce findings that were not already classified upstream. Un
 The header block is the first content in the emitted artifact. It is rendered as a fenced YAML block so downstream parsers (sprint TurnLedger, CI) can lift fields without Markdown parsing.
 
 ```yaml
-contract_version: 1.5.0
+contract_version: 1.7.0
 status: success | partial | needs_human_decision
 mode: pre | post
 tier_reached: 1 | 2
@@ -22,6 +22,13 @@ citations_dropped: <int>              # sample-count when sampled; absolute when
 citations_inferred: <int>             # count of [INFERRED]-tagged claims
 citation_budget_policy: full_reread | sampled
 coverage_degraded: parsed-sparse | null   # D13 Step 1B.2b guard; null when labeling density is healthy (UC-1 only; omit in post mode)
+reachability_gate_ran: <bool>            # FR-RH1 (UC-2, contract 1.7.0); UC-1 may omit the reachability_* block
+reachability_ledger_path: <abs path> | null          # null when the gate did not run
+reachability_requirements_scanned: <int>             # side-effect-bearing requirements evaluated
+reachability_unreachable: <int>                      # real-boot-proven Regression rows
+reachability_unproven: <int>                         # annotated-sink Grounding-Gap rows
+reachability_real_boot_ran: <bool>                   # best-effort boot fired at least once
+reachability_skip_reason: --no-reachability|no-side-effect-requirements|spec-and-tasklist-absent|null
 ```
 
 Required fields (header is invalid if any are missing):
@@ -101,6 +108,28 @@ Section template (one block per gap):
 ```
 
 Each row maps 1:1 to a row in `grounding-gaps.yaml`; Wave 5 does NOT introduce new gaps. If this section is non-empty, the header MUST emit `status: needs_human_decision` (per §10.6).
+
+## Reachability & Oracle Admissibility section (UC-2, FR-RH1)
+
+This section renders only when the §6.1 step-5.6 contracted-sink gate ran (`reachability_gate_ran: true`). When the gate skipped (`reachability_skip_reason ∈ {--no-reachability, spec-and-tasklist-absent, no-side-effect-requirements}`) the section is omitted entirely and only the header `reachability_*` skip telemetry is emitted — a skip is NEVER rendered as a Grounding Gap and NEVER sets `needs_human_decision` or `status: partial`.
+
+When rendered, it summarizes the R7 fields and lists one finding per evaluated side-effect requirement from the reachability ledger:
+
+```markdown
+## Reachability & Oracle Admissibility
+
+- **Gate:** ran (scanned: <reachability_requirements_scanned>, real boot: <reachability_real_boot_ran>)
+- **Unreachable (real-boot-proven Regression):** <reachability_unreachable>
+- **Unproven (annotated-sink Grounding Gap):** <reachability_unproven>
+
+### Sink <contracted_sink> — <verdict>
+- **Requirement:** <ac-id / file:line>
+- **Reachability:** binding <bound|absent> at <entrypoint_ref>; emitter result <checked|discarded> at <emitter_ref>
+- **Oracle:** observed sink <contracted|proxy> at <oracle_ref> (oracle_match: <bool>)
+- **Real-boot evidence:** <command + observed-sink anchor, or "real-boot unavailable">
+```
+
+**Regression vs Grounding Gap rendering (FR-RH1).** A `verdict: unreachable` renders as a Regression D-<id> (real-boot-proven only). A `verdict: unproven` renders a Grounding Gap row **only** when it arises from an explicit `durable_sink:` / `@sink` annotated side-effect requirement with `reachability_unproven > 0`. Grounding Gaps are NEVER rendered for `--no-reachability`, `spec-and-tasklist-absent`, `no-side-effect-requirements`, or semantic-only fallback telemetry; advisory semantic-fallback candidates render (if at all) as non-gating `[INFERRED]` notes, never as gaps.
 
 ## Per-Task Verdicts section (P4-MANDATORY when per_task_verdicts.length ≥ 2)
 

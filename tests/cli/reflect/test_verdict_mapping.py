@@ -274,3 +274,90 @@ def test_status_failed_halts_with_status_failed_reason() -> None:
     assert result.verdict is Verdict.HALTED
     assert result.verdict.exit_code == 10
     assert result.reason == "status-failed"
+
+
+def test_reachability_1_7_0_additive_fields_tolerated() -> None:
+    """FR-RH1 R4/R7: a 1.7.0 contract carrying only the canonical R7 reachability block
+    (gate ran, all clean) is tolerated by the consumer -> pass / 0."""
+    result = derive_verdict(
+        _load("reachability_1_7_0_gate_ran.yaml"),
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+
+def test_reachability_no_reachability_skip_is_telemetry_only() -> None:
+    """FR-RH1 R2: --no-reachability skip is telemetry-only -> pass / 0 (no degrade/halt)."""
+    contract = _load("reachability_skip_no_reachability.yaml")
+    assert contract["reachability_gate_ran"] is False
+    assert contract["reachability_skip_reason"] == "--no-reachability"
+    assert contract["reachability_ledger_path"] is None
+    assert contract["needs_human_decision"] is False
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+
+def test_reachability_spec_absent_skip_is_telemetry_only() -> None:
+    """FR-RH1 R3: spec-and-tasklist-absent skip is telemetry-only -> pass / 0."""
+    contract = _load("reachability_skip_spec_absent.yaml")
+    assert contract["reachability_skip_reason"] == "spec-and-tasklist-absent"
+    assert contract["reachability_gate_ran"] is False
+    assert contract["needs_human_decision"] is False
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+
+def test_reachability_semantic_fallback_advisory_does_not_gate() -> None:
+    """FR-RH1 R9: semantic fallback without an explicit durable_sink:/@sink annotation is
+    advisory-only -> does not route to DEGRADED/HALTED and does not increment unproven."""
+    contract = _load("reachability_semantic_fallback_advisory.yaml")
+    assert contract["reachability_unproven"] == 0
+    assert contract["needs_human_decision"] is False
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+
+def test_reachability_proxy_oracle_unproven_is_not_regression_but_halts() -> None:
+    """FR-RH1 R1: proxy/oracle-only evidence (no real boot) can NEVER green a real-boot
+    Regression. The unproven Grounding Gap halts for human decision (exit 10) while
+    regression_present stays false and reachability_unreachable stays 0."""
+    contract = _load("reachability_proxy_oracle_unproven.yaml")
+    assert contract["reachability_unproven"] == 1
+    assert contract["reachability_unreachable"] == 0
+    assert contract["reachability_real_boot_ran"] is False
+    assert contract["regression_present"] is False
+    assert contract["needs_human_decision"] is True
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.HALTED
+    assert result.verdict.exit_code == 10
+
+
+def test_reachability_unwired_surface_real_boot_is_regression_not_degrade() -> None:
+    """R5 §5.3 falsifier: an annotated contracted sink unobserved by a REAL boot
+    (real_boot_ran true, unreachable>=1) resolves to Regression -> HALTED/10,
+    NOT a degrade-only pass and NOT a clean pass. Together with the proxy-oracle
+    unproven test this forms the complete B-vs-C discriminator: proxy-only ->
+    unproven/HALT (not regression); real-boot-unobserved -> Regression/HALT."""
+    contract = _load("reachability_unwired_surface_regression.yaml")
+    assert contract["reachability_real_boot_ran"] is True
+    assert contract["reachability_unreachable"] >= 1
+    assert contract["regression_present"] is True
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.HALTED
+    assert result.verdict.exit_code == 10

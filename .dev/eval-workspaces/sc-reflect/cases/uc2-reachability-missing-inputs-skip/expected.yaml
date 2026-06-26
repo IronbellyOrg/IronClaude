@@ -1,0 +1,16 @@
+# FR-RH1 R3 producer telemetry-only skip: run with --diff only (neither --spec nor --tasklist).
+# No authoritative contracted sink -> no blocking gate; any diff-side shape is non-blocking
+# telemetry only. No Grounding Gap, no needs_human_decision, no status change from reachability.
+contract_version: "1.7.0"
+reachability_gate_ran: false
+reachability_skip_reason: "spec-and-tasklist-absent"
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+needs_human_decision: false
+status: success
+falsifies: >
+  An implementation that creates a Grounding Gap, sets reachability_unproven, sets
+  needs_human_decision, or changes status when spec/tasklist are both absent is wrong (R3).

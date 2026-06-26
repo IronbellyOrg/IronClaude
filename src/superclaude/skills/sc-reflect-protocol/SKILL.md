@@ -399,8 +399,8 @@ Structural signals from Wave 1B:
 
 | # | Condition | Decision |
 |---|-----------|----------|
-| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` AND NOT `surface_unreached` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
-| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` AND NOT `surface_unreached` | STOP at T1 with WARN if `S_dev_density > 0.05` |
+| 1 | `C ≥ 0.90` AND `S_scope ≤ 5 files` AND `S_domains == 1` AND `S_dev_density ≤ 0.05` AND `coverage_pct ≥ <coverage-floor>` AND NOT `coverage_undefined` AND NOT `coverage_degraded` AND NOT `surface_unreached` AND NOT `reachability_unreachable` | **STOP at T1** — high confidence, narrow scope, single domain, near-zero ambiguity |
+| 2 | `C ≥ 0.85` AND `S_scope ≤ 10 files` AND `S_domains ≤ 2` AND `S_dev_density ≤ 0.10` AND NOT `coverage_degraded` AND NOT `surface_unreached` AND NOT `reachability_unreachable` | STOP at T1 with WARN if `S_dev_density > 0.05` |
 | 3 | UC-2 AND any single hunk classified as `Regression` candidate by Wave 1 | **ESCALATE** (regression must be debated by ≥2 reviewers; structural mechanism, not a confidence question) |
 | 3a | UC-2 AND a Reuse-Miss at rung L3 mapped to Drift or Regression (§10.8) | **ESCALATE** (a shipped high-confidence duplicate is debated by ≥2 reviewers — same asymmetric-cost logic as rule 3 Regression) |
 | 4 | `S_domains ≥ 3` | ESCALATE (multi-domain reflection cannot be reliably done by a single reviewer card) |
@@ -412,6 +412,8 @@ Structural signals from Wave 1B:
 Default `<coverage-floor>` is **0.90**. `--coverage-floor 0.95` is an optional high-safety override.
 
 **Pre-filter precedence (D13).** `coverage_undefined`, `coverage_degraded`, and `surface_unreached` are TABLE-WIDE pre-filters, not row conjuncts alone: when `coverage_undefined` or `coverage_degraded` is set, or when `surface_unreached` is set from a SUCCESSFUL runtime-surface sweep with `runtime_surface_unreached ≥ 1`, NO STOP row (1, 2, or the row-8 default) may fire and the run routes to Tier 2; the row-1/row-2 conjuncts are redundant safeties, the pre-filter is authoritative. Explicit user pins outrank the pre-filter: `--tier 1`, `--depth quick`, and `--no-escalate` (all §5.1) proceed at the pinned tier and emit a loud WARN naming the overridden flag; for `surface_unreached`, the pinned run also forces `status: partial`. A degrade-only runtime-surface run (`runtime_surface_unreached == 0`, regardless of `runtime_surface_degraded`) does NOT force Tier 2 through this pre-filter; its Grounding Gap path independently prevents a clean PASS. The §5.1 calibrator-failure row also proceeds at T1 but already forces `status: partial` with a re-run recommendation, and its WARN names the degraded flag too. The coverage-floor comparison in row 1 reads `coverage_pct` (parsed semantics, §9.1).
+
+**Reachability-dominance precedence (FR-RH1, P-1).** A real-boot-proven `reachability_unreachable > 0` (FR-RH1 §6.1 step 5.6) ORDERS ABOVE B's static `surface_unreached` Tier-2 routing. The two signals route differently and must NOT be conflated: `surface_unreached` (FR-RSR) fires only on a SUCCESSFUL static runtime-surface sweep with `runtime_surface_unreached ≥ 1` and is a degrade-only **Tier-2 routing** pre-filter (it does not by itself set `regression_present` or STOP); `reachability_unreachable` (FR-RH1) is set ONLY when a real-boot verifier observed the contracted sink absent, which maps via §10.4 to a **Regression** (`regression_present: true`) and trips §5.3 rule 3 (ESCALATE — a real Regression debated by ≥2 reviewers, escalate-and-block). Therefore when both are present, the real-boot `reachability_unreachable` Regression DOMINATES: the run escalates and blocks via rule 3 / §10.4, not merely routes to Tier 2 via the degrade-only `surface_unreached` path. The `AND NOT reachability_unreachable` conjuncts on STOP rows 1/2 are redundant safeties that ensure a real-boot Regression is never masked into a T1 STOP by an otherwise-clean surface sweep; the §10.4 Regression mapping is authoritative. B's `surface_unreached` rows and the FR-RSR degrade-only routing are PRESERVED unchanged — this clause is additive and orders the two signals, it does not remove the static-surface path.
 
 ### 5.4 tier_decision.yaml audit artifact (composite-score recording)
 
@@ -487,6 +489,7 @@ For every touched file in UC-2, or every spec-referenced module in UC-1:
 4.5. mcp__serena__type_hierarchy(hierarchy_type=both|subtypes, depth=0)  # transitive family (backend+--with-hierarchy gated)
 5. mcp__serena__get_diagnostics_for_file <file>        # LSP-level issues
 5.5. mcp__serena__execute_shell_command (scoped verify) # UC-2 verification triangle (safety envelope §6.1.1)
+5.6. contracted-sink reachability & oracle-admissibility gate  # UC-2, side-effect-bearing reqs only; real-boot-only Regression (§6.1 step 5.6; FR-RH1)
 6. Re-Read each cited file:line range before quoting    # citation-grounding
 7. mcp__serena__find_symbol <symbol> search_deps:true   # third-party / dependency surface
 7'. mcp__serena__summarize_changes   # UC-2 corroboration vs supplied diff
@@ -509,6 +512,8 @@ Step 7' (FR-5) is **UC-2-only** and **prompt-based** (a corroboration meta-tool,
 Step 4.5 (FR-RV3-MED.1) retrieves a type's **transitive supertype/subtype family** in one call. It runs ONLY when (a) the Wave-0 step 0.5d backend probe reports a hierarchy-capable backend, (b) `--with-hierarchy` is set, and (c) the located symbol is a type (FR-1.1). Backend `none`/`lsp-disabled` → skip with `type_hierarchy_invoked: false` and **NO degrade** (expected absence, FR-1.4). An explicit backend error (distinct from "unsupported") → `degraded: ["type_hierarchy:backend_error"]` and fall back to the `find_implementations`/`find_referencing_symbols` chain (FR-1.5). `--with-hierarchy` defaults OFF on `lsp` (no generic `type_hierarchy` tool there until OQ-M3 confirms per-language support) and is unavailable on `none`; non-OO codebases see zero degradation. The skill MUST never abort because hierarchy is unavailable.
 
 Step 5.5 (FR-RV3-MED.4) is the **verification triangle** — `get_diagnostics_for_file` (step 5, LSP issues) + `summarize_changes` (step 7', what changed) + `execute_shell_command` (step 5.5, does it pass). It is **UC-2 default-on** and gated: it runs only when `execute_shell_command_available` is true (Wave-0 step 0.5d), `read_only` is not set, and `--no-verify` was not passed; otherwise it skips with the matching `verification_skip_reason` and degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry (never STOP). Every invocation is governed by the consumer-side safety envelope specified in §6.1.1 below. It emits one `audit.log` row per the §4 per-step convention whose `evidence_ref` points at the per-invocation artifact.
+
+Step 5.6 (FR-RH1, UC-2-only) is the **contracted-sink reachability & oracle-admissibility gate** — it closes the fail-open blindspot where the code is present, the unit tests are green, and a proxy observable is emitted, but the *contracted durable sink is never reached* (composition root never binds the facade; emitter error discarded; oracle greps a proxy sink). It fires **only** for *side-effect-bearing requirements* whose acceptance criterion names a `contracted_sink` the changed symbol does not itself own. **v1 blocking eligibility requires an explicit machine-readable `durable_sink:` / `@sink` annotation**: without that annotation, semantic classification of the effect noun is **advisory telemetry only** — it MAY record an advisory candidate but MUST NOT set `reachability_unproven`, MUST NOT create a Grounding Gap, MUST NOT set `needs_human_decision`, and MUST NOT change `status`. For each eligible requirement the gate grounds two sub-claims by reusing artifacts already in hand — **reachability** (the step-4 `find_referencing_symbols` shows the sink's binder bound at the entry/composition root, and the step-6 re-Read shows the emitter result is not discarded) and **oracle-admissibility** (the acceptance/e2e oracle observes the *contracted* sink, not a proxy such as journald/slog/stdout/unit-pass/code-presence). **Proof bar — Regression is real-boot-only:** only a best-effort step-5.5 `execute_shell_command` boot (under the §6.1.1 envelope) that observes the contracted sink **absent** after exercising the booted entrypoint can set `unreachable` / `regression_present`. Static binding absence, discarded emitter result, unresolved sink identity, oracle mismatch, or real-boot-unavailable are advisory recall signals and can yield at most `unproven` — a §10.6 Grounding Gap — and only when a blocking annotated sink exists; they can NEVER set `regression_present`. **Telemetry-only skips:** `--no-reachability` (the operator rollback path) and the absence of *both* `--spec` and `--tasklist` set `reachability_gate_ran: false` with the matching `reachability_skip_reason` (`--no-reachability` | `spec-and-tasklist-absent`) and a null ledger with zero counters; a skip MUST NOT create or append `grounding-gaps.yaml`, MUST NOT set `needs_human_decision`, and MUST NOT force `status: partial`. The gate adds **no new tool class** (R8: it reuses steps 4, 5.5, and 6) but does add bounded work (1-3 turns per side-effect requirement, ≤12 scanned, ≤36 turns, ≤1 real boot). It writes one row per evaluated requirement to the reachability ledger (schema §9.1) and emits a `reachability_gate_invoked` audit row per the §4 per-step convention. Fail-open per §6.5; NEVER STOP. This is a contracted-sink gate and intentionally does NOT reuse FR-RSR runtime-surface, UNREACHED, or degrade-only semantics. The gate operates under `contract 1.7.0` (UC-2 reachability_* block).
 
 Step 4a (FR-REUSE.1) is the **outward reuse/consolidation neighbour search** — the inverse of the inward symbol-walk above. For each new/body-changed symbol (incl. new files), it delegates to the `reuse-auditor` agent (§7), which fingerprints behaviour (capability + skeleton, name-agnostic), fires one capability-keyed auggie query per candidate (cap ≤12/run; overflow → `neighbour_search_sampled: true`), re-Reads each returned neighbour `file:line` before citing it (§6.2), and returns `reuse-audit.yaml` (per-candidate `tier`/`verdict`/composite-scores + run-level `max_overlap`). It is invoked at **orchestrator / Tier-1 level only** — never inside an already-spawned subagent (subagent→agent nesting can fail). The agent returns *findings only*; the skill maps each `confident-duplicate` onto §10.8 Reuse-Miss (Drift/Regression by evidence) and routes `maybe-related`/insufficient-grounding to §10.6 Grounding Gaps. Fail-open: agent or auggie unavailable → inline serena+ripgrep grep-skeleton, findings CAPPED at advisory L2, `degraded_components += "neighbour-search:auggie_unavailable"`; NEVER STOP. Emits one `audit.log` row (`reuse_sweep_invoked`, `candidates_scanned`, `neighbours_found`, `max_overlap`) per the §4 per-step convention.
 
@@ -679,10 +684,10 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 
 Two-block contract: stable + telemetry. Written to `<output>/return-contract.yaml` AND returned inline. (See `refs/report-template.md` for the human-facing REPORT.md skeleton that renders these fields.)
 
-### 9.1 Stable contract (contract_version: 1.6.0)
+### 9.1 Stable contract (contract_version: 1.7.0)
 
 ```yaml
-contract_version: "1.6.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields)
+contract_version: "1.7.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -747,6 +752,15 @@ runtime_surface_ledger_path: <abs path> | null      # FR-RSR.2 (<output>/artifac
 runtime_surface_unreached: <int>                    # FR-RSR.2/6 (count of SYMBOLS reduced to UNREACHED; 0 on a fully-REACHED run; drives §5.3 pre-filter)
 runtime_surface_degraded: <bool>                    # FR-RSR.3/8 (true when ≥1 symbol reduced to DEGRADE → §10.6 Grounding Gap; false on a fully-REACHED run)
 unreached_surfaces: [<list of UnreachedSurface>]    # FR-RSR.6 (one entry per UNREACHED symbol; [] on REACHED and on DEGRADE-only runs)
+
+# Contracted-sink reachability / oracle-admissibility (FR-RH1 — UC-2)
+reachability_gate_ran: <bool>
+reachability_ledger_path: <abs path> | null          # null when the gate did not run
+reachability_requirements_scanned: <int>             # side-effect-bearing requirements evaluated
+reachability_unreachable: <int>                      # verdict==unreachable rows (real-boot-proven; each → regression_present)
+reachability_unproven: <int>                         # verdict==unproven rows (each → a grounding-gaps row)
+reachability_real_boot_ran: <bool>                   # best-effort step-5.5 boot fired at least once
+reachability_skip_reason: --no-reachability|no-side-effect-requirements|spec-and-tasklist-absent|null
 
 # Reuse-Miss neighbour sweep (FR-REUSE — §6.1 step 4a / §10.8; UC-2). NO deviation_count_by_class.reuse_miss key (§17.7).
 reuse_sweep_ran: <bool>
@@ -841,7 +855,46 @@ promotion_cross_fs: bool                       # true when source and destinatio
 promotion_pending: bool                        # true between pre-write (7.3.6) and finalization (7.6); only true in a crashed-mid-run log entry
 ```
 
-Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.6.0`.
+Each flag has a one-line semantics description in `refs/report-template.md`. Contract version is `v1.7.0`.
+
+**Reachability field-presence & consistency (FR-RH1, R7).** The `reachability_*` block is **mandatory for every UC-2 return contract at `contract_version: "1.7.0"`** and optional/absent for UC-1. Invariants:
+
+```yaml
+# UC-2, gate ran
+if reachability_gate_ran == true:
+  reachability_skip_reason: null
+  reachability_ledger_path: <non-null path>
+  reachability_requirements_scanned: ">= 1"
+
+# UC-2, no eligible side-effect requirements
+if reachability_skip_reason == "no-side-effect-requirements":
+  reachability_gate_ran: false
+  reachability_ledger_path: null
+  reachability_requirements_scanned: 0
+  reachability_unreachable: 0
+  reachability_unproven: 0
+
+# UC-2, --no-reachability (operator rollback) OR spec-and-tasklist-absent (legacy): telemetry-only
+if reachability_skip_reason in ("--no-reachability", "spec-and-tasklist-absent"):
+  reachability_gate_ran: false
+  reachability_ledger_path: null
+  reachability_requirements_scanned: 0
+  reachability_unreachable: 0
+  reachability_unproven: 0
+  reachability_real_boot_ran: false
+  # MUST NOT create a Grounding Gap, set needs_human_decision, or force status: partial
+
+# UC-2, unreachable (real-boot-proven Regression only)
+if reachability_unreachable > 0:
+  reachability_real_boot_ran: true
+  regression_present: true
+  verification_regressions_detected: ">= reachability_unreachable"
+
+# UC-2, unproven (blocking annotated sink, evidence insufficient)
+if reachability_unproven > 0:
+  grounding_gaps_path: <non-null path>
+  needs_human_decision: true
+```
 
 ### 9.2 Telemetry (non-stable)
 
@@ -901,6 +954,7 @@ The §9.1 stable contract has 60+ fields. Each downstream consumer reads a small
 | **`sc:tasklist` generator gate** | Tasklist pipeline post-step | `status`, `coverage_pct`, `unmapped_requirements`, `coverage_undefined` | `coverage_undefined: true` → tasklist generator emits "spec is too sparse for tasklist generation; provide more detail"; `coverage_pct < 0.90` → emit warning. |
 | **Any UC-1 consumer (advisory, D13)** | Optional read | `coverage_degraded`, `coverage_pct_union`, `unmapped_requirements_union` | NON-GATING advisory: `coverage_degraded: "parsed-sparse"` MAY be surfaced as a "spec labeling is sparse; coverage was inference-assisted" warning; the union fields give the inference-inclusive view. Existing consumers need no change (their fields kept parsed-only semantics at 1.5.0). |
 | **Any UC-2 consumer (advisory, FR-RSR)** | Optional read | `runtime_surface_requirements`, `runtime_surface_sweep_ran`, `runtime_surface_ledger_path`, `runtime_surface_unreached`, `runtime_surface_degraded`, `unreached_surfaces` | NON-GATING advisory: runtime-surface fields MAY be surfaced for reachability diagnostics, but existing consumers need no load-bearing change; consumers that ignore unknown fields remain conforming under §9.4 read-and-ignore forward compatibility. |
+| **Any UC-2 consumer (advisory, FR-RH1)** | Optional read | `reachability_gate_ran`, `reachability_ledger_path`, `reachability_requirements_scanned`, `reachability_unreachable`, `reachability_unproven`, `reachability_real_boot_ran`, `reachability_skip_reason` | NON-GATING advisory: the contracted-sink reachability fields ride the EXISTING `regression_present` / `needs_human_decision` gating fields (NO new consumer field is required) — `reachability_unreachable > 0` already sets `regression_present`, and `reachability_unproven > 0` already sets `needs_human_decision`; the `reachability_*` fields MAY be surfaced for diagnostics, but existing consumers need no load-bearing change and remain conforming under §9.4 read-and-ignore forward compatibility. |
 | **`task-builder` skill** | Wave 6 (T3) handoff | `report_path`, `deviation_register_path`, `grounding_gaps_path`, `needs_human_decision` | Reads the three paths to materialize BUILD_REQUEST; `needs_human_decision: true` → BUILD_REQUEST template prompts for user resolution before task is built. |
 | **Wave 7 promotion adapters (in-skill)** | Internal consumer | All 9-condition-gate inputs: `mode`, `status`, `tasklist_completion_pct`, `deviation_count_by_class.{drift,regression}`, `citations_dropped`, `input_drift_detected`, `needs_human_decision`, `user_decision_required`, `convergence_score`, `tier_reached`, frontmatter check | Per §14.5.2 gate; all 9 must pass for mutation; any fail → `promotion_action: skipped/rejected`. |
 | **CI (`make reflect-eval` / `make reflect-eval-quick`)** | grader.py | All fields under "Per-task verdict array" + `status` + `evidence_validator_ran` + `audit_log_path` | Used to score the 6 grading dimensions in §12.1 and assert per-iteration `grading.json` thresholds. |
@@ -999,6 +1053,7 @@ Each category has detection signals, a gold-standard reference, and a default re
 - Diff hunk contradicts a spec acceptance criterion (textual contradiction or behavioral contradiction surfaced by `get_diagnostics_for_file`).
 - **A test that previously passed now fails after the diff — detected by the default-on §6.1 step 5.5 verification triangle (`execute_shell_command`), not by the task log's self-report.** In UC-2, scoped verification runs by default; a non-zero exit that the exit-code taxonomy (below) classifies as Regression sets `verification_regressions_detected += 1` then `regression_present: true` (the existing §9.1 field, now verified-sourced). `--no-verify` is the opt-out, and `--rerun-tests` is retained as a **deprecated alias** for "verification on" (the default; emits a deprecation WARN). When verification is unavailable (`--no-verify` / tool context-excluded / `read_only: true`), this signal degrades to the task-log claim with a Grounding Gap entry — it never silently passes.
 - A documented invariant in the spec or in a `@invariant` comment is violated.
+- **A contracted side-effect never reaches its durable sink (fail-open reachability) — detected by the §6.1 step-5.6 contracted-sink gate, NOT by unit-test pass/fail.** This is a Regression **only** when a real-boot verifier observed the contracted sink absent (`reachability_unreachable += 1` → `verification_regressions_detected += 1` → `regression_present: true`). Static binding absence, a discarded emitter result, an unresolved sink identity, an oracle mismatch, or real-boot-unavailable are advisory recall signals → at most `unproven` (a §10.6 Grounding Gap) and only when a blocking annotated (`durable_sink:` / `@sink`) sink exists; they NEVER set `regression_present`. See the contracted-sink mapping below.
 
 **Exit-code → deviation-class taxonomy (FR-4 / C2).** A non-zero exit is **NOT** uniformly a Regression. Each verification invocation's exit code is classified per-tool; an unmapped exit defaults to **Grounding Gap** (conservative — never silently Regression):
 
@@ -1013,6 +1068,16 @@ Each category has detection signals, a gold-standard reference, and a default re
 | any unmapped exit code | **Grounding Gap** | conservative default — never silently a Regression |
 
 The §10.5 precedence (Regression > Drift > Necessary > Authorized) is respected **by evidence, not by assignment** — only exits the taxonomy maps to Regression set `regression_present`. (Full per-tool table including `make`/`cargo`/`npm`/`tsc` is enumerated during eval-authoring, OQ-M9.)
+
+**Contracted-sink reachability / oracle-admissibility → deviation-class (FR-RH1, §6.1 step 5.6).** Mapped by evidence, never by assignment:
+
+| Reachability / oracle evidence | Class | Effect |
+|---|---|---|
+| Real boot ran and observed the contracted sink **absent** | **Regression** | `reachability_unreachable += 1`; `verification_regressions_detected += 1`; `regression_present: true` (trips §5.3 rule 3) |
+| Blocking annotated sink present, but static binding absence / discarded emitter result / unresolved sink identity / oracle mismatch / real-boot-unavailable (no real-boot proof) | **Grounding Gap** (§10.6) | one `grounding-gaps.yaml` row; `reachability_unproven += 1`; `needs_human_decision: true`; Tier-1 preserved |
+| Binding present, emitter result checked, oracle observes the contracted sink | **none** | `reachable` — clean |
+
+**Skip / fallback are NOT deviations.** `--no-reachability`, `spec-and-tasklist-absent`, and `no-side-effect-requirements` are telemetry-only skips, and semantic-only classification without an explicit `durable_sink:` / `@sink` annotation is advisory telemetry only: none of these may create a Grounding Gap, increment `reachability_unproven`, set `needs_human_decision`, or change `status`.
 
 **Gold-standard reference.** Spec acceptance-criteria section + **verified test-suite state pre/post (from the §6.1 step 5.5 `execute_shell_command` exit codes, falling back to the task-log claim only when verification is unavailable)** + invariant comments.
 
@@ -1076,6 +1141,16 @@ A runtime-surface finding with reduced verdict `UNREACHED` per §6.1 step 4b / `
 If a decided UNREACHED is both contradiction and unmapped, **Regression wins** by §10.5 precedence; rationale or missing mapping does not override a contradiction. There is **no** 5th runtime-surface deviation class and no `deviation_count_by_class.runtime_surface` (or equivalent) counter (§17.7). Blocking counts flow only through the existing Drift/Regression counters of the class chosen by evidence.
 
 **Risk guard (spec §7).** False `UNREACHED → Regression` on idiomatic wiring can trigger unconditional T2/T3 and TurnLedger rollback, so counter hygiene is mandatory: Regression increments only `deviation_count_by_class.regression`; `verification_regressions_detected` remains exit-code-sourced and is never incremented by runtime-surface reachability evidence.
+
+### 10.10 Contracted-sink reachability / oracle-admissibility (finding modifier — NOT a 5th deviation class, FR-RH1)
+
+A contracted-sink reachability / oracle-admissibility finding from the §6.1 step-5.6 gate is **NOT a deviation class** — it **MAPS onto the existing 4 by evidence** (the same finding-modifier shape as §10.8 Reuse-Miss and §10.9 Runtime-surface UNREACHED). It is a **sibling modifier** to §10.9's Runtime-surface UNREACHED modifier, not a duplicate of it: §10.9 governs the FR-RSR static runtime-surface sweep (REACHED/DEGRADE/UNREACHED by static referrer analysis), whereas this §10.10 modifier governs the FR-RH1 contracted-sink gate (real-boot reachability + oracle-admissibility for an explicitly annotated `durable_sink:` / `@sink`). The mapping is by evidence:
+
+1. **Real-boot sink absent → §10.4 Regression.** Only when a best-effort step-5.5 boot (under the §6.1.1 envelope) observed the contracted sink absent: `reachability_unreachable += 1`, `verification_regressions_detected += 1`, `regression_present: true` (trips §5.3 rule 3). Static binding absence / discarded emitter / oracle mismatch / real-boot-unavailable can NEVER set `regression_present`.
+2. **Blocking annotated sink, evidence insufficient → §10.6 Grounding Gap.** `reachability_unproven += 1`, one `grounding-gaps.yaml` row, `needs_human_decision: true`, Tier-1 preserved.
+3. **Binding present, emitter result checked, oracle observes the contracted sink → none (reachable, clean).**
+
+Telemetry-only skips (`--no-reachability`, `spec-and-tasklist-absent`, `no-side-effect-requirements`) and advisory semantic-only fallback never create a Grounding Gap, never increment `reachability_unproven`, never set `needs_human_decision`, and never change `status`. There is **no** 5th deviation class and no `deviation_count_by_class.reachability` counter (§17.7); blocking counts flow only through the existing Drift/Regression counters of the class chosen by evidence. This FR-RH1 §10.10 modifier and the FR-RSR §10.9 UNREACHED modifier are sibling finding-modifiers onto the same 4 classes — neither subsumes the other.
 
 ---
 
@@ -1691,7 +1766,7 @@ Operators using Prometheus's `json_exporter`, StatsD's `dogstatsd-json`, or Open
 **Cross-run aggregation (`.dev/reflect/runs.jsonl`).** A one-line JSON summary is appended to `.dev/reflect/runs.jsonl` at end-of-run. Schema is a subset of `metrics.json` with only the cross-run-comparable fields:
 
 ```json
-{"run_id": "...", "timestamp": "...", "skill_version": "1.6.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
+{"run_id": "...", "timestamp": "...", "skill_version": "1.7.0", "mode": "post", "tier_reached": 2, "status": "success", "wall_clock_ms": 124000, "token_usage_total": 47832, "calibration_delta": -0.03, "convergence_score": 0.82, "evidence_validator_drop_rate": 0.0, "deviation_counts_regression": 0, "promotion_action": "moved"}
 ```
 
 The `.dev/reflect/runs.jsonl` file is **append-only** and used by:
@@ -1823,7 +1898,13 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §11.3 calibrator disjoint-set | `yaml_field` | `reflection-card.yaml calibrator_model_class NOT IN reviewer_model_classes` |
 | §11.5 citation-budget policy | `yaml_field` | `return-contract.yaml citation_budget_policy ∈ {full_reread, sampled}` |
 | §12.5 falsifier T2-convergence-wrong-answer | `yaml_field` + composite | `return-contract.yaml regression_present AND convergence_score < 0.75` |
-| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.6.0"` |
+| §9.1 versioned return contract stability | `yaml_field` | `return-contract.yaml contract_version == "1.7.0"` |
+| §6.1 step 5.6 reachability R7 field presence (UC-2) | `yaml_field` | `return-contract.yaml reachability_gate_ran AND reachability_skip_reason` |
+| §6.1 step 5.6 unreachable → real-boot-proven Regression | `yaml_field` | `return-contract.yaml reachability_unreachable > 0 ⟹ reachability_real_boot_ran == true AND regression_present == true` |
+| §6.1 step 5.6 unproven → Grounding Gap (annotated sink) | `file_exists` + `yaml_field` | `grounding-gaps.yaml row AND return-contract.yaml reachability_unproven > 0 AND needs_human_decision == true` |
+| §6.1 step 5.6 --no-reachability telemetry-only skip | `yaml_field` + `regex_absent` | `return-contract.yaml reachability_skip_reason == "--no-reachability" AND reachability_gate_ran == false; no reachability Grounding Gap` |
+| §6.1 step 5.6 spec-and-tasklist-absent telemetry-only skip | `yaml_field` | `return-contract.yaml reachability_skip_reason == "spec-and-tasklist-absent" AND reachability_gate_ran == false AND status != partial` |
+| §6.1 step 5.6 semantic fallback advisory non-gating | `regex_absent` | `no reachability_unproven / Grounding Gap from semantic-only classification lacking durable_sink:/@sink` |
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |

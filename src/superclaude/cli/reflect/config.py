@@ -257,6 +257,7 @@ def resolve_config(
     transport: str = "openai_compat",
     reviewers: int = 3,
     isolate_reviewers: bool = False,
+    reachability: bool = True,
 ) -> ReflectConfig:
     """Resolve CLI args + frontmatter + git state into a ``ReflectConfig``.
 
@@ -378,4 +379,5 @@ def resolve_config(
         reviewers=resolved_reviewers,
         isolate_reviewers=isolate_reviewers,
         audit_tree_dirty=resolved_audit_tree_dirty,
+        reachability=reachability,
     )

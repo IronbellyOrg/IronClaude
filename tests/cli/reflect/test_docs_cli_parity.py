@@ -103,7 +103,7 @@ def test_documented_defaults_match_cli_defaults() -> None:
     guide = _guide_text()
 
     # Boolean flag-pairs: the documented default is the *active* side.
-    for opt_name in ("fix", "promote"):
+    for opt_name in ("fix", "promote", "reachability"):
         opt = _option(opt_name)
         active = opt.opts[0] if opt.default else opt.secondary_opts[0]
         assert f"Default: `{active}`" in guide, (

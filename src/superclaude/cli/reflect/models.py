@@ -105,6 +105,8 @@ class ReflectConfig:
     # live tasklist path (telemetry reports `snapshot-children-only`). None when
     # isolation is off or the gate STOPped (no child launches then).
     reviewer_grounding_root: Path | None = None
+    # FR-RH1 (UC-2): contracted-sink reachability gate enabled; default True
+    reachability: bool = True
 
     @property
     def contract_path(self) -> Path:

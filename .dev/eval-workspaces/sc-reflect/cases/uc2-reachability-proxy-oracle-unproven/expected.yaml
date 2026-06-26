@@ -1,0 +1,24 @@
+# Producer-level FR-RH1 falsifier (R6). The grader reads evals/evals.json; this file is the
+# human-readable expectation contract for the with_skill/outputs/ a real reflect run produces.
+#
+# Load-bearing property: proxy-oracle evidence must yield UNPROVEN — never a real-boot
+# Regression (real boot is unavailable under the §6.1.1 envelope, so the contracted sink
+# cannot be observed) and never a silent clean pass.
+contract_version: "1.7.0"
+reachability_gate_ran: true
+reachability_requirements_scanned: 1
+reachability_unreachable: 0
+reachability_unproven: 1
+reachability_real_boot_ran: false
+needs_human_decision: true
+status: partial
+regression_present: false
+runtime_reachability_ledger:
+  - contracted_sink: postgres.events_table
+    verdict: unproven
+    oracle_match: false
+    gap_kind: oracle-mismatch
+falsifies: >
+  A grader/implementation that greens this as a Regression (regression_present: true /
+  reachability_unreachable > 0) OR as a clean pass (reachability_unproven: 0, no Grounding Gap)
+  is wrong. Only `unproven` + Grounding Gap + needs_human_decision is correct.

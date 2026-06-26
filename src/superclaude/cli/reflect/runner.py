@@ -354,6 +354,9 @@ class ReflectRunner:
         # FR-9: --no-promote is the hard default; dropped only on --promote.
         if not config.promote:
             parts.append("--no-promote")
+        # FR-RH1: forward --no-reachability to /sc:reflect ONLY when disabled
+        if not config.reachability:
+            parts.append("--no-reachability")
         # Pass <BASE> as a SINGLE ref (not <BASE>..HEAD) so reflect diffs it
         # against the current WORKING TREE -- this captures uncommitted/staged
         # task work (the usual /task outcome), which a commit-range silently
