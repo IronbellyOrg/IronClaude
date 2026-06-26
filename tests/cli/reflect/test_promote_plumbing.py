@@ -50,3 +50,58 @@ def test_default_promote_is_on_regression_guard(
     assert result.exit_code == 0
     assert "/sc:reflect --mode post" in result.output
     assert "--no-promote" not in result.output
+
+
+def test_default_prompt_omits_no_reachability(temp_tasklist, patch_git) -> None:
+    """FR-RH1: bare run (reachability default True) -> prompt omits --no-reachability."""
+    config = _config(temp_tasklist)
+    assert config.reachability is True
+    prompt = ReflectRunner(config)._build_prompt()
+    assert "--no-reachability" not in prompt
+
+
+def test_no_reachability_prompt_contains_it_exactly_once(
+    temp_tasklist, patch_git
+) -> None:
+    """FR-RH1: reachability=False -> prompt contains --no-reachability exactly once."""
+    config = _config(temp_tasklist, reachability=False)
+    assert config.reachability is False
+    prompt = ReflectRunner(config)._build_prompt()
+    assert prompt.split().count("--no-reachability") == 1
+
+
+def test_cli_default_print_command_omits_no_reachability(
+    temp_tasklist, patch_git, cli_runner
+) -> None:
+    """FR-RH1: bare CLI run --print-command (default-on) omits --no-reachability."""
+    result = cli_runner.invoke(
+        reflect_group, ["run", str(temp_tasklist), "--print-command"]
+    )
+    assert result.exit_code == 0
+    assert "--no-reachability" not in result.output
+
+
+def test_cli_no_reachability_print_command_emits_it(
+    temp_tasklist, patch_git, cli_runner
+) -> None:
+    """FR-RH1: CLI run --no-reachability --print-command forwards --no-reachability."""
+    result = cli_runner.invoke(
+        reflect_group,
+        ["run", str(temp_tasklist), "--no-reachability", "--print-command"],
+    )
+    assert result.exit_code == 0
+    assert "--no-reachability" in result.output
+
+
+def test_tmux_inner_command_forwards_disabled_reachability(
+    temp_tasklist, patch_git
+) -> None:
+    """FR-RH1: --tmux --no-reachability -> the inner foreground reflect run carries
+    --no-reachability exactly once so the gate is not silently re-enabled."""
+    from superclaude.cli.reflect.commands import _build_inner_command
+
+    enabled = _config(temp_tasklist, reachability=True)
+    assert "--no-reachability" not in _build_inner_command(enabled)
+
+    disabled = _config(temp_tasklist, reachability=False)
+    assert _build_inner_command(disabled).count("--no-reachability") == 1

@@ -7,7 +7,7 @@ mcp-servers: [auggie, serena, context7, tavily, sequential]
 personas: [analyzer, qa, refactorer]
 version: 2.0.0
 supersedes: .dev/eval-workspaces/sc-reflect/skill-snapshot/reflect-v1.md
-argument-hint: "[--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <ref-or-path>] [--scope <path>] [--depth quick|standard|deep] [--tier 1|2|auto] [--reviewers N] [--output <dir>] [--no-promote] [--promote-dry-run] [--remediate] | legacy: [--type task --analyze|--validate]"
+argument-hint: "[--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <ref-or-path>] [--scope <path>] [--depth quick|standard|deep] [--tier 1|2|auto] [--reviewers N] [--output <dir>] [--no-reachability] [--no-promote] [--promote-dry-run] [--remediate] | legacy: [--type task --analyze|--validate]"
 ---
 
 # /sc:reflect - Tiered Reflection Protocol
@@ -84,6 +84,7 @@ Auto-activates whenever a reviewer-side, structurally-independent audit is neede
 | `--no-evidence-validator` | `false` | Skip the final evidence-validator gate (debug only — auto-warns; report records the skip in Grounding Gaps). |
 | `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (records the skip in Grounding Gaps). |
 | `--no-verify` | `false` (UC-2) | Disable the UC-2 verification triangle (`execute_shell_command` scoped non-mutating tests/linters/type-checkers/build, §6.1 step 5.5). Default-on; when set, degrades §10.4 Regression detection to the task-log claim with a Grounding Gap entry. Subsumes the deprecated `--rerun-tests` alias. |
+| `--no-reachability` | `false` (UC-2) | Disable the §6.1 step-5.6 contracted-sink reachability & oracle-admissibility gate (the operator rollback path). Default-on; when set, records telemetry-only skip state (`reachability_gate_ran: false`, `reachability_skip_reason: --no-reachability`); it does NOT write a Grounding Gap, set needs_human_decision, or force status: partial. |
 | `--onboard` | `false` | Opt-in one-shot Serena `onboarding` bootstrap at Wave 0.7b — runs ONLY when `list_memories` is empty for the project slug; seeds the §6.3 cold-start calibration baseline. Never creates `.serena/` implicitly. |
 | `--with-hierarchy` | `false` | Opt-in `type_hierarchy` transitive supertype/subtype retrieval (§6.1 step 4.5, Wave 1B.3). Backend-gated (`jetbrains` only; default OFF on `lsp`, unavailable on `none`); non-OO codebases see zero change. |
 | `--remediate` | `false` | After the audit ships, offer the Tier 3 remediation chain (`task-builder` → operator runs `/task` → `/sc:reflect --mode post` re-runs as the post-commit gate). |

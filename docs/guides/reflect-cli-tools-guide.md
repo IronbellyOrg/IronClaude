@@ -119,6 +119,9 @@ The exact option set and defaults below are read from
   `<ref>..HEAD` range).
 - `--promote` / `--no-promote` — allow reflect's gated Wave-7 promotion.
   **Default: `--promote`.** O2 (per-phase) callers pass `--no-promote`.
+- `--reachability` / `--no-reachability` — enable the §6.1 step-5.6 contracted-sink
+  reachability & oracle-admissibility gate (UC-2). **Default: `--reachability`.** Pass
+  `--no-reachability` for a telemetry-only skip.
 - `--depth standard|deep` — reflect depth passthrough (POST never runs quick).
   **Default: `standard`.** Callers force Tier 2 with `--depth deep`.
 - `--transport openai_compat|stub` — Tier-2 reviewer transport.

@@ -1,0 +1,16 @@
+# FR-RH1 R2 producer telemetry-only skip: run with /sc:reflect --no-reachability.
+# Even though a side-effect-bearing annotated requirement exists, disabling the gate
+# records ONLY telemetry — no Grounding Gap, no needs_human_decision, no status: partial.
+contract_version: "1.7.0"
+reachability_gate_ran: false
+reachability_skip_reason: "--no-reachability"
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+needs_human_decision: false
+status: success
+falsifies: >
+  An implementation that writes a Grounding Gap, sets needs_human_decision, or forces
+  status: partial when --no-reachability is passed is wrong (R2 telemetry-only).

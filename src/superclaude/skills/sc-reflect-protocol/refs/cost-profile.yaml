@@ -68,3 +68,15 @@ tiers:
 # Hard-kill multiplier per sc-brainstorm convention (spec §15 line 1381).
 # Callers MUST abort runs that exceed 1.25× the midpoint estimate.
 hard_kill_multiplier: 1.25
+
+# Runtime-reachability gate (FR-RH1 — §6.1 step 5.6; UC-2). Bounded ADDED work, NOT zero.
+# Adds NO new tool class (reuses step-4 find_referencing_symbols, step-6 re-Read, and the
+# step-5.5 execute_shell_command verification) but DOES add bounded orchestration work — there
+# is intentionally no reachability_gate_added_tokens: 0 / reachability_gate_added_turns: 0 claim.
+# Numeric tier bands above are UNCHANGED (the gate rides existing T1 tools), so cost_profile_version stays 1.0.0.
+reachability_gate_added_tool_classes: 0
+reachability_gate_added_turns_per_side_effect_requirement: "1-3"
+reachability_gate_max_side_effect_requirements_scanned: 12
+reachability_gate_added_turns_cap: 36
+reachability_gate_real_boot_invocations_cap: 1
+reachability_gate_overflow: "scanned > 12 sets reachability_sampled: true + a non-blocking coverage warning unless a high-stakes durable_sink: is present"

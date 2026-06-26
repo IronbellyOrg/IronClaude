@@ -29,6 +29,9 @@ _SPEC9_FLAGS = [
     "--no-fix",
     "--max-fix-iterations",
     "--base",
+    # FR-RH1 reachability gate flag-pair.
+    "--reachability",
+    "--no-reachability",
 ]
 
 
@@ -118,6 +121,7 @@ def test_tmux_inner_command_forwards_isolate_reviewers(tmp_path) -> None:
         promote=True,
         allow_single_vendor=False,
         isolate_reviewers=True,
+        reachability=True,
         resume=False,
         base_override=None,
     )
@@ -140,6 +144,7 @@ def test_tmux_inner_command_forwards_no_isolate_reviewers(tmp_path) -> None:
         promote=True,
         allow_single_vendor=False,
         isolate_reviewers=False,
+        reachability=True,
         resume=False,
         base_override=None,
     )

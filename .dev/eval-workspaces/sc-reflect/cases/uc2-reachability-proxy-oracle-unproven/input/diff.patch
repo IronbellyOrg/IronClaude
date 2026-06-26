@@ -1,0 +1,11 @@
+--- a/app/events.py
++++ b/app/events.py
+@@ -8,6 +8,10 @@ class EventEmitter:
+     def publish(self, event):
+         logger.info("EventEmitted: %s", event.name)  # proxy observable (journald)
+-        return None
++        # Emitter result discarded; the composition root never binds a durable writer,
++        # so the contracted sink postgres.events_table is never reached. The journald
++        # proxy line still passes the unit/e2e oracle -> fail-open.
++        _ = self._writer.persist(event)  # discarded result; _writer may be unbound
++        return None

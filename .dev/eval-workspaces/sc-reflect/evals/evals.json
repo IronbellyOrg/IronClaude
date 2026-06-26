@@ -1107,6 +1107,178 @@
         { "type": "yaml_list_len_eq", "target": "with_skill/outputs/contract.yaml", "list_field": "unreached_surfaces", "count_field": "runtime_surface_unreached", "text": "Count invariant holds: len(unreached_surfaces) == runtime_surface_unreached" },
         { "type": "regex_present", "target": "with_skill/outputs/REPORT.md", "pattern": "UNREACHED|runtime_surface_unreached|deviation_class:\\s*regression|Regression", "text": "Test-only surface finding is surfaced in the report" }
       ]
+    },
+    {
+      "id": 42,
+      "name": "uc2-reachability-proxy-oracle-unproven",
+      "case_dir": "cases/uc2-reachability-proxy-oracle-unproven/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RH1 R1/R6/R7 (REPORT.md:31-47, 122-156, 158-209)",
+      "description": "Producer falsifier: an annotated durable_sink AC whose oracle observes only a journald proxy, emitter result discarded, real boot unavailable -> verdict unproven (Grounding Gap), needs_human_decision, status partial; regression_present MUST stay false (proxy/static can never green a real-boot Regression).",
+      "inputs": {
+        "spec": "input/spec.md",
+        "tasklist": "input/tasklist.md",
+        "diff": "input/diff.patch"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "contract_version",
+          "expected": "1.7.0",
+          "text": "R4: reachability contract is 1.7.0"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_gate_ran",
+          "expected": "true",
+          "text": "R7: gate ran on the annotated side-effect requirement"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_unproven",
+          "expected": "1",
+          "text": "R1: proxy-oracle evidence yields one unproven row"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_unreachable",
+          "expected": "0",
+          "text": "R1: no real-boot proof -> NOT unreachable"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_real_boot_ran",
+          "expected": "false",
+          "text": "real boot unavailable under the \u00a76.1.1 envelope"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "regression_present",
+          "expected": "false",
+          "text": "R1: proxy/static evidence can NEVER set regression_present"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "needs_human_decision",
+          "expected": "true",
+          "text": "R7: unproven -> Grounding Gap -> needs_human_decision"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/runtime-reachability-ledger.yaml",
+          "pattern": "verdict:\\s*unproven",
+          "text": "ledger row verdict is unproven"
+        },
+        {
+          "type": "regex_present",
+          "target": "with_skill/outputs/runtime-reachability-ledger.yaml",
+          "pattern": "gap_kind:\\s*oracle-mismatch",
+          "text": "ledger gap_kind is oracle-mismatch"
+        },
+        {
+          "type": "regex_absent",
+          "target": "with_skill/outputs/runtime-reachability-ledger.yaml",
+          "pattern": "verdict:\\s*unreachable",
+          "text": "falsifier: no unreachable/Regression verdict from proxy evidence"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "name": "uc2-reachability-no-reachability-skip",
+      "case_dir": "cases/uc2-reachability-no-reachability-skip/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RH1 R2 (REPORT.md:49-68)",
+      "description": "Run /sc:reflect --no-reachability: telemetry-only skip even with an annotated side-effect requirement present. gate_ran false, null ledger, zero counters; no Grounding Gap, no needs_human_decision, no status: partial.",
+      "inputs": {
+        "tasklist": "input/tasklist.md",
+        "diff": "input/diff.patch"
+      },
+      "expected": "expected.yaml",
+      "skill_args": "--no-reachability",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_gate_ran",
+          "expected": "false",
+          "text": "R2: gate disabled"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_skip_reason",
+          "expected": "--no-reachability",
+          "text": "R2: skip reason recorded"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_unproven",
+          "expected": "0",
+          "text": "R2: zero counters"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "needs_human_decision",
+          "expected": "false",
+          "text": "R2: no reachability-created human decision"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "name": "uc2-reachability-missing-inputs-skip",
+      "case_dir": "cases/uc2-reachability-missing-inputs-skip/",
+      "mode": "post",
+      "use_case": "UC-2",
+      "spec_ref": "FR-RH1 R3 (REPORT.md:70-89)",
+      "description": "Run /sc:reflect with --diff only (neither --spec nor --tasklist): no authoritative contracted sink -> telemetry-only skip spec-and-tasklist-absent. No Grounding Gap, no needs_human_decision, no status change.",
+      "inputs": {
+        "diff": "input/diff.patch"
+      },
+      "expected": "expected.yaml",
+      "assertions": [
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_gate_ran",
+          "expected": "false",
+          "text": "R3: gate not run without spec/tasklist"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_skip_reason",
+          "expected": "spec-and-tasklist-absent",
+          "text": "R3: skip reason recorded"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "reachability_unproven",
+          "expected": "0",
+          "text": "R3: no unproven without an authoritative sink"
+        },
+        {
+          "type": "yaml_field",
+          "target": "with_skill/outputs/contract.yaml",
+          "field": "needs_human_decision",
+          "expected": "false",
+          "text": "R3: telemetry-only, no human decision"
+        }
+      ]
     }
   ],
   "grading_criteria": [

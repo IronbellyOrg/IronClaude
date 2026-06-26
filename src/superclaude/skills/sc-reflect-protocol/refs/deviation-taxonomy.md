@@ -114,6 +114,18 @@ A non-zero exit from the §6.1 step 5.5 verification triangle is **NOT** uniform
 
 (Full per-tool table including `make`/`cargo`/`npm`/`tsc` is enumerated during eval-authoring, OQ-M9.)
 
+## Contracted-sink reachability / oracle-admissibility → deviation-class mapping (FR-RH1)
+
+The §6.1 step-5.6 contracted-sink reachability & oracle-admissibility gate (UC-2) feeds the same precedence union *by evidence, not by assignment*, and adds **no 5th category** — `unreachable` routes to the existing **Regression** class and `unproven` routes to the existing **Grounding Gap** parallel artifact below. This is a sibling finding-modifier to the Runtime-surface UNREACHED note (FR-RSR, SKILL.md §10.9) above: both map onto the same 4 classes, neither is a new class, and neither subsumes the other (FR-RSR governs the static runtime-surface sweep; FR-RH1 governs the real-boot contracted-sink gate, keyed on `reachability_unreachable` / `reachability_unproven` counters).
+
+| Reachability / oracle evidence | Class | Effect |
+|---|---|---|
+| Real boot ran and observed the contracted sink **absent** | **Regression** | `reachability_unreachable += 1`; `verification_regressions_detected += 1`; `regression_present: true` |
+| Blocking annotated (`durable_sink:` / `@sink`) sink present, but no real-boot proof (static binding absence / discarded emitter result / unresolved sink identity / oracle mismatch / real-boot-unavailable) | **Grounding Gap** | `reachability_unproven += 1`; `needs_human_decision: true`; Tier-1 preserved |
+| Binding present, emitter result checked, oracle observes the contracted sink | **none / reachable** | clean |
+
+**Skip / fallback are NOT deviations.** `--no-reachability`, `spec-and-tasklist-absent`, and `no-side-effect-requirements` are telemetry-only skips, and semantic-only classification without an explicit `durable_sink:` / `@sink` annotation is advisory telemetry only: none of these may create a Grounding Gap, increment `reachability_unproven`, set `needs_human_decision`, or change `status`. There is no `deviation_count_by_class.reachability` counter.
+
 ## Grounding-gaps parallel artifact
 
 The taxonomy is **4 categories**, not 5. There is no `unknown` deviation class.

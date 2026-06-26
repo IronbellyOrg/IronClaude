@@ -1,0 +1,42 @@
+contract_version: "1.7.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /tmp/reflect-out/REPORT.md
+audit_log_path: /tmp/reflect-out/audit.log
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+adversarial_unavailable: false
+merge_method: adversarial
+adversarial_convergence_score: 0.88
+verification_ran: true
+verification_skip_reason: null
+verification_regressions_detected: 0
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+# R1: proxy/oracle-only evidence (no real boot) can NEVER set regression_present.
+regression_present: false
+unauthorized_deviation_present: false
+# R7: unproven > 0 ⟹ grounding_gaps_path non-null ∧ needs_human_decision: true.
+needs_human_decision: true
+user_decision_required: false
+grounding_gaps_path: /tmp/reflect-out/grounding-gaps.yaml
+serena_summary_corroboration: unavailable
+degraded_components: []
+# FR-RH1 proxy-oracle unproven: a blocking annotated sink with proxy-only oracle evidence
+# and real boot unavailable -> unproven (Grounding Gap), HALT for human decision. This proves
+# proxy/oracle-only evidence cannot green a real-boot Regression (regression_present stays false,
+# reachability_unreachable stays 0) yet is NOT silently passed (needs_human_decision -> HALTED).
+reachability_gate_ran: true
+reachability_ledger_path: /tmp/reflect-out/runtime-reachability-ledger.yaml
+reachability_requirements_scanned: 1
+reachability_unreachable: 0
+reachability_unproven: 1
+reachability_real_boot_ran: false
+reachability_skip_reason: null

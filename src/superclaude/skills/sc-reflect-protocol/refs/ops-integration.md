@@ -181,6 +181,50 @@ The exact message body is implementation-defined but MUST include: the resolved-
   This is warn-only; the skill continues (fail-open §6.5).
 ```
 
+## Runtime-reachability operator WARN catalog (FR-RH1)
+
+**Source:** FR-RH1 (§6.1 step 5.6 contracted-sink reachability & oracle-admissibility gate). Same `[reflect][WARN]` body format; all are **loud-never-silent** and none block (fail-open §6.5).
+
+**`reachability-disabled` (FR-RH1, R2).** Trigger: `--no-reachability` set (operator rollback path). Telemetry-only — NEVER a Grounding Gap, `needs_human_decision`, or `status: partial`.
+
+```text
+[reflect][WARN] Reachability gate disabled: --no-reachability
+  The §6.1 step-5.6 contracted-sink reachability gate is OFF (operator rollback path).
+  Effect: reachability_gate_ran: false; reachability_skip_reason: --no-reachability; null ledger, zero counters.
+  No Grounding Gap, no needs_human_decision, no status: partial.
+  This is warn-only; the skill continues (fail-open §6.5).
+```
+
+**`reachability-spec-absent` (FR-RH1, R3).** Trigger: neither `--spec` nor `--tasklist` supplied. Telemetry-only legacy path.
+
+```text
+[reflect][WARN] Reachability gate skipped: spec-and-tasklist-absent
+  No authoritative contracted sink (neither --spec nor --tasklist supplied).
+  Effect: reachability_gate_ran: false; reachability_skip_reason: spec-and-tasklist-absent; null ledger, zero counters.
+  Any diff-side shape is non-blocking telemetry only — no Grounding Gap, no status effect.
+  This is warn-only; the skill continues (fail-open §6.5).
+```
+
+**`reachability-oracle-insufficient` (FR-RH1, R1).** Trigger: a blocking annotated (`durable_sink:` / `@sink`) sink exists but reach/oracle could not be proven and real boot was unavailable. Routes to `unproven` (Grounding Gap), NOT Regression.
+
+```text
+[reflect][WARN] Reachability unproven: oracle/real-boot insufficient
+  Annotated sink <contracted_sink>: binding/oracle evidence insufficient and real boot unavailable.
+  Effect: reachability_unproven += 1; one grounding-gaps.yaml row; needs_human_decision: true; Tier-1 preserved.
+  Regression is real-boot-only — a static signal NEVER sets regression_present.
+  This is warn-only; the skill continues (fail-open §6.5).
+```
+
+**`reachability-semantic-fallback` (FR-RH1, R9).** Trigger: a side-effect noun matched semantic classification but there is no explicit `durable_sink:` / `@sink` annotation. Advisory telemetry only.
+
+```text
+[reflect][WARN] Reachability semantic fallback (advisory only)
+  Side-effect candidate resolved by semantic classification, not an explicit durable_sink:/@sink annotation.
+  Effect: advisory telemetry only — does NOT set reachability_unproven, create a Grounding Gap, set needs_human_decision, or change status.
+  v1 blocking eligibility requires an explicit annotation.
+  This is warn-only; the skill continues (fail-open §6.5).
+```
+
 ## Metrics ingestion config
 
 **Source:** spec §15.1 (Metrics Export).

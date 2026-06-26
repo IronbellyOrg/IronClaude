@@ -93,6 +93,12 @@ def reflect_group():
     help="Allow reflect's gated Wave-7 promotion (default: --promote). O2 callers pass --no-promote.",
 )
 @click.option(
+    "--reachability/--no-reachability",
+    "reachability",
+    default=True,
+    help="Enable the §6.1 step-5.6 contracted-sink reachability gate (default: --reachability). Pass --no-reachability to disable (telemetry-only skip).",
+)
+@click.option(
     "--timeout",
     type=int,
     default=None,
@@ -188,6 +194,7 @@ def run(
     max_fix_iterations: int,
     base_override: str | None,
     isolate_reviewers: bool,
+    reachability: bool,
 ) -> None:
     """Execute the POST reflect gate for TASKLIST.
 
@@ -219,6 +226,7 @@ def run(
             max_fix_iterations=max_fix_iterations,
             base_override=base_override,
             isolate_reviewers=isolate_reviewers,
+            reachability=reachability,
         )
     except ValueError as exc:
         # A config / preflight STOP is blocked -> exit 2 (Section 6).
@@ -333,6 +341,8 @@ def _build_inner_command(config) -> list[str]:
     # default to promote-on -- so a --tmux + --no-promote outer call must emit
     # --no-promote explicitly, else the inner foreground run would silently promote.
     cmd.append("--promote" if config.promote else "--no-promote")
+    if not config.reachability:
+        cmd.append("--no-reachability")
     if config.allow_single_vendor:
         cmd.append("--allow-single-vendor")
     cmd.append(
