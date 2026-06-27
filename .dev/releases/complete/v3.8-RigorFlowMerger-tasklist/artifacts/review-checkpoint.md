@@ -1,5 +1,13 @@
 # RFMerger Refresh — Human Review Checkpoint
 
+> **ARCHIVED 2026-06-26 — BUILD LANDED.** The downstream implementation this checkpoint authorized
+> (`downstream_task_builder: UNBLOCKED`, P1–P5 RigorFlow mechanisms in the `sc:tasklist` generator)
+> was completed and merged to master in commit `db87420a` (PR #193), via task
+> `TASK-RF-tasklist-rfmerge-20260619-041423`. Verified live: P1–P5 present in
+> `src/superclaude/skills/sc-tasklist-protocol/SKILL.md`; `TestP1`–`TestP5` green (168 passed).
+> Do NOT re-run `/task-builder` against this package — that would duplicate shipped, tested code.
+> Package moved `releases/current/` → `releases/complete/` as part of crash-recovery housekeeping.
+
 **Generated:** 2026-06-18
 **Task:** TASK-RF-rfmerger-refresh-20260618-172224
 
