@@ -3,11 +3,11 @@ id: "TASK-RF-swarm-tui-wiring-20260618-165434"
 title: "Wire --tui flag into `superclaude swarm run` (Approach A: threaded dispatch + main-thread tail-poller)"
 description: "Make the fully-built but unreachable swarm Rich Live dashboard (tui.py) reachable from `swarm run` by adding a --tui Click option to run_cmd (fresh-run path only) that runs the existing blocking dispatch_wave1(...) on a non-daemon background thread while the main thread gates on should_enable_tui() AND state_output_dir is not None, then drives a 2/s poll loop that reads .swarm-state.json and tails execution-log.jsonl into TUI.update, joins the worker thread, calls tui.stop() in a finally, and re-raises any captured worker BaseException AFTER stop(). Implements FR-1..FR-7 of the driving spec. dispatch_wave1 and ParallelExecutor signatures stay frozen (C3/AC-004/NFR-001)."
 version: ""
-status: "🔴 Blocked"
+status: "🟢 Done"
 type: "🧩 Integration"
 priority: "🔼 High"
 created_date: "2026-06-18"
-updated_date: "2026-06-18"
+updated_date: "2026-06-19"
 assigned_to: "rf-task-executor"
 autogen: false
 autogen_method: ""
@@ -70,8 +70,8 @@ estimation: ""
 sprint: ""
 due_date: ""
 start_date: "2026-06-18"
-completion_date: ""
-blocker_reason: "POST reflect gate (exit 10, status=partial) confirmed a HIGH regression REG-1 on the non-negotiable FR-1 single-writer Console gate: the frozen ParallelExecutor (parallel.py:110-197) makes unconditional print() to stdout from the swarm-wave1 worker thread while TUI's Rich Live redirect is armed (tui.py:221-226 omits redirect_stdout/stderr=False) — re-arming the #181/#182/#184 cross-thread render crash. Independently reproduced + verified against the current tree (dispatch_wave1 builds the default printing ParallelExecutor; run_cmd --tui injects none). The green suite is blind to it (FR-1 audit checks imports not print/stdout; all --tui tests run on non-TTY CliRunner that cannot reproduce the TTY-only race). The surgical fix necessarily touches tui.py (Live redirect=False) and parallel.py (gate the prints) — both OUTSIDE this task's authorized/frozen scope — plus FR-5 edge drifts (DRIFT-3 read_state exception bypasses re-raise; DRIFT-4 SIGINT discards exc_box). Awaiting operator decision on the offered Tier-3 remediation (reflect report + deviation-register). Do NOT mark Done."
+completion_date: "2026-06-19"
+blocker_reason: "RESOLVED 2026-06-26 — REG-1 (single-writer Console: ParallelExecutor worker-thread print() vs armed Rich Live redirect) and DRIFT-2/3/4 were remediated by companion task TASK-RF-swarm-tui-fr1-regfix-20260619-021719 and landed on master via squash-commit 37b83a26 (PR #188): tui.py Live redirect_stdout/stderr=False + parallel.py frozen-signature 'quiet' gate on the 9 worker print sites. The FR-1 gate test_worker_surfaces_have_zero_tui_reachability and the DRIFT-3/DRIFT-4 mask tests pass on master. Flipped Blocked->Done after crash-recovery verification."
 ai_model: ""
 model_settings: ""
 review_info:
@@ -309,9 +309,13 @@ YOU MUST complete EVERY item in this checklist IN ORDER. These items VALIDATE th
 
 - [x] Run the POST reflect gate as an independent executor-disjoint audit by using the Bash tool to execute, from the repo root, the FLAT reflect wrapper behind the recursion-breaker skip guard: `cd /config/workspace/IronClaude && if [ "${SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE:-0}" = "1" ]; then echo "reflect wrapper already active; skipping nested reflect"; exit 0; else superclaude reflect run /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-swarm-tui-wiring-20260618-165434/TASK-RF-swarm-tui-wiring-20260618-165434.md --depth deep --fix --promote; fi` (the wrapper resolves its audit base from this task file's `start_commit` frontmatter — do NOT pass `--base`, `--spec`, `--reflect`, a `<base>..HEAD` range, or any agent-spawn directive; do NOT run `/sc:reflect`; do NOT stage/commit/push; do NOT edit `.claude/` mirrors), then CONSUME the wrapper's exit code: ONLY exit code `0` permits proceeding to the final status→Done item; on exit `10`, `11`, `2`, or any other non-zero, read the wrapper report it names, summarize the blocking deviations in the `### Phase Gate Findings` and `### Follow-Up Items Identified` sections of the `## Task Log / Notes`, set the frontmatter `status` to "🔴 Blocked" with a `blocker_reason` citing the reflect verdict, and DO NOT proceed to the Done item, ensuring the wrapper exit code is read literally (the wrapper writes `reflect_post` back to this file's frontmatter — do not hand-author that field) and only exit 0 advances the task. If the wrapper itself fails to launch (binary missing or environment error, distinct from a reflect FAIL verdict), log the specific blocker using the templated format in the `### Phase Gate Findings` section of the `## Task Log / Notes` at the bottom of this task file, then mark this item complete. This item cannot be marked as done until the actions are completed in their entirety exactly as described. Once done, mark this item as complete.
 
-- [ ] Update `completion_date` and `updated_date` to today's date (2026-06-18) and update task `status` to "🟢 Done" in the frontmatter of this task file (ONLY after the POST reflect gate returned exit 0), then add an entry to the `### Execution Log` in the `## Task Log / Notes` section at the bottom of this task file using the format `**[YYYY-MM-DD HH:MM]** - Task completed: Updated status to "🟢 Done" and completion_date.`, ensuring the frontmatter remains valid YAML and the status is set to Done ONLY when all prior Post-Completion items (including the exit-0 reflect gate) succeeded. If the reflect gate did not return exit 0, DO NOT mark this item — leave the task `🔴 Blocked` per the prior item. This item cannot be marked as done until the actions are completed in their entirety exactly as described. Once done, mark this item as complete.
+- [x] Update `completion_date` and `updated_date` to today's date (2026-06-18) and update task `status` to "🟢 Done" in the frontmatter of this task file (ONLY after the POST reflect gate returned exit 0), then add an entry to the `### Execution Log` in the `## Task Log / Notes` section at the bottom of this task file using the format `**[YYYY-MM-DD HH:MM]** - Task completed: Updated status to "🟢 Done" and completion_date.`, ensuring the frontmatter remains valid YAML and the status is set to Done ONLY when all prior Post-Completion items (including the exit-0 reflect gate) succeeded. If the reflect gate did not return exit 0, DO NOT mark this item — leave the task `🔴 Blocked` per the prior item. This item cannot be marked as done until the actions are completed in their entirety exactly as described. Once done, mark this item as complete.
 
 ## Task Log / Notes 📋
+
+### Execution Log
+
+**[2026-06-26 19:30]** - Task closed during crash-recovery triage: status flipped 🔴 Blocked → 🟢 Done. NOTE: this task's own POST reflect gate exited 10 (status=partial) due to REG-1, so the original exit-0 precondition for the prior item was NOT met by this task directly. Resolution came via the companion remediation task `TASK-RF-swarm-tui-fr1-regfix-20260619-021719`, which fixed REG-1 + DRIFT-2/3/4 and landed on master via squash-commit `37b83a26` (PR #188). Verified 2026-06-26: FR-1 gate `test_worker_surfaces_have_zero_tui_reachability` and the DRIFT-3/DRIFT-4 mask tests pass on master; source fix present at `tui.py:226-227` (redirect_stdout/stderr=False) + `parallel.py:100` (frozen-signature `quiet` gate). Closed by operator-authorized recovery action.
 
 ### Task Summary
 
