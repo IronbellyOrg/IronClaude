@@ -1,0 +1,72 @@
+You are reviewing a code change for the repository at the workspace root. Your job is to identify problems — both narrow bugs and higher-level concerns — and report them as structured JSON.
+
+## Context
+
+Target: PR #202 — "feat(mcp): pin Tavily to tavily-mcp@0.2.20 + adopt 0.2.x map/crawl across 8 clusters" (CODE CHUNK: Python install/eval logic + deleted config files)
+
+This chunk covers the bug-bearing surface of the PR: the MCP install logic and the eval capability/model registration. The PR reconciles a 3-way-conflicting Tavily integration to a single source of truth pinned at tavily-mcp@0.2.20, injects a masked DEFAULT_PARAMETERS env var at install time, deletes orphan tavily.json config files, and registers an mcp_server.tavily eval capability.
+
+Diff range: 530505a0...HEAD
+Files changed (this chunk):
+- src/superclaude/cli/install_mcp.py  (Tavily pin, default_parameters registry field, masked -e DEFAULT_PARAMETERS injection)
+- src/superclaude/cli/eval/capabilities.py  (register mcp_server.tavily in _DEFAULT_CAPABILITY_SPECS)
+- src/superclaude/cli/eval/models.py
+- src/superclaude/cli/eval/suites/real.yaml  (register tavily capability + E16 eval)
+- src/superclaude/mcp/configs/tavily.json  (DELETED)
+- plugins/superclaude/mcp/configs/tavily.json  (DELETED)
+
+The full diff for this chunk is available at: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/reviews/pr-202-20260623174609/chunks/code.patch
+Read it with the `view` tool, then use your indexed codebase context to investigate. Pay special attention to: the API-key masking claim (is the key actually masked in ALL echoed/printed command paths, or only some?), the JSON shape of the injected DEFAULT_PARAMETERS env value (valid JSON? shell-safe quoting?), the version pin appearing consistently, and whether the deleted tavily.json files are still referenced anywhere in the indexed codebase (dangling references after deletion).
+
+## Focus areas
+
+You MUST cover every focus area listed below. For each, search for the patterns described — do not just react to what's visible in the diff. Use codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions.
+
+- security: hardcoded secrets, secrets leaked into echoed/logged shell commands, weak masking (partial mask that still reveals the key), injection sinks via unescaped interpolation into shell commands, path traversal. Cross-reference: how are other MCP server API keys masked at install in this same file? Is the masking helper reused or rolled fresh here?
+- architecture: layering violations, registry/spec drift (a capability registered in one place but not its parallel place), missing abstractions, inconsistent handling of the Tavily server vs other servers in install_mcp.py.
+- quality: off-by-one, null-deref / unwrap-on-None, untyped boundaries, dead code, unused imports, swallowed exceptions, broad except, copy-paste, magic numbers, misleading names, comments contradicting code, malformed JSON/YAML literals.
+- performance: not a hot path here, but flag any obviously wasteful repeated parsing/serialization.
+- anti-patterns: god functions, primitive obsession, shotgun surgery (the pin/version repeated in many literals that can drift), speculative generality.
+- tests: is this new install/eval logic covered by tests in the tests/ tree? (cross-reference tests/cli/test_install_mcp_tavily.py and tests/cli/eval/*). Flag untested branches (e.g. the masking path, the SKIP-without-API-key path).
+- docs: stale references to the deleted config files or the old pin.
+
+## Output contract (STRICT — your response must match this exactly)
+
+Respond with a single JSON object (a ```json fence is fine). The shape is:
+
+{
+  "findings": [
+    {
+      "title": "<one-line summary, sentence case, no trailing period>",
+      "category": "<security | data-integrity | correctness | concurrency | resource-leak | error-handling | api-contract | performance | architecture | layering | coupling | anti-pattern | dead-code | tests | docs | logging | naming | style>",
+      "severity_hint": "<critical | high | medium | low | nit>",
+      "file": "<repo-relative path>",
+      "line": <integer line number in the file at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": <true|false>,
+      "evidence": "<exact verbatim code excerpt at the cited line(s), or null if you cannot copy exact bytes>",
+      "why": "<2-4 sentences, concrete>",
+      "recommendation": "<1-3 sentences, a concrete change>",
+      "cross_references": ["<repo-relative path:line>"],
+      "confidence": "<high | medium | low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "<spans multiple files, not anchored to one line>",
+      "category": "<as above>",
+      "severity_hint": "<as above>",
+      "affected_files": ["<repo-relative path>"],
+      "why": "<as above>",
+      "recommendation": "<as above>",
+      "confidence": "<as above>"
+    }
+  ],
+  "notes_for_orchestrator": "<optional notes>"
+}
+
+## Quality bar
+- Every finding must cite a real file:line. If you can't verify it, set confidence "low".
+- Do not invent file paths. Highest-signal 3-5 findings per area, not exhaustive. Zero findings in a clean area is fine — do not pad.
+- Prefer in_diff:true findings. Higher-level concerns go in cross_cutting_observations.
+Return only the JSON object. No additional text.

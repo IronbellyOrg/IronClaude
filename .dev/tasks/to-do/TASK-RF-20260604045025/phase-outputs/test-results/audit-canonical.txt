@@ -1,0 +1,40 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.2.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: superclaude-4.2.0, benchmark-5.2.3, cov-7.1.0
+collecting ... collected 94 items / 67 deselected / 27 selected
+
+tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_present PASSED [  3%]
+tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_has_no_halt PASSED [  7%]
+tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_has_cycle_3 PASSED [ 11%]
+tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_no_monotonicity_token PASSED [ 14%]
+tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_monotonicity_proceeds_at_transition_1_2 PASSED [ 18%]
+tests/audit/test_slow_shrink_continues.py::TestCanonicalFixtureParity::test_canonical_log_proceed_respawn_at_transition_1_2 PASSED [ 22%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_present PASSED [ 25%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_halts_byte_exact PASSED [ 29%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_has_no_cycle_3 PASSED [ 33%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_canonical_log_ordering_regression_then_monotonicity PASSED [ 37%]
+tests/audit/test_monotonicity_halt_F_5_5_5.py::TestCanonicalFixtureParity::test_runtime_and_canonical_halt_strings_match PASSED [ 40%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_present PASSED [ 44%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_present PASSED [ 48%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_has_no_halt PASSED [ 51%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_has_cycle_3 PASSED [ 55%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_halt_byte_exact PASSED [ 59%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_no_regression_halt PASSED [ 62%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_no_cycle_3 PASSED [ 66%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_runtime_and_canonical_non_shrink_halt_match PASSED [ 70%]
+tests/audit/test_synthetic_dnsp_dedup_not_regression.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_monotonicity_proceeds PASSED [ 74%]
+tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_shrinking_log_present PASSED [ 77%]
+tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_log_present PASSED [ 81%]
+tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_shrinking_halt_byte_exact PASSED [ 85%]
+tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_non_shrinking_halt_byte_exact PASSED [ 88%]
+tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_no_monotonicity_halt_in_either_fixture PASSED [ 92%]
+tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_canonical_no_cycle_3_in_either_fixture PASSED [ 96%]
+tests/audit/test_regression_halt_pass1_fail2.py::TestCanonicalFixtureParity::test_runtime_and_canonical_halt_strings_match PASSED [100%]
+
+====================== 27 passed, 67 deselected in 0.08s =======================

@@ -1,0 +1,19 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot/merged-requirements.md"
+  convergence_score: 0.78
+  artifacts_dir: "/config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot/adversarial/"
+  status: "success"
+  base_variant: "sonnet:security"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # 4 HIGH surfaced in Round 2.5, all resolved in merged §16
+telemetry:
+  mode: "B (generate from source)"
+  depth: deep
+  agents: "opus:architect, sonnet:security, haiku:devops (heterogeneous vendors)"
+  rounds: "1 parallel-statement + Round 2.5 invariant probe"
+  raw_diff_agreement: 0.82
+  invariant_probe: "18 findings — 4 HIGH(resolved), 10 MED(resolved/recorded), 4 LOW"
+  taxonomy_coverage: "L1+L2+L3 all covered"

@@ -1,0 +1,19 @@
+deviations:
+  - id: D1
+    summary: "Eval id E-tavily-search -> E16"
+    class: necessary
+    blocking: false
+    file: "src/superclaude/cli/eval/suites/real.yaml:1621-1644"
+    evidence: "FR-SCH2 eval-id regex forbids hyphens (empirically: E-tavily-search REJECT, E16 ACCEPT); validate_eval_id raises InvalidEvalId->exit 2. E16 correctly wired (requires:[mcp_server.tavily], expect_tool_call:mcp__tavily__tavily-search). Rationale documented inline real.yaml:1635-1638; descriptive name preserved in title."
+    note: "Task log records user approval via AskUserQuestion -> would be AUTHORIZED if corroborated by independent transcript; class change has no gate effect (both non-blocking). Conservative NECESSARY adopted."
+  - id: D2
+    summary: "test_capability_gates.py roster expectation updated for mcp_server.tavily"
+    class: necessary
+    blocking: false
+    file: "tests/cli/eval/test_capability_gates.py"
+    evidence: "Forced consequence of M2 mandatory registration in _DEFAULT_CAPABILITY_SPECS. Adds mcp_server.tavily to expected set, updates 3 MCP->4 MCP docstring. Strengthens (updates ground truth), does not no-op assertion. Contradicts nothing."
+drift_count: 0
+regression_count: 0
+authorized_count: 0
+necessary_count: 2
+grounding_gaps: []

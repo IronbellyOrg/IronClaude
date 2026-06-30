@@ -1,0 +1,5 @@
+# R1 canonical hyphen form (do-not-touch reference: deep-research.md:6-7)
+# deep-research.md MUST NOT be modified.
+
+  - mcp__tavily__tavily-search
+  - mcp__tavily__tavily-extract

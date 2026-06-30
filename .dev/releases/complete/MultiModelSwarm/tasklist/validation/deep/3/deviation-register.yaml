@@ -1,0 +1,37 @@
+- id: R1
+  task_id: T03.01/T03.08/T03.10/T03.22
+  class: regression
+  title: swarm run discards selected transport and dispatches zero workers
+  primary_evidence: /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/commands.py:1264-1266
+  verifier: stub smoke produced workers=3 results=0 and only manifest.json
+- id: R2
+  task_id: T03.14
+  class: regression
+  title: Phase 3 Python-only concurrency test fails due tmux subprocess surface
+  primary_evidence: /config/workspace/IronClaude/.claude/worktrees/SwarmPost/tests/swarm/test_concurrency_python_only.py:221-258
+  verifier: targeted Phase 3 suite failed 2 tests
+- id: D1
+  task_id: T03.03/T03.16/T03.22
+  class: drift
+  title: run path does not persist .swarm-state.json
+  primary_evidence: /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/preflight.py:1799-1802
+- id: D2
+  task_id: T03.09
+  class: drift
+  title: retry_policy permits 4xx/timeout retries under flags
+  primary_evidence: /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/dispatch.py:250-260
+- id: D3
+  task_id: T03.02/T03.05/T03.09
+  class: drift
+  title: OpenAI-compatible network exceptions lose model identity
+  primary_evidence: /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/transports/openai_compat.py:322-337
+- id: D4
+  task_id: T03.10/T03.17
+  class: drift
+  title: production logger call site does not pass output_dir confinement root
+  primary_evidence: /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/commands.py:1259-1263
+- id: D5
+  task_id: T03.17
+  class: drift
+  title: output-confinement test checks substring rather than call sites
+  primary_evidence: /config/workspace/IronClaude/.claude/worktrees/SwarmPost/tests/swarm/test_output_confinement.py:287-301

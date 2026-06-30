@@ -1,0 +1,53 @@
+contract_version: "1.3.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/post-troubleshoot-hardening-20260611T182100Z/REPORT.md
+confidence_calibrated: 0.93
+
+# UC-2
+tasklist_completion_pct: 0.29
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 1
+  regression: 1          # D1 dangling forward-ref (conditional; auto-resolves on Phase 6.1)
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/post-troubleshoot-hardening-20260611T182100Z/REPORT.md
+
+# Authorization
+g1_approval_evidenced: true        # OI-3-PENDING.md:18, OI-5-PENDING.md:24
+unauthorized_deviation_present: false
+
+# Hallucination guard
+citations_total: 11
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+
+# Tier 2 ensemble
+reviewer_models: [gpt-5.5, qwen3.6-plus, claude-opus-4-8]
+reviewer_vendors: [openai, alibaba, anthropic]
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+executor_class_resolved: false     # §7.1 anti-self-confirmation guarantee weakened
+merge_method: ensemble-converged
+adversarial_convergence: high
+
+# Key findings
+advisory_4token_invariant_held: true
+delivered_subset_fidelity: high
+highest_stakes_gap: tests/troubleshoot suite absent (spec §4.7 executable-validation)
+broken_xref: "SKILL.md:435 -> refs/report-template.md closure section (does not exist)"
+sync_dev_ran: false                # 6 refs absent from .claude mirror; make verify-sync would fail
+
+# Asymmetric flags
+regression_present: true           # conditional — incompleteness-sourced, resolves on Phase 6.1
+needs_human_decision: false        # OI-2/3/5 intentionally PENDING by design; no new decision required
+blocked_by_low_confidence: false
+
+# Promotion (Wave 7)
+promotion_action: skipped
+promotion_skip_reason: gate-failed
+promotion_gate_passed: false       # cond 2 (status!=success) + cond 3 (completion!=1.0) fail
+promotion_destination_withheld: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-troubleshoot-hardening-20260611-023739

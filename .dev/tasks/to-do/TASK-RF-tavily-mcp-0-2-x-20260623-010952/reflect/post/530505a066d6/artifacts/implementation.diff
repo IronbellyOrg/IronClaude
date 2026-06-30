@@ -1,0 +1,1377 @@
+diff --git a/docs/eval/retry.md b/docs/eval/retry.md
+index cb7d680c..ef7753e9 100644
+--- a/docs/eval/retry.md
++++ b/docs/eval/retry.md
+@@ -136,7 +136,7 @@ evals:
+   - id: E07
+     title: "Tavily MCP search returns at least one result"
+     requires:
+-      - mcp.tavily       # capability gate
++      - mcp_server.tavily       # capability gate
+       - MCP-flaky        # opt-in to R3-mit retry-once
+     expects: [...]
+ ```
+diff --git a/docs/reference/comprehensive-features.md b/docs/reference/comprehensive-features.md
+index 4b924fd7..6f6359b9 100644
+--- a/docs/reference/comprehensive-features.md
++++ b/docs/reference/comprehensive-features.md
+@@ -72,7 +72,7 @@ superclaude mcp --dry-run
+ 4. **playwright** - Cross-browser E2E testing and automation
+ 5. **serena** - Semantic code analysis and intelligent editing
+ 6. **morphllm-fast-apply** - Fast Apply capability for context-aware code modifications (requires API key)
+-7. **tavily** - Web search and real-time information retrieval (requires API key)
++7. **tavily** - Web search, extraction, site-mapping, and domain-crawl (requires API key) — see MCP_Tavily.md
+ 8. **chrome-devtools** - Chrome DevTools debugging and performance analysis
+
+ ### Documentation Files
+@@ -95,7 +95,6 @@ superclaude mcp --dry-run
+ - sequential.json
+ - serena-docker.json
+ - serena.json
+-- tavily.json
+
+ ## 📚 Core Documentation
+
+diff --git a/docs/user-guide/mcp-servers.md b/docs/user-guide/mcp-servers.md
+index 6f02888b..1a2dc73a 100644
+--- a/docs/user-guide/mcp-servers.md
++++ b/docs/user-guide/mcp-servers.md
+@@ -134,8 +134,9 @@ export MORPH_API_KEY="your_key_here"
+ ### tavily 🔍
+
+ **Purpose**: Web search and real-time information retrieval for research
++**Capabilities**: search, extraction, site-mapping, domain-crawl — see MCP_Tavily.md
+ **Triggers**: `/sc:research` commands, "latest" information requests, current events, fact-checking
+-**Requirements**: Node.js 16+, TAVILY_API_KEY (free tier available at <https://app.tavily.com>)
++**Requirements**: Node.js 18+, TAVILY_API_KEY (free tier available at <https://app.tavily.com>)
+
+ ```bash
+ # Automatic activation
+@@ -270,7 +271,7 @@ docker compose restart api
+     },
+     "tavily": {
+       "command": "npx",
+-      "args": ["-y", "tavily-mcp@latest"],
++      "args": ["-y", "tavily-mcp@0.2.20"],
+       "env": {"TAVILY_API_KEY": "${TAVILY_API_KEY}"}
+     },
+     "chrome-devtools": {
+diff --git a/plugins/superclaude/mcp/configs/tavily.json b/plugins/superclaude/mcp/configs/tavily.json
+deleted file mode 100644
+index 6966b5ad..00000000
+--- a/plugins/superclaude/mcp/configs/tavily.json
++++ /dev/null
+@@ -1,13 +0,0 @@
+-{
+-  "tavily": {
+-    "command": "npx",
+-    "args": [
+-      "-y",
+-      "mcp-remote",
+-      "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
+-    ],
+-    "env": {
+-      "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+-    }
+-  }
+-}
+\ No newline at end of file
+diff --git a/src/superclaude/agents/deep-research-agent.md b/src/superclaude/agents/deep-research-agent.md
+index d018c973..d5cf7840 100644
+--- a/src/superclaude/agents/deep-research-agent.md
++++ b/src/superclaude/agents/deep-research-agent.md
+@@ -5,6 +5,8 @@ category: analysis
+ tools:
+   - mcp__tavily__tavily-search
+   - mcp__tavily__tavily-extract
++  - mcp__tavily__tavily-map
++  - mcp__tavily__tavily-crawl
+   - WebSearch
+   - WebFetch
+   - mcp__context7__resolve-library-id
+@@ -118,17 +120,44 @@ After each major step:
+ - Provide sources when available
+ - Use inline citations for clarity
+ - Note when information is uncertain
+-- Tag each source with the backend used: `tavily`, `websearch`, `webfetch`, `playwright`, `context7`
++- Tag each source with the backend used: `tavily` (covers `tavily-search`, `tavily-extract`, `tavily-map`, `tavily-crawl`), `websearch`, `webfetch`, `playwright`, `context7`
+ - If a `websearch` or `webfetch` source appears, include `fallback_reason` per the Fallback Policy
+
++**Fallback Policy**
++
++Tavily MCP is the primary backend for all four operations (`tavily-search`, `tavily-extract`,
++`tavily-map`, `tavily-crawl`). Fall back to `WebSearch` / `WebFetch` ONLY when Tavily is
++unavailable. Because `tavily-map` and `tavily-crawl` have no direct WebSearch/WebFetch
++equivalent, on fallback they degrade to iterative `WebSearch` discovery (no site-graph / crawl
++breadth) — record this loss of fidelity.
++
++`fallback_reason` enum (set whenever a non-`tavily` backend is used in place of a Tavily op):
++
++- `tavily_unavailable` — the Tavily tool was not loaded / not configured this session
++- `tavily_error` — Tavily returned a tool-level error after one retry
++- `tavily_rate_limited` — Tavily returned an explicit rate-limit signal
++- `map_unsupported_fallback` — `tavily-map` requested but unavailable; degraded to WebSearch discovery
++- `crawl_unsupported_fallback` — `tavily-crawl` requested but unavailable; degraded to WebSearch discovery
++
+ ### Tool Orchestration
+
+ **Search Strategy**
+
+-1. Broad initial searches (Tavily)
++1. Broad initial searches via `mcp__tavily__tavily-search`
+ 2. Identify key sources
+ 3. Deep extraction via `mcp__tavily__tavily-extract` as needed
+-4. Follow interesting leads (re-issuing Tavily searches with refined queries)
++4. Follow interesting leads (re-issuing `mcp__tavily__tavily-search` with refined queries)
++
++**Discovery Routing** (map/crawl — research engine only)
++
++- `mcp__tavily__tavily-map` — site-structure discovery: enumerate a site's URL graph before
++  targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
++- `mcp__tavily__tavily-crawl` — deep domain traversal: follow links across a domain to gather
++  many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, and the
++  result set is truncated to a maximum of **50 URLs**.
++- Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when
++  exhaustive breadth across a domain is required. Per-tier gating lives in RESEARCH_CONFIG.md
++  Depth Profiles.
+
+ **Extraction Routing**
+
+@@ -137,6 +166,12 @@ After each major step:
+ - Technical docs → Context7
+ - Local context → Native tools
+
++**`extract_depth` selection**
++
++- Use `extract_depth: basic` for the quick/standard profiles (single-pass, low-cost pages).
++- Use `extract_depth: advanced` for the deep/exhaustive profiles or when a page is content-rich
++  / JS-heavy and a basic extract returns thin content.
++
+ **Parallel Optimization**
+
+ - Batch similar searches
+diff --git a/src/superclaude/agents/deep-research.md b/src/superclaude/agents/deep-research.md
+index cb0abaea..b6550b54 100644
+--- a/src/superclaude/agents/deep-research.md
++++ b/src/superclaude/agents/deep-research.md
+@@ -5,6 +5,8 @@ category: analysis
+ tools:
+   - mcp__tavily__tavily-search
+   - mcp__tavily__tavily-extract
++  - mcp__tavily__tavily-map
++  - mcp__tavily__tavily-crawl
+   - WebSearch
+   - WebFetch
+   - mcp__context7__resolve-library-id
+@@ -35,6 +37,22 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
+ 2. **Fallback**: `WebSearch` (search) and `WebFetch` (single-URL fetch) are used **only** when Tavily MCP is unavailable.
+ 3. **Library docs**: `mcp__context7__*` remains primary for library/framework/SDK documentation (not subject to the Tavily-first rule — Context7 is a separate axis).
+
++### Discovery Routing (map/crawl — research engine only)
++
++- `mcp__tavily__tavily-map` — site-structure discovery: enumerate a site's URL graph before
++  targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
++- `mcp__tavily__tavily-crawl` — deep domain traversal: follow links across a domain to gather
++  many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, result set
++  truncated to a maximum of **50 URLs**.
++- Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when
++  exhaustive breadth is required. Per-tier gating lives in RESEARCH_CONFIG.md Depth Profiles.
++
++### `extract_depth` selection
++
++- `extract_depth: basic` for quick/standard profiles (single-pass, low-cost pages).
++- `extract_depth: advanced` for deep/exhaustive profiles, or when a content-rich / JS-heavy page
++  returns thin content under a basic extract.
++
+ ### Detecting "Tavily unavailable"
+
+ Treat Tavily MCP as unavailable, and fall back to WebSearch/WebFetch, when **any** of the following holds:
+@@ -44,7 +62,7 @@ Treat Tavily MCP as unavailable, and fall back to WebSearch/WebFetch, when **any
+ - A Tavily call returns an explicit rate-limit / quota-exceeded error.
+ - A Tavily call returns an authentication error (missing/invalid API key).
+
+-In every fallback event, record in the source citation table: `fallback_reason: <tavily_missing | tavily_error | tavily_rate_limit | tavily_auth>`.
++In every fallback event, record in the source citation table: `fallback_reason: <tavily_missing | tavily_error | tavily_rate_limit | tavily_auth | map_unsupported_fallback | crawl_unsupported_fallback>`. The Tavily-first rule and these fallbacks apply to all four operations (`tavily-search`, `tavily-extract`, `tavily-map`, `tavily-crawl`). Because `tavily-map` / `tavily-crawl` have no direct WebSearch/WebFetch equivalent, on fallback they degrade to iterative `WebSearch` discovery (losing site-graph / crawl breadth) — flag this fidelity loss with `map_unsupported_fallback` / `crawl_unsupported_fallback`.
+
+ ### Never silent fallback
+
+diff --git a/src/superclaude/cli/eval/capabilities.py b/src/superclaude/cli/eval/capabilities.py
+index bed242c6..8334b92f 100644
+--- a/src/superclaude/cli/eval/capabilities.py
++++ b/src/superclaude/cli/eval/capabilities.py
+@@ -238,6 +238,14 @@ _DEFAULT_CAPABILITY_SPECS: tuple[_CapabilitySpec, ...] = (
+         "--no-mcp",
+         "AIRIS MCP gateway reachable",
+     ),
++    _CapabilitySpec(
++        "mcp_server.tavily",
++        "tavily",
++        "mcp_server",
++        "skip",
++        "--no-mcp",
++        "Tavily MCP server reachable",
++    ),
+ )
+
+
+diff --git a/src/superclaude/cli/eval/models.py b/src/superclaude/cli/eval/models.py
+index 6c749e87..3bbe8107 100644
+--- a/src/superclaude/cli/eval/models.py
++++ b/src/superclaude/cli/eval/models.py
+@@ -314,12 +314,12 @@ class EvalOutcome:
+       preserves equality and hashability; an empty tuple is the default for
+       ``SKIPPED`` outcomes (no assertions executed).
+     * ``skip_reason``         — free-form reason string when ``status`` is
+-      ``SKIPPED`` (e.g. ``"capability 'mcp.tavily' unresolved"``). ``None``
++      ``SKIPPED`` (e.g. ``"capability 'mcp_server.tavily' unresolved"``). ``None``
+       otherwise. DM-001 does not couple ``status == SKIPPED`` to a non-None
+       reason — empty-skip rows are documented elsewhere (loader paths) and
+       the model accepts both shapes.
+     * ``skip_flag_triggered`` — name of the flag/capability that triggered
+-      the skip (e.g. ``"mcp.tavily"``, ``"--include-skipped"``). ``None``
++      the skip (e.g. ``"mcp_server.tavily"``, ``"--include-skipped"``). ``None``
+       when the skip was not flag-driven.
+     * ``artifacts``           — mapping of artifact-name to absolute (or
+       run-relative) path produced by the eval. Stored as an immutable
+diff --git a/src/superclaude/cli/eval/suites/real.yaml b/src/superclaude/cli/eval/suites/real.yaml
+index 34f2b3a2..adcfa6e9 100644
+--- a/src/superclaude/cli/eval/suites/real.yaml
++++ b/src/superclaude/cli/eval/suites/real.yaml
+@@ -38,6 +38,7 @@ optional_capabilities:
+   - { name: mcp_server.auggie-mcp,        gate_flag: "--no-mcp", failure_mode: skip }
+   - { name: mcp_server.airis-mcp-gateway, gate_flag: "--no-mcp", failure_mode: skip }
+   - { name: mcp_server.serena,            gate_flag: "--no-mcp", failure_mode: skip }
++  - { name: mcp_server.tavily,            gate_flag: "--no-mcp", failure_mode: skip }
+
+ evals:
+   - id: E1
+@@ -1616,3 +1617,28 @@ evals:
+           contains: '"disposition":"fail_open"'
+       - exit_code:
+           equals: 0
++
++  - id: E16
++    title: "tavily-search verification — Tavily MCP 0.2.x search tool fires"
++    category: mcp-verification
++    requires: [mcp_server.tavily]
++    timeout_sec: 90
++    isolation:
++      home_strategy: ephemeral
++    no_pty: skip
++    # C7 / TASK-RF-tavily-mcp-0-2-x — capability-gated verification vehicle for
++    # the Tavily 0.2.x upgrade. Proves the pinned `tavily-mcp@0.2.20` server is
++    # reachable and the `mcp__tavily__tavily-search` tool fires. Gated by
++    # `requires: [mcp_server.tavily]`: SKIPs cleanly under `--no-mcp` OR when the
++    # Tavily MCP server is unreachable / no TAVILY_API_KEY is configured
++    # (optional_capabilities failure_mode: skip), so the suite stays CI-safe
++    # without a key. NOTE: the task named this eval `E-tavily-search`, but the
++    # FR-SCH2 eval-id regex `^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$` forbids
++    # hyphens (validate_eval_id raises InvalidEvalId → exit 2), so it is `E16`
++    # (next in the E1–E15 sequence); the descriptive name is preserved in title.
++    inputs:
++      - prompt: "Use mcp__tavily__tavily-search to search the web for \"Tavily MCP server\" and report the top result title."
++        expect_tool_call: mcp__tavily__tavily-search
++    expects:
++      - exit_code:
++          equals: 0
+diff --git a/src/superclaude/cli/install_mcp.py b/src/superclaude/cli/install_mcp.py
+index f380f8f5..cd7f6116 100644
+--- a/src/superclaude/cli/install_mcp.py
++++ b/src/superclaude/cli/install_mcp.py
+@@ -5,6 +5,7 @@ Installs and manages MCP servers using the latest Claude Code API.
+ Based on the installer logic from commit d4a17fc but adapted for modern Claude Code.
+ """
+
++import json
+ import os
+ import platform
+ import shlex
+@@ -77,10 +78,11 @@ MCP_SERVERS = {
+         "name": "tavily",
+         "description": "Web search and real-time information retrieval for deep research",
+         "transport": "stdio",
+-        "command": "npx -y tavily-mcp@0.1.2",
++        "command": "npx -y tavily-mcp@0.2.20",
+         "required": False,
+         "api_key_env": "TAVILY_API_KEY",
+         "api_key_description": "Tavily API key for web search (get from https://app.tavily.com)",
++        "default_parameters": {"search_depth": "basic", "max_results": 10},
+     },
+     "chrome-devtools": {
+         "name": "chrome-devtools",
+@@ -540,8 +542,10 @@ def install_mcp_server(
+
+     # Handle API key requirements
+     env_args = []
++    secret_env_names = set()  # env var names whose values must be masked in echoes (M1)
+     if "api_key_env" in server_info:
+         api_key_env = server_info["api_key_env"]
++        secret_env_names.add(api_key_env)
+         api_key = prompt_for_api_key(
+             server_name,
+             api_key_env,
+@@ -551,6 +555,15 @@ def install_mcp_server(
+         if api_key:
+             env_args = ["-e", f"{api_key_env}={api_key}"]
+
++    # Inject server-level DEFAULT_PARAMETERS as a repeatable -e pair (M1).
++    # Compact JSON (no spaces) keeps the value a single argv token; not a secret,
++    # so it is shown in full in echoed commands.
++    if "default_parameters" in server_info:
++        default_params_json = json.dumps(
++            server_info["default_parameters"], separators=(",", ":")
++        )
++        env_args.extend(["-e", f"DEFAULT_PARAMETERS={default_params_json}"])
++
+     # Handle global binary requirement (e.g., auggie needs `npm install -g`)
+     if "requires_global_binary" in server_info:
+         req = server_info["requires_global_binary"]
+@@ -613,14 +626,23 @@ def install_mcp_server(
+     # Add server command (split into parts)
+     cmd.extend(shlex.split(command))
+
++    # Build a display-safe command that masks secret env values (e.g. the API key)
++    # while leaving non-secret tokens like DEFAULT_PARAMETERS visible in full (M1).
++    def _mask_secret(token: str) -> str:
++        if "=" in token:
++            key = token.split("=", 1)[0]
++            if key in secret_env_names:
++                return f"{key}=***"
++        return token
++
++    display_cmd = " ".join(_mask_secret(tok) for tok in cmd)
++
+     if dry_run:
+-        click.echo(f"   [DRY RUN] Would run: {' '.join(cmd)}")
++        click.echo(f"   [DRY RUN] Would run: {display_cmd}")
+         return True
+
+     try:
+-        click.echo(
+-            f"   Running: claude mcp add --transport {transport} {server_name} -- {command}"
+-        )
++        click.echo(f"   Running: {display_cmd}")
+         result = _run_command(cmd, capture_output=True, text=True, timeout=120)
+
+         if result.returncode == 0:
+diff --git a/src/superclaude/commands/research.md b/src/superclaude/commands/research.md
+index 30aea654..f40495ab 100644
+--- a/src/superclaude/commands/research.md
++++ b/src/superclaude/commands/research.md
+@@ -90,9 +90,11 @@ personas: [deep-research-agent]
+ - **Deep**: Comprehensive search, 3-4 hops, detailed analysis
+ - **Exhaustive**: Maximum depth, 5 hops, complete investigation
+
++Per-tier `search_depth`/`extract_depth` and map/crawl selection are defined by the research engine — see RESEARCH_CONFIG.md Depth Profiles.
++
+ ## MCP Integration
+
+-- **Tavily**: Primary search and extraction engine
++- **Tavily**: Primary search, extraction, site-mapping (`tavily-map`) and domain-crawl (`tavily-crawl`) engine — see deep-research-agent / RESEARCH_CONFIG.md for routing
+ - **Sequential**: Complex reasoning and synthesis
+ - **Playwright**: JavaScript-heavy content extraction
+ - **Serena**: Research session persistence
+diff --git a/src/superclaude/core/FLAGS.md b/src/superclaude/core/FLAGS.md
+index cbbeb13a..ccabfbf7 100644
+--- a/src/superclaude/core/FLAGS.md
++++ b/src/superclaude/core/FLAGS.md
+@@ -69,7 +69,7 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
+ **--tavily**
+
+ - Trigger: Web search requests, real-time information needs, research queries, current events
+-- Behavior: Enable Tavily for web search and real-time information gathering
++- Behavior: Enable Tavily for search/extract/map/crawl — see MCP_Tavily.md
+
+ **--frontend-verify**
+
+diff --git a/src/superclaude/core/RESEARCH_CONFIG.md b/src/superclaude/core/RESEARCH_CONFIG.md
+index f55c150b..947102e8 100644
+--- a/src/superclaude/core/RESEARCH_CONFIG.md
++++ b/src/superclaude/core/RESEARCH_CONFIG.md
+@@ -51,14 +51,31 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
+ | T3 | 0.5-0.7 | Community resources, user docs, verified social, Wikipedia |
+ | T4 | 0.3-0.5 | User forums, unverified social, personal blogs, comments |
+
++**Domain filters:** Bind Tavily's `include_domains` / `exclude_domains` to the tiers above —
++use `include_domains` to bias `search` / `map` / `crawl` toward T1–T2 sources (academic,
++official docs, established media) and `exclude_domains` to suppress T4 sources (unverified
++social, comment threads).
++
+ ## Depth Profiles
+
+-| Profile | Sources | Hops | Iterations | Time | Confidence | Extraction |
+-|---------|---------|------|------------|------|------------|------------|
+-| quick | 10 | 1 | 1 | 2min | 0.6 | tavily_only |
+-| standard | 20 | 3 | 2 | 5min | 0.7 | selective |
+-| deep | 40 | 4 | 3 | 8min | 0.8 | comprehensive |
+-| exhaustive | 50+ | 5 | 5 | 10min | 0.9 | all_sources |
++Tavily MCP version: **0.2.20** (pinned — see the `install_mcp.py` registry and `MCP_Tavily.md`).
++The server-level `DEFAULT_PARAMETERS` baseline is injected at install (canonical values live in
++`install_mcp.py` / `MCP_Tavily.md` — not duplicated here). Each profile below overrides
++`search_depth` / `extract_depth` per tier; per-call tool args override the server default.
++
++| Profile | Sources | Hops | Iterations | Time | Confidence | search_depth | extract_depth | Tools enabled |
++|---------|---------|------|------------|------|------------|--------------|---------------|---------------|
++| quick | 10 | 1 | 1 | 2min | 0.6 | basic | basic | search |
++| standard | 20 | 3 | 2 | 5min | 0.7 | basic | basic | search, extract |
++| deep | 40 | 4 | 3 | 8min | 0.8 | advanced | advanced | search, extract, map |
++| exhaustive | 50+ | 5 | 5 | 10min | 0.9 | advanced | advanced | search, extract, map, crawl |
++
++`search_depth: advanced` is used ONLY at the **deep** and **exhaustive** tiers; quick and
++standard stay `basic`. `tavily-map` is enabled at **deep and above**; `tavily-crawl` is enabled
++at the **exhaustive tier only**.
++
++**Discovery caps:** `maps=2` per research run, `crawls=1` per research run; a `tavily-crawl`
++result set is truncated to a maximum of **50 URLs**.
+
+ ## Multi-Hop Patterns
+
+@@ -69,6 +86,27 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
+ | temporal_progression | Follow chronology | Current → Recent → Historical → Origins | backward |
+ | causal_chain | Trace cause/effect | Effect → Immediate → Root → Prevention | validated |
+
++## Discovery Routing
++
++| Operation | Tavily tool id | Use | Enabled at |
++|-----------|----------------|-----|-----------|
++| map | `mcp__tavily__tavily-map` | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
++| crawl | `mcp__tavily__tavily-crawl` | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
++
++Typical flow: `map` a domain to surface candidate URLs, then `extract` the high-value ones;
++escalate to `crawl` only at the **exhaustive** tier when broad coverage across a domain is
++required. Respect the caps (`maps=2`, `crawls=1`) and the 50-URL crawl truncation.
++
++## Recency Controls
++
++| Param | Use |
++|-------|-----|
++| `topic: news` | Switch search to the news index for current-events queries (default is `topic: general`) |
++| `time_range` | Bound results to a recent window (day / week / month / year) |
++| `days` | With `topic: news`, limit results to the last N days |
++
++Apply recency controls only when the query is time-sensitive.
++
+ ## Extraction Routing
+
+ | Tool | Conditions |
+diff --git a/src/superclaude/examples/deep_research_workflows.md b/src/superclaude/examples/deep_research_workflows.md
+index 09dd0811..a3f93190 100644
+--- a/src/superclaude/examples/deep_research_workflows.md
++++ b/src/superclaude/examples/deep_research_workflows.md
+@@ -414,6 +414,65 @@ Comprehensive analysis of "AI in healthcare 2024"
+    - Visual evidence
+ ```
+
++## Example 11: Discovery Routing with Map & Crawl (0.2.x tool surface)
++
++### Scenario
++
++Survey a documentation domain's structure, then go broad: "Audit the entire FastAPI docs site for
++async-related guidance"
++
++### Execution
++
++```bash
++/sc:research "FastAPI async guidance across the docs site" --depth deep
++```
++
++### Workflow (map → extract at the deep profile)
++
++```yaml
++1. Site-structure discovery (deep profile enables map; cap maps=2):
++   - mcp__tavily__tavily-map:
++       url: "https://fastapi.tiangolo.com"
++       include_domains: ["fastapi.tiangolo.com"]   # bound to T1/T2 source tier
++   - Returns: the site's URL graph (sections, pages)
++
++2. Targeted extraction of the high-value URLs found by map:
++   - mcp__tavily__tavily-extract:
++       urls: [ ".../async/", ".../advanced/async-sql/", ".../tutorial/..." ]
++       extract_depth: advanced        # deep profile → advanced
++   - Returns: full content of the selected pages only
++
++3. Synthesis:
++   - Combine mapped structure + extracted content into a coherent guide
++   - Backend tag: tavily (map + extract)
++```
++
++### Workflow (guarded crawl at the exhaustive profile only)
++
++```bash
++/sc:research "Exhaustive sweep of a vendor changelog domain" --depth exhaustive
++```
++
++```yaml
++1. Crawl is enabled ONLY at the exhaustive profile (cap crawls=1, ≤50 URLs):
++   - mcp__tavily__tavily-crawl:
++       url: "https://vendor.example.com/changelog"
++       include_domains: ["vendor.example.com"]
++       search_depth: advanced          # exhaustive profile → advanced
++   - Result set is truncated to a maximum of 50 URLs (cap enforced)
++
++2. If the domain exceeds 50 URLs:
++   - Note the truncation in the report; do NOT issue a second crawl (crawls=1 cap)
++   - Fall back to targeted map+extract on the highest-priority subsections
++
++3. Synthesis:
++   - Aggregate crawled pages; flag coverage limits from the 50-URL cap
++```
++
++> Map/crawl are confined to the deep-research engine. Per-tier gating, caps, and parameter
++> defaults are defined in RESEARCH_CONFIG.md (Depth Profiles, Discovery Routing) and the tool
++> surface in MCP_Tavily.md — this example does not restate them.
++
+ ## Advanced Workflow Patterns
+
+ ### Pattern 1: Iterative Deepening
+diff --git a/src/superclaude/mcp/MCP_Tavily.md b/src/superclaude/mcp/MCP_Tavily.md
+index da530389..9087960e 100644
+--- a/src/superclaude/mcp/MCP_Tavily.md
++++ b/src/superclaude/mcp/MCP_Tavily.md
+@@ -2,6 +2,9 @@
+
+ **Purpose**: Web search and real-time information retrieval for research and current events
+
++**Version**: `tavily-mcp@0.2.20` (pinned — see the `install_mcp.py` registry). This file is the
++canonical Tavily capability reference; other docs point here rather than restating the surface.
++
+ ## Triggers
+
+ - Web search requirements beyond Claude's knowledge cutoff
+@@ -32,6 +35,50 @@
+
+ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
+
++## Tool Surface (Tavily MCP 0.2.x)
++
++The 0.2.x server exposes four tools:
++
++| Tool id | Operation | Notes |
++|---------|-----------|-------|
++| `mcp__tavily__tavily-search` | Web/news search with ranking + filtering | primary search |
++| `mcp__tavily__tavily-extract` | Full-text extraction from one or more URLs | page content |
++| `mcp__tavily__tavily-map` | Site-structure discovery (URL graph of a domain) | research engine only |
++| `mcp__tavily__tavily-crawl` | Deep domain traversal across linked pages | research engine only |
++
++### Parameters
++
++| Param | Values | Applies to |
++|-------|--------|-----------|
++| `search_depth` | `basic` \| `advanced` | search |
++| `extract_depth` | `basic` \| `advanced` | extract |
++| `topic` | `general` \| `news` | search |
++| `time_range` | `day` \| `week` \| `month` \| `year` | search |
++| `days` | integer (with `topic: news`) | search |
++| `include_domains` / `exclude_domains` | list of domains | search / map / crawl |
++| `max_results` | integer | search |
++
++### DEFAULT_PARAMETERS (server-level baseline)
++
++The server is installed with a server-level `DEFAULT_PARAMETERS` env var carrying the baseline
++`{"search_depth":"basic","max_results":10}`, injected at install time (the canonical value lives
++in the `install_mcp.py` registry — it is not restated elsewhere). Every Tavily call inherits this
++baseline unless a per-call tool argument overrides it.
++
++### Per-call override (X3 exception — M4, intentional)
++
++Per-call tool arguments override the server-level `DEFAULT_PARAMETERS`. This is a deliberate,
++mechanically-valid divergence, not a drift to be "corrected":
++
++- The `/sc:troubleshoot` Tier-2 focused query passes `search_depth: advanced` as a per-call
++  argument, overriding the server baseline `basic` for that one rate-limited query (≤2 queries) —
++  only hard cases reach Tier-2, so the cost is bounded.
++- The deep-research engine raises `search_depth` / `extract_depth` to `advanced` at the deep and
++  exhaustive Depth Profiles (see RESEARCH_CONFIG.md).
++
++These overrides are the documented exception to the `basic` baseline and MUST NOT be normalized
++back to `basic`.
++
+ ## Search Capabilities
+
+ - **Web Search**: General web searches with ranking algorithms
+diff --git a/src/superclaude/mcp/configs/tavily.json b/src/superclaude/mcp/configs/tavily.json
+deleted file mode 100644
+index 6966b5ad..00000000
+--- a/src/superclaude/mcp/configs/tavily.json
++++ /dev/null
+@@ -1,13 +0,0 @@
+-{
+-  "tavily": {
+-    "command": "npx",
+-    "args": [
+-      "-y",
+-      "mcp-remote",
+-      "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
+-    ],
+-    "env": {
+-      "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+-    }
+-  }
+-}
+\ No newline at end of file
+diff --git a/src/superclaude/modes/MODE_DeepResearch.md b/src/superclaude/modes/MODE_DeepResearch.md
+index 897685cd..d9f5faf4 100644
+--- a/src/superclaude/modes/MODE_DeepResearch.md
++++ b/src/superclaude/modes/MODE_DeepResearch.md
+@@ -47,7 +47,7 @@ category: mode
+ ## Integration Points
+
+ - Activates deep-research-agent automatically
+-- Enables Tavily search capabilities
++- Enables Tavily capabilities: search, extraction, site-mapping, domain-crawl
+ - Triggers Sequential for complex reasoning
+ - Emphasizes TodoWrite for task tracking
+
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+index 356e286d..63f83d61 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+@@ -186,6 +186,8 @@ Orchestrate parallel brainstorming via:
+    | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `Skill tech-research` with topic | `enrichment/research-deep.md` |
+    | Otherwise | Skip enrichment | — |
+
++   Research depth/params are owned by `/sc:research` and `tech-research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
++
+ 2. **Quality-tier tracking** (mandatory per enrichment source):
+    - `primary` — first-choice source ran cleanly
+    - `fallback_1` — primary failed, used Serena (codebase) or WebSearch (research)
+@@ -383,7 +385,7 @@ enrichment_artifact_sizes:
+ | `sc-adversarial-protocol` missing | STOP with install instruction | None |
+ | `--handoff task/tasklist` skill missing | STOP (no silent downgrade) | User must choose alternate handoff |
+ | Codebase enrichment fails (Auggie down) | WARN, fall back to Serena `get_symbols_overview` (quality_tier=fallback_1) | Native Glob/Grep (quality_tier=fallback_2) |
+-| Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1) | Skip (quality_tier=skipped) |
++| Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1; WebSearch fallback loses 0.2.x depth/map/crawl features) | Skip (quality_tier=skipped) |
+ | Adversarial returns `convergence < 0.50` | FAIL Wave 3, skip Wave 4 | None |
+ | Adversarial empty/unparseable response | **FAIL** (no synthetic 0.5 fallback) | None |
+ | Adversarial structured but missing convergence_score, valid merged_output_path | PARTIAL with fallback 0.5 + warning | Continue |
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index 65cee877..8e6c4c08 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -1687,6 +1687,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
+ - Tag every claim as Grounded or `[INFERRED]`; drop claims that fit neither bucket.
+ - Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
+ - Fail-open on missing MCPs (auggie, serena, context7, tavily) — fall back to native tools and mark degraded.
++- Tavily evidence searches via `mcp__tavily__tavily-search` inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
+ - Persist deviation patterns to per-project Serena memory with 90-day expiry.
+ - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
+ - **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.
+diff --git a/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md b/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+index 6a721743..0aa81d9f 100644
+--- a/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+@@ -332,7 +332,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions,
+
+ 1. **MCP enrichment in parallel with agent spawn** — issue any of the following that match the signals (parallel calls, all kicked off in the same turn):
+    - `mcp__context7__resolve-library-id` + `mcp__context7__query-docs` when the issue mentions a framework / library by name or the stack trace is in third-party code
+-   - `mcp__tavily__tavily-search` for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave)
++   - `mcp__tavily__tavily-search` for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave; for the error-string query use `search_depth: advanced` with recommended `include_domains: [github.com, stackoverflow.com]` — only hard cases reach Tier-2, and the ≤2-query cap bounds cost)
+    - `mcp__auggie__codebase-retrieval` with a more targeted query than Tier 1 (e.g. "find every call site of `<symbol>` and how they handle the error case")
+ 2. **Spawn hypothesis agents** in parallel via `Task` (single message with multiple Task calls). Each agent receives:
+    - The original issue + Tier 1 hypothesis card (so they can agree, disagree, or extend)
+diff --git a/tests/agents/test_tavily_tool_parity.py b/tests/agents/test_tavily_tool_parity.py
+new file mode 100644
+index 00000000..5c07959e
+--- /dev/null
++++ b/tests/agents/test_tavily_tool_parity.py
+@@ -0,0 +1,109 @@
++"""Frontmatter↔prose Tavily tool-parity drift guards (Clusters C2 + C6, invariants X7 + X5).
++
++Per reflect finding H1, the parity glob covers BOTH ``src/superclaude/agents/**/*.md`` and
++``src/superclaude/skills/**/*.md`` and parses BOTH the ``tools:`` (YAML list) and
++``allowed-tools:`` (inline comma list) frontmatter keys — so ``sc-recommend`` is in scope.
++
++Parity semantics (faithful to X7 without false-failing the no-change consumers):
++- Only files declaring a tool surface (``tools:`` or ``allowed-tools:``) are checked; narrative
++  reference docs (e.g. ``refs/*.md``) with no tool-surface key are skipped.
++- Universal direction — ``referenced ⊆ declared``: a file may not reference a ``mcp__tavily__*``
++  tool in prose without declaring it in frontmatter.
++- Bidirectional direction — for files that DOCUMENT a Tavily tool in prose (≥1 full id in the
++  body), ``declared == referenced`` exactly. Files that mention Tavily only generically
++  (``sc-recommend``, ``sc-reflect`` pre-edit) have an empty referenced set and are exempt from
++  the equality, which is the intended behavior (they inherit, they do not document the surface).
++
++All assertions read real file content; CI-safe (no network).
++"""
++
++import re
++from pathlib import Path
++
++_REPO_ROOT = Path(__file__).resolve().parents[2]
++_AGENTS_DIR = _REPO_ROOT / "src" / "superclaude" / "agents"
++_SKILLS_DIR = _REPO_ROOT / "src" / "superclaude" / "skills"
++
++_TAVILY_ID = re.compile(r"mcp__tavily__tavily-[a-z]+")
++_TOOL_SURFACE_KEY = re.compile(r"^\s*(tools|allowed-tools):", re.MULTILINE)
++
++
++def _md_files() -> list[Path]:
++    files: list[Path] = []
++    for root in (_AGENTS_DIR, _SKILLS_DIR):
++        files.extend(sorted(root.rglob("*.md")))
++    return files
++
++
++def _split_frontmatter(text: str) -> tuple[str, str]:
++    """Return (frontmatter, body). If no leading frontmatter block, ('', text)."""
++    if text.startswith("---"):
++        parts = text.split("---", 2)
++        if len(parts) >= 3:
++            return parts[1], parts[2]
++    return "", text
++
++
++def test_prose_tavily_ids_are_declared():
++    """referenced ⊆ declared — no file uses a Tavily tool it did not declare (X7)."""
++    violations = []
++    for f in _md_files():
++        fm, body = _split_frontmatter(f.read_text(encoding="utf-8"))
++        if not _TOOL_SURFACE_KEY.search(fm):
++            continue
++        declared = set(_TAVILY_ID.findall(fm))
++        referenced = set(_TAVILY_ID.findall(body))
++        undeclared = referenced - declared
++        if undeclared:
++            violations.append((str(f.relative_to(_REPO_ROOT)), sorted(undeclared)))
++    assert not violations, f"prose references undeclared Tavily tools: {violations}"
++
++
++def test_documenting_files_have_exact_parity():
++    """declared == referenced for files that document Tavily tools in prose (X7 bidirectional)."""
++    mismatches = []
++    for f in _md_files():
++        fm, body = _split_frontmatter(f.read_text(encoding="utf-8"))
++        if not _TOOL_SURFACE_KEY.search(fm):
++            continue
++        declared = set(_TAVILY_ID.findall(fm))
++        referenced = set(_TAVILY_ID.findall(body))
++        if referenced and declared != referenced:
++            mismatches.append(
++                {
++                    "file": str(f.relative_to(_REPO_ROOT)),
++                    "declared": sorted(declared),
++                    "referenced": sorted(referenced),
++                }
++            )
++    assert not mismatches, f"frontmatter↔prose Tavily parity mismatch: {mismatches}"
++
++
++def test_rf_no_map_crawl():
++    """X5 guard — no rf-* agent references map/crawl (confined to the research engine)."""
++    offenders = []
++    for f in sorted(_AGENTS_DIR.glob("rf-*.md")):
++        text = f.read_text(encoding="utf-8")
++        if "tavily-map" in text or "tavily-crawl" in text:
++            offenders.append(f.name)
++    assert not offenders, f"rf-* agents must not reference map/crawl (X5): {offenders}"
++
++
++def test_rf_fallback_provenance_present():
++    """Each rf-* agent retains a Tavily-first + fallback-provenance form."""
++    missing = []
++    rf_files = sorted(_AGENTS_DIR.glob("rf-*.md"))
++    assert rf_files, "expected rf-* agent files to exist"
++    for f in rf_files:
++        text = f.read_text(encoding="utf-8")
++        has_tavily = "mcp__tavily__tavily-search" in text
++        has_provenance = (
++            "Tavily-first" in text
++            and "fallback" in text.lower()
++            and "WebSearch" in text
++        )
++        if not (has_tavily and has_provenance):
++            missing.append(f.name)
++    assert not missing, (
++        f"rf-* agents missing Tavily-first/fallback provenance: {missing}"
++    )
+diff --git a/tests/cli/eval/test_capability_gates.py b/tests/cli/eval/test_capability_gates.py
+index f6c3d6de..e799a27c 100644
+--- a/tests/cli/eval/test_capability_gates.py
++++ b/tests/cli/eval/test_capability_gates.py
+@@ -41,7 +41,11 @@ def _mcp_only_specs() -> tuple[_CapabilitySpec, ...]:
+
+
+ def test_default_roster_contains_expected_binaries_and_mcp_servers() -> None:
+-    """T01.11 Steps[2]: roster = claude/jq/make/git HARD + 3 MCP SOFT-SKIP."""
++    """T01.11 Steps[2]: roster = claude/jq/make/git HARD + 4 MCP SOFT-SKIP.
++
++    The MCP roster gained ``mcp_server.tavily`` (M2 mandatory registration for the
++    Tavily 0.2.x upgrade / TASK-RF-tavily-mcp-0-2-x) alongside auggie/auggie-mcp/airis.
++    """
+     names = {spec.name for spec in _DEFAULT_CAPABILITY_SPECS}
+     assert names == {
+         "binary.claude",
+@@ -51,6 +55,7 @@ def test_default_roster_contains_expected_binaries_and_mcp_servers() -> None:
+         "mcp_server.auggie",
+         "mcp_server.auggie-mcp",
+         "mcp_server.airis-mcp-gateway",
++        "mcp_server.tavily",
+     }
+
+
+diff --git a/tests/cli/eval/test_tavily_eval_capability.py b/tests/cli/eval/test_tavily_eval_capability.py
+new file mode 100644
+index 00000000..7cbe5531
+--- /dev/null
++++ b/tests/cli/eval/test_tavily_eval_capability.py
+@@ -0,0 +1,58 @@
++"""C7 / M2 drift guards for the Tavily eval capability + the E16 verification eval.
++
++CI-safe: pure registry + manifest parsing through the same loader path
++``eval describe`` uses; no live eval run, no network, no TAVILY_API_KEY required.
++
++Note: the task referred to this eval as ``E-tavily-search``; it is registered as
++``E16`` because the FR-SCH2 eval-id regex forbids hyphens (user-approved rename).
++"""
++
++import yaml
++
++from superclaude.cli.eval.capabilities import _DEFAULT_CAPABILITY_SPECS
++from superclaude.cli.eval.commands import _DEFAULT_SUITES_DIR, resolve_suite_manifest
++from superclaude.cli.eval.loader import validate_manifest
++
++_CAP = "mcp_server.tavily"
++_TOOL = "mcp__tavily__tavily-search"
++
++
++def _real_manifest_path():
++    return resolve_suite_manifest("real", _DEFAULT_SUITES_DIR)
++
++
++def test_capabilities_registers_mcp_server_tavily():
++    """M2: mcp_server.tavily is a mandatory _DEFAULT_CAPABILITY_SPECS row (kind mcp_server)."""
++    by_name = {s.name: s for s in _DEFAULT_CAPABILITY_SPECS}
++    assert _CAP in by_name, f"{_CAP} not registered in _DEFAULT_CAPABILITY_SPECS (M2)"
++    assert by_name[_CAP].kind == "mcp_server"
++
++
++def test_real_suite_has_tavily_capability_and_verification_eval():
++    """The real suite resolves mcp_server.tavily and carries the E16 verification eval."""
++    path = _real_manifest_path()
++    # Parses through the same loader path `eval describe --suite real` uses.
++    specs = validate_manifest(path)
++    matches = [s for s in specs if s.id == "E16"]
++    assert matches, "E16 tavily verification eval not present in the real suite"
++    spec = matches[0]
++    assert _CAP in spec.requires, f"E16 must require {_CAP}: {spec.requires}"
++    tool_calls = [i.get("expect_tool_call") for i in spec.inputs]
++    assert _TOOL in tool_calls, f"E16 must expect {_TOOL}: {tool_calls}"
++
++    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
++    cap_names = {c["name"] for c in raw.get("optional_capabilities", [])}
++    assert _CAP in cap_names, (
++        "real suite optional_capabilities missing mcp_server.tavily"
++    )
++
++
++def test_tavily_eval_gated_to_skip_without_key():
++    """The eval SKIPs cleanly (not fails) when Tavily is unreachable / no key — failure_mode: skip."""
++    raw = yaml.safe_load(_real_manifest_path().read_text(encoding="utf-8"))
++    cap = next(c for c in raw["optional_capabilities"] if c["name"] == _CAP)
++    assert cap["failure_mode"] == "skip"
++    assert cap.get("gate_flag") == "--no-mcp"
++    # The default-spec gate agrees, so non-real suites resolve the capability too (M2).
++    by_name = {s.name: s for s in _DEFAULT_CAPABILITY_SPECS}
++    assert by_name[_CAP].failure_mode == "skip"
+diff --git a/tests/cli/test_install_mcp_tavily.py b/tests/cli/test_install_mcp_tavily.py
+new file mode 100644
+index 00000000..fa07f168
+--- /dev/null
++++ b/tests/cli/test_install_mcp_tavily.py
+@@ -0,0 +1,118 @@
++"""Drift-guard tests for the Tavily MCP registry entry and install path (Cluster C1).
++
++Covers the pinned ``tavily-mcp@0.2.20`` version, the ``default_parameters`` registry
++field, server-level ``DEFAULT_PARAMETERS`` injection into the install argv (M1), API-key
++masking in echoed commands (M1), and the absence of the deleted ``configs/tavily.json``.
++
++All assertions read the ACTUAL registry / argv — no fabricated expected values. The live
++smoke is gated behind ``TAVILY_API_KEY`` so the suite is CI-safe.
++"""
++
++import os
++from pathlib import Path
++
++import pytest
++
++from superclaude.cli import install_mcp
++
++# Repo root: tests/cli/test_install_mcp_tavily.py -> parents[2]
++_REPO_ROOT = Path(__file__).resolve().parents[2]
++
++# Compact-JSON token expected in the install argv (no spaces — single argv token, M1).
++_EXPECTED_DEFAULT_PARAMS_TOKEN = (
++    'DEFAULT_PARAMETERS={"search_depth":"basic","max_results":10}'
++)
++
++
++def test_tavily_registry_pins_0_2_20():
++    """The tavily registry command pins exactly tavily-mcp@0.2.20 over stdio (X1)."""
++    entry = install_mcp.MCP_SERVERS["tavily"]
++    assert entry["command"] == "npx -y tavily-mcp@0.2.20"
++    assert entry["transport"] == "stdio"
++
++
++def test_default_parameters_field():
++    """The tavily registry carries the DEFAULT_PARAMETERS baseline (X3 / M3a)."""
++    entry = install_mcp.MCP_SERVERS["tavily"]
++    assert entry["default_parameters"] == {"search_depth": "basic", "max_results": 10}
++
++
++def test_tavily_json_absent():
++    """The orphan src/ config was deleted in Phase 2 (X2)."""
++    orphan = _REPO_ROOT / "src" / "superclaude" / "mcp" / "configs" / "tavily.json"
++    assert not orphan.exists(), f"deleted config still present: {orphan}"
++
++
++class _FakeCompleted:
++    """Minimal stand-in for subprocess.CompletedProcess (returncode 0, no stderr)."""
++
++    returncode = 0
++    stderr = ""
++    stdout = ""
++
++
++def _patch_install_path(monkeypatch, dummy_key):
++    """Monkeypatch the install path so it never spawns a real npx/claude subprocess.
++
++    Returns a mutable list that captures the argv passed to ``_run_command``.
++    """
++    captured = {"calls": []}
++
++    def fake_run_command(cmd, **kwargs):
++        captured["calls"].append(list(cmd))
++        return _FakeCompleted()
++
++    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
++    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: False)
++    monkeypatch.setattr(install_mcp, "prompt_for_api_key", lambda *a, **k: dummy_key)
++    return captured
++
++
++def test_default_parameters_propagated(monkeypatch):
++    """The install argv carries -e DEFAULT_PARAMETERS=<compact-json> and the 0.2.20 pin (M1).
++
++    No real npx/claude subprocess is spawned (``_run_command`` is intercepted).
++    """
++    captured = _patch_install_path(monkeypatch, "dummy-key-abc123")
++
++    ok = install_mcp.install_mcp_server(
++        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
++    )
++    assert ok is True
++
++    # Exactly one intercepted command, and the real subprocess was never reached.
++    assert len(captured["calls"]) == 1
++    argv = captured["calls"][0]
++
++    # The compact DEFAULT_PARAMETERS token is present and immediately follows an -e flag.
++    assert _EXPECTED_DEFAULT_PARAMS_TOKEN in argv
++    idx = argv.index(_EXPECTED_DEFAULT_PARAMS_TOKEN)
++    assert argv[idx - 1] == "-e"
++
++    # The pinned package version is in the argv (after the `--` separator).
++    assert "tavily-mcp@0.2.20" in argv
++    # Sanity: this is the `claude mcp add` path, not a direct npx spawn.
++    assert argv[:3] == ["claude", "mcp", "add"]
++
++
++def test_api_key_never_in_logged_command(monkeypatch, capsys):
++    """The echoed "Running:" command masks the raw API key value (M1)."""
++    secret = "SUPERSECRETKEY-do-not-log-9999"
++    _patch_install_path(monkeypatch, secret)
++
++    install_mcp.install_mcp_server(
++        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
++    )
++    out = capsys.readouterr().out
++    assert "Running:" in out
++    assert secret not in out, "raw API key leaked into an echoed command line"
++    # The DEFAULT_PARAMETERS token (non-secret) may still be shown in full.
++    assert "TAVILY_API_KEY=***" in out
++
++
++@pytest.mark.skipif(not os.getenv("TAVILY_API_KEY"), reason="requires TAVILY_API_KEY")
++def test_live_tavily_search_smoke():
++    """Minimal live presence check — SKIPPED in CI (no key). Confirms the pinned entry resolves."""
++    entry = install_mcp.MCP_SERVERS["tavily"]
++    assert entry["command"].endswith("tavily-mcp@0.2.20")
++    assert entry.get("api_key_env") == "TAVILY_API_KEY"
+diff --git a/tests/commands/test_research_command.py b/tests/commands/test_research_command.py
+new file mode 100644
+index 00000000..bcfd1e4a
+--- /dev/null
++++ b/tests/commands/test_research_command.py
+@@ -0,0 +1,52 @@
++"""Drift guards for the /sc:research command doc (Cluster C3).
++
++Verifies the command POINTS to the research engine rather than duplicating Tavily
++params (X6), and that its Adaptive-Depth tiers match RESEARCH_CONFIG.md's Depth
++Profiles in name and order. CI-safe (pure file-content assertions).
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_RESEARCH_MD = _REPO / "src" / "superclaude" / "commands" / "research.md"
++_CONFIG_MD = _REPO / "src" / "superclaude" / "core" / "RESEARCH_CONFIG.md"
++
++_TIERS = ["quick", "standard", "deep", "exhaustive"]
++
++
++def _adaptive_depth_section() -> str:
++    text = _RESEARCH_MD.read_text(encoding="utf-8")
++    after = text.split("### Adaptive Depth", 1)
++    assert len(after) == 2, "research.md missing the '### Adaptive Depth' section"
++    return after[1].split("\n## ", 1)[0]
++
++
++def test_research_command_no_param_duplication():
++    """research.md must not duplicate concrete Tavily param assignments (X6)."""
++    text = _RESEARCH_MD.read_text(encoding="utf-8")
++    for tok in ("search_depth:", "extract_depth:", "max_results:"):
++        assert tok not in text, (
++            f"research.md duplicates Tavily param '{tok}' (X6 violation)"
++        )
++
++
++def test_research_tiers_match_config():
++    """The four Adaptive-Depth tiers match RESEARCH_CONFIG.md profiles; quick/standard != advanced."""
++    section = _adaptive_depth_section()
++    found = [m.group(1).lower() for m in re.finditer(r"\*\*([A-Za-z]+)\*\*", section)]
++    assert found[:4] == _TIERS, (
++        f"research.md Adaptive-Depth tiers {found[:4]} != {_TIERS} (name/order mismatch)"
++    )
++
++    config = _CONFIG_MD.read_text(encoding="utf-8")
++    for t in _TIERS:
++        assert re.search(rf"\|\s*{t}\s*\|", config), (
++            f"RESEARCH_CONFIG.md missing Depth Profile row for '{t}'"
++        )
++
++    # quick/standard tiers must never claim `advanced` depth.
++    for line in section.splitlines():
++        low = line.lower().strip()
++        if low.startswith("- **quick**") or low.startswith("- **standard**"):
++            assert "advanced" not in low, f"tier line must not claim advanced: {line!r}"
+diff --git a/tests/core/test_research_config.py b/tests/core/test_research_config.py
+new file mode 100644
+index 00000000..46f59253
+--- /dev/null
++++ b/tests/core/test_research_config.py
+@@ -0,0 +1,79 @@
++"""Drift-guard tests for RESEARCH_CONFIG.md Depth Profiles + Discovery Routing (Cluster C2).
++
++Asserts against the ACTUAL file text (CI-safe, no network):
++- every Depth Profile names concrete `search_depth` + `extract_depth` + tool names,
++- `advanced` appears only with gating language tying it to deep/exhaustive (never quick/standard),
++- the `maps`/`crawls` caps and the crawl 50-URL truncation are present.
++"""
++
++import re
++from pathlib import Path
++
++_REPO_ROOT = Path(__file__).resolve().parents[2]
++_CONFIG = _REPO_ROOT / "src" / "superclaude" / "core" / "RESEARCH_CONFIG.md"
++
++_PROFILES = ["quick", "standard", "deep", "exhaustive"]
++
++
++def _read() -> str:
++    return _CONFIG.read_text(encoding="utf-8")
++
++
++def _profile_rows() -> dict[str, str]:
++    """Return the Depth Profiles markdown table row for each profile name."""
++    rows: dict[str, str] = {}
++    for line in _read().splitlines():
++        stripped = line.strip()
++        if not stripped.startswith("|"):
++            continue
++        first_cell = stripped.strip("|").split("|", 1)[0].strip().lower()
++        if first_cell in _PROFILES:
++            rows[first_cell] = stripped
++    return rows
++
++
++def test_each_depth_profile_names_concrete_params_and_tools():
++    rows = _profile_rows()
++    for p in _PROFILES:
++        assert p in rows, f"missing Depth Profile row: {p}"
++        cells = [c.strip() for c in rows[p].strip().strip("|").split("|")]
++        depth_vals = [c for c in cells if c in ("basic", "advanced")]
++        assert len(depth_vals) >= 2, (
++            f"{p} row lacks concrete search_depth + extract_depth values: {rows[p]}"
++        )
++        assert "search" in rows[p], f"{p} row does not name any tool: {rows[p]}"
++
++
++def test_advanced_only_with_gating_language():
++    rows = _profile_rows()
++    # quick/standard stay basic — must NOT carry `advanced`.
++    for p in ["quick", "standard"]:
++        assert "advanced" not in rows[p], (
++            f"{p} must stay basic, found advanced: {rows[p]}"
++        )
++    # deep/exhaustive use advanced.
++    for p in ["deep", "exhaustive"]:
++        assert "advanced" in rows[p], f"{p} must use advanced: {rows[p]}"
++    # Explicit gating sentence tying advanced to deep/exhaustive.
++    text = _read()
++    gating = re.search(
++        r"advanced.*ONLY.*(deep|exhaustive)|(deep|exhaustive).*advanced",
++        text,
++        re.IGNORECASE | re.DOTALL,
++    )
++    assert gating, "no gating language tying `advanced` to the deep/exhaustive tiers"
++
++
++def test_discovery_caps_and_crawl_truncation_present():
++    text = _read()
++    assert "maps=2" in text, "missing maps=2 cap"
++    assert "crawls=1" in text, "missing crawls=1 cap"
++    assert re.search(r"50[\s-]*URL", text, re.IGNORECASE), (
++        "missing crawl 50-URL truncation cap"
++    )
++
++
++def test_map_and_crawl_tool_ids_present():
++    text = _read()
++    assert "mcp__tavily__tavily-map" in text
++    assert "mcp__tavily__tavily-crawl" in text
+diff --git a/tests/docs/test_tavily_doc_alignment.py b/tests/docs/test_tavily_doc_alignment.py
+new file mode 100644
+index 00000000..f6771b2f
+--- /dev/null
++++ b/tests/docs/test_tavily_doc_alignment.py
+@@ -0,0 +1,114 @@
++"""C8 doc-alignment + release drift guards for the Tavily 0.2.x upgrade (H3/H4).
++
++Scoped to ``src/superclaude`` + ``docs`` ONLY — archived/build trees (``.dev/``,
++``.claude/``, ``dist/``) are excluded so stale historical pins (e.g. an archived
++``tavily-mcp@0.1.2`` under ``.dev/releases/``) and the ``mcp.tavily.com`` URL do not
++false-positive (reflect findings H3/H4). CI-safe: pure file-content scans.
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_ROOTS = [_REPO / "src" / "superclaude", _REPO / "docs"]
++_EXCLUDE_DIRS = {
++    ".dev",
++    ".claude",
++    "dist",
++    "node_modules",
++    ".venv",
++    "__pycache__",
++    ".git",
++}
++_TEXT_SUFFIXES = {
++    ".md",
++    ".py",
++    ".yaml",
++    ".yml",
++    ".json",
++    ".txt",
++    ".sh",
++    ".cfg",
++    ".ini",
++    ".toml",
++}
++
++# `mcp.tavily` as a stale capability token, but NOT the `mcp.tavily.com` URL (H4).
++_STALE_TOKEN_RE = re.compile(r"mcp\.tavily(?!\.com)")
++_VERSION_RE = re.compile(r"tavily-mcp@([A-Za-z0-9.\-]+)")
++
++
++def _iter_text_files(roots: list[Path]):
++    for root in roots:
++        if not root.exists():
++            continue
++        for p in root.rglob("*"):
++            if not p.is_file():
++                continue
++            # Exclude only dirs UNDER the root — never match ancestor components of an
++            # absolute path (the worktree itself lives under `.dev/worktrees/…`, so testing
++            # `p.parts` would exclude every file and make this guard vacuous).
++            if any(part in _EXCLUDE_DIRS for part in p.relative_to(root).parts):
++                continue
++            if p.suffix.lower() not in _TEXT_SUFFIXES:
++                continue
++            yield p
++
++
++def _read(p: Path) -> str:
++    try:
++        return p.read_text(encoding="utf-8")
++    except (UnicodeDecodeError, OSError):
++        return ""
++
++
++def test_tavily_version_single_pin():
++    """Every `tavily-mcp@<ver>` in src/ + docs/ is pinned to 0.2.20 (X1 / H3)."""
++    bad = []
++    for p in _iter_text_files(_ROOTS):
++        for m in _VERSION_RE.finditer(_read(p)):
++            if m.group(1) != "0.2.20":
++                bad.append((str(p.relative_to(_REPO)), m.group(1)))
++    assert not bad, f"tavily-mcp pinned to a version other than 0.2.20: {bad}"
++
++
++def test_no_stale_mcp_tavily_token():
++    """No stale `mcp.tavily` capability token in src/ + docs/ (X4 / H4); `mcp.tavily.com` is allowed."""
++    bad = [
++        str(p.relative_to(_REPO))
++        for p in _iter_text_files(_ROOTS)
++        if _STALE_TOKEN_RE.search(_read(p))
++    ]
++    assert not bad, (
++        f"stale 'mcp.tavily' token (use 'mcp_server.tavily') found in: {bad}"
++    )
++
++
++def test_no_tavily_json_references():
++    """No in-scope file references the deleted `tavily.json` config (X2)."""
++    bad = []
++    for p in _iter_text_files(_ROOTS):
++        text = _read(p)
++        if "configs/tavily.json" in text or re.search(r"\btavily\.json\b", text):
++            bad.append(str(p.relative_to(_REPO)))
++    assert not bad, f"reference to the deleted tavily.json found in: {bad}"
++
++
++def test_docs_no_default_params_duplication():
++    """docs/ POINT to MCP_Tavily.md and do not duplicate DEFAULT_PARAMETERS values (X6).
++
++    The canonical value lives in `install_mcp.py` and `src/superclaude/mcp/MCP_Tavily.md`;
++    the `docs/` tree must not restate it.
++    """
++    bad = []
++    for p in _iter_text_files([_REPO / "docs"]):
++        text = _read(p)
++        if (
++            '"search_depth"' in text
++            or "search_depth: basic" in text
++            or re.search(r"max_results['\"]?\s*[:=]\s*10", text)
++        ):
++            bad.append(str(p.relative_to(_REPO)))
++    assert not bad, (
++        f"docs duplicate DEFAULT_PARAMETERS values (should point to MCP_Tavily.md): {bad}"
++    )
+diff --git a/tests/skills/test_brainstorm_protocol.py b/tests/skills/test_brainstorm_protocol.py
+new file mode 100644
+index 00000000..d27b6208
+--- /dev/null
++++ b/tests/skills/test_brainstorm_protocol.py
+@@ -0,0 +1,38 @@
++"""Drift guard for the sc:brainstorm protocol (Cluster C4).
++
++The Wave-2A enrichment matrix must ROUTE to the research engine only — it must not
++duplicate Tavily params or name the map/crawl tools (X5/X6). CI-safe.
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_BRAINSTORM = (
++    _REPO / "src" / "superclaude" / "skills" / "sc-brainstorm-protocol" / "SKILL.md"
++)
++
++_FORBIDDEN = [
++    "search_depth:",
++    "extract_depth:",
++    "max_results:",
++    "tavily-map",
++    "tavily-crawl",
++]
++
++
++def _wave2a_section() -> str:
++    text = _BRAINSTORM.read_text(encoding="utf-8")
++    parts = re.split(r"###\s*Wave 2A", text, maxsplit=1)
++    assert len(parts) == 2, "brainstorm SKILL missing the 'Wave 2A' section"
++    # Up to the next '### Wave ' heading.
++    return re.split(r"\n###\s*Wave ", parts[1], maxsplit=1)[0]
++
++
++def test_brainstorm_no_tavily_param_duplication():
++    """Wave-2A enrichment matrix routes only — no Tavily params / map/crawl tool names."""
++    section = _wave2a_section()
++    for tok in _FORBIDDEN:
++        assert tok not in section, (
++            f"Wave-2A matrix must not contain Tavily token '{tok}' (enrichment routes only)"
++        )
+diff --git a/tests/skills/test_tier2_tavily_consistency.py b/tests/skills/test_tier2_tavily_consistency.py
+new file mode 100644
+index 00000000..ef672f11
+--- /dev/null
++++ b/tests/skills/test_tier2_tavily_consistency.py
+@@ -0,0 +1,65 @@
++"""Cluster C5 (troubleshoot/reflect) Tavily consistency drift guards (M3b).
++
++The Tier-2 troubleshoot path and the reflect path use ONLY `tavily-search` (no
++extract/map/crawl — X5), preserve their rate cap and fail-open posture, and obey the
++X3 split: troubleshoot overrides `search_depth: advanced` per-call (M3b) while reflect
++inherits the basic baseline (names no per-call params). CI-safe (file-content only).
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_SC = _REPO / "src" / "superclaude"
++
++_TROUBLESHOOT_CMD = _SC / "commands" / "troubleshoot.md"
++_TROUBLESHOOT_SKILL = _SC / "skills" / "sc-troubleshoot-protocol" / "SKILL.md"
++_REFLECT_CMD = _SC / "commands" / "reflect.md"
++_REFLECT_SKILL = _SC / "skills" / "sc-reflect-protocol" / "SKILL.md"
++
++_ALL_FOUR = [_TROUBLESHOOT_CMD, _TROUBLESHOOT_SKILL, _REFLECT_CMD, _REFLECT_SKILL]
++_FORBIDDEN_TOOLS = ["tavily-extract", "tavily-map", "tavily-crawl"]
++
++
++def _read(p: Path) -> str:
++    return p.read_text(encoding="utf-8")
++
++
++def test_tier2_tool_id_parity():
++    """All 4 C5 files reference mcp__tavily__tavily-search and NO extract/map/crawl (X5)."""
++    for p in _ALL_FOUR:
++        text = _read(p)
++        assert "mcp__tavily__tavily-search" in text, (
++            f"{p.name} must reference tavily-search"
++        )
++        for tool in _FORBIDDEN_TOOLS:
++            assert tool not in text, f"{p.name} must not reference {tool} (X5)"
++
++
++def test_rate_cap_intact():
++    """The troubleshoot SKILL retains its ≤2-query Tier-2 rate cap."""
++    text = _read(_TROUBLESHOOT_SKILL)
++    assert re.search(r"≤2|at most 2 quer|2 queries", text), (
++        "troubleshoot SKILL lost its ≤2-query Tier-2 rate cap"
++    )
++
++
++def test_fail_open_intact():
++    """Both skills retain fail-open / degraded posture on missing MCP."""
++    for p in (_TROUBLESHOOT_SKILL, _REFLECT_SKILL):
++        text = _read(p).lower()
++        assert "fail-open" in text or "fail open" in text or "degrad" in text, (
++            f"{p.name} lost its fail-open/degraded language"
++        )
++
++
++def test_troubleshoot_search_depth_advanced():
++    """M3b: troubleshoot SKILL overrides search_depth: advanced; reflect names no per-call params."""
++    assert "search_depth: advanced" in _read(_TROUBLESHOOT_SKILL), (
++        "troubleshoot SKILL must carry the Tier-2 `search_depth: advanced` override (M3b)"
++    )
++    reflect = _read(_REFLECT_SKILL)
++    for tok in ("search_depth:", "extract_depth:", "max_results:"):
++        assert tok not in reflect, (
++            f"reflect SKILL must not name per-call Tavily param '{tok}' (X3 — inherits basic)"
++        )

@@ -1,0 +1,15 @@
+=== Step 6.9 — sync + static-grep — 2026-06-12 ===
+
+### pr_submit skill src↔.claude diff (empty = synced) ===
+(empty above = pr_submit fully synced)
+
+### make verify-sync drift (PRE-EXISTING, NOT pr_submit) ===
+  ❌ MISSING in src/superclaude/skills/: sc-recommend-protocol (not distributable!)
+❌ Drift detected! Run 'make sync-dev' to fix, or copy .claude/ changes to src/.
+
+### static-grep test ===
+
+============================== 9 passed in 0.03s ===============================
+
+### retrigger script executable in mirror ===
+executable: YES

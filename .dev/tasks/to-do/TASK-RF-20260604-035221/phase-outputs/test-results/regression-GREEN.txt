@@ -1,0 +1,35 @@
+REGRESSION GREEN DEMONSTRATION (Step 4.3)
+==========================================
+Timestamp: 2026-06-04 05:16
+Worktree:  /config/workspace/IronClaude-pr124
+
+All five predicates RESTORED to their fixed None-safe PASS-family forms before
+this run (verified by grep — see Step 4.2 restore):
+  - planner.py:163 rerun_task_ids    = `bt.persisted_status is None or not bt.persisted_status.is_success`
+  - planner.py:321 last_completed    = `bt.persisted_status is not None and bt.persisted_status.is_success`
+  - planner.py:331 next_unfinished   = `bt.persisted_status is None or not bt.persisted_status.is_success`
+  - drift.py:93    recorded_completed= `bt.persisted_status is not None and bt.persisted_status.is_success`
+  - integrity.py:123 signal_a_pass   = `lc.persisted_status is not None and lc.persisted_status.is_success`
+  (integrity signal_b_pass UNCHANGED at `derived is TaskStatus.PASS` — Step 3.8 PENDING per OQ-1)
+
+Command 1:
+  uv run python -m py_compile tests/sprint/test_resume.py
+Result: COMPILE OK (exit 0)
+
+Command 2:
+  uv run python -m pytest tests/sprint/test_resume.py -k pass_recovered -q
+
+Output:
+----------------------------------------------------------------------
+collected 23 items / 22 deselected / 1 selected
+
+tests/sprint/test_resume.py .                                            [100%]
+
+======================= 1 passed, 22 deselected in 0.20s =======================
+----------------------------------------------------------------------
+
+VERDICT: GREEN CONFIRMED — test_resume_pass_recovered_counts_as_completed PASSES
+against the fixed predicates. Combined with the RED evidence (Step 4.2), this is
+a genuine RED->GREEN regression guard for the PASS_RECOVERED resume coupling
+across all four axes: (a) planner rerun_task_ids, (b) planner role assignment,
+(c) drift recorded_completed, (d) integrity Signal-A persisted-claim surface.

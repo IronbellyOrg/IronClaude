@@ -1,0 +1,16 @@
+src/superclaude/agents/rf-analyst.md
+src/superclaude/agents/rf-assembler.md
+src/superclaude/agents/rf-qa-qualitative.md
+src/superclaude/agents/rf-qa.md
+src/superclaude/agents/rf-task-builder.md
+src/superclaude/agents/rf-task-executor.md
+src/superclaude/agents/rf-task-researcher.md
+src/superclaude/agents/rf-team-lead.md
+src/superclaude/cli/reflect/runner.py
+src/superclaude/skills/sc-reflect-protocol/SKILL.md
+src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md
+src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md
+src/superclaude/skills/task-builder/SKILL.md
+src/superclaude/skills/task/SKILL.md
+src/superclaude/skills/tech-reference/SKILL.md
+src/superclaude/skills/tech-research/SKILL.md

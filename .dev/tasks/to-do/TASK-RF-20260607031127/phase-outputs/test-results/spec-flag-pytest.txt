@@ -1,0 +1,47 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+   Building superclaude @ file:///config/workspace/IronClaude
+      Built superclaude @ file:///config/workspace/IronClaude
+Uninstalled 1 package in 8ms
+Installed 1 package in 10ms
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0
+collecting ... collected 30 items
+
+tests/cli/prd/test_spec_flag.py::TestSpecCliParse::test_help_lists_spec_option PASSED [  3%]
+tests/cli/prd/test_spec_flag.py::TestSpecCliParse::test_repeated_spec_accepted PASSED [  6%]
+tests/cli/prd/test_spec_flag.py::TestSpecCliParse::test_directory_rejected PASSED [ 10%]
+tests/cli/prd/test_spec_flag.py::TestSpecCliParse::test_nonexistent_rejected PASSED [ 13%]
+tests/cli/prd/test_spec_flag.py::TestSpecConfigResolution::test_spec_files_populated_absolute PASSED [ 16%]
+tests/cli/prd/test_spec_flag.py::TestSpecConfigResolution::test_spec_files_empty_when_omitted PASSED [ 20%]
+tests/cli/prd/test_spec_flag.py::TestSpecModelDefault::test_spec_files_defaults_empty PASSED [ 23%]
+tests/cli/prd/test_spec_flag.py::TestSpecModelDefault::test_spec_files_is_independent_per_instance PASSED [ 26%]
+tests/cli/prd/test_spec_flag.py::TestBindSpecs::test_adds_specs_array_and_prepends_where PASSED [ 30%]
+tests/cli/prd/test_spec_flag.py::TestBindSpecs::test_idempotent PASSED   [ 33%]
+tests/cli/prd/test_spec_flag.py::TestBindSpecs::test_noop_when_no_specs PASSED [ 36%]
+tests/cli/prd/test_spec_flag.py::TestBindSpecs::test_missing_file_size_zero PASSED [ 40%]
+tests/cli/prd/test_spec_flag.py::TestBindSpecs::test_persist_bound_specs_roundtrip PASSED [ 43%]
+tests/cli/prd/test_spec_flag.py::TestBindSpecs::test_dedup_duplicate_spec_values PASSED [ 46%]
+tests/cli/prd/test_spec_flag.py::TestScopeDiscoverySpecInjection::test_block_present_with_exact_paths PASSED [ 50%]
+tests/cli/prd/test_spec_flag.py::TestScopeDiscoverySpecInjection::test_no_specs_is_byte_identical PASSED [ 53%]
+tests/cli/prd/test_spec_flag.py::TestScopeDiscoverySpecInjection::test_helper_empty_returns_empty_string PASSED [ 56%]
+tests/cli/prd/test_spec_flag.py::TestInvestigationSpecInjection::test_render_block_present_with_specs PASSED [ 60%]
+tests/cli/prd/test_spec_flag.py::TestInvestigationSpecInjection::test_render_byte_identical_without_specs PASSED [ 63%]
+tests/cli/prd/test_spec_flag.py::TestInvestigationSpecInjection::test_config_mode_threads_specs_from_artifact PASSED [ 66%]
+tests/cli/prd/test_spec_flag.py::TestGateAndWarn::test_scope_discovery_gate_unchanged PASSED [ 70%]
+tests/cli/prd/test_spec_flag.py::TestGateAndWarn::test_warn_emitted_to_stderr PASSED [ 73%]
+tests/cli/prd/test_spec_flag.py::TestGateAndWarn::test_warn_lists_persisted_specs_on_resume PASSED [ 76%]
+tests/cli/prd/test_spec_flag.py::TestGateAndWarn::test_bound_spec_paths_fails_closed PASSED [ 80%]
+tests/cli/prd/test_spec_flag.py::TestResumeCarriesSpecs::test_persisted_specs_reinject_block_without_spec_flag PASSED [ 83%]
+tests/cli/prd/test_spec_flag.py::TestSpecFileAttach::test_scope_discovery_attaches_each_spec PASSED [ 86%]
+tests/cli/prd/test_spec_flag.py::TestSpecFileAttach::test_investigation_numbered_step_attaches_specs PASSED [ 90%]
+tests/cli/prd/test_spec_flag.py::TestSpecFileAttach::test_parse_request_does_not_attach_specs PASSED [ 93%]
+tests/cli/prd/test_spec_flag.py::TestSpecFileAttach::test_no_specs_no_args PASSED [ 96%]
+tests/cli/prd/test_spec_flag.py::TestSpecFileAttach::test_missing_spec_file_skipped PASSED [100%]
+
+============================== 30 passed in 0.21s ==============================

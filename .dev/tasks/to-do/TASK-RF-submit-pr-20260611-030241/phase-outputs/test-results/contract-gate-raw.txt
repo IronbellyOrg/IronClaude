@@ -1,0 +1,11 @@
+============================= test session starts ==============================
+collecting ... collected 6 items
+
+tests/pr_submit/test_detection_contract.py::test_t201_empty_reviews_polling PASSED [ 16%]
+tests/pr_submit/test_detection_contract.py::test_t202_augment_clean PASSED [ 33%]
+tests/pr_submit/test_detection_contract.py::test_t203_augment_findings PASSED [ 50%]
+tests/pr_submit/test_detection_contract.py::test_t210_locked_false_halts PASSED [ 66%]
+tests/pr_submit/test_detection_contract.py::test_t211_different_bot_not_detected PASSED [ 83%]
+tests/pr_submit/test_detection_contract.py::test_t212_interleaved_only_augment_parsed PASSED [100%]
+
+============================== 6 passed in 0.03s ===============================

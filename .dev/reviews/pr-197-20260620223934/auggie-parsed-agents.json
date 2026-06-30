@@ -1,0 +1,67 @@
+{
+  "findings": [
+    {
+      "title": "INCORRECT Tavily MCP tool ID conversion - canonical form uses hyphens, not underscores",
+      "category": "correctness",
+      "severity_hint": "critical",
+      "file": "src/superclaude/agents/rf-analyst.md",
+      "line": 13,
+      "line_range_end": 14,
+      "in_diff": true,
+      "evidence": "Diff proposes: `mcp__tavily__tavily_search` and `mcp__tavily__tavily_extract` (underscores). Official Tavily MCP docs (https://docs.tavily.com/documentation/mcp, https://github.com/tavily-ai/tavily-mcp) specify tool names as `tavily-search` and `tavily-extract` (hyphens). Repo canonical form in deep-research.md:6-7 and deep-research-agent.md:6-7 uses `mcp__tavily__tavily-search` (hyphen). QA report telemetry lines use underscores for logging/metrics only, not tool invocation.",
+      "why": "The diff changes all 8 RF agent files from the correct hyphenated form (`tavily-search`) to an incorrect underscored form (`tavily_search`). Official Tavily MCP documentation and existing codebase agents (deep-research.md, deep-research-agent.md) consistently use hyphens. The author's claim that hyphens \"do not resolve\" contradicts both upstream specification and working usage in this repo's deep-research agents. This will break Tavily MCP tool resolution at runtime.",
+      "recommendation": "REJECT this PR. The hyphenated form `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` is correct per official Tavily MCP spec and is already working in deep-research.md and deep-research-agent.md. If the author encountered resolution issues, investigate the runtime environment or MCP server version, not the tool ID spec.",
+      "cross_references": [
+        "src/superclaude/agents/deep-research.md:6",
+        "src/superclaude/agents/deep-research-agent.md:6",
+        "src/superclaude/agents/rf-assembler.md:13",
+        "src/superclaude/agents/rf-qa.md:13",
+        "src/superclaude/agents/rf-qa-qualitative.md:13",
+        "src/superclaude/agents/rf-task-builder.md:13",
+        "src/superclaude/agents/rf-task-executor.md:15",
+        "src/superclaude/agents/rf-task-researcher.md:13",
+        "src/superclaude/agents/rf-team-lead.md:13"
+      ],
+      "confidence": "high"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "All 8 files consistently changed (scope claim verified), but in the WRONG direction",
+      "category": "consistency",
+      "severity_hint": "critical",
+      "affected_files": [
+        "src/superclaude/agents/rf-analyst.md",
+        "src/superclaude/agents/rf-assembler.md",
+        "src/superclaude/agents/rf-qa.md",
+        "src/superclaude/agents/rf-qa-qualitative.md",
+        "src/superclaude/agents/rf-task-builder.md",
+        "src/superclaude/agents/rf-task-executor.md",
+        "src/superclaude/agents/rf-task-researcher.md",
+        "src/superclaude/agents/rf-team-lead.md"
+      ],
+      "why": "The author correctly changed all 8 files uniformly and made no other edits (scope discipline: excellent). However, the uniform change moves FROM the correct canonical form (hyphens, matching deep-research agents and official Tavily MCP spec) TO an incorrect form (underscores). Mechanical consistency does not fix semantic incorrectness. The diff shows 40+ line changes across frontmatter `tools:` lists, prose instructions, and Critical Rule clauses - all replacing hyphen with underscore. Zero non-Tavily changes detected (author's \"ONLY\" claim verified).",
+      "recommendation": "The PR demonstrates good mechanical discipline (uniform treatment, no scope creep) but catastrophic semantic error (wrong canonical form). REJECT and reverse: if any fix is needed, it should change the 8 RF agents FROM underscores (if present) TO hyphens to match deep-research.md. However, HEAD shows all 8 files already use hyphens correctly, so this PR inverts working state into broken state.",
+      "confidence": "high"
+    },
+    {
+      "title": "Frontmatter `tools:` list validity - incorrect IDs will fail agent spawn validation",
+      "category": "api-contract",
+      "severity_hint": "high",
+      "affected_files": [
+        "src/superclaude/agents/rf-analyst.md",
+        "src/superclaude/agents/rf-assembler.md",
+        "src/superclaude/agents/rf-qa.md",
+        "src/superclaude/agents/rf-qa-qualitative.md",
+        "src/superclaude/agents/rf-task-builder.md",
+        "src/superclaude/agents/rf-task-executor.md",
+        "src/superclaude/agents/rf-task-researcher.md",
+        "src/superclaude/agents/rf-team-lead.md"
+      ],
+      "why": "Agent frontmatter `tools:` lists declare the MCP tools available to that agent. When SuperClaude or /task skill spawns an agent (e.g., `Agent: rf-qa`), the runtime validates requested tools against the session's available tool surface. If `mcp__tavily__tavily_search` (underscore) is listed but the MCP server exposes `mcp__tavily__tavily-search` (hyphen), the tool-not-found error will either prevent agent spawn or silently drop the tool, forcing fallback to WebSearch/WebFetch even when Tavily is available. This violates the Tavily-first protocol in all 8 agents' Critical Rules.",
+      "recommendation": "Confirm that agent `tools:` frontmatter entries exactly match the runtime tool IDs exposed by loaded MCP servers. Use `superclaude mcp --list` or session introspection to verify. The hyphen form is canonical per Tavily upstream; underscore form will fail validation unless a non-standard MCP bridge rewrites tool names (unlikely and undocumented in this repo).",
+      "confidence": "high"
+    }
+  ],
+  "notes_for_orchestrator": "CRITICAL BLOCKER: This PR inverts the correct Tavily MCP tool IDs (hyphens) into an incorrect form (underscores), contradicting official Tavily MCP documentation (https://docs.tavily.com/documentation/mcp, https://github.com/tavily-ai/tavily-mcp) and the working canonical form already present in deep-research.md and deep-research-agent.md. The author's claim that hyphens 'do not resolve' is unsubstantiated and contradicts evidence. All 8 RF agent files are changed uniformly (good discipline) but in the WRONG direction (catastrophic semantic error). RECOMMENDATION: REJECT PR #197 AGENTS chunk. If resolution issues exist, debug the MCP server/runtime configuration, not the tool ID spec."
+}

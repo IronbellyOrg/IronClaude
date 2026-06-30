@@ -1,0 +1,53 @@
+contract_version: "1.2.0"
+status: partial
+mode: post
+tier_reached: 1
+report_path: ".dev/reflect/post-taskrf-cifix-20260604101648/REPORT.md"
+confidence_calibrated: 0.93
+escalation_rule_matched: null
+
+# UC-2
+tasklist_completion_pct: 1.0   # all 17 checklist items executed as written
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+
+# Hallucination guard
+citations_total: 8
+citations_revalidated: 8
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: true      # F1 — deliverables branch-split; Bug B uncommitted
+user_decision_required: false   # operator already directed commit+push+PR
+
+# Findings summary
+findings:
+  - id: F1
+    severity: medium
+    class: state-integrity / coverage-gap (NOT executor deviation)
+    summary: >
+      Task work is correct (Bug A committed b9d533ff on fix branch; Bug B test edit content correct)
+      but the task never committed Bug B, and a post-completion branch switch (docs/pr133 + stash pop)
+      deleted the 6 fixtures from the working tree and stranded the uncommitted Bug B edit on docs/pr133.
+      Current-branch audit fails (6 failed/21 errors) purely from fixture absence; fix-branch state is 27 passed.
+    remediation: commit Bug B onto fix branch + push + PR to IronbellyOrg/IronClaude; restore docs/pr133 stash.
+
+# Promotion
+promotion_action: not-applicable
+promotion_skip_reason: gate-failed   # status==partial (cond 2)
+
+# Verification (live this turn)
+verification_ran: true
+verification_note: >
+  fix-branch deliverables intact (b9d533ff = 7 paths, negation after *.log, no src change, no .claude);
+  Bug B test content matches research spec; production src/ unmodified vs origin/master; auggie confirms
+  no consumer of check_brainstorm_skill_available outside the one test file.

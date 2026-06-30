@@ -1,0 +1,166 @@
+{
+  "findings": [
+    {
+      "title": "TOCTOU race condition in _write_report between marker check and file write",
+      "category": "security",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/init_lite.py",
+      "line": 230,
+      "line_range_end": 242,
+      "in_diff": true,
+      "evidence": "if out_path.exists():\n    existing = out_path.read_text(encoding=\"utf-8\", errors=\"replace\")\n    if GENERATED_MARKER not in existing and not (...): raise ...\n...\nout_path.parent.mkdir(parents=True, exist_ok=True)\nout_path.write_text(content, encoding=\"utf-8\")",
+      "why": "The function checks out_path.exists() and reads its content at line 230-231, then writes to the same path at line 242. An attacker with filesystem access could replace out_path with a symlink to a protected file (e.g., CLAUDE.md) between the marker check and the write. The _is_protected_context_path check at line 224 uses resolve() which would follow the symlink, but this check happens BEFORE the TOCTOU window opens at lines 230-242.",
+      "recommendation": "Use atomic file operations: write to a temp file in the same directory (to ensure same filesystem), then use os.replace() to atomically rename it. This pattern is used elsewhere in the codebase (install_hooks.py:432, roadmap/executor.py:2833). Example: tmp = out_path.with_suffix('.tmp'); tmp.write_text(content); os.replace(str(tmp), str(out_path)).",
+      "cross_references": [
+        "src/superclaude/cli/install_hooks.py:432",
+        "src/superclaude/cli/roadmap/executor.py:2833"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Path traversal possible via --output with relative paths containing symlinks",
+      "category": "security",
+      "severity_hint": "medium",
+      "file": "src/superclaude/cli/init_lite.py",
+      "line": 318,
+      "line_range_end": 318,
+      "in_diff": true,
+      "evidence": "out_path = Path(output).resolve() if output else (root / REPORT_RELPATH)",
+      "why": "User-supplied --output is resolved at line 318, but the resolution happens AFTER project_root is set at line 314. If the user passes --output with a path containing a symlink component that points outside .dev/superclaude/, the _is_init_lite_owned check at line 233 (which uses resolve()) might incorrectly classify it as owned. The _is_protected_context_path check at line 224 should catch writes to .claude/**, but there's no validation that --output writes stay confined to .dev/superclaude/ when the user provides an explicit path.",
+      "recommendation": "Add explicit validation after line 318 that out_path resolves under project_root (similar to the allowlist pattern in eval/config.py:238-246). Reject --output paths that resolve outside project_root entirely, or at minimum refuse paths that resolve outside .dev/superclaude/ unless the user explicitly opts in with a different flag.",
+      "cross_references": [
+        "src/superclaude/cli/eval/config.py:238",
+        "src/superclaude/cli/init_lite.py:224"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Symlink following not validated during surface discovery",
+      "category": "security",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/init_lite.py",
+      "line": 98,
+      "line_range_end": 108,
+      "in_diff": true,
+      "evidence": "for path in sorted(commands_dir.rglob(\"*.md\")):\n    _add_surface(surfaces, project_root, path)\n...\nfor path in sorted(skills_dir.rglob(\"SKILL.md\")):\n    _add_surface(surfaces, project_root, path)",
+      "why": "The discover_surfaces function uses rglob() to walk .claude/commands, .claude/skills, and .claude/agents without checking if discovered paths are symlinks. If an attacker places a symlink at .claude/skills/evil/SKILL.md -> /etc/passwd, the code would follow it, read its size via stat() at line 68, and include it in the report. While this is read-only and doesn't write outside the project, it could leak information about files outside .claude/ (sizes, existence). The eval/disk_budget.py module explicitly guards against this at line 436.",
+      "recommendation": "Add symlink check in _add_surface before the is_file() check: if path.is_symlink(): return. This matches the defense pattern in disk_budget.py:436 and prevents symlinks from being counted as surfaces.",
+      "cross_references": [
+        "src/superclaude/cli/eval/disk_budget.py:436",
+        "src/superclaude/cli/init_lite.py:66"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Weight classification boundary off-by-one: medium includes 4001 tokens",
+      "category": "correctness",
+      "severity_hint": "low",
+      "file": "src/superclaude/cli/init_lite.py",
+      "line": 52,
+      "line_range_end": 61,
+      "in_diff": true,
+      "evidence": "def classify_weight(tokens: int) -> str:\n    \"\"\"...\n    low: estimate < 1000; medium: 1000 <= estimate <= 4000; high: estimate > 4000.\n    \"\"\"\n    if tokens < THRESHOLD_LOW_MAX:\n        return \"low\"\n    if tokens > THRESHOLD_HIGH_MIN:\n        return \"high\"\n    return \"medium\"",
+      "why": "The docstring at line 55 says medium is '1000 <= estimate <= 4000', but THRESHOLD_HIGH_MIN is 4000 (line 33), so tokens > 4000 returns 'high'. This means tokens == 4001 returns 'high', not medium. The boundary is exclusive on the high side, contradicting the docstring and the test expectation at test_init_lite.py:102-103 which asserts classify_weight(4000) == 'medium' and classify_weight(4001) == 'high'. The code is correct; the docstring is misleading.",
+      "recommendation": "Fix the docstring to say 'medium: 1000 <= estimate <= 4000; high: estimate > 4000' (the '<=' for medium's upper bound is already accurate; the issue is just documentation clarity). Alternatively, change THRESHOLD_HIGH_MIN to 4001 if the intent is medium includes 4000 (but tests already pin the current behavior as correct).",
+      "cross_references": [
+        "tests/cli/test_init_lite.py:102"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Missing test coverage for path traversal via --project-root",
+      "category": "tests",
+      "severity_hint": "medium",
+      "file": "tests/cli/test_init_lite.py",
+      "line": 1,
+      "line_range_end": 386,
+      "in_diff": true,
+      "evidence": null,
+      "why": "The test suite has comprehensive coverage for --output path handling (test_force_refuses_markerless_file_outside_owned_root, test_force_refuses_to_write_protected_context_inputs), but zero tests for malicious --project-root values. An attacker could pass --project-root=/etc and the code would attempt to discover surfaces there. While _is_protected_context_path would reject writes to /etc/CLAUDE.md, discover_surfaces would still walk /etc/.claude/ if it existed. This is a lower-severity issue (read-only, requires /etc/.claude/ to exist), but the PR claims 'read-only over all existing context inputs' and should test that --project-root doesn't leak information about other projects.",
+      "recommendation": "Add a test that passes --project-root pointing to a directory with a .claude/ subdirectory that the test runner should not have read access to (or a directory outside the test's tmp_path), and assert the command either fails gracefully or only reports surfaces the runner has permission to read.",
+      "cross_references": [
+        "tests/cli/test_init_lite.py:332",
+        "src/superclaude/cli/init_lite.py:314"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Missing test coverage for --output path traversal via symlink",
+      "category": "tests",
+      "severity_hint": "medium",
+      "file": "tests/cli/test_init_lite.py",
+      "line": 1,
+      "line_range_end": 386,
+      "in_diff": true,
+      "evidence": null,
+      "why": "The test suite has test_force_refuses_to_write_protected_context_inputs (line 366) which tests direct --output paths to protected files, but no test for --output pointing to a symlink that resolves to a protected file. Given the TOCTOU finding above and the eval test suite's dedicated symlink attack tests (tests/cli/eval/test_symlink_attacks.py), this is a gap in the safety coverage the PR claims.",
+      "recommendation": "Add a test: create tmp_path/.dev/superclaude/evil-link as a symlink to tmp_path/CLAUDE.md, then invoke init-lite with --output pointing to that symlink, and assert the command refuses to write (because _is_protected_context_path should resolve the symlink and detect it points to CLAUDE.md).",
+      "cross_references": [
+        "tests/cli/eval/test_symlink_attacks.py:1",
+        "src/superclaude/cli/init_lite.py:224"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Drift between command and skill on --force semantics",
+      "category": "docs",
+      "severity_hint": "low",
+      "file": "src/superclaude/commands/init-lite.md",
+      "line": 35,
+      "line_range_end": 35,
+      "in_diff": true,
+      "evidence": "| `--force` | No | false | Overwrite init-lite-owned generated artifacts under `.dev/superclaude/` only; never context inputs. |",
+      "why": "The command file at line 35 says '--force overwrites init-lite-owned generated artifacts under .dev/superclaude/ only'. The skill file at sc-init-lite-protocol/SKILL.md:63 says '--force is scope-limited — marker-less overwrites are allowed only for init-lite-owned targets under .dev/superclaude/'. The implementation at init_lite.py:232-233 requires EITHER the marker OR (force AND _is_init_lite_owned). The command doc is correct; the skill doc is more precise. They agree on the no-context-inputs invariant, but the command doc doesn't mention the marker exemption.",
+      "recommendation": "Update commands/init-lite.md line 35 to: 'Overwrite marked reports idempotently; also overwrite marker-less files when they are init-lite-owned under .dev/superclaude/. Never overwrites context inputs.' This matches the skill doc and the code.",
+      "cross_references": [
+        "src/superclaude/skills/sc-init-lite-protocol/SKILL.md:63",
+        "src/superclaude/cli/init_lite.py:232"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Installer policy regression guard is non-vacuous but tests wrong fixture",
+      "category": "tests",
+      "severity_hint": "low",
+      "file": "tests/unit/test_cli_install.py",
+      "line": 236,
+      "line_range_end": 252,
+      "in_diff": true,
+      "evidence": "def test_install_all_skills_keeps_protocol_skills_standalone(self, tmp_path):\n    ...\n    for name in (\"sc-init-lite-protocol\", \"sc-roadmap-protocol\"):\n        if name in available:\n            assert (target / name).exists(), ...",
+      "why": "The test at line 236 calls install_all_skills(target, force=True) then asserts protocol skills are installed. However, the regression it's supposed to guard against (a future change that strips '-protocol' suffix in _has_corresponding_command) would happen at skill-discovery time, not at install time. The test would still pass even if _has_corresponding_command were broken, because install_all_skills with force=True installs everything in available skills. The test should assert that _has_corresponding_command returns False for protocol skills (which it does at line 200-206), but the end-to-end test should NOT use force=True — it should use force=False and verify protocol skills are installed, not skipped.",
+      "recommendation": "Change line 244 to install_all_skills(target_path=target, force=False). Then add a second call to install_all_skills with force=False (idempotent re-run) and assert the protocol skills still exist (not removed as 'served by command'). This makes the test fail if the installer wrongly classifies protocol skills as command-backed.",
+      "cross_references": [
+        "src/superclaude/cli/install_skills.py:75",
+        "tests/unit/test_cli_install.py:200"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Inconsistent use of atomic file writes across new code",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/cli/init_lite.py"
+      ],
+      "why": "The codebase has established patterns for atomic file writes (install_hooks.py:432 _atomic_write_json, roadmap/executor.py:2833 write_state, audit/checkpoint.py:65 CheckpointWriter). All use temp file + os.replace(). The new init_lite.py uses direct Path.write_text() at lines 242, 257. This is inconsistent with the repo's existing safety patterns and introduces the TOCTOU vulnerability noted above. The PR claims 'safe READ-ONLY audit' and 'writes only under .dev/superclaude/', but the write implementation doesn't follow the repo's atomic-write convention.",
+      "recommendation": "Extract a helper _atomic_write(path: Path, content: str) -> None that follows the tmp + os.replace pattern, then use it in _write_report (line 242) and _write_scaffold (line 257). This unifies the new code with existing patterns and eliminates the TOCTOU window.",
+      "confidence": "high"
+    },
+    {
+      "title": "No input validation on project_root despite security claims",
+      "category": "security",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/cli/init_lite.py",
+        "src/superclaude/commands/init-lite.md",
+        "src/superclaude/skills/sc-init-lite-protocol/SKILL.md"
+      ],
+      "why": "The PR body and skill SKILL.md claim 'read-only over all existing context inputs' and 'safe READ-ONLY audit'. The implementation at init_lite.py:314 does root = Path(project_root).resolve() with no validation that the resolved path is safe. Compare to eval/config.py:165-248 which has resolve_scratch_root with an allowlist. An operator could pass --project-root=/etc or --project-root=~/.ssh and the code would attempt to discover surfaces there. While _is_protected_context_path prevents writes to those locations, discover_surfaces would still walk them (read-only information disclosure). The docs don't warn about this.",
+      "recommendation": "Add a docstring note to init_lite_command and the skill SKILL.md that --project-root is trusted operator input, not sandboxed. If the tool is ever exposed to untrusted input (e.g., a web service), add allowlist validation similar to resolve_scratch_root. For now, document the trust boundary.",
+      "confidence": "medium"
+    }
+  ],
+  "notes_for_orchestrator": "Focused review on security (path traversal, symlinks, TOCTOU), correctness (weight math, flag interactions), tests (safety invariant coverage), and docs (command/skill/impl drift). The TOCTOU and atomic-write issues are the highest-signal findings; the symlink-following and test-gap findings are medium; the docs drift is low-severity polish. All findings cite real file:line evidence from HEAD."
+}

@@ -1,0 +1,5 @@
+src/superclaude/skills/sc-tasklist-protocol/SKILL.md
+src/superclaude/skills/sc-tasklist-protocol/templates/index-template.md
+src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md
+tests/skills/test_task_builder_merge.py
+tests/tasklist/test_tasklist_cli.py

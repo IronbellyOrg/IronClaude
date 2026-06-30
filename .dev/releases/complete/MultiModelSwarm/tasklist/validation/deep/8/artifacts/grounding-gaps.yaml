@@ -1,0 +1,21 @@
+findings:
+  - hunk_ref: docs/swarm/release-notes-v1.md:40
+    evidence_missing: detect-secrets CLI unavailable in reflect execution environment; cannot verify whether .secrets.baseline was updated after new files added
+    why_not_classifiable: Tool not installed; no diagnostic output available to classify the sk-redacted pattern as false-positive or true finding
+    next_evidence_needed: Run 'detect-secrets scan --baseline .secrets.baseline' and report new findings count
+    owner: user
+    decision_needed_by_user: true
+
+  - hunk_ref: docs/dev/migration-skill.md (multiple lines)
+    evidence_missing: markdownlint CLI unavailable in reflect execution environment; cannot verify MD013 line-length rule against default 80-char limit
+    why_not_classifiable: Tool not installed; long lines visible by inspection (>80 chars) but no deterministic lint output to classify as pass/fail
+    next_evidence_needed: Run 'markdownlint docs/dev/migration-skill.md docs/swarm/release-notes-v1.md' and report exit code + rule violations
+    owner: user
+    decision_needed_by_user: true
+
+  - hunk_ref: Makefile (implicit)
+    evidence_missing: Could not execute 'make verify-sync' in reflect session; environment state unknown
+    why_not_classifiable: T08.04 acceptance criteria requires make verify-sync exits 0, but make target was not invoked during reflect
+    next_evidence_needed: Run 'make verify-sync' and confirm exit 0
+    owner: user
+    decision_needed_by_user: false

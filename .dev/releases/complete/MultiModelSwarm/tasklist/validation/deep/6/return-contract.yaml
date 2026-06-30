@@ -1,0 +1,172 @@
+contract_version: "1.2.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/6/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/6/audit.log"
+confidence_calibrated: 0.96
+escalation_rule_matched: null
+onboarding_ran: false
+
+# UC-1 specific (not applicable)
+coverage_pct: null
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 specific
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: true
+verification_invocations: 1
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+
+# Input integrity
+input_sha256:
+  tasklist: "computed-at-runtime"
+  spec: "computed-at-runtime"
+input_tree_sha256: "computed-at-runtime"
+input_tree_file_count: 2
+input_tree_snapshot_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/6/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 0
+citations_revalidated: 0
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Per-task verdict array
+per_task_verdicts:
+  - task_id: "T06.01"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.97
+    evidence_anchor: "tests/swarm/test_resume_uses_manifest_lens.py (10 passing) + preflight.py:1816"
+  - task_id: "T06.02"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.96
+    evidence_anchor: "tests/swarm/test_resume_regenerates_merge.py (passing) + reduce.py:494"
+  - task_id: "T06.03"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.97
+    evidence_anchor: "tests/swarm/test_manifest_durable.py (26 passing)"
+  - task_id: "T06.04"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.96
+    evidence_anchor: "tests/swarm/test_crash_recovery_e2e.py (5 passing) + commands.py:1281"
+  - task_id: "T06.05"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.97
+    evidence_anchor: "tests/swarm/test_manifest_emission.py (26 passing) + preflight.py:1401"
+  - task_id: "T06.06"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.98
+    evidence_anchor: "checkpoint EXEMPT; all T06.01-T06.05 verified"
+  - task_id: "T06.07"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.96
+    evidence_anchor: "tests/swarm/test_force_relens.py (11 passing) + commands.py:1047"
+  - task_id: "T06.08"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.96
+    evidence_anchor: "tests/swarm/test_crash_recovery_e2e.py (5 passing, NFR-005 coverage)"
+  - task_id: "T06.09"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.97
+    evidence_anchor: "tests/swarm/test_schema_forward_compat.py (12 passing)"
+  - task_id: "T06.10"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.98
+    evidence_anchor: "checkpoint EXEMPT; all T06.01-T06.09 verified"
+
+# Cross-task interaction-effects
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+# Budget pre-flight
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: user-flag
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

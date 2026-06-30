@@ -1,0 +1,54 @@
+You are reviewing a change to the sc-reflect-protocol skill (Claude Code behavioral spec in markdown) and its refs. Report problems as structured JSON.
+
+## Context
+Target: PR #197 — chunk: REFLECT ENFORCEMENT (contract 1.5.0 -> 1.5.1)
+Files: src/superclaude/skills/sc-reflect-protocol/SKILL.md, refs/reflection-rubric.md, refs/reviewer-spec.md
+The chunk diff is at: .dev/reviews/pr-197-20260620223934/inputs/diff-reflect.patch
+Read it, then read the FULL current versions of those three files to judge internal consistency (the diff is only the delta).
+
+Key claims to verify:
+- EV-1: Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK adversarial-merge gate — merge complete only when adversarial/merged-verdict.yaml with merge_method: adversarial + one calibrated card per reviewer is on disk, OR a corroborated loud fallback fired.
+- EV-2: merge_method legal-values guard {adversarial, single-reviewer-fallback}.
+- Content-based adversarial-evidence detector replacing a file-count threshold.
+- Removed 3 telemetry fields (executor_class_source / executor_class_resolved / executor_exclusion_degraded) claimed to be non-stable (sec 9.2) with no sec 9.3 consumer.
+- "contract 1.5.1" patch bump; sec 9.1 stable-contract fields claimed UNCHANGED.
+
+## Focus areas (cover all)
+- correctness/consistency: do SKILL.md and the two refs agree on EV-1/EV-2 wording, merge_method enum, contract version number? Any dangling reference to a removed telemetry field elsewhere in the skill or repo? Verify the 3 removed fields have no remaining reader (grep the repo).
+- contract-safety: is the version bump consistent everywhere it appears? Are sec 9.1 fields truly unchanged?
+- anti-pattern: unenforceable/ambiguous invariant wording; gate that can silently pass.
+- docs: broken anchors/ref paths.
+## Output contract (STRICT)
+
+Respond with a single JSON object (a ```json fence is fine). Shape:
+
+{
+  "findings": [
+    {
+      "title": "<one-line, sentence case, no trailing period>",
+      "category": "<security|data-integrity|correctness|concurrency|resource-leak|error-handling|api-contract|performance|architecture|layering|coupling|anti-pattern|dead-code|tests|docs|logging|naming|style|consistency>",
+      "severity_hint": "<critical|high|medium|low|nit>",
+      "file": "<repo-relative path>",
+      "line": <integer line number in the file at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": <true|false>,
+      "evidence": "<exact code/text excerpt at cited line(s), verbatim, or null>",
+      "why": "<2-4 sentences, concrete>",
+      "recommendation": "<1-3 sentences, concrete change>",
+      "cross_references": ["<repo-relative path:line>"],
+      "confidence": "<high|medium|low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {"title": "...", "category": "...", "severity_hint": "...", "affected_files": ["..."], "why": "...", "recommendation": "...", "confidence": "..."}
+  ],
+  "notes_for_orchestrator": "<optional>"
+}
+
+## Quality bar
+- Every finding MUST cite a real file:line that exists at HEAD. If you cannot verify, set confidence "low".
+- Do NOT invent file paths or line numbers. If unsure a file exists, leave it out.
+- Highest-signal 3-5 findings per area; do not pad. Zero findings is acceptable if clean.
+- Multi-file/architecture concerns go in cross_cutting_observations.
+- These are mostly Claude Code SKILL.md / agent .md PROTOCOL files (behavioral specs in markdown) plus one Python file. For markdown protocol files, "correctness" means: internal contradictions, broken cross-references to refs/ files or section anchors, contract-version mismatches, ambiguous/unenforceable invariants, instructions that contradict the project's source-of-truth (src/superclaude -> .claude sync) discipline, and self-inconsistency between a SKILL.md and the refs it cites.
+- Return only the JSON object.

@@ -1,0 +1,28 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: dry-run                       # gate PASSED; mutation deferred to operator (uncommitted code in tree)
+source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260604020650
+destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260604020650
+gate_evaluation:
+  mode_post: pass                     # cond 1
+  status_success: pass                # cond 2
+  tasklist_completion_pct_1_0: pass   # cond 3 (0 unchecked items)
+  no_drift_no_regression: pass        # cond 4 (drift=0, regression=0)
+  frontmatter_present: pass           # cond 5a (status field present)
+  frontmatter_status_matches: pass    # cond 5b (status: "🟢 Done")
+  no_citations_dropped: pass          # cond 6a
+  no_grounding_gaps: pass             # cond 6b (grounding-gaps empty)
+  no_input_drift: pass                # cond 7
+  no_user_decision_pending: pass      # cond 8
+  adversarial_result_present: n/a     # cond 9 (tier_reached == 1)
+gate_evaluation_failures: []
+gate_passed: true
+skip_reason: dry-run
+rollback_command: "mv /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260604020650 /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260604020650"
+timestamp: "2026-06-04T03:35:53+00:00"
+note: >
+  All 9 promotion-gate conditions pass. The mutation (mv to-do -> done) was deferred
+  to the operator because the code changes are still uncommitted and the operator may
+  reference the task folder while preparing the commit/PR. Run the promote command
+  below to archive, or re-run reflect without the deferral to auto-promote.

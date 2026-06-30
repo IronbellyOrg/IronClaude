@@ -1,0 +1,16 @@
+verdict: degraded
+status: success
+tier_reached: 2
+reason: degraded-model-diversity
+report: .dev/tasks/to-do/TASK-RF-tavily-mcp-0-2-x-20260623-010952/reflect/post/530505a066d6/REPORT.md
+contract: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/tasks/to-do/TASK-RF-tavily-mcp-0-2-x-20260623-010952/reflect/post/530505a066d6/return-contract.yaml
+deviations:
+  authorized: 0
+  necessary: 2
+  drift: 0
+  regression: 0
+child_exit_code: 0
+env_alias_count: 3
+write_status: written
+fix_iterations: 0
+fix_converged: false

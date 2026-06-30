@@ -1,0 +1,7 @@
+input_tree_sha256: ec8c3e42247832b8a75ce2f4a4953ca58da4bc98cd4f91b3888d533d72472b3a
+file_count: 2
+file_list:
+  - path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-1-tasklist.md
+    sha256: def0015f1898a21f79eaec35f11bef3b4d01fbe827588713e14933411fa5a65d
+  - path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/roadmap.md
+    sha256: f498ee9f68308d28432f378ce0279effe4a036497fff0035ee7c7adda7822fdb

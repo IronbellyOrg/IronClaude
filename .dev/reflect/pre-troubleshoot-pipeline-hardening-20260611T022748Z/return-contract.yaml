@@ -1,0 +1,43 @@
+contract_version: "1.3.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/pre-troubleshoot-pipeline-hardening-20260611T022748Z/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/pre-troubleshoot-pipeline-hardening-20260611T022748Z/audit.log
+confidence_calibrated: 0.91
+escalation_rule_matched: null
+
+# UC-1 specific
+coverage_pct: 1.0
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 4
+
+# Asymmetric-cost flags
+needs_human_decision: true   # OI-2/OI-3/OI-5 open items (G-PRE-3) must be human-decided, not auto-defaulted
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+
+# Promotion (UC-1 — not applicable)
+promotion_action: not-applicable
+promotion_gate_passed: null
+
+# Gap registry
+gap_registry:
+  - id: G-PRE-1
+    severity: low
+    note: "FR-6 sibling sweep lacks dedicated unit test row"
+  - id: G-PRE-2
+    severity: low
+    note: "NFR-2/NFR-3 measurement methods named but not built"
+  - id: G-PRE-3
+    severity: low
+    note: "OI-2/OI-3/OI-5 open; surface as needs_human_decision task items"
+  - id: G-PRE-4
+    severity: process
+    note: "Execution HALTED pending G1 approval; no src/superclaude edits before approval"

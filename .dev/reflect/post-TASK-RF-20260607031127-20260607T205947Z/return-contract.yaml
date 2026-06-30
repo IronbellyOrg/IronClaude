@@ -1,0 +1,51 @@
+contract_version: "1.2.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: .dev/reflect/post-TASK-RF-20260607031127-20260607T205947Z/REPORT.md
+confidence_calibrated: 0.95
+escalation_rule_matched: 2
+
+# UC-2 specific
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+
+# Hallucination guard
+citations_total: 7
+citations_revalidated: 7
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 artifacts (not run — T1 stop)
+reviewer_cards: []
+adversarial_unavailable: false
+merge_method: null
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+cannot_validate_without_user_input: false
+
+# Promotion (held — commit-gating run, not archive)
+promotion_action: skipped
+promotion_adapter: task
+promotion_skip_reason: user-flag
+promotion_gate_passed: null
+
+# Corroboration
+independent_qa_gate: rf-qa task-integrity PASS (7/7, 0 issues) during task execution
+files_audited:
+  - src/superclaude/cli/prd/executor.py
+  - tests/cli/prd/test_spec_flag.py
+verdict: GO for commit

@@ -1,0 +1,39 @@
+contract_version: "1.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/post-phase2-recovery-20260602024648/REPORT.md
+confidence_calibrated: 0.86
+
+# UC-2
+tasklist_completion_pct: 1.0   # all Phase 2 items + PG2.1 checked; PG2.2/PG2.3 not yet run
+deviation_count_by_class:
+  authorized: 1
+  necessary: 1
+  drift: 5
+  regression: 0
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 6        # orchestrator independently re-Read F1/F2 (models.py paths), F3/F6 (recovery.py:585-602), config.py resolve
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: true     # inline (orchestrator re-Read of load-bearing claims)
+
+# Tier 2
+reviewer_models: [sonnet, haiku]
+reviewer_personas: [analyzer, qa]
+t2_model_class_diversity: degraded   # 2 classes (no 3rd vendor alias)
+merge_method: orchestrator-synthesis
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: true   # 5 Drift findings (R-F1..R-F5)
+needs_human_decision: true             # fix-now vs defer decision belongs to user
+
+# Findings
+high_severity_phase2_local: [R-F1, R-F2, R-F3]
+deferred_to_phase3: [R-F6, R-F7]
+phase2_phase3_interface: [R-F4, R-F5]
+low_cleanup: [R-F8, R-F9]
+non_defects: [R-F10, R-F11]

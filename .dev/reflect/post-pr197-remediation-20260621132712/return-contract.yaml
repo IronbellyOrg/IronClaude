@@ -1,0 +1,100 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: REPORT.md
+audit_log_path: null
+depth: standard
+confidence_calibrated: 0.93
+
+# --- Scope correction (operator-facing; see REPORT.md §1) ---
+scope_correction:
+  supplied_diff: "origin/feat/rf-harness-sync..HEAD"
+  supplied_diff_problem: "ran from master checkout -> resolved to 2098 unrelated files (master-ahead history of ~20 merged PRs); also semantically inverted"
+  user_confirmed_scope: "master...origin/feat/rf-harness-sync (three-dot)"
+  audited_scope_actual: "UNCOMMITTED working-tree changes in .dev/worktrees/pr197-remediation (the only location containing the remediation)"
+  note: "Neither the supplied --diff nor the three-dot committed scope contained the remediation; it is uncommitted in the worktree. Audited the worktree diff."
+
+# --- UC-2 verdict ---
+tasklist_completion_pct: 1.0   # mechanical R1/R2a/R3/R4/R5 complete; HD-1 correctly HALTED (PENDING by design)
+deviation_count_by_class:
+  authorized: 0
+  necessary: 1
+  drift: 0
+  regression: 0
+deviation_register_path: deviation-ledger.yaml
+grounding_gaps_path: grounding-gaps.yaml
+
+# --- Verification triangle (UC-2 default-on) ---
+verification_ran: true
+verification_invocations: 4
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+verification_evidence:
+  - "uv run pytest tests/cli/reflect/test_inline_directive.py test_no_nesting_guard.py -> 7 passed, 1 xpassed, 0 failed"
+  - "make verify-sync -> All components in sync (exit 0)"
+  - "ruff format --check (3 changed py files) -> already formatted"
+  - "git grep mcp__tavily__tavily_(search|extract) src/superclaude/agents/ -> 0 matches (R1)"
+
+# --- Per-requirement verdict ---
+per_requirement_verdicts:
+  - id: R1   # HIGH, blocks merge
+    verdict: PASS
+    evidence: "0 underscore tool-ids; hyphen byte-matches deep-research.md:6-7; only tavily lines changed"
+  - id: R2a  # HIGH, blocks merge
+    verdict: PASS
+    evidence: "disclosure at input #6 + Rule 20; 0 bare 'are confirmed'; --cli still 'default OFF'"
+  - id: R2b/HD-1  # HIGH human-decision
+    verdict: PENDING_BY_DESIGN
+    evidence: "phase-outputs/plans/HD-1-default-mode-decision.md PENDING; no default flip; no O4 floor edit (git-verified)"
+  - id: R3   # MEDIUM
+    verdict: PASS
+    evidence: "new test_inline_directive.py (3 tests) green; fails on remove/double; EV-1 comment at runner.py:372-374"
+  - id: R4   # MEDIUM
+    verdict: PASS
+    evidence: "POST-Gate Mode Bifurcation Table + key-presence rule + §3.3 checklist reference"
+  - id: R5   # LOW
+    verdict: PASS
+    evidence: "0 dangling §4.2; 2 spec_path skill-vs-CLI qualifiers (L2)"
+  - id: R6   # OUT OF SCOPE
+    verdict: CORRECTLY_UNTOUCHED
+    evidence: "reflection-rubric.md NOT in remediation working-tree changes"
+
+# --- Hallucination guard ---
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 1   # xpassed marker provenance (pre-existing xfail, not remediation-introduced)
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true   # every citation command-verified live (git grep / pytest / verify-sync)
+
+# --- Tier-2 (not run; depth=standard, no escalation trigger fired) ---
+tier_decision:
+  fired_rule_number: 8   # default STOP at T1
+  escalation_reason: "no trigger: regression=0, S_domains=2, S_dev_density~0, C=0.93>=0.85"
+t2_model_class_diversity: not-run
+t2_vendor_diversity: multi   # opus=claude-opus-4-8, sonnet=gpt-5.5, haiku=qwen3.6-plus (available if escalated)
+
+# --- Promotion (UC-2) — SUPPRESSED ---
+promotion_action: skipped
+promotion_skip_reason: "work-uncommitted + HD-1-pending + scope-corrected-run (operator confirmation required before task->done move)"
+promotion_gate_evaluation:
+  mode_post: pass
+  status_success: pass
+  tasklist_completion_pct_1_0: pass
+  no_drift_no_regression: pass
+  frontmatter_present: pass         # status: "🟢 Done"
+  frontmatter_status_matches: warn  # task says Done but remediation is UNCOMMITTED + HD-1 open for maintainer
+  no_citations_dropped: pass
+  no_grounding_gaps: pass
+  no_input_drift: pass
+  no_user_decision_pending: fail    # HD-1 is an open maintainer decision; PR not merge-ready
+
+# --- Asymmetric flags ---
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: true   # HD-1 default-mode resolution awaits RyanW
+user_decision_required: true
+spec_is_wrong: false

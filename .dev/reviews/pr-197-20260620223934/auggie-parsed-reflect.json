@@ -1,0 +1,197 @@
+{
+  "findings": [
+    {
+      "title": "SKILL.md §7.1 and §11.3 retain old executor-class exclusion rule, contradicting diff claims",
+      "category": "correctness",
+      "severity_hint": "critical",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 593,
+      "line_range_end": 595,
+      "in_diff": false,
+      "evidence": "**Executor-class exclusion rule (anti-self-confirmation, structural).** The *executor* (the agent whose work is under review) MUST NOT appear in the reviewer pool. Reflect resolves the executor's model class at Wave 0 step 0.5b...",
+      "why": "The diff (lines 18-25) claims to replace executor-class exclusion with instance-level independence, but SKILL.md §7.1 (lines 593-595) and §11.3 (line 1083) still contain the full OLD language describing executor-class removal, Wave 0 step 0.5b, EXECUTOR_MODEL_CLASS env var resolution, and executor_exclusion_degraded telemetry. This is a complete contradiction — the diff says the rule is deleted, but the file at HEAD still has it verbatim.",
+      "recommendation": "Apply the diff lines 18-25 replacement to SKILL.md §7.1 (lines 593-603). The current state is the pre-patch version; the diff was not applied or was incompletely applied.",
+      "cross_references": [
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md:1083"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "reflection-rubric.md retains three-way partition and executor grader assertion, contradicting diff",
+      "category": "correctness",
+      "severity_hint": "critical",
+      "file": "src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md",
+      "line": 154,
+      "line_range_end": 163,
+      "in_diff": false,
+      "evidence": "### Three-way partition (executor / reviewers / calibrator)\n\nPer spec §11.3 line 902, the disjoint-set principle extends from \"calibrator ≠ reviewers\" to a **three-way partition**:\n\n- `executor_class`, `reviewer_classes`, and `calibrator_class` SHOULD be **pairwise disjoint**.\n- §7.1's executor-class exclusion rule enforces `executor_class ∉ reviewer_classes` at Wave 3A reviewer composition.\n- §11.3 enforces `calibrator_class ∉ reviewer_classes` at Wave 1D / Wave 3C.\n\n**Degradation behavior.** When all three pools cannot be made pairwise disjoint (e.g., only Anthropic aliases available AND executor was sonnet), the affected pool emits its `*_diversity: degraded` telemetry.\n\n**Grader assertion.** The grader assertion is extended: `executor_model_class NOT IN reviewer_model_classes` is asserted whenever `executor_class_resolved == true`.",
+      "why": "The diff (lines 169-184) replaces the three-way partition with a two-way calibrator/reviewer disjoint-set and removes the executor grader assertion. But reflection-rubric.md at HEAD (lines 154-163) still describes the three-way partition, still claims §7.1 enforces executor exclusion, and still asserts executor_model_class NOT IN reviewer_model_classes when executor_class_resolved == true. This contradicts the diff's claimed change.",
+      "recommendation": "Apply diff lines 169-184 replacement to reflection-rubric.md. The file currently contains the pre-patch version. The correct state is 'Calibrator/reviewer disjoint-set (two-way)' with NO executor assertion.",
+      "cross_references": [],
+      "confidence": "high"
+    },
+    {
+      "title": "reviewer-spec.md retains full executor-class exclusion rule and post-removal logic, contradicting diff",
+      "category": "correctness",
+      "severity_hint": "critical",
+      "file": "src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md",
+      "line": 74,
+      "line_range_end": 98,
+      "in_diff": false,
+      "evidence": "### Executor-class exclusion rule (anti-self-confirmation, structural)\n\nThe *executor* (the agent whose work is under review) MUST NOT appear in the reviewer pool. Reflect resolves the executor's model class at Wave 0 step 0.5b... If N=2 cannot be satisfied with a disjoint set, emit `executor_exclusion_degraded: true` and degrade to T1.\n\n### Post-removal logic\n\nPost-removal: if the executor is `sonnet`, the N=3 default rotation becomes `haiku, (qwen|kimi|deepseek|opus)`...",
+      "why": "The diff (lines 196-237) replaces 'Executor-class exclusion rule' with 'Instance-level independence guarantee', deletes Wave 0 step 0.5b, removes all executor-class removal logic, and replaces 'Post-removal logic' with 'Rotation fill logic (no executor removal)'. But reviewer-spec.md at HEAD still contains the full old section headers and the 5-step post-removal algorithm. The diff was not applied.",
+      "recommendation": "Apply diff lines 196-237 to reviewer-spec.md. Replace the executor-class exclusion rule section and post-removal logic section with the instance-level independence guarantee and rotation fill logic (no executor removal). The file currently contains the pre-patch version.",
+      "cross_references": [],
+      "confidence": "high"
+    },
+    {
+      "title": "SKILL.md §9.1 and §15.1 contract_version still 1.5.0, not 1.5.1 as diff claims",
+      "category": "correctness",
+      "severity_hint": "high",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 660,
+      "line_range_end": 663,
+      "in_diff": false,
+      "evidence": "### 9.1 Stable contract (contract_version: 1.5.0)\n\n```yaml\ncontract_version: \"1.5.0\"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics",
+      "why": "The diff (lines 61-67, 84, 141-142) claims to bump contract_version from 1.5.0 to 1.5.1 with the changelog entry explaining the instance-level anti-self-confirmation replacement and removal of the 3 telemetry fields. But SKILL.md at HEAD still shows contract_version: 1.5.0 in the section header (line 660) and in the YAML example (line 663). The testability map grader assertion (line 1772) also still asserts contract_version == '1.5.0'. The version bump was not applied.",
+      "recommendation": "Apply diff lines 61-67 to update contract_version from '1.5.0' to '1.5.1' in §9.1 (lines 660-663), update the changelog comment to include the 1.5.1 changelog entry, and update the testability map grader assertion at line 1772 to expect '1.5.1'.",
+      "cross_references": [
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md:1772",
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md:810"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Removed telemetry fields still present in SKILL.md §9.2 and §15.1 metrics.json",
+      "category": "correctness",
+      "severity_hint": "high",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 817,
+      "line_range_end": 819,
+      "in_diff": false,
+      "evidence": "executor_class_source: flag | env | log-heuristic | unknown\nexecutor_class_resolved: bool                                  # false → §7.1 anti-self-confirmation WARN emitted\nexecutor_exclusion_degraded: bool                              # true when executor class collision dropped reviewer count below N=2 → T1 fallback",
+      "why": "The diff (lines 88-96) claims to remove executor_class_source, executor_class_resolved, and executor_exclusion_degraded from §9.2 telemetry as non-stable fields with no §9.3 consumer. But SKILL.md §9.2 at HEAD (lines 817-819) still lists all three fields. The metrics.json schema in §15.1 (lines 1585-1586) also still includes executor_class_resolved and executor_exclusion_degraded in the ensemble block. The removal was not applied.",
+      "recommendation": "Apply diff lines 88-96 to remove the three executor_class_* / executor_exclusion_degraded lines from §9.2 telemetry (lines 817-819). Also apply diff lines 121-124 to remove executor_class_resolved and executor_exclusion_degraded from the metrics.json ensemble block (lines 1585-1586).",
+      "cross_references": [
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md:1585",
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md:1586"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "EV-1 adversarial-merge ORCHESTRATOR-VERIFIES-ON-DISK gate missing from SKILL.md",
+      "category": "correctness",
+      "severity_hint": "high",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 658,
+      "line_range_end": 658,
+      "in_diff": false,
+      "evidence": null,
+      "why": "The diff (line 54) adds the 'Wave 4 runtime exit STOP (ORCHESTRATOR-VERIFIES-ON-DISK) [EV-1]' paragraph immediately after the Wave 4 empty-response guard paragraph. This is a load-bearing gate that prevents silently treating an empty adversarial/ dir or missing merged-verdict.yaml as a successful merge. But SKILL.md at HEAD does not contain this paragraph at the expected insertion point (after the 'For the promotion gate' paragraph near line 658). The EV-1 gate was not added.",
+      "recommendation": "Insert the EV-1 paragraph from diff lines 54-55 into SKILL.md after the current empty-response guard paragraph (around line 658). This is the runtime gate that enforces the adversarial merge contract.",
+      "cross_references": [],
+      "confidence": "high"
+    },
+    {
+      "title": "EV-2 merge_method legal-values guard missing from SKILL.md §9.1 and §15.1",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 775,
+      "line_range_end": 776,
+      "in_diff": false,
+      "evidence": "merge_method: adversarial | single-reviewer-fallback   # F2 path",
+      "why": "The diff (line 76 and line 133) adds the EV-2 legal-values guard comment: 'LEGAL VALUES ARE EXACTLY {adversarial, single-reviewer-fallback}: any other value (inline, convergence-inline, an in-context \"convergence\" of the cards) is MALFORMED -> reject.' This is the contract-safety guard preventing reflect from synthesizing its own merge. But SKILL.md at HEAD (line 776 and likely near line 1606 in metrics.json) shows the old comment '# F2 path' without the EV-2 guard. The guard was not added.",
+      "recommendation": "Apply diff line 76 to replace the '# F2 path' comment at line 776 with the full EV-2 legal-values guard. Also apply diff line 133 to add the same guard to the metrics.json merge_method field comment (expected near line 1606).",
+      "cross_references": [
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md:1606"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Testability map adversarial-artifacts assertion not updated to content-based detector",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 1777,
+      "line_range_end": 1777,
+      "in_diff": false,
+      "evidence": null,
+      "why": "The diff (lines 155-156) replaces the testability-map row 'Adversarial delegation artifacts | dir_count | <output>/adversarial/ min_files=6' with 'Adversarial delegation artifacts | file_present + card_count | <output>/adversarial/merged-verdict.yaml present with merge_method: adversarial AND <output>/reviewer-cards/ count >= --reviewers (min 2, the §7.1 N=2 T2 floor)'. This aligns with the EV-1 content-based detector (merged-verdict.yaml + per-reviewer cards) instead of a raw file-count threshold. But SKILL.md testability map at HEAD (expected around line 1777) likely still shows the old dir_count assertion. The update was not applied.",
+      "recommendation": "Apply diff lines 155-156 to update the 'Adversarial delegation artifacts' testability-map row (expected around line 1777) from dir_count to file_present + card_count, matching the EV-1 gate logic.",
+      "cross_references": [],
+      "confidence": "medium"
+    },
+    {
+      "title": "SKILL.md reviewer-cards file extension mismatch (card-1.md vs reviewer-1-card.yaml)",
+      "category": "consistency",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 645,
+      "line_range_end": 645,
+      "in_diff": false,
+      "evidence": null,
+      "why": "The diff (line 46) changes the sc-adversarial invocation --compare argument from 'card-1.md,card-2.md,card-3.md' to 'reviewer-1-card.yaml,reviewer-2-card.yaml,reviewer-3-card.yaml'. This suggests the reviewer-card artifact convention changed from .md to .yaml. But without viewing the exact line in SKILL.md, I cannot confirm whether this change was applied. If the old .md extension remains at line 645, it is a naming-convention inconsistency.",
+      "recommendation": "Verify that SKILL.md line 645 (the --compare invocation line) uses reviewer-N-card.yaml naming, not card-N.md. If it still shows .md, apply diff line 46.",
+      "cross_references": [],
+      "confidence": "medium"
+    },
+    {
+      "title": "Grep reveals removed telemetry fields still referenced across .dev/ and legacy eval artifacts",
+      "category": "data-integrity",
+      "severity_hint": "low",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": null,
+      "line_range_end": null,
+      "in_diff": false,
+      "evidence": null,
+      "why": "The grep output shows executor_class_source / executor_class_resolved / executor_exclusion_degraded are still present in .dev/ research artifacts, eval workspace SPEC.md, task logs, and return-contract.yaml files in .dev/. These are historical artifacts and eval/research files, NOT active consumers in src/ or tests/, so the diff's claim 'no §9.3 consumer reads them' is substantively correct for production code. However, if the eval workspace SPEC.md (.dev/eval-workspaces/sc-reflect/SPEC.md) is meant to be kept in sync with SKILL.md, it will also need the same removal.",
+      "recommendation": "The removed fields have no src/ or tests/ consumers (verified by grep). The references in .dev/ are historical/eval artifacts and do not block the removal. If .dev/eval-workspaces/sc-reflect/SPEC.md is kept as a live design-rationale mirror, it should also receive the same executor-class-exclusion → instance-level-independence update for consistency.",
+      "cross_references": [
+        ".dev/eval-workspaces/sc-reflect/SPEC.md"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Flag acceptance statement for --executor-model added but front-matter placement unclear",
+      "category": "docs",
+      "severity_hint": "low",
+      "file": "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+      "line": 89,
+      "line_range_end": 89,
+      "in_diff": true,
+      "evidence": "- `--executor-model <class>` (back-compat / CLI flag) is ACCEPTED and IGNORED. Reflect does NOT class-exclude (instance-level independence, see the §7.1 instance-level independence guarantee): the named class stays in the reviewer pool, no tier degrade occurs, and no `executor_exclusion_degraded` signal is emitted. The flag is recorded provenance only.",
+      "why": "The diff (line 9) adds a new bullet under §3.1 inputs explaining that --executor-model is accepted but ignored. Without viewing the SKILL.md §3.1 inputs section, I cannot confirm the line was inserted at the correct location. If the flag list in §3.1 does not include this bullet at line 89, it was not applied.",
+      "recommendation": "Verify that SKILL.md §3.1 (expected around line 89) includes the --executor-model acceptance bullet from diff line 9. If missing, insert it.",
+      "cross_references": [],
+      "confidence": "medium"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Diff not applied — all three files at HEAD still contain pre-patch content",
+      "category": "correctness",
+      "severity_hint": "critical",
+      "affected_files": [
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md",
+        "src/superclaude/skills/sc-reflect-protocol/refs/reflection-rubric.md",
+        "src/superclaude/skills/sc-reflect-protocol/refs/reviewer-spec.md"
+      ],
+      "why": "Every substantive change claimed in the diff (executor-class exclusion → instance-level independence, removal of 3 telemetry fields, contract version 1.5.0 → 1.5.1, EV-1/EV-2 gates, content-based adversarial detector) is ABSENT from the files at HEAD. The files still contain the pre-patch wording verbatim. This is not a small inconsistency — the entire diff was not applied to the working copy. Either the PR diff was generated against a different branch, the files were reverted, or the diff is a preview that has not been merged yet.",
+      "recommendation": "Apply the diff to the three files. If this is a PR review of an unapplied diff, the findings above are the 'apply these changes' checklist. If this was meant to be a post-merge review, the merge failed and the diff must be re-applied.",
+      "confidence": "high"
+    },
+    {
+      "title": "Contract 1.5.1 changelog entry correctly describes removals as non-breaking telemetry changes",
+      "category": "api-contract",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md"
+      ],
+      "why": "The diff's contract_version 1.5.1 changelog (line 67) correctly characterizes the removal of executor_class_source / executor_class_resolved / executor_exclusion_degraded as 'removed NON-STABLE telemetry ... no §9.3 consumer reads them, so non-breaking'. This is consistent with the §9.4 contract-evolution policy (telemetry removals are non-breaking; stable-field removals are breaking). The grep confirmed no src/ or tests/ consumers. The patch-bump (1.5.0 → 1.5.1) is appropriate for a non-breaking change.",
+      "recommendation": "No action. The contract-version bump and changelog are correct IF the diff is applied. The issue is that the version number at HEAD is still 1.5.0, not that the bump is wrong.",
+      "confidence": "high"
+    }
+  ],
+  "notes_for_orchestrator": "The primary finding is that the diff appears to be UNAPPLIED — all three target files (SKILL.md, reflection-rubric.md, reviewer-spec.md) at HEAD still contain the pre-patch content verbatim. Every substantive change (executor-class exclusion → instance-level independence, 3 telemetry field removals, contract 1.5.0 → 1.5.1, EV-1/EV-2 gates) is absent from HEAD. This suggests either: (a) the diff is a PR preview that has not been merged, (b) the files were reverted after the diff was generated, or (c) the diff was generated against a different branch. If this is a pre-merge review, the findings are the 'changes to apply' list. If this is a post-merge review, the merge failed completely and the diff must be re-applied. The grep search confirmed no active src/ or tests/ consumers of the removed telemetry fields, so the 'no §9.3 consumer' claim is substantively correct."
+}

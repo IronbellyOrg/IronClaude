@@ -1,0 +1,23 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/pr197-remediation
+configfile: pyproject.toml
+plugins: anyio-4.14.0, superclaude-4.3.5
+collected 82 items
+
+tests/cli/reflect/test_base_precedence.py ......                         [  7%]
+tests/cli/reflect/test_classify_fix.py ...........                       [ 20%]
+tests/cli/reflect/test_cli_smoke.py .......                              [ 29%]
+tests/cli/reflect/test_docs_cli_parity.py ..                             [ 31%]
+tests/cli/reflect/test_fix_loop.py .......                               [ 40%]
+tests/cli/reflect/test_inline_directive.py ...                           [ 43%]
+tests/cli/reflect/test_marker_suppression.py ......                      [ 51%]
+tests/cli/reflect/test_no_nesting_guard.py X....                         [ 57%]
+tests/cli/reflect/test_promote_plumbing.py ...                           [ 60%]
+tests/cli/reflect/test_runner_e2e.py ..........                          [ 73%]
+tests/cli/reflect/test_verdict_mapping.py ...................            [ 96%]
+tests/cli/reflect/test_writeback.py ...                                  [100%]
+
+======================== 81 passed, 1 xpassed in 0.28s =========================

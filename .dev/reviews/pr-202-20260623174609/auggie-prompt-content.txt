@@ -1,0 +1,46 @@
+You are reviewing a documentation/skill-content change for the repository at the workspace root. Report problems as structured JSON.
+
+## Context
+
+Target: PR #202 — "feat(mcp): pin Tavily to tavily-mcp@0.2.20 + adopt 0.2.x map/crawl" (CONTENT CHUNK: markdown skills/agents/commands/modes/core/docs)
+
+This PR adopts the Tavily 0.2.x tool surface (adds tavily-map / tavily-crawl) but CONFINES map/crawl to the deep-research engine ONLY (invariant "X5"). Other consumers (/sc:research, brainstorm, troubleshoot, reflect) get pointer-only edits and must NOT gain map/crawl. The PR also claims exact frontmatter↔prose parity (invariant "X7") in agent files, makes MCP_Tavily.md the canonical 0.2.x surface, and aligns docs (mcp-servers.md: @latest→0.2.20, Node 18+).
+
+Files changed (this chunk):
+- src/superclaude/agents/deep-research-agent.md, deep-research.md
+- src/superclaude/commands/research.md
+- src/superclaude/core/FLAGS.md, RESEARCH_CONFIG.md
+- src/superclaude/examples/deep_research_workflows.md
+- src/superclaude/mcp/MCP_Tavily.md
+- src/superclaude/modes/MODE_DeepResearch.md
+- src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+- src/superclaude/skills/sc-reflect-protocol/SKILL.md
+- src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+- docs/eval/retry.md, docs/reference/comprehensive-features.md, docs/user-guide/mcp-servers.md
+- .secrets.baseline
+
+The full diff is at: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/reviews/pr-202-20260623174609/chunks/content.patch
+Read it with `view`, then use indexed context to verify claims.
+
+## Focus areas (content-specific)
+- docs/consistency: Does the version pin read 0.2.20 EVERYWHERE it appears across these files (no lingering 0.1.2 / @latest / unpinned)? Does any consumer file (brainstorm/troubleshoot/reflect/research command) wrongly introduce tavily-map or tavily-crawl (X5 violation)? In agent frontmatter (tools: list) vs the prose body — do they list the SAME tavily tools (X7 parity), or did one side gain/lose a tool?
+- correctness: contradictory instructions, a tool referenced in prose but missing from frontmatter (or vice versa), a search_depth/extract_depth value that contradicts the canonical MCP_Tavily.md, broken cross-file pointers (a "see X" reference whose target section no longer exists).
+- security: any real secret in .secrets.baseline diff or anywhere; confirm .secrets.baseline changes are detector-metadata only, not an actual leaked key.
+- tests: are these parity/confinement claims actually backed by a test in tests/ (cross-reference)? Flag claims with no guarding test.
+- naming/style: stale tool names (mcp.tavily vs mcp_server.tavily), Node version inconsistency.
+
+## Output contract (STRICT)
+Single JSON object (```json fence ok). Shape:
+{
+  "findings": [
+    {"title": "...", "category": "...", "severity_hint": "...", "file": "...", "line": <int>, "line_range_end": <int|null>, "in_diff": <bool>, "evidence": "<verbatim or null>", "why": "...", "recommendation": "...", "cross_references": ["..."], "confidence": "..."}
+  ],
+  "cross_cutting_observations": [
+    {"title": "...", "category": "...", "severity_hint": "...", "affected_files": ["..."], "why": "...", "recommendation": "...", "confidence": "..."}
+  ],
+  "notes_for_orchestrator": "..."
+}
+
+## Quality bar
+- Real file:line per finding; low confidence if unsure. Don't invent paths. 3-5 highest-signal per area. Empty-but-clean is fine; do not pad markdown nitpicks.
+Return only the JSON object.

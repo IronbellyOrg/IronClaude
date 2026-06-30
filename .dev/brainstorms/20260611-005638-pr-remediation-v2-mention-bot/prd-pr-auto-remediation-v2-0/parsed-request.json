@@ -1,0 +1,20 @@
+{
+  "GOAL": "Produce a comprehensive PRD for PR Auto-Remediation V2.0, a mention-triggered, headless, on-prem PR remediation bot, derived from the force-bound merged-requirements spec.",
+  "PRODUCT_NAME": "PR Auto-Remediation V2.0",
+  "PRODUCT_SLUG": "pr-auto-remediation-v2",
+  "PRD_SCOPE": "product",
+  "SCENARIO": "A",
+  "WHERE": [
+    "/config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot"
+  ],
+  "WHY": "Document the requirements for a headless, on-prem PR remediation bot in which an authorized collaborator @-mentions the bot on a PR review comment, a Dispatcher daemon authorizes and claims the trigger, and a sandboxed one-shot Runner executes /sc:troubleshoot on the parent comment \u2014 with propose-only-by-default autonomy, prompt-injection containment, two-phase loop-safety, and fork-only gh \u2014 so the system can be designed and built from a single authoritative specification.",
+  "TIER_RECOMMENDATION": "heavyweight",
+  "SPECS": [
+    {
+      "path": "/config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot/merged-requirements.md",
+      "size": 25915,
+      "inlined": false,
+      "truncated": false
+    }
+  ]
+}

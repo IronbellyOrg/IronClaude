@@ -1,0 +1,65 @@
+contract_version: "1.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/pre-init-lite-task-20260603204300/REPORT.md
+audit_log_path: null
+confidence_calibrated: 0.91     # 0.88 initial run -> 0.91 post-amendment re-run
+escalation_rule_matched: null   # standard depth; multi-domain (rule 4) noted but T2 offered, not auto-run
+rerun_report_path: /config/workspace/IronClaude/.dev/reflect/pre-init-lite-task-20260603204300/REPORT-rerun.md
+findings_resolved: [F1, F2, F3, F4, F5]   # F1-F3 + Objective 3 (turn 2); F4 (Step 2.1 --force pin) + F5 (Step 4.6->4.6/4.7 split) (turn 3)
+findings_residual: [R1]           # R1 cosmetic only (Step 6.2 summary wording); item count now 25, Phase 4 = 4.1-4.7
+
+# UC-1 specific
+coverage_pct: 1.0
+coverage_undefined: false
+unmapped_requirements: []        # all 5 Key Objectives map to >=1 checklist item
+best_practice_grade: 4           # 3 initial -> 4 post-amendment
+
+# Gap registry (UC-1 findings)
+findings:
+  - id: F1
+    severity: high
+    summary: "Installer fix (Step 2.3) reclassifies all 16 existing sc-*-protocol skills as command-backed and rmtree's their standalone installs; end-user superclaude-install regression risk; install-vs-served policy unresolved."
+    evidence: ["src/superclaude/cli/install_skills.py:19-30", "src/superclaude/cli/install_skills.py:58-68", "src/superclaude/cli/install_skills.py:94-98", "src/superclaude/commands/reflect.md:125", "src/superclaude/commands/roadmap.md:85"]
+  - id: F2
+    severity: high
+    summary: "No test guards the 16-skill interaction; tests/unit/test_cli_install.py has zero served_by_command/protocol coverage; Step 3.3 tests a non-existent bare sc-<command> set."
+    evidence: ["tests/unit/test_cli_install.py (grep served_by_command -> 0)", "task Step 3.3"]
+  - id: F3
+    severity: medium
+    summary: "Step 4.5 runs only `make lint` (ruff check); CI also runs `ruff format --check src/ tests/`. New init_lite.py can pass local lint yet fail CI format."
+    evidence: ["Makefile:48-50", ".github/workflows/test.yml:98-100", ".github/workflows/quick-check.yml:41"]
+  - id: F4
+    severity: low
+    summary: "--force overwrite semantics under-specified (only no-mutation safety pinned by Step 3.1 byte-preservation)."
+    evidence: ["task Key Objectives", "task Step 2.1", "task Step 3.1"]
+  - id: F5
+    severity: low
+    summary: "Step 4.6 bundles assess + conditional remediation in one item (session-rollover risk); concurs with prior QA advisory."
+    evidence: ["qa/qa-task-validation-report.md Recommendations"]
+
+# Hallucination guard
+citations_total: 9
+citations_revalidated: 9
+citations_dropped: 0
+citations_inferred: 1
+citation_budget_policy: full_reread
+evidence_validator_ran: false   # Tier 1 inline re-Read (all citations Read/grep'd this turn)
+
+# Asymmetric-cost flags
+regression_present: false        # UC-1: no completed work; F1 is a *risk* in the proposed plan, not a committed regression
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false    # RESOLVED 2026-06-03: "keep them installed (scope narrowly)"; encoded in Step 2.3 + Objective 3
+needs_human_decision: false
+
+# Duplicate check
+duplicate_artifacts_found: false   # none of init_lite.py / commands/init-lite.md / skills/sc-init-lite-protocol / tests/cli/test_init_lite.py exist
+
+# Tier 2 (not run)
+reviewer_cards: []
+adversarial_unavailable: false
+t2_model_class_diversity: degraded   # T2 not run
+escalation_offered: true             # rubric rule 4 (>=3 domains) would suggest T2; finding already high-confidence + actionable

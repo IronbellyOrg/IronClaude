@@ -1,0 +1,43 @@
+contract_version: "1.2.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/post-task-rf-pr120-20260604033553/REPORT.md
+confidence_calibrated: 0.95
+escalation_rule_matched: 2          # §5.3 rule 2 → STOP at T1
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 4
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: inline-in-REPORT.md
+grounding_gaps_path: null            # empty — no evidence-insufficient findings
+
+# Hallucination guard
+citations_total: 8
+citations_revalidated: 8
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2 (not run)
+tier2_ran: false
+t2_model_class_diversity: n/a
+adversarial_unavailable: false
+merge_method: n/a
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+cannot_validate_without_user_input: false
+
+# Promotion (UC-2) — see promotion-log.yaml
+promotion_adapter: task
+promotion_gate_passed: true

@@ -1,0 +1,467 @@
+diff --git a/src/superclaude/cli/swarm/commands.py b/src/superclaude/cli/swarm/commands.py
+index 45d5d174..c1009ded 100644
+--- a/src/superclaude/cli/swarm/commands.py
++++ b/src/superclaude/cli/swarm/commands.py
+@@ -38,7 +38,7 @@ import time
+ import uuid
+ from datetime import datetime, timezone
+ from pathlib import Path
+-from typing import Any, Mapping, Optional
++from typing import Any, Callable, Mapping, Optional
+
+ import click
+
+@@ -347,10 +347,7 @@ def _format_lens_failure(failure: LensValidationFailure) -> str:
+     phrasing can evolve.
+     """
+     path = failure.path or "<root>"
+-    return (
+-        f"  - {failure.rule} @ {path}: {failure.message} "
+-        f"(lens={failure.lens_name})"
+-    )
++    return f"  - {failure.rule} @ {path}: {failure.message} (lens={failure.lens_name})"
+
+
+ def _emit_lens_failures(
+@@ -569,6 +566,87 @@ def _resolve_run_transport(
+     )
+
+
++def _resolve_run_transport_factory(
++    transport_kind: str,
++    *,
++    models: Optional[list[str]] = None,
++    env: Optional[Mapping[str, str]] = None,
++) -> Callable[[int], Any]:
++    """Build a per-slot transport factory ``(slot_index) -> Transport``.
++
++    This is the heterogeneous-fan-out generalisation of
++    :func:`_resolve_run_transport`. ``dispatch_wave1`` calls the returned
++    factory once per worker slot, so each slot can be bound to a *different*
++    model -- the actual "MultiModelSwarm" behaviour:
++
++    * ``stub``          -- delegates to :func:`_resolve_run_transport` for a
++      single deterministic :class:`StubTransport` shared across all slots.
++      Stub output is a pure function of ``(model_id, prompt)`` and the stub
++      pool carries only lens placeholder ids, so per-slot differentiation
++      adds no value here; the single-model behaviour is preserved verbatim.
++    * ``openai_compat`` -- reads the T2 proxy env contract (AC-017) **once**
++      via :func:`read_env` (raising :class:`TransportEnvError` here, at
++      build time, so the caller surfaces env-missing before dispatch). Slot
++      ``i`` is bound to env model ``T2Model0N`` at index ``i % len(pool)``;
++      INV-005 guarantees ``workers.count <= len(pool)`` so under the normal
++      contract each slot gets a *distinct* model. One
++      :class:`OpenAICompatTransport` is built per unique model and cached, so
++      repeated slots on the same model reuse the httpx client.
++
++    Args:
++        transport_kind: resolved ``transport.kind`` (one of
++            :data:`_TRANSPORT_KINDS`).
++        models: model identifiers. For ``stub`` the first non-empty entry
++            becomes the stub ``model_id``. **Ignored for ``openai_compat``**
++            -- the wire models come from the env contract (``T2Model0N``),
++            never from ``spec.workers.models`` (which carries placeholders on
++            the ``--lens`` path).
++        env: optional environment mapping forwarded to :func:`read_env`
++            (defaults to ``os.environ``). Exposed for deterministic tests.
++
++    Returns:
++        A callable ``(slot_index: int) -> Transport``.
++
++    Raises:
++        TransportEnvError: ``openai_compat`` selected but the T2 env contract
++            is incomplete (raised eagerly, before any slot is dispatched).
++        ValueError: ``transport_kind`` is not a recognised kind.
++    """
++    if transport_kind == "stub":
++        # Single shared stub for every slot (single-model behaviour preserved).
++        shared = _resolve_run_transport("stub", models=models, env=env)
++        return lambda _slot: shared
++    if transport_kind == "openai_compat":
++        from superclaude.cli.swarm.transports.openai_compat import (
++            OpenAICompatTransport,
++            read_env,
++        )
++
++        config = read_env(env)  # eager: raises TransportEnvError if incomplete
++        pool = [m for m in config.models if m]
++        if not pool:  # defensive -- read_env raises before reaching here
++            raise ValueError("swarm run: openai_compat model pool is empty")
++        cache: dict[str, Any] = {}
++
++        def _factory(slot_index: int) -> Any:
++            model = pool[slot_index % len(pool)]
++            transport = cache.get(model)
++            if transport is None:
++                transport = OpenAICompatTransport(
++                    base_url=config.base_url,
++                    api_key=config.api_key,
++                    model=model,
++                )
++                cache[model] = transport
++            return transport
++
++        return _factory
++    raise ValueError(
++        f"swarm run: unknown transport kind {transport_kind!r}; "
++        f"expected one of {_TRANSPORT_KINDS}"
++    )
++
++
+ def _write_swarm_state(
+     output_dir: Path,
+     state_value: SwarmStateValue,
+@@ -735,9 +813,7 @@ def _build_spec_from_lens(lens_name: str) -> dict[str, Any]:
+             "success_first": True,
+             "partial_threshold": 2,
+         },
+-        "recommended_next_command_template": (
+-            entry.recommended_next_command_template
+-        ),
++        "recommended_next_command_template": (entry.recommended_next_command_template),
+         "recommended_next_command_substitutions": {},
+         "runtime": {
+             "mode": "inline",
+@@ -948,9 +1024,9 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
+         raise click.exceptions.Exit(EXIT_USAGE)
+
+     output_section = spec_dict.get("output", {}) or {}
+-    output_dir_value = output_section.get("dir", "") if isinstance(
+-        output_section, dict
+-    ) else ""
++    output_dir_value = (
++        output_section.get("dir", "") if isinstance(output_section, dict) else ""
++    )
+     if not isinstance(output_dir_value, str) or not output_dir_value:
+         click.echo(
+             "swarm run --detached: output.dir is required to stage the "
+@@ -980,8 +1056,7 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
+         _os.replace(tmp_path, snapshot_path)
+     except OSError as exc:
+         click.echo(
+-            f"swarm run --detached: cannot stage spec snapshot "
+-            f"{snapshot_path}: {exc}",
++            f"swarm run --detached: cannot stage spec snapshot {snapshot_path}: {exc}",
+             err=True,
+         )
+         try:
+@@ -1002,9 +1077,7 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
+     import subprocess as _subprocess
+
+     try:
+-        session = swarm_tmux.launch_detached(
+-            job_id_value, child_argv, cwd=output_path
+-        )
++        session = swarm_tmux.launch_detached(job_id_value, child_argv, cwd=output_path)
+     except swarm_tmux.TmuxUnavailableError as exc:
+         # Race: tmux disappeared between availability check and launch.
+         click.echo(f"swarm run --detached: {exc}", err=True)
+@@ -1017,22 +1090,19 @@ def _launch_detached_run(*, spec_dict: dict[str, Any], input_mode: str) -> None:
+         # A live session with this job_id already exists -- refusing to
+         # clobber is the launcher's job (idempotency belongs to kill).
+         click.echo(
+-            f"swarm run --detached: cannot launch session "
+-            f"{target_session!r}: {exc}",
++            f"swarm run --detached: cannot launch session {target_session!r}: {exc}",
+             err=True,
+         )
+         raise click.exceptions.Exit(EXIT_INVALID)
+     except _subprocess.CalledProcessError as exc:
+         click.echo(
+-            f"swarm run --detached: tmux launch failed (exit "
+-            f"{exc.returncode}): {exc}",
++            f"swarm run --detached: tmux launch failed (exit {exc.returncode}): {exc}",
+             err=True,
+         )
+         raise click.exceptions.Exit(EXIT_INVALID)
+
+     click.echo(
+-        f"swarm run: detached job_id={job_id_value} session={session} "
+-        f"mode={input_mode}"
++        f"swarm run: detached job_id={job_id_value} session={session} mode={input_mode}"
+     )
+     raise click.exceptions.Exit(EXIT_OK)
+
+@@ -1409,12 +1479,14 @@ def run_cmd(
+         spec_dict.get("workers", {}) if isinstance(spec_dict, dict) else {}
+     )
+     resolved_models = (
+-        workers_section.get("models", [])
+-        if isinstance(workers_section, dict)
+-        else []
++        workers_section.get("models", []) if isinstance(workers_section, dict) else []
+     )
+     try:
+-        run_transport = _resolve_run_transport(
++        # Per-slot factory enables heterogeneous multi-model fan-out: each
++        # worker slot binds to a distinct ``T2Model0N`` model (openai_compat).
++        # ``read_env`` runs eagerly inside the factory builder, so an
++        # incomplete env contract still surfaces here (before dispatch).
++        run_transport_factory = _resolve_run_transport_factory(
+             resolved_transport_kind, models=resolved_models
+         )
+     except TransportEnvError as exc:
+@@ -1436,7 +1508,7 @@ def run_cmd(
+         )
+
+     worker_results = dispatch_wave1(
+-        preflight_result, transport=run_transport, logger=logger
++        preflight_result, transport_for_slot=run_transport_factory, logger=logger
+     )
+
+     # F-P3-3 -- Wave 1 is the terminal wave for this T03.01 run body (the
+@@ -1501,9 +1573,7 @@ def run_cmd(
+ # ``…-NN-….meta.json``. The capture group extracts the slot index; the
+ # trailing slug is non-greedy so multi-segment model slugs (``-1-5-pro``)
+ # still match a single ``NN`` pair at the leftmost position.
+-_META_SLOT_INDEX_RE: re.Pattern[str] = re.compile(
+-    r"-(\d+)-[^/\\]+\.meta\.json$"
+-)
++_META_SLOT_INDEX_RE: re.Pattern[str] = re.compile(r"-(\d+)-[^/\\]+\.meta\.json$")
+
+
+ def discover_succeeded_slots(
+@@ -1715,9 +1785,7 @@ def _run_resume_branch(
+         raise click.exceptions.Exit(EXIT_USAGE)
+
+     try:
+-        rehydrated_spec: JobSpec = resume_mode(
+-            manifest_path, force_relens=force_relens
+-        )
++        rehydrated_spec: JobSpec = resume_mode(manifest_path, force_relens=force_relens)
+     except KeyError as exc:
+         click.echo(
+             f"swarm run --resume --force-relens: lens "
+@@ -1772,9 +1840,7 @@ def _run_resume_branch(
+                 transport_kind=resolved_transport_kind,
+             ),
+         )
+-        synthetic_state = _SwarmState(
+-            state="preflight_ok", job_id=manifest_obj.job_id
+-        )
++        synthetic_state = _SwarmState(state="preflight_ok", job_id=manifest_obj.job_id)
+         synthetic_preflight = _PreflightResult(
+             manifest=synthetic_manifest, state=synthetic_state
+         )
+@@ -1789,7 +1855,7 @@ def _run_resume_branch(
+         )
+
+         try:
+-            resume_transport = _resolve_run_transport(
++            resume_transport_factory = _resolve_run_transport_factory(
+                 resolved_transport_kind,
+                 models=list(rehydrated_spec.workers.models),
+             )
+@@ -1801,7 +1867,9 @@ def _run_resume_branch(
+             )
+             raise click.exceptions.Exit(EXIT_INVALID)
+         raw_redispatched = dispatch_wave1(
+-            synthetic_preflight, transport=resume_transport, logger=None
++            synthetic_preflight,
++            transport_for_slot=resume_transport_factory,
++            logger=None,
+         )
+
+         # Reindex returned slots (0..K-1) onto the original slot
+@@ -2137,10 +2205,7 @@ def status_cmd(
+                 break
+
+             iterations += 1
+-            if (
+-                watch_max_iterations is not None
+-                and iterations >= watch_max_iterations
+-            ):
++            if watch_max_iterations is not None and iterations >= watch_max_iterations:
+                 break
+             time.sleep(watch_interval)
+     except KeyboardInterrupt:
+@@ -2213,10 +2278,7 @@ def _validate_job_id(
+         # A corrupt state file is the status surface's problem, not
+         # ours. The log file may still be intact and useful for
+         # post-mortem; surface the corruption only when --job pins it.
+-        return (
+-            f"swarm logs: {state_path} is unreadable; cannot verify --job "
+-            f"{job_id!r}"
+-        )
++        return f"swarm logs: {state_path} is unreadable; cannot verify --job {job_id!r}"
+     if state is None:
+         return None
+     if state.job_id != job_id:
+@@ -2342,10 +2404,7 @@ def _follow_log(
+                 break
+
+             iterations += 1
+-            if (
+-                watch_max_iterations is not None
+-                and iterations > watch_max_iterations
+-            ):
++            if watch_max_iterations is not None and iterations > watch_max_iterations:
+                 break
+
+             time.sleep(watch_interval)
+@@ -3050,8 +3109,7 @@ def scaffold_cmd(lens_name: str, output_path: Optional[Path]) -> None:
+     if lens_name not in LENSES:
+         known = ", ".join(n for n in LENS_NAMES if n != "custom")
+         click.echo(
+-            f"swarm scaffold: unknown lens {lens_name!r}; "
+-            f"known lenses: {known}",
++            f"swarm scaffold: unknown lens {lens_name!r}; known lenses: {known}",
+             err=True,
+         )
+         raise click.exceptions.Exit(EXIT_USAGE)
+@@ -3079,8 +3137,7 @@ def scaffold_cmd(lens_name: str, output_path: Optional[Path]) -> None:
+     # Confirmation lands on stderr so stdout stays clean for callers
+     # that combine ``--output`` with a piped consumer.
+     click.echo(
+-        f"swarm scaffold: wrote starter spec for lens "
+-        f"{lens_name!r} to {output_path}",
++        f"swarm scaffold: wrote starter spec for lens {lens_name!r} to {output_path}",
+         err=True,
+     )
+     raise click.exceptions.Exit(EXIT_OK)
+diff --git a/src/superclaude/cli/swarm/dispatch.py b/src/superclaude/cli/swarm/dispatch.py
+index 54896a8c..305f4d0e 100644
+--- a/src/superclaude/cli/swarm/dispatch.py
++++ b/src/superclaude/cli/swarm/dispatch.py
+@@ -115,7 +115,6 @@ from superclaude.cli.swarm.preflight import PreflightResult
+ from superclaude.cli.swarm.transports import Transport
+ from superclaude.execution.parallel import ParallelExecutor, Task
+
+-
+ __all__ = ["dispatch_wave1", "retry_policy"]
+
+
+@@ -319,6 +318,13 @@ def _run_worker(
+                     "http_code": result.http_code,
+                     "attempts": result.attempts,
+                     "elapsed_ms": result.elapsed_ms,
++                    # FR-PER-SLOT -- record which model produced this slot so
++                    # heterogeneous (per-worker) model fan-out is observable in
++                    # the execution log. The transport stamps ``model_id`` /
++                    # ``model_label`` on every WorkerResult (success and
++                    # proxy_error alike) so a failed slot is still attributable.
++                    "model_id": result.model_id,
++                    "model_label": result.model_label,
+                 },
+             )
+         )
+@@ -329,6 +335,7 @@ def dispatch_wave1(
+     preflight_result: PreflightResult,
+     transport: Optional[Transport] = None,
+     *,
++    transport_for_slot: Optional[Callable[[int], Transport]] = None,
+     prompt: str = "",
+     parallel_executor: Optional[ParallelExecutor] = None,
+     worker_spec: Optional[WorkerSpec] = None,
+@@ -358,9 +365,20 @@ def dispatch_wave1(
+             drives the fan-out count.
+         transport: a :class:`Transport` implementation
+             (e.g. ``OpenAICompatTransport``, ``StubTransport``).
+-            When ``None`` the function returns an empty list -- this
+-            is the wire-only path used by the T03.01 smoke test;
+-            real runs always supply a transport.
++            Shared across all N worker slots. When both ``transport``
++            and ``transport_for_slot`` are ``None`` the function
++            returns an empty list -- the wire-only path used by the
++            T03.01 smoke test; real runs always supply one or the other.
++        transport_for_slot: optional per-slot transport factory
++            ``(slot_index) -> Transport``. When supplied it takes
++            precedence over ``transport`` and is invoked once per
++            worker slot, so each slot can be bound to a *different*
++            model (heterogeneous multi-model fan-out -- one
++            ``OpenAICompatTransport`` per ``T2Model0N`` slot). When
++            ``None`` the single shared ``transport`` is used for every
++            slot (the legacy single-model path). The factory MUST be
++            cheap / idempotent per slot; ``run_cmd`` caches one
++            transport per unique model behind it.
+         prompt: the fully-assembled prompt body to send. Passed
+             verbatim to ``transport.send`` (the transport MUST NOT
+             re-normalize per COMP-031). Defaults to an empty string
+@@ -388,7 +406,7 @@ def dispatch_wave1(
+         ``index`` (0..N-1). Empty list when ``transport`` is ``None``
+         or ``workers_requested == 0``.
+     """
+-    if transport is None:
++    if transport is None and transport_for_slot is None:
+         return []
+
+     workers_requested = preflight_result.manifest.preflight.workers_requested
+@@ -427,7 +445,18 @@ def dispatch_wave1(
+         # late-binding closure trap that would collapse every task
+         # onto the loop's terminal value).
+         def _call() -> WorkerResult:
+-            return _run_worker(slot_index, transport, prompt, effective_spec, logger)
++            # Per-slot transport takes precedence: each worker can be
++            # bound to a different model (heterogeneous fan-out). Falls
++            # back to the single shared transport when no factory is
++            # supplied (legacy single-model path).
++            slot_transport = (
++                transport_for_slot(slot_index)
++                if transport_for_slot is not None
++                else transport
++            )
++            return _run_worker(
++                slot_index, slot_transport, prompt, effective_spec, logger
++            )
+
+         return _call
+
+@@ -457,9 +486,7 @@ def dispatch_wave1(
+         if isinstance(outcome, WorkerResult):
+             results.append(outcome)
+         else:
+-            results.append(
+-                WorkerResult(index=index, status="proxy_error", attempts=1)
+-            )
++            results.append(WorkerResult(index=index, status="proxy_error", attempts=1))
+
+     # T03.10 -- closing wave_transition. M4 normalize / M5 reduce will
+     # stamp their own transitions; dispatch closes its own wave so the
+diff --git a/tests/swarm/test_commands_run.py b/tests/swarm/test_commands_run.py
+index 2569e2dc..4ddd9c1d 100644
+--- a/tests/swarm/test_commands_run.py
++++ b/tests/swarm/test_commands_run.py
+@@ -306,10 +306,15 @@ def test_run_cmd_spec_file_mode_invokes_preflight_and_dispatch(
+     captured: dict[str, Any] = {}
+
+     def _fake_dispatch(
+-        preflight_result: Any, transport: Any = None, **kwargs: Any
++        preflight_result: Any,
++        transport: Any = None,
++        *,
++        transport_for_slot: Any = None,
++        **kwargs: Any,
+     ) -> list[Any]:
+         captured["preflight_result"] = preflight_result
+         captured["transport"] = transport
++        captured["transport_for_slot"] = transport_for_slot
+         return []
+
+     # The run_cmd body does a lazy import; patch the source module so
+@@ -332,16 +337,19 @@ def test_run_cmd_spec_file_mode_invokes_preflight_and_dispatch(
+     preflight_result = captured["preflight_result"]
+     assert preflight_result.manifest.job_id == "job-run-cmd"
+     assert preflight_result.manifest.preflight.workers_requested == 3
+-    # F-P3-1 -- run_cmd now resolves a CONCRETE transport before dispatch
+-    # (the historical ``transport=None`` made dispatch a no-op). The
+-    # fixture uses ``stub`` so the resolved transport is a StubTransport.
++    # F-P3-1 + per-slot fan-out -- run_cmd now passes a CONCRETE per-slot
++    # transport factory (``transport_for_slot``) so dispatch binds each worker
++    # to a model; the historical ``transport=None`` made dispatch a no-op. The
++    # fixture uses ``stub`` so every slot resolves to a StubTransport.
+     from superclaude.cli.swarm.transports.stub import StubTransport
+
+-    assert captured["transport"] is not None, (
+-        "run_cmd must pass a concrete transport to dispatch_wave1 (F-P3-1); "
+-        "transport=None is the no-op that dispatched zero workers"
++    factory = captured["transport_for_slot"]
++    assert factory is not None and callable(factory), (
++        "run_cmd must pass a per-slot transport factory to dispatch_wave1 "
++        "(F-P3-1); transport_for_slot=None is the no-op that dispatched zero "
++        "workers"
+     )
+-    assert isinstance(captured["transport"], StubTransport)
++    assert isinstance(factory(0), StubTransport)
+
+     # Stdout success line names the input mode and worker count.
+     assert "mode=spec-file" in result.stdout

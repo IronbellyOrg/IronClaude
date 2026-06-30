@@ -1,0 +1,36 @@
+promotion_log_version: "1.0"
+adapter: sprint-release
+mode: auto
+action: skipped
+source: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm
+destination: /config/workspace/IronClaude/.dev/releases/complete/MultiModelSwarm
+source_sha256_before: null
+source_sha256_after_move: null
+sha_match: null
+gate_evaluation:
+  mode_post: pass
+  status_success: fail
+  tasklist_completion_pct_1_0: fail
+  no_drift_no_regression: fail
+  frontmatter_present: n/a
+  frontmatter_status_matches: n/a
+  no_citations_dropped: pass
+  no_grounding_gaps: pass
+  no_input_drift: pass
+  no_user_decision_pending: fail
+  adversarial_result_present: pass
+gate_evaluation_failures:
+  - status_success
+  - tasklist_completion_pct_1_0
+  - no_drift_no_regression
+  - no_user_decision_pending
+gate_passed: false
+citation_revalidation_at_promotion: false
+pending: false
+cross_fs_promotion: false
+checkpoint_path: null
+skip_reason: gate-failed
+fail_reason: null
+override_used: null
+rollback_command: null
+timestamp: 2026-06-04T10:42:00+00:00

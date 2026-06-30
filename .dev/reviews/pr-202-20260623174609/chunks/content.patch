@@ -1,0 +1,673 @@
+diff --git a/.secrets.baseline b/.secrets.baseline
+index 66de660d..1a08e5b7 100644
+--- a/.secrets.baseline
++++ b/.secrets.baseline
+@@ -158,21 +158,21 @@
+         "filename": "docs/user-guide/mcp-servers.md",
+         "hashed_secret": "c139659f6dc409ac17c43af820c6db88ba2edd00",
+         "is_verified": false,
+-        "line_number": 149
++        "line_number": 150
+       },
+       {
+         "type": "Secret Keyword",
+         "filename": "docs/user-guide/mcp-servers.md",
+         "hashed_secret": "91c5eefe2fa481a0a21141d6c10cd95b0f38b9ae",
+         "is_verified": false,
+-        "line_number": 346
++        "line_number": 347
+       },
+       {
+         "type": "Secret Keyword",
+         "filename": "docs/user-guide/mcp-servers.md",
+         "hashed_secret": "9ad19750930e5cf133e024641c00daf5fc90c700",
+         "is_verified": false,
+-        "line_number": 349
++        "line_number": 350
+       }
+     ],
+     "plugins/superclaude/core/RESEARCH_CONFIG.md": [
+@@ -190,42 +190,42 @@
+         "filename": "src/superclaude/cli/install_mcp.py",
+         "hashed_secret": "0e2756fdb85c1de2102c0cfd0e5754d0fff4e4a1",
+         "is_verified": false,
+-        "line_number": 50
++        "line_number": 51
+       },
+       {
+         "type": "Secret Keyword",
+         "filename": "src/superclaude/cli/install_mcp.py",
+         "hashed_secret": "9ac24d130266f59157c2d37fbf3da9c5a0749c4b",
+         "is_verified": false,
+-        "line_number": 51
++        "line_number": 52
+       },
+       {
+         "type": "Secret Keyword",
+         "filename": "src/superclaude/cli/install_mcp.py",
+         "hashed_secret": "a190ccae10f15c069839260523cc80ea2ed529f0",
+         "is_verified": false,
+-        "line_number": 73
++        "line_number": 74
+       },
+       {
+         "type": "Secret Keyword",
+         "filename": "src/superclaude/cli/install_mcp.py",
+         "hashed_secret": "6f08e36bc3b4b1a3086abed0381bdbc1cdee4c2d",
+         "is_verified": false,
+-        "line_number": 74
++        "line_number": 75
+       },
+       {
+         "type": "Secret Keyword",
+         "filename": "src/superclaude/cli/install_mcp.py",
+         "hashed_secret": "46125dd7214670fbb5f5c6b57126ae3440d207f4",
+         "is_verified": false,
+-        "line_number": 82
++        "line_number": 83
+       },
+       {
+         "type": "Secret Keyword",
+         "filename": "src/superclaude/cli/install_mcp.py",
+         "hashed_secret": "765550273660633e5a1c105cd573fcdad40a76c2",
+         "is_verified": false,
+-        "line_number": 83
++        "line_number": 84
+       }
+     ],
+     "src/superclaude/cli/swarm/commands.py": [
+@@ -516,5 +516,5 @@
+       }
+     ]
+   },
+-  "generated_at": "2026-06-19T04:25:25Z"
++  "generated_at": "2026-06-23T17:31:33Z"
+ }
+diff --git a/docs/eval/retry.md b/docs/eval/retry.md
+index cb7d680c..330b9729 100644
+--- a/docs/eval/retry.md
++++ b/docs/eval/retry.md
+@@ -73,7 +73,7 @@ superclaude eval run --suite real --eval E1 --eval E2
+ ```
+
+ > **CLI shape note (post cliEval Phase 5+6 remediation):** `eval run` takes the suite via the `--suite <token>` flag, not a positional argument. The canonical suite is `real.yaml`; `quick.yaml` is **deferred per DOC-OQ6**. Eval ids follow the strict FR-SCH2 regex — use `E1`, `E2.1`, `E15`, not zero-padded forms like `E01`.
+-
++>
+ > **Subset-run runtime warnings (post Phase 5+6 remediation):** A subset re-run
+ > writes the same `summary.{md,json,yaml}` artifact set under its own run-dir
+ > (independent of the original run). With `--verbose`, the post-run stdout line
+@@ -136,7 +136,7 @@ evals:
+   - id: E07
+     title: "Tavily MCP search returns at least one result"
+     requires:
+-      - mcp.tavily       # capability gate
++      - mcp_server.tavily       # capability gate
+       - MCP-flaky        # opt-in to R3-mit retry-once
+     expects: [...]
+ ```
+diff --git a/docs/reference/comprehensive-features.md b/docs/reference/comprehensive-features.md
+index 4b924fd7..972aeff9 100644
+--- a/docs/reference/comprehensive-features.md
++++ b/docs/reference/comprehensive-features.md
+@@ -72,7 +72,7 @@ superclaude mcp --dry-run
+ 4. **playwright** - Cross-browser E2E testing and automation
+ 5. **serena** - Semantic code analysis and intelligent editing
+ 6. **morphllm-fast-apply** - Fast Apply capability for context-aware code modifications (requires API key)
+-7. **tavily** - Web search and real-time information retrieval (requires API key)
++7. **tavily** - Web search, extraction, site-mapping, and domain-crawl (requires API key) — see MCP_Tavily.md
+ 8. **chrome-devtools** - Chrome DevTools debugging and performance analysis
+
+ ### Documentation Files
+@@ -95,7 +95,6 @@ superclaude mcp --dry-run
+ - sequential.json
+ - serena-docker.json
+ - serena.json
+-- tavily.json
+
+ ## 📚 Core Documentation
+
+@@ -149,7 +148,7 @@ All resources are included in both:
+
+ ### Directory Structure
+
+-```
++```text
+ src/superclaude/
+ ├── agents/          # 20 agent definitions
+ ├── commands/        # 30 slash commands
+diff --git a/docs/user-guide/mcp-servers.md b/docs/user-guide/mcp-servers.md
+index 6f02888b..1a2dc73a 100644
+--- a/docs/user-guide/mcp-servers.md
++++ b/docs/user-guide/mcp-servers.md
+@@ -134,8 +134,9 @@ export MORPH_API_KEY="your_key_here"
+ ### tavily 🔍
+
+ **Purpose**: Web search and real-time information retrieval for research
++**Capabilities**: search, extraction, site-mapping, domain-crawl — see MCP_Tavily.md
+ **Triggers**: `/sc:research` commands, "latest" information requests, current events, fact-checking
+-**Requirements**: Node.js 16+, TAVILY_API_KEY (free tier available at <https://app.tavily.com>)
++**Requirements**: Node.js 18+, TAVILY_API_KEY (free tier available at <https://app.tavily.com>)
+
+ ```bash
+ # Automatic activation
+@@ -270,7 +271,7 @@ docker compose restart api
+     },
+     "tavily": {
+       "command": "npx",
+-      "args": ["-y", "tavily-mcp@latest"],
++      "args": ["-y", "tavily-mcp@0.2.20"],
+       "env": {"TAVILY_API_KEY": "${TAVILY_API_KEY}"}
+     },
+     "chrome-devtools": {
+diff --git a/src/superclaude/agents/deep-research-agent.md b/src/superclaude/agents/deep-research-agent.md
+index d018c973..d5cf7840 100644
+--- a/src/superclaude/agents/deep-research-agent.md
++++ b/src/superclaude/agents/deep-research-agent.md
+@@ -5,6 +5,8 @@ category: analysis
+ tools:
+   - mcp__tavily__tavily-search
+   - mcp__tavily__tavily-extract
++  - mcp__tavily__tavily-map
++  - mcp__tavily__tavily-crawl
+   - WebSearch
+   - WebFetch
+   - mcp__context7__resolve-library-id
+@@ -118,17 +120,44 @@ After each major step:
+ - Provide sources when available
+ - Use inline citations for clarity
+ - Note when information is uncertain
+-- Tag each source with the backend used: `tavily`, `websearch`, `webfetch`, `playwright`, `context7`
++- Tag each source with the backend used: `tavily` (covers `tavily-search`, `tavily-extract`, `tavily-map`, `tavily-crawl`), `websearch`, `webfetch`, `playwright`, `context7`
+ - If a `websearch` or `webfetch` source appears, include `fallback_reason` per the Fallback Policy
+
++**Fallback Policy**
++
++Tavily MCP is the primary backend for all four operations (`tavily-search`, `tavily-extract`,
++`tavily-map`, `tavily-crawl`). Fall back to `WebSearch` / `WebFetch` ONLY when Tavily is
++unavailable. Because `tavily-map` and `tavily-crawl` have no direct WebSearch/WebFetch
++equivalent, on fallback they degrade to iterative `WebSearch` discovery (no site-graph / crawl
++breadth) — record this loss of fidelity.
++
++`fallback_reason` enum (set whenever a non-`tavily` backend is used in place of a Tavily op):
++
++- `tavily_unavailable` — the Tavily tool was not loaded / not configured this session
++- `tavily_error` — Tavily returned a tool-level error after one retry
++- `tavily_rate_limited` — Tavily returned an explicit rate-limit signal
++- `map_unsupported_fallback` — `tavily-map` requested but unavailable; degraded to WebSearch discovery
++- `crawl_unsupported_fallback` — `tavily-crawl` requested but unavailable; degraded to WebSearch discovery
++
+ ### Tool Orchestration
+
+ **Search Strategy**
+
+-1. Broad initial searches (Tavily)
++1. Broad initial searches via `mcp__tavily__tavily-search`
+ 2. Identify key sources
+ 3. Deep extraction via `mcp__tavily__tavily-extract` as needed
+-4. Follow interesting leads (re-issuing Tavily searches with refined queries)
++4. Follow interesting leads (re-issuing `mcp__tavily__tavily-search` with refined queries)
++
++**Discovery Routing** (map/crawl — research engine only)
++
++- `mcp__tavily__tavily-map` — site-structure discovery: enumerate a site's URL graph before
++  targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
++- `mcp__tavily__tavily-crawl` — deep domain traversal: follow links across a domain to gather
++  many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, and the
++  result set is truncated to a maximum of **50 URLs**.
++- Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when
++  exhaustive breadth across a domain is required. Per-tier gating lives in RESEARCH_CONFIG.md
++  Depth Profiles.
+
+ **Extraction Routing**
+
+@@ -137,6 +166,12 @@ After each major step:
+ - Technical docs → Context7
+ - Local context → Native tools
+
++**`extract_depth` selection**
++
++- Use `extract_depth: basic` for the quick/standard profiles (single-pass, low-cost pages).
++- Use `extract_depth: advanced` for the deep/exhaustive profiles or when a page is content-rich
++  / JS-heavy and a basic extract returns thin content.
++
+ **Parallel Optimization**
+
+ - Batch similar searches
+diff --git a/src/superclaude/agents/deep-research.md b/src/superclaude/agents/deep-research.md
+index cb0abaea..b6550b54 100644
+--- a/src/superclaude/agents/deep-research.md
++++ b/src/superclaude/agents/deep-research.md
+@@ -5,6 +5,8 @@ category: analysis
+ tools:
+   - mcp__tavily__tavily-search
+   - mcp__tavily__tavily-extract
++  - mcp__tavily__tavily-map
++  - mcp__tavily__tavily-crawl
+   - WebSearch
+   - WebFetch
+   - mcp__context7__resolve-library-id
+@@ -35,6 +37,22 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
+ 2. **Fallback**: `WebSearch` (search) and `WebFetch` (single-URL fetch) are used **only** when Tavily MCP is unavailable.
+ 3. **Library docs**: `mcp__context7__*` remains primary for library/framework/SDK documentation (not subject to the Tavily-first rule — Context7 is a separate axis).
+
++### Discovery Routing (map/crawl — research engine only)
++
++- `mcp__tavily__tavily-map` — site-structure discovery: enumerate a site's URL graph before
++  targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
++- `mcp__tavily__tavily-crawl` — deep domain traversal: follow links across a domain to gather
++  many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, result set
++  truncated to a maximum of **50 URLs**.
++- Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when
++  exhaustive breadth is required. Per-tier gating lives in RESEARCH_CONFIG.md Depth Profiles.
++
++### `extract_depth` selection
++
++- `extract_depth: basic` for quick/standard profiles (single-pass, low-cost pages).
++- `extract_depth: advanced` for deep/exhaustive profiles, or when a content-rich / JS-heavy page
++  returns thin content under a basic extract.
++
+ ### Detecting "Tavily unavailable"
+
+ Treat Tavily MCP as unavailable, and fall back to WebSearch/WebFetch, when **any** of the following holds:
+@@ -44,7 +62,7 @@ Treat Tavily MCP as unavailable, and fall back to WebSearch/WebFetch, when **any
+ - A Tavily call returns an explicit rate-limit / quota-exceeded error.
+ - A Tavily call returns an authentication error (missing/invalid API key).
+
+-In every fallback event, record in the source citation table: `fallback_reason: <tavily_missing | tavily_error | tavily_rate_limit | tavily_auth>`.
++In every fallback event, record in the source citation table: `fallback_reason: <tavily_missing | tavily_error | tavily_rate_limit | tavily_auth | map_unsupported_fallback | crawl_unsupported_fallback>`. The Tavily-first rule and these fallbacks apply to all four operations (`tavily-search`, `tavily-extract`, `tavily-map`, `tavily-crawl`). Because `tavily-map` / `tavily-crawl` have no direct WebSearch/WebFetch equivalent, on fallback they degrade to iterative `WebSearch` discovery (losing site-graph / crawl breadth) — flag this fidelity loss with `map_unsupported_fallback` / `crawl_unsupported_fallback`.
+
+ ### Never silent fallback
+
+diff --git a/src/superclaude/commands/research.md b/src/superclaude/commands/research.md
+index 30aea654..c2fd3117 100644
+--- a/src/superclaude/commands/research.md
++++ b/src/superclaude/commands/research.md
+@@ -21,7 +21,7 @@ personas: [deep-research-agent]
+
+ ## Context Trigger Pattern
+
+-```
++```text
+ /sc:research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
+ ```
+
+@@ -90,9 +90,11 @@ personas: [deep-research-agent]
+ - **Deep**: Comprehensive search, 3-4 hops, detailed analysis
+ - **Exhaustive**: Maximum depth, 5 hops, complete investigation
+
++Per-tier `search_depth`/`extract_depth` and map/crawl selection are defined by the research engine — see RESEARCH_CONFIG.md Depth Profiles.
++
+ ## MCP Integration
+
+-- **Tavily**: Primary search and extraction engine
++- **Tavily**: Primary search, extraction, site-mapping (`tavily-map`) and domain-crawl (`tavily-crawl`) engine — see deep-research-agent / RESEARCH_CONFIG.md for routing
+ - **Sequential**: Complex reasoning and synthesis
+ - **Playwright**: JavaScript-heavy content extraction
+ - **Serena**: Research session persistence
+@@ -106,7 +108,7 @@ personas: [deep-research-agent]
+
+ ## Examples
+
+-```
++```text
+ /sc:research "latest developments in quantum computing 2024"
+ /sc:research "competitive analysis of AI coding assistants" --depth deep
+ /sc:research "best practices for distributed systems" --strategy unified
+diff --git a/src/superclaude/core/FLAGS.md b/src/superclaude/core/FLAGS.md
+index cbbeb13a..ccabfbf7 100644
+--- a/src/superclaude/core/FLAGS.md
++++ b/src/superclaude/core/FLAGS.md
+@@ -69,7 +69,7 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
+ **--tavily**
+
+ - Trigger: Web search requests, real-time information needs, research queries, current events
+-- Behavior: Enable Tavily for web search and real-time information gathering
++- Behavior: Enable Tavily for search/extract/map/crawl — see MCP_Tavily.md
+
+ **--frontend-verify**
+
+diff --git a/src/superclaude/core/RESEARCH_CONFIG.md b/src/superclaude/core/RESEARCH_CONFIG.md
+index f55c150b..947102e8 100644
+--- a/src/superclaude/core/RESEARCH_CONFIG.md
++++ b/src/superclaude/core/RESEARCH_CONFIG.md
+@@ -51,14 +51,31 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
+ | T3 | 0.5-0.7 | Community resources, user docs, verified social, Wikipedia |
+ | T4 | 0.3-0.5 | User forums, unverified social, personal blogs, comments |
+
++**Domain filters:** Bind Tavily's `include_domains` / `exclude_domains` to the tiers above —
++use `include_domains` to bias `search` / `map` / `crawl` toward T1–T2 sources (academic,
++official docs, established media) and `exclude_domains` to suppress T4 sources (unverified
++social, comment threads).
++
+ ## Depth Profiles
+
+-| Profile | Sources | Hops | Iterations | Time | Confidence | Extraction |
+-|---------|---------|------|------------|------|------------|------------|
+-| quick | 10 | 1 | 1 | 2min | 0.6 | tavily_only |
+-| standard | 20 | 3 | 2 | 5min | 0.7 | selective |
+-| deep | 40 | 4 | 3 | 8min | 0.8 | comprehensive |
+-| exhaustive | 50+ | 5 | 5 | 10min | 0.9 | all_sources |
++Tavily MCP version: **0.2.20** (pinned — see the `install_mcp.py` registry and `MCP_Tavily.md`).
++The server-level `DEFAULT_PARAMETERS` baseline is injected at install (canonical values live in
++`install_mcp.py` / `MCP_Tavily.md` — not duplicated here). Each profile below overrides
++`search_depth` / `extract_depth` per tier; per-call tool args override the server default.
++
++| Profile | Sources | Hops | Iterations | Time | Confidence | search_depth | extract_depth | Tools enabled |
++|---------|---------|------|------------|------|------------|--------------|---------------|---------------|
++| quick | 10 | 1 | 1 | 2min | 0.6 | basic | basic | search |
++| standard | 20 | 3 | 2 | 5min | 0.7 | basic | basic | search, extract |
++| deep | 40 | 4 | 3 | 8min | 0.8 | advanced | advanced | search, extract, map |
++| exhaustive | 50+ | 5 | 5 | 10min | 0.9 | advanced | advanced | search, extract, map, crawl |
++
++`search_depth: advanced` is used ONLY at the **deep** and **exhaustive** tiers; quick and
++standard stay `basic`. `tavily-map` is enabled at **deep and above**; `tavily-crawl` is enabled
++at the **exhaustive tier only**.
++
++**Discovery caps:** `maps=2` per research run, `crawls=1` per research run; a `tavily-crawl`
++result set is truncated to a maximum of **50 URLs**.
+
+ ## Multi-Hop Patterns
+
+@@ -69,6 +86,27 @@ extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, t
+ | temporal_progression | Follow chronology | Current → Recent → Historical → Origins | backward |
+ | causal_chain | Trace cause/effect | Effect → Immediate → Root → Prevention | validated |
+
++## Discovery Routing
++
++| Operation | Tavily tool id | Use | Enabled at |
++|-----------|----------------|-----|-----------|
++| map | `mcp__tavily__tavily-map` | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
++| crawl | `mcp__tavily__tavily-crawl` | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
++
++Typical flow: `map` a domain to surface candidate URLs, then `extract` the high-value ones;
++escalate to `crawl` only at the **exhaustive** tier when broad coverage across a domain is
++required. Respect the caps (`maps=2`, `crawls=1`) and the 50-URL crawl truncation.
++
++## Recency Controls
++
++| Param | Use |
++|-------|-----|
++| `topic: news` | Switch search to the news index for current-events queries (default is `topic: general`) |
++| `time_range` | Bound results to a recent window (day / week / month / year) |
++| `days` | With `topic: news`, limit results to the last N days |
++
++Apply recency controls only when the query is time-sensitive.
++
+ ## Extraction Routing
+
+ | Tool | Conditions |
+diff --git a/src/superclaude/examples/deep_research_workflows.md b/src/superclaude/examples/deep_research_workflows.md
+index 09dd0811..a3f93190 100644
+--- a/src/superclaude/examples/deep_research_workflows.md
++++ b/src/superclaude/examples/deep_research_workflows.md
+@@ -414,6 +414,65 @@ Comprehensive analysis of "AI in healthcare 2024"
+    - Visual evidence
+ ```
+
++## Example 11: Discovery Routing with Map & Crawl (0.2.x tool surface)
++
++### Scenario
++
++Survey a documentation domain's structure, then go broad: "Audit the entire FastAPI docs site for
++async-related guidance"
++
++### Execution
++
++```bash
++/sc:research "FastAPI async guidance across the docs site" --depth deep
++```
++
++### Workflow (map → extract at the deep profile)
++
++```yaml
++1. Site-structure discovery (deep profile enables map; cap maps=2):
++   - mcp__tavily__tavily-map:
++       url: "https://fastapi.tiangolo.com"
++       include_domains: ["fastapi.tiangolo.com"]   # bound to T1/T2 source tier
++   - Returns: the site's URL graph (sections, pages)
++
++2. Targeted extraction of the high-value URLs found by map:
++   - mcp__tavily__tavily-extract:
++       urls: [ ".../async/", ".../advanced/async-sql/", ".../tutorial/..." ]
++       extract_depth: advanced        # deep profile → advanced
++   - Returns: full content of the selected pages only
++
++3. Synthesis:
++   - Combine mapped structure + extracted content into a coherent guide
++   - Backend tag: tavily (map + extract)
++```
++
++### Workflow (guarded crawl at the exhaustive profile only)
++
++```bash
++/sc:research "Exhaustive sweep of a vendor changelog domain" --depth exhaustive
++```
++
++```yaml
++1. Crawl is enabled ONLY at the exhaustive profile (cap crawls=1, ≤50 URLs):
++   - mcp__tavily__tavily-crawl:
++       url: "https://vendor.example.com/changelog"
++       include_domains: ["vendor.example.com"]
++       search_depth: advanced          # exhaustive profile → advanced
++   - Result set is truncated to a maximum of 50 URLs (cap enforced)
++
++2. If the domain exceeds 50 URLs:
++   - Note the truncation in the report; do NOT issue a second crawl (crawls=1 cap)
++   - Fall back to targeted map+extract on the highest-priority subsections
++
++3. Synthesis:
++   - Aggregate crawled pages; flag coverage limits from the 50-URL cap
++```
++
++> Map/crawl are confined to the deep-research engine. Per-tier gating, caps, and parameter
++> defaults are defined in RESEARCH_CONFIG.md (Depth Profiles, Discovery Routing) and the tool
++> surface in MCP_Tavily.md — this example does not restate them.
++
+ ## Advanced Workflow Patterns
+
+ ### Pattern 1: Iterative Deepening
+diff --git a/src/superclaude/mcp/MCP_Tavily.md b/src/superclaude/mcp/MCP_Tavily.md
+index da530389..ad49b183 100644
+--- a/src/superclaude/mcp/MCP_Tavily.md
++++ b/src/superclaude/mcp/MCP_Tavily.md
+@@ -2,6 +2,9 @@
+
+ **Purpose**: Web search and real-time information retrieval for research and current events
+
++**Version**: `tavily-mcp@0.2.20` (pinned — see the `install_mcp.py` registry). This file is the
++canonical Tavily capability reference; other docs point here rather than restating the surface.
++
+ ## Triggers
+
+ - Web search requirements beyond Claude's knowledge cutoff
+@@ -32,6 +35,50 @@
+
+ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
+
++## Tool Surface (Tavily MCP 0.2.x)
++
++The 0.2.x server exposes four tools:
++
++| Tool id | Operation | Notes |
++|---------|-----------|-------|
++| `mcp__tavily__tavily-search` | Web/news search with ranking + filtering | primary search |
++| `mcp__tavily__tavily-extract` | Full-text extraction from one or more URLs | page content |
++| `mcp__tavily__tavily-map` | Site-structure discovery (URL graph of a domain) | research engine only |
++| `mcp__tavily__tavily-crawl` | Deep domain traversal across linked pages | research engine only |
++
++### Parameters
++
++| Param | Values | Applies to |
++|-------|--------|-----------|
++| `search_depth` | `basic` \| `advanced` | search |
++| `extract_depth` | `basic` \| `advanced` | extract |
++| `topic` | `general` \| `news` | search |
++| `time_range` | `day` \| `week` \| `month` \| `year` | search |
++| `days` | integer (with `topic: news`) | search |
++| `include_domains` / `exclude_domains` | list of domains | search / map / crawl |
++| `max_results` | integer | search |
++
++### DEFAULT_PARAMETERS (server-level baseline)
++
++The server is installed with a server-level `DEFAULT_PARAMETERS` env var carrying the baseline
++`{"search_depth":"basic","max_results":10}`, injected at install time (the canonical value lives
++in the `install_mcp.py` registry — it is not restated elsewhere). Every Tavily call inherits this
++baseline unless a per-call tool argument overrides it.
++
++### Per-call override (X3 exception — M4, intentional)
++
++Per-call tool arguments override the server-level `DEFAULT_PARAMETERS`. This is a deliberate,
++mechanically-valid divergence, not a drift to be "corrected":
++
++- The `/sc:troubleshoot` Tier-2 focused query passes `search_depth: advanced` as a per-call
++  argument, overriding the server baseline `basic` for that one rate-limited query (≤2 queries) —
++  only hard cases reach Tier-2, so the cost is bounded.
++- The deep-research engine raises `search_depth` / `extract_depth` to `advanced` at the deep and
++  exhaustive Depth Profiles (see RESEARCH_CONFIG.md).
++
++These overrides are the documented exception to the `basic` baseline and MUST NOT be normalized
++back to `basic`.
++
+ ## Search Capabilities
+
+ - **Web Search**: General web searches with ranking algorithms
+@@ -44,7 +91,7 @@ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
+
+ ## Examples
+
+-```
++```text
+ "latest TypeScript features 2024" → Tavily (current technical information)
+ "OpenAI GPT updates this week" → Tavily (recent news and updates)
+ "quantum computing breakthroughs 2024" → Tavily (recent research)
+@@ -57,14 +104,14 @@ Requires TAVILY_API_KEY environment variable from <https://app.tavily.com>
+
+ ### Basic Search
+
+-```
++```text
+ Query: "search term"
+ → Returns: Ranked results with snippets
+ ```
+
+ ### Domain-Specific Search
+
+-```
++```text
+ Query: "search term"
+ Domains: ["arxiv.org", "github.com"]
+ → Returns: Results from specified domains only
+@@ -72,7 +119,7 @@ Domains: ["arxiv.org", "github.com"]
+
+ ### Time-Filtered Search
+
+-```
++```text
+ Query: "search term"
+ Recency: "week" | "month" | "year"
+ → Returns: Recent results within timeframe
+@@ -80,7 +127,7 @@ Recency: "week" | "month" | "year"
+
+ ### Deep Content Search
+
+-```
++```text
+ Query: "search term"
+ Extract: true
+ → Returns: Full content extraction from top results
+@@ -98,7 +145,7 @@ Extract: true
+
+ ### Research Flow
+
+-```
++```text
+ 1. Tavily: Initial broad search
+ 2. Sequential: Analyze and identify gaps
+ 3. Tavily: Targeted follow-up searches
+@@ -108,7 +155,7 @@ Extract: true
+
+ ### Fact-Checking Flow
+
+-```
++```text
+ 1. Tavily: Search for claim verification
+ 2. Tavily: Find contradicting sources
+ 3. Sequential: Analyze evidence
+@@ -117,7 +164,7 @@ Extract: true
+
+ ### Competitive Analysis Flow
+
+-```
++```text
+ 1. Tavily: Search competitor information
+ 2. Tavily: Search market trends
+ 3. Sequential: Comparative analysis
+@@ -127,7 +174,7 @@ Extract: true
+
+ ### Deep Research Flow (DR Agent)
+
+-```
++```text
+ 1. Planning: Decompose research question
+ 2. Tavily: Execute planned searches
+ 3. Analysis: Assess URL complexity
+diff --git a/src/superclaude/modes/MODE_DeepResearch.md b/src/superclaude/modes/MODE_DeepResearch.md
+index 897685cd..d9f5faf4 100644
+--- a/src/superclaude/modes/MODE_DeepResearch.md
++++ b/src/superclaude/modes/MODE_DeepResearch.md
+@@ -47,7 +47,7 @@ category: mode
+ ## Integration Points
+
+ - Activates deep-research-agent automatically
+-- Enables Tavily search capabilities
++- Enables Tavily capabilities: search, extraction, site-mapping, domain-crawl
+ - Triggers Sequential for complex reasoning
+ - Emphasizes TodoWrite for task tracking
+
+diff --git a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+index 356e286d..63f83d61 100644
+--- a/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-brainstorm-protocol/SKILL.md
+@@ -186,6 +186,8 @@ Orchestrate parallel brainstorming via:
+    | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `Skill tech-research` with topic | `enrichment/research-deep.md` |
+    | Otherwise | Skip enrichment | — |
+
++   Research depth/params are owned by `/sc:research` and `tech-research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
++
+ 2. **Quality-tier tracking** (mandatory per enrichment source):
+    - `primary` — first-choice source ran cleanly
+    - `fallback_1` — primary failed, used Serena (codebase) or WebSearch (research)
+@@ -383,7 +385,7 @@ enrichment_artifact_sizes:
+ | `sc-adversarial-protocol` missing | STOP with install instruction | None |
+ | `--handoff task/tasklist` skill missing | STOP (no silent downgrade) | User must choose alternate handoff |
+ | Codebase enrichment fails (Auggie down) | WARN, fall back to Serena `get_symbols_overview` (quality_tier=fallback_1) | Native Glob/Grep (quality_tier=fallback_2) |
+-| Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1) | Skip (quality_tier=skipped) |
++| Research enrichment fails (Tavily down) | WARN, fall back to WebSearch (quality_tier=fallback_1; WebSearch fallback loses 0.2.x depth/map/crawl features) | Skip (quality_tier=skipped) |
+ | Adversarial returns `convergence < 0.50` | FAIL Wave 3, skip Wave 4 | None |
+ | Adversarial empty/unparseable response | **FAIL** (no synthetic 0.5 fallback) | None |
+ | Adversarial structured but missing convergence_score, valid merged_output_path | PARTIAL with fallback 0.5 + warning | Continue |
+diff --git a/src/superclaude/skills/sc-reflect-protocol/SKILL.md b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+index 65cee877..8e6c4c08 100644
+--- a/src/superclaude/skills/sc-reflect-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-reflect-protocol/SKILL.md
+@@ -1687,6 +1687,7 @@ Refs loaded by the wave that needs them; never pre-loaded. Session-start footpri
+ - Tag every claim as Grounded or `[INFERRED]`; drop claims that fit neither bucket.
+ - Respect CLAUDE.md ABSOLUTE RULES: source-of-truth is `src/superclaude/`, never commit `.claude/` mirrors, PR target is fork only.
+ - Fail-open on missing MCPs (auggie, serena, context7, tavily) — fall back to native tools and mark degraded.
++- Tavily evidence searches via `mcp__tavily__tavily-search` inherit the server-level DEFAULT_PARAMETERS (C1) baseline — reflect passes no per-call overrides (unlike the troubleshoot Tier-2 advanced override).
+ - Persist deviation patterns to per-project Serena memory with 90-day expiry.
+ - Delegate debate / scoring / merge to `sc-adversarial-protocol`; never re-implement.
+ - **Promote validated work-units** (UC-2 only, Wave 7 Promotion Mutation) via the §14.5 strict 9-condition gate (with 11 atomic gate_evaluation fields — sub-splits 5a/5b/6a/6b per §14.5.6): move `.dev/tasks/to-do/TASK-*` → `.dev/tasks/done/TASK-*` and `.dev/releases/current/<release>/` → `.dev/releases/complete/<release>/` when the gate passes. Default-on, `--no-promote` to suppress. Atomic `mv` where filesystem permits (cross-fs uses checkpoint+copy+verify+remove per §14.5.5), SHA-verified, rollback command preserved in promotion-log.
+diff --git a/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md b/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+index 6a721743..0aa81d9f 100644
+--- a/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
++++ b/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md
+@@ -332,7 +332,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions,
+
+ 1. **MCP enrichment in parallel with agent spawn** — issue any of the following that match the signals (parallel calls, all kicked off in the same turn):
+    - `mcp__context7__resolve-library-id` + `mcp__context7__query-docs` when the issue mentions a framework / library by name or the stack trace is in third-party code
+-   - `mcp__tavily__tavily-search` for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave)
++   - `mcp__tavily__tavily-search` for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave; for the error-string query use `search_depth: advanced` with recommended `include_domains: [github.com, stackoverflow.com]` — only hard cases reach Tier-2, and the ≤2-query cap bounds cost)
+    - `mcp__auggie__codebase-retrieval` with a more targeted query than Tier 1 (e.g. "find every call site of `<symbol>` and how they handle the error case")
+ 2. **Spawn hypothesis agents** in parallel via `Task` (single message with multiple Task calls). Each agent receives:
+    - The original issue + Tier 1 hypothesis card (so they can agree, disagree, or extend)

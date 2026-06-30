@@ -1,0 +1,21 @@
+contract_version: "1.2.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/tasks/to-do/TASK-RF-20260604-042349/qa/reflect-pre/REPORT.md
+confidence_calibrated: 0.91
+coverage_pct: 1.00
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 5
+must_fix: []
+advisory:
+  - A1-syncdev-not-cover-commands
+  - A2-reflectmd-28-consistency
+  - A3-markdownlint-scope
+needs_human_decision: false
+user_decision_required: false
+citations_total: 8
+citations_dropped: 0
+evidence_validator_ran: true
+verdict: execution-ready

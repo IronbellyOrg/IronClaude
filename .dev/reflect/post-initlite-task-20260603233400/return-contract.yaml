@@ -1,0 +1,62 @@
+contract_version: "1.0"
+status: success
+mode: post
+tier_reached: 1            # Tier 1 + 1 independent corroborating reviewer (not a full T2 adversarial merge)
+report_path: /config/workspace/IronClaude/.dev/reflect/post-initlite-task-20260603233400/REPORT.md
+confidence_calibrated: 0.93
+escalation_rule_matched: 4   # S_domains >= 3 (cli / tests / command-md / skill-md)
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+
+# Scope
+audit_scope_note: "--diff HEAD under-captured the work-unit (deliverables untracked); scope widened to untracked files. fingerprint.py + octocode deletion are out-of-scope contamination, excluded from the completion audit."
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false      # inline re-Read fallback; all citations survived
+status_note_evidence_validator: "inline re-Read used; no separate evidence-validator agent spawned"
+
+# Ensemble
+reviewer_cards: ["independent root-cause-analyst adversarial pass (verdict: clean)"]
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: full      # env aliases: opus=claude-opus-4-8, sonnet=gpt-5.5, haiku=qwen3.6-plus
+t2_vendor_diversity: multi          # Anthropic / OpenAI / Qwen
+adversarial_unavailable: false
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Verification highlights
+verification:
+  checklist_items: "25/25 checked"
+  deliverables_present: true
+  cli_reachable: true
+  tests: "101 passed"
+  sync_verified: true                # make verify-sync clean
+  safety_invariants_runtime_verified: true
+  installer_regression_guard_proven: true   # reviewer simulated rejected fix; guard fails against it
+
+# Promotion (Wave 7)
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-20260525-194356
+promotion_destination: /config/workspace/IronClaude/.dev/tasks/done/TASK-RF-20260525-194356
+promotion_skip_reason: deliverables-uncommitted-and-working-tree-contaminated
+promotion_gate_passed: false
+promotion_recommendation: "commit the work-unit, then git mv to-do -> done"

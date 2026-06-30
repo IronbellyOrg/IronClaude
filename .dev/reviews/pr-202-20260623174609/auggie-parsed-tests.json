@@ -1,0 +1,141 @@
+{
+  "findings": [
+    {
+      "title": "test_tavily_doc_alignment.py tests do NOT assert file count > 0",
+      "category": "vacuous-guard",
+      "severity_hint": "CRITICAL",
+      "file": "tests/docs/test_tavily_doc_alignment.py",
+      "line": 65,
+      "line_range_end": 114,
+      "in_diff": true,
+      "evidence": "All 4 tests iterate _iter_text_files but never assert the iteration yielded > 0 files. The PR body notes a CRITICAL bug where this same file scanned 0 files (vacuous pass) was caught and fixed by changing line 51 to use relative_to(root).parts. However, the fix does NOT add an assertion that files were actually scanned. If a future change breaks _iter_text_files or the directories don't exist, all 4 tests would still pass vacuously.",
+      "why": "The entire value of these guards is that they FAIL when drift is introduced. Without a 'files_scanned > 0' assertion before the main assertion, a broken iterator or missing directories would make the tests pass when they should fail. The PR already hit this exact bug class once (0 files scanned due to ancestor .dev matching). The fix addressed the logic bug but did not add a guard against future iterator breakage.",
+      "recommendation": "Add a sanity assertion at the start of each test function: `files = list(_iter_text_files(_ROOTS)); assert len(files) > 0, 'guard scanned 0 files (vacuous)'` OR add a single module-level test `test_iter_text_files_sanity()` that asserts the iterator yields > 100 files from src/superclaude + docs.",
+      "cross_references": [
+        "tests/agents/test_tavily_tool_parity.py line 96 shows the pattern: 'assert rf_files, \"expected rf-* agent files to exist\"' before iterating"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "test_prose_tavily_ids_are_declared and test_documenting_files_have_exact_parity do NOT assert file count > 0",
+      "category": "vacuous-guard",
+      "severity_hint": "IMPORTANT",
+      "file": "tests/agents/test_tavily_tool_parity.py",
+      "line": 47,
+      "line_range_end": 79,
+      "in_diff": true,
+      "evidence": "Lines 47-59 (test_prose_tavily_ids_are_declared) and 62-79 (test_documenting_files_have_exact_parity) iterate _md_files() and accumulate violations/mismatches. If _md_files() returns an empty list (e.g., directory rename, glob failure), both tests would pass vacuously with empty violations/mismatches lists.",
+      "why": "These are X7 parity guards whose entire purpose is to catch frontmatter↔prose drift. If the glob returns 0 files, the guard becomes meaningless. The test at line 92-109 (test_rf_fallback_provenance_present) correctly guards with 'assert rf_files, \"expected rf-* agent files to exist\"' at line 96, but the two parity tests do not.",
+      "recommendation": "Add `files = _md_files(); assert files, 'parity guard scanned 0 .md files (vacuous)'` at the start of both test_prose_tavily_ids_are_declared and test_documenting_files_have_exact_parity, mirroring the pattern in test_rf_fallback_provenance_present.",
+      "cross_references": [
+        "tests/agents/test_tavily_tool_parity.py line 96 shows the correct pattern"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "test_rf_no_map_crawl glob could match 0 files without failing",
+      "category": "vacuous-guard",
+      "severity_hint": "IMPORTANT",
+      "file": "tests/agents/test_tavily_tool_parity.py",
+      "line": 82,
+      "line_range_end": 89,
+      "in_diff": true,
+      "evidence": "Line 85: `for f in sorted(_AGENTS_DIR.glob(\"rf-*.md\"))` iterates rf-* files and accumulates offenders. If the glob matches 0 files (e.g., all rf-* agents renamed or directory moved), the test passes with an empty offenders list.",
+      "why": "This is an X5 confinement guard (map/crawl tools confined to research engine, not rf-* agents). If all rf-* files disappear or are renamed, the guard becomes vacuous. The sibling test_rf_fallback_provenance_present (lines 92-109) correctly guards with 'assert rf_files' before iterating, but test_rf_no_map_crawl does not.",
+      "recommendation": "Add `rf_files = sorted(_AGENTS_DIR.glob('rf-*.md')); assert rf_files, 'X5 guard found 0 rf-* agents (vacuous)'` before the loop.",
+      "cross_references": [
+        "tests/agents/test_tavily_tool_parity.py line 96"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "test_tavily_eval_gated_to_skip_without_key uses next() without default, could raise StopIteration",
+      "category": "tests",
+      "severity_hint": "IMPORTANT",
+      "file": "tests/cli/eval/test_tavily_eval_capability.py",
+      "line": 53,
+      "line_range_end": 53,
+      "in_diff": true,
+      "evidence": "Line 53: `cap = next(c for c in raw[\"optional_capabilities\"] if c[\"name\"] == _CAP)` uses next() on a generator expression without a default value. If the real.yaml optional_capabilities list does NOT contain an entry with name='mcp_server.tavily', this will raise StopIteration (test error, not assertion failure).",
+      "why": "The test_real_suite_has_tavily_capability_and_verification_eval (lines 31-47) already asserts that mcp_server.tavily is in the optional_capabilities list (line 44-46), so line 53's next() call *should* never fail. However, a test error (StopIteration) is less clear than an assertion failure. Best practice: use next(…, None) and assert cap is not None, or rely on the earlier test to cover this check and skip the redundant assertion here.",
+      "recommendation": "Change line 53 to: `cap = next((c for c in raw[\"optional_capabilities\"] if c[\"name\"] == _CAP), None); assert cap is not None, f\"{_CAP} not in optional_capabilities (redundant with prior test but explicit here)\"`",
+      "cross_references": [],
+      "confidence": "medium"
+    },
+    {
+      "title": "test_research_tiers_match_config regex could match 0 tiers without failing on config side",
+      "category": "vacuous-guard",
+      "severity_hint": "MINOR",
+      "file": "tests/commands/test_research_command.py",
+      "line": 42,
+      "line_range_end": 46,
+      "in_diff": true,
+      "evidence": "Lines 43-46 iterate _TIERS and assert each tier has a matching row in RESEARCH_CONFIG.md via `re.search(rf\"\\|\\s*{t}\\s*\\|\", config)`. If the regex never matches (e.g., the table row format changes from `| quick |` to `quick:`), the assertions fail individually for each tier. However, there's no guard that the config file was non-empty or that the regex pattern is correct. If config is empty or the regex is broken, all 4 assertions would fail with the same generic message rather than a clear 'config file empty or regex wrong' message.",
+      "why": "This is a tier-name-and-order parity guard. If RESEARCH_CONFIG.md is empty or the table format changes, the test will fail (which is correct), but the failure message won't be as clear as it could be. Adding a sanity check that config contains a table marker (e.g., '| Profile |') would improve diagnostics.",
+      "recommendation": "Add a sanity assertion before the loop: `assert '| Profile |' in config or '| quick |' in config, 'RESEARCH_CONFIG.md missing expected Depth Profiles table (format may have changed)'`",
+      "cross_references": [],
+      "confidence": "low"
+    },
+    {
+      "title": "test_each_depth_profile_names_concrete_params_and_tools hardcoded assertion len(depth_vals) >= 2 is fragile",
+      "category": "tests",
+      "severity_hint": "MINOR",
+      "file": "tests/core/test_research_config.py",
+      "line": 40,
+      "line_range_end": 43,
+      "in_diff": true,
+      "evidence": "Line 41: `assert len(depth_vals) >= 2, ...` expects each row to contain at least 2 cells with values 'basic' or 'advanced' (for search_depth + extract_depth). If the table format changes to use different depth values or combines them into a single cell, this assertion would fail even if the semantic meaning is preserved.",
+      "why": "The assertion is checking that each profile row 'names concrete params', but it's doing so by counting exact string matches on 'basic' and 'advanced'. If the table uses abbreviations (b/a) or numeric codes (1/2), the test would false-fail. This is probably acceptable given the current table format, but worth noting as a potential fragility.",
+      "recommendation": "Consider adding a comment above line 41 explaining the expected table structure, or make the check more semantic (e.g., assert both 'search_depth' and 'extract_depth' column headers exist in the table).",
+      "cross_references": [],
+      "confidence": "low"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Pattern inconsistency: some tests guard against 0-file iterations, others do not",
+      "category": "quality",
+      "severity_hint": "IMPORTANT",
+      "affected_files": [
+        "tests/agents/test_tavily_tool_parity.py",
+        "tests/docs/test_tavily_doc_alignment.py",
+        "tests/commands/test_research_command.py",
+        "tests/core/test_research_config.py"
+      ],
+      "why": "The test suite shows inconsistent patterns for guarding against vacuous passes. test_rf_fallback_provenance_present (test_tavily_tool_parity.py:92-109) correctly asserts rf_files before iterating (line 96), but its siblings test_prose_tavily_ids_are_declared, test_documenting_files_have_exact_parity, and test_rf_no_map_crawl do not. Similarly, all 4 tests in test_tavily_doc_alignment.py iterate files without asserting count > 0, despite the PR body noting this exact bug class was caught during QA.",
+      "recommendation": "Establish a consistent pattern across all drift-guard tests: either (a) add a module-level sanity test per file that asserts the iterator/glob yields > N files, OR (b) add an inline assertion at the start of each test that the collection is non-empty. The inline pattern is more explicit and survives test-order changes.",
+      "confidence": "high"
+    },
+    {
+      "title": "All 9 test files correctly use CI-safe assertions (no network, no TAVILY_API_KEY required except gated smoke test)",
+      "category": "quality",
+      "severity_hint": "PASS",
+      "affected_files": [
+        "tests/agents/test_tavily_tool_parity.py",
+        "tests/cli/eval/test_capability_gates.py",
+        "tests/cli/eval/test_tavily_eval_capability.py",
+        "tests/cli/test_install_mcp_tavily.py",
+        "tests/commands/test_research_command.py",
+        "tests/core/test_research_config.py",
+        "tests/docs/test_tavily_doc_alignment.py",
+        "tests/skills/test_brainstorm_protocol.py",
+        "tests/skills/test_tier2_tavily_consistency.py"
+      ],
+      "why": "Every test reads real file content or registry data structures; no network calls or Tavily API calls are made. The single live smoke test (test_install_mcp_tavily.py:113-118) is correctly gated behind @pytest.mark.skipif(not os.getenv('TAVILY_API_KEY')). This matches the PR's CI-safe contract.",
+      "recommendation": "No action required. This is a positive observation.",
+      "confidence": "high"
+    },
+    {
+      "title": "No hardcoded secrets or real API keys in fixtures",
+      "category": "security",
+      "severity_hint": "PASS",
+      "affected_files": [
+        "tests/cli/test_install_mcp_tavily.py"
+      ],
+      "why": "Line 100 in test_install_mcp_tavily.py uses a dummy secret 'SUPERSECRETKEY-do-not-log-9999' with a `# pragma: allowlist secret` comment, which is correct for a test fixture. The test verifies the secret is NOT logged (line 108). No real TAVILY_API_KEY or other credentials are committed.",
+      "recommendation": "No action required.",
+      "confidence": "high"
+    }
+  ],
+  "notes_for_orchestrator": "Analysis focused on vacuous-guard bugs as requested. Found 3 CRITICAL/IMPORTANT vacuous-pass risks where tests iterate files but don't assert count > 0, mirroring the same bug class the PR already caught and fixed in test_tavily_doc_alignment.py's _iter_text_files logic. The fix addressed the logic bug but did not add a guard against future iterator breakage. All other quality areas (CI-safety, no hardcoded secrets, real file assertions) are clean. No copy-paste duplication across the 9 files; each test is purpose-specific. Test docstrings match test behavior. The test suite is high-quality overall, but the vacuous-pass risk is real and should be addressed before merge."
+}

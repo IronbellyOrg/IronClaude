@@ -1,0 +1,10 @@
+selected_tier: 1
+fired_rule_number: 1
+composite_score: 8.5
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 2
+  blast_radius: 2
+  spec_density: 1.5
+  ambiguity_signals: 1.0
+escalation_reason: "No escalation needed — high confidence, narrow Phase 5 scope, single domain"

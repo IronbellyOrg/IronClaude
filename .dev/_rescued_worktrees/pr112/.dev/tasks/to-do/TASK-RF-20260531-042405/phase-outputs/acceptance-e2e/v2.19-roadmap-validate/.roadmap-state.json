@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/releases/complete/v2.19-roadmap-validate/spec-roadmap-validate.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "ce0519027605e9ac70c834350f4c97bccd71e8ee461dbda7a8f70c180ebf2898",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "sonnet",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-06-03T04:03:17.658751+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/extraction.md",
+      "started_at": "2026-06-03T02:47:57.287855+00:00",
+      "completed_at": "2026-06-03T02:49:45.301971+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/roadmap-opus-architect.md",
+      "started_at": "2026-06-03T02:49:45.313254+00:00",
+      "completed_at": "2026-06-03T03:02:09.397469+00:00"
+    },
+    "generate-sonnet-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/roadmap-sonnet-architect.md",
+      "started_at": "2026-06-03T02:49:45.313613+00:00",
+      "completed_at": "2026-06-03T02:55:32.355194+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/diff-analysis.md",
+      "started_at": "2026-06-03T03:02:09.401625+00:00",
+      "completed_at": "2026-06-03T03:03:45.728012+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/debate-transcript.md",
+      "started_at": "2026-06-03T03:03:45.728554+00:00",
+      "completed_at": "2026-06-03T03:05:25.027185+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/base-selection.md",
+      "started_at": "2026-06-03T03:05:25.027726+00:00",
+      "completed_at": "2026-06-03T03:06:55.317355+00:00"
+    },
+    "merge": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/roadmap.md",
+      "started_at": "2026-06-03T03:06:55.317911+00:00",
+      "completed_at": "2026-06-03T03:20:51.699331+00:00"
+    },
+    "anti-instinct": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/anti-instinct-audit.md",
+      "started_at": "2026-06-03T03:20:51.704680+00:00",
+      "completed_at": "2026-06-03T03:20:51.716398+00:00"
+    },
+    "test-strategy": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/test-strategy.md",
+      "started_at": "2026-06-03T03:20:51.716571+00:00",
+      "completed_at": "2026-06-03T03:22:53.065982+00:00"
+    },
+    "spec-fidelity": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/spec-fidelity.md",
+      "started_at": "2026-06-03T03:43:25.609567+00:00",
+      "completed_at": "2026-06-03T04:03:17.658276+00:00"
+    }
+  },
+  "fidelity_status": "fail"
+}

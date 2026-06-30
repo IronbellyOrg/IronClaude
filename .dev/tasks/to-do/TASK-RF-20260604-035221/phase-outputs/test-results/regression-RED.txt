@@ -1,0 +1,55 @@
+REGRESSION RED DEMONSTRATION (Step 4.2)
+========================================
+Timestamp: 2026-06-04 05:14
+Worktree:  /config/workspace/IronClaude-pr124
+
+Method: ALL FIVE widened predicates temporarily reverted to their original
+`is/is not TaskStatus.PASS` identity forms via Edit (NO git stash — worktree
+state preserved):
+  - resume/planner.py rerun_task_ids   -> `bt.persisted_status is not TaskStatus.PASS`
+  - resume/planner.py last_completed   -> `bt.persisted_status is TaskStatus.PASS`
+  - resume/planner.py next_unfinished  -> `bt.persisted_status is not TaskStatus.PASS`
+  - resume/drift.py   recorded_completed-> `bt.persisted_status is TaskStatus.PASS`
+  - resume/integrity.py signal_a_pass  -> `lc.persisted_status is TaskStatus.PASS`
+
+Command:
+  uv run python -m pytest tests/sprint/test_resume.py -k pass_recovered -q
+
+Output:
+----------------------------------------------------------------------
+collected 23 items / 22 deselected / 1 selected
+
+tests/sprint/test_resume.py F                                            [100%]
+
+=================================== FAILURES ===================================
+_______ TestResumePlanner.test_resume_pass_recovered_counts_as_completed _______
+tests/sprint/test_resume.py:194: in test_resume_pass_recovered_counts_as_completed
+    assert "T03.01" not in plan.rerun_task_ids
+E   AssertionError: assert 'T03.01' not in ['T03.01', 'T03.02']
+E    +  where ['T03.01', 'T03.02'] = ResumePlan(...).rerun_task_ids
+=========================== short test summary info ============================
+FAILED tests/sprint/test_resume.py::TestResumePlanner::test_resume_pass_recovered_counts_as_completed
+======================= 1 failed, 22 deselected in 0.21s =======================
+----------------------------------------------------------------------
+
+VERDICT: RED CONFIRMED — a genuine assertion failure (NOT a collection/import
+error). With the reverted predicates, a `pass_recovered` tail task is wrongly
+added to `rerun_task_ids` (it lands at the very first guard, assertion (a)).
+
+Note on per-axis coverage: pytest short-circuits at the first failing assert, so
+the printed failure is assertion (a) (planner `rerun_task_ids`). The revert
+covers ALL FOUR axes simultaneously — had (a) passed, the subsequent guards
+would each fail in turn against the reverted source:
+  (b) planner role assignment: with last_completed reverted, the pass_recovered
+      task is excluded from `passed` -> T03.01 is never `last_completed`
+      (roles["T03.01"] != "last_completed").
+  (c) drift recorded_completed: with the drift predicate reverted, T03.01 is
+      absent from recorded_completed -> removing it is NOT scored material
+      (confidence >= 0.8, not < 0.8).
+  (d) integrity Signal-A surface: with last_completed unassigned (planner revert)
+      `lc` is None -> the `lc is not None` guard fails; and the persisted-claim
+      Signal-A predicate that Site 4a widens is the same `is_success` check.
+
+After capturing this RED, ALL FIVE predicates were immediately RESTORED to their
+fixed None-safe PASS-family forms (verified by re-reading each predicate; see
+Step 4.3 GREEN evidence).

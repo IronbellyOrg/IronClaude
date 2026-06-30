@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: ".dev/merge-pr112/adv-test_structural_checkers/merged-output.md"
+  convergence_score: 1.00
+  artifacts_dir: ".dev/merge-pr112/adv-test_structural_checkers/adversarial"
+  status: "success"
+  base_variant: "proposed (== ours)"
+  unresolved_conflicts: 0
+  fallback_mode: true            # variants_too_similar (0.0855% < 10%) short-circuit per FR-006
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []     # Round 2.5 skipped (--depth quick); no HIGH items

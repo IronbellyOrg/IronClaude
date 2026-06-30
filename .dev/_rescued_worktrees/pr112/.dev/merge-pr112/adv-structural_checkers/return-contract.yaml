@@ -1,0 +1,20 @@
+return_contract:
+  merged_output_path: ".dev/merge-pr112/structural_checkers.py.resolved"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/merge-pr112/adv-structural_checkers/adversarial/"
+  status: "success"
+  base_variant: "variant-3:proposed-resolution"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: >
+    Mode A, --depth quick. Three variants: ours(R0R1), theirs(master), proposed-resolution.
+    Executable code proven byte-identical across all three (comment-stripped diff = 0 lines);
+    only provenance comments diverged. Proposed resolution dominates: it is ours' verified code
+    body (18/18 MD-family assertions pass against contracts.ID_PATTERNS['MD']=r'M\d+-D-?\d+')
+    plus theirs' TASK-RF provenance refs, minus theirs' rot-prone foreign-repo absolute path.
+    No duplicate/contradictory definitions remain. Round 2.5 invariant probe not run (--depth quick);
+    one Medium cross-file shared assumption (A-001: spec_parser.py MD tokenizer emits family=='MD')
+    is owned by the sibling spec_parser.py merge, not this file.

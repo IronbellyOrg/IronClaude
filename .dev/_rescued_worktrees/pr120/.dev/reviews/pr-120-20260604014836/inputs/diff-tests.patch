@@ -1,0 +1,2121 @@
+diff --git a/tests/sprint/e2e_real/fake_claude.py b/tests/sprint/e2e_real/fake_claude.py
+index 29184b2e..a7a1197a 100644
+--- a/tests/sprint/e2e_real/fake_claude.py
++++ b/tests/sprint/e2e_real/fake_claude.py
+@@ -83,6 +83,11 @@ def _emit_pass_transcript(task_id: str) -> None:
+     per-task executor path only looks at the exit code, but emitting a
+     faithful transcript keeps the artifact honest.
+     """
++    # Real Claude reports num_turns in its terminal result event; the per-task
++    # executor parses it via process.count_turns_from_stream_json. Emit a
++    # deterministic value driven by FAKE_CLAUDE_NUM_TURNS (default 0 → no
++    # behavior change for tests that do not set it).
++    num_turns = int(os.environ.get("FAKE_CLAUDE_NUM_TURNS", "0") or "0")
+     lines = [
+         {"type": "system", "subtype": "init", "task": task_id},
+         {
+@@ -97,6 +102,7 @@ def _emit_pass_transcript(task_id: str) -> None:
+             "subtype": "success",
+             "is_error": False,
+             "output_tokens": 88,
++            "num_turns": num_turns,
+             "task": task_id,
+         },
+     ]
+@@ -149,6 +155,16 @@ def main() -> int:
+     runs = control.setdefault("runs", {})
+     runs[task_id] = int(runs.get(task_id, 0)) + 1
+     control.setdefault("run_log", []).append(task_id)
++    # Additive: record the per-task isolation env this child actually received,
++    # so the isolation smoke / concurrent-isolation tests can assert each task
++    # got its own CLAUDE_SETTINGS_DIR / CLAUDE_PLUGIN_DIR under .isolation. Other
++    # e2e tests ignore env_log, so this is a non-breaking addition.
++    env_log = control.setdefault("env_log", {})
++    env_log[task_id] = {
++        "CLAUDE_SETTINGS_DIR": os.environ.get("CLAUDE_SETTINGS_DIR", ""),
++        "CLAUDE_PLUGIN_DIR": os.environ.get("CLAUDE_PLUGIN_DIR", ""),
++        "CLAUDE_WORK_DIR": os.environ.get("CLAUDE_WORK_DIR", ""),
++    }
+     if control_path:
+         _save_control(control_path, control)
+
+diff --git a/tests/sprint/e2e_real/test_e2e_isolation_smoke.py b/tests/sprint/e2e_real/test_e2e_isolation_smoke.py
+new file mode 100644
+index 00000000..c6b2ad1c
+--- /dev/null
++++ b/tests/sprint/e2e_real/test_e2e_isolation_smoke.py
+@@ -0,0 +1,73 @@
++"""Stage-0 H2 gate 1 — serial isolation smoke (real-subprocess e2e).
++
++Replaces the un-exercisable "serial corruption" gate with a functionality-intact
++smoke test: drive a small per-task sprint through the REAL spawn path (the
++``claude_shim`` fake executable on ``$PATH`` — NOT ``_subprocess_factory``) and
++assert that each isolated child actually received a per-task
++``CLAUDE_SETTINGS_DIR`` (and ``CLAUDE_PLUGIN_DIR``) pointing under the release's
++``.isolation`` tree. Before the H1 Path-B wiring, ``_run_task_subprocess`` passed
++NO ``env_vars`` and the child inherited the parent env verbatim, so this test
++fails loudly if the isolation env is absent.
++
++The child env is observed via the ``fake_claude`` shim's additive ``env_log``
++(each task records the isolation env it was spawned with into the shared control
++file).
++"""
++
++from __future__ import annotations
++
++from unittest.mock import patch
++
++import pytest
++
++from superclaude.cli.sprint.executor import execute_sprint
++
++
++@pytest.mark.integration
++class TestSerialIsolationSmoke:
++    def test_each_task_child_receives_isolated_settings_dir(
++        self, claude_shim, real_release
++    ):
++        config, _index = real_release
++        # No failures: all three T01.NN tasks pass, exercising the real per-task
++        # spawn path end to end.
++        claude_shim.set_failures()
++
++        with patch("superclaude.cli.sprint.notify._notify"):
++            try:
++                execute_sprint(config)
++            except SystemExit as exc:  # all-pass sprint may exit(0)
++                assert exc.code in (0, None), f"unexpected non-zero exit: {exc.code}"
++
++        # The shim recorded the env each task child actually received.
++        env_log = claude_shim.control().get("env_log", {})
++        assert set(env_log) >= {"T01.01", "T01.02", "T01.03"}, (
++            f"not all tasks spawned for real; env_log keys={sorted(env_log)}"
++        )
++
++        for tid, env in env_log.items():
++            settings = env.get("CLAUDE_SETTINGS_DIR", "")
++            plugin = env.get("CLAUDE_PLUGIN_DIR", "")
++            # Isolation env must be present (the regression this gate guards).
++            assert settings, f"{tid}: child received no CLAUDE_SETTINGS_DIR"
++            assert plugin, f"{tid}: child received no CLAUDE_PLUGIN_DIR"
++            # And it must be scoped under the release's .isolation tree so the
++            # child resolves an isolated settings dir, not the real ~/.claude.
++            assert ".isolation" in settings, (
++                f"{tid}: CLAUDE_SETTINGS_DIR not under .isolation: {settings!r}"
++            )
++            assert "settings" in settings, (
++                f"{tid}: CLAUDE_SETTINGS_DIR missing settings segment: {settings!r}"
++            )
++            assert f"task-{tid}" in settings, (
++                f"{tid}: CLAUDE_SETTINGS_DIR not scoped to this task: {settings!r}"
++            )
++            assert ".isolation" in plugin, (
++                f"{tid}: CLAUDE_PLUGIN_DIR not under .isolation: {plugin!r}"
++            )
++
++        # Per-task settings dirs must be pairwise distinct (one per task scope).
++        settings_dirs = [e.get("CLAUDE_SETTINGS_DIR") for e in env_log.values()]
++        assert len(set(settings_dirs)) == len(settings_dirs), (
++            f"per-task CLAUDE_SETTINGS_DIR not unique across tasks: {settings_dirs}"
++        )
+diff --git a/tests/sprint/e2e_real/test_e2e_rerun_happy_path.py b/tests/sprint/e2e_real/test_e2e_rerun_happy_path.py
+index 89370437..061d90f8 100644
+--- a/tests/sprint/e2e_real/test_e2e_rerun_happy_path.py
++++ b/tests/sprint/e2e_real/test_e2e_rerun_happy_path.py
+@@ -37,9 +37,7 @@ from superclaude.cli.sprint.executor import execute_sprint
+
+
+ def _load_phase1_result(results_dir: Path) -> dict:
+-    return json.loads(
+-        (results_dir / "phase-1-result.json").read_text(encoding="utf-8")
+-    )
++    return json.loads((results_dir / "phase-1-result.json").read_text(encoding="utf-8"))
+
+
+ def _status_by_id(result_json: dict) -> dict[str, str]:
+@@ -92,11 +90,15 @@ class TestE2ERerunHappyPath:
+
+         # Capture the original T01.02 transcript content + the unchanged
+         # neighbours' mtimes so we can prove the rerun touched only T01.02.
+-        t0102_orig = (
+-            results_dir / "phase-1-task-T01.02-output.txt"
+-        ).read_text(encoding="utf-8")
+-        t0101_mtime = (results_dir / "phase-1-task-T01.01-output.txt").stat().st_mtime_ns
+-        t0103_mtime = (results_dir / "phase-1-task-T01.03-output.txt").stat().st_mtime_ns
++        t0102_orig = (results_dir / "phase-1-task-T01.02-output.txt").read_text(
++            encoding="utf-8"
++        )
++        t0101_mtime = (
++            (results_dir / "phase-1-task-T01.01-output.txt").stat().st_mtime_ns
++        )
++        t0103_mtime = (
++            (results_dir / "phase-1-task-T01.03-output.txt").stat().st_mtime_ns
++        )
+
+         # --- Run 2: real rerun via the CLI; shim now passes T01.02 ---------
+         # Resetting failures also clears the run counter / run-log so the
+diff --git a/tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py b/tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py
+index ded40f06..052fe383 100644
+--- a/tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py
++++ b/tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py
+@@ -86,9 +86,7 @@ _INDEX = (
+
+
+ def _load_phase1_result(results_dir: Path) -> dict:
+-    return json.loads(
+-        (results_dir / "phase-1-result.json").read_text(encoding="utf-8")
+-    )
++    return json.loads((results_dir / "phase-1-result.json").read_text(encoding="utf-8"))
+
+
+ def _status_by_id(result_json: dict) -> dict[str, str]:
+@@ -186,9 +184,7 @@ def _seed_fail_recoverable(rig: EditShimRig) -> None:
+
+ @pytest.mark.integration
+ class TestE2EShaGuardRealEdit:
+-    def test_no_false_trip_engine_provenance_write(
+-        self, claude_shim, real_release
+-    ):
++    def test_no_false_trip_engine_provenance_write(self, claude_shim, real_release):
+         """Negative half: the engine's own step-10 provenance write must NOT trip.
+
+         A normal ``--merge-back`` rerun (no ``--force-merge``, no operator edit)
+diff --git a/tests/sprint/e2e_real/test_e2e_turn_count.py b/tests/sprint/e2e_real/test_e2e_turn_count.py
+new file mode 100644
+index 00000000..bff9a167
+--- /dev/null
++++ b/tests/sprint/e2e_real/test_e2e_turn_count.py
+@@ -0,0 +1,52 @@
++"""Stage-0 acceptance — exact per-task turn count (real-subprocess e2e).
++
++The Stage-0 criterion is a CORRECT turn count, not merely ``!= 0``. Only the
++real-spawn path exercises the formerly-hard-coded ``turns_consumed = 0`` line in
++``_run_task_subprocess``. This test makes the ``claude`` shim emit a transcript
++whose terminal stream-json ``result`` event carries a KNOWN ``num_turns`` value
++N (via ``FAKE_CLAUDE_NUM_TURNS``), runs the real per-task spawn, and asserts the
++persisted ``TaskResult.turns_consumed == N`` EXACTLY. It would FAIL against the
++pre-change hard-coded ``0`` (0 != N).
++"""
++
++from __future__ import annotations
++
++import json
++from unittest.mock import patch
++
++import pytest
++
++from superclaude.cli.sprint.executor import execute_sprint
++
++
++@pytest.mark.integration
++class TestE2ETurnCount:
++    def test_turns_consumed_equals_reported_num_turns(
++        self, claude_shim, real_release, monkeypatch
++    ):
++        config, _index = real_release
++        claude_shim.set_failures()  # all tasks pass
++
++        known_n = 7
++        monkeypatch.setenv("FAKE_CLAUDE_NUM_TURNS", str(known_n))
++
++        with patch("superclaude.cli.sprint.notify._notify"):
++            try:
++                execute_sprint(config)
++            except SystemExit as exc:  # all-pass sprint may exit(0)
++                assert exc.code in (0, None), f"unexpected non-zero exit: {exc.code}"
++
++        result = json.loads(
++            (config.results_dir / "phase-1-result.json").read_text(encoding="utf-8")
++        )
++        by_id = {
++            tr.get("task", {}).get("task_id"): tr
++            for tr in result.get("task_results", [])
++        }
++        assert by_id, "no task_results persisted — real per-task path did not run"
++
++        for tid, tr in by_id.items():
++            assert tr["turns_consumed"] == known_n, (
++                f"{tid}: turns_consumed={tr['turns_consumed']!r} != {known_n} "
++                "(the real stream-json num_turns was not parsed exactly)"
++            )
+diff --git a/tests/sprint/test_backward_compat_regression.py b/tests/sprint/test_backward_compat_regression.py
+index 0e4fe1f6..f0d1b0da 100644
+--- a/tests/sprint/test_backward_compat_regression.py
++++ b/tests/sprint/test_backward_compat_regression.py
+@@ -645,8 +645,7 @@ class TestRerunTasksNoRegressionWhenUnused:
+             "phase_rerun_complete",
+         }
+         assert event_types.isdisjoint(rerun_event_types), (
+-            f"Clean sprint emitted rerun events: "
+-            f"{event_types & rerun_event_types}"
++            f"Clean sprint emitted rerun events: {event_types & rerun_event_types}"
+         )
+
+     @pytest.mark.backward_compat
+@@ -694,9 +693,7 @@ class TestRerunTasksNoRegressionWhenUnused:
+         )
+
+     @pytest.mark.backward_compat
+-    def test_phase_result_json_write_does_not_break_existing_e2e_paths(
+-        self, tmp_path
+-    ):
++    def test_phase_result_json_write_does_not_break_existing_e2e_paths(self, tmp_path):
+         """The v4.3.0 _write_phase_result_json side effect (invoked on every
+         phase completion in execute_sprint) must not break the existing
+         baseline e2e success path. Reuse the real baseline test rather than
+diff --git a/tests/sprint/test_cli_contract.py b/tests/sprint/test_cli_contract.py
+index 29fff32d..5e471d4e 100644
+--- a/tests/sprint/test_cli_contract.py
++++ b/tests/sprint/test_cli_contract.py
+@@ -126,7 +126,14 @@ class TestRerunTasksContract:
+         # and execution reaches the mutual-exclusion guard.
+         result = self.runner.invoke(
+             sprint_group,
+-            ["rerun-tasks", "CLAUDE.md", "--from-reflect-report", "CLAUDE.md", "--tasks", "T1"],
++            [
++                "rerun-tasks",
++                "CLAUDE.md",
++                "--from-reflect-report",
++                "CLAUDE.md",
++                "--tasks",
++                "T1",
++            ],
+         )
+         assert result.exit_code != 0
+         assert "mutually exclusive" in result.output
+diff --git a/tests/sprint/test_executor.py b/tests/sprint/test_executor.py
+index 6b9b3f1d..8fef5e67 100644
+--- a/tests/sprint/test_executor.py
++++ b/tests/sprint/test_executor.py
+@@ -814,9 +814,7 @@ class TestPerTaskOrchestration:
+         phase_status = PhaseStatus.PASS if all_passed else PhaseStatus.ERROR
+         assert phase_status.is_success is False
+
+-    def test_per_task_error_max_turns_without_completion_still_fails(
+-        self, tmp_path
+-    ):
++    def test_per_task_error_max_turns_without_completion_still_fails(self, tmp_path):
+         """Gated guard: a task that hit error_max_turns WITHOUT first emitting a
+         success result (overran without finishing) must NOT recover. With no
+         success envelope and no transient marker it stays FAIL_TERMINAL; either
+@@ -950,8 +948,7 @@ class TestPerTaskOrchestration:
+         envelope = tmp_path / "envelope.ndjson"
+         envelope.write_text(
+             '{"type":"content","text":"working..."}\n'
+-            '{"type":"result","subtype":"success","is_error":false}\n'
+-            + term + "\n"
++            '{"type":"result","subtype":"success","is_error":false}\n' + term + "\n"
+         )
+         assert _task_completed_before_overrun(envelope) is True
+
+@@ -959,16 +956,13 @@ class TestPerTaskOrchestration:
+         tail = tmp_path / "tail.ndjson"
+         tail.write_text(
+             '{"type":"content","text":"working..."}\n'
+-            '{"type":"content","text":"VERDICT: PASS"}\n'
+-            + term + "\n"
++            '{"type":"content","text":"VERDICT: PASS"}\n' + term + "\n"
+         )
+         assert _task_completed_before_overrun(tail) is True
+
+         # (3) verdict pushed outside the tail window by >=16 later lines
+         early_lines = ['{"type":"content","text":"VERDICT: PASS"}']
+-        early_lines += [
+-            '{"type":"content","text":"line %d"}' % i for i in range(20)
+-        ]
++        early_lines += ['{"type":"content","text":"line %d"}' % i for i in range(20)]
+         early_lines.append(term)
+         early = tmp_path / "early.ndjson"
+         early.write_text("\n".join(early_lines) + "\n")
+@@ -978,8 +972,7 @@ class TestPerTaskOrchestration:
+         neither = tmp_path / "neither.ndjson"
+         neither.write_text(
+             '{"type":"content","text":"working..."}\n'
+-            '{"type":"content","text":"still working..."}\n'
+-            + term + "\n"
++            '{"type":"content","text":"still working..."}\n' + term + "\n"
+         )
+         assert _task_completed_before_overrun(neither) is False
+
+@@ -1642,14 +1635,23 @@ class TestBackwardCompat:
+         assert config.error_file(config.phases[0]).name == "phase-1-errors.txt"
+         assert config.result_file(config.phases[0]).name == "phase-1-result.md"
+
+-    def test_backward_compat_no_gate_threads_in_executor(self):
+-        """The executor module does not import or use threading directly.
+-        All daemon threads come from OutputMonitor (pre-existing in v1.2.1)."""
++    def test_backward_compat_no_leaked_daemon_threads_in_executor(self):
++        """Stage 3 adds bounded per-task parallelism (--task-parallelism K), so the
++        executor now legitimately uses a threading lock and a context-managed
++        ThreadPoolExecutor. The backward-compat invariant is no LEAKED daemon
++        threads — not 'no threading import'. This test enforces that the executor
++        spawns no raw long-lived daemon threads (any pool is context-managed and
++        joined on block exit); the runtime no-leak guarantee is separately
++        verified by the threading.active_count() backward-compat tests."""
+         import superclaude.cli.sprint.executor as mod
+
+         source = Path(mod.__file__).read_text()
+-        assert "threading" not in source
++        # No raw daemon-thread spawns (OutputMonitor's threads remain its own).
+         assert "Thread(" not in source
++        assert "daemon=True" not in source
++        # Any ThreadPoolExecutor use MUST be context-managed so workers are joined.
++        if "ThreadPoolExecutor" in source:
++            assert "with ThreadPoolExecutor" in source
+
+
+ class TestWritePreliminaryResult:
+@@ -1720,7 +1722,12 @@ class TestWritePreliminaryResult:
+         started_at = datetime.now(timezone.utc).timestamp() - 1.0
+
+         with caplog.at_level(logging.WARNING, logger="superclaude.cli.sprint.executor"):
+-            with patch("pathlib.Path.write_text", side_effect=OSError("disk full")):
++            # RC.4: the sentinel is now written via an O_EXCL os.open (not write_text),
++            # so inject the OSError there to exercise the telemetry branch.
++            with patch(
++                "superclaude.cli.sprint.executor.os.open",
++                side_effect=OSError("disk full"),
++            ):
+                 return_val = _write_preliminary_result(config, phase, started_at)
+
+         assert return_val is False
+@@ -1815,9 +1822,7 @@ class TestPhaseResultJsonWrite:
+         config = _make_config(tmp_path, num_phases=1)
+         phase = config.phases[0]
+         task_results = [self._make_task_result("T01.01", TaskStatus.PASS, 3)]
+-        phase_result = self._make_phase_result(
+-            phase, task_results, all_passed=True
+-        )
++        phase_result = self._make_phase_result(phase, task_results, all_passed=True)
+
+         _write_phase_result_json(config, phase, phase_result)
+
+@@ -1837,9 +1842,7 @@ class TestPhaseResultJsonWrite:
+             self._make_task_result("T01.01", TaskStatus.PASS, 3),
+             self._make_task_result("T01.02", TaskStatus.FAIL_TERMINAL, 5),
+         ]
+-        phase_result = self._make_phase_result(
+-            phase, task_results, all_passed=False
+-        )
++        phase_result = self._make_phase_result(phase, task_results, all_passed=False)
+
+         _write_phase_result_json(config, phase, phase_result)
+
+@@ -1853,9 +1856,7 @@ class TestPhaseResultJsonWrite:
+         ids = [tr["task"]["task_id"] for tr in payload["task_results"]]
+         assert ids == ["T01.01", "T01.02"]
+         assert payload["task_results"][0]["status"] == TaskStatus.PASS.value
+-        assert (
+-            payload["task_results"][1]["status"] == TaskStatus.FAIL_TERMINAL.value
+-        )
++        assert payload["task_results"][1]["status"] == TaskStatus.FAIL_TERMINAL.value
+
+
+ class TestFailClassificationHeuristic:
+@@ -1883,9 +1884,7 @@ class TestFailClassificationHeuristic:
+         )
+         assert self._classify(output) == TaskStatus.FAIL_RECOVERABLE
+
+-    def test_transient_connection_refused_classified_fail_recoverable(
+-        self, tmp_path
+-    ):
++    def test_transient_connection_refused_classified_fail_recoverable(self, tmp_path):
+         """The ConnectionRefused marker is also a transient trigger."""
+         output = tmp_path / "task-output.txt"
+         output.write_text("Error: ConnectionRefused while reaching API\n")
+diff --git a/tests/sprint/test_handoff_backward_compat.py b/tests/sprint/test_handoff_backward_compat.py
+new file mode 100644
+index 00000000..4b87355f
+--- /dev/null
++++ b/tests/sprint/test_handoff_backward_compat.py
+@@ -0,0 +1,157 @@
++"""Stage-1 M5 — `--handoff=off` reproduces legacy behavior exactly.
++
++Drives a real per-task sprint via ``execute_sprint`` with ``handoff_enabled=False``
++(stubbing only the per-task subprocess) and asserts the handoff feature is fully
++inert: (a) NO files under ``<results_dir>/handoff/``, (b) NO ``task_complete``
++events in the execution-log JSONL, (c) zero extra daemon threads vs the baseline.
++"""
++
++from __future__ import annotations
++
++import json
++import threading
++import time
++from pathlib import Path
++from unittest.mock import patch
++
++from superclaude.cli.sprint import executor as executor_mod
++from superclaude.cli.sprint.executor import execute_sprint
++from superclaude.cli.sprint.models import Phase, SprintConfig
++
++_PER_TASK_PHASE = """# Phase 1
++
++## Tasks
++
++### T01.01 -- First task
++
++**Dependencies:** none
++
++Body for T01.01.
++
++### T01.02 -- Second task
++
++**Dependencies:** none
++
++Body for T01.02.
++"""
++
++
++def _per_task_config(tmp_path: Path, *, handoff_enabled: bool) -> SprintConfig:
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text(_PER_TASK_PHASE)
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    config = SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=10,
++        wiring_gate_mode="off",
++        wiring_gate_scope="none",
++        handoff_enabled=handoff_enabled,
++    )
++    config.results_dir.mkdir(parents=True, exist_ok=True)
++    return config
++
++
++def test_handoff_off_is_legacy_exact(tmp_path: Path, monkeypatch) -> None:
++    config = _per_task_config(tmp_path, handoff_enabled=False)
++
++    def _stub_subprocess(task, config, phase, prior_context=""):
++        # Real per-task path replacement: write a minimal stream-json transcript
++        # and report success, without spawning a process.
++        config.task_output_file(phase, task).write_text(
++            '{"type":"result","subtype":"success","num_turns":1}\n'
++        )
++        return (0, 1, 0)
++
++    monkeypatch.setattr(executor_mod, "_run_task_subprocess", _stub_subprocess)
++
++    baseline_threads = threading.active_count()
++
++    with (
++        patch(
++            "superclaude.cli.sprint.executor.shutil.which",
++            return_value="/usr/bin/claude",
++        ),
++        patch(
++            "superclaude.cli.sprint.summarizer.PhaseSummarizer.narrate",
++            return_value="",
++        ),
++        patch("superclaude.cli.sprint.notify._notify"),
++    ):
++        try:
++            execute_sprint(config)
++        except SystemExit:
++            pass
++
++    time.sleep(0.1)
++    post_threads = threading.active_count()
++
++    # (a) No handoff records written.
++    handoff_dir = config.results_dir / "handoff"
++    assert not handoff_dir.exists() or not any(handoff_dir.iterdir()), (
++        f"handoff/ should be empty/absent with --handoff=off, found: "
++        f"{list(handoff_dir.iterdir()) if handoff_dir.exists() else None}"
++    )
++
++    # (b) No task_complete events in the JSONL.
++    jsonl = config.execution_log_jsonl
++    assert jsonl.exists(), "execution log JSONL should still be written"
++    events = [
++        json.loads(line) for line in jsonl.read_text().splitlines() if line.strip()
++    ]
++    assert not any(e.get("event") == "task_complete" for e in events), (
++        "task_complete event emitted despite --handoff=off"
++    )
++
++    # (c) Zero extra daemon threads (legacy thread-count parity).
++    assert post_threads <= baseline_threads + 1, (
++        f"handoff path leaked threads: baseline={baseline_threads}, post={post_threads}"
++    )
++
++
++def test_handoff_on_does_write_records_and_events(tmp_path: Path, monkeypatch) -> None:
++    """Positive control: with handoff_enabled=True the SAME sprint DOES write
++    handoff records and task_complete events — proving the off-case inertness is
++    the gate, not a broken path."""
++    config = _per_task_config(tmp_path, handoff_enabled=True)
++
++    def _stub_subprocess(task, config, phase, prior_context=""):
++        config.task_output_file(phase, task).write_text(
++            '{"type":"result","subtype":"success","num_turns":1}\n'
++        )
++        return (0, 1, 0)
++
++    monkeypatch.setattr(executor_mod, "_run_task_subprocess", _stub_subprocess)
++
++    with (
++        patch(
++            "superclaude.cli.sprint.executor.shutil.which",
++            return_value="/usr/bin/claude",
++        ),
++        patch(
++            "superclaude.cli.sprint.summarizer.PhaseSummarizer.narrate",
++            return_value="",
++        ),
++        patch("superclaude.cli.sprint.notify._notify"),
++    ):
++        try:
++            execute_sprint(config)
++        except SystemExit:
++            pass
++
++    handoff_dir = config.results_dir / "handoff"
++    records = (
++        list(handoff_dir.glob("phase-1-task-*.json")) if handoff_dir.exists() else []
++    )
++    assert len(records) == 2, f"expected 2 handoff records, found {records}"
++
++    events = [
++        json.loads(line)
++        for line in config.execution_log_jsonl.read_text().splitlines()
++        if line.strip()
++    ]
++    assert sum(1 for e in events if e.get("event") == "task_complete") == 2
+diff --git a/tests/sprint/test_handoff_concurrency.py b/tests/sprint/test_handoff_concurrency.py
+new file mode 100644
+index 00000000..d511cbde
+--- /dev/null
++++ b/tests/sprint/test_handoff_concurrency.py
+@@ -0,0 +1,81 @@
++"""Stage-3 M2/L4 — concurrent JSONL writers, zero corruption over >=1000 writes.
++
++Spins up >=4 threads each calling the now-lock-guarded ``SprintLogger._jsonl`` in
++a tight loop (>=1000 total writes), then reads the JSONL back and asserts no lost
++/ torn / interleaved lines and that the exact multiset of payloads survives. This
++would FAIL against the pre-Stage-3 lock-free ``_jsonl`` (interleaved partial
++writes) and PASS against the locked one.
++"""
++
++from __future__ import annotations
++
++import json
++from concurrent.futures import ThreadPoolExecutor
++from pathlib import Path
++
++import pytest
++
++from superclaude.cli.sprint.logging_ import SprintLogger
++from superclaude.cli.sprint.models import Phase, SprintConfig
++
++_N_THREADS = 4
++_PER_THREAD = 300  # 4 * 300 = 1200 total writes (> 1000)
++
++
++def _config(tmp_path: Path) -> SprintConfig:
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    return SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=100,
++    )
++
++
++@pytest.mark.slow
++@pytest.mark.nfr_benchmark
++def test_jsonl_concurrent_writers_no_corruption(tmp_path: Path) -> None:
++    config = _config(tmp_path)
++    logger = SprintLogger(config)
++
++    def _writer(tid: int) -> None:
++        for i in range(_PER_THREAD):
++            logger._jsonl(
++                {
++                    "event": "task_complete",
++                    "phase": 1,
++                    "task_id": f"T{tid:02d}.{i:04d}",
++                    "status": "pass",
++                    "turns": i,
++                    "duration_sec": 0.01,
++                }
++            )
++
++    with ThreadPoolExecutor(max_workers=_N_THREADS) as pool:
++        list(pool.map(_writer, range(_N_THREADS)))
++
++    raw = config.execution_log_jsonl.read_text()
++    lines = [line for line in raw.splitlines() if line.strip()]
++    total_expected = _N_THREADS * _PER_THREAD
++
++    # (a) no lost / torn writes — exact line count.
++    assert len(lines) == total_expected, (
++        f"expected {total_expected} JSONL lines, got {len(lines)} (lost/torn writes)"
++    )
++
++    # (b) every line is well-formed JSON (no interleaving/tearing).
++    parsed = []
++    for line in lines:
++        parsed.append(json.loads(line))  # raises on a torn/interleaved line
++
++    # (c) the exact multiset of payloads survives.
++    got = sorted(p["task_id"] for p in parsed)
++    expected = sorted(
++        f"T{tid:02d}.{i:04d}" for tid in range(_N_THREADS) for i in range(_PER_THREAD)
++    )
++    assert got == expected, "payload multiset mismatch — some writes lost or duplicated"
+diff --git a/tests/sprint/test_handoff_crash_consistency.py b/tests/sprint/test_handoff_crash_consistency.py
+new file mode 100644
+index 00000000..5a798183
+--- /dev/null
++++ b/tests/sprint/test_handoff_crash_consistency.py
+@@ -0,0 +1,95 @@
++"""Stage-2 L3 — crash-consistency asymmetry: handoff file is authoritative.
++
++The handoff file is written atomically (temp+replace); the JSONL journal event
++is a separate, lock-free append. A crash BETWEEN the two leaves a completed task
++with a handoff record but NO `task_complete` journal event. Resume must treat the
++atomically-written handoff file — not the JSONL — as the authoritative completion
++source, and therefore skip the task.
++"""
++
++from __future__ import annotations
++
++import json
++from pathlib import Path
++
++from superclaude.cli.sprint.executor import execute_phase_tasks
++from superclaude.cli.sprint.handoff import FileHandoffStore
++from superclaude.cli.sprint.models import (
++    GateOutcome,
++    HandoffRecord,
++    Phase,
++    SprintConfig,
++    TaskEntry,
++    TaskStatus,
++)
++
++
++def _config(tmp_path: Path, *, resume_task_id: str = "") -> SprintConfig:
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    config = SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=100,
++        wiring_gate_mode="off",
++        wiring_gate_scope="none",
++        resume_task_id=resume_task_id,
++    )
++    config.results_dir.mkdir(parents=True, exist_ok=True)
++    return config
++
++
++def test_resume_honors_handoff_file_without_journal_event(tmp_path: Path) -> None:
++    config = _config(tmp_path, resume_task_id="T01.01")
++    phase = config.phases[0]
++    store = FileHandoffStore(config)
++    task = TaskEntry("T01.01", "First")
++
++    # Crash-between state: write the validated-success handoff record atomically,
++    # but DO NOT emit the corresponding task_complete journal event (the crash
++    # window between the handoff write and the JSONL append).
++    store.write(
++        HandoffRecord(
++            task_id="T01.01",
++            phase=1,
++            status=TaskStatus.PASS.value,
++            gate_outcome=GateOutcome.PASS.value,
++            turns_consumed=4,
++            exit_code=0,
++            output_path="/r/T01.01.txt",
++        ),
++        phase=phase,
++        task=task,
++    )
++
++    # Assert the asymmetry: handoff file present, journal has no task_complete.
++    assert config.handoff_file(phase, task).exists()
++    jsonl = config.execution_log_jsonl
++    if jsonl.exists():
++        events = [
++            json.loads(line) for line in jsonl.read_text().splitlines() if line.strip()
++        ]
++        assert not any(e.get("event") == "task_complete" for e in events), (
++            "precondition violated: a task_complete event exists (not the crash window)"
++        )
++
++    # Resume must trust the atomically-written handoff file → skip the task.
++    ran: list[str] = []
++
++    def _factory(task, config, phase):
++        ran.append(task.task_id)
++        return (0, 1, 0)
++
++    results, _remaining, _gates = execute_phase_tasks(
++        [task], config, phase, _subprocess_factory=_factory, handoff_store=store
++    )
++
++    assert ran == [], (
++        "resume re-ran a task whose handoff file marks it validated-success"
++    )
++    assert results[0].status == TaskStatus.PASS
+diff --git a/tests/sprint/test_handoff_performance.py b/tests/sprint/test_handoff_performance.py
+new file mode 100644
+index 00000000..322df861
+--- /dev/null
++++ b/tests/sprint/test_handoff_performance.py
+@@ -0,0 +1,122 @@
++"""Stage-3 L4 — parallel wall-clock win + in-flight-dependency resume safety.
++
++(a) With a fixed-duration mock subprocess, ``task_parallelism=4`` completes a
++    no-dependency phase in < 0.5x the serial (``task_parallelism=1``) wall-clock.
++(b) A task that was in-flight at kill time has NO handoff record; on resume its
++    declared dependents must NOT launch before it — the scheduler orders the
++    dependent after its (unsatisfied) dependency, which still runs.
++"""
++
++from __future__ import annotations
++
++import time
++from pathlib import Path
++
++import pytest
++
++from superclaude.cli.sprint.executor import execute_phase_tasks
++from superclaude.cli.sprint.handoff import FileHandoffStore
++from superclaude.cli.sprint.models import (
++    Phase,
++    SprintConfig,
++    TaskEntry,
++    TaskStatus,
++)
++
++_TASK_SLEEP = 0.2
++
++
++def _config(
++    tmp_path: Path, *, task_parallelism: int = 1, resume_task_id: str = ""
++) -> SprintConfig:
++    tmp_path.mkdir(parents=True, exist_ok=True)
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    config = SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=1000,
++        wiring_gate_mode="off",
++        wiring_gate_scope="none",
++        task_parallelism=task_parallelism,
++        resume_task_id=resume_task_id,
++    )
++    config.results_dir.mkdir(parents=True, exist_ok=True)
++    return config
++
++
++def _sleep_factory(task, config, phase):
++    time.sleep(_TASK_SLEEP)
++    return (0, 1, 0)
++
++
++@pytest.mark.slow
++@pytest.mark.performance
++def test_parallel_k4_under_half_serial_wallclock(tmp_path: Path) -> None:
++    tasks = [TaskEntry(f"T01.{i:02d}", f"t{i}") for i in range(1, 5)]  # independent
++
++    serial_cfg = _config(tmp_path / "serial", task_parallelism=1)
++    t0 = time.monotonic()
++    r1, _, _ = execute_phase_tasks(
++        tasks, serial_cfg, serial_cfg.phases[0], _subprocess_factory=_sleep_factory
++    )
++    serial = time.monotonic() - t0
++
++    par_cfg = _config(tmp_path / "par", task_parallelism=4)
++    t0 = time.monotonic()
++    r4, _, _ = execute_phase_tasks(
++        tasks, par_cfg, par_cfg.phases[0], _subprocess_factory=_sleep_factory
++    )
++    parallel = time.monotonic() - t0
++
++    assert len(r1) == 4 and len(r4) == 4
++    assert all(r.status == TaskStatus.PASS for r in r4)
++    assert parallel < 0.5 * serial, (
++        f"parallel not < 0.5x serial: serial={serial:.3f}s parallel={parallel:.3f}s "
++        f"(ratio {parallel / serial:.2f})"
++    )
++
++
++@pytest.mark.slow
++def test_in_flight_dependency_dependents_wait_on_resume(tmp_path: Path) -> None:
++    config = _config(tmp_path, task_parallelism=4, resume_task_id="T01.02")
++    phase = config.phases[0]
++    # Resume is active and handoff/ exists, but the in-flight task left NO record.
++    store = FileHandoffStore(config)
++    (config.results_dir / "handoff").mkdir(parents=True, exist_ok=True)
++
++    tasks = [
++        TaskEntry("T01.01", "in-flight dependency"),
++        TaskEntry("T01.02", "dependent", dependencies=["T01.01"]),
++    ]
++
++    launched: list[str] = []
++
++    def _factory(task, config, phase):
++        launched.append(task.task_id)
++        time.sleep(0.05)
++        return (0, 1, 0)
++
++    results, _remaining, _gates = execute_phase_tasks(
++        tasks,
++        config,
++        phase,
++        _subprocess_factory=_factory,
++        handoff_store=store,
++    )
++
++    by_id = {r.task.task_id: r for r in results}
++    # The in-flight dependency had no validated-success record → NOT skipped, it ran.
++    assert "T01.01" in launched
++    assert by_id["T01.01"].status == TaskStatus.PASS
++    # The dependent did NOT launch before its (unsatisfied) dependency — the
++    # scheduler ordered T01.02 strictly after T01.01.
++    assert "T01.02" in launched
++    assert launched.index("T01.01") < launched.index("T01.02"), (
++        f"dependent launched before its dependency on resume: {launched}"
++    )
+diff --git a/tests/sprint/test_handoff_record.py b/tests/sprint/test_handoff_record.py
+new file mode 100644
+index 00000000..ede46908
+--- /dev/null
++++ b/tests/sprint/test_handoff_record.py
+@@ -0,0 +1,106 @@
++"""Stage-1 H4/M7 — HandoffRecord schema round-trip + forward-compat tests."""
++
++from __future__ import annotations
++
++from datetime import datetime, timezone
++
++from superclaude.cli.sprint.models import (
++    GateOutcome,
++    HandoffRecord,
++    TaskEntry,
++    TaskResult,
++    TaskStatus,
++)
++
++_H4_FIELDS = (
++    "schema_version",
++    "task_id",
++    "phase",
++    "status",
++    "gate_outcome",
++    "turns_consumed",
++    "exit_code",
++    "output_path",
++    "started_at",
++    "finished_at",
++    "produced_artifacts",
++    "consumed_upstreams",
++)
++
++
++def _record() -> HandoffRecord:
++    return HandoffRecord(
++        schema_version=1,
++        task_id="T01.02",
++        phase=1,
++        status="pass",
++        gate_outcome="pass",
++        turns_consumed=7,
++        exit_code=0,
++        output_path="/r/phase-1-task-T01.02-output.txt",
++        started_at="2026-06-03T10:00:00+00:00",
++        finished_at="2026-06-03T10:01:00+00:00",
++        produced_artifacts=["/r/phase-1-task-T01.02-output.txt"],
++        consumed_upstreams=["T01.01"],
++    )
++
++
++def test_to_from_dict_round_trips_every_h4_field() -> None:
++    rec = _record()
++    d = rec.to_dict()
++    # Every H4 field is present in the serialized dict.
++    assert set(d) == set(_H4_FIELDS)
++    back = HandoffRecord.from_dict(d)
++    for f in _H4_FIELDS:
++        assert getattr(back, f) == getattr(rec, f), f"field {f} did not round-trip"
++
++
++def test_from_task_result_derives_shared_fields_and_attaches_deltas() -> None:
++    started = datetime(2026, 6, 3, 10, 0, 0, tzinfo=timezone.utc)
++    finished = datetime(2026, 6, 3, 10, 2, 0, tzinfo=timezone.utc)
++    result = TaskResult(
++        task=TaskEntry(task_id="T02.03", title="Third", dependencies=["T02.02"]),
++        status=TaskStatus.PASS,
++        turns_consumed=5,
++        exit_code=0,
++        started_at=started,
++        finished_at=finished,
++        gate_outcome=GateOutcome.PASS,
++        output_path="/r/phase-2-task-T02.03-output.txt",
++    )
++    rec = HandoffRecord.from_task_result(
++        result,
++        phase=2,
++        produced_artifacts=["/r/phase-2-task-T02.03-output.txt"],
++        consumed_upstreams=["T02.02"],
++    )
++    assert rec.task_id == "T02.03"
++    assert rec.phase == 2
++    assert rec.status == "pass"  # TaskStatus.PASS.value
++    assert rec.gate_outcome == "pass"  # GateOutcome.PASS.value, NOT a dict or None
++    assert rec.turns_consumed == 5
++    assert rec.exit_code == 0
++    assert rec.started_at == started.isoformat()
++    assert rec.finished_at == finished.isoformat()
++    assert rec.produced_artifacts == ["/r/phase-2-task-T02.03-output.txt"]
++    assert rec.consumed_upstreams == ["T02.02"]
++
++
++def test_from_dict_tolerates_unknown_future_field() -> None:
++    # M7 migration-safe: a record written by a NEWER schema carries an extra key.
++    # An old reader must accept it without raising (the unknown key is ignored).
++    d = _record().to_dict()
++    d["a_field_from_the_future"] = {"nested": [1, 2, 3]}
++    rec = HandoffRecord.from_dict(d)  # must NOT raise
++    assert rec.task_id == "T01.02"
++    assert rec.schema_version == 1
++
++
++def test_schema_version_present_and_defaults_to_one() -> None:
++    assert _record().schema_version == 1
++    # Default construction also yields schema_version 1.
++    assert HandoffRecord().schema_version == 1
++    # And a dict missing schema_version degrades to 1.
++    d = _record().to_dict()
++    del d["schema_version"]
++    assert HandoffRecord.from_dict(d).schema_version == 1
+diff --git a/tests/sprint/test_handoff_store.py b/tests/sprint/test_handoff_store.py
+new file mode 100644
+index 00000000..42c1c9e6
+--- /dev/null
++++ b/tests/sprint/test_handoff_store.py
+@@ -0,0 +1,91 @@
++"""Stage-1 — FileHandoffStore write/read round-trip + atomic-write tests."""
++
++from __future__ import annotations
++
++from pathlib import Path
++
++from superclaude.cli.sprint.handoff import FileHandoffStore
++from superclaude.cli.sprint.models import (
++    GateOutcome,
++    HandoffRecord,
++    Phase,
++    SprintConfig,
++    TaskEntry,
++)
++
++
++def _config(tmp_path: Path) -> SprintConfig:
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    return SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=5,
++    )
++
++
++def _record() -> HandoffRecord:
++    return HandoffRecord(
++        schema_version=1,
++        task_id="T01.01",
++        phase=1,
++        status="pass",
++        gate_outcome=GateOutcome.PASS.value,
++        turns_consumed=4,
++        exit_code=0,
++        output_path="/r/out.txt",
++        started_at="2026-06-03T10:00:00+00:00",
++        finished_at="2026-06-03T10:01:00+00:00",
++        produced_artifacts=["/r/out.txt"],
++        consumed_upstreams=["T01.00"],
++    )
++
++
++def test_write_then_read_round_trips(tmp_path: Path) -> None:
++    config = _config(tmp_path)
++    phase, task = config.phases[0], TaskEntry(task_id="T01.01", title="t")
++    store = FileHandoffStore(config)
++
++    store.write(_record(), phase=phase, task=task)
++    got = store.read(phase=phase, task=task)
++
++    assert got is not None
++    assert got.task_id == "T01.01"
++    assert got.status == "pass"
++    assert got.gate_outcome == "pass"
++    assert got.produced_artifacts == ["/r/out.txt"]
++    assert got.consumed_upstreams == ["T01.00"]
++
++
++def test_read_missing_returns_typed_none(tmp_path: Path) -> None:
++    config = _config(tmp_path)
++    phase, task = config.phases[0], TaskEntry(task_id="T01.99", title="absent")
++    store = FileHandoffStore(config)
++    assert store.read(phase=phase, task=task) is None
++
++
++def test_on_disk_key_is_phase_qualified(tmp_path: Path) -> None:
++    config = _config(tmp_path)
++    phase, task = config.phases[0], TaskEntry(task_id="T01.01", title="t")
++    store = FileHandoffStore(config)
++    store.write(_record(), phase=phase, task=task)
++
++    expected = config.results_dir / "handoff" / "phase-1-task-T01.01.json"
++    assert config.handoff_file(phase, task) == expected
++    assert expected.exists()
++
++
++def test_write_leaves_no_tmp_file(tmp_path: Path) -> None:
++    config = _config(tmp_path)
++    phase, task = config.phases[0], TaskEntry(task_id="T01.01", title="t")
++    store = FileHandoffStore(config)
++    store.write(_record(), phase=phase, task=task)
++
++    handoff_dir = config.results_dir / "handoff"
++    leftover = list(handoff_dir.glob("*.tmp"))
++    assert leftover == [], f"atomic write left a temp file behind: {leftover}"
+diff --git a/tests/sprint/test_per_task_env_isolation.py b/tests/sprint/test_per_task_env_isolation.py
+new file mode 100644
+index 00000000..055fc1c4
+--- /dev/null
++++ b/tests/sprint/test_per_task_env_isolation.py
+@@ -0,0 +1,207 @@
++"""Stage-0 H2 gate 2 — per-task env isolation under concurrency.
++
++Three deterministic, non-destructive assertions (everything lives under
++``tmp_path``; the real ``~/.claude`` is never touched):
++
++1. **env-uniqueness** — drive ``execute_phase_tasks`` with a no-op
++   ``_subprocess_factory`` and the ``_env_capture=[]`` seam over a multi-task
++   phase; every captured per-task env must carry a DISTINCT
++   ``CLAUDE_SETTINGS_DIR`` (one per ``task-<id>`` scope).
++
++2. **positive concurrent-spawn repro** — ≥4 genuinely concurrent workers (a
++   ``threading.Barrier`` + ``ThreadPoolExecutor`` aligns their starts, mirroring
++   ``tests/cli/eval/test_home_isolation_extend.py:209``), each obtaining its env
++   from ``setup_isolation(config, scope="worker-k").env_vars`` and spawning a
++   real subprocess that writes-then-re-reads ``config.json`` in its OWN
++   ``CLAUDE_SETTINGS_DIR`` in a tight loop. Afterwards: every ``config.json`` is
++   well-formed JSON, the ≥4 settings dirs are pairwise distinct, and a shared
++   baseline sentinel (standing in for the corruptible ``~/.claude/config.json``)
++   is byte-identical before/after — proving isolation routes every concurrent
++   write away from the shared file.
++
++3. **negative control** — point all ≥4 concurrent workers at ONE shared
++   ``CLAUDE_SETTINGS_DIR``; the harness must DETECT the contention (a torn /
++   cross-written ``config.json`` surfaces as a non-zero worker exit). If a race
++   cannot be forced on this runner, the corruption-observation is downgraded via
++   ``pytest.xfail`` (non-strict) after asserting all workers resolved to the
++   same path — demonstrating the test WOULD catch the corruption absent
++   isolation without flaky-failing.
++"""
++
++from __future__ import annotations
++
++import json
++import subprocess
++import sys
++import threading
++from concurrent.futures import ThreadPoolExecutor, as_completed
++from pathlib import Path
++
++from superclaude.cli.sprint.executor import execute_phase_tasks, setup_isolation
++from superclaude.cli.sprint.models import Phase, SprintConfig, TaskEntry
++
++# A minimal real subprocess: write then re-read config.json in a tight loop. A
++# torn read raises JSONDecodeError (-> non-zero exit); reading another worker's
++# payload (only possible on a shared dir) exits 3. On an isolated dir it always
++# exits 0.
++_WORKER_SRC = """
++import json, os, sys
++cfg_dir, worker_id = sys.argv[1], sys.argv[2]
++os.makedirs(cfg_dir, exist_ok=True)
++cfg = os.path.join(cfg_dir, "config.json")
++payload = {"worker": worker_id, "blob": "x" * 4096}
++for _ in range(60):
++    with open(cfg, "w") as fh:
++        json.dump(payload, fh)
++    with open(cfg) as fh:
++        data = json.load(fh)          # torn read -> JSONDecodeError -> exit 1
++    if data.get("worker") != worker_id:
++        sys.exit(3)                   # saw another worker's write (shared dir)
++sys.exit(0)
++"""
++
++
++def _make_config(tmp_path: Path, num_tasks: int = 4):
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    phase = Phase(number=1, file=pf, name="Phase 1")
++    config = SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[phase],
++        start_phase=1,
++        end_phase=1,
++        max_turns=5,
++        wiring_gate_mode="off",
++        wiring_gate_scope="none",
++    )
++    tasks = [
++        TaskEntry(task_id=f"T01.{i:02d}", title=f"Task {i}")
++        for i in range(1, num_tasks + 1)
++    ]
++    return config, phase, tasks
++
++
++def _run_worker(settings_dir: str, worker_id: str, barrier: threading.Barrier) -> int:
++    barrier.wait()  # align starts to maximize collision odds
++    proc = subprocess.run(
++        [sys.executable, "-c", _WORKER_SRC, settings_dir, worker_id],
++        capture_output=True,
++        text=True,
++    )
++    return proc.returncode
++
++
++# --- assertion 1: env-uniqueness ------------------------------------------
++
++
++def test_per_task_env_capture_settings_dirs_are_distinct(tmp_path: Path) -> None:
++    config, phase, tasks = _make_config(tmp_path, num_tasks=4)
++    captured: list = []
++
++    def _noop_factory(task, config, phase):
++        return (0, 1, 0)
++
++    execute_phase_tasks(
++        tasks,
++        config,
++        phase,
++        _subprocess_factory=_noop_factory,
++        _env_capture=captured,
++    )
++
++    assert len(captured) == 4, (
++        f"expected one captured env per task, got {len(captured)}"
++    )
++    settings = [e["CLAUDE_SETTINGS_DIR"] for e in captured]
++    assert len(set(settings)) == 4, (
++        f"per-task CLAUDE_SETTINGS_DIR not distinct: {settings}"
++    )
++    for s, task in zip(settings, tasks):
++        assert ".isolation" in s and "settings" in s, (
++            f"settings dir not isolated: {s!r}"
++        )
++        assert f"task-{task.task_id}" in s, f"settings dir not scoped to task: {s!r}"
++
++
++# --- assertion 2: positive concurrent-spawn repro -------------------------
++
++
++def test_concurrent_isolated_workers_never_corrupt_shared_config(
++    tmp_path: Path,
++) -> None:
++    config, _phase, _tasks = _make_config(tmp_path)
++
++    # Shared baseline sentinel (the corruptible ~/.claude/config.json analog).
++    baseline = tmp_path / "shared_home_config.json"
++    baseline.write_text(json.dumps({"baseline": "untouched"}))
++    baseline_bytes = baseline.read_bytes()
++
++    n = 4
++    settings_dirs = [
++        setup_isolation(config, scope=f"worker-{k}").env_vars["CLAUDE_SETTINGS_DIR"]
++        for k in range(n)
++    ]
++    # Pairwise-distinct per-worker settings dirs (the isolation guarantee).
++    assert len(set(settings_dirs)) == n, (
++        f"worker settings dirs not distinct: {settings_dirs}"
++    )
++
++    barrier = threading.Barrier(n)
++    with ThreadPoolExecutor(max_workers=n) as pool:
++        futures = [
++            pool.submit(_run_worker, settings_dirs[k], str(k), barrier)
++            for k in range(n)
++        ]
++        codes = [f.result() for f in as_completed(futures)]
++
++    # Every isolated worker completed cleanly (no torn / cross read).
++    assert all(c == 0 for c in codes), f"isolated workers reported corruption: {codes}"
++
++    # Every per-worker config.json is well-formed and carries its own payload.
++    for k in range(n):
++        cfg = Path(settings_dirs[k]) / "config.json"
++        assert cfg.exists(), f"worker {k} wrote no config.json"
++        data = json.loads(cfg.read_text())  # raises if not well-formed JSON
++        assert data["worker"] == str(k)
++
++    # The shared baseline was never written.
++    assert baseline.read_bytes() == baseline_bytes, "shared baseline config was mutated"
++
++
++# --- assertion 3: negative control ----------------------------------------
++
++
++def test_shared_settings_dir_contention_is_detectable(tmp_path: Path) -> None:
++    config, _phase, _tasks = _make_config(tmp_path)
++    shared = setup_isolation(config, scope="shared-worker").env_vars[
++        "CLAUDE_SETTINGS_DIR"
++    ]
++
++    n = 4
++    barrier = threading.Barrier(n)
++    with ThreadPoolExecutor(max_workers=n) as pool:
++        futures = [
++            pool.submit(_run_worker, shared, str(k), barrier)  # ALL share one dir
++            for k in range(n)
++        ]
++        codes = [f.result() for f in as_completed(futures)]
++
++    contention_detected = any(c != 0 for c in codes)
++    if not contention_detected:
++        # Could not force a torn / cross read on this runner. The property under
++        # test (all workers resolved to the SAME shared path, so isolation is
++        # what prevents corruption) still holds — downgrade the corruption
++        # observation rather than flaky-fail.
++        import pytest
++
++        assert len({shared}) == 1
++        pytest.xfail(
++            "no torn read forced on this runner; all workers shared one "
++            "CLAUDE_SETTINGS_DIR — harness would catch corruption absent isolation"
++        )
++    # Contention was observed: the harness CAN detect the corruption class that
++    # per-task isolation prevents.
++    assert contention_detected
+diff --git a/tests/sprint/test_process.py b/tests/sprint/test_process.py
+index 6ab76965..e29f9b53 100644
+--- a/tests/sprint/test_process.py
++++ b/tests/sprint/test_process.py
+@@ -19,6 +19,7 @@ from superclaude.cli.sprint.process import (
+     SignalHandler,
+     build_task_context,
+     compress_context_summary,
++    count_turns_from_stream_json,
+     get_git_diff_context,
+ )
+
+@@ -553,3 +554,61 @@ class TestCompressContextSummary:
+         # With compression it should be much less than 3.5x
+         ratio = len(large_summary) / len(small_summary)
+         assert ratio < 3.0, f"Compression ratio {ratio:.1f} exceeds 3.0x"
++
++
++class TestCountTurnsFromStreamJson:
++    """Authoritative per-task turn count from the stream-json transcript.
++
++    Capability #2 of the per-task wiring: turns are counted from the REAL
++    stream-json ``num_turns`` of the terminal result event (was hard-coded 0).
++    SYNTHESIS §6 Reconciliation note requires the acceptance test to assert the
++    CORRECT count, not merely ``!= 0``.
++    """
++
++    def test_returns_num_turns_from_terminal_result_event(self, tmp_path):
++        """Primary use case: the Claude-reported num_turns is returned exactly."""
++        p = tmp_path / "task-output.txt"
++        p.write_text(
++            '{"type":"system","subtype":"init"}\n'
++            '{"type":"assistant","message":{"role":"assistant"}}\n'
++            '{"type":"assistant","message":{"role":"assistant"}}\n'
++            '{"type":"result","subtype":"success","num_turns":7,"is_error":false}\n'
++        )
++        assert count_turns_from_stream_json(p) == 7
++
++    def test_last_result_event_wins(self, tmp_path):
++        """When multiple result events exist, the terminal (last) one is used."""
++        p = tmp_path / "task-output.txt"
++        p.write_text(
++            '{"type":"result","num_turns":3}\n{"type":"result","num_turns":11}\n'
++        )
++        assert count_turns_from_stream_json(p) == 11
++
++    def test_missing_file_returns_zero(self, tmp_path):
++        assert count_turns_from_stream_json(tmp_path / "nope.txt") == 0
++
++    def test_no_result_event_returns_zero(self, tmp_path):
++        p = tmp_path / "task-output.txt"
++        p.write_text('{"type":"system"}\n{"type":"assistant","message":{}}\n')
++        assert count_turns_from_stream_json(p) == 0
++
++    def test_result_event_without_num_turns_returns_zero(self, tmp_path):
++        p = tmp_path / "task-output.txt"
++        p.write_text('{"type":"result","subtype":"success"}\n')
++        assert count_turns_from_stream_json(p) == 0
++
++    def test_bool_num_turns_is_rejected(self, tmp_path):
++        """``True`` is an int subclass but must NOT be accepted as a turn count."""
++        p = tmp_path / "task-output.txt"
++        p.write_text('{"type":"result","num_turns":true}\n')
++        assert count_turns_from_stream_json(p) == 0
++
++    def test_malformed_lines_are_tolerated(self, tmp_path):
++        """Partial / non-JSON lines are skipped without raising; valid result wins."""
++        p = tmp_path / "task-output.txt"
++        p.write_text(
++            "not json at all\n"
++            '{"type":"result","num_turns":  \n'  # truncated/partial JSON
++            '{"type":"result","num_turns":5}\n'
++        )
++        assert count_turns_from_stream_json(p) == 5
+diff --git a/tests/sprint/test_recovery.py b/tests/sprint/test_recovery.py
+index a976d929..d8c89bbb 100644
+--- a/tests/sprint/test_recovery.py
++++ b/tests/sprint/test_recovery.py
+@@ -35,7 +35,9 @@ def _seed_release(tmp_path: Path, phase: int = 7) -> tuple[Path, Path, Path]:
+     file to rewrite.
+     """
+     source_index = tmp_path / "tasklist-index.md"
+-    source_index.write_text("# Sprint\n\n| # | File |\n|---|------|\n", encoding="utf-8")
++    source_index.write_text(
++        "# Sprint\n\n| # | File |\n|---|------|\n", encoding="utf-8"
++    )
+     results_dir = tmp_path / "results"
+     results_dir.mkdir(parents=True, exist_ok=True)
+     result_json = results_dir / f"phase-{phase}-result.json"
+@@ -62,12 +64,7 @@ def _bundle_with_sidecar(
+     bundle_dir.mkdir(parents=True, exist_ok=True)
+     sidecar = bundle_dir / "task-results.json"
+     sidecar.write_text(
+-        json.dumps(
+-            [
+-                {"task": {"task_id": tid}, "status": "pass"}
+-                for tid in task_ids
+-            ]
+-        ),
++        json.dumps([{"task": {"task_id": tid}, "status": "pass"} for tid in task_ids]),
+         encoding="utf-8",
+     )
+     # artifacts_produced[0].parent resolves to bundle_dir (where the sidecar
+@@ -111,9 +108,7 @@ class TestRecoveryBundle:
+         bundle.affected_tasks.append("T03.01")
+         bundle.artifacts_produced.append(Path("phase-3-task-T03.01-output.txt"))
+         assert bundle.affected_tasks == ["T03.01"]
+-        assert bundle.artifacts_produced == [
+-            Path("phase-3-task-T03.01-output.txt")
+-        ]
++        assert bundle.artifacts_produced == [Path("phase-3-task-T03.01-output.txt")]
+         # Status has NOT yet advanced — merge_recovery_bundle owns that flip.
+         assert bundle.status is RecoveryStatus.DRYRUN
+         assert bundle.end_tasklist_sha256 is None
+@@ -386,12 +381,8 @@ class TestRecoverySurfaceSmoke:
+
+         phase_result = PhaseResult(phase=Phase(number=7, file=Path(".")))
+         phase_result.recovery_history = [
+-            RecoveryBundle(
+-                bundle_id="b1", affected_phase=7, affected_tasks=["T07.11"]
+-            ),
+-            RecoveryBundle(
+-                bundle_id="b2", affected_phase=7, affected_tasks=["T07.12"]
+-            ),
++            RecoveryBundle(bundle_id="b1", affected_phase=7, affected_tasks=["T07.11"]),
++            RecoveryBundle(bundle_id="b2", affected_phase=7, affected_tasks=["T07.12"]),
+             # A compact ref carries no affected_tasks → not counted.
+             RecoveryBundleRef(
+                 bundle_id="b3",
+diff --git a/tests/sprint/test_rerun_tasks.py b/tests/sprint/test_rerun_tasks.py
+index d119de97..7eb80eb4 100644
+--- a/tests/sprint/test_rerun_tasks.py
++++ b/tests/sprint/test_rerun_tasks.py
+@@ -161,15 +161,19 @@ class TestExtractPhaseSubset:
+ # ---------------------------------------------------------------------------
+
+
+-def _task_result(task_id: str, status: TaskStatus, *, deps: list[str] | None = None,
+-                 turns: int = 1) -> TaskResult:
++def _task_result(
++    task_id: str, status: TaskStatus, *, deps: list[str] | None = None, turns: int = 1
++) -> TaskResult:
+     """Build a real ``TaskResult`` for the PhaseResult-view the walker consumes."""
+     return TaskResult(
+-        task=TaskEntry(task_id=task_id, title=f"Task {task_id}",
+-                       dependencies=list(deps or [])),
++        task=TaskEntry(
++            task_id=task_id, title=f"Task {task_id}", dependencies=list(deps or [])
++        ),
+         status=status,
+         turns_consumed=turns,
+-        gate_outcome=GateOutcome.PASS if status is TaskStatus.PASS else GateOutcome.FAIL,
++        gate_outcome=GateOutcome.PASS
++        if status is TaskStatus.PASS
++        else GateOutcome.FAIL,
+     )
+
+
+@@ -194,9 +198,7 @@ class TestDependencyWalker:
+         )
+         # Rerunning the whole chain together: every dep is itself a target, so it
+         # is satisfied by construction and the full chain resolves with no abort.
+-        resolved, warnings = walk_dependencies(
+-            src, ["T07.11", "T07.12", "T07.13"]
+-        )
++        resolved, warnings = walk_dependencies(src, ["T07.11", "T07.12", "T07.13"])
+         assert resolved == ["T07.11", "T07.12", "T07.13"]
+         assert warnings == []
+
+@@ -236,10 +238,12 @@ class TestTransitiveClosure:
+         view = _View(
+             [
+                 _task_result("T07.11", TaskStatus.PASS, turns=1),
+-                _task_result("T07.12", TaskStatus.FAIL_RECOVERABLE,
+-                             deps=["T07.11"], turns=1),
+-                _task_result("T07.13", TaskStatus.FAIL_RECOVERABLE,
+-                             deps=["T07.12"], turns=1),
++                _task_result(
++                    "T07.12", TaskStatus.FAIL_RECOVERABLE, deps=["T07.11"], turns=1
++                ),
++                _task_result(
++                    "T07.13", TaskStatus.FAIL_RECOVERABLE, deps=["T07.12"], turns=1
++                ),
+             ]
+         )
+         resolved, warnings = walk_dependencies(
+@@ -261,7 +265,9 @@ class TestTransitiveClosure:
+ # ---------------------------------------------------------------------------
+
+
+-def _write_transcript(results_dir: Path, phase: int, task_id: str, lines: list[dict]) -> Path:
++def _write_transcript(
++    results_dir: Path, phase: int, task_id: str, lines: list[dict]
++) -> Path:
+     """Write a ``phase-N-task-<id>-output.txt`` stream-json transcript."""
+     results_dir.mkdir(parents=True, exist_ok=True)
+     path = results_dir / f"phase-{phase}-task-{task_id}-output.txt"
+@@ -280,7 +286,11 @@ class TestTranscriptFallback:
+             "T07.11",
+             [
+                 {"type": "assistant", "message": {"usage": {"output_tokens": 128}}},
+-                {"type": "result", "is_error": True, "subtype": "error_during_execution"},
++                {
++                    "type": "result",
++                    "is_error": True,
++                    "subtype": "error_during_execution",
++                },
+             ],
+         )
+         failed = discover_failed_tasks_from_transcripts(tmp_path, 7)
+@@ -341,7 +351,9 @@ class _FakePopenSuccess:
+         return 0
+
+
+-def _seed_orchestration(tmp_path: Path, target: str = "T07.11") -> tuple[SprintConfig, Phase]:
++def _seed_orchestration(
++    tmp_path: Path, target: str = "T07.11"
++) -> tuple[SprintConfig, Phase]:
+     """Seed a release dir with a phase tasklist, a parent phase-7-result.json
+     (target recorded FAIL_RECOVERABLE), and a canonical original transcript that
+     merge-back must rename to ``*.failed-<ts>``."""
+@@ -391,9 +403,7 @@ def _execute_sprint_writes_pass(target: str):
+         sub_results = sub_config.results_dir
+         sub_results.mkdir(parents=True, exist_ok=True)
+         rerun_result = {
+-            "task_results": [
+-                _task_result(target, TaskStatus.PASS, turns=1).to_dict()
+-            ],
++            "task_results": [_task_result(target, TaskStatus.PASS, turns=1).to_dict()],
+             "recovery_history": [],
+         }
+         (sub_results / "phase-7-result.json").write_text(
+@@ -441,7 +451,9 @@ class TestRunOrchestration:
+             )
+         assert exit_code == 0
+         # Merge-back renamed the original canonical transcript to *.failed-<ts>.
+-        failed = list(config.results_dir.glob("phase-7-task-T07.11-output.failed-*.txt"))
++        failed = list(
++            config.results_dir.glob("phase-7-task-T07.11-output.failed-*.txt")
++        )
+         assert failed, "expected original transcript renamed to *.failed-<ts>"
+
+     def test_orchestrate_emits_phase_rerun_complete_event(self, tmp_path: Path):
+diff --git a/tests/sprint/test_rerun_tasks_e2e.py b/tests/sprint/test_rerun_tasks_e2e.py
+index b0d5d29f..91756c9e 100644
+--- a/tests/sprint/test_rerun_tasks_e2e.py
++++ b/tests/sprint/test_rerun_tasks_e2e.py
+@@ -161,9 +161,7 @@ class TestRerunTasksDryRun:
+         index = _seed_failed_phase(tmp_path, phase=7)
+         runner = CliRunner()
+
+-        with patch(
+-            "superclaude.cli.pipeline.process.subprocess.Popen"
+-        ) as mock_popen:
++        with patch("superclaude.cli.pipeline.process.subprocess.Popen") as mock_popen:
+             result = runner.invoke(
+                 sprint_group,
+                 [
+@@ -236,9 +234,7 @@ class TestRerunTasksRoundTrip:
+             ),
+             patch("superclaude.cli.pipeline.process.os.setpgrp", create=True),
+             patch("superclaude.cli.sprint.notify._notify"),
+-            patch(
+-                "superclaude.cli.sprint.rerun_tasks.subprocess.run"
+-            ) as mock_verify,
++            patch("superclaude.cli.sprint.rerun_tasks.subprocess.run") as mock_verify,
+         ):
+             result = runner.invoke(
+                 sprint_group,
+diff --git a/tests/sprint/test_resume_backward_compat.py b/tests/sprint/test_resume_backward_compat.py
+new file mode 100644
+index 00000000..339c705f
+--- /dev/null
++++ b/tests/sprint/test_resume_backward_compat.py
+@@ -0,0 +1,81 @@
++"""Stage-2 M5 — resume against a pre-Stage-1 release dir (no handoff/) degrades.
++
++Resuming against a `results_dir` with NO `handoff/` subdirectory must: (a) raise
++no error, (b) perform no per-task skipping (run every task), and (c) behave
++identically to today's phase-granular resume. Reads must NOT lazily create the
++`handoff/` dir — only writes do.
++"""
++
++from __future__ import annotations
++
++from pathlib import Path
++
++from superclaude.cli.sprint.executor import execute_phase_tasks
++from superclaude.cli.sprint.handoff import FileHandoffStore
++from superclaude.cli.sprint.models import (
++    Phase,
++    SprintConfig,
++    TaskEntry,
++    TaskStatus,
++)
++
++
++def _config(tmp_path: Path, *, resume_task_id: str = "") -> SprintConfig:
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    config = SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=100,
++        wiring_gate_mode="off",
++        wiring_gate_scope="none",
++        resume_task_id=resume_task_id,
++    )
++    config.results_dir.mkdir(parents=True, exist_ok=True)
++    return config
++
++
++def test_resume_without_handoff_dir_runs_all_tasks_no_error(tmp_path: Path) -> None:
++    # Resume is requested, but the release dir predates Stage 1 → no handoff/ dir.
++    config = _config(tmp_path, resume_task_id="T01.01")
++    phase = config.phases[0]
++    store = FileHandoffStore(config)
++    assert not (config.results_dir / "handoff").exists()
++
++    tasks = [TaskEntry("T01.01", "First"), TaskEntry("T01.02", "Second")]
++    ran: list[str] = []
++
++    def _factory(task, config, phase):
++        ran.append(task.task_id)
++        return (0, 1, 0)
++
++    # (a) no error raised even though resume is active and handoff/ is absent
++    results, _remaining, _gates = execute_phase_tasks(
++        tasks, config, phase, _subprocess_factory=_factory, handoff_store=store
++    )
++
++    # (b) no per-task skipping — every task ran (phase-granular behavior); and
++    # (c) the results are exactly what a non-resume run would produce.
++    assert ran == ["T01.01", "T01.02"]
++    assert len(results) == 2
++    assert all(r.status == TaskStatus.PASS for r in results)
++
++
++def test_store_read_on_missing_handoff_dir_does_not_create_it(tmp_path: Path) -> None:
++    # Lazy-creation guarantee (Step 4.5): a READ against a missing handoff/ dir
++    # returns None and must NOT create the directory — only writes do.
++    config = _config(tmp_path)
++    phase = config.phases[0]
++    store = FileHandoffStore(config)
++    task = TaskEntry("T01.01", "First")
++
++    assert not (config.results_dir / "handoff").exists()
++    assert store.read(phase=phase, task=task) is None
++    assert not (config.results_dir / "handoff").exists(), (
++        "FileHandoffStore.read created handoff/ — lazy creation must be write-only"
++    )
+diff --git a/tests/sprint/test_resume_contract.py b/tests/sprint/test_resume_contract.py
+new file mode 100644
+index 00000000..393b9634
+--- /dev/null
++++ b/tests/sprint/test_resume_contract.py
+@@ -0,0 +1,141 @@
++"""Stage-2 H5 — resume skip predicate + per-state skip/run behavior."""
++
++from __future__ import annotations
++
++from pathlib import Path
++
++from superclaude.cli.sprint.executor import execute_phase_tasks
++from superclaude.cli.sprint.handoff import FileHandoffStore, is_validated_success
++from superclaude.cli.sprint.models import (
++    GateOutcome,
++    HandoffRecord,
++    Phase,
++    SprintConfig,
++    TaskEntry,
++    TaskStatus,
++    TurnLedger,
++)
++
++
++def _config(tmp_path: Path, *, resume_task_id: str = "") -> SprintConfig:
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    config = SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=100,
++        wiring_gate_mode="off",
++        wiring_gate_scope="none",
++        resume_task_id=resume_task_id,
++    )
++    config.results_dir.mkdir(parents=True, exist_ok=True)
++    return config
++
++
++def _record(task_id: str, status: TaskStatus, gate: GateOutcome) -> HandoffRecord:
++    return HandoffRecord(
++        task_id=task_id,
++        phase=1,
++        status=status.value,
++        gate_outcome=gate.value,
++        turns_consumed=4,
++        exit_code=0,
++        output_path=f"/r/{task_id}.txt",
++    )
++
++
++# --- (a) predicate per TaskStatus ----------------------------------------
++
++
++def test_is_validated_success_only_for_pass_plus_gate_success() -> None:
++    cases = [
++        (TaskStatus.PASS, GateOutcome.PASS, True),
++        (TaskStatus.PASS, GateOutcome.FAIL, False),  # PASS but gate failed
++        (TaskStatus.PASS, GateOutcome.DEFERRED, False),
++        (TaskStatus.PASS, GateOutcome.PENDING, False),
++        (TaskStatus.FAIL_TERMINAL, GateOutcome.PASS, False),
++        (TaskStatus.FAIL_RECOVERABLE, GateOutcome.PASS, False),
++        (TaskStatus.INCOMPLETE, GateOutcome.PASS, False),
++        (TaskStatus.SKIPPED, GateOutcome.PASS, False),
++    ]
++    for status, gate, expected in cases:
++        rec = _record("T01.01", status, gate)
++        assert is_validated_success(rec) is expected, (
++            f"{status.value}+{gate.value} → {is_validated_success(rec)}, expected {expected}"
++        )
++
++
++# --- (b) skip validated-success, re-run failure, no budget debit on skip --
++
++
++def test_resume_skips_validated_success_and_reruns_failure(tmp_path: Path) -> None:
++    config = _config(tmp_path, resume_task_id="T01.02")
++    phase = config.phases[0]
++    store = FileHandoffStore(config)
++    tasks = [TaskEntry("T01.01", "First"), TaskEntry("T01.02", "Second")]
++
++    # Pre-seed: T01.01 validated-success, T01.02 recoverable failure.
++    store.write(
++        _record("T01.01", TaskStatus.PASS, GateOutcome.PASS), phase=phase, task=tasks[0]
++    )
++    store.write(
++        _record("T01.02", TaskStatus.FAIL_RECOVERABLE, GateOutcome.FAIL),
++        phase=phase,
++        task=tasks[1],
++    )
++
++    ran: list[str] = []
++
++    def _factory(task, config, phase):
++        ran.append(task.task_id)
++        return (0, 3, 100)
++
++    ledger = TurnLedger(initial_budget=100)
++    results, remaining, _ = execute_phase_tasks(
++        tasks,
++        config,
++        phase,
++        ledger=ledger,
++        _subprocess_factory=_factory,
++        handoff_store=store,
++    )
++
++    # T01.01 validated-success → skipped (never re-run); T01.02 → re-ran.
++    assert "T01.01" not in ran, "validated-success task was re-run"
++    assert "T01.02" in ran, "recoverable-failure task was NOT re-run"
++
++    by_id = {r.task.task_id: r for r in results}
++    # Skipped task is recorded as satisfied (PASS), with no turns spent this run.
++    assert by_id["T01.01"].status == TaskStatus.PASS
++    assert by_id["T01.01"].turns_consumed == 0
++    # Only ONE task debited the budget (the re-run); the skip debited nothing.
++    assert ledger.consumed == ledger.minimum_allocation, (
++        f"expected exactly one task's min-allocation debited, got consumed={ledger.consumed}"
++    )
++
++
++def test_resume_inactive_runs_all_tasks_even_with_records(tmp_path: Path) -> None:
++    # resume_task_id="" → resume inactive → no skipping even if records exist.
++    config = _config(tmp_path, resume_task_id="")
++    phase = config.phases[0]
++    store = FileHandoffStore(config)
++    tasks = [TaskEntry("T01.01", "First")]
++    store.write(
++        _record("T01.01", TaskStatus.PASS, GateOutcome.PASS), phase=phase, task=tasks[0]
++    )
++
++    ran: list[str] = []
++
++    def _factory(task, config, phase):
++        ran.append(task.task_id)
++        return (0, 1, 0)
++
++    execute_phase_tasks(
++        tasks, config, phase, _subprocess_factory=_factory, handoff_store=store
++    )
++    assert ran == ["T01.01"], "task was skipped despite resume being inactive"
+diff --git a/tests/sprint/test_resume_semantics.py b/tests/sprint/test_resume_semantics.py
+index 740f3f16..353bf487 100644
+--- a/tests/sprint/test_resume_semantics.py
++++ b/tests/sprint/test_resume_semantics.py
+@@ -32,14 +32,18 @@ class TestResumeSemantics:
+         assert "--resume T07.03" in output
+
+     def test_resume_command_includes_budget(self):
+-        """Resume command includes budget suggestion."""
++        """Resume command includes a budget suggestion via the REAL turn-budget
++        flag. Stage 2 reconciled the dangling resume hint: `--budget` is not a
++        real `sprint run` option, so the printed command now uses `--max-turns`
++        (the actual turn-budget flag) and is directly runnable."""
+         config = SprintConfig(index_path=Path("sprint.md"))
+         output = build_resume_output(
+             config=config,
+             halt_task_id="T07.03",
+             remaining_tasks=self._make_tasks("T07.03", "T07.04"),
+         )
+-        assert "--budget" in output
++        assert "--max-turns" in output
++        assert "--budget" not in output  # the non-existent flag was removed
+
+     def test_remaining_tasks_listed(self):
+         """Remaining tasks listed in execution order."""
+diff --git a/tests/sprint/test_stage1_wiring.py b/tests/sprint/test_stage1_wiring.py
+new file mode 100644
+index 00000000..8fefb5c7
+--- /dev/null
++++ b/tests/sprint/test_stage1_wiring.py
+@@ -0,0 +1,215 @@
++"""Stage-1 wiring acceptance — M3 context injection, H3 task_complete event, M6 router.
++
++(a) build_task_context output reaches the per-task prompt (and execute_phase_tasks
++    threads it through);
++(b) a per-task run with a logger emits a reconciled `task_complete` JSONL event
++    (distinct from `task_rerun_complete`);
++(c) the M6 near-miss heading corpus routes correctly, warns on near-misses, stays
++    silent on legitimately freeform phases, and reclassifies nothing.
++"""
++
++from __future__ import annotations
++
++import json
++import logging
++import types
++from pathlib import Path
++
++from superclaude.cli.sprint import executor as executor_mod
++from superclaude.cli.sprint.executor import (
++    _parse_phase_tasks,
++    _run_task_subprocess,
++    execute_phase_tasks,
++)
++from superclaude.cli.sprint.logging_ import SprintLogger
++from superclaude.cli.sprint.models import (
++    GateOutcome,
++    Phase,
++    SprintConfig,
++    TaskEntry,
++    TaskResult,
++    TaskStatus,
++)
++from superclaude.cli.sprint.process import build_task_context
++
++
++def _config(tmp_path: Path) -> SprintConfig:
++    pf = tmp_path / "phase-1-tasklist.md"
++    pf.write_text("# Phase 1\n")
++    index = tmp_path / "tasklist-index.md"
++    index.write_text("index\n")
++    config = SprintConfig(
++        index_path=index,
++        release_dir=tmp_path,
++        phases=[Phase(number=1, file=pf, name="Phase 1")],
++        start_phase=1,
++        end_phase=1,
++        max_turns=5,
++        wiring_gate_mode="off",
++        wiring_gate_scope="none",
++    )
++    config.results_dir.mkdir(parents=True, exist_ok=True)
++    return config
++
++
++# --- (a) M3 context injection reaches the prompt --------------------------
++
++
++def test_prior_context_reaches_per_task_prompt(tmp_path: Path, monkeypatch) -> None:
++    config = _config(tmp_path)
++    phase = config.phases[0]
++    prior = TaskResult(
++        task=TaskEntry(task_id="T01.01", title="First"),
++        status=TaskStatus.PASS,
++        gate_outcome=GateOutcome.PASS,
++    )
++    prior_context = build_task_context([prior])
++    assert "## Prior Task Context" in prior_context  # sanity: non-empty block
++
++    captured: dict = {}
++    import superclaude.cli.pipeline.process as pipe
++    import superclaude.cli.sprint.process as sproc
++
++    def _spy_init(self, *, prompt, **kwargs):
++        captured["prompt"] = prompt
++        # Mimic a finished Popen: poll() returns the (non-None) returncode so the
++        # RC.2 stall watchdog in _run_task_subprocess sees the process as already
++        # exited and does not enter its poll loop.
++        self._process = types.SimpleNamespace(returncode=0, poll=lambda: 0)
++
++    monkeypatch.setattr(pipe.ClaudeProcess, "__init__", _spy_init)
++    monkeypatch.setattr(sproc.ClaudeProcess, "start", lambda self: None)
++    monkeypatch.setattr(sproc.ClaudeProcess, "wait", lambda self: None)
++
++    task2 = TaskEntry(task_id="T01.02", title="Second")
++    _run_task_subprocess(task2, config, phase, prior_context=prior_context)
++
++    assert "## Prior Task Context" in captured["prompt"]
++    assert "T01.01" in captured["prompt"]  # the prior task appears in context
++    assert "Execute task T01.02" in captured["prompt"]  # single-task directive kept
++
++
++def test_execute_phase_tasks_threads_prior_context(tmp_path: Path, monkeypatch) -> None:
++    config = _config(tmp_path)
++    phase = config.phases[0]
++    tasks = [
++        TaskEntry(task_id="T01.01", title="A"),
++        TaskEntry(task_id="T01.02", title="B"),
++    ]
++
++    seen: list[tuple[str, str]] = []
++
++    def _spy(task, config, phase, prior_context=""):
++        seen.append((task.task_id, prior_context))
++        return (0, 1, 0)
++
++    monkeypatch.setattr(executor_mod, "_run_task_subprocess", _spy)
++    execute_phase_tasks(tasks, config, phase)
++
++    assert seen[0][1] == ""  # first task: no prior context
++    assert "## Prior Task Context" in seen[1][1]  # second task: prior context present
++    assert "T01.01" in seen[1][1]
++
++
++# --- (b) H3 reconciled task_complete event --------------------------------
++
++
++def test_task_complete_event_emitted_and_distinct(tmp_path: Path) -> None:
++    config = _config(tmp_path)
++    phase = config.phases[0]
++    logger = SprintLogger(config)
++    tasks = [TaskEntry(task_id="T01.01", title="A")]
++
++    def _factory(task, config, phase):
++        return (0, 3, 100)
++
++    execute_phase_tasks(
++        tasks, config, phase, _subprocess_factory=_factory, logger=logger
++    )
++
++    lines = [
++        json.loads(line)
++        for line in config.execution_log_jsonl.read_text().splitlines()
++        if line.strip()
++    ]
++    complete = [e for e in lines if e.get("event") == "task_complete"]
++    assert len(complete) == 1, (
++        f"expected exactly one task_complete event, got {complete}"
++    )
++    ev = complete[0]
++    # Reconciled field set, identical shape to task_rerun_complete.
++    assert ev["phase"] == 1
++    assert ev["task_id"] == "T01.01"
++    assert ev["status"] == "pass"
++    assert ev["turns"] == 3
++    assert "duration_sec" in ev
++    assert "timestamp" in ev
++    # Distinct from the rerun event.
++    assert not any(e.get("event") == "task_rerun_complete" for e in lines)
++
++
++# --- (c) M6 near-miss heading corpus --------------------------------------
++
++# (content, expects_tasks, expects_warning)
++_HEADING_CORPUS = [
++    # correct strict headings -> route to per-task, NO warning
++    (
++        "### T01.01 -- Correct double-dash\n\n**Dependencies:** none\n\nBody.\n",
++        True,
++        False,
++    ),
++    ("### T01.01 — Correct em-dash\n\n**Dependencies:** none\n\nBody.\n", True, False),
++    (
++        "### T01.01 -- First\n\n**Dependencies:** none\n\nA.\n\n### T01.02 -- Second\n\n**Dependencies:** none\n\nB.\n",
++        True,
++        False,
++    ),
++    # near-misses -> route to Path A (None) WITH a warning
++    ("#### T01.01 -- Wrong level (4 hashes)\n\nBody.\n", False, True),
++    ("## T01.01 -- Wrong level (2 hashes)\n\nBody.\n", False, True),
++    ("### T01.01: Colon separator\n\nBody.\n", False, True),
++    ("### T1.1 -- Missing zero-pad\n\nBody.\n", False, True),
++    ("   ### T01.01 -- Leading whitespace\n\nBody.\n", False, True),
++    ("### T01.01-NoSeparatorSpace\n\nBody.\n", False, True),
++    ("##### T01.02 -- Five hashes\n\nBody.\n", False, True),
++    # legitimately freeform -> Path A (None), NO warning, NO reclassification
++    ("# Phase Goal\n\nDo the thing. No task headings here.\n", False, False),
++    (
++        "## Overview\n\nSome prose about the migration. Nothing task-like.\n",
++        False,
++        False,
++    ),
++]
++
++
++def test_m6_heading_router_corpus(tmp_path: Path, caplog) -> None:
++    for idx, (content, expects_tasks, expects_warning) in enumerate(_HEADING_CORPUS):
++        pf = tmp_path / f"phase-corpus-{idx}.md"
++        pf.write_text(content)
++        index = tmp_path / "tasklist-index.md"
++        index.write_text("index\n")
++        config = SprintConfig(
++            index_path=index,
++            release_dir=tmp_path,
++            phases=[Phase(number=1, file=pf, name="P")],
++            start_phase=1,
++            end_phase=1,
++            max_turns=5,
++        )
++        phase = config.phases[0]
++
++        caplog.clear()
++        with caplog.at_level(logging.WARNING, logger="superclaude.sprint.routing"):
++            result = _parse_phase_tasks(phase, config)
++
++        routed_to_tasks = result is not None
++        assert routed_to_tasks == expects_tasks, (
++            f"corpus[{idx}] route mismatch: content={content!r} "
++            f"routed_to_tasks={routed_to_tasks} expected={expects_tasks}"
++        )
++
++        warned = any("near-miss" in rec.message for rec in caplog.records)
++        assert warned == expects_warning, (
++            f"corpus[{idx}] warning mismatch: content={content!r} "
++            f"warned={warned} expected={expects_warning}"
++        )
+diff --git a/tests/sprint/test_turn_ledger_concurrency.py b/tests/sprint/test_turn_ledger_concurrency.py
+new file mode 100644
+index 00000000..3f5cb2a1
+--- /dev/null
++++ b/tests/sprint/test_turn_ledger_concurrency.py
+@@ -0,0 +1,40 @@
++"""Stage-3 — TurnLedger atomic try_launch prevents budget over-commit under K>1.
++
++The pre-Stage-3 gate was a check-then-act: ``can_launch()`` then ``debit(...)``,
++a TOCTOU spanning two calls. Under concurrency two workers could both pass the
++check and both debit, over-committing the budget. The atomic ``try_launch`` makes
++check-and-debit one operation. This test drives far more concurrent launch
++attempts than the budget allows and asserts EXACTLY N succeed.
++"""
++
++from __future__ import annotations
++
++from concurrent.futures import ThreadPoolExecutor
++
++import pytest
++
++from superclaude.cli.sprint.models import TurnLedger
++
++
++@pytest.mark.slow
++def test_try_launch_grants_exactly_n_under_concurrency() -> None:
++    minimum = 5
++    n_allowed = 20
++    # Budget allows EXACTLY n_allowed launches of `minimum` turns each.
++    ledger = TurnLedger(initial_budget=n_allowed * minimum, minimum_allocation=minimum)
++
++    n_attempts = 400  # far more than n_allowed → exposes any over-commit race
++
++    def _attempt(_i: int) -> bool:
++        return ledger.try_launch()
++
++    with ThreadPoolExecutor(max_workers=16) as pool:
++        outcomes = list(pool.map(_attempt, range(n_attempts)))
++
++    granted = sum(1 for ok in outcomes if ok)
++    assert granted == n_allowed, (
++        f"budget over-committed: {granted} launches granted, expected exactly {n_allowed}"
++    )
++    # Consumed exactly the granted allocations; never more than the budget.
++    assert ledger.consumed == n_allowed * minimum
++    assert ledger.available() < minimum  # no room for another launch

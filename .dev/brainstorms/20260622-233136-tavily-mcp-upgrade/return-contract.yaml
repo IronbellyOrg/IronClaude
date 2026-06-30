@@ -1,0 +1,25 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/brainstorms/20260622-233136-tavily-mcp-upgrade/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/brainstorms/20260622-233136-tavily-mcp-upgrade/merged-requirements.md
+convergence_score: 0.92
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/brainstorms/20260622-233136-tavily-mcp-upgrade/adversarial
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-deep
+    quality_tier: primary
+handoff_action: tasklist
+handoff_output_path: /config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/brainstorms/20260622-233136-tavily-mcp-upgrade/tasklist/tasklist-index.md
+unresolved_conflicts:
+  - Future remote HTTP auth strategy remains out of scope.
+telemetry:
+  agent_spec: "opus:architect,opus:refactorer,haiku:qa"
+  wave_0: prereqs validated
+  wave_1: seed brief generated
+  wave_2a: primary codebase and research enrichment
+  wave_2b: agent spec composed
+  wave_3: adversarial merge completed
+  wave_4: tasklist handoff completed

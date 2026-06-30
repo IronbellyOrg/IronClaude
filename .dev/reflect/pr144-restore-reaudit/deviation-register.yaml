@@ -1,0 +1,43 @@
+deviation_register_version: "1.0"
+audited_diff: "4f0a60fb..ddf209e4"
+deviations:
+  - id: D1
+    item: "Item 1 — canonical content restoration (sha256 51725c0ffa, recommendation em-dash, DNSP/INV-021/R-126/FR-CONV.5 text)"
+    class: necessary
+    rationale: "Convergence dropped canonical, guard-pinned invariant content. 51725c0ffa is enforced by TEST-020 (present-at-every-site + runtime byte-stability), both PASS at HEAD. Recommendation em-dash is byte-exact R-117 invariant. Restoration = guard-required drift correction; verified true."
+    evidence:
+      - "SKILL.md:897 (51725 pin restored)"
+      - "tests/audit/test_dnsp_all_agents_fail_bypass.py:75-81,328-336,375-393 (TEST-020 PASS)"
+      - "rf-analyst.md:74 (DNSP 7-field contract); SKILL.md:901 (INV-021/R-126)"
+    gold_standard: base 54d4b4f5 (had 51725 + em-dash); convergence 4f0a60fb (OMITTED + comma) broke guard
+    misclassified: false
+
+  - id: D2
+    item: "Item 3 — Execution Context OPTIONAL->REQUIRED + EXECUTION CONTEXT BLOCK->EXECUTION_CONTEXT_INSTRUCTION"
+    class: necessary   # intentional supersession (not drift)
+    rationale: "Coherent intentional design change: consistent _INSTRUCTION naming; REQUIRED with documented GOAL-only exception; corroborated by MDTM templates that mark the section a required build step (added by same convergence commit). Restoration CORRECTLY did NOT restore OPTIONAL (deferred). Closing the supersession requires a test-update (open follow-up FU-1)."
+    evidence:
+      - "SKILL.md:1066 (EXECUTION_CONTEXT_INSTRUCTION), SKILL.md:1229 (REQUIRED + GOAL-only exception)"
+      - "src/superclaude/templates/workflow/02_mdtm_template_complex_task.md:1195 (required build step)"
+      - "tests/skills/test_task_builder_merge.py:156-173 (2 RED tests, unmodified)"
+    gold_standard: base OPTIONAL framing vs convergence intentional REQUIRED design
+    misclassified: false   # restoration's executed handling (defer, don't revert) was correct
+    open_followup: FU-1
+
+  - id: D3
+    item: "Stale L1079-1093 line-range pointer in 3 agent DNSP lines"
+    class: drift
+    provenance: convergence-introduced (4f0a60fb); inherited verbatim by restoration; NOT restoration-created
+    severity: low
+    rationale: "base L1079-1093 = INV-012 subsection; HEAD L1079-1093 = research-dir boilerplate; real subsection moved to SKILL.md:899. Restoration rewrote the line for the adjacent 51725 restore but kept the stale L-range. No guard references it."
+    evidence:
+      - "git show ddf209e4:.../SKILL.md sed 1079,1093 = RESEARCH DIR boilerplate"
+      - "rf-analyst.md / rf-qa.md / rf-qa-qualitative.md still cite L1079-1093"
+      - "real subsection at SKILL.md:899"
+    open_followup: FU-2
+
+clean_items:
+  - "Item 2 (em-dash breadth): surgical restoration, no broad ASCII revert, no arbitrary prose reversion"
+  - "Item 4 (MD040 fences): language-tag-only on opening fences; no pinned block mutated; byte-stability guards green"
+  - "Item 5 (tests/audit parity): only the known pre-existing filesystem failure (test_task_id_naming_pattern_preserved)"
+  - "5ff2a1803b NON-restoration: correct (subsection reformatted, no guard, documented bridge-stage omission at SKILL.md:899)"

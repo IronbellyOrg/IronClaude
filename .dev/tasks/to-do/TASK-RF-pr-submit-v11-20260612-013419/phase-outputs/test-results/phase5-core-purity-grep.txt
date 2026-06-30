@@ -1,0 +1,7 @@
+9:contains ZERO shell / version-control command tokens. All side-effecting I/O (the
+362:    actual ``> Skill sc:troubleshoot-protocol`` call; the core never shells out.
+446:    SKILL's VAL validator, never here — the core stays free of shell tokens. The
+469:    command tokens.
+
+=== VERDICT: PASS ===
+All 4 matches are PRE-EXISTING docstring/comment prose (lines 9, 362, 446, 469 — 'shell'/'command tokens'/'shells out'). ZERO executable gh/git/subprocess/token lines. The V1.1 additions (do_retrigger, invoke_auggie_review, _run_fallback) introduced NO new shell/VC token; the real I/O lives in SKILL.md behind the _noop seams.

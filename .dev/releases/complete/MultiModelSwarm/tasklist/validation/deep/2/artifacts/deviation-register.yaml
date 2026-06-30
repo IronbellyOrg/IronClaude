@@ -1,0 +1,41 @@
+- id: R1
+  task_ids: [T02.05, T02.07]
+  deviation_class: regression
+  confidence_calibrated: 0.88
+  title: custom_prompt_dir not wired into production preflight/run path
+  evidence:
+    - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-2-tasklist.md:157
+    - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-2-tasklist.md:209
+    - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/commands.py:1132
+    - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/preflight.py:1670
+  recommendation: Wire read_custom_prompt_dir into run/preflight before guard evaluation.
+- id: R2
+  task_ids: [T02.25]
+  deviation_class: regression
+  confidence_calibrated: 0.86
+  title: Resolved CallerMetadata not captured in Manifest
+  evidence:
+    - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-2-tasklist.md:728
+    - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-2-cp4.md:192
+    - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/preflight.py:252
+    - /config/workspace/IronClaude/.claude/worktrees/SwarmPost/src/superclaude/cli/swarm/models.py:1335
+  recommendation: Add manifest-level caller_metadata persistence and round-trip tests.
+- id: R3
+  task_ids: [T02.29]
+  deviation_class: drift
+  confidence_calibrated: 0.95
+  title: CP5 end-of-phase report missing
+  evidence:
+    - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-2-tasklist.md:842
+    - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-2-cp4.md:210
+  recommendation: Generate phase-2-cp5.md after blockers clear.
+- id: R4
+  task_ids: [T02.29]
+  deviation_class: regression
+  confidence_calibrated: 0.93
+  title: make verify-sync fails
+  evidence:
+    - /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/phase-2-tasklist.md:842
+    - command: make verify-sync
+      result: exit 2; sc-bare-review scripts differ between src and .claude
+  recommendation: Restore source-of-truth sync; do not stage .claude mirrors directly.

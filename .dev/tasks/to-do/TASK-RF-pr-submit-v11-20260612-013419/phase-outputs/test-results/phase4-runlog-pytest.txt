@@ -1,0 +1,28 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0, anyio-4.13.0
+collecting ... collected 15 items
+
+tests/pr_submit/test_run_log.py::test_tn20_log_exists_and_events_populated PASSED [  6%]
+tests/pr_submit/test_run_log.py::test_tn21_jsonl_well_formed_and_ordered PASSED [ 13%]
+tests/pr_submit/test_run_log.py::test_tn22_jsonl_validity_event_id_monotonic PASSED [ 20%]
+tests/pr_submit/test_run_log.py::test_tn51_no_credentials_reach_jsonl PASSED [ 26%]
+tests/pr_submit/test_run_log.py::test_tn52_replay_determinism PASSED     [ 33%]
+tests/pr_submit/test_run_log.py::test_rebuild_from_jsonl_is_authoritative PASSED [ 40%]
+tests/pr_submit/test_run_log.py::test_eventtype_is_37_members_with_v11_events PASSED [ 46%]
+tests/pr_submit/test_run_log.py::test_new_v11_events_pass_closed_enum_append_validation PASSED [ 53%]
+tests/pr_submit/test_run_log.py::test_max_rounds_clamped_monotone_min_fold_inv_r3 PASSED [ 60%]
+tests/pr_submit/test_run_log.py::test_rereview_count_and_auggie_set_folds PASSED [ 66%]
+tests/pr_submit/test_idempotency.py::test_tn01_replay_findings_reply_once_per_thread PASSED [ 73%]
+tests/pr_submit/test_idempotency.py::test_tn02_reply_tracking_persisted_across_polls PASSED [ 80%]
+tests/pr_submit/test_idempotency.py::test_fresh_comment_no_double_fix PASSED [ 86%]
+tests/pr_submit/test_idempotency.py::test_t1120_auggie_review_invoked_at_most_once PASSED [ 93%]
+tests/pr_submit/test_idempotency.py::test_t1124_auggie_strict_once_survives_resume PASSED [100%]
+
+============================== 15 passed in 0.07s ==============================

@@ -1,0 +1,126 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude-pr124
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collected 1154 items
+
+tests/sprint/diagnostic/test_debug_logger.py .......................     [  1%]
+tests/sprint/diagnostic/test_diagnostics.py ................             [  3%]
+tests/sprint/diagnostic/test_instrumentation.py ........................ [  5%]
+......                                                                   [  5%]
+tests/sprint/diagnostic/test_level_0.py .........                        [  6%]
+tests/sprint/diagnostic/test_level_1.py ..........                       [  7%]
+tests/sprint/diagnostic/test_level_2.py ......                           [  8%]
+tests/sprint/diagnostic/test_level_3.py .....                            [  8%]
+tests/sprint/diagnostic/test_negative.py .........                       [  9%]
+tests/sprint/e2e_real/test_e2e_abort_restore.py ...                      [  9%]
+tests/sprint/e2e_real/test_e2e_isolation_smoke.py .                      [  9%]
+tests/sprint/e2e_real/test_e2e_lock_and_retry_cap.py ...                 [  9%]
+tests/sprint/e2e_real/test_e2e_rerun_happy_path.py .                     [ 10%]
+tests/sprint/e2e_real/test_e2e_resume.py ...                             [ 10%]
+tests/sprint/e2e_real/test_e2e_resume_drift_stop.py .                    [ 10%]
+tests/sprint/e2e_real/test_e2e_resume_fresh.py ..                        [ 10%]
+tests/sprint/e2e_real/test_e2e_resume_multiphase.py .                    [ 10%]
+tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py ..                 [ 10%]
+tests/sprint/e2e_real/test_e2e_turn_count.py .                           [ 10%]
+tests/sprint/test_anti_instinct_sprint.py .................              [ 12%]
+tests/sprint/test_backward_compat_regression.py ..................       [ 13%]
+tests/sprint/test_checkpoints.py ....................................... [ 17%]
+                                                                         [ 17%]
+tests/sprint/test_cli_contract.py ................                       [ 18%]
+tests/sprint/test_config.py ............................................ [ 22%]
+....                                                                     [ 22%]
+tests/sprint/test_context_injection.py ..................                [ 24%]
+tests/sprint/test_diagnostics.py ..                                      [ 24%]
+tests/sprint/test_e2e_halt.py .....                                      [ 25%]
+tests/sprint/test_e2e_success.py ......                                  [ 25%]
+tests/sprint/test_e2e_trailing.py ...........                            [ 26%]
+tests/sprint/test_execute_sprint_integration.py .....                    [ 26%]
+tests/sprint/test_executor.py .......................................... [ 30%]
+....................................................                     [ 35%]
+tests/sprint/test_gate_display_state.py ....................             [ 36%]
+tests/sprint/test_handoff_backward_compat.py ..                          [ 37%]
+tests/sprint/test_handoff_concurrency.py .                               [ 37%]
+tests/sprint/test_handoff_crash_consistency.py .                         [ 37%]
+tests/sprint/test_handoff_performance.py ..                              [ 37%]
+tests/sprint/test_handoff_record.py ....                                 [ 37%]
+tests/sprint/test_handoff_store.py .....                                 [ 38%]
+tests/sprint/test_integration_halt.py .....                              [ 38%]
+tests/sprint/test_integration_lifecycle.py .....                         [ 38%]
+tests/sprint/test_integration_signal.py .....                            [ 39%]
+tests/sprint/test_kpi_contract.py ....                                   [ 39%]
+tests/sprint/test_kpi_report.py ........................                 [ 41%]
+tests/sprint/test_models.py ............................................ [ 45%]
+........................................................................ [ 51%]
+..........................                                               [ 54%]
+tests/sprint/test_monitor.py ...........................                 [ 56%]
+tests/sprint/test_multi_phase.py ..                                      [ 56%]
+tests/sprint/test_nfr_benchmarks.py .......                              [ 57%]
+tests/sprint/test_per_task_env_isolation.py ...                          [ 57%]
+tests/sprint/test_phase5_negative_validation.py ........................ [ 59%]
+.                                                                        [ 59%]
+tests/sprint/test_phase8_halt_fix.py ............................        [ 62%]
+tests/sprint/test_poll_watchdog_ceiling.py ...                           [ 62%]
+tests/sprint/test_preflight.py ......................................... [ 65%]
+................                                                         [ 67%]
+tests/sprint/test_process.py ........................................... [ 71%]
+.....                                                                    [ 71%]
+tests/sprint/test_recovery.py ..............                             [ 72%]
+tests/sprint/test_regression_gaps.py ................................... [ 75%]
+..                                                                       [ 75%]
+tests/sprint/test_rerun_tasks.py .............                           [ 77%]
+tests/sprint/test_rerun_tasks_e2e.py ...                                 [ 77%]
+tests/sprint/test_rerun_tasks_failure_modes.py ........                  [ 77%]
+tests/sprint/test_resolve_release_dir.py ........                        [ 78%]
+tests/sprint/test_resume.py .......................                      [ 80%]
+tests/sprint/test_resume_backward_compat.py ..                           [ 80%]
+tests/sprint/test_resume_contract.py ...                                 [ 81%]
+tests/sprint/test_resume_semantics.py .........                          [ 81%]
+tests/sprint/test_retrospective.py ................                      [ 83%]
+tests/sprint/test_scheduler.py .........                                 [ 84%]
+tests/sprint/test_shadow_mode.py ...............                         [ 85%]
+tests/sprint/test_stage1_wiring.py ....                                  [ 85%]
+tests/sprint/test_state_dir_isolation.py ....                            [ 86%]
+tests/sprint/test_summarizer.py .........................                [ 88%]
+tests/sprint/test_tmux.py .............                                  [ 89%]
+tests/sprint/test_tui.py ..........                                      [ 90%]
+tests/sprint/test_tui_gate_column.py ........                            [ 90%]
+tests/sprint/test_tui_monitor.py .....                                   [ 91%]
+tests/sprint/test_tui_task_updates.py ....                               [ 91%]
+tests/sprint/test_tui_v2_wave1.py ...................................... [ 94%]
+.                                                                        [ 95%]
+tests/sprint/test_tui_v2_wave2.py ..................................     [ 98%]
+tests/sprint/test_turn_ledger_concurrency.py .                           [ 98%]
+tests/sprint/test_watchdog.py .....                                      [ 98%]
+tests/sprint/test_wiring_budget_scenarios.py ........                    [ 99%]
+tests/sprint/test_wiring_integration.py ....                             [ 99%]
+tests/sprint/test_wiring_mode_resolution.py ....                         [ 99%]
+tests/sprint/test_wiring_performance.py .                                [100%]
+
+=============================== warnings summary ===============================
+tests/sprint/diagnostic/test_diagnostics.py: 11 warnings
+tests/sprint/diagnostic/test_level_0.py: 2 warnings
+tests/sprint/diagnostic/test_negative.py: 3 warnings
+  <string>:15: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_crash
+  /config/workspace/IronClaude-pr124/tests/sprint/diagnostic/test_diagnostics.py:221: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.CRASH
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_error_halt
+  /config/workspace/IronClaude-pr124/tests/sprint/diagnostic/test_diagnostics.py:228: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.ERROR
+
+tests/sprint/diagnostic/test_diagnostics.py::TestFailureClassifier::test_classify_unknown_when_no_evidence
+  /config/workspace/IronClaude-pr124/tests/sprint/diagnostic/test_diagnostics.py:241: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    assert classifier.classify(bundle) == FailureCategory.UNKNOWN
+
+tests/sprint/diagnostic/test_negative.py::TestCorruptData::test_classifier_with_empty_bundle
+  /config/workspace/IronClaude-pr124/tests/sprint/diagnostic/test_negative.py:109: DeprecationWarning: DiagnosticBundle.config=None is deprecated; pass SprintConfig
+    cat = classifier.classify(bundle)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 1154 passed, 20 warnings in 83.39s (0:01:23) =================

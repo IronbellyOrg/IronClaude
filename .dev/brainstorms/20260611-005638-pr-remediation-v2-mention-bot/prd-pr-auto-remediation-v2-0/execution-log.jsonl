@@ -1,0 +1,150 @@
+{"timestamp": "2026-06-11T10:54:23.227345+00:00", "event_type": "step_start", "step_id": "check-existing", "step_name": "Check Existing Work"}
+{"timestamp": "2026-06-11T10:54:23.227916+00:00", "event_type": "step_complete", "step_id": "check-existing", "duration_seconds": 0.0, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T10:54:23.227982+00:00", "event_type": "step_start", "step_id": "parse-request", "step_name": "Parse Request"}
+{"timestamp": "2026-06-11T10:54:49.003604+00:00", "event_type": "gate_result", "step_id": "parse-request", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T10:54:49.003872+00:00", "event_type": "step_complete", "step_id": "parse-request", "duration_seconds": 25.78, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T10:54:49.004111+00:00", "event_type": "step_start", "step_id": "scope-discovery", "step_name": "Scope Discovery"}
+{"timestamp": "2026-06-11T10:57:42.831650+00:00", "event_type": "gate_result", "step_id": "scope-discovery", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T10:57:42.832302+00:00", "event_type": "step_complete", "step_id": "scope-discovery", "duration_seconds": 173.83, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T10:57:42.832474+00:00", "event_type": "step_start", "step_id": "research-notes", "step_name": "Research Notes"}
+{"timestamp": "2026-06-11T11:00:40.310401+00:00", "event_type": "gate_result", "step_id": "research-notes", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T11:00:40.310852+00:00", "event_type": "step_complete", "step_id": "research-notes", "duration_seconds": 177.48, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T11:00:40.310937+00:00", "event_type": "step_start", "step_id": "sufficiency-review", "step_name": "Sufficiency Review"}
+{"timestamp": "2026-06-11T11:01:21.810786+00:00", "event_type": "gate_result", "step_id": "sufficiency-review", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T11:01:21.811108+00:00", "event_type": "step_complete", "step_id": "sufficiency-review", "duration_seconds": 41.5, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T11:01:21.811183+00:00", "event_type": "step_start", "step_id": "template-triage", "step_name": "Template Triage"}
+{"timestamp": "2026-06-11T11:01:21.811226+00:00", "event_type": "step_complete", "step_id": "template-triage", "duration_seconds": 0.0, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T11:01:21.811254+00:00", "event_type": "step_start", "step_id": "build-task-file", "step_name": "Build Task File"}
+{"timestamp": "2026-06-11T11:16:59.664708+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": false, "message": "Phase 6 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)"}
+{"timestamp": "2026-06-11T11:16:59.666092+00:00", "event_type": "step_complete", "step_id": "build-task-file", "duration_seconds": 937.85, "exit_code": 0, "result": "halt", "details": ""}
+{"timestamp": "2026-06-11T11:22:39.816569+00:00", "event_type": "step_start", "step_id": "build-task-file", "step_name": "Build Task File"}
+{"timestamp": "2026-06-11T11:24:24.343860+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": false, "message": "Phase 6 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)"}
+{"timestamp": "2026-06-11T11:24:24.344326+00:00", "event_type": "step_complete", "step_id": "build-task-file", "duration_seconds": 104.53, "exit_code": 0, "result": "halt", "details": ""}
+{"timestamp": "2026-06-11T12:16:07.620537+00:00", "event_type": "step_start", "step_id": "build-task-file", "step_name": "Build Task File"}
+{"timestamp": "2026-06-11T12:19:06.439972+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "Advisory check 'parallel_instructions' did not pass (non-fatal): Phase 2 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)"}
+{"timestamp": "2026-06-11T12:19:06.440110+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:19:06.440664+00:00", "event_type": "step_complete", "step_id": "build-task-file", "duration_seconds": 178.82, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T12:19:06.440748+00:00", "event_type": "step_start", "step_id": "verify-task-file", "step_name": "Verify Task File"}
+{"timestamp": "2026-06-11T12:20:57.590290+00:00", "event_type": "gate_result", "step_id": "verify-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:20:57.590688+00:00", "event_type": "step_complete", "step_id": "verify-task-file", "duration_seconds": 111.15, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T12:20:57.590833+00:00", "event_type": "step_start", "step_id": "preparation", "step_name": "Preparation"}
+{"timestamp": "2026-06-11T12:22:16.325636+00:00", "event_type": "gate_result", "step_id": "preparation", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:22:16.326153+00:00", "event_type": "step_complete", "step_id": "preparation", "duration_seconds": 78.74, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:22:16.327343+00:00", "event_type": "step_start", "step_id": "investigation-1", "step_name": "Investigation Agent 1"}
+{"timestamp": "2026-06-11T12:22:16.327582+00:00", "event_type": "step_start", "step_id": "investigation-2", "step_name": "Investigation Agent 2"}
+{"timestamp": "2026-06-11T12:22:16.327804+00:00", "event_type": "step_start", "step_id": "investigation-3", "step_name": "Investigation Agent 3"}
+{"timestamp": "2026-06-11T12:22:16.328562+00:00", "event_type": "step_start", "step_id": "investigation-4", "step_name": "Investigation Agent 4"}
+{"timestamp": "2026-06-11T12:22:16.328835+00:00", "event_type": "step_start", "step_id": "investigation-5", "step_name": "Investigation Agent 5"}
+{"timestamp": "2026-06-11T12:22:16.329408+00:00", "event_type": "step_start", "step_id": "investigation-6", "step_name": "Investigation Agent 6"}
+{"timestamp": "2026-06-11T12:22:16.330060+00:00", "event_type": "step_start", "step_id": "investigation-7", "step_name": "Investigation Agent 7"}
+{"timestamp": "2026-06-11T12:22:16.330322+00:00", "event_type": "step_start", "step_id": "investigation-8", "step_name": "Investigation Agent 8"}
+{"timestamp": "2026-06-11T12:27:05.303577+00:00", "event_type": "step_complete", "step_id": "investigation-2", "duration_seconds": 288.98, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:27:14.771892+00:00", "event_type": "step_complete", "step_id": "investigation-8", "duration_seconds": 298.43, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:27:33.510273+00:00", "event_type": "step_complete", "step_id": "investigation-7", "duration_seconds": 317.18, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:28:37.781874+00:00", "event_type": "step_complete", "step_id": "investigation-4", "duration_seconds": 381.45, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:29:07.835321+00:00", "event_type": "step_complete", "step_id": "investigation-6", "duration_seconds": 411.5, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:30:03.742026+00:00", "event_type": "step_complete", "step_id": "investigation-1", "duration_seconds": 467.41, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:30:11.656980+00:00", "event_type": "step_complete", "step_id": "investigation-3", "duration_seconds": 475.33, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:30:53.442526+00:00", "event_type": "step_complete", "step_id": "investigation-5", "duration_seconds": 517.11, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:30:53.443588+00:00", "event_type": "step_start", "step_id": "research-qa", "step_name": "QA (research-qa, cycle 0)"}
+{"timestamp": "2026-06-11T12:34:45.949614+00:00", "event_type": "gate_result", "step_id": "research-qa", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:34:45.950289+00:00", "event_type": "step_complete", "step_id": "research-qa", "duration_seconds": 232.51, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:34:45.950571+00:00", "event_type": "step_start", "step_id": "web-research-1", "step_name": "Web Research Agent 1"}
+{"timestamp": "2026-06-11T12:34:45.950660+00:00", "event_type": "step_start", "step_id": "web-research-2", "step_name": "Web Research Agent 2"}
+{"timestamp": "2026-06-11T12:34:45.950847+00:00", "event_type": "step_start", "step_id": "web-research-3", "step_name": "Web Research Agent 3"}
+{"timestamp": "2026-06-11T12:38:53.057696+00:00", "event_type": "step_complete", "step_id": "web-research-2", "duration_seconds": 247.11, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:38:57.765754+00:00", "event_type": "step_complete", "step_id": "web-research-1", "duration_seconds": 251.81, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.598661+00:00", "event_type": "step_complete", "step_id": "web-research-3", "duration_seconds": 267.64, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.599392+00:00", "event_type": "step_start", "step_id": "synthesis-1", "step_name": "Synthesis: synth-01-exec-problem-vision.md"}
+{"timestamp": "2026-06-11T12:39:13.600329+00:00", "event_type": "step_start", "step_id": "synthesis-4", "step_name": "Synthesis: synth-04-stories-requirements.md"}
+{"timestamp": "2026-06-11T12:39:13.600060+00:00", "event_type": "step_start", "step_id": "synthesis-3", "step_name": "Synthesis: synth-03-competitive-scope.md"}
+{"timestamp": "2026-06-11T12:39:13.600534+00:00", "event_type": "step_start", "step_id": "synthesis-5", "step_name": "Synthesis: synth-05-technical-stack.md"}
+{"timestamp": "2026-06-11T12:39:13.600704+00:00", "event_type": "step_complete", "step_id": "synthesis-3", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.599555+00:00", "event_type": "step_start", "step_id": "synthesis-2", "step_name": "Synthesis: synth-02-business-market.md"}
+{"timestamp": "2026-06-11T12:39:13.601097+00:00", "event_type": "step_complete", "step_id": "synthesis-4", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.601630+00:00", "event_type": "step_start", "step_id": "synthesis-8", "step_name": "Synthesis: synth-08-journey-design-api.md"}
+{"timestamp": "2026-06-11T12:39:13.601046+00:00", "event_type": "step_start", "step_id": "synthesis-6", "step_name": "Synthesis: synth-06-ux-legal-business.md"}
+{"timestamp": "2026-06-11T12:39:13.602041+00:00", "event_type": "step_complete", "step_id": "synthesis-5", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.601404+00:00", "event_type": "step_start", "step_id": "synthesis-7", "step_name": "Synthesis: synth-07-metrics-risk-impl.md"}
+{"timestamp": "2026-06-11T12:39:13.603908+00:00", "event_type": "step_complete", "step_id": "synthesis-8", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.602093+00:00", "event_type": "step_start", "step_id": "synthesis-9", "step_name": "Synthesis: synth-09-resources-maintenance.md"}
+{"timestamp": "2026-06-11T12:39:13.604873+00:00", "event_type": "step_complete", "step_id": "synthesis-6", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.605053+00:00", "event_type": "step_complete", "step_id": "synthesis-9", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.604438+00:00", "event_type": "step_complete", "step_id": "synthesis-7", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:39:13.605106+00:00", "event_type": "step_complete", "step_id": "synthesis-2", "duration_seconds": 0.0, "exit_code": -1, "result": "qa_fail_exhausted", "details": ""}
+{"timestamp": "2026-06-11T12:42:57.675295+00:00", "event_type": "step_complete", "step_id": "synthesis-1", "duration_seconds": 224.08, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:42:57.676267+00:00", "event_type": "step_start", "step_id": "synthesis-qa", "step_name": "QA (synthesis-qa, cycle 0)"}
+{"timestamp": "2026-06-11T12:45:17.099173+00:00", "event_type": "gate_result", "step_id": "synthesis-qa", "passed": false, "message": "No verdict field found (expected 'verdict: PASS' or 'verdict: FAIL')"}
+{"timestamp": "2026-06-11T12:45:17.099574+00:00", "event_type": "step_complete", "step_id": "synthesis-qa", "duration_seconds": 139.42, "exit_code": 0, "result": "halt", "details": ""}
+{"timestamp": "2026-06-11T12:47:49.527032+00:00", "event_type": "step_start", "step_id": "build-task-file", "step_name": "Build Task File"}
+{"timestamp": "2026-06-11T12:48:51.911383+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "Advisory check 'parallel_instructions' did not pass (non-fatal): Phase 2 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)"}
+{"timestamp": "2026-06-11T12:48:51.911488+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:48:51.911751+00:00", "event_type": "step_complete", "step_id": "build-task-file", "duration_seconds": 62.38, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T12:48:51.911837+00:00", "event_type": "step_start", "step_id": "verify-task-file", "step_name": "Verify Task File"}
+{"timestamp": "2026-06-11T12:50:40.064900+00:00", "event_type": "gate_result", "step_id": "verify-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:50:40.065287+00:00", "event_type": "step_complete", "step_id": "verify-task-file", "duration_seconds": 108.15, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:50:40.065373+00:00", "event_type": "step_start", "step_id": "preparation", "step_name": "Preparation"}
+{"timestamp": "2026-06-11T12:52:10.531348+00:00", "event_type": "gate_result", "step_id": "preparation", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:52:10.531861+00:00", "event_type": "step_complete", "step_id": "preparation", "duration_seconds": 90.47, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:52:10.532410+00:00", "event_type": "step_start", "step_id": "research-qa", "step_name": "QA (research-qa, cycle 0)"}
+{"timestamp": "2026-06-11T12:56:42.595655+00:00", "event_type": "gate_result", "step_id": "research-qa", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T12:56:42.596717+00:00", "event_type": "step_complete", "step_id": "research-qa", "duration_seconds": 272.06, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T12:56:42.597148+00:00", "event_type": "step_start", "step_id": "synthesis-1", "step_name": "Synthesis: synth-01-exec-problem-vision.md"}
+{"timestamp": "2026-06-11T12:56:42.597315+00:00", "event_type": "step_start", "step_id": "synthesis-2", "step_name": "Synthesis: synth-02-business-market.md"}
+{"timestamp": "2026-06-11T12:56:42.597442+00:00", "event_type": "step_start", "step_id": "synthesis-3", "step_name": "Synthesis: synth-03-competitive-scope.md"}
+{"timestamp": "2026-06-11T12:56:42.597673+00:00", "event_type": "step_start", "step_id": "synthesis-4", "step_name": "Synthesis: synth-04-stories-requirements.md"}
+{"timestamp": "2026-06-11T12:56:42.598426+00:00", "event_type": "step_start", "step_id": "synthesis-6", "step_name": "Synthesis: synth-06-ux-legal-business.md"}
+{"timestamp": "2026-06-11T12:56:42.598059+00:00", "event_type": "step_start", "step_id": "synthesis-5", "step_name": "Synthesis: synth-05-technical-stack.md"}
+{"timestamp": "2026-06-11T12:56:42.599315+00:00", "event_type": "step_start", "step_id": "synthesis-8", "step_name": "Synthesis: synth-08-journey-design-api.md"}
+{"timestamp": "2026-06-11T12:56:42.598987+00:00", "event_type": "step_start", "step_id": "synthesis-7", "step_name": "Synthesis: synth-07-metrics-risk-impl.md"}
+{"timestamp": "2026-06-11T12:56:42.599959+00:00", "event_type": "step_start", "step_id": "synthesis-9", "step_name": "Synthesis: synth-09-resources-maintenance.md"}
+{"timestamp": "2026-06-11T13:00:23.742847+00:00", "event_type": "step_complete", "step_id": "synthesis-1", "duration_seconds": 221.14, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:00:49.396646+00:00", "event_type": "step_complete", "step_id": "synthesis-9", "duration_seconds": 246.79, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:01:18.402663+00:00", "event_type": "step_complete", "step_id": "synthesis-5", "duration_seconds": 275.8, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:01:59.982054+00:00", "event_type": "step_complete", "step_id": "synthesis-8", "duration_seconds": 317.38, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:02:13.557151+00:00", "event_type": "step_complete", "step_id": "synthesis-6", "duration_seconds": 330.96, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:02:28.888543+00:00", "event_type": "step_complete", "step_id": "synthesis-2", "duration_seconds": 346.29, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:02:57.392211+00:00", "event_type": "step_complete", "step_id": "synthesis-7", "duration_seconds": 374.79, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:03:37.418912+00:00", "event_type": "step_complete", "step_id": "synthesis-3", "duration_seconds": 414.82, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T13:05:05.391475+00:00", "event_type": "step_complete", "step_id": "synthesis-4", "duration_seconds": 502.79, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T13:05:05.392996+00:00", "event_type": "step_start", "step_id": "synthesis-qa", "step_name": "QA (synthesis-qa, cycle 0)"}
+{"timestamp": "2026-06-11T13:20:25.729427+00:00", "event_type": "gate_result", "step_id": "synthesis-qa", "passed": false, "message": "No verdict field found (expected 'verdict: PASS' or 'verdict: FAIL')"}
+{"timestamp": "2026-06-11T13:20:25.731235+00:00", "event_type": "step_complete", "step_id": "synthesis-qa", "duration_seconds": 920.34, "exit_code": 0, "result": "halt", "details": ""}
+{"timestamp": "2026-06-11T16:05:40.506340+00:00", "event_type": "step_start", "step_id": "build-task-file", "step_name": "Build Task File"}
+{"timestamp": "2026-06-11T16:06:35.776550+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "Advisory check 'parallel_instructions' did not pass (non-fatal): Phase 2 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)"}
+{"timestamp": "2026-06-11T16:06:35.776653+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T16:06:35.777078+00:00", "event_type": "step_complete", "step_id": "build-task-file", "duration_seconds": 55.27, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T16:06:35.777183+00:00", "event_type": "step_start", "step_id": "verify-task-file", "step_name": "Verify Task File"}
+{"timestamp": "2026-06-11T16:08:10.792663+00:00", "event_type": "gate_result", "step_id": "verify-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T16:08:10.793293+00:00", "event_type": "step_complete", "step_id": "verify-task-file", "duration_seconds": 95.02, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T16:08:10.793414+00:00", "event_type": "step_start", "step_id": "preparation", "step_name": "Preparation"}
+{"timestamp": "2026-06-11T16:09:13.139412+00:00", "event_type": "gate_result", "step_id": "preparation", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T16:09:13.139674+00:00", "event_type": "step_complete", "step_id": "preparation", "duration_seconds": 62.35, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T16:09:13.140098+00:00", "event_type": "step_start", "step_id": "research-qa", "step_name": "QA (research-qa, cycle 0)"}
+{"timestamp": "2026-06-11T16:12:22.560653+00:00", "event_type": "gate_result", "step_id": "research-qa", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T16:12:22.561098+00:00", "event_type": "step_complete", "step_id": "research-qa", "duration_seconds": 189.42, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-11T16:12:22.561194+00:00", "event_type": "step_start", "step_id": "synthesis-qa", "step_name": "QA (synthesis-qa, cycle 0)"}
+{"timestamp": "2026-06-11T16:18:27.068909+00:00", "event_type": "gate_result", "step_id": "synthesis-qa", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-11T16:18:27.069834+00:00", "event_type": "step_complete", "step_id": "synthesis-qa", "duration_seconds": 364.51, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-11T16:18:27.069940+00:00", "event_type": "step_start", "step_id": "assembly", "step_name": "Assembly"}
+{"timestamp": "2026-06-11T16:39:54.848655+00:00", "event_type": "gate_result", "step_id": "assembly", "passed": false, "message": "Min lines: 454/800"}
+{"timestamp": "2026-06-11T16:39:54.850695+00:00", "event_type": "step_complete", "step_id": "assembly", "duration_seconds": 1287.78, "exit_code": 0, "result": "halt", "details": ""}
+{"timestamp": "2026-06-12T12:10:15.317316+00:00", "event_type": "step_start", "step_id": "build-task-file", "step_name": "Build Task File"}
+{"timestamp": "2026-06-12T12:12:22.342763+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "Advisory check 'parallel_instructions' did not pass (non-fatal): Phase 2 missing parallel execution instructions (expected one of: parallel, concurrent, simultaneously, batch)"}
+{"timestamp": "2026-06-12T12:12:22.342909+00:00", "event_type": "gate_result", "step_id": "build-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-12T12:12:22.343234+00:00", "event_type": "step_complete", "step_id": "build-task-file", "duration_seconds": 127.03, "exit_code": 0, "result": "pass", "details": ""}
+{"timestamp": "2026-06-12T12:12:22.343326+00:00", "event_type": "step_start", "step_id": "verify-task-file", "step_name": "Verify Task File"}
+{"timestamp": "2026-06-12T12:14:27.972712+00:00", "event_type": "gate_result", "step_id": "verify-task-file", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-12T12:14:27.973083+00:00", "event_type": "step_complete", "step_id": "verify-task-file", "duration_seconds": 125.63, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-12T12:14:27.973167+00:00", "event_type": "step_start", "step_id": "preparation", "step_name": "Preparation"}
+{"timestamp": "2026-06-12T12:15:42.400935+00:00", "event_type": "gate_result", "step_id": "preparation", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-12T12:15:42.401428+00:00", "event_type": "step_complete", "step_id": "preparation", "duration_seconds": 74.43, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-12T12:15:42.402214+00:00", "event_type": "step_start", "step_id": "research-qa", "step_name": "QA (research-qa, cycle 0)"}
+{"timestamp": "2026-06-12T12:18:50.504739+00:00", "event_type": "gate_result", "step_id": "research-qa", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-12T12:18:50.505242+00:00", "event_type": "step_complete", "step_id": "research-qa", "duration_seconds": 188.1, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-12T12:18:50.505332+00:00", "event_type": "step_start", "step_id": "synthesis-qa", "step_name": "QA (synthesis-qa, cycle 0)"}
+{"timestamp": "2026-06-12T12:21:46.610245+00:00", "event_type": "gate_result", "step_id": "synthesis-qa", "passed": true, "message": "All checks passed"}
+{"timestamp": "2026-06-12T12:21:46.611018+00:00", "event_type": "step_complete", "step_id": "synthesis-qa", "duration_seconds": 176.11, "exit_code": 0, "result": "pass_no_signal", "details": ""}
+{"timestamp": "2026-06-12T12:21:46.611126+00:00", "event_type": "step_start", "step_id": "assembly", "step_name": "Assembly"}
+{"timestamp": "2026-06-12T12:25:22.246128+00:00", "event_type": "gate_result", "step_id": "assembly", "passed": false, "message": "Placeholder text found: TBD (51x), PLACEHOLDER (5x)"}
+{"timestamp": "2026-06-12T12:25:22.247076+00:00", "event_type": "step_complete", "step_id": "assembly", "duration_seconds": 215.64, "exit_code": 0, "result": "halt", "details": ""}

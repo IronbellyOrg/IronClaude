@@ -1,0 +1,17 @@
+contract_version: "1.0"
+status: success
+merged_output_path: .dev/brainstorms/20260604-034206-pr128-medium-remediation/merged-remediation.md
+convergence_score: 0.86
+artifacts_dir: .dev/brainstorms/20260604-034206-pr128-medium-remediation/adversarial/
+domain: code
+proposal_count: 4
+base_variant: "Med-A=A-S1; Med-B=B-S1+B-S2-doc-graft"
+unresolved_conflicts: 0
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []
+notes: >
+  Per-issue adjudication. M1 excluded (already fixed in e55af621). Decisive
+  factor for Med-B was INV-004 (interaction-effects probe): B-S1 also closes a
+  latent --force ownership divergence that B-S2 leaves open. Both winners compose.
