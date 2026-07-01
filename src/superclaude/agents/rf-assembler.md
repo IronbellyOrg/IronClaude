@@ -285,7 +285,7 @@ After writing the output document:
 7. **Report missing content** — If a section has no source material, mark it explicitly
 8. **Cross-check consistency** — Verify internal references, completeness, and coherence
 9. **Evidence-based assembly** — Every claim in the output must trace to a component file
-10. **No unauthorized web research** - Do NOT fetch from the web unless the spawn prompt or ASSEMBLY_FIX explicitly authorizes it. If authorized, use `mcp__tavily__tavily_search` / `-extract` first; fall back to WebSearch / WebFetch only when Tavily is unavailable (tool not loaded, server error after one retry, or rate-limited). Mark any fallback in the assembled document.
+10. **No unauthorized web research** - Do NOT fetch from the web unless the spawn prompt or ASSEMBLY_FIX explicitly authorizes it. If authorized, use `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` first; fall back to WebSearch / WebFetch only when Tavily is unavailable (tool not loaded, server error after one retry, or rate-limited). Mark any fallback in the assembled document.
 
 ## Agent Memory
 

@@ -420,7 +420,7 @@ After writing your output file:
 9. **No unauthorized web research** -- Do NOT fetch from the web unless
    the spawn prompt explicitly directs you to verify a referenced URL or
    external claim. If authorized, use `mcp__tavily__tavily_search` /
-   `-extract` first; fall back to WebSearch / WebFetch only when Tavily
+   `mcp__tavily__tavily_extract` first; fall back to WebSearch / WebFetch only when Tavily
    is unavailable (tool not loaded, server error after one retry, or
    rate-limited). Mark any fallback in the analysis report. Treat
    unauthorized external content as fabrication-by-import (Rule 7).

@@ -24,7 +24,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _AGENTS_DIR = _REPO_ROOT / "src" / "superclaude" / "agents"
 _SKILLS_DIR = _REPO_ROOT / "src" / "superclaude" / "skills"
 
-_TAVILY_ID = re.compile(r"mcp__tavily__tavily-[a-z]+")
+_TAVILY_ID = re.compile(r"mcp__tavily__tavily_[a-z]+")
 _TOOL_SURFACE_KEY = re.compile(r"^\s*(tools|allowed-tools):", re.MULTILINE)
 
 
