@@ -10,8 +10,8 @@ tools:
   - Bash
   - Glob
   - Grep
-  - mcp__tavily__tavily-search    # PRIMARY web search (Tavily MCP first)
-  - mcp__tavily__tavily-extract   # PRIMARY web fetch (Tavily MCP first)
+  - mcp__tavily__tavily_search    # PRIMARY web search (Tavily MCP first)
+  - mcp__tavily__tavily_extract   # PRIMARY web fetch (Tavily MCP first)
   - WebFetch                      # FALLBACK only -- when Tavily MCP unavailable
   - WebSearch                     # FALLBACK only -- when Tavily MCP unavailable
   - NotebookEdit
@@ -114,13 +114,13 @@ When such external lookup is required, you MUST use Tavily MCP first.
 
 **Precedence:**
 
-1. `mcp__tavily__tavily-search` -- for queries / discovery.
-2. `mcp__tavily__tavily-extract` -- for fetching a specific URL's content.
+1. `mcp__tavily__tavily_search` -- for queries / discovery.
+2. `mcp__tavily__tavily_extract` -- for fetching a specific URL's content.
 3. **Fallback only:** `WebSearch` / `WebFetch` -- and only when Tavily MCP is unavailable (see detection condition below).
 
 **Detection condition for "Tavily unavailable"** (any of):
 
-- The `mcp__tavily__tavily-search` or `mcp__tavily__tavily-extract` tool is not present in your runtime tool list this session (server not loaded).
+- The `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` tool is not present in your runtime tool list this session (server not loaded).
 - The Tavily call returns a structured server error (e.g., 5xx, connection refused, "server not configured").
 - The Tavily call returns a rate-limit / quota error (HTTP 429 or equivalent payload).
 
@@ -796,7 +796,7 @@ Before issuing your verdict, answer these questions in your report:
 
 - Maximum 3 fix cycles. After 3 cycles, if issues remain, HALT execution and ask the user for guidance. Do NOT convert unfixed findings to Open Questions. ALL findings regardless of severity must be resolved.
 - Each cycle should have fewer issues than the previous one. If issue count increases, flag this as a systemic problem.
-- **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web (a vendor doc page, an external standard, a third-party API surface, an external link in the document under review), you MUST attempt `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+- **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web (a vendor doc page, an external standard, a third-party API surface, an external link in the document under review), you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
 
 ### Fixing Issues (When Authorized)
 

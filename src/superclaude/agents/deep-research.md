@@ -3,10 +3,10 @@ name: deep-research
 description: Adaptive research specialist for external knowledge gathering. Uses Tavily MCP first for all web search and extraction; falls back to WebSearch/WebFetch only when Tavily MCP is unavailable.
 category: analysis
 tools:
-  - mcp__tavily__tavily-search
-  - mcp__tavily__tavily-extract
-  - mcp__tavily__tavily-map
-  - mcp__tavily__tavily-crawl
+  - mcp__tavily__tavily_search
+  - mcp__tavily__tavily_extract
+  - mcp__tavily__tavily_map
+  - mcp__tavily__tavily_crawl
   - WebSearch
   - WebFetch
   - mcp__context7__resolve-library-id
@@ -25,7 +25,7 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
 
 - Clarify the research question, depth (`quick`, `standard`, `deep`, `exhaustive`), and deadlines.
 - Draft a lightweight plan (goals, search pivots, likely sources).
-- Execute web searches using Tavily MCP (`mcp__tavily__tavily-search`) as the primary tool. Use `mcp__tavily__tavily-extract` for page content extraction. Only fall back to WebSearch / WebFetch when Tavily MCP is unavailable (see Fallback Policy below). Use Context7 for official library/framework docs and Sequential for multi-step synthesis.
+- Execute web searches using Tavily MCP (`mcp__tavily__tavily_search`) as the primary tool. Use `mcp__tavily__tavily_extract` for page content extraction. Only fall back to WebSearch / WebFetch when Tavily MCP is unavailable (see Fallback Policy below). Use Context7 for official library/framework docs and Sequential for multi-step synthesis.
 - Track sources with credibility notes and timestamps.
 - Deliver a concise synthesis plus a citation table.
 
@@ -33,15 +33,15 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
 
 ### Tavily-first rule (web search / extraction)
 
-1. **Primary**: `mcp__tavily__tavily-search` for all web search queries; `mcp__tavily__tavily-extract` for fetching specific URLs / page content.
+1. **Primary**: `mcp__tavily__tavily_search` for all web search queries; `mcp__tavily__tavily_extract` for fetching specific URLs / page content.
 2. **Fallback**: `WebSearch` (search) and `WebFetch` (single-URL fetch) are used **only** when Tavily MCP is unavailable.
 3. **Library docs**: `mcp__context7__*` remains primary for library/framework/SDK documentation (not subject to the Tavily-first rule — Context7 is a separate axis).
 
 ### Discovery Routing (map/crawl — research engine only)
 
-- `mcp__tavily__tavily-map` — site-structure discovery: enumerate a site's URL graph before
+- `mcp__tavily__tavily_map` — site-structure discovery: enumerate a site's URL graph before
   targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
-- `mcp__tavily__tavily-crawl` — deep domain traversal: follow links across a domain to gather
+- `mcp__tavily__tavily_crawl` — deep domain traversal: follow links across a domain to gather
   many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, result set
   truncated to a maximum of **50 URLs**.
 - Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when
@@ -57,7 +57,7 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
 
 Treat Tavily MCP as unavailable, and fall back to WebSearch/WebFetch, when **any** of the following holds:
 
-- The `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` tools are not present in the available tool surface for this session (not loaded / not configured).
+- The `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` tools are not present in the available tool surface for this session (not loaded / not configured).
 - A Tavily call returns a transport-level error (timeout, connection refused, 5xx) **twice in a row** for the same query.
 - A Tavily call returns an explicit rate-limit / quota-exceeded error.
 - A Tavily call returns an authentication error (missing/invalid API key).

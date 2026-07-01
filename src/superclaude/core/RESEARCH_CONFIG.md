@@ -90,8 +90,8 @@ result set is truncated to a maximum of **50 URLs**.
 
 | Operation | Tavily tool id | Use | Enabled at |
 |-----------|----------------|-----|-----------|
-| map | `mcp__tavily__tavily-map` | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
-| crawl | `mcp__tavily__tavily-crawl` | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
+| map | `mcp__tavily__tavily_map` | Site-structure discovery — enumerate a site's URL graph before targeted extraction | deep+ (cap `maps=2`) |
+| crawl | `mcp__tavily__tavily_crawl` | Deep domain traversal — follow links across a domain to gather many pages | exhaustive only (cap `crawls=1`, ≤50 URLs) |
 
 Typical flow: `map` a domain to surface candidate URLs, then `extract` the high-value ones;
 escalate to `crawl` only at the **exhaustive** tier when broad coverage across a domain is

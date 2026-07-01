@@ -41,10 +41,10 @@ The 0.2.x server exposes four tools:
 
 | Tool id | Operation | Notes |
 |---------|-----------|-------|
-| `mcp__tavily__tavily-search` | Web/news search with ranking + filtering | primary search |
-| `mcp__tavily__tavily-extract` | Full-text extraction from one or more URLs | page content |
-| `mcp__tavily__tavily-map` | Site-structure discovery (URL graph of a domain) | research engine only |
-| `mcp__tavily__tavily-crawl` | Deep domain traversal across linked pages | research engine only |
+| `mcp__tavily__tavily_search` | Web/news search with ranking + filtering | primary search |
+| `mcp__tavily__tavily_extract` | Full-text extraction from one or more URLs | page content |
+| `mcp__tavily__tavily_map` | Site-structure discovery (URL graph of a domain) | research engine only |
+| `mcp__tavily__tavily_crawl` | Deep domain traversal across linked pages | research engine only |
 
 ### Parameters
 

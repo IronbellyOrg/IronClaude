@@ -1,7 +1,7 @@
 ---
 name: sc-recommend
 description: "Build a refined, paste-ready prompt that hands the user's request off to the right local skill, command, agent, or native-tool sequence — only when delegation adds net value. Use this skill whenever the user asks 'which command should I use', 'how do I best prompt for X', 'help me invoke the right skill for Y', 'recommend a workflow for Z', or describes a task without naming a command. Also use proactively whenever the user pastes a goal that could plausibly map onto multiple skills/agents/commands in this repo and you would otherwise have to choose blindly. With --plugin, switches to ecosystem search (Claude plugin marketplaces + community skill repos) instead of the local project surface."
-allowed-tools: Read, Glob, Grep, Bash, mcp__auggie__codebase-retrieval, mcp__tavily__tavily-search, mcp__tavily__tavily-extract, WebFetch, WebSearch, Edit, Write, Agent, Task
+allowed-tools: Read, Glob, Grep, Bash, mcp__auggie__codebase-retrieval, mcp__tavily__tavily_search, mcp__tavily__tavily_extract, WebFetch, WebSearch, Edit, Write, Agent, Task
 argument-hint: "[goal description] [--plugin] [--minstar <N>]"
 category: utility
 ---

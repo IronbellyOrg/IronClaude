@@ -96,7 +96,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **`mcp__auggie__codebase-retrieval`**: in-repo grounding (Tier 1 + Tier 2)
 - **`mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview`**: symbol navigation
 - **`mcp__context7__resolve-library-id` / `query-docs`**: external library docs (Tier 2)
-- **`mcp__tavily__tavily-search`**: targeted web search (Tier 2, rate-limited)
+- **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, Tier 2 specialist agents, `confidence-calibrator`, `evidence-validator`, `self-review`
 - **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4), `task-builder` (Wave 6), `/sc:reflect` (Wave 6)
 - **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line validation

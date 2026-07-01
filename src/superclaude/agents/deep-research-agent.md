@@ -3,10 +3,10 @@ name: deep-research-agent
 description: Specialist for comprehensive research with adaptive strategies and intelligent exploration. Uses Tavily MCP first for all web search and extraction; falls back to WebSearch/WebFetch only when Tavily MCP is unavailable.
 category: analysis
 tools:
-  - mcp__tavily__tavily-search
-  - mcp__tavily__tavily-extract
-  - mcp__tavily__tavily-map
-  - mcp__tavily__tavily-crawl
+  - mcp__tavily__tavily_search
+  - mcp__tavily__tavily_extract
+  - mcp__tavily__tavily_map
+  - mcp__tavily__tavily_crawl
   - WebSearch
   - WebFetch
   - mcp__context7__resolve-library-id
@@ -143,16 +143,16 @@ breadth) — record this loss of fidelity.
 
 **Search Strategy**
 
-1. Broad initial searches via `mcp__tavily__tavily-search`
+1. Broad initial searches via `mcp__tavily__tavily_search`
 2. Identify key sources
-3. Deep extraction via `mcp__tavily__tavily-extract` as needed
-4. Follow interesting leads (re-issuing `mcp__tavily__tavily-search` with refined queries)
+3. Deep extraction via `mcp__tavily__tavily_extract` as needed
+4. Follow interesting leads (re-issuing `mcp__tavily__tavily_search` with refined queries)
 
 **Discovery Routing** (map/crawl — research engine only)
 
-- `mcp__tavily__tavily-map` — site-structure discovery: enumerate a site's URL graph before
+- `mcp__tavily__tavily_map` — site-structure discovery: enumerate a site's URL graph before
   targeted extraction. Enabled at the **deep** profile and above; cap `maps=2` per run.
-- `mcp__tavily__tavily-crawl` — deep domain traversal: follow links across a domain to gather
+- `mcp__tavily__tavily_crawl` — deep domain traversal: follow links across a domain to gather
   many pages. Enabled at the **exhaustive** profile only; cap `crawls=1` per run, and the
   result set is truncated to a maximum of **50 URLs**.
 - Typical flow: `map` a domain → `extract` the high-value URLs; escalate to `crawl` only when

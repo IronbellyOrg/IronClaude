@@ -431,13 +431,13 @@ async-related guidance"
 
 ```yaml
 1. Site-structure discovery (deep profile enables map; cap maps=2):
-   - mcp__tavily__tavily-map:
+   - mcp__tavily__tavily_map:
        url: "https://fastapi.tiangolo.com"
        include_domains: ["fastapi.tiangolo.com"]   # bound to T1/T2 source tier
    - Returns: the site's URL graph (sections, pages)
 
 2. Targeted extraction of the high-value URLs found by map:
-   - mcp__tavily__tavily-extract:
+   - mcp__tavily__tavily_extract:
        urls: [ ".../async/", ".../advanced/async-sql/", ".../tutorial/..." ]
        extract_depth: advanced        # deep profile → advanced
    - Returns: full content of the selected pages only
@@ -455,7 +455,7 @@ async-related guidance"
 
 ```yaml
 1. Crawl is enabled ONLY at the exhaustive profile (cap crawls=1, ≤50 URLs):
-   - mcp__tavily__tavily-crawl:
+   - mcp__tavily__tavily_crawl:
        url: "https://vendor.example.com/changelog"
        include_domains: ["vendor.example.com"]
        search_depth: advanced          # exhaustive profile → advanced
