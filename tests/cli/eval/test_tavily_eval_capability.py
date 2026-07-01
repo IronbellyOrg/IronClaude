@@ -14,7 +14,7 @@ from superclaude.cli.eval.commands import _DEFAULT_SUITES_DIR, resolve_suite_man
 from superclaude.cli.eval.loader import validate_manifest
 
 _CAP = "mcp_server.tavily"
-_TOOL = "mcp__tavily__tavily-search"
+_TOOL = "mcp__tavily__tavily_search"
 
 
 def _real_manifest_path():

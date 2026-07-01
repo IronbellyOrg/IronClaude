@@ -102,7 +102,7 @@ def test_rf_fallback_provenance_present():
     assert rf_files, "expected rf-* agent files to exist"
     for f in rf_files:
         text = f.read_text(encoding="utf-8")
-        has_tavily = "mcp__tavily__tavily-search" in text
+        has_tavily = "mcp__tavily__tavily_search" in text
         has_provenance = (
             "Tavily-first" in text
             and "fallback" in text.lower()

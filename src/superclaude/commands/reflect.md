@@ -149,7 +149,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **`mcp__serena__think_about_*`**: checkpoint signals (§6.4) — three-row table feeds the merge, never the sole verdict
 - **`mcp__serena__read_memory` / `write_memory` / `list_memories`**: cross-session learning capture (§6.3 — 20-entry, 90-day retention)
 - **`mcp__context7__resolve-library-id` / `query-docs`**: external library grounding (Tier 2)
-- **`mcp__tavily__tavily-search`**: targeted web search (Tier 2, rate-limited)
+- **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, `self-review`, `requirements-analyst`, `confidence-calibrator`, `rf-qa`, `rf-qa-qualitative`, `audit-validator`, `evidence-validator`, `socratic-mentor`
 - **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4 merge debate), `task-builder` (Wave 6 remediation), `confidence-check` / `tech-research` (auxiliary)
 - **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line re-Read for evidence-validator

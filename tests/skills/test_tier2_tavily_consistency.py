@@ -27,10 +27,10 @@ def _read(p: Path) -> str:
 
 
 def test_tier2_tool_id_parity():
-    """All 4 C5 files reference mcp__tavily__tavily-search and NO extract/map/crawl (X5)."""
+    """All 4 C5 files reference mcp__tavily__tavily_search and NO extract/map/crawl (X5)."""
     for p in _ALL_FOUR:
         text = _read(p)
-        assert "mcp__tavily__tavily-search" in text, (
+        assert "mcp__tavily__tavily_search" in text, (
             f"{p.name} must reference tavily-search"
         )
         for tool in _FORBIDDEN_TOOLS:
