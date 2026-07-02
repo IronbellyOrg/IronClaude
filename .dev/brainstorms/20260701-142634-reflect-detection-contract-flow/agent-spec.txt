@@ -1,0 +1,1 @@
+opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'

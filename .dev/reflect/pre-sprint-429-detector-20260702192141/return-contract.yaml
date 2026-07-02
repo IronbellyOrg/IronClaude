@@ -1,0 +1,53 @@
+contract_version: "1.7.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/pre-sprint-429-detector-20260702192141/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/pre-sprint-429-detector-20260702192141/audit.log
+confidence_calibrated: 0.93
+escalation_rule_matched: 8   # §5.3 default → STOP at T1 (no ESCALATE rule fired)
+onboarding_ran: false
+
+# UC-1 coverage
+coverage_pct: 0.97
+coverage_pct_union: 0.97
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 5
+
+# Requirement→tasklist coverage detail
+requirements_total: 23        # R1-R7 (7) + §6.1 fixtures (3) + §6.2 table (1) + §6.3 parity (4) + §6.4 guards (2) + AC1-AC6 (6)
+requirements_mapped: 23
+partial_coverage_notes: 1     # INV-004 explicit-interaction-test (aggregate-covered, no single labeled test)
+
+# Grounding (Wave 1A source verification)
+source_drift_detected: false
+citations_total: 8
+citations_revalidated: 8
+citations_dropped: 0
+citations_inferred: 1         # INV-004 aggregate-coverage inference
+evidence_validator_ran: true
+citation_budget_policy: full_reread
+
+# Tier signals (§5.2)
+S_scope: 24                   # tasklist checklist items (inflated by QA-scaffold; production surface = 1 file / 2 hunks)
+S_domains: 2                  # code + tests (fixtures = test data)
+S_dev_density: 0.03
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+needs_human_decision: false
+user_decision_required: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+
+# Tier 2 (not run)
+reviewer_cards: []
+adversarial_unavailable: false
+t2_model_class_diversity: full
+
+# Tier 3 (not offered — no --remediate)
+remediation_offered: false
+remediation_accepted: null

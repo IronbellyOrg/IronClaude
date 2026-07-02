@@ -1,0 +1,30 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/brainstorms/20260701-142634-reflect-detection-contract-flow/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/brainstorms/20260701-142634-reflect-detection-contract-flow/merged-requirements.md
+convergence_score: 0.87
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/brainstorms/20260701-142634-reflect-detection-contract-flow/adversarial
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+telemetry:
+  wave_durations_ms:
+    wave_0: 1200
+    wave_1: 1800
+    wave_2a: 2400
+    wave_2b: 700
+    wave_3: 4200
+    wave_4: 300
+  token_usage:
+    wave_0: estimated
+    wave_1: estimated
+    wave_2a: estimated
+    wave_2b: estimated
+    wave_3: estimated
+    wave_4: estimated
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
