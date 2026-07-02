@@ -112,3 +112,175 @@ compatible."
 their shared contract" or "a question's answer-attr name must resolve to a real `SetupAnswers` field."**
 The `internal-consistency` lens is misnamed relative to what it does: it is a **doc/CLI-surface parity**
 lens, not a code-invariant lens.
+
+---
+
+## 2. Root cause: every lens checks each symbol AGAINST THE DESIGN in isolation; none checks symbols AGAINST EACH OTHER
+
+Map each RF lens to its comparison axis. In every case the **right operand is the design/spec**, and the
+**left operand is a single symbol**. There is no lens whose two operands are both *code symbols*.
+
+| Lens | Left operand (audited) | Right operand (oracle) | Axis |
+|---|---|---|---|
+| template-conformance | one module/dataclass/function name | design public interface | symbol ↔ **design** |
+| evidence-quality | one behavior ("does X trace to a requirement") | requirements/design | behavior ↔ **design** |
+| no-side-effect-static-boundary | one function's operations | forbidden-op list | function ↔ **boundary rule** |
+| domain-accuracy | one state/rule's correctness | requirements meaning | rule ↔ **design** |
+| actionability-runtime | one emitted command's runnability | "does the CLI surface exist" | output ↔ **runtime** |
+| internal-consistency (final) | a command STRING / sentence | the same string in other files | doc ↔ **doc (parity)** |
+
+The four Phase-2 code lenses form a **star topology**: every spoke points at the design hub, no spoke
+connects two code symbols. F1 and F3 live on the **missing edges between spokes**:
+
+- F1 is the edge `diagnose() —(shared probe_evidence contract)— load_evidence()`. Both endpoints
+  individually satisfy the design (diagnose returns a legal `ContractState`; load_evidence loads a dir).
+  The bug is only visible when you put the two `is_file()`/dir predicates side by side.
+- F3 is the edge `probe_pr question —(answer-attr resolves to)— SetupAnswers.probe_pr`. The question ID
+  is design-correct; `SetupAnswers` is design-correct. The bug is the *string linking them*.
+
+**Confirmation that the code lenses never form the cross edge, from the artifacts themselves:** the
+`no-side-effect` lens literally read both F1 functions in one pass (`…no-side-effect…:26`) and reported
+PASS — it had both symbols in context and asked the wrong question. The `template-conformance` lens
+literally counted the 16 question IDs (`…template-conformance…:66`) and asked the wrong question. Having
+both symbols in view is not enough; **there was no checklist bullet directing the reviewer to compare
+them.**
+
+### The `internal-consistency` lens operated at doc/CLI level, not code level — verified
+
+Q2 asks specifically whether the `internal-consistency` lens worked at doc/CLI command-shape level
+rather than function-to-function code invariants. **Verified: yes.** Direct evidence quoted in §1:
+its four items (`final-qa-internal-consistency.md:21-24`) are all "command string identical across
+files" / "sentence byte-identical" / "one CLI surface only." Its single code-to-code item (item 4) is a
+**rendered-string** parity diff of two functions that intentionally emit the same user-facing text —
+still a doc-surface parity check, not an input-contract or field-resolution check. Its scope sentence
+(`line 3`) names the "readiness **surface**," not the package's internal invariants.
+
+### Why the Tier-2 `/sc:reflect` post-audit also missed it (independent second gate)
+
+The `/sc:reflect --mode post` Tier-2 audit (`reflect/post/156f28292b4d/return-contract.yaml`) returned
+`status: success`, `tier_reached: 2`, `deviation_count_by_class: {authorized:0, necessary:0, drift:0,
+regression:0}`, `regression_present: false`. Its consolidated review
+(`t2-adversarial/reflect-review-consolidated.md:29-46`) found only **process-fidelity** deviations:
+frontmatter/execution-state drift, a hard gate not executed (Step 5.6), an empty `reflect_post`
+artifact, a QA-chain deviation, and broad-vs-scoped test framing. A grep of the entire reflect-post
+artifact tree for `is_file`, `probe_pr`, and `_evidence_attr` returns **zero hits** — the audit never
+opened those function bodies.
+
+This is by design and by charter: `/sc:reflect --mode post` (UC-2) is a **deviation audit** — "does the
+completed work match its driving spec/tasklist, and classify every divergence under the 4-category
+taxonomy." It is a fidelity oracle (implementation ↔ tasklist), the same `symbol ↔ design` axis as the
+RF lenses, one level up. It is structurally incapable of finding a `symbol ↔ sibling-symbol` bug because
+neither the tasklist nor the design encodes the `diagnose/load_evidence` path-shape agreement or the
+`probe_pr`/`pr_number` field-name identity. **Both gates share the same blindspot: a spec-anchored oracle
+cannot catch a defect that is invisible in the spec.**
+
+---
+
+## 3. "Grep the design, not the call graph" — and the test-coverage gap for the probe_pr answer→default→contract flow
+
+The RF QA method is **design-anchored grep**: to verify a symbol, the reviewer greps/reads the design,
+finds the matching entry, and compares. This is powerful for `symbol ↔ design` drift (it correctly
+caught the `CheckResult`/`ValidationReport`/`decline_validation="exercised"` drift in
+`phase-2-qa-template-conformance.md:52-55` and `phase-2-qa-evidence-quality.md:40-45`). But it is blind
+to invariants that live **only in the call graph**, never in the design:
+
+- The design says "question `probe_pr`" and "field `SetupAnswers.probe_pr`" — but the string
+  `"pr_number"` passed to `_evidence_attr` is an implementation detail with no design entry to grep.
+- The design says `diagnose()` returns `EVIDENCE_MISSING` when evidence is absent — but "absent" being
+  decided by `is_file()` vs `.exists()`/dir is an implementation detail with no design entry to grep.
+
+**Confirming the test gap (Q3): did any test exercise the probe_pr answer → default → contract flow
+before the fix?** No. Verified via `mcp__auggie__codebase-retrieval` + `git`:
+
+- The ONLY test that exercises `probe_pr_q.derive_default(evidence, SetupAnswers(probe_pr=7)) == 7` is
+  `tests/pr_submit/test_contract_setup_questions.py::test_probe_pr_question_default_respects_operator_answer`
+  (lines 272-288). Its own docstring says: *"Regression (PR #209 finding F3): the deriver used
+  `_evidence_attr("pr_number")`, which read `answers.pr_number` … so a supplied `probe_pr` answer was
+  silently ignored."*
+- That test was **added by the F3 fix commit `21d4b8e0`** (`git log -S` confirms it appears only in
+  that commit; the commit stat shows `+19` lines to `test_contract_setup_questions.py`). It did **not
+  exist** during the original RF QA.
+- Symmetrically, the F1 directory-valued-`probe_evidence` regression test
+  (`test_contract_setup_diagnosis.py`, ~lines 317-350, docstring: *"Regression (PR #209 Augment finding
+  F1): diagnose() previously forced EVIDENCE_MISSING unless probe_evidence resolved to a *file*"*) was
+  **added by the F1 fix commit `f6a32e9a`** (`+40` lines to that test file).
+
+The pre-fix test suite tested `derive_candidate` provenance thoroughly
+(`test_contract_setup_questions.py:136-207` — identity, app-slug, emission observed/unobserved) but
+**never asserted that a supplied `probe_pr` answer survives into the derived default/candidate.** It
+tested the answer→provenance flow for the fields whose answer-attr name matches; it never tested the one
+field (`probe_pr`) whose answer-attr name **differs** from its evidence-field name — which is precisely
+the field the bug lived in. The QA verified `SETUP_QUESTIONS` has 16 correctly-named IDs
+(`template-conformance` PASS) but never that each question's `derive_default` reads a field that EXISTS
+on `SetupAnswers` and FLOWS THROUGH `derive_candidate`.
+
+**Root-cause summary:** RF QA and Tier-2 reflect are both **spec-anchored oracles** on a
+`symbol ↔ design` axis. F1 and F3 are `symbol ↔ sibling-symbol` defects that are invisible in the spec
+and were untested in the suite. The one lens named for the job (`internal-consistency`) had been scoped
+to **doc/CLI command-string parity**, not code-level function-to-function invariants. The external
+Augment reviewer caught them precisely because it reads the **call graph and dataclass** directly, with
+no design oracle telling it where to look.
+
+---
+
+## 4. Recommendations — concrete, additive RF-protocol changes that would have caught F1 and F3
+
+These are additive (new lens + new static checks + one test-authoring rule); none change existing lenses.
+
+### R1 — Add a `cross-symbol-invariant` code lens to the Phase-2 lens set (highest leverage)
+
+A new adversarial lens whose two operands are **both code symbols in the same package**, not the design.
+Charter checklist (illustrative bullets that would have fired on F1/F3):
+
+- **Sibling-function contract parity:** "For every pair of functions that consume the same value
+  (`probe_evidence`, an evidence bundle, a path), enumerate each function's assumption about that value's
+  SHAPE (file vs dir, tuple vs list, present vs None) and assert they agree. Flag any predicate
+  (`is_file()`, `is_absolute()`, `len()==`) that one sibling applies and another does not." → catches F1.
+- **Declarative-table field resolution:** "For every entry in a declarative table
+  (`SETUP_QUESTIONS`, provenance maps), statically resolve every attribute name the entry reads
+  (`getattr` targets, `_evidence_attr` args) to a real field on the target dataclass. Any name that does
+  not resolve is a defect." → catches F3.
+
+Because it is adversarial and code-anchored, it fills the missing edges of the star topology.
+
+### R2 — Mandatory static check: "every declarative answer-attr resolves to a real dataclass field"
+
+A tiny, deterministic test (not an LLM lens) that the task must include when it ships a declarative
+question/deriver table. Pseudocode:
+
+```python
+def test_every_question_deriver_reads_real_setupanswers_fields():
+    valid = {f.name for f in dataclasses.fields(SetupAnswers)}
+    for q in SETUP_QUESTIONS:
+        # call the deriver with a probe SetupAnswers where each field is a sentinel,
+        # and assert the deriver's returned default reflects the sentinel it should read
+        answers = SetupAnswers(**{real_field_for(q.id): SENTINEL})
+        assert q.derive_default(None, answers) == SENTINEL, q.id
+```
+
+This is the "answer → default → contract flow" test the suite lacked. It fails hard on `probe_pr` reading
+a nonexistent `pr_number`. Make it a `MUST COVER` line in the BUILD-REQUEST whenever a declarative
+question/deriver table is in scope. (Note: `getattr(answers, "pr_number", None)` swallowed the
+`AttributeError`, so only a *behavioral* assertion — "the answer I set comes back out" — catches it, not
+a mere hasattr probe.)
+
+### R3 — Re-charter the `internal-consistency` lens (or split it) to include a CODE-invariant tier
+
+The lens name promises code-invariant coverage but delivers doc/CLI parity. Either (a) rename the current
+pass to `doc-surface-parity` and add a distinct `code-invariant-consistency` lens (= R1), or (b) extend
+the existing `internal-consistency` checklist with an explicit code tier:
+
+- "Diff each function's INPUT contract against every sibling that consumes the same value (shape,
+  nullability, path kind). Rendered-STRING parity of two functions is necessary but NOT sufficient — also
+  compare what they READ."
+
+This directly closes the gap that let a lens literally named "internal-consistency" pass a package with
+two internal-consistency defects.
+
+### Priority
+
+R2 first (cheapest, deterministic, would alone have caught F3 and — with a dir-vs-file variant —
+generalizes to F1), then R1 (the durable structural fix that catches the whole bug CLASS), then R3
+(fixes the misnamed lens so the gap can't silently reopen).
+
+## Analysis complete
