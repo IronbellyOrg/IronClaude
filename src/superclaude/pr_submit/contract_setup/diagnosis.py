@@ -132,11 +132,10 @@ def diagnose(
         )
 
     evidence_path = _resolve_optional_path(contract.probe_evidence, base)
-    if (
-        evidence_path is None
-        or not evidence_path.exists()
-        or not evidence_path.is_file()
-    ):
+    # probe_evidence may be a captured payload FILE or the probe DIRECTORY that
+    # holds it; both are valid evidence sources (load_evidence()/_evidence_sha256()
+    # accept either). Only a missing/unreadable path is EVIDENCE_MISSING.
+    if evidence_path is None or not evidence_path.exists():
         return Diagnosis(
             state=ContractState.EVIDENCE_MISSING,
             checked_paths=checked_paths,
@@ -154,7 +153,11 @@ def diagnose(
         )
 
     evidence_sha256 = _evidence_sha256(evidence_path)
-    validation_report_path = evidence_path.parent / "validation-report.yaml"
+    # The validation report lives in the probe DIRECTORY. Resolve it from the
+    # probe dir so a directory-valued probe_evidence is handled the same as a
+    # file-valued one (which sits inside that dir).
+    probe_dir = evidence_path.parent if evidence_path.is_file() else evidence_path
+    validation_report_path = probe_dir / "validation-report.yaml"
     if not validation_report_path.exists():
         return Diagnosis(
             state=ContractState.VALIDATION_MISSING,
@@ -294,7 +297,9 @@ def _evidence_sha256(path: Path) -> str:
     try:
         return load_evidence(probe_dir).sha256
     except Exception:  # noqa: BLE001 - diagnosis falls back to byte hash for malformed evidence.
-        return _sha256_file(path)
+        # A raw byte hash is only meaningful for a FILE; a directory has no single
+        # byte stream, so return an empty hash (treated as unresolved downstream).
+        return _sha256_file(path) if path.is_file() else ""
 
 
 def _sha256_file(path: Path) -> str:

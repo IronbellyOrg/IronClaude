@@ -21,6 +21,11 @@ class SetupAnswers:
     evidence_source: str | None = None
     surfaces_to_inspect: tuple[str, ...] = ()
     detected_augment_identity: str | None = None
+    # Optional operator override for the Augment app slug, selected alongside the
+    # bot identity (part of the `detected_augment_identity` question, not a 17th
+    # question). A dedicated field so the app slug is not tunnelled through the
+    # unrelated `decline_detection_fields` bucket.
+    augment_app_slug: str | None = None
     author_association_values: tuple[str, ...] = ()
     emission_shape: str | None = None
     findings_locus: str | None = None

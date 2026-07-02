@@ -208,6 +208,67 @@ def test_multiple_augment_identity_candidates_require_explicit_selection(tmp_pat
     assert "augment_identity" not in chosen.required_unobserved()
 
 
+def test_augment_app_slug_dedicated_field_selects_observed_slug(tmp_path):
+    """The dedicated ``SetupAnswers.augment_app_slug`` field selects an observed
+    app slug without tunnelling it through ``decline_detection_fields``.
+
+    Regression (PR #209 Augment finding F2): app-slug selection previously read
+    only ``decline_detection_fields['augment_app_slug']`` (a semantically wrong
+    bucket) and had no dedicated answer field. With two observed slugs the app
+    slug is ambiguous/unobserved until the operator selects one.
+    """
+
+    def _review_with_slug(slug: str) -> dict[str, Any]:
+        r = _augment_review(findings=False, login=AUGMENT)
+        r["app"] = {"slug": slug}
+        return r
+
+    evidence = _bundle(
+        tmp_path,
+        reviews=[_review_with_slug("augmentcode"), _review_with_slug("augment-code")],
+    )
+
+    # Two observed slugs → ambiguous; without an answer the app slug is unobserved.
+    ambiguous = derive_candidate(evidence, answers=SetupAnswers())
+    ap = ambiguous.provenance["augment_app_slug"]
+    assert ap.value is None
+    assert ap.observed is False
+
+    # The dedicated field selects one of the observed slugs (observed=True).
+    chosen = derive_candidate(
+        evidence, answers=SetupAnswers(augment_app_slug="augmentcode")
+    )
+    assert chosen.contract.augment_app_slug == "augmentcode"
+    cp = chosen.provenance["augment_app_slug"]
+    assert cp.value == "augmentcode"
+    assert cp.observed is True
+
+
+def test_augment_app_slug_legacy_decline_bucket_still_supported(tmp_path):
+    """Backward compatibility: the legacy
+    ``decline_detection_fields['augment_app_slug']`` override still selects the
+    slug via the fallback path, so pre-existing callers keep working.
+    """
+
+    def _review_with_slug(slug: str) -> dict[str, Any]:
+        r = _augment_review(findings=False, login=AUGMENT)
+        r["app"] = {"slug": slug}
+        return r
+
+    evidence = _bundle(
+        tmp_path,
+        reviews=[_review_with_slug("augmentcode"), _review_with_slug("augment-code")],
+    )
+    chosen = derive_candidate(
+        evidence,
+        answers=SetupAnswers(
+            decline_detection_fields={"augment_app_slug": "augmentcode"}
+        ),
+    )
+    assert chosen.contract.augment_app_slug == "augmentcode"
+    assert chosen.provenance["augment_app_slug"].observed is True
+
+
 # --- 4. Unobserved emission shape / polling result cannot lock ----------------
 
 

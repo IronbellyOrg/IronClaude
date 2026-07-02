@@ -164,7 +164,11 @@ def _selected_app_slug(
     provenance: dict[str, FieldProvenance],
 ) -> str | None:
     observed = sorted(_observed_app_slugs(evidence))
-    answer = answers.decline_detection_fields.get("augment_app_slug")
+    # Prefer the dedicated app-slug answer; fall back to the legacy
+    # decline_detection_fields bucket for backward compatibility.
+    answer = answers.augment_app_slug or answers.decline_detection_fields.get(
+        "augment_app_slug"
+    )
     if isinstance(answer, str) and answer:
         provenance["augment_app_slug"] = FieldProvenance(
             answer,

@@ -311,6 +311,46 @@ def test_ready_next_command_uses_placeholder_pr_when_absent(tmp_path):
     assert d.next_command == "/sc:pr-submit --monitor 1 --pr <number>"
 
 
+def test_ready_when_probe_evidence_is_a_directory(tmp_path):
+    """probe_evidence pointing at the probe DIRECTORY (not the payload file) still
+    resolves to READY.
+
+    Regression (PR #209 Augment finding F1): diagnose() previously forced
+    EVIDENCE_MISSING unless probe_evidence resolved to a *file*, even though
+    load_evidence()/_evidence_sha256() accept a probe directory. A locked
+    contract whose probe_evidence is the dir must diagnose the same as one whose
+    probe_evidence is the combined-payload.json inside it.
+    """
+    probe_dir = tmp_path / ".dev" / "pr-monitor" / "probes" / "pdir"
+    _write_evidence(probe_dir, repo="IronbellyOrg/IronClaude", pr_number=42)
+    sha = _ready_evidence_sha(probe_dir)
+    (probe_dir / "validation-report.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "result": "passed",
+                "repo": "IronbellyOrg/IronClaude",
+                "pr_number": 42,
+                "evidence_sha256": sha,
+            }
+        ),
+        encoding="utf-8",
+    )
+    _write_override(
+        tmp_path,
+        'augment_bot_login: "augmentcode[bot]"\n'
+        "locked: true\n"
+        # probe_evidence is the DIRECTORY, not the payload file.
+        f"probe_evidence: {probe_dir.relative_to(tmp_path)}",
+    )
+
+    d = diagnose(repo="IronbellyOrg/IronClaude", pr_number=42, cwd=tmp_path)
+    assert d.state is not ContractState.EVIDENCE_MISSING
+    assert d.state is ContractState.READY
+    assert d.validation_result == "passed"
+    assert d.evidence_sha256 == sha
+    assert d.validation_report_path == probe_dir / "validation-report.yaml"
+
+
 # --------------------------------------------------------------------------- #
 # declined_by_user                                                             #
 # --------------------------------------------------------------------------- #
