@@ -154,11 +154,13 @@ def test_severity_path_null_is_allowed_but_recorded_not_field_backed(tmp_path):
 
 
 def test_severity_path_present_is_field_backed_and_distinct_from_null(tmp_path):
-    # A present Augment review makes the observed severity path resolve and be
-    # field-backed. API note: reviews[].severity is checked first and "resolves" for a
-    # non-empty reviews list, so the derived path is reviews[].severity (NOT
-    # comments[].severity) — the point of this test is field-backed (observed=True) vs
-    # the null case above (observed=False), and the path is recorded either way.
+    # A present, field-backed severity path resolves and is observed. API note
+    # (post PR #209 finding F4): _path_resolves no longer treats an all-None list as
+    # "resolved", so a probe order of reviews[].severity → comments[].severity →
+    # check_runs[].conclusion picks the FIRST surface that actually carries the key.
+    # Here the review fixture has NO severity but the inline comment DOES
+    # (`severity: high`), so the honest observed path is comments[].severity — not
+    # reviews[].severity (which would only be chosen if a review actually had it).
     probe_dir = _write_probe(
         tmp_path,
         reviews=[_augment_findings_review()],
@@ -169,10 +171,30 @@ def test_severity_path_present_is_field_backed_and_distinct_from_null(tmp_path):
 
     severity_prov = candidate.provenance["severity_field_path"]
     # Present (field-backed) is DISTINCT from the null/missing case above: observed=True
-    # with a concrete resolvable path recorded.
-    assert candidate.contract.severity_field_path == "reviews[].severity"
+    # with a concrete resolvable path recorded that points at the surface that has it.
+    assert candidate.contract.severity_field_path == "comments[].severity"
     assert severity_prov.observed is True
     assert severity_prov.evidence_ref == "payload.severity"
+
+
+def test_severity_path_all_none_does_not_resolve(tmp_path):
+    """A key missing on every element does not count as an observed path.
+
+    Regression (PR #209 finding F4): _path_resolves treated an all-None list as
+    resolved, so reviews present but none carrying `severity` would falsely yield a
+    field-backed reviews[].severity path. With the fix, a review-only payload whose
+    reviews have no severity (and no comments) records NO field-backed severity path.
+    """
+    probe_dir = _write_probe(
+        tmp_path, reviews=[_augment_findings_review()], comments=[]
+    )
+    evidence = load_evidence(probe_dir)
+    candidate = derive_candidate(evidence)
+
+    assert candidate.contract.severity_field_path is None
+    severity_prov = candidate.provenance["severity_field_path"]
+    assert severity_prov.observed is False
+    assert severity_prov.evidence_ref is None
 
 
 # --- 3. Negative controls: empty + non-Augment payloads ----------------------

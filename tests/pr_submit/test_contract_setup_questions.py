@@ -269,6 +269,25 @@ def test_augment_app_slug_legacy_decline_bucket_still_supported(tmp_path):
     assert chosen.provenance["augment_app_slug"].observed is True
 
 
+def test_probe_pr_question_default_respects_operator_answer(tmp_path):
+    """The probe_pr question's default prefers the operator's ``probe_pr`` answer.
+
+    Regression (PR #209 finding F3): the deriver used ``_evidence_attr("pr_number")``,
+    which read ``answers.pr_number`` — a field that does not exist on ``SetupAnswers``
+    (the field is ``probe_pr``) — so a supplied ``probe_pr`` answer was silently
+    ignored and the default always came from evidence/None.
+    """
+    probe_pr_q = {q.id: q for q in SETUP_QUESTIONS}["probe_pr"]
+    evidence = _bundle(tmp_path, pr_number=42)
+
+    # No answer → default comes from evidence.pr_number.
+    assert probe_pr_q.derive_default(evidence, SetupAnswers()) == 42
+    # Operator answer is now respected (not ignored).
+    assert probe_pr_q.derive_default(evidence, SetupAnswers(probe_pr=7)) == 7
+    # With no evidence pr_number, the operator answer still wins.
+    assert probe_pr_q.derive_default(None, SetupAnswers(probe_pr=7)) == 7
+
+
 # --- 4. Unobserved emission shape / polling result cannot lock ----------------
 
 

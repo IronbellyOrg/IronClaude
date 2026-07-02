@@ -366,7 +366,14 @@ def _path_resolves(payload: dict[str, Any], path: str | None) -> bool:
         if isinstance(current, dict):
             current = current.get(part)
         elif isinstance(current, list):
-            current = [item.get(part) for item in current if isinstance(item, dict)]
+            # Keep only elements where the key is actually present. An all-None
+            # list (the key resolves on no element) collapses to [] and is treated
+            # as unresolved below, rather than being falsely counted as observed.
+            current = [
+                value
+                for item in current
+                if isinstance(item, dict) and (value := item.get(part)) is not None
+            ]
         else:
             return False
         if current in (None, []):

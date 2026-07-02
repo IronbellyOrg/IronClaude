@@ -61,9 +61,14 @@ def _answer_default(attr: str) -> DefaultDeriver:
     return derive
 
 
-def _evidence_attr(attr: str) -> DefaultDeriver:
+def _evidence_attr(attr: str, answer_attr: str | None = None) -> DefaultDeriver:
+    # The operator answer and the evidence field may have different names (e.g. the
+    # `probe_pr` answer vs the `pr_number` evidence field). Read the answer under
+    # `answer_attr` (defaults to `attr`), else fall back to the evidence field.
+    answer_key = answer_attr or attr
+
     def derive(evidence: EvidenceBundle | None, answers: SetupAnswers) -> object | None:
-        answered = getattr(answers, attr, None)
+        answered = getattr(answers, answer_key, None)
         if answered not in ((), {}, None):
             return answered
         return getattr(evidence, attr, None) if evidence is not None else None
@@ -128,7 +133,7 @@ SETUP_QUESTIONS: list[SetupQuestion] = [
     SetupQuestion(
         "probe_pr",
         "Which PR contains a recent Augment-authored payload?",
-        _evidence_attr("pr_number"),
+        _evidence_attr("pr_number", answer_attr="probe_pr"),
         True,
         True,
     ),
