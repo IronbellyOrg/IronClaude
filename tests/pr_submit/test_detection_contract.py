@@ -15,8 +15,11 @@ lands, swap the inline dicts for ``load_fixture(...)`` rather than keeping both.
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 
+from superclaude.cli.reflect.commands import _contract_status_next_command
 from superclaude.pr_submit import (
     DetectionContract,
     DetectionContractLocked,
@@ -24,6 +27,8 @@ from superclaude.pr_submit import (
     is_decline,
     poll_augment_review,
 )
+from superclaude.pr_submit.contract_setup import ContractState
+from superclaude.pr_submit.contract_setup.diagnosis import _next_command
 
 AUGMENT = "augment-code[bot]"
 
@@ -71,6 +76,37 @@ def test_t203_augment_findings(contract):
         "comments": [],
     }
     assert classify(payload, contract) == "findings"
+
+
+def test_contract_setup_next_commands_are_current_and_actionable():
+    """Contract readiness next steps use the Phase-3 CLI surface and PR context."""
+    missing = _next_command(ContractState.MISSING, None, None)
+    validation = _next_command(
+        ContractState.VALIDATION_MISSING, "IronbellyOrg/IronClaude", 42
+    )
+    ready = _next_command(ContractState.READY, "IronbellyOrg/IronClaude", 42)
+    ready_placeholder = _next_command(ContractState.READY, None, None)
+
+    assert (
+        missing
+        == "superclaude reflect contract-status --repo <owner/repo> --pr <number>"
+    )
+    assert (
+        validation
+        == "superclaude reflect contract-status --validate --repo IronbellyOrg/IronClaude --pr 42"
+    )
+    assert ready == "/sc:pr-submit --monitor 1 --pr 42"
+    assert ready_placeholder == "/sc:pr-submit --monitor 1 --pr <number>"
+    assert (
+        _contract_status_next_command(
+            SimpleNamespace(
+                state=ContractState.READY, repo="IronbellyOrg/IronClaude", pr_number=42
+            )
+        )
+        == "/sc:pr-submit --monitor 1 --pr 42"
+    )
+    assert "not yet implemented" not in missing
+    assert "not yet implemented" not in validation
 
 
 def test_t210_locked_false_halts(tmp_path):
