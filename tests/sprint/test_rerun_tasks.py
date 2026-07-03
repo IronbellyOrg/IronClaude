@@ -826,3 +826,35 @@ class TestClassifyTranscriptProviderExhaustion:
         )
         text = success_line + (_FIXTURES / "single_account_429.jsonl").read_text()
         assert _classify_transcript(text) is TaskStatus.PASS_RECOVERED
+
+    # --- offline parity 7b/7c/7d on the Shape-2 surface (spec §6.3.2) -------
+
+    def test_shape2_classifies_provider_exhausted(self):
+        # 7b: `_classify_transcript` delegates to the SAME inner
+        # `_provider_failure_from_text` the fix hardens, so the offline path must
+        # engage on Shape-2 (RED pre-fix → GREEN post-fix).
+        text = (_FIXTURES / "all_account_cooldown_apierror429.jsonl").read_text()
+        assert _classify_transcript(text) is TaskStatus.FAIL_PROVIDER_EXHAUSTED
+
+    def test_incidental_429_not_classified_provider_exhausted(self):
+        # 7c: NEGATIVE form — an is_error:false result carrying incidental
+        # "429"/"rate limit" prose must NOT be misclassified as provider-
+        # exhausted. Asserting `is not FAIL_PROVIDER_EXHAUSTED` (not a specific
+        # PASS) keeps the contract non-brittle (research/04 R-GA/7c).
+        text = (_FIXTURES / "provider_429_incidental_ratelimit_text.jsonl").read_text()
+        assert _classify_transcript(text) is not TaskStatus.FAIL_PROVIDER_EXHAUSTED
+
+    def test_completed_then_trailing_shape2_429_recovers_not_exhausted(self):
+        # 7d: mirrors test_completed_then_trailing_429_recovers_not_exhausted but
+        # with the Shape-2 fixture as the trailing terminal — a task that emitted
+        # a success envelope BEFORE a trailing Shape-2 429 must classify
+        # PASS_RECOVERED, not FAIL_PROVIDER_EXHAUSTED.
+        success_line = (
+            '{"type":"result","subtype":"success","is_error":false,'
+            '"result":"Task complete."}\n'
+        )
+        text = (
+            success_line
+            + (_FIXTURES / "all_account_cooldown_apierror429.jsonl").read_text()
+        )
+        assert _classify_transcript(text) is TaskStatus.PASS_RECOVERED

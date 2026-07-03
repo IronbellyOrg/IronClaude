@@ -39,7 +39,7 @@ PROMPT_TOO_LONG_PATTERN = re.compile(r'"Prompt is too long"')
 # ``_RE_ALL_ACCOUNT``'s named group ``model`` captures the resolved model for the
 # P5 alias suggester; ``_RE_SINGLE_ACCOUNT`` distinguishes the single-account body.
 _RE_ALL_ACCOUNT = re.compile(
-    r"All credentials for model (?P<model>.+?) are cooling down via provider"
+    r"All credentials for model (?P<model>.+?) are cooling down"
 )
 _RE_SINGLE_ACCOUNT = re.compile(r"would exceed your account's rate limit")
 
@@ -320,7 +320,7 @@ def _provider_failure_from_text(text: str) -> ProviderFailureSignal:
     api_error_status = result_event.get("api_error_status")
     body = str(result_event.get("result", ""))
 
-    if is_error and api_error_status == 429:
+    if is_error and (api_error_status == 429 or "rate_limit_error" in body):
         cooldown = _RE_ALL_ACCOUNT.search(body)
         if cooldown:
             return ProviderFailureSignal(
