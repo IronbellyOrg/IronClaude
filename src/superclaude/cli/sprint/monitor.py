@@ -320,7 +320,10 @@ def _provider_failure_from_text(text: str) -> ProviderFailureSignal:
     api_error_status = result_event.get("api_error_status")
     body = str(result_event.get("result", ""))
 
-    if is_error and (api_error_status == 429 or "rate_limit_error" in body):
+    if is_error and (
+        api_error_status == 429
+        or (api_error_status is None and "rate_limit_error" in body)
+    ):
         cooldown = _RE_ALL_ACCOUNT.search(body)
         if cooldown:
             return ProviderFailureSignal(

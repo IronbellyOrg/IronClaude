@@ -422,6 +422,22 @@ class TestDetectProviderFailure:
                 id="rate_limit_error-neither-body",
             ),
             pytest.param(
+                # FP guard (PR #212 review): a PRESENT non-429 api_error_status
+                # with an incidental `rate_limit_error` token in the body must NOT
+                # open the 429 block — the text disjunct is gated on
+                # `api_error_status is None`, so this stays NONE (no false recovery).
+                (
+                    "inline",
+                    '{"type":"result","subtype":"success","is_error":true,'
+                    '"api_error_status":500,'
+                    '"result":"API Error: 500 upstream failure rate_limit_error '
+                    'mentioned in trace"}\n',
+                ),
+                ProviderFailure.NONE,
+                None,
+                id="non429-aes-with-rate_limit_error-body",
+            ),
+            pytest.param(
                 ("fixture", "provider_429_incidental_ratelimit_text.jsonl"),
                 ProviderFailure.NONE,
                 None,
