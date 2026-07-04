@@ -187,9 +187,11 @@ def _module_level_gate_shaped_defs() -> list[str]:
     for module_name, module in _GATE_MODULES.items():
         tree = ast.parse(inspect.getsource(module), filename=module.__file__)
         for node in tree.body:  # module-level only: parent is ast.Module
-            if isinstance(node, ast.FunctionDef) and GATE_HELPER_DEF_PATTERN.search(
-                node.name
-            ):
+            # Cover both sync `def` and `async def` so an async gate-shaped helper
+            # cannot slip past the drift alarm unregistered.
+            if isinstance(
+                node, (ast.FunctionDef, ast.AsyncFunctionDef)
+            ) and GATE_HELPER_DEF_PATTERN.search(node.name):
                 matched.append(f"{module_name}.{node.name}")
     return matched
 
