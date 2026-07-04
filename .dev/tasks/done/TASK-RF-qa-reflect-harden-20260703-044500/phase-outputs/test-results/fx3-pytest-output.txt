@@ -1,0 +1,16 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/pr209-harden/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/pr209-harden
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.14.1
+collecting ... collected 4 items
+
+tests/pr_submit/test_setup_questions_resolution.py::test_every_answer_default_literal_resolves_to_a_real_setupanswers_field PASSED [ 25%]
+tests/pr_submit/test_setup_questions_resolution.py::test_every_evidence_attr_answer_key_resolves_to_a_real_setupanswers_field PASSED [ 50%]
+tests/pr_submit/test_setup_questions_resolution.py::test_every_evidence_attr_evidence_side_resolves_to_a_real_evidencebundle_attr PASSED [ 75%]
+tests/pr_submit/test_setup_questions_resolution.py::test_every_collected_deriver_arg_is_a_string_constant PASSED [100%]
+
+============================== 4 passed in 0.05s ===============================
