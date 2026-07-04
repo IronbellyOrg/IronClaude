@@ -309,14 +309,17 @@ def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
     # the marker is absent. Taking the earliest occurrence of EITHER token let a prose
     # mention of the command (earlier than the real gate item) set a false-early
     # boundary, skipping unchecked items and spuriously failing open.
-    marker_idx = body.find(_WRAPPER_MARKER)
-    if marker_idx != -1:
-        boundary = marker_idx
-    else:
-        cmd_idx = body.find("superclaude reflect run")
-        if cmd_idx == -1:
+    token_idx = body.find(_WRAPPER_MARKER)
+    if token_idx == -1:
+        token_idx = body.find("superclaude reflect run")
+        if token_idx == -1:
             return None  # fail-open: no in-file completion signal to judge.
-        boundary = cmd_idx
+    # Anchor the boundary at the START of the token's LINE, not its character offset.
+    # The gate item carries the token AFTER its ``- [ ]`` prefix on the same line, so a
+    # mid-line char offset would leave that prefix inside ``pre_boundary`` and the guard
+    # would self-block a legitimate gate run (the gate + trailing Done items must be
+    # positionally excluded, per the docstring guarantee).
+    boundary = body.rfind("\n", 0, token_idx) + 1
     pre_boundary = body[:boundary]
     if _UNCHECKED_ITEM_RE.search(pre_boundary):
         return "phase-incomplete"

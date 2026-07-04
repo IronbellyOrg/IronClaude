@@ -112,3 +112,26 @@ def test_phase_incomplete_blocker_prefers_marker_over_prose_command(tmp_path) ->
         encoding="utf-8",
     )
     assert runner_mod._phase_incomplete_blocker(p) == "phase-incomplete"
+
+
+def test_phase_incomplete_blocker_no_self_block_when_token_after_checkbox(
+    tmp_path,
+) -> None:
+    """Augment PR #213: when the boundary token appears AFTER the ``- [ ]`` prefix on
+    the gate item's OWN line (no heading carries it), that checkbox must still be
+    positionally excluded -- the boundary anchors to the START of the token's line,
+    NOT its character offset. All pre-gate items complete -> None (no self-block).
+    Pre-fix (mid-line char-offset boundary) ``pre_boundary`` included the gate item's
+    own ``- [ ]`` and the guard self-blocked a legitimate gate run."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [x] Step 1 done\n"
+        "- [x] Step 2 done\n\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] Run the gate behind SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE: "
+        "superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) is None
