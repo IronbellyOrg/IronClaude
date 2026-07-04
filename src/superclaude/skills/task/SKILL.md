@@ -86,7 +86,7 @@ If the file is malformed, inform the user of specific issues rather than attempt
 
 Execute the task file using the five-step execution pattern:
 
-```
+```text
 READ → IDENTIFY → EXECUTE → UPDATE → REPEAT
 ```
 
@@ -339,6 +339,7 @@ When an agent returns:
 
 1. Read any output files it created to verify completion
 2. If the agent produced a report with a verdict (PASS/FAIL), note the verdict in Task Log
+   - **Reconcile the machine contract — never relay a verdict alone.** When an item carries a `report:` / `**Reflect Report Path:**` / a `reflect_post.contract` path (e.g. the terminal `superclaude reflect run` gate), OPEN the machine `return-contract.yaml` at `reflect_post.contract` and reconcile it with the `reflect_post` block, and FAIL the gate — even at wrapper exit `0` — if (all reads via safe `.get(...)` defaults) the honest derived `reflect_post.verdict` != `pass` (the raw contract `status` stays `success` by design), `adversarial_subrun_status` ∈ {partial, failed}, `tier_reached == 2` with `adversarial_convergence_score` present and `< 0.80`, or `deviation_count_by_class.drift`/`.regression` > 0 (the worst-of `subrun_status`/`subrun_status_partial` are observability-only and never fail the gate). Do NOT mark the item `- [x]` on the exit code / relayed verdict string alone.
 3. Mark the corresponding checklist item `- [x]`
 4. If the agent failed or returned incomplete results, follow the Error Handling protocol
 

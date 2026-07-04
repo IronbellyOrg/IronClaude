@@ -55,6 +55,10 @@ _REFLECT_POST_KEY_RE = re.compile(r"^reflect_post\s*:")
 # self-suppress; only the auto-run ``/task``'s OWN terminal gate does.
 _WRAPPER_MARKER = "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE"
 
+# Unchecked MDTM checklist item (``- [ ]``) -- the phase-incompleteness signal for
+# the preflight guard (R-002 D-I1). A ``- [x]`` item does NOT match.
+_UNCHECKED_ITEM_RE = re.compile(r"^\s*- \[ \]", re.MULTILINE)
+
 
 class _IndentDumper(yaml.SafeDumper):
     """SafeDumper that indents block sequences under their key (yamllint-conformant).
@@ -270,6 +274,50 @@ def count_model_aliases(env: dict[str, str]) -> int:
     return sum(1 for var in _MODEL_ALIAS_ENV_VARS if (env.get(var) or "").strip())
 
 
+def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
+    """Return ``"phase-incomplete"`` iff an unchecked ``- [ ]`` item appears BEFORE
+    the reflect-gate boundary token; else ``None`` (fail-open) (R-002 D-I1).
+
+    Defensive: reads + CRLF-normalizes the tasklist (``None`` on ``OSError``), strips
+    the leading frontmatter so a ``- [ ]`` inside frontmatter cannot false-trigger,
+    and locates the FIRST OCCURRENCE (character offset) of the boundary token
+    (``_WRAPPER_MARKER`` or the substring ``superclaude reflect run``). If no boundary
+    token is found (sprint
+    ``### T`` shapes / advisory runs carry no in-file completion marker), returns
+    ``None`` (fail-open). Otherwise returns ``"phase-incomplete"`` iff any ``- [ ]``
+    item exists in the body region BEFORE that boundary. The gate item itself and the
+    trailing Done-transition item sit AT/AFTER the boundary and are positionally
+    excluded, so a legitimate gate run never self-blocks. Frontmatter ``status`` is
+    NEVER consulted (it is ``Doing`` by construction at gate time). No sprint parser
+    is imported (reflect isolation guardrail).
+    """
+    try:
+        text = tasklist_path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    text = text.replace("\r\n", "\n")
+    # Strip the leading frontmatter block so its contents can't false-trigger.
+    fm_match = _FRONTMATTER_RE.search(text)
+    if fm_match is not None:
+        body = text[fm_match.end() :]
+    else:
+        body = text
+    # Locate the reflect-gate boundary (first occurrence of either token).
+    boundary = len(body)
+    found = False
+    for token in (_WRAPPER_MARKER, "superclaude reflect run"):
+        idx = body.find(token)
+        if idx != -1:
+            boundary = min(boundary, idx)
+            found = True
+    if not found:
+        return None  # fail-open: no in-file completion signal to judge.
+    pre_boundary = body[:boundary]
+    if _UNCHECKED_ITEM_RE.search(pre_boundary):
+        return "phase-incomplete"
+    return None
+
+
 def preflight(config: ReflectConfig) -> str | None:
     """Validate launch prerequisites; return a blocker slug or ``None``.
 
@@ -292,6 +340,9 @@ def preflight(config: ReflectConfig) -> str | None:
         return "base-unresolved"
     if not config.head:
         return "head-unresolved"
+    incomplete = _phase_incomplete_blocker(config.tasklist_path)
+    if incomplete is not None:
+        return incomplete
     return None
 
 
@@ -471,6 +522,7 @@ class ReflectRunner:
             expected_tier=expected_tier,
             allow_single_vendor=config.allow_single_vendor,
             child_rc=rc,
+            promoting=config.promote,
         )
         result.contract_path = str(config.contract_path)
         return result

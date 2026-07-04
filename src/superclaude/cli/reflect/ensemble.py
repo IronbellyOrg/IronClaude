@@ -98,6 +98,9 @@ class AdversarialResult:
         }
     )
     report_path: str | None = None
+    # The parsed adversarial sub-contract status (success/partial/failed);
+    # ``None`` = no status parsed / child failed.
+    status: str | None = None
 
 
 TransportFactory = Callable[[int], Transport]
@@ -298,10 +301,20 @@ def run_tier2_ensemble(
     adversarial_report_path = (
         adversarial_result.report_path if adversarial_result is not None else None
     )
+    adversarial_status = (
+        adversarial_result.status if adversarial_result is not None else None
+    )
 
     contract = build_reflect_contract(
         normalized_workers,
         swarm_merged_path=swarm_contract.merged_path,
+        # Forward the STRING VALUE of the swarm status (a ``ResultStatus`` Literal /
+        # plain ``str`` today) via ``getattr(..., "value", ...)`` so ``_worst_status``
+        # always receives a real ``str`` -- the status axis was previously severed
+        # (only ``.merged_path`` was forwarded). Robust if ``.status`` is promoted to
+        # a real enum.
+        swarm_status=getattr(swarm_contract.status, "value", swarm_contract.status),
+        adversarial_status=adversarial_status,
         adversarial_convergence_score=adversarial_convergence_score,
         adversarial_unavailable=adversarial_unavailable,
         regression_present=regression_present,
@@ -375,6 +388,7 @@ def run_adversarial_scorer(
     return AdversarialResult(
         convergence_score=extract_convergence_score(parsed),
         report_path=_extract_adversarial_report_path(parsed),
+        status=extract_adversarial_status(parsed),
     )
 
 
@@ -471,6 +485,24 @@ def extract_convergence_score(contract: dict[str, Any] | None) -> float | None:
     return None
 
 
+def extract_adversarial_status(contract: dict[str, Any] | None) -> str | None:
+    """Extract the adversarial return-contract status (success/partial/failed).
+
+    Mirrors ``extract_convergence_score``'s ``return_contract:`` unwrap: the
+    Mode-A child nests its fields under a top-level ``return_contract:`` key
+    (the incident child emitted ``return_contract.status: "partial"``). A direct
+    (un-nested) ``status`` is also tolerated. Returns ``None`` when the contract
+    is falsy, absent, or the status is not a non-empty string.
+    """
+    if not contract:
+        return None
+    inner = contract.get("return_contract")
+    if isinstance(inner, dict):
+        contract = inner
+    value = contract.get("status")
+    return value if isinstance(value, str) and value else None
+
+
 def _extract_adversarial_report_path(contract: dict[str, Any] | None) -> str | None:
     """Extract the merged report path from the adversarial return contract.
 
@@ -489,6 +521,28 @@ def _extract_adversarial_report_path(contract: dict[str, Any] | None) -> str | N
     return value if isinstance(value, str) and value else None
 
 
+_STATUS_RANK = {"success": 0, "partial": 1, "failed": 2}
+
+
+def _worst_status(*statuses: str | None) -> str:
+    """Return the worst (highest-rank) status under ``failed > partial > success``.
+
+    Coerces each argument to its string form via ``getattr(s, "value", s)`` -- a
+    no-op for the current ``ResultStatus = Literal["success", "partial", "failed"]``
+    (a plain ``str`` at runtime) but robust if ``swarm_contract.status`` is ever
+    promoted to a real enum, so a non-``str`` status can never silently fall through
+    ``_STATUS_RANK.get(...)`` to rank 0 and mis-rank as ``success``. Unknown / ``None``
+    default to rank 0; returns ``"success"`` when none is worse. Pure and total --
+    never raises on ``None``/unknown (this is the telemetry-only worst-of).
+    """
+    worst = "success"
+    for status in statuses:
+        status = getattr(status, "value", status)
+        if status and _STATUS_RANK.get(status, 0) > _STATUS_RANK[worst]:
+            worst = status
+    return worst
+
+
 def build_reflect_contract(
     workers: list[WorkerResult],
     *,
@@ -503,6 +557,8 @@ def build_reflect_contract(
     reviewer_isolation: str = "disabled",
     audit_tree_dirty: bool = False,
     reviewer_grounding_root: str | None = None,
+    swarm_status: str = "success",
+    adversarial_status: str | None = None,
 ) -> dict[str, Any] | None:
     """Map swarm worker facts onto the reflect return-contract namespace.
 
@@ -536,6 +592,13 @@ def build_reflect_contract(
     return {
         "contract_version": REFLECT_CONTRACT_VERSION,
         "status": "success",
+        # Telemetry worst-of (includes swarm) -- observability ONLY, never gated.
+        "subrun_status": _worst_status(swarm_status, adversarial_status),
+        # The adversarial child's status verbatim -- the DEGRADE gate signal.
+        "adversarial_subrun_status": adversarial_status,
+        # Telemetry bool derived from the worst-of -- observability ONLY.
+        "subrun_status_partial": _worst_status(swarm_status, adversarial_status)
+        != "success",
         "mode": "post",
         "tier_reached": tier_reached,
         "reviewer_count": reviewer_count,
@@ -548,7 +611,7 @@ def build_reflect_contract(
         "merge_method": merge_method,
         "adversarial_convergence_score": adversarial_convergence_score,
         "verification_ran": False,
-        "verification_skip_reason": "tool-unavailable",
+        "verification_skip_reason": "no-verification-stage",
         "citations_dropped": 0,
         "citations_dropped_extrapolated": 0,
         "input_drift_detected": False,
