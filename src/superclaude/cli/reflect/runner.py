@@ -58,6 +58,12 @@ _WRAPPER_MARKER = "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE"
 # Unchecked MDTM checklist item (``- [ ]``) -- the phase-incompleteness signal for
 # the preflight guard (R-002 D-I1). A ``- [x]`` item does NOT match.
 _UNCHECKED_ITEM_RE = re.compile(r"^\s*- \[ \]", re.MULTILINE)
+# A fenced code block (```` ```/~~~ ````...same-fence). Stripped from the scan region so
+# a ``- [ ]`` shown as an EXAMPLE inside a fence is not mistaken for a real unchecked
+# checklist item (which would spuriously over-block a complete phase).
+_FENCED_CODE_RE = re.compile(
+    r"^[ \t]*(`{3,}|~{3,}).*?^[ \t]*\1[ \t]*$", re.MULTILINE | re.DOTALL
+)
 
 
 class _IndentDumper(yaml.SafeDumper):
@@ -297,8 +303,12 @@ def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
     except (OSError, UnicodeDecodeError):
         return None
     text = text.replace("\r\n", "\n")
-    # Strip the leading frontmatter block so its contents can't false-trigger.
-    fm_match = _FRONTMATTER_RE.search(text)
+    # Strip a leading frontmatter block so its contents can't false-trigger -- but ONLY
+    # when it is at the very START of the file (``.match``, NOT ``.search``). ``.search``
+    # could match a later ``--- ... ---`` block (a body thematic break / YAML example)
+    # and wrongly drop real pre-gate checklist items, letting an incomplete phase
+    # fail-open.
+    fm_match = _FRONTMATTER_RE.match(text)
     if fm_match is not None:
         body = text[fm_match.end() :]
     else:
@@ -321,6 +331,10 @@ def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
     # positionally excluded, per the docstring guarantee).
     boundary = body.rfind("\n", 0, token_idx) + 1
     pre_boundary = body[:boundary]
+    # Ignore ``- [ ]`` shown inside fenced code blocks (examples / quoted syntax) -- only
+    # real checklist items count. The boundary was located on the UN-stripped body above,
+    # so a fenced gate command is never lost by this strip.
+    pre_boundary = _FENCED_CODE_RE.sub("", pre_boundary)
     if _UNCHECKED_ITEM_RE.search(pre_boundary):
         return "phase-incomplete"
     return None

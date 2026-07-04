@@ -135,3 +135,48 @@ def test_phase_incomplete_blocker_no_self_block_when_token_after_checkbox(
         encoding="utf-8",
     )
     assert runner_mod._phase_incomplete_blocker(p) is None
+
+
+def test_phase_incomplete_blocker_ignores_non_top_frontmatter_block(tmp_path) -> None:
+    """Augment PR #213: only a frontmatter block at the very START of the file is
+    stripped (``.match``, not ``.search``). A later ``--- ... ---`` block in the body (a
+    thematic break / YAML example) must not drop real pre-gate items. Here there is NO
+    top frontmatter and a body ``---`` block AFTER a real unchecked item -> the item is
+    still scanned -> ``"phase-incomplete"``. Pre-fix (``.search``) matched the body block
+    and dropped the leading item -> None (fail-open)."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [ ] incomplete item\n"
+        "---\n"
+        "some body section between thematic breaks\n"
+        "---\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] gate: superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) == "phase-incomplete"
+
+
+def test_phase_incomplete_blocker_ignores_unchecked_inside_fenced_code(
+    tmp_path,
+) -> None:
+    """Augment PR #213: a ``- [ ]`` shown as an EXAMPLE inside a fenced code block is NOT
+    a real unchecked item -- with all real pre-gate items complete the guard must fail
+    open (None), not over-block. Pre-fix the fenced example matched
+    ``_UNCHECKED_ITEM_RE`` -> spurious ``"phase-incomplete"``."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [x] Step 1 done\n"
+        "Example of the checklist syntax:\n"
+        "```text\n"
+        "- [ ] an example unchecked item (documentation, not a real item)\n"
+        "```\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] gate: superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) is None
