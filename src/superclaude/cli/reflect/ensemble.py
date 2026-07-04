@@ -337,6 +337,9 @@ def run_tier2_ensemble(
             if config.reviewer_grounding_root
             else None
         ),
+        # FX7: thread the REQUESTED count so the builder can surface a reviewer shortfall
+        # (reviewer_count < requested) via reviewers_verified + a visible degraded_components token.
+        reviewers_requested=reviewers,
     )
     _emit_reflect_contract(config.contract_path, contract)
     return contract
@@ -566,6 +569,7 @@ def build_reflect_contract(
     reviewer_grounding_root: str | None = None,
     swarm_status: str = "success",
     adversarial_status: str | None = None,
+    reviewers_requested: int | None = None,
 ) -> dict[str, Any] | None:
     """Map swarm worker facts onto the reflect return-contract namespace.
 
@@ -580,6 +584,23 @@ def build_reflect_contract(
     reviewer_count = len(succeeded)
     if reviewer_count == 0:
         return None
+
+    # FX7 honest-accounting (additive/visible). ``reviewers_requested`` is None for
+    # direct/test calls that omit the kwarg → verification is treated as vacuously
+    # satisfied (never ``reviewer_count >= None``, which would raise). On a genuine
+    # shortfall (requested known and fewer survived) surface a VISIBLE ``reviewer-shortfall``
+    # token in ``degraded_components``. The token is BENIGN — it is intentionally NOT a
+    # ``_DEGRADED_COMPONENTS_HALT_SET`` member (contract.py:31-33), so it does NOT flip the
+    # verdict: a 2-of-3 shortfall stays PASS-eligible per the deliberate FR-RH2.9 design
+    # (test_i3). The verdict-DEGRADE-on-shortfall is DEFERRED as a needs_human_decision
+    # PENDING (fx7-degrade-on-reviewer-shortfall-DECISION.md) because degrading it would
+    # reverse FR-RH2.9 non-additively (parallel to the deferred degrade-on-unverified vs R2-F2).
+    reviewers_verified = (
+        True if reviewers_requested is None else reviewer_count >= reviewers_requested
+    )
+    degraded_components: list[str] = []
+    if reviewers_requested is not None and reviewer_count < reviewers_requested:
+        degraded_components.append("reviewer-shortfall")
 
     tier_reached = 2 if reviewer_count >= 2 else 1
     merge_method = "adversarial" if reviewer_count >= 2 else "single-reviewer-fallback"
@@ -619,6 +640,13 @@ def build_reflect_contract(
         "adversarial_convergence_score": adversarial_convergence_score,
         "verification_ran": False,
         "verification_skip_reason": "no-verification-stage",
+        # FX7 additive visibility siblings — make the vacuity/shortfall observable to a
+        # downstream reader WITHOUT repurposing existing routing (driving-plan §3.4).
+        # verification_verified/regression_verified are always False here (the headless
+        # seam runs no verification triangle); reviewers_verified is None-guarded above.
+        "verification_verified": False,
+        "reviewers_verified": reviewers_verified,
+        "regression_verified": False,
         "citations_dropped": 0,
         "citations_dropped_extrapolated": 0,
         "input_drift_detected": False,
@@ -627,7 +655,7 @@ def build_reflect_contract(
         "needs_human_decision": needs_human_decision,
         "user_decision_required": False,  # seam emits no user-decision signal; honest default (R2-F3, supersedes R6 Step 2.5 mirror mandate)
         "serena_summary_corroboration": "unavailable",
-        "degraded_components": [],
+        "degraded_components": degraded_components,
         # L2 reviewer-isolation telemetry (pure telemetry; not verdict-bearing —
         # the STOP happens in the runner before derive_verdict, so audit_tree_dirty
         # is NOT registered in _LOAD_BEARING_BOOL_FIELDS). Defaulted CLEAN so a

@@ -150,6 +150,14 @@ class ReflectResult:
     reviewer_isolation: str = "disabled"
     audit_tree_dirty: bool = False
     reviewer_grounding_root: str | None = None
+    # FX7 additive honest-accounting visibility siblings. Defaulted so all 5
+    # hand-built construction sites stay valid; absent-on-old contracts flow as
+    # False (unverified / fail-closed). These are visibility-only — they do NOT
+    # alter the verdict (the verdict-DEGRADE routings they would inform are
+    # deferred to needs_human_decision PENDINGs).
+    verification_verified: bool = False
+    reviewers_verified: bool = False
+    regression_verified: bool = False
 
     @property
     def outcome(self) -> str:

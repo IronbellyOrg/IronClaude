@@ -152,3 +152,29 @@ Runtime-surface UNREACHED-by-evidence (SKILL.md §10.9 / FR-RSR) follows the sam
 - The REPORT.md Grounding Gaps section enumerates each row with the missing-evidence rationale.
 
 **Structural separateness.** `grounding-gaps.yaml` is a **distinct artifact** from `deviation-ledger.yaml`. The two files never share rows. This separation absorbs V4's `unknown`-class semantics (with V4's required-field rigor) while preserving V2's Grounding Gap routing mechanism. The 5th deviation category was explicitly rejected in §17.7 Kill List; see that section for the rationale.
+
+## Correctness-gap (advisory parallel dimension — no 5th class)
+
+Adds **no 5th category**. Like the FR-RH1 reachability mapping and the Grounding-gaps parallel artifact above, this is a sibling finding-modifier that routes *by evidence*, never a new gating deviation class — the taxonomy stays exactly four classes (the 5th was rejected in §17.7 Kill List).
+
+**The coverage gap this closes.** The existing **Regression** class is *spec-relative*: it triggers on a change that breaks previously-working spec behavior OR contradicts a **documented** load-bearing invariant (see the Regression definition above). A **no-spec** correctness gap — code that is spec-conformant yet wrong because two sibling symbols disagree (the F1 / PR #209 class: e.g. a `diagnose()` guarding its probe argument as a file while sibling `load_evidence()` / `_evidence_sha256()` accept a directory) — has **no spec anchor and no documented invariant**, so it falls through all four categories. That fall-through is exactly this advisory dimension's reason to exist.
+
+**Advisory routing (raised for triage, never gating).** A no-spec correctness gap is written to a parallel artifact `<output>/correctness-gaps.yaml` (parallel to `grounding-gaps.yaml`), NEVER to `deviation-ledger.yaml`. It is **advisory only**: it does NOT set `regression_present`, does NOT increment `verification_regressions_detected`, does NOT enter the unconditional Tier-2 escalation path, and does NOT force `status: partial` or `needs_human_decision`. It is surfaced for a human / the orchestrator to triage — the gating decision stays downstream and this dimension never gates on its own. (This is strictly *more* advisory than the Grounding-gaps artifact above, which DOES force `status: partial`; a correctness gap, lacking any spec anchor, must not gate.)
+
+| No-spec correctness evidence | Class | Effect |
+|---|---|---|
+| Two sibling symbols disagree on a shared input's shape/contract, spec silent (no acceptance criterion, no documented invariant) | **none (advisory)** | `correctness_gap_raised += 1`; write a `correctness-gaps.yaml` row; NOT `regression_present`; NO `status` / `needs_human_decision` change |
+| The disagreement violates a **documented** invariant or a spec acceptance criterion | **Regression** | routes to the existing Regression class by evidence (spec-relative) — NOT this advisory channel |
+
+**Required fields (mirrors the Grounding-gaps schema shape):**
+
+```yaml
+- hunk_ref: <file:line-range>
+  correctness_gap: <the sibling disagreement — e.g., "diagnose() file-only guard vs load_evidence() dir">
+  siblings: [<symbol A>, <symbol B>]
+  why_advisory: <one-sentence reason the spec is silent / no documented invariant applies>
+  next_evidence_needed: <what would promote it — e.g., "add a spec acceptance criterion or a documented invariant">
+  owner: user
+```
+
+**Structural separateness.** `correctness-gaps.yaml` is a **distinct artifact** from both `deviation-ledger.yaml` and `grounding-gaps.yaml`; the three files never share rows. This preserves the four-class Kill-List invariant while giving the no-spec correctness class a non-gating triage home.

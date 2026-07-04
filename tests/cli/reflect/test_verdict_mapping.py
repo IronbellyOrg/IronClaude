@@ -537,3 +537,43 @@ def test_not_promoting_preserves_verification_exemption() -> None:
     )
     assert result_b.verdict is Verdict.PASS
     assert result_b.verdict.exit_code == 0
+
+
+# --- FX7: additive-safety witnesses (visible accounting must NOT over-degrade) ---
+
+
+def test_fx7_reviewer_shortfall_token_does_not_over_degrade() -> None:
+    """FX7 additive-safety witness: the benign ``reviewer-shortfall`` token stays PASS.
+
+    The ensemble builder surfaces a genuine shortfall via a VISIBLE
+    ``reviewer-shortfall`` token in ``degraded_components``, but that token is
+    intentionally NOT a ``_DEGRADED_COMPONENTS_HALT_SET`` member, so a 2-of-3 shortfall
+    stays PASS-eligible per the deliberate FR-RH2.9 design (test_i3). The verdict-DEGRADE
+    is a deferred needs_human_decision — NOT encoded here (that would contradict test_i3).
+    The shortfall remains OBSERVABLE via the derived ``reviewers_verified`` flag.
+    """
+    result = derive_verdict(
+        _load("degraded_reviewer_shortfall.yaml"),
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+    assert result.reviewers_verified is False
+    assert result.verification_verified is False
+
+
+def test_fx7_vacuous_no_verify_stays_exempt_but_visible() -> None:
+    """FX7: a verification-never-ran run with the EXEMPT skip reason stays PASS (R2-F2),
+    but the vacuity is now OBSERVABLE via the derived ``verification_verified`` flag.
+    """
+    result = derive_verdict(
+        _load("vacuous_no_verify.yaml"),
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+    assert result.verification_verified is False

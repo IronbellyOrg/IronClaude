@@ -553,3 +553,75 @@ def test_resolve_config_normalizes_transport_case(temp_tasklist, patch_git) -> N
         str(temp_tasklist), depth="standard", model="test-model", transport="STUB"
     )
     assert config.transport == "stub"
+
+
+# --- FX7: additive honest-accounting visibility (reviewer shortfall + *_verified) ---
+
+
+def test_fx7_reviewer_shortfall_populates_visible_token_and_unverified_flag() -> None:
+    """A genuine shortfall (reviewer_count < reviewers_requested) is made VISIBLE.
+
+    ``degraded_components`` carries the ``reviewer-shortfall`` token and
+    ``reviewers_verified`` is False. The token is BENIGN (see the verdict-mapping
+    additive-safety witness) — the verdict-DEGRADE is deferred to needs_human_decision.
+    """
+    workers = [
+        WorkerResult(index=0, status="success", model_id="model-a"),
+        WorkerResult(index=1, status="success", model_id="model-b"),
+    ]
+    contract = build_reflect_contract(
+        workers, adversarial_convergence_score=0.86, reviewers_requested=3
+    )
+    assert contract is not None
+    assert "reviewer-shortfall" in contract["degraded_components"]
+    assert contract["reviewers_verified"] is False
+
+
+def test_fx7_emits_verification_visibility_fields_with_none_guard() -> None:
+    """The NEW ``*_verified`` fields are present; ``reviewers_verified`` is None-guarded.
+
+    When ``reviewers_requested`` is omitted (None), verification is vacuously satisfied
+    (``reviewers_verified is True``) and ``degraded_components`` stays empty — direct/test
+    callers are unaffected. When requested is met, reviewers_verified is True too.
+    """
+    workers = [
+        WorkerResult(index=0, status="success", model_id="model-a"),
+        WorkerResult(index=1, status="success", model_id="model-b"),
+    ]
+    # kwarg omitted -> None-guard treats verification as vacuously satisfied.
+    omitted = build_reflect_contract(workers, adversarial_convergence_score=0.86)
+    assert omitted is not None
+    assert omitted["verification_verified"] is False
+    assert omitted["regression_verified"] is False
+    assert omitted["reviewers_verified"] is True
+    assert omitted["degraded_components"] == []
+
+    # requested count met (2 of 2) -> reviewers_verified True, no shortfall token.
+    met = build_reflect_contract(
+        workers, adversarial_convergence_score=0.86, reviewers_requested=2
+    )
+    assert met is not None
+    assert met["reviewers_verified"] is True
+    assert met["degraded_components"] == []
+
+
+def test_fx7_clean_run_preserves_exempt_skip_reason_and_empty_degraded() -> None:
+    """Additive-safety witness: clean-run routing is UNCHANGED (mirrors R2-F2).
+
+    A full-reviewer run keeps ``verification_skip_reason == "tool-unavailable"`` (the
+    EXEMPT reason) and ``degraded_components == []`` — the FX7 additions never flip the
+    clean-run skip reason (that aggressive routing is a deferred needs_human_decision).
+    """
+    workers = [
+        WorkerResult(index=0, status="success", model_id="model-a"),
+        WorkerResult(index=1, status="success", model_id="model-b"),
+        WorkerResult(index=2, status="success", model_id="model-c"),
+    ]
+    contract = build_reflect_contract(
+        workers, adversarial_convergence_score=0.86, reviewers_requested=3
+    )
+    assert contract is not None
+    assert contract["degraded_components"] == []
+    assert contract["verification_skip_reason"] == "tool-unavailable"
+    assert "tool-unavailable" in _VERIFICATION_SKIP_EXEMPTIONS
+    assert contract["verification_verified"] is False
