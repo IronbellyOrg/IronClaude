@@ -491,8 +491,12 @@ def extract_adversarial_status(contract: dict[str, Any] | None) -> str | None:
     Mirrors ``extract_convergence_score``'s ``return_contract:`` unwrap: the
     Mode-A child nests its fields under a top-level ``return_contract:`` key
     (the incident child emitted ``return_contract.status: "partial"``). A direct
-    (un-nested) ``status`` is also tolerated. Returns ``None`` when the contract
-    is falsy, absent, or the status is not a non-empty string.
+    (un-nested) ``status`` is also tolerated. The value is normalized (stripped +
+    lowercased) so a formatting/case variant of a real status (e.g. ``"Partial "``,
+    ``"FAILED"``) still matches the exact-membership degrade gate
+    (``adversarial_subrun_status in ("partial", "failed")``) instead of silently
+    slipping past it. Returns ``None`` when the contract is falsy, absent, or the
+    status is not a non-empty string.
     """
     if not contract:
         return None
@@ -500,7 +504,10 @@ def extract_adversarial_status(contract: dict[str, Any] | None) -> str | None:
     if isinstance(inner, dict):
         contract = inner
     value = contract.get("status")
-    return value if isinstance(value, str) and value else None
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip().lower()
+    return normalized or None
 
 
 def _extract_adversarial_report_path(contract: dict[str, Any] | None) -> str | None:

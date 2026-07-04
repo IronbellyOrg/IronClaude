@@ -430,6 +430,23 @@ def test_convergence_at_or_above_threshold_passes() -> None:
     assert result.verdict.exit_code == 0
 
 
+def test_nonfinite_convergence_tier2_degrades() -> None:
+    """Augment PR #213 hardening: a non-finite adversarial convergence (NaN/Inf) at
+    tier 2 must DEGRADE. ``float('nan')`` does not raise and ``nan < 0.80`` is False,
+    and a NaN is not ``None``, so without the ``isfinite`` guard it would bypass BOTH
+    the null-convergence and low-convergence triggers and wrongly stay PASS-eligible
+    (the exact silent-PASS class this fix closes)."""
+    for bad in (float("nan"), float("inf")):
+        contract = _load("pass.yaml")
+        contract["adversarial_convergence_score"] = bad
+        result = derive_verdict(
+            contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+        )
+        assert result.verdict is Verdict.DEGRADED
+        assert result.verdict.exit_code == 11
+        assert result.reason == "low-convergence"
+
+
 def test_promoting_drops_verification_exemption() -> None:
     """P1 promote-tightening (R-002 D-C1, CORRECTED): under promote, the verification
     exemption drops ONLY {tool-unavailable, read-only-project} -- the honest

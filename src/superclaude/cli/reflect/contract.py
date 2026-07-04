@@ -14,6 +14,7 @@ defense per the Section 11 invariant probe), so the ordering is exact:
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import yaml
@@ -301,13 +302,18 @@ def _degraded_reason(
     # Trigger 11b (R-002 D-C2 #6): present-but-low adversarial convergence at T2.
     # A present score below 0.80 (the incident 0.75) degrades where the null-
     # convergence trigger above missed it. The more-specific null case precedes this.
+    # A non-finite score (NaN/Inf) is an untrustworthy adversarial merge and MUST
+    # degrade too -- ``float("nan")`` does not raise and ``nan < 0.80`` is False, so
+    # without the ``isfinite`` guard a NaN/Inf convergence would bypass both this and
+    # the ``is None`` null-convergence trigger and wrongly stay PASS-eligible.
     _score = contract.get("adversarial_convergence_score")
     if tier_reached == 2 and _score is not None:
         try:
-            if float(_score) < 0.80:
-                return "low-convergence"
+            _score_f = float(_score)
         except (TypeError, ValueError):
-            pass
+            _score_f = None
+        if _score_f is not None and (not math.isfinite(_score_f) or _score_f < 0.80):
+            return "low-convergence"
 
     # Trigger 12: verification didn't run, unless exempted.
     if contract.get("verification_ran") is False:

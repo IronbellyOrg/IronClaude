@@ -448,6 +448,24 @@ def test_extract_adversarial_status_reads_child_status() -> None:
     assert extract_adversarial_status(None) is None
 
 
+def test_extract_adversarial_status_normalizes_variants() -> None:
+    """Augment PR #213 hardening: a formatting/case variant of a real status
+    (leading/trailing whitespace, uppercase) is normalized (strip + lower) so the
+    exact-membership degrade gate (``adversarial_subrun_status in ('partial',
+    'failed')``) still catches it instead of silently missing a degraded subrun.
+    Pre-fix the raw string was returned verbatim, so ``'  Partial  '`` would miss."""
+    from superclaude.cli.reflect.ensemble import extract_adversarial_status
+
+    assert extract_adversarial_status({"status": "  Partial  "}) == "partial"
+    assert (
+        extract_adversarial_status({"return_contract": {"status": "FAILED"}})
+        == "failed"
+    )
+    assert extract_adversarial_status({"status": "SUCCESS"}) == "success"
+    # Whitespace-only collapses to None (not a spurious non-empty status).
+    assert extract_adversarial_status({"status": "   "}) is None
+
+
 def test_run_adversarial_scorer_populates_status(tmp_path, monkeypatch) -> None:
     """P0 producer honesty: ``run_adversarial_scorer`` populates
     ``AdversarialResult.status`` from the parsed adversarial sub-contract, so the
