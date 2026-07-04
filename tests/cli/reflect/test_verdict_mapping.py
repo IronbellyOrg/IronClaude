@@ -436,13 +436,14 @@ def test_nonfinite_convergence_tier2_degrades() -> None:
     and a NaN is not ``None``, so without the ``isfinite`` guard it would bypass BOTH
     the null-convergence and low-convergence triggers and wrongly stay PASS-eligible
     (the exact silent-PASS class this fix closes)."""
-    for bad in (float("nan"), float("inf")):
+    # Non-finite (NaN/Inf) AND present-but-unparseable ("abc") all degrade.
+    for bad in (float("nan"), float("inf"), "not-a-number", "NaN"):
         contract = _load("pass.yaml")
         contract["adversarial_convergence_score"] = bad
         result = derive_verdict(
             contract, expected_tier=2, allow_single_vendor=False, child_rc=0
         )
-        assert result.verdict is Verdict.DEGRADED
+        assert result.verdict is Verdict.DEGRADED, f"{bad!r} should degrade"
         assert result.verdict.exit_code == 11
         assert result.reason == "low-convergence"
 

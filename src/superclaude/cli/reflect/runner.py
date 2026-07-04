@@ -278,7 +278,8 @@ def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
     """Return ``"phase-incomplete"`` iff an unchecked ``- [ ]`` item appears BEFORE
     the reflect-gate boundary token; else ``None`` (fail-open) (R-002 D-I1).
 
-    Defensive: reads + CRLF-normalizes the tasklist (``None`` on ``OSError``), strips
+    Defensive: reads + CRLF-normalizes the tasklist (``None`` on ``OSError`` or an
+    undecodable ``UnicodeDecodeError`` -- fail-open on an unreadable file), strips
     the leading frontmatter so a ``- [ ]`` inside frontmatter cannot false-trigger,
     and locates the FIRST OCCURRENCE (character offset) of the boundary token
     (``_WRAPPER_MARKER`` or the substring ``superclaude reflect run``). If no boundary
@@ -293,7 +294,7 @@ def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
     """
     try:
         text = tasklist_path.read_text(encoding="utf-8")
-    except OSError:
+    except (OSError, UnicodeDecodeError):
         return None
     text = text.replace("\r\n", "\n")
     # Strip the leading frontmatter block so its contents can't false-trigger.
@@ -302,16 +303,20 @@ def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
         body = text[fm_match.end() :]
     else:
         body = text
-    # Locate the reflect-gate boundary (first occurrence of either token).
-    boundary = len(body)
-    found = False
-    for token in (_WRAPPER_MARKER, "superclaude reflect run"):
-        idx = body.find(token)
-        if idx != -1:
-            boundary = min(boundary, idx)
-            found = True
-    if not found:
-        return None  # fail-open: no in-file completion signal to judge.
+    # Locate the reflect-gate boundary. PREFER the specific recursion-breaker marker
+    # (``SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE``) -- it is unlikely to appear in prose;
+    # only fall back to the less-specific ``superclaude reflect run`` substring when
+    # the marker is absent. Taking the earliest occurrence of EITHER token let a prose
+    # mention of the command (earlier than the real gate item) set a false-early
+    # boundary, skipping unchecked items and spuriously failing open.
+    marker_idx = body.find(_WRAPPER_MARKER)
+    if marker_idx != -1:
+        boundary = marker_idx
+    else:
+        cmd_idx = body.find("superclaude reflect run")
+        if cmd_idx == -1:
+            return None  # fail-open: no in-file completion signal to judge.
+        boundary = cmd_idx
     pre_boundary = body[:boundary]
     if _UNCHECKED_ITEM_RE.search(pre_boundary):
         return "phase-incomplete"

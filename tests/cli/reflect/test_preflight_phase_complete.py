@@ -80,3 +80,35 @@ def test_preflight_fail_open_when_no_boundary_token(
     body = "### T01.01 -- Some task\n- [ ] not done\n"
     config = _config(_write(tmp_path, body))
     assert preflight(config) is None
+
+
+def test_phase_incomplete_blocker_fail_open_on_undecodable_file(tmp_path) -> None:
+    """Augment PR #213: an undecodable (invalid UTF-8) tasklist must fail-open (None),
+    not crash -- ``read_text(encoding='utf-8')`` raises ``UnicodeDecodeError`` (a
+    ``ValueError``, NOT an ``OSError``), so the defensive read must catch it too.
+    Pre-fix the exception bubbled up and crashed preflight."""
+    p = tmp_path / "bad.md"
+    p.write_bytes(b"\xff\xfe invalid \x80\x81 superclaude reflect run\n- [ ] x\n")
+    assert runner_mod._phase_incomplete_blocker(p) is None
+
+
+def test_phase_incomplete_blocker_prefers_marker_over_prose_command(tmp_path) -> None:
+    """Augment PR #213: a prose mention of ``superclaude reflect run`` EARLIER than the
+    real gate must not set a false-early boundary. The scan prefers the specific
+    ``SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE`` marker (at the real gate), so an unchecked
+    item between the prose mention and the real gate is still caught. Pre-fix
+    (earliest-of-either-token) the prose mention set the boundary early and the
+    unchecked item was skipped -> None (false-open)."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [x] done\n"
+        "Note: the terminal gate runs `superclaude reflect run <tasklist>` at the end.\n"
+        "- [ ] Step 2 NOT done\n\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] gate behind the SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE skip guard: "
+        "superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) == "phase-incomplete"
