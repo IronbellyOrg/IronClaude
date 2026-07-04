@@ -164,6 +164,9 @@ def _differentials_module():
         spec = importlib.util.spec_from_file_location(
             "test_gate_helper_differentials", path
         )
+        assert spec is not None and spec.loader is not None, (
+            f"could not load an import spec for {path} (FX5 registry unavailable)"
+        )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module

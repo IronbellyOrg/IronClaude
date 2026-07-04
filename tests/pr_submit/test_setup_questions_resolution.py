@@ -84,7 +84,7 @@ def _answer_default_literals(calls: list[ast.Call]) -> list[tuple[int, ast.expr]
 
 def _evidence_attr_pairs(
     calls: list[ast.Call],
-) -> list[tuple[int, ast.expr, ast.expr]]:
+) -> list[tuple[int, ast.expr, ast.expr | None]]:
     """(lineno, attr-node, answer_attr-node-or-None) for each _evidence_attr call.
 
     ``attr`` is the first positional arg (the evidence field). ``answer_attr`` is
