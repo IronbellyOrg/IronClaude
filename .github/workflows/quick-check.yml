@@ -44,6 +44,10 @@ jobs:
         run: |
           pytest --trace-config 2>&1 | grep -q "superclaude"
 
+      - name: Sync src/superclaude/ → .claude/ mirrors
+        run: |
+          make sync-dev
+
       - name: Verify component sync (src/ ↔ .claude/)
         run: |
           make verify-sync
