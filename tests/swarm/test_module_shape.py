@@ -204,9 +204,7 @@ def test_no_undocumented_top_level_files_in_swarm() -> None:
     """Every top-level *.py file in cli/swarm/ is either a counterpart or a documented divergence."""
     documented: set[str] = set(COUNTERPART_FILES) | set(SWARM_ONLY_FILES)
     actual_files = {
-        p.name
-        for p in SWARM_DIR.iterdir()
-        if p.is_file() and p.suffix == ".py"
+        p.name for p in SWARM_DIR.iterdir() if p.is_file() and p.suffix == ".py"
     }
     undocumented = sorted(actual_files - documented)
     assert not undocumented, (

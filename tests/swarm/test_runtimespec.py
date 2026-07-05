@@ -39,7 +39,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-009 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L96)
 # names exactly these top-level fields; on_completion is a nested dataclass
 # (same pattern as RetryPolicy on WorkerSpec, OnParseError on NormalizationSpec).

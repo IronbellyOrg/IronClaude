@@ -45,7 +45,6 @@ from superclaude.cli.swarm.recipes import (
     load_custom_py,
 )
 
-
 # ---------------------------------------------------------------------------
 # Expected REGISTRY enumeration (§3.3 / FR-LENSREG.NS).
 # ---------------------------------------------------------------------------
@@ -73,7 +72,9 @@ NON_DISPATCHER_RECIPE_NAMES: tuple[str, ...] = tuple(
 # Wave-2 dispatcher hands recipes in production -- keeping it here as a
 # single source of truth lets the parametrized smoke test exercise every
 # bundled recipe through one consistent surface.
-def _benign_args(*, lens: str = "refactor-find", tier: str = "T2-code") -> dict[str, Any]:
+def _benign_args(
+    *, lens: str = "refactor-find", tier: str = "T2-code"
+) -> dict[str, Any]:
     return {
         "status": "success",
         "lens": lens,
@@ -184,9 +185,7 @@ def test_non_dispatcher_recipe_returns_normalized_result(name: str):
 class _FixtureRecipe:
     """In-test fixture conforming to the Recipe Protocol structurally."""
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         del args
         return NormalizedResult(text=f"fixture:{raw_output}")
 

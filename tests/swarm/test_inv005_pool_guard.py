@@ -18,6 +18,9 @@ either function is caught without an end-to-end run; the
 manifest stamping for warn mode; structured failure for stop mode.
 """
 
+# ruff: noqa: E402 -- module-level ``pytestmark`` intentionally precedes the
+# superclaude imports so the marker is registered before collection.
+
 from __future__ import annotations
 
 import logging
@@ -84,8 +87,7 @@ def _minimal_valid_spec() -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -263,12 +265,8 @@ def test_run_preflight_warn_mode_clamps_and_logs(
 ) -> None:
     spec = _minimal_valid_spec()
     spec["workers"]["count"] = 7  # pool size 3
-    with caplog.at_level(
-        logging.WARNING, logger="superclaude.cli.swarm.preflight"
-    ):
-        result = run_preflight(
-            spec, target_loader=target_loader, pool_policy="warn"
-        )
+    with caplog.at_level(logging.WARNING, logger="superclaude.cli.swarm.preflight"):
+        result = run_preflight(spec, target_loader=target_loader, pool_policy="warn")
 
     # No PreflightError raised -- success path.
     assert result.state.state == "preflight_ok"
@@ -280,8 +278,7 @@ def test_run_preflight_warn_mode_clamps_and_logs(
     warnings = [
         rec
         for rec in caplog.records
-        if rec.levelno == logging.WARNING
-        and "INV-005" in rec.getMessage()
+        if rec.levelno == logging.WARNING and "INV-005" in rec.getMessage()
     ]
     assert len(warnings) == 1
     msg = warnings[0].getMessage()
@@ -299,9 +296,7 @@ def test_run_preflight_default_policy_warns_not_stops(
     # not a PreflightError.
     spec = _minimal_valid_spec()
     spec["workers"]["count"] = 5  # pool size 3
-    with caplog.at_level(
-        logging.WARNING, logger="superclaude.cli.swarm.preflight"
-    ):
+    with caplog.at_level(logging.WARNING, logger="superclaude.cli.swarm.preflight"):
         result = run_preflight(spec, target_loader=target_loader)
     assert result.state.state == "preflight_ok"
     assert result.manifest.preflight.workers_requested == 3
@@ -317,9 +312,7 @@ def test_run_preflight_stop_mode_raises_with_inv005(
     rules = {f.rule for f in excinfo.value.failures}
     assert RULE_WORKERS_EXCEED_POOL in rules
     failure = next(
-        f
-        for f in excinfo.value.failures
-        if f.rule == RULE_WORKERS_EXCEED_POOL
+        f for f in excinfo.value.failures if f.rule == RULE_WORKERS_EXCEED_POOL
     )
     assert failure.reason == "workers-exceed-pool"
     assert failure.path == "workers.count"
@@ -330,16 +323,10 @@ def test_run_preflight_warn_mode_silent_when_within_pool(
 ) -> None:
     spec = _minimal_valid_spec()
     spec["workers"]["count"] = 3  # equal to pool size
-    with caplog.at_level(
-        logging.WARNING, logger="superclaude.cli.swarm.preflight"
-    ):
-        result = run_preflight(
-            spec, target_loader=target_loader, pool_policy="warn"
-        )
+    with caplog.at_level(logging.WARNING, logger="superclaude.cli.swarm.preflight"):
+        result = run_preflight(spec, target_loader=target_loader, pool_policy="warn")
     assert result.manifest.preflight.workers_requested == 3
-    assert not any(
-        "INV-005" in rec.getMessage() for rec in caplog.records
-    )
+    assert not any("INV-005" in rec.getMessage() for rec in caplog.records)
 
 
 def test_run_preflight_stop_mode_silent_when_within_pool(
@@ -347,8 +334,6 @@ def test_run_preflight_stop_mode_silent_when_within_pool(
 ) -> None:
     spec = _minimal_valid_spec()
     spec["workers"]["count"] = 2  # under pool size
-    result = run_preflight(
-        spec, target_loader=target_loader, pool_policy="stop"
-    )
+    result = run_preflight(spec, target_loader=target_loader, pool_policy="stop")
     assert result.state.state == "preflight_ok"
     assert result.manifest.preflight.workers_requested == 2

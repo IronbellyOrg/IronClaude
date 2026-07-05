@@ -59,7 +59,6 @@ from superclaude.cli.swarm.normalize import (
 )
 from superclaude.cli.swarm.recipes import REGISTRY
 
-
 # ---------------------------------------------------------------------------
 # Fixture helpers
 # ---------------------------------------------------------------------------
@@ -245,10 +244,7 @@ def test_salvageable_fixture_promotes_to_success(tmp_path, install_recipe):
     [out] = normalize_wave2([worker], "findings_table_v1")
 
     assert out.status == "success"
-    assert (
-        Path(worker.final_path).read_text(encoding="utf-8")
-        == "recovered:messy body"
-    )
+    assert Path(worker.final_path).read_text(encoding="utf-8") == "recovered:messy body"
     meta = json.loads(Path(worker.meta_path).read_text(encoding="utf-8"))
     assert meta["salvaged"] is True
     assert meta["status"] == "success"
@@ -274,9 +270,7 @@ def test_salvage_disabled_blocks_promotion(tmp_path, install_recipe):
     install_recipe("findings_table_v1", _SalvagingRecipe())
     worker = _make_worker(tmp_path, 2, status="parse_error", body="messy")
 
-    [out] = normalize_wave2(
-        [worker], "findings_table_v1", salvage_enabled=False
-    )
+    [out] = normalize_wave2([worker], "findings_table_v1", salvage_enabled=False)
 
     assert out.status == "parse_error"
     meta = json.loads(Path(worker.meta_path).read_text(encoding="utf-8"))
@@ -321,9 +315,7 @@ def test_success_worker_records_not_parse_error_reason(tmp_path, install_recipe)
 
 
 @pytest.mark.parametrize("hard_status", ["timeout", "proxy_error"])
-def test_hard_failure_meta_omits_salvage_reason(
-    tmp_path, install_recipe, hard_status
-):
+def test_hard_failure_meta_omits_salvage_reason(tmp_path, install_recipe, hard_status):
     install_recipe("findings_table_v1", _SalvagingRecipe())
     worker = _make_worker(tmp_path, 5, status=hard_status, body="")
 
@@ -342,9 +334,7 @@ def test_hard_failure_meta_omits_salvage_reason(
 # ---------------------------------------------------------------------------
 
 
-def test_recipe_exception_records_no_recipe_signal_reason(
-    tmp_path, install_recipe
-):
+def test_recipe_exception_records_no_recipe_signal_reason(tmp_path, install_recipe):
     """When a recipe raises, the synthesized NormalizedResult has
     salvaged=False so the salvage decision rejects with
     "rejected_no_recipe_signal" -- recorded on the sidecar so callers

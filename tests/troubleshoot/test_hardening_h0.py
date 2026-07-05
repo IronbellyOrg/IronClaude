@@ -10,7 +10,9 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REFS = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+REFS = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+)
 CLOSURE = (REFS / "pipeline-hardening-closure.md").read_text(encoding="utf-8")
 
 

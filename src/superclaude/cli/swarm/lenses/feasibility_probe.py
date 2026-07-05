@@ -17,7 +17,6 @@ from pathlib import Path
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 __all__ = ["LENS"]
 
 
@@ -50,9 +49,7 @@ LENS: LensEntry = LensEntry(
     default_target_line_cap=4000,
     suspect=False,
     tier="T2-feas",
-    recommended_next_command_template=(
-        "/sc:research --extend {compare_files}"
-    ),
+    recommended_next_command_template=("/sc:research --extend {compare_files}"),
     acceptance_notes="Experimental lens (spec §3.3).",
     stability="experimental",
 )

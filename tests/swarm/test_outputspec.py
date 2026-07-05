@@ -32,7 +32,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-007 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L94)
 # names exactly these five top-level fields. No dotted sub-fields (unlike
 # DM-002/DM-003/DM-006), so no nested dataclass is required.

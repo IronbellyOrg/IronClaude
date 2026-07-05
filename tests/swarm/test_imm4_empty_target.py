@@ -19,6 +19,9 @@ landed in T02.02; this module exists specifically to lock the hardened
 T02.13 semantics (truncation-aware, no-dispatch).
 """
 
+# ruff: noqa: E402 -- module-level ``pytestmark`` intentionally precedes the
+# superclaude imports so the marker is registered before collection.
+
 from __future__ import annotations
 
 from typing import Any, Callable
@@ -30,6 +33,7 @@ import pytest
 # every test in this file is selected by ``pytest -m imm``.
 pytestmark = pytest.mark.imm
 
+from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.preflight import (
     MIN_TARGET_NON_WHITESPACE_BYTES,
     RULE_TARGET_TOO_SMALL,
@@ -40,12 +44,10 @@ from superclaude.cli.swarm.preflight import (
     set_lens_resolver,
     truncate_target,
 )
-from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import (
     CANONICAL_INJECTION_GUARD_SENTENCE,
     CURRENT_SPEC_VERSION,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures -- minimal valid spec + stub lens resolver. Mirrors
@@ -270,9 +272,7 @@ def test_49_byte_target_raises_target_too_small(lens_resolver_stub) -> None:
         run_preflight(spec, target_loader=lambda _p: payload)
     rules = [f.rule for f in excinfo.value.failures]
     assert RULE_TARGET_TOO_SMALL in rules
-    failure = next(
-        f for f in excinfo.value.failures if f.rule == RULE_TARGET_TOO_SMALL
-    )
+    failure = next(f for f in excinfo.value.failures if f.rule == RULE_TARGET_TOO_SMALL)
     assert failure.reason == "target-too-small"
 
 

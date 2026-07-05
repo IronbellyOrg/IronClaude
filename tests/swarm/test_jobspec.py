@@ -40,7 +40,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-001 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L88)
 # names exactly these fields, in this order. Drift in either direction
 # fails the completeness assertion.

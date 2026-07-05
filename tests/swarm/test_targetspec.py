@@ -38,7 +38,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-003 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L90)
 # names exactly these top-level fields. The four dotted sub-fields
 # (truncation.*, delimiters.*, injection_guard.*) collapse into three

@@ -38,7 +38,6 @@ parametrization for FR-011 / R-102.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Callable, Optional
 
 import pytest
 
@@ -54,7 +53,6 @@ from superclaude.cli.swarm.reduce import (
     reduce_wave3,
     select_mode,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixture helpers -- mirror tests/swarm/test_reduce.py shapes so the two

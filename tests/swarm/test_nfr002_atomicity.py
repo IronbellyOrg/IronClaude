@@ -55,7 +55,6 @@ from superclaude.cli.swarm.logging_ import Logger
 from superclaude.cli.swarm.models import EventRecord, SwarmState, from_json
 from superclaude.cli.swarm.state import read_state, write_state
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SWARM_PKG = REPO_ROOT / "src" / "superclaude" / "cli" / "swarm"
 
@@ -85,8 +84,7 @@ def test_logging_module_uses_lock_plus_append_open() -> None:
     """logging_.py owns the append-only writer; lock + O_APPEND must be present."""
     source = (SWARM_PKG / "logging_.py").read_text(encoding="utf-8")
     assert "threading.Lock" in source, (
-        "logging_.py must serialize appends with a threading.Lock "
-        "(NFR-002 / FR-026)."
+        "logging_.py must serialize appends with a threading.Lock (NFR-002 / FR-026)."
     )
     assert 'open(self.jsonl_path, "a")' in source, (
         "logging_.py must open the JSONL file in append mode so each "
@@ -264,8 +262,7 @@ def test_concurrent_100_event_run_yields_100_valid_jsonl_records(
             )
 
     threads = [
-        threading.Thread(target=_emit, args=(tid,))
-        for tid in range(thread_count)
+        threading.Thread(target=_emit, args=(tid,)) for tid in range(thread_count)
     ]
     for thread in threads:
         thread.start()
@@ -290,9 +287,7 @@ def test_concurrent_100_event_run_yields_100_valid_jsonl_records(
         seen.add(coord)
 
     expected_pairs = {
-        (tid, step)
-        for tid in range(thread_count)
-        for step in range(events_per_thread)
+        (tid, step) for tid in range(thread_count) for step in range(events_per_thread)
     }
     assert seen == expected_pairs, (
         "Concurrent JSONL emission lost / duplicated events; "
@@ -389,8 +384,7 @@ def test_mixed_state_and_log_writers_remain_atomic(
         thread.join()
 
     assert not errors, (
-        f"Mixed-surface writers raised: "
-        f"{[type(e).__name__ for e in errors]}"
+        f"Mixed-surface writers raised: {[type(e).__name__ for e in errors]}"
     )
 
     # State surface: final live file parses, dataclass round-trips.
@@ -421,9 +415,7 @@ def test_mixed_state_and_log_writers_remain_atomic(
         )
         seen.add(coord)
     expected_pairs = {
-        (wid, step)
-        for wid in range(log_writer_count)
-        for step in range(iterations)
+        (wid, step) for wid in range(log_writer_count) for step in range(iterations)
     }
     assert seen == expected_pairs
 

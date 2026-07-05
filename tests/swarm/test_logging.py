@@ -136,14 +136,14 @@ def test_concurrent_appends_produce_100_valid_jsonl_lines(
                     payload={
                         "thread": thread_id,
                         "step": index,
-                        "note": "x" * 128,  # Make each line wide enough to expose interleaving.
+                        "note": "x"
+                        * 128,  # Make each line wide enough to expose interleaving.
                     },
                 )
             )
 
     threads = [
-        threading.Thread(target=_worker, args=(tid,))
-        for tid in range(thread_count)
+        threading.Thread(target=_worker, args=(tid,)) for tid in range(thread_count)
     ]
     for thread in threads:
         thread.start()
@@ -166,9 +166,7 @@ def test_concurrent_appends_produce_100_valid_jsonl_lines(
         parsed_pairs.add((thread_id, step))
     # Every (thread, step) coordinate emitted is present exactly once.
     expected_pairs = {
-        (tid, step)
-        for tid in range(thread_count)
-        for step in range(events_per_thread)
+        (tid, step) for tid in range(thread_count) for step in range(events_per_thread)
     }
     assert parsed_pairs == expected_pairs
 
@@ -203,7 +201,9 @@ def test_explicit_timestamp_preserved(log_paths: tuple[Path, Path]) -> None:
 
     stamp = "2026-06-01T09:00:00+00:00"
     logger.log_event(
-        EventRecord(event_type="terminal", timestamp=stamp, payload={"outcome": "success"})
+        EventRecord(
+            event_type="terminal", timestamp=stamp, payload={"outcome": "success"}
+        )
     )
 
     restored = from_json(EventRecord, jsonl_path.read_text().splitlines()[0])

@@ -30,7 +30,6 @@ from superclaude.cli.swarm.lenses import (
 )
 from superclaude.cli.swarm.models import LensEntry, ResolvedLensEntry
 
-
 EXPECTED_LENS_NAMES: tuple[str, ...] = (
     "bare-review",
     "refactor-find",

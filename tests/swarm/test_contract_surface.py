@@ -202,9 +202,7 @@ def test_contract_surface_has_no_claude_tool_call_form(
     CONTRACT_SURFACE_FILES,
     ids=[f"{role}:{rel}" for rel, role in CONTRACT_SURFACE_FILES],
 )
-def test_contract_surface_has_no_vendor_strings(
-    rel_path: str, role: str
-) -> None:
+def test_contract_surface_has_no_vendor_strings(rel_path: str, role: str) -> None:
     """NFR-016: zero ``claude.ai`` / ``anthropic`` vendor strings.
 
     Per-file parametrization mirrors the call-form audit so a
@@ -361,9 +359,7 @@ def test_audit_vendor_does_not_flag_unrelated_substrings() -> None:
         "VAR = 'anthropicism'\n",
     ):
         hits = _scan_vendor(synthetic)
-        flagged_anthropic = [
-            tok for _, tok, _ in hits if tok.lower() == "anthropic"
-        ]
+        flagged_anthropic = [tok for _, tok, _ in hits if tok.lower() == "anthropic"]
         assert not flagged_anthropic, (
             f"Scanner falsely flagged morpheme-related token in {synthetic!r}: "
             f"{hits!r}. NFR-016 vendor audit must use word boundaries."

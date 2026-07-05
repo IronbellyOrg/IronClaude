@@ -137,7 +137,6 @@ from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult, Recipe
 
-
 __all__ = [
     "CUSTOM_PY_PREFIX",
     "CustomPyDispatcher",
@@ -169,18 +168,14 @@ def _split_spec(spec: str) -> tuple[str, str]:
     module or empty callable after the split is rejected.
     """
     if not isinstance(spec, str):
-        raise ValueError(
-            f"custom-py spec must be a string; got {type(spec).__name__}"
-        )
+        raise ValueError(f"custom-py spec must be a string; got {type(spec).__name__}")
     if not spec.startswith(CUSTOM_PY_PREFIX):
         raise ValueError(
             f"custom-py spec must start with {CUSTOM_PY_PREFIX!r}; got {spec!r}"
         )
-    remainder = spec[len(CUSTOM_PY_PREFIX):]
+    remainder = spec[len(CUSTOM_PY_PREFIX) :]
     if not remainder:
-        raise ValueError(
-            f"custom-py spec missing <module>:<callable>; got {spec!r}"
-        )
+        raise ValueError(f"custom-py spec missing <module>:<callable>; got {spec!r}")
     if ":" not in remainder:
         raise ValueError(
             f"custom-py spec must be {CUSTOM_PY_PREFIX}<module>:<callable>; "
@@ -303,9 +298,7 @@ class CustomPyDispatcher:
     no-op.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         del raw_output, args
         raise RuntimeError(
             "CustomPyDispatcher.normalize called directly -- callers must "

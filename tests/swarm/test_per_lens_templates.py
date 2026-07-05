@@ -33,16 +33,9 @@ import pytest
 from superclaude.cli.swarm.lenses import LENS_NAMES, get_lens
 from superclaude.cli.swarm.recipes import REGISTRY
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATES_DIR = (
-    REPO_ROOT
-    / "src"
-    / "superclaude"
-    / "cli"
-    / "swarm"
-    / "lenses"
-    / "templates"
+    REPO_ROOT / "src" / "superclaude" / "cli" / "swarm" / "lenses" / "templates"
 )
 FIXTURES_ROOT = Path(__file__).parent / "fixtures"
 
@@ -105,9 +98,7 @@ LENS_TEMPLATE_SPECS: list[tuple[str, str, str, str, str]] = [
 
 def test_templates_directory_has_six_or_more_files():
     """Validation: ``ls templates/ | wc -l`` reports >= 6 (task AC)."""
-    assert TEMPLATES_DIR.is_dir(), (
-        f"Templates dir missing: {TEMPLATES_DIR}"
-    )
+    assert TEMPLATES_DIR.is_dir(), f"Templates dir missing: {TEMPLATES_DIR}"
     template_files = sorted(TEMPLATES_DIR.glob("*-output.md"))
     assert len(template_files) >= 6, (
         f"Expected >= 6 *-output.md templates, found "
@@ -125,8 +116,7 @@ def test_six_non_custom_lenses_are_specified():
     specced = {spec[0] for spec in LENS_TEMPLATE_SPECS}
     expected = set(LENS_NAMES) - {"bare-review", "reflect-review", "custom"}
     assert specced == expected, (
-        f"Specced lens set {specced} drifted from non-custom registry "
-        f"{expected}"
+        f"Specced lens set {specced} drifted from non-custom registry {expected}"
     )
 
 
@@ -264,9 +254,7 @@ def test_recipe_renders_template_marker_against_fixture(
 
     entry = get_lens(lens_name)
     recipe = REGISTRY.get(recipe_name)
-    assert recipe is not None, (
-        f"Recipe {recipe_name!r} missing from REGISTRY"
-    )
+    assert recipe is not None, f"Recipe {recipe_name!r} missing from REGISTRY"
 
     args = _recipe_args(lens_name, entry.tier)
     result = recipe.normalize(raw, args)
@@ -286,6 +274,5 @@ def test_recipe_renders_template_marker_against_fixture(
     # Frontmatter binds lens label -- proves the template's
     # ``lens: "..."`` slot is wired through the recipe's args.
     assert f'lens: "{lens_name}"' in text, (
-        f"Lens {lens_name!r} render missing frontmatter "
-        f"lens: \"{lens_name}\""
+        f'Lens {lens_name!r} render missing frontmatter lens: "{lens_name}"'
     )

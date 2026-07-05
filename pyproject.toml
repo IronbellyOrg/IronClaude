@@ -48,7 +48,11 @@ dev = [
     "pytest-benchmark>=4.0.0",
     "scipy>=1.10.0",  # For A/B testing
     "black>=22.0",
-    "ruff>=0.1.0",
+    # Pinned exactly: `ruff format` output is version-sensitive, so an
+    # unpinned floor let CI install newer ruffs whose reformatting drifted
+    # `ruff format --check` red against the committed tree. Pin so CI and
+    # local format deterministically agree; bump deliberately + reformat.
+    "ruff==0.15.20",
     "mypy>=1.0",
 ]
 test = [

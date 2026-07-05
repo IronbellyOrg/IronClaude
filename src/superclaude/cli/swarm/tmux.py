@@ -119,9 +119,7 @@ def session_name(job_id: str) -> str:
     forbidden = {":", ".", " ", "\t", "\n", "\r"}
     bad = sorted(c for c in forbidden if c in job_id)
     if bad:
-        raise ValueError(
-            f"job_id {job_id!r} contains tmux-illegal characters: {bad!r}"
-        )
+        raise ValueError(f"job_id {job_id!r} contains tmux-illegal characters: {bad!r}")
     return f"{SESSION_PREFIX}{job_id}"
 
 
@@ -210,9 +208,7 @@ def kill(job_id: str) -> bool:
     operator mistake (the job could not have been launched detached).
     """
     if shutil.which("tmux") is None:
-        raise TmuxUnavailableError(
-            "tmux is not installed; cannot kill swarm session"
-        )
+        raise TmuxUnavailableError("tmux is not installed; cannot kill swarm session")
     if not has_session(job_id):
         return False
     subprocess.run(

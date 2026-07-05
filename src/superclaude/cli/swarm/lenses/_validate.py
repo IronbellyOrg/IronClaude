@@ -72,7 +72,6 @@ from superclaude.cli.swarm.schema import (
     contains_required_substring,
 )
 
-
 __all__ = [
     "CUSTOM_LENS_NAME",
     "LensValidationFailure",
@@ -685,9 +684,7 @@ def validate_all(
         if entry.name == CUSTOM_LENS_NAME:
             continue
         other_names = [
-            other.name
-            for other_key, other in registry.items()
-            if other_key != key
+            other.name for other_key, other in registry.items() if other_key != key
         ]
         failure = validate_lens(
             entry,

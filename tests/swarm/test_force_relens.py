@@ -43,7 +43,6 @@ from typing import Any
 import pytest
 from click.testing import CliRunner
 
-from superclaude.cli.swarm import preflight
 from superclaude.cli.swarm.commands import (
     EXIT_OK,
     EXIT_USAGE,
@@ -64,7 +63,6 @@ from superclaude.cli.swarm.preflight import (
     write_manifest,
 )
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
-
 
 # ---------------------------------------------------------------------------
 # Fixture data -- original (manifest-frozen) vs mutated (live registry)

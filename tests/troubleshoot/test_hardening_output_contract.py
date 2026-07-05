@@ -61,7 +61,9 @@ def test_output_contract_backward_compat() -> None:
     result fields (none renamed/removed) AND the new hardening fields are present as
     ADDITIVE additions."""
     for field in LEGACY_FIELDS:
-        assert f"`{field}`" in SKILL, f"legacy Output Contract field removed/renamed: {field}"
+        assert f"`{field}`" in SKILL, (
+            f"legacy Output Contract field removed/renamed: {field}"
+        )
     for field in HARDENING_FIELDS:
         assert f"`{field}`" in SKILL, f"additive hardening field missing: {field}"
 

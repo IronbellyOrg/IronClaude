@@ -35,7 +35,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-004 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L91)
 # names exactly these fields.
 EXPECTED_FIELDS: tuple[str, ...] = (

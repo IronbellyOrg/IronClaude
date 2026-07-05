@@ -85,8 +85,7 @@ def _minimal_valid_spec() -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -143,8 +142,7 @@ def _failure_for_rule(
     """Locate the failure record for ``rule`` or fail the test loudly."""
     matches = [f for f in failures if f.rule == rule]
     assert matches, (
-        f"expected rule {rule!r} in failures; got "
-        f"{[f.rule for f in failures]}"
+        f"expected rule {rule!r} in failures; got {[f.rule for f in failures]}"
     )
     assert len(matches) == 1, (
         f"expected exactly one {rule!r} failure; got {len(matches)}"
@@ -215,9 +213,7 @@ def test_custom_substring_must_appear_verbatim_in_prompt_system() -> None:
     failure = _failure_for_rule(failures, RULE_INJECTION_SUBSTRING)
     assert custom in failure.message
     # Now plug the custom substring in and confirm acceptance.
-    spec["prompt"]["system"] = (
-        "You are a code reviewer. " + custom
-    )
+    spec["prompt"]["system"] = "You are a code reviewer. " + custom
     assert validate(spec) == []
 
 
@@ -258,9 +254,7 @@ def test_custom_prompt_dir_with_non_custom_lens_is_rejected() -> None:
     # ``custom_prompt_dir`` while keeping that lens must trip FR-021.
     spec["custom_prompt_dir"] = "/abs/path/to/prompts"
     failures = validate(spec)
-    failure = _failure_for_rule(
-        failures, RULE_CUSTOM_PROMPT_DIR_REQUIRES_CUSTOM_LENS
-    )
+    failure = _failure_for_rule(failures, RULE_CUSTOM_PROMPT_DIR_REQUIRES_CUSTOM_LENS)
     assert failure.path == "custom_prompt_dir"
     # Diagnostic must name the FR-021 expected lens so operators see
     # the fix without consulting docs.
@@ -344,9 +338,7 @@ def test_custom_prompt_dir_requires_exact_custom_lens(wrong_lens: str) -> None:
     spec["lens"] = wrong_lens
     spec["custom_prompt_dir"] = "/abs/path/to/prompts"
     failures = validate(spec)
-    failure = _failure_for_rule(
-        failures, RULE_CUSTOM_PROMPT_DIR_REQUIRES_CUSTOM_LENS
-    )
+    failure = _failure_for_rule(failures, RULE_CUSTOM_PROMPT_DIR_REQUIRES_CUSTOM_LENS)
     # The diagnostic uses ``{lens!r}`` so the rendered message contains
     # the exact ``repr(wrong_lens)``. Asserting on ``repr`` (not the
     # raw value) is what makes the whitespace and case variants

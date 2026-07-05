@@ -41,7 +41,6 @@ import pytest
 from superclaude.cli.swarm.dispatch import retry_policy
 from superclaude.cli.swarm.models import RetryPolicy, WorkerResult, WorkerSpec
 
-
 # ---------------------------------------------------------------------------
 # Recording-stub helpers.
 # ---------------------------------------------------------------------------

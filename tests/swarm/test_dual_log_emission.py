@@ -212,8 +212,7 @@ def test_worker_done_payload_carries_terminal_outcome(tmp_path: Path) -> None:
     dispatch_wave1(preflight, transport=_SuccessTransport(), logger=logger)
 
     records = [
-        from_json(EventRecord, line)
-        for line in jsonl_path.read_text().splitlines()
+        from_json(EventRecord, line) for line in jsonl_path.read_text().splitlines()
     ]
     done_events = [r for r in records if r.event_type == "worker_done"]
     assert len(done_events) == 1

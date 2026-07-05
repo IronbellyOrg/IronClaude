@@ -60,7 +60,6 @@ from typing import Optional, Sequence
 
 from superclaude.cli.swarm.models import WorkerResult
 
-
 __all__ = ["StubTransport"]
 
 
@@ -107,9 +106,7 @@ class StubTransport:
             tuple(fixtures) if fixtures is not None else None
         )
         if self._fixtures is not None and not self._fixtures:
-            raise ValueError(
-                "StubTransport.fixtures must be non-empty when supplied"
-            )
+            raise ValueError("StubTransport.fixtures must be non-empty when supplied")
         self._elapsed_ms = elapsed_ms
         self._lock = threading.Lock()
         self._counter = 0

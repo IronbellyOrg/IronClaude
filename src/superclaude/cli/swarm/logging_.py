@@ -59,7 +59,6 @@ from typing import Optional, Union
 from superclaude.cli.swarm.models import EventRecord, to_json
 from superclaude.cli.swarm.state import confine_path
 
-
 __all__ = ["Logger"]
 
 
@@ -170,11 +169,7 @@ class Logger:
         stays on one row; the JSONL surface remains authoritative for
         full payload inspection.
         """
-        worker = (
-            str(record.worker_index)
-            if record.worker_index is not None
-            else "-"
-        )
+        worker = str(record.worker_index) if record.worker_index is not None else "-"
         if record.payload:
             payload_summary = " ".join(
                 f"{key}={value}" for key, value in sorted(record.payload.items())

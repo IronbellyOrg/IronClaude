@@ -28,22 +28,20 @@ from __future__ import annotations
 
 import pytest
 
-from superclaude.cli.swarm.lenses import LENSES, LENS_NAMES
+from superclaude.cli.swarm.lenses import LENS_NAMES, LENSES
 from superclaude.cli.swarm.lenses._validate import (
     CUSTOM_LENS_NAME,
-    LensValidationFailure,
     RULE_FILE_REF_UNRESOLVED,
     RULE_INJECTION_SUBSTRING,
     RULE_NAME_DUPLICATE,
-    RULE_NORMALIZER_STRATEGY,
     RULE_RECIPE_UNREGISTERED,
     RULE_SUSPECT_COUPLING,
     SUSPECT_FILES_PLACEHOLDER,
+    LensValidationFailure,
     validate_all,
 )
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
-
 
 # ---------------------------------------------------------------------------
 # Fixtures -- fully-populated synthesised lens entries
@@ -611,5 +609,7 @@ def test_bundled_registry_iterates_eight_non_custom_entries(
 
 def test_bundled_registry_returns_list_type() -> None:
     """``validate_all`` returns a ``list`` -- the U-008 surface is list-shaped."""
-    out = validate_all(LENSES, file_resolver=lambda p: False, recipe_checker=lambda n: True)
+    out = validate_all(
+        LENSES, file_resolver=lambda p: False, recipe_checker=lambda n: True
+    )
     assert isinstance(out, list)

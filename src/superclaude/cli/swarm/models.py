@@ -124,9 +124,7 @@ class JobSpec:
     amalgamation_mode: AmalgamationMode = "normalize+merge"
     status_policy: "StatusPolicy" = field(default_factory=lambda: StatusPolicy())
     recommended_next_command_template: str = ""
-    recommended_next_command_substitutions: dict[str, str] = field(
-        default_factory=dict
-    )
+    recommended_next_command_substitutions: dict[str, str] = field(default_factory=dict)
     runtime: "RuntimeSpec" = field(default_factory=lambda: RuntimeSpec())
 
 
@@ -190,8 +188,7 @@ class WorkerSpec:
     def __post_init__(self) -> None:
         if self.timeout_sec < 0:
             raise ValueError(
-                f"WorkerSpec.timeout_sec must be non-negative, "
-                f"got {self.timeout_sec}"
+                f"WorkerSpec.timeout_sec must be non-negative, got {self.timeout_sec}"
             )
 
 
@@ -288,9 +285,7 @@ class TargetSpec:
     path: str = ""
     truncation: "Truncation" = field(default_factory=lambda: Truncation())
     delimiters: "Delimiters" = field(default_factory=lambda: Delimiters())
-    injection_guard: "InjectionGuard" = field(
-        default_factory=lambda: InjectionGuard()
-    )
+    injection_guard: "InjectionGuard" = field(default_factory=lambda: InjectionGuard())
 
 
 @dataclass
@@ -341,8 +336,7 @@ class TransportSpec:
         allowed_kinds = typing.get_args(TransportKind)
         if self.kind not in allowed_kinds:
             raise ValueError(
-                f"TransportSpec.kind must be one of {allowed_kinds}, "
-                f"got {self.kind!r}"
+                f"TransportSpec.kind must be one of {allowed_kinds}, got {self.kind!r}"
             )
         if not isinstance(self.base_url_env, str) or not self.base_url_env:
             raise ValueError(
@@ -628,8 +622,7 @@ class RuntimeSpec:
         allowed_modes = typing.get_args(RuntimeMode)
         if self.mode not in allowed_modes:
             raise ValueError(
-                f"RuntimeSpec.mode must be one of {allowed_modes}, "
-                f"got {self.mode!r}"
+                f"RuntimeSpec.mode must be one of {allowed_modes}, got {self.mode!r}"
             )
 
 
@@ -1200,8 +1193,7 @@ class SwarmState:
         allowed_states = typing.get_args(SwarmStateValue)
         if self.state not in allowed_states:
             raise ValueError(
-                f"SwarmState.state must be one of {allowed_states}, "
-                f"got {self.state!r}"
+                f"SwarmState.state must be one of {allowed_states}, got {self.state!r}"
             )
 
 
@@ -1400,9 +1392,7 @@ class Manifest:
     resolved_lens_entry: "ResolvedLensEntry" = field(
         default_factory=lambda: ResolvedLensEntry()
     )
-    preflight: "PreflightSummary" = field(
-        default_factory=lambda: PreflightSummary()
-    )
+    preflight: "PreflightSummary" = field(default_factory=lambda: PreflightSummary())
     # F-P2-2 -- persist the resolved DM-020 CallerMetadata on the manifest so a
     # caller-supplied OQ-009 override (suspect / tier) provided at Wave 0 is
     # recoverable from ``manifest.json`` alone (INV-001 / INV-016), not only
@@ -1415,9 +1405,7 @@ class Manifest:
     # applies the default for the absent key) -- additive, backward-compatible,
     # no-arg-construction safe, round-trip lossless via the nested-dataclass
     # helpers.
-    caller_metadata: "CallerMetadata" = field(
-        default_factory=lambda: CallerMetadata()
-    )
+    caller_metadata: "CallerMetadata" = field(default_factory=lambda: CallerMetadata())
 
 
 @dataclass(frozen=True)
@@ -1625,8 +1613,7 @@ class CallerInfo:
         allowed_kinds = typing.get_args(CallerKind)
         if self.kind not in allowed_kinds:
             raise ValueError(
-                f"CallerInfo.kind must be one of {allowed_kinds}, "
-                f"got {self.kind!r}"
+                f"CallerInfo.kind must be one of {allowed_kinds}, got {self.kind!r}"
             )
 
 
@@ -1730,9 +1717,7 @@ def from_dict(cls: Type[T], data: dict[str, Any]) -> T:
         TypeError: ``cls`` is not a dataclass type.
     """
     if not dataclasses.is_dataclass(cls) or not isinstance(cls, type):
-        raise TypeError(
-            f"from_dict expects a dataclass type, got {cls!r}"
-        )
+        raise TypeError(f"from_dict expects a dataclass type, got {cls!r}")
     # Resolve string annotations (PEP 563 `from __future__ import annotations`
     # leaves them as strings; get_type_hints evaluates them in module scope).
     hints = typing.get_type_hints(cls)
@@ -1774,7 +1759,11 @@ def _nested_dataclass_type(field_type: Any) -> Optional[type]:
     origin = typing.get_origin(field_type)
     if origin is typing.Union:
         args = [a for a in typing.get_args(field_type) if a is not type(None)]
-        if len(args) == 1 and isinstance(args[0], type) and dataclasses.is_dataclass(args[0]):
+        if (
+            len(args) == 1
+            and isinstance(args[0], type)
+            and dataclasses.is_dataclass(args[0])
+        ):
             return args[0]
     return None
 

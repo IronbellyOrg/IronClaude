@@ -36,7 +36,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-005 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L92)
 # names exactly these fields: system:str(verbatim); user_template:str(verbatim);
 # variables:dict.

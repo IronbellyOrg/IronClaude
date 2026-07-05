@@ -28,21 +28,19 @@ import pytest
 
 from superclaude.cli.swarm.lenses._validate import (
     CUSTOM_LENS_NAME,
-    LensValidationFailure,
     RULE_FILE_REF_UNRESOLVED,
     RULE_INJECTION_SUBSTRING,
     RULE_NAME_DUPLICATE,
-    RULE_NORMALIZER_STRATEGY,
     RULE_RECIPE_UNREGISTERED,
     RULE_SUSPECT_COUPLING,
     SUSPECT_FILES_PLACEHOLDER,
+    LensValidationFailure,
     default_file_resolver,
     default_recipe_checker,
     validate_lens,
 )
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -398,9 +396,7 @@ def test_custom_required_substring_override_honored(
     stub_recipe_checker, stub_file_resolver, stub_strategy_checker
 ) -> None:
     """A caller's custom substring is checked instead of the default."""
-    entry = _passing_lens(
-        system_prompt_fragment="Wraps GUARD-SENTINEL around target."
-    )
+    entry = _passing_lens(system_prompt_fragment="Wraps GUARD-SENTINEL around target.")
     assert (
         validate_lens(
             entry,

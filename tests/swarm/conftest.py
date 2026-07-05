@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import pytest
 
-
 IMM_COVERAGE_MAP: dict[str, str] = {
     "IMM-3": "test_imm3_parallel.py",
     "IMM-4": "test_imm4_empty_target.py",

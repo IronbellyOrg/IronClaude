@@ -291,7 +291,9 @@ def test_emitted_yaml_field_count_matches_dataclass(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_emitted_yaml_is_valid_and_round_trips_to_equal_contract(tmp_path: Path) -> None:
+def test_emitted_yaml_is_valid_and_round_trips_to_equal_contract(
+    tmp_path: Path,
+) -> None:
     instance = _fully_populated_contract()
     emit_contract(instance, tmp_path)
     payload = yaml.safe_load((tmp_path / CONTRACT_FILENAME).read_text(encoding="utf-8"))
@@ -334,9 +336,7 @@ def test_emitted_yaml_status_round_trips_each_literal(
     assert payload["status"] == status
 
 
-@pytest.mark.parametrize(
-    "mode", list(["raw", "normalize", "normalize+merge"])
-)
+@pytest.mark.parametrize("mode", list(["raw", "normalize", "normalize+merge"]))
 def test_emitted_yaml_amalgamation_mode_round_trips_each_literal(
     tmp_path: Path, mode: str
 ) -> None:
@@ -415,12 +415,16 @@ def test_emit_contract_overwrite_is_atomic(tmp_path: Path) -> None:
     second = ResultContract(status="success", job_id="run-2")
 
     emit_contract(first, tmp_path)
-    after_first = yaml.safe_load((tmp_path / CONTRACT_FILENAME).read_text(encoding="utf-8"))
+    after_first = yaml.safe_load(
+        (tmp_path / CONTRACT_FILENAME).read_text(encoding="utf-8")
+    )
     assert after_first["job_id"] == "run-1"
     assert after_first["status"] == "partial"
 
     emit_contract(second, tmp_path)
-    after_second = yaml.safe_load((tmp_path / CONTRACT_FILENAME).read_text(encoding="utf-8"))
+    after_second = yaml.safe_load(
+        (tmp_path / CONTRACT_FILENAME).read_text(encoding="utf-8")
+    )
     assert after_second["job_id"] == "run-2"
     assert after_second["status"] == "success"
     # No .tmp leftovers after the overwrite either.
@@ -479,9 +483,7 @@ def test_recommended_next_command_substitution_via_reduce_wave3(tmp_path: Path) 
         lens="bare-review",
     )
 
-    expected = (
-        "/sc:adversarial --merged merged.md --job abc-123 --lens bare-review"
-    )
+    expected = "/sc:adversarial --merged merged.md --job abc-123 --lens bare-review"
     # Stamped on the in-memory contract.
     assert contract.recommended_next_command == expected
     # AND landed verbatim on the YAML payload.
@@ -595,7 +597,9 @@ def test_status_policy_default_does_not_affect_emit(tmp_path: Path) -> None:
     status the contract carries. Used here to pin that the IMM-5
     decision is *not* re-run at emit time (status drift would surface
     as a regression at this gate)."""
-    instance = ResultContract(status="partial", workers_requested=3, workers_succeeded=2)
+    instance = ResultContract(
+        status="partial", workers_requested=3, workers_succeeded=2
+    )
     emit_contract(instance, tmp_path)
     payload = yaml.safe_load((tmp_path / CONTRACT_FILENAME).read_text(encoding="utf-8"))
     assert payload["status"] == "partial"

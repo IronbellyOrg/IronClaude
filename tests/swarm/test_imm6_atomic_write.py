@@ -65,7 +65,6 @@ excluded; the static-source assertion in
 from __future__ import annotations
 
 import json
-import os
 import signal
 import subprocess
 import sys
@@ -101,9 +100,7 @@ _OS_REPLACE_WRITERS: tuple[tuple[str, str], ...] = (
     _OS_REPLACE_WRITERS,
     ids=[label for _, label in _OS_REPLACE_WRITERS],
 )
-def test_writer_module_calls_os_replace(
-    module_rel: str, writer_label: str
-) -> None:
+def test_writer_module_calls_os_replace(module_rel: str, writer_label: str) -> None:
     """Each ``os.replace``-shaped writer module must invoke ``os.replace(``.
 
     This is the static half of the validation grep
@@ -146,9 +143,7 @@ def test_log_module_uses_append_only_not_replace() -> None:
     # Truncating-write regression guard: the logger must never open
     # the JSONL path in a mode that truncates ("w"/"w+"/"wb").
     for forbidden_mode in ('"w"', '"w+"', '"wb"'):
-        assert (
-            f"open(self.jsonl_path, {forbidden_mode})" not in source
-        ), (
+        assert f"open(self.jsonl_path, {forbidden_mode})" not in source, (
             f"logging_.py must never open the JSONL file in {forbidden_mode}; "
             "the append-only contract (NFR-002) requires O_APPEND."
         )
@@ -197,7 +192,9 @@ def test_done_sentinel_writer_is_deferred_but_dataclass_exists() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _run_suicide_subprocess(script_body: str, timeout: float = 15.0) -> subprocess.CompletedProcess:
+def _run_suicide_subprocess(
+    script_body: str, timeout: float = 15.0
+) -> subprocess.CompletedProcess:
     """Execute ``script_body`` in a fresh subprocess and expect SIGKILL exit."""
     completed = subprocess.run(
         [sys.executable, "-c", script_body],

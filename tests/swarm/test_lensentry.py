@@ -37,7 +37,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-010 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L97)
 # names exactly these 13 fields, in this order. Anti-instinct remediation
 # row 17a (roadmap line 151, FR-LENSREG.NS / T02.21) appends a 14th field
@@ -267,7 +266,5 @@ def test_lenses_dict_holds_eight_entries() -> None:
     assert len(lenses) == 8
     assert all(isinstance(v, LensEntry) for v in lenses.values())
     # Round-trip the whole registry as a sanity check.
-    restored = {
-        k: from_dict(LensEntry, to_dict(v)) for k, v in lenses.items()
-    }
+    restored = {k: from_dict(LensEntry, to_dict(v)) for k, v in lenses.items()}
     assert restored == lenses

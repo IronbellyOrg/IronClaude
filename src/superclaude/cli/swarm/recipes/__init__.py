@@ -66,7 +66,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Optional, Protocol, runtime_checkable
 
-
 __all__: list[str] = [
     # Public Protocol + value types.
     "NormalizedResult",
@@ -132,9 +131,7 @@ class Recipe(Protocol):
     reorder transforms. T04.14 lands the boundary assertion test.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult: ...
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult: ...
 
 
 # ---------------------------------------------------------------------------
@@ -150,33 +147,36 @@ class Recipe(Protocol):
 # and :class:`NormalizedResult` dataclass are defined before
 # ``custom.py`` imports back from us.
 
+# ---------------------------------------------------------------------------
+# Open-class REGISTRY + strategy registry
+# ---------------------------------------------------------------------------
+# T04.03 -- import the concrete bare_review_v1 recipe at module load so
+# the REGISTRY entry resolves without a fallback. Import is deferred to
+# this point in the module so the Recipe Protocol + CustomPyDispatcher
+# are already defined when the recipe module imports back from us.
+from superclaude.cli.swarm.recipes.bare_review_v1 import BareReviewV1  # noqa: E402
 from superclaude.cli.swarm.recipes.custom import (  # noqa: E402
     CUSTOM_PY_PREFIX,
     CustomPyDispatcher,
     load_custom_py,
 )
 
-
-# ---------------------------------------------------------------------------
-# Open-class REGISTRY + strategy registry
-# ---------------------------------------------------------------------------
-
-
-# T04.03 -- import the concrete bare_review_v1 recipe at module load so
-# the REGISTRY entry resolves without a fallback. Import is deferred to
-# this point in the module so the Recipe Protocol + CustomPyDispatcher
-# are already defined when the recipe module imports back from us.
-from superclaude.cli.swarm.recipes.bare_review_v1 import BareReviewV1  # noqa: E402
 # T04.04 -- findings_table_v1 lens-shared recipe (refactor-find,
 # edge-case-hunt, doc-completeness).
-from superclaude.cli.swarm.recipes.findings_table_v1 import FindingsTableV1  # noqa: E402
+from superclaude.cli.swarm.recipes.findings_table_v1 import (  # noqa: E402
+    FindingsTableV1,
+)
+
 # T04.05 -- hypothesis_table_v1 recipe (troubleshoot-hypothesis).
-from superclaude.cli.swarm.recipes.hypothesis_table_v1 import HypothesisTableV1  # noqa: E402
-# T04.07 -- verdict_only_v1 recipe (spec-completeness, feasibility-probe).
-from superclaude.cli.swarm.recipes.verdict_only_v1 import VerdictOnlyV1  # noqa: E402
+from superclaude.cli.swarm.recipes.hypothesis_table_v1 import (  # noqa: E402
+    HypothesisTableV1,
+)
+
 # T04.08 -- passthrough recipe (raw amalgamation mode).
 from superclaude.cli.swarm.recipes.passthrough import Passthrough  # noqa: E402
 
+# T04.07 -- verdict_only_v1 recipe (spec-completeness, feasibility-probe).
+from superclaude.cli.swarm.recipes.verdict_only_v1 import VerdictOnlyV1  # noqa: E402
 
 REGISTRY: dict[str, Optional[Recipe]] = {
     "bare-review-v1": BareReviewV1(),

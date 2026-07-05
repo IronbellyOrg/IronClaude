@@ -9,7 +9,9 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REFS = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+REFS = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+)
 H1 = (REFS / "runtime-entrypoint-verification.md").read_text(encoding="utf-8")
 
 

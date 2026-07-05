@@ -36,6 +36,9 @@ The hook is exercised through two surfaces:
        to fold cleanup + Wave 3 + contract emission into one pass.
 """
 
+# ruff: noqa: E402 -- module-level ``pytestmark`` intentionally precedes the
+# superclaude imports so the marker is registered before collection.
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -54,7 +57,6 @@ from superclaude.cli.swarm.reduce import (
     reduce_wave3,
     regenerate_merge_on_resume,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixture helpers -- mirror tests/swarm/test_reduce.py builders so the
@@ -99,8 +101,7 @@ def _labeled_merge() -> Callable[[list[WorkerResult]], str]:
         sections = []
         for w in workers:
             sections.append(
-                f"## From {w.model_label} ({w.elapsed_ms}ms)\n\n"
-                f"body-{w.index}\n"
+                f"## From {w.model_label} ({w.elapsed_ms}ms)\n\nbody-{w.index}\n"
             )
         return "\n".join(sections)
 

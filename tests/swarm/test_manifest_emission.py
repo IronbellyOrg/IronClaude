@@ -42,7 +42,6 @@ from superclaude.cli.swarm.models import (
 from superclaude.cli.swarm.preflight import emit_manifest
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 # ---------------------------------------------------------------------------
 # Fixtures -- a fully-populated snapshot so every field is observable.
 # ---------------------------------------------------------------------------

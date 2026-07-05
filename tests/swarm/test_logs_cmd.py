@@ -46,7 +46,6 @@ from superclaude.cli.swarm.logging_ import Logger
 from superclaude.cli.swarm.models import EventRecord, SwarmState
 from superclaude.cli.swarm.state import write_state
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -146,14 +145,10 @@ def test_logs_jsonl_dumps_jsonl_file(tmp_path: Path) -> None:
     _seed_events(tmp_path, count=2)
 
     runner = CliRunner()
-    result = runner.invoke(
-        swarm_group, ["logs", "--output", str(tmp_path), "--jsonl"]
-    )
+    result = runner.invoke(swarm_group, ["logs", "--output", str(tmp_path), "--jsonl"])
 
     assert result.exit_code == EXIT_OK, result.output
-    jsonl_text = (tmp_path / EXECUTION_LOG_JSONL_FILENAME).read_text(
-        encoding="utf-8"
-    )
+    jsonl_text = (tmp_path / EXECUTION_LOG_JSONL_FILENAME).read_text(encoding="utf-8")
     assert result.stdout == jsonl_text
     # Every line parses as JSON (no Markdown noise leaking through).
     for line in result.stdout.splitlines():
@@ -167,9 +162,7 @@ def test_logs_jsonl_when_missing_exits_usage(tmp_path: Path) -> None:
         "- [t] e worker=-: \n", encoding="utf-8"
     )
     runner = CliRunner()
-    result = runner.invoke(
-        swarm_group, ["logs", "--output", str(tmp_path), "--jsonl"]
-    )
+    result = runner.invoke(swarm_group, ["logs", "--output", str(tmp_path), "--jsonl"])
     assert result.exit_code == EXIT_USAGE, result.output
     assert EXECUTION_LOG_JSONL_FILENAME in result.stderr
 
@@ -450,9 +443,7 @@ def test_logs_missing_output_dir_exits_usage(tmp_path: Path) -> None:
     """Non-existent ``--output`` directory yields EXIT_USAGE."""
     missing = tmp_path / "does-not-exist"
     runner = CliRunner()
-    result = runner.invoke(
-        swarm_group, ["logs", "--output", str(missing)]
-    )
+    result = runner.invoke(swarm_group, ["logs", "--output", str(missing)])
     assert result.exit_code == EXIT_USAGE, result.output
     assert "output directory not found" in result.stderr
 
@@ -467,8 +458,6 @@ def test_logs_both_surfaces_dump_cleanly(tmp_path: Path, flag: str) -> None:
     """Both ``--md`` and ``--jsonl`` produce non-empty output and exit 0."""
     _seed_events(tmp_path, count=2)
     runner = CliRunner()
-    result = runner.invoke(
-        swarm_group, ["logs", "--output", str(tmp_path), flag]
-    )
+    result = runner.invoke(swarm_group, ["logs", "--output", str(tmp_path), flag])
     assert result.exit_code == EXIT_OK, result.output
     assert result.stdout.strip(), f"expected non-empty stdout under {flag}"

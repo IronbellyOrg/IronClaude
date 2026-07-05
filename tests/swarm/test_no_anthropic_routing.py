@@ -72,7 +72,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TRANSPORTS_DIR = REPO_ROOT / "src" / "superclaude" / "cli" / "swarm" / "transports"
 
@@ -112,9 +111,7 @@ def _iter_transport_sources() -> list[Path]:
     return [
         p
         for p in TRANSPORTS_DIR.rglob("*.py")
-        if p.is_file()
-        and "__pycache__" not in p.parts
-        and p.resolve() != SELF_PATH
+        if p.is_file() and "__pycache__" not in p.parts and p.resolve() != SELF_PATH
     ]
 
 
@@ -169,8 +166,7 @@ def test_no_anthropic_routing_in_transport_modules() -> None:
         hits = _scan_for_forbidden(source.read_text(encoding="utf-8"))
         for lineno, token, body in hits:
             offenders.append(
-                f"  {source.relative_to(REPO_ROOT)}:{lineno}: "
-                f"'{token}' -> {body}"
+                f"  {source.relative_to(REPO_ROOT)}:{lineno}: '{token}' -> {body}"
             )
     assert not offenders, (
         "AC-010 violation: host-vendor routing token detected in "
@@ -200,8 +196,7 @@ def test_forbidden_pattern_set_is_nonempty() -> None:
 def test_audit_detects_mutation_host_url() -> None:
     """Mutation guard: scanner flags ``api.anthropic.com`` constants."""
     synthetic = (
-        "BASE_URL = 'https://api.anthropic.com/v1'\n"
-        "def build(): return BASE_URL\n"
+        "BASE_URL = 'https://api.anthropic.com/v1'\ndef build(): return BASE_URL\n"
     )
     hits = _scan_for_forbidden(synthetic)
     assert any("api.anthropic.com" in tok.lower() for _, tok, _ in hits), (

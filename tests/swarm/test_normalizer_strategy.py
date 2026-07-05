@@ -39,16 +39,15 @@ import pytest
 
 from superclaude.cli.swarm.lenses._validate import (
     CUSTOM_LENS_NAME,
-    LensValidationFailure,
     RULE_NORMALIZER_STRATEGY,
     SUSPECT_FILES_PLACEHOLDER,
+    LensValidationFailure,
     default_strategy_checker,
     validate_all,
     validate_lens,
 )
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
-
 
 # ---------------------------------------------------------------------------
 # Fixtures

@@ -41,7 +41,6 @@ from superclaude.cli.swarm.transports.openai_compat import (
     read_env,
 )
 
-
 # ---------------------------------------------------------------------------
 # Constants -- sanity-check the env-var spelling against the contract.
 # ---------------------------------------------------------------------------

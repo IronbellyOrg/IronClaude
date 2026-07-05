@@ -28,10 +28,12 @@ piggybacks on the same mutation scenario for the byte-identical
 manifest immunity check.
 """
 
+# ruff: noqa: E402 -- module-level ``pytestmark`` intentionally precedes the
+# superclaude imports so the marker is registered before collection.
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 import pytest
 
@@ -53,7 +55,6 @@ from superclaude.cli.swarm.preflight import (
     write_manifest,
 )
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
-
 
 # ---------------------------------------------------------------------------
 # Fixtures -- pinned manifest snapshot and the post-emit "live mutation"

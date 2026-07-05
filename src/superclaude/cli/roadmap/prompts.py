@@ -97,7 +97,7 @@ _OUTPUT_FORMAT_BLOCK = (
     "\n"
     "FRONTMATTER VALUES: every top-level frontmatter field MUST be a single-line "
     "scalar on the same line as its key. Render any list inline with square "
-    "brackets (e.g. spec_sources: [\"a.md\", \"b.md\"]). NEVER place list items or "
+    'brackets (e.g. spec_sources: ["a.md", "b.md"]). NEVER place list items or '
     "block content on separate indented lines below a key -- the gate parser reads "
     "a key whose value spans multiple lines as EMPTY and fails the build. Prefer a "
     "single spec_source scalar when one source dominates.\n"

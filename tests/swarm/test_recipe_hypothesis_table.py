@@ -44,7 +44,6 @@ from superclaude.cli.swarm.recipes.hypothesis_table_v1 import (
     strip_frontmatter,
 )
 
-
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "hypothesis_table_v1"
 
 FIXED_GENERATED = "2026-06-01T11:19:39Z"
@@ -88,9 +87,7 @@ def _run(
 
 
 def test_recipe_renders_canonical_table_with_supporting_and_falsifying():
-    raw = (
-        FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt"
-    ).read_text(encoding="utf-8")
+    raw = (FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt").read_text(encoding="utf-8")
     result = _run(raw)
     assert result.error is None
     assert result.salvaged is False
@@ -131,17 +128,14 @@ def test_recipe_renders_canonical_table_with_minimal_four_columns():
 
 
 def test_recipe_records_target_metadata_in_frontmatter():
-    raw = (
-        FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt"
-    ).read_text(encoding="utf-8")
+    raw = (FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt").read_text(encoding="utf-8")
     result = _run(raw)
     assert FIXED_GENERATED in result.text
     assert FIXED_CHECKSUM in result.text
     assert FIXED_TARGET in result.text
     # Slug appears in heading.
     assert (
-        "T2-Hypothesis Table (troubleshoot-hypothesis) — auth_login_500"
-        in result.text
+        "T2-Hypothesis Table (troubleshoot-hypothesis) — auth_login_500" in result.text
     )
 
 
@@ -237,9 +231,9 @@ def _make_worker(
 
 
 def test_dispatcher_routes_success_worker_through_hypothesis_table_v1(tmp_path):
-    body = (
-        FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt"
-    ).read_text(encoding="utf-8")
+    body = (FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt").read_text(
+        encoding="utf-8"
+    )
     worker = _make_worker(tmp_path, 0, status="success", body=body)
 
     [out] = normalize_wave2(
@@ -343,9 +337,7 @@ def test_salvage_flag_propagates_from_recipe_on_recoverable_parse_error():
 
 
 def test_salvage_flag_false_when_status_was_success():
-    raw = (
-        FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt"
-    ).read_text(encoding="utf-8")
+    raw = (FIXTURES_DIR / "troubleshoot_hypothesis.raw.txt").read_text(encoding="utf-8")
     result = _run(raw, status="success")
     assert result.salvaged is False
 
@@ -450,11 +442,7 @@ def test_parse_hypothesis_table_skips_header_and_divider():
 
 def test_parse_hypothesis_table_handles_three_columns():
     """3-col input: cause | evidence | next_step (no confidence)."""
-    text = (
-        "| Cause | Evidence | Next |\n"
-        "|-------|----------|------|\n"
-        "| c | e | n |\n"
-    )
+    text = "| Cause | Evidence | Next |\n|-------|----------|------|\n| c | e | n |\n"
     rows = parse_hypothesis_table(text)
     assert len(rows) == 1
     assert rows[0]["cause"] == "c"

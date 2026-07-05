@@ -814,9 +814,7 @@ def test_e2e_standard_tier_validation_fail_does_not_halt(
     from superclaude.cli.prd.executor import _STAGE_A_STEPS
 
     stage_a_order = [s[0] for s in _STAGE_A_STEPS]
-    status_by_step = dict(
-        zip(stage_a_order, [r.status for r in result.step_results])
-    )
+    status_by_step = dict(zip(stage_a_order, [r.status for r in result.step_results]))
     assert status_by_step["scope-discovery"] == PrdStepStatus.VALIDATION_FAIL
 
 

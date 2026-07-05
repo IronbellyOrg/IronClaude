@@ -85,7 +85,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # ---------------------------------------------------------------------------
 # Expected field sets, drawn verbatim from the roadmap DM-### rows
 # (.dev/releases/Current/MultiModelSwarm/roadmap.md L100-L102).
@@ -180,9 +179,7 @@ def test_worker_result_http_code_is_optional_int() -> None:
     )
     # The non-None arm should be int.
     non_none = [a for a in args if a is not type(None)]
-    assert non_none == [int], (
-        f"http_code Optional arm should be int; got {non_none!r}"
-    )
+    assert non_none == [int], f"http_code Optional arm should be int; got {non_none!r}"
 
 
 # ---------------------------------------------------------------------------

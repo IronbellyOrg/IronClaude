@@ -39,13 +39,14 @@ from superclaude.cli.swarm.models import (
 from superclaude.cli.swarm.preflight import PreflightResult
 from superclaude.execution.parallel import ParallelExecutor
 
-
 # ---------------------------------------------------------------------------
 # Fixture helpers
 # ---------------------------------------------------------------------------
 
 
-def _make_preflight(workers_requested: int, job_id: str = "job-dispatch") -> PreflightResult:
+def _make_preflight(
+    workers_requested: int, job_id: str = "job-dispatch"
+) -> PreflightResult:
     manifest = Manifest(
         contract_version="1.0",
         job_id=job_id,

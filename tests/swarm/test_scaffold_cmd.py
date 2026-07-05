@@ -40,10 +40,7 @@ from superclaude.cli.swarm.schema import (
     validate,
 )
 
-
-_NON_CUSTOM_LENSES: tuple[str, ...] = tuple(
-    n for n in LENS_NAMES if n != "custom"
-)
+_NON_CUSTOM_LENSES: tuple[str, ...] = tuple(n for n in LENS_NAMES if n != "custom")
 
 
 # ---------------------------------------------------------------------------
@@ -259,8 +256,7 @@ def test_scaffold_rejects_custom_lens() -> None:
         f"stderr:\n{result.stderr}"
     )
     assert "FR-021" in result.stderr or "escape hatch" in result.stderr, (
-        f"diagnostic should call out FR-021 escape hatch; "
-        f"got stderr:\n{result.stderr}"
+        f"diagnostic should call out FR-021 escape hatch; got stderr:\n{result.stderr}"
     )
 
 
@@ -290,9 +286,7 @@ def test_scaffold_via_main_swarm_group(tmp_path: Path) -> None:
     from superclaude.cli.main import main
 
     runner = CliRunner()
-    result = runner.invoke(
-        main, ["swarm", "scaffold", "--lens", "bare-review"]
-    )
+    result = runner.invoke(main, ["swarm", "scaffold", "--lens", "bare-review"])
     assert result.exit_code == EXIT_OK, (
         f"superclaude swarm scaffold should exit {EXIT_OK}; "
         f"got {result.exit_code}\nstderr:\n{result.stderr}"

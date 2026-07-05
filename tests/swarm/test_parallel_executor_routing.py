@@ -69,13 +69,9 @@ whole suite.
 from __future__ import annotations
 
 import ast
-import threading
 from pathlib import Path
 from typing import Optional
 
-import pytest
-
-from superclaude.cli.swarm import dispatch as dispatch_module
 from superclaude.cli.swarm.dispatch import dispatch_wave1
 from superclaude.cli.swarm.models import (
     Manifest,
@@ -85,7 +81,6 @@ from superclaude.cli.swarm.models import (
 )
 from superclaude.cli.swarm.preflight import PreflightResult
 from superclaude.execution.parallel import ExecutionPlan, ParallelExecutor
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SWARM_DIR = REPO_ROOT / "src" / "superclaude" / "cli" / "swarm"
@@ -129,9 +124,7 @@ def _iter_swarm_py_sources() -> list[Path]:
     return [
         p
         for p in SWARM_DIR.rglob("*.py")
-        if p.is_file()
-        and "__pycache__" not in p.parts
-        and p.resolve() != SELF_PATH
+        if p.is_file() and "__pycache__" not in p.parts and p.resolve() != SELF_PATH
     ]
 
 
@@ -187,10 +180,15 @@ def _dispatch_import_names() -> set[str]:
     ``from superclaude.execution.parallel import X[, Y, ...]``. The
     guard then asserts ``ParallelExecutor`` is among them.
     """
-    tree = ast.parse(DISPATCH_PATH.read_text(encoding="utf-8"), filename=str(DISPATCH_PATH))
+    tree = ast.parse(
+        DISPATCH_PATH.read_text(encoding="utf-8"), filename=str(DISPATCH_PATH)
+    )
     names: set[str] = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module == REQUIRED_DISPATCH_IMPORT_MODULE:
+        if (
+            isinstance(node, ast.ImportFrom)
+            and node.module == REQUIRED_DISPATCH_IMPORT_MODULE
+        ):
             for alias in node.names:
                 names.add(alias.name)
     return names
@@ -324,13 +322,17 @@ def test_dispatch_module_docstring_documents_mandate() -> None:
     the spec rows.
     """
     docstring = ast.get_docstring(
-        ast.parse(DISPATCH_PATH.read_text(encoding="utf-8"), filename=str(DISPATCH_PATH))
+        ast.parse(
+            DISPATCH_PATH.read_text(encoding="utf-8"), filename=str(DISPATCH_PATH)
+        )
     )
     assert docstring is not None, (
         "dispatch.py has no module docstring; AC-004 mandate cannot be "
         "documented where T03.15 acceptance criterion requires."
     )
-    missing = [token for token in REQUIRED_DISPATCH_DOCSTRING_TOKENS if token not in docstring]
+    missing = [
+        token for token in REQUIRED_DISPATCH_DOCSTRING_TOKENS if token not in docstring
+    ]
     assert not missing, (
         "dispatch.py module docstring is missing required anchors for "
         f"the AC-004 / NFR-001 mandate: {missing}. Re-add the contract "
@@ -358,8 +360,7 @@ def test_no_threadpool_or_processpool_instantiation_in_swarm() -> None:
     assert not offenders, (
         "AC-004 violation: raw Executor constructor detected in swarm "
         "sources. Dispatch must route through "
-        "superclaude.execution.parallel.ParallelExecutor:\n"
-        + "\n".join(offenders)
+        "superclaude.execution.parallel.ParallelExecutor:\n" + "\n".join(offenders)
     )
 
 
@@ -413,14 +414,14 @@ def test_audit_detects_mutation_import_visitor() -> None:
     but *not* ``ParallelExecutor``. The static guard's whole purpose is
     to fail when this happens.
     """
-    synthetic = (
-        "from superclaude.execution.parallel import Task\n"
-        "x = Task\n"
-    )
+    synthetic = "from superclaude.execution.parallel import Task\nx = Task\n"
     tree = ast.parse(synthetic, filename="<synthetic>")
     imported: set[str] = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module == REQUIRED_DISPATCH_IMPORT_MODULE:
+        if (
+            isinstance(node, ast.ImportFrom)
+            and node.module == REQUIRED_DISPATCH_IMPORT_MODULE
+        ):
             for alias in node.names:
                 imported.add(alias.name)
     assert "Task" in imported, (
