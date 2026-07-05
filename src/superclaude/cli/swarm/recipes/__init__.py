@@ -152,8 +152,10 @@ class Recipe(Protocol):
 # ---------------------------------------------------------------------------
 # T04.03 -- import the concrete bare_review_v1 recipe at module load so
 # the REGISTRY entry resolves without a fallback. Import is deferred to
-# this point in the module so the Recipe Protocol + CustomPyDispatcher
-# are already defined when the recipe module imports back from us.
+# this point in the module so the Recipe Protocol + NormalizedResult are
+# already defined when bare_review_v1 imports ``NormalizedResult`` back
+# from us. The relative order of these deferred imports is immaterial
+# (bare_review_v1 does not import from custom, and vice versa).
 from superclaude.cli.swarm.recipes.bare_review_v1 import BareReviewV1  # noqa: E402
 from superclaude.cli.swarm.recipes.custom import (  # noqa: E402
     CUSTOM_PY_PREFIX,
