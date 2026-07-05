@@ -10,7 +10,9 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REFS = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+REFS = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+)
 H2 = (REFS / "contract-enumeration.md").read_text(encoding="utf-8")
 
 
@@ -20,7 +22,9 @@ def test_h2_empty_ledger_fails() -> None:
     low = H2.lower()
     assert "vacuously pass" in low, "empty-ledger non-vacuous rule not documented"
     assert "zero-row" in low and "ledger" in low
-    assert "unclassified live consumer" in low, "unclassified-consumer FAIL not documented"
+    assert "unclassified live consumer" in low, (
+        "unclassified-consumer FAIL not documented"
+    )
     # §5.6 H2 Contract Ledger Row schema fields present
     for field in (
         "contract_token",

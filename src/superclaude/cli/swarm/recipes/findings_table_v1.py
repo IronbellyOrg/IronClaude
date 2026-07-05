@@ -81,7 +81,6 @@ from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
 
-
 __all__ = [
     "FindingsTableV1",
     "DIVIDER_CELL_RE",
@@ -223,12 +222,10 @@ def extract_notes(text: str, cap: int = FALLBACK_NOTES_CAP) -> str:
     Notes heading -- findings_table_v1 lenses do not emit a Verdict
     section.
     """
-    m = re.search(
-        r"^#+\s*Notes\s*$", text, re.IGNORECASE | re.MULTILINE
-    )
+    m = re.search(r"^#+\s*Notes\s*$", text, re.IGNORECASE | re.MULTILINE)
     if not m:
         return ""
-    rest = text[m.end():]
+    rest = text[m.end() :]
     nxt = re.search(r"^#+\s", rest, re.MULTILINE)
     body = rest[: nxt.start()] if nxt else rest
     return " ".join(body.split())[:cap]
@@ -267,10 +264,7 @@ def render_markdown(
                 f"{f['detail']} | {f['action']} |"
             )
     else:
-        lines.append(
-            "| F-00 | (no rows) | (no structured findings returned) | "
-            "— | — |"
-        )
+        lines.append("| F-00 | (no rows) | (no structured findings returned) | — | — |")
     lines += ["", "## Notes", notes or "(no notes returned)"]
     return "\n".join(lines) + "\n"
 
@@ -290,9 +284,7 @@ class FindingsTableV1:
     "findings_table_v1"`` on their :class:`LensEntry`.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         status = str(args.get("status", "success"))
         target = str(args.get("target", ""))
         checksum = str(args.get("target_checksum", ""))
@@ -310,9 +302,7 @@ class FindingsTableV1:
         generated = str(args.get("generated") or iso_now())
 
         if not raw_output or not raw_output.strip():
-            return NormalizedResult(
-                text="", salvaged=False, error="empty raw body"
-            )
+            return NormalizedResult(text="", salvaged=False, error="empty raw body")
 
         body = strip_frontmatter(raw_output)
         findings = parse_findings_table(body)

@@ -153,8 +153,7 @@ def _authoritative_specs_block(spec_paths: list[str] | None) -> str:
         "drawing conclusions, and treat their contents as overriding any "
         "inference from directory names or structure. Content inlined below a "
         "`--- SPEC: <path> ---` header is the file verbatim (truncated if "
-        "large); any spec shown only as a path line must be Read from disk:\n"
-        + listed
+        "large); any spec shown only as a path line must be Read from disk:\n" + listed
     )
 
 

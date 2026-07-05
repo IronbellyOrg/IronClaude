@@ -104,7 +104,9 @@ def _normalize_token_for_regex(token: str) -> str:
 # them, ``langgraphql`` (a hypothetical future package) or a comment
 # containing ``crewaiops`` would false-positive.
 _TOKEN_PATTERN: re.Pattern[str] = re.compile(
-    r"\b(?:" + "|".join(_normalize_token_for_regex(t) for t in FORBIDDEN_FRAMEWORK_TOKENS) + r")\b",
+    r"\b(?:"
+    + "|".join(_normalize_token_for_regex(t) for t in FORBIDDEN_FRAMEWORK_TOKENS)
+    + r")\b",
     re.IGNORECASE,
 )
 
@@ -114,7 +116,11 @@ _TOKEN_PATTERN: re.Pattern[str] = re.compile(
 # scan is the one that catches string-literal leakage.
 _IMPORT_PATTERN: re.Pattern[str] = re.compile(
     r"^\s*(?:import|from)\s+("
-    + "|".join(_normalize_token_for_regex(t) for t in FORBIDDEN_FRAMEWORK_TOKENS if "-" not in t)
+    + "|".join(
+        _normalize_token_for_regex(t)
+        for t in FORBIDDEN_FRAMEWORK_TOKENS
+        if "-" not in t
+    )
     + r")(?:\.|\s|$)",
     re.IGNORECASE | re.MULTILINE,
 )
@@ -166,9 +172,7 @@ def _iter_swarm_python_sources() -> list[Path]:
     return [
         p
         for p in SWARM_DIR.rglob("*.py")
-        if p.is_file()
-        and "__pycache__" not in p.parts
-        and p.resolve() != SELF_PATH
+        if p.is_file() and "__pycache__" not in p.parts and p.resolve() != SELF_PATH
     ]
 
 
@@ -187,10 +191,15 @@ def _strip_doc_strings(text: str) -> str:
     full Python parser.  The token-level scan still runs against
     the *full* text via the doc-line allowlist.
     """
+
     def _blanker(match: re.Match[str]) -> str:
         return "\n" * match.group(0).count("\n")
 
-    return re.sub(r'(?s)("""[^\n].*?"""|\'\'\'[^\n].*?\'\'\'|""".*?"""|\'\'\'.*?\'\'\')', _blanker, text)
+    return re.sub(
+        r'(?s)("""[^\n].*?"""|\'\'\'[^\n].*?\'\'\'|""".*?"""|\'\'\'.*?\'\'\')',
+        _blanker,
+        text,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -268,7 +277,11 @@ def test_swarm_sources_do_not_import_forbidden_frameworks() -> None:
         scrubbed = _strip_doc_strings(text)
         for match in _IMPORT_PATTERN.finditer(scrubbed):
             lineno = scrubbed.count("\n", 0, match.start()) + 1
-            line = text.splitlines()[lineno - 1] if lineno <= len(text.splitlines()) else ""
+            line = (
+                text.splitlines()[lineno - 1]
+                if lineno <= len(text.splitlines())
+                else ""
+            )
             if _line_is_documentation(line):
                 continue
             rel = source.relative_to(REPO_ROOT)
@@ -278,8 +291,7 @@ def test_swarm_sources_do_not_import_forbidden_frameworks() -> None:
         "AC-009 violation: forbidden framework imported in swarm sources.\n"
         "Phase 1 transports must not depend on openhands / openharness / "
         "openai-assistants / langgraph / crewai.  Remove the import or "
-        "move the integration behind a future ADR-gated seam.\n"
-        + "\n".join(offenders)
+        "move the integration behind a future ADR-gated seam.\n" + "\n".join(offenders)
     )
 
 
@@ -365,7 +377,9 @@ def test_audit_detects_pyproject_dep_mutation(token: str) -> None:
     )
 
 
-@pytest.mark.parametrize("token", [t for t in FORBIDDEN_FRAMEWORK_TOKENS if "-" not in t])
+@pytest.mark.parametrize(
+    "token", [t for t in FORBIDDEN_FRAMEWORK_TOKENS if "-" not in t]
+)
 def test_audit_detects_import_mutation(token: str) -> None:
     """Scanner must flag every forbidden ``import`` form.
 
@@ -419,8 +433,10 @@ def test_audit_excludes_morpheme_suffix_tokens() -> None:
             matched = hit.group(0).lower()
             # The match must equal a forbidden token exactly, not be
             # a substring of a longer identifier in the line.
-            surrounding = synthetic[hit.end():hit.end() + 1]
-            assert not (surrounding and (surrounding.isalnum() or surrounding == "_")), (
+            surrounding = synthetic[hit.end() : hit.end() + 1]
+            assert not (
+                surrounding and (surrounding.isalnum() or surrounding == "_")
+            ), (
                 f"Scanner falsely flagged identifier-suffix in {synthetic!r}: "
                 f"matched {matched!r} with continuation {surrounding!r}. "
                 "AC-009 audit must respect word boundaries."

@@ -50,7 +50,6 @@ import pytest
 from superclaude.cli.swarm.merge import mechanical_merge
 from superclaude.cli.swarm.models import WorkerResult
 
-
 # Sentinel tokens used to lock body order across the merged document.
 # Naming mirrors tests/swarm/test_recipe_no_judging.py (T04.14) so the
 # two AC-011 surfaces stay shape-aligned.
@@ -243,9 +242,7 @@ def test_ac011_merge_does_not_deduplicate_within_section(
     within-section ``set(...)`` or ``drop_duplicates`` would collapse
     this. AC-011 forbids it; the row must survive verbatim, twice."""
     merged = mechanical_merge(two_workers_with_duplicates)
-    f01_rows = sum(
-        1 for line in merged.splitlines() if line.startswith("| F-01 |")
-    )
+    f01_rows = sum(1 for line in merged.splitlines() if line.startswith("| F-01 |"))
     assert f01_rows == 2, (
         "AC-011 forbids within-section dedup; expected the duplicate "
         f"F-01 row to appear twice, got {f01_rows}.\n\n"

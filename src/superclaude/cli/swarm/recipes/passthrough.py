@@ -71,7 +71,6 @@ from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
 
-
 __all__ = ["Passthrough"]
 
 
@@ -90,8 +89,6 @@ class Passthrough:
     of logic is itself the specification.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         del args
         return NormalizedResult(text=raw_output, salvaged=False, error=None)

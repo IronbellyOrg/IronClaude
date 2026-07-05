@@ -29,7 +29,6 @@ from superclaude.cli.swarm.normalize import normalize_wave2
 from superclaude.cli.swarm.recipes import REGISTRY, NormalizedResult, Recipe
 from superclaude.cli.swarm.recipes.passthrough import Passthrough
 
-
 # ---------------------------------------------------------------------------
 # 1 -- Byte-identity contract
 # ---------------------------------------------------------------------------
@@ -65,12 +64,7 @@ def test_normalize_returns_input_unchanged_for_unicode_body():
 
 
 def test_normalize_returns_input_unchanged_for_full_alphabet():
-    body = (
-        string.ascii_letters
-        + string.digits
-        + string.punctuation
-        + "\n\r\t\x0b\x0c"
-    )
+    body = string.ascii_letters + string.digits + string.punctuation + "\n\r\t\x0b\x0c"
     result = Passthrough().normalize(body, {})
     assert result.text == body
 
@@ -78,8 +72,8 @@ def test_normalize_returns_input_unchanged_for_full_alphabet():
 def test_normalize_returns_input_unchanged_for_frontmatter_body():
     body = (
         "---\n"
-        "schema_version: \"1.0\"\n"
-        "lens: \"bare-review\"\n"
+        'schema_version: "1.0"\n'
+        'lens: "bare-review"\n'
         "---\n"
         "\n"
         "# Findings\n"
@@ -258,7 +252,6 @@ def test_passthrough_random_byte_fixture_round_trip():
         "content\r\n"
     )
     assert Passthrough().normalize(body, {}).text == body
-    assert (
-        Passthrough().normalize(body, {}).text.encode("utf-8")
-        == body.encode("utf-8")
+    assert Passthrough().normalize(body, {}).text.encode("utf-8") == body.encode(
+        "utf-8"
     )

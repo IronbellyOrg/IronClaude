@@ -9,7 +9,9 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REFS = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+REFS = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+)
 H4 = (REFS / "effective-input-proof.md").read_text(encoding="utf-8")
 
 
@@ -20,7 +22,9 @@ def test_h4_nonempty_wrong_surface_fails_closed() -> None:
     low = H4.lower()
     assert "fails closed" in low
     assert "wrong surface" in low, "non-empty wrong-surface fail-closed not documented"
-    assert "e > 0" in low and "sufficient" in low, "E>0-is-not-sufficient rule not documented"
+    assert "e > 0" in low and "sufficient" in low, (
+        "E>0-is-not-sufficient rule not documented"
+    )
     assert "true_runtime_surface" in H4
     assert "intersection" in low
 

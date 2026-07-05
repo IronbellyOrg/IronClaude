@@ -37,7 +37,6 @@ from superclaude.cli.swarm.preflight import PreflightResult
 from superclaude.cli.swarm.transports import Transport
 from superclaude.cli.swarm.transports.stub import StubTransport
 
-
 # ---------------------------------------------------------------------------
 # Protocol conformance.
 # ---------------------------------------------------------------------------

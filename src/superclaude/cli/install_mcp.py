@@ -641,7 +641,10 @@ def install_mcp_server(
         else:
             expected_command = " ".join(shlex.split(command))
             registered_command = _parse_mcp_get_command(registered_output)
-            if registered_command is not None and registered_command == expected_command:
+            if (
+                registered_command is not None
+                and registered_command == expected_command
+            ):
                 click.echo(f"   ✅ Already installed and up to date: {server_name}")
                 return True
 

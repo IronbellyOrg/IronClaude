@@ -299,8 +299,7 @@ def select_mode(mode: AmalgamationMode) -> Callable[..., Optional[str]]:
     """
     if mode not in _MODE_DISPATCH:
         raise ValueError(
-            f"amalgamation_mode must be one of {sorted(_MODE_DISPATCH)}, "
-            f"got {mode!r}"
+            f"amalgamation_mode must be one of {sorted(_MODE_DISPATCH)}, got {mode!r}"
         )
     return _MODE_DISPATCH[mode]
 
@@ -648,8 +647,7 @@ def reduce_wave3(
     workers_succeeded = sum(1 for w in worker_results if w.status == "success")
     workers_failed = sum(1 for w in worker_results if w.status != "success")
     effective_n = (
-        int(workers_requested) if workers_requested is not None
-        else len(worker_results)
+        int(workers_requested) if workers_requested is not None else len(worker_results)
     )
     status = determine_status(
         workers_succeeded=workers_succeeded,
@@ -668,9 +666,7 @@ def reduce_wave3(
 
     # Resolve disk-emission policy: explicit override wins; otherwise
     # derive from output_dir presence.
-    should_emit = (
-        emit_to_disk if emit_to_disk is not None else output_dir is not None
-    )
+    should_emit = emit_to_disk if emit_to_disk is not None else output_dir is not None
 
     # T06.02 / INV-010 -- resume hook. When resuming a job that ran
     # under normalize+merge, drop any stale merged.md from the previous
@@ -713,7 +709,9 @@ def reduce_wave3(
         output_files=list(worker_results),
         amalgamation_mode=mode,
         merged_path=merged_path,
-        caller_metadata=caller_metadata if caller_metadata is not None else CallerMetadata(),
+        caller_metadata=caller_metadata
+        if caller_metadata is not None
+        else CallerMetadata(),
         recommended_next_command=rendered_next,
         artifacts=artifacts if artifacts is not None else Artifacts(),
     )

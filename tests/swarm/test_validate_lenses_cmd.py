@@ -166,9 +166,7 @@ def test_clean_registry_exits_zero(patch_validate_all) -> None:
         f"clean registry should exit {EXIT_OK}; got {result.exit_code}\n"
         f"stdout:\n{result.stdout}\nexception: {result.exception!r}"
     )
-    assert "OK" in result.stdout, (
-        f"OK summary missing from stdout:\n{result.stdout}"
-    )
+    assert "OK" in result.stdout, f"OK summary missing from stdout:\n{result.stdout}"
 
 
 def test_clean_registry_warning_mode_also_exits_zero(patch_validate_all) -> None:
@@ -236,9 +234,7 @@ def test_bundled_registry_via_main_group_exits_zero(
 
     import unittest.mock
 
-    with unittest.mock.patch.object(
-        cmd_mod, "validate_all", _permissive_validate_all
-    ):
+    with unittest.mock.patch.object(cmd_mod, "validate_all", _permissive_validate_all):
         runner = CliRunner()
         result = runner.invoke(main, ["swarm", "validate-lenses"])
         assert result.exit_code == EXIT_OK, (
@@ -354,9 +350,7 @@ def test_failure_diagnostic_format_is_grep_friendly(
     assert " @ " in result.stderr, (
         "diagnostic must include ' @ ' separator between rule and path"
     )
-    assert "(lens=" in result.stderr, (
-        "diagnostic must include '(lens=...)' suffix"
-    )
+    assert "(lens=" in result.stderr, "diagnostic must include '(lens=...)' suffix"
 
 
 # ---------------------------------------------------------------------------
@@ -467,8 +461,11 @@ def test_ok_summary_reports_inspected_count(
     """OK summary names how many entries were inspected (non-custom)."""
     registry = {
         "bare-review": _passing_lens(name="bare-review"),
-        "refactor-find": _passing_lens(name="refactor-find", suspect=False,
-            recommended_next_command_template="sc:next on {job_id}"),
+        "refactor-find": _passing_lens(
+            name="refactor-find",
+            suspect=False,
+            recommended_next_command_template="sc:next on {job_id}",
+        ),
         CUSTOM_LENS_NAME: LensEntry(name=CUSTOM_LENS_NAME),
     }
     patch_lenses_registry(registry)
@@ -479,8 +476,7 @@ def test_ok_summary_reports_inspected_count(
     # Summary must mention validated/inspected counts so operators can
     # sanity-check the registry size from the OK line alone.
     assert "3 entries inspected" in result.stdout, (
-        f"OK summary must name '3 entries inspected'; got stdout:\n"
-        f"{result.stdout}"
+        f"OK summary must name '3 entries inspected'; got stdout:\n{result.stdout}"
     )
     assert "2 validated" in result.stdout, (
         f"OK summary must name '2 validated' (non-custom count); "

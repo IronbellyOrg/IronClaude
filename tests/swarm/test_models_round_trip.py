@@ -53,26 +53,26 @@ from superclaude.cli.swarm.models import (
 # requires extending this list AND ``models.__all__``; the parity test
 # below catches drift in either direction.
 DM_RECORDS: tuple[type, ...] = (
-    JobSpec,            # DM-001
-    WorkerSpec,         # DM-002
-    TargetSpec,         # DM-003
-    TransportSpec,      # DM-004
-    PromptSpec,         # DM-005
+    JobSpec,  # DM-001
+    WorkerSpec,  # DM-002
+    TargetSpec,  # DM-003
+    TransportSpec,  # DM-004
+    PromptSpec,  # DM-005
     NormalizationSpec,  # DM-006
-    OutputSpec,         # DM-007
-    StatusPolicy,       # DM-008
-    RuntimeSpec,        # DM-009
-    LensEntry,          # DM-010
+    OutputSpec,  # DM-007
+    StatusPolicy,  # DM-008
+    RuntimeSpec,  # DM-009
+    LensEntry,  # DM-010
     ResolvedLensEntry,  # DM-011
-    ResultContract,     # DM-012
-    WorkerResult,       # DM-013
-    SwarmState,         # DM-014
-    EventRecord,        # DM-015
-    Manifest,           # DM-016
-    DoneSentinel,       # DM-017
-    Artifacts,          # DM-018
-    CallerInfo,         # DM-019
-    CallerMetadata,     # DM-020
+    ResultContract,  # DM-012
+    WorkerResult,  # DM-013
+    SwarmState,  # DM-014
+    EventRecord,  # DM-015
+    Manifest,  # DM-016
+    DoneSentinel,  # DM-017
+    Artifacts,  # DM-018
+    CallerInfo,  # DM-019
+    CallerMetadata,  # DM-020
 )
 
 

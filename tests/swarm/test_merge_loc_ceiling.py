@@ -64,14 +64,5 @@ def test_merge_module_body_at_or_below_loc_ceiling() -> None:
 
 def test_merge_module_loc_counter_excludes_module_docstring() -> None:
     """Sanity-check the counter against a synthetic source."""
-    synthetic = (
-        '"""one\n'
-        'two\n'
-        '"""\n'
-        '\n'
-        'from x import y\n'
-        '\n'
-        'def f():\n'
-        '    return 1\n'
-    )
+    synthetic = '"""one\ntwo\n"""\n\nfrom x import y\n\ndef f():\n    return 1\n'
     assert _count_body_loc(synthetic) == 3

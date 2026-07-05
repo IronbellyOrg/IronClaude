@@ -97,8 +97,7 @@ def gate_passed(
                     # to the producing gate/artifact when many gates run in a
                     # pipeline (PR #155 review r3385326536).
                     _log.warning(
-                        "Advisory gate check '%s' did not pass (non-fatal) "
-                        "for %s: %s",
+                        "Advisory gate check '%s' did not pass (non-fatal) for %s: %s",
                         check.name,
                         output_file,
                         detail,

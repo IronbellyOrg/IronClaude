@@ -153,8 +153,7 @@ def test_determine_status_reads_ndjson_channel_inv010(executor):
     the on-disk artifact (INV-010).
     """
     continue_output = (
-        "Assistant commentary in the NDJSON stream...\n"
-        "EXIT_RECOMMENDATION: CONTINUE\n"
+        "Assistant commentary in the NDJSON stream...\nEXIT_RECOMMENDATION: CONTINUE\n"
     )
     assert (
         executor._determine_status(

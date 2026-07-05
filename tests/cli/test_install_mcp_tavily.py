@@ -208,8 +208,12 @@ def test_reregisters_on_version_mismatch(monkeypatch):
     assert ok is True
 
     # A `claude mcp remove tavily` must have fired before the re-add.
-    remove_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "remove"]]
-    assert len(remove_calls) == 1, f"expected exactly one remove, got: {captured['calls']}"
+    remove_calls = [
+        c for c in captured["calls"] if c[:3] == ["claude", "mcp", "remove"]
+    ]
+    assert len(remove_calls) == 1, (
+        f"expected exactly one remove, got: {captured['calls']}"
+    )
     assert "tavily" in remove_calls[0]
     assert "--scope" in remove_calls[0] and "user" in remove_calls[0]
 
@@ -220,7 +224,9 @@ def test_reregisters_on_version_mismatch(monkeypatch):
     assert "tavily-mcp@0.1.2" not in add_calls[0]
 
     # Ordering: remove precedes add.
-    assert captured["calls"].index(remove_calls[0]) < captured["calls"].index(add_calls[0])
+    assert captured["calls"].index(remove_calls[0]) < captured["calls"].index(
+        add_calls[0]
+    )
 
 
 def test_noop_when_already_up_to_date(monkeypatch):
@@ -267,7 +273,9 @@ def test_unparseable_registration_triggers_reregister(monkeypatch):
         "  Command: npx\n"
         '  Args: -y tavily-mcp@0.2.20 "unterminated\n'  # unbalanced quote
     )
-    captured = _patch_already_installed(monkeypatch, malformed)  # exit 0, present-but-unparseable
+    captured = _patch_already_installed(
+        monkeypatch, malformed
+    )  # exit 0, present-but-unparseable
 
     ok = install_mcp.install_mcp_server(
         install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
@@ -281,7 +289,9 @@ def test_unparseable_registration_triggers_reregister(monkeypatch):
 
 def test_parse_command_returns_none_on_malformed_quoting():
     """``_parse_mcp_get_command`` returns None (not raise) on unbalanced quoting (r3476286558)."""
-    assert install_mcp._parse_mcp_get_command('  Command: npx\n  Args: -y "oops\n') is None
+    assert (
+        install_mcp._parse_mcp_get_command('  Command: npx\n  Args: -y "oops\n') is None
+    )
 
 
 def test_substring_false_positive_installs_fresh_without_remove(monkeypatch):
@@ -292,7 +302,9 @@ def test_substring_false_positive_installs_fresh_without_remove(monkeypatch):
     (exit != 0), the code must NOT issue a ``claude mcp remove`` (which would target the
     wrong server / scope) — it installs fresh instead.
     """
-    captured = _patch_already_installed(monkeypatch, None, get_rc=1)  # exact-name lookup fails
+    captured = _patch_already_installed(
+        monkeypatch, None, get_rc=1
+    )  # exact-name lookup fails
 
     ok = install_mcp.install_mcp_server(
         install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
@@ -321,7 +333,9 @@ def test_remove_targets_registered_scope_not_install_target(monkeypatch):
     )
     assert ok is True
 
-    remove_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "remove"]]
+    remove_calls = [
+        c for c in captured["calls"] if c[:3] == ["claude", "mcp", "remove"]
+    ]
     assert len(remove_calls) == 1
     assert "--scope" in remove_calls[0]
     scope_idx = remove_calls[0].index("--scope")
@@ -338,12 +352,17 @@ def test_get_registered_mcp_command_parses_get_output(monkeypatch):
         return _FakeGet(_get_output("0.2.20"))
 
     monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
-    assert install_mcp.get_registered_mcp_command("tavily") == "npx -y tavily-mcp@0.2.20"
+    assert (
+        install_mcp.get_registered_mcp_command("tavily") == "npx -y tavily-mcp@0.2.20"
+    )
 
 
 def test_parse_scope_normalizes_scope_line():
     """``_parse_mcp_get_scope`` maps the `Scope:` line to local|user|project (or None)."""
-    assert install_mcp._parse_mcp_get_scope("  Scope: User config (all projects)\n") == "user"
+    assert (
+        install_mcp._parse_mcp_get_scope("  Scope: User config (all projects)\n")
+        == "user"
+    )
     assert install_mcp._parse_mcp_get_scope("  Scope: Project config\n") == "project"
     assert install_mcp._parse_mcp_get_scope("  Scope: Local config\n") == "local"
     assert install_mcp._parse_mcp_get_scope("  Type: stdio\n") is None

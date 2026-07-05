@@ -371,11 +371,14 @@ lint-architecture:
 		case "$$name" in README) continue;; esac; \
 		if grep -q "## Activation" "$$f"; then \
 			skill_name="sc-$$name-protocol"; \
-			if [ ! -d "src/superclaude/skills/$$skill_name" ]; then \
-				echo "  ❌ ERROR [Check 1]: $$f has ## Activation but no matching skill directory: $$skill_name"; \
-				errors=$$((errors+1)); \
-			else \
+			skill_alt="sc-$$name"; \
+			if [ -d "src/superclaude/skills/$$skill_name" ]; then \
 				echo "  ✅ [Check 1]: $$name → $$skill_name"; \
+			elif [ -d "src/superclaude/skills/$$skill_alt" ]; then \
+				echo "  ✅ [Check 1]: $$name → $$skill_alt (utility skill; no -protocol suffix)"; \
+			else \
+				echo "  ❌ ERROR [Check 1]: $$f has ## Activation but no matching skill dir ($$skill_name or $$skill_alt)"; \
+				errors=$$((errors+1)); \
 			fi; \
 		fi; \
 	done; \

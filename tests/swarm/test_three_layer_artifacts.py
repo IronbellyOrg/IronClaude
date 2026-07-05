@@ -78,7 +78,6 @@ from superclaude.cli.swarm.reduce import (
 )
 from superclaude.cli.swarm.state import read_state, write_state
 
-
 # ---------------------------------------------------------------------------
 # Stub harness -- assembles the four artifacts under one output directory.
 # ---------------------------------------------------------------------------
@@ -289,12 +288,8 @@ def test_markdown_log_renders_one_line_per_event(
     stub_run_artifacts: dict[str, Path],
 ) -> None:
     """``execution-log.md`` shares the JSONL stream's record count."""
-    jsonl_lines = stub_run_artifacts["jsonl"].read_text(
-        encoding="utf-8"
-    ).splitlines()
-    md_lines = stub_run_artifacts["md"].read_text(
-        encoding="utf-8"
-    ).splitlines()
+    jsonl_lines = stub_run_artifacts["jsonl"].read_text(encoding="utf-8").splitlines()
+    md_lines = stub_run_artifacts["md"].read_text(encoding="utf-8").splitlines()
     assert len(md_lines) == len(jsonl_lines), (
         "Markdown and JSONL surfaces share one record stream; "
         "drift in line counts means the Logger emitted to only "
@@ -302,8 +297,7 @@ def test_markdown_log_renders_one_line_per_event(
     )
     for line in md_lines:
         assert line.startswith("- ["), (
-            f"every Markdown event line starts with a dash + ISO ts; "
-            f"got {line!r}"
+            f"every Markdown event line starts with a dash + ISO ts; got {line!r}"
         )
 
 
@@ -311,9 +305,7 @@ def test_done_sentinel_parses_as_done_sentinel(
     stub_run_artifacts: dict[str, Path],
 ) -> None:
     """``done.json`` carries the DM-017 field set + a real terminal status."""
-    payload = json.loads(
-        stub_run_artifacts["done"].read_text(encoding="utf-8")
-    )
+    payload = json.loads(stub_run_artifacts["done"].read_text(encoding="utf-8"))
     assert set(payload) == {"atomic_write", "terminal_status", "contract_path"}
     assert payload["atomic_write"] is True
     assert payload["terminal_status"] in {"success", "partial", "failed"}
@@ -447,10 +439,6 @@ def test_three_layer_set_is_complete_and_consistent(
     assert state.job_id == contract["job_id"] == JOB_ID
 
     # Logs share record stream.
-    jsonl_lines = stub_run_artifacts["jsonl"].read_text(
-        encoding="utf-8"
-    ).splitlines()
-    md_lines = stub_run_artifacts["md"].read_text(
-        encoding="utf-8"
-    ).splitlines()
+    jsonl_lines = stub_run_artifacts["jsonl"].read_text(encoding="utf-8").splitlines()
+    md_lines = stub_run_artifacts["md"].read_text(encoding="utf-8").splitlines()
     assert len(jsonl_lines) == len(md_lines) > 0

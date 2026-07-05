@@ -39,7 +39,6 @@ from superclaude.cli.swarm.reduce import (
     emit_done_sentinel,
 )
 
-
 # ---------------------------------------------------------------------------
 # Co-location + return value.
 # ---------------------------------------------------------------------------
@@ -121,9 +120,7 @@ def test_emit_done_sentinel_leaves_no_tmp_sibling(tmp_path: Path) -> None:
 
     emit_done_sentinel("success", contract)
 
-    siblings = [
-        p for p in tmp_path.iterdir() if p.name != "return-contract.yaml"
-    ]
+    siblings = [p for p in tmp_path.iterdir() if p.name != "return-contract.yaml"]
     assert siblings == [tmp_path / DONE_SENTINEL_FILENAME], (
         f"Expected only done.json next to the contract; got {siblings!r}"
     )

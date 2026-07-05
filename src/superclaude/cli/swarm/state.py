@@ -47,7 +47,6 @@ from typing import Optional, Union
 
 from superclaude.cli.swarm.models import SwarmState, from_dict, to_dict
 
-
 __all__ = ["OutputConfinementError", "confine_path", "read_state", "write_state"]
 
 

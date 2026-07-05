@@ -93,8 +93,7 @@ def _minimal_v1_0_spec() -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -133,9 +132,7 @@ def _minimal_v1_0_spec() -> dict[str, Any]:
             "partial_threshold": 2,
         },
         "recommended_next_command_template": "sc:reflect on {job_id}",
-        "recommended_next_command_substitutions": {
-            "job_id": "job-forward-compat-1.0"
-        },
+        "recommended_next_command_substitutions": {"job_id": "job-forward-compat-1.0"},
         "runtime": {
             "mode": "inline",
             "log_level": "info",
@@ -239,13 +236,10 @@ def test_validate_or_raise_emits_deprecation_warning_for_1_0_spec() -> None:
     spec = _minimal_v1_0_spec()
     with pytest.warns(DeprecationWarning) as caught:
         validate_or_raise(spec)
-    matching = [
-        w for w in caught.list if SPEC_VERSION_1_0 in str(w.message)
-    ]
+    matching = [w for w in caught.list if SPEC_VERSION_1_0 in str(w.message)]
     assert len(matching) == 1, (
         "expected exactly one DeprecationWarning naming "
-        f"{SPEC_VERSION_1_0!r}; got: "
-        + repr([str(w.message) for w in caught.list])
+        f"{SPEC_VERSION_1_0!r}; got: " + repr([str(w.message) for w in caught.list])
     )
 
 
@@ -257,9 +251,7 @@ def test_validate_or_raise_does_not_warn_for_current_spec_version() -> None:
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
         validate_or_raise(spec)
-    deprecation = [
-        w for w in caught if issubclass(w.category, DeprecationWarning)
-    ]
+    deprecation = [w for w in caught if issubclass(w.category, DeprecationWarning)]
     assert deprecation == [], [str(w.message) for w in deprecation]
 
 

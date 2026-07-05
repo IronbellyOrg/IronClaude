@@ -72,7 +72,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-012 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L99)
 # names exactly these top-level fields, in this order. The four dotted
 # ``target.*`` sub-fields collapse into the ``target`` nested record

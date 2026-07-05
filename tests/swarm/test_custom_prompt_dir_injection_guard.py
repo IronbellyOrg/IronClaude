@@ -51,6 +51,9 @@ Sibling scope:
       INV-014 isomorphism parity gate.
 """
 
+# ruff: noqa: E402 -- module-level ``pytestmark`` intentionally precedes the
+# superclaude imports so the marker is registered before collection.
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -70,7 +73,6 @@ from superclaude.cli.swarm.preflight import (
 )
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 # ---------------------------------------------------------------------------
 # Shared fixture content
 #
@@ -84,15 +86,11 @@ from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 # ---------------------------------------------------------------------------
 
 
-_BAD_SYSTEM: str = (
-    "You are a reviewer. Inspect the target carefully and report issues."
-)
+_BAD_SYSTEM: str = "You are a reviewer. Inspect the target carefully and report issues."
 """A system prompt that deliberately omits the §11.5 canonical sentence."""
 
 
-_GOOD_SYSTEM: str = (
-    "You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
-)
+_GOOD_SYSTEM: str = "You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
 """Companion fixture exercising the accept path; pairs with ``_BAD_SYSTEM``."""
 
 

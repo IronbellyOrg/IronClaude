@@ -59,11 +59,10 @@ from superclaude.cli.swarm.commands import (
 from superclaude.cli.swarm.lenses import LENS_NAMES, LENSES
 from superclaude.cli.swarm.lenses._validate import (
     CUSTOM_LENS_NAME,
-    LensValidationFailure,
     RULE_FILE_REF_UNRESOLVED,
+    LensValidationFailure,
 )
 from superclaude.cli.swarm.models import LensEntry
-
 
 # ---------------------------------------------------------------------------
 # Constants -- the CLI argv shape CI invokes.
@@ -105,9 +104,7 @@ def test_bundled_registry_has_eight_total_entries() -> None:
 
 def test_bundled_registry_has_seven_non_custom_entries() -> None:
     """T08.13 step 1: validator inspects 7 entries (skips ``custom``)."""
-    non_custom = [
-        name for name in LENSES if name != CUSTOM_LENS_NAME
-    ]
+    non_custom = [name for name in LENSES if name != CUSTOM_LENS_NAME]
     assert len(non_custom) == EXPECTED_NON_CUSTOM_COUNT, (
         f"bundled LENSES must expose exactly "
         f"{EXPECTED_NON_CUSTOM_COUNT} non-custom entries to the "
@@ -199,8 +196,7 @@ def test_subprocess_emits_no_stderr_diagnostics_on_clean_registry() -> None:
     # stderr may contain interpreter warnings (DeprecationWarning, etc.)
     # but must NOT contain the validate-lenses failure header.
     assert "validate-lenses:" not in result.stderr or (
-        "WARNING" not in result.stderr
-        and "failed validation" not in result.stderr
+        "WARNING" not in result.stderr and "failed validation" not in result.stderr
     ), (
         f"clean registry must not emit failure diagnostics on stderr; "
         f"got stderr:\n{result.stderr}"
@@ -288,8 +284,7 @@ def test_run_validate_lenses_blocks_by_default_on_failures(
         warning_mode=False,
     )
     assert exit_code == EXIT_INVALID, (
-        f"blocking default must return {EXIT_INVALID} on failure; "
-        f"got {exit_code}"
+        f"blocking default must return {EXIT_INVALID} on failure; got {exit_code}"
     )
 
 
@@ -314,8 +309,7 @@ def test_run_validate_lenses_warning_mode_flips_to_zero(
         warning_mode=True,
     )
     assert exit_code == EXIT_OK, (
-        f"--warning-mode must flip failure exit to {EXIT_OK}; "
-        f"got {exit_code}"
+        f"--warning-mode must flip failure exit to {EXIT_OK}; got {exit_code}"
     )
 
 
@@ -340,8 +334,7 @@ def test_cli_runner_failing_registry_emits_lens_named_diagnostic(
     result = runner.invoke(validate_lenses_cmd, [])
     assert result.exit_code == EXIT_INVALID
     assert "lens=bare-review" in result.stderr, (
-        f"diagnostic must include lens=<name> suffix; "
-        f"got stderr:\n{result.stderr}"
+        f"diagnostic must include lens=<name> suffix; got stderr:\n{result.stderr}"
     )
     assert RULE_FILE_REF_UNRESOLVED in result.stderr, (
         f"diagnostic must include rule identifier "

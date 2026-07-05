@@ -42,7 +42,6 @@ from superclaude.cli.swarm.lenses._validate import (
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 # ---------------------------------------------------------------------------
 # Inventory: the 7 non-custom lens module names + their registry keys.
 # Keep the (module, key) pairing explicit so a rename on either side trips
@@ -75,9 +74,7 @@ NON_CUSTOM_LENS_MODULES: tuple[tuple[str, str], ...] = (
     NON_CUSTOM_LENS_MODULES,
     ids=[key for _, key in NON_CUSTOM_LENS_MODULES],
 )
-def test_lens_module_exports_lens_constant(
-    module_path: str, registry_key: str
-) -> None:
+def test_lens_module_exports_lens_constant(module_path: str, registry_key: str) -> None:
     mod = importlib.import_module(module_path)
     assert hasattr(mod, "LENS"), f"{module_path} missing LENS constant"
     assert isinstance(mod.LENS, LensEntry)
@@ -119,9 +116,9 @@ def test_lens_declares_full_dm010_field_set(key: str) -> None:
     assert lens.default_workers >= 2, f"{key}: default_workers below floor"
     assert isinstance(lens.suspect, bool)
     assert lens.tier, f"{key}: empty tier"
-    assert (
-        lens.recommended_next_command_template
-    ), f"{key}: empty recommended_next_command_template"
+    assert lens.recommended_next_command_template, (
+        f"{key}: empty recommended_next_command_template"
+    )
     assert lens.stability in ("stable", "experimental")
 
 
@@ -179,10 +176,7 @@ def test_experimental_lenses_are_marked_experimental(key: str) -> None:
     [key for _, key in NON_CUSTOM_LENS_MODULES],
 )
 def test_system_prompt_fragment_contains_injection_guard(key: str) -> None:
-    assert (
-        CANONICAL_INJECTION_GUARD_SENTENCE
-        in LENSES[key].system_prompt_fragment
-    )
+    assert CANONICAL_INJECTION_GUARD_SENTENCE in LENSES[key].system_prompt_fragment
 
 
 # ---------------------------------------------------------------------------

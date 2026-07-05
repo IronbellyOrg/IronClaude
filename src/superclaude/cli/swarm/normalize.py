@@ -87,7 +87,6 @@ from superclaude.cli.swarm.recipes import (
     Recipe,
 )
 
-
 __all__ = [
     "NormalizedResult",
     "Recipe",
@@ -246,9 +245,7 @@ class _PassthroughFallback:
     REGISTRY because doing so would mask a "recipe missing" bug.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         del args
         return NormalizedResult(text=raw_output, salvaged=False)
 

@@ -47,6 +47,9 @@ cpd-failure) → (normalised-rule, normalised-reason, normalised-tail)
 that returns the same triple for both paths under any input.
 """
 
+# ruff: noqa: E402 -- module-level ``pytestmark`` intentionally precedes the
+# superclaude imports so the marker is registered before collection.
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -99,9 +102,7 @@ _BAD_SYSTEM: str = (
     "You are a reviewer. Inspect the target carefully and report issues. "
     "Do NOT include the canonical guard sentence here."
 )
-_GOOD_SYSTEM: str = (
-    "You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
-)
+_GOOD_SYSTEM: str = "You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
 
 
 def _write_cpd(
@@ -126,9 +127,7 @@ def _write_cpd(
 # ---------------------------------------------------------------------------
 
 
-def _drive_lens(
-    _tmp_path: Path, *, system: str
-) -> list[PreflightFailure]:
+def _drive_lens(_tmp_path: Path, *, system: str) -> list[PreflightFailure]:
     """Lens-path driver: call the central guard helper directly.
 
     ``run_preflight`` invokes :func:`enforce_injection_guard` against
@@ -151,9 +150,7 @@ def _drive_lens(
     )
 
 
-def _drive_cpd(
-    tmp_path: Path, *, system: str
-) -> list[PreflightFailure]:
+def _drive_cpd(tmp_path: Path, *, system: str) -> list[PreflightFailure]:
     """Custom-prompt-dir driver: materialise the trio and read it.
 
     :func:`read_custom_prompt_dir` raises :class:`PreflightError` on
@@ -177,7 +174,12 @@ def _drive_cpd(
     return []
 
 
-_PathDriver = Callable[[Path, ], list[PreflightFailure]]
+_PathDriver = Callable[
+    [
+        Path,
+    ],
+    list[PreflightFailure],
+]
 
 PATH_DRIVERS: dict[str, Callable[..., list[PreflightFailure]]] = {
     PATH_LENS: _drive_lens,
@@ -227,9 +229,7 @@ def _normalise(failure: PreflightFailure) -> NormalisedFailure:
 
 
 @pytest.mark.parametrize("path_id", PATH_IDS)
-def test_each_path_rejects_missing_substring(
-    tmp_path: Path, path_id: str
-) -> None:
+def test_each_path_rejects_missing_substring(tmp_path: Path, path_id: str) -> None:
     """INV-014 acceptance: each path independently rejects the bad
     fixture with the canonical injection-guard rule. Parametrized so a
     refactor that only breaks one path surfaces the offending path id
@@ -255,9 +255,7 @@ def test_each_path_rejects_missing_substring(
 
 
 @pytest.mark.parametrize("path_id", PATH_IDS)
-def test_each_path_accepts_substring_present(
-    tmp_path: Path, path_id: str
-) -> None:
+def test_each_path_accepts_substring_present(tmp_path: Path, path_id: str) -> None:
     """Complementary accept gate. Pairs with the reject parametrize so a
     regression that always-rejects (a different mutation than
     always-accepts) also breaks the suite. Without this gate a
@@ -341,8 +339,7 @@ def test_message_body_quotes_required_substring_on_both_paths(
         (PATH_CPD, cpd_failures[0]),
     ):
         assert repr(CANONICAL_INJECTION_GUARD_SENTENCE) in failure.message, (
-            f"{label}: message does not quote required substring "
-            f"({failure.message!r})"
+            f"{label}: message does not quote required substring ({failure.message!r})"
         )
         assert "§11.5" in failure.message, (
             f"{label}: message does not reference §11.5 ({failure.message!r})"
@@ -416,13 +413,9 @@ def test_asymmetric_mutation_weakening_lens_breaks_isomorphism(
         # path_label, so it continues to delegate to the real helper.
         if path_label == EXPECTED_PATH_SLUG[PATH_LENS]:
             return []
-        return real_enforce(
-            system, required_substring, path_label=path_label
-        )
+        return real_enforce(system, required_substring, path_label=path_label)
 
-    monkeypatch.setattr(
-        preflight_mod, "enforce_injection_guard", _selective_enforce
-    )
+    monkeypatch.setattr(preflight_mod, "enforce_injection_guard", _selective_enforce)
 
     # Sanity: the lens driver now accepts the bad fixture (mutation
     # took effect) and the cpd driver still rejects (its call site is
@@ -431,9 +424,7 @@ def test_asymmetric_mutation_weakening_lens_breaks_isomorphism(
     cpd_root = tmp_path / "cpd-probe"
     cpd_root.mkdir()
     cpd_failures = _drive_cpd(cpd_root, system=_BAD_SYSTEM)
-    assert lens_failures == [], (
-        "lens-side mutation did not weaken lens path"
-    )
+    assert lens_failures == [], "lens-side mutation did not weaken lens path"
     assert len(cpd_failures) == 1, (
         "custom-prompt-dir path should still reject the bad fixture"
     )
@@ -456,6 +447,7 @@ def test_asymmetric_mutation_weakening_cpd_breaks_isomorphism(
     isomorphism helper flips to ``False`` -- proving INV-014's bijection
     detects asymmetric weakening from either side.
     """
+
     def _unguarded_read(
         path: str | Path,
         *,
@@ -469,9 +461,7 @@ def test_asymmetric_mutation_weakening_cpd_breaks_isomorphism(
         user = (base / "user.txt").read_text(encoding="utf-8")
         return system, user, {}
 
-    monkeypatch.setattr(
-        preflight_mod, "read_custom_prompt_dir", _unguarded_read
-    )
+    monkeypatch.setattr(preflight_mod, "read_custom_prompt_dir", _unguarded_read)
 
     # Sanity: the cpd driver now accepts the bad fixture (mutation took
     # effect) and the lens driver still rejects (its call site is
@@ -480,12 +470,8 @@ def test_asymmetric_mutation_weakening_cpd_breaks_isomorphism(
     cpd_root = tmp_path / "cpd-probe"
     cpd_root.mkdir()
     cpd_failures = _drive_cpd(cpd_root, system=_BAD_SYSTEM)
-    assert len(lens_failures) == 1, (
-        "lens path should still reject the bad fixture"
-    )
-    assert cpd_failures == [], (
-        "custom-prompt-dir mutation did not weaken cpd path"
-    )
+    assert len(lens_failures) == 1, "lens path should still reject the bad fixture"
+    assert cpd_failures == [], "custom-prompt-dir mutation did not weaken cpd path"
 
     # Load-bearing assertion: the isomorphism is broken.
     assert _isomorphism_holds(tmp_path / "check") is False

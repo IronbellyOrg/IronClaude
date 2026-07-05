@@ -40,7 +40,8 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from superclaude.cli.swarm import swarm_group, tmux as swarm_tmux
+from superclaude.cli.swarm import swarm_group
+from superclaude.cli.swarm import tmux as swarm_tmux
 from superclaude.cli.swarm.commands import (
     DONE_SENTINEL_FILENAME,
     EXIT_OK,
@@ -207,9 +208,7 @@ def test_kill_creates_state_when_absent(tmp_path: Path, monkeypatch) -> None:
     assert state.job_id == "job-fresh"
 
 
-def test_kill_writes_done_sentinel_when_no_session(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_kill_writes_done_sentinel_when_no_session(tmp_path: Path, monkeypatch) -> None:
     """Even with no tmux session, ``--output`` still gets the killed sentinel.
 
     This pins the AC "Idempotent (kill twice no-op)" branch: a re-invocation
@@ -264,9 +263,7 @@ def test_kill_is_idempotent_second_invocation_no_op(
     assert state.job_id == "job-twice"
 
 
-def test_kill_rejects_output_that_is_a_file(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_kill_rejects_output_that_is_a_file(tmp_path: Path, monkeypatch) -> None:
     """``--output`` pointing at a regular file is a usage error."""
     _patch_tmux_killed(monkeypatch, killed=True)
     not_a_dir = tmp_path / "regular.txt"
@@ -282,9 +279,7 @@ def test_kill_rejects_output_that_is_a_file(
     assert result.exit_code == 2, result.output
 
 
-def test_kill_creates_output_dir_when_missing(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_kill_creates_output_dir_when_missing(tmp_path: Path, monkeypatch) -> None:
     """``--output`` path that does not yet exist is materialised."""
     _patch_tmux_killed(monkeypatch, killed=True)
     target = tmp_path / "nested" / "out"

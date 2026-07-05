@@ -167,9 +167,7 @@ substring check robust against whitespace / punctuation drift.
 RULE_SPEC_VERSION = "spec_version.pinned"
 RULE_INJECTION_SUBSTRING = "injection_guard.required_substring_in_prompt_system"
 RULE_INJECTION_REQUIRED = "injection_guard.required_substring_non_empty"
-RULE_CUSTOM_PROMPT_DIR_REQUIRES_CUSTOM_LENS = (
-    "custom_prompt_dir.requires_custom_lens"
-)
+RULE_CUSTOM_PROMPT_DIR_REQUIRES_CUSTOM_LENS = "custom_prompt_dir.requires_custom_lens"
 RULE_SCHEMA = "json_schema"
 
 # Sentinel lens name expected by FR-021 when ``custom_prompt_dir`` is set.
@@ -526,14 +524,10 @@ class SchemaValidationError(Exception):
 
     def __init__(self, failures: list[SchemaValidationFailure]) -> None:
         if not failures:
-            raise ValueError(
-                "SchemaValidationError requires at least one failure"
-            )
+            raise ValueError("SchemaValidationError requires at least one failure")
         self.failures: list[SchemaValidationFailure] = list(failures)
         rules = ", ".join(f.rule for f in failures)
-        super().__init__(
-            f"JobSpec failed {len(failures)} validation rule(s): {rules}"
-        )
+        super().__init__(f"JobSpec failed {len(failures)} validation rule(s): {rules}")
 
 
 # ---------------------------------------------------------------------------
@@ -563,7 +557,9 @@ def _format_path(path_parts: typing.Iterable[Any]) -> str:
 def _json_schema_failures(spec: Any) -> list[SchemaValidationFailure]:
     """Collect every jsonschema-level failure as a structured record."""
     failures: list[SchemaValidationFailure] = []
-    for error in sorted(_JOB_SPEC_VALIDATOR.iter_errors(spec), key=lambda e: list(e.path)):
+    for error in sorted(
+        _JOB_SPEC_VALIDATOR.iter_errors(spec), key=lambda e: list(e.path)
+    ):
         # The ``enum`` validator on ``spec_version`` (previously ``const``
         # before NFR-006) is the canonical signal for the supported-version
         # rule; surface it under RULE_SPEC_VERSION so callers can match on
@@ -571,10 +567,9 @@ def _json_schema_failures(spec: Any) -> list[SchemaValidationFailure]:
         # match covers both validators so the rule survives any future move
         # back to ``const`` (or to ``oneOf``) without breaking call sites.
         path = _format_path(error.absolute_path)
-        if (
-            error.validator in {"const", "enum"}
-            and list(error.absolute_path) == ["spec_version"]
-        ):
+        if error.validator in {"const", "enum"} and list(error.absolute_path) == [
+            "spec_version"
+        ]:
             rule = RULE_SPEC_VERSION
         else:
             rule = RULE_SCHEMA

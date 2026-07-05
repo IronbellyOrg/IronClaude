@@ -28,7 +28,8 @@ import shutil
 import pytest
 from click.testing import CliRunner
 
-from superclaude.cli.swarm import swarm_group, tmux as swarm_tmux
+from superclaude.cli.swarm import swarm_group
+from superclaude.cli.swarm import tmux as swarm_tmux
 from superclaude.cli.swarm.commands import (
     EXIT_OK,
     EXIT_USAGE,
@@ -85,9 +86,7 @@ def test_attach_rejects_tmux_illegal_job_id() -> None:
 
 def test_attach_tmux_unavailable_exits_usage(monkeypatch) -> None:
     """tmux missing on PATH yields EXIT_USAGE with a clear stderr line."""
-    monkeypatch.setattr(
-        swarm_tmux, "is_tmux_available", lambda: False
-    )
+    monkeypatch.setattr(swarm_tmux, "is_tmux_available", lambda: False)
     runner = CliRunner()
     result = runner.invoke(swarm_group, ["attach", "job-x"])
     assert result.exit_code == EXIT_USAGE, result.output

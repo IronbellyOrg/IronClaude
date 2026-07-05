@@ -19,7 +19,6 @@ from pathlib import Path
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 __all__ = ["LENS"]
 
 

@@ -90,9 +90,7 @@ def _scan_for_forbidden(text: str) -> list[tuple[int, str, str]]:
     CONTRACT_SURFACE_FILES,
     ids=[f"{role}:{rel}" for rel, role in CONTRACT_SURFACE_FILES],
 )
-def test_contract_surface_has_no_claude_tool_names(
-    rel_path: str, role: str
-) -> None:
+def test_contract_surface_has_no_claude_tool_names(rel_path: str, role: str) -> None:
     """AC-013: zero Claude tool names in contract-surface files.
 
     Each surface category (job spec / result contract / CLI / monitor)

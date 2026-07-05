@@ -14,7 +14,6 @@ Covers the acceptance criteria from
 from __future__ import annotations
 
 import json
-import os
 import signal
 import subprocess
 import sys
@@ -25,7 +24,6 @@ import pytest
 
 from superclaude.cli.swarm.models import SwarmState
 from superclaude.cli.swarm.state import read_state, write_state
-
 
 # ---------------------------------------------------------------------------
 # Module-level static guards.
@@ -39,9 +37,9 @@ def test_state_module_has_no_direct_open_write_for_live_path() -> None:
     (``grep -nE 'open\\(.*".*state.*\\.json.*w' src/superclaude/cli/swarm/state.py``)
     so the rule is enforced inside the test lane too.
     """
-    state_module_src = Path(
-        "src/superclaude/cli/swarm/state.py"
-    ).read_text(encoding="utf-8")
+    state_module_src = Path("src/superclaude/cli/swarm/state.py").read_text(
+        encoding="utf-8"
+    )
     assert ".tmp" in state_module_src, "atomic-write tmp idiom missing"
     assert "os.replace" in state_module_src, "atomic-write os.replace missing"
     forbidden = 'open(path, "w"'

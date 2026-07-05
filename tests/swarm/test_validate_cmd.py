@@ -87,8 +87,7 @@ def _minimal_valid_spec() -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -184,9 +183,7 @@ def test_valid_spec_exits_zero(tmp_path: Path) -> None:
         f"stdout:\n{result.stdout}\n"
         f"stderr (exception): {result.exception!r}"
     )
-    assert "OK" in result.stdout, (
-        f"OK summary missing from stdout:\n{result.stdout}"
-    )
+    assert "OK" in result.stdout, f"OK summary missing from stdout:\n{result.stdout}"
 
 
 def test_valid_spec_with_strict_flag_exits_zero(tmp_path: Path) -> None:
@@ -273,8 +270,7 @@ def test_invalid_spec_wrong_spec_version_exits_nonzero(
     result = runner.invoke(validate_cmd, [str(path)])
     assert result.exit_code == EXIT_INVALID
     assert RULE_SPEC_VERSION in result.stderr, (
-        f"diagnostics must name {RULE_SPEC_VERSION}; "
-        f"got stderr:\n{result.stderr}"
+        f"diagnostics must name {RULE_SPEC_VERSION}; got stderr:\n{result.stderr}"
     )
 
 
@@ -290,8 +286,7 @@ def test_invalid_spec_custom_prompt_dir_without_custom_lens(
     result = runner.invoke(validate_cmd, [str(path)])
     assert result.exit_code == EXIT_INVALID
     assert RULE_CUSTOM_PROMPT_DIR_REQUIRES_CUSTOM_LENS in result.stderr, (
-        f"diagnostics must name custom_prompt_dir rule; "
-        f"got stderr:\n{result.stderr}"
+        f"diagnostics must name custom_prompt_dir rule; got stderr:\n{result.stderr}"
     )
 
 

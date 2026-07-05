@@ -28,7 +28,6 @@ from pathlib import Path
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 __all__ = ["LENS"]
 
 
@@ -47,8 +46,7 @@ LENS: LensEntry = LensEntry(
     system_prompt_fragment=(
         "You are conducting a bare review of the target. Surface "
         "concrete findings with file:line citations and label any "
-        "high-confidence suspect-source files. "
-        + CANONICAL_INJECTION_GUARD_SENTENCE
+        "high-confidence suspect-source files. " + CANONICAL_INJECTION_GUARD_SENTENCE
     ),
     user_template=(
         "Review the following target and produce a findings table "
@@ -63,8 +61,7 @@ LENS: LensEntry = LensEntry(
     suspect=True,
     tier="T2",
     recommended_next_command_template=(
-        "/sc:adversarial --compare {compare_files} "
-        "--suspect-source {suspect_files}"
+        "/sc:adversarial --compare {compare_files} --suspect-source {suspect_files}"
     ),
     acceptance_notes=(
         "Stable lens. PR-review discipline (NFR-012) applies: extra "

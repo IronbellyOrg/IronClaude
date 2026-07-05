@@ -48,7 +48,6 @@ from superclaude.cli.swarm.recipes.verdict_only_v1 import (
     strip_frontmatter,
 )
 
-
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "verdict_only_v1"
 
 FIXED_GENERATED = "2026-06-01T11:43:39Z"
@@ -105,8 +104,8 @@ def test_recipe_renders_canonical_three_section_body_for_spec_completeness():
 
     # Label alias-mapped from "incomplete" -> "no"; confidence preserved.
     assert "no (40)" in text
-    assert "verdict: \"no\"" in text
-    assert "verdict_confidence: \"40\"" in text
+    assert 'verdict: "no"' in text
+    assert 'verdict_confidence: "40"' in text
 
     # Frontmatter records lens + tier.
     assert 'lens: "spec-completeness"' in text
@@ -130,9 +129,7 @@ def test_recipe_renders_feasibility_probe_fixture():
     assert 'verdict: "uncertain"' in text
     assert 'lens: "feasibility-probe"' in text
     # Slug appears in heading.
-    assert (
-        "T2-Verdict (feasibility-probe) — wasm-edge-runtime" in text
-    )
+    assert "T2-Verdict (feasibility-probe) — wasm-edge-runtime" in text
 
 
 def test_recipe_renders_canonical_yes_label_with_no_confidence():
@@ -413,9 +410,7 @@ def test_ac011_long_rationale_capped_but_not_dropped():
     raw = f"## Verdict\nyes — {long_tail}\n"
     result = _run(raw)
     # Rationale capped at RATIONALE_CAP; not dropped to empty.
-    rationale_block = result.text.split("## Rationale\n", 1)[1].split(
-        "\n\n##", 1
-    )[0]
+    rationale_block = result.text.split("## Rationale\n", 1)[1].split("\n\n##", 1)[0]
     assert 0 < len(rationale_block) <= RATIONALE_CAP
 
 
@@ -475,9 +470,7 @@ def test_verdict_aliases_map_to_canonical_triple(alias, canonical):
 
 
 def test_parse_verdict_handles_em_dash_separator():
-    label, conf, rationale = parse_verdict(
-        "incomplete (40) — three substantive gaps."
-    )
+    label, conf, rationale = parse_verdict("incomplete (40) — three substantive gaps.")
     assert label == "no"
     assert conf == "40"
     assert rationale == "three substantive gaps."

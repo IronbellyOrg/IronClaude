@@ -59,7 +59,6 @@ from superclaude.cli.swarm.recipes import (
 )
 from superclaude.cli.swarm.recipes import custom as custom_mod
 
-
 # ---------------------------------------------------------------------------
 # Test fixtures -- conforming and non-conforming targets.
 # ---------------------------------------------------------------------------
@@ -68,9 +67,7 @@ from superclaude.cli.swarm.recipes import custom as custom_mod
 class _ClassRecipe:
     """Recipe class; instantiated with no args by the loader."""
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         del args
         return NormalizedResult(text=f"class:{raw_output}", salvaged=False)
 
@@ -81,13 +78,9 @@ class _SingletonRecipe:
     def __init__(self, prefix: str = "singleton") -> None:
         self.prefix = prefix
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         del args
-        return NormalizedResult(
-            text=f"{self.prefix}:{raw_output}", salvaged=False
-        )
+        return NormalizedResult(text=f"{self.prefix}:{raw_output}", salvaged=False)
 
 
 class _NonRecipeObject:
@@ -160,9 +153,7 @@ def test_load_custom_py_resolves_class_target(monkeypatch):
         {"MyRecipe": _ClassRecipe},
     )
 
-    recipe = load_custom_py(
-        "custom-py:superclaude_t0409_class_target:MyRecipe"
-    )
+    recipe = load_custom_py("custom-py:superclaude_t0409_class_target:MyRecipe")
 
     assert isinstance(recipe, Recipe)
     assert isinstance(recipe, _ClassRecipe)
@@ -180,9 +171,7 @@ def test_load_custom_py_resolves_instance_target(monkeypatch):
         {"recipe": prebuilt},
     )
 
-    recipe = load_custom_py(
-        "custom-py:superclaude_t0409_instance_target:recipe"
-    )
+    recipe = load_custom_py("custom-py:superclaude_t0409_instance_target:recipe")
 
     # Pre-built instances are returned verbatim (singleton pattern).
     assert recipe is prebuilt
@@ -213,9 +202,7 @@ def test_load_custom_py_class_target_zero_arg_constructor_invoked(monkeypatch):
         def __init__(self) -> None:
             constructor_calls.append(())
 
-        def normalize(
-            self, raw_output: str, args: dict[str, Any]
-        ) -> NormalizedResult:
+        def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
             del args
             return NormalizedResult(text=raw_output)
 
@@ -283,9 +270,7 @@ def test_load_custom_py_unknown_attribute_raises_attribute_error(monkeypatch):
         {},  # module is importable but exposes nothing
     )
     with pytest.raises(AttributeError) as excinfo:
-        load_custom_py(
-            "custom-py:superclaude_t0409_missing_attr:no_such_fn"
-        )
+        load_custom_py("custom-py:superclaude_t0409_missing_attr:no_such_fn")
     message = str(excinfo.value)
     # Message must name the spec, module, and missing attribute so
     # contributors see all three at the failure site.
@@ -300,9 +285,7 @@ def test_load_custom_py_non_conforming_target_raises_type_error(monkeypatch):
         {"not_a_recipe": _NonRecipeObject},
     )
     with pytest.raises(TypeError) as excinfo:
-        load_custom_py(
-            "custom-py:superclaude_t0409_non_conforming:not_a_recipe"
-        )
+        load_custom_py("custom-py:superclaude_t0409_non_conforming:not_a_recipe")
     message = str(excinfo.value)
     # Must reference the Recipe Protocol signature so contributors see
     # what shape the loader expected.
@@ -318,9 +301,7 @@ def test_load_custom_py_non_conforming_instance_raises_type_error(monkeypatch):
         {"recipe": _NonRecipeObject()},
     )
     with pytest.raises(TypeError):
-        load_custom_py(
-            "custom-py:superclaude_t0409_non_conforming_inst:recipe"
-        )
+        load_custom_py("custom-py:superclaude_t0409_non_conforming_inst:recipe")
 
 
 # ---------------------------------------------------------------------------
@@ -364,9 +345,7 @@ def test_loader_does_not_consult_entry_points(monkeypatch):
     # spec confirms it walked the standard import machinery).
     sentinel_calls: list[str] = []
 
-    real_entry_points = getattr(
-        importlib.metadata, "entry_points", None
-    )
+    real_entry_points = getattr(importlib.metadata, "entry_points", None)
 
     def _trap_entry_points(*args, **kwargs):
         sentinel_calls.append("entry_points called")
@@ -374,9 +353,7 @@ def test_loader_does_not_consult_entry_points(monkeypatch):
             return real_entry_points(*args, **kwargs)
         raise AssertionError("loader called entry_points unexpectedly")
 
-    monkeypatch.setattr(
-        importlib.metadata, "entry_points", _trap_entry_points
-    )
+    monkeypatch.setattr(importlib.metadata, "entry_points", _trap_entry_points)
     with pytest.raises(ImportError):
         load_custom_py("custom-py:still_no_such_module_t0409:fn")
 
@@ -453,9 +430,7 @@ def test_resolved_custom_recipe_runs_end_to_end_through_normalize_wave2(
         "superclaude_t0409_dispatch_e2e",
         {"MyRecipe": _ClassRecipe},
     )
-    recipe = load_custom_py(
-        "custom-py:superclaude_t0409_dispatch_e2e:MyRecipe"
-    )
+    recipe = load_custom_py("custom-py:superclaude_t0409_dispatch_e2e:MyRecipe")
 
     # Register under a transient key so normalize_wave2 can look it up
     # by name. (The dispatcher itself does NOT inspect spec strings;
@@ -486,27 +461,19 @@ def test_resolved_custom_recipe_salvage_flag_promotes_parse_error(
     """
 
     class SalvagingRecipe:
-        def normalize(
-            self, raw_output: str, args: dict[str, Any]
-        ) -> NormalizedResult:
+        def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
             del args
-            return NormalizedResult(
-                text=f"recovered:{raw_output}", salvaged=True
-            )
+            return NormalizedResult(text=f"recovered:{raw_output}", salvaged=True)
 
     _install_fake_module(
         monkeypatch,
         "superclaude_t0409_salvage",
         {"Salvager": SalvagingRecipe},
     )
-    recipe = load_custom_py(
-        "custom-py:superclaude_t0409_salvage:Salvager"
-    )
+    recipe = load_custom_py("custom-py:superclaude_t0409_salvage:Salvager")
     monkeypatch.setitem(REGISTRY, "_t0409_custom_salvage", recipe)
 
-    worker = _make_worker(
-        tmp_path, 1, status="parse_error", body="raw"
-    )
+    worker = _make_worker(tmp_path, 1, status="parse_error", body="raw")
     [out] = normalize_wave2([worker], "_t0409_custom_salvage")
 
     # parse_error -> success promotion fires because the recipe set
@@ -522,9 +489,7 @@ def test_resolved_custom_recipe_preserves_findings_verbatim(monkeypatch):
     scoring/dedup/reorder injected by the loader path)."""
 
     class PreservingRecipe:
-        def normalize(
-            self, raw_output: str, args: dict[str, Any]
-        ) -> NormalizedResult:
+        def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
             del args
             # Return the body unchanged -- if the loader added any
             # post-processing layer, this assertion would fail.
@@ -535,9 +500,7 @@ def test_resolved_custom_recipe_preserves_findings_verbatim(monkeypatch):
         "superclaude_t0409_ac011",
         {"Preserve": PreservingRecipe},
     )
-    recipe = load_custom_py(
-        "custom-py:superclaude_t0409_ac011:Preserve"
-    )
+    recipe = load_custom_py("custom-py:superclaude_t0409_ac011:Preserve")
 
     body = (
         "- Finding A\n"

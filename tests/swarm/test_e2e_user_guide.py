@@ -77,7 +77,9 @@ def _artifact_names(d: Path) -> set[str]:
 # ---------------------------------------------------------------------------
 # §1 Quickstart — first swarm (stub transport)
 # ---------------------------------------------------------------------------
-def test_quickstart_lens_bare_review_emits_observability_artifacts(runner, target, tmp_path):
+def test_quickstart_lens_bare_review_emits_observability_artifacts(
+    runner, target, tmp_path
+):
     """User Guide §1 / README quickstart: a stub `--lens bare-review` run exits 0,
     dispatches 3 workers, and writes the four observability artifacts. Post-WS-0 the
     same run ALSO emits the normalized per-reviewer bodies + return-contract.yaml +
@@ -85,8 +87,16 @@ def test_quickstart_lens_bare_review_emits_observability_artifacts(runner, targe
     asserts the observability artifacts are PRESENT (subset) rather than the exact set."""
     out = tmp_path / "out"
     result = _run(
-        runner, "run", "--lens", "bare-review",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     assert "dispatched job (mode=lens, workers=3, results=3)" in result.output
@@ -111,8 +121,16 @@ def test_quickstart_does_not_emit_done_sentinel(runner, target, tmp_path):
     on this inline path). This is the narrowed remnant of the old M5-absent assertion."""
     out = tmp_path / "out"
     result = _run(
-        runner, "run", "--lens", "bare-review",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     assert not (out / DONE_SENTINEL_FILENAME).exists(), (
@@ -127,35 +145,57 @@ def test_quickstart_emits_normalized_artifacts(runner, target, tmp_path):
     inverse of the pre-WS-0 absent-contract assertion."""
     out = tmp_path / "out"
     result = _run(
-        runner, "run", "--lens", "bare-review",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
 
     # Contract is now emitted (was absent pre-WS-0).
-    assert (out / RESULT_CONTRACT_FILENAME).exists(), "WS-0 must emit return-contract.yaml"
+    assert (out / RESULT_CONTRACT_FILENAME).exists(), (
+        "WS-0 must emit return-contract.yaml"
+    )
 
     # One normalized body per reviewer (final_path), each carrying the rendered
     # bare-review header and the target checksum (cf. test_recipe_bare_review.py).
     final_bodies = sorted(out.glob("bare-review-*.final.md"))
-    assert len(final_bodies) == 3, f"expected 3 normalized bodies, got {[p.name for p in final_bodies]}"
+    assert len(final_bodies) == 3, (
+        f"expected 3 normalized bodies, got {[p.name for p in final_bodies]}"
+    )
     for body_path in final_bodies:
         body = body_path.read_text(encoding="utf-8")
         assert "T2-Bare Review" in body, f"missing rendered header in {body_path.name}"
-        assert "target_checksum:" in body, f"missing target checksum in {body_path.name}"
+        assert "target_checksum:" in body, (
+            f"missing target checksum in {body_path.name}"
+        )
 
     # The contract parses and records the 3-reviewer success run.
     contract = (out / RESULT_CONTRACT_FILENAME).read_text(encoding="utf-8")
     assert "status: success" in contract
     assert "workers_requested: 3" in contract
-    assert "--suspect-source" in contract, "bare-review contract must carry the suspect-source next command"
+    assert "--suspect-source" in contract, (
+        "bare-review contract must carry the suspect-source next command"
+    )
 
     # PG2 C1: the recommended_next_command must be ACTIONABLE — the lens template's
     # {suspect_files}/{compare_files} placeholders must be substituted with real
     # reviewer paths (legacy t2_normalize parity), not shipped verbatim.
-    assert "{suspect_files}" not in contract, "next-command placeholder left unsubstituted"
-    assert "{compare_files}" not in contract, "next-command placeholder left unsubstituted"
-    assert ".final.md" in contract, "next-command must reference the reviewer output paths"
+    assert "{suspect_files}" not in contract, (
+        "next-command placeholder left unsubstituted"
+    )
+    assert "{compare_files}" not in contract, (
+        "next-command placeholder left unsubstituted"
+    )
+    assert ".final.md" in contract, (
+        "next-command must reference the reviewer output paths"
+    )
 
 
 def test_label_flag_stamps_caller_label_frontmatter(runner, target, tmp_path):
@@ -163,8 +203,18 @@ def test_label_flag_stamps_caller_label_frontmatter(runner, target, tmp_path):
     frontmatter (legacy t2_preflight.sh --label parity)."""
     out = tmp_path / "label-out"
     result = _run(
-        runner, "run", "--lens", "bare-review", "--label", "my-caller-ctx",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--label",
+        "my-caller-ctx",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     bodies = sorted(out.glob("bare-review-*.final.md"))
@@ -177,8 +227,18 @@ def test_reviewers_flag_rejects_below_range(runner, target, tmp_path):
     """B-1 / AC-1.4: ``--reviewers 1`` (below the inclusive [2,4] floor) is a usage error."""
     out = tmp_path / "rev-low"
     result = _run(
-        runner, "run", "--lens", "bare-review", "--reviewers", "1",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--reviewers",
+        "1",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_USAGE, result.output
 
@@ -189,9 +249,20 @@ def test_target_line_cap_and_timeout_flags_accepted(runner, target, tmp_path):
     stdout; this guards the flag surface + spec threading from a usage regression)."""
     out = tmp_path / "caps-out"
     result = _run(
-        runner, "run", "--lens", "bare-review",
-        "--target-line-cap", "2000", "--timeout-sec", "120",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--target-line-cap",
+        "2000",
+        "--timeout-sec",
+        "120",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     assert (out / RESULT_CONTRACT_FILENAME).exists()
@@ -263,8 +334,16 @@ def test_edge_case_hunt_defaults_to_four_workers(runner, target, tmp_path):
     """User Guide §4: edge-case-hunt is a 4-worker lens."""
     out = tmp_path / "edge-out"
     result = _run(
-        runner, "run", "--lens", "edge-case-hunt",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "edge-case-hunt",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     assert "dispatched job (mode=lens, workers=4, results=4)" in result.output
@@ -279,8 +358,18 @@ def test_reviewers_flag_overrides_worker_count(runner, target, tmp_path):
     model-pool guard, proving it reached the post-expansion spec."""
     out = tmp_path / "rev-out"
     result = _run(
-        runner, "run", "--lens", "bare-review", "--reviewers", "4",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--reviewers",
+        "4",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     assert "dispatched job (mode=lens, workers=4, results=4)" in result.output
@@ -293,8 +382,18 @@ def test_reviewers_flag_rejects_out_of_range(runner, target, tmp_path):
     error (legacy ``t2_preflight.sh`` invariant)."""
     out = tmp_path / "rev-bad"
     result = _run(
-        runner, "run", "--lens", "bare-review", "--reviewers", "5",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--reviewers",
+        "5",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_USAGE, result.output
 
@@ -304,7 +403,9 @@ def test_reviewers_flag_rejects_out_of_range(runner, target, tmp_path):
 # to lens mode; spec-file/stdin keep their real model IDs and rely on the INV-005
 # warn-with-defaults clamp if --reviewers exceeds the pool. (spec-file and --stdin
 # share the same ``mode != "lens"`` branch, so these spec-file tests cover stdin too.)
-def test_reviewers_preserves_real_models_in_spec_file_mode(runner, target, tmp_path, monkeypatch):
+def test_reviewers_preserves_real_models_in_spec_file_mode(
+    runner, target, tmp_path, monkeypatch
+):
     """Augment PR #178 MEDIUM: in spec-file mode ``--reviewers N`` overrides the worker
     COUNT without overwriting caller-supplied real model IDs in ``workers.models``.
     Captures the spec dict at the ``run_preflight`` boundary (the only place
@@ -332,8 +433,15 @@ def test_reviewers_preserves_real_models_in_spec_file_mode(runner, target, tmp_p
 
     monkeypatch.setattr(swarm_preflight, "run_preflight", _capturing_run_preflight)
     result = _run(
-        runner, "run", str(spec), "--reviewers", "3",
-        "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        str(spec),
+        "--reviewers",
+        "3",
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     assert captured["models"] == ["alpha-model", "beta-model", "gamma-model"]
@@ -358,8 +466,15 @@ def test_reviewers_does_not_inflate_spec_file_pool(runner, target, tmp_path):
     spec.write_text(json.dumps(doc, indent=2))
 
     result = _run(
-        runner, "run", str(spec), "--reviewers", "4",
-        "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        str(spec),
+        "--reviewers",
+        "4",
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     manifest = json.loads((out / MANIFEST_FILENAME).read_text())
@@ -373,8 +488,16 @@ def test_reviewers_does_not_inflate_spec_file_pool(runner, target, tmp_path):
 def completed_run(runner, target, tmp_path) -> Path:
     out = tmp_path / "out"
     result = _run(
-        runner, "run", "--lens", "bare-review",
-        "--target", str(target), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_OK, result.output
     return out
@@ -402,7 +525,11 @@ def test_logs_md_and_jsonl_share_the_same_stream(runner, completed_run):
 
     js = _run(runner, "logs", "--output", str(completed_run), "--jsonl")
     assert js.exit_code == EXIT_OK, js.output
-    records = [json.loads(line) for line in js.output.splitlines() if line.strip().startswith("{")]
+    records = [
+        json.loads(line)
+        for line in js.output.splitlines()
+        if line.strip().startswith("{")
+    ]
     assert records, "no JSONL records parsed"
     assert all("event_type" in r for r in records)
     # the dispatch path always emits the opening wave transition
@@ -432,8 +559,16 @@ def test_openai_compat_missing_env_fails_at_transport_construction(
 
     out = tmp_path / "env-out"
     result = _run(
-        runner, "run", "--lens", "bare-review",
-        "--target", str(target), "--output", str(out), "--transport", "openai_compat",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--target",
+        str(target),
+        "--output",
+        str(out),
+        "--transport",
+        "openai_compat",
     )
     assert result.exit_code == EXIT_INVALID, result.output
     assert "cannot construct 'openai_compat' transport" in result.output
@@ -452,8 +587,16 @@ def test_too_small_target_fails_preflight_and_creates_no_output(runner, tmp_path
     tiny.write_text("x = 1\n")
     out = tmp_path / "tiny-out"
     result = _run(
-        runner, "run", "--lens", "bare-review",
-        "--target", str(tiny), "--output", str(out), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "bare-review",
+        "--target",
+        str(tiny),
+        "--output",
+        str(out),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_INVALID, result.output
     assert "preflight FAILED" in result.output
@@ -464,8 +607,16 @@ def test_too_small_target_fails_preflight_and_creates_no_output(runner, tmp_path
 def test_unknown_lens_is_usage_error(runner, target, tmp_path):
     """User Guide §11: an unknown lens name -> exit 2."""
     result = _run(
-        runner, "run", "--lens", "does-not-exist",
-        "--target", str(target), "--output", str(tmp_path / "o"), "--transport", "stub",
+        runner,
+        "run",
+        "--lens",
+        "does-not-exist",
+        "--target",
+        str(target),
+        "--output",
+        str(tmp_path / "o"),
+        "--transport",
+        "stub",
     )
     assert result.exit_code == EXIT_USAGE, result.output
 

@@ -28,7 +28,6 @@ import pytest
 from superclaude.cli.swarm.models import WorkerResult
 from superclaude.cli.swarm.transports import Transport
 
-
 # ---------------------------------------------------------------------------
 # Surface (import + Protocol shape).
 # ---------------------------------------------------------------------------
@@ -72,8 +71,7 @@ def test_send_signature_matches_contract() -> None:
         f"timeout annotation must be `int`; got {hints.get('timeout')!r}"
     )
     assert hints.get("return") is WorkerResult, (
-        f"return annotation must be `WorkerResult`; got "
-        f"{hints.get('return')!r}"
+        f"return annotation must be `WorkerResult`; got {hints.get('return')!r}"
     )
 
 

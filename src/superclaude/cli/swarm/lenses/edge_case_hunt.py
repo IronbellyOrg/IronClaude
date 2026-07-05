@@ -18,7 +18,6 @@ from pathlib import Path
 from superclaude.cli.swarm.models import LensEntry
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 __all__ = ["LENS"]
 
 
@@ -36,8 +35,7 @@ LENS: LensEntry = LensEntry(
     system_prompt_fragment=(
         "You are hunting for edge cases that break the target. "
         "Enumerate inputs and states with concrete file:line citations "
-        "and a reproduction sketch for each. "
-        + CANONICAL_INJECTION_GUARD_SENTENCE
+        "and a reproduction sketch for each. " + CANONICAL_INJECTION_GUARD_SENTENCE
     ),
     user_template=(
         "Identify edge cases that break the following target. "
@@ -52,9 +50,7 @@ LENS: LensEntry = LensEntry(
     default_target_line_cap=4000,
     suspect=False,
     tier="T2-edge",
-    recommended_next_command_template=(
-        "/sc:adversarial --compare {compare_files}"
-    ),
+    recommended_next_command_template=("/sc:adversarial --compare {compare_files}"),
     acceptance_notes=(
         "Experimental lens. default_workers=4 by spec §3.3 -- broader "
         "fan-out raises edge-case coverage."

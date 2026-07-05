@@ -66,7 +66,6 @@ from pathlib import Path
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Constants -- the CLI argv shape FR-030 / FR-050 / NFR-011 pin.
 # ---------------------------------------------------------------------------
@@ -353,9 +352,7 @@ def test_sh_wrapper_and_direct_subprocess_produce_byte_identical_contract(
         text=True,
         check=False,
     )
-    assert r_sh.returncode == 0, (
-        f"sh-wrapped invocation failed: {r_sh.stderr!r}"
-    )
+    assert r_sh.returncode == 0, f"sh-wrapped invocation failed: {r_sh.stderr!r}"
 
     r_py = subprocess.run(
         [
@@ -372,9 +369,7 @@ def test_sh_wrapper_and_direct_subprocess_produce_byte_identical_contract(
         text=True,
         check=False,
     )
-    assert r_py.returncode == 0, (
-        f"direct subprocess invocation failed: {r_py.stderr!r}"
-    )
+    assert r_py.returncode == 0, f"direct subprocess invocation failed: {r_py.stderr!r}"
 
     sh_bytes = (out_sh / "manifest.json").read_bytes()
     py_bytes = (out_py / "manifest.json").read_bytes()

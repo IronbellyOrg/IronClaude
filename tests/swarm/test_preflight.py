@@ -100,8 +100,7 @@ def _minimal_valid_spec() -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -300,9 +299,7 @@ def test_run_preflight_writes_manifest_atomically(
     tmp_path, lens_resolver_stub, target_loader
 ) -> None:
     spec = _minimal_valid_spec()
-    result = run_preflight(
-        spec, target_loader=target_loader, output_dir=tmp_path
-    )
+    result = run_preflight(spec, target_loader=target_loader, output_dir=tmp_path)
     assert result.manifest_path is not None
     written = Path(result.manifest_path)
     assert written.exists()
@@ -341,9 +338,7 @@ def test_schema_missing_injection_substring_is_reported(
     spec["prompt"]["system"] = "You are a reviewer. No guard here."
     with pytest.raises(PreflightError) as excinfo:
         run_preflight(spec, target_loader=target_loader)
-    assert any(
-        f.rule == RULE_INJECTION_SUBSTRING for f in excinfo.value.failures
-    )
+    assert any(f.rule == RULE_INJECTION_SUBSTRING for f in excinfo.value.failures)
 
 
 def test_unknown_lens_raises_lens_unknown(target_loader) -> None:
@@ -389,9 +384,7 @@ def test_unreadable_target_path_is_structured(lens_resolver_stub) -> None:
     assert RULE_TARGET_UNREADABLE in {f.rule for f in excinfo.value.failures}
 
 
-def test_workers_exceed_pool_triggers_inv005(
-    lens_resolver_stub, target_loader
-) -> None:
+def test_workers_exceed_pool_triggers_inv005(lens_resolver_stub, target_loader) -> None:
     # T02.10 / OQ-007 V2 STOP branch: ``pool_policy="stop"`` makes the
     # preflight raise on overage. The V1 ``warn`` default branch is
     # covered in tests/swarm/test_inv005_pool_guard.py.
@@ -488,9 +481,7 @@ def test_preflight_error_requires_at_least_one_failure() -> None:
 
 
 def test_preflight_failure_is_frozen() -> None:
-    failure = PreflightFailure(
-        rule="x", path="y", message="z", reason="q"
-    )
+    failure = PreflightFailure(rule="x", path="y", message="z", reason="q")
     with pytest.raises(Exception):
         failure.rule = "renamed"  # type: ignore[misc]
 

@@ -32,7 +32,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-002 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L89)
 # names exactly these fields. ``retry`` collapses the four dotted
 # sub-fields (retry.on_5xx, retry.on_5xx_backoff_sec, retry.on_4xx,
@@ -222,6 +221,8 @@ def test_nested_retry_is_dataclass_after_round_trip() -> None:
 
 def test_retry_policy_round_trips_standalone() -> None:
     """RetryPolicy is itself a round-trippable dataclass."""
-    retry = RetryPolicy(on_5xx=False, on_5xx_backoff_sec=10, on_4xx=True, on_timeout=True)
+    retry = RetryPolicy(
+        on_5xx=False, on_5xx_backoff_sec=10, on_4xx=True, on_timeout=True
+    )
     restored = from_json(RetryPolicy, to_json(retry))
     assert restored == retry

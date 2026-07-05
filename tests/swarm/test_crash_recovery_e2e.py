@@ -68,7 +68,6 @@ from superclaude.cli.swarm.schema import (
     CURRENT_SPEC_VERSION,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixture helpers -- minimal valid JobSpec wired through preflight end-to-end
 # so the manifest emitted by Wave 0 is authentic (no hand-rolled manifest).
@@ -128,8 +127,7 @@ def _runnable_spec(tmp_path: Path) -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -266,6 +264,7 @@ def _crashing_dispatch_factory(
     partially-populated state a real SIGKILL'd dispatcher would have
     produced -- exactly the state the resume orchestrator must handle.
     """
+
     def _shim(preflight_result: Any, transport: Any = None, **kwargs: Any) -> list[Any]:
         for index in survivors:
             _stage_succeeded_slot(
@@ -301,8 +300,11 @@ def _resume_dispatch_factory(
     in :func:`commands._run_resume_branch` reindexes them onto the
     original missing slot positions before reduce runs.
     """
-    def _shim(preflight_result: Any, transport: Any = None, **kwargs: Any) -> list[WorkerResult]:
-        K = preflight_result.manifest.preflight.workers_requested
+
+    def _shim(
+        preflight_result: Any, transport: Any = None, **kwargs: Any
+    ) -> list[WorkerResult]:
+        K = preflight_result.manifest.preflight.workers_requested  # noqa: N806
         captured.setdefault("calls", []).append(
             {
                 "workers_requested": K,
@@ -341,10 +343,11 @@ def _passthrough_normalize_factory(
     redispatch reindex -- so the post-resume directory state matches
     what the real normalize would have produced.
     """
-    def _shim(workers: list[WorkerResult], recipe_name: str, **kwargs: Any) -> list[WorkerResult]:
-        captured.setdefault("normalize_calls", []).append(
-            [w.index for w in workers]
-        )
+
+    def _shim(
+        workers: list[WorkerResult], recipe_name: str, **kwargs: Any
+    ) -> list[WorkerResult]:
+        captured.setdefault("normalize_calls", []).append([w.index for w in workers])
         for worker in workers:
             _stage_succeeded_slot(
                 output_dir,
@@ -390,9 +393,7 @@ def test_phase1_crash_leaves_manifest_and_partial_sidecars(
     )
 
     runner = CliRunner()
-    result = runner.invoke(
-        run_cmd, [str(spec_path), "--output", str(out_dir)]
-    )
+    result = runner.invoke(run_cmd, [str(spec_path), "--output", str(out_dir)])
 
     # The simulated kill propagates: Click's runner records the
     # SystemExit(137) on result.exit_code.
@@ -418,10 +419,7 @@ def test_phase1_crash_leaves_manifest_and_partial_sidecars(
     survivor_final = out_dir / f"{LENS_NAME}-00-{MODEL_SLUG}.final.md"
     assert survivor_meta.is_file()
     assert survivor_final.is_file()
-    assert (
-        json.loads(survivor_meta.read_text(encoding="utf-8"))["status"]
-        == "success"
-    )
+    assert json.loads(survivor_meta.read_text(encoding="utf-8"))["status"] == "success"
 
     # Missing slots have no sidecars (the kill cut the loop short).
     for missing_index in (1, 2):
@@ -485,9 +483,7 @@ def test_kill_then_resume_reaches_terminal_state_no_duplicate_work(
     )
 
     runner = CliRunner()
-    phase1_result = runner.invoke(
-        run_cmd, [str(spec_path), "--output", str(out_dir)]
-    )
+    phase1_result = runner.invoke(run_cmd, [str(spec_path), "--output", str(out_dir)])
     assert phase1_result.exit_code == 137, (
         f"phase 1 must surface SIGKILL-equivalent exit; "
         f"got {phase1_result.exit_code}\nstderr:\n{phase1_result.stderr}\n"
@@ -564,14 +560,8 @@ def test_kill_then_resume_reaches_terminal_state_no_duplicate_work(
 
     # --- Verification: missing slots now have sidecars + finals ----------
     for missing_index in (1, 2):
-        meta = (
-            out_dir
-            / f"{LENS_NAME}-{missing_index:02d}-{MODEL_SLUG}.meta.json"
-        )
-        final = (
-            out_dir
-            / f"{LENS_NAME}-{missing_index:02d}-{MODEL_SLUG}.final.md"
-        )
+        meta = out_dir / f"{LENS_NAME}-{missing_index:02d}-{MODEL_SLUG}.meta.json"
+        final = out_dir / f"{LENS_NAME}-{missing_index:02d}-{MODEL_SLUG}.final.md"
         assert meta.is_file(), f"slot {missing_index} sidecar missing post-resume"
         assert final.is_file(), f"slot {missing_index} final missing post-resume"
         payload = json.loads(meta.read_text(encoding="utf-8"))
@@ -628,9 +618,7 @@ def test_kill_before_any_sidecar_resumes_with_full_redispatch(
     )
 
     runner = CliRunner()
-    phase1 = runner.invoke(
-        run_cmd, [str(spec_path), "--output", str(out_dir)]
-    )
+    phase1 = runner.invoke(run_cmd, [str(spec_path), "--output", str(out_dir)])
     assert phase1.exit_code == 137, (
         f"phase 1 must surface SIGKILL-equivalent exit; "
         f"got {phase1.exit_code}\nstderr:\n{phase1.stderr}\n"
@@ -699,9 +687,7 @@ def test_kill_after_stale_merge_resume_regenerates_merge(
     )
 
     runner = CliRunner()
-    phase1 = runner.invoke(
-        run_cmd, [str(spec_path), "--output", str(out_dir)]
-    )
+    phase1 = runner.invoke(run_cmd, [str(spec_path), "--output", str(out_dir)])
     assert phase1.exit_code == 137, (
         f"phase 1 must surface SIGKILL-equivalent exit; "
         f"got {phase1.exit_code}\nstderr:\n{phase1.stderr}\n"
@@ -773,9 +759,7 @@ def test_kill_with_two_survivors_resumes_single_redispatch(
     )
 
     runner = CliRunner()
-    phase1 = runner.invoke(
-        run_cmd, [str(spec_path), "--output", str(out_dir)]
-    )
+    phase1 = runner.invoke(run_cmd, [str(spec_path), "--output", str(out_dir)])
     assert phase1.exit_code == 137, (
         f"phase 1 must surface SIGKILL-equivalent exit; "
         f"got {phase1.exit_code}\nstderr:\n{phase1.stderr}\n"
@@ -812,7 +796,6 @@ def test_kill_with_two_survivors_resumes_single_redispatch(
 
     # Final sidecar coverage matches the original N.
     final_indices = sorted(
-        int(p.stem.split("-")[2])
-        for p in out_dir.glob("*.meta.json")
+        int(p.stem.split("-")[2]) for p in out_dir.glob("*.meta.json")
     )
     assert final_indices == [0, 1, 2]

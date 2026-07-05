@@ -78,3 +78,18 @@ markupsafe
 # 3.11 for the ExceptionGroup type backport). Both are stdlib in 3.11+/3.12+.
 exceptiongroup
 tomli
+
+# --- httpx runtime dep (approved; declared in pyproject [project.dependencies]) ---
+# httpx is a direct runtime dependency (T2 proxy HTTP transport). The remaining
+# names are httpx's hard transitive closure, auto-installed with it:
+#   httpx -> anyio, certifi, httpcore, idna ; httpcore -> h11, certifi ;
+#   anyio -> sniffio (listed defensively -- not top-level in the current
+#   resolved [dev] set, so AC3 passes without it, but pinned so a future
+#   resolver that surfaces it top-level does not re-break the gate)
+httpx
+anyio
+sniffio
+certifi
+h11
+httpcore
+idna

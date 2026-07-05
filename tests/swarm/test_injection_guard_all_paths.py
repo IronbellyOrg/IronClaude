@@ -229,9 +229,7 @@ def test_path_json_schema_accepts_substring_present() -> None:
     from superclaude.cli.swarm.schema import validate
 
     spec = _minimal_spec(
-        prompt_system=(
-            "You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
-        )
+        prompt_system=("You are a reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE)
     )
     assert validate(spec) == []
 
@@ -271,9 +269,7 @@ def test_path_lens_run_preflight_rejects_missing_substring() -> None:
     re-assertion -- :func:`run_preflight` lives at the seam."""
     spec = _minimal_spec(prompt_system="No guard sentence.")
     lens = _bare_review_lens(
-        system_fragment=(
-            "Review carefully. " + CANONICAL_INJECTION_GUARD_SENTENCE
-        )
+        system_fragment=("Review carefully. " + CANONICAL_INJECTION_GUARD_SENTENCE)
     )
     previous = set_lens_resolver(lambda _name: lens)
     try:
@@ -284,10 +280,7 @@ def test_path_lens_run_preflight_rejects_missing_substring() -> None:
     rules = {f.rule for f in excinfo.value.failures}
     # Either the schema-side rule or the preflight-side rule must fire;
     # both protect the lens path.
-    assert (
-        RULE_INJECTION_SUBSTRING in rules
-        or RULE_INJECTION_GUARD in rules
-    )
+    assert RULE_INJECTION_SUBSTRING in rules or RULE_INJECTION_GUARD in rules
 
 
 # ---------------------------------------------------------------------------
@@ -345,9 +338,7 @@ def test_path_custom_prompt_dir_accepts_substring_present(tmp_path: Path) -> Non
     "path_id",
     ["json_schema", "lens_helper", "custom_prompt_dir"],
 )
-def test_all_three_paths_reject_missing_substring(
-    tmp_path: Path, path_id: str
-) -> None:
+def test_all_three_paths_reject_missing_substring(tmp_path: Path, path_id: str) -> None:
     needle = CANONICAL_INJECTION_GUARD_SENTENCE
     haystack = "Reviewer prompt with absolutely no guard text."
 
@@ -362,12 +353,8 @@ def test_all_three_paths_reject_missing_substring(
         )
 
     elif path_id == "lens_helper":
-        failures = enforce_injection_guard(
-            system=haystack, required_substring=needle
-        )
-        assert len(failures) == 1, (
-            f"lens helper failed to reject; failures={failures}"
-        )
+        failures = enforce_injection_guard(system=haystack, required_substring=needle)
+        assert len(failures) == 1, f"lens helper failed to reject; failures={failures}"
         assert failures[0].rule == RULE_INJECTION_GUARD
 
     elif path_id == "custom_prompt_dir":
@@ -390,9 +377,7 @@ def test_all_three_paths_reject_missing_substring(
     "path_id",
     ["json_schema", "lens_helper", "custom_prompt_dir"],
 )
-def test_all_three_paths_accept_substring_present(
-    tmp_path: Path, path_id: str
-) -> None:
+def test_all_three_paths_accept_substring_present(tmp_path: Path, path_id: str) -> None:
     """The complementary positive parity gate: with the substring present,
     every path returns a clean verdict. Pairs with the negative parity
     test so a regression that always-accepts (a different mutation)
@@ -407,20 +392,13 @@ def test_all_three_paths_accept_substring_present(
         assert validate(spec) == []
 
     elif path_id == "lens_helper":
-        assert (
-            enforce_injection_guard(
-                system=haystack, required_substring=needle
-            )
-            == []
-        )
+        assert enforce_injection_guard(system=haystack, required_substring=needle) == []
 
     elif path_id == "custom_prompt_dir":
         (tmp_path / "system.txt").write_text(haystack, encoding="utf-8")
         (tmp_path / "user.txt").write_text("u", encoding="utf-8")
         (tmp_path / "meta.yaml").write_text("variables: {}\n", encoding="utf-8")
-        system, _, _ = read_custom_prompt_dir(
-            tmp_path, required_substring=needle
-        )
+        system, _, _ = read_custom_prompt_dir(tmp_path, required_substring=needle)
         assert needle in system
 
     else:  # pragma: no cover

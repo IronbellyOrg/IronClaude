@@ -51,7 +51,6 @@ from superclaude.cli.swarm.recipes import (
     load_custom_py,
 )
 
-
 # ---------------------------------------------------------------------------
 # Expected REGISTRY shape (§3.3 / FR-LENSREG.NS).
 # ---------------------------------------------------------------------------
@@ -96,9 +95,7 @@ def test_normalized_result_round_trip():
 class _ConformingRecipe:
     """Class that exposes the Recipe shape without inheriting Recipe."""
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         del raw_output, args
         return NormalizedResult(text="ok")
 
@@ -180,9 +177,7 @@ def test_load_custom_py_resolves_class_target(monkeypatch):
         {"MyRecipe": _ConformingRecipe},
     )
 
-    recipe = load_custom_py(
-        "custom-py:superclaude_test_custom_py_class:MyRecipe"
-    )
+    recipe = load_custom_py("custom-py:superclaude_test_custom_py_class:MyRecipe")
     assert isinstance(recipe, Recipe)
     # Class is instantiated with no arguments.
     assert isinstance(recipe, _ConformingRecipe)
@@ -196,9 +191,7 @@ def test_load_custom_py_resolves_instance_target(monkeypatch):
         {"singleton": pre_built},
     )
 
-    recipe = load_custom_py(
-        "custom-py:superclaude_test_custom_py_instance:singleton"
-    )
+    recipe = load_custom_py("custom-py:superclaude_test_custom_py_instance:singleton")
     assert recipe is pre_built
 
 
@@ -212,9 +205,7 @@ def test_load_custom_py_supports_dotted_module_path(monkeypatch):
     _install_fake_module(monkeypatch, "pkg_test_custom_py", {})
     _install_fake_module(monkeypatch, "pkg_test_custom_py.sub", {})
 
-    recipe = load_custom_py(
-        "custom-py:pkg_test_custom_py.sub.mod:Recipe2"
-    )
+    recipe = load_custom_py("custom-py:pkg_test_custom_py.sub.mod:Recipe2")
     assert isinstance(recipe, Recipe)
 
 
@@ -258,9 +249,7 @@ def test_load_custom_py_unknown_attribute_raises_attribute_error(monkeypatch):
         {},
     )
     with pytest.raises(AttributeError):
-        load_custom_py(
-            "custom-py:superclaude_test_custom_py_missing_attr:no_such_fn"
-        )
+        load_custom_py("custom-py:superclaude_test_custom_py_missing_attr:no_such_fn")
 
 
 def test_load_custom_py_non_conforming_target_raises_type_error(monkeypatch):
@@ -310,6 +299,6 @@ def test_registry_length_assertion_in_acceptance_criteria():
     ``from superclaude.cli.swarm.recipes import REGISTRY;
        assert len(REGISTRY) >= 6``.
     """
-    from superclaude.cli.swarm.recipes import REGISTRY as imported
+    from superclaude.cli.swarm.recipes import REGISTRY
 
-    assert len(imported) >= 6
+    assert len(REGISTRY) >= 6

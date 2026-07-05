@@ -31,7 +31,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # Roadmap DM-006 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L93)
 # names exactly these top-level fields; on_parse_error is a nested dataclass
 # (same pattern as RetryPolicy on WorkerSpec).

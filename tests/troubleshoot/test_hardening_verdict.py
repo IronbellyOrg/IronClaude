@@ -12,7 +12,9 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-REFS = REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+REFS = (
+    REPO_ROOT / "src" / "superclaude" / "skills" / "sc-troubleshoot-protocol" / "refs"
+)
 OC = (REFS / "hardening-output-contract.md").read_text(encoding="utf-8")
 
 
@@ -22,7 +24,9 @@ def test_waiver_latch_one_way() -> None:
     low = OC.lower()
     assert "one-way" in low, "one-way latch not documented"
     assert "never resets to `none`" in low, "latch must never reset to none"
-    assert "{blocked, advisory}" in OC, "latch must force verdict into {blocked, advisory}"
+    assert "{blocked, advisory}" in OC, (
+        "latch must force verdict into {blocked, advisory}"
+    )
 
 
 def test_h5_decision_maps_to_status_and_latch() -> None:
@@ -40,7 +44,9 @@ def test_known_escapes_requires_cited_card() -> None:
     ONLY with a cited passing wave/card. Also guards the FOUR-token advisory-inclusive enum."""
     low = OC.lower()
     assert "known_escapes_caught" in OC
-    assert "only if a passing wave/card is cited" in low, "anti-inflation rule not documented"
+    assert "only if a passing wave/card is cited" in low, (
+        "anti-inflation rule not documented"
+    )
     # advisory-inclusive 4-token enum (a 3-token enum is a defect)
     assert "pass | blocked | advisory | not_applicable" in OC
 
@@ -70,7 +76,9 @@ def test_verdict_aggregation_from_h_statuses() -> None:
     # row 7 -> pass
     assert "`pass`" in OC
     # EVERY row's "Downstream Override Allowed?" is No (all 7 truth-table rows)
-    assert OC.count("| No |") >= 7, "every truth-table row must forbid downstream override"
+    assert OC.count("| No |") >= 7, (
+        "every truth-table row must forbid downstream override"
+    )
 
 
 def test_downstream_success_cannot_override_latched_hardening_verdict() -> None:

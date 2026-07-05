@@ -21,6 +21,9 @@ calls the emitter and attaches the resulting path to
 :class:`PreflightError.env_missing_contract_path`.
 """
 
+# ruff: noqa: E402 -- module-level ``pytestmark`` intentionally precedes the
+# superclaude imports so the marker is registered before collection.
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -50,7 +53,6 @@ from superclaude.cli.swarm.schema import (
     CANONICAL_INJECTION_GUARD_SENTENCE,
     CURRENT_SPEC_VERSION,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures -- mirror the minimal valid spec used in the rest of the
@@ -92,8 +94,7 @@ def _minimal_valid_spec(output_dir: str) -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -259,9 +260,7 @@ def test_emit_env_missing_contract_returns_none_when_output_dir_empty(
     tmp_path: Path,
 ) -> None:
     job = _build_jobspec("")  # empty output.dir -> bare abort branch
-    contract_path = emit_env_missing_contract(
-        job, failures=check_empty_pool([])
-    )
+    contract_path = emit_env_missing_contract(job, failures=check_empty_pool([]))
     assert contract_path is None
     # No stray file under tmp_path either -- bare abort is silent.
     assert list(tmp_path.iterdir()) == []
@@ -277,9 +276,7 @@ def test_emit_env_missing_contract_returns_none_when_mkdir_fails(
     uncreatable = blocker / "subdir"
 
     job = _build_jobspec(str(uncreatable))
-    contract_path = emit_env_missing_contract(
-        job, failures=check_empty_pool([])
-    )
+    contract_path = emit_env_missing_contract(job, failures=check_empty_pool([]))
     assert contract_path is None
     # The blocker file is untouched -- bare abort writes nothing.
     assert blocker.is_file()
@@ -297,9 +294,7 @@ def test_emit_env_missing_contract_idempotent_on_existing_dir(
     (output_dir / "pre-existing.txt").write_text("keep me", encoding="utf-8")
 
     job = _build_jobspec(str(output_dir))
-    contract_path = emit_env_missing_contract(
-        job, failures=check_empty_pool([])
-    )
+    contract_path = emit_env_missing_contract(job, failures=check_empty_pool([]))
 
     assert contract_path is not None
     assert (output_dir / ENV_MISSING_CONTRACT_FILENAME).is_file()
@@ -316,9 +311,7 @@ def test_emit_env_missing_contract_atomic_write_no_tmp_left(
     # ghost files).
     output_dir = tmp_path / "out"
     job = _build_jobspec(str(output_dir))
-    contract_path = emit_env_missing_contract(
-        job, failures=check_empty_pool([])
-    )
+    contract_path = emit_env_missing_contract(job, failures=check_empty_pool([]))
 
     assert contract_path is not None
     leftovers = [

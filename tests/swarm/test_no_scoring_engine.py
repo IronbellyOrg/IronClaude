@@ -181,9 +181,7 @@ def _defined_identifiers(tree: ast.AST) -> list[tuple[int, str]]:
     """Return (lineno, name) for every function / class definition."""
     out: list[tuple[int, str]] = []
     for node in ast.walk(tree):
-        if isinstance(
-            node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
-        ):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             out.append((node.lineno, node.name))
     return out
 
@@ -196,9 +194,7 @@ def _import_violation(module: str) -> str | None:
 
 
 def _identifier_violation(name: str) -> str | None:
-    for pattern, regex in zip(
-        FORBIDDEN_IDENTIFIER_PATTERNS, _IDENT_RES, strict=True
-    ):
+    for pattern, regex in zip(FORBIDDEN_IDENTIFIER_PATTERNS, _IDENT_RES, strict=True):
         if regex.search(name):
             return pattern
     return None
@@ -212,9 +208,7 @@ def _scan_file(path: Path) -> list[_Hit]:
     for lineno, module in _import_targets(tree):
         prefix = _import_violation(module)
         if prefix is not None:
-            hits.append(
-                _Hit(path, lineno, "import", f"{module} (matches '{prefix}')")
-            )
+            hits.append(_Hit(path, lineno, "import", f"{module} (matches '{prefix}')"))
     for lineno, name in _defined_identifiers(tree):
         pattern = _identifier_violation(name)
         if pattern is not None:
@@ -261,9 +255,7 @@ def test_swarm_file_has_no_scoring_engine_code(swarm_file: Path) -> None:
     assert not hits, (
         f"AC-012 violation in {swarm_file.relative_to(REPO_ROOT)}: "
         "scoring/diff/judging engine code introduced.\n"
-        + "\n".join(
-            f"  line {h.lineno} [{h.category}]: {h.detail}" for h in hits
-        )
+        + "\n".join(f"  line {h.lineno} [{h.category}]: {h.detail}" for h in hits)
         + "\n/sc:adversarial is the canonical scored-merge pipeline; route "
         "scoring/ranking work there rather than adding it to the swarm."
     )
@@ -372,8 +364,14 @@ def test_audit_detects_forbidden_import(forbidden_module: str) -> None:
 
 @pytest.mark.parametrize(
     "engine_class",
-    ["FindingsScorer", "ClaimRanker", "FindingJudge", "WorkerAdjudicator",
-     "WaveMergeEngine", "WaveDiffEngine"],
+    [
+        "FindingsScorer",
+        "ClaimRanker",
+        "FindingJudge",
+        "WorkerAdjudicator",
+        "WaveMergeEngine",
+        "WaveDiffEngine",
+    ],
 )
 def test_audit_detects_forbidden_class_identifier(engine_class: str) -> None:
     """Each canonical engine class-name suffix must trip the audit.
@@ -385,9 +383,7 @@ def test_audit_detects_forbidden_class_identifier(engine_class: str) -> None:
     """
     synthetic = f"class {engine_class}:\n    pass\n"
     hits = _scan_synthetic(synthetic)
-    assert any(
-        h.category == "identifier" and engine_class in h.detail for h in hits
-    ), (
+    assert any(h.category == "identifier" and engine_class in h.detail for h in hits), (
         f"AC-012 audit failed to detect injected class {engine_class!r}; "
         "the identifier-suffix regexes are broken."
     )
@@ -395,9 +391,16 @@ def test_audit_detects_forbidden_class_identifier(engine_class: str) -> None:
 
 @pytest.mark.parametrize(
     "engine_function",
-    ["score_findings", "rank_workers", "judge_outputs", "dedupe_rows",
-     "deduplicate_sections", "merge_findings_v2", "diff_findings_smart",
-     "similarity_score_pairs"],
+    [
+        "score_findings",
+        "rank_workers",
+        "judge_outputs",
+        "dedupe_rows",
+        "deduplicate_sections",
+        "merge_findings_v2",
+        "diff_findings_smart",
+        "similarity_score_pairs",
+    ],
 )
 def test_audit_detects_forbidden_function_identifier(engine_function: str) -> None:
     """Each canonical engine function-name prefix must trip the audit."""

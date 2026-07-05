@@ -122,7 +122,9 @@ def test_no_tmux_paths_are_safe() -> None:
         swarm_tmux.kill("job-x")
 
 
-@pytest.mark.skipif(TMUX_PRESENT, reason="patched-tmux path covers monkeypatched absence")
+@pytest.mark.skipif(
+    TMUX_PRESENT, reason="patched-tmux path covers monkeypatched absence"
+)
 def test_no_tmux_paths_via_monkeypatch(monkeypatch) -> None:
     """Force the no-tmux branch even when tmux IS installed."""
     monkeypatch.setattr(swarm_tmux.shutil, "which", lambda _: None)

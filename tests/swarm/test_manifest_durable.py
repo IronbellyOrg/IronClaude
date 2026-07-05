@@ -47,7 +47,6 @@ from superclaude.cli.swarm.preflight import (
 )
 from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
-
 # ---------------------------------------------------------------------------
 # Pinned snapshot + mutated-registry fixtures.
 #
@@ -59,8 +58,7 @@ from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
 
 ORIGINAL_FRAGMENT: str = (
-    "ORIGINAL durable-manifest lens fragment. "
-    + CANONICAL_INJECTION_GUARD_SENTENCE
+    "ORIGINAL durable-manifest lens fragment. " + CANONICAL_INJECTION_GUARD_SENTENCE
 )
 ORIGINAL_USER_TEMPLATE: str = "ORIGINAL durable user template: {{target}}"
 ORIGINAL_RECIPE: str = "bare-review-v1"
@@ -68,8 +66,7 @@ ORIGINAL_NEXT_CMD: str = "sc:reflect on {job_id}"
 
 
 MUTATED_FRAGMENT: str = (
-    "MUTATED durable-manifest lens fragment. "
-    + CANONICAL_INJECTION_GUARD_SENTENCE
+    "MUTATED durable-manifest lens fragment. " + CANONICAL_INJECTION_GUARD_SENTENCE
 )
 MUTATED_USER_TEMPLATE: str = "MUTATED durable user template: {{target}}"
 MUTATED_RECIPE: str = "verdict-only-v1"
@@ -314,6 +311,7 @@ def test_resume_does_not_consult_lens_resolver(
     rather than relying on the absence of mutation, which could
     otherwise be a no-op coincidence.
     """
+
     def boom(name: str) -> LensEntry:
         raise AssertionError(
             "resume_mode must not call resolve_lens -- INV-016 violation"

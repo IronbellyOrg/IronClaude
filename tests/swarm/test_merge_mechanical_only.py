@@ -140,10 +140,18 @@ def test_merge_does_not_deduplicate_across_workers(tmp_path: Path) -> None:
     duplicate = "DUPLICATE_FINDING line.\n"
     workers = [
         _write_worker(
-            tmp_path, index=0, model_label="m0", elapsed_ms=1, body=duplicate,
+            tmp_path,
+            index=0,
+            model_label="m0",
+            elapsed_ms=1,
+            body=duplicate,
         ),
         _write_worker(
-            tmp_path, index=1, model_label="m1", elapsed_ms=2, body=duplicate,
+            tmp_path,
+            index=1,
+            model_label="m1",
+            elapsed_ms=2,
+            body=duplicate,
         ),
     ]
     merged = mechanical_merge(workers)
@@ -160,7 +168,11 @@ def test_merge_handles_missing_final_path_gracefully(tmp_path: Path) -> None:
     survives downstream readers."""
     workers = [
         _write_worker(
-            tmp_path, index=0, model_label="m0", elapsed_ms=1, body="real",
+            tmp_path,
+            index=0,
+            model_label="m0",
+            elapsed_ms=1,
+            body="real",
         ),
         WorkerResult(
             index=1,

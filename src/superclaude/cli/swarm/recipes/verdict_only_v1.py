@@ -121,7 +121,6 @@ from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
 
-
 __all__ = [
     "VerdictOnlyV1",
     "VERDICT_ALIASES",
@@ -273,7 +272,7 @@ def extract_section(text: str, heading: str, cap: int) -> str:
     )
     if not m:
         return ""
-    rest = text[m.end():]
+    rest = text[m.end() :]
     nxt = re.search(r"^#+\s", rest, re.MULTILINE)
     body = rest[: nxt.start()] if nxt else rest
     return " ".join(body.split())[:cap]
@@ -317,7 +316,7 @@ def parse_verdict(section_text: str) -> tuple[str, str, str]:
     sep = re.search(r"\s(—|--|-)\s|:\s", flat)
     if sep:
         head_zone = flat[: sep.start()].strip()
-        rationale_zone = flat[sep.end():].strip()
+        rationale_zone = flat[sep.end() :].strip()
     else:
         head_zone = flat.strip()
         rationale_zone = ""
@@ -400,9 +399,7 @@ class VerdictOnlyV1:
     their :class:`LensEntry`.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         status = str(args.get("status", "success"))
         target = str(args.get("target", ""))
         checksum = str(args.get("target_checksum", ""))
@@ -420,9 +417,7 @@ class VerdictOnlyV1:
         generated = str(args.get("generated") or iso_now())
 
         if not raw_output or not raw_output.strip():
-            return NormalizedResult(
-                text="", salvaged=False, error="empty raw body"
-            )
+            return NormalizedResult(text="", salvaged=False, error="empty raw body")
 
         body = strip_frontmatter(raw_output)
 
@@ -456,8 +451,7 @@ class VerdictOnlyV1:
             # the verdict label to ``uncertain`` so the rendered body
             # is well-formed.
             rationale = (
-                _flatten(body, RATIONALE_CAP)
-                or "(no structured verdict returned)"
+                _flatten(body, RATIONALE_CAP) or "(no structured verdict returned)"
             )
             label = "uncertain"
 

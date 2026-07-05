@@ -89,8 +89,7 @@ def _minimal_valid_spec() -> dict[str, Any]:
         },
         "prompt": {
             "system": (
-                "You are a code reviewer. "
-                + CANONICAL_INJECTION_GUARD_SENTENCE
+                "You are a code reviewer. " + CANONICAL_INJECTION_GUARD_SENTENCE
             ),
             "user_template": "Review: {{target}}",
             "variables": {},
@@ -199,9 +198,8 @@ def test_public_surface() -> None:
 
 def test_minimal_valid_spec_passes_validate() -> None:
     failures = validate(_minimal_valid_spec())
-    assert failures == [], (
-        "minimal valid spec produced failures:\n"
-        + "\n".join(f"  {f.rule}@{f.path}: {f.message}" for f in failures)
+    assert failures == [], "minimal valid spec produced failures:\n" + "\n".join(
+        f"  {f.rule}@{f.path}: {f.message}" for f in failures
     )
 
 
@@ -289,9 +287,7 @@ def test_missing_required_top_level_field_is_rejected() -> None:
     spec = _minimal_valid_spec()
     del spec["transport"]
     failures = validate(spec)
-    assert any(f.rule == RULE_SCHEMA for f in failures), [
-        f.rule for f in failures
-    ]
+    assert any(f.rule == RULE_SCHEMA for f in failures), [f.rule for f in failures]
 
 
 def test_wrong_type_is_rejected() -> None:

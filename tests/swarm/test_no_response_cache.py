@@ -70,8 +70,6 @@ import ast
 import threading
 from pathlib import Path
 
-import pytest
-
 from superclaude.cli.swarm.dispatch import dispatch_wave1
 from superclaude.cli.swarm.models import (
     Manifest,
@@ -80,7 +78,6 @@ from superclaude.cli.swarm.models import (
     WorkerResult,
 )
 from superclaude.cli.swarm.preflight import PreflightResult
-
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SWARM_DIR = REPO_ROOT / "src" / "superclaude" / "cli" / "swarm"
@@ -152,9 +149,7 @@ def _iter_swarm_py_sources() -> list[Path]:
     return [
         p
         for p in SWARM_DIR.rglob("*.py")
-        if p.is_file()
-        and "__pycache__" not in p.parts
-        and p.resolve() != SELF_PATH
+        if p.is_file() and "__pycache__" not in p.parts and p.resolve() != SELF_PATH
     ]
 
 
@@ -199,9 +194,7 @@ class _CacheImportVisitor(ast.NodeVisitor):
         module = node.module or ""
         root = module.split(".", 1)[0]
         if root in FORBIDDEN_CACHE_MODULE_ROOTS:
-            self.from_import_hits.append(
-                (node.lineno, f"from {module} import ...")
-            )
+            self.from_import_hits.append((node.lineno, f"from {module} import ..."))
         else:
             for alias in node.names:
                 if (module, alias.name) in FORBIDDEN_FROM_IMPORT_PAIRS:
@@ -287,13 +280,10 @@ def test_no_forbidden_symbol_imports() -> None:
     for source in _iter_swarm_py_sources():
         visitor = _scan_module(source)
         for lineno, statement in visitor.from_import_hits:
-            offenders.append(
-                f"  {source.relative_to(REPO_ROOT)}:{lineno}: {statement}"
-            )
+            offenders.append(f"  {source.relative_to(REPO_ROOT)}:{lineno}: {statement}")
     assert not offenders, (
         "NFR-014 violation: response-cache symbol imported in swarm sources. "
-        "Two identical runs must both hit the transport:\n"
-        + "\n".join(offenders)
+        "Two identical runs must both hit the transport:\n" + "\n".join(offenders)
     )
 
 
@@ -311,9 +301,7 @@ def test_no_forbidden_dotted_cache_targets() -> None:
     for source in _iter_swarm_py_sources():
         visitor = _scan_module(source)
         for lineno, dotted in visitor.dotted_target_hits:
-            offenders.append(
-                f"  {source.relative_to(REPO_ROOT)}:{lineno}: {dotted}"
-            )
+            offenders.append(f"  {source.relative_to(REPO_ROOT)}:{lineno}: {dotted}")
     assert not offenders, (
         "NFR-014 violation: cache-decorator reference detected in swarm "
         "sources. Dispatch / transport surfaces must re-execute on every "

@@ -110,7 +110,6 @@ from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
 
-
 __all__ = [
     "HypothesisTableV1",
     "DIVIDER_CELL_RE",
@@ -289,12 +288,10 @@ def parse_hypothesis_table(text: str) -> list[dict[str, str]]:
 
 def extract_notes(text: str, cap: int = FALLBACK_NOTES_CAP) -> str:
     """Pull the contents of a ``## Notes`` heading (case-insensitive)."""
-    m = re.search(
-        r"^#+\s*Notes\s*$", text, re.IGNORECASE | re.MULTILINE
-    )
+    m = re.search(r"^#+\s*Notes\s*$", text, re.IGNORECASE | re.MULTILINE)
     if not m:
         return ""
-    rest = text[m.end():]
+    rest = text[m.end() :]
     nxt = re.search(r"^#+\s", rest, re.MULTILINE)
     body = rest[: nxt.start()] if nxt else rest
     return " ".join(body.split())[:cap]
@@ -334,8 +331,7 @@ def render_markdown(
             )
     else:
         lines.append(
-            "| H-00 | (no rows) | (no structured hypotheses returned) | "
-            "— | — |"
+            "| H-00 | (no rows) | (no structured hypotheses returned) | — | — |"
         )
     lines += ["", "## Notes", notes or "(no notes returned)"]
     return "\n".join(lines) + "\n"
@@ -356,9 +352,7 @@ class HypothesisTableV1:
     :class:`LensEntry`.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         status = str(args.get("status", "success"))
         target = str(args.get("target", ""))
         checksum = str(args.get("target_checksum", ""))
@@ -367,8 +361,7 @@ class HypothesisTableV1:
         model_label = str(args.get("model_label", ""))
         caller_label = str(args.get("caller_label", "") or "")
         lens = str(
-            args.get("lens", "troubleshoot-hypothesis")
-            or "troubleshoot-hypothesis"
+            args.get("lens", "troubleshoot-hypothesis") or "troubleshoot-hypothesis"
         )
         tier = str(args.get("tier", "T2-tshoot") or "T2-tshoot")
         suspect = bool(args.get("suspect", False))
@@ -379,9 +372,7 @@ class HypothesisTableV1:
         generated = str(args.get("generated") or iso_now())
 
         if not raw_output or not raw_output.strip():
-            return NormalizedResult(
-                text="", salvaged=False, error="empty raw body"
-            )
+            return NormalizedResult(text="", salvaged=False, error="empty raw body")
 
         body = strip_frontmatter(raw_output)
         hypotheses = parse_hypothesis_table(body)

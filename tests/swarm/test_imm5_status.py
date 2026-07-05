@@ -27,8 +27,6 @@ partial-window check fails immediately and points at the exact
 
 from __future__ import annotations
 
-from typing import Optional
-
 import pytest
 
 from superclaude.cli.swarm.models import ResultStatus, StatusPolicy
@@ -76,9 +74,7 @@ DEFAULT_POLICY_MATRIX: list[tuple[int, int, ResultStatus]] = [
 @pytest.mark.parametrize(
     "workers_succeeded,workers_requested,expected",
     DEFAULT_POLICY_MATRIX,
-    ids=[
-        f"M={m}_N={n}_{exp}" for (m, n, exp) in DEFAULT_POLICY_MATRIX
-    ],
+    ids=[f"M={m}_N={n}_{exp}" for (m, n, exp) in DEFAULT_POLICY_MATRIX],
 )
 def test_imm5_default_policy_matrix(
     workers_succeeded: int,
@@ -86,10 +82,7 @@ def test_imm5_default_policy_matrix(
     expected: ResultStatus,
 ) -> None:
     """Every IMM-5 branch resolves to the spec-mandated status."""
-    assert (
-        determine_status(workers_succeeded, workers_requested)
-        == expected
-    )
+    assert determine_status(workers_succeeded, workers_requested) == expected
 
 
 # ---------------------------------------------------------------------------
@@ -100,9 +93,7 @@ def test_imm5_default_policy_matrix(
 # (M, N, StatusPolicy, expected). Exercises the configurable surface of
 # StatusPolicy so each field gets at least one assertion that flips the
 # outcome when the default is overridden.
-POLICY_OVERRIDE_MATRIX: list[
-    tuple[int, int, StatusPolicy, ResultStatus]
-] = [
+POLICY_OVERRIDE_MATRIX: list[tuple[int, int, StatusPolicy, ResultStatus]] = [
     # success_first=False at M==N==2 still resolves to success because
     # M >= N takes the success branch directly. The tie-break only
     # mattered for the matrix label, not the outcome.
@@ -142,10 +133,7 @@ def test_imm5_policy_override_matrix(
     expected: ResultStatus,
 ) -> None:
     """StatusPolicy.floor / success_first / partial_threshold tune the matrix."""
-    assert (
-        determine_status(workers_succeeded, workers_requested, policy)
-        == expected
-    )
+    assert determine_status(workers_succeeded, workers_requested, policy) == expected
 
 
 # ---------------------------------------------------------------------------
@@ -165,8 +153,11 @@ def test_imm5_policy_override_matrix(
         (-1, -1, "failed"),
     ],
     ids=[
-        "M_gt_N_4of3", "M_gt_N_5of2",
-        "negative_M", "negative_N", "negative_both",
+        "M_gt_N_4of3",
+        "M_gt_N_5of2",
+        "negative_M",
+        "negative_N",
+        "negative_both",
     ],
 )
 def test_imm5_edge_cases(
@@ -175,10 +166,7 @@ def test_imm5_edge_cases(
     expected: ResultStatus,
 ) -> None:
     """M>N invariant violation and negative-input clamping stay total."""
-    assert (
-        determine_status(workers_succeeded, workers_requested)
-        == expected
-    )
+    assert determine_status(workers_succeeded, workers_requested) == expected
 
 
 def test_imm5_explicit_none_policy_uses_defaults() -> None:

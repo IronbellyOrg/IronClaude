@@ -86,7 +86,9 @@ def _worker(
     )
 
 
-def _capturing_merge() -> tuple[list[list[WorkerResult]], Callable[[list[WorkerResult]], str]]:
+def _capturing_merge() -> tuple[
+    list[list[WorkerResult]], Callable[[list[WorkerResult]], str]
+]:
     """Return a (call-log, merge-callable) pair.
 
     The callable records each invocation's argument list so the test
@@ -227,7 +229,11 @@ def test_normalize_merge_invokes_merge_and_writes_merged_file(tmp_path: Path) ->
 
 def test_normalize_merge_skips_merge_below_floor(tmp_path: Path) -> None:
     """M < policy.floor (default 2) leaves merged_path None even in merge mode."""
-    workers = [_worker(0), _worker(1, status="parse_error"), _worker(2, status="timeout")]
+    workers = [
+        _worker(0),
+        _worker(1, status="parse_error"),
+        _worker(2, status="timeout"),
+    ]
     calls, merge = _capturing_merge()
 
     contract = reduce_wave3(
@@ -409,9 +415,15 @@ def test_emit_contract_atomic_no_tmp_leftovers(tmp_path: Path) -> None:
 
 def test_caller_and_metadata_passthrough(tmp_path: Path) -> None:
     """Caller-supplied identity records land verbatim on the contract."""
-    caller = CallerInfo(skill="sc-bare-review", invocation_label="audit-1", kind="claude")
+    caller = CallerInfo(
+        skill="sc-bare-review", invocation_label="audit-1", kind="claude"
+    )
     meta = CallerMetadata(suspect=True, tier="T2")
-    target = ContractTarget(path="src/auth.py", checksum="abc123def456", truncated=False)
+    target = ContractTarget(
+        path="src/auth.py",
+        checksum="abc123def456",  # pragma: allowlist secret (fake test fixture)
+        truncated=False,
+    )
     artifacts = Artifacts(manifest_path="m.json", state_path="s.json")
 
     contract = reduce_wave3(

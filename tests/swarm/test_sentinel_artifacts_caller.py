@@ -84,7 +84,6 @@ from superclaude.cli.swarm.models import (
     to_json,
 )
 
-
 # ---------------------------------------------------------------------------
 # Expected field sets, drawn verbatim from the roadmap DM-### rows
 # (.dev/releases/Current/MultiModelSwarm/roadmap.md L104-L106).

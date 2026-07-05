@@ -191,9 +191,7 @@ def test_read_custom_prompt_dir_flag_off_default_argument(tmp_path: Path) -> Non
             required_substring=CANONICAL_INJECTION_GUARD_SENTENCE,
         )
 
-    assert any(
-        f.rule == RULE_INJECTION_GUARD for f in excinfo.value.failures
-    )
+    assert any(f.rule == RULE_INJECTION_GUARD for f in excinfo.value.failures)
 
 
 def test_read_custom_prompt_dir_flag_on_injects_and_passes(
@@ -347,8 +345,9 @@ def test_auto_inject_guard_option_kwarg_name_lines_up_with_reader() -> None:
 
     # ``cmd.params`` is the list of Click parameter records.
     flag_param = next(
-        p for p in cmd.params if isinstance(p, click.Option)
-        and "--auto-inject-guard" in p.opts
+        p
+        for p in cmd.params
+        if isinstance(p, click.Option) and "--auto-inject-guard" in p.opts
     )
 
     assert flag_param.name == "auto_inject_guard"

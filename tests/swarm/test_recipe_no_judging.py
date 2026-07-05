@@ -77,7 +77,6 @@ from superclaude.cli.swarm.recipes.hypothesis_table_v1 import HypothesisTableV1
 from superclaude.cli.swarm.recipes.passthrough import Passthrough
 from superclaude.cli.swarm.recipes.verdict_only_v1 import VerdictOnlyV1
 
-
 FIXED_GENERATED = "2026-06-01T11:19:39Z"
 FIXED_CHECKSUM = "deadbeefcafe"
 FIXED_TARGET = "/tmp/example/target.py"
@@ -148,7 +147,8 @@ def _assert_tokens_in_order(text: str, tokens: tuple[str, ...]) -> None:
 
 
 def _assert_duplicate_preserved(
-    text: str, token: str = EXPECTED_DUPLICATE_TOKEN,
+    text: str,
+    token: str = EXPECTED_DUPLICATE_TOKEN,
     occurrences: int = EXPECTED_DUPLICATE_OCCURRENCES,
 ) -> None:
     """The duplicate token appears at least ``occurrences`` times."""
@@ -255,9 +255,7 @@ class TestBareReviewV1Boundary:
     """``bare-review-v1`` preserves all findings -- AC-011 axis tests."""
 
     def test_all_five_findings_present_in_output(self):
-        result = BareReviewV1().normalize(
-            _bare_review_body(), _benign_args()
-        )
+        result = BareReviewV1().normalize(_bare_review_body(), _benign_args())
         assert result.error is None
         # The recipe auto-assigns F-01..F-NN, so all 5 input rows render.
         for i in range(1, EXPECTED_ROW_COUNT + 1):
@@ -270,21 +268,15 @@ class TestBareReviewV1Boundary:
         assert f"| F-{EXPECTED_ROW_COUNT + 1:02d} |" not in result.text
 
     def test_findings_emitted_in_body_order(self):
-        result = BareReviewV1().normalize(
-            _bare_review_body(), _benign_args()
-        )
+        result = BareReviewV1().normalize(_bare_review_body(), _benign_args())
         _assert_tokens_in_order(result.text, TOKENS_IN_ORDER)
 
     def test_duplicate_finding_retained(self):
-        result = BareReviewV1().normalize(
-            _bare_review_body(), _benign_args()
-        )
+        result = BareReviewV1().normalize(_bare_review_body(), _benign_args())
         _assert_duplicate_preserved(result.text)
 
     def test_finding_count_frontmatter_matches_input_count(self):
-        result = BareReviewV1().normalize(
-            _bare_review_body(), _benign_args()
-        )
+        result = BareReviewV1().normalize(_bare_review_body(), _benign_args())
         assert f"finding_count: {EXPECTED_ROW_COUNT}" in result.text
 
 
@@ -297,9 +289,7 @@ class TestFindingsTableV1Boundary:
     """``findings_table_v1`` preserves all findings -- AC-011 axis tests."""
 
     def test_all_five_findings_present_in_output(self):
-        result = FindingsTableV1().normalize(
-            _findings_table_body(), _benign_args()
-        )
+        result = FindingsTableV1().normalize(_findings_table_body(), _benign_args())
         assert result.error is None
         for i in range(1, EXPECTED_ROW_COUNT + 1):
             assert f"| F-{i:02d} |" in result.text, (
@@ -310,21 +300,15 @@ class TestFindingsTableV1Boundary:
         assert f"| F-{EXPECTED_ROW_COUNT + 1:02d} |" not in result.text
 
     def test_findings_emitted_in_body_order(self):
-        result = FindingsTableV1().normalize(
-            _findings_table_body(), _benign_args()
-        )
+        result = FindingsTableV1().normalize(_findings_table_body(), _benign_args())
         _assert_tokens_in_order(result.text, TOKENS_IN_ORDER)
 
     def test_duplicate_finding_retained(self):
-        result = FindingsTableV1().normalize(
-            _findings_table_body(), _benign_args()
-        )
+        result = FindingsTableV1().normalize(_findings_table_body(), _benign_args())
         _assert_duplicate_preserved(result.text)
 
     def test_finding_count_frontmatter_matches_input_count(self):
-        result = FindingsTableV1().normalize(
-            _findings_table_body(), _benign_args()
-        )
+        result = FindingsTableV1().normalize(_findings_table_body(), _benign_args())
         assert f"finding_count: {EXPECTED_ROW_COUNT}" in result.text
 
 
@@ -340,9 +324,7 @@ class TestHypothesisTableV1Boundary:
         return _benign_args(lens="troubleshoot-hypothesis", tier="T2-tshoot")
 
     def test_all_five_hypotheses_present_in_output(self):
-        result = HypothesisTableV1().normalize(
-            _hypothesis_table_body(), self._args()
-        )
+        result = HypothesisTableV1().normalize(_hypothesis_table_body(), self._args())
         assert result.error is None
         for i in range(1, EXPECTED_ROW_COUNT + 1):
             assert f"| H-{i:02d} |" in result.text, (
@@ -353,21 +335,15 @@ class TestHypothesisTableV1Boundary:
         assert f"| H-{EXPECTED_ROW_COUNT + 1:02d} |" not in result.text
 
     def test_hypotheses_emitted_in_body_order(self):
-        result = HypothesisTableV1().normalize(
-            _hypothesis_table_body(), self._args()
-        )
+        result = HypothesisTableV1().normalize(_hypothesis_table_body(), self._args())
         _assert_tokens_in_order(result.text, TOKENS_IN_ORDER)
 
     def test_duplicate_hypothesis_retained(self):
-        result = HypothesisTableV1().normalize(
-            _hypothesis_table_body(), self._args()
-        )
+        result = HypothesisTableV1().normalize(_hypothesis_table_body(), self._args())
         _assert_duplicate_preserved(result.text)
 
     def test_hypothesis_count_frontmatter_matches_input_count(self):
-        result = HypothesisTableV1().normalize(
-            _hypothesis_table_body(), self._args()
-        )
+        result = HypothesisTableV1().normalize(_hypothesis_table_body(), self._args())
         assert f"hypothesis_count: {EXPECTED_ROW_COUNT}" in result.text
 
 
@@ -390,9 +366,7 @@ class TestVerdictOnlyV1Boundary:
         return _benign_args(lens="spec-completeness", tier="T2-spec")
 
     def test_all_supporting_tokens_present_in_output(self):
-        result = VerdictOnlyV1().normalize(
-            _verdict_only_body(), self._args()
-        )
+        result = VerdictOnlyV1().normalize(_verdict_only_body(), self._args())
         assert result.error is None
         # Each unique token reaches the rendered output.
         for token in {"TOKEN-A", "TOKEN-B", "TOKEN-C", "TOKEN-D"}:
@@ -403,15 +377,11 @@ class TestVerdictOnlyV1Boundary:
             )
 
     def test_supporting_tokens_emitted_in_body_order(self):
-        result = VerdictOnlyV1().normalize(
-            _verdict_only_body(), self._args()
-        )
+        result = VerdictOnlyV1().normalize(_verdict_only_body(), self._args())
         _assert_tokens_in_order(result.text, TOKENS_IN_ORDER)
 
     def test_duplicate_supporting_row_retained(self):
-        result = VerdictOnlyV1().normalize(
-            _verdict_only_body(), self._args()
-        )
+        result = VerdictOnlyV1().normalize(_verdict_only_body(), self._args())
         _assert_duplicate_preserved(result.text)
 
 
@@ -432,15 +402,11 @@ class TestPassthroughBoundary:
         )
 
     def test_findings_emitted_in_body_order(self):
-        result = Passthrough().normalize(
-            _findings_table_body(), _benign_args()
-        )
+        result = Passthrough().normalize(_findings_table_body(), _benign_args())
         _assert_tokens_in_order(result.text, TOKENS_IN_ORDER)
 
     def test_duplicate_finding_retained(self):
-        result = Passthrough().normalize(
-            _findings_table_body(), _benign_args()
-        )
+        result = Passthrough().normalize(_findings_table_body(), _benign_args())
         _assert_duplicate_preserved(result.text)
 
 
@@ -491,16 +457,12 @@ class TestCustomPyDispatcherBoundary:
                 self, raw_output: str, args: dict[str, Any]
             ) -> NormalizedResult:
                 del args
-                return NormalizedResult(
-                    text=raw_output, salvaged=False, error=None
-                )
+                return NormalizedResult(text=raw_output, salvaged=False, error=None)
 
         module.FixtureRecipe = FixtureRecipe  # type: ignore[attr-defined]
         monkeypatch.setitem(sys.modules, module_name, module)
 
-        recipe = load_custom_py(
-            f"{CUSTOM_PY_PREFIX}{module_name}:FixtureRecipe"
-        )
+        recipe = load_custom_py(f"{CUSTOM_PY_PREFIX}{module_name}:FixtureRecipe")
         assert isinstance(recipe, Recipe)
 
         body = _findings_table_body()
@@ -555,20 +517,12 @@ def test_all_non_dispatcher_recipes_preserve_token_order(
         lens=(
             "troubleshoot-hypothesis"
             if name == "hypothesis_table_v1"
-            else (
-                "spec-completeness"
-                if name == "verdict_only_v1"
-                else "refactor-find"
-            )
+            else ("spec-completeness" if name == "verdict_only_v1" else "refactor-find")
         ),
         tier=(
             "T2-tshoot"
             if name == "hypothesis_table_v1"
-            else (
-                "T2-spec"
-                if name == "verdict_only_v1"
-                else "T2-code"
-            )
+            else ("T2-spec" if name == "verdict_only_v1" else "T2-code")
         ),
     )
     result = recipe.normalize(body, args)

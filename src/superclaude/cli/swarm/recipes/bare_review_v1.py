@@ -67,7 +67,6 @@ from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
 
-
 __all__ = [
     "BareReviewV1",
     "SEV_ALIASES",
@@ -91,11 +90,20 @@ __all__ = [
 
 
 SEV_ALIASES: dict[str, str] = {
-    "crit": "crit", "critical": "crit", "blocker": "crit",
-    "high": "high", "major": "high",
-    "med": "med", "medium": "med", "moderate": "med",
-    "low": "low", "minor": "low",
-    "nit": "nit", "nitpick": "nit", "trivial": "nit", "info": "nit",
+    "crit": "crit",
+    "critical": "crit",
+    "blocker": "crit",
+    "high": "high",
+    "major": "high",
+    "med": "med",
+    "medium": "med",
+    "moderate": "med",
+    "low": "low",
+    "minor": "low",
+    "nit": "nit",
+    "nitpick": "nit",
+    "trivial": "nit",
+    "info": "nit",
 }
 EMPTY_CITE: set[str] = {"", "none", "n/a", "na", "-", "--"}
 FINDING_ID: re.Pattern[str] = re.compile(r"^f-?\d+$", re.IGNORECASE)
@@ -151,12 +159,14 @@ def parse_findings(text: str) -> list[dict[str, str]]:
         claim = cells[2].replace("\n", " ").strip()[:120]
         if not claim:
             continue
-        findings.append({
-            "sev": normalize_sev(cells[1]),
-            "claim": claim,
-            "cite": normalize_cite(cells[3]),
-            "conf": parse_conf(cells[4]),
-        })
+        findings.append(
+            {
+                "sev": normalize_sev(cells[1]),
+                "claim": claim,
+                "cite": normalize_cite(cells[3]),
+                "conf": parse_conf(cells[4]),
+            }
+        )
     return findings
 
 
@@ -166,7 +176,7 @@ def extract_section(text: str, heading: str, cap: int) -> str:
     )
     if not m:
         return ""
-    rest = text[m.end():]
+    rest = text[m.end() :]
     nxt = re.search(r"^#+\s", rest, re.MULTILINE)
     body = rest[: nxt.start()] if nxt else rest
     return " ".join(body.split())[:cap]
@@ -243,9 +253,7 @@ class BareReviewV1:
         ``text`` and ``salvaged`` set per the §7.4 condition matrix.
     """
 
-    def normalize(
-        self, raw_output: str, args: dict[str, Any]
-    ) -> NormalizedResult:
+    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
         status = str(args.get("status", "success"))
         target = str(args.get("target", ""))
         checksum = str(args.get("target_checksum", ""))
@@ -265,9 +273,7 @@ class BareReviewV1:
         # body here the recipe surfaces the recovery failure rather than
         # rendering a frontmatter-only stub.
         if not raw_output or not raw_output.strip():
-            return NormalizedResult(
-                text="", salvaged=False, error="empty raw body"
-            )
+            return NormalizedResult(text="", salvaged=False, error="empty raw body")
 
         body = strip_frontmatter(raw_output)
         findings = parse_findings(body)
@@ -286,8 +292,7 @@ class BareReviewV1:
             salvaged = True
         elif not findings and not verdict:
             verdict = (
-                " ".join(body.split())[:300]
-                or "(no structured findings returned)"
+                " ".join(body.split())[:300] or "(no structured findings returned)"
             )
 
         slug = os.path.splitext(os.path.basename(target))[0] if target else ""

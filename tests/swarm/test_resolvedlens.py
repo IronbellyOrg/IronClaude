@@ -44,13 +44,11 @@ import pytest
 from superclaude.cli.swarm.models import (
     LensEntry,
     ResolvedLensEntry,
-    Stability,
     from_dict,
     from_json,
     to_dict,
     to_json,
 )
-
 
 # Roadmap DM-011 row (.dev/releases/Current/MultiModelSwarm/roadmap.md L98)
 # names exactly these 9 fields, in this order. Drift in either direction
@@ -198,8 +196,7 @@ def _populated_lens() -> LensEntry:
         name="bare_review",
         description="Unscaffolded native-instinct review",  # excluded
         system_prompt_fragment=(
-            "You are reviewing the block between <<<TARGET>>> and "
-            "<<<END TARGET>>>."
+            "You are reviewing the block between <<<TARGET>>> and <<<END TARGET>>>."
         ),
         user_template="Review the target block.\n\nTarget:\n{target}\n",
         output_template_path="templates/bare_review.md",  # excluded

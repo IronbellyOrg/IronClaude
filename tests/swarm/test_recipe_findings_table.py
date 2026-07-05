@@ -41,7 +41,6 @@ from superclaude.cli.swarm.recipes.findings_table_v1 import (
     strip_frontmatter,
 )
 
-
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "findings_table_v1"
 
 FIXED_GENERATED = "2026-06-01T11:19:39Z"
@@ -111,8 +110,8 @@ def test_recipe_renders_canonical_table_per_lens(
     assert f"| F-{row_count + 1:02d} |" not in text
 
     # Frontmatter records the lens + tier + finding_count.
-    assert f"lens: \"{lens}\"" in text
-    assert f"tier: \"{tier}\"" in text
+    assert f'lens: "{lens}"' in text
+    assert f'tier: "{tier}"' in text
     assert f"finding_count: {row_count}" in text
 
     # Notes section preserved.

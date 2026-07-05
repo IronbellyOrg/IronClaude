@@ -141,8 +141,7 @@ def test_inv001_resume_mode_rehydrates_from_manifest(tmp_path: Path) -> None:
     from superclaude.cli.swarm.schema import CANONICAL_INJECTION_GUARD_SENTENCE
 
     snapshot_fragment = (
-        "SUITE-PINNED snapshot prompt fragment. "
-        + CANONICAL_INJECTION_GUARD_SENTENCE
+        "SUITE-PINNED snapshot prompt fragment. " + CANONICAL_INJECTION_GUARD_SENTENCE
     )
     snapshot = ResolvedLensEntry(
         name="bare-review",
@@ -273,9 +272,7 @@ def test_inv002_dispatch_surface_has_no_shell_dispatch_imports() -> None:
     with whatever allowlist policy applies to non-dispatch modules.
     """
     missing = [
-        rel
-        for rel in _INV002_DISPATCH_SURFACE
-        if not (SWARM_PKG / rel).exists()
+        rel for rel in _INV002_DISPATCH_SURFACE if not (SWARM_PKG / rel).exists()
     ]
     assert missing == [], (
         f"swarm dispatch surface missing modules/subpackages {missing}; "

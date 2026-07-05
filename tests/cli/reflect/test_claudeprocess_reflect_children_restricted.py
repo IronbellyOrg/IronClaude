@@ -20,7 +20,6 @@ design (a) landed).
 
 from __future__ import annotations
 
-from pathlib import Path
 from unittest.mock import patch
 
 from superclaude.cli.pipeline.process import ClaudeProcess

@@ -41,7 +41,6 @@ from superclaude.cli.swarm.normalize import (
 )
 from superclaude.cli.swarm.recipes import REGISTRY
 
-
 # ---------------------------------------------------------------------------
 # Fixture helpers
 # ---------------------------------------------------------------------------
@@ -114,9 +113,7 @@ def install_recipe(monkeypatch):
 # ---------------------------------------------------------------------------
 
 
-def test_passthrough_fallback_when_registry_value_is_none(
-    tmp_path, install_recipe
-):
+def test_passthrough_fallback_when_registry_value_is_none(tmp_path, install_recipe):
     """REGISTRY accepts ``None`` sentinels; dispatcher must fall back
     to its internal passthrough so the M3 -> M4 handshake works for
     any recipe slot whose concrete object has not yet landed.
@@ -335,8 +332,7 @@ def test_in_memory_body_preferred_over_raw_path(tmp_path, install_recipe):
     normalize_wave2([worker], "findings_table_v1")
 
     assert (
-        Path(worker.final_path).read_text(encoding="utf-8")
-        == "# normalized\nin-memory"
+        Path(worker.final_path).read_text(encoding="utf-8") == "# normalized\nin-memory"
     )
 
 

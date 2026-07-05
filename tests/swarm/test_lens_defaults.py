@@ -29,7 +29,6 @@ from superclaude.cli.swarm.preflight import (
     expand_lens_defaults,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -122,8 +121,7 @@ def test_expand_populates_recommended_next_command_template(
     expand_lens_defaults(spec, bare_review_registry)
     lens = bare_review_registry["bare-review"]
     assert (
-        spec.recommended_next_command_template
-        == lens.recommended_next_command_template
+        spec.recommended_next_command_template == lens.recommended_next_command_template
     )
 
 
@@ -173,7 +171,9 @@ def test_caller_supplied_recipe_preserved(bare_review_registry) -> None:
 
 def test_caller_supplied_workers_count_preserved(bare_review_registry) -> None:
     spec = _minimal_jobspec()
-    spec.workers.count = 5  # explicitly different from both dataclass default (4) and lens default (3)
+    spec.workers.count = (
+        5  # explicitly different from both dataclass default (4) and lens default (3)
+    )
     expand_lens_defaults(spec, bare_review_registry)
     assert spec.workers.count == 5
 
@@ -267,8 +267,7 @@ def test_single_expansion_populates_every_listed_field(bare_review_registry) -> 
     assert spec.output.lens_name == lens.name
     # 9 recommended_next_command_template
     assert (
-        spec.recommended_next_command_template
-        == lens.recommended_next_command_template
+        spec.recommended_next_command_template == lens.recommended_next_command_template
     )
     # 10 snapshot-only suspect / tier
     assert snapshot.suspect is lens.suspect
