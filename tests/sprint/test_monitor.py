@@ -341,3 +341,204 @@ class TestDetectProviderFailure:
         assert from_text == from_path
         assert isinstance(from_text, ProviderFailureSignal)
         assert from_text.kind is ProviderFailure.ALL_ACCOUNT_COOLDOWN
+
+    # --- 12-row detection-contract table (spec §6.2; research/04 matrix) ----
+
+    @pytest.mark.unit
+    @pytest.mark.parametrize(
+        "source, expected_kind, expected_model",
+        [
+            pytest.param(
+                ("fixture", "all_account_cooldown.jsonl"),
+                ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+                "claude-opus-4-8",
+                id="shape1-all-account",
+            ),
+            pytest.param(
+                ("fixture", "single_account_429.jsonl"),
+                ProviderFailure.SINGLE_ACCOUNT_LIMIT,
+                None,
+                id="shape1-single",
+            ),
+            pytest.param(
+                ("fixture", "api_retry_maxed.jsonl"),
+                ProviderFailure.SINGLE_ACCOUNT_LIMIT,
+                None,
+                id="shape1-retry-maxed",
+            ),
+            pytest.param(
+                ("fixture", "all_account_cooldown_apierror429.jsonl"),
+                ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+                "gpt-5.5",
+                id="shape2-all-account-gpt55",
+            ),
+            pytest.param(
+                (
+                    "inline",
+                    '{"type":"result","subtype":"success","is_error":true,'
+                    '"api_error_status":429,'
+                    '"result":"API Error: Request rejected (429) · All '
+                    'credentials for model claude-opus-4-8 are cooling down"}\n',
+                ),
+                ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+                "claude-opus-4-8",
+                id="all-account-no-viaprovider-aes",
+            ),
+            pytest.param(
+                (
+                    "inline",
+                    '{"type":"result","subtype":"success","is_error":true,'
+                    '"result":"API Error: 429 rate_limit_error · All '
+                    "credentials for model claude-opus-4-8 are cooling down "
+                    'via provider claude"}\n',
+                ),
+                ProviderFailure.ALL_ACCOUNT_COOLDOWN,
+                "claude-opus-4-8",
+                id="shape1-all-account-no-aes",
+            ),
+            pytest.param(
+                ("fixture", "single_account_apierror429_SYNTHESIZED.jsonl"),
+                ProviderFailure.SINGLE_ACCOUNT_LIMIT,
+                None,
+                # SYNTHESIZED: documented ASSUMPTION — no verbatim Shape-2
+                # single-account capture exists (OQ2). xfail(strict=False)
+                # advertises it: RED pre-fix (gate closed), xpass post-fix.
+                marks=pytest.mark.xfail(
+                    reason="synthesized — no verbatim Shape-2 single-account "
+                    "capture; flip to a real fixture when captured",
+                    strict=False,
+                ),
+                id="shape2-single-SYNTHESIZED",
+            ),
+            pytest.param(
+                (
+                    "inline",
+                    '{"type":"result","subtype":"success","is_error":true,'
+                    '"result":"API Error: 429 rate_limit_error unspecified '
+                    'upstream throttle"}\n',
+                ),
+                ProviderFailure.SINGLE_ACCOUNT_LIMIT,
+                None,
+                id="rate_limit_error-neither-body",
+            ),
+            pytest.param(
+                # FP guard (PR #212 review): a PRESENT non-429 api_error_status
+                # with an incidental `rate_limit_error` token in the body must NOT
+                # open the 429 block — the text disjunct is gated on
+                # `api_error_status is None`, so this stays NONE (no false recovery).
+                (
+                    "inline",
+                    '{"type":"result","subtype":"success","is_error":true,'
+                    '"api_error_status":500,'
+                    '"result":"API Error: 500 upstream failure rate_limit_error '
+                    'mentioned in trace"}\n',
+                ),
+                ProviderFailure.NONE,
+                None,
+                id="non429-aes-with-rate_limit_error-body",
+            ),
+            pytest.param(
+                ("fixture", "provider_429_incidental_ratelimit_text.jsonl"),
+                ProviderFailure.NONE,
+                None,
+                id="fp-incidental-429",
+            ),
+            pytest.param(
+                ("fixture", "operation_timeout.jsonl"),
+                ProviderFailure.OPERATION_TIMEOUT,
+                None,
+                id="timeout",
+            ),
+            pytest.param(
+                ("fixture", "task_failure_real.jsonl"),
+                ProviderFailure.NONE,
+                None,
+                id="real-task-failure",
+            ),
+            pytest.param(
+                ("fixture", "clean_pass.jsonl"),
+                ProviderFailure.NONE,
+                None,
+                id="clean-pass",
+            ),
+        ],
+    )
+    def test_detection_contract_row(
+        self, tmp_path, source, expected_kind, expected_model
+    ):
+        # Maps transcript -> (kind, resolved_model) for every meaningful case
+        # (spec §6.2). Asserts BOTH kind (identity) and resolved_model
+        # (equality, incl. == None on the 8 non-cooldown rows, OQ4). Does NOT
+        # call SessionResetPolicy.decide / assert any Action.* value (C3).
+        source_kind, source_value = source
+        if source_kind == "fixture":
+            path = _FIXTURES / source_value
+        else:
+            path = tmp_path / "output.txt"
+            path.write_text(source_value)
+        sig = detect_provider_failure(path)
+        assert sig.kind is expected_kind
+        assert sig.resolved_model == expected_model
+
+    # --- parity 7a: shared-inner text-core == path-wrapper on Shape-2 -------
+
+    @pytest.mark.unit
+    def test_shape2_text_core_matches_path_wrapper(self):
+        # Parity §6.3.1: the text core and the path wrapper must agree on the
+        # new load-bearing Shape-2 fixture (NOT the Shape-1 all_account_cooldown).
+        # ProviderFailureSignal is a dataclass, so == compares (kind, model).
+        path = _FIXTURES / "all_account_cooldown_apierror429.jsonl"
+        from_text = _provider_failure_from_text(path.read_text())
+        from_path = detect_provider_failure(path)
+        assert from_text == from_path
+        assert isinstance(from_text, ProviderFailureSignal)
+        assert from_text.kind is ProviderFailure.ALL_ACCOUNT_COOLDOWN
+        assert from_text.resolved_model == "gpt-5.5"
+
+    # --- F5 timeout mutual-exclusivity guard (two directional assertions) ---
+
+    @pytest.mark.unit
+    def test_f5_timeout_mutual_exclusivity_guard(self):
+        # F5 (research/04 R-GC): the timeout branch and the widened 429 gate stay
+        # mutually exclusive — a "both signals in one body" fixture is impossible
+        # (timeout requires body == "API Error: The operation timed out."; the
+        # 429 gate requires "rate_limit_error" in body). Two directional asserts:
+        # F5.a — timeout NOT swallowed: the timeout body has no rate_limit_error
+        # and api_error_status is None, so both new C1 disjuncts are False →
+        # control reaches the timeout branch.
+        assert (
+            detect_provider_failure(_FIXTURES / "operation_timeout.jsonl").kind
+            is ProviderFailure.OPERATION_TIMEOUT
+        )
+        # F5.b — 429 returns BEFORE the timeout branch: the 429 block returns at
+        # :323-333, so a Shape-2 cooldown never falls through to OPERATION_TIMEOUT.
+        assert (
+            detect_provider_failure(
+                _FIXTURES / "all_account_cooldown_apierror429.jsonl"
+            ).kind
+            is ProviderFailure.ALL_ACCOUNT_COOLDOWN
+        )
+
+    # --- INV-004: result-body scoping keys only on the LAST result event ----
+
+    @pytest.mark.unit
+    def test_inv004_result_body_scoping_last_event_only(self, tmp_path):
+        # INV-004 (C5 result-body scoping, spec §7): the widened
+        # "rate_limit_error" in body gate must scan ONLY the last
+        # {"type":"result"} event's result field, never bleed transcript-wide.
+        # An earlier non-terminal event carries incidental rate_limit_error prose;
+        # the terminal result is a real NON-provider failure with no
+        # rate_limit_error token. A transcript-wide scan would wrongly trip this to
+        # SINGLE_ACCOUNT_LIMIT via the neither-body default. GREEN pre- AND
+        # post-fix (invariant guard, NOT part of the RED set). Distinct from
+        # contract row 11 (which lacks the earlier-event bleed vector).
+        output = tmp_path / "output.txt"
+        output.write_text(
+            '{"type":"assistant","message":{"content":"retrying after a '
+            'rate_limit_error from upstream"}}\n'
+            '{"type":"result","subtype":"success","is_error":true,'
+            '"result":"error_during_execution: pytest exited 1"}\n'
+        )
+        sig = detect_provider_failure(output)
+        assert sig.kind is ProviderFailure.NONE
+        assert sig.resolved_model is None
