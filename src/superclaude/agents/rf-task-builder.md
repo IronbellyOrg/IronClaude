@@ -10,8 +10,8 @@ tools:
   - Bash
   - Glob
   - Grep
-  - mcp__tavily__tavily-search
-  - mcp__tavily__tavily-extract
+  - mcp__tavily__tavily_search
+  - mcp__tavily__tavily_extract
   - WebFetch
   - WebSearch
   - NotebookEdit
@@ -427,7 +427,7 @@ See SKILL.md "Retry Monotonicity Protocol" for full specification.
 
 ### Web Search (Tavily-first)
 
-**Primary tool:** `mcp__tavily__tavily-search` for verifying library/framework syntax and patterns referenced in checklist items; `mcp__tavily__tavily-extract` when you need the full content of a specific docs URL (e.g., to copy an API signature verbatim into a Context field).
+**Primary tool:** `mcp__tavily__tavily_search` for verifying library/framework syntax and patterns referenced in checklist items; `mcp__tavily__tavily_extract` when you need the full content of a specific docs URL (e.g., to copy an API signature verbatim into a Context field).
 
 **Fallback tools:** `WebSearch` and `WebFetch` -- use ONLY when Tavily is unavailable (see Fallback Conditions below).
 
@@ -440,9 +440,9 @@ Use Tavily search when:
 **Examples:**
 
 ```text
-mcp__tavily__tavily-search: "Jest test file naming conventions and structure"
-mcp__tavily__tavily-search: "Dockerfile multi-stage build syntax"
-mcp__tavily__tavily-search: "SQLAlchemy migration file structure"
+mcp__tavily__tavily_search: "Jest test file naming conventions and structure"
+mcp__tavily__tavily_search: "Dockerfile multi-stage build syntax"
+mcp__tavily__tavily_search: "SQLAlchemy migration file structure"
 ```
 
 **Fallback Conditions -- fall back to WebSearch / WebFetch only when ANY of these are true:**
@@ -558,7 +558,7 @@ Use current date/time for the timestamp.
 10. **QA gates are checklist items, not prose.** When QA_GATE_REQUIREMENTS is FINAL_ONLY or PER_PHASE, you MUST encode QA gate checklist items in the generated task file. QA gates described only in prose or comments are invisible to the F1 executor and will be skipped. A generated task file that omits required QA gates is a MALFORMED output. When QA_INTENSITY is lite or standard, generate FEWER QA items per gate (matching the I22 agent counts), combining lens focuses into single agents as specified by the calling skill's QA Intensity Adaptation table in its Agent Prompt Templates section.
 11. **Validation items are mandatory when specified.** When VALIDATION_REQUIREMENTS is non-empty, you MUST encode corresponding validation checklist items. A task file with implementation items but no validation items (when VALIDATION_REQUIREMENTS is specified) is a MALFORMED output.
 12. **Testing items are mandatory when specified.** When TESTING_REQUIREMENTS is not NONE or N/A, you MUST encode testing checklist items with test file paths, commands, and pass criteria. A generated task file that requires testing items but omits them is a MALFORMED output.
-13. **Tavily-first for web fact-checking** -- When the builder consults the web to verify library/framework syntax or patterns for checklist-item Context fields, the call MUST go through `mcp__tavily__tavily-search` or `mcp__tavily__tavily-extract` first.
+13. **Tavily-first for web fact-checking** -- When the builder consults the web to verify library/framework syntax or patterns for checklist-item Context fields, the call MUST go through `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` first.
     `WebSearch` / `WebFetch` are fallbacks bound by the three Fallback Conditions in the "Web Search (Tavily-first)" section.
     When a fallback fires, the affected checklist item MUST carry the `<!-- web-provenance: provider=WebSearch reason=<...> -->` annotation in its Context field.
     Web-sourced facts in checklist items without provenance annotation MUST be assumed to have been Tavily-sourced; silently using WebSearch when Tavily is available is a protocol violation and a downstream rf-qa risk because the verdict's evidence trail becomes ambiguous.

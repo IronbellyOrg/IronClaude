@@ -10,8 +10,8 @@ tools:
   - Bash
   - Glob
   - Grep
-  - mcp__tavily__tavily-search    # PRIMARY web search (rare use; see body)
-  - mcp__tavily__tavily-extract   # PRIMARY web content extraction (rare use)
+  - mcp__tavily__tavily_search    # PRIMARY web search (rare use; see body)
+  - mcp__tavily__tavily_extract   # PRIMARY web content extraction (rare use)
   - WebSearch                      # FALLBACK only - Tavily unavailable
   - WebFetch                       # FALLBACK only - Tavily unavailable
   - NotebookEdit
@@ -227,14 +227,14 @@ explicitly directs you to fetch external content (e.g., resolve a
 linked URL whose content was already cited by a component file), use
 Tavily MCP first:
 
-- `mcp__tavily__tavily-extract` for known URLs in component files.
-- `mcp__tavily__tavily-search` only if the spawn prompt directs you to
+- `mcp__tavily__tavily_extract` for known URLs in component files.
+- `mcp__tavily__tavily_search` only if the spawn prompt directs you to
   look up a specific reference.
 
 Fall back to `WebFetch` / `WebSearch` ONLY when Tavily is unavailable.
 Tavily is considered unavailable if:
 
-1. `mcp__tavily__tavily-search` / `mcp__tavily__tavily-extract` is not
+1. `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` is not
    loaded in the current session (tool not found).
 2. The Tavily call returns an explicit server error (5xx / auth /
    configuration) on the first attempt AND a single retry.

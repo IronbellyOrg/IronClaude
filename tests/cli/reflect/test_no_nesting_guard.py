@@ -104,33 +104,21 @@ def test_layer_a_wrapper_branch_is_bash_shellout() -> None:
 
 
 def test_layer_b_wrapper_module_has_no_agent_imports() -> None:
-    """Layer B: no `Task(`/`subagent_type`/`anthropic`/`Agent(` surface in
-    `runner.py` or the swarm-driven `ensemble.py`, including for the new driver.
+    """Layer B: no `Task(`/`subagent`/`anthropic` imports in `runner.py`, passes,
+    including for the new driver module.
 
     FR-RH2.8: the agent-surface ban is asserted over BOTH `runner.py` and the
     swarm-driven `ensemble.py` (NFR-7 reconciliation, spec §9). `ClaudeProcess`
     is the ONLY sanctioned inference launch and must be present in both modules
     (the audit launch in `runner.py`; the adversarial Mode-A scorer in
     `ensemble.py`, per the resolved Phase 0.3 launch-site decision).
-
-    The banned tokens target the agent-spawn *surface* (imports + Agent/Task
-    spawn calls / the `subagent_type` kwarg), NOT English prose. The FR-INLINE
-    directive STRING legitimately discusses a "subagent" as data it sends to the
-    remote headless agent, so we guard `subagent_type` / `Agent(` rather than the
-    bare word "subagent".
     """
     for src_path in _AGENT_SURFACE_SRCS:
         src = src_path.read_text(encoding="utf-8")
         assert "ClaudeProcess" in src, (
             f"sanctioned ClaudeProcess launch missing from {src_path.name}"
         )
-        for banned in (
-            "import anthropic",
-            "from anthropic",
-            "subagent_type",
-            "Agent(",
-            "Task(",
-        ):
+        for banned in ("import anthropic", "from anthropic", "subagent", "Task("):
             assert banned not in src, (
                 f"agent-surface token leaked into {src_path.name}: {banned!r}"
             )

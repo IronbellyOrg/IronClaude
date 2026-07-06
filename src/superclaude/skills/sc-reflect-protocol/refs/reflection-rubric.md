@@ -159,16 +159,17 @@ The field `calibrator_diversity: full | degraded` is emitted into `reflection-ca
 
 **Example C — degraded.** Only Anthropic aliases available and reviewers are `{opus, sonnet, haiku}`. Disjoint set is empty. Apply the fallback: pick the class with the highest capability tier **not used by the most reviewers**. If each class has exactly one reviewer, fall back to highest capability available (`opus`). Emit `calibrator_diversity: degraded`.
 
-### Calibrator/reviewer disjoint-set (two-way)
+### Three-way partition (executor / reviewers / calibrator)
 
-Per spec §11.3, the disjoint-set principle is a **two-way** separation: the calibrator class is disjoint from the reviewer classes ONLY.
+Per spec §11.3 line 902, the disjoint-set principle extends from "calibrator ≠ reviewers" to a **three-way partition**:
 
-- `calibrator_class ∉ reviewer_classes`, enforced at Wave 1D / Wave 3C (§11.3).
-- The executor class is deliberately NOT separated from the reviewer pool: per spec §7.1's instance-level independence guarantee, anti-self-confirmation is secured at the instance/context level (fresh subagent spawn, no formation context, blind calibration), so no executor-class exclusion is applied.
+- `executor_class`, `reviewer_classes`, and `calibrator_class` SHOULD be **pairwise disjoint**.
+- §7.1's executor-class exclusion rule enforces `executor_class ∉ reviewer_classes` at Wave 3A reviewer composition.
+- §11.3 enforces `calibrator_class ∉ reviewer_classes` at Wave 1D / Wave 3C.
 
-**Degradation behavior.** When the calibrator class cannot be made disjoint from the reviewer classes (e.g., only Anthropic aliases available), the calibrator pool emits `calibrator_diversity: degraded`.
+**Degradation behavior.** When all three pools cannot be made pairwise disjoint (e.g., only Anthropic aliases available AND executor was sonnet), the affected pool emits its `*_diversity: degraded` telemetry.
 
-**Grader assertion.** `calibrator_model_class NOT IN reviewer_model_classes` is asserted. There is NO executor-class grader assertion: the executor class may legitimately appear in the reviewer pool (instance-level independence does not require class exclusion).
+**Grader assertion.** The grader assertion is extended: `executor_model_class NOT IN reviewer_model_classes` is asserted whenever `executor_class_resolved == true`.
 
 **Wave 3C parallelism.** For Tier 2, *every* reviewer card is calibrated by an **independent calibrator instance in parallel** (spec §11.3 line 904). Calibrated scores — not self-reported — feed the §5.3 rubric and the sc-adversarial-protocol debate weighting in Wave 4.
 
