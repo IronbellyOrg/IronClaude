@@ -779,7 +779,7 @@ unreached_surfaces: [<list of UnreachedSurface>]    # FR-RSR.6 (one entry per UN
 reachability_gate_ran: <bool>
 reachability_ledger_path: <abs path> | null          # null when the gate did not run
 reachability_requirements_scanned: <int>             # side-effect-bearing requirements evaluated
-reachability_unreachable: <int>                      # verdict==unreachable rows (real-boot-proven; each → regression_present)
+reachability_unreachable: <int>                      # verdict==unreachable rows (each → regression_present); set by EITHER Step 5.6 real-boot durable-sink absence OR Step 5.6a static behavioral-unreachability of a spec-declared REQUIRED capability (annotation-free, no real-boot)
 reachability_unproven: <int>                         # verdict==unproven rows (each → a grounding-gaps row)
 reachability_real_boot_ran: <bool>                   # best-effort step-5.5 boot fired at least once
 reachability_skip_reason: --no-reachability|no-side-effect-requirements|spec-and-tasklist-absent|null
@@ -906,11 +906,15 @@ if reachability_skip_reason in ("--no-reachability", "spec-and-tasklist-absent")
   reachability_real_boot_ran: false
   # MUST NOT create a Grounding Gap, set needs_human_decision, or force status: partial
 
-# UC-2, unreachable (real-boot-proven Regression only)
+# UC-2, unreachable (Regression) — set by EITHER path:
+#   (a) Step 5.6 real-boot durable-sink absence (annotated durable_sink:/@sink), OR
+#   (b) Step 5.6a static behavioral-unreachability of a spec-declared REQUIRED capability
+#       (annotation-free; the spec declaration is the contract, so NO real-boot is required).
 if reachability_unreachable > 0:
-  reachability_real_boot_ran: true
   regression_present: true
   verification_regressions_detected: ">= reachability_unreachable"
+  # reachability_real_boot_ran: true ONLY when set via path (a); it MAY be false when the
+  # unreachable verdict was set solely by the Step 5.6a static path (which does not boot).
 
 # UC-2, unproven (blocking annotated sink, evidence insufficient)
 if reachability_unproven > 0:
