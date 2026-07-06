@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "_comment": "Machine-readable record of a release's external-surface pass. The NEXT run diffs against this to stay incremental. Carry forward unchanged entries so this stays a complete picture of the surface, not just one release's delta. Fill every field from real evidence; leave arrays empty rather than inventing entries.",
+  "repo": "<repo-name>",
+  "version": "<version, e.g. v1.4.1>",
+  "tag": "<git tag>",
+  "previous_version": null,
+  "previous_tag": null,
+  "run_mode": "ground-up",
+  "generated_at": "<ISO-8601 timestamp>",
+  "install_surface_class": "<vm-e2e | local-deploy | package | no-install-surface>",
+  "feature_inventory": [
+    {
+      "id": "<slug>",
+      "name": "<capability name>",
+      "audience": ["user"],
+      "source": "<file:line or command>",
+      "added_in": "<version>",
+      "status": "current"
+    }
+  ],
+  "coverage_checklist": [
+    {
+      "capability": "<slug>",
+      "user_doc": "present-and-current",
+      "tech_doc": "n/a",
+      "install": "n/a",
+      "user_guide": "missing",
+      "sysop_guide": "n/a"
+    }
+  ],
+  "workstreams": {
+    "A_user_docs": {
+      "scanned": [],
+      "updated": [],
+      "created": [],
+      "gaps": []
+    },
+    "B_tech_docs": {
+      "scanned": [],
+      "updated": [],
+      "created": [],
+      "gaps": []
+    },
+    "C_install_deploy": {
+      "class": "<vm-e2e | local-deploy | package | no-install-surface>",
+      "scanned": [],
+      "updated": [],
+      "created": [],
+      "gaps": [],
+      "e2e": {
+        "ran": false,
+        "result": "not-applicable",
+        "target": "<vm coords (no secrets) | clean-container | fresh-venv | none>",
+        "transcript": "<path or null>",
+        "carried_forward_from": null
+      }
+    },
+    "D_user_e2e_guides": {
+      "feature_surface_scanned": [],
+      "created": [],
+      "coverage": "<N of M>",
+      "gaps": []
+    },
+    "E_sysop_e2e_guides": {
+      "sysop_capabilities_found": false,
+      "how_determined": "<what was searched>",
+      "created": [],
+      "gaps": []
+    }
+  }
+}

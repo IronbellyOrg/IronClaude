@@ -82,6 +82,8 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 
 ### Additional Commands
 
+**`/sc:post-release <version> [--output <dir>]`** — Post-release follow-through: synchronize/create a shipped version's entire external surface (user docs, technical docs, install/deploy scripts validated by real e2e, human-run e2e test guides). Runs after the release gate tags a version (high profile).
+
 **`/document [target] [flags]`** - Documentation generation | Auto-Persona: Scribe, Mentor | MCP: Context7, Sequential
 
 **`/estimate [target] [flags]`** - Evidence-based estimation | Auto-Persona: Analyzer, Architect | MCP: Sequential, Context7

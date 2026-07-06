@@ -250,3 +250,151 @@ class TestProtocolSkillInstallMapping:
                 assert (target / name).exists(), (
                     f"{name} should be installed standalone"
                 )
+
+
+class TestPostReleaseCommandContract:
+    """Contract tests for the /sc:post-release command-backed refactor.
+
+    Verifies: command discovery (5.1), command install (5.2), command Activation
+    text (5.3), protocol skill discovery + standalone install (5.4),
+    _has_corresponding_command mapping (5.5), compatibility wrapper discovery +
+    install (5.6), wrapper delegation content (5.7), and protocol skill
+    frontmatter (5.8). The post-release-update skill is retained for one cycle
+    as a thin deprecated wrapper (KEEP-WRAPPER branch, OQ-1).
+    """
+
+    # --- 5.1 command discovery ---
+    def test_post_release_command_discoverable(self):
+        """/sc:post-release command file is discoverable by list_available_commands."""
+        assert "post-release" in list_available_commands()
+
+    # --- 5.2 command install ---
+    def test_post_release_command_installed_to_target(self, tmp_path):
+        """post-release.md is copied into the target commands dir on install."""
+        target_dir = tmp_path / "commands"
+        success, _message = install_commands(target_path=target_dir, force=False)
+        assert success is True
+        assert (target_dir / "post-release.md").exists()
+
+    # --- 5.3 command Activation text ---
+    def test_post_release_command_activation_text(self):
+        """Command Activation handoff is byte-exact to the dev-guide template.
+
+        Protects both Claude Code command behavior and cli-portify/resolution.py
+        Activation parsing: the ## Activation section must contain BOTH the
+        ``> Skill sc:post-release-protocol`` handoff AND the prohibition sentence.
+        """
+        import pathlib
+
+        cmd_path = (
+            pathlib.Path(__file__).resolve().parents[2]
+            / "src"
+            / "superclaude"
+            / "commands"
+            / "post-release.md"
+        )
+        text = cmd_path.read_text()
+
+        # Extract the ## Activation section (from the header to the next ## header).
+        lines = text.splitlines()
+        activation = []
+        in_section = False
+        for line in lines:
+            if line.strip() == "## Activation":
+                in_section = True
+                continue
+            if in_section and line.startswith("## "):
+                break
+            if in_section:
+                activation.append(line)
+        activation_text = "\n".join(activation)
+
+        assert "> Skill sc:post-release-protocol" in activation_text
+        assert (
+            "Do NOT proceed with protocol execution using only this command file."
+            in activation_text
+        )
+
+    # --- 5.4 protocol skill discovery + standalone install ---
+    def test_post_release_protocol_skill_discoverable(self):
+        from superclaude.cli.install_skill import list_available_skills
+
+        assert "sc-post-release-protocol" in list_available_skills()
+
+    def test_post_release_protocol_skill_installed_standalone(self, tmp_path):
+        """Protocol skill installs standalone (not swept by served-by-command)."""
+        from superclaude.cli.install_skills import install_all_skills
+
+        target = tmp_path / "skills"
+        success, _message = install_all_skills(target_path=target, force=True)
+        assert success is True
+        assert (target / "sc-post-release-protocol").exists()
+
+    # --- 5.5 _has_corresponding_command mapping ---
+    def test_post_release_command_skill_mapping(self):
+        """Lock the command↔protocol split: bare sc-post-release is command-served;
+        sc-post-release-protocol and the legacy post-release-update are NOT."""
+        from superclaude.cli.install_skills import _has_corresponding_command
+
+        assert _has_corresponding_command("sc-post-release") is True
+        assert _has_corresponding_command("sc-post-release-protocol") is False
+        assert _has_corresponding_command("post-release-update") is False
+
+    # --- 5.6 compatibility wrapper discovery + install (KEEP-WRAPPER branch) ---
+    def test_post_release_update_wrapper_discoverable(self):
+        from superclaude.cli.install_skill import list_available_skills
+
+        assert "post-release-update" in list_available_skills()
+
+    def test_post_release_update_wrapper_installed(self, tmp_path):
+        """The legacy non-sc- wrapper is NOT command-served, so it installs standalone."""
+        from superclaude.cli.install_skills import install_all_skills
+
+        target = tmp_path / "skills"
+        success, _message = install_all_skills(target_path=target, force=True)
+        assert success is True
+        assert (target / "post-release-update").exists()
+
+    # --- 5.7 wrapper delegation content ---
+    def test_post_release_update_wrapper_is_thin_delegating_stub(self):
+        """The wrapper retains name/allowed-tools/delegation and drops the protocol body."""
+        import pathlib
+
+        wrapper_path = (
+            pathlib.Path(__file__).resolve().parents[2]
+            / "src"
+            / "superclaude"
+            / "skills"
+            / "post-release-update"
+            / "SKILL.md"
+        )
+        text = wrapper_path.read_text()
+
+        # (a) frontmatter name retained
+        assert "name: post-release-update" in text
+        # (b) Skill still in allowed-tools (delegation can fire)
+        assert "Skill" in text.split("---")[1]
+        # (c) delegation reference present
+        assert "Skill sc:post-release-protocol" in text
+        # thinness: the wrapper is short and has NO full five-workstream protocol body
+        assert len(text.splitlines()) < 100
+
+    # --- 5.8 protocol skill frontmatter ---
+    def test_post_release_protocol_skill_frontmatter(self):
+        import pathlib
+
+        skill_path = (
+            pathlib.Path(__file__).resolve().parents[2]
+            / "src"
+            / "superclaude"
+            / "skills"
+            / "sc-post-release-protocol"
+            / "SKILL.md"
+        )
+        text = skill_path.read_text()
+        frontmatter = text.split("---")[1]
+
+        assert "name: sc:post-release-protocol" in frontmatter
+        assert "allowed-tools:" in frontmatter
+        assert "argument-hint:" in frontmatter
+        assert "<version>" in frontmatter
