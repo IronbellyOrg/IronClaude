@@ -1,6 +1,6 @@
 <!--
 Template: post-release-report.md
-Fill every section from real evidence. Gaps and red results are correct outcomes — report them, don't hide them (see references/golden-rule-evidence.md).
+Fill every section from real evidence. Gaps and red results are correct outcomes — report them, don't hide them (see refs/golden-rule-evidence.md).
 Replace <bracketed> placeholders. Delete these comment blocks in the final file.
 -->
 

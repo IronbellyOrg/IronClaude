@@ -45,6 +45,7 @@ defaults:
 required_binaries:
   - { name: claude, min_version: "0.5.0", failure_mode: hard }
   - { name: git,                          failure_mode: hard }
+  - { name: uv,                           failure_mode: hard }  # PRC4 runs `uv run python -c ...`
 
 optional_capabilities: []
 
