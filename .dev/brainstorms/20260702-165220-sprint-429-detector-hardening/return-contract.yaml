@@ -1,0 +1,36 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260702-165220-sprint-429-detector-hardening/seed-brief.md
+merged_output_path: .dev/brainstorms/20260702-165220-sprint-429-detector-hardening/merged-requirements.md
+convergence_score: 0.90
+adversarial_artifacts_dir: .dev/brainstorms/20260702-165220-sprint-429-detector-hardening/adversarial/
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+handoff_action: design
+handoff_output_path: null
+unresolved_conflicts: []
+
+# --- telemetry (non-stable) ---
+telemetry:
+  strategy: systematic
+  depth: deep
+  blind: true
+  interactive: true
+  base_variant: "opus:architect"
+  agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',opus:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"
+  models_resolved:
+    opus: claude-opus-4-8
+    haiku: glm-5.2
+  invariant_probe:
+    findings: 6
+    high_unaddressed: 0
+    key_findings: [INV-001 FP residual (bounded), INV-004 C5 load-bearing, INV-005 sufficiency branch-trace]
+  wave_notes:
+    wave_1: "Socratic pivoted on user-supplied verbatim Shape-2 transcript; corrected preamble's is_error=false guess (is_error IS true; absent api_error_status is the breaker)"
+    wave_2a: "codebase primary; research skipped (self-contained internal detector)"
+    wave_3: "3 blind variants; converged 0.90; base architect + full harvest"

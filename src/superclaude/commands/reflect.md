@@ -61,6 +61,17 @@ Auto-activates whenever a reviewer-side, structurally-independent audit is neede
 /sc:reflect --mode post --diff HEAD~1..HEAD --remediate
 ```
 
+### Detection-contract readiness bypass
+
+Detection-contract readiness is not a UC-1/UC-2 reflection audit. Use the approved sibling CLI readiness surface instead of launching the normal `/sc:reflect` protocol:
+
+```bash
+superclaude reflect contract-status --repo <owner/repo> --pr <number>
+superclaude reflect contract-status --validate --repo <owner/repo> --pr <number>
+```
+
+This path calls `superclaude.pr_submit.contract_setup`, prints readiness/blockers/checked paths/hashes/counts plus the next safe command, and does not write the local lock by default. It must not arm Monitor, mutate PR state, push, reply, resolve, retrigger, resume `/sc:pr-submit`, launch `ReflectRunner`, launch `ClaudeProcess`, or dump raw GitHub payload bodies.
+
 ## Options
 
 | Flag | Default | Description |
@@ -107,6 +118,8 @@ The v1 surface used `--type task --analyze|--validate`. The v2 protocol preserve
 Legacy callers do not need to be migrated. Mixing legacy + new flags (e.g., `--type task --analyze --mode post`) is a STOP condition — explicit `--mode` wins and `--type/--analyze/--validate` are reported as ignored in the contract.
 
 ## Behavioral Summary
+
+For detection-contract readiness, do not enter the multi-wave skill path. The supported readiness command is `superclaude reflect contract-status [--validate] --repo <owner/repo> --pr <number>`; it is a diagnose/validate-first status surface that reports only status, paths, hashes, counts, and blockers and performs no default write or monitor/PR side effect.
 
 The full multi-wave protocol lives in the skill. The command file performs only:
 
@@ -265,6 +278,7 @@ No silent code changes. No auto-execution of the remediation task. No auto-commi
 
 ## Related Commands
 
+- **`superclaude reflect contract-status [--validate] --repo <owner/repo> --pr <number>`** — Approved detection-contract readiness surface. It diagnoses/validates existing file-based evidence without running UC-1/UC-2 audit machinery, writing a lock by default, arming Monitor, mutating PR state, or dumping raw payload bodies.
 - **`/sc:troubleshoot`** — Invokes `/sc:reflect --type task --analyze` (Wave 6 Phase B) and `/sc:reflect --type task --validate` (Wave 6 Phase D); the legacy grammar is preserved for this caller.
 - **`/sc:adversarial`** — Invoked by reflect Wave 4 to debate competing reviewer verdicts in Tier 2. Reflect consumes the producer's `artifacts_dir` field and remaps it into its own `adversarial_artifacts_dir` contract field (mechanical resolution; not user-facing).
 - **`task-builder` skill** — Invoked by reflect Wave 6 when `--remediate` is accepted; consumes the M1-frozen BUILD_REQUEST schema documented in `refs/remediation-handoff.md`.

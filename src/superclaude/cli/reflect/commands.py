@@ -73,6 +73,146 @@ def reflect_group():
         sys.exit(0)
 
 
+@reflect_group.command("contract-status")
+@click.option(
+    "--validate",
+    "run_validation",
+    is_flag=True,
+    help="Validate existing file-based evidence before reporting status.",
+)
+@click.option(
+    "--repo",
+    default=None,
+    help="Repository owner/name to compare against validation metadata.",
+)
+@click.option(
+    "--pr",
+    "pr_number",
+    type=int,
+    default=None,
+    help="Pull request number to compare against validation metadata.",
+)
+def contract_status(
+    run_validation: bool, repo: str | None, pr_number: int | None
+) -> None:
+    """Report detection-contract readiness without launching reflect audit machinery."""
+    from superclaude.pr_submit.contract_setup import (
+        derive_candidate,
+        diagnose,
+        load_evidence,
+        validate_candidate,
+        write_report,
+    )
+    from superclaude.pr_submit.contract_setup.writer import ContractSetupError
+
+    diagnosis = diagnose(repo=repo, pr_number=pr_number)
+    validation_summary: str | None = None
+    validation_report_path: Path | None = None
+    validation_error: str | None = None
+
+    if run_validation:
+        if diagnosis.evidence_path is None:
+            validation_error = "validation skipped: no evidence path is available"
+        else:
+            probe_dir = (
+                diagnosis.evidence_path.parent
+                if diagnosis.evidence_path.is_file()
+                else diagnosis.evidence_path
+            )
+            try:
+                evidence = load_evidence(probe_dir)
+                candidate = derive_candidate(evidence)
+                report = validate_candidate(
+                    candidate,
+                    evidence,
+                    expected_result=candidate.expected_classifier_result,
+                )
+                validation_report_path = write_report(report, evidence, probe_dir)
+                validation_summary = report.summary()
+                diagnosis = diagnose(repo=repo, pr_number=pr_number)
+            except (ContractSetupError, OSError, ValueError, FileNotFoundError) as exc:
+                validation_error = f"validation failed: {exc}"
+
+    _render_contract_status(
+        diagnosis,
+        run_validation=run_validation,
+        validation_summary=validation_summary,
+        validation_report_path=validation_report_path,
+        validation_error=validation_error,
+    )
+
+
+def _render_contract_status(
+    diagnosis,
+    *,
+    run_validation: bool,
+    validation_summary: str | None,
+    validation_report_path: Path | None,
+    validation_error: str | None,
+) -> None:
+    """Render safe readiness metadata: status, paths, hashes, counts, blockers."""
+    click.echo(f"state: {diagnosis.state.value}")
+    click.echo(f"override_present: {diagnosis.override_present}")
+    click.echo(f"override_locked: {diagnosis.override_locked}")
+    click.echo(f"shipped_locked: {diagnosis.shipped_locked}")
+    click.echo("checked_paths:")
+    for path in diagnosis.checked_paths:
+        click.echo(f"  - {path}")
+    if diagnosis.evidence_path is not None:
+        click.echo(f"evidence_path: {diagnosis.evidence_path}")
+    if diagnosis.evidence_sha256 is not None:
+        click.echo(f"evidence_sha256: {diagnosis.evidence_sha256}")
+    if diagnosis.validation_report_path is not None:
+        click.echo(f"validation_report: {diagnosis.validation_report_path}")
+    if diagnosis.validation_result is not None:
+        click.echo(f"validation_result: {diagnosis.validation_result}")
+    click.echo(f"blocker_count: {len(diagnosis.blockers)}")
+    if diagnosis.blockers:
+        click.echo("blockers:")
+        for blocker in diagnosis.blockers:
+            click.echo(f"  - {blocker}")
+    click.echo(f"next_command: {_contract_status_next_command(diagnosis)}")
+    if run_validation:
+        click.echo("validation_requested: true")
+        if validation_report_path is not None:
+            click.echo(f"validation_report_written: {validation_report_path}")
+        if validation_summary is not None:
+            click.echo("validation_summary:")
+            for line in validation_summary.splitlines():
+                click.echo(f"  {line}")
+        if validation_error is not None:
+            click.echo(f"validation_error: {validation_error}")
+    else:
+        click.echo("validation_requested: false")
+
+
+def _contract_status_next_command(diagnosis) -> str:
+    """Return an actionable next step now that contract-status exists."""
+    from superclaude.pr_submit.contract_setup import ContractState
+
+    repo_arg = f" --repo {diagnosis.repo}" if diagnosis.repo else " --repo <owner/repo>"
+    pr_arg = (
+        f" --pr {diagnosis.pr_number}"
+        if diagnosis.pr_number is not None
+        else " --pr <number>"
+    )
+    if diagnosis.state is ContractState.READY:
+        return f"/sc:pr-submit --monitor 1{pr_arg}"
+    if diagnosis.state is ContractState.DECLINED_BY_USER:
+        return (
+            "cancelled: setup declined by user; existing contract files left untouched"
+        )
+    if diagnosis.state in {
+        ContractState.VALIDATION_MISSING,
+        ContractState.VALIDATION_FAILED,
+        ContractState.STALE,
+        ContractState.UNLOCKED,
+        ContractState.EVIDENCE_MISSING,
+    }:
+        return f"superclaude reflect contract-status --validate{repo_arg}{pr_arg}"
+    return f"superclaude reflect contract-status{repo_arg}{pr_arg}"
+
+
 @reflect_group.command()
 @click.argument(
     "tasklist",

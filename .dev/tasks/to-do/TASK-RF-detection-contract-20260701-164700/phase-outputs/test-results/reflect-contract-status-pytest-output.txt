@@ -1,0 +1,31 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0, anyio-4.13.0
+collecting ... collected 18 items
+
+tests/cli/reflect/test_cli_smoke.py::test_group_help_shows_run PASSED    [  5%]
+tests/cli/reflect/test_cli_smoke.py::test_run_help_shows_all_spec9_flags PASSED [ 11%]
+tests/cli/reflect/test_cli_smoke.py::test_dry_run_never_launches PASSED  [ 16%]
+tests/cli/reflect/test_cli_smoke.py::test_print_command_prints_and_never_launches PASSED [ 22%]
+tests/cli/reflect/test_cli_smoke.py::test_nonexistent_tasklist_is_nonzero PASSED [ 27%]
+tests/cli/reflect/test_cli_smoke.py::test_print_command_argv_preview_matches_build_command PASSED [ 33%]
+tests/cli/reflect/test_cli_smoke.py::test_tmux_inner_command_forwards_isolate_reviewers PASSED [ 38%]
+tests/cli/reflect/test_cli_smoke.py::test_tmux_inner_command_forwards_no_isolate_reviewers PASSED [ 44%]
+tests/cli/reflect/test_cli_smoke.py::test_config_stop_writes_blocked_sidecar PASSED [ 50%]
+tests/cli/reflect/test_contract_status_cli.py::test_group_help_lists_contract_status PASSED [ 55%]
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_help_lists_validate_repo_pr PASSED [ 61%]
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_runs_without_tasklist PASSED [ 66%]
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_does_not_launch_reflect_audit_machinery PASSED [ 72%]
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_validate_does_not_write_lock_by_default PASSED [ 77%]
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_output_is_metadata_only PASSED [ 83%]
+tests/cli/reflect/test_contract_status_cli.py::test_contract_status_is_a_real_reflect_subcommand PASSED [ 88%]
+tests/cli/reflect/test_docs_cli_parity.py::test_documented_flags_match_cli_flags PASSED [ 94%]
+tests/cli/reflect/test_docs_cli_parity.py::test_documented_defaults_match_cli_defaults PASSED [100%]
+
+============================== 18 passed in 0.19s ==============================

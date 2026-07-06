@@ -1,0 +1,53 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0, anyio-4.13.0
+collecting ... collected 40 items
+
+tests/pr_submit/test_detection_contract.py::test_t201_empty_reviews_polling PASSED [  2%]
+tests/pr_submit/test_detection_contract.py::test_t202_augment_clean PASSED [  5%]
+tests/pr_submit/test_detection_contract.py::test_t203_augment_findings PASSED [  7%]
+tests/pr_submit/test_detection_contract.py::test_contract_setup_next_commands_are_current_and_actionable PASSED [ 10%]
+tests/pr_submit/test_detection_contract.py::test_t210_locked_false_halts PASSED [ 12%]
+tests/pr_submit/test_detection_contract.py::test_local_override_arms_without_touching_shipped_source PASSED [ 15%]
+tests/pr_submit/test_detection_contract.py::test_t211_different_bot_not_detected PASSED [ 17%]
+tests/pr_submit/test_detection_contract.py::test_tn31_known_non_augment_bot_polling PASSED [ 20%]
+tests/pr_submit/test_detection_contract.py::test_t212_interleaved_only_augment_parsed PASSED [ 22%]
+tests/pr_submit/test_detection_contract.py::test_t1110_decline_both_regexes_match PASSED [ 25%]
+tests/pr_submit/test_detection_contract.py::test_t1110b_decline_from_initial_poll PASSED [ 27%]
+tests/pr_submit/test_detection_contract.py::test_t1110_decline_backtick_wrapped_trigger PASSED [ 30%]
+tests/pr_submit/test_detection_contract.py::test_live_markdown_decline_graphql_app_slug_classifies_declined PASSED [ 32%]
+tests/pr_submit/test_detection_contract.py::test_live_markdown_decline_rest_bot_login_classifies_declined PASSED [ 35%]
+tests/pr_submit/test_detection_contract.py::test_live_markdown_decline_empty_identity_set_fail_safe PASSED [ 37%]
+tests/pr_submit/test_detection_contract.py::test_t1110c_decline_wins_over_cooccurring_findings PASSED [ 40%]
+tests/pr_submit/test_detection_contract.py::test_t1111_abnormally_large_without_retrigger_is_not_decline PASSED [ 42%]
+tests/pr_submit/test_detection_contract.py::test_t1112_retrigger_instruction_without_phrase_is_not_decline PASSED [ 45%]
+tests/pr_submit/test_detection_contract.py::test_t1112b_decline_from_non_augment_author_ignored PASSED [ 47%]
+tests/pr_submit/test_detection_contract.py::test_ec23_t1118_stale_pre_watermark_decline_ignored PASSED [ 50%]
+tests/pr_submit/test_detection_contract.py::test_t1117_ec22_attributed_rereview_wins_over_decline PASSED [ 52%]
+tests/pr_submit/test_monitor_arm.py::test_t109_monitor_armed_exactly_once_at_l1 PASSED [ 55%]
+tests/pr_submit/test_monitor_arm.py::test_t110_monitor_never_armed_at_l0 PASSED [ 57%]
+tests/pr_submit/test_monitor_arm.py::test_t230_session_close_midpoll_is_resumable PASSED [ 60%]
+tests/pr_submit/test_autonomy_gates.py::test_t401_l1_zero_edits PASSED   [ 62%]
+tests/pr_submit/test_autonomy_gates.py::test_t402_l1_emits_exact_proposal PASSED [ 65%]
+tests/pr_submit/test_autonomy_gates.py::test_t410_l2_files_modified PASSED [ 67%]
+tests/pr_submit/test_autonomy_gates.py::test_t411_t412_t413_l2_no_push_commit_reply PASSED [ 70%]
+tests/pr_submit/test_autonomy_gates.py::test_t420_l3_full_e2e PASSED     [ 72%]
+tests/pr_submit/test_autonomy_gates.py::test_t430_l3_needs_human_halts PASSED [ 75%]
+tests/pr_submit/test_autonomy_gates.py::test_zero_edit_no_push PASSED    [ 77%]
+tests/pr_submit/test_validation_gate.py::test_t501_single_file_targeted_not_crosscutting PASSED [ 80%]
+tests/pr_submit/test_validation_gate.py::test_t502_crosscutting_escalates_to_make_test PASSED [ 82%]
+tests/pr_submit/test_validation_gate.py::test_t510_lint_failure_blocks_push PASSED [ 85%]
+tests/pr_submit/test_validation_gate.py::test_t511_format_failure_lint_green_blocks_push PASSED [ 87%]
+tests/pr_submit/test_validation_gate.py::test_t520_validation_failure_no_push_no_round_increment PASSED [ 90%]
+tests/pr_submit/test_validation_gate.py::test_t521_persistent_validation_failure_halts PASSED [ 92%]
+tests/pr_submit/test_validation_gate.py::test_t522_partial_green_never_validated PASSED [ 95%]
+tests/pr_submit/test_validation_gate.py::test_ordered_gate_aggregation[results0-validated] PASSED [ 97%]
+tests/pr_submit/test_validation_gate.py::test_ordered_gate_aggregation[results1-failed] PASSED [100%]
+
+============================== 40 passed in 0.19s ==============================

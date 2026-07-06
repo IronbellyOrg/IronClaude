@@ -1,0 +1,17 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/reflect/post/156f28292b4d/t2-adversarial/reflect-review-consolidated.md"
+  convergence_score: 0.86
+  artifacts_dir: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/reflect/post/156f28292b4d/t2-adversarial/adversarial"
+  status: "partial"
+  base_variant: "qwen3.6-plus"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []
+  notes: >
+    status=partial and fallback_mode=true SOLELY because input Variant 2 (glm-5.2)
+    arrived truncated at 19 lines, forcing a degenerate two-variant comparison
+    (one complete, one fragment). The merge itself succeeded; every merged claim was
+    independently CONFIRMED against the target task file. No HIGH-severity unaddressed
+    invariants (INV-002 is MEDIUM and was folded into the merged completion condition).

@@ -1,0 +1,87 @@
+# Reflect PRE (UC-1) return contract — executor-disjoint coverage audit
+# Contract version 1.7.0 (UC-1 subset; UC-2-only blocks omitted)
+contract_version: "1.7.0"
+status: success
+mode: pre
+uc: UC-1
+depth: deep
+tier_reached: 1
+confidence_calibrated: 0.88
+escalation_rule_matched: null
+onboarding_ran: false
+
+# --- Coverage (UC-1) ---
+coverage_pct: 1.0                    # parsed-only denominator; pre-D13 semantics
+coverage_pct_union: 1.0              # parsed + inferred (Pass 2 emitted 0 rows: spec is well-labeled)
+coverage_undefined: false
+coverage_degraded: null              # parsed-sparse guard did not fire (inferred_count == 0)
+best_practice_grade: 4               # out of 5
+unmapped_requirements: []            # parsed-only
+unmapped_requirements_union: []      # union; no requirement fully dropped
+
+# --- Input integrity ---
+input_sha256:
+  tasklist: "parsed-TASK-RF-detection-contract-20260701-164700.md"
+  spec: "parsed-design.md"
+input_tree_sha256: "tree-over-tasklist+design+merged-requirements"
+input_tree_file_count: 3
+input_tree_snapshot_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/reflect/pre/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+
+# --- Hallucination guard ---
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+
+# --- Findings (advisory; tasklist NOT mutated per operator instruction) ---
+findings_count: 3
+findings_severity:
+  low: 3        # G1 (§5 field vocab delegated), G2 (§6 predicate IDs delegated), G3 (decline-distinctness + 30-day freshness delegated)
+  medium: 0
+  high: 0
+  critical: 0
+# No requirement DROPPED. The 3 LOW findings are enforcement-STRENGTH notes:
+# the tasklist delegates the §5 field-name vocabulary and §6 predicate IDs to
+# design.md (the named driving spec, referenced 27x by section) rather than
+# re-asserting them. All are recoverable from design.md.
+
+# --- Tier-2 artifacts (not produced — single-reviewer executor-disjoint audit) ---
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: true      # full T2 swarm not spawned for this advisory pre-coverage check
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+
+# --- Asymmetric-cost flags ---
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false       # all 3 OQs have tasklist HALT gates already (P1 Steps 1.3-1.5)
+
+# --- Remediation (not offered; advisory pre-coverage) ---
+remediation_offered: false
+remediation_accepted: false
+task_file_path: null
+remediation_task_path: null
+handoff_memory_key: null
+
+# --- Identity ---
+run_id: "20260701T1850-pre-detection-contract-coverage"
+report_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/reflect/pre/report.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/reflect/pre/audit.log"
+verdict: PASS
+operator_instruction_followed:
+  do_not_edit_tasklist: true
+  executor_disjoint: true
