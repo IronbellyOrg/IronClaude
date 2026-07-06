@@ -1,0 +1,22 @@
+# sc:adversarial return contract — Decision A debate
+merged_output_path: ".dev/brainstorms/pr197-final-merge-strategy/adversarial-decisionA/merged-decisionA-recommendation.md"
+convergence_score: 0.86
+artifacts_dir: ".dev/brainstorms/pr197-final-merge-strategy/adversarial-decisionA/adversarial"
+status: "success"
+merge_method: "adversarial"
+base_variant: "variant-1-optionA-exclusion (reliability lens)"
+rounds_completed: 3
+invariant_probe: "run; INV-201 + INV-207 HIGH → forced Round 3 → both ADDRESSED"
+unresolved_conflicts: 1   # X-004: unmeasured commit-author resolver hit-rate (MEDIUM, non-blocking)
+unaddressed_invariants: []
+fallback_mode: false
+failure_stage: null
+invocation_method: "skill-direct"
+decision:
+  near_term_merge: "Option A — keep master executor-class exclusion; reject #197 instance-level rewrite"
+  end_state: "Option C — hybrid (funded, non-blocking fast-follow)"
+  rejected: "Option B — pure #197 instance-level (near-term target)"
+  near_term_confidence: 0.82
+  reversal_note: "Option C advocate reversed onto A near-term in Round 3 (INV-201 path-cost + INV-207 safer-by-default)"
+de_risk_before_merge:
+  - "Emit executor_class_source telemetry; sample real runs to measure flag|env|frontmatter vs log-heuristic|unknown hit-rate (sizes fast-follow urgency)"

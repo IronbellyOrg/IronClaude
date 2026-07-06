@@ -1,0 +1,45 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: ".dev/reflect/post-pr197-remediation-20260622020900/REPORT.md"
+confidence_calibrated: 0.93
+
+# Scope remap (headline) — requested --diff did not contain the tasklist's work
+requested_diff: "origin/master...feat/rf-harness-sync"
+audited_target: "working-tree (git diff HEAD) in .dev/worktrees/pr197-remediation"
+diff_rescope_reason: "requested ref audits committed history (still underscore tavily form + 2 unrelated commits); remediation lives only as uncommitted working-tree changes"
+work_committed: false
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 7      # R1, R2a, R2b/HD-1, R3-comment, R3-test, R4, R5
+  necessary: 2       # D1 nesting-guard fix (documented); D2 markdownlint blank lines (undocumented, LOW)
+  drift: 0
+  regression: 0
+regression_present: false
+verification_ran: true
+verification_regressions_detected: 0
+verification_summary: "pytest tests/cli/reflect/ -> 81 passed, 1 xpassed, 0 failed; ruff format --check -> clean (3 files)"
+
+# Hallucination guard
+citations_total: 18
+citations_dropped: 0
+citations_inferred: 0
+evidence_validator_ran: inline    # orchestrator re-verified all citations this session via grep/pytest/Read
+zero_drop_flag: true              # per 11.2 a zero-drop pass is a flag; mitigated by command-output-backed claims
+
+# Asymmetric-cost flags
+needs_human_decision: false       # HD-1 is an intentional design halt, recorded PENDING by the task; not a reflect grounding gap
+user_decision_required: false
+spec_is_wrong: false
+unauthorized_deviation_present: false
+
+# Promotion (Wave 7) — NOT performed
+promotion_action: skipped
+promotion_skip_reason: "work uncommitted + tasklist resides in separate checkout (main workspace) than cwd worktree; promotion premature"
+promotion_gate_passed: null
+
+merge_ready_mechanical: true      # R1-R5 verified; gated on committing the working tree first
+hd1_status: "PENDING (by design, awaiting RyanW) — default NOT flipped, O4 floors NOT edited"

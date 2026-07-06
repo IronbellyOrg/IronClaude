@@ -7,7 +7,7 @@ description: "Create or populate a Technical Reference document for a built feat
 
 Creates comprehensive Technical Reference documents for built features by researching the actual codebase, synthesizing findings into template-aligned sections, and assembling the final document. This skill uses Rigorflow's MDTM task file system for persistent progress tracking — every phase and step is encoded as checklist items in a task file that survives context compression and session restarts.
 
-**How it works:** The skill performs initial scope discovery (Stage A), then spawns the `rf-task-builder` subagent to create an MDTM task file encoding all investigation and documentation phases. Stage B then delegates execution to the `/task` skill, which provides the canonical F1 execution loop, parallel agent spawning, phase-gate QA, and session management.
+**How it works:** The skill performs initial scope discovery (Stage A), then invokes the `/task-builder` skill to create an MDTM task file encoding all investigation and documentation phases. Stage B then delegates execution to the `/task` skill, which provides the canonical F1 execution loop, parallel agent spawning, phase-gate QA, and session management.
 
 The output always follows the project template at `.claude/templates/documents/technical_reference_template.md`. The template is the schema — every tech reference must conform to it.
 
@@ -16,17 +16,16 @@ The output always follows the project template at `.claude/templates/documents/t
 Technical references go stale when written from memory or existing docs. This skill forces every claim through codebase verification — parallel agents read actual source files, trace actual imports, and document actual behavior with file paths and line numbers.
 
 The MDTM task file provides three critical guarantees:
-
 1. **Progress survives context compression** — The task file on disk is the source of truth, not conversation context. Every completed step is a checked box that persists across sessions.
 2. **No steps get skipped** — The task file encodes every phase and step as a mandatory checklist item. The execution loop processes items sequentially, never jumping ahead.
 3. **Resumability** — On restart, the skill reads the task file, finds the first unchecked `- [ ]` item, and picks up exactly where it left off.
 
 The multi-phase structure (scope discovery → deep investigation → **analyst verification** → web research → synthesis → **synthesis QA** → assembly → **report validation**) prevents four common failure modes:
-
 - **Context rot** — By isolating each investigation topic in its own subagent with its own output file, no single agent needs to hold the entire investigation in context. Findings are written to disk incrementally, not accumulated in memory.
 - **Shallow coverage** — By spawning many parallel agents (each focused on one slice), the investigation goes deep on every aspect simultaneously rather than skimming across everything sequentially.
 - **Hallucinated content** — By separating research (what exists) from synthesis (what it means) from assembly (the final document), each phase can be verified independently. Synthesis agents only work from verified research files, not from memory or inference.
-- **Uncaught quality drift** — Dedicated `rf-analyst` and `rf-qa` agents provide independent verification at three critical gates: after research (rf-analyst completeness check + rf-qa evidence quality), after synthesis (rf-analyst synthesis review + rf-qa template alignment), and after assembly (rf-qa final tech-reference validation). The QA agent assumes everything is wrong until independently verified — zero-trust verification prevents rubber-stamping.
+- **Uncaught quality drift** — Dedicated `rf-analyst`, `rf-qa`, and `rf-qa-qualitative` agents provide independent verification at three critical gates: after research (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative for completeness and depth verification), after synthesis (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative for synthesis review and coherence), and after assembly (lens-based multi-agent QA with 6-12+ agents each focused on a single quality dimension — template conformance, internal consistency, evidence quality, completeness, actionability, numbers/metrics, cross-reference chains, and domain accuracy, plus tech-reference domain-specific lenses for code-example accuracy, API-signature correctness, and configuration-value verification). The QA agent assumes everything is wrong until independently verified — zero-trust verification prevents rubber-stamping.
+- **Source fidelity gaps** — A dedicated source-document fidelity gate after assembly verifies that the generated tech reference faithfully represents the original source code it documents. Fidelity agents read BOTH the source code files AND the assembled document, checking semantic coverage, detail preservation, and phantom coverage. Without this gate, a document can be internally consistent but semantically divorced from the code it claims to describe.
 
 The research artifacts persist in the task folder under `.dev/tasks/to-do/` so findings survive context compression, can be re-verified later, and feed directly into downstream documentation updates.
 
@@ -90,22 +89,32 @@ Match the tier to feature scope. **Default to Standard** unless the feature is c
 | **Heavyweight** | Cross-cutting systems, 20+ files, multiple integration points | 6–10+ | 2–4 | 1,200–1,800 |
 
 **Tier selection rules:**
-
 - If in doubt, pick Standard
 - If the user says "thorough", "comprehensive", or "detailed" — always Heavyweight
 - Only use Lightweight for genuinely small features (<5 files, single concern)
 - If the scope spans multiple subsystems, architectural layers, or integration boundaries — always Heavyweight
 
+**QA Intensity Mapping (per Template 02 I22):**
+
+| Tier | Default qa_intensity | Override allowed? |
+|------|---------------------|-------------------|
+| Lightweight | lite | Yes |
+| Standard | standard | Yes |
+| Heavyweight | full | Yes |
+
+If the user says "quick", "fast", "light QA", or "basic" → lite.
+If the user says "thorough QA", "full QA", "careful" → full.
+Otherwise → default per tier.
+
 ---
 
 ## Output Locations
 
-All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-TECHREF-YYYYMMDD-HHMMSS/`. The feature slug is derived from the feature name (e.g., `wizard`, `agent-llm-system`, `pixel-streaming`).
+All persistent artifacts go into the task folder at `.dev/tasks/to-do/TASK-TECHREF-<subject>-YYYYMMDD-HHMMSS/`. The feature slug is derived from the feature name (e.g., `wizard`, `agent-llm-system`, `pixel-streaming`).
 
 **Variable reference block:**
-
 ```
-TASK_ID:     TASK-TECHREF-YYYYMMDD-HHMMSS
+TASK_ID:     TASK-TECHREF-<subject>-YYYYMMDD-HHMMSS
 TASK_DIR:    .dev/tasks/to-do/${TASK_ID}/
 TASK_FILE:   ${TASK_DIR}${TASK_ID}.md
 RESEARCH:    ${TASK_DIR}research/
@@ -113,6 +122,8 @@ SYNTHESIS:   ${TASK_DIR}synthesis/
 QA:          ${TASK_DIR}qa/
 REVIEWS:     ${TASK_DIR}reviews/
 ```
+
+**Subject derivation:** `<subject>` is derived at task-folder-creation time from the subject of the reference and normalized to kebab-case (lowercase, hyphen-separated, 1-3 words, ~30 char soft cap). If no clean subject can be derived, fall back to the literal word `general`. Example TASK_ID: `TASK-TECHREF-docker-compose-20260408-140000`.
 
 | Artifact | Location |
 |----------|----------|
@@ -122,8 +133,18 @@ REVIEWS:     ${TASK_DIR}reviews/
 | Web research files | `${TASK_DIR}research/web-[NN]-[topic].md` |
 | Synthesis files | `${TASK_DIR}synthesis/synth-[NN]-[topic].md` |
 | Gap/question log (interim) | `${TASK_DIR}gaps-and-questions.md` |
-| Analyst reports | `${TASK_DIR}qa/analyst-report-[gate].md` |
-| QA reports | `${TASK_DIR}qa/qa-report-[gate].md` |
+| Analyst reports (research gate) | `${TASK_DIR}qa/analyst-completeness-report.md`, `analyst-crossval-report.md` |
+| QA reports (research gate) | `${TASK_DIR}qa/qa-research-evidence-report.md`, `qa-research-gaps-report.md` |
+| QA-qualitative reports (research gate) | `${TASK_DIR}qa/qa-research-depth-report.md` |
+| Research gate consolidated findings | `${TASK_DIR}qa/qa-research-consolidated-findings.md` |
+| Analyst reports (synthesis gate) | `${TASK_DIR}qa/analyst-synthesis-accuracy-report.md`, `analyst-synthesis-tracing-report.md` |
+| QA reports (synthesis gate) | `${TASK_DIR}qa/qa-synthesis-structure-report.md`, `qa-synthesis-quality-report.md` |
+| QA-qualitative reports (synthesis gate) | `${TASK_DIR}qa/qa-synthesis-coherence-report.md` |
+| Synthesis gate consolidated findings | `${TASK_DIR}qa/qa-synthesis-consolidated-findings.md` |
+| Lens QA reports (Phase 6, per-lens) | `${TASK_DIR}qa/qa-lens-[lens-name]-report.md` |
+| Lens QA-qualitative reports (Phase 6) | `${TASK_DIR}qa/qa-qual-[lens-name]-report.md` |
+| Lens QA consolidated findings | `${TASK_DIR}qa/qa-consolidated-findings.md` |
+| Source fidelity reports | `${TASK_DIR}qa/qa-source-fidelity-[N]-report.md` |
 | Final tech reference | `docs/[domain]/FEATURE-NAME-TECHNICAL-REFERENCE.md` |
 | Template schema | `.claude/templates/documents/technical_reference_template.md` |
 
@@ -138,28 +159,25 @@ Check for existing task folders matching `TASK-TECHREF-*` in `.dev/tasks/to-do/`
 The skill operates in two stages:
 
 **Stage A — Scope Discovery & Task File Creation (before the task file exists):**
-
 1. Check for an existing task file or research directory (A.1)
 2. Parse the user's request and triage into Scenario A vs B (A.2)
 3. Perform scope discovery — map feature files, plan assignments (A.3)
 4. Write scope discovery results to a structured research notes file (A.4)
 5. Review research sufficiency — mandatory gate (A.5)
 6. Triage template selection (A.6)
-7. Spawn the task builder to create the MDTM task file (A.7)
-8. Verify the task file (A.8)
+7. Write BUILD-REQUEST.md and invoke the `/task-builder` skill to create the MDTM task file (A.7) — task-builder handles structural and qualitative validation internally
 
 **Stage B — Task File Execution (after the task file exists):**
-9. Delegate execution to the `/task` skill, which provides the canonical F1 execution loop, parallel agent spawning, phase-gate QA, and session management
-10. Each checklist item is a self-contained prompt — no prior context needed
+8. Delegate execution to the `/task` skill, which provides the canonical F1 execution loop, parallel agent spawning, phase-gate QA, and session management
+9. Each checklist item is a self-contained prompt — no prior context needed
 
 Phase names within the task file:
-
 - **Phase 1: Preparation** — Scope confirmation, template read, tier selection
 - **Phase 2: Deep Investigation** — Parallel subagent investigation of feature code
-- **Phase 3: Completeness Verification** — rf-analyst completeness verification + rf-qa research gate (parallel)
+- **Phase 3: Completeness Verification** — rf-analyst completeness verification + rf-qa research gate + rf-qa-qualitative research-depth (parallel), consolidated verdict gates progression, gap-fill cycles if needed (max 3)
 - **Phase 4: Web Research** — Optional external research for framework/API gaps
-- **Phase 5: Synthesis + Analyst + QA Synthesis Gate** — Template-aligned synthesis, then rf-analyst synthesis review + rf-qa synthesis gate (parallel)
-- **Phase 6: Assembly** — rf-assembler produces final document, then rf-qa structural validation, then rf-qa-qualitative content review
+- **Phase 5: Synthesis + Analyst + QA Synthesis Gate** — Template-aligned synthesis, then rf-analyst synthesis review + rf-qa synthesis gate + rf-qa-qualitative synthesis-coherence (parallel), then serialized fix (consolidate findings, single fix agent, 2-agent verification round)
+- **Phase 6: Assembly + Lens-Based QA + Source Fidelity Gate** — rf-assembler produces final document, then parallel lens-based QA (4-6 rf-qa structural lenses + 4-6 rf-qa-qualitative content lenses + 3 tech-reference domain-specific lenses, all fix_authorization: false), then consolidated findings, then a single serialized fix agent, then verification round, then a source-document fidelity gate (minimum 5 rf-qa fidelity agents, scale to 6-8, reading the source code files AND the assembled document)
 - **Phase 7: Present to User & Complete Task** — Deliver document, present artifacts, handle consolidation sources
 
 If a task file already exists for this feature (from a previous session), skip Stage A and invoke `/task` with the existing task file path to resume from the first unchecked item.
@@ -209,7 +227,6 @@ Example: "Document the agent system"
 Use Glob, Grep, and codebase-retrieval to map the feature's shape. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
 
 **Adjust depth by scenario:**
-
 - **Scenario A**: Focused discovery — verify the files/directories the user mentioned exist, scan for related code, identify gaps in what the user specified.
 - **Scenario B**: Broad discovery — scan the full codebase for anything touching the feature, map all relevant subsystems, identify documentation, count files.
 
@@ -247,11 +264,24 @@ Use Glob, Grep, and codebase-retrieval to map the feature's shape. This must hap
 
 6. **Select depth tier** based on component count — Lightweight (<5 files), Standard (5-20), Heavyweight (20+). Default to Standard if unsure. Record the tier selection and rationale in the research notes.
 
-Create the task folder: `.dev/tasks/to-do/TASK-TECHREF-YYYYMMDD-HHMMSS/` with subfolders `research/`, `synthesis/`, `qa/`, `reviews/`
+Compute `<subject>` from the subject of the reference using the rules in the Subject Derivation section. If no clean subject is derivable, use `general`. Create the task folder: `.dev/tasks/to-do/TASK-TECHREF-<subject>-YYYYMMDD-HHMMSS/` with subfolders `research/`, `synthesis/`, `qa/`, `reviews/`
 
-**Optional — spawn rf-task-researcher for complex scope discovery:**
+**MANDATORY — Partition large input across parallel agents.** Single-agent scope discovery is PROHIBITED for any input exceeding ~1000 lines total (this includes user-provided documents plus any referenced source files). Input size thresholds:
+- **≤1000 lines total:** 1 scope-discovery agent is acceptable
+- **1000-3000 lines:** 2-3 parallel agents, each assigned a slice (per-document, per-section-range, or per-aspect)
+- **3000-6000 lines:** 4-5 parallel agents
+- **6000+ lines:** 5-10+ parallel agents per the Heavyweight tier requirement
 
-If scope discovery needs deeper context (e.g., Scenario B with a large unknown codebase area, or Scenario A where the specified directories contain deep nested structures), spawn an `rf-task-researcher` subagent. Pass it a RESEARCH_REQUEST describing what to explore. It will write research notes to a file. You then use those notes as input for A.4.
+**Partitioning heuristics:**
+- By document — one agent per source file if multiple files
+- By section range — split a large file into sequential section groups (e.g., sections 1-14 / 15-28)
+- By aspect — requirements / architecture / data models / API specs / integration points as separate slices
+
+**rf-task-researcher as agent type, not replacement:** The rf-task-researcher agent type may be used for each partitioned slice when context isolation is valuable. Spawn N rf-task-researchers in parallel (one per slice), each with its own RESEARCH_REQUEST scoping its assigned slice. A SINGLE rf-task-researcher reading the entire input is explicitly prohibited — it defeats parallelism and causes the same context pressure the partitioning is meant to prevent.
+
+**Spawning pattern:** All scope-discovery agents MUST be spawned in parallel using multiple Agent tool calls in a single message. Sequential scope discovery is prohibited.
+
+**Why this matters:** A single agent reading >1000 lines will skim, miss detail, and consume the parent orchestrator's context budget via its return value. Partitioning achieves depth (each agent focused on a slice) AND context protection (each slice isolated to its own agent context) simultaneously.
 
 ### A.4: Write Research Notes File (MANDATORY)
 
@@ -312,9 +342,8 @@ Read `${TASK_DIR}research-notes.md` and evaluate:
 **If sufficient** → proceed to A.6 (template triage).
 
 **If insufficient** → either:
-
 - Do additional scope discovery yourself and update the research notes file, OR
-- Spawn an rf-task-researcher subagent with specific feedback about what's missing, then re-review
+- Spawn one or more rf-task-researcher subagents in parallel with specific feedback about what's missing. For multiple gaps, spawn one agent per gap slice, not a single agent for all gaps
 
 **Maximum 2 gap-fill rounds.** After 2 rounds, proceed with what's available and note remaining gaps in the research notes AMBIGUITIES_FOR_USER section.
 
@@ -325,7 +354,6 @@ Do NOT proceed to the builder with incomplete research notes. The builder cannot
 Determine which MDTM template the task builder should use:
 
 **Use Template 02 (Complex Task) when the work involves:**
-
 - Discovery before building (investigating unknown areas)
 - Parallel subagent spawning
 - Multiple phases with different activities (research, synthesis, assembly)
@@ -333,7 +361,6 @@ Determine which MDTM template the task builder should use:
 - Conditional flows based on findings
 
 **Use Template 01 (Generic Task) when the work involves:**
-
 - Simple, sequential file creation
 - Straightforward execution with no discovery
 - Single-pass operations
@@ -342,11 +369,20 @@ Determine which MDTM template the task builder should use:
 
 ### A.7: Build the Task File
 
-Spawn the `rf-task-builder` subagent. The builder reads the research notes file and the MDTM template, then creates the task file. It also reads the SKILL.md itself for phase requirements, agent prompt templates, synthesis mapping, content rules, and validation criteria.
+Write the BUILD_REQUEST to a file at `${TASK_DIR}BUILD-REQUEST.md`, then invoke the `/task-builder` skill. The task-builder reads the BUILD_REQUEST file, performs quality gates (rf-analyst + rf-qa), spawns the rf-task-builder agent to create the MDTM task file, and runs structural and qualitative validation internally. No manual verification step is needed — task-builder handles all validation and mediation.
 
-**BUILD_REQUEST format for the subagent prompt:**
+**Step 1: Write `${TASK_DIR}BUILD-REQUEST.md`** using the Write tool with the following content:
 
 ```
+# BUILD REQUEST
+
+Source: skill-delegated
+Calling Skill: tech-reference
+Task Directory: ${TASK_DIR}
+Research Notes: ${TASK_DIR}research-notes.md
+Research Notes Status: Complete
+SKIP_RESEARCHERS: true
+
 BUILD_REQUEST:
 ==============
 GOAL: Create a comprehensive Technical Reference document for [FEATURE] following the project template. The document will be written to docs/[domain]/FEATURE-NAME-TECHNICAL-REFERENCE.md.
@@ -354,6 +390,8 @@ GOAL: Create a comprehensive Technical Reference document for [FEATURE] followin
 WHY: [WHY — what prompted this documentation effort and what the reference will be used for]
 
 TASK_ID_PREFIX: TASK-TECHREF
+
+FEATURE_SLUG: [FEATURE_SLUG — derived from feature name, e.g., wizard-system, agent-orchestration]
 
 TEMPLATE: [01 or 02 — skill selects:
   01 = simple update to existing tech reference, single-section change
@@ -371,21 +409,37 @@ building on obviously stale foundations.
 TEMPLATE 02 PATTERN MAPPING FOR THIS SKILL (if Template 02):
 - Phase 1 (Preparation): Update task status, confirm scope from research notes, read the template, select depth tier, create task folder at ${TASK_DIR} with research/, synthesis/, qa/, reviews/ subfolders
 - Phase 2 (Deep Investigation): L1 Discovery — agents investigate feature code and write findings files to ${TASK_DIR}research/
-- Phase 3 (Completeness Verification): L4 Review/QA — spawn rf-analyst (completeness-verification) and rf-qa (research-gate) in parallel as quality gate. Both write reports. QA verdict gates progression.
+- Phase 3 (Completeness Verification): L4 Review/QA — spawn 2 rf-analyst (lenses: completeness-verification + cross-validation), 2 rf-qa (lenses: evidence-quality + gap-detection), and 1 rf-qa-qualitative (lens: research-depth — are findings genuinely deep or surface-level?) IN PARALLEL as a multi-lens quality gate. All 5 agents write lens-specific reports, all fix_authorization: false. Serialized fix protocol: consolidate findings into qa-research-consolidated-findings.md, spawn targeted gap-filling research agents (one per gap), then 2-agent verification round (1 rf-qa + 1 rf-qa-qualitative). Max 3 cycles. Partitioning >6 research files: spawn each lens type across partitions (e.g., 10 files = 2 analyst × 2 + 2 qa × 2 + 1 qualitative × 2 = 10 agents).
 - Phase 4 (Web Research): L1 Discovery — agents explore external sources and write findings files
-- Phase 5 (Synthesis + QA Gate): L2 Build-from-Discovery — agents read research files and produce template-aligned synth sections. Then spawn rf-analyst (synthesis-review) and rf-qa (synthesis-gate) in parallel as quality gate. QA can fix issues in-place.
-- Phase 6 (Assembly & Validation): L6 Aggregation — spawn rf-assembler to consolidate synthesis files into final tech reference document, then spawn rf-qa (report-validation) for structural quality check, then spawn rf-qa-qualitative (tech-ref-qualitative) for content/logic quality check. Both QA agents have in-place fix authorization.
+- Phase 5 (Synthesis + Multi-Agent Synthesis Gate): L2 Build-from-Discovery — agents read research files and produce template-aligned synth sections. Then spawn 2 rf-analyst (lenses: synthesis-accuracy + source-tracing), 2 rf-qa (lenses: structure + content-quality), and 1 rf-qa-qualitative (lens: synthesis-coherence — does the synthesis tell a coherent story from the research?) IN PARALLEL as a multi-lens quality gate, all fix_authorization: false. Consolidate findings, then spawn ONE rf-qa fix agent (fix_authorization: true) applying all consolidated findings, then 2-agent verification round. Partitioning >4 synthesis files.
+- Phase 6 (Assembly + Lens-Based QA + Source Fidelity Gate): L6 Aggregation — spawn rf-assembler to consolidate synthesis files into final tech reference document, then spawn lens-based QA agents in parallel (4-6 rf-qa on structural lenses: template-conformance, internal-consistency, evidence-quality, completeness; 4-6 rf-qa-qualitative on content lenses: actionability, numbers-metrics, crossref-chain, domain-accuracy; 3 tech-reference domain-specific lens agents: code-example-accuracy, api-signature-correctness, configuration-value-verification — all fix_authorization: false, report only). Consolidate findings, then spawn ONE rf-qa fix agent (fix_authorization: true), then 2-agent verification round (max 3 cycles). After lens-based QA passes, spawn source-fidelity gate (minimum 5 rf-qa fidelity agents, scale to 6-8, each reading assigned source code range + FULL tech reference), serialized fix protocol, verification round. Both gates use serialized (not parallel) fix authorization to prevent churn.
 - Phase 7 (Present to User & Complete Task): ANTI-ORPHANING — task-completion items are WITHIN this phase, not in a separate Post-Completion section.
 
+QA_INTENSITY: [lite / standard / full]  (per I22 — determined by tier mapping in Tier Selection section or user override)
 QA_GATE_REQUIREMENTS: PER_PHASE
-  Gate 1: Research Completeness (Phase 3) — rf-analyst (completeness-verification) + rf-qa (research-gate) in parallel, max 3 fix cycles, partitioning >6 files.
-  Gate 2: Synthesis Quality (Phase 5) — rf-analyst (synthesis-review) + rf-qa (synthesis-gate, fix_authorization: true) in parallel, max 2 fix cycles, partitioning >4 files.
-  Gate 3: Report Validation (Phase 6) — rf-qa (report-validation, fix_authorization: true) + rf-qa-qualitative (tech-ref-qualitative, fix_authorization: true) sequential. HALT after max fix cycles exceeded.
+  **NOTE: Gate descriptions below specify FULL intensity agent counts. When QA_INTENSITY is lite or standard, the rf-task-builder applies I22 reductions via the QA Intensity Adaptation table in the Agent Prompt Templates section.**
+  Gate 1: Research Completeness (Phase 3)
+    - lite: 1 rf-qa (evidence + gaps) + 1 rf-qa-qualitative (depth + completeness) = 2 agents. Max 1 fix cycle.
+    - standard: 1 rf-analyst (completeness) + 1 rf-qa (evidence-quality) + 1 rf-qa-qualitative (research-depth) = 3 agents. Max 2 fix cycles.
+    - full: 2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 gap-fill cycles. Partitioning >6 files (each lens type partitioned independently).
+  Gate 2: Synthesis Quality (Phase 5)
+    - lite: 1 rf-qa (structure) + 1 rf-qa-qualitative (coherence) = 2 agents. Max 1 fix cycle.
+    - standard: 1 rf-analyst (accuracy) + 1 rf-qa (structure) + 1 rf-qa-qualitative (coherence) = 3 agents. Max 2 fix cycles.
+    - full: 2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative = 5 agents. Max 3 fix cycles. Partitioning >4 files.
+  Gate 3: Final Document Lens-Based QA (Phase 6, step 6a)
+    - lite: 1 rf-qa (combined structural) + 1 rf-qa-qualitative (combined content) + 1 domain lens (code-example-accuracy) = 3 agents. Max 1 fix cycle.
+    - standard: 3 rf-qa structural (template-conformance, internal-consistency, evidence-quality) + 3 rf-qa-qualitative content (actionability, domain-accuracy, crossref-chain) + 1 domain lens (code-example-accuracy) = 7 agents. Max 2 fix cycles.
+    - full: 4-6 rf-qa + 4-6 rf-qa-qualitative (scaled by output size, partitioning at 1500+ lines) + 3 domain lenses (code-example-accuracy, api-signature-correctness, configuration-value-verification) = 11-15 agents. Max 3 fix cycles.
+  Gate 4: Source-Document Fidelity (Phase 6, step 6c)
+    - lite: 1 rf-qa fidelity agent (combined semantic-coverage + phantom-detection lenses). Max 1 fix cycle.
+    - standard: 2 rf-qa fidelity agents (semantic-coverage + detail-preservation). Max 2 fix cycles.
+    - full: 5 rf-qa fidelity agents (semantic-coverage, detail-preservation, phantom-coverage, aspirational-content-detection, cross-reference-verification). Scale to 6 at 1000-2000 source lines, 8 at >2000. Max 3 fix cycles.
 
-VALIDATION_REQUIREMENTS: TEMPLATE_COMPLIANCE + EVIDENCE_TRAIL + CROSS_VALIDATION
+VALIDATION_REQUIREMENTS: TEMPLATE_COMPLIANCE + EVIDENCE_TRAIL + CROSS_VALIDATION + SOURCE_FIDELITY
   TEMPLATE_COMPLIANCE: All sections from technical_reference_template.md must be present or marked N/A with rationale.
   EVIDENCE_TRAIL: Every claim must cite file paths, line numbers, or verified sources.
   CROSS_VALIDATION: Doc-sourced claims carry [CODE-VERIFIED]/[CODE-CONTRADICTED]/[UNVERIFIED] tags.
+  SOURCE_FIDELITY: Phase 6 Gate 4 fidelity agents read the actual source code files AND the assembled tech reference; semantic coverage of every documented subsystem, API signature, and configuration value must be verified against source code (not just the synthesis files). Detail preservation is mandatory: function signatures, config defaults, and type shapes in the tech reference must match the code verbatim.
 
 TESTING_REQUIREMENTS: N/A — documentation-only skill, no code produced, no tests applicable.
 
@@ -444,13 +498,17 @@ Phase 2 — Deep Investigation (PARALLEL SPAWNING MANDATORY):
 - All research agents in the phase are spawned in parallel using multiple Agent tool calls in a single message. For example, with 6 research assignments: spawn all 6 agents in one message, mark each item complete as it returns. If context limits are reached before all return, remaining agents' output files persist on disk and the unchecked items are resumed on next session.
 - Agent count follows tier guidance: Lightweight 2-3, Standard 4-6, Heavyweight 6-10+
 
-Phase 3 — Research Completeness Verification (ANALYST + QA GATE, PARALLEL):
-- Spawn `rf-analyst` (subagent_type: "rf-analyst", analysis_type: "completeness-verification") AND `rf-qa` (subagent_type: "rf-qa", qa_phase: "research-gate") IN PARALLEL. Both agents independently read research files and apply their own checklists. The analyst writes to `${TASK_DIR}qa/analyst-completeness-report.md`. The QA agent writes to `${TASK_DIR}qa/qa-research-gate-report.md`. Embed full prompts from respective agent definitions in each checklist item per B2.
-- **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE analyst instances and MULTIPLE QA instances in parallel, each with an `assigned_files` subset. The threshold is >6 for research files because research files tend to be longer and more detailed than synthesis files. For example, with 10 research files: spawn 2 analyst instances (5 files each) + 2 QA instances (5 files each) = 4 parallel agents. Each partition instance writes to a numbered report (e.g., `analyst-completeness-report-1.md`, `analyst-completeness-report-2.md`). After all instances complete, merge their reports: union of all findings, take the more severe rating for any item flagged by multiple partitions, deduplicate gaps.
-- Read ALL reports (or the merged report). Determine verdict from the QA report(s) (PASS / FAIL), cross-referenced with analyst findings.
-- If PASS → proceed to Phase 4. If FAIL → fix ALL findings regardless of severity before proceeding. Reports list gaps with specific remediation actions.
-- If verdict is FAIL: spawn additional targeted research agents (one item per gap-filling agent, from merged gap list). Each gap-filling agent follows the same incremental writing protocol. Wait for gap-filling agents to complete before proceeding.
-- After gap-filling, spawn `rf-qa` with qa_phase: "fix-cycle" and the previous QA report path. **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The QA agent re-verifies only the previously-failed items. Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed. Do NOT continue to Phase 4 without user approval.
+**Authoritative specification for gate parameters (agent counts, fix cycle budgets, scaling tiers) is in the BUILD_REQUEST template above (QA_GATE_REQUIREMENTS). This section provides expanded operational guidance for each phase. In case of conflict between this section and the BUILD_REQUEST specification, the BUILD_REQUEST values take precedence.**
+
+Phase 3 — Research Completeness Verification (MULTI-AGENT LENS GATE, PARALLEL):
+- Spawn 5 agents IN PARALLEL, all fix_authorization: false (report only): (1) rf-analyst (completeness-verification lens) — writes to `${TASK_DIR}qa/analyst-completeness-report.md`; (2) rf-analyst (cross-validation lens — do findings from different research agents agree? do cross-references between research files resolve?) — writes to `${TASK_DIR}qa/analyst-crossval-report.md`; (3) rf-qa (evidence-quality lens) — writes to `${TASK_DIR}qa/qa-research-evidence-report.md`; (4) rf-qa (gap-detection lens — are there subsystems, files, or integration points mentioned in scope discovery but absent from research?) — writes to `${TASK_DIR}qa/qa-research-gaps-report.md`; (5) rf-qa-qualitative (research-depth lens — are findings genuinely deep with traced data flows and function signatures, or surface-level file listings?) — writes to `${TASK_DIR}qa/qa-research-depth-report.md`. Each agent gets a lens-specific prompt with adversarial framing: "Assume these research files missed at least 5 critical issues in your lens area. Find them." Embed full prompts in each checklist item per B2.
+- **Parallel partitioning for large workloads:** When >6 research files exist, spawn MULTIPLE analyst instances and MULTIPLE QA instances in parallel, each with an `assigned_files` subset. The threshold is >6 for research files because research files tend to be longer and more detailed than synthesis files. For example, with 10 research files: spawn 2 analyst instances (5 files each) + 2 QA instances (5 files each) + 2 qualitative instances (5 files each) = 6 parallel agents. Each partition instance writes to a numbered report (e.g., `analyst-completeness-report-1.md`, `analyst-completeness-report-2.md`). After all instances complete, merge their reports: union of all findings, take the more severe rating for any item flagged by multiple partitions, deduplicate gaps.
+- Read ALL reports (or the merged report). Determine verdict from the QA report(s) (PASS / FAIL), cross-referenced with analyst findings. If PASS, proceed to Phase 4. If FAIL, follow the serialized fix protocol below.
+- **Serialized fix protocol for Phase 3 (follows the same consolidate-fix-verify pattern as Phases 5 and 6):**
+  1. **Consolidate findings:** Merge all 5 agent reports into a single findings list at `${TASK_DIR}qa/qa-research-consolidated-findings.md`. Deduplicate overlapping findings. Preserve the highest severity rating when duplicates disagree.
+  2. **Gap-filling as fix step:** A "gap" is any FAIL-rated finding from the consolidated findings list. Spawn additional targeted research agents (one per gap from the consolidated findings). Each gap-filling agent follows the same incremental writing protocol. This is the "fix" step, analogous to the single fix agent in Phases 5 and 6, but using research agents since the remediation is additional investigation, not file editing.
+  3. **Verification round:** After gap-filling agents complete, spawn a verification round: rf-qa (fix-cycle, fix_authorization: false) re-verifies the previously-failed items against the new research, plus rf-qa-qualitative (re-check, fix_authorization: false) confirms the gaps are genuinely filled. **ADVERSARIAL STANCE:** Assume the work contains errors. Verify every claim exhaustively.
+  4. **Cycle:** If verification finds remaining gaps, repeat from step 1 (re-consolidate remaining + new findings, spawn gap-fillers, verify). Maximum 3 cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present the QA report findings to the user, and ask for guidance on how to proceed. Do NOT continue to Phase 4 without user approval. Note: This budget is independent of the A.5 gap-fill rounds. A.5 verifies research notes sufficiency for the builder (a lightweight pre-builder check). Phase 3 verifies research agent output quality (a formal multi-lens gate). Different scope, separate counters.
 - Compile final gaps into ${TASK_DIR}gaps-and-questions.md (merged from all reports)
 - Do NOT proceed to Phase 4 until verdict is PASS
 
@@ -465,25 +523,25 @@ Phase 5 — Synthesis (PARALLEL SPAWNING MANDATORY) + Synthesis QA Gate:
 - One checklist item PER synthesis file (from research notes RECOMMENDED_OUTPUTS, mapped via the Synthesis Mapping Table in SKILL.md)
 - Each item spawns an Agent subagent with the synthesis agent prompt from SKILL.md
 - Each item specifies: research files to read, template sections to produce, output path (${TASK_DIR}synthesis/synth-[NN]-[topic].md)
-- After ALL synthesis agents complete, spawn `rf-analyst` (subagent_type: "rf-analyst", analysis_type: "synthesis-review") AND `rf-qa` (subagent_type: "rf-qa", qa_phase: "synthesis-gate", fix_authorization: true) IN PARALLEL. The analyst writes to `${TASK_DIR}qa/analyst-synthesis-review.md`. The QA agent writes to `${TASK_DIR}qa/qa-synthesis-gate-report.md`. Embed full prompts from respective agent definitions in each checklist item per B2.
+- After ALL synthesis agents complete, spawn 5 agents IN PARALLEL, all fix_authorization: false (report only): (1) rf-analyst (synthesis-accuracy lens — do synth claims match research file evidence?) — writes to `${TASK_DIR}qa/analyst-synthesis-accuracy-report.md`; (2) rf-analyst (source-tracing lens — can every synth claim be traced to a specific research file finding?) — writes to `${TASK_DIR}qa/analyst-synthesis-tracing-report.md`; (3) rf-qa (structure lens — synth files follow template section mapping, correct headers, no missing sections) — writes to `${TASK_DIR}qa/qa-synthesis-structure-report.md`; (4) rf-qa (content-quality lens — content rules compliance, no code reproductions, appropriate detail level) — writes to `${TASK_DIR}qa/qa-synthesis-quality-report.md`; (5) rf-qa-qualitative (synthesis-coherence lens — does the synthesis tell a coherent, connected story from the research, or is it fragmented?) — writes to `${TASK_DIR}qa/qa-synthesis-coherence-report.md`. Each agent gets a lens-specific prompt with adversarial framing. Embed full prompts per B2. After all 5 reports are received: consolidate findings at `${TASK_DIR}qa/qa-synthesis-consolidated-findings.md`, spawn ONE rf-qa fix agent (fix_authorization: true) to apply all fixes, then 2-agent verification round. Partitioning threshold >4 synthesis files still applies — each lens type is partitioned independently.
 - **Parallel partitioning for large workloads:** When >4 synthesis files exist, spawn multiple analyst instances and multiple QA instances in parallel, each with an `assigned_files` subset. The threshold is lower than Phase 3 (>4 vs >6) because synthesis QA requires deeper per-file analysis (tracing claims back to research files, verifying cross-section consistency). Same partitioning pattern as Phase 3. Each partition instance writes to a numbered report. Orchestrator merges all partition reports after completion.
-- Read ALL reports. Determine verdict from QA report(s), cross-referenced with analyst findings. If PASS → proceed to Phase 6. If FAIL → check which issues QA already fixed in-place vs which remain. For remaining issues, re-run affected synthesis agents, then re-spawn `rf-qa` (fix-cycle). Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user, ask for guidance. Do NOT continue to Phase 6 without user approval.
+- Read ALL reports. Determine verdict from QA report(s), cross-referenced with analyst findings. If PASS → proceed to Phase 6. If FAIL → if fix agent could not resolve all findings, re-run affected synthesis agents whose output files were flagged in the consolidated findings (identify them by matching finding locations to synthesis file paths), then re-spawn `rf-qa` (fix-cycle). Maximum 3 fix cycles — after 3 failed cycles, HALT execution: log all remaining issues in Task Log, present findings to user, ask for guidance. Do NOT continue to Phase 6 without user approval.
 
 Phase 6 — Assembly & Validation (RF-ASSEMBLER + Structural QA + Qualitative QA):
 - Spawn a single DEDICATED `rf-assembler` agent (subagent_type: "rf-assembler") — NOT a general-purpose Agent — to assemble the final technical reference. Hand it: the list of synth file paths in order (as component_files), the output path docs/[domain]/FEATURE-NAME-TECHNICAL-REFERENCE.md, the template at .claude/templates/documents/technical_reference_template.md (as output_format), the Assembly Process steps from SKILL.md (as assembly_rules), and the Content Rules from SKILL.md (as content_rules). The assembler reads each synth file and writes the document incrementally — frontmatter first, then sections in template order, then Table of Contents, then cross-checks internal consistency. The assembler must be a single agent (NOT parallel) because cross-section consistency requires seeing the whole document. Embed the full assembler prompt in the checklist item per B2.
-- After the assembler returns the document path, spawn `rf-qa` (subagent_type: "rf-qa", qa_phase: "report-validation", fix_authorization: true). **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The QA agent validates the assembled document against the Validation Checklist from SKILL.md (template sections present, tier line budgets, subsystem limits, no source code reproductions, file path validity, doc-sourced claim tags, web research URLs). The QA agent is authorized to fix issues in-place and writes its report to `${TASK_DIR}qa/qa-report-validation.md`. Embed the full QA prompt in the checklist item per B2.
-| QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` |- Read the structural QA report. If issues remain unfixed, address them before proceeding to qualitative QA.
-- After structural QA passes, spawn `rf-qa-qualitative` (subagent_type: "rf-qa-qualitative", qa_phase: "tech-ref-qualitative", fix_authorization: true). **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked. The qualitative QA agent reads the entire document and verifies it makes sense from product and engineering perspectives: documented behavior matches actual code, API examples are realistic, configuration options are complete, architecture diagrams match actual file structure, no planned features described as current. The agent writes to `${TASK_DIR}qa/qa-qualitative-review.md`. Embed the full qualitative QA prompt (including document_type: "Technical Reference", template path, and output path) in the checklist item per B2.
-- Read the qualitative QA report. If any issues found (CRITICAL, IMPORTANT, or MINOR), verify fixes were applied correctly by re-reading the affected sections. If issues remain unfixed, address ALL of them before proceeding to Phase 7. Zero leniency — no severity level is exempt.
+- **Step 6a: Lens-Based QA (PARALLEL, all fix_authorization: false).** After the assembler returns the document path, determine the document's line count and select the lens agent count from this table: <500 lines = 4+4; 500-1500 = 4+4; 1500-3000 = 5+5; >3000 = 6+6 (rf-qa structural + rf-qa-qualitative content). At higher tiers, the additional agents are partitioned instances of existing lenses with assigned section ranges (e.g., at 5+5: split the completeness lens across 2 agents, each covering half the document; at 6+6: also split evidence-quality). PLUS 3 tech-reference domain-specific lens agents (see below). Spawn ALL lens agents IN PARALLEL. Each agent gets a lens-specific prompt, its own report file, and fix_authorization: false (report only). **Standard structural lenses (rf-qa):** (1) template-conformance — all required sections present, correct ordering, no remaining placeholders; (2) internal-consistency — IDs match across tables, counts agree, cross-references resolve; (3) evidence-quality — all claims cite file paths/line numbers, no unverified assertions, no hallucinated paths; (4) completeness — every topic from scope discovery appears in the output. **Standard content lenses (rf-qa-qualitative):** (1) actionability — every Extension Guide entry is specific enough to execute; (2) numbers-metrics — quantitative claims are consistent and sourced; (3) crossref-chain-integrity — subsystem→API→config→example chains all resolve; (4) domain-accuracy — claims about codebase match actual code, no aspirational features described as current. **Tech-reference domain-specific lenses:** (1) code-example-accuracy (rf-qa) — code snippets match actual source files; (2) api-signature-correctness (rf-qa) — documented API signatures match actual code; (3) configuration-value-verification (rf-qa-qualitative) — config values and defaults match actual files. Each lens agent writes to `${TASK_DIR}qa/qa-lens-[lens-name]-report.md`. Embed lens-specific prompt with adversarial framing in each checklist item per B2: "Assume this document has at least N errors in your lens area. Find them." (N = document_lines / 100, minimum 5).
+- **Step 6b: Consolidate Findings + Serialized Fix.** Read ALL lens reports. Consolidate into a single findings list at `${TASK_DIR}qa/qa-consolidated-findings.md`. Spawn ONE rf-qa fix agent (fix_authorization: true) with the consolidated findings list — it applies ALL fixes to the document. Then spawn a 2-agent verification round: 1 rf-qa (structural verification, fix_authorization: false) + 1 rf-qa-qualitative (content verification, fix_authorization: false). If verification finds new issues, repeat from fix agent (max 3 total cycles). After 3 cycles, HALT: log remaining issues, present to user, ask for guidance.
+- **Step 6c: Source-Document Fidelity Gate (PARALLEL, fix_authorization: false).** After lens-based QA passes, spawn minimum 5 rf-qa fidelity agents (scale to 6 if the research files reference 1000-2000 lines of source code total, 8 if >2000 lines). Each fidelity agent reads BOTH its assigned source-code-file range (from Phase 2 research file paths) AND the FULL assembled tech reference. Each fidelity agent is assigned ONE focused lens from the list below. Fidelity lenses: (a) semantic-coverage — every subsystem, API endpoint, and configuration item documented in the tech reference can be traced to actual source code; (b) detail-preservation — function signatures, config defaults, error codes, and type shapes match the code exactly; (c) phantom-coverage-detection — file paths referenced in the tech reference must exist and contain what the doc says they contain; (d) aspirational-content-detection — no planned/aspirational features described as current; (e) cross-reference-verification — all cross-references between sections resolve correctly and reference the right content. Each fidelity agent writes to `${TASK_DIR}qa/qa-source-fidelity-[N]-report.md`. If fidelity agents find issues: consolidate findings, spawn ONE fix agent (fix_authorization: true), then 2-agent verification round (1 rf-qa + 1 rf-qa-qualitative, fix_authorization: false) (max 3 fix cycles). HALT after max cycles exceeded.
+- **Step 6d: Verify all QA complete.** Read all lens reports, consolidated findings, verification reports, and fidelity reports. If any unresolved issues remain at any severity (CRITICAL, IMPORTANT, MINOR), address ALL of them before proceeding to Phase 7. Zero leniency — no severity level is exempt.
 
 Phase 7 — Present to User & Complete Task:
 - Present summary to user: document location, line count and tier classification, sections populated vs skipped, research/synth artifact locations, gaps needing manual review
-- If the tech reference was created by consolidating existing docs: present the source docs to the user, confirm they can be archived, archive approved sources to docs/archive/[appropriate-subdir]/, update any references to the archived files
 - Write task summary to Task Log / Notes section of the task file (completion date, total phases, key outputs, duration)
 - Update task file frontmatter: status to "🟢 Done", set completion_date to today's date
-- CRITICAL ANTI-ORPHANING RULE: Task-completion items (write task summary, update frontmatter to "🟢 Done") MUST be inside this phase, NEVER a separate Post-Completion section. This prevents orphaned completion steps that get skipped when the execution loop ends at the last phase.
+- If the tech reference was created by consolidating existing docs: present the source doc list to the user and note they can be archived to docs/archive/[appropriate-subdir]/ when ready
+- CRITICAL ANTI-ORPHANING RULE: Task-completion items (write task summary, update frontmatter to "🟢 Done") MUST be inside this phase, NEVER a separate Post-Completion section. Downstream offers and archival suggestions are `NON-BLOCKING` — present them, mark complete, do not wait for user response.
 
-TASK FILE LOCATION: .dev/tasks/to-do/TASK-TECHREF-[YYYYMMDD]-[HHMMSS]/TASK-TECHREF-[YYYYMMDD]-[HHMMSS].md
+TASK FILE LOCATION: .dev/tasks/to-do/TASK-TECHREF-<subject>-[YYYYMMDD]-[HHMMSS]/TASK-TECHREF-<subject>-[YYYYMMDD]-[HHMMSS].md
 
 STEPS:
 1. Read the research notes file specified above (MANDATORY)
@@ -493,32 +551,21 @@ STEPS:
    - If TEMPLATE: 01 → .claude/templates/workflow/01_mdtm_template_generic_task.md
 4. Follow PART 1 instructions in the template completely (A3 granularity, B2 self-contained items, E1-E4 flat structure)
 5. If anything is missing, note it in the Task Log section — the skill will review
-6. Create the task file at .dev/tasks/to-do/TASK-TECHREF-[YYYYMMDD-HHMMSS]/TASK-TECHREF-[YYYYMMDD-HHMMSS].md using PART 2 structure
+6. Create the task file at .dev/tasks/to-do/TASK-TECHREF-<subject>-[YYYYMMDD-HHMMSS]/TASK-TECHREF-<subject>-[YYYYMMDD-HHMMSS].md using PART 2 structure
 7. Return the task file path
 ```
 
-**Spawning the builder:**
+**Step 2: Invoke the task-builder skill:**
+**CRITICAL: After task-builder completes and outputs TASK_FILE_READY, you MUST continue to Stage B below. Do NOT stop at task-builder's output.**
 
-Use the Agent tool with `subagent_type: "rf-task-builder"` and `mode: "bypassPermissions"`. Pass the full BUILD_REQUEST as the prompt.
 
-**If the builder produces a malformed task file:** Re-read the task file, identify specific defects (missing phases, batch items instead of granular items, missing embedded prompts, nested checkboxes, missing B2 pattern), and re-run the builder with explicit corrections listed. Maximum 2 re-runs — after 2 malformed attempts, manually fix the task file and note the corrections in the Task Log.
+```
+Skill(skill: "task-builder", args: "${TASK_DIR}BUILD-REQUEST.md")
+```
 
-### A.8: Receive & Verify the Task File
+The task-builder skill reads the BUILD_REQUEST file, detects `Source: skill-delegated` and `SKIP_RESEARCHERS: true`, skips its own research phase, spawns the rf-task-builder agent, and runs structural and qualitative validation. It returns the task file path.
 
-The builder subagent returns the path to the created task file. Read the file and verify:
-
-- Frontmatter is properly populated (id, title, status, created_date, related_docs)
-- All planned phases are present as checklist items (Phases 1-7)
-- Checklist items follow the B2 self-contained pattern (single paragraph: context references + action + output path + "ensuring..." verification clause)
-- No nested checkboxes, no standalone context-reading items
-- Agent prompts are FULLY embedded in each subagent-spawning item (not references to "see SKILL.md" or "see above")
-- Phases 2, 3, 4, and 5 items include explicit parallel spawning instructions
-- Phase 3 and 5 items include partitioning guidance for analyst/QA when file counts are high (>6 for research, >4 for synthesis)
-- Phase 6 uses `rf-assembler` (not a general-purpose Agent) and references the validation checklist from this SKILL.md
-- Phase 7 includes task-completion items (write summary, update frontmatter to Done) INSIDE the phase — no separate Post-Completion section
-- Task Log / Notes section exists at the bottom with Phase Findings subsections
-
-If the task file is malformed or missing critical elements, re-run the builder with specific corrections. Otherwise, proceed to Stage B.
+**Note:** Task-builder handles all verification internally — structural validation checks frontmatter, phases, B2 pattern, embedded prompts, parallel spawning instructions, partitioning guidance, rf-assembler usage, and anti-orphaning. Qualitative validation checks operational correctness. No separate verification step is needed in this skill. Proceed directly to Stage B with the returned task file path.
 
 ---
 
@@ -528,7 +575,7 @@ Stage B delegates execution to the `/task` skill, which provides the canonical F
 
 ### Delegation Protocol
 
-1. **Invoke /task** using the Skill tool with `skill: "task"` and `args` set to the task file path from Stage A (e.g., `.dev/tasks/to-do/TASK-TECHREF-20260309-120000/TASK-TECHREF-20260309-120000.md`).
+1. **Invoke /task** using the Skill tool with `skill: "task"` and `args` set to the task file path from Stage A (e.g., `.dev/tasks/to-do/TASK-TECHREF-docker-compose-20260309-120000/TASK-TECHREF-docker-compose-20260309-120000.md`).
 2. **Execution transfers to /task**, which reads the task file and processes each checklist item via the F1 loop — spawning subagents as specified in B2 items and running phase-gate QA after each phase (Phase 2+).
 3. **No additional execution logic is needed** in this skill since all execution rules (F1 loop, F2 prohibited actions, parallel spawning, F4 modification restrictions, F5 frontmatter protocol, error handling, session resumption) are provided by /task.
 4. **QA coverage:** The task file already contains skill-specific QA items (rf-analyst + rf-qa + rf-qa-qualitative at Phases 3, 5, and 6), and /task adds phase-gate QA on top. This results in intentional, acceptable double QA at gate phases — skill-specific QA uses domain-aware research/synthesis gates while /task's phase-gate QA verifies "ensuring..." clauses from all items in the phase.
@@ -549,6 +596,21 @@ Since /task does NOT read this SKILL.md during execution, all skill-specific ins
 ## Agent Prompt Templates
 
 These templates are provided to the task builder (in the BUILD_REQUEST) so it can embed them in the task file's self-contained checklist items. The builder should customize each instance with the specific feature, files, and output path.
+
+**QA Intensity Adaptation (per Template 02 I22):**
+- lite: Gate 3 combines to 3 agents:
+  (1) rf-qa combined-structural: use template-conformance + internal-consistency + evidence-quality + completeness lenses
+  (2) rf-qa-qualitative combined-content: use actionability + domain-accuracy + crossref-chain + numbers-metrics lenses
+  (3) highest-value domain lens: code-example-accuracy
+  Intermediate gates: 2 agents (1 rf-qa combined + 1 rf-qa-qualitative combined)
+  Fidelity: 1 agent (combined coverage + phantom lenses). Max 1 fix cycle. 1 verification agent.
+- standard: Gate 3 uses 7 agents:
+  3 rf-qa structural: template-conformance, internal-consistency, evidence-quality
+  3 rf-qa-qualitative content: actionability, domain-accuracy, crossref-chain
+  1 domain lens: code-example-accuracy
+  Intermediate gates: 3 agents (1 rf-analyst + 1 rf-qa + 1 rf-qa-qualitative)
+  Fidelity: 2 agents. Max 2 fix cycles. 2 verification agents.
+- full: Use all prompts below as-is (current behavior, no changes).
 
 ### Codebase Research Agent Prompt
 
@@ -583,7 +645,6 @@ You MUST follow this protocol exactly. Violation results in data loss.
 4. When finished, update the Status line from "In Progress" to "Complete" and append a summary section.
 
 Research Protocol:
-
 1. Read the actual source files — understand what each file does, what it exports, what it imports
 2. Trace data flow — how does data enter, transform, and exit this part of the system?
 3. Document the public interface — what do other parts of the codebase actually use from here? Cite file paths, function signatures, and line numbers for every export.
@@ -613,7 +674,6 @@ or workflow, you MUST cross-validate EVERY structural claim against actual code 
    Example: Doc says "POST /api/v1/sessions/start" → Grep for that route in the router files. If it's now "/api/v1/sessions/create", mark [CODE-CONTRADICTED].
 
 For EVERY doc-sourced architectural claim, mark it with one of:
-
 - **[CODE-VERIFIED]** — confirmed by reading actual source code at [file:line]
 - **[CODE-CONTRADICTED]** — code shows different implementation (describe what code actually shows)
 - **[UNVERIFIED]** — could not find corresponding code; may be stale, planned, or in a different repo
@@ -622,7 +682,6 @@ Claims marked [UNVERIFIED] or [CODE-CONTRADICTED] MUST appear in the Gaps and Qu
 Do NOT present doc-sourced claims as verified facts without the code verification tag.
 
 Output Format:
-
 - Use descriptive headers for each file or logical group investigated
 - Include actual file paths, class names, function names, line numbers
 - Include actual type signatures and export lists (not reproduced code blocks — summaries with key signatures)
@@ -630,30 +689,24 @@ Output Format:
 - Flag stale documentation explicitly with **[STALE DOC]** markers
 - End each section with a "Key Takeaways" bullet list
 - End the file with:
-
-## Gaps and Questions
-
+  ## Gaps and Questions
   - [things that need further investigation or are unclear]
   - [all UNVERIFIED and CODE-CONTRADICTED claims from docs]
 
-## Stale Documentation Found
-
+  ## Stale Documentation Found
   - [list any docs that describe architecture/components that no longer exist in code]
 
-## Summary
-
+  ## Summary
   [3-5 sentence summary of what you found]
 
 Be thorough. Be specific. Only document what you verified in the source. Do not guess or infer.
 Documentation is NOT verification — reading a doc that says "X exists" does not verify X exists.
 Only reading the actual source code of X verifies X exists.
-
 ```
 
 ### Web Research Agent Prompt
 
 ```
-
 Research this topic externally and write findings to [output-path].
 
 Topic: [specific external research topic]
@@ -661,13 +714,11 @@ What we already know from codebase: [brief summary of relevant codebase findings
 Feature context: [the overall feature being documented]
 
 CRITICAL — Incremental File Writing Protocol:
-
 1. FIRST ACTION: Create your output file with a header including topic, date, and status
 2. As you find relevant information, IMMEDIATELY append to the file
 3. Never accumulate and one-shot
 
 Research Protocol:
-
 1. Search for official documentation, guides, and API references
 2. Search for design patterns and best practices relevant to this feature type
 3. Search for implementation patterns, known issues, gotchas, and optimization strategies
@@ -679,22 +730,17 @@ Research Protocol:
 5. Rate source reliability (official docs > well-maintained repos > blog posts > forum answers)
 
 Output Format:
-
 - Use descriptive headers for each research area
 - Always include source URLs
 - Mark relevance: HIGH / MEDIUM / LOW for each finding
 - End with:
-
-## Key External Findings
-
+  ## Key External Findings
   [Bullet list of the most important discoveries]
 
-## Recommendations from External Research
-
+  ## Recommendations from External Research
   [How external findings relate to the feature's implementation]
 
 IMPORTANT: Our codebase is the source of truth. External research adds context but does not override verified code behavior. If you find a discrepancy, note it explicitly.
-
 ```
 
 **Common web research topics for tech references:**
@@ -707,7 +753,6 @@ IMPORTANT: Our codebase is the source of truth. External research adds context b
 ### Synthesis Agent Prompt
 
 ```
-
 Read the research files listed below and synthesize them into template-aligned sections for a Technical Reference document.
 
 Research files to read: [list of specific file paths]
@@ -717,23 +762,21 @@ Template reference: .claude/templates/documents/technical_reference_template.md
 
 Rules:
 0. **Read the template first.** Before synthesizing anything, read `.claude/templates/documents/technical_reference_template.md` to understand each section's expected content, format, and depth. Use the template as your structural guide throughout synthesis.
-
 1. Follow the template structure exactly — use the same headers, tables, and section format
 2. Every fact must come from the research files — do not invent, assume, or infer
 3. Use tables over prose for multi-item data (file lists, dependencies, config values)
 4. Do not reproduce full TypeScript interfaces or function bodies — summarize with key signatures
-5. Keep subsystem sections to 40-200 lines depending on complexity. Budget: core subsystems (state management, routing, data layer) get 150-200 lines; supporting subsystems (utils, config, types) get 40-80 lines; integration subsystems (APIs, external services) get 80-150 lines.
+5. Keep subsystem sections to 40-200 lines depending on complexity. Budget: simple subsystems (utils, config, types) get 40-80 lines; standard subsystems (APIs, external services, integration layers) get 80-120 lines; complex subsystems (state management, routing, data layer) get 120-200 lines.
 6. Include ASCII diagrams for architecture and component hierarchies where the research supports them
 7. Reference actual file paths from the research — not hypothetical ones
 8. When research files contradict each other, note the contradiction and which finding has stronger evidence
 9. Web research findings must be explicitly marked as external context, with source URLs
 10. **Documentation-sourced claims require verification status.** If a research file reports a finding from documentation, check whether it carries a [CODE-VERIFIED], [CODE-CONTRADICTED], or [UNVERIFIED] tag. Only [CODE-VERIFIED] claims may be presented as current architecture. [CODE-CONTRADICTED] claims must be corrected to match what the code actually shows. [UNVERIFIED] claims must be flagged as uncertain and placed in Open Questions — never in Architecture or API sections as if they are fact.
 11. **Never describe architecture from docs alone.** When writing Architecture (Section 2) or API & Integration (Section 8), ONLY use findings that trace back to actual source code reads. Doc-only evidence must be flagged as [UNVERIFIED — doc-only, no code confirmation] and excluded from architecture diagrams.
-12. **Extension Guide must be actionable.** Section 14 (Extension Guide) must include specific file paths, function signatures, and step-by-step instructions for common extension scenarios. "Add a new X by creating a file in Y directory" is insufficient — specify the exact file to create, the interface to implement, the registration point to update, and include a minimal code skeleton.
+12. **Extension Guide must be actionable.** Section 13 (Extension Guide) must include specific file paths, function signatures, and step-by-step instructions for common extension scenarios. "Add a new X by creating a file in Y directory" is insufficient — specify the exact file to create, the interface to implement, the registration point to update, and include a minimal code skeleton.
 
 CRITICAL — Incremental File Writing:
 You MUST write to your output file incrementally as you synthesize each section. Do NOT read all research files into context and attempt a single large write at the end. The process is:
-
 1. Create the output file with a header and your first synthesized section
 2. After completing each subsequent section, append it to the output file immediately using Edit
 3. Never rewrite the entire file from memory — always append or do targeted edits
@@ -741,13 +784,11 @@ You MUST write to your output file incrementally as you synthesize each section.
 This prevents data loss from context limits and ensures partial results survive if the agent is interrupted.
 
 Write the sections in the exact format they should appear in the final document, including all table structures and headers from the template.
-
 ```
 
 ### Research Analyst Agent Prompt (rf-analyst — Completeness Verification)
 
 ```
-
 Perform a completeness verification of all research files for [feature name].
 
 Analysis type: completeness-verification
@@ -760,7 +801,6 @@ Your job is to independently verify that research agents produced thorough, evid
 before downstream synthesis begins. You are the analytical quality gate — be rigorous.
 
 PROCESS:
-
 1. Read the research-notes.md file to understand the planned scope (EXISTING_FILES, SUGGESTED_PHASES)
 2. Use Glob to find ALL research files in the research directory (files matching [NN]-*.md)
 3. Read EVERY research file — do not skip any
@@ -768,7 +808,6 @@ PROCESS:
 5. Write your report to [output-path]
 
 CHECKLIST:
-
 1. Coverage audit — every key file from scope covered by at least one research file
 2. Evidence quality — claims cite specific file paths, line numbers, function names
 3. Documentation staleness — all doc-sourced claims tagged [CODE-VERIFIED/CODE-CONTRADICTED/UNVERIFIED]
@@ -779,19 +818,16 @@ CHECKLIST:
 8. Depth assessment — investigation depth matches the stated tier (all public APIs documented, integration points mapped, subsystems traced)
 
 VERDICTS:
-
 - PASS: All checks pass, no critical gaps
 - FAIL: Critical gaps exist (list each with specific remediation action)
 
 Use the full output format from your agent definition (tables for coverage, evidence quality, staleness, completeness).
 Be adversarial — your job is to find problems, not confirm things work.
-
 ```
 
 ### Research QA Agent Prompt (rf-qa — Research Gate)
 
 ```
-
 Perform QA verification of research completeness for [feature name].
 
 QA phase: research-gate
@@ -806,7 +842,6 @@ You are the last line of defense before synthesis begins. Assume everything is w
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 IF ANALYST REPORT EXISTS:
-
 1. Read the analyst's completeness report
 2. Verify ALL of their coverage audit claims (verify the scope items are actually covered)
 3. Validate gap severity classifications (are "Critical" really critical? Are "Minor" really minor?)
@@ -817,7 +852,6 @@ IF NO ANALYST REPORT:
 Apply the full 10-item Research Gate checklist independently.
 
 10-ITEM CHECKLIST:
-
 1. File inventory — all research files exist with Status: Complete and Summary
 2. Evidence density — Verify EVERY claim in each file — verify file paths exist
 3. Scope coverage — every key file from research-notes EXISTING_FILES examined
@@ -830,50 +864,45 @@ Apply the full 10-item Research Gate checklist independently.
 10. Incremental writing compliance — files show iterative structure, not one-shot
 
 VERDICTS:
-
 - PASS: Green light for synthesis
 - FAIL: ALL findings must be resolved. Only PASS or FAIL — no conditional pass.
 
 Use the full QA report output format from your agent definition.
 Zero tolerance — if you can't verify it, it fails.
-
 ```
 
 ### Synthesis QA Agent Prompt (rf-qa — Synthesis Gate)
 
 ```
-
 Perform QA verification of synthesis files for [feature name].
 
 QA phase: synthesis-gate
-Research directory: [research-dir-path]
-Fix authorization: [true/false]
+Synthesis directory: [synthesis-dir-path]
+Fix authorization: false (report findings only -- a separate fix agent applies all fixes via serialized protocol)
 Output path: [output-path]
 
 You are verifying that synthesis files are ready for assembly into the final technical reference.
-If fix_authorization is true, you can fix issues in-place using Edit.
+You report findings only. Do NOT fix issues in-place.
 
 **ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
 
 PROCESS:
-
-1. Use Glob to find ALL synth files (synth-*.md) in the research directory
+1. Use Glob to find ALL synth files (synth-*.md) in the synthesis directory
 2. Read EVERY synth file completely
 3. Apply the 12-item Synthesis Gate checklist
 4. For each issue found:
    a. Document the issue (what, where, severity)
-   b. If fix_authorization is true: fix in-place with Edit, verify the fix
-   c. If fix_authorization is false: document the required fix
+   b. Document the required fix
+   c. Do NOT modify the synthesis files -- a dedicated fix agent will apply all consolidated findings
 5. Write your QA report to [output-path]
 
 12-ITEM CHECKLIST:
-
 1. Section headers match technical reference template (.claude/templates/documents/technical_reference_template.md)
 2. Table column structures correct per template
 3. No fabrication (Verify EVERY claim in each file, trace to research files)
 4. Evidence citations use actual file paths
 5. Subsystem depth within budget (40-80 simple, 80-120 standard, 120-200 complex)
-6. Extension Guide actionability — Section 14 includes specific file paths, interfaces, and registration points (not generic "add a file to directory X")
+6. Extension Guide actionability — Section 13 includes specific file paths, interfaces, and registration points (not generic "add a file to directory X")
 7. Cross-section consistency (integration points in Section 8 match subsystem references in Section 5)
 8. No doc-only claims in Architecture (Section 2) or API & Integration (Section 8)
 9. Stale documentation discrepancies surfaced in Tech Debt (Section 14)
@@ -882,69 +911,85 @@ PROCESS:
 12. No hallucinated file paths (verify parent directories exist)
 
 VERDICTS:
-
 - PASS: All synth files meet quality standards
-- FAIL: Issues found (list with specific fixes, note which were fixed in-place)
-
+- FAIL: Issues found (list with specific fixes and suggested remediation)
 ```
 
-### Report Validation QA Agent Prompt (rf-qa — Report Validation)
+### Lens-Based QA Agent Prompt Templates (Phase 6 — Final Document QA)
+
+These templates replace the single Report Validation QA Agent Prompt. Each lens agent receives ONE of these prompts. The task-builder embeds the appropriate lens prompt in each checklist item per B2.
+
+#### Standard Structural Lens Prompts (rf-qa)
 
 ```
+Perform [LENS-NAME] validation of the assembled technical reference for [feature name].
 
-Perform final QA validation of the assembled technical reference for [feature name].
-
-QA phase: report-validation
+QA phase: lens-[lens-name]
 Report path: [report-path]
-Research directory: [research-dir-path]
 Template path: .claude/templates/documents/technical_reference_template.md
 Output path: [output-path]
-Fix authorization: true (always authorized for report validation)
+Fix authorization: false (report only — do NOT modify the document)
 
-This is the final quality check before presenting to the user. You can and should fix issues in-place.
+**ADVERSARIAL STANCE:** Assume this document has at least [N] errors in your lens area. Find them. (N = document_lines / 100, minimum 5)
+```
 
-**ADVERSARIAL STANCE:** Assume the work contains errors. Your job is to find what was missed, not confirm everything is fine. Verify every claim exhaustively. A verdict of 0 issues requires evidence you thoroughly checked.
+**Note:** The full prompt body for each of the following lenses should replicate the structural format of the original Report Validation prompt (ADVERSARIAL STANCE, PROCESS, checklist, report format) but with the checklist focused ONLY on the lens:
+
+1. **Template-Conformance Lens:** All 16 template sections present or N/A, frontmatter complete, section ordering matches template, no remaining placeholders or sentinel values.
+2. **Internal-Consistency Lens:** IDs match across tables, counts agree between sections, cross-references resolve, no contradictions within the document, Table of Contents matches actual headers.
+3. **Evidence-Quality Lens:** All claims cite file paths/line numbers, no unverified assertions, no hallucinated paths, every cited file actually exists, evidence is specific (not "the code does X").
+4. **Completeness Lens:** Every topic from scope discovery appears in the output, no silently dropped items, every subsystem from research notes has a corresponding section.
+
+#### Standard Content Lens Prompts (rf-qa-qualitative)
+
+1. **Actionability Lens:** Extension Guide entries are specific enough to execute (file paths to create, interfaces to implement, registration points). Configuration instructions have exact parameter names. Every "how to" section is followable without reading other docs.
+2. **Numbers-Metrics Lens:** Quantitative claims (file counts, line counts, component counts) are internally consistent and match between sections. Percentages add up. Tier budget adherence.
+3. **Cross-Reference-Chain Lens:** Trace subsystem-to-API-to-config-to-example chains end-to-end. Every integration point in Section 8 maps to a subsystem in Section 5. Components in Section 7 reference actual stores/state defined in Section 6.
+4. **Domain-Accuracy Lens:** Claims about the codebase match actual code. No aspirational features described as current. No planned architecture described as implemented. Configuration values match actual defaults.
+
+#### Tech-Reference Domain-Specific Lens Prompts
+
+1. **Code-Example-Accuracy Lens (rf-qa):** Every code snippet, inline code reference, and usage example in the tech reference must be verified against the actual source file at the cited path and line number. Flag any example that differs from actual code.
+2. **API-Signature-Correctness Lens (rf-qa):** Every documented function signature, method signature, class constructor, and API endpoint must match the actual code. Parameter names, types, return types, and default values must be exact. Flag any mismatch.
+3. **Configuration-Value-Verification Lens (rf-qa-qualitative):** Every configuration option documented (env vars, config file keys, default values, valid ranges) must be verified against actual configuration files and environment variable usage in the codebase. Flag any missing, extra, or incorrect config documentation.
+
+#### Source-Document Fidelity Agent Prompt Template (Phase 6 Gate 4)
+
+```
+Perform source-document fidelity verification of the assembled technical reference for [feature name].
+
+QA phase: source-fidelity
+Tech reference path: [doc-path]
+Assigned source code files: [list of source files/directories for this agent's partition]
+Assigned fidelity lens: [one of: semantic-coverage | detail-preservation | phantom-coverage-detection | aspirational-content-detection | cross-reference-verification]
+Output path: [output-path]
+Fix authorization: false (report only)
+
+**ADVERSARIAL STANCE:** Assume the tech reference contains at least 5 fidelity errors in your assigned lens area where the documentation diverges from the actual code. Find them.
+
+**FOCUS:** You are assigned ONE fidelity lens. Apply ONLY your assigned lens checks below. Do not duplicate work from other fidelity agents' lenses.
 
 PROCESS:
+1. Read EACH assigned source code file carefully
+2. Read the ENTIRE assembled tech reference
+3. Apply your assigned lens checks (see below) to every relevant documented item
+4. Write your fidelity report to [output-path]
 
-1. Read the ENTIRE technical reference document
-2. Apply the 15-item Validation Checklist + 5 Content Quality Checks
-3. For each issue: document it, fix it in-place with Edit, verify the fix
-4. Write your QA report to [output-path]
+FIDELITY LENS CHECKS (apply ONLY your assigned lens):
+- **semantic-coverage:** Every subsystem, API endpoint, and configuration item documented in the tech reference can be traced to actual source code. Flag undocumented significant code features.
+- **detail-preservation:** Function signatures, config defaults, error codes, and type shapes match the code exactly. Every documented behavior description matches actual code behavior.
+- **phantom-coverage-detection:** File paths referenced in the tech reference must exist and contain what the doc claims. No fabricated or stale paths.
+- **aspirational-content-detection:** No planned/aspirational features described as current functionality. No architecture described as implemented that is not yet built.
+- **cross-reference-verification:** All cross-references between sections resolve correctly. Section references, table IDs, and internal links point to the right content.
 
-15-ITEM VALIDATION CHECKLIST:
-
-1. All 16 template sections present (or explicitly marked as N/A with rationale)
-2. Frontmatter has all required fields from the template
-3. Total line count within tier budget (Lightweight: 400-600, Standard: 800-1200, Heavyweight: 1200-1800)
-4. No subsystem section exceeds 200 lines
-5. No full source code reproductions (interfaces, function bodies, CSS values)
-6. All file paths reference actual files that exist
-7. Section 6 (State Management) under 150 lines if included
-8. Tables use correct column structure from template
-9. No doc-sourced architectural claims presented as verified without code cross-validation tags
-10. Web research findings include source URLs for every external claim
-11. Gaps and questions file exists at ${TASK_DIR}gaps-and-questions.md
-12. Document Provenance appendix present if consolidating existing docs
-13. Architecture diagrams use ASCII format, not prose descriptions
-14. All CODE-CONTRADICTED/STALE DOC findings surfaced in Tech Debt (Section 14)
-15. Verification section (Section 15) has verification date and spot-check protocol
-
-CONTENT QUALITY CHECKS:
-16. Table of Contents accuracy — matches actual section headers
-17. Internal consistency — no contradictions between sections
-18. Readability — scannable with tables, headers, bullets (not dense prose)
-19. Completeness — a developer could understand the feature from this document alone
-20. Actionability — Extension Guide (Section 13) entries must be specific enough that a developer could begin implementing each extension point
-
-Fix every issue you find. Report honestly.
-
+Report format:
+- PASS: No fidelity issues found (with evidence of thorough checking)
+- FAIL: Issues found (list each with: documented claim, actual code, file path, line number, severity)
 ```
 
 ### Assembly Agent Prompt (rf-assembler — Document Assembly)
 
 ```
-
 Assemble the final technical reference for [feature name] from synthesis files.
 
 Component files (in order):
@@ -957,14 +1002,11 @@ Template path: .claude/templates/documents/technical_reference_template.md
 CRITICAL — Incremental File Writing Protocol:
 You MUST follow this protocol exactly. Violation results in data loss.
 
-1. FIRST ACTION: Create the output file immediately with the document header
+1. FIRST ACTION: Create the output file immediately with the document header:
    ---
-
-[frontmatter from template — fill in all fields, set content_status: "🟡 Draft"]
+   [frontmatter from template — fill in all fields, set status: "🟡 Draft"]
    ---
-
-# [Feature Name] Technical Reference
-
+   # [Feature Name] Technical Reference
    **Purpose:** [one-sentence purpose]
    **Date:** [today]
    **Tier:** [Lightweight / Standard / Heavyweight]
@@ -977,7 +1019,6 @@ You MUST follow this protocol exactly. Violation results in data loss.
 3. After each Edit, the file grows. This is correct behavior. Never rewrite from scratch.
 
 Output format — follow the template section ordering exactly:
-
 1. Overview (purpose, scope, key stats)
 2. Architecture (diagrams, component relationships)
 3. Directory Structure (file tree, organization)
@@ -996,7 +1037,6 @@ Output format — follow the template section ordering exactly:
 16. Glossary (domain-specific terms)
 
 Assembly rules:
-
 1. Write the document header and frontmatter first
 2. Assemble sections in template order — read each synth file and write its content into the correct position
 3. Write each section to disk immediately after composing it — do NOT one-shot
@@ -1011,7 +1051,6 @@ Assembly rules:
 7. Ensure no placeholder text remains (search for [, TODO, TBD, PLACEHOLDER)
 
 Content rules (non-negotiable):
-
 - Tables over prose whenever presenting multi-item data
 - No full source code reproductions — summarize with key signatures and file paths
 - Use ASCII diagrams for architecture and component hierarchies, not prose descriptions
@@ -1026,15 +1065,12 @@ Do NOT attempt full content validation — that is the QA agent's job. Focus on 
 integrity: correct ordering, internal consistency, no placeholders, all components included.
 
 Consolidation protocol (when consolidating existing docs into this tech reference):
-
 1. Read each source document listed in the task's "Source Files to Consolidate" section
 2. Map each source document's content to the corresponding template section(s)
 3. Where source docs overlap, merge by keeping the most specific/recent information and noting conflicts
 4. Add an Appendix: Document Provenance subsection listing each source doc with its path, original purpose, and which sections it contributed to
 5. Zero content loss — every metadata piece and unique finding from source docs must appear in the final output or be explicitly noted as superseded
 6. After assembly, the source docs should be candidates for archival (the tech reference replaces them)
-documents must appear somewhere in the tech reference.
-
 ```
 
 ---
@@ -1148,7 +1184,7 @@ Adjust the mapping based on feature complexity. Backend features skip Section 6 
 
 ## Synthesis Quality Review Checklist
 
-**This checklist is enforced by the rf-analyst and rf-qa agents** (see Phase 5 in the task phases). The rf-analyst applies these 9 criteria as its Synthesis Quality Review analysis type, and the rf-qa agent independently verifies the analyst's findings with its expanded 12-item Synthesis Gate checklist. The QA agent can fix issues in-place when authorized.
+**This checklist is enforced by both the rf-analyst and rf-qa agents** (see Phase 5 in the task phases). Items 1-5 and 7-9 overlap between both agents as intentional redundancy — independent agents checking the same criteria catch different failure modes. Item 6 differs: the rf-analyst checks architecture descriptions are backed by code-traced evidence, while the rf-qa checklist checks Extension Guide actionability (Section 13). Items 10-12 are rf-qa additions: content rules compliance, section completeness, and hallucinated file path detection.
 
 The 9 criteria (used by rf-analyst):
 
@@ -1162,7 +1198,7 @@ The 9 criteria (used by rf-analyst):
 8. **No doc-only claims in Architecture or API sections.** Verify that Sections 2 and 8 only contain descriptions backed by code-traced evidence. If a synth file describes a component and the only evidence is a documentation file (no source code path), reject that claim and flag it as `[UNVERIFIED — doc-only]`
 9. **Stale documentation discrepancies are surfaced.** Any `[CODE-CONTRADICTED]` or `[STALE DOC]` findings from research files should appear in Tech Debt (Section 14), not silently omitted
 
-The rf-qa agent's Synthesis Gate adds 3 additional checks (10-12): content rules compliance, section completeness, and hallucinated file path detection. If synthesis QA fails, the QA agent fixes issues in-place (when authorized) and issues remaining unfixed trigger re-synthesis of the affected files.
+The rf-qa agent's Synthesis Gate adds 3 additional checks (10-12): content rules compliance, section completeness, and hallucinated file path detection. If synthesis QA fails, findings are consolidated and a dedicated fix agent applies all fixes per the serialized fix protocol. Remaining unfixed issues trigger re-synthesis of the affected files.
 
 ---
 
@@ -1178,7 +1214,7 @@ The assembly step reads all synth files in order and produces the final technica
 4. **Write the Table of Contents** — generate from actual section headers after all sections are placed.
 5. **Cross-check internal consistency** — verify that:
    - Integration points in Section 8 match subsystem descriptions in Section 5
-   - State management in Section 6 references actual stores/hooks from Section 7
+   - Components in Section 7 reference actual stores/hooks defined in Section 6
    - Conventions in Section 12 align with patterns observed in Section 5 subsystems
    - Tech Debt in Section 14 includes all `[CODE-CONTRADICTED]` and `[STALE DOC]` findings
    - Verification section (Section 15) has verification date and spot-check protocol
@@ -1205,6 +1241,8 @@ Before presenting the technical reference to the user, validate against this che
 - [ ] Architecture diagrams use ASCII format, not prose descriptions
 - [ ] All CODE-CONTRADICTED/STALE DOC findings surfaced in Tech Debt (Section 14)
 - [ ] Verification section (Section 15) has verification date and spot-check protocol
+- [ ] Every agent prompt includes its required protocol blocks (Incremental Writing for all, ADVERSARIAL STANCE for QA, Documentation Staleness for research)
+- [ ] If a design spec, detailed requirements document, or comprehensive user description was provided as input, every feature/requirement described in the source is represented in the generated output (run section-by-section coverage check against the source)
 
 ---
 
@@ -1248,7 +1286,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 
 7. **Report all uncertainty.** If something is unclear, ambiguous, or requires a judgment call, document it in Tech Debt (Section 14) with an `[UNVERIFIED]` tag and include it in the gaps-and-questions.md file. Do not silently pick one interpretation and present it as fact.
 
-8. **Quality gates are mandatory.** Quality agents MUST be spawned at all 3 gate points: after research (rf-analyst + rf-qa in parallel for completeness verification + research gate), after synthesis (rf-analyst + rf-qa in parallel for synthesis review + synthesis gate), and after assembly (rf-qa only for report validation). These gates are not optional and cannot be skipped. Maximum 3 fix cycles per gate — after 3 failed cycles, HALT execution and ask the user for guidance. Do NOT convert unresolved findings into Open Questions.
+8. **Quality gates are mandatory and lens-based.** Quality agents MUST be spawned at all 4 gate points: after research (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative for multi-lens research verification), after synthesis (2 rf-analyst + 2 rf-qa + 1 rf-qa-qualitative for multi-lens synthesis review), after assembly (lens-based QA with 6-12+ agents scaled by output size, each focused on a single quality dimension), and after lens-based QA (source-document fidelity gate with minimum 5 fidelity agents, scale to 6-8, reading source code + output). NO gate at any point may use fewer than 5 agents total. A gate with only 1-2 agents is PROHIBITED — single agents rubber-stamp large outputs. All gates use serialized fix authorization: all QA agents report only (fix_authorization: false), then a single fix agent applies consolidated findings, then a verification round confirms. These gates are not optional and cannot be skipped. Maximum 3 fix cycles per gate — after 3 failed cycles, HALT execution and ask the user for guidance. Do NOT convert unresolved findings into Open Questions.
 
 9. **No one-shotting documents.** Agents must write incrementally as they discover information. The assembler must write the final document section by section. This is non-negotiable — one-shotting hits token limits and loses all accumulated work.
 
@@ -1262,14 +1300,23 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 
 14. **Anti-orphaning rule.** Task-completion items (status update, Task Log entry, frontmatter update) MUST be checklist items within the final phase of the task file, not in a separate Post-Completion section. This ensures they are executed by the F1 loop and not orphaned.
 
-15. **QA gates are checklist items, not prose.** Every QA gate specified in QA_GATE_REQUIREMENTS must appear in the generated task file as a `- [ ]` checklist item following B2 self-contained pattern. QA gates described only in prose or comments are invisible to the F1 executor and will be skipped.
+15. **QA gates are checklist items, not prose.** Every QA gate specified in QA_GATE_REQUIREMENTS must appear in the generated task file as individual `- [ ]` checklist items following B2 self-contained pattern. Each lens agent gets its OWN checklist item (not a batch item like "spawn all lens agents"). The consolidation step, fix agent, and verification round each get their own items. A single Phase 6 QA gate will have 12-20+ checklist items (one per lens agent, one for consolidation, one for fix agent, one per verification agent, one for fidelity gate). QA gates described only in prose or comments are invisible to the F1 executor and will be skipped.
+
+16. **Every agent prompt MUST include ALL mandatory protocol blocks:** Incremental File Writing Protocol (all agents), ADVERSARIAL STANCE (QA/analyst agents), Documentation Staleness Protocol (research agents). Missing protocol blocks are the most common generation defect — verify every prompt individually.
+
+17. **Single-agent large-input prohibition.** No single agent may read more than ~1000 lines of input at any discovery, analysis, or extraction stage. Large inputs MUST be partitioned into slices, with one agent per slice spawned in parallel. The rf-task-researcher agent type is permitted per slice but not as a replacement for parallelism. Violations cause shallow coverage and defeat the Deep-tier depth guarantee. Exception: the rf-assembler agent is exempt from this threshold because assembly requires cross-section consistency that cannot be partitioned. The assembler reads synthesis files (not raw source), which are already distilled to manageable size by the synthesis phase. This exemption is intentional — partitioning the assembler would break cross-section coherence.
+
+18. **No scope/cost-anxiety pauses during execution.** Once a task file begins executing (via /task or any execution loop), the executor MUST process every item sequentially to completion. It MUST NOT pause mid-execution to present the user with options like "stop here and review, or continue to phase N?" or to flag scope/cost/time concerns. Scope is established at task file creation time. Cost is committed when the user invokes execution. The only permitted mid-execution halts are: all items blocked by the same unrecoverable issue, phase-gate QA failing 3 fix cycles, or an item output fundamentally invalidating the rest of the task. "This will take a while" / "Phase N is expensive" / "the user might want to review" are NOT valid halt reasons. Pausing for these reasons violates the F1 loop discipline and the skill's trust model.
+
+19. **Minimum agent count floors are non-negotiable.** No QA gate may spawn fewer agents than the minimums prescribed in QA_GATE_REQUIREMENTS. The absolute floor for ANY gate is 5 agents (across all agent types combined). Exception: Verification rounds (the post-fix confirmation step within a gate's serialized fix protocol) are sub-steps of a gate, not independent gates. They are exempt from the 5-agent floor. Verification rounds use a minimum of 2 agents (1 rf-qa + 1 rf-qa-qualitative) to confirm fixes were applied correctly. For the final assembled document QA gate (Phase 6), the floor is determined by output line count per the table in QA_GATE_REQUIREMENTS: <500 lines = 8 standard + 3 domain-specific = 11 agents minimum; 500-1500 lines = 8 standard + 3 domain = 11 agents minimum; 1500-3000 lines = 10 standard + 3 domain = 13 agents minimum (partition completeness lens across 2 agents with section ranges); >3000 lines = 12 standard + 3 domain = 15 agents minimum (partition completeness and evidence-quality lenses across 2 agents each). Task files with QA gates specifying fewer agents than these floors MUST be rejected during task-builder validation. This rule applies retroactively to all generated task files.
+
+20. **rf-qa-qualitative is mandatory at ALL gates, not just the final gate.** The research gate (Phase 3) and synthesis gate (Phase 5) each MUST include at least 1 rf-qa-qualitative agent focused on depth/coherence quality. Structural checks (rf-analyst + rf-qa) alone miss qualitatively shallow research and incoherent synthesis. This agent catches the gap where work is structurally complete but content is surface-level.
 
 ---
 
 ## Research Quality Signals
 
 ### Strong Investigation Signals
-
 - Findings cite specific file paths and line numbers
 - Data flow traced end-to-end, not just entry points
 - Integration points mapped with actual function signatures
@@ -1280,7 +1327,6 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - rf-qa research gate shows PASS
 
 ### Weak Investigation Signals (Redo)
-
 - Vague descriptions without file paths ("the system uses a plugin architecture")
 - Assumptions stated as facts ("this probably works by...")
 - Missing gap analysis (everything seems fine — unlikely for non-trivial systems)
@@ -1290,7 +1336,6 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 - Quality gates fail repeatedly (>2 fix cycles indicates systematic research problems)
 
 ### When to Spawn Additional Agents
-
 - A research agent flags a gap that's critical to the document
 - Two agents' findings contradict each other — need a tie-breaker investigation
 - The scope turns out larger than initially estimated
@@ -1299,27 +1344,7 @@ Three execution-discipline rules (task-file-source-of-truth, maximize-parallelis
 
 ---
 
-## Artifact Locations
-
-| Artifact | Location |
-|----------|----------|
-| MDTM task file | `${TASK_DIR}${TASK_ID}.md` |
-| Research notes | `${TASK_DIR}research-notes.md` |
-| Research files | `${TASK_DIR}research/[NN]-[topic].md` |
-| Web research files | `${TASK_DIR}research/web-[NN]-[topic].md` |
-| Gaps log | `${TASK_DIR}gaps-and-questions.md` |
-| Synthesis files | `${TASK_DIR}synthesis/synth-[NN]-[topic].md` |
-| Analyst report (research) | `${TASK_DIR}qa/analyst-completeness-report.md` |
-| QA report (research gate) | `${TASK_DIR}qa/qa-research-gate-report.md` |
-| Analyst report (synthesis) | `${TASK_DIR}qa/analyst-synthesis-review-report.md` |
-| QA report (synthesis gate) | `${TASK_DIR}qa/qa-synthesis-gate-report.md` |
-| QA report (report validation) | `${TASK_DIR}qa/qa-report-validation-report.md` |
-| QA report (qualitative review) | `${TASK_DIR}qa/qa-qualitative-review.md` || Final tech reference | `docs/[domain]/FEATURE-NAME-TECHNICAL-REFERENCE.md` |
-| Template schema | `.claude/templates/documents/technical_reference_template.md` |
-
-Research, synthesis, and QA report files persist in the task folder — they serve as the evidence trail for claims in the tech reference and can be re-used when the document needs updating.
-
----
+<!-- Artifact Locations section removed — Output Locations table (above) is the single source of truth for artifact paths. -->
 
 ## Session Management
 
@@ -1342,5 +1367,7 @@ When the user wants to update (not create) an existing tech reference:
 2. Research only the changed/new areas (don't re-research everything)
 3. Write new research files for the changes: `${TASK_DIR}research/update-[date]-[topic].md`
 4. Edit the relevant sections of the tech reference in place
+4.5. Spawn scoped QA on modified sections: 2 rf-qa fidelity agents (each reads the changed sections against actual source code to verify accuracy) + 2 rf-qa-qualitative (cross-section consistency of modified content + stale-claim detection in adjacent sections) + 1 rf-analyst (change-impact assessment: do the edits introduce contradictions with unchanged sections?), all with fix_authorization: true. Max 2 fix cycles. After 2 failed fix cycles, HALT: log remaining issues, present findings to user, ask for guidance before proceeding to steps 5-6. This is a lighter gate than the full Phase 6 QA but ensures no stale claims, broken cross-references, or fidelity gaps are introduced by the update.
 5. Update the Verification section (Section 15) with the new verification date
 6. Update Document History with what changed
+

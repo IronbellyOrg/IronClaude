@@ -672,7 +672,7 @@ Invocation pattern (all via `Skill <name>`, never `/sc:<command>`):
 
 ```
 Skill sc-adversarial-protocol with \
-  --compare <output>/reviewer-cards/card-1.md,card-2.md,card-3.md \
+  --compare <output>/reviewer-cards/reviewer-1-card.yaml,reviewer-2-card.yaml,reviewer-3-card.yaml \
   --depth standard \
   --focus correctness,coverage,deviation-classification \
   --output <output>/adversarial/
@@ -689,6 +689,8 @@ Empty-response / partial-parse / missing-file guards apply per `sc-brainstorm-pr
 - For the promotion gate: per §14.5.2 condition 9, `tier_reached == 2 AND convergence_score == null` blocks promotion regardless of other conditions. A Tier 2 run with no merged adversarial verdict cannot promote.
 - For non-promotion routing (e.g., sprint executor.py status routing): null `convergence_score` translates to `status: partial` AND `next_action: halt-phase-for-review`. Consumers MUST NOT route a null as a default-PASS or default-FAIL.
 
+**Wave 4 runtime exit STOP (ORCHESTRATOR-VERIFIES-ON-DISK) [EV-1].** This applies ONLY when Wave 4 runs (Tier 2; Tier-1 runs have no Wave 4 and no `adversarial/` dir, so the STOP does not apply to them). When Wave 4 runs, it is NOT complete until EITHER (a) the orchestrator reads disk (Glob/Bash, NOT a self-written field) and confirms `<output>/adversarial/merged-verdict.yaml` exists with `merge_method: adversarial` AND `<output>/reviewer-cards/` holds at least the resolved `--reviewers` count of blind-calibrated cards (minimum 2 per the §7.1 N=2 T2 floor, one card per reviewer), OR (b) a loud fallback legitimately fired and is corroborated on disk: `adversarial_unavailable: true` is set AND an audit.log F-step entry records the F2/F3 path (and `merge_method == single-reviewer-fallback` when the F2 path was taken). (RATIONALE: a real adversarial merge writes `merged-verdict.yaml` plus one calibrated card per reviewer; a raw file-count threshold is NOT used because a genuine merge legitimately writes only ~3 files into `adversarial/` -- the load-bearing evidence is the merged verdict + per-reviewer cards, not a fixed count.) The STOP catches the failure mode where a Wave-4 adversarial-merge attempt is reported complete but neither (a) the real merge artifacts are on disk nor (b) a corroborated loud fallback fired: that state is MALFORMED. On MALFORMED, do NOT advance past Wave 4 as if a merge succeeded AND do NOT halt-and-end: write a MALFORMED audit.log row and REMEDIATE -- re-run Wave 3-4 up to 2 additional times, or route to the loud F2/F3 fallback; HALT only if it remains MALFORMED after those bounded retries. (This STOP does NOT block the legitimate fallback path; it blocks silently treating an empty `adversarial/` dir, a missing `merged-verdict.yaml`, an illegal `merge_method`, or fewer reviewer-cards than reviewers as a successful merge.) The §12 eval-matrix detector (in the testability map) stays as belt-and-suspenders; this exit condition is the runtime gate.
+
 ---
 
 ## 9. Output Contract (Versioned)
@@ -698,7 +700,7 @@ Two-block contract: stable + telemetry. Written to `<output>/return-contract.yam
 ### 9.1 Stable contract (contract_version: 1.7.0)
 
 ```yaml
-contract_version: "1.7.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
+contract_version: "1.7.0"   # 1.4.0 added remediation_task_path (FR-8); 1.5.0 (D13) ADDITIVE ONLY: +coverage_pct_union, +coverage_degraded, +unmapped_requirements_union; coverage_pct and unmapped_requirements keep parsed-only semantics; 1.7.x runtime/semantic hardening: EV-1 Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK merge gate + EV-2 merge_method legal-values guard (no stable-field change); 1.6.0 (FR-RSR) ADDITIVE ONLY: +runtime_surface_* (6 fields); 1.7.0 (FR-RH1) ADDITIVE ONLY: +reachability_* fields
 status: success | partial | failed | dry-run
 mode: pre | post
 tier_reached: 1 | 2 | 3
@@ -809,7 +811,7 @@ reviewer_cards: [<list of paths>] | []
 adversarial_artifacts_dir: <path> | null   # consumer-side remap from sc-adversarial's `artifacts_dir` field (see §8)
 adversarial_convergence_score: <float> | null
 adversarial_unavailable: <bool>      # F3 path
-merge_method: adversarial | single-reviewer-fallback   # F2 path
+merge_method: adversarial | single-reviewer-fallback   # F2 path. [EV-2] LEGAL VALUES ARE EXACTLY {adversarial, single-reviewer-fallback}: any other value (inline, convergence-inline, an in-context "convergence" of the cards) is MALFORMED -> reject. A non-adversarial merge is legal ONLY via the F2/F3 fallback (single-reviewer-fallback + adversarial_unavailable: true + audit.log). Reflect MUST NOT synthesize its own merge.
 t2_model_class_diversity: full | degraded
 t2_vendor_diversity: multi | single   # warn-only in v1.0
 t2_effective_diversity: full | model-only | vendor-only | none   # derived; combines both diversity axes
@@ -1742,7 +1744,7 @@ Reflect emits a structured metrics file at `<output>/metrics.json` (and appends 
   },
   "adversarial": {
     "convergence_score": <float | null>,
-    "merge_method": "adversarial | single-reviewer-fallback",
+    "merge_method": "adversarial | single-reviewer-fallback",   // [EV-2] LEGAL VALUES ARE EXACTLY {adversarial, single-reviewer-fallback}; any other (inline, convergence-inline, in-context "convergence") is MALFORMED -> reject; non-adversarial merge legal ONLY via F2/F3 fallback; reflect MUST NOT synthesize its own merge
     "adversarial_unavailable": <bool>,
     "fallback_path": "null | F1 | F2 | F3"
   },
@@ -1919,7 +1921,7 @@ Every load-bearing protocol decision maps to at least one deterministic or quali
 | §14.5.2 9-condition gate (11 atomic fields after a/b splits) | `yaml_field` (per condition) | `promotion-log.yaml gate_evaluation.*` |
 | §14.5.5 cross-fs partial-state recovery | `path_exists` / `path_does_not_exist` + `yaml_field` | `promotion-checkpoint.yaml state` |
 | §14.5.7 falsifier skeleton presence | `falsifier_skeleton_present` | `cases/falsifier-suite/T2-converges-on-wrong.yaml` |
-| Adversarial delegation artifacts | `dir_count` | `<output>/adversarial/ min_files=6` |
+| Adversarial delegation artifacts | `file_present + card_count` | `<output>/adversarial/merged-verdict.yaml` present with `merge_method: adversarial` AND `<output>/reviewer-cards/` count `>= --reviewers` (min 2, the §7.1 N=2 T2 floor) |
 | Citation grounding (final report) | `citation_resolves` | `REPORT.md` |
 | Recommendation actionability | `yaml_list_contains` | `recommendation-scrutiny.yaml decision` |
 | Memory write optionality | `yaml_substring` | `telemetry memory_status` |

@@ -1,0 +1,36 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/pr197-final-merge-strategy/seed-brief.md
+merged_output_path: .dev/brainstorms/pr197-final-merge-strategy/merged-requirements.md
+convergence_score: 0.74            # B fully converged (0.9); A split (0.72/0.62) → partial-on-A, high-on-B
+adversarial_artifacts_dir: .dev/brainstorms/pr197-final-merge-strategy/adversarial
+domain: process
+proposal_count: 3                  # focused grounded adjudicators (A-pro, A-con, B-skeptic); clamped from 5 — adjudication, not ideation
+enrichment_used:
+  - source: codebase
+    quality_tier: primary          # direct gh pr diff + git show origin/master + 3-agent panel
+  - source: research-deep
+    quality_tier: skipped          # --research none
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "DECISION_A_anti_self_confirmation_model: near-even split (instance-level 0.72 vs exclusion 0.62); recommended default KEEP-MASTER-EXCLUSION; requires user product sign-off; Option C (hybrid floor+hard-preference) filed as follow-up"
+decisions:
+  decision_a:
+    fork: "executor-class EXCLUSION (master) vs INSTANCE-LEVEL INDEPENDENCE (#197) vs HYBRID (C)"
+    recommended_default: keep-master-exclusion-near-term + funded-A-to-C-fast-follow
+    confidence: 0.82   # raised from 0.62 after deep 3-round adversarial debate (adversarial-decisionA/)
+    needs_user_signoff: true
+    deep_debate: "adversarial-decisionA/ — 3 rounds + invariant probe; Option C advocate reversed onto A near-term; INV-201 + INV-207 decisive; end-state = C as funded non-blocking fast-follow"
+  decision_b:
+    fork: "keep master strict guard vs accept #197 inline_directive"
+    recommendation: reject-directive-and-guard-loosening
+    confidence: 0.9
+    needs_user_signoff: false
+telemetry:
+  files_in_pr: 18
+  accept_as_is: 11
+  port_with_modification: 2
+  reject_or_drop: 5
+  keep_master_canonical: "contract 1.7.0, run_tier2_ensemble, reviewer-isolation, strict no-nesting guard, reachability/runtime_surface, (recommended) executor-class exclusion"
+  pr_merge_mode: "reduce-then-merge (NOT wholesale gh pr merge)"

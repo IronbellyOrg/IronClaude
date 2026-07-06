@@ -1,0 +1,93 @@
+diff --git a/src/superclaude/cli/reflect/runner.py b/src/superclaude/cli/reflect/runner.py
+index f3d77f32..6590eca0 100644
+--- a/src/superclaude/cli/reflect/runner.py
++++ b/src/superclaude/cli/reflect/runner.py
+@@ -369,6 +369,9 @@ class ReflectRunner:
+         # worker subagent. A delegated/nested run can spawn the Tier-2 reviewers, but their
+         # completion callbacks route to the top-level coordinator, NOT back to the nested
+         # runner -- so it cannot collect the reviewer cards and degrades to single-reviewer.
++        # NOTE: this prose directive is best-effort defense-in-depth only; the STRUCTURAL
++        # enforcement is EV-1 (the Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK adversarial-merge gate
++        # in sc-reflect contract 1.5.1), which fails the run if reviewer cards are not on disk.
+         inline_directive = (
+             "\n\nExecute this reflect run INLINE, yourself, as the top-level orchestrator. "
+             "Do NOT delegate the whole run to a subagent. When the protocol reaches Wave 3 "
+diff --git a/tests/cli/reflect/test_inline_directive.py b/tests/cli/reflect/test_inline_directive.py
+new file mode 100644
+index 00000000..242cadb8
+--- /dev/null
++++ b/tests/cli/reflect/test_inline_directive.py
+@@ -0,0 +1,50 @@
++"""Tests for the FR-INLINE execution directive appended by ``_build_prompt``.
++
++The reflect runner appends a natural-language directive instructing the headless
++``claude --print`` agent to run the reflect protocol INLINE (top-level) rather than
++delegating the whole run into a worker subagent (which would degrade Tier-2 review to a
++single-reviewer fallback). These tests assert the directive is present, appended exactly
++once, ends the prompt, and carries its load-bearing phrases -- so the test fails if the
++directive is removed or doubled.
++
++The directive is best-effort defense-in-depth; the STRUCTURAL enforcement is EV-1 (the
++Wave-4 ORCHESTRATOR-VERIFIES-ON-DISK adversarial-merge gate in sc-reflect 1.5.1).
++"""
++
++from __future__ import annotations
++
++from superclaude.cli.reflect.config import resolve_config
++from superclaude.cli.reflect.runner import ReflectRunner
++
++# The verbatim opener and closer of the inline directive in runner.py._build_prompt.
++_DIRECTIVE_OPENER = "Execute this reflect run INLINE"
++_DIRECTIVE_CLOSER = "degrade to a single-reviewer fallback."
++
++
++def _config(tasklist, **overrides):
++    params = dict(depth="standard", model="test-model")
++    params.update(overrides)
++    return resolve_config(str(tasklist), **params)
++
++
++def test_inline_directive_present_with_load_bearing_phrases(
++    temp_tasklist, patch_git
++) -> None:
++    """The built prompt contains the directive's load-bearing phrases."""
++    prompt = ReflectRunner(_config(temp_tasklist))._build_prompt()
++    assert "INLINE" in prompt
++    assert "Do NOT delegate" in prompt
++    assert ("Wave 3" in prompt) or ("Wave 4" in prompt)
++
++
++def test_inline_directive_appended_exactly_once(temp_tasklist, patch_git) -> None:
++    """The directive is appended exactly once (fails if doubled)."""
++    prompt = ReflectRunner(_config(temp_tasklist))._build_prompt()
++    assert prompt.count(_DIRECTIVE_OPENER) == 1
++    assert prompt.count(_DIRECTIVE_CLOSER) == 1
++
++
++def test_inline_directive_ends_the_prompt(temp_tasklist, patch_git) -> None:
++    """The directive is the tail of the prompt (fails if removed)."""
++    prompt = ReflectRunner(_config(temp_tasklist))._build_prompt()
++    assert prompt.rstrip().endswith(_DIRECTIVE_CLOSER)
+diff --git a/tests/cli/reflect/test_no_nesting_guard.py b/tests/cli/reflect/test_no_nesting_guard.py
+index 5f8ecfd4..a5072b95 100644
+--- a/tests/cli/reflect/test_no_nesting_guard.py
++++ b/tests/cli/reflect/test_no_nesting_guard.py
+@@ -96,7 +96,17 @@ def test_layer_b_wrapper_module_has_no_agent_imports() -> None:
+     """runner.py launches reflect ONLY via ClaudeProcess (no agent surface)."""
+     src = _RUNNER_SRC.read_text(encoding="utf-8")
+     assert "ClaudeProcess" in src
+-    for banned in ("import anthropic", "from anthropic", "subagent", "Task("):
++    # NOTE: the banned tokens target the agent-spawn *surface* (imports + Agent/Task spawn
++    # calls), NOT English prose. The FR-INLINE directive STRING legitimately discusses a
++    # "subagent" as data it sends to the remote headless agent, so we guard the actual spawn
++    # kwarg `subagent_type` / `Agent(` rather than the bare word "subagent".
++    for banned in (
++        "import anthropic",
++        "from anthropic",
++        "subagent_type",
++        "Agent(",
++        "Task(",
++    ):
+         assert banned not in src, (
+             f"agent-surface token leaked into runner.py: {banned!r}"
+         )
