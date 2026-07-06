@@ -435,11 +435,12 @@ QA_GATE_REQUIREMENTS: PER_PHASE
     - standard: 2 rf-qa fidelity agents (semantic-coverage + detail-preservation). Max 2 fix cycles.
     - full: 5 rf-qa fidelity agents (semantic-coverage, detail-preservation, phantom-coverage, aspirational-content-detection, cross-reference-verification). Scale to 6 at 1000-2000 source lines, 8 at >2000. Max 3 fix cycles.
 
-VALIDATION_REQUIREMENTS: TEMPLATE_COMPLIANCE + EVIDENCE_TRAIL + CROSS_VALIDATION + SOURCE_FIDELITY
+VALIDATION_REQUIREMENTS: TEMPLATE_COMPLIANCE + EVIDENCE_TRAIL + CROSS_VALIDATION + SOURCE_FIDELITY + NO_DOCS_CLOSE_DEFECT
   TEMPLATE_COMPLIANCE: All sections from technical_reference_template.md must be present or marked N/A with rationale.
   EVIDENCE_TRAIL: Every claim must cite file paths, line numbers, or verified sources.
   CROSS_VALIDATION: Doc-sourced claims carry [CODE-VERIFIED]/[CODE-CONTRADICTED]/[UNVERIFIED] tags.
   SOURCE_FIDELITY: Phase 6 Gate 4 fidelity agents read the actual source code files AND the assembled tech reference; semantic coverage of every documented subsystem, API signature, and configuration value must be verified against source code (not just the synthesis files). Detail preservation is mandatory: function signatures, config defaults, and type shapes in the tech reference must match the code verbatim.
+  NO_DOCS_CLOSE_DEFECT (C8): A [CODE-CONTRADICTED] finding on an IN-SCOPE capability (spec/TDD names it shipped/enabled-by-config but it is not wired at its runtime entrypoint — no production caller, discarded/dead-guarded result, or sentinel-only callee) MUST be recorded as a DEFECT with a linked MDTM remediation task under .dev/tasks/to-do/, and MUST NOT be re-labeled as a known-gap/future-phase/Open-Question without an on-record cited scope decision. A docs pass may not close an unwired in-scope capability by writing prose around it.
 
 TESTING_REQUIREMENTS: N/A — documentation-only skill, no code produced, no tests applicable.
 
@@ -680,6 +681,23 @@ For EVERY doc-sourced architectural claim, mark it with one of:
 
 Claims marked [UNVERIFIED] or [CODE-CONTRADICTED] MUST appear in the Gaps and Questions section.
 Do NOT present doc-sourced claims as verified facts without the code verification tag.
+
+CRITICAL — docs may not close a defect (C8, behavioral-reachability control):
+There is a HARD distinction between a stale doc-path and an unwired in-scope CAPABILITY. When the
+[CODE-CONTRADICTED] finding is on an **in-scope capability** — one the driving spec/TDD names as
+SHIPPED or ENABLED-BY-CONFIG but that is NOT actually wired at its runtime entrypoint (its engine has
+no production caller, its result is discarded/dead-guarded, or its callee is a not-implemented
+sentinel such as an `ErrNoStream`-shape stub) — you MUST:
+1. Record it as a **DEFECT** (not merely a "stale doc" or "known gap"), naming the capability, the
+   spec/TDD line that declares it in-scope, and the code evidence that it is unreachable.
+2. **Open or link an MDTM remediation task** under `.dev/tasks/to-do/` (a `TASK-*` folder) that owns
+   fixing the capability — the finding must have a live remediation owner, not just a doc mention.
+3. You **MUST NOT** re-label the finding as a "known gap" / "future phase" / "Open Question" / "documented
+   deferral" **WITHOUT an on-record, cited scope decision** — a spec/user decision (with its citation)
+   that the capability is deliberately out of scope for this release. Absent that cited decision, an
+   unwired in-scope capability is a DEFECT requiring a remediation task, and a docs pass may NOT close
+   it by writing prose around it. (This is the exact failure the v1.4.1 WS-dial post-mortem records:
+   docs normalized an unwired `Subscribe` as a "documented gap" instead of a defect.)
 
 Output Format:
 - Use descriptive headers for each file or logical group investigated

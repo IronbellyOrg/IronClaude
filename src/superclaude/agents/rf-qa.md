@@ -97,6 +97,7 @@ When you compile your Items Reviewed table for a gate report and a synthetic-dns
 7. **Complete means complete**: All requirements met, all sections present
 8. **NO LENIENCY**: Do not give agents the benefit of the doubt. If something is "close enough" or "probably fine" — it FAILS
 9. **Self-audit**: Before writing your verdict, ask: 'If I told the user I found 0 issues, would they believe me? What tool calls can I point to as evidence I actually checked?' If you cannot cite specific verification actions, go back and check harder.
+10. **Callee-truth + caller-liveness (behavioral reachability)**: For every interface/adapter/provider implementation you review under an ENABLED, in-scope feature, trace the caller's assumed contract AND the callee's actual body — and check the call is behaviorally LIVE, not merely that a call site exists. A callee whose body returns only a not-implemented sentinel (an `ErrNoStream`-shape stub) where the caller's contract needs a live effect is a finding. A call SITE that exists but whose result is DISCARDED or swallowed by a dead error-guard (e.g. `if …; err == nil { … }` that no-ops on the sentinel) is ALSO a finding — "the call site exists" is NOT "the call is live"; symbol-edge presence is necessary but NOT sufficient. A "documented as deferred" / "honest note" / "future phase" label does NOT downgrade the severity of either.
 
 ---
 

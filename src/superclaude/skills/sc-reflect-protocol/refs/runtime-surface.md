@@ -11,7 +11,7 @@ The runtime-surface tagger is UC-2-only and symbol-anchored: it keys off the res
 | Python | CLI command symbols, HTTP route handlers, public endpoint handlers, Click/Typer command callbacks, decorator-registered routes | Resolved function/class symbol kind plus decorators such as `@app.route`, router route decorators, `@click.command`, `@click.group`, `@*.command`, and Typer command/callback decorators |
 | TypeScript / JavaScript | Route handlers, command handlers, exported endpoint handlers, framework/controller methods | Resolved function/method/export kind plus route/handler/controller decorators or call sites naming the symbol as an endpoint/handler |
 | Rust | Command handlers, HTTP/endpoint handlers, functions exported as runtime handlers | Resolved function/item kind plus route/handler attributes or command-dispatch registration visible in the hunk |
-| Go | HTTP handlers, CLI command handlers, exported runtime endpoint functions | Resolved function/method kind plus handler registration idioms visible in the hunk |
+| Go | HTTP handlers, CLI command handlers, exported runtime endpoint functions, AND provider/adapter methods that implement a DECLARED runtime capability (an interface method the composition root wires and a caller invokes for a live effect — e.g. a `Subscribe`/`Dial`/`Open` seam on an injected provider) | Resolved function/method kind plus handler registration idioms visible in the hunk, OR a method whose receiver implements an interface that a composition root binds and a runtime caller invokes for its effect |
 | Other / unknown | Any candidate the tagger cannot classify soundly | `DEGRADE` through the language-table/default oracle; never silently skip a possible surface |
 
 A non-surface diff emits `runtime_surface_requirements: []`, `runtime_surface_sweep_ran: false`, and adds zero runtime-surface sweep cost.
@@ -45,6 +45,16 @@ Static referrer analysis is semi-decidable for runtime wiring. Matching any row 
 Concrete in-repo packaging case: `pyproject.toml` declares `[project.scripts]` entries `superclaude = "superclaude.cli.main:main"` and `ic = "superclaude.cli.ic:main"`. Those console-script entrypoints are registry/packaging wiring and MUST degrade; they are never `UNREACHED` and never Regression solely because no static production caller appears.
 
 Default rule: every reachability uncertainty maps to `DEGRADE → §10.6 Grounding Gap`. The safe asymmetric-cost posture is fail-loud: never silently PASS an untested surface, and never silently Regression an idiomatic dynamic/registry/decorator/reflection/packaging entrypoint.
+
+### 3a. Behavioral reachability for provider/adapter capability seams (symbol-edge ≠ behavioral)
+
+For a tagged **provider/adapter capability seam** (the §1 Go-row addition), a production referrer edge is **NECESSARY BUT NOT SUFFICIENT** to reduce the symbol to `REACHED`. This closes the Layers 1-2 gap the v1.4.1 WS-dial miss exposed (see the reflect-miss analysis: FR-RSR proved a `Subscribe` production referrer existed at `menu.go:663` and reduced it to `REACHED`, while one hop below the edge the caller's `err==nil` guard swallowed the sentinel and the callee returned `ErrNoStream` — the edge existed but carried no live behavior). A capability seam reduces to `REACHED` only when the sweep can show **behavioral reachability**:
+
+1. a production (non-test) caller invokes the seam at a runtime entrypoint / composition root, **AND**
+2. that caller's use of the result is **live** — the result is consumed, not discarded and not swallowed by a dead error-guard (the `if …; err == nil { … }` shape that silently no-ops on a not-implemented sentinel), **AND**
+3. the callee is a **non-vacuous** implementation — not a bare sentinel body (an `ErrNoStream`-shape stub) where the caller's contract requires a live effect.
+
+If a capability seam has a production referrer but sub-clause (2) or (3) fails (result discarded/dead-guarded, or callee is sentinel-only), it does **NOT** reduce to `REACHED` — it is a behavioral-reachability failure that maps to `reachability_unreachable ⇒ Regression` (see `deviation-taxonomy.md`), the same disposition SKILL.md's required-capability reachability pass assigns. Where the sweep cannot statically decide consumed-ness (sub-clause 2) or callee-vacuousness (sub-clause 3), it emits `DEGRADE` (never a silent `REACHED`) per the default doctrine above. Symbol-edge presence alone is never a pass for a capability seam.
 
 ## 4. Entrypoint-rootwalk algorithm (OQ-RSR.3 / FR-RSR.4)
 

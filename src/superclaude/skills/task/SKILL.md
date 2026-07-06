@@ -270,6 +270,15 @@ rf-qa-qualitative at intermediate gates is mandatory. It catches the gap where r
 
 For documents >3000 lines, each lens agent gets a section range (e.g., Sections 1-7 / 8-14 / 15-21 / 22-28) IN ADDITION to its lens focus. The agent checks its lens quality dimension only within its assigned sections.
 
+**Callee-truth + caller-liveness acceptance rule (behavioral reachability — HARD criterion, not advisory).** When a phase produces a callee/adapter/provider that implements an interface method under an ENABLED (config-on, in-scope) feature, the gate MUST trace the CALLER's assumed contract against the callee's ACTUAL body, and MUST verify the call is behaviorally live — not merely that a call site exists. Two symmetric failures, each a **FAIL** (never a deferrable MINOR):
+
+- **Non-sentinel callee (callee-truth):** a method whose body returns only a not-implemented sentinel (an `ErrNoStream`-shape stub) where the caller's contract requires a live effect is a FAIL — the callee lies about doing the work.
+- **Live caller (caller-liveness):** a call SITE that exists but whose result is **discarded**, or **swallowed by a dead error-guard** (the caller invokes the method but never consumes its effect — e.g. an `if …; err == nil { … }` shape that silently no-ops on the sentinel), is ALSO a FAIL. "The call site exists" is NOT "the call is live"; symbol-edge presence is necessary but NOT sufficient.
+
+"Documented as deferred," "honest note," or "future phase" does NOT downgrade either severity. This rule generalizes beyond any single case: it applies to every enabled in-scope capability whose runtime entrypoint must invoke a real, consumed implementation. (This is the callee-truth/caller-liveness half of the shared behavioral-reachability definition; the reflect required-capability pass enforces the same contract at audit time.)
+
+**Unreachability is a release-blocking No-Go (HARD gate, not a carry-forward).** An in-scope capability that the driving spec/TDD marks shipped-or-enabled-by-config but that is behaviorally UNREACHABLE at its runtime entrypoint — no production invocation path, or an entrypoint that reaches only a not-implemented sentinel — is a release-blocking No-Go, **independent of any leak-free or unit-test proof** ("built + tests green" ≠ "reachable"). It may NOT be closed by a "documented/honest" or "future-phase" label at any gate; the only sanctioned dispositions are (a) wire the capability so it is reachable, or (b) explicitly de-scope it via an on-record cited scope decision. A phase gate that observes an enabled-but-unreachable capability MUST FAIL, and a downstream gate may NOT close a deferred runtime-surface/reachability gap without an explicit reachability proof.
+
 **No exceptions:** QA gates are not optional. Every task file processed by this skill gets phase-gate verification on Phase 2+. This is how Rigorflow maintains trust — every phase's outputs are independently verified before proceeding. Gates that spawn fewer than 6 agents are a protocol violation.
 
 ### Post-Completion Validation (Final Phase Only)

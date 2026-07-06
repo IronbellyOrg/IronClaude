@@ -121,6 +121,7 @@ The §6.1 step-5.6 contracted-sink reachability & oracle-admissibility gate (UC-
 | Reachability / oracle evidence | Class | Effect |
 |---|---|---|
 | Real boot ran and observed the contracted sink **absent** | **Regression** | `reachability_unreachable += 1`; `verification_regressions_detected += 1`; `regression_present: true` |
+| **(C7, step 5.6a) A spec/TDD-declared in-scope + enabled-by-config REQUIRED capability is statically behaviorally-unreachable — its runtime entrypoint's result is discarded/dead-guarded, OR its callee is a not-implemented sentinel (an `ErrNoStream`-shape stub). A bare production referrer edge does NOT clear this (symbol-edge presence is necessary-but-insufficient).** | **Regression** | `reachability_unreachable += 1`; `regression_present: true`. Annotation-free and static — the spec declaration is the contract, so NO `durable_sink:` annotation and NO real-boot are required to block. |
 | Blocking annotated (`durable_sink:` / `@sink`) sink present, but no real-boot proof (static binding absence / discarded emitter result / unresolved sink identity / oracle mismatch / real-boot-unavailable) | **Grounding Gap** | `reachability_unproven += 1`; `needs_human_decision: true`; Tier-1 preserved |
 | Binding present, emitter result checked, oracle observes the contracted sink | **none / reachable** | clean |
 

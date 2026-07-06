@@ -1371,6 +1371,8 @@ What is missing between current state and target state.
 |-----|--------------|-------------|----------|-------|
 | [gap] | [what exists] | [what's needed] | Critical/Important/Minor | [context] |
 
+**Docs may not close a defect (C8, behavioral-reachability control).** A gap that is an **UNWIRED IN-SCOPE capability** — one the driving spec/TDD names as shipped or enabled-by-config but that is NOT actually wired at its runtime entrypoint (no production caller, its result discarded/dead-guarded, or its callee a not-implemented sentinel such as an `ErrNoStream`-shape stub) — is a **DEFECT, not merely future-phase work**. It MUST be recorded with Severity **Critical/High**, MUST carry (or link) an MDTM remediation task under `.dev/tasks/to-do/`, and MUST NOT be silently downgraded to "future phase" / "later release" / Open Question **without an on-record, cited scope decision** (a spec/user decision, with citation, that the capability is deliberately out of scope). A research Gap Analysis may not retire an unwired in-scope capability by labeling it future work. (This mirrors the tech-reference C8 rule; both exist because the v1.4.1 WS-dial post-mortem records docs normalizing an unwired `Subscribe` as a documented gap instead of a defect.)
+
 ---
 
 ## 5. External Research Findings
