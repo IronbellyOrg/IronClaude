@@ -157,7 +157,7 @@ evals:
     # no line recommends invoking `/post-release-update`. The sentinel
     # "POST_RELEASE_NO_STALE_LANG" prints only when no such recommendation is found.
     inputs:
-      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `! grep -nE 'invoke .?/post-release-update|use .?/post-release-update|run .?/post-release-update' src/superclaude/commands/post-release.md src/superclaude/skills/sc-post-release-protocol/SKILL.md && echo POST_RELEASE_NO_STALE_LANG`. This is read-only; do not modify anything."
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `! grep -niE '(invoke|use|try|call|run|prefer)|[^a-z](should|recommend|advertise)[^a-z]' src/superclaude/commands/post-release.md src/superclaude/skills/sc-post-release-protocol/SKILL.md | grep -i '/post-release-update' && echo POST_RELEASE_NO_STALE_LANG`. This is read-only; do not modify anything. (Case-insensitive, covers invoke/use/try/call/run/prefer/should/recommend/advertise verbs co-occurring with /post-release-update. The command's Will-Not boundary note is phrased without any recommendation verb, so it is correctly excluded.)"
         expect_tool_call: Bash
     expects:
       - exit_code:

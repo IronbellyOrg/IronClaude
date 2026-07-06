@@ -278,7 +278,7 @@ class TestPostReleaseCommandContract:
 
     # --- 5.3 command Activation text ---
     def test_post_release_command_activation_text(self):
-        """Command Activation handoff is byte-exact to the dev-guide template.
+        """Command Activation section contains the dev-guide handoff tokens.
 
         Protects both Claude Code command behavior and cli-portify/resolution.py
         Activation parsing: the ## Activation section must contain BOTH the
