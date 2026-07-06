@@ -608,9 +608,10 @@ def test_fx7_emits_verification_visibility_fields_with_none_guard() -> None:
 def test_fx7_clean_run_preserves_exempt_skip_reason_and_empty_degraded() -> None:
     """Additive-safety witness: clean-run routing is UNCHANGED (mirrors R2-F2).
 
-    A full-reviewer run keeps ``verification_skip_reason == "tool-unavailable"`` (the
-    EXEMPT reason) and ``degraded_components == []`` — the FX7 additions never flip the
-    clean-run skip reason (that aggressive routing is a deferred needs_human_decision).
+    A full-reviewer run keeps ``verification_skip_reason == "no-verification-stage"`` (the
+    EXEMPT reason, per PR #213's honest-slug rename of the headless seam) and
+    ``degraded_components == []`` — the FX7 additions never flip the clean-run skip reason
+    (that aggressive routing is a deferred needs_human_decision).
     """
     workers = [
         WorkerResult(index=0, status="success", model_id="model-a"),
@@ -622,6 +623,6 @@ def test_fx7_clean_run_preserves_exempt_skip_reason_and_empty_degraded() -> None
     )
     assert contract is not None
     assert contract["degraded_components"] == []
-    assert contract["verification_skip_reason"] == "tool-unavailable"
-    assert "tool-unavailable" in _VERIFICATION_SKIP_EXEMPTIONS
+    assert contract["verification_skip_reason"] == "no-verification-stage"
+    assert contract["verification_skip_reason"] in _VERIFICATION_SKIP_EXEMPTIONS
     assert contract["verification_verified"] is False
