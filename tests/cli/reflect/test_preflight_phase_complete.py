@@ -1,0 +1,182 @@
+"""RED-first unit tests for preflight()'s phase-incompleteness guard (REPORT §9).
+
+R-002 D-I1: the guard blocks on any unchecked ``- [ ]`` item BEFORE the reflect-gate
+boundary token (``superclaude reflect run`` / ``SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE``);
+it fails open for sprint ``### T`` shapes and unparseable files, and never self-blocks
+the gate item or the trailing Done-transition item (both at/after the boundary).
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import superclaude.cli.reflect.runner as runner_mod
+from superclaude.cli.reflect.config import resolve_config
+from superclaude.cli.reflect.runner import preflight
+
+_BASE = "1111111111111111111111111111111111111111"
+
+_FM = (
+    "---\n"
+    'id: "TASK-PF-0001"\n'
+    'status: "🟠 Doing"\n'
+    f'start_commit: "{_BASE}"\n'
+    'spec_path: ""\n'
+    'reflect_post: ""\n'
+    "---\n\n"
+)
+
+_GATE_ITEM = (
+    "### T01.09 -- Post-Execution Reflection: superclaude reflect run\n"
+    "- [ ] Run the Gate Command `superclaude reflect run <tasklist>`\n"
+    "- [ ] Transition frontmatter status to Done\n"
+)
+
+
+def _write(tmp_path: Path, body: str) -> Path:
+    p = tmp_path / "TASK-PF-0001.md"
+    p.write_text(_FM + body, encoding="utf-8")
+    return p
+
+
+def _config(tasklist: Path):
+    return resolve_config(str(tasklist), depth="standard", model="test-model")
+
+
+def test_preflight_blocks_on_unchecked_item_before_gate(
+    tmp_path, patch_git, monkeypatch
+) -> None:
+    """A ``- [ ]`` item BEFORE the reflect-gate boundary -> 'phase-incomplete'.
+
+    RED pre-fix: ``preflight`` has no phase-completeness check yet, so it returns
+    ``None``, not ``"phase-incomplete"`` (RED-by-absence)."""
+    monkeypatch.setattr(runner_mod.shutil, "which", lambda name: "/usr/bin/claude")
+    body = "### Phase 1\n- [x] Step 1 done\n- [ ] Step 2 NOT done\n\n" + _GATE_ITEM
+    config = _config(_write(tmp_path, body))
+    assert preflight(config) == "phase-incomplete"
+
+
+def test_preflight_fail_open_when_only_gate_and_done_unchecked(
+    tmp_path, patch_git, monkeypatch
+) -> None:
+    """Self-block regression guard (the #1 trap, REPORT risk): all pre-gate items
+    checked; only the gate item + Done-transition item (both at/after the boundary)
+    unchecked -> None (NO self-block). PASSES pre-fix (no phase check) AND post-fix
+    (boundary token positionally excludes the gate + Done items)."""
+    monkeypatch.setattr(runner_mod.shutil, "which", lambda name: "/usr/bin/claude")
+    body = "### Phase 1\n- [x] Step 1 done\n- [x] Step 2 done\n\n" + _GATE_ITEM
+    config = _config(_write(tmp_path, body))
+    assert preflight(config) is None
+
+
+def test_preflight_fail_open_when_no_boundary_token(
+    tmp_path, patch_git, monkeypatch
+) -> None:
+    """Fail-open regression guard (R-002 D-I1 item 3): a sprint-shape ``### T`` file
+    with an unchecked ``- [ ]`` item but NO ``superclaude reflect run`` /
+    ``SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE`` boundary token -> None (no in-file
+    completion signal to judge). PASSES pre-fix AND post-fix."""
+    monkeypatch.setattr(runner_mod.shutil, "which", lambda name: "/usr/bin/claude")
+    body = "### T01.01 -- Some task\n- [ ] not done\n"
+    config = _config(_write(tmp_path, body))
+    assert preflight(config) is None
+
+
+def test_phase_incomplete_blocker_fail_open_on_undecodable_file(tmp_path) -> None:
+    """Augment PR #213: an undecodable (invalid UTF-8) tasklist must fail-open (None),
+    not crash -- ``read_text(encoding='utf-8')`` raises ``UnicodeDecodeError`` (a
+    ``ValueError``, NOT an ``OSError``), so the defensive read must catch it too.
+    Pre-fix the exception bubbled up and crashed preflight."""
+    p = tmp_path / "bad.md"
+    p.write_bytes(b"\xff\xfe invalid \x80\x81 superclaude reflect run\n- [ ] x\n")
+    assert runner_mod._phase_incomplete_blocker(p) is None
+
+
+def test_phase_incomplete_blocker_prefers_marker_over_prose_command(tmp_path) -> None:
+    """Augment PR #213: a prose mention of ``superclaude reflect run`` EARLIER than the
+    real gate must not set a false-early boundary. The scan prefers the specific
+    ``SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE`` marker (at the real gate), so an unchecked
+    item between the prose mention and the real gate is still caught. Pre-fix
+    (earliest-of-either-token) the prose mention set the boundary early and the
+    unchecked item was skipped -> None (false-open)."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [x] done\n"
+        "Note: the terminal gate runs `superclaude reflect run <tasklist>` at the end.\n"
+        "- [ ] Step 2 NOT done\n\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] gate behind the SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE skip guard: "
+        "superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) == "phase-incomplete"
+
+
+def test_phase_incomplete_blocker_no_self_block_when_token_after_checkbox(
+    tmp_path,
+) -> None:
+    """Augment PR #213: when the boundary token appears AFTER the ``- [ ]`` prefix on
+    the gate item's OWN line (no heading carries it), that checkbox must still be
+    positionally excluded -- the boundary anchors to the START of the token's line,
+    NOT its character offset. All pre-gate items complete -> None (no self-block).
+    Pre-fix (mid-line char-offset boundary) ``pre_boundary`` included the gate item's
+    own ``- [ ]`` and the guard self-blocked a legitimate gate run."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [x] Step 1 done\n"
+        "- [x] Step 2 done\n\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] Run the gate behind SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE: "
+        "superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) is None
+
+
+def test_phase_incomplete_blocker_ignores_non_top_frontmatter_block(tmp_path) -> None:
+    """Augment PR #213: only a frontmatter block at the very START of the file is
+    stripped (``.match``, not ``.search``). A later ``--- ... ---`` block in the body (a
+    thematic break / YAML example) must not drop real pre-gate items. Here there is NO
+    top frontmatter and a body ``---`` block AFTER a real unchecked item -> the item is
+    still scanned -> ``"phase-incomplete"``. Pre-fix (``.search``) matched the body block
+    and dropped the leading item -> None (fail-open)."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [ ] incomplete item\n"
+        "---\n"
+        "some body section between thematic breaks\n"
+        "---\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] gate: superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) == "phase-incomplete"
+
+
+def test_phase_incomplete_blocker_ignores_unchecked_inside_fenced_code(
+    tmp_path,
+) -> None:
+    """Augment PR #213: a ``- [ ]`` shown as an EXAMPLE inside a fenced code block is NOT
+    a real unchecked item -- with all real pre-gate items complete the guard must fail
+    open (None), not over-block. Pre-fix the fenced example matched
+    ``_UNCHECKED_ITEM_RE`` -> spurious ``"phase-incomplete"``."""
+    p = tmp_path / "task.md"
+    p.write_text(
+        "# Phase 1\n"
+        "- [x] Step 1 done\n"
+        "Example of the checklist syntax:\n"
+        "```text\n"
+        "- [ ] an example unchecked item (documentation, not a real item)\n"
+        "```\n"
+        "### T01.09 -- Post-Execution Reflection\n"
+        "- [ ] gate: superclaude reflect run <tasklist>\n"
+        "- [ ] Transition frontmatter status to Done\n",
+        encoding="utf-8",
+    )
+    assert runner_mod._phase_incomplete_blocker(p) is None

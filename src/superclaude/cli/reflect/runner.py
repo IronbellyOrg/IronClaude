@@ -55,6 +55,16 @@ _REFLECT_POST_KEY_RE = re.compile(r"^reflect_post\s*:")
 # self-suppress; only the auto-run ``/task``'s OWN terminal gate does.
 _WRAPPER_MARKER = "SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE"
 
+# Unchecked MDTM checklist item (``- [ ]``) -- the phase-incompleteness signal for
+# the preflight guard (R-002 D-I1). A ``- [x]`` item does NOT match.
+_UNCHECKED_ITEM_RE = re.compile(r"^\s*- \[ \]", re.MULTILINE)
+# A fenced code block (```` ```/~~~ ````...same-fence). Stripped from the scan region so
+# a ``- [ ]`` shown as an EXAMPLE inside a fence is not mistaken for a real unchecked
+# checklist item (which would spuriously over-block a complete phase).
+_FENCED_CODE_RE = re.compile(
+    r"^[ \t]*(`{3,}|~{3,}).*?^[ \t]*\1[ \t]*$", re.MULTILINE | re.DOTALL
+)
+
 
 class _IndentDumper(yaml.SafeDumper):
     """SafeDumper that indents block sequences under their key (yamllint-conformant).
@@ -270,6 +280,66 @@ def count_model_aliases(env: dict[str, str]) -> int:
     return sum(1 for var in _MODEL_ALIAS_ENV_VARS if (env.get(var) or "").strip())
 
 
+def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:
+    """Return ``"phase-incomplete"`` iff an unchecked ``- [ ]`` item appears BEFORE
+    the reflect-gate boundary token; else ``None`` (fail-open) (R-002 D-I1).
+
+    Defensive: reads + CRLF-normalizes the tasklist (``None`` on ``OSError`` or an
+    undecodable ``UnicodeDecodeError`` -- fail-open on an unreadable file), strips
+    the leading frontmatter so a ``- [ ]`` inside frontmatter cannot false-trigger,
+    and locates the FIRST OCCURRENCE (character offset) of the boundary token
+    (``_WRAPPER_MARKER`` or the substring ``superclaude reflect run``). If no boundary
+    token is found (sprint
+    ``### T`` shapes / advisory runs carry no in-file completion marker), returns
+    ``None`` (fail-open). Otherwise returns ``"phase-incomplete"`` iff any ``- [ ]``
+    item exists in the body region BEFORE that boundary. The gate item itself and the
+    trailing Done-transition item sit AT/AFTER the boundary and are positionally
+    excluded, so a legitimate gate run never self-blocks. Frontmatter ``status`` is
+    NEVER consulted (it is ``Doing`` by construction at gate time). No sprint parser
+    is imported (reflect isolation guardrail).
+    """
+    try:
+        text = tasklist_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    text = text.replace("\r\n", "\n")
+    # Strip a leading frontmatter block so its contents can't false-trigger -- but ONLY
+    # when it is at the very START of the file (``.match``, NOT ``.search``). ``.search``
+    # could match a later ``--- ... ---`` block (a body thematic break / YAML example)
+    # and wrongly drop real pre-gate checklist items, letting an incomplete phase
+    # fail-open.
+    fm_match = _FRONTMATTER_RE.match(text)
+    if fm_match is not None:
+        body = text[fm_match.end() :]
+    else:
+        body = text
+    # Locate the reflect-gate boundary. PREFER the specific recursion-breaker marker
+    # (``SUPERCLAUDE_REFLECT_WRAPPER_ACTIVE``) -- it is unlikely to appear in prose;
+    # only fall back to the less-specific ``superclaude reflect run`` substring when
+    # the marker is absent. Taking the earliest occurrence of EITHER token let a prose
+    # mention of the command (earlier than the real gate item) set a false-early
+    # boundary, skipping unchecked items and spuriously failing open.
+    token_idx = body.find(_WRAPPER_MARKER)
+    if token_idx == -1:
+        token_idx = body.find("superclaude reflect run")
+        if token_idx == -1:
+            return None  # fail-open: no in-file completion signal to judge.
+    # Anchor the boundary at the START of the token's LINE, not its character offset.
+    # The gate item carries the token AFTER its ``- [ ]`` prefix on the same line, so a
+    # mid-line char offset would leave that prefix inside ``pre_boundary`` and the guard
+    # would self-block a legitimate gate run (the gate + trailing Done items must be
+    # positionally excluded, per the docstring guarantee).
+    boundary = body.rfind("\n", 0, token_idx) + 1
+    pre_boundary = body[:boundary]
+    # Ignore ``- [ ]`` shown inside fenced code blocks (examples / quoted syntax) -- only
+    # real checklist items count. The boundary was located on the UN-stripped body above,
+    # so a fenced gate command is never lost by this strip.
+    pre_boundary = _FENCED_CODE_RE.sub("", pre_boundary)
+    if _UNCHECKED_ITEM_RE.search(pre_boundary):
+        return "phase-incomplete"
+    return None
+
+
 def preflight(config: ReflectConfig) -> str | None:
     """Validate launch prerequisites; return a blocker slug or ``None``.
 
@@ -292,6 +362,9 @@ def preflight(config: ReflectConfig) -> str | None:
         return "base-unresolved"
     if not config.head:
         return "head-unresolved"
+    incomplete = _phase_incomplete_blocker(config.tasklist_path)
+    if incomplete is not None:
+        return incomplete
     return None
 
 
@@ -471,6 +544,7 @@ class ReflectRunner:
             expected_tier=expected_tier,
             allow_single_vendor=config.allow_single_vendor,
             child_rc=rc,
+            promoting=config.promote,
         )
         result.contract_path = str(config.contract_path)
         return result

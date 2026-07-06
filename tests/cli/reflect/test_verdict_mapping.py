@@ -361,3 +361,179 @@ def test_reachability_unwired_surface_real_boot_is_regression_not_degrade() -> N
     )
     assert result.verdict is Verdict.HALTED
     assert result.verdict.exit_code == 10
+
+
+def test_adversarial_subrun_status_partial_degrades() -> None:
+    """P0 DEGRADE trigger 5 (R-002 D-C2 item 5a): an adversarial ``partial`` sub-status
+    at tier 2 with all-zero deviations degrades -> DEGRADED/11 via
+    ``degraded-subrun-partial``. The gate keys on the adversarial child's status
+    verbatim (not the worst-of telemetry). Pre-fix the field is ignored so
+    ``derive_verdict`` returns PASS/0 (RED-by-wrong-verdict)."""
+    contract = _load("pass.yaml")
+    contract["adversarial_subrun_status"] = "partial"
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.DEGRADED
+    assert result.verdict.exit_code == 11
+    assert result.reason == "degraded-subrun-partial"
+
+
+def test_adversarial_subrun_status_absent_still_passes() -> None:
+    """Regression / over-degrade guard (NOT a falsifier -- PASSES pre- and post-fix):
+    a clean or legacy contract with no ``adversarial_subrun_status`` (or an explicit
+    ``success``) must stay PASS/0, proving trigger 5 never fires on a clean or legacy
+    contract (fields read via ``.get()`` per R-002 D-C2 backward-compat)."""
+    # Absent field (legacy fixture): no trigger.
+    contract = _load("pass.yaml")
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+    # Explicit success: still PASS.
+    contract2 = _load("pass.yaml")
+    contract2["adversarial_subrun_status"] = "success"
+    result2 = derive_verdict(
+        contract2, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result2.verdict is Verdict.PASS
+    assert result2.verdict.exit_code == 0
+
+
+def test_low_convergence_tier2_degrades() -> None:
+    """P0 DEGRADE trigger 6 (R-002 D-C2 item 5b): a present-but-low adversarial
+    convergence score at tier 2 (the incident 0.75 < 0.80) degrades -> DEGRADED/11
+    via ``low-convergence``. Pre-fix only a NULL convergence degrades, so a present
+    0.75 returns PASS/0 (RED-by-wrong-verdict)."""
+    contract = _load("pass.yaml")
+    contract["adversarial_convergence_score"] = 0.75
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.DEGRADED
+    assert result.verdict.exit_code == 11
+    assert result.reason == "low-convergence"
+
+
+def test_convergence_at_or_above_threshold_passes() -> None:
+    """Regression guard (NOT a falsifier -- PASSES pre- and post-fix): a healthy
+    adversarial convergence score at/above the 0.80 threshold must NOT degrade, so
+    trigger 6 is proven to fire only below threshold (R-002 D-C2: ``< 0.80``)."""
+    contract = _load("pass.yaml")
+    contract["adversarial_convergence_score"] = 0.86
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+
+def test_nonfinite_convergence_tier2_degrades() -> None:
+    """Augment PR #213 hardening: a non-finite adversarial convergence (NaN/Inf) at
+    tier 2 must DEGRADE. ``float('nan')`` does not raise and ``nan < 0.80`` is False,
+    and a NaN is not ``None``, so without the ``isfinite`` guard it would bypass BOTH
+    the null-convergence and low-convergence triggers and wrongly stay PASS-eligible
+    (the exact silent-PASS class this fix closes)."""
+    # Non-finite (NaN/Inf) AND present-but-unparseable ("abc") all degrade.
+    for bad in (float("nan"), float("inf"), "not-a-number", "NaN"):
+        contract = _load("pass.yaml")
+        contract["adversarial_convergence_score"] = bad
+        result = derive_verdict(
+            contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+        )
+        assert result.verdict is Verdict.DEGRADED, f"{bad!r} should degrade"
+        assert result.verdict.exit_code == 11
+        assert result.reason == "low-convergence"
+
+
+def test_promoting_drops_verification_exemption() -> None:
+    """P1 promote-tightening (R-002 D-C1, CORRECTED): under promote, the verification
+    exemption drops ONLY {tool-unavailable, read-only-project} -- the honest
+    ``no-verification-stage`` slug STAYS exempt even under promote (the deliberate
+    non-brick that keeps the POST gate usable).
+
+    Block A pins the FIRST dropped slug (``tool-unavailable``), Block B the deliberate
+    non-brick (``no-verification-stage`` stays exempt), and Block C pins the SECOND
+    dropped slug (``read-only-project``) so a regression removing it from the
+    promote-subtraction literal in contract.py is caught.
+
+    All blocks share the SAME pre-fix RED-by-error: ``derive_verdict`` does not yet
+    accept ``promoting`` (TypeError: unexpected keyword argument 'promoting')."""
+    # Block A (MAIN RED -- the DROPPED branch): an unverified promoting audit carrying
+    # the incident's actual skip reason ``tool-unavailable`` is NOT exempt -> DEGRADED/11.
+    contract = _load("pass.yaml")
+    contract["verification_ran"] = False
+    contract["verification_skip_reason"] = "tool-unavailable"
+    result = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+        promoting=True,
+    )
+    assert result.verdict is Verdict.DEGRADED
+    assert result.verdict.exit_code == 11
+
+    # Block B (deliberate NON-BRICK PASS): the honest ensemble slug stays exempt even
+    # under promote -- this keeps the task's own --promote --depth deep POST gate from
+    # self-bricking (the ensemble has no verification stage).
+    contract["verification_skip_reason"] = "no-verification-stage"
+    result_b = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+        promoting=True,
+    )
+    assert result_b.verdict is Verdict.PASS
+    assert result_b.verdict.exit_code == 0
+
+    # Block C (SECOND DROPPED branch): an unverified promoting audit carrying the OTHER
+    # dropped skip reason ``read-only-project`` is NOT exempt under promote -> DEGRADED/11.
+    # This pins the second literal in the promote-subtraction set so a regression removing
+    # ``read-only-project`` from contract.py would be caught.
+    contract["verification_ran"] = False
+    contract["verification_skip_reason"] = "read-only-project"
+    result_c = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+        promoting=True,
+    )
+    assert result_c.verdict is Verdict.DEGRADED
+    assert result_c.verdict.exit_code == 11
+
+
+def test_not_promoting_preserves_verification_exemption() -> None:
+    """Promote-scoping guard (labeled): advisory/stub NON-promote runs preserve the
+    verification exemption for BOTH ``no-verification-stage`` AND the incident's real
+    ``tool-unavailable`` skip reason -> PASS/0. Proves the un-exemption is promote-
+    SCOPED (R-002 D-C1 item 2). Errors pre-fix on the ``promoting=`` kwarg like 3.1."""
+    # no-verification-stage on the non-promote path -> PASS.
+    contract = _load("pass.yaml")
+    contract["verification_ran"] = False
+    contract["verification_skip_reason"] = "no-verification-stage"
+    result = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+        promoting=False,
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+    # tool-unavailable stays exempt on the non-promote path (advisory/stub) -> PASS.
+    contract["verification_skip_reason"] = "tool-unavailable"
+    result_b = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+        promoting=False,
+    )
+    assert result_b.verdict is Verdict.PASS
+    assert result_b.verdict.exit_code == 0

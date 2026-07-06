@@ -105,3 +105,43 @@ def test_tmux_inner_command_forwards_disabled_reachability(
 
     disabled = _config(temp_tasklist, reachability=False)
     assert _build_inner_command(disabled).count("--no-reachability") == 1
+
+
+def test_runner_forwards_promoting_into_derive_verdict(
+    temp_tasklist, patch_git, patch_runner_env, make_claude_process_stub, monkeypatch
+) -> None:
+    """P1 promote plumbing: the single derive_verdict call site forwards
+    ``promoting=config.promote`` (not a hardcoded default). Spies on derive_verdict,
+    delegating to the real impl, and asserts the captured ``promoting`` kwarg matches
+    ``config.promote`` for both promote=True and promote=False.
+
+    RED pre-fix: the call site does not pass ``promoting`` -> the spy captures ``None``
+    (assertion fails), OR ``derive_verdict`` has no ``promoting`` param yet (TypeError).
+    """
+    from unittest.mock import patch
+
+    import superclaude.cli.reflect.runner as runner_mod
+    from superclaude.cli.reflect.contract import derive_verdict as real_derive_verdict
+
+    captured: dict = {}
+
+    def _spy(contract, **kwargs):
+        captured["promoting"] = kwargs.get("promoting")
+        return real_derive_verdict(contract, **kwargs)
+
+    monkeypatch.setattr(runner_mod, "derive_verdict", _spy)
+
+    # promote=True -> the call site must forward promoting=True.
+    config = _config(temp_tasklist, promote=True)
+    factory = make_claude_process_stub("pass.yaml", rc=0)
+    with patch("superclaude.cli.reflect.runner.ClaudeProcess", side_effect=factory):
+        ReflectRunner(config).run()
+    assert captured["promoting"] is True
+
+    # promote=False -> the call site must forward promoting=False (not a hardcoded True).
+    captured.clear()
+    config2 = _config(temp_tasklist, promote=False)
+    factory2 = make_claude_process_stub("pass.yaml", rc=0)
+    with patch("superclaude.cli.reflect.runner.ClaudeProcess", side_effect=factory2):
+        ReflectRunner(config2).run()
+    assert captured["promoting"] is False

@@ -14,6 +14,7 @@ defense per the Section 11 invariant probe), so the ordering is exact:
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import yaml
@@ -34,7 +35,7 @@ _DEGRADED_COMPONENTS_HALT_SET = frozenset(
 
 # verification_ran == False is exempt (NOT degradation) for these skip reasons.
 _VERIFICATION_SKIP_EXEMPTIONS = frozenset(
-    {"read-only-project", "tool-unavailable", "--no-verify"}
+    {"read-only-project", "tool-unavailable", "--no-verify", "no-verification-stage"}
 )
 
 _DEVIATION_KEYS = ("authorized", "necessary", "drift", "regression")
@@ -133,6 +134,7 @@ def derive_verdict(
     expected_tier: int,
     allow_single_vendor: bool,
     child_rc: int,
+    promoting: bool = False,
 ) -> ReflectResult:
     """Derive the 4-state verdict per spec Section 6 (first-match-wins).
 
@@ -143,6 +145,10 @@ def derive_verdict(
         expected_tier: the tier the wrapper expected (2 for a T2 post gate).
         allow_single_vendor: suppress the single-vendor degradation (FR-11).
         child_rc: the child ``claude`` exit code (124 == timeout).
+        promoting: True when the run may mutate the tree (``--promote``); drops the
+            ``tool-unavailable``/``read-only-project`` verification-skip exemptions so
+            an unverified promoting audit degrades. Default ``False`` keeps advisory/
+            stub/legacy callers unchanged.
     """
     # -- 1. BLOCKED (fail-loud) ------------------------------------------------
     if child_rc == 124:
@@ -215,6 +221,7 @@ def derive_verdict(
         tier_reached=tier_reached,
         expected_tier=expected_tier,
         allow_single_vendor=allow_single_vendor,
+        promoting=promoting,
     )
     if degraded_reason is not None:
         return _make_result(
@@ -253,6 +260,7 @@ def _degraded_reason(
     tier_reached: object,
     expected_tier: int,
     allow_single_vendor: bool,
+    promoting: bool = False,
 ) -> str | None:
     """Return a degraded reason slug for the first FR-11 trigger, else None."""
     # Triggers 1-5: chain-critical degraded_components (exact membership).
@@ -284,10 +292,49 @@ def _degraded_reason(
     if tier_reached == 2 and contract.get("adversarial_convergence_score") is None:
         return "null-convergence"
 
+    # Trigger 11a (R-002 D-C2 #5): adversarial sub-status partial/failed -> DEGRADE.
+    # Keyed on the ADVERSARIAL child's status verbatim (NOT the worst-of telemetry
+    # ``subrun_status``/``subrun_status_partial``), so a benign 2-of-3 swarm quorum
+    # loss with a healthy adversarial run does NOT degrade (test_i3 stays green).
+    if contract.get("adversarial_subrun_status") in ("partial", "failed"):
+        return "degraded-subrun-partial"
+
+    # Trigger 11b (R-002 D-C2 #6): present-but-untrustworthy adversarial convergence
+    # at T2. A present score below 0.80 (the incident 0.75) degrades where the null-
+    # convergence trigger above missed it (the more-specific null case precedes this).
+    # A present score that is non-finite (NaN/Inf) OR non-numeric/unparseable is an
+    # untrustworthy load-bearing gate signal and MUST also degrade -- ``float("nan")``
+    # does not raise and ``nan < 0.80`` is False, and ``float("abc")`` raises; a NaN is
+    # not ``None`` so without these guards a malformed convergence would bypass both
+    # this and the ``is None`` null-convergence trigger and wrongly stay PASS-eligible.
+    _score = contract.get("adversarial_convergence_score")
+    if tier_reached == 2 and _score is not None:
+        try:
+            _score_f = float(_score)
+            _low_or_bad = (not math.isfinite(_score_f)) or (_score_f < 0.80)
+        except (TypeError, ValueError):
+            # Present but unparseable -> untrustworthy -> degrade (never PASS-eligible).
+            _low_or_bad = True
+        if _low_or_bad:
+            return "low-convergence"
+
     # Trigger 12: verification didn't run, unless exempted.
     if contract.get("verification_ran") is False:
         skip_reason = contract.get("verification_skip_reason")
-        if skip_reason not in _VERIFICATION_SKIP_EXEMPTIONS:
+        # Promote-tightening (R-002 D-C1, CORRECTED): a --promote run that skipped
+        # verification for ``tool-unavailable``/``read-only-project`` must NOT be
+        # exempt -> DEGRADED, so an unverified audit can never mutate the tree. The
+        # honest ``no-verification-stage`` slug STAYS exempt even under promote (the
+        # ensemble has no verification stage; dropping it would brick every
+        # ``--promote --depth deep`` run) as does the explicit ``--no-verify`` opt-out.
+        # Subtract into a per-call local -- never mutate the frozenset constant.
+        effective_exemptions = _VERIFICATION_SKIP_EXEMPTIONS
+        if promoting:
+            effective_exemptions = effective_exemptions - {
+                "tool-unavailable",
+                "read-only-project",
+            }
+        if skip_reason not in effective_exemptions:
             return "verification-skipped"
 
     # Trigger 13: citations dropped (sample-count, NOT extrapolated).

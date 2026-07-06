@@ -346,7 +346,7 @@ def test_r2f2_build_reflect_contract_emits_honest_verification_fields() -> None:
     hard-coding ``verification_ran=True`` was factually false and made the
     ``verification-skipped`` DEGRADE structurally unreachable on every Tier-2
     contract (clean runs bypassed the verification-integrity gate). The seam now
-    emits ``verification_ran=False`` with the exempt skip reason ``tool-unavailable``
+    emits ``verification_ran=False`` with the exempt skip reason ``no-verification-stage``
     so contract.py Trigger 12 evaluates and EXEMPTS (no DEGRADE, no PASS regression).
     """
     workers = [
@@ -357,10 +357,10 @@ def test_r2f2_build_reflect_contract_emits_honest_verification_fields() -> None:
     assert contract is not None
     # Genuine bool via ``is`` (not ``== False``): the seam never ran verification.
     assert contract["verification_ran"] is False
-    assert contract["verification_skip_reason"] == "tool-unavailable"
+    assert contract["verification_skip_reason"] == "no-verification-stage"
     # The chosen skip reason MUST be a member of the read-only exemption set so the
     # router exempts rather than degrades (read-only membership check on contract.py).
-    assert "tool-unavailable" in _VERIFICATION_SKIP_EXEMPTIONS
+    assert "no-verification-stage" in _VERIFICATION_SKIP_EXEMPTIONS
 
 
 def test_r2f3_user_decision_required_decoupled_from_needs_human_decision() -> None:
@@ -395,6 +395,136 @@ def test_r2f3_user_decision_required_decoupled_from_needs_human_decision() -> No
     # needs_human_decision is True (genuine bool via ``is``).
     assert contract["user_decision_required"] is False
     assert contract["needs_human_decision"] is True
+
+
+def test_build_reflect_contract_threads_adversarial_subrun_status() -> None:
+    """P0 producer honesty: build_reflect_contract threads the adversarial sub-status.
+
+    The incident's Tier-2 ensemble severed the real adversarial child status
+    (emitting a hard-coded optimistic shell), so a ``partial`` adversarial sub-run
+    never reached the contract. The widened builder now accepts an
+    ``adversarial_status`` kwarg and surfaces it verbatim as
+    ``adversarial_subrun_status`` (the gate signal per R-002 D-C2). A clean-default
+    call WITHOUT the kwarg keeps legacy callers PASS-safe.
+    """
+    workers = [
+        WorkerResult(index=0, status="success", model_id="model-a"),
+        WorkerResult(index=1, status="success", model_id="model-b"),
+    ]
+
+    # With the new kwarg: the adversarial child status threads through verbatim.
+    flagged = build_reflect_contract(
+        workers,
+        adversarial_convergence_score=0.86,
+        adversarial_status="partial",
+    )
+    assert flagged is not None
+    assert flagged["adversarial_subrun_status"] == "partial"
+
+    # Clean default (no adversarial_status kwarg): non-partial, PASS-safe for legacy
+    # callers (absent-safe -- either the key is absent or a non-partial default).
+    clean = build_reflect_contract(workers, adversarial_convergence_score=0.86)
+    assert clean is not None
+    assert clean.get("adversarial_subrun_status") not in ("partial", "failed")
+
+
+def test_extract_adversarial_status_reads_child_status() -> None:
+    """P0 producer honesty: ``extract_adversarial_status`` reads the adversarial
+    child's status, mirroring ``extract_convergence_score`` (nested ``return_contract``
+    unwrap + safe defaults). Closes the untested-reader gap for the incident's severed
+    signal. RED pre-fix: ``extract_adversarial_status`` does not exist until Step 2.10
+    (ImportError)."""
+    from superclaude.cli.reflect.ensemble import extract_adversarial_status
+
+    # Nested return_contract unwrap (the literal incident signal shape).
+    assert (
+        extract_adversarial_status({"return_contract": {"status": "partial"}})
+        == "partial"
+    )
+    # Top-level status.
+    assert extract_adversarial_status({"status": "success"}) == "success"
+    # Safe defaults on empty / None.
+    assert extract_adversarial_status({}) is None
+    assert extract_adversarial_status(None) is None
+
+
+def test_extract_adversarial_status_normalizes_variants() -> None:
+    """Augment PR #213 hardening: a formatting/case variant of a real status
+    (leading/trailing whitespace, uppercase) is normalized (strip + lower) so the
+    exact-membership degrade gate (``adversarial_subrun_status in ('partial',
+    'failed')``) still catches it instead of silently missing a degraded subrun.
+    Pre-fix the raw string was returned verbatim, so ``'  Partial  '`` would miss."""
+    from superclaude.cli.reflect.ensemble import extract_adversarial_status
+
+    assert extract_adversarial_status({"status": "  Partial  "}) == "partial"
+    assert (
+        extract_adversarial_status({"return_contract": {"status": "FAILED"}})
+        == "failed"
+    )
+    assert extract_adversarial_status({"status": "SUCCESS"}) == "success"
+    # Whitespace-only collapses to None (not a spurious non-empty status).
+    assert extract_adversarial_status({"status": "   "}) is None
+
+
+def test_run_adversarial_scorer_populates_status(tmp_path, monkeypatch) -> None:
+    """P0 producer honesty: ``run_adversarial_scorer`` populates
+    ``AdversarialResult.status`` from the parsed adversarial sub-contract, so the
+    child's real status (the incident's severed signal) reaches the result object.
+
+    The Mode-A scorer is a top-level ``ClaudeProcess`` needing the ``claude`` binary,
+    so it is stubbed (start=no-op, wait=0) and ``parse_adversarial_contract`` is
+    pointed at a sub-contract carrying ``status: partial``; the real
+    ``extract_adversarial_status`` then flows it into ``AdversarialResult.status``.
+
+    RED pre-fix: ``AdversarialResult`` has no ``status`` field / it is not populated
+    until Steps 2.9+2.11 -> AttributeError on ``.status``.
+    """
+    from types import SimpleNamespace
+
+    import superclaude.cli.reflect.ensemble as ensemble_mod
+    from superclaude.cli.reflect.ensemble import run_adversarial_scorer
+
+    class _StubProc:
+        def __init__(self, **_kwargs) -> None:
+            pass
+
+        def start(self) -> None:
+            pass
+
+        def wait(self) -> int:
+            return 0
+
+    monkeypatch.setattr(ensemble_mod, "ClaudeProcess", _StubProc)
+    config = SimpleNamespace(
+        model="test-model",
+        timeout_seconds=60,
+        max_turns=10,
+        reviewer_grounding_root=None,
+    )
+
+    # Partial sub-contract (the incident shape) -> status == "partial".
+    monkeypatch.setattr(
+        ensemble_mod,
+        "parse_adversarial_contract",
+        lambda _out: {
+            "return_contract": {"status": "partial", "convergence_score": 0.75}
+        },
+    )
+    result = run_adversarial_scorer([], tmp_path / "adv", config=config)
+    assert result is not None
+    assert result.status == "partial"
+
+    # Clean/success sub-contract -> status == "success".
+    monkeypatch.setattr(
+        ensemble_mod,
+        "parse_adversarial_contract",
+        lambda _out: {
+            "return_contract": {"status": "success", "convergence_score": 0.9}
+        },
+    )
+    result2 = run_adversarial_scorer([], tmp_path / "adv2", config=config)
+    assert result2 is not None
+    assert result2.status == "success"
 
 
 def test_build_adversarial_prompt_shell_quotes_paths() -> None:

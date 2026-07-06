@@ -529,3 +529,113 @@ def test_i12_seam_regression_does_not_pass(temp_tasklist, patch_git) -> None:
     # Healthy-ensemble guard: a DEGRADE is not masking the HALT.
     assert contract["t2_model_class_diversity"] == "full"
     assert result.verdict is not Verdict.DEGRADED
+
+
+def test_partial_adversarial_substatus_flags_contract_off_pass(
+    temp_tasklist, patch_git
+) -> None:
+    """P0 (R-002 D-C2): a REAL-ensemble run whose adversarial child reports
+    ``status: partial`` must NOT route PASS -- the honest sub-status threads into the
+    contract as ``adversarial_subrun_status`` and ``derive_verdict`` routes DEGRADED
+    (exit 11, reason ``degraded-subrun-partial``) via trigger 5.
+
+    Mirrors ``test_i12`` provenance style. Healthy convergence (0.86 >= 0.80) so the
+    low-convergence trigger does NOT mask the sub-status degrade; healthy distinct
+    swarm slots via ``_distinct_stub`` so a benign quorum loss is not the cause.
+
+    RED pre-fix: the producer hard-codes ``status: success`` and emits no
+    ``adversarial_subrun_status`` (and ``AdversarialResult`` has no ``status`` field
+    until Step 2.9), so the contract looks clean and the verdict is PASS -- OR the
+    test errors at construction (``AdversarialResult(... status=...)`` TypeError),
+    an acceptable RED-by-error fail-before.
+    """
+
+    def _partial_score(_paths: list[str], _out: Path) -> AdversarialResult:
+        return AdversarialResult(
+            convergence_score=_FIXED_SCORE,
+            regression_present=False,
+            unauthorized_deviation_present=False,
+            needs_human_decision=False,
+            deviation_count_by_class={
+                "authorized": 0,
+                "necessary": 0,
+                "drift": 0,
+                "regression": 0,
+            },
+            report_path=None,
+            status="partial",
+        )
+
+    config = _config(temp_tasklist, reviewers=3)
+    run_tier2_ensemble(
+        config,
+        transport_for_slot=_distinct_stub,
+        adversarial_score_fn=_partial_score,
+    )
+    contract = parse_contract(config.contract_path)
+    result = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=config.allow_single_vendor,
+        child_rc=0,
+    )
+
+    # Provenance: the honest adversarial sub-status reached the contract.
+    assert contract is not None
+    assert contract["adversarial_subrun_status"] == "partial"
+    # HEADLINE: a partial adversarial sub-run does not route PASS -- specifically the
+    # DEGRADED subrun-partial rung (exit 11).
+    assert result.verdict is not Verdict.PASS
+    assert result.verdict is Verdict.DEGRADED
+    assert result.verdict.exit_code == 11
+    assert result.reason == "degraded-subrun-partial"
+
+
+def test_two_of_three_swarm_quorum_with_healthy_adversarial_passes(
+    temp_tasklist, patch_git
+) -> None:
+    """R-002 D-C2 item 5(c) guard: a 2-of-3 swarm quorum loss (one proxy_error slot)
+    with a HEALTHY adversarial run (convergence 0.86 >= 0.80, non-partial status) stays
+    PASS/0 -- the adversarial-keyed gate does NOT over-degrade a benign swarm quorum
+    loss. The worst-of telemetry (``subrun_status``/``subrun_status_partial``) surfaces
+    the swarm partial for observability WITHOUT gating on it.
+
+    This protects ``test_i3`` semantics: if any producer/trigger wiring flips
+    ``test_i3`` to DEGRADED, the gate is keyed on the worst-of by mistake -- fix the
+    gate, never edit ``test_i3``.
+
+    Pre-fix: the verdict-is-PASS assertion holds (as in ``test_i3``), but the worst-of
+    telemetry fields are not emitted yet, so those assertions fail RED-by-absence --
+    acceptable; they pass post-fix.
+    """
+
+    def factory(slot_index: int):
+        if slot_index == 2:
+            return _FailingTransport("stub-model-02")
+        return _distinct_stub(slot_index)
+
+    config = _config(temp_tasklist, reviewers=3)
+    # ``_const_score`` = healthy adversarial (convergence 0.86, no partial/failed
+    # status), so only the swarm axis is partial (one dropped worker).
+    run_tier2_ensemble(
+        config,
+        transport_for_slot=factory,
+        adversarial_score_fn=_const_score,
+    )
+    contract = parse_contract(config.contract_path)
+    result = derive_verdict(
+        contract,
+        expected_tier=2,
+        allow_single_vendor=config.allow_single_vendor,
+        child_rc=0,
+    )
+
+    assert contract is not None
+    # A benign swarm quorum loss with a healthy adversarial run stays PASS-eligible.
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+    # Worst-of telemetry surfaces the swarm partial for OBSERVABILITY only (no gate).
+    assert contract.get("subrun_status") == "partial"
+    assert contract.get("subrun_status_partial") is True
+    # The adversarial-keyed gate signal is NOT partial (the adversarial ran healthy).
+    assert contract.get("adversarial_subrun_status") not in ("partial", "failed")

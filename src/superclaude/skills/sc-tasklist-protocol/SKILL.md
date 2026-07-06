@@ -1148,14 +1148,15 @@ superclaude reflect run TASKLIST_ROOT/phase-<PP>-tasklist.md --depth deep --fix 
 
 1. **[VERIFICATION]** Resolve `<PHASE_N_START_SHA>` at execution time = the SHA of the commit immediately preceding Phase <PP>'s first task commit (e.g. the recorded phase-start SHA, or `git rev-parse` of the prior phase's end). It is a SINGLE ref — the wrapper diffs it against the working tree, NOT a `<base>..HEAD` range. Substitute the resolved SHA into the Gate Command's `--base` before invoking it. `<PHASE_N_START_SHA>` is a placeholder, NEVER pre-filled with a fabricated generation-time SHA.
 2. **[VERIFICATION]** Run the Gate Command above. The wrapper spawns the executor-disjoint reflect ensemble internally and runs the bounded `--fix` audit→apply→re-verify loop; consume its exit code (only `0` completes the gate; `10`/`11`/`2` FAIL and are surfaced).
-3. **[COMPLETION]** Confirm `REPORT.md` exists at the Reflect Report Path and surface its deviation counts (authorized/necessary/drift/regression).
+3. **[COMPLETION]** Confirm `REPORT.md` exists at the Reflect Report Path and surface its deviation counts (authorized/necessary/drift/regression). ALSO open the machine `return-contract.yaml` at `reflect_post.contract` (equivalently `<Gate-Command --output>/return-contract.yaml`) and reconcile it with the `reflect_post` block, and FAIL the gate — even when the wrapper exited `0` — if ANY of (all reads via safe `.get(...)` defaults): the honest derived `reflect_post.verdict` is not `pass` (the raw contract `status` stays `success` by design, so it is forward-defensive, not the load-bearing signal); `adversarial_subrun_status` is `partial` or `failed`; `tier_reached == 2` AND `adversarial_convergence_score` is present AND `< 0.80`; or `deviation_count_by_class.drift`/`.regression` `> 0`. The worst-of `subrun_status`/`subrun_status_partial` are surfaced for observability ONLY and never fail the gate (a benign 2-of-3 swarm quorum with a healthy adversarial run stays PASS).
 
-**Acceptance Criteria:** (exactly 4 bullets)
+**Acceptance Criteria:** (exactly 5 bullets)
 
 - File `TASKLIST_ROOT/validation/reflect-post/phase-<PP>/REPORT.md` exists with a deviation-taxonomy summary.
 - The wrapper exited `0` (clean OR auto-fixed-and-verified by the bounded `--fix` loop); exit `10`/`11`/`2` FAILS the gate and is surfaced.
 - Reflect ran with executor-disjoint reviewers (the class in the phase file's frontmatter `executor_model_class` was excluded from the reviewer pool).
 - Report includes the per-task verdict matrix for Phase <PP>.
+- The machine `return-contract.yaml` at `reflect_post.contract` was opened and reconciled with the `reflect_post` block; the gate FAILs (even at wrapper exit `0`) if the honest derived `reflect_post.verdict` != `pass` (the raw contract `status` stays `success` by design), `adversarial_subrun_status` ∈ {partial, failed}, `tier_reached == 2` with `adversarial_convergence_score` present and `< 0.80`, or `deviation_count_by_class.drift`/`.regression` > 0; the worst-of `subrun_status`/`subrun_status_partial` are observability-only and never fail the gate.
 
 **Validation:**
 
