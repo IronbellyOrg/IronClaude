@@ -1,0 +1,26 @@
+contract_version: "1.0"
+status: success
+synthesis_mode: focused-synthesis-with-red-team
+adversarial_invoked: false
+adversarial_reason: "User answers pre-converged the design; full 3-model debate deferred to opt-in handoff per 'prefer simpler proposals' guidance."
+seed_brief_path: /config/workspace/IronClaude/.dev/brainstorms/20260610-234750-pr-review-auto-remediation/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/brainstorms/20260610-234750-pr-review-auto-remediation/merged-requirements.md
+v2_brainstorm_prompt_path: /config/workspace/IronClaude/.dev/brainstorms/20260610-234750-pr-review-auto-remediation/v2-brainstorm-prompt.md
+convergence_score: null
+adversarial_artifacts_dir: null
+domain: architecture
+proposal_count: 0
+scope_version: "1.0"
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "OQ1: Augment App GitHub emission shape + bot login unknown — requires empirical probe before parser build (R1)."
+  - "OQ2: structured severity label vs rubric re-grade undecided."
+  - "OQ3: default --max-rounds and round-attribution of self-triggered re-reviews."
+key_reframings:
+  - "Hooks cannot host the monitor; V1.0 entry point is a SKILL, not the post-PR hook."
+  - "Reviewer is the EXTERNAL Augment Code GitHub App (async, polled), not local /sc:auggie-review."
+  - "Two autonomy enumerations unified into one ordinal --monitor 0/1/2/3."

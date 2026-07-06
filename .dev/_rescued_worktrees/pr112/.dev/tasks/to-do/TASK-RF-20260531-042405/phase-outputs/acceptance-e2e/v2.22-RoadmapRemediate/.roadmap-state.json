@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/releases/complete/v2.22-RoadmapRemediate/spec-roadmap-remediate.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "9a1f9b3687d9abb7a6d3b7d34f23bd2a3917b033db7eebb69dd5c20ad2cfdd10",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "sonnet",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-06-03T02:47:57.086173+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.22-RoadmapRemediate/extraction.md",
+      "started_at": "2026-06-03T02:34:33.956190+00:00",
+      "completed_at": "2026-06-03T02:38:04.980709+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.22-RoadmapRemediate/roadmap-opus-architect.md",
+      "started_at": "2026-06-03T02:45:51.056945+00:00",
+      "completed_at": "2026-06-03T02:47:57.073376+00:00"
+    },
+    "generate-sonnet-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.22-RoadmapRemediate/roadmap-sonnet-architect.md",
+      "started_at": "2026-06-03T02:38:04.993470+00:00",
+      "completed_at": "2026-06-03T02:46:08.047372+00:00"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+contract_version: "1.0"
+status: success
+mode: post
+tier_reached: 1
+report_path: .dev/reflect/post-ccsession-pr123-20260603210238/REPORT.md
+audit_log_path: .dev/reflect/post-ccsession-pr123-20260603210238/REPORT.md
+confidence_calibrated: 0.93
+escalation_rule_matched: 8   # default STOP at T1 (single domain pair, high confidence, no regression candidate)
+
+# Scope note
+audited_diff: "15b50751..3cda6781"
+requested_diff_rejected: "master..feature/ccsession (137 files / 28945 ins — stale local master; re-scoped to remediation commits)"
+
+# UC-2
+tasklist_completion_pct: 1.0
+deviation_count_by_class:
+  authorized: 2
+  necessary: 2
+  drift: 0
+  regression: 0
+deviation_register_path: .dev/reflect/post-ccsession-pr123-20260603210238/REPORT.md
+grounding_gaps_path: null
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true   # independent sonnet reviewer + orchestrator re-Read of committed blobs
+
+# Tier 2 (not run)
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: single-reviewer-fallback   # one independent heterogeneous reviewer (sonnet) + grounded orchestrator
+t2_model_class_diversity: degraded
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Key outcome
+audit_found_defect: true
+defect_summary: "F2 PARTIAL on SKILL.md — raw label interpolation in LABEL=\"<LABEL>\" executes at assignment before in-shell validation (command-injection / quote-breakout). Confirmed by reproduction."
+defect_remediated: true
+defect_fix_commit: "3cda6781"
+
+# Promotion (UC-2)
+promotion_action: skipped
+promotion_skip_reason: user-flag   # --no-promote
+promotion_gate_passed: null

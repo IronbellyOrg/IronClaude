@@ -1,0 +1,49 @@
+generated: "2026-06-22T23:31:36Z"
+source: "/config/workspace/IronClaude/.dev/worktrees/TavilyUpgrade/.dev/brainstorms/20260622-233136-tavily-mcp-upgrade/merged-requirements.md"
+status: skipped_artifact_handoff_only
+reason: "Tasklist handoff generated execution artifacts only; pre-reflect is intended before execution if the bundle is run."
+phases:
+  - phase: 1
+    file: phase-1-tasklist.md
+    n_strict: 1
+    n_tasks: 3
+    n_cpo: 0
+    n_high_risk: 0
+    n_R: 4
+    complexity_score: 5
+    deterministic_depth: standard
+    deterministic_tier: auto
+    verdict: SKIPPED
+  - phase: 2
+    file: phase-2-tasklist.md
+    n_strict: 2
+    n_tasks: 3
+    n_cpo: 0
+    n_high_risk: 1
+    n_R: 3
+    complexity_score: 10
+    deterministic_depth: deep
+    deterministic_tier: 2
+    verdict: SKIPPED
+  - phase: 3
+    file: phase-3-tasklist.md
+    n_strict: 0
+    n_tasks: 3
+    n_cpo: 0
+    n_high_risk: 0
+    n_R: 2
+    complexity_score: 2
+    deterministic_depth: quick
+    deterministic_tier: 1
+    verdict: SKIPPED
+  - phase: 4
+    file: phase-4-tasklist.md
+    n_strict: 1
+    n_tasks: 3
+    n_cpo: 0
+    n_high_risk: 0
+    n_R: 3
+    complexity_score: 5
+    deterministic_depth: standard
+    deterministic_tier: auto
+    verdict: SKIPPED

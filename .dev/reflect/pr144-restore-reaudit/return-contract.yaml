@@ -1,0 +1,76 @@
+contract_version: "1.2.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/pr144-restore-reaudit/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/pr144-restore-reaudit/artifacts/evidence-packet.md
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+
+# UC-2 audited diff
+diff_audited: "4f0a60fb..ddf209e4"
+base_ref: "54d4b4f5"
+convergence_ref: "4f0a60fb"
+restoration_ref: "ddf209e4"
+
+tasklist_completion_pct: null   # ad-hoc restoration, no formal tasklist (audited diff vs intent)
+deviation_count_by_class:
+  authorized: 0
+  necessary: 2     # Item1 canonical drift-correction cluster; Item3 intentional supersession
+  drift: 1         # stale L1079-1093 pointer (convergence-introduced, inherited)
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/reflect/pr144-restore-reaudit/deviation-register.yaml
+grounding_gaps_path: null
+
+# Verification triangle (run at HEAD ddf209e4)
+verification_ran: true
+verification_invocations: 4
+verification_failures: 0   # no regression-class exits; see below for expected RED tests
+verification_regressions_detected: 0
+verification_skip_reason: null
+test_results:
+  tests_audit: "1 failed / 1188 passed / 1 skipped — failure = test_task_id_naming_pattern_preserved (pre-existing filesystem/env, known set)"
+  test_severity_floor_unweakened: "8/8 PASS"
+  test_dnsp_all_agents_fail_bypass_TEST020: "PASS (sha256 pin present-at-every-site + runtime byte-stability)"
+  test_task_builder_merge: "2 failed / 66 passed — failures = TestPR01ExecutionContextHeader::{test_skill_documents_execution_context_block, test_execution_context_optional_and_degrades_gracefully} (Item-3 SUPERSESSION, RED since convergence, deliberately deferred)"
+
+# Central-claim verdict
+audited_claim: "all 44 audit-guard failures were accidental DRIFT (not supersession); zero guard tests weakened"
+audited_claim_verdict: "substantially_true_with_correction"
+zero_guards_weakened_confirmed: true
+all_drift_framing_accurate: false   # Execution Context cluster is supersession, not drift
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0          # Reviewer-2 template path corrected/re-grounded, not left dropped
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+
+# Tier 2
+reviewer_cards: 3
+reviewer_models: [sonnet, haiku, opus]
+reviewer_personas: [analyzer, qa, refactorer]
+reviewer_confidences: [0.91, 0.95, 0.88]
+merge_method: adversarial-inline   # reviewers converged; one new finding validated by orchestrator re-Read
+t2_model_class_diversity: full
+calibrator_diversity: degraded   # inline-fallback calibration (no disjoint calibrator agent spawned)
+
+# Asymmetric-cost flags
+regression_present: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Open follow-ups (NOT defects the restoration created)
+open_followups:
+  - id: FU-1
+    severity: required-for-green-ci
+    desc: "Update 2 TestPR01ExecutionContextHeader tests to the REQUIRED/EXECUTION_CONTEXT_INSTRUCTION contract (close Item-3 supersession)"
+  - id: FU-2
+    severity: low
+    desc: "Re-point stale L1079-1093 -> L899 (or stable anchor) in the 3 agent DNSP lines"
+
+promotion_action: not-applicable   # --no-promote

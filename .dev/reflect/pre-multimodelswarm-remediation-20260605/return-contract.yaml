@@ -1,0 +1,84 @@
+contract_version: "1.2.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/reflect/pre-multimodelswarm-remediation-20260605/REPORT.md
+confidence_calibrated: 0.92
+
+# UC-1
+coverage_pct: 0.93
+coverage_undefined: false
+unmapped_requirements: []   # no requirement wholly uncovered
+partial_requirements: [F-P9-2, "section5-rerun-matrix-commands"]
+best_practice_grade: 4   # strong build-request; 2 HALT-designation gaps + minor polish
+
+# Findings
+findings:
+  - id: F1
+    severity: HIGH
+    class: drift-vs-project-rule
+    summary: "F-P9-2 human-gated sign-offs (T09.01/04/05/08) missing from BUILD-REQUEST HALT list"
+    spec_evidence: AMALGAMATED-REMEDIATION.md:163
+    gap_evidence: BUILD-REQUEST:34-40 (absent), BUILD-REQUEST:27 (collapsed into generic blob)
+    rule: feedback_human_decision_items_must_halt
+  - id: F2
+    severity: MEDIUM
+    class: drift
+    summary: "F-P9-3 OPS-003/OPS-001 ownership decision neither HALT-listed nor pre-resolved"
+    spec_evidence: AMALGAMATED-REMEDIATION.md:164
+    note: single-reviewer (R2); survived calibration; HIGH->MED
+  - id: F3
+    severity: LOW
+    class: drift
+    summary: "F-P8-1 author-vs-reconcile is a latent decision; acceptable non-HALT with inspect-first guard"
+    spec_evidence: AMALGAMATED-REMEDIATION.md:144
+  - id: F4
+    severity: LOW
+    class: cosmetic
+    summary: "Unresolved 'F-P3-?' placeholder token; bind to RW-3"
+    gap_evidence: BUILD-REQUEST:37
+  - id: F5
+    severity: LOW
+    summary: "section5 re-run matrix lacks command shapes for P1/P2/P3/P5/P7/P9"
+    spec_evidence: AMALGAMATED-REMEDIATION.md:188-192
+  - id: F6
+    severity: INFO
+    summary: "scope item 5 compresses F-P3-3..7; mitigated by per-task-evidence mandate line 41"
+
+# Evidence grounding (corroborating, live SwarmPost code)
+evidence_grounding:
+  - id: F-P3-1
+    status: VERIFIED
+    observed: "commands.py:1264-1266 dispatch_wave1(transport=None); dispatch.py:391-392 return []"
+  - id: F-P1-3
+    status: VERIFIED
+    observed: "models.py:87-88 plain @dataclass, no frozen=True"
+  - id: F-P2-1
+    status: VERIFIED
+    observed: "preflight.py:1677-1683 guards prompt.system only; custom_prompt_dir never read"
+phantom_fix_risk: none
+
+# Ensemble
+reviewer_models: [qwen3.6-plus, gpt-5.5, claude-opus-4-8]
+reviewer_personas: [coverage-completeness, halt-constraint, coherence-grounding]
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+calibrator_diversity: full
+
+# Asymmetric-cost flags
+needs_human_decision: true
+user_decision_required: true
+regression_present: false   # this is a pre-audit of a build-request, not executed code
+unauthorized_deviation_present: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: true
+remediation_method: direct-build-request-patch   # not task-builder (would be circular)
+remediation_edits_applied: [F1, F2, F3, F4, F5]
+remediation_decisions:
+  F1: added-F-P9-2-to-HALT-list
+  F2: added-F-P9-3-to-HALT-list
+  F3: inspect-first-guard-on-F-P8-1
+  F4: bound-F-P3?-to-RW-3
+  F5: per-phase-rerun-commands-in-DoD

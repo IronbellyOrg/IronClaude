@@ -1,0 +1,62 @@
+contract_version: "1.2.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/pre-signalb-pass-recovered-20260604120512/REPORT.md
+confidence_calibrated: 0.92
+escalation_rule_matched: 1   # §5.3 rule 1 — STOP at T1 (high C, narrow scope, single domain)
+
+# UC-1 specific
+coverage_pct: 1.0
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 4   # one MEDIUM robustness gap (M1); otherwise excellent
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false   # T1 inline: all citations first-party-derived in-turn via `git show origin/master:` (see REPORT §5)
+
+# Findings
+findings:
+  - id: M1
+    severity: MEDIUM
+    where: "Step 4.4 (RED→GREEN restore mechanism)"
+    summary: "Manual re-edit restore is non-deterministic; prescribe git stash/checkout + diff-match verifier."
+  - id: L1
+    severity: LOW
+    where: "Step 4.1 (two-fixture test)"
+    summary: "Scope the PASS_TRANSCRIPT/validated_last edit to Fixture 1 (line 189/203-213) only; leave Fixture 2 drift assertions untouched."
+  - id: L2
+    severity: LOW
+    where: "Step 3.1 non-recovered branch"
+    summary: "`derived is not None` is dead defensive code (_classify_transcript never returns None)."
+  - id: I1
+    severity: INFORMATIONAL
+    where: "Constraint QA_GATE PER_PHASE"
+    summary: "Two gates implemented (2.4 + 6.2); meets+exceeds the elaborated 'final gate' requirement."
+  - id: I2
+    severity: INFORMATIONAL
+    where: "Step 8.3"
+    summary: "No to-do→done folder promotion; owned by separate promotion step. Expected."
+
+# Verified-safe (positive findings — would otherwise be flagged by a one-pass reviewer)
+verified_safe:
+  - "Step 3.1 predicate rewrite `derived.is_success` is NOT a widening: _classify_transcript (rerun_tasks.py:547) never returns PASS_RECOVERED, so reachable-True ⟺ PASS. Equivalent to old `derived is TaskStatus.PASS`."
+  - "RED transcript (Step 4.1) genuinely derives FAIL_RECOVERABLE → non-vacuous RED→GREEN."
+  - "All pinned identifiers (integrity.py:124/129-131/150, models.py:50/57-58, test_resume.py:142/189/686-687/728-729, test_e2e_success.py:117) exist on origin/master."
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+needs_human_decision: false
+user_decision_required: false
+
+# Tier 2 / promotion (not applicable in UC-1 pre)
+reviewer_cards: []
+adversarial_unavailable: false
+promotion_action: not-applicable

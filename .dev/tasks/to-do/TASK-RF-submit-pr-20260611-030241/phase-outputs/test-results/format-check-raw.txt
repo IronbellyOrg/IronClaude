@@ -1,0 +1,2 @@
+=== VG-4 (ruff format --check) src/ tests/ scope ===
+31 files already formatted

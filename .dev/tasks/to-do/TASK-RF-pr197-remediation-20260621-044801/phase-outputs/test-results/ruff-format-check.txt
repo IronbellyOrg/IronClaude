@@ -1,0 +1,9 @@
+3 files already formatted
+
+# CAVEAT (out-of-scope, flagged for maintainer):
+# `ruff format --check src/ tests/` over the FULL tree reports 106 files "would be
+# reformatted". These are NOT touched by this remediation — almost certainly a ruff
+# VERSION difference between this worktree's .venv and whatever formatted the repo /
+# CI's pinned ruff. The broad `ruff format` run was REVERTED; only the 3 in-scope
+# Python files were kept (and they pass `--check`). The maintainer should confirm CI's
+# pinned ruff version vs the worktree .venv before treating the 106 as real.

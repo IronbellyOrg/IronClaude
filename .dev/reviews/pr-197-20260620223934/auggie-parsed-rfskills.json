@@ -1,0 +1,179 @@
+{
+  "findings": [
+    {
+      "title": "Stale reference to class-exclusion mechanism in task-builder input description",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 19,
+      "line_range_end": 19,
+      "in_diff": true,
+      "evidence": "\"and baked into the templated POST reflect item's command, so the post-execution deviation audit can check the executed work against the original spec.\"",
+      "why": "Line 19 states spec_path is 'baked into the templated POST reflect item's command' but this conflicts with the CLI-mode design: when CLI_MODE is false (default), spec_path IS threaded to the subagent runner; when CLI_MODE is true, the wrapper shell-out does NOT take --spec (lines 54-58 confirm this). The single statement at line 19 is incomplete: it should state the CLI-mode conditionality or be scoped to skill-only mode.",
+      "recommendation": "Revise line 19 to state: 'When supplied it is threaded into the PRE reflect gate (--mode pre --spec <path>) and, in skill-only mode (CLI_MODE false), into the POST reflect item's subagent runner. In CLI mode, the wrapper resolves the audit base from frontmatter and does not take --spec.' OR merge the CLI-mode caveat from line 39 forward into the #5 input description.",
+      "cross_references": [
+        "src/superclaude/skills/task-builder/SKILL.md:54-58",
+        "src/superclaude/skills/task-builder/SKILL.md:39"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Inconsistent anti-self-confirmation wording: class-exclusion vs instance-level across POST note and PRE invocation",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 84,
+      "line_range_end": 84,
+      "in_diff": true,
+      "evidence": "\"Do **NOT** pass `--executor-model` at PRE: no executor has run in `--mode pre`, so there is no executor class to pass. (The skill no longer excludes any model class in any case; reviewer-panel independence is guaranteed at the instance level, not by passing an executor class.)\"",
+      "why": "Line 84 correctly states instance-level independence and that sc-reflect no longer excludes model classes. However, the CLI-mode POST note at lines 211-218 (§4 clause 4) states '--executor-model accept-and-ignore' and 'accepted-and-ignored per §4.2 clause 4', which implies the flag is still passed and ignored. This creates ambiguity: does --executor-model get passed at POST (CLI) or not? The diff shows executor_model_class is still populated in frontmatter (line 60) and the CLI POST note (line 211-218) says the wrapper 'forwards it to reflect as --executor-model (the provenance trail)'. This contradicts the 'no longer excludes any model class in any case' statement unless the note explicitly states the flag is passed but has no effect.",
+      "recommendation": "Add explicit cross-reference from line 84 to the CLI POST note (lines 211-218) stating: 'In CLI mode, executor_model_class is still populated in frontmatter as provenance and forwarded to reflect as --executor-model, but the skill accepts-and-ignores it per the instance-level independence guarantee (see CLI mode anti-self-confirmation note §4).' This clarifies that the flag is passed for provenance but has no removal effect.",
+      "cross_references": [
+        "src/superclaude/skills/task-builder/SKILL.md:211-218",
+        "src/superclaude/skills/task-builder/SKILL.md:60"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Unvalidated default path (skill-only POST) not disclosed in SKILL.md itself",
+      "category": "anti-pattern",
+      "severity_hint": "high",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 21,
+      "line_range_end": 21,
+      "in_diff": true,
+      "evidence": "\"Default (flag absent) = skill-only mode, the in-session subagent-runner POST gate.\"",
+      "why": "Line 21 states the default is skill-only mode, but the author notes in the context that 'ONLY the wrapper path is session-validated end-to-end; the skill-default path is NOT yet validated.' This is a critical risk: the default code path ships unvalidated, but the SKILL.md does not disclose this. A user invoking task-builder without --cli gets an unvalidated POST gate with no warning. The risk is only mentioned in the PR body/context, not in the spec itself.",
+      "recommendation": "Add a CRITICAL NOTE subsection immediately after the #6 input definition (after line 21) disclosing: 'CRITICAL: The skill-only POST gate (default, --cli absent) is NOT yet validated end-to-end in this release. The CLI wrapper path (--cli) is session-validated. Use --cli for mission-critical work until the skill-only path completes validation (tracked in issue #XXX).' This makes the unvalidated-default risk visible in the spec itself, not just the PR body.",
+      "cross_references": [],
+      "confidence": "high"
+    },
+    {
+      "title": "Spec-path threading statement at line 38 contradicts CLI-mode behavior",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 38,
+      "line_range_end": 38,
+      "in_diff": true,
+      "evidence": "\"written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` and the POST item's `{SPEC_PATH}` placeholder\"",
+      "why": "Line 38 states spec_path is 'threaded into... the POST item's {SPEC_PATH} placeholder', but the CLI-mode behavior at lines 54-58 explicitly states 'No SPEC_PATH/DEPTH is threaded into the POST emission: --depth is fixed deep, and the wrapper resolves the audit base from frontmatter start_commit'. This is a direct contradiction: in CLI mode, spec_path is NOT threaded into the POST item. The line 38 statement should be conditioned on reflect_post_mode.",
+      "recommendation": "Revise line 38 to: 'written to the generated tasklist frontmatter as `spec_path:`, threaded into the A.10.7 PRE call's `--spec` and, in skill-only mode (reflect_post_mode: skill), into the POST item's {SPEC_PATH} placeholder. In CLI mode, the wrapper resolves the base from frontmatter start_commit instead.'",
+      "cross_references": [
+        "src/superclaude/skills/task-builder/SKILL.md:54-58"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Reference to non-existent contract version 1.5.1",
+      "category": "correctness",
+      "severity_hint": "critical",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 211,
+      "line_range_end": 218,
+      "in_diff": true,
+      "evidence": "The CLI POST note references '§4.2 clause 4' and 'the wrapper port' but codebase-retrieval shows sc-reflect-protocol is at contract version 1.5.0, not 1.5.1.",
+      "why": "The CLI POST note at lines 211-218 contains internal section references (§4, §4.2 clause 4) but does not cite a contract version. Codebase-retrieval of sc-reflect-protocol shows contract_version: 1.5.0 (line 663 of SKILL.md). The author mentions 'contract version 1.5.1' in the review request context, but no such version exists in the codebase. This creates ambiguity: which contract do these section references point to? If 1.5.1 is a future version not yet merged, the note should state 'per sc-reflect v1.5.1 (pending)' or similar.",
+      "recommendation": "Either: (a) if sc-reflect 1.5.1 is already merged, update the citation to explicitly state the version: 'per sc-reflect-protocol contract v1.5.1 §4.2 clause 4'; or (b) if 1.5.1 is pending, state: 'per sc-reflect-protocol contract v1.5.1 (pending merge) §4.2 clause 4' and add a tracking reference. If the contract is still at v1.5.0, use that version number and verify the section numbers match.",
+      "cross_references": [
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md:663"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "Dangling reference to POST item 'N.{X-1}' completion gate without depth/tier floor enforcement",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 198,
+      "line_range_end": 198,
+      "in_diff": true,
+      "evidence": "\"ADDITIONALLY, the runner's recorded `--depth` MUST equal the TCS-derived `post_depth` (the Tasklist Complexity Score computed via the `## Reflect Depth (Deterministic TCS)` FER, O4-floored at `standard` and never `quick`) AND the resolved `tier_reached` MUST be at least the tier the TCS band sets as a FLOOR\"",
+      "why": "Line 198 (skill-only POST completion gate) references 'the TCS-derived post_depth' and 'O4-floored at standard', but the O4 override definition is not visible in the diff or in the current HEAD file (the view tool clipped at line 2528). The user instruction states the diff shows 'O4 (CLI mode) fixes the POST depth at deep' (line 202 of diff, CLI arm), but the skill-only arm references 'O4-floored at standard'. This creates a discrepancy: is O4 a CLI-only override (as line 202 suggests), or does it also apply to skill-only mode (as line 198 suggests)? The reference to 'O4' is dangling unless the ## Reflect Depth (Deterministic TCS) section defines separate O4 behavior for skill vs CLI modes.",
+      "recommendation": "Verify the ## Reflect Depth (Deterministic TCS) section (not visible in diff) defines O4 separately for skill-only (floor=standard) and CLI (floor=deep) modes. If it does not, the line 198 reference to 'O4-floored at standard' is incorrect. Add a note at line 198: '(see ## Reflect Depth (Deterministic TCS) O4 override for skill-only mode)' and ensure the section distinguishes the two.",
+      "cross_references": [],
+      "confidence": "medium"
+    },
+    {
+      "title": "CLI mode executor_model_class comment uses 'removal directive' language contradicting instance-level independence",
+      "category": "consistency",
+      "severity_hint": "low",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 159,
+      "line_range_end": 159,
+      "in_diff": true,
+      "evidence": "\"executor_model_class: \"<executor model-class alias, e.g. sonnet: recorded PROVENANCE of which class executed; passed through to reflect as a compat field. OUR sc-reflect does NOT class-exclude (instance-level independence); this class is NOT removed from the reviewer pool.>\"\"",
+      "why": "Line 159 (frontmatter comment for executor_model_class in CLI mode) correctly states 'this class is NOT removed from the reviewer pool', but the CLI POST note §4 clause 3 (lines 211-218) requires 'Comment hygiene. The executor_model_class frontmatter comment uses recorded-provenance / compat language only, never a removal-directive wording (it must not claim the named class is dropped from the reviewer panel).' The comment at line 159 includes both 'NOT removed' (correct) and 'recorded PROVENANCE... passed through to reflect as a compat field' (correct), so it passes hygiene. However, the comment should avoid the word 'exclude' entirely to prevent any inference of removal semantics.",
+      "recommendation": "Minor wording tweak at line 159: change 'does NOT class-exclude' to 'does NOT remove the executor class from the reviewer pool'. This avoids the word 'exclude' which could be read as acknowledging the existence of an exclusion mechanism. Alternatively, use 'keeps the executor class in the reviewer pool' (positive framing).",
+      "cross_references": [
+        "src/superclaude/skills/task-builder/SKILL.md:211-218"
+      ],
+      "confidence": "low"
+    },
+    {
+      "title": "Skill-only POST arm references 'adversarial/merged-verdict.yaml' without defining merge-method enum",
+      "category": "docs",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 197,
+      "line_range_end": 197,
+      "in_diff": true,
+      "evidence": "\"a missing/empty `{OUTPUT_DIR}/adversarial/merged-verdict.yaml`, fewer reviewer-cards than reviewers, OR an illegal `merge_method` value (anything other than `adversarial` or `single-reviewer-fallback`), does NOT satisfy the gate.\"",
+      "why": "Line 197 references merge_method values 'adversarial' and 'single-reviewer-fallback' as the only legal values, but does not cite where this enum is defined. The codebase-retrieval results show sc-adversarial-protocol is the merge authority, but the skill-only POST arm does not reference sc-adversarial's contract or schema. A reader cannot verify the enum is complete or whether other values (e.g., 'consensus', 'unanimous') exist without tracing into sc-adversarial-protocol.",
+      "recommendation": "Add a parenthetical cross-reference at line 197: '(merge_method enum per sc-adversarial-protocol contract)' OR cite the specific section of sc-adversarial that defines the enum. Alternatively, add a note: 'The merge_method field is written by sc-adversarial-protocol Wave 4; legal values are adversarial (normal case) and single-reviewer-fallback (degraded case per sc-adversarial fallback F2).'",
+      "cross_references": [],
+      "confidence": "medium"
+    },
+    {
+      "title": "EV-3 disk verification references adversarial/ directory but does not define minimum file count for genuine merge",
+      "category": "docs",
+      "severity_hint": "low",
+      "file": "src/superclaude/skills/task-builder/SKILL.md",
+      "line": 197,
+      "line_range_end": 197,
+      "in_diff": true,
+      "evidence": "\"a raw file count is NOT used because a genuine merge writes only ~3 files into adversarial/\"",
+      "why": "Line 197 states 'a genuine merge writes only ~3 files into adversarial/' but does not define which 3 files. The executor is instructed to check for 'merged-verdict.yaml' and 'at least the resolved --reviewers count of cards', but the parenthetical '~3 files' is vague. Does this mean merged-verdict.yaml + 2 other files? Or does it mean the card count is separate from the 3-file check? The instruction is self-contradictory: if the executor checks 'at least the reviewers count of cards', the file count is N (reviewers) + 1 (merged-verdict), not ~3.",
+      "recommendation": "Clarify line 197: 'a raw file count of adversarial/ is NOT a reliable check because the directory contains merged-verdict.yaml + N reviewer-cards + optional metadata files. The executor MUST verify (1) merged-verdict.yaml exists with merge_method: adversarial, AND (2) reviewer-cards/ holds at least N cards, where N is the --reviewers count.' Drop the '~3 files' statement as it conflicts with the N+1 logic.",
+      "cross_references": [],
+      "confidence": "low"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "CLI vs skill-only mode bifurcation increases maintenance surface",
+      "category": "architecture",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/skills/task-builder/SKILL.md"
+      ],
+      "why": "The --cli flag introduces a mode bifurcation: two distinct POST gate implementations (CLI wrapper shell-out vs skill-only subagent runner), two frontmatter schemas (CLI emits start_commit/executor_model_class, skill-only omits them), two depth-override rules (O4 CLI=deep, O4 skill=standard per line 198), and two validation paths (Critical-Rule-20 CLI arm vs skill-only arm). This doubles the test surface and creates opportunities for spec drift. The diff shows the two POST items are mutually exclusive (lines 182-207), but the frontmatter schema (lines 158-160) has a shared field (reflect_post_mode) that must be read by both the builder and the executor. A future change to one arm may not be applied to the other.",
+      "recommendation": "Add a central 'Mode Bifurcation Table' section summarizing which fields/rules/overrides differ between CLI and skill-only modes. Example columns: Field/Rule, CLI Mode, Skill-Only Mode, Justification. This makes divergences explicit and checkable. Also add a validation rule: 'When reflect_post_mode is cli, frontmatter MUST include start_commit and executor_model_class; when skill, these fields MUST be absent.' This prevents malformed hybrids.",
+      "confidence": "high"
+    },
+    {
+      "title": "Instance-level independence claim requires cross-skill contract alignment",
+      "category": "api-contract",
+      "severity_hint": "high",
+      "affected_files": [
+        "src/superclaude/skills/task-builder/SKILL.md",
+        "src/superclaude/skills/sc-reflect-protocol/SKILL.md"
+      ],
+      "why": "The diff states 'instance-level independence' and 'the skill no longer excludes any model class' (line 84), but this is a change to sc-reflect-protocol's behavior, not task-builder's. Task-builder is a consumer of sc-reflect; it cannot unilaterally declare that reflect 'no longer excludes classes'. The claim is only valid if sc-reflect-protocol v1.5.1 actually implements instance-level independence. Codebase-retrieval shows v1.5.0 still has executor_exclusion_degraded (line 819 of sc-reflect SKILL.md) and executor-class removal logic (reviewer-spec.md lines 93-99). If v1.5.1 removed the class-exclusion mechanism, the contract version bump is correct. If not, the claim at line 84 is incorrect.",
+      "recommendation": "Verify sc-reflect-protocol v1.5.1 actually implements instance-level independence (no class removal, --executor-model accepted-and-ignored). If it does, cite the contract version explicitly: 'The skill (sc-reflect v1.5.1+) no longer excludes any model class; reviewer-panel independence is guaranteed at the instance level (fresh subagent + no formation context + blind calibration), not by class removal.' If v1.5.1 has not shipped, mark the claim as contingent: 'PENDING sc-reflect v1.5.1: instance-level independence (class stays in pool, independence via fresh spawn). Until v1.5.1 ships, the class-exclusion mechanism remains active and executor_model_class is used for removal.'",
+      "confidence": "high"
+    },
+    {
+      "title": "Unvalidated default path shipping without user warning is a release-gate violation",
+      "category": "anti-pattern",
+      "severity_hint": "critical",
+      "affected_files": [
+        "src/superclaude/skills/task-builder/SKILL.md"
+      ],
+      "why": "The author states 'ONLY the wrapper path is session-validated end-to-end; the skill-default path is NOT yet validated.' This means the default code path (skill-only POST, --cli absent) ships unvalidated. Shipping an unvalidated default violates the release-gate principle: the most-used path should be the most-tested path. Users invoking task-builder without --cli get an untested POST gate with no disclosure. The SKILL.md should either (a) mark skill-only mode as EXPERIMENTAL and recommend --cli, or (b) block the release until skill-only is validated. Shipping both paths with the untested one as default is a recipe for production failures.",
+      "recommendation": "CRITICAL ACTION: Either (1) invert the default (make --cli the default, skill-only the opt-in flag --experimental-skill-only), OR (2) add a loud WARNING at the top of the SKILL.md and in the #6 input description: 'WARNING: The skill-only POST gate (default) is NOT session-validated. Use --cli for production work until validation completes (issue #XXX).' OR (3) block the PR until skill-only validation is complete. The current state (untested default, no warning) is unacceptable for a production release.",
+      "confidence": "high"
+    }
+  ],
+  "notes_for_orchestrator": "Review focused on the RF SKILLS chunk (task-builder, task, tech-research, tech-reference) per the specified scope. Findings concentrate on the --cli toggle bifurcation and the instance-level independence anti-self-confirmation mechanism. The most critical issue is the unvalidated skill-only default path shipping without user disclosure (anti-pattern finding #3 + cross-cutting observation #3). The contract-version mismatch (finding #5) requires verification: if sc-reflect v1.5.1 has not merged, all instance-level independence claims are premature. The spec-path threading contradictions (findings #1, #4) are medium-severity correctness issues that create ambiguity about CLI vs skill-only behavior. All findings cite real file:line evidence from the diff or HEAD state."
+}

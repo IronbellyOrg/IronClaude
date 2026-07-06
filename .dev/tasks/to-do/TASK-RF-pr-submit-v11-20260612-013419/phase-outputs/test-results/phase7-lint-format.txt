@@ -1,0 +1,17 @@
+=== Step 7.2 — CI format gates — 2026-06-12 ===
+
+### ruff format --check on MY V1.1 files (pr_submit + skill) ===
+33 files already formatted
+
+### ruff check on MY V1.1 files ===
+All checks passed!
+
+### ruff format --check src/ tests/ (whole repo) — pre-existing unformatted count ===
+100 files would be reformatted, 876 files already formatted
+(the ~100 unformatted are PRE-EXISTING repo files: tests/swarm/*, etc. — NONE are pr_submit)
+
+### are any pr_submit files in the whole-repo would-reformat list? ===
+ZERO pr_submit files unformatted (all my files pass)
+
+### make lint — pre-existing architecture error ===
+  ❌ ERROR [Check 1]: src/superclaude/commands/recommend.md has ## Activation but no matching skill directory: sc-recommend-protocol

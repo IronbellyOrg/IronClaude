@@ -1,0 +1,10 @@
+selected_tier: 2
+fired_rule_number: 2
+composite_score: 1.0
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 0
+  blast_radius: 0
+  spec_density: 0
+  ambiguity_signals: 0
+escalation_reason: "--depth deep forced Tier 2 despite T1-stop-worthy rubric score"

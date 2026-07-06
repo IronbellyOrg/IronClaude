@@ -1,0 +1,129 @@
+contract_version: "1.2.0"
+status: failed
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/audit.log
+confidence_calibrated: 0.91
+escalation_rule_matched: 3
+onboarding_ran: false
+coverage_pct: null
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: null
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: 0.76
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 4
+  regression: 2
+deviation_register_path: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/deviation-register.yaml
+grounding_gaps_path: null
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: true
+verification_invocations: 3
+verification_failures: 1
+verification_regressions_detected: 2
+verification_skip_reason: null
+input_sha256:
+  tasklist: not-computed-manual-reflect
+  spec: not-computed-manual-reflect
+input_tree_sha256: not-computed-manual-reflect
+input_tree_file_count: 2
+input_tree_snapshot_path: null
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 30
+citations_revalidated: 30
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - inline-security-review
+  - inline-code-review
+  - inline-quality-review
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: true
+unauthorized_deviation_present: true
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts:
+  - task_id: T03.01
+    status: failed
+    deviation_class: regression
+    citations_dropped: 0
+    per_task_validation_strength: 0.96
+    evidence_anchor: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/REPORT.md#r1--swarm-run---transport-stub-discards-the-selected-transport-and-dispatches-zero-workers
+  - task_id: T03.14
+    status: failed
+    deviation_class: regression
+    citations_dropped: 0
+    per_task_validation_strength: 0.98
+    evidence_anchor: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/REPORT.md#r2--phase-3-python-only-concurrency-test-fails-because-later-tmux-subprocess-code-is-in-the-phase-3-scan-surface
+  - task_id: T03.03
+    status: partial
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.88
+    evidence_anchor: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/REPORT.md#d1--preflight-constructs-swarmstate-but-the-run-path-does-not-persist-swarm-statejson
+  - task_id: T03.09
+    status: partial
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.86
+    evidence_anchor: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/REPORT.md#d2--retry-policy-can-retry-4xx-and-timeout-outcomes-when-flags-are-set-despite-the-phase-3-matrix-saying-never
+  - task_id: T03.05
+    status: partial
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.84
+    evidence_anchor: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/REPORT.md#d3--openai-compatible-network-exceptions-bypass-transport-side-result-stamping-and-lose-model-identity
+  - task_id: T03.17
+    status: partial
+    deviation_class: drift
+    citations_dropped: 0
+    per_task_validation_strength: 0.82
+    evidence_anchor: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/3/REPORT.md#d5--output-confinement-test-only-checks-that-modules-contain-the-string-confine_path
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: skipped
+promotion_adapter: sprint-release
+promotion_source: /config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm
+promotion_destination: /config/workspace/IronClaude/.dev/releases/complete/MultiModelSwarm
+promotion_log_path: null
+promotion_gate_passed: false
+promotion_skip_reason: gate-failed
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

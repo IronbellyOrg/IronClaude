@@ -1,0 +1,20 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/fix-sprint-integrity-signalb-pass-recovered
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collected 1 item
+
+tests/sprint/test_resume.py F                                            [100%]
+
+=================================== FAILURES ===================================
+_______ TestResumePlanner.test_resume_pass_recovered_counts_as_completed _______
+tests/sprint/test_resume.py:233: in test_resume_pass_recovered_counts_as_completed
+    assert report.validated_last is True
+E   AssertionError: assert False is True
+E    +  where False = BoundaryReport(validated_last=False, suspects=[BoundaryTask(task_id='T03.01', persisted_status=<TaskStatus.PASS_RECOVE...ASS_RECOVERED, derived=TaskStatus.FAIL_RECOVERABLE, artifacts_present=True.'], coherence_warnings=[], partial_paths=[]).validated_last
+=========================== short test summary info ============================
+FAILED tests/sprint/test_resume.py::TestResumePlanner::test_resume_pass_recovered_counts_as_completed
+============================== 1 failed in 0.56s ===============================

@@ -1,0 +1,23 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: "/config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot/seed-brief.md"
+merged_output_path: "/config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot/merged-requirements.md"
+convergence_score: 0.78
+adversarial_artifacts_dir: "/config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot/adversarial/"
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+telemetry:
+  strategy: enterprise
+  depth: deep
+  models: "opus(claude-opus-4-8), sonnet(gpt-5.5), haiku(qwen3.6-plus)"
+  personas: "architect, security, devops"
+  agent_spec: "opus:architect:'...', sonnet:security:'...', haiku:devops:'...'"
+  base_variant: "sonnet:security"
+  invariant_probe_high_resolved: 4
+  socratic_answers: "autonomy=mention-flag-selectable(default propose-only); host=self-hosted(adversarial-decided); mention=trigger+whitelisted-flags-only; authz=live-gh-write-perm"

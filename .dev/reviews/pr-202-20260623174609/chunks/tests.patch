@@ -1,0 +1,706 @@
+diff --git a/tests/agents/test_tavily_tool_parity.py b/tests/agents/test_tavily_tool_parity.py
+new file mode 100644
+index 00000000..5c07959e
+--- /dev/null
++++ b/tests/agents/test_tavily_tool_parity.py
+@@ -0,0 +1,109 @@
++"""Frontmatter↔prose Tavily tool-parity drift guards (Clusters C2 + C6, invariants X7 + X5).
++
++Per reflect finding H1, the parity glob covers BOTH ``src/superclaude/agents/**/*.md`` and
++``src/superclaude/skills/**/*.md`` and parses BOTH the ``tools:`` (YAML list) and
++``allowed-tools:`` (inline comma list) frontmatter keys — so ``sc-recommend`` is in scope.
++
++Parity semantics (faithful to X7 without false-failing the no-change consumers):
++- Only files declaring a tool surface (``tools:`` or ``allowed-tools:``) are checked; narrative
++  reference docs (e.g. ``refs/*.md``) with no tool-surface key are skipped.
++- Universal direction — ``referenced ⊆ declared``: a file may not reference a ``mcp__tavily__*``
++  tool in prose without declaring it in frontmatter.
++- Bidirectional direction — for files that DOCUMENT a Tavily tool in prose (≥1 full id in the
++  body), ``declared == referenced`` exactly. Files that mention Tavily only generically
++  (``sc-recommend``, ``sc-reflect`` pre-edit) have an empty referenced set and are exempt from
++  the equality, which is the intended behavior (they inherit, they do not document the surface).
++
++All assertions read real file content; CI-safe (no network).
++"""
++
++import re
++from pathlib import Path
++
++_REPO_ROOT = Path(__file__).resolve().parents[2]
++_AGENTS_DIR = _REPO_ROOT / "src" / "superclaude" / "agents"
++_SKILLS_DIR = _REPO_ROOT / "src" / "superclaude" / "skills"
++
++_TAVILY_ID = re.compile(r"mcp__tavily__tavily-[a-z]+")
++_TOOL_SURFACE_KEY = re.compile(r"^\s*(tools|allowed-tools):", re.MULTILINE)
++
++
++def _md_files() -> list[Path]:
++    files: list[Path] = []
++    for root in (_AGENTS_DIR, _SKILLS_DIR):
++        files.extend(sorted(root.rglob("*.md")))
++    return files
++
++
++def _split_frontmatter(text: str) -> tuple[str, str]:
++    """Return (frontmatter, body). If no leading frontmatter block, ('', text)."""
++    if text.startswith("---"):
++        parts = text.split("---", 2)
++        if len(parts) >= 3:
++            return parts[1], parts[2]
++    return "", text
++
++
++def test_prose_tavily_ids_are_declared():
++    """referenced ⊆ declared — no file uses a Tavily tool it did not declare (X7)."""
++    violations = []
++    for f in _md_files():
++        fm, body = _split_frontmatter(f.read_text(encoding="utf-8"))
++        if not _TOOL_SURFACE_KEY.search(fm):
++            continue
++        declared = set(_TAVILY_ID.findall(fm))
++        referenced = set(_TAVILY_ID.findall(body))
++        undeclared = referenced - declared
++        if undeclared:
++            violations.append((str(f.relative_to(_REPO_ROOT)), sorted(undeclared)))
++    assert not violations, f"prose references undeclared Tavily tools: {violations}"
++
++
++def test_documenting_files_have_exact_parity():
++    """declared == referenced for files that document Tavily tools in prose (X7 bidirectional)."""
++    mismatches = []
++    for f in _md_files():
++        fm, body = _split_frontmatter(f.read_text(encoding="utf-8"))
++        if not _TOOL_SURFACE_KEY.search(fm):
++            continue
++        declared = set(_TAVILY_ID.findall(fm))
++        referenced = set(_TAVILY_ID.findall(body))
++        if referenced and declared != referenced:
++            mismatches.append(
++                {
++                    "file": str(f.relative_to(_REPO_ROOT)),
++                    "declared": sorted(declared),
++                    "referenced": sorted(referenced),
++                }
++            )
++    assert not mismatches, f"frontmatter↔prose Tavily parity mismatch: {mismatches}"
++
++
++def test_rf_no_map_crawl():
++    """X5 guard — no rf-* agent references map/crawl (confined to the research engine)."""
++    offenders = []
++    for f in sorted(_AGENTS_DIR.glob("rf-*.md")):
++        text = f.read_text(encoding="utf-8")
++        if "tavily-map" in text or "tavily-crawl" in text:
++            offenders.append(f.name)
++    assert not offenders, f"rf-* agents must not reference map/crawl (X5): {offenders}"
++
++
++def test_rf_fallback_provenance_present():
++    """Each rf-* agent retains a Tavily-first + fallback-provenance form."""
++    missing = []
++    rf_files = sorted(_AGENTS_DIR.glob("rf-*.md"))
++    assert rf_files, "expected rf-* agent files to exist"
++    for f in rf_files:
++        text = f.read_text(encoding="utf-8")
++        has_tavily = "mcp__tavily__tavily-search" in text
++        has_provenance = (
++            "Tavily-first" in text
++            and "fallback" in text.lower()
++            and "WebSearch" in text
++        )
++        if not (has_tavily and has_provenance):
++            missing.append(f.name)
++    assert not missing, (
++        f"rf-* agents missing Tavily-first/fallback provenance: {missing}"
++    )
+diff --git a/tests/cli/eval/test_capability_gates.py b/tests/cli/eval/test_capability_gates.py
+index f6c3d6de..e799a27c 100644
+--- a/tests/cli/eval/test_capability_gates.py
++++ b/tests/cli/eval/test_capability_gates.py
+@@ -41,7 +41,11 @@ def _mcp_only_specs() -> tuple[_CapabilitySpec, ...]:
+
+
+ def test_default_roster_contains_expected_binaries_and_mcp_servers() -> None:
+-    """T01.11 Steps[2]: roster = claude/jq/make/git HARD + 3 MCP SOFT-SKIP."""
++    """T01.11 Steps[2]: roster = claude/jq/make/git HARD + 4 MCP SOFT-SKIP.
++
++    The MCP roster gained ``mcp_server.tavily`` (M2 mandatory registration for the
++    Tavily 0.2.x upgrade / TASK-RF-tavily-mcp-0-2-x) alongside auggie/auggie-mcp/airis.
++    """
+     names = {spec.name for spec in _DEFAULT_CAPABILITY_SPECS}
+     assert names == {
+         "binary.claude",
+@@ -51,6 +55,7 @@ def test_default_roster_contains_expected_binaries_and_mcp_servers() -> None:
+         "mcp_server.auggie",
+         "mcp_server.auggie-mcp",
+         "mcp_server.airis-mcp-gateway",
++        "mcp_server.tavily",
+     }
+
+
+diff --git a/tests/cli/eval/test_tavily_eval_capability.py b/tests/cli/eval/test_tavily_eval_capability.py
+new file mode 100644
+index 00000000..7cbe5531
+--- /dev/null
++++ b/tests/cli/eval/test_tavily_eval_capability.py
+@@ -0,0 +1,58 @@
++"""C7 / M2 drift guards for the Tavily eval capability + the E16 verification eval.
++
++CI-safe: pure registry + manifest parsing through the same loader path
++``eval describe`` uses; no live eval run, no network, no TAVILY_API_KEY required.
++
++Note: the task referred to this eval as ``E-tavily-search``; it is registered as
++``E16`` because the FR-SCH2 eval-id regex forbids hyphens (user-approved rename).
++"""
++
++import yaml
++
++from superclaude.cli.eval.capabilities import _DEFAULT_CAPABILITY_SPECS
++from superclaude.cli.eval.commands import _DEFAULT_SUITES_DIR, resolve_suite_manifest
++from superclaude.cli.eval.loader import validate_manifest
++
++_CAP = "mcp_server.tavily"
++_TOOL = "mcp__tavily__tavily-search"
++
++
++def _real_manifest_path():
++    return resolve_suite_manifest("real", _DEFAULT_SUITES_DIR)
++
++
++def test_capabilities_registers_mcp_server_tavily():
++    """M2: mcp_server.tavily is a mandatory _DEFAULT_CAPABILITY_SPECS row (kind mcp_server)."""
++    by_name = {s.name: s for s in _DEFAULT_CAPABILITY_SPECS}
++    assert _CAP in by_name, f"{_CAP} not registered in _DEFAULT_CAPABILITY_SPECS (M2)"
++    assert by_name[_CAP].kind == "mcp_server"
++
++
++def test_real_suite_has_tavily_capability_and_verification_eval():
++    """The real suite resolves mcp_server.tavily and carries the E16 verification eval."""
++    path = _real_manifest_path()
++    # Parses through the same loader path `eval describe --suite real` uses.
++    specs = validate_manifest(path)
++    matches = [s for s in specs if s.id == "E16"]
++    assert matches, "E16 tavily verification eval not present in the real suite"
++    spec = matches[0]
++    assert _CAP in spec.requires, f"E16 must require {_CAP}: {spec.requires}"
++    tool_calls = [i.get("expect_tool_call") for i in spec.inputs]
++    assert _TOOL in tool_calls, f"E16 must expect {_TOOL}: {tool_calls}"
++
++    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
++    cap_names = {c["name"] for c in raw.get("optional_capabilities", [])}
++    assert _CAP in cap_names, (
++        "real suite optional_capabilities missing mcp_server.tavily"
++    )
++
++
++def test_tavily_eval_gated_to_skip_without_key():
++    """The eval SKIPs cleanly (not fails) when Tavily is unreachable / no key — failure_mode: skip."""
++    raw = yaml.safe_load(_real_manifest_path().read_text(encoding="utf-8"))
++    cap = next(c for c in raw["optional_capabilities"] if c["name"] == _CAP)
++    assert cap["failure_mode"] == "skip"
++    assert cap.get("gate_flag") == "--no-mcp"
++    # The default-spec gate agrees, so non-real suites resolve the capability too (M2).
++    by_name = {s.name: s for s in _DEFAULT_CAPABILITY_SPECS}
++    assert by_name[_CAP].failure_mode == "skip"
+diff --git a/tests/cli/test_install_mcp_tavily.py b/tests/cli/test_install_mcp_tavily.py
+new file mode 100644
+index 00000000..6549fc39
+--- /dev/null
++++ b/tests/cli/test_install_mcp_tavily.py
+@@ -0,0 +1,118 @@
++"""Drift-guard tests for the Tavily MCP registry entry and install path (Cluster C1).
++
++Covers the pinned ``tavily-mcp@0.2.20`` version, the ``default_parameters`` registry
++field, server-level ``DEFAULT_PARAMETERS`` injection into the install argv (M1), API-key
++masking in echoed commands (M1), and the absence of the deleted ``configs/tavily.json``.
++
++All assertions read the ACTUAL registry / argv — no fabricated expected values. The live
++smoke is gated behind ``TAVILY_API_KEY`` so the suite is CI-safe.
++"""
++
++import os
++from pathlib import Path
++
++import pytest
++
++from superclaude.cli import install_mcp
++
++# Repo root: tests/cli/test_install_mcp_tavily.py -> parents[2]
++_REPO_ROOT = Path(__file__).resolve().parents[2]
++
++# Compact-JSON token expected in the install argv (no spaces — single argv token, M1).
++_EXPECTED_DEFAULT_PARAMS_TOKEN = (
++    'DEFAULT_PARAMETERS={"search_depth":"basic","max_results":10}'
++)
++
++
++def test_tavily_registry_pins_0_2_20():
++    """The tavily registry command pins exactly tavily-mcp@0.2.20 over stdio (X1)."""
++    entry = install_mcp.MCP_SERVERS["tavily"]
++    assert entry["command"] == "npx -y tavily-mcp@0.2.20"
++    assert entry["transport"] == "stdio"
++
++
++def test_default_parameters_field():
++    """The tavily registry carries the DEFAULT_PARAMETERS baseline (X3 / M3a)."""
++    entry = install_mcp.MCP_SERVERS["tavily"]
++    assert entry["default_parameters"] == {"search_depth": "basic", "max_results": 10}
++
++
++def test_tavily_json_absent():
++    """The orphan src/ config was deleted in Phase 2 (X2)."""
++    orphan = _REPO_ROOT / "src" / "superclaude" / "mcp" / "configs" / "tavily.json"
++    assert not orphan.exists(), f"deleted config still present: {orphan}"
++
++
++class _FakeCompleted:
++    """Minimal stand-in for subprocess.CompletedProcess (returncode 0, no stderr)."""
++
++    returncode = 0
++    stderr = ""
++    stdout = ""
++
++
++def _patch_install_path(monkeypatch, dummy_key):
++    """Monkeypatch the install path so it never spawns a real npx/claude subprocess.
++
++    Returns a mutable list that captures the argv passed to ``_run_command``.
++    """
++    captured = {"calls": []}
++
++    def fake_run_command(cmd, **kwargs):
++        captured["calls"].append(list(cmd))
++        return _FakeCompleted()
++
++    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
++    monkeypatch.setattr(install_mcp, "check_mcp_server_installed", lambda name: False)
++    monkeypatch.setattr(install_mcp, "prompt_for_api_key", lambda *a, **k: dummy_key)
++    return captured
++
++
++def test_default_parameters_propagated(monkeypatch):
++    """The install argv carries -e DEFAULT_PARAMETERS=<compact-json> and the 0.2.20 pin (M1).
++
++    No real npx/claude subprocess is spawned (``_run_command`` is intercepted).
++    """
++    captured = _patch_install_path(monkeypatch, "dummy-key-abc123")
++
++    ok = install_mcp.install_mcp_server(
++        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
++    )
++    assert ok is True
++
++    # Exactly one intercepted command, and the real subprocess was never reached.
++    assert len(captured["calls"]) == 1
++    argv = captured["calls"][0]
++
++    # The compact DEFAULT_PARAMETERS token is present and immediately follows an -e flag.
++    assert _EXPECTED_DEFAULT_PARAMS_TOKEN in argv
++    idx = argv.index(_EXPECTED_DEFAULT_PARAMS_TOKEN)
++    assert argv[idx - 1] == "-e"
++
++    # The pinned package version is in the argv (after the `--` separator).
++    assert "tavily-mcp@0.2.20" in argv
++    # Sanity: this is the `claude mcp add` path, not a direct npx spawn.
++    assert argv[:3] == ["claude", "mcp", "add"]
++
++
++def test_api_key_never_in_logged_command(monkeypatch, capsys):
++    """The echoed "Running:" command masks the raw API key value (M1)."""
++    secret = "SUPERSECRETKEY-do-not-log-9999"  # pragma: allowlist secret
++    _patch_install_path(monkeypatch, secret)
++
++    install_mcp.install_mcp_server(
++        install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
++    )
++    out = capsys.readouterr().out
++    assert "Running:" in out
++    assert secret not in out, "raw API key leaked into an echoed command line"
++    # The DEFAULT_PARAMETERS token (non-secret) may still be shown in full.
++    assert "TAVILY_API_KEY=***" in out
++
++
++@pytest.mark.skipif(not os.getenv("TAVILY_API_KEY"), reason="requires TAVILY_API_KEY")
++def test_live_tavily_search_smoke():
++    """Minimal live presence check — SKIPPED in CI (no key). Confirms the pinned entry resolves."""
++    entry = install_mcp.MCP_SERVERS["tavily"]
++    assert entry["command"].endswith("tavily-mcp@0.2.20")
++    assert entry.get("api_key_env") == "TAVILY_API_KEY"
+diff --git a/tests/commands/test_research_command.py b/tests/commands/test_research_command.py
+new file mode 100644
+index 00000000..bcfd1e4a
+--- /dev/null
++++ b/tests/commands/test_research_command.py
+@@ -0,0 +1,52 @@
++"""Drift guards for the /sc:research command doc (Cluster C3).
++
++Verifies the command POINTS to the research engine rather than duplicating Tavily
++params (X6), and that its Adaptive-Depth tiers match RESEARCH_CONFIG.md's Depth
++Profiles in name and order. CI-safe (pure file-content assertions).
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_RESEARCH_MD = _REPO / "src" / "superclaude" / "commands" / "research.md"
++_CONFIG_MD = _REPO / "src" / "superclaude" / "core" / "RESEARCH_CONFIG.md"
++
++_TIERS = ["quick", "standard", "deep", "exhaustive"]
++
++
++def _adaptive_depth_section() -> str:
++    text = _RESEARCH_MD.read_text(encoding="utf-8")
++    after = text.split("### Adaptive Depth", 1)
++    assert len(after) == 2, "research.md missing the '### Adaptive Depth' section"
++    return after[1].split("\n## ", 1)[0]
++
++
++def test_research_command_no_param_duplication():
++    """research.md must not duplicate concrete Tavily param assignments (X6)."""
++    text = _RESEARCH_MD.read_text(encoding="utf-8")
++    for tok in ("search_depth:", "extract_depth:", "max_results:"):
++        assert tok not in text, (
++            f"research.md duplicates Tavily param '{tok}' (X6 violation)"
++        )
++
++
++def test_research_tiers_match_config():
++    """The four Adaptive-Depth tiers match RESEARCH_CONFIG.md profiles; quick/standard != advanced."""
++    section = _adaptive_depth_section()
++    found = [m.group(1).lower() for m in re.finditer(r"\*\*([A-Za-z]+)\*\*", section)]
++    assert found[:4] == _TIERS, (
++        f"research.md Adaptive-Depth tiers {found[:4]} != {_TIERS} (name/order mismatch)"
++    )
++
++    config = _CONFIG_MD.read_text(encoding="utf-8")
++    for t in _TIERS:
++        assert re.search(rf"\|\s*{t}\s*\|", config), (
++            f"RESEARCH_CONFIG.md missing Depth Profile row for '{t}'"
++        )
++
++    # quick/standard tiers must never claim `advanced` depth.
++    for line in section.splitlines():
++        low = line.lower().strip()
++        if low.startswith("- **quick**") or low.startswith("- **standard**"):
++            assert "advanced" not in low, f"tier line must not claim advanced: {line!r}"
+diff --git a/tests/core/test_research_config.py b/tests/core/test_research_config.py
+new file mode 100644
+index 00000000..46f59253
+--- /dev/null
++++ b/tests/core/test_research_config.py
+@@ -0,0 +1,79 @@
++"""Drift-guard tests for RESEARCH_CONFIG.md Depth Profiles + Discovery Routing (Cluster C2).
++
++Asserts against the ACTUAL file text (CI-safe, no network):
++- every Depth Profile names concrete `search_depth` + `extract_depth` + tool names,
++- `advanced` appears only with gating language tying it to deep/exhaustive (never quick/standard),
++- the `maps`/`crawls` caps and the crawl 50-URL truncation are present.
++"""
++
++import re
++from pathlib import Path
++
++_REPO_ROOT = Path(__file__).resolve().parents[2]
++_CONFIG = _REPO_ROOT / "src" / "superclaude" / "core" / "RESEARCH_CONFIG.md"
++
++_PROFILES = ["quick", "standard", "deep", "exhaustive"]
++
++
++def _read() -> str:
++    return _CONFIG.read_text(encoding="utf-8")
++
++
++def _profile_rows() -> dict[str, str]:
++    """Return the Depth Profiles markdown table row for each profile name."""
++    rows: dict[str, str] = {}
++    for line in _read().splitlines():
++        stripped = line.strip()
++        if not stripped.startswith("|"):
++            continue
++        first_cell = stripped.strip("|").split("|", 1)[0].strip().lower()
++        if first_cell in _PROFILES:
++            rows[first_cell] = stripped
++    return rows
++
++
++def test_each_depth_profile_names_concrete_params_and_tools():
++    rows = _profile_rows()
++    for p in _PROFILES:
++        assert p in rows, f"missing Depth Profile row: {p}"
++        cells = [c.strip() for c in rows[p].strip().strip("|").split("|")]
++        depth_vals = [c for c in cells if c in ("basic", "advanced")]
++        assert len(depth_vals) >= 2, (
++            f"{p} row lacks concrete search_depth + extract_depth values: {rows[p]}"
++        )
++        assert "search" in rows[p], f"{p} row does not name any tool: {rows[p]}"
++
++
++def test_advanced_only_with_gating_language():
++    rows = _profile_rows()
++    # quick/standard stay basic — must NOT carry `advanced`.
++    for p in ["quick", "standard"]:
++        assert "advanced" not in rows[p], (
++            f"{p} must stay basic, found advanced: {rows[p]}"
++        )
++    # deep/exhaustive use advanced.
++    for p in ["deep", "exhaustive"]:
++        assert "advanced" in rows[p], f"{p} must use advanced: {rows[p]}"
++    # Explicit gating sentence tying advanced to deep/exhaustive.
++    text = _read()
++    gating = re.search(
++        r"advanced.*ONLY.*(deep|exhaustive)|(deep|exhaustive).*advanced",
++        text,
++        re.IGNORECASE | re.DOTALL,
++    )
++    assert gating, "no gating language tying `advanced` to the deep/exhaustive tiers"
++
++
++def test_discovery_caps_and_crawl_truncation_present():
++    text = _read()
++    assert "maps=2" in text, "missing maps=2 cap"
++    assert "crawls=1" in text, "missing crawls=1 cap"
++    assert re.search(r"50[\s-]*URL", text, re.IGNORECASE), (
++        "missing crawl 50-URL truncation cap"
++    )
++
++
++def test_map_and_crawl_tool_ids_present():
++    text = _read()
++    assert "mcp__tavily__tavily-map" in text
++    assert "mcp__tavily__tavily-crawl" in text
+diff --git a/tests/docs/test_tavily_doc_alignment.py b/tests/docs/test_tavily_doc_alignment.py
+new file mode 100644
+index 00000000..f6771b2f
+--- /dev/null
++++ b/tests/docs/test_tavily_doc_alignment.py
+@@ -0,0 +1,114 @@
++"""C8 doc-alignment + release drift guards for the Tavily 0.2.x upgrade (H3/H4).
++
++Scoped to ``src/superclaude`` + ``docs`` ONLY — archived/build trees (``.dev/``,
++``.claude/``, ``dist/``) are excluded so stale historical pins (e.g. an archived
++``tavily-mcp@0.1.2`` under ``.dev/releases/``) and the ``mcp.tavily.com`` URL do not
++false-positive (reflect findings H3/H4). CI-safe: pure file-content scans.
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_ROOTS = [_REPO / "src" / "superclaude", _REPO / "docs"]
++_EXCLUDE_DIRS = {
++    ".dev",
++    ".claude",
++    "dist",
++    "node_modules",
++    ".venv",
++    "__pycache__",
++    ".git",
++}
++_TEXT_SUFFIXES = {
++    ".md",
++    ".py",
++    ".yaml",
++    ".yml",
++    ".json",
++    ".txt",
++    ".sh",
++    ".cfg",
++    ".ini",
++    ".toml",
++}
++
++# `mcp.tavily` as a stale capability token, but NOT the `mcp.tavily.com` URL (H4).
++_STALE_TOKEN_RE = re.compile(r"mcp\.tavily(?!\.com)")
++_VERSION_RE = re.compile(r"tavily-mcp@([A-Za-z0-9.\-]+)")
++
++
++def _iter_text_files(roots: list[Path]):
++    for root in roots:
++        if not root.exists():
++            continue
++        for p in root.rglob("*"):
++            if not p.is_file():
++                continue
++            # Exclude only dirs UNDER the root — never match ancestor components of an
++            # absolute path (the worktree itself lives under `.dev/worktrees/…`, so testing
++            # `p.parts` would exclude every file and make this guard vacuous).
++            if any(part in _EXCLUDE_DIRS for part in p.relative_to(root).parts):
++                continue
++            if p.suffix.lower() not in _TEXT_SUFFIXES:
++                continue
++            yield p
++
++
++def _read(p: Path) -> str:
++    try:
++        return p.read_text(encoding="utf-8")
++    except (UnicodeDecodeError, OSError):
++        return ""
++
++
++def test_tavily_version_single_pin():
++    """Every `tavily-mcp@<ver>` in src/ + docs/ is pinned to 0.2.20 (X1 / H3)."""
++    bad = []
++    for p in _iter_text_files(_ROOTS):
++        for m in _VERSION_RE.finditer(_read(p)):
++            if m.group(1) != "0.2.20":
++                bad.append((str(p.relative_to(_REPO)), m.group(1)))
++    assert not bad, f"tavily-mcp pinned to a version other than 0.2.20: {bad}"
++
++
++def test_no_stale_mcp_tavily_token():
++    """No stale `mcp.tavily` capability token in src/ + docs/ (X4 / H4); `mcp.tavily.com` is allowed."""
++    bad = [
++        str(p.relative_to(_REPO))
++        for p in _iter_text_files(_ROOTS)
++        if _STALE_TOKEN_RE.search(_read(p))
++    ]
++    assert not bad, (
++        f"stale 'mcp.tavily' token (use 'mcp_server.tavily') found in: {bad}"
++    )
++
++
++def test_no_tavily_json_references():
++    """No in-scope file references the deleted `tavily.json` config (X2)."""
++    bad = []
++    for p in _iter_text_files(_ROOTS):
++        text = _read(p)
++        if "configs/tavily.json" in text or re.search(r"\btavily\.json\b", text):
++            bad.append(str(p.relative_to(_REPO)))
++    assert not bad, f"reference to the deleted tavily.json found in: {bad}"
++
++
++def test_docs_no_default_params_duplication():
++    """docs/ POINT to MCP_Tavily.md and do not duplicate DEFAULT_PARAMETERS values (X6).
++
++    The canonical value lives in `install_mcp.py` and `src/superclaude/mcp/MCP_Tavily.md`;
++    the `docs/` tree must not restate it.
++    """
++    bad = []
++    for p in _iter_text_files([_REPO / "docs"]):
++        text = _read(p)
++        if (
++            '"search_depth"' in text
++            or "search_depth: basic" in text
++            or re.search(r"max_results['\"]?\s*[:=]\s*10", text)
++        ):
++            bad.append(str(p.relative_to(_REPO)))
++    assert not bad, (
++        f"docs duplicate DEFAULT_PARAMETERS values (should point to MCP_Tavily.md): {bad}"
++    )
+diff --git a/tests/skills/test_brainstorm_protocol.py b/tests/skills/test_brainstorm_protocol.py
+new file mode 100644
+index 00000000..d27b6208
+--- /dev/null
++++ b/tests/skills/test_brainstorm_protocol.py
+@@ -0,0 +1,38 @@
++"""Drift guard for the sc:brainstorm protocol (Cluster C4).
++
++The Wave-2A enrichment matrix must ROUTE to the research engine only — it must not
++duplicate Tavily params or name the map/crawl tools (X5/X6). CI-safe.
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_BRAINSTORM = (
++    _REPO / "src" / "superclaude" / "skills" / "sc-brainstorm-protocol" / "SKILL.md"
++)
++
++_FORBIDDEN = [
++    "search_depth:",
++    "extract_depth:",
++    "max_results:",
++    "tavily-map",
++    "tavily-crawl",
++]
++
++
++def _wave2a_section() -> str:
++    text = _BRAINSTORM.read_text(encoding="utf-8")
++    parts = re.split(r"###\s*Wave 2A", text, maxsplit=1)
++    assert len(parts) == 2, "brainstorm SKILL missing the 'Wave 2A' section"
++    # Up to the next '### Wave ' heading.
++    return re.split(r"\n###\s*Wave ", parts[1], maxsplit=1)[0]
++
++
++def test_brainstorm_no_tavily_param_duplication():
++    """Wave-2A enrichment matrix routes only — no Tavily params / map/crawl tool names."""
++    section = _wave2a_section()
++    for tok in _FORBIDDEN:
++        assert tok not in section, (
++            f"Wave-2A matrix must not contain Tavily token '{tok}' (enrichment routes only)"
++        )
+diff --git a/tests/skills/test_tier2_tavily_consistency.py b/tests/skills/test_tier2_tavily_consistency.py
+new file mode 100644
+index 00000000..ef672f11
+--- /dev/null
++++ b/tests/skills/test_tier2_tavily_consistency.py
+@@ -0,0 +1,65 @@
++"""Cluster C5 (troubleshoot/reflect) Tavily consistency drift guards (M3b).
++
++The Tier-2 troubleshoot path and the reflect path use ONLY `tavily-search` (no
++extract/map/crawl — X5), preserve their rate cap and fail-open posture, and obey the
++X3 split: troubleshoot overrides `search_depth: advanced` per-call (M3b) while reflect
++inherits the basic baseline (names no per-call params). CI-safe (file-content only).
++"""
++
++import re
++from pathlib import Path
++
++_REPO = Path(__file__).resolve().parents[2]
++_SC = _REPO / "src" / "superclaude"
++
++_TROUBLESHOOT_CMD = _SC / "commands" / "troubleshoot.md"
++_TROUBLESHOOT_SKILL = _SC / "skills" / "sc-troubleshoot-protocol" / "SKILL.md"
++_REFLECT_CMD = _SC / "commands" / "reflect.md"
++_REFLECT_SKILL = _SC / "skills" / "sc-reflect-protocol" / "SKILL.md"
++
++_ALL_FOUR = [_TROUBLESHOOT_CMD, _TROUBLESHOOT_SKILL, _REFLECT_CMD, _REFLECT_SKILL]
++_FORBIDDEN_TOOLS = ["tavily-extract", "tavily-map", "tavily-crawl"]
++
++
++def _read(p: Path) -> str:
++    return p.read_text(encoding="utf-8")
++
++
++def test_tier2_tool_id_parity():
++    """All 4 C5 files reference mcp__tavily__tavily-search and NO extract/map/crawl (X5)."""
++    for p in _ALL_FOUR:
++        text = _read(p)
++        assert "mcp__tavily__tavily-search" in text, (
++            f"{p.name} must reference tavily-search"
++        )
++        for tool in _FORBIDDEN_TOOLS:
++            assert tool not in text, f"{p.name} must not reference {tool} (X5)"
++
++
++def test_rate_cap_intact():
++    """The troubleshoot SKILL retains its ≤2-query Tier-2 rate cap."""
++    text = _read(_TROUBLESHOOT_SKILL)
++    assert re.search(r"≤2|at most 2 quer|2 queries", text), (
++        "troubleshoot SKILL lost its ≤2-query Tier-2 rate cap"
++    )
++
++
++def test_fail_open_intact():
++    """Both skills retain fail-open / degraded posture on missing MCP."""
++    for p in (_TROUBLESHOOT_SKILL, _REFLECT_SKILL):
++        text = _read(p).lower()
++        assert "fail-open" in text or "fail open" in text or "degrad" in text, (
++            f"{p.name} lost its fail-open/degraded language"
++        )
++
++
++def test_troubleshoot_search_depth_advanced():
++    """M3b: troubleshoot SKILL overrides search_depth: advanced; reflect names no per-call params."""
++    assert "search_depth: advanced" in _read(_TROUBLESHOOT_SKILL), (
++        "troubleshoot SKILL must carry the Tier-2 `search_depth: advanced` override (M3b)"
++    )
++    reflect = _read(_REFLECT_SKILL)
++    for tok in ("search_depth:", "extract_depth:", "max_results:"):
++        assert tok not in reflect, (
++            f"reflect SKILL must not name per-call Tavily param '{tok}' (X3 — inherits basic)"
++        )

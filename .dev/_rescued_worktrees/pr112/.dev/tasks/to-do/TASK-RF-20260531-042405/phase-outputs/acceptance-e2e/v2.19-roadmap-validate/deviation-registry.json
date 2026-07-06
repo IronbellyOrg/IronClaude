@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "release_id": "v2.19-roadmap-validate",
+  "spec_hash": "ce0519027605e9ac70c834350f4c97bccd71e8ee461dbda7a8f70c180ebf2898",
+  "runs": [
+    {
+      "run_number": 1,
+      "timestamp": "2026-06-03T03:43:25.609755+00:00",
+      "spec_hash": "ce0519027605e9ac70c834350f4c97bccd71e8ee461dbda7a8f70c180ebf2898",
+      "roadmap_hash": "e0c61828b9d34fdf02469ee579c87bd836d66cb409373a3e4e3c25b9b5317454",
+      "budget_snapshot": {
+        "consumed": 10,
+        "reimbursed": 0,
+        "available": 51,
+        "initial": 61
+      },
+      "structural_high_count": 8,
+      "semantic_high_count": 0,
+      "total_high_count": 8
+    },
+    {
+      "run_number": 2,
+      "timestamp": "2026-06-03T03:49:18.421564+00:00",
+      "spec_hash": "ce0519027605e9ac70c834350f4c97bccd71e8ee461dbda7a8f70c180ebf2898",
+      "roadmap_hash": "e0c61828b9d34fdf02469ee579c87bd836d66cb409373a3e4e3c25b9b5317454",
+      "budget_snapshot": {
+        "consumed": 28,
+        "reimbursed": 0,
+        "available": 33,
+        "initial": 61
+      },
+      "structural_high_count": 8,
+      "semantic_high_count": 0,
+      "total_high_count": 8
+    },
+    {
+      "run_number": 3,
+      "timestamp": "2026-06-03T04:01:39.532380+00:00",
+      "spec_hash": "ce0519027605e9ac70c834350f4c97bccd71e8ee461dbda7a8f70c180ebf2898",
+      "roadmap_hash": "e0c61828b9d34fdf02469ee579c87bd836d66cb409373a3e4e3c25b9b5317454",
+      "budget_snapshot": {
+        "consumed": 46,
+        "reimbursed": 0,
+        "available": 15,
+        "initial": 61
+      },
+      "structural_high_count": 8,
+      "semantic_high_count": 0,
+      "total_high_count": 8
+    }
+  ],
+  "findings": {
+    "cbfb49a31ec8a2c9": {
+      "stable_id": "cbfb49a31ec8a2c9",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/roadmap/test_validate_executor.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/roadmap/test_validate_executor.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/roadmap.md"
+      ]
+    },
+    "aacfb9d860f73439": {
+      "stable_id": "aacfb9d860f73439",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/roadmap/test_validate_gates.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/roadmap/test_validate_gates.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/roadmap.md"
+      ]
+    },
+    "4a6b1afec96ca98b": {
+      "stable_id": "4a6b1afec96ca98b",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/roadmap/test_validate_models.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/roadmap/test_validate_models.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/roadmap.md"
+      ]
+    },
+    "3a876f6cf46d6476": {
+      "stable_id": "3a876f6cf46d6476",
+      "dimension": "data_models",
+      "severity": "HIGH",
+      "description": "File 'tests/roadmap/test_validate_prompts.py' in spec manifest not found in roadmap",
+      "location": "spec:file:tests/roadmap/test_validate_prompts.py",
+      "source_layer": "structural",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": [
+        "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/v2.19-roadmap-validate/roadmap.md"
+      ]
+    },
+    "0627bf00f5f621b2": {
+      "stable_id": "0627bf00f5f621b2",
+      "dimension": "architectural_alignment",
+      "severity": "MEDIUM",
+      "description": "Validation-dimension enumeration is inconsistent between FR-050.5 and the report schema in FR-050.6. FR-050.5 defines 7 dimensions (schema, structure, traceability, cross-file, interleave, decomposition, parseability), but the Blocking-Issue template's \"Dimension\" field in FR-050.6 restricts the allowed values to only 5 (schema|structure|traceability|cross-file|parseability), omitting \"interleave\" and \"decomposition\". A Warning finding raised under those two WARNING-severity dimensions has no valid dimension label to cite, so the report schema cannot faithfully represent every dimension the reflection prompt is required to assess.",
+      "location": "semantic:architectural_alignment",
+      "source_layer": "semantic",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "2f27e7c338bc3c68": {
+      "stable_id": "2f27e7c338bc3c68",
+      "dimension": "contradiction_detection",
+      "severity": "MEDIUM",
+      "description": "The spec supports \"2+ agents\" for adversarial validation (FR-050.3), but the merge design only models exactly two agents \u2014 build_adversarial_merge_prompt instructs categorizing findings as \"ONLY_A / ONLY_B\" (\u00a75.2) and the Agent Agreement Analysis table has only \"Agent A\" and \"Agent B\" columns (FR-050.7). With 3+ agents the categorization scheme and table schema are undefined, contradicting the stated 2+ capability.",
+      "location": "semantic:contradiction_detection",
+      "source_layer": "semantic",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "7d84df389a479bfe": {
+      "stable_id": "7d84df389a479bfe",
+      "dimension": "prose_sufficiency",
+      "severity": "MEDIUM",
+      "description": "The validation report schema in FR-050.6 enumerates the allowed Dimension field values as <schema|structure|traceability|cross-file|parseability> (5 values), but FR-050.5 defines 7 validation dimensions. The report schema omits the \"interleave\" and \"decomposition\" dimensions (the two WARNING-severity dimensions). A finding raised under interleave or decomposition has no valid Dimension enum value to cite, making those two dimensions unrepresentable in the structured output.",
+      "location": "semantic:prose_sufficiency",
+      "source_layer": "semantic",
+      "status": "FIXED",
+      "first_seen_run": 1,
+      "last_seen_run": 1,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "b8bd4c79c3367c89": {
+      "stable_id": "b8bd4c79c3367c89",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-007 has no codebase implementation evidence. Searched for: ",
+      "location": "spec:fr:FR-007",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "7cc8ebfb38604c4d": {
+      "stable_id": "7cc8ebfb38604c4d",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-050 has no codebase implementation evidence. Searched for: ",
+      "location": "spec:fr:FR-050",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "e8e2b982497053dc": {
+      "stable_id": "e8e2b982497053dc",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-050.1 has no codebase implementation evidence. Searched for: ",
+      "location": "spec:fr:FR-050.1",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "e5ae5dca568096e0": {
+      "stable_id": "e5ae5dca568096e0",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-050.2 has no codebase implementation evidence. Searched for: ",
+      "location": "spec:fr:FR-050.2",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "de9eab72e6ea8155": {
+      "stable_id": "de9eab72e6ea8155",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-050.3 has no codebase implementation evidence. Searched for: ",
+      "location": "spec:fr:FR-050.3",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "8307ea01f6acddad": {
+      "stable_id": "8307ea01f6acddad",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-050.5 has no codebase implementation evidence. Searched for: ",
+      "location": "spec:fr:FR-050.5",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "40ab937db6d807ff": {
+      "stable_id": "40ab937db6d807ff",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-050.6 has no codebase implementation evidence. Searched for: ",
+      "location": "spec:fr:FR-050.6",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    },
+    "220657001dccd20d": {
+      "stable_id": "220657001dccd20d",
+      "dimension": "fidelity",
+      "severity": "HIGH",
+      "description": "FR FR-050.7 has no codebase implementation evidence. Searched for: _has_agreement_table, build_reflect_prompt, build_adversarial_merge_prompt, _build_validate_steps, validate",
+      "location": "spec:fr:FR-050.7",
+      "source_layer": "structural",
+      "status": "ACTIVE",
+      "first_seen_run": 1,
+      "last_seen_run": 3,
+      "debate_verdict": null,
+      "debate_transcript": null,
+      "files_affected": []
+    }
+  }
+}

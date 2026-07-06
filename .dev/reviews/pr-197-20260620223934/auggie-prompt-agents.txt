@@ -1,0 +1,28 @@
+You are reviewing changes to 8 agent definition files (markdown frontmatter + body). Report problems as structured JSON.
+
+## Context
+Target: PR #197 — chunk: AGENTS
+Files: src/superclaude/agents/rf-analyst.md, rf-assembler.md, rf-qa.md, rf-qa-qualitative.md, rf-task-builder.md, rf-task-executor.md, rf-task-researcher.md, rf-team-lead.md
+The chunk diff is at: .dev/reviews/pr-197-20260620223934/inputs/diff-agents.patch
+Read it. The author claims the ONLY change is correcting tavily MCP tool ids from tavily-search/tavily-extract (hyphen, "does not resolve") to tavily_search/tavily_extract (underscore).
+
+## Focus areas (cover all)
+- correctness: VERIFY the underscore form is actually the correct tavily MCP tool id used elsewhere in this repo. Cross-reference other agent/skill files that reference tavily tools (e.g. deep-research agents) to confirm the canonical id. If the repo's canonical id is the HYPHEN form (tavily-search) or the prefixed form (mcp__tavily__tavily-search), this rename is WRONG — flag it high severity.
+- consistency: did every one of the 8 files get the same treatment? any file left with the old form or a typo'd form? any NON-tavily change sneaking in (author claims zero)?
+- docs: frontmatter tool-list validity.
+## Output contract (STRICT)
+Respond with a single JSON object (a ```json fence is fine). Shape:
+{
+  "findings": [
+    {"title":"...","category":"<security|data-integrity|correctness|concurrency|resource-leak|error-handling|api-contract|performance|architecture|layering|coupling|anti-pattern|dead-code|tests|docs|logging|naming|style|consistency>","severity_hint":"<critical|high|medium|low|nit>","file":"<repo-relative path>","line":<int>,"line_range_end":<int|null>,"in_diff":<bool>,"evidence":"<verbatim excerpt or null>","why":"<2-4 sentences>","recommendation":"<concrete>","cross_references":["path:line"],"confidence":"<high|medium|low>"}
+  ],
+  "cross_cutting_observations": [
+    {"title":"...","category":"...","severity_hint":"...","affected_files":["..."],"why":"...","recommendation":"...","confidence":"..."}
+  ],
+  "notes_for_orchestrator": "<optional>"
+}
+## Quality bar
+- Every finding MUST cite a real file:line at HEAD. If unverifiable, confidence "low". Never invent paths/lines.
+- Highest-signal 3-5 per area; no padding; zero is fine if clean.
+- These are Claude Code SKILL.md PROTOCOL files (behavioral specs in markdown). "correctness" = internal contradictions, broken cross-refs to refs/ or section anchors, contract/version mismatches, unenforceable/ambiguous invariants, self-inconsistency between SKILL.md and cited refs, instructions contradicting src/superclaude->.claude sync discipline.
+- Multi-file concerns -> cross_cutting_observations. Return only the JSON object.

@@ -1,0 +1,59 @@
+Preparation Status: READY
+Task file: /config/workspace/IronClaude/.dev/brainstorms/20260611-005638-pr-remediation-v2-mention-bot/prd-pr-auto-remediation-v2-0/TASK-PRD-pr-auto-remediation-v2-0.md
+Research agents: 7 (codebase) + 3 (web) = 10
+Web research topics: 3
+Synthesis files planned: 9
+Directories verified: research/, synthesis/, qa/
+
+--- Detail ---
+
+Task file: readable, valid frontmatter (id=TASK-PRD-pr-auto-remediation-v2-0,
+  tier=heavyweight, prd_scope="Feature PRD", qa_intensity=full, status="🟡 To Do",
+  spec_path=.dev/brainstorms/.../merged-requirements.md). 7-phase structure
+  present (Phase 1 prep → Phase 2 7-agent codebase research → Phase 3 research
+  gate → Phase 4 3-agent web research → Phase 5 9-file synthesis + gate →
+  Phase 6 assembly + structural/qualitative QA → Phase 7 present/complete).
+  Phase 2 spawn items: 7. Phase 4 web items: 3.
+
+Codebase research agents (Phase 2) — output paths (parent research/ exists):
+  2.1 research/01-security-trust-boundary.md
+  2.2 research/02-github-api-integration.md
+  2.3 research/03-headless-execution-reuse-seam.md
+  2.4 research/04-state-idempotency-loop-safety.md
+  2.5 research/05-split-host-architecture.md
+  2.6 research/06-deploy-ops-observability.md
+  2.7 research/07-env-allowlist-deep-dive.md
+
+Web research agents (Phase 4) — output paths (parent research/ exists):
+  4.1 research/web-08-github-api-reference.md
+  4.2 research/web-09-sandbox-isolation-od1.md
+  4.3 research/web-10-push-token-and-injection-od2.md
+
+Synthesis files planned (Phase 5) — output paths (parent synthesis/ exists):
+  synthesis/synth-01-exec-problem-vision.md
+  synthesis/synth-02-business-market.md
+  synthesis/synth-03-competitive-scope.md
+  synthesis/synth-04-stories-requirements.md
+  synthesis/synth-05-technical-stack.md
+  synthesis/synth-06-ux-legal-business.md
+  synthesis/synth-07-metrics-risk-impl.md
+  synthesis/synth-08-journey-design-api.md
+  synthesis/synth-09-resources-maintenance.md
+
+Directory verification (re-verified 2026-06-12T12:14 — Stage B resume):
+  research/   EXISTS, writable — populated (8 codebase + 3 web agent files present)
+  synthesis/  EXISTS, writable — 9 synth files present from a prior run
+  qa/         EXISTS, writable — 2 gate reports present (research + synthesis)
+
+Output-path parent verification: ALL research + synthesis output parents exist
+  and are writable.
+
+Note (informational, not a Stage B blocker): the final assembled PRD path
+  parent directory is created during Phase 6 (Assembly), not during
+  preparation — no action required at Stage B.
+
+Naming note: research-notes.md §SUGGESTED_PHASES lists web outputs as
+  08/09/10-web-*.md; the authoritative TASK file uses web-08/09/10-*.md.
+  The TASK-file paths are canonical and were used above.
+
+EXIT_RECOMMENDATION: CONTINUE

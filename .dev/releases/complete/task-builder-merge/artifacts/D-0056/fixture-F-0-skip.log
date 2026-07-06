@@ -1,0 +1,9 @@
+# Synthetic execution-log fixture — T05.03 / D-0056 / R-092
+# Gate A demonstration: empty F-set on cycle 1 short-circuits the
+# fix-cycle loop. The first cycle finishes with zero failures, so
+# no second cycle is spawned and the monotonicity emitter is never
+# consulted (per the SKILL.md:1027 "Single-cycle case" invariant).
+
+CYCLE 1 START   gate=research-gate counter=1/3
+CYCLE 1 END     gate=research-gate |F_1|=0 fails=[] pass=[1.1,2.1,3.2,4.2,5.4,6.1,7.1,8.2,9.3,10.1,11.1]
+TERMINATE       gate=research-gate verdict=PASS (cycle 1 produced an empty F-set; no second cycle spawn; monotonicity check NOT consulted per 4-step ordering rule gate A precondition `|F_n| > 0`)

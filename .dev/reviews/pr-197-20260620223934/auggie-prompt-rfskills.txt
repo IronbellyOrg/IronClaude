@@ -1,0 +1,34 @@
+You are reviewing changes to four Claude Code skill behavioral specs (markdown). Report problems as structured JSON.
+
+## Context
+Target: PR #197 — chunk: RF SKILLS
+Files: src/superclaude/skills/task-builder/SKILL.md, src/superclaude/skills/task/SKILL.md, src/superclaude/skills/tech-research/SKILL.md, src/superclaude/skills/tech-reference/SKILL.md
+The chunk diff is at: .dev/reviews/pr-197-20260620223934/inputs/diff-rfskills.patch
+Read it, then read the FULL current files where needed to judge internal consistency.
+
+These are a "superset sync" from another workspace. Known design divergences the author intends:
+- task-builder + sc-reflect adopt a --cli toggle (in-session skill runner by default; "superclaude reflect run" wrapper only behind --cli). Author notes ONLY the wrapper path is session-validated end-to-end; the skill-default path is NOT yet validated.
+- Executor-class anti-self-confirmation: instance-level independence (class stays in reviewer pool; fresh subagent spawn + no formation context + blind calibration; --executor-model accepted-and-ignored) REPLACING class-exclusion.
+
+## Focus areas (cover all)
+- correctness/consistency: contradictions WITHIN a file or BETWEEN these files and sc-reflect-protocol (e.g., does task-builder still reference class-exclusion anywhere while claiming instance-level? does it cite the right contract version 1.5.1?). Dangling refs to ref files/anchors/templates that do not exist.
+- api-contract: --cli and --executor-model flag behavior described consistently? "accepted-and-ignored" actually safe (no silent wrong behavior)?
+- anti-pattern: shipping an unvalidated default path (skill-default POST) — is the risk disclosed in the SKILL itself, not just the PR body?
+- docs: broken cross-references, stale instructions, source-of-truth (src/superclaude vs .claude) violations.
+- architecture: do the QA/lens additions cohere with the existing task execution model?
+## Output contract (STRICT)
+Respond with a single JSON object (a ```json fence is fine). Shape:
+{
+  "findings": [
+    {"title":"...","category":"<security|data-integrity|correctness|concurrency|resource-leak|error-handling|api-contract|performance|architecture|layering|coupling|anti-pattern|dead-code|tests|docs|logging|naming|style|consistency>","severity_hint":"<critical|high|medium|low|nit>","file":"<repo-relative path>","line":<int>,"line_range_end":<int|null>,"in_diff":<bool>,"evidence":"<verbatim excerpt or null>","why":"<2-4 sentences>","recommendation":"<concrete>","cross_references":["path:line"],"confidence":"<high|medium|low>"}
+  ],
+  "cross_cutting_observations": [
+    {"title":"...","category":"...","severity_hint":"...","affected_files":["..."],"why":"...","recommendation":"...","confidence":"..."}
+  ],
+  "notes_for_orchestrator": "<optional>"
+}
+## Quality bar
+- Every finding MUST cite a real file:line at HEAD. If unverifiable, confidence "low". Never invent paths/lines.
+- Highest-signal 3-5 per area; no padding; zero is fine if clean.
+- These are Claude Code SKILL.md PROTOCOL files (behavioral specs in markdown). "correctness" = internal contradictions, broken cross-refs to refs/ or section anchors, contract/version mismatches, unenforceable/ambiguous invariants, self-inconsistency between SKILL.md and cited refs, instructions contradicting src/superclaude->.claude sync discipline.
+- Multi-file concerns -> cross_cutting_observations. Return only the JSON object.

@@ -1,0 +1,38 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: ".dev/brainstorms/20260622-233136-tavily-mcp-upgrade/tasklist/validation/reflect-pre/phase-3/REPORT.md"
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # forced T1 via --tier 1 / --depth quick (§5.1 hard stop)
+coverage_pct: 1.00
+coverage_pct_union: 1.00
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 5
+citations_total: 5
+citations_revalidated: 5
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true
+t2_model_class_diversity: null
+degraded_components: ["mcp-reviewer-ensemble"]
+needs_human_decision: false
+user_decision_required: false
+remediation_offered: true
+remediation_accepted: null
+verdict: PASS
+observations:
+  - id: O-1
+    severity: low
+    summary: "FR-5 'no 0.1.x in docs' already satisfied; T03.01 work is additive (add @latest example), not find-replace"
+  - id: O-2
+    severity: low
+    summary: "Pre-existing @latest at docs:273; parity test must scope token match to the Tavily section"
+  - id: O-3
+    severity: info
+    summary: "FR-6 deletion-preferred path matches spec; parity guard enforces absence-or-consistency"

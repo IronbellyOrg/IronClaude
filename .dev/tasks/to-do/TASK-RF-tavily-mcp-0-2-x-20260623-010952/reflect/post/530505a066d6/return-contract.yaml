@@ -1,0 +1,97 @@
+contract_version: "1.5.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: ".dev/tasks/to-do/TASK-RF-tavily-mcp-0-2-x-20260623-010952/reflect/post/530505a066d6/REPORT.md"
+audit_log_path: ".dev/tasks/to-do/TASK-RF-tavily-mcp-0-2-x-20260623-010952/reflect/post/530505a066d6/audit.log"
+confidence_calibrated: 0.93
+escalation_rule_matched: null   # --depth deep hard override forced Tier 2 (no rubric eval)
+
+# Diff-scope resolution (Wave 0 footgun guard)
+diff_ref_supplied: "530505a066d6bfefd43963af67e253ed3070e7af"
+diff_resolution: "HEAD == start_commit; work is UNCOMMITTED in working tree. Audited delta = git diff 530505a0 (working tree). Implementation scope = src/ docs/ tests/ plugins/ = 29 files."
+
+# UC-2 specific
+tasklist_completion_pct: 0.95   # 40/42 checklist items [x]; 2 unchecked = Step 7.4 (this reflect gate) + Step 7.5 (mark Done) — the legitimate closure ritual
+deviation_count_by_class:
+  authorized: 0
+  necessary: 2
+  drift: 0
+  regression: 0
+deviation_register_path: ".dev/tasks/to-do/TASK-RF-tavily-mcp-0-2-x-20260623-010952/reflect/post/530505a066d6/deviation-register.yaml"
+grounding_gaps_path: null   # empty — no evidence-insufficient findings
+
+# Verification triangle (independent of executor self-report)
+verification_ran: true
+verification_invocations: 2          # pytest (8 tavily files) + verify-sync
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+regression_present: false
+
+# Invariant conformance (X1-X7) — all independently grep/test-verified
+invariant_conformance:
+  X1_version_pin_0_2_20: hold
+  X2_single_config_source_tavily_json_deleted: hold
+  X3_default_parameters_root: hold
+  X4_mcp_server_tavily_token: hold
+  X5_map_crawl_research_engine_only: hold
+  X6_docs_point_not_duplicate: hold
+  X7_frontmatter_prose_parity: hold
+
+# Hallucination guard
+citations_total: 18
+citations_revalidated: 18
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true   # §11.2 — every citation independently re-Read by orchestrator, not trusted
+
+# Tier 2 artifacts
+reviewer_models: [haiku, opus, opus]
+reviewer_personas: [qa, analyzer, qa-qualitative]
+reviewer_verdicts: [PASS, PASS, PASS]
+t2_model_class_diversity: degraded   # 2 distinct classes (haiku+opus); fable-5 unavailable (503 auth)
+executor_class_source: flag
+executor_model_class: sonnet
+executor_excluded_from_pool: true    # §7.1 anti-self-confirmation — sonnet not seated as reviewer
+calibrator_diversity: degraded       # inline calibration; fable down, sonnet==executor
+merge_method: convergent-synthesis   # all 3 cards converge on PASS; no competing verdicts to adversarially debate
+adversarial_convergence_score: 0.92
+adversarial_unavailable: false
+
+# Tier 3 remediation
+remediation_offered: true
+remediation_accepted: false          # audit clean (0 blocking deviations) — no remediation warranted
+remediation_task_path: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present_flag: false
+unauthorized_deviation_present: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+
+# Promotion (UC-2, Wave 7) — DEFAULT-ON gate evaluated, HELD
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: ".dev/tasks/to-do/TASK-RF-tavily-mcp-0-2-x-20260623-010952"
+promotion_destination: ".dev/tasks/done/TASK-RF-tavily-mcp-0-2-x-20260623-010952"
+promotion_skip_reason: gate-failed
+promotion_gate_passed: false
+gate_evaluation:
+  mode_post: pass                       # cond 1
+  status_success: pass                  # cond 2
+  tasklist_completion_pct_1_0: fail     # cond 3 — 0.95 (Steps 7.4/7.5 pending; legitimate closure ritual)
+  no_drift_no_regression: pass          # cond 4
+  frontmatter_present: pass             # cond 5a
+  frontmatter_status_matches: fail      # cond 5b — frontmatter status "🟠 Doing", not "🟢 Done"
+  no_citations_dropped: pass            # cond 6a
+  no_grounding_gaps: pass               # cond 6b
+  no_input_drift: pass                  # cond 7
+  no_user_decision_pending: pass        # cond 8
+  adversarial_result_present: pass      # cond 9 (tier 2, convergence non-null)
+gate_evaluation_failures: [tasklist_completion_pct_1_0, frontmatter_status_matches]
+promotion_note: "Gate fails ONLY on completion/frontmatter (cond 3 + 5b) because the task is legitimately still in its closure phase — this reflect run IS Step 7.4. Both are the expected in-progress state, NOT executor drift. Once the operator marks Step 7.5 (status → 🟢 Done), all 9 conditions pass and promotion to .dev/tasks/done/ becomes eligible."

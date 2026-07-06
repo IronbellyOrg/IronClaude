@@ -1,0 +1,17 @@
+[fixture] canonical rf-qa.md sha (first 16) = 1c92a9e8aedf6905
+[fixture] cycle-1 K=8 ids=TB-Add-1,TB-Add-2,TB-Add-3,TB-Add-4,TB-Add-5,TB-Add-6,TB-Add-7,TB-Add-8
+[fixture] cycle-2 K=9 ids=TB-Add-1,TB-Add-2,TB-Add-3,TB-Add-4,TB-Add-5,TB-Add-6,TB-Add-7,TB-Add-8,TB-Add-9 (with synthetic TB-Add-9 appended to working copy)
+INV-010: enumerated TB-Add-* catalogue size=8 ids=[TB-Add-1,TB-Add-2,TB-Add-3,TB-Add-4,TB-Add-5,TB-Add-6,TB-Add-7,TB-Add-8] source=rf-qa.md source_sha256=1c92a9e8aedf6905
+INV-010: enumerated TB-Add-* catalogue size=9 ids=[TB-Add-1,TB-Add-2,TB-Add-3,TB-Add-4,TB-Add-5,TB-Add-6,TB-Add-7,TB-Add-8,TB-Add-9] source=rf-qa.md source_sha256=7dcaf4c15d953516
+PASS (a): catalogue grew by exactly 1 (K=8 → K'=9)
+PASS (b): cycle-2 enumeration includes the new TB-Add-9 (absent in cycle-1)
+PASS (c): structural diff surfaces exactly the new TB-Add-9 row (1 added line, 0 deletions)
+PASS (d): INV-010 structured log emitted for both cycles with correct sizes
+PASS (e): canonical rf-qa.md byte-identical pre/post fixture (sha first 16 = 1c92a9e8aedf6905)
+
+----- structural diff cycle-1 → cycle-2 (verdict-block enumeration view) -----
+9a10
+> | TB-Add-9 | (status carried verbatim from producer) |
+----- end structural diff -----
+
+ALL ASSERTIONS PASS — INV-010 dynamic enumeration auto-richens on catalogue growth.

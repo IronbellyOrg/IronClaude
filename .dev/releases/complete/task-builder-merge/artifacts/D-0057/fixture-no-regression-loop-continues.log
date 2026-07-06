@@ -1,0 +1,23 @@
+# Synthetic execution-log fixture — T05.04 / D-0057 / R-093
+# Negative case: no item flips PASS→FAIL across the cycle
+# transition (cycle-1 PASS set is a subset of cycle-2 PASS set —
+# all previously-PASS items remain PASS, and some previously-FAIL
+# items have now flipped FAIL→PASS, which is legitimate fix-cycle
+# progress). The regression emitter does NOT fire; the wrapper
+# proceeds to step 2 (monotonicity), which also PROCEEDs because
+# |F_2|=4 < |F_1|=5 (strict shrink). The loop continues into
+# cycle 3. Demonstrates that "Regression detected on Item" is
+# never emitted on legitimate refinement, and that the wrapper
+# falls through to step 4 (Proceed) when steps 1-3 all pass.
+
+CYCLE 1 START   gate=research-gate counter=1/3
+CYCLE 1 END     gate=research-gate |F_1|=5 fails=[2.1,5.4,7.1,9.3,11.1] pass=[1.1,3.2,4.2,6.1,8.2,10.1]
+TRANSITION 1->2 step=regression  verdict=PASS (no PASS→FAIL flips; cycle-1 PASS set = {1.1,3.2,4.2,6.1,8.2,10.1})
+TRANSITION 1->2 step=monotonicity verdict=PROCEED (|F_1|=5 > 0, but cycle 2 not yet observed; loop continues into cycle 2)
+CYCLE 2 START   gate=research-gate counter=2/3
+CYCLE 2 END     gate=research-gate |F_2|=4 fails=[2.1,5.4,7.1,9.3] pass=[1.1,3.2,4.2,6.1,8.2,10.1,11.1]
+TRANSITION 2->3 step=regression  verdict=PASS (no PASS→FAIL flips: cycle-1 PASS set {1.1,3.2,4.2,6.1,8.2,10.1} ⊆ cycle-2 PASS set {1.1,3.2,4.2,6.1,8.2,10.1,11.1}; item 11.1 went FAIL→PASS, which is legitimate refinement)
+TRANSITION 2->3 step=monotonicity verdict=PROCEED (|F_2|=4 < |F_1|=5; strict shrink — slow convergence is permitted; X-003 REJECTED)
+TRANSITION 2->3 step=hard-cap    verdict=PROCEED (counter=2/3 < cap=3)
+TRANSITION 2->3 step=proceed     re-spawn cycle 3
+CYCLE 3 START   gate=research-gate counter=3/3

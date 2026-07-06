@@ -1,0 +1,92 @@
+You are reviewing a test-code change for the repository at the workspace root. Your job is to assess test quality and coverage for the new Sprint CLI per-task execution feature, and to report problems as structured JSON.
+
+## Context
+
+Target: PR #120 — test chunk (tests/sprint/)
+PR title: feat(sprint-cli): wire dead per-task execution path + typed handoff + bounded parallelism (Stages 0-3 + RC)
+
+The production change wires per-task subprocess execution, a typed handoff record/store, bounded parallel scheduling, per-task env isolation, a turn-count ledger, a SHA-guard, and rerun-tasks recovery. These tests are supposed to validate that behavior.
+
+Diff range: origin/master...HEAD (branch SprintCLIWireDead)
+Files changed (24 test files):
+tests/sprint/e2e_real/fake_claude.py
+tests/sprint/e2e_real/test_e2e_isolation_smoke.py
+tests/sprint/e2e_real/test_e2e_rerun_happy_path.py
+tests/sprint/e2e_real/test_e2e_sha_guard_real_edit.py
+tests/sprint/e2e_real/test_e2e_turn_count.py
+tests/sprint/test_backward_compat_regression.py
+tests/sprint/test_cli_contract.py
+tests/sprint/test_executor.py
+tests/sprint/test_handoff_backward_compat.py
+tests/sprint/test_handoff_concurrency.py
+tests/sprint/test_handoff_crash_consistency.py
+tests/sprint/test_handoff_performance.py
+tests/sprint/test_handoff_record.py
+tests/sprint/test_handoff_store.py
+tests/sprint/test_per_task_env_isolation.py
+tests/sprint/test_process.py
+tests/sprint/test_recovery.py
+tests/sprint/test_rerun_tasks.py
+tests/sprint/test_rerun_tasks_e2e.py
+tests/sprint/test_resume_backward_compat.py
+tests/sprint/test_resume_contract.py
+tests/sprint/test_resume_semantics.py
+tests/sprint/test_stage1_wiring.py
+tests/sprint/test_turn_ledger_concurrency.py
+
+The full diff is available at: .dev/reviews/pr-120-20260604014836/inputs/diff-tests.patch
+Read it with the `view` tool, then cross-reference against the production code in src/superclaude/cli/sprint/ to judge whether the tests actually exercise the new paths.
+
+## Focus areas
+
+- tests: Look for: tests that don't actually exercise the new code path (mock everything, assert nothing meaningful), tests asserting trivial things (assert True, asserting a mock was called without asserting effect), missing edge cases (empty/null/max/concurrency/crash-midway), concurrency tests that don't actually create contention (no real threads/processes, or deterministic ordering that hides races), tests relying on real time/network/randomness without seeding, flaky sleep-based synchronization, fake_claude harness that diverges from real Claude behavior in a way that makes e2e tests vacuous. Cross-reference each test against the function it claims to cover.
+
+- correctness: Look for: tests that assert the wrong invariant, off-by-one in expected turn counts, SHA-guard tests that don't actually mutate the file, backward-compat tests that don't load a real old-format fixture, crash-consistency tests that don't actually interrupt mid-write.
+
+- coverage gaps (cross-cutting): Identify production behaviors in src/superclaude/cli/sprint/ (especially executor.py, handoff.py, scheduler.py, process.py) that have NO corresponding test, and report them as cross_cutting_observations.
+
+- anti-patterns: Look for: copy-pasted test bodies that should be parametrized, shared mutable fixtures causing inter-test coupling, over-mocking that defeats the test's purpose, time.sleep as synchronization primitive.
+
+## Output contract (STRICT)
+
+Respond with a single JSON object, no prose outside it:
+
+{
+  "findings": [
+    {
+      "title": "<one-line, sentence case, no trailing period>",
+      "category": "<tests | correctness | concurrency | anti-pattern | coverage | error-handling | naming | style>",
+      "severity_hint": "<critical | high | medium | low | nit>",
+      "file": "<repo-relative path>",
+      "line": <integer line at HEAD>,
+      "line_range_end": <integer or null>,
+      "in_diff": <true|false>,
+      "evidence": "<exact code excerpt, verbatim, or null>",
+      "why": "<2-4 sentences>",
+      "recommendation": "<1-3 sentences, concrete>",
+      "cross_references": ["<path:line>"],
+      "confidence": "<high | medium | low>"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "<coverage gap or cross-file test smell>",
+      "category": "<as above>",
+      "severity_hint": "<as above>",
+      "affected_files": ["<path>"],
+      "why": "<as above>",
+      "recommendation": "<as above>",
+      "confidence": "<as above>"
+    }
+  ],
+  "notes_for_orchestrator": "<optional>"
+}
+
+## Quality bar
+
+- Every finding cites a real file:line. If unverifiable, confidence "low".
+- Do not invent paths/lines. Highest-signal findings only; do not pad. Zero findings in a clean area is fine.
+- Coverage gaps go in cross_cutting_observations.
+- Do not make merge/approve recommendations.
+
+Return only the JSON object.

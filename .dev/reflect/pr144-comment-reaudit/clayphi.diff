@@ -1,0 +1,86 @@
+diff --git a/src/superclaude/agents/rf-qa.md b/src/superclaude/agents/rf-qa.md
+index 75f8fdd8..28e25b68 100644
+--- a/src/superclaude/agents/rf-qa.md
++++ b/src/superclaude/agents/rf-qa.md
+@@ -322,7 +322,7 @@ For report validation, you are always authorized to fix issues in-place:
+ 19. **Prose count accuracy** — Verify quantitative claims in Overview/descriptions match actual implementation. If the overview says "refactors 7 functions" but the checklist only touches 4, that's a FAIL.
+ 20. **Template section cross-reference** — Read actual templates referenced by the task file, verify §N references match real content. If an item says "per template §A3" confirm that section actually exists and says what the item claims.
+
+-#### Structural Gate Additions (TB-Add-1 through TB-Add-8, imported from sc:tasklist 17-point gate per CB-3 per-check classification)
++#### Structural Gate Additions (TB-Add-1, TB-Add-3 through TB-Add-8, imported from sc:tasklist 17-point gate per CB-3 per-check classification)
+
+ These additions close specific structural gaps that sc:tasklist's pre-write gate catches but task-builder's task-integrity historically did not. Each cites its source check ID for traceability. Additive only -- no existing check is weakened.
+
+@@ -332,12 +332,11 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
+     Title-only or placeholder-only items reinforce the self-contained-item invariant by failing the
+     5-field schema. Error message format: "Item X.Y contains 'TBD'/'TODO' on line N -- replace with
+     concrete description". Use Grep on the task file to detect.
+-22. **TB-Add-2: Item count bounds (sc:tasklist check 13). ADVISORY-fail until calibrated.** Track has ≥3 and ≤40 checklist items; single-track tasks have ≥3 and ≤50. Bounds are speculative without empirical `.dev/tasks/done/` calibration; until calibration completes this check emits an ADVISORY warning (surface in report, do NOT block PASS). Calibration trigger: when `.dev/tasks/done/` accumulates ≥10 completed tasks across ≥3 task_types, re-evaluate the bounds and promote to blocking.
+-23. **TB-Add-3: Clarification adjacency (sc:tasklist check 14).** If the task has Open Questions, each blocked checklist item that depends on a question MUST reference the open question by index in its Context field (e.g., "Blocked by Open Question OQ-2"). Unreferenced blocked items leave the executor guessing whether a question must be resolved first.
+-24. **TB-Add-4: Circular dependency detection (sc:tasklist check 15).** Item-to-item dependencies form a DAG. No item depends (via Context/Action references) on a later item that depends back on it. Build a directed graph of item-references-item edges; assert acyclic. Cycles cause execution deadlock.
+-25. **TB-Add-5: Granularity check / XL splitting (sc:tasklist check 16).** If an item is flagged as `complex`, `multi-file`, or otherwise XL (per item 10 atomicity), it must either be split into subtasks (Template 02 nesting) OR include a critical-rule-aware comment justifying single-item handling. Adapted to task-builder's lack of XL effort labels -- uses the same intent as sc:tasklist's check 16.
+-26. **TB-Add-6: Confidence/Verification format consistency (sc:tasklist check 17).** All Verification fields use the same `Verify: ...` prefix; all Acceptance Criteria entries use the `- ✅` or `- [x]` form per Template 01/02 conventions. Inconsistent format suggests partial template adherence or copy-paste from incompatible sources.
+-27. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).**
++22. **TB-Add-3: Clarification adjacency (sc:tasklist check 14).** If the task has Open Questions, each blocked checklist item that depends on a question MUST reference the open question by index in its Context field (e.g., "Blocked by Open Question OQ-2"). Unreferenced blocked items leave the executor guessing whether a question must be resolved first.
++23. **TB-Add-4: Circular dependency detection (sc:tasklist check 15).** Item-to-item dependencies form a DAG. No item depends (via Context/Action references) on a later item that depends back on it. Build a directed graph of item-references-item edges; assert acyclic. Cycles cause execution deadlock.
++24. **TB-Add-5: Granularity check / XL splitting (sc:tasklist check 16).** If an item is flagged as `complex`, `multi-file`, or otherwise XL (per item 10 atomicity), it must either be split into subtasks (Template 02 nesting) OR include a critical-rule-aware comment justifying single-item handling. Adapted to task-builder's lack of XL effort labels -- uses the same intent as sc:tasklist's check 16.
++25. **TB-Add-6: Confidence/Verification format consistency (sc:tasklist check 17).** All Verification fields use the same `Verify: ...` prefix; all Acceptance Criteria entries use the `- ✅` or `- [x]` form per Template 01/02 conventions. Inconsistent format suggests partial template adherence or copy-paste from incompatible sources.
++26. **TB-Add-7: Execution Context source areas reappear in items (cross-validation for PR-01 header).**
+     If the task file contains an `## Execution Context` block with a `**Source areas:**` line, every
+     named source area MUST reappear in at least one item's Context field. Drift between the header
+     summary and item bodies indicates the header was generated from stale/independent input rather
+@@ -354,7 +353,7 @@ These additions close specific structural gaps that sc:tasklist's pre-write gate
+     The header-wide hidden-input guard (R-039) is the producer-side enforcement; TB-Add-7 may
+     additionally re-run `grep -cE "src/|/.*:[0-9]+"` against the block range as a consumer-side
+     spot check, FAILing if count > 0.
+-28. **TB-Add-8: Per-item Context evidence binding (PR-01 REVISE acceptance criterion -- INV-015
++27. **TB-Add-8: Per-item Context evidence binding (PR-01 REVISE acceptance criterion -- INV-015
+     scope-confinement).** Every per-item Context field that references a code surface
+     (a function, class, module, config field, or specific file) MUST include at least one file:line
+     citation OR a `<!-- evidence-absence: ... -->` justified-absence comment explaining why no
+diff --git a/src/superclaude/skills/task-builder/SKILL.md b/src/superclaude/skills/task-builder/SKILL.md
+index 309f4711..6596fc0b 100644
+--- a/src/superclaude/skills/task-builder/SKILL.md
++++ b/src/superclaude/skills/task-builder/SKILL.md
+@@ -1378,15 +1378,14 @@ Agent 2 (rf-qa — phase structure/ordering lens):
+   9. QA gate items in the task file follow MDTM M3 (lens-based QA sequence)
+      and M4 (source fidelity gate) patterns? (If MDTM template has been
+      updated with these patterns, verify compliance.)
+-  Structural Gate Additions (TB-Add-1 through TB-Add-8, imported from sc:tasklist 17-point pre-write gate per CB-3 per-check classification, see rf-qa agent definition for full rationale):
++  Structural Gate Additions (TB-Add-1, TB-Add-3 through TB-Add-8, imported from sc:tasklist 17-point pre-write gate per CB-3 per-check classification, see rf-qa agent definition for full rationale):
+   10. TB-Add-1: Placeholder scan: no item contains `TBD`/`TODO`/`FIXME` and no item is title-only (5-field schema enforced).
+-  11. TB-Add-2: Item count bounds: track ≥3 and ≤40 items; single-track ≥3 and ≤50. ADVISORY-fail until empirical calibration completes (≥10 completed tasks in `.dev/tasks/done/` across ≥3 task_types).
+-  12. TB-Add-3: Clarification adjacency: each blocked item references its blocking Open Question by index in Context.
+-  13. TB-Add-4: Circular dependency detection: item-to-item dependencies form a DAG; no cycles.
+-  14. TB-Add-5: Granularity / XL splitting: items flagged complex/multi-file are either split into subtasks or carry a justifying comment.
+-  15. TB-Add-6: Confidence/Verification format consistency: uniform `Verify: ...` prefix and `- [x]` Acceptance Criteria form.
+-  16. TB-Add-7: Execution Context source areas reappear in items: every "Source areas:" entry in the `## Execution Context` block reappears in at least one item's Context field; the block itself contains NO specific file:line references. INACTIVE if no Execution Context block exists.
+-  17. TB-Add-8: Per-item Context evidence binding: every item Context field that references a code surface includes a file:line citation OR an `<!-- evidence-absence: ... -->` justified-absence comment. Structurally proves PR-01's "no specific paths" rule is confined to the header (INV-015 scope-confinement).
++  11. TB-Add-3: Clarification adjacency: each blocked item references its blocking Open Question by index in Context.
++  12. TB-Add-4: Circular dependency detection: item-to-item dependencies form a DAG; no cycles.
++  13. TB-Add-5: Granularity / XL splitting: items flagged complex/multi-file are either split into subtasks or carry a justifying comment.
++  14. TB-Add-6: Confidence/Verification format consistency: uniform `Verify: ...` prefix and `- [x]` Acceptance Criteria form.
++  15. TB-Add-7: Execution Context source areas reappear in items: every "Source areas:" entry in the `## Execution Context` block reappears in at least one item's Context field; the block itself contains NO specific file:line references. INACTIVE if no Execution Context block exists.
++  16. TB-Add-8: Per-item Context evidence binding: every item Context field that references a code surface includes a file:line citation OR an `<!-- evidence-absence: ... -->` justified-absence comment. Structurally proves PR-01's "no specific paths" rule is confined to the header (INV-015 scope-confinement).
+
+   OUTPUT FILE: ${TASK_DIR}qa/qa-task-validation-structure-report.md
+   Write the file IMMEDIATELY with a header, then append findings incrementally.
+@@ -1605,8 +1604,8 @@ This procedure operationalises the `freshness_rule: INV-002-reinject-NEW` field
+ 1. **Locate `rf-qa.md`.** Resolve the path via the project's agent registry (canonical surface: `src/superclaude/agents/rf-qa.md`; mirror surface: `.claude/agents/rf-qa.md`). The canonical surface is authoritative; the mirror is consulted only when the canonical surface is unreachable.
+ 2. **Bound the catalogue region.** Identify the `#### Structural Gate Additions` heading and treat the catalogue region as the span from that heading to the next `####`, `###`, or `##` heading (whichever comes first). Enumeration MUST be confined to this span — TB-Add tokens outside the span (e.g., illustrative references in narrative prose) do NOT contribute to the catalogue.
+ 3. **Extract IDs.** Within the bounded span, match the regex `^[0-9]+\. \*\*TB-Add-([0-9]+):` (Python `re` flavour, MULTILINE) against the span. Each match yields one TB-Add-N ID via the captured integer N.
+-4. **Build the live set.** Deduplicate, sort ascending by N, and form `LIVE_TB_ADD = [TB-Add-1, TB-Add-2, …, TB-Add-K]`. K is the runtime size of the catalogue; it is never asserted against a hard-coded constant in this skill.
+-5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and halt at end-of-A.10 (re-uses the `failure_mode: halt-A.10-before-A.10.5` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
++4. **Build the live set.** Deduplicate, sort ascending by N, and form `LIVE_TB_ADD = [TB-Add-1, TB-Add-3, …, TB-Add-K]`. K is the runtime size of the catalogue; it is never asserted against a hard-coded constant in this skill.
++5. **Cross-check against the producer.** Every `TB-Add-*` row present in the freshly-extracted "Items Reviewed" span (step 3 of the freshness procedure) MUST appear in `LIVE_TB_ADD`. A row whose TB-Add-N is absent from `LIVE_TB_ADD` is an orphan (producer ran on a stale catalogue) — FAIL the spawn with `INV-010-orphan-tb-add` and retry into the max cycle then Open Questions (re-uses the `failure_mode: retry-into-max-cycle-then-Open-Questions` lever). A TB-Add-N present in `LIVE_TB_ADD` but absent from the producer table is allowed only when the producer's own report explicitly annotates it as `not-yet-implemented`; otherwise FAIL with `INV-010-missing-tb-add-row`.
+ 6. **Forbid hard-coded enumeration in the orchestrator logic.** This A.10.5 procedure block MUST NOT itself enumerate a fixed `[TB-Add-1, …, TB-Add-K]` list as the spawn target. The directive narratives in this section reference the catalogue abstractly (via the dynamic `LIVE_TB_ADD`); only `rf-qa.md` is the source of the live IDs. (Operator self-check: grep for `TB-Add-[0-9]+` inside the A.10.5 span and confirm every match is either a regex pattern, a worked example tagged `illustrative`, or an integrated-checklist reference — never an orchestrator enumeration target.)
+ 7. **Emit a structured log line.** Write `INV-010: enumerated TB-Add-* catalogue size=K ids=[TB-Add-1,...,TB-Add-K] source=rf-qa.md source_sha256=<hex8>` at every spawn boundary (initial entry and each fix-cycle re-entry). The log is the operator-visible audit-trail and the TEST-010 fixture's (T03.15) assertion surface.
+ 8. **Auto-richening invariant.** Appending a new `**TB-Add-N+1: <name>` line inside the bounded catalogue region of `rf-qa.md` MUST cause `LIVE_TB_ADD` to grow by exactly one entry on the next spawn — with **zero edits** to this SKILL.md, to orchestrator code, or to any consumer-side configuration. This is the K-007 sequencing-inversion mitigation cited in `roadmap.md` R-069: FR-CONV.1 catalogue additions auto-propagate to the PR-04 passthrough.
+@@ -2245,7 +2244,6 @@ The QA agents (A.10 + A.10.25 + A.10.5) validate the generated task file against
+ - [ ] QA gates follow MDTM M3 lens-based sequence pattern
+ - [ ] Source fidelity gate present when output exceeds 500 lines (MDTM M4 pattern)
+ - [ ] TB-Add-1: No `TBD`/`TODO`/`FIXME` tokens and no title-only items (5-field schema enforced)
+-- [ ] TB-Add-2: Item count within bounds (track ≥3/≤40; single-track ≥3/≤50) — ADVISORY-fail until calibrated
+ - [ ] TB-Add-3: Each blocked item references its blocking Open Question by index in Context
+ - [ ] TB-Add-4: Item-to-item dependencies form a DAG (no circular item-level references)
+ - [ ] TB-Add-5: XL/multi-file items either split into subtasks or carry justifying comment

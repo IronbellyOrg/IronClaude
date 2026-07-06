@@ -1,0 +1,53 @@
+# sc:adversarial Return Contract
+# Mode B (generate + compare) · --generate spec · --depth deep
+# Generated: 2026-06-11
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/brainstorms/20260610-234750-pr-review-auto-remediation/merged-spec.md"
+  convergence_score: 0.94
+  artifacts_dir: "/config/workspace/IronClaude/.dev/brainstorms/20260610-234750-pr-review-auto-remediation/adversarial/"
+  status: "success"
+  base_variant: "haiku:qa"            # Variant C — won on tiebreaker (debate points + 5/5 edge & risk dimensions)
+  unresolved_conflicts: 0             # all 32 diff points (S/C/X/A) resolved by Round 3
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []          # 0 HIGH+UNADDRESSED after Round 3 (5 HIGH blockers all resolved)
+
+# --- Run detail (informational, beyond the standard contract) ---
+run_detail:
+  agents: ["opus:architect", "sonnet:backend", "haiku:qa"]
+  variants_generated: 3
+  depth: deep
+  rounds: "R1 (parallel) + R2 (sequential) + R2.5 (invariant probe) + R3 (invariant resolution)"
+  convergence_threshold: 0.80
+  taxonomy_coverage: "L1/L2/L3 all covered"
+  blind_mode: false
+
+  diff_points: { structural: 7, content: 9, contradictions: 8, unique: 9, shared_assumptions: 8, total: 41 }
+
+  invariant_probe:
+    total_findings: 18
+    high_blockers_initial: ["INV-001", "INV-007", "INV-009", "INV-015", "INV-016"]
+    high_blockers_after_r3:
+      INV-001: "ADDRESSED — single-edge SHA-attributed round_counter; max_rounds=N → N pushes"
+      INV-007: "ADDRESSED — write-ahead push_initiated{target_sha}→push→push_completed; resume queries remote"
+      INV-009: "ADDRESSED — comment_id-independent fix-key; thread-scoped reply-key; applied_edits status"
+      INV-016: "ADDRESSED — G-push 5-predicate conjunction + push_decision audit record"
+      INV-015: "ADDRESSED-via-accepted-risk — validated_not_verified audit; KNOWN-LIMITATION clause in merged spec"
+
+  accepted_residual_risk:
+    - id: "INV-015"
+      note: "Local validation authorizes a push within the gated envelope but is NOT a correctness guarantee. Bounded by max_rounds + audited via validated_not_verified. Surfaced as a known limitation in merged-spec.md §13."
+
+  open_medium_followups: ["INV-010 (finding-hash rewording collision)", "INV-012 (multi-thread fan-out per round)", "INV-013 (re-review adds+removes findings)", "INV-014 (counted-then-vanished review timing)"]
+
+  shared_assumptions:
+    ACCEPT: ["A-005 (severity re-gradable by reused rubric)"]
+    QUALIFY_probe_gated: ["A-001 (Augment gh-visible surface)", "A-002 (/sc:troubleshoot --fix seeded findings)", "A-006 (GH reply+resolve API path)", "A-008 (stable comment_id across re-reviews)"]
+    REJECT_and_mitigated: ["A-003 (≥30min single-session Monitor host → --resume + V2 headless)", "A-007 (validation = safe-to-push → opt-in + HALT + audit)"]
+
+  base_selection:
+    combined_scores: { "sonnet:backend": 0.912, "haiku:qa": 0.897, "opus:architect": 0.8945 }
+    tiebreaker_fired: true
+    tiebreaker_basis: "B raw-leader within 0.05 margin; C wins L1 debate points (5.5 vs 5.0 weighted) + edge-case floor (C 5/5, B 3/5, A 1/5)"
+    note: "B-vs-C margin razor-thin; B's run-log substrate grafted into C regardless, so base choice sets skeleton only."

@@ -1,0 +1,199 @@
+diff --git a/plugins/superclaude/mcp/configs/tavily.json b/plugins/superclaude/mcp/configs/tavily.json
+deleted file mode 100644
+index 6966b5ad..00000000
+--- a/plugins/superclaude/mcp/configs/tavily.json
++++ /dev/null
+@@ -1,13 +0,0 @@
+-{
+-  "tavily": {
+-    "command": "npx",
+-    "args": [
+-      "-y",
+-      "mcp-remote",
+-      "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
+-    ],
+-    "env": {
+-      "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+-    }
+-  }
+-}
+\ No newline at end of file
+diff --git a/src/superclaude/cli/eval/capabilities.py b/src/superclaude/cli/eval/capabilities.py
+index bed242c6..8334b92f 100644
+--- a/src/superclaude/cli/eval/capabilities.py
++++ b/src/superclaude/cli/eval/capabilities.py
+@@ -238,6 +238,14 @@ _DEFAULT_CAPABILITY_SPECS: tuple[_CapabilitySpec, ...] = (
+         "--no-mcp",
+         "AIRIS MCP gateway reachable",
+     ),
++    _CapabilitySpec(
++        "mcp_server.tavily",
++        "tavily",
++        "mcp_server",
++        "skip",
++        "--no-mcp",
++        "Tavily MCP server reachable",
++    ),
+ )
+
+
+diff --git a/src/superclaude/cli/eval/models.py b/src/superclaude/cli/eval/models.py
+index 6c749e87..3bbe8107 100644
+--- a/src/superclaude/cli/eval/models.py
++++ b/src/superclaude/cli/eval/models.py
+@@ -314,12 +314,12 @@ class EvalOutcome:
+       preserves equality and hashability; an empty tuple is the default for
+       ``SKIPPED`` outcomes (no assertions executed).
+     * ``skip_reason``         — free-form reason string when ``status`` is
+-      ``SKIPPED`` (e.g. ``"capability 'mcp.tavily' unresolved"``). ``None``
++      ``SKIPPED`` (e.g. ``"capability 'mcp_server.tavily' unresolved"``). ``None``
+       otherwise. DM-001 does not couple ``status == SKIPPED`` to a non-None
+       reason — empty-skip rows are documented elsewhere (loader paths) and
+       the model accepts both shapes.
+     * ``skip_flag_triggered`` — name of the flag/capability that triggered
+-      the skip (e.g. ``"mcp.tavily"``, ``"--include-skipped"``). ``None``
++      the skip (e.g. ``"mcp_server.tavily"``, ``"--include-skipped"``). ``None``
+       when the skip was not flag-driven.
+     * ``artifacts``           — mapping of artifact-name to absolute (or
+       run-relative) path produced by the eval. Stored as an immutable
+diff --git a/src/superclaude/cli/eval/suites/real.yaml b/src/superclaude/cli/eval/suites/real.yaml
+index 34f2b3a2..adcfa6e9 100644
+--- a/src/superclaude/cli/eval/suites/real.yaml
++++ b/src/superclaude/cli/eval/suites/real.yaml
+@@ -38,6 +38,7 @@ optional_capabilities:
+   - { name: mcp_server.auggie-mcp,        gate_flag: "--no-mcp", failure_mode: skip }
+   - { name: mcp_server.airis-mcp-gateway, gate_flag: "--no-mcp", failure_mode: skip }
+   - { name: mcp_server.serena,            gate_flag: "--no-mcp", failure_mode: skip }
++  - { name: mcp_server.tavily,            gate_flag: "--no-mcp", failure_mode: skip }
+
+ evals:
+   - id: E1
+@@ -1616,3 +1617,28 @@ evals:
+           contains: '"disposition":"fail_open"'
+       - exit_code:
+           equals: 0
++
++  - id: E16
++    title: "tavily-search verification — Tavily MCP 0.2.x search tool fires"
++    category: mcp-verification
++    requires: [mcp_server.tavily]
++    timeout_sec: 90
++    isolation:
++      home_strategy: ephemeral
++    no_pty: skip
++    # C7 / TASK-RF-tavily-mcp-0-2-x — capability-gated verification vehicle for
++    # the Tavily 0.2.x upgrade. Proves the pinned `tavily-mcp@0.2.20` server is
++    # reachable and the `mcp__tavily__tavily-search` tool fires. Gated by
++    # `requires: [mcp_server.tavily]`: SKIPs cleanly under `--no-mcp` OR when the
++    # Tavily MCP server is unreachable / no TAVILY_API_KEY is configured
++    # (optional_capabilities failure_mode: skip), so the suite stays CI-safe
++    # without a key. NOTE: the task named this eval `E-tavily-search`, but the
++    # FR-SCH2 eval-id regex `^[A-Z][A-Za-z0-9]*([0-9]+(\.[0-9]+)?)?$` forbids
++    # hyphens (validate_eval_id raises InvalidEvalId → exit 2), so it is `E16`
++    # (next in the E1–E15 sequence); the descriptive name is preserved in title.
++    inputs:
++      - prompt: "Use mcp__tavily__tavily-search to search the web for \"Tavily MCP server\" and report the top result title."
++        expect_tool_call: mcp__tavily__tavily-search
++    expects:
++      - exit_code:
++          equals: 0
+diff --git a/src/superclaude/cli/install_mcp.py b/src/superclaude/cli/install_mcp.py
+index f380f8f5..cd7f6116 100644
+--- a/src/superclaude/cli/install_mcp.py
++++ b/src/superclaude/cli/install_mcp.py
+@@ -5,6 +5,7 @@ Installs and manages MCP servers using the latest Claude Code API.
+ Based on the installer logic from commit d4a17fc but adapted for modern Claude Code.
+ """
+
++import json
+ import os
+ import platform
+ import shlex
+@@ -77,10 +78,11 @@ MCP_SERVERS = {
+         "name": "tavily",
+         "description": "Web search and real-time information retrieval for deep research",
+         "transport": "stdio",
+-        "command": "npx -y tavily-mcp@0.1.2",
++        "command": "npx -y tavily-mcp@0.2.20",
+         "required": False,
+         "api_key_env": "TAVILY_API_KEY",
+         "api_key_description": "Tavily API key for web search (get from https://app.tavily.com)",
++        "default_parameters": {"search_depth": "basic", "max_results": 10},
+     },
+     "chrome-devtools": {
+         "name": "chrome-devtools",
+@@ -540,8 +542,10 @@ def install_mcp_server(
+
+     # Handle API key requirements
+     env_args = []
++    secret_env_names = set()  # env var names whose values must be masked in echoes (M1)
+     if "api_key_env" in server_info:
+         api_key_env = server_info["api_key_env"]
++        secret_env_names.add(api_key_env)
+         api_key = prompt_for_api_key(
+             server_name,
+             api_key_env,
+@@ -551,6 +555,15 @@ def install_mcp_server(
+         if api_key:
+             env_args = ["-e", f"{api_key_env}={api_key}"]
+
++    # Inject server-level DEFAULT_PARAMETERS as a repeatable -e pair (M1).
++    # Compact JSON (no spaces) keeps the value a single argv token; not a secret,
++    # so it is shown in full in echoed commands.
++    if "default_parameters" in server_info:
++        default_params_json = json.dumps(
++            server_info["default_parameters"], separators=(",", ":")
++        )
++        env_args.extend(["-e", f"DEFAULT_PARAMETERS={default_params_json}"])
++
+     # Handle global binary requirement (e.g., auggie needs `npm install -g`)
+     if "requires_global_binary" in server_info:
+         req = server_info["requires_global_binary"]
+@@ -613,14 +626,23 @@ def install_mcp_server(
+     # Add server command (split into parts)
+     cmd.extend(shlex.split(command))
+
++    # Build a display-safe command that masks secret env values (e.g. the API key)
++    # while leaving non-secret tokens like DEFAULT_PARAMETERS visible in full (M1).
++    def _mask_secret(token: str) -> str:
++        if "=" in token:
++            key = token.split("=", 1)[0]
++            if key in secret_env_names:
++                return f"{key}=***"
++        return token
++
++    display_cmd = " ".join(_mask_secret(tok) for tok in cmd)
++
+     if dry_run:
+-        click.echo(f"   [DRY RUN] Would run: {' '.join(cmd)}")
++        click.echo(f"   [DRY RUN] Would run: {display_cmd}")
+         return True
+
+     try:
+-        click.echo(
+-            f"   Running: claude mcp add --transport {transport} {server_name} -- {command}"
+-        )
++        click.echo(f"   Running: {display_cmd}")
+         result = _run_command(cmd, capture_output=True, text=True, timeout=120)
+
+         if result.returncode == 0:
+diff --git a/src/superclaude/mcp/configs/tavily.json b/src/superclaude/mcp/configs/tavily.json
+deleted file mode 100644
+index 6966b5ad..00000000
+--- a/src/superclaude/mcp/configs/tavily.json
++++ /dev/null
+@@ -1,13 +0,0 @@
+-{
+-  "tavily": {
+-    "command": "npx",
+-    "args": [
+-      "-y",
+-      "mcp-remote",
+-      "https://mcp.tavily.com/mcp/?tavilyApiKey=${TAVILY_API_KEY}"
+-    ],
+-    "env": {
+-      "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+-    }
+-  }
+-}
+\ No newline at end of file

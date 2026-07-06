@@ -1,0 +1,15 @@
+.dev/tasks/done/TASK-RF-20260525-194356/TASK-RF-20260525-194356.md
+.dev/tasks/done/TASK-RF-20260525-194356/qa/qa-task-validation-report.md
+.dev/tasks/done/TASK-RF-20260525-194356/research-notes.md
+.dev/tasks/done/TASK-RF-20260525-194356/research/01-cli-registration.md
+.dev/tasks/done/TASK-RF-20260525-194356/research/02-command-skill-patterns.md
+.dev/tasks/done/TASK-RF-20260525-194356/research/03-report-scaffold-behavior.md
+.dev/tasks/done/TASK-RF-20260525-194356/research/04-test-verification.md
+src/superclaude/cli/init_lite.py
+src/superclaude/cli/install_skills.py
+src/superclaude/cli/main.py
+src/superclaude/commands/init-lite.md
+src/superclaude/skills/sc-init-lite-protocol/SKILL.md
+tests/cli/test_cli_registration.py
+tests/cli/test_init_lite.py
+tests/unit/test_cli_install.py

@@ -1,0 +1,58 @@
+contract_version: "1.3.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-submit-pr-20260611-030241/reflect/pre/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-submit-pr-20260611-030241/reflect/pre/audit.log
+confidence_calibrated: 0.88
+escalation_rule_matched: 4   # --depth deep hard override (also S_domains >= 3)
+run_id: pre-submit-pr-20260611-030241
+
+# UC-1 specific
+coverage_pct: 0.96
+coverage_undefined: false
+best_practice_grade: 4
+unmapped_requirements:
+  - id: NFR-7
+    text: "Security: no tokens in run-log; redact credential-bearing env/stderr (T-N51)."
+    gap: "No tasklist item encodes run-log credential redaction or the T-N51 scrub test."
+  - id: NFR-8
+    text: "Determinism: same fixtures + same initial state => identical classifier/counter/routes/terminal outcome (T-N52)."
+    gap: "No tasklist item encodes the T-N52 replay-determinism test."
+partial_requirements:
+  - id: INV-015 / AC-13
+    text: "validated-not-verified residual risk recorded as `validated_not_verified` + behavioral_test_failures (T-VALIDATED-NOT-VERIFIED)."
+    gap: "Tasklist covers verify-before-remediate (FR-3.5) strongly but the distinct INV-015 validated-not-verified run-log recording + T-VALIDATED-NOT-VERIFIED audit test is thin/conflated. Disambiguate: INV-015 is the OUTPUT-side residual (a verified fix drifts an untested behavior); FR-3.5 is the INPUT-side false-positive filter."
+  - id: FR-1.4
+    text: "Pre-PR checks: origin confirm, gh auth, fetch, rebase-if-behind, URL verify."
+    gap: "Partially covered via scripts; ensure each sub-check (T-106/107/108) has an explicit test item."
+
+# Tier 2 artifacts
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-submit-pr-20260611-030241/reflect/pre/reviewer-coverage.md
+  - /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-submit-pr-20260611-030241/reflect/pre/reviewer-bestpractice.md
+t2_model_class_diversity: full   # sonnet + haiku reviewers (executor-disjoint from opus orchestrator)
+merge_method: adversarial
+
+# Hallucination guard
+citations_total: 24
+citations_revalidated: 24
+citations_dropped: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true   # cross-corroborated: both reviewers + the A.10.25 alignment gate independently cited the same items
+
+# Asymmetric-cost flags
+needs_human_decision: false   # gaps are additive Open-Questions, not blocking ambiguities
+user_decision_required: false
+regression_present: false
+unauthorized_deviation_present: false
+
+# Tier 3
+remediation_offered: true
+remediation_accepted: null   # surfaced to operator; gaps appended to Open Questions (additive, non-blocking)
+task_file_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-submit-pr-20260611-030241/TASK-RF-submit-pr-20260611-030241.md
+
+# Verdict
+reflect_pre_verdict: pass   # coverage_pct 0.96 >= 0.90 floor AND status success

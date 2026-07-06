@@ -1,0 +1,35 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: ".dev/brainstorms/20260622-233136-tavily-mcp-upgrade/tasklist/validation/reflect-pre/phase-1/REPORT.md"
+confidence_calibrated: 0.91
+escalation_rule_matched: 1
+coverage_pct: 1.00
+coverage_pct_union: 1.00
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 5
+citations_total: 5
+citations_revalidated: 5
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true
+t2_model_class_diversity: null
+degraded_components: ["mcp-reviewer-ensemble"]
+needs_human_decision: false
+user_decision_required: false
+remediation_offered: true
+remediation_accepted: null
+verdict: PASS
+observations:
+  - id: O-1
+    severity: low
+    summary: "FR-2 split across phases; roadmap-keyed traceability lands only on T01.01, docs half is T03.01"
+  - id: O-2
+    severity: low
+    summary: "FR-1 AC#2 repo-wide no-0.1.x invariant enforced by T03.03 parity guard, not T01.01"

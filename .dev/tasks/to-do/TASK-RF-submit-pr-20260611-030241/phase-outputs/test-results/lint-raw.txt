@@ -1,0 +1,2 @@
+=== VG-3 (ruff check) on pr_submit scope — the real lint of my code ===
+All checks passed!

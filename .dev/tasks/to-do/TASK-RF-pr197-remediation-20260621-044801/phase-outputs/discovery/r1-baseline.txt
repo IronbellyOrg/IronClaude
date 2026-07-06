@@ -1,0 +1,67 @@
+# R1 baseline — prefixed Tavily tool-id occurrences (pre-edit)
+# command: git grep -nE 'mcp__tavily__tavily_(search|extract)' src/superclaude/agents/
+# captured: 2026-06-21 05:07 on branch feat/rf-harness-sync (worktree)
+
+src/superclaude/agents/rf-analyst.md:13:  - mcp__tavily__tavily_search    # PRIMARY web search (rare use; see body)
+src/superclaude/agents/rf-analyst.md:14:  - mcp__tavily__tavily_extract   # PRIMARY web content extraction (rare use)
+src/superclaude/agents/rf-analyst.md:365:- `mcp__tavily__tavily_extract` for known URLs cited in research files
+src/superclaude/agents/rf-analyst.md:367:- `mcp__tavily__tavily_search` only when the spawn prompt directs you to
+src/superclaude/agents/rf-analyst.md:373:1. `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` is not
+src/superclaude/agents/rf-analyst.md:422:   external claim. If authorized, use `mcp__tavily__tavily_search` /
+src/superclaude/agents/rf-assembler.md:13:  - mcp__tavily__tavily_search    # PRIMARY web search (rare use; see body)
+src/superclaude/agents/rf-assembler.md:14:  - mcp__tavily__tavily_extract   # PRIMARY web content extraction (rare use)
+src/superclaude/agents/rf-assembler.md:219:- `mcp__tavily__tavily_extract` for known URLs in component files.
+src/superclaude/agents/rf-assembler.md:220:- `mcp__tavily__tavily_search` only if the spawn prompt directs you to
+src/superclaude/agents/rf-assembler.md:226:1. `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` is not
+src/superclaude/agents/rf-assembler.md:273:10. **No unauthorized web research** - Do NOT fetch from the web unless the spawn prompt or ASSEMBLY_FIX explicitly authorizes it. If authorized, use `mcp__tavily__tavily_search` / `-extract` first; fall back to WebSearch / WebFetch only when Tavily is unavailable (tool not loaded, server error after one retry, or rate-limited). Mark any fallback in the assembled document.
+src/superclaude/agents/rf-qa-qualitative.md:13:  - mcp__tavily__tavily_search    # PRIMARY web search (Tavily MCP first)
+src/superclaude/agents/rf-qa-qualitative.md:14:  - mcp__tavily__tavily_extract   # PRIMARY web fetch (Tavily MCP first)
+src/superclaude/agents/rf-qa-qualitative.md:117:1. `mcp__tavily__tavily_search` -- for queries / discovery.
+src/superclaude/agents/rf-qa-qualitative.md:118:2. `mcp__tavily__tavily_extract` -- for fetching a specific URL's content.
+src/superclaude/agents/rf-qa-qualitative.md:123:- The `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` tool is not present in your runtime tool list this session (server not loaded).
+src/superclaude/agents/rf-qa-qualitative.md:799:- **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web (a vendor doc page, an external standard, a third-party API surface, an external link in the document under review), you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+src/superclaude/agents/rf-qa.md:13:  - mcp__tavily__tavily_search    # PRIMARY web search (Tavily MCP first)
+src/superclaude/agents/rf-qa.md:14:  - mcp__tavily__tavily_extract   # PRIMARY web fetch (Tavily MCP first)
+src/superclaude/agents/rf-qa.md:109:1. `mcp__tavily__tavily_search` -- for queries / discovery.
+src/superclaude/agents/rf-qa.md:110:2. `mcp__tavily__tavily_extract` -- for fetching a specific URL's content.
+src/superclaude/agents/rf-qa.md:115:- The `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` tool is not present in your runtime tool list this session (server not loaded).
+src/superclaude/agents/rf-qa.md:538:12. **Tavily-first for any external lookup** -- When verifying a claim that requires fetching from the open web, you MUST attempt `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before falling back to `WebSearch` / `WebFetch`. Silent fallback is a process violation; the fallback condition and reason MUST appear in your QA report.
+src/superclaude/agents/rf-task-builder.md:13:  - mcp__tavily__tavily_search
+src/superclaude/agents/rf-task-builder.md:14:  - mcp__tavily__tavily_extract
+src/superclaude/agents/rf-task-builder.md:417:**Primary tool:** `mcp__tavily__tavily_search` for verifying library/framework syntax and patterns referenced in checklist items; `mcp__tavily__tavily_extract` when you need the full content of a specific docs URL (e.g., to copy an API signature verbatim into a Context field).
+src/superclaude/agents/rf-task-builder.md:429:mcp__tavily__tavily_search: "Jest test file naming conventions and structure"
+src/superclaude/agents/rf-task-builder.md:430:mcp__tavily__tavily_search: "Dockerfile multi-stage build syntax"
+src/superclaude/agents/rf-task-builder.md:431:mcp__tavily__tavily_search: "SQLAlchemy migration file structure"
+src/superclaude/agents/rf-task-builder.md:529:13. **Tavily-first for web fact-checking** -- When the builder consults the web to verify library/framework syntax or patterns for checklist-item Context fields, the call MUST go through `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` first.
+src/superclaude/agents/rf-task-executor.md:15:  - mcp__tavily__tavily_search
+src/superclaude/agents/rf-task-executor.md:16:  - mcp__tavily__tavily_extract
+src/superclaude/agents/rf-task-executor.md:353:7. **Tavily-first for any web operation** - Web search and web fetch are NOT part of your documented workflow. If a recovery scenario forces you to consult the web (e.g., investigating an obscure `automated_qa_workflow.sh` error before reporting `EXECUTION_ERROR`), the call MUST go through `mcp__tavily__tavily_search` or `mcp__tavily__tavily_extract` first. `WebSearch` / `WebFetch` are fallbacks; fall back ONLY when (a) the Tavily tool is not loaded / unavailable, (b) Tavily returns a tool-level error after one retry, or (c) Tavily returns an explicit rate-limit signal. Log the provider in your `EXECUTION_PROGRESS` or `EXECUTION_ERROR` message using the format: `web-lookup: provider=<tavily|WebSearch reason=...>`. Silently using `WebSearch` / `WebFetch` when Tavily is available is a protocol violation.
+src/superclaude/agents/rf-task-researcher.md:13:  - mcp__tavily__tavily_search
+src/superclaude/agents/rf-task-researcher.md:14:  - mcp__tavily__tavily_extract
+src/superclaude/agents/rf-task-researcher.md:320:When external research IS warranted, use Tavily (`mcp__tavily__tavily_search`) to investigate (fall back to WebSearch only per Web Search (Tavily-first) -> Fallback Conditions):
+src/superclaude/agents/rf-task-researcher.md:344:**Primary tool:** `mcp__tavily__tavily_search` for general web search; `mcp__tavily__tavily_extract` when you need full content of a known URL.
+src/superclaude/agents/rf-task-researcher.md:361:mcp__tavily__tavily_search: "Express.js middleware error handling pattern 2026"
+src/superclaude/agents/rf-task-researcher.md:362:mcp__tavily__tavily_search: "PostgreSQL JSONB index best practices"
+src/superclaude/agents/rf-task-researcher.md:363:mcp__tavily__tavily_search: "React Server Components file structure conventions"
+src/superclaude/agents/rf-task-researcher.md:364:mcp__tavily__tavily_search: "best practices building project health dashboard Python 2026"
+src/superclaude/agents/rf-task-researcher.md:365:mcp__tavily__tavily_search: "Python stdlib alternatives to pandas for data analysis"
+src/superclaude/agents/rf-task-researcher.md:366:mcp__tavily__tavily_search: "SVG chart generation without dependencies comparison"
+src/superclaude/agents/rf-task-researcher.md:403:1. **Codebase question you can't answer** -> Use Tavily (`mcp__tavily__tavily_search`); fall back to WebSearch only per the Fallback Conditions above
+src/superclaude/agents/rf-team-lead.md:13:  - mcp__tavily__tavily_search    # PRIMARY web search
+src/superclaude/agents/rf-team-lead.md:14:  - mcp__tavily__tavily_extract   # PRIMARY web content extraction
+src/superclaude/agents/rf-team-lead.md:301:- `mcp__tavily__tavily_search` for queries ("how does X framework handle
+src/superclaude/agents/rf-team-lead.md:303:- `mcp__tavily__tavily_extract` when you have a specific URL whose content
+src/superclaude/agents/rf-team-lead.md:309:1. The `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` tool is
+src/superclaude/agents/rf-team-lead.md:385:11. **Tavily-first for web research** -- Always call `mcp__tavily__tavily_search` / `mcp__tavily__tavily_extract` before reaching for WebSearch / WebFetch. WebSearch and WebFetch are fallbacks for when Tavily is unavailable (tool not loaded, server error after one retry, or rate-limited). Note any fallback in the pipeline output.
+
+# total occurrences:
+51
+# files affected:
+src/superclaude/agents/rf-analyst.md
+src/superclaude/agents/rf-assembler.md
+src/superclaude/agents/rf-qa-qualitative.md
+src/superclaude/agents/rf-qa.md
+src/superclaude/agents/rf-task-builder.md
+src/superclaude/agents/rf-task-executor.md
+src/superclaude/agents/rf-task-researcher.md
+src/superclaude/agents/rf-team-lead.md

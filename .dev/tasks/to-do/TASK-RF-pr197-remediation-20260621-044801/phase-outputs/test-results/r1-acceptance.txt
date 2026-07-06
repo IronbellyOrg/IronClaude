@@ -1,0 +1,23 @@
+# R1 Acceptance — Tavily tool-id revert (8 rf-* agents)
+# captured 2026-06-21 on branch feat/rf-harness-sync (worktree)
+
+## Check 1: prefixed underscore matches (acceptance: ZERO)
+result: 0 matches -> PASS
+
+## Check 2: hyphen form present in all 8 agents (frontmatter + body)
+  rf-analyst.md: src/superclaude/agents/rf-analyst.md:6 hyphen-form occurrences
+  rf-assembler.md: src/superclaude/agents/rf-assembler.md:6 hyphen-form occurrences
+  rf-qa.md: src/superclaude/agents/rf-qa.md:6 hyphen-form occurrences
+  rf-qa-qualitative.md: src/superclaude/agents/rf-qa-qualitative.md:6 hyphen-form occurrences
+  rf-task-builder.md: src/superclaude/agents/rf-task-builder.md:7 hyphen-form occurrences
+  rf-task-executor.md: src/superclaude/agents/rf-task-executor.md:3 hyphen-form occurrences
+  rf-task-researcher.md: src/superclaude/agents/rf-task-researcher.md:11 hyphen-form occurrences
+  rf-team-lead.md: src/superclaude/agents/rf-team-lead.md:6 hyphen-form occurrences
+
+## Check 3: deep-research.md NOT modified (acceptance: empty diff)
+result: PASS (untouched)
+
+## Carve-out note: 3 prose report-label underscores INTENTIONALLY preserved (not tool-ids):
+  rf-qa.md:119, rf-qa.md:506, rf-qa-qualitative.md:127
+
+## OVERALL: PASS

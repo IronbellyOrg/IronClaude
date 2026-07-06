@@ -1,0 +1,43 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: ".dev/brainstorms/20260622-233136-tavily-mcp-upgrade/tasklist/validation/reflect-pre/phase-2/REPORT.md"
+confidence_calibrated: 0.89
+escalation_rule_matched: null   # forced via --tier 2 (§5.1 hard override)
+coverage_pct: 1.00
+coverage_pct_union: 1.00
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 4
+citations_total: 6
+citations_revalidated: 6
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true
+t2_model_class_diversity: degraded
+merge_method: single-reviewer-fallback
+adversarial_unavailable: true
+degraded_components: ["mcp-reviewer-ensemble", "adversarial-merge"]
+needs_human_decision: false
+user_decision_required: false
+remediation_offered: true
+remediation_accepted: null
+verdict: PASS
+observations:
+  - id: F-1
+    severity: medium
+    summary: "FR-4 redaction must cover dry-run + future -e env echo (today's :622 echo omits env args)"
+  - id: F-2
+    severity: medium
+    summary: "FR-4 URL-query (tavilyApiKey=) target lives only in Phase-3-deleted dormant configs; helper is forward-looking"
+  - id: F-3
+    severity: low
+    summary: "claude mcp get unavailable-fallback (spec §6) absent from T02.01 ACs; add matrix row"
+  - id: F-4
+    severity: low
+    summary: "<PHASE_2_START_SHA> placeholder resolved at execution by wrapper; confirm resolver wired"

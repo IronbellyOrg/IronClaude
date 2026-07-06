@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "spec_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/releases/complete/cross-framework-deep-analysis/spec-cross-framework-deep-analysis.md",
+  "tdd_file": null,
+  "prd_file": null,
+  "input_type": "spec",
+  "spec_hash": "e4b7205a5c47c88ace9e1e8a453637fc9029661073929b38392a529059e57c3a",
+  "agents": [
+    {
+      "model": "opus",
+      "persona": "architect"
+    },
+    {
+      "model": "sonnet",
+      "persona": "architect"
+    }
+  ],
+  "depth": "standard",
+  "last_run": "2026-06-03T02:34:33.762551+00:00",
+  "steps": {
+    "extract": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/cross-framework-deep-analysis/extraction.md",
+      "started_at": "2026-06-03T02:08:52.066953+00:00",
+      "completed_at": "2026-06-03T02:11:00.084288+00:00"
+    },
+    "generate-opus-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/cross-framework-deep-analysis/roadmap-opus-architect.md",
+      "started_at": "2026-06-03T02:11:00.104985+00:00",
+      "completed_at": "2026-06-03T02:17:07.149516+00:00"
+    },
+    "generate-sonnet-architect": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/cross-framework-deep-analysis/roadmap-sonnet-architect.md",
+      "started_at": "2026-06-03T02:11:00.105290+00:00",
+      "completed_at": "2026-06-03T02:18:31.158136+00:00"
+    },
+    "diff": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/cross-framework-deep-analysis/diff-analysis.md",
+      "started_at": "2026-06-03T02:18:31.164979+00:00",
+      "completed_at": "2026-06-03T02:20:04.480844+00:00"
+    },
+    "debate": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/cross-framework-deep-analysis/debate-transcript.md",
+      "started_at": "2026-06-03T02:20:04.482110+00:00",
+      "completed_at": "2026-06-03T02:21:20.810094+00:00"
+    },
+    "score": {
+      "status": "PASS",
+      "attempt": 1,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/cross-framework-deep-analysis/base-selection.md",
+      "started_at": "2026-06-03T02:21:20.811445+00:00",
+      "completed_at": "2026-06-03T02:23:10.114521+00:00"
+    },
+    "merge": {
+      "status": "FAIL",
+      "attempt": 2,
+      "output_file": "/config/workspace/IronClaude-RoadmapRewrite/.dev/tasks/to-do/TASK-RF-20260531-042405/phase-outputs/acceptance-e2e/cross-framework-deep-analysis/roadmap.md",
+      "started_at": "2026-06-03T02:31:32.454665+00:00",
+      "completed_at": "2026-06-03T02:34:33.751293+00:00"
+    }
+  }
+}

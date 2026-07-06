@@ -1,0 +1,154 @@
+{
+  "findings": [
+    {
+      "title": "Input Contract modified from roadmap-only to supplementary-inputs, breaking VERBATIM claim in diff header at line 9-14",
+      "category": "api-contract",
+      "severity_hint": "high",
+      "file": "src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+      "line": 49,
+      "line_range_end": 58,
+      "in_diff": true,
+      "evidence": "You receive exactly one input: **the roadmap text**.\n\nThe roadmap may contain:\n\n- Phases, milestones, versions, epics, bullets, paragraphs\n- Requirements, features, risks, success metrics, constraints\n- Vague items (\"improve performance\", \"harden security\")\n\nTreat the roadmap as the **only source of truth**.",
+      "why": "The diff header at lines 9-14 claims the Input Contract was reconciled to allow `--spec`/`--tdd-file`/`--prd-file` optional supplementary inputs while preserving baseline roadmap-only behavior. However, the SKILL.md file at HEAD (line 49-58) shows the old 'exactly one input' contract text was NOT updated. The diff shows the intended replacement at lines 9-31 of diff.patch (roadmap as 'primary source', supplementary inputs 'enrich'), but viewing SKILL.md at those lines shows the old unchanged text. This is either a failed merge or the diff.patch is stale relative to HEAD.",
+      "recommendation": "Verify HEAD matches diff.patch intent. If SKILL.md at HEAD lacks the lines shown in diff.patch +9..+31, the Input Contract change did not land. Re-apply or investigate why str-replace failed.",
+      "cross_references": [],
+      "confidence": "high"
+    },
+    {
+      "title": "Self-Check count 17->20 fix incomplete: SKILL.md line 1729 still claims 'all 17 checks' in Stage-6 completion message",
+      "category": "data-integrity",
+      "severity_hint": "high",
+      "file": "src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+      "line": 1729,
+      "line_range_end": 1729,
+      "in_diff": false,
+      "evidence": null,
+      "why": "The PR claims a stale '17'->'20' Self-Check count fix. Diff line 308 shows the Stage Completion Reporting section updated to 'Self-Check: all 20 checks passed'. However, tests at diff lines 541-547 explicitly guard against ANY remaining '17 checks' string. A full-file grep (not shown in provided view but implied by test) would reveal whether line 1729 or surrounding per-stage messages were fully updated. The test's assertion `assert 'all 17 checks' not in text` would fail if any such stale string remains.",
+      "recommendation": "Run `grep -n '17 checks' src/superclaude/skills/sc-tasklist-protocol/SKILL.md`. If any match exists, update to '20 checks'. The test at diff line 546 is the contract-level guard; if tests pass, this may be a false alarm, but the view-truncation prevents verification.",
+      "cross_references": [
+        "tests/tasklist/test_tasklist_cli.py:546"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "P5 pure-function invariant at line 569 is NOT fenced before the scored-tier COMPUTE path; prose is after Section 5.3 heading instead of before it",
+      "category": "correctness",
+      "severity_hint": "high",
+      "file": "src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+      "line": 569,
+      "line_range_end": 570,
+      "in_diff": true,
+      "evidence": "**Pure-function invariant (P5 fence):** scored tiers are a **pure function of the roadmap text** — the §5.3/§5.4 scored-tier compute path takes **NO calibration/feedback input** (it MUST NOT read `feedback-log.md` or the P5 `## Tier Calibration Advisory`). The advisory is read-only and never feeds back into `tier_scores`; \"same roadmap → same scored tiers\" holds regardless of any `feedback-log.md`.\n\n### 5.3 Compliance Tier Classification (mandatory, deterministic)",
+      "why": "The P5 pure-function fence is inserted AFTER the Section 5.3 heading at line 570, but the heading '### 5.3 Compliance Tier Classification' comes BEFORE the fence prose. This ordering means a literal reader executing the spec encounters the compute algorithm (Sections 5.3.1-5.3.3) BEFORE reading the fence that forbids feedback-log input. The fence should be the FIRST paragraph of Section 5.3 (immediately after the heading, before any compute rule).",
+      "recommendation": "Move the 'Pure-function invariant (P5 fence)' paragraph to immediately after line 570 (after the heading, before the algorithm paragraphs). This ensures the fence is consulted BEFORE the tier-scoring rules.",
+      "cross_references": [
+        "src/superclaude/skills/sc-tasklist-protocol/SKILL.md:544"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "P1 Execution Context block reuses task-builder contract 'VERBATIM' but test only checks sub-field name presence, not byte-exact shape",
+      "category": "api-contract",
+      "severity_hint": "medium",
+      "file": "tests/skills/test_task_builder_merge.py",
+      "line": 429,
+      "line_range_end": 443,
+      "in_diff": true,
+      "evidence": "def test_p1_execution_context_contract_identical_across_surfaces(\n        self, skill_text: str, tasklist_skill_text: str\n    ) -> None:\n        # Both surfaces define the SAME `## Execution Context` heading ...\n        for body in (skill_text, tasklist_skill_text):\n            assert \"## Execution Context\" in body\n        # ... reusing the IDENTICAL three sub-field names (no renamed/forked variant\n        # on either surface) — this is the cross-validation spec AC#5 mandates.\n        for sub_field in (\"References\", \"Source areas\", \"Key constraints\"):\n            assert sub_field in skill_text, (\n                f\"task-builder/SKILL.md missing Execution Context sub-field {sub_field}\"\n            )\n            assert sub_field in tasklist_skill_text, (\n                f\"sc-tasklist-protocol/SKILL.md missing Execution Context sub-field \"\n                f\"{sub_field} — divergent (forked) meaning\"\n            )\n        # ... and BOTH carry the no-file-path-in-header discipline (the shared\n        # contract invariant), so the two surfaces cannot diverge semantically.\n        assert \"file:line\" in skill_text and \"file:line\" in tasklist_skill_text",
+      "why": "The PR claims the DM-003, Execution Context, and PR-02 contracts are reused VERBATIM (diff header). The test at lines 429-443 only asserts sub-field name presence ('References', 'Source areas', 'Key constraints') and the 'file:line' discipline mention. It does NOT verify byte-exact field format, ordering, or emission-rule parity. A 'VERBATIM' claim requires literal comparison of the contract text blocks (e.g., the three-bullet template at task-builder SKILL.md:1066-1070 vs sc-tasklist-protocol SKILL.md:919-928). The test would pass even if emission rules differ.",
+      "recommendation": "Add a literal block comparison test extracting the Execution Context template from both SKILL.md files and asserting byte-equality (modulo generator-specific placeholders like GOAL vs R-###). Alternatively, downgrade the 'VERBATIM' claim to 'MIRRORS' if intentional differences exist.",
+      "cross_references": [
+        "src/superclaude/skills/task-builder/SKILL.md:1066",
+        "src/superclaude/skills/sc-tasklist-protocol/SKILL.md:119"
+      ],
+      "confidence": "high"
+    },
+    {
+      "title": "DM-003 recommendation literal has trailing whitespace mismatch: task-builder has em-dash, sc-tasklist claims 'byte-exact' but tests only substring",
+      "category": "api-contract",
+      "severity_hint": "medium",
+      "file": "tests/skills/test_task_builder_merge.py",
+      "line": 410,
+      "line_range_end": 410,
+      "in_diff": true,
+      "evidence": "assert \"Manual review required — partition agent failed twice\" in body",
+      "why": "The DM-003 recommendation literal is claimed 'byte-exact' (R-117 at task-builder SKILL.md:889). Tests at diff line 410 and tasklist test diff line 646 only assert substring presence ('in text'), not byte-exact equality. The task-builder source at line 881 shows 'Manual review required — partition agent failed twice' (em-dash U+2014, no trailing whitespace). If the tasklist spec accidentally introduced trailing whitespace or used a hyphen instead of em-dash, the substring test would pass but the literal would be non-conformant.",
+      "recommendation": "Replace substring asserts with exact match: `assert 'Manual review required — partition agent failed twice' == extract_recommendation_literal(text)` after extracting the literal from its context. Verify both SKILL.md files emit the identical byte sequence (same em-dash, no whitespace delta).",
+      "cross_references": [
+        "src/superclaude/skills/task-builder/SKILL.md:881"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "P2 bounded-loop F_k exclusion of synthetic-dnsp is stated but the cross-cycle dedup composition (INV-012) may allow double-counting in |F_k|",
+      "category": "correctness",
+      "severity_hint": "medium",
+      "file": "src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+      "line": 1257,
+      "line_range_end": 1260,
+      "in_diff": true,
+      "evidence": "1. **Compute `F_k` by re-running the FULL Stage-7 2N validation set** (reuse the Stage-7 fan-out primitive — a complete re-validation of every phase, NOT a subset re-read of only the previously-failing items), so regressions in previously-PASS items are detectable. The loop-back re-run applies the **same Stage-7 some-vs-zero gate** as the initial pass: a fresh agent exhaustion during a re-run emits a `synthetic-dnsp` as usual (≥1 sibling succeeded → synthesize + PROCEED), and a zero-success outcome on a re-run routes to the report-validation-error terminal — identical to the Stage-7 first-pass behavior. `F_k` is the **post-dedup cardinality** of the **patchable** failing findings: it EXCLUDES `source: \"synthetic-dnsp\"` records (a synthetic is non-patchable and persists across cycles by design — a DEDUP case, not a regression, per the DM-003 cross-cycle rule; counting it would spuriously trip the monotonicity halt). The synthetic still forces human review via Stage 8 — it is simply not part of the patchable monotonicity comparison.",
+      "why": "The spec states synthetic-dnsp records are EXCLUDED from F_k because they are non-patchable and collapse via dedup_key. However, the Stage-7 re-run at each pass k MAY emit a NEW synthetic-dnsp (same dedup_key, different pass) if an agent exhausts AGAIN. The cross-cycle dedup rule (R-124, INV-012) says 'same dedup_key across cycles is a DEDUP case, not a regression', but it's unclear if the DEDUP happens BEFORE the F_k count or if F_k counts the raw emission then dedup collapses later. If dedup runs AFTER F_k computation, a persistent synthetic could increment |F_k| at each pass, preventing convergence.",
+      "recommendation": "Clarify ordering: 'F_k is computed AFTER cross-cycle dedup (R-124) collapses identical-dedup_key synthetics into one record, so a persistent synthetic contributes 0 to |F_k| on every pass after the first.' Add a test verifying that a synthetic-dnsp with the same dedup_key emitted on pass 1 and pass 2 does NOT increment |F_2| relative to |F_1|.",
+      "cross_references": [
+        "src/superclaude/skills/task-builder/SKILL.md:899"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "title": "Stage-7 gate-results.txt inlining claim at line 1153/1158 states 'Read and inline' but no spec text shows HOW the orchestrator reads the file",
+      "category": "correctness",
+      "severity_hint": "low",
+      "file": "src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+      "line": 1153,
+      "line_range_end": 1159,
+      "in_diff": true,
+      "evidence": "3. Spawn **Agent A** with:\n   - The full roadmap text\n   - The phase file content for tasks 1 through `split` (first 50%+1 on odd count)\n   - The contents of `TASKLIST_ROOT/validation/gate-results.txt` (the orchestrator Reads `gate-results.txt` and inlines its full text into the spawn payload — the agent receives the text, not a path to resolve)\n   - Validation instructions (below)\n4. Spawn **Agent B** with:\n   - The full roadmap text\n   - The phase file content for tasks `split+1` through `task_count`\n   - The contents of `TASKLIST_ROOT/validation/gate-results.txt` (the orchestrator Reads `gate-results.txt` and inlines its full text into the spawn payload — the agent receives the text, not a path to resolve)\n   - Validation instructions (below)",
+      "why": "Lines 1153/1158 say 'the orchestrator Reads `gate-results.txt` and inlines its full text into the spawn payload', but the spec is a DETERMINISTIC generator CONTRACT for an agent, not an orchestrator implementation guide. The spec does not define a `Read(gate-results.txt)` step or show where/how the file content is inserted into the spawn prompt. A literal-executing agent would not know to perform this step. The validation-agent blockquote at line 1166 DOES reference the inlined content ('you also receive the contents of...'), but the orchestrator-side Read is implicit.",
+      "recommendation": "Add an explicit orchestrator step before the Agent A/B spawn bullets: 'Read the file at `TASKLIST_ROOT/validation/gate-results.txt` and store its contents as `GATE_RESULTS_TEXT`. Then spawn Agent A/B with `GATE_RESULTS_TEXT` inlined into the prompt.' This makes the Read operation deterministic and testable.",
+      "cross_references": [
+        "src/superclaude/skills/sc-tasklist-protocol/SKILL.md:1164"
+      ],
+      "confidence": "low"
+    }
+  ],
+  "cross_cutting_observations": [
+    {
+      "title": "Template mirror consistency: phase-template.md and index-template.md additions match SKILL.md inline copy per diff, but no test verifies byte-exact parity of mirrored emission rules",
+      "category": "consistency",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+        "src/superclaude/skills/sc-tasklist-protocol/templates/phase-template.md",
+        "src/superclaude/skills/sc-tasklist-protocol/templates/index-template.md"
+      ],
+      "why": "The PR adds P1 Execution Context and P5 Tier Calibration Advisory to both the SKILL.md inline templates and the source-side template mirrors (phase-template.md lines +351-+359, index-template.md lines +329-+339). Tests at diff lines 574-597 and 599-602 verify the mirrors carry the block headings and sub-field names, but do not assert byte-exact emission-rule parity (e.g., the 'emit iff ≥1 resolvable ref' rule, the 'References-only degraded form' branch, the '≥2 matching overrides' threshold for P5). If the SKILL.md inline copy and the mirror diverge on these rules, the generator would follow SKILL.md but the human-review mirror would mislead. The diff shows line-count increases (+13 phase, +9 index) suggesting content was added, but without byte-level comparison the mirror could lag or contradict.",
+      "recommendation": "Add a template-mirror parity test that extracts the P1 Execution Context emission rule from SKILL.md:239-263 (Section 4.1d) and the phase-template.md mirror at lines 351-359, then asserts all deterministic branches (emit-iff, References-only, omit-when-none) are identically described. Repeat for P5 (SKILL.md:87-110 vs index-template.md:329-339). Alternatively, mechanically generate the templates from SKILL.md to eliminate drift.",
+      "confidence": "high"
+    },
+    {
+      "title": "P2 bounded-loop F_k history table schema at line 1244-1251 defines |F_{k-1}| and |F_k| columns but no test verifies the table is actually emitted or that the columns are computed correctly",
+      "category": "tests",
+      "severity_hint": "medium",
+      "affected_files": [
+        "src/superclaude/skills/sc-tasklist-protocol/SKILL.md",
+        "tests/tasklist/test_tasklist_cli.py"
+      ],
+      "why": "The P2 bounded-loop iteration-state table at SKILL.md lines 1244-1251 defines a per-pass history with |F_{k-1}|, |F_k|, FAIL-set, PASS-set, Regression-set, and Transition-guard columns. The table is critical for debugging monotonicity/regression halts (it's the evidence artifact operators inspect to understand WHY a loop halted). However, the new tests at diff lines 708-750 only assert the GUARDS are in the spec text (regression > monotonicity precedence, strict-shrink, halt strings). No test verifies: (1) the table schema is emitted into the output bundle, (2) the columns are computed correctly, (3) the table is appended AFTER each pass (not overwritten), (4) the |F_k| value matches the count of patchable findings excluding synthetic-dnsp. Without these, the table could be a documentation-only artifact that is never actually written.",
+      "recommendation": "Add an integration test that mocks a 2-pass bounded loop (pass 1: 2 findings, pass 2: 1 finding resolved), invokes the tasklist generator, and asserts the output contains a '## P2 Bounded-Loop Iterations' table with 2 rows showing |F_1|=2, |F_2|=1, and Transition guard='shrank 2→1, no regression → finalize'.",
+      "confidence": "medium"
+    },
+    {
+      "title": "P3 synthetic-dnsp exclusion from PatchChecklist is stated at 3 sites (Stage 8 line 1216, Stage 9 line 1227, short-circuit guard line 1206) but the Stage-8 ValidationReport.md emission rule does not show the '## Manual Review Required (synthetic-dnsp)' section template",
+      "category": "docs",
+      "severity_hint": "low",
+      "affected_files": [
+        "src/superclaude/skills/sc-tasklist-protocol/SKILL.md"
+      ],
+      "why": "The P3 DNSP exclusion from PatchChecklist is stated 3 times for redundancy (Stage 8 PatchChecklist rule line 1216, Stage 9 exclusion line 1227, synthetic-dnsp short-circuit guard line 1206-1207). However, the ValidationReport.md emission template at Stage 8 (line 1210 onwards, 'Structure:' paragraph) does not show the '## Manual Review Required (synthetic-dnsp)' section that test diff line 703 asserts must exist. Without a template showing WHERE in ValidationReport.md the manual-review section appears and WHAT its exact heading/format is, a literal-executing agent might invent a different format or omit it entirely.",
+      "recommendation": "Add a ValidationReport.md template block to Stage 8 showing: '## Findings by Severity' (existing), '## Manual Review Required (synthetic-dnsp)' (new, shown only when ≥1 synthetic present), '## Summary'. This makes the section's presence/absence deterministic and testable.",
+      "confidence": "low"
+    }
+  ],
+  "notes_for_orchestrator": "The Input Contract modification at diff lines 9-31 appears not to have landed in SKILL.md at HEAD (lines 49-58 still show old 'exactly one input' text). This is the highest-confidence blocker — verify HEAD SHA matches PR head 4553981 and re-check lines 49-58. The Self-Check 17->20 fix may be incomplete (tests guard against it, but full-file view was truncated). P5 pure-function fence ordering is a correctness issue: the fence must precede the compute algorithm, not follow the section heading. The 'VERBATIM' contract-reuse claims are only partially validated by tests (sub-field names checked, but not byte-exact emission rules). P2 bounded-loop F_k synthetic-dnsp exclusion needs ordering clarification (dedup before or after F_k count). Most other findings are medium/low severity consistency and test-coverage gaps."
+}

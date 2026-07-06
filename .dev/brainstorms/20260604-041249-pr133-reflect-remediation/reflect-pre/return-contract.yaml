@@ -1,0 +1,39 @@
+contract_version: "1.2.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: .dev/brainstorms/20260604-041249-pr133-reflect-remediation/reflect-pre/REPORT.md
+confidence_calibrated: 0.90
+
+# UC-1 specific
+coverage_pct: 1.00
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 4   # 0-5; -1 for single-purpose-PR scope-span (G1) advisory
+
+# Gap registry
+must_fix:
+  - id: G-ANCHOR
+    severity: critical
+    finding: "'required for UC-2' appears on both --tasklist and --diff rows (SKILL.md:68/69, reflect.md:73/74); downgrade must be tasklist-row-only or it falsely weakens the genuine --diff hard requirement"
+    fix: "make T-002/T-003 surgical; verify --diff 'required for UC-2' survives"
+  - id: G3
+    severity: high
+    finding: "working tree on fix/roadmap-resume-spec-guard, 6 commits behind origin/master; PR133 content absent; all tasklist line anchors are origin/master-relative"
+    fix: "add gating T-000: branch off origin/master + re-grep every anchor before editing"
+advisory: [G1-single-purpose-pr-scope, G4-curation-pointer-target, G5-T007-port-fidelity, G6-syncdev-scope]
+
+# Asymmetric-cost flags
+needs_human_decision: true   # T-008 orphan commands/sc-reflect.md disposition
+user_decision_required: true
+cannot_validate_without_user_input: false
+regression_present: false
+
+# Evidence
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+evidence_validator_ran: true   # inline re-Read this turn
+zero_drop_flag: true           # zero-drop on a non-trivial report → spot-check advisory
+
+degraded_components: []

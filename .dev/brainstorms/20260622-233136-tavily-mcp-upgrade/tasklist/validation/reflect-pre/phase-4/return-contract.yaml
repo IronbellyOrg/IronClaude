@@ -1,0 +1,41 @@
+contract_version: "1.5.0"
+status: success
+mode: pre
+tier_reached: 1
+report_path: ".dev/brainstorms/20260622-233136-tavily-mcp-upgrade/tasklist/validation/reflect-pre/phase-4/REPORT.md"
+confidence_calibrated: 0.90
+escalation_rule_matched: 1
+coverage_pct: 1.00
+coverage_pct_union: 1.00
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements: []
+unmapped_requirements_union: []
+best_practice_grade: 4
+citations_total: 4
+citations_revalidated: 4
+citations_dropped: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+zero_drop_flag: true
+t2_model_class_diversity: null
+degraded_components: ["mcp-reviewer-ensemble"]
+needs_human_decision: false
+user_decision_required: false
+remediation_offered: true
+remediation_accepted: null
+verdict: PASS
+observations:
+  - id: O-1
+    severity: medium
+    summary: "Tests #10/#11 owned by both T03.03 and T04.01; assign one canonical author (cross-task interaction)"
+  - id: O-2
+    severity: low
+    summary: "Test #2 no-0.1.x scan spans phases; parity exclusion list must not false-positive on bundle's quoted 0.1.2 strings"
+  - id: O-3
+    severity: low
+    summary: "<PHASE_4_START_SHA> placeholder resolved at execution by wrapper; confirm resolver wired"
+  - id: O-4
+    severity: info
+    summary: "Test-module path free choice; tests/cli/ exists, tests/mcp/ does not — tests/cli/ is lower friction"

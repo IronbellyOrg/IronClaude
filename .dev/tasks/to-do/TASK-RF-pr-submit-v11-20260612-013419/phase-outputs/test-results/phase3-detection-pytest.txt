@@ -1,0 +1,27 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.3, pluggy-1.6.0 -- /config/workspace/IronClaude/.venv/bin/python
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude
+configfile: pyproject.toml
+plugins: benchmark-5.2.3, superclaude-4.3.5, cov-7.1.0, anyio-4.13.0
+collecting ... collected 14 items
+
+tests/pr_submit/test_detection_contract.py::test_t201_empty_reviews_polling PASSED [  7%]
+tests/pr_submit/test_detection_contract.py::test_t202_augment_clean PASSED [ 14%]
+tests/pr_submit/test_detection_contract.py::test_t203_augment_findings PASSED [ 21%]
+tests/pr_submit/test_detection_contract.py::test_t210_locked_false_halts PASSED [ 28%]
+tests/pr_submit/test_detection_contract.py::test_local_override_arms_without_touching_shipped_source PASSED [ 35%]
+tests/pr_submit/test_detection_contract.py::test_t211_different_bot_not_detected PASSED [ 42%]
+tests/pr_submit/test_detection_contract.py::test_tn31_known_non_augment_bot_polling PASSED [ 50%]
+tests/pr_submit/test_detection_contract.py::test_t212_interleaved_only_augment_parsed PASSED [ 57%]
+tests/pr_submit/test_detection_contract.py::test_t1110_decline_both_regexes_match PASSED [ 64%]
+tests/pr_submit/test_detection_contract.py::test_t1110b_decline_from_initial_poll PASSED [ 71%]
+tests/pr_submit/test_detection_contract.py::test_t1111_abnormally_large_without_retrigger_is_not_decline PASSED [ 78%]
+tests/pr_submit/test_detection_contract.py::test_t1112_retrigger_instruction_without_phrase_is_not_decline PASSED [ 85%]
+tests/pr_submit/test_detection_contract.py::test_t1112b_decline_from_non_augment_author_ignored PASSED [ 92%]
+tests/pr_submit/test_detection_contract.py::test_ec23_stale_pre_watermark_decline_ignored PASSED [100%]
+
+============================== 14 passed in 0.05s ==============================

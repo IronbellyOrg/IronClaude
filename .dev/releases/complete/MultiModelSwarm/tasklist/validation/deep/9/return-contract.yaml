@@ -1,0 +1,160 @@
+contract_version: "1.2.0"
+status: success
+mode: pre
+tier_reached: 2
+report_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/9/REPORT.md"
+audit_log_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/9/audit.log"
+confidence_calibrated: 0.90
+escalation_rule_matched: null   # --depth deep hard override (§5.1), not a rubric rule
+onboarding_ran: false
+
+# UC-1 specific
+coverage_pct: 1.0
+coverage_undefined: false
+unmapped_requirements: []
+best_practice_grade: 4
+implementation_coverage_pct: null   # plan-only; no implementation to scan
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+
+# UC-2 specific (not applicable — plan-only, never executed)
+tasklist_completion_pct: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null   # grounding-gaps empty
+hunk_to_declaration_map_path: null
+third_party_api_grounding: []
+third_party_api_verified: false
+serena_summary_corroboration: unavailable
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null   # UC-1 has no verification triangle
+
+# Input integrity
+input_sha256:
+  tasklist: "cf34d2d18f2a7bbcba0555be40132aff9c0c5631da93257c1bcc80686d5fa0e3"
+  spec: "f498ee9f68308d28432f378ce0279effe4a036497fff0035ee7c7adda7822fdb"
+input_tree_sha256: "5d5f93a030d123c20c155dc7c9a0d00dc9bbe5300bef63367717391d7a09266c"
+input_tree_file_count: 2
+input_tree_snapshot_path: "/config/workspace/IronClaude/.dev/releases/current/MultiModelSwarm/tasklist/validation/deep/9/artifacts/input-snapshot.yaml"
+input_drift_detected: false
+input_drift_diff: null
+
+# Hallucination guard
+citations_total: 14
+citations_revalidated: 14
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 2
+citation_budget_policy: full_reread
+evidence_validator_ran: false   # orchestrator inline re-Read (env lacks evidence-validator agent); citations are spec/tasklist line refs + grep groundings
+citation_revalidation_at_promotion: false
+
+# Tier 2 artifacts
+reviewer_cards: []   # heterogeneous reviewer fan-out unavailable in env; ran orchestrator 4-lens scrutiny
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: true   # sc-adversarial fan-out not run (degraded env); merge via single orchestrator pass
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+
+# Tier 3
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+handoff_memory_key: null
+
+# Asymmetric-cost flags
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false   # roadmap OPS-003 has a 5-vs-4 internal inconsistency (F1), but plan is defensible against the AC
+user_decision_required: false
+needs_human_decision: false   # findings are advisory plan refinements, not blockers
+
+# Per-task verdict array (UC-1 coverage view)
+per_task_verdicts:
+  - task_id: "T09.01"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.90
+    evidence_anchor: "OPS-001 roadmap L496; AC verbatim match; F4 path-drift vs docs/swarm/runbook.md"
+  - task_id: "T09.02"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.93
+    evidence_anchor: "OPS-002 roadmap L497; INV-007 grounded config.py/preflight.py; T2 env vars grounded"
+  - task_id: "T09.03"
+    status: partial
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.80
+    evidence_anchor: "OPS-003 roadmap L498/L508; F1 return-contract surface omitted (4 of 5)"
+  - task_id: "T09.04"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.85
+    evidence_anchor: "mid-phase checkpoint; F3 ops-reviewer sign-off not HALT-marked"
+  - task_id: "T09.05"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.88
+    evidence_anchor: "OPS-004 roadmap L499; STRICT+Critical Path+R-016; F3 tabletop sign-off not HALT-marked"
+  - task_id: "T09.06"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.90
+    evidence_anchor: "OPS-005 roadmap L500; validate-lenses grounded lenses/_validate.py; F4 path-drift vs docs/dev/"
+  - task_id: "T09.07"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.92
+    evidence_anchor: "OPS-006 roadmap L501; LIGHT tier proportional to P2"
+  - task_id: "T09.08"
+    status: success
+    deviation_class: none
+    citations_dropped: 0
+    per_task_validation_strength: 0.87
+    evidence_anchor: "exit/release gate maps M9 Exit L492 + Success-Criteria L589; F3/F6 notes"
+
+# Cross-task interaction-effects (UC-1: not run)
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+
+# Budget pre-flight
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+
+# Promotion (UC-2 only — not applicable in UC-1)
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false

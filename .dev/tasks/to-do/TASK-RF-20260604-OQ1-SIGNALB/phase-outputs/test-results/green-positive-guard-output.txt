@@ -1,0 +1,12 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.0.3, pluggy-1.6.0
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/fix-sprint-integrity-signalb-pass-recovered
+configfile: pyproject.toml
+plugins: superclaude-4.3.5
+collected 1 item
+
+tests/sprint/test_resume.py .                                            [100%]
+
+============================== 1 passed in 0.18s ===============================
