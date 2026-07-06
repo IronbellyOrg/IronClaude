@@ -1,0 +1,37 @@
+# FX7: a genuine reviewer shortfall (e.g. 2 of 3 requested survived). The visible
+# "reviewer-shortfall" token is BENIGN (not a _DEGRADED_COMPONENTS_HALT_SET member),
+# so this contract stays PASS-eligible per the deliberate FR-RH2.9 design (M>=2). The
+# shortfall is observable via reviewers_verified: false + the degraded_components token.
+# The verdict-DEGRADE-on-shortfall is a deferred needs_human_decision (not applied).
+contract_version: "1.3.0"
+status: success
+mode: post
+tier_reached: 2
+reviewer_count: 2
+report_path: /tmp/reflect-out/REPORT.md
+audit_log_path: /tmp/reflect-out/audit.log
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+adversarial_unavailable: false
+merge_method: adversarial
+adversarial_convergence_score: 0.86
+verification_ran: false
+verification_skip_reason: tool-unavailable
+verification_verified: false
+reviewers_verified: false
+regression_verified: false
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+serena_summary_corroboration: unavailable
+degraded_components:
+  - reviewer-shortfall

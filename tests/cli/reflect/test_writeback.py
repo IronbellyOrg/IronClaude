@@ -170,3 +170,38 @@ def test_crlf_tasklist_writeback_round_trip(tmp_path) -> None:
     original_body_lf = _body_after_frontmatter(_TASKLIST).replace("\r\n", "\n")
     new_body_lf = _body_after_frontmatter(new_text).replace("\r\n", "\n")
     assert new_body_lf == original_body_lf
+
+
+def test_fx7_writeback_includes_verified_visibility_keys(tmp_path) -> None:
+    """FX7: the new ``*_verified`` visibility keys appear in the written reflect_post block.
+
+    Additive — does NOT tighten the existing "keys present, not exact" assertion.
+    """
+    path = tmp_path / "TASK-WB-0001.md"
+    path.write_text(_TASKLIST, encoding="utf-8")
+    result = ReflectResult(
+        verdict=Verdict.PASS,
+        status="success",
+        tier_reached=2,
+        reason="pass",
+        report_path="/tmp/reflect-out/REPORT.md",
+        contract_path="/tmp/reflect-out/return-contract.yaml",
+        deviations={"authorized": 0, "necessary": 0, "drift": 0, "regression": 0},
+        child_exit_code=0,
+        write_status="",
+        verification_verified=False,
+        reviewers_verified=True,
+        regression_verified=False,
+    )
+    status = write_reflect_post(
+        path, result, head="deadbeef", reviewed_at="2026-06-09T00:00:00Z"
+    )
+    assert status == "written"
+
+    new_text = path.read_text(encoding="utf-8")
+    fm = yaml.safe_load(_FM_RE.search(new_text).group(1))
+    block = fm["reflect_post"]
+    for key in ("verification_verified", "reviewers_verified", "regression_verified"):
+        assert key in block, f"missing FX7 reflect_post key: {key}"
+    assert block["reviewers_verified"] is True
+    assert block["verification_verified"] is False

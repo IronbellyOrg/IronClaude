@@ -125,6 +125,12 @@ def _make_result(
         # FR-8: the wrapper only READS the path reflect emits; it never guesses
         # a "newest TASK-RF-* dir". Defaults to None when reflect did not author one.
         remediation_task_path=c.get("remediation_task_path"),
+        # FX7 additive: surface the honest-accounting visibility siblings.
+        # Absent-in-contract (old contracts) → False (unverified / fail-closed).
+        # Visibility-only; no existing _make_result mapping is changed.
+        verification_verified=c.get("verification_verified", False),
+        reviewers_verified=c.get("reviewers_verified", False),
+        regression_verified=c.get("regression_verified", False),
     )
 
 

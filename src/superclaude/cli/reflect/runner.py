@@ -124,6 +124,12 @@ def _build_reflect_post_value(
         },
         "head": head,
         "reviewed_at": reviewed_at,
+        # FX7 additive: honest-accounting visibility siblings, APPENDED at the end so
+        # the existing key order (test_writeback.py:80-91 asserts presence, not exact) is
+        # preserved. Absent-on-old blocks read as False (unverified) downstream.
+        "verification_verified": result.verification_verified,
+        "reviewers_verified": result.reviewers_verified,
+        "regression_verified": result.regression_verified,
     }
 
 
@@ -239,6 +245,10 @@ def write_sidecar(
         "reviewer_isolation": result.reviewer_isolation,
         "audit_tree_dirty": result.audit_tree_dirty,
         "reviewer_grounding_root": result.reviewer_grounding_root,
+        # FX7 additive: honest-accounting visibility siblings (append-only).
+        "verification_verified": result.verification_verified,
+        "reviewers_verified": result.reviewers_verified,
+        "regression_verified": result.regression_verified,
     }
     sidecar_path = output_dir / "wrapper-result.yaml"
     _atomic_write_text(
