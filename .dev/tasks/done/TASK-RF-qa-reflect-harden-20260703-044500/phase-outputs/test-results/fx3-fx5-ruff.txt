@@ -1,0 +1,8 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+CHECK_EXIT=0
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Would reformat: tests/pr_submit/test_gate_helper_differentials.py
+Would reformat: tests/pr_submit/test_setup_questions_resolution.py
+2 files would be reformatted, 2 files already formatted
+FORMAT_EXIT=1

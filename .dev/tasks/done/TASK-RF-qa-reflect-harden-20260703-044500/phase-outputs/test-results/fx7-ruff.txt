@@ -1,0 +1,37 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+F401 [*] `pathlib.Path` imported but unused
+  --> tests/cli/reflect/test_claudeprocess_reflect_children_restricted.py:23:21
+   |
+21 | from __future__ import annotations
+22 |
+23 | from pathlib import Path
+   |                     ^^^^
+24 | from unittest.mock import patch
+   |
+help: Remove unused import: `pathlib.Path`
+
+F401 [*] `pathlib.Path` imported but unused
+  --> tests/cli/reflect/test_reviewer_isolation_gate.py:22:21
+   |
+20 | from __future__ import annotations
+21 |
+22 | from pathlib import Path
+   |                     ^^^^
+23 | from unittest.mock import MagicMock, patch
+   |
+help: Remove unused import: `pathlib.Path`
+
+Found 2 errors.
+[*] 2 fixable with the `--fix` option.
+CHECK=1
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+4 files already formatted
+FORMAT=0
+
+=== SCOPED-TO-CHANGED-FILES RE-RUN (authoritative) ===
+ruff check on exactly the 7 changed files (4 src + 3 test): All checks passed! (exit 0)
+ruff format --check on the 4 changed src files: 4 files already formatted (exit 0)
+NOTE: the broad "tests/cli/reflect/" run above flagged 2 PRE-EXISTING F401 (unused pathlib.Path)
+in test_claudeprocess_reflect_children_restricted.py + test_reviewer_isolation_gate.py — NEITHER is in
+this task changeset (git status confirms). Not introduced by FX7; out of scope (ruff-scope discipline:
+never touch unrelated files). CI-repo-wide ruff would flag these independently of this task.
