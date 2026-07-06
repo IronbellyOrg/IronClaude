@@ -1,0 +1,166 @@
+# yaml-language-server: $schema=./suite.schema.json
+#
+# post_release_command_contract — deliverable-wiring gate for /sc:post-release.
+#
+# CADENCE (operator-facing metadata; not enforced by the eval framework):
+#   - On every PR touching src/superclaude/{commands/post-release.md,
+#     skills/sc-post-release-protocol/**, skills/post-release-update/SKILL.md}.
+#   - Nightly via the CI scheduled job alongside the rest of the cliEval roster.
+#
+# WHAT THIS SUITE GUARDS:
+#   The /sc:post-release deliverable stays wired together as authored: the thin
+#   command, the protocol skill, and the one-cycle compatibility wrapper all
+#   exist in the source of truth, AND the command actually hands off to the
+#   skill (the Activation contract), AND the installer maps the command↔protocol
+#   split correctly (`sc-post-release` is command-served; `sc-post-release-protocol`
+#   stays standalone). This is the /sc:post-release analogue of
+#   installer_sync_drift: it guards THIS feature's structural integrity rather
+#   than the whole installer. It deliberately does NOT re-run `make verify-sync`.
+#
+# WHY home_strategy=shared:
+#   These evals read repository working-tree files (src/superclaude/...). Following
+#   the installer_sync_drift precedent, a shared HOME guarantees the eval sees the
+#   real repo tree; an ephemeral/seeded HOME could mask the files under test. The
+#   checks are read-only (grep/test + python -c discovery), so sharing HOME
+#   introduces no contamination.
+#
+# WHY no_pty=skip:
+#   The PTY harness drives a Claude Code subprocess; matching the rest of the eval
+#   inventory keeps `--no-pty` semantics uniform across suites.
+#
+# Evidence (fresh-context, captured at authoring time):
+#   - Command: src/superclaude/commands/post-release.md (Activation -> "Skill sc:post-release-protocol").
+#   - Skill:   src/superclaude/skills/sc-post-release-protocol/SKILL.md (Wave 0-5, SC:POST-RELEASE:RUN/RESULT).
+#   - Wrapper: src/superclaude/skills/post-release-update/SKILL.md (thin deprecated alias, one cycle).
+name: post_release_command_contract
+version: "1.0"
+description: "Deliverable-wiring gate for /sc:post-release: asserts the command + protocol skill + compatibility wrapper exist, the command activates the protocol skill, the installer maps the command↔protocol split, and no stale invocation language reappears. Cadence: on-PR + nightly."
+
+defaults:
+  per_eval_timeout_sec: 120
+  per_eval_memory_mb: 512
+  capture_tty: true
+  keep_home_on_success: false
+
+required_binaries:
+  - { name: claude, min_version: "0.5.0", failure_mode: hard }
+  - { name: git,                          failure_mode: hard }
+  - { name: uv,                           failure_mode: hard }  # PRC4 runs `uv run python -c ...`
+
+optional_capabilities: []
+
+evals:
+  - id: PRC1
+    title: "the /sc:post-release deliverable files all exist in the source of truth"
+    category: skill-contract
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # PRC1 — assert the command, the protocol skill SKILL.md, and the one-cycle
+    # compatibility wrapper are all present under src/superclaude/. A missing file
+    # means the feature was partially deleted/renamed without updating the rest;
+    # the "POST_RELEASE_FILES_OK" sentinel only prints when every `test -f` passes.
+    inputs:
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `for f in src/superclaude/commands/post-release.md src/superclaude/skills/sc-post-release-protocol/SKILL.md src/superclaude/skills/post-release-update/SKILL.md; do test -f \"$f\" || { echo \"MISSING: $f\"; exit 1; }; done && echo POST_RELEASE_FILES_OK`. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "POST_RELEASE_FILES_OK"
+      - stdout:
+          not_contains: "MISSING:"
+
+  - id: PRC2
+    title: "command activates the protocol skill AND the skill emits the SC:POST-RELEASE header contract"
+    category: skill-contract
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # PRC2 — the Activation contract + machine-readable header contract: the thin
+    # command must hand off to `Skill sc:post-release-protocol`, and the skill must
+    # declare BOTH the RUN and RESULT HTML-comment header blocks. A refactor that
+    # drops the handoff (skill never loads) or removes a header block passes PRC1
+    # but is a broken deliverable; PRC2 catches it. The sentinel
+    # "POST_RELEASE_WIRED" prints only when all three greps match.
+    inputs:
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `grep -q 'Skill sc:post-release-protocol' src/superclaude/commands/post-release.md && grep -q '<!-- SC:POST-RELEASE:RUN' src/superclaude/skills/sc-post-release-protocol/SKILL.md && grep -q '<!-- SC:POST-RELEASE:RESULT' src/superclaude/skills/sc-post-release-protocol/SKILL.md && echo POST_RELEASE_WIRED`. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "POST_RELEASE_WIRED"
+
+  - id: PRC3
+    title: "compatibility wrapper retains identity and delegates to sc-post-release-protocol without duplicating the protocol body"
+    category: skill-contract
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # PRC3 — the wrapper keeps its `name: post-release-update` identity, delegates
+    # to the new protocol skill, and is genuinely thin (no five-workstream
+    # protocol body — under 100 lines). The sentinel "POST_RELEASE_WRAPPER_OK"
+    # prints only when the identity grep, the delegation grep, AND the line-count
+    # gate all pass.
+    inputs:
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `f=src/superclaude/skills/post-release-update/SKILL.md; grep -q 'name: post-release-update' \"$f\" && grep -q 'Skill sc:post-release-protocol' \"$f\" && [ \"$(wc -l < \"$f\")\" -lt 100 ] && echo POST_RELEASE_WRAPPER_OK`. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "POST_RELEASE_WRAPPER_OK"
+
+  - id: PRC4
+    title: "Python discovery maps the command↔protocol split correctly"
+    category: skill-contract
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # PRC4 — runtime discovery behavior: list_available_commands() includes
+    # `post-release`; list_available_skills() includes `sc-post-release-protocol`;
+    # _has_corresponding_command('sc-post-release-protocol') is False (stays
+    # standalone — the installer strips only the `sc-` prefix, NOT `-protocol`),
+    # while _has_corresponding_command('sc-post-release') is True (bare name would
+    # be command-served). The sentinel "POST_RELEASE_DISCOVERY_OK" prints only
+    # when the python -c assertion exits 0.
+    inputs:
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `uv run python -c \"from superclaude.cli.install_commands import list_available_commands; from superclaude.cli.install_skill import list_available_skills; from superclaude.cli.install_skills import _has_corresponding_command; assert 'post-release' in list_available_commands(); assert 'sc-post-release-protocol' in list_available_skills(); assert _has_corresponding_command('sc-post-release-protocol') is False; assert _has_corresponding_command('sc-post-release') is True; print('POST_RELEASE_DISCOVERY_OK')\"`. This is read-only; do not modify anything."
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "POST_RELEASE_DISCOVERY_OK"
+
+  - id: PRC5
+    title: "no stale invocation language advertises /post-release-update in the new command or protocol"
+    category: skill-contract
+    requires: []
+    timeout_sec: 60
+    isolation:
+      home_strategy: shared
+    no_pty: skip
+    # PRC5 — the NEW command and NEW protocol must NOT advertise `/post-release-update`
+    # as a primary invocation. The deprecated alias may survive only inside the
+    # wrapper (which is its own name) and inside explicit "do not use" boundary
+    # notes. This grep targets ONLY the new command and new SKILL.md, asserting
+    # no line recommends invoking `/post-release-update`. The sentinel
+    # "POST_RELEASE_NO_STALE_LANG" prints only when no such recommendation is found.
+    inputs:
+      - prompt: "Run this exact command via the Bash tool from the repository root and print its output: `! grep -niE '(invoke|use|try|call|run|prefer)|[^a-z](should|recommend|advertise)[^a-z]' src/superclaude/commands/post-release.md src/superclaude/skills/sc-post-release-protocol/SKILL.md | grep -i '/post-release-update' && echo POST_RELEASE_NO_STALE_LANG`. This is read-only; do not modify anything. (Case-insensitive, covers invoke/use/try/call/run/prefer/should/recommend/advertise verbs co-occurring with /post-release-update. The command's Will-Not boundary note is phrased without any recommendation verb, so it is correctly excluded.)"
+        expect_tool_call: Bash
+    expects:
+      - exit_code:
+          equals: 0
+      - stdout:
+          contains: "POST_RELEASE_NO_STALE_LANG"
