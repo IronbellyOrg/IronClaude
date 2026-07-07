@@ -616,7 +616,6 @@ def _resolve_run_transport_factory(
     env: Optional[Mapping[str, str]] = None,
     workers_requested: Optional[int] = None,
     temperature: Optional[float] = None,
-    max_tokens: Optional[int] = None,
 ) -> Callable[[int], Any]:
     """Build a per-slot transport factory ``(slot_index) -> Transport``.
 
@@ -694,12 +693,13 @@ def _resolve_run_transport_factory(
             model = pool[slot_index % len(pool)]
             transport = cache.get(model)
             if transport is None:
-                # Forward JobSpec-level temperature/max_tokens when the caller
-                # resolved them from spec.workers; otherwise fall back to the
-                # transport constructor defaults (temperature=0.2, max_tokens=4096).
-                # Without this forwarding the schema-validated workers.temperature
-                # field is dead config (kimi-k2.7-code requires temperature=1 and
-                # 400s on the 0.2 default).
+                # Forward JobSpec-level temperature when the caller resolved it
+                # from spec.workers; otherwise fall back to the transport
+                # constructor default (temperature=0.2). Without this forwarding
+                # the schema-validated workers.temperature field is dead config
+                # (kimi-k2.7-code requires temperature=1 and 400s on the 0.2
+                # default). NOTE: the transport itself omits temperature for Kimi
+                # models (_omits_temperature) regardless of what is forwarded.
                 kwargs: dict[str, Any] = {
                     "base_url": config.base_url,
                     "api_key": config.api_key,
@@ -707,8 +707,6 @@ def _resolve_run_transport_factory(
                 }
                 if temperature is not None:
                     kwargs["temperature"] = temperature
-                if max_tokens is not None:
-                    kwargs["max_tokens"] = max_tokens
                 transport = OpenAICompatTransport(**kwargs)
                 cache[model] = transport
             return transport
@@ -1843,8 +1841,7 @@ def run_cmd(
     # Resolve sampling params from the JobSpec workers section so they actually
     # reach the transport (previously the schema-validated workers.temperature was
     # never forwarded -- the transport always used its 0.2 constructor default,
-    # which 400s for temperature=1-only models like kimi-k2.7-code). max_tokens
-    # is NOT a schema workers field, so tolerate its absence.
+    # which 400s for temperature=1-only models like kimi-k2.7-code).
     resolved_temperature = (
         workers_section.get("temperature")
         if isinstance(workers_section, dict)
