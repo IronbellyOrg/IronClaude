@@ -103,7 +103,8 @@ def _resolve_base(
         return _git(cwd, "merge-base", "HEAD", base_branch)
     except (OSError, subprocess.SubprocessError) as exc:
         raise ValueError(
-            "base-unresolved: 'master' did not resolve; pass --base <ref> or set frontmatter start_commit"
+            f"base-unresolved: {base_branch!r} did not resolve; "
+            "pass --base <ref> or set frontmatter start_commit"
         ) from exc
 
 
