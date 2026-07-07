@@ -317,6 +317,16 @@ def _contract_status_next_command(diagnosis) -> str:
         "target. OFF by default — preserves today's dirty-tree audit."
     ),
 )
+@click.option(
+    "--tier2-fallback/--no-tier2-fallback",
+    "tier2_fallback",
+    default=True,
+    help=(
+        "Enable the Tier-2 reviewer fallback model ladder (T1Model01/T1Model02 "
+        "quorum top-up). --no-tier2-fallback forces the credit-free/deterministic "
+        "lane."
+    ),
+)
 def run(
     tasklist: str,
     tmux: bool,
@@ -335,6 +345,7 @@ def run(
     base_override: str | None,
     isolate_reviewers: bool,
     reachability: bool,
+    tier2_fallback: bool,
 ) -> None:
     """Execute the POST reflect gate for TASKLIST.
 
@@ -367,6 +378,7 @@ def run(
             base_override=base_override,
             isolate_reviewers=isolate_reviewers,
             reachability=reachability,
+            tier2_fallback_enabled=tier2_fallback,
         )
     except ValueError as exc:
         # A config / preflight STOP is blocked -> exit 2 (Section 6).
@@ -483,6 +495,12 @@ def _build_inner_command(config) -> list[str]:
     cmd.append("--promote" if config.promote else "--no-promote")
     if not config.reachability:
         cmd.append("--no-reachability")
+    # Forward the resolved Tier-2 fallback state EXPLICITLY. Without this, an outer
+    # --no-tier2-fallback (or a stub-derived OFF) would silently reset ON in the
+    # inner foreground reinvocation (the inner --tier2-fallback default is True).
+    cmd.append(
+        "--tier2-fallback" if config.tier2_fallback_enabled else "--no-tier2-fallback"
+    )
     if config.allow_single_vendor:
         cmd.append("--allow-single-vendor")
     cmd.append(

@@ -37,6 +37,8 @@ __all__ = [
     "T2_PROXY_KEY_ENV",
     "T2_MODEL_ENV_PREFIX",
     "T2_MODEL_MAX_SLOTS",
+    "T1_MODEL_ENV_PREFIX",
+    "T1_MODEL_MAX_SLOTS",
 ]
 
 # Default output directory for swarm job artifacts (resolved against
@@ -61,6 +63,14 @@ T2_MODEL_ENV_PREFIX = "T2Model0"
 # the preflight worker-count guard (INV-005 / OQ-007) will trip before
 # realistic deployments hit this ceiling.
 T2_MODEL_MAX_SLOTS = 9
+
+# T1 fallback model pool (§7.1): the reflect Tier-2 fallback ladder tops up a
+# short primary quorum with reviewers from a dedicated T1 pool
+# (``T1Model01`` .. ``T1Model0N``). Parallel to the T2 constants above; the
+# proxy url/key env names for T1 live on a dedicated contract read at the
+# reflect resolver (``T1ProxyUrl`` / ``T1ProxyKey``), not here.
+T1_MODEL_ENV_PREFIX = "T1Model0"
+T1_MODEL_MAX_SLOTS = 9
 
 
 @dataclass(frozen=True)
@@ -93,6 +103,9 @@ class SwarmConfig:
     t2_proxy_url: Optional[str] = None
     t2_proxy_key: Optional[str] = None
     t2_models: tuple[str, ...] = ()
+    # §7.1: dense pool read from ``T1Model01`` .. ``T1Model09`` (skipping empty
+    # slots). Empty tuple when the T1 env is absent, keeping ``from_env`` total.
+    t1_models: tuple[str, ...] = ()
     dry_run: bool = False
     debug: bool = False
     log_level: str = "INFO"
@@ -125,13 +138,17 @@ class SwarmConfig:
         env_map: Mapping[str, str] = env if env is not None else os.environ
         resolved_work = Path(work_dir).resolve() if work_dir else Path.cwd().resolve()
         resolved_output = cls._resolve_output_dir(resolved_work, output_dir)
-        models = cls._collect_t2_models(env_map)
+        models = cls._collect_models(env_map, T2_MODEL_ENV_PREFIX, T2_MODEL_MAX_SLOTS)
+        t1_models = cls._collect_models(
+            env_map, T1_MODEL_ENV_PREFIX, T1_MODEL_MAX_SLOTS
+        )
         return cls(
             work_dir=resolved_work,
             output_dir=resolved_output,
             t2_proxy_url=env_map.get(T2_PROXY_URL_ENV) or None,
             t2_proxy_key=env_map.get(T2_PROXY_KEY_ENV) or None,
             t2_models=models,
+            t1_models=t1_models,
             dry_run=dry_run,
             debug=debug,
             log_level=log_level,
@@ -176,10 +193,17 @@ class SwarmConfig:
         return (work_dir / candidate).resolve()
 
     @staticmethod
-    def _collect_t2_models(env_map: Mapping[str, str]) -> tuple[str, ...]:
+    def _collect_models(
+        env_map: Mapping[str, str], prefix: str, max_slots: int
+    ) -> tuple[str, ...]:
+        """Collect a dense pool from ``f"{prefix}{index}"`` for index 1..max_slots.
+
+        Generalizes the former ``_collect_t2_models`` so both the T2 and T1
+        pools share one 1-based, empty-slot-skipping collector.
+        """
         models: list[str] = []
-        for index in range(1, T2_MODEL_MAX_SLOTS + 1):
-            value = env_map.get(f"{T2_MODEL_ENV_PREFIX}{index}")
+        for index in range(1, max_slots + 1):
+            value = env_map.get(f"{prefix}{index}")
             if value:
                 models.append(value)
         return tuple(models)

@@ -258,6 +258,7 @@ def resolve_config(
     reviewers: int = 3,
     isolate_reviewers: bool = False,
     reachability: bool = True,
+    tier2_fallback_enabled: bool = True,
 ) -> ReflectConfig:
     """Resolve CLI args + frontmatter + git state into a ``ReflectConfig``.
 
@@ -327,6 +328,11 @@ def resolve_config(
     raw_reviewers = int(reviewers)
     resolved_reviewers = 1 if raw_reviewers == 1 else max(2, min(4, raw_reviewers))
 
+    # -- §7.2: the stub transport certifies on its own (vendor-distinct stub pool),
+    # so the Tier-2 fallback ladder defaults OFF for stub. An explicit
+    # tier2_fallback_enabled=False (from --no-tier2-fallback) still forces OFF. --
+    resolved_fb_enabled = tier2_fallback_enabled and resolved_transport != "stub"
+
     # -- Spec path: explicit arg, else frontmatter, only when one existing file --
     resolved_spec: Path | None = None
     spec_candidate = spec_path or frontmatter.get(_FRONTMATTER_SPEC_PATH_KEY) or None
@@ -380,4 +386,5 @@ def resolve_config(
         isolate_reviewers=isolate_reviewers,
         audit_tree_dirty=resolved_audit_tree_dirty,
         reachability=reachability,
+        tier2_fallback_enabled=resolved_fb_enabled,
     )

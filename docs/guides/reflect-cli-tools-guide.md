@@ -136,6 +136,18 @@ The exact option set and defaults below are read from
   OFF preserves today's dirty-tree-audit behavior (#153) byte-for-byte. When ON, a
   non-committable (dirty / uncommitted / unresolvable-base / HEAD-moved) audit
   target STOPs with `status: stopped-precondition` → **BLOCKED** (exit 2).
+- `--tier2-fallback` / `--no-tier2-fallback` — enable the Tier-2 reviewer fallback
+  model ladder: after primary reviewer retry + salvage, a bounded
+  `T1Model01` → `T1Model02` quorum top-up dispatches one more reviewer against a
+  distinct fallback model so a single transient primary Tier-2 reviewer failure no
+  longer collapses a deep run to Tier-1 (**DEGRADED**, exit 11). **Default:
+  `--tier2-fallback`.** It is derived OFF automatically for `--transport stub` (the
+  vendor-distinct stub pool already certifies), and `--no-tier2-fallback` forces the
+  credit-free / deterministic lane. The fallback is additive and
+  **verdict-honesty-preserving**: it never flips a verdict — when a genuine failure
+  cannot be repaired the run STAYS **DEGRADED** (exit 11), and the emitted
+  `t2_fallback` contract block only explains *why* it could not help. See the
+  subsection below.
 - `--tmux` — run inside a detached tmux window so you can watch the run live.
 - `--resume` — skip the launch when the prior `reflect_post` is a `pass` on the
   current HEAD (clean-HEAD short-circuit).
@@ -160,6 +172,45 @@ The exact option set and defaults below are read from
 > passed through to reflect as `--executor-model` only when present. Persist
 > `executor_model_class` in the tasklist frontmatter so reviewers differ from the
 > executor.
+
+### Tier-2 fallback model ladder
+
+A `--depth deep` run fans out N Tier-2 reviewers, each bound to a distinct external
+model. Before the fallback ladder, a single transient reviewer failure (timeout /
+proxy error / unsalvageable parse error) could drop the surviving quorum below two
+heterogeneous reviewers, collapsing the run to Tier-1 and routing **DEGRADED**
+(exit 11) even when one more reviewer against a different model would have restored
+the quorum.
+
+The fallback ladder (`--tier2-fallback`, default ON) closes that reliability gap. It
+runs **after** primary retry + salvage, as a bounded, sequential top-up:
+
+- If the surviving primaries already satisfy the Tier-2 gate (≥2 reviewers, full
+  model-class diversity, multi-vendor unless `--allow-single-vendor`), it is a no-op.
+- Otherwise it dispatches **at most one** `T1Model01` reviewer, re-evaluates the
+  quorum, and only then escalates to **at most one** `T1Model02` reviewer — never
+  more than one attempt per ladder slot, and bounded by the run's own wall-clock
+  budget (`--timeout`).
+- A successful fallback reviewer is appended to the contributing set **before** the
+  contract is built, so `reviewer_count`, both diversity axes, and `merge_method`
+  recompute over the augmented set and the **unchanged** verdict chain certifies
+  Tier-2 on its own existing rules.
+
+**Verdict honesty.** The ladder is additive telemetry — it never sets a degraded
+field itself. When a genuine failure cannot be repaired (both ladder slots
+attempted and still short, the T1 pool unconfigured, or the wall-clock spent), the
+run STAYS **DEGRADED** (exit 11) via the existing first-match `degraded-tier1`
+trigger; the emitted `t2_fallback` contract block records only *why* the top-up
+could not help (`terminal_reason`, the per-attempt ledger, and the preserved
+primary failures). No proxy credential value ever appears in the contract.
+
+**Transport lanes.** `--transport stub` certifies on its own vendor-distinct stub
+pool, so the ladder is derived OFF there (credit-free / deterministic CI). On the
+default `--transport openai_compat` lane, real fallback dispatch rides a **dedicated
+T1 proxy contract** (`T1ProxyUrl` / `T1ProxyKey` / `T1Model0N`), enabled after a
+`needs_human_decision` confirmation of that contract; if the T1 environment is
+incomplete at dispatch the ladder degrades gracefully to `fallback_config_missing`
+rather than failing the run.
 
 ### Examples
 

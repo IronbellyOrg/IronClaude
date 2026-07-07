@@ -34,6 +34,10 @@ import os
 import httpx
 import pytest
 
+from superclaude.cli.swarm.commands import (
+    ModelPoolTooSmallError,
+    _resolve_run_transport_factory,
+)
 from superclaude.cli.swarm.models import WorkerResult
 from superclaude.cli.swarm.transports import Transport
 from superclaude.cli.swarm.transports.openai_compat import (
@@ -41,6 +45,7 @@ from superclaude.cli.swarm.transports.openai_compat import (
     TransportConfig,
     TransportEnvError,
     read_env,
+    read_env_for_pool,
 )
 
 # ---------------------------------------------------------------------------
@@ -408,6 +413,210 @@ def test_read_env_missing_all_three_raises() -> None:
         read_env({})
     assert "T2ProxyUrl" in exc.value.missing
     assert "T2ProxyKey" in exc.value.missing
+
+
+# ---------------------------------------------------------------------------
+# read_env_for_pool -- generalized pool reader (F3). read_env is now a thin
+# T2-bound wrapper over this; the T2 body above remains the regression harness.
+# ---------------------------------------------------------------------------
+
+
+def test_read_env_for_pool_reads_t1_pool() -> None:
+    env = {
+        "T1ProxyUrl": "http://p",
+        "T1ProxyKey": "k",
+        "T1Model01": "m-a",
+        "T1Model02": "m-b",
+    }
+    config = read_env_for_pool(
+        model_prefix="T1Model0",
+        max_slots=9,
+        proxy_url_env="T1ProxyUrl",
+        proxy_key_env="T1ProxyKey",
+        env=env,
+    )
+    assert isinstance(config, TransportConfig)
+    assert config.base_url == "http://p"
+    assert config.api_key == "k"
+    assert config.models == ("m-a", "m-b")
+
+
+def test_read_env_for_pool_skips_empty_and_strips() -> None:
+    env = {
+        "T1ProxyUrl": "  http://p  ",
+        "T1ProxyKey": "  k  ",
+        "T1Model01": "  m-a  ",
+        "T1Model02": "",  # empty -> skip
+        "T1Model03": "m-c",
+    }
+    config = read_env_for_pool(
+        model_prefix="T1Model0",
+        max_slots=9,
+        proxy_url_env="T1ProxyUrl",
+        proxy_key_env="T1ProxyKey",
+        env=env,
+    )
+    assert config.base_url == "http://p"
+    assert config.api_key == "k"
+    assert config.models == ("m-a", "m-c")
+
+
+def test_read_env_for_pool_missing_t1_vars_raise_with_t1_names() -> None:
+    with pytest.raises(TransportEnvError) as exc:
+        read_env_for_pool(
+            model_prefix="T1Model0",
+            max_slots=9,
+            proxy_url_env="T1ProxyUrl",
+            proxy_key_env="T1ProxyKey",
+            env={},
+        )
+    assert "T1ProxyUrl" in exc.value.missing
+    assert "T1ProxyKey" in exc.value.missing
+    assert any("T1Model0" in name for name in exc.value.missing)
+
+
+def test_read_env_wrapper_delegates_to_pool_reader() -> None:
+    """The thin read_env(env) wrapper produces the identical T2 TransportConfig."""
+    env = {
+        "T2ProxyUrl": "https://proxy.example/v1",
+        "T2ProxyKey": "k",
+        "T2Model01": "m-alpha",
+        "T2Model02": "m-beta",
+    }
+    via_wrapper = read_env(env)
+    via_pool = read_env_for_pool(
+        model_prefix="T2Model0",
+        max_slots=9,
+        proxy_url_env="T2ProxyUrl",
+        proxy_key_env="T2ProxyKey",
+        env=env,
+    )
+    assert via_wrapper == via_pool
+
+
+def test_read_env_wrapper_delegates_with_dense_skip_and_slot_count() -> None:
+    """P4-ACT-M2 -- wrapper==pool also certifies dense-skip / slot-count parity.
+
+    The 2-model happy path proves value equality but cannot detect a
+    slot-count or dense-skip divergence on its own. This env has an empty
+    interior slot (``T2Model03=""``) that must be skipped and a later slot
+    (``T2Model04="m-d"``) that must still be collected, so ``read_env`` and
+    ``read_env_for_pool`` agreeing here certifies identical slot enumeration,
+    empty-skip, and resulting model-tuple length -- not merely the happy path.
+    """
+    env = {
+        "T2ProxyUrl": "https://proxy.example/v1",
+        "T2ProxyKey": "k",
+        "T2Model01": "m-alpha",
+        "T2Model02": "m-beta",
+        "T2Model03": "",  # empty interior slot -> dense-skip
+        "T2Model04": "m-d",  # later slot survives the skip
+    }
+    via_wrapper = read_env(env)
+    via_pool = read_env_for_pool(
+        model_prefix="T2Model0",
+        max_slots=9,
+        proxy_url_env="T2ProxyUrl",
+        proxy_key_env="T2ProxyKey",
+        env=env,
+    )
+    assert via_wrapper == via_pool
+    # Slot-count / dense-skip is load-bearing here (not just value equality).
+    assert via_wrapper.models == ("m-alpha", "m-beta", "m-d")
+    assert len(via_wrapper.models) == 3
+
+
+def test_read_env_for_pool_partial_absence_t1_missing_key() -> None:
+    """P4-ACT-M1 -- partial-absence T1 read surfaces only the absent var.
+
+    Symmetric with the T2 per-var missing tests: with ``T1ProxyUrl`` and
+    ``T1Model01`` present but ``T1ProxyKey`` absent, the ``TransportEnvError``
+    ``.missing`` tuple must name ``T1ProxyKey`` and must NOT name the present
+    ``T1ProxyUrl`` -- proving the pool reader reports the specific gap, not an
+    all-or-nothing failure.
+    """
+    env = {"T1ProxyUrl": "http://p", "T1Model01": "m-a"}
+    with pytest.raises(TransportEnvError) as exc:
+        read_env_for_pool(
+            model_prefix="T1Model0",
+            max_slots=9,
+            proxy_url_env="T1ProxyUrl",
+            proxy_key_env="T1ProxyKey",
+            env=env,
+        )
+    assert "T1ProxyKey" in exc.value.missing
+    assert "T1ProxyUrl" not in exc.value.missing
+
+
+# ---------------------------------------------------------------------------
+# _resolve_run_transport_factory -- parameterized T1 branch (P4-COMP-F1).
+#
+# The Step 4.3 parameterization added model_prefix / max_slots / proxy_url_env /
+# proxy_key_env pass-through so the reflect T1 fallback resolver reads the
+# ``T1Model0N`` / ``T1ProxyUrl`` / ``T1ProxyKey`` pool through the SAME builder
+# (and the SAME ModelPoolTooSmallError / TransportEnvError guards) as T2 --
+# without forking the builder. These tests exercise that non-default T1 path
+# directly. Network-free: env dicts drive read_env_for_pool and the returned
+# OpenAICompatTransport instances are constructed but never ``.send()``-called.
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_factory_t1_branch_binds_per_slot_models() -> None:
+    """P4-COMP-F1 -- the parameterized T1 pool drives per-slot model binding."""
+    env = {
+        "T1ProxyUrl": "http://p",
+        "T1ProxyKey": "k",
+        "T1Model01": "m-a",
+        "T1Model02": "m-b",
+    }
+    factory = _resolve_run_transport_factory(
+        "openai_compat",
+        env=env,
+        workers_requested=2,
+        model_prefix="T1Model0",
+        max_slots=9,
+        proxy_url_env="T1ProxyUrl",
+        proxy_key_env="T1ProxyKey",
+    )
+    # Slot i binds pool[i % len]; the T1 pool is [m-a, m-b]. Each factory(i) builds
+    # a live OpenAICompatTransport owning an httpx.Client -- close every constructed
+    # transport in finally so the client never leaks (ResourceWarning at GC).
+    opened: list[OpenAICompatTransport] = []
+    try:
+        transport_0 = factory(0)
+        opened.append(transport_0)
+        assert transport_0.model == "m-a"
+        transport_1 = factory(1)
+        opened.append(transport_1)
+        assert transport_1.model == "m-b"
+    finally:
+        for transport in opened:
+            transport.close()
+
+
+def test_resolve_factory_t1_pool_too_small_raises() -> None:
+    """P4-COMP-F1 -- a T1 pool smaller than workers_requested fails loudly.
+
+    No httpx-client cleanup is needed here: the ``ModelPoolTooSmallError`` D2 guard
+    raises at factory-BUILD time (before ``_factory`` is returned and before any
+    ``OpenAICompatTransport`` is constructed), so no transport / client is ever
+    opened.
+    """
+    env = {
+        "T1ProxyUrl": "http://p",
+        "T1ProxyKey": "k",
+        "T1Model01": "m-a",  # single-model pool
+    }
+    with pytest.raises(ModelPoolTooSmallError):
+        _resolve_run_transport_factory(
+            "openai_compat",
+            env=env,
+            workers_requested=2,
+            model_prefix="T1Model0",
+            max_slots=9,
+            proxy_url_env="T1ProxyUrl",
+            proxy_key_env="T1ProxyKey",
+        )
 
 
 # ---------------------------------------------------------------------------

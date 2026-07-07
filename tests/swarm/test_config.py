@@ -17,6 +17,8 @@ import pytest
 
 from superclaude.cli.swarm.config import (
     DEFAULT_OUTPUT_DIR,
+    T1_MODEL_ENV_PREFIX,
+    T1_MODEL_MAX_SLOTS,
     T2_MODEL_ENV_PREFIX,
     T2_MODEL_MAX_SLOTS,
     T2_PROXY_KEY_ENV,
@@ -115,6 +117,61 @@ def test_from_env_respects_max_slot_ceiling(tmp_path: Path) -> None:
     cfg = SwarmConfig.from_env(work_dir=tmp_path, env=env)
     assert len(cfg.t2_models) == T2_MODEL_MAX_SLOTS
     assert f"model-{T2_MODEL_MAX_SLOTS + 1}" not in cfg.t2_models
+
+
+# ---------------------------------------------------------------------------
+# T1 fallback pool (§7.1) -- mirrors the T2 assertions above
+# ---------------------------------------------------------------------------
+
+
+def test_from_env_happy_path_resolves_t1_models(tmp_path: Path) -> None:
+    """T1Model0N slots resolve into a dense t1_models tuple in slot order."""
+    env = {
+        f"{T1_MODEL_ENV_PREFIX}1": "vendor/m-a",
+        f"{T1_MODEL_ENV_PREFIX}2": "m-b",
+    }
+    cfg = SwarmConfig.from_env(work_dir=tmp_path, env=env)
+    assert cfg.t1_models == ("vendor/m-a", "m-b")
+
+
+def test_from_env_t1_models_empty_default_when_absent(tmp_path: Path) -> None:
+    """Absent T1 env yields the empty-tuple default (from_env stays total)."""
+    cfg = SwarmConfig.from_env(work_dir=tmp_path, env={})
+    assert cfg.t1_models == ()
+
+
+def test_from_env_skips_empty_t1_model_slots(tmp_path: Path) -> None:
+    """Empty / missing T1Model0N slots are skipped; the tuple stays dense."""
+    env = {
+        f"{T1_MODEL_ENV_PREFIX}1": "first",
+        f"{T1_MODEL_ENV_PREFIX}2": "",  # empty -> skip
+        f"{T1_MODEL_ENV_PREFIX}3": "third",
+    }
+    cfg = SwarmConfig.from_env(work_dir=tmp_path, env=env)
+    assert cfg.t1_models == ("first", "third")
+
+
+def test_from_env_respects_t1_max_slot_ceiling(tmp_path: Path) -> None:
+    """Only T1Model01..T1Model0{MAX} are probed; higher indices ignored."""
+    env = {
+        f"{T1_MODEL_ENV_PREFIX}{i}": f"t1-{i}"
+        for i in range(1, T1_MODEL_MAX_SLOTS + 2)  # one past the ceiling
+    }
+    cfg = SwarmConfig.from_env(work_dir=tmp_path, env=env)
+    assert len(cfg.t1_models) == T1_MODEL_MAX_SLOTS
+    assert f"t1-{T1_MODEL_MAX_SLOTS + 1}" not in cfg.t1_models
+
+
+def test_from_env_t1_and_t2_pools_are_independent(tmp_path: Path) -> None:
+    """T1 and T2 slot families resolve into separate tuples, no cross-talk."""
+    env = {
+        f"{T2_MODEL_ENV_PREFIX}1": "t2-a",
+        f"{T1_MODEL_ENV_PREFIX}1": "t1-a",
+        f"{T1_MODEL_ENV_PREFIX}2": "t1-b",
+    }
+    cfg = SwarmConfig.from_env(work_dir=tmp_path, env=env)
+    assert cfg.t2_models == ("t2-a",)
+    assert cfg.t1_models == ("t1-a", "t1-b")
 
 
 # ---------------------------------------------------------------------------

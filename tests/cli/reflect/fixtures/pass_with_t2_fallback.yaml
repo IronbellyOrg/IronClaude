@@ -1,0 +1,86 @@
+contract_version: "1.3.0"
+status: success
+mode: post
+tier_reached: 2
+report_path: /tmp/reflect-out/REPORT.md
+audit_log_path: /tmp/reflect-out/audit.log
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+adversarial_unavailable: false
+merge_method: adversarial
+adversarial_convergence_score: 0.86
+verification_ran: true
+verification_skip_reason: null
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+serena_summary_corroboration: unavailable
+degraded_components: []
+t2_fallback:
+  enabled: true
+  policy_version: reflect-t2-fallback-ladder-v1
+  strategy: post_primary_quorum_top_up
+  ladder:
+    - T1Model01
+    - T1Model02
+  engaged: true
+  certified_with_fallback: true
+  fallback_attempt_count: 1
+  exhausted: false
+  terminal_reason: certified_t2_with_fallback
+  original_primary_pool_fully_succeeded: false
+  reviewer_attempts:
+    - attempt_id: primary:00
+      role: primary
+      model_id: qwen-primary
+      vendor: qwen
+      status: proxy_error
+      failure_class: proxy_error
+      fallback_for: null
+      fallback_reason: null
+      contributes_to_quorum: false
+    - attempt_id: primary:01
+      role: primary
+      model_id: deepseek-primary
+      vendor: deepseek
+      status: success
+      failure_class: null
+      fallback_for: null
+      fallback_reason: null
+      contributes_to_quorum: true
+    - attempt_id: primary:02
+      role: primary
+      model_id: gpt-primary
+      vendor: openai
+      status: parse_error
+      failure_class: parse_error
+      fallback_for: null
+      fallback_reason: null
+      contributes_to_quorum: false
+    - attempt_id: fallback:T1Model01
+      role: fallback
+      model_id: qwen-fallback
+      vendor: qwen
+      status: success
+      failure_class: null
+      fallback_for:
+        - primary:00
+        - primary:02
+      fallback_reason: primary_terminal_failure
+      contributes_to_quorum: true
+  contributing_reviewer_attempt_ids:
+    - primary:01
+    - fallback:T1Model01
+  primary_failures_preserved:
+    - primary:00
+    - primary:02
+  tier2_certification_basis: primary_plus_fallback_quorum

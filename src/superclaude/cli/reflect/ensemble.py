@@ -28,6 +28,7 @@ from __future__ import annotations
 import dataclasses
 import re
 import shlex
+import time
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
@@ -38,6 +39,7 @@ from superclaude.cli.pipeline.process import ClaudeProcess
 from superclaude.cli.reflect.contract import parse_contract
 from superclaude.cli.reflect.models import ReflectConfig
 from superclaude.cli.swarm.commands import _resolve_run_transport_factory
+from superclaude.cli.swarm.config import T1_MODEL_MAX_SLOTS
 from superclaude.cli.swarm.dispatch import dispatch_wave1
 from superclaude.cli.swarm.lenses.reflect_review import (
     LENS as _REFLECT_REVIEW_LENS_ENTRY,
@@ -55,7 +57,19 @@ from superclaude.cli.swarm.normalize import normalize_wave2
 from superclaude.cli.swarm.preflight import PreflightResult
 from superclaude.cli.swarm.reduce import emit_done_sentinel, reduce_wave3
 from superclaude.cli.swarm.transports import Transport
+from superclaude.cli.swarm.transports.openai_compat import TransportEnvError
 from superclaude.cli.swarm.transports.stub import StubTransport
+
+from ._diversity import (  # noqa: F401
+    _vendor_from_model_id,
+    compute_model_class_diversity,
+    compute_vendor_diversity,
+)
+from .fallback import (
+    FallbackTransportFactory,
+    make_fallback_slot_factory,
+    run_fallback_ladder,
+)
 
 REFLECT_CONTRACT_VERSION = "1.0"
 REFLECT_REVIEW_LENS = "reflect-review"
@@ -168,6 +182,110 @@ def resolve_t2_transport_factory(
     return factory
 
 
+# needs_human_decision gate (§7.3): the dedicated T1 proxy binding
+# (``T1ProxyUrl`` / ``T1ProxyKey`` / ``T1Model0N``). CONFIRMED and enabled in Phase 5
+# after the read-only env-var-NAME presence check + explicit operator sign-off
+# (see phase-outputs/plans/t1-proxy-binding-decision.md). Only env-var NAME strings
+# appear here -- never a proxy key/url VALUE. This supersedes the design §7.3
+# T2-reuse default. When set, the ``openai_compat`` fallback arm resolves the REAL
+# T1 pool via ``read_env_for_pool`` (lazily, so an incomplete env still degrades to
+# ``fallback_config_missing`` at dispatch rather than crashing the run).
+_T1_PROXY_BINDING: dict | None = {
+    "model_prefix": "T1Model0",
+    "proxy_url_env": "T1ProxyUrl",
+    "proxy_key_env": "T1ProxyKey",
+    "max_slots": T1_MODEL_MAX_SLOTS,
+}
+
+
+def resolve_t1_fallback_factory(
+    transport: str,
+    *,
+    ladder: tuple[str, ...],
+    env: Mapping[str, str] | None = None,
+) -> FallbackTransportFactory:
+    """Resolve the slot-NAME-keyed T1 fallback transport factory (GAP-2 sibling).
+
+    Mirrors :func:`resolve_t2_transport_factory` but keyed by ladder-slot NAME
+    (``"T1Model01"`` / ``"T1Model02"``) rather than a positional slot index (F1),
+    and resolves the T1 pool/creds from ``env`` INTERNALLY (the ensemble seam has
+    no ``SwarmConfig``). The ``stub`` arm is fully functional; the ``openai_compat``
+    arm is gated behind the :data:`_T1_PROXY_BINDING` needs_human_decision sentinel
+    until Phase 5 confirms the dedicated T1 proxy contract.
+    """
+    if transport == "stub":
+        # One shared, vendor-distinct stub across every fallback slot. The stub
+        # ``model_id`` classifies to a vendor family (via ``_vendor_from_model_id``)
+        # that differs from the T2 stub pool, so a credit-free fallback certifies.
+        shared = StubTransport(model_id="gemini-t1fallback-stub")
+
+        def _stub_factory(_slot_name: str) -> Transport:
+            return shared
+
+        return _stub_factory
+
+    # openai_compat: gated behind the needs_human_decision sentinel. While
+    # unconfirmed, the factory raises TransportEnvError when invoked, which
+    # run_fallback_ladder folds into terminal_reason: fallback_config_missing.
+    if _T1_PROXY_BINDING is None:
+
+        def _gated_factory(_slot_name: str) -> Transport:
+            raise TransportEnvError(("T1ProxyUrl", "T1ProxyKey", "T1Model01"))
+
+        return _gated_factory
+
+    # _T1_PROXY_BINDING confirmed (set only by the Phase 5 needs_human_decision
+    # HALT). Read the DEDICATED T1 pool + creds INTERNALLY via read_env_for_pool
+    # (mirrors the T2 path; F3) and bind each ladder slot NAME to a DISTINCT pool
+    # model by ladder position (F1) via make_fallback_slot_factory. The env read is
+    # deferred INTO the returned factory (LAZY) so a TransportEnvError (env
+    # incomplete) or ModelPoolTooSmallError (pool < ladder position) is raised when
+    # the controller CALLS the factory -- inside run_fallback_ladder's catch, which
+    # folds it into terminal_reason: fallback_config_missing -- rather than eagerly
+    # at resolve time (which would escape the catch and crash run_tier2_ensemble).
+    # The proxy creds live only inside the build_transport closure, never surfaced
+    # (AC #12). The resolved slot factory is memoized after the first successful read.
+    binding = _T1_PROXY_BINDING
+    resolved: dict[str, FallbackTransportFactory] = {}
+
+    def _lazy_openai_factory(slot_name: str) -> Transport:
+        from superclaude.cli.swarm.transports.openai_compat import (
+            OpenAICompatTransport,
+            read_env_for_pool,
+        )
+
+        inner = resolved.get("factory")
+        if inner is None:
+            pool_config = read_env_for_pool(
+                model_prefix=binding["model_prefix"],
+                max_slots=binding["max_slots"],
+                proxy_url_env=binding["proxy_url_env"],
+                proxy_key_env=binding["proxy_key_env"],
+                env=env,
+            )
+            pool = tuple(model for model in pool_config.models if model)
+            transport_cache: dict[str, Transport] = {}
+
+            def _build_transport(model_id: str) -> Transport:
+                cached = transport_cache.get(model_id)
+                if cached is None:
+                    cached = OpenAICompatTransport(
+                        base_url=pool_config.base_url,
+                        api_key=pool_config.api_key,
+                        model=model_id,
+                    )
+                    transport_cache[model_id] = cached
+                return cached
+
+            inner = make_fallback_slot_factory(
+                pool=pool, ladder=ladder, build_transport=_build_transport
+            )
+            resolved["factory"] = inner
+        return inner(slot_name)
+
+    return _lazy_openai_factory
+
+
 def run_tier2_ensemble(
     config: ReflectConfig,
     *,
@@ -197,6 +315,14 @@ def run_tier2_ensemble(
     swarm_output_dir = output_dir / SWARM_SUBRUN_DIR
     swarm_output_dir.mkdir(parents=True, exist_ok=True)
 
+    # F4 (§7.4): capture the shared run deadline ONCE, before primary dispatch.
+    # The in-process Tier-2 route has no outer ClaudeProcess timeout, so this is
+    # the single wall-clock bound the sequential fallback ladder honors. None when
+    # no timeout is configured (the bound is inert; max_attempts still applies).
+    deadline = (
+        time.monotonic() + config.timeout_seconds if config.timeout_seconds else None
+    )
+
     preflight = build_preflight_result(reviewers=reviewers, transport=config.transport)
     factory = transport_for_slot or resolve_t2_transport_factory(
         config.transport,
@@ -223,6 +349,30 @@ def run_tier2_ensemble(
             "caller_label": "reflect-ensemble",
         },
     )
+    # §2 seam: after primary normalize, before anything reads normalized_workers,
+    # run the bounded T1 fallback ladder so fallback successes flow through the
+    # SAME reduce_wave3 / adversarial scorer / contract builder as primaries. Gated
+    # on config.tier2_fallback_enabled (default-OFF for stub via resolve_config);
+    # when disabled the path is byte-equivalent to today (t2_fallback=None).
+    fallback_metadata: dict | None = None
+    if config.tier2_fallback_enabled:
+        fb_factory = resolve_t1_fallback_factory(
+            config.transport,
+            ladder=tuple(config.tier2_fallback_ladder),
+            env=env,
+        )
+        ladder_outcome = run_fallback_ladder(
+            primaries=normalized_workers,
+            config=config,
+            transport_for_fallback_slot=fb_factory,
+            prompt=worker_prompt,
+            swarm_output_dir=swarm_output_dir,
+            stamp=_stamp_worker_paths,
+            deadline_monotonic=deadline,
+            env=env,
+        )
+        normalized_workers = ladder_outcome.contributing_workers
+        fallback_metadata = ladder_outcome.metadata
     succeeded_final_paths = [
         worker.final_path
         for worker in normalized_workers
@@ -340,6 +490,7 @@ def run_tier2_ensemble(
         # FX7: thread the REQUESTED count so the builder can surface a reviewer shortfall
         # (reviewer_count < requested) via reviewers_verified + a visible degraded_components token.
         reviewers_requested=reviewers,
+        t2_fallback=fallback_metadata,
     )
     _emit_reflect_contract(config.contract_path, contract)
     return contract
@@ -570,6 +721,7 @@ def build_reflect_contract(
     swarm_status: str = "success",
     adversarial_status: str | None = None,
     reviewers_requested: int | None = None,
+    t2_fallback: dict | None = None,
 ) -> dict[str, Any] | None:
     """Map swarm worker facts onto the reflect return-contract namespace.
 
@@ -617,7 +769,7 @@ def build_reflect_contract(
             "regression": 0,
         }
 
-    return {
+    contract = {
         "contract_version": REFLECT_CONTRACT_VERSION,
         "status": "success",
         # Telemetry worst-of (includes swarm) -- observability ONLY, never gated.
@@ -664,56 +816,9 @@ def build_reflect_contract(
         "audit_tree_dirty": audit_tree_dirty,
         "reviewer_grounding_root": reviewer_grounding_root,
     }
-
-
-def compute_model_class_diversity(workers: list[WorkerResult]) -> str:
-    """Return ``full`` when at least two succeeded model ids are distinct."""
-    distinct_model_ids = {
-        worker.model_id
-        for worker in workers
-        if worker.status == "success" and worker.model_id
-    }
-    return "full" if len(distinct_model_ids) >= 2 else "insufficient"
-
-
-def compute_vendor_diversity(workers: list[WorkerResult]) -> str | None:
-    """Return vendor diversity over the succeeded reviewers (OI-1: DERIVED).
-
-    Classifies each succeeded worker's ``model_id`` to a vendor and returns
-    ``"single"`` when all succeeded reviewers share one vendor (so the FR-11
-    single-vendor degrade can fire), ``"multi"`` when ≥2 vendors are present, and
-    ``None`` when fewer than two reviewers survived (the single-reviewer-fallback
-    trigger owns the reason slug). Distinct ``model_id``s alone are NOT treated as
-    multi-vendor — two distinct same-vendor models resolve to ``"single"``.
-    """
-    succeeded = [worker for worker in workers if worker.status == "success"]
-    if len(succeeded) < 2:
-        return None
-    vendors = {
-        _vendor_from_model_id(worker.model_id)
-        for worker in succeeded
-        if worker.model_id
-    }
-    return "multi" if len(vendors) >= 2 else "single"
-
-
-def _vendor_from_model_id(model_id: str) -> str:
-    """Classify a proxy ``model_id`` to a coarse vendor family."""
-    lowered = model_id.lower()
-    for marker, vendor in (
-        ("qwen", "qwen"),
-        ("deepseek", "deepseek"),
-        ("gpt", "openai"),
-        ("o1", "openai"),
-        ("gemini", "google"),
-        ("llama", "meta"),
-        ("mistral", "mistral"),
-        ("claude", "anthropic"),
-    ):
-        if marker in lowered:
-            return vendor
-    # Fall back to the leading path/colon segment as a best-effort vendor key.
-    return lowered.split("/", 1)[0].split(":", 1)[0] or "unknown"
+    if t2_fallback is not None:
+        contract["t2_fallback"] = t2_fallback
+    return contract
 
 
 def _stamp_worker_paths(
