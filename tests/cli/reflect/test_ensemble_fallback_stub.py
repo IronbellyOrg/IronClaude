@@ -319,6 +319,26 @@ def test_resolve_t1_fallback_factory_stub_arm_returns_live_transport() -> None:
     assert transport.model  # non-empty per-instance model_id
 
 
+def test_resolve_t1_fallback_factory_stub_arm_is_vendor_distinct_per_slot() -> None:
+    """REGRESSION (PR #220 Augment low finding): the stub arm must bind a DISTINCT,
+    vendor-distinct transport per ladder slot NAME, so a run that dispatches BOTH
+    ladder slots (e.g. zero primary successes) can actually restore Tier-2 diversity.
+    A single shared stub gave both slots the same model_id/vendor.
+    """
+    from superclaude.cli.reflect._diversity import _vendor_from_model_id
+
+    stub_factory = resolve_t1_fallback_factory(
+        "stub", ladder=("T1Model01", "T1Model02")
+    )
+    m1 = stub_factory("T1Model01").model
+    m2 = stub_factory("T1Model02").model
+    assert m1 != m2, "the two fallback slots must not share a model_id"
+    assert _vendor_from_model_id(m1) != _vendor_from_model_id(m2), (
+        "the two fallback slots must classify to distinct vendors so a "
+        "both-slots-dispatched run can satisfy the Tier-2 vendor-diversity gate"
+    )
+
+
 def test_resolve_t1_fallback_factory_openai_compat_missing_env_degrades() -> None:
     """Phase 5 (real binding enabled): with the T1 proxy binding confirmed, the
     openai_compat arm reads the real T1 pool LAZILY. An empty/incomplete T1 env

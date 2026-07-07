@@ -214,13 +214,20 @@ def resolve_t1_fallback_factory(
     until Phase 5 confirms the dedicated T1 proxy contract.
     """
     if transport == "stub":
-        # One shared, vendor-distinct stub across every fallback slot. The stub
-        # ``model_id`` classifies to a vendor family (via ``_vendor_from_model_id``)
-        # that differs from the T2 stub pool, so a credit-free fallback certifies.
-        shared = StubTransport(model_id="gemini-t1fallback-stub")
+        # A DISTINCT, vendor-distinct stub per fallback slot NAME (mirrors the T2
+        # ``stub_model_id`` pattern). Keying off the ladder position means a run that
+        # must dispatch BOTH ladder slots (e.g. zero primary successes) gets two
+        # different vendors and can actually restore Tier-2 diversity — a single
+        # shared stub could never. The vendor families (google / meta / anthropic)
+        # are disjoint from the T2 stub pool (qwen / deepseek / openai / mistral),
+        # so a surviving-primary + fallback mix is vendor-diverse too, and each
+        # classifies via ``_vendor_from_model_id``.
+        _t1_stub_vendors = ("gemini", "llama", "claude")
 
-        def _stub_factory(_slot_name: str) -> Transport:
-            return shared
+        def _stub_factory(slot_name: str) -> Transport:
+            idx = ladder.index(slot_name) if slot_name in ladder else 0
+            vendor = _t1_stub_vendors[idx % len(_t1_stub_vendors)]
+            return StubTransport(model_id=f"{vendor}-t1fallback-stub")
 
         return _stub_factory
 
