@@ -1846,7 +1846,9 @@ def run_cmd(
     # which 400s for temperature=1-only models like kimi-k2.7-code). max_tokens
     # is NOT a schema workers field, so tolerate its absence.
     resolved_temperature = (
-        workers_section.get("temperature") if isinstance(workers_section, dict) else None
+        workers_section.get("temperature")
+        if isinstance(workers_section, dict)
+        else None
     )
     try:
         # Per-slot factory enables heterogeneous multi-model fan-out: each
