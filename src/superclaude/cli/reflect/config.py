@@ -102,7 +102,9 @@ def _resolve_base(
     try:
         return _git(cwd, "merge-base", "HEAD", base_branch)
     except (OSError, subprocess.SubprocessError) as exc:
-        raise ValueError("base-unresolved") from exc
+        raise ValueError(
+            "base-unresolved: 'master' did not resolve; pass --base <ref> or set frontmatter start_commit"
+        ) from exc
 
 
 def _audit_tree_dirty(git_cwd: Path, base: str) -> bool:
