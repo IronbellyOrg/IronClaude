@@ -428,8 +428,12 @@ def run_fallback_ladder(
     spent, or the run deadline is exhausted. Every attempt is a 1-worker dispatch
     against the slot-NAME factory, so at most one attempt per ladder slot occurs.
     ``dispatch`` / ``normalize`` / ``stamp`` are injected so unit and stub tests
-    never touch a transport. Returns the contributing worker set (the list handed
-    to ``build_reflect_contract``), the full attempt ledger, and the §6 metadata.
+    never touch a transport. Returns a :class:`LadderOutcome` carrying: the
+    ``contributing_workers`` (smallest certifying subset, used only for the
+    certification-basis telemetry), ``all_workers`` (the FULL augmented set — every
+    normalized primary plus every dispatched fallback attempt — which the ensemble
+    hands to ``reduce_wave3`` / ``build_reflect_contract`` for worker accounting and
+    reviewer_count/diversity), the full attempt ledger, and the §6 metadata.
     """
     ladder = tuple(config.tier2_fallback_ladder)
     max_attempts = int(config.tier2_fallback_max_attempts)
