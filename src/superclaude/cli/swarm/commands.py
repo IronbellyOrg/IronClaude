@@ -615,6 +615,8 @@ def _resolve_run_transport_factory(
     models: Optional[list[str]] = None,
     env: Optional[Mapping[str, str]] = None,
     workers_requested: Optional[int] = None,
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
 ) -> Callable[[int], Any]:
     """Build a per-slot transport factory ``(slot_index) -> Transport``.
 
@@ -692,11 +694,22 @@ def _resolve_run_transport_factory(
             model = pool[slot_index % len(pool)]
             transport = cache.get(model)
             if transport is None:
-                transport = OpenAICompatTransport(
-                    base_url=config.base_url,
-                    api_key=config.api_key,
-                    model=model,
-                )
+                # Forward JobSpec-level temperature/max_tokens when the caller
+                # resolved them from spec.workers; otherwise fall back to the
+                # transport constructor defaults (temperature=0.2, max_tokens=4096).
+                # Without this forwarding the schema-validated workers.temperature
+                # field is dead config (kimi-k2.7-code requires temperature=1 and
+                # 400s on the 0.2 default).
+                kwargs: dict[str, Any] = {
+                    "base_url": config.base_url,
+                    "api_key": config.api_key,
+                    "model": model,
+                }
+                if temperature is not None:
+                    kwargs["temperature"] = temperature
+                if max_tokens is not None:
+                    kwargs["max_tokens"] = max_tokens
+                transport = OpenAICompatTransport(**kwargs)
                 cache[model] = transport
             return transport
 
@@ -1827,6 +1840,14 @@ def run_cmd(
     resolved_models = (
         workers_section.get("models", []) if isinstance(workers_section, dict) else []
     )
+    # Resolve sampling params from the JobSpec workers section so they actually
+    # reach the transport (previously the schema-validated workers.temperature was
+    # never forwarded -- the transport always used its 0.2 constructor default,
+    # which 400s for temperature=1-only models like kimi-k2.7-code). max_tokens
+    # is NOT a schema workers field, so tolerate its absence.
+    resolved_temperature = (
+        workers_section.get("temperature") if isinstance(workers_section, dict) else None
+    )
     try:
         # Per-slot factory enables heterogeneous multi-model fan-out: each
         # worker slot binds to a distinct ``T2Model0N`` model (openai_compat).
@@ -1836,6 +1857,7 @@ def run_cmd(
             resolved_transport_kind,
             models=resolved_models,
             workers_requested=preflight_result.manifest.preflight.workers_requested,
+            temperature=resolved_temperature,
         )
     except (TransportEnvError, ModelPoolTooSmallError) as exc:
         click.echo(
@@ -2443,6 +2465,7 @@ def _run_resume_branch(
                 resolved_transport_kind,
                 models=list(rehydrated_spec.workers.models),
                 workers_requested=workers_requested,
+                temperature=getattr(rehydrated_spec.workers, "temperature", None),
             )
         except (_TransportEnvError, ModelPoolTooSmallError) as exc:
             click.echo(
