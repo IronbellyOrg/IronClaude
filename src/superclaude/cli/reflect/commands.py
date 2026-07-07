@@ -407,6 +407,9 @@ def run(
                     deviations={},
                     child_exit_code=None,
                     write_status="not-attempted",
+                    # B2: carry the real cause (truncated) into the sidecar so the
+                    # config STOP is no longer lossy; reason stays byte-stable.
+                    error_detail=str(exc)[:500],
                 )
                 write_sidecar(
                     output_path,
@@ -423,7 +426,39 @@ def run(
         sys.exit(_launch_tmux(config))
 
     # Foreground (default / inner --no-tmux reinvocation) path.
-    result = ReflectRunner(config).run()
+    # D2: crash-durability wrap. If run() raises a non-ValueError (a crash the
+    # config-STOP handler above never sees), still emit a BLOCKED runner-error
+    # sidecar (best-effort) BEFORE re-raising, so the crash leaves a root sidecar
+    # AND still propagates a non-zero exit. reason="runner-error" (collision-free)
+    # keeps it distinguishable from a config-error STOP.
+    try:
+        result = ReflectRunner(config).run()
+    except Exception as exc:
+        from .models import ReflectResult, Verdict
+        from .runner import write_sidecar
+
+        blocked = ReflectResult(
+            verdict=Verdict.BLOCKED,
+            status=None,
+            tier_reached=None,
+            reason="runner-error",
+            report_path=None,
+            contract_path=None,
+            deviations={},
+            child_exit_code=None,
+            write_status="not-attempted",
+            error_detail=str(exc)[:500],
+        )
+        try:
+            write_sidecar(
+                config.output_dir,
+                blocked,
+                env_alias_count=0,
+                write_status="not-attempted",
+            )
+        except OSError:
+            pass
+        raise
     exit_code = result.verdict.exit_code
 
     # Write the .reflect-exitcode sentinel for the tmux outer reader (skip the

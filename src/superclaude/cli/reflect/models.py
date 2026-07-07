@@ -141,13 +141,14 @@ class ReflectResult:
     child_exit_code: int | None = None
     write_status: str = ""
     # Auto-fix loop bookkeeping (D1/D3/FR-3) + consumed remediation pointer
-    # (FR-8). Defaulted so all 5 hand-built construction sites stay valid.
+    # (FR-8). Defaulted so all 7 `ReflectResult(...)` construction sites in the
+    # reflect package (total across commands.py, runner.py, contract.py) stay valid.
     fix_iterations: int = 0
     fix_converged: bool = False
     remediation_task_path: str | None = None
     # L2 reviewer-isolation telemetry (pure telemetry — does NOT alter the verdict;
     # the STOP happens in the runner before derive_verdict). Defaulted so all
-    # hand-built construction sites stay valid.
+    # 7 `ReflectResult(...)` construction sites in the reflect package stay valid.
     # reviewer_isolation: "disabled" (flag off)
     #   | "snapshot-children-only" (a snapshot was created and the two ClaudeProcess
     #     review children — Tier-1 audit child + adversarial scorer — are
@@ -158,14 +159,19 @@ class ReflectResult:
     reviewer_isolation: str = "disabled"
     audit_tree_dirty: bool = False
     reviewer_grounding_root: str | None = None
-    # FX7 additive honest-accounting visibility siblings. Defaulted so all 5
-    # hand-built construction sites stay valid; absent-on-old contracts flow as
+    # FX7 additive honest-accounting visibility siblings. Defaulted so all 7
+    # `ReflectResult(...)` construction sites in the reflect package (total across
+    # commands.py, runner.py, contract.py) stay valid; absent-on-old contracts flow as
     # False (unverified / fail-closed). These are visibility-only — they do NOT
     # alter the verdict (the verdict-DEGRADE routings they would inform are
     # deferred to needs_human_decision PENDINGs).
     verification_verified: bool = False
     reviewers_verified: bool = False
     regression_verified: bool = False
+    # B2: config-error / runner-error observability. Sidecar-only — carries
+    # str(exc)[:500] of the underlying cause; serialized in write_sidecar but
+    # NEVER in the committable reflect_post frontmatter (see runner._build_reflect_post_value).
+    error_detail: str | None = None
 
     @property
     def outcome(self) -> str:

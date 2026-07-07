@@ -249,6 +249,9 @@ def write_sidecar(
         "verification_verified": result.verification_verified,
         "reviewers_verified": result.reviewers_verified,
         "regression_verified": result.regression_verified,
+        # B2: config-error / runner-error cause (sidecar-only; NOT in reflect_post:
+        # per the U5 precedent — deliberately absent from _build_reflect_post_value).
+        "error_detail": result.error_detail,
     }
     sidecar_path = output_dir / "wrapper-result.yaml"
     _atomic_write_text(
