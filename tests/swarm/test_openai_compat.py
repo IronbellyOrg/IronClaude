@@ -138,6 +138,70 @@ def test_send_happy_path_populates_success() -> None:
     body = json.loads(req.content)
     assert body["model"] == _MODEL
     assert body["messages"] == [{"role": "user", "content": "user prompt"}]
+    # Non-Kimi models forward the configured temperature (constructor default 0.2).
+    assert body["temperature"] == 0.2
+
+
+def test_send_non_kimi_model_includes_temperature() -> None:
+    """A non-Kimi model's request payload MUST carry the configured temperature.
+
+    Guards the temperature-forwarding fix in commands.py: a future refactor that
+    drops the field would silently regress to the transport's no-temperature
+    path for models that DO accept it. Uses a NON-default temperature (0.7) so a
+    regression to the constructor default (0.2) also fails this test.
+    """
+    captured: dict[str, httpx.Request] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["request"] = request
+        return httpx.Response(200, content=_success_body("ok"))
+
+    # Context-manager the injected client: OpenAICompatTransport does not close
+    # clients it did not create (openai_compat.py:302-304), so the test owns the
+    # close to avoid a resource leak (PR-219 review r3533289716).
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        with OpenAICompatTransport(
+            base_url=_BASE_URL,
+            api_key=_API_KEY,
+            model="qwen-latest",
+            temperature=0.7,
+            client=client,
+        ) as transport:
+            transport.send("prompt", timeout=180)
+
+    body = json.loads(captured["request"].content)
+    assert body["model"] == "qwen-latest"
+    assert "temperature" in body, "non-Kimi models must carry temperature"
+    assert body["temperature"] == 0.7
+
+
+def test_send_kimi_model_omits_temperature() -> None:
+    """A Kimi model's request payload MUST OMIT temperature entirely.
+
+    Kimi reasoning models 400 on any temperature != 1 ("only 1 is allowed") and
+    emit EMPTY output if forced to 1 (reasoning burns the budget). Only full
+    omission yields real content. This test pins the _omits_temperature contract
+    so a future refactor cannot reintroduce the 400/empty-output regression
+    (Augment review PR-219 finding: request-shape for Kimi was untested).
+    """
+    for kimi_model in ("kimi-k2.7-code", "kimi", "kimi-k2-thinking", "kimi-k2.6"):
+        captured: dict[str, httpx.Request] = {}
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            captured["request"] = request
+            return httpx.Response(200, content=_success_body("ok"))
+
+        with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+            with OpenAICompatTransport(
+                base_url=_BASE_URL, api_key=_API_KEY, model=kimi_model, client=client
+            ) as transport:
+                transport.send("prompt", timeout=180)
+
+        body = json.loads(captured["request"].content)
+        assert body["model"] == kimi_model
+        assert "temperature" not in body, (
+            f"{kimi_model} must NOT carry temperature (400s / empties output)"
+        )
 
 
 def test_send_4xx_maps_to_proxy_error() -> None:

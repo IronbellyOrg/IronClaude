@@ -89,6 +89,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from dataclasses import dataclass
 from typing import Any, Mapping, Optional
@@ -120,6 +121,28 @@ _DEFAULT_TIMEOUT_SEC = 180
 # the OpenAI public API shape; OpenAI-compatible proxies (vLLM, OpenRouter,
 # litellm, T2) all serve this endpoint at the same suffix.
 _CHAT_COMPLETIONS_PATH = "/chat/completions"
+
+# Kimi models reject an explicit ``temperature`` field. Moonshot's docs are
+# explicit: "Do not set temperature. For kimi-k2.7-code and kimi-k2.6,
+# temperature is not modifiable" (https://platform.kimi.ai/docs/guide/use-kimi-k2-thinking-model).
+# Empirically the restriction spans the whole Kimi reasoning line this proxy
+# fronts (kimi, kimi-latest, kimi-k2-thinking, kimi-k2.6, kimi-k2.7-code,
+# kimi-k2.7-code-highspeed): sending temperature!=1 -> HTTP 400 ("only 1 is
+# allowed"); sending temperature=1 -> 200 but empty (reasoning burns the budget);
+# OMITTING temperature -> 200 with real content. We omit temperature for ALL
+# Kimi models (broad match on "kimi"), past and future, rather than enumerating
+# restricted variants -- simpler and safe (the worst case for a non-restricted
+# Kimi slug is that the model applies its own default, which is what we want).
+_TEMPERATURE_OMIT_PATTERN = re.compile(r"kimi", re.IGNORECASE)
+
+
+def _omits_temperature(model: str) -> bool:
+    """Return True when ``model`` should have no ``temperature`` in the request.
+
+    Wrapper kept as a function (not a bare ``.search``) so callers and tests
+    can assert against the single source of truth for the heuristic.
+    """
+    return bool(_TEMPERATURE_OMIT_PATTERN.search(model))
 
 
 class TransportEnvError(RuntimeError):
@@ -322,9 +345,13 @@ class OpenAICompatTransport:
         payload: dict[str, Any] = {
             "model": self._model,
             "messages": [{"role": "user", "content": prompt}],
-            "temperature": self._temperature,
             "max_tokens": self._max_tokens,
         }
+        # Reasoning/thinking models (kimi-k2.6/2.7, *-code, *-thinking) reject
+        # an explicit temperature and emit empty content if forced to 1; omit
+        # the field entirely for them so the model applies its own default.
+        if not _omits_temperature(self._model):
+            payload["temperature"] = self._temperature
 
         start = time.monotonic()
         try:

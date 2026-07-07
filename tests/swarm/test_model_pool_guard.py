@@ -79,6 +79,41 @@ def test_stub_factory_unaffected_by_guard():
     assert callable(factory)
 
 
+def test_factory_forwards_temperature_to_transport():
+    """The factory MUST forward the JobSpec temperature into OpenAICompatTransport.
+
+    Closes the PR-219 review gap (discussion_r3533289712): the transport-level
+    tests only asserted the constructor DEFAULT (0.2), so a regression where
+    ``_resolve_run_transport_factory`` stopped forwarding ``temperature`` would
+    still pass. This test exercises the actual forwarding path (factory -> ctor)
+    with a non-default value and asserts the transport received EXACTLY that
+    value -- not the constructor default.
+
+    Note: this asserts the transport's resolved ``_temperature``; the request-
+    payload-level behavior (Kimi omits, non-Kimi sends) is covered in
+    test_openai_compat.py.
+    """
+    factory = _resolve_run_transport_factory(
+        "openai_compat", env=_ENV_2, workers_requested=2, temperature=0.7
+    )
+    transport = factory(0)
+    assert transport._temperature == 0.7, (
+        "factory must forward the non-default temperature into the transport, "
+        "not fall back to the 0.2 constructor default"
+    )
+
+
+def test_factory_omits_temperature_falls_back_to_default():
+    """temperature=None (the run path when the JobSpec omits it) MUST leave the
+    transport on its constructor default -- i.e. forwarding is opt-in, not
+    forced. Guards against a regression that unconditionally injects None."""
+    factory = _resolve_run_transport_factory(
+        "openai_compat", env=_ENV_2, workers_requested=2
+    )
+    transport = factory(0)
+    assert transport._temperature == 0.2  # constructor default preserved
+
+
 def test_run_cmd_pool_too_small_exits_invalid(tmp_path: Path, monkeypatch):
     """End-to-end wiring: a 3-worker lens with a 1-model env pool exits
     EXIT_INVALID with the guard message, before any dispatch/network."""
