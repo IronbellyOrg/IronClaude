@@ -236,8 +236,11 @@ def test_config_error_sidecar_carries_error_detail(
     # Explicitly pin that no frontmatter writeback ran on the config-STOP path:
     # the config STOP exits (sys.exit(2)) before write_reflect_post, so the
     # reflect_post block stays the empty stub — a leak is structurally impossible
-    # here because _build_reflect_post_value never executes on this path.
-    assert 'reflect_post: ""' in tasklist_after
+    # here because _build_reflect_post_value never executes on this path. Parse
+    # the frontmatter and assert reflect_post is still empty/falsy (robust to
+    # harmless fixture formatting changes, unlike a brittle exact-literal match).
+    frontmatter_after = yaml.safe_load(tasklist_after.split("---", 2)[1])
+    assert not frontmatter_after.get("reflect_post")
 
 
 def test_base_unresolved_message_is_actionable(temp_tasklist, monkeypatch) -> None:

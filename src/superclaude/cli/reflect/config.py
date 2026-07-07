@@ -87,8 +87,9 @@ def _resolve_base(
     """Derive ``<BASE>`` per the FR-6 precedence chain.
 
     ``--base`` override -> frontmatter ``start_commit`` ->
-    ``git merge-base HEAD <base_branch>`` -> else raise
-    ``ValueError("base-unresolved")``.
+    ``git merge-base HEAD <base_branch>`` -> else raise a ``ValueError`` whose
+    message begins ``base-unresolved:`` and names the unresolved ``base_branch``
+    plus the ``--base`` / ``start_commit`` remediation.
 
     The ``base_override`` value is stored VERBATIM as a SINGLE ref: no ``..``
     range parsing/splitting is performed (F3 de-range invariant, FR-6). The
