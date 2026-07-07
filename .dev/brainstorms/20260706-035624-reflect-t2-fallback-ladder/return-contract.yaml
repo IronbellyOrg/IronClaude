@@ -1,0 +1,44 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/merged-requirements.md
+convergence_score: 0.88
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - Exact additive field names can be finalized during implementation; semantic contract is resolved.
+
+wave_durations_ms:
+  wave_0: null
+  wave_1: null
+  wave_2a: null
+  wave_2b: null
+  wave_3: null
+  wave_4: null
+token_usage:
+  wave_0: null
+  wave_1: null
+  wave_2a: null
+  wave_2b: null
+  wave_3: null
+  wave_4: null
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for architecture domain',sonnet:analyzer:'focus on root-cause analysis and evidence-based reasoning for architecture',haiku:backend:'focus on API contracts, data integrity, idempotency, and operational concerns'"
+enrichment_artifact_sizes:
+  codebase-context.md: null
+artifacts:
+  seed_brief: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/seed-brief.md
+  codebase_context: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/enrichment/codebase-context.md
+  variant_1: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/variant-1-architect.md
+  variant_2: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/variant-2-analyzer.md
+  variant_3: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/variant-3-backend.md
+  diff_analysis: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/diff-analysis.md
+  debate_transcript: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/debate-transcript.md
+  base_selection: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/base-selection.md
+  refactor_plan: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/refactor-plan.md
+  merge_log: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/brainstorms/20260706-035624-reflect-t2-fallback-ladder/adversarial/merge-log.md

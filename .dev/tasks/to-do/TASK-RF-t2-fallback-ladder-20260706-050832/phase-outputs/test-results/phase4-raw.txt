@@ -1,0 +1,60 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.14.1
+collecting ... collected 49 items
+
+tests/swarm/test_config.py::test_swarm_config_is_frozen_dataclass PASSED [  2%]
+tests/swarm/test_config.py::test_mutating_frozen_field_raises PASSED     [  4%]
+tests/swarm/test_config.py::test_from_env_happy_path_resolves_all_fields PASSED [  6%]
+tests/swarm/test_config.py::test_from_env_uses_default_output_dir_when_none PASSED [  8%]
+tests/swarm/test_config.py::test_from_env_accepts_absolute_output_dir PASSED [ 10%]
+tests/swarm/test_config.py::test_from_env_skips_empty_t2_model_slots PASSED [ 12%]
+tests/swarm/test_config.py::test_from_env_respects_max_slot_ceiling PASSED [ 14%]
+tests/swarm/test_config.py::test_from_env_happy_path_resolves_t1_models PASSED [ 16%]
+tests/swarm/test_config.py::test_from_env_t1_models_empty_default_when_absent PASSED [ 18%]
+tests/swarm/test_config.py::test_from_env_skips_empty_t1_model_slots PASSED [ 20%]
+tests/swarm/test_config.py::test_from_env_respects_t1_max_slot_ceiling PASSED [ 22%]
+tests/swarm/test_config.py::test_from_env_t1_and_t2_pools_are_independent PASSED [ 24%]
+tests/swarm/test_config.py::test_from_env_missing_all_t2_vars_does_not_raise PASSED [ 26%]
+tests/swarm/test_config.py::test_missing_t2_env_vars_reports_all_absent PASSED [ 28%]
+tests/swarm/test_config.py::test_missing_t2_env_vars_reports_only_partial_absence PASSED [ 30%]
+tests/swarm/test_config.py::test_from_env_empty_string_env_treated_as_missing PASSED [ 32%]
+tests/swarm/test_config.py::test_resolve_path_returns_absolute_for_relative_input PASSED [ 34%]
+tests/swarm/test_config.py::test_resolve_path_passes_through_absolute_input PASSED [ 36%]
+tests/swarm/test_config.py::test_resolve_path_accepts_string_argument PASSED [ 38%]
+tests/swarm/test_config.py::test_from_env_falls_back_to_process_environ PASSED [ 40%]
+tests/swarm/test_config.py::test_from_env_defaults_work_dir_to_cwd PASSED [ 42%]
+tests/swarm/test_openai_compat.py::test_openai_compat_uses_httpx PASSED  [ 44%]
+tests/swarm/test_openai_compat.py::test_openai_compat_satisfies_transport_protocol PASSED [ 46%]
+tests/swarm/test_openai_compat.py::test_send_happy_path_populates_success PASSED [ 48%]
+tests/swarm/test_openai_compat.py::test_send_4xx_maps_to_proxy_error PASSED [ 51%]
+tests/swarm/test_openai_compat.py::test_send_5xx_maps_to_proxy_error PASSED [ 53%]
+tests/swarm/test_openai_compat.py::test_send_200_unparseable_body_maps_to_parse_error PASSED [ 55%]
+tests/swarm/test_openai_compat.py::test_send_200_missing_choices_maps_to_parse_error PASSED [ 57%]
+tests/swarm/test_openai_compat.py::test_send_200_empty_content_maps_to_parse_error PASSED [ 59%]
+tests/swarm/test_openai_compat.py::test_send_timeout_maps_to_timeout_status PASSED [ 61%]
+tests/swarm/test_openai_compat.py::test_send_request_error_maps_to_proxy_error_preserving_model_identity PASSED [ 63%]
+tests/swarm/test_openai_compat.py::test_constructor_rejects_empty_fields[-test-key-xyz-test-model-01] PASSED [ 65%]
+tests/swarm/test_openai_compat.py::test_constructor_rejects_empty_fields[https://proxy.example.test/v1--test-model-01] PASSED [ 67%]
+tests/swarm/test_openai_compat.py::test_constructor_rejects_empty_fields[https://proxy.example.test/v1-test-key-xyz-] PASSED [ 69%]
+tests/swarm/test_openai_compat.py::test_endpoint_strips_trailing_slash PASSED [ 71%]
+tests/swarm/test_openai_compat.py::test_read_env_happy_path PASSED       [ 73%]
+tests/swarm/test_openai_compat.py::test_read_env_strips_whitespace PASSED [ 75%]
+tests/swarm/test_openai_compat.py::test_read_env_missing_url_raises PASSED [ 77%]
+tests/swarm/test_openai_compat.py::test_read_env_missing_key_raises PASSED [ 79%]
+tests/swarm/test_openai_compat.py::test_read_env_missing_all_models_raises PASSED [ 81%]
+tests/swarm/test_openai_compat.py::test_read_env_missing_all_three_raises PASSED [ 83%]
+tests/swarm/test_openai_compat.py::test_read_env_for_pool_reads_t1_pool PASSED [ 85%]
+tests/swarm/test_openai_compat.py::test_read_env_for_pool_skips_empty_and_strips PASSED [ 87%]
+tests/swarm/test_openai_compat.py::test_read_env_for_pool_missing_t1_vars_raise_with_t1_names PASSED [ 89%]
+tests/swarm/test_openai_compat.py::test_read_env_wrapper_delegates_to_pool_reader PASSED [ 91%]
+tests/swarm/test_openai_compat.py::test_live_proxy_smoke PASSED          [ 93%]
+tests/cli/reflect/test_ensemble_fallback_stub.py::test_incident_replay_certifies_tier2_with_fallback PASSED [ 95%]
+tests/cli/reflect/test_ensemble_fallback_stub.py::test_counter_case_both_fallbacks_fail_stays_degraded_tier1 PASSED [ 97%]
+tests/cli/reflect/test_ensemble_fallback_stub.py::test_resolve_t1_fallback_factory_openai_compat_arm_is_env_gated PASSED [100%]
+
+============================== 49 passed in 0.81s ==============================

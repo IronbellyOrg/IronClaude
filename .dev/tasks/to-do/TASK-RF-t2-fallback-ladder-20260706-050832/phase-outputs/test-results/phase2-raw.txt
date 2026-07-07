@@ -1,0 +1,51 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.14.1
+collecting ... collected 39 items
+
+tests/cli/reflect/test_contract_fallback_metadata.py::test_reviewer_count_uses_contributing_workers_not_attempt_ledger PASSED [  2%]
+tests/cli/reflect/test_contract_fallback_metadata.py::test_populated_fallback_metadata_does_not_change_verdict PASSED [  5%]
+tests/cli/reflect/test_contract_fallback_metadata.py::test_primary_failures_are_preserved_even_when_fallback_certifies PASSED [  7%]
+tests/cli/reflect/test_contract_fallback_metadata.py::test_tier2_certification_basis_distinguishes_fallback_from_primary_only PASSED [ 10%]
+tests/cli/reflect/test_contract_fallback_metadata.py::test_contract_metadata_does_not_leak_proxy_secret_names_or_urls PASSED [ 12%]
+tests/cli/reflect/test_verdict_mapping.py::test_pass_full_tier2 PASSED   [ 15%]
+tests/cli/reflect/test_verdict_mapping.py::test_pass_no_t2_fallback_fixture_matches_existing_pass_verdict PASSED [ 17%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_tier1_first_match_precedes_single_reviewer_fallback PASSED [ 20%]
+tests/cli/reflect/test_verdict_mapping.py::test_halted_regression PASSED [ 23%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_serena PASSED   [ 25%]
+tests/cli/reflect/test_verdict_mapping.py::test_degraded_expected_t2_ran_t1 PASSED [ 28%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_degraded_without_flag PASSED [ 30%]
+tests/cli/reflect/test_verdict_mapping.py::test_single_vendor_pass_with_flag PASSED [ 33%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_missing_contract PASSED [ 35%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_timeout PASSED   [ 38%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_child_crash_no_contract PASSED [ 41%]
+tests/cli/reflect/test_verdict_mapping.py::test_blocked_unknown_major_version PASSED [ 43%]
+tests/cli/reflect/test_verdict_mapping.py::test_tolerant_unknown_field_1x PASSED [ 46%]
+tests/cli/reflect/test_verdict_mapping.py::test_serena_summary_corroboration_unavailable_not_degraded PASSED [ 48%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_skip_exemption_not_degraded PASSED [ 51%]
+tests/cli/reflect/test_verdict_mapping.py::test_verification_not_run_unexempted_is_degraded PASSED [ 53%]
+tests/cli/reflect/test_verdict_mapping.py::test_extrapolated_citations_do_not_gate PASSED [ 56%]
+tests/cli/reflect/test_verdict_mapping.py::test_benign_degraded_component_does_not_over_halt PASSED [ 58%]
+tests/cli/reflect/test_verdict_mapping.py::test_nonzero_child_exit_with_present_success_contract_blocks PASSED [ 61%]
+tests/cli/reflect/test_verdict_mapping.py::test_malformed_truthy_load_bearing_boolean_blocks PASSED [ 64%]
+tests/cli/reflect/test_verdict_mapping.py::test_status_failed_halts_with_status_failed_reason PASSED [ 66%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_1_7_0_additive_fields_tolerated PASSED [ 69%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_no_reachability_skip_is_telemetry_only PASSED [ 71%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_spec_absent_skip_is_telemetry_only PASSED [ 74%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_semantic_fallback_advisory_does_not_gate PASSED [ 76%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_proxy_oracle_unproven_is_not_regression_but_halts PASSED [ 79%]
+tests/cli/reflect/test_verdict_mapping.py::test_reachability_unwired_surface_real_boot_is_regression_not_degrade PASSED [ 82%]
+tests/cli/reflect/test_verdict_mapping.py::test_adversarial_subrun_status_partial_degrades PASSED [ 84%]
+tests/cli/reflect/test_verdict_mapping.py::test_adversarial_subrun_status_absent_still_passes PASSED [ 87%]
+tests/cli/reflect/test_verdict_mapping.py::test_low_convergence_tier2_degrades PASSED [ 89%]
+tests/cli/reflect/test_verdict_mapping.py::test_convergence_at_or_above_threshold_passes PASSED [ 92%]
+tests/cli/reflect/test_verdict_mapping.py::test_nonfinite_convergence_tier2_degrades PASSED [ 94%]
+tests/cli/reflect/test_verdict_mapping.py::test_promoting_drops_verification_exemption PASSED [ 97%]
+tests/cli/reflect/test_verdict_mapping.py::test_not_promoting_preserves_verification_exemption PASSED [100%]
+
+============================== 39 passed in 2.69s ==============================

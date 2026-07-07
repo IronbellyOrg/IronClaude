@@ -1,0 +1,8 @@
+{
+  "bytes": 6732,
+  "recipe": "passthrough",
+  "salvage_reason": "rejected_not_parse_error",
+  "salvaged": false,
+  "schema_version": "1.0",
+  "status": "success"
+}
