@@ -109,6 +109,7 @@ __all__ = [
     "TransportConfig",
     "TransportEnvError",
     "read_env",
+    "read_env_for_pool",
 ]
 
 
@@ -179,8 +180,65 @@ class TransportConfig:
     models: tuple[str, ...]
 
 
+def read_env_for_pool(
+    *,
+    model_prefix: str,
+    max_slots: int,
+    proxy_url_env: str,
+    proxy_key_env: str,
+    env: Optional[Mapping[str, str]] = None,
+) -> TransportConfig:
+    """Read an OpenAI-compatible proxy env contract for a named model pool.
+
+    Generalizes :func:`read_env` so the same reader serves both the T2 primary
+    pool and the T1 fallback pool (F3): the proxy url/key env-var NAMES and the
+    model-slot prefix/ceiling are parameters rather than the hard-coded T2
+    constants. The returned :class:`TransportConfig` shape is identical.
+
+    Args:
+        model_prefix: slot prefix, e.g. ``"T2Model0"`` / ``"T1Model0"``.
+        max_slots: highest 1-based slot index probed (dense, empty-skipping).
+        proxy_url_env: env-var NAME carrying the base URL.
+        proxy_key_env: env-var NAME carrying the API key.
+        env: optional mapping (defaults to ``os.environ``).
+
+    Raises:
+        TransportEnvError: when the url/key is unset/empty, or when no
+            ``f"{model_prefix}{index}"`` slot resolves to a non-empty value.
+    """
+    env_map: Mapping[str, str] = env if env is not None else os.environ
+    base_url = (env_map.get(proxy_url_env) or "").strip()
+    api_key = (env_map.get(proxy_key_env) or "").strip()
+
+    models: list[str] = []
+    for index in range(1, max_slots + 1):
+        value = (env_map.get(f"{model_prefix}{index}") or "").strip()
+        if value:
+            models.append(value)
+
+    missing: list[str] = []
+    if not base_url:
+        missing.append(proxy_url_env)
+    if not api_key:
+        missing.append(proxy_key_env)
+    if not models:
+        missing.append(f"{model_prefix}1..{max_slots}")
+
+    if missing:
+        raise TransportEnvError(tuple(missing))
+
+    return TransportConfig(
+        base_url=base_url,
+        api_key=api_key,
+        models=tuple(models),
+    )
+
+
 def read_env(env: Optional[Mapping[str, str]] = None) -> TransportConfig:
     """Read the T2 proxy env-var contract; raise on missing values.
+
+    Thin wrapper over :func:`read_env_for_pool` bound to the T2 constants so
+    every existing caller stays byte-valid.
 
     Args:
         env: optional mapping to read from (defaults to ``os.environ``).
@@ -197,31 +255,12 @@ def read_env(env: Optional[Mapping[str, str]] = None) -> TransportConfig:
             unset / empty, or when no ``T2Model0N`` slot resolves to a
             non-empty value.
     """
-    env_map: Mapping[str, str] = env if env is not None else os.environ
-    base_url = (env_map.get(T2_PROXY_URL_ENV) or "").strip()
-    api_key = (env_map.get(T2_PROXY_KEY_ENV) or "").strip()
-
-    models: list[str] = []
-    for index in range(1, T2_MODEL_MAX_SLOTS + 1):
-        value = (env_map.get(f"{T2_MODEL_ENV_PREFIX}{index}") or "").strip()
-        if value:
-            models.append(value)
-
-    missing: list[str] = []
-    if not base_url:
-        missing.append(T2_PROXY_URL_ENV)
-    if not api_key:
-        missing.append(T2_PROXY_KEY_ENV)
-    if not models:
-        missing.append(f"{T2_MODEL_ENV_PREFIX}1..{T2_MODEL_MAX_SLOTS}")
-
-    if missing:
-        raise TransportEnvError(tuple(missing))
-
-    return TransportConfig(
-        base_url=base_url,
-        api_key=api_key,
-        models=tuple(models),
+    return read_env_for_pool(
+        model_prefix=T2_MODEL_ENV_PREFIX,
+        max_slots=T2_MODEL_MAX_SLOTS,
+        proxy_url_env=T2_PROXY_URL_ENV,
+        proxy_key_env=T2_PROXY_KEY_ENV,
+        env=env,
     )
 
 

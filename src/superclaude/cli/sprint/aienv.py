@@ -49,7 +49,7 @@ _ANTHROPIC_SLOTS: tuple[tuple[str, str], ...] = (
 def _load_aliases(env: Optional[Mapping[str, str]] = None) -> dict[str, str]:
     """Read the available model aliases from the environment in priority order.
 
-    Mirrors :meth:`SwarmConfig._collect_t2_models` (os.environ reader, option A):
+    Mirrors :meth:`SwarmConfig._collect_models` (os.environ reader, option A):
     enumerates the three Anthropic slots (``ANTHROPIC_DEFAULT_{OPUS,SONNET,
     HAIKU}_MODEL``) then the numbered proxy slots ``T2Model01``..``T2Model0N``
     (reusing :data:`T2_MODEL_ENV_PREFIX` / :data:`T2_MODEL_MAX_SLOTS` from

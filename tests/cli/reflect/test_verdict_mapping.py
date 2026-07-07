@@ -28,6 +28,56 @@ def test_pass_full_tier2() -> None:
     assert result.verdict.exit_code == 0
 
 
+def test_pass_no_t2_fallback_fixture_matches_existing_pass_verdict() -> None:
+    """A null fallback block is additive-only and preserves PASS / exit 0."""
+    baseline = derive_verdict(
+        _load("pass.yaml"), expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    with_null_fallback = derive_verdict(
+        _load("pass_no_t2_fallback.yaml"),
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+    )
+
+    assert with_null_fallback.verdict is baseline.verdict
+    assert with_null_fallback.verdict.exit_code == baseline.verdict.exit_code
+    assert with_null_fallback.reason == baseline.reason
+
+
+def test_pass_with_t2_fallback_fixture_still_passes() -> None:
+    """A PRESENT (populated) additive ``t2_fallback`` block preserves PASS / exit 0.
+
+    The ``pass_with_t2_fallback.yaml`` fixture carries a fully-populated
+    ``t2_fallback`` metadata block (engaged, certified_with_fallback, a 4-entry
+    attempt ledger). Because the block is additive telemetry the verdict gate never
+    reads, the contract must still route PASS / exit 0 -- proving the fallback
+    metadata is verdict-inert even when populated (not just when null)."""
+    result = derive_verdict(
+        _load("pass_with_t2_fallback.yaml"),
+        expected_tier=2,
+        allow_single_vendor=False,
+        child_rc=0,
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+
+def test_degraded_tier1_first_match_precedes_single_reviewer_fallback() -> None:
+    """F6: expected T2 but Tier 1 returns degraded-tier1 before T10."""
+    contract = _load("degraded_tier1.yaml")
+    contract["merge_method"] = "single-reviewer-fallback"
+
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+
+    assert contract["merge_method"] == "single-reviewer-fallback"
+    assert result.verdict is Verdict.DEGRADED
+    assert result.verdict.exit_code == 11
+    assert result.reason == "degraded-tier1"
+
+
 def test_halted_regression() -> None:
     """status partial + regression -> halted / exit 10."""
     result = derive_verdict(

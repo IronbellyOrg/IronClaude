@@ -107,6 +107,14 @@ class ReflectConfig:
     reviewer_grounding_root: Path | None = None
     # FR-RH1 (UC-2): contracted-sink reachability gate enabled; default True
     reachability: bool = True
+    # §7.2 Tier-2 fallback model ladder: after primary normalize, bounded
+    # T1Model01 -> T1Model02 quorum top-up so a single transient primary reviewer
+    # failure no longer collapses a deep run to Tier-1. Defaulted so every existing
+    # ``ReflectConfig(...)`` construction site stays valid; `resolve_config` derives
+    # the effective enablement (stub transport defaults OFF).
+    tier2_fallback_enabled: bool = True
+    tier2_fallback_ladder: tuple[str, ...] = ("T1Model01", "T1Model02")
+    tier2_fallback_max_attempts: int = 2
 
     @property
     def contract_path(self) -> Path:

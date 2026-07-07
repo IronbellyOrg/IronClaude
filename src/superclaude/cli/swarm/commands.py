@@ -616,6 +616,10 @@ def _resolve_run_transport_factory(
     env: Optional[Mapping[str, str]] = None,
     workers_requested: Optional[int] = None,
     temperature: Optional[float] = None,
+    model_prefix: Optional[str] = None,
+    max_slots: Optional[int] = None,
+    proxy_url_env: Optional[str] = None,
+    proxy_key_env: Optional[str] = None,
 ) -> Callable[[int], Any]:
     """Build a per-slot transport factory ``(slot_index) -> Transport``.
 
@@ -657,6 +661,22 @@ def _resolve_run_transport_factory(
             raises :class:`ModelPoolTooSmallError` if the env pool has fewer
             models than this, preventing silent model reuse via wraparound (D2).
             ``None`` skips the check (e.g. direct unit construction).
+        model_prefix / max_slots / proxy_url_env / proxy_key_env: optional
+            ``openai_compat`` pool parameters (F3). When any is None they
+            default to the T2 constants, reproducing the exact current primary
+            behaviour; they exist purely for parameterization / backward-compat
+            (and are exercised directly by unit tests that pass the T1 names).
+            NOTE: this builder serves the SWARM RUN path. The reflect T1 fallback
+            resolver (``reflect.ensemble.resolve_t1_fallback_factory``) does NOT
+            route through this builder -- it calls :func:`read_env_for_pool` +
+            ``reflect.fallback.make_fallback_slot_factory`` DIRECTLY, because the
+            reflect ladder needs a slot-NAME-keyed factory (``(slot_name) ->
+            Transport``) whereas this builder returns a positional
+            ``(slot_index) -> Transport`` factory unusable for slot-NAME binding.
+            Both paths share the same ``read_env_for_pool`` /
+            ``ModelPoolTooSmallError`` / ``TransportEnvError`` primitives, but the
+            reflect fallback path composes them itself rather than reusing this
+            builder.
 
     Returns:
         A callable ``(slot_index: int) -> Transport``.
@@ -673,12 +693,34 @@ def _resolve_run_transport_factory(
         shared = _resolve_run_transport("stub", models=models, env=env)
         return lambda _slot: shared
     if transport_kind == "openai_compat":
+        from superclaude.cli.swarm.config import (
+            T2_MODEL_ENV_PREFIX,
+            T2_MODEL_MAX_SLOTS,
+            T2_PROXY_KEY_ENV,
+            T2_PROXY_URL_ENV,
+        )
         from superclaude.cli.swarm.transports.openai_compat import (
             OpenAICompatTransport,
-            read_env,
+            read_env_for_pool,
         )
 
-        config = read_env(env)  # eager: raises TransportEnvError if incomplete
+        # Default to the T2 pool contract (unchanged primary behaviour). The T1
+        # pool names can be passed here (unit tests do so directly), but the
+        # production reflect T1 fallback resolver reads its own pool via
+        # read_env_for_pool + make_fallback_slot_factory rather than this builder.
+        config = read_env_for_pool(
+            model_prefix=(
+                model_prefix if model_prefix is not None else T2_MODEL_ENV_PREFIX
+            ),
+            max_slots=(max_slots if max_slots is not None else T2_MODEL_MAX_SLOTS),
+            proxy_url_env=(
+                proxy_url_env if proxy_url_env is not None else T2_PROXY_URL_ENV
+            ),
+            proxy_key_env=(
+                proxy_key_env if proxy_key_env is not None else T2_PROXY_KEY_ENV
+            ),
+            env=env,
+        )  # eager: raises TransportEnvError if incomplete
         pool = [m for m in config.models if m]
         if not pool:  # defensive -- read_env raises before reaching here
             raise ValueError("swarm run: openai_compat model pool is empty")

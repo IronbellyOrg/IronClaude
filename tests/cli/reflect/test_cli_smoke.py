@@ -124,12 +124,17 @@ def test_tmux_inner_command_forwards_isolate_reviewers(tmp_path) -> None:
         reachability=True,
         resume=False,
         base_override=None,
+        tier2_fallback_enabled=True,
     )
 
     cmd = _build_inner_command(config)
 
     assert "--isolate-reviewers" in cmd
     assert "--no-isolate-reviewers" not in cmd
+    # The Tier-2 fallback state is forwarded explicitly so the inner foreground
+    # reinvocation does not silently reset it ON.
+    assert "--tier2-fallback" in cmd
+    assert "--no-tier2-fallback" not in cmd
 
 
 def test_tmux_inner_command_forwards_no_isolate_reviewers(tmp_path) -> None:
@@ -147,11 +152,15 @@ def test_tmux_inner_command_forwards_no_isolate_reviewers(tmp_path) -> None:
         reachability=True,
         resume=False,
         base_override=None,
+        tier2_fallback_enabled=False,
     )
 
     cmd = _build_inner_command(config)
 
     assert "--no-isolate-reviewers" in cmd
+    # A disabled fallback state forwards --no-tier2-fallback explicitly.
+    assert "--no-tier2-fallback" in cmd
+    assert "--tier2-fallback" not in cmd
     assert "--isolate-reviewers" not in cmd
 
 
