@@ -147,7 +147,8 @@ def test_send_non_kimi_model_includes_temperature() -> None:
 
     Guards the temperature-forwarding fix in commands.py: a future refactor that
     drops the field would silently regress to the transport's no-temperature
-    path for models that DO accept it.
+    path for models that DO accept it. Uses a NON-default temperature (0.7) so a
+    regression to the constructor default (0.2) also fails this test.
     """
     captured: dict[str, httpx.Request] = {}
 
@@ -155,16 +156,23 @@ def test_send_non_kimi_model_includes_temperature() -> None:
         captured["request"] = request
         return httpx.Response(200, content=_success_body("ok"))
 
-    client = httpx.Client(transport=httpx.MockTransport(handler))
-    with OpenAICompatTransport(
-        base_url=_BASE_URL, api_key=_API_KEY, model="qwen-latest", client=client
-    ) as transport:
-        transport.send("prompt", timeout=180)
+    # Context-manager the injected client: OpenAICompatTransport does not close
+    # clients it did not create (openai_compat.py:302-304), so the test owns the
+    # close to avoid a resource leak (PR-219 review r3533289716).
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        with OpenAICompatTransport(
+            base_url=_BASE_URL,
+            api_key=_API_KEY,
+            model="qwen-latest",
+            temperature=0.7,
+            client=client,
+        ) as transport:
+            transport.send("prompt", timeout=180)
 
     body = json.loads(captured["request"].content)
     assert body["model"] == "qwen-latest"
     assert "temperature" in body, "non-Kimi models must carry temperature"
-    assert body["temperature"] == 0.2
+    assert body["temperature"] == 0.7
 
 
 def test_send_kimi_model_omits_temperature() -> None:
@@ -183,11 +191,11 @@ def test_send_kimi_model_omits_temperature() -> None:
             captured["request"] = request
             return httpx.Response(200, content=_success_body("ok"))
 
-        client = httpx.Client(transport=httpx.MockTransport(handler))
-        with OpenAICompatTransport(
-            base_url=_BASE_URL, api_key=_API_KEY, model=kimi_model, client=client
-        ) as transport:
-            transport.send("prompt", timeout=180)
+        with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+            with OpenAICompatTransport(
+                base_url=_BASE_URL, api_key=_API_KEY, model=kimi_model, client=client
+            ) as transport:
+                transport.send("prompt", timeout=180)
 
         body = json.loads(captured["request"].content)
         assert body["model"] == kimi_model
