@@ -371,7 +371,15 @@ def run_tier2_ensemble(
             deadline_monotonic=deadline,
             env=env,
         )
-        normalized_workers = ladder_outcome.contributing_workers
+        # Use the FULL augmented worker set (all primaries + every dispatched
+        # fallback attempt) for the downstream reduce_wave3 / build_reflect_contract
+        # accounting — NOT ladder_outcome.contributing_workers (the smallest
+        # certifying subset). Feeding the trimmed subset made determine_status see
+        # M < N and mark a healthy >2-success Tier-2 subrun ``partial``, and
+        # under-reported reviewer_count. The certification basis stays in
+        # fallback_metadata (built from the contributing subset). Diversity is
+        # monotonic, so certifying on the superset preserves the verdict.
+        normalized_workers = ladder_outcome.all_workers
         fallback_metadata = ladder_outcome.metadata
     succeeded_final_paths = [
         worker.final_path

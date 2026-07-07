@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import combinations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
@@ -84,11 +84,23 @@ class QuorumState:
 
 @dataclass(frozen=True)
 class LadderOutcome:
-    """Fallback ladder result handed back to the reflect ensemble."""
+    """Fallback ladder result handed back to the reflect ensemble.
+
+    ``contributing_workers`` is the SMALLEST success subset that satisfies the
+    Tier-2 gate — it feeds only the certification-basis telemetry, NOT the
+    downstream worker accounting. ``all_workers`` is the FULL augmented worker
+    set (every normalized primary — successes AND failures — plus every
+    dispatched fallback attempt). The ensemble hands ``all_workers`` to
+    ``reduce_wave3`` / ``build_reflect_contract`` so a healthy run where >2
+    reviewers succeed is NOT mis-counted (feeding the trimmed subset would make
+    ``determine_status`` see ``M < N`` and mark the swarm subrun ``partial``
+    even though every primary succeeded).
+    """
 
     contributing_workers: list[WorkerResult]
     attempt_ledger: list[dict]
     metadata: dict[str, Any]
+    all_workers: list[WorkerResult] = field(default_factory=list)
 
 
 def is_fallback_eligible(worker: WorkerResult) -> bool:
@@ -562,8 +574,17 @@ def run_fallback_ladder(
         original_primary_pool_fully_succeeded=original_primary_pool_fully_succeeded,
     )
 
+    # The FULL augmented worker set: every normalized primary (successes AND
+    # failures) plus every dispatched fallback attempt. Handed to reduce_wave3 /
+    # build_reflect_contract so worker accounting (status, workers_failed,
+    # output_files, reviewer_count, diversity) is computed over what ACTUALLY ran
+    # — never the trimmed certifying subset (which would spuriously mark a healthy
+    # >2-success run ``partial``).
+    all_workers = list(primaries) + [worker for _slot, worker in fallback_records]
+
     return LadderOutcome(
         contributing_workers=contributing,
         attempt_ledger=attempt_ledger,
         metadata=metadata,
+        all_workers=all_workers,
     )

@@ -21,6 +21,8 @@ from __future__ import annotations
 import dataclasses
 from pathlib import Path
 
+import yaml
+
 from superclaude.cli.reflect.config import resolve_config
 from superclaude.cli.reflect.contract import derive_verdict, parse_contract
 from superclaude.cli.reflect.ensemble import (
@@ -95,6 +97,11 @@ def _factory(slot_index: int):
     return _FailingTransport(f"stub-model-{slot_index:02d}")
 
 
+def _all_success_factory(slot_index: int):
+    """All 3 slots -> vendor-distinct StubTransport successes (healthy pool)."""
+    return StubTransport(model_id=stub_model_id(slot_index))
+
+
 def _base_config(temp_tasklist: Path):
     return resolve_config(
         str(temp_tasklist),
@@ -135,6 +142,57 @@ def test_gate_on_engages_ladder_and_certifies_tier2(
     # Tier-2 restored: the fallback repaired the quorum.
     assert contract["tier_reached"] == 2
     assert contract["reviewer_count"] == 2
+
+    result = derive_verdict(
+        contract, expected_tier=2, allow_single_vendor=False, child_rc=0
+    )
+    assert result.verdict is Verdict.PASS
+    assert result.verdict.exit_code == 0
+
+
+def test_gate_on_healthy_pool_not_mismarked_partial_full_reviewer_count(
+    temp_tasklist, patch_git, tmp_path
+) -> None:
+    """REGRESSION (PR #220 / Augment high finding): a HEALTHY fallback-ENABLED run
+    where all 3 primaries succeed must NOT be mis-marked ``partial`` and must report
+    the FULL reviewer_count.
+
+    The ensemble hands ``reduce_wave3`` (and ``build_reflect_contract``) the full
+    augmented worker set (``ladder_outcome.all_workers``), NOT the smallest
+    certifying subset. Feeding the trimmed subset (size 2) with
+    ``workers_requested=3`` made ``determine_status`` see ``M(2) < N(3)`` and mark
+    the swarm subrun ``partial`` even though every primary succeeded, and
+    under-reported ``reviewer_count`` (2 instead of 3). Both assertions below fail
+    against that pre-fix behavior.
+    """
+    base = _base_config(temp_tasklist)
+    config_on = dataclasses.replace(
+        base, tier2_fallback_enabled=True, output_dir=tmp_path / "healthy"
+    )
+
+    run_tier2_ensemble(
+        config_on,
+        transport_for_slot=_all_success_factory,
+        adversarial_score_fn=_const_score,
+    )
+    contract = parse_contract(config_on.contract_path)
+
+    assert contract is not None
+    # Primaries already met quorum -> the ladder did NOT need to engage.
+    if contract.get("t2_fallback") is not None:
+        assert contract["t2_fallback"]["engaged"] is False
+    # reviewer_count reflects ALL 3 succeeding reviewers, NOT the trimmed subset (2).
+    assert contract["reviewer_count"] == 3
+    assert contract["tier_reached"] == 2
+
+    # The swarm subrun status is computed over the full worker set: 3 succeeded of
+    # 3 requested -> ``success``, NOT ``partial``. This is the exact regression the
+    # Augment finding described.
+    swarm_contract = yaml.safe_load(
+        (config_on.output_dir / "t2-swarm" / "return-contract.yaml").read_text()
+    )
+    assert swarm_contract["status"] == "success"
+    assert swarm_contract["workers_failed"] == 0
 
     result = derive_verdict(
         contract, expected_tier=2, allow_single_vendor=False, child_rc=0
