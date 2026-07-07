@@ -426,11 +426,13 @@ def run(
         sys.exit(_launch_tmux(config))
 
     # Foreground (default / inner --no-tmux reinvocation) path.
-    # D2: crash-durability wrap. If run() raises a non-ValueError (a crash the
-    # config-STOP handler above never sees), still emit a BLOCKED runner-error
-    # sidecar (best-effort) BEFORE re-raising, so the crash leaves a root sidecar
-    # AND still propagates a non-zero exit. reason="runner-error" (collision-free)
-    # keeps it distinguishable from a config-error STOP.
+    # D2: crash-durability wrap. If run() raises ANY exception (a crash the
+    # config-STOP handler above never sees — that handler wraps only
+    # resolve_config, so even a ValueError raised inside run() itself lands
+    # here), still emit a BLOCKED runner-error sidecar (best-effort) BEFORE
+    # re-raising, so the crash leaves a root sidecar AND still propagates a
+    # non-zero exit. reason="runner-error" (collision-free) keeps it
+    # distinguishable from a config-error STOP.
     try:
         result = ReflectRunner(config).run()
     except Exception as exc:
