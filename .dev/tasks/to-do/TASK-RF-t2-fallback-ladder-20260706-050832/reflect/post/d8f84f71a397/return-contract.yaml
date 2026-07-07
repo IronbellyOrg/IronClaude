@@ -1,0 +1,31 @@
+contract_version: '1.0'
+status: success
+mode: post
+tier_reached: 2
+reviewer_count: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/merged.md
+audit_log_path: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+adversarial_unavailable: false
+merge_method: adversarial
+adversarial_convergence_score: null
+verification_ran: false
+verification_skip_reason: tool-unavailable
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+serena_summary_corroboration: unavailable
+degraded_components: []
+reviewer_isolation: disabled
+audit_tree_dirty: false
+reviewer_grounding_root: null

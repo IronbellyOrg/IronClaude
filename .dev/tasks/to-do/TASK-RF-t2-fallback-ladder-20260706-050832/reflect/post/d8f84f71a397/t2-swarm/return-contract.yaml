@@ -1,0 +1,71 @@
+contract_version: '1.0'
+status: partial
+job_id: reflect-ensemble
+started: ''
+finished: ''
+elapsed_ms: 0
+caller:
+  skill: null
+  skill_version: null
+  invocation_label: reflect-ensemble
+  kind: cli
+lens: reflect-review
+lens_source: registry
+target:
+  path: ''
+  checksum: ''
+  truncated: false
+  truncation_line_cap: 4000
+workers_requested: 3
+workers_succeeded: 2
+workers_failed: 1
+output_files:
+- index: 0
+  path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-00-kimi-k2.7-code.final.md
+  raw_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-00-kimi-k2.7-code.raw.md
+  meta_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-00-kimi-k2.7-code.meta.json
+  final_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-00-kimi-k2.7-code.final.md
+  model_id: kimi-k2.7-code
+  model_label: kimi-k2.7-code
+  bytes: 184
+  status: proxy_error
+  http_code: 400
+  attempts: 1
+  elapsed_ms: 1152
+- index: 1
+  path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-01-qwen3.6-plus.final.md
+  raw_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-01-qwen3.6-plus.raw.md
+  meta_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-01-qwen3.6-plus.meta.json
+  final_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-01-qwen3.6-plus.final.md
+  model_id: qwen3.6-plus
+  model_label: qwen3.6-plus
+  bytes: 7799
+  status: success
+  http_code: 200
+  attempts: 1
+  elapsed_ms: 110890
+- index: 2
+  path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-02-glm-5.2.final.md
+  raw_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-02-glm-5.2.raw.md
+  meta_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-02-glm-5.2.meta.json
+  final_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-02-glm-5.2.final.md
+  model_id: glm-5.2
+  model_label: glm-5.2
+  bytes: 7921
+  status: success
+  http_code: 200
+  attempts: 1
+  elapsed_ms: 117807
+amalgamation_mode: normalize+merge
+merged_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/merged.md
+caller_metadata:
+  suspect: true
+  tier: T2
+recommended_next_command: /sc:adversarial --compare <existing-reflect-report>,/config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-01-qwen3.6-plus.final.md,/config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-02-glm-5.2.final.md
+  --suspect-source /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-01-qwen3.6-plus.final.md,/config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/post/d8f84f71a397/t2-swarm/reflect-review-02-glm-5.2.final.md
+artifacts:
+  manifest_path: ''
+  state_path: ''
+  event_log_jsonl: ''
+  event_log_md: ''
+  done_sentinel: ''

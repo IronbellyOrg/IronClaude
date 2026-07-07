@@ -1,0 +1,15 @@
+### ruff check (scoped to change set) ###
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+All checks passed!
+
+### ruff format --check (scoped to change set) ###
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+22 files already formatted
+
+### make verify-sync ###
+  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh
+
+=== Hooks Cross-Consistency ===
+  ✅ hooks.json matcher and auggie-flag-clear.sh case body agree on auggie prefixes
+
+✅ All components in sync.

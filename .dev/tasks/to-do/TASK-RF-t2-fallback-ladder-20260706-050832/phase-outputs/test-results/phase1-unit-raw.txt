@@ -1,0 +1,34 @@
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.11, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.14.1
+collecting ... collected 22 items
+
+tests/cli/reflect/test_fallback_classify.py::test_success_classifies_as_success_and_not_fallback_eligible PASSED [  4%]
+tests/cli/reflect/test_fallback_classify.py::test_terminal_failures_classify_as_fallback_eligible[timeout] PASSED [  9%]
+tests/cli/reflect/test_fallback_classify.py::test_terminal_failures_classify_as_fallback_eligible[proxy_error] PASSED [ 13%]
+tests/cli/reflect/test_fallback_classify.py::test_terminal_failures_classify_as_fallback_eligible[parse_error] PASSED [ 18%]
+tests/cli/reflect/test_fallback_classify.py::test_salvaged_parse_error_arrives_as_success_and_is_not_eligible PASSED [ 22%]
+tests/cli/reflect/test_fallback_classify.py::test_classification_lists_are_disjoint_and_cover_input PASSED [ 27%]
+tests/cli/reflect/test_fallback_plan.py::test_certified_when_primary_quorum_already_satisfies_tier2 PASSED [ 31%]
+tests/cli/reflect/test_fallback_plan.py::test_certified_with_fallback_after_attempt_satisfies_tier2 PASSED [ 36%]
+tests/cli/reflect/test_fallback_plan.py::test_dispatches_first_ladder_slot_when_quorum_unmet PASSED [ 40%]
+tests/cli/reflect/test_fallback_plan.py::test_first_pass_with_multiple_primary_failures_still_dispatches_t1model01 PASSED [ 45%]
+tests/cli/reflect/test_fallback_plan.py::test_second_attempt_dispatches_t1model02_not_t1model01_again PASSED [ 50%]
+tests/cli/reflect/test_fallback_plan.py::test_later_pass_can_escalate_when_t1model01_success_did_not_repair_diversity PASSED [ 54%]
+tests/cli/reflect/test_fallback_plan.py::test_wall_clock_exhaustion_stops_before_dispatch PASSED [ 59%]
+tests/cli/reflect/test_fallback_plan.py::test_missing_fallback_slot_reports_config_missing PASSED [ 63%]
+tests/cli/reflect/test_fallback_plan.py::test_ladder_exhaustion_reports_pool_exhausted PASSED [ 68%]
+tests/cli/reflect/test_fallback_select.py::test_smallest_passing_set_is_chosen_not_larger_set PASSED [ 72%]
+tests/cli/reflect/test_fallback_select.py::test_primaries_are_preferred_over_fallbacks_on_ties PASSED [ 77%]
+tests/cli/reflect/test_fallback_select.py::test_same_vendor_pair_is_insufficient_unless_allowed PASSED [ 81%]
+tests/cli/reflect/test_fallback_select.py::test_same_model_id_pair_is_insufficient PASSED [ 86%]
+tests/cli/reflect/test_fallback_select.py::test_incident_inputs_select_t2model02_and_t1model01 PASSED [ 90%]
+tests/cli/reflect/test_fallback_slot_factory.py::test_fallback_slot_factory_binds_slot_name_to_ladder_position PASSED [ 95%]
+tests/cli/reflect/test_fallback_slot_factory.py::test_fallback_slot_factory_raises_when_pool_too_small_for_slot PASSED [100%]
+
+============================== 22 passed in 0.19s ==============================

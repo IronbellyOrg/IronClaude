@@ -1,0 +1,15 @@
+contract_version: "1.7.0"
+status: success
+mode: pre
+tier_reached: 1
+run_id: pre-20260706062812-t2fbladder
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+unmapped_requirements: []
+confidence_calibrated: 0.91
+needs_human_decision: true
+report_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/tasks/to-do/TASK-RF-t2-fallback-ladder-20260706-050832/reflect/pre/report.md
+mapped_requirements: 46
+total_requirements: 46
+coverage_floor: 0.90
+verdict: pass

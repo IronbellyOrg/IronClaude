@@ -1,0 +1,144 @@
+contract_version: "1.7.0"
+status: partial
+mode: pre
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ReflectModelFallback/.dev/reflect/pre-reflect-t2-fallback-ladder-202607060452/REPORT.md
+audit_log_path: null
+confidence_calibrated: 0.74
+escalation_rule_matched: 6
+onboarding_ran: false
+coverage_pct: 0.88
+coverage_pct_union: 0.88
+coverage_undefined: false
+coverage_degraded: null
+unmapped_requirements:
+  - wall-clock policy concrete source remains unresolved
+  - same per-attempt retry/timeout behavior for fallback is implied but not pinned
+  - some recommended metadata fields are omitted or unreconciled
+unmapped_requirements_union:
+  - wall-clock policy concrete source remains unresolved
+  - same per-attempt retry/timeout behavior for fallback is implied but not pinned
+  - some recommended metadata fields are omitted or unreconciled
+best_practice_grade: 3
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+tasklist_completion_pct: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+deviation_register_path: null
+grounding_gaps_path: null
+verification_ran: false
+verification_invocations: 0
+verification_failures: 0
+verification_regressions_detected: 0
+verification_skip_reason: null
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+runtime_surface_ledger_path: null
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: null
+reuse_sweep_ran: false
+reuse_audit_path: null
+reuse_miss_blocking: 0
+reuse_miss_advisory: 0
+reuse_verdict_count_by_type:
+  reuse_by_import: 0
+  mirror_shape: 0
+  extract_shared: 0
+  distinct: 0
+reuse_grounding_gap_count: 0
+neighbour_search_sampled: false
+neighbour_search_degraded: false
+max_overlap_score: null
+input_sha256:
+  tasklist: null
+  spec: null
+input_tree_sha256: null
+input_tree_file_count: 2
+input_tree_snapshot_path: null
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 38
+citations_revalidated: 38
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+citation_revalidation_at_promotion: false
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: adversarial
+t2_model_class_diversity: full
+t2_vendor_diversity: single
+t2_effective_diversity: model-only
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: true
+needs_human_decision: true
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+findings:
+  - id: F1
+    severity: HIGH
+    summary: fallback one-worker dispatch can reuse T1Model01 instead of escalating to T1Model02
+  - id: F2
+    severity: HIGH
+    summary: fallback normalize/stamp seam is underspecified and ordered backwards
+  - id: F3
+    severity: HIGH
+    summary: T1 transport support omits openai_compat env reader changes
+  - id: F4
+    severity: MEDIUM
+    summary: wall-clock policy remains unresolved
+  - id: F5
+    severity: MEDIUM
+    summary: contract.py module-map contradiction
+  - id: F6
+    severity: MEDIUM
+    summary: degraded-reason narrative conflicts with first-match verdict chain
+  - id: F7
+    severity: LOW
+    summary: test paths are not aligned to current tests/cli namespace
