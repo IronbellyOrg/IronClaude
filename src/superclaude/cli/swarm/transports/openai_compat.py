@@ -308,7 +308,7 @@ class OpenAICompatTransport:
         *,
         client: Optional[httpx.Client] = None,
         temperature: float = 0.2,
-        max_tokens: int = 4096,
+        max_tokens: int = 32768,
     ) -> None:
         if not base_url:
             raise ValueError("OpenAICompatTransport.base_url must be non-empty")
