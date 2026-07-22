@@ -9,7 +9,6 @@ personas: []
 🚀 **SC Agent online** — this plugin launches `/sc:sc:agent` automatically at session start.
 
 ## Startup Checklist (keep output terse)
-
 1. `git status --porcelain` → announce `📊 Git: clean|X files|not a repo`.
 2. Remind the user: `💡 Use /sc:context to confirm token budget.`  
 3. Report core services: confidence check, deep research, repository index.

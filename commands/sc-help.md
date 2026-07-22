@@ -10,18 +10,15 @@ personas: []
 # /sc:sc:sc:help - Command Reference Documentation
 
 ## Triggers
-
 - Command discovery and reference lookup requests
 - Framework exploration and capability understanding needs
 - Documentation requests for available SuperClaude commands
 
 ## Behavioral Flow
-
 1. **Display**: Present complete command list with descriptions
 2. **Complete**: End interaction after displaying information
 
 Key behaviors:
-
 - Information display only - no execution or implementation
 - Reference documentation mode without action triggers
 
@@ -135,7 +132,6 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 ## Boundaries
 
 **Will:**
-
 - Display comprehensive list of available SuperClaude commands
 - Provide clear descriptions of each command's functionality
 - Present information in readable tabular format
@@ -143,7 +139,6 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 - Provide flag usage examples and priority rules
 
 **Will Not:**
-
 - Execute any commands or create any files
 - Activate implementation modes or start projects
 - Engage TodoWrite or any execution tools

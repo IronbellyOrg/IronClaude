@@ -17,7 +17,6 @@ AI facilitated panel discussion between renowned business thought leaders analyz
 ## Expert Panel
 
 ### Available Experts
-
 - **Clayton Christensen**: Disruption Theory, Jobs-to-be-Done
 - **Michael Porter**: Competitive Strategy, Five Forces
 - **Peter Drucker**: Management Philosophy, MBO
@@ -31,27 +30,22 @@ AI facilitated panel discussion between renowned business thought leaders analyz
 ## Analysis Modes
 
 ### Phase 1: DISCUSSION (Default)
-
 Collaborative analysis where experts build upon each other's insights through their frameworks.
 
 ### Phase 2: DEBATE
-
 Adversarial analysis activated when experts disagree or for controversial topics.
 
 ### Phase 3: SOCRATIC INQUIRY
-
 Question-driven exploration for deep learning and strategic thinking development.
 
 ## Usage
 
 ### Basic Usage
-
 ```bash
 /sc:sc:business-panel [document_path_or_content]
 ```
 
 ### Advanced Options
-
 ```bash
 /sc:sc:business-panel [content] --experts "porter,christensen,meadows"
 /sc:sc:business-panel [content] --mode debate
@@ -60,33 +54,28 @@ Question-driven exploration for deep learning and strategic thinking development
 ```
 
 ### Mode Commands
-
 - `--mode discussion` - Collaborative analysis (default)
 - `--mode debate` - Challenge and stress-test ideas
 - `--mode socratic` - Question-driven exploration
 - `--mode adaptive` - System selects based on content
 
 ### Expert Selection
-
 - `--experts "name1,name2,name3"` - Select specific experts
 - `--focus domain` - Auto-select experts for domain
 - `--all-experts` - Include all 9 experts
 
 ### Output Options
-
 - `--synthesis-only` - Skip detailed analysis, show synthesis
 - `--structured` - Use symbol system for efficiency
 - `--verbose` - Full detailed analysis
 - `--questions` - Focus on strategic questions
 
 ## Auto-Persona Activation
-
 - **Auto-Activates**: Analyzer, Architect, Mentor personas
 - **MCP Integration**: Sequential (primary), Context7 (business patterns)
 - **Tool Orchestration**: Read, Grep, Write, MultiEdit, TodoWrite
 
 ## Integration Notes
-
 - Compatible with all thinking flags (--think, --think-hard, --ultrathink)
 - Supports wave orchestration for comprehensive business analysis
 - Integrates with scribe persona for professional business communication
@@ -98,32 +87,27 @@ Question-driven exploration for deep learning and strategic thinking development
 This command produces EXPERT ANALYSIS and RECOMMENDATIONS only.
 
 **Default behavior**:
-
 - Assemble expert panel
 - Conduct analysis/discussion
 - **STOP with synthesis document** - do not implement recommendations
 
 **Completion Criteria**:
-
 - All relevant experts have contributed
 - Consensus or disagreements documented
 - Actionable recommendations provided
 
 **Explicitly Will NOT**:
-
 - Implement any business recommendations
 - Make code or architectural changes
 - Execute decisions without user approval
 
 **Output**: Business analysis document containing:
-
 - Expert perspectives (9 simulated experts)
 - Consensus points
 - Disagreements with reasoning
 - Priority-ranked recommendations
 
 **Next Step**: User reviews recommendations, then:
-
 - Use `/sc:sc:design` for architectural changes
 - Use `/sc:sc:implement` for feature development
 - Use `/sc:sc:workflow` for planning

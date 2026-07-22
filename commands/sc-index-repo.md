@@ -19,7 +19,6 @@ description: Repository Indexing - 94% token reduction (58K → 3K)
 **Parallel analysis** (5 concurrent Glob searches):
 
 1. **Code Structure**
-
    ```
    src/**/*.{ts,py,js,tsx,jsx}
    lib/**/*.{ts,py,js}
@@ -27,7 +26,6 @@ description: Repository Indexing - 94% token reduction (58K → 3K)
    ```
 
 2. **Documentation**
-
    ```
    docs/**/*.md
    *.md (root level)
@@ -35,7 +33,6 @@ description: Repository Indexing - 94% token reduction (58K → 3K)
    ```
 
 3. **Configuration**
-
    ```
    *.toml
    *.yaml, *.yml
@@ -43,7 +40,6 @@ description: Repository Indexing - 94% token reduction (58K → 3K)
    ```
 
 4. **Tests**
-
    ```
    tests/**/*.{py,ts,js}
    **/*.test.{ts,py,js}
@@ -51,7 +47,6 @@ description: Repository Indexing - 94% token reduction (58K → 3K)
    ```
 
 5. **Scripts & Tools**
-
    ```
    scripts/**/*
    bin/**/*
@@ -61,7 +56,6 @@ description: Repository Indexing - 94% token reduction (58K → 3K)
 ### Phase 2: Extract Metadata
 
 For each file category, extract:
-
 - Entry points (main.py, index.ts, cli.py)
 - Key modules and exports
 - API surface (public functions/classes)
@@ -121,7 +115,6 @@ Generated: {timestamp}
 ### Phase 4: Validation
 
 Quality checks:
-
 - [ ] All entry points identified?
 - [ ] Core modules documented?
 - [ ] Index size < 5KB?
@@ -132,19 +125,16 @@ Quality checks:
 ## Usage
 
 **Create index**:
-
 ```
 /index-repo
 ```
 
 **Update existing index**:
-
 ```
 /index-repo mode=update
 ```
 
 **Quick index (skip tests)**:
-
 ```
 /index-repo mode=quick
 ```
@@ -154,7 +144,6 @@ Quality checks:
 ## Token Efficiency
 
 **ROI Calculation**:
-
 - Index creation: 2,000 tokens (one-time)
 - Index reading: 3,000 tokens (every session)
 - Full codebase read: 58,000 tokens (every session)
@@ -168,7 +157,6 @@ Quality checks:
 ## Output Format
 
 Creates two files:
-
 1. `PROJECT_INDEX.md` (3KB, human-readable)
 2. `PROJECT_INDEX.json` (10KB, machine-readable)
 

@@ -1,102 +1,88 @@
 ---
 name: reflect
-description: "Tiered reflection (UC-1 pre-execution / UC-2 post-execution) grounded in real code and citations, using Serena + Auggie"
+description: "Task reflection and validation using Serena MCP analysis capabilities"
 category: special
-complexity: advanced
-mcp-servers: [serena, auggie, context7, tavily, sequential]
-personas: [analyzer, qa, refactorer, architect]
+complexity: standard
+mcp-servers: [serena]
+personas: []
 ---
 
-# /sc:reflect - Tiered Reflection (UC-1 / UC-2)
+# /sc:sc:sc:reflect - Task Reflection and Validation
 
 ## Triggers
-
-- Pre-execution (UC-1): audit a proposed tasklist/strategy against its driving spec/PRD for coverage and best-practice compliance before token spend
-- Post-execution (UC-2): audit completed work (diff, artifacts, task log) for 100% adherence and classify every divergence under the 4-category deviation taxonomy
-- Reviewer-side, structurally-independent validation — not single-agent self-review
-- Auto-triggered by `/sc:troubleshoot` Wave 6 (Phase B pre-exec, Phase D post-exec)
+- Task completion requiring validation and quality assessment
+- Session progress analysis and reflection on work accomplished
+- Cross-session learning and insight capture for project improvement
+- Quality gates requiring comprehensive task adherence verification
 
 ## Usage
-
-```bash
-/sc:reflect [--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <ref>] \
-  [--depth quick|standard|deep] [--tier 1|2|auto] [--reviewers N] [--remediate]
 ```
-
-Legacy grammar (preserved for `/sc:troubleshoot` Wave 6 and other v1 callers):
-
-```bash
-/sc:reflect --type task --analyze    # maps to --mode pre
-/sc:reflect --type task --validate   # maps to --mode post
+/sc:sc:reflect [--type task|session|completion] [--analyze] [--validate]
 ```
-
-## Required Input
-
-- **UC-1 (pre)**: `--spec <path>` is required. `--tasklist <path>` is strongly recommended.
-- **UC-2 (post)**: at least one of `--diff <ref-or-path>` or `--task-log <path>` is required. `--tasklist <path>` is strongly recommended.
 
 ## Behavioral Flow
+1. **Analyze**: Examine current task state and session progress using Serena reflection tools
+2. **Validate**: Assess task adherence, completion quality, and requirement fulfillment
+3. **Reflect**: Apply deep analysis of collected information and session insights
+4. **Document**: Update session metadata and capture learning insights
+5. **Optimize**: Provide recommendations for process improvement and quality enhancement
 
-1. **Resolve mode**: explicit `--mode pre|post` (or legacy mapping), else auto-detect from inputs
-2. **Tier 1**: fast single-agent grounded reflection (auggie + serena symbol chain), blind-calibrated
-3. **Tier decision**: rubric routes to Tier 2 on low confidence, multi-domain, or regression candidacy
-4. **Tier 2 (conditional)**: heterogeneous reviewer ensemble + adversarial merge via `sc-adversarial-protocol`
-5. **Evidence-validator gate**: every `file:line` citation re-Read; unfounded citations dropped, not downgraded
-6. **Report + contract**: coverage matrix (UC-1) or deviation register (UC-2) + versioned return contract
-7. **Tier 3 (opt-in `--remediate`)**: hand off to `task-builder` for a corrective MDTM task
-
+Key behaviors:
+- Serena MCP integration for comprehensive reflection analysis and task validation
+- Bridge between TodoWrite patterns and advanced Serena analysis capabilities
+- Session lifecycle integration with cross-session persistence and learning capture
+- Performance-critical operations with <200ms core reflection and validation
 ## MCP Integration
-
-- **Auggie** (primary, free retrieval): codebase grounding via `mcp__auggie__codebase-retrieval`
-- **Serena**: symbol-level navigation (`find_symbol`, `find_referencing_symbols`, `get_symbols_overview`, `find_declaration`, `find_implementations`, `type_hierarchy`), the UC-2 verification triangle (`get_diagnostics_for_file` / `execute_shell_command` / `summarize_changes`; `--no-verify` disables), opt-in `onboarding` cold-start (`--onboard`), and cross-session memory
-- **Context7 / Tavily / Sequential**: Tier 2 only (framework docs, external-symptom lookups, synthesis)
+- **Serena MCP**: Mandatory integration for reflection analysis, task validation, and session metadata
+- **Reflection Tools**: think_about_task_adherence, think_about_collected_information, think_about_whether_you_are_done
+- **Memory Operations**: Cross-session persistence with read_memory, write_memory, list_memories
+- **Performance Critical**: <200ms for core reflection operations, <1s for checkpoint creation
 
 ## Tool Coordination
-
-- **modern Serena symbolic chain** replaces the load-bearing role of `think_about_*` (which remain as scripted, non-gating checkpoints captured to the audit log)
-- **confidence-calibrator**: blind re-grade of each reviewer card (calibrator class disjoint from reviewer classes)
-- **evidence-validator**: non-negotiable final gate — a zero-drop pass is treated as suspect, not clean
-- **sc-adversarial-protocol**: Tier 2 debate/scoring/merge (never re-implemented here)
+- **TodoRead/TodoWrite**: Bridge between traditional task management and advanced reflection analysis
+- **think_about_task_adherence**: Validates current approach against project goals and session objectives
+- **think_about_collected_information**: Analyzes session work and information gathering completeness
+- **think_about_whether_you_are_done**: Evaluates task completion criteria and remaining work identification
+- **Memory Tools**: Session metadata updates and cross-session learning capture
 
 ## Key Patterns
-
-- **UC-1 coverage**: spec → tasklist coverage map → unmapped-requirement gap registry → best-practice grade
-- **UC-2 deviation**: tasklist-vs-diff map → 4-category taxonomy (Authorized / Necessary / Drift / Regression) → remediation posture
-- **Tier escalation**: quick-first Tier 1, escalate only when the rubric or `--tier 2`/`--depth deep` demands
-- **Promotion (UC-2)**: on a strict gate pass, move the validated work-unit to its `done` destination (`--no-promote` to suppress)
+- **Task Validation**: Current approach → goal alignment → deviation identification → course correction
+- **Session Analysis**: Information gathering → completeness assessment → quality evaluation → insight capture
+- **Completion Assessment**: Progress evaluation → completion criteria → remaining work → decision validation
+- **Cross-Session Learning**: Reflection insights → memory persistence → enhanced project understanding
 
 ## Examples
 
-### UC-1 pre-execution coverage/gap audit
-
-```bash
-/sc:reflect --mode pre --spec docs/spec.md --tasklist .dev/tasklists/feat.md
-# Coverage matrix + unmapped requirements before execution
+### Task Adherence Reflection
+```
+/sc:sc:reflect --type task --analyze
+# Validates current approach against project goals
+# Identifies deviations and provides course correction recommendations
 ```
 
-### UC-2 post-execution deviation audit
-
-```bash
-/sc:reflect --mode post --diff HEAD~1..HEAD --tasklist .dev/tasklists/feat.md
-# 100% adherence audit + per-item deviation classification
+### Session Progress Analysis
+```
+/sc:sc:reflect --type session --validate
+# Comprehensive analysis of session work and information gathering
+# Quality assessment and gap identification for project improvement
 ```
 
-### Legacy (preserved for `/sc:troubleshoot` Wave 6)
-
-```bash
-/sc:reflect --type task --validate   # maps to --mode post (needs --diff or --task-log)
+### Completion Validation
+```
+/sc:sc:reflect --type completion
+# Evaluates task completion criteria against actual progress
+# Determines readiness for task completion and identifies remaining blockers
 ```
 
 ## Boundaries
 
 **Will:**
-
-- Run reviewer-side, structurally-independent reflection grounded in real code and real citations
-- Classify every UC-2 deviation under the 4-category taxonomy with detection signals and gold-standard references
-- Delegate Tier 2 debate/scoring/merge to `sc-adversarial-protocol`; gate every report through evidence-validator
+- Perform comprehensive task reflection and validation using Serena MCP analysis tools
+- Bridge TodoWrite patterns with advanced reflection capabilities for enhanced task management
+- Provide cross-session learning capture and session lifecycle integration
 
 **Will Not:**
+- Operate without proper Serena MCP integration and reflection tool access
+- Override task completion decisions without proper adherence and quality validation
+- Bypass session integrity checks and cross-session persistence requirements
 
-- Confirm its own conclusions — a zero-drop evidence-validator pass on a non-trivial report is an audit flag
-- Auto-execute a Tier 3 remediation task (produces a file; the user runs `/task`)
-- Treat `think_about_*` as the load-bearing signal, or the executor's commit message as the gold-standard reference
