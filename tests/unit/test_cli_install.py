@@ -214,6 +214,23 @@ class TestProtocolSkillInstallMapping:
         # Non-sc- skills are never command-backed.
         assert _has_corresponding_command("some-other-skill") is False
 
+    def test_command_activated_skill_is_not_command_backed(self):
+        """A thin command cannot replace the skill it explicitly activates."""
+        from superclaude.cli.install_skills import _has_corresponding_command
+
+        assert _has_corresponding_command("sc-recommend") is False
+
+    def test_install_all_skills_installs_command_activated_skill(self, tmp_path):
+        """The global install payload includes /sc:recommend's backing skill."""
+        from superclaude.cli.install_skills import install_all_skills
+
+        target = tmp_path / "skills"
+        success, message = install_all_skills(target_path=target, force=True)
+
+        assert success is True
+        assert (target / "sc-recommend" / "SKILL.md").exists()
+        assert "sc-recommend → /sc:recommend" not in message
+
     def test_no_available_protocol_skill_is_command_backed(self):
         """Across the real skill roster, zero ``sc-*-protocol`` skills are swept."""
         from superclaude.cli.install_skills import (

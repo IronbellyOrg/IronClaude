@@ -361,7 +361,7 @@ def doctor(verbose: bool):
 
     Verifies:
         - pytest plugin loaded correctly
-        - Skills installed (if any)
+        - Installed commands can resolve their required skills
         - Configuration files present
     """
     from .doctor import run_doctor

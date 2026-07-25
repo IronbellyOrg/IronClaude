@@ -7,7 +7,8 @@ Wraps the single-skill installer for batch operation during `superclaude install
 Skills whose directory name starts with "sc-" and have a corresponding
 slash command (e.g. a hypothetical bare "sc-foo" → commands/foo.md) are
 served via /sc:<name> commands and are NOT installed as separate skills,
-to avoid duplicate autocomplete entries.
+to avoid duplicate autocomplete entries. A command that explicitly activates
+its matching skill is not self-contained, so that skill remains installed.
 
 IMPORTANT (protocol-skill install policy): the project's protocol skills are
 named "sc-<command>-protocol" (e.g. sc-roadmap-protocol, backing commands/roadmap.md).
@@ -20,17 +21,28 @@ into the served-by-command removal path. See tests/unit/test_cli_install.py for
 the regression guard that locks this behavior.
 """
 
+import re
 from pathlib import Path
 from typing import List, Tuple
 
 from .install_skill import install_skill_command, list_available_skills
 
+_SKILL_ACTIVATION_RE = re.compile(
+    r"^\s*>?\s*Skill\s+([A-Za-z0-9:_-]+)\s*$", re.MULTILINE
+)
+
+
+def skill_activation_targets(command_path: Path) -> set[str]:
+    """Return the skills explicitly activated by a command file."""
+    return set(_SKILL_ACTIVATION_RE.findall(command_path.read_text(encoding="utf-8")))
+
 
 def _has_corresponding_command(skill_name: str) -> bool:
-    """Check if an sc-* skill has a matching slash command.
+    """Check if an sc-* skill is fully served by a matching slash command.
 
     For example, a bare skill "sc-foo" has a command if
-    src/superclaude/commands/foo.md exists.
+    src/superclaude/commands/foo.md exists. A command that activates the skill
+    by name is only an entry point, so the backing skill must remain installed.
 
     Note: this strips ONLY the "sc-" prefix. Protocol skills named
     "sc-<command>-protocol" therefore do NOT match commands/<command>.md and
@@ -41,7 +53,10 @@ def _has_corresponding_command(skill_name: str) -> bool:
         return False
     cmd_name = skill_name[3:]  # strip "sc-" prefix only (NOT a "-protocol" suffix)
     package_root = Path(__file__).resolve().parent.parent
-    return (package_root / "commands" / f"{cmd_name}.md").exists()
+    command_path = package_root / "commands" / f"{cmd_name}.md"
+    return command_path.exists() and skill_name not in skill_activation_targets(
+        command_path
+    )
 
 
 def install_all_skills(

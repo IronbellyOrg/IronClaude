@@ -29,7 +29,7 @@ PROJECT_NAME="$(basename "$ABS_PROJECT")"
 
 # Encode cwd for ~/.claude/projects/ lookup: leading slash dropped, then '/' -> '-'.
 ENCODED_CWD="-$(echo "$ABS_PROJECT" | sed 's|^/||; s|/|-|g')"
-SESSION_DIR="/config/.claude/projects/$ENCODED_CWD"
+SESSION_DIR="~/.claude/projects/$ENCODED_CWD"
 
 # Helper: print most-recent mtime in a tree as ISO-ish or "" if none.
 mtime_of() {

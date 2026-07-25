@@ -5,7 +5,9 @@ Health check for SuperClaude installation.
 """
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+from .install_skills import skill_activation_targets
 
 
 def run_doctor(verbose: bool = False) -> Dict[str, Any]:
@@ -121,29 +123,43 @@ def _check_agents_installed() -> Dict[str, Any]:
         }
 
 
-def _check_skills_installed() -> Dict[str, Any]:
-    """
-    Check if any skills are installed
-
-    Returns:
-        Check result dict
-    """
-    skills_dir = Path("~/.claude/skills").expanduser()
-
-    if not skills_dir.exists():
-        return {
-            "name": "Skills installed",
-            "passed": True,  # Optional, so pass
-            "details": ["No skills installed (optional)"],
-        }
+def _check_skills_installed(
+    skills_dir: Optional[Path] = None, commands_dir: Optional[Path] = None
+) -> Dict[str, Any]:
+    """Check installed skills and resolve command activation dependencies."""
+    if skills_dir is None:
+        skills_dir = Path.home() / ".claude" / "skills"
+    if commands_dir is None:
+        commands_dir = Path.home() / ".claude" / "commands" / "sc"
 
     # Find skills (directories with SKILL.md or implementation.md)
     skills = []
-    for item in skills_dir.iterdir():
-        if item.is_dir() and any(
-            (item / m).exists() for m in ("SKILL.md", "skill.md", "implementation.md")
-        ):
-            skills.append(item.name)
+    if skills_dir.exists():
+        for item in skills_dir.iterdir():
+            if item.is_dir() and any(
+                (item / m).exists()
+                for m in ("SKILL.md", "skill.md", "implementation.md")
+            ):
+                skills.append(item.name)
+    skills.sort()
+
+    required_skills = set()
+    if commands_dir.exists():
+        for command_path in commands_dir.glob("*.md"):
+            required_skills.update(skill_activation_targets(command_path))
+
+    installed = set(skills)
+    unresolved = sorted(
+        target
+        for target in required_skills
+        if target not in installed and target.replace(":", "-", 1) not in installed
+    )
+    if unresolved:
+        return {
+            "name": "Skills installed",
+            "passed": False,
+            "details": ["Missing command-required skill(s): " + ", ".join(unresolved)],
+        }
 
     if skills:
         return {
@@ -151,12 +167,12 @@ def _check_skills_installed() -> Dict[str, Any]:
             "passed": True,
             "details": [f"{len(skills)} skill(s) installed: {', '.join(skills)}"],
         }
-    else:
-        return {
-            "name": "Skills installed",
-            "passed": True,  # Optional
-            "details": ["No skills installed (optional)"],
-        }
+
+    return {
+        "name": "Skills installed",
+        "passed": True,  # Optional when no installed command requires one
+        "details": ["No skills installed (optional)"],
+    }
 
 
 def _check_configuration() -> Dict[str, Any]:

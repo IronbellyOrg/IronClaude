@@ -1,7 +1,7 @@
 ---
 name: sc-crash-recovery
 description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, serena memory, git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `superclaude sprint`, `superclaude roadmap`, or `/sc:task` pipelines fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
-allowed-tools: Read, Glob, Grep, Bash(ls *), Bash(find *), Bash(wc *), Bash(cat *), Bash(head *), Bash(tail *), Bash(stat *), Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git stash *), Bash(git branch *), Bash(git ls-files *), Bash(/config/.claude/skills/sc-crash-recovery/scripts/*), Bash(/config/workspace/IronClaude/.claude/skills/sc-crash-recovery/scripts/*), Task
+allowed-tools: Read, Glob, Grep, Bash(ls *), Bash(find *), Bash(wc *), Bash(cat *), Bash(head *), Bash(tail *), Bash(stat *), Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git stash *), Bash(git branch *), Bash(git ls-files *), Bash(~/.claude/skills/sc-crash-recovery/scripts/*), Bash(~/workspace/IronClaude/.claude/skills/sc-crash-recovery/scripts/*), Task
 metadata:
   type: workflow
 ---
@@ -22,7 +22,7 @@ Every investigator, and the final synthesis, must enumerate every initiative it 
 
 Parse the invocation for these arguments (all optional):
 
-- `--all` — sweep every project under `/config/workspace/`. Default is current cwd only.
+- `--all` — sweep every project under `~/workspace/`. Default is current cwd only.
 - `--since <duration>` — limit signals to last N hours/days (e.g. `--since 24h`). Default: last 72 hours of activity.
 - `<project-path>` — explicit project path overrides cwd.
 
@@ -33,7 +33,7 @@ If the user is vague ("the server crashed, help me figure out where I was"), def
 Before launching any investigation:
 
 - **STOP** if `<project-path>` was supplied but does not resolve to an existing directory. Tell the user the path is invalid and ask them to clarify. Do not fall back to cwd silently — a typo'd path producing a confidently-empty "no in-flight state" report is worse than no report at all.
-- **STOP** if `--all` was supplied and `/config/workspace/` contains zero project directories. Report the configuration issue.
+- **STOP** if `--all` was supplied and `~/workspace/` contains zero project directories. Report the configuration issue.
 - **WARN** (don't stop) if the resolved project path exists but has no `.dev/`, no `.git/`, no `.serena/`, and no recent session logs. Tell the user the project looks untouched; ask whether they want to continue anyway.
 
 ## How to work
@@ -50,7 +50,7 @@ PROJECT="$(pwd)"            # or the path the user supplied
 PROJECTS=("$PROJECT")
 
 # Fleet mode (--all)
-PROJECTS=$(find /config/workspace -maxdepth 1 -mindepth 1 -type d)
+PROJECTS=$(find ~/workspace -maxdepth 1 -mindepth 1 -type d)
 ```
 
 If you got `--all`, tell the user how many projects you're sweeping and warn this will fan out a lot of subagents. Confirm before launching if there are more than 6 projects.
