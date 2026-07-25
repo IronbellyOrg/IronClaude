@@ -7,3 +7,6 @@
 {"timestamp": "2026-06-10T15:22:23.932491+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": true, "message": "All checks passed (advisory: advisory_check: advisory_check failed)"}
 {"timestamp": "2026-06-10T15:22:23.933330+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
 {"timestamp": "2026-06-10T15:22:23.934159+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
+{"timestamp": "2026-07-25T16:41:37.247754+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": true, "message": "All checks passed (advisory: advisory_check: advisory_check failed)"}
+{"timestamp": "2026-07-25T16:41:37.250761+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}
+{"timestamp": "2026-07-25T16:41:37.253652+00:00", "event_type": "gate_result", "step_id": "some-step", "passed": false, "message": "strict_check failed"}

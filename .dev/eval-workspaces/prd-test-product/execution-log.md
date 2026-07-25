@@ -8,3 +8,6 @@
 | some-step | GATE PASS | - | All checks passed (advisory: advisory_check: advisory_check failed) |
 | some-step | GATE FAIL | - | strict_check failed |
 | some-step | GATE FAIL | - | strict_check failed |
+| some-step | GATE PASS | - | All checks passed (advisory: advisory_check: advisory_check failed) |
+| some-step | GATE FAIL | - | strict_check failed |
+| some-step | GATE FAIL | - | strict_check failed |
