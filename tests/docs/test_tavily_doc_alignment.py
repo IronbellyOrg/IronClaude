@@ -74,15 +74,15 @@ def test_iter_text_files_is_nonvacuous():
 
 
 def test_tavily_version_single_pin():
-    """Every `tavily-mcp@<ver>` in src/ + docs/ is pinned to 0.2.20 (X1 / H3)."""
+    """Every `tavily-mcp@<ver>` in src/ + docs/ is pinned to 0.2.22 (X1 / H3)."""
     files = list(_iter_text_files(_ROOTS))
     assert files, "version-pin guard scanned 0 files (vacuous)"
     bad = []
     for p in files:
         for m in _VERSION_RE.finditer(_read(p)):
-            if m.group(1) != "0.2.20":
+            if m.group(1) != "0.2.22":
                 bad.append((str(p.relative_to(_REPO)), m.group(1)))
-    assert not bad, f"tavily-mcp pinned to a version other than 0.2.20: {bad}"
+    assert not bad, f"tavily-mcp pinned to a version other than 0.2.22: {bad}"
 
 
 def test_no_stale_mcp_tavily_token():

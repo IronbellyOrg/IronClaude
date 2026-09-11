@@ -25,13 +25,13 @@ The SuperClaude installer was incorrectly configured to use `uv run serena` inst
 2. **Install Serena using correct uvx method:**
 
    ```bash
-   uvx --from git+https://github.com/oraios/serena serena --help
+   uvx --from serena-agent==1.7.0 serena --help
    ```
 
 3. **Register with Claude CLI:**
 
    ```bash
-   claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant
+   claude mcp add serena -- uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false
    ```
 
 4. **Verify installation:**
@@ -45,10 +45,10 @@ The SuperClaude installer was incorrectly configured to use `uv run serena` inst
 **Difference:**
 
 - `uv run serena` - Runs serena from local project dependencies (fails if not installed locally)
-- `uvx --from git+https://github.com/oraios/serena serena` - Runs serena directly from GitHub repository
+- `uvx --from serena-agent==1.7.0 serena` - Runs the pinned Serena package without adding it to the local project
 
 **Correct Usage:**
-Always use `uvx` for Serena, as it's designed to work with remote GitHub repositories.
+Use `uvx` with the pinned `serena-agent==1.7.0` package.
 
 ### GitHub Codespace Specific Issues
 
@@ -97,12 +97,12 @@ After successful installation, verify Serena is working:
 
 - UV is often pre-installed but may not include uvx
 - Default Python environment may need UV package installation
-- Network connectivity for git+https:// URLs required
+- Network connectivity to the Python package index required
 
 **Local Development:**
 
 - Ensure uvx is installed: `pip install uv` or `pipx install uv`
-- Verify git access to GitHub repositories
+- Verify access to the Python package index
 
 **WSL/Linux:**
 
@@ -120,11 +120,16 @@ If automatic installation fails, manually configure `~/.claude.json`:
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/oraios/serena",
+        "serena-agent==1.7.0",
         "serena",
         "start-mcp-server",
         "--context",
-        "ide-assistant"
+        "claude-code",
+        "--project-from-cwd",
+        "--enable-web-dashboard",
+        "false",
+        "--enable-gui-log-window",
+        "false"
       ]
     }
   }
@@ -137,7 +142,7 @@ If issues persist:
 
 1. Check [Serena documentation](https://github.com/oraios/serena)
 2. Verify uvx installation: `uvx --version`
-3. Test direct installation: `uvx --from git+https://github.com/oraios/serena serena --help`
+3. Test direct installation: `uvx --from serena-agent==1.7.0 serena --help`
 4. Report issues to [SuperClaude Framework](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
 
 ### Version Information
@@ -145,7 +150,7 @@ If issues persist:
 This troubleshooting guide is for:
 
 - SuperClaude Framework v4.1.5+
-- Serena MCP (latest from GitHub)
+- Serena MCP (`serena-agent==1.7.0`)
 - UV/UVX package manager
 
 For older versions, refer to legacy documentation or upgrade to latest SuperClaude Framework.

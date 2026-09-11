@@ -26,8 +26,8 @@ AIRIS_GATEWAY = {
 }
 
 # Pinned Tavily MCP package version — single source of truth for the pin (review L3).
-# Docs/YAML keep the literal `tavily-mcp@0.2.20`, guarded by test_tavily_version_single_pin.
-TAVILY_MCP_VERSION = "0.2.20"
+# Docs/YAML keep the literal `tavily-mcp@0.2.22`, guarded by test_tavily_version_single_pin.
+TAVILY_MCP_VERSION = "0.2.22"
 
 # Individual MCP Server Registry (legacy, for users who prefer individual servers)
 # Adapted from commit d4a17fc with modern transport configuration
@@ -36,7 +36,7 @@ MCP_SERVERS = {
         "name": "sequential-thinking",
         "description": "Multi-step problem solving and systematic analysis",
         "transport": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-sequential-thinking",
+        "command": "npx -y @modelcontextprotocol/server-sequential-thinking@2026.8.31",
         "required": False,
     },
     "context7": {
@@ -66,14 +66,14 @@ MCP_SERVERS = {
         "name": "serena",
         "description": "Semantic code analysis and intelligent editing",
         "transport": "stdio",
-        "command": "uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --enable-web-dashboard false --enable-gui-log-window false",
+        "command": "uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false",
         "required": False,
     },
     "morphllm-fast-apply": {
         "name": "morphllm-fast-apply",
         "description": "Fast Apply capability for context-aware code modifications",
         "transport": "stdio",
-        "command": "npx -y @morph-llm/morph-fast-apply",
+        "command": "npx -y @morphllm/morphmcp",
         "required": False,
         "api_key_env": "MORPH_API_KEY",
         "api_key_description": "Morph API key for Fast Apply",
@@ -103,7 +103,7 @@ MCP_SERVERS = {
         "required": False,
         "requires_global_binary": {
             "binary": "auggie",
-            "install_command": "npm install -g @augmentcode/auggie@latest",
+            "install_command": "npm install -g @augmentcode/auggie@0.36.0",
             "package": "@augmentcode/auggie",
         },
         "post_install_message": (
@@ -520,7 +520,7 @@ def _run_mcp_get(server_name: str) -> Optional[str]:
 
 def _parse_mcp_get_command(output: str) -> Optional[str]:
     """Normalize the ``Command:`` / ``Args:`` lines of ``claude mcp get`` into a single
-    ``"<command> <args>"`` string, e.g. ``"npx -y tavily-mcp@0.2.20"``.
+    ``"<command> <args>"`` string, e.g. ``"npx -y tavily-mcp@0.2.22"``.
 
     Returns ``None`` when no ``Command:`` line is present, OR when the ``Args:`` line has
     malformed/unbalanced quoting (``shlex.split`` raising ``ValueError``). The ValueError is
@@ -622,7 +622,7 @@ def install_mcp_server(
 
     # Check if already installed — and, if so, reconcile version/command drift instead of
     # blindly skipping. A name-only short-circuit silently strands users on a stale pin when
-    # the registry version is bumped (e.g. tavily-mcp 0.1.2 -> 0.2.20).
+    # the registry version is bumped (e.g. tavily-mcp 0.1.2 -> 0.2.22).
     #
     # check_mcp_server_installed() is only a cheap *substring* scan of `claude mcp list`, so it
     # can false-positive on a similarly-named server or a match in another scope. Before doing

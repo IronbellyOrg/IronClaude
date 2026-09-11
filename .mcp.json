@@ -2,10 +2,10 @@
   "mcpServers": {
     "auggie-mcp": {
       "type": "stdio",
-      "command": "npx",
+      "command": "auggie",
       "args": [
-        "-y",
-        "auggie-mcp"
+        "--mcp",
+        "--mcp-auto-workspace"
       ],
       "env": {}
     }

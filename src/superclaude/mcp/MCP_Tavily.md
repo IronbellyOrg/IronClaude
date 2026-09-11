@@ -2,7 +2,7 @@
 
 **Purpose**: Web search and real-time information retrieval for research and current events
 
-**Version**: `tavily-mcp@0.2.20` (pinned — see the `install_mcp.py` registry). This file is the
+**Version**: `tavily-mcp@0.2.22` (pinned — see the `install_mcp.py` registry). This file is the
 canonical Tavily capability reference; other docs point here rather than restating the surface.
 
 ## Triggers

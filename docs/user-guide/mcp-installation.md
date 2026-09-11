@@ -88,7 +88,7 @@ Before installing MCP servers, ensure you have the following tools installed:
 ### Required
 
 - **Claude CLI**: Required for all MCP server management
-- **Node.js 18+**: Required for npm-based MCP servers (most servers)
+- **Node.js 18+**: Required for npm-based MCP servers (most servers); Auggie `0.36.0` requires Node.js 22+.
 
 ### Optional
 
