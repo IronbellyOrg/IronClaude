@@ -86,6 +86,8 @@ def test_auggie_global_binary_reconciles_stale_version(monkeypatch):
 
     def fake_run_command(cmd, **kwargs):
         calls.append(cmd)
+        if cmd == ["node", "--version"]:
+            return SimpleNamespace(returncode=0, stdout="v20.0.0", stderr="")
         if cmd == ["auggie", "--version"]:
             return SimpleNamespace(returncode=0, stdout=next(versions), stderr="")
         assert cmd == ["npm", "install", "-g", "@augmentcode/auggie@0.36.0"]
@@ -98,6 +100,7 @@ def test_auggie_global_binary_reconciles_stale_version(monkeypatch):
         install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
     )
     assert calls == [
+        ["node", "--version"],
         ["auggie", "--version"],
         ["npm", "install", "-g", "@augmentcode/auggie@0.36.0"],
         ["auggie", "--version"],
@@ -108,6 +111,8 @@ def test_auggie_global_binary_rejects_post_install_version_mismatch(monkeypatch)
     versions = iter(["auggie 0.35.0", "auggie 0.35.0"])
 
     def fake_run_command(cmd, **kwargs):
+        if cmd == ["node", "--version"]:
+            return SimpleNamespace(returncode=0, stdout="v20.0.0", stderr="")
         if cmd == ["auggie", "--version"]:
             return SimpleNamespace(returncode=0, stdout=next(versions), stderr="")
         return SimpleNamespace(returncode=0, stdout="", stderr="")
@@ -125,14 +130,15 @@ def test_auggie_global_binary_skips_install_at_pinned_version(monkeypatch):
 
     def fake_run_command(cmd, **kwargs):
         calls.append(cmd)
-        return SimpleNamespace(returncode=0, stdout="auggie 0.36.0", stderr="")
+        output = "v20.0.0" if cmd == ["node", "--version"] else "auggie 0.36.0"
+        return SimpleNamespace(returncode=0, stdout=output, stderr="")
 
     monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
 
     assert install_mcp.ensure_global_binary(
         install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
     )
-    assert calls == [["auggie", "--version"]]
+    assert calls == [["node", "--version"], ["auggie", "--version"]]
 
 
 def test_auggie_reconciles_binary_before_up_to_date_registration(monkeypatch):
@@ -141,6 +147,8 @@ def test_auggie_reconciles_binary_before_up_to_date_registration(monkeypatch):
 
     def fake_run_command(cmd, **kwargs):
         calls.append(cmd)
+        if cmd == ["node", "--version"]:
+            return SimpleNamespace(returncode=0, stdout="v20.0.0", stderr="")
         if cmd == ["auggie", "--version"]:
             return SimpleNamespace(returncode=0, stdout=next(versions), stderr="")
         if cmd == ["npm", "install", "-g", "@augmentcode/auggie@0.36.0"]:
@@ -165,3 +173,18 @@ def test_auggie_reconciles_binary_before_up_to_date_registration(monkeypatch):
     assert calls.index(
         ["npm", "install", "-g", "@augmentcode/auggie@0.36.0"]
     ) < calls.index(["claude", "mcp", "get", "auggie"])
+
+
+def test_auggie_global_binary_rejects_node_19_before_binary_install(monkeypatch):
+    calls = []
+
+    def fake_run_command(cmd, **kwargs):
+        calls.append(cmd)
+        return SimpleNamespace(returncode=0, stdout="v19.0.0", stderr="")
+
+    monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
+
+    assert not install_mcp.ensure_global_binary(
+        install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"], False
+    )
+    assert calls == [["node", "--version"]]

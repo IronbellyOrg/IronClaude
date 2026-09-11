@@ -107,6 +107,7 @@ MCP_SERVERS = {
             "install_command": "npm install -g @augmentcode/auggie@0.36.0",
             "package": "@augmentcode/auggie",
             "version": "0.36.0",
+            "min_node_version": 20,
         },
         "post_install_message": (
             "   🔑 Auggie requires one-time authentication.\n"
@@ -181,10 +182,34 @@ def check_binary_available(
     return bool(re.search(rf"(?<!\d){re.escape(expected_version)}(?!\d)", output))
 
 
+def check_node_version(minimum: int) -> bool:
+    """Check that Node.js meets a package-specific minimum major version."""
+    try:
+        result = _run_command(
+            ["node", "--version"], capture_output=True, text=True, timeout=10
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return False
+
+    if result.returncode != 0:
+        return False
+    try:
+        return int((result.stdout or "").strip().lstrip("v").split(".")[0]) >= minimum
+    except (ValueError, IndexError):
+        return False
+
+
 def ensure_global_binary(req: Dict, dry_run: bool) -> bool:
     """Ensure a required global binary is present at its pinned version."""
     binary = req["binary"]
     expected_version = req.get("version")
+    min_node_version = req.get("min_node_version")
+    if min_node_version is not None and not check_node_version(min_node_version):
+        click.echo(
+            f"   ❌ Node.js {min_node_version}+ is required for {req['package']}",
+            err=True,
+        )
+        return False
     if check_binary_available(binary, expected_version):
         return True
 
