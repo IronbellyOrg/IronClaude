@@ -53,6 +53,7 @@ def listen_port():
 
 
 LISTEN = ("127.0.0.1", listen_port())
+HEALTH_PATH = "/__ccsession_shim"
 # Persistent audit file is OPT-IN. Unset (default) => log to the terminal only
 # (ephemeral, never accumulates). Set GW_PROXY_LOGFILE=/path to also persist.
 LOGFILE = os.environ.get("GW_PROXY_LOGFILE")
@@ -352,9 +353,26 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return headers
 
     def do_GET(self):
-        if self.path.split("?")[0].rstrip("/").endswith("/v1/models"):
+        path = self.path.split("?")[0].rstrip("/")
+        if path == HEALTH_PATH:
+            return self._handle_health()
+        if path.endswith("/v1/models"):
             return self._handle_models()
         return self._proxy(body=None)
+
+    def _handle_health(self):
+        payload = json.dumps(
+            {
+                "service": "ccsession-gateway-alias-proxy",
+                "upstream": UPSTREAM,
+                "port": LISTEN[1],
+            }
+        ).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
 
     def do_POST(self):
         length = int(self.headers.get("Content-Length", 0) or 0)

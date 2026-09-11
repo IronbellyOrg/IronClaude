@@ -90,7 +90,44 @@ setup_shim() {
     echo "[ccsession] ERROR: shim script not found: $CC_SHIM_SCRIPT" >&2
     exit 1
   fi
-  if ! lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1; then
+  start_shim=0
+  listener_pid=$(lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN 2>/dev/null | head -n 1 || true)
+  if [ -n "$listener_pid" ]; then
+    health=$(curl -fsS --max-time 2 \
+      "http://127.0.0.1:$CC_SHIM_PORT/__ccsession_shim" 2>/dev/null || true)
+    health_status=$(python3 -c '
+import json, sys
+try:
+    health = json.loads(sys.argv[1])
+except (ValueError, TypeError):
+    print("other")
+    raise SystemExit
+if health.get("service") != "ccsession-gateway-alias-proxy":
+    print("other")
+elif health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/") and str(health.get("port")) == sys.argv[3]:
+    print("match")
+else:
+    print("stale")
+' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT")
+    if [ "$health_status" = "match" ]; then
+      echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
+    elif [ "$health_status" = "stale" ] || \
+      ps -p "$listener_pid" -o command= 2>/dev/null | grep -Fq -- "$CC_SHIM_SCRIPT"; then
+      echo "[ccsession] Restarting stale model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
+      kill "$listener_pid"
+      for _ in 1 2 3 4 5 6 7 8 9 10; do
+        lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1 || break
+        sleep 0.2
+      done
+      start_shim=1
+    else
+      echo "[ccsession] ERROR: port $CC_SHIM_PORT is owned by another service; refusing to route credentials or requests to it" >&2
+      exit 1
+    fi
+  else
+    start_shim=1
+  fi
+  if [ "$start_shim" = 1 ]; then
     echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
     GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" \
       GW_PROXY_PORT="$CC_SHIM_PORT" \
@@ -104,8 +141,6 @@ setup_shim() {
       echo "[ccsession] ERROR: shim failed to start (try: python3 $CC_SHIM_SCRIPT)" >&2
       exit 1
     fi
-  else
-    echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
   fi
   export ANTHROPIC_BASE_URL="http://127.0.0.1:$CC_SHIM_PORT"
   export CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1

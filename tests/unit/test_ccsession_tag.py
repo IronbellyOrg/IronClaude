@@ -37,8 +37,14 @@ print(json.dumps({
     )
     fake_bin.chmod(fake_bin.stat().st_mode | stat.S_IXUSR)
     fake_lsof = tmp_path / "lsof"
-    fake_lsof.write_text("#!/bin/sh\nexit 0\n")
+    fake_lsof.write_text("#!/bin/sh\nprintf '4242\\n'\n")
     fake_lsof.chmod(fake_lsof.stat().st_mode | stat.S_IXUSR)
+    fake_curl = tmp_path / "curl"
+    fake_curl.write_text(
+        '#!/bin/sh\nprintf \'{"service":"ccsession-gateway-alias-proxy",'
+        '"upstream":"http://gateway.example:4000/cli","port":4555}\'\n'
+    )
+    fake_curl.chmod(fake_curl.stat().st_mode | stat.S_IXUSR)
 
     env = os.environ.copy()
     env.update(
@@ -47,6 +53,7 @@ print(json.dumps({
             "CLAUDE_BIN": str(fake_bin),
             "PATH": f"{tmp_path}:{env['PATH']}",
             "ANTHROPIC_BASE_URL": "http://gateway.example:4000/cli",
+            "CC_SHIM_PORT": "4555",
             "CC_SHIM_SCRIPT": str(SKILL_DIR / "local-gateway-alias-proxy.py"),
         }
     )
@@ -100,6 +107,40 @@ def test_gateway_profile_requires_shim(tmp_path: Path) -> None:
     )
     assert result.returncode == 2
     assert "requires --shim" in result.stderr
+
+
+def test_shim_refuses_an_unrelated_listener(tmp_path: Path) -> None:
+    home = tmp_path / "unrelated-home"
+    home.mkdir()
+    fake_lsof = tmp_path / "unrelated-lsof"
+    fake_lsof.write_text("#!/bin/sh\nprintf '4242\\n'\n")
+    fake_lsof.chmod(fake_lsof.stat().st_mode | stat.S_IXUSR)
+    fake_curl = tmp_path / "unrelated-curl"
+    fake_curl.write_text('#!/bin/sh\nprintf \'{"service":"not-ccsession"}\'\n')
+    fake_curl.chmod(fake_curl.stat().st_mode | stat.S_IXUSR)
+    tools = tmp_path / "unrelated-tools"
+    tools.mkdir()
+    (tools / "lsof").symlink_to(fake_lsof)
+    (tools / "curl").symlink_to(fake_curl)
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "PATH": f"{tools}:{env['PATH']}",
+            "ANTHROPIC_BASE_URL": "http://gateway.example:4000/cli",
+            "CC_SHIM_PORT": "4555",
+            "CC_SHIM_SCRIPT": str(SKILL_DIR / "local-gateway-alias-proxy.py"),
+        }
+    )
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--profile", "gpt1", "--shim"],
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+    assert result.returncode == 1
+    assert "owned by another service" in result.stderr
 
 
 def test_shim_curates_models_and_preserves_wire_aliases() -> None:
@@ -190,12 +231,21 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
                     break
             except OSError:
                 time.sleep(0.05)
+        with urllib.request.urlopen(
+            f"http://127.0.0.1:{proxy_port}/__ccsession_shim", timeout=5
+        ) as response:
+            health = json.loads(response.read())
         request = urllib.request.Request(
             f"http://127.0.0.1:{proxy_port}/v1/models",
             headers={"Accept-Encoding": "gzip"},
         )
         with urllib.request.urlopen(request, timeout=5) as response:
             models = json.loads(response.read())["data"]
+        assert health == {
+            "service": "ccsession-gateway-alias-proxy",
+            "upstream": f"http://127.0.0.1:{upstream.server_port}",
+            "port": proxy_port,
+        }
         assert Upstream.seen_encoding == "identity"
         assert models[0]["id"] == "claude-gw-gpt-6-astra[1m]"
     finally:

@@ -203,11 +203,23 @@ profile's number to something the model can really handle.
 Restart it and clear the saved list, then open a new session:
 
 ```bash
-kill "$(lsof -tiTCP:4010 -sTCP:LISTEN)"
-set -a; . ~/.claude/ccsession.env; set +a
-GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" nohup python3 \
-  ~/.claude/skills/ccsession-tag/local-gateway-alias-proxy.py >/dev/null 2>&1 &
-rm -f ~/.claude/cache/gateway-models.json
+(
+  set -e
+  CC_SHIM_PORT="${CC_SHIM_PORT:-4010}"
+  CC_SHIM_SCRIPT="$HOME/.claude/skills/ccsession-tag/local-gateway-alias-proxy.py"
+  SHIM_PID=$(lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN | head -n 1 || true)
+  if [ -n "$SHIM_PID" ]; then
+    ps -p "$SHIM_PID" -o command= | grep -Fq -- "$CC_SHIM_SCRIPT" || {
+      echo "Port $CC_SHIM_PORT belongs to another service; refusing to stop it." >&2
+      exit 1
+    }
+    kill "$SHIM_PID"
+  fi
+  set -a; . "$HOME/.claude/ccsession.env"; set +a
+  GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" GW_PROXY_PORT="$CC_SHIM_PORT" \
+    nohup python3 "$CC_SHIM_SCRIPT" >/dev/null 2>&1 &
+  rm -f "$HOME/.claude/cache/gateway-models.json"
+)
 ```
 
 Sessions that are already open keep the old list until they restart.
