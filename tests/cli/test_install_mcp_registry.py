@@ -50,6 +50,15 @@ def test_distributable_mcp_templates_match_pinned_registry_commands():
             "false",
         ],
         "morphllm.json": ["-y", "@morphllm/morphmcp"],
+        "sequential.json": [
+            "-y",
+            "@modelcontextprotocol/server-sequential-thinking@2026.8.31",
+        ],
+    }
+    server_names = {
+        "serena.json": "serena",
+        "morphllm.json": "morphllm-fast-apply",
+        "sequential.json": "sequential-thinking",
     }
 
     for base in (
@@ -58,9 +67,7 @@ def test_distributable_mcp_templates_match_pinned_registry_commands():
     ):
         for filename, args in expected.items():
             template = json.loads((base / filename).read_text())
-            server = template[
-                "serena" if filename == "serena.json" else "morphllm-fast-apply"
-            ]
+            server = template[server_names[filename]]
             assert server["args"] == args
             if filename == "morphllm.json":
                 assert "@morph-llm/morph-fast-apply" not in json.dumps(template)
