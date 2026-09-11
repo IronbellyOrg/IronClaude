@@ -2,8 +2,8 @@
   "morphllm-fast-apply": {
     "command": "npx",
     "args": [
-      "@morph-llm/morph-fast-apply",
-      "/home/"
+      "-y",
+      "@morphllm/morphmcp"
     ],
     "env": {
       "MORPH_API_KEY": "",

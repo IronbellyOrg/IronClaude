@@ -1,5 +1,8 @@
 """Focused contracts for pinned, compatibility-preserving MCP registry entries."""
 
+import json
+from pathlib import Path
+
 from superclaude.cli import install_mcp
 
 
@@ -28,3 +31,37 @@ def test_updated_mcp_registry_commands_are_pinned_and_stable():
         install_mcp.MCP_SERVERS["auggie"]["requires_global_binary"]["install_command"]
         == "npm install -g @augmentcode/auggie@0.36.0"
     )
+
+
+def test_distributable_mcp_templates_match_pinned_registry_commands():
+    root = Path(__file__).resolve().parents[2]
+    expected = {
+        "serena.json": [
+            "--from",
+            "serena-agent==1.7.0",
+            "serena",
+            "start-mcp-server",
+            "--context",
+            "claude-code",
+            "--project-from-cwd",
+            "--enable-web-dashboard",
+            "false",
+            "--enable-gui-log-window",
+            "false",
+        ],
+        "morphllm.json": ["-y", "@morphllm/morphmcp"],
+    }
+
+    for base in (
+        root / "src/superclaude/mcp/configs",
+        root / "plugins/superclaude/mcp/configs",
+    ):
+        for filename, args in expected.items():
+            template = json.loads((base / filename).read_text())
+            server = template[
+                "serena" if filename == "serena.json" else "morphllm-fast-apply"
+            ]
+            assert server["args"] == args
+            if filename == "morphllm.json":
+                assert "@morph-llm/morph-fast-apply" not in json.dumps(template)
+                assert "/home/" not in server["args"]
