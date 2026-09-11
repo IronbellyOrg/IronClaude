@@ -6,6 +6,21 @@
 #
 # Usage:
 #   ccsession <topic>         Resume or start a Claude session labeled <topic>
+#   ccsession <topic> -shim   Same, but route through the local model-alias shim
+#                             (auto-starts it on 127.0.0.1:4010 if not running,
+#                             enables gateway model discovery)
+#   ccsession --shim          Start an untagged session routed through the shim
+#   ccsession --profile claude
+#                             Start untagged with Opus 5 and 1M context
+#   ccsession --profile grok --shim
+#                             Start untagged with Grok 4.6 and 500K context
+#   ccsession --profile gpt --shim
+#                             Start untagged with GPT 5.6 Sol and 1M context
+#   ccsession --profile gpt1 --shim
+#                             Start untagged with GPT 6 Astra and 850K context
+#   ccsession <topic> --profile <model> [--shim]
+#                             Start or resume a labeled profile session
+#   Legacy aliases: 1mm=claude, 500k=grok, 372k=gpt
 #   ccsession --list          List all labeled sessions across all workspaces
 #   ccsession --here          List labeled sessions for the current workspace only
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
@@ -16,12 +31,47 @@
 #
 # Env vars (proxy URL, auth tokens) can be set in ~/.claude/ccsession.env.
 # See ccsession.env.example in this skill's directory for the template.
+# Shim knobs: CC_SHIM_SCRIPT (default: local-gateway-alias-proxy.py in this
+# skill's directory), CC_SHIM_PORT (default 4010).
 
 set -e
 
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions}"
 PROJECTS_DIR="$HOME/.claude/projects"
+CC_SHIM_SCRIPT="${CC_SHIM_SCRIPT:-$HOME/.claude/skills/ccsession-tag/local-gateway-alias-proxy.py}"
+CC_SHIM_PORT="${CC_SHIM_PORT:-4010}"
+
+# Extract --shim and --profile from anywhere in the args; every other
+# argument passes through to Claude Code unchanged.
+USE_SHIM=0
+PROFILE=""
+_args=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -shim|--shim)
+      USE_SHIM=1
+      shift
+      ;;
+    --profile)
+      if [ "$#" -lt 2 ]; then
+        echo "ccsession: --profile requires a value" >&2
+        exit 2
+      fi
+      PROFILE="$2"
+      shift 2
+      ;;
+    --profile=*)
+      PROFILE="${1#--profile=}"
+      shift
+      ;;
+    *)
+      _args+=("$1")
+      shift
+      ;;
+  esac
+done
+set -- "${_args[@]}"
 
 # Source per-user env (proxy base URL, auth tokens, etc.) before launching
 # claude. Keep this file out of version control — it holds secrets.
@@ -30,6 +80,118 @@ if [ -f "$CCSESSION_ENV_FILE" ]; then
   # shellcheck disable=SC1090
   . "$CCSESSION_ENV_FILE"
 fi
+
+setup_shim() {
+  # Route this session through the local model-alias shim: start it if it
+  # isn't already listening, then point ANTHROPIC_BASE_URL at it and enable
+  # gateway model discovery. The shim forwards to the ccsession.env base URL
+  # (via GW_PROXY_UPSTREAM), so env stays the single source of truth.
+  if [ ! -f "$CC_SHIM_SCRIPT" ]; then
+    echo "[ccsession] ERROR: shim script not found: $CC_SHIM_SCRIPT" >&2
+    exit 1
+  fi
+  if ! lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1; then
+    echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
+    GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" \
+      GW_PROXY_PORT="$CC_SHIM_PORT" \
+      nohup python3 "$CC_SHIM_SCRIPT" >/dev/null 2>&1 &
+    # Wait briefly for the port to come up.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1 && break
+      sleep 0.3
+    done
+    if ! lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1; then
+      echo "[ccsession] ERROR: shim failed to start (try: python3 $CC_SHIM_SCRIPT)" >&2
+      exit 1
+    fi
+  else
+    echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
+  fi
+  export ANTHROPIC_BASE_URL="http://127.0.0.1:$CC_SHIM_PORT"
+  export CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1
+  # Stale cache from a non-shim session would hide the aliased models.
+  rm -f "$HOME/.claude/cache/gateway-models.json"
+}
+
+apply_profile() {
+  # Remove inherited overrides before applying this process-local profile.
+  unset CLAUDE_CODE_AUTO_COMPACT_WINDOW
+  unset CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
+  unset CLAUDE_CODE_MAX_CONTEXT_TOKENS
+  unset ANTHROPIC_CUSTOM_MODEL_OPTION
+  unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
+  unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
+
+  case "$PROFILE" in
+    claude|1mm)
+      # Plain "claude-opus-5" is the 200K row; the 1M window is a separate
+      # model name. Without the suffix the context override below is ignored.
+      PROFILE_MODEL="claude-opus-5[1m]"
+      PROFILE_CONTEXT="1000000"
+      PROFILE_COMPACT_WINDOW="1000000"
+      PROFILE_REQUIRES_SHIM=0
+      ;;
+    grok|500k)
+      PROFILE_MODEL="grok-4.6"
+      PROFILE_CONTEXT="500000"
+      PROFILE_COMPACT_WINDOW="500000"
+      PROFILE_REQUIRES_SHIM=1
+      ;;
+    gpt1)
+      # Astra advertises 1M but the provider rejected a 924.8K request with
+      # "input exceeds the context window", so both values sit below the real
+      # ceiling to leave compaction room before that limit is reached.
+      PROFILE_MODEL="gpt-6-astra"
+      PROFILE_CONTEXT="850000"
+      PROFILE_COMPACT_WINDOW="850000"
+      PROFILE_REQUIRES_SHIM=1
+      ;;
+    gpt|372k)
+      PROFILE_MODEL="gpt-5.6-sol"
+      PROFILE_CONTEXT="1000000"
+      PROFILE_COMPACT_WINDOW="1000000"
+      PROFILE_REQUIRES_SHIM=1
+      ;;
+    *)
+      echo "ccsession: unknown profile '$PROFILE'" >&2
+      echo "Valid profiles: claude, grok, gpt, gpt1 (legacy aliases: 1mm, 500k, 372k)" >&2
+      exit 2
+      ;;
+  esac
+
+  if [ "$PROFILE_REQUIRES_SHIM" = 1 ] && [ "$USE_SHIM" != 1 ]; then
+    echo "ccsession: profile '$PROFILE' requires --shim" >&2
+    exit 2
+  fi
+
+  # Optional per-launch tuning overrides for the profile defaults.
+  if [ -n "${CCSESSION_COMPACT_WINDOW:-}" ]; then
+    PROFILE_COMPACT_WINDOW="$CCSESSION_COMPACT_WINDOW"
+  fi
+
+  export CLAUDE_CODE_MAX_CONTEXT_TOKENS="$PROFILE_CONTEXT"
+  # Custom models need an explicit proactive auto-compaction window; with only
+  # the max-context override, Claude Code can hit the provider limit first.
+  if [ -n "$PROFILE_COMPACT_WINDOW" ]; then
+    export CLAUDE_CODE_AUTO_COMPACT_WINDOW="$PROFILE_COMPACT_WINDOW"
+  fi
+  if [ -n "${CCSESSION_COMPACT_PCT:-}" ]; then
+    export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE="$CCSESSION_COMPACT_PCT"
+  fi
+  export CCSESSION_PROFILE="$PROFILE"
+
+  if [ "$PROFILE_REQUIRES_SHIM" = 1 ]; then
+    export ANTHROPIC_CUSTOM_MODEL_OPTION="$PROFILE_MODEL"
+    export ANTHROPIC_CUSTOM_MODEL_OPTION_NAME="$PROFILE_MODEL"
+    export ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION="$PROFILE context profile"
+  fi
+
+  if [ -n "$PROFILE_COMPACT_WINDOW" ]; then
+    echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, auto-compact window $PROFILE_COMPACT_WINDOW"
+  else
+    echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, native auto-compact"
+  fi
+}
 
 slugify() {
   # Claude Code's path encoding: replace / with -
@@ -208,8 +370,8 @@ list_sessions() {
 }
 
 case "${1:-}" in
-  ""|-h|--help)
-    sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'
+  -h|--help)
+    sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'
     exit 0
     ;;
   --list)
@@ -236,6 +398,28 @@ case "${1:-}" in
     ;;
 esac
 
+# Preserve the original no-argument help behavior only when nothing at all
+# was selected (no topic, no profile, no shim).
+if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ "$USE_SHIM" != 1 ]; then
+  sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'
+  exit 0
+fi
+
+if [ -n "$PROFILE" ]; then
+  apply_profile
+fi
+[ "$USE_SHIM" = 1 ] && setup_shim
+
+# No topic (bare --shim and/or --profile) starts a normal untagged session.
+if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
+  echo "[ccsession] Starting untagged session"
+  if [ -n "$PROFILE" ]; then
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
+  else
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
+  fi
+fi
+
 TOPIC=$(validate_label "$1") || exit 2
 shift
 
@@ -254,8 +438,16 @@ export CLAUDE_TOPIC="$TOPIC"
 if [ -f "$TOPIC_FILE" ]; then
   SESSION_ID=$(cat "$TOPIC_FILE")
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
-  exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --resume "$SESSION_ID" "$@"
+  if [ -n "$PROFILE" ]; then
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
+  else
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --resume "$SESSION_ID" "$@"
+  fi
 else
   echo "[ccsession] Starting new session labeled '$TOPIC'"
-  exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
+  if [ -n "$PROFILE" ]; then
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
+  else
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
+  fi
 fi
