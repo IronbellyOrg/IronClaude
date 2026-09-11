@@ -53,7 +53,9 @@ print(json.dumps({
     command = [str(SKILL_DIR / "ccsession"), "--profile", profile]
     if shim:
         command.append("--shim")
-    result = subprocess.run(command, env=env, text=True, capture_output=True, check=True)
+    result = subprocess.run(
+        command, env=env, text=True, capture_output=True, check=True
+    )
     return json.loads(result.stdout.strip().splitlines()[-1])
 
 
@@ -68,7 +70,9 @@ def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
         "500k": ("grok-4.6", "500000", "500000", "grok-4.6"),
     }
     for profile, wanted in expected.items():
-        result = _profile_result(tmp_path, profile, shim=profile not in {"claude", "1mm"})
+        result = _profile_result(
+            tmp_path, profile, shim=profile not in {"claude", "1mm"}
+        )
         assert tuple(result.values()) == wanted
 
 
@@ -99,7 +103,9 @@ def test_gateway_profile_requires_shim(tmp_path: Path) -> None:
 
 
 def test_shim_curates_models_and_preserves_wire_aliases() -> None:
-    module = runpy.run_path(str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="shim_test")
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="shim_test"
+    )
     payload = {
         "data": [
             {"id": "gpt-5.6-sol"},
@@ -199,17 +205,25 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
         upstream.server_close()
 
 
-def test_installer_wires_complete_package_without_overwriting_secrets(tmp_path: Path) -> None:
+def test_installer_wires_complete_package_without_overwriting_secrets(
+    tmp_path: Path,
+) -> None:
     home = tmp_path / "home"
     home.mkdir()
     env = os.environ.copy()
     env["HOME"] = str(home)
-    stale_plan = home / ".claude" / "skills" / "ccsession-tag" / "PLAN-context-save-load.md"
+    stale_plan = (
+        home / ".claude" / "skills" / "ccsession-tag" / "PLAN-context-save-load.md"
+    )
     stale_plan.parent.mkdir(parents=True)
     stale_plan.write_text("retired plan\n")
 
     first = subprocess.run(
-        [str(SKILL_DIR / "install.sh")], env=env, text=True, capture_output=True, check=True
+        [str(SKILL_DIR / "install.sh")],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
     )
     target = home / ".claude" / "skills" / "ccsession-tag"
     env_file = home / ".claude" / "ccsession.env"
@@ -226,7 +240,11 @@ def test_installer_wires_complete_package_without_overwriting_secrets(tmp_path: 
 
     env_file.write_text("PRIVATE_SENTINEL\n")
     second = subprocess.run(
-        [str(SKILL_DIR / "install.sh")], env=env, text=True, capture_output=True, check=True
+        [str(SKILL_DIR / "install.sh")],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
     )
     assert "already exists (leaving untouched)" in second.stdout
     assert env_file.read_text() == "PRIVATE_SENTINEL\n"
