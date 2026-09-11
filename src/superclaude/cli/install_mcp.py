@@ -8,6 +8,7 @@ Based on the installer logic from commit d4a17fc but adapted for modern Claude C
 import json
 import os
 import platform
+import re
 import shlex
 import subprocess
 from typing import Dict, List, Optional, Tuple
@@ -105,6 +106,7 @@ MCP_SERVERS = {
             "binary": "auggie",
             "install_command": "npm install -g @augmentcode/auggie@0.36.0",
             "package": "@augmentcode/auggie",
+            "version": "0.36.0",
         },
         "post_install_message": (
             "   🔑 Auggie requires one-time authentication.\n"
@@ -159,15 +161,59 @@ def check_docker_available() -> bool:
         return False
 
 
-def check_binary_available(binary_name: str) -> bool:
-    """Check if a binary is available on PATH."""
+def check_binary_available(
+    binary_name: str, expected_version: Optional[str] = None
+) -> bool:
+    """Check that a PATH binary runs and, when requested, has an exact version."""
     try:
         result = _run_command(
             [binary_name, "--version"], capture_output=True, text=True, timeout=10
         )
-        return result.returncode == 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return False
+
+    if result.returncode != 0:
+        return False
+    if expected_version is None:
+        return True
+
+    output = result.stdout or ""
+    return bool(re.search(rf"(?<!\d){re.escape(expected_version)}(?!\d)", output))
+
+
+def ensure_global_binary(req: Dict, dry_run: bool) -> bool:
+    """Ensure a required global binary is present at its pinned version."""
+    binary = req["binary"]
+    expected_version = req.get("version")
+    if check_binary_available(binary, expected_version):
+        return True
+
+    version_note = f" version {expected_version}" if expected_version else ""
+    click.echo(f"   ⚠️  '{binary}'{version_note} not available on PATH")
+    click.echo(f"   Required: {req['install_command']}")
+    if dry_run:
+        click.echo(f"   [DRY RUN] Would prompt to run: {req['install_command']}")
+        return True
+    if not click.confirm(f"   Install {req['package']} globally now?", default=True):
+        click.echo(f"   ⏭️  Skipping {binary} (required binary unavailable)")
+        return False
+
+    click.echo(f"   📦 Running: {req['install_command']}")
+    install_result = _run_command(
+        shlex.split(req["install_command"]), capture_output=True, text=True, timeout=300
+    )
+    if install_result.returncode != 0:
+        click.echo(f"   ❌ Global install failed: {install_result.stderr}", err=True)
+        return False
+    if not check_binary_available(binary, expected_version):
+        click.echo(
+            f"   ❌ '{binary}' did not report required version {expected_version} after install",
+            err=True,
+        )
+        return False
+
+    click.echo(f"   ✅ {req['package']} installed globally")
+    return True
 
 
 def install_airis_gateway(dry_run: bool = False) -> bool:
@@ -620,6 +666,13 @@ def install_mcp_server(
 
     click.echo(f"📦 Installing MCP server: {server_name}")
 
+    # Validate global executables before registration reconciliation so a matching
+    # Claude MCP command cannot hide an outdated binary behind it.
+    if "requires_global_binary" in server_info and not ensure_global_binary(
+        server_info["requires_global_binary"], dry_run
+    ):
+        return False
+
     # Check if already installed — and, if so, reconcile version/command drift instead of
     # blindly skipping. A name-only short-circuit silently strands users on a stale pin when
     # the registry version is bumped (e.g. tavily-mcp 0.1.2 -> 0.2.22).
@@ -707,43 +760,6 @@ def install_mcp_server(
             server_info["default_parameters"], separators=(",", ":")
         )
         env_args.extend(["-e", f"DEFAULT_PARAMETERS={default_params_json}"])
-
-    # Handle global binary requirement (e.g., auggie needs `npm install -g`)
-    if "requires_global_binary" in server_info:
-        req = server_info["requires_global_binary"]
-        if not check_binary_available(req["binary"]):
-            click.echo(f"   ⚠️  '{req['binary']}' not found on PATH")
-            click.echo(f"   Required: {req['install_command']}")
-            if dry_run:
-                click.echo(
-                    f"   [DRY RUN] Would prompt to run: {req['install_command']}"
-                )
-            elif click.confirm(
-                f"   Install {req['package']} globally now?", default=True
-            ):
-                click.echo(f"   📦 Running: {req['install_command']}")
-                install_result = _run_command(
-                    shlex.split(req["install_command"]),
-                    capture_output=True,
-                    text=True,
-                    timeout=300,
-                )
-                if install_result.returncode != 0:
-                    click.echo(
-                        f"   ❌ Global install failed: {install_result.stderr}",
-                        err=True,
-                    )
-                    return False
-                if not check_binary_available(req["binary"]):
-                    click.echo(
-                        f"   ❌ '{req['binary']}' still not on PATH after install",
-                        err=True,
-                    )
-                    return False
-                click.echo(f"   ✅ {req['package']} installed globally")
-            else:
-                click.echo(f"   ⏭️  Skipping {server_name} (binary not available)")
-                return False
 
     # Build installation command using modern Claude Code API
     # Format: claude mcp add [--transport <transport>] [--scope <scope>] <name> [-e KEY=VALUE]... -- <command>
