@@ -37,6 +37,9 @@ else
   echo "[1/4] Copied skill folder to: $TARGET_SKILL_DIR"
 fi
 
+# Remove the retired, unbuilt Serena context-save plan from older installations.
+rm -f "$TARGET_SKILL_DIR/PLAN-context-save-load.md"
+
 # Make sure scripts in the target are executable
 chmod +x "$TARGET_SKILL_DIR/ccsession"
 chmod +x "$TARGET_SKILL_DIR/hooks/session-start.sh"
