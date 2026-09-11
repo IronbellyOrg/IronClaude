@@ -36,8 +36,11 @@ def prd_config():
 
 
 @pytest.fixture
-def executor(prd_config):
+def executor(prd_config, tmp_path):
     """Create a PrdExecutor instance for testing."""
+    # Redirect task_dir to tmp_path so PrdLogger doesn't append gate-test
+    # events to the repo-root .dev/eval-workspaces/prd-test-product/ logs.
+    prd_config.task_dir = tmp_path
     return PrdExecutor(prd_config)
 
 
