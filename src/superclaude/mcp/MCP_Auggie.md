@@ -51,7 +51,7 @@ superclaude mcp --servers auggie
 Manual three-step alternative:
 
 ```bash
-npm install -g @augmentcode/auggie@latest
+npm install -g @augmentcode/auggie@0.36.0
 auggie login
 claude mcp add --transport stdio --scope user auggie -- auggie --mcp --mcp-auto-workspace
 ```

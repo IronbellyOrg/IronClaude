@@ -8,6 +8,7 @@ Based on the installer logic from commit d4a17fc but adapted for modern Claude C
 import json
 import os
 import platform
+import re
 import shlex
 import subprocess
 from typing import Dict, List, Optional, Tuple
@@ -26,8 +27,8 @@ AIRIS_GATEWAY = {
 }
 
 # Pinned Tavily MCP package version — single source of truth for the pin (review L3).
-# Docs/YAML keep the literal `tavily-mcp@0.2.20`, guarded by test_tavily_version_single_pin.
-TAVILY_MCP_VERSION = "0.2.20"
+# Docs/YAML keep the literal `tavily-mcp@0.2.22`, guarded by test_tavily_version_single_pin.
+TAVILY_MCP_VERSION = "0.2.22"
 
 # Individual MCP Server Registry (legacy, for users who prefer individual servers)
 # Adapted from commit d4a17fc with modern transport configuration
@@ -36,7 +37,7 @@ MCP_SERVERS = {
         "name": "sequential-thinking",
         "description": "Multi-step problem solving and systematic analysis",
         "transport": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-sequential-thinking",
+        "command": "npx -y @modelcontextprotocol/server-sequential-thinking@2026.8.31",
         "required": False,
     },
     "context7": {
@@ -66,14 +67,14 @@ MCP_SERVERS = {
         "name": "serena",
         "description": "Semantic code analysis and intelligent editing",
         "transport": "stdio",
-        "command": "uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --enable-web-dashboard false --enable-gui-log-window false",
+        "command": "uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false",
         "required": False,
     },
     "morphllm-fast-apply": {
         "name": "morphllm-fast-apply",
         "description": "Fast Apply capability for context-aware code modifications",
         "transport": "stdio",
-        "command": "npx -y @morph-llm/morph-fast-apply",
+        "command": "npx -y @morphllm/morphmcp",
         "required": False,
         "api_key_env": "MORPH_API_KEY",
         "api_key_description": "Morph API key for Fast Apply",
@@ -103,8 +104,10 @@ MCP_SERVERS = {
         "required": False,
         "requires_global_binary": {
             "binary": "auggie",
-            "install_command": "npm install -g @augmentcode/auggie@latest",
+            "install_command": "npm install -g @augmentcode/auggie@0.36.0",
             "package": "@augmentcode/auggie",
+            "version": "0.36.0",
+            "min_node_version": 20,
         },
         "post_install_message": (
             "   🔑 Auggie requires one-time authentication.\n"
@@ -159,15 +162,83 @@ def check_docker_available() -> bool:
         return False
 
 
-def check_binary_available(binary_name: str) -> bool:
-    """Check if a binary is available on PATH."""
+def check_binary_available(
+    binary_name: str, expected_version: Optional[str] = None
+) -> bool:
+    """Check that a PATH binary runs and, when requested, has an exact version."""
     try:
         result = _run_command(
             [binary_name, "--version"], capture_output=True, text=True, timeout=10
         )
-        return result.returncode == 0
     except (subprocess.TimeoutExpired, FileNotFoundError):
         return False
+
+    if result.returncode != 0:
+        return False
+    if expected_version is None:
+        return True
+
+    output = result.stdout or ""
+    return bool(re.search(rf"(?<!\d){re.escape(expected_version)}(?!\d)", output))
+
+
+def check_node_version(minimum: int) -> bool:
+    """Check that Node.js meets a package-specific minimum major version."""
+    try:
+        result = _run_command(
+            ["node", "--version"], capture_output=True, text=True, timeout=10
+        )
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return False
+
+    if result.returncode != 0:
+        return False
+    try:
+        return int((result.stdout or "").strip().lstrip("v").split(".")[0]) >= minimum
+    except (ValueError, IndexError):
+        return False
+
+
+def ensure_global_binary(req: Dict, dry_run: bool) -> bool:
+    """Ensure a required global binary is present at its pinned version."""
+    binary = req["binary"]
+    expected_version = req.get("version")
+    min_node_version = req.get("min_node_version")
+    if min_node_version is not None and not check_node_version(min_node_version):
+        click.echo(
+            f"   ❌ Node.js {min_node_version}+ is required for {req['package']}",
+            err=True,
+        )
+        return False
+    if check_binary_available(binary, expected_version):
+        return True
+
+    version_note = f" version {expected_version}" if expected_version else ""
+    click.echo(f"   ⚠️  '{binary}'{version_note} not available on PATH")
+    click.echo(f"   Required: {req['install_command']}")
+    if dry_run:
+        click.echo(f"   [DRY RUN] Would prompt to run: {req['install_command']}")
+        return True
+    if not click.confirm(f"   Install {req['package']} globally now?", default=True):
+        click.echo(f"   ⏭️  Skipping {binary} (required binary unavailable)")
+        return False
+
+    click.echo(f"   📦 Running: {req['install_command']}")
+    install_result = _run_command(
+        shlex.split(req["install_command"]), capture_output=True, text=True, timeout=300
+    )
+    if install_result.returncode != 0:
+        click.echo(f"   ❌ Global install failed: {install_result.stderr}", err=True)
+        return False
+    if not check_binary_available(binary, expected_version):
+        click.echo(
+            f"   ❌ '{binary}' did not report required version {expected_version} after install",
+            err=True,
+        )
+        return False
+
+    click.echo(f"   ✅ {req['package']} installed globally")
+    return True
 
 
 def install_airis_gateway(dry_run: bool = False) -> bool:
@@ -520,7 +591,7 @@ def _run_mcp_get(server_name: str) -> Optional[str]:
 
 def _parse_mcp_get_command(output: str) -> Optional[str]:
     """Normalize the ``Command:`` / ``Args:`` lines of ``claude mcp get`` into a single
-    ``"<command> <args>"`` string, e.g. ``"npx -y tavily-mcp@0.2.20"``.
+    ``"<command> <args>"`` string, e.g. ``"npx -y tavily-mcp@0.2.22"``.
 
     Returns ``None`` when no ``Command:`` line is present, OR when the ``Args:`` line has
     malformed/unbalanced quoting (``shlex.split`` raising ``ValueError``). The ValueError is
@@ -620,9 +691,16 @@ def install_mcp_server(
 
     click.echo(f"📦 Installing MCP server: {server_name}")
 
+    # Validate global executables before registration reconciliation so a matching
+    # Claude MCP command cannot hide an outdated binary behind it.
+    if "requires_global_binary" in server_info and not ensure_global_binary(
+        server_info["requires_global_binary"], dry_run
+    ):
+        return False
+
     # Check if already installed — and, if so, reconcile version/command drift instead of
     # blindly skipping. A name-only short-circuit silently strands users on a stale pin when
-    # the registry version is bumped (e.g. tavily-mcp 0.1.2 -> 0.2.20).
+    # the registry version is bumped (e.g. tavily-mcp 0.1.2 -> 0.2.22).
     #
     # check_mcp_server_installed() is only a cheap *substring* scan of `claude mcp list`, so it
     # can false-positive on a similarly-named server or a match in another scope. Before doing
@@ -707,43 +785,6 @@ def install_mcp_server(
             server_info["default_parameters"], separators=(",", ":")
         )
         env_args.extend(["-e", f"DEFAULT_PARAMETERS={default_params_json}"])
-
-    # Handle global binary requirement (e.g., auggie needs `npm install -g`)
-    if "requires_global_binary" in server_info:
-        req = server_info["requires_global_binary"]
-        if not check_binary_available(req["binary"]):
-            click.echo(f"   ⚠️  '{req['binary']}' not found on PATH")
-            click.echo(f"   Required: {req['install_command']}")
-            if dry_run:
-                click.echo(
-                    f"   [DRY RUN] Would prompt to run: {req['install_command']}"
-                )
-            elif click.confirm(
-                f"   Install {req['package']} globally now?", default=True
-            ):
-                click.echo(f"   📦 Running: {req['install_command']}")
-                install_result = _run_command(
-                    shlex.split(req["install_command"]),
-                    capture_output=True,
-                    text=True,
-                    timeout=300,
-                )
-                if install_result.returncode != 0:
-                    click.echo(
-                        f"   ❌ Global install failed: {install_result.stderr}",
-                        err=True,
-                    )
-                    return False
-                if not check_binary_available(req["binary"]):
-                    click.echo(
-                        f"   ❌ '{req['binary']}' still not on PATH after install",
-                        err=True,
-                    )
-                    return False
-                click.echo(f"   ✅ {req['package']} installed globally")
-            else:
-                click.echo(f"   ⏭️  Skipping {server_name} (binary not available)")
-                return False
 
     # Build installation command using modern Claude Code API
     # Format: claude mcp add [--transport <transport>] [--scope <scope>] <name> [-e KEY=VALUE]... -- <command>

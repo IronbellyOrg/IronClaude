@@ -511,9 +511,9 @@ chmod 755 ~/.claude/sessions/
 # Remove existing Serena registration
 claude mcp remove serena
 # Reinstall using uvx
-uvx --from git+https://github.com/oraios/serena serena --help
+uvx --from serena-agent==1.7.0 serena --help
 # Re-register with Claude
-claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant
+claude mcp add serena -- uvx --from serena-agent==1.7.0 serena start-mcp-server --context claude-code --project-from-cwd --enable-web-dashboard false --enable-gui-log-window false
 
 # Verification
 # Session context should persist across Claude Code restarts

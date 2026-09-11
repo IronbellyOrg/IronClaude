@@ -1,6 +1,6 @@
 """Drift-guard tests for the Tavily MCP registry entry and install path (Cluster C1).
 
-Covers the pinned ``tavily-mcp@0.2.20`` version, the ``default_parameters`` registry
+Covers the pinned ``tavily-mcp@0.2.22`` version, the ``default_parameters`` registry
 field, server-level ``DEFAULT_PARAMETERS`` injection into the install argv (M1), API-key
 masking in echoed commands (M1), and the absence of the deleted ``configs/tavily.json``.
 
@@ -24,16 +24,16 @@ _EXPECTED_DEFAULT_PARAMS_TOKEN = (
 )
 
 
-def test_tavily_registry_pins_0_2_20():
-    """The tavily registry command pins exactly tavily-mcp@0.2.20 over stdio (X1).
+def test_tavily_registry_pins_0_2_22():
+    """The tavily registry command pins exactly tavily-mcp@0.2.22 over stdio (X1).
 
     The pin is sourced from the ``TAVILY_MCP_VERSION`` constant (L3 single-SoT); the
-    literal ``0.2.20`` assertion stays as a backstop so an unintended bump fails here.
+    literal ``0.2.22`` assertion stays as a backstop so an unintended bump fails here.
     """
-    assert install_mcp.TAVILY_MCP_VERSION == "0.2.20"
+    assert install_mcp.TAVILY_MCP_VERSION == "0.2.22"
     entry = install_mcp.MCP_SERVERS["tavily"]
     assert entry["command"] == f"npx -y tavily-mcp@{install_mcp.TAVILY_MCP_VERSION}"
-    assert entry["command"] == "npx -y tavily-mcp@0.2.20"
+    assert entry["command"] == "npx -y tavily-mcp@0.2.22"
     assert entry["transport"] == "stdio"
 
 
@@ -75,7 +75,7 @@ def _patch_install_path(monkeypatch, dummy_key):
 
 
 def test_default_parameters_propagated(monkeypatch):
-    """The install argv carries -e DEFAULT_PARAMETERS=<compact-json> and the 0.2.20 pin (M1).
+    """The install argv carries -e DEFAULT_PARAMETERS=<compact-json> and the 0.2.22 pin (M1).
 
     No real npx/claude subprocess is spawned (``_run_command`` is intercepted).
     """
@@ -96,7 +96,7 @@ def test_default_parameters_propagated(monkeypatch):
     assert argv[idx - 1] == "-e"
 
     # The pinned package version is in the argv (after the `--` separator).
-    assert "tavily-mcp@0.2.20" in argv
+    assert "tavily-mcp@0.2.22" in argv
     # Sanity: this is the `claude mcp add` path, not a direct npx spawn.
     assert argv[:3] == ["claude", "mcp", "add"]
 
@@ -128,7 +128,7 @@ def test_default_parameters_without_api_key(monkeypatch):
         f"unexpected TAVILY_API_KEY pair in argv when no key was given: {argv}"
     )
     # Still the pinned `claude mcp add` path.
-    assert "tavily-mcp@0.2.20" in argv
+    assert "tavily-mcp@0.2.22" in argv
     assert argv[:3] == ["claude", "mcp", "add"]
 
 
@@ -195,7 +195,7 @@ def _patch_already_installed(monkeypatch, get_stdout, get_rc=0, dummy_key="k-123
 
 
 def test_reregisters_on_version_mismatch(monkeypatch):
-    """A stale pin (0.1.2) registered while the registry wants 0.2.20 -> remove + re-add (M1 fix).
+    """A stale pin (0.1.2) registered while the registry wants 0.2.22 -> remove + re-add (M1 fix).
 
     This is the core regression: ``install_mcp_server`` must NOT name-idempotently skip an
     out-of-date server. It must remove the stale registration and re-add the pinned version.
@@ -220,7 +220,7 @@ def test_reregisters_on_version_mismatch(monkeypatch):
     # The re-add must register the *pinned* version, not the stale one.
     add_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "add"]]
     assert len(add_calls) == 1, f"expected exactly one add, got: {captured['calls']}"
-    assert "tavily-mcp@0.2.20" in add_calls[0]
+    assert "tavily-mcp@0.2.22" in add_calls[0]
     assert "tavily-mcp@0.1.2" not in add_calls[0]
 
     # Ordering: remove precedes add.
@@ -231,7 +231,7 @@ def test_reregisters_on_version_mismatch(monkeypatch):
 
 def test_noop_when_already_up_to_date(monkeypatch):
     """When the registered version already matches the pin, do nothing destructive (no remove/add)."""
-    captured = _patch_already_installed(monkeypatch, _get_output("0.2.20"))
+    captured = _patch_already_installed(monkeypatch, _get_output("0.2.22"))
 
     ok = install_mcp.install_mcp_server(
         install_mcp.MCP_SERVERS["tavily"], scope="user", dry_run=False
@@ -271,7 +271,7 @@ def test_unparseable_registration_triggers_reregister(monkeypatch):
         "tavily:\n"
         "  Scope: User config\n"
         "  Command: npx\n"
-        '  Args: -y tavily-mcp@0.2.20 "unterminated\n'  # unbalanced quote
+        '  Args: -y tavily-mcp@0.2.22 "unterminated\n'  # unbalanced quote
     )
     captured = _patch_already_installed(
         monkeypatch, malformed
@@ -284,7 +284,7 @@ def test_unparseable_registration_triggers_reregister(monkeypatch):
 
     assert any(c[:3] == ["claude", "mcp", "remove"] for c in captured["calls"])
     add_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "add"]]
-    assert len(add_calls) == 1 and "tavily-mcp@0.2.20" in add_calls[0]
+    assert len(add_calls) == 1 and "tavily-mcp@0.2.22" in add_calls[0]
 
 
 def test_parse_command_returns_none_on_malformed_quoting():
@@ -315,7 +315,7 @@ def test_substring_false_positive_installs_fresh_without_remove(monkeypatch):
         f"must not remove on a substring-only false positive: {captured['calls']}"
     )
     add_calls = [c for c in captured["calls"] if c[:3] == ["claude", "mcp", "add"]]
-    assert len(add_calls) == 1 and "tavily-mcp@0.2.20" in add_calls[0]
+    assert len(add_calls) == 1 and "tavily-mcp@0.2.22" in add_calls[0]
 
 
 def test_remove_targets_registered_scope_not_install_target(monkeypatch):
@@ -349,11 +349,11 @@ def test_get_registered_mcp_command_parses_get_output(monkeypatch):
 
     def fake_run_command(cmd, **kwargs):
         assert cmd[:3] == ["claude", "mcp", "get"]
-        return _FakeGet(_get_output("0.2.20"))
+        return _FakeGet(_get_output("0.2.22"))
 
     monkeypatch.setattr(install_mcp, "_run_command", fake_run_command)
     assert (
-        install_mcp.get_registered_mcp_command("tavily") == "npx -y tavily-mcp@0.2.20"
+        install_mcp.get_registered_mcp_command("tavily") == "npx -y tavily-mcp@0.2.22"
     )
 
 
@@ -372,5 +372,5 @@ def test_parse_scope_normalizes_scope_line():
 def test_live_tavily_search_smoke():
     """Minimal live presence check — SKIPPED in CI (no key). Confirms the pinned entry resolves."""
     entry = install_mcp.MCP_SERVERS["tavily"]
-    assert entry["command"].endswith("tavily-mcp@0.2.20")
+    assert entry["command"].endswith("tavily-mcp@0.2.22")
     assert entry.get("api_key_env") == "TAVILY_API_KEY"

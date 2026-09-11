@@ -249,7 +249,7 @@ docker compose restart api
     },
     "sequential-thinking": {
       "command": "npx", 
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@2026.8.31"]
     },
     "magic": {
       "command": "npx",
@@ -262,16 +262,16 @@ docker compose restart api
     },
     "morphllm-fast-apply": {
       "command": "npx",
-      "args": ["@morph-llm/morph-fast-apply"],
+      "args": ["-y", "@morphllm/morphmcp"],
       "env": {"MORPH_API_KEY": "${MORPH_API_KEY}"}
     },
     "serena": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant"]
+      "args": ["--from", "serena-agent==1.7.0", "serena", "start-mcp-server", "--context", "claude-code", "--project-from-cwd", "--enable-web-dashboard", "false", "--enable-gui-log-window", "false"]
     },
     "tavily": {
       "command": "npx",
-      "args": ["-y", "tavily-mcp@0.2.20"],
+      "args": ["-y", "tavily-mcp@0.2.22"],
       "env": {"TAVILY_API_KEY": "${TAVILY_API_KEY}"}
     },
     "chrome-devtools": {

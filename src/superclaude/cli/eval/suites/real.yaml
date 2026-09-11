@@ -1627,7 +1627,7 @@ evals:
       home_strategy: ephemeral
     no_pty: skip
     # C7 / TASK-RF-tavily-mcp-0-2-x — capability-gated verification vehicle for
-    # the Tavily 0.2.x upgrade. Proves the pinned `tavily-mcp@0.2.20` server is
+    # the Tavily 0.2.x upgrade. Proves the pinned `tavily-mcp@0.2.22` server is
     # reachable and the `mcp__tavily__tavily_search` tool fires. Gated by
     # `requires: [mcp_server.tavily]`: SKIPs cleanly under `--no-mcp` OR when the
     # Tavily MCP server is unreachable / no TAVILY_API_KEY is configured
