@@ -133,11 +133,14 @@ REMOVE = {
     "kimi-k2.7-code",
     "kimi-k2.5",
     "kimi-latest",
+    "kimi-k2.8",
+    "kimi-k2.8-code",
     "Qwen-3.7-plus",
     "Qwen-MiniMax2.5",
     "Qwen3.7-max",
     "Qwen-GLM5",
     "Qwen-Kimi2.5",
+    "glm-5.2",
     "grok-build-0.1",
     "grok-imagine-video-1.5",
     "deepseek-v4-pro",
@@ -176,7 +179,6 @@ PINNED = [  # shown first, in exactly this order (real upstream ids)
     "gpt-5.6-luna",
     "gpt-5.6-terra",
     "grok-4.6",
-    "glm-5.2",
     "kimi-k3",
     "Qwen/Qwen3-Max",
 ]
@@ -187,6 +189,9 @@ ONE_MILLION_CONTEXT = {
     "claude-fable-5-1",
     "gpt-6-astra",
     "gpt-5.6-sol",
+    "gpt-5.6-luna",
+    "gpt-5.6-terra",
+    "Qwen3.8-max",
 }
 
 FAMILY_ORDER = ["claude", "openai", "moonshot", "qwen", "gemini", "other"]
