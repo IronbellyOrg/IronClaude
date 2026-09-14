@@ -181,6 +181,92 @@ print(cache.read_text())
         shim.server_close()
 
 
+def test_profile_keeps_same_shim_cache_when_warmup_fails(tmp_path: Path) -> None:
+    upstream = "http://gateway.example:4000/cli"
+
+    class Shim(http.server.BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            if self.path == "/__ccsession_shim":
+                body = json.dumps(
+                    {
+                        "service": "ccsession-gateway-alias-proxy",
+                        "upstream": upstream,
+                        "port": self.server.server_port,
+                    }
+                ).encode()
+                self.send_response(200)
+            else:
+                body = b'{"error":"unavailable"}'
+                self.send_response(503)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, _format: str, *_args: object) -> None:
+            pass
+
+    shim = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Shim)
+    thread = threading.Thread(target=shim.serve_forever, daemon=True)
+    thread.start()
+
+    home = tmp_path / "failed-warmup-home"
+    home.mkdir()
+    cache_file = home / ".claude" / "cache" / "gateway-models.json"
+    cache_file.parent.mkdir(parents=True)
+    seeded_cache = json.dumps(
+        {
+            "baseUrl": f"http://127.0.0.1:{shim.server_port}",
+            "fetchedAt": 1,
+            "models": [{"id": "claude-gw-gpt-6-astra[1m]"}],
+        },
+        separators=(",", ":"),
+    )
+    cache_file.write_text(seeded_cache)
+    tools = tmp_path / "failed-warmup-tools"
+    tools.mkdir()
+    fake_lsof = tools / "lsof"
+    fake_lsof.write_text("#!/bin/sh\nprintf '4242\\n'\n")
+    fake_lsof.chmod(fake_lsof.stat().st_mode | stat.S_IXUSR)
+    fake_claude = tmp_path / "cache-reader.py"
+    fake_claude.write_text(
+        """#!/usr/bin/env python3
+import pathlib
+cache = pathlib.Path.home() / ".claude/cache/gateway-models.json"
+print(cache.read_text())
+"""
+    )
+    fake_claude.chmod(fake_claude.stat().st_mode | stat.S_IXUSR)
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "PATH": f"{tools}:{env['PATH']}",
+            "CLAUDE_BIN": str(fake_claude),
+            "ANTHROPIC_BASE_URL": upstream,
+            "CC_SHIM_PORT": str(shim.server_port),
+            "CC_SHIM_SCRIPT": str(SKILL_DIR / "local-gateway-alias-proxy.py"),
+        }
+    )
+    try:
+        result = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--profile", "claude", "--shim"],
+            env=env,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        assert result.stdout.strip().splitlines()[-1] == seeded_cache
+        assert (
+            "[ccsession] WARNING: could not pre-load gateway models; Claude Code will retry "
+            "discovery after launch" in result.stderr
+        )
+    finally:
+        shim.shutdown()
+        shim.server_close()
+
+
 def test_gateway_profile_requires_shim(tmp_path: Path) -> None:
     home = tmp_path / "home"
     home.mkdir()
