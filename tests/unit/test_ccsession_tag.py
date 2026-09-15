@@ -94,6 +94,93 @@ def test_help_lists_all_commands_and_profiles() -> None:
         assert expected in result.stdout
 
 
+def test_profile_warms_complete_gateway_cache_before_claude_starts(
+    tmp_path: Path,
+) -> None:
+    upstream = "http://gateway.example:4000/cli"
+
+    class Shim(http.server.BaseHTTPRequestHandler):
+        def do_GET(self) -> None:
+            if self.path == "/__ccsession_shim":
+                payload = {
+                    "service": "ccsession-gateway-alias-proxy",
+                    "upstream": upstream,
+                    "port": self.server.server_port,
+                }
+            else:
+                payload = {
+                    "data": [
+                        {
+                            "id": "claude-gw-gpt-6-astra[1m]",
+                            "display_name": "GPT 6 Astra",
+                        },
+                        {
+                            "id": "claude-gw-qwen3.8-max[1m]",
+                            "display_name": "Qwen 3.8 Max",
+                        },
+                    ]
+                }
+            body = json.dumps(payload).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, _format: str, *_args: object) -> None:
+            pass
+
+    shim = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Shim)
+    thread = threading.Thread(target=shim.serve_forever, daemon=True)
+    thread.start()
+
+    home = tmp_path / "warm-home"
+    home.mkdir()
+    tools = tmp_path / "warm-tools"
+    tools.mkdir()
+    fake_lsof = tools / "lsof"
+    fake_lsof.write_text("#!/bin/sh\nprintf '4242\\n'\n")
+    fake_lsof.chmod(fake_lsof.stat().st_mode | stat.S_IXUSR)
+    fake_claude = tmp_path / "cache-reader.py"
+    fake_claude.write_text(
+        """#!/usr/bin/env python3
+import json, pathlib
+cache = pathlib.Path.home() / ".claude/cache/gateway-models.json"
+print(cache.read_text())
+"""
+    )
+    fake_claude.chmod(fake_claude.stat().st_mode | stat.S_IXUSR)
+
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "PATH": f"{tools}:{env['PATH']}",
+            "CLAUDE_BIN": str(fake_claude),
+            "ANTHROPIC_BASE_URL": upstream,
+            "CC_SHIM_PORT": str(shim.server_port),
+            "CC_SHIM_SCRIPT": str(SKILL_DIR / "local-gateway-alias-proxy.py"),
+        }
+    )
+    try:
+        result = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--profile", "claude", "--shim"],
+            env=env,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        cache = json.loads(result.stdout.strip().splitlines()[-1])
+        assert cache["baseUrl"] == f"http://127.0.0.1:{shim.server_port}"
+        assert [model["id"] for model in cache["models"]] == [
+            "claude-gw-gpt-6-astra[1m]",
+            "claude-gw-qwen3.8-max[1m]",
+        ]
+    finally:
+        shim.shutdown()
+        shim.server_close()
+
+
 def test_gateway_profile_requires_shim(tmp_path: Path) -> None:
     home = tmp_path / "home"
     home.mkdir()
@@ -150,11 +237,17 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
     payload = {
         "data": [
             {"id": "gpt-5.6-sol"},
+            {"id": "gpt-5.6-luna"},
+            {"id": "gpt-5.6-terra"},
             {"id": "gpt-6-astra"},
             {"id": "kimi-k3"},
+            {"id": "kimi-k2.8"},
+            {"id": "kimi-k2.8-code"},
+            {"id": "glm-5.2"},
             {"id": "glm-5.3"},
             {"id": "claude-fable-5-1"},
             {"id": "grok-4.6"},
+            {"id": "Qwen3.8-max"},
             {"id": "gpt-5.5"},
         ]
     }
@@ -164,11 +257,15 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
     aliases = module["alias_to_real"]
 
     assert ids[:2] == ["claude-gw-gpt-6-astra[1m]", "claude-gw-gpt-5.6-sol[1m]"]
+    assert "claude-gw-gpt-5.6-luna[1m]" in ids
+    assert "claude-gw-gpt-5.6-terra[1m]" in ids
     assert "claude-gw-kimi-k3[1m]" in ids
     assert "claude-gw-glm-5.3[1m]" in ids
     assert "claude-fable-5-1[1m]" in ids
     assert "claude-gw-grok-4.6" in ids
-    assert all("gpt-5.5" not in model_id for model_id in ids)
+    assert "claude-gw-qwen3.8-max[1m]" in ids
+    for hidden in ("gpt-5.5", "kimi-k2.8", "kimi-k2.8-code", "glm-5.2"):
+        assert all(hidden not in model_id for model_id in ids)
     assert aliases["claude-gw-gpt-6-astra"] == "gpt-6-astra"
     assert aliases["claude-gw-gpt-5.6-sol"] == "gpt-5.6-sol"
     assert not any(alias.endswith("[1m]") for alias in aliases)

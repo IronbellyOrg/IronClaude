@@ -152,7 +152,8 @@ ccsession notes --profile gpt1 --shim
 | `grok` | Grok 4.6 | 500,000 | yes |
 
 Older names `1mm`, `372k`, and `500k` still work and mean `claude`, `gpt`, and
-`grok`.
+`grok`. With `--shim`, ccsession saves the complete curated model list before
+Claude Code starts, so every profile shows the same gateway models in `/model`.
 
 To add your own, copy a block in the `apply_profile` section of `ccsession` and
 change the name, the model, and the two numbers.

@@ -144,8 +144,70 @@ else:
   fi
   export ANTHROPIC_BASE_URL="http://127.0.0.1:$CC_SHIM_PORT"
   export CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY=1
-  # Stale cache from a non-shim session would hide the aliased models.
-  rm -f "$HOME/.claude/cache/gateway-models.json"
+
+  # Claude Code 2.1.269 builds /model before its asynchronous gateway discovery
+  # finishes when --model is supplied. Warm the cache synchronously so every
+  # profile starts with the complete curated shim list.
+  cache_file="$HOME/.claude/cache/gateway-models.json"
+  if ! CC_CACHE_BASE_URL="$ANTHROPIC_BASE_URL" \
+    CC_CACHE_FILE="$cache_file" \
+    CC_CACHE_AUTH_TOKEN="${ANTHROPIC_AUTH_TOKEN:-}" \
+    CC_CACHE_API_KEY="${ANTHROPIC_API_KEY:-}" \
+    python3 - <<'PY'
+import json
+import os
+import pathlib
+import time
+import urllib.request
+
+base_url = os.environ["CC_CACHE_BASE_URL"].rstrip("/")
+cache_file = pathlib.Path(os.environ["CC_CACHE_FILE"])
+headers = {"anthropic-version": "2023-06-01"}
+auth_token = os.environ.get("CC_CACHE_AUTH_TOKEN", "")
+api_key = os.environ.get("CC_CACHE_API_KEY", "")
+if auth_token:
+    headers["Authorization"] = f"Bearer {auth_token}"
+if api_key:
+    headers["x-api-key"] = api_key
+
+request = urllib.request.Request(
+    f"{base_url}/v1/models?limit=1000", headers=headers, method="GET"
+)
+with urllib.request.urlopen(request, timeout=10) as response:
+    payload = json.load(response)
+models = []
+for model in payload.get("data", []):
+    model_id = model.get("id")
+    if not isinstance(model_id, str) or not model_id:
+        continue
+    row = {"id": model_id}
+    for key in ("display_name", "description"):
+        value = model.get(key)
+        if isinstance(value, str) and value:
+            row[key] = value
+    models.append(row)
+if not models:
+    raise RuntimeError("shim returned no models")
+
+cache_file.parent.mkdir(parents=True, exist_ok=True)
+temp_file = cache_file.with_name(f".{cache_file.name}.{os.getpid()}.tmp")
+try:
+    temp_file.write_text(
+        json.dumps(
+            {"baseUrl": base_url, "fetchedAt": int(time.time() * 1000), "models": models},
+            separators=(",", ":"),
+        )
+    )
+    temp_file.chmod(0o600)
+    temp_file.replace(cache_file)
+finally:
+    temp_file.unlink(missing_ok=True)
+print(f"[ccsession] Cached {len(models)} curated gateway models before launch")
+PY
+  then
+    rm -f "$cache_file"
+    echo "[ccsession] WARNING: could not pre-load gateway models; Claude Code will retry discovery after launch" >&2
+  fi
 }
 
 apply_profile() {
