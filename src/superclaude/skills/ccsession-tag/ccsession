@@ -205,7 +205,6 @@ finally:
 print(f"[ccsession] Cached {len(models)} curated gateway models before launch")
 PY
   then
-    rm -f "$cache_file"
     echo "[ccsession] WARNING: could not pre-load gateway models; Claude Code will retry discovery after launch" >&2
   fi
 }
