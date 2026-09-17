@@ -147,7 +147,7 @@ ccsession notes --profile gpt1 --shim
 | Profile | Starts on | Holds | Needs `--shim` |
 |---|---|---|---|
 | `claude` | Opus 5, large-window version | 1,000,000 | no |
-| `gpt` | GPT 5.6 Sol | 1,000,000 | yes |
+| `gpt` | GPT 5.6 Sol | 850,000 | yes |
 | `gpt1` | GPT 6 Astra | 850,000 | yes |
 | `grok` | Grok 4.6 | 500,000 | yes |
 
