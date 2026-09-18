@@ -105,7 +105,7 @@ You must not claim these paths exist; they are **intended locations**.
 The generator produces exactly **N+1 files** during generation (Stages 1-6) where N = number of phases. Stages 7-10 produce up to 2 additional validation artifacts in `TASKLIST_ROOT/validation/`:
 
 1. **`tasklist-index.md`** -- Contains: metadata, artifact paths, source snapshot, deterministic rules, registries, traceability matrix, templates, glossary
-2. **`phase-1-tasklist.md`** through **`phase-N-tasklist.md`** -- Contains: phase heading, phase goal, tasks (in order), inline checkpoints, end-of-phase checkpoint, and (when reflect gating is enabled — the default) a terminal post-execution reflection task as the absolute last task
+2. **`phase-1-tasklist.md`** through **`phase-N-tasklist.md`** -- Contains: phase heading, phase goal, the required `## Bash Inspection Policy` framework-guidance block, tasks (in order), inline checkpoints, end-of-phase checkpoint, and (when reflect gating is enabled — the default) a terminal post-execution reflection task as the absolute last task
 
 **Naming**: Phase files MUST use the `phase-N-tasklist.md` convention (canonical Sprint CLI convention). Do not emit mixed aliases unless explicitly requested.
 
@@ -114,6 +114,15 @@ The generator produces exactly **N+1 files** during generation (Stages 1-6) wher
 **Index references**: The "Phase Files" table in the index MUST contain **literal filenames** (e.g., `phase-1-tasklist.md`), not path-prefixed references, so the Sprint CLI regex can discover them.
 
 **Content boundary**: Phase files contain ONLY tasks belonging to that phase. No cross-phase metadata, no registries, no global templates.
+
+**Framework execution-policy exception**: Every phase file MUST contain one compact `## Bash Inspection Policy` block after the phase goal and before its tasks. This is framework execution guidance, not roadmap-derived scope, metadata, a registry, a template, a task, or a deliverable. The block MUST state:
+
+- Follow the globally installed `BASH_INSPECTION_POLICY.md`.
+- Five or more serial, known-path, independent read-only Bash inspections are one generated `/tmp` batch/tool call; same-turn parallel tool calls are exempt.
+- Keep mutations, dynamic/interactive/state-dependent commands, network/remote/recursive work, and tracked-Read freshness checks separate.
+- Preserve task order, task IDs, dependencies, compliance tiers, and judgment boundaries; do not create work merely to carry this policy.
+
+During decomposition, collapse an eligible five-plus inspection wave into one bounded batch step instead of emitting five serial Bash steps. Never combine mutations or steps separated by agent interpretation.
 
 #### Target Directory Layout
 
@@ -928,7 +937,18 @@ start_commit: "<PHASE_N_START_SHA>"
 
 Each phase file begins with a minimal YAML frontmatter block — `executor_model_class` (consumed by the O2 wrapper gate as the `--executor-model` reviewer-exclusion class, contract §6) and optionally `start_commit` — immediately followed by the `# Phase N -- <Name>` heading. **Do NOT seed a `reflect_post:` key or a `# reflect_post` comment line inside the frontmatter:** the wrapper appends the `reflect_post:` block into this frontmatter itself (the block's mere existence is the "room" it needs), and a `#`-prefixed comment line would be mis-read as the phase heading by the Sprint `_extract_phase_name` scanner (it returns the first `#` line). The heading MUST be a level-1 heading (`#`) with an em-dash separator. The phase name portion must not exceed 50 characters. This format is required for Sprint CLI TUI display name extraction; the `count_tasks_in_file` / `parse_tasklist` / `_extract_phase_name` parsers tolerate the leading `---` block (it carries no `### T` task heading and, with no `#` comment, no false phase heading).
 
-Include a one-paragraph phase goal (2-3 sentences max, derived from roadmap).
+Include a one-paragraph phase goal (2-3 sentences max, derived from roadmap), followed by this framework-guidance block before the first task:
+
+```markdown
+## Bash Inspection Policy
+
+- Follow the globally installed `BASH_INSPECTION_POLICY.md`.
+- Five or more serial, known-path, independent read-only Bash inspections are one generated `/tmp` batch/tool call; same-turn parallel tool calls are exempt.
+- Keep mutations, dynamic/interactive/state-dependent commands, network/remote/recursive work, and tracked-Read freshness checks separate.
+- Preserve task order, task IDs, dependencies, compliance tiers, and judgment boundaries; do not create work merely to carry this policy.
+```
+
+This exact block is required framework execution guidance. It is not a roadmap requirement, task, deliverable, registry, or global template.
 
 #### Task Format
 
@@ -1211,7 +1231,7 @@ Before finalizing output, verify all of the following:
 2. Every phase file referenced in the index exists in the output bundle
 3. Phase numbers are contiguous (1, 2, 3, ..., N) with no gaps
 4. All task IDs match `T<PP>.<TT>` format (zero-padded, 2-digit)
-5. Every phase file starts with a leading `---` YAML frontmatter block (carrying `executor_model_class` for the O2 reflect-wrapper gate, providing the block the wrapper writes `reflect_post:` back into) immediately followed by `# Phase N -- <Name>` (level 1 heading, em-dash separator). This block is REQUIRED when reflect gating is enabled (the default) — it is the O2 writeback target; a frontmatter-less phase file makes the wrapper return `frontmatter-missing` → BLOCKED (exit 2). It may be omitted ONLY under `--no-reflect`, in which case `# Phase N -- <Name>` is the first line. The Sprint CLI parsers (`_extract_phase_name`, `count_tasks_in_file`, `parse_tasklist`) are frontmatter-tolerant (the block carries no `### T` task heading and no `#` line, so it disturbs neither task-count nor phase-name extraction).
+5. Every phase file starts with a leading `---` YAML frontmatter block (carrying `executor_model_class` for the O2 reflect-wrapper gate, providing the block the wrapper writes `reflect_post:` back into) immediately followed by `# Phase N -- <Name>` (level 1 heading, em-dash separator). This block is REQUIRED when reflect gating is enabled (the default) — it is the O2 writeback target; a frontmatter-less phase file makes the wrapper return `frontmatter-missing` → BLOCKED (exit 2). It may be omitted ONLY under `--no-reflect`, in which case `# Phase N -- <Name>` is the first line. The Sprint CLI parsers (`_extract_phase_name`, `count_tasks_in_file`, `parse_tasklist`) are frontmatter-tolerant (the block carries no `### T` task heading and no `#` line, so it disturbs neither task-count nor phase-name extraction). After the phase goal and before the first task, every phase file contains exactly one `## Bash Inspection Policy` block matching the Phase File Template; the block is framework guidance and is exempt from roadmap traceability.
 6. Every phase file ends with an end-of-phase checkpoint task — the last *checkpoint* in the phase (per checks 18-20); when reflect gating is enabled (default), the templated post-reflection task is the sole task permitted to follow that checkpoint and is the absolute last task in the file
 7. No phase file contains Deliverable Registry, Traceability Matrix, or template sections
 8. The index contains literal phase filenames (e.g., `phase-1-tasklist.md`) in at least one table cell
@@ -1359,7 +1379,7 @@ This produces **2N agents** total, all spawned via the `Task` tool (Agent) and r
 > 2. **Contradictions**: Does the task contradict any roadmap statement? Does it claim capabilities, fallbacks, or behaviors the roadmap does not support?
 > 3. **Omissions**: Does the roadmap require something for this task's scope that the task does not include? Are exit criteria, test commands, or rollback requirements missing?
 > 4. **Weakened criteria**: Are checkpoints, acceptance criteria, or validation steps weaker than what the roadmap specifies? (e.g., narrower test commands, softer wording, missing specific named tests)
-> 5. **Invented content**: Does the task introduce requirements, tests, behaviors, or constraints not present in the roadmap?
+> 5. **Invented content**: Does the task introduce requirements, tests, behaviors, or constraints not present in the roadmap? The single required `## Bash Inspection Policy` block is framework execution guidance, not roadmap-derived content: do not flag, weaken, remove, or patch it as invented content.
 >
 > For each finding, return a structured entry:
 >

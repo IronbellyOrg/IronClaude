@@ -92,6 +92,8 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "freshness-subagent-start.sh",
         "freshness-subagent-stop.sh",
         "auggie-flag-clear.sh",
+        "reject-workspace-writes.sh",
+        "sc-recommend-phase0.sh",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")
@@ -251,7 +253,9 @@ def test_case_4a_same_event_different_matcher(fake_source_hooks, target_settings
 # ---------------------------------------------------------------------------
 
 
-def test_case_4b_collision_skipped_without_force(fake_source_hooks, target_settings):
+def test_case_4b_same_matcher_preserved_without_force(
+    fake_source_hooks, target_settings
+):
     user_reg = {
         "matcher": "Edit|Write",
         "hooks": [{"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2}],
@@ -264,13 +268,17 @@ def test_case_4b_collision_skipped_without_force(fake_source_hooks, target_setti
     assert ok, msg
 
     data = json.loads(target_settings.read_text())
-    # Only one registration (user's), freshness skipped
-    assert len(data["hooks"]["PreToolUse"]) == 1
-    assert data["hooks"]["PreToolUse"][0]["hooks"][0]["command"] == "~/my-edit-hook.sh"
-    assert "skipped-collision=1" in msg
+    registrations = data["hooks"]["PreToolUse"]
+    assert len(registrations) == 2
+    commands = [reg["hooks"][0]["command"] for reg in registrations]
+    assert commands == [
+        "~/my-edit-hook.sh",
+        "~/.claude/hooks/freshness-pre-edit.sh",
+    ]
+    assert "added=2" in msg
 
 
-def test_case_4c_collision_replaced_with_force(fake_source_hooks, target_settings):
+def test_case_4c_same_matcher_preserved_with_force(fake_source_hooks, target_settings):
     user_reg = {
         "matcher": "Edit|Write",
         "hooks": [{"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2}],
@@ -283,10 +291,135 @@ def test_case_4c_collision_replaced_with_force(fake_source_hooks, target_setting
     assert ok, msg
 
     data = json.loads(target_settings.read_text())
-    assert len(data["hooks"]["PreToolUse"]) == 1
-    assert (
-        data["hooks"]["PreToolUse"][0]["hooks"][0]["command"]
-        == "~/.claude/hooks/freshness-pre-edit.sh"
+    registrations = data["hooks"]["PreToolUse"]
+    assert len(registrations) == 2
+    commands = [reg["hooks"][0]["command"] for reg in registrations]
+    assert commands == [
+        "~/my-edit-hook.sh",
+        "~/.claude/hooks/freshness-pre-edit.sh",
+    ]
+    assert "added=2" in msg
+
+
+def test_force_refreshes_owned_hook_and_preserves_mixed_user_hook(
+    fake_source_hooks, target_settings
+):
+    mixed_reg = {
+        "matcher": "Edit|Write",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "~/.claude/hooks/freshness-pre-edit.sh",
+                "timeout": 99,
+                "async": True,
+            },
+            {"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2},
+        ],
+    }
+    target_settings.write_text(
+        json.dumps({"hooks": {"PreToolUse": [mixed_reg]}}, indent=2)
+    )
+
+    ok, msg = install_hooks(target_path=target_settings, force=True)
+    assert ok, msg
+
+    registrations = json.loads(target_settings.read_text())["hooks"]["PreToolUse"]
+    assert len(registrations) == 2
+    user_hooks = [
+        hook
+        for reg in registrations
+        for hook in reg["hooks"]
+        if hook["command"] == "~/my-edit-hook.sh"
+    ]
+    framework_hooks = [
+        hook
+        for reg in registrations
+        for hook in reg["hooks"]
+        if hook["command"] == "~/.claude/hooks/freshness-pre-edit.sh"
+    ]
+    assert user_hooks == [
+        {"type": "command", "command": "~/my-edit-hook.sh", "timeout": 2}
+    ]
+    assert framework_hooks == [
+        {
+            "type": "command",
+            "command": "~/.claude/hooks/freshness-pre-edit.sh",
+            "timeout": 1,
+        }
+    ]
+    assert "replaced=1" in msg
+
+
+def test_force_refreshes_subagent_start_from_async_to_sync(
+    fake_source_hooks, target_settings
+):
+    source_path = fake_source_hooks / "hooks" / "hooks.json"
+    source = json.loads(source_path.read_text())
+    source["hooks"]["SubagentStart"] = [
+        {
+            "hooks": [
+                {
+                    "type": "command",
+                    "command": "~/.claude/hooks/freshness-subagent-start.sh",
+                    "timeout": 1,
+                }
+            ]
+        }
+    ]
+    source_path.write_text(json.dumps(source, indent=2))
+    target_settings.write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    "SubagentStart": [
+                        {
+                            "hooks": [
+                                {
+                                    "type": "command",
+                                    "command": "~/.claude/hooks/freshness-subagent-start.sh",
+                                    "timeout": 1,
+                                    "async": True,
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": "*",
+                            "hooks": [
+                                {
+                                    "type": "command",
+                                    "command": "~/.claude/hooks/custom-reminder.sh",
+                                }
+                            ],
+                        },
+                    ]
+                }
+            },
+            indent=2,
+        )
+    )
+
+    ok, msg = install_hooks(target_path=target_settings, force=True)
+    assert ok, msg
+
+    registrations = json.loads(target_settings.read_text())["hooks"]["SubagentStart"]
+    assert registrations[0]["hooks"][0]["command"] == (
+        "~/.claude/hooks/freshness-subagent-start.sh"
+    )
+    framework = next(
+        hook
+        for reg in registrations
+        for hook in reg["hooks"]
+        if hook["command"] == "~/.claude/hooks/freshness-subagent-start.sh"
+    )
+    assert framework == {
+        "type": "command",
+        "command": "~/.claude/hooks/freshness-subagent-start.sh",
+        "timeout": 1,
+    }
+    assert any(
+        hook["command"] == "~/.claude/hooks/custom-reminder.sh"
+        for reg in registrations
+        for hook in reg["hooks"]
     )
     assert "replaced=1" in msg
 
@@ -414,12 +547,12 @@ def test_smoke_install_then_reinstall_force(fake_source_hooks, target_settings):
     ok1, msg1 = install_hooks(target_path=target_settings, force=False)
     assert ok1, msg1
 
-    # Second run without force: same-matcher collisions → all skipped
+    # Second run without force: exact framework commands are preserved.
     ok2, msg2 = install_hooks(target_path=target_settings, force=False)
     assert ok2, msg2
-    assert "skipped-collision" in msg2
+    assert "skipped-existing" in msg2
 
-    # Third run with force: replaces in place
+    # Third run with force: framework-owned registrations refresh in place.
     ok3, msg3 = install_hooks(target_path=target_settings, force=True)
     assert ok3, msg3
     assert "replaced=" in msg3

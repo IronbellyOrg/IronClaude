@@ -11,9 +11,8 @@ T04.01):
   own backup, separate from Claude Code's internal 5-rotate scheme).
 - Refuses to overwrite a malformed target settings.json (explicit error;
   backup at <path> referenced in message).
-- Additive merge for the hooks key: existing user hooks preserved; new
-  registrations appended; matcher-collision detection (skip without --force,
-  replace with --force).
+- Additive merge for the hooks key: existing user hooks preserved; framework
+  registrations are refreshed by exact command identity, never by matcher alone.
 - Pure stdlib (json + shutil + os + pathlib); no jq shell-out.
 - chmod 0o755 happens AFTER copy so a failed copy never leaves a 0-byte
   executable.
@@ -95,8 +94,8 @@ def install_hooks(
 
     Args:
         target_path: Path to settings.json (default: ~/.claude/settings.json).
-        force: If True, overwrite existing hook scripts and replace
-            matcher-colliding registrations.
+        force: If True, overwrite existing hook scripts and refresh
+            registrations owned by matching framework command paths.
 
     Returns:
         (success, message) tuple matching the install_core_files convention.
@@ -328,69 +327,84 @@ def _merge_settings(
                 backup_path,
             )
 
-        # Snapshot the matchers that existed in the target BEFORE this merge.
-        # Collisions are user-vs-source, not source-vs-source: two of our own
-        # registrations with the same matcher (e.g., the SessionStart pair —
-        # session-init.sh + freshness-session-start.sh, both implicit/explicit
-        # `*` matcher) must BOTH land.
-        original_target_matchers = {
-            r.get("matcher", "*") for r in event_list if isinstance(r, dict)
-        }
-        # Also track exact (matcher, command-list) tuples that already exist
-        # so a true duplicate (same matcher + same exact inner commands) is
-        # always treated as a collision regardless of source-vs-source distinction.
-        original_target_signatures = {
-            _registration_signature(r) for r in event_list if isinstance(r, dict)
-        }
-
         for new_reg in registrations:
             if not isinstance(new_reg, dict):
                 continue
-            new_matcher = new_reg.get("matcher", "*")
-            new_signature = _registration_signature(new_reg)
 
-            # Exact-duplicate check: same matcher AND same inner commands →
-            # always a collision (no work to do).
-            if new_signature in original_target_signatures:
-                if force:
-                    # Find and replace the first matching original.
-                    for idx, existing_reg in enumerate(event_list):
-                        if (
-                            isinstance(existing_reg, dict)
-                            and _registration_signature(existing_reg) == new_signature
-                        ):
-                            event_list[idx] = new_reg
-                            replaced += 1
-                            break
-                else:
-                    skipped_collision += 1
+            new_inner = new_reg.get("hooks", [])
+            if not isinstance(new_inner, list):
+                new_inner = []
+            managed_commands = {
+                hook.get("command")
+                for hook in new_inner
+                if isinstance(hook, dict) and hook.get("command")
+            }
+
+            # Framework ownership is identified by the command path, never by a
+            # matcher alone. Different hooks commonly share matcher="*" or Bash.
+            owns_existing = False
+            if managed_commands:
+                for existing_reg in event_list:
+                    if not isinstance(existing_reg, dict):
+                        continue
+                    existing_inner = existing_reg.get("hooks", [])
+                    if not isinstance(existing_inner, list):
+                        continue
+                    if any(
+                        isinstance(hook, dict)
+                        and hook.get("command") in managed_commands
+                        for hook in existing_inner
+                    ):
+                        owns_existing = True
+                        break
+            else:
+                new_signature = _registration_signature(new_reg)
+                owns_existing = any(
+                    isinstance(existing_reg, dict)
+                    and _registration_signature(existing_reg) == new_signature
+                    for existing_reg in event_list
+                )
+
+            if owns_existing and not force:
+                skipped_collision += 1
                 continue
 
-            # Matcher-only collision against ORIGINAL target (user-vs-source):
-            # only counts when the user had this matcher pre-merge.
-            if new_matcher in original_target_matchers:
-                # Find the original registration with this matcher
-                collision_idx = None
-                for idx, existing_reg in enumerate(event_list):
-                    if (
-                        isinstance(existing_reg, dict)
-                        and existing_reg.get("matcher", "*") == new_matcher
-                        and _registration_signature(existing_reg)
-                        in original_target_signatures
-                    ):
-                        collision_idx = idx
-                        break
+            if owns_existing:
+                # Refresh the framework registration at its original position.
+                # If a user hook shared that registration, keep the user-only
+                # remainder adjacent instead of replacing it.
+                refreshed: list = []
+                source_inserted = False
+                for existing_reg in event_list:
+                    if not isinstance(existing_reg, dict):
+                        refreshed.append(existing_reg)
+                        continue
+                    existing_inner = existing_reg.get("hooks", [])
+                    if not isinstance(existing_inner, list):
+                        refreshed.append(existing_reg)
+                        continue
+                    remaining = [
+                        hook
+                        for hook in existing_inner
+                        if not (
+                            isinstance(hook, dict)
+                            and hook.get("command") in managed_commands
+                        )
+                    ]
+                    if len(remaining) == len(existing_inner):
+                        refreshed.append(existing_reg)
+                        continue
+                    if not source_inserted:
+                        refreshed.append(new_reg)
+                        source_inserted = True
+                    if remaining:
+                        refreshed.append({**existing_reg, "hooks": remaining})
+                event_list[:] = refreshed
+                replaced += 1
+                continue
 
-                if collision_idx is not None:
-                    if force:
-                        event_list[collision_idx] = new_reg
-                        replaced += 1
-                    else:
-                        skipped_collision += 1
-                    continue
-
-            # No collision with original target → append (even if it shares a
-            # matcher with a sibling we already added from this same source list).
+            # A matcher-only collision is unrelated user configuration. Preserve
+            # it and append the missing framework registration.
             event_list.append(new_reg)
             added += 1
 
@@ -411,9 +425,7 @@ def _merge_settings(
     if replaced:
         summary_parts.append(f"replaced={replaced}")
     if skipped_collision:
-        summary_parts.append(
-            f"skipped-collision={skipped_collision} (use --force to replace)"
-        )
+        summary_parts.append(f"skipped-existing={skipped_collision}")
     return True, " ".join(summary_parts), backup_path
 
 

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from superclaude.cli.prompt_policy import BASH_INSPECTION_POLICY
 from superclaude.cli.tasklist.prompts import (
     build_tasklist_fidelity_prompt,
     build_tasklist_generate_prompt,
@@ -56,6 +57,13 @@ class TestTasklistFidelityPrd:
         prd_pos = output.index(PRD_MARKER)
         assert tdd_pos < prd_pos
 
+    def test_framework_policy_block_is_excluded_from_drift(self):
+        output = build_tasklist_fidelity_prompt(ROADMAP, TASKLIST_DIR)
+
+        assert "## Required Framework Guidance Exclusion" in output
+        assert "Do NOT report its heading" in output
+        assert "do not recommend removing or weakening it" in output
+
 
 # ── build_tasklist_generate_prompt ────────────────────────────────────
 
@@ -99,3 +107,24 @@ class TestTasklistGeneratePrd:
             ROADMAP, tdd_file=None, prd_file=None
         )
         assert baseline == explicit_none
+
+    def test_policy_is_present_for_all_enrichment_shapes(self):
+        outputs = [
+            build_tasklist_generate_prompt(ROADMAP),
+            build_tasklist_generate_prompt(ROADMAP, tdd_file=TDD),
+            build_tasklist_generate_prompt(ROADMAP, prd_file=PRD),
+            build_tasklist_generate_prompt(ROADMAP, tdd_file=TDD, prd_file=PRD),
+        ]
+
+        for output in outputs:
+            assert BASH_INSPECTION_POLICY in output
+            assert "## Framework Bash Inspection Policy" in output
+            assert "Collapse each eligible five-plus serial inspection wave" in output
+
+        both = outputs[-1]
+        assert (
+            both.index(TDD_MARKER)
+            < both.index(PRD_MARKER)
+            < both.index("## Framework Bash Inspection Policy")
+            < both.index("<output_format>")
+        )
