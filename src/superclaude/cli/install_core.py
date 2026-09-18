@@ -137,18 +137,19 @@ def list_installed_core_files() -> List[str]:
 
     # Only check for known core files, not all .md files in ~/.claude/
     known_core = {
+        "BASH_INSPECTION_POLICY.md",
+        "BUSINESS_PANEL_EXAMPLES.md",
+        "BUSINESS_SYMBOLS.md",
         "CLAUDE.md",
         "COMMANDS.md",
         "FLAGS.md",
-        "PRINCIPLES.md",
-        "RULES.md",
         "MCP.md",
-        "PERSONAS.md",
-        "ORCHESTRATOR.md",
         "MODES.md",
-        "BUSINESS_PANEL_EXAMPLES.md",
-        "BUSINESS_SYMBOLS.md",
+        "ORCHESTRATOR.md",
+        "PERSONAS.md",
+        "PRINCIPLES.md",
         "RESEARCH_CONFIG.md",
+        "RULES.md",
     }
 
     return sorted(f.name for f in claude_dir.glob("*.md") if f.name in known_core)

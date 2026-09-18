@@ -1,5 +1,7 @@
 # SuperClaude — Framework Context
 
+@BASH_INSPECTION_POLICY.md
+
 ## Python Environment
 
 Use UV for all Python operations. Never use `python -m`, `pip install`, or `python script.py`.

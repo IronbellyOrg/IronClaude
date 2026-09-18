@@ -23,6 +23,15 @@ start_commit: "<PHASE_N_START_SHA>"
 - Required for Sprint CLI TUI display name extraction; `count_tasks_in_file` / `parse_tasklist` / `_extract_phase_name` tolerate the leading `---` block (no `### T` heading, and with no `#` comment, no false phase heading)
 - Include a one-paragraph phase goal (2-3 sentences max, derived from roadmap)
 
+## Bash Inspection Policy
+
+- Follow the globally installed `BASH_INSPECTION_POLICY.md`.
+- Five or more serial, known-path, independent read-only Bash inspections are one generated `/tmp` batch/tool call; same-turn parallel tool calls are exempt.
+- Keep mutations, dynamic/interactive/state-dependent commands, network/remote/recursive work, and tracked-Read freshness checks separate.
+- Preserve task order, task IDs, dependencies, compliance tiers, and judgment boundaries; do not create work merely to carry this policy.
+
+This framework-guidance block is required after the phase goal and before the first task. It is not a roadmap requirement, task, deliverable, registry, or global template.
+
 ## Task Format
 
 ```text

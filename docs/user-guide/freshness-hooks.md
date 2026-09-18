@@ -3,7 +3,8 @@
 A set of seven active shell hooks distributed by `superclaude install` that
 protect against the **stale-fact-reuse failure mode** — citing a file line
 number, IP, hostname, or other source-tied fact from working memory after the
-underlying file has been modified.
+underlying file has been modified. Installation also deploys the global Bash
+inspection batching policy used by main sessions, subagents, and tasklists.
 
 ## What gets installed
 
@@ -16,7 +17,9 @@ After `superclaude install --force`:
 | `~/.claude/hooks/freshness-user-prompt.sh` | Per-turn envelope: `turn=`, `Δ=`, `git=dirty=…`, `bg=`. Conditional rendering (NFR-8) — minimal envelope when nothing fires. |
 | `~/.claude/hooks/freshness-pre-edit.sh` | **The gate.** Blocks `Edit` / `Write` / `mcp__serena__replace_*` / `mcp__serena__insert_*_symbol` calls against files not Read in the last 30 minutes. Exits `2` with a factual stderr message; the assistant retries by Reading then re-attempting. |
 | `~/.claude/hooks/freshness-post-read.sh` | Async tracker. Appends every successful `Read` to `~/.claude/state/reads.jsonl`. |
-| `~/.claude/hooks/freshness-subagent-{start,stop}.sh` | Background-agent counter feeding `bg=N` in the per-turn envelope. |
+| `~/.claude/hooks/freshness-subagent-start.sh` | Synchronous SubagentStart hook: increments the background-agent counter and injects `BASH_INSPECTION_POLICY.md` before the agent's first action. Fails open if policy injection is unavailable. |
+| `~/.claude/hooks/freshness-subagent-stop.sh` | Async background-agent counter decrement feeding `bg=N` in the per-turn envelope. |
+| `~/.claude/BASH_INSPECTION_POLICY.md` | Global behavioral policy: five or more known, independent serial Bash inspections become one bounded `/tmp` batch call. Imported by `~/.claude/CLAUDE.md`; no hard Bash counter is installed. |
 | `~/.claude/hooks/freshness-file-changed.sh` | **NOT registered in v1.** Script is copied to disk but the design's `FileChanged` registration was removed after live probing revealed Claude Code's matcher only accepts literal filenames, not regex. See "Known limitations" below. |
 
 State files appear under `~/.claude/state/`:
@@ -51,6 +54,11 @@ decision; `decision` ∈ `allow`/`block`; `reason` ∈ `recent_read` / `no_prior
 4. Every user prompt is preceded (internally) by a `<session-context>` block
    with current turn number and conditional state. The assistant treats this
    as ground truth for the turn.
+
+5. Main sessions load the Bash inspection policy through global `CLAUDE.md`.
+   Subagents receive the same canonical text synchronously at SubagentStart.
+   The policy is advisory execution guidance, not a permission or security
+   gate; adaptive diagnostics and mutations remain individual calls.
 
 ## Known limitations (v1)
 

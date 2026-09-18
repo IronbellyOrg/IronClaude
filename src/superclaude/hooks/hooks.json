@@ -73,8 +73,7 @@
           {
             "type": "command",
             "command": "~/.claude/hooks/freshness-subagent-start.sh",
-            "timeout": 1,
-            "async": true
+            "timeout": 1
           }
         ]
       }

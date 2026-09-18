@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from superclaude.cli.prompt_policy import BASH_INSPECTION_POLICY
 from superclaude.cli.sprint.models import (
     GateOutcome,
     Phase,
@@ -94,6 +95,18 @@ class TestClaudeProcess:
         proc = ClaudeProcess(config, config.phases[0])
         prompt = proc.build_prompt()
         assert "--compliance strict" in prompt
+
+    def test_build_prompt_contains_bash_inspection_policy(self):
+        config = _make_config()
+        proc = ClaudeProcess(config, config.phases[0])
+        prompt = proc.build_prompt()
+
+        assert BASH_INSPECTION_POLICY in prompt
+        assert (
+            prompt.index("## Execution Rules")
+            < prompt.index("## Bash Inspection Policy")
+            < prompt.index("## Checkpoints")
+        )
 
     # ---------------------------------------------------------------------------
     # T04.02 — Prompt contract: ## Result File section (SC-013, FR-006)

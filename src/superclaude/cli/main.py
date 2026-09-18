@@ -267,8 +267,8 @@ def update(target: str):
     """
     Update SuperClaude to latest version
 
-    Re-installs core framework files and slash commands to match
-    the current package version. Equivalent to 'install --force'.
+    Re-installs core framework files, slash commands, agents, skills, and hooks
+    to match the current package version.
 
     Example:
         superclaude update
@@ -277,6 +277,7 @@ def update(target: str):
     from .install_agents import install_agents
     from .install_commands import install_commands
     from .install_core import install_core_files
+    from .install_hooks import install_hooks
     from .install_skills import install_all_skills
 
     click.echo(f"🔄 Updating SuperClaude to version {__version__}...")
@@ -305,8 +306,14 @@ def update(target: str):
     click.echo("📦 Updating skills...")
     skill_success, skill_message = install_all_skills(force=True)
     click.echo(skill_message)
+    click.echo()
 
-    if not core_success or not cmd_success or not agent_success or not skill_success:
+    # Update global hooks and their settings registrations.
+    click.echo("📦 Updating hooks...")
+    hook_success, hook_message = install_hooks(force=True)
+    click.echo(hook_message)
+
+    if not all((core_success, cmd_success, agent_success, skill_success, hook_success)):
         sys.exit(1)
 
 

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from superclaude.cli.prompt_policy import BASH_INSPECTION_POLICY
 from superclaude.cli.roadmap.prompts import _OUTPUT_FORMAT_BLOCK
 
 
@@ -79,6 +80,12 @@ def build_tasklist_fidelity_prompt(
         "roadmap's sequencing and prerequisites\n"
         "5. **Acceptance Criteria Completeness**: Task acceptance criteria "
         "cover all success criteria from the corresponding roadmap items\n\n"
+        "## Required Framework Guidance Exclusion\n\n"
+        "Each phase file must contain exactly one `## Bash Inspection Policy` block "
+        "after its phase goal and before its first task. This is required framework "
+        "execution guidance, not roadmap-derived scope. Do NOT report its heading, "
+        "content, placement, or constraints as drift, invented content, or a LOW "
+        "heading-structure deviation, and do not recommend removing or weakening it.\n\n"
         "## Output Requirements\n\n"
         "Your output MUST begin with YAML frontmatter delimited by --- lines containing:\n"
         "- source_pair: roadmap-to-tasklist\n"
@@ -161,12 +168,9 @@ def build_tasklist_generate_prompt(
     There is no ``tasklist generate`` CLI subcommand — generation is handled
     by the skill protocol reading this prompt builder directly.
 
-    When TDD and/or PRD files are provided, the generation prompt includes
-    supplementary enrichment blocks that instruct the LLM to use the original
-    source documents for richer, more specific task decomposition.
-
-    Without supplementary files, returns a baseline generation prompt that
-    works from the roadmap alone (current behavior).
+    The packaged Bash inspection policy is always included as framework
+    execution guidance. TDD/PRD files add supplementary enrichment without
+    changing that policy or originating unanchored tasks.
     """
     base = (
         "You are a tasklist generator.\n\n"
@@ -181,6 +185,17 @@ def build_tasklist_generate_prompt(
         "- Verification method\n\n"
         "Organize tasks by roadmap phase. Preserve all roadmap item IDs, "
         "deliverable IDs, and dependency chains exactly as specified."
+    )
+
+    policy_block = (
+        "\n\n## Framework Bash Inspection Policy\n\n"
+        f"{BASH_INSPECTION_POLICY}\n\n"
+        "Apply this policy during decomposition. In every phase file, emit one "
+        "compact `## Bash Inspection Policy` block after the phase goal and before "
+        "its tasks. Collapse each eligible five-plus serial inspection wave into "
+        "one bounded batch step. Preserve task order, IDs, dependencies, compliance "
+        "tiers, mutation boundaries, and judgment boundaries; do not create tasks "
+        "or deliverables merely to carry this framework policy."
     )
 
     # TDD enrichment: use original TDD for engineering-specific task detail
@@ -231,4 +246,4 @@ def build_tasklist_generate_prompt(
             "task descriptions, acceptance criteria, and priority ordering."
         )
 
-    return base + _OUTPUT_FORMAT_BLOCK
+    return base + policy_block + _OUTPUT_FORMAT_BLOCK

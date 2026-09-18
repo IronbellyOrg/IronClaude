@@ -1,0 +1,29 @@
+{
+  "return_contract": {
+    "merged_output_path": "/opt/IronClaude/.dev/policies/bash-batching-policy-2026-09-17/adversarial/merged-verdict.md",
+    "convergence_score": 0.75,
+    "artifacts_dir": "/opt/IronClaude/.dev/policies/bash-batching-policy-2026-09-17/adversarial/adversarial",
+    "status": "partial",
+    "base_variant": "POLICY.md",
+    "unresolved_conflicts": 1,
+    "fallback_mode": true,
+    "failure_stage": null,
+    "invocation_method": "skill-direct",
+    "unaddressed_invariants": [
+      {
+        "id": "INV-007",
+        "category": "interaction_effects",
+        "assumption": "Inline transcript visibility provides pre-execution review under unattended bypassPermissions",
+        "severity": "HIGH"
+      }
+    ]
+  },
+  "execution": {
+    "requested_mode": "A",
+    "requested_depth": "standard",
+    "executed_depth": "quick",
+    "focus": ["policy-soundness", "risk-coverage"],
+    "status_note": "Initial standard orchestration failed validation; F1 quick retry completed with two advocates and an independent invariant probe.",
+    "source_documents_modified": true
+  }
+}

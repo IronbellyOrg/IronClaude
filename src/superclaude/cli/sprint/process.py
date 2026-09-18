@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from superclaude.cli.pipeline.process import ClaudeProcess as _PipelineClaudeProcess
+from superclaude.cli.prompt_policy import BASH_INSPECTION_POLICY
 
 from .debug_logger import debug_log
 from .models import Phase, SprintConfig
@@ -232,6 +233,9 @@ class ClaudeProcess(_PipelineClaudeProcess):
             f"- If a STRICT-tier task fails, STOP and report -- "
             f"do not continue to next task\n"
             f"- For all other tier failures, log the failure and continue\n"
+            f"\n"
+            f"## Bash Inspection Policy\n"
+            f"{BASH_INSPECTION_POLICY}\n"
             f"\n"
             f"## Checkpoints\n"
             f"- After completing all tasks, scan the phase file for "

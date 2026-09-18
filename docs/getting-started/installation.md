@@ -37,6 +37,26 @@
 
 </div>
 
+### Global policy activation
+
+`superclaude install` deploys IronClaude's core instructions, Bash inspection
+batching policy, skills, agents, and hooks under `~/.claude/`. The policy is
+therefore active in every project that loads normal user configuration—not only
+inside the IronClaude repository.
+
+Existing installations receive refreshed core files and hook registrations with:
+
+```bash
+superclaude update
+```
+
+The update preserves unrelated user hook registrations, refreshes
+framework-owned hooks by command identity, and makes SubagentStart policy
+injection synchronous. Start a new Claude Code session after installing or
+updating; an already-running session does not reload its initial instructions.
+No hard Bash counter is installed—the policy is advisory and keeps mutations or
+adaptive diagnostics as separate calls.
+
 ---
 
 ## 📋 **Requirements**
