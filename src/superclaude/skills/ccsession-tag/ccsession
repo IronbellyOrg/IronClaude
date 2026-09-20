@@ -15,7 +15,7 @@
 #   ccsession --profile grok --shim
 #                             Start untagged with Grok 4.6 and 500K context
 #   ccsession --profile gpt --shim
-#                             Start untagged with GPT 5.6 Sol and 1M context
+#                             Start untagged with GPT 5.6 Sol and 850K context
 #   ccsession --profile gpt1 --shim
 #                             Start untagged with GPT 6 Astra and 850K context
 #   ccsession <topic> --profile <model> [--shim]
@@ -244,8 +244,8 @@ apply_profile() {
       ;;
     gpt|372k)
       PROFILE_MODEL="gpt-5.6-sol"
-      PROFILE_CONTEXT="1000000"
-      PROFILE_COMPACT_WINDOW="1000000"
+      PROFILE_CONTEXT="850000"
+      PROFILE_COMPACT_WINDOW="850000"
       PROFILE_REQUIRES_SHIM=1
       ;;
     *)

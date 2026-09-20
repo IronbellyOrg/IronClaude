@@ -70,8 +70,8 @@ def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
     expected = {
         "claude": ("claude-opus-5[1m]", "1000000", "1000000", ""),
         "1mm": ("claude-opus-5[1m]", "1000000", "1000000", ""),
-        "gpt": ("gpt-5.6-sol", "1000000", "1000000", "gpt-5.6-sol"),
-        "372k": ("gpt-5.6-sol", "1000000", "1000000", "gpt-5.6-sol"),
+        "gpt": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
+        "372k": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
         "gpt1": ("gpt-6-astra", "850000", "850000", "gpt-6-astra"),
         "grok": ("grok-4.6", "500000", "500000", "grok-4.6"),
         "500k": ("grok-4.6", "500000", "500000", "grok-4.6"),
