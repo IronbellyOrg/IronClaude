@@ -2,8 +2,8 @@
 
 Exposes :func:`poll_augment_review` (returns one of ``"polling"`` / ``"clean"`` /
 ``"findings"`` / ``"declined"``) and :class:`DetectionContract` (the probe-locked
-constant from spec §7). The loader raises :class:`DetectionContractLocked` when ``locked`` is
-``false`` or absent — the **T-210** arm gate ("probe first").
+constant from spec §7). The loader raises :class:`DetectionContractLocked` when the resolved file is
+absent or unparseable — not because ``locked`` is false.
 
 NFR-6 core purity: the real review fetch is performed by the bash poller
 (``scripts/poll-augment-review.sh``); this module consumes an already-fetched
@@ -20,10 +20,10 @@ import yaml
 
 from .classifier import classify
 
-# Location of the SHIPPED detection-contract ref, relative to this package. This
-# stays ``locked: false`` in source (generic + distributable; the T-210 test asserts
-# it HALTs). The operator's REAL locked contract lives in a gitignored local override
-# (below) that is opted into ONLY at arm time via ``prefer_local_override=True``.
+# Location of the SHIPPED detection-contract ref, relative to this package.
+# Ships with baked Augment identity so any project can arm without a probe.
+# An optional gitignored local override (below) is preferred at arm time when
+# present.
 _CONTRACT_PATH = (
     Path(__file__).resolve().parent.parent
     / "skills"
@@ -32,11 +32,10 @@ _CONTRACT_PATH = (
     / "detection-contract.md"
 )
 
-# Operator-local locked contract (gitignored). Populated by the R1 probe with the
-# target repo's REAL Augment values; NEVER committed. The arm path prefers it when
-# present. Resolved RELATIVE TO THE CWD (the repo root the operator runs sc:pr-submit
-# from) — NOT a hardcoded absolute path — so the monitor works in any checkout. A
-# module-level ``_LOCAL_OVERRIDE_PATH`` override wins when set (the monkeypatch seam).
+# Optional operator-local contract (gitignored). Preferred at arm time when
+# present; NEVER required. Resolved RELATIVE TO THE CWD (the repo root the
+# operator runs sc:pr-submit from). A module-level ``_LOCAL_OVERRIDE_PATH``
+# override wins when set (the monkeypatch seam).
 _LOCAL_OVERRIDE_REL = Path(".dev/pr-monitor/detection-contract.locked.md")
 _LOCAL_OVERRIDE_PATH: Path | None = None
 
@@ -69,20 +68,20 @@ def _as_str_list(value, default: list[str]) -> list[str]:
 
 
 class DetectionContractLocked(RuntimeError):
-    """Raised when the detection contract is not locked (``locked != true``).
+    """Raised when the detection contract file is absent or unparseable.
 
-    This is the **T-210** mechanical gate: the skill refuses to arm against an
-    unlocked or absent contract and HALTs with a "probe first" instruction.
+    The ``locked`` YAML flag is not an arming gate.
     """
 
 
 @dataclass
 class DetectionContract:
-    """The probe-locked detection constant (spec §7).
+    """Detection config for the Augment classifier (spec §7).
 
-    Construct directly (with ``locked=True`` and a synthetic ``augment_bot_login``)
-    for pure classifier tests, or load the shipped ref via :meth:`load` (which
-    enforces the lock gate).
+    Construct directly (synthetic ``augment_bot_login``) for pure classifier
+    tests, or load the shipped ref via :meth:`load` / :meth:`for_arming`.
+    Direct construction leaves identity empty so :func:`poll_augment_review`
+    stays fail-safe when no contract is supplied.
     """
 
     augment_bot_login: str | None = None
@@ -149,18 +148,15 @@ class DetectionContract:
         cls,
         path: str | Path | None = None,
         *,
-        require_locked: bool = True,
         prefer_local_override: bool = False,
     ) -> "DetectionContract":
         """Load the contract from its markdown ref, extracting the fenced YAML block.
 
         Resolution order: an explicit ``path`` wins; else if ``prefer_local_override``
-        and the gitignored operator-local locked contract exists, that is used (the
-        ARM path); else the SHIPPED ref (``locked: false`` in source). Raises
-        :class:`DetectionContractLocked` when ``require_locked`` and the resolved
-        contract is not ``locked: true`` (the T-210 arm gate). The default
-        ``prefer_local_override=False`` keeps the shipped-source behavior deterministic
-        for the T-210 regression test regardless of any operator-local override.
+        and the gitignored operator-local override exists, that is used (the ARM
+        path); else the SHIPPED ref (baked Augment identity). Raises
+        :class:`DetectionContractLocked` when the file is absent or unparseable.
+        The ``locked`` flag is not checked.
         """
         if path is not None:
             ref = Path(path)
@@ -169,32 +165,23 @@ class DetectionContract:
         else:
             ref = _CONTRACT_PATH
         if not ref.exists():
-            raise DetectionContractLocked(
-                f"detection contract absent at {ref} — run the R1 probe first (T-210)"
-            )
+            raise DetectionContractLocked(f"detection contract absent at {ref}")
         text = ref.read_text(encoding="utf-8")
         block = _extract_yaml_block(text)
         data = yaml.safe_load(block) if block else None
         if not isinstance(data, dict):
             raise DetectionContractLocked(
-                f"detection contract at {ref} has no parseable YAML — run the R1 probe first (T-210)"
+                f"detection contract at {ref} has no parseable YAML"
             )
-        contract = cls.from_yaml(data)
-        if require_locked and not contract.locked:
-            raise DetectionContractLocked(
-                "detection contract is locked:false (or absent) — run the R1 probe "
-                "first and flip locked:true before arming (T-210)"
-            )
-        return contract
+        return cls.from_yaml(data)
 
     @classmethod
     def for_arming(cls) -> "DetectionContract":
-        """Load the contract for ARMING — prefers the operator-local locked override.
+        """Load the contract for ARMING — prefers an optional local override.
 
-        This is the surface the SKILL's arm step uses (T-210 gate): it returns the
-        gitignored local locked contract when present, else HALTs on the shipped
-        ``locked: false`` source. Equivalent to
-        ``load(prefer_local_override=True)``.
+        Returns the gitignored local override when present, else the shipped
+        baked-identity contract. A missing or unlocked override is not a halt.
+        Equivalent to ``load(prefer_local_override=True)``.
         """
         return cls.load(prefer_local_override=True)
 
@@ -231,20 +218,14 @@ def poll_augment_review(
     :func:`~superclaude.pr_submit.classifier.classify` against the contract.
 
     This is a classification CONVENIENCE over an injected payload/contract — it is
-    NOT the arm gate. Arming proper is gated by :meth:`DetectionContract.load`
-    (T-210), which HALTs on ``locked:false``. When no ``contract`` is supplied here,
-    a neutral UNLOCKED placeholder (no bot login) is used, so classification is the
-    fail-safe ``"polling"`` / "review not detected" state (NFR-4) — no login is
-    guessed and nothing is auto-locked.
+    NOT the arm path. When no ``contract`` is supplied here, a neutral placeholder
+    (no bot login) is used, so classification is the fail-safe ``"polling"`` /
+    "review not detected" state (NFR-4). Arming uses :meth:`DetectionContract.for_arming`.
     """
     if payload is None:
         payload = _fetch_payload(pr_num)
     if contract is None:
-        # No contract supplied: use a neutral UNLOCKED placeholder (no bot login)
-        # so classification is the fail-safe "polling" / "review not detected"
-        # state (NFR-4) — augment_bot_login=None makes the classifier match no
-        # entries for ANY payload. No login is guessed and nothing is auto-locked.
-        # Arming proper is gated by DetectionContract.load() (T-210), which HALTs
-        # on locked:false.
+        # No contract supplied: empty identity so classification is fail-safe
+        # "polling" / "review not detected" (NFR-4). Arming uses for_arming().
         contract = DetectionContract()
     return classify(payload, contract)
