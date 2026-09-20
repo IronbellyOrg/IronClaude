@@ -47,13 +47,20 @@ def _section(text: str, heading: str) -> str:
     return rest[: nxt.start()] if nxt else rest
 
 
-def table_rows(md: str) -> list[list[str]]:
+def table_rows(md: str, *, include_header: bool = False) -> list[list[str]]:
     rows: list[list[str]] = []
     for line in md.splitlines():
         s = line.strip()
         if not (s.startswith("|") and s.endswith("|")):
             continue
-        cells = [c.strip() for c in s.strip("|").split("|")]
+        # Consume escaped pipes/backslashes together before splitting delimiters.
+        cells = [""]
+        for token in re.findall(r"\\[\\|]|[^\\]|\\", s[1:-1]):
+            if token == "|":
+                cells.append("")
+            else:
+                cells[-1] += token[1:] if len(token) == 2 else token
+        cells = [cell.strip() for cell in cells]
         if cells and re.fullmatch(r":?-{3,}:?", cells[0].replace(" ", "")):
             continue
         if not rows:
@@ -64,7 +71,7 @@ def table_rows(md: str) -> list[list[str]]:
         ):
             continue
         rows.append(cells)
-    return rows[1:] if rows else []
+    return rows if include_header else rows[1:]
 
 
 def table_row_by_index(md: str, n: int) -> list[str] | None:
@@ -92,7 +99,7 @@ def enumerate_producers(sources: dict[str, str], value: str, var: str) -> Produc
     hits = 0
     unknown = False
     pat = re.compile(rf"(?m)^.*(?:{re.escape(value)}|{re.escape(var)}=).*$")
-    for name, src in sources.items():
+    for name, src in sorted(sources.items()):
         if name.endswith(".md"):
             continue
         unknown = unknown or bool(re.search(rf"{re.escape(var)}=\$\w+-", src))
@@ -105,6 +112,7 @@ def enumerate_producers(sources: dict[str, str], value: str, var: str) -> Produc
             surviving = "no" if re.match(r"^\s*#", stmt) else "yes"
             rows.append(
                 {
+                    "id": f"P{hits}",
                     "line": f"{name}:{line_no}",
                     "statement": stmt,
                     "exit_statement": _exits_before(body, m.start()),
@@ -118,28 +126,33 @@ def enumerate_producers(sources: dict[str, str], value: str, var: str) -> Produc
 
 
 def write_producers_md(p: Producers, out: Path) -> str:
-    rows = list(p.rows)
+    rows = [dict(row) for row in p.rows]
+    audit = []
     if rows and not any(r.get("surviving") == "yes" for r in rows):
         for r in rows:
-            r["surviving"] = "surviving=re-opened"
+            audit.append(
+                f"- {r['id']} {r['line']}: surviving=re-opened; "
+                f"prior surviving={r.get('surviving', '')}; "
+                f"prior exit statement={r.get('exit_statement', '')!r} (disputed)"
+            )
+            r["surviving"] = "yes"
         p.count_unknown = True
-    cols = (
-        "line | statement | exit statement | marker | walltime | observable | surviving"
-    )
+    cols = "id | line | statement | exit statement | marker | walltime | observable | surviving"
     lines = [
         f"observation-kind: {p.observation_kind}",
         f"producer-count: {'unknown' if p.count_unknown else len(rows)}",
         "",
         "## Producers",
         f"| {cols} |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for r in rows:
         lines.append(
             "| "
             + " | ".join(
-                r.get(k, "")
+                r.get(k, "").replace("\\", "\\\\").replace("|", "\\|")
                 for k in (
+                    "id",
                     "line",
                     "statement",
                     "exit_statement",
@@ -152,6 +165,8 @@ def write_producers_md(p: Producers, out: Path) -> str:
             + " |"
         )
     lines.append(f"rows={len(rows)} grep-hits={p.grep_hits}")
+    if audit:
+        lines.extend(["", "## Contradiction audit", *audit])
     text = "\n".join(lines) + "\n"
     out.write_text(text)
     return text
@@ -171,7 +186,42 @@ def surviving_yes(producers_md: str) -> int:
 
 
 def menu_equal(prompt: str, producers_md: str) -> bool:
-    return len(set(ENUM_TOKEN.findall(prompt))) == surviving_yes(producers_md)
+    def surviving_menu(md: str) -> dict[tuple[str, str], str] | None:
+        rows = table_rows(_section(md, "Producers") or md, include_header=True)
+        if len(rows) < 2:
+            return None
+        header, *data = rows
+        required = ("id", "line", "statement", "surviving")
+        if any(header.count(name) != 1 for name in required):
+            return None
+        menu = {}
+        seen = set()
+        for row in data:
+            if len(row) != len(header):
+                return None
+            identity, line, statement, surviving = (
+                row[header.index(name)] for name in required
+            )
+            if (
+                not re.fullmatch(r"P[1-9]\d*", identity)
+                or not re.fullmatch(r".+:[1-9]\d*", line)
+                or not statement
+                or surviving not in {"yes", "no", "surviving=yes", "surviving=no"}
+                or identity in seen
+            ):
+                return None
+            seen.add(identity)
+            if surviving in {"yes", "surviving=yes"}:
+                menu[identity, line] = statement
+        return menu or None
+
+    expected = surviving_menu(producers_md)
+    actual = surviving_menu(prompt)
+    if expected is None or actual is None or expected.keys() != actual.keys():
+        return False
+    # The brief pastes statements verbatim: this preserves every enum value,
+    # including repeated/uppercase/computed values, without another enum parser.
+    return expected == actual
 
 
 def primitive_grep(
@@ -225,14 +275,29 @@ def locus_complete(card: str) -> tuple[bool, list[str]]:
 
 
 def derive_same_env(issue_text: str, grounding_text: str = "") -> str:
-    blob = issue_text + grounding_text
+    blob = issue_text + "\n" + grounding_text
     labels = set(
         re.findall(
-            r"(?im)\b(?:runs-on|host|job|runner|env(?:ironment)?|machine|pod|worker)\b[:=\s]+([\w./-]+)",
+            r"(?im)\b(?:runs-on|host|job|runner|env(?:ironment)?|machine|pod|worker)"
+            r"[ \t]*[:=][ \t]*(\w[\w./-]*)",
             blob,
         )
     )
-    labels |= set(re.findall(r"(?m)^\s*-\s*(\w[\w-]*)$", blob))
+    # Keep explicit runner names in prose, not generic 'job failed' statements.
+    labels.update(re.findall(r"\brunner[ \t]+(\w+[./-][\w./-]+)", blob, re.I))
+    block_indent = None
+    for line in blob.splitlines():
+        if not line.strip():
+            continue
+        indent = len(line) - len(line.lstrip())
+        if re.fullmatch(r"[ \t]*(?:runner|env(?:ironment)?|matrix):[ \t]*", line, re.I):
+            block_indent = indent
+            continue
+        bullet = re.fullmatch(r"[ \t]*-[ \t]+(\w[\w./-]*)[ \t]*", line)
+        if block_indent is not None and indent > block_indent and bullet:
+            labels.add(bullet.group(1))
+        else:
+            block_indent = None
     if len(labels) > 1:
         return "no"
     if len(labels) == 1:

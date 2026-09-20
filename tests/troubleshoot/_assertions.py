@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import ast
+import json
+import math
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -181,8 +184,12 @@ class ValidatorInputs:
     observation_text: str = ""
     candidate_fixes_text: str = ""
     card_texts: list[str] = field(default_factory=list)
-    files_present: tuple[str, ...] = ()
-    artifact_texts: list[str] = field(default_factory=list)
+    files_present: tuple[str, ...] | None = None
+    # Caller-selected raw failing-run captures, never generated analysis.
+    # None is omitted; [] is a verified empty corpus.
+    artifact_texts: list[str] | None = None
+    # Probe ID -> {"value": bool | None, "provenance": "file:line"}.
+    first_instrumented_run: dict[str, dict[str, object]] = field(default_factory=dict)
 
 
 @dataclass
@@ -355,24 +362,17 @@ def _pred_a1(inp: ValidatorInputs) -> bool:
         return False
     cal = _calibrated(inp.calibration_texts)
     conf = cal if cal is not None else _confidence(inp.report)
-    if conf is None:
-        conf = 0.0
     gaps = _section(inp.report, "Grounding Gaps")
-    artifacts = [
-        *inp.calibration_texts,
-        *inp.card_texts,
-        inp.observation_text,
-        inp.candidate_fixes_text,
-        *inp.artifact_texts,
-    ]
-    if conf < 0.5:
+    artifacts = inp.artifact_texts or []
+    corpus_supplied = inp.artifact_texts is not None
+    if conf is not None and conf < 0.5:
         return True
     for t in toks:
         if re.search(rf"`{re.escape(t)}`[^\n]*\b(unobserved|deduced|pending)\b", gaps):
             return True
-        if artifacts and all(t not in a for a in artifacts):
-            return True
-        if not artifacts:
+        if corpus_supplied and not any(
+            re.search(rf"(?<![\w-]){re.escape(t)}(?![\w-])", a) for a in artifacts
+        ):
             return True
     return False
 
@@ -410,14 +410,40 @@ def _pred_a5(inp: ValidatorInputs) -> bool:
 
 
 def _pred_a6(inp: ValidatorInputs) -> bool:
-    blob = inp.report + inp.observation_text
-    v = re.search(r"(?m)^Reference-context value:\s*(.+)$", blob)
-    if not v:
-        return False
-    val = v.group(1).strip()
-    if val in {"true", "false", "n/a"}:
-        return False
-    return True
+    for text in (inp.report, inp.observation_text, inp.tasklist_text):
+        probe = ""
+        for line in text.splitlines():
+            identity = re.fullmatch(r"(?:#+ Discriminator|Probe):[ \t]*(\S+)", line)
+            if identity:
+                probe = identity.group(1)
+            elif line.startswith("#"):
+                probe = ""
+            if not line.startswith("Reference-context value:"):
+                continue
+            val = line.partition(":")[2].strip()
+            first_run = inp.first_instrumented_run.get(probe, {})
+            if (
+                val == "n/a"
+                and first_run.get("value") is True
+                and isinstance(first_run.get("provenance"), str)
+                and first_run["provenance"].strip()
+            ):
+                continue
+            if val in {"true", "false", "null"}:
+                continue
+            try:
+                literal = ast.literal_eval(val)
+            except (ValueError, SyntaxError):
+                return True
+            if type(literal) in {int, float}:
+                if isinstance(literal, float) and not math.isfinite(literal):
+                    return True
+            elif not (
+                isinstance(literal, str)
+                and re.fullmatch(r"""(?:'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")""", val)
+            ):
+                return True
+    return False
 
 
 def _pred_a7(inp: ValidatorInputs) -> bool:
@@ -428,10 +454,20 @@ def _pred_a7(inp: ValidatorInputs) -> bool:
 
 
 def _pred_a8(inp: ValidatorInputs) -> bool:
-    if not inp.files_present:
+    if inp.files_present is None:
         return False
     return bool(
-        re.search(r"(?m)^OBSERVE-VIA:\s*artifact-file", inp.locus_text)
+        re.search(r"(?m)^OBSERVE-VIA:[ \t]*artifact-file[ \t]*$", inp.locus_text)
+        # ponytail: explicit CI labels only; extend from real locus examples, not prose inference.
+        and re.search(
+            r"(?im)^(?:PRINT-SITE|RUN-SITE):[^\n]*"
+            r"(?:\bGitHub Actions\b[^\n]*\bjob\b|\bCI job\b|\bci-runner\b)",
+            inp.locus_text,
+        )
+        and not any(
+            re.search(r"(?m)^RESULT:[ \t]*(?:PASS|FAIL)[ \t]*$", text)
+            for text in inp.artifact_texts or []
+        )
         and not any(_JOB_LOG.fullmatch(Path(f).name) for f in inp.files_present)
     )
 
@@ -455,15 +491,27 @@ def _pred_a9(inp: ValidatorInputs) -> bool:
 def _pred_a10(inp: ValidatorInputs) -> bool:
     tl = inp.tasklist_text
     blocked = re.search(
-        r"(?i)capability-verdict\**:\s*\**blocked\b|\bblocked on capability\b",
+        r"(?i)capability-verdict\**:\s*\**blocked(?![\w-])|\bblocked on capability\b",
         tl,
     )
-    proven = (
-        re.search(r"(?m)^## Emitter search", tl)
-        and re.search(r"emitters-found:\s*0", tl)
-        and re.search(r"already-read-files:\s*0", tl)
+    if not blocked:
+        return False
+    search = _section(tl, "Emitter search")
+    counts = {}
+    for key in ("emitters-found", "already-read-files", "usable-capture-routes"):
+        values = re.findall(rf"(?m)^{key}:[ \t]*([^\n]*)$", search)
+        if len(values) != 1 or not re.fullmatch(r"0|[1-9][0-9]*", values[0].strip()):
+            return True
+        counts[key] = int(values[0].strip())
+    required = ["channels searched", "channel exclusions"]
+    if counts["emitters-found"] or counts["already-read-files"]:
+        required.append("candidate exclusions")
+    # Mechanical presence only: truth/completeness of discovery and exclusion
+    # prose still requires evidence review; regex cannot establish datum access.
+    proven = counts["usable-capture-routes"] == 0 and all(
+        re.search(rf"(?m)^{key}:[ \t]*\S[^\n]*$", search) for key in required
     )
-    return bool(blocked and not proven)
+    return not proven
 
 
 def _pred_c1(inp: CalibratorInputs) -> bool:
@@ -637,15 +685,15 @@ def _mtime(fx: Fixture) -> datetime | None:
 
 def validator_inputs(fx: Fixture) -> ValidatorInputs:
     files = fx.files
-    present = fx.meta.get("files_present") or []
+    present = fx.meta.get("files_present")
     if isinstance(present, str):
         present = _parse_list(present)
-    names = list(present)
+    names = list(present) if present is not None else None
     job_bodies: list[str] = []
     for name, text in files.items():
         if _JOB_LOG.fullmatch(Path(name).name):
             job_bodies.append(text)
-            if name not in names:
+            if names is not None and name not in names:
                 names.append(name)
     mt = _mtime(fx)
     mtimes: dict[str, datetime] = {}
@@ -671,8 +719,11 @@ def validator_inputs(fx: Fixture) -> ValidatorInputs:
         observation_text=files.get("tier1-observation.md", ""),
         candidate_fixes_text=files.get("candidate-fixes.md", ""),
         card_texts=cards,
-        files_present=tuple(names),
+        files_present=tuple(names) if names is not None else None,
         artifact_texts=job_bodies,
+        first_instrumented_run=json.loads(
+            files.get("first-instrumented-run.json", "{}")
+        ),
     )
 
 

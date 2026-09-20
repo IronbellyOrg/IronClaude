@@ -1,6 +1,4 @@
-"""T19 menu equality — R-02 acceptance test. Harness §3 T19."""
-
-from __future__ import annotations
+"""T19 menu equality — surviving identities and value coverage, not token counts."""
 
 from pathlib import Path
 
@@ -9,22 +7,66 @@ import pytest
 from tests.troubleshoot._procedures import (
     enumerate_producers,
     menu_equal,
-    surviving_yes,
     write_producers_md,
 )
 
-FIX = Path(__file__).parent / "fixtures"
-SRC = (FIX / "procedures" / "producers" / "io.sh").read_text()
 
-
-@pytest.mark.parametrize("ok", [True, False], ids=["equal", "missing-one"])
-def test_menu_equality(ok: bool, tmp_path: Path) -> None:
-    """R-02: prompt enum count equals surviving=yes; mismatch is False."""
-    p = enumerate_producers({"io.sh": SRC}, "runner-unavailable", "rc")
+@pytest.mark.parametrize(
+    "change,expected",
+    [
+        ("full", True),
+        ("wrong-id", False),
+        ("wrong-file", False),
+        ("missing-shared-value", False),
+        ("missing-value", False),
+        ("excluded-omitted", True),
+        ("excluded-restored", False),
+        ("missing-id", False),
+        ("malformed", False),
+        ("tokens-only", False),
+    ],
+)
+def test_menu_equality(change: str, expected: bool, tmp_path: Path) -> None:
+    p = enumerate_producers(
+        {
+            "io.sh": "rc=runner-unavailable\nrc=runner-unavailable\nrc=DEAD_LETTER\nrc=excluded"
+        },
+        "runner-unavailable",
+        "rc",
+    )
+    p.rows[-1]["surviving"] = "no"
     md = write_producers_md(p, tmp_path / "producers.md")
-    n = surviving_yes(md)
-    full = " ".join(f"`tok-{i}-x`" for i in range(n))
-    if ok:
-        assert menu_equal(full, md) is True, (n, md)
-    else:
-        assert menu_equal("`tok-0-x`", md) is False, n
+    prompt = md
+    if change == "wrong-id":
+        prompt = md.replace("| P1 |", "| P99 |")
+    elif change == "wrong-file":
+        prompt = md.replace("io.sh:1", "other.sh:1")
+    elif change in {"missing-shared-value", "excluded-omitted"}:
+        identity = "P2" if change == "missing-shared-value" else "P4"
+        prompt = "\n".join(
+            line for line in md.splitlines() if not line.startswith(f"| {identity} |")
+        )
+    elif change == "missing-value":
+        prompt = md.replace("rc=DEAD_LETTER", "rc=OTHER")
+    elif change == "excluded-restored":
+        prompt = md.replace("| no |", "| yes |")
+    elif change == "missing-id":
+        prompt = md.replace("| P1 |", "| |")
+    elif change == "malformed":
+        prompt = md.replace("| P1 |", "| P1 | extra |")
+    elif change == "tokens-only":
+        prompt = "`one-x` `two-x` `three-x`"
+    assert menu_equal(prompt, md) is expected
+
+
+@pytest.mark.parametrize(
+    "md",
+    [
+        "",
+        "## Producers\n",
+        "| id | line | statement | surviving |\n|---|---|---|---|",
+        "| id | line | statement | surviving |\n|---|---|---|---|\n| P1 | bad:0 | rc=OK | yes |",
+    ],
+)
+def test_missing_or_malformed_menus_do_not_pass(md: str) -> None:
+    assert not menu_equal(md, md)

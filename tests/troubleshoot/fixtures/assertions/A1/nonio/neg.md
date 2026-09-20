@@ -15,5 +15,6 @@ The consumer acks after the side effect.
 - none for the headline token.
 --- file: calibration.md ---
 calibrated: 0.72
---- file: tier1-observation.md ---
-SELECT state FROM consumed_log WHERE invoice_id=4711; -- dead-lettered
+--- file: job-4711.log ---
+run=invoice-4711 arm=failing command=SELECT-state-for-invoice-4711
+state=dead-lettered

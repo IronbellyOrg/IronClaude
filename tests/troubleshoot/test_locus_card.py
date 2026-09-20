@@ -41,6 +41,27 @@ def test_same_env_derivation(name: str, expect: str) -> None:
     assert derive_same_env((FIX / f"{name}.md").read_text()) == expect, name
 
 
+@pytest.mark.parametrize(
+    "issue,grounding,expected",
+    [
+        ("- symptom\n- retry", "", "unknown"),
+        ("runner ci-a\n- symptom", "", "yes"),
+        ("matrix:\n  runner:\n    - ci-a\n- symptom", "", "yes"),
+        ("matrix:\n  - ci-a\n  - ci-b\n- symptom", "", "no"),
+        ("env:\n  - ci-a\n\nSymptoms:\n  - retry", "", "yes"),
+        ("runner:\n  - ci-a\nnotes:\n  - symptom", "", "yes"),
+        ("runner: -\njob failed\n  - symptom", "", "unknown"),
+        ("runner: ci-a", "runner: ci-b", "no"),
+        ("runner:\n  -\njob failed", "", "unknown"),
+        ("runner:\n- ci-a", "", "unknown"),
+    ],
+)
+def test_environment_lists_are_scoped(
+    issue: str, grounding: str, expected: str
+) -> None:
+    assert derive_same_env(issue, grounding) == expected
+
+
 def test_card_without_runs_in_is_returned() -> None:
     """R-01: cards lacking runs-in= are returned when SAME-ENV is not yes."""
     card = (FIX / "complete.md").read_text().replace("runs-in=ci-runner-sysbox", "")

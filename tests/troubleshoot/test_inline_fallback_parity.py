@@ -32,7 +32,8 @@ CITE = re.compile(r"refs/agent-assertions\.md")
 
 EXPECTED_IDS = {
     "GLM-RUN2": {"A1", "A3", "A4", "A5", "C2", "C3"},
-    "Fable-D3": set(),
+    # Vendored bundle contains report/candidate prose, no captured failing output.
+    "Fable-D3": {"A1"},
     "Astra-A3": {"A1", "A10"},
 }
 
@@ -70,6 +71,7 @@ def load_regression(param: str) -> tuple[ValidatorInputs, CalibratorInputs | Non
             report=files["REPORT.md"],
             candidate_fixes_text=files["candidate-fixes.md"],
             files_present=names,
+            artifact_texts=[],  # Inventory verified: no raw capture in this bundle.
         )
         return vin, None
     vin = ValidatorInputs(

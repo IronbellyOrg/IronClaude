@@ -47,7 +47,7 @@ If none of these are available, the hypothesis card is marked `unverified` and t
 
 ## Producer citation (categorical symptoms)
 
-When the observed symptom is a categorical value — an enum string, a status word, an exit code — and Wave 1.6 enumeration ran, the orchestrator writes `<output-dir>/producers.md` (S1.6.0b) and pastes its `## Producers` table into your brief: `line | statement | exit statement | before/after started marker | wall-time compatible | cheap observable | surviving`. An audit bypass may leave that table absent.
+When the observed symptom is a categorical value — an enum string, a status word, an exit code — and Wave 1.6 enumeration ran, the orchestrator writes `<output-dir>/producers.md` (S1.6.0b) and pastes its `## Producers` table into your brief: `id | line | statement | exit statement | before/after started marker | wall-time compatible | cheap observable | surviving`. Preserve the stable `P1`…`Pn` IDs assigned in grep-hit order, including after candidates are reopened. An audit bypass may leave that table absent.
 
 - With a nonempty surviving menu, cite producers by row identity (row ID and `file:line`), never by re-grepping: any claim that names the value MUST cite the row(s) with `surviving=yes`. Distinct producers sharing an enum token remain distinct candidates.
 - Excluding a producer requires the `file:line` of the `return` / `exit` / `break` statement that rules it out (the row's *exit statement* column). "Excluded by source logic" without that line is an unverified counterfactual: Evidence grounding is scored 0.0 for that claim.
