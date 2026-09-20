@@ -66,7 +66,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 1. **Parse arguments** → resolve `--type` (auto-detect if absent), `--scope`, `--depth`, `--context`, `--caller`, etc.
 2. **Validate environment** → at least one of MCPs is available (or `--no-mcp` is set); output dir is writable.
 3. **Hand off to the skill** via the Activation section below.
-4. **On skill return**, surface: REPORT path, tier reached, confidence, chosen fix, (if `--fix`) the Tier 3 remediation offer, and (if `pipeline_hardening_applicable`) the Pipeline Hardening Closure verdict + evidence-card paths, and (if `caller=task-unified`) the emitted `return-contract.yaml` path.
+4. **On skill return**, surface: REPORT path, final status, tier reached, confidence, the supported fix or explicit inconclusive result (never promote an unobserved cause or conditional proposal), the Tier 3 remediation offer only when the skill permits it with `--fix` and success, the Pipeline Hardening Closure verdict + actual evidence-card paths when applicable, and any authorization blocker even before applicability was assessed (without invented cards), (if `caller=task-unified`) the emitted `return-contract.yaml` path, and any grounding artifacts the skill lists in its Output Contract — at minimum the execution-locus card (where the code ran vs where the symptom appeared), the discriminator rows in the diagnosability tasklist when produced (with whether they were executed or handed off), and the verdict source used. Preserve blocked/failed state and the skill's conditional next steps; do not substitute automatic rerun, fix or bypass advice.
 
 **Three tiers under the hood**:
 
@@ -87,7 +87,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 - **Auggie** (primary, free retrieval): Tier 1, Wave 1.5 (documentation grounding fan-out across release artifacts + architectural docs + semantic restrictions), and Tier 2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
 - **Serena**: Tier 1 + Tier 2 symbol-level navigation via `find_symbol`, `find_referencing_symbols`, `get_symbols_overview`. Critical when the issue names a specific function or class.
-- **Context7**: Tier 2 only, when the symptom mentions a framework or library by name or the stack trace ends in third-party code.
+- **Context7**: Tier 2 when the symptom mentions a framework or library by name or the stack trace ends in third-party code; also the skill's conditional Tier 1 behaviour-definition fetch, not general Tier 1 web research.
 - **Tavily**: Tier 2 only, rate-limited to ≤ 2 queries per invocation. Used for `<exact error string> github issue` and `<library> <version> <symptom>` lookups.
 - **Sequential**: Tier 2 synthesis when reconciling competing hypotheses.
 
@@ -95,12 +95,12 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 - **`mcp__auggie__codebase-retrieval`**: in-repo grounding (Tier 1 + Tier 2)
 - **`mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview`**: symbol navigation
-- **`mcp__context7__resolve-library-id` / `query-docs`**: external library docs (Tier 2)
+- **`mcp__context7__resolve-library-id` / `query-docs`**: external library docs (Tier 2 and the skill's conditional Tier 1 behaviour-definition fetch)
 - **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, Tier 2 specialist agents, `confidence-calibrator`, `evidence-validator`, `self-review`
 - **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4), `task-builder` (Wave 6), `/sc:reflect` (Wave 6)
 - **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line validation
-- **`Bash`**: cheap reproducer commands (Tier 1) and diagnostic commands (Tier 2)
+- **`Bash`**: cheap reproducer commands (Tier 1), diagnostic commands (Tier 2), and read-only probes at RUN-SITE through the OBSERVE-VIA execution gate as designed by the skill; existing capability, authorization and execution-transport restrictions still apply
 - **`Write`**: hypothesis cards, REPORT.md, audit log, calibration reports, validation reports
 
 ## Examples
@@ -162,9 +162,9 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Always run Tier 1 first (respect the "quick first option" contract)
 - Auto-escalate to Tier 2 only when the rubric in `refs/escalation-rubric.md` says so, or when `--depth deep` is set
 - Fan out 2-4 specialist agents in parallel in Tier 2 (capped at 4 by signal mix)
-- Use auggie + serena every tier for in-repo grounding; use context7 + tavily only in Tier 2 and only when the symptom suggests external knowledge
+- Use auggie + serena every tier for in-repo grounding; use context7 + tavily in Tier 2 when the symptom suggests external knowledge, with the skill's conditional Tier 1 behaviour-definition exception for context7
 - Run Wave 1.5 documentation grounding (release artifacts + architectural docs + semantic restrictions) before any fix is proposed, unless `--no-doc-discovery` is set
-- Invoke `sc:adversarial-protocol` only when Tier 2 produces 2-3 competing strong fixes (skip on consensus — that wastes the debate)
+- Invoke `sc:adversarial-protocol` only when Tier 2 produces ≥2 competing strong fixes (cap is the Tier-2 agent cap of 4, not a debate min/max of 3) (skip on consensus — that wastes the debate)
 - Run `evidence-validator` in Wave 5 to drop any unfounded `file:line` citations before REPORT.md ships
 - Run `confidence-calibrator` after every hypothesis card to defeat self-grading anchoring bias
 - Offer the Tier 3 remediation chain only when `--fix` is set AND REPORT.md status is `success`
@@ -196,7 +196,7 @@ No silent code changes. No auto-execution. No auto-commit.
 
 ## Related Commands
 
-- **`/sc:adversarial`** — Invoked in Wave 4 of Tier 2 when 2-3 competing strong fixes need to be debated. Complementary; use directly when you need multi-model debate on artifacts that aren't fix proposals.
+- **`/sc:adversarial`** — Invoked in Wave 4 of Tier 2 when ≥2 competing strong fixes need to be debated (cap is the Tier-2 agent cap of 4, not a debate min/max of 3). Complementary; use directly when you need multi-model debate on artifacts that aren't fix proposals.
 - **`/sc:analyze`** — Complementary; use for read-only quality/security/architecture analysis when you don't have a specific symptom yet.
 - **`/sc:reflect --type task`** — Used twice in Tier 3 (analyze + validate gates).
 - **`task-builder` skill** — Invoked between REPORT.md and execution to produce an MDTM task file.

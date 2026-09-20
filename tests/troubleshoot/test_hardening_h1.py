@@ -43,6 +43,6 @@ def test_h1_runtime_card_requires_negative_and_positive_witness() -> None:
     assert "fix reverted" in low, "FR-4 fix-reverted negative witness not documented"
     # FR-4 AC2: a never-failing test does NOT satisfy H1
     assert "never been observed to fail" in low
-    assert "satisfy h1" in low
+    assert "satisfy hc1" in low
     # FR-3: proof stopping at helper/mock construction FAILs
     assert "helper construction" in low

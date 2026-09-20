@@ -1,0 +1,2 @@
+step: seed checkout
+step: seed assert

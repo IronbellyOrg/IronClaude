@@ -41,14 +41,14 @@ def test_h5_decision_maps_to_status_and_latch() -> None:
 
 def test_known_escapes_requires_cited_card() -> None:
     """FR-12 AC3 / F-A1 anti-inflation: an escape ID may appear in known_escapes_caught
-    ONLY with a cited passing wave/card. Also guards the FOUR-token advisory-inclusive enum."""
+    ONLY with a cited passing wave/card. Also guards the FIVE-token advisory-inclusive enum."""
     low = OC.lower()
     assert "known_escapes_caught" in OC
     assert "only if a passing wave/card is cited" in low, (
         "anti-inflation rule not documented"
     )
-    # advisory-inclusive 4-token enum (a 3-token enum is a defect)
-    assert "pass | blocked | advisory | not_applicable" in OC
+    # advisory-inclusive 5-token enum (dropping advisory is a defect)
+    assert "pass | blocked | advisory | not_applicable | blocked-on-authorization" in OC
 
 
 # ---------------------------------------------------------------------------

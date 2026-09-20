@@ -1,0 +1,10 @@
+# path	sha256	bytes	source
+GLM-RUN2/REPORT-RUN2.md	3e6a9902b80cb6fcf133ffc356cc1824d3f5c6dd972a018ecf706c2a276aaabb	7016	/config/workspace/Coder/.claude/worktrees/sysbox-retry-glm/.dev/troubleshoot/sysbox-deep/REPORT-RUN2.md
+GLM-RUN2/run2-tier2-root-cause-analyst-calibration.md	62acf9283e3a1134b65113e021b582a0a9dba1813557fa42263b06c2a6cd0df8	4060	/config/workspace/Coder/.claude/worktrees/sysbox-retry-glm/.dev/troubleshoot/sysbox-deep/run2-tier2-root-cause-analyst-calibration.md
+GLM-RUN2/run2-tier2-root-cause-analyst-hypothesis.md	d8bef2f015603ab800a455a192be38c2d734c306f7542b1aa17415a36f6708da	8358	/config/workspace/Coder/.claude/worktrees/sysbox-retry-glm/.dev/troubleshoot/sysbox-deep/run2-tier2-root-cause-analyst-hypothesis.md
+GLM-RUN2/candidate-fixes.md	76cf294c9fae7e940101b1dd4d453197905e70e971c35ce5c519154e7fca6bdf	2157	/config/workspace/Coder/.claude/worktrees/sysbox-retry-glm/.dev/troubleshoot/sysbox-deep/candidate-fixes.md
+Fable-D3/REPORT.md	4910ffa683c357ba23d5b002f2ef8ba501d7da06fad4f1361b359872e3ef037d	6869	/config/workspace/Coder/.claude/worktrees/sysbox-retry-fable/.dev/troubleshoot/sysbox-deep-3/REPORT.md
+Fable-D3/candidate-fixes.md	1fde1d0f936d5cbd40303424628a1993483827c92512bbbfc7f5a2bac900ecf6	2820	/config/workspace/Coder/.claude/worktrees/sysbox-retry-fable/.dev/troubleshoot/sysbox-deep-3/candidate-fixes.md
+Astra-A3/diagnosability-tasklist.md	967cede52133387697b8d7458f7a2384619575e703126ea9b6e8be7d67ba93fd	4446	/config/workspace/Coder/.claude/worktrees/sysbox-retry-astra/.dev/troubleshoot/sysbox-deep/retry3-internal-runner/diagnosability-tasklist.md
+Astra-A3/tier1-observation.md	3eca299bf79d6107019f2125720872097b344f3061684977a01bee3d67f916ed	11565	/config/workspace/Coder/.claude/worktrees/sysbox-retry-astra/.dev/troubleshoot/sysbox-deep/retry3-internal-runner/tier1-observation.md
+Astra-A3/REPORT.md	54a4205c0333e9a63614f156a94698efd555a6e88788876c238ab4e412502895	6633	/config/workspace/Coder/.claude/worktrees/sysbox-retry-astra/.dev/troubleshoot/sysbox-deep/retry3-internal-runner/REPORT.md

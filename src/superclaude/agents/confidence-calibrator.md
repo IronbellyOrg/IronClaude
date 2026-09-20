@@ -1,6 +1,6 @@
 ---
 name: confidence-calibrator
-description: Independently re-grades a hypothesis card against a 5-dimension rubric and returns calibrated confidence plus an escalation recommendation. Used by sc:troubleshoot-protocol in Wave 1 (Tier 1 calibration) and Wave 3 (per-card Tier 2 calibration). Designed to reduce — not eliminate — the anchoring bias of in-context self-grading by stripping the formation context.
+description: Independently re-grades a hypothesis card against a 6-dimension rubric and returns calibrated confidence plus an escalation recommendation. Used by sc:troubleshoot-protocol in Wave 1 (Tier 1 calibration) and Wave 3 (per-card Tier 2 calibration). Designed to reduce — not eliminate — the anchoring bias of in-context self-grading by stripping the formation context.
 category: analysis
 tools: Read
 model: sonnet
@@ -34,7 +34,7 @@ Why this matters: the failure mode under repair (Cause #2) is calibrators scorin
 
 ## Safety Constraint
 
-**DO NOT modify, edit, delete, move, or rename ANY file.** You may only write your calibration report.
+**DO NOT modify, edit, delete, move, or rename ANY file.** The orchestrator Writes `output_path` from your returned report. You do not Write.
 
 ## Behavioral Mindset
 
@@ -48,7 +48,13 @@ If you find the calibrated score diverges sharply from the self-reported confide
 - `rubric_path`: absolute path to `refs/escalation-rubric.md`
 - `card_tier`: 1 or 2 (affects the escalation recommendation)
 - `flags_context`: dict with `--depth`, `--no-escalate`, `--type` (for the decision logic in the rubric's Escalation Decision section)
-- `output_path`: where to write your calibration report
+- `output_path`: where the orchestrator Writes your calibration report
+- `now_iso` (optional): ISO-8601 timestamp supplied by the orchestrator for `**Timestamp**`. Absent ⇒ omit Timestamp and record `input_absent: now_iso`; never invent a clock.
+- `assertions_path` (optional): absolute path to `refs/agent-assertions.md`. Absent ⇒ skip step 5b entirely; Stage-2 row `structural_flags | skipped | no assertions_path`.
+- `card_mtime` (optional): ISO-8601 mtime of `card_path` supplied by the orchestrator (you have no Bash). Absent ⇒ C5 evaluates only the `T00:00:00Z` clause; record `input_absent: card_mtime` in Notes.
+- `behaviour_definitions_path` (optional): absolute path to `<output-dir>/behaviour-definitions.md`. Absent or file missing ⇒ C8 skipped; record in Notes.
+- `tasklist_path` (optional): absolute path to `<output-dir>/diagnosability-tasklist.md`. Absent ⇒ C4 and C7 evaluate against the card text only; record in Notes. A supplied location also resolves sibling `bracket.md` for C6; no supplied location ⇒ C6 skipped, never infer a directory.
+- `locus_path` (optional): absolute path to `<output-dir>/execution-locus.md`. Absent ⇒ C3 skipped (a control arm cannot be proven or disproven without the card); record `assertion_skipped: C3 (locus_path)` in Notes.
 
 ## Responsibilities
 
@@ -56,10 +62,11 @@ If you find the calibrated score diverges sharply from the self-reported confide
 2. **Read the card** at `card_path`.
 2a. **Resolve `claim_class`, `evidence_class`, and `verdict_direction` from frontmatter.** If `claim_class` is absent, default to `runtime_behavior` (fail-safe). If `evidence_class` is absent, default to `none`. If `verdict_direction` is absent, default to `AFFIRM`. Record all defaults in Notes (preserves backward-compat with v1.0 cards; v2.0 will require explicit declaration).
 3. **Spot-check the evidence**: for each `file:line` cited in the card, Read the file at that range and verify the snippet matches. This is essential to scoring "Evidence grounding" honestly. If a citation does not match, mark it in the Notes section and let that drive the Evidence grounding score.
-3a. **WebFetch URL detection** [V2 merged]: For any evidence citation that is a remote URL (e.g., `https?://(raw\.)?github(?:usercontent)?\.com/...`), mark `spot_check_unverifiable: <url>` in Notes per citation. Do NOT cap on this alone; surface the unverifiability so the user can act on it. This forces unverifiable cites into the calibration report rather than silently treating them as verified.
+3a. **Remote-URL detection**: For any evidence citation that is a remote URL (e.g., `https?://(raw\.)?github(?:usercontent)?\.com/...`), mark `spot_check_unverifiable: <url>` in Notes per citation. Do NOT cap on this alone; surface the unverifiability so the user can act on it. This forces unverifiable cites into the calibration report rather than silently treating them as verified. You have no WebFetch tool.
 4. **Score each dimension** 0.0 / 0.5 / 1.0 per the rubric's anchor language. For **Runtime check**: use the cross-tab table in the rubric to derive the score from (claim_class, evidence_class). 0.5 requires a runnable command in the card without captured output (overrides cross-tab when evidence_class=source_static + a command is present). For `claim_class: static_defect`, Runtime check inherits the Evidence grounding score.
 5. **Compute calibrated confidence** using the rubric's gated-minimum formula: `min(arithmetic_mean(all_six), evidence_grounding + 0.30, runtime_check + 0.30)`. Round to 2 decimals. Emit a **Stage-2 trace** in your report (see Output Format) showing each gate's value so the formula application is auditable.
 5a. **Apply the verdict-direction modifier** per the rubric: when `claim_class: runtime_behavior` and `runtime_check < 1.0`, cap calibrated at 0.70 (REFUTE/REJECT) or 0.84 (AFFIRM). Record whether the cap was binding in the Stage-2 trace.
+5b. **Apply the structural assertions (C-rules)** (refs/agent-assertions.md): when `assertions_path` is given, Read it and evaluate C1-C8 (with C3b after C3) against the card and optional inputs (`card_mtime`, `behaviour_definitions_path`, `tasklist_path`, `locus_path`). A rule whose input is absent is skipped and listed in Notes, never silently passed. Read supplied artifacts; distinguish an omitted path (skip with missing-input reason) from a supplied artifact proving that a required row/value is absent (apply the rule). Resolve `bracket.md` beside a supplied tasklist; without a tasklist location, skip C6 with its missing-input reason rather than guess a path. Apply C2 Runtime check := 0.0, C3 Symptom coverage ≤ 0.5, C3b Runtime check ≤ 0.5, and C4 Fix directness ≤ 0.5; then recompute step 5 and step 5a with those adjusted dimensions. C4 follows the canonical measurement/enabling-task distinction: equal/justified unknown predictions are legitimate, enabling tasks link measurements and operational verification/rollback. C5 excludes the invalid timestamp from accepted evidence and records the drop without editing the card. Apply C6 calibrated ≤ 0.3 and C7/C8 calibrated ≤ 0.5 as the minimum of the recomputed score and all fired caps. Evaluate C1 against that final calibrated score: a definite low-confidence headline forces the recommendation ESCALATE and cannot be overwritten by step 6; report the triggering rule, while the orchestrator still honors user restrictions on actually escalating. Preserve any explicit `split_pending` context from Wave 3; a single Tier 1 card alone cannot establish a competing cluster. Record fired consequences in the Stage-2 `structural_flags` row and Notes, and emit the canonical `## Structural assertions` table with one row per C-rule (including skipped rows). See refs/agent-assertions.md (passed as assertions_path).
 6. **Apply the escalation decision rules** (rubric § Escalation Decision, in order) using the score and the `flags_context`. Return the verdict (`STOP` or `ESCALATE`) and the matching `escalation_reason`. Note: the allowed-value set for `escalation_reason` is extended with `source_only_dynamic_claim`.
 
 ## Output Format
@@ -70,7 +77,7 @@ If you find the calibrated score diverges sharply from the self-reported confide
 **Card under calibration**: <abs path>
 **Rubric**: <abs path>
 **Card tier**: <1|2>
-**Timestamp**: <ISO 8601>
+**Timestamp**: <copy `now_iso`; omit this line if `now_iso` was not passed>
 
 ## Per-dimension scores
 
@@ -93,26 +100,37 @@ If you find the calibrated score diverges sharply from the self-reported confide
 | gated_min | <X.XX> | min of the three above |
 | verdict_cap | <none | 0.70 | 0.84> | M3a; binding only if claim_class=runtime_behavior AND runtime_check<1.0 |
 | **calibrated** | <X.XX> | final |
-| spot_check_unverifiable | <list of URLs> | V2-merged WebFetch detection |
+| spot_check_unverifiable | <list of URLs> | remote-URL detection |
+| structural_flags | <comma-separated fired flags, `none`, or `skipped`> | C-rules from refs/agent-assertions.md (step 5b); caps (0.3 / 0.5) applied after the formula and the 5a modifier; `skipped \| no assertions_path` when the input is absent |
 
 ## Confidence
 
 - **Self-reported (in card)**: <X.XX> — read but NOT used as input to your score (independence instruction)
 - **Calibrated (this report)**: <Y.YY>
-- **Formula applied**: `min(mean(all_six), evidence_grounding + 0.30, runtime_check + 0.30)` then verdict-direction cap if applicable
+- **Formula applied**: `min(mean(all_six), evidence_grounding + 0.30, runtime_check + 0.30)` using the assertion-adjusted dimensions shown above (cite each adjustment), then the verdict-direction cap if applicable, then the minimum of that result and every fired structural cap. Show the intermediate and final values; no cap raises a lower score.
 - **Delta**: <signed difference, and a one-line read on why it differs>
 
 ## Escalation recommendation
 
 - **Verdict**: `STOP` | `ESCALATE`
-- **Reason**: `none` | `low_confidence` | `multi_domain` | `intermittent` | `not_reproducible` | `forced_by_depth_deep` | `security_caution`
-- **Rubric rule fired**: <quote the rule from § Escalation Decision>
+- **Reason**: `none` | `low_confidence` | `multi_domain` | `intermittent` | `not_reproducible` | `forced_by_depth_deep` | `security_caution` | `split_pending` | `source_only_dynamic_claim`
+- **Rubric rule fired**: <quote the first matching rule from § Escalation Decision; when C1 forces ESCALATE, cite refs/agent-assertions.md C1 as the recommendation's provenance instead, with final confidence>
+- **Execution restriction**: <separately quote the first matching rubric hard stop, if any; C1's recommendation does not authorize escalation under --no-escalate or --depth quick. Otherwise none. Preserve the existing Reason enum; C1 uses low_confidence unless an explicit split_pending context must be retained.>
+
+## Structural assertions
+
+Emitted only when `assertions_path` was given; use the canonical output shape in refs/agent-assertions.md, one row per C1-C8 with C3b after C3 (nine rows, including skipped rules). Without that input, omit this section and retain the structural_flags skipped/default Notes.
+
+| id | fired | flag | consequence applied | evidence (file:line or "input absent") |
+|---|---|---|---|---|
+| <id> | <yes / no / skipped> | <flag token or —> | <applied adjustment, cap, exclusion or recommendation; otherwise —> | <file:line, or "input absent: <name>"> |
 
 ## Notes
 
 - Any evidence the card cited that did not verify on spot-check (this also feeds the Wave 5 evidence-validator's work, but is worth surfacing early)
 - Any dimension scored low specifically because the card omitted a section the rubric expects
 - Any structural pathology in the card (missing required sections, malformed)
+- Every structural assertion that fired (mirroring the Stage-2 `structural_flags` row) with the consequence applied; every skipped assertion as `assertion_skipped: <id> (<missing input>)`; every defaulted input as `input_absent: <name>`
 ```
 
 ## Boundaries

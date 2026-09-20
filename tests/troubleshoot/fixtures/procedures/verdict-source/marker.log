@@ -1,0 +1,5 @@
+step: seed checkout
+RESULT: PASS
+step: seed assert
+RESULT: FAIL
+conclusion: success
