@@ -1,8 +1,8 @@
-# Contract Enumeration (H2)
+# Contract Enumeration (HC2)
 
-H2 builds a producer/transformer/consumer **ledger** for the changed contract (a field, flag, parser rule, semantic check, selector, status, or predicate) and sweeps sibling pipelines and duplicate evaluators. It closes **E4** (the shared `SemanticCheck.advisory` honored by the generic gate but not the PRD `_evaluate_gate`) and supports **E1** (PRD identified as the sibling-contract outlier vs the roadmap/tasklist/validate file-delivery consumers). The H2 status feeds the §5.4 aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
+HC2 builds a producer/transformer/consumer **ledger** for the changed contract (a field, flag, parser rule, semantic check, selector, status, or predicate) and sweeps sibling pipelines and duplicate evaluators. It closes **E4** (the shared `SemanticCheck.advisory` honored by the generic gate but not the PRD `_evaluate_gate`) and supports **E1** (PRD identified as the sibling-contract outlier vs the roadmap/tasklist/validate file-delivery consumers). The HC2 status feeds the §5.4 aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
 
-## H2 Contract Ledger Row schema (§5.6)
+## HC2 Contract Ledger Row schema (§5.6)
 
 | Field | Required | Meaning |
 |-------|----------|---------|
@@ -17,7 +17,7 @@ H2 builds a producer/transformer/consumer **ledger** for the changed contract (a
 
 ## FAIL rules (FR-5)
 
-H2 **FAILs** if any of the following hold:
+HC2 **FAILs** if any of the following hold:
 
 - **Empty / zero-row ledger.** An empty ledger does **not** vacuously pass — a zero-row ledger cannot satisfy "no unclassified consumer" (fixes adversarial F-N3).
 - **Unclassified live consumer.** Any live consumer left `unclassified`.
@@ -27,4 +27,4 @@ The ledger MUST enumerate **≥ the consumer count** discovered by symbol/refere
 
 ## Sibling / duplicate-evaluator sweep (FR-6)
 
-When a concept is shared, H2 **FAILs** if sibling pipelines or duplicate evaluators are not swept. The sweep must inventory every implementation that consumes the changed contract — e.g. a generic gate, a product-specific evaluator, a trailing gate, and a remediation-dispatch path — before closure.
+When a concept is shared, HC2 **FAILs** if sibling pipelines or duplicate evaluators are not swept. The sweep must inventory every implementation that consumes the changed contract — e.g. a generic gate, a product-specific evaluator, a trailing gate, and a remediation-dispatch path — before closure.

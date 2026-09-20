@@ -1,14 +1,14 @@
-# Runtime-Entrypoint Verification (H1)
+# Runtime-Entrypoint Verification (HC1)
 
-H1 proves that the production / operator entrypoint consumes or rejects the value at the **real boundary**, not at a helper or mock. It closes **E1** (headless `--spec` replay rejects a local-path `--file`) and supports **E4** (proves the live PRD path reaches `_evaluate_gate`). The H1 status feeds the §5.4 verdict aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
+HC1 proves that the production / operator entrypoint consumes or rejects the value at the **real boundary**, not at a helper or mock. It closes **E1** (headless `--spec` replay rejects a local-path `--file`) and supports **E4** (proves the live PRD path reaches `_evaluate_gate`). The HC1 status feeds the §5.4 verdict aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
 
 ## FAIL rule (FR-3)
 
-H1 **FAILs** if the proof stops at helper construction while the defect can appear only at a subprocess / gate / generated-artifact-parser / persisted-state / review-selector boundary. The replay MUST reach the production boundary; a proof that exercises only a helper, a mock, or an argv-construction step does not satisfy H1.
+HC1 **FAILs** if the proof stops at helper construction while the defect can appear only at a subprocess / gate / generated-artifact-parser / persisted-state / review-selector boundary. The replay MUST reach the production boundary; a proof that exercises only a helper, a mock, or an argv-construction step does not satisfy HC1.
 
-The H1 evidence card records: producer · transformer(s) · consumer/evaluator · boundary crossed · replay command · evidence the replay reaches the production boundary · external outcome asserted.
+The HC1 evidence card records: producer · transformer(s) · consumer/evaluator · boundary crossed · replay command · evidence the replay reaches the production boundary · external outcome asserted.
 
-## H1 Runtime-Entrypoint Card schema (§5.6)
+## HC1 Runtime-Entrypoint Card schema (§5.6)
 
 | Field | Required | Meaning |
 |-------|----------|---------|
@@ -25,7 +25,7 @@ The H1 evidence card records: producer · transformer(s) · consumer/evaluator �
 
 ## Negative-witness requirement (FR-4)
 
-A green H1 is **rejected** unless a negative witness is recorded for every contract with a forbidden interpretation: the oracle run against real captured input, through the production entrypoint, **with the fix reverted, showing FAIL**, paired with the positive (fix applied, PASS). A test that has never been observed to fail (no negative witness) does **not** satisfy H1.
+A green HC1 is **rejected** unless a negative witness is recorded for every contract with a forbidden interpretation: the oracle run against real captured input, through the production entrypoint, **with the fix reverted, showing FAIL**, paired with the positive (fix applied, PASS). A test that has never been observed to fail (no negative witness) does **not** satisfy HC1.
 
 Forbidden-interpretation examples the negative witness must expose:
 

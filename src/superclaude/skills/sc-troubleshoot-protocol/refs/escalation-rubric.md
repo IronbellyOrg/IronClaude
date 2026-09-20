@@ -6,7 +6,7 @@ Used in Wave 1.7 (to calibrate the Tier 1 hypothesis confidence) and in Wave 2 (
 
 The `root-cause-analyst` returns a self-reported confidence. The skill **re-grades** it against this rubric — agent confidence is not trusted directly.
 
-Score each dimension 0.0–1.0 and average.
+Score each dimension 0.0 / 0.5 / 1.0 and average.
 
 | Dimension | 1.0 (strong) | 0.5 (partial) | 0.0 (weak) |
 |-----------|--------------|---------------|------------|
@@ -34,7 +34,7 @@ After computing the gated-minimum confidence, apply this modifier when the card'
 
 Rationale: a wrong REFUTE on runtime behavior closes the investigation door (the H3 0.95-REFUTE case); a wrong AFFIRM is caught by CI. Source-only REFUTEs of runtime claims are the precise failure mode under repair and must not clear the 0.85 STOP gate. The 0.84 AFFIRM cap means source-only AFFIRMs of runtime claims still ESCALATE to Tier 2 (below the 0.85 STOP).
 
-### Claim-class × evidence-class cross-tab [V2 merged]
+### Claim-class × evidence-class cross-tab
 
 The Runtime check dimension score is derived from the (claim_class, evidence_class) pair declared in the card frontmatter:
 
@@ -45,7 +45,7 @@ The Runtime check dimension score is derived from the (claim_class, evidence_cla
 | `static_defect`              | 1.0           | 1.0           | 1.0          | inherits EG   | inherits EG | 0.0  |
 | `doc_contract`               | 1.0           | 1.0           | 1.0          | 0.5           | 1.0        | 0.0  |
 | `config_value`               | 1.0           | 1.0           | 1.0          | inherits EG   | inherits EG | 0.0  |
-| `mixed`                      | min of the two component classes' scores                                                          |
+| `mixed`                      | min of the two | min of the two | min of the two | min of the two | min of the two | min of the two |
 
 The bolded cells (0.0) trigger the verdict-direction modifier when the card's verdict is REFUTE/REJECT.
 
@@ -67,6 +67,7 @@ After confidence is calibrated, apply these rules **in order**. The first matchi
    - Reproducibility dimension scored 0.0 → ESCALATE (`escalation_reason: not_reproducible`).
    - `--type security` AND confidence < 0.95 → ESCALATE (`escalation_reason: security_caution`). Security bugs have asymmetric cost-of-being-wrong; raise the bar.
    - `claim_class ∈ {runtime_behavior, environment_dependent}` AND `runtime_check < 0.5` → ESCALATE (`escalation_reason: source_only_dynamic_claim`).
+   - Two cards cite the same `file:line` and assert different mechanisms (Wave 3 cluster marked `split-pending`) → ESCALATE (`escalation_reason: split_pending`); neither card may STOP the investigation until the splitting probe pair has an observed result. This rule applies from Wave 3 onward; a single Tier 1 card cannot trigger it.
 
 4. **Default**
    - `confidence ≥ 0.85` AND single-domain AND reproducible → STOP at Tier 1.

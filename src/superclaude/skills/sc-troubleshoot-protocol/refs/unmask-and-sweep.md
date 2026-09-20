@@ -1,10 +1,10 @@
-# Unmask and Sweep (H3)
+# Unmask and Sweep (HC3)
 
-H3 tests gates and parsers against **full generated artifacts** (containing executable positives AND sibling negatives), not snippets, and after any escape fix it searches for adjacent masked defects in the same family before closure. It closes **E2** (a substring classifier accepting `complete` inside `incomplete` and applying the wrong phase invariant) and **E3** (a single reported heading fixed while same-token sibling headings remained unswept). The H3 status feeds the §5.4 aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
+HC3 tests gates and parsers against **full generated artifacts** (containing executable positives AND sibling negatives), not snippets, and after any escape fix it searches for adjacent masked defects in the same family before closure. It closes **E2** (a substring classifier accepting `complete` inside `incomplete` and applying the wrong phase invariant) and **E3** (a single reported heading fixed while same-token sibling headings remained unswept). The HC3 status feeds the §5.4 aggregation in [`hardening-output-contract.md`](hardening-output-contract.md).
 
-## H3 parser decision — small formal allow-list grammar (§5.7)
+## HC3 parser decision — small formal allow-list grammar (§5.7)
 
-H3 uses a **small formal allow-list grammar** for this increment — **not** ad hoc substring matching and **not** a full CommonMark parser. The grammar is intentionally narrow:
+HC3 uses a **small formal allow-list grammar** for this increment — **not** ad hoc substring matching and **not** a full CommonMark parser. The grammar is intentionally narrow:
 
 1. Only ATX headings (`#`, `##`, … with a required post-marker space) and explicit verdict/status lines are behavior-controlling.
 2. Matching is exact-token or word-boundary anchored with escaped tokens (`\b` / `re.escape` / exact grammar); substring containment is **never** behavior-controlling.
@@ -25,7 +25,7 @@ Mandatory near-miss negative fixtures (regex timeouts are a guardrail, **not** a
 
 ## Whole-artifact classifier required controls (FR-7)
 
-A passing H3 requires all of:
+A passing HC3 requires all of:
 
 - a **positive case** — the intended violation is still caught;
 - a **sibling / off-path negative** — a same-token/same-shape non-target does NOT hard-fail;
@@ -34,9 +34,9 @@ A passing H3 requires all of:
 
 ## Unmask-and-sweep regression (FR-9)
 
-H3 **FAILs** if a fix only addresses the reported repro without searching same-token/same-shape sibling surfaces, **or** if a heuristic parser over generated prose is hard-fatal without adversarial false-positive fixtures plus a cost rationale. The sweep documents `K_true` and `K_swept` and asserts `K_swept` covers the full sibling family.
+HC3 **FAILs** if a fix only addresses the reported repro without searching same-token/same-shape sibling surfaces, **or** if a heuristic parser over generated prose is hard-fatal without adversarial false-positive fixtures plus a cost rationale. The sweep documents `K_true` and `K_swept` and asserts `K_swept` covers the full sibling family.
 
-## H3 Unmask / Sweep / Classifier Card schema (§5.6)
+## HC3 Unmask / Sweep / Classifier Card schema (§5.6)
 
 | Field | Required | Meaning |
 |-------|----------|---------|

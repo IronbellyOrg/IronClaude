@@ -7,8 +7,9 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        exclude: '\.md$'
+        exclude: '(\.md$|^tests/troubleshoot/fixtures/)'
       - id: end-of-file-fixer
+        exclude: '^tests/troubleshoot/fixtures/'
       - id: check-yaml
         args: ['--unsafe']  # Allow custom YAML tags
       - id: check-json
@@ -19,6 +20,7 @@ repos:
       - id: check-case-conflict
       - id: mixed-line-ending
         args: ['--fix=lf']
+        exclude: '^tests/troubleshoot/fixtures/'
 
   # Secret detection (critical for security)
   - repo: https://github.com/Yelp/detect-secrets
@@ -80,7 +82,8 @@ repos:
             .*node_modules.*|
             .*\.min\.md$|
             \.dev/.*|
-            tests/swarm/fixtures/bare_review_v1/golden/.*
+            tests/swarm/fixtures/bare_review_v1/golden/.*|
+            tests/troubleshoot/fixtures/.*
           )$
 
   # YAML linting
@@ -96,6 +99,7 @@ repos:
     hooks:
       - id: shellcheck
         args: ['--severity=warning']
+        exclude: '^tests/troubleshoot/fixtures/'
 
   # AC11 / R-017 / T01.20 — source-of-truth discipline gate
   # Rejects generated `.claude/` mirrors on the commit path. Full mirror drift

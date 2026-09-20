@@ -37,19 +37,19 @@ v1.0 frontmatter with no `Claim class`, `Evidence class`, or `Verdict direction`
 `claim_class: runtime_behavior`, `evidence_class: runtime_repro`, `verdict_direction: REFUTE`, evidence_grounding=1.0, runtime_check=1.0, four other dims=1.0.
 **Expected calibrated**: 1.0. **Asserts**: M3a cap does NOT fire when runtime_check=1.0.
 
-## Real-card replay fixtures (V2 merged)
+## Real-card replay fixtures
 
-### Fixture 7 — `fixture-t4-h3-replay.md` [V2 merged]
+### Fixture 7 — `fixture-t4-h3-replay.md`
 
 Replays actual `tier2-h3-options-subcommand.md` from `t4-pane-title-20260526-101500`. **Self-reported confidence on the original card: 0.95** (REFUTE — the canonical failure case the entire refactor is named after; passed through unguarded because the calibrator never executed against this card in the original run). Frontmatter retrofitted: `claim_class: runtime_behavior`, `evidence_class: source_static`, `verdict_direction: REFUTE`.
 **Expected calibrated**: ≤ 0.65 (per V2 rule 1) or ≤ 0.70 (per V1 M3a). Either is below 0.85. **Asserts**: the actual failing card cannot slip through after the refactor.
 
-### Fixture 8 — `fixture-t4-h2-replay.md` [V2 merged]
+### Fixture 8 — `fixture-t4-h2-replay.md`
 
 Replays actual H2 card from T4. **Self-reported confidence on the original card: 0.85** (REFUTE; also passed through unguarded). `claim_class: runtime_behavior`, `evidence_class: source_static` (WebFetch GitHub URLs), `verdict_direction: REFUTE`.
 **Expected calibrated**: ≤ 0.70. Also triggers WebFetch unverifiability note. **Asserts**: source-only REFUTE on runtime claim is structurally caught.
 
-### Fixture 9 — `fixture-t4-h1-no-overcorrect.md` [V2 merged]
+### Fixture 9 — `fixture-t4-h1-no-overcorrect.md`
 
 Replays actual H1 card from T4 (0.82 self-reported CONFIRM with mixed source + log evidence). `claim_class: runtime_behavior`, `evidence_class: log_evidence`, `verdict_direction: AFFIRM`.
 **Expected calibrated**: 0.70-0.85 range; NO hard cap fires. **Asserts**: legitimate CONFIRM cards with log evidence are NOT downgraded by the refactor.
