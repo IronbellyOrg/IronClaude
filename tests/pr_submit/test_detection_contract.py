@@ -139,6 +139,21 @@ def test_for_arming_without_override_uses_shipped_identity(tmp_path, monkeypatch
     assert armed.augment_app_slug == "augmentcode"
 
 
+def test_unusable_override_falls_back_to_shipped(tmp_path, monkeypatch):
+    """Placeholder / empty-identity override does not hide shipped baked identity."""
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(
+        '# stale\n\n```yaml\naugment_bot_login: "<PROBE-LOCKED>"\nlocked: false\n```\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.augment_app_slug == "augmentcode"
+
+
 def test_local_override_arms_without_touching_shipped_source(tmp_path, monkeypatch):
     """Local override wins when present; shipped baked identity arms when it is not."""
     from superclaude.pr_submit import detection

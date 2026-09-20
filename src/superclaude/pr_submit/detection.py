@@ -67,6 +67,14 @@ def _as_str_list(value, default: list[str]) -> list[str]:
     return list(value)
 
 
+def _has_identity(contract: "DetectionContract") -> bool:
+    """True when the contract has a non-placeholder bot login or app slug."""
+    for value in (contract.augment_bot_login, contract.augment_app_slug):
+        if value and not str(value).startswith("<"):
+            return True
+    return False
+
+
 class DetectionContractLocked(RuntimeError):
     """Raised when the detection contract file is absent or unparseable.
 
@@ -153,17 +161,25 @@ class DetectionContract:
         """Load the contract from its markdown ref, extracting the fenced YAML block.
 
         Resolution order: an explicit ``path`` wins; else if ``prefer_local_override``
-        and the gitignored operator-local override exists, that is used (the ARM
-        path); else the SHIPPED ref (baked Augment identity). Raises
-        :class:`DetectionContractLocked` when the file is absent or unparseable.
-        The ``locked`` flag is not checked.
+        and the gitignored operator-local override exists AND carries a usable
+        identity, that is used; else the SHIPPED ref (baked Augment identity).
+        An override with placeholder/empty identity falls through to shipped.
+        Raises :class:`DetectionContractLocked` when the resolved file is absent
+        or unparseable. The ``locked`` flag is not checked.
         """
         if path is not None:
-            ref = Path(path)
-        elif prefer_local_override and _local_override_path().exists():
-            ref = _local_override_path()
-        else:
-            ref = _CONTRACT_PATH
+            return cls._read(Path(path))
+        if prefer_local_override and _local_override_path().exists():
+            try:
+                override = cls._read(_local_override_path())
+            except DetectionContractLocked:
+                override = None
+            if override is not None and _has_identity(override):
+                return override
+        return cls._read(_CONTRACT_PATH)
+
+    @classmethod
+    def _read(cls, ref: Path) -> "DetectionContract":
         if not ref.exists():
             raise DetectionContractLocked(f"detection contract absent at {ref}")
         text = ref.read_text(encoding="utf-8")
@@ -179,8 +195,9 @@ class DetectionContract:
     def for_arming(cls) -> "DetectionContract":
         """Load the contract for ARMING — prefers an optional local override.
 
-        Returns the gitignored local override when present, else the shipped
-        baked-identity contract. A missing or unlocked override is not a halt.
+        Returns the gitignored local override when it has a usable identity,
+        else the shipped baked-identity contract. A missing, unparseable, or
+        placeholder override is not a halt.
         Equivalent to ``load(prefer_local_override=True)``.
         """
         return cls.load(prefer_local_override=True)
