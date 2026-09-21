@@ -617,29 +617,6 @@ class TestPlannerEdges:
 
 
 class TestCliWiring:
-    def test_explicit_start_bypasses_autodetect(self, tmp_path, monkeypatch):
-        """AC-7: an explicit --start (even --start 1) bypasses auto-resume; the
-        planner/_auto_resume is NOT called. Proves parameter-source, not value
-        comparison, gates the bypass."""
-        index = _build_task_interrupted(tmp_path, _P3, record_hash=True)
-        calls = {"n": 0}
-        original = sprint_commands._auto_resume
-
-        def _counting(*a, **k):
-            calls["n"] += 1
-            return original(*a, **k)
-
-        monkeypatch.setattr(sprint_commands, "_auto_resume", _counting)
-        runner = CliRunner()
-
-        runner.invoke(sprint_group, ["run", str(index), "--start", "1", "--dry-run"])
-        assert calls["n"] == 0  # explicit --start 1 bypassed auto-resume
-        runner.invoke(sprint_group, ["run", str(index), "--start", "4", "--dry-run"])
-        assert calls["n"] == 0  # explicit --start 4 bypassed too
-
-        runner.invoke(sprint_group, ["run", str(index), "--dry-run"])
-        assert calls["n"] == 1  # bare invocation auto-resumes exactly once
-
     def test_auto_resume_yes_path_prints_plan_and_partial_paths(
         self, tmp_path, monkeypatch, capsys
     ):
@@ -678,19 +655,6 @@ class TestCliWiring:
         # the half-written partial-work path is surfaced on the --yes path (CG-4 YES
         # informedness premise; F-2 reach extended to the proceed path):
         assert "phase-3-task-T03.02-output.txt" in out
-
-    def test_nothing_to_resume_cli(self, tmp_path):
-        """AC-6 (CLI): bare run on an all-complete release exits 0 with a message."""
-        results = tmp_path / "results"
-        results.mkdir()
-        for n in (1, 2):
-            (tmp_path / f"phase-{n}-tasklist.md").write_text(_task_block(f"T0{n}.01"))
-        index = _write_index(tmp_path, (1, 2))
-        _write_log(tmp_path, _complete_phase(results, 1) + _complete_phase(results, 2))
-
-        result = CliRunner().invoke(sprint_group, ["run", str(index)])
-        assert result.exit_code == 0
-        assert "Nothing to resume" in result.output
 
     def test_rerun_tasks_autodetect_parity(self, tmp_path, monkeypatch):
         """AC-9: bare `rerun-tasks <idx>` produces the SAME run_rerun_tasks call

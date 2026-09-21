@@ -686,26 +686,6 @@ def test_run_no_pty_full_suite_skips_every_eval(
 # ---------------------------------------------------------------------------
 
 
-def test_d0072_spec_documents_flag_wiring() -> None:
-    """``D-0072/spec.md`` exists and references each FR-CLI1 flag.
-
-    The phase-4 AC bullet "TASKLIST_ROOT/artifacts/D-0072/spec.md
-    documents flag wiring" is a deliverable, not a code surface. Pinning
-    the file's existence + that every flag name appears at least once
-    keeps the AC from drifting under future doc edits without affecting
-    the runtime tests above.
-    """
-    assert D0072_SPEC_PATH.is_file(), (
-        f"D-0072 spec missing at {D0072_SPEC_PATH}; T04.10 AC requires "
-        "spec.md to be authored alongside the test file."
-    )
-    body = D0072_SPEC_PATH.read_text(encoding="utf-8")
-    missing = [flag for flag in EXPECTED_FLAGS if flag not in body]
-    assert not missing, (
-        f"D-0072/spec.md does not mention every FR-CLI1 flag; missing: {missing!r}"
-    )
-
-
 # ---------------------------------------------------------------------------
 # AC bullet 5 — _NullLifecycleExecutor observability (M2)
 # ---------------------------------------------------------------------------

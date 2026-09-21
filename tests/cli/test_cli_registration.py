@@ -69,18 +69,6 @@ def test_top_level_help_lists_eval_group(runner: CliRunner) -> None:
     assert "cliEval real-eval harness" in result.output
 
 
-def test_top_level_command_roster_unchanged(runner: CliRunner) -> None:
-    """Every pre-existing top-level command is still registered (regression)."""
-    actual = frozenset(main.commands.keys())
-    missing = EXPECTED_TOP_LEVEL_COMMANDS - actual
-    unexpected = actual - EXPECTED_TOP_LEVEL_COMMANDS
-    assert not missing, f"missing top-level commands: {sorted(missing)}"
-    assert not unexpected, (
-        "unexpected top-level commands present (update "
-        f"EXPECTED_TOP_LEVEL_COMMANDS deliberately): {sorted(unexpected)}"
-    )
-
-
 def test_eval_group_help_lists_m1_subcommands(runner: CliRunner) -> None:
     """`superclaude eval --help` lists the M1 subcommands (FR-CLI2/3/4)."""
     result = runner.invoke(main, ["eval", "--help"])

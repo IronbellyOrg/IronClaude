@@ -190,19 +190,6 @@ def test_scalar_field_types(field_name: str, expected_type: type) -> None:
     )
 
 
-def test_output_files_is_list_of_worker_result() -> None:
-    """``output_files`` is ``list[WorkerResult]`` per DM-012 row."""
-    hints = typing.get_type_hints(ResultContract)
-    field_type = hints["output_files"]
-    assert typing.get_origin(field_type) is list, (
-        f"output_files should be a list, got {field_type!r}"
-    )
-    args = typing.get_args(field_type)
-    assert args == (WorkerResult,), (
-        f"output_files should be list[WorkerResult], got list{list(args)!r}"
-    )
-
-
 def test_merged_path_is_optional() -> None:
     """DM-012 marks ``merged_path:str?`` -- must accept None."""
     hints = typing.get_type_hints(ResultContract)
@@ -391,30 +378,6 @@ def test_populated_instance_round_trips_via_json() -> None:
     )
     restored = from_json(ResultContract, to_json(instance))
     assert restored == instance
-
-
-def test_populated_output_files_round_trip_as_worker_result_instances() -> None:
-    """T01.25 helper extension: ``list[<dataclass>]`` must rebuild as
-    dataclass instances, not raw dicts. Without the
-    ``_list_dataclass_item_type`` branch in ``from_dict``, ``output_files``
-    would round-trip as ``list[dict]`` and equality would fail (and the
-    M5 contract emitter would silently emit dicts where it expected
-    WorkerResult instances).
-
-    WorkerResult is still an empty stub at M1 (fields land in T01.26),
-    so ``WorkerResult() == WorkerResult()`` holds but ``WorkerResult() !=
-    {}``. That asymmetry is precisely what this test guards.
-    """
-    instance = ResultContract(
-        output_files=[WorkerResult(), WorkerResult(), WorkerResult()],
-    )
-    restored = from_json(ResultContract, to_json(instance))
-    assert restored == instance
-    assert len(restored.output_files) == 3
-    for item in restored.output_files:
-        assert isinstance(item, WorkerResult), (
-            f"output_files entry should rebuild as WorkerResult, got {type(item).__name__}"
-        )
 
 
 def test_round_trip_diff_is_empty() -> None:

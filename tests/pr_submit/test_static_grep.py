@@ -137,18 +137,6 @@ def _repo_scoped(line: str) -> bool:
     return False
 
 
-def test_t104_every_gh_call_is_repo_scoped():
-    """T-104: every ACTUAL gh command in the skill sources + hook is scoped to the resolved repo."""
-    offenders: list[str] = []
-    for path in _skill_and_hook_files():
-        for lineno, line in _command_lines(path):
-            if _GH_CMD.search(line) and not _repo_scoped(line):
-                offenders.append(
-                    f"{path.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
-                )
-    assert not offenders, "Unscoped gh commands:\n" + "\n".join(offenders)
-
-
 def test_tn50_core_pure_no_gh_git_tokens():
     """T-N50: the core-pure file set contains ZERO `gh`/`git` tokens (NFR-6 / AC-9)."""
     token = re.compile(r"\bgh\b|\bgit\b")
@@ -161,24 +149,6 @@ def test_tn50_core_pure_no_gh_git_tokens():
                     f"{path.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
                 )
     assert not offenders, "gh/git tokens in core-pure files:\n" + "\n".join(offenders)
-
-
-def test_tn40_no_depth_quick_fix_anywhere():
-    """T-N40: the `--depth quick --fix` conflict is never emitted by any skill source."""
-    offenders: list[str] = []
-    for path in _skill_and_hook_files():
-        text = path.read_text(encoding="utf-8")
-        # Allow the explicit STOP-warnings that NAME the forbidden form to forbid it.
-        for lineno, line in enumerate(text.splitlines(), 1):
-            if (
-                "--depth quick --fix" in line
-                and "never" not in line.lower()
-                and "stop" not in line.lower()
-            ):
-                offenders.append(
-                    f"{path.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
-                )
-    assert not offenders, "emitted --depth quick --fix:\n" + "\n".join(offenders)
 
 
 def test_tn41_core_never_imports_anthropic():

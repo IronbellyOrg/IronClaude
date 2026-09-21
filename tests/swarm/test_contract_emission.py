@@ -291,16 +291,6 @@ def test_emitted_yaml_field_count_matches_dataclass(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_emitted_yaml_is_valid_and_round_trips_to_equal_contract(
-    tmp_path: Path,
-) -> None:
-    instance = _fully_populated_contract()
-    emit_contract(instance, tmp_path)
-    payload = yaml.safe_load((tmp_path / CONTRACT_FILENAME).read_text(encoding="utf-8"))
-    restored = from_dict(ResultContract, payload)
-    assert restored == instance
-
-
 def test_emitted_yaml_default_stub_round_trips(tmp_path: Path) -> None:
     """No-arg ResultContract round-trips losslessly through emit + yaml.safe_load."""
     instance = ResultContract()

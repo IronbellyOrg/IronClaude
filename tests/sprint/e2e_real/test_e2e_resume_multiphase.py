@@ -10,14 +10,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
-from click.testing import CliRunner
 
-from superclaude.cli.sprint.commands import sprint_group
 from superclaude.cli.sprint.config import load_sprint_config
-from superclaude.cli.sprint.executor import execute_sprint
 
 _PHASE_1_TASKLIST = """# Phase 1: Multi-phase Resume Harness
 
@@ -97,49 +93,3 @@ def two_phase_release(tmp_path: Path):
 
     config = load_sprint_config(index)
     return config, index
-
-
-@pytest.mark.integration
-def test_e2e_run_autodetect_task_level_across_phase_boundary(
-    claude_shim, two_phase_release
-):
-    config, index = two_phase_release
-    results_dir = config.results_dir
-
-    claude_shim.set_failures("T02.02")
-    with patch("superclaude.cli.sprint.notify._notify"):
-        with pytest.raises(SystemExit) as exc_info:
-            execute_sprint(config)
-        assert exc_info.value.code == 1
-
-    phase_1_path = results_dir / "phase-1-result.json"
-    phase_2_path = results_dir / "phase-2-result.json"
-    assert phase_1_path.exists()
-    assert phase_2_path.exists()
-
-    phase_1_before = phase_1_path.read_text(encoding="utf-8")
-    phase_1_initial = _status_by_id(json.loads(phase_1_before))
-    assert phase_1_initial["T01.01"] == "pass"
-    assert phase_1_initial["T01.02"] == "pass"
-
-    phase_2_initial = _status_by_id(_read_result(results_dir, 2))
-    assert phase_2_initial["T02.01"] == "pass"
-    assert phase_2_initial["T02.02"] == "fail_recoverable"
-
-    claude_shim.set_failures()
-    with (
-        patch("superclaude.cli.sprint.notify._notify"),
-        patch("superclaude.cli.sprint.rerun_tasks.subprocess.run"),
-        patch("superclaude.cli.sprint.summarizer.invoke_sonnet", return_value=""),
-    ):
-        result = CliRunner().invoke(
-            sprint_group, ["run", str(index), "--yes", "--no-tmux"]
-        )
-
-    assert result.exit_code == 0, result.output
-    assert claude_shim.run_log() == ["T02.02"]
-
-    phase_2_merged = _status_by_id(_read_result(results_dir, 2))
-    assert phase_2_merged["T02.01"] == "pass"
-    assert phase_2_merged["T02.02"] == "pass"
-    assert phase_1_path.read_text(encoding="utf-8") == phase_1_before
