@@ -154,6 +154,38 @@ def test_unusable_override_falls_back_to_shipped(tmp_path, monkeypatch):
     assert armed.augment_app_slug == "augmentcode"
 
 
+def test_whitespace_identity_override_falls_back_to_shipped(tmp_path, monkeypatch):
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(
+        '# stale\n\n```yaml\naugment_bot_login: " "\naugment_app_slug: "   "\n```\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.augment_app_slug == "augmentcode"
+
+
+def test_malformed_yaml_override_falls_back_to_shipped(tmp_path, monkeypatch):
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text("# stale\n\n```yaml\n{\ninvalid\n```\n", encoding="utf-8")
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.augment_app_slug == "augmentcode"
+
+
+def test_explicit_load_malformed_yaml_raises_locked(tmp_path):
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text("# stale\n\n```yaml\n{\ninvalid\n```\n", encoding="utf-8")
+    with pytest.raises(DetectionContractLocked, match="has malformed YAML"):
+        DetectionContract.load(path=override)
+
+
 def test_local_override_arms_without_touching_shipped_source(tmp_path, monkeypatch):
     """Local override wins when present; shipped baked identity arms when it is not."""
     from superclaude.pr_submit import detection

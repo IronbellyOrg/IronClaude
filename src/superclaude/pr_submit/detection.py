@@ -70,7 +70,8 @@ def _as_str_list(value, default: list[str]) -> list[str]:
 def _has_identity(contract: "DetectionContract") -> bool:
     """True when the contract has a non-placeholder bot login or app slug."""
     for value in (contract.augment_bot_login, contract.augment_app_slug):
-        if value and not str(value).startswith("<"):
+        stripped = str(value).strip() if value is not None else ""
+        if stripped and not stripped.startswith("<"):
             return True
     return False
 
@@ -184,7 +185,12 @@ class DetectionContract:
             raise DetectionContractLocked(f"detection contract absent at {ref}")
         text = ref.read_text(encoding="utf-8")
         block = _extract_yaml_block(text)
-        data = yaml.safe_load(block) if block else None
+        try:
+            data = yaml.safe_load(block) if block else None
+        except yaml.YAMLError as exc:
+            raise DetectionContractLocked(
+                f"detection contract at {ref} has malformed YAML: {exc}"
+            ) from exc
         if not isinstance(data, dict):
             raise DetectionContractLocked(
                 f"detection contract at {ref} has no parseable YAML"
