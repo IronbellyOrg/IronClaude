@@ -1,0 +1,53 @@
+# Output inventory (item 10.1)
+
+| path | exists | lines |
+|---|---|---|
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/agent-assertions.md` | yes | 46 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/primitive-differential.md` | yes | 58 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/environment-deltas.md` | yes | 22 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/probe-packs/read-parse.md` | yes | 10 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/SKILL.md` | yes | 676 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/diagnosability-audit.md` | yes | 392 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/report-template.md` | yes | 325 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/hypothesis-card-template.md` | yes | 180 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/triage-checklist.md` | yes | 80 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/escalation-rubric.md` | yes | 91 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/hardening-output-contract.md` | yes | 73 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/runtime-entrypoint-verification.md` | yes | 47 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/pipeline-hardening-closure.md` | yes | 63 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/unmask-and-sweep.md` | yes | 52 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/contract-enumeration.md` | yes | 30 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/skills/sc-troubleshoot-protocol/refs/effective-input-proof.md` | yes | 27 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/agents/confidence-calibrator.md` | yes | 159 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/agents/evidence-validator.md` | yes | 150 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/src/superclaude/commands/troubleshoot.md` | yes | 204 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/.pre-commit-config.yaml` | yes | 134 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/_assertions.py` | yes | 722 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/_procedures.py` | yes | 499 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_validator_assertions.py` | yes | 50 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_calibrator_assertions.py` | yes | 63 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_producers_enumeration.py` | yes | 45 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_primitivegrep_targeting.py` | yes | 25 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_locus_card.py` | yes | 49 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_verdict_source.py` | yes | 34 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_discriminator_form.py` | yes | 33 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_threshold_bracket.py` | yes | 42 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_cosmetic_counter.py` | yes | 15 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_counter_key.py` | yes | 28 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_hardstop_verdicts.py` | yes | 48 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_headline_threshold.py` | yes | 49 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_timestamp_tolerance.py` | yes | 27 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_inline_fallback_parity.py` | yes | 138 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_calibrator_eval_cases.py` | yes | 104 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_regression_sysbox.py` | yes | 53 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_primitive_differential.py` | yes | 42 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_discriminator_rows.py` | yes | 46 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_behaviour_definition_row.py` | yes | 39 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_menu_equality.py` | yes | 30 |
+| `/config/workspace/IronClaude/.dev/worktrees/troubleshoot-generalize/tests/troubleshoot/test_hc_rename_guard.py` | yes | 18 |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-troubleshoot-generalize-20260919-015257/qa/exec-md/qa-m3-gate-verdict.md` | yes | 23 |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-troubleshoot-generalize-20260919-015257/qa/exec-tests/qa-m3-gate-verdict.md` | yes | 19 |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-troubleshoot-generalize-20260919-015257/qa/exec-fidelity/qa-m4-gate-verdict.md` | yes | 3 |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-troubleshoot-generalize-20260919-015257/phase-outputs/plans/phase8-verdict.md` | yes | 10 |
+| `/config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-troubleshoot-generalize-20260919-015257/phase-outputs/plans/phase5-verdict.md` | yes | 10 |
+| fixtures find -type f | yes | 125 files (expected 129; landed 125 — see 8.5 delta) |

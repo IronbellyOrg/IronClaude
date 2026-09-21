@@ -1,0 +1,83 @@
+contract_version: '1.0'
+status: success
+subrun_status: success
+adversarial_subrun_status: success
+subrun_status_partial: false
+mode: post
+tier_reached: 2
+reviewer_count: 3
+report_path: /config/workspace/IronClaude/.dev/tasks/to-do/TASK-RF-troubleshoot-generalize-20260919-015257/reflect/post-wt/t2-adversarial/reflect-review-adversarial-merged.md
+audit_log_path: null
+deviation_count_by_class:
+  authorized: 0
+  necessary: 0
+  drift: 0
+  regression: 0
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+adversarial_unavailable: false
+merge_method: adversarial
+adversarial_convergence_score: 1.0
+verification_ran: false
+verification_skip_reason: no-verification-stage
+verification_verified: false
+reviewers_verified: true
+regression_verified: false
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+input_drift_detected: false
+regression_present: false
+unauthorized_deviation_present: false
+needs_human_decision: false
+user_decision_required: false
+serena_summary_corroboration: unavailable
+degraded_components: []
+reviewer_isolation: disabled
+audit_tree_dirty: false
+reviewer_grounding_root: null
+t2_fallback:
+  enabled: true
+  policy_version: reflect-t2-fallback-ladder-v1
+  strategy: post_primary_quorum_top_up
+  ladder:
+  - T1Model01
+  - T1Model02
+  engaged: false
+  certified_with_fallback: false
+  fallback_attempt_count: 0
+  exhausted: false
+  terminal_reason: not_needed_primary_quorum_met
+  original_primary_pool_fully_succeeded: true
+  reviewer_attempts:
+  - attempt_id: primary:00
+    role: primary
+    model_id: grok-4.6
+    vendor: grok-4.6
+    status: success
+    failure_class: null
+    fallback_for: null
+    fallback_reason: null
+    contributes_to_quorum: true
+  - attempt_id: primary:01
+    role: primary
+    model_id: deepseek-v4-pro
+    vendor: deepseek
+    status: success
+    failure_class: null
+    fallback_for: null
+    fallback_reason: null
+    contributes_to_quorum: true
+  - attempt_id: primary:02
+    role: primary
+    model_id: Qwen3.8-max
+    vendor: qwen
+    status: success
+    failure_class: null
+    fallback_for: null
+    fallback_reason: null
+    contributes_to_quorum: false
+  contributing_reviewer_attempt_ids:
+  - primary:00
+  - primary:01
+  primary_failures_preserved: []
+  tier2_certification_basis: primary_only_quorum
