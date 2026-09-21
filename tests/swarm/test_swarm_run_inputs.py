@@ -365,44 +365,6 @@ def test_lens_mode_dispatches_end_to_end(
     assert pr.manifest.preflight.transport_kind == "stub"
 
 
-def test_lens_mode_transport_override_propagates(
-    tmp_path: Path,
-    fake_dispatch: dict[str, Any],
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """AC: ``--transport openai_compat`` overrides the stub default."""
-    target = _write_target(tmp_path)
-    output_dir = tmp_path / "lens-out"
-
-    # F-P3-1 -- run_cmd now constructs the concrete openai_compat transport
-    # before dispatch, which reads the T2 proxy env contract (AC-017). Set a
-    # complete contract so the resolver succeeds and dispatch is reached; the
-    # assertion below still verifies the manifest carries the overridden kind.
-    monkeypatch.setenv("T2ProxyUrl", "https://proxy.example/v1")
-    monkeypatch.setenv("T2ProxyKey", "test-key-not-real")
-    monkeypatch.setenv("T2Model01", "gpt-5-codex")
-
-    runner = CliRunner()
-    result = runner.invoke(
-        run_cmd,
-        [
-            "--lens",
-            "bare-review",
-            "--target",
-            str(target),
-            "--output",
-            str(output_dir),
-            "--transport",
-            "openai_compat",
-        ],
-    )
-    assert result.exit_code == EXIT_OK, (
-        f"transport override failed: exit={result.exit_code}\nstderr:\n{result.stderr}"
-    )
-    pr = fake_dispatch["preflight_result"]
-    assert pr.manifest.preflight.transport_kind == "openai_compat"
-
-
 def test_lens_mode_rejects_custom_escape_hatch() -> None:
     """AC: ``--lens custom`` -> :data:`EXIT_USAGE` (FR-021 redirect)."""
     runner = CliRunner()

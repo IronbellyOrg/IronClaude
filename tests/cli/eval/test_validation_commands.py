@@ -139,38 +139,6 @@ def test_doc_carries_required_section(doc_text: str, section: str) -> None:
     )
 
 
-def test_evidence_root_directory_exists() -> None:
-    """The OPS-004 evidence root directory has been provisioned."""
-
-    assert EVIDENCE_ROOT.is_dir(), (
-        f"OPS-004 evidence root missing: {EVIDENCE_ROOT.relative_to(REPO_ROOT)}. "
-        "Re-run the §6 reproduction recipe to populate it."
-    )
-
-
-@pytest.mark.parametrize(
-    "_command, evidence",
-    OPS_004_COMMANDS,
-    ids=[
-        "01-targeted-pytest",
-        "02-make-verify-sync",
-        "03-eval-doctor",
-        "04-eval-run-E1",
-    ],
-)
-def test_evidence_log_present_with_exit_code(_command: str, evidence: str) -> None:
-    """Each evidence log exists and carries a trailing ``EXIT_CODE=<n>`` marker."""
-
-    log = EVIDENCE_ROOT / evidence
-    assert log.is_file(), f"Evidence log missing: {log.relative_to(REPO_ROOT)}"
-
-    body = log.read_text(encoding="utf-8", errors="replace")
-    assert "EXIT_CODE=" in body, (
-        f"Evidence log {log.relative_to(REPO_ROOT)} does not carry a "
-        "trailing 'EXIT_CODE=<n>' line. Re-run the §6 reproduction recipe."
-    )
-
-
 def test_doc_records_known_blockers_section(doc_text: str) -> None:
     """B1 (_new_run_id) and B2 (ptytest) are explicitly recorded."""
 

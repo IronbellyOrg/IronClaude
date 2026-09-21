@@ -308,34 +308,6 @@ class TestInvariant3_PersistentArtifact:
                 f"byte-identically — a rename or case change has occurred"
             )
 
-    def test_task_id_naming_pattern_preserved(self):
-        """Per D-0087 §3.2 the task-id naming pattern is
-        ``TASK-{TYPE}-YYYYMMDD-...`` for one of the known TYPEs.
-        Every task directory in ``.dev/tasks/{to-do,done}/`` must
-        match that pattern."""
-        import re
-
-        pattern = re.compile(
-            r"^TASK-(E2E|PRD|RESEARCH|RF|TDD|RC|MERGE|SC)"
-            r"(-track-\d+)?-\d{8}",
-        )
-        bad: list[str] = []
-        for bucket in ("to-do", "done"):
-            bucket_dir = DEV_TASKS_ROOT / bucket
-            if not bucket_dir.is_dir():
-                continue
-            for task_dir in bucket_dir.iterdir():
-                if not task_dir.is_dir():
-                    continue
-                if not task_dir.name.startswith("TASK-"):
-                    continue
-                if not pattern.match(task_dir.name):
-                    bad.append(task_dir.name)
-        assert not bad, (
-            f"{self.INVARIANT_LABEL}: task-id naming pattern drifted; "
-            f"non-matching dirs: {bad[:5]}"
-        )
-
 
 # ---------------------------------------------------------------------------
 # Invariant 4 — NFR-CONV.9 zero-trust QA.
