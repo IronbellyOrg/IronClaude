@@ -126,7 +126,11 @@ class DetectionContract:
 
     @classmethod
     def from_yaml(cls, data: dict) -> "DetectionContract":
-        """Build a contract from a parsed YAML mapping (no lock enforcement)."""
+        """Build a contract from YAML, trimming identity padding (no lock enforcement)."""
+        data = data.copy()
+        for key in ("augment_bot_login", "augment_app_slug"):
+            if isinstance(data.get(key), str):
+                data[key] = data[key].strip()
         return cls(
             augment_bot_login=data.get("augment_bot_login"),
             augment_author_association=_as_str_list(

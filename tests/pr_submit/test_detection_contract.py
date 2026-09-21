@@ -168,6 +168,33 @@ def test_whitespace_identity_override_falls_back_to_shipped(tmp_path, monkeypatc
     assert armed.augment_app_slug == "augmentcode"
 
 
+@pytest.mark.parametrize(
+    "field, identity, author_key",
+    [
+        ("augment_bot_login", "augmentcode[bot]", "user"),
+        ("augment_app_slug", "augmentcode", "author"),
+        ("augment_bot_login", "custom-bot[bot]", "user"),
+        ("augment_app_slug", "custom-bot", "author"),
+    ],
+)
+def test_padded_identity_override_matches_author(
+    tmp_path, monkeypatch, field, identity, author_key
+):
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(f'# local\n\n```yaml\n{field}: " {identity} "\n```\n')
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    payload = {"reviews": [{author_key: {"login": identity}, "state": "COMMENTED"}]}
+    for loaded in (DetectionContract.for_arming(), DetectionContract.load(override)):
+        assert classify(payload, loaded) == "clean"
+        assert getattr(loaded, field) == identity
+        other_field = (
+            "augment_app_slug" if field == "augment_bot_login" else "augment_bot_login"
+        )
+        assert getattr(loaded, other_field) is None
+
+
 def test_malformed_yaml_override_falls_back_to_shipped(tmp_path, monkeypatch):
     from superclaude.pr_submit import detection
 
