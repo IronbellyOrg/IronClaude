@@ -53,6 +53,22 @@ class AuditTrailHelper:
         self.records.append(entry)
         return entry
 
+    def summary(self) -> dict[str, Any]:
+        total = len(self.records)
+        passed = sum(1 for r in self.records if r["verdict"] == "PASS")
+        failed = sum(1 for r in self.records if r["verdict"] == "FAIL")
+        skipped = sum(1 for r in self.records if r["verdict"] == "SKIP")
+        refs = {r["spec_ref"] for r in self.records}
+        passed_refs = {r["spec_ref"] for r in self.records if r["verdict"] == "PASS"}
+        coverage = (len(passed_refs) / len(refs) * 100.0) if refs else 0.0
+        return {
+            "total": total,
+            "passed": passed,
+            "failed": failed,
+            "skipped": skipped,
+            "wiring_coverage_pct": round(coverage, 2),
+        }
+
 
 @pytest.fixture(scope="session")
 def audit_trail(tmp_path_factory: pytest.TempPathFactory) -> AuditTrailHelper:
