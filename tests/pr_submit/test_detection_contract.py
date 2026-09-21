@@ -1,7 +1,7 @@
 """Detection-contract tests (spec FR-2.1/FR-2.2, §7).
 
 Covers the three-state classifier (T-201 polling / T-202 clean / T-203 findings),
-the T-210 lock gate (``locked:false``/absent → HALT "probe first"), T-211 (a
+the shipped baked-identity load path (no lock required), T-211 (a
 different bot login → review not detected), and T-212 (interleaved Augment+human
 reviews → only the Augment author parsed).
 
@@ -109,56 +109,136 @@ def test_contract_setup_next_commands_are_current_and_actionable():
     assert "not yet implemented" not in validation
 
 
-def test_t210_locked_false_halts(tmp_path):
-    """T-210: contract locked:false (or absent) → skill HALTs with "probe first"."""
-    # The shipped contract ships locked:false — loading it for arming HALTs.
-    with pytest.raises(DetectionContractLocked):
-        DetectionContract.load()
+def test_t210_shipped_contract_arms_without_lock(tmp_path):
+    """Shipped contract loads and arms without a local lock or R1 probe."""
+    shipped = DetectionContract.load()
+    assert shipped.augment_bot_login == "augmentcode[bot]"
+    assert shipped.augment_app_slug == "augmentcode"
 
-    # An explicit unlocked contract file also HALTs.
     unlocked = tmp_path / "detection-contract.md"
     unlocked.write_text(
-        '# c\n\n```yaml\naugment_bot_login: "<PROBE-LOCKED>"\nlocked: false\n```\n',
+        '# c\n\n```yaml\naugment_bot_login: "augmentcode[bot]"\nlocked: false\n```\n',
         encoding="utf-8",
     )
-    with pytest.raises(DetectionContractLocked):
-        DetectionContract.load(unlocked)
+    loaded = DetectionContract.load(unlocked)
+    assert loaded.locked is False
+    assert loaded.augment_bot_login == "augmentcode[bot]"
 
-    # An absent contract HALTs too.
+    # Absent file still raises (unreadable, not a lock gate).
     with pytest.raises(DetectionContractLocked):
         DetectionContract.load(tmp_path / "does-not-exist.md")
 
-    # require_locked=False allows inspection without HALTing (locked is False).
-    inspected = DetectionContract.load(unlocked, require_locked=False)
-    assert inspected.locked is False
+
+def test_for_arming_without_override_uses_shipped_identity(tmp_path, monkeypatch):
+    """for_arming() with no local override returns shipped identity and does not raise."""
+    from superclaude.pr_submit import detection
+
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", tmp_path / "absent.md")
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.augment_app_slug == "augmentcode"
 
 
-def test_local_override_arms_without_touching_shipped_source(tmp_path, monkeypatch):
-    """The operator-local locked override arms (for_arming/prefer_local_override) while the
-    shipped source stays locked:false — so T-210's default-load HALT is unaffected by the override."""
+def test_unusable_override_falls_back_to_shipped(tmp_path, monkeypatch):
+    """Placeholder / empty-identity override does not hide shipped baked identity."""
     from superclaude.pr_submit import detection
 
     override = tmp_path / "detection-contract.locked.md"
     override.write_text(
-        '# local\n\n```yaml\naugment_bot_login: "augmentcode[bot]"\nlocked: true\n```\n',
+        '# stale\n\n```yaml\naugment_bot_login: "<PROBE-LOCKED>"\nlocked: false\n```\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.augment_app_slug == "augmentcode"
+
+
+def test_whitespace_identity_override_falls_back_to_shipped(tmp_path, monkeypatch):
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(
+        '# stale\n\n```yaml\naugment_bot_login: " "\naugment_app_slug: "   "\n```\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.augment_app_slug == "augmentcode"
+
+
+@pytest.mark.parametrize(
+    "field, identity, author_key",
+    [
+        ("augment_bot_login", "augmentcode[bot]", "user"),
+        ("augment_app_slug", "augmentcode", "author"),
+        ("augment_bot_login", "custom-bot[bot]", "user"),
+        ("augment_app_slug", "custom-bot", "author"),
+    ],
+)
+def test_padded_identity_override_matches_author(
+    tmp_path, monkeypatch, field, identity, author_key
+):
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(f'# local\n\n```yaml\n{field}: " {identity} "\n```\n')
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    payload = {"reviews": [{author_key: {"login": identity}, "state": "COMMENTED"}]}
+    for loaded in (DetectionContract.for_arming(), DetectionContract.load(override)):
+        assert classify(payload, loaded) == "clean"
+        assert getattr(loaded, field) == identity
+        other_field = (
+            "augment_app_slug" if field == "augment_bot_login" else "augment_bot_login"
+        )
+        assert getattr(loaded, other_field) is None
+
+
+def test_malformed_yaml_override_falls_back_to_shipped(tmp_path, monkeypatch):
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text("# stale\n\n```yaml\n{\ninvalid\n```\n", encoding="utf-8")
+    monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.augment_app_slug == "augmentcode"
+
+
+def test_explicit_load_malformed_yaml_raises_locked(tmp_path):
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text("# stale\n\n```yaml\n{\ninvalid\n```\n", encoding="utf-8")
+    with pytest.raises(DetectionContractLocked, match="has malformed YAML"):
+        DetectionContract.load(path=override)
+
+
+def test_local_override_arms_without_touching_shipped_source(tmp_path, monkeypatch):
+    """Local override wins when present; shipped baked identity arms when it is not."""
+    from superclaude.pr_submit import detection
+
+    override = tmp_path / "detection-contract.locked.md"
+    override.write_text(
+        '# local\n\n```yaml\naugment_bot_login: "custom-bot[bot]"\nlocked: true\n```\n',
         encoding="utf-8",
     )
     monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
 
-    # Default load() ignores the override → shipped source (locked:false) → HALT (T-210 unaffected).
-    with pytest.raises(DetectionContractLocked):
-        DetectionContract.load()
+    # Default load() ignores the override → shipped baked identity.
+    shipped = DetectionContract.load()
+    assert shipped.augment_bot_login == "augmentcode[bot]"
 
-    # The arm path prefers the override → loads locked:true with the real bot login (ARMED).
+    # The arm path prefers the override.
     armed = DetectionContract.for_arming()
-    assert armed.locked is True
-    assert armed.augment_bot_login == "augmentcode[bot]"
-    assert DetectionContract.load(prefer_local_override=True).locked is True
+    assert armed.augment_bot_login == "custom-bot[bot]"
+    assert DetectionContract.load(prefer_local_override=True).augment_bot_login == (
+        "custom-bot[bot]"
+    )
 
-    # With no override present, the arm path falls back to the shipped source → HALT.
+    # With no override present, the arm path falls back to the shipped contract.
     monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", tmp_path / "absent.md")
-    with pytest.raises(DetectionContractLocked):
-        DetectionContract.for_arming()
+    fallback = DetectionContract.for_arming()
+    assert fallback.augment_bot_login == "augmentcode[bot]"
 
 
 def test_t211_different_bot_not_detected(contract):

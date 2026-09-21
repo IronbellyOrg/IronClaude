@@ -52,8 +52,7 @@ scripts), and the §10 VAL validator.
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's
 `owner/repo` via `gh repo view --json nameWithOwner`): a wrong origin, a branch behind the base
 branch (`origin/<default-branch>`), or a returned URL whose `owner/repo` ≠ the resolved target → HALT,
-instruct the operator to close the misrouted PR. **STOP** if `detection-contract.md` is `locked: false`
-— the skill refuses to arm until the R1 probe locks the contract (T-210, "probe first").
+instruct the operator to close the misrouted PR.
 
 ## Output Contract
 
@@ -76,7 +75,7 @@ instruct the operator to close the misrouted PR. **STOP** if `detection-contract
 
 ```text
 Wave 0: Open PR + verify target   ← (no ref; gh pr create --repo, pre-PR checks)
-Wave 1: Arm + poll                ← loads refs/detection-contract.md (arm gate) + refs/augment-poll.md
+Wave 1: Arm + poll                ← loads refs/detection-contract.md (baked identity) + refs/augment-poll.md
 Wave 2: Classify + re-grade       ← loads refs/severity-routing.md
 Wave 3: Verify-before-remediate   ← loads refs/finding-verify.md
 Wave 4: Diagnose + (L2+) fix      ← loads refs/troubleshoot-dispatch.md
@@ -87,7 +86,7 @@ Wave 7: Loop / terminate          ← loads refs/loop-guard.md
 ```
 
 - **Wave 0 (all ordinals):** resolve the target repo once (`REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"`, fallback parse `git remote get-url origin`) and the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`); open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."`; confirm `git remote -v` shows origin = `$REPO`; rebase if behind `origin/<base>`; verify the returned URL's `owner/repo` equals `$REPO` (a CLI that defaulted onto an upstream parent is a misroute → HALT). Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1). The `offer-pr-review.sh` hook may then mention `sc:pr-submit --monitor`.
-- **Wave 1 (L1+):** load the locked contract via `superclaude.pr_submit.DetectionContract.for_arming()` — this prefers the **operator-local** locked override (gitignored `.dev/pr-monitor/detection-contract.locked.md`, populated by the R1 probe with this fork's real Augment values) and falls back to the SHIPPED `refs/detection-contract.md` (which stays `locked: false`). **Refuse to arm if no locked contract resolves** (T-210, "probe first"). On that `DetectionContractLocked` halt, call the read-only `superclaude.pr_submit.contract_setup.diagnose()` and `render_pr_submit_missing_contract_halt()` helpers to print structured readiness state, checked paths, blockers, and the approved next safe readiness command `superclaude reflect contract-status [--validate] --repo <owner/repo> --pr <number>`, then STOP before output-dir/run-log/baseline initialization or Monitor arming. If the diagnosis state is `ready`, the next command is to rerun/proceed with `/sc:pr-submit --monitor 1 --pr <number>` (using the existing PR number when known) or a higher monitor ordinal with PR context. If setup is declined by the user, preserve cancellation and do not imply setup continuation. The halt output MUST include exactly: `No monitor was armed. No comments, pushes, retries, resolves, or retriggers were performed.` `--monitor 0` remains no-monitor, and no diagnosis/readiness path writes a lock, arms a monitor, pushes, replies, resolves, retriggers, resumes, or mutates PR state by default. Only after a locked contract resolves should Wave 1 initialize the output-dir + run-log + baseline, then call the **`Monitor` tool** with the poll loop wrapping `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each emitted JSON line advances the FSM. Arm exactly once at L1+ (T-109); never at L0 (T-110).
+- **Wave 1 (L1+):** load the contract via `superclaude.pr_submit.DetectionContract.for_arming()` — prefers an optional operator-local override (gitignored `.dev/pr-monitor/detection-contract.locked.md`) and falls back to the SHIPPED `refs/detection-contract.md` (baked `augmentcode[bot]` / `augmentcode` defaults). A missing or unlocked override is not a halt. Initialize the output-dir + run-log + baseline, then call the **`Monitor` tool** with the poll loop wrapping `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each emitted JSON line advances the FSM. Arm exactly once at L1+ (T-109); never at L0 (T-110). `--monitor 0` remains no-monitor.
 - **Wave 2:** load `refs/severity-routing.md`; call `remap_severity(finding)` from `superclaude.pr_submit` and map the remapped tier to its troubleshoot route (Medium → `--fix`; High/Critical → `--depth deep --fix`; Low/Nit → report-only). NEVER emit `--depth quick --fix`.
 - **Wave 3:** load `refs/finding-verify.md`; spawn the `evidence-validator` agent (read-only) to confirm each finding's cited file:line exists and the defect reproduces. `unverified` → REPORT_ONLY, consuming NO round.
 - **Wave 4:** load `refs/troubleshoot-dispatch.md`; for VERIFIED findings only, `> Skill sc:troubleshoot-protocol` for diagnosis. **At L1 (G-edit `ordinal < 2`): PROPOSE "fix these? y/n" and apply NO edits.** At L2+ the skill applies the diagnosed edits ITSELF in the working tree (troubleshoot does NOT auto-apply — `sc:pr-submit` owns edit application in `S3_FIXING`).
@@ -121,7 +120,7 @@ A validation retry does NOT increment `round_counter`.
 
 - Run headless / detached, or imply a background daemon (V1 limitation).
 - Push to an upstream parent remote or to the repo's default/protected branch; open a PR against an upstream parent the CLI might default to.
-- Auto-lock `detection-contract.md` or hard-guess the Augment bot login.
+- Require a local lock file or R1 probe before arming.
 - Emit `--depth quick --fix` to troubleshoot (a STOP conflict).
 - Apply any edit at L1, or push/reply at L2.
 - `git add` any `.claude/` path except `.claude/settings.json`.
@@ -130,7 +129,6 @@ A validation retry does NOT increment `round_counter`.
 
 | Scenario | Behavior |
 |----------|----------|
-| `detection-contract.md` `locked:false` | HALT at arm with "probe first" (T-210). |
 | Wrong origin / behind base branch / wrong-owner URL | HALT; instruct operator to close the misrouted PR (FM-11). |
 | Review never arrives | `terminal_timeout`; no edits/push. |
 | 403 / 429 / secondary-limit | exponential backoff 30→…→cap 300s, counts toward timeout. |

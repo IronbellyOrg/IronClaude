@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 from superclaude.pr_submit.classifier import classify
-from superclaude.pr_submit.detection import DetectionContract, DetectionContractLocked
+from superclaude.pr_submit.detection import DetectionContract
 from superclaude.pr_submit.fsm import (
     RunConfig,
     is_groundable,
@@ -203,11 +203,11 @@ def test_ec10_non_augment_interleaved_human_ignored():
     )
 
 
-def test_ec11_contract_locked_false_halts_probe():
-    """EC-11 (= T-210): contract locked:false/absent → HALT directing the operator to probe first."""
-    with pytest.raises(DetectionContractLocked) as exc:
-        DetectionContract.load()
-    assert "probe" in str(exc.value).lower()
+def test_ec11_shipped_contract_loads_without_probe():
+    """EC-11: shipped contract loads without a lock file or R1 probe."""
+    contract = DetectionContract.load()
+    assert contract.augment_bot_login == "augmentcode[bot]"
+    assert contract.augment_app_slug == "augmentcode"
 
 
 def test_ec12_review_disappears_transient_no_round():

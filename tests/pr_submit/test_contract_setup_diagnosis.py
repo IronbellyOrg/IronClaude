@@ -9,16 +9,15 @@ and the ``declined_by_user`` cancellation state. Also pins that:
 - ``next_command`` values are current and actionable (missing → the
   ``superclaude reflect contract-status`` setup command; validation-family →
   the ``--validate`` variant; ready → ``/sc:pr-submit --monitor 1``),
-- shipped-only fail-closed behavior: with no local override, ``diagnose`` never
-  reports the shipped ``locked:false`` source as ``ready`` — it reports
-  ``missing``,
+- shipped-only behavior: with no local override, ``diagnose`` never
+  reports the shipped source as ``ready`` — it reports ``missing``,
 - ``Diagnosis.summary()`` never leaks raw payload bodies.
 
 Every ``diagnose(...)`` call passes an explicit ``cwd=tmp_path`` so the local
 override is resolved under the temp tree and the real
 ``.dev/pr-monitor/`` tree is never touched. These tests do NOT duplicate or
-weaken ``test_detection_contract.py::test_t210_locked_false_halts`` — that
-loader arm-gate regression is intentionally left to that module.
+weaken ``test_detection_contract.py::test_t210_shipped_contract_arms_without_lock`` — that
+loader path is intentionally left to that module.
 """
 
 from __future__ import annotations
@@ -110,15 +109,16 @@ def test_missing_when_no_local_override(tmp_path):
     )
 
 
-def test_missing_never_reports_shipped_locked_false_as_ready(tmp_path):
-    """Fail-closed: the shipped source ships locked:false; with no local override
-    diagnose must NOT classify it as ready — it is MISSING. This is the diagnosis
-    sibling of the T-210 loader arm-gate (which we leave to test_detection_contract)."""
+def test_missing_never_reports_shipped_as_ready(tmp_path):
+    """Diagnose READY still requires a local override; shipped defaults are not 'ready'.
+
+    Arming uses the shipped contract without an override; diagnose() reports lock-file
+    readiness, not armability.
+    """
     d = diagnose(cwd=tmp_path)
     assert d.state is ContractState.MISSING
     assert d.state is not ContractState.READY
-    # The shipped contract's locked flag is surfaced but never armable via diagnose.
-    assert d.shipped_locked is False
+    assert d.shipped_locked is True
     # Placeholder next command (no repo/pr supplied).
     assert (
         d.next_command

@@ -5,9 +5,8 @@ These tests prove the fail-closed seam between the read-only contract-readiness
 diagnosis (``diagnose`` / ``render_pr_submit_missing_contract_halt``) and the
 armed monitor FSM (``run_skill``):
 
-1. On a missing/unlocked contract, ``DetectionContract.for_arming()`` raises
-   ``DetectionContractLocked`` BEFORE any monitor arm — the recorder seam proves
-   the arm count is zero (T-210 fail-closed gate; same recorder pattern as
+1. On a missing/unlocked override, ``DetectionContract.for_arming()`` returns the
+   shipped baked-identity contract and the FSM can arm (same recorder pattern as
    ``test_monitor_arm.py`` / ``test_autonomy_gates.py``).
 2. The missing-contract halt renderer emits the EXACT no-side-effect sentence.
 3. ``--monitor 0`` remains the open-PR-only opt-out: never arms, never leaves
@@ -29,18 +28,13 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import pytest
-
 from superclaude.pr_submit import detection
 from superclaude.pr_submit.contract_setup import ContractState
 from superclaude.pr_submit.contract_setup.diagnosis import (
     diagnose,
     render_pr_submit_missing_contract_halt,
 )
-from superclaude.pr_submit.detection import (
-    DetectionContract,
-    DetectionContractLocked,
-)
+from superclaude.pr_submit.detection import DetectionContract
 from superclaude.pr_submit.fsm import RunConfig, run_skill
 from superclaude.pr_submit.models import MonitorState
 
@@ -70,56 +64,42 @@ def _write_locked_override(path):
     )
 
 
-# --- 1. missing/unlocked contract → for_arming() HALTs before any arm ---------
+# --- 1. missing/unlocked override → for_arming() uses shipped identity --------
 
 
-def test_missing_contract_for_arming_halts_before_monitor_arm(tmp_path, monkeypatch):
-    """A missing locked override makes ``for_arming()`` HALT — and no monitor arms.
-
-    The arm seam is a recorder threaded through ``run_skill`` the SAME way as
-    ``test_monitor_arm.py``. Because ``for_arming()`` raises BEFORE ``run_skill``
-    is ever reached, the arm count is provably zero (fail-closed, T-210).
-    """
-    # Point the override at an absent path → for_arming() falls back to the shipped
-    # source (locked:false) and HALTs.
+def test_missing_override_for_arming_uses_shipped_and_can_arm(tmp_path, monkeypatch):
+    """A missing local override makes ``for_arming()`` return shipped identity — FSM can arm."""
     monkeypatch.setattr(
         detection, "_LOCAL_OVERRIDE_PATH", tmp_path / "absent.locked.md"
     )
     arm_recorder = _Recorder()
 
-    armed = False
-    with pytest.raises(DetectionContractLocked):
-        contract = DetectionContract.for_arming()  # HALTs here — arm never reached.
-        # Unreachable: only if a contract loaded would the FSM arm.
-        run_skill(
-            RunConfig(
-                monitor_ordinal=1,
-                arm_monitor=arm_recorder,
-                review_state="polling",
-                pr_number=42,
-            )
+    contract = DetectionContract.for_arming()
+    assert contract.augment_bot_login == "augmentcode[bot]"
+
+    run_skill(
+        RunConfig(
+            monitor_ordinal=1,
+            arm_monitor=arm_recorder,
+            review_state="polling",
+            pr_number=42,
         )
-        armed = contract.locked
-
-    assert armed is False
-    # The arm gate is DOWNSTREAM of the raised lock gate → zero arms.
-    assert arm_recorder.calls == 0
+    )
+    assert arm_recorder.calls == 1
 
 
-def test_unlocked_local_override_for_arming_halts(tmp_path, monkeypatch):
-    """An explicit ``locked:false`` local override still HALTs ``for_arming()`` (no arm)."""
+def test_unlocked_local_override_for_arming_still_loads(tmp_path, monkeypatch):
+    """An explicit ``locked:false`` local override still loads (lock flag is not a gate)."""
     override = tmp_path / "detection-contract.locked.md"
     override.write_text(
         '# local\n\n```yaml\naugment_bot_login: "augmentcode[bot]"\nlocked: false\n```\n',
         encoding="utf-8",
     )
     monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
-    arm_recorder = _Recorder()
 
-    with pytest.raises(DetectionContractLocked):
-        DetectionContract.for_arming()
-
-    assert arm_recorder.calls == 0
+    armed = DetectionContract.for_arming()
+    assert armed.augment_bot_login == "augmentcode[bot]"
+    assert armed.locked is False
 
 
 # --- 2. exact no-side-effect halt sentence ------------------------------------
@@ -158,22 +138,19 @@ def test_monitor_zero_never_arms_and_stays_idle():
 
 
 def test_post_lock_for_arming_returns_locked_contract(tmp_path, monkeypatch):
-    """With a valid locked override present, ``for_arming()`` returns a locked contract.
+    """With a valid locked override present, ``for_arming()`` prefers it.
 
-    Proves the existing arming path still works once a lock exists — the default
-    ``load()`` still HALTs on the shipped source (T-210 unaffected), while the arm
-    path prefers the override. Mirrors
+    Default ``load()`` still returns the shipped baked-identity contract (override
+    is arm-path only). Mirrors
     ``test_local_override_arms_without_touching_shipped_source``.
     """
     override = tmp_path / "detection-contract.locked.md"
     _write_locked_override(override)
     monkeypatch.setattr(detection, "_LOCAL_OVERRIDE_PATH", override)
 
-    # Default load() ignores the override → shipped source (locked:false) → HALT.
-    with pytest.raises(DetectionContractLocked):
-        DetectionContract.load()
+    shipped = DetectionContract.load()
+    assert shipped.augment_bot_login == "augmentcode[bot]"
 
-    # The arm path prefers the override → locked:true with the real bot login.
     armed = DetectionContract.for_arming()
     assert armed.locked is True
     assert armed.augment_bot_login == "augmentcode[bot]"
