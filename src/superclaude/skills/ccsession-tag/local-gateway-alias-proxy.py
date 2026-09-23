@@ -157,6 +157,9 @@ REMOVE = {
     "grok-4.5",
     "grok-4.6",
     "grok-4.7-build-fast",
+    "muse-spark-1.1",
+    "muse-spark-1.2-contributor",
+    "muse-spark-1.3-contributor",
     # Dead / not served (404).
     "claude-3-5-haiku-20241022",
     "claude-3-7-sonnet-20250219",
@@ -179,6 +182,8 @@ REMOVE = {
 PINNED = [  # shown first, in exactly this order (real upstream ids)
     "claude-opus-5-5",
     "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna",
     "gpt-5.6-sol",
     "gpt-5.6-luna",
     "gpt-5.6-terra",
@@ -200,6 +205,8 @@ ONE_MILLION_CONTEXT = {
     "claude-fable-5-1",
     "claude-opus-5-5",
     "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna",
     "gpt-5.6-sol",
     "gpt-5.6-luna",
     "gpt-5.6-terra",

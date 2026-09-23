@@ -141,19 +141,20 @@ A profile decides which model a session starts on and how much conversation it
 holds before Claude Code trims it.
 
 ```bash
-ccsession notes --profile gpt1 --shim
+ccsession notes --profile 6astra --shim
 ```
 
 | Profile | Starts on | Holds | Needs `--shim` |
 |---|---|---|---|
 | `claude` | Opus 5.5, large-window version | 1,000,000 | no |
-| `gpt` | GPT 5.6 Sol | 850,000 | yes |
-| `gpt1` | GPT 6 Astra | 850,000 | yes |
+| `5.6sol` | GPT 5.6 Sol | 850,000 | yes |
+| `6astra` | GPT 6 Astra | 850,000 | yes |
+| `6sol` | GPT 6 Sol | 850,000 | yes |
 | `grok` | Grok 4.7 | 500,000 | yes |
 | `muse` | Muse Spark 1.3 | 950,000 | yes |
 
-Older names `1mm`, `372k`, and `500k` still work and mean `claude`, `gpt`, and
-`grok`. With `--shim`, ccsession saves the complete curated model list before
+Older names `1mm`, `372k`, and `500k` still work and mean `claude`, `5.6sol`,
+and `grok`. With `--shim`, ccsession saves the complete curated model list before
 Claude Code starts, so every profile shows the same gateway models in `/model`.
 
 To add your own, copy a block in the `apply_profile` section of `ccsession` and

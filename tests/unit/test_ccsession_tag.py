@@ -70,9 +70,10 @@ def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
     expected = {
         "claude": ("claude-opus-5-5[1m]", "1000000", "1000000", ""),
         "1mm": ("claude-opus-5-5[1m]", "1000000", "1000000", ""),
-        "gpt": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
+        "5.6sol": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
         "372k": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
-        "gpt1": ("gpt-6-astra", "850000", "850000", "gpt-6-astra"),
+        "6astra": ("gpt-6-astra", "850000", "850000", "gpt-6-astra"),
+        "6sol": ("gpt-6-sol", "850000", "850000", "gpt-6-sol"),
         "grok": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "500k": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "muse": ("muse-spark-1.3", "950000", "950000", "muse-spark-1.3"),
@@ -94,12 +95,29 @@ def test_help_lists_all_commands_and_profiles() -> None:
     for expected in (
         "--profile claude",
         "--profile muse",
-        "--profile gpt1",
+        "--profile 5.6sol",
+        "--profile 6astra",
+        "--profile 6sol",
         "--list",
         "--here",
         "--rm",
     ):
         assert expected in result.stdout
+
+
+def test_renamed_profiles_are_rejected(tmp_path: Path) -> None:
+    env = os.environ.copy()
+    env["HOME"] = str(tmp_path)
+    for profile in ("gpt", "gpt1"):
+        result = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "--profile", profile],
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        assert result.returncode == 2
+        assert f"unknown profile '{profile}'" in result.stderr
 
 
 def test_profile_warms_complete_gateway_cache_before_claude_starts(
@@ -281,7 +299,7 @@ def test_gateway_profile_requires_shim(tmp_path: Path) -> None:
     env = os.environ.copy()
     env["HOME"] = str(home)
     result = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), "--profile", "gpt1"],
+        [str(SKILL_DIR / "ccsession"), "--profile", "6astra"],
         env=env,
         text=True,
         capture_output=True,
@@ -315,7 +333,7 @@ def test_shim_refuses_an_unrelated_listener(tmp_path: Path) -> None:
         }
     )
     result = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), "--profile", "gpt1", "--shim"],
+        [str(SKILL_DIR / "ccsession"), "--profile", "6astra", "--shim"],
         env=env,
         text=True,
         capture_output=True,
@@ -335,6 +353,8 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
             {"id": "gpt-5.6-luna"},
             {"id": "gpt-5.6-terra"},
             {"id": "gpt-6-astra"},
+            {"id": "gpt-6-sol"},
+            {"id": "gpt-6-luna"},
             {"id": "gpt-image-2.5"},
             {"id": "kimi-k3"},
             {"id": "kimi-k2.8"},
@@ -350,6 +370,9 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
             {"id": "grok-imagine-image-2.0"},
             {"id": "muse-spark-1.2"},
             {"id": "muse-spark-1.3"},
+            {"id": "muse-spark-1.1"},
+            {"id": "muse-spark-1.2-contributor"},
+            {"id": "muse-spark-1.3-contributor"},
             {"id": "Qwen/Qwen3-Max"},
             {"id": "Qwen3.8-max"},
             {"id": "gpt-image-2.5-sunburst"},
@@ -361,9 +384,11 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
     ids = [model["id"] for model in models]
     aliases = module["alias_to_real"]
 
-    assert ids[:9] == [
+    assert ids[:11] == [
         "claude-opus-5-5[1m]",
         "claude-gw-gpt-6-astra[1m]",
+        "claude-gw-gpt-6-sol[1m]",
+        "claude-gw-gpt-6-luna[1m]",
         "claude-gw-gpt-5.6-sol[1m]",
         "claude-gw-gpt-5.6-luna[1m]",
         "claude-gw-gpt-5.6-terra[1m]",
@@ -387,9 +412,14 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
         "claude-gw-glm-5.2",
         "claude-gw-grok-4.6",
         "claude-gw-grok-4.7-build-fast",
+        "claude-gw-muse-spark-1.1",
+        "claude-gw-muse-spark-1.2-contributor",
+        "claude-gw-muse-spark-1.3-contributor",
     ):
         assert hidden not in ids
     assert aliases["claude-gw-gpt-6-astra"] == "gpt-6-astra"
+    assert aliases["claude-gw-gpt-6-sol"] == "gpt-6-sol"
+    assert aliases["claude-gw-gpt-6-luna"] == "gpt-6-luna"
     assert aliases["claude-gw-gpt-5.6-sol"] == "gpt-5.6-sol"
     assert aliases["claude-gw-muse-spark-1.3"] == "muse-spark-1.3"
     assert not any(alias.endswith("[1m]") for alias in aliases)
