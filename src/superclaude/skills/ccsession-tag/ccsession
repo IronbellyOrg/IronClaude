@@ -11,9 +11,11 @@
 #                             enables gateway model discovery)
 #   ccsession --shim          Start an untagged session routed through the shim
 #   ccsession --profile claude
-#                             Start untagged with Opus 5 and 1M context
+#                             Start untagged with Opus 5.5 and 1M context
 #   ccsession --profile grok --shim
 #                             Start untagged with Grok 4.7 and 500K context
+#   ccsession --profile muse --shim
+#                             Start untagged with Muse Spark 1.3 and 950K context
 #   ccsession --profile gpt --shim
 #                             Start untagged with GPT 5.6 Sol and 850K context
 #   ccsession --profile gpt1 --shim
@@ -220,9 +222,9 @@ apply_profile() {
 
   case "$PROFILE" in
     claude|1mm)
-      # Plain "claude-opus-5" is the 200K row; the 1M window is a separate
+      # Plain "claude-opus-5-5" is the 200K row; the 1M window is a separate
       # model name. Without the suffix the context override below is ignored.
-      PROFILE_MODEL="claude-opus-5[1m]"
+      PROFILE_MODEL="claude-opus-5-5[1m]"
       PROFILE_CONTEXT="1000000"
       PROFILE_COMPACT_WINDOW="1000000"
       PROFILE_REQUIRES_SHIM=0
@@ -231,6 +233,12 @@ apply_profile() {
       PROFILE_MODEL="grok-4.7"
       PROFILE_CONTEXT="500000"
       PROFILE_COMPACT_WINDOW="500000"
+      PROFILE_REQUIRES_SHIM=1
+      ;;
+    muse)
+      PROFILE_MODEL="muse-spark-1.3"
+      PROFILE_CONTEXT="950000"
+      PROFILE_COMPACT_WINDOW="950000"
       PROFILE_REQUIRES_SHIM=1
       ;;
     gpt1)
@@ -250,7 +258,7 @@ apply_profile() {
       ;;
     *)
       echo "ccsession: unknown profile '$PROFILE'" >&2
-      echo "Valid profiles: claude, grok, gpt, gpt1 (legacy aliases: 1mm, 500k, 372k)" >&2
+      echo "Valid profiles: claude, grok, muse, gpt, gpt1 (legacy aliases: 1mm, 500k, 372k)" >&2
       exit 2
       ;;
   esac
@@ -467,7 +475,7 @@ list_sessions() {
 
 case "${1:-}" in
   -h|--help)
-    sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'
+    awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
     exit 0
     ;;
   --list)
@@ -497,7 +505,7 @@ esac
 # Preserve the original no-argument help behavior only when nothing at all
 # was selected (no topic, no profile, no shim).
 if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ "$USE_SHIM" != 1 ]; then
-  sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'
+  awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
   exit 0
 fi
 
