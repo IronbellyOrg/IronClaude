@@ -154,6 +154,7 @@ REMOVE = {
     "grok-4.20-multi-agent-0309",
     "grok-4.3",
     "grok-4.5",
+    "grok-4.6",
     # Dead / not served (404).
     "claude-3-5-haiku-20241022",
     "claude-3-7-sonnet-20250219",
@@ -178,7 +179,7 @@ PINNED = [  # shown first, in exactly this order (real upstream ids)
     "gpt-5.6-sol",
     "gpt-5.6-luna",
     "gpt-5.6-terra",
-    "grok-4.6",
+    "grok-4.7",
     "kimi-k3",
     "Qwen/Qwen3-Max",
 ]
@@ -217,7 +218,7 @@ DISPLAY_OVERRIDES = {  # exact picker labels for the pinned models
     "gpt-5.6-sol": "GPT 5.6 Sol",
     "gpt-5.6-luna": "GPT 5.6 Luna",
     "gpt-5.6-terra": "GPT 5.6 Terra",
-    "grok-4.6": "Grok 4.6",
+    "grok-4.7": "Grok 4.7",
     "glm-5.2": "GLM 5.2",
     "kimi-k3": "Kimi K3",
     "Qwen/Qwen3-Max": "Qwen3 Max",

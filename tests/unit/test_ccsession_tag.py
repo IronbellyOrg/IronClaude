@@ -73,8 +73,8 @@ def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
         "gpt": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
         "372k": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
         "gpt1": ("gpt-6-astra", "850000", "850000", "gpt-6-astra"),
-        "grok": ("grok-4.6", "500000", "500000", "grok-4.6"),
-        "500k": ("grok-4.6", "500000", "500000", "grok-4.6"),
+        "grok": ("grok-4.7", "500000", "500000", "grok-4.7"),
+        "500k": ("grok-4.7", "500000", "500000", "grok-4.7"),
     }
     for profile, wanted in expected.items():
         result = _profile_result(
@@ -332,6 +332,7 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
             {"id": "glm-5.2"},
             {"id": "glm-5.3"},
             {"id": "claude-fable-5-1"},
+            {"id": "grok-4.7"},
             {"id": "grok-4.6"},
             {"id": "Qwen3.8-max"},
             {"id": "gpt-5.5"},
@@ -348,9 +349,15 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
     assert "claude-gw-kimi-k3[1m]" in ids
     assert "claude-gw-glm-5.3[1m]" in ids
     assert "claude-fable-5-1[1m]" in ids
-    assert "claude-gw-grok-4.6" in ids
+    assert "claude-gw-grok-4.7" in ids
     assert "claude-gw-qwen3.8-max[1m]" in ids
-    for hidden in ("gpt-5.5", "kimi-k2.8", "kimi-k2.8-code", "glm-5.2"):
+    for hidden in (
+        "gpt-5.5",
+        "kimi-k2.8",
+        "kimi-k2.8-code",
+        "glm-5.2",
+        "grok-4.6",
+    ):
         assert all(hidden not in model_id for model_id in ids)
     assert aliases["claude-gw-gpt-6-astra"] == "gpt-6-astra"
     assert aliases["claude-gw-gpt-5.6-sol"] == "gpt-5.6-sol"

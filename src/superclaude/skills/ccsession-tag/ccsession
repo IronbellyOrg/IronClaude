@@ -13,7 +13,7 @@
 #   ccsession --profile claude
 #                             Start untagged with Opus 5 and 1M context
 #   ccsession --profile grok --shim
-#                             Start untagged with Grok 4.6 and 500K context
+#                             Start untagged with Grok 4.7 and 500K context
 #   ccsession --profile gpt --shim
 #                             Start untagged with GPT 5.6 Sol and 850K context
 #   ccsession --profile gpt1 --shim
@@ -228,7 +228,7 @@ apply_profile() {
       PROFILE_REQUIRES_SHIM=0
       ;;
     grok|500k)
-      PROFILE_MODEL="grok-4.6"
+      PROFILE_MODEL="grok-4.7"
       PROFILE_CONTEXT="500000"
       PROFILE_COMPACT_WINDOW="500000"
       PROFILE_REQUIRES_SHIM=1

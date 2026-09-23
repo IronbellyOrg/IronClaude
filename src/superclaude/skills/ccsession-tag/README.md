@@ -149,7 +149,7 @@ ccsession notes --profile gpt1 --shim
 | `claude` | Opus 5, large-window version | 1,000,000 | no |
 | `gpt` | GPT 5.6 Sol | 850,000 | yes |
 | `gpt1` | GPT 6 Astra | 850,000 | yes |
-| `grok` | Grok 4.6 | 500,000 | yes |
+| `grok` | Grok 4.7 | 500,000 | yes |
 
 Older names `1mm`, `372k`, and `500k` still work and mean `claude`, `gpt`, and
 `grok`. With `--shim`, ccsession saves the complete curated model list before
