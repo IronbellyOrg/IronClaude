@@ -1,127 +1,139 @@
 ---
 name: implement
-description: "Feature and code implementation with intelligent persona activation and MCP integration"
+description: "Middleweight spec executor — walk a spec/PRD/tasklist, per-task spec-compliance QA, one-line ledger"
 category: workflow
 complexity: standard
-mcp-servers: [context7, sequential, magic, playwright]
-personas: [architect, frontend, backend, security, qa-specialist]
+argument-hint: "<path-or-prompt> [--resume] [--ledger <path>] [--skip-final-review]"
 ---
 
-# /sc:implement - Feature Implementation
+# /sc:implement — Middleweight Spec Executor
 
-> **Context Framework Note**: This behavioral instruction activates when Claude Code users type `/sc:implement` patterns. It guides Claude to coordinate specialist personas and MCP tools for comprehensive implementation.
+Walk a spec, PRD, tasklist, informal writeup, or inline prompt. After each task, verify that task against its acceptance criteria (the source itself, when informal). Lint and tests are extras, never the pass/fail.
 
 ## Triggers
 
-- Feature development requests for components, APIs, or complete functionality
-- Code implementation needs with framework-specific requirements
-- Multi-domain development requiring coordinated expertise
-- Implementation projects requiring testing and validation integration
+**Explicit only.** Activates only when:
 
-## Context Trigger Pattern
+1. The user types `/sc:implement ...`
+2. Another `/sc:*` command invokes `Skill sc:implement-protocol` with a path or prompt
+
+Does not auto-activate from conversational "implement this" without this command.
+
+## Required Input
+
+**MANDATORY**: a source — one of:
+
+- An existing file: spec, PRD, tasklist, or informal markdown/prose
+- Inline prompt / general instructions in `$ARGUMENTS` (no file)
+
+**STOP** if both are missing (bare `/sc:implement`) or the invocation uses removed flags. Informal prose and prompts are valid sources; they become one task whose AC is the source text.
 
 ```
-/sc:implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
+Usage: /sc:implement <path-to-spec|prd|tasklist|notes> | /sc:implement <prompt>
+STOP: need a source (file or prompt). Will not invent scope beyond that source.
 ```
 
-**Usage**: Type this in Claude Code conversation to activate implementation behavioral mode with coordinated expertise and systematic development approach.
+## Usage
+
+```bash
+/sc:implement <path>
+/sc:implement --spec <path>
+/sc:implement --prd <path>
+/sc:implement --tasklist <path>
+/sc:implement Add logout to the header and wire it to /logout
+/sc:implement <path> --resume
+/sc:implement <path> --ledger <ledger-path>
+/sc:implement <path> --skip-final-review
+```
+
+`--spec`, `--prd`, `--tasklist` are aliases for one file. A non-path remainder is an inline prompt.
+
+## Options
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `<path>` / `--spec` / `--prd` / `--tasklist` | one of path or prompt | Existing file (formal or informal) |
+| `<prompt>` | one of path or prompt | Inline instructions; persisted under `.dev/implement/<slug>/source.md` |
+| `--resume` | implicit if a matching ledger exists | Continue from first non-complete task |
+| `--ledger <path>` | `.dev/implement/<slug>/progress.md` | Override; MUST live under `.dev/implement/` |
+| `--skip-final-review` | off | Skip the N>1 whole-list pass |
+
+Banned tokens (STOP `E-LEGACY`, even if a path is also present): the four removed flags named in the protocol skill STOP table. Pass a spec path instead.
 
 ## Behavioral Flow
 
-1. **Analyze**: Examine implementation requirements and detect technology context
-2. **Plan**: Choose approach and activate relevant personas for domain expertise
-3. **Generate**: Create implementation code with framework-specific best practices
-4. **Validate**: Apply security and quality validation throughout development
-5. **Integrate**: Update documentation and provide testing recommendations
+The command file performs only:
 
-Key behaviors:
+1. Parse `$ARGUMENTS` → one source path, or leftover text as prompt, + optional flags
+2. STOP on empty invocation / banned grammar (usage above)
+3. Hand off via Activation
+4. On skill return, print the ledger path
 
-- Context-based persona activation (architect, frontend, backend, security, qa)
-- Framework-specific implementation via Context7 and Magic MCP integration
-- Systematic multi-component coordination via Sequential MCP
-- Comprehensive testing integration with Playwright for validation
+## Activation
 
-## MCP Integration
+**MANDATORY**: Before executing any protocol steps, invoke:
+> Skill sc:implement-protocol
 
-- **Context7 MCP**: Framework patterns and official documentation for React, Vue, Angular, Express
-- **Magic MCP**: Auto-activated for UI component generation and design system integration
-- **Sequential MCP**: Complex multi-step analysis and implementation planning
-- **Playwright MCP**: Testing validation and quality assurance integration
-
-## Tool Coordination
-
-- **Write/Edit/MultiEdit**: Code generation and modification for implementation
-- **Read/Grep/Glob**: Project analysis and pattern detection for consistency
-- **TodoWrite**: Progress tracking for complex multi-file implementations
-- **Task**: Delegation for large-scale feature development requiring systematic coordination
-
-## Key Patterns
-
-- **Context Detection**: Framework/tech stack → appropriate persona and MCP activation
-- **Implementation Flow**: Requirements → code generation → validation → integration
-- **Multi-Persona Coordination**: Frontend + Backend + Security → comprehensive solutions
-- **Quality Integration**: Implementation → testing → documentation → validation
+Do NOT proceed with protocol execution using only this command file.
+The full behavioral specification is in the protocol skill at
+`src/superclaude/skills/sc-implement-protocol/SKILL.md`.
 
 ## Examples
 
-### React Component Implementation
+### STOP — empty
 
-```
-/sc:implement user profile component --type component --framework react
-# Magic MCP generates UI component with design system integration
-# Frontend persona ensures best practices and accessibility
-```
-
-### API Service Implementation
-
-```
-/sc:implement user authentication API --type api --safe --with-tests
-# Backend persona handles server-side logic and data processing
-# Security persona ensures authentication best practices
+```text
+/sc:implement
+# E-NO-SOURCE. No product writes. No ledger.
 ```
 
-### Full-Stack Feature
+### Inline prompt
 
-```
-/sc:implement payment processing system --type feature --with-tests
-# Multi-persona coordination: architect, frontend, backend, security
-# Sequential MCP breaks down complex implementation steps
+```text
+/sc:implement Add logout to the header and wire it to /logout
+# Persist source.md, one task, spec-compliance vs that prompt.
 ```
 
-### Framework-Specific Implementation
+### One-task spec
 
+```text
+/sc:implement --spec docs/specs/logout.md
+# Enumerate T1, implement, spec-compliance QA, extras, ledger line.
 ```
-/sc:implement dashboard widget --framework vue
-# Context7 MCP provides Vue-specific patterns and documentation
-# Framework-appropriate implementation with official best practices
+
+### Resume a tasklist
+
+```text
+/sc:implement .dev/plans/auth-tasklist.md --resume
+# First task whose latest ledger status is not complete.
 ```
 
 ## Boundaries
 
 **Will:**
 
-- Implement features with intelligent persona activation and MCP coordination
-- Apply framework-specific best practices and security validation
-- Provide comprehensive implementation with testing and documentation integration
+- Execute enumerable tasks from a spec, PRD, tasklist, informal notes, or inline prompt
+- Per-task spec-compliance QA against that task's AC (the source text, when informal)
+- Record one ledger at `.dev/implement/<slug>/progress.md`
+- Run lint/typecheck/tests when present and record them as extras
 
 **Will Not:**
 
-- Make architectural decisions without appropriate persona consultation
-- Implement features conflicting with security policies or architectural constraints
-- Override user-specified safety constraints or bypass quality gates
+- Invent scope beyond the given source
+- Treat a bare `/sc:implement` with no path and no prompt as a source
+- Treat lint or tests as the pass/fail
+- Invoke `/task` or `/sc:task`
+- Import MDTM F1, 6-agent phase gates, or `/sc:reflect` as the per-task gate
+- Auto-commit
 
-## COMPLETION CRITERIA
+## Related Commands
 
-**Implementation is DONE when**:
+| Command | When |
+|---------|------|
+| `/sc:brainstorm` / `/sc:workflow` / `/sc:tasklist` | Produce the spec this command consumes |
+| `/task` | MDTM F1 executor — different job; operator types it themselves |
+| `/sc:test` / `/sc:git` | Optional after the ledger is complete; not gates |
 
-- Feature code is written and compiles
-- Basic functionality verified
-- Files saved and ready for testing
+## Completion
 
-**Post-Implementation Checklist**:
-
-1. Code compiles without errors
-2. Basic functionality works
-3. Ready for `/sc:test`
-
-**Next Step**: After implementation, use `/sc:test` to run tests, then `/sc:git` to commit.
+The run is done when every enumerable task has a `complete` ledger line (verdict `compliant`, or non-compliant plus an operator `Ruling:`). Suggest `/sc:test` and `/sc:git` only as optional next steps.
