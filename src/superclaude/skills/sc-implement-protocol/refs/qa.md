@@ -6,7 +6,7 @@ Loaded for Q3–Q5. Do not load reflect-protocol. Do not re-run the full test su
 
 Do not trust the implementer's report.
 
-Input is the task brief (Ti text + AC ids + global constraints) and the diff (`git diff "$start"` vs the Q0 snapshot, or tool-trace paths if `nogit`). Not "the tests passed".
+Input is the task brief (Ti text + AC ids + global constraints) and the diff (`git diff "$start"` vs the Q0 snapshot, plus full contents of untracked files in the touched set, or tool-trace paths if `nogit`). Not "the tests passed". An empty git diff with new untracked writes is not `cannot-verify`.
 
 One reviewer vs the brief. Never 2+ reviewer agents per task. No Part 2 code-quality ensemble. No `/sc:reflect`. No 6-agent panel.
 

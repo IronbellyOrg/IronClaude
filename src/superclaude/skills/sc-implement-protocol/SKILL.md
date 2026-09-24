@@ -46,17 +46,17 @@ E-LEGACY copy: `Removed flags: --type/--framework/--safe/--with-tests. Pass a sp
    - One path under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` → STOP `E-NO-SOURCE`.
    - One path that is a directory or missing → STOP `E-SOURCE-MISSING` citing the path.
    - One existing file → use it.
-   - No path, leftover non-flag text → **inline prompt**. Compute `<slug>` from the first 40 slug-chars of the prompt (non-`[a-z0-9_-]` → `-`, or `prompt` if empty). Persist the prompt to `.dev/implement/<slug>/source.md` **before** any product edit. That file is the source path for the ledger header. Do not invent extra tasks or extra scope.
+   - No path, leftover non-flag text → **inline prompt**. Compute `<slug>` as `{prefix}-{hash8}`: `prefix` = first 24 slug-chars of the prompt (non-`[a-z0-9_-]` → `-`, or `prompt` if empty); `hash8` = first 8 hex chars of SHA-256 of the **full** prompt. Distinct prompts never share a directory. Persist to `.dev/implement/<slug>/source.md` **before** any product edit. That file is the source path for the ledger header. Do not invent extra tasks or extra scope.
    - No path and no leftover text → STOP `E-NO-SOURCE`.
 4. Read the source file. Enumerate tasks (below). If zero enumerable items and the file has non-whitespace text → **T1 = the whole document** (informal spec / prompt). If the file is empty/whitespace → STOP `E-NO-TASKS`.
-5. Resolve ledger path (default `.dev/implement/<slug>/progress.md`). For an existing file, `<slug>` = basename without extension, lowercased, non-`[a-z0-9_-]` → `-`, max 64. For an inline prompt, reuse the `<slug>` computed in step 3 (the parent directory of `source.md`) — **not** the basename `source`. `--ledger` override MUST be under `.dev/implement/` else `E-LEDGER-PATH`.
+5. Resolve ledger path (default `.dev/implement/<slug>/progress.md`). For an existing file, `<slug>` = `{prefix}-{hash8}` where `prefix` is the basename without extension (slug-chars, max 24) and `hash8` is SHA-256 of the **absolute** path, first 8 hex chars — not basename alone (two `notes.md` files must not collide). For an inline prompt, reuse the `<slug>` computed in step 3 (the parent directory of `source.md`) — **not** the basename `source`. `--ledger` override MUST be under `.dev/implement/` else `E-LEDGER-PATH`.
 6. Open or create ledger (header first, before any product edit). Resume per `refs/ledger.md`. Truncated last line → `E-LEDGER-CORRUPT`.
 7. If N≥20 print **once**: `N tasks; compaction likely; ledger is the source of resume.` Do not STOP. Do not split.
 8. Optional auggie before significant edits; unavailability is a warning, not a STOP.
 
 ### Enumerable tasks
 
-A file is enumerable if **at least one** of these matches. Mix in document order → `T1..TN`. If the source already labels `T001` / `Task 3` uniquely, keep that label. Ids MUST NOT change on resume.
+A file is enumerable if **at least one** of these matches. Mix in document order → `T1..TN`. If the source already labels `T001` uniquely, keep `T001`. If it labels `Task 3` / `Task 3:` / `## Task 3`, normalize to `T3` (ledger ids are `T` + `[0-9A-Za-z.-]+` with **no spaces**). Never write a label that fails the ledger regex. Ids MUST NOT change on resume.
 
 1. Markdown task items: `- [ ]` or `- [x]` or `* [ ]`.
 2. Numbered items `1.` / `1)` under a heading, or `R-NNN` / `T-NNN` identifiers.
@@ -101,6 +101,7 @@ Q1 EXEC    Implement only that task. Touched files = Write/Edit paths for this t
            Drive-by files not implied by the AC are `extra`.
 Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
            Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
+           Untracked files in the touched set are part of the review package: for each such path, include the full new-file contents (`git diff --no-index -- /dev/null <file>` or Read the file). Do not `git add`. An empty `git diff` with new untracked writes is not `cannot-verify`.
 Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
              - For each Ti.ACk: met | unmet + citation
              - extra_scope: hunks not mapped to any AC / instruction

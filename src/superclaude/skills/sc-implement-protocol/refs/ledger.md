@@ -6,7 +6,7 @@ One markdown file per run. Append-only. UTF-8, `\n` endings, no wrapping of reco
 
 Default: `.dev/implement/<slug>/progress.md`
 
-- `<slug>` = basename of the source path without extension, lowercased, non-`[a-z0-9_-]` → `-`, trimmed, max 64 chars.
+- `<slug>` = `{prefix}-{hash8}` (see SKILL.md Wave 0 step 3/5): prefix from basename or prompt (max 24 slug-chars); hash8 from SHA-256 of the full prompt or absolute path. Same source resumes; distinct sources never share a directory.
 - Create the directory if missing.
 - `--ledger <path>` overrides. Must live under `.dev/implement/` or STOP `E-LEDGER-PATH`.
 - Not next to the spec. Not `.claude/`. Not `docs/generated/`.
