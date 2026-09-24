@@ -214,6 +214,10 @@ jobs:
         run: |
           uv pip install --system -e ".[dev]"
 
+      - name: Install native components
+        run: |
+          superclaude install
+
       - name: Run doctor command
         run: |
           superclaude doctor --verbose
