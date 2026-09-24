@@ -53,7 +53,9 @@ def test_classify_stale_head_is_polling(load_fixture):
 
 
 def test_is_human_gate():
-    assert is_human_gate({"name": "Mechanical-merge boundary touched", "bucket": "fail"})
+    assert is_human_gate(
+        {"name": "Mechanical-merge boundary touched", "bucket": "fail"}
+    )
     assert is_human_gate({"name": "x", "state": "ACTION_REQUIRED", "bucket": "fail"})
     assert is_human_gate({"name": "x", "bucket": "cancel"})
     assert not is_human_gate({"name": "Quick Test", "bucket": "fail"})
@@ -107,9 +109,48 @@ def test_human_gate_skipped_in_logs():
             {
                 "name": "Mechanical-merge boundary touched",
                 "bucket": "fail",
-                "link": "runs/1",
+                "link": "https://github.com/o/r/actions/runs/1",
             }
         ],
         {"1": log},
     )
     assert findings == []
+
+
+def test_log_for_does_not_match_run_id_prefix():
+    findings = findings_from_logs(
+        [
+            {
+                "name": "t",
+                "bucket": "fail",
+                "link": "https://github.com/o/r/actions/runs/12345",
+            }
+        ],
+        {
+            "1234": "tests/a.py:1: in test_a\n",
+            "12345": "tests/b.py:2: in test_b\n",
+        },
+    )
+    assert [f.path for f in findings] == ["tests/b.py"]
+    assert findings[0].line == 2
+
+
+def test_cap_is_per_run_not_global():
+    first = "".join(f"tests/a.py:{i}: in t\n" for i in range(1, 16))
+    findings = findings_from_logs(
+        [
+            {
+                "name": "one",
+                "bucket": "fail",
+                "link": "https://github.com/o/r/actions/runs/1",
+            },
+            {
+                "name": "two",
+                "bucket": "fail",
+                "link": "https://github.com/o/r/actions/runs/2",
+            },
+        ],
+        {"1": first, "2": "tests/b.py:1: in t\n"},
+    )
+    assert sum(1 for f in findings if f.path == "tests/a.py") == 10
+    assert any(f.path == "tests/b.py" and f.line == 1 for f in findings)

@@ -41,8 +41,13 @@ if [ -z "$PR_JSON" ]; then
 fi
 
 JSON_FIELDS="name,state,bucket,link,workflow"
-REQUIRED_JSON="$(gh pr checks "$PR" --repo "$REPO" --required --json "$JSON_FIELDS" 2>/dev/null || echo '[]')"
-ALL_JSON="$(gh pr checks "$PR" --repo "$REPO" --json "$JSON_FIELDS" 2>/dev/null || echo '[]')"
+# gh pr checks exits 8 on pending while still printing JSON. Do not `|| echo '[]'`
+# on the same stdout — that concatenates two arrays and breaks --argjson.
+REQUIRED_JSON="$(gh pr checks "$PR" --repo "$REPO" --required --json "$JSON_FIELDS" 2>/dev/null || true)"
+ALL_JSON="$(gh pr checks "$PR" --repo "$REPO" --json "$JSON_FIELDS" 2>/dev/null || true)"
+as_array() { printf '%s' "$1" | jq -c 'if type == "array" then . else [] end' 2>/dev/null || echo '[]'; }
+REQUIRED_JSON="$(as_array "$REQUIRED_JSON")"
+ALL_JSON="$(as_array "$ALL_JSON")"
 
 CHECKS_JSON="$(jq -nc --argjson req "$REQUIRED_JSON" --argjson all "$ALL_JSON" '
     if ($req | type == "array") and ($req | length) > 0 then $req

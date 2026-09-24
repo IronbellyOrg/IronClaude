@@ -14,6 +14,7 @@ from .models import Finding
 _MAX_FINDINGS = 10
 _RUFF_LINE = re.compile(r"(?m)^(?P<path>\S+\.py):(?P<line>\d+):\d+:\s+\S+")
 _PYTEST_LINE = re.compile(r"(?m)^(?P<path>\S+\.py):(?P<line>\d+):\s")
+_RUN_ID = re.compile(r"/actions/runs/(\d+)")
 _HUMAN_NAME = "boundary"
 
 
@@ -50,9 +51,7 @@ def is_human_gate(check: dict) -> bool:
     state = str(check.get("state", "")).lower()
     name = str(check.get("name") or check.get("workflow") or "")
     return (
-        bucket == "cancel"
-        or state == "action_required"
-        or _HUMAN_NAME in name.lower()
+        bucket == "cancel" or state == "action_required" or _HUMAN_NAME in name.lower()
     )
 
 
@@ -68,22 +67,28 @@ def findings_from_logs(
         log = _log_for(check, logs_by_run)
         if not log:
             continue
+        n_this = 0
         for path, line, body in _parse_file_line(log):
             key = (path, line)
             if key in seen:
                 continue
             seen.add(key)
             found.append(Finding(path=path, line=line, body=body))
-            if len(found) >= _MAX_FINDINGS:
-                return found
+            n_this += 1
+            if n_this >= _MAX_FINDINGS:
+                break
     return found
 
 
+def _run_id_from_link(link: str) -> str:
+    match = _RUN_ID.search(link)
+    return match.group(1) if match else ""
+
+
 def _log_for(check: dict, logs_by_run: dict[str, str]) -> str:
-    link = str(check.get("link") or "")
-    for run_id, log in logs_by_run.items():
-        if run_id and run_id in link:
-            return log
+    rid = _run_id_from_link(str(check.get("link") or ""))
+    if rid and rid in logs_by_run:
+        return logs_by_run[rid]
     if len(logs_by_run) == 1:
         return next(iter(logs_by_run.values()))
     return ""
