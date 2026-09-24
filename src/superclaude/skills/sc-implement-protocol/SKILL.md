@@ -60,7 +60,7 @@ A file is enumerable if **at least one** of these matches. Mix in document order
 
 1. Markdown task items: `- [ ]` or `- [x]` or `* [ ]`.
 2. Numbered items `1.` / `1)` under a heading, or `R-NNN` / `T-NNN` identifiers.
-3. Headings `## Task N` / `### T1` / `## Phase N` with body text.
+3. Headings `## Task N` / `### T1` with body text. `## Phase N` is a group heading, not a task, when it has enumerable children — use the children only.
 
 Do not invent extra tasks from prose paragraphs. Mixed prose + N≥1 items → those N items only. Zero items + non-empty prose → T1 = whole document (do not split paragraphs).
 
@@ -94,14 +94,16 @@ Re-read the ledger from disk at the start of each iteration. Do not trust sessio
 
 ```
 Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
-           Snapshot the worktree: `start=$(git stash create); [ -z "$start" ] && start=$(git rev-parse HEAD 2>/dev/null)`.
-           If neither works, `nogit`. Write start line with that 40-hex (or `nogit`).
+           If this task already has a start line, reuse that sha (do not write another).
+           Else snapshot HEAD + tracked diffs + untracked (non-ignored) files **without** staging in the user index (`git stash create` omits untracked):
+             `idx=$(mktemp); GIT_INDEX_FILE="$idx" git read-tree HEAD && GIT_INDEX_FILE="$idx" git add -A && start=$(GIT_INDEX_FILE="$idx" git write-tree); rm -f "$idx"`
+           If that fails, `start=$(git rev-parse HEAD 2>/dev/null)`; if that fails, `nogit`. Write the start line once with that 40-hex (or `nogit`).
            Read Ti text + AC ids + global constraints.
-Q1 EXEC    Implement only that task. Touched files = Write/Edit paths for this task.
+Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
            Drive-by files not implied by the AC are `extra`.
 Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
            Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
-           Untracked files in the touched set are part of the review package: for each such path, include the full new-file contents (`git diff --no-index -- /dev/null <file>` or Read the file). Do not `git add`. An empty `git diff` with new untracked writes is not `cannot-verify`.
+           Untracked files in the touched set are part of the review package: if the path exists in `$start`, diff vs `git show "$start:<path>"`; else include full new-file contents (`git diff --no-index -- /dev/null <file>` or Read). Do not `git add` to the user index. An empty `git diff` with new untracked writes is not `cannot-verify`.
 Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
              - For each Ti.ACk: met | unmet + citation
              - extra_scope: hunks not mapped to any AC / instruction

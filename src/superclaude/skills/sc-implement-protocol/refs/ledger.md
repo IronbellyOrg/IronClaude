@@ -21,10 +21,14 @@ Default: `.dev/implement/<slug>/progress.md`
 `<ISO-8601>` is `YYYY-MM-DDTHH:MM:SSZ`.
 
 ```
-^# implement ledger — source: \S+ — created: [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$
+^# implement ledger — source: .+ — created: [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$
 ```
 
+Path may contain spaces. The delimiter before the timestamp is ` — created:`.
+
 ## Start line (once per task, before edits)
+
+On resume, if a start line exists and the task is not `complete`, reuse that sha. Do not append a second start line.
 
 ```
 T<id>: start sha=<40-hex|nogit>
@@ -43,13 +47,13 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
 - `<status>` ∈ `complete` | `blocked`
 - `<verdict>` ∈ `compliant` | `missing` | `extra` | `misunderstood` | `cannot-verify`
 - `<ac-list>` = comma-separated `T{i}.AC{k}` (no spaces)
-- `<ev-list>` = comma-separated evidence tokens (no spaces): `rel/path:line`, `rel/path:start-end`, `T{i}.AC{k}`, `T{i}.AC{k}@rel/path:line`
+- `<ev-list>` = comma-separated evidence tokens (no spaces): `rel/path:line`, `rel/path:start-end`, `T{i}.AC{k}`, `T{i}.AC{k}@rel/path:line`. Bare `T{i}.AC{k}` is not sufficient for `compliant`.
 - `<lx>`,`<tx>` ∈ `pass` | `fail` | `skip`
 - `<sx>` ∈ `pass` | `fail` | `skip` | `unrelated-red`
-- `<file-list>` = comma-separated repo-relative paths (no spaces)
+- `<file-list>` = comma-separated repo-relative paths (paths may contain spaces; do not insert spaces after commas)
 
 ```
-^T([0-9A-Za-z.-]+): (complete|blocked) verdict=(compliant|missing|extra|misunderstood|cannot-verify) ac=([^ ]+) evidence=([^ ]+) extras=lint:(pass|fail|skip),typecheck:(pass|fail|skip),test:(pass|fail|skip|unrelated-red) files=([^ ]+)$
+^T([0-9A-Za-z.-]+): (complete|blocked) verdict=(compliant|missing|extra|misunderstood|cannot-verify) ac=([^ ]+) evidence=([^ ]+) extras=lint:(pass|fail|skip),typecheck:(pass|fail|skip),test:(pass|fail|skip|unrelated-red) files=(.+)$
 ```
 
 `complete` on the verdict line **only if** `verdict=compliant`. Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.

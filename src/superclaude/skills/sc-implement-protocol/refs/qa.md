@@ -24,9 +24,11 @@ One reviewer vs the brief. Never 2+ reviewer agents per task. No Part 2 code-qua
 
 ## Citations
 
-For each AC of Ti, cite either `path:line` in the produced diff **or** `Ti.ACk` (optionally `Ti.ACk@path:line`).
+For each AC of Ti, cite `path:line` in the produced diff (or `Ti.ACk@path:line`).
 
-Invalid evidence: `the component works`, `tests pass`, `as implemented above`, line-less paths, citations into files not in this task's touched set unless the AC required reading them (then cite the source spec `path:line`).
+Bare `Ti.ACk` only names an unmet/unverifiable AC. It is not sufficient evidence for `compliant`.
+
+Invalid evidence: `the component works`, `tests pass`, `as implemented above`, line-less paths, a bare `Ti.ACk` on a `compliant` line, citations into files not in this task's touched set unless the AC required reading them (then cite the source spec `path:line`).
 
 A verdict with **zero citations** is invalid → treat as `cannot-verify`.
 
@@ -43,7 +45,7 @@ Apply in this order:
 3. elif any unmet AC → `missing`
 4. elif any misunderstood → `misunderstood` (dominates extra)
 5. elif extra_scope nonempty → `extra`
-6. else → `compliant`
+6. else → `compliant` only if every met AC has a `path:line` or `Ti.ACk@path:line` citation; otherwise `cannot-verify`
 
 If both missing and extra: verdict `missing`. Record extra findings on the same ledger line after the verdict.
 
