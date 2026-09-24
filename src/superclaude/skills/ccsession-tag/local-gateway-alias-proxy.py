@@ -125,6 +125,7 @@ REMOVE = {
     "gpt-latest",
     "gpt-5.5",
     "kimi-k2-thinking",
+    "kimi-k3",
     "kimi-k3-256k",
     "kimi-k2.7-code-highspeed",
     "kimi-k2",
@@ -154,6 +155,11 @@ REMOVE = {
     "grok-4.20-multi-agent-0309",
     "grok-4.3",
     "grok-4.5",
+    "grok-4.6",
+    "grok-4.7-build-fast",
+    "muse-spark-1.1",
+    "muse-spark-1.2-contributor",
+    "muse-spark-1.3-contributor",
     # Dead / not served (404).
     "claude-3-5-haiku-20241022",
     "claude-3-7-sonnet-20250219",
@@ -174,23 +180,38 @@ REMOVE = {
 }
 
 PINNED = [  # shown first, in exactly this order (real upstream ids)
+    "claude-opus-5-5",
     "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna",
     "gpt-5.6-sol",
     "gpt-5.6-luna",
     "gpt-5.6-terra",
-    "grok-4.6",
-    "kimi-k3",
+    "grok-4.7",
+    "muse-spark-1.3",
+    "muse-spark-1.2",
     "Qwen/Qwen3-Max",
 ]
 
+TAIL = [  # shown last, in exactly this order (real upstream ids)
+    "gpt-image-2.5-sunburst",
+    "gpt-image-2.5",
+    "gpt-image-2.5-flare",
+    "grok-imagine-image-2.0",
+]
+
 ONE_MILLION_CONTEXT = {
-    "kimi-k3",
     "glm-5.3",
     "claude-fable-5-1",
+    "claude-opus-5-5",
     "gpt-6-astra",
+    "gpt-6-sol",
+    "gpt-6-luna",
     "gpt-5.6-sol",
     "gpt-5.6-luna",
     "gpt-5.6-terra",
+    "muse-spark-1.2",
+    "muse-spark-1.3",
     "Qwen3.8-max",
 }
 
@@ -212,14 +233,16 @@ def family(rid):
     return "other"
 
 
-DISPLAY_OVERRIDES = {  # exact picker labels for the pinned models
+DISPLAY_OVERRIDES = {  # exact picker labels for the preferred models
+    "claude-opus-5-5": "Claude Opus 5.5",
     "gpt-6-astra": "GPT 6 Astra",
     "gpt-5.6-sol": "GPT 5.6 Sol",
     "gpt-5.6-luna": "GPT 5.6 Luna",
     "gpt-5.6-terra": "GPT 5.6 Terra",
-    "grok-4.6": "Grok 4.6",
+    "grok-4.7": "Grok 4.7",
+    "muse-spark-1.3": "Muse Spark 1.3",
+    "muse-spark-1.2": "Muse Spark 1.2",
     "glm-5.2": "GLM 5.2",
-    "kimi-k3": "Kimi K3",
     "Qwen/Qwen3-Max": "Qwen3 Max",
     "Qwen3.8-max": "Qwen 3.8 Max",
     "claude-fable-5-1": "Claude Fable 5.1",
@@ -290,21 +313,24 @@ def pretty(rid):
 
 
 def transform_models(payload):
-    """Drop REMOVE ids, order (pinned first, then by family), alias non-claude ids."""
+    """Drop REMOVE ids, order pinned/families/tail, alias non-claude ids."""
     data = [m for m in payload.get("data", []) if m.get("id")]
     by_id = {m["id"]: m for m in data}
 
     ordered = [p for p in PINNED if p in by_id and p not in REMOVE]
+    tail = [t for t in TAIL if t in by_id and t not in REMOVE]
+    tail_set = set(tail)
     seen = set(ordered)
     buckets = {f: [] for f in FAMILY_ORDER}
     for m in data:  # preserve upstream order within each family
         rid = m["id"]
-        if rid in REMOVE or rid in seen:
+        if rid in REMOVE or rid in seen or rid in tail_set:
             continue
         buckets[family(rid)].append(rid)
         seen.add(rid)
     for f in FAMILY_ORDER:
         ordered.extend(buckets[f])
+    ordered.extend(tail)
 
     new_map, used, out = {}, set(), []
     for rid in ordered:
