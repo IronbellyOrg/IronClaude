@@ -52,36 +52,38 @@ if [ -z "$PR_JSON" ]; then
     exit 0
 fi
 
-# Conversation comments carry path-less PR discussion such as Augment's oversized-PR
-# decline. Fetch them from the REST issue-comments endpoint; do not rely on the GraphQL
-# `gh pr view --json comments` surface because REST exposes the bot login as
-# `user.login=augmentcode[bot]` and is the same repo-scoped surface used for replies.
-# `--paginate` fetches EVERY page (the REST default is only the first ~30, oldest-first),
-# so on a busy PR a recent decline / re-review thread beyond page 1 is never silently
-# dropped (which would misclassify the review state); `jq -s 'add'` flattens the
-# per-page arrays `--paginate` emits back into one array. Fail-soft to `[]` on any error.
-ISSUE_COMMENTS_JSON="$(gh api "repos/${REPO}/issues/${PR}/comments" --paginate 2>/dev/null | jq -s 'add // []' 2>/dev/null || echo '[]')"
+# Comment payloads (Augment "Fix This" URLs, paginated inline threads) routinely
+# exceed ARG_MAX when passed as jq --argjson argv. Stage them in temp files and
+# merge with --slurpfile (stdin/files, never argv). Fail-soft to [] on any error.
+_tmp="$(mktemp -d "${TMPDIR:-/tmp}/poll-augment.XXXXXX")" || die "mktemp failed" 1
+trap 'rm -rf "$_tmp"' EXIT
+issue_file="$_tmp/issue.json"
+inline_file="$_tmp/inline.json"
+pr_file="$_tmp/pr.json"
 
-# Inline review comments carry ids / path / line the reply step needs. These are merged
-# with PR conversation comments above. Surfacing only inline comments would make
-# `declined` unreachable in production, while the classifier's finding-comment rule
-# requires path+line so path-less conversation comments are not miscounted. `--paginate`
-# (+ `jq -s 'add'`) is mandatory here too: a busy PR's most recent inline findings live
-# beyond the first page, and dropping them would misclassify `findings` as `clean`.
-INLINE_COMMENTS_JSON="$(gh api "repos/${REPO}/pulls/${PR}/comments" --paginate 2>/dev/null | jq -s 'add // []' 2>/dev/null || echo '[]')"
+if ! gh api "repos/${REPO}/issues/${PR}/comments" --paginate 2>/dev/null \
+        | jq -s 'add // []' > "$issue_file" 2>/dev/null; then
+    printf '[]\n' > "$issue_file"
+fi
+if ! gh api "repos/${REPO}/pulls/${PR}/comments" --paginate 2>/dev/null \
+        | jq -s 'add // []' > "$inline_file" 2>/dev/null; then
+    printf '[]\n' > "$inline_file"
+fi
+printf '%s' "$PR_JSON" > "$pr_file"
 
 # Coarse state: any review present => let the FSM classify; none => polling. The
 # authoritative three-state classification is done by superclaude.pr_submit.classify
 # against the probe-locked DetectionContract; this is only a hint for the stream.
-STATE="$(printf '%s' "$PR_JSON" | jq -r '
-    if ((.reviews // []) | length) > 0 then "review_present" else "polling" end')"
+STATE="$(jq -r 'if ((.reviews // []) | length) > 0 then "review_present" else "polling" end' "$pr_file")"
 
-printf '%s' "$PR_JSON" | jq -c \
-    --arg state "$STATE" \
-    --argjson issue_comments "$ISSUE_COMMENTS_JSON" \
-    --argjson inline_comments "$INLINE_COMMENTS_JSON" \
+# --slurpfile wraps each file in an array; a file that is already one JSON array
+# is therefore $var[0]. Never --argjson the comment blobs (ARG_MAX on busy PRs).
+jq -c --arg state "$STATE" \
+    --slurpfile issue_comments "$issue_file" \
+    --slurpfile inline_comments "$inline_file" \
     '{pr:.number, url:.url, head_sha:.headRefOid, base:.baseRefName,
       state:$state, reviews:(.reviews // []),
-      comments:(($issue_comments // []) + ($inline_comments // []))}'
+      comments:(($issue_comments[0] // []) + ($inline_comments[0] // []))}' \
+    "$pr_file"
 
 exit 0
