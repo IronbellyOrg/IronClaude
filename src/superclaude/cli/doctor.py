@@ -63,7 +63,7 @@ def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
             skill / "hooks/session-start.sh",
             home / ".claude/ccsession.env",
         )
-        if not path.exists()
+        if not (path.is_dir() if path == skill else path.is_file())
     ]
     if not bin_path.is_symlink() or bin_path.resolve() != wrapper.resolve():
         missing.append(

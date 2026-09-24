@@ -1,5 +1,6 @@
 """Isolated tests for native ccsession wiring."""
 
+import json
 import os
 import shutil
 import subprocess
@@ -17,7 +18,12 @@ def home(tmp_path):
     source = (
         Path(__file__).resolve().parents[2] / "src/superclaude/skills/ccsession-tag"
     )
-    for name in ("ccsession", "hooks/session-start.sh", "ccsession.env.example"):
+    for name in (
+        "ccsession",
+        "hooks/session-start.sh",
+        "ccsession.env.example",
+        "install.sh",
+    ):
         shutil.copyfile(source / name, skill / name)
     return tmp_path
 
@@ -48,6 +54,65 @@ def test_wire_leaves_existing_env_and_settings(home):
     assert env.stat().st_mode & 0o777 == 0o640
     assert settings.read_bytes() == b"private settings"
     assert b"secret-token" not in wire_ccsession(home)[1].encode()
+
+
+@pytest.mark.parametrize("script", ["ccsession", "hooks/session-start.sh"])
+def test_symlinked_script_cannot_expose_existing_env(home, script):
+    env = home / ".claude/ccsession.env"
+    env.write_bytes(b"private-token")
+    env.chmod(0o600)
+    target = home / ".claude/skills/ccsession-tag" / script
+    target.unlink()
+    target.symlink_to(env)
+
+    ok, _ = wire_ccsession(home)
+    assert not ok
+    assert env.read_bytes() == b"private-token"
+    assert env.stat().st_mode & 0o777 == 0o600
+
+
+@pytest.mark.parametrize("component", ["skill", "hooks"])
+def test_symlinked_skill_directory_cannot_chmod_external_file(home, component):
+    skill = home / ".claude/skills/ccsession-tag"
+    path = skill if component == "skill" else skill / "hooks"
+    moved = home / f"external-{component}"
+    path.rename(moved)
+    path.symlink_to(moved, target_is_directory=True)
+    external = moved / ("ccsession" if component == "skill" else "session-start.sh")
+    mode = external.stat().st_mode & 0o777
+
+    assert wire_ccsession(home)[0] is False
+    assert external.stat().st_mode & 0o777 == mode
+
+
+def test_wire_rejects_existing_env_directory(home):
+    env = home / ".claude/ccsession.env"
+    env.mkdir()
+    ok, message = wire_ccsession(home)
+    assert not ok and "not a file" in message
+    assert env.is_dir()
+
+
+def test_failed_env_copy_leaves_no_partial_seed(home, monkeypatch):
+    env = home / ".claude/ccsession.env"
+
+    def fail_after_partial_write(source, target):
+        target.write(b"partial")
+        raise OSError("interrupted copy")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(shutil, "copyfileobj", fail_after_partial_write)
+        ok, message = wire_ccsession(home)
+    assert not ok and "interrupted copy" in message
+    assert not env.exists()
+    assert not list(env.parent.glob(".ccsession-env-*"))
+
+    assert wire_ccsession(home)[0]
+    assert (
+        env.read_bytes()
+        == (home / ".claude/skills/ccsession-tag/ccsession.env.example").read_bytes()
+    )
+    assert env.stat().st_mode & 0o777 == 0o600
 
 
 @pytest.mark.parametrize("kind", ["file", "foreign_symlink"])
@@ -103,3 +168,64 @@ def test_wire_symlink_runs_help(home):
         check=True,
     )
     assert "ccsession --help" in result.stdout
+
+
+def test_fallback_after_native_does_not_duplicate_hook(home):
+    assert wire_ccsession(home)[0]
+    settings = home / ".claude/settings.json"
+    canonical = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
+    settings.write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    "SessionStart": [
+                        {
+                            "matcher": "startup|resume",
+                            "hooks": [{"type": "command", "command": canonical}],
+                        }
+                    ]
+                }
+            }
+        )
+    )
+    original = settings.read_bytes()
+    script = home / ".claude/skills/ccsession-tag/install.sh"
+    for _ in range(2):
+        subprocess.run(
+            ["bash", str(script)],
+            env={**os.environ, "HOME": str(home)},
+            check=True,
+            capture_output=True,
+        )
+    assert settings.read_bytes() == original
+    assert not settings.with_suffix(".json.bak").exists()
+
+
+def test_fallback_does_not_claim_user_hook_mentioning_script(home):
+    settings = home / ".claude/settings.json"
+    hook = home / ".claude/skills/ccsession-tag/hooks/session-start.sh"
+    user_command = f'notify --about "{hook}"'
+    settings.write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    "SessionStart": [
+                        {"hooks": [{"type": "command", "command": user_command}]}
+                    ]
+                }
+            }
+        )
+    )
+    script = home / ".claude/skills/ccsession-tag/install.sh"
+    subprocess.run(
+        ["bash", str(script)],
+        env={**os.environ, "HOME": str(home)},
+        check=True,
+        capture_output=True,
+    )
+    commands = [
+        entry["command"]
+        for group in json.loads(settings.read_text())["hooks"]["SessionStart"]
+        for entry in group["hooks"]
+    ]
+    assert commands == [user_command, f'bash "{hook}"']

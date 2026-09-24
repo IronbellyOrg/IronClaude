@@ -130,6 +130,15 @@ def test_ccsession_doctor_reports_missing(ccsession_home, missing):
     assert "secret-value" not in str(result)
 
 
+def test_ccsession_doctor_rejects_env_directory(ccsession_home):
+    env = ccsession_home / ".claude/ccsession.env"
+    env.unlink()
+    env.mkdir()
+    result = _check_ccsession(home=ccsession_home)
+    assert result["passed"] is False
+    assert str(env) in result["details"]
+
+
 def test_ccsession_doctor_reports_missing_skill(ccsession_home):
     (ccsession_home / ".claude/skills/ccsession-tag").rename(
         ccsession_home / "removed-skill"

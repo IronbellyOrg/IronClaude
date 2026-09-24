@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import json
+import os
+import subprocess
+from pathlib import Path
+
 import pytest
 from click.testing import CliRunner
 
@@ -103,3 +108,71 @@ def test_install_and_update_wire_failure_exit_nonzero(monkeypatch, command):
     assert "wire_ccsession result" in result.output
     assert calls.index("wire_ccsession") == calls.index("install_all_skills") + 1
     assert calls.index("install_hooks") == calls.index("wire_ccsession") + 1
+
+
+@pytest.fixture
+def native_install(tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: home))
+    target = home / ".claude/commands/sc"
+    result = CliRunner().invoke(main, ["install", "--target", str(target)])
+    assert result.exit_code == 0, result.output
+    return home, target
+
+
+def test_real_install_launches_ccsession(native_install):
+    home, _ = native_install
+    skill = home / ".claude/skills/ccsession-tag"
+    binary = home / ".local/bin/ccsession"
+    assert (skill / "SKILL.md").is_file()
+    assert binary.is_symlink() and binary.resolve() == (skill / "ccsession").resolve()
+    env = home / ".claude/ccsession.env"
+    assert env.is_file() and env.stat().st_mode & 0o777 == 0o600
+    settings = json.loads((home / ".claude/settings.json").read_text())
+    commands = [
+        hook["command"]
+        for group in settings["hooks"]["SessionStart"]
+        for hook in group["hooks"]
+    ]
+    assert commands.count("~/.claude/skills/ccsession-tag/hooks/session-start.sh") == 1
+
+    result = subprocess.run(
+        [str(binary), "--help"],
+        env={
+            **os.environ,
+            "PATH": str(binary.parent) + os.pathsep + os.environ["PATH"],
+        },
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "ccsession --help" in result.stdout
+
+
+def test_real_update_restores_packaged_ccsession(native_install):
+    home, target = native_install
+    skill = home / ".claude/skills/ccsession-tag"
+    source = (
+        Path(__file__).resolve().parents[2] / "src/superclaude/skills/ccsession-tag"
+    )
+    (skill / "ccsession").write_text("modified wrapper")
+    (skill / "hooks/session-start.sh").write_text("modified hook")
+    env = home / ".claude/ccsession.env"
+    env.write_bytes(b"private-token")
+    env.chmod(0o640)
+
+    result = CliRunner().invoke(main, ["update", "--target", str(target)])
+    assert result.exit_code == 0, result.output
+    for name in (
+        "ccsession",
+        "local-gateway-alias-proxy.py",
+        "hooks/session-start.sh",
+        "SKILL.md",
+    ):
+        assert (skill / name).read_bytes() == (source / name).read_bytes()
+    assert (home / ".local/bin/ccsession").resolve() == (skill / "ccsession").resolve()
+    assert env.read_bytes() == b"private-token"
+    assert env.stat().st_mode & 0o777 == 0o640
+    assert "private-token" not in result.output

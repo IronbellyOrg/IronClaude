@@ -108,10 +108,11 @@ if not isinstance(session_start, list):
     print("      WARNING: settings.json 'hooks.SessionStart' is not a list — leaving untouched.")
     sys.exit(0)
 
-# Idempotency: already registered if any SessionStart hook references our script.
+# Match only our native or standalone command, not a user hook mentioning the path.
+native_cmd = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
 for group in session_start:
     for h in (group.get("hooks", []) if isinstance(group, dict) else []):
-        if isinstance(h, dict) and hook_script in h.get("command", ""):
+        if isinstance(h, dict) and h.get("command") in (hook_cmd, "bash '%s'" % hook_script, native_cmd):
             print("      Already registered — no change.")
             sys.exit(0)
 
