@@ -47,13 +47,13 @@ T<id>: <status> verdict=<verdict> ac=<ac-list> evidence=<ev-list> extras=lint:<l
 - `<status>` ∈ `complete` | `blocked`
 - `<verdict>` ∈ `compliant` | `missing` | `extra` | `misunderstood` | `cannot-verify`
 - `<ac-list>` = comma-separated `T{i}.AC{k}` (no spaces)
-- `<ev-list>` = comma-separated evidence tokens (no spaces): `rel/path:line`, `rel/path:start-end`, `T{i}.AC{k}`, `T{i}.AC{k}@rel/path:line`. Bare `T{i}.AC{k}` is not sufficient for `compliant`.
+- `<ev-list>` = comma-separated evidence tokens. Paths **may contain spaces**. The field ends at ` extras=lint:`. Tokens: `rel/path:line`, `rel/path:start-end`, `T{i}.AC{k}@rel/path:line`. Bare `T{i}.AC{k}` is not sufficient for `compliant`. Do not put commas in paths.
 - `<lx>`,`<tx>` ∈ `pass` | `fail` | `skip`
 - `<sx>` ∈ `pass` | `fail` | `skip` | `unrelated-red`
 - `<file-list>` = comma-separated repo-relative paths (paths may contain spaces; do not insert spaces after commas)
 
 ```
-^T([0-9A-Za-z.-]+): (complete|blocked) verdict=(compliant|missing|extra|misunderstood|cannot-verify) ac=([^ ]+) evidence=([^ ]+) extras=lint:(pass|fail|skip),typecheck:(pass|fail|skip),test:(pass|fail|skip|unrelated-red) files=(.+)$
+^T([0-9A-Za-z.-]+): (complete|blocked) verdict=(compliant|missing|extra|misunderstood|cannot-verify) ac=([^ ]+) evidence=(.+) extras=lint:(pass|fail|skip),typecheck:(pass|fail|skip),test:(pass|fail|skip|unrelated-red) files=(.+)$
 ```
 
 `complete` on the verdict line **only if** `verdict=compliant`. Otherwise status MUST be `blocked` until an operator Ruling + a follow-up complete line.

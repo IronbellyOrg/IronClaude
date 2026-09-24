@@ -39,8 +39,10 @@ E-LEGACY copy: `Removed flags: --type/--framework/--safe/--with-tests. Pass a sp
 
 ## Wave 0 — parse and intake
 
-1. If `$ARGUMENTS` contains `--type`, `--framework`, `--safe`, or `--with-tests` → STOP `E-LEGACY`.
-2. If `$ARGUMENTS` contains `--force` → STOP `E-NO-RULING`.
+1. Tokenize `$ARGUMENTS` (whitespace). Known options: `--spec`, `--prd`, `--tasklist`, `--resume`, `--ledger`, `--skip-final-review`. Banned option tokens: `--type`, `--framework`, `--safe`, `--with-tests` (exact token or `--type=` / `--framework=` prefix). `--force` as an option token → STOP `E-NO-RULING`.
+   Walk left to right. While tokens are options (start with `--`) or their values (`--spec PATH`, `--ledger PATH`): if a token is banned → STOP `E-LEGACY`. `--force` → STOP `E-NO-RULING`.
+   The first non-option token starts the source (existing file path, or inline prompt). **After that, later `--type` / `--framework` / `--safe` / `--with-tests` are prompt text** (e.g. `document the --type migration`). `--spec file.md --type x` is still E-LEGACY (banned token in the option prefix).
+2. (reserved — `--force` handled in step 1)
 3. Resolve source:
    - Two file flags/paths → STOP `E-NO-SOURCE` (`pass one file`).
    - One path under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` → STOP `E-NO-SOURCE`.
@@ -97,7 +99,10 @@ Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
            If this task already has a start line, reuse that sha (do not write another).
            Else snapshot HEAD + tracked diffs + untracked (non-ignored) files **without** staging in the user index (`git stash create` omits untracked):
              `idx=$(mktemp); GIT_INDEX_FILE="$idx" git read-tree HEAD && GIT_INDEX_FILE="$idx" git add -A && start=$(GIT_INDEX_FILE="$idx" git write-tree); rm -f "$idx"`
-           If that fails, `start=$(git rev-parse HEAD 2>/dev/null)`; if that fails, `nogit`. Write the start line once with that 40-hex (or `nogit`).
+           Then **pin the tree** so `git gc` cannot prune it before resume:
+             `git update-ref "refs/superclaude/implement/<slug>/T<id>" "$start"`
+           If write-tree fails, `start=$(git rev-parse HEAD 2>/dev/null)` (HEAD is already a ref). If that fails, `nogit`. Write the start line once with that 40-hex (or `nogit`).
+           On task `complete`, delete the pin: `git update-ref -d "refs/superclaude/implement/<slug>/T<id>"`.
            Read Ti text + AC ids + global constraints.
 Q1 EXEC    Implement only that task. Touched files = paths this task created or modified via Write, Edit, or Bash (product paths, not the ledger).
            Drive-by files not implied by the AC are `extra`.
