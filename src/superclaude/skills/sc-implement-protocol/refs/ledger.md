@@ -95,7 +95,7 @@ first such id wins
 if all complete → run FINAL unless --skip-final-review or FINAL already present or N=1
 ```
 
-`--resume` is implicit when a matching ledger exists. If the ledger is missing, write the header before the first edit. If all tasks are `complete`, STOP `already complete: <ledger path>`.
+`--resume` is implicit when a matching ledger exists. If the ledger is missing, write the header before the first edit. If all tasks are `complete` **and** FINAL is already present (or N=1, or `--skip-final-review`): STOP `already complete: <ledger path>`. If all tasks are `complete` and FINAL is still due: run FINAL, then stop. Do not skip a pending N>1 whole-list review.
 
 Trust ledger + git history after compaction. Do not ask the user to paste prior chat.
 

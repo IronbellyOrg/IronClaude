@@ -46,10 +46,10 @@ E-LEGACY copy: `Removed flags: --type/--framework/--safe/--with-tests. Pass a sp
    - One path under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` → STOP `E-NO-SOURCE`.
    - One path that is a directory or missing → STOP `E-SOURCE-MISSING` citing the path.
    - One existing file → use it.
-   - No path, leftover non-flag text → **inline prompt**. Persist it to `.dev/implement/<slug>/source.md` **before** any product edit (slug from first 40 slug-chars of the prompt, or `prompt`). That file is the source path for the ledger header. Do not invent extra tasks or extra scope.
+   - No path, leftover non-flag text → **inline prompt**. Compute `<slug>` from the first 40 slug-chars of the prompt (non-`[a-z0-9_-]` → `-`, or `prompt` if empty). Persist the prompt to `.dev/implement/<slug>/source.md` **before** any product edit. That file is the source path for the ledger header. Do not invent extra tasks or extra scope.
    - No path and no leftover text → STOP `E-NO-SOURCE`.
 4. Read the source file. Enumerate tasks (below). If zero enumerable items and the file has non-whitespace text → **T1 = the whole document** (informal spec / prompt). If the file is empty/whitespace → STOP `E-NO-TASKS`.
-5. Resolve ledger path (default `.dev/implement/<slug>/progress.md`; slug = basename without extension, lowercased, non-`[a-z0-9_-]` → `-`, max 64). `--ledger` override MUST be under `.dev/implement/` else `E-LEDGER-PATH`.
+5. Resolve ledger path (default `.dev/implement/<slug>/progress.md`). For an existing file, `<slug>` = basename without extension, lowercased, non-`[a-z0-9_-]` → `-`, max 64. For an inline prompt, reuse the `<slug>` computed in step 3 (the parent directory of `source.md`) — **not** the basename `source`. `--ledger` override MUST be under `.dev/implement/` else `E-LEDGER-PATH`.
 6. Open or create ledger (header first, before any product edit). Resume per `refs/ledger.md`. Truncated last line → `E-LEDGER-CORRUPT`.
 7. If N≥20 print **once**: `N tasks; compaction likely; ledger is the source of resume.` Do not STOP. Do not split.
 8. Optional auggie before significant edits; unavailability is a warning, not a STOP.
@@ -94,11 +94,13 @@ Re-read the ledger from disk at the start of each iteration. Do not trust sessio
 
 ```
 Q0 START   If AC QUALIFY fails → E-NO-AC (do not reach Q1).
-           Write start line with `git rev-parse HEAD` (40-hex) or `nogit`.
+           Snapshot the worktree: `start=$(git stash create); [ -z "$start" ] && start=$(git rev-parse HEAD 2>/dev/null)`.
+           If neither works, `nogit`. Write start line with that 40-hex (or `nogit`).
            Read Ti text + AC ids + global constraints.
 Q1 EXEC    Implement only that task. Touched files = Write/Edit paths for this task.
            Drive-by files not implied by the AC are `extra`.
-Q2 DIFF    `git diff start_sha..WORKTREE` (HEAD plus unstaged), scoped to Ti files when possible.
+Q2 DIFF    `git diff "$start"` (tree-ish vs worktree — not `..WORKTREE`, which is not a Git revision).
+           Scope to Ti touched files when possible. This is the increment since Q0, including uncommitted prior-task files only if they were edited again.
 Q3 REVIEW  Load refs/qa.md. Reviewer (not the implementer voice) fills:
              - For each Ti.ACk: met | unmet + citation
              - extra_scope: hunks not mapped to any AC / instruction
