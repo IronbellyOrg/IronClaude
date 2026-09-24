@@ -118,6 +118,15 @@ assertions still hold over the expanded state set). NOTE: addendum §6.5 omits `
 its build-target list, but the FSM single-source-of-truth invariant REQUIRES S5a/S5b be defined here —
 this MOD is a deliberate, flagged addendum-coverage gap (recorded in the task's Phase 6 Findings).
 
+### 5.2c CI phase — SKILL-owned `source`, no new FSM edges
+
+After Augment classify would be `clean` (or `REPORT_ONLY`), the SKILL sets `source=ci` and
+continues at `S2_CLASSIFY` **without** sending `clean` to `transition()`. Human-gate checks
+route to `HALT_HUMAN` with no Finding. Unparseable logs are `REPORT_ONLY` with no Finding.
+A CI-phase push skips S5a / S6 / RESOLVING (the push itself re-runs checks). `transition()`
+is unchanged: `clean` still means `TERMINAL_CLEAN`, `pushed` still means `S6_REPLYING`. The
+SKILL only sends `clean` when `source=ci` is actually clean. L0 never enters this phase.
+
 ## 5.3 G-push — the 5-predicate runtime conjunction (INV-016, verbatim)
 
 > **INV-016.** A push is authorized at the `S4_PUSHING` transition if and only if ALL of the

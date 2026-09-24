@@ -75,7 +75,7 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 ## Boundaries
 
-**Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling.
+**Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling; after Augment clean, wait on PR checks and remediate parseable CI failures under the same ordinals.
 
 **Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
 

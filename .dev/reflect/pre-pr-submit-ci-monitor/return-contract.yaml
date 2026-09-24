@@ -1,0 +1,102 @@
+contract_version: "1.7.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/reflect/pre-pr-submit-ci-monitor/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/reflect/pre-pr-submit-ci-monitor/audit.log
+confidence_calibrated: 0.86
+escalation_rule_matched: null
+onboarding_ran: false
+coverage_pct: 0.0
+coverage_pct_union: 0.0
+coverage_undefined: false
+coverage_degraded: parsed-sparse
+unmapped_requirements:
+  - FR-CI-1
+  - FR-CI-2
+  - FR-CI-3
+  - FR-CI-4
+  - FR-CI-5
+  - FR-CI-6
+  - FR-CI-7
+  - FR-CI-8
+  - FR-CI-9
+  - FR-CI-10
+  - FR-CI-11
+  - FR-CI-12
+unmapped_requirements_union:
+  - FR-CI-1
+  - FR-CI-2
+  - FR-CI-3
+  - FR-CI-4
+  - FR-CI-5
+  - FR-CI-6
+  - FR-CI-7
+  - FR-CI-8
+  - FR-CI-9
+  - FR-CI-10
+  - FR-CI-11
+  - FR-CI-12
+best_practice_grade: 4
+implementation_coverage_pct: null
+missing_implementations: []
+hierarchy_slice_path: null
+hierarchy_coverage_pct: null
+input_sha256:
+  tasklist: 8b5cb4d21a2f013fa75ab80e973541a53aab1b848f72a450e3a254bdf52012a8
+  spec: 8b5cb4d21a2f013fa75ab80e973541a53aab1b848f72a450e3a254bdf52012a8
+input_tree_sha256: e893d296a70979c54898d4674e716314db5aacad7bab6f2c7ab08045f5059f70
+input_tree_file_count: 1
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/reflect/pre-pr-submit-ci-monitor/artifacts/input-snapshot.yaml
+input_drift_detected: false
+input_drift_diff: null
+citations_total: 8
+citations_revalidated: 8
+citations_dropped: 0
+citations_dropped_extrapolated: 0
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: true
+citation_revalidation_at_promotion: false
+reviewer_cards: []
+adversarial_artifacts_dir: null
+adversarial_convergence_score: null
+adversarial_unavailable: false
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: single
+t2_effective_diversity: none
+calibrator_diversity: degraded
+remediation_offered: false
+remediation_accepted: null
+task_file_path: null
+remediation_task_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: false
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: not-applicable
+promotion_adapter: null
+promotion_source: null
+promotion_destination: null
+promotion_log_path: null
+promotion_gate_passed: null
+promotion_skip_reason: null
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+zero-drop-flag: true

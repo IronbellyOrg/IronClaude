@@ -1,0 +1,15 @@
+selected_tier: 1
+fired_rule_number: null
+override: "--tier 1"
+coverage_degraded: parsed-sparse
+surface_unreached: null
+composite_score: 4.0
+per_signal_breakdown:
+  scope_size: 1
+  task_count: 1
+  blast_radius: 1
+  spec_density: 0
+  ambiguity_signals: 1
+escalation_reason: "User pin --tier 1; would otherwise T2 (coverage_degraded + coverage_pct 0.0 + S_dev_density 1.0)."
+confidence_calibrated: 0.86
+calibration: inline-fallback

@@ -1,0 +1,28 @@
+mode: pre
+tier: 1
+calibration: inline-fallback
+calibrator_diversity: degraded
+confidence_calibrated: 0.86
+dimensions:
+  citation_grounding: 0.92
+  coverage_completeness: 0.78
+  deviation_classification_clarity: 0.88
+  risk_surface_coverage: 0.90
+  recommendation_actionability: 0.84
+findings:
+  - id: GAP-ID-TOKEN
+    class: drift-in-spec
+    summary: §12 omits FR-CI-* tokens so UC-1 coverage_pct is vacuously 0.
+  - id: GAP-FR-CI-10-11
+    class: coverage-hole
+    summary: SHA attribution and --required fallback have no implementation step.
+  - id: CONTRA-GH-JSON
+    class: contradiction
+    summary: conclusion is not a gh pr checks JSON field; no per-check SHA.
+  - id: CONTRA-IS-GROUNDABLE
+    class: contradiction
+    summary: human-gate/unparseable Findings need path+line>0.
+  - id: CONTRA-INV-CI-7
+    class: contradiction
+    summary: INV-CI-7 clean-only vs §9 pushed-edge skip S6.
+zero-drop-flag: true
