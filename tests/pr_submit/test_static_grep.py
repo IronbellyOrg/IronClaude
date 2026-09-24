@@ -329,8 +329,12 @@ def test_poll_script_fetches_issue_and_inline_comments_without_pr_view_comments(
     ]
     assert pr_view_lines
     assert all("comments" not in line for line in pr_view_lines)
-    assert "($issue_comments // []) + ($inline_comments // [])" in script
+    assert "($issue_comments[0] // []) + ($inline_comments[0] // [])" in script
     assert "(.comments // [])" not in script
+    assert "--slurpfile issue_comments" in script
+    assert "--slurpfile inline_comments" in script
+    assert "--argjson issue_comments" not in script
+    assert "--argjson inline_comments" not in script
 
 
 def test_poll_script_stubbed_issue_comments_classify_declined(tmp_path):
@@ -371,6 +375,59 @@ fi
         locked=True,
     )
     assert classify(payload, contract) == "declined"
+
+
+def test_poll_script_large_inline_comments_no_argmax(tmp_path):
+    """Inline comment JSON must not be passed as jq --argjson argv (ARG_MAX on busy PRs)."""
+    blob = "x" * 2_000_000
+    inline_path = tmp_path / "inline.json"
+    inline_path.write_text(
+        json.dumps(
+            [
+                {
+                    "id": 1,
+                    "path": "a.md",
+                    "line": 1,
+                    "user": {"login": "augmentcode[bot]"},
+                    "body": blob,
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    gh = tmp_path / "gh"
+    gh.write_text(
+        f"""#!/usr/bin/env bash
+set -euo pipefail
+if [ "$1" = "repo" ]; then
+  printf '{{"nameWithOwner":"IronbellyOrg/IronClaude"}}'
+elif [ "$1" = "pr" ]; then
+  printf '{{"number":238,"url":"https://example.test/pr/238","headRefName":"fix/x","headRefOid":"abc123","baseRefName":"master","reviews":[]}}'
+elif [ "$1" = "api" ] && [[ "$2" == *"/issues/238/comments" ]]; then
+  printf '[]'
+elif [ "$1" = "api" ] && [[ "$2" == *"/pulls/238/comments" ]]; then
+  cat {inline_path}
+else
+  printf 'unexpected gh call: %s\\n' "$*" >&2
+  exit 1
+fi
+""",
+        encoding="utf-8",
+    )
+    gh.chmod(0o755)
+    env = {**os.environ, "PATH": f"{tmp_path}:{os.environ['PATH']}"}
+    result = subprocess.run(
+        [str(POLL_SCRIPT), "--pr", "238", "--repo", "IronbellyOrg/IronClaude"],
+        text=True,
+        capture_output=True,
+        env=env,
+        timeout=30,
+        check=True,
+    )
+    payload = json.loads(result.stdout)
+    assert payload["pr"] == 238
+    assert len(payload["comments"]) == 1
+    assert len(payload["comments"][0]["body"]) == 2_000_000
 
 
 # --- D2: $REPO origin-URL resolution fallback (sed) -------------------------
