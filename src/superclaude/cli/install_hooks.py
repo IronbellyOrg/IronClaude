@@ -84,6 +84,28 @@ _SEED_FILES = [
     ("auggie-projects.txt.example", "auggie-projects.txt"),
 ]
 
+_CCSESSION_HOOK = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
+_CCSESSION_LEGACY = re.compile(
+    r"""bash (["'])(/[^"']*/ccsession-tag/hooks/session-start\.sh)\1"""
+)
+
+
+def _is_ccsession_hook(command: object) -> bool:
+    return isinstance(command, str) and (
+        command == _CCSESSION_HOOK or _CCSESSION_LEGACY.fullmatch(command) is not None
+    )
+
+
+def _owns_command(command: object, managed: set, event: str) -> bool:
+    return isinstance(command, str) and (
+        command in managed
+        or (
+            event == "SessionStart"
+            and _CCSESSION_HOOK in managed
+            and _is_ccsession_hook(command)
+        )
+    )
+
 
 def install_hooks(
     target_path: Path | None = None, force: bool = False
@@ -352,7 +374,7 @@ def _merge_settings(
                         continue
                     if any(
                         isinstance(hook, dict)
-                        and hook.get("command") in managed_commands
+                        and _owns_command(hook.get("command"), managed_commands, event)
                         for hook in existing_inner
                     ):
                         owns_existing = True
@@ -388,7 +410,9 @@ def _merge_settings(
                         for hook in existing_inner
                         if not (
                             isinstance(hook, dict)
-                            and hook.get("command") in managed_commands
+                            and _owns_command(
+                                hook.get("command"), managed_commands, event
+                            )
                         )
                     ]
                     if len(remaining) == len(existing_inner):
