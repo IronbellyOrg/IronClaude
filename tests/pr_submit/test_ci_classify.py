@@ -10,6 +10,10 @@ from superclaude.pr_submit.ci import (
 from superclaude.pr_submit.classifier import STATE_CLEAN, STATE_FINDINGS, STATE_POLLING
 
 
+def _link(run: str) -> str:
+    return f"https://example.test/o/r/actions/runs/{run}"
+
+
 def test_classify_pending(load_fixture):
     assert classify_checks(load_fixture("checks-pending.json")) == STATE_POLLING
 
@@ -64,7 +68,7 @@ def test_is_human_gate():
 def test_parse_pytest_line():
     log = "tests/foo.py:12: in test_x\n    assert 1 == 2\n"
     findings = findings_from_logs(
-        [{"name": "t", "bucket": "fail", "link": "runs/1"}],
+        [{"name": "t", "bucket": "fail", "link": _link("1")}],
         {"1": log},
     )
     assert len(findings) == 1
@@ -75,7 +79,7 @@ def test_parse_pytest_line():
 def test_parse_ruff_line():
     log = "src/a.py:3:1: F401 unused import\n"
     findings = findings_from_logs(
-        [{"name": "lint", "bucket": "fail", "link": "runs/1"}],
+        [{"name": "lint", "bucket": "fail", "link": _link("1")}],
         {"1": log},
     )
     assert len(findings) == 1
@@ -86,7 +90,7 @@ def test_parse_ruff_line():
 def test_unparseable_empty():
     assert (
         findings_from_logs(
-            [{"name": "t", "bucket": "fail", "link": "runs/1"}],
+            [{"name": "t", "bucket": "fail", "link": _link("1")}],
             {"1": "job failed, no file locus\n"},
         )
         == []
@@ -96,7 +100,7 @@ def test_unparseable_empty():
 def test_no_severity_hint():
     log = "tests/foo.py:12: in test_x\n"
     findings = findings_from_logs(
-        [{"name": "t", "bucket": "fail", "link": "runs/1"}],
+        [{"name": "t", "bucket": "fail", "link": _link("1")}],
         {"1": log},
     )
     assert findings[0].severity_hint is None
@@ -154,3 +158,22 @@ def test_cap_is_per_run_not_global():
     )
     assert sum(1 for f in findings if f.path == "tests/a.py") == 10
     assert any(f.path == "tests/b.py" and f.line == 1 for f in findings)
+
+
+def test_parse_prefixed_job_log_line():
+    log = "Quick Test\tRun tests\ttests/foo.py:12: in test_x\n"
+    findings = findings_from_logs(
+        [{"name": "t", "bucket": "fail", "link": _link("1")}],
+        {"1": log},
+    )
+    assert len(findings) == 1
+    assert findings[0].path == "tests/foo.py"
+    assert findings[0].line == 12
+
+
+def test_missing_run_link_does_not_borrow_other_log():
+    findings = findings_from_logs(
+        [{"name": "t", "bucket": "fail", "link": "https://example.test/no-run"}],
+        {"1": "tests/foo.py:12: in test_x\n"},
+    )
+    assert findings == []

@@ -12,8 +12,9 @@ from .classifier import STATE_CLEAN, STATE_FINDINGS, STATE_POLLING
 from .models import Finding
 
 _MAX_FINDINGS = 10
-_RUFF_LINE = re.compile(r"(?m)^(?P<path>\S+\.py):(?P<line>\d+):\d+:\s+\S+")
-_PYTEST_LINE = re.compile(r"(?m)^(?P<path>\S+\.py):(?P<line>\d+):\s")
+# Job logs prefix each line (`job<TAB>step<TAB>`); do not require start-of-line.
+_RUFF_LINE = re.compile(r"(?P<path>(?:src|tests)/\S+\.py):(?P<line>\d+):\d+:\s+\S+")
+_PYTEST_LINE = re.compile(r"(?P<path>(?:src|tests)/\S+\.py):(?P<line>\d+):\s")
 _RUN_ID = re.compile(r"/actions/runs/(\d+)")
 _HUMAN_NAME = "boundary"
 
@@ -89,8 +90,6 @@ def _log_for(check: dict, logs_by_run: dict[str, str]) -> str:
     rid = _run_id_from_link(str(check.get("link") or ""))
     if rid and rid in logs_by_run:
         return logs_by_run[rid]
-    if len(logs_by_run) == 1:
-        return next(iter(logs_by_run.values()))
     return ""
 
 

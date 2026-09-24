@@ -63,6 +63,15 @@ STATE="$(printf '%s' "$CHECKS_JSON" | jq -r '
               or ((.state // "") | ascii_downcase) == "action_required") then "findings"
     else "clean" end')"
 
+# Re-sample head after checks so a mid-poll push cannot pair new checks with an old SHA.
+HEAD1="$(printf '%s' "$PR_JSON" | jq -r '.headRefOid // empty')"
+PR_AFTER="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid 2>/dev/null || true)"
+[ -n "$PR_AFTER" ] && PR_JSON="$PR_AFTER"
+HEAD2="$(printf '%s' "$PR_JSON" | jq -r '.headRefOid // empty')"
+if [ -n "$HEAD1" ] && [ -n "$HEAD2" ] && [ "$HEAD1" != "$HEAD2" ]; then
+    STATE="polling"
+fi
+
 printf '%s' "$PR_JSON" | jq -c \
     --arg state "$STATE" \
     --argjson checks "$CHECKS_JSON" \
