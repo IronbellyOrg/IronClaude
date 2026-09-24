@@ -61,6 +61,7 @@ def install(target: str, force: bool, list_only: bool):
         list_available_agents,
         list_installed_agents,
     )
+    from .install_ccsession import wire_ccsession
     from .install_commands import (
         install_commands,
         list_available_commands,
@@ -184,6 +185,11 @@ def install(target: str, force: bool, list_only: bool):
     click.echo(skill_message)
     click.echo()
 
+    # Wire the installed ccsession skill before registering its hook.
+    cc_success, cc_message = wire_ccsession()
+    click.echo(cc_message)
+    click.echo()
+
     # Step 5: Install hooks (scripts + additive settings.json merge)
     click.echo("📦 Installing hooks to ~/.claude/hooks/...")
     click.echo()
@@ -206,6 +212,7 @@ def install(target: str, force: bool, list_only: bool):
         or not cmd_success
         or not agent_success
         or not skill_success
+        or not cc_success
         or not hooks_success
         or not templates_success
     ):
@@ -275,6 +282,7 @@ def update(target: str):
         superclaude update --target /custom/path
     """
     from .install_agents import install_agents
+    from .install_ccsession import wire_ccsession
     from .install_commands import install_commands
     from .install_core import install_core_files
     from .install_hooks import install_hooks
@@ -308,12 +316,25 @@ def update(target: str):
     click.echo(skill_message)
     click.echo()
 
+    cc_success, cc_message = wire_ccsession()
+    click.echo(cc_message)
+    click.echo()
+
     # Update global hooks and their settings registrations.
     click.echo("📦 Updating hooks...")
     hook_success, hook_message = install_hooks(force=True)
     click.echo(hook_message)
 
-    if not all((core_success, cmd_success, agent_success, skill_success, hook_success)):
+    if not all(
+        (
+            core_success,
+            cmd_success,
+            agent_success,
+            skill_success,
+            cc_success,
+            hook_success,
+        )
+    ):
         sys.exit(1)
 
 

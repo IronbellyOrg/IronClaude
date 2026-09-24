@@ -4,9 +4,12 @@ SuperClaude Doctor Command
 Health check for SuperClaude installation.
 """
 
+import json
+import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from .install_hooks import _is_ccsession_hook
 from .install_skills import skill_activation_targets
 
 
@@ -38,9 +41,65 @@ def run_doctor(verbose: bool = False) -> Dict[str, Any]:
     config_check = _check_configuration()
     checks.append(config_check)
 
+    checks.append(_check_ccsession())
+
     return {
         "checks": checks,
         "passed": all(check["passed"] for check in checks),
+    }
+
+
+def _check_ccsession(home: Path | None = None) -> Dict[str, Any]:
+    home = Path.home() if home is None else Path(home)
+    skill = home / ".claude/skills/ccsession-tag"
+    wrapper = skill / "ccsession"
+    bin_path = home / ".local/bin/ccsession"
+    settings = home / ".claude/settings.json"
+    missing = [
+        str(path)
+        for path in (
+            skill,
+            wrapper,
+            skill / "hooks/session-start.sh",
+            home / ".claude/ccsession.env",
+        )
+        if not (path.is_dir() if path == skill else path.is_file())
+    ]
+    if not bin_path.is_symlink() or bin_path.resolve() != wrapper.resolve():
+        missing.append(
+            f"{bin_path}: collision"
+            if bin_path.exists() or bin_path.is_symlink()
+            else str(bin_path)
+        )
+
+    try:
+        data = json.loads(settings.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        data = {}
+    hooks = data.get("hooks", {}) if isinstance(data, dict) else {}
+    registrations = hooks.get("SessionStart", []) if isinstance(hooks, dict) else []
+    registered = isinstance(registrations, list) and any(
+        isinstance(reg, dict)
+        and isinstance(reg.get("hooks"), list)
+        and any(
+            isinstance(hook, dict) and _is_ccsession_hook(hook.get("command"))
+            for hook in reg["hooks"]
+        )
+        for reg in registrations
+    )
+    if not registered:
+        missing.append(f"{settings}: ccsession SessionStart hook not registered")
+
+    on_path = any(
+        Path(entry).expanduser().resolve() == bin_path.parent.resolve()
+        for entry in os.environ.get("PATH", "").split(os.pathsep)
+        if entry
+    )
+    return {
+        "name": "ccsession installed"
+        + (" (warning: ~/.local/bin not on PATH)" if not on_path else ""),
+        "passed": not missing,
+        "details": missing or ["ccsession skill, launcher, env and hook present"],
     }
 
 

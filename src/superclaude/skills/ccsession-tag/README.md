@@ -19,7 +19,7 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 |---|---|
 | `ccsession` | The `ccsession` shell command |
 | `local-gateway-alias-proxy.py` | The shim, a small local proxy |
-| `install.sh` | Installer. Run this once |
+| `install.sh` | Standalone fallback when you only have this skill folder |
 | `ccsession.env.example` | Template for your gateway address and key |
 | `hooks/session-start.sh` | Records each session's ID so names can resume it |
 | `SKILL.md` | The `/ccsession-tag` command used inside Claude |
@@ -29,7 +29,7 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 
 ## Before you install
 
-- macOS or Linux, with `python3`, `curl`, and `lsof` available.
+- macOS or Linux only. The optional gateway shim uses `python3`, `curl`, and `lsof`.
 - Claude Code already installed and working.
 - `~/.local/bin` on your `PATH`.
 - The shim part only matters if you have a LiteLLM gateway. Session naming works
@@ -39,24 +39,21 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 
 ## Install from IronClaude
 
-Install or update the packaged skill, then run its local installer:
+Install IronClaude normally (or update it from a checkout):
 
 ```bash
-superclaude install-skill ccsession-tag --force
-~/.claude/skills/ccsession-tag/install.sh
+superclaude install
+# In an IronClaude checkout, ./update.sh also refreshes ccsession.
 ```
 
-The first command copies this complete package out of IronClaude. The second
-creates the `ccsession` command, creates `~/.claude/ccsession.env` without
-putting a key in the repository, and registers the SessionStart hook. It is
-safe to run again and leaves an existing environment file untouched.
+This installs the skill, links `~/.local/bin/ccsession`, seeds
+`~/.claude/ccsession.env` if absent, and registers its SessionStart hook.
+`superclaude update` and `./update.sh` refresh the packaged files without
+overwriting your env file. No gateway is required for session naming.
 
-If you are working from an IronClaude source checkout, you can install directly:
-
-```bash
-cd src/superclaude/skills/ccsession-tag
-./install.sh
-```
+**Standalone fallback:** If you copied only this skill folder, run its
+`./install.sh` from inside that folder. You do not need it after
+`superclaude install`.
 
 Then check it:
 

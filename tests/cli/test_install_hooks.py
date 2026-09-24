@@ -568,6 +568,94 @@ def test_smoke_install_then_reinstall_force(fake_source_hooks, target_settings):
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.parametrize("force", [False, True])
+@pytest.mark.parametrize("quote", ['"', "'"])
+def test_ccsession_legacy_hook_is_owned(
+    fake_source_hooks, target_settings, force, quote
+):
+    canonical = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
+    source_path = fake_source_hooks / "hooks/hooks.json"
+    source = json.loads(source_path.read_text())
+    source["hooks"]["SessionStart"].append(
+        {
+            "matcher": "startup|resume",
+            "hooks": [{"type": "command", "command": canonical, "timeout": 5}],
+        }
+    )
+    source_path.write_text(json.dumps(source))
+    legacy = f"bash {quote}{target_settings.parent / 'skills/ccsession-tag/hooks/session-start.sh'}{quote}"
+    user = f"notify --about {legacy}"
+    target_settings.write_text(
+        json.dumps(
+            {
+                "hooks": {
+                    "SessionStart": [
+                        {
+                            "matcher": "startup|resume",
+                            "hooks": [
+                                {"type": "command", "command": legacy, "timeout": 99},
+                                {"type": "command", "command": user},
+                            ],
+                        }
+                    ]
+                }
+            }
+        )
+    )
+
+    ok, msg = install_hooks(target_path=target_settings, force=force)
+    assert ok, msg
+    commands = [
+        h["command"]
+        for reg in json.loads(target_settings.read_text())["hooks"]["SessionStart"]
+        for h in reg["hooks"]
+    ]
+    assert commands.count(user) == 1
+    assert commands.count(canonical) == (1 if force else 0)
+    assert commands.count(legacy) == (0 if force else 1)
+    assert len(commands) == 3  # freshness, ccsession, unrelated user hook
+
+
+def test_ccsession_unrelated_command_is_not_owned(fake_source_hooks, target_settings):
+    canonical = "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
+    source_path = fake_source_hooks / "hooks/hooks.json"
+    source = json.loads(source_path.read_text())
+    source["hooks"]["SessionStart"].append(
+        {
+            "matcher": "startup|resume",
+            "hooks": [{"type": "command", "command": canonical}],
+        }
+    )
+    source_path.write_text(json.dumps(source))
+    user = 'bash "/tmp/ccsession-tag/hooks/session-start.sh" --custom'
+    target_settings.write_text(
+        json.dumps({"hooks": {"SessionStart": [{"hooks": [{"command": user}]}]}})
+    )
+    ok, msg = install_hooks(target_path=target_settings, force=True)
+    assert ok, msg
+    commands = [
+        h["command"]
+        for reg in json.loads(target_settings.read_text())["hooks"]["SessionStart"]
+        for h in reg["hooks"]
+    ]
+    assert user in commands and canonical in commands
+
+
+def test_real_hooks_json_registers_ccsession():
+    hooks_json = (
+        Path(__file__).resolve().parents[2] / "src/superclaude/hooks/hooks.json"
+    )
+    registrations = json.loads(hooks_json.read_text())["hooks"]["SessionStart"]
+    assert any(
+        reg.get("matcher") == "startup|resume"
+        and any(
+            h.get("command") == "~/.claude/skills/ccsession-tag/hooks/session-start.sh"
+            for h in reg["hooks"]
+        )
+        for reg in registrations
+    )
+
+
 def test_real_hooks_json_gates_write_in_pre_tool_use():
     """Pin the matcher tools list so the gated set doesn't drift silently."""
     real_hooks = (
