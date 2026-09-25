@@ -85,7 +85,8 @@ def test_t1120_auggie_review_invoked_at_most_once(tmp_path):
     strict-once gate — check_idempotent("auggie_review_invoked", pr) returns True
     the first time and False on replay, emitting an idempotency_skip (INV-R2)."""
     assert "auggie_review_invoked" in IDEMPOTENCY_SETS
-    assert len(IDEMPOTENCY_SETS) == 6  # 5→6, NOT a "4"/reconcile framing
+    assert "silence_rerequest_invoked" in IDEMPOTENCY_SETS
+    assert len(IDEMPOTENCY_SETS) == 7
     rl = RunLog(55, tmp_path)
     pr = 55
     # First fallback invoke: newly recorded → proceed.
@@ -120,3 +121,36 @@ def test_t1124_auggie_strict_once_survives_resume(tmp_path, load_fixture):
     )
     # The dedup still fires on the persisted set after resume.
     assert rl2.check_idempotent("auggie_review_invoked", pr) is False
+
+
+def test_inv_s1_silence_rerequest_at_most_once_and_resume(tmp_path):
+    """INV-S1: silence re-request is strict-once, resume-safe, and not an S5a count."""
+    pr = 242
+    rl = RunLog(pr, tmp_path)
+    assert rl.check_idempotent("silence_rerequest_invoked", pr) is True
+    rl.append(
+        {
+            "event_type": EventType.SILENCE_REREQUESTED.value,
+            "pr_number": pr,
+            "elapsed": 300,
+        }
+    )
+    assert rl.check_idempotent("silence_rerequest_invoked", pr) is False
+    assert rl.rebuild_state()["rereview_request_count"] == 0
+    assert rl.rebuild_state()["silence_rerequested_at"] == 300
+    assert rl.rebuild_state()["round_counter"] == 0
+    rl.append(
+        {
+            "event_type": EventType.SILENCE_REREQUESTED.value,
+            "pr_number": pr,
+            "elapsed": 400,
+        }
+    )
+    assert rl.rebuild_state()["silence_rerequested_at"] == 300
+    rl2 = RunLog(pr, tmp_path)
+    state = rl2.rebuild_state()
+    assert state["silence_rerequest_invoked"] == [pr]
+    assert state["rereview_request_count"] == 0
+    assert state["silence_rerequested_at"] == 300
+    assert state["round_counter"] == 0
+    assert rl2.check_idempotent("silence_rerequest_invoked", pr) is False

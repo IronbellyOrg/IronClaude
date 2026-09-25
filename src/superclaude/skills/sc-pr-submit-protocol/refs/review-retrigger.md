@@ -28,8 +28,13 @@ gh api --method POST repos/<owner/repo>/issues/<N>/comments -f body="auggie revi
 - **Repo-pin:** the path names the RESOLVED `repos/<owner/repo>/...` (origin's `owner/repo`) — a bare
   `gh api .../comments` or an upstream-parent path is a **T-104-class defect**. `gh api` takes no
   `--repo`; the repo is the path segment.
-- **Body token:** exactly `auggie review` (one of the contract's `accepted_trigger_phrases`).
-- The actual POST is performed by `scripts/retrigger-review.sh --pr <N>` (the script wraps this in the
+- **Body token (S5a):** default `auggie review` (one of the contract's `accepted_trigger_phrases`).
+- **Silence poke (not S5a):** after `--silence-timeout` with no Augment activity, L3 may POST once
+  with `--body "augment review"` only via INV-S1 write-ahead: `check_idempotent("silence_rerequest_invoked")`
+  then append `silence_rerequested{pr_number, elapsed}` then POST. Not INV-R1; does not increment
+  `rereview_request_count` or `round_counter`. `S5C_SILENCE_REREQUEST` is consider-once, not POST-now.
+  Never treat an Augment decline comment as this POST (unreachable: decline is activity).
+- The actual POST is performed by `scripts/retrigger-review.sh --pr <N> [--body <phrase>]` (the script wraps this in the
   shared `set -euo pipefail` / `die()` / arg-guard / `command -v gh` shape with a SoT footer).
 
 ## 3. Watermark / attribution

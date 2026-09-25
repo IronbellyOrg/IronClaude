@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 
 from .classifier import STATE_CLEAN, STATE_FINDINGS, STATE_POLLING
-from .models import Finding
+from .models import Finding, MonitorState
 
 _MAX_FINDINGS = 10
 # Job logs prefix each line (`job<TAB>step<TAB>`); do not require start-of-line.
@@ -44,6 +44,26 @@ def classify_checks(payload: dict, *, wait_sha: str | None = None) -> str:
     if any(s == "action_required" for s in states):
         return STATE_FINDINGS
     return STATE_CLEAN
+
+
+def should_arm_ci_wait(state: object) -> bool:
+    """True when Wave 8 should wait on checks after this Augment terminal."""
+    name = getattr(state, "value", state)
+    return name in {
+        MonitorState.TERMINAL_CLEAN.value,
+        MonitorState.REPORT_ONLY.value,
+        MonitorState.HALT_MAX_ROUNDS.value,
+        MonitorState.TERMINAL_AUGMENT_NO_RESPONSE.value,
+    }
+
+
+def ci_wait_autofix(state: object) -> bool:
+    """True when Wave 8 may auto-fix CI findings (not after halt or silence)."""
+    name = getattr(state, "value", state)
+    return name in {
+        MonitorState.TERMINAL_CLEAN.value,
+        MonitorState.REPORT_ONLY.value,
+    }
 
 
 def is_human_gate(check: dict) -> bool:

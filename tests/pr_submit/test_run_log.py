@@ -156,21 +156,24 @@ def test_rebuild_from_jsonl_is_authoritative(tmp_path):
     assert state["reply_count"] == 1
     assert "abc123" in state["pushed_commit_shas"]
     assert 55 in state["replied_comment_ids"]
+    assert state["silence_rerequested_at"] is None
 
 
 # --- V1.1 closed-enum count + new-event folds (addendum §6.1/§6.3) ------------
 
 
-def test_eventtype_is_37_members_with_v11_events():
-    """The closed EventType enum has EXACTLY 37 members, including the 4 V1.1
-    re-review/fallback events. This test FAILS if a future edit drifts the count."""
-    assert len(EventType) == 37
-    assert len(list(EventType)) == 37
-    # The 4 new V1.1 members exist with their exact identifier=value strings.
+def test_eventtype_is_39_members_with_silence_events():
+    """The closed EventType enum has EXACTLY 39 members, including INV-S1."""
+    assert len(EventType) == 39
+    assert len(list(EventType)) == 39
     assert EventType.REREVIEW_REQUESTED.value == "rereview_requested"
     assert EventType.DECLINE_DETECTED.value == "decline_detected"
     assert EventType.AUGGIE_FALLBACK_INVOKED.value == "auggie_fallback_invoked"
     assert EventType.MAX_ROUNDS_CLAMPED.value == "max_rounds_clamped"
+    assert EventType.SILENCE_REREQUESTED.value == "silence_rerequested"
+    assert (
+        EventType.TERMINAL_AUGMENT_NO_RESPONSE.value == "terminal_augment_no_response"
+    )
 
 
 def test_new_v11_events_pass_closed_enum_append_validation(tmp_path):
@@ -181,6 +184,8 @@ def test_new_v11_events_pass_closed_enum_append_validation(tmp_path):
         EventType.DECLINE_DETECTED,
         EventType.AUGGIE_FALLBACK_INVOKED,
         EventType.MAX_ROUNDS_CLAMPED,
+        EventType.SILENCE_REREQUESTED,
+        EventType.TERMINAL_AUGMENT_NO_RESPONSE,
     ):
         rec = rl.append({"event_type": member.value})
         assert rec["event_type"] == member.value

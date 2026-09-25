@@ -38,6 +38,9 @@ Working states:
   (a push does NOT auto-trigger an Augment re-review) BEFORE awaiting the re-review. Non-terminal.
 - `S5b_AUGGIE_FALLBACK` (Python `S5B_AUGGIE_FALLBACK`) — V1.1 (FR-9/FR-10): the single-shot oversized-PR
   `/sc:auggie-review` fallback engaged on an Augment "abnormally large" decline. Non-terminal.
+- `S5c_SILENCE_REREQUEST` (Python `S5C_SILENCE_REREQUEST`) — consider the one permitted INV-S1
+  attempt after the silence window. Non-terminal. Does not tick `round_counter`. The state is
+  not itself a POST; the SKILL may POST only via INV-S1 write-ahead.
 - `PROPOSED` — L1 ceiling: present "fix these? y/n", apply NO edits.
 - `REPORT_ONLY` — a finding routed here is reported, not remediated; consumes NO round.
 
@@ -47,7 +50,9 @@ Terminals (the FSM never transitions out of these):
 - `HALT_MAX_ROUNDS` (terminal `terminal_max_rounds`) — round cap reached with residual findings.
 - `HALT_HUMAN` (terminal `terminal_halted`) — a `needs_human_decision` finding short-circuited.
 - `VALIDATION_FAIL` — validation failed beyond the retry budget.
-- `TERMINAL_TIMEOUT` — the review never arrived within the wall-clock timeout.
+- `TERMINAL_TIMEOUT` — partial Augment activity, but no classified review within `--timeout`.
+- `TERMINAL_AUGMENT_NO_RESPONSE` — zero Augment-attributed activity after the silence window
+  (and the optional L3 poke). Wave 8 still waits; do not claim `TERMINAL_CLEAN` for the review.
 - `TERMINAL_FAILED` — misrouted PR, corrupt run-log, or other unrecoverable failure.
 
 ## 5.2 The ordinal as a capability ceiling (transition table, NOT nested ifs)
@@ -120,11 +125,12 @@ this MOD is a deliberate, flagged addendum-coverage gap (recorded in the task's 
 
 ### 5.2c CI phase — SKILL-owned `source`, no new FSM edges
 
-After Augment classify would be `clean`, reaches `REPORT_ONLY`, **or exhausts**
-`max_rounds` (`HALT_MAX_ROUNDS`), the SKILL sets `source=ci`, resets the wait clock,
-and polls CI. A spent round budget permits **waiting only**: CI findings are
-`REPORT_ONLY`, never an additional fix or push. Other halt states do not arm
-CI. On Augment `clean` / `REPORT_ONLY`, the SKILL continues at `S2_CLASSIFY`
+After Augment classify would be `clean`, reaches `REPORT_ONLY`, **exhausts**
+`max_rounds` (`HALT_MAX_ROUNDS`), **or** ends in `TERMINAL_AUGMENT_NO_RESPONSE`,
+the SKILL sets `source=ci`, resets the wait clock, and polls CI. A spent round
+budget and a silence terminal permit **waiting only**: CI findings are
+`REPORT_ONLY`, never an additional fix or push. `TERMINAL_TIMEOUT` and other
+halt states do not arm CI. Never send `transition(clean)` after silence. On Augment `clean` / `REPORT_ONLY`, the SKILL continues at `S2_CLASSIFY`
 **without** sending Augment `clean` to `transition()`. Once the FSM reaches
 `HALT_MAX_ROUNDS`, it stays terminal: the SKILL polls CI separately and reports
 its outcome alongside the preserved Augment halt; it never transitions out

@@ -5,7 +5,7 @@ category: quality
 complexity: advanced
 mcp-servers: [sequential, serena, auggie]
 personas: [analyzer, architect, security, qa, devops]
-argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--output-dir <dir>] [--resume <run-log.jsonl>]"
+argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--output-dir <dir>] [--resume <run-log.jsonl>]"
 version: "1.0"
 ---
 
@@ -46,11 +46,14 @@ Explicit only — three activation paths:
 | `--max-rounds N` | 2 | Remediation cycles; hard cap 5 (reject >5). |
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
 | `--timeout S` | 600 | Per-wait wall-clock timeout (~10 min). CI runs can exceed this; size it to the full check run. |
+| `--silence-timeout S` | 300 | No-Augment-activity window; min 30s; clamped to `--timeout`. L3 at most one poke via INV-S1 write-ahead. |
 | `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view --json defaultBranchRef`), overridable here. |
 | `--head <branch>` | — | PR head branch. |
 | `--title` / `--body` | — | PR title / body. |
 | `--output-dir <dir>` | `.dev/pr-monitor/pr-<N>-<ts>/` | Run-log + artifacts dir. |
 | `--resume <jsonl>` | — | Reconstruct state from a write-ahead run-log. |
+
+`status` enum: `terminal_clean` / `terminal_max_rounds` / `terminal_halted` / `terminal_timeout` / `terminal_augment_no_response` / `terminal_failed` / `proposed` / `halt_before_push`. Silence is `terminal_augment_no_response`, not `terminal_clean`.
 
 ## Behavioral Flow
 
@@ -67,7 +70,7 @@ This command does ONLY parse + environment-validate + handoff. It parses the fla
 
 Pass the following context:
 
-- `--monitor` ordinal (0/1/2/3) and `--max-rounds` / `--poll-interval` / `--timeout`.
+- `--monitor` ordinal (0/1/2/3) and `--max-rounds` / `--poll-interval` / `--timeout` / `--silence-timeout`.
 - PR context: `--base` / `--head` / `--title` / `--body`, or the existing PR number.
 - `--output-dir` and `--resume` if supplied.
 
@@ -75,7 +78,7 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 ## Boundaries
 
-**Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling; after Augment clean, wait on PR checks and remediate parseable CI failures under the same ordinals.
+**Will:** open the PR on the resolved origin repo with `--repo <owner/repo>` pinned on every `gh` call (the pin is computed from origin, never bare); arm an in-session monitor at L1+; verify before remediating; respect the ordinal ceiling; after Augment clean or `terminal_augment_no_response`, wait on PR checks (silence is wait-only, never claimed as `terminal_clean` for the review).
 
 **Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
 

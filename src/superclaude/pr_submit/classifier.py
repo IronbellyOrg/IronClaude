@@ -61,6 +61,37 @@ def _augment_entries(entries: Any, augment_identities: set[str]) -> list[dict]:
     ]
 
 
+def has_augment_activity(payload: dict, contract: Any) -> bool:
+    """True iff any review or comment is authored by a configured Augment identity.
+
+    Empty or missing ``reviews`` / ``comments`` lists are not activity. A decline
+    comment, a summary comment, and a formal review all count. Pure: no I/O.
+    """
+    if not isinstance(payload, dict):
+        return False
+    identities = _augment_identities(contract)
+    if not identities:
+        return False
+    return bool(
+        _augment_entries(payload.get("reviews"), identities)
+        or _augment_entries(payload.get("comments"), identities)
+    )
+
+
+def poll_succeeded(payload: dict) -> bool:
+    """True iff ``payload`` is a complete live poll.
+
+    Fail-soft ``gh pr view`` miss has no ``head_sha``. Independent comment-API
+    miss sets ``comments_ok`` false (empty ``comments`` is then unobserved, not
+    silent). Missing ``comments_ok`` on older fixtures is treated as complete.
+    """
+    if not isinstance(payload, dict) or not payload.get("head_sha"):
+        return False
+    if payload.get("comments_ok") is False:
+        return False
+    return True
+
+
 def _entry_ts(entry: dict) -> Any:
     """Best-effort timestamp for a comment OR review entry.
 
