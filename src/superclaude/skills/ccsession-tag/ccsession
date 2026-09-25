@@ -25,6 +25,8 @@
 #   ccsession <topic> --profile <model> [--shim]
 #                             Start or resume a labeled profile session
 #   Legacy aliases: 1mm=claude, 500k=grok, 372k=5.6sol
+#   Extra local profiles can be added in ~/.config/ccsession/profiles.d/*.sh
+#   A label resumes the same project session regardless of profile or shim.
 #   ccsession --list          List all labeled sessions across all workspaces
 #   ccsession --here          List labeled sessions for the current workspace only
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
@@ -77,10 +79,47 @@ while [ "$#" -gt 0 ]; do
 done
 set -- "${_args[@]}"
 
+# Local profile add-ons live outside the skill so reinstalling ccsession never
+# overwrites them and they are never distributed. A file defines
+# ccsession_profile_<name> (non-alphanumerics become "_"). The function runs
+# before the env file below and sets PROFILE_MODEL (empty: no --model),
+# PROFILE_CONTEXT (empty: no override), PROFILE_COMPACT_WINDOW,
+# PROFILE_REQUIRES_SHIM, and optionally CCSESSION_SKIP_ENV_FILE=1 and
+# CCSESSION_REFUSE_SHIM=1. Only owner-only files are loaded, since they run
+# with the user's credentials.
+CCSESSION_PROFILES_DIR="${CCSESSION_PROFILES_DIR:-$HOME/.config/ccsession/profiles.d}"
+CCSESSION_EXT_PROFILE=0
+CCSESSION_SKIP_ENV_FILE=0
+CCSESSION_REFUSE_SHIM=0
+if [ -n "$PROFILE" ] && [ -d "$CCSESSION_PROFILES_DIR" ]; then
+  for _addon in "$CCSESSION_PROFILES_DIR"/*.sh; do
+    [ -f "$_addon" ] || continue
+    if [ ! -O "$_addon" ] || [ -n "$(find "$_addon" -perm -g+w -o -perm -o+w 2>/dev/null)" ]; then
+      echo "[ccsession] WARNING: skipping add-on not owner-only: $_addon" >&2
+      continue
+    fi
+    # shellcheck disable=SC1090
+    . "$_addon"
+  done
+  _hook="ccsession_profile_${PROFILE//[^A-Za-z0-9_]/_}"
+  if declare -F "$_hook" >/dev/null; then
+    CCSESSION_EXT_PROFILE=1
+    PROFILE_MODEL=""
+    PROFILE_CONTEXT=""
+    PROFILE_COMPACT_WINDOW=""
+    PROFILE_REQUIRES_SHIM=0
+    "$_hook"
+    if [ "$CCSESSION_REFUSE_SHIM" = 1 ] && [ "$USE_SHIM" = 1 ]; then
+      echo "ccsession: profile '$PROFILE' cannot use the company gateway shim" >&2
+      exit 2
+    fi
+  fi
+fi
+
 # Source per-user env (proxy base URL, auth tokens, etc.) before launching
 # claude. Keep this file out of version control — it holds secrets.
 CCSESSION_ENV_FILE="${CCSESSION_ENV_FILE:-$HOME/.claude/ccsession.env}"
-if [ -f "$CCSESSION_ENV_FILE" ]; then
+if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ] && [ -f "$CCSESSION_ENV_FILE" ]; then
   # shellcheck disable=SC1090
   . "$CCSESSION_ENV_FILE"
 fi
@@ -222,7 +261,7 @@ apply_profile() {
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
 
-  case "$PROFILE" in
+  [ "$CCSESSION_EXT_PROFILE" = 1 ] || case "$PROFILE" in
     claude|1mm)
       # Plain "claude-opus-5-5" is the 200K row; the 1M window is a separate
       # model name. Without the suffix the context override below is ignored.
@@ -266,7 +305,7 @@ apply_profile() {
       ;;
     *)
       echo "ccsession: unknown profile '$PROFILE'" >&2
-      echo "Valid profiles: claude, grok, muse, 5.6sol, 6astra, 6sol (legacy aliases: 1mm, 500k, 372k)" >&2
+      echo "Valid profiles: claude, grok, muse, 5.6sol, 6astra, 6sol (legacy aliases: 1mm, 500k, 372k), plus any in $CCSESSION_PROFILES_DIR" >&2
       exit 2
       ;;
   esac
@@ -281,7 +320,9 @@ apply_profile() {
     PROFILE_COMPACT_WINDOW="$CCSESSION_COMPACT_WINDOW"
   fi
 
-  export CLAUDE_CODE_MAX_CONTEXT_TOKENS="$PROFILE_CONTEXT"
+  if [ -n "$PROFILE_CONTEXT" ]; then
+    export CLAUDE_CODE_MAX_CONTEXT_TOKENS="$PROFILE_CONTEXT"
+  fi
   # Custom models need an explicit proactive auto-compaction window; with only
   # the max-context override, Claude Code can hit the provider limit first.
   if [ -n "$PROFILE_COMPACT_WINDOW" ]; then
@@ -298,7 +339,9 @@ apply_profile() {
     export ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION="$PROFILE context profile"
   fi
 
-  if [ -n "$PROFILE_COMPACT_WINDOW" ]; then
+  if [ -z "$PROFILE_MODEL" ]; then
+    echo "[ccsession] profile $PROFILE: default model and context"
+  elif [ -n "$PROFILE_COMPACT_WINDOW" ]; then
     echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, auto-compact window $PROFILE_COMPACT_WINDOW"
   else
     echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, native auto-compact"
@@ -525,7 +568,7 @@ fi
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
   echo "[ccsession] Starting untagged session"
-  if [ -n "$PROFILE" ]; then
+  if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
   else
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
@@ -550,14 +593,14 @@ export CLAUDE_TOPIC="$TOPIC"
 if [ -f "$TOPIC_FILE" ]; then
   SESSION_ID=$(cat "$TOPIC_FILE")
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
-  if [ -n "$PROFILE" ]; then
+  if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
   else
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --resume "$SESSION_ID" "$@"
   fi
 else
   echo "[ccsession] Starting new session labeled '$TOPIC'"
-  if [ -n "$PROFILE" ]; then
+  if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
   else
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"

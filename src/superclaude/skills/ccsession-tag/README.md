@@ -154,8 +154,23 @@ Older names `1mm`, `372k`, and `500k` still work and mean `claude`, `5.6sol`,
 and `grok`. With `--shim`, ccsession saves the complete curated model list before
 Claude Code starts, so every profile shows the same gateway models in `/model`.
 
-To add your own, copy a block in the `apply_profile` section of `ccsession` and
-change the name, the model, and the two numbers.
+To add your own without editing ccsession, put a file in
+`~/.config/ccsession/profiles.d/` (for example `mine.sh`, readable and writable
+only by you) that defines a function named `ccsession_profile_<name>`. Reinstalling
+ccsession never touches this folder, and nothing in it is ever shared.
+
+```bash
+ccsession_profile_mine() {
+  PROFILE_MODEL="claude-opus-5-5[1m]"   # empty: let Claude Code choose
+  PROFILE_CONTEXT="1000000"              # empty: no context override
+  PROFILE_COMPACT_WINDOW="1000000"
+  PROFILE_REQUIRES_SHIM=0
+  # Optional: CCSESSION_SKIP_ENV_FILE=1 to ignore ~/.claude/ccsession.env,
+  # CCSESSION_REFUSE_SHIM=1 to refuse --shim for this profile.
+}
+```
+
+Then run `ccsession --profile mine`. Labels work the same across every profile.
 
 ---
 

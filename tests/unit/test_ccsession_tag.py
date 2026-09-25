@@ -105,6 +105,90 @@ def test_help_lists_all_commands_and_profiles() -> None:
         assert expected in result.stdout
 
 
+def _addon_launch(tmp_path: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    home = tmp_path / "home"
+    addons = home / ".config" / "ccsession" / "profiles.d"
+    addons.mkdir(parents=True, exist_ok=True)
+    addon = addons / "local.sh"
+    addon.write_text(
+        "ccsession_profile_local_test() {\n"
+        "  CCSESSION_SKIP_ENV_FILE=1\n"
+        "  CCSESSION_REFUSE_SHIM=1\n"
+        "}\n"
+    )
+    addon.chmod(0o600)
+    work_env = tmp_path / "work.env"
+    work_env.write_text("export CCSESSION_WORK_FILE=loaded\n")
+    fake_bin = tmp_path / "claude-addon"
+    fake_bin.write_text(
+        """#!/usr/bin/env python3
+import json, os, sys
+print(json.dumps({"argv": sys.argv[1:],
+                  "work": os.environ.get("CCSESSION_WORK_FILE", ""),
+                  "context": os.environ.get("CLAUDE_CODE_MAX_CONTEXT_TOKENS", "")}))
+"""
+    )
+    fake_bin.chmod(0o700)
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "CLAUDE_BIN": str(fake_bin),
+            "CCSESSION_ENV_FILE": str(work_env),
+        }
+    )
+    env.pop("CLAUDE_CODE_MAX_CONTEXT_TOKENS", None)
+    return subprocess.run(
+        [str(SKILL_DIR / "ccsession"), *args],
+        env=env,
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+def test_local_addon_profile_controls_env_model_and_shim(tmp_path: Path) -> None:
+    result = _addon_launch(tmp_path, "--profile", "local-test")
+    assert result.returncode == 0, result.stderr
+    child = json.loads(result.stdout.strip().splitlines()[-1])
+    assert "--model" not in child["argv"]
+    assert child["work"] == ""
+    assert child["context"] == ""
+    refused = _addon_launch(tmp_path, "--profile", "local-test", "--shim")
+    assert refused.returncode == 2
+    assert "cannot use the company gateway shim" in refused.stderr
+    company = _addon_launch(tmp_path, "--profile", "claude")
+    assert company.returncode == 0, company.stderr
+    assert json.loads(company.stdout.strip().splitlines()[-1])["work"] == "loaded"
+
+
+def test_local_addon_that_others_can_write_is_ignored(tmp_path: Path) -> None:
+    _addon_launch(tmp_path, "--profile", "claude")
+    addon_dir = tmp_path / "home" / ".config" / "ccsession" / "profiles.d"
+    loose = addon_dir / "loose.sh"
+    loose.write_text("ccsession_profile_loose() { :; }\n")
+    loose.chmod(0o666)
+    result = _addon_launch(tmp_path, "--profile", "loose")
+    assert result.returncode == 2
+    assert "skipping add-on not owner-only" in result.stderr
+    assert "unknown profile 'loose'" in result.stderr
+
+
+def test_package_contains_no_personal_account_routing() -> None:
+    for path in SKILL_DIR.rglob("*"):
+        if path.is_file() and "__pycache__" not in path.parts:
+            text = path.read_text(errors="ignore").lower()
+            for marker in (
+                "chatgpt",
+                "8417",
+                "cliproxyapi",
+                "ccsession-personal",
+                "codex oauth",
+            ):
+                assert marker not in text, f"{marker} found in {path}"
+
+
 def test_renamed_profiles_are_rejected(tmp_path: Path) -> None:
     env = os.environ.copy()
     env["HOME"] = str(tmp_path)
