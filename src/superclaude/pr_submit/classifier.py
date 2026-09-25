@@ -61,6 +61,23 @@ def _augment_entries(entries: Any, augment_identities: set[str]) -> list[dict]:
     ]
 
 
+def has_augment_activity(payload: dict, contract: Any) -> bool:
+    """True iff any review or comment is authored by a configured Augment identity.
+
+    Empty or missing ``reviews`` / ``comments`` lists are not activity. A decline
+    comment, a summary comment, and a formal review all count. Pure: no I/O.
+    """
+    if not isinstance(payload, dict):
+        return False
+    identities = _augment_identities(contract)
+    if not identities:
+        return False
+    return bool(
+        _augment_entries(payload.get("reviews"), identities)
+        or _augment_entries(payload.get("comments"), identities)
+    )
+
+
 def _entry_ts(entry: dict) -> Any:
     """Best-effort timestamp for a comment OR review entry.
 

@@ -23,7 +23,7 @@ from pathlib import Path
 
 from .models import EventType
 
-# The 6 idempotency sets (§11.4 + V1.1 addendum §6.3).
+# The 7 idempotency sets (§11.4 + V1.1 addendum §6.3 + INV-S1).
 IDEMPOTENCY_SETS = (
     "processed_review_ids",
     "processed_finding_ids",  # keyed on fix_key
@@ -31,6 +31,7 @@ IDEMPOTENCY_SETS = (
     "resolved_thread_ids",
     "pushed_commit_shas",
     "auggie_review_invoked",  # keyed on pr_number — INV-R2 strict-once fallback gate
+    "silence_rerequest_invoked",  # keyed on pr_number — INV-S1 strict-once silence poke
 )
 
 _VALID_EVENT_VALUES = frozenset(e.value for e in EventType)
@@ -159,7 +160,7 @@ class RunLog:
     def rebuild_state(self) -> dict:
         """Fold the authoritative JSONL into a state snapshot (the NFR-6 rebuild path).
 
-        Reconstructs the FSM state, ``round_counter``, the 6 idempotency sets, and
+        Reconstructs the FSM state, ``round_counter``, the 7 idempotency sets, and
         ``push_count``/``reply_count`` from the event stream. This is the source of
         truth on any snapshot/JSONL disagreement.
         """
@@ -173,6 +174,7 @@ class RunLog:
             # effective_max_rounds clamp (INV-R3; None = never clamped).
             "rereview_request_count": 0,
             "effective_max_rounds": None,
+            "silence_rerequested_at": None,
             "last_event_id": 0,
             **{s: [] for s in IDEMPOTENCY_SETS},
         }
@@ -193,6 +195,14 @@ class RunLog:
             ):
                 # IDIOM B (add-to-set fold) — INV-R2 strict-once, keyed on pr_number.
                 sets["auggie_review_invoked"].add(ev["pr_number"])
+            elif (
+                et == EventType.SILENCE_REREQUESTED.value
+                and ev.get("pr_number") is not None
+            ):
+                # IDIOM B — INV-S1 strict-once silence re-request, keyed on pr_number.
+                sets["silence_rerequest_invoked"].add(ev["pr_number"])
+                if state["silence_rerequested_at"] is None and ev.get("elapsed") is not None:
+                    state["silence_rerequested_at"] = ev["elapsed"]
             elif (
                 et == EventType.MAX_ROUNDS_CLAMPED.value
                 and ev.get("effective_max_rounds") is not None

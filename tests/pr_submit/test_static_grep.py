@@ -250,6 +250,14 @@ def test_t1101_retrigger_gh_is_repo_scoped():
     assert not offenders, "Unscoped gh in re-trigger surfaces:\n" + "\n".join(offenders)
 
 
+def test_skill_pins_inv_s1_silence_rerequest_tokens():
+    """SKILL attended loop must pin INV-S1 kwargs so S5C cannot re-POST every poll."""
+    skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+    assert 'check_idempotent("silence_rerequest_invoked"' in skill
+    assert "rerequested=" in skill
+    assert "rerequested_at=" in skill
+
+
 def test_t1105_retrigger_token_in_script_not_core():
     """T-1105 (FR-8): the `auggie review` POST token lives in the bash script, while the
     FSM (the posting-decision core) holds NO hard-coded trigger literal — the FSM decides

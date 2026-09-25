@@ -32,6 +32,7 @@ DEFAULT_MAX_ROUNDS = 2
 HARD_CAP_MAX_ROUNDS = 5
 MIN_POLL_INTERVAL = 30
 DEFAULT_TIMEOUT = 600
+DEFAULT_SILENCE_TIMEOUT = 300
 
 POLL_INTERVAL_ERROR = "minimum is 30 seconds"
 MAX_ROUNDS_ERROR = "--max-rounds hard cap is 5"
@@ -53,6 +54,7 @@ class SkillArgs:
     max_rounds: int = DEFAULT_MAX_ROUNDS
     poll_interval: int = MIN_POLL_INTERVAL
     timeout: int = DEFAULT_TIMEOUT
+    silence_timeout: int = DEFAULT_SILENCE_TIMEOUT
     base: str | None = None
     head: str | None = None
     title: str | None = None
@@ -80,6 +82,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--poll-interval", dest="poll_interval", type=int, default=MIN_POLL_INTERVAL
     )
     parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
+    parser.add_argument(
+        "--silence-timeout",
+        dest="silence_timeout",
+        type=int,
+        default=DEFAULT_SILENCE_TIMEOUT,
+    )
     parser.add_argument("--base", default=None)
     parser.add_argument("--head", default=None)
     parser.add_argument("--title", default=None)
@@ -101,6 +109,8 @@ def parse_args(argv: list[str]) -> SkillArgs:
     ns = parser.parse_args(argv)
     if ns.poll_interval < MIN_POLL_INTERVAL:
         raise ValueError(f"--poll-interval {POLL_INTERVAL_ERROR}")
+    if ns.silence_timeout < MIN_POLL_INTERVAL:
+        raise ValueError(f"--silence-timeout {POLL_INTERVAL_ERROR}")
     if ns.max_rounds > HARD_CAP_MAX_ROUNDS:
         raise ValueError(MAX_ROUNDS_ERROR)
     if ns.max_rounds < 0:
@@ -110,6 +120,7 @@ def parse_args(argv: list[str]) -> SkillArgs:
         max_rounds=ns.max_rounds,
         poll_interval=ns.poll_interval,
         timeout=ns.timeout,
+        silence_timeout=min(ns.silence_timeout, ns.timeout),
         base=ns.base,
         head=ns.head,
         title=ns.title,
@@ -575,14 +586,43 @@ def timed_out(elapsed_seconds: int, timeout: int) -> bool:
     return elapsed_seconds >= timeout
 
 
-def poll_outcome(review_state: str, elapsed_seconds: int, timeout: int) -> MonitorState:
+def poll_outcome(
+    review_state: str,
+    elapsed_seconds: int,
+    timeout: int,
+    *,
+    silent: bool = False,
+    silence_timeout: int = DEFAULT_SILENCE_TIMEOUT,
+    rerequested: bool = False,
+    rerequested_at: int | None = None,
+    monitor_ordinal: int = 0,
+) -> MonitorState:
     """Map a poll result + elapsed time to the next FSM state.
 
-    A ``clean``/``findings`` review proceeds (S2_CLASSIFY); a still-``polling`` review
-    that has exceeded the wall-clock timeout fires TERMINAL_TIMEOUT (T-221/T-222);
-    otherwise polling continues (loop back to S2_CLASSIFY).
+    Positional ``(polling, elapsed, timeout)`` with ``silent=False`` still fires
+    ``TERMINAL_TIMEOUT`` (partial-activity timeout, T-221). When ``silent`` is
+    true, zero Augment activity uses ``TERMINAL_AUGMENT_NO_RESPONSE`` and may
+    return ``S5C_SILENCE_REREQUEST`` once at L3 before that terminal.
     """
     if review_state in ("clean", "findings"):
+        return MonitorState.S2_CLASSIFY
+    if review_state == "polling" and silent:
+        if timed_out(elapsed_seconds, timeout):
+            return MonitorState.TERMINAL_AUGMENT_NO_RESPONSE
+        if rerequested:
+            if rerequested_at is None:
+                return MonitorState.S2_CLASSIFY
+            second_deadline = min(rerequested_at + silence_timeout, timeout)
+            if elapsed_seconds >= second_deadline:
+                return MonitorState.TERMINAL_AUGMENT_NO_RESPONSE
+            return MonitorState.S2_CLASSIFY
+        if elapsed_seconds >= silence_timeout:
+            if (
+                monitor_ordinal >= 3
+                and elapsed_seconds + MIN_POLL_INTERVAL < timeout
+            ):
+                return MonitorState.S5C_SILENCE_REREQUEST
+            return MonitorState.TERMINAL_AUGMENT_NO_RESPONSE
         return MonitorState.S2_CLASSIFY
     if timed_out(elapsed_seconds, timeout):
         return MonitorState.TERMINAL_TIMEOUT

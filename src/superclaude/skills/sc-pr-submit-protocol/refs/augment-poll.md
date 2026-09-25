@@ -49,6 +49,12 @@ never miscounted as findings.)
 
 - **Interval ≥ 30s.** A value below 30 is **rejected, not rounded** ("minimum is 30 seconds", T-111).
 - **Timeout default 600s** (~10 min), configurable; **wall-clock since entering wait** (T-221/T-222).
+- **Silence window default 300s** (`--silence-timeout`, min 30, clamped to `--timeout`). Zero
+  Augment-attributed review/comment (`has_augment_activity` false) is `TERMINAL_AUGMENT_NO_RESPONSE`,
+  not `TERMINAL_TIMEOUT`. Partial activity (summary/comment but no classified review) still times out
+  as `TERMINAL_TIMEOUT`. L3 may consider one poke: pass `rerequested=` / `rerequested_at=` from
+  `rebuild_state()`, then `check_idempotent("silence_rerequest_invoked")` → append
+  `{event_type: silence_rerequested, pr_number, elapsed}` → `retrigger-review.sh --body "augment review"`.
 - **Exponential backoff on 403 / 429 / secondary-limit:** `30 → 60 → 120 → … → cap 300s`, resetting
   on a successful poll (T-231). The backoff **counts toward the wall-clock timeout**.
 

@@ -26,6 +26,7 @@ No `conclusion` field — `gh pr checks --json` does not emit it. Empty, malform
 |-----------------|---------|--------|
 | `clean` / `REPORT_ONLY` | Arm; reset elapsed | Only while `round_counter < max_rounds` |
 | `HALT_MAX_ROUNDS` | Arm, wait-only; report CI clean, failure, timeout, or human-gate alongside retained Augment halt | No: CI findings → `REPORT_ONLY` |
+| `TERMINAL_AUGMENT_NO_RESPONSE` | Arm, wait-only; retain Augment status; report CI alongside. Never `transition(clean)` | No |
 | `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED` / L0 | Do not arm | No |
 
 The wait consumes no remediation round. A `polling` result (including a failed check query) continues at the configured interval until completion or `--timeout`. A non-zero script exit (e.g. `gh` without `pr checks --json`) is not `polling`: stop and report the missing prerequisite. The observed CI matrix has run longer than the 600s default, so a CI wait needs a `--timeout` sized to the full check run; never promise an indefinite wait. When `--required` returns a nonempty parsed list it is the chosen set; otherwise use the parsed all-checks list. Optional checks outside the chosen set do not block completion.

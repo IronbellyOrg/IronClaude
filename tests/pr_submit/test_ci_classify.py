@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from superclaude.pr_submit.ci import (
+    ci_wait_autofix,
     classify_checks,
     findings_from_logs,
     is_human_gate,
+    should_arm_ci_wait,
 )
 from superclaude.pr_submit.classifier import STATE_CLEAN, STATE_FINDINGS, STATE_POLLING
+from superclaude.pr_submit.models import MonitorState
 
 
 def _link(run: str) -> str:
@@ -15,6 +18,14 @@ def _link(run: str) -> str:
 
 
 def test_classify_pending(load_fixture):
+    assert classify_checks(load_fixture("checks-pending.json")) == STATE_POLLING
+
+
+def test_wave8_arm_after_silence_wait_only_not_clean(load_fixture):
+    assert should_arm_ci_wait(MonitorState.TERMINAL_AUGMENT_NO_RESPONSE) is True
+    assert ci_wait_autofix(MonitorState.TERMINAL_AUGMENT_NO_RESPONSE) is False
+    assert should_arm_ci_wait(MonitorState.TERMINAL_TIMEOUT) is False
+    assert ci_wait_autofix(MonitorState.TERMINAL_TIMEOUT) is False
     assert classify_checks(load_fixture("checks-pending.json")) == STATE_POLLING
 
 

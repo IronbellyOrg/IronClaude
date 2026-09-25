@@ -369,6 +369,19 @@ def test_live_markdown_decline_rest_bot_login_classifies_declined():
     assert is_decline(comment, live_contract) is True
     assert classify({"reviews": [], "comments": [comment]}, live_contract) == "declined"
 
+@pytest.mark.inv
+def test_opt_in_241_live_comment_classifies_declined(load_fixture):
+    """Live PR #241 large-PR opt-in comment → declined (not silence)."""
+    live_contract = DetectionContract(
+        augment_bot_login="augmentcode[bot]",
+        augment_app_slug="augmentcode",
+        locked=True,
+    )
+    payload = load_fixture("opt-in-241.json")
+    assert payload["expected"]["state"] == "declined"
+    assert classify(payload, live_contract) == "declined"
+    assert is_decline(payload["comments"][0], live_contract) is True
+
 
 @pytest.mark.inv
 def test_live_markdown_decline_empty_identity_set_fail_safe():

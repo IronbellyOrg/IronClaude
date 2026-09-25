@@ -1,8 +1,9 @@
 """Canonical data models for the ``sc:pr-submit`` deterministic core.
 
-Defines the closed run-log event enum (exactly 37 members — the 32 from spec
+Defines the closed run-log event enum (exactly 39 members — the 32 from spec
 §11.3 plus ``push_aborted_or_not_landed`` from §12.1, plus the 4 V1.1
-re-review/fallback events from addendum §6.1), the severity tiers, the
+re-review/fallback events from addendum §6.1, plus ``silence_rerequested`` and
+``terminal_augment_no_response``), the severity tiers, the
 single-FSM state lexicon (spec §5.1; Python identifiers drop the spec's prime, so
 ``S4'_HALT_BEFORE_PUSH`` becomes ``S4_HALT_BEFORE_PUSH``), and the ``Finding`` /
 ``SkillResult`` dataclasses the test bodies assert against.
@@ -18,15 +19,16 @@ from enum import Enum
 
 
 class EventType(str, Enum):
-    """Closed enum of run-log event types — EXACTLY 37 members.
+    """Closed enum of run-log event types — EXACTLY 39 members.
 
     The 32 event types listed in spec §11.3 (merged-spec.md:724-731) PLUS
     ``push_aborted_or_not_landed`` (spec §12.1 line 771 — the crash-window
     not-landed branch) — the 33 prior members — PLUS the 4 V1.1
     re-review/fallback events (``rereview_requested``, ``decline_detected``,
-    ``auggie_fallback_invoked``, ``max_rounds_clamped``; addendum §6.1). The
-    run-log writer validates every appended event against this closed set; an
-    event outside it is a programming error.
+    ``auggie_fallback_invoked``, ``max_rounds_clamped``; addendum §6.1) PLUS
+    ``silence_rerequested`` (INV-S1) and ``terminal_augment_no_response``.
+    The run-log writer validates every appended event against this closed set;
+    an event outside it is a programming error.
     """
 
     # --- lifecycle / setup (§11.3) ---
@@ -77,6 +79,8 @@ class EventType(str, Enum):
     DECLINE_DETECTED = "decline_detected"
     AUGGIE_FALLBACK_INVOKED = "auggie_fallback_invoked"
     MAX_ROUNDS_CLAMPED = "max_rounds_clamped"
+    SILENCE_REREQUESTED = "silence_rerequested"
+    TERMINAL_AUGMENT_NO_RESPONSE = "terminal_augment_no_response"
 
 
 class Severity(str, Enum):
@@ -114,6 +118,7 @@ class MonitorState(str, Enum):
     # --- V1.1 re-trigger / fallback working states (non-terminal, addendum §6.1) ---
     S5A_RETRIGGER_REVIEW = "S5a_RETRIGGER_REVIEW"
     S5B_AUGGIE_FALLBACK = "S5b_AUGGIE_FALLBACK"
+    S5C_SILENCE_REREQUEST = "S5c_SILENCE_REREQUEST"
     PROPOSED = "PROPOSED"
     REPORT_ONLY = "REPORT_ONLY"
     # --- terminals ---
@@ -122,6 +127,7 @@ class MonitorState(str, Enum):
     HALT_HUMAN = "HALT_HUMAN"
     VALIDATION_FAIL = "VALIDATION_FAIL"
     TERMINAL_TIMEOUT = "TERMINAL_TIMEOUT"
+    TERMINAL_AUGMENT_NO_RESPONSE = "TERMINAL_AUGMENT_NO_RESPONSE"
     TERMINAL_FAILED = "TERMINAL_FAILED"
 
 
@@ -133,6 +139,7 @@ TERMINAL_STATES = frozenset(
         MonitorState.HALT_HUMAN,
         MonitorState.VALIDATION_FAIL,
         MonitorState.TERMINAL_TIMEOUT,
+        MonitorState.TERMINAL_AUGMENT_NO_RESPONSE,
         MonitorState.TERMINAL_FAILED,
     }
 )

@@ -1,0 +1,12 @@
+{
+  "reviews": [],
+  "comments": [
+    {
+      "id": 5833796931,
+      "user": {"login": "augmentcode[bot]"},
+      "created_at": "2026-09-25T14:09:26Z",
+      "body": "<!-- augment-large-pr-opt-in -->\nThis pull request is abnormally large and would use a significant amount of tokens to review. If you still wish to review it, comment \"**_augment review_**\" and we will review it."
+    }
+  ],
+  "expected": {"state": "declined", "activity": true}
+}

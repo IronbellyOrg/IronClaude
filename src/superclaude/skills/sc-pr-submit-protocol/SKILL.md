@@ -48,9 +48,18 @@ wall-clock start when entering a wait (Wave 1, the S5 re-review wait, or the Wav
    usage failure: stop and report it, never retry it as `polling`.
 2. Classify the one JSON line with the existing core: `superclaude.pr_submit.classify` (Augment) or
    `superclaude.pr_submit.ci.classify_checks` (CI); append the run-log event.
-3. Terminal result → leave the loop and continue the wave. `polling` → if
-   `superclaude.pr_submit.fsm.timed_out(elapsed, timeout)` → `TERMINAL_TIMEOUT` (Augment) or report the CI
-   timeout (Wave 8); else wait **at least** `--poll-interval` seconds (or `fsm.next_backoff` after
+3. Terminal result → leave the loop and continue the wave. For Augment `polling`, do **not**
+   call raw `timed_out`. Compute `silent = not has_augment_activity(payload, contract)`, then
+   `st = rebuild_state()`, `already = pr in st["silence_rerequest_invoked"]`,
+   `clock = st["silence_rerequested_at"]`, and
+   `nxt = poll_outcome(review_state, elapsed, timeout, silent=silent, silence_timeout=silence_timeout, rerequested=already, rerequested_at=clock, monitor_ordinal=ordinal)`.
+   `S5C_SILENCE_REREQUEST` is consider-once, not POST-now: if
+   `check_idempotent("silence_rerequest_invoked", pr)` is False, skip the POST, sleep ≥ `--poll-interval`, continue.
+   If True, append `{event_type: silence_rerequested, pr_number, elapsed}` then
+   `scripts/retrigger-review.sh --body "augment review" --pr <N> --repo "$REPO"`. That write-ahead pair
+   does not tick `round_counter` or `rereview_request_count`. Then sleep ≥ `--poll-interval` and continue.
+   `TERMINAL_AUGMENT_NO_RESPONSE` → report App trigger mode, Allowlist, quota; comment `augment review` by hand; Wave 8 wait-only (`should_arm_ci_wait` True, `ci_wait_autofix` False); never `transition(clean)`.
+   `TERMINAL_TIMEOUT` → partial activity, no Wave 8. CI `polling` still uses `timed_out` for the Wave 8 timeout. Else wait **at least** `--poll-interval` seconds (or `fsm.next_backoff` after
    403/429; the wait counts toward `--timeout`) with a bounded blocking wait the host permits, then
    repeat from 1.
 
@@ -69,6 +78,7 @@ the loop.
 | `--max-rounds` | No (default 2, hard cap 5) | Reject `> 5`. |
 | `--poll-interval` | No (default 30) | Reject `< 30` with "minimum is 30 seconds". |
 | `--timeout` | No (default 600s) | Wall-clock since entering wait. The observed CI matrix has run longer than 600s: for a CI wait, pass a `--timeout` that covers the full check run. No indefinite wait. |
+| `--silence-timeout` | No (default 300s) | No-Augment-activity window. Reject `< 30`. Clamped to `--timeout`. L3 may re-request once. |
 | `--resume <abs-run-log-path>` | No | Reconstruct state from JSONL (§12). |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's
@@ -87,7 +97,7 @@ monitor that could only ever report `polling`. `--monitor 0` skips this prefligh
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `status` | enum | `terminal_clean` / `terminal_max_rounds` / `terminal_halted` / `terminal_timeout` / `terminal_failed` / `proposed` / `halt_before_push` |
+| `status` | enum | `terminal_clean` / `terminal_max_rounds` / `terminal_halted` / `terminal_timeout` / `terminal_augment_no_response` / `terminal_failed` / `proposed` / `halt_before_push` |
 | `pr_url` | string | The PR URL (verified to match the resolved origin `owner/repo`). |
 | `round_counter` | int | Completed remediation cycles (monotonic; user-facing label = `+1`). |
 | `push_count` | int | Landed pushes (== `max_rounds` at most; 0 below L3). |
@@ -100,7 +110,7 @@ monitor that could only ever report `polling`. `--monitor 0` skips this prefligh
 | `fallback_round_counter` | int | The SEPARATE single-shot fallback counter (cap 1, independent of `round_counter`). |
 | `run_log_path` | string | The authoritative `monitor-run-<PR>.jsonl`. |
 
-When CI wait follows Augment `HALT_MAX_ROUNDS`, preserve `status=terminal_max_rounds` and report CI's observed outcome (including timeout or human-gate) alongside it in the summary. CI clean is not an Augment clean re-review. No new status or run-log event is introduced.
+When CI wait follows Augment `HALT_MAX_ROUNDS` or `TERMINAL_AUGMENT_NO_RESPONSE`, preserve that Augment status and report CI's observed outcome (including timeout or human-gate) alongside it in the summary. CI clean is not an Augment clean re-review.
 
 ## Wave / Phase Structure (refs are LAZY-loaded per wave, never pre-loaded)
 
@@ -114,7 +124,7 @@ Wave 5: Validate                  ← the VAL validator (§10 gate list, below)
 Wave 6: (L3) push + reply + resolve + re-trigger ← loads refs/thread-reply.md + refs/review-retrigger.md (S5a)
 Wave 6b: (L3) decline → auggie fallback           ← loads refs/auggie-fallback.md (S5b, strict-once)
 Wave 7: Loop / terminate          ← loads refs/loop-guard.md
-Wave 8: CI wait (after Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS) ← loads refs/ci-poll.md
+Wave 8: CI wait (after Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS / TERMINAL_AUGMENT_NO_RESPONSE) ← loads refs/ci-poll.md
 ```
 
 - **Wave 0 (all ordinals):** resolve the target repo once (`REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"`, fallback parse `git remote get-url origin`) and the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`); open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."`; confirm `git remote -v` shows origin = `$REPO`; rebase if behind `origin/<base>`; verify the returned URL's `owner/repo` equals `$REPO` (a CLI that defaulted onto an upstream parent is a misroute → HALT). Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1). The `offer-pr-review.sh` hook may then mention `sc:pr-submit --monitor`.
@@ -126,7 +136,7 @@ Wave 8: CI wait (after Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS) ← loads 
 - **Wave 6 (L3 only):** load `refs/thread-reply.md`. The deterministic core DECIDES (evaluates the INV-016 conjunction, records the write-ahead push triad `push_decision` → `push_initiated` (fsynced BEFORE the push) → `push_completed`, keyed on the PRE-push idempotency key `push:<run_id>:<cycle_id>:<pre_push_sha>:<target_branch>`); the SKILL performs the actual `git push origin <target_sha>:<target_branch>` (never an upstream parent remote, never the repo's default/protected branch) ONLY when the conjunction holds, then reply (citing `applied_edits` status — `applied_edits==0` says "no code change applied", never "resolved") and resolve via `scripts/reply-resolve-thread.sh` (reply FIRST, then resolve). **S5a re-trigger (FR-8):** load `refs/review-retrigger.md`; a push does NOT auto-trigger an Augment re-review — AFTER resolve, and ONLY when this cycle applied edits (`applied_edits > 0`), post the re-trigger comment via `scripts/retrigger-review.sh --pr <N>` BEFORE re-entering the S5 poll. The core decides whether/when to re-trigger (`do_retrigger` seam, INV-R1: at most once per push cycle, `rereview_request_count <= max_rounds`); the script does the `gh api` issue-comment POST (NFR-6). On posting the re-trigger, append a **`rereview_requested{cycle_id}`** run-log event (the INV-R1 producer — folded into `rereview_request_count` by `rebuild_state`, and consumed by crash recovery's OQ-1 resume decision: a landed-push crash with NO `rereview_requested` for its cycle resumes at `S5a_RETRIGGER_REVIEW` to re-post; one WITH it resumes at `S5_AWAITING_REREVIEW`). The `round_counter` ticks only when the subsequent poll attributes the re-review to our pushed SHA (the relocated INV-001 increment) — a timed-out re-trigger does NOT advance the counter.
 - **Wave 6b (L2+ decline fallback, FR-9/FR-10):** load `refs/auggie-fallback.md`. When the classifier returns `declined` (an Augment "abnormally large" decline observed at the initial S2 poll OR the S5 re-trigger poll), append a **`decline_detected`** run-log event, then engage the single-shot fallback: gate **strict-once** on the durable `auggie_review_invoked` idempotency record (comment-independent, survives resume — INV-R2; on engage, append an **`auggie_fallback_invoked{pr_number}`** event, the producer folded into that set), clamp the effective budget `effective_max_rounds := min(effective_max_rounds, 1)` (the `clamp_max_rounds` helper, recorded once via the **`max_rounds_clamped{effective_max_rounds}`** event — INV-R3 monotone-min fold), then invoke `> Skill sc:auggie-review-protocol --depth quick --remediation-offer` and re-enter Waves 2-6 ONCE under the clamp (verify-before-remediate still applies — fallback findings are NOT trusted verbatim, FR-9.4). At L2 this can apply and validate local fixes but still halts before push/reply per Wave 5; only L3 performs push, reply, resolve, and re-trigger side effects. NO second invoke, NO second re-trigger, NO loop-back; `push_count <= max_rounds + 1` for the whole run. This is `sc:pr-submit` invoking its OWN review — do **NOT** "take the App's bait" by treating the App's `augment review` decline comment as our operator re-trigger. (`--depth quick` here targets `/sc:auggie-review` — a review, no `--fix` — so it does NOT conflict with the severity-routing STOP on `--depth quick --fix`.)
 - **Wave 7:** load `refs/loop-guard.md`; the round counter ticks only at `S5_AWAITING_REREVIEW → S2_CLASSIFY`; HALT at `round_counter >= max_rounds`. Fallback outcomes REUSE the existing `terminal_clean` / `terminal_max_rounds` status values (OQ-2 reuse recommendation).
-- **Wave 8 (L1+, after Augment `clean` / `REPORT_ONLY` / `HALT_MAX_ROUNDS`):** load `refs/ci-poll.md`. Do **not** `transition(clean)` yet. Set SKILL-owned `source=ci`, reset wait elapsed, switch the attended poll loop to `scripts/poll-ci-checks.sh --pr <N> --repo "$REPO"`. Classify via `superclaude.pr_submit.ci.classify_checks(payload, wait_sha=<sha at flip or last push>)`. Human-gate (`is_human_gate`) → `HALT_HUMAN` when Augment has not halted; after Augment `HALT_MAX_ROUNDS`, keep its terminal status and report the CI human-gate alongside it. No Finding or auto-fix. If `round_counter >= max_rounds`, CI polling is wait-only: non-human `findings` → `REPORT_ONLY` without fetching logs, editing, or pushing. Otherwise non-human `findings` → `gh run view <id> --repo "$REPO" --log-failed` once → `findings_from_logs`; empty → `REPORT_ONLY`; else Waves 3–5 under the same ordinals and `round_counter`. After an L3 CI push: do **not** call `retrigger-review.sh`, reply, or resolve; re-poll CI on the new `headRefOid`. When CI is `clean` after an ordinary Augment `clean` / `REPORT_ONLY`, send `transition(clean)` → `TERMINAL_CLEAN`. After `HALT_MAX_ROUNDS`, leave that terminal FSM status unchanged and report CI clean alongside it (no `transition(clean)` from a terminal state). L0 never reaches Wave 8. Do not arm on `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED`. CI `polling` continues at the configured interval until completion or timeout; when the chosen list is empty, a failed check query is `polling`, not no-Actions `clean`. Only parsed empty required **and** all-checks lists prove there are no Actions. A nonempty required list is the chosen set; optional pending checks outside it do not block completion.
+- **Wave 8 (L1+, after Augment `clean` / `REPORT_ONLY` / `HALT_MAX_ROUNDS` / `TERMINAL_AUGMENT_NO_RESPONSE`):** load `refs/ci-poll.md`. Arm via `superclaude.pr_submit.ci.should_arm_ci_wait`. Do **not** `transition(clean)` yet. Set SKILL-owned `source=ci`, reset wait elapsed, switch the attended poll loop to `scripts/poll-ci-checks.sh --pr <N> --repo "$REPO"`. Classify via `superclaude.pr_submit.ci.classify_checks(payload, wait_sha=<sha at flip or last push>)`. Human-gate (`is_human_gate`) → `HALT_HUMAN` when Augment has not halted; after Augment `HALT_MAX_ROUNDS` or `TERMINAL_AUGMENT_NO_RESPONSE`, keep its terminal status and report the CI human-gate alongside it. No Finding or auto-fix on those wait-only paths (`ci_wait_autofix` is false). If `round_counter >= max_rounds`, CI polling is wait-only: non-human `findings` → `REPORT_ONLY` without fetching logs, editing, or pushing. Otherwise non-human `findings` → `gh run view <id> --repo "$REPO" --log-failed` once → `findings_from_logs`; empty → `REPORT_ONLY`; else Waves 3–5 under the same ordinals and `round_counter`. After an L3 CI push: do **not** call `retrigger-review.sh`, reply, or resolve; re-poll CI on the new `headRefOid`. When CI is `clean` after an ordinary Augment `clean` / `REPORT_ONLY`, send `transition(clean)` → `TERMINAL_CLEAN`. After `HALT_MAX_ROUNDS` or `TERMINAL_AUGMENT_NO_RESPONSE`, leave that terminal FSM status unchanged and report CI clean alongside it (no `transition(clean)` from a terminal state — never claim `TERMINAL_CLEAN` for a silent Augment review). L0 never reaches Wave 8. Do not arm on `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED`. CI `polling` continues at the configured interval until completion or timeout; when the chosen list is empty, a failed check query is `polling`, not no-Actions `clean`. Only parsed empty required **and** all-checks lists prove there are no Actions. A nonempty required list is the chosen set; optional pending checks outside it do not block completion.
 
 ## VAL — the §10 validation gate list (owned by the SKILL, not the core)
 
@@ -164,7 +174,8 @@ A validation retry does NOT increment `round_counter`.
 | Scenario | Behavior |
 |----------|----------|
 | Wrong origin / behind base branch / wrong-owner URL | HALT; instruct operator to close the misrouted PR (FM-11). |
-| Review never arrives | `terminal_timeout`; no edits/push. |
+| Augment silent (no attributed review/comment) | `terminal_augment_no_response`; Wave 8 wait-only; check App trigger mode, Allowlist, quota; comment `augment review` by hand. |
+| Review starts but never completes | `terminal_timeout`; no Wave 8; no edits/push. |
 | 403 / 429 / secondary-limit | exponential backoff 30→…→cap 300s, counts toward timeout. |
 | `needs_human_decision` finding | `terminal_halted`; no auto-mutation (override, FR-4.4). |
 | Validation failure | no push/reply/resolve; L2 halt; L3 one retry within budget. |
