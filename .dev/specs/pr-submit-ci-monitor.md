@@ -87,14 +87,18 @@ sequenceDiagram
             end
         end
     end
-    Note over SKILL: Augment classify=clean → do not transition(clean)
+    Note over SKILL: Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS → CI wait; cap = wait-only
     SKILL->>SKILL: source=ci, elapsed=0, swap poller
     loop CI phase
         SKILL->>CIPoll: gh pr checks --repo
         CIPoll-->>SKILL: polling|clean|findings
-        alt human-gate (cancel / action_required / boundary-guard)
+        alt human-gate after Augment HALT_MAX_ROUNDS
+            SKILL->>SKILL: retain Augment halt; report CI human-gate alongside it
+        else human-gate after Augment clean / REPORT_ONLY
             SKILL->>FSM: HALT_HUMAN (no Finding)
-        else findings (parseable file:line)
+        else findings and budget spent
+            SKILL->>SKILL: REPORT_ONLY (no log fetch, edit, or push)
+        else findings (parseable file:line, budget left)
             SKILL->>FSM: findings → verify → troubleshoot → fix
             SKILL->>VAL: VG-1..VG-6
             alt L3
@@ -103,7 +107,9 @@ sequenceDiagram
             end
         else findings (unparseable)
             SKILL->>SKILL: REPORT_ONLY (no Finding)
-        else clean
+        else clean after Augment HALT_MAX_ROUNDS
+            SKILL->>SKILL: retain Augment halt; report CI clean alongside it
+        else clean after Augment clean / REPORT_ONLY
             SKILL->>FSM: transition(clean) → TERMINAL_CLEAN
         end
     end
@@ -134,25 +140,26 @@ stateDiagram-v2
 
 The SKILL owns the phase flip. `transition()` is untouched: `clean` still
 means `TERMINAL_CLEAN`, `pushed` still means `S6_REPLYING`. Production
-never sends those events during the CI phase except a final CI `clean`.
+never sends those events during the CI phase except a final CI `clean` on the non-halted path. After `HALT_MAX_ROUNDS` the FSM remains terminal; CI is an independent SKILL-owned wait with its result reported separately.
 
-CI phase **does not start** on `HALT_MAX_ROUNDS` / `HALT_HUMAN` /
-`VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED`. Those stay
-terminal. `REPORT_ONLY` (nothing verified to fix) **does** start CI — Augment
-had nothing actionable; CI still might.
+CI **wait** starts on Augment `clean`, `REPORT_ONLY`, or `HALT_MAX_ROUNDS`;
+the last is wait-only because the shared fix budget is spent. It does **not**
+start on `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` /
+`TERMINAL_FAILED`. A CI failure after a spent round budget is `REPORT_ONLY`,
+never an additional fix or push.
 
 ## 5. Functional requirements
 
 | ID | Requirement |
 |----|-------------|
-| FR-CI-1 | After Augment classify is `clean` (or `REPORT_ONLY`), the SKILL sets `source=ci` and polls CI with the same Monitor interval (≥30s) and `--timeout`, elapsed reset. It does **not** call `transition(..., "clean")` until CI is clean. |
+| FR-CI-1 | After Augment `clean`, `REPORT_ONLY`, or `HALT_MAX_ROUNDS`, the SKILL sets `source=ci` and polls CI with the same Monitor interval (≥30s) and `--timeout`, elapsed reset. `HALT_MAX_ROUNDS` permits waiting only, not another fix. It calls `transition(..., "clean")` only after CI is clean **and** the Augment FSM did not halt. After `HALT_MAX_ROUNDS`, retain that terminal status and report the CI outcome separately. |
 | FR-CI-2 | Poller is `scripts/poll-ci-checks.sh --pr N --repo owner/repo`. Every `gh` call pins `--repo` (T-104). |
 | FR-CI-3 | `classify_checks(payload) -> polling \| clean \| findings` lives in `superclaude.pr_submit.ci`. **Not** in `classifier.py`. |
-| FR-CI-4 | Mapping: any `bucket=pending` → `polling`; any `fail` or `cancel` → `findings`; only `pass`/`skipping` (or empty checks) → `clean`. Empty checks = no Actions configured = `clean` (do not hang). `action_required` is a GitHub *conclusion*, not a gh bucket — if `state` matches it (case-insensitive), treat as findings. Do not invent an `action_required` bucket. |
-| FR-CI-5 | `cancel` / `state` `action_required` / named human-gate (`boundary-guard`) → SKILL `HALT_HUMAN`. **No Finding.** Skip log parse. No auto-fix, no rerun. |
+| FR-CI-4 | Mapping: any `bucket=pending` → `polling`; any `fail` or `cancel` → `findings`; only `pass`/`skipping` (or empty checks) → `clean`. Only two successfully parsed empty arrays (required + all checks) mean no Actions configured → `clean`; a failed check query with an empty chosen list is `polling`. `action_required` is a GitHub *conclusion*, not a gh bucket — if `state` matches it (case-insensitive), treat as findings. Do not invent an `action_required` bucket. |
+| FR-CI-5 | `cancel` / `state` `action_required` / named human-gate (`boundary-guard`) → SKILL `HALT_HUMAN` on a non-halted Augment path; after `HALT_MAX_ROUNDS`, keep that terminal status and report the CI human-gate separately. **No Finding.** Skip log parse. No auto-fix, no rerun. |
 | FR-CI-6 | On non-human `findings`, SKILL fetches failed logs once (`gh run view <id> --repo … --log-failed`). `findings_from_logs` parses pytest (`path:line:`) and ruff (`path:line:col:`) into `Finding(path, line, body)`. Omit `severity_hint` (remap fail-safe is Medium → `--fix`). |
 | FR-CI-7 | Unparseable log → **no Finding**. SKILL `REPORT_ONLY`. Do **not** relax `is_groundable`. Do **not** invent `path=name, line=1`. |
-| FR-CI-8 | Verified CI findings reuse Waves 3–5 (verify, troubleshoot, VAL, ordinals). Shared `round_counter` / `max_rounds`. |
+| FR-CI-8 | Verified CI findings reuse Waves 3–5 (verify, troubleshoot, VAL, ordinals) only while `round_counter < max_rounds`. Shared budget; after the cap, wait-only CI findings are `REPORT_ONLY`. |
 | FR-CI-9 | `source=ci` after L3 push: SKILL skips S5a (`do_retrigger` not called), S6, and RESOLVING. Push retriggers Actions. Re-enter CI poll on the new `headRefOid`. `transition()` is not called for `pushed` on this path. |
 | FR-CI-10 | SHA attribution is PR-level: `gh pr view --json headRefOid` in the same script invocation as `gh pr checks`. `gh pr checks --json` has **no per-check SHA** — do not invent a per-check filter. If `head_sha` differs from the SHA this wait started on (the last push, or the SHA at source flip), emit `polling`. |
 | FR-CI-11 | `--required` first; if that list is empty, fall back to all checks. That is the optional-check filter. Do not special-case any check by name. |
@@ -176,12 +183,13 @@ Script: `src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-ci-checks.sh`
 
 ```bash
 gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid
+gh pr checks "$PR" --repo "$REPO" --required --json name,state,bucket,link,workflow
 gh pr checks "$PR" --repo "$REPO" --json name,state,bucket,link,workflow
-# if --required yields a non-empty list, use that list; else the full list
+# use nonempty required results; otherwise use all checks
 # no `conclusion` field — gh does not emit it
 ```
 
-Stdout: one JSON line, fail-soft (empty checks → `state:clean`).
+Stdout: one JSON line, fail-soft. Two successfully parsed empty check lists → `state:clean` (no Actions); an empty chosen list after a parse failure → `state:polling`.
 
 ```json
 {
@@ -243,12 +251,13 @@ does not explode troubleshoot dispatch. Existing `batch_by_file` still applies.
 **`fsm.py`:** no diff.
 
 **SKILL.md:** Wave 8, lazy-load `refs/ci-poll.md`. After Augment classify
-`clean` / `REPORT_ONLY`: set source, reset elapsed, swap poll script, continue
-Monitor (do not `transition(clean)`, do not return on `REPORT_ONLY`). L0 never
-reaches Wave 8.
-On human-gate: `HALT_HUMAN`, no Finding.
-On CI findings: log fetch → `findings_from_logs` → if empty, `REPORT_ONLY`;
-else existing Waves 3–5 (shared `round_counter` / `max_rounds`).
+`clean` / `REPORT_ONLY` / `HALT_MAX_ROUNDS`: set source, reset elapsed, swap
+poll script, continue Monitor (do not `transition(clean)` for Augment clean).
+The spent-budget path is wait-only; L0 never reaches Wave 8.
+On human-gate before Augment halts: `HALT_HUMAN`, no Finding. After Augment `HALT_MAX_ROUNDS`: preserve terminal status and report CI human-gate separately.
+On CI findings with remaining round budget: log fetch → `findings_from_logs`
+→ if empty, `REPORT_ONLY`; else existing Waves 3–5. With spent budget:
+`REPORT_ONLY` without log fetch, edit, or push.
 On CI push: do not call `retrigger-review.sh`, reply, or resolve. Re-poll CI.
 
 **`state-machine.md`:** document SKILL-owned `source` and the intercept
@@ -278,20 +287,20 @@ Do not edit `fsm.py`, `classifier.py`, or `pr_submit/__init__.py`.
 
 | ID | Case | Behavior |
 |----|------|----------|
-| FM-CI-1 | No Actions on the repo | Empty checks → `clean` → `TERMINAL_CLEAN`. |
-| FM-CI-2 | Checks pending past `--timeout` | Existing `TERMINAL_TIMEOUT`. |
+| FM-CI-1 | No Actions on the repo | Two parsed empty lists → CI `clean`; `TERMINAL_CLEAN` if Augment was not halted, otherwise report CI clean alongside retained `terminal_max_rounds`. |
+| FM-CI-2 | Checks pending past `--timeout` | `TERMINAL_TIMEOUT` if Augment was not halted. After `HALT_MAX_ROUNDS`, retain `terminal_max_rounds` and report CI timeout separately. |
 | FM-CI-3 | Matrix job fails on 3.12 only | Parse traceback `file:line` → verify → fix. If the defect is version-only and does not reproduce locally, `unverified` → `REPORT_ONLY`. |
 | FM-CI-4 | Optional check red, not required | `--required` omits it. If `--required` is empty, all checks count. |
-| FM-CI-5 | `boundary-guard` red | SKILL `HALT_HUMAN`. No Finding. |
+| FM-CI-5 | `boundary-guard` red | SKILL `HALT_HUMAN` before Augment halts; after `HALT_MAX_ROUNDS`, retain that status and report CI human-gate separately. No Finding. |
 | FM-CI-6 | Flake, no code change | VAL green + same SHA would still be red after push. Next CI `findings` with same `fix_key` hits existing idempotency / round cap → `HALT_MAX_ROUNDS`. No rerun. |
-| FM-CI-7 | Augment already consumed `max_rounds` | CI phase never starts (`HALT_MAX_ROUNDS` is terminal). Operator raises `--max-rounds` and `--resume`. |
+| FM-CI-7 | Augment already consumed `max_rounds` | CI wait still starts after `HALT_MAX_ROUNDS`, with elapsed reset. CI failures are `REPORT_ONLY` (no more fixes/pushes); pending checks keep polling until completion or timeout. Preserve Augment `terminal_max_rounds` as the FSM/status result and report CI clean, failure, timeout, or human-gate alongside it; do not transition from a terminal state. |
 
 ## 12. Implementation plan (strategy for UC-1)
 
 1. Add `ci.py` + three fixtures + `test_ci_classify.py` (**FR-CI-3, FR-CI-4, FR-CI-5, FR-CI-6 parse, FR-CI-7**; **INV-CI-2, INV-CI-4**). Cover: `pending`→polling, `fail`/`cancel`→findings, pass/skipping/empty→clean; `is_human_gate`; parse pytest/ruff; unparseable → `[]`. No `gh`/`git` tokens. Add `ci.py` to T-N50 `CORE_PURE_FILES`.
 2. Add `poll-ci-checks.sh` with `--pr`/`--repo`, T-104 pin, fail-soft JSON (**FR-CI-2, FR-CI-10, FR-CI-11**). Same invocation: `gh pr view --json headRefOid` + `gh pr checks --json name,state,bucket,link,workflow` (`--required` first; empty → all checks). Stale `head_sha` vs wait SHA → `polling`. Static grep: no bare `gh`. Do not clone T-105 (`gh api` is not required here).
 3. **No `fsm.py` diff** (**INV-CI-7**).
-4. `refs/ci-poll.md` + SKILL.md Wave 8 + `state-machine.md` + one command-file Will line (**FR-CI-1, FR-CI-5, FR-CI-6 fetch, FR-CI-7, FR-CI-8, FR-CI-9, FR-CI-12, INV-CI-1 payload `source`, INV-CI-3, INV-CI-5, INV-CI-6**). After Augment `clean` / `REPORT_ONLY`: set source, reset elapsed, swap poll script; do not `transition(clean)`. Human-gate → `HALT_HUMAN`. CI findings: log fetch → `findings_from_logs` → empty → `REPORT_ONLY`; else Waves 3–5. CI push: skip retrigger/reply/resolve. `poll_result` payload may include `source: "ci"` (not a new EventType).
+4. `refs/ci-poll.md` + SKILL.md Wave 8 + `state-machine.md` + one command-file Will line (**FR-CI-1, FR-CI-5, FR-CI-6 fetch, FR-CI-7, FR-CI-8, FR-CI-9, FR-CI-12, INV-CI-1 payload `source`, INV-CI-3, INV-CI-5, INV-CI-6**). After Augment `clean` / `REPORT_ONLY` / `HALT_MAX_ROUNDS`: set source, reset elapsed, swap poll script; do not `transition(clean)` from a terminal state. After Augment halt, preserve terminal status and report CI result separately; CI findings are `REPORT_ONLY` with no log fetch/edit/push. Otherwise human-gate → `HALT_HUMAN`, and CI findings: log fetch → `findings_from_logs` → empty → `REPORT_ONLY`; else Waves 3–5. CI push: skip retrigger/reply/resolve. `poll_result` payload may include `source: "ci"` (not a new EventType).
 5. `make sync-dev`. `uv run pytest tests/pr_submit/test_ci_classify.py tests/pr_submit/test_run_log.py tests/pr_submit/test_static_grep.py -q`.
 
 Do not add VG-7. `make lint` already runs `lint-architecture`. Do not edit `classifier.py` / `DetectionContract` / `fsm.py`. Do not add EventType members.
@@ -302,7 +311,7 @@ Do not add VG-7. `make lint` already runs `lint-architecture`. Do not edit `clas
 |------|---------|
 | `test_classify_pending` | `bucket=pending` → `polling` |
 | `test_classify_all_pass` | → `clean` |
-| `test_classify_empty` | `checks=[]` → `clean` |
+| `test_classify_empty` | `checks=[]` without a `polling` hint → `clean`; empty with `state=polling` → `polling` |
 | `test_classify_fail` | any `fail` → `findings` |
 | `test_classify_cancel` | `bucket=cancel` → `findings` |
 | `test_classify_required_fallback` | empty `--required` list → classify the full list |
@@ -329,5 +338,5 @@ No `transition()` / `source=` tests. `fsm.py` is not in the diff.
 | Codecov-by-name | `--required` is empty *and* optional Codecov is red *and* that happens in practice. |
 
 <!--mc:threads:begin-->
-<!--mc:rev {"ts":"2026-09-24T19:06:22.757Z","contentHash":"d98e3d71","sections":[{"heading":null,"hash":"fbf508f5"},{"heading":"sc:pr-submit CI-failure phase","hash":"aa15221d"},{"heading":"1. Problem","hash":"89744550"},{"heading":"2. Non-goals","hash":"2b7a3abd"},{"heading":"3. Design thesis","hash":"5a7b6350"},{"heading":"4. Sequence","hash":"55812dd1"},{"heading":"5. Functional requirements","hash":"14385c8c"},{"heading":"6. Invariants","hash":"620968d3"},{"heading":"7. Poll contract","hash":"465e4b86"},{"heading":"if --required yields a non-empty list, use that list; else the full list","hash":"b950a348"},{"heading":"no `conclusion` field — gh does not emit it","hash":"098c73ce"},{"heading":"8. `ci.py` surface","hash":"d570392b"},{"heading":"9. FSM / SKILL delta","hash":"554e71ae"},{"heading":"10. File manifest","hash":"d849d491"},{"heading":"11. Failure modes","hash":"009c8129"},{"heading":"12. Implementation plan (strategy for UC-1)","hash":"54f049f9"},{"heading":"13. Test plan","hash":"77514c70"},{"heading":"14. Skipped (add when)","hash":"13d7151b"}]}-->
+<!--mc:rev {"ts":"2026-09-25T01:18:34.308Z","contentHash":"8ec173ff","sections":[{"heading":null,"hash":"fbf508f5"},{"heading":"sc:pr-submit CI-failure phase","hash":"aa15221d"},{"heading":"1. Problem","hash":"89744550"},{"heading":"2. Non-goals","hash":"2b7a3abd"},{"heading":"3. Design thesis","hash":"5a7b6350"},{"heading":"4. Sequence","hash":"b9b5e57e"},{"heading":"5. Functional requirements","hash":"a1c65f64"},{"heading":"6. Invariants","hash":"620968d3"},{"heading":"7. Poll contract","hash":"648be85c"},{"heading":"use nonempty required results; otherwise use all checks","hash":"87b7349a"},{"heading":"no `conclusion` field — gh does not emit it","hash":"af9d90d1"},{"heading":"8. `ci.py` surface","hash":"d570392b"},{"heading":"9. FSM / SKILL delta","hash":"bbb15a86"},{"heading":"10. File manifest","hash":"d849d491"},{"heading":"11. Failure modes","hash":"074bfa0b"},{"heading":"12. Implementation plan (strategy for UC-1)","hash":"66b72c98"},{"heading":"13. Test plan","hash":"ee6f3609"},{"heading":"14. Skipped (add when)","hash":"13d7151b"}]}-->
 <!--mc:threads:end-->

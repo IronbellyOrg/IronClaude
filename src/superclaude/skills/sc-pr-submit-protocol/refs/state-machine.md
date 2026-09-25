@@ -120,12 +120,21 @@ this MOD is a deliberate, flagged addendum-coverage gap (recorded in the task's 
 
 ### 5.2c CI phase — SKILL-owned `source`, no new FSM edges
 
-After Augment classify would be `clean` (or `REPORT_ONLY`), the SKILL sets `source=ci` and
-continues at `S2_CLASSIFY` **without** sending `clean` to `transition()`. Human-gate checks
-route to `HALT_HUMAN` with no Finding. Unparseable logs are `REPORT_ONLY` with no Finding.
-A CI-phase push skips S5a / S6 / RESOLVING (the push itself re-runs checks). `transition()`
-is unchanged: `clean` still means `TERMINAL_CLEAN`, `pushed` still means `S6_REPLYING`. The
-SKILL only sends `clean` when `source=ci` is actually clean. L0 never enters this phase.
+After Augment classify would be `clean`, reaches `REPORT_ONLY`, **or exhausts**
+`max_rounds` (`HALT_MAX_ROUNDS`), the SKILL sets `source=ci`, resets the wait clock,
+and polls CI. A spent round budget permits **waiting only**: CI findings are
+`REPORT_ONLY`, never an additional fix or push. Other halt states do not arm
+CI. On Augment `clean` / `REPORT_ONLY`, the SKILL continues at `S2_CLASSIFY`
+**without** sending Augment `clean` to `transition()`. Once the FSM reaches
+`HALT_MAX_ROUNDS`, it stays terminal: the SKILL polls CI separately and reports
+its outcome alongside the preserved Augment halt; it never transitions out
+of the terminal state. Human-gate checks after Augment's round-cap halt are
+reported alongside that preserved terminal status; on non-halted paths they
+route to `HALT_HUMAN`. No Finding.
+Unparseable logs are `REPORT_ONLY` with no Finding. A CI-phase push skips S5a /
+S6 / RESOLVING (the push itself re-runs checks). `transition()` is unchanged:
+`clean` still means `TERMINAL_CLEAN`, `pushed` still means `S6_REPLYING`. Only
+a non-halted CI-clean path sends `clean` to `transition()`. L0 never enters this phase.
 
 ## 5.3 G-push — the 5-predicate runtime conjunction (INV-016, verbatim)
 
@@ -155,3 +164,7 @@ is every forgotten combination. The FSM has finite states × **3 one-line gate c
 as a transition table that the C6 tests assert row-by-row (AC-2..AC-6 become table-row assertions).
 The increment edge (INV-001), the push conjunction (INV-016), and the override are each a single
 named predicate — not a branch nested inside another branch.
+
+<!--mc:threads:begin-->
+<!--mc:rev {"ts":"2026-09-25T00:04:48.921Z","contentHash":"15e56b08","sections":[{"heading":"State Machine (FSM) — the single source for all `--monitor` ordinals","hash":"4d05d91b"},{"heading":"5.1 States and terminals","hash":"cd659ee9"},{"heading":"5.2 The ordinal as a capability ceiling (transition table, NOT nested ifs)","hash":"07413d32"},{"heading":"5.2a L2 ceiling behavior — `S3_FIXING → S7_VALIDATING → S4'_HALT_BEFORE_PUSH`","hash":"6542493f"},{"heading":"5.2b V1.1 re-trigger + decline-fallback topology (S5a / S5b — FR-8/FR-9/FR-10)","hash":"a5cd45c3"},{"heading":"5.2c CI phase — SKILL-owned `source`, no new FSM edges","hash":"fc93be4f"},{"heading":"5.3 G-push — the 5-predicate runtime conjunction (INV-016, verbatim)","hash":"92ba8752"},{"heading":"5.4 Why a machine and not nested ifs","hash":"002b81fc"}]}-->
+<!--mc:threads:end-->

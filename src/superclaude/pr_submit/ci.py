@@ -31,6 +31,8 @@ def classify_checks(payload: dict, *, wait_sha: str | None = None) -> str:
     if wait_sha and head and head != wait_sha:
         return STATE_POLLING
     checks = payload.get("checks")
+    if payload.get("state") == STATE_POLLING and not checks:
+        return STATE_POLLING
     if not isinstance(checks, list) or not checks:
         return STATE_CLEAN
     buckets = {str(c.get("bucket", "")).lower() for c in checks if isinstance(c, dict)}

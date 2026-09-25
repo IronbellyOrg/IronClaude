@@ -45,14 +45,16 @@ JSON_FIELDS="name,state,bucket,link,workflow"
 # on the same stdout — that concatenates two arrays and breaks --argjson.
 REQUIRED_JSON="$(gh pr checks "$PR" --repo "$REPO" --required --json "$JSON_FIELDS" 2>/dev/null || true)"
 ALL_JSON="$(gh pr checks "$PR" --repo "$REPO" --json "$JSON_FIELDS" 2>/dev/null || true)"
-as_array() { printf '%s' "$1" | jq -c 'if type == "array" then . else [] end' 2>/dev/null || echo '[]'; }
-REQUIRED_JSON="$(as_array "$REQUIRED_JSON")"
-ALL_JSON="$(as_array "$ALL_JSON")"
+is_array() { printf '%s' "$1" | jq -es 'length == 1 and (.[0] | type == "array")' >/dev/null 2>&1; }
+as_array() { printf '%s' "${1:-[]}" | jq -cs 'if length == 1 and (.[0] | type == "array") then .[0] else [] end' 2>/dev/null || printf '[]\n'; }
 
-CHECKS_JSON="$(jq -nc --argjson req "$REQUIRED_JSON" --argjson all "$ALL_JSON" '
-    if ($req | type == "array") and ($req | length) > 0 then $req
-    elif ($all | type == "array") then $all
-    else [] end
+REQUIRED_VALID=0
+ALL_VALID=0
+if is_array "$REQUIRED_JSON"; then REQUIRED_VALID=1; fi
+if is_array "$ALL_JSON"; then ALL_VALID=1; fi
+
+CHECKS_JSON="$(jq -nc --argjson req "$(as_array "$REQUIRED_JSON")" --argjson all "$(as_array "$ALL_JSON")" '
+    if ($req | length) > 0 then $req else $all end
 ')"
 
 # Coarse hint only — classify_checks is authoritative.
@@ -62,6 +64,10 @@ STATE="$(printf '%s' "$CHECKS_JSON" | jq -r '
     elif any(.[]; (.bucket // "") == "fail" or (.bucket // "") == "cancel"
               or ((.state // "") | ascii_downcase) == "action_required") then "findings"
     else "clean" end')"
+# Only two confirmed empty arrays prove there are no configured checks.
+if [ "$CHECKS_JSON" = '[]' ] && { [ "$REQUIRED_VALID" -eq 0 ] || [ "$ALL_VALID" -eq 0 ]; }; then
+    STATE="polling"
+fi
 
 # Re-sample head after checks so a mid-poll push cannot pair new checks with an old SHA.
 HEAD1="$(printf '%s' "$PR_JSON" | jq -r '.headRefOid // empty')"

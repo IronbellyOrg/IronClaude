@@ -27,6 +27,17 @@ def test_classify_empty():
     assert classify_checks({}) == STATE_CLEAN
 
 
+def test_classify_empty_polling_is_not_clean():
+    assert classify_checks({"state": "polling", "checks": []}) == STATE_POLLING
+
+
+def test_classify_mixed_pass_and_pending():
+    assert (
+        classify_checks({"checks": [{"bucket": "pass"}, {"bucket": "pending"}]})
+        == STATE_POLLING
+    )
+
+
 def test_classify_fail(load_fixture):
     assert classify_checks(load_fixture("checks-fail.json")) == STATE_FINDINGS
 
