@@ -1,0 +1,9 @@
+input_tree_sha256: e893d296a70979c54898d4674e716314db5aacad7bab6f2c7ab08045f5059f70
+file_list:
+  - path: .dev/specs/pr-submit-ci-monitor.md
+    sha256: 8b5cb4d21a2f013fa75ab80e973541a53aab1b848f72a450e3a254bdf52012a8
+file_count: 1
+input_sha256:
+  spec: 8b5cb4d21a2f013fa75ab80e973541a53aab1b848f72a450e3a254bdf52012a8
+  tasklist: 8b5cb4d21a2f013fa75ab80e973541a53aab1b848f72a450e3a254bdf52012a8
+note: "UC-1 spec-only; §12 Implementation plan is the tasklist (same file)."

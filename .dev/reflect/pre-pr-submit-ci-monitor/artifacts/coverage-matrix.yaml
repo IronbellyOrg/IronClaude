@@ -1,0 +1,94 @@
+# UC-1 coverage matrix — spec §5 FRs vs §12 steps
+# Pass 1: parsed IDs. §12 does not contain literal FR-CI-* tokens → match_method none.
+# semantic_match is the requirements-analyst overlay (not contract coverage_pct).
+
+parsed_count: 12
+inferred_count: 0
+coverage_pct: 0.0
+coverage_pct_union: 0.0
+coverage_degraded: parsed-sparse
+coverage_undefined: false
+
+matrix:
+  - requirement_id: FR-CI-1
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "4"
+    semantic: covered
+  - requirement_id: FR-CI-2
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "2"
+    semantic: covered
+  - requirement_id: FR-CI-3
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "1"
+    semantic: covered
+  - requirement_id: FR-CI-4
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "1"
+    semantic: partial
+    gap: "cancel bucket not in mapping; falls through vs FR-CI-5"
+  - requirement_id: FR-CI-5
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "1"
+    semantic: partial
+    gap: "Finding path/line unspecified; is_groundable drops empty path"
+  - requirement_id: FR-CI-6
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "1,4"
+    semantic: covered
+  - requirement_id: FR-CI-7
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "1"
+    semantic: partial
+    gap: "path=workflow file may verify; use workflow name"
+  - requirement_id: FR-CI-8
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "4"
+    semantic: covered
+  - requirement_id: FR-CI-9
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "3,4"
+    semantic: covered
+  - requirement_id: FR-CI-10
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: null
+    semantic: hole
+  - requirement_id: FR-CI-11
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: null
+    semantic: hole
+  - requirement_id: FR-CI-12
+    source: parsed
+    match_method: none
+    matched_task_ids: []
+    semantic_step: "§2 non-goal"
+    semantic: covered
+
+unmapped_requirements: [FR-CI-1, FR-CI-2, FR-CI-3, FR-CI-4, FR-CI-5, FR-CI-6, FR-CI-7, FR-CI-8, FR-CI-9, FR-CI-10, FR-CI-11, FR-CI-12]
+unmapped_requirements_union: [FR-CI-1, FR-CI-2, FR-CI-3, FR-CI-4, FR-CI-5, FR-CI-6, FR-CI-7, FR-CI-8, FR-CI-9, FR-CI-10, FR-CI-11, FR-CI-12]
+semantic_unmapped: [FR-CI-10, FR-CI-11]
+S_dev_density: 1.0
+S_scope: 5
+S_domains: 1

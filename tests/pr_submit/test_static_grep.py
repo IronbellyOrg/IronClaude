@@ -48,6 +48,7 @@ CORE_PURE_FILES = [
     PR_SUBMIT_PKG / "fsm.py",
     PR_SUBMIT_PKG / "severity_router.py",
     PR_SUBMIT_PKG / "loop_guard.py",
+    PR_SUBMIT_PKG / "ci.py",
 ]
 
 AUGGIE_REVIEW_CMD = REPO_ROOT / "src" / "superclaude" / "commands" / "auggie-review.md"
@@ -434,6 +435,7 @@ fi
 
 _RESOLUTION_SCRIPTS = (
     SKILL_DIR / "scripts" / "poll-augment-review.sh",
+    SKILL_DIR / "scripts" / "poll-ci-checks.sh",
     SKILL_DIR / "scripts" / "retrigger-review.sh",
     SKILL_DIR / "scripts" / "reply-resolve-thread.sh",
 )

@@ -1,0 +1,22 @@
+{
+  "pr": 42,
+  "head_sha": "abc123",
+  "source": "ci",
+  "state": "clean",
+  "checks": [
+    {
+      "name": "Quick Test (Python 3.10)",
+      "state": "COMPLETED",
+      "bucket": "pass",
+      "link": "https://github.com/IronbellyOrg/IronClaude/actions/runs/1",
+      "workflow": "Quick Check"
+    },
+    {
+      "name": "Test on Python 3.12",
+      "state": "COMPLETED",
+      "bucket": "skipping",
+      "link": "https://github.com/IronbellyOrg/IronClaude/actions/runs/2",
+      "workflow": "Tests"
+    }
+  ]
+}
