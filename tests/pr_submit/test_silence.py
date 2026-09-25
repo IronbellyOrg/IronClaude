@@ -44,6 +44,19 @@ def test_fail_soft_empty_is_not_silence(load_fixture):
     )
 
 
+def test_comment_fetch_miss_is_not_silence():
+    payload = {
+        "pr": 243,
+        "head_sha": "abc",
+        "comments_ok": False,
+        "reviews": [],
+        "comments": [],
+    }
+    assert poll_succeeded(payload) is False
+    silent = poll_succeeded(payload) and not has_augment_activity(payload, LIVE)
+    assert silent is False
+
+
 def test_opt_in_241_is_activity_and_declined(load_fixture):
     payload = load_fixture("opt-in-241.json")
     assert has_augment_activity(payload, LIVE) is True

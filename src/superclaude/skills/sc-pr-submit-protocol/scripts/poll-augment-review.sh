@@ -48,7 +48,7 @@ PR_JSON="$(gh pr view "$PR" --repo "$REPO" \
 
 if [ -z "$PR_JSON" ]; then
     # Poll failed (rate limit / transient) — surface as still-polling; the FSM backs off.
-    jq -nc --argjson pr "$PR" '{pr:$pr, state:"polling", reviews:[], comments:[]}'
+    jq -nc --argjson pr "$PR" '{pr:$pr, state:"polling", comments_ok:false, reviews:[], comments:[]}'
     exit 0
 fi
 
@@ -61,13 +61,16 @@ issue_file="$_tmp/issue.json"
 inline_file="$_tmp/inline.json"
 pr_file="$_tmp/pr.json"
 
+COMMENTS_OK=true
 if ! gh api "repos/${REPO}/issues/${PR}/comments" --paginate 2>/dev/null \
         | jq -s 'add // []' > "$issue_file" 2>/dev/null; then
     printf '[]\n' > "$issue_file"
+    COMMENTS_OK=false
 fi
 if ! gh api "repos/${REPO}/pulls/${PR}/comments" --paginate 2>/dev/null \
         | jq -s 'add // []' > "$inline_file" 2>/dev/null; then
     printf '[]\n' > "$inline_file"
+    COMMENTS_OK=false
 fi
 printf '%s' "$PR_JSON" > "$pr_file"
 
@@ -79,10 +82,11 @@ STATE="$(jq -r 'if ((.reviews // []) | length) > 0 then "review_present" else "p
 # --slurpfile wraps each file in an array; a file that is already one JSON array
 # is therefore $var[0]. Never --argjson the comment blobs (ARG_MAX on busy PRs).
 jq -c --arg state "$STATE" \
+    --argjson comments_ok "$COMMENTS_OK" \
     --slurpfile issue_comments "$issue_file" \
     --slurpfile inline_comments "$inline_file" \
     '{pr:.number, url:.url, head_sha:.headRefOid, base:.baseRefName,
-      state:$state, reviews:(.reviews // []),
+      state:$state, comments_ok:$comments_ok, reviews:(.reviews // []),
       comments:(($issue_comments[0] // []) + ($inline_comments[0] // []))}' \
     "$pr_file"
 

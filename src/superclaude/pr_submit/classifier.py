@@ -79,13 +79,17 @@ def has_augment_activity(payload: dict, contract: Any) -> bool:
 
 
 def poll_succeeded(payload: dict) -> bool:
-    """True iff ``payload`` is a live PR poll (has ``head_sha``).
+    """True iff ``payload`` is a complete live poll.
 
-    ``poll-augment-review.sh`` fail-soft on ``gh pr view`` failure emits
-    ``{pr, state:polling, reviews:[], comments:[]}`` with no ``head_sha``.
-    That shape must not count as silence.
+    Fail-soft ``gh pr view`` miss has no ``head_sha``. Independent comment-API
+    miss sets ``comments_ok`` false (empty ``comments`` is then unobserved, not
+    silent). Missing ``comments_ok`` on older fixtures is treated as complete.
     """
-    return isinstance(payload, dict) and bool(payload.get("head_sha"))
+    if not isinstance(payload, dict) or not payload.get("head_sha"):
+        return False
+    if payload.get("comments_ok") is False:
+        return False
+    return True
 
 
 def _entry_ts(entry: dict) -> Any:
