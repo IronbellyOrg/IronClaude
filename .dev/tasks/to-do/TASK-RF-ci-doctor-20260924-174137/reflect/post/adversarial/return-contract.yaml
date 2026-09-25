@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/adversarial/merged-verdict.yaml
+  convergence_score: null
+  artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/adversarial
+  status: partial
+  base_variant: reviewer-1
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: debate
+  invocation_method: skill-direct
+  unaddressed_invariants: []

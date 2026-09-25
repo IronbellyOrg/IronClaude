@@ -1,0 +1,71 @@
+contract_version: '1.0'
+status: partial
+job_id: lens-bare-review-b2b0c84c
+started: ''
+finished: ''
+elapsed_ms: 0
+caller:
+  skill: null
+  skill_version: null
+  invocation_label: ''
+  kind: cli
+lens: bare-review
+lens_source: ''
+target:
+  path: ''
+  checksum: ''
+  truncated: false
+  truncation_line_cap: 4000
+workers_requested: 3
+workers_succeeded: 2
+workers_failed: 1
+output_files:
+- index: 0
+  path: ''
+  raw_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-00-grok-4.6.raw.md
+  meta_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-00-grok-4.6.meta.json
+  final_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-00-grok-4.6.final.md
+  model_id: grok-4.6
+  model_label: grok-4.6
+  bytes: 926
+  status: success
+  http_code: 200
+  attempts: 1
+  elapsed_ms: 53525
+- index: 1
+  path: ''
+  raw_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-01-deepseek-v4-pro.raw.md
+  meta_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-01-deepseek-v4-pro.meta.json
+  final_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-01-deepseek-v4-pro.final.md
+  model_id: deepseek-v4-pro
+  model_label: deepseek-v4-pro
+  bytes: 930
+  status: success
+  http_code: 200
+  attempts: 1
+  elapsed_ms: 111209
+- index: 2
+  path: ''
+  raw_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-02-Qwen3.8-max.raw.md
+  meta_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-02-Qwen3.8-max.meta.json
+  final_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-02-Qwen3.8-max.final.md
+  model_id: Qwen3.8-max
+  model_label: Qwen3.8-max
+  bytes: 0
+  status: timeout
+  http_code: null
+  attempts: 1
+  elapsed_ms: 180064
+amalgamation_mode: normalize+merge
+merged_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/merged.md
+caller_metadata:
+  suspect: true
+  tier: T2
+recommended_next_command: /sc:adversarial --compare <existing-review>,/config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-00-grok-4.6.final.md,/config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-01-deepseek-v4-pro.final.md
+  --suspect-source /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-00-grok-4.6.final.md,/config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/bare-review/bare-review-01-deepseek-v4-pro.final.md
+artifacts:
+  manifest_path: ''
+  state_path: ''
+  event_log_jsonl: ''
+  event_log_md: ''
+  done_sentinel: ''

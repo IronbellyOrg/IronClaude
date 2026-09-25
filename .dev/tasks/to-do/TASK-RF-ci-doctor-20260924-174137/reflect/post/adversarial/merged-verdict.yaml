@@ -1,0 +1,39 @@
+merge_method: single-reviewer-fallback
+adversarial_unavailable: true
+fallback_path: F2
+status: partial
+base_variant: reviewer-1
+base_calibrated_confidence: 0.39
+convergence_score: null
+unresolved_conflicts: 0
+invocation_method: skill-direct
+artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/adversarial
+merged_output_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/adversarial/merged-verdict.yaml
+verdict: PASS-with-deviations
+regression_present: false
+unauthorized_deviation_present: false
+deviation_count_by_class:
+  authorized: 0
+  necessary: 3
+  drift: 0
+  regression: 0
+dropped_from_suspect_reviews:
+  - id: R2-1
+    reason: "superclaude install has no --no-promote; flag is reflect Wave 7 only (src/superclaude/cli/reflect/)"
+findings_kept:
+  - id: D-001
+    class: none
+    location: ".github/workflows/test.yml:217-219"
+  - id: D-002
+    class: necessary
+    location: "TASK-RF-ci-doctor-20260924-174137.md:130-132"
+    note: "diff-file POST input"
+  - id: D-003
+    class: necessary
+    location: "TASK-RF-ci-doctor-20260924-174137.md:130-132"
+    note: "--no-promote"
+  - id: D-004
+    class: necessary
+    location: ".github/workflows/test.yml (working tree)"
+    note: "uncommitted; commit unauthorized"
+note: "F2 is loud: Task/ClaudeProcess advocates unavailable in nested session. Not an inline synthesized adversarial merge."

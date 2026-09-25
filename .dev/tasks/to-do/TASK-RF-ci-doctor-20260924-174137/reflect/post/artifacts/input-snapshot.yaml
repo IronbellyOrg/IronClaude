@@ -1,0 +1,56 @@
+input_tree_sha256: 134f3411815f3beaf61a3e966cb29e6fbc3bf939ac4af50c889090629e1df4d7
+file_count: 25
+file_list:
+  - path: .dev/specs/ccsession-native-install.md
+    sha256: 0205b8caf0bd9c86dd7f9faa7f5aa379c8251884bbb405fe8b0326df2794e7a3
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/BUILD-REQUEST.md
+    sha256: 47105bd831fdbb760af0f85661ba3bccff770356d067da133cd129b50b0e8cba
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/TASK-RF-ci-doctor-20260924-174137.md
+    sha256: 9adbf29bcb3928931b51f31610ec4b60de2e8397d31d063e107fd8047e0b54d7
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-qualitative-consolidated.md
+    sha256: 3333aaa05c71a73421473014a0e630195082920b2cdb8cf2792328a71d470d83
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-qualitative-operational-report.md
+    sha256: e31eb6fbec35e850e1eafe5ae588396cd6138e17bf58cfc4f2655ea30c77c02e
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-qualitative-sufficiency-report.md
+    sha256: 1e17ffd71103a3f946c1203bbf92d56e8a4f3b519657212559a3abac7c42ff8d
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-task-fix-round.md
+    sha256: 00384ad7e84cc253ffab861eaca171f6a5f0c85dc74420538b22bbd5cbac3f5e
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-task-fix-verification.md
+    sha256: eb9179984a9b60f02d7a5945b8f8a765d1ddcb4e5f5e0feb199462ad603216b3
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-task-research-alignment-report.md
+    sha256: f265254f191e0adf0447861a73b59929bb917928ef666fc541685f413851c189
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-task-validation-b2-report.md
+    sha256: a9d25072ee4c4404be7a7f9dceabdd0b7a46cb5613f451f62f6d84e2a0779ad5
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-task-validation-consolidated.md
+    sha256: 99f8e21300780a9f845a3d08e8346280f781af83ad0ed6d21741fc816f01785a
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/qa/qa-task-validation-structure-report.md
+    sha256: 9ad2d2b476a5c51b08f011514420d080e0a1989a53ba424089cfc76364e91e11
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/research-notes.md
+    sha256: 67a9afce1f26da1ad3ac4309966469e25852802b6a924546246826e381922492
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/test-results/install-integration.txt
+    sha256: eefbc51968bad52aaac3b9cf39d216f562ec2b2452ebf7763cfd8c6cd09ae163
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/test-results/isolated-install-doctor.txt
+    sha256: f169762f0aeaedbd6c98b4cc9e347dbb362e2e79b64fa8797018b33cebf8ba3f
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/test-results/workflow-checks.txt
+    sha256: cecee8213fcd8e8b218ab409377aa47c05cf2fd6e588a3d3a085445d3628d3e7
+  - path: .dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/test-results/workflow.diff
+    sha256: 25508721df9c71ab22c25b737f7303a069607676afa2207edffcdc282085fc7a
+  - path: .dev/troubleshoot/ci-pr236-doctor-20260924172307/REPORT.md
+    sha256: fc2ccd85ce5c15ca17378a26d6e66f456df6d7242624a31f42070a6c61a9ed18
+  - path: .github/workflows/test.yml
+    sha256: aab8a749babf31e5dc2513ceaf4d44c296e561d83445d65f973cc6d2b15d7ee7
+  - path: src/superclaude/cli/doctor.py
+    sha256: 40b07a121fe741cc590baceac02542cef64e2c75dce2d85e793f1639ad71e515
+  - path: src/superclaude/cli/main.py
+    sha256: e4a378f97a169b2ceb733caebccc8de13ab38535feb6119dad88246e408d5c98
+  - path: src/superclaude/skills/sc-reflect-protocol/SKILL.md
+    sha256: ba1bca2b23b4f38382b878b4ad2d6bf906c7fb33c46d1c11027b629f46dccfcf
+  - path: src/superclaude/skills/task-builder/SKILL.md
+    sha256: 460d05daa26fb4ea92e5d8acb93c8f581520f29c8955382578d78ed725b7de04
+  - path: src/superclaude/templates/workflow/01_mdtm_template_generic_task.md
+    sha256: 8313c90e34e6badac39168c8f02801f884eadc4279c389e5c517eaf569b6bf52
+  - path: tests/cli/test_update_command.py
+    sha256: 0cb05ec05da0cec741d90b52682b1b6000431ca60b12ed4394241aece3af0514
+legacy_input_sha256:
+  tasklist: 9adbf29bcb3928931b51f31610ec4b60de2e8397d31d063e107fd8047e0b54d7
+  spec: 0205b8caf0bd9c86dd7f9faa7f5aa379c8251884bbb405fe8b0326df2794e7a3

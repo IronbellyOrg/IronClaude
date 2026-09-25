@@ -1,0 +1,15 @@
+Blind-calibrate these reflection cards. Do not inherit self-reported confidence. Score 5 dimensions 0-1 and mean C.
+
+Rubric dimensions: citation_grounding, coverage_completeness, deviation_classification_clarity, risk_surface_coverage, recommendation_actionability.
+
+Card A path conceptually: T1 card says one YAML step maps to Step 2.1; Necessary deviations for diff-file POST, --no-promote, uncommitted delivery; no Regression; verification triangle skipped.
+
+Card B grok: none/authorized one-step insert at test.yml:217-219.
+
+Card C deepseek: claims superclaude install missing --no-promote at test.yml:219 (likely hallucinated; --no-promote is reflect-only).
+
+Return YAML only:
+t1: {C, per_dimension}
+reviewer_1: {C, per_dimension}
+reviewer_2: {C, per_dimension}
+notes: short

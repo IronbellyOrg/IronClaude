@@ -1,0 +1,13 @@
+reviewer_id: 1
+calibration: blind-qwen
+calibrator_model_class: qwen
+calibrator_model: Qwen3.8-max
+calibrator_diversity: full
+calibrated_confidence: 0.39
+per_dimension:
+  citation_grounding: 0.80
+  coverage_completeness: 0.25
+  deviation_classification_clarity: 0.50
+  risk_surface_coverage: 0.20
+  recommendation_actionability: 0.20
+source: artifacts/wave3c-qwen-calibration.md

@@ -1,0 +1,276 @@
+# isolated-install-doctor.txt
+# Date: 2026-09-24 19:37 UTC
+# CWD: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install
+# REAL_HOME: <redacted> (never targeted)
+
+TMP_HOME=/tmp/sc-doctor-ci-nwcE75
+HOME_FOR_ALL_INVOCATIONS=/tmp/sc-doctor-ci-nwcE75
+REAL_HOME_EQUALS_TMP=no
+REPO_CLAUDE_TARGETED=no
+
+===== 1. PRE-INSTALL doctor --verbose (expect nonzero, missing ccsession) =====
+PRE_INSTALL_DOCTOR_EXIT=1
+----- stdout -----
+🔍 SuperClaude Doctor
+
+✅ pytest plugin loaded
+    SuperClaude pytest plugin is active
+✅ Agents installed
+    No agents installed (run 'superclaude install')
+✅ Skills installed
+    No skills installed (optional)
+✅ Configuration
+    SuperClaude 4.3.5 installed correctly
+❌ ccsession installed (warning: ~/.local/bin not on PATH)
+    /tmp/sc-doctor-ci-nwcE75/.claude/skills/ccsession-tag
+    /tmp/sc-doctor-ci-nwcE75/.claude/skills/ccsession-tag/ccsession
+    /tmp/sc-doctor-ci-nwcE75/.claude/skills/ccsession-tag/hooks/session-start.sh
+    /tmp/sc-doctor-ci-nwcE75/.claude/ccsession.env
+    /tmp/sc-doctor-ci-nwcE75/.local/bin/ccsession
+    /tmp/sc-doctor-ci-nwcE75/.claude/settings.json: ccsession SessionStart hook not registered
+
+⚠️  1/5 checks failed
+----- stderr -----
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+===== 2. superclaude install =====
+INSTALL_EXIT=0
+----- stdout -----
+📦 Installing core framework files to ~/.claude/...
+
+✅ Installed 13 core framework files:
+   - BASH_INSPECTION_POLICY.md
+   - BUSINESS_PANEL_EXAMPLES.md
+   - BUSINESS_SYMBOLS.md
+   - CLAUDE.md
+   - COMMANDS.md
+   - FLAGS.md
+   - MCP.md
+   - MODES.md
+   - ORCHESTRATOR.md
+   - PERSONAS.md
+   - PRINCIPLES.md
+   - RESEARCH_CONFIG.md
+   - RULES.md
+
+📁 Installation directory: /tmp/sc-doctor-ci-nwcE75/.claude
+
+📦 Installing slash commands to /tmp/sc-doctor-ci-nwcE75/.claude/commands/sc...
+
+✅ Installed 47 commands:
+   - /help
+   - /select-tool
+   - /roadmap
+   - /reflect
+   - /release-split
+   - /pr-submit
+   - /workflow
+   - /document
+   - /sc
+   - /load
+   - /implement
+   - /index
+   - /swarm-wizard
+   - /cleanup-audit
+   - /build
+   - /adversarial
+   - /troubleshoot
+   - /explain
+   - /cli-portify
+   - /task
+   - /save
+   - /research
+   - /business-panel
+   - /analyze
+   - /init-lite
+   - /tdd
+   - /estimate
+   - /recommend
+   - /README
+   - /git
+   - /design
+   - /spec-panel
+   - /tasklist
+   - /review-translation
+   - /cleanup
+   - /auggie-review
+   - /post-release
+   - /test
+   - /brainstorm
+   - /pm
+   - /validate-tests
+   - /index-repo
+   - /agent
+   - /improve
+   - /spawn
+   - /validate-roadmap
+   - /cli-eval
+
+📁 Installation directory: /tmp/sc-doctor-ci-nwcE75/.claude/commands/sc
+
+💡 Tip: Restart Claude Code to use the new commands
+
+📦 Installing agents to ~/.claude/agents/...
+
+✅ Installed 43 agents:
+   - audit-analyzer
+   - audit-comparator
+   - audit-consolidator
+   - audit-scanner
+   - audit-validator
+   - auggie-reviewer
+   - backend-architect
+   - business-panel-experts
+   - confidence-calibrator
+   - debate-orchestrator
+   - deep-research-agent
+   - deep-research
+   - devops-architect
+   - eval-docs-loader
+   - eval-run-reporter
+   - eval-suite-author
+   - evidence-validator
+   - frontend-architect
+   - learning-guide
+   - merge-executor
+   - performance-engineer
+   - pm-agent
+   - python-expert
+   - quality-engineer
+   - refactoring-expert
+   - reflect-reviewer
+   - repo-index
+   - requirements-analyst
+   - reuse-auditor
+   - rf-analyst
+   - rf-assembler
+   - rf-qa-qualitative
+   - rf-qa
+   - rf-task-builder
+   - rf-task-executor
+   - rf-task-researcher
+   - rf-team-lead
+   - root-cause-analyst
+   - security-engineer
+   - self-review
+   - socratic-mentor
+   - system-architect
+   - technical-writer
+
+📁 Installation directory: /tmp/sc-doctor-ci-nwcE75/.claude/agents
+
+📦 Installing skills to ~/.claude/skills/...
+
+✅ Installed 35 skills:
+   - ccsession-tag
+   - confidence-check
+   - operational-guide
+   - post-release-update
+   - prd
+   - readme
+   - roadmap
+   - sc-adversarial-protocol
+   - sc-auggie-review-protocol
+   - sc-bare-review
+   - sc-brainstorm-protocol
+   - sc-cleanup-audit-protocol
+   - sc-cli-eval-protocol
+   - sc-cli-portify-protocol
+   - sc-crash-recovery
+   - sc-init-lite-protocol
+   - sc-pm-protocol
+   - sc-post-release-protocol
+   - sc-pr-submit-protocol
+   - sc-recommend
+   - sc-reflect-protocol
+   - sc-release-split-protocol
+   - sc-review-translation-protocol
+   - sc-roadmap-protocol
+   - sc-swarm-wizard-protocol
+   - sc-task-protocol
+   - sc-tasklist-protocol
+   - sc-troubleshoot-protocol
+   - sc-validate-roadmap-protocol
+   - sc-validate-tests-protocol
+   - task
+   - task-builder
+   - tdd
+   - tech-reference
+   - tech-research
+
+📁 Installation directory: /tmp/sc-doctor-ci-nwcE75/.claude/skills
+
+ccsession wired at /tmp/sc-doctor-ci-nwcE75/.local/bin/ccsession
+
+📦 Installing hooks to ~/.claude/hooks/...
+
+✅ Copied 11 hook script(s) to /tmp/sc-doctor-ci-nwcE75/.claude/hooks:
+   - freshness-session-start.sh
+   - freshness-user-prompt.sh
+   - freshness-pre-edit.sh
+   - freshness-post-read.sh
+   - freshness-file-changed.sh
+   - freshness-subagent-start.sh
+   - freshness-subagent-stop.sh
+   - auggie-flag-clear.sh
+   - reject-workspace-writes.sh
+   - sc-recommend-phase0.sh
+   - session-init.sh
+
+📋 settings.json merge: events=6 added=9
+
+📦 Seeded 1 data file(s):
+   - auggie-projects.txt
+
+📦 Installing templates to ~/.claude/templates/...
+
+✅ Installed 15 templates:
+   - documents/GFxAI_Master_Documentation_Template.md
+   - documents/operational_guide_template.md
+   - documents/readme_template.md
+   - documents/release-spec-template.md
+   - documents/supplemental-doc-creation-checklist.md
+   - documents/supplemental_doc_template.md
+   - documents/technical_reference_template.md
+   - workflow/01_mdtm_template_generic_task.md
+   - workflow/02_mdtm_template_complex_task.md
+   - workflow/03_project_plan_template.md
+   - workflow/04_feature_brief_template.md
+   - workflow/05_prd_template.md
+   - workflow/06_architecture_proposal_template.md
+   - workflow/99_mdtm_template_generic_task_old.md
+   - workflow/changelog_template.md
+
+📁 Installation directory: /tmp/sc-doctor-ci-nwcE75/.claude/templates
+----- stderr -----
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+===== 3. POST-INSTALL doctor --verbose (expect 0) =====
+POST_INSTALL_DOCTOR_EXIT=0
+----- stdout -----
+🔍 SuperClaude Doctor
+
+✅ pytest plugin loaded
+    SuperClaude pytest plugin is active
+✅ Agents installed
+    43 agent(s) installed
+✅ Skills installed
+    35 skill(s) installed: ccsession-tag, confidence-check, operational-guide, post-release-update, prd, readme, roadmap, sc-adversarial-protocol, sc-auggie-review-protocol, sc-bare-review, sc-brainstorm-protocol, sc-cleanup-audit-protocol, sc-cli-eval-protocol, sc-cli-portify-protocol, sc-crash-recovery, sc-init-lite-protocol, sc-pm-protocol, sc-post-release-protocol, sc-pr-submit-protocol, sc-recommend, sc-reflect-protocol, sc-release-split-protocol, sc-review-translation-protocol, sc-roadmap-protocol, sc-swarm-wizard-protocol, sc-task-protocol, sc-tasklist-protocol, sc-troubleshoot-protocol, sc-validate-roadmap-protocol, sc-validate-tests-protocol, task, task-builder, tdd, tech-reference, tech-research
+✅ Configuration
+    SuperClaude 4.3.5 installed correctly
+✅ ccsession installed (warning: ~/.local/bin not on PATH)
+    ccsession skill, launcher, env and hook present
+
+✅ SuperClaude is healthy
+----- stderr -----
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+===== CONTRACT CHECK =====
+PRE_INSTALL_MENTIONS_CCSESSION=yes
+PRE_INSTALL_CCSESSION_FAIL_SIGNAL=yes
+PRE_INSTALL_DOCTOR_EXIT=1
+INSTALL_EXIT=0
+POST_INSTALL_DOCTOR_EXIT=0
+CONTRACT=PASS
+TMP_HOME_REMOVED_BY_TRAP=yes (directory should be gone)
+TMP_HOME_STILL_EXISTS=no

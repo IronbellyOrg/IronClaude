@@ -1,0 +1,31 @@
+selected_tier: 2
+fired_rule_number: null
+hard_override: "--depth deep"
+coverage_degraded: null
+surface_unreached: null
+composite_score: 3
+per_signal_breakdown:
+  scope_size: 0
+  task_count: 1
+  blast_radius: 0
+  spec_density: 1
+  ambiguity_signals: 1
+escalation_reason: "--depth deep ALWAYS escalate to T2 (SKILL.md §5.1); rubric STOP rows not evaluated"
+C_self_reported: 0.88
+S_scope: 1
+S_domains: 1
+S_dev_density: 0.0
+regression_candidate_count: 0
+t2_model_class_diversity: full
+t2_vendor_diversity: multi
+executor_class_source: unknown
+executor_class_resolved: false
+executor_exclusion_degraded: false
+reviewer_count: 3
+reviewer_rotation:
+  - {id: 1, model_alias: sonnet, model: gpt-6-sol, persona: analyzer, vendor: openai-compat}
+  - {id: 2, model_alias: haiku, model: muse-spark-1.3, persona: qa, vendor: muse}
+  - {id: 3, model_alias: opus, model: claude-opus-5-5, persona: refactorer, vendor: anthropic}
+calibrator_diversity: degraded
+calibrator_model_class: sonnet
+calibrator_note: "disjoint-set empty (reviewers already use sonnet/haiku/opus); highest unused-by-most fallback still collides; degraded"

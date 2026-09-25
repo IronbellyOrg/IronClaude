@@ -1,0 +1,7 @@
+reuse_sweep_ran: false
+reason: "single YAML workflow hunk; no new/body-changed source symbols"
+candidates_scanned: 0
+neighbours_found: 0
+max_overlap: null
+neighbour_search_sampled: false
+neighbour_search_degraded: false

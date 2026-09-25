@@ -1,0 +1,26 @@
+# install-integration.txt
+# Command: uv run pytest tests/cli/test_update_command.py -v
+# CWD: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install
+# Date: 2026-09-24 19:36 UTC
+
+warning: `VIRTUAL_ENV=/lsiopy` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0 -- /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.venv/bin/python
+cachedir: .pytest_cache
+SuperClaude: 4.3.5
+rootdir: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install
+configfile: pyproject.toml
+plugins: superclaude-4.3.5, anyio-4.15.1
+collecting ... collected 8 items
+
+tests/cli/test_update_command.py::test_update_refreshes_hooks_after_other_components PASSED [ 12%]
+tests/cli/test_update_command.py::test_update_propagates_hook_install_failure PASSED [ 25%]
+tests/cli/test_update_command.py::test_install_wires_before_hooks_and_templates PASSED [ 37%]
+tests/cli/test_update_command.py::test_install_list_does_not_wire PASSED [ 50%]
+tests/cli/test_update_command.py::test_install_and_update_wire_failure_exit_nonzero[install] PASSED [ 62%]
+tests/cli/test_update_command.py::test_install_and_update_wire_failure_exit_nonzero[update] PASSED [ 75%]
+tests/cli/test_update_command.py::test_real_install_launches_ccsession PASSED [ 87%]
+tests/cli/test_update_command.py::test_real_update_restores_packaged_ccsession PASSED [100%]
+
+============================== 8 passed in 0.31s ===============================
+EXIT_STATUS=0

@@ -1,0 +1,11 @@
+reviewer_id: 3
+model_alias: Qwen3.8-max
+model_class: qwen
+vendor: alibaba
+persona: refactorer
+status: timeout
+source: sc-bare-review swarm openai_compat
+elapsed_ms: 180064
+findings: []
+note: "Worker timed out; T2 continues with N=2 floor. t2_model_class_diversity=degraded"
+calibration: skipped-no-card

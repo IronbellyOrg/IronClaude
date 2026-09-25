@@ -1,0 +1,22 @@
+serena_version: unknown
+serena_active_context: unknown
+serena_active_modes: []
+serena_tool_count: unknown
+serena_excluded_tools: unknown
+get_current_config: unavailable
+degraded_components:
+  - get_current_config
+availability:
+  backend: lsp
+  execute_shell_command_available: false
+  onboarding_available: true
+  read_only: unconfirmed
+onboarding_ran: false
+onboarding_skipped_reason: flag-unset
+onboarding_status: bootstrapped
+onboarding_status_source: list_memories_proxy
+memories_present:
+  - memory_maintenance
+  - reflect/deviation-patterns-IronClaude
+  - reflect/last-pass-IronClaude
+note: "onboarding tool was probed then aborted without write_memory because --onboard was unset and memories already exist"

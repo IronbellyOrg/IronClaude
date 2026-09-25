@@ -1,0 +1,93 @@
+contract_version: "1.7.0"
+status: partial
+mode: post
+tier_reached: 2
+report_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/REPORT.md
+audit_log_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/audit.log
+confidence_calibrated: 0.39
+escalation_rule_matched: null
+onboarding_ran: false
+tasklist_completion_pct: 0.75
+deviation_count_by_class:
+  authorized: 0
+  necessary: 3
+  drift: 0
+  regression: 0
+deviation_register_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/deviation-ledger.yaml
+grounding_gaps_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/grounding-gaps.yaml
+verification_ran: false
+verification_skip_reason: tool-unavailable
+runtime_surface_requirements: []
+runtime_surface_sweep_ran: false
+runtime_surface_ledger_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/artifacts/runtime-surface-ledger.yaml
+runtime_surface_unreached: 0
+runtime_surface_degraded: false
+unreached_surfaces: []
+reachability_gate_ran: false
+reachability_ledger_path: null
+reachability_requirements_scanned: 0
+reachability_unreachable: 0
+reachability_unproven: 0
+reachability_real_boot_ran: false
+reachability_skip_reason: no-side-effect-requirements
+reuse_sweep_ran: false
+reuse_audit_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/artifacts/reuse-audit.yaml
+input_sha256:
+  tasklist: 9adbf29bcb3928931b51f31610ec4b60de2e8397d31d063e107fd8047e0b54d7
+  spec: 0205b8caf0bd9c86dd7f9faa7f5aa379c8251884bbb405fe8b0326df2794e7a3
+input_tree_sha256: 134f3411815f3beaf61a3e966cb29e6fbc3bf939ac4af50c889090629e1df4d7
+input_tree_file_count: 25
+input_tree_snapshot_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/artifacts/input-snapshot.yaml
+input_drift_detected: false
+citations_total: 8
+citations_revalidated: 8
+citations_dropped: 1
+citations_inferred: 0
+citation_budget_policy: full_reread
+evidence_validator_ran: false
+citation_revalidation_at_promotion: false
+reviewer_cards:
+  - /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/reviewer-cards/reviewer-1-card.yaml
+  - /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/reviewer-cards/reviewer-2-card.yaml
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/adversarial
+adversarial_convergence_score: null
+adversarial_unavailable: true
+merge_method: single-reviewer-fallback
+t2_model_class_diversity: degraded
+t2_vendor_diversity: multi
+t2_effective_diversity: model-only
+calibrator_diversity: full
+remediation_offered: true
+remediation_accepted: false
+task_file_path: null
+remediation_task_path: null
+handoff_memory_key: null
+cannot_validate_without_user_input: false
+regression_present: false
+unauthorized_deviation_present: false
+blocked_by_low_confidence: false
+spec_is_wrong: false
+user_decision_required: false
+needs_human_decision: true
+per_task_verdicts: []
+interaction_effects_scanned: false
+interaction_effects_findings: 0
+budget_forced_tier_downgrade: false
+budget_forced_stop: false
+budget_check_skipped: true
+forced_tier: null
+promotion_action: skipped
+promotion_adapter: task
+promotion_source: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137
+promotion_destination: null
+promotion_log_path: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/promotion-log.yaml
+promotion_gate_passed: false
+promotion_skip_reason: user-flag
+promotion_fail_reason: null
+promotion_override_used: null
+promotion_rollback_command: null
+promotion_checkpoint_path: null
+promotion_cross_fs: false
+promotion_pending: false
+merged_verdict: PASS-with-deviations
+run_id: 20260924T194205Z-post-ci-doctor

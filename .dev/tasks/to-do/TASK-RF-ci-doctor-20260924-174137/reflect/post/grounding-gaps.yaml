@@ -1,0 +1,11 @@
+findings:
+  - hunk_ref: "reflect verification triangle (§6.1 step 5.5)"
+    evidence_missing: "mcp__serena__execute_shell_command unavailable in this session; Wave-0 0.5d execute_shell_command_available=false"
+    why_not_classifiable: "Live pytest/doctor re-run cannot be invoked through the sanctioned Serena shell surface; Regression detection degrades to captured task-log claims."
+    next_evidence_needed: "Accept task-log files install-integration.txt and isolated-install-doctor.txt as the verification record, or re-run reflect with execute_shell_command enabled."
+    owner: reviewer
+    decision_needed_by_user: false
+    captured_task_log:
+      - test-results/install-integration.txt
+      - test-results/isolated-install-doctor.txt
+      - test-results/workflow-checks.txt

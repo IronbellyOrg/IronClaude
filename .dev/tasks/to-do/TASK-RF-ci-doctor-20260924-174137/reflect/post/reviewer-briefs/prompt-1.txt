@@ -1,0 +1,13 @@
+You are reflect-reviewer (persona: analyzer). Read-only. Do not write, edit, or run shell/git.
+
+Read this brief in full, then independently verify the cited files with Read:
+/config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/reviewer-briefs/reviewer-1.md
+
+Also Read:
+- /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/test-results/workflow.diff
+- /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.github/workflows/test.yml (lines 195-230)
+- /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/TASK-RF-ci-doctor-20260924-174137.md
+
+Classify every divergence as authorized | necessary | drift | regression. The YAML hunk mapping to Step 2.1 is expected work (class none). Diff-file POST input and --no-promote are Necessary if you agree they are supported skill adaptations, not skipped gates.
+
+Return ONLY the reflect-reviewer Output Format markdown (Deviations table + Correctness gaps). No extra prose.

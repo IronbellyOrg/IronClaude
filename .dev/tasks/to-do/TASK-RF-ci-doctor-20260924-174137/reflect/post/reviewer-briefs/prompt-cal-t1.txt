@@ -1,0 +1,20 @@
+You are confidence-calibrator. Blind re-grade. Do not write files. Do not inherit the card's self-reported confidence.
+
+Read ONLY:
+- card: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137/reflect/post/t1-card.md
+- rubric: /config/.claude/skills/sc-reflect-protocol/refs/reflection-rubric.md
+
+Spot-check cited file:line claims by Reading those files.
+
+Score the 5 reflection dimensions (0.00-1.00): Citation grounding, Coverage completeness, Deviation-classification clarity, Risk surface coverage, Recommendation actionability. Return arithmetic mean as calibrated_confidence.
+
+card_tier: 1
+flags: --depth deep --mode post --no-promote --remediate
+now_iso: 2026-09-24T19:42:05Z
+
+Return YAML:
+calibrated_confidence: <float>
+per_dimension: {citation_grounding, coverage_completeness, deviation_classification_clarity, risk_surface_coverage, recommendation_actionability}
+delta_vs_self_reported: <float>
+escalation_recommendation: already-forced-t2
+notes: <short>

@@ -1,0 +1,15 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+index 81261771..3d3fb727 100644
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -214,6 +214,10 @@ jobs:
+         run: |
+           uv pip install --system -e ".[dev]"
+ 
++      - name: Install native components
++        run: |
++          superclaude install
++
+       - name: Run doctor command
+         run: |
+           superclaude doctor --verbose

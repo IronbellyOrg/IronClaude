@@ -1,0 +1,8 @@
+- [2026-09-24T19:46:11.074224+00:00] wave_transition worker=-: from=preflight_ok to=dispatching workers_requested=3
+- [2026-09-24T19:46:11.154704+00:00] worker_start worker=0: timeout_sec=180
+- [2026-09-24T19:46:11.155578+00:00] worker_start worker=1: timeout_sec=180
+- [2026-09-24T19:46:11.155805+00:00] worker_start worker=2: timeout_sec=180
+- [2026-09-24T19:47:04.680059+00:00] worker_done worker=0: attempts=1 elapsed_ms=53525 http_code=200 model_id=grok-4.6 model_label=grok-4.6 status=success
+- [2026-09-24T19:48:02.366260+00:00] worker_done worker=1: attempts=1 elapsed_ms=111209 http_code=200 model_id=deepseek-v4-pro model_label=deepseek-v4-pro status=success
+- [2026-09-24T19:49:11.221912+00:00] worker_done worker=2: attempts=1 elapsed_ms=180064 http_code=None model_id=Qwen3.8-max model_label=Qwen3.8-max status=timeout
+- [2026-09-24T19:49:11.222596+00:00] wave_transition worker=-: from=dispatching results_collected=3 success_count=2 to=dispatched

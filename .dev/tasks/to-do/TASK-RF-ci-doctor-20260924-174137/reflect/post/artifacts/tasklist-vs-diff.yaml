@@ -1,0 +1,45 @@
+mode: post
+touched_files:
+  - .github/workflows/test.yml
+hunk_count: 1
+S_scope: 1
+S_domains: 1
+S_dev_density: 0.0
+unmapped_hunks: []
+items:
+  - id: Step-1.1
+    status: done
+    mapped_hunk: null
+    evidence: TASK-RF-ci-doctor-20260924-174137.md Execution Log
+  - id: Step-2.1
+    status: done
+    mapped_hunk: ".github/workflows/test.yml:217-219"
+    evidence: test-results/workflow.diff
+  - id: Step-3.1
+    status: done
+    mapped_hunk: null
+    evidence: test-results/install-integration.txt
+  - id: Step-3.2
+    status: done
+    mapped_hunk: null
+    evidence: test-results/isolated-install-doctor.txt
+  - id: Step-3.3
+    status: done
+    mapped_hunk: null
+    evidence: test-results/workflow-checks.txt
+  - id: Step-4.1
+    status: done
+    mapped_hunk: test-results/workflow.diff
+    evidence: test-results/workflow.diff
+  - id: Step-4.2
+    status: in-progress
+    mapped_hunk: null
+    evidence: this reflect run
+  - id: Step-4.3
+    status: pending
+    mapped_hunk: null
+    evidence: null
+tasklist_completion_pct_all_items: 0.75
+tasklist_completion_pct_execution_items: 1.0
+interaction_effects_scanned: false
+interaction_effects_reason: "tasklist completed-execution items < 3 independent code tasks; single hunk"

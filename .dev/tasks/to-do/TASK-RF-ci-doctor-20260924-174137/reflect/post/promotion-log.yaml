@@ -1,0 +1,16 @@
+promotion_log_version: "1.0"
+adapter: task
+mode: auto
+action: skipped
+source: /config/workspace/IronClaude/.dev/worktrees/ccsession-native-install/.dev/tasks/to-do/TASK-RF-ci-doctor-20260924-174137
+destination: null
+gate_passed: false
+pending: false
+cross_fs_promotion: false
+checkpoint_path: null
+skip_reason: user-flag
+fail_reason: null
+override_used: null
+citation_revalidation_at_promotion: false
+timestamp: 2026-09-24T19:52:00Z
+note: "--no-promote set; Necessary adaptation, not a skipped reflection wave"

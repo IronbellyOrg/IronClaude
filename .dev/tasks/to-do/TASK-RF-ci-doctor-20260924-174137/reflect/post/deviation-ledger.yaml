@@ -1,0 +1,32 @@
+deviation_aggregation_mode: per-hunk
+hunk_count: 1
+findings:
+  - id: D-001
+    hunk_ref: ".github/workflows/test.yml:217-219"
+    mapped_tasklist_item: Step-2.1
+    spec_section: "related FR-1/FR-4 (not --spec)"
+    deviation_class: none
+    rationale: "Hunk is the authorized Step 2.1 insert; doctor command unchanged."
+  - id: D-002
+    hunk_ref: "TASK-RF-ci-doctor-20260924-174137.md:130-132"
+    mapped_tasklist_item: Step-4.2
+    spec_section: "sc-reflect-protocol refs/input-resolution.md --diff file path"
+    deviation_class: necessary
+    rationale: "Supported diff-file POST input required because unstaged workflow change is invisible to stock {BASE}..HEAD."
+  - id: D-003
+    hunk_ref: "TASK-RF-ci-doctor-20260924-174137.md:130-132"
+    mapped_tasklist_item: Step-4.2
+    spec_section: "sc-reflect-protocol §14.5 --no-promote"
+    deviation_class: necessary
+    rationale: "Supported no-promotion adaptation so Wave 7 does not move the to-do task before Step 4.3."
+  - id: D-004
+    hunk_ref: ".github/workflows/test.yml (working tree)"
+    mapped_tasklist_item: Step-2.1
+    spec_section: "BUILD-REQUEST EXECUTION_SCOPE / Key Constraints"
+    deviation_class: necessary
+    rationale: "Commit/push unauthorized; uncommitted working-tree delivery is required, not silent extra scope."
+counts:
+  authorized: 0
+  necessary: 3
+  drift: 0
+  regression: 0

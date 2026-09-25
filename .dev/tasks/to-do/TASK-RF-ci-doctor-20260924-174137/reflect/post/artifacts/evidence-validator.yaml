@@ -1,0 +1,34 @@
+evidence_validator_ran: false
+mode: inline-fallback
+reason: "evidence-validator agent spawn blocked (nested Claude Code session / no Task tool)"
+citation_budget_policy: full_reread
+citations_total: 8
+citations_revalidated: 8
+citations_dropped: 1
+citations_inferred: 0
+zero_drop_flag: false
+results:
+  - cite: ".github/workflows/test.yml:217-219"
+    status: kept
+    note: "Install native components / superclaude install present"
+  - cite: ".github/workflows/test.yml:221-223"
+    status: kept
+    note: "doctor command unchanged"
+  - cite: "src/superclaude/cli/doctor.py:52-103"
+    status: kept
+    note: "fail-on-missing ccsession intact"
+  - cite: ".dev/specs/ccsession-native-install.md:97-150"
+    status: kept
+    note: "FR-1/FR-4 related contract"
+  - cite: "test-results/workflow.diff"
+    status: kept
+    note: "one hunk only"
+  - cite: "test-results/isolated-install-doctor.txt PRE/POST exits"
+    status: kept
+    note: "PRE=1 POST=0 from captured log"
+  - cite: "test-results/install-integration.txt EXIT_STATUS=0"
+    status: kept
+  - cite: ".github/workflows/test.yml:219 superclaude install --no-promote"
+    status: dropped
+    original_claim: "R2-1 install missing --no-promote"
+    why: "install CLI has no --no-promote; only reflect/commands.py and reflect/runner.py mention it"
