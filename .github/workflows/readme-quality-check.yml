@@ -275,15 +275,7 @@ jobs:
         
     - name: Run README quality check
       run: python readme_checker.py
-      
-    - name: Upload quality report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: readme-quality-report
-        path: readme-quality-report.json
-        retention-days: 30
-        
+
     - name: Comment PR (if applicable)
       if: github.event_name == 'pull_request' && always() && github.event.pull_request.head.repo.full_name == github.repository
       uses: actions/github-script@v7
@@ -301,7 +293,7 @@ jobs:
               `📐 Structural Consistency: ${report.structure_consistency?.score || 0}/100\n` +
               `🔗 Link Validity: ${report.link_validation?.score || 0}/100\n` +
               `🌍 Translation Sync: ${report.translation_sync?.score || 0}/100\n\n` +
-              `See the Actions tab for the detailed report.`;
+              `See the job summary for the detailed report.`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
