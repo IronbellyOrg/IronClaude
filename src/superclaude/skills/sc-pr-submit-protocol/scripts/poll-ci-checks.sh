@@ -6,7 +6,8 @@
 # Usage   : poll-ci-checks.sh --pr <N> [--repo <owner/repo>]
 # Output  : one line of JSON: {"pr":N,"head_sha":"...","source":"ci",
 #           "state":"polling|clean|findings","checks":[...]}
-# Exit    : 0 always on a completed poll (fail-soft); 2 on a usage error.
+# Exit    : 0 always on a completed poll (fail-soft); 2 on a usage error or a
+#           missing prerequisite (gh, jq, repo, or `gh pr checks --json` support).
 # Spec    : .dev/specs/pr-submit-ci-monitor.md FR-CI-2 / FR-CI-10 / FR-CI-11.
 #           Authoritative classify is superclaude.pr_submit.ci.classify_checks.
 #
@@ -33,6 +34,13 @@ command -v jq >/dev/null 2>&1 || die "jq not found on PATH" 2
 REPO="${REPO:-$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null || true)}"
 [ -n "$REPO" ] || REPO="$(git remote get-url origin 2>/dev/null | sed -E 's#^ssh://[^/]+/##; s#^git@[^:]+:##; s#^https?://[^/]+/##; s#\.git$##')"
 [ -n "$REPO" ] || die "could not resolve target repo (pass --repo <owner/repo>)" 2
+# Probe the installed CLI, not a guessed version: without `pr checks --json` every
+# query below fails and the fail-soft path would report `polling` until timeout.
+CHECKS_HELP="$(gh pr checks --repo "$REPO" --help 2>/dev/null || true)"
+case "$CHECKS_HELP" in
+    *--json*) ;;
+    *) die "installed gh lacks 'gh pr checks --json' (see 'gh --version'); upgrade gh and confirm via 'gh pr checks --help' before CI wait" 2 ;;
+esac
 
 PR_JSON="$(gh pr view "$PR" --repo "$REPO" --json number,url,headRefOid 2>/dev/null || true)"
 if [ -z "$PR_JSON" ]; then

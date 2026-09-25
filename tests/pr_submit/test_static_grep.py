@@ -431,6 +431,45 @@ fi
     assert len(payload["comments"][0]["body"]) == 2_000_000
 
 
+def test_ci_poll_script_rejects_gh_without_checks_json(tmp_path):
+    """A gh whose `pr checks --help` lacks `--json` (e.g. 2.45) must fail fast with exit 2
+    and no JSON line — never a fail-soft `polling` (loop to timeout) or `clean`."""
+    calls = tmp_path / "calls.log"
+    gh = tmp_path / "gh"
+    gh.write_text(
+        f"""#!/usr/bin/env bash
+printf '%s\\n' "$*" >> {calls}
+case " $* " in
+  *" --help "*) printf 'FLAGS\\n  --required  Only show required checks\\n' ;;
+  *) printf 'unexpected gh call: %s\\n' "$*" >&2; exit 1 ;;
+esac
+""",
+        encoding="utf-8",
+    )
+    gh.chmod(0o755)
+    env = {**os.environ, "PATH": f"{tmp_path}:{os.environ['PATH']}"}
+    result = subprocess.run(
+        [
+            str(SKILL_DIR / "scripts" / "poll-ci-checks.sh"),
+            "--pr",
+            "238",
+            "--repo",
+            "IronbellyOrg/IronClaude",
+        ],
+        text=True,
+        capture_output=True,
+        env=env,
+        timeout=30,
+    )
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "gh pr checks --json" in result.stderr
+    # Only the capability probe ran; no PR/check query was attempted.
+    assert calls.read_text(encoding="utf-8").splitlines() == [
+        "pr checks --repo IronbellyOrg/IronClaude --help"
+    ]
+
+
 # --- D2: $REPO origin-URL resolution fallback (sed) -------------------------
 
 _RESOLUTION_SCRIPTS = (

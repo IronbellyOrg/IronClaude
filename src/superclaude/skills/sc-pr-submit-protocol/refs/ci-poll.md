@@ -1,6 +1,6 @@
 # CI Poll (Wave 8) — the checks poller contract
 
-This ref pins the CI poll surface for the in-session Monitor. The poll **script**
+This ref pins the CI poll surface for the SKILL's attended, in-session poll loop. The poll **script**
 (`scripts/poll-ci-checks.sh`) performs a single `gh` poll and emits one JSON line;
 `superclaude.pr_submit.ci.classify_checks` is the authoritative classifier. This
 split keeps `gh` out of the deterministic core (NFR-6).
@@ -28,7 +28,7 @@ No `conclusion` field — `gh pr checks --json` does not emit it. Empty, malform
 | `HALT_MAX_ROUNDS` | Arm, wait-only; report CI clean, failure, timeout, or human-gate alongside retained Augment halt | No: CI findings → `REPORT_ONLY` |
 | `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED` / L0 | Do not arm | No |
 
-The wait consumes no remediation round. A `polling` result (including a failed check query) continues at the configured interval until completion or `--timeout`. When `--required` returns a nonempty parsed list it is the chosen set; otherwise use the parsed all-checks list. Optional checks outside the chosen set do not block completion.
+The wait consumes no remediation round. A `polling` result (including a failed check query) continues at the configured interval until completion or `--timeout`. A non-zero script exit (e.g. `gh` without `pr checks --json`) is not `polling`: stop and report the missing prerequisite. The observed CI matrix has run longer than the 600s default, so a CI wait needs a `--timeout` sized to the full check run; never promise an indefinite wait. When `--required` returns a nonempty parsed list it is the chosen set; otherwise use the parsed all-checks list. Optional checks outside the chosen set do not block completion.
 
 - `headRefOid` = the head SHA. If it differs from the SHA this wait started on,
   `classify_checks(..., wait_sha=...)` returns `polling`.

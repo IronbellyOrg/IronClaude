@@ -1,6 +1,6 @@
 # Augment Poll (C2) — the poller contract
 
-This ref pins the poll surface and timing for the in-session Monitor. The poll **script**
+This ref pins the poll surface and timing for the SKILL's attended, in-session poll loop. The poll **script**
 (`scripts/poll-augment-review.sh`) performs a single `gh`/`gh api` poll and emits one JSON line; the
 **FSM** (`superclaude.pr_submit`) does the backoff arithmetic. This split keeps `gh` out of the
 deterministic core (NFR-6) — the script touches `gh`, the core decides.

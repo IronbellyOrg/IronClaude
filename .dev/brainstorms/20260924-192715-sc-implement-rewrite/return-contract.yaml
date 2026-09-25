@@ -1,0 +1,28 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/brainstorms/20260924-192715-sc-implement-rewrite/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/brainstorms/20260924-192715-sc-implement-rewrite/merged-requirements.md
+convergence_score: 0.80
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/brainstorms/20260924-192715-sc-implement-rewrite/adversarial
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts:
+  - "C-005: warn-at-20 vs hard cap (majority: warn)"
+  - "X-001: V1 MDTM STOP holdout (majority: execute this protocol)"
+  - "S-002: 1 vs 2 refs (majority: qa.md + ledger.md)"
+
+# adversarial return
+merged_output_path_adversarial: /config/workspace/IronClaude/.dev/brainstorms/20260924-192715-sc-implement-rewrite/adversarial/merged-output.md
+base_variant: sonnet:refactorer
+unresolved_conflicts_count: 3
+fallback_mode: false
+failure_stage: null
+invocation_method: skill-direct
+unaddressed_invariants: []

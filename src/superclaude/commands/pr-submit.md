@@ -45,7 +45,7 @@ Explicit only — three activation paths:
 | `--monitor {0,1,2,3}` | 2 | Capability ceiling (G-arm/G-edit/G-push gates). |
 | `--max-rounds N` | 2 | Remediation cycles; hard cap 5 (reject >5). |
 | `--poll-interval S` | 30 | Poll interval; minimum 30 seconds (reject <30). |
-| `--timeout S` | 600 | Review-wait wall-clock timeout (~10 min). |
+| `--timeout S` | 600 | Per-wait wall-clock timeout (~10 min). CI runs can exceed this; size it to the full check run. |
 | `--base <branch>` | repo default branch | PR base branch; defaults to the repo's actual default (`gh repo view --json defaultBranchRef`), overridable here. |
 | `--head <branch>` | — | PR head branch. |
 | `--title` / `--body` | — | PR title / body. |
@@ -71,7 +71,7 @@ Pass the following context:
 - PR context: `--base` / `--head` / `--title` / `--body`, or the existing PR number.
 - `--output-dir` and `--resume` if supplied.
 
-Do NOT attempt to execute the monitor using only this command file. The deterministic decisions defer to the importable `superclaude.pr_submit` core; the orchestration, Monitor arming, and `gh`/`git` I/O live in the protocol skill.
+Do NOT attempt to execute the monitor using only this command file. The deterministic decisions defer to the importable `superclaude.pr_submit` core; the orchestration, the attended poll loop, and `gh`/`git` I/O live in the protocol skill.
 
 ## Boundaries
 

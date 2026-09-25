@@ -1,0 +1,11 @@
+return_contract:
+  merged_output_path: "/config/workspace/IronClaude/.dev/brainstorms/20260924-195455-ci-monitor-until-all-checks/merged-requirements.md"
+  convergence_score: 0.92
+  artifacts_dir: "/config/workspace/IronClaude/.dev/brainstorms/20260924-195455-ci-monitor-until-all-checks/adversarial"
+  status: success
+  base_variant: "sonnet:refactorer"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: skill-direct
+  unaddressed_invariants: []
