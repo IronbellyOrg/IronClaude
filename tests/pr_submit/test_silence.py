@@ -8,6 +8,7 @@ from superclaude.pr_submit import (
     DetectionContract,
     classify,
     has_augment_activity,
+    poll_succeeded,
 )
 from superclaude.pr_submit.fsm import (
     DEFAULT_SILENCE_TIMEOUT,
@@ -27,7 +28,20 @@ LIVE = DetectionContract(
 def test_silence_empty_is_not_activity(load_fixture):
     payload = load_fixture("silence-empty.json")
     assert has_augment_activity(payload, LIVE) is False
+    assert poll_succeeded(payload) is True
     assert classify(payload, LIVE) == "polling"
+
+
+def test_fail_soft_empty_is_not_silence(load_fixture):
+    payload = load_fixture("fail-soft-empty.json")
+    assert poll_succeeded(payload) is False
+    assert has_augment_activity(payload, LIVE) is False
+    silent = poll_succeeded(payload) and not has_augment_activity(payload, LIVE)
+    assert silent is False
+    assert (
+        poll_outcome("polling", 300, 600, silent=silent, monitor_ordinal=3)
+        == MonitorState.S2_CLASSIFY
+    )
 
 
 def test_opt_in_241_is_activity_and_declined(load_fixture):
@@ -95,8 +109,7 @@ def test_summary_only_timeout_is_terminal_timeout(load_fixture):
     payload = load_fixture("summary-only.json")
     assert has_augment_activity(payload, LIVE) is True
     assert (
-        poll_outcome("polling", 600, 600, silent=False)
-        == MonitorState.TERMINAL_TIMEOUT
+        poll_outcome("polling", 600, 600, silent=False) == MonitorState.TERMINAL_TIMEOUT
     )
 
 

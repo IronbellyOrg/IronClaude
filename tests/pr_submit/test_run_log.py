@@ -171,7 +171,9 @@ def test_eventtype_is_39_members_with_silence_events():
     assert EventType.AUGGIE_FALLBACK_INVOKED.value == "auggie_fallback_invoked"
     assert EventType.MAX_ROUNDS_CLAMPED.value == "max_rounds_clamped"
     assert EventType.SILENCE_REREQUESTED.value == "silence_rerequested"
-    assert EventType.TERMINAL_AUGMENT_NO_RESPONSE.value == "terminal_augment_no_response"
+    assert (
+        EventType.TERMINAL_AUGMENT_NO_RESPONSE.value == "terminal_augment_no_response"
+    )
 
 
 def test_new_v11_events_pass_closed_enum_append_validation(tmp_path):

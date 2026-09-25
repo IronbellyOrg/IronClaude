@@ -78,6 +78,16 @@ def has_augment_activity(payload: dict, contract: Any) -> bool:
     )
 
 
+def poll_succeeded(payload: dict) -> bool:
+    """True iff ``payload`` is a live PR poll (has ``head_sha``).
+
+    ``poll-augment-review.sh`` fail-soft on ``gh pr view`` failure emits
+    ``{pr, state:polling, reviews:[], comments:[]}`` with no ``head_sha``.
+    That shape must not count as silence.
+    """
+    return isinstance(payload, dict) and bool(payload.get("head_sha"))
+
+
 def _entry_ts(entry: dict) -> Any:
     """Best-effort timestamp for a comment OR review entry.
 

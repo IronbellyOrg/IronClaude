@@ -49,7 +49,7 @@ wall-clock start when entering a wait (Wave 1, the S5 re-review wait, or the Wav
 2. Classify the one JSON line with the existing core: `superclaude.pr_submit.classify` (Augment) or
    `superclaude.pr_submit.ci.classify_checks` (CI); append the run-log event.
 3. Terminal result → leave the loop and continue the wave. For Augment `polling`, do **not**
-   call raw `timed_out`. Compute `silent = not has_augment_activity(payload, contract)`, then
+   call raw `timed_out`. Compute `silent = poll_succeeded(payload) and not has_augment_activity(payload, contract)`, then
    `st = rebuild_state()`, `already = pr in st["silence_rerequest_invoked"]`,
    `clock = st["silence_rerequested_at"]`, and
    `nxt = poll_outcome(review_state, elapsed, timeout, silent=silent, silence_timeout=silence_timeout, rerequested=already, rerequested_at=clock, monitor_ordinal=ordinal)`.

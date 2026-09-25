@@ -1,5 +1,6 @@
 {
   "pr": 242,
+  "head_sha": "cd031eda272681c40f34db268dc93b5dd3b09a4b",
   "reviews": [],
   "comments": [],
   "expected": {"state": "polling", "activity": false}

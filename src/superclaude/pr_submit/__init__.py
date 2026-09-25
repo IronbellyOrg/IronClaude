@@ -18,7 +18,13 @@ Top-level re-exports (``run_skill``, ``remap_severity``, ``poll_augment_review``
 ``classify``) are wired incrementally as the modules land (see Step 4.3 / Step 5.1).
 """
 
-from .classifier import STATE_DECLINED, classify, has_augment_activity, is_decline
+from .classifier import (
+    STATE_DECLINED,
+    classify,
+    has_augment_activity,
+    is_decline,
+    poll_succeeded,
+)
 from .detection import DetectionContract, DetectionContractLocked, poll_augment_review
 from .fsm import RunConfig, evaluate_push_decision, parse_args, run_skill, transition
 from .models import (
@@ -40,6 +46,7 @@ __all__ = [
     "classify",
     "is_decline",
     "has_augment_activity",
+    "poll_succeeded",
     "STATE_DECLINED",
     "poll_augment_review",
     "DetectionContract",

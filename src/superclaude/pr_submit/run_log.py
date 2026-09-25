@@ -201,7 +201,10 @@ class RunLog:
             ):
                 # IDIOM B — INV-S1 strict-once silence re-request, keyed on pr_number.
                 sets["silence_rerequest_invoked"].add(ev["pr_number"])
-                if state["silence_rerequested_at"] is None and ev.get("elapsed") is not None:
+                if (
+                    state["silence_rerequested_at"] is None
+                    and ev.get("elapsed") is not None
+                ):
                     state["silence_rerequested_at"] = ev["elapsed"]
             elif (
                 et == EventType.MAX_ROUNDS_CLAMPED.value

@@ -617,10 +617,7 @@ def poll_outcome(
                 return MonitorState.TERMINAL_AUGMENT_NO_RESPONSE
             return MonitorState.S2_CLASSIFY
         if elapsed_seconds >= silence_timeout:
-            if (
-                monitor_ordinal >= 3
-                and elapsed_seconds + MIN_POLL_INTERVAL < timeout
-            ):
+            if monitor_ordinal >= 3 and elapsed_seconds + MIN_POLL_INTERVAL < timeout:
                 return MonitorState.S5C_SILENCE_REREQUEST
             return MonitorState.TERMINAL_AUGMENT_NO_RESPONSE
         return MonitorState.S2_CLASSIFY

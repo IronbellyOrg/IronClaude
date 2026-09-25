@@ -1,0 +1,7 @@
+{
+  "pr": 243,
+  "state": "polling",
+  "reviews": [],
+  "comments": [],
+  "expected": {"state": "polling", "activity": false, "succeeded": false}
+}
