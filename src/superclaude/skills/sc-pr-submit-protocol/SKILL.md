@@ -1,6 +1,6 @@
 ---
 name: sc:pr-submit-protocol
-description: "PR-review auto-remediation monitor — opens a PR on the fork, arms an in-session Monitor that polls for the Augment Code review, re-grades + verifies each finding, dispatches verified findings to /sc:troubleshoot, then (at higher ordinals) fixes, validates, pushes, replies, and resolves under a capped monotonic round counter. The --monitor {0,1,2,3} ordinal is a capability ceiling on ONE finite state machine, not four code paths."
+description: "PR-review auto-remediation monitor — opens a PR on the fork, runs an attended in-session poll loop for the Augment Code review, re-grades + verifies each finding, dispatches verified findings to /sc:troubleshoot, then (at higher ordinals) fixes, validates, pushes, replies, and resolves under a capped monotonic round counter. The --monitor {0,1,2,3} ordinal is a capability ceiling on ONE finite state machine, not four code paths."
 allowed-tools: Read, Grep, Glob, Write, Edit, Bash(gh *), Bash(git *), Bash(uv *), Bash(make *), Bash(jq *), Task, Skill
 ---
 
@@ -15,8 +15,8 @@ personas: [analyzer, architect, security, qa, devops]
 
 ## Purpose
 
-`sc:pr-submit` opens a PR on the resolved origin repo (origin's `owner/repo` — never an upstream parent), arms an
-**in-session** Monitor that polls for the Augment Code review, re-grades each finding's severity
+`sc:pr-submit` opens a PR on the resolved origin repo (origin's `owner/repo` — never an upstream parent), runs an
+**attended, in-session** poll loop for the Augment Code review, re-grades each finding's severity
 through the reused auggie-review rubric, **verifies each finding grounds in real code before
 remediating** (verify-before-remediate — no round and no push is ever spent on a hallucinated or
 stale finding), dispatches only verified findings to `/sc:troubleshoot` for diagnosis, then — at
@@ -27,16 +27,38 @@ thread, and resolves it. It terminates deterministically under a capped, monoton
 (`refs/state-machine.md`), compared at exactly three gates plus one override — NOT four divergent
 code paths. The deterministic decisions (classification, severity remap, the FSM gate table, the
 loop-guard fence-post, the push conjunction) are owned by the importable `superclaude.pr_submit`
-Python core; this SKILL.md owns sequencing, the Monitor arming, the `gh`/`git` I/O (via the bash
+Python core; this SKILL.md owns sequencing, the attended poll loop, the `gh`/`git` I/O (via the bash
 scripts), and the §10 VAL validator.
 
-> **Honest framing (FR-2.4, NOT a daemon).** The Monitor is **in-session**: closing the session
-> loses the monitor. Durability comes from the write-ahead JSONL run-log + `--resume`, never from
-> detachment. This skill cannot survive its own session. Do NOT imply a background daemon.
+> **Honest framing (FR-2.4, NOT a daemon).** The monitor is an **attended, in-session** loop:
+> closing the session loses it. Durability comes from the write-ahead JSONL run-log + `--resume`,
+> never from detachment. This skill cannot survive its own session. Do NOT imply a background daemon.
 >
 > **Top-level activation required.** This skill MUST run in the main orchestrating session (so it
-> has the `Monitor` tool and can `> Skill sc:troubleshoot-protocol`). Do NOT run it inside an
+> can drive the attended poll loop and `> Skill sc:troubleshoot-protocol`). Do NOT run it inside an
 > Agent-tool subagent that itself spawns skills.
+
+## Attended poll loop (Waves 1, 6 re-review, 8)
+
+"Arming" means the main session enters this loop; there is no separate monitor tool. Record the
+wall-clock start when entering a wait (Wave 1, the S5 re-review wait, or the Wave 8 CI flip), then:
+
+1. Run the wave's poll script **once** in the foreground (`scripts/poll-augment-review.sh` or
+   `scripts/poll-ci-checks.sh`, always `--repo "$REPO"`). A non-zero exit is a prerequisite or
+   usage failure: stop and report it, never retry it as `polling`.
+2. Classify the one JSON line with the existing core: `superclaude.pr_submit.classify` (Augment) or
+   `superclaude.pr_submit.ci.classify_checks` (CI); append the run-log event.
+3. Terminal result → leave the loop and continue the wave. `polling` → if
+   `superclaude.pr_submit.fsm.timed_out(elapsed, timeout)` → `TERMINAL_TIMEOUT` (Augment) or report the CI
+   timeout (Wave 8); else wait **at least** `--poll-interval` seconds (or `fsm.next_backoff` after
+   403/429; the wait counts toward `--timeout`) with a bounded blocking wait the host permits, then
+   repeat from 1.
+
+The main session performs every verification, `> Skill sc:troubleshoot-protocol` handoff, VAL run,
+and authorized push / reply / resolve itself. Never hand a side effect to a background shell,
+detached loop, or subagent, and never claim the wait survives session exit. The ordinal gates
+(L0/L1/L2/L3), `round_counter` / `max_rounds`, and `HALT_MAX_ROUNDS` preservation are unchanged by
+the loop.
 
 ## Required Input (STOP if missing)
 
@@ -46,13 +68,20 @@ scripts), and the §10 VAL validator.
 | PR context (`--head`, `--base`, `--title`, `--body`) OR an existing PR number | Yes | To open or attach to the PR. |
 | `--max-rounds` | No (default 2, hard cap 5) | Reject `> 5`. |
 | `--poll-interval` | No (default 30) | Reject `< 30` with "minimum is 30 seconds". |
-| `--timeout` | No (default 600s) | Wall-clock since entering wait. |
+| `--timeout` | No (default 600s) | Wall-clock since entering wait. The observed CI matrix has run longer than 600s: for a CI wait, pass a `--timeout` that covers the full check run. No indefinite wait. |
 | `--resume <abs-run-log-path>` | No | Reconstruct state from JSONL (§12). |
 
 **STOP** if `--monitor >= 1` and the PR cannot be confirmed on the resolved target repo (origin's
 `owner/repo` via `gh repo view --json nameWithOwner`): a wrong origin, a branch behind the base
 branch (`origin/<default-branch>`), or a returned URL whose `owner/repo` ≠ the resolved target → HALT,
 instruct the operator to close the misrouted PR.
+
+**STOP (CI-wait preflight)** before opening a PR with `--monitor >= 1` or attaching to an existing PR,
+unless both hold: (1) `gh pr checks --repo "$REPO" --help` lists `--json` (probe the installed CLI;
+never infer support from a version number); (2) the Python runtime this run classifies with can
+import `superclaude.pr_submit.ci` (e.g. `uv run python -c "import superclaude.pr_submit.ci"` in a dev
+checkout, or the installed package's interpreter). Report which prerequisite is missing; do not arm a
+monitor that could only ever report `polling`. `--monitor 0` skips this preflight.
 
 ## Output Contract
 
@@ -89,7 +118,7 @@ Wave 8: CI wait (after Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS) ← loads 
 ```
 
 - **Wave 0 (all ordinals):** resolve the target repo once (`REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"`, fallback parse `git remote get-url origin`) and the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`); open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."`; confirm `git remote -v` shows origin = `$REPO`; rebase if behind `origin/<base>`; verify the returned URL's `owner/repo` equals `$REPO` (a CLI that defaulted onto an upstream parent is a misroute → HALT). Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1). The `offer-pr-review.sh` hook may then mention `sc:pr-submit --monitor`.
-- **Wave 1 (L1+):** load the contract via `superclaude.pr_submit.DetectionContract.for_arming()` — prefers an optional operator-local override (gitignored `.dev/pr-monitor/detection-contract.locked.md`) and falls back to the SHIPPED `refs/detection-contract.md` (baked `augmentcode[bot]` / `augmentcode` defaults). A missing or unlocked override is not a halt. Initialize the output-dir + run-log + baseline, then call the **`Monitor` tool** with the poll loop wrapping `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each emitted JSON line advances the FSM. Arm exactly once at L1+ (T-109); never at L0 (T-110). `--monitor 0` remains no-monitor.
+- **Wave 1 (L1+):** load the contract via `superclaude.pr_submit.DetectionContract.for_arming()` — prefers an optional operator-local override (gitignored `.dev/pr-monitor/detection-contract.locked.md`) and falls back to the SHIPPED `refs/detection-contract.md` (baked `augmentcode[bot]` / `augmentcode` defaults). A missing or unlocked override is not a halt. Initialize the output-dir + run-log + baseline, then enter the **attended poll loop** (above) with `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each emitted JSON line advances the FSM. Arm exactly once at L1+ (T-109); never at L0 (T-110). `--monitor 0` remains no-monitor.
 - **Wave 2:** load `refs/severity-routing.md`; call `remap_severity(finding)` from `superclaude.pr_submit` and map the remapped tier to its troubleshoot route (Medium → `--fix`; High/Critical → `--depth deep --fix`; Low/Nit → report-only). NEVER emit `--depth quick --fix`.
 - **Wave 3:** load `refs/finding-verify.md`; spawn the `evidence-validator` agent (read-only) to confirm each finding's cited file:line exists and the defect reproduces. `unverified` → REPORT_ONLY, consuming NO round.
 - **Wave 4:** load `refs/troubleshoot-dispatch.md`; for VERIFIED findings only, `> Skill sc:troubleshoot-protocol` for diagnosis. **At L1 (G-edit `ordinal < 2`): PROPOSE "fix these? y/n" and apply NO edits.** At L2+ the skill applies the diagnosed edits ITSELF in the working tree (troubleshoot does NOT auto-apply — `sc:pr-submit` owns edit application in `S3_FIXING`).
@@ -97,7 +126,7 @@ Wave 8: CI wait (after Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS) ← loads 
 - **Wave 6 (L3 only):** load `refs/thread-reply.md`. The deterministic core DECIDES (evaluates the INV-016 conjunction, records the write-ahead push triad `push_decision` → `push_initiated` (fsynced BEFORE the push) → `push_completed`, keyed on the PRE-push idempotency key `push:<run_id>:<cycle_id>:<pre_push_sha>:<target_branch>`); the SKILL performs the actual `git push origin <target_sha>:<target_branch>` (never an upstream parent remote, never the repo's default/protected branch) ONLY when the conjunction holds, then reply (citing `applied_edits` status — `applied_edits==0` says "no code change applied", never "resolved") and resolve via `scripts/reply-resolve-thread.sh` (reply FIRST, then resolve). **S5a re-trigger (FR-8):** load `refs/review-retrigger.md`; a push does NOT auto-trigger an Augment re-review — AFTER resolve, and ONLY when this cycle applied edits (`applied_edits > 0`), post the re-trigger comment via `scripts/retrigger-review.sh --pr <N>` BEFORE re-entering the S5 poll. The core decides whether/when to re-trigger (`do_retrigger` seam, INV-R1: at most once per push cycle, `rereview_request_count <= max_rounds`); the script does the `gh api` issue-comment POST (NFR-6). On posting the re-trigger, append a **`rereview_requested{cycle_id}`** run-log event (the INV-R1 producer — folded into `rereview_request_count` by `rebuild_state`, and consumed by crash recovery's OQ-1 resume decision: a landed-push crash with NO `rereview_requested` for its cycle resumes at `S5a_RETRIGGER_REVIEW` to re-post; one WITH it resumes at `S5_AWAITING_REREVIEW`). The `round_counter` ticks only when the subsequent poll attributes the re-review to our pushed SHA (the relocated INV-001 increment) — a timed-out re-trigger does NOT advance the counter.
 - **Wave 6b (L2+ decline fallback, FR-9/FR-10):** load `refs/auggie-fallback.md`. When the classifier returns `declined` (an Augment "abnormally large" decline observed at the initial S2 poll OR the S5 re-trigger poll), append a **`decline_detected`** run-log event, then engage the single-shot fallback: gate **strict-once** on the durable `auggie_review_invoked` idempotency record (comment-independent, survives resume — INV-R2; on engage, append an **`auggie_fallback_invoked{pr_number}`** event, the producer folded into that set), clamp the effective budget `effective_max_rounds := min(effective_max_rounds, 1)` (the `clamp_max_rounds` helper, recorded once via the **`max_rounds_clamped{effective_max_rounds}`** event — INV-R3 monotone-min fold), then invoke `> Skill sc:auggie-review-protocol --depth quick --remediation-offer` and re-enter Waves 2-6 ONCE under the clamp (verify-before-remediate still applies — fallback findings are NOT trusted verbatim, FR-9.4). At L2 this can apply and validate local fixes but still halts before push/reply per Wave 5; only L3 performs push, reply, resolve, and re-trigger side effects. NO second invoke, NO second re-trigger, NO loop-back; `push_count <= max_rounds + 1` for the whole run. This is `sc:pr-submit` invoking its OWN review — do **NOT** "take the App's bait" by treating the App's `augment review` decline comment as our operator re-trigger. (`--depth quick` here targets `/sc:auggie-review` — a review, no `--fix` — so it does NOT conflict with the severity-routing STOP on `--depth quick --fix`.)
 - **Wave 7:** load `refs/loop-guard.md`; the round counter ticks only at `S5_AWAITING_REREVIEW → S2_CLASSIFY`; HALT at `round_counter >= max_rounds`. Fallback outcomes REUSE the existing `terminal_clean` / `terminal_max_rounds` status values (OQ-2 reuse recommendation).
-- **Wave 8 (L1+, after Augment `clean` / `REPORT_ONLY` / `HALT_MAX_ROUNDS`):** load `refs/ci-poll.md`. Do **not** `transition(clean)` yet. Set SKILL-owned `source=ci`, reset wait elapsed, swap the Monitor poll to `scripts/poll-ci-checks.sh --pr <N> --repo "$REPO"`. Classify via `superclaude.pr_submit.ci.classify_checks(payload, wait_sha=<sha at flip or last push>)`. Human-gate (`is_human_gate`) → `HALT_HUMAN` when Augment has not halted; after Augment `HALT_MAX_ROUNDS`, keep its terminal status and report the CI human-gate alongside it. No Finding or auto-fix. If `round_counter >= max_rounds`, CI polling is wait-only: non-human `findings` → `REPORT_ONLY` without fetching logs, editing, or pushing. Otherwise non-human `findings` → `gh run view <id> --repo "$REPO" --log-failed` once → `findings_from_logs`; empty → `REPORT_ONLY`; else Waves 3–5 under the same ordinals and `round_counter`. After an L3 CI push: do **not** call `retrigger-review.sh`, reply, or resolve; re-poll CI on the new `headRefOid`. When CI is `clean` after an ordinary Augment `clean` / `REPORT_ONLY`, send `transition(clean)` → `TERMINAL_CLEAN`. After `HALT_MAX_ROUNDS`, leave that terminal FSM status unchanged and report CI clean alongside it (no `transition(clean)` from a terminal state). L0 never reaches Wave 8. Do not arm on `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED`. CI `polling` continues at the configured interval until completion or timeout; when the chosen list is empty, a failed check query is `polling`, not no-Actions `clean`. Only parsed empty required **and** all-checks lists prove there are no Actions. A nonempty required list is the chosen set; optional pending checks outside it do not block completion.
+- **Wave 8 (L1+, after Augment `clean` / `REPORT_ONLY` / `HALT_MAX_ROUNDS`):** load `refs/ci-poll.md`. Do **not** `transition(clean)` yet. Set SKILL-owned `source=ci`, reset wait elapsed, switch the attended poll loop to `scripts/poll-ci-checks.sh --pr <N> --repo "$REPO"`. Classify via `superclaude.pr_submit.ci.classify_checks(payload, wait_sha=<sha at flip or last push>)`. Human-gate (`is_human_gate`) → `HALT_HUMAN` when Augment has not halted; after Augment `HALT_MAX_ROUNDS`, keep its terminal status and report the CI human-gate alongside it. No Finding or auto-fix. If `round_counter >= max_rounds`, CI polling is wait-only: non-human `findings` → `REPORT_ONLY` without fetching logs, editing, or pushing. Otherwise non-human `findings` → `gh run view <id> --repo "$REPO" --log-failed` once → `findings_from_logs`; empty → `REPORT_ONLY`; else Waves 3–5 under the same ordinals and `round_counter`. After an L3 CI push: do **not** call `retrigger-review.sh`, reply, or resolve; re-poll CI on the new `headRefOid`. When CI is `clean` after an ordinary Augment `clean` / `REPORT_ONLY`, send `transition(clean)` → `TERMINAL_CLEAN`. After `HALT_MAX_ROUNDS`, leave that terminal FSM status unchanged and report CI clean alongside it (no `transition(clean)` from a terminal state). L0 never reaches Wave 8. Do not arm on `HALT_HUMAN` / `VALIDATION_FAIL` / `TERMINAL_TIMEOUT` / `TERMINAL_FAILED`. CI `polling` continues at the configured interval until completion or timeout; when the chosen list is empty, a failed check query is `polling`, not no-Actions `clean`. Only parsed empty required **and** all-checks lists prove there are no Actions. A nonempty required list is the chosen set; optional pending checks outside it do not block completion.
 
 ## VAL — the §10 validation gate list (owned by the SKILL, not the core)
 

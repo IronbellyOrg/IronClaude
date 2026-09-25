@@ -1,0 +1,23 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260924-195455-ci-monitor-until-all-checks/seed-brief.md
+merged_output_path: .dev/brainstorms/20260924-195455-ci-monitor-until-all-checks/merged-requirements.md
+convergence_score: 0.92
+adversarial_artifacts_dir: .dev/brainstorms/20260924-195455-ci-monitor-until-all-checks/adversarial
+domain: code
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+---
+wave_durations_ms:
+  wave_0: 15000
+  wave_1: 20000
+  wave_2a: 25000
+  wave_2b: 5000
+  wave_3: 420000
+  wave_4: 5000
+agent_spec: "opus:architect:'prioritize maintainability and extension scaffolding for code domain',sonnet:refactorer:'focus on technical debt, simplification, and minimal-risk transformation paths',haiku:qa:'focus on test surface, edge cases, regression risk, and acceptance criteria'"

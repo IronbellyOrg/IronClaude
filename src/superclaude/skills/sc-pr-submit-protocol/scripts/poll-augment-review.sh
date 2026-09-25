@@ -3,7 +3,7 @@
 # poll-augment-review.sh — C2 poller for sc:pr-submit.
 #
 # Purpose : Do a SINGLE poll of a PR for the Augment Code review and emit exactly
-#           ONE JSON line (the Monitor-stream event) to stdout, then exit 0.
+#           ONE JSON line (one attended-poll-loop event) to stdout, then exit 0.
 # Usage   : poll-augment-review.sh --pr <N>
 # Output  : one line of JSON: {"pr":N,"state":"polling|clean|findings|unknown",
 #           "head_sha":"...","reviews":[...],"comments":[...]}
