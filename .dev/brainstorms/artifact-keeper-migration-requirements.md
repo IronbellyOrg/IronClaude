@@ -37,10 +37,7 @@ No test, architecture-lint, or hash-pin asserts `actions/upload-artifact` or pin
 
 1. **Remove, do not convert, the GitHub-hosted upload.** Replace is forbidden on `ubuntu-latest` — only LAN self-hosted runners can reach Keeper; exposing Keeper to GitHub-hosted jobs is out of scope. There is no download consumer, so relocation onto a self-hosted runner is not required. Delete the `Upload quality report` step in `readme-quality-check.yml`. Leave the local JSON write, step summary, and PR comment. Optionally retarget the comment's "See the Actions tab" sentence at the job summary (already populated); do not invent a Keeper GET.
 
-2. **Copy, do not rewrite, the proven composite and canary** from `IronbellyOrg/Coder@main`:
-   - `.github/actions/upload-raw/action.yml` (git blob `aa1a16ba8146178d8e2dfea2e12634f474f07184`)
-   - `.github/workflows/artifact-keeper-canary.yml` (git blob `602d4f41729bfc762ab711cfff4057d38ca1fa53`)
-   Keep raw `curl PUT` to `$ARTIFACT_KEEPER_URL/api/v1/repositories/<owner>_<repo>/artifacts/<run_id>/retain-<N>d/<attempt>/<job>[/<matrix-key>]/<name>/<object>`. Token via curl stdin (`-K -`), never argv. Retention input `1|7` only. `/api/*` path only (`/generic/*` is not reachable). No dual-write. No download-raw action (zero consumers).
+2. **Skip the entire canary phase (owner B6, 2026-09-25).** Do not keep `.github/actions/upload-raw/` or `.github/workflows/artifact-keeper-canary.yml`. This repo has no production Keeper caller (all jobs are `ubuntu-latest`; the only native upload is removed, not converted). Copying Coder's composite with nothing to call it is dead code. Re-copy from Coder when a self-hosted job actually needs a PUT.
 
 3. **Do not create or rotate secrets, Keeper repos, runner groups, or lifecycle policies.** Confirm with the owner before relying on them. Observed from this session's credentials (not a claim they cannot exist under another principal):
    - IronClaude Actions secrets: `total_count: 0`. Coder has `ARTIFACT_KEEPER_URL` and `ARTIFACT_KEEPER_TOKEN`.
@@ -49,12 +46,11 @@ No test, architecture-lint, or hash-pin asserts `actions/upload-artifact` or pin
    - Token scope required: `write:artifacts`.
    - Global Keeper retention is 7 days; `retain-1d` is a label unless a 1-day policy exists (do not add one).
 
-4. **Canary stays dispatch-only.** Jobs: `auth_401`, `empty_glob`, `matrix_keys`, `large_put` (`[self-hosted, big]`), `always_after_failure`, `get_identical`. Do not add `push`/`pull_request` triggers. GitHub `workflow_dispatch` workflows must exist on the default branch to be listed; Coder proved feature-branch dispatch *after* the canary already existed on `main` (runs `36086719786` on `main`, then `36092865906` / `36094207269` on the Phase B branch). IronClaude has no canary on `master` today.
+4. **No canary.** Owner skipped dispatch, secrets, Keeper repo, and the canary files themselves.
 
-5. **Validate through this repo's existing GitHub Actions, plus the copied canary.** No one-off validation scripts. Proof of cutover:
-   - `git grep -nE 'actions/(upload|download)-artifact' -- .github` returns nothing (no justified exceptions remain after the removal).
+5. **Validate through this repo's existing GitHub Actions only.** No one-off validation scripts. Proof of cutover:
+   - `git grep -nE 'actions/(upload|download)-artifact' -- .github` returns nothing.
    - `gh api repos/IronbellyOrg/IronClaude/actions/runs/<id>/artifacts --jq .total_count` is `0` on every PR run of this change.
-   - Dispatch the canary on the feature branch once secrets + runner reachability + default-branch presence are satisfied.
 
 6. **Scope discipline.** Do not touch Keeper server, policies, or GitHub secrets. Do not migrate `setup-python` pip cache or Codecov. Do not add pytest guards that this repo does not already have. Do not merge. Preserve untracked work on the original checkout (`fix/pr-submit-attended-ci-monitor`); this work lives in `.dev/worktrees/artifact-keeper` on `feature/artifact-keeper`.
 
@@ -70,4 +66,4 @@ These are not design choices. Implement must stop if any remain unanswered:
 - **B4 Canary precursor.** Authorize a canary-only merge to `master` so `workflow_dispatch` can target the feature branch, **or** accept that canary dispatch happens only after this PR merges to `master`?
 - **B5 Removal vs relocate.** Confirm the `ubuntu-latest` README upload is **removed** (recommended; nothing downloads it) rather than relocated onto a self-hosted runner.
 
-Until B1–B3 and B4 are resolved, the canary cannot be proven. The removal + composite copy can still land; Keeper PUT from this repo cannot.
+Owner B6 (2026-09-25): skip the entire canary phase; real migration is the README upload removal only. B1–B4 are moot for this PR.

@@ -12,6 +12,7 @@ Worktree: `/config/workspace/IronClaude/.dev/worktrees/artifact-keeper` on `feat
 | B3 | Self-hosted yes, **no `big` label**. Copy canary but drop `large_put`; remove it from `get_identical.needs`. |
 | B4 | No precursor merge. Canary dispatch only after this PR merges (report-only; this session will not dispatch). |
 | B5 | **Remove** the `ubuntu-latest` README upload. Do not relocate. |
+| B6 | Skip the **entire** canary phase. Do not keep `artifact-keeper-canary.yml` or `upload-raw` in this repo (no production Keeper caller). Real migration = the README upload removal only. |
 
 ## 1. Current-master inventory (every `.github` workflow)
 
@@ -85,7 +86,11 @@ Keep:
 
 Do **not** add `./.github/actions/upload-raw` to this job. Do **not** change `runs-on`.
 
-### 2.2 Copy `upload-raw` verbatim
+### 2.2–2.3 Superseded by B6
+
+Do **not** copy `upload-raw` or the canary. Nothing in this repo PUTs to Keeper.
+
+### 2.2 Copy `upload-raw` verbatim (historical — do not implement)
 
 Create `.github/actions/upload-raw/action.yml` as a byte copy of Coder `main` blob `aa1a16ba8146178d8e2dfea2e12634f474f07184`.
 
@@ -135,8 +140,8 @@ None assert the old uploader. Do not add a pytest grep suite (cutover proof is `
 | Path | Action |
 |---|---|
 | `.github/workflows/readme-quality-check.yml` | delete upload step; optional comment wording |
-| `.github/actions/upload-raw/action.yml` | **new**, copy from Coder |
-| `.github/workflows/artifact-keeper-canary.yml` | **new**, copy from Coder |
+| `.github/actions/upload-raw/action.yml` | **do not add** (B6) |
+| `.github/workflows/artifact-keeper-canary.yml` | **do not add** (B6) |
 | `.dev/brainstorms/artifact-keeper-migration-requirements.md` | **new** (this spec) |
 | `.dev/brainstorms/artifact-keeper-migration-design.md` | **new** (this file) |
 | `.github/workflows/README.md` | optional one-line note that README report is job-summary only; skip unless the upload-step comment is already being edited |
@@ -148,7 +153,7 @@ Nothing else.
 1. `git grep -nE 'actions/(upload|download)-artifact' -- .github` → empty.
 2. Existing PR Actions (`Tests`, `Quick Check`, `Contract`, `README Quality Check` if README paths change — they will, because this PR edits `readme-quality-check.yml` itself? Path filter is `README*.md` and `Docs/**/*.md`, **not** `.github/workflows/readme-quality-check.yml`. So README Quality Check will **not** run on this PR unless we also touch a README. Tests + Quick Check + Contract will. That is enough to prove `total_count == 0` on those runs; README Quality Check is path-filtered and will only prove the removal on a later README-touching run **or** a `workflow_dispatch` of that workflow.
 3. Dispatch README Quality Check (`workflow_dispatch` exists on that file and **is already on master**) from the feature branch after push, to prove that job's `total_count == 0`. This is the production-path proof for the removal and does **not** need Keeper.
-4. Dispatch `artifact-keeper-canary.yml` from the feature branch **only after** B1–B4 in the spec are resolved. Command shape: `gh workflow run artifact-keeper-canary.yml --repo IronbellyOrg/IronClaude --ref feature/artifact-keeper`.
+4. **No canary dispatch** (B6).
 5. No one-off scripts. Report pre-existing CI failures separately from new ones.
 
 ## 4. Rollback
@@ -172,7 +177,7 @@ Revert this PR's three workflow/action files. Restoring `actions/upload-artifact
 
 - [ ] **Stop on blockers B1–B5** from the spec if the owner has not answered. Removal + file copies do not require secrets; canary dispatch and any claim of Keeper reachability do.
 - [ ] Delete the `Upload quality report` step. Do not add Keeper credentials to `readme-quality-check.yml`. Optional PR-comment wording fix.
-- [ ] Copy Coder `upload-raw/action.yml` and `artifact-keeper-canary.yml` byte-for-byte (blobs above). Do not restyle, do not switch checkout to `@v4`, do not retarget `/generic/*`.
+- [x] **B6:** do **not** copy `upload-raw` or the canary. Real migration is the README upload removal only.
 - [ ] `git grep -nE 'actions/(upload|download)-artifact' -- .github` empty. Confirm no `download-artifact`, no pages artifact, no `actions/cache`.
 - [ ] Review YAML. Run this repo's existing PR Actions. Dispatch README Quality Check against the feature ref; assert that run's artifact `total_count == 0`. Dispatch canary only if B1–B4 are green.
 - [ ] Stage only the intended set in §2.5. Capture a complete staged/untracked-intended diff artifact. `/sc:reflect --mode post` against the spec + this design. Resolve material regressions and re-reflect.
