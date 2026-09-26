@@ -2,6 +2,8 @@
 
 import os
 import shutil
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -57,7 +59,17 @@ def wire_ccsession(home: Path | None = None) -> tuple[bool, str]:
             finally:
                 if staged_path is not None:
                     staged_path.unlink(missing_ok=True)
-    except OSError as exc:
+        # Coder workspaces: record the gateway address so Orca terminals, which
+        # start from a cleared environment, still reach the gateway.
+        seeder = skill / "seed-env.py"
+        if seeder.is_file() and not seeder.is_symlink():
+            subprocess.run(
+                [sys.executable, str(seeder), str(env), str(example)],
+                check=False,
+                capture_output=True,
+                timeout=30,
+            )
+    except (OSError, subprocess.SubprocessError) as exc:
         return False, f"Could not wire ccsession: {exc}"
 
     if not env.is_file():

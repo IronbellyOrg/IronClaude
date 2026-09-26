@@ -124,6 +124,33 @@ if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ] && [ -f "$CCSESSION_ENV_FILE" ]; then
   . "$CCSESSION_ENV_FILE"
 fi
 
+if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ]; then
+  # Coder workspaces deliver the gateway key as LITELLM_API_KEY, which Claude
+  # Code ignores. Shells that skip the template's copy (Orca, coder ssh) need it.
+  if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${ANTHROPIC_AUTH_TOKEN:-}" ] && \
+    [ -n "${LITELLM_API_KEY:-}" ]; then
+    export ANTHROPIC_API_KEY="$LITELLM_API_KEY"
+  fi
+  # Claude Code warns when both carry a key; an identical copy adds nothing.
+  if [ -n "${ANTHROPIC_API_KEY:-}" ] && [ "$ANTHROPIC_API_KEY" = "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
+    unset ANTHROPIC_AUTH_TOKEN
+  fi
+fi
+
+shim_listener_pid() {
+  # Print the PID listening on the shim port, or nothing when the port is free.
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN 2>/dev/null | head -n 1 || true
+    return
+  fi
+  # Images without lsof (the Coder workspace image): a local connect proves a
+  # listener, and the shim is found by its script path. Any other listener is
+  # reported as "other" so it is never killed.
+  if python3 -c 'import socket, sys; s = socket.socket(); s.settimeout(0.3); sys.exit(s.connect_ex(("127.0.0.1", int(sys.argv[1]))))' "$CC_SHIM_PORT" 2>/dev/null; then
+    pgrep -f -- "$CC_SHIM_SCRIPT" 2>/dev/null | head -n 1 | grep . || echo other
+  fi
+}
+
 setup_shim() {
   # Route this session through the local model-alias shim: start it if it
   # isn't already listening, then point ANTHROPIC_BASE_URL at it and enable
@@ -134,7 +161,7 @@ setup_shim() {
     exit 1
   fi
   start_shim=0
-  listener_pid=$(lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN 2>/dev/null | head -n 1 || true)
+  listener_pid=$(shim_listener_pid)
   if [ -n "$listener_pid" ]; then
     health=$(curl -fsS --max-time 2 \
       "http://127.0.0.1:$CC_SHIM_PORT/__ccsession_shim" 2>/dev/null || true)
@@ -154,12 +181,12 @@ else:
 ' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT")
     if [ "$health_status" = "match" ]; then
       echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
-    elif [ "$health_status" = "stale" ] || \
-      ps -p "$listener_pid" -o command= 2>/dev/null | grep -Fq -- "$CC_SHIM_SCRIPT"; then
+    elif [ "$listener_pid" != other ] && { [ "$health_status" = "stale" ] || \
+      ps -p "$listener_pid" -o command= 2>/dev/null | grep -Fq -- "$CC_SHIM_SCRIPT"; }; then
       echo "[ccsession] Restarting stale model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
       kill "$listener_pid"
       for _ in 1 2 3 4 5 6 7 8 9 10; do
-        lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1 || break
+        [ -n "$(shim_listener_pid)" ] || break
         sleep 0.2
       done
       start_shim=1
@@ -177,10 +204,10 @@ else:
       nohup python3 "$CC_SHIM_SCRIPT" >/dev/null 2>&1 &
     # Wait briefly for the port to come up.
     for _ in 1 2 3 4 5 6 7 8 9 10; do
-      lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1 && break
+      [ -n "$(shim_listener_pid)" ] && break
       sleep 0.3
     done
-    if ! lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1; then
+    if [ -z "$(shim_listener_pid)" ]; then
       echo "[ccsession] ERROR: shim failed to start (try: python3 $CC_SHIM_SCRIPT)" >&2
       exit 1
     fi

@@ -175,6 +175,180 @@ def test_local_addon_that_others_can_write_is_ignored(tmp_path: Path) -> None:
     assert "unknown profile 'loose'" in result.stderr
 
 
+def _seed(tmp_path: Path, content: str | None, url: str) -> Path:
+    env_file = tmp_path / "ccsession.env"
+    example = SKILL_DIR / "ccsession.env.example"
+    env_file.write_text(example.read_text() if content is None else content)
+    env = os.environ.copy()
+    env["ANTHROPIC_BASE_URL"] = url
+    subprocess.run(
+        [sys.executable, str(SKILL_DIR / "seed-env.py"), str(env_file), str(example)],
+        env=env,
+        check=True,
+        capture_output=True,
+    )
+    return env_file
+
+
+def test_seed_records_gateway_only_in_unedited_env(tmp_path: Path) -> None:
+    seeded = _seed(tmp_path, None, "http://gateway.example:4000/cli")
+    text = seeded.read_text()
+    assert "export ANTHROPIC_BASE_URL=http://gateway.example:4000/cli" in text
+    assert "LITELLM" not in text.split("captured from the workspace")[1]
+    assert stat.S_IMODE(seeded.stat().st_mode) == 0o600
+    # A later install with a new address refreshes the installer-owned file.
+    env = os.environ.copy()
+    env["ANTHROPIC_BASE_URL"] = "https://new-gateway.example/cli"
+    subprocess.run(
+        [
+            sys.executable,
+            str(SKILL_DIR / "seed-env.py"),
+            str(seeded),
+            str(SKILL_DIR / "ccsession.env.example"),
+        ],
+        env=env,
+        check=True,
+        capture_output=True,
+    )
+    refreshed = seeded.read_text()
+    assert refreshed.count("\nexport ANTHROPIC_BASE_URL=") == 1
+    assert "new-gateway.example" in refreshed
+
+
+def test_seed_leaves_user_file_and_placeholders_alone(tmp_path: Path) -> None:
+    edited = "export ANTHROPIC_BASE_URL=http://mine:4000/cli\n"
+    assert (
+        _seed(tmp_path, edited, "http://gateway.example:4000/cli").read_text() == edited
+    )
+    example = (SKILL_DIR / "ccsession.env.example").read_text()
+    for bad in (
+        "${ANTHROPIC_BASE_URL:-https://anthropic-base-url.coder-agent-env-injected.invalid}",
+        "https://anthropic-base-url.coder-agent-env-injected.invalid",
+        "",
+    ):
+        assert _seed(tmp_path, None, bad).read_text() == example
+
+
+def _key_env(tmp_path: Path, **values: str) -> dict[str, str]:
+    fake = tmp_path / "claude-keys"
+    fake.write_text(
+        """#!/usr/bin/env python3
+import json, os
+print(json.dumps({k: bool(os.environ.get(k)) for k in
+                  ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN")}))
+"""
+    )
+    fake.chmod(0o700)
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "LITELLM_API_KEY")
+    }
+    env.update(
+        {
+            "HOME": str(tmp_path),
+            "CLAUDE_BIN": str(fake),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+            **values,
+        }
+    )
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--profile", "claude"],
+        env=env,
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return json.loads(result.stdout.strip().splitlines()[-1])
+
+
+def test_launch_maps_workspace_key_without_changing_explicit_auth(
+    tmp_path: Path,
+) -> None:
+    assert _key_env(tmp_path, LITELLM_API_KEY="k") == {
+        "ANTHROPIC_API_KEY": True,
+        "ANTHROPIC_AUTH_TOKEN": False,
+    }
+    assert _key_env(tmp_path, ANTHROPIC_API_KEY="k", ANTHROPIC_AUTH_TOKEN="k") == {
+        "ANTHROPIC_API_KEY": True,
+        "ANTHROPIC_AUTH_TOKEN": False,
+    }
+    # A local setup that uses only the token, as the example file shows, is untouched.
+    assert _key_env(tmp_path, ANTHROPIC_AUTH_TOKEN="t", LITELLM_API_KEY="k") == {
+        "ANTHROPIC_API_KEY": False,
+        "ANTHROPIC_AUTH_TOKEN": True,
+    }
+
+
+def test_shim_is_detected_without_lsof(tmp_path: Path) -> None:
+    tools = tmp_path / "no-lsof-bin"
+    tools.mkdir()
+    for directory in (
+        "/usr/local/bin",
+        "/opt/homebrew/bin",
+        "/usr/bin",
+        "/bin",
+        "/usr/sbin",
+        "/sbin",
+    ):
+        base = Path(directory)
+        if not base.is_dir():
+            continue
+        for tool in base.iterdir():
+            link = tools / tool.name
+            if tool.name != "lsof" and not link.exists():
+                link.symlink_to(tool)
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        port = probe.getsockname()[1]
+    fake = tmp_path / "claude-shim"
+    fake.write_text("#!/bin/sh\necho launched\n")
+    fake.chmod(0o700)
+    # A private copy of the shim gives cleanup an exact process to stop.
+    shim_copy = tmp_path / "test-owned-shim.py"
+    shim_copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    home = tmp_path / "home"
+    home.mkdir()
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "PATH": str(tools),
+            "CLAUDE_BIN": str(fake),
+            "ANTHROPIC_BASE_URL": "http://127.0.0.1:9/cli",
+            "ANTHROPIC_AUTH_TOKEN": "t",
+            "CC_SHIM_PORT": str(port),
+            "CC_SHIM_SCRIPT": str(shim_copy),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+        }
+    )
+    command = [str(SKILL_DIR / "ccsession"), "--profile", "grok", "--shim"]
+    try:
+        first = subprocess.run(
+            command,
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=60,
+            stdin=subprocess.DEVNULL,
+        )
+        assert first.returncode == 0, first.stderr
+        assert "Starting model-alias shim" in first.stdout
+        second = subprocess.run(
+            command,
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=60,
+            stdin=subprocess.DEVNULL,
+        )
+        assert second.returncode == 0, second.stderr
+        assert "already running" in second.stdout
+    finally:
+        subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
+
+
 def test_package_contains_no_personal_account_routing() -> None:
     for path in SKILL_DIR.rglob("*"):
         if path.is_file() and "__pycache__" not in path.parts:
