@@ -25,6 +25,8 @@
 #   ccsession <topic> --profile <model> [--shim]
 #                             Start or resume a labeled profile session
 #   Legacy aliases: 1mm=claude, 500k=grok, 372k=5.6sol
+#   Extra local profiles can be added in ~/.config/ccsession/profiles.d/*.sh
+#   A label resumes the same project session regardless of profile or shim.
 #   ccsession --list          List all labeled sessions across all workspaces
 #   ccsession --here          List labeled sessions for the current workspace only
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
@@ -77,13 +79,77 @@ while [ "$#" -gt 0 ]; do
 done
 set -- "${_args[@]}"
 
+# Local profile add-ons live outside the skill so reinstalling ccsession never
+# overwrites them and they are never distributed. A file defines
+# ccsession_profile_<name> (non-alphanumerics become "_"). The function runs
+# before the env file below and sets PROFILE_MODEL (empty: no --model),
+# PROFILE_CONTEXT (empty: no override), PROFILE_COMPACT_WINDOW,
+# PROFILE_REQUIRES_SHIM, and optionally CCSESSION_SKIP_ENV_FILE=1 and
+# CCSESSION_REFUSE_SHIM=1. Only owner-only files are loaded, since they run
+# with the user's credentials.
+CCSESSION_PROFILES_DIR="${CCSESSION_PROFILES_DIR:-$HOME/.config/ccsession/profiles.d}"
+CCSESSION_EXT_PROFILE=0
+CCSESSION_SKIP_ENV_FILE=0
+CCSESSION_REFUSE_SHIM=0
+if [ -n "$PROFILE" ] && [ -d "$CCSESSION_PROFILES_DIR" ]; then
+  for _addon in "$CCSESSION_PROFILES_DIR"/*.sh; do
+    [ -f "$_addon" ] || continue
+    if [ ! -O "$_addon" ] || [ -n "$(find "$_addon" -perm -g+w -o -perm -o+w 2>/dev/null)" ]; then
+      echo "[ccsession] WARNING: skipping add-on not owner-only: $_addon" >&2
+      continue
+    fi
+    # shellcheck disable=SC1090
+    . "$_addon"
+  done
+  _hook="ccsession_profile_${PROFILE//[^A-Za-z0-9_]/_}"
+  if declare -F "$_hook" >/dev/null; then
+    CCSESSION_EXT_PROFILE=1
+    PROFILE_MODEL=""
+    PROFILE_CONTEXT=""
+    PROFILE_COMPACT_WINDOW=""
+    PROFILE_REQUIRES_SHIM=0
+    "$_hook"
+    if [ "$CCSESSION_REFUSE_SHIM" = 1 ] && [ "$USE_SHIM" = 1 ]; then
+      echo "ccsession: profile '$PROFILE' cannot use the company gateway shim" >&2
+      exit 2
+    fi
+  fi
+fi
+
 # Source per-user env (proxy base URL, auth tokens, etc.) before launching
 # claude. Keep this file out of version control — it holds secrets.
 CCSESSION_ENV_FILE="${CCSESSION_ENV_FILE:-$HOME/.claude/ccsession.env}"
-if [ -f "$CCSESSION_ENV_FILE" ]; then
+if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ] && [ -f "$CCSESSION_ENV_FILE" ]; then
   # shellcheck disable=SC1090
   . "$CCSESSION_ENV_FILE"
 fi
+
+if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ]; then
+  # Coder workspaces deliver the gateway key as LITELLM_API_KEY, which Claude
+  # Code ignores. Shells that skip the template's copy (Orca, coder ssh) need it.
+  if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -z "${ANTHROPIC_AUTH_TOKEN:-}" ] && \
+    [ -n "${LITELLM_API_KEY:-}" ]; then
+    export ANTHROPIC_API_KEY="$LITELLM_API_KEY"
+  fi
+  # Claude Code warns when both carry a key; an identical copy adds nothing.
+  if [ -n "${ANTHROPIC_API_KEY:-}" ] && [ "$ANTHROPIC_API_KEY" = "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
+    unset ANTHROPIC_AUTH_TOKEN
+  fi
+fi
+
+shim_listener_pid() {
+  # Print the PID listening on the shim port, or nothing when the port is free.
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN 2>/dev/null | head -n 1 || true
+    return
+  fi
+  # Images without lsof (the Coder workspace image): a local connect proves a
+  # listener, and the shim is found by its script path. Any other listener is
+  # reported as "other" so it is never killed.
+  if python3 -c 'import socket, sys; s = socket.socket(); s.settimeout(0.3); sys.exit(s.connect_ex(("127.0.0.1", int(sys.argv[1]))))' "$CC_SHIM_PORT" 2>/dev/null; then
+    pgrep -f -- "$CC_SHIM_SCRIPT" 2>/dev/null | head -n 1 | grep . || echo other
+  fi
+}
 
 setup_shim() {
   # Route this session through the local model-alias shim: start it if it
@@ -95,7 +161,7 @@ setup_shim() {
     exit 1
   fi
   start_shim=0
-  listener_pid=$(lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN 2>/dev/null | head -n 1 || true)
+  listener_pid=$(shim_listener_pid)
   if [ -n "$listener_pid" ]; then
     health=$(curl -fsS --max-time 2 \
       "http://127.0.0.1:$CC_SHIM_PORT/__ccsession_shim" 2>/dev/null || true)
@@ -115,12 +181,12 @@ else:
 ' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT")
     if [ "$health_status" = "match" ]; then
       echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
-    elif [ "$health_status" = "stale" ] || \
-      ps -p "$listener_pid" -o command= 2>/dev/null | grep -Fq -- "$CC_SHIM_SCRIPT"; then
+    elif [ "$listener_pid" != other ] && { [ "$health_status" = "stale" ] || \
+      ps -p "$listener_pid" -o command= 2>/dev/null | grep -Fq -- "$CC_SHIM_SCRIPT"; }; then
       echo "[ccsession] Restarting stale model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
       kill "$listener_pid"
       for _ in 1 2 3 4 5 6 7 8 9 10; do
-        lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1 || break
+        [ -n "$(shim_listener_pid)" ] || break
         sleep 0.2
       done
       start_shim=1
@@ -138,10 +204,10 @@ else:
       nohup python3 "$CC_SHIM_SCRIPT" >/dev/null 2>&1 &
     # Wait briefly for the port to come up.
     for _ in 1 2 3 4 5 6 7 8 9 10; do
-      lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1 && break
+      [ -n "$(shim_listener_pid)" ] && break
       sleep 0.3
     done
-    if ! lsof -ti "tcp:$CC_SHIM_PORT" -s TCP:LISTEN >/dev/null 2>&1; then
+    if [ -z "$(shim_listener_pid)" ]; then
       echo "[ccsession] ERROR: shim failed to start (try: python3 $CC_SHIM_SCRIPT)" >&2
       exit 1
     fi
@@ -222,7 +288,7 @@ apply_profile() {
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
 
-  case "$PROFILE" in
+  [ "$CCSESSION_EXT_PROFILE" = 1 ] || case "$PROFILE" in
     claude|1mm)
       # Plain "claude-opus-5-5" is the 200K row; the 1M window is a separate
       # model name. Without the suffix the context override below is ignored.
@@ -266,7 +332,7 @@ apply_profile() {
       ;;
     *)
       echo "ccsession: unknown profile '$PROFILE'" >&2
-      echo "Valid profiles: claude, grok, muse, 5.6sol, 6astra, 6sol (legacy aliases: 1mm, 500k, 372k)" >&2
+      echo "Valid profiles: claude, grok, muse, 5.6sol, 6astra, 6sol (legacy aliases: 1mm, 500k, 372k), plus any in $CCSESSION_PROFILES_DIR" >&2
       exit 2
       ;;
   esac
@@ -281,7 +347,9 @@ apply_profile() {
     PROFILE_COMPACT_WINDOW="$CCSESSION_COMPACT_WINDOW"
   fi
 
-  export CLAUDE_CODE_MAX_CONTEXT_TOKENS="$PROFILE_CONTEXT"
+  if [ -n "$PROFILE_CONTEXT" ]; then
+    export CLAUDE_CODE_MAX_CONTEXT_TOKENS="$PROFILE_CONTEXT"
+  fi
   # Custom models need an explicit proactive auto-compaction window; with only
   # the max-context override, Claude Code can hit the provider limit first.
   if [ -n "$PROFILE_COMPACT_WINDOW" ]; then
@@ -298,7 +366,9 @@ apply_profile() {
     export ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION="$PROFILE context profile"
   fi
 
-  if [ -n "$PROFILE_COMPACT_WINDOW" ]; then
+  if [ -z "$PROFILE_MODEL" ]; then
+    echo "[ccsession] profile $PROFILE: default model and context"
+  elif [ -n "$PROFILE_COMPACT_WINDOW" ]; then
     echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, auto-compact window $PROFILE_COMPACT_WINDOW"
   else
     echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, native auto-compact"
@@ -525,7 +595,7 @@ fi
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
   echo "[ccsession] Starting untagged session"
-  if [ -n "$PROFILE" ]; then
+  if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
   else
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
@@ -550,14 +620,14 @@ export CLAUDE_TOPIC="$TOPIC"
 if [ -f "$TOPIC_FILE" ]; then
   SESSION_ID=$(cat "$TOPIC_FILE")
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
-  if [ -n "$PROFILE" ]; then
+  if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
   else
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --resume "$SESSION_ID" "$@"
   fi
 else
   echo "[ccsession] Starting new session labeled '$TOPIC'"
-  if [ -n "$PROFILE" ]; then
+  if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
   else
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
