@@ -28,9 +28,13 @@ class TestParallelBothSucceed:
         )
 
         thread_ids = []
+        # Both workers must be alive at once: CPython reuses a finished
+        # thread's ident, so without this the ids can collide (flaky CI).
+        both_running = threading.Barrier(2, timeout=10)
 
         def runner(step, config, cancel_check):
             thread_ids.append(threading.current_thread().ident)
+            both_running.wait()
             step.output_file.write_text("content\n")
             return StepResult(
                 step=step,
