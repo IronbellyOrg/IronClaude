@@ -38,11 +38,11 @@ related_links:
 - text: Master CHANGELOG.md
   link: CHANGELOG.md
 - text: "[Previous Release]"
-  link: ".gfdoc/changelogs/YYYY-MM-DD_vA.B.C_DESCRIPTION.md"
+  link: ".claude/changelogs/YYYY-MM-DD_vA.B.C_DESCRIPTION.md"
 - text: "[Related Documentation]"
   link: "[path/to/related/doc.md]"
 - text: "[Related Protocol/Rule]"
-  link: ".gfdoc/rules/[protocol].md"
+  link: "~/.claude/rules/[protocol].md"
 related_task_id:
 - "TASK-[TYPE]-YYYYMMDD-HHMMSS-[Identifier]"
 review_info:
@@ -69,7 +69,6 @@ review_info:
 ## Changes by Category
 
 ### Added
-
 [New features, files, functionality - use this section for new capabilities]
 
 - **[Feature Name]**: Description
@@ -82,7 +81,6 @@ review_info:
 | `path/to/file.md` | Description | XX KB / XXX lines |
 
 ### Changed
-
 [Modifications to existing features, files, behavior]
 
 - **[Component Name]**: What changed and why
@@ -95,7 +93,6 @@ review_info:
 | `path/to/file.md` | Description of changes | User impact |
 
 ### Deprecated
-
 [Features/APIs marked for removal in future versions]
 
 - **[Feature Name]**: Deprecated, use [Alternative] instead
@@ -103,7 +100,6 @@ review_info:
   - Migration path
 
 ### Removed
-
 [Features/APIs removed in this version]
 
 - **[Feature Name]**: Removed (deprecated in vX.Y.Z)
@@ -111,7 +107,6 @@ review_info:
   - Migration guide: [Link]
 
 ### Fixed
-
 [Bug fixes, corrections, issues resolved]
 
 - **[Issue Description]**: Fixed
@@ -120,7 +115,6 @@ review_info:
   - Affected users
 
 ### Security
-
 [Security fixes, vulnerability patches]
 
 - **[Vulnerability Description]**: Patched
@@ -146,7 +140,6 @@ review_info:
 [Specify if users need to take action]
 
 **Migration Steps:**
-
 1. [Step 1 description]
 2. [Step 2 description]
 3. [Step 3 description]
@@ -166,13 +159,11 @@ review_info:
 **OR**
 
 **Breaking Changes:**
-
 - [List breaking changes]
 - [Explain impact]
 - [Provide migration path]
 
 **Compatibility Notes:**
-
 - ✅ [What still works]
 - ❌ [What no longer works]
 - ⚠️ [What's deprecated]
@@ -184,7 +175,6 @@ review_info:
 [Include if performance is impacted - can be positive or negative]
 
 ### Overhead Impact
-
 | Metric | Before | After | Change | Status |
 |--------|--------|-------|--------|--------|
 | **File Size** | XX KB | YY KB | +/-Z% | ✅/⚠️ |
@@ -192,7 +182,6 @@ review_info:
 | **Memory** | XX MB | YY MB | +/-Z% | ✅/⚠️ |
 
 ### Performance Improvements
-
 | Metric | Before | After | Improvement | Status |
 |--------|--------|-------|-------------|--------|
 | **[Metric Name]** | Baseline | New | +/-X% | ✅ |
@@ -202,19 +191,16 @@ review_info:
 ## Testing & Validation
 
 ### Automated Testing
-
 - ✅ [Test suite name]: [Pass rate] ([X/Y tests])
 - ✅ [Integration tests]: [Result]
 - ✅ [Performance benchmarks]: [Result]
 
 ### Manual Validation
-
 - ✅ [Validation performed]
 - ✅ [Integration points verified]
 - ✅ [User scenarios tested]
 
 ### Test Results
-
 [Detailed test results if applicable]
 
 ---
@@ -224,13 +210,11 @@ review_info:
 [Only include this section if there are breaking changes]
 
 ### Change 1: [Description]
-
 **Impact**: [Who/what is affected]
 **Migration**: [How to update]
 **Timeline**: [When deprecated, when removed]
 
 ### Change 2: [Description]
-
 [Same structure as above]
 
 ---
@@ -240,19 +224,15 @@ review_info:
 [Only include if complex migration is required - otherwise refer to "Migration Required" section]
 
 ### Prerequisites
-
 - [List prerequisites]
 
 ### Step-by-Step Migration
-
 1. **[Phase 1 Name]**: [Description]
-
    ```bash
    # Example commands
    ```
 
 2. **[Phase 2 Name]**: [Description]
-
    ```markdown
    # Example code/config
    ```
@@ -260,11 +240,9 @@ review_info:
 3. **[Phase 3 Name]**: [Description]
 
 ### Validation
-
 - [How to verify migration succeeded]
 
 ### Rollback
-
 - [How to rollback if needed]
 
 ---
@@ -300,17 +278,14 @@ review_info:
 ## Support Resources
 
 ### For Questions
-
 - **[Topic]**: See [Link to guide]
 - **[Topic]**: See [Link to guide]
 
 ### For Issues
-
 - **[Issue Type]**: [How to get help]
 - **[Issue Type]**: [How to get help]
 
 ### For Development
-
 - **[Topic]**: See [Link to dev docs]
 
 ---

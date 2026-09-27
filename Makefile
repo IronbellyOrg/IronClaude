@@ -135,7 +135,7 @@ sync-dev:
 		cp "$$cmd" ".claude/commands/sc/$$name"; \
 	done
 	@mkdir -p .claude/hooks
-	@for hook in src/superclaude/hooks/scripts/*.sh; do \
+	@for hook in src/superclaude/hooks/scripts/*.sh src/superclaude/hooks/scripts/*.js; do \
 		[ -f "$$hook" ] || continue; \
 		name=$$(basename "$$hook"); \
 		cp "$$hook" ".claude/hooks/$$name"; \
@@ -252,7 +252,7 @@ verify-sync:
 	done; \
 	echo ""; \
 	echo "=== Hooks ==="; \
-	for hook in src/superclaude/hooks/scripts/*.sh; do \
+	for hook in src/superclaude/hooks/scripts/*.sh src/superclaude/hooks/scripts/*.js; do \
 		[ -f "$$hook" ] || continue; \
 		name=$$(basename "$$hook"); \
 		if [ ! -f ".claude/hooks/$$name" ]; then \
@@ -267,7 +267,7 @@ verify-sync:
 			fi; \
 		fi; \
 	done; \
-	for hook in .claude/hooks/*.sh; do \
+	for hook in .claude/hooks/*.sh .claude/hooks/*.js; do \
 		[ -f "$$hook" ] || continue; \
 		name=$$(basename "$$hook"); \
 		case "$$name" in session-init.sh) continue;; esac; \
@@ -305,7 +305,7 @@ verify-sync:
 	fi; \
 	echo ""; \
 	echo "=== Installer Registration ==="; \
-	src_hooks=$$(ls src/superclaude/hooks/scripts/*.sh 2>/dev/null | xargs -n1 basename | sort); \
+	src_hooks=$$(ls src/superclaude/hooks/scripts/*.sh src/superclaude/hooks/scripts/*.js 2>/dev/null | xargs -n1 basename | sort); \
 	registered=$$(uv run python -c "from superclaude.cli.install_hooks import _FRESHNESS_SCRIPTS; print('\n'.join(sorted(_FRESHNESS_SCRIPTS)))" 2>/dev/null); \
 	missing_from_list=$$(comm -23 <(echo "$$src_hooks") <(echo "$$registered")); \
 	extra_in_list=$$(comm -13 <(echo "$$src_hooks") <(echo "$$registered")); \
@@ -322,7 +322,7 @@ verify-sync:
 		drift=1; \
 	fi; \
 	if [ -z "$$missing_from_list" ] && [ -z "$$extra_in_list" ]; then \
-		echo "  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh"; \
+		echo "  ✅ _FRESHNESS_SCRIPTS matches src/superclaude/hooks/scripts/*.sh and *.js"; \
 	fi; \
 	echo ""; \
 	echo "=== Hooks Cross-Consistency ==="; \

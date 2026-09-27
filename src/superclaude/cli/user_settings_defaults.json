@@ -1,0 +1,47 @@
+{
+  "outputStyle": "Pragmatic",
+  "model": "opus[1m]",
+  "effortLevel": "high",
+  "alwaysThinkingEnabled": true,
+  "verbose": true,
+  "teammateMode": "auto",
+  "agentPushNotifEnabled": true,
+  "skipDangerousModePermissionPrompt": true,
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION": "5000"
+  },
+  "modelSettings": {
+    "gpt-6-astra": {
+      "effortLevel": "xhigh"
+    },
+    "gpt-6-sol": {
+      "effortLevel": "xhigh"
+    },
+    "gpt-5.6-sol": {
+      "effortLevel": "xhigh"
+    }
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "notion@claude-plugins-official": true,
+    "dropbox@claude-plugins-official": true,
+    "google-cloud-storage@claude-plugins-official": true,
+    "understand-anything@understand-anything": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "understand-anything": {
+      "source": {
+        "source": "github",
+        "repo": "Lum1104/Understand-Anything"
+      }
+    }
+  }
+}

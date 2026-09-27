@@ -13,6 +13,7 @@ autogen: false
 autogen_method: ""
 coordinator: "[tech-lead]"
 parent_doc: "[link to TDD that this reference documents]"
+parent_task: ""
 related_prd: "[link to Product PRD]"
 related_tdd: "[link to Technical Design Document]"
 depends_on:
@@ -24,21 +25,20 @@ tags:
 - "[feature-name]"
 - post-implementation
 - architecture
-template_schema_doc: ""
+template_schema_doc: "[link to schema documentation for this template, if applicable]"
 estimation: ""
 sprint: ""
 due_date: ""
 start_date: ""
 completion_date: ""
 blocker_reason: ""
+ai_model: ""
+model_settings: ""
 review_info:
   last_reviewed_by: ""
   last_review_date: ""
   next_review_date: ""
-verified_against_code:
-  last_verified_date: ""
-  verified_by: ""
-  code_version: ""
+task_type: static
 ---
 
 # [Feature Name] - Technical Reference
@@ -59,7 +59,7 @@ verified_against_code:
 
 | Tier | When to Use | Sections Required |
 |------|-------------|-------------------|
-| **Lightweight** | Small features, single subsystem, <5 components | 1, 2, 3, 4, 5, 12, 13 |
+| **Lightweight** | Small features, single subsystem, <5 components | 1, 2, 3, 4, 5, 10, 12, 13, 14, 15 |
 | **Standard** | Most features (5-20 components, multiple subsystems) | All numbered sections; skip conditional sections marked *(if applicable)* |
 | **Heavyweight** | Major features, cross-cutting systems, platform-level | All sections fully completed, including all conditional sections |
 
@@ -81,7 +81,6 @@ verified_against_code:
 ### Living Document Contract
 
 This document MUST be updated when:
-
 - A component is added, removed, or significantly refactored
 - A subsystem's behavior, data flow, or interface changes
 - New conventions or patterns are introduced to the feature
@@ -93,23 +92,22 @@ This document MUST be updated when:
 ## Completeness Status
 
 **Completeness Checklist:**
-
 - [ ] Section 1: Overview — **Status**
 - [ ] Section 2: Architecture — **Status**
 - [ ] Section 3: Directory Structure — **Status**
 - [ ] Section 4: Data Flow — **Status**
 - [ ] Section 5: Subsystem Reference — **Status**
-- [ ] Section 6: State Management — **Status**
-- [ ] Section 7: Component Inventory — **Status**
-- [ ] Section 8: API & Integration Points — **Status**
-- [ ] Section 9: Configuration & Environment — **Status**
+- [ ] Section 6: State Management *(if applicable)* — **Status**
+- [ ] Section 7: Component Inventory *(if applicable)* — **Status**
+- [ ] Section 8: API & Integration Points *(if applicable)* — **Status**
+- [ ] Section 9: Configuration & Environment *(if applicable)* — **Status**
 - [ ] Section 10: Error Handling & Edge Cases — **Status**
 - [ ] Section 11: Performance Characteristics — **Status**
 - [ ] Section 12: Conventions & Patterns — **Status**
 - [ ] Section 13: Extension Guide — **Status**
 - [ ] Section 14: Known Limitations & Technical Debt — **Status**
 - [ ] Section 15: Verification & Accuracy — **Status**
-- [ ] Section 16: Glossary — **Status**
+- [ ] Section 16: Glossary *(if applicable)* — **Status**
 - [ ] All links verified — **Status**
 - [ ] Reviewed by [team] — **Status**
 
@@ -267,7 +265,6 @@ flowchart LR
 > **This is the core of the Technical Reference.** Each subsystem gets its own subsection with enough detail that a developer or AI agent can understand it without reading every source file.
 >
 > **For each subsystem, document:**
->
 > - What it does (purpose)
 > - How it works (mechanism)
 > - Where the code lives (files)
@@ -342,13 +339,9 @@ flowchart LR
 
 ### 6.2 State Shape
 
-```typescript
-// Document the actual state shape for each store/slice
-interface [StoreName]State {
-  [field]: [type]; // [description]
-  [field]: [type]; // [description]
-}
-```
+| Slice | Key Fields | Notable Behavior |
+|-------|-----------|------------------|
+| [SliceName] | [field1: type, field2: type] | [Key behavior, subscriptions, or side effects] |
 
 ### 6.3 Key State Transitions
 
@@ -597,8 +590,8 @@ interface [StoreName]State {
 
 1. **File existence check:** Verify that all file paths listed in this document exist in the codebase
 2. **Export verification:** Spot-check 3-5 public interfaces listed in Section 5 against actual code exports
-3. **State shape check:** Compare Section 6 state shapes against actual store definitions
-4. **Component tree check:** Verify Section 7 component hierarchy against actual file structure
+3. **State shape check (if S6 present):** Compare Section 6 state shapes against actual store definitions
+4. **Component tree check (if S7 present):** Verify Section 7 component hierarchy against actual file structure
 5. **Convention check:** Verify 2-3 conventions from Section 12 are followed in recent code changes
 
 ---
@@ -700,7 +693,6 @@ Setting | Purpose | Default | Impact. Reference the actual file path for the com
 -->
 
 > **See also:**
->
 > - [prd_template.md](prd_template.md) — Product requirements template
 > - [tdd_template.md](tdd_template.md) — Technical design specifications template
 

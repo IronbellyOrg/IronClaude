@@ -63,6 +63,9 @@ _FRESHNESS_SCRIPTS = [
     # check in `make verify-sync` requires every entry of
     # `src/superclaude/hooks/scripts/*.sh` to be a member of this list.
     "reject-workspace-writes.sh",
+    # Pragmatic output style for subagents: injects
+    # ~/.claude/output-styles/pragmatic.md at SubagentStart (needs node).
+    "pragmatic-subagent.js",
     # Project-local PreToolUse hook for /sc:recommend Phase 0. When the Skill
     # tool invokes `sc-recommend`, injects a context block reminding the model
     # that live surface enumeration + mandatory auggie semantic ranking +

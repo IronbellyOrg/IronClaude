@@ -1,4 +1,5 @@
 ---
+# Frontmatter Purpose: Used by RF document management, rf-qa validation, and skill pipelines for tracking and cross-referencing. Not rendered by GitHub.
 id: "[PROJECT-OR-MODULE-ID]-README"
 title: "[Project/Module Name] - README"
 description: "README file for [project/module name] providing overview, quick start, usage, and navigation for developers and contributors"
@@ -13,10 +14,13 @@ autogen: false
 autogen_method: ""
 coordinator: "[tech-lead]"
 parent_doc: ""
+parent_task: ""
 depends_on:
 - "[list dependent documents]"
 related_docs:
 - "[list related documents]"
+related_prd: ""
+related_tdd: ""
 tags:
 - readme
 - "[project-name]"
@@ -35,28 +39,7 @@ review_info:
   last_reviewed_by: ""
   last_review_date: ""
   next_review_date: ""
-# --- Document Information (in frontmatter for external-facing READMEs — GitHub does not render YAML frontmatter) ---
-document_information:
-  document_name: "[Project/Module Name] README"
-  document_type: "README"
-  maintained_by: "[team or person]"
-  last_verified: "[YYYY-MM-DD against commit hash or version]"
-# --- Completeness Status (in frontmatter for external-facing READMEs) ---
-completeness_status:
-  checklist:
-    - "Section 1 (About): [Draft/Complete/N-A]"
-    - "Section 2 (Features): [Draft/Complete/N-A]"
-    - "Section 4 (Quick Start): [Draft/Complete/N-A]"
-    - "Section 5 (Usage): [Draft/Complete/N-A]"
-    - "All links verified: [Yes/No]"
-    - "Reviewed by [team]: [Yes/No]"
-# --- Contract Table (in frontmatter for external-facing READMEs) ---
-contract_table:
-  dependencies: "[Docs/systems this README depends on]"
-  upstream: "[What provides input — e.g., PRD, TDD, architecture docs]"
-  downstream: "[What consumes this — e.g., onboarding process, contributor workflow]"
-  change_impact: "[Teams to notify when this README changes]"
-  review_cadence: "[Quarterly / Monthly / As-needed]"
+task_type: static
 ---
 
 # [Project Name]
@@ -73,7 +56,7 @@ contract_table:
 
 | Tier | When to Use | Sections Required | Target Length |
 |------|-------------|-------------------|---------------|
-| **Lightweight** | Small library, utility, single-purpose module | 1, 2, 5, 6, 13 | 50–150 lines |
+| **Lightweight** | Small library, utility, single-purpose module | 1, 2, 3, 4, 5, 13, 16 | 50–150 lines |
 | **Standard** | Most applications and frameworks | All numbered sections; skip sections marked *(if applicable)* | 150–400 lines |
 | **Heavyweight** | Platform, monorepo, multi-service system | All sections fully completed | 200–500 lines |
 
@@ -99,7 +82,7 @@ contract_table:
 2. Delete any section not relevant to your tier
 3. Remove all HTML comments (template instructions) from the final document
 4. The final README should contain NO template instructions, placeholders, or meta-commentary
-5. Keep the frontmatter — it is stripped when rendering but used for document management
+5. Keep the frontmatter — it is consumed by RF document management, rf-qa validation, and skill pipelines for tracking and cross-referencing (not rendered by GitHub)
 
 -->
 
@@ -187,7 +170,7 @@ BAD: "Uses WebRTC-based UE5.6 Pixel Streaming Frontend library with bidirectiona
 
 <!-- List what must be installed BEFORE the Quick Start steps.
 Include exact version requirements. Link to installation guides for non-obvious dependencies.
-Omit for Lightweight tier if prerequisites are obvious (e.g., a published npm package). -->
+For Lightweight tier, keep brief — list only runtime/version requirements (e.g., "Node.js >= 18"). -->
 
 - [Runtime] v[X.Y]+ — [link to install guide]
 - [Database] v[X.Y]+ — [link to install guide]
@@ -398,19 +381,16 @@ For deployment instructions, see [link to deployment docs].
 For Heavyweight projects, this is one of the most important sections — it prevents readers from getting lost. -->
 
 ### For Users
-
 - [User Guide / Getting Started](link)
 - [API Reference](link)
 - [FAQ / Troubleshooting](#15-faq--troubleshooting)
 
 ### For Contributors
-
 - [Contributing Guide](CONTRIBUTING.md)
 - [Development Setup](#9-development-setup)
 - [Architecture / Technical Reference](link)
 
 ### For Operators
-
 - [Deployment Guide](link)
 - [Configuration Reference](link)
 - [Monitoring / Observability](link)
@@ -503,11 +483,9 @@ Keep it brief. -->
 ## Appendices *(if applicable — Lightweight tier may omit)*
 
 ### Appendix A: [Topic]
-
 [Supplementary content that supports the README but would break the flow if inline.]
 
 ### Appendix B: Document Provenance *(if applicable)*
-
 [Include when README was generated from or merged from other sources.]
 
 ---
@@ -521,7 +499,6 @@ Keep it brief. -->
 ---
 
 > **See also:**
->
 > - [related-doc-1.md](path) — Brief description
 > - [related-doc-2.md](path) — Brief description
 
