@@ -34,7 +34,14 @@ def main() -> int:
         return 0
     example = example_path.read_text()
     current = env_path.read_text()
-    if current != example and MARKER not in current:
+    # Rewrite only files this installer fully owns: the untouched example, or
+    # exactly the example plus the marker and one address line. Any other
+    # change means the user edited it, so it is left alone.
+    owned = (
+        re.escape(f"{example.rstrip()}\n\n{MARKER}\n")
+        + r"export ANTHROPIC_BASE_URL=[^\n]*\n"
+    )
+    if current != example and not re.fullmatch(owned, current):
         return 0
     seeded = f"{example.rstrip()}\n\n{MARKER}\nexport ANTHROPIC_BASE_URL={shlex.quote(url)}\n"
     if seeded == current:

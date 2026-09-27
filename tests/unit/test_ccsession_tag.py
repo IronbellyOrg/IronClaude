@@ -229,6 +229,23 @@ def test_seed_leaves_user_file_and_placeholders_alone(tmp_path: Path) -> None:
         assert _seed(tmp_path, None, bad).read_text() == example
 
 
+def test_seed_keeps_lines_added_after_seeding(tmp_path: Path) -> None:
+    seeded = _seed(tmp_path, None, "http://gateway.example:4000/cli")
+    edited = seeded.read_text() + "export ANTHROPIC_AUTH_TOKEN=user-added\n"
+    seeded.write_text(edited)
+    example = SKILL_DIR / "ccsession.env.example"
+    for url in ("http://gateway.example:4000/cli", "https://new-gateway.example/cli"):
+        env = os.environ.copy()
+        env["ANTHROPIC_BASE_URL"] = url
+        subprocess.run(
+            [sys.executable, str(SKILL_DIR / "seed-env.py"), str(seeded), str(example)],
+            env=env,
+            check=True,
+            capture_output=True,
+        )
+        assert seeded.read_text() == edited
+
+
 def _key_env(tmp_path: Path, **values: str) -> dict[str, str]:
     fake = tmp_path / "claude-keys"
     fake.write_text(
