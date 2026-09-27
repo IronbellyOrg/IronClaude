@@ -240,3 +240,11 @@ def test_plugin_failures_and_time_limit_never_fail_install(
     assert ok and message.startswith("⚠️  Plugins")
     ok, message = setup.install_plugins(home=home, deadline=0)
     assert ok and "time limit" in message
+
+
+def test_shipped_setup_contains_no_personal_home_paths() -> None:
+    personal = re.compile(r"/Users/[A-Za-z]|/home/(?!coder/)[a-z]")
+    for root in ("rules", "templates", "output-styles"):
+        for path in (PKG / root).rglob("*"):
+            if path.is_file() and path.suffix in (".md", ".contract", ".json"):
+                assert not personal.search(path.read_text()), path

@@ -107,15 +107,15 @@ For **Scoring Tasks**, verify:
 - **No Hallucination**: Scores MUST NOT reference skills/experience not in resume
 
 For **Output File Updates**, verify:
-- **File Updated**: Check `/Users/cmerritt/GFxAI/Recruiting/candidates_scored/candidate_scores.md`
+- **File Updated**: Check `<recruiting-root>/candidates_scored/candidate_scores.md`
 - **Table Row Added**: Verify new row in scoring table with all columns
 - **Detailed Section**: Check for detailed evaluation section per candidate
 - **Formatting Consistent**: Table alignment and markdown formatting correct
 - **Incremental Save**: File MUST be saved after EACH candidate
 
 For **File Movement Tasks**, verify:
-- **Source Removed**: Original file NOT in `/Users/cmerritt/GFxAI/Recruiting/candidates/`
-- **Destination Exists**: File IS in `/Users/cmerritt/GFxAI/Recruiting/candidates/analyzed_done/`
+- **Source Removed**: Original file NOT in `<recruiting-root>/candidates/`
+- **Destination Exists**: File IS in `<recruiting-root>/candidates/analyzed_done/`
 - **File Intact**: Content unchanged during move
 - **Only If Complete**: File moved ONLY if candidate fully evaluated
 

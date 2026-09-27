@@ -42,8 +42,8 @@ After completing your {{BATCH_COUNT}} items, create your handoff and STOP.
      - Score candidates according to the rubric (0-10 per category)
      - Calculate weighted total and star rating
      - Write 3-5 sentence summary
-     - Update the output file at `/Users/cmerritt/GFxAI/Recruiting/candidates_scored/candidate_scores.md`
-     - Move processed candidate files to `/Users/cmerritt/GFxAI/Recruiting/candidates/analyzed_done/`
+     - Update the output file at `<recruiting-root>/candidates_scored/candidate_scores.md`
+     - Move processed candidate files to `<recruiting-root>/candidates/analyzed_done/`
      - Use Edit tool to mark item `[x]` in task file ONLY after completion
 
 4. **CREATE HANDOFF FILE** (CRITICAL - DO NOT SKIP):
