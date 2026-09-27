@@ -1,0 +1,67 @@
+# Synthetic-DNSP Finding Contract
+
+**DO NOT PARAPHRASE THIS FILE.** This is a byte-exact reproduction of the DM-003 "Synthetic Finding Protocol" emission contract defined in `.claude/skills/task-builder/SKILL.md:877-915`. Every fixed-value literal below (`severity`, `source`, `recommendation`) must be copied byte-for-byte from source, including the intentional em dash (U+2014) inside the `recommendation` literal. That single em dash is contract text, not prose, and is exempt from the repository's no-em-dash writing convention; the conformance check MUST whitelist this file (or the specific literal) rather than flag it.
+
+## Fixed-value invariants (non-overridable, DM-003 R-113/R-114/R-117)
+
+- `severity: HIGH`
+- `source: "synthetic-dnsp"`
+- `recommendation: "Manual review required — partition agent failed twice"`
+
+## Dynamic-value invariants (content-bound, DM-003 R-115/R-116)
+
+- `affected_range`: the failed partition's spawn-prompt `assigned_files` (or `assigned_phases` for rf-qa-qualitative) slice, copied verbatim byte-for-byte, no normalization, canonicalization, ordering change, or whitespace edit.
+- `evidence`: MUST NEVER be blank. Canonical wire value: `${TASK_DIR}qa/spawn-log-<agent_role>-<partition_id>.txt`. When that log is unavailable, substitute the stub `<!-- evidence-absence: no-spawn-log: <reason> -->` explicitly citing the absence (e.g. `no-spawn-log: tmpfs-cleared`, `no-spawn-log: orchestrator-write-failed`).
+
+## dedup_key shape (DM-003 R-118, 2-element YAML list)
+
+```yaml
+dedup_key: ["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]
+```
+
+`escalation_ladder_exhaust_point` (the second element) MUST be drawn from the closed vocabulary:
+
+- `retry-1`
+- `retry-2`
+- `gap-fill-round-1`
+- `gap-fill-round-2`
+- `gap-fill-round-3`
+
+Free-form or paraphrased values (e.g. "second retry", "gap-fill round 2", "after WebSearch exhaustion", "escalation-ladder rung 3") are rejected.
+
+## found_n_times (DM-003 R-119)
+
+- Positive integer, `>= 1`.
+- First emission: `1`.
+- Increments by exactly `1` on each within-cycle dedup-key collapse (two synthetic-dnsp findings emitted for the SAME `(assigned_files_range, escalation_ladder_exhaust_point)` tuple within one retry cycle).
+
+## Full emission block (the 7-field contract)
+
+```yaml
+severity: HIGH
+source: "synthetic-dnsp"
+affected_range: "<verbatim assigned_files/assigned_phases slice>"
+evidence: "<spawn-log path, or evidence-absence stub>"
+recommendation: "Manual review required — partition agent failed twice"
+dedup_key: ["<assigned_files_range>", "<escalation_ladder_exhaust_point>"]
+found_n_times: 1
+```
+
+## Emission wire-shape
+
+Emitted as a structured Markdown block into the partition agent's normal output stream, the same stdout/report channel real findings use, with no sideband or separate signalling channel. Consumed by the merge step at task-builder `SKILL.md` A.8 (Research Quality Gate merge) and A.10 (Task File Validation merge); the merge step treats the synthetic-dnsp record as a real finding for the existing "any gap regardless of severity = FAIL" gating rule until the operator manually reviews per the fixed `recommendation` literal above.
+
+## Emitter rejection symbols (preserve verbatim if this contract is documented downstream)
+
+- `DM-003-fixed-field-invariant-violation`
+- `DM-003-dynamic-field-invariant-violation`
+- `DM-003-recommendation-invariant-violation`
+- `DM-003-dedup-key-shape-violation`
+- `DM-003-found-n-times-invariant-violation`
+- `API-003-exhaust-point-vocabulary-violation`
+- `R-122-guard-precedence-violation`
+- `INV-012-within-cycle-collapse-violation`
+- `INV-012-cross-cycle-composition-violation`
+- `INV-021-cohort-serialization-violation`
+- `R-126-real-findings-replacement-violation`
+- `R-126-severity-override-violation`

@@ -20,6 +20,7 @@ _INSTALLERS = (
     "superclaude.cli.install_ccsession.wire_ccsession",
     "superclaude.cli.install_hooks.install_hooks",
     "superclaude.cli.install_templates.install_templates",
+    "superclaude.cli.install_user_setup.install_user_setup",
 )
 
 
@@ -51,6 +52,8 @@ def test_update_refreshes_hooks_after_other_components(monkeypatch):
         "install_all_skills",
         "wire_ccsession",
         "install_hooks",
+        "install_templates",
+        "install_user_setup",
     ]
     assert "Updating hooks" in result.output
 
@@ -61,7 +64,7 @@ def test_update_propagates_hook_install_failure(monkeypatch):
     result = CliRunner().invoke(main, ["update"])
 
     assert result.exit_code == 1
-    assert calls[-1] == "install_hooks"
+    assert "install_hooks" in calls
     assert "install_hooks result" in result.output
 
 
@@ -77,7 +80,15 @@ def test_install_wires_before_hooks_and_templates(monkeypatch):
         "wire_ccsession",
         "install_hooks",
         "install_templates",
+        "install_user_setup",
     ]
+
+
+def test_update_propagates_user_setup_failure(monkeypatch):
+    _stub_installers(monkeypatch, failing="install_user_setup")
+    result = CliRunner().invoke(main, ["update"])
+    assert result.exit_code == 1
+    assert "install_user_setup result" in result.output
 
 
 def test_install_list_does_not_wire(monkeypatch):

@@ -94,6 +94,7 @@ def fake_source_hooks(tmp_path, monkeypatch):
         "auggie-flag-clear.sh",
         "reject-workspace-writes.sh",
         "sc-recommend-phase0.sh",
+        "pragmatic-subagent.js",
     ]:
         (scripts_pkg / name).write_text("#!/usr/bin/env bash\nexit 0\n")
     (legacy_scripts_pkg / "session-init.sh").write_text("#!/usr/bin/env bash\nexit 0\n")

@@ -12,11 +12,14 @@ assigned_to: "[team-name]"
 autogen: false
 autogen_method: ""
 coordinator: ""
+parent_doc: ""
 parent_task: ""
 depends_on: []
 related_docs:
 - [path/to/related-guide-1.md]
 - [path/to/related-guide-2.md]
+related_prd: ""
+related_tdd: ""
 tags:
 - operational-guide
 - tag2
@@ -74,15 +77,14 @@ task_type: "static"
 ## Completeness Status
 
 **Completeness Checklist:**
-
 - [ ] Section 1: Overview — **Status**
 - [ ] Section 2: Prerequisites — **Status**
 - [ ] Section 3-5: Phases — **Status**
 - [ ] Section 6: Verification — **Status**
 - [ ] Section 7: Troubleshooting — **Status**
-- [ ] Section 8: Maintenance & Operations — **Status**
+- [ ] Section 8: Maintenance & Operations — **Status** *(Standard/Heavyweight only)*
 - [ ] Section 9: Quick Reference — **Status**
-- [ ] Section 10: Next Steps — **Status**
+- [ ] Section 10: Next Steps — **Status** *(Standard/Heavyweight only)*
 - [ ] All links verified — **Status**
 - [ ] Reviewed by [team] — **Status**
 
@@ -139,7 +141,6 @@ task_type: "static"
 ### 1.3 What You Will Accomplish
 
 By the end of this guide you will have:
-
 - [Outcome 1]
 - [Outcome 2]
 - [Outcome 3]
@@ -201,7 +202,6 @@ By the end of this guide you will have:
 ```
 
 > **Expected Output:**
->
 > ```
 > [What the user should see if the command succeeds]
 > ```
@@ -215,6 +215,8 @@ By the end of this guide you will have:
 ```
 
 > **Note:** [Any important caveats or tips for this step.]
+
+> **Rollback:** [Include rollback commands for any step that modifies data, deletes resources, or changes configuration. Omit for read-only or additive steps.]
 
 ### Step 1.3: Verify Phase 1 *(inline verification checkpoint)*
 
@@ -369,6 +371,76 @@ TEMPLATE GUIDANCE — Adding More Phases:
 ### 8.4 Snapshot / Rollback Strategy *(if applicable)*
 
 [How to create snapshots before changes, and how to roll back if needed.]
+
+### 8.5 Monitoring & Alerting *(if applicable)*
+
+<!--
+TEMPLATE GUIDANCE — Monitoring & Alerting:
+Map each Troubleshooting entry (S7) to a monitoring check — unmonitored failure modes are invisible failures.
+-->
+
+| Check | Endpoint / Metric | Threshold | Alert Channel |
+|-------|-------------------|-----------|---------------|
+| [e.g., Service health] | `[health check URL or metric name]` | [e.g., 3 consecutive failures] | [e.g., PagerDuty, Slack #ops-alerts] |
+| [e.g., Disk usage] | `[metric name]` | [e.g., >80%] | [e.g., Email] |
+
+**Dashboard links:**
+- [Dashboard name]: `[URL]`
+
+**Log aggregation:**
+- [Log source]: `[location or command to access]`
+
+### 8.6 Security Operations *(if applicable)*
+
+<!--
+TEMPLATE GUIDANCE — Security Operations:
+Document how secrets are injected, rotated, and audited. Reference the project's security standards if available.
+-->
+
+**Secrets management:**
+- Injection method: [e.g., HashiCorp Vault, environment variables, K8s secrets]
+- Storage location: [e.g., vault path, .env file reference]
+
+**Credential rotation:**
+
+| Credential | Rotation Frequency | Procedure |
+|-----------|-------------------|------------|
+| [e.g., Database password] | [e.g., 90 days] | [Brief procedure or link] |
+| [e.g., API keys] | [e.g., On compromise] | [Brief procedure or link] |
+
+**Service account audit:**
+- [Service account]: [permissions granted] — [justification for access level]
+
+**Network access scope:**
+- [Service/port]: [allowed sources] — [why this access is needed]
+
+### 8.7 Emergency Procedures *(if applicable)*
+
+<!--
+TEMPLATE GUIDANCE — Emergency Procedures:
+This section must be usable by an on-call operator at 3 AM. Use numbered steps and bold key commands.
+No prose paragraphs. Include this for any guide covering production systems.
+-->
+
+**Emergency contacts:**
+
+| Role | Name | Contact | Escalation Level |
+|------|------|---------|------------------|
+| [e.g., On-call engineer] | [Name] | [Phone/Slack] | L1 |
+| [e.g., Team lead] | [Name] | [Phone/Slack] | L2 |
+| [e.g., VP Engineering] | [Name] | [Phone/Slack] | L3 |
+
+**Emergency shutdown:**
+
+1. **Stop** [service/process]: `[shutdown command]`
+2. **Verify** shutdown: `[verification command]`
+3. **Notify** [team/channel]: [notification method]
+
+**Data preservation:**
+
+1. **Snapshot** current state: `[snapshot command]`
+2. **Export** critical data: `[export command]`
+3. **Verify** backup integrity: `[verification command]`
 
 ---
 
@@ -584,16 +656,15 @@ Use these standardized callout formats throughout the document:
   > **Tip:** Helpful shortcut, best practice, or time-saving suggestion
 -->
 
-> **See also:**
->
-> - [Technical Reference Template](technical_reference_template.md) — For documenting implemented features and systems
-> - [Supplemental Doc Template](supplemental_doc_template.md) — For process standards and reference documents
-> - [PRD Template](prd_template.md) — For product requirements and feature specifications
+<!--
+See also:
+- Technical Reference Template (technical_reference_template.md) — For documenting implemented features and systems
+- Supplemental Doc Template (supplemental_doc_template.md) — For process standards and reference documents
+- PRD Template (prd_template.md) — For product requirements and feature specifications
 
----
-
-> **Template Version:** 1.0
-> **Template Created:** 2026-03-08
-> **Template Updated:** 2026-03-11
-> **Template Type:** Operational Guide — for installation guides, setup guides, deployment guides, CI/CD pipeline docs, and operational runbooks
-> **Based On:** Analysis of existing project templates (technical_reference_template.md, supplemental_doc_template.md, prd_template.md) and structure analysis of 4 existing operational guides (01-gfxai-installation-guide.md, 02-unreal-gameframeproject-setup-guide.md, 03-pixel-streaming-unified-setup-guide.md, CICD-PIPELINE-AND-DEPLOYMENT-PROCESS.md)
+Template Version: 1.0
+Template Created: 2026-03-08
+Template Updated: 2026-03-11
+Template Type: Operational Guide — for installation guides, setup guides, deployment guides, CI/CD pipeline docs, and operational runbooks
+Based On: Analysis of existing project templates (technical_reference_template.md, supplemental_doc_template.md, prd_template.md) and structure analysis of 4 existing operational guides (01-gfxai-installation-guide.md, 02-unreal-gameframeproject-setup-guide.md, 03-pixel-streaming-unified-setup-guide.md, CICD-PIPELINE-AND-DEPLOYMENT-PROCESS.md)
+-->

@@ -471,7 +471,7 @@ F5. FRONTMATTER UPDATE PROTOCOL
 SECTION G: CONTEXT FOR HEADLESS AGENTS
 ==============================================
 
-G1. Framework context files (`.gfdoc/rules/core/ib_agent_core.md`, `.gfdoc/rules/core/quality_gates.md`, `.gfdoc/rules/core/anti_hallucination_task_completion_rules.md`, `.gfdoc/rules/core/anti_sycophancy.md`, `.gfdoc/rules/core/file_conventions.md`) are NOT automatically loaded into headless worker agents.
+G1. Framework context files (`~/.claude/rules/core/ib_agent_core.md`, `~/.claude/rules/core/quality_gates.md`, `~/.claude/rules/core/anti_hallucination_task_completion_rules.md`, `~/.claude/rules/core/anti_sycophancy.md`, `~/.claude/rules/core/file_conventions.md`) are NOT automatically loaded into headless worker agents.
 
 G2. If an action requires following conventions from these files, either:
    - Reference the specific rule file in that checklist item, OR
@@ -621,7 +621,7 @@ I13. POST-COMPLETION ACTIONS (final task items only)
    - Orchestrator info about handoff lives in ib_agent_core.md, not in individual task files
 
 I14. ANTI-HALLUCINATION CONTROLS INTEGRATION
-   - Every task MUST reference the anti-hallucination requirements from `.gfdoc/rules/core/anti_hallucination_task_completion_rules.md`
+   - Every task MUST reference the anti-hallucination requirements from `~/.claude/rules/core/anti_hallucination_task_completion_rules.md`
    - Include evidence table requirements for any task involving technical claims
    - Add explicit warnings against fabricating information at all content creation points
    - Require agents to document negative evidence when verification fails
@@ -1299,7 +1299,7 @@ YOU MUST complete EVERY item in this checklist IN ORDER. DO NOT skip ahead. Mark
 
 ### Context Loading Note (IMPORTANT)
 
-**Framework context files** (`.gfdoc/rules/core/ib_agent_core.md`, `.gfdoc/rules/core/quality_gates.md`, `.gfdoc/rules/core/anti_hallucination_task_completion_rules.md`, `.gfdoc/rules/core/anti_sycophancy.md`, `.gfdoc/rules/core/file_conventions.md`) are NOT automatically loaded into headless worker agents. If an action requires following conventions from these files (e.g., file naming from `.gfdoc/rules/core/file_conventions.md`), either:
+**Framework context files** (`~/.claude/rules/core/ib_agent_core.md`, `~/.claude/rules/core/quality_gates.md`, `~/.claude/rules/core/anti_hallucination_task_completion_rules.md`, `~/.claude/rules/core/anti_sycophancy.md`, `~/.claude/rules/core/file_conventions.md`) are NOT automatically loaded into headless worker agents. If an action requires following conventions from these files (e.g., file naming from `~/.claude/rules/core/file_conventions.md`), either:
 1. Reference the specific rule file in that checklist item, OR
 2. Reference a template that already incorporates those conventions (preferred)
 

@@ -80,6 +80,7 @@ def install(target: str, force: bool, list_only: bool):
         list_available_templates,
         list_installed_templates,
     )
+    from .install_user_setup import install_user_setup
 
     # List only mode
     if list_only:
@@ -206,6 +207,15 @@ def install(target: str, force: bool, list_only: bool):
 
     templates_success, templates_message = install_templates(force=force)
     click.echo(templates_message)
+    click.echo()
+
+    # Step 7: Shared user setup: rules (never auto-loaded), output styles,
+    # settings defaults for keys the user has not set, and Orca's skills.
+    click.echo("📦 Installing rules, output styles, settings defaults, Orca skills...")
+    click.echo()
+
+    setup_success, setup_message = install_user_setup(force=force)
+    click.echo(setup_message)
 
     if (
         not core_success
@@ -215,6 +225,7 @@ def install(target: str, force: bool, list_only: bool):
         or not cc_success
         or not hooks_success
         or not templates_success
+        or not setup_success
     ):
         sys.exit(1)
 
@@ -287,6 +298,8 @@ def update(target: str):
     from .install_core import install_core_files
     from .install_hooks import install_hooks
     from .install_skills import install_all_skills
+    from .install_templates import install_templates
+    from .install_user_setup import install_user_setup
 
     click.echo(f"🔄 Updating SuperClaude to version {__version__}...")
     click.echo()
@@ -324,6 +337,16 @@ def update(target: str):
     click.echo("📦 Updating hooks...")
     hook_success, hook_message = install_hooks(force=True)
     click.echo(hook_message)
+    click.echo()
+
+    click.echo("📦 Updating templates...")
+    templates_success, templates_message = install_templates(force=True)
+    click.echo(templates_message)
+    click.echo()
+
+    click.echo("📦 Updating rules, output styles, settings defaults, Orca skills...")
+    setup_success, setup_message = install_user_setup(force=True)
+    click.echo(setup_message)
 
     if not all(
         (
@@ -333,6 +356,8 @@ def update(target: str):
             skill_success,
             cc_success,
             hook_success,
+            templates_success,
+            setup_success,
         )
     ):
         sys.exit(1)
