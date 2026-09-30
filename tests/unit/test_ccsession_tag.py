@@ -1048,3 +1048,18 @@ def test_label_with_saved_transcript_resumes(tmp_path: Path) -> None:
     args = json.loads(stdout.strip().splitlines()[-1])
     assert args[-2:] == ["--resume", "abc12345-0000-0000-0000-000000000000"]
     assert label_kept
+
+
+def test_private_addon_profiles_never_download_model_data(
+    tmp_path: Path, monkeypatch
+) -> None:
+    server = _DataServer(_bundled())
+    monkeypatch.setenv("CCSESSION_MODELS_REFRESH", "1")
+    monkeypatch.setenv("CCSESSION_MODELS_URL", server.url)
+    try:
+        assert _addon_launch(tmp_path, "--profile", "local-test").returncode == 0
+        assert server.statuses == []
+        assert _addon_launch(tmp_path, "--profile", "claude").returncode == 0
+        assert server.statuses == [200]
+    finally:
+        server.close()

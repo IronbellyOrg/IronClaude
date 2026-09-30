@@ -26,7 +26,8 @@
 #
 # Profiles and the shim's model list come from ccsession-models.json. Every
 # launch checks IronClaude for a newer copy (at most ~2 seconds, cached in
-# ~/.cache/ccsession/). Set CCSESSION_MODELS_REFRESH=0 to skip the check.
+# ~/.cache/ccsession/). Private add-on profiles skip it; set
+# CCSESSION_MODELS_REFRESH=0 to skip it everywhere.
 #
 # The wrapper always runs claude with --dangerously-skip-permissions.
 # Override by setting CC_CLAUDE_FLAGS in your shell env.
@@ -580,7 +581,8 @@ fi
 # Pick up the latest profiles and model list before this session starts.
 # A conditional request: "not modified" when nothing changed; capped at ~2s
 # and never fatal, so offline launches use the cached or bundled copy.
-if [ "${CCSESSION_MODELS_REFRESH:-1}" != 0 ]; then
+# Private add-on profiles (profiles.d) never use this data, so they skip it.
+if [ "${CCSESSION_MODELS_REFRESH:-1}" != 0 ] && [ "$CCSESSION_EXT_PROFILE" != 1 ]; then
   python3 "$CCSESSION_MODELS" refresh --wait "${CCSESSION_MODELS_WAIT:-2}" || true
 fi
 
