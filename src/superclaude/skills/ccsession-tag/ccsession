@@ -295,7 +295,7 @@ apply_profile() {
     # Built-in profiles come from the model data file (validated, never run).
     if ! _resolved=$(python3 "$CCSESSION_MODELS" resolve "$PROFILE"); then
       echo "ccsession: unknown profile '$PROFILE'" >&2
-      echo "Valid profiles: $(python3 "$CCSESSION_MODELS" profiles | cut -f1 | paste -sd, - | sed 's/,/, /g'), plus any in $CCSESSION_PROFILES_DIR" >&2
+      echo "Valid profiles: $(python3 "$CCSESSION_MODELS" profiles | cut -d$'\x1f' -f1 | paste -sd, - | sed 's/,/, /g'), plus any in $CCSESSION_PROFILES_DIR" >&2
       exit 2
     fi
     while IFS='=' read -r _key _value; do
@@ -525,7 +525,7 @@ list_sessions() {
 show_help() {
   awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
   echo "Profiles (use --shim where marked):"
-  python3 "$CCSESSION_MODELS" profiles | while IFS=$'\t' read -r _name _aliases _label _shim; do
+  python3 "$CCSESSION_MODELS" profiles | while IFS=$'\x1f' read -r _name _aliases _label _shim; do
     _flag=""; [ "$_shim" = 1 ] && _flag=" --shim"
     printf '  ccsession --profile %s%s\n                            %s%s\n' \
       "$_name" "$_flag" "$_label" "${_aliases:+ (also: $_aliases)}"

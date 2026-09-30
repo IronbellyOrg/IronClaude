@@ -979,8 +979,10 @@ def test_help_and_unknown_profile_list_data_profiles(tmp_path: Path) -> None:
         capture_output=True,
         check=True,
     ).stdout
-    for name in _bundled()["profiles"]:
-        assert f"--profile {name}" in help_text
+    for name, profile in _bundled()["profiles"].items():
+        flag = " --shim" if profile["requires_shim"] else ""
+        assert f"--profile {name}{flag}\n" in help_text
+        assert profile["label"] in help_text
     env = os.environ.copy()
     env["HOME"] = str(tmp_path)
     result = subprocess.run(

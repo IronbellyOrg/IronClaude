@@ -15,7 +15,7 @@ Commands (used by the ccsession script):
   refresh [--wait SECONDS]  fetch a newer copy if one exists; prints one line
                             when the active data changed; never fails
   resolve PROFILE           print a profile's settings as KEY=value lines
-  profiles                  print "name<TAB>aliases<TAB>label" per profile
+  profiles                  print name, aliases, label, needs-shim per profile
   status                    print where the active data came from
 """
 
@@ -247,7 +247,10 @@ def main(argv) -> int:
         data, _ = load()
         for name, p in data["profiles"].items():
             aliases = ",".join(p.get("aliases", []))
-            print(f"{name}\t{aliases}\t{p.get('label', '')}\t{int(p['requires_shim'])}")
+            # \x1f (unit separator) cannot appear in a valid label, and unlike
+            # a tab, bash `read` keeps empty fields between two of them.
+            fields = (name, aliases, p.get("label", ""), str(int(p["requires_shim"])))
+            print("\x1f".join(fields))
         return 0
     if command == "status":
         data, source = load()
