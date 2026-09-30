@@ -50,6 +50,10 @@ def test_plan_uses_template_00():
 
 def test_plugin_mirror_matches_src():
     plugin = _REPO / "plugins" / "superclaude" / "skills" / "sc-workflow-protocol"
-    rels = [str(p.relative_to(_SKILL)) for p in _SKILL.rglob("*.md")]
-    _, mismatch, errors = filecmp.cmpfiles(_SKILL, plugin, rels, shallow=False)
+    src_rels = {str(p.relative_to(_SKILL)) for p in _SKILL.rglob("*.md")}
+    plugin_rels = {str(p.relative_to(plugin)) for p in plugin.rglob("*.md")}
+    assert src_rels == plugin_rels, src_rels ^ plugin_rels
+    _, mismatch, errors = filecmp.cmpfiles(
+        _SKILL, plugin, sorted(src_rels), shallow=False
+    )
     assert not mismatch and not errors, mismatch + errors
