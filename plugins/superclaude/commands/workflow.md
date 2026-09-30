@@ -2,9 +2,9 @@
 name: workflow
 description: "Generate a phased implementation plan from a PRD, spec, or feature prompt"
 category: orchestration
-complexity: advanced
-mcp-servers: [context7, playwright, morphllm, serena]
-personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
+complexity: standard
+mcp-servers: []
+argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--output DIR] [--handoff none|design|implement|tasklist]"
 ---
 
 # /sc:workflow — Implementation Plan Generator
@@ -79,29 +79,4 @@ The full behavioral specification is in `src/superclaude/skills/sc-workflow-prot
 
 ## CRITICAL BOUNDARIES
 
-- Execute actual implementation tasks beyond workflow planning and strategy
-- Override established development processes without proper analysis and validation
-- Generate workflows without comprehensive requirement analysis and dependency mapping
-
-## CRITICAL BOUNDARIES
-
-**STOP AFTER PLAN CREATION**
-
-This command produces an IMPLEMENTATION PLAN ONLY - no code execution.
-
-**Explicitly Will NOT**:
-
-- Execute any implementation tasks
-- Write or modify code
-- Create files (except the workflow plan document)
-- Make architectural changes
-- Run builds or tests
-
-**Output**: Workflow plan document (`claudedocs/workflow_*.md`) containing:
-
-- Implementation phases
-- Task dependencies
-- Execution order
-- Checkpoints and validation steps
-
-**Next Step**: After workflow completes, use `/sc:implement` to execute the plan step by step.
+Plan only. Next: `/sc:implement @plan.md` or `/sc:tasklist` on a roadmap.

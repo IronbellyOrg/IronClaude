@@ -97,8 +97,9 @@
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--strategy` | Workflow approach | `systematic`, `agile`, `enterprise` |
-| `--depth` | Analysis depth | `shallow`, `normal`, `deep` |
-| `--parallel` | Parallel coordination | Boolean |
+| `--depth` | Analysis depth | `quick`, `standard`, `deep` |
+| `--output` | Plan output directory | Path under `.dev/workflow/` |
+| `--handoff` | Next command | `none`, `design`, `implement`, `tasklist` |
 
 ### Troubleshoot Command Flags (`/sc:troubleshoot`)
 
