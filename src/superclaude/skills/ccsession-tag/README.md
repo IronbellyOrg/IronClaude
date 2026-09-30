@@ -152,7 +152,7 @@ ccsession notes --profile gpt --shim
 | `qwen` | Qwen 3.8 Max | 1,000,000 | yes |
 | `glm` | GLM 5.3 | 1,000,000 | yes |
 
-Older names `1mm` and `500k` still work and mean `claude` and `grok`. `ccsession --help` always shows the current list. With `--shim`, ccsession saves the complete curated model list before
+`ccsession --help` always shows the current list. With `--shim`, ccsession saves the complete curated model list before
 Claude Code starts, so every profile shows the same gateway models in `/model`.
 
 To add your own without editing ccsession, put a file in

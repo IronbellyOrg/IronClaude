@@ -45,7 +45,7 @@ _MINIMAL = {
     "version": "0",
     "profiles": {
         "claude": {
-            "aliases": ["1mm"],
+            "aliases": [],
             "model": "claude-opus-5-5[1m]",
             "context": 1000000,
             "compact_window": 1000000,

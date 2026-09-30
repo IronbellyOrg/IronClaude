@@ -78,18 +78,14 @@ print(json.dumps({
 def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
     expected = {
         "claude": ("claude-opus-5-5[1m]", "1000000", "1000000", ""),
-        "1mm": ("claude-opus-5-5[1m]", "1000000", "1000000", ""),
         "gpt": ("gpt-6.1-sol", "850000", "850000", "gpt-6.1-sol"),
         "grok": ("grok-4.7", "500000", "500000", "grok-4.7"),
-        "500k": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "muse": ("muse-spark-1.3", "950000", "950000", "muse-spark-1.3"),
         "qwen": ("Qwen3.8-max", "1000000", "1000000", "Qwen3.8-max"),
         "glm": ("glm-5.3", "1000000", "1000000", "glm-5.3"),
     }
     for profile, wanted in expected.items():
-        result = _profile_result(
-            tmp_path, profile, shim=profile not in {"claude", "1mm"}
-        )
+        result = _profile_result(tmp_path, profile, shim=profile != "claude")
         assert tuple(result.values()) == wanted
 
 
@@ -391,7 +387,16 @@ def test_package_contains_no_personal_account_routing() -> None:
 def test_renamed_profiles_are_rejected(tmp_path: Path) -> None:
     env = os.environ.copy()
     env["HOME"] = str(tmp_path)
-    for profile in ("gpt1", "6sol", "6astra", "5.6sol", "6.1sol", "372k"):
+    for profile in (
+        "gpt1",
+        "6sol",
+        "6astra",
+        "5.6sol",
+        "6.1sol",
+        "372k",
+        "1mm",
+        "500k",
+    ):
         result = subprocess.run(
             [str(SKILL_DIR / "ccsession"), "--profile", profile],
             env=env,
