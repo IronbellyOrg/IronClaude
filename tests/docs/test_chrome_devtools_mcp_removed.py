@@ -18,5 +18,7 @@ def test_chrome_devtools_mcp_docs_removed_playwright_remains():
     ]
     still_present = [str(p.relative_to(_REPO)) for p in gone if p.exists()]
     missing = [str(p.relative_to(_REPO)) for p in stay if not p.exists()]
-    assert still_present == [], f"chrome-devtools MCP docs still shipped: {still_present}"
+    assert still_present == [], (
+        f"chrome-devtools MCP docs still shipped: {still_present}"
+    )
     assert missing == [], f"Playwright MCP files missing: {missing}"

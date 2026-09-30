@@ -33,6 +33,7 @@ def test_updated_mcp_registry_commands_are_pinned_and_stable():
         == "npm install -g @augmentcode/auggie@0.36.0"
     )
 
+
 def test_removed_mcp_servers_are_not_in_registry():
     for name in ("sequential-thinking", "magic", "chrome-devtools"):
         assert name not in install_mcp.MCP_SERVERS
