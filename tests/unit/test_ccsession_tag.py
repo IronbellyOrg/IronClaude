@@ -16,8 +16,17 @@ import time
 import urllib.request
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "ccsession-tag"
+
+
+@pytest.fixture(autouse=True)
+def _offline_model_data(monkeypatch, tmp_path_factory):
+    """Keep tests off the network and off the real model-data cache."""
+    monkeypatch.setenv("CCSESSION_MODELS_REFRESH", "0")
+    monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path_factory.mktemp("cache")))
 
 
 def _profile_result(tmp_path: Path, profile: str, shim: bool = True) -> dict[str, str]:
@@ -42,7 +51,7 @@ print(json.dumps({
     fake_curl = tmp_path / "curl"
     fake_curl.write_text(
         '#!/bin/sh\nprintf \'{"service":"ccsession-gateway-alias-proxy",'
-        '"upstream":"http://gateway.example:4000/cli","port":4555}\'\n'
+        '"upstream":"http://gateway.example:4000/cli","port":4555,"model_data":"t"}\'\n'
     )
     fake_curl.chmod(fake_curl.stat().st_mode | stat.S_IXUSR)
 
@@ -407,6 +416,7 @@ def test_profile_warms_complete_gateway_cache_before_claude_starts(
                     "service": "ccsession-gateway-alias-proxy",
                     "upstream": upstream,
                     "port": self.server.server_port,
+                    "model_data": "t",
                 }
             else:
                 payload = {
@@ -493,6 +503,7 @@ def test_profile_keeps_same_shim_cache_when_warmup_fails(tmp_path: Path) -> None
                         "service": "ccsession-gateway-alias-proxy",
                         "upstream": upstream,
                         "port": self.server.server_port,
+                        "model_data": "t",
                     }
                 ).encode()
                 self.send_response(200)
@@ -771,6 +782,9 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
             "service": "ccsession-gateway-alias-proxy",
             "upstream": f"http://127.0.0.1:{upstream.server_port}",
             "port": proxy_port,
+            "model_data": json.loads((SKILL_DIR / "ccsession-models.json").read_text())[
+                "version"
+            ],
         }
         assert Upstream.seen_encoding == "identity"
         assert models[0]["id"] == "claude-gw-gpt-6-astra[1m]"
@@ -847,3 +861,134 @@ def test_packaged_skill_installer_copies_the_shim(tmp_path: Path) -> None:
     assert (installed / "ccsession").exists()
     assert (installed / "local-gateway-alias-proxy.py").exists()
     assert not (installed / "PLAN-context-save-load.md").exists()
+
+
+MODELS = SKILL_DIR / "models.py"
+
+
+def _bundled() -> dict:
+    return json.loads((SKILL_DIR / "ccsession-models.json").read_text())
+
+
+def test_shipped_model_data_is_valid() -> None:
+    """CI gate: a bad data file must never reach master, where every launch reads it."""
+    module = runpy.run_path(str(MODELS), run_name="models_test")
+    assert module["validate"](_bundled()) == ""
+
+
+class _DataServer:
+    """Serves model data with an ETag and honours If-None-Match like GitHub."""
+
+    def __init__(self, payload: dict, delay: float = 0.0) -> None:
+        self.payload = payload
+        self.delay = delay
+        self.statuses: list[int] = []
+        owner = self
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                time.sleep(owner.delay)
+                body = json.dumps(owner.payload).encode()
+                etag = f'"{hash(body)}"'
+                if self.headers.get("If-None-Match") == etag:
+                    owner.statuses.append(304)
+                    self.send_response(304)
+                    self.end_headers()
+                    return
+                owner.statuses.append(200)
+                self.send_response(200)
+                self.send_header("ETag", etag)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *_args: object) -> None:
+                pass
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.server.server_port}/models.json"
+
+    def close(self) -> None:
+        self.server.shutdown()
+
+
+def _models(tmp_path: Path, url: str, *args: str) -> subprocess.CompletedProcess:
+    env = os.environ.copy()
+    env.update({"CCSESSION_MODELS_URL": url, "XDG_CACHE_HOME": str(tmp_path)})
+    return subprocess.run(
+        [sys.executable, str(MODELS), *args],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+        timeout=30,
+    )
+
+
+def test_refresh_downloads_then_uses_not_modified(tmp_path: Path) -> None:
+    newer = _bundled()
+    newer["version"] = "9999-01-01.1"
+    newer["profiles"]["newone"] = dict(newer["profiles"]["claude"], aliases=[])
+    newer["picker"]["pinned"] = newer["picker"]["pinned"][1:]
+    server = _DataServer(newer)
+    try:
+        first = _models(tmp_path, server.url, "refresh")
+        assert "model list updated to 9999-01-01.1" in first.stdout
+        assert "+profile newone" in first.stdout
+        second = _models(tmp_path, server.url, "refresh")
+        assert second.stdout == ""
+        assert server.statuses == [200, 304]
+        resolved = _models(tmp_path, server.url, "resolve", "newone").stdout
+        assert "PROFILE_MODEL=claude-opus-5-5[1m]" in resolved
+    finally:
+        server.close()
+
+
+def test_refresh_rejects_bad_or_older_data(tmp_path: Path) -> None:
+    bad = _bundled()
+    bad["profiles"]["claude"]["model"] = "$(rm -rf ~)"
+    server = _DataServer(bad)
+    try:
+        assert _models(tmp_path, server.url, "refresh").stdout == ""
+        assert not (tmp_path / "ccsession" / "models.json").exists()
+        older = _bundled()
+        older["version"] = "2000-01-01.1"
+        server.payload = older
+        _models(tmp_path, server.url, "refresh")
+        status = _models(tmp_path, server.url, "status").stdout
+        assert f"{_bundled()['version']} (bundled)" in status
+    finally:
+        server.close()
+
+
+def test_refresh_never_waits_past_its_limit(tmp_path: Path) -> None:
+    server = _DataServer(_bundled(), delay=5)
+    try:
+        start = time.monotonic()
+        _models(tmp_path, server.url, "refresh", "--wait", "1")
+        assert time.monotonic() - start < 3
+    finally:
+        server.close()
+
+
+def test_help_and_unknown_profile_list_data_profiles(tmp_path: Path) -> None:
+    help_text = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--help"],
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout
+    for name in _bundled()["profiles"]:
+        assert f"--profile {name}" in help_text
+    env = os.environ.copy()
+    env["HOME"] = str(tmp_path)
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "--profile", "nope"],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "Valid profiles: claude, grok" in result.stderr

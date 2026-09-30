@@ -98,122 +98,28 @@ def is_native(rid):
 
 
 # --- curation: which real models to hide, and how to order what remains ---
-REMOVE = {
-    # User-curated exclusions from the Claude Code model picker.
-    "claude-fable-5",
-    "claude-sonnet-5",
-    "claude-opus-5",
-    "claude-sonnet-4.5",
-    "claude-opus-4-6",
-    "claude-opus",
-    "claude-opus-4.5",
-    "claude-opus-4-1-20250805",
-    "claude-haiku-4-5-20251001",
-    "claude-haiku",
-    "claude-sonnet-4-6",
-    "claude-opus-4-5-20251101",
-    "claude-sonnet-4-5-20250929",
-    "claude-sonnet",
-    "claude-opus-4-7",
-    "claude-opus-4-8",
-    "claude-opus-4.1",
-    "gpt-codex-spark",
-    "gpt-5.3-codex-spark",
-    "gpt-5.4",
-    "codex-auto-review",
-    "gpt-5.4-mini",
-    "gpt-latest",
-    "gpt-5.5",
-    "kimi-k2-thinking",
-    "kimi-k3",
-    "kimi-k3-256k",
-    "kimi-k2.7-code-highspeed",
-    "kimi-k2",
-    "kimi-k2.6",
-    "kimi",
-    "kimi-k2.7-code",
-    "kimi-k2.5",
-    "kimi-latest",
-    "kimi-k2.8",
-    "kimi-k2.8-code",
-    "Qwen-3.7-plus",
-    "Qwen-MiniMax2.5",
-    "Qwen3.7-max",
-    "Qwen-GLM5",
-    "Qwen-Kimi2.5",
-    "glm-5.2",
-    "grok-build-0.1",
-    "grok-imagine-video-1.5",
-    "deepseek-v4-pro",
-    "glm-5.1",
-    "grok-3-mini-fast",
-    "grok-composer-2.5-fast",
-    "grok-4.20-0309-non-reasoning",
-    "grok-4.20-0309-reasoning",
-    "grok-3-mini",
-    "glm-5-turbo",
-    "grok-4.20-multi-agent-0309",
-    "grok-4.3",
-    "grok-4.5",
-    "grok-4.6",
-    "grok-4.7-build-fast",
-    "muse-spark-1.1",
-    "muse-spark-1.2-contributor",
-    "muse-spark-1.3-contributor",
-    # Dead / not served (404).
-    "claude-3-5-haiku-20241022",
-    "claude-3-7-sonnet-20250219",
-    "claude-opus-4-20250514",
-    "claude-sonnet-4-20250514",
-    "llama3.1",
-    "gpt-oss-120b",
-    # Image / video models that are not usable through /v1/messages.
-    "gpt-image-1.5",
-    "gpt-image-2",
-    "grok-imagine-image",
-    "grok-imagine-image-quality",
-    "grok-imagine-video",
-    "grok-imagine-video-1.5-preview",
-    # Reasoning-only models that emit zero visible text at 400 tokens.
-    "MiniMaxAI/MiniMax-M2.5",
-    "deepinfra/MiniMaxAI/MiniMax-M2.5",
-}
+# The lists live in ccsession-models.json (downloaded fresh by ccsession on
+# every launch). They are re-read on every model-list request, so a running
+# shim picks up new data without a restart.
+sys.path.insert(
+    0, os.environ.get("CCSESSION_DIR") or os.path.dirname(os.path.abspath(__file__))
+)
+import models as model_data  # noqa: E402
 
-PINNED = [  # shown first, in exactly this order (real upstream ids)
-    "claude-opus-5-5",
-    "gpt-6-astra",
-    "gpt-6-sol",
-    "gpt-6-luna",
-    "gpt-5.6-sol",
-    "gpt-5.6-luna",
-    "gpt-5.6-terra",
-    "grok-4.7",
-    "muse-spark-1.3",
-    "muse-spark-1.2",
-    "Qwen/Qwen3-Max",
-]
 
-TAIL = [  # shown last, in exactly this order (real upstream ids)
-    "gpt-image-2.5-sunburst",
-    "gpt-image-2.5",
-    "gpt-image-2.5-flare",
-    "grok-imagine-image-2.0",
-]
+def curation():
+    """Return the active picker rules and the data version they came from."""
+    data, _source = model_data.load()
+    picker = data["picker"]
+    return {
+        "remove": set(picker["remove"]),
+        "pinned": picker["pinned"],
+        "tail": picker["tail"],
+        "one_million_context": set(picker["one_million_context"]),
+        "display_overrides": picker["display_overrides"],
+        "version": data["version"],
+    }
 
-ONE_MILLION_CONTEXT = {
-    "glm-5.3",
-    "claude-fable-5-1",
-    "claude-opus-5-5",
-    "gpt-6-astra",
-    "gpt-6-sol",
-    "gpt-6-luna",
-    "gpt-5.6-sol",
-    "gpt-5.6-luna",
-    "gpt-5.6-terra",
-    "muse-spark-1.2",
-    "muse-spark-1.3",
-    "Qwen3.8-max",
-}
 
 FAMILY_ORDER = ["claude", "openai", "moonshot", "qwen", "gemini", "other"]
 
@@ -233,20 +139,6 @@ def family(rid):
     return "other"
 
 
-DISPLAY_OVERRIDES = {  # exact picker labels for the preferred models
-    "claude-opus-5-5": "Claude Opus 5.5",
-    "gpt-6-astra": "GPT 6 Astra",
-    "gpt-5.6-sol": "GPT 5.6 Sol",
-    "gpt-5.6-luna": "GPT 5.6 Luna",
-    "gpt-5.6-terra": "GPT 5.6 Terra",
-    "grok-4.7": "Grok 4.7",
-    "muse-spark-1.3": "Muse Spark 1.3",
-    "muse-spark-1.2": "Muse Spark 1.2",
-    "glm-5.2": "GLM 5.2",
-    "Qwen/Qwen3-Max": "Qwen3 Max",
-    "Qwen3.8-max": "Qwen 3.8 Max",
-    "claude-fable-5-1": "Claude Fable 5.1",
-}
 _ACR = {
     "gpt": "GPT",
     "glm": "GLM",
@@ -293,10 +185,11 @@ _ACR = {
 }
 
 
-def pretty(rid):
+def pretty(rid, overrides=None):
     """Human-friendly picker label derived from the real upstream id."""
-    if rid in DISPLAY_OVERRIDES:
-        return DISPLAY_OVERRIDES[rid]
+    overrides = curation()["display_overrides"] if overrides is None else overrides
+    if rid in overrides:
+        return overrides[rid]
     core = rid.split("/")[-1]  # drop provider path prefixes
     out = []
     for t in re.split(r"[-_]", core):
@@ -313,18 +206,21 @@ def pretty(rid):
 
 
 def transform_models(payload):
-    """Drop REMOVE ids, order pinned/families/tail, alias non-claude ids."""
+    """Drop removed ids, order pinned/families/tail, alias non-claude ids."""
+    rules = curation()
+    remove, pinned, tail_ids = rules["remove"], rules["pinned"], rules["tail"]
+    one_million = rules["one_million_context"]
     data = [m for m in payload.get("data", []) if m.get("id")]
     by_id = {m["id"]: m for m in data}
 
-    ordered = [p for p in PINNED if p in by_id and p not in REMOVE]
-    tail = [t for t in TAIL if t in by_id and t not in REMOVE]
+    ordered = [p for p in pinned if p in by_id and p not in remove]
+    tail = [t for t in tail_ids if t in by_id and t not in remove]
     tail_set = set(tail)
     seen = set(ordered)
     buckets = {f: [] for f in FAMILY_ORDER}
     for m in data:  # preserve upstream order within each family
         rid = m["id"]
-        if rid in REMOVE or rid in seen or rid in tail_set:
+        if rid in remove or rid in seen or rid in tail_set:
             continue
         buckets[family(rid)].append(rid)
         seen.add(rid)
@@ -339,7 +235,7 @@ def transform_models(payload):
             # Claude-named ids route upstream untouched, so they never enter the
             # alias map. Some arrive without a label; give the picker one.
             if not m.get("display_name"):
-                m["display_name"] = pretty(rid)
+                m["display_name"] = pretty(rid, rules["display_overrides"])
         else:
             a = sanitize(rid)
             cand, k = a, 2
@@ -349,11 +245,13 @@ def transform_models(payload):
             used.add(cand)
             new_map[cand] = rid
             m["id"] = cand
-            m["display_name"] = pretty(rid)  # friendly picker label
+            m["display_name"] = pretty(
+                rid, rules["display_overrides"]
+            )  # friendly picker label
         # Claude Code assumes 200K for any gateway model it cannot look up in
         # its own catalog. "[1m]" is the one suffix it honours, and it strips
         # the suffix before sending, so the id upstream stays unchanged.
-        if rid in ONE_MILLION_CONTEXT:
+        if rid in one_million:
             m["id"] = f"{m['id']}[1m]"
         out.append(m)
     payload["data"] = out
@@ -397,6 +295,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 "service": "ccsession-gateway-alias-proxy",
                 "upstream": UPSTREAM,
                 "port": LISTEN[1],
+                "model_data": curation()["version"],
             }
         ).encode()
         self.send_response(200)
