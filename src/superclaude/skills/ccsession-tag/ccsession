@@ -614,8 +614,19 @@ echo "$(pwd)" > "$TOPIC_DIR/.cwd"
 # Exported so the SessionStart hook can pick it up and write the label file.
 export CLAUDE_TOPIC="$TOPIC"
 
+# The label is written when a session starts, but Claude Code only saves the
+# conversation after the first message, and a transcript can be deleted later.
+# Resuming an id with no transcript fails, so start fresh under the same label
+# instead; the SessionStart hook then records the new session id.
 if [ -f "$TOPIC_FILE" ]; then
   SESSION_ID=$(cat "$TOPIC_FILE")
+  if ! compgen -G "$PROJECTS_DIR/*/$SESSION_ID.jsonl" >/dev/null; then
+    echo "[ccsession] Session ${SESSION_ID:0:8} for '$TOPIC' has no saved conversation; starting a new one"
+    rm -f "$TOPIC_FILE"
+  fi
+fi
+
+if [ -f "$TOPIC_FILE" ]; then
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
   if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"

@@ -998,3 +998,53 @@ def test_help_and_unknown_profile_list_data_profiles(tmp_path: Path) -> None:
     )
     assert result.returncode == 2
     assert "Valid profiles: " + ", ".join(_bundled()["profiles"]) in result.stderr
+
+
+def _label_launch(tmp_path: Path, transcript: bool) -> list[str]:
+    home = tmp_path / "home"
+    work = tmp_path / "work"
+    work.mkdir(parents=True)
+    fake = tmp_path / "claude-args"
+    fake.write_text(
+        "#!/usr/bin/env python3\nimport json, sys\nprint(json.dumps(sys.argv[1:]))\n"
+    )
+    fake.chmod(0o700)
+    projects = home / ".claude" / "projects"
+    topics = projects / str(work.resolve()).replace("/", "-") / "topics"
+    topics.mkdir(parents=True)
+    (topics / "demo.txt").write_text("abc12345-0000-0000-0000-000000000000\n")
+    if transcript:
+        other = projects / "-some-project"
+        other.mkdir()
+        (other / "abc12345-0000-0000-0000-000000000000.jsonl").write_text("{}\n")
+    env = os.environ.copy()
+    env.update(
+        {
+            "HOME": str(home),
+            "CLAUDE_BIN": str(fake),
+            "CCSESSION_ENV_FILE": str(tmp_path / "none.env"),
+        }
+    )
+    result = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "demo"],
+        env=env,
+        cwd=work,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return [result.stdout, (topics / "demo.txt").exists()]
+
+
+def test_label_with_missing_transcript_starts_new_session(tmp_path: Path) -> None:
+    stdout, label_kept = _label_launch(tmp_path, transcript=False)
+    assert "has no saved conversation; starting a new one" in stdout
+    assert "--resume" not in json.loads(stdout.strip().splitlines()[-1])
+    assert not label_kept
+
+
+def test_label_with_saved_transcript_resumes(tmp_path: Path) -> None:
+    stdout, label_kept = _label_launch(tmp_path, transcript=True)
+    args = json.loads(stdout.strip().splitlines()[-1])
+    assert args[-2:] == ["--resume", "abc12345-0000-0000-0000-000000000000"]
+    assert label_kept
