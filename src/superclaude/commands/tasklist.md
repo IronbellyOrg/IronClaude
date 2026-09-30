@@ -4,7 +4,7 @@ description: "Generate deterministic, Sprint CLI-compatible tasklist bundles fro
 category: utility
 complexity: high
 allowed-tools: Read, Glob, Grep, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet, Task, Skill
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [analyzer, architect]
 version: "2.0.0"
 ---

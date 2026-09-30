@@ -1,13 +1,13 @@
 ---
 name: sc:troubleshoot-protocol
 description: "Tiered debugging protocol — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in task-builder remediation chain in Tier 3. Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search, mcp__sequential-thinking__sequentialthinking
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
 category: utility
 complexity: advanced
-mcp-servers: [auggie, serena, context7, tavily, sequential]
+mcp-servers: [auggie, serena, context7, tavily]
 personas: [analyzer, performance, security, qa, refactorer, devops]
 -->
 
@@ -141,7 +141,7 @@ depth: <quick|standard|deep|auto>
 scope: <path|symbol|none>
 fix_authorized: <bool>
 no_escalate: <bool>
-mcps_available: <auggie|serena|context7|tavily|sequential|none>
+mcps_available: <auggie|serena|context7|tavily|none>
 output_dir: <abs-path>
 caller: <name|none>
 context_path: <abs-path|none>
@@ -572,7 +572,6 @@ return_contract_path: <abs-path|none>
 | `mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview` | ✓ | ✓ | — |
 | `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |
 | `mcp__tavily__tavily_search` | — | ✓ rate-limited (≤2 queries) | — |
-| `mcp__sequential-thinking__sequentialthinking` | — | ✓ for synthesis | — |
 | `Task` (agent spawn) | ✓ (root-cause-analyst + confidence-calibrator (C-rule structural assertions via `assertions_path`); Wave 1.6: 2 parallel audit branches A/B + 1 orchestrator synthesis) | ✓ (2-4 hypothesis agents in parallel + per-card confidence-calibrator + evidence-validator at Wave 5 (A-rule structural assertions)) | ✓ (self-review for post-exec) |
 | `Skill` | — | ✓ (`sc:adversarial-protocol`) | ✓ (`task-builder`, `/sc:reflect`) |
 | `Read` / `Grep` / `Glob` | ✓ (Wave 1.6 Grep/Glob fallback when auggie unavailable) | ✓ | — |

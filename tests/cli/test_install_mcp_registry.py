@@ -10,7 +10,6 @@ from superclaude.cli import install_mcp
 
 def test_updated_mcp_registry_commands_are_pinned_and_stable():
     expected = {
-        "sequential-thinking": "npx -y @modelcontextprotocol/server-sequential-thinking@2026.8.31",
         "serena": (
             "uvx --from serena-agent==1.7.0 serena start-mcp-server "
             "--context claude-code --project-from-cwd "
@@ -34,6 +33,10 @@ def test_updated_mcp_registry_commands_are_pinned_and_stable():
         == "npm install -g @augmentcode/auggie@0.36.0"
     )
 
+def test_removed_mcp_servers_are_not_in_registry():
+    for name in ("sequential-thinking", "magic", "chrome-devtools"):
+        assert name not in install_mcp.MCP_SERVERS
+
 
 def test_distributable_mcp_templates_match_pinned_registry_commands():
     root = Path(__file__).resolve().parents[2]
@@ -52,15 +55,10 @@ def test_distributable_mcp_templates_match_pinned_registry_commands():
             "false",
         ],
         "morphllm.json": ["-y", "@morphllm/morphmcp"],
-        "sequential.json": [
-            "-y",
-            "@modelcontextprotocol/server-sequential-thinking@2026.8.31",
-        ],
     }
     server_names = {
         "serena.json": "serena",
         "morphllm.json": "morphllm-fast-apply",
-        "sequential.json": "sequential-thinking",
     }
 
     for base in (

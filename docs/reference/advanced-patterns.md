@@ -42,12 +42,12 @@
 ```bash
 # Comprehensive frontend development
 @agent-frontend-architect "design component architecture"
-/sc:implement "accessible React components" --magic
+/sc:implement "accessible React components"
 @agent-quality-engineer "review accessibility compliance"
 
 # Context layering:
 # - Frontend patterns guide structure
-# - Magic MCP may provide UI components (if configured)
+# - Native UI components with accessibility
 # - Quality context ensures standards
 ```
 
@@ -155,8 +155,8 @@
 
 ```bash
 # Selective MCP usage
-/sc:implement "React component" --magic --c7
-# Only Magic and Context7 MCP
+/sc:implement "React component" --c7
+# Context7 MCP for framework docs
 
 # Disable all MCP
 /sc:implement "simple function" --no-mcp

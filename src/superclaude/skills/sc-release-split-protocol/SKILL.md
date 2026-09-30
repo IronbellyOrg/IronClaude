@@ -10,7 +10,7 @@ argument-hint: "<spec-file-path> [--output dir] [--depth quick|standard|deep] [-
 <!-- Extended metadata (for documentation, not parsed):
 category: planning
 complexity: advanced
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, scribe]
 version: 1.0.0
 -->

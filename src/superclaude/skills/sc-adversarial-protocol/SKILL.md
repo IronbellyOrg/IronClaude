@@ -9,7 +9,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, scribe]
 -->
 
@@ -487,11 +487,11 @@ return_contract:
 
 | Server | Usage | Steps |
 |--------|-------|-------|
-| Sequential | Debate scoring, convergence analysis, refactoring plan logic | Steps 2-4 |
+| Native reasoning | Debate scoring, convergence analysis, refactoring plan logic | Steps 2-4 |
 | Serena | Memory persistence of adversarial outcomes | Step 5 |
 | Context7 | Domain pattern validation during merge | Step 5 |
 
-**Circuit breaker**: If Sequential unavailable, fall back to native Claude reasoning with depth reduction (deep → standard, standard → quick).
+**Circuit breaker**: Use native Claude reasoning with depth reduction (deep → standard, standard → quick) if analysis depth exceeds budget.
 
 ## Compliance Tier Classification
 
@@ -2235,14 +2235,10 @@ mode_b_generation:
 
 ```yaml
 mcp_integration:
-  sequential:
+  native_reasoning:
     usage: "Debate scoring, convergence analysis, refactoring plan logic"
     steps: "Steps 2-4"
-    circuit_breaker:
-      failure_threshold: 3
-      timeout: "30s"
-      fallback: "Native Claude reasoning with depth reduction"
-      depth_reduction: "deep → standard, standard → quick"
+    depth_reduction: "deep → standard, standard → quick"
 
   serena:
     usage: "Memory persistence of adversarial outcomes"
@@ -2278,7 +2274,7 @@ framework_registration:
     entry: |
       **`/sc:adversarial [options]`** — Structured adversarial debate, comparison, and merge pipeline (wave-enabled, complex profile)
       - **Auto-Persona**: Architect, Analyzer, Scribe
-      - **MCP**: Sequential (debate scoring), Serena (persistence), Context7 (validation)
+      - **MCP**: Serena (persistence), Context7 (validation); native reasoning for debate scoring
       - **Tools**: [Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task]
 
   orchestrator_md:
@@ -2286,15 +2282,15 @@ framework_registration:
       pattern: "adversarial debate"
       complexity: "complex"
       domain: "analysis"
-      auto_activates: "architect + analyzer personas, --ultrathink, Sequential + Serena"
+      auto_activates: "architect + analyzer personas, --ultrathink, Serena"
       confidence: "95%"
 
     additional_entries:
       - pattern: "compare variants"
-        auto_activates: "analyzer persona, --think-hard, Sequential"
+        auto_activates: "analyzer persona, --think-hard"
         confidence: "90%"
       - pattern: "merge best of"
-        auto_activates: "architect persona, --think, Sequential"
+        auto_activates: "architect persona, --think"
         confidence: "85%"
 ```
 

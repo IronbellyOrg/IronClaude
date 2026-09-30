@@ -12,7 +12,7 @@ argument-hint: "<topic> [--proposals N] [--depth quick|standard|deep] [--strateg
 <!-- Extended metadata (for documentation, not parsed):
 category: orchestration
 complexity: advanced
-mcp-servers: [sequential, serena, auggie-mcp, tavily]
+mcp-servers: [serena, auggie-mcp, tavily]
 personas: [architect, analyzer, scribe]
 version: 2.0.0
 spec: .dev/eval-workspaces/sc-brainstorm/SPEC.md

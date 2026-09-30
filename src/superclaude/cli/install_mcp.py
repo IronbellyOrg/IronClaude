@@ -33,28 +33,12 @@ TAVILY_MCP_VERSION = "0.2.22"
 # Individual MCP Server Registry (legacy, for users who prefer individual servers)
 # Adapted from commit d4a17fc with modern transport configuration
 MCP_SERVERS = {
-    "sequential-thinking": {
-        "name": "sequential-thinking",
-        "description": "Multi-step problem solving and systematic analysis",
-        "transport": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-sequential-thinking@2026.8.31",
-        "required": False,
-    },
     "context7": {
         "name": "context7",
         "description": "Official library documentation and code examples",
         "transport": "stdio",
         "command": "npx -y @upstash/context7-mcp",
         "required": False,
-    },
-    "magic": {
-        "name": "magic",
-        "description": "Modern UI component generation and design systems",
-        "transport": "stdio",
-        "command": "npx -y @21st-dev/magic",
-        "required": False,
-        "api_key_env": "TWENTYFIRST_API_KEY",
-        "api_key_description": "21st.dev API key for UI component generation",
     },
     "playwright": {
         "name": "playwright",
@@ -88,13 +72,6 @@ MCP_SERVERS = {
         "api_key_env": "TAVILY_API_KEY",
         "api_key_description": "Tavily API key for web search (get from https://app.tavily.com)",
         "default_parameters": {"search_depth": "basic", "max_results": 10},
-    },
-    "chrome-devtools": {
-        "name": "chrome-devtools",
-        "description": "Chrome DevTools debugging and performance analysis",
-        "transport": "stdio",
-        "command": "npx -y chrome-devtools-mcp@latest",
-        "required": False,
     },
     "auggie": {
         "name": "auggie",

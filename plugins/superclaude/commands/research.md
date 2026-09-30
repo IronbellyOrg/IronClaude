@@ -3,7 +3,7 @@ name: research
 description: Deep web research with adaptive planning and intelligent search
 category: command
 complexity: advanced
-mcp-servers: [tavily, sequential, playwright, serena]
+mcp-servers: [tavily, playwright, serena]
 personas: [deep-research-agent]
 ---
 
@@ -21,7 +21,7 @@ personas: [deep-research-agent]
 
 ## Context Trigger Pattern
 
-```
+```text
 /sc:research "[query]" [--depth quick|standard|deep|exhaustive] [--strategy planning|intent|unified]
 ```
 
@@ -90,9 +90,11 @@ personas: [deep-research-agent]
 - **Deep**: Comprehensive search, 3-4 hops, detailed analysis
 - **Exhaustive**: Maximum depth, 5 hops, complete investigation
 
+Per-tier `search_depth`/`extract_depth` and map/crawl selection are defined by the research engine — see RESEARCH_CONFIG.md Depth Profiles.
+
 ## MCP Integration
 
-- **Tavily**: Primary search and extraction engine
+- **Tavily**: Primary search, extraction, site-mapping (`tavily-map`) and domain-crawl (`tavily-crawl`) engine — see deep-research-agent / RESEARCH_CONFIG.md for routing
 - **Sequential**: Complex reasoning and synthesis
 - **Playwright**: JavaScript-heavy content extraction
 - **Serena**: Research session persistence
@@ -106,7 +108,7 @@ personas: [deep-research-agent]
 
 ## Examples
 
-```
+```text
 /sc:research "latest developments in quantum computing 2024"
 /sc:research "competitive analysis of AI coding assistants" --depth deep
 /sc:research "best practices for distributed systems" --strategy unified
@@ -116,3 +118,25 @@ personas: [deep-research-agent]
 
 **Will**: Current information, intelligent search, evidence-based analysis
 **Won't**: Make claims without sources, skip validation, access restricted content
+
+## CRITICAL BOUNDARIES
+
+**STOP AFTER RESEARCH REPORT**
+
+This command produces a RESEARCH REPORT ONLY - no implementation.
+
+**Explicitly Will NOT**:
+
+- Implement findings or recommendations
+- Write code based on research
+- Make architectural decisions
+- Create system changes based on research
+
+**Output**: Research report (`claudedocs/research_*.md`) containing:
+
+- Findings with sources
+- Evidence-based analysis
+- Recommendations (for human decision)
+- Cited references
+
+**Next Step**: After research completes, user decides next action. Use `/sc:design` for architecture or `/sc:implement` for coding.

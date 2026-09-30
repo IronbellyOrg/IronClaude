@@ -3,7 +3,7 @@ name: sc:cleanup-audit-protocol
 description: "Multi-pass read-only repository audit producing evidence-backed cleanup recommendations"
 category: utility
 complexity: high
-mcp-servers: [sequential, serena, context7]
+mcp-servers: [serena, context7]
 personas: [analyzer, architect, devops, qa, refactorer]
 allowed-tools: Read, Grep, Glob, Bash(git *), Bash(wc *), Bash(find *), Bash(du *), TodoWrite, Task, Write
 argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]"
@@ -79,7 +79,7 @@ Key behaviors:
 
 ## MCP Integration
 
-- **Sequential MCP**: Cross-cutting synthesis during Step 5 report consolidation; ultrathink analysis for systemic pattern detection across all passes
+- **Native reasoning**: Cross-cutting synthesis during Step 5 report consolidation; ultrathink analysis for systemic pattern detection across all passes
 - **Serena MCP**: Import chain tracing during Step 1 discovery phase; symbol-level understanding for verifying dynamic loading patterns
 - **Context7 MCP**: Framework-specific configuration validation; verifying library usage patterns against official documentation
 - **Persona Coordination**: Analyzer leads all passes; Architect activated for infrastructure batches; DevOps for Docker/CI/deploy; QA for test file batches; Refactorer for duplication findings

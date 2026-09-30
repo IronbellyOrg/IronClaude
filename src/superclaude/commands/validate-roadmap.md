@@ -4,7 +4,7 @@ description: "Validate roadmap pipeline outputs (roadmap.md, test-strategy.md, e
 category: analysis
 complexity: advanced
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
-mcp-servers: [sequential, auggie, serena]
+mcp-servers: [auggie, serena]
 personas: [analyzer, architect, qa]
 ---
 

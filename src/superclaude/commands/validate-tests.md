@@ -4,7 +4,6 @@ description: "Validate tier classification behavior against YAML test specificat
 category: testing
 complexity: moderate
 allowed-tools: Read, Glob, Grep, Bash, TodoWrite, Task, Skill
-mcp-servers: [sequential]
 personas: [qa, analyzer]
 ---
 

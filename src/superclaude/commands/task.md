@@ -4,7 +4,7 @@ description: "Unified task execution with intelligent workflow management, MCP c
 category: special
 complexity: advanced
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
-mcp-servers: [sequential, context7, serena, playwright, magic, morphllm]
+mcp-servers: [context7, serena, playwright, morphllm]
 personas: [architect, analyzer, qa, refactorer, frontend, backend, security, devops, python-expert, quality-engineer]
 version: "2.0.0"
 ---

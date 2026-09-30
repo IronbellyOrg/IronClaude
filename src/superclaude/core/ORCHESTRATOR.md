@@ -17,7 +17,7 @@ Analyzes requests to understand intent, complexity, and requirements.
 
 **Compatibility Validation**:
 
-- Flag combination conflict detection (e.g., `--no-mcp` with `--seq`)
+- Flag combination conflict detection (e.g., `--no-mcp` with `--c7`)
 - Persona + command compatibility verification
 - Tool availability for requested operations
 - Project structure requirements validation
@@ -137,17 +137,17 @@ wave-strategies:
 
 | Pattern | Complexity | Domain | Auto-Activates | Confidence |
 |---------|------------|---------|----------------|------------|
-| "analyze architecture" | complex | infrastructure | architect persona, --ultrathink, Sequential | 95% |
-| "create component" | simple | frontend | frontend persona, Magic, --uc | 90% |
-| "implement feature" | moderate | any | domain-specific persona, Context7, Sequential | 88% |
-| "implement API" | moderate | backend | backend persona, --seq, Context7 | 92% |
-| "implement UI component" | simple | frontend | frontend persona, Magic, --c7 | 94% |
+| "analyze architecture" | complex | infrastructure | architect persona, --ultrathink | 95% |
+| "create component" | simple | frontend | frontend persona, --uc | 90% |
+| "implement feature" | moderate | any | domain-specific persona, Context7 | 88% |
+| "implement API" | moderate | backend | backend persona, Context7 | 92% |
+| "implement UI component" | simple | frontend | frontend persona, --c7 | 94% |
 | "implement authentication" | complex | security | security persona, backend persona, --validate | 90% |
-| "fix bug" | moderate | any | analyzer persona, --think, Sequential | 85% |
+| "fix bug" | moderate | any | analyzer persona, --think | 85% |
 | "optimize performance" | complex | backend | performance persona, --think-hard, Playwright | 90% |
-| "security audit" | complex | security | security persona, --ultrathink, Sequential | 95% |
+| "security audit" | complex | security | security persona, --ultrathink | 95% |
 | "write documentation" | moderate | documentation | scribe persona, --persona-scribe=en, Context7 | 95% |
-| "improve iteratively" | moderate | iterative | intelligent persona, --seq, loop creation | 90% |
+| "improve iteratively" | moderate | iterative | intelligent persona, loop creation | 90% |
 | "analyze large codebase" | complex | any | --delegate --parallel-dirs, domain specialists | 95% |
 | "comprehensive audit" | complex | multi | --multi-agent --parallel-focus, specialized agents | 95% |
 | "improve large system" | complex | any | --wave-mode --adaptive-waves | 90% |
@@ -308,8 +308,8 @@ strict_compound_overrides:
 
 - Performance issues → --persona-performance + --focus performance + --think
 - Security concerns → --persona-security + --focus security + --validate
-- UI/UX tasks → --persona-frontend + --magic + --c7
-- Complex debugging → --think + --seq + --persona-analyzer
+- UI/UX tasks → --persona-frontend + --c7
+- Complex debugging → --think + --persona-analyzer
 - Large codebase → --uc when context >75% + --delegate auto
 - Testing → --persona-qa + --play + --validate
 - DevOps → --persona-devops + --safe-mode + --validate

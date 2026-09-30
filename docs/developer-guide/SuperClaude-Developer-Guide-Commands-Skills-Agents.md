@@ -99,7 +99,7 @@ When Claude Code starts a session, it loads context in this priority order:
 1. **Core files** (always loaded): `CLAUDE.md`, `COMMANDS.md`, `FLAGS.md`, `PRINCIPLES.md`, `RULES.md`, `MCP.md`, `PERSONAS.md`, `ORCHESTRATOR.md`, `MODES.md`
 2. **Explicit commands**: User types `/sc:<command>` -- loads the command file
 3. **Manual agents**: User references `@agent-<name>` -- loads the agent file
-4. **Flag-triggered**: `--persona-architect`, `--seq`, `--c7`, etc. activate personas and MCP servers
+4. **Flag-triggered**: `--persona-architect`, `--c7`, `--play`, etc. activate personas and MCP servers
 5. **Auto-activation**: Framework detects keywords and context to activate personas (30% keyword, 40% context, 20% history, 10% metrics)
 6. **Skills**: Load only name and description at session start (~50 tokens). Full content loads on invocation (~2000 tokens)
 
@@ -254,7 +254,7 @@ description: "<summary>"       # One-line user-facing description
 category: <category>           # One of: development, planning, analysis, quality,
                                #   testing, documentation, version-control, meta, special
 complexity: <level>            # One of: simple, moderate, advanced, high
-mcp-servers: [<servers>]       # MCP servers used: sequential, context7, serena,
+mcp-servers: [<servers>]       # MCP servers used: context7, serena,
                                #   playwright, magic, morphllm (or empty [])
 personas: [<personas>]         # Auto-activated personas: architect, analyzer,
                                #   frontend, backend, security, qa, etc. (or empty [])
@@ -291,12 +291,12 @@ Commands fall into three recurring patterns:
 Commands that read, analyze, and report without modifying files.
 
 - **Examples**: `/sc:analyze`, `/sc:cleanup-audit`, `/sc:explain`
-- **Characteristics**: Read-heavy tools, Sequential MCP for deep reasoning, produces reports
+- **Characteristics**: Read-heavy tools, native reasoning for deep analysis, produces reports
 - **Typical frontmatter**:
 
 ```yaml
 category: analysis
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [analyzer, architect]
 ```
 
@@ -327,7 +327,7 @@ Commands that handle the full lifecycle from classification through execution to
 ```yaml
 category: special
 version: "2.0.0"
-mcp-servers: [sequential, context7, serena, playwright, magic, morphllm]
+mcp-servers: [context7, serena, playwright, morphllm]
 personas: [architect, analyzer, frontend, backend, security, qa, devops,
            refactorer, performance, mentor, scribe]
 ```
@@ -517,7 +517,7 @@ name: sc-cleanup-audit
 description: "Multi-pass read-only repository audit producing evidence-backed cleanup recommendations"
 category: utility
 complexity: high
-mcp-servers: [sequential, serena, context7]
+mcp-servers: [serena, context7]
 personas: [analyzer, architect, devops, qa, refactorer]
 allowed-tools: Read, Grep, Glob, Bash(git *), Bash(wc *), Bash(find *), Bash(du *), TodoWrite, Task, Write
 argument-hint: "[target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]"
@@ -545,7 +545,7 @@ For documentation purposes, skills can include an unparsed HTML comment with add
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, scribe]
 -->
 ```
@@ -833,11 +833,11 @@ The framework auto-delegates to sub-agents based on task characteristics:
 
 | Specialist | Persona | Focus | Tools |
 |-----------|---------|-------|-------|
-| Quality | qa | Complexity, maintainability | Read, Grep, Sequential |
-| Security | security | Vulnerabilities, compliance | Grep, Sequential, Context7 |
-| Performance | performance | Bottlenecks, optimization | Read, Sequential, Playwright |
-| Architecture | architect | Patterns, structure | Read, Sequential, Context7 |
-| API | backend | Endpoints, contracts | Grep, Context7, Sequential |
+| Quality | qa | Complexity, maintainability | Read, Grep |
+| Security | security | Vulnerabilities, compliance | Grep, Context7 |
+| Performance | performance | Bottlenecks, optimization | Read, Playwright |
+| Architecture | architect | Patterns, structure | Read, Context7 |
+| API | backend | Endpoints, contracts | Grep, Context7 |
 
 ### 6.4 Resource Management Zones
 
@@ -865,7 +865,7 @@ User invokes:  /sc:adversarial --compare file1.md,file2.md --depth deep
 Command file:  src/superclaude/commands/adversarial.md
   - Parses flags, validates inputs
   - Activates personas: architect, analyzer, scribe
-  - Selects MCP servers: sequential, context7, serena
+  - Selects MCP servers: context7, serena
 
 Skill:         src/superclaude/skills/sc-adversarial/SKILL.md
   - Loads behavioral protocol
@@ -887,11 +887,9 @@ Commands and skills declare MCP server needs in their frontmatter. The framework
 
 | Server | Purpose | Fallback | Circuit Threshold |
 |--------|---------|----------|------------------|
-| Sequential | Multi-step reasoning, analysis | Native Claude reasoning | 3 failures / 30s |
 | Context7 | Library documentation, patterns | WebSearch for docs | 5 failures / 60s |
 | Serena | Session persistence, symbol operations | Basic file operations | 4 failures / 45s |
 | Playwright | Browser automation, E2E testing | Unit tests only | 2 failures / 120s |
-| Magic | UI component generation | Basic component template | 3 failures / 45s |
 | Tavily | Web search, real-time information | WebSearch fallback | 3 failures / 45s |
 
 **MCP flag patterns**:
@@ -899,8 +897,6 @@ Commands and skills declare MCP server needs in their frontmatter. The framework
 | Flag | Server | Activation |
 |------|--------|-----------|
 | `--c7`, `--context7` | Context7 | Manual |
-| `--seq`, `--sequential` | Sequential | Manual |
-| `--magic` | Magic | Manual |
 | `--play`, `--playwright` | Playwright | Manual |
 | `--serena` | Serena | Manual |
 | `--tavily` | Tavily | Manual |
@@ -911,19 +907,19 @@ Commands and skills declare MCP server needs in their frontmatter. The framework
 
 Personas activate through keyword matching, context analysis, and explicit flags:
 
-| Persona | Flag | Triggers | Primary MCP | Avoided MCP |
-|---------|------|----------|-------------|-------------|
-| architect | `--persona-architect` | "architecture", "design", "scalability" | Sequential | Magic |
-| frontend | `--persona-frontend` | "component", "responsive", "accessibility" | Magic | -- |
-| backend | `--persona-backend` | "API", "database", "service" | Context7 | Magic |
-| security | `--persona-security` | "vulnerability", "threat", "compliance" | Sequential | Magic |
-| analyzer | `--persona-analyzer` | "analyze", "investigate", "root cause" | Sequential | -- |
-| qa | `--persona-qa` | "test", "quality", "validation" | Playwright | Magic |
-| performance | `--persona-performance` | "optimize", "performance", "bottleneck" | Playwright | Magic |
-| refactorer | `--persona-refactorer` | "refactor", "cleanup", "technical debt" | Sequential | Magic |
-| devops | `--persona-devops` | "deploy", "infrastructure", "automation" | Sequential | Magic |
-| mentor | `--persona-mentor` | "explain", "learn", "understand" | Context7 | Magic |
-| scribe | `--persona-scribe=lang` | "document", "write", "guide" | Context7 | Magic |
+| Persona | Flag | Triggers | Primary MCP |
+|---------|------|----------|-------------|
+| architect | `--persona-architect` | "architecture", "design", "scalability" | Context7 |
+| frontend | `--persona-frontend` | "component", "responsive", "accessibility" | Playwright |
+| backend | `--persona-backend` | "API", "database", "service" | Context7 |
+| security | `--persona-security` | "vulnerability", "threat", "compliance" | — |
+| analyzer | `--persona-analyzer` | "analyze", "investigate", "root cause" | Context7 |
+| qa | `--persona-qa` | "test", "quality", "validation" | Playwright |
+| performance | `--persona-performance` | "optimize", "performance", "bottleneck" | Playwright |
+| refactorer | `--persona-refactorer` | "refactor", "cleanup", "technical debt" | — |
+| devops | `--persona-devops` | "deploy", "infrastructure", "automation" | — |
+| mentor | `--persona-mentor` | "explain", "learn", "understand" | Context7 |
+| scribe | `--persona-scribe=lang` | "document", "write", "guide" | Context7 |
 
 **Cross-persona collaboration patterns**:
 
@@ -938,8 +934,8 @@ Commands interact with thinking depth flags for analysis scaling:
 
 | Flag | Token Budget | When to Use | MCP |
 |------|-------------|-------------|-----|
-| `--think` | ~4K | Module-level analysis | Sequential |
-| `--think-hard` | ~10K | System-wide analysis, architectural | Sequential + Context7 |
+| `--think` | ~4K | Module-level analysis | native |
+| `--think-hard` | ~10K | System-wide analysis, architectural | Context7 |
 | `--ultrathink` | ~32K | Critical system redesign, legacy modernization | All MCP servers |
 
 ### 7.5 Dynamic Context Injection
@@ -1314,7 +1310,7 @@ name: pr-review
 description: "Review pull request changes with compliance-tiered analysis depth"
 category: quality
 complexity: moderate
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [analyzer, qa, security]
 ---
 
@@ -1352,7 +1348,7 @@ personas: [analyzer, qa, security]
 5. Generate review report with findings and recommendations
 
 ## MCP Integration
-- **Sequential**: Multi-step analysis for STRICT tier
+- **Native reasoning**: Multi-step analysis for STRICT tier
 - **Context7**: Framework best practices for pattern validation
 
 ## Examples
@@ -1388,7 +1384,7 @@ allowed-tools: Read, Glob, Grep, Bash(git *), TodoWrite, Write
 <!-- Extended metadata (for documentation, not parsed):
 category: quality
 complexity: moderate
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [analyzer, qa, security]
 -->
 
@@ -1494,7 +1490,7 @@ name: adversarial
 description: "Structured adversarial debate, comparison, and merge pipeline for 2-10 artifacts"
 category: analysis
 complexity: advanced
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, scribe]
 ---
 
@@ -1561,7 +1557,7 @@ allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
 <!-- Extended metadata (for documentation, not parsed):
 category: analysis
 complexity: advanced
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, scribe]
 -->
 

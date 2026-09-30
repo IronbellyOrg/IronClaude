@@ -8,7 +8,6 @@ This directory contains slash commands that are installed to `~/.claude/commands
 - **index-repo.md** - Repository indexing for context optimization
 - **recommend.md** - Command recommendations
 - **research.md** - Deep web research with parallel search
-- **sc.md** - Show all available SuperClaude commands
 
 ## Important
 

@@ -3,7 +3,7 @@ name: auggie-review
 description: "Auggie-powered code review for PRs, local diffs, or file snapshots — narrow bugs + architectural risks + anti-patterns, with auto-posted PR review and optional remediation handoff"
 category: quality
 complexity: advanced
-mcp-servers: [sequential, serena]
+mcp-servers: [serena]
 personas: [analyzer, architect, security, qa, refactorer]
 argument-hint: "[<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer]"
 ---

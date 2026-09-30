@@ -2,7 +2,7 @@
 name: sc:reflect-protocol
 description: "Tiered reflection protocol grounded in real code and real citations. UC-1 (pre-execution) validates a proposed strategy/tasklist against its driving spec/PRD for coverage and best-practice compliance. UC-2 (post-execution) audits completed work for 100% adherence and classifies every divergence under a 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Tier 1 is a fast single-agent grounded pass; Tier 2 fans out 2-3 heterogeneous reviewer agents on different model classes and merges via sc-adversarial-protocol Mode A; Tier 3 hands off to task-builder for a corrective MDTM remediation. Structural mechanisms — heterogeneous reviewers, blind calibration, mandatory evidence-validator gate — exist specifically to neutralise the representational bias that makes single-agent self-review unreliable."
 version: 1.0.0
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__serena__get_current_config, mcp__serena__find_implementations, mcp__serena__find_declaration, mcp__serena__delete_memory, mcp__serena__rename_memory, mcp__serena__edit_memory, mcp__serena__summarize_changes, mcp__serena__execute_shell_command, mcp__serena__onboarding, mcp__serena__prepare_for_new_conversation, mcp__serena__type_hierarchy, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search, mcp__sequential-thinking__sequentialthinking
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__list_memories, mcp__serena__search_for_pattern, mcp__serena__activate_project, mcp__serena__get_current_config, mcp__serena__find_implementations, mcp__serena__find_declaration, mcp__serena__delete_memory, mcp__serena__rename_memory, mcp__serena__edit_memory, mcp__serena__summarize_changes, mcp__serena__execute_shell_command, mcp__serena__onboarding, mcp__serena__prepare_for_new_conversation, mcp__serena__type_hierarchy, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- markdownlint-disable MD013 MD040 -->
@@ -16,7 +16,7 @@ allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp_
 <!-- Extended metadata (for documentation, not parsed):
 category: validation
 complexity: advanced
-mcp-servers: [serena, auggie, context7, tavily, sequential]
+mcp-servers: [serena, auggie, context7, tavily]
 personas: [analyzer, qa, refactorer, architect]
 spec: .dev/eval-workspaces/sc-reflect/SPEC.md
 supersedes: src/superclaude/commands/reflect.md (legacy think_about_* surface)

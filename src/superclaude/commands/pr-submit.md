@@ -3,7 +3,7 @@ name: pr-submit
 description: "Open a PR on the fork and arm an in-session PR-review auto-remediation monitor — poll for the Augment review, re-grade + verify findings, dispatch verified ones to /sc:troubleshoot, then (at higher --monitor ordinals) fix, validate, push, reply, and resolve under a capped monotonic round counter."
 category: quality
 complexity: advanced
-mcp-servers: [sequential, serena, auggie]
+mcp-servers: [serena, auggie]
 personas: [analyzer, architect, security, qa, devops]
 argument-hint: "[--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--output-dir <dir>] [--resume <run-log.jsonl>]"
 version: "1.0"

@@ -3,7 +3,7 @@ name: explain
 description: "Provide clear explanations of code, concepts, and system behavior with educational clarity"
 category: workflow
 complexity: standard
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [educator, architect, security]
 ---
 
@@ -34,12 +34,12 @@ Key behaviors:
 
 - Multi-persona coordination for domain expertise (educator, architect, security)
 - Framework-specific explanations via Context7 integration
-- Systematic analysis via Sequential MCP for complex concept breakdown
+- Systematic analysis via native reasoning for complex concept breakdown
 - Adaptive explanation depth based on audience and complexity
 
 ## MCP Integration
 
-- **Sequential MCP**: Auto-activated for complex multi-component analysis and structured reasoning
+- **Native reasoning**: Complex multi-component analysis and structured reasoning
 - **Context7 MCP**: Framework documentation and official pattern explanations
 - **Persona Coordination**: Educator (learning), Architect (systems), Security (practices)
 

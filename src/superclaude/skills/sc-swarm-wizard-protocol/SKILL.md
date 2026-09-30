@@ -3,7 +3,6 @@ name: sc:swarm-wizard-protocol
 description: "Behavioral protocol for /sc:swarm-wizard — the plain-language interactive guide to the superclaude swarm CLI. Interviews a non-expert about what they want reviewed and why, maps the goal to the correct lens/transport/flags from the live CLI surface, generates and validates the run components, proves the pipeline with a mandatory stub dry-run, then offers to launch the real swarm, monitors it, and summarizes the outcome plus the recommended next step in plain English. Use this skill whenever a user wants to run swarm, run a multi-model review, doesn't know which swarm lens or flags to pick, or finds the swarm documentation too technical to act on."
 category: development
 complexity: advanced
-mcp-servers: [sequential]
 personas: [scribe, devops, analyzer]
 allowed-tools: Read, Grep, Glob, Write, AskUserQuestion, TodoWrite, Task, Monitor, Bash(uv run superclaude swarm *), Bash(ls *), Bash(wc *), Bash(test *), Bash(mkdir *)
 argument-hint: "[--goal <text>] [--target <path>] [--output <dir>] [--real] [--detached] [--advanced] [--yes]"
