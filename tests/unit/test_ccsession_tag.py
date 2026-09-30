@@ -79,14 +79,12 @@ def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
     expected = {
         "claude": ("claude-opus-5-5[1m]", "1000000", "1000000", ""),
         "1mm": ("claude-opus-5-5[1m]", "1000000", "1000000", ""),
-        "5.6sol": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
-        "372k": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
-        "6astra": ("gpt-6-astra", "850000", "850000", "gpt-6-astra"),
-        "6sol": ("gpt-6-sol", "850000", "850000", "gpt-6-sol"),
-        "6.1sol": ("gpt-6.1-sol", "850000", "850000", "gpt-6.1-sol"),
+        "gpt": ("gpt-6.1-sol", "850000", "850000", "gpt-6.1-sol"),
         "grok": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "500k": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "muse": ("muse-spark-1.3", "950000", "950000", "muse-spark-1.3"),
+        "qwen": ("Qwen3.8-max", "1000000", "1000000", "Qwen3.8-max"),
+        "glm": ("glm-5.3", "1000000", "1000000", "glm-5.3"),
     }
     for profile, wanted in expected.items():
         result = _profile_result(
@@ -105,9 +103,9 @@ def test_help_lists_all_commands_and_profiles() -> None:
     for expected in (
         "--profile claude",
         "--profile muse",
-        "--profile 5.6sol",
-        "--profile 6astra",
-        "--profile 6sol",
+        "--profile gpt",
+        "--profile qwen",
+        "--profile glm",
         "--list",
         "--here",
         "--rm",
@@ -393,7 +391,7 @@ def test_package_contains_no_personal_account_routing() -> None:
 def test_renamed_profiles_are_rejected(tmp_path: Path) -> None:
     env = os.environ.copy()
     env["HOME"] = str(tmp_path)
-    for profile in ("gpt", "gpt1"):
+    for profile in ("gpt1", "6sol", "6astra", "5.6sol", "6.1sol", "372k"):
         result = subprocess.run(
             [str(SKILL_DIR / "ccsession"), "--profile", profile],
             env=env,
@@ -586,7 +584,7 @@ def test_gateway_profile_requires_shim(tmp_path: Path) -> None:
     env = os.environ.copy()
     env["HOME"] = str(home)
     result = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), "--profile", "6astra"],
+        [str(SKILL_DIR / "ccsession"), "--profile", "gpt"],
         env=env,
         text=True,
         capture_output=True,
@@ -620,7 +618,7 @@ def test_shim_refuses_an_unrelated_listener(tmp_path: Path) -> None:
         }
     )
     result = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), "--profile", "6astra", "--shim"],
+        [str(SKILL_DIR / "ccsession"), "--profile", "gpt", "--shim"],
         env=env,
         text=True,
         capture_output=True,
@@ -994,4 +992,4 @@ def test_help_and_unknown_profile_list_data_profiles(tmp_path: Path) -> None:
         check=False,
     )
     assert result.returncode == 2
-    assert "Valid profiles: claude, grok" in result.stderr
+    assert "Valid profiles: " + ", ".join(_bundled()["profiles"]) in result.stderr

@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "2026-10-01.1",
+  "version": "2026-10-01.2",
   "profiles": {
     "claude": {
       "aliases": [
@@ -11,6 +11,14 @@
       "compact_window": 1000000,
       "requires_shim": false,
       "label": "Opus 5.5 and 1M context"
+    },
+    "gpt": {
+      "aliases": [],
+      "model": "gpt-6.1-sol",
+      "context": 850000,
+      "compact_window": 850000,
+      "requires_shim": true,
+      "label": "GPT 6.1 Sol and 850K context"
     },
     "grok": {
       "aliases": [
@@ -30,39 +38,21 @@
       "requires_shim": true,
       "label": "Muse Spark 1.3 and 950K context"
     },
-    "5.6sol": {
-      "aliases": [
-        "372k"
-      ],
-      "model": "gpt-5.6-sol",
-      "context": 850000,
-      "compact_window": 850000,
-      "requires_shim": true,
-      "label": "GPT 5.6 Sol and 850K context"
-    },
-    "6astra": {
+    "qwen": {
       "aliases": [],
-      "model": "gpt-6-astra",
-      "context": 850000,
-      "compact_window": 850000,
+      "model": "Qwen3.8-max",
+      "context": 1000000,
+      "compact_window": 1000000,
       "requires_shim": true,
-      "label": "GPT 6 Astra and 850K context"
+      "label": "Qwen 3.8 Max and 1M context"
     },
-    "6.1sol": {
+    "glm": {
       "aliases": [],
-      "model": "gpt-6.1-sol",
-      "context": 850000,
-      "compact_window": 850000,
+      "model": "glm-5.3",
+      "context": 1000000,
+      "compact_window": 1000000,
       "requires_shim": true,
-      "label": "GPT 6.1 Sol and 850K context"
-    },
-    "6sol": {
-      "aliases": [],
-      "model": "gpt-6-sol",
-      "context": 850000,
-      "compact_window": 850000,
-      "requires_shim": true,
-      "label": "GPT 6 Sol and 850K context"
+      "label": "GLM 5.3 and 1M context"
     }
   },
   "picker": {
