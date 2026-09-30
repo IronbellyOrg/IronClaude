@@ -39,7 +39,9 @@ Depth caps phase count (quick 2–4, standard 4–8, deep 6–12).
 
 ## Wave 2 — Synthesize
 
-Write `<run>/plan.md` using headings from `src/superclaude/templates/workflow/03_project_plan_template.md` (`## Project Goal`, `## Project Context`, `## Phases`). Do not copy MDTM 00–02.
+Write `<run>/plan.md` from `src/superclaude/templates/workflow/00_mdtm_template_simple_task.md`: follow the rules in its HTML comment, then remove the comment and unused placeholders. Frontmatter keys and fill rules: `refs/quality-gates.md`.
+
+Each Wave 1 phase → `## Phase N:` then its `## Task N:` headings (numbered 1..N across the plan). Phase Inputs → files/sections named in the task body; Checkpoint → the last task's `Acceptance criteria:`; deps → `Depends on: Task K`.
 
 If source was an inline prompt, `source.md` MUST already exist from Wave 0.
 
