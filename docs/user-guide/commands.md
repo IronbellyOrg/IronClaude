@@ -359,38 +359,35 @@ PM Agent:
 
 ---
 
-### `/sc:workflow` - Implementation Workflow Generator
+### `/sc:workflow` - Implementation Plan Generator
 
-**When to use:** Have a PRD/specification and need a step-by-step implementation plan.
+**When to use:** Have a PRD/spec/prompt and need a phased implementation plan (`plan.md`).
 
 **What it does:**
 
-- Parses PRD document
-- Generates workflow with dependencies
-- Creates implementation plan by domains
-- **Does NOT implement code**, only plans
+- Parses a PRD, spec, or inline prompt
+- Writes `.dev/workflow/<slug>/plan.md` + `return-contract.yaml`
+- **Does NOT implement code** and does **not** emit sprint tasklists
 
 **Syntax:**
 
 ```
-/sc:workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
+/sc:workflow <path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--output DIR] [--handoff none|design|implement|tasklist]
 ```
+
+`--depth shallow|normal` and `--parallel` are `E-LEGACY` (use `quick|standard` and omit `--parallel`).
 
 **Examples:**
 
 ```bash
-# From PRD file
 /sc:workflow docs/PRD/auth-feature.md --strategy systematic --depth deep
-# Result: "1. DB schema → 2. API → 3. UI → 4. Tests"
-
-# From description
-/sc:workflow "user authentication system" --strategy agile --parallel
+/sc:workflow "user authentication system" --strategy agile
 ```
 
-**Difference from `/sc:task`:**
+**Difference from `/sc:implement` / `/sc:task`:**
 
-- workflow = planning (generates roadmap)
-- task = execution (actually does work)
+- workflow = planning (`plan.md`)
+- implement / task = execution
 
 ---
 

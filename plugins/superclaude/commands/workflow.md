@@ -1,109 +1,83 @@
 ---
 name: workflow
-description: "Generate structured implementation workflows from PRDs and feature requirements"
+description: "Generate a phased implementation plan from a PRD, spec, or feature prompt"
 category: orchestration
 complexity: advanced
 mcp-servers: [context7, playwright, morphllm, serena]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
-# /sc:workflow - Implementation Workflow Generator
+# /sc:workflow — Implementation Plan Generator
+
+Produces a **phased plan** (`plan.md`). Does not implement code and does not emit sprint tasklists.
 
 ## Triggers
 
-- PRD and feature specification analysis for implementation planning
-- Structured workflow generation for development projects
-- Multi-persona coordination for complex implementation strategies
-- Cross-session workflow management and dependency mapping
+Explicit: user types `/sc:workflow ...`, or another `/sc:*` command invokes `Skill sc:workflow-protocol`.
+
+## Required Input
+
+Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMENTS` as an inline prompt.
+
+**STOP** `E-NO-SOURCE` on a bare `/sc:workflow`.
 
 ## Usage
 
+```bash
+/sc:workflow <path-or-prompt>
+             [--strategy systematic|agile|enterprise]
+             [--depth quick|standard|deep]
+             [--output DIR]
+             [--handoff none|design|implement|tasklist]
 ```
-/sc:workflow [prd-file|feature-description] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
-```
 
-## Behavioral Flow
+## Options
 
-1. **Analyze**: Parse PRD and feature specifications to understand implementation requirements
-2. **Plan**: Generate comprehensive workflow structure with dependency mapping and task orchestration
-3. **Coordinate**: Activate multiple personas for domain expertise and implementation strategy
-4. **Execute**: Create structured step-by-step workflows with automated task coordination
-5. **Validate**: Apply quality gates and ensure workflow completeness across domains
+| Flag | Default | Description |
+|------|---------|-------------|
+| `<path>` / `<prompt>` | required xor | File or inline prompt |
+| `--strategy` | `systematic` | `systematic` \| `agile` \| `enterprise`. Enterprise + omitted depth → `deep` |
+| `--depth` | `standard` | `quick` \| `standard` \| `deep` |
+| `--output` | `.dev/workflow/<slug>/` | Must stay under `.dev/workflow/` |
+| `--handoff` | `none` | `none` / `design` / `tasklist` = text; `implement` = Skill invoke |
 
-Key behaviors:
+Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`.
 
-- Multi-persona orchestration across architecture, frontend, backend, security, and devops domains
-- Advanced MCP coordination with intelligent routing for specialized workflow analysis
-- Systematic execution with progressive workflow enhancement and parallel processing
-- Cross-session workflow management with comprehensive dependency tracking
+## Behavioral Summary
 
-## MCP Integration
+Command file: parse flags → STOP on empty/banned → Activation. Protocol owns waves.
 
-- **Sequential MCP**: Complex multi-step workflow analysis and systematic implementation planning
-- **Context7 MCP**: Framework-specific workflow patterns and implementation best practices
-- **Magic MCP**: UI/UX workflow generation and design system integration strategies
-- **Playwright MCP**: Testing workflow integration and quality assurance automation
-- **Morphllm MCP**: Large-scale workflow transformation and pattern-based optimization
-- **Serena MCP**: Cross-session workflow persistence, memory management, and project context
+## Activation
 
-## Tool Coordination
+**MANDATORY**: Before executing any protocol steps, invoke:
+> Skill sc:workflow-protocol
 
-- **Read/Write/Edit**: PRD analysis and workflow documentation generation
-- **TodoWrite**: Progress tracking for complex multi-phase workflow execution
-- **Task**: Advanced delegation for parallel workflow generation and multi-agent coordination
-- **WebSearch**: Technology research, framework validation, and implementation strategy analysis
-- **sequentialthinking**: Structured reasoning for complex workflow dependency analysis
-
-## Key Patterns
-
-- **PRD Analysis**: Document parsing → requirement extraction → implementation strategy development
-- **Workflow Generation**: Task decomposition → dependency mapping → structured implementation planning
-- **Multi-Domain Coordination**: Cross-functional expertise → comprehensive implementation strategies
-- **Quality Integration**: Workflow validation → testing strategies → deployment planning
+Do NOT proceed with protocol execution using only this command file.
+The full behavioral specification is in `src/superclaude/skills/sc-workflow-protocol/SKILL.md`.
 
 ## Examples
 
-### Systematic PRD Workflow
-
-```
-/sc:workflow Claudedocs/PRD/feature-spec.md --strategy systematic --depth deep
-# Comprehensive PRD analysis with systematic workflow generation
-# Multi-persona coordination for complete implementation strategy
-```
-
-### Agile Feature Workflow
-
-```
-/sc:workflow "user authentication system" --strategy agile --parallel
-# Agile workflow generation with parallel task coordination
-# Context7 and Magic MCP for framework and UI workflow patterns
-```
-
-### Enterprise Implementation Planning
-
-```
-/sc:workflow enterprise-prd.md --strategy enterprise --validate
-# Enterprise-scale workflow with comprehensive validation
-# Security, devops, and architect personas for compliance and scalability
-```
-
-### Cross-Session Workflow Management
-
-```
-/sc:workflow project-brief.md --depth normal
-# Serena MCP manages cross-session workflow context and persistence
-# Progressive workflow enhancement with memory-driven insights
+```bash
+/sc:workflow docs/prd.md --strategy systematic --depth standard
+/sc:workflow "add logout to the header" --handoff none
 ```
 
 ## Boundaries
 
-**Will:**
+**Will:** write `.dev/workflow/<slug>/plan.md` + `return-contract.yaml`.
 
-- Generate comprehensive implementation workflows from PRD and feature specifications
-- Coordinate multiple personas and MCP servers for complete implementation strategies
-- Provide cross-session workflow management and progressive enhancement capabilities
+**Will Not:** mutate product code; emit `tasklist-index.md`; run `superclaude roadmap`.
 
-**Will Not:**
+## Related Commands
+
+| Command | Difference |
+|---------|------------|
+| `/sc:implement` | Executes a spec/plan |
+| `/sc:tasklist` | Sprint bundle from a **roadmap** |
+| `/sc:roadmap` | CLI spec → roadmap.md |
+| `/sc:design` | Architecture spec |
+
+## CRITICAL BOUNDARIES
 
 - Execute actual implementation tasks beyond workflow planning and strategy
 - Override established development processes without proper analysis and validation

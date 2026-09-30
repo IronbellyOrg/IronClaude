@@ -1,0 +1,17 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: /config/workspace/IronClaude/.dev/worktrees/Workflow_v3/.dev/releases/current/WorkflowV3/seed-brief.md
+merged_output_path: /config/workspace/IronClaude/.dev/worktrees/Workflow_v3/.dev/releases/current/WorkflowV3/merged-requirements.md
+convergence_score: 0.82
+adversarial_artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/Workflow_v3/.dev/releases/current/WorkflowV3/adversarial
+domain: architecture
+proposal_count: 3
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: primary
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: []
+agent_spec: "opus:architect,sonnet:analyzer,haiku:backend"
