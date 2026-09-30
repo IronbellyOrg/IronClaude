@@ -83,6 +83,7 @@ def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
         "372k": ("gpt-5.6-sol", "850000", "850000", "gpt-5.6-sol"),
         "6astra": ("gpt-6-astra", "850000", "850000", "gpt-6-astra"),
         "6sol": ("gpt-6-sol", "850000", "850000", "gpt-6-sol"),
+        "6.1sol": ("gpt-6.1-sol", "850000", "850000", "gpt-6.1-sol"),
         "grok": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "500k": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "muse": ("muse-spark-1.3", "950000", "950000", "muse-spark-1.3"),

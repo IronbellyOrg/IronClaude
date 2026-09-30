@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "version": "2026-09-30.1",
+  "version": "2026-10-01.1",
   "profiles": {
     "claude": {
       "aliases": [
@@ -47,6 +47,14 @@
       "compact_window": 850000,
       "requires_shim": true,
       "label": "GPT 6 Astra and 850K context"
+    },
+    "6.1sol": {
+      "aliases": [],
+      "model": "gpt-6.1-sol",
+      "context": 850000,
+      "compact_window": 850000,
+      "requires_shim": true,
+      "label": "GPT 6.1 Sol and 850K context"
     },
     "6sol": {
       "aliases": [],
@@ -137,6 +145,7 @@
     "pinned": [
       "claude-opus-5-5",
       "gpt-6-astra",
+      "gpt-6.1-sol",
       "gpt-6-sol",
       "gpt-6-luna",
       "gpt-5.6-sol",
@@ -164,6 +173,7 @@
       "gpt-6-astra",
       "gpt-6-luna",
       "gpt-6-sol",
+      "gpt-6.1-sol",
       "muse-spark-1.2",
       "muse-spark-1.3"
     ],
@@ -179,7 +189,8 @@
       "glm-5.2": "GLM 5.2",
       "Qwen/Qwen3-Max": "Qwen3 Max",
       "Qwen3.8-max": "Qwen 3.8 Max",
-      "claude-fable-5-1": "Claude Fable 5.1"
+      "claude-fable-5-1": "Claude Fable 5.1",
+      "gpt-6.1-sol": "GPT 6.1 Sol"
     }
   }
 }
