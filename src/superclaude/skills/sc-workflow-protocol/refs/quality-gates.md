@@ -10,7 +10,7 @@ depth: quick|standard|deep
 slug: <slug>
 ```
 
-Body MUST have headings: Goal, Context, Phases. Each phase: Goal, Inputs, Outputs, Checkpoint, deps.
+Body MUST have headings: `## Project Goal`, `## Project Context`, `## Phases` (same names as `03_project_plan_template.md`). Each phase: Goal, Inputs, Outputs, Checkpoint, deps.
 
 ## Schema-min (quick)
 

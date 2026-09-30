@@ -39,7 +39,7 @@ Depth caps phase count (quick 2–4, standard 4–8, deep 6–12).
 
 ## Wave 2 — Synthesize
 
-Write `<run>/plan.md` using headings from `src/superclaude/templates/workflow/03_project_plan_template.md` (Goal, Context, Phases). Do not copy MDTM 00–02.
+Write `<run>/plan.md` using headings from `src/superclaude/templates/workflow/03_project_plan_template.md` (`## Project Goal`, `## Project Context`, `## Phases`). Do not copy MDTM 00–02.
 
 If source was an inline prompt, `source.md` MUST already exist from Wave 0.
 

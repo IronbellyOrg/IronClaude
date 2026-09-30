@@ -16,7 +16,7 @@ Overwrite same slug in place (no resume).
 
 | Code | When |
 |------|------|
-| `E-NO-SOURCE` | no path and no prompt, or two file tokens |
+| `E-NO-SOURCE` | no path and no prompt, or two file tokens. No slug, no run dir, no yaml |
 | `E-EMPTY-SOURCE` | whitespace-only |
 | `E-BAD-FLAG` | unknown enum |
 | `E-OUTPUT-PATH` | `--output` not under `.dev/workflow/` |
