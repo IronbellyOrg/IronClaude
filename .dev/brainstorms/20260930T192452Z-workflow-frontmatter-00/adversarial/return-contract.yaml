@@ -1,0 +1,15 @@
+return_contract:
+  merged_output_path: ".dev/brainstorms/20260930T192452Z-workflow-frontmatter-00/adversarial/merged-output.md"
+  convergence_score: 1.0
+  artifacts_dir: ".dev/brainstorms/20260930T192452Z-workflow-frontmatter-00/adversarial/"
+  status: "success"
+  base_variant: "opus:architect"
+  unresolved_conflicts: 0
+  fallback_mode: false
+  failure_stage: null
+  invocation_method: "skill-direct"
+  unaddressed_invariants: []   # Round 2.5 skipped (--depth quick)
+  notes:
+    - "model aliases are spec identities only; Agent tool exposed no model selector"
+    - "position-bias dual pass not executed at --depth quick (single orchestrator scoring)"
+    - "1 orchestrator-flagged open issue (not debated) in merged output: phase-templates skeleton vs template-00 rules"

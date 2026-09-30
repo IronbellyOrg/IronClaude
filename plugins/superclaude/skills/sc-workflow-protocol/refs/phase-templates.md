@@ -4,7 +4,7 @@ Each phase: Goal, Inputs, Outputs, Checkpoint, deps (phase ids).
 
 | Strategy | Skeleton |
 |----------|----------|
-| `systematic` | Parse → Design boundaries → Build sequential layers → Validate → Document |
+| `systematic` | Design boundaries → Build sequential layers → Document |
 | `agile` | Slice 0 vertical spike → thin increments with per-slice checkpoint |
 | `enterprise` | Same as systematic + risk/ops column on every phase + rollout phase |
 
