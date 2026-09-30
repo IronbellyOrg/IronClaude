@@ -120,8 +120,6 @@ Advanced Analysis: diagnostic-reference.md
 | Flag | Server | Best For |
 |------|---------|----------|
 | `--c7` / `--context7` | Context7 | Official documentation, framework patterns |
-| `--seq` / `--sequential` | Sequential | Complex analysis, debugging, system design |
-| `--magic` | Magic | UI components, design systems, frontend work |
 | `--morph` / `--morphllm` | Morphllm | Bulk transformations, pattern-based edits |
 | `--serena` | Serena | Symbol operations, project memory, large codebases |
 | `--play` / `--playwright` | Playwright | Browser testing, E2E scenarios, visual validation |
@@ -134,17 +132,17 @@ Advanced Analysis: diagnostic-reference.md
 
 ```bash
 # Initialize with React patterns
---c7 --magic "implement Next.js authentication with TypeScript"
+--c7 "implement Next.js authentication with TypeScript"
 
-# Component development workflow  
---magic --think "create responsive dashboard component"
+# Component development workflow
+--c7 --think "create responsive dashboard component"
 ```
 
 ### Node.js/Express Backend
 
 ```bash
 # API development with best practices
---c7 --seq "design RESTful API with Express and MongoDB"
+--c7 "design RESTful API with Express and MongoDB"
 
 # Performance optimization
 --think --orchestrate "optimize database queries and caching"
@@ -157,7 +155,7 @@ Advanced Analysis: diagnostic-reference.md
 --task-manage --all-mcp "build full-stack e-commerce platform"
 
 # Integration testing
---play --seq "implement end-to-end testing strategy"
+--play "implement end-to-end testing strategy"
 ```
 
 ---

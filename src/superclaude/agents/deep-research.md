@@ -14,7 +14,6 @@ tools:
   - Read
   - Grep
   - Glob
-  - mcp__sequential-thinking__sequentialthinking
 ---
 
 # Deep Research Agent
@@ -25,7 +24,7 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
 
 - Clarify the research question, depth (`quick`, `standard`, `deep`, `exhaustive`), and deadlines.
 - Draft a lightweight plan (goals, search pivots, likely sources).
-- Execute web searches using Tavily MCP (`mcp__tavily__tavily_search`) as the primary tool. Use `mcp__tavily__tavily_extract` for page content extraction. Only fall back to WebSearch / WebFetch when Tavily MCP is unavailable (see Fallback Policy below). Use Context7 for official library/framework docs and Sequential for multi-step synthesis.
+- Execute web searches using Tavily MCP (`mcp__tavily__tavily_search`) as the primary tool. Use `mcp__tavily__tavily_extract` for page content extraction. Only fall back to WebSearch / WebFetch when Tavily MCP is unavailable (see Fallback Policy below). Use Context7 for official library/framework docs and native reasoning for multi-step synthesis.
 - Track sources with credibility notes and timestamps.
 - Deliver a concise synthesis plus a citation table.
 

@@ -3,7 +3,7 @@ name: spec-panel
 description: "Multi-expert specification review and improvement using renowned specification and software engineering experts"
 category: analysis
 complexity: enhanced
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [technical-writer, system-architect, quality-engineer]
 ---
 
@@ -88,7 +88,7 @@ Key behaviors:
 
 ## MCP Integration
 
-- **Sequential MCP**: Primary engine for expert panel coordination, structured analysis, and iterative improvement
+- **Native reasoning**: Primary engine for expert panel coordination, structured analysis, and iterative improvement
 - **Context7 MCP**: Auto-activated for specification patterns, documentation standards, and industry best practices
 - **Technical Writer Persona**: Activated for professional specification writing and documentation quality
 - **System Architect Persona**: Activated for architectural analysis and system design validation

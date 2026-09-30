@@ -3,7 +3,7 @@ name: brainstorm
 description: "Orchestrated multi-agent brainstorm: Socratic dialogue + parallel proposals + adversarial merge"
 category: orchestration
 complexity: advanced
-mcp-servers: [sequential, serena, auggie-mcp, tavily]
+mcp-servers: [serena, auggie-mcp, tavily]
 personas: [architect, analyzer, scribe]
 version: 2.0.0
 spec: .dev/eval-workspaces/sc-brainstorm/SPEC.md

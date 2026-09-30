@@ -66,33 +66,27 @@ superclaude mcp --dry-run
 
 ### Available Servers
 
-1. **sequential-thinking** - Multi-step problem solving and systematic analysis
-2. **context7** - Official library documentation and code examples
-3. **magic** - Modern UI component generation and design systems (requires API key)
-4. **playwright** - Cross-browser E2E testing and automation
-5. **serena** - Semantic code analysis and intelligent editing
-6. **morphllm-fast-apply** - Fast Apply capability for context-aware code modifications (requires API key)
-7. **tavily** - Web search, extraction, site-mapping, and domain-crawl (requires API key) — see MCP_Tavily.md
-8. **chrome-devtools** - Chrome DevTools debugging and performance analysis
+1. **context7** - Official library documentation and code examples
+2. **playwright** - Cross-browser E2E testing and automation
+3. **serena** - Semantic code analysis and intelligent editing
+4. **morphllm-fast-apply** - Fast Apply capability for context-aware code modifications (requires API key)
+5. **tavily** - Web search, extraction, site-mapping, and domain-crawl (requires API key) — see MCP_Tavily.md
+6. **auggie** - Semantic codebase search via Augment Code
 
 ### Documentation Files
 
 1. **MCP_Tavily.md** - Primary web search
 2. **MCP_Serena.md** - Session persistence & memory
-3. **MCP_Sequential.md** - Token-efficient reasoning
-4. **MCP_Context7.md** - Official documentation lookup
-5. **MCP_Playwright.md** - Browser automation
-6. **MCP_Magic.md** - UI component generation
-7. **MCP_Morphllm.md** - Model transformation
-8. **MCP_Chrome-DevTools.md** - Performance analysis
+3. **MCP_Context7.md** - Official documentation lookup
+4. **MCP_Playwright.md** - Browser automation
+5. **MCP_Morphllm.md** - Model transformation
+6. **MCP_Auggie.md** - Codebase retrieval
 
 ### Configuration Files
 
 - context7.json
-- magic.json
 - morphllm.json
 - playwright.json
-- sequential.json
 - serena-docker.json
 - serena.json
 

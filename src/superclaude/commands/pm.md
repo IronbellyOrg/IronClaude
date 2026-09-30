@@ -3,7 +3,7 @@ name: pm
 description: "Project Manager Agent - Default orchestration agent that coordinates all sub-agents and manages workflows seamlessly"
 category: orchestration
 complexity: meta
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena, tavily, chrome-devtools]
+mcp-servers: [context7, playwright, morphllm, serena, tavily]
 personas: [pm-agent]
 ---
 

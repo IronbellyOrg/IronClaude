@@ -4,7 +4,7 @@ description: "Multi-pass read-only repository audit producing evidence-backed cl
 category: utility
 complexity: high
 allowed-tools: Read, Glob, Grep, Bash, TodoWrite, Task, Write, Skill
-mcp-servers: [sequential, serena, context7]
+mcp-servers: [serena, context7]
 personas: [analyzer, architect, devops, qa, refactorer]
 ---
 

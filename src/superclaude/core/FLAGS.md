@@ -36,16 +36,6 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 - Trigger: Library imports, framework questions, official documentation needs
 - Behavior: Enable Context7 for curated documentation lookup and pattern guidance
 
-**--seq / --sequential**
-
-- Trigger: Complex debugging, system design, multi-component analysis
-- Behavior: Enable Sequential for structured multi-step reasoning and hypothesis testing
-
-**--magic**
-
-- Trigger: UI component requests (/ui, /21), design system queries, frontend development
-- Behavior: Enable Magic for modern UI generation from 21st.dev patterns
-
 **--morph / --morphllm**
 
 - Trigger: Bulk code transformations, pattern-based edits, style enforcement
@@ -61,11 +51,6 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 - Trigger: Browser testing, E2E scenarios, visual validation, accessibility testing
 - Behavior: Enable Playwright for real browser automation and testing
 
-**--chrome / --devtools**
-
-- Trigger: Performance auditing, debugging, layout issues, network analysis, console errors
-- Behavior: Enable Chrome DevTools for real-time browser inspection and performance analysis
-
 **--tavily**
 
 - Trigger: Web search requests, real-time information needs, research queries, current events
@@ -74,7 +59,7 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 **--frontend-verify**
 
 - Trigger: UI testing requests, frontend debugging, layout validation, component verification
-- Behavior: Enable Playwright + Chrome DevTools + Serena for comprehensive frontend verification and debugging
+- Behavior: Enable Playwright + Serena for comprehensive frontend verification and debugging
 
 **--all-mcp**
 
@@ -91,12 +76,12 @@ Behavioral flags for Claude Code to enable specific execution modes and tool sel
 **--think**
 
 - Trigger: Multi-component analysis needs, moderate complexity
-- Behavior: Standard structured analysis (~4K tokens), enables Sequential
+- Behavior: Standard structured analysis (~4K tokens)
 
 **--think-hard**
 
 - Trigger: Architectural analysis, system-wide dependencies
-- Behavior: Deep analysis (~10K tokens), enables Sequential + Context7
+- Behavior: Deep analysis (~10K tokens), enables Context7
 
 **--ultrathink**
 

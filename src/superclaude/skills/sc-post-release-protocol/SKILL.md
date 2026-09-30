@@ -8,7 +8,7 @@ argument-hint: "<version> — an existing release tag (e.g. v1.4.1). Optional: -
 <!-- Extended metadata (for documentation, not parsed):
 category: documentation
 complexity: high
-mcp-servers: [sequential, serena]
+mcp-servers: [serena]
 personas: [scribe, devops, qa, analyzer]
 -->
 

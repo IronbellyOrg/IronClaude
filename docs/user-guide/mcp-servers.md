@@ -2,7 +2,7 @@
 
 ## Overview
 
-MCP (Model Context Protocol) servers extend Claude Code's capabilities through specialized tools. SuperClaude integrates 8 MCP servers and provides Claude with instructions on when to activate them based on your tasks.
+MCP (Model Context Protocol) servers extend Claude Code's capabilities through specialized tools. SuperClaude integrates MCP servers and provides Claude with instructions on when to activate them based on your tasks.
 
 ### 🔍 Reality Check
 
@@ -14,13 +14,11 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 **Core Servers:**
 
 - **context7**: Official library documentation and patterns
-- **sequential-thinking**: Multi-step reasoning and analysis  
-- **magic**: Modern UI component generation
 - **playwright**: Browser automation and E2E testing
 - **morphllm-fast-apply**: Pattern-based code transformations
 - **serena**: Semantic code understanding and project memory
 - **tavily**: Web search and real-time information retrieval
-- **chrome-devtools**: Performance analysis and debugging
+- **auggie**: Semantic codebase search and retrieval
 
 ## Quick Start
 
@@ -31,13 +29,11 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 | Request Contains | Servers Activated |
 |-----------------|------------------|
 | Library imports, API names | **context7** |
-| `--think`, debugging | **sequential-thinking** |  
-| `component`, `UI`, frontend | **magic** |
 | `test`, `e2e`, `browser` | **playwright** |
 | Multi-file edits, refactoring | **morphllm-fast-apply** |
 | Large projects, sessions | **serena** |
 | `/sc:research`, `latest`, `current` | **tavily** |
-| `performance`, `debug`, `LCP` | **chrome-devtools** |
+| Unfamiliar codebase, before edits | **auggie** |
 
 ## Server Details
 
@@ -54,36 +50,6 @@ MCP (Model Context Protocol) servers extend Claude Code's capabilities through s
 
 # Manual activation  
 /sc:analyze auth-system/ --c7
-```
-
-### sequential-thinking 🧠
-
-**Purpose**: Structured multi-step reasoning and systematic analysis
-**Triggers**: Complex debugging, `--think` flags, architectural analysis
-**Requirements**: Node.js 16+, no API key
-
-```bash
-# Automatic activation
-/sc:troubleshoot "API performance issues"
-# → Enables systematic root cause analysis
-
-# Manual activation
-/sc:analyze --think-hard architecture/
-```
-
-### magic ✨
-
-**Purpose**: Modern UI component generation from 21st.dev patterns
-**Triggers**: UI requests, `/ui` commands, component development
-**Requirements**: Node.js 16+, TWENTYFIRST_API_KEY ()
-
-```bash
-# Automatic activation
-/sc:implement "responsive dashboard component"
-# → Generates accessible UI with modern patterns
-
-# API key setup
-export TWENTYFIRST_API_KEY="your_key_here"
 ```
 
 ### playwright 🎭
@@ -165,20 +131,6 @@ superclaude mcp --servers auggie
 auggie login
 ```
 
-### chrome-devtools 📊
-
-**Purpose**: Performance analysis, debugging, and real-time browser inspection
-**Triggers**: Performance auditing, debugging layout issues (e.g., CLS), slow loading times (LCP), console errors, network requests
-**Requirements**: Node.js 16+, no API key
-
-```bash
-# Automatic activation
-/sc:debug "page is loading slowly"
-# → Enables performance analysis with Chrome DevTools
-
-# Manual activation
-/sc:analyze --performance "homepage"
-```
 
 **Capabilities:**
 
@@ -199,7 +151,7 @@ auggie login
 
 For users who want a simpler, unified setup that manages all MCP servers through a single endpoint, **AIRIS MCP Gateway** provides:
 
-- **50 tools** from 7 default servers (airis-agent, context7, fetch, memory, sequential-thinking, serena, tavily)
+- **50 tools** from default servers (airis-agent, context7, fetch, memory, serena, tavily)
 - **Single SSE endpoint** instead of 8+ separate stdio connections
 - **Lazy loading** - servers start only when needed, auto-terminate when idle
 
@@ -247,15 +199,6 @@ docker compose restart api
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"]
     },
-    "sequential-thinking": {
-      "command": "npx", 
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@2026.8.31"]
-    },
-    "magic": {
-      "command": "npx",
-      "args": ["@21st-dev/magic"],
-      "env": {"TWENTYFIRST_API_KEY": "${TWENTYFIRST_API_KEY}"}
-    },
     "playwright": {
       "command": "npx",
       "args": ["@playwright/mcp@latest"]
@@ -273,10 +216,6 @@ docker compose restart api
       "command": "npx",
       "args": ["-y", "tavily-mcp@0.2.22"],
       "env": {"TAVILY_API_KEY": "${TAVILY_API_KEY}"}
-    },
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest"]
     }
   }
 }
@@ -288,7 +227,7 @@ docker compose restart api
 
 ```bash
 # Enable specific servers
-/sc:analyze codebase/ --c7 --seq
+/sc:analyze codebase/ --c7
 
 # Disable all MCP servers
 /sc:implement "simple function" --no-mcp
@@ -302,9 +241,7 @@ docker compose restart api
 ```bash
 # Full-stack development
 /sc:implement "e-commerce checkout"
-# → Sequential: workflow analysis
-# → Context7: payment patterns  
-# → Magic: UI components
+# → Context7: payment patterns
 # → Serena: code organization
 # → Playwright: E2E testing
 ```
@@ -315,7 +252,7 @@ docker compose restart api
 
 - **No servers connected**: Check Node.js: `node --version` (need v16+; Tavily and Auggie require v18+)
 - **Context7 fails**: Clear cache: `npm cache clean --force`
-- **Magic/Morphllm errors**: Expected without API keys (paid services)
+- **Morphllm errors**: Expected without API keys (paid service)
 - **Server timeouts**: Restart Claude Code session
 
 **Quick Fixes:**
@@ -337,9 +274,6 @@ ls ~/.claude.json
 **API Key Configuration:**
 
 ```bash
-# For Magic server (required for UI generation)
-export TWENTYFIRST_API_KEY="your_key_here"
-
 # For Morphllm server (required for bulk transformations)
 export MORPH_API_KEY="your_key_here"
 
@@ -347,58 +281,51 @@ export MORPH_API_KEY="your_key_here"
 export TAVILY_API_KEY="tvly-your_key_here"
 
 # Add to shell profile for persistence
-echo 'export TWENTYFIRST_API_KEY="your_key"' >> ~/.bashrc
 echo 'export MORPH_API_KEY="your_key"' >> ~/.bashrc
 echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 ```
 
 **Environment Variable Usage:**
 
-- ✅ `TWENTYFIRST_API_KEY` - Required for Magic MCP server functionality
-- ✅ `MORPH_API_KEY` - Required for Morphllm MCP server functionality  
+- ✅ `MORPH_API_KEY` - Required for Morphllm MCP server functionality
 - ✅ `TAVILY_API_KEY` - Required for Tavily MCP server functionality (free tier available)
 - ❌ Other env vars in docs - Examples only, not used by framework
-- 📝 Magic and Morphllm are paid services, Tavily has free tier, framework works without them
+- 📝 Morphllm is a paid service, Tavily has free tier, framework works without them
 
 ## Server Combinations
 
 **No API Keys (Free)**:
 
-- context7 + sequential-thinking + playwright + serena
+- context7 + playwright + serena
 
 **1 API Key**:
-
-- Add magic for professional UI development
-
-**2 API Keys**:
 
 - Add morphllm-fast-apply for large-scale refactoring
 
 **Common Workflows:**
 
-- **Learning**: context7 + sequential-thinking
-- **Web Development**: magic + context7 + playwright  
-- **Enterprise Refactoring**: serena + morphllm + sequential-thinking
-- **Complex Analysis**: sequential-thinking + context7 + serena
-- **Deep Research**: tavily + sequential-thinking + serena + playwright
-- **Current Events**: tavily + context7 + sequential-thinking
-- **Performance Tuning**: chrome-devtools + sequential-thinking + playwright
+- **Learning**: context7 + serena
+- **Web Development**: context7 + playwright
+- **Enterprise Refactoring**: serena + morphllm
+- **Complex Analysis**: context7 + serena
+- **Deep Research**: tavily + serena + playwright
+- **Current Events**: tavily + context7
 
 ## Integration
 
 **With SuperClaude Commands:**
 
-- Analysis commands automatically use Sequential + Serena
-- Implementation commands use Magic + Context7
-- Testing commands use Playwright + Sequential
-- Research commands use Tavily + Sequential + Playwright
+- Analysis commands automatically use Serena
+- Implementation commands use Context7
+- Testing commands use Playwright
+- Research commands use Tavily + Playwright
 
 **With Behavioral Modes:**
 
-- Brainstorming Mode: Sequential for discovery
+- Brainstorming Mode: Serena for discovery
 - Task Management: Serena for persistence
 - Orchestration Mode: Optimal server selection
-- Deep Research Mode: Tavily + Sequential + Playwright coordination
+- Deep Research Mode: Tavily + Playwright coordination
 
 **Performance Control:**
 

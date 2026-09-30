@@ -4,7 +4,7 @@ description: "Neutral two-phase release split analysis with adversarial validati
 category: planning
 complexity: advanced
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, scribe]
 ---
 

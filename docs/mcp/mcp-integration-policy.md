@@ -112,49 +112,9 @@ Example:
   → PM Agent: Coordinate refactoring with Serena insights
 ```
 
-#### Sequential MCP
+#### Native reasoning (no Sequential MCP)
 
-```yaml
-Name: sequential-thinking
-Purpose: 複雑な推論と段階的分析
-Category: Reasoning Engine
-Auto-Managed: false (明示的使用)
-PM Agent Role: Commander modeで複雑タスク分析
-
-Capabilities:
-  - 段階的推論
-  - 仮説検証
-  - 複雑な問題分解
-  - システム設計分析
-
-Lifecycle:
-  Start: 何もしない
-  During: 複雑分析時に使用
-  End: 分析結果を返す
-  Cleanup: 自動
-
-Usage Pattern:
-  Use Cases:
-    - アーキテクチャ設計
-    - 複雑なバグ分析
-    - システム設計レビュー
-    - トレードオフ分析
-
-  NOT for:
-    - 単純なタスク
-    - 直感的に解決できる問題
-    - コード生成（分析のみ）
-
-Trigger Conditions:
-  - Keywords: "design", "architecture", "analyze tradeoffs"
-  - Complexity: Multi-component system analysis
-  - Uncertainty: Multiple valid approaches exist
-
-Example:
-  Task: "Design microservices architecture for authentication"
-  → Sequential: Step-by-step design analysis
-  → PM Agent: Document design decisions in docs/patterns/
-```
+`sequential-thinking` is not a SuperClaude-installed MCP. Multi-step analysis uses native model reasoning. Do not document `--seq` or Sequential MCP as an installable server.
 
 #### Context7 MCP
 
@@ -393,7 +353,7 @@ Sequential MCP:
     - Uncertainty in implementation
     - Architectural decision
 
-  Manual Override: --seq flag
+  Manual Override: native reasoning (no Sequential MCP flag)
 
 Context7 MCP:
   Auto-Trigger Keywords:

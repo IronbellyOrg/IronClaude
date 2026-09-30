@@ -3,7 +3,6 @@ name: swarm-wizard
 description: "Plain-language interactive guide to the superclaude swarm CLI — interviews a non-expert about what they want reviewed and why, maps the goal to the right lens/transport/flags, generates and validates the run components, proves the pipeline with a safe stub dry-run, then offers to launch the real swarm, monitor it live, and summarize the outcome in plain English. Use whenever someone wants to USE swarm, run a multi-model review, doesn't know which lens/flags to pick, or finds the swarm docs too technical."
 category: development
 complexity: advanced
-mcp-servers: [sequential]
 personas: [scribe, devops, analyzer]
 argument-hint: "[--goal <text>] [--target <path>] [--output <dir>] [--real] [--detached] [--advanced] [--yes]"
 version: "1.0"

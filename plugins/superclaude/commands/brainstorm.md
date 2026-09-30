@@ -1,114 +1,201 @@
 ---
 name: brainstorm
-description: "Interactive requirements discovery through Socratic dialogue and systematic exploration"
+description: "Orchestrated multi-agent brainstorm: Socratic dialogue + parallel proposals + adversarial merge"
 category: orchestration
 complexity: advanced
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
-personas: [architect, analyzer, frontend, backend, devops, project-manager]
+mcp-servers: [serena, auggie-mcp, tavily]
+personas: [architect, analyzer, scribe]
+version: 2.0.0
+spec: .dev/eval-workspaces/sc-brainstorm/SPEC.md
 ---
 
-# /sc:brainstorm - Interactive Requirements Discovery
-
-> **Context Framework Note**: This file provides behavioral instructions for Claude Code when users type `/sc:brainstorm` patterns. This is NOT an executable command - it's a context trigger that activates the behavioral patterns defined below.
+# /sc:brainstorm — Orchestrated Multi-Agent Brainstorm
 
 ## Triggers
 
-- Ambiguous project ideas requiring structured exploration
-- Requirements discovery and specification development needs
-- Concept validation and feasibility assessment requests
-- Cross-session brainstorming and iterative refinement scenarios
+- Ambiguous project ideas requiring structured exploration with multiple perspectives
+- Requirements discovery where adversarial debate would surface blind spots
+- Concept validation needing parallel proposals merged into a unified spec
+- Cross-session brainstorming with reproducible artifacts (not just chat output)
 
-## Context Trigger Pattern
+## Required Input
 
-```text
-/sc:brainstorm [topic/idea] [--strategy systematic|agile|enterprise] [--depth shallow|normal|deep] [--parallel]
+A topic string (free-form text). File references via `@<path>` are supported.
+
+```bash
+/sc:brainstorm "<topic>"
 ```
 
-**Usage**: Type this pattern in your Claude Code conversation to activate brainstorming behavioral mode with systematic exploration and multi-persona coordination.
+**STOP** on empty topic.
 
-## Behavioral Flow
+## Usage
 
-1. **Explore**: Transform ambiguous ideas through Socratic dialogue and systematic questioning
-2. **Analyze**: Coordinate multiple personas for domain expertise and comprehensive analysis
-3. **Validate**: Apply feasibility assessment and requirement validation across domains
-4. **Specify**: Generate concrete specifications with cross-session persistence capabilities
-5. **Handoff**: Create actionable briefs ready for implementation or further development
+```bash
+/sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
+  [--strategy systematic|agile|enterprise|auto] \
+  [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
+  [--personas p1,p2,...] [--models opus,sonnet,haiku] \
+  [--blind] [--convergence FLOAT] [--interactive] \
+  [--handoff none|design|tasklist|task] [--output DIR] \
+  [--dry-run] [--resume-from PATH] [--force-stale]
+```
 
-Key behaviors:
+## Options
 
-- Multi-persona orchestration across architecture, analysis, frontend, and backend domains
-- Advanced MCP coordination with intelligent routing for specialized analysis
-- Systematic execution with progressive dialogue enhancement and parallel exploration
-- Cross-session persistence with comprehensive requirements discovery documentation
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `<topic>` | | — (required) | Brainstorm topic (free text or `@file` reference) |
+| `--proposals` | `-p` | `3` | Number of parallel proposal variants (2-7). Clamped by depth. |
+| `--depth` | `-d` | `standard` | Dialogue + debate depth: `quick`, `standard`, `deep`. Pass-through to `/sc:adversarial --depth`. |
+| `--strategy` | `-s` | `auto` | `systematic`, `agile`, `enterprise`, `auto` (heuristic-detected) |
+| `--codebase` | | auto | Force codebase context enrichment |
+| `--no-codebase` | | `false` | Skip codebase enrichment even if code-related |
+| `--research` | | auto | `light`, `deep`, `none` |
+| `--no-research` | | `false` | Skip research enrichment |
+| `--personas` | | auto | Comma-separated persona list overriding auto-detection |
+| `--models` | | `opus,sonnet,haiku` | Model alias list rotated across proposals |
+| `--blind` | | `false` | Pass-through to `/sc:adversarial --blind` |
+| `--convergence` | | `0.75` | Pass-through to `/sc:adversarial --convergence` |
+| `--interactive` | `-i` | `false` | Pause for user input at Socratic + adversarial decision points |
+| `--handoff` | | `none` | Post-merge action: `none`, `design`, `tasklist`, `task` |
+| `--output` | `-o` | auto | Output directory (default: `.dev/brainstorms/<ts>-<slug>/`) |
+| `--dry-run` | | `false` | Execute Waves 0–2B, skip 3-4, print agent-spec preview |
+| `--resume-from` | | — | Resume from a saved seed-brief, skipping Socratic dialogue |
+| `--force-stale` | | `false` | Allow `--resume-from` even if domain re-classification differs |
 
-## MCP Integration
+**Flag interactions** (enforced in Wave 0):
 
-- **Sequential MCP**: Complex multi-step reasoning for systematic exploration and validation
-- **Context7 MCP**: Framework-specific feasibility assessment and pattern analysis
-- **Magic MCP**: UI/UX feasibility and design system integration analysis
-- **Playwright MCP**: User experience validation and interaction pattern testing
-- **Morphllm MCP**: Large-scale content analysis and pattern-based transformation
-- **Serena MCP**: Cross-session persistence, memory management, and project context enhancement
-
-## Tool Coordination
-
-- **Read/Write/Edit**: Requirements documentation and specification generation
-- **TodoWrite**: Progress tracking for complex multi-phase exploration
-- **Task**: Advanced delegation for parallel exploration paths and multi-agent coordination
-- **WebSearch**: Market research, competitive analysis, and technology validation
-- **sequentialthinking**: Structured reasoning for complex requirements analysis
-
-## Key Patterns
-
-- **Socratic Dialogue**: Question-driven exploration → systematic requirements discovery
-- **Multi-Domain Analysis**: Cross-functional expertise → comprehensive feasibility assessment
-- **Progressive Coordination**: Systematic exploration → iterative refinement and validation
-- **Specification Generation**: Concrete requirements → actionable implementation briefs
+- `--strategy enterprise` implies `--depth deep` unless overridden
+- `--depth quick` caps `--proposals` at 2 (cost guardrail)
+- `--depth deep` allows up to 7 proposals
+- `--handoff task` requires the task-builder skill installed; `--handoff tasklist` requires sc-tasklist-protocol
 
 ## Examples
 
-### Systematic Product Discovery
+### Codebase feature discovery
 
 ```bash
-/sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
-# Multi-persona analysis: architect (system design), analyzer (feasibility), project-manager (requirements)
-# Sequential MCP provides structured exploration framework
+/sc:brainstorm "add rate limiting to public API endpoints" --depth standard
 ```
 
-### Agile Feature Exploration
+Auto: codebase enrichment via Auggie; 3 proposals across opus/sonnet/haiku with architect/refactorer/backend personas; adversarial debate + merge.
+
+### Deep incident post-mortem
 
 ```bash
-/sc:brainstorm "real-time collaboration features" --strategy agile --parallel
-# Parallel exploration paths with frontend and backend personas
-# Context7 and Magic MCP for framework and UI pattern analysis
+/sc:brainstorm "deployment broke staging at 3am" --depth deep --strategy systematic
 ```
 
-### Enterprise Solution Validation
+Analyzer/devops personas; 5+ proposals; merge emphasizes observability + rollback strategies.
+
+### Product feature with light research
 
 ```bash
-/sc:brainstorm "enterprise data analytics platform" --strategy enterprise --validate
-# Comprehensive validation with devops and architect personas
-# Serena MCP for cross-session persistence and enterprise requirements tracking
+/sc:brainstorm "AI-powered changelog summarizer" --strategy agile
 ```
 
-### Cross-Session Refinement
+Tavily research enrichment; architect/frontend/scribe personas; product-style requirements output.
+
+### Cross-domain redesign with full handoff
 
 ```bash
-/sc:brainstorm "mobile app monetization strategy" --depth normal
-# Serena MCP manages cross-session context and iterative refinement
-# Progressive dialogue enhancement with memory-driven insights
+/sc:brainstorm "redesign error handling across worker pool" \
+  --depth deep --proposals 5 --handoff tasklist
 ```
+
+Codebase + research enrichment; 5 proposals × 3 models; deep debate; merged requirements feed sc:tasklist invocation.
+
+### Blind multi-model comparison
+
+```bash
+/sc:brainstorm "consolidate three duplicate auth modules" \
+  --depth deep --blind --proposals 4
+```
+
+Strips model identity before adversarial scoring to prevent model-bias.
+
+### Dry-run agent-spec preview
+
+```bash
+/sc:brainstorm "improve onboarding workflow" --dry-run --strategy enterprise
+```
+
+Executes dialogue + enrichment + agent-spec composition; prints the composed --agents string and token-budget estimate; does NOT invoke adversarial.
+
+## Behavioral Summary
+
+5-wave protocol:
+
+1. Wave 0: prerequisites + skill compatibility check
+2. Wave 1: Socratic dialogue → seed-brief
+3. Wave 2A: parallel enrichment via `/sc:analyze` + `/sc:research`
+4. Wave 2B: agent-spec composition + token-budget pre-flight
+5. Wave 3: delegate to `Skill sc-adversarial-protocol` with `--generate spec`
+6. Wave 4: flag-gated handoff to `/sc:design`, `/sc:tasklist`, or `/sc:task-builder`
+
+Produces a versioned return contract with stable + telemetry blocks.
+
+## Activation
+
+**MANDATORY**: Before executing any protocol steps, invoke:
+> Skill sc:brainstorm-protocol
+
+Do NOT proceed with protocol execution using only this command file. The full behavioral specification is in the protocol skill at `src/superclaude/skills/sc-brainstorm-protocol/SKILL.md`.
 
 ## Boundaries
 
 **Will:**
 
-- Transform ambiguous ideas into concrete specifications through systematic exploration
-- Coordinate multiple personas and MCP servers for comprehensive analysis
-- Provide cross-session persistence and progressive dialogue enhancement
+- Transform ambiguous topics into structured seed briefs via Socratic dialogue
+- Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
+- Auto-detect and invoke codebase + research enrichment when valuable
+- Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
+- Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/sc:task-builder` (flag-gated)
+- Produce a versioned return contract for composability with downstream commands
 
 **Will Not:**
 
-- Make implementation decisions without proper requirements discovery
-- Override user vision with prescriptive solutions during exploration phase
-- Bypass systematic exploration for complex multi-domain projects
+- Re-implement adversarial debate, scoring, or merge logic (delegated to `sc-adversarial-protocol`)
+- Auto-invoke `/sc:design` (text recommendation only — design is dialogue-heavy)
+- Modify source code or implement features (produces requirements only)
+- Activate ANTHROPIC_DEFAULT_* env var swapping (uses 3 active aliases as-is)
+- Silently downgrade on missing handoff skills (STOPs and asks user to choose)
+- Route empty/malformed adversarial responses to PARTIAL success (FAILs instead)
+
+## Related Commands
+
+| Command | Integration | Usage |
+|---------|-------------|-------|
+| `/sc:adversarial` | Core delegate — Wave 3 invokes via `Skill sc-adversarial-protocol` | Parallel proposal generation + debate + merge |
+| `/sc:analyze` | Enrichment — Wave 2A invokes for codebase context | `--codebase` or auto for code-related topics |
+| `/sc:research` | Enrichment — Wave 2A invokes for light research | `--research light` or auto when topic mentions external frameworks |
+| `tech-research` (skill) | Enrichment — Wave 2A invokes for deep research | `--research deep` or auto for enterprise/novel topics |
+| `/sc:design` | Handoff (text-only) | `--handoff design` prints recommendation; user runs separately |
+| `/sc:tasklist` | Handoff (invoked) | `--handoff tasklist` invokes `Skill sc-tasklist-protocol` |
+| `/sc:task-builder` | Handoff (invoked) | `--handoff task` invokes `Skill task-builder` with domain-detected template |
+
+## CRITICAL BOUNDARIES
+
+### Stop after merged requirements
+
+This command produces a REQUIREMENTS SPECIFICATION (spec-style format) plus optional downstream artifacts via `--handoff`.
+
+**Explicitly Will NOT**:
+
+- Generate implementation code (use `/sc:implement`)
+- Make low-level architectural decisions outside the merged spec (use `/sc:design`)
+- Execute tests or deployments
+
+**Output**:
+
+- `merged-requirements.md` — unified specification with frontmatter + structured sections
+- `seed-brief.md` — Socratic dialogue output
+- `adversarial/` — 6 standard adversarial artifacts (debate-transcript, diff-analysis, etc.)
+- `enrichment/` — codebase + research artifacts (if any)
+- Return contract (stable + telemetry) for downstream composition
+
+**Next Step**: After brainstorm completes, the merged requirements feed into:
+
+- `/sc:design` for architecture
+- `/sc:tasklist` for sprint planning
+- `/sc:implement` for direct execution
