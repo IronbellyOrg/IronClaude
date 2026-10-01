@@ -10,27 +10,24 @@
 #                             (auto-starts it on 127.0.0.1:4010 if not running,
 #                             enables gateway model discovery)
 #   ccsession --shim          Start an untagged session routed through the shim
-#   ccsession --profile claude
-#                             Start untagged with Opus 5.5 and 1M context
-#   ccsession --profile grok --shim
-#                             Start untagged with Grok 4.7 and 500K context
-#   ccsession --profile muse --shim
-#                             Start untagged with Muse Spark 1.3 and 950K context
-#   ccsession --profile 5.6sol --shim
-#                             Start untagged with GPT 5.6 Sol and 850K context
-#   ccsession --profile 6astra --shim
-#                             Start untagged with GPT 6 Astra and 850K context
-#   ccsession --profile 6sol --shim
-#                             Start untagged with GPT 6 Sol and 850K context
-#   ccsession <topic> --profile <model> [--shim]
+#   ccsession --profile <name> [--shim]
+#                             Start untagged with a profile (listed below)
+#   ccsession <topic> --profile <name> [--shim]
 #                             Start or resume a labeled profile session
-#   Legacy aliases: 1mm=claude, 500k=grok, 372k=5.6sol
 #   Extra local profiles can be added in ~/.config/ccsession/profiles.d/*.sh
 #   A label resumes the same project session regardless of profile or shim.
 #   ccsession --list          List all labeled sessions across all workspaces
 #   ccsession --here          List labeled sessions for the current workspace only
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
+#   ccsession --refresh-models
+#                             Check now for the latest profiles and model list
+#   ccsession --models-status Show which model data is in use and when it was checked
 #   ccsession --help          Show this help
+#
+# Profiles and the shim's model list come from ccsession-models.json. Every
+# launch checks IronClaude for a newer copy (at most ~2 seconds, cached in
+# ~/.cache/ccsession/). Private add-on profiles skip it; set
+# CCSESSION_MODELS_REFRESH=0 to skip it everywhere.
 #
 # The wrapper always runs claude with --dangerously-skip-permissions.
 # Override by setting CC_CLAUDE_FLAGS in your shell env.
@@ -47,6 +44,19 @@ CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions}"
 PROJECTS_DIR="$HOME/.claude/projects"
 CC_SHIM_SCRIPT="${CC_SHIM_SCRIPT:-$HOME/.claude/skills/ccsession-tag/local-gateway-alias-proxy.py}"
 CC_SHIM_PORT="${CC_SHIM_PORT:-4010}"
+# The skill folder holds models.py and the bundled model data. Resolve the
+# ~/.local/bin symlink so the helper is found next to the real script. Plain
+# readlink in a loop because older macOS readlink has no -f.
+_self="$0"
+while [ -L "$_self" ]; do
+  _link="$(readlink "$_self")"
+  case "$_link" in
+    /*) _self="$_link" ;;
+    *) _self="$(dirname "$_self")/$_link" ;;
+  esac
+done
+CCSESSION_DIR="$(cd "$(dirname "$_self")" && pwd)"
+CCSESSION_MODELS="$CCSESSION_DIR/models.py"
 
 # Extract --shim and --profile from anywhere in the args; every other
 # argument passes through to Claude Code unchanged.
@@ -174,7 +184,9 @@ except (ValueError, TypeError):
     raise SystemExit
 if health.get("service") != "ccsession-gateway-alias-proxy":
     print("other")
-elif health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/") and str(health.get("port")) == sys.argv[3]:
+elif (health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/")
+      and str(health.get("port")) == sys.argv[3] and "model_data" in health):
+    # A shim from before model data existed keeps old hard-coded lists.
     print("match")
 else:
     print("stale")
@@ -201,6 +213,7 @@ else:
     echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
     GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" \
       GW_PROXY_PORT="$CC_SHIM_PORT" \
+      CCSESSION_DIR="$CCSESSION_DIR" \
       nohup python3 "$CC_SHIM_SCRIPT" >/dev/null 2>&1 &
     # Wait briefly for the port to come up.
     for _ in 1 2 3 4 5 6 7 8 9 10; do
@@ -288,54 +301,22 @@ apply_profile() {
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
   unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
 
-  [ "$CCSESSION_EXT_PROFILE" = 1 ] || case "$PROFILE" in
-    claude|1mm)
-      # Plain "claude-opus-5-5" is the 200K row; the 1M window is a separate
-      # model name. Without the suffix the context override below is ignored.
-      PROFILE_MODEL="claude-opus-5-5[1m]"
-      PROFILE_CONTEXT="1000000"
-      PROFILE_COMPACT_WINDOW="1000000"
-      PROFILE_REQUIRES_SHIM=0
-      ;;
-    grok|500k)
-      PROFILE_MODEL="grok-4.7"
-      PROFILE_CONTEXT="500000"
-      PROFILE_COMPACT_WINDOW="500000"
-      PROFILE_REQUIRES_SHIM=1
-      ;;
-    muse)
-      PROFILE_MODEL="muse-spark-1.3"
-      PROFILE_CONTEXT="950000"
-      PROFILE_COMPACT_WINDOW="950000"
-      PROFILE_REQUIRES_SHIM=1
-      ;;
-    6astra)
-      # Astra advertises 1M but the provider rejected a 924.8K request with
-      # "input exceeds the context window", so both values sit below the real
-      # ceiling to leave compaction room before that limit is reached.
-      PROFILE_MODEL="gpt-6-astra"
-      PROFILE_CONTEXT="850000"
-      PROFILE_COMPACT_WINDOW="850000"
-      PROFILE_REQUIRES_SHIM=1
-      ;;
-    6sol)
-      PROFILE_MODEL="gpt-6-sol"
-      PROFILE_CONTEXT="850000"
-      PROFILE_COMPACT_WINDOW="850000"
-      PROFILE_REQUIRES_SHIM=1
-      ;;
-    5.6sol|372k)
-      PROFILE_MODEL="gpt-5.6-sol"
-      PROFILE_CONTEXT="850000"
-      PROFILE_COMPACT_WINDOW="850000"
-      PROFILE_REQUIRES_SHIM=1
-      ;;
-    *)
+  if [ "$CCSESSION_EXT_PROFILE" != 1 ]; then
+    # Built-in profiles come from the model data file (validated, never run).
+    if ! _resolved=$(python3 "$CCSESSION_MODELS" resolve "$PROFILE"); then
       echo "ccsession: unknown profile '$PROFILE'" >&2
-      echo "Valid profiles: claude, grok, muse, 5.6sol, 6astra, 6sol (legacy aliases: 1mm, 500k, 372k), plus any in $CCSESSION_PROFILES_DIR" >&2
+      echo "Valid profiles: $(python3 "$CCSESSION_MODELS" profiles | cut -d$'\x1f' -f1 | paste -sd, - | sed 's/,/, /g'), plus any in $CCSESSION_PROFILES_DIR" >&2
       exit 2
-      ;;
-  esac
+    fi
+    while IFS='=' read -r _key _value; do
+      case "$_key" in
+        PROFILE_MODEL) PROFILE_MODEL="$_value" ;;
+        PROFILE_CONTEXT) PROFILE_CONTEXT="$_value" ;;
+        PROFILE_COMPACT_WINDOW) PROFILE_COMPACT_WINDOW="$_value" ;;
+        PROFILE_REQUIRES_SHIM) PROFILE_REQUIRES_SHIM="$_value" ;;
+      esac
+    done <<< "$_resolved"
+  fi
 
   if [ "$PROFILE_REQUIRES_SHIM" = 1 ] && [ "$USE_SHIM" != 1 ]; then
     echo "ccsession: profile '$PROFILE' requires --shim" >&2
@@ -551,9 +532,28 @@ list_sessions() {
   fi
 }
 
+show_help() {
+  awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
+  echo "Profiles (use --shim where marked):"
+  python3 "$CCSESSION_MODELS" profiles | while IFS=$'\x1f' read -r _name _aliases _label _shim; do
+    _flag=""; [ "$_shim" = 1 ] && _flag=" --shim"
+    printf '  ccsession --profile %s%s\n                            %s%s\n' \
+      "$_name" "$_flag" "$_label" "${_aliases:+ (also: $_aliases)}"
+  done
+}
+
 case "${1:-}" in
   -h|--help)
-    awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
+    show_help
+    exit 0
+    ;;
+  --refresh-models)
+    CCSESSION_MODELS_VERBOSE=1 python3 "$CCSESSION_MODELS" refresh --wait 10
+    python3 "$CCSESSION_MODELS" status
+    exit 0
+    ;;
+  --models-status)
+    python3 "$CCSESSION_MODELS" status
     exit 0
     ;;
   --list)
@@ -583,8 +583,16 @@ esac
 # Preserve the original no-argument help behavior only when nothing at all
 # was selected (no topic, no profile, no shim).
 if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ "$USE_SHIM" != 1 ]; then
-  awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
+  show_help
   exit 0
+fi
+
+# Pick up the latest profiles and model list before this session starts.
+# A conditional request: "not modified" when nothing changed; capped at ~2s
+# and never fatal, so offline launches use the cached or bundled copy.
+# Private add-on profiles (profiles.d) never use this data, so they skip it.
+if [ "${CCSESSION_MODELS_REFRESH:-1}" != 0 ] && [ "$CCSESSION_EXT_PROFILE" != 1 ]; then
+  python3 "$CCSESSION_MODELS" refresh --wait "${CCSESSION_MODELS_WAIT:-2}" || true
 fi
 
 if [ -n "$PROFILE" ]; then
@@ -617,8 +625,19 @@ echo "$(pwd)" > "$TOPIC_DIR/.cwd"
 # Exported so the SessionStart hook can pick it up and write the label file.
 export CLAUDE_TOPIC="$TOPIC"
 
+# The label is written when a session starts, but Claude Code only saves the
+# conversation after the first message, and a transcript can be deleted later.
+# Resuming an id with no transcript fails, so start fresh under the same label
+# instead; the SessionStart hook then records the new session id.
 if [ -f "$TOPIC_FILE" ]; then
   SESSION_ID=$(cat "$TOPIC_FILE")
+  if ! compgen -G "$PROJECTS_DIR/*/$SESSION_ID.jsonl" >/dev/null; then
+    echo "[ccsession] Session ${SESSION_ID:0:8} for '$TOPIC' has no saved conversation; starting a new one"
+    rm -f "$TOPIC_FILE"
+  fi
+fi
+
+if [ -f "$TOPIC_FILE" ]; then
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
   if [ -n "${PROFILE_MODEL:-}" ]; then
     exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"

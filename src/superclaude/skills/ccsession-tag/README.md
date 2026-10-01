@@ -19,6 +19,8 @@ Neither one changes anything on your gateway. Both run entirely on your machine.
 |---|---|
 | `ccsession` | The `ccsession` shell command |
 | `local-gateway-alias-proxy.py` | The shim, a small local proxy |
+| `ccsession-models.json` | Profiles and the curated model list (data only) |
+| `models.py` | Checks for, validates, and caches the latest model data |
 | `install.sh` | Standalone fallback when you only have this skill folder |
 | `ccsession.env.example` | Template for your gateway address and key |
 | `hooks/session-start.sh` | Records each session's ID so names can resume it |
@@ -138,20 +140,19 @@ A profile decides which model a session starts on and how much conversation it
 holds before Claude Code trims it.
 
 ```bash
-ccsession notes --profile 6astra --shim
+ccsession notes --profile gpt --shim
 ```
 
 | Profile | Starts on | Holds | Needs `--shim` |
 |---|---|---|---|
 | `claude` | Opus 5.5, large-window version | 1,000,000 | no |
-| `5.6sol` | GPT 5.6 Sol | 850,000 | yes |
-| `6astra` | GPT 6 Astra | 850,000 | yes |
-| `6sol` | GPT 6 Sol | 850,000 | yes |
+| `gpt` | GPT 6.1 Sol | 850,000 | yes |
 | `grok` | Grok 4.7 | 500,000 | yes |
 | `muse` | Muse Spark 1.3 | 950,000 | yes |
+| `qwen` | Qwen 3.8 Max | 1,000,000 | yes |
+| `glm` | GLM 5.3 | 1,000,000 | yes |
 
-Older names `1mm`, `372k`, and `500k` still work and mean `claude`, `5.6sol`,
-and `grok`. With `--shim`, ccsession saves the complete curated model list before
+`ccsession --help` always shows the current list. With `--shim`, ccsession saves the complete curated model list before
 Claude Code starts, so every profile shows the same gateway models in `/model`.
 
 To add your own without editing ccsession, put a file in
@@ -174,20 +175,41 @@ Then run `ccsession --profile mine`. Labels work the same across every profile.
 
 ---
 
+## Keeping profiles and models current
+
+Profiles and the curated picker live in `ccsession-models.json`. Every
+`ccsession` launch asks IronClaude on GitHub whether a newer copy exists. When
+nothing changed GitHub answers "not modified", which adds roughly a tenth of a
+second; a newer copy is validated, cached in `~/.cache/ccsession/`, and used
+by that same launch, with one line saying what changed. Without a network the
+check gives up after about 2 seconds and the cached or shipped copy is used.
+A running shim picks up new data on its next model-list request.
+
+| Command or setting | What it does |
+|---|---|
+| `ccsession --refresh-models` | Check right now and report the result |
+| `ccsession --models-status` | Show which copy is in use and when it was last checked |
+| `CCSESSION_MODELS_REFRESH=0` | Skip the check (uses the cached or shipped copy) |
+| `CCSESSION_MODELS_URL=<url>` | Read the data from a different address |
+
 ## Choosing which models appear
 
-Every gateway model not listed in `REMOVE` shows up on its own. Editing these
-lists controls the curated model picker shipped for the team. All of it lives near the top of `local-gateway-alias-proxy.py`, and
-you always use the model's real gateway name such as `gpt-6-astra`, never the
-`claude-gw-` version you see in the picker.
+Edit `ccsession-models.json` in IronClaude and merge it; every install picks it
+up on its next launch. Always use the model's real gateway name such as
+`gpt-6-astra`, never the `claude-gw-` version you see in the picker. Every
+gateway model not listed in `remove` shows up on its own.
 
 | Goal | Where to put it |
 |---|---|
-| Hide a model | `REMOVE` |
-| Move it to the top | `PINNED` |
-| Move an image model into the final cluster | `TAIL` |
-| Give it a nicer name | `DISPLAY_OVERRIDES` |
-| Let it hold a million tokens | `ONE_MILLION_CONTEXT` |
+| Add or change a profile | `profiles` |
+| Hide a model | `picker.remove` |
+| Move it to the top | `picker.pinned` |
+| Move an image model into the final cluster | `picker.tail` |
+| Give it a nicer name | `picker.display_overrides` |
+| Let it hold a million tokens | `picker.one_million_context` |
+
+Raise `version` (for example `2026-10-02.1`) with every change: installs keep
+whichever copy has the newest version.
 
 ---
 
@@ -196,7 +218,7 @@ you always use the model's real gateway name such as `gpt-6-astra`, never the
 There are exactly two controls, and it helps to know which one you are reaching
 for.
 
-**Per model.** A model listed in `ONE_MILLION_CONTEXT` is offered to Claude Code
+**Per model.** A model listed in `picker.one_million_context` is offered to Claude Code
 with a `[1m]` tag on its name, and Claude Code then treats it as holding a
 million tokens. One million is the only size this method supports. There is no
 way to tag a model as 500,000 or 372,000.
@@ -248,7 +270,8 @@ Sessions that are already open keep the old list until they restart.
 |---|---|
 | `ccsession: command not found` | `~/.local/bin` is not on your `PATH` |
 | Gateway models missing from the picker | Started without `--shim`, or the session predates your last shim restart |
-| A model shows 200,000 tokens | It is not in `ONE_MILLION_CONTEXT`, and the session has no profile |
+| A model shows 200,000 tokens | It is not in `picker.one_million_context`, and the session has no profile |
+| A new model or profile has not appeared | Run `ccsession --models-status`; `ccsession --refresh-models` checks immediately |
 | "input exceeds the context window" | The size you set is larger than the model truly accepts. Lower the profile number |
 | Image errors on some models | Certain models accept text only. Use a different model for conversations containing screenshots |
 | A named session says it cannot be found | The conversation was deleted. `ccsession --rm <name>` clears the stale name |
