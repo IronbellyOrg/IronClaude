@@ -655,6 +655,7 @@ def test_out_of_usage_switches_and_cools_down(shim) -> None:
         (502, b"unknown provider for model muse-spark-1.3"),
         (404, b'{"error":{"type":"not_found_error"}}'),
         (401, b"Incorrect API key provided"),
+        (426, b'{"error":"Your Grok CLI version (0.2.120) is outdated."}'),
     ],
 )
 def test_every_switch_rule_moves_to_the_next_model(shim, reply) -> None:

@@ -317,6 +317,10 @@ SWITCH_RULES = [
     (502, ("unknown provider for model",), "model no longer routed"),
     (404, ("not_found_error",), "retired model"),
     (401, ("incorrect api key",), "GATEWAY KEY BROKEN for this provider"),
+    # Seen live 2026-10-01: Grok answers some requests with 426 "Your Grok CLI
+    # version ... is outdated" (gateway-side login too old) and others with 503
+    # auth_unavailable; both mean the model cannot answer.
+    (426, ("is outdated",), "provider login outdated on the gateway"),
 ]
 _TOO_LARGE = re.compile(
     r"prompt is too long|too many tokens|context length|context window|maximum context|too large",
