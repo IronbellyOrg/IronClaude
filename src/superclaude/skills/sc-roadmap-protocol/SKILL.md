@@ -406,15 +406,15 @@ All frontmatter follows the schemas defined in spec Section FR-002. Key rules:
 
 ## 7. MCP Integration
 
+Wave analysis, validation reasoning, and complexity assessment in Waves 1-4 use native Claude reasoning.
+
 | Server | Usage | Waves |
 |--------|-------|-------|
-| Sequential | Wave analysis, validation reasoning, complexity assessment | 1-4 |
 | Context7 | Template patterns, domain best practices, framework documentation | 1-2 |
 | Serena | Session persistence, memory, cross-session state | 0, 4, completion |
 
 **Circuit Breaker Fallbacks**:
 
-- Sequential unavailable → native Claude reasoning with reduced analysis depth
 - Context7 unavailable → WebSearch for documentation, note limitations
 - Serena unavailable → proceed without persistence, write to `<output_dir>/.session-memory.md`
 

@@ -149,7 +149,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **Serena**: Wave 0-6 symbol-level navigation (`find_symbol`, `find_referencing_symbols`, `get_symbols_overview`, plus `find_declaration` / `find_implementations` / `type_hierarchy` for declaration-anchored and polymorphic grounding), the UC-2 §6.1 step-5.5 verification triangle (`get_diagnostics_for_file` / `execute_shell_command` / `summarize_changes`; `--no-verify` disables), opt-in `onboarding` cold-start bootstrap (`--onboard`), the memory pattern for cross-session learning capture (§6.3), and the `think_about_*` checkpoint triad as one of several signals (NOT the sole reflection mechanism — see §6.4 fail-open policy).
 - **Context7**: Tier 2 only; consulted when the spec/diff references a framework or library by name.
 - **Tavily**: Tier 2 only; rate-limited; used for external-symptom lookups when documentation grounding can't resolve a deviation.
-- **Sequential**: Tier 2 synthesis when reconciling competing reviewer verdicts before the merge.
+- **Native reasoning**: Tier 2 synthesis when reconciling competing reviewer verdicts before the merge.
 
 ## Tool Coordination
 

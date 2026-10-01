@@ -72,7 +72,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## MCP Integration
 
-- **Sequential**: Multi-step synthesis when reconciling Auggie findings with Claude's diff-level checks
+- **Native reasoning**: Multi-step synthesis when reconciling Auggie findings with Claude's diff-level checks
 - **Serena**: Symbol-level cross-reference when validating Auggie's file:line citations against actual code
 
 External tool (not MCP, but central): **`auggie` CLI** is the primary review engine. The skill shells out to `auggie --print --output-format json --ask` to offload deep analysis to Auggie's indexed codebase context, dramatically reducing Claude token consumption.
