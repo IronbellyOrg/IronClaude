@@ -224,7 +224,7 @@ Before Wave 5 synthesis AND at Wave 7 step 7.2 (pre-mutation), re-read the input
 
 **Backward-compat with v1.0-pre contract.** The legacy `input_sha256: {tasklist: <hex>, spec: <hex>}` field in §9.1 is preserved as a derivable subset (first two entries of `file_list`); both fields are emitted in v1.0. The Wave 5 drift guard uses `input_tree_sha256` as the authoritative invariant; the legacy field is recording for backward-compat consumers per §9.4 evolution policy.
 
-**Step 0.5 (env-var alias resolution + 0/1/2/3+ alias routing).** Resolve the three `ANTHROPIC_DEFAULT_*_MODEL` env vars into an alias-set. Apply this routing table to decide Tier 2 reviewer count:
+**Step 0.5 (env-var alias resolution + 0/1/2/3+ alias routing).** Resolve the three `ANTHROPIC_DEFAULT_*_MODEL` env vars into an alias-set. An unset variable resolves to Claude Code's built-in alias for that slot (`opus`, `sonnet`, `haiku`), which Claude Code resolves itself, so it still counts as a model class; the count is the number of DISTINCT models the three aliases name (it falls below 3 only when two aliases name the same model). Coder workspaces no longer set these variables (Coder issue #270), and counting only set variables would drop every Coder run to Tier-1 and STOP any explicit `--tier 2`. Apply this routing table to decide Tier 2 reviewer count:
 
 | Aliases resolved | `--tier` flag | Routing | Telemetry |
 |------------------|---------------|---------|-----------|

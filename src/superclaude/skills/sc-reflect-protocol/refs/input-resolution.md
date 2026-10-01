@@ -69,6 +69,8 @@ The skill resolves model aliases from environment at Wave 0 step 0.5:
 - `ANTHROPIC_DEFAULT_SONNET_MODEL`
 - `ANTHROPIC_DEFAULT_HAIKU_MODEL`
 
+An unset variable resolves to Claude Code's built-in alias for that slot (`opus`, `sonnet`, `haiku`) and still counts; the resolved count is the number of distinct models the three aliases name (`count_model_aliases` in `cli/reflect/runner.py`). Coder workspaces no longer set these variables (Coder issue #270).
+
 Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table below). Missing aliases **do not abort the skill** in the general case; they degrade reviewer topology per the routing table. The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
 
 MCP availability is also probed at Wave 0:

@@ -283,14 +283,28 @@ def _child_env() -> dict[str, str]:
     return probe.build_env()
 
 
+# Claude Code's own alias for each slot, used when the env var is unset.
+_BUILTIN_ALIASES = ("opus", "sonnet", "haiku")
+
+
 def count_model_aliases(env: dict[str, str]) -> int:
-    """Count present-and-non-empty ``ANTHROPIC_DEFAULT_*_MODEL`` aliases in ``env``.
+    """Count the distinct model classes behind the three model aliases.
+
+    Each ``ANTHROPIC_DEFAULT_*_MODEL`` that is set names its model; an unset one
+    falls back to Claude Code's built-in alias (``opus``/``sonnet``/``haiku``),
+    which Claude Code resolves itself. Coder issue #270 removes all three env
+    vars, so counting only the set ones would drop every Coder run to Tier-1.
+    The count is below 3 only when two aliases name the same model.
 
     ≥3 distinct classes -> full Tier-2 diversity; 2 -> degraded; 0-1 -> T1-only
     (research 08 §4). The count is recorded in the sidecar; low counts surface
     as a ``degraded`` verdict via the contract, not as a preflight blocker.
     """
-    return sum(1 for var in _MODEL_ALIAS_ENV_VARS if (env.get(var) or "").strip())
+    resolved = {
+        (env.get(var) or "").strip() or builtin
+        for var, builtin in zip(_MODEL_ALIAS_ENV_VARS, _BUILTIN_ALIASES)
+    }
+    return len(resolved)
 
 
 def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:

@@ -20,6 +20,11 @@ every commit, costs nothing, and catches both the URL form
 (``api.anthropic.com``) and the model-identifier form
 (``claude-*``) regardless of whether the dispatch path is exercised.
 
+Scope: transport SOURCE only. Model ids that arrive through the env (for
+example reflect's Tier-1 fallback ladder reading ``T1Model01=claude-opus-5-5``
+in Coder workspaces) are an owner-approved exception (2026-10-01) and are not
+audited here.
+
 The audit deliberately mirrors the validation command in
 ``phase-3-tasklist.md`` T03.20::
 

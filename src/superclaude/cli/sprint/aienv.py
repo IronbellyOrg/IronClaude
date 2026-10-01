@@ -70,6 +70,10 @@ def _load_aliases(env: Optional[Mapping[str, str]] = None) -> dict[str, str]:
         value = env_map.get(slot_var)
         if value:
             aliases[alias] = value
+    if not aliases:
+        # No Anthropic slot is set (Coder issue #270 removes all three): Claude
+        # Code then resolves the short aliases itself, so offer them as-is.
+        aliases = {alias: alias for _, alias in _ANTHROPIC_SLOTS}
     for index in range(1, T2_MODEL_MAX_SLOTS + 1):
         slot_name = f"{T2_MODEL_ENV_PREFIX}{index}"
         value = env_map.get(slot_name)
@@ -95,7 +99,9 @@ def suggest_alternate_model(
 
     Prefix-agnostic over the numbered slots: it walks whatever aliases
     :func:`_load_aliases` discovered, in priority order, so ``opus`` rotates to
-    ``sonnet`` and ``T2Model01`` rotates to ``T2Model02``.
+    ``sonnet`` and ``T2Model01`` rotates to ``T2Model02`` (returned as that
+    slot's model id, e.g. ``grok-4.7``, since ``claude --model`` cannot resolve
+    a slot name).
 
     Returns ``None`` (never a fabricated alias, edge case #7) when the failed
     model is unknown OR no distinct alternate exists. ``env`` is the injectable
@@ -114,5 +120,7 @@ def suggest_alternate_model(
     failed_alias, failed_resolved = items[failed_idx]
     for alias, resolved in items[failed_idx + 1 :]:
         if alias != failed_alias and resolved != failed_resolved:
-            return alias
+            # ``claude --model`` understands opus/sonnet/haiku but not a slot
+            # NAME such as ``T2Model02``; for proxy slots hand back the model id.
+            return resolved if alias.startswith(T2_MODEL_ENV_PREFIX) else alias
     return None

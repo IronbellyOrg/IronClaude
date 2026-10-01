@@ -15,6 +15,9 @@
     "gpt-6-astra": {
       "effortLevel": "xhigh"
     },
+    "gpt-6.1-sol": {
+      "effortLevel": "xhigh"
+    },
     "gpt-6-sol": {
       "effortLevel": "xhigh"
     },

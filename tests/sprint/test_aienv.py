@@ -41,7 +41,9 @@ def test_suggest_alternate_for_proxy_slot_returns_next_slot():
         "T2Model01": "qwen3.6-plus",
         "T2Model02": "glm-4.6",
     }
-    assert suggest_alternate_model("T2Model01", env=env) == "T2Model02"
+    # The suggestion is passed to ``claude --model``, so it is the model id.
+    assert suggest_alternate_model("T2Model01", env=env) == "glm-4.6"
+    assert suggest_alternate_model("qwen3.6-plus", env=env) == "glm-4.6"
 
 
 @pytest.mark.unit
@@ -70,3 +72,26 @@ def test_identical_resolved_model_is_not_suggested():
         "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-opus-4-8",
     }
     assert suggest_alternate_model("claude-opus-4-8", env=env) is None
+
+
+@pytest.mark.unit
+def test_coder_tier2_rotation_suggests_the_next_model_id():
+    """Coder env after the tier change: Muse first, then Grok (Tier 2)."""
+    env = {
+        "T2Model01": "muse-spark-1.3",
+        "T2Model01_WINDOW": "950000",
+        "T2_WINDOW": "500000",
+        "T2Model02": "grok-4.7",
+        "T2Model02_WINDOW": "500000",
+    }
+    assert suggest_alternate_model("muse-spark-1.3", env=env) == "grok-4.7"
+    # Window lines are never read as model slots.
+    assert suggest_alternate_model("950000", env=env) is None
+
+
+@pytest.mark.unit
+def test_without_anthropic_slots_the_builtin_aliases_rotate():
+    """Coder #270 removes ANTHROPIC_DEFAULT_*: fall back to Claude Code's aliases."""
+    env = {"T2Model01": "muse-spark-1.3"}
+    assert suggest_alternate_model("opus", env=env) == "sonnet"
+    assert suggest_alternate_model("haiku", env=env) == "muse-spark-1.3"
