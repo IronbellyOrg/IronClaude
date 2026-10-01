@@ -254,12 +254,14 @@ if health.get("service") != "ccsession-gateway-alias-proxy":
     print("other")
 elif (health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/")
       and str(health.get("port")) == sys.argv[3] and "model_data" in health
-      and "tiers" in health and health.get("show_all") == (sys.argv[4] == "1")):
+      and "tiers" in health and health.get("show_all") == (sys.argv[4] == "1")
+      and health.get("settings") == sys.argv[5]):
     # Older shims (no model data, or no tiers) keep old code in memory.
     print("match")
 else:
     print("stale")
-' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT" "${CCSESSION_SHOW_ALL_MODELS:-0}")
+' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT" "${CCSESSION_SHOW_ALL_MODELS:-0}" \
+      "$(python3 "$CCSESSION_MODELS" settings-digest 2>/dev/null)")
     if [ "$health_status" = "match" ]; then
       echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
     elif [ "$listener_pid" != other ] && { [ "$health_status" = "stale" ] || \

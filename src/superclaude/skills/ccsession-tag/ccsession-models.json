@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "version": "2026-10-01.1",
+  "version": "2026-10-02.1",
   "profiles": {
     "claude": {
       "aliases": [],

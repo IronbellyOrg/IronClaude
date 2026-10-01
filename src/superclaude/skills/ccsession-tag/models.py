@@ -373,6 +373,8 @@ def model_window(model: str, data=None, tenv=None) -> tuple:
     """(window, where it came from) for a model chosen by name."""
     data = load()[0] if data is None else data
     tenv = tier_env() if tenv is None else tenv
+    # Accept the "[1m]" form users copy from the picker or the Mac profiles.
+    model = model[: -len("[1m]")] if model.endswith("[1m]") else model
     for key, value in sorted(tenv.items()):
         if _SLOT.match(key) and value == model:
             return _window(tenv, f"{key}_WINDOW"), key
@@ -381,20 +383,39 @@ def model_window(model: str, data=None, tenv=None) -> tuple:
     return DEFAULT_WINDOW, "not in any tier"
 
 
-def shim_port(base: int, env=None, tenv=None) -> int:
-    """Port of the shim for this session's settings.
+def _settings_key(env=None, tenv=None) -> list:
+    """What makes one session's shim different from another's.
 
-    Sessions with the same settings share one shim. Show-all, or tier settings
-    taken from the environment instead of the shared file, get their own shim so
-    one session never changes another session's picker or failover.
+    Sessions that read the same workspace env file share one shim (it re-reads
+    the file per request). Show-all, a different file, or tier settings taken
+    from the environment (no file) each need their own shim.
     """
     env = os.environ if env is None else env
     key = []
     if env.get("CCSESSION_SHOW_ALL_MODELS") == "1":
         key.append("show-all")
-    if not defaults_path().is_file():
+    path = defaults_path()
+    if path.is_file():
+        if str(path) != DEFAULTS_FILE:
+            key.append(f"file={path}")
+    else:
         tenv = tier_env(env) if tenv is None else tenv
         key.extend(f"{k}={v}" for k, v in sorted(tenv.items()))
+    return key
+
+
+def settings_digest(env=None, tenv=None) -> str:
+    """Short fingerprint of the shim settings; reported in shim health."""
+    return hashlib.sha256("\n".join(_settings_key(env, tenv)).encode()).hexdigest()[:16]
+
+
+def shim_port(base: int, env=None, tenv=None) -> int:
+    """Port of the shim for this session's settings (base port when shared).
+
+    A collision between two different settings is caught by the health check
+    (settings_digest), which restarts the shim rather than reusing it.
+    """
+    key = _settings_key(env, tenv)
     if not key:
         return base
     digest = hashlib.sha256("\n".join(key).encode()).digest()
@@ -487,6 +508,9 @@ def main(argv) -> int:
         return 0
     if command == "default-tier":
         print(tier_env().get("CCSESSION_DEFAULT_TIER", "") or "tier2")
+        return 0
+    if command == "settings-digest":
+        print(settings_digest())
         return 0
     if command == "shim-port" and len(argv) > 2:
         print(shim_port(int(argv[2])))

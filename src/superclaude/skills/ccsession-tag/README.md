@@ -151,10 +151,10 @@ ccsession notes --model gpt-6-astra   # one model, no failover
 | | What happens |
 |---|---|
 | Picker (`/model`) | Shows the tiers (Tier 0, Tier 1, ...), each with its models |
-| Failover | When a tier's model answers with an out-of-usage error (for example `are cooling down`, `auth_unavailable`, `usage_limit_reached`, a billing error, an overloaded or retired model, or no reply within 2 minutes), the same request goes to the next model; Claude Code never sees the error. A plain `Rate limited` and a `500` are passed back unchanged |
+| Failover | When a tier's model answers with an out-of-usage error (for example `are cooling down`, `auth_unavailable`, `usage_limit_reached`, a billing error, an overloaded or retired model, an outdated provider login, or, for a streamed request, no start of a reply within 5 minutes), the same request goes to the next model; Claude Code never sees the error. A plain `Rate limited` and a `500` are passed back unchanged |
 | Cooldown | A model that failed is skipped for an hour (or the gateway's `Retry-After`), then tried once again |
 | Context | The tier window (`T<N>_WINDOW`) for the whole session; a backup smaller than that is never used |
-| `--model <name>` | Window from the tier slot that holds that model; 200K if it is in no tier |
+| `--model <name>` | Window from the tier slot that holds that model (a `[1m]` suffix is accepted); for a model in no tier, 1M if it is on the `one_million_context` list, else 200K, with a warning |
 | `--profile` | Not used in tier mode (refused with a pointer to `--tier` and `--model`) |
 | Shim | Always on |
 
@@ -166,6 +166,26 @@ sessions' pickers do not change. `CCSESSION_TIERS=0` turns tier mode off,
 `CCSESSION_COMPACT_WINDOW` / `CCSESSION_COMPACT_PCT` still override the
 auto-compact settings. `ccsession --models-status` shows whether tier mode is
 on and where its settings came from.
+
+No time limit ever applies once a model has started answering: a reply may
+think or stream for hours. The only timers are a 15-second limit on opening a
+connection to the gateway (an unreachable gateway is reported, never treated as
+a model failure) and, for streamed tier requests only, the 5-minute wait for a
+model to start answering.
+
+| Setting | Effect |
+|---|---|
+| `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on |
+| `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
+| `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given (`tier2` if unset) |
+| `AIDEV_AI_DEFAULTS_PATH` | Workspace env file read on every launch (default `/etc/aidev02/aienv.d/defaults.sh`); the shell environment is used only when the file is absent |
+| `CCSESSION_TIERS=0` | Turn tier mode off |
+| `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
+| `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
+| `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
+| `CCSESSION_CONNECT_TIMEOUT` | Limit on opening a gateway connection (default 15) |
+| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, or tier settings from the shell get base + an offset; an explicitly set port is used as-is |
+| `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
 
 ---
 
@@ -301,6 +321,11 @@ Restart it and clear the saved list, then open a new session:
 ```
 
 Sessions that are already open keep the old list until they restart.
+
+Simpler alternative: stop every running shim (`pkill -f local-gateway-alias-proxy.py`)
+and start a new session; ccsession starts the right shim on the right port
+(show-all and other offset ports included). After an upgrade ccsession also
+replaces an older shim by itself.
 
 ---
 

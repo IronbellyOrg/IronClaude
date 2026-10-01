@@ -10,6 +10,7 @@ from __future__ import annotations
 import http.server
 import json
 import os
+import runpy
 import socket
 import stat
 import subprocess
@@ -194,9 +195,15 @@ def test_old_picker_keys_are_rejected() -> None:
 def test_shim_port_separates_show_all_and_env_settings(
     tmp_path: Path, monkeypatch
 ) -> None:
-    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    path = _defaults(tmp_path)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    # A file other than the standard one is a different setting.
+    assert models.shim_port(4010) != 4010
+    monkeypatch.setattr(models, "DEFAULTS_FILE", str(path))
     assert models.shim_port(4010) == 4010
+    shared = models.settings_digest()
     monkeypatch.setenv("CCSESSION_SHOW_ALL_MODELS", "1")
+    assert models.settings_digest() != shared
     show_all = models.shim_port(4010)
     assert 4011 <= show_all <= 4107
     monkeypatch.delenv("CCSESSION_SHOW_ALL_MODELS")
@@ -262,10 +269,12 @@ json.dump({
     fake_lsof = tmp_path / "lsof"
     fake_lsof.write_text("#!/bin/sh\nprintf '4242\\n'\n")
     fake_curl = tmp_path / "curl"
+    # A running shim with this session's settings (digest from models.py).
     fake_curl.write_text(
-        '#!/bin/sh\nprintf \'{"service":"ccsession-gateway-alias-proxy",'
+        f"#!/bin/sh\nd=$(python3 {SKILL_DIR / 'models.py'} settings-digest)\n"
+        'printf \'{"service":"ccsession-gateway-alias-proxy",'
         '"upstream":"http://gateway.example:4000/cli","port":4555,'
-        '"model_data":"t","tiers":{},"show_all":false}\'\n'
+        '"model_data":"t","tiers":{},"show_all":false,"settings":"%s"}\' "$d"\n'
     )
     for f in (fake_claude, fake_lsof, fake_curl):
         f.chmod(f.stat().st_mode | stat.S_IXUSR)
@@ -447,6 +456,19 @@ class StandInGateway:
                 if step and step[0] == "sleep":
                     time.sleep(step[1])
                     step = None
+                if step and step[0] in ("pause-stream", "cut-stream"):
+                    # Headers and the first event, then a pause; then either
+                    # the rest (pause-stream) or a dropped connection.
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/event-stream")
+                    self.end_headers()
+                    first, rest = (OK_SSE % req["model"].encode()).split(b"\n\n", 1)
+                    self.wfile.write(first + b"\n\n")
+                    self.wfile.flush()
+                    time.sleep(step[1])
+                    if step[0] == "pause-stream":
+                        self.wfile.write(rest)
+                    return
                 if step is None:
                     self.send_response(200)
                     self.send_header("Content-Type", "text/event-stream")
@@ -705,10 +727,24 @@ def test_backup_rejecting_size_tries_the_next_one(shim) -> None:
     status, body = _ask(base, "claude-gw-tier2")
     assert status == 200 and b"Qwen3.8-max" in body
     assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7", "Qwen3.8-max"]
-    # Too large is not out of usage: Grok is not cooling down.
+    # Muse is now cooling, so Grok is the first model tried. Too large is not
+    # out of usage (Grok is not cooling) and the next backup still answers.
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"Qwen3.8-max" in body
+    assert gateway.models_called()[3:] == ["grok-4.7", "Qwen3.8-max"]
+
+
+def test_no_backup_can_hold_it_passes_the_error_back(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
     gateway.script["muse-spark-1.3"] = [COOLING]
-    _ask(base, "claude-gw-tier2")
-    assert gateway.models_called()[-1] == "grok-4.7"
+    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3"):
+        gateway.script[m] = [TOO_LONG]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 400
+    message = json.loads(body)["error"]["message"]
+    assert "prompt is too long" in message and "can hold this conversation" in message
+    assert "out of usage" not in message
 
 
 def test_all_models_out_returns_last_error_with_note(shim) -> None:
@@ -786,3 +822,190 @@ def test_changed_env_file_applies_to_a_running_shim(shim, tmp_path) -> None:
     )
     _ask(base, "claude-gw-tier2")
     assert gateway.models_called() == ["glm-5.3"]
+
+
+def test_long_pause_after_a_reply_starts_is_not_cut(shim) -> None:
+    """The first-byte limit applies only until the reply starts (QA F2)."""
+    gateway, start, _ = shim
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1")
+    gateway.script["muse-spark-1.3"] = [("pause-stream", 2.5)]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"message_stop" in body
+    assert gateway.models_called() == ["muse-spark-1.3"]
+
+
+def test_failure_after_the_reply_starts_passes_through(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [("cut-stream", 0.2)]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"message_start" in body and b"message_stop" not in body
+    assert gateway.models_called() == ["muse-spark-1.3"]  # no switch mid-stream
+
+
+def test_connect_timeout_is_unreachable_not_a_switch(shim) -> None:
+    """A gateway that cannot be reached must not cool down every model (QA F1)."""
+    gateway, start, log = shim
+    # 192.0.2.1 is TEST-NET-1: connection attempts hang until the timeout.
+    base = start(
+        GW_PROXY_UPSTREAM="http://192.0.2.1:9/cli", CCSESSION_CONNECT_TIMEOUT="1"
+    )
+    for _ in range(2):
+        status, body = _ask(base, "claude-gw-tier2")
+        assert status == 502 and b"gateway unreachable" in body
+    assert "cooling down" not in log.read_text()
+
+
+def test_cooldown_with_an_injected_clock() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="clock_test"
+    )
+
+    class Clock:
+        now = 1000.0
+
+        def time(self):
+            return self.now
+
+    clock = Clock()
+    module["cool_down"].__globals__["time"] = clock
+    module["cool_down"]("m1")
+    assert module["cooling_until"]("m1") == 1000.0 + module["COOLDOWN_SECONDS"]
+    clock.now += module["COOLDOWN_SECONDS"] - 1
+    assert module["cooling_until"]("m1")
+    clock.now += 2
+    assert not module["cooling_until"]("m1")
+    module["cool_down"]("m1", retry_after=30)
+    clock.now += 31
+    assert not module["cooling_until"]("m1")
+
+
+def test_compact_overrides_still_apply_in_tier_mode(tmp_path: Path) -> None:
+    rc, _, err, seen = _launch(tmp_path, "work", CCSESSION_COMPACT_WINDOW="300000")
+    assert rc == 0, err
+    assert seen["context"] == "500000" and seen["compact"] == "300000"
+
+
+def test_addon_profile_on_a_tier_machine_skips_tier_mode(tmp_path: Path) -> None:
+    profiles = tmp_path / "home" / ".config" / "ccsession" / "profiles.d"
+    profiles.mkdir(parents=True)
+    addon = profiles / "mine.sh"
+    addon.write_text(
+        'ccsession_profile_mine() { PROFILE_MODEL="addon-model"; PROFILE_CONTEXT=123456;'
+        " PROFILE_COMPACT_WINDOW=123456; PROFILE_REQUIRES_SHIM=0; }\n"
+    )
+    addon.chmod(0o600)
+    rc, _, err, seen = _launch(tmp_path, "work", "--profile", "mine")
+    assert rc == 0, err
+    assert _model_arg(seen) == "addon-model" and seen["context"] == "123456"
+    assert seen["base_url"] == "http://gateway.example:4000/cli"  # no tier shim
+
+
+def test_model_with_1m_suffix_finds_its_tier_window(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    assert models.model_window("claude-opus-5-5[1m]") == (1000000, "T1Model01")
+
+
+def test_show_all_launch_runs_its_own_shim(tmp_path: Path) -> None:
+    """Through the real script and a real shim: show-all gets another port."""
+    home = tmp_path / "home"
+    home.mkdir()
+    fake_claude = tmp_path / "bin" / "claude"
+    fake_claude.parent.mkdir()
+    fake_claude.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
+    fake_claude.chmod(0o755)
+    path = _defaults(tmp_path)
+    env = os.environ.copy()
+    for k in ("CC_SHIM_PORT",):
+        env.pop(k, None)
+    env.update(
+        HOME=str(home),
+        CLAUDE_BIN=str(fake_claude),
+        ANTHROPIC_BASE_URL="http://127.0.0.1:9/cli",
+        CC_SHIM_SCRIPT=str(SKILL_DIR / "local-gateway-alias-proxy.py"),
+        SEEN_FILE=str(tmp_path / "seen"),
+        AIDEV_AI_DEFAULTS_PATH=str(path),
+        CCSESSION_SHOW_ALL_MODELS="1",
+    )
+    expected = subprocess.run(
+        [sys.executable, str(SKILL_DIR / "models.py"), "shim-port", "4010"],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    assert expected != "4010"
+    try:
+        proc = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "work"],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert proc.returncode == 0, proc.stderr
+        assert (tmp_path / "seen").read_text().strip() == f"http://127.0.0.1:{expected}"
+        health = json.loads(
+            urllib.request.urlopen(
+                f"http://127.0.0.1:{expected}/__ccsession_shim", timeout=5
+            ).read()
+        )
+        assert health["show_all"] is True and health["port"] == int(expected)
+    finally:
+        subprocess.run(["pkill", "-f", f"GW_PROXY_PORT={expected}"], check=False)
+        out = subprocess.run(
+            ["lsof", "-ti", f"tcp:{expected}", "-s", "TCP:LISTEN"],
+            capture_output=True,
+            text=True,
+        ).stdout.split()
+        for pid in out:
+            os.kill(int(pid), 15)
+
+
+def _ask_raw(base: str, model: str, stream: bool, timeout: float = 120):
+    body = {
+        "model": model,
+        "max_tokens": 10,
+        "stream": stream,
+        "messages": [{"role": "user", "content": "hi"}],
+    }
+    req = urllib.request.Request(
+        f"{base}/v1/messages",
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json", "x-api-key": "test"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.status, resp.read()
+
+
+@pytest.mark.parametrize(
+    "model", ["claude-gw-tier2", "claude-gw-kimi-k3", "gpt-6.1-sol"]
+)
+def test_no_time_limit_once_a_reply_starts(shim, model) -> None:
+    """Silence mid-reply, longer than every shim timer, never cuts the reply.
+
+    Covers the tier path and the plain forwarding path (aliased and real
+    names). Timers are shrunk to 1s; the gateway goes quiet for 8s.
+    """
+    gateway, start, _ = shim
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1", CCSESSION_CONNECT_TIMEOUT="1")
+    for m in ("muse-spark-1.3", "kimi-k3", "gpt-6.1-sol"):
+        gateway.script[m] = [("pause-stream", 8)]
+    status, body = _ask_raw(base, model, stream=True)
+    assert status == 200 and b"message_stop" in body
+    assert len(gateway.calls) == 1
+
+
+def test_non_streamed_tier_request_waits_without_limit(shim) -> None:
+    """A non-streamed request only answers when done; never treated as stalled."""
+    gateway, start, log = shim
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1")
+    gateway.script["muse-spark-1.3"] = [("sleep", 4)]
+    status, body = _ask_raw(base, "claude-gw-tier2", stream=False)
+    assert status == 200
+    assert gateway.models_called() == ["muse-spark-1.3"]
+    assert "gave no reply" not in log.read_text()

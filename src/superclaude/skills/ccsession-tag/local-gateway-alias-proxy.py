@@ -76,12 +76,37 @@ _cooldowns = {}  # real model id -> epoch seconds when it may be tried again
 # Fixed for the life of this shim; ccsession gives a show-all session its own
 # shim (port) so other sessions' pickers never change.
 SHOW_ALL = os.environ.get("CCSESSION_SHOW_ALL_MODELS") == "1"
-COOLDOWN_SECONDS = int(os.environ.get("CCSESSION_COOLDOWN_SECONDS") or 3600)
-# How long a tier request waits for the gateway's first reply before it counts
-# as a stalled model and moves to the next one. Once a reply starts, the normal
-# long streaming timeout applies.
-FIRST_BYTE_TIMEOUT = float(os.environ.get("CCSESSION_FIRST_BYTE_TIMEOUT") or 120)
-STREAM_TIMEOUT = 600
+
+
+def _seconds(name, default):
+    """A positive number of seconds from the environment, else the default."""
+    raw = os.environ.get(name)
+    try:
+        value = float(raw) if raw else default
+    except ValueError:
+        value = 0
+    if value <= 0:
+        sys.stderr.write(
+            f"[proxy] WARNING: {name}={raw!r} is not a positive number; using {default}\n"
+        )
+        value = default
+    return value
+
+
+COOLDOWN_SECONDS = _seconds("CCSESSION_COOLDOWN_SECONDS", 3600)
+# Timers. NOTHING ever limits a reply once the gateway has started answering:
+# a model may think or stream for hours, so the socket has no read timeout
+# after the reply's status line arrives.
+# - CONNECT_TIMEOUT: failing to even open a connection means the gateway is
+#   unreachable (passed back, never a model switch).
+# - FIRST_BYTE_TIMEOUT: only for a streamed tier request (Claude Code's normal
+#   kind, where a healthy gateway answers with headers at once), how long to
+#   wait for the gateway to START answering before treating the model as
+#   stalled and trying the next one (owner decision, spec 15 decision 6). Kept
+#   under Claude Code's own 10-minute request timeout so the switch happens
+#   before Claude Code gives up. Non-streamed requests wait without limit.
+FIRST_BYTE_TIMEOUT = _seconds("CCSESSION_FIRST_BYTE_TIMEOUT", 300)
+CONNECT_TIMEOUT = _seconds("CCSESSION_CONNECT_TIMEOUT", 15)
 TIER_PREFIX = "claude-gw-tier"
 
 
@@ -420,6 +445,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 "port": LISTEN[1],
                 "model_data": rules["version"],
                 "show_all": SHOW_ALL,
+                "settings": model_data.settings_digest(),
                 "tier_mode": rules["tier_mode"],
                 "tiers": {
                     name: [m for _, m, _ in t["models"]]
@@ -503,17 +529,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.log_message("/v1/models -> %d aliases exposed", len(alias_to_real))
 
     def _proxy(self, body):
-        url = UPSTREAM + self.path
-        req = urllib.request.Request(
-            url, data=body, headers=self._fwd_headers(), method=self.command
-        )
+        """Forward any request unchanged and stream the reply, with no time limit."""
+        result = self._open_upstream(body, wait=None, identity=False)
+        if result[0] != "reply":
+            return self._send_error_json(
+                502, "api_error", f"ccsession: gateway unreachable: {result[-1]}"
+            )
+        _, conn, resp = result
         try:
-            resp = urllib.request.urlopen(req, timeout=STREAM_TIMEOUT)
-        except urllib.error.HTTPError as e:
-            resp = e
-        self._stream(
-            getattr(resp, "status", getattr(resp, "code", 502)), resp.headers, resp
-        )
+            self._stream(resp.status, resp.headers, resp)
+        finally:
+            conn.close()
 
     def _send_body(self, status, headers, raw):
         self.send_response(status)
@@ -530,11 +556,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
         ).encode()
         self._send_body(status, {"Content-Type": "application/json"}, raw)
 
-    def _open_upstream(self, body):
-        """POST body upstream; return ("reply", conn, resp), ("timeout",) or ("unreachable", exc).
+    def _open_upstream(self, body, wait=None, identity=True):
+        """Send this request upstream.
 
-        Waits at most FIRST_BYTE_TIMEOUT for the gateway's status line, then
-        switches the socket to the long streaming timeout.
+        Returns ("reply", conn, resp), ("timeout", None) or ("unreachable", exc).
+        `wait` limits only the time until the gateway STARTS answering (None =
+        no limit). After the status line arrives there is no timeout at all.
+        `identity` asks for an uncompressed reply (error bodies are matched
+        against SWITCH_RULES); plain forwarding keeps the client's choice.
         """
         u = urllib.parse.urlsplit(UPSTREAM + self.path)
         cls = (
@@ -542,23 +571,32 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if u.scheme == "https"
             else http.client.HTTPConnection
         )
-        conn = cls(u.hostname, u.port, timeout=FIRST_BYTE_TIMEOUT)
+        conn = cls(u.hostname, u.port, timeout=CONNECT_TIMEOUT)
         headers = self._fwd_headers()
-        # Error bodies are read to match SWITCH_RULES, so ask for them uncompressed.
-        headers["Accept-Encoding"] = "identity"
-        headers["Content-Length"] = str(len(body))
+        if identity:
+            headers["Accept-Encoding"] = "identity"
+        if body is not None:
+            headers["Content-Length"] = str(len(body))
         target = u.path + (f"?{u.query}" if u.query else "")
         try:
-            conn.request("POST", target, body=body, headers=headers)
+            conn.connect()
+        except OSError as exc:  # includes a connect timeout: the gateway is down
+            conn.close()
+            return ("unreachable", exc)
+        # Keep our own reference: for a close-delimited reply getresponse()
+        # hands the socket to the response and clears conn.sock.
+        sock = conn.sock
+        sock.settimeout(wait)
+        try:
+            conn.request(self.command, target, body=body, headers=headers)
             resp = conn.getresponse()
         except (socket.timeout, TimeoutError):
             conn.close()
-            return ("timeout",)
+            return ("timeout", None)
         except OSError as exc:
             conn.close()
             return ("unreachable", exc)
-        if conn.sock is not None:
-            conn.sock.settimeout(STREAM_TIMEOUT)
+        sock.settimeout(None)  # the reply has started: never cut it off
         return ("reply", conn, resp)
 
     def _forward_tier(self, name, obj):
@@ -572,16 +610,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 400, "invalid_request_error", f"ccsession {name}: {why}"
             )
         tier_window = tier["window"]
-        last = None  # (status, headers, raw) of the last switch error
-        attempted = 0
-        for slot, model, window in tier["models"]:
+        last = None  # (status, headers, raw) of the last error seen
+        ended = "usage"  # why the last tried model failed: usage | size
+        for position, (slot, model, window) in enumerate(tier["models"]):
             if window < tier_window:
                 continue  # cannot hold this tier's context (spec section 6)
             if cooling_until(model):
                 continue
             obj["model"] = model
-            result = self._open_upstream(json.dumps(obj).encode())
-            attempted += 1
+            # Only a streamed request gets the start-of-reply limit.
+            wait = FIRST_BYTE_TIMEOUT if obj.get("stream") else None
+            result = self._open_upstream(json.dumps(obj).encode(), wait=wait)
             if result[0] == "unreachable":
                 audit(f"TIER {name}: gateway unreachable ({result[1]}); not switching")
                 return self._send_error_json(
@@ -605,6 +644,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         }
                     ).encode(),
                 )
+                ended = "usage"
                 continue
             _, conn, resp = result
             if resp.status < 400:
@@ -625,14 +665,30 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     f"TIER {name}: {slot} {model} -> next model ({resp.status} {reason}); cooling down until {clock(until)}"
                 )
                 last = (resp.status, resp.headers, raw)
+                ended = "usage"
                 continue
-            if attempted > 1 and _TOO_LARGE.search(text):
+            # A backup (not the tier's main model) that cannot hold the
+            # conversation: try the next backup (spec section 6).
+            if position > 0 and _TOO_LARGE.search(text):
                 audit(
                     f"TIER {name}: backup {model} rejected the request as too large; trying the next one"
                 )
                 last = (resp.status, resp.headers, raw)
+                ended = "size"
                 continue
             return self._send_body(resp.status, resp.headers, raw)  # not a switch error
+        if last and ended == "size":
+            # No backup could hold this conversation: pass that error back.
+            audit(f"TIER {name}: no available model could hold this conversation")
+            status, headers, raw = last
+            return self._send_body(
+                status,
+                headers,
+                with_note(
+                    raw,
+                    f"ccsession: no available {tier['label']} model can hold this conversation",
+                ),
+            )
         waits = [cooling_until(m) for _, m, w in tier["models"] if w >= tier_window]
         waits = [w for w in waits if w]
         retry = f"; next retry at {clock(min(waits))}" if waits else ""

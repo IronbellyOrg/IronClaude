@@ -69,7 +69,7 @@ print(json.dumps({
     fake_curl.write_text(
         '#!/bin/sh\nprintf \'{"service":"ccsession-gateway-alias-proxy",'
         '"upstream":"http://gateway.example:4000/cli","port":4555,"model_data":"t",'
-        '"tiers":{},"show_all":false}\'\n'
+        '"tiers":{},"show_all":false,"settings":"e3b0c44298fc1c14"}\'\n'
     )
     fake_curl.chmod(fake_curl.stat().st_mode | stat.S_IXUSR)
 
@@ -441,6 +441,7 @@ def test_profile_warms_complete_gateway_cache_before_claude_starts(
                     "model_data": "t",
                     "tiers": {},
                     "show_all": False,
+                    "settings": "e3b0c44298fc1c14",
                 }
             else:
                 payload = {
@@ -530,6 +531,7 @@ def test_profile_keeps_same_shim_cache_when_warmup_fails(tmp_path: Path) -> None
                         "model_data": "t",
                         "tiers": {},
                         "show_all": False,
+                        "settings": "e3b0c44298fc1c14",
                     }
                 ).encode()
                 self.send_response(200)
@@ -815,6 +817,7 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
             "model_data": json.loads((SKILL_DIR / "ccsession-models.json").read_text())[
                 "version"
             ],
+            "settings": "e3b0c44298fc1c14",
             "show_all": False,
             "tier_mode": False,
             "tiers": {},
