@@ -106,7 +106,7 @@ Orchestrate parallel brainstorming via:
    - If `--handoff task` AND `task-builder` skill missing → STOP: `"task-builder skill missing. Re-run with --handoff tasklist (if sc-tasklist-protocol installed) or --handoff design (text-only)."`
    - If `--handoff tasklist` AND `sc-tasklist-protocol` missing → STOP similarly
 8. Create output directory (default `.dev/brainstorms/<ts>-<slug>/`). If exists and non-empty, append `-N` suffix. Cap N at 99 (STOP on N=100); WARN at N≥10.
-9. Validate model aliases: check env vars `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL` are set. If `--models` provided, validate each alias resolves to one of the known aliases.
+9. Validate model aliases: read env vars `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`. An unset variable is not an error: the alias resolves to Claude Code's built-in model for `opus`/`sonnet`/`haiku` (Coder workspaces no longer set these, Coder issue #270). If `--models` provided, validate each alias resolves to one of the known aliases.
 10. If `--strategy enterprise` and `--depth` not explicitly set → set `--depth deep` + INFO log.
 
 **Exit Criteria**: All prerequisites validated. Output dir ready. Emit: `"Wave 0 complete: prereqs validated. Models: <list>. Proposals: <N>. Depth: <D>. Output: <path>."`

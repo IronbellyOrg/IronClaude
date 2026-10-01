@@ -67,13 +67,10 @@ def _load_aliases(env: Optional[Mapping[str, str]] = None) -> dict[str, str]:
     env_map: Mapping[str, str] = env if env is not None else os.environ
     aliases: dict[str, str] = {}
     for slot_var, alias in _ANTHROPIC_SLOTS:
-        value = env_map.get(slot_var)
-        if value:
-            aliases[alias] = value
-    if not aliases:
-        # No Anthropic slot is set (Coder issue #270 removes all three): Claude
-        # Code then resolves the short aliases itself, so offer them as-is.
-        aliases = {alias: alias for _, alias in _ANTHROPIC_SLOTS}
+        # An unset slot is still usable: Claude Code resolves the short alias
+        # itself (Coder issue #270 removes all three variables). Same rule as
+        # reflect's count_model_aliases.
+        aliases[alias] = env_map.get(slot_var) or alias
     for index in range(1, T2_MODEL_MAX_SLOTS + 1):
         slot_name = f"{T2_MODEL_ENV_PREFIX}{index}"
         value = env_map.get(slot_name)
@@ -114,6 +111,14 @@ def suggest_alternate_model(
         if failed_model_or_alias in (alias, resolved):
             failed_idx = idx
             break
+    if failed_idx is None:
+        # An unset Anthropic slot resolves inside Claude Code, so the cooldown
+        # body carries the real id (``claude-opus-5-5``); match it by family.
+        lowered = failed_model_or_alias.lower()
+        for idx, (alias, resolved) in enumerate(items):
+            if resolved == alias and alias in lowered and lowered.startswith("claude"):
+                failed_idx = idx
+                break
     if failed_idx is None:
         return None
 

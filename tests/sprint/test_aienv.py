@@ -48,9 +48,11 @@ def test_suggest_alternate_for_proxy_slot_returns_next_slot():
 
 @pytest.mark.unit
 def test_no_alternate_returns_none_safe():
-    # Only one slot present → no distinct alternate → None (never fabricate).
-    env = {"ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8"}
-    assert suggest_alternate_model("claude-opus-4-8", env=env) is None
+    # The last slot has no distinct alternate → None (never fabricate). An unset
+    # Anthropic slot still counts (Claude Code resolves the alias itself), so
+    # the dead end is the last proxy slot.
+    env = {"T2Model01": "muse-spark-1.3"}
+    assert suggest_alternate_model("muse-spark-1.3", env=env) is None
 
 
 @pytest.mark.unit
@@ -70,6 +72,8 @@ def test_identical_resolved_model_is_not_suggested():
     env = {
         "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8",
         "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-opus-4-8",
+        # Set too: an unset haiku would be Claude Code's own (distinct) alias.
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-opus-4-8",
     }
     assert suggest_alternate_model("claude-opus-4-8", env=env) is None
 
@@ -95,3 +99,13 @@ def test_without_anthropic_slots_the_builtin_aliases_rotate():
     env = {"T2Model01": "muse-spark-1.3"}
     assert suggest_alternate_model("opus", env=env) == "sonnet"
     assert suggest_alternate_model("haiku", env=env) == "muse-spark-1.3"
+    # A real halt passes the id from the gateway's cooldown body, not the alias.
+    assert suggest_alternate_model("claude-opus-5-5", env=env) == "sonnet"
+    assert suggest_alternate_model("claude-sonnet-5-5", env=env) == "haiku"
+
+
+@pytest.mark.unit
+def test_partly_set_anthropic_slots_keep_the_unset_builtins():
+    """Same per-slot rule as reflect: an unset slot is Claude Code's alias."""
+    env = {"ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8"}
+    assert suggest_alternate_model("claude-opus-4-8", env=env) == "sonnet"

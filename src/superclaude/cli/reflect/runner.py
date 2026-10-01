@@ -216,8 +216,9 @@ def write_sidecar(
     The sidecar is the dual gate signal that survives even when the frontmatter
     write fails: it records the derived verdict, raw status, tier, reason,
     report/contract paths, deviations, the child exit code, the preflight
-    ``env_alias_count`` (number of ``ANTHROPIC_DEFAULT_*`` aliases in the exact
-    child env), and the frontmatter ``write_status``. Returns the sidecar path.
+    ``env_alias_count`` (distinct models named by the three model aliases in the
+    exact child env, an unset alias counting as Claude Code's built-in; see
+    :func:`count_model_aliases`), and the frontmatter ``write_status``. Returns the sidecar path.
     """
     deviations = result.deviations or {}
     data = {
@@ -296,7 +297,7 @@ def count_model_aliases(env: dict[str, str]) -> int:
     vars, so counting only the set ones would drop every Coder run to Tier-1.
     The count is below 3 only when two aliases name the same model.
 
-    ≥3 distinct classes -> full Tier-2 diversity; 2 -> degraded; 0-1 -> T1-only
+    ≥3 distinct classes -> full Tier-2 diversity; 2 -> degraded; 1 -> T1-only
     (research 08 §4). The count is recorded in the sidecar; low counts surface
     as a ``degraded`` verdict via the contract, not as a preflight blocker.
     """

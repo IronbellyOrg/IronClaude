@@ -78,7 +78,7 @@ def test_transport_pools_ignore_window_lines() -> None:
 @pytest.mark.parametrize(
     ("model_id", "vendor"),
     [
-        ("muse-spark-1.3", "muse"),
+        ("muse-spark-1.3", "meta"),
         ("grok-4.7", "xai"),
         ("Qwen3.8-max", "qwen"),
         ("glm-5.3", "zhipu"),

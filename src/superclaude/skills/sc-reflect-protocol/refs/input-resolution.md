@@ -59,7 +59,7 @@ Hard-STOP cases that prevent invocation (verbatim from §3.3):
 - `--depth deep` with under-specified input (e.g., 1-line spec, empty tasklist).
 - `--output` resolves under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` (CLAUDE.md ABSOLUTE RULE — distributable paths are not output sinks).
 
-Additional STOP from §4.0 step 0.5 (env routing): zero aliases resolved + `--tier 2` explicit → STOP (see Env routing table below).
+Additional STOP from §4.0 step 0.5 (env routing): zero aliases resolved + `--tier 2` explicit → STOP (see Env routing table below). Unreachable since 2026-10: an unset alias resolves to Claude Code's built-in, so at least one alias always resolves.
 
 ## Environment
 
@@ -85,8 +85,8 @@ Step 0.5 routes Tier 2 reviewer count based on (resolved-alias count) × (`--tie
 
 | Aliases resolved | `--tier` flag | Routing | Telemetry |
 |------------------|---------------|---------|-----------|
-| 0 | (any except `--tier 2`) | T1-only path; WARN "T2 requires ≥1 model class"; degraded | `degraded_components: ["env-aliases"]` |
-| 0 | `--tier 2` explicit override | **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` |
+| 0 | (any except `--tier 2`) | Unreachable since 2026-10 (unset aliases resolve to built-ins, so the count is at least 1); kept for older contracts. T1-only path; WARN "T2 requires ≥1 model class"; degraded | `degraded_components: ["env-aliases"]` |
+| 0 | `--tier 2` explicit override | Unreachable since 2026-10 (unset aliases resolve to built-ins, so the count is at least 1); kept for older contracts. **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` |
 | 1 | (any) | T1-only path; WARN "T2 requires ≥2 model classes" | `t2_model_class_diversity: degraded` |
 | 2 | (any) | T2 with 2 reviewers (degraded) | `t2_model_class_diversity: degraded` |
 | ≥3 | (any) | T2 with 3 reviewers (full diversity) | `t2_model_class_diversity: full` |

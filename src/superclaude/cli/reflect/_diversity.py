@@ -53,7 +53,7 @@ def _vendor_from_model_id(model_id: str) -> str:
         ("grok", "xai"),
         ("glm", "zhipu"),
         ("kimi", "moonshot"),
-        ("muse", "muse"),
+        ("muse", "meta"),  # Muse Spark: Meta Superintelligence Labs
     ):
         if marker in lowered:
             return vendor

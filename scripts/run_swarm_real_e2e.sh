@@ -56,7 +56,8 @@ echo "============================================================"
 
 # Fast connectivity precheck against the authorized endpoint (model slot 1).
 probe_model="${T2Model01:-${models[0]:-}}"
-code="$(curl -s -m 20 -o /dev/null -w '%{http_code}' \
+# 90s: Muse Spark 1.3 (Coder T2Model01 since 2026-10) took ~29s on a ping.
+code="$(curl -s -m 90 -o /dev/null -w '%{http_code}' \
   "${T2ProxyUrl}/chat/completions" \
   -H "Authorization: Bearer ${T2ProxyKey}" -H 'Content-Type: application/json' \
   -d "{\"model\":\"${probe_model}\",\"messages\":[{\"role\":\"user\",\"content\":\"ping\"}],\"max_tokens\":5}" || echo 000)"
