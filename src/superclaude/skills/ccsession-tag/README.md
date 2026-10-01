@@ -152,7 +152,9 @@ ccsession notes --profile gpt --shim
 | `qwen` | Qwen 3.8 Max | 1,000,000 | yes |
 | `glm` | GLM 5.3 | 1,000,000 | yes |
 
-`ccsession --help` always shows the current list. With `--shim`, ccsession saves the complete curated model list before
+`ccsession --help` shows the list from the last download (or the copy shipped
+with the skill) without going online; run `ccsession --refresh-models` to fetch
+the latest first. With `--shim`, ccsession saves the complete curated model list before
 Claude Code starts, so every profile shows the same gateway models in `/model`.
 
 To add your own without editing ccsession, put a file in
