@@ -97,8 +97,10 @@ COOLDOWN_SECONDS = _seconds("CCSESSION_COOLDOWN_SECONDS", 3600)
 # Timers. NOTHING ever limits a reply once the gateway has started answering:
 # a model may think or stream for hours, so the socket has no read timeout
 # after the reply's status line arrives.
-# - CONNECT_TIMEOUT: failing to even open a connection means the gateway is
-#   unreachable (passed back, never a model switch).
+# - Opening the connection: no ccsession limit; the operating system's own
+#   connect wait applies (about 1-2 minutes). Failing to connect means the
+#   gateway is unreachable (passed back, never a model switch).
+#   CCSESSION_CONNECT_TIMEOUT can set a limit (tests use it).
 # - FIRST_BYTE_TIMEOUT: only for a streamed tier request (Claude Code's normal
 #   kind, where a healthy gateway answers with headers at once), how long to
 #   wait for the gateway to START answering before treating the model as
@@ -106,7 +108,11 @@ COOLDOWN_SECONDS = _seconds("CCSESSION_COOLDOWN_SECONDS", 3600)
 #   under Claude Code's own 10-minute request timeout so the switch happens
 #   before Claude Code gives up. Non-streamed requests wait without limit.
 FIRST_BYTE_TIMEOUT = _seconds("CCSESSION_FIRST_BYTE_TIMEOUT", 300)
-CONNECT_TIMEOUT = _seconds("CCSESSION_CONNECT_TIMEOUT", 15)
+CONNECT_TIMEOUT = (
+    _seconds("CCSESSION_CONNECT_TIMEOUT", 60)
+    if os.environ.get("CCSESSION_CONNECT_TIMEOUT")
+    else None
+)
 TIER_PREFIX = "claude-gw-tier"
 
 

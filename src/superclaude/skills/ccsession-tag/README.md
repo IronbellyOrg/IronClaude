@@ -168,10 +168,11 @@ auto-compact settings. `ccsession --models-status` shows whether tier mode is
 on and where its settings came from.
 
 No time limit ever applies once a model has started answering: a reply may
-think or stream for hours. The only timers are a 15-second limit on opening a
-connection to the gateway (an unreachable gateway is reported, never treated as
-a model failure) and, for streamed tier requests only, the 5-minute wait for a
-model to start answering.
+think or stream for hours. The only ccsession timer is, for streamed tier
+requests, a 5-minute wait for the gateway to accept the request (it normally
+sends its "starting" header within 2 seconds, before the model thinks). A
+gateway that cannot be reached at all is reported and never treated as a model
+failure.
 
 | Setting | Effect |
 |---|---|
@@ -183,7 +184,7 @@ model to start answering.
 | `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
 | `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
 | `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
-| `CCSESSION_CONNECT_TIMEOUT` | Limit on opening a gateway connection (default 15) |
+| `CCSESSION_CONNECT_TIMEOUT` | Optional limit on opening a gateway connection (default: none, the operating system's wait) |
 | `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, or tier settings from the shell get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
 
