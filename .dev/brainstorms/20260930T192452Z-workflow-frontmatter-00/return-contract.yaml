@@ -1,0 +1,19 @@
+contract_version: "1.0"
+status: success
+seed_brief_path: .dev/brainstorms/20260930T192452Z-workflow-frontmatter-00/seed-brief.md
+merged_output_path: .dev/brainstorms/20260930T192452Z-workflow-frontmatter-00/merged-requirements.md
+convergence_score: 1.0
+adversarial_artifacts_dir: .dev/brainstorms/20260930T192452Z-workflow-frontmatter-00/adversarial/
+domain: code
+proposal_count: 2
+enrichment_used:
+  - source: codebase
+    quality_tier: primary
+  - source: research-light
+    quality_tier: skipped
+handoff_action: none
+handoff_output_path: null
+unresolved_conflicts: ["open issue 1 (not debated): refs/phase-templates.md Parse/Validate/Document phases vs template-00 no read-only/verify-only tasks"]
+telemetry:
+  agent_spec: "opus:architect,sonnet:refactorer"
+  token_estimate_wave3: 18400

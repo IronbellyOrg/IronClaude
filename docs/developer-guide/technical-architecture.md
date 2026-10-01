@@ -29,10 +29,8 @@ This guide documents how SuperClaude's Context-Oriented Configuration Framework 
 ├── PRINCIPLES.md                   # Guiding principles
 ├── ZIG.md                          # Zig language integration
 ├── MCP_Context7.md                 # Context7 MCP integration
-├── MCP_Magic.md                    # Magic MCP integration
 ├── MCP_Morphllm.md                 # Morphllm MCP integration
 ├── MCP_Playwright.md               # Playwright MCP integration
-├── MCP_Sequential.md               # Sequential MCP integration
 ├── MCP_Serena.md                   # Serena MCP integration
 ├── MCP_Tavily.md                   # Tavily MCP integration
 ├── MCP_Zig.md                      # Zig MCP integration
@@ -137,10 +135,8 @@ The main `CLAUDE.md` file uses an import system to load multiple context files:
 @PRINCIPLES.md             # Guiding principles
 *SECONDARY*
 @MCP_Context7.md           # Context7 MCP integration
-@MCP_Magic.md              # Magic MCP integration
 @MCP_Morphllm.md           # Morphllm MCP integration
 @MCP_Playwright.md         # Playwright MCP integration
-@MCP_Sequential.md         # Sequential MCP integration
 @MCP_Serena.md             # Serena MCP integration
 @MCP_Tavily.md             # Tavily MCP integration
 @MCP_Zig.md                # Zig MCP integration
@@ -279,10 +275,6 @@ MCP servers are configured in `~/.claude.json` (NOT part of SuperClaude context)
     "context7": {
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"]
-    },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "sequential-thinking-mcp@latest"]
     }
   }
 }

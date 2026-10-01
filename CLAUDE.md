@@ -333,11 +333,10 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 
 - **Tavily**: Web search (Deep Research)
 - **Context7**: Official documentation (prevent hallucination)
-- **Sequential**: Token-efficient reasoning (30-50% reduction)
 - **Serena**: Session persistence
 - **Mindbase**: Cross-session learning
 
-**Optional**: Playwright (browser automation), Magic (UI components), Chrome DevTools (performance)
+**Optional**: Playwright (browser automation)
 
 **Usage**: TypeScript plugins and Python pytest plugin can call MCP servers. Always prefer MCP tools over speculation for documentation/research.
 

@@ -87,7 +87,6 @@ src/superclaude/commands/
 ├── explain.md         # /sc:explain - Code Explanation
 ├── document.md        # /sc:document - Documentation
 ├── git.md             # /sc:git - Git Operations
-├── estimate.md        # /sc:estimate - Development Estimation
 ├── reflect.md         # /sc:reflect - Tiered Reflection
 ├── spec-panel.md      # /sc:spec-panel - Expert Spec Review (414 lines)
 ├── business-panel.md  # /sc:business-panel - Business Analysis
@@ -95,10 +94,8 @@ src/superclaude/commands/
 ├── index.md           # /sc:index - Project Documentation
 ├── load.md            # /sc:load - Session Load
 ├── save.md            # /sc:save - Session Save
-├── select-tool.md     # /sc:select-tool - MCP Tool Selection
 ├── recommend.md       # /sc:recommend - Command Recommendation
 ├── help.md            # /sc:help - Help
-├── sc.md              # /sc - Main dispatcher
 └── agent.md           # /sc:agent - Custom agents
 ```
 
@@ -210,7 +207,6 @@ src/superclaude/skills/confidence-check/SKILL.md  # Confidence check skill
 | Command | Purpose | File |
 |---------|---------|------|
 | [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` |
-| [`/sc:estimate`](#scestimate---development-estimation) | Time/complexity estimation | `estimate.md` |
 | [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` |
 | `/sc:load` | Load session | `load.md` |
 | `/sc:save` | Save session | `save.md` |
@@ -227,7 +223,6 @@ These commands produce documents/reports and DO NOT implement:
 - `/sc:workflow` → Implementation plan
 - `/sc:spawn` → Task hierarchy
 - `/sc:research` → Research report
-- `/sc:estimate` → Estimation report
 - `/sc:design` → Architecture documents
 - `/sc:analyze` → Analysis report
 - `/sc:spec-panel` → Expert review document
@@ -286,7 +281,7 @@ PM Agent:
   7. Documents in CLAUDE.md
 ```
 
-**MCP servers:** sequential, context7, magic, playwright, morphllm, serena, tavily, chrome-devtools
+**MCP servers:** context7, playwright, morphllm, serena, tavily
 
 **Key patterns:**
 
@@ -966,33 +961,6 @@ TALEB: "The real question: does this benefit from uncertainty?"
 /sc:git commit --smart-commit  # Generates conventional commit message
 /sc:git merge feature-branch --interactive
 ```
-
----
-
-### `/sc:estimate` - Development Estimation
-
-**When to use:** Need time/complexity estimation.
-
-**Syntax:**
-
-```
-/sc:estimate [target] [--type time|effort|complexity] [--unit hours|days|weeks] [--breakdown]
-```
-
-**Examples:**
-
-```bash
-/sc:estimate "user authentication system" --type time --unit days --breakdown
-# Database design: 2 days
-# Backend API: 3 days
-# Frontend UI: 2 days
-# Testing: 1 day
-# Total: 8 days (85% confidence)
-
-/sc:estimate "migrate to microservices" --type complexity --breakdown
-```
-
-**MCP servers:** sequential, context7
 
 ---
 
@@ -1682,14 +1650,11 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 
 | MCP Server | Purpose | Used in |
 |------------|---------|---------|
-| `sequential` | Multi-step reasoning | pm, task, workflow, brainstorm, spec-panel |
 | `context7` | Official docs lookup | implement, improve, explain, design |
-| `magic` | UI component generation | implement, task, workflow |
 | `playwright` | E2E testing, browser | test, build, research |
 | `serena` | Session persistence | pm, task, reflect |
 | `tavily` | Web search | research, pm |
 | `morphllm` | Large-scale transforms | task, workflow, brainstorm |
-| `chrome-devtools` | Browser debugging | pm |
 
 ---
 

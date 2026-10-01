@@ -274,10 +274,8 @@ class TestPostReleaseCommandContract:
 
     Verifies: command discovery (5.1), command install (5.2), command Activation
     text (5.3), protocol skill discovery + standalone install (5.4),
-    _has_corresponding_command mapping (5.5), compatibility wrapper discovery +
-    install (5.6), wrapper delegation content (5.7), and protocol skill
-    frontmatter (5.8). The post-release-update skill is retained for one cycle
-    as a thin deprecated wrapper (KEEP-WRAPPER branch, OQ-1).
+    _has_corresponding_command mapping (5.5), and protocol skill
+    frontmatter (5.8).
     """
 
     # --- 5.1 command discovery ---
@@ -350,51 +348,11 @@ class TestPostReleaseCommandContract:
     # --- 5.5 _has_corresponding_command mapping ---
     def test_post_release_command_skill_mapping(self):
         """Lock the command↔protocol split: bare sc-post-release is command-served;
-        sc-post-release-protocol and the legacy post-release-update are NOT."""
+        sc-post-release-protocol is NOT."""
         from superclaude.cli.install_skills import _has_corresponding_command
 
         assert _has_corresponding_command("sc-post-release") is True
         assert _has_corresponding_command("sc-post-release-protocol") is False
-        assert _has_corresponding_command("post-release-update") is False
-
-    # --- 5.6 compatibility wrapper discovery + install (KEEP-WRAPPER branch) ---
-    def test_post_release_update_wrapper_discoverable(self):
-        from superclaude.cli.install_skill import list_available_skills
-
-        assert "post-release-update" in list_available_skills()
-
-    def test_post_release_update_wrapper_installed(self, tmp_path):
-        """The legacy non-sc- wrapper is NOT command-served, so it installs standalone."""
-        from superclaude.cli.install_skills import install_all_skills
-
-        target = tmp_path / "skills"
-        success, _message = install_all_skills(target_path=target, force=True)
-        assert success is True
-        assert (target / "post-release-update").exists()
-
-    # --- 5.7 wrapper delegation content ---
-    def test_post_release_update_wrapper_is_thin_delegating_stub(self):
-        """The wrapper retains name/allowed-tools/delegation and drops the protocol body."""
-        import pathlib
-
-        wrapper_path = (
-            pathlib.Path(__file__).resolve().parents[2]
-            / "src"
-            / "superclaude"
-            / "skills"
-            / "post-release-update"
-            / "SKILL.md"
-        )
-        text = wrapper_path.read_text()
-
-        # (a) frontmatter name retained
-        assert "name: post-release-update" in text
-        # (b) Skill still in allowed-tools (delegation can fire)
-        assert "Skill" in text.split("---")[1]
-        # (c) delegation reference present
-        assert "Skill sc:post-release-protocol" in text
-        # thinness: the wrapper is short and has NO full five-workstream protocol body
-        assert len(text.splitlines()) < 100
 
     # --- 5.8 protocol skill frontmatter ---
     def test_post_release_protocol_skill_frontmatter(self):

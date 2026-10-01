@@ -3,7 +3,7 @@ name: reflect
 description: "Tiered reflection protocol — UC-1 pre-execution coverage/gap audit and UC-2 post-execution deviation audit with heterogeneous reviewer ensemble, blind calibration, and mandatory evidence-validator gate"
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, serena, context7, tavily, sequential]
+mcp-servers: [auggie, serena, context7, tavily]
 personas: [analyzer, qa, refactorer]
 version: 2.0.0
 supersedes: .dev/eval-workspaces/sc-reflect/skill-snapshot/reflect-v1.md

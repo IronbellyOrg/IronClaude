@@ -4,7 +4,7 @@ description: "Full behavioral protocol for sc:cli-portify — port inference-bas
 category: development
 complexity: high
 allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task
-mcp-servers: [sequential, serena, context7, auggie-mcp]
+mcp-servers: [serena, context7, auggie-mcp]
 personas: [architect, analyzer, backend]
 argument-hint: "--workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]"
 ---

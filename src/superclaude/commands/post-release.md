@@ -4,7 +4,7 @@ description: "Post-release follow-through: synchronize and create a shipped vers
 category: documentation
 complexity: high
 allowed-tools: Read, Glob, Grep, Skill
-mcp-servers: [sequential, serena]
+mcp-servers: [serena]
 personas: [scribe, devops, qa, analyzer]
 ---
 
@@ -75,7 +75,7 @@ The full behavioral specification is in the protocol skill.
 **Will Not:**
 
 - Contain the five-workstream protocol body, lazy ref-loading instructions, return-contract fields, or the `SC:POST-RELEASE:RUN` / `SC:POST-RELEASE:RESULT` machine-readable headers — those live only in the protocol skill.
-- Advertise the legacy standalone invocation surface. The deprecated `post-release-update` skill is retained only as a **compatibility wrapper** for one cycle; new invocations go to `/sc:post-release`.
+- Advertise a standalone post-release-update skill.
 - Rename the protocol skill directory to bare `sc-post-release`. The protocol skill MUST live at `sc-post-release-protocol` (the Activation handoff above targets `sc:post-release-protocol`); the installer's `_has_corresponding_command` in `src/superclaude/cli/install_skills.py` strips only the `sc-` prefix, so a bare `sc-post-release` would be silently skipped as "served by the `post-release` command" and never installed standalone.
 
 ## Related Commands

@@ -65,9 +65,10 @@ class TestTimeoutValues:
 class TestMCPServerReferences:
     """Verify MCP server references in SKILL.md."""
 
-    def test_sequential_referenced(self, skill_md_content):
-        """SKILL.md should reference Sequential MCP server."""
-        assert "Sequential" in skill_md_content or "sequential" in skill_md_content
+    def test_sequential_mcp_not_shipped(self, skill_md_content):
+        """SKILL.md must not advertise Sequential MCP as an installed server."""
+        assert "Sequential MCP" not in skill_md_content
+        assert "sequential-thinking" not in skill_md_content
 
     def test_context7_referenced(self, skill_md_content):
         """SKILL.md should reference Context7 MCP server."""

@@ -3,7 +3,7 @@ name: review-translation
 description: "Systematic localization review with adversarial validation, real-world evidence search, and comprehensive quality scoring"
 category: orchestration
 complexity: advanced
-mcp-servers: [tavily, sequential, context7, serena]
+mcp-servers: [tavily, context7, serena]
 personas: [localization-reviewer, linguistic-validator, cultural-consultant, research-analyst]
 ---
 

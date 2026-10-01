@@ -17,10 +17,7 @@
 | Flag | Server | Purpose | Auto-Triggers |
 |------|---------|---------|---------------|
 | `--c7` / `--context7` | Context7 | Official docs, framework patterns | Library imports, framework questions |
-| `--seq` / `--sequential` | Sequential | Multi-step reasoning, debugging | Complex debugging, system design |
-| `--magic` | Magic | UI component generation | `/ui` commands, frontend keywords |
 | `--play` / `--playwright` | Playwright | Browser testing, E2E validation | Testing requests, visual validation |
-| `--chrome` / `--devtools` | Chrome DevTools | Performance analysis, debugging | Performance auditing, debugging, layout issues |
 | `--tavily` | Tavily | Web search, real-time info | Web search requests, research queries |
 | `--morph` / `--morphllm` | Morphllm | Bulk transformations, pattern edits | Bulk operations, style enforcement |
 | `--serena` | Serena | Project memory, symbol operations | Symbol operations, large codebases |
@@ -100,8 +97,9 @@
 | Flag | Purpose | Values |
 |------|---------|--------|
 | `--strategy` | Workflow approach | `systematic`, `agile`, `enterprise` |
-| `--depth` | Analysis depth | `shallow`, `normal`, `deep` |
-| `--parallel` | Parallel coordination | Boolean |
+| `--depth` | Analysis depth | `quick`, `standard`, `deep` |
+| `--output` | Plan output directory | Path under `.dev/workflow/` |
+| `--handoff` | Next command | `none`, `design`, `implement`, `tasklist` |
 
 ### Troubleshoot Command Flags (`/sc:troubleshoot`)
 
@@ -119,14 +117,6 @@
 | `--safe` / `--aggressive` | Cleanup intensity | Boolean |
 | `--interactive` | User guidance | Boolean |
 | `--preview` | Show without executing | Boolean |
-
-### Estimate Command Flags (`/sc:estimate`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--type` | Estimate focus | `time`, `effort`, `complexity` |
-| `--unit` | Time unit | `hours`, `days`, `weeks` |
-| `--breakdown` | Detailed breakdown | Boolean |
 
 ### Index Command Flags (`/sc:index`)
 
@@ -179,13 +169,6 @@
 | `--smart-commit` | Generate commit message | Boolean |
 | `--interactive` | Guided operations | Boolean |
 
-### Select-Tool Command Flags (`/sc:select-tool`)
-
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--analyze` | Tool analysis | Boolean |
-| `--explain` | Explain selection | Boolean |
-
 ### Test Command Flags (`/sc:test`)
 
 | Flag | Purpose | Values |
@@ -232,16 +215,16 @@
 ### Frontend Development
 
 ```bash
-/sc:implement "responsive dashboard" --magic --c7
+/sc:implement "responsive dashboard" --c7
 /sc:design component-library --type component --format code
-/sc:test ui-components/ --magic --play
-/sc:improve legacy-ui/ --magic --morph --validate
+/sc:test ui-components/ --play
+/sc:improve legacy-ui/ --morph --validate
 ```
 
 ### Backend Development
 
 ```bash
-/sc:analyze api/ --focus performance --seq --think
+/sc:analyze api/ --focus performance --think
 /sc:design payment-api --type api --format spec
 /sc:troubleshoot "API timeout" --type performance --trace
 /sc:improve auth-service --type security --validate
@@ -253,7 +236,6 @@
 /sc:analyze . --ultrathink --all-mcp --safe-mode
 /sc:workflow enterprise-system --strategy enterprise --depth deep
 /sc:cleanup . --type all --safe --interactive
-/sc:estimate "migrate to microservices" --type complexity --breakdown
 ```
 
 ### Quality & Maintenance
@@ -270,7 +252,6 @@
 ### Compatible Combinations
 
 - `--think` + `--c7`: Analysis with documentation
-- `--magic` + `--play`: UI generation with testing
 - `--serena` + `--morph`: Project memory with transformations
 - `--safe-mode` + `--validate`: Maximum safety
 - `--loop` + `--validate`: Iterative improvement with validation
@@ -286,8 +267,7 @@
 
 - `--safe-mode` auto-enables `--uc` and `--validate`
 - `--ultrathink` auto-enables all MCP servers
-- `--think-hard` auto-enables `--seq` + `--c7`
-- `--magic` triggers UI-focused agents
+- `--think-hard` auto-enables `--c7`
 
 ## Troubleshooting Flags
 
@@ -302,7 +282,6 @@
 
 ```bash
 /sc:analyze . --verbose                      # Shows decision logic and flag activation
-/sc:select-tool "operation" --explain        # Explains tool selection process
 /sc:reflect --mode pre --spec docs/spec.md --tier 1   # Quick Tier-1 coverage second opinion
 ```
 

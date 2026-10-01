@@ -3,7 +3,7 @@ name: cli-eval
 description: "Manage the cliEval pipeline lifecycle — author a new eval suite (propose→critique→debate→author→validate→document) or interactively select and supervise a run of an existing suite."
 category: testing
 complexity: advanced
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, qa, scribe]
 ---
 

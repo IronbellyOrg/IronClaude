@@ -15,21 +15,18 @@ superclaude mcp
 superclaude mcp --servers tavily --servers context7
 
 # Install all servers
-superclaude mcp --servers sequential-thinking context7 magic playwright serena morphllm-fast-apply tavily chrome-devtools auggie
+superclaude mcp --servers context7 playwright serena morphllm-fast-apply tavily auggie
 ```
 
 ## Available MCP Servers
 
 | Server | Description | Requires API Key |
 |--------|-------------|------------------|
-| **sequential-thinking** | Multi-step problem solving and systematic analysis | No |
 | **context7** | Official library documentation and code examples | No |
-| **magic** | Modern UI component generation and design systems | Yes (`TWENTYFIRST_API_KEY`) |
 | **playwright** | Cross-browser E2E testing and automation | No |
 | **serena** | Semantic code analysis and intelligent editing | No |
 | **morphllm-fast-apply** | Fast Apply for context-aware code modifications | Yes (`MORPH_API_KEY`) |
 | **tavily** | Web search and real-time information retrieval | Yes (`TAVILY_API_KEY`) |
-| **chrome-devtools** | Chrome DevTools debugging and performance analysis | No |
 | **auggie** | Semantic codebase search via Augment Code | No (requires `auggie login`) |
 
 ## Installation Scopes
@@ -48,7 +45,7 @@ superclaude mcp --servers tavily --scope local
 superclaude mcp --servers context7 --scope project
 
 # Install for all your projects
-superclaude mcp --servers sequential-thinking --scope user
+superclaude mcp --servers serena --scope user
 ```
 
 ## API Key Management
@@ -58,7 +55,6 @@ Some MCP servers require API keys for full functionality. SuperClaude will promp
 ### Getting API Keys
 
 - **Tavily**: Get your API key from [https://app.tavily.com](https://app.tavily.com)
-- **Magic (21st.dev)**: Get your API key from [https://21st.dev](https://21st.dev)
 - **Morphllm**: Get your API key from the Morphllm service
 - **Auggie**: Uses session auth (run `auggie login` after install). Headless alternative: set `AUGMENT_SESSION_AUTH`. Docs: [Auggie quickstart](https://docs.augmentcode.com/context-services/mcp/quickstart-claude-code)
 
@@ -77,7 +73,6 @@ You can also set environment variables beforehand:
 
 ```bash
 export TAVILY_API_KEY="your-api-key-here"
-export TWENTYFIRST_API_KEY="your-api-key-here"
 export MORPH_API_KEY="your-api-key-here"
 ```
 
@@ -158,7 +153,7 @@ superclaude mcp --servers tavily --dry-run
 Install multiple servers in one command:
 
 ```bash
-superclaude mcp --servers sequential-thinking context7 tavily
+superclaude mcp --servers context7 tavily
 ```
 
 ### Custom Scope
@@ -228,12 +223,11 @@ MCP servers enhance SuperClaude commands with additional capabilities:
 
 - **/sc:research** - Uses Tavily for web search and real-time information
 - **/sc:implement** - Can use Context7 for official documentation
-- **/sc:design** - Can use Magic for UI component generation
 - **/sc:test** - Can use Playwright for browser automation
 
 ## Best Practices
 
-1. **Start with essentials**: Install `sequential-thinking` and `context7` first
+1. **Start with essentials**: Install `context7` and `serena` first
 2. **Add as needed**: Install other servers based on your workflow needs
 3. **Use project scope**: For team projects, use `--scope project` for shared configuration
 4. **Secure API keys**: Never commit API keys to version control

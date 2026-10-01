@@ -179,10 +179,10 @@ persona_triggers:
     handoff_to: ["mentor persona for knowledge transfer", "scribe persona for documentation"]
 ```
 
-### MCP Server Coordination
+### Native reasoning coordination
 
 ```yaml
-sequential_thinking_integration:
+native_reasoning:
   usage_patterns:
     - "Multi-step Socratic reasoning progressions"
     - "Complex discovery session orchestration"

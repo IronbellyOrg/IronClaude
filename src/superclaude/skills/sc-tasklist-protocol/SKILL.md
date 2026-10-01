@@ -4,7 +4,7 @@ description: "Deterministic roadmap-to-tasklist generator with integrated roadma
 category: utility
 complexity: high
 allowed-tools: Read, Glob, Grep, Write, Bash, TaskCreate, TaskUpdate, TaskList, TaskGet, Task, Skill
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [analyzer, architect]
 argument-hint: "<roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]"
 ---
@@ -1781,7 +1781,7 @@ Per-stage completion messages (in TaskUpdate description):
 
 | Server | Usage | When |
 |--------|-------|------|
-| `sequential` | Structured reasoning for tier classification, conflict resolution | Enrichment (Stage 4) -- tier scoring with ambiguous inputs |
+| native reasoning | Structured reasoning for tier classification, conflict resolution | Enrichment (Stage 4) -- tier scoring with ambiguous inputs |
 | `context7` | Framework pattern validation if roadmap references specific libraries | Enrichment (Stage 4) -- context boosters for library-specific paths |
 
 MCP servers are optional for core generation. The generation algorithm works without MCP; servers enhance tier classification accuracy for ambiguous cases.

@@ -3,7 +3,7 @@ name: troubleshoot
 description: "Tiered debugging — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate, and an opt-in task-builder remediation chain"
 category: analysis
 complexity: advanced
-mcp-servers: [auggie, serena, context7, tavily, sequential]
+mcp-servers: [auggie, serena, context7, tavily]
 personas: [analyzer, performance, security, qa, refactorer, devops]
 argument-hint: "[<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-doc-discovery] [--no-mcp] [--context <path>] [--caller <name>]"
 ---

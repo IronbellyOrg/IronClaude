@@ -55,25 +55,23 @@ If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then
 |----------------|----------------------------------------------|------------|
 | auggie         | Codebase search — call before significant edits | (auto)  |
 | serena         | Symbol navigation, project memory            | --serena   |
-| sequential     | Multi-step reasoning, deep analysis          | --seq      |
 | context7       | Official library/framework docs              | --c7       |
 | tavily         | Web search, current information              | --tavily   |
-| magic          | UI component generation                      | --magic    |
 | playwright     | Browser automation, E2E testing              | --play     |
 
 ## Personas (auto-activated by context; override with --persona-X)
 
 | Persona      | Domain                         | Primary MCP       |
 |--------------|--------------------------------|-------------------|
-| architect    | systems design, scalability    | sequential, c7    |
-| frontend     | UI/UX, components              | magic, playwright |
-| backend      | APIs, reliability              | c7, sequential    |
-| security     | vulnerabilities, auth          | sequential        |
-| analyzer     | root cause, investigation      | sequential, c7    |
-| qa           | testing, coverage              | playwright, seq   |
-| refactorer   | cleanup, tech debt             | sequential        |
-| devops       | deploy, infrastructure         | sequential        |
-| scribe       | docs, localization             | c7, sequential    |
+| architect    | systems design, scalability    | c7                |
+| frontend     | UI/UX, components              | playwright        |
+| backend      | APIs, reliability              | c7                |
+| security     | vulnerabilities, auth          | —                 |
+| analyzer     | root cause, investigation      | c7                |
+| qa           | testing, coverage              | playwright        |
+| refactorer   | cleanup, tech debt             | —                 |
+| devops       | deploy, infrastructure         | —                 |
+| scribe       | docs, localization             | c7                |
 
 ## Core Rules
 

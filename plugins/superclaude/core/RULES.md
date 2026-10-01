@@ -66,6 +66,20 @@ Actionable rules for enhanced Claude Code framework operation.
 ✅ **Right**: Plan → TodoWrite → Execute → Validate
 ❌ **Wrong**: Jump directly to implementation without planning
 
+## Verification Before Recommendation
+**Priority**: 🔴 **Triggers**: Any reply that suggests an action, emits a command/script/snippet, names a specific flag/subcommand/file path/function/env var/API field/version/config key, or gives step-by-step instructions
+
+- **Recommendation = Action**: A recommendation is a form of implementation. The confidence-check trigger surface is NOT limited to code edits — it covers any output that names specifics.
+- **Verify First, Same Turn**: The verification tool call goes BEFORE the message containing the recommendation, in the same turn. Not "let me check if you want" — check, then answer.
+- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, `grep`, file read, symbol lookup, or `codebase-retrieval` (Auggie, fastest for project-internal identifiers) satisfies this rule.
+- **Mark Unverified Explicitly**: If verification cost is genuinely high (e.g., requires a long-running process), say so and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — never ship it bare.
+- **Well-Known Exceptions**: For trivial mentions of universal tokens (`--help`, `-v`, `git status`), the rule still applies but verification is usually already in context or universally true — use judgment.
+- **Behavior, Not Promises**: This is mandatory, not aspirational. Skipping verification to make a response *look* more finished optimizes appearance over correctness.
+
+✅ **Right**: `superclaude sprint run --help` → confirm `--start` exists → recommend `--start 2`
+❌ **Wrong**: Recommend `--resume` from memory without verifying the flag exists
+**Detection**: Any `--flag`, path, or function name in a recommendation with no preceding verification call that turn
+
 ## Planning Efficiency
 
 **Priority**: 🔴 **Triggers**: All planning phases, TodoWrite operations, multi-step tasks
@@ -128,11 +142,8 @@ Actionable rules for enhanced Claude Code framework operation.
 
 **Priority**: 🟡 **Triggers**: After operations, session end, temporary file creation
 
-- **Clean After Operations**: Remove temporary files, scripts, and directories when done
-- **No Artifact Pollution**: Delete build artifacts, logs, and debugging outputs
-- **Temporary File Management**: Clean up all temporary files before task completion
-- **Professional Workspace**: Maintain clean project structure without clutter
-- **Session End Cleanup**: Remove any temporary resources before ending session
+- **Clean After Operations**: Remove temporary files, scripts, build artifacts, logs, and debugging outputs when done
+- **Session End Cleanup**: Remove all temporary resources before ending session
 - **Version Control Hygiene**: Never leave temporary files that could be accidentally committed
 - **Resource Management**: Delete unused directories and files to prevent workspace bloat
 
@@ -196,7 +207,7 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Best Tool Selection**: Always use the most powerful tool for each task (MCP > Native > Basic)
 - **Parallel Everything**: Execute independent operations in parallel, never sequentially
 - **Agent Delegation**: Use Task agents for complex multi-step operations (>3 steps)
-- **MCP Server Usage**: Leverage specialized MCP servers for their strengths (morphllm for bulk edits, sequential-thinking for analysis)
+- **MCP Server Usage**: Leverage specialized MCP servers for their strengths (morphllm for bulk edits, context7 for docs)
 - **Batch Operations**: Use MultiEdit over multiple Edits, batch Read calls, group operations
 - **Powerful Search**: Use Grep tool over bash grep, Glob over find, specialized search tools
 - **Efficiency First**: Choose speed and power over familiarity - use the fastest method available
@@ -247,64 +258,3 @@ Actionable rules for enhanced Claude Code framework operation.
 ✅ **Right**: "Checking env: Today is 2025-08-15, so the Q3 deadline is..."  
 ❌ **Wrong**: "Since it's January 2025..." (without checking)  
 **Detection**: Any date reference without prior env verification
-
-## Quick Reference & Decision Trees
-
-### Critical Decision Flows
-
-**🔴 Before Any File Operations**
-
-```
-File operation needed?
-├─ Writing/Editing? → Read existing first → Understand patterns → Edit
-├─ Creating new? → Check existing structure → Place appropriately
-└─ Safety check → Absolute paths only → No auto-commit
-```
-
-**🟡 Starting New Feature**
-
-```
-New feature request?
-├─ Scope clear? → No → Brainstorm mode first
-├─ >3 steps? → Yes → TodoWrite required
-├─ Patterns exist? → Yes → Follow exactly
-├─ Tests available? → Yes → Run before starting
-└─ Framework deps? → Check package.json first
-```
-
-**🟢 Tool Selection Matrix**
-
-```
-Task type → Best tool:
-├─ Multi-file edits → MultiEdit > individual Edits
-├─ Complex analysis → Task agent > native reasoning
-├─ Code search → Grep > bash grep
-├─ UI components → Magic MCP > manual coding  
-├─ Documentation → Context7 MCP > web search
-└─ Browser testing → Playwright MCP > unit tests
-```
-
-### Priority-Based Quick Actions
-
-#### 🔴 CRITICAL (Never Compromise)
-
-- `git status && git branch` before starting
-- Read before Write/Edit operations  
-- Feature branches only, never main/master
-- Root cause analysis, never skip validation
-- Absolute paths, no auto-commit
-
-#### 🟡 IMPORTANT (Strong Preference)
-
-- TodoWrite for >3 step tasks
-- Complete all started implementations
-- Build only what's asked (MVP first)
-- Professional language (no marketing superlatives)
-- Clean workspace (remove temp files)
-
-#### 🟢 RECOMMENDED (Apply When Practical)  
-
-- Parallel operations over sequential
-- Descriptive naming conventions
-- MCP tools over basic alternatives
-- Batch operations when possible

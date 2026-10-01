@@ -8,7 +8,7 @@ argument-hint: "create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--
 <!-- Extended metadata (for documentation, not parsed):
 category: testing
 complexity: advanced
-mcp-servers: [sequential, context7, serena]
+mcp-servers: [context7, serena]
 personas: [architect, analyzer, qa, scribe]
 version: 1.0.0
 -->
