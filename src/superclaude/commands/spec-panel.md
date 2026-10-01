@@ -216,7 +216,7 @@ When `--focus correctness` is active, the panel MUST produce a State Variable Re
 ## Tool Coordination
 
 - **Read**: Specification content analysis and parsing; `src/superclaude/examples/release-spec-template.md` — read when generating scoped release spec output from TDD input (Step 6b / `--downstream roadmap` mode)
-- **Sequential**: Expert panel coordination and iterative analysis
+- **Native reasoning**: Expert panel coordination and iterative analysis
 - **Context7**: Specification patterns and industry best practices
 - **Grep**: Cross-reference validation and consistency checking
 - **Write**: Improved specification generation and report creation

@@ -680,8 +680,8 @@ Each task must declare tool dependencies based on tier:
 
 | Tier | Required Tools | Preferred Tools | Fallback Allowed |
 |------|----------------|-----------------|------------------|
-| STRICT | Sequential, Serena | Context7 | No |
-| STANDARD | None | Sequential, Context7 | Yes |
+| STRICT | Serena | Context7 | No |
+| STANDARD | None | Context7 | Yes |
 | LIGHT | None | None | Yes |
 | EXEMPT | None | None | Yes |
 

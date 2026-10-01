@@ -89,7 +89,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **Serena**: Tier 1 + Tier 2 symbol-level navigation via `find_symbol`, `find_referencing_symbols`, `get_symbols_overview`. Critical when the issue names a specific function or class.
 - **Context7**: Tier 2 when the symptom mentions a framework or library by name or the stack trace ends in third-party code; also the skill's conditional Tier 1 behaviour-definition fetch, not general Tier 1 web research.
 - **Tavily**: Tier 2 only, rate-limited to ≤ 2 queries per invocation. Used for `<exact error string> github issue` and `<library> <version> <symptom>` lookups.
-- **Sequential**: Tier 2 synthesis when reconciling competing hypotheses.
+- **Native reasoning**: Tier 2 synthesis when reconciling competing hypotheses.
 
 ## Tool Coordination
 
