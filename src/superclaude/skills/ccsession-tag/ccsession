@@ -19,6 +19,17 @@
 #   ccsession --list          List all labeled sessions across all workspaces
 #   ccsession --here          List labeled sessions for the current workspace only
 #   ccsession --rm <topic>    Delete a label (does NOT delete the underlying JSONL)
+#   Coder workspaces (tier mode, when the workspace env defines T<N>_WINDOW):
+#   ccsession <topic>         Start or resume on the default tier (CCSESSION_DEFAULT_TIER)
+#   ccsession <topic> --tier <tier>
+#                             Use a tier: its models fail over automatically when
+#                             one runs out of usage (tiers listed below)
+#   ccsession <topic> --model <name>
+#                             Use one model by name, no failover; its context
+#                             window comes from the tier settings
+#   CCSESSION_SHOW_ALL_MODELS=1 ccsession <topic>
+#                             Also list the tier models one by one in /model
+#   In tier mode --profile is not used and the shim is always on.
 #   ccsession --refresh-models
 #                             Check now for the latest profiles and model list
 #   ccsession --models-status Show which model data is in use and when it was checked
@@ -43,6 +54,7 @@ CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions}"
 PROJECTS_DIR="$HOME/.claude/projects"
 CC_SHIM_SCRIPT="${CC_SHIM_SCRIPT:-$HOME/.claude/skills/ccsession-tag/local-gateway-alias-proxy.py}"
+CC_SHIM_PORT_EXPLICIT="${CC_SHIM_PORT:+1}"
 CC_SHIM_PORT="${CC_SHIM_PORT:-4010}"
 # The skill folder holds models.py and the bundled model data. Resolve the
 # ~/.local/bin symlink so the helper is found next to the real script. Plain
@@ -61,12 +73,16 @@ CCSESSION_MODELS="$CCSESSION_DIR/models.py"
 # Extract --shim and --profile from anywhere in the args; every other
 # argument passes through to Claude Code unchanged.
 USE_SHIM=0
+SHIM_FLAG=0
 PROFILE=""
+TIER_ARG=""
+MODEL_ARG=""
 _args=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -shim|--shim)
       USE_SHIM=1
+      SHIM_FLAG=1
       shift
       ;;
     --profile)
@@ -79,6 +95,32 @@ while [ "$#" -gt 0 ]; do
       ;;
     --profile=*)
       PROFILE="${1#--profile=}"
+      shift
+      ;;
+    --tier)
+      if [ "$#" -lt 2 ]; then
+        echo "ccsession: --tier requires a value" >&2
+        exit 2
+      fi
+      TIER_ARG="$2"
+      shift 2
+      ;;
+    --tier=*)
+      TIER_ARG="${1#--tier=}"
+      shift
+      ;;
+    --model)
+      # Claude Code's own flag. Captured so tier mode can set the window; passed
+      # through unchanged otherwise.
+      if [ "$#" -lt 2 ]; then
+        echo "ccsession: --model requires a value" >&2
+        exit 2
+      fi
+      MODEL_ARG="$2"
+      shift 2
+      ;;
+    --model=*)
+      MODEL_ARG="${1#--model=}"
       shift
       ;;
     *)
@@ -134,6 +176,32 @@ if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ] && [ -f "$CCSESSION_ENV_FILE" ]; then
   . "$CCSESSION_ENV_FILE"
 fi
 
+# A port set by the user (shell or env file) is used as-is; otherwise tier mode
+# and show-all pick their own shim port (see models.py shim-port).
+[ "$CC_SHIM_PORT" != 4010 ] && CC_SHIM_PORT_EXPLICIT=1
+
+# Tier mode: Coder workspaces whose env defines tier windows (T<N>_WINDOW).
+# Private add-on profiles (owner's Mac only) never enter it and never read it.
+TIER_MODE=0
+if [ "$CCSESSION_EXT_PROFILE" != 1 ] && python3 "$CCSESSION_MODELS" tier-mode 2>/dev/null; then
+  TIER_MODE=1
+fi
+if [ "$TIER_MODE" = 1 ]; then
+  if [ -n "$PROFILE" ]; then
+    echo "ccsession: --profile is not used in this workspace; choose --tier <tier> or --model <name> (see ccsession --help)" >&2
+    exit 2
+  fi
+  USE_SHIM=1
+elif [ -n "$TIER_ARG" ]; then
+  echo "ccsession: --tier needs tier settings (T<N>_WINDOW) from the workspace env; none found" >&2
+  exit 2
+elif [ -n "$MODEL_ARG" ]; then
+  # Not tier mode: --model goes to Claude Code exactly as given.
+  _args+=(--model "$MODEL_ARG")
+  set -- "${_args[@]}"
+  MODEL_ARG=""
+fi
+
 if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ]; then
   # Coder workspaces deliver the gateway key as LITELLM_API_KEY, which Claude
   # Code ignores. Shells that skip the template's copy (Orca, coder ssh) need it.
@@ -185,12 +253,13 @@ except (ValueError, TypeError):
 if health.get("service") != "ccsession-gateway-alias-proxy":
     print("other")
 elif (health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/")
-      and str(health.get("port")) == sys.argv[3] and "model_data" in health):
-    # A shim from before model data existed keeps old hard-coded lists.
+      and str(health.get("port")) == sys.argv[3] and "model_data" in health
+      and "tiers" in health and health.get("show_all") == (sys.argv[4] == "1")):
+    # Older shims (no model data, or no tiers) keep old code in memory.
     print("match")
 else:
     print("stale")
-' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT")
+' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT" "${CCSESSION_SHOW_ALL_MODELS:-0}")
     if [ "$health_status" = "match" ]; then
       echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
     elif [ "$listener_pid" != other ] && { [ "$health_status" = "stale" ] || \
@@ -211,6 +280,8 @@ else:
   fi
   if [ "$start_shim" = 1 ]; then
     echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
+    # The shim inherits this session's env (tier settings fallback, show-all,
+    # cooldown length); it reads the workspace env file itself on each request.
     GW_PROXY_UPSTREAM="$ANTHROPIC_BASE_URL" \
       GW_PROXY_PORT="$CC_SHIM_PORT" \
       CCSESSION_DIR="$CCSESSION_DIR" \
@@ -322,6 +393,47 @@ apply_profile() {
     echo "ccsession: profile '$PROFILE' requires --shim" >&2
     exit 2
   fi
+  PROFILE_CUSTOM_OPTION="$PROFILE_REQUIRES_SHIM"
+  export_selection "profile $PROFILE"
+}
+
+apply_tier_selection() {
+  # Tier mode: --model <name> or --tier <tier> (default CCSESSION_DEFAULT_TIER)
+  # sets the model, context window and auto-compact window; no profiles.
+  unset CLAUDE_CODE_AUTO_COMPACT_WINDOW
+  unset CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
+  unset CLAUDE_CODE_MAX_CONTEXT_TOKENS
+  unset ANTHROPIC_CUSTOM_MODEL_OPTION
+  unset ANTHROPIC_CUSTOM_MODEL_OPTION_NAME
+  unset ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION
+  local what
+  if [ -n "$MODEL_ARG" ]; then
+    what="model $MODEL_ARG"
+    _resolved=$(python3 "$CCSESSION_MODELS" model-resolve "$MODEL_ARG") || exit 2
+    PROFILE="model:$MODEL_ARG"
+    # A named model may be hidden from the picker; offer it there too.
+    PROFILE_CUSTOM_OPTION=1
+  else
+    TIER_ARG="${TIER_ARG:-$(python3 "$CCSESSION_MODELS" default-tier)}"
+    _resolved=$(python3 "$CCSESSION_MODELS" tier-resolve "$TIER_ARG") || exit 2
+    PROFILE="tier${TIER_ARG#tier}"
+    what="$PROFILE"
+    PROFILE_CUSTOM_OPTION=0  # tiers are already in the picker
+  fi
+  while IFS='=' read -r _key _value; do
+    case "$_key" in
+      PROFILE_MODEL) PROFILE_MODEL="$_value" ;;
+      PROFILE_CONTEXT) PROFILE_CONTEXT="$_value" ;;
+      PROFILE_COMPACT_WINDOW) PROFILE_COMPACT_WINDOW="$_value" ;;
+      PROFILE_LABEL) PROFILE_LABEL="$_value" ;;
+    esac
+  done <<< "$_resolved"
+  export_selection "$what (${PROFILE_LABEL:-})"
+}
+
+export_selection() {
+  # Shared by profiles and tier mode: export the chosen window settings.
+  local what="$1"
 
   # Optional per-launch tuning overrides for the profile defaults.
   if [ -n "${CCSESSION_COMPACT_WINDOW:-}" ]; then
@@ -341,18 +453,18 @@ apply_profile() {
   fi
   export CCSESSION_PROFILE="$PROFILE"
 
-  if [ "$PROFILE_REQUIRES_SHIM" = 1 ]; then
+  if [ "$PROFILE_CUSTOM_OPTION" = 1 ]; then
     export ANTHROPIC_CUSTOM_MODEL_OPTION="$PROFILE_MODEL"
     export ANTHROPIC_CUSTOM_MODEL_OPTION_NAME="$PROFILE_MODEL"
     export ANTHROPIC_CUSTOM_MODEL_OPTION_DESCRIPTION="$PROFILE context profile"
   fi
 
   if [ -z "$PROFILE_MODEL" ]; then
-    echo "[ccsession] profile $PROFILE: default model and context"
+    echo "[ccsession] $what: default model and context"
   elif [ -n "$PROFILE_COMPACT_WINDOW" ]; then
-    echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, auto-compact window $PROFILE_COMPACT_WINDOW"
+    echo "[ccsession] $what: model $PROFILE_MODEL, context $PROFILE_CONTEXT, auto-compact window $PROFILE_COMPACT_WINDOW"
   else
-    echo "[ccsession] profile $PROFILE: model $PROFILE_MODEL, context $PROFILE_CONTEXT, native auto-compact"
+    echo "[ccsession] $what: model $PROFILE_MODEL, context $PROFILE_CONTEXT, native auto-compact"
   fi
 }
 
@@ -534,6 +646,16 @@ list_sessions() {
 
 show_help() {
   awk 'NR >= 2 { if ($0 ~ /^# The wrapper always runs/) exit; sub(/^# ?/, ""); print }' "$0"
+  if [ "$TIER_MODE" = 1 ]; then
+    echo "Tiers in this workspace (* = default):"
+    python3 "$CCSESSION_MODELS" tiers 2>&1 | while IFS=$'\x1f' read -r _name _label _window _models _default; do
+      [ -n "$_label" ] || { echo "  $_name"; continue; }
+      _mark=" "; [ "$_default" = 1 ] && _mark="*"
+      printf '  %s ccsession --tier %s\n                            %s, %s token window: %s\n' \
+        "$_mark" "$_name" "$_label" "$_window" "$_models"
+    done
+    return 0
+  fi
   echo "Profiles (use --shim where marked):"
   python3 "$CCSESSION_MODELS" profiles | while IFS=$'\x1f' read -r _name _aliases _label _shim; do
     _flag=""; [ "$_shim" = 1 ] && _flag=" --shim"
@@ -582,7 +704,8 @@ esac
 
 # Preserve the original no-argument help behavior only when nothing at all
 # was selected (no topic, no profile, no shim).
-if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ "$USE_SHIM" != 1 ]; then
+if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ -z "$TIER_ARG" ] && [ -z "$MODEL_ARG" ] && \
+  [ "$SHIM_FLAG" != 1 ]; then
   show_help
   exit 0
 fi
@@ -595,8 +718,15 @@ if [ "${CCSESSION_MODELS_REFRESH:-1}" != 0 ] && [ "$CCSESSION_EXT_PROFILE" != 1 
   python3 "$CCSESSION_MODELS" refresh --wait "${CCSESSION_MODELS_WAIT:-2}" || true
 fi
 
-if [ -n "$PROFILE" ]; then
+if [ "$TIER_MODE" = 1 ]; then
+  apply_tier_selection
+  if [ -z "$CC_SHIM_PORT_EXPLICIT" ]; then
+    CC_SHIM_PORT=$(python3 "$CCSESSION_MODELS" shim-port "$CC_SHIM_PORT")
+  fi
+elif [ -n "$PROFILE" ]; then
   apply_profile
+elif [ "${CCSESSION_SHOW_ALL_MODELS:-0}" = 1 ] && [ -z "$CC_SHIM_PORT_EXPLICIT" ]; then
+  CC_SHIM_PORT=$(python3 "$CCSESSION_MODELS" shim-port "$CC_SHIM_PORT")
 fi
 [ "$USE_SHIM" = 1 ] && setup_shim
 

@@ -134,7 +134,42 @@ different conversations, which is what you usually want.
 
 ---
 
-## Profiles
+## Tiers (Coder workspaces)
+
+In a Coder workspace whose env file defines tier windows (`T<N>_WINDOW`),
+ccsession runs in tier mode. The workspace env file
+(`/etc/aidev02/aienv.d/defaults.sh`) names each tier's models in order and
+their context windows; ccsession reads it on every launch, so a changed file
+applies to the next launch in any terminal or in Orca, with no new shell.
+
+```bash
+ccsession notes                       # default tier (CCSESSION_DEFAULT_TIER)
+ccsession notes --tier tier1          # a specific tier
+ccsession notes --model gpt-6-astra   # one model, no failover
+```
+
+| | What happens |
+|---|---|
+| Picker (`/model`) | Shows the tiers (Tier 0, Tier 1, ...), each with its models |
+| Failover | When a tier's model answers with an out-of-usage error (for example `are cooling down`, `auth_unavailable`, `usage_limit_reached`, a billing error, an overloaded or retired model, or no reply within 2 minutes), the same request goes to the next model; Claude Code never sees the error. A plain `Rate limited` and a `500` are passed back unchanged |
+| Cooldown | A model that failed is skipped for an hour (or the gateway's `Retry-After`), then tried once again |
+| Context | The tier window (`T<N>_WINDOW`) for the whole session; a backup smaller than that is never used |
+| `--model <name>` | Window from the tier slot that holds that model; 200K if it is in no tier |
+| `--profile` | Not used in tier mode (refused with a pointer to `--tier` and `--model`) |
+| Shim | Always on |
+
+Admin options: `/model <name>` inside a session switches to any model by
+name. `CCSESSION_SHOW_ALL_MODELS=1 ccsession notes` also lists every tier
+model one by one in `/model`; that session gets its own shim so other
+sessions' pickers do not change. `CCSESSION_TIERS=0` turns tier mode off,
+`CCSESSION_COOLDOWN_SECONDS` changes the cooldown, and
+`CCSESSION_COMPACT_WINDOW` / `CCSESSION_COMPACT_PCT` still override the
+auto-compact settings. `ccsession --models-status` shows whether tier mode is
+on and where its settings came from.
+
+---
+
+## Profiles (when not in tier mode)
 
 A profile decides which model a session starts on and how much conversation it
 holds before Claude Code trims it.
@@ -185,7 +220,8 @@ nothing changed GitHub answers "not modified", which adds roughly a tenth of a
 second; a newer copy is validated, cached in `~/.cache/ccsession/`, and used
 by that same launch, with one line saying what changed. Without a network the
 check gives up after about 2 seconds and the cached or shipped copy is used.
-A running shim picks up new data on its next model-list request.
+A running shim picks up new data on its next model-list request. After an
+upgrade, ccsession restarts a shim left running by the older version.
 
 | Command or setting | What it does |
 |---|---|
@@ -198,17 +234,19 @@ A running shim picks up new data on its next model-list request.
 
 Edit `ccsession-models.json` in IronClaude and merge it; every install picks it
 up on its next launch. Always use the model's real gateway name such as
-`gpt-6-astra`, never the `claude-gw-` version you see in the picker. Every
-gateway model not listed in `remove` shows up on its own.
+`gpt-6-astra`, never the `claude-gw-` version you see in the picker. Outside
+tier mode the picker shows exactly the models in `picker.show`, in that order,
+that the gateway still serves; a new gateway model stays hidden until it is
+added there. Tier models and their order come from the workspace env file, not
+from this file.
 
 | Goal | Where to put it |
 |---|---|
 | Add or change a profile | `profiles` |
-| Hide a model | `picker.remove` |
-| Move it to the top | `picker.pinned` |
-| Move an image model into the final cluster | `picker.tail` |
+| Show a model, or change the order | `picker.show` |
 | Give it a nicer name | `picker.display_overrides` |
 | Let it hold a million tokens | `picker.one_million_context` |
+| Change which env variables make up a tier | `tiers` |
 
 Raise `version` (for example `2026-10-02.1`) with every change: installs keep
 whichever copy has the newest version.

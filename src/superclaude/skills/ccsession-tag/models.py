@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Curated model data for ccsession: profiles plus the shim's picker rules.
+"""Curated model data for ccsession: profiles, tiers, and the shim's picker rules.
 
 The data changes whenever models are added or retired, far more often than
 the code, so it lives in ccsession-models.json instead of in the scripts.
@@ -11,14 +11,26 @@ reinstall. The file is data only: it is validated and never executed.
 Active copy = the newest valid one of the downloaded cache and the copy
 shipped with this skill; if neither is usable, a minimal built-in default.
 
+Tier mode (Coder workspaces): the model names and context windows of each tier
+live in the workspace env file (`export T2Model01=...`, `T2_WINDOW=...`), read
+on every launch so a changed file applies without a new shell. This file names
+only which env variables make up each tier. Tier mode is on when a tier window
+variable (`T<N>_WINDOW`) exists; the Mac has none and keeps the profiles.
+
 Commands (used by the ccsession script):
   refresh [--wait SECONDS]  fetch a newer copy if one exists; prints one line
                             when the active data changed; never fails
   resolve PROFILE           print a profile's settings as KEY=value lines
   profiles                  print name, aliases, label, needs-shim per profile
   status                    print where the active data came from
+  tier-mode                 exit 0 when tier mode is on, 1 when off
+  tier-resolve TIER         print a tier's launch settings as KEY=value lines
+  model-resolve MODEL       print launch settings for one named model
+  tiers                     print name, label, models per tier (for --help)
+  shim-port BASE            print the shim port for this session's settings
 """
 
+import hashlib
 import json
 import os
 import re
@@ -30,7 +42,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-SUPPORTED_SCHEMA = 1
+SUPPORTED_SCHEMA = 2
 DEFAULT_URL = (
     "https://raw.githubusercontent.com/IronbellyOrg/IronClaude/master/"
     "src/superclaude/skills/ccsession-tag/ccsession-models.json"
@@ -40,6 +52,16 @@ _MAX_BYTES = 256 * 1024
 _ID = re.compile(r"^[A-Za-z0-9._/:\-\[\]]{1,128}$")
 _NAME = re.compile(r"^[A-Za-z0-9._-]{1,32}$")
 _LABEL = re.compile(r"^[^\x00-\x1f`$\\]{0,80}$")
+_TIER = re.compile(r"^tier([0-9]{1,2})$")
+_SLOT = re.compile(r"^T([0-9]{1,2})Model[0-9]{2}$")
+# Only these names are taken from the workspace env file; nothing is executed.
+_ENV_NAME = re.compile(
+    r"^(T[0-9]{1,2}Model[0-9]{2}(_WINDOW)?|T[0-9]{1,2}_WINDOW|CCSESSION_DEFAULT_TIER)$"
+)
+_ENV_LINE = re.compile(r"^\s*export\s+([A-Za-z_][A-Za-z0-9_]*)=(.*?)\s*$")
+DEFAULTS_FILE = "/etc/aidev02/aienv.d/defaults.sh"
+DEFAULT_WINDOW = 200000  # what Claude Code assumes for a model it does not know
+ONE_MILLION = 1000000
 _MINIMAL = {
     "schema": SUPPORTED_SCHEMA,
     "version": "0",
@@ -53,10 +75,9 @@ _MINIMAL = {
             "label": "Opus 5.5 and 1M context",
         }
     },
+    "tiers": {},
     "picker": {
-        "remove": [],
-        "pinned": [],
-        "tail": [],
+        "show": ["claude-opus-5-5"],
         "one_million_context": [],
         "display_overrides": {},
     },
@@ -111,10 +132,30 @@ def validate(data) -> str:
             p.get("label", "")
         ):
             return f"profile {name!r} has an invalid label"
+    tiers = data.get("tiers")
+    if not isinstance(tiers, dict) or len(tiers) > 20:
+        return "tiers must be an object"
+    for name, t in tiers.items():
+        if not _TIER.match(name) or not isinstance(t, dict):
+            return f"invalid tier {name!r}"
+        slots = t.get("models_env")
+        if (
+            not isinstance(slots, list)
+            or not 1 <= len(slots) <= 10
+            or not all(isinstance(v, str) and _SLOT.match(v) for v in slots)
+        ):
+            return f"tier {name!r} needs models_env: 1-10 names like T2Model01"
+        if not isinstance(t.get("label", ""), str) or not _LABEL.match(
+            t.get("label", "")
+        ):
+            return f"tier {name!r} has an invalid label"
     picker = data.get("picker")
     if not isinstance(picker, dict):
         return "picker must be an object"
-    for key in ("remove", "pinned", "tail", "one_million_context"):
+    for key in ("remove", "pinned", "tail"):
+        if key in picker:
+            return f"picker.{key} was replaced by picker.show"
+    for key in ("show", "one_million_context"):
         if not _ids(picker.get(key)):
             return f"picker.{key} must be a list of model ids"
     labels = picker.get("display_overrides")
@@ -158,7 +199,7 @@ def load():
 
 def _summary(data) -> set:
     names = set(data["profiles"])
-    return {f"profile {n}" for n in names} | {f"{m}" for m in data["picker"]["pinned"]}
+    return {f"profile {n}" for n in names} | {f"{m}" for m in data["picker"]["show"]}
 
 
 def _change_line(old, new) -> str:
@@ -231,6 +272,135 @@ def refresh(wait: float) -> str:
     return result["status"]
 
 
+# --- tier mode ---------------------------------------------------------------
+
+
+def defaults_path() -> Path:
+    return Path(os.environ.get("AIDEV_AI_DEFAULTS_PATH") or DEFAULTS_FILE)
+
+
+def read_defaults_file(path: Path) -> dict:
+    """Parse tier settings from the workspace env file. Never sources it.
+
+    Takes only `export NAME=value` lines whose NAME is a tier setting; quotes
+    around the value are dropped. Returns {} when the file cannot be read.
+    """
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return {}
+    out = {}
+    for line in lines:
+        m = _ENV_LINE.match(line)
+        if not m or not _ENV_NAME.match(m.group(1)):
+            continue
+        value = m.group(2)
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+            value = value[1:-1]
+        out[m.group(1)] = value
+    return out
+
+
+def tier_env(env=None) -> dict:
+    """Tier settings: the workspace env file when present, else the environment.
+
+    The file is read fresh on every call, so a file pushed into a running
+    workspace applies to the next launch (and the next shim request) without a
+    new shell. Orca does not pass these variables to its terminals, so the
+    file is also how Orca sessions see them.
+    """
+    path = defaults_path()
+    if path.is_file():
+        return read_defaults_file(path)
+    env = os.environ if env is None else env
+    return {k: v for k, v in env.items() if _ENV_NAME.match(k)}
+
+
+def tier_mode(env=None, tenv=None) -> bool:
+    """Tier mode is on when a tier window variable exists (T<N>_WINDOW).
+
+    Not keyed on T0Model01: the Coder env set that long before tier windows
+    existed, and keying on it would switch tier mode on with no windows.
+    """
+    env = os.environ if env is None else env
+    if env.get("CCSESSION_TIERS", "1") == "0":
+        return False
+    tenv = tier_env(env) if tenv is None else tenv
+    return any(re.match(r"^T[0-9]{1,2}_WINDOW$", k) for k in tenv)
+
+
+def _window(tenv, name):
+    raw = tenv.get(name, "")
+    if not raw.isdigit() or not 1000 <= int(raw) <= 2000000:
+        raise ValueError(f"{name} is missing or not a number of tokens (got {raw!r})")
+    return int(raw)
+
+
+def tier_number(name: str) -> str:
+    m = _TIER.match(name) or re.match(r"^([0-9]{1,2})$", name)
+    if not m:
+        raise ValueError(f"unknown tier {name!r} (use tier0, tier1, ... or 0, 1, ...)")
+    return m.group(1)
+
+
+def resolve_tiers(data=None, tenv=None) -> dict:
+    """Return {tier name: {label, window, models: [(slot, model, window)]}}.
+
+    Raises ValueError naming the first missing or invalid variable.
+    """
+    data = load()[0] if data is None else data
+    tenv = tier_env() if tenv is None else tenv
+    out = {}
+    for name, t in data["tiers"].items():
+        n = tier_number(name)
+        models = []
+        for slot in t["models_env"]:
+            model = tenv.get(slot, "")
+            if not model:
+                raise ValueError(f"{slot} is not set (needed by {name})")
+            if not _ID.match(model):
+                raise ValueError(f"{slot} has an invalid model name {model!r}")
+            models.append((slot, model, _window(tenv, f"{slot}_WINDOW")))
+        out[name] = {
+            "label": t.get("label", f"Tier {n}"),
+            "window": _window(tenv, f"T{n}_WINDOW"),
+            "models": models,
+        }
+    return out
+
+
+def model_window(model: str, data=None, tenv=None) -> tuple:
+    """(window, where it came from) for a model chosen by name."""
+    data = load()[0] if data is None else data
+    tenv = tier_env() if tenv is None else tenv
+    for key, value in sorted(tenv.items()):
+        if _SLOT.match(key) and value == model:
+            return _window(tenv, f"{key}_WINDOW"), key
+    if model in data["picker"]["one_million_context"]:
+        return ONE_MILLION, "not in any tier; 1M list"
+    return DEFAULT_WINDOW, "not in any tier"
+
+
+def shim_port(base: int, env=None, tenv=None) -> int:
+    """Port of the shim for this session's settings.
+
+    Sessions with the same settings share one shim. Show-all, or tier settings
+    taken from the environment instead of the shared file, get their own shim so
+    one session never changes another session's picker or failover.
+    """
+    env = os.environ if env is None else env
+    key = []
+    if env.get("CCSESSION_SHOW_ALL_MODELS") == "1":
+        key.append("show-all")
+    if not defaults_path().is_file():
+        tenv = tier_env(env) if tenv is None else tenv
+        key.extend(f"{k}={v}" for k, v in sorted(tenv.items()))
+    if not key:
+        return base
+    digest = hashlib.sha256("\n".join(key).encode()).digest()
+    return base + 1 + int.from_bytes(digest[:2], "big") % 97
+
+
 def resolve(name: str) -> int:
     data, _ = load()
     for profile_name, p in data["profiles"].items():
@@ -253,6 +423,74 @@ def main(argv) -> int:
         return 0
     if command == "resolve" and len(argv) > 2:
         return resolve(argv[2])
+    if command == "tier-mode":
+        return 0 if tier_mode() else 1
+    if command == "tier-resolve" and len(argv) > 2:
+        try:
+            name = f"tier{tier_number(argv[2])}"
+            tier = resolve_tiers().get(name)
+        except ValueError as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
+        if not tier:
+            print(f"ccsession: unknown tier {argv[2]!r}", file=sys.stderr)
+            return 3
+        print(f"PROFILE_MODEL=claude-gw-{name}[1m]")
+        print(f"PROFILE_CONTEXT={tier['window']}")
+        print(f"PROFILE_COMPACT_WINDOW={tier['window']}")
+        print("PROFILE_REQUIRES_SHIM=1")
+        print(
+            f"PROFILE_LABEL={tier['label']}: "
+            + ", ".join(m for _, m, _ in tier["models"])
+        )
+        return 0
+    if command == "model-resolve" and len(argv) > 2:
+        model = argv[2]
+        if not _ID.match(model):
+            print(f"ccsession: invalid model name {model!r}", file=sys.stderr)
+            return 3
+        try:
+            window, where = model_window(model)
+        except ValueError as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
+        if where.startswith("not in any tier"):
+            print(
+                f"[ccsession] WARNING: {model} is {where}; using a {window} token window",
+                file=sys.stderr,
+            )
+        # Claude-named models are known to Claude Code, which reads a long
+        # window only from the "[1m]" suffix (the profiles do the same).
+        native = model.startswith(("claude", "anthropic"))
+        suffix = (
+            "[1m]"
+            if native and window > DEFAULT_WINDOW and not model.endswith("]")
+            else ""
+        )
+        print(f"PROFILE_MODEL={model}{suffix}")
+        print(f"PROFILE_CONTEXT={window}")
+        print(f"PROFILE_COMPACT_WINDOW={window}")
+        print("PROFILE_REQUIRES_SHIM=1")
+        print(f"PROFILE_LABEL={model} ({where})")
+        return 0
+    if command == "tiers":
+        try:
+            tiers = resolve_tiers()
+        except ValueError as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
+        default = tier_env().get("CCSESSION_DEFAULT_TIER", "")
+        for name, t in tiers.items():
+            mark = "1" if name == default else "0"
+            models = ", ".join(m for _, m, _ in t["models"])
+            print("\x1f".join((name, t["label"], str(t["window"]), models, mark)))
+        return 0
+    if command == "default-tier":
+        print(tier_env().get("CCSESSION_DEFAULT_TIER", "") or "tier2")
+        return 0
+    if command == "shim-port" and len(argv) > 2:
+        print(shim_port(int(argv[2])))
+        return 0
     if command == "profiles":
         data, _ = load()
         for name, p in data["profiles"].items():
@@ -273,6 +511,16 @@ def main(argv) -> int:
         print(f"Cache:              {cache_dir() / 'models.json'}")
         print(f"Last check:         {last}")
         print(f"Profiles:           {', '.join(data['profiles'])}")
+        path = defaults_path()
+        if tier_mode():
+            source = str(path) if path.is_file() else "environment"
+            try:
+                names = ", ".join(resolve_tiers(data))
+            except ValueError as exc:
+                names = f"invalid ({exc})"
+            print(f"Tier mode:          on (settings from {source}); tiers: {names}")
+        else:
+            print("Tier mode:          off (no T<N>_WINDOW in the workspace env)")
         return 0
     print(__doc__, file=sys.stderr)
     return 2
