@@ -917,6 +917,8 @@ def test_show_all_launch_runs_its_own_shim(tmp_path: Path) -> None:
     fake_claude.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
     fake_claude.chmod(0o755)
     path = _defaults(tmp_path)
+    shim_copy = tmp_path / "shim-under-test.py"
+    shim_copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
     env = os.environ.copy()
     for k in ("CC_SHIM_PORT",):
         env.pop(k, None)
@@ -924,7 +926,10 @@ def test_show_all_launch_runs_its_own_shim(tmp_path: Path) -> None:
         HOME=str(home),
         CLAUDE_BIN=str(fake_claude),
         ANTHROPIC_BASE_URL="http://127.0.0.1:9/cli",
-        CC_SHIM_SCRIPT=str(SKILL_DIR / "local-gateway-alias-proxy.py"),
+        # A private copy, so cleanup can find exactly this shim (the Coder
+        # image has no lsof).
+        CC_SHIM_SCRIPT=str(shim_copy),
+        CCSESSION_DIR=str(SKILL_DIR),
         SEEN_FILE=str(tmp_path / "seen"),
         AIDEV_AI_DEFAULTS_PATH=str(path),
         CCSESSION_SHOW_ALL_MODELS="1",
@@ -955,14 +960,7 @@ def test_show_all_launch_runs_its_own_shim(tmp_path: Path) -> None:
         )
         assert health["show_all"] is True and health["port"] == int(expected)
     finally:
-        subprocess.run(["pkill", "-f", f"GW_PROXY_PORT={expected}"], check=False)
-        out = subprocess.run(
-            ["lsof", "-ti", f"tcp:{expected}", "-s", "TCP:LISTEN"],
-            capture_output=True,
-            text=True,
-        ).stdout.split()
-        for pid in out:
-            os.kill(int(pid), 15)
+        subprocess.run(["pkill", "-f", str(shim_copy)], check=False)
 
 
 def _ask_raw(base: str, model: str, stream: bool, timeout: float = 120):
