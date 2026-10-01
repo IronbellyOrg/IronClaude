@@ -136,6 +136,12 @@ def _read(path: Path):
     return data if not validate(data) else None
 
 
+def _version_key(version: str) -> list:
+    # Numeric runs compare as numbers, so "2026-10-02.10" beats "2026-10-02.9".
+    # re.split with a group alternates text/digits, so positions never mix types.
+    return [int(t) if t.isdigit() else t for t in re.split(r"(\d+)", version)]
+
+
 def load():
     """Return (data, source) for the active copy."""
     candidates = []
@@ -147,8 +153,7 @@ def load():
         candidates.append((bundled, "bundled"))
     if not candidates:
         return _MINIMAL, "built-in minimum"
-    # Version strings are date-serials ("2026-09-30.1"), so they sort by age.
-    return max(candidates, key=lambda c: c[0]["version"])
+    return max(candidates, key=lambda c: _version_key(c[0]["version"]))
 
 
 def _summary(data) -> set:
@@ -186,6 +191,11 @@ def _fetch(url: str, result: dict) -> None:
         problem = validate(data)
         if problem:
             result["status"] = f"rejected: {problem}"
+            return
+        cached = _read(directory / "models.json")
+        if cached and _version_key(data["version"]) < _version_key(cached["version"]):
+            # A server rollback must not discard the newer copy we already have.
+            result["status"] = "older than cached"
             return
         directory.mkdir(parents=True, exist_ok=True)
         for name, content in (("models.json", body), ("models.etag", etag.encode())):

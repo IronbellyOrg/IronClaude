@@ -966,6 +966,48 @@ def test_refresh_rejects_bad_or_older_data(tmp_path: Path) -> None:
         server.close()
 
 
+def test_numeric_versions_win_and_rollbacks_keep_the_cache(tmp_path: Path) -> None:
+    newest = _bundled()
+    newest["version"] = "9999-01-01.10"
+    server = _DataServer(newest)
+    try:
+        _models(tmp_path, server.url, "refresh")
+        rollback = _bundled()
+        rollback["version"] = "9999-01-01.9"
+        server.payload = rollback
+        _models(tmp_path, server.url, "refresh")
+        status = _models(tmp_path, server.url, "status").stdout
+        assert "9999-01-01.10 (downloaded)" in status
+    finally:
+        server.close()
+
+
+def test_help_resolves_symlink_without_readlink_f(tmp_path: Path) -> None:
+    """Older macOS readlink has no -f; the installer's symlink must still work."""
+    fake_bin = tmp_path / "fakebin"
+    fake_bin.mkdir()
+    real = subprocess.run(
+        ["sh", "-c", "command -v readlink"], text=True, capture_output=True, check=True
+    ).stdout.strip()
+    shim = fake_bin / "readlink"
+    shim.write_text(f'#!/bin/sh\n[ "$1" = -f ] && exit 1\nexec {real} "$@"\n')
+    shim.chmod(0o755)
+    link_dir = tmp_path / "bin"
+    link_dir.mkdir()
+    (link_dir / "ccsession").symlink_to(SKILL_DIR / "ccsession")
+    env = os.environ.copy()
+    env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+    help_text = subprocess.run(
+        [str(link_dir / "ccsession"), "--help"],
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    ).stdout
+    for name in _bundled()["profiles"]:
+        assert f"--profile {name}" in help_text
+
+
 def test_refresh_never_waits_past_its_limit(tmp_path: Path) -> None:
     server = _DataServer(_bundled(), delay=5)
     try:
