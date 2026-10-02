@@ -242,7 +242,7 @@ def test_refresh_never_replaces_a_newer_cache(tmp_path: Path, monkeypatch) -> No
         models._fetch(f"http://127.0.0.1:{server.server_port}/m.json", result)
     finally:
         server.shutdown()
-    assert result["status"] == "kept newer cached 2099-01-01.2"
+    assert result["status"] == "older than cached"
     assert json.loads((cache / "models.json").read_text())["version"] == "2099-01-01.2"
 
 
