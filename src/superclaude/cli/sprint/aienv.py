@@ -29,6 +29,7 @@ Recorded here for provenance only; the os.environ reader is the shipped design.
 from __future__ import annotations
 
 import os
+import re
 from typing import Mapping, Optional
 
 from superclaude.cli.swarm.config import T2_MODEL_ENV_PREFIX, T2_MODEL_MAX_SLOTS
@@ -53,13 +54,16 @@ def _load_aliases(env: Optional[Mapping[str, str]] = None) -> dict[str, str]:
     enumerates the three Anthropic slots (``ANTHROPIC_DEFAULT_{OPUS,SONNET,
     HAIKU}_MODEL``) then the numbered proxy slots ``T2Model01``..``T2Model0N``
     (reusing :data:`T2_MODEL_ENV_PREFIX` / :data:`T2_MODEL_MAX_SLOTS` from
-    ``swarm.config`` to avoid drift). Empty / unset slots are skipped so the
-    result is dense and insertion-ordered (most-capable / lowest-index first).
+    ``swarm.config`` to avoid drift). The three Anthropic slots are always
+    present: an unset one maps to its own short alias (``opus`` -> ``opus``),
+    which Claude Code resolves itself. Empty proxy slots are skipped, so the
+    result is insertion-ordered (most-capable / lowest-index first).
 
     Returns an ordered mapping of ``alias -> resolved_model_id`` where the alias
     is the short ``--model`` token (``opus``/``sonnet``/``haiku`` for the
     Anthropic slots, the slot name itself — e.g. ``T2Model01`` — for the proxy
-    slots) and the value is the resolved model id exported for that slot.
+    slots) and the value is the model id exported for that slot (or the alias
+    itself for an unset Anthropic slot).
 
     ``env`` defaults to ``os.environ``; pass an explicit mapping in tests to
     keep the read deterministic and away from the real ``~/.aienv``.
@@ -67,9 +71,10 @@ def _load_aliases(env: Optional[Mapping[str, str]] = None) -> dict[str, str]:
     env_map: Mapping[str, str] = env if env is not None else os.environ
     aliases: dict[str, str] = {}
     for slot_var, alias in _ANTHROPIC_SLOTS:
-        value = env_map.get(slot_var)
-        if value:
-            aliases[alias] = value
+        # An unset slot is still usable: Claude Code resolves the short alias
+        # itself (Coder issue #270 removes all three variables). Same rule as
+        # reflect's count_model_aliases.
+        aliases[alias] = env_map.get(slot_var) or alias
     for index in range(1, T2_MODEL_MAX_SLOTS + 1):
         slot_name = f"{T2_MODEL_ENV_PREFIX}{index}"
         value = env_map.get(slot_name)
@@ -95,24 +100,59 @@ def suggest_alternate_model(
 
     Prefix-agnostic over the numbered slots: it walks whatever aliases
     :func:`_load_aliases` discovered, in priority order, so ``opus`` rotates to
-    ``sonnet`` and ``T2Model01`` rotates to ``T2Model02``.
+    ``sonnet`` and ``T2Model01`` rotates to ``T2Model02`` (returned as that
+    slot's model id, e.g. ``grok-4.7``, since ``claude --model`` cannot resolve
+    a slot name).
 
     Returns ``None`` (never a fabricated alias, edge case #7) when the failed
     model is unknown OR no distinct alternate exists. ``env`` is the injectable
     seam (defaults to ``os.environ``) so tests never read the real ``~/.aienv``.
     """
     items = list(_load_aliases(env).items())
+    failed = _base_id(failed_model_or_alias)
 
     failed_idx: int | None = None
     for idx, (alias, resolved) in enumerate(items):
-        if failed_model_or_alias in (alias, resolved):
+        if failed in (alias, _base_id(resolved)):
             failed_idx = idx
             break
+    if failed_idx is None:
+        # An unset Anthropic slot resolves inside Claude Code, so the cooldown
+        # body carries the real id (``claude-opus-5-5``); match it by family.
+        lowered = failed.lower()
+        for idx, (alias, resolved) in enumerate(items):
+            if resolved == alias and alias in lowered and lowered.startswith("claude"):
+                failed_idx = idx
+                break
     if failed_idx is None:
         return None
 
     failed_alias, failed_resolved = items[failed_idx]
+    exhausted = {failed, _base_id(failed_resolved)}
     for alias, resolved in items[failed_idx + 1 :]:
-        if alias != failed_alias and resolved != failed_resolved:
-            return alias
+        if resolved == alias and any(
+            e.lower().startswith("claude") and alias in e.lower() for e in exhausted
+        ):
+            # An unset built-in (``haiku``) resolves inside Claude Code to its
+            # family's model; skip it when that family is the exhausted one.
+            continue
+        candidate = _base_id(resolved).lower()
+        if (
+            failed_resolved == failed_alias
+            and candidate.startswith("claude")
+            and failed_alias in candidate
+        ):
+            # The exhausted model is an unset built-in (``opus``), resolved by
+            # Claude Code to its family's model; a slot pinned to that family's
+            # id is the same model.
+            continue
+        if alias != failed_alias and _base_id(resolved) not in exhausted:
+            # ``claude --model`` understands opus/sonnet/haiku but not a slot
+            # NAME such as ``T2Model02``; for proxy slots hand back the model id.
+            return resolved if alias.startswith(T2_MODEL_ENV_PREFIX) else alias
     return None
+
+
+def _base_id(model: str) -> str:
+    """Model id without a context suffix such as ``[1m]``."""
+    return re.sub(r"\[[^\]]*\]$", "", model)

@@ -127,7 +127,7 @@ The skill resolves model aliases from environment at Wave 0:
 
 - `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`.
 
-Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table in §4 Wave 0). Missing aliases **do not abort the skill**; they degrade reviewer topology per the §4 Wave 0 routing table (0/1/2/3+ alias rows). The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
+Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table in §4 Wave 0). An unset alias resolves to Claude Code's built-in model for that slot, so at least one class always resolves; aliases that name the same model degrade reviewer topology per the §4 Wave 0 routing table (1/2/3+ rows; the 0 rows are unreachable since 2026-10). The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
 
 (See `refs/input-resolution.md` "Env routing table" for the 4-row alias→tier routing matrix and grader assertions.)
 
@@ -224,19 +224,19 @@ Before Wave 5 synthesis AND at Wave 7 step 7.2 (pre-mutation), re-read the input
 
 **Backward-compat with v1.0-pre contract.** The legacy `input_sha256: {tasklist: <hex>, spec: <hex>}` field in §9.1 is preserved as a derivable subset (first two entries of `file_list`); both fields are emitted in v1.0. The Wave 5 drift guard uses `input_tree_sha256` as the authoritative invariant; the legacy field is recording for backward-compat consumers per §9.4 evolution policy.
 
-**Step 0.5 (env-var alias resolution + 0/1/2/3+ alias routing).** Resolve the three `ANTHROPIC_DEFAULT_*_MODEL` env vars into an alias-set. Apply this routing table to decide Tier 2 reviewer count:
+**Step 0.5 (env-var alias resolution + 0/1/2/3+ alias routing).** Resolve the three `ANTHROPIC_DEFAULT_*_MODEL` env vars into an alias-set. An unset variable resolves to Claude Code's built-in alias for that slot (`opus`, `sonnet`, `haiku`), which Claude Code resolves itself, so it still counts as a model class; the count is the number of DISTINCT models the three aliases name (it falls below 3 only when two aliases name the same model). Coder workspaces no longer set these variables (Coder issue #270), and counting only set variables would drop every Coder run to Tier-1 and STOP any explicit `--tier 2`. Apply this routing table to decide Tier 2 reviewer count:
 
 | Aliases resolved | `--tier` flag | Routing | Telemetry |
 |------------------|---------------|---------|-----------|
-| 0 | (any except `--tier 2`) | T1-only path; WARN "T2 requires ≥1 model class"; degraded | `degraded_components: ["env-aliases"]` |
-| 0 | `--tier 2` explicit override | **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` |
+| 0 | (any except `--tier 2`) | Unreachable since 2026-10 (unset aliases resolve to built-ins, so the count is at least 1); kept for older contracts. T1-only path; WARN "T2 requires ≥1 model class"; degraded | `degraded_components: ["env-aliases"]` |
+| 0 | `--tier 2` explicit override | Unreachable since 2026-10 (unset aliases resolve to built-ins, so the count is at least 1); kept for older contracts. **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` |
 | 1 | (any) | T1-only path; WARN "T2 requires ≥2 model classes" | `t2_model_class_diversity: degraded` |
 | 2 | (any) | T2 with 2 reviewers (degraded) | `t2_model_class_diversity: degraded` |
 | ≥3 | (any) | T2 with 3 reviewers (full diversity) | `t2_model_class_diversity: full` |
 
 Grader assertion: `yaml_field` asserts `t2_model_class_diversity` is one of `{full, degraded}` when the skill ran to completion (non-STOP).
 
-The zero-aliases + `--tier 2` row is the only case where alias-resolution itself can STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.
+The zero-aliases + `--tier 2` row (unreachable since 2026-10: unset aliases resolve to Claude Code's built-ins) was the only case where alias-resolution itself could STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.
 
 (See `refs/input-resolution.md` "Env routing table" for the full 4-row matrix with grader-assertion column.)
 
@@ -1453,7 +1453,7 @@ Three concrete forces shape the pick:
 | `input_drift` detected — input SHA changed mid-run | STOP at Wave 5 pre-synthesis; emit SHA pair; `status: partial` | None |
 | `empty_input` — zero-task tasklist in UC-1 | STOP at Wave 1; `coverage_undefined: true`; `status: partial` | None |
 | `coverage_undefined` — zero parseable IDs | Route directly to T2; no T1 stop possible; surface in report header | Continue |
-| Zero env-var aliases resolved | T1-only path; WARN; `degraded_components: ["env-aliases"]` | None |
+| Zero env-var aliases resolved (unreachable since 2026-10; unset aliases resolve to built-ins) | T1-only path; WARN; `degraded_components: ["env-aliases"]` | None |
 | 1 env-var alias resolved | T1-only path; WARN "T2 requires ≥2 model classes" | None |
 | 2 env-var aliases resolved | T2 with 2 reviewers; `t2_model_class_diversity: degraded` | Continue |
 | Single-vendor T2 ensemble | Continue; WARN; `t2_vendor_diversity: single` (warn-only) | None |

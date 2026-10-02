@@ -100,6 +100,14 @@ export T2Model03="qwen2.5-coder-32b"
 > reads nor requires one. The proxy presents an OpenAI-compatible surface
 > backed by whatever upstream providers it is configured with; routing lives
 > at proxy-config time, not in this checklist.
+>
+> **Claude models supplied by the env are allowed in reflect's fallback.** The
+> no-host-vendor audit (`tests/swarm/test_no_anthropic_routing.py`) covers the
+> transport source only. In Coder workspaces `T1Model01` is `claude-opus-5-5`, so
+> `superclaude reflect`'s Tier-1 fallback ladder sends Opus 5.5 (then GPT 6.1 Sol)
+> through this transport; the owner approved that on 2026-10-01. Note: the
+> transport appends `/chat/completions` to the proxy URL, so the URL must include
+> the OpenAI path prefix (for the LiteLLM gateway: `.../cli/v1`).
 
 See also the full AC-017 contract in
 [`runbook.md` — T2 Proxy Env Contract](runbook.md).

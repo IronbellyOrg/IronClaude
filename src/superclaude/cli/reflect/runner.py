@@ -216,8 +216,9 @@ def write_sidecar(
     The sidecar is the dual gate signal that survives even when the frontmatter
     write fails: it records the derived verdict, raw status, tier, reason,
     report/contract paths, deviations, the child exit code, the preflight
-    ``env_alias_count`` (number of ``ANTHROPIC_DEFAULT_*`` aliases in the exact
-    child env), and the frontmatter ``write_status``. Returns the sidecar path.
+    ``env_alias_count`` (distinct models named by the three model aliases in the
+    exact child env, an unset alias counting as Claude Code's built-in; see
+    :func:`count_model_aliases`), and the frontmatter ``write_status``. Returns the sidecar path.
     """
     deviations = result.deviations or {}
     data = {
@@ -283,14 +284,30 @@ def _child_env() -> dict[str, str]:
     return probe.build_env()
 
 
-def count_model_aliases(env: dict[str, str]) -> int:
-    """Count present-and-non-empty ``ANTHROPIC_DEFAULT_*_MODEL`` aliases in ``env``.
+# Claude Code's own alias for each slot, used when the env var is unset.
+_BUILTIN_ALIASES = ("opus", "sonnet", "haiku")
 
-    ≥3 distinct classes -> full Tier-2 diversity; 2 -> degraded; 0-1 -> T1-only
+
+def count_model_aliases(env: dict[str, str]) -> int:
+    """Count the distinct model classes behind the three model aliases.
+
+    Each ``ANTHROPIC_DEFAULT_*_MODEL`` that is set names its model; an unset one
+    falls back to Claude Code's built-in alias (``opus``/``sonnet``/``haiku``),
+    which Claude Code resolves itself. Coder issue #270 removes all three env
+    vars, so counting only the set ones would drop every Coder run to Tier-1.
+    The count is below 3 only when two aliases carry the identical string; a
+    built-in alias and an explicit id for the same model (``opus`` and
+    ``claude-opus-5-5``) are not detected as the same.
+
+    ≥3 distinct classes -> full Tier-2 diversity; 2 -> degraded; 1 -> T1-only
     (research 08 §4). The count is recorded in the sidecar; low counts surface
     as a ``degraded`` verdict via the contract, not as a preflight blocker.
     """
-    return sum(1 for var in _MODEL_ALIAS_ENV_VARS if (env.get(var) or "").strip())
+    resolved = {
+        (env.get(var) or "").strip() or builtin
+        for var, builtin in zip(_MODEL_ALIAS_ENV_VARS, _BUILTIN_ALIASES)
+    }
+    return len(resolved)
 
 
 def _phase_incomplete_blocker(tasklist_path: Path) -> str | None:

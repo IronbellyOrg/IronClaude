@@ -59,7 +59,7 @@ Hard-STOP cases that prevent invocation (verbatim from §3.3):
 - `--depth deep` with under-specified input (e.g., 1-line spec, empty tasklist).
 - `--output` resolves under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` (CLAUDE.md ABSOLUTE RULE — distributable paths are not output sinks).
 
-Additional STOP from §4.0 step 0.5 (env routing): zero aliases resolved + `--tier 2` explicit → STOP (see Env routing table below).
+Additional STOP from §4.0 step 0.5 (env routing): zero aliases resolved + `--tier 2` explicit → STOP (see Env routing table below). Unreachable since 2026-10: an unset alias resolves to Claude Code's built-in, so at least one alias always resolves.
 
 ## Environment
 
@@ -69,7 +69,9 @@ The skill resolves model aliases from environment at Wave 0 step 0.5:
 - `ANTHROPIC_DEFAULT_SONNET_MODEL`
 - `ANTHROPIC_DEFAULT_HAIKU_MODEL`
 
-Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table below). Missing aliases **do not abort the skill** in the general case; they degrade reviewer topology per the routing table. The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
+An unset variable resolves to Claude Code's built-in alias for that slot (`opus`, `sonnet`, `haiku`) and still counts; the resolved count is the number of distinct models the three aliases name (`count_model_aliases` in `cli/reflect/runner.py`). Coder workspaces no longer set these variables (Coder issue #270).
+
+Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table below). An unset alias is not missing (it resolves to the built-in); aliases naming the same model degrade reviewer topology per the routing table. The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
 
 MCP availability is also probed at Wave 0:
 
@@ -83,12 +85,12 @@ Step 0.5 routes Tier 2 reviewer count based on (resolved-alias count) × (`--tie
 
 | Aliases resolved | `--tier` flag | Routing | Telemetry |
 |------------------|---------------|---------|-----------|
-| 0 | (any except `--tier 2`) | T1-only path; WARN "T2 requires ≥1 model class"; degraded | `degraded_components: ["env-aliases"]` |
-| 0 | `--tier 2` explicit override | **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` |
+| 0 | (any except `--tier 2`) | Unreachable since 2026-10 (unset aliases resolve to built-ins, so the count is at least 1); kept for older contracts. T1-only path; WARN "T2 requires ≥1 model class"; degraded | `degraded_components: ["env-aliases"]` |
+| 0 | `--tier 2` explicit override | Unreachable since 2026-10 (unset aliases resolve to built-ins, so the count is at least 1); kept for older contracts. **STOP** with explicit message: `"--tier 2 requires ≥1 alias resolved (zero aliases available — set ANTHROPIC_DEFAULT_*_MODEL env vars or omit --tier 2)"` | `degraded_components: ["env-aliases"]`, `stop_reason: "zero-aliases-tier2-conflict"` |
 | 1 | (any) | T1-only path; WARN "T2 requires ≥2 model classes" | `t2_model_class_diversity: degraded` |
 | 2 | (any) | T2 with 2 reviewers (degraded) | `t2_model_class_diversity: degraded` |
 | ≥3 | (any) | T2 with 3 reviewers (full diversity) | `t2_model_class_diversity: full` |
 
 Grader assertion: `yaml_field` asserts `t2_model_class_diversity` is one of `{full, degraded}` when the skill ran to completion (non-STOP).
 
-**Zero-aliases + `--tier 2` STOP rationale:** This row is the only case where alias-resolution itself can STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.
+**Zero-aliases + `--tier 2` STOP rationale (unreachable since 2026-10):** This row was the only case where alias-resolution itself can STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.

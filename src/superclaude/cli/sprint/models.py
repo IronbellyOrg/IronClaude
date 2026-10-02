@@ -7,6 +7,7 @@ superclaude.cli.pipeline for inheritance.
 
 from __future__ import annotations
 
+import shlex
 import threading
 import time
 from dataclasses import dataclass, field
@@ -895,7 +896,7 @@ class SprintResult:
                 if halt_task_id:
                     return (
                         f"superclaude sprint run {self.config.index_path} "
-                        f"--resume {halt_task_id} --model {suggested}"
+                        f"--resume {halt_task_id} --model {shlex.quote(suggested)}"
                     )
                 # R2-H6: single-session halt has no per-task id → emit a phase-level
                 # resume that STILL carries the model switch (the re-route lever),
@@ -903,7 +904,7 @@ class SprintResult:
                 # exhausted model.
                 return (
                     f"superclaude sprint run {self.config.index_path} "
-                    f"--start {self.halt_phase} --end {end} --model {suggested}"
+                    f"--start {self.halt_phase} --end {end} --model {shlex.quote(suggested)}"
                 )
             # None-safe: no distinct alternate alias found — fall through to the
             # phase-level resume so the operator still has a paste-ready command
@@ -1242,7 +1243,7 @@ def build_account_exhaustion_halt(
         lines += [
             "### Resume Command (switch model)",
             "```",
-            f"superclaude sprint run {config.index_path} --resume {halt_task_id} --model {suggested_model}",
+            f"superclaude sprint run {config.index_path} --resume {halt_task_id} --model {shlex.quote(suggested_model)}",
             "```",
         ]
     else:

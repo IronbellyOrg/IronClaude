@@ -9,8 +9,9 @@ openai_compat`` against the live proxy defined in ``~/.aienv``:
                path under ``:4000/cli``). The harness/runner sets
                ``T2ProxyUrl=http://192.168.133.101:4000/cli/v1``.
   * Key      : ``T2ProxyKey`` from ``.aienv``.
-  * Models   : ``T2Model0N`` from ``.aienv`` (kimi-k2.6 / qwen3.6-plus / glm-5.1
-               / deepseek-v4-pro). NEVER queried from the proxy API.
+  * Models   : ``T2Model0N`` from ``.aienv`` (Coder Tier 2 since 2026-10:
+               muse-spark-1.3 / grok-4.7 / Qwen3.8-max / glm-5.3). NEVER
+               queried from the proxy API.
 
 These tests are **gated** and SKIP unless ``SWARM_REAL_E2E=1`` is set AND the
 proxy contract env is present — so CI / normal ``pytest`` runs stay hermetic.
@@ -52,8 +53,10 @@ from superclaude.cli.swarm.commands import (
 MANIFEST_FILENAME = "manifest.json"
 
 # Models from .aienv that reliably do real work on full lens prompts.
-MODEL_FAST = "qwen3.6-plus"  # ~6 s
-MODEL_REASONER = "deepseek-v4-pro"  # ~32 s
+# Live probe 2026-10-01 (/cli/v1/chat/completions, temperature 0.2): all four
+# Tier 2 models answer; Qwen ~2.5 s, GLM ~3 s, Grok ~1.5 s, Muse ~29 s.
+MODEL_FAST = "Qwen3.8-max"
+MODEL_REASONER = "glm-5.3"
 
 # Latency floor that proves a real network round-trip (the stub transport
 # returns in ~0 ms; any real proxy call is far above this).
@@ -313,7 +316,7 @@ def test_doc_completeness_real(runner, pin_model, tmp_path):
 
 
 def test_reasoner_model_real_pipeline(runner, pin_model, tmp_path):
-    """A second real .aienv model (deepseek-v4-pro) drives a full pipeline —
+    """A second real .aienv model (glm-5.3) drives a full pipeline —
     proves the suite isn't bound to a single model."""
     pin_model(MODEL_REASONER)
     out = tmp_path / "out"
@@ -341,9 +344,9 @@ def test_manifest_records_real_openai_compat_run(runner, pin_model, tmp_path):
 # transport on EVERY WorkerResult (success AND proxy_error), so these tests
 # assert per-slot model *attribution* covering the pool — independent of
 # whether a given model returns 200 or 400 on the prompt.
-AIENV_POOL_4 = ["kimi-k2.6", "qwen3.6-plus", "glm-5.1", "deepseek-v4-pro"]
-AIENV_POOL_3 = ["kimi-k2.6", "qwen3.6-plus", "glm-5.1"]
-RELIABLE_2 = ["qwen3.6-plus", "deepseek-v4-pro"]
+AIENV_POOL_4 = ["muse-spark-1.3", "grok-4.7", "Qwen3.8-max", "glm-5.3"]
+AIENV_POOL_3 = ["muse-spark-1.3", "grok-4.7", "Qwen3.8-max"]
+RELIABLE_2 = ["Qwen3.8-max", "glm-5.3"]
 
 
 def _model_ids(out: Path) -> list[str]:

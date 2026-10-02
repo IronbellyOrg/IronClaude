@@ -48,6 +48,12 @@ def _vendor_from_model_id(model_id: str) -> str:
         ("llama", "meta"),
         ("mistral", "mistral"),
         ("claude", "anthropic"),
+        # Coder tier models (2026-10). Without these each id counted as its own
+        # vendor, so two GLM versions would look like two vendors.
+        ("grok", "xai"),
+        ("glm", "zhipu"),
+        ("kimi", "moonshot"),
+        ("muse", "meta"),  # Muse Spark: Meta Superintelligence Labs
     ):
         if marker in lowered:
             return vendor

@@ -50,15 +50,17 @@ done
 echo "============================================================"
 echo " REAL swarm E2E — live proxy (spends tokens)"
 echo "   endpoint : ${T2ProxyUrl}/chat/completions"
-echo "   key      : ${T2ProxyKey:0:8}…(${#T2ProxyKey} chars)"
+echo "   key      : set (${#T2ProxyKey} chars)"
 echo "   models   : ${models[*]:-<none>}"
 echo "============================================================"
 
 # Fast connectivity precheck against the authorized endpoint (model slot 1).
 probe_model="${T2Model01:-${models[0]:-}}"
-code="$(curl -s -m 20 -o /dev/null -w '%{http_code}' \
+# No time limit on the reply (Muse Spark 1.3 took ~29s on a ping); the key is
+# passed on stdin so it never appears in the process list.
+code="$(curl -s -o /dev/null -w '%{http_code}' \
   "${T2ProxyUrl}/chat/completions" \
-  -H "Authorization: Bearer ${T2ProxyKey}" -H 'Content-Type: application/json' \
+  -H @- -H 'Content-Type: application/json' <<<"Authorization: Bearer ${T2ProxyKey}" \
   -d "{\"model\":\"${probe_model}\",\"messages\":[{\"role\":\"user\",\"content\":\"ping\"}],\"max_tokens\":5}" || echo 000)"
 if [[ "$code" != "200" ]]; then
   echo "FATAL: proxy precheck failed (HTTP $code) at ${T2ProxyUrl}/chat/completions with model ${probe_model}" >&2
