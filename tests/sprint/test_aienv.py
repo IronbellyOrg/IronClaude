@@ -130,13 +130,23 @@ def test_unset_builtin_of_the_exhausted_family_is_skipped():
     # resolve to the same exhausted model inside Claude Code.
     assert (
         suggest_alternate_model(
-            "claude-haiku-4-5", env={"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-haiku-4-5"}
+            "claude-haiku-4-5",
+            env={"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-haiku-4-5"},
         )
         is None
     )
     assert (
         suggest_alternate_model(
-            "claude-sonnet-5-5", env={"ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-sonnet-5-5"}
+            "claude-sonnet-5-5",
+            env={"ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-sonnet-5-5"},
         )
         == "haiku"
     )
+
+
+def test_unset_failed_builtin_skips_a_slot_pinned_to_its_family():
+    # opus is unset (Claude Code resolves it to an Opus model); a slot set to
+    # an Opus id is the same model and must not be suggested (PR #254 review).
+    env = {"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-opus-5-5"}
+    assert suggest_alternate_model("opus", env=env) == "haiku"
+    assert suggest_alternate_model("claude-opus-5-5", env=env) == "haiku"

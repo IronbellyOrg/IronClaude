@@ -436,7 +436,6 @@ class TestSprintResult:
         assert "--resume T01.07" in cmd
         assert "--model sonnet" in cmd
 
-
     def test_resume_command_quotes_a_model_id_with_brackets(self, monkeypatch):
         # A proxy slot value such as `glm-5.3[1m]` is a glob in zsh; the
         # paste-ready command must quote it.
