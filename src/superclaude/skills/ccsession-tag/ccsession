@@ -238,9 +238,19 @@ setup_shim() {
     echo "[ccsession] ERROR: shim script not found: $CC_SHIM_SCRIPT" >&2
     exit 1
   fi
+  # Find a usable port: reuse a shim with this session's settings; replace an
+  # idle stale one; never stop a shim that is forwarding replies (other
+  # sessions' long replies would be cut off): move to another port instead.
+  settings_digest=$(python3 "$CCSESSION_MODELS" settings-digest 2>/dev/null)
   start_shim=0
-  listener_pid=$(shim_listener_pid)
-  if [ -n "$listener_pid" ]; then
+  base_port="$CC_SHIM_PORT"
+  for _attempt in 0 1 2 3 4 5; do
+    CC_SHIM_PORT=$((base_port + 101 * _attempt))
+    listener_pid=$(shim_listener_pid)
+    if [ -z "$listener_pid" ]; then
+      start_shim=1
+      break
+    fi
     health=$(curl -fsS --max-time 2 \
       "http://127.0.0.1:$CC_SHIM_PORT/__ccsession_shim" 2>/dev/null || true)
     health_status=$(python3 -c '
@@ -256,29 +266,50 @@ elif (health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/")
       and str(health.get("port")) == sys.argv[3] and "model_data" in health
       and "tiers" in health and health.get("show_all") == (sys.argv[4] == "1")
       and health.get("settings") == sys.argv[5]):
-    # Older shims (no model data, or no tiers) keep old code in memory.
     print("match")
+elif health.get("active") == 0 and isinstance(health.get("pid"), int):
+    # Idle shim with other settings or older code: safe to replace.
+    print("stale-idle", health["pid"])
 else:
-    print("stale")
+    # Busy, or too old to report whether it is busy: leave it running.
+    print("stale-busy")
 ' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT" "${CCSESSION_SHOW_ALL_MODELS:-0}" \
-      "$(python3 "$CCSESSION_MODELS" settings-digest 2>/dev/null)")
-    if [ "$health_status" = "match" ]; then
-      echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
-    elif [ "$listener_pid" != other ] && { [ "$health_status" = "stale" ] || \
-      ps -p "$listener_pid" -o command= 2>/dev/null | grep -Fq -- "$CC_SHIM_SCRIPT"; }; then
-      echo "[ccsession] Restarting stale model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
-      kill "$listener_pid"
-      for _ in 1 2 3 4 5 6 7 8 9 10; do
-        [ -n "$(shim_listener_pid)" ] || break
-        sleep 0.2
-      done
-      start_shim=1
-    else
-      echo "[ccsession] ERROR: port $CC_SHIM_PORT is owned by another service; refusing to route credentials or requests to it" >&2
-      exit 1
-    fi
-  else
-    start_shim=1
+      "$settings_digest")
+    case "$health_status" in
+      match)
+        echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
+        break
+        ;;
+      stale-idle\ *)
+        stale_pid="${health_status#stale-idle }"
+        stale_cmd=$(ps -p "$stale_pid" -o command= 2>/dev/null || true)
+        if [[ "$stale_cmd" == *"$CC_SHIM_SCRIPT"* || "$stale_cmd" == *local-gateway-alias-proxy* ]]; then
+          echo "[ccsession] Replacing idle older model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
+          kill "$stale_pid"
+          for _ in 1 2 3 4 5 6 7 8 9 10; do
+            [ -n "$(shim_listener_pid)" ] || break
+            sleep 0.2
+          done
+          if [ -z "$(shim_listener_pid)" ]; then
+            start_shim=1
+            break
+          fi
+        fi
+        ;;
+      stale-busy)
+        echo "[ccsession] A shim with other settings is serving sessions on 127.0.0.1:$CC_SHIM_PORT; leaving it running"
+        ;;
+      *)
+        if [ "$_attempt" = 0 ]; then
+          echo "[ccsession] ERROR: port $CC_SHIM_PORT is owned by another service; refusing to route credentials or requests to it" >&2
+          exit 1
+        fi
+        ;;
+    esac
+  done
+  if [ "$start_shim" != 1 ] && [ "$health_status" != match ]; then
+    echo "[ccsession] ERROR: no free shim port near $base_port; stop unused shims (pkill -f local-gateway-alias-proxy.py)" >&2
+    exit 1
   fi
   if [ "$start_shim" = 1 ]; then
     echo "[ccsession] Starting model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
@@ -416,7 +447,9 @@ apply_tier_selection() {
     # A named model may be hidden from the picker; offer it there too.
     PROFILE_CUSTOM_OPTION=1
   else
-    TIER_ARG="${TIER_ARG:-$(python3 "$CCSESSION_MODELS" default-tier)}"
+    if [ -z "$TIER_ARG" ]; then
+      TIER_ARG=$(python3 "$CCSESSION_MODELS" default-tier) || exit 2
+    fi
     _resolved=$(python3 "$CCSESSION_MODELS" tier-resolve "$TIER_ARG") || exit 2
     PROFILE="tier${TIER_ARG#tier}"
     what="$PROFILE"

@@ -394,6 +394,11 @@ def _settings_key(env=None, tenv=None) -> list:
     key = []
     if env.get("CCSESSION_SHOW_ALL_MODELS") == "1":
         key.append("show-all")
+    # Settings the shim fixes at start: a session that sets them differently
+    # needs its own shim.
+    for name in ("CCSESSION_TIERS", "CCSESSION_COOLDOWN_SECONDS", "CCSESSION_FIRST_BYTE_TIMEOUT"):
+        if env.get(name):
+            key.append(f"{name}={env[name]}")
     path = defaults_path()
     if path.is_file():
         if str(path) != DEFAULTS_FILE:
@@ -507,7 +512,17 @@ def main(argv) -> int:
             print("\x1f".join((name, t["label"], str(t["window"]), models, mark)))
         return 0
     if command == "default-tier":
-        print(tier_env().get("CCSESSION_DEFAULT_TIER", "") or "tier2")
+        value = tier_env().get("CCSESSION_DEFAULT_TIER", "")
+        if not value:
+            print("[ccsession] WARNING: CCSESSION_DEFAULT_TIER is not set in the workspace env; using tier2", file=sys.stderr)
+            value = "tier2"
+        else:
+            try:
+                tier_number(value)
+            except ValueError:
+                print(f"ccsession: CCSESSION_DEFAULT_TIER={value!r} is not a tier (use tier0, tier1, ...)", file=sys.stderr)
+                return 3
+        print(value)
         return 0
     if command == "settings-digest":
         print(settings_digest())

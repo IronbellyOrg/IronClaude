@@ -29,12 +29,13 @@ It changes NOTHING upstream. Point Claude Code at it:
 
 import datetime
 import email.utils
+import gzip
 import http.client
 import http.server
 import json
 import os
 import re
-import socket
+import select
 import socketserver
 import sys
 import threading
@@ -42,6 +43,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import zlib
 
 # LiteLLM /cli passthrough base. This default is a placeholder: set your real
 # gateway in ~/.claude/ccsession.env as ANTHROPIC_BASE_URL, which ccsession
@@ -100,7 +102,7 @@ COOLDOWN_SECONDS = _seconds("CCSESSION_COOLDOWN_SECONDS", 3600)
 # - Opening the connection: no ccsession limit; the operating system's own
 #   connect wait applies (about 1-2 minutes). Failing to connect means the
 #   gateway is unreachable (passed back, never a model switch).
-#   CCSESSION_CONNECT_TIMEOUT can set a limit (tests use it).
+#   _CCSESSION_TEST_CONNECT_TIMEOUT sets a limit for tests only.
 # - FIRST_BYTE_TIMEOUT: only for a streamed tier request (Claude Code's normal
 #   kind, where a healthy gateway answers with headers at once), how long to
 #   wait for the gateway to START answering before treating the model as
@@ -109,10 +111,12 @@ COOLDOWN_SECONDS = _seconds("CCSESSION_COOLDOWN_SECONDS", 3600)
 #   before Claude Code gives up. Non-streamed requests wait without limit.
 FIRST_BYTE_TIMEOUT = _seconds("CCSESSION_FIRST_BYTE_TIMEOUT", 300)
 CONNECT_TIMEOUT = (
-    _seconds("CCSESSION_CONNECT_TIMEOUT", 60)
-    if os.environ.get("CCSESSION_CONNECT_TIMEOUT")
+    _seconds("_CCSESSION_TEST_CONNECT_TIMEOUT", 60)
+    if os.environ.get("_CCSESSION_TEST_CONNECT_TIMEOUT")
     else None
 )
+MAX_COOLDOWN = 7 * 86400  # cap on a gateway Retry-After
+_active = 0  # requests being forwarded right now (reported in health)
 TIER_PREFIX = "claude-gw-tier"
 
 
@@ -376,12 +380,12 @@ def retry_after_seconds(value):
         return None
     value = value.strip()
     if value.isdigit():
-        return int(value)
+        return min(int(value), MAX_COOLDOWN)
     try:
         when = email.utils.parsedate_to_datetime(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return None
-    return max(0, int(when.timestamp() - time.time()))
+    return min(max(0, int(when.timestamp() - time.time())), MAX_COOLDOWN)
 
 
 def cool_down(model, retry_after=None):
@@ -399,6 +403,22 @@ def cooling_until(model):
 
 def clock(epoch):
     return datetime.datetime.fromtimestamp(epoch).strftime("%H:%M")
+
+
+def plain_body(headers, raw):
+    """(body, headers) with any gzip/deflate encoding removed.
+
+    Error bodies are matched against SWITCH_RULES and may get a note added, so
+    they must be plain text; the Content-Encoding header goes with them.
+    """
+    encoding = (headers.get("Content-Encoding") or "").lower().strip()
+    if encoding in ("gzip", "x-gzip", "deflate"):
+        try:
+            raw = gzip.decompress(raw) if "gzip" in encoding else zlib.decompress(raw)
+        except (OSError, ValueError, EOFError, zlib.error):
+            return raw, headers
+        headers = {k: v for k, v in headers.items() if k.lower() != "content-encoding"}
+    return raw, headers
 
 
 def with_note(raw, note):
@@ -434,13 +454,24 @@ class Handler(http.server.BaseHTTPRequestHandler):
         headers["Accept-Encoding"] = "identity"
         return headers
 
+    def _counted(self, handler, *args):
+        """Run a forwarding handler while counting it as in flight (health)."""
+        global _active
+        with _lock:
+            _active += 1
+        try:
+            return handler(*args)
+        finally:
+            with _lock:
+                _active -= 1
+
     def do_GET(self):
         path = self.path.split("?")[0].rstrip("/")
         if path == HEALTH_PATH:
             return self._handle_health()
         if path.endswith("/v1/models"):
             return self._handle_models()
-        return self._proxy(body=None)
+        return self._counted(self._proxy, None)
 
     def _handle_health(self):
         rules = curation()
@@ -452,6 +483,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 "model_data": rules["version"],
                 "show_all": SHOW_ALL,
                 "settings": model_data.settings_digest(),
+                "pid": os.getpid(),
+                "active": _active,
                 "tier_mode": rules["tier_mode"],
                 "tiers": {
                     name: [m for _, m, _ in t["models"]]
@@ -466,6 +499,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def do_POST(self):
+        return self._counted(self._post)
+
+    def _post(self):
         length = int(self.headers.get("Content-Length", 0) or 0)
         body = self.rfile.read(length) if length else b""
         # un-alias the model field on the way out
@@ -580,6 +616,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         conn = cls(u.hostname, u.port, timeout=CONNECT_TIMEOUT)
         headers = self._fwd_headers()
         if identity:
+            # Header names arrive in any case; replace every variant.
+            headers = {
+                k: v for k, v in headers.items() if k.lower() != "accept-encoding"
+            }
             headers["Accept-Encoding"] = "identity"
         if body is not None:
             headers["Content-Length"] = str(len(body))
@@ -592,17 +632,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
         # Keep our own reference: for a close-delimited reply getresponse()
         # hands the socket to the response and clears conn.sock.
         sock = conn.sock
-        sock.settimeout(wait)
+        sock.settimeout(None)
         try:
             conn.request(self.command, target, body=body, headers=headers)
+            # The only limit: until the gateway sends its FIRST byte. From the
+            # first byte on (status line, headers, the whole reply) nothing
+            # is ever timed.
+            if wait is not None and not select.select([sock], [], [], wait)[0]:
+                conn.close()
+                return ("timeout", None)
             resp = conn.getresponse()
-        except (socket.timeout, TimeoutError):
-            conn.close()
-            return ("timeout", None)
         except OSError as exc:
             conn.close()
             return ("unreachable", exc)
-        sock.settimeout(None)  # the reply has started: never cut it off
         return ("reply", conn, resp)
 
     def _forward_tier(self, name, obj):
@@ -659,18 +701,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     return self._stream(resp.status, resp.headers, resp)
                 finally:
                     conn.close()
-            raw = resp.read()
+            raw, headers = plain_body(resp.headers, resp.read())
             conn.close()
             text = raw.decode("utf-8", "replace")
             reason = switch_reason(resp.status, text)
             if reason:
                 until = cool_down(
-                    model, retry_after_seconds(resp.headers.get("Retry-After"))
+                    model,
+                    retry_after_seconds(
+                        next(
+                            (
+                                v
+                                for k, v in headers.items()
+                                if k.lower() == "retry-after"
+                            ),
+                            None,
+                        )
+                    ),
                 )
                 audit(
                     f"TIER {name}: {slot} {model} -> next model ({resp.status} {reason}); cooling down until {clock(until)}"
                 )
-                last = (resp.status, resp.headers, raw)
+                last = (resp.status, headers, raw)
                 ended = "usage"
                 continue
             # A backup (not the tier's main model) that cannot hold the
@@ -679,10 +731,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 audit(
                     f"TIER {name}: backup {model} rejected the request as too large; trying the next one"
                 )
-                last = (resp.status, resp.headers, raw)
+                last = (resp.status, headers, raw)
                 ended = "size"
                 continue
-            return self._send_body(resp.status, resp.headers, raw)  # not a switch error
+            return self._send_body(resp.status, headers, raw)  # not a switch error
         if last and ended == "size":
             # No backup could hold this conversation: pass that error back.
             audit(f"TIER {name}: no available model could hold this conversation")
@@ -714,7 +766,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         sniff = b""
         found = False
         while True:
-            chunk = resp.read(8192)
+            # read1: hand over whatever has arrived, however small (a lone
+            # keep-alive or thinking event), instead of waiting for 8 KB.
+            chunk = resp.read1(8192)
             if not chunk:
                 break
             if not found and len(sniff) < 8192:

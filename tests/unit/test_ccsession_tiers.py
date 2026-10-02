@@ -7,6 +7,7 @@ workspace env file, the network, or the model-data cache.
 
 from __future__ import annotations
 
+import gzip
 import http.server
 import json
 import os
@@ -848,7 +849,7 @@ def test_connect_timeout_is_unreachable_not_a_switch(shim) -> None:
     gateway, start, log = shim
     # 192.0.2.1 is TEST-NET-1: connection attempts hang until the timeout.
     base = start(
-        GW_PROXY_UPSTREAM="http://192.0.2.1:9/cli", CCSESSION_CONNECT_TIMEOUT="1"
+        GW_PROXY_UPSTREAM="http://192.0.2.1:9/cli", _CCSESSION_TEST_CONNECT_TIMEOUT="1"
     )
     for _ in range(2):
         status, body = _ask(base, "claude-gw-tier2")
@@ -942,6 +943,9 @@ def test_show_all_launch_runs_its_own_shim(tmp_path: Path) -> None:
         check=True,
     ).stdout.strip()
     assert expected != "4010"
+    with socket.socket() as probe:
+        if probe.connect_ex(("127.0.0.1", int(expected))) == 0:
+            pytest.skip(f"port {expected} is in use by a real shim on this machine")
     try:
         proc = subprocess.run(
             [str(SKILL_DIR / "ccsession"), "work"],
@@ -990,7 +994,7 @@ def test_no_time_limit_once_a_reply_starts(shim, model) -> None:
     names). Timers are shrunk to 1s; the gateway goes quiet for 8s.
     """
     gateway, start, _ = shim
-    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1", CCSESSION_CONNECT_TIMEOUT="1")
+    base = start(CCSESSION_FIRST_BYTE_TIMEOUT="1", _CCSESSION_TEST_CONNECT_TIMEOUT="1")
     for m in ("muse-spark-1.3", "kimi-k3", "gpt-6.1-sol"):
         gateway.script[m] = [("pause-stream", 8)]
     status, body = _ask_raw(base, model, stream=True)
@@ -1007,3 +1011,312 @@ def test_non_streamed_tier_request_waits_without_limit(shim) -> None:
     assert status == 200
     assert gateway.models_called() == ["muse-spark-1.3"]
     assert "gave no reply" not in log.read_text()
+
+
+# --- round 2 review findings ------------------------------------------------
+
+
+class ChunkedGateway:
+    """HTTP/1.1 chunked stand-in: one small event, a pause, then the rest."""
+
+    def __init__(self, pause: float):
+        self.first_seen = None
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.1"
+
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                self.send_response(200)
+                self.send_header("Content-Type", "text/event-stream")
+                self.send_header("Transfer-Encoding", "chunked")
+                self.end_headers()
+
+                def chunk(data: bytes):
+                    self.wfile.write(b"%x\r\n%s\r\n" % (len(data), data))
+                    self.wfile.flush()
+
+                chunk(b'event: ping\ndata: {"type":"ping"}\n\n')
+                time.sleep(pause)
+                chunk(b'event: message_stop\ndata: {"type":"message_stop"}\n\n')
+                self.wfile.write(b"0\r\n\r\n")
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.server.server_port}/cli"
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+@pytest.mark.parametrize("model", ["claude-gw-tier2", "gpt-6.1-sol"])
+def test_small_streamed_events_are_passed_on_at_once(shim, model) -> None:
+    """A lone keep-alive or thinking event must not wait for 8 KB (round 2 C2)."""
+    _, start, _ = shim
+    gateway = ChunkedGateway(pause=4)
+    try:
+        base = start(GW_PROXY_UPSTREAM=gateway.url)
+        body = json.dumps(
+            {
+                "model": model,
+                "max_tokens": 5,
+                "stream": True,
+                "messages": [{"role": "user", "content": "hi"}],
+            }
+        ).encode()
+        req = urllib.request.Request(
+            f"{base}/v1/messages",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        t0 = time.time()
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            first = resp.fp.read1(4096) if hasattr(resp.fp, "read1") else resp.read(10)
+            first_at = time.time() - t0
+            rest = resp.read()
+        assert b"ping" in first and first_at < 2, (first, first_at)
+        assert b"message_stop" in rest
+    finally:
+        gateway.close()
+
+
+class GzipGateway:
+    """Compresses error bodies when the client accepts gzip (like real servers)."""
+
+    def __init__(self):
+        gateway = self
+        self.calls = []
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            protocol_version = "HTTP/1.0"
+
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                req = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                gateway.calls.append(
+                    (req["model"], self.headers.get_all("Accept-Encoding"))
+                )
+                if req["model"] == "muse-spark-1.3":
+                    body = COOLING[1]
+                    if "gzip" in (self.headers.get("Accept-Encoding") or ""):
+                        body = gzip.compress(body)
+                        self.send_response(429)
+                        self.send_header("Content-Encoding", "gzip")
+                    else:
+                        self.send_response(429)
+                    self.end_headers()
+                    self.wfile.write(body)
+                    return
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(OK_SSE % req["model"].encode())
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+        self.url = f"http://127.0.0.1:{self.server.server_port}/cli"
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+def test_lowercase_accept_encoding_still_fails_over(shim) -> None:
+    """Round 2 H2: a client header `accept-encoding: gzip` must not disable failover."""
+    _, start, _ = shim
+    gateway = GzipGateway()
+    try:
+        base = start(GW_PROXY_UPSTREAM=gateway.url)
+        conn = __import__("http.client").client.HTTPConnection(
+            "127.0.0.1", int(base.rsplit(":", 1)[1])
+        )
+        body = json.dumps(
+            {
+                "model": "claude-gw-tier2",
+                "max_tokens": 5,
+                "stream": True,
+                "messages": [{"role": "user", "content": "hi"}],
+            }
+        )
+        conn.putrequest("POST", "/v1/messages", skip_accept_encoding=True)
+        conn.putheader("content-type", "application/json")
+        conn.putheader("accept-encoding", "gzip, br")
+        conn.putheader("content-length", str(len(body)))
+        conn.endheaders(body.encode())
+        resp = conn.getresponse()
+        data = resp.read()
+        assert resp.status == 200 and b"grok-4.7" in data
+        assert [m for m, _ in gateway.calls] == ["muse-spark-1.3", "grok-4.7"]
+        assert all(enc == ["identity"] for _, enc in gateway.calls)
+    finally:
+        gateway.close()
+
+
+def test_plain_body_decodes_a_compressed_error() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="gz_test"
+    )
+    raw, headers = module["plain_body"](
+        {"Content-Encoding": "gzip", "X": "1"}, gzip.compress(b"cooling")
+    )
+    assert (
+        raw == b"cooling" and "Content-Encoding" not in headers and headers["X"] == "1"
+    )
+
+
+def test_headers_slow_after_the_first_byte_are_not_a_stall(shim, tmp_path) -> None:
+    """Round 2 M1: once the gateway sends its first byte, nothing is timed."""
+    _, start, log = shim
+    srv = socket.socket()
+    srv.bind(("127.0.0.1", 0))
+    srv.listen(1)
+    calls = []
+
+    def serve():
+        conn, _ = srv.accept()
+        data = b""
+        while b"\r\n\r\n" not in data:
+            data += conn.recv(65536)
+        head, _, body = data.partition(b"\r\n\r\n")
+        length = int(
+            [h for h in head.split(b"\r\n") if h.lower().startswith(b"content-length")][
+                0
+            ].split(b":")[1]
+        )
+        while len(body) < length:
+            body += conn.recv(65536)
+        calls.append(json.loads(body)["model"])
+        conn.sendall(b"HTTP/1.0 200 OK\r\n")
+        time.sleep(3)  # longer than the 1s start-of-reply limit
+        conn.sendall(
+            b"Content-Type: text/event-stream\r\n\r\n" + OK_SSE % b"muse-spark-1.3"
+        )
+        conn.close()
+
+    threading.Thread(target=serve, daemon=True).start()
+    try:
+        base = start(
+            GW_PROXY_UPSTREAM=f"http://127.0.0.1:{srv.getsockname()[1]}/cli",
+            CCSESSION_FIRST_BYTE_TIMEOUT="1",
+        )
+        status, body = _ask_raw(base, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"message_stop" in body
+        assert calls == ["muse-spark-1.3"] and "gave no reply" not in log.read_text()
+    finally:
+        srv.close()
+
+
+def test_huge_retry_after_is_capped() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="ra_test"
+    )
+    assert module["retry_after_seconds"]("99999999999999") == module["MAX_COOLDOWN"]
+    until = module["cool_down"]("m", module["retry_after_seconds"]("99999999999999"))
+    assert module["clock"](until)  # formats without error
+
+
+def test_default_tier_unset_or_invalid_is_reported(tmp_path: Path) -> None:
+    text = TIER_BLOCK.replace("export CCSESSION_DEFAULT_TIER=tier2\n", "")
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=text)
+    assert rc == 0 and "CCSESSION_DEFAULT_TIER is not set" in err
+    assert _model_arg(seen) == "claude-gw-tier2[1m]"
+    bad = TIER_BLOCK.replace(
+        "CCSESSION_DEFAULT_TIER=tier2", "CCSESSION_DEFAULT_TIER=fast"
+    )
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=bad)
+    assert rc == 2 and seen is None and "CCSESSION_DEFAULT_TIER" in err
+
+
+def test_settings_that_change_the_shim_get_their_own_shim(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    monkeypatch.setattr(
+        models, "DEFAULTS_FILE", str(tmp_path / "aienv.d" / "defaults.sh")
+    )
+    shared = models.settings_digest()
+    for name, value in (
+        ("CCSESSION_TIERS", "0"),
+        ("CCSESSION_COOLDOWN_SECONDS", "60"),
+        ("CCSESSION_FIRST_BYTE_TIMEOUT", "30"),
+    ):
+        monkeypatch.setenv(name, value)
+        assert models.settings_digest() != shared, name
+        assert models.shim_port(4010) != 4010, name
+        monkeypatch.delenv(name)
+    assert models.settings_digest() == shared
+
+
+def _real_launch(tmp_path: Path, port: int, **extra: str):
+    """Launch the real script (fake claude) so it starts or reuses real shims."""
+    fake = tmp_path / "bin" / "claude"
+    fake.parent.mkdir(exist_ok=True)
+    fake.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
+    fake.chmod(0o755)
+    env = os.environ.copy()
+    env.update(
+        HOME=str(tmp_path / "home"),
+        CLAUDE_BIN=str(fake),
+        ANTHROPIC_BASE_URL=extra.pop("upstream"),
+        CC_SHIM_PORT=str(port),
+        CC_SHIM_SCRIPT=str(tmp_path / "shim-under-test.py"),
+        SEEN_FILE=str(tmp_path / "seen"),
+        AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
+    )
+    env.update(extra)
+    (tmp_path / "home").mkdir(exist_ok=True)
+    proc = subprocess.run(
+        [str(SKILL_DIR / "ccsession"), "work"],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, proc.stderr
+    return proc.stdout, (tmp_path / "seen").read_text().strip()
+
+
+def test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path: Path) -> None:
+    """Round 2 C1: a launch with other settings must not cut other sessions' replies."""
+    (tmp_path / "shim-under-test.py").write_text(
+        (SKILL_DIR / "local-gateway-alias-proxy.py").read_text()
+    )
+    gateway = StandInGateway()
+    gateway.script["muse-spark-1.3"] = [("pause-stream", 6)]
+    port = _free_port()
+    try:
+        out, url = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url == f"http://127.0.0.1:{port}"
+        result = {}
+        streaming = threading.Thread(
+            target=lambda: result.update(
+                r=_ask_raw(url, "claude-gw-tier2", stream=True)
+            )
+        )
+        streaming.start()
+        time.sleep(1)  # the reply has started and is paused
+        out, url2 = _real_launch(
+            tmp_path, port, upstream=gateway.url, CCSESSION_SHOW_ALL_MODELS="1"
+        )
+        assert url2 == f"http://127.0.0.1:{port + 101}", out
+        assert "leaving it running" in out
+        streaming.join(30)
+        status, body = result["r"]
+        assert status == 200 and b"message_stop" in body  # never cut
+        # Now idle: the next launch with other settings may replace it.
+        out, url3 = _real_launch(
+            tmp_path, port, upstream=gateway.url, CCSESSION_COOLDOWN_SECONDS="60"
+        )
+        assert url3 == f"http://127.0.0.1:{port}" and "Replacing idle" in out
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()

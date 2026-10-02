@@ -184,7 +184,6 @@ failure.
 | `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
 | `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
 | `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
-| `CCSESSION_CONNECT_TIMEOUT` | Optional limit on opening a gateway connection (default: none, the operating system's wait) |
 | `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, or tier settings from the shell get base + an offset; an explicitly set port is used as-is |
 | `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
 

@@ -810,6 +810,8 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
         )
         with urllib.request.urlopen(request, timeout=5) as response:
             models = json.loads(response.read())["data"]
+        assert health.pop("pid") == proxy.pid
+        assert health.pop("active") == 0
         assert health == {
             "service": "ccsession-gateway-alias-proxy",
             "upstream": f"http://127.0.0.1:{upstream.server_port}",
