@@ -14,6 +14,7 @@ from superclaude.cli.reflect._diversity import (
     _vendor_from_model_id,
     compute_vendor_diversity,
 )
+from superclaude.cli.reflect.fallback import evaluate_quorum
 from superclaude.cli.reflect.runner import count_model_aliases
 from superclaude.cli.swarm.config import SwarmConfig
 from superclaude.cli.swarm.models import WorkerResult
@@ -99,6 +100,12 @@ def test_new_tier_mix_is_multi_vendor_and_glm_versions_are_one_vendor() -> None:
 
     workers = [ok(m) for m in T2_POOL + T1_POOL[:2]]
     assert compute_vendor_diversity(workers) == "multi"
+    # The reflect quorum gate itself (SPEC 12.7) passes on the new mix
+    # without the single-vendor allowance.
+    quorum = evaluate_quorum(workers, allow_single_vendor=False)
+    assert quorum.satisfies_tier2
+    assert quorum.model_class_diversity == "full"
+    assert quorum.vendor_diversity == "multi"
     assert compute_vendor_diversity([ok("glm-5.3"), ok("glm-5-turbo")]) == "single"
 
 

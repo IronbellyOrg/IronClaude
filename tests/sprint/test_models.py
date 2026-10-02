@@ -437,8 +437,44 @@ class TestSprintResult:
         assert "--model sonnet" in cmd
 
 
+    def test_resume_command_quotes_a_model_id_with_brackets(self, monkeypatch):
+        # A proxy slot value such as `glm-5.3[1m]` is a glob in zsh; the
+        # paste-ready command must quote it.
+        for name in (
+            "ANTHROPIC_DEFAULT_OPUS_MODEL",
+            "ANTHROPIC_DEFAULT_SONNET_MODEL",
+            "ANTHROPIC_DEFAULT_HAIKU_MODEL",
+        ):
+            monkeypatch.delenv(name, raising=False)
+        monkeypatch.setenv("T2Model01", "muse-spark-1.3")
+        monkeypatch.setenv("T2Model02", "glm-5.3[1m]")
+        cfg = _make_config()
+        for task_id, marker in (("T01.07", "--resume T01.07"), ("", "--start 1")):
+            halted = _make_phase_result(
+                phase=cfg.phases[0],
+                status=PhaseStatus.PROVIDER_EXHAUSTED,
+                exit_code=1,
+                halt_reason="provider_exhaustion",
+                exhausted_model="muse-spark-1.3",
+                last_task_id=task_id,
+            )
+            sr = SprintResult(config=cfg, halt_phase=1, phase_results=[halted])
+            cmd = sr.resume_command()
+            assert marker in cmd and "--model 'glm-5.3[1m]'" in cmd
+
+
 class TestBuildAccountExhaustionHalt:
     """Golden-string tests for the P5 account-exhaustion halt UX builder."""
+
+    def test_bracketed_model_id_is_quoted(self):
+        msg = build_account_exhaustion_halt(
+            _make_config(),
+            halt_task_id="T03.14",
+            exhausted_model="muse-spark-1.3",
+            suggested_model="glm-5.3[1m]",
+            remaining_tasks=[],
+        )
+        assert "--model 'glm-5.3[1m]'" in msg
 
     def test_single_line_resume_with_model_switch(self):
         cfg = _make_config()

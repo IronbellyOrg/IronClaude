@@ -123,3 +123,20 @@ def test_context_suffix_and_same_model_are_handled():
     # A "[1m]" suffix on either side still matches the slot.
     assert suggest_alternate_model("muse-spark-1.3", env=env) == "grok-4.7"
     assert suggest_alternate_model("muse-spark-1.3[1m]", env=env) == "grok-4.7"
+
+
+def test_unset_builtin_of_the_exhausted_family_is_skipped():
+    # An earlier slot names a later built-in's family: the unset built-in would
+    # resolve to the same exhausted model inside Claude Code.
+    assert (
+        suggest_alternate_model(
+            "claude-haiku-4-5", env={"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-haiku-4-5"}
+        )
+        is None
+    )
+    assert (
+        suggest_alternate_model(
+            "claude-sonnet-5-5", env={"ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-sonnet-5-5"}
+        )
+        == "haiku"
+    )

@@ -130,6 +130,12 @@ def suggest_alternate_model(
     failed_alias, failed_resolved = items[failed_idx]
     exhausted = {failed, _base_id(failed_resolved)}
     for alias, resolved in items[failed_idx + 1 :]:
+        if resolved == alias and any(
+            e.lower().startswith("claude") and alias in e.lower() for e in exhausted
+        ):
+            # An unset built-in (``haiku``) resolves inside Claude Code to its
+            # family's model; skip it when that family is the exhausted one.
+            continue
         if alias != failed_alias and _base_id(resolved) not in exhausted:
             # ``claude --model`` understands opus/sonnet/haiku but not a slot
             # NAME such as ``T2Model02``; for proxy slots hand back the model id.
