@@ -709,7 +709,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             )
         tier_window = tier["window"]
         last = None  # (status, headers, raw) of the last error seen
-        ended = "usage"  # why the last tried model failed: usage | size
+        # A backup that could not hold the conversation. Kept even when later
+        # models fail on usage, so the reply never hides the size problem.
+        size_error = None
         for position, (slot, model, window) in enumerate(tier["models"]):
             if window < tier_window:
                 continue  # cannot hold this tier's context (spec section 6)
@@ -742,7 +744,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         }
                     ).encode(),
                 )
-                ended = "usage"
                 continue
             _, conn, resp = result
             if resp.status < 400:
@@ -785,7 +786,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     f"TIER {name}: {slot} {model} -> next model ({resp.status} {reason}); cooling down until {clock(until)}"
                 )
                 last = (resp.status, headers, raw)
-                ended = "usage"
                 continue
             # A backup (not the tier's main model) that cannot hold the
             # conversation: try the next backup (spec section 6).
@@ -793,25 +793,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 audit(
                     f"TIER {name}: backup {model} rejected the request as too large; trying the next one"
                 )
-                last = (resp.status, headers, raw)
-                ended = "size"
+                last = size_error = (resp.status, headers, raw)
                 continue
             return self._send_body(resp.status, headers, raw)  # not a switch error
-        if last and ended == "size":
-            # No backup could hold this conversation: pass that error back.
-            audit(f"TIER {name}: no available model could hold this conversation")
-            status, headers, raw = last
-            return self._send_body(
-                status,
-                headers,
-                with_note(
-                    raw,
-                    f"ccsession: no available {tier['label']} model can hold this conversation",
-                ),
-            )
         waits = [cooling_until(m) for _, m, w in tier["models"] if w >= tier_window]
         waits = [w for w in waits if w]
         retry = f"; next retry at {clock(min(waits))}" if waits else ""
+        if size_error:
+            # At least one available model was too small for the conversation:
+            # report that, not only "out of usage" (which depends on order).
+            note = f"ccsession: no available {tier['label']} model can hold this conversation"
+            if waits:
+                note += f"; the others are out of usage{retry}"
+            audit(f"TIER {name}: {note}")
+            status, headers, raw = size_error
+            return self._send_body(status, headers, with_note(raw, note))
         note = f"ccsession: all {tier['label']} models are out of usage{retry}"
         audit(f"TIER {name}: {note}")
         if last:

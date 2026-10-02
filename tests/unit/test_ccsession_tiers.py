@@ -749,7 +749,8 @@ def test_no_backup_can_hold_it_passes_the_error_back(shim) -> None:
     assert status == 400
     message = json.loads(body)["error"]["message"]
     assert "prompt is too long" in message and "can hold this conversation" in message
-    assert "out of usage" not in message
+    # Muse really is out of usage; the size problem comes first.
+    assert message.index("can hold this conversation") < message.index("out of usage")
 
 
 def test_all_models_out_returns_last_error_with_note(shim) -> None:
@@ -1765,3 +1766,20 @@ def test_launch_never_attaches_to_a_shim_that_won_the_port_race(
     finally:
         subprocess.run(["pkill", "-f", str(copy)], check=False)
         gateway.close()
+
+
+def test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage(
+    shim,
+) -> None:
+    """PR #253 review: the reply must not depend on which model failed last."""
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [COOLING]
+    gateway.script["grok-4.7"] = [TOO_LONG]
+    gateway.script["Qwen3.8-max"] = [COOLING]
+    gateway.script["glm-5.3"] = [COOLING]
+    status, body = _ask(base, "claude-gw-tier2")
+    message = json.loads(body)["error"]["message"]
+    assert status == TOO_LONG[0]
+    assert "can hold this conversation" in message
+    assert "the others are out of usage" in message
