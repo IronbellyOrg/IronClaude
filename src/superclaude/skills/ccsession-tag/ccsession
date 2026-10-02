@@ -77,6 +77,8 @@ SHIM_FLAG=0
 PROFILE=""
 TIER_ARG=""
 MODEL_ARG=""
+MODEL_TOKENS=()  # --model exactly as typed, and where (outside tier mode)
+MODEL_POS=0
 _args=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -117,10 +119,14 @@ while [ "$#" -gt 0 ]; do
         exit 2
       fi
       MODEL_ARG="$2"
+      MODEL_TOKENS=("$1" "$2")
+      MODEL_POS=${#_args[@]}
       shift 2
       ;;
     --model=*)
       MODEL_ARG="${1#--model=}"
+      MODEL_TOKENS=("$1")
+      MODEL_POS=${#_args[@]}
       shift
       ;;
     *)
@@ -196,8 +202,8 @@ elif [ -n "$TIER_ARG" ]; then
   echo "ccsession: --tier needs tier settings (T<N>_WINDOW) from the workspace env; none found" >&2
   exit 2
 elif [ -n "$MODEL_ARG" ]; then
-  # Not tier mode: --model goes to Claude Code exactly as given.
-  _args+=(--model "$MODEL_ARG")
+  # Not tier mode: --model goes to Claude Code exactly as given, in place.
+  _args=("${_args[@]:0:MODEL_POS}" "${MODEL_TOKENS[@]}" "${_args[@]:MODEL_POS}")
   set -- "${_args[@]}"
   MODEL_ARG=""
 fi
@@ -229,6 +235,32 @@ shim_listener_pid() {
   fi
 }
 
+shim_health_status() {
+  # match | stale | other, for the shim on $CC_SHIM_PORT against this
+  # session's upstream, show-all, settings and code.
+  local health
+  health=$(curl -fsS --max-time 2 \
+    "http://127.0.0.1:$CC_SHIM_PORT/__ccsession_shim" 2>/dev/null || true)
+  python3 -c '
+import json, sys
+try:
+    health = json.loads(sys.argv[1])
+except (ValueError, TypeError):
+    print("other")
+    raise SystemExit
+if health.get("service") != "ccsession-gateway-alias-proxy":
+    print("other")
+elif (health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/")
+      and str(health.get("port")) == sys.argv[3] and "model_data" in health
+      and "tiers" in health and health.get("show_all") == (sys.argv[4] == "1")
+      and health.get("settings") == sys.argv[5] and health.get("code") == sys.argv[6]):
+    print("match")
+else:
+    print("stale")
+' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT" "${CCSESSION_SHOW_ALL_MODELS:-0}" \
+    "$settings_digest" "$code_digest"
+}
+
 setup_shim() {
   # Route this session through the local model-alias shim: start it if it
   # isn't already listening, then point ANTHROPIC_BASE_URL at it and enable
@@ -253,26 +285,7 @@ setup_shim() {
       start_shim=1
       break
     fi
-    health=$(curl -fsS --max-time 2 \
-      "http://127.0.0.1:$CC_SHIM_PORT/__ccsession_shim" 2>/dev/null || true)
-    health_status=$(python3 -c '
-import json, sys
-try:
-    health = json.loads(sys.argv[1])
-except (ValueError, TypeError):
-    print("other")
-    raise SystemExit
-if health.get("service") != "ccsession-gateway-alias-proxy":
-    print("other")
-elif (health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/")
-      and str(health.get("port")) == sys.argv[3] and "model_data" in health
-      and "tiers" in health and health.get("show_all") == (sys.argv[4] == "1")
-      and health.get("settings") == sys.argv[5] and health.get("code") == sys.argv[6]):
-    print("match")
-else:
-    print("stale")
-' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT" "${CCSESSION_SHOW_ALL_MODELS:-0}" \
-      "$settings_digest" "$code_digest")
+    health_status=$(shim_health_status)
     case "$health_status" in
       match)
         echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
@@ -308,6 +321,17 @@ else:
     done
     if [ -z "$(shim_listener_pid)" ]; then
       echo "[ccsession] ERROR: shim failed to start (try: python3 $CC_SHIM_SCRIPT)" >&2
+      exit 1
+    fi
+    # Another launch may have won the port at the same moment: attach only to
+    # a shim with this session's settings and code.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      health_status=$(shim_health_status)
+      [ "$health_status" = match ] && break
+      sleep 0.3
+    done
+    if [ "$health_status" != match ]; then
+      echo "[ccsession] ERROR: another shim took 127.0.0.1:$CC_SHIM_PORT at the same moment; run ccsession again" >&2
       exit 1
     fi
   fi

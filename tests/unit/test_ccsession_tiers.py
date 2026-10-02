@@ -1698,3 +1698,70 @@ def test_named_model_window_accepts_the_picker_id() -> None:
         str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="alias_test"
     )
     assert module["sanitize"]("Qwen3.8-max") == models.gateway_alias("Qwen3.8-max")
+
+
+def test_model_outside_tier_mode_stays_where_it_was_typed(tmp_path: Path) -> None:
+    """PR #253 review: a prompt after --model must not become the topic."""
+    rc, _, err, seen = _launch(
+        tmp_path, "--model", "sonnet", "review this code", defaults=None
+    )
+    assert rc == 0, err
+    assert seen["argv"][-3:] == ["--model", "sonnet", "review this code"]
+    rc, out, err, seen = _launch(tmp_path, "work", "--model=sonnet", defaults=None)
+    assert rc == 0, err
+    assert "--model=sonnet" in seen["argv"] and "labeled 'work'" in out
+
+
+def test_launch_never_attaches_to_a_shim_that_won_the_port_race(
+    tmp_path: Path,
+) -> None:
+    """PR #253 review: the shim that comes up must carry this session's settings."""
+    copy = _shim_copy(tmp_path)
+    winner = tmp_path / "winner.sh"
+    # Stands in for a simultaneous launch with other settings binding first.
+    winner.write_text(
+        f'#!/bin/sh\nexec env CCSESSION_COOLDOWN_SECONDS=7 "{sys.executable}" "{copy}"\n'
+    )
+    winner.chmod(0o755)
+    gateway = StandInGateway()
+    port = _free_port()
+    fake = tmp_path / "bin" / "claude"
+    fake.parent.mkdir(exist_ok=True)
+    fake.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
+    fake.chmod(0o755)
+    env = os.environ.copy()
+    env.update(
+        HOME=str(tmp_path / "home"),
+        CLAUDE_BIN=str(fake),
+        ANTHROPIC_BASE_URL=gateway.url,
+        CC_SHIM_SCRIPT=str(copy),
+        CC_SHIM_PORT=str(port),
+        SEEN_FILE=str(tmp_path / "seen"),
+        AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
+    )
+    (tmp_path / "home").mkdir(exist_ok=True)
+    # ccsession runs "python3 $CC_SHIM_SCRIPT"; a python3 shim on PATH that
+    # execs the winner makes the started process carry other settings.
+    shim_python = tmp_path / "pybin" / "python3"
+    shim_python.parent.mkdir()
+    real = sys.executable
+    shim_python.write_text(
+        f'#!/bin/sh\n[ "$1" = "{copy}" ] && exec "{winner}"\nexec "{real}" "$@"\n'
+    )
+    shim_python.chmod(0o755)
+    env["PATH"] = f"{shim_python.parent}:{env['PATH']}"
+    try:
+        proc = subprocess.run(
+            [str(SKILL_DIR / "ccsession"), "work"],
+            cwd=tmp_path,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        assert proc.returncode == 1, proc.stdout + proc.stderr
+        assert "another shim took" in proc.stderr
+        assert not (tmp_path / "seen").exists()  # claude never started
+    finally:
+        subprocess.run(["pkill", "-f", str(copy)], check=False)
+        gateway.close()
