@@ -109,3 +109,17 @@ def test_partly_set_anthropic_slots_keep_the_unset_builtins():
     """Same per-slot rule as reflect: an unset slot is Claude Code's alias."""
     env = {"ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-8"}
     assert suggest_alternate_model("claude-opus-4-8", env=env) == "sonnet"
+
+
+@pytest.mark.unit
+def test_context_suffix_and_same_model_are_handled():
+    env = {
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-opus-5-5",  # opus unset
+        "T2Model01": "muse-spark-1.3[1m]",
+        "T2Model02": "grok-4.7",
+    }
+    # Family match on the unset opus slot; sonnet is the SAME model -> skipped.
+    assert suggest_alternate_model("claude-opus-5-5", env=env) == "haiku"
+    # A "[1m]" suffix on either side still matches the slot.
+    assert suggest_alternate_model("muse-spark-1.3", env=env) == "grok-4.7"
+    assert suggest_alternate_model("muse-spark-1.3[1m]", env=env) == "grok-4.7"

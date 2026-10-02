@@ -295,7 +295,9 @@ def count_model_aliases(env: dict[str, str]) -> int:
     falls back to Claude Code's built-in alias (``opus``/``sonnet``/``haiku``),
     which Claude Code resolves itself. Coder issue #270 removes all three env
     vars, so counting only the set ones would drop every Coder run to Tier-1.
-    The count is below 3 only when two aliases name the same model.
+    The count is below 3 only when two aliases carry the identical string; a
+    built-in alias and an explicit id for the same model (``opus`` and
+    ``claude-opus-5-5``) are not detected as the same.
 
     ≥3 distinct classes -> full Tier-2 diversity; 2 -> degraded; 1 -> T1-only
     (research 08 §4). The count is recorded in the sidecar; low counts surface

@@ -127,7 +127,7 @@ The skill resolves model aliases from environment at Wave 0:
 
 - `ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_SONNET_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`.
 
-Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table in §4 Wave 0). Missing aliases **do not abort the skill**; they degrade reviewer topology per the §4 Wave 0 routing table (0/1/2/3+ alias rows). The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
+Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table in §4 Wave 0). An unset alias resolves to Claude Code's built-in model for that slot, so at least one class always resolves; aliases that name the same model degrade reviewer topology per the §4 Wave 0 routing table (1/2/3+ rows; the 0 rows are unreachable since 2026-10). The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
 
 (See `refs/input-resolution.md` "Env routing table" for the 4-row alias→tier routing matrix and grader assertions.)
 
@@ -236,7 +236,7 @@ Before Wave 5 synthesis AND at Wave 7 step 7.2 (pre-mutation), re-read the input
 
 Grader assertion: `yaml_field` asserts `t2_model_class_diversity` is one of `{full, degraded}` when the skill ran to completion (non-STOP).
 
-The zero-aliases + `--tier 2` row is the only case where alias-resolution itself can STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.
+The zero-aliases + `--tier 2` row (unreachable since 2026-10: unset aliases resolve to Claude Code's built-ins) was the only case where alias-resolution itself could STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.
 
 (See `refs/input-resolution.md` "Env routing table" for the full 4-row matrix with grader-assertion column.)
 
@@ -1453,7 +1453,7 @@ Three concrete forces shape the pick:
 | `input_drift` detected — input SHA changed mid-run | STOP at Wave 5 pre-synthesis; emit SHA pair; `status: partial` | None |
 | `empty_input` — zero-task tasklist in UC-1 | STOP at Wave 1; `coverage_undefined: true`; `status: partial` | None |
 | `coverage_undefined` — zero parseable IDs | Route directly to T2; no T1 stop possible; surface in report header | Continue |
-| Zero env-var aliases resolved | T1-only path; WARN; `degraded_components: ["env-aliases"]` | None |
+| Zero env-var aliases resolved (unreachable since 2026-10; unset aliases resolve to built-ins) | T1-only path; WARN; `degraded_components: ["env-aliases"]` | None |
 | 1 env-var alias resolved | T1-only path; WARN "T2 requires ≥2 model classes" | None |
 | 2 env-var aliases resolved | T2 with 2 reviewers; `t2_model_class_diversity: degraded` | Continue |
 | Single-vendor T2 ensemble | Continue; WARN; `t2_vendor_diversity: single` (warn-only) | None |

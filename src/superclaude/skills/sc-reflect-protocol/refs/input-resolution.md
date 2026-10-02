@@ -71,7 +71,7 @@ The skill resolves model aliases from environment at Wave 0 step 0.5:
 
 An unset variable resolves to Claude Code's built-in alias for that slot (`opus`, `sonnet`, `haiku`) and still counts; the resolved count is the number of distinct models the three aliases name (`count_model_aliases` in `cli/reflect/runner.py`). Coder workspaces no longer set these variables (Coder issue #270).
 
-Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table below). Missing aliases **do not abort the skill** in the general case; they degrade reviewer topology per the routing table. The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
+Aliases drive Tier 2 reviewer composition (see §7.1 and the alias-routing table below). An unset alias is not missing (it resolves to the built-in); aliases naming the same model degrade reviewer topology per the routing table. The skill emits `degraded_components: ["env-aliases"]` into the audit log and surfaces a WARN to the user when running with fewer than 3 distinct classes. The full degraded-mode envelope (env, MCPs, agents) is documented in §14.
 
 MCP availability is also probed at Wave 0:
 
@@ -93,4 +93,4 @@ Step 0.5 routes Tier 2 reviewer count based on (resolved-alias count) × (`--tie
 
 Grader assertion: `yaml_field` asserts `t2_model_class_diversity` is one of `{full, degraded}` when the skill ran to completion (non-STOP).
 
-**Zero-aliases + `--tier 2` STOP rationale:** This row is the only case where alias-resolution itself can STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.
+**Zero-aliases + `--tier 2` STOP rationale (unreachable since 2026-10):** This row was the only case where alias-resolution itself can STOP the skill — every other zero/one-alias path degrades gracefully. The reasoning: `--tier 2` is a hard override per §5.1, but the rubric cannot satisfy it with zero model classes available; the conflict is irresolvable, so the skill MUST fail loudly rather than silently downgrade against an explicit user request.

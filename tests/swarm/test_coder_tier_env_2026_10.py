@@ -115,3 +115,18 @@ def test_alias_count_survives_removal_of_the_anthropic_default_vars() -> None:
     assert count_model_aliases(today) == 3
     same = dict.fromkeys(today, "claude-opus-5-5")
     assert count_model_aliases(same) == 1
+
+
+@pytest.mark.unit
+def test_reflect_fallback_ladder_binds_opus_then_gpt() -> None:
+    """The reflect T1 fallback ladder (SPEC 12.7) resolves to the new T1 models."""
+    from superclaude.cli.reflect.ensemble import resolve_t1_fallback_factory
+    from superclaude.cli.reflect.models import ReflectConfig
+
+    ladder = ReflectConfig.__dataclass_fields__["tier2_fallback_ladder"].default
+    assert ladder == ("T1Model01", "T1Model02")
+    factory = resolve_t1_fallback_factory("openai_compat", ladder=ladder, env=CODER_ENV)
+    assert [factory(slot).model for slot in ladder] == [
+        "claude-opus-5-5",
+        "gpt-6.1-sol",
+    ]
