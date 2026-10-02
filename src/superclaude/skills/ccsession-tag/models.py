@@ -277,7 +277,19 @@ def refresh(wait: float) -> str:
 
 
 def defaults_path() -> Path:
-    return Path(os.environ.get("AIDEV_AI_DEFAULTS_PATH") or DEFAULTS_FILE)
+    # Absolute, so two launches with the same relative path from different
+    # directories never share a shim (abspath, not resolve: symlinks kept).
+    value = os.environ.get("AIDEV_AI_DEFAULTS_PATH")
+    return (
+        Path(os.path.abspath(os.path.expanduser(value)))
+        if value
+        else Path(DEFAULTS_FILE)
+    )
+
+
+def gateway_alias(model: str) -> str:
+    """The picker id the shim shows for a gateway model (claude-gw-...)."""
+    return "claude-gw-" + re.sub(r"[^A-Za-z0-9.]+", "-", model).strip("-").lower()
 
 
 def read_defaults_file(path: Path) -> dict:
@@ -377,7 +389,8 @@ def model_window(model: str, data=None, tenv=None) -> tuple:
     # Accept the "[1m]" form users copy from the picker or the Mac profiles.
     model = model[: -len("[1m]")] if model.endswith("[1m]") else model
     for key, value in sorted(tenv.items()):
-        if _SLOT.match(key) and value == model:
+        # The real name, or the claude-gw- id the show-all picker shows.
+        if _SLOT.match(key) and model in (value, gateway_alias(value)):
             return _window(tenv, f"{key}_WINDOW"), key
     if model in data["picker"]["one_million_context"]:
         return ONE_MILLION, "not in any tier; 1M list"
@@ -397,7 +410,11 @@ def _settings_key(env=None, tenv=None) -> list:
         key.append("show-all")
     # Settings the shim fixes at start: a session that sets them differently
     # needs its own shim.
-    for name in ("CCSESSION_TIERS", "CCSESSION_COOLDOWN_SECONDS", "CCSESSION_FIRST_BYTE_TIMEOUT"):
+    for name in (
+        "CCSESSION_TIERS",
+        "CCSESSION_COOLDOWN_SECONDS",
+        "CCSESSION_FIRST_BYTE_TIMEOUT",
+    ):
         if env.get(name):
             key.append(f"{name}={env[name]}")
     path = defaults_path()
@@ -532,13 +549,19 @@ def main(argv) -> int:
     if command == "default-tier":
         value = tier_env().get("CCSESSION_DEFAULT_TIER", "")
         if not value:
-            print("[ccsession] WARNING: CCSESSION_DEFAULT_TIER is not set in the workspace env; using tier2", file=sys.stderr)
+            print(
+                "[ccsession] WARNING: CCSESSION_DEFAULT_TIER is not set in the workspace env; using tier2",
+                file=sys.stderr,
+            )
             value = "tier2"
         else:
             try:
                 tier_number(value)
             except ValueError:
-                print(f"ccsession: CCSESSION_DEFAULT_TIER={value!r} is not a tier (use tier0, tier1, ...)", file=sys.stderr)
+                print(
+                    f"ccsession: CCSESSION_DEFAULT_TIER={value!r} is not a tier (use tier0, tier1, ...)",
+                    file=sys.stderr,
+                )
                 return 3
             try:
                 defined = resolve_tiers()
@@ -547,7 +570,10 @@ def main(argv) -> int:
                 return 3
             if value not in defined:
                 names = ", ".join(defined) or "none"
-                print(f"ccsession: CCSESSION_DEFAULT_TIER={value!r} is not a defined tier (defined: {names})", file=sys.stderr)
+                print(
+                    f"ccsession: CCSESSION_DEFAULT_TIER={value!r} is not a defined tier (defined: {names})",
+                    file=sys.stderr,
+                )
                 return 3
         print(value)
         return 0

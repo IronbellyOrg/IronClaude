@@ -1407,9 +1407,22 @@ def tls_cert(tmp_path: Path):
     try:
         subprocess.run(
             [
-                "openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
-                "-keyout", str(key), "-out", str(cert), "-days", "1",
-                "-subj", "/CN=127.0.0.1", "-addext", "subjectAltName=IP:127.0.0.1",
+                "openssl",
+                "req",
+                "-x509",
+                "-newkey",
+                "rsa:2048",
+                "-nodes",
+                "-keyout",
+                str(key),
+                "-out",
+                str(cert),
+                "-days",
+                "1",
+                "-subj",
+                "/CN=127.0.0.1",
+                "-addext",
+                "subjectAltName=IP:127.0.0.1",
             ],
             check=True,
             capture_output=True,
@@ -1571,3 +1584,117 @@ def test_upgraded_code_starts_a_new_shim_and_keeps_the_old(tmp_path: Path) -> No
             ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
         )
         gateway.close()
+
+
+# --- PR #253 review ------------------------------------------------------------
+
+
+def test_relative_defaults_path_keeps_each_directory_on_its_own_shim(
+    tmp_path: Path,
+) -> None:
+    """A relative AIDEV_AI_DEFAULTS_PATH means the file in the launch directory."""
+    _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    port = _free_port()
+    runs = {}
+    try:
+        for name, first in (("a", "muse-spark-1.3"), ("b", "grok-4.7")):
+            d = tmp_path / name
+            d.mkdir()
+            (d / "defaults.sh").write_text(
+                TIER_BLOCK.replace("T2Model01=muse-spark-1.3", f"T2Model01={first}")
+            )
+            env = os.environ.copy()
+            env.update(
+                HOME=str(tmp_path / "home"),
+                CLAUDE_BIN=str(tmp_path / "bin" / "claude"),
+                ANTHROPIC_BASE_URL=gateway.url,
+                CC_SHIM_SCRIPT=str(tmp_path / "shim-under-test.py"),
+                CC_SHIM_PORT=str(port),
+                SEEN_FILE=str(tmp_path / "seen"),
+                AIDEV_AI_DEFAULTS_PATH="defaults.sh",
+            )
+            (tmp_path / "bin").mkdir(exist_ok=True)
+            (tmp_path / "bin" / "claude").write_text(
+                '#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n'
+            )
+            (tmp_path / "bin" / "claude").chmod(0o755)
+            (tmp_path / "home").mkdir(exist_ok=True)
+            proc = subprocess.run(
+                [str(SKILL_DIR / "ccsession"), "work"],
+                cwd=d,
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            assert proc.returncode == 0, proc.stderr
+            url = (tmp_path / "seen").read_text().strip()
+            gateway.calls.clear()
+            status, _ = _ask_raw(url, "claude-gw-tier2", stream=True)
+            runs[name] = (url, status, gateway.models_called()[:1])
+        assert runs["a"][0] != runs["b"][0], runs  # b never reuses a's shim
+        assert runs["a"][1:] == (200, ["muse-spark-1.3"])
+        assert runs["b"][1:] == (200, ["grok-4.7"])  # b's shim reads b's file
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        b'{"error":"Your Grok CLI version is outdated."}',
+        b'{"error":{"type":"rate_limit_error"}}',
+        b'{"detail":"cooling down"}',
+        b'{"message":"cooling down"}',
+        b'["cooling down"]',
+    ],
+)
+def test_note_keeps_every_json_error_valid_json(body: bytes) -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="note_test"
+    )
+    out = module["with_note"](body, "ccsession: all Tier 2 models are out of usage")
+    assert "out of usage" in json.dumps(json.loads(out))
+
+
+def test_note_on_plain_text_stays_plain_text() -> None:
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="note_test"
+    )
+    assert module["with_note"](b"Rate limited", "x") == b"Rate limited (x)"
+
+
+def test_exhausted_tier_with_string_errors_returns_valid_json(shim) -> None:
+    gateway, start, _ = shim
+    base = start()
+    outdated = (426, b'{"error":"Your Grok CLI version (0.2.120) is outdated."}')
+    for model in ("muse-spark-1.3", "grok-4.7", "Qwen3.8-max", "glm-5.3"):
+        gateway.script[model] = [outdated]
+    status, body = _ask(base, "claude-gw-tier2")
+    error = json.loads(body)["error"]
+    assert status == 426 and "outdated" in error and "out of usage" in error
+
+
+def test_named_model_window_accepts_the_picker_id() -> None:
+    tenv = {
+        "T0_WINDOW": "850000",
+        "T0Model02": "gpt-6-astra",
+        "T0Model02_WINDOW": "850000",
+        "T2Model03": "Qwen3.8-max",
+        "T2Model03_WINDOW": "1000000",
+    }
+    data = models.load()[0]
+    for name in ("gpt-6-astra", "claude-gw-gpt-6-astra", "claude-gw-gpt-6-astra[1m]"):
+        assert models.model_window(name, data=data, tenv=tenv) == (850000, "T0Model02")
+    assert models.model_window("claude-gw-qwen3.8-max[1m]", data=data, tenv=tenv) == (
+        1000000,
+        "T2Model03",
+    )
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="alias_test"
+    )
+    assert module["sanitize"]("Qwen3.8-max") == models.gateway_alias("Qwen3.8-max")

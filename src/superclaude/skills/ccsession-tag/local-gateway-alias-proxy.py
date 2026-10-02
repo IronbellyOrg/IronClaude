@@ -148,7 +148,8 @@ HOP = {
 
 
 def sanitize(rid):
-    return "claude-gw-" + re.sub(r"[^A-Za-z0-9.]+", "-", rid).strip("-").lower()
+    # One rule shared with ccsession's --model window lookup (models.py).
+    return model_data.gateway_alias(rid)
 
 
 def is_native(rid):
@@ -426,16 +427,31 @@ def plain_body(headers, raw):
 
 
 def with_note(raw, note):
-    """Add a ccsession note to a gateway error body (JSON or plain text)."""
+    """Add a ccsession note to a gateway error body (JSON or plain text).
+
+    A JSON body stays valid JSON whatever its shape (the reply keeps its
+    application/json content type); only a non-JSON body gets plain text.
+    """
     try:
         obj = json.loads(raw)
-        err = obj.get("error") if isinstance(obj, dict) else None
-        if isinstance(err, dict) and isinstance(err.get("message"), str):
-            err["message"] = f"{err['message']} ({note})"
-            return json.dumps(obj).encode()
     except (ValueError, TypeError):
-        pass
-    return raw + f" ({note})".encode()
+        return raw + f" ({note})".encode()
+    if not isinstance(obj, dict):
+        obj = {
+            "type": "error",
+            "error": {"type": "api_error", "message": raw.decode("utf-8", "replace")},
+        }
+    err = obj.get("error")
+    if isinstance(err, dict):
+        message = err.get("message")
+        err["message"] = f"{message} ({note})" if isinstance(message, str) else note
+    elif isinstance(err, str):
+        obj["error"] = f"{err} ({note})"
+    elif isinstance(obj.get("message"), str):
+        obj["message"] = f"{obj['message']} ({note})"
+    else:
+        obj["message"] = note
+    return json.dumps(obj).encode()
 
 
 class _FirstByteResponse(http.client.HTTPResponse):
@@ -739,7 +755,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 raw, headers = plain_body(resp.headers, resp.read())
             except (OSError, http.client.HTTPException) as exc:
                 # The gateway dropped its error reply part-way.
-                audit(f"TIER {name}: {model} error reply cut off ({exc!r}); not switching")
+                audit(
+                    f"TIER {name}: {model} error reply cut off ({exc!r}); not switching"
+                )
                 return self._send_error_json(
                     502,
                     "api_error",
