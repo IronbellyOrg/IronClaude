@@ -20,13 +20,35 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "ccsession-tag"
+sys.path.insert(0, str(SKILL_DIR))
+import models  # noqa: E402
+
+# A fake shim reports the code fingerprint of the real one, so launches reuse it.
+SHIM_CODE = models.code_digest(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
 
 
 @pytest.fixture(autouse=True)
 def _offline_model_data(monkeypatch, tmp_path_factory):
-    """Keep tests off the network and off the real model-data cache."""
+    """Keep tests off the network, the real model-data cache, and tier settings.
+
+    Developers run these tests inside Coder workspaces, whose shell exports the
+    tier variables and whose image has the workspace env file; neither may leak
+    into a test that expects the Mac behaviour.
+    """
     monkeypatch.setenv("CCSESSION_MODELS_REFRESH", "0")
     monkeypatch.setenv("XDG_CACHE_HOME", str(tmp_path_factory.mktemp("cache")))
+    monkeypatch.setenv(
+        "AIDEV_AI_DEFAULTS_PATH", "/nonexistent/ccsession-test/defaults.sh"
+    )
+    for name in list(os.environ):
+        if name.startswith("T") and ("Model" in name or name.endswith("_WINDOW")):
+            monkeypatch.delenv(name)
+    for name in (
+        "CCSESSION_DEFAULT_TIER",
+        "CCSESSION_SHOW_ALL_MODELS",
+        "CCSESSION_TIERS",
+    ):
+        monkeypatch.delenv(name, raising=False)
 
 
 def _profile_result(tmp_path: Path, profile: str, shim: bool = True) -> dict[str, str]:
@@ -51,7 +73,9 @@ print(json.dumps({
     fake_curl = tmp_path / "curl"
     fake_curl.write_text(
         '#!/bin/sh\nprintf \'{"service":"ccsession-gateway-alias-proxy",'
-        '"upstream":"http://gateway.example:4000/cli","port":4555,"model_data":"t"}\'\n'
+        '"upstream":"http://gateway.example:4000/cli","port":4555,"model_data":"t",'
+        '"tiers":{},"show_all":false,"settings":"e3b0c44298fc1c14",'
+        f'"code":"{SHIM_CODE}"}}\'\n'
     )
     fake_curl.chmod(fake_curl.stat().st_mode | stat.S_IXUSR)
 
@@ -421,6 +445,10 @@ def test_profile_warms_complete_gateway_cache_before_claude_starts(
                     "upstream": upstream,
                     "port": self.server.server_port,
                     "model_data": "t",
+                    "tiers": {},
+                    "show_all": False,
+                    "settings": "e3b0c44298fc1c14",
+                    "code": SHIM_CODE,
                 }
             else:
                 payload = {
@@ -508,6 +536,10 @@ def test_profile_keeps_same_shim_cache_when_warmup_fails(tmp_path: Path) -> None
                         "upstream": upstream,
                         "port": self.server.server_port,
                         "model_data": "t",
+                        "tiers": {},
+                        "show_all": False,
+                        "settings": "e3b0c44298fc1c14",
+                        "code": SHIM_CODE,
                     }
                 ).encode()
                 self.send_response(200)
@@ -674,26 +706,29 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
     ids = [model["id"] for model in models]
     aliases = module["alias_to_real"]
 
-    assert ids[:11] == [
+    # Exactly the allow list (picker.show), in its order, limited to models the
+    # gateway lists (gpt-6.1-sol and claude-sonnet-5-5 are absent here).
+    assert ids == [
         "claude-opus-5-5[1m]",
         "claude-gw-gpt-6-astra[1m]",
-        "claude-gw-gpt-6-sol[1m]",
         "claude-gw-gpt-6-luna[1m]",
-        "claude-gw-gpt-5.6-sol[1m]",
-        "claude-gw-gpt-5.6-luna[1m]",
-        "claude-gw-gpt-5.6-terra[1m]",
         "claude-gw-grok-4.7",
         "claude-gw-muse-spark-1.3[1m]",
-        "claude-gw-muse-spark-1.2[1m]",
-        "claude-gw-qwen-qwen3-max",
-    ]
-    assert ids[-4:] == [
+        "claude-fable-5-1[1m]",
+        "claude-gw-qwen3.8-max[1m]",
+        "claude-gw-glm-5.3[1m]",
         "claude-gw-gpt-image-2.5-sunburst",
         "claude-gw-gpt-image-2.5",
         "claude-gw-gpt-image-2.5-flare",
         "claude-gw-grok-imagine-image-2.0",
     ]
     for hidden in (
+        "claude-gw-gpt-6-sol[1m]",
+        "claude-gw-gpt-5.6-sol[1m]",
+        "claude-gw-gpt-5.6-luna[1m]",
+        "claude-gw-gpt-5.6-terra[1m]",
+        "claude-gw-muse-spark-1.2[1m]",
+        "claude-gw-qwen-qwen3-max",
         "claude-opus-5",
         "claude-gw-gpt-5.5",
         "claude-gw-kimi-k3",
@@ -707,6 +742,7 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
         "claude-gw-muse-spark-1.3-contributor",
     ):
         assert hidden not in ids
+    # Hidden models keep an alias, so /model or a resumed session still routes.
     assert aliases["claude-gw-gpt-6-astra"] == "gpt-6-astra"
     assert aliases["claude-gw-gpt-6-sol"] == "gpt-6-sol"
     assert aliases["claude-gw-gpt-6-luna"] == "gpt-6-luna"
@@ -782,6 +818,8 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
         )
         with urllib.request.urlopen(request, timeout=5) as response:
             models = json.loads(response.read())["data"]
+        assert health.pop("pid") == proxy.pid
+        assert health.pop("active") == 0
         assert health == {
             "service": "ccsession-gateway-alias-proxy",
             "upstream": f"http://127.0.0.1:{upstream.server_port}",
@@ -789,6 +827,11 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
             "model_data": json.loads((SKILL_DIR / "ccsession-models.json").read_text())[
                 "version"
             ],
+            "settings": "e3b0c44298fc1c14",
+            "code": SHIM_CODE,
+            "show_all": False,
+            "tier_mode": False,
+            "tiers": {},
         }
         assert Upstream.seen_encoding == "identity"
         assert models[0]["id"] == "claude-gw-gpt-6-astra[1m]"
@@ -934,7 +977,7 @@ def test_refresh_downloads_then_uses_not_modified(tmp_path: Path) -> None:
     newer = _bundled()
     newer["version"] = "9999-01-01.1"
     newer["profiles"]["newone"] = dict(newer["profiles"]["claude"], aliases=[])
-    newer["picker"]["pinned"] = newer["picker"]["pinned"][1:]
+    newer["picker"]["show"] = newer["picker"]["show"][1:]
     server = _DataServer(newer)
     try:
         first = _models(tmp_path, server.url, "refresh")

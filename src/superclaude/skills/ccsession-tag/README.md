@@ -134,7 +134,62 @@ different conversations, which is what you usually want.
 
 ---
 
-## Profiles
+## Tiers (Coder workspaces)
+
+In a Coder workspace whose env file defines tier windows (`T<N>_WINDOW`),
+ccsession runs in tier mode. The workspace env file
+(`/etc/aidev02/aienv.d/defaults.sh`) names each tier's models in order and
+their context windows; ccsession reads it on every launch, so a changed file
+applies to the next launch in any terminal or in Orca, with no new shell.
+
+```bash
+ccsession notes                       # default tier (CCSESSION_DEFAULT_TIER)
+ccsession notes --tier tier1          # a specific tier
+ccsession notes --model gpt-6-astra   # one model, no failover
+```
+
+| | What happens |
+|---|---|
+| Picker (`/model`) | Shows the tiers (Tier 0, Tier 1, ...), each with its models |
+| Failover | When a tier's model answers with an out-of-usage error (for example `are cooling down`, `auth_unavailable`, `usage_limit_reached`, a billing error, an overloaded or retired model, an outdated provider login, or, for a streamed request, no start of a reply within 5 minutes), the same request goes to the next model; Claude Code never sees the error. A plain `Rate limited` and a `500` are passed back unchanged |
+| Cooldown | A model that failed is skipped for an hour (or the gateway's `Retry-After`), then tried once again |
+| Context | The tier window (`T<N>_WINDOW`) for the whole session; a backup smaller than that is never used |
+| `--model <name>` | Window from the tier slot that holds that model (a `[1m]` suffix is accepted); for a model in no tier, 1M if it is on the `one_million_context` list, else 200K, with a warning |
+| `--profile` | Not used in tier mode (refused with a pointer to `--tier` and `--model`) |
+| Shim | Always on |
+
+Admin options: `/model <name>` inside a session switches to any model by
+name. `CCSESSION_SHOW_ALL_MODELS=1 ccsession notes` also lists every tier
+model one by one in `/model`; that session gets its own shim so other
+sessions' pickers do not change. `CCSESSION_TIERS=0` turns tier mode off,
+`CCSESSION_COOLDOWN_SECONDS` changes the cooldown, and
+`CCSESSION_COMPACT_WINDOW` / `CCSESSION_COMPACT_PCT` still override the
+auto-compact settings. `ccsession --models-status` shows whether tier mode is
+on and where its settings came from.
+
+No time limit ever applies once a model has started answering: a reply may
+think or stream for hours. The only ccsession timer is, for streamed tier
+requests, a 5-minute wait for the gateway to accept the request (it normally
+sends its "starting" header within 2 seconds, before the model thinks). A
+gateway that cannot be reached at all is reported and never treated as a model
+failure.
+
+| Setting | Effect |
+|---|---|
+| `T<N>_WINDOW` (workspace env) | Tier context window; its presence turns tier mode on |
+| `T<N>Model0M`, `T<N>Model0M_WINDOW` (workspace env) | Tier models in order, and each model's own window (a backup smaller than the tier window is never used) |
+| `CCSESSION_DEFAULT_TIER` (workspace env) | Tier used when no `--tier` or `--model` is given (`tier2` if unset) |
+| `AIDEV_AI_DEFAULTS_PATH` | Workspace env file read on every launch (default `/etc/aidev02/aienv.d/defaults.sh`); the shell environment is used only when the file is absent |
+| `CCSESSION_TIERS=0` | Turn tier mode off |
+| `CCSESSION_SHOW_ALL_MODELS=1` | Also list every tier model in `/model` (own shim) |
+| `CCSESSION_COOLDOWN_SECONDS` | How long a failed model is skipped (default 3600) |
+| `CCSESSION_FIRST_BYTE_TIMEOUT` | Wait for a streamed tier reply to start before trying the next model (default 300) |
+| `CC_SHIM_PORT` | Base shim port (default 4010). Show-all, a non-standard env file, or tier settings from the shell get base + an offset; an explicitly set port is used as-is |
+| `CCSESSION_COMPACT_WINDOW`, `CCSESSION_COMPACT_PCT` | Override the auto-compact window or percentage, in tier mode too |
+
+---
+
+## Profiles (when not in tier mode)
 
 A profile decides which model a session starts on and how much conversation it
 holds before Claude Code trims it.
@@ -185,7 +240,10 @@ nothing changed GitHub answers "not modified", which adds roughly a tenth of a
 second; a newer copy is validated, cached in `~/.cache/ccsession/`, and used
 by that same launch, with one line saying what changed. Without a network the
 check gives up after about 2 seconds and the cached or shipped copy is used.
-A running shim picks up new data on its next model-list request.
+A running shim picks up new data on its next model-list request. After an
+upgrade, new sessions start a new shim on another port; a shim still used by
+older sessions keeps running until you stop it (`pkill -f
+local-gateway-alias-proxy.py` when no session uses it).
 
 | Command or setting | What it does |
 |---|---|
@@ -198,17 +256,19 @@ A running shim picks up new data on its next model-list request.
 
 Edit `ccsession-models.json` in IronClaude and merge it; every install picks it
 up on its next launch. Always use the model's real gateway name such as
-`gpt-6-astra`, never the `claude-gw-` version you see in the picker. Every
-gateway model not listed in `remove` shows up on its own.
+`gpt-6-astra`, never the `claude-gw-` version you see in the picker. Outside
+tier mode the picker shows exactly the models in `picker.show`, in that order,
+that the gateway still serves; a new gateway model stays hidden until it is
+added there. Tier models and their order come from the workspace env file, not
+from this file.
 
 | Goal | Where to put it |
 |---|---|
 | Add or change a profile | `profiles` |
-| Hide a model | `picker.remove` |
-| Move it to the top | `picker.pinned` |
-| Move an image model into the final cluster | `picker.tail` |
+| Show a model, or change the order | `picker.show` |
 | Give it a nicer name | `picker.display_overrides` |
 | Let it hold a million tokens | `picker.one_million_context` |
+| Change which env variables make up a tier | `tiers` |
 
 Raise `version` (for example `2026-10-02.1`) with every change: installs keep
 whichever copy has the newest version.
@@ -263,6 +323,11 @@ Restart it and clear the saved list, then open a new session:
 ```
 
 Sessions that are already open keep the old list until they restart.
+
+Simpler alternative: stop every running shim (`pkill -f local-gateway-alias-proxy.py`)
+and start a new session; ccsession starts the right shim on the right port
+(show-all and other offset ports included). ccsession never stops a running
+shim by itself, because other sessions may be using it.
 
 ---
 

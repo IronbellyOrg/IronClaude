@@ -14,6 +14,12 @@ WHAT: This proxy sits between Claude Code and the upstream /cli base. It:
                         swaps it back to the real id, then transparently forwards
                         (streaming) to upstream. Real claude models pass untouched.
 
+Tier mode (Coder workspaces, see models.py): the picker shows tiers
+(claude-gw-tier0 ...). A request for a tier goes to the tier's first model that
+is not cooling down; when the gateway answers with an out-of-usage style error
+(SWITCH_RULES) before any reply is streamed, the same request is resent to the
+next model in the tier and the failed one cools down for an hour.
+
 It changes NOTHING upstream. Point Claude Code at it:
   export ANTHROPIC_BASE_URL=http://127.0.0.1:4010
   export ANTHROPIC_AUTH_TOKEN=<your litellm key>
@@ -22,15 +28,22 @@ It changes NOTHING upstream. Point Claude Code at it:
 """
 
 import datetime
+import email.utils
+import gzip
+import http.client
 import http.server
 import json
 import os
 import re
+import socket
 import socketserver
 import sys
 import threading
+import time
 import urllib.error
+import urllib.parse
 import urllib.request
+import zlib
 
 # LiteLLM /cli passthrough base. This default is a placeholder: set your real
 # gateway in ~/.claude/ccsession.env as ANTHROPIC_BASE_URL, which ccsession
@@ -60,6 +73,51 @@ LOGFILE = os.environ.get("GW_PROXY_LOGFILE")
 
 _lock = threading.Lock()
 alias_to_real = {}  # claude-gw-... -> real upstream id
+_cooldowns = {}  # real model id -> epoch seconds when it may be tried again
+
+# Fixed for the life of this shim; ccsession gives a show-all session its own
+# shim (port) so other sessions' pickers never change.
+SHOW_ALL = os.environ.get("CCSESSION_SHOW_ALL_MODELS") == "1"
+
+
+def _seconds(name, default):
+    """A positive number of seconds from the environment, else the default."""
+    raw = os.environ.get(name)
+    try:
+        value = float(raw) if raw else default
+    except ValueError:
+        value = 0
+    if value <= 0:
+        sys.stderr.write(
+            f"[proxy] WARNING: {name}={raw!r} is not a positive number; using {default}\n"
+        )
+        value = default
+    return value
+
+
+COOLDOWN_SECONDS = _seconds("CCSESSION_COOLDOWN_SECONDS", 3600)
+# Timers. NOTHING ever limits a reply once the gateway has started answering:
+# a model may think or stream for hours, so the socket has no read timeout
+# after the reply's status line arrives.
+# - Opening the connection: no ccsession limit; the operating system's own
+#   connect wait applies (about 1-2 minutes). Failing to connect means the
+#   gateway is unreachable (passed back, never a model switch).
+#   _CCSESSION_TEST_CONNECT_TIMEOUT sets a limit for tests only.
+# - FIRST_BYTE_TIMEOUT: only for a streamed tier request (Claude Code's normal
+#   kind, where a healthy gateway answers with headers at once), how long to
+#   wait for the gateway to START answering before treating the model as
+#   stalled and trying the next one (owner decision, spec 15 decision 6). Kept
+#   under Claude Code's own 10-minute request timeout so the switch happens
+#   before Claude Code gives up. Non-streamed requests wait without limit.
+FIRST_BYTE_TIMEOUT = _seconds("CCSESSION_FIRST_BYTE_TIMEOUT", 300)
+CONNECT_TIMEOUT = (
+    _seconds("_CCSESSION_TEST_CONNECT_TIMEOUT", 60)
+    if os.environ.get("_CCSESSION_TEST_CONNECT_TIMEOUT")
+    else None
+)
+MAX_COOLDOWN = 7 * 86400  # cap on a gateway Retry-After
+_active = 0  # requests being forwarded right now (reported in health)
+TIER_PREFIX = "claude-gw-tier"
 
 
 def audit(msg):
@@ -90,7 +148,8 @@ HOP = {
 
 
 def sanitize(rid):
-    return "claude-gw-" + re.sub(r"[^A-Za-z0-9.]+", "-", rid).strip("-").lower()
+    # One rule shared with ccsession's --model window lookup (models.py).
+    return model_data.gateway_alias(rid)
 
 
 def is_native(rid):
@@ -106,37 +165,35 @@ sys.path.insert(
 )
 import models as model_data  # noqa: E402
 
+# The code this shim runs; a launch reuses the shim only on the same code.
+CODE = model_data.code_digest(os.path.abspath(__file__))
+
 
 def curation():
-    """Return the active picker rules and the data version they came from."""
+    """Return the active picker rules, tiers, and the data version.
+
+    Model data and tier settings are re-read on every call, so a running shim
+    picks up a new data file or a changed workspace env file without a restart.
+    """
     data, _source = model_data.load()
     picker = data["picker"]
+    tenv = model_data.tier_env()
+    on = model_data.tier_mode(tenv=tenv)
+    tiers, problem = {}, ""
+    if on:
+        try:
+            tiers = model_data.resolve_tiers(data, tenv)
+        except ValueError as exc:
+            problem = str(exc)
     return {
-        "remove": set(picker["remove"]),
-        "pinned": picker["pinned"],
-        "tail": picker["tail"],
+        "show": picker["show"],
         "one_million_context": set(picker["one_million_context"]),
         "display_overrides": picker["display_overrides"],
         "version": data["version"],
+        "tier_mode": on,
+        "tiers": tiers,
+        "tier_problem": problem,
     }
-
-
-FAMILY_ORDER = ["claude", "openai", "moonshot", "qwen", "gemini", "other"]
-
-
-def family(rid):
-    r = rid.lower()
-    if r.startswith("claude"):
-        return "claude"
-    if r.startswith("qwen") or "/qwen" in r:
-        return "qwen"
-    if "kimi" in r or "moonshot" in r:
-        return "moonshot"
-    if "gpt" in r or "codex" in r:
-        return "openai"
-    if "gemini" in r:
-        return "gemini"
-    return "other"
 
 
 _ACR = {
@@ -205,53 +262,71 @@ def pretty(rid, overrides=None):
     return " ".join(out)
 
 
+def _entry(model_id, label):
+    return {
+        "type": "model",
+        "id": model_id,
+        "display_name": label,
+        "created_at": "2026-01-01T00:00:00Z",
+    }
+
+
 def transform_models(payload):
-    """Drop removed ids, order pinned/families/tail, alias non-claude ids."""
+    """Build the picker list and the alias map.
+
+    Tier mode: the tiers, plus (show-all only) every model named in the tier
+    settings. Otherwise: the allow list (picker.show) in order, keeping only
+    models the gateway lists. Every gateway model gets an alias, shown or not,
+    so a hidden model typed with /model or kept by a resumed session still
+    routes.
+    """
     rules = curation()
-    remove, pinned, tail_ids = rules["remove"], rules["pinned"], rules["tail"]
-    one_million = rules["one_million_context"]
+    labels = rules["display_overrides"]
     data = [m for m in payload.get("data", []) if m.get("id")]
     by_id = {m["id"]: m for m in data}
+    tier_models = [m for t in rules["tiers"].values() for m in t["models"]]
 
-    ordered = [p for p in pinned if p in by_id and p not in remove]
-    tail = [t for t in tail_ids if t in by_id and t not in remove]
-    tail_set = set(tail)
-    seen = set(ordered)
-    buckets = {f: [] for f in FAMILY_ORDER}
-    for m in data:  # preserve upstream order within each family
-        rid = m["id"]
-        if rid in remove or rid in seen or rid in tail_set:
+    new_map, alias_of, used = {}, {}, set()
+    for rid in list(by_id) + [model for _, model, _ in tier_models]:
+        if rid in alias_of or is_native(rid):
             continue
-        buckets[family(rid)].append(rid)
-        seen.add(rid)
-    for f in FAMILY_ORDER:
-        ordered.extend(buckets[f])
-    ordered.extend(tail)
+        a = sanitize(rid)
+        cand, k = a, 2
+        while cand in used:
+            cand = f"{a}-{k}"
+            k += 1
+        used.add(cand)
+        alias_of[rid] = cand
+        new_map[cand] = rid
 
-    new_map, used, out = {}, set(), []
-    for rid in ordered:
-        m = dict(by_id[rid])
-        if is_native(rid):
-            # Claude-named ids route upstream untouched, so they never enter the
-            # alias map. Some arrive without a label; give the picker one.
-            if not m.get("display_name"):
-                m["display_name"] = pretty(rid, rules["display_overrides"])
-        else:
-            a = sanitize(rid)
-            cand, k = a, 2
-            while cand in used:
-                cand = f"{a}-{k}"
-                k += 1
-            used.add(cand)
-            new_map[cand] = rid
-            m["id"] = cand
-            m["display_name"] = pretty(
-                rid, rules["display_overrides"]
-            )  # friendly picker label
+    out = []
+    if rules["tier_mode"]:
+        for name, tier in rules["tiers"].items():
+            names = ", ".join(pretty(m, labels) for _, m, _ in tier["models"])
+            # "[1m]" lets Claude Code accept a long session; the real limit is
+            # the tier window ccsession sets at launch.
+            out.append(
+                _entry(f"{TIER_PREFIX}{name[4:]}[1m]", f"{tier['label']}: {names}")
+            )
+        listed = []
+        if SHOW_ALL:
+            for _, model, window in tier_models:
+                if model not in (r for r, _ in listed):
+                    listed.append((model, window > model_data.DEFAULT_WINDOW))
+    else:
+        one_million = rules["one_million_context"]
+        listed = [(r, r in one_million) for r in rules["show"] if r in by_id]
+
+    for rid, big in listed:
+        m = dict(by_id.get(rid) or _entry(rid, ""))
+        if not is_native(rid):
+            m["id"] = alias_of[rid]
+        if not is_native(rid) or not m.get("display_name"):
+            m["display_name"] = pretty(rid, labels)
         # Claude Code assumes 200K for any gateway model it cannot look up in
         # its own catalog. "[1m]" is the one suffix it honours, and it strips
         # the suffix before sending, so the id upstream stays unchanged.
-        if rid in one_million:
+        if big:
             m["id"] = f"{m['id']}[1m]"
         out.append(m)
     payload["data"] = out
@@ -259,6 +334,148 @@ def transform_models(payload):
         alias_to_real.clear()
         alias_to_real.update(new_map)
     return payload
+
+
+# --- failover -----------------------------------------------------------------
+# Owner-approved switch rules (spec section 5.2): (status or None for any,
+# body substrings, any one of which must appear; None = status alone). Matched
+# case-insensitively on the error body the gateway sends before any reply.
+# Anything else, including a plain 429 "Rate limited" and a 500, is passed back
+# to Claude Code unchanged.
+SWITCH_RULES = [
+    (429, ("are cooling down",), "all accounts out of usage"),
+    (429, ("exceed your account's rate limit",), "account rate limit"),
+    (429, ("usage credits are required", "usage_limit_reached"), "out of credits"),
+    (503, ("auth_unavailable",), "no usable account"),
+    (402, None, "prepaid balance empty"),
+    (None, ("billing_error",), "prepaid balance empty"),
+    (403, ("usage limit",), "usage quota spent"),
+    (529, None, "provider busy"),
+    (None, ("overloaded",), "provider busy"),
+    (400, ("unknown provider for model",), "model no longer routed"),
+    (502, ("unknown provider for model",), "model no longer routed"),
+    (404, ("not_found_error",), "retired model"),
+    (401, ("incorrect api key",), "GATEWAY KEY BROKEN for this provider"),
+    # Seen live 2026-10-01: Grok answers some requests with 426 "Your Grok CLI
+    # version ... is outdated" (gateway-side login too old) and others with 503
+    # auth_unavailable; both mean the model cannot answer.
+    (426, ("is outdated",), "provider login outdated on the gateway"),
+]
+_TOO_LARGE = re.compile(
+    r"prompt is too long|too many tokens|context length|context window|maximum context|too large",
+    re.I,
+)
+
+
+def switch_reason(status, body_text):
+    """Return why this error should move the request to the next model, or ""."""
+    text = body_text.lower()
+    for want, needles, reason in SWITCH_RULES:
+        if want is not None and status != want:
+            continue
+        if needles is None or any(n in text for n in needles):
+            return reason
+    return ""
+
+
+def retry_after_seconds(value):
+    """Seconds from a Retry-After header (seconds or HTTP date), else None."""
+    if not value:
+        return None
+    value = value.strip()
+    if value.isascii() and value.isdigit():
+        # More than 9 digits is past any cap; int() of a huge string raises.
+        return min(int(value), MAX_COOLDOWN) if len(value) <= 9 else MAX_COOLDOWN
+    try:
+        when = email.utils.parsedate_to_datetime(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return min(max(0, int(when.timestamp() - time.time())), MAX_COOLDOWN)
+
+
+def cool_down(model, retry_after=None):
+    until = time.time() + (retry_after if retry_after is not None else COOLDOWN_SECONDS)
+    with _lock:
+        _cooldowns[model] = until
+    return until
+
+
+def cooling_until(model):
+    with _lock:
+        until = _cooldowns.get(model, 0)
+    return until if until > time.time() else 0
+
+
+def clock(epoch):
+    return datetime.datetime.fromtimestamp(epoch).strftime("%H:%M")
+
+
+def plain_body(headers, raw):
+    """(body, headers) with any gzip/deflate encoding removed.
+
+    Error bodies are matched against SWITCH_RULES and may get a note added, so
+    they must be plain text; the Content-Encoding header goes with them.
+    """
+    encoding = (headers.get("Content-Encoding") or "").lower().strip()
+    if encoding in ("gzip", "x-gzip", "deflate"):
+        try:
+            raw = gzip.decompress(raw) if "gzip" in encoding else zlib.decompress(raw)
+        except (OSError, ValueError, EOFError, zlib.error):
+            return raw, headers
+        headers = {k: v for k, v in headers.items() if k.lower() != "content-encoding"}
+    return raw, headers
+
+
+def with_note(raw, note):
+    """Add a ccsession note to a gateway error body (JSON or plain text).
+
+    A JSON body stays valid JSON whatever its shape (the reply keeps its
+    application/json content type); only a non-JSON body gets plain text.
+    """
+    try:
+        obj = json.loads(raw)
+    except (ValueError, TypeError):
+        return raw + f" ({note})".encode()
+    if not isinstance(obj, dict):
+        obj = {
+            "type": "error",
+            "error": {"type": "api_error", "message": raw.decode("utf-8", "replace")},
+        }
+    err = obj.get("error")
+    if isinstance(err, dict):
+        message = err.get("message")
+        err["message"] = f"{message} ({note})" if isinstance(message, str) else note
+    elif isinstance(err, str):
+        obj["error"] = f"{err} ({note})"
+    elif isinstance(obj.get("message"), str):
+        obj["message"] = f"{obj['message']} ({note})"
+    else:
+        obj["message"] = note
+    return json.dumps(obj).encode()
+
+
+class _FirstByteResponse(http.client.HTTPResponse):
+    """A reply that may take at most `wait` seconds to send its first byte.
+
+    The wait is on decoded reply bytes, so TLS records that are not reply data
+    (TLS 1.3 session tickets) do not end it. From the first byte on (status
+    line, headers, the whole body) nothing is timed.
+    """
+
+    wait = None
+
+    def __init__(self, sock, *args, **kwargs):
+        super().__init__(sock, *args, **kwargs)
+        self._upstream_sock = sock
+
+    def begin(self):
+        if self.wait is not None and self.headers is None:
+            self._upstream_sock.settimeout(self.wait)
+            try:
+                self.fp.peek(1)  # the byte stays buffered for the parser
+            finally:
+                self._upstream_sock.settimeout(None)
+        super().begin()
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -281,21 +498,43 @@ class Handler(http.server.BaseHTTPRequestHandler):
         headers["Accept-Encoding"] = "identity"
         return headers
 
+    def _counted(self, handler, *args):
+        """Run a forwarding handler while counting it as in flight (health)."""
+        global _active
+        with _lock:
+            _active += 1
+        try:
+            return handler(*args)
+        finally:
+            with _lock:
+                _active -= 1
+
     def do_GET(self):
         path = self.path.split("?")[0].rstrip("/")
         if path == HEALTH_PATH:
             return self._handle_health()
         if path.endswith("/v1/models"):
             return self._handle_models()
-        return self._proxy(body=None)
+        return self._counted(self._proxy, None)
 
     def _handle_health(self):
+        rules = curation()
         payload = json.dumps(
             {
                 "service": "ccsession-gateway-alias-proxy",
                 "upstream": UPSTREAM,
                 "port": LISTEN[1],
-                "model_data": curation()["version"],
+                "model_data": rules["version"],
+                "show_all": SHOW_ALL,
+                "settings": model_data.settings_digest(),
+                "code": CODE,
+                "pid": os.getpid(),
+                "active": _active,
+                "tier_mode": rules["tier_mode"],
+                "tiers": {
+                    name: [m for _, m, _ in t["models"]]
+                    for name, t in rules["tiers"].items()
+                },
             }
         ).encode()
         self.send_response(200)
@@ -305,14 +544,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def do_POST(self):
+        return self._counted(self._post)
+
+    def _post(self):
         length = int(self.headers.get("Content-Length", 0) or 0)
         body = self.rfile.read(length) if length else b""
         # un-alias the model field on the way out
+        tier_name = ""
         if body:
             try:
                 obj = json.loads(body)
                 m = obj.get("model")
-                if isinstance(m, str) and m.startswith("claude-gw-"):
+                tier = (
+                    m[len(TIER_PREFIX) :]
+                    if isinstance(m, str) and m.startswith(TIER_PREFIX)
+                    else ""
+                )
+                if tier.isdigit() and tier.isascii():
+                    tier_name = f"tier{tier}"
+                elif isinstance(m, str) and m.startswith("claude-gw-"):
                     with _lock:
                         known = m in alias_to_real
                     if not known:  # cold map: self-heal from upstream
@@ -326,7 +576,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     else:
                         audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
             except (ValueError, TypeError):
-                pass
+                tier_name = ""
+        if tier_name:
+            # Outside the parse guard: an error while routing must never send
+            # the request on again under its alias name.
+            return self._forward_tier(tier_name, obj)
         return self._proxy(body=body)
 
     def _refresh_models(self):
@@ -367,23 +621,216 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.log_message("/v1/models -> %d aliases exposed", len(alias_to_real))
 
     def _proxy(self, body):
-        url = UPSTREAM + self.path
-        req = urllib.request.Request(
-            url, data=body, headers=self._fwd_headers(), method=self.command
-        )
+        """Forward any request unchanged and stream the reply, with no time limit."""
+        result = self._open_upstream(body, wait=None, identity=False)
+        if result[0] != "reply":
+            return self._send_error_json(
+                502, "api_error", f"ccsession: gateway unreachable: {result[-1]}"
+            )
+        _, conn, resp = result
         try:
-            resp = urllib.request.urlopen(req, timeout=600)
-        except urllib.error.HTTPError as e:
-            resp = e
-        self.send_response(getattr(resp, "status", getattr(resp, "code", 502)))
-        for k, v in resp.headers.items():
+            self._stream(resp.status, resp.headers, resp)
+        finally:
+            conn.close()
+
+    def _send_body(self, status, headers, raw):
+        self.send_response(status)
+        for k, v in headers.items():
+            if k.lower() not in HOP:
+                self.send_header(k, v)
+        self.send_header("Content-Length", str(len(raw)))
+        self.end_headers()
+        self.wfile.write(raw)
+
+    def _send_error_json(self, status, err_type, message):
+        raw = json.dumps(
+            {"type": "error", "error": {"type": err_type, "message": message}}
+        ).encode()
+        self._send_body(status, {"Content-Type": "application/json"}, raw)
+
+    def _open_upstream(self, body, wait=None, identity=True):
+        """Send this request upstream.
+
+        Returns ("reply", conn, resp), ("timeout", None) or ("unreachable", exc).
+        `wait` limits only the time until the gateway STARTS answering (None =
+        no limit). After the status line arrives there is no timeout at all.
+        `identity` asks for an uncompressed reply (error bodies are matched
+        against SWITCH_RULES); plain forwarding keeps the client's choice.
+        """
+        u = urllib.parse.urlsplit(UPSTREAM + self.path)
+        cls = (
+            http.client.HTTPSConnection
+            if u.scheme == "https"
+            else http.client.HTTPConnection
+        )
+        conn = cls(u.hostname, u.port, timeout=CONNECT_TIMEOUT)
+        headers = self._fwd_headers()
+        if identity:
+            # Header names arrive in any case; replace every variant.
+            headers = {
+                k: v for k, v in headers.items() if k.lower() != "accept-encoding"
+            }
+            headers["Accept-Encoding"] = "identity"
+        if body is not None:
+            headers["Content-Length"] = str(len(body))
+        target = u.path + (f"?{u.query}" if u.query else "")
+        try:
+            conn.connect()
+        except OSError as exc:  # includes a connect timeout: the gateway is down
+            conn.close()
+            return ("unreachable", exc)
+        conn.sock.settimeout(None)
+        if wait is not None:
+            # The only limit: until the gateway sends its FIRST byte.
+            conn.response_class = type(
+                "_WaitedResponse", (_FirstByteResponse,), {"wait": wait}
+            )
+        try:
+            conn.request(self.command, target, body=body, headers=headers)
+            resp = conn.getresponse()
+        except socket.timeout:  # only the first-byte wait sets a timeout
+            conn.close()
+            return ("timeout", None)
+        except (OSError, http.client.HTTPException) as exc:
+            # HTTPException: a malformed or cut-off status line or headers.
+            conn.close()
+            return ("unreachable", exc)
+        return ("reply", conn, resp)
+
+    def _forward_tier(self, name, obj):
+        """Send the request to the tier's models in order until one answers."""
+        rules = curation()
+        tier = rules["tiers"].get(name)
+        if not tier:
+            why = rules["tier_problem"] or f"{name} is not defined"
+            audit(f"TIER {name}: cannot route ({why})")
+            return self._send_error_json(
+                400, "invalid_request_error", f"ccsession {name}: {why}"
+            )
+        tier_window = tier["window"]
+        last = None  # (status, headers, raw) of the last error seen
+        ended = "usage"  # why the last tried model failed: usage | size
+        for position, (slot, model, window) in enumerate(tier["models"]):
+            if window < tier_window:
+                continue  # cannot hold this tier's context (spec section 6)
+            if cooling_until(model):
+                continue
+            obj["model"] = model
+            # Only a streamed request gets the start-of-reply limit.
+            wait = FIRST_BYTE_TIMEOUT if obj.get("stream") else None
+            result = self._open_upstream(json.dumps(obj).encode(), wait=wait)
+            if result[0] == "unreachable":
+                audit(f"TIER {name}: gateway unreachable ({result[1]}); not switching")
+                return self._send_error_json(
+                    502, "api_error", f"ccsession: gateway unreachable: {result[1]}"
+                )
+            if result[0] == "timeout":
+                until = cool_down(model)
+                audit(
+                    f"TIER {name}: {slot} {model} gave no reply in {FIRST_BYTE_TIMEOUT:.0f}s; cooling down until {clock(until)}"
+                )
+                last = (
+                    504,
+                    {"Content-Type": "application/json"},
+                    json.dumps(
+                        {
+                            "type": "error",
+                            "error": {
+                                "type": "timeout_error",
+                                "message": f"{model}: no reply in {FIRST_BYTE_TIMEOUT:.0f}s",
+                            },
+                        }
+                    ).encode(),
+                )
+                ended = "usage"
+                continue
+            _, conn, resp = result
+            if resp.status < 400:
+                audit(f"TIER {name}: {slot} -> {model}")
+                try:
+                    return self._stream(resp.status, resp.headers, resp)
+                finally:
+                    conn.close()
+            try:
+                raw, headers = plain_body(resp.headers, resp.read())
+            except (OSError, http.client.HTTPException) as exc:
+                # The gateway dropped its error reply part-way.
+                audit(
+                    f"TIER {name}: {model} error reply cut off ({exc!r}); not switching"
+                )
+                return self._send_error_json(
+                    502,
+                    "api_error",
+                    f"ccsession: gateway error reply from {model} was cut off: {exc!r}",
+                )
+            finally:
+                conn.close()
+            text = raw.decode("utf-8", "replace")
+            reason = switch_reason(resp.status, text)
+            if reason:
+                until = cool_down(
+                    model,
+                    retry_after_seconds(
+                        next(
+                            (
+                                v
+                                for k, v in headers.items()
+                                if k.lower() == "retry-after"
+                            ),
+                            None,
+                        )
+                    ),
+                )
+                audit(
+                    f"TIER {name}: {slot} {model} -> next model ({resp.status} {reason}); cooling down until {clock(until)}"
+                )
+                last = (resp.status, headers, raw)
+                ended = "usage"
+                continue
+            # A backup (not the tier's main model) that cannot hold the
+            # conversation: try the next backup (spec section 6).
+            if position > 0 and _TOO_LARGE.search(text):
+                audit(
+                    f"TIER {name}: backup {model} rejected the request as too large; trying the next one"
+                )
+                last = (resp.status, headers, raw)
+                ended = "size"
+                continue
+            return self._send_body(resp.status, headers, raw)  # not a switch error
+        if last and ended == "size":
+            # No backup could hold this conversation: pass that error back.
+            audit(f"TIER {name}: no available model could hold this conversation")
+            status, headers, raw = last
+            return self._send_body(
+                status,
+                headers,
+                with_note(
+                    raw,
+                    f"ccsession: no available {tier['label']} model can hold this conversation",
+                ),
+            )
+        waits = [cooling_until(m) for _, m, w in tier["models"] if w >= tier_window]
+        waits = [w for w in waits if w]
+        retry = f"; next retry at {clock(min(waits))}" if waits else ""
+        note = f"ccsession: all {tier['label']} models are out of usage{retry}"
+        audit(f"TIER {name}: {note}")
+        if last:
+            status, headers, raw = last
+            return self._send_body(status, headers, with_note(raw, note))
+        return self._send_error_json(429, "rate_limit_error", note)
+
+    def _stream(self, status, headers, resp):
+        self.send_response(status)
+        for k, v in headers.items():
             if k.lower() not in HOP:
                 self.send_header(k, v)
         self.end_headers()
         sniff = b""
         found = False
         while True:
-            chunk = resp.read(8192)
+            # read1: hand over whatever has arrived, however small (a lone
+            # keep-alive or thinking event), instead of waiting for 8 KB.
+            chunk = resp.read1(8192)
             if not chunk:
                 break
             if not found and len(sniff) < 8192:
