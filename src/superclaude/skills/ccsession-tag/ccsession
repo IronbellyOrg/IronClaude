@@ -176,8 +176,8 @@ if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ] && [ -f "$CCSESSION_ENV_FILE" ]; then
   . "$CCSESSION_ENV_FILE"
 fi
 
-# A port set by the user (shell or env file) is used as-is; otherwise tier mode
-# and show-all pick their own shim port (see models.py shim-port).
+# A port set by the user (shell or env file) is tried first; otherwise each
+# shim launch picks the port for its settings (see models.py shim-port).
 [ "$CC_SHIM_PORT" != 4010 ] && CC_SHIM_PORT_EXPLICIT=1
 
 # Tier mode: Coder workspaces whose env defines tier windows (T<N>_WINDOW).
@@ -238,10 +238,12 @@ setup_shim() {
     echo "[ccsession] ERROR: shim script not found: $CC_SHIM_SCRIPT" >&2
     exit 1
   fi
-  # Find a usable port: reuse a shim with this session's settings; replace an
-  # idle stale one; never stop a shim that is forwarding replies (other
-  # sessions' long replies would be cut off): move to another port instead.
+  # Find a usable port: reuse a shim with this session's settings and code.
+  # Never stop another shim: sessions may be attached to it even when no
+  # reply is in flight, and a started reply must never be cut off. A shim with
+  # other settings or older code is left running; this launch moves on.
   settings_digest=$(python3 "$CCSESSION_MODELS" settings-digest 2>/dev/null)
+  code_digest=$(python3 "$CCSESSION_MODELS" code-digest "$CC_SHIM_SCRIPT" 2>/dev/null)
   start_shim=0
   base_port="$CC_SHIM_PORT"
   for _attempt in 0 1 2 3 4 5; do
@@ -265,39 +267,19 @@ if health.get("service") != "ccsession-gateway-alias-proxy":
 elif (health.get("upstream", "").rstrip("/") == sys.argv[2].rstrip("/")
       and str(health.get("port")) == sys.argv[3] and "model_data" in health
       and "tiers" in health and health.get("show_all") == (sys.argv[4] == "1")
-      and health.get("settings") == sys.argv[5]):
+      and health.get("settings") == sys.argv[5] and health.get("code") == sys.argv[6]):
     print("match")
-elif health.get("active") == 0 and isinstance(health.get("pid"), int):
-    # Idle shim with other settings or older code: safe to replace.
-    print("stale-idle", health["pid"])
 else:
-    # Busy, or too old to report whether it is busy: leave it running.
-    print("stale-busy")
+    print("stale")
 ' "$health" "$ANTHROPIC_BASE_URL" "$CC_SHIM_PORT" "${CCSESSION_SHOW_ALL_MODELS:-0}" \
-      "$settings_digest")
+      "$settings_digest" "$code_digest")
     case "$health_status" in
       match)
         echo "[ccsession] Shim already running on 127.0.0.1:$CC_SHIM_PORT (reusing)"
         break
         ;;
-      stale-idle\ *)
-        stale_pid="${health_status#stale-idle }"
-        stale_cmd=$(ps -p "$stale_pid" -o command= 2>/dev/null || true)
-        if [[ "$stale_cmd" == *"$CC_SHIM_SCRIPT"* || "$stale_cmd" == *local-gateway-alias-proxy* ]]; then
-          echo "[ccsession] Replacing idle older model-alias shim on 127.0.0.1:$CC_SHIM_PORT"
-          kill "$stale_pid"
-          for _ in 1 2 3 4 5 6 7 8 9 10; do
-            [ -n "$(shim_listener_pid)" ] || break
-            sleep 0.2
-          done
-          if [ -z "$(shim_listener_pid)" ]; then
-            start_shim=1
-            break
-          fi
-        fi
-        ;;
-      stale-busy)
-        echo "[ccsession] A shim with other settings is serving sessions on 127.0.0.1:$CC_SHIM_PORT; leaving it running"
+      stale)
+        echo "[ccsession] A shim with other settings or older code is on 127.0.0.1:$CC_SHIM_PORT; leaving it running for its sessions"
         ;;
       *)
         if [ "$_attempt" = 0 ]; then
@@ -755,12 +737,12 @@ fi
 
 if [ "$TIER_MODE" = 1 ]; then
   apply_tier_selection
-  if [ -z "$CC_SHIM_PORT_EXPLICIT" ]; then
-    CC_SHIM_PORT=$(python3 "$CCSESSION_MODELS" shim-port "$CC_SHIM_PORT")
-  fi
 elif [ -n "$PROFILE" ]; then
   apply_profile
-elif [ "${CCSESSION_SHOW_ALL_MODELS:-0}" = 1 ] && [ -z "$CC_SHIM_PORT_EXPLICIT" ]; then
+fi
+# Every shim launch without a user-set port gets the port for its settings, so
+# sessions with different settings (tiers off, show-all, timers) never meet.
+if [ "$USE_SHIM" = 1 ] && [ -z "$CC_SHIM_PORT_EXPLICIT" ]; then
   CC_SHIM_PORT=$(python3 "$CCSESSION_MODELS" shim-port "$CC_SHIM_PORT")
 fi
 [ "$USE_SHIM" = 1 ] && setup_shim

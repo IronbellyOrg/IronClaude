@@ -13,6 +13,7 @@ import json
 import os
 import runpy
 import socket
+import ssl
 import stat
 import subprocess
 import sys
@@ -273,9 +274,12 @@ json.dump({
     # A running shim with this session's settings (digest from models.py).
     fake_curl.write_text(
         f"#!/bin/sh\nd=$(python3 {SKILL_DIR / 'models.py'} settings-digest)\n"
+        f"c=$(python3 {SKILL_DIR / 'models.py'} code-digest "
+        f"{SKILL_DIR / 'local-gateway-alias-proxy.py'})\n"
         'printf \'{"service":"ccsession-gateway-alias-proxy",'
         '"upstream":"http://gateway.example:4000/cli","port":4555,'
-        '"model_data":"t","tiers":{},"show_all":false,"settings":"%s"}\' "$d"\n'
+        '"model_data":"t","tiers":{},"show_all":false,"settings":"%s",'
+        '"code":"%s"}\' "$d" "$c"\n'
     )
     for f in (fake_claude, fake_lsof, fake_curl):
         f.chmod(f.stat().st_mode | stat.S_IXUSR)
@@ -1231,6 +1235,13 @@ def test_default_tier_unset_or_invalid_is_reported(tmp_path: Path) -> None:
     )
     rc, _, err, seen = _launch(tmp_path, "work", defaults=bad)
     assert rc == 2 and seen is None and "CCSESSION_DEFAULT_TIER" in err
+    # A well-formed name that is not a defined tier (round 3 R3-4).
+    undefined = TIER_BLOCK.replace(
+        "CCSESSION_DEFAULT_TIER=tier2", "CCSESSION_DEFAULT_TIER=tier9"
+    )
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=undefined)
+    assert rc == 2 and seen is None
+    assert "CCSESSION_DEFAULT_TIER='tier9' is not a defined tier" in err
 
 
 def test_settings_that_change_the_shim_get_their_own_shim(
@@ -1253,8 +1264,11 @@ def test_settings_that_change_the_shim_get_their_own_shim(
     assert models.settings_digest() == shared
 
 
-def _real_launch(tmp_path: Path, port: int, **extra: str):
-    """Launch the real script (fake claude) so it starts or reuses real shims."""
+def _real_launch(tmp_path: Path, port: int | None, *args: str, **extra: str):
+    """Launch the real script (fake claude) so it starts or reuses real shims.
+
+    port None leaves CC_SHIM_PORT unset, so the script picks the port itself.
+    """
     fake = tmp_path / "bin" / "claude"
     fake.parent.mkdir(exist_ok=True)
     fake.write_text('#!/bin/sh\necho "$ANTHROPIC_BASE_URL" > "$SEEN_FILE"\n')
@@ -1264,15 +1278,17 @@ def _real_launch(tmp_path: Path, port: int, **extra: str):
         HOME=str(tmp_path / "home"),
         CLAUDE_BIN=str(fake),
         ANTHROPIC_BASE_URL=extra.pop("upstream"),
-        CC_SHIM_PORT=str(port),
         CC_SHIM_SCRIPT=str(tmp_path / "shim-under-test.py"),
         SEEN_FILE=str(tmp_path / "seen"),
         AIDEV_AI_DEFAULTS_PATH=str(_defaults(tmp_path)),
     )
+    env.pop("CC_SHIM_PORT", None)
+    if port is not None:
+        env["CC_SHIM_PORT"] = str(port)
     env.update(extra)
     (tmp_path / "home").mkdir(exist_ok=True)
     proc = subprocess.run(
-        [str(SKILL_DIR / "ccsession"), "work"],
+        [str(SKILL_DIR / "ccsession"), *args, "work"],
         cwd=tmp_path,
         env=env,
         capture_output=True,
@@ -1310,11 +1326,246 @@ def test_a_busy_shim_is_never_stopped_by_a_new_launch(tmp_path: Path) -> None:
         streaming.join(30)
         status, body = result["r"]
         assert status == 200 and b"message_stop" in body  # never cut
-        # Now idle: the next launch with other settings may replace it.
+        # Now idle, but sessions still point at it: a launch with other
+        # settings moves on again and never stops it (round 3 N1/R3-2).
         out, url3 = _real_launch(
             tmp_path, port, upstream=gateway.url, CCSESSION_COOLDOWN_SECONDS="60"
         )
-        assert url3 == f"http://127.0.0.1:{port}" and "Replacing idle" in out
+        assert url3 == f"http://127.0.0.1:{port + 202}", out
+        gateway.script["muse-spark-1.3"] = [None]
+        status, body = _ask_raw(url, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"muse-spark-1.3" in body
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+# --- review round 3 -----------------------------------------------------------
+
+
+class RawGateway:
+    """Gateway on a raw socket (optionally TLS): respond(conn, model) answers."""
+
+    def __init__(self, respond, tls_context=None):
+        self.srv = socket.socket()
+        self.srv.bind(("127.0.0.1", 0))
+        self.srv.listen(8)
+        self.calls: list[str] = []
+        self.respond = respond
+        self.ctx = tls_context
+        threading.Thread(target=self._loop, daemon=True).start()
+        scheme = "https" if tls_context else "http"
+        self.url = f"{scheme}://127.0.0.1:{self.srv.getsockname()[1]}/cli"
+
+    def _loop(self):
+        while True:
+            try:
+                conn, _ = self.srv.accept()
+            except OSError:
+                return
+            threading.Thread(target=self._one, args=(conn,), daemon=True).start()
+
+    def _one(self, conn):
+        try:
+            if self.ctx:
+                conn = self.ctx.wrap_socket(conn, server_side=True)
+            data = b""
+            while b"\r\n\r\n" not in data:
+                chunk = conn.recv(65536)
+                if not chunk:
+                    return
+                data += chunk
+            head, _, body = data.partition(b"\r\n\r\n")
+            lengths = [
+                int(h.split(b":")[1])
+                for h in head.split(b"\r\n")
+                if h.lower().startswith(b"content-length")
+            ]
+            while lengths and len(body) < lengths[0]:
+                body += conn.recv(65536)
+            model = json.loads(body)["model"] if body else ""
+            self.calls.append(model)
+            self.respond(conn, model)
+        except (OSError, ValueError):
+            pass
+        finally:
+            try:
+                conn.close()
+            except OSError:
+                pass
+
+    def close(self):
+        self.srv.close()
+
+
+@pytest.fixture
+def tls_cert(tmp_path: Path):
+    """A throwaway self-signed certificate for 127.0.0.1 (deleted with tmp_path)."""
+    cert, key = tmp_path / "gw-cert.pem", tmp_path / "gw-key.pem"
+    try:
+        subprocess.run(
+            [
+                "openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+                "-keyout", str(key), "-out", str(cert), "-days", "1",
+                "-subj", "/CN=127.0.0.1", "-addext", "subjectAltName=IP:127.0.0.1",
+            ],
+            check=True,
+            capture_output=True,
+            timeout=60,
+        )
+    except (OSError, subprocess.SubprocessError):
+        pytest.skip("openssl cannot make a test certificate here")
+    ctx = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_3  # sends session tickets
+    ctx.load_cert_chain(cert, key)
+    return cert, ctx
+
+
+def test_https_gateway_start_timer_switches(shim, tls_cert) -> None:
+    """Round 3 N2: TLS session tickets are not the first reply byte."""
+    _, start, log = shim
+    cert, ctx = tls_cert
+
+    def respond(conn, model):
+        if model == "muse-spark-1.3":
+            time.sleep(8)  # request read, never answers
+            return
+        conn.sendall(b"HTTP/1.0 200 OK\r\n")
+        time.sleep(2)  # longer than the 1s timer, after the first byte
+        conn.sendall(
+            b"Content-Type: text/event-stream\r\n\r\n" + OK_SSE % model.encode()
+        )
+
+    gw = RawGateway(respond, ctx)
+    try:
+        base = start(
+            GW_PROXY_UPSTREAM=gw.url,
+            CCSESSION_FIRST_BYTE_TIMEOUT="1",
+            SSL_CERT_FILE=str(cert),
+        )
+        began = time.monotonic()
+        status, body = _ask_raw(base, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"grok-4.7" in body and b"message_stop" in body
+        assert gw.calls == ["muse-spark-1.3", "grok-4.7"]
+        assert "muse-spark-1.3 gave no reply in 1s" in log.read_text()
+        assert time.monotonic() - began < 7
+    finally:
+        gw.close()
+
+
+@pytest.mark.parametrize(
+    "retry_after", ["9" * 5000, "\u00b2"], ids=["5000-digits", "non-ascii-digit"]
+)
+def test_odd_retry_after_still_fails_over(shim, retry_after) -> None:
+    """Round 3 N3: a Retry-After int() cannot parse never stops failover."""
+    gateway, start, _ = shim
+    base = start()
+    gateway.script["muse-spark-1.3"] = [(*COOLING, {"Retry-After": retry_after})]
+    status, body = _ask(base, "claude-gw-tier2")
+    assert status == 200 and b"grok-4.7" in body
+    assert gateway.models_called() == ["muse-spark-1.3", "grok-4.7"]
+
+
+def test_cut_off_error_reply_gets_a_readable_error(shim) -> None:
+    """Round 3 N4: an error body dropped part-way is answered, not dropped."""
+    _, start, log = shim
+
+    def respond(conn, model):
+        body = COOLING[1]
+        conn.sendall(
+            b"HTTP/1.0 429 Too Many Requests\r\nContent-Type: application/json\r\n"
+            b"Content-Length: %d\r\n\r\n" % (len(body) + 500) + body
+        )
+
+    gw = RawGateway(respond)
+    try:
+        base = start(GW_PROXY_UPSTREAM=gw.url)
+        status, body = _ask(base, "claude-gw-tier2")
+        assert status == 502 and b"cut off" in body
+        assert "Traceback" not in log.read_text()
+    finally:
+        gw.close()
+
+
+def test_malformed_status_line_gets_a_readable_error(shim) -> None:
+    """Round 3 N4: a broken status line is reported, not a dropped connection."""
+    _, start, log = shim
+    gw = RawGateway(lambda conn, model: conn.sendall(b"garbage\r\n\r\n"))
+    try:
+        base = start(GW_PROXY_UPSTREAM=gw.url)
+        status, body = _ask(base, "claude-gw-tier2")
+        assert status == 502 and b"gateway unreachable" in body
+        assert "Traceback" not in log.read_text()
+    finally:
+        gw.close()
+
+
+def _shim_copy(tmp_path: Path) -> Path:
+    copy = tmp_path / "shim-under-test.py"
+    copy.write_text((SKILL_DIR / "local-gateway-alias-proxy.py").read_text())
+    return copy
+
+
+def test_tiers_off_launch_never_takes_over_a_tier_shim(tmp_path: Path) -> None:
+    """Round 3 R3-2: tier sessions keep their shim when a tiers-off session starts."""
+    _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    port = _free_port()
+    try:
+        _, url = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url == f"http://127.0.0.1:{port}"
+        out, url2 = _real_launch(
+            tmp_path, port, "--shim", upstream=gateway.url, CCSESSION_TIERS="0"
+        )
+        assert url2 == f"http://127.0.0.1:{port + 101}", out
+        status, body = _ask_raw(url, "claude-gw-tier2", stream=True)
+        assert status == 200 and b"muse-spark-1.3" in body
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+def test_every_shim_launch_gets_the_port_for_its_settings(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """Round 3 R3-2: a non-tier shim launch also uses its settings port."""
+    _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(_defaults(tmp_path)))
+    monkeypatch.setenv("CCSESSION_TIERS", "0")
+    expected = models.shim_port(4010)
+    assert expected != 4010
+    try:
+        _, url = _real_launch(
+            tmp_path, None, "--shim", upstream=gateway.url, CCSESSION_TIERS="0"
+        )
+        assert url == f"http://127.0.0.1:{expected}"
+    finally:
+        subprocess.run(
+            ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False
+        )
+        gateway.close()
+
+
+def test_upgraded_code_starts_a_new_shim_and_keeps_the_old(tmp_path: Path) -> None:
+    """Round 3 R3-3: new code is never served by an old shim, and the old one stays."""
+    copy = _shim_copy(tmp_path)
+    gateway = StandInGateway()
+    port = _free_port()
+    try:
+        _, url = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url == f"http://127.0.0.1:{port}"
+        copy.write_text(copy.read_text() + "\n# upgraded\n")
+        out, url2 = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url2 == f"http://127.0.0.1:{port + 101}" and "older code" in out
+        status, _ = _ask_raw(url, "claude-gw-tier2", stream=True)
+        assert status == 200  # the old shim still serves its sessions
+        out, url3 = _real_launch(tmp_path, port, upstream=gateway.url)
+        assert url3 == url2 and "reusing" in out
     finally:
         subprocess.run(
             ["pkill", "-f", str(tmp_path / "shim-under-test.py")], check=False

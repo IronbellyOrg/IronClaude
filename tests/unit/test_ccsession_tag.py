@@ -20,6 +20,11 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / "src" / "superclaude" / "skills" / "ccsession-tag"
+sys.path.insert(0, str(SKILL_DIR))
+import models  # noqa: E402
+
+# A fake shim reports the code fingerprint of the real one, so launches reuse it.
+SHIM_CODE = models.code_digest(str(SKILL_DIR / "local-gateway-alias-proxy.py"))
 
 
 @pytest.fixture(autouse=True)
@@ -69,7 +74,8 @@ print(json.dumps({
     fake_curl.write_text(
         '#!/bin/sh\nprintf \'{"service":"ccsession-gateway-alias-proxy",'
         '"upstream":"http://gateway.example:4000/cli","port":4555,"model_data":"t",'
-        '"tiers":{},"show_all":false,"settings":"e3b0c44298fc1c14"}\'\n'
+        '"tiers":{},"show_all":false,"settings":"e3b0c44298fc1c14",'
+        f'"code":"{SHIM_CODE}"}}\'\n'
     )
     fake_curl.chmod(fake_curl.stat().st_mode | stat.S_IXUSR)
 
@@ -442,6 +448,7 @@ def test_profile_warms_complete_gateway_cache_before_claude_starts(
                     "tiers": {},
                     "show_all": False,
                     "settings": "e3b0c44298fc1c14",
+                    "code": SHIM_CODE,
                 }
             else:
                 payload = {
@@ -532,6 +539,7 @@ def test_profile_keeps_same_shim_cache_when_warmup_fails(tmp_path: Path) -> None
                         "tiers": {},
                         "show_all": False,
                         "settings": "e3b0c44298fc1c14",
+                        "code": SHIM_CODE,
                     }
                 ).encode()
                 self.send_response(200)
@@ -820,6 +828,7 @@ def test_shim_uses_custom_port_and_requests_uncompressed_models() -> None:
                 "version"
             ],
             "settings": "e3b0c44298fc1c14",
+            "code": SHIM_CODE,
             "show_all": False,
             "tier_mode": False,
             "tiers": {},

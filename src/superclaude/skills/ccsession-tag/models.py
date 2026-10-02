@@ -28,6 +28,7 @@ Commands (used by the ccsession script):
   model-resolve MODEL       print launch settings for one named model
   tiers                     print name, label, models per tier (for --help)
   shim-port BASE            print the shim port for this session's settings
+  code-digest SHIM          print the fingerprint of the shim code (SHIM + this file)
 """
 
 import hashlib
@@ -414,11 +415,28 @@ def settings_digest(env=None, tenv=None) -> str:
     return hashlib.sha256("\n".join(_settings_key(env, tenv)).encode()).hexdigest()[:16]
 
 
+def code_digest(shim_path: str) -> str:
+    """Fingerprint of the shim code: the shim script plus this file.
+
+    A running shim reports the value it started with; a launch reuses a shim
+    only when the code on disk is the same (an upgrade starts a new shim).
+    """
+    h = hashlib.sha256()
+    for path in (shim_path, os.path.abspath(__file__)):
+        try:
+            with open(path, "rb") as fh:
+                h.update(fh.read())
+        except OSError:
+            h.update(b"-")
+    return h.hexdigest()[:16]
+
+
 def shim_port(base: int, env=None, tenv=None) -> int:
     """Port of the shim for this session's settings (base port when shared).
 
     A collision between two different settings is caught by the health check
-    (settings_digest), which restarts the shim rather than reusing it.
+    (settings_digest); the launch then moves to another port and never stops
+    the shim that other sessions may be using.
     """
     key = _settings_key(env, tenv)
     if not key:
@@ -522,10 +540,22 @@ def main(argv) -> int:
             except ValueError:
                 print(f"ccsession: CCSESSION_DEFAULT_TIER={value!r} is not a tier (use tier0, tier1, ...)", file=sys.stderr)
                 return 3
+            try:
+                defined = resolve_tiers()
+            except ValueError as exc:
+                print(f"ccsession: {exc}", file=sys.stderr)
+                return 3
+            if value not in defined:
+                names = ", ".join(defined) or "none"
+                print(f"ccsession: CCSESSION_DEFAULT_TIER={value!r} is not a defined tier (defined: {names})", file=sys.stderr)
+                return 3
         print(value)
         return 0
     if command == "settings-digest":
         print(settings_digest())
+        return 0
+    if command == "code-digest" and len(argv) > 2:
+        print(code_digest(argv[2]))
         return 0
     if command == "shim-port" and len(argv) > 2:
         print(shim_port(int(argv[2])))

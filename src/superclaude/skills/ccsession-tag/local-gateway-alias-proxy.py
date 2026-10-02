@@ -35,7 +35,7 @@ import http.server
 import json
 import os
 import re
-import select
+import socket
 import socketserver
 import sys
 import threading
@@ -163,6 +163,9 @@ sys.path.insert(
     0, os.environ.get("CCSESSION_DIR") or os.path.dirname(os.path.abspath(__file__))
 )
 import models as model_data  # noqa: E402
+
+# The code this shim runs; a launch reuses the shim only on the same code.
+CODE = model_data.code_digest(os.path.abspath(__file__))
 
 
 def curation():
@@ -379,8 +382,9 @@ def retry_after_seconds(value):
     if not value:
         return None
     value = value.strip()
-    if value.isdigit():
-        return min(int(value), MAX_COOLDOWN)
+    if value.isascii() and value.isdigit():
+        # More than 9 digits is past any cap; int() of a huge string raises.
+        return min(int(value), MAX_COOLDOWN) if len(value) <= 9 else MAX_COOLDOWN
     try:
         when = email.utils.parsedate_to_datetime(value)
     except (TypeError, ValueError, OverflowError):
@@ -434,6 +438,30 @@ def with_note(raw, note):
     return raw + f" ({note})".encode()
 
 
+class _FirstByteResponse(http.client.HTTPResponse):
+    """A reply that may take at most `wait` seconds to send its first byte.
+
+    The wait is on decoded reply bytes, so TLS records that are not reply data
+    (TLS 1.3 session tickets) do not end it. From the first byte on (status
+    line, headers, the whole body) nothing is timed.
+    """
+
+    wait = None
+
+    def __init__(self, sock, *args, **kwargs):
+        super().__init__(sock, *args, **kwargs)
+        self._upstream_sock = sock
+
+    def begin(self):
+        if self.wait is not None and self.headers is None:
+            self._upstream_sock.settimeout(self.wait)
+            try:
+                self.fp.peek(1)  # the byte stays buffered for the parser
+            finally:
+                self._upstream_sock.settimeout(None)
+        super().begin()
+
+
 class Handler(http.server.BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.0"  # close-delimited => trivial streaming
     server_version = "gw-alias-proxy/1.0"
@@ -483,6 +511,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 "model_data": rules["version"],
                 "show_all": SHOW_ALL,
                 "settings": model_data.settings_digest(),
+                "code": CODE,
                 "pid": os.getpid(),
                 "active": _active,
                 "tier_mode": rules["tier_mode"],
@@ -505,6 +534,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", 0) or 0)
         body = self.rfile.read(length) if length else b""
         # un-alias the model field on the way out
+        tier_name = ""
         if body:
             try:
                 obj = json.loads(body)
@@ -514,9 +544,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     if isinstance(m, str) and m.startswith(TIER_PREFIX)
                     else ""
                 )
-                if tier.isdigit():
-                    return self._forward_tier(f"tier{tier}", obj)
-                if isinstance(m, str) and m.startswith("claude-gw-"):
+                if tier.isdigit() and tier.isascii():
+                    tier_name = f"tier{tier}"
+                elif isinstance(m, str) and m.startswith("claude-gw-"):
                     with _lock:
                         known = m in alias_to_real
                     if not known:  # cold map: self-heal from upstream
@@ -530,7 +560,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     else:
                         audit(f"WARN  unknown alias {m} (not in upstream /v1/models)")
             except (ValueError, TypeError):
-                pass
+                tier_name = ""
+        if tier_name:
+            # Outside the parse guard: an error while routing must never send
+            # the request on again under its alias name.
+            return self._forward_tier(tier_name, obj)
         return self._proxy(body=body)
 
     def _refresh_models(self):
@@ -629,20 +663,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
         except OSError as exc:  # includes a connect timeout: the gateway is down
             conn.close()
             return ("unreachable", exc)
-        # Keep our own reference: for a close-delimited reply getresponse()
-        # hands the socket to the response and clears conn.sock.
-        sock = conn.sock
-        sock.settimeout(None)
+        conn.sock.settimeout(None)
+        if wait is not None:
+            # The only limit: until the gateway sends its FIRST byte.
+            conn.response_class = type(
+                "_WaitedResponse", (_FirstByteResponse,), {"wait": wait}
+            )
         try:
             conn.request(self.command, target, body=body, headers=headers)
-            # The only limit: until the gateway sends its FIRST byte. From the
-            # first byte on (status line, headers, the whole reply) nothing
-            # is ever timed.
-            if wait is not None and not select.select([sock], [], [], wait)[0]:
-                conn.close()
-                return ("timeout", None)
             resp = conn.getresponse()
-        except OSError as exc:
+        except socket.timeout:  # only the first-byte wait sets a timeout
+            conn.close()
+            return ("timeout", None)
+        except (OSError, http.client.HTTPException) as exc:
+            # HTTPException: a malformed or cut-off status line or headers.
             conn.close()
             return ("unreachable", exc)
         return ("reply", conn, resp)
@@ -701,8 +735,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     return self._stream(resp.status, resp.headers, resp)
                 finally:
                     conn.close()
-            raw, headers = plain_body(resp.headers, resp.read())
-            conn.close()
+            try:
+                raw, headers = plain_body(resp.headers, resp.read())
+            except (OSError, http.client.HTTPException) as exc:
+                # The gateway dropped its error reply part-way.
+                audit(f"TIER {name}: {model} error reply cut off ({exc!r}); not switching")
+                return self._send_error_json(
+                    502,
+                    "api_error",
+                    f"ccsession: gateway error reply from {model} was cut off: {exc!r}",
+                )
+            finally:
+                conn.close()
             text = raw.decode("utf-8", "replace")
             reason = switch_reason(resp.status, text)
             if reason:

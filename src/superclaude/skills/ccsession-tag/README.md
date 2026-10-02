@@ -241,7 +241,9 @@ second; a newer copy is validated, cached in `~/.cache/ccsession/`, and used
 by that same launch, with one line saying what changed. Without a network the
 check gives up after about 2 seconds and the cached or shipped copy is used.
 A running shim picks up new data on its next model-list request. After an
-upgrade, ccsession restarts a shim left running by the older version.
+upgrade, new sessions start a new shim on another port; a shim still used by
+older sessions keeps running until you stop it (`pkill -f
+local-gateway-alias-proxy.py` when no session uses it).
 
 | Command or setting | What it does |
 |---|---|
@@ -324,8 +326,8 @@ Sessions that are already open keep the old list until they restart.
 
 Simpler alternative: stop every running shim (`pkill -f local-gateway-alias-proxy.py`)
 and start a new session; ccsession starts the right shim on the right port
-(show-all and other offset ports included). After an upgrade ccsession also
-replaces an older shim by itself.
+(show-all and other offset ports included). ccsession never stops a running
+shim by itself, because other sessions may be using it.
 
 ---
 
