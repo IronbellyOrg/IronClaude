@@ -3,7 +3,7 @@ name: implement
 description: "Feature and code implementation with intelligent persona activation and MCP integration"
 category: workflow
 complexity: standard
-mcp-servers: [context7, sequential, magic, playwright]
+mcp-servers: [context7, magic, playwright]
 personas: [architect, frontend, backend, security, qa-specialist]
 ---
 
@@ -33,15 +33,13 @@ personas: [architect, frontend, backend, security, qa-specialist]
 Key behaviors:
 - Context-based persona activation (architect, frontend, backend, security, qa)
 - Framework-specific implementation via Context7 and Magic MCP integration
-- Systematic multi-component coordination via Sequential MCP
 - Comprehensive testing integration with Playwright for validation
 
 ## MCP Integration
 - **Context7 MCP**: Framework patterns and official documentation for React, Vue, Angular, Express
 - **Magic MCP**: Auto-activated for UI component generation and design system integration
-- **Sequential MCP**: Complex multi-step analysis and implementation planning
 - **Playwright MCP**: Testing validation and quality assurance integration
-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
 
 ## Tool Coordination
 - **Write/Edit/MultiEdit**: Code generation and modification for implementation
@@ -75,7 +73,6 @@ Key behaviors:
 ```
 /sc:sc:implement payment processing system --type feature --with-tests
 # Multi-persona coordination: architect, frontend, backend, security
-# Sequential MCP breaks down complex implementation steps
 ```
 
 ### Framework-Specific Implementation

@@ -82,7 +82,7 @@ Question-driven exploration for deep learning and strategic thinking development
 ## Auto-Persona Activation
 
 - **Auto-Activates**: Analyzer, Architect, Mentor personas
-- **MCP Integration**: Sequential (primary), Context7 (business patterns)
+- **MCP Integration**: Context7 (business patterns)
 - **Tool Orchestration**: Read, Grep, Write, MultiEdit, TodoWrite
 
 ## Integration Notes

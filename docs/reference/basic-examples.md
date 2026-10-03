@@ -76,7 +76,7 @@
 # Expected: Step-by-step diagnosis, root cause identification, solution ranking
 ```
 
-**Verification**: Activates root-cause-analyst + Sequential reasoning + systematic debugging
+**Verification**: Activates root-cause-analyst + systematic debugging
 
 #### Command: /sc:test
 
@@ -395,7 +395,7 @@
 ```bash
 # Performance problems
 /sc:troubleshoot "API response time increased from 200ms to 2 seconds"
-# Activates: root-cause-analyst + performance-engineer + Sequential reasoning
+# Activates: root-cause-analyst + performance-engineer
 # Expected: Systematic diagnosis, root cause identification, solution ranking
 
 # Authentication errors

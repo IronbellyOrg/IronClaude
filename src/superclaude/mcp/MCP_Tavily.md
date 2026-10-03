@@ -26,7 +26,6 @@ canonical Tavily capability reference; other docs point here rather than restati
 
 ## Works Best With
 
-- **Sequential**: Tavily provides raw information → Sequential analyzes and synthesizes
 - **Playwright**: Tavily discovers URLs → Playwright extracts complex content
 - **Context7**: Tavily searches for updates → Context7 provides stable documentation
 - **Serena**: Tavily performs searches → Serena stores research sessions
@@ -147,9 +146,9 @@ Extract: true
 
 ```text
 1. Tavily: Initial broad search
-2. Sequential: Analyze and identify gaps
+2. Analyze and identify gaps
 3. Tavily: Targeted follow-up searches
-4. Sequential: Synthesize findings
+4. Synthesize findings
 5. Serena: Store research session
 ```
 
@@ -158,7 +157,7 @@ Extract: true
 ```text
 1. Tavily: Search for claim verification
 2. Tavily: Find contradicting sources
-3. Sequential: Analyze evidence
+3. Analyze evidence
 4. Report: Present balanced findings
 ```
 
@@ -167,7 +166,7 @@ Extract: true
 ```text
 1. Tavily: Search competitor information
 2. Tavily: Search market trends
-3. Sequential: Comparative analysis
+3. Comparative analysis
 4. Context7: Technical comparisons
 5. Report: Strategic insights
 ```

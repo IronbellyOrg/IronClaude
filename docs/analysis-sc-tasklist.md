@@ -314,7 +314,7 @@ Every task gets:
 | **Tier** (STRICT/STANDARD/LIGHT/EXEMPT) | Keyword matching + compound phrase overrides + context boosters |
 | **Confidence** | Max tier score, capped at 0.95, with ambiguity penalty and compound boost |
 | **Verification Method** | Maps from tier (sub-agent / test exec / sanity check / skip) |
-| **MCP Requirements** | Maps from tier (STRICT needs Sequential+Serena, others flexible) |
+| **MCP Requirements** | Maps from tier (STRICT needs Serena, others flexible) |
 | **Deliverable IDs** | `D-0001`, `D-0002`, ... in task+deliverable order |
 
 ### Policy Fork Resolution (Tie-Breakers)

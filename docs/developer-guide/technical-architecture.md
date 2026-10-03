@@ -208,7 +208,7 @@ name: command-name
 description: Command purpose
 category: utility|orchestration|analysis
 complexity: basic|enhanced|advanced
-mcp-servers: [context7, sequential]
+mcp-servers: [context7]
 personas: [architect, engineer]
 ---
 

@@ -3,7 +3,7 @@ name: research
 description: Deep web research with adaptive planning and intelligent search
 category: command
 complexity: advanced
-mcp-servers: [tavily, sequential, playwright, serena]
+mcp-servers: [tavily, playwright, serena]
 personas: [deep-research-agent]
 ---
 
@@ -81,7 +81,6 @@ personas: [deep-research-agent]
 
 ## MCP Integration
 - **Tavily**: Primary search and extraction engine
-- **Sequential**: Complex reasoning and synthesis
 - **Playwright**: JavaScript-heavy content extraction
 - **Serena**: Research session persistence
 

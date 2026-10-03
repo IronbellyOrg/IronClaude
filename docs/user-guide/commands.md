@@ -355,7 +355,7 @@ PM Agent:
 # Iterative execution with delegation
 ```
 
-**MCP servers:** sequential, context7, magic, playwright, morphllm, serena
+**MCP servers:** context7, magic, playwright, morphllm, serena
 
 ---
 
@@ -434,7 +434,7 @@ PM Agent:
 /sc:brainstorm "improve onboarding workflow" --dry-run --strategy enterprise
 ```
 
-**MCP servers:** sequential, serena, auggie-mcp, tavily  
+**MCP servers:** serena, auggie-mcp, tavily  
 **Personas:** architect, analyzer, scribe (auto-selected per detected domain)
 
 → Full guide: [brainstorm.md](brainstorm.md)
@@ -465,7 +465,7 @@ PM Agent:
 /sc:research "competitive analysis of AI coding assistants" --depth exhaustive
 ```
 
-**MCP servers:** tavily, sequential, playwright, serena
+**MCP servers:** tavily, playwright, serena
 
 ---
 
@@ -499,7 +499,7 @@ PM Agent:
 /sc:implement payment processing system --type feature --with-tests
 ```
 
-**MCP servers:** context7, sequential, magic, playwright
+**MCP servers:** context7, magic, playwright
 
 ---
 
@@ -614,7 +614,7 @@ PM Agent:
 /sc:improve auth-service --type security --validate
 ```
 
-**MCP servers:** sequential, context7
+**MCP servers:** context7
 
 ---
 
@@ -643,7 +643,7 @@ PM Agent:
 /sc:cleanup --type all --interactive
 ```
 
-**MCP servers:** sequential, context7
+**MCP servers:** context7
 
 ---
 
@@ -730,7 +730,7 @@ PM Agent:
 /sc:explain microservices-system --level advanced --format interactive
 ```
 
-**MCP servers:** sequential, context7
+**MCP servers:** context7
 
 ---
 
@@ -862,7 +862,7 @@ MARTIN FOWLER - Interface Design:
 📝 RECOMMENDATION: Separate CircuitBreakerState from Executor
 ```
 
-**MCP servers:** sequential, context7
+**MCP servers:** context7
 
 ---
 
@@ -926,7 +926,7 @@ KIM/MAUBORGNE: "Consider creating new market space instead..."
 TALEB: "The real question: does this benefit from uncertainty?"
 ```
 
-**MCP servers:** sequential, context7
+**MCP servers:** context7
 
 ---
 
@@ -991,7 +991,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 
 > The post-mapped legacy form (`--type task --validate`) still requires `--diff` or `--task-log`; `/sc:troubleshoot` Wave 6 supplies these, so standalone callers must add `--diff <ref>`.
 
-**MCP servers:** auggie, serena, context7, tavily, sequential
+**MCP servers:** auggie, serena, context7, tavily
 
 #### `superclaude reflect run` (CLI auto-fix wrapper)
 

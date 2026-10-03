@@ -3,7 +3,7 @@ name: workflow
 description: "Generate structured implementation workflows from PRDs and feature requirements"
 category: orchestration
 complexity: advanced
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+mcp-servers: [context7, magic, playwright, morphllm, serena]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
@@ -34,20 +34,18 @@ Key behaviors:
 - Cross-session workflow management with comprehensive dependency tracking
 
 ## MCP Integration
-- **Sequential MCP**: Complex multi-step workflow analysis and systematic implementation planning
 - **Context7 MCP**: Framework-specific workflow patterns and implementation best practices
 - **Magic MCP**: UI/UX workflow generation and design system integration strategies
 - **Playwright MCP**: Testing workflow integration and quality assurance automation
 - **Morphllm MCP**: Large-scale workflow transformation and pattern-based optimization
 - **Serena MCP**: Cross-session workflow persistence, memory management, and project context
-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
 
 ## Tool Coordination
 - **Read/Write/Edit**: PRD analysis and workflow documentation generation
 - **TodoWrite**: Progress tracking for complex multi-phase workflow execution
 - **Task**: Advanced delegation for parallel workflow generation and multi-agent coordination
 - **WebSearch**: Technology research, framework validation, and implementation strategy analysis
-- **sequentialthinking**: Structured reasoning for complex workflow dependency analysis
 
 ## Key Patterns
 - **PRD Analysis**: Document parsing → requirement extraction → implementation strategy development

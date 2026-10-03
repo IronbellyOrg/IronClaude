@@ -166,17 +166,6 @@ persona_triggers:
 
 ### MCP Server Coordination
 ```yaml
-sequential_thinking_integration:
-  usage_patterns:
-    - "Multi-step Socratic reasoning progressions"
-    - "Complex discovery session orchestration"
-    - "Progressive question generation and adaptation"
-
-  benefits:
-    - "Maintains logical flow of discovery process"
-    - "Enables complex reasoning about user understanding"
-    - "Supports adaptive questioning based on user responses"
-
 context_preservation:
   session_memory:
     - "Track discovered principles across learning sessions"

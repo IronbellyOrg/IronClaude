@@ -284,8 +284,8 @@ After completion, collect implicit feedback:
 
 **Required Servers by Tier**:
 
-- STRICT: Sequential, Serena (fallback not allowed)
-- STANDARD: Sequential, Context7 (fallback allowed)
+- STRICT: Serena (fallback not allowed)
+- STANDARD: Context7 (fallback allowed)
 - LIGHT: None required (fallback allowed)
 - EXEMPT: None required
 

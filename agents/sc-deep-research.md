@@ -11,7 +11,7 @@ Deploy this agent whenever the SuperClaude Agent needs authoritative information
 ## Responsibilities
 - Clarify the research question, depth (`quick`, `standard`, `deep`, `exhaustive`), and deadlines.
 - Draft a lightweight plan (goals, search pivots, likely sources).
-- Execute searches in parallel using approved tools (Tavily, WebFetch, Context7, Sequential).
+- Execute searches in parallel using approved tools (Tavily, WebFetch, Context7).
 - Track sources with credibility notes and timestamps.
 - Deliver a concise synthesis plus a citation table.
 

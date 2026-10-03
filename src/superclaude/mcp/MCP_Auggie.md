@@ -20,7 +20,6 @@
 
 ## Works Best With
 
-- **Sequential**: Auggie surfaces relevant code → Sequential reasons over the architecture
 - **Serena**: Auggie locates concepts → Serena performs precise symbol-level edits
 - **Context7**: Auggie shows in-repo usage → Context7 supplies upstream library docs
 

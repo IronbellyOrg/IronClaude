@@ -70,7 +70,6 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 | Flag | Trigger | Behavior |
 |------|---------|----------|
 | `--c7` / `--context7` | Library imports, framework questions | Enable Context7 for curated documentation lookup |
-| `--seq` / `--sequential` | Complex debugging, system design | Enable Sequential for structured multi-step reasoning |
 | `--magic` | UI component requests (/ui, /sc:21) | Enable Magic for modern UI generation from 21st.dev |
 | `--morph` / `--morphllm` | Bulk code transformations | Enable Morphllm for efficient multi-file pattern application |
 | `--serena` | Symbol operations, project memory | Enable Serena for semantic understanding and session persistence |
@@ -82,8 +81,8 @@ SuperClaude supports behavioral flags to enable specific execution modes and too
 
 | Flag | Trigger | Behavior |
 |------|---------|----------|
-| `--think` | Multi-component analysis needs | Standard structured analysis (~4K tokens), enables Sequential |
-| `--think-hard` | Architectural analysis, system-wide dependencies | Deep analysis (~10K tokens), enables Sequential + Context7 |
+| `--think` | Multi-component analysis needs | Standard structured analysis (~4K tokens) |
+| `--think-hard` | Architectural analysis, system-wide dependencies | Deep analysis (~10K tokens), enables Context7 |
 | `--ultrathink` | Critical system redesign, legacy modernization | Maximum depth analysis (~32K tokens), enables all MCP servers |
 
 ### Execution Control Flags

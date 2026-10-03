@@ -65,13 +65,13 @@ Analyzes requests to understand intent, complexity, and requirements.
 
 | Type | Verbs | Outputs | Tools |
 |------|-------|---------|-------|
-| Analysis | analyze, review, explain, investigate, troubleshoot | insights, recommendations, reports | Grep, Read, Sequential |
+| Analysis | analyze, review, explain, investigate, troubleshoot | insights, recommendations, reports | Grep, Read |
 | Creation | create, build, implement, generate, design | new files, features, components | Write, Magic, Context7 |
-| Implementation | implement, develop, code, construct | working features, functional code | Write, Edit, MultiEdit, Magic, Context7, Sequential |
-| Modification | update, refactor, improve, optimize, fix | edited files, improvements | Edit, MultiEdit, Sequential |
-| Debugging | debug, fix, troubleshoot, resolve | fixes, root causes, solutions | Grep, Sequential, Playwright |
-| Iterative | improve, refine, enhance, polish, iterate | progressive improvements | Sequential, Read, Edit, MultiEdit, TodoWrite |
-| Wave ops | comprehensively, systematically, progressively | comprehensive improvements | Sequential, Task, Read, Edit, MultiEdit, Context7 |
+| Implementation | implement, develop, code, construct | working features, functional code | Write, Edit, MultiEdit, Magic, Context7 |
+| Modification | update, refactor, improve, optimize, fix | edited files, improvements | Edit, MultiEdit |
+| Debugging | debug, fix, troubleshoot, resolve | fixes, root causes, solutions | Grep, Playwright |
+| Iterative | improve, refine, enhance, polish, iterate | progressive improvements | Read, Edit, MultiEdit, TodoWrite |
+| Wave ops | comprehensively, systematically, progressively | comprehensive improvements | Task, Read, Edit, MultiEdit, Context7 |
 
 ### Intent Extraction Algorithm
 
@@ -154,9 +154,9 @@ wave-strategies:
 | "security audit enterprise" | complex | security | --wave-mode --wave-validation | 95% |
 | "modernize legacy system" | complex | legacy | --wave-mode --enterprise-waves --wave-checkpoint | 92% |
 | "comprehensive code review" | complex | quality | --wave-mode --wave-validation --systematic-waves | 94% |
-| "cleanup audit" | complex | quality | analyzer persona, --wave-mode --systematic-waves, Sequential + Serena | 95% |
+| "cleanup audit" | complex | quality | analyzer persona, --wave-mode --systematic-waves, Serena | 95% |
 | "repository audit" | complex | quality | analyzer persona, --delegate --multi-agent, 5 custom subagents | 95% |
-| "dead code detection" | complex | quality | analyzer persona, --think-hard, Sequential | 90% |
+| "dead code detection" | complex | quality | analyzer persona, --think-hard | 90% |
 
 ### Tier Classification Routing (Compliance Enforcement)
 
@@ -242,7 +242,7 @@ strict_compound_overrides:
 **Base Tool Selection**:
 
 - **Search**: Grep (specific patterns) or Agent (open-ended)
-- **Understanding**: Sequential (complexity >0.7) or Read (simple)
+- **Understanding**: Read (simple)
 - **Documentation**: Context7
 - **UI**: Magic
 - **Testing**: Playwright
@@ -250,7 +250,7 @@ strict_compound_overrides:
 **Delegation & Wave Evaluation**:
 
 - **Delegation Score >0.6**: Add Task tool, auto-enable delegation flags based on scope
-- **Wave Score >0.7**: Add Sequential for coordination, auto-enable wave strategies
+- **Wave Score >0.7**: Auto-enable wave strategies
 
 **Auto-Flag Assignment**:
 
@@ -286,19 +286,19 @@ strict_compound_overrides:
 
 **Sub-Agent Specialization Matrix**:
 
-- **Quality**: qa persona, complexity/maintainability, Read/Grep/Sequential
-- **Security**: security persona, vulnerabilities/compliance, Grep/Sequential/Context7
-- **Performance**: performance persona, bottlenecks/optimization, Read/Sequential/Playwright
-- **Architecture**: architect persona, patterns/structure, Read/Sequential/Context7
-- **API**: backend persona, endpoints/contracts, Grep/Context7/Sequential
+- **Quality**: qa persona, complexity/maintainability, Read/Grep
+- **Security**: security persona, vulnerabilities/compliance, Grep/Context7
+- **Performance**: performance persona, bottlenecks/optimization, Read/Playwright
+- **Architecture**: architect persona, patterns/structure, Read/Context7
+- **API**: backend persona, endpoints/contracts, Grep/Context7
 
 **Wave-Specific Specialization**:
 
-- **Review**: analyzer → Read/Grep/Sequential
-- **Planning**: architect → Sequential/Context7/Write
+- **Review**: analyzer → Read/Grep
+- **Planning**: architect → Context7/Write
 - **Implementation**: domain-specific → Edit/MultiEdit/Task
-- **Validation**: qa → Sequential/Playwright/Context7
-- **Optimization**: performance → Read/Sequential/Grep
+- **Validation**: qa → Playwright/Context7
+- **Optimization**: performance → Read/Grep
 
 #### Persona & Flag Auto-Activation
 
@@ -335,13 +335,13 @@ Based on pattern match strength (40%), historical success rate (30%), context co
 
 ## Quality Gates & Validation Framework
 
-### 8-Step Validation Cycle
+### 7-Step Validation Cycle
 
-1. Syntax (parsers, Context7) → 2. Types (Sequential) → 3. Lint (Context7) → 4. Security (Sequential, OWASP) → 5. Test (Playwright, ≥80% unit/≥70% integration) → 6. Performance (Sequential, benchmarks) → 7. Docs (Context7, completeness) → 8. Integration (Playwright, deployment)
+1. Syntax (parsers, Context7) → 2. Lint (Context7) → 3. Security (OWASP) → 4. Test (Playwright, ≥80% unit/≥70% integration) → 5. Performance (benchmarks) → 6. Docs (Context7, completeness) → 7. Integration (Playwright, deployment)
 
 ### Task Completion Criteria
 
-All 8 gates pass, evidence provided, metrics documented. MCP coordination active, ≥90% context retention. Quality standards, security compliance, integration testing verified.
+All 7 gates pass, evidence provided, metrics documented. MCP coordination active, ≥90% context retention. Quality standards, security compliance, integration testing verified.
 
 ## ⚡ Performance Optimization
 
@@ -361,7 +361,7 @@ All 8 gates pass, evidence provided, metrics documented. MCP coordination active
 
 **Reference**: See MCP.md for detailed server capabilities, workflows, and integration patterns.
 
-**Quick Selection**: Context7 (docs) | Sequential (analysis) | Magic (UI) | Playwright (testing)
+**Quick Selection**: Context7 (docs) | Magic (UI) | Playwright (testing)
 
 ### Persona Integration
 

@@ -92,10 +92,10 @@ Do NOT invoke this skill directly. Use the `sc:pm` command.
 
 ### Phase-Based Tool Loading
 
-- Discovery: [sequential, context7] → Requirements analysis
-- Design: [sequential, magic] → Architecture planning
+- Discovery: [context7] → Requirements analysis
+- Design: [magic] → Architecture planning
 - Implementation: [context7, magic, morphllm] → Code generation
-- Testing: [playwright, sequential] → E2E testing
+- Testing: [playwright] → E2E testing
 
 ## Self-Correcting Execution (Root Cause First)
 

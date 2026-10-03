@@ -3,7 +3,7 @@ name: brainstorm
 description: "Interactive requirements discovery through Socratic dialogue and systematic exploration"
 category: orchestration
 complexity: advanced
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+mcp-servers: [context7, magic, playwright, morphllm, serena]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
@@ -37,20 +37,18 @@ Key behaviors:
 - Cross-session persistence with comprehensive requirements discovery documentation
 
 ## MCP Integration
-- **Sequential MCP**: Complex multi-step reasoning for systematic exploration and validation
 - **Context7 MCP**: Framework-specific feasibility assessment and pattern analysis
 - **Magic MCP**: UI/UX feasibility and design system integration analysis
 - **Playwright MCP**: User experience validation and interaction pattern testing
 - **Morphllm MCP**: Large-scale content analysis and pattern-based transformation
 - **Serena MCP**: Cross-session persistence, memory management, and project context enhancement
-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
 
 ## Tool Coordination
 - **Read/Write/Edit**: Requirements documentation and specification generation
 - **TodoWrite**: Progress tracking for complex multi-phase exploration
 - **Task**: Advanced delegation for parallel exploration paths and multi-agent coordination
 - **WebSearch**: Market research, competitive analysis, and technology validation
-- **sequentialthinking**: Structured reasoning for complex requirements analysis
 
 ## Key Patterns
 - **Socratic Dialogue**: Question-driven exploration → systematic requirements discovery
@@ -64,7 +62,6 @@ Key behaviors:
 ```
 /sc:sc:brainstorm "AI-powered project management tool" --strategy systematic --depth deep
 # Multi-persona analysis: architect (system design), analyzer (feasibility), project-manager (requirements)
-# Sequential MCP provides structured exploration framework
 ```
 
 ### Agile Feature Exploration

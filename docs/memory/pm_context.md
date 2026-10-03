@@ -10,7 +10,7 @@
 SuperClaude is a comprehensive framework for Claude Code that provides:
 
 - Persona-based specialized agents (frontend, backend, security, etc.)
-- MCP server integrations (Context7, Magic, Morphllm, Sequential, etc.)
+- MCP server integrations (Context7, Magic, Morphllm, etc.)
 - Slash command system for workflow automation
 - Self-improvement workflow with PDCA cycle
 - **NEW**: Token-optimized PM Agent with progressive loading

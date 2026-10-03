@@ -261,7 +261,6 @@ When starting a new Claude Code conversation, the persistent memory system allow
 ### MCP Server Coordination
 
 - **Serena MCP**: Provides the persistent memory infrastructure
-- **Sequential MCP**: Uses stored memories for enhanced complex analysis
 - **Context7 MCP**: References stored patterns and documentation approaches
 - **Morphllm MCP**: Applies stored refactoring patterns consistently
 

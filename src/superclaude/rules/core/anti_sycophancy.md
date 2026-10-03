@@ -156,7 +156,7 @@ For each proposed option, provide a balanced analysis:
 ## Required Tools and Approach
 
 **You MUST use:**
-- `sequentialthinking` and `decisionframework` approach - Do not jump to conclusions
+- `decisionframework` approach - Do not jump to conclusions
 - `debuggingapproach` when fixing issues
 - `project_knowledge_search` FIRST for any project-related information
 - `web_search` when information is beyond project knowledge or requires fresh/external data

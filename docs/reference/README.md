@@ -216,7 +216,7 @@ Found outdated information or broken examples?
 1. **Session Management**: Always start with `/sc:load`, end with `/sc:save`
 2. **Flag Combinations**: Combine complementary flags: `--think --c7` for documented analysis
 3. **Progressive Complexity**: Start simple, add sophistication incrementally
-4. **Tool Specialization**: Match tools to tasks: Magic for UI, Sequential for analysis
+4. **Tool Specialization**: Match tools to tasks: Magic for UI
 
 ### Learning Acceleration
 

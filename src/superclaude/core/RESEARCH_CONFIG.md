@@ -23,14 +23,14 @@ hop_configuration: {max_depth: 5, timeout: 60s, parallel: true, loop_detection: 
 confidence_scoring: {relevance: 0.5, completeness: 0.5, min: 0.6, target: 0.8}
 self_reflection: {frequency: after_each_hop, triggers: [low_confidence, contradictions, 80%_time, user_intervention]}
 memory: {case_reasoning: true, pattern_learning: true, session_persistence: true, retention: 30d}
-tools: {discovery: tavily, routing: smart, reasoning: sequential, memory: serena, parallel: true}
+tools: {discovery: tavily, routing: smart, memory: serena, parallel: true}
 quality_gates: {planning: [objectives, strategy, criteria], execution: min_confidence=0.6, synthesis: coherence+clarity}
 extraction: {strategy: selective, screenshots: contextual, js_rendering: auto, timeout: 15s}
 ```
 
 ## Performance
 
-**Caching**: Tavily 1h, Playwright 24h, Sequential 1h, case patterns always.
+**Caching**: Tavily 1h, Playwright 24h, case patterns always.
 **Parallel limits**: searches=5, extractions=3, analysis=2.
 **Resource limits**: 10min/research, 10 iterations, 5 hops, 100MB/session.
 
@@ -138,6 +138,5 @@ See MCP.md §Error Handling & Circuit Breaker for server fallbacks. Research-spe
 |--------|------|----------|
 | tavily | primary search | native websearch |
 | playwright | complex extraction | tavily extraction |
-| sequential | reasoning engine | native reasoning |
 | context7 | technical docs | tavily search |
 | serena | memory management | session only |

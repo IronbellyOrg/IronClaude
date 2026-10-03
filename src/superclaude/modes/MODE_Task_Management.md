@@ -57,7 +57,6 @@
 
 | Task Type | Primary Tool | Memory Key |
 |-----------|-------------|------------|
-| Analysis | Sequential MCP | "analysis_results" |
 | Implementation | MultiEdit/Morphllm | "code_changes" |
 | UI Components | Magic MCP | "ui_components" |
 | Testing | Playwright MCP | "test_results" |
