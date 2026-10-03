@@ -55,10 +55,14 @@ STOP: need a source (file or prompt). Will not invent scope beyond that source.
 | `<path>` / `--spec` / `--prd` / `--tasklist` | one of path or prompt | Existing file (formal or informal) |
 | `<prompt>` | one of path or prompt | Inline instructions; persisted under `.dev/implement/<slug>/source.md` |
 | `--resume` | implicit if a matching ledger exists | Continue from first non-complete task |
-| `--ledger <path>` | `.dev/implement/<slug>/progress.md` | Override; MUST live under `.dev/implement/` |
-| `--skip-final-review` | off | Skip the N>1 whole-list pass |
+| `--ledger <path>` | `.dev/implement/<slug>/progress.md` | Override; MUST live under `.dev/implement/`. Managed packages always use the sibling `progress.md`; any other value STOPs |
+| `--skip-final-review` | off | Skip the N>1 whole-list pass. On a managed package it also blocks archiving (FINAL is mandatory there) |
 
 Banned tokens (STOP `E-LEGACY`, even if a path is also present): the four removed flags named in the protocol skill STOP table. Pass a spec path instead.
+
+## Managed workflow packages
+
+A `/sc:workflow` plan (`.dev/tasks/to-do/<id>/<id>.md` with `<id>` = `TASK-WF-<camelSubject>-<YYYYMMDD>-<HHMMSS>`, schema `workflow-plan/1.2`) is a **managed package**: the ledger is its sibling `progress.md`, task evidence stays under its `artifacts/`, and after every task is complete a fresh independent FINAL review runs and a safe helper moves the whole package to `.dev/tasks/done/<id>/` (Linux no-replace rename, fail-closed). No commit, PR or release is implied. Copied or cross-checkout plans STOP. All other sources behave exactly as before. Details: `refs/managed-workspace.md` in the protocol skill.
 
 ## Behavioral Flow
 
@@ -114,7 +118,7 @@ The full behavioral specification is in the protocol skill at
 
 - Execute enumerable tasks from a spec, PRD, tasklist, informal notes, or inline prompt
 - Per-task spec-compliance QA against that task's AC (the source text, when informal)
-- Record one ledger at `.dev/implement/<slug>/progress.md`
+- Record one ledger at `.dev/implement/<slug>/progress.md` (managed packages: the sibling `progress.md`, then archive the package after a fresh FINAL)
 - Run lint/typecheck/tests when present and record them as extras
 
 **Will Not:**
@@ -124,7 +128,8 @@ The full behavioral specification is in the protocol skill at
 - Treat lint or tests as the pass/fail
 - Invoke `/task` or `/sc:task`
 - Import MDTM F1, 6-agent phase gates, or `/sc:reflect` as the per-task gate
-- Auto-commit
+- Auto-commit, open PRs, or release (a managed archive is not any of these)
+- Move a package by any means other than the archive helper
 
 ## Related Commands
 

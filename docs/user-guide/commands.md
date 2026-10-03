@@ -361,21 +361,22 @@ PM Agent:
 
 ### `/sc:workflow` - Implementation Plan Generator
 
-**When to use:** Have a PRD/spec/prompt and need a phased implementation plan (`plan.md`).
+**When to use:** Have a PRD/spec/prompt and need a phased implementation plan (`<id>.md`, named like its package directory).
 
 **What it does:**
 
 - Parses a PRD, spec, or inline prompt
-- Writes `.dev/workflow/<slug>/plan.md` + `return-contract.yaml`
+- Creates a new package `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (`<subject>` = lower camelCase, max 16 chars, e.g. `authLogin`) with `<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and `return-contract.yaml`; never overwrites an existing package
+- Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`); on completion `/sc:implement` archives the package to `.dev/tasks/done/` (see `.dev/README.md`)
 - **Does NOT implement code** and does **not** emit sprint tasklists
 
 **Syntax:**
 
 ```
-/sc:workflow <path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--output DIR] [--handoff none|design|implement|tasklist]
+/sc:workflow <path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement|tasklist]
 ```
 
-`--depth shallow|normal` and `--parallel` are `E-LEGACY` (use `quick|standard` and omit `--parallel`).
+`--depth shallow|normal`, `--parallel` and the retired `--output` are `E-LEGACY` (use `quick|standard`, omit `--parallel`; every plan goes to a new `.dev/tasks/to-do/<id>/` package, there is no destination override).
 
 **Examples:**
 

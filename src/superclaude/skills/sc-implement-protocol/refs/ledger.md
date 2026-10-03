@@ -99,6 +99,8 @@ first such id wins
 if all complete → run FINAL unless --skip-final-review or FINAL already present or N=1
 ```
 
+The completion rules in this section are **legacy-ledger** rules; managed packages follow the Managed-package extension below.
+
 `--resume` is implicit when a matching ledger exists. If the ledger is missing, write the header before the first edit. If all tasks are `complete` **and** FINAL is already present (or N=1, or `--skip-final-review`): STOP `already complete: <ledger path>`. If all tasks are `complete` and FINAL is still due: run FINAL, then stop. Do not skip a pending N>1 whole-list review.
 
 Trust ledger + git history after compaction. Do not ask the user to paste prior chat.
@@ -127,6 +129,31 @@ Ruling:
 
 ```
 T2: Ruling: drop pagination — AC-2 deferred to next spec — cost-if-wrong: list stays unpaginated
+```
+
+## Managed-package extension (`refs/managed-workspace.md`)
+
+Managed ledgers (`<package>/progress.md`) reuse every record above unchanged and add three record kinds. Legacy ledgers never contain them.
+
+```
+^PLAN: sha256=[0-9a-f]{64} source_sha256=[0-9a-f]{64}$
+^FINAL: (pass|issues) evidence=.+ state=[0-9a-f]{64}$
+^ARCHIVE: (start|failed|Ruling:) .+$
+```
+
+- Line 2 is the `PLAN:` pin. Append another `PLAN:` line only **before** the first `T<id>: start`; after it, a plan/source hash mismatch is `E-PLAN-CHANGED`.
+- `evidence=` tokens may be package-relative: `./artifacts/<file>:<line>`.
+- A managed `FINAL:` carries the helper's `state=` digest and must be the last record before the helper's own `ARCHIVE: start id=<id> token=<hex>` line. Any later `PLAN`/`T`/`ARCHIVE` record makes it stale: run a new FINAL on every archive attempt. `ARCHIVE: failed id=<id> token=<hex> reason=<code>` records a refused attempt.
+- `ARCHIVE: Ruling: <what naming T-ids> — <why> — <cost-if-wrong>` is operator-supplied only; the executor MUST NOT write it, and it never waives FINAL.
+- Resume dispatch for managed packages: location check → pin check → first non-complete task → all complete = active all-complete → archive gate. "Already complete" is reported only after the helper answers `already-archived`.
+
+```
+# implement ledger — source: ./TASK-WF-authLogin-20261001-063000.md — created: 2026-10-01T06:30:00Z
+PLAN: sha256=0000000000000000000000000000000000000000000000000000000000000000 source_sha256=1111111111111111111111111111111111111111111111111111111111111111
+T1: start sha=0123456789abcdef0123456789abcdef01234567
+T1: complete verdict=compliant ac=T1.AC1 evidence=src/foo.py:12,T1.AC1@./artifacts/t1-test.log:3 extras=lint:skip,typecheck:skip,test:pass files=src/foo.py
+FINAL: pass evidence=src/foo.py:12 state=2222222222222222222222222222222222222222222222222222222222222222
+ARCHIVE: start id=TASK-WF-authLogin-20261001-063000 token=0123456789abcdef
 ```
 
 ## Negative (must fail the verdict regex)

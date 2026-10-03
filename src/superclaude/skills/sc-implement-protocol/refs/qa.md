@@ -74,6 +74,10 @@ T<id>: Ruling: <what> — <why> — <cost-if-wrong>
 - Reviewer input includes the task brief and the diff, not extras results.
 - Same verdict schema whether inline or one Task subagent.
 
+## Managed FINAL review (archive gate)
+
+Same isolation as above: `Do not trust the implementer's report.` One fresh subagent per archive attempt (never inline, even N=1; never reused from an earlier attempt). Input: the current full plan, the full ledger, and the current contents of every delivery file the helper's `--print-state` lists, plus the plan's `## Constraints`. Output: `pass` or `issues` with `path:line` evidence per task AC. Missing, stale or unverifiable evidence is `issues`. This pass never rewrites per-task verdicts and is not a code-quality ensemble; the closed per-task verdict grammar is unchanged. Procedure: `refs/managed-workspace.md`.
+
 ## Subagent prompt (when not inline)
 
 Inline when **all** are true: N≤3, source file ≤400 lines, session not compacted. Else one Task. If compacted mid-run, remaining QA uses the subagent. One mode for the rest of the run.

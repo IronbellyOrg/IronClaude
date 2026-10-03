@@ -1,11 +1,25 @@
-"""Guards for /sc:workflow v3: thin command + skill refs (SPEC §8)."""
+"""Guards for /sc:workflow v3: thin command + skill refs (SPEC §8).
+
+Managed-package policy (schema 1.2, to-do root, retired --output, naming) lives
+in the refs; these are STATIC protocol guards. Executable archive behavior is in
+tests/skills/test_workflow_archive.py.
+"""
 
 import filecmp
+import re
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[2]
 _CMD = _REPO / "src" / "superclaude" / "commands" / "workflow.md"
 _SKILL = _REPO / "src" / "superclaude" / "skills" / "sc-workflow-protocol"
+_TPL00 = (
+    _REPO
+    / "src"
+    / "superclaude"
+    / "templates"
+    / "workflow"
+    / "00_mdtm_template_simple_task.md"
+)
 _REFS = (
     "input-parse.md",
     "phase-templates.md",
@@ -13,6 +27,17 @@ _REFS = (
     "quality-gates.md",
     "return-contract.md",
 )
+
+
+def _workflow_texts():
+    yield "command", _CMD.read_text(encoding="utf-8")
+    yield "skill", (_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    for name in _REFS:
+        yield name, (_SKILL / "refs" / name).read_text(encoding="utf-8")
+
+
+def _ref(name):
+    return (_SKILL / "refs" / name).read_text(encoding="utf-8")
 
 
 def test_activation_handoff():
@@ -41,11 +66,12 @@ def test_mcp_servers_empty():
 
 def test_plan_uses_template_00():
     skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
-    gates = (_SKILL / "refs" / "quality-gates.md").read_text(encoding="utf-8")
+    gates = _ref("quality-gates.md")
     assert "00_mdtm_template_simple_task.md" in skill
     assert "03_project_plan_template" not in skill + gates
-    for key in ("schema: workflow-plan/1.1", "version:", "priority:", "created_date:"):
+    for key in ("schema: workflow-plan/1.2", "version:", "priority:", "created_date:"):
         assert key in gates, key
+    assert "workflow-plan/1.1" not in gates
 
 
 def test_plugin_mirror_matches_src():
@@ -57,3 +83,95 @@ def test_plugin_mirror_matches_src():
         _SKILL, plugin, sorted(src_rels), shallow=False
     )
     assert not mismatch and not errors, mismatch + errors
+    plugin_cmd = _REPO / "plugins" / "superclaude" / "commands" / "workflow.md"
+    assert filecmp.cmp(_CMD, plugin_cmd, shallow=False)
+
+
+# --- managed package policy (design R1-R2) ---------------------------------------
+def test_all_creation_paths_target_to_do_not_workflow_root():
+    for name, text in _workflow_texts():
+        assert ".dev/workflow/" not in text, name
+    for name in ("input-parse.md", "return-contract.md", "overlap-routing.md"):
+        assert ".dev/tasks/to-do/" in _ref(name), name
+    assert ".dev/tasks/to-do/" in _CMD.read_text(encoding="utf-8")
+
+
+def test_output_flag_is_retired_everywhere():
+    assert "--output" not in re.search(
+        r"^argument-hint:.*$", _CMD.read_text(encoding="utf-8"), re.M
+    ).group(0)
+    skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    assert "--output" not in re.search(r"^argument-hint:.*$", skill, re.M).group(0)
+    for name, text in _workflow_texts():
+        for line in text.splitlines():
+            if "--output" in line:
+                assert re.search(r"retired|E-LEGACY|Never", line), (name, line)
+    parse = _ref("input-parse.md")
+    assert re.search(r"`E-LEGACY`\s*\|[^|]*`--output`", parse)
+    assert "E-OUTPUT-PATH" not in parse and "E-MISSING-DIR" not in parse
+    # validation precedes any write
+    assert "Validate every input and flag **before any write**" in parse
+
+
+def test_naming_and_collision_policy_is_specified():
+    parse = _ref("input-parse.md")
+    for token in (
+        "TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>",
+        "UTC",
+        "lower camelCase",
+        "**max 16**",
+        "truncate to **16**",
+        "`plan`",
+        "full directory basename + `.md`",
+        "Never `plan.md`",
+        "`.dev/tasks/to-do/<id>` **or** `.dev/tasks/done/<id>`",
+        "`test -L`",
+        "dangling symlinks",
+        "`-2`",
+        "`-9`",
+        "never `mkdir -p`",
+        "E-PACKAGE-COLLISION",
+        "Regeneration never reuses",
+    ):
+        assert token in parse, token
+
+
+def test_early_stop_creates_no_package_and_failures_are_separated():
+    parse, contract = _ref("input-parse.md"), _ref("return-contract.md")
+    assert re.search(r"`E-LEGACY`[^\n]*\| none \|", parse)
+    assert re.search(r"`E-NO-SOURCE`[^\n]*\| none \|", parse)
+    assert "no package directory, no yaml" in contract
+    assert re.search(r"\| `failed` \| `null`", contract)
+    assert re.search(
+        r"failed.*`partial`.*stays valid and executable", contract.replace("\n", " ")
+    )
+    assert "never mark a valid gated plan `failed`" in contract
+
+
+def test_contract_and_plan_use_stable_portable_identity():
+    contract, gates = _ref("return-contract.md"), _ref("quality-gates.md")
+    for token in (
+        'contract_version: "1.1"',
+        "slug: <id>",
+        "plan_path: ./<id>.md",
+        "source_path: ./source.md",
+    ):
+        assert token in contract, token
+    for token in ("schema: workflow-plan/1.2", "source: ./source.md", "slug: <id>"):
+        assert token in gates, token
+    assert "never the original absolute path" in gates
+    assert "plan_path: .dev/" not in contract
+
+
+def test_template_00_authoring_contract():
+    text = _TPL00.read_text(encoding="utf-8")
+    comment = re.search(r"<!--(.*?)-->", text, re.S).group(1)
+    assert "./artifacts/" in comment and "repo-relative" in comment
+    assert "executor-owned" in comment
+    body = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+    assert not re.search(r"^\s*([-*] \[[ xX]\]|\d+[.)] )", body, re.M)
+    assert not re.search(r"^status:", text, re.M)
+    assert re.findall(r"^## Task \d+:", body, re.M)
+    assert not re.search(r"^## Task \d+:.*\b(verify|verification)\b", body, re.M | re.I)
+    for key in ("version:", "priority:", "created_date:"):
+        assert re.search(rf"^{key}", text, re.M), key

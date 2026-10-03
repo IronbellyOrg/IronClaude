@@ -98,8 +98,9 @@
 |------|---------|--------|
 | `--strategy` | Workflow approach | `systematic`, `agile`, `enterprise` |
 | `--depth` | Analysis depth | `quick`, `standard`, `deep` |
-| `--output` | Plan output directory | Path under `.dev/workflow/` |
 | `--handoff` | Next command | `none`, `design`, `implement`, `tasklist` |
+
+`--output` is retired (`E-LEGACY`): plans are always written to a new `.dev/tasks/to-do/TASK-WF-…/` package.
 
 ### Troubleshoot Command Flags (`/sc:troubleshoot`)
 
