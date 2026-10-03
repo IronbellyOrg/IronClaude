@@ -574,3 +574,52 @@ def test_direct_empty_token_cannot_remove_ownerless_or_owned_marker(p):
     with pytest.raises(aw.ArchiveError):
         aw.clear_marker(p.root, p.pkg, "")
     assert (m / "owner").exists()
+
+
+@pytest.mark.parametrize("link_owner", [False, True])
+def test_recovery_rejects_symlink_marker_or_owner(p, tmp_path, link_owner):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    owner = outside / "owner"
+    owner.write_text("token\n")
+    marker = p.pkg / ".archiving"
+    if link_owner:
+        marker.mkdir()
+        (marker / "owner").symlink_to(owner)
+    else:
+        marker.symlink_to(outside, target_is_directory=True)
+    with pytest.raises(aw.ArchiveError) as exc:
+        aw.clear_marker(p.root, p.pkg, "token")
+    assert exc.value.code == "E-ARCHIVE-MARKER"
+    assert owner.read_text() == "token\n"
+    assert marker.exists()
+    assert p.pkg.exists() and not p.done.exists()
+
+
+@pytest.mark.parametrize("path", ["./src/a.py", "./artifacts/../src/a.py"])
+def test_ambiguous_relative_delivery_is_rejected(p, path):
+    ledger = p.pkg / "progress.md"
+    ledger.write_text(ledger.read_text().replace("files=src/a.py", f"files={path}"))
+    (p.root / "src/a.py").write_text("changed\n")
+    fails(p, "E-ARCHIVE-LEDGER")
+
+
+@pytest.mark.parametrize("kind", ["file", "directory", "dangling"])
+def test_directory_digest_tracks_nested_symlink_targets(p, kind):
+    src = p.root / "src"
+    if kind == "directory":
+        (src / "first").mkdir()
+        (src / "second").mkdir()
+    elif kind == "file":
+        (src / "first").write_text("one\n")
+        (src / "second").write_text("two\n")
+    link = src / "link"
+    link.symlink_to("first", target_is_directory=kind == "directory")
+    ledger = p.pkg / "progress.md"
+    ledger.write_text(ledger.read_text().replace("files=src/a.py", "files=src"))
+    before = p.state()
+    p.final(state=before)
+    link.unlink()
+    link.symlink_to("second", target_is_directory=kind == "directory")
+    assert p.state() != before
+    fails(p, "E-ARCHIVE-FINAL")

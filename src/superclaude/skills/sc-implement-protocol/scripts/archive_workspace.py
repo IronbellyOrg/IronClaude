@@ -215,11 +215,19 @@ def _digest(root: Path, plan_sha: str, source_sha: str, files: list[str]) -> str
             sub = hashlib.sha256()
             for dp, dn, fn in os.walk(p):
                 dn[:] = sorted(x for x in dn if x != ".git")
-                for f in sorted(fn):
-                    q = Path(dp) / f
-                    sub.update(
-                        f"{q.relative_to(p)}\0{_sha(q) if q.is_file() and not q.is_symlink() else 'x'}\n".encode()
-                    )
+                for name in sorted(dn + fn):
+                    q = Path(dp) / name
+                    if q.is_symlink():
+                        value = "link:" + os.readlink(q)
+                    elif q.is_file():
+                        value = "file:" + _sha(q)
+                    elif q.is_dir():
+                        value = "dir"
+                    else:
+                        raise ArchiveError(
+                            "E-ARCHIVE-LEDGER", f"unsupported delivery entry: {q}"
+                        )
+                    sub.update(f"{q.relative_to(p)}\0{value}\n".encode())
             d = "dir:" + sub.hexdigest()
         elif p.is_file():
             d = _sha(p)
@@ -335,15 +343,21 @@ def validate(
                 "E-ARCHIVE-TASKS",
                 f"T{tid} non-compliant: needs operator 'ARCHIVE: Ruling:' naming it",
             )
-    files = sorted(
-        {
-            f
-            for k, m, _ in recs
-            if k == "verdict"
-            for f in m.group(6).split(",")
-            if f and not f.startswith("./")
-        }
-    )
+    delivery_files = set()
+    for k, m, _ in recs:
+        if k != "verdict":
+            continue
+        for f in m.group(6).split(","):
+            if f.startswith("./"):
+                if not f.startswith("./artifacts/") or ".." in Path(f).parts:
+                    raise ArchiveError(
+                        "E-ARCHIVE-LEDGER",
+                        f"ambiguous package-relative delivery path: {f!r}; use a repo-relative path",
+                    )
+                continue
+            if f:
+                delivery_files.add(f)
+    files = sorted(delivery_files)
     digest = _digest(loc.root, plan_sha, source_sha, files)
     if need_final:
         body = recs
@@ -388,19 +402,26 @@ def validate(
 # --- marker ----------------------------------------------------------------------
 def _remove_marker(pkg: Path, token: str) -> None:
     m = pkg / MARKER
+    marker_fd = None
     try:
-        owner = (m / "owner").read_text(encoding="utf-8").strip()
+        marker_fd = os.open(m, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        owner_fd = os.open("owner", os.O_RDONLY | os.O_NOFOLLOW, dir_fd=marker_fd)
+        with os.fdopen(owner_fd, encoding="utf-8") as fh:
+            owner = fh.read().strip()
+        if owner != token:
+            raise ArchiveError(
+                "E-ARCHIVE-MARKER",
+                f"marker at {m} is not owned by this token; left in place",
+            )
+        os.unlink("owner", dir_fd=marker_fd)
+        os.rmdir(m)
     except OSError as exc:
         raise ArchiveError(
-            "E-ARCHIVE-MARKER", f"cannot read marker owner at {m}: {exc}"
+            "E-ARCHIVE-MARKER", f"cannot safely clear marker at {m}: {exc}"
         )
-    if owner != token:
-        raise ArchiveError(
-            "E-ARCHIVE-MARKER",
-            f"marker at {m} is not owned by this token; left in place",
-        )
-    os.unlink(m / "owner")
-    os.rmdir(m)
+    finally:
+        if marker_fd is not None:
+            os.close(marker_fd)
 
 
 def _append(pkg: Path, line: str) -> None:
