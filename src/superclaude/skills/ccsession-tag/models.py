@@ -26,6 +26,10 @@ Commands (used by the ccsession script):
   tier-mode                 exit 0 when tier mode is on, 1 when off
   tier-resolve TIER         print a tier's launch settings as KEY=value lines
   model-resolve MODEL       print launch settings for one named model
+  compact-settings [MODEL WINDOW]
+                            print Claude Code settings JSON with a per-tier and
+                            per-model auto-compact window (tier mode); MODEL is
+                            the launched model when no tier has it
   tiers                     print name, label, models per tier (for --help)
   shim-port BASE            print the shim port for this session's settings
   code-digest SHIM          print the fingerprint of the shim code (SHIM + this file)
@@ -382,6 +386,33 @@ def resolve_tiers(data=None, tenv=None) -> dict:
     return out
 
 
+def compact_settings(data=None, tenv=None, extra=None) -> dict:
+    """Claude Code settings with an auto-compact window per tier and per model.
+
+    Claude Code looks up modelSettings.<model>.autoCompactWindow for the
+    CURRENT model, so a /model switch to another tier takes that tier's
+    window without a restart (a CLAUDE_CODE_AUTO_COMPACT_WINDOW env value
+    would pin one window for the whole session). Keys: the tier ids, and each
+    tier model by its own id and by the claude-gw- id the picker shows.
+    `extra` (model id, window) adds a model launched by name that no tier has.
+    """
+    per_model = {}
+    if extra:
+        model, window = extra
+        per_model[re.sub(r"\[1m\]$", "", model)] = window
+    for name, tier in resolve_tiers(data, tenv).items():
+        per_model[f"claude-gw-{name}"] = tier["window"]
+        for _, model, window in tier["models"]:
+            for key in (model, gateway_alias(model)):
+                per_model.setdefault(key, window)
+    return {
+        "modelSettings": {
+            key: {"autoCompactWindow": max(100000, min(window, 1000000))}
+            for key, window in per_model.items()
+        }
+    }
+
+
 def model_window(model: str, data=None, tenv=None) -> tuple:
     """(window, where it came from) for a model chosen by name."""
     data = load()[0] if data is None else data
@@ -504,6 +535,14 @@ def main(argv) -> int:
             f"PROFILE_LABEL={tier['label']}: "
             + ", ".join(m for _, m, _ in tier["models"])
         )
+        return 0
+    if command == "compact-settings":
+        extra = (argv[2], int(argv[3])) if len(argv) > 3 and argv[3].isdigit() else None
+        try:
+            print(json.dumps(compact_settings(extra=extra), separators=(",", ":")))
+        except ValueError as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
         return 0
     if command == "model-resolve" and len(argv) > 2:
         model = argv[2]

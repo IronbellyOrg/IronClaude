@@ -52,6 +52,8 @@ set -e
 
 CLAUDE_BIN="${CLAUDE_BIN:-claude}"
 CC_CLAUDE_FLAGS="${CC_CLAUDE_FLAGS:---dangerously-skip-permissions}"
+# Extra Claude Code arguments for this launch (tier mode: per-model settings).
+CC_SETTINGS_ARGS=()
 PROJECTS_DIR="$HOME/.claude/projects"
 CC_SHIM_SCRIPT="${CC_SHIM_SCRIPT:-$HOME/.claude/skills/ccsession-tag/local-gateway-alias-proxy.py}"
 CC_SHIM_PORT_EXPLICIT="${CC_SHIM_PORT:+1}"
@@ -486,7 +488,18 @@ export_selection() {
   fi
   # Custom models need an explicit proactive auto-compaction window; with only
   # the max-context override, Claude Code can hit the provider limit first.
-  if [ -n "$PROFILE_COMPACT_WINDOW" ]; then
+  # Tier mode passes one window per tier and per model as session settings,
+  # so a /model switch to another tier takes that tier's window; the env
+  # variable would pin one window for the whole session. A user-set
+  # CCSESSION_COMPACT_WINDOW still pins one window.
+  local _per_model=""
+  if [ "$TIER_MODE" = 1 ] && [ -z "${CCSESSION_COMPACT_WINDOW:-}" ]; then
+    _per_model=$(python3 "$CCSESSION_MODELS" compact-settings \
+      "$PROFILE_MODEL" "${PROFILE_COMPACT_WINDOW:-}") || _per_model=""
+  fi
+  if [ -n "$_per_model" ]; then
+    CC_SETTINGS_ARGS=(--settings "$_per_model")
+  elif [ -n "$PROFILE_COMPACT_WINDOW" ]; then
     export CLAUDE_CODE_AUTO_COMPACT_WINDOW="$PROFILE_COMPACT_WINDOW"
   fi
   if [ -n "${CCSESSION_COMPACT_PCT:-}" ]; then
@@ -775,9 +788,9 @@ fi
 if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
   echo "[ccsession] Starting untagged session"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} "$@"
   fi
 fi
 
@@ -811,15 +824,15 @@ fi
 if [ -f "$TOPIC_FILE" ]; then
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --resume "$SESSION_ID" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --resume "$SESSION_ID" "$@"
   fi
 else
   echo "[ccsession] Starting new session labeled '$TOPIC'"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS --model "$PROFILE_MODEL" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} "$@"
   fi
 fi

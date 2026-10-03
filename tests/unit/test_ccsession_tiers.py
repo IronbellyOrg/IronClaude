@@ -263,6 +263,7 @@ json.dump({
     "argv": sys.argv[1:],
     "context": os.environ.get("CLAUDE_CODE_MAX_CONTEXT_TOKENS", ""),
     "compact": os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW", ""),
+    "settings": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
     "custom": os.environ.get("ANTHROPIC_CUSTOM_MODEL_OPTION", ""),
     "base_url": os.environ.get("ANTHROPIC_BASE_URL", ""),
 }, open(os.environ["SEEN_FILE"], "w"))
@@ -323,6 +324,12 @@ json.dump({
     return proc.returncode, proc.stdout, proc.stderr, seen
 
 
+def _compact(seen: dict, model: str) -> int:
+    """The auto-compact window ccsession passed for one model (--settings)."""
+    settings = json.loads(seen["settings"])
+    return settings["modelSettings"][model]["autoCompactWindow"]
+
+
 def _model_arg(seen: dict) -> str:
     argv = seen["argv"]
     return argv[argv.index("--model") + 1]
@@ -332,7 +339,12 @@ def test_default_tier_sets_model_and_tier_window(tmp_path: Path) -> None:
     rc, out, err, seen = _launch(tmp_path, "work")
     assert rc == 0, err
     assert _model_arg(seen) == "claude-gw-tier2[1m]"
-    assert seen["context"] == seen["compact"] == "500000"
+    assert seen["context"] == "500000"
+    # One window per tier and model, so a /model switch takes the new
+    # tier's window; no env value pins one window for the whole session.
+    assert seen["compact"] == ""
+    assert _compact(seen, "claude-gw-tier2") == 500000
+    assert _compact(seen, "claude-gw-tier1") == 850000
     assert seen["custom"] == ""  # tiers are already in the picker
     assert seen["base_url"] == "http://127.0.0.1:4555"  # shim is always on
     assert "tier2" in out and "muse-spark-1.3" in out
@@ -348,13 +360,14 @@ def test_tier_flag_and_named_model(tmp_path: Path) -> None:
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "gpt-6-astra")
     assert rc == 0, err
     assert _model_arg(seen) == "gpt-6-astra"
-    assert seen["context"] == seen["compact"] == "850000"
+    assert seen["context"] == "850000" and _compact(seen, "gpt-6-astra") == 850000
     assert seen["custom"] == "gpt-6-astra"
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "claude-opus-5-5")
     assert rc == 0 and _model_arg(seen) == "claude-opus-5-5[1m]"
     assert seen["context"] == "1000000"
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "brand-new-model")
     assert rc == 0 and seen["context"] == "200000"
+    assert _compact(seen, "brand-new-model") == 200000
     assert "not in any tier" in err
 
 
