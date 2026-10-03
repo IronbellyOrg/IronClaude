@@ -1796,3 +1796,50 @@ def test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage(
     assert status == TOO_LONG[0]
     assert "can hold this conversation" in message
     assert "the others are out of usage" in message
+
+
+def test_user_settings_are_merged_not_replaced(tmp_path: Path) -> None:
+    """PR #258 review: Claude Code reads only the last --settings."""
+    rc, _, err, seen = _launch(
+        tmp_path, "work", "--settings", '{"effortLevel": "high"}'
+    )
+    assert rc == 0, err
+    assert seen["argv"].count("--settings") == 1
+    merged = json.loads(seen["settings"])
+    assert merged["effortLevel"] == "high"
+    assert _compact(seen, "claude-gw-tier2") == 500000
+    # A user's own per-model window wins; ours fill in the rest.
+    rc, _, err, seen = _launch(
+        tmp_path,
+        "work",
+        "--settings="
+        + json.dumps(
+            {"modelSettings": {"claude-gw-tier2": {"autoCompactWindow": 300000}}}
+        ),
+    )
+    assert rc == 0, err
+    assert _compact(seen, "claude-gw-tier2") == 300000
+    assert _compact(seen, "claude-gw-tier1") == 850000
+    # A settings file works too; an unreadable one stops with a message.
+    f = tmp_path / "mine.json"
+    f.write_text('{"effortLevel": "low"}')
+    rc, _, err, seen = _launch(tmp_path, "work", "--settings", str(f))
+    assert rc == 0 and json.loads(seen["settings"])["effortLevel"] == "low"
+    rc, _, err, seen = _launch(tmp_path, "work", "--settings", str(tmp_path / "nope"))
+    assert rc == 2 and seen is None and "--settings" in err
+
+
+def test_colliding_tier_model_names_get_the_shims_suffixed_ids(tmp_path: Path) -> None:
+    """PR #258 review: the window map uses the same -2 id the shim shows."""
+    text = TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar").replace(
+        "T2Model04=glm-5.3", "T2Model04=foo-bar"
+    )
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    assert tenv["T2Model03"] == "foo/bar" and tenv["T2Model04"] == "foo-bar"
+    data = models.load()[0]
+    per_model = models.compact_settings(data=data, tenv=tenv)["modelSettings"]
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="collide"
+    )
+    assert module["sanitize"]("foo/bar") == "claude-gw-foo-bar"
+    assert "claude-gw-foo-bar" in per_model and "claude-gw-foo-bar-2" in per_model

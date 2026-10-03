@@ -26,10 +26,11 @@ Commands (used by the ccsession script):
   tier-mode                 exit 0 when tier mode is on, 1 when off
   tier-resolve TIER         print a tier's launch settings as KEY=value lines
   model-resolve MODEL       print launch settings for one named model
-  compact-settings [MODEL WINDOW]
+  compact-settings [MODEL WINDOW [USER_SETTINGS]]
                             print Claude Code settings JSON with a per-tier and
                             per-model auto-compact window (tier mode); MODEL is
-                            the launched model when no tier has it
+                            the launched model when no tier has it;
+                            USER_SETTINGS (JSON or a file) is merged in
   tiers                     print name, label, models per tier (for --help)
   shim-port BASE            print the shim port for this session's settings
   code-digest SHIM          print the fingerprint of the shim code (SHIM + this file)
@@ -386,6 +387,38 @@ def resolve_tiers(data=None, tenv=None) -> dict:
     return out
 
 
+def merge_user_settings(ours: dict, user: str) -> dict:
+    """Merge a user's own --settings (JSON text or a file path) with ours.
+
+    Claude Code reads only the LAST --settings flag, so ccsession passes one
+    merged value. The user's keys win, except that our per-model
+    autoCompactWindow fills in models the user did not configure.
+    Raises ValueError when the user's value is neither JSON nor a readable
+    JSON file.
+    """
+    text = user
+    if not user.lstrip().startswith("{"):
+        try:
+            with open(os.path.expanduser(user)) as fh:
+                text = fh.read()
+        except OSError as exc:
+            raise ValueError(f"--settings {user!r}: {exc.strerror}") from None
+    try:
+        theirs = json.loads(text)
+    except ValueError:
+        raise ValueError(f"--settings {user!r} is not valid JSON") from None
+    if not isinstance(theirs, dict):
+        raise ValueError(f"--settings {user!r} is not a JSON object")
+    merged = dict(theirs)
+    per_model = dict(ours.get("modelSettings", {}))
+    for model, value in (theirs.get("modelSettings") or {}).items():
+        base = dict(per_model.get(model, {}))
+        base.update(value if isinstance(value, dict) else {})
+        per_model[model] = base
+    merged["modelSettings"] = per_model
+    return merged
+
+
 def compact_settings(data=None, tenv=None, extra=None) -> dict:
     """Claude Code settings with an auto-compact window per tier and per model.
 
@@ -400,10 +433,16 @@ def compact_settings(data=None, tenv=None, extra=None) -> dict:
     if extra:
         model, window = extra
         per_model[re.sub(r"\[1m\]$", "", model)] = window
+    used = set()  # mirror the shim's -2/-3 ids for names that sanitize alike
     for name, tier in resolve_tiers(data, tenv).items():
         per_model[f"claude-gw-{name}"] = tier["window"]
         for _, model, window in tier["models"]:
-            for key in (model, gateway_alias(model)):
+            alias = base = gateway_alias(model)
+            k = 2
+            while alias in used:
+                alias, k = f"{base}-{k}", k + 1
+            used.add(alias)
+            for key in (model, alias):
                 per_model.setdefault(key, window)
     return {
         "modelSettings": {
@@ -539,7 +578,10 @@ def main(argv) -> int:
     if command == "compact-settings":
         extra = (argv[2], int(argv[3])) if len(argv) > 3 and argv[3].isdigit() else None
         try:
-            print(json.dumps(compact_settings(extra=extra), separators=(",", ":")))
+            out = compact_settings(extra=extra)
+            if len(argv) > 4:
+                out = merge_user_settings(out, argv[4])
+            print(json.dumps(out, separators=(",", ":")))
         except ValueError as exc:
             print(f"ccsession: {exc}", file=sys.stderr)
             return 3

@@ -79,6 +79,7 @@ SHIM_FLAG=0
 PROFILE=""
 TIER_ARG=""
 MODEL_ARG=""
+USER_SETTINGS=""
 MODEL_TOKENS=()  # --model exactly as typed, and where (outside tier mode)
 MODEL_POS=0
 _args=()
@@ -124,6 +125,20 @@ while [ "$#" -gt 0 ]; do
       MODEL_TOKENS=("$1" "$2")
       MODEL_POS=${#_args[@]}
       shift 2
+      ;;
+    --settings)
+      # Claude Code reads only the last --settings; in tier mode ccsession
+      # merges this one with its per-model windows (passed through otherwise).
+      if [ "$#" -lt 2 ]; then
+        echo "ccsession: --settings requires a value" >&2
+        exit 2
+      fi
+      USER_SETTINGS="$2"
+      shift 2
+      ;;
+    --settings=*)
+      USER_SETTINGS="${1#--settings=}"
+      shift
       ;;
     --model=*)
       MODEL_ARG="${1#--model=}"
@@ -494,10 +509,15 @@ export_selection() {
   # CCSESSION_COMPACT_WINDOW still pins one window.
   local _per_model=""
   if [ "$TIER_MODE" = 1 ] && [ -z "${CCSESSION_COMPACT_WINDOW:-}" ]; then
-    _per_model=$(python3 "$CCSESSION_MODELS" compact-settings \
-      "$PROFILE_MODEL" "${PROFILE_COMPACT_WINDOW:-}") || _per_model=""
+    if ! _per_model=$(python3 "$CCSESSION_MODELS" compact-settings \
+      "$PROFILE_MODEL" "${PROFILE_COMPACT_WINDOW:-0}" \
+      ${USER_SETTINGS:+"$USER_SETTINGS"}); then
+      [ -n "$USER_SETTINGS" ] && exit 2  # the user's --settings was unusable
+      _per_model=""
+    fi
   fi
   if [ -n "$_per_model" ]; then
+    USER_SETTINGS=""  # merged into ours
     CC_SETTINGS_ARGS=(--settings "$_per_model")
   elif [ -n "$PROFILE_COMPACT_WINDOW" ]; then
     export CLAUDE_CODE_AUTO_COMPACT_WINDOW="$PROFILE_COMPACT_WINDOW"
@@ -788,9 +808,9 @@ fi
 if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
   echo "[ccsession] Starting untagged session"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} ${USER_SETTINGS:+--settings "$USER_SETTINGS"} --model "$PROFILE_MODEL" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} ${USER_SETTINGS:+--settings "$USER_SETTINGS"} "$@"
   fi
 fi
 
@@ -824,15 +844,15 @@ fi
 if [ -f "$TOPIC_FILE" ]; then
   echo "[ccsession] Resuming '$TOPIC' (session ${SESSION_ID:0:8})"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} ${USER_SETTINGS:+--settings "$USER_SETTINGS"} --model "$PROFILE_MODEL" --resume "$SESSION_ID" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --resume "$SESSION_ID" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} ${USER_SETTINGS:+--settings "$USER_SETTINGS"} --resume "$SESSION_ID" "$@"
   fi
 else
   echo "[ccsession] Starting new session labeled '$TOPIC'"
   if [ -n "${PROFILE_MODEL:-}" ]; then
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} --model "$PROFILE_MODEL" "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} ${USER_SETTINGS:+--settings "$USER_SETTINGS"} --model "$PROFILE_MODEL" "$@"
   else
-    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} "$@"
+    exec "$CLAUDE_BIN" $CC_CLAUDE_FLAGS ${CC_SETTINGS_ARGS[@]+"${CC_SETTINGS_ARGS[@]}"} ${USER_SETTINGS:+--settings "$USER_SETTINGS"} "$@"
   fi
 fi
