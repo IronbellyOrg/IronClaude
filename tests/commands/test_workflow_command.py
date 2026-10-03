@@ -175,3 +175,28 @@ def test_template_00_authoring_contract():
     assert not re.search(r"^## Task \d+:.*\b(verify|verification)\b", body, re.M | re.I)
     for key in ("version:", "priority:", "created_date:"):
         assert re.search(rf"^{key}", text, re.M), key
+
+
+def test_plugin_ships_managed_implement_protocol_and_helper():
+    root = _CMD.parents[3]
+    canonical = root / "src/superclaude/skills/sc-implement-protocol"
+    plugin = root / "plugins/superclaude/skills/sc-implement-protocol"
+    expected = {
+        path.relative_to(canonical)
+        for path in canonical.rglob("*")
+        if path.suffix in (".md", ".py")
+    }
+    actual = {
+        path.relative_to(plugin)
+        for path in plugin.rglob("*")
+        if path.suffix in (".md", ".py")
+    }
+    assert expected == actual
+    for path in expected:
+        assert (plugin / path).read_bytes() == (canonical / path).read_bytes()
+
+
+def test_digit_prefix_precedes_final_subject_truncation():
+    parse = _ref("input-parse.md")
+    assert "Before concatenation or truncation" in parse
+    assert "`1234567890123456` → `plan123456789012`" in parse

@@ -623,3 +623,34 @@ def test_directory_digest_tracks_nested_symlink_targets(p, kind):
     link.symlink_to("second", target_is_directory=kind == "directory")
     assert p.state() != before
     fails(p, "E-ARCHIVE-FINAL")
+
+
+@pytest.mark.parametrize("directory", [False, True])
+def test_delivery_executable_mode_change_invalidates_final(p, directory):
+    delivery = p.root / "src/a.py"
+    delivery.chmod(0o755)
+    if directory:
+        ledger = p.pkg / "progress.md"
+        ledger.write_text(ledger.read_text().replace("files=src/a.py", "files=src"))
+    before = p.state()
+    p.final(state=before)
+    delivery.chmod(0o644)
+    assert p.state() != before
+    fails(p, "E-ARCHIVE-FINAL")
+
+
+def test_directory_traversal_error_cannot_produce_final_state(p, monkeypatch):
+    ledger = p.pkg / "progress.md"
+    ledger.write_text(ledger.read_text().replace("files=src/a.py", "files=src"))
+    original = aw.os.scandir
+
+    def denied(path):
+        if Path(path) == p.root / "src":
+            raise PermissionError("unreadable delivery directory")
+        return original(path)
+
+    monkeypatch.setattr(aw.os, "scandir", denied)
+    with pytest.raises(aw.ArchiveError) as exc:
+        p.state()
+    assert exc.value.code == "E-ARCHIVE-LEDGER"
+    assert p.pkg.exists() and not p.done.exists()
