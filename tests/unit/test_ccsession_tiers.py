@@ -1831,8 +1831,11 @@ def test_user_settings_are_merged_not_replaced(tmp_path: Path) -> None:
 
 def test_colliding_tier_model_names_get_the_shims_suffixed_ids(tmp_path: Path) -> None:
     """PR #258 review: the window map uses the same -2 id the shim shows."""
-    text = TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar").replace(
-        "T2Model04=glm-5.3", "T2Model04=foo-bar"
+    text = (
+        TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar")
+        .replace("T2Model03_WINDOW=1000000", "T2Model03_WINDOW=850000")
+        .replace("T2Model04_WINDOW=1000000", "T2Model04_WINDOW=500000")
+        .replace("T2Model04=glm-5.3", "T2Model04=foo-bar")
     )
     tenv = models.read_defaults_file(_defaults(tmp_path, text))
     assert tenv["T2Model03"] == "foo/bar" and tenv["T2Model04"] == "foo-bar"
@@ -1842,4 +1845,17 @@ def test_colliding_tier_model_names_get_the_shims_suffixed_ids(tmp_path: Path) -
         str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="collide"
     )
     assert module["sanitize"]("foo/bar") == "claude-gw-foo-bar"
-    assert "claude-gw-foo-bar" in per_model and "claude-gw-foo-bar-2" in per_model
+    # The gateway's list order decides which one gets -2, so both picker ids
+    # get the smaller of the two windows (never larger than the model's own).
+    assert tenv["T2Model03_WINDOW"] == "850000" and tenv["T2Model04_WINDOW"] == "500000"
+    small = 500000
+    for key in ("claude-gw-foo-bar", "claude-gw-foo-bar-2"):
+        assert per_model[key]["autoCompactWindow"] == small, key
+
+
+def test_untagged_launch_with_only_settings_still_starts(tmp_path: Path) -> None:
+    """PR #258 review: --settings alone must not turn into --help."""
+    rc, out, err, seen = _launch(tmp_path, "--settings", '{"effortLevel": "high"}')
+    assert rc == 0, err
+    assert seen is not None and "untagged" in out
+    assert json.loads(seen["settings"])["effortLevel"] == "high"

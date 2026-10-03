@@ -433,7 +433,15 @@ def compact_settings(data=None, tenv=None, extra=None) -> dict:
     if extra:
         model, window = extra
         per_model[re.sub(r"\[1m\]$", "", model)] = window
-    used = set()  # mirror the shim's -2/-3 ids for names that sanitize alike
+    # Models whose names sanitize alike get -2/-3 picker ids in an order this
+    # side cannot know (the gateway's list order), so every id of such a group
+    # gets the group's smallest window: never larger than the model's own.
+    groups = {}
+    for tier in resolve_tiers(data, tenv).values():
+        for _, model, window in tier["models"]:
+            base = gateway_alias(model)
+            groups[base] = min(window, groups.get(base, window))
+    used = set()
     for name, tier in resolve_tiers(data, tenv).items():
         per_model[f"claude-gw-{name}"] = tier["window"]
         for _, model, window in tier["models"]:
@@ -442,8 +450,8 @@ def compact_settings(data=None, tenv=None, extra=None) -> dict:
             while alias in used:
                 alias, k = f"{base}-{k}", k + 1
             used.add(alias)
-            for key in (model, alias):
-                per_model.setdefault(key, window)
+            per_model.setdefault(model, window)
+            per_model[alias] = groups[base]
     return {
         "modelSettings": {
             key: {"autoCompactWindow": max(100000, min(window, 1000000))}

@@ -779,7 +779,7 @@ esac
 # Preserve the original no-argument help behavior only when nothing at all
 # was selected (no topic, no profile, no shim).
 if [ "$#" -eq 0 ] && [ -z "$PROFILE" ] && [ -z "$TIER_ARG" ] && [ -z "$MODEL_ARG" ] && \
-  [ "$SHIM_FLAG" != 1 ]; then
+  [ -z "$USER_SETTINGS" ] && [ "$SHIM_FLAG" != 1 ]; then
   show_help
   exit 0
 fi
