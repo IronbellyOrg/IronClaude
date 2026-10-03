@@ -59,6 +59,8 @@ Hard-STOP cases that prevent invocation (verbatim from §3.3):
 - `--depth deep` with under-specified input (e.g., 1-line spec, empty tasklist).
 - `--output` resolves under `.claude/skills/`, `.claude/agents/`, or `.claude/commands/` (CLAUDE.md ABSOLUTE RULE — distributable paths are not output sinks).
 
+Output/input isolation guard (SKILL.md §4.0 Step 0.4 `REFLECT_OUTPUT_ROOT`; checked before any write, pinned for the whole run): STOP `output_input_overlap` when the realpath of `--output` equals or contains the work-unit root or any explicit input (tasklist, spec, task-log, `--diff` file, linked evidence, referenced prior report); STOP `output_symlink_escape` when an output lexically under the work-unit root resolves outside it. Reject `..` components in every output path, inside or outside the work unit. All writes use the pinned resolved root; an authorized package move maps it only by substituting the recorded old package prefix with the recorded destination prefix, never by re-resolving an alias. Comparison is by path components, never string prefix. Only the exact current output subtree is excluded from the input snapshot; use a fresh dedicated run directory when a previous report is an input.
+
 Additional STOP from §4.0 step 0.5 (env routing): zero aliases resolved + `--tier 2` explicit → STOP (see Env routing table below). Unreachable since 2026-10: an unset alias resolves to Claude Code's built-in, so at least one alias always resolves.
 
 ## Environment

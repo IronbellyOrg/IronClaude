@@ -4,12 +4,12 @@ description: "Generate a phased implementation plan from a PRD, spec, or feature
 category: orchestration
 complexity: standard
 mcp-servers: []
-argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--output DIR] [--handoff none|design|implement|tasklist]"
+argument-hint: "<path-or-prompt> [--strategy systematic|agile|enterprise] [--depth quick|standard|deep] [--handoff none|design|implement|tasklist]"
 ---
 
 # /sc:workflow — Implementation Plan Generator
 
-Produces a **phased plan** (`plan.md`). Does not implement code and does not emit sprint tasklists.
+Produces a **phased plan** (tasklist `<id>.md`, named exactly like its package directory) inside a new task package `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (`<subject>` = lower camelCase, max 16 chars, e.g. `authLogin`). Does not implement code and does not emit sprint tasklists.
 
 ## Triggers
 
@@ -27,7 +27,6 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
 /sc:workflow <path-or-prompt>
              [--strategy systematic|agile|enterprise]
              [--depth quick|standard|deep]
-             [--output DIR]
              [--handoff none|design|implement|tasklist]
 ```
 
@@ -38,10 +37,9 @@ Exactly one source: an existing file path (`@path` ok) **or** leftover `$ARGUMEN
 | `<path>` / `<prompt>` | required xor | File or inline prompt |
 | `--strategy` | `systematic` | `systematic` \| `agile` \| `enterprise`. Enterprise + omitted depth → `deep` |
 | `--depth` | `standard` | `quick` \| `standard` \| `deep` |
-| `--output` | `.dev/workflow/<slug>/` | Must stay under `.dev/workflow/` |
 | `--handoff` | `none` | `none` / `design` / `tasklist` = text; `implement` = Skill invoke |
 
-Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`.
+Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`, and the retired `--output` (every plan goes to a new `.dev/tasks/to-do/<id>/` package; there is no destination override).
 
 ## Behavioral Summary
 
@@ -64,7 +62,7 @@ The full behavioral specification is in `src/superclaude/skills/sc-workflow-prot
 
 ## Boundaries
 
-**Will:** write `.dev/workflow/<slug>/plan.md` + `return-contract.yaml`.
+**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package.
 
 **Will Not:** mutate product code; emit `tasklist-index.md`; run `superclaude roadmap`.
 
@@ -79,4 +77,4 @@ The full behavioral specification is in `src/superclaude/skills/sc-workflow-prot
 
 ## CRITICAL BOUNDARIES
 
-Plan only. Next: `/sc:implement @plan.md` or `/sc:tasklist` on a roadmap.
+Plan only. Next: `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`) or `/sc:tasklist` on a roadmap.

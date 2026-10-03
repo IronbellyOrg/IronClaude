@@ -174,6 +174,32 @@ When a phase shows `status: error`, read the corresponding `phase-N-tasklist.md`
 # or natural-language: "resume the task at <path>"
 ```
 
+## Workflow task packages (`TASK-WF-*`, `/sc:workflow` + `/sc:implement`)
+
+**Created by:** `/sc:workflow` (one new package per generation). **Route to `/sc:implement`, never to MDTM `/task` or `/sc:task`.**
+**Layout (scan BOTH locations):**
+
+```text
+.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/   # in flight
+.dev/tasks/done/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/    # archived (finished)
+├── <id>.md  source.md  return-contract.yaml              # <id>.md = tasklist named like the dir; workflow-plan/1.2, contract 1.1, ./ links
+├── progress.md                                           # ledger — the state; no status: frontmatter
+└── artifacts/                                            # task-owned evidence
+```
+
+**Status signal:** `progress.md` — `T<id>: complete verdict=…` lines, `FINAL:` and `ARCHIVE:` lines. Location is archive state: in `done/` = archived; in `to-do/` with every task complete = **archive-blocked**, not finished.
+**Recovery:**
+
+```bash
+# resume or retry the archive gate (the same path works after a move: it reports the actual done/ path)
+/sc:implement .dev/tasks/to-do/<id>/<id>.md   # <id> = TASK-WF-<camelSubject>-<YYYYMMDD>-<HHMMSS>[-N]
+```
+
+- Present in both `to-do/` and `done/` → conflict. Report it; do not merge, move or delete either copy.
+- `<package>/.archiving` exists → a previous archive run was interrupted (maybe mid-move). Never delete it automatically and never infer the owner is dead from `FINAL:`/`ARCHIVE:` lines. After the operator confirms the original run has stopped: `uv run --no-project python <implement skill dir>/scripts/archive_workspace.py --root <checkout root> --package <package dir> --clear-marker <token in .archiving/owner>`.
+- Archiving is Linux-only and fail-closed (`renameat2` no-replace; no `mv`/copy fallback). It implies no commit, PR or release.
+- Runs created before this layout (`.dev/workflow/<slug>/plan.md`, `workflow-plan/1.1`, path-hashed `.dev/implement/<slug>/progress.md`) are preserved legacy runs: resume them with `/sc:implement <plan path>` as before; do not migrate them.
+
 ## Adversarial / Cleanup-Audit / Release-Split
 
 These produce artifact bundles, not stateful pipelines. If found mid-run (e.g. `.dev/research/process-improvement-debate/` with only partial files), the safest recovery is to re-invoke the original skill — they're not designed for fine-grained resume.

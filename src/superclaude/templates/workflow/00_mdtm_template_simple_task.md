@@ -14,7 +14,8 @@ Every source requirement maps to at least one task; no requirement is silently d
 DO NOT invent requirements, paths, or APIs not found in the Source or the repo.
 Each Task must stand alone (its reviewer sees only that task and the Constraints): name every file and source section it needs.
 No task that only reads/loads context; fold reading into the task that uses it.
-No separate "verify X" tasks; put the check in that task's acceptance criteria.
+No separate "verify X" tasks; put the check in that task's acceptance criteria. Final whole-plan verification and archiving are executor-owned: no status field, checkbox, or verification-only task.
+Delivery files (code, tests, docs) use repo-relative paths and stay canonical in the repo. Evidence or generated output a task owns goes under ./artifacts/ in this package (package-relative, e.g. ./artifacts/t2-test.log); never write operational links that embed an absolute path or a .dev/tasks/to-do/ prefix.
 No bulk tasks ("update all handlers"); name each file or component.
 For multi-item work, list every item explicitly in the plan; do not leave discovery to the executor.
 Keep outputs and acceptance criteria inside each Task; no plan-wide Outputs/Success Criteria/Verification sections.

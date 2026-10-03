@@ -188,7 +188,7 @@ Each wave has explicit entry/exit. Refs are loaded on-demand per wave, never pre
 
 ### 4.0 Wave 0 — Detailed step additions
 
-**Step 0.4 (input_sha256 tree-snapshot).** Compute a **tree-hash** over every file the run treats as input. The tree consists of: (1) the `tasklist_path` itself (always present in UC-2); (2) the `spec_path` (when `--spec` provided); (3) every file referenced by relative or absolute path from the tasklist body (link-following with depth = 1; do NOT recurse into linked-link chains for v1); (4) for UC-2 tasklist inputs that resolve under a work-unit directory (e.g., `.dev/tasks/to-do/TASK-NNN/`), every file under that directory tree (`find <work-unit-dir> -type f`), **filtered through `VERIFICATION_ARTIFACT_EXCLUDES` (below)**.
+**Step 0.4 (input_sha256 tree-snapshot).** Compute a **tree-hash** over every file the run treats as input. The tree consists of: (1) the `tasklist_path` itself (always present in UC-2); (2) the `spec_path` (when `--spec` provided); (3) every file referenced by relative or absolute path from the tasklist body (link-following with depth = 1; do NOT recurse into linked-link chains for v1); (4) for UC-2 tasklist inputs that resolve under a work-unit directory (e.g., `.dev/tasks/to-do/TASK-NNN/`), every file under that directory tree (`find <work-unit-dir> -type f`), **filtered through `VERIFICATION_ARTIFACT_EXCLUDES` and the `REFLECT_OUTPUT_ROOT` exclusion (both below)**.
 
 **`VERIFICATION_ARTIFACT_EXCLUDES` (FR-4.8 / M-COR2).** Because the §6.1 step 5.5 verification triangle runs `pytest`/`mypy`/`ruff`/build inside or adjacent to the work-unit subtree, those tools emit build/test cache artifacts *into the input tree*. An unfiltered `find -type f` would then see them as "added files" and trip the drift guard, STOPping the skill on a successful verify. To prevent this, the following glob set is excluded from the input tree at BOTH construction here AND the Wave-5/Wave-7 recompute below — the SAME set must be applied at both sites or the snapshot and recompute disagree even without a real edit:
 
@@ -202,9 +202,18 @@ target/   .hypothesis/   *.egg-info/
 
 The exclusion is scoped to build/test artifacts ONLY — a real source-file change (add/remove/modify/rename of a non-artifact file) still trips the drift guard and STOPs.
 
+**`REFLECT_OUTPUT_ROOT` (current-output exclusion + guard).** When the work-unit directory contains this run's own `<output>`, the run's writes (`audit.log`, `artifacts/input-snapshot.yaml`, reports) would otherwise appear as "added/modified" input at the recompute and trip `input_drift` on a clean run. Therefore, at Step 0.4 and **before any write or directory creation under `<output>`** (the Step 0.8 audit log is the first write), resolve and pin the output root:
+
+1. `output_root` = realpath of `--output` (or the default), resolved through its nearest existing ancestor. Pin this exact value for the whole run. Wave 5, Wave 7 steps 7.2/7.5 and every later stage reuse the pinned value; they MUST NOT re-resolve it or accept a different `--output` (no retargeting between stages).
+2. Compare only by realpath **path components**, never string prefix: a `reflect-post` root never covers `reflect-post-previous`.
+3. Fail closed with STOP `output_input_overlap` (nothing written, no directory created) when `output_root` equals or contains the work-unit root, or equals or contains the realpath of ANY explicit input: tasklist, spec, task-log, `--diff` file, every linked file followed in item (3) above, or a prior report/QA artifact the run references. Overlap with an explicit input is fatal, never an exclusion: do not hide required evidence behind the exception. When a previous report is an input, choose a new dedicated run directory instead of reusing its folder.
+4. Fail closed with STOP `output_symlink_escape` when `<output>` is lexically under the work-unit root but any existing component resolves outside it. Reject `..` components in every output path, whether inside or outside the work unit. All writes use the pinned resolved root, never a later-resolved alias. A lexical alias outside the work unit that resolves inside it uses the same pinned-root containment and overlap guards; it gains no broader exclusion. Managed reflection outputs stay inside the package.
+5. Exclude **exactly one subtree**: `output_root` and everything beneath it, applied identically at Step 0.4 construction and at every Wave-5/Wave-7 recompute (including Wave 7 step 7.5: after an authorized move, map the pinned root only by substituting the recorded old work-unit prefix with the recorded destination prefix and preserving its relative suffix; this is a mechanical relocation mapping, not re-resolving or retargeting the output). It is not a parent, sibling, glob, or blanket `artifacts/` exclusion; `VERIFICATION_ARTIFACT_EXCLUDES`, other package artifacts, the tasklist/spec/log and prior review results all stay in the tree, so any real edit to them still trips `input_drift`. When `output_root` is outside the work-unit tree the exclusion is a no-op.
+
 The tree-hash is computed as:
 
 ```
+input_tree   = [p for p in input_tree if not under(realpath(p), REFLECT_OUTPUT_ROOT)]   # component containment
 input_tree   = [p for p in input_tree if not matches_any(p, VERIFICATION_ARTIFACT_EXCLUDES)]
 file_list    = sorted([(relative_path, sha256(read(absolute_path))) for path in input_tree])
 input_tree_sha256 = sha256(serialize_as_json(file_list))    # canonical serialization for reproducibility
@@ -220,7 +229,7 @@ file_list:
 file_count: <int>
 ```
 
-Before Wave 5 synthesis AND at Wave 7 step 7.2 (pre-mutation), re-read the input tree (**applying the same `VERIFICATION_ARTIFACT_EXCLUDES` filter as at construction** — FR-4.8) and recompute `input_tree_sha256`. If it differs (any non-excluded file added, removed, modified, or renamed), STOP with `input_drift` flag, emit BOTH SHAs and the per-file diff into the return contract, and route to `status: partial`. Build/test artifacts emitted by the step-5.5 verification run are excluded at both sites, so a successful verify does NOT trip `input_drift`.
+Before Wave 5 synthesis AND at Wave 7 step 7.2 (pre-mutation), re-read the input tree (**applying the same `VERIFICATION_ARTIFACT_EXCLUDES` filter and the same pinned `REFLECT_OUTPUT_ROOT` exclusion as at construction** — FR-4.8) and recompute `input_tree_sha256`. If it differs (any non-excluded file added, removed, modified, or renamed), STOP with `input_drift` flag, emit BOTH SHAs and the per-file diff into the return contract, and route to `status: partial`. Build/test artifacts emitted by the step-5.5 verification run are excluded at both sites, so a successful verify does NOT trip `input_drift`.
 
 **Backward-compat with v1.0-pre contract.** The legacy `input_sha256: {tasklist: <hex>, spec: <hex>}` field in §9.1 is preserved as a derivable subset (first two entries of `file_list`); both fields are emitted in v1.0. The Wave 5 drift guard uses `input_tree_sha256` as the authoritative invariant; the legacy field is recording for backward-compat consumers per §9.4 evolution policy.
 

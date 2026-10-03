@@ -90,7 +90,8 @@ def main() -> int:
 
         def render():
             t = Table()
-            t.add_column("phase"); t.add_column("status")
+            t.add_column("phase")
+            t.add_column("status")
             t.add_row(str(progress["spawns"]), "RUNNING")
             return t
 
