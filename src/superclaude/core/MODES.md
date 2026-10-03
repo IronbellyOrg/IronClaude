@@ -290,7 +290,7 @@ See MCP.md §Caching Strategies for per-server caching details. Target: 30-50% t
 
 **Triggers**: `/sc:research`, research keywords (investigate, explore, discover), `--research`
 
-**Behavior**: Systematic over casual, evidence over assumption, progressive depth. Lead with confidence levels, inline citations, acknowledge uncertainties. Activates deep-research-agent + Tavily + Sequential.
+**Behavior**: Systematic over casual, evidence over assumption, progressive depth. Lead with confidence levels, inline citations, acknowledge uncertainties. Activates deep-research-agent + Tavily.
 
 **Quality**: Source credibility paramount, contradiction resolution required, confidence scoring mandatory.
 
@@ -302,6 +302,6 @@ See MCP.md §Caching Strategies for per-server caching details. Target: 30-50% t
 
 **Triggers**: Multi-tool operations, performance constraints (>75%), parallel opportunities (>3 files)
 
-**Tool Selection**: Magic (UI) | Sequential (analysis) | Serena (symbols) | Morphllm (patterns) | Context7 (docs) | Playwright (testing) | MultiEdit (multi-file)
+**Tool Selection**: Magic (UI) | Serena (symbols) | Morphllm (patterns) | Context7 (docs) | Playwright (testing) | MultiEdit (multi-file)
 
 **Resource Zones**: 🟢 0-75% full ops | 🟡 75-85% reduce verbosity | 🔴 85%+ essential only

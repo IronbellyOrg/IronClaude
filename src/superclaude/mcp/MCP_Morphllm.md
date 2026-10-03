@@ -21,7 +21,6 @@
 ## Works Best With
 
 - **Serena**: Serena analyzes semantic context → Morphllm executes precise edits
-- **Sequential**: Sequential plans edit strategy → Morphllm applies systematic changes
 
 ## Examples
 
@@ -30,6 +29,5 @@
 "enforce ESLint rules across project" → Morphllm (style guide application)
 "replace all console.log with logger calls" → Morphllm (bulk text replacement)
 "rename getUserData function everywhere" → Serena (symbol operation)
-"analyze code architecture" → Sequential (complex analysis)
 "explain this algorithm" → Native Claude (simple explanation)
 ```

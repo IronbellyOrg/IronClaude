@@ -196,7 +196,6 @@ business_panel_config:
   expert_voice_preservation: 0.85
   
   # Integration
-  mcp_sequential_primary: true
   mcp_context7_patterns: true
   persona_coordination: true
 ```

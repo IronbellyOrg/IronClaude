@@ -79,7 +79,6 @@ Key behaviors:
 ```
 /sc:explain microservices-system --level advanced --format interactive
 # Architect persona explains system design and patterns
-# Interactive exploration with Sequential analysis breakdown
 ```
 
 ### Security Concept Explanation

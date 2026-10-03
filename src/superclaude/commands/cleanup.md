@@ -88,7 +88,6 @@ Key behaviors:
 ```
 /sc:cleanup components/ --aggressive
 # Thorough cleanup with Context7 framework patterns
-# Sequential analysis for complex dependency management
 ```
 
 ## Boundaries

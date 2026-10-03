@@ -686,7 +686,7 @@ The prompt sent to each ClaudeProcess is structured:
 
 ## Execution Rules
 - Execute tasks in order (T01XX.01, T01XX.02, etc.)
-- For STRICT tier tasks: use Sequential MCP for analysis, run quality verification
+- For STRICT tier tasks: run quality verification
 - For STANDARD tier tasks: run direct test execution per acceptance criteria
 - For LIGHT tier tasks: quick sanity check only
 - For EXEMPT tier tasks: skip formal verification

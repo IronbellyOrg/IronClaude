@@ -67,7 +67,7 @@ Before using this guide, verify agent selection works:
 /sc:troubleshoot "memory leak"      # → performance-engineer auto-activates
 ```
 
-**MCP Servers** provide enhanced capabilities through specialized tools like Context7 (documentation), Sequential (analysis), Magic (UI), Playwright (testing), and Morphllm (code transformation).
+**MCP Servers** provide enhanced capabilities through specialized tools like Context7 (documentation), Magic (UI), Playwright (testing), and Morphllm (code transformation).
 
 **Domain Specialists** focus on narrow expertise areas to provide deeper, more accurate solutions than generalist approaches.
 
@@ -367,7 +367,7 @@ Task Flow:
 - **Multi-Hop Reasoning**: Up to 5 levels - entity expansion, temporal progression, conceptual deepening, causal chains
 - **Self-Reflective Mechanisms**: Progress assessment after each major step with replanning triggers
 - **Evidence Management**: Clear citations, relevance scoring, uncertainty acknowledgment
-- **Tool Orchestration**: Parallel-first execution with Tavily (search), Playwright (JavaScript content), Sequential (reasoning)
+- **Tool Orchestration**: Parallel-first execution with Tavily (search) and Playwright (JavaScript content)
 - **Learning Integration**: Pattern recognition and strategy reuse via Serena memory
 
 **Research Depth Levels**:
@@ -677,7 +677,6 @@ Task Flow:
 **Enhanced Capabilities through MCP Servers**:
 
 - **Context7**: Official documentation patterns for all architects and specialists
-- **Sequential**: Multi-step analysis for root-cause-analyst, system-architect, performance-engineer
 - **Magic**: UI generation for frontend-architect, learning-guide interactive content
 - **Playwright**: Browser testing for quality-engineer, accessibility validation for frontend-architect
 - **Morphllm**: Code transformation for refactoring-expert, bulk changes for python-expert

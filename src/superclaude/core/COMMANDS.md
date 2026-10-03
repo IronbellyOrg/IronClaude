@@ -20,7 +20,7 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 
 - **Claude Code**: Native slash command compatibility
 - **Persona System**: Auto-activation based on command context
-- **MCP Servers**: Context7, Sequential, Magic, Playwright integration
+- **MCP Servers**: Context7, Magic, Playwright integration
 - **Wave System**: Multi-stage orchestration for complex operations
 
 ## Wave System Integration
@@ -37,13 +37,13 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 **`/build $ARGUMENTS`** — Project builder with framework detection (wave-enabled, optimization profile)
 
 - **Auto-Persona**: Frontend, Backend, Architect, Scribe
-- **MCP**: Magic (UI), Context7 (patterns), Sequential (logic)
+- **MCP**: Magic (UI), Context7 (patterns)
 - **Tools**: [Read, Grep, Glob, Bash, TodoWrite, Edit, MultiEdit]
 
 **`/implement $ARGUMENTS`** — Feature implementation with intelligent persona activation (wave-enabled, standard profile)
 
 - **Auto-Persona**: Frontend, Backend, Architect, Security (context-dependent)
-- **MCP**: Magic (UI), Context7 (patterns), Sequential (complex logic)
+- **MCP**: Magic (UI), Context7 (patterns)
 - **Tools**: [Read, Write, Edit, MultiEdit, Bash, Glob, TodoWrite, Task]
 
 ### Analysis Commands
@@ -51,32 +51,32 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 **`/analyze $ARGUMENTS`** — Multi-dimensional code and system analysis (wave-enabled, complex profile)
 
 - **Auto-Persona**: Analyzer, Architect, Security
-- **MCP**: Sequential (primary), Context7 (patterns), Magic (UI analysis)
+- **MCP**: Context7 (patterns), Magic (UI analysis)
 - **Tools**: [Read, Grep, Glob, Bash, TodoWrite]
 
-**`/troubleshoot [symptoms] [flags]`** - Tiered diagnosis (Tier 1 triage → auto-escalating Tier 2 parallel hypotheses + adversarial fix debate → opt-in Tier 3 task-builder remediation) | Auto-Persona: Analyzer, Performance, Security, QA, Refactorer, DevOps | MCP: Auggie, Serena, Context7, Tavily, Sequential
+**`/troubleshoot [symptoms] [flags]`** - Tiered diagnosis (Tier 1 triage → auto-escalating Tier 2 parallel hypotheses + adversarial fix debate → opt-in Tier 3 task-builder remediation) | Auto-Persona: Analyzer, Performance, Security, QA, Refactorer, DevOps | MCP: Auggie, Serena, Context7, Tavily
 
-**`/explain [topic] [flags]`** - Educational explanations | Auto-Persona: Mentor, Scribe | MCP: Context7, Sequential
+**`/explain [topic] [flags]`** - Educational explanations | Auto-Persona: Mentor, Scribe | MCP: Context7
 
 ### Quality Commands
 
 **`/improve [target] [flags]`** — Evidence-based code enhancement (wave-enabled, optimization profile)
 
 - **Auto-Persona**: Refactorer, Performance, Architect, QA
-- **MCP**: Sequential (logic), Context7 (patterns), Magic (UI)
+- **MCP**: Context7 (patterns), Magic (UI)
 - **Tools**: [Read, Grep, Glob, Edit, MultiEdit, Bash]
 
-**`/cleanup [target] [flags]`** - Project cleanup and technical debt reduction | Auto-Persona: Refactorer | MCP: Sequential
+**`/cleanup [target] [flags]`** - Project cleanup and technical debt reduction | Auto-Persona: Refactorer
 
 **`/cleanup-audit [target] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]`** — Multi-pass read-only repository audit (wave-enabled, complex profile)
 
 - **Auto-Persona**: Analyzer, Architect, DevOps, QA, Refactorer
-- **MCP**: Sequential (cross-cutting synthesis), Serena (import chains), Context7 (framework patterns)
+- **MCP**: Serena (import chains), Context7 (framework patterns)
 
 **`/cli-eval create|run [--name <stem>] [--from @<spec>] [--suite <name>] [--eval <id>] [--agents opus,sonnet,haiku]`** — cliEval suite lifecycle: author a new eval suite (propose→critique→debate→author→schema-validate→document) or interactively select + supervise a run of an existing suite (advanced profile)
 
 - **Auto-Persona**: Architect, Analyzer, QA, Scribe
-- **MCP**: Sequential, Context7, Serena
+- **MCP**: Context7, Serena
 - **Tools**: [Read, Grep, Glob, Bash(git/wc/find/du), TodoWrite, Task, Write]
 - **Subagents**: audit-scanner (Haiku), audit-analyzer (Sonnet), audit-comparator (Sonnet), audit-consolidator (Sonnet), audit-validator (Sonnet)
 
@@ -84,18 +84,18 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 
 **`/sc:post-release <version> [--output <dir>]`** — Post-release follow-through: synchronize/create a shipped version's entire external surface (user docs, technical docs, install/deploy scripts validated by real e2e, human-run e2e test guides). Runs after the release gate tags a version (high profile).
 
-**`/document [target] [flags]`** - Documentation generation | Auto-Persona: Scribe, Mentor | MCP: Context7, Sequential
+**`/document [target] [flags]`** - Documentation generation | Auto-Persona: Scribe, Mentor | MCP: Context7
 
-**`/estimate [target] [flags]`** - Evidence-based estimation | Auto-Persona: Analyzer, Architect | MCP: Sequential, Context7
+**`/estimate [target] [flags]`** - Evidence-based estimation | Auto-Persona: Analyzer, Architect | MCP: Context7
 
-**`/task [operation] [flags]`** - Long-term project management | Auto-Persona: Architect, Analyzer | MCP: Sequential
+**`/task [operation] [flags]`** - Long-term project management | Auto-Persona: Architect, Analyzer
 
 ### Unified Task Command (Compliance-Enforced)
 
 **`/sc:task [description] [flags]`** — Unified task execution with tiered compliance (wave-enabled, adaptive profile)
 
 - **Auto-Persona**: Domain-specific (Security → security, Frontend → frontend, etc.)
-- **MCP**: Sequential (analysis), Serena (context), Context7 (patterns)
+- **MCP**: Serena (context), Context7 (patterns)
 - **Tools**: [TodoWrite, Read, Grep, Glob, Edit, MultiEdit, Task, Bash]
 
 #### Strategy Flags (Orchestration Dimension)
@@ -155,15 +155,15 @@ Each command specifies: `command`, `category`, `purpose`, `wave-enabled` (true|f
 | Documentation-only | *.md, docs/ | EXEMPT |
 | Single trivial change | typo, comment | LIGHT |
 
-**`/test [type] [flags]`** - Testing workflows | Auto-Persona: QA | MCP: Playwright, Sequential
+**`/test [type] [flags]`** - Testing workflows | Auto-Persona: QA | MCP: Playwright
 
-**`/git [operation] [flags]`** - Git workflow assistant | Auto-Persona: DevOps, Scribe, QA | MCP: Sequential
+**`/git [operation] [flags]`** - Git workflow assistant | Auto-Persona: DevOps, Scribe, QA
 
-**`/design [domain] [flags]`** - Design orchestration | Auto-Persona: Architect, Frontend | MCP: Magic, Sequential, Context7
+**`/design [domain] [flags]`** - Design orchestration | Auto-Persona: Architect, Frontend | MCP: Magic, Context7
 
 ### Meta & Orchestration Commands
 
-**`/index [query] [flags]`** - Command catalog browsing | Auto-Persona: Mentor, Analyzer | MCP: Sequential
+**`/index [query] [flags]`** - Command catalog browsing | Auto-Persona: Mentor, Analyzer
 
 **`/load [path] [flags]`** - Project context loading | Auto-Persona: Analyzer, Architect, Scribe | MCP: All servers
 

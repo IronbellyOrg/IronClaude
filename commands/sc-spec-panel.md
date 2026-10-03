@@ -3,7 +3,7 @@ name: spec-panel
 description: "Multi-expert specification review and improvement using renowned specification and software engineering experts"
 category: analysis
 complexity: enhanced
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [technical-writer, system-architect, quality-engineer]
 ---
 
@@ -95,12 +95,11 @@ Key behaviors:
 - **Critique Focus**: "How does this specification handle cloud-native deployment and operational concerns?"
 
 ## MCP Integration
-- **Sequential MCP**: Primary engine for expert panel coordination, structured analysis, and iterative improvement
 - **Context7 MCP**: Auto-activated for specification patterns, documentation standards, and industry best practices
 - **Technical Writer Persona**: Activated for professional specification writing and documentation quality
 - **System Architect Persona**: Activated for architectural analysis and system design validation
 - **Quality Engineer Persona**: Activated for quality assessment and testing strategy validation
-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
 
 ## Analysis Modes
 
@@ -230,7 +229,6 @@ KELSEY HIGHTOWER: "What operational and monitoring capabilities does this specif
 
 ## Tool Coordination
 - **Read**: Specification content analysis and parsing
-- **Sequential**: Expert panel coordination and iterative analysis
 - **Context7**: Specification patterns and industry best practices
 - **Grep**: Cross-reference validation and consistency checking
 - **Write**: Improved specification generation and report creation

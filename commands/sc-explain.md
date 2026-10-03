@@ -3,7 +3,7 @@ name: explain
 description: "Provide clear explanations of code, concepts, and system behavior with educational clarity"
 category: workflow
 complexity: standard
-mcp-servers: [sequential, context7]
+mcp-servers: [context7]
 personas: [educator, architect, security]
 ---
 
@@ -30,14 +30,12 @@ personas: [educator, architect, security]
 Key behaviors:
 - Multi-persona coordination for domain expertise (educator, architect, security)
 - Framework-specific explanations via Context7 integration
-- Systematic analysis via Sequential MCP for complex concept breakdown
 - Adaptive explanation depth based on audience and complexity
 
 ## MCP Integration
-- **Sequential MCP**: Auto-activated for complex multi-component analysis and structured reasoning
 - **Context7 MCP**: Framework documentation and official pattern explanations
 - **Persona Coordination**: Educator (learning), Architect (systems), Security (practices)
-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
 
 ## Tool Coordination
 - **Read/Grep/Glob**: Code analysis and pattern identification for explanation content
@@ -70,7 +68,6 @@ Key behaviors:
 ```
 /sc:sc:explain microservices-system --level advanced --format interactive
 # Architect persona explains system design and patterns
-# Interactive exploration with Sequential analysis breakdown
 ```
 
 ### Security Concept Explanation

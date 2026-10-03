@@ -112,9 +112,9 @@ Example:
   → PM Agent: Coordinate refactoring with Serena insights
 ```
 
-#### Native reasoning (no Sequential MCP)
+#### Native reasoning
 
-`sequential-thinking` is not a SuperClaude-installed MCP. Multi-step analysis uses native model reasoning. Do not document `--seq` or Sequential MCP as an installable server.
+Multi-step analysis uses native model reasoning.
 
 #### Context7 MCP
 
@@ -215,8 +215,7 @@ Code Understanding:
   Example: "Find all authentication-related symbols"
 
 Complex Analysis:
-  Primary: Sequential MCP
-  Secondary: Native reasoning (simple cases)
+  Native reasoning (simple cases)
   Example: "Design authentication architecture"
 
 Documentation Reference:
@@ -252,7 +251,7 @@ Medium (3-10 files, some complexity):
   Tools: MultiEdit, Glob, Grep
 
 Complex (>10 files, architectural changes):
-  MCPs: Serena + Sequential
+  MCPs: Serena
   Coordination: PM Agent Commander mode
   Tools: Task delegation, parallel execution
 
@@ -299,11 +298,9 @@ During Implementation:
   Manual Trigger:
     - TodoWrite: Progress tracking
     - Serena: Code understanding (if needed)
-    - Sequential: Complex analysis (if needed)
 
   MCPs Used:
     - Serena: On code complexity trigger
-    - Sequential: On analysis keyword
     - Context7: On documentation need
 
 Post-Implementation:
@@ -340,20 +337,8 @@ Serena MCP:
 
   Manual Override: --serena flag
 
-Sequential MCP:
-  Auto-Trigger Keywords:
-    - "design"
-    - "architecture"
-    - "analyze tradeoffs"
-    - "complex problem"
-
-  Auto-Trigger Conditions:
-    - System design task
-    - Multiple valid approaches
-    - Uncertainty in implementation
-    - Architectural decision
-
-  Manual Override: native reasoning (no Sequential MCP flag)
+Native reasoning:
+  Manual Override: native reasoning
 
 Context7 MCP:
   Auto-Trigger Keywords:
@@ -405,10 +390,6 @@ Tavily MCP:
   Reason: Mindbaseと重複
   Instead: docs/patterns/ と docs/mistakes/ 使用
 
-❌ 全タスクでSequential使用:
-  Reason: トークン浪費
-  Instead: 複雑分析時のみ
-
 ❌ Context7をプロジェクトドキュメントに使用:
   Reason: 公式ドキュメント専用
   Instead: Read docs/ 使用
@@ -422,7 +403,7 @@ Tavily MCP:
 ✅ Right Tool for Right Job:
   Simple → Native tools (Read, Edit, Grep)
   Medium → Context7 (new library)
-  Complex → Serena + Sequential
+  Complex → Serena
 
 ✅ Lazy Evaluation:
   Don't preload MCPs
@@ -458,17 +439,12 @@ Test Cases:
    - Verify Serena auto-triggered
    - Verify symbol tracking used
 
-3. Sequential Complex Analysis:
-   - Task: "Design microservices architecture"
-   - Verify Sequential auto-triggered
-   - Verify step-by-step reasoning
-
-4. Context7 Documentation:
+3. Context7 Documentation:
    - Task: "Implement with new library"
    - Verify Context7 auto-triggered
    - Verify official docs referenced
 
-5. Tavily Research:
+4. Tavily Research:
    - Task: "Find latest security patterns"
    - Verify Tavily auto-triggered
    - Verify web search executed

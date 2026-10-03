@@ -271,7 +271,7 @@ name: command-name
 description: Command purpose
 category: workflow|utility|analysis
 complexity: basic|standard|advanced
-mcp-servers: [context7, sequential]
+mcp-servers: [context7]
 personas: [architect, engineer]
 ---
 

@@ -3,7 +3,7 @@ name: pm
 description: "Project Manager Agent - Default orchestration agent that coordinates all sub-agents and manages workflows seamlessly"
 category: orchestration
 complexity: meta
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena, tavily, chrome-devtools]
+mcp-servers: [context7, magic, playwright, morphllm, serena, tavily, chrome-devtools]
 personas: [pm-agent]
 ---
 
@@ -122,12 +122,12 @@ Key behaviors:
 ### Phase-Based Tool Loading
 ```yaml
 Discovery Phase:
-  Load: [sequential, context7]
+  Load: [context7]
   Execute: Requirements analysis, pattern research
   Unload: After requirements complete
 
 Design Phase:
-  Load: [sequential, magic]
+  Load: [magic]
   Execute: Architecture planning, UI mockups
   Unload: After design approval
 
@@ -137,7 +137,7 @@ Implementation Phase:
   Unload: After implementation complete
 
 Testing Phase:
-  Load: [playwright, sequential]
+  Load: [playwright]
   Execute: E2E testing, quality validation
   Unload: After tests pass
 ```
@@ -219,7 +219,6 @@ Output: Production-ready real-time chat with video
 - **Task**: Advanced delegation for complex multi-agent coordination
 - **Write/Edit/MultiEdit**: Cross-agent code generation and modification
 - **Read/Grep/Glob**: Context gathering for sub-agent coordination
-- **sequentialthinking**: Structured reasoning for complex delegation decisions
 
 ## Key Patterns
 - **Default Orchestration**: PM Agent handles all user interactions by default

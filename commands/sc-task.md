@@ -3,7 +3,7 @@ name: task
 description: "Execute complex tasks with intelligent workflow management and delegation"
 category: special
 complexity: advanced
-mcp-servers: [sequential, context7, magic, playwright, morphllm, serena]
+mcp-servers: [context7, magic, playwright, morphllm, serena]
 personas: [architect, analyzer, frontend, backend, security, devops, project-manager]
 ---
 
@@ -29,24 +29,22 @@ personas: [architect, analyzer, frontend, backend, security, devops, project-man
 
 Key behaviors:
 - Multi-persona coordination across architect, frontend, backend, security, devops domains
-- Intelligent MCP server routing (Sequential, Context7, Magic, Playwright, Morphllm, Serena)
+- Intelligent MCP server routing (Context7, Magic, Playwright, Morphllm, Serena)
 - Systematic execution with progressive task enhancement and cross-session persistence
 - Advanced task delegation with hierarchical breakdown and dependency management
 
 ## MCP Integration
-- **Sequential MCP**: Complex multi-step task analysis and systematic execution planning
 - **Context7 MCP**: Framework-specific patterns and implementation best practices
 - **Magic MCP**: UI/UX task coordination and design system integration
 - **Playwright MCP**: Testing workflow integration and validation automation
 - **Morphllm MCP**: Large-scale task transformation and pattern-based optimization
 - **Serena MCP**: Cross-session task persistence and project memory management
-- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning in place of Sequential, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
+- **Availability fallback**: The MCP servers named here are preferred tooling, not hard requirements — when one is not installed, degrade gracefully (native reasoning, official docs via web lookup in place of Context7, native tools otherwise) instead of routing work to absent servers.
 
 ## Tool Coordination
 - **TodoWrite**: Hierarchical task breakdown and progress tracking across Epic → Story → Task levels
 - **Task**: Advanced delegation for complex multi-agent coordination and sub-task management
 - **Read/Write/Edit**: Task documentation and implementation coordination
-- **sequentialthinking**: Structured reasoning for complex task dependency analysis
 
 ## Key Patterns
 - **Task Hierarchy**: Epic-level objectives → Story coordination → Task execution → Subtask granularity

@@ -22,7 +22,6 @@
 ## Works Best With
 
 - **Morphllm**: Serena analyzes semantic context → Morphllm executes precise edits
-- **Sequential**: Serena provides project context → Sequential performs architectural analysis
 
 ## Examples
 

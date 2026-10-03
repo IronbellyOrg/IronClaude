@@ -188,7 +188,6 @@ Task Management
 **Server Integration**
 
 Context7 (docs)  
-Sequential (analysis)  
 Magic (UI)  
 Playwright (testing)
 
@@ -262,7 +261,7 @@ Playwright (testing)
 | Domain | Trigger | Specialist Activation | MCP Server |
 |--------|---------|----------------------|------------|
 | **Frontend** | UI component request | `@agent-frontend` | Magic |
-| **Backend** | API endpoint creation | `@agent-backend` | Sequential |
+| **Backend** | API endpoint creation | `@agent-backend` | — |
 | **Security** | Auth implementation | `@agent-security` | Context7 |
 | **Testing** | E2E test scenarios | `@agent-qa` | Playwright |
 | **DevOps** | Deployment setup | `@agent-devops` | Morphllm |

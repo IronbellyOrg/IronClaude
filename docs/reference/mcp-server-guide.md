@@ -465,7 +465,6 @@ find ~/.config/ -name "*mcp*" -type f
 
 # Solution 3: Environment variable configuration
 export MCP_CONTEXT7_TIMEOUT=60
-export MCP_SEQUENTIAL_MEMORY_LIMIT=2048
 
 # Verification
 # Test with custom configuration

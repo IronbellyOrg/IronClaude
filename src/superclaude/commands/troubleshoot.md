@@ -90,7 +90,6 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **Context7**: Tier 2 when the symptom mentions a framework or library by name or the stack trace ends in third-party code; also the skill's conditional Tier 1 behaviour-definition fetch, not general Tier 1 web research.
 - **Tavily**: Tier 2 only, rate-limited to ≤ 2 queries per invocation. Used for `<exact error string> github issue` and `<library> <version> <symptom>` lookups.
 - **Native reasoning**: Tier 2 synthesis when reconciling competing hypotheses.
-
 ## Tool Coordination
 
 - **`mcp__auggie__codebase-retrieval`**: in-repo grounding (Tier 1 + Tier 2)

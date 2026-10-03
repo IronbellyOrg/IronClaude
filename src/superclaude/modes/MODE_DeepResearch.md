@@ -48,7 +48,6 @@ category: mode
 
 - Activates deep-research-agent automatically
 - Enables Tavily capabilities: search, extraction, site-mapping, domain-crawl
-- Triggers Sequential for complex reasoning
 - Emphasizes TodoWrite for task tracking
 
 ## Quality Focus

@@ -27,7 +27,6 @@ Code Understanding:
   Degradation: 機能維持、速度低下のみ
 
 Complex Analysis:
-  With MCP: Sequential (構造化推論、トークン効率)
   Without MCP: Native reasoning (同等品質、トークン増)
   Degradation: トークン使用量増加のみ
 
@@ -86,7 +85,6 @@ During Implementation:
   With MCPs:
     - TodoWrite ✅
     - Serena code understanding ⚡ (optional)
-    - Sequential complex analysis ⚡ (optional)
 
   Without MCPs:
     - TodoWrite ✅
@@ -131,7 +129,7 @@ Runtime Detection:
 Startup Check:
   Method: List available MCP servers
 
-  Available MCPs: [mindbase, serena, sequential]
+  Available MCPs: [mindbase, serena]
   Missing MCPs: [context7, tavily]
 
   → Auto-configure fallbacks
@@ -156,21 +154,6 @@ Serena MCP Unavailable:
     Manual symbol tracking (slower but works)
 
   Output: Same result, slower execution
-
-Sequential MCP Unavailable:
-  Task: "Design microservices architecture"
-
-  Attempt:
-    1. Try Sequential reasoning
-    2. MCPNotAvailable error
-    3. Fallback to native reasoning
-
-  Execution:
-    Use native Claude reasoning
-    Break down problem manually
-    Step-by-step analysis (more tokens)
-
-  Output: Same quality, more tokens
 
 Context7 MCP Unavailable:
   Task: "How to use React Server Components"
@@ -214,7 +197,6 @@ User Configuration:
     "mcps": {
       "mindbase": "auto",      // enabled if available
       "serena": "auto",        // enabled if available
-      "sequential": "auto",    // enabled if available
       "context7": "disabled",  // explicitly disabled
       "tavily": "enabled"      // explicitly enabled
     },
@@ -243,22 +225,6 @@ Without Serena (Grep fallback):
   Accuracy: 95%
 
 Difference: 3x slower, same quality
-
----
-
-Task: Design architecture
-
-With Sequential MCP:
-  Time: 60 seconds
-  Tokens: 8,000
-  Accuracy: 90%
-
-Without Sequential (Native reasoning):
-  Time: 60 seconds
-  Tokens: 15,000
-  Accuracy: 90%
-
-Difference: Same speed, 2x tokens
 
 ---
 
@@ -348,7 +314,6 @@ Installation Guide:
   Enhanced Setup (Optional):
     - Install Mindbase (cross-session memory)
     - Install Serena (faster code understanding)
-    - Install Sequential (token efficiency)
     - Install Context7 (curated docs)
     - Install Tavily (better search)
 
