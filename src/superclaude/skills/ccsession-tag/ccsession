@@ -534,10 +534,19 @@ export_selection() {
       _per_model=""
     fi
   fi
-  if [ -n "$_per_model" ]; then
+  local _trim="${USER_SETTINGS#"${USER_SETTINGS%%[![:space:]]*}"}"
+  _trim="${_trim%"${_trim##*[![:space:]]}"}"
+  if [ -n "$_per_model" ] && [[ "$_trim" == \{*\} ]]; then
+    # The user gave inline JSON, already on the command line; hand back the
+    # merged JSON the same way so Claude Code anchors its `/path` permission
+    # rules exactly as it would have for the user's own value.
+    USER_SETTINGS=""
+    CC_SETTINGS_ARGS=(--settings "$_per_model")
+  elif [ -n "$_per_model" ]; then
     USER_SETTINGS=""  # merged into ours
     # Passed as a private file, never on the command line: a user's settings
-    # may hold credentials, and command lines are visible to other users.
+    # file may hold credentials, and command lines are visible to other users.
+    # Its `/path` permission rules were pinned to the original file's folder.
     # One file per Claude Code process (exec keeps this PID); files of
     # processes that have ended are removed.
     local _dir="${XDG_CACHE_HOME:-$HOME/.cache}/ccsession/settings" _f _pid

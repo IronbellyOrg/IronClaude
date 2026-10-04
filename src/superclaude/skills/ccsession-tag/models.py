@@ -387,6 +387,40 @@ def resolve_tiers(data=None, tenv=None) -> dict:
     return out
 
 
+def is_inline_settings(value: str) -> bool:
+    """True when Claude Code reads a --settings value as JSON, not a path."""
+    value = value.strip()
+    return value.startswith("{") and value.endswith("}")
+
+
+_PATH_RULE = re.compile(r"^(Read|Edit)\((!?)/(?!/)(.*)\)$", re.S)
+
+
+def anchor_path_rules(permissions, source_dir: str):
+    """Pin settings-file-relative Read/Edit rules to that file's directory.
+
+    In a --settings file, a `/path` rule means `<directory of the file>/path`.
+    ccsession hands Claude Code a copy in its own cache directory, so each
+    such rule is rewritten to the absolute `//` form it meant in the
+    original file. Other rules (`//`, `~/`, relative, Bash, ...) are unchanged.
+    """
+    if not isinstance(permissions, dict):
+        return permissions
+    base = re.sub(r"([\\*?\[\]!#])", r"\\\1", source_dir.strip("/"))
+    prefix = f"//{base}/" if base else "//"
+    out = dict(permissions)
+    for key in ("allow", "deny", "ask"):
+        rules = permissions.get(key)
+        if isinstance(rules, list):
+            out[key] = [
+                _PATH_RULE.sub(lambda m: f"{m[1]}({m[2]}{prefix}{m[3]})", r)
+                if isinstance(r, str)
+                else r
+                for r in rules
+            ]
+    return out
+
+
 def merge_user_settings(ours: dict, user: str) -> dict:
     """Merge a user's own --settings (JSON text or a file path) with ours.
 
@@ -397,12 +431,15 @@ def merge_user_settings(ours: dict, user: str) -> dict:
     JSON file.
     """
     text = user
-    if not user.lstrip().startswith("{"):
+    source_dir = None
+    if not is_inline_settings(user):
+        path = os.path.expanduser(user)
         try:
-            with open(os.path.expanduser(user)) as fh:
+            with open(path) as fh:
                 text = fh.read()
         except OSError as exc:
             raise ValueError(f"--settings {user!r}: {exc.strerror}") from None
+        source_dir = os.path.dirname(os.path.realpath(path))
     try:
         theirs = json.loads(text)
     except ValueError:
@@ -410,6 +447,8 @@ def merge_user_settings(ours: dict, user: str) -> dict:
     if not isinstance(theirs, dict):
         raise ValueError(f"--settings {user!r} is not a JSON object")
     merged = dict(theirs)
+    if source_dir and "permissions" in theirs:
+        merged["permissions"] = anchor_path_rules(theirs["permissions"], source_dir)
     per_model = dict(ours.get("modelSettings", {}))
     for model, value in (theirs.get("modelSettings") or {}).items():
         base = dict(per_model.get(model, {}))

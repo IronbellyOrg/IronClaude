@@ -1882,6 +1882,61 @@ def test_settings_with_credentials_never_reach_the_command_line(tmp_path: Path) 
     assert _compact(seen, "claude-gw-tier2") == 500000
 
 
+def test_settings_file_relative_rules_keep_protecting_the_same_files(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: `/path` rules in a --settings file mean that file's folder.
+
+    The merged copy lives in ccsession's cache, so those rules are pinned to
+    the original folder (symlinks resolved, as Claude Code does). Rules of
+    other forms, and rules that are not file paths, are left alone.
+    """
+    real = tmp_path / "re[al]"
+    real.mkdir()
+    link = tmp_path / "link"
+    link.symlink_to(real)
+    rules = [
+        "Read(/secrets/**)",
+        "Edit(!/keep.md)",
+        "Read(//etc/passwd)",
+        "Read(~/notes/**)",
+        "Read(./local/**)",
+        "Bash(/usr/bin/make:*)",
+        "Edit",
+    ]
+    (real / "session.json").write_text(
+        json.dumps({"permissions": {"deny": rules, "defaultMode": "plan"}})
+    )
+    rc, _, err, seen = _launch(
+        tmp_path, "work", "--settings", str(link / "session.json")
+    )
+    assert rc == 0, err
+    perms = json.loads(seen["settings"])["permissions"]
+    base = str(real.resolve()).lstrip("/").replace("[", "\\[").replace("]", "\\]")
+    assert perms["deny"] == [
+        f"Read(//{base}/secrets/**)",
+        f"Edit(!//{base}/keep.md)",
+        *rules[2:],
+    ]
+    assert perms["defaultMode"] == "plan"
+    assert _compact(seen, "claude-gw-tier2") == 500000
+
+
+def test_inline_settings_are_handed_back_inline(tmp_path: Path) -> None:
+    """PR #258 review: inline JSON keeps Claude Code's own anchoring.
+
+    Claude Code anchors `/path` rules of inline JSON at its own temporary
+    copy, so ccsession passes the merged JSON inline and leaves rules as typed.
+    """
+    value = json.dumps({"permissions": {"deny": ["Read(/secrets/**)"]}})
+    rc, _, err, seen = _launch(tmp_path, "work", "--settings", f"  {value}\n")
+    assert rc == 0, err
+    assert seen["argv"].count("--settings") == 1
+    merged = json.loads(seen["settings_arg"])  # inline, not a path
+    assert merged["permissions"]["deny"] == ["Read(/secrets/**)"]
+    assert _compact(seen, "claude-gw-tier2") == 500000
+
+
 def test_prompt_after_settings_outside_tier_mode_is_passed_through(
     tmp_path: Path,
 ) -> None:
