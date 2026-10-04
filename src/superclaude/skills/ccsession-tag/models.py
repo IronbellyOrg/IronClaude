@@ -26,6 +26,10 @@ Commands (used by the ccsession script):
   tier-mode                 exit 0 when tier mode is on, 1 when off
   tier-resolve TIER         print a tier's launch settings as KEY=value lines
   model-resolve MODEL       print launch settings for one named model
+  compact-settings [MODEL WINDOW]
+                            print Claude Code settings JSON with a per-tier and
+                            per-model auto-compact window (tier mode); MODEL is
+                            the launched model when no tier has it
   tiers                     print name, label, models per tier (for --help)
   shim-port BASE            print the shim port for this session's settings
   code-digest SHIM          print the fingerprint of the shim code (SHIM + this file)
@@ -292,6 +296,46 @@ def gateway_alias(model: str) -> str:
     return "claude-gw-" + re.sub(r"[^A-Za-z0-9.]+", "-", model).strip("-").lower()
 
 
+def is_native_model(model: str) -> bool:
+    """Claude models keep their own id in the picker (no claude-gw- alias)."""
+    return model.startswith(("claude", "anthropic"))
+
+
+def canonical_claude_name(model: str) -> str:
+    """The modelSettings key Claude Code uses for a Claude model id, or "".
+
+    anthropic/claude-opus-5-5, us.anthropic.claude-opus-5-5-v1:0,
+    claude-opus-5-5@20260101 and claude-sonnet-4-5-20250929 all reduce to
+    the plain name (claude-opus-5-5, claude-sonnet-4-5).
+    """
+    at = model.find("claude-")
+    if at < 0:
+        return ""
+    name = re.sub(r"\[1m\]$", "", model[at:])
+    name = re.sub(r"(@\d{8}|-\d{8})?(-v\d+(:\d+)?)?$", "", name)
+    return name
+
+
+def assign_aliases(model_ids) -> dict:
+    """The picker id the shim shows for each gateway model, in the given order.
+
+    Models whose names sanitize alike get -2, -3, ... in that order. The shim
+    and compact_settings both call this with the tier models first, so the
+    window map always names the same ids the picker shows.
+    """
+    alias_of, used = {}, set()
+    for model in model_ids:
+        if model in alias_of or is_native_model(model):
+            continue
+        alias = base = gateway_alias(model)
+        k = 2
+        while alias in used:
+            alias, k = f"{base}-{k}", k + 1
+        used.add(alias)
+        alias_of[model] = alias
+    return alias_of
+
+
 def read_defaults_file(path: Path) -> dict:
     """Parse tier settings from the workspace env file. Never sources it.
 
@@ -380,6 +424,45 @@ def resolve_tiers(data=None, tenv=None) -> dict:
             "models": models,
         }
     return out
+
+
+def compact_settings(data=None, tenv=None, extra=None) -> dict:
+    """Claude Code settings with an auto-compact window per tier and per model.
+
+    Claude Code looks up modelSettings.<model>.autoCompactWindow for the
+    CURRENT model, so a /model switch to another tier takes that tier's
+    window without a restart (a CLAUDE_CODE_AUTO_COMPACT_WINDOW env value
+    would pin one window for the whole session). Keys: the tier ids, and each
+    tier model by its own id and by the claude-gw- id the picker shows.
+    `extra` (model id, window) adds a model launched by name that no tier has.
+    """
+    per_model = {}
+    if extra:
+        model, window = extra
+        per_model[re.sub(r"\[1m\]$", "", model)] = window
+    tiers = resolve_tiers(data, tenv)
+    for name, tier in tiers.items():
+        per_model[f"claude-gw-{name}"] = tier["window"]
+        for _, model, window in tier["models"]:
+            per_model.setdefault(model, window)
+    # The same picker ids the shim shows (it names tier models first).
+    alias_of = assign_aliases(m for t in tiers.values() for _, m, _ in t["models"])
+    for model, alias in alias_of.items():
+        per_model[alias] = per_model[model]
+    # Claude Code files a Claude model under its canonical name and matches
+    # provider-qualified, dated and versioned ids to that one entry, so each
+    # spelling also sets the canonical key; spellings that share it take the
+    # smaller window.
+    for model, window in list(per_model.items()):
+        short = canonical_claude_name(model)
+        if short and short != model:
+            per_model[short] = min(window, per_model.get(short, window))
+    return {
+        "modelSettings": {
+            key: {"autoCompactWindow": max(100000, min(window, 1000000))}
+            for key, window in per_model.items()
+        }
+    }
 
 
 def model_window(model: str, data=None, tenv=None) -> tuple:
@@ -504,6 +587,14 @@ def main(argv) -> int:
             f"PROFILE_LABEL={tier['label']}: "
             + ", ".join(m for _, m, _ in tier["models"])
         )
+        return 0
+    if command == "compact-settings":
+        extra = (argv[2], int(argv[3])) if len(argv) > 3 and argv[3].isdigit() else None
+        try:
+            print(json.dumps(compact_settings(extra=extra), separators=(",", ":")))
+        except ValueError as exc:
+            print(f"ccsession: {exc}", file=sys.stderr)
+            return 3
         return 0
     if command == "model-resolve" and len(argv) > 2:
         model = argv[2]

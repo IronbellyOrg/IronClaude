@@ -263,6 +263,7 @@ json.dump({
     "argv": sys.argv[1:],
     "context": os.environ.get("CLAUDE_CODE_MAX_CONTEXT_TOKENS", ""),
     "compact": os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW", ""),
+    "settings": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
     "custom": os.environ.get("ANTHROPIC_CUSTOM_MODEL_OPTION", ""),
     "base_url": os.environ.get("ANTHROPIC_BASE_URL", ""),
 }, open(os.environ["SEEN_FILE"], "w"))
@@ -323,6 +324,12 @@ json.dump({
     return proc.returncode, proc.stdout, proc.stderr, seen
 
 
+def _compact(seen: dict, model: str) -> int:
+    """The auto-compact window ccsession passed for one model (--settings)."""
+    settings = json.loads(seen["settings"])
+    return settings["modelSettings"][model]["autoCompactWindow"]
+
+
 def _model_arg(seen: dict) -> str:
     argv = seen["argv"]
     return argv[argv.index("--model") + 1]
@@ -332,7 +339,12 @@ def test_default_tier_sets_model_and_tier_window(tmp_path: Path) -> None:
     rc, out, err, seen = _launch(tmp_path, "work")
     assert rc == 0, err
     assert _model_arg(seen) == "claude-gw-tier2[1m]"
-    assert seen["context"] == seen["compact"] == "500000"
+    assert seen["context"] == "500000"
+    # One window per tier and model, so a /model switch takes the new
+    # tier's window; no env value pins one window for the whole session.
+    assert seen["compact"] == ""
+    assert _compact(seen, "claude-gw-tier2") == 500000
+    assert _compact(seen, "claude-gw-tier1") == 850000
     assert seen["custom"] == ""  # tiers are already in the picker
     assert seen["base_url"] == "http://127.0.0.1:4555"  # shim is always on
     assert "tier2" in out and "muse-spark-1.3" in out
@@ -348,13 +360,14 @@ def test_tier_flag_and_named_model(tmp_path: Path) -> None:
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "gpt-6-astra")
     assert rc == 0, err
     assert _model_arg(seen) == "gpt-6-astra"
-    assert seen["context"] == seen["compact"] == "850000"
+    assert seen["context"] == "850000" and _compact(seen, "gpt-6-astra") == 850000
     assert seen["custom"] == "gpt-6-astra"
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "claude-opus-5-5")
     assert rc == 0 and _model_arg(seen) == "claude-opus-5-5[1m]"
     assert seen["context"] == "1000000"
     rc, _, err, seen = _launch(tmp_path, "work", "--model", "brand-new-model")
     assert rc == 0 and seen["context"] == "200000"
+    assert _compact(seen, "brand-new-model") == 200000
     assert "not in any tier" in err
 
 
@@ -1783,3 +1796,139 @@ def test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage(
     assert status == TOO_LONG[0]
     assert "can hold this conversation" in message
     assert "the others are out of usage" in message
+
+
+def test_colliding_tier_model_names_get_the_shims_suffixed_ids(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """PR #258 review: the window map uses the same -2 id the shim shows."""
+    text = (
+        TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar")
+        .replace("T2Model03_WINDOW=1000000", "T2Model03_WINDOW=850000")
+        .replace("T2Model04_WINDOW=1000000", "T2Model04_WINDOW=500000")
+        .replace("T2Model04=glm-5.3", "T2Model04=foo-bar")
+    )
+    path = _defaults(tmp_path, text)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    tenv = models.read_defaults_file(path)
+    assert tenv["T2Model03"] == "foo/bar" and tenv["T2Model04"] == "foo-bar"
+    data = models.load()[0]
+    per_model = models.compact_settings(data=data, tenv=tenv)["modelSettings"]
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="collide"
+    )
+    assert module["sanitize"]("foo/bar") == "claude-gw-foo-bar"
+    # Tier models are named first, in tier order, whatever the gateway's list
+    # order: foo/bar (T2Model03) is claude-gw-foo-bar, foo-bar is -2.
+    assert tenv["T2Model03_WINDOW"] == "850000" and tenv["T2Model04_WINDOW"] == "500000"
+    module["transform_models"]({"data": [{"id": "foo-bar"}, {"id": "foo/bar"}]})
+    assert module["alias_to_real"]["claude-gw-foo-bar"] == "foo/bar"
+    assert module["alias_to_real"]["claude-gw-foo-bar-2"] == "foo-bar"
+    assert per_model["claude-gw-foo-bar"]["autoCompactWindow"] == 850000
+    assert per_model["claude-gw-foo-bar-2"]["autoCompactWindow"] == 500000
+
+
+def test_show_all_window_map_names_the_ids_the_picker_shows(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """PR #258 review: a gateway model outside the tiers listed first must not
+    take the tier model's picker id; the tier model keeps its window."""
+    text = TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar").replace(
+        "T2Model03_WINDOW=1000000", "T2Model03_WINDOW=500000"
+    )
+    path = _defaults(tmp_path, text)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    monkeypatch.setenv("CCSESSION_SHOW_ALL_MODELS", "1")
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="showall"
+    )
+    listing = module["transform_models"](
+        {"data": [{"id": "foo-bar"}, {"id": "foo/bar"}, {"id": "grok-4.7"}]}
+    )
+    ids = {m["id"].removesuffix("[1m]") for m in listing["data"]}
+    assert "claude-gw-foo-bar" in ids and "claude-gw-foo-bar-2" not in ids
+    tenv = models.read_defaults_file(path)
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)
+    assert (
+        per_model["modelSettings"]["claude-gw-foo-bar"]["autoCompactWindow"] == 500000
+    )
+    assert module["alias_to_real"]["claude-gw-foo-bar"] == "foo/bar"
+
+
+def test_windows_go_straight_to_claude_code_with_no_file(tmp_path: Path) -> None:
+    """The per-model windows are one --settings JSON value built from the env
+    at launch: nothing is written to disk, and a user's own --settings is
+    passed through untouched (out of scope for the window switch)."""
+    rc, _, err, seen = _launch(tmp_path, "work")
+    assert rc == 0, err
+    assert seen["argv"].count("--settings") == 1
+    assert json.loads(seen["settings"])["modelSettings"]  # inline JSON, not a path
+    assert not (tmp_path / "home" / ".cache" / "ccsession" / "settings").exists()
+    rc, _, err, seen = _launch(
+        tmp_path, "work", "--settings", '{"effortLevel": "high"}'
+    )
+    assert rc == 0, err
+    assert seen["argv"][-2:] == ["--settings", '{"effortLevel": "high"}']
+
+
+def test_provider_qualified_claude_model_also_gets_its_canonical_key(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: Claude Code looks modelSettings up by canonical name."""
+    text = TIER_BLOCK.replace(
+        "T1Model01=claude-opus-5-5", "T1Model01=anthropic/claude-opus-5-5"
+    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    assert tenv["T1Model01"] == "anthropic/claude-opus-5-5"
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["anthropic/claude-opus-5-5"]["autoCompactWindow"] == 500000
+    assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000
+
+
+def test_both_spellings_of_one_claude_model_share_the_smaller_window(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: claude-opus-5-5 and anthropic/claude-opus-5-5 are one
+    Claude Code entry, so it must never exceed either tier slot's window."""
+    text = TIER_BLOCK.replace(
+        "T1Model01=claude-opus-5-5", "T1Model01=anthropic/claude-opus-5-5"
+    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+    # A slot tier2 really reads (models_env), holding the bare spelling at 1M.
+    text = text.replace("T2Model03='Qwen3.8-max'", "T2Model03=claude-opus-5-5")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    assert tenv["T2Model03"] == "claude-opus-5-5"
+    assert tenv["T2Model03_WINDOW"] == "1000000"
+    tiers = models.resolve_tiers(models.load()[0], tenv)
+    assert ("T2Model03", "claude-opus-5-5", 1000000) in tiers["tier2"]["models"]
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000
+
+
+def test_every_spelling_of_a_claude_model_gets_its_canonical_key() -> None:
+    """PR #258 review: Claude Code matches dated, provider-qualified and
+    versioned Claude ids to one canonical modelSettings entry."""
+    for model, short in [
+        ("claude-sonnet-4-5-20250929", "claude-sonnet-4-5"),
+        ("anthropic/claude-opus-5-5", "claude-opus-5-5"),
+        ("us.anthropic.claude-opus-5-5-v1:0", "claude-opus-5-5"),
+        ("claude-opus-5-5@20260101", "claude-opus-5-5"),
+        ("claude-opus-5-5[1m]", "claude-opus-5-5"),
+        ("claude-opus-5-5", "claude-opus-5-5"),
+        ("grok-4.7", ""),
+    ]:
+        assert models.canonical_claude_name(model) == short, model
+
+
+def test_dated_claude_tier_model_keeps_its_window(tmp_path: Path) -> None:
+    text = TIER_BLOCK.replace(
+        "T1Model01=claude-opus-5-5", "T1Model01=claude-sonnet-4-5-20250929"
+    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["claude-sonnet-4-5"]["autoCompactWindow"] == 500000
