@@ -153,7 +153,7 @@ def sanitize(rid):
 
 
 def is_native(rid):
-    return rid.startswith("claude") or rid.startswith("anthropic")
+    return model_data.is_native_model(rid)
 
 
 # --- curation: which real models to hide, and how to order what remains ---
@@ -286,18 +286,12 @@ def transform_models(payload):
     by_id = {m["id"]: m for m in data}
     tier_models = [m for t in rules["tiers"].values() for m in t["models"]]
 
-    new_map, alias_of, used = {}, {}, set()
-    for rid in list(by_id) + [model for _, model, _ in tier_models]:
-        if rid in alias_of or is_native(rid):
-            continue
-        a = sanitize(rid)
-        cand, k = a, 2
-        while cand in used:
-            cand = f"{a}-{k}"
-            k += 1
-        used.add(cand)
-        alias_of[rid] = cand
-        new_map[cand] = rid
+    # Tier models are named first, so their picker ids never depend on the
+    # gateway's list order and match the window map ccsession hands Claude Code.
+    alias_of = model_data.assign_aliases(
+        [model for _, model, _ in tier_models] + list(by_id)
+    )
+    new_map = {alias: rid for rid, alias in alias_of.items()}
 
     out = []
     if rules["tier_mode"]:

@@ -80,11 +80,13 @@ PROFILE=""
 TIER_ARG=""
 MODEL_ARG=""
 USER_SETTINGS=""
-SETTINGS_TOKENS=()  # --settings exactly as typed, and where (outside tier mode)
-SETTINGS_POS=0
-MODEL_TOKENS=()  # --model exactly as typed, and where (outside tier mode)
-MODEL_POS=0
+# Every --model / --settings exactly as typed, and where (outside tier mode
+# they all go back in place; Claude Code itself uses the last of each).
+PASS_POS=()
+PASS_LEN=()
+PASS_TOK=()
 _args=()
+_keep() { PASS_POS+=("${#_args[@]}"); PASS_LEN+=("$#"); PASS_TOK+=("$@"); }
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -shim|--shim)
@@ -124,8 +126,7 @@ while [ "$#" -gt 0 ]; do
         exit 2
       fi
       MODEL_ARG="$2"
-      MODEL_TOKENS=("$1" "$2")
-      MODEL_POS=${#_args[@]}
+      _keep "$1" "$2"
       shift 2
       ;;
     --settings)
@@ -136,20 +137,17 @@ while [ "$#" -gt 0 ]; do
         exit 2
       fi
       USER_SETTINGS="$2"
-      SETTINGS_TOKENS=("$1" "$2")
-      SETTINGS_POS=${#_args[@]}
+      _keep "$1" "$2"
       shift 2
       ;;
     --settings=*)
       USER_SETTINGS="${1#--settings=}"
-      SETTINGS_TOKENS=("$1")
-      SETTINGS_POS=${#_args[@]}
+      _keep "$1"
       shift
       ;;
     --model=*)
       MODEL_ARG="${1#--model=}"
-      MODEL_TOKENS=("$1")
-      MODEL_POS=${#_args[@]}
+      _keep "$1"
       shift
       ;;
     *)
@@ -225,19 +223,17 @@ elif [ -n "$TIER_ARG" ]; then
   echo "ccsession: --tier needs tier settings (T<N>_WINDOW) from the workspace env; none found" >&2
   exit 2
 else
-  # Not tier mode: --model and --settings go to Claude Code exactly as typed,
-  # in place (the later one first, so the earlier position stays valid).
-  _put_back() {  # _put_back POS TOKENS...
-    local pos="$1"
-    shift
-    _args=("${_args[@]:0:pos}" "$@" "${_args[@]:pos}")
-  }
-  if [ "${#SETTINGS_TOKENS[@]}" -gt 0 ] && [ "$SETTINGS_POS" -ge "$MODEL_POS" ]; then
-    _put_back "$SETTINGS_POS" "${SETTINGS_TOKENS[@]}"
-    SETTINGS_TOKENS=()
-  fi
-  [ "${#MODEL_TOKENS[@]}" -gt 0 ] && _put_back "$MODEL_POS" "${MODEL_TOKENS[@]}"
-  [ "${#SETTINGS_TOKENS[@]}" -gt 0 ] && _put_back "$SETTINGS_POS" "${SETTINGS_TOKENS[@]}"
+  # Not tier mode: every --model and --settings goes to Claude Code exactly as
+  # typed, in place (the latest first, so earlier positions stay valid).
+  _i=$((${#PASS_POS[@]} - 1))
+  _end=${#PASS_TOK[@]}
+  while [ "$_i" -ge 0 ]; do
+    _start=$((_end - PASS_LEN[_i]))
+    _pos=${PASS_POS[_i]}
+    _args=(${_args[@]+"${_args[@]:0:_pos}"} "${PASS_TOK[@]:_start:PASS_LEN[_i]}" ${_args[@]+"${_args[@]:_pos}"})
+    _end=$_start
+    _i=$((_i - 1))
+  done
   set -- ${_args[@]+"${_args[@]}"}
   MODEL_ARG=""
   USER_SETTINGS=""

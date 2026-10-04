@@ -1836,7 +1836,9 @@ def test_user_settings_are_merged_not_replaced(tmp_path: Path) -> None:
     assert rc == 2 and seen is None and "--settings" in err
 
 
-def test_colliding_tier_model_names_get_the_shims_suffixed_ids(tmp_path: Path) -> None:
+def test_colliding_tier_model_names_get_the_shims_suffixed_ids(
+    tmp_path: Path, monkeypatch
+) -> None:
     """PR #258 review: the window map uses the same -2 id the shim shows."""
     text = (
         TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar")
@@ -1844,7 +1846,9 @@ def test_colliding_tier_model_names_get_the_shims_suffixed_ids(tmp_path: Path) -
         .replace("T2Model04_WINDOW=1000000", "T2Model04_WINDOW=500000")
         .replace("T2Model04=glm-5.3", "T2Model04=foo-bar")
     )
-    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    path = _defaults(tmp_path, text)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    tenv = models.read_defaults_file(path)
     assert tenv["T2Model03"] == "foo/bar" and tenv["T2Model04"] == "foo-bar"
     data = models.load()[0]
     per_model = models.compact_settings(data=data, tenv=tenv)["modelSettings"]
@@ -1852,12 +1856,69 @@ def test_colliding_tier_model_names_get_the_shims_suffixed_ids(tmp_path: Path) -
         str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="collide"
     )
     assert module["sanitize"]("foo/bar") == "claude-gw-foo-bar"
-    # The gateway's list order decides which one gets -2, so both picker ids
-    # get the smaller of the two windows (never larger than the model's own).
+    # Tier models are named first, in tier order, whatever the gateway's list
+    # order: foo/bar (T2Model03) is claude-gw-foo-bar, foo-bar is -2.
     assert tenv["T2Model03_WINDOW"] == "850000" and tenv["T2Model04_WINDOW"] == "500000"
-    small = 500000
-    for key in ("claude-gw-foo-bar", "claude-gw-foo-bar-2"):
-        assert per_model[key]["autoCompactWindow"] == small, key
+    module["transform_models"]({"data": [{"id": "foo-bar"}, {"id": "foo/bar"}]})
+    assert module["alias_to_real"]["claude-gw-foo-bar"] == "foo/bar"
+    assert module["alias_to_real"]["claude-gw-foo-bar-2"] == "foo-bar"
+    assert per_model["claude-gw-foo-bar"]["autoCompactWindow"] == 850000
+    assert per_model["claude-gw-foo-bar-2"]["autoCompactWindow"] == 500000
+
+
+def test_show_all_window_map_names_the_ids_the_picker_shows(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """PR #258 review: a gateway model outside the tiers listed first must not
+    take the tier model's picker id; the tier model keeps its window."""
+    text = TIER_BLOCK.replace("T2Model03='Qwen3.8-max'", "T2Model03=foo/bar").replace(
+        "T2Model03_WINDOW=1000000", "T2Model03_WINDOW=500000"
+    )
+    path = _defaults(tmp_path, text)
+    monkeypatch.setenv("AIDEV_AI_DEFAULTS_PATH", str(path))
+    monkeypatch.setenv("CCSESSION_SHOW_ALL_MODELS", "1")
+    module = runpy.run_path(
+        str(SKILL_DIR / "local-gateway-alias-proxy.py"), run_name="showall"
+    )
+    listing = module["transform_models"](
+        {"data": [{"id": "foo-bar"}, {"id": "foo/bar"}, {"id": "grok-4.7"}]}
+    )
+    ids = {m["id"].removesuffix("[1m]") for m in listing["data"]}
+    assert "claude-gw-foo-bar" in ids and "claude-gw-foo-bar-2" not in ids
+    tenv = models.read_defaults_file(path)
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)
+    assert (
+        per_model["modelSettings"]["claude-gw-foo-bar"]["autoCompactWindow"] == 500000
+    )
+    assert module["alias_to_real"]["claude-gw-foo-bar"] == "foo/bar"
+
+
+def test_repeated_flags_outside_tier_mode_all_pass_through(tmp_path: Path) -> None:
+    """PR #258 review: a second --settings/--model must not swallow the first."""
+    rc, out, err, seen = _launch(
+        tmp_path,
+        "--settings",
+        "{}",
+        "Explain this repository",
+        "--settings",
+        '{"effortLevel": "high"}',
+        "--model=sonnet",
+        "--model",
+        "opus",
+        defaults=None,
+    )
+    assert rc == 0, err
+    assert "untagged" in out
+    assert seen["argv"][-8:] == [
+        "--settings",
+        "{}",
+        "Explain this repository",
+        "--settings",
+        '{"effortLevel": "high"}',
+        "--model=sonnet",
+        "--model",
+        "opus",
+    ]
 
 
 def test_untagged_launch_with_only_settings_still_starts(tmp_path: Path) -> None:
@@ -1913,11 +1974,8 @@ def test_settings_file_relative_rules_keep_protecting_the_same_files(
     assert rc == 0, err
     perms = json.loads(seen["settings"])["permissions"]
     base = str(real.resolve()).lstrip("/").replace("[", "\\[").replace("]", "\\]")
-    assert perms["deny"] == [
-        f"Read(//{base}/secrets/**)",
-        f"Edit(!//{base}/keep.md)",
-        *rules[2:],
-    ]
+    # `!` exceptions are read from the current directory, so they stay as typed.
+    assert perms["deny"] == [f"Read(//{base}/secrets/**)", *rules[1:]]
     assert perms["defaultMode"] == "plan"
     assert _compact(seen, "claude-gw-tier2") == 500000
 

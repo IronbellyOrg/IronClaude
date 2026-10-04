@@ -297,6 +297,31 @@ def gateway_alias(model: str) -> str:
     return "claude-gw-" + re.sub(r"[^A-Za-z0-9.]+", "-", model).strip("-").lower()
 
 
+def is_native_model(model: str) -> bool:
+    """Claude models keep their own id in the picker (no claude-gw- alias)."""
+    return model.startswith(("claude", "anthropic"))
+
+
+def assign_aliases(model_ids) -> dict:
+    """The picker id the shim shows for each gateway model, in the given order.
+
+    Models whose names sanitize alike get -2, -3, ... in that order. The shim
+    and compact_settings both call this with the tier models first, so the
+    window map always names the same ids the picker shows.
+    """
+    alias_of, used = {}, set()
+    for model in model_ids:
+        if model in alias_of or is_native_model(model):
+            continue
+        alias = base = gateway_alias(model)
+        k = 2
+        while alias in used:
+            alias, k = f"{base}-{k}", k + 1
+        used.add(alias)
+        alias_of[model] = alias
+    return alias_of
+
+
 def read_defaults_file(path: Path) -> dict:
     """Parse tier settings from the workspace env file. Never sources it.
 
@@ -393,7 +418,7 @@ def is_inline_settings(value: str) -> bool:
     return value.startswith("{") and value.endswith("}")
 
 
-_PATH_RULE = re.compile(r"^(Read|Edit)\((!?)/(?!/)(.*)\)$", re.S)
+_PATH_RULE = re.compile(r"^(Read|Edit)\(/(?!/)(.*)\)$", re.S)
 
 
 def anchor_path_rules(permissions, source_dir: str):
@@ -402,7 +427,9 @@ def anchor_path_rules(permissions, source_dir: str):
     In a --settings file, a `/path` rule means `<directory of the file>/path`.
     ccsession hands Claude Code a copy in its own cache directory, so each
     such rule is rewritten to the absolute `//` form it meant in the
-    original file. Other rules (`//`, `~/`, relative, Bash, ...) are unchanged.
+    original file. Other rules (`//`, `~/`, relative, Bash, ...) are unchanged,
+    and so are `!` exceptions: Claude Code reads those from the current
+    directory whatever follows the `!`.
     """
     if not isinstance(permissions, dict):
         return permissions
@@ -413,7 +440,7 @@ def anchor_path_rules(permissions, source_dir: str):
         rules = permissions.get(key)
         if isinstance(rules, list):
             out[key] = [
-                _PATH_RULE.sub(lambda m: f"{m[1]}({m[2]}{prefix}{m[3]})", r)
+                _PATH_RULE.sub(lambda m: f"{m[1]}({prefix}{m[2]})", r)
                 if isinstance(r, str)
                 else r
                 for r in rules
@@ -472,25 +499,15 @@ def compact_settings(data=None, tenv=None, extra=None) -> dict:
     if extra:
         model, window = extra
         per_model[re.sub(r"\[1m\]$", "", model)] = window
-    # Models whose names sanitize alike get -2/-3 picker ids in an order this
-    # side cannot know (the gateway's list order), so every id of such a group
-    # gets the group's smallest window: never larger than the model's own.
-    groups = {}
-    for tier in resolve_tiers(data, tenv).values():
-        for _, model, window in tier["models"]:
-            base = gateway_alias(model)
-            groups[base] = min(window, groups.get(base, window))
-    used = set()
-    for name, tier in resolve_tiers(data, tenv).items():
+    tiers = resolve_tiers(data, tenv)
+    for name, tier in tiers.items():
         per_model[f"claude-gw-{name}"] = tier["window"]
         for _, model, window in tier["models"]:
-            alias = base = gateway_alias(model)
-            k = 2
-            while alias in used:
-                alias, k = f"{base}-{k}", k + 1
-            used.add(alias)
             per_model.setdefault(model, window)
-            per_model[alias] = groups[base]
+    # The same picker ids the shim shows (it names tier models first).
+    alias_of = assign_aliases(m for t in tiers.values() for _, m, _ in t["models"])
+    for model, alias in alias_of.items():
+        per_model[alias] = per_model[model]
     return {
         "modelSettings": {
             key: {"autoCompactWindow": max(100000, min(window, 1000000))}
