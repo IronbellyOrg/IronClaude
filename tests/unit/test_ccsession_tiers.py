@@ -263,14 +263,7 @@ json.dump({
     "argv": sys.argv[1:],
     "context": os.environ.get("CLAUDE_CODE_MAX_CONTEXT_TOKENS", ""),
     "compact": os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW", ""),
-    "settings_arg": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
-    "settings": (open(sys.argv[sys.argv.index("--settings") + 1]).read()
-                 if "--settings" in sys.argv
-                 and os.path.isfile(sys.argv[sys.argv.index("--settings") + 1])
-                 else (sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "")),
-    "settings_mode": (oct(os.stat(sys.argv[sys.argv.index("--settings") + 1]).st_mode & 0o777)
-                      if "--settings" in sys.argv
-                      and os.path.isfile(sys.argv[sys.argv.index("--settings") + 1]) else ""),
+    "settings": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
     "custom": os.environ.get("ANTHROPIC_CUSTOM_MODEL_OPTION", ""),
     "base_url": os.environ.get("ANTHROPIC_BASE_URL", ""),
 }, open(os.environ["SEEN_FILE"], "w"))
@@ -1805,37 +1798,6 @@ def test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage(
     assert "the others are out of usage" in message
 
 
-def test_user_settings_are_merged_not_replaced(tmp_path: Path) -> None:
-    """PR #258 review: Claude Code reads only the last --settings."""
-    rc, _, err, seen = _launch(
-        tmp_path, "work", "--settings", '{"effortLevel": "high"}'
-    )
-    assert rc == 0, err
-    assert seen["argv"].count("--settings") == 1
-    merged = json.loads(seen["settings"])
-    assert merged["effortLevel"] == "high"
-    assert _compact(seen, "claude-gw-tier2") == 500000
-    # A user's own per-model window wins; ours fill in the rest.
-    rc, _, err, seen = _launch(
-        tmp_path,
-        "work",
-        "--settings="
-        + json.dumps(
-            {"modelSettings": {"claude-gw-tier2": {"autoCompactWindow": 300000}}}
-        ),
-    )
-    assert rc == 0, err
-    assert _compact(seen, "claude-gw-tier2") == 300000
-    assert _compact(seen, "claude-gw-tier1") == 850000
-    # A settings file works too; an unreadable one stops with a message.
-    f = tmp_path / "mine.json"
-    f.write_text('{"effortLevel": "low"}')
-    rc, _, err, seen = _launch(tmp_path, "work", "--settings", str(f))
-    assert rc == 0 and json.loads(seen["settings"])["effortLevel"] == "low"
-    rc, _, err, seen = _launch(tmp_path, "work", "--settings", str(tmp_path / "nope"))
-    assert rc == 2 and seen is None and "--settings" in err
-
-
 def test_colliding_tier_model_names_get_the_shims_suffixed_ids(
     tmp_path: Path, monkeypatch
 ) -> None:
@@ -1893,133 +1855,17 @@ def test_show_all_window_map_names_the_ids_the_picker_shows(
     assert module["alias_to_real"]["claude-gw-foo-bar"] == "foo/bar"
 
 
-def test_repeated_flags_outside_tier_mode_all_pass_through(tmp_path: Path) -> None:
-    """PR #258 review: a second --settings/--model must not swallow the first."""
-    rc, out, err, seen = _launch(
-        tmp_path,
-        "--settings",
-        "{}",
-        "Explain this repository",
-        "--settings",
-        '{"effortLevel": "high"}',
-        "--model=sonnet",
-        "--model",
-        "opus",
-        defaults=None,
-    )
-    assert rc == 0, err
-    assert "untagged" in out
-    assert seen["argv"][-8:] == [
-        "--settings",
-        "{}",
-        "Explain this repository",
-        "--settings",
-        '{"effortLevel": "high"}',
-        "--model=sonnet",
-        "--model",
-        "opus",
-    ]
-
-
-def test_untagged_launch_with_only_settings_still_starts(tmp_path: Path) -> None:
-    """PR #258 review: --settings alone must not turn into --help."""
-    rc, out, err, seen = _launch(tmp_path, "--settings", '{"effortLevel": "high"}')
-    assert rc == 0, err
-    assert seen is not None and "untagged" in out
-    assert json.loads(seen["settings"])["effortLevel"] == "high"
-
-
-def test_settings_with_credentials_never_reach_the_command_line(tmp_path: Path) -> None:
-    """PR #258 review: a merged settings file holding a token goes by path."""
-    secret = "sk-ant-local-test-secret-123"
-    f = tmp_path / "mine.json"
-    f.write_text(json.dumps({"env": {"ANTHROPIC_AUTH_TOKEN": secret}}))
-    rc, _, err, seen = _launch(tmp_path, "work", "--settings", str(f))
-    assert rc == 0, err
-    assert not any(secret in a for a in seen["argv"])  # not in the command line
-    assert seen["settings_arg"] != str(f) and seen["settings_mode"] == "0o600"
-    merged = json.loads(seen["settings"])
-    assert merged["env"]["ANTHROPIC_AUTH_TOKEN"] == secret
-    assert _compact(seen, "claude-gw-tier2") == 500000
-
-
-def test_settings_file_relative_rules_keep_protecting_the_same_files(
-    tmp_path: Path,
-) -> None:
-    """PR #258 review: `/path` rules in a --settings file mean that file's folder.
-
-    The merged copy lives in ccsession's cache, so those rules are pinned to
-    the original folder (symlinks resolved, as Claude Code does). Rules of
-    other forms, and rules that are not file paths, are left alone.
-    """
-    real = tmp_path / "re[al]"
-    real.mkdir()
-    link = tmp_path / "link"
-    link.symlink_to(real)
-    rules = [
-        "Read(/secrets/**)",
-        "Edit(!/keep.md)",
-        "Read(//etc/passwd)",
-        "Read(~/notes/**)",
-        "Read(./local/**)",
-        "Bash(/usr/bin/make:*)",
-        "Edit",
-    ]
-    (real / "session.json").write_text(
-        json.dumps({"permissions": {"deny": rules, "defaultMode": "plan"}})
-    )
-    rc, _, err, seen = _launch(
-        tmp_path, "work", "--settings", str(link / "session.json")
-    )
-    assert rc == 0, err
-    perms = json.loads(seen["settings"])["permissions"]
-    base = str(real.resolve()).lstrip("/").replace("[", "\\[").replace("]", "\\]")
-    # `!` exceptions are read from the current directory, so they stay as typed.
-    assert perms["deny"] == [f"Read(//{base}/secrets/**)", *rules[1:]]
-    assert perms["defaultMode"] == "plan"
-    assert _compact(seen, "claude-gw-tier2") == 500000
-
-
-def test_inline_settings_are_handed_back_inline(tmp_path: Path) -> None:
-    """PR #258 review: inline JSON keeps Claude Code's own anchoring.
-
-    Claude Code anchors `/path` rules of inline JSON at its own temporary
-    copy, so ccsession passes the merged JSON inline and leaves rules as typed.
-    """
-    value = json.dumps({"permissions": {"deny": ["Read(/secrets/**)"]}})
-    rc, _, err, seen = _launch(tmp_path, "work", "--settings", f"  {value}\n")
+def test_windows_go_straight_to_claude_code_with_no_file(tmp_path: Path) -> None:
+    """The per-model windows are one --settings JSON value built from the env
+    at launch: nothing is written to disk, and a user's own --settings is
+    passed through untouched (out of scope for the window switch)."""
+    rc, _, err, seen = _launch(tmp_path, "work")
     assert rc == 0, err
     assert seen["argv"].count("--settings") == 1
-    merged = json.loads(seen["settings_arg"])  # inline, not a path
-    assert merged["permissions"]["deny"] == ["Read(/secrets/**)"]
-    assert _compact(seen, "claude-gw-tier2") == 500000
-
-
-def test_prompt_after_settings_outside_tier_mode_is_passed_through(
-    tmp_path: Path,
-) -> None:
-    """PR #258 review: outside tier mode --settings stays where it was typed."""
-    rc, out, err, seen = _launch(
-        tmp_path,
-        "--settings",
-        '{"effortLevel": "high"}',
-        "Explain this repository",
-        defaults=None,
+    assert json.loads(seen["settings"])["modelSettings"]  # inline JSON, not a path
+    assert not (tmp_path / "home" / ".cache" / "ccsession" / "settings").exists()
+    rc, _, err, seen = _launch(
+        tmp_path, "work", "--settings", '{"effortLevel": "high"}'
     )
     assert rc == 0, err
-    assert seen["argv"][-3:] == [
-        "--settings",
-        '{"effortLevel": "high"}',
-        "Explain this repository",
-    ]
-    rc, out, err, seen = _launch(
-        tmp_path,
-        "work",
-        "--model",
-        "sonnet",
-        "--settings={}",
-        "a prompt",
-        defaults=None,
-    )
-    assert rc == 0, err
-    assert seen["argv"][-4:] == ["--model", "sonnet", "--settings={}", "a prompt"]
+    assert seen["argv"][-2:] == ["--settings", '{"effortLevel": "high"}']
