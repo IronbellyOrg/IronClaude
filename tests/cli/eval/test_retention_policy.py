@@ -1,16 +1,13 @@
 """TEST suite for OPS-003 — artifact retention policy.
 
 T04.21 / D-0081 / R-081 — pins the operator-visible retention contract
-across three coupled surfaces so they cannot drift apart silently:
+across two coupled surfaces so they cannot drift apart silently
+(the ``docs/eval/retention.md`` policy doc was removed in #257 as stale):
 
-1. The policy doc ``docs/eval/retention.md`` documents the four pillars
-   (``--keep-home`` default, NFR-ISO2 setup-failed tagging, run-summary
-   retention, disk-budget breach advice).
-2. The library constant
+1. The library constant
    :data:`superclaude.cli.eval.disk_budget.DISK_BUDGET_RETENTION_ADVICE`
-   is the single source of truth for the disk-budget breach stderr
-   advice — the policy doc must quote the same bytes.
-3. The CLI dispatcher (``superclaude eval run``) emits the advice
+   is the single source of truth for the disk-budget breach stderr advice.
+2. The CLI dispatcher (``superclaude eval run``) emits the advice
    constant verbatim to stderr immediately before exiting on
    :data:`DISK_BUDGET_EXCEEDED_EXIT_CODE`.
 
@@ -53,7 +50,6 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-DOC_PATH = REPO_ROOT / "docs" / "eval" / "retention.md"
 
 
 # ---------------------------------------------------------------------------
@@ -133,98 +129,6 @@ def _run_eval(
 # ---------------------------------------------------------------------------
 # 1. Policy doc presence + section coverage
 # ---------------------------------------------------------------------------
-
-
-def test_retention_doc_exists() -> None:
-    """``docs/eval/retention.md`` must exist (T04.21 deliverable)."""
-
-    assert DOC_PATH.exists(), (
-        f"OPS-003 policy doc missing at {DOC_PATH}; the T04.21 "
-        "acceptance criteria require this file."
-    )
-    assert DOC_PATH.is_file(), f"{DOC_PATH} must be a regular file"
-    assert DOC_PATH.stat().st_size > 0, (
-        f"{DOC_PATH} is empty; the policy doc must document the four OPS-003 pillars."
-    )
-
-
-def test_retention_doc_covers_four_pillars() -> None:
-    """The doc must call out every OPS-003 pillar by name.
-
-    Pillar coverage:
-      P1. ``--keep-home`` flag, default False, PASS removes / others keep.
-      P2. NFR-ISO2 setup_failed tag → HOME preserved.
-      P3. Run summaries (summary.{md,json}, junit.xml) always retained.
-      P4. Disk-budget breach advice + side-car.
-    """
-
-    text = DOC_PATH.read_text(encoding="utf-8")
-
-    # P1 — --keep-home flag and its default.
-    assert "--keep-home" in text, "doc must name the --keep-home flag"
-    assert "default" in text.lower(), "doc must describe the default behaviour"
-    # The status → keep-decision table is the load-bearing operator-facing
-    # contract. Assert the four non-PASS statuses are explicitly named.
-    for status in ("PASS", "FAIL", "ERRORED", "TIMEOUT"):
-        assert status in text, (
-            f"doc must mention status {status!r} in the retention matrix"
-        )
-
-    # P2 — NFR-ISO2 setup_failed tag.
-    assert ".eval-meta/setup_failed" in text, (
-        "doc must cite the NFR-ISO2 setup_failed tag relpath verbatim"
-    )
-    assert "NFR-ISO2" in text, (
-        "doc must cite NFR-ISO2 by name so operators can pivot to the "
-        "atomic-setup contract"
-    )
-
-    # P3 — run summary retention.
-    assert "summary.md" in text and "summary.json" in text, (
-        "doc must name the summary artifacts the Reporter writes"
-    )
-    assert "junit.xml" in text, (
-        "doc must mention the junit.xml artifact retained when --junit-xml is on"
-    )
-
-    # P4 — disk-budget breach.
-    assert "disk_budget_exceeded.json" in text, (
-        "doc must name the disk-budget side-car filename verbatim"
-    )
-    assert "--max-disk-mb" in text, (
-        "doc must mention the --max-disk-mb knob in the breach playbook"
-    )
-    assert "OPS-003" in text, (
-        "doc must cite the OPS-003 deliverable identifier so operators "
-        "tracing back from a stderr advice landing here find the right "
-        "section"
-    )
-
-
-def test_retention_doc_quotes_advice_constant_verbatim() -> None:
-    """Doc must contain the exact bytes of ``DISK_BUDGET_RETENTION_ADVICE``.
-
-    The doc and the CLI surface are pinned to the same constant so they
-    cannot drift apart. Any future edit to one without the other will
-    fail this test.
-    """
-
-    from superclaude.cli.eval.disk_budget import DISK_BUDGET_RETENTION_ADVICE
-
-    text = DOC_PATH.read_text(encoding="utf-8")
-    assert DISK_BUDGET_RETENTION_ADVICE in text, (
-        "docs/eval/retention.md must quote DISK_BUDGET_RETENTION_ADVICE "
-        "verbatim so the doc and the CLI stderr surface stay aligned. "
-        "Expected to find:\n"
-        f"---\n{DISK_BUDGET_RETENTION_ADVICE}\n---"
-    )
-
-
-# ---------------------------------------------------------------------------
-# 2. Library-boundary constant contract
-# ---------------------------------------------------------------------------
-
-
 def test_retention_advice_constant_shape() -> None:
     """The advice constant must name every load-bearing detail.
 

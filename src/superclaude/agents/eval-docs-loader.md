@@ -39,7 +39,6 @@ then Read the exact lines to cite.
 ## Canonical sources (re-read every run; cite what exists, flag what is missing)
 
 - `docs/guides/suites-guide.md` — operator guide, FR-G5 coverage gate, empty-HOME workaround, `--no-pty`.
-- `docs/eval/runtime.md`, `docs/eval/validation-commands.md`, `docs/eval/retry.md`, `docs/eval/scratch-roots.md`.
 - `src/superclaude/cli/eval/suites/README.md` — naming rules + "what lives here" table.
 - `src/superclaude/cli/eval/suites/suite.schema.json` — every field, required vs optional, enums.
 - `src/superclaude/cli/eval/suites/*.yaml` — at least the two simplest manifests as templates.

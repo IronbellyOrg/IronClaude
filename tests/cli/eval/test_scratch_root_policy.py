@@ -15,8 +15,6 @@ text when it rejects a path*. These tests pin:
   flag must not regress the green-path doctor contract);
 * ``EvalConfig.allowed_scratch_roots`` remains the single source of
   truth — narrowing it changes which roots doctor accepts;
-* the prose documentation under ``docs/eval/scratch-roots.md`` names the
-  three roots so the doc cannot drift from the runtime check.
 
 Cross-links:
 * T01.01 / D-0001 — ``EvalConfig.allowed_scratch_roots`` (sole source).
@@ -44,7 +42,6 @@ from superclaude.cli.eval import (
 from superclaude.cli.eval import commands as doctor_module
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SCRATCH_ROOTS_DOC = REPO_ROOT / "docs" / "eval" / "scratch-roots.md"
 
 
 # ---------------------------------------------------------------------------
@@ -319,37 +316,3 @@ def test_doctor_uses_default_evalconfig_allowlist(clean_host: dict) -> None:
     bad = runner.invoke(eval_group, ["doctor", "--output-dir", "/tmp/other-runs"])
     assert bad.exit_code == SCRATCH_ROOT_VIOLATION_EXIT_CODE
     assert SCRATCH_ROOT_POLICY in bad.stderr
-
-
-# ---------------------------------------------------------------------------
-# Documentation cannot drift from the runtime check
-# ---------------------------------------------------------------------------
-
-
-def test_scratch_roots_doc_exists() -> None:
-    """`docs/eval/scratch-roots.md` MUST ship in the repo."""
-
-    assert SCRATCH_ROOTS_DOC.is_file(), f"missing policy doc: {SCRATCH_ROOTS_DOC}"
-
-
-def test_scratch_roots_doc_names_three_allowed_roots() -> None:
-    """The doc MUST name the three roots from the policy constant."""
-
-    text = SCRATCH_ROOTS_DOC.read_text()
-    assert "/tmp/eval-runs/" in text
-    assert ".dev/eval-runs/" in text
-    assert "--output-dir" in text
-
-
-def test_scratch_roots_doc_references_runtime_modules() -> None:
-    """The doc MUST cross-link to the modules that enforce the policy."""
-
-    text = SCRATCH_ROOTS_DOC.read_text()
-    # The doc names the three load-bearing references so future readers
-    # can navigate from prose to code.
-    for ref in (
-        "EvalConfig.allowed_scratch_roots",
-        "resolve_scratch_root",
-        "containment_guard",
-    ):
-        assert ref in text, f"doc missing cross-reference: {ref}"
