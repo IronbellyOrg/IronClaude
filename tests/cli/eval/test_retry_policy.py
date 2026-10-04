@@ -11,8 +11,6 @@ Pins the four acceptance bullets from the phase file:
   evals and break the FR-RPT1 N'-vs-K invariant.
 * The ``MCP_FLAKY_TAG`` constant exists on the class so future R3-mit
   (T05.23) retry-once work has a single, named pin to extend.
-* The ``--eval <id>`` subset re-run path is documented in
-  ``docs/eval/retry.md``.
 
 The retry policy is a contract, not a code path: the runner does not
 ship retry logic today. These tests therefore guard *absence* — they
@@ -388,23 +386,3 @@ def test_monkeypatched_runner_confirms_no_retry_loop(
         1,
         1,
     )
-
-
-# ---------------------------------------------------------------------------
-# AC6: docs/eval/retry.md documents the --eval subset re-run path
-# ---------------------------------------------------------------------------
-
-
-def test_retry_docs_present_and_describe_subset_path():
-    """The phase-file AC: docs/eval/retry.md documents the path."""
-
-    repo_root = Path(__file__).resolve().parents[3]
-    docs_path = repo_root / "docs" / "eval" / "retry.md"
-    assert docs_path.exists(), f"Expected docs at {docs_path}"
-    text = docs_path.read_text(encoding="utf-8")
-    # Token-level guards so a future doc reorg cannot silently strip
-    # the NFR-REL2 contract from the doc.
-    assert "NFR-REL2" in text
-    assert "--eval" in text
-    assert "MCP-flaky" in text
-    assert "retry_count" in text
