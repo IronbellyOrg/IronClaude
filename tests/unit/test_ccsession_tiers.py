@@ -1895,9 +1895,13 @@ def test_both_spellings_of_one_claude_model_share_the_smaller_window(
     text = TIER_BLOCK.replace(
         "T1Model01=claude-opus-5-5", "T1Model01=anthropic/claude-opus-5-5"
     ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
-    text += "export T3Model02=claude-opus-5-5\nexport T3Model02_WINDOW=1000000\n"
+    # A slot tier2 really reads (models_env), holding the bare spelling at 1M.
+    text = text.replace("T2Model03='Qwen3.8-max'", "T2Model03=claude-opus-5-5")
     tenv = models.read_defaults_file(_defaults(tmp_path, text))
-    assert tenv["T3Model02"] == "claude-opus-5-5"
+    assert tenv["T2Model03"] == "claude-opus-5-5"
+    assert tenv["T2Model03_WINDOW"] == "1000000"
+    tiers = models.resolve_tiers(models.load()[0], tenv)
+    assert ("T2Model03", "claude-opus-5-5", 1000000) in tiers["tier2"]["models"]
     per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
         "modelSettings"
     ]
