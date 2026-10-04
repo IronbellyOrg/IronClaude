@@ -80,6 +80,8 @@ PROFILE=""
 TIER_ARG=""
 MODEL_ARG=""
 USER_SETTINGS=""
+SETTINGS_TOKENS=()  # --settings exactly as typed, and where (outside tier mode)
+SETTINGS_POS=0
 MODEL_TOKENS=()  # --model exactly as typed, and where (outside tier mode)
 MODEL_POS=0
 _args=()
@@ -134,10 +136,14 @@ while [ "$#" -gt 0 ]; do
         exit 2
       fi
       USER_SETTINGS="$2"
+      SETTINGS_TOKENS=("$1" "$2")
+      SETTINGS_POS=${#_args[@]}
       shift 2
       ;;
     --settings=*)
       USER_SETTINGS="${1#--settings=}"
+      SETTINGS_TOKENS=("$1")
+      SETTINGS_POS=${#_args[@]}
       shift
       ;;
     --model=*)
@@ -218,11 +224,23 @@ if [ "$TIER_MODE" = 1 ]; then
 elif [ -n "$TIER_ARG" ]; then
   echo "ccsession: --tier needs tier settings (T<N>_WINDOW) from the workspace env; none found" >&2
   exit 2
-elif [ -n "$MODEL_ARG" ]; then
-  # Not tier mode: --model goes to Claude Code exactly as given, in place.
-  _args=("${_args[@]:0:MODEL_POS}" "${MODEL_TOKENS[@]}" "${_args[@]:MODEL_POS}")
-  set -- "${_args[@]}"
+else
+  # Not tier mode: --model and --settings go to Claude Code exactly as typed,
+  # in place (the later one first, so the earlier position stays valid).
+  _put_back() {  # _put_back POS TOKENS...
+    local pos="$1"
+    shift
+    _args=("${_args[@]:0:pos}" "$@" "${_args[@]:pos}")
+  }
+  if [ "${#SETTINGS_TOKENS[@]}" -gt 0 ] && [ "$SETTINGS_POS" -ge "$MODEL_POS" ]; then
+    _put_back "$SETTINGS_POS" "${SETTINGS_TOKENS[@]}"
+    SETTINGS_TOKENS=()
+  fi
+  [ "${#MODEL_TOKENS[@]}" -gt 0 ] && _put_back "$MODEL_POS" "${MODEL_TOKENS[@]}"
+  [ "${#SETTINGS_TOKENS[@]}" -gt 0 ] && _put_back "$SETTINGS_POS" "${SETTINGS_TOKENS[@]}"
+  set -- ${_args[@]+"${_args[@]}"}
   MODEL_ARG=""
+  USER_SETTINGS=""
 fi
 
 if [ "$CCSESSION_SKIP_ENV_FILE" != 1 ]; then
@@ -518,7 +536,20 @@ export_selection() {
   fi
   if [ -n "$_per_model" ]; then
     USER_SETTINGS=""  # merged into ours
-    CC_SETTINGS_ARGS=(--settings "$_per_model")
+    # Passed as a private file, never on the command line: a user's settings
+    # may hold credentials, and command lines are visible to other users.
+    # One file per Claude Code process (exec keeps this PID); files of
+    # processes that have ended are removed.
+    local _dir="${XDG_CACHE_HOME:-$HOME/.cache}/ccsession/settings" _f _pid
+    mkdir -p "$_dir" && chmod 700 "$_dir"
+    for _f in "$_dir"/*.json; do
+      [ -e "$_f" ] || continue
+      _pid="${_f##*/}"
+      kill -0 "${_pid%.json}" 2>/dev/null || rm -f "$_f"
+    done
+    _f="$_dir/$$.json"
+    (umask 077 && printf '%s\n' "$_per_model" > "$_f")
+    CC_SETTINGS_ARGS=(--settings "$_f")
   elif [ -n "$PROFILE_COMPACT_WINDOW" ]; then
     export CLAUDE_CODE_AUTO_COMPACT_WINDOW="$PROFILE_COMPACT_WINDOW"
   fi

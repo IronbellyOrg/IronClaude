@@ -263,7 +263,14 @@ json.dump({
     "argv": sys.argv[1:],
     "context": os.environ.get("CLAUDE_CODE_MAX_CONTEXT_TOKENS", ""),
     "compact": os.environ.get("CLAUDE_CODE_AUTO_COMPACT_WINDOW", ""),
-    "settings": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
+    "settings_arg": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
+    "settings": (open(sys.argv[sys.argv.index("--settings") + 1]).read()
+                 if "--settings" in sys.argv
+                 and os.path.isfile(sys.argv[sys.argv.index("--settings") + 1])
+                 else (sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "")),
+    "settings_mode": (oct(os.stat(sys.argv[sys.argv.index("--settings") + 1]).st_mode & 0o777)
+                      if "--settings" in sys.argv
+                      and os.path.isfile(sys.argv[sys.argv.index("--settings") + 1]) else ""),
     "custom": os.environ.get("ANTHROPIC_CUSTOM_MODEL_OPTION", ""),
     "base_url": os.environ.get("ANTHROPIC_BASE_URL", ""),
 }, open(os.environ["SEEN_FILE"], "w"))
@@ -1859,3 +1866,47 @@ def test_untagged_launch_with_only_settings_still_starts(tmp_path: Path) -> None
     assert rc == 0, err
     assert seen is not None and "untagged" in out
     assert json.loads(seen["settings"])["effortLevel"] == "high"
+
+
+def test_settings_with_credentials_never_reach_the_command_line(tmp_path: Path) -> None:
+    """PR #258 review: a merged settings file holding a token goes by path."""
+    secret = "sk-ant-local-test-secret-123"
+    f = tmp_path / "mine.json"
+    f.write_text(json.dumps({"env": {"ANTHROPIC_AUTH_TOKEN": secret}}))
+    rc, _, err, seen = _launch(tmp_path, "work", "--settings", str(f))
+    assert rc == 0, err
+    assert not any(secret in a for a in seen["argv"])  # not in the command line
+    assert seen["settings_arg"] != str(f) and seen["settings_mode"] == "0o600"
+    merged = json.loads(seen["settings"])
+    assert merged["env"]["ANTHROPIC_AUTH_TOKEN"] == secret
+    assert _compact(seen, "claude-gw-tier2") == 500000
+
+
+def test_prompt_after_settings_outside_tier_mode_is_passed_through(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: outside tier mode --settings stays where it was typed."""
+    rc, out, err, seen = _launch(
+        tmp_path,
+        "--settings",
+        '{"effortLevel": "high"}',
+        "Explain this repository",
+        defaults=None,
+    )
+    assert rc == 0, err
+    assert seen["argv"][-3:] == [
+        "--settings",
+        '{"effortLevel": "high"}',
+        "Explain this repository",
+    ]
+    rc, out, err, seen = _launch(
+        tmp_path,
+        "work",
+        "--model",
+        "sonnet",
+        "--settings={}",
+        "a prompt",
+        defaults=None,
+    )
+    assert rc == 0, err
+    assert seen["argv"][-4:] == ["--model", "sonnet", "--settings={}", "a prompt"]
