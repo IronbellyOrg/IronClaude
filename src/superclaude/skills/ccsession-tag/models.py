@@ -434,6 +434,12 @@ def compact_settings(data=None, tenv=None, extra=None) -> dict:
     alias_of = assign_aliases(m for t in tiers.values() for _, m, _ in t["models"])
     for model, alias in alias_of.items():
         per_model[alias] = per_model[model]
+    # Claude Code files Claude models under their canonical name, so a
+    # provider-qualified id (anthropic/claude-opus-5-5) also gets that key.
+    for model, window in list(per_model.items()):
+        short = model.rsplit("/", 1)[-1]
+        if short != model and short.startswith("claude"):
+            per_model.setdefault(short, window)
     return {
         "modelSettings": {
             key: {"autoCompactWindow": max(100000, min(window, 1000000))}

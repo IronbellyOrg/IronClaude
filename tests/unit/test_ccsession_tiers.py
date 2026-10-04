@@ -1869,3 +1869,19 @@ def test_windows_go_straight_to_claude_code_with_no_file(tmp_path: Path) -> None
     )
     assert rc == 0, err
     assert seen["argv"][-2:] == ["--settings", '{"effortLevel": "high"}']
+
+
+def test_provider_qualified_claude_model_also_gets_its_canonical_key(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: Claude Code looks modelSettings up by canonical name."""
+    text = TIER_BLOCK.replace(
+        "T1Model01=claude-opus-5-5", "T1Model01=anthropic/claude-opus-5-5"
+    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    assert tenv["T1Model01"] == "anthropic/claude-opus-5-5"
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["anthropic/claude-opus-5-5"]["autoCompactWindow"] == 500000
+    assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000
