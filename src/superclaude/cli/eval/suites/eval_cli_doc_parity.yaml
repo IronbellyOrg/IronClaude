@@ -5,13 +5,13 @@
 # CADENCE (operator-facing metadata; not enforced by the eval framework):
 #   - On every PR touching the `eval run` Click option block in
 #     src/superclaude/cli/eval/commands.py, or the FR-CLI1 flag references in
-#     docs/eval/suites-guide.md.
+#     docs/guides/suites-guide.md.
 #   - Nightly via the CI scheduled job alongside the rest of the cliEval roster.
 #
 # WHAT THIS SUITE GUARDS:
 #   The documented `superclaude eval run` flag surface stays in sync with the
 #   flags the CLI actually exposes. `eval run`'s docstring advertises "the twelve
-#   FR-CLI1 flags" and docs/eval/suites-guide.md references each of them. If a
+#   FR-CLI1 flags" and docs/guides/suites-guide.md references each of them. If a
 #   flag is renamed/removed/dropped from `--help` by a refactor of the Click
 #   option block, the docs silently drift and operators paste invocations that
 #   error out. These evals diff the LIVE `superclaude eval run --help` text against
