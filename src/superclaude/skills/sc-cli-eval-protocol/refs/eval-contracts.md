@@ -17,7 +17,7 @@
 | summary.json schema + status enum | `src/superclaude/cli/eval/{run_report,models}.py` |
 | Exit codes | `src/superclaude/cli/eval/exit_codes.py` |
 | HOME preservation | `src/superclaude/cli/eval/{runner,isolation}.py` |
-| Operator gotchas (FR-G5, --no-pty) | `docs/eval/suites-guide.md` |
+| Operator gotchas (FR-G5, --no-pty) | `docs/guides/suites-guide.md` |
 | Runtime / validation / retry / scratch | `docs/eval/{runtime,validation-commands,retry,scratch-roots}.md` |
 
 ## Reading aid (verify against the digest before use)

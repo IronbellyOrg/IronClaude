@@ -46,12 +46,12 @@ generate the competing designs; Mode A when you already have them.
 ## /sc:document — docs update (create W6)
 
 ```text
-/sc:document docs/eval/suites-guide.md --type guide
+/sc:document docs/guides/suites-guide.md --type guide
 ```
 
 Or delegate to the `technical-writer` agent for the inventory-table edits. Targets:
 
-- `docs/eval/suites-guide.md` inventory table.
+- `docs/guides/suites-guide.md` inventory table.
 - `src/superclaude/cli/eval/suites/README.md` "What lives in this directory" table.
 
 ## evidence-validator (create W6, optional)

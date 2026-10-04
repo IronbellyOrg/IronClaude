@@ -52,7 +52,7 @@ NOT done until `eval describe` is green.
 
 ## W6 — Document (REUSE /sc:document)
 
-- `docs/eval/suites-guide.md`: add the new suite to the inventory table (stem, eval_count, purpose).
+- `docs/guides/suites-guide.md`: add the new suite to the inventory table (stem, eval_count, purpose).
 - `src/superclaude/cli/eval/suites/README.md`: add a row to "What lives in this directory".
 Use the `/sc:document` command or the `technical-writer` agent (document is command-only — invoke the
 command, not a `Skill` call). Optionally run `evidence-validator` over the edits so every cite

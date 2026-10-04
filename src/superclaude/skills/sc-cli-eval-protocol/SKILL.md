@@ -105,7 +105,7 @@ error. Do not mark create complete on an unvalidated manifest.
 
 ### W6 — Document (REUSE)
 
-Update the inventory in `docs/eval/suites-guide.md` and the "what lives in this directory" table in
+Update the inventory in `docs/guides/suites-guide.md` and the "what lives in this directory" table in
 `src/superclaude/cli/eval/suites/README.md` via the `/sc:document` command (or the `technical-writer`
 agent — `document` is command-only, so use the command, not a `Skill` call).
 Optionally run `evidence-validator` over the doc edits to confirm every cite resolves.
