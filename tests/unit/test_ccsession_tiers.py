@@ -1885,3 +1885,20 @@ def test_provider_qualified_claude_model_also_gets_its_canonical_key(
     ]
     assert per_model["anthropic/claude-opus-5-5"]["autoCompactWindow"] == 500000
     assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000
+
+
+def test_both_spellings_of_one_claude_model_share_the_smaller_window(
+    tmp_path: Path,
+) -> None:
+    """PR #258 review: claude-opus-5-5 and anthropic/claude-opus-5-5 are one
+    Claude Code entry, so it must never exceed either tier slot's window."""
+    text = TIER_BLOCK.replace(
+        "T1Model01=claude-opus-5-5", "T1Model01=anthropic/claude-opus-5-5"
+    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+    text += "export T3Model02=claude-opus-5-5\nexport T3Model02_WINDOW=1000000\n"
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    assert tenv["T3Model02"] == "claude-opus-5-5"
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000

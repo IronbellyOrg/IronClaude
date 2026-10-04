@@ -436,10 +436,11 @@ def compact_settings(data=None, tenv=None, extra=None) -> dict:
         per_model[alias] = per_model[model]
     # Claude Code files Claude models under their canonical name, so a
     # provider-qualified id (anthropic/claude-opus-5-5) also gets that key.
+    # Both spellings share that one entry, so it takes the smaller window.
     for model, window in list(per_model.items()):
         short = model.rsplit("/", 1)[-1]
         if short != model and short.startswith("claude"):
-            per_model.setdefault(short, window)
+            per_model[short] = min(window, per_model.get(short, window))
     return {
         "modelSettings": {
             key: {"autoCompactWindow": max(100000, min(window, 1000000))}
