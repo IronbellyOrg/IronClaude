@@ -301,6 +301,21 @@ def is_native_model(model: str) -> bool:
     return model.startswith(("claude", "anthropic"))
 
 
+def canonical_claude_name(model: str) -> str:
+    """The modelSettings key Claude Code uses for a Claude model id, or "".
+
+    anthropic/claude-opus-5-5, us.anthropic.claude-opus-5-5-v1:0,
+    claude-opus-5-5@20260101 and claude-sonnet-4-5-20250929 all reduce to
+    the plain name (claude-opus-5-5, claude-sonnet-4-5).
+    """
+    at = model.find("claude-")
+    if at < 0:
+        return ""
+    name = re.sub(r"\[1m\]$", "", model[at:])
+    name = re.sub(r"(@\d{8}|-\d{8})?(-v\d+(:\d+)?)?$", "", name)
+    return name
+
+
 def assign_aliases(model_ids) -> dict:
     """The picker id the shim shows for each gateway model, in the given order.
 
@@ -434,12 +449,13 @@ def compact_settings(data=None, tenv=None, extra=None) -> dict:
     alias_of = assign_aliases(m for t in tiers.values() for _, m, _ in t["models"])
     for model, alias in alias_of.items():
         per_model[alias] = per_model[model]
-    # Claude Code files Claude models under their canonical name, so a
-    # provider-qualified id (anthropic/claude-opus-5-5) also gets that key.
-    # Both spellings share that one entry, so it takes the smaller window.
+    # Claude Code files a Claude model under its canonical name and matches
+    # provider-qualified, dated and versioned ids to that one entry, so each
+    # spelling also sets the canonical key; spellings that share it take the
+    # smaller window.
     for model, window in list(per_model.items()):
-        short = model.rsplit("/", 1)[-1]
-        if short != model and short.startswith("claude"):
+        short = canonical_claude_name(model)
+        if short and short != model:
             per_model[short] = min(window, per_model.get(short, window))
     return {
         "modelSettings": {

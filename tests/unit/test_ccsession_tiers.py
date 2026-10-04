@@ -1906,3 +1906,29 @@ def test_both_spellings_of_one_claude_model_share_the_smaller_window(
         "modelSettings"
     ]
     assert per_model["claude-opus-5-5"]["autoCompactWindow"] == 500000
+
+
+def test_every_spelling_of_a_claude_model_gets_its_canonical_key() -> None:
+    """PR #258 review: Claude Code matches dated, provider-qualified and
+    versioned Claude ids to one canonical modelSettings entry."""
+    for model, short in [
+        ("claude-sonnet-4-5-20250929", "claude-sonnet-4-5"),
+        ("anthropic/claude-opus-5-5", "claude-opus-5-5"),
+        ("us.anthropic.claude-opus-5-5-v1:0", "claude-opus-5-5"),
+        ("claude-opus-5-5@20260101", "claude-opus-5-5"),
+        ("claude-opus-5-5[1m]", "claude-opus-5-5"),
+        ("claude-opus-5-5", "claude-opus-5-5"),
+        ("grok-4.7", ""),
+    ]:
+        assert models.canonical_claude_name(model) == short, model
+
+
+def test_dated_claude_tier_model_keeps_its_window(tmp_path: Path) -> None:
+    text = TIER_BLOCK.replace(
+        "T1Model01=claude-opus-5-5", "T1Model01=claude-sonnet-4-5-20250929"
+    ).replace("T1Model01_WINDOW=1000000", "T1Model01_WINDOW=500000")
+    tenv = models.read_defaults_file(_defaults(tmp_path, text))
+    per_model = models.compact_settings(data=models.load()[0], tenv=tenv)[
+        "modelSettings"
+    ]
+    assert per_model["claude-sonnet-4-5"]["autoCompactWindow"] == 500000
