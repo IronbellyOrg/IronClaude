@@ -266,6 +266,8 @@ json.dump({
     "settings": sys.argv[sys.argv.index("--settings") + 1] if "--settings" in sys.argv else "",
     "custom": os.environ.get("ANTHROPIC_CUSTOM_MODEL_OPTION", ""),
     "base_url": os.environ.get("ANTHROPIC_BASE_URL", ""),
+    "api_key": os.environ.get("ANTHROPIC_API_KEY", ""),
+    "auth_token": os.environ.get("ANTHROPIC_AUTH_TOKEN", ""),
 }, open(os.environ["SEEN_FILE"], "w"))
 """
     )
@@ -1932,3 +1934,20 @@ def test_dated_claude_tier_model_keeps_its_window(tmp_path: Path) -> None:
         "modelSettings"
     ]
     assert per_model["claude-sonnet-4-5"]["autoCompactWindow"] == 500000
+
+
+def test_shim_sessions_pass_the_gateway_key_as_a_bearer_token(tmp_path: Path) -> None:
+    """Interactive Claude Code ignores an unapproved ANTHROPIC_API_KEY, so /model
+    could not validate another tier in a fresh workspace; through the shim the
+    key goes as ANTHROPIC_AUTH_TOKEN. Without the shim it is left as it was."""
+    keys = {
+        "LITELLM_API_KEY": "sk-gw-test",
+        "ANTHROPIC_API_KEY": "",
+        "ANTHROPIC_AUTH_TOKEN": "",
+    }
+    rc, _, err, seen = _launch(tmp_path, "work", **keys)
+    assert rc == 0, err
+    assert seen["auth_token"] == "sk-gw-test" and seen["api_key"] == ""
+    rc, _, err, seen = _launch(tmp_path, "work", defaults=None, **keys)
+    assert rc == 0, err
+    assert seen["api_key"] == "sk-gw-test" and seen["auth_token"] == ""

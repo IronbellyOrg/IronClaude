@@ -783,6 +783,15 @@ if [ "$USE_SHIM" = 1 ] && [ -z "$CC_SHIM_PORT_EXPLICIT" ]; then
   CC_SHIM_PORT=$(python3 "$CCSESSION_MODELS" shim-port "$CC_SHIM_PORT")
 fi
 [ "$USE_SHIM" = 1 ] && setup_shim
+# Through the shim, give Claude Code the gateway key as a bearer token.
+# Interactive Claude Code does not use an ANTHROPIC_API_KEY until someone has
+# approved it, so in a fresh workspace /model could not validate another tier
+# ("Could not resolve authentication method"). The shim passes either header
+# to the gateway unchanged.
+if [ "$USE_SHIM" = 1 ] && [ -n "${ANTHROPIC_API_KEY:-}" ] && [ -z "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
+  export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_API_KEY"
+  unset ANTHROPIC_API_KEY
+fi
 
 # No topic (bare --shim and/or --profile) starts a normal untagged session.
 if [ "$#" -eq 0 ] || [[ "${1:-}" == -* ]]; then
