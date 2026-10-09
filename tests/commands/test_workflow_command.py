@@ -206,7 +206,10 @@ def test_final_reflect_pre_precedes_contract_and_handoff():
     skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
     assert skill.index("## Wave 3 — Gate") < skill.index("## Wave 4 — Reflect")
     assert skill.index("## Wave 4 — Reflect") < skill.index("## Wave 5 — Contract")
-    assert "/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<id>.md" in skill
+    assert (
+        "/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<id>.md"
+        in skill
+    )
     contract = _ref("return-contract.md")
     assert "reflect_status:" in contract and "reflect_report_path:" in contract
     assert "/sc:reflect --mode pre" in _CMD.read_text(encoding="utf-8")
