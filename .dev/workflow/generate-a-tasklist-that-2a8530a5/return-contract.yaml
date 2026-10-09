@@ -1,0 +1,9 @@
+contract_version: "1.0"
+status: success
+plan_path: .dev/workflow/generate-a-tasklist-that-2a8530a5/plan.md
+source_path: .dev/workflow/generate-a-tasklist-that-2a8530a5/source.md
+strategy: systematic
+depth: standard
+handoff_action: none
+handoff_output_path: null
+unresolved: []
