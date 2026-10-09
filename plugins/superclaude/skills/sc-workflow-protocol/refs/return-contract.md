@@ -13,8 +13,12 @@ strategy: systematic | agile | enterprise
 depth: quick | standard | deep
 handoff_action: none | design | implement | tasklist
 handoff_output_path: ./progress.md | null
+reflect_status: success | partial | failed | skipped   # Wave 4 `/sc:reflect --mode pre`; advisory only
+reflect_report_path: <abs path to reflect REPORT.md> | null
 unresolved: []
 ```
+
+`reflect_*` are additive and advisory: they never change `status`. A generation `failed` contract (reflect never ran) uses `reflect_status: skipped`, `reflect_report_path: null`.
 
 ## Status
 

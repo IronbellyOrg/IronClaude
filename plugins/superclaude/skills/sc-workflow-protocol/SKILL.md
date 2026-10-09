@@ -15,7 +15,7 @@ Invoked only via `/sc:workflow` Activation. Plan only. Wave 2 is **Synthesize**.
 |------|------|
 | Load ref | Read |
 | Write artifact | Write |
-| Invoke Skill | Skill (`sc:implement-protocol` only on `--handoff implement`) |
+| Invoke Skill | Skill (`sc:reflect-protocol` in Wave 4; `sc:implement-protocol` only on `--handoff implement`) |
 
 ## Wave 0 — Parse
 
@@ -51,16 +51,22 @@ Each Wave 1 phase → `## Phase N:` then its `## Task N:` headings (numbered 1..
 
 quick = schema-min. standard/deep = full. Fail → STOP `E-GATE`.
 
-## Wave 4 — Contract
+## Wave 4 — Reflect
+
+Final step of plan generation; runs only after Wave 3 passed, and **before** the Wave 5 contract and any `--handoff` (so an unreflected plan is never implemented). Invoke `/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<id>.md` via Skill (`sc:reflect-protocol`), defaults for every other flag, no `--remediate`. Record reflect's `status` and `report_path` (from its `return-contract.yaml`) as `reflect_status` / `reflect_report_path`, and print both with the plan path.
+
+Advisory and read-only: never edit, delete, or regenerate `<id>.md` from findings, and never change the workflow `status` because of them. Reflect unavailable or `failed` → `reflect_status: skipped|failed`, `reflect_report_path: null`, one `unresolved` line; still proceed to Wave 5.
+
+## Wave 5 — Contract
 
 **Refs:** `refs/return-contract.md`, `refs/overlap-routing.md`
 
-Write `<pkg>/return-contract.yaml` (contract 1.1: stable `slug`, `./<id>.md`, `./source.md`) **before** any `implement` handoff. Apply handoff; a failed `implement` handoff on a valid plan is `partial`, a failed generation is `failed`.
+Write `<pkg>/return-contract.yaml` (contract 1.1: stable `slug`, `./<id>.md`, `./source.md`, `reflect_*`) **before** any `implement` handoff. Apply handoff; a failed `implement` handoff on a valid plan is `partial`, a failed generation is `failed`.
 
 After an `implement` handoff the package may have moved to `done/` (executor-owned archive). Resolve the actual location by id (`.dev/tasks/to-do/<id>` vs `.dev/tasks/done/<id>`, `test -e || test -L`): only if the package still exists at `to-do/` may you rewrite the contract (e.g. to `partial`), and never recreate a directory or write into a path whose package is absent. Only `done/` exists → leave the archived contract untouched, report the failure/outcome in chat, print the actual `done/` plan path. Both exist → mutate neither and report the conflict. Print the plan path at its actual location.
 
 ## Will / Will Not
 
-**Will:** one new package `.dev/tasks/to-do/<id>/` with `<id>.md`, `source.md`, `return-contract.yaml`. Never overwrites or reuses an existing package.
+**Will:** one new package `.dev/tasks/to-do/<id>/` with `<id>.md`, `source.md`, `return-contract.yaml`. Never overwrites or reuses an existing package. Run `/sc:reflect --mode pre` (advisory) on the gated plan as the final generation step, before any handoff.
 
-**Will Not:** product code, tasklist files, roadmap CLI, new agents, Task fan-out.
+**Will Not:** product code, tasklist files, roadmap CLI, new agents, Task fan-out; modify the plan from reflect findings.
