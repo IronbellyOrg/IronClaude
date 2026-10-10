@@ -43,7 +43,7 @@ Banned (`E-LEGACY`): `--parallel`, `--validate`, `--depth shallow|normal`, and t
 
 ## Behavioral Summary
 
-Command file: parse flags → STOP on empty/banned → Activation. Protocol owns waves.
+Command file: parse flags → STOP on empty/banned → Activation. Protocol owns waves. Final generation step (after the gate, before any handoff): advisory `/sc:reflect --mode pre` of the plan against the source; its report path/status is printed and recorded in `return-contract.yaml`.
 
 ## Activation
 
@@ -62,9 +62,9 @@ The full behavioral specification is in `src/superclaude/skills/sc-workflow-prot
 
 ## Boundaries
 
-**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package.
+**Will:** create one new package `.dev/tasks/to-do/<id>/` holding `<id>.md` (schema `workflow-plan/1.2`), `source.md` snapshot and `return-contract.yaml` (1.1). Never overwrites an existing package. Run `/sc:reflect --mode pre` (advisory, read-only on the plan) as the last plan-generation step, before any `--handoff`.
 
-**Will Not:** mutate product code; emit `tasklist-index.md`; run `superclaude roadmap`.
+**Will Not:** mutate product code; edit the plan from reflect findings; emit `tasklist-index.md`; run `superclaude roadmap`.
 
 ## Related Commands
 
