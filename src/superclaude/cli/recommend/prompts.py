@@ -6,14 +6,14 @@ Holds the two prose payloads handed to the ``model: haiku`` subagent(s):
   emits ONLY a key from the closed vocabulary (else ``unknown`` ->
   ``cache_miss: no_key``), computes the top-2 confidence delta in a single pass
   (no extra LLM call), and returns the structured ``<RETURN>`` JSON contract.
-* ``COLD_PATH_RUNBOOK`` -- the ~50-line condensed cold-path pipeline (Step 2.3),
-  handed to the cold-path Haiku subagent as its system context in lieu of the
-  full 226-line SKILL.md.
+* ``COLD_PATH_RUNBOOK`` -- the condensed cold-path runbook (Step 2.3), handed
+  to the cold-path Haiku subagent as its system context instead of the full
+  SKILL.md.
 
 These are prose constants, not executable logic. The classifier mirrors the
 ``sc-task-protocol`` compliance-tier classifier (closed enum, weighted scoring,
 top-2 delta in one pass, low-confidence branch); see
-``core/ORCHESTRATOR.md`` Tier Classification Routing + ``sc-task-protocol/SKILL.md:56-78``.
+``sc-task-protocol/SKILL.md:56-78`` and ``commands/task.md:71-93``.
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from __future__ import annotations
 CLASSIFICATION_KEYS = (
     "spec-generation",  # eval-1 (spec-confirmed)
     "codebase-research",  # eval-2
-    "tasklist-generation",  # eval-3
+    "task-file-generation",  # eval-3 (renamed from tasklist-generation)
     "parallel-agent-fanout",  # eval-6
     "roadmap-generation",  # surface-derived (no iteration-1 eval coverage)
     "adversarial-review",  # surface-derived (no iteration-1 eval coverage)
@@ -52,11 +52,14 @@ You may emit ONLY one of these keys. If the request matches none, emit
 "unknown" (the parent treats this as cache_miss: no_key -> cold path). Do NOT
 invent a key outside this set.
 
-  spec-generation        — build/generate a spec, TDD, or PRD from inputs
+  spec-generation        — write a new PRD or TDD from inputs (/prd, /tdd);
+                           reviewing an existing spec is not this key
   codebase-research      — understand how THIS codebase / a subsystem works
-  tasklist-generation    — turn a spec/roadmap into an MDTM tasklist
+  task-file-generation   — turn a spec, report, or build request into a task file
+                           (/task-builder, then /task)
   parallel-agent-fanout  — research/process N independent items, then synthesize
-  roadmap-generation     — generate or validate a roadmap from a spec
+  roadmap-generation     — generate a phased roadmap plus phase task files from
+                           a PRD/TDD (/roadmap)
   adversarial-review     — adversarial debate / reflection / code review of artifacts
   cleanup-audit          — repository cleanup / dead-code / sprawl audit
   troubleshoot-debug     — diagnose a broken build, failing test, or runtime error
@@ -68,22 +71,25 @@ invent a key outside this set.
 (eval-backed keys 1-4 use verbatim iteration-1 eval requests)
 
 - "Generate a prompt to create specs from these matrices: docs/scope-matrix.md
-  and docs/risk-matrix.md"  ->  spec-generation
+  and docs/risk-matrix.md"  ->  spec-generation   (route: /prd or /tdd, never
+  the review-only /sc:spec-panel)
 - "Help me research the codebase for how the freshness hook system works"
   ->  codebase-research
 - "Build a tasklist for this spec at docs/specs/checkout-v2-spec.md"
-  ->  tasklist-generation
+  ->  task-file-generation
 - "Set up a research workflow for these 3 files: a.md, b.md, c.md"
   ->  parallel-agent-fanout
 - "Generate a roadmap from this TDD"  ->  roadmap-generation       (surface-derived; unvalidated)
-- "Refactor this 40-line util in src/utils/timefmt.py"  ->  native_likely=true (no key)
+- "Rename tz_offest to tz_offset in src/utils/timefmt.py (3 uses)"
+  ->  native_likely=true (no key)
 </FEW-SHOT-EXAMPLES>
 
 <NATIVE-CHECK>
-Set native_likely=true (and key="native") when the task is small enough that a
-single native Read+Edit beats any delegation: a single-file edit, a
-read-and-explain, a ~40-line refactor, a typo/comment/lint fix. Native tasks
-SKIP the table entirely — do not force them onto a delegation key.
+Set native_likely=true (and key="native") only when the task is one source file
+(plus its test), five edits or fewer, and the exact change is known: a
+read-and-explain, a typo/comment/lint fix, a small rename. More than five edits
+or more than one source file is never native. Native tasks SKIP the table
+entirely — do not force them onto a delegation key.
 </NATIVE-CHECK>
 
 <SCORING>
@@ -119,10 +125,20 @@ result back (you cannot write files). Respect R1-R4 below.
 <PHASE-0 — MANDATORY SURFACE GATE (do not skip)>
 This gate exists because a static keyword table went stale and missed a live
 command. Enumerate the ACTUAL surface every time; never use a static mapping.
-  A. Glob the live surface: src/superclaude/commands/*.md,
-     src/superclaude/skills/*/SKILL.md, src/superclaude/agents/*.md (+ .claude/agents),
-     templates. Worktree-aware: under .claude/worktrees/<name>/ paths resolve to
-     that worktree. (Full algorithm: refs/surface-enumeration.md.)
+  0. Use the level table and hard limit the parent passed; do not re-match
+     routing rows. Before enumerating, check the other-commands block the
+     parent passed (if any): a command it names whose "when to use it" text
+     fits the goal is a candidate; cite the matching entry when you use it.
+  A. Enumerate the live surface: installed $HOME/.claude/commands/sc/*.md,
+     $HOME/.claude/skills/*/SKILL.md, $HOME/.claude/agents/*.md and
+     $HOME/.claude/templates/**/*.md; project .claude/commands/**/*.md,
+     .claude/skills/*/SKILL.md and .claude/agents/*.md; the plugin's
+     commands, skills and agents when CLAUDE_PLUGIN_ROOT is expanded; and,
+     only inside an IronClaude checkout, src/superclaude/commands, skills,
+     agents and templates, and src/superclaude/examples/*-template.md.
+     Checkout test: src/superclaude/commands/ exists under `git rev-parse --show-toplevel`.
+     Checkout paths resolve under that root, so under .dev/worktrees/<name>/ they
+     resolve to that worktree. (Full algorithm: refs/surface-enumeration.md.)
   B. Issue ONE mcp__auggie__codebase-retrieval query to semantically rank the
      enumerated surface against the verbatim user request (top 3-5 candidates).
      (Query template: refs/surface-enumeration.md.)
@@ -141,13 +157,22 @@ command. Enumerate the ACTUAL surface every time; never use a static mapping.
   - Request too vague -> ask ONE clarifying question; do not guess.
 </GRACEFUL-DEGRADATION>
 
-<PHASE-1 — NATIVE-FIRST NET-VALUE (anti-bloat default)>
-For every surviving candidate, answer before recommending: (1) Does delegating
-beat a 2-3 step Read/Grep/Glob/Edit/Write sequence? (2) Is the overhead justified
-by capability the model lacks natively here? (3) Would a senior engineer delegate,
-or roll it faster themselves? If any answer is "no"/"barely", DEFAULT TO NATIVE
-tooling and say so — that is a complete, valid recommendation. Prefer the
-smallest delegation that wins. (Full rubric: refs/delegation-vs-native-heuristics.md.)
+<PHASE-1 — HARD LIMIT FIRST, THEN NET VALUE>
+The parent found no matching routing row, or no guide. Hard limit first: if
+the work needs more than 5 edits or touches more than one source file (its
+matching test file does not count), it must go through a written plan, never
+native edits: level 3 (/sc:workflow --depth quick then /sc:implement) for a
+few files with clear scope, level 4 (/task-builder then /task) for anything
+larger, longer, or riskier. The one exception is /sc:cleanup and /sc:improve
+run on a folder (guide section 3.7): commit first and review git diff
+afterwards. Otherwise, for every surviving
+candidate answer before recommending: (1) Does delegating beat a 2-3 step
+Read/Grep/Glob/Edit/Write sequence? (2) Is the overhead justified by
+capability the model lacks natively here? (3) Would a senior engineer
+delegate, or roll it faster themselves? If any answer is "no"/"barely",
+DEFAULT TO NATIVE tooling and say so — that is a complete, valid
+recommendation. Prefer the smallest delegation that wins. (Full rubric:
+refs/delegation-vs-native-heuristics.md.)
 </PHASE-1>
 
 <PHASE-2 — HAND-OFF ENVELOPE>
@@ -179,20 +204,24 @@ has no effect without --plugin (the local surface has no stars); ignoring it."
        was resolved in Phase 0 Step C.
   R3 — No protocol reimplementation (load-bearing): when a target is
        skill-indirected, the prompt MUST be a hand-off, not a specification.
-       Allowed: "Run: /sc:adversarial --compare a.md,b.md --focus structure".
+       Allowed: "Run: /sc:adversarial --compare a.md,b.md --focus structure
+       --depth standard".
        Forbidden: inlining the target's debate rules, phase counts, scoring
        formulas, agent roster, or return-contract internals. Invoke, don't
        reimplement — duplication causes drift.
   R4 — Built-ins exempt: recommend Read/Grep/Glob/Edit/Write/Bash/TodoWrite/
        WebFetch/WebSearch by name without verification.
+       Also /code-review and /security-review (Claude Code built-ins named by the routing guide).
 </RULES>
 
 <RETURN-CONTRACT>
 Return JSON with: status (success|clarification_needed|degraded|plugin_search),
 mode (local|plugin), recommendation_kind (delegation_prompt|native_tooling|
-multi_path|plugin_candidate), prompt_block (empty for native_tooling),
-verified_sources (paths Read in Phase 0 C), auggie_status (ok|unavailable|empty),
-degradation_notes, and cache_update (the row(s) for the parent to commit:
+multi_path|plugin_candidate|ordered_workflow), prompt_block (empty for
+native_tooling), verified_sources (paths Read in Step 0 (the guide) and Phase 0 Step C), auggie_status
+(ok|unavailable|empty), guide_status (matched|no_match|absent|not_applicable),
+routing_row_id (empty unless matched), degradation_notes, and cache_update (the
+row(s) for the parent to commit:
 key, candidate, flags, prompt_envelope_template, rationale, source_path,
 native_fallback). source_path is the repo-relative path you Read in Phase 0
 Step C (the candidate's verified source) — supply it for every non-native row so

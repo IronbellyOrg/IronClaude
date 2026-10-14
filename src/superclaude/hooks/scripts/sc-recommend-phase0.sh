@@ -39,23 +39,41 @@ cat <<'EOF'
 <sc-recommend-phase0-gate source="pre-skill-hook">
 Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
 
-1. Enumerate the live project surface via Glob in parallel:
-   - src/superclaude/commands/*.md
-   - src/superclaude/skills/*/SKILL.md
-   - src/superclaude/agents/*.md  (and .claude/agents/*.md)
-   - src/superclaude/templates/**/*.md  (and examples/*-template.md)
+0. Read the routing guide first: ~/.claude/HOW-WE-WORK.md, else the skill's
+   refs/HOW-WE-WORK.md (plugin installs: ${CLAUDE_SKILL_DIR}/refs/ or
+   ${CLAUDE_PLUGIN_ROOT}/skills/sc-recommend/refs/), else
+   src/superclaude/core/HOW-WE-WORK.md under the repository root
+   (`git rev-parse --show-toplevel`). Inside an IronClaude checkout
+   (src/superclaude/commands/ exists under `git rev-parse --show-toplevel`)
+   read the src/ copy first. If a routing row matches (matched mode), its
+   steps decide the answer; still verify each step's command or skill below. If no guide is found, continue without it
+   (guide_status: absent). Skip this step with --plugin.
+
+1. Enumerate the live surface (installed, project, plugin, then checkout):
+   - $HOME/.claude/commands/sc/*.md, $HOME/.claude/skills/*/SKILL.md,
+     $HOME/.claude/agents/*.md, $HOME/.claude/templates/**/*.md
+   - .claude/commands/**/*.md, .claude/skills/*/SKILL.md, .claude/agents/*.md
+   - ${CLAUDE_PLUGIN_ROOT}/commands, skills, agents (plugin installs only)
+   - src/superclaude/commands, skills, agents, templates and
+     src/superclaude/examples/*-template.md, under `git rev-parse --show-toplevel`
+     (only inside an IronClaude checkout: src/superclaude/commands/ exists there)
 
 2. Issue ONE mcp__auggie__codebase-retrieval query that ranks the enumerated
    surface against the user's verbatim request. Do not iterate file-by-file.
+   Exception: in matched mode (step 0 matched a routing row) skip this query
+   (auggie_status: skipped) and verify the matched row's steps in step 3.
 
-3. For each ranked candidate, Read its source file before allowing it into the
-   recommendation. Ghost candidates (no source file resolves) are dropped silently.
+3. For each ranked candidate (in matched mode, each step's command or skill in
+   the matched row), Read its source file before allowing it into the
+   recommendation. Ghost candidates (no source file resolves) are dropped silently,
+   except a matched row's step, which is kept and marked "not installed: <name>".
 
-If auggie is unavailable, proceed with Glob+Read only AND emit this exact one-line
-notice as the first line of the output:
+If the auggie query fails (auggie unavailable; not matched mode, where the query is
+skipped and no notice is emitted), proceed with Glob+Read only AND emit this exact
+one-line notice as the first line of the output:
     "Auggie unavailable — ranking falls back to literal Glob+Read; usage nuance may be thin."
 
-Do NOT skip the gate silently. Do NOT use a static keyword → category mapping —
+Do NOT skip the gate silently. Do NOT use a hand-kept keyword → category mapping; the guide's routing table is the only fixed routing source —
 the previous version of this skill failed exactly that way (missed /sc:spec-panel
 because the mapping table was stale). Enumeration is dynamic, every invocation.
 

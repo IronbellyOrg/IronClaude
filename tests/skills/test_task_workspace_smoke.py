@@ -38,7 +38,7 @@ def _require_worktree_code():
 
 
 def test_plugin_commands_match_canonical():
-    for name in ("workflow.md", "implement.md"):
+    for name in ("workflow.md", "implement.md", "help.md", "recommend.md"):
         assert filecmp.cmp(
             _REPO / "src/superclaude/commands" / name,
             _REPO / "plugins/superclaude/commands" / name,

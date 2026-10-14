@@ -1,22 +1,10 @@
 # SuperClaude Commands
 
-This directory contains slash commands that are installed to `~/.claude/commands/sc/` when users run `superclaude install`.
+The files in this folder are installed to `~/.claude/commands/sc/` by `superclaude install` and `superclaude update` (this README.md itself is not installed). For the list of installed commands, run `/sc:help`; for which one to use for a job, read the routing guide `src/superclaude/core/HOW-WE-WORK.md` (installed as `~/.claude/HOW-WE-WORK.md`).
 
-## Available Commands
+When you change a command:
 
-- **agent.md** - Specialized AI agents
-- **index-repo.md** - Repository indexing for context optimization
-- **recommend.md** - Command recommendations
-- **research.md** - Deep web research with parallel search
-
-## Important
-
-These commands are copies from `plugins/superclaude/commands/` for package distribution.
-
-When updating commands:
-
-1. Edit files in `plugins/superclaude/commands/`
-2. Copy changes to `src/superclaude/commands/`
-3. Both locations must stay in sync
-
-In v5.0, the plugin system will use `plugins/` directly.
+1. Edit it here first (this folder is the source of truth).
+2. Run `make sync-dev`, then `make verify-sync`.
+3. If you changed `help.md`, `recommend.md`, `workflow.md` or `implement.md`, copy it byte-for-byte to `plugins/superclaude/commands/` (parity tests check these four).
+4. If you added a command, add its row to the routing table at the end of `src/superclaude/core/HOW-WE-WORK.md` (or to its "Other commands" table).

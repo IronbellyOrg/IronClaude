@@ -20,7 +20,7 @@ Welcome to SuperClaude Framework development! This guide provides everything you
 
 **Required:**
 
-- Python 3.8+ with pip
+- Python 3.10+ and uv
 - Git for version control
 - Claude Code installed and working
 - Node.js 16+ (for MCP server configuration)
@@ -28,22 +28,27 @@ Welcome to SuperClaude Framework development! This guide provides everything you
 **Environment Setup:**
 
 ```bash
-# Fork SuperClaude_Framework on GitHub first
-git clone https://github.com/YOUR_USERNAME/SuperClaude_Framework.git
-cd SuperClaude_Framework
+# Clone the IronClaude repository (same as the Development Installation method)
+git clone https://github.com/IronbellyOrg/IronClaude
+cd IronClaude
 
-# Test installation system
-PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup --help
+# Create the virtual environment and install in development mode
+# (see the Development Installation method in docs/getting-started/installation.md)
+uv venv
+make install
 
-# Install to development location
-PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components core
+# Test the CLI
+uv run superclaude --help
+
+# Copy commands, agents, skills, hooks and core files into ~/.claude/
+uv run superclaude install
 ```
 
 **Validation Check:**
 
 ```bash
 # Verify Python version
-python3 --version  # Should be 3.8+
+python3 --version  # Should be 3.10+
 
 # Check Node.js for MCP configuration
 node --version     # Should be 16+
@@ -59,14 +64,15 @@ ls ~/.claude/      # Should show Claude Code directory
 SuperClaude is a **Context-Oriented Configuration Framework** - not executing software, but instruction files that Claude Code reads to modify its behavior.
 
 ```
-SuperClaude_Framework/
-├── superclaude/           # Framework components (the source of truth)
-│   ├── Core/             # PRINCIPLES.md, RULES.md, FLAGS.md
-│   ├── Agents/           # 15 specialized domain experts
-│   ├── Commands/         # 21 context trigger patterns (/sc: behavioral instructions)
-│   ├── Modes/            # 6 behavioral modification patterns
-│   └── MCP/              # 6 MCP server configurations
-├── setup/                # Python installation system
+IronClaude/
+├── src/superclaude/       # Framework components (the source of truth)
+│   ├── core/             # CLAUDE.md, HOW-WE-WORK.md, RULES.md, PRINCIPLES.md
+│   ├── agents/           # Specialist agent definitions
+│   ├── commands/         # /sc: command files (behavioral instructions)
+│   ├── skills/           # Skill packages (SKILL.md + refs, rules, templates, scripts)
+│   ├── modes/            # Behavioral mode files (MODE_*.md)
+│   ├── mcp/              # MCP server docs (MCP_*.md) and configs/
+│   └── cli/              # superclaude CLI, including the install_*.py installers
 ├── docs/                 # Documentation (what you're reading)
 └── tests/                # File validation scripts
 ```
@@ -86,8 +92,8 @@ User Input → Claude Code → Reads SuperClaude Context → Modified Behavior �
 ```
 
 1. User types `/sc:implement "auth system"` **in Claude Code conversation** (not terminal)
-2. Claude Code reads `superclaude/Commands/implement.md`
-3. Command activates security-engineer agent context
+2. Claude Code reads `~/.claude/commands/sc/implement.md` (installed from `src/superclaude/commands/implement.md`)
+3. Claude may delegate to a specialist agent such as security-engineer (the command itself names none)
 4. Context7 MCP provides authentication patterns
 5. Claude generates complete, secure implementation
 
@@ -159,10 +165,10 @@ Core philosophy and approach
 1. **Fork and Clone:**
 
    ```bash
-   # Fork on GitHub, then:
-   git clone https://github.com/YOUR_USERNAME/SuperClaude_Framework.git
-   cd SuperClaude_Framework
-   git remote add upstream https://github.com/SuperClaude-Org/SuperClaude_Framework.git
+   # Work on a branch of the IronClaude repository:
+   git clone https://github.com/IronbellyOrg/IronClaude
+   cd IronClaude
+   git checkout -b feature/<your-change>
    ```
 
 2. **Create Feature Branch:**
@@ -222,7 +228,7 @@ Brief description of context file changes
 **Agent Development Process:**
 
 1. Identify domain expertise gap
-2. Create agent file in `superclaude/Agents/`
+2. Create agent file in `src/superclaude/agents/`
 3. Define triggers, behaviors, and boundaries
 4. Test with various Claude Code scenarios
 5. Document usage patterns and examples

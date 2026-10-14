@@ -30,7 +30,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from .cache import LookupCache, compute_source_hash, compute_surface_hash
+from .cache import _SURFACE_BASE, LookupCache, compute_source_hash, compute_surface_hash
 
 # The four hot-path miss reasons the dispatch can emit. All are members of the
 # telemetry closed enum (telemetry.CACHE_RESULTS); the caller logs whichever is
@@ -77,7 +77,7 @@ def dispatch(
     native_likely: bool,
     confidence_top2_delta: float,
     cache_path: Path,
-    surface_base: Path = Path("src/superclaude"),
+    surface_base: Path = _SURFACE_BASE,
     budget_tokens_used: int = 0,
     budget_limit: int = DEFAULT_BUDGET_LIMIT,
 ) -> DispatchResult:

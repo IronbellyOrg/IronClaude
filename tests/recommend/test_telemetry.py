@@ -53,7 +53,7 @@ class TestTelemetryAppend:
             events_path,
             mode="delegate",
             cache_result="cold_inserted",
-            classification_key="tasklist-generation",
+            classification_key="task-file-generation",
             duration_ms=20,
         )
         lines = events_path.read_text(encoding="utf-8").splitlines()

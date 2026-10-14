@@ -9,6 +9,8 @@ The wizard is a guided, plain-language front door to the `superclaude swarm` CLI
 questions; it picks the right settings, proves the setup works with a safe practice run, then offers to run
 the real thing, watches it, and explains the results.
 
+For which tool to use when, see [How We Work](../user-guide/how-we-work.md).
+
 ---
 
 ## 1. The 30-second version
@@ -207,7 +209,7 @@ Most people never need this; the built-in lenses cover the common cases.
 
 ### Related commands
 
-The follow-up each lens hands off to: `/sc:adversarial`, `/sc:code-review`, `/sc:reflect`,
+The follow-up each lens hands off to: `/sc:adversarial`, `/code-review`, `/sc:reflect`,
 `/sc:research`, `/sc:troubleshoot`, `/sc:document`. For the raw CLI surface the wizard sits on top of, see
 [`command-reference.md`](command-reference.md), [`user-guide.md`](user-guide.md), and
 [`lens-catalog.md`](lens-catalog.md).

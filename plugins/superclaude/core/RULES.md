@@ -19,33 +19,19 @@ Actionable rules for enhanced Claude Code framework operation.
 
 **Priority**: 🔴 **Triggers**: Task execution and post-implementation
 
-**Task Execution Layer** (Existing Auto-Activation):
+**Task Execution Layer** (guidance, not automatic triggers):
 
-- **Auto-Selection**: Claude Code automatically selects appropriate specialist agents based on context
-- **Keywords**: Security, performance, frontend, backend, architecture keywords trigger specialist agents
-- **File Types**: `.py`, `.jsx`, `.ts`, etc. trigger language/framework specialists
-- **Complexity**: Simple to enterprise complexity levels inform agent selection
-- **Manual Override**: `@agent-[name]` prefix routes directly to specified agent
+- **Agent Choice**: Claude may choose to delegate to a specialist agent whose `description` fits the request. No keyword, file-type or complexity matching runs in code.
+- **Delegation by commands and skills**: Many commands and skills delegate to named agents as part of their own steps.
+- **Context to weigh**: The subject of the request (security, performance, frontend, backend, architecture), the file types involved and the size of the task can guide which agent Claude picks.
+- **Manual Override**: `@agent-<full-name>` (for example `@agent-security-engineer`) routes directly to that agent
 
-**Self-Improvement Layer** (PM Agent Meta-Layer):
+**PM Agent**: runs only when invoked (`/sc:pm` or explicit delegation). Nothing activates it automatically.
 
-- **Post-Implementation**: PM Agent activates after task completion to document learnings
-- **Mistake Detection**: PM Agent activates immediately when errors occur for root cause analysis
-- **Monthly Maintenance**: PM Agent performs systematic documentation health reviews
-- **Knowledge Capture**: Transforms experiences into reusable patterns and best practices
-- **Documentation Evolution**: Maintains fresh, minimal, high-signal documentation
+**Orchestration Flow**: User request → Claude, a command, or a skill picks a specialist agent (or you name one) → Implementation
 
-**Orchestration Flow**:
-
-1. **Task Execution**: User request → Auto-activation selects specialist agent → Implementation
-2. **Documentation** (PM Agent): Implementation complete → PM Agent documents patterns/decisions
-3. **Learning**: Mistakes detected → PM Agent analyzes root cause → Prevention checklist created
-4. **Maintenance**: Monthly → PM Agent prunes outdated docs → Updates knowledge base
-
-✅ **Right**: User request → backend-architect implements → PM Agent documents patterns
-✅ **Right**: Error detected → PM Agent stops work → Root cause analysis → Documentation updated
-✅ **Right**: `@agent-security "review auth"` → Direct to security-engineer (manual override)
-❌ **Wrong**: Skip documentation after implementation (no PM Agent activation)
+✅ **Right**: User request → backend-architect implements
+✅ **Right**: `@agent-security-engineer "review auth"` → Direct to security-engineer (manual override)
 ❌ **Wrong**: Continue implementing after mistake (no root cause analysis)
 
 ## Workflow Rules
@@ -59,8 +45,7 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Context Retention**: Maintain ≥90% understanding across operations
 - **Evidence-Based**: All claims must be verifiable through testing or documentation
 - **Discovery First**: Complete project-wide analysis before systematic changes
-- **Session Lifecycle**: Initialize with /sc:load, checkpoint regularly, save before end
-- **Session Pattern**: /sc:load → Work → Checkpoint (30min) → /sc:save
+- **Resuming work**: follow section 3.12 of `~/.claude/HOW-WE-WORK.md`: rerun the same command on the work's own files (for a task file, `/task <task file>`), or reopen a tagged conversation with `ccsession <name>`. `/sc:load` only loads Serena project memory and `/sc:save` only saves it; neither is a way to resume work.
 - **Checkpoint Triggers**: Task completion, 30-min intervals, risky operations
 
 ✅ **Right**: Plan → TodoWrite → Execute → Validate

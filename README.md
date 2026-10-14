@@ -35,7 +35,7 @@ The README reflects the product/function of the repo first, while preserving the
 - **CLI-driven workflows** for roadmap, tasklist, sprint, audit, and validation
 - **Claude Code asset distribution** through commands, agents, and skills
 - **PM-agent patterns** for confidence, self-check, and reflexion
-- **MCP-aware development** with integrations such as Auggie, Serena, Tavily, Context7, and Sequential
+- **MCP-aware development** with integrations such as Auggie, Serena, Tavily, and Context7
 - **Contributor workflow support** with source/dev-mirror sync between `src/superclaude/` and `.claude/`
 - **Context freshness hooks** (v4.3) — seven active shell hooks that inject a per-turn `<session-context>` envelope and block edits against files that have not been Read in the last 30 minutes. See [`docs/user-guide/freshness-hooks.md`](docs/user-guide/freshness-hooks.md).
 
@@ -54,14 +54,14 @@ This repository serves as:
 
 ### Install the current package/CLI
 
-The install surface still uses the historical package name:
+The package still uses the historical name `superclaude`, but install it from this repository. The `superclaude` package on PyPI (`pipx install superclaude`) is the upstream SuperClaude Framework, not IronClaude.
 
 ```bash
-pipx install superclaude
+pipx install git+https://github.com/IronbellyOrg/IronClaude
 superclaude install
 ```
 
-This installs the package and then installs its framework assets into your Claude Code directory.
+This installs the package and then installs its framework assets into your Claude Code directory (`~/.claude/`). Installing from the repository URL needs read access to it.
 
 ### Install from source for development
 
@@ -70,11 +70,17 @@ This repository uses **UV** for Python operations.
 ```bash
 git clone https://github.com/IronbellyOrg/IronClaude
 cd IronClaude
-make dev
+uv venv                    # make install runs `uv pip install -e`, which needs an environment
+make install
+uv run superclaude install # copy commands, agents, skills and core files into ~/.claude/
 make verify
 ```
 
+From a source checkout, run the CLI as `uv run superclaude ...` (or activate `.venv` first).
+
 ## Quick start
+
+Not sure which command to use? Read [How We Work](docs/user-guide/how-we-work.md), or run `/sc:recommend "<your goal>"` in Claude Code.
 
 ### Core CLI commands
 
@@ -91,7 +97,7 @@ superclaude mcp --list
 superclaude sprint run <tasklist-index.md>
 superclaude roadmap run <spec.md>
 superclaude roadmap validate <output-dir>
-superclaude tasklist run <roadmap-dir>
+superclaude tasklist validate <output-dir> --roadmap-file <roadmap.md>
 superclaude reflect run <tasklist.md> --fix
 ```
 
@@ -172,7 +178,7 @@ docs/                    User, developer, reference, and generated docs
 ### Common commands
 
 ```bash
-make dev                # Install editable package + dev dependencies
+make install            # Install editable package + dev dependencies
 make verify             # Verify package, plugin, and health checks
 make test               # Run the full test suite
 make lint               # Run ruff checks
@@ -196,9 +202,8 @@ make clean              # Remove build artifacts
 
 For deeper context, start with:
 
+- [docs/user-guide/how-we-work.md](docs/user-guide/how-we-work.md) — which command or skill to use for each kind of work, in what order
 - `CLAUDE.md` — repository-specific workflow and contribution rules
-- `PLANNING.md` — architecture decisions and constraints
-- `TASK.md` — current priorities and active work
 - `KNOWLEDGE.md` — accumulated findings and troubleshooting context
 - `PROJECT_INDEX.md` — high-level repository index
 - `docs/developer-guide/` — contributor and architecture guidance
@@ -214,10 +219,7 @@ Common integrations referenced in this repository include:
 - Serena
 - Tavily
 - Context7
-- Sequential
 - Playwright
-- Magic
-- Chrome DevTools
 - Mindbase
 
 Inspect MCP-related configuration with:
@@ -262,7 +264,7 @@ The `superclaude eval` real-eval harness (the `eval doctor`, `eval list`,
 
 The Linux-only v1 commitment, the macOS follow-up plan (owner + target
 date), and the CI deferral are recorded together in
-[`.dev/releases/current/cliEval/decisions.md`](.dev/releases/current/cliEval/decisions.md)
+[`.dev/releases/complete/cliEval/decisions.md`](.dev/releases/complete/cliEval/decisions.md)
 under the AC1, DOC-OQ9, and AC2 closure sections (Phase-6 tasks T06.07,
 T06.02, T06.05). The v2 platform follow-up roadmap entry under MIG-003
 consolidates both axes.

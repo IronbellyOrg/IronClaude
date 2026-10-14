@@ -1,6 +1,8 @@
 # SuperClaude Flags Guide 🏁
 
-**Most flags activate automatically** - Claude Code reads behavioral instructions to engage appropriate contexts based on keywords and patterns in your requests.
+**Flags do not activate automatically.** No keyword or pattern matching runs in code, and mode files under `src/superclaude/modes/` are not installed or loaded automatically. A mode flag such as `--brainstorm` is a hint Claude may honour. Where this page says a flag "auto-activates" or lists "Auto-Triggers", it describes when Claude is guided to apply it from your request, not code that switches it on.
+
+Most flags on this page are hints Claude may honour; the System Flags section lists real `superclaude` terminal options. A command's own options are defined in its file under `~/.claude/commands/sc/` (listed in the [Commands Reference](commands.md)); a flag that a command does not list may be ignored or rejected, so check there before passing one.
 
 ## Essential Auto-Activation Flags (90% of Use Cases)
 
@@ -30,7 +32,7 @@
 | `--introspect` | Self-analysis, error recovery | Expose reasoning process with transparency |
 | `--task-manage` | >3 steps, complex scope | Orchestrate through delegation |
 | `--orchestrate` | Multi-tool operations, performance needs | Optimize tool selection and parallel execution |
-| `--token-efficient` / `--uc` | Context >75%, efficiency needs | Symbol-enhanced communication, 30-50% reduction |
+| `--token-efficient` / `--uc` / `--ultracompressed` | Context >75%, efficiency needs | Symbol-enhanced communication, 30-50% reduction |
 
 ### Execution Control Flags
 
@@ -39,7 +41,7 @@
 | `--loop` | "improve", "polish", "refine" keywords | Iterative enhancement cycles |
 | `--safe-mode` | Production, >85% resource usage | Maximum validation, conservative execution |
 | `--validate` | Risk >0.7, production environment | Pre-execution risk assessment |
-| `--delegate` | >7 directories OR >50 files | Sub-agent parallel processing |
+| `--delegate [auto\|files\|folders]` | >7 directories OR >50 files | Sub-agent parallel processing |
 
 ## Command-Specific Flags
 
@@ -106,8 +108,7 @@
 
 | Flag | Purpose | Values |
 |------|---------|--------|
-| `--type` | Issue category | `bug`, `build`, `performance`, `deployment` |
-| `--trace` | Include trace analysis | Boolean |
+| `--type` | Issue category | `bug`, `build`, `performance`, `deployment`, `security`, `test` |
 | `--fix` | Apply fixes | Boolean |
 
 ### Cleanup Command Flags (`/sc:cleanup`)
@@ -145,7 +146,7 @@
 | `--onboard` | Opt-in one-shot Serena cold-start memory bootstrap | Boolean (default off) |
 | `--with-hierarchy` | Opt-in `type_hierarchy` transitive supertype/subtype retrieval | Boolean (default off) |
 
-> This table lists the most-used flags. For the full surface (promotion controls, `--coverage-floor`, tier pins, MCP toggles, etc.) run `/sc:reflect --help` or see the `/sc:reflect` command reference.
+> This table lists the most-used flags. For the full surface (promotion controls, `--coverage-floor`, tier pins, MCP toggles, etc.) read `~/.claude/commands/sc/reflect.md` or see the `/sc:reflect` command reference.
 
 **CLI wrapper:** The `superclaude reflect run` CLI wrapper layers auto-fix flags on top of this skill surface — `--fix/--no-fix`, `--max-fix-iterations`, and `--base` — and flips `--promote` on by default. See [docs/guides/reflect-cli-tools-guide.md](../guides/reflect-cli-tools-guide.md) for the full CLI surface.
 
@@ -180,6 +181,8 @@
 
 ## Advanced Control Flags
 
+Like the flags at the top of this page, the flags under Scope and Focus and Execution Control are hints Claude may honour, not options every command accepts. Check a command's own entry in the [Commands Reference](commands.md) before passing one. The System Flags further down are different: System Flags are options of the `superclaude` command (run in a terminal), not slash-command flags; the table names the command or subcommand for each.
+
 ### Scope and Focus
 
 | Flag | Purpose | Values |
@@ -197,56 +200,16 @@
 | `--no-mcp` | Native tools only | Boolean |
 | `--frontend-verify` | UI testing, frontend debugging, layout validation | Enable Playwright + Chrome DevTools + Serena |
 
-### System Flags (SuperClaude Installation)
+### System Flags (`superclaude` terminal command)
 
-| Flag | Purpose | Values |
-|------|---------|--------|
-| `--verbose` / `-v` | Verbose logging | Boolean |
-| `--quiet` / `-q` | Suppress output | Boolean |
-| `--dry-run` | Simulate operation | Boolean |
-| `--force` | Skip checks | Boolean |
-| `--yes` / `-y` | Auto-confirm | Boolean |
-| `--install-dir` | Target directory | Path |
-| `--legacy` | Use legacy script | Boolean |
-| `--version` | Show version | Boolean |
-| `--help` | Show help | Boolean |
-
-## Common Usage Patterns
-
-### Frontend Development
-
-```bash
-/sc:implement "responsive dashboard" --c7
-/sc:design component-library --type component --format code
-/sc:test ui-components/ --play
-/sc:improve legacy-ui/ --morph --validate
-```
-
-### Backend Development
-
-```bash
-/sc:analyze api/ --focus performance --think
-/sc:design payment-api --type api --format spec
-/sc:troubleshoot "API timeout" --type performance --trace
-/sc:improve auth-service --type security --validate
-```
-
-### Large Projects
-
-```bash
-/sc:analyze . --ultrathink --all-mcp --safe-mode
-/sc:workflow enterprise-system --strategy enterprise --depth deep
-/sc:cleanup . --type all --safe --interactive
-```
-
-### Quality & Maintenance
-
-```bash
-/sc:improve src/ --type quality --safe --interactive
-/sc:cleanup imports --type imports --preview
-/sc:reflect --mode post --diff HEAD~1..HEAD
-/sc:git commit --smart-commit
-```
+| Flag | Command | Purpose |
+|------|---------|---------|
+| `--version` | `superclaude --version` | Show the installed version |
+| `--help` | `superclaude --help`, or `superclaude <subcommand> --help` | Show the options of the command or subcommand |
+| `--verbose` | `superclaude doctor --verbose` | Show detailed diagnostic information |
+| `--dry-run` | `superclaude mcp --dry-run`, `superclaude sprint run ... --dry-run` | Show what would happen without doing it |
+| `--force` | `superclaude install --force`, `superclaude install-skill <name> --force` | Reinstall even if the files already exist |
+| `--yes` / `-y` | `superclaude sprint run ... --yes`, `superclaude sprint rerun-tasks ... --yes` | Answer yes to the sprint confirmation prompts |
 
 ## Flag Interactions
 
@@ -262,13 +225,12 @@
 - `--all-mcp` vs individual MCP flags (use one or the other)
 - `--no-mcp` vs any MCP flags (--no-mcp wins)
 - `--safe` vs `--aggressive` (cleanup intensity)
-- `--quiet` vs `--verbose` (output level)
 
-### Auto-Enabling Relationships
+### Hint Relationships (not automatic)
 
-- `--safe-mode` auto-enables `--uc` and `--validate`
-- `--ultrathink` auto-enables all MCP servers
-- `--think-hard` auto-enables `--c7`
+- `--safe-mode`: Claude is asked to also apply `--uc` and `--validate`
+- `--ultrathink`: Claude is asked to also use all MCP servers
+- `--think-hard`: Claude is asked to also apply `--c7`
 
 ## Troubleshooting Flags
 
@@ -282,14 +244,14 @@
 ### Debug Flags
 
 ```bash
-/sc:analyze . --verbose                      # Shows decision logic and flag activation
-/sc:reflect --mode pre --spec docs/spec.md --tier 1   # Quick Tier-1 coverage second opinion
+/sc:analyze . --depth deep                   # Deeper analysis pass (an option /sc:analyze defines)
+/sc:reflect --mode pre --spec docs/spec.md --tasklist <plan> --tier 1   # Quick Tier-1 coverage second opinion
 ```
 
 ### Quick Fixes
 
 ```bash
-/sc:analyze . --help                         # Shows available flags for command
+# Options for one command: read ~/.claude/commands/sc/<name>.md (slash commands have no --help flag)
 /sc:analyze . --no-mcp                       # Native execution only
 /sc:cleanup . --preview                      # Shows what would be cleaned
 ```

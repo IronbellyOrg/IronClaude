@@ -96,12 +96,11 @@ Dev convenience copies:            .claude/
 
 When Claude Code starts a session, it loads context in this priority order:
 
-1. **Core files** (always loaded): `CLAUDE.md`, `COMMANDS.md`, `FLAGS.md`, `PRINCIPLES.md`, `RULES.md`, `MCP.md`, `PERSONAS.md`, `ORCHESTRATOR.md`, `MODES.md`
+1. **Core file** (always loaded): `~/.claude/CLAUDE.md`, which imports only `BASH_INSPECTION_POLICY.md`. The routing guide `~/.claude/HOW-WE-WORK.md` is installed beside it but is read on demand (by `/sc:help`, `/sc:recommend`, or a person); it is never `@`-imported.
 2. **Explicit commands**: User types `/sc:<command>` -- loads the command file
 3. **Manual agents**: User references `@agent-<name>` -- loads the agent file
-4. **Flag-triggered**: `--persona-architect`, `--c7`, `--play`, etc. activate personas and MCP servers
-5. **Auto-activation**: Framework detects keywords and context to activate personas (30% keyword, 40% context, 20% history, 10% metrics)
-6. **Skills**: Load only name and description at session start (~50 tokens). Full content loads on invocation (~2000 tokens)
+4. **Flag-triggered**: per-command flags (each command file lists its own); `--c7`, `--play` and similar are behavioural hints, see `docs/user-guide/flags.md`
+5. **Skills**: Load only name and description at session start (~50 tokens). Full content loads on invocation (~2000 tokens)
 
 ---
 
@@ -256,8 +255,8 @@ category: <category>           # One of: development, planning, analysis, qualit
 complexity: <level>            # One of: simple, moderate, advanced, high
 mcp-servers: [<servers>]       # MCP servers used: context7, serena,
                                #   playwright, magic, morphllm (or empty [])
-personas: [<personas>]         # Auto-activated personas: architect, analyzer,
-                               #   frontend, backend, security, qa, etc. (or empty [])
+personas: [<personas>]         # Descriptive labels only (nothing auto-activates them): architect,
+                               #   analyzer, frontend, backend, security, qa, etc. (or empty [])
 ---
 ```
 
@@ -338,8 +337,8 @@ When a user invokes a command, it passes through five stages:
 
 ```
 1. Input Parsing    →  Parse $ARGUMENTS with @<path>, !<command>, --<flags>
-2. Context Resolution  →  Auto-activate personas and select MCP servers
-3. Wave Eligibility    →  Assess complexity for multi-stage execution
+2. Context Resolution  →  Read the command file and its skill; select MCP servers
+3. Phase Planning      →  Follow the skill's own waves or phases, if it defines any
 4. Execution Strategy  →  Orchestrate tools and resources
 5. Quality Gates       →  Validate output and verify completion
 ```
@@ -356,19 +355,11 @@ Each command declares a performance profile that affects resource allocation:
 
 ### 3.5 Wave-Enabled Commands
 
-Seven commands support multi-stage wave execution, auto-activating when complexity >= 0.7, files > 20, and operation_types > 2:
-
-- **Tier 1** (primary): `/analyze`, `/build`, `/implement`, `/improve`
-- **Tier 2** (secondary): `/design`, `/task`
+Some commands declare `wave-enabled: true` in their frontmatter, and many protocol skills run their own waves or phases. No complexity score, file count or operation count switches wave execution on automatically: a command runs in waves only when its own command file or skill says so.
 
 ### 3.6 Registering a New Command
 
-After creating a command file, you must update these framework files:
-
-1. **`COMMANDS.md`**: Add command entry with auto-persona, MCP servers, tools, and category
-2. **`ORCHESTRATOR.md`**: Add routing table entry with pattern, complexity, auto-activations, and confidence
-3. **`FLAGS.md`**: Add any new flags the command introduces
-4. **`PERSONAS.md`**: Update persona command lists if the command uses persona auto-activation
+After creating a command file, register it in `src/superclaude/core/HOW-WE-WORK.md`. Routing-table rows are per job, not per command: if a workflow should use the new command, add it to that job's row in the routing table (its steps and mandatory flags), or add a new job row; if no workflow uses it, add one row to the "Other commands" table instead. Then copy the guide byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` (and, if you edited the level table, re-copy it into `src/superclaude/core/CLAUDE.md`), run `make sync-dev` and `make verify-sync`, and run `uv run pytest tests/core tests/commands` (these tests check the routing table and the plugin copy). No other framework file needs registering: `/sc:help` lists installed commands live.
 
 ---
 
@@ -476,7 +467,7 @@ Agents activate through three mechanisms:
 |--------|--------|------|
 | **Manual reference** | `@agent-<name>` | User explicitly invokes |
 | **Skill delegation** | Task tool in SKILL.md | Skill protocol delegates to agent |
-| **Auto-activation** | Keyword/context scoring | Framework detects need for specialist |
+| **Claude's choice** | Agent `description` match | Claude Code may delegate to an agent whose description fits the request; there is no keyword or file-type scoring in code |
 
 ---
 
@@ -746,7 +737,7 @@ Use this checklist when creating or refactoring a skill:
 - [ ] Input contract defines STOP/WARN conditions for missing inputs
 - [ ] Output contract defines return fields for composability
 - [ ] If the skill uses agents: agent delegation is explicit with Task tool
-- [ ] Framework registration is complete (COMMANDS.md, ORCHESTRATOR.md, etc.)
+- [ ] Routing row added to the guide (`src/superclaude/core/HOW-WE-WORK.md`)
 
 ---
 
@@ -754,10 +745,7 @@ Use this checklist when creating or refactoring a skill:
 
 ### 6.1 Wave System
 
-The wave system enables multi-stage command execution for complex operations. Waves auto-activate when:
-- Complexity score >= 0.7
-- File count > 20
-- Operation types > 2
+The wave system enables multi-stage command execution for complex operations. Waves are defined by each command's skill and run when that skill runs; no complexity score, file count or operation count turns them on automatically.
 
 **5-Wave Standard Pattern**:
 
@@ -905,21 +893,21 @@ Commands and skills declare MCP server needs in their frontmatter. The framework
 
 ### 7.3 Persona Integration
 
-Personas activate through keyword matching, context analysis, and explicit flags:
+Personas are labels, not switches. They appear in command frontmatter (`personas:`) and in debate agent specs such as `/sc:adversarial --agents opus:architect,sonnet:security`. Nothing activates them automatically and there are no `--persona-*` flags.
 
-| Persona | Flag | Triggers | Primary MCP |
-|---------|------|----------|-------------|
-| architect | `--persona-architect` | "architecture", "design", "scalability" | Context7 |
-| frontend | `--persona-frontend` | "component", "responsive", "accessibility" | Playwright |
-| backend | `--persona-backend` | "API", "database", "service" | Context7 |
-| security | `--persona-security` | "vulnerability", "threat", "compliance" | — |
-| analyzer | `--persona-analyzer` | "analyze", "investigate", "root cause" | Context7 |
-| qa | `--persona-qa` | "test", "quality", "validation" | Playwright |
-| performance | `--persona-performance` | "optimize", "performance", "bottleneck" | Playwright |
-| refactorer | `--persona-refactorer` | "refactor", "cleanup", "technical debt" | — |
-| devops | `--persona-devops` | "deploy", "infrastructure", "automation" | — |
-| mentor | `--persona-mentor` | "explain", "learn", "understand" | Context7 |
-| scribe | `--persona-scribe=lang` | "document", "write", "guide" | Context7 |
+| Persona | Typical focus | Primary MCP |
+|---------|---------------|-------------|
+| architect | "architecture", "design", "scalability" | Context7 |
+| frontend | "component", "responsive", "accessibility" | Playwright |
+| backend | "API", "database", "service" | Context7 |
+| security | "vulnerability", "threat", "compliance" | — |
+| analyzer | "analyze", "investigate", "root cause" | Context7 |
+| qa | "test", "quality", "validation" | Playwright |
+| performance | "optimize", "performance", "bottleneck" | Playwright |
+| refactorer | "refactor", "cleanup", "technical debt" | — |
+| devops | "deploy", "infrastructure", "automation" | — |
+| mentor | "explain", "learn", "understand" | Context7 |
+| scribe | "document", "write", "guide" | Context7 |
 
 **Cross-persona collaboration patterns**:
 
@@ -1025,8 +1013,7 @@ make verify-sync
 #    - Test edge cases and error conditions
 
 # 6. Register the component (commands only)
-#    Update: COMMANDS.md, ORCHESTRATOR.md
-#    Update: FLAGS.md (if new flags), PERSONAS.md (if new persona triggers)
+#    Register it in src/superclaude/core/HOW-WE-WORK.md (a job row, or the Other commands table; see 3.6)
 
 # 7. Commit
 git add src/superclaude/commands/my-command.md
@@ -1040,7 +1027,7 @@ git commit -m "feat: add /sc:my-command with agent and skill"
 **Manual validation process**:
 
 1. **Install**: Run `make sync-dev` to copy to `.claude/`
-2. **Test triggers**: Verify the command activates on expected keywords
+2. **Test invocation**: Run the command with its documented arguments (commands run only when invoked; there is no keyword activation)
 3. **Verify behavior**: Execute the command and check output matches protocol
 4. **Validate structure**: Confirm all expected artifacts are produced
 5. **Test edge cases**: Missing inputs, invalid arguments, boundary conditions
@@ -1084,7 +1071,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 - Create commands that do everything (single responsibility principle)
 - Skip the Boundaries section (leads to scope creep)
 - Hardcode file paths (use arguments and `@<path>` references)
-- Forget to register the command in COMMANDS.md and ORCHESTRATOR.md
+- Forget to register the command in the guide (a job row or the Other commands table, see 3.6)
 
 ### 9.2 Agent Design
 
@@ -1096,7 +1083,7 @@ The plugin repo is a **build output**, not a primary editing location. Always ed
 
 **Do not**:
 - Create agents that can do anything (constrain the scope)
-- Skip the Triggers section (makes auto-activation unreliable)
+- Skip the Triggers / when-to-use guidance (delegators and Claude, which choose agents by `description`, then pick the wrong agent)
 - Allow agents to both orchestrate AND execute (pick one role)
 - Omit the Boundaries section
 
@@ -1178,7 +1165,7 @@ These patterns emerged from real-world Claude Code usage:
 | Command without Boundaries | Scope creep, unpredictable behavior | Always include Will / Will Not |
 | Pre-loading all refs | Token waste, slow invocation | Load refs per-wave on demand |
 | Hardcoded file paths in skills | Breaks portability | Use arguments and relative paths |
-| Skipping framework registration | Command invisible to routing | Update COMMANDS.md + ORCHESTRATOR.md |
+| Skipping the routing-table row | /sc:recommend never gets a matched-row answer for the command; it can only find it through live enumeration (slower, with no mandatory flags) | Add the command to a job row in the routing table, or to the "Other commands" table, in src/superclaude/core/HOW-WE-WORK.md |
 | No error handling matrix | Silent failures, confusing behavior | Define scenario/behavior/fallback table |
 
 ---

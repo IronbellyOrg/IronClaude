@@ -401,8 +401,5 @@ After completion, collect implicit feedback:
 
 ## Configuration References
 
-- Keywords: `config/tier-keywords.yaml`
-- Verification routing: `config/verification-routing.yaml`
-- Acceptance criteria: `config/tier-acceptance-criteria.yaml`
-- Circuit breakers: See MCP.md
-- Routing logic: See ORCHESTRATOR.md
+- Tier routing rules: `commands/task.md` (the tier classification and routing sections, lines 71-93 at the time of writing; installed at `~/.claude/commands/sc/task.md`)
+- MCP servers: the MCP Servers table in `~/.claude/CLAUDE.md`; server fallbacks: the MCP Integration table in `~/.claude/RESEARCH_CONFIG.md`

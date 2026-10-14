@@ -41,8 +41,8 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"
 
 `/sc:recommend` generates a **paste-ready prompt** that hands the user's goal off to the right delegation — or recommends native `Read`/`Edit`/`Glob`/`Grep`/`Bash` when no delegation adds net value. Every invocation:
 
-1. Enumerates the project's *actual* current surface (commands, skills, agents, templates) via Glob — no static keyword table.
-2. Issues one `mcp__auggie__codebase-retrieval` query to semantically rank candidates against the verbatim user request.
+1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first); when a routing row matches the goal, returns that row's steps in order with their mandatory flags. Then enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates). No hand-written keyword table.
+2. Issues one `mcp__auggie__codebase-retrieval` query to semantically rank candidates against the verbatim user request, except in matched mode (a routing row matched in step 1), where the query is skipped and the row's steps are verified directly.
 3. Reads each candidate's source file before it is allowed into the recommendation.
 4. Evaluates whether the chosen delegation earns its overhead vs. native tooling, and falls back to native when it does not.
 5. Emits a hand-off envelope — never restates the target's protocol logic inline.
@@ -64,23 +64,27 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 ### Local recommendation (default mode)
 
 ```bash
-/sc:recommend "Generate a release spec from these matrices: docs/scope-matrix.md and docs/risk-matrix.md"
+/sc:recommend "Critique this release spec before we build it: docs/specs/release-spec.md"
 
 # Output (illustrative — actual paths/flags verified at runtime):
-#   Recommended delegation: /sc:spec-panel — review-board expert panel matches the spec-generation
-#   intent; release-spec-template.md is the structural anchor.
-#   Paste-ready prompt: <fenced block invoking /sc:spec-panel with the two matrix paths>
+#   Level: not on the six-level scale (a supporting task) — guide section 3.6, row `critique-spec`
+#   Changes files: no
+#   Run these in order:
+#   1. /sc:spec-panel @docs/specs/release-spec.md --mode critique
 ```
 
 ### Native-tooling fallback (anti-bloat default)
 
 ```bash
-/sc:recommend "Refactor this 40-line util in src/utils/timefmt.py"
+/sc:recommend "Rename the local variable tz_offest to tz_offset in src/utils/timefmt.py (3 uses)"
 
-# Output:
-#   No skill/agent delegation adds net value here. Use Read on src/utils/timefmt.py,
-#   then Edit. Reason: scope is 1 file, no specialized capability needed, no
-#   structural artifact required.
+# Output (illustrative):
+#   Level: 2 — guide section 1, 3.3, row `small-change`
+#   (1 source file, 5 edits or fewer, exact change known: no skill adds net value)
+#   Changes files: yes
+#   Run these in order:
+#   1. a plain edit: Read src/utils/timefmt.py, then Edit the 3 uses
+#   2. run the related test
 ```
 
 ### Plugin / community-skill search
@@ -107,7 +111,7 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 
 **Will:**
 
-- Enumerate the live project surface on every invocation (no static mapping table)
+- Read the routing guide first, then enumerate the live surface on every invocation
 - Use auggie to semantically rank candidates against the user's request
 - Verify every candidate against its source file before emitting it
 - Emit refined paste-ready prompts that invoke existing skills/commands/agents
@@ -119,7 +123,7 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 
 **Will Not:**
 
-- Use a static keyword → category mapping (root cause of the prior version's discovery failure)
+- Keep a hand-written keyword → category mapping of its own (the guide's routing table is the only fixed routing source)
 - Recommend flags or commands not present in a verified source file (Rule R1, R2)
 - Restate a target skill's protocol logic inline in the generated prompt (Rule R3)
 - Mix local-surface candidates with `--plugin` ecosystem results
@@ -130,5 +134,5 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 ## Output Constraints
 
 - Single-line bash for any install / invocation commands embedded in the output (project memory: terminals cannot paste heredocs or `\` continuations). The prompt block itself may be multi-line because it is an argument string passed to the next tool, not a shell command.
-- Paths are absolute or repo-relative and worktree-aware. When cwd is `.claude/worktrees/<name>/`, paths resolve against the worktree, not the main checkout.
+- Paths are absolute or repo-relative and worktree-aware. When cwd is `.dev/worktrees/<name>/`, paths resolve against the worktree, not the main checkout.
 - No emojis in any output (project convention).

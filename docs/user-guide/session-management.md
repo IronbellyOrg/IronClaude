@@ -1,6 +1,6 @@
 # Session Management Guide
 
-SuperClaude provides persistent session management through the Serena MCP server, enabling true context preservation across Claude Code conversations and long-term project continuity.
+SuperClaude keeps project memory (decisions, patterns, and notes) across Claude Code conversations through the Serena MCP server. Project memory is not a way to resume work: to pick up a task, a plan, or a lost conversation, see [Resuming Existing Work](#resuming-existing-work-cross-conversation) below.
 
 ## Core Session Commands with Persistent Memory
 
@@ -14,8 +14,7 @@ SuperClaude provides persistent session management through the Serena MCP server
 
 - Serena MCP reads persistent memory files from previous sessions
 - Project context is restored from stored memories
-- Previous decisions, patterns, and progress are loaded
-- Session state is initialized with historical context
+- Previous decisions and patterns are loaded as notes (task and plan progress is not; see [Resuming Existing Work](#resuming-existing-work-cross-conversation))
 
 **Use Cases**:
 
@@ -23,7 +22,7 @@ SuperClaude provides persistent session management through the Serena MCP server
 # Load existing project context from persistent memory
 /sc:load src/
 
-# Resume specific project work with full history
+# Load stored memory about a specific project (this does not resume a task or a plan)
 /sc:load "authentication-system"
 
 # Initialize with codebase analysis and previous insights
@@ -34,52 +33,31 @@ SuperClaude provides persistent session management through the Serena MCP server
 
 **Purpose**: Save current session state and decisions to persistent memory  
 **MCP Integration**: Triggers Serena MCP to write memory files  
-**Syntax**: `/sc:save "session_description"`
+**Syntax**: `/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]`
+
+The command takes no description argument. It decides what to record from the current conversation; say in the conversation what you want remembered before you run it.
 
 **What Happens**:
 
 - Current context and decisions are written to Serena memory
-- Project state and progress are persisted across conversations
+- Project notes are kept across conversations
 - Key insights and patterns are stored for future sessions
 - Session summary is created with timestamp for retrieval
 
 **Use Cases**:
 
 ```bash
-# Save completed feature work for future reference
-/sc:save "user authentication implemented with JWT"
+# Save what this session discovered
+/sc:save
 
-# Checkpoint during complex work
-/sc:save "API design phase complete, ready for implementation"
+# Checkpoint during complex work (everything, plus a recovery checkpoint)
+/sc:save --type all --checkpoint
 
-# Store architectural decisions permanently
-/sc:save "microservices architecture decided, service boundaries defined"
-```
+# Store only new patterns and decisions
+/sc:save --type learnings
 
-### `/sc:reflect` - Progress Assessment with Memory Context
-
-**Purpose**: Analyze current progress against stored memories and validate session completeness  
-**MCP Integration**: Uses Serena MCP to compare current state against stored memories  
-**Syntax**: `/sc:reflect [--scope project|session]`
-
-**What Happens**:
-
-- Serena MCP reads previous memories and current context
-- Progress is assessed against stored goals and milestones  
-- Gaps and next steps are identified using historical context
-- Session completeness is validated against project memory
-
-**Use Cases**:
-
-```bash
-# Assess project progress against stored milestones
-/sc:reflect --scope project
-
-# Validate current session completeness
-/sc:reflect
-
-# Check if ready to move to next phase based on memory
-/sc:reflect --scope session
+# Write a session summary
+/sc:save --summarize
 ```
 
 ## Persistent Memory Architecture
@@ -95,7 +73,7 @@ SuperClaude provides persistent session management through the Serena MCP server
 
 **Cross-Session Continuity**:
 
-- Previous session context automatically available in new conversations
+- Stored project memory available in new conversations after `/sc:load` (task and plan progress lives in the work's own files, not in memory)
 - Decisions and rationale preserved and accessible across conversations
 - Learning from past patterns and solutions maintained
 - Consistent project understanding maintained indefinitely
@@ -116,44 +94,35 @@ SuperClaude provides persistent session management through the Serena MCP server
 /sc:brainstorm "e-commerce platform requirements"
 
 # 2. Save initial decisions to persistent memory
-/sc:save "project scope and requirements defined"
+/sc:save --type learnings
 
 # 3. Begin implementation planning
-/sc:workflow "user authentication system"
+/sc:workflow "user authentication system" --depth quick
 
 # 4. Save architectural decisions permanently
-/sc:save "auth architecture: JWT + refresh tokens + rate limiting"
+/sc:save --type learnings
 ```
 
 ### Resuming Existing Work (Cross-Conversation)
 
-```bash
-# 1. Load previous context from persistent memory
-/sc:load "e-commerce-project"
+To pick up work in a new conversation, use section 3.12 ("Resume after a crash or a lost session") of the routing guide, [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md#312-resume-after-a-crash-or-a-lost-session), which `superclaude install` copies to `~/.claude/HOW-WE-WORK.md`. It gives two ways:
 
-# 2. Assess current state against stored progress
-/sc:reflect --scope project  
+1. **Reopen the conversation.** This only works if you tagged the conversation before you lost it: inside Claude, run `/ccsession-tag <name>`. Later, from a terminal in the same folder, run `ccsession <name>`. `ccsession --here` lists the names for the current folder. `~/.local/bin` must be on your `PATH`.
+2. **Rerun the same command on the work's own files.** This always works: `/task <path to the task file>` for a task file, or `/sc:implement .dev/tasks/to-do/<id>/<id>.md` for a plan.
 
-# 3. Continue with next phase using stored context
-/sc:implement "payment processing integration"
-
-# 4. Save progress checkpoint to memory
-/sc:save "payment system integrated with Stripe API"
-```
+`/sc:load` restores Serena project memory, which helps Claude remember project decisions, but it does not resume a task or a plan.
 
 ### Long-Term Project Management
 
 ```bash
 # Weekly checkpoint pattern with persistence
 /sc:load project-name
-/sc:reflect --scope project
 # ... work on features ...
-/sc:save "week N progress: features X, Y, Z completed"
+/sc:save --summarize
 
 # Phase completion pattern with memory
-/sc:reflect --scope project
-/sc:save "Phase 1 complete: core authentication and user management"
-/sc:workflow "Phase 2: payment and order processing"
+/sc:save --type all --checkpoint
+/task-builder "Phase 2: payment and order processing"   # larger work goes through a task file (see How We Work)
 ```
 
 ## Per-Turn Session Context Envelope (v4.3+)
@@ -191,19 +160,20 @@ files not Read in this session within the last 30 minutes — see
 
 ### Starting New Conversations with Persistence
 
-When starting a new Claude Code conversation, the persistent memory system allows:
+When starting a new Claude Code conversation, Serena project memory allows:
 
-1. **Automatic Context Restoration**
+1. **Loading project memory**
 
    ```bash
-   /sc:load project-name
-   # Automatically restores all previous context, decisions, and progress
+   /sc:load src/
+   # Loads stored Serena project memory (decisions and notes); it does not resume a task or a plan
    ```
 
-2. **Progress Continuation**
-   - Previous session decisions are immediately available
+2. **Earlier decisions at hand**
+   - Previous session decisions are available as notes
    - Architectural patterns and code insights are preserved
    - Project history and rationale are maintained
+   - To continue unfinished work, use [Resuming Existing Work](#resuming-existing-work-cross-conversation) instead
 
 3. **Intelligent Context Building**
    - Serena MCP provides relevant memories based on current work
@@ -237,17 +207,15 @@ When starting a new Claude Code conversation, the persistent memory system allow
 
 ### Session Start Protocol
 
-1. Always begin with `/sc:load` for existing projects
-2. Use `/sc:reflect` to understand current state from memory
-3. Plan work based on persistent context and stored patterns
-4. Build on previous decisions and architectural choices
+1. To continue unfinished work, follow [Resuming Existing Work](#resuming-existing-work-cross-conversation); use `/sc:load` only to load project memory
+2. Plan work based on stored decisions and patterns
+3. Build on previous decisions and architectural choices
 
 ### Session End Protocol
 
-1. Use `/sc:reflect` to assess completeness against stored goals
-2. Save key decisions with `/sc:save` for future sessions
-3. Document next steps and open questions in memory
-4. Preserve context for seamless future continuation
+1. Save key decisions with `/sc:save` as Serena project memory
+2. Document next steps and open questions in memory
+3. Keep unfinished work in its own files (a task file or a plan) so it can be resumed; project memory does not resume it
 
 ### Memory Quality Maintenance
 
@@ -291,9 +259,8 @@ When starting a new Claude Code conversation, the persistent memory system allow
 
 **Context Loss Between Sessions**:  
 
-- Always use `/sc:save` before ending sessions
-- Use descriptive memory names for easy retrieval
-- Regular `/sc:reflect` to validate memory completeness
+- To resume a task, a plan, or a lost conversation, follow [Resuming Existing Work](#resuming-existing-work-cross-conversation); `/sc:save` and `/sc:load` only keep project memory
+- Use `/sc:save` before ending sessions to keep decisions as project memory
 - Backup important memory files periodically
 
 **Memory Conflicts**:
@@ -302,29 +269,6 @@ When starting a new Claude Code conversation, the persistent memory system allow
 - Regular cleanup of obsolete memories
 - Clear separation between project and session memories
 - Consistent memory naming conventions across sessions
-
-### Quick Fixes
-
-**Reset Session State**:
-
-```bash
-/sc:load --fresh  # Start without previous context
-/sc:reflect       # Assess current state
-```
-
-**Memory Cleanup**:
-
-```bash
-/sc:reflect --cleanup  # Remove obsolete memories
-/sc:save --consolidate # Merge related memories
-```
-
-**Context Recovery**:
-
-```bash
-/sc:load --recent     # Load most recent memories
-/sc:reflect --repair  # Identify and fix context gaps
-```
 
 ## Advanced Persistent Session Patterns
 
@@ -353,8 +297,7 @@ When starting a new Claude Code conversation, the persistent memory system allow
 
 ### Project Continuity
 
-- Seamless work continuation across multiple conversations
-- No context loss between Claude Code sessions
+- Project decisions and notes available across conversations
 - Preserved architectural decisions and technical rationale
 - Long-term project evolution tracking
 
@@ -374,4 +317,4 @@ When starting a new Claude Code conversation, the persistent memory system allow
 
 ---
 
-**Key Takeaway**: Session management through Serena MCP transforms SuperClaude from single-conversation assistance to persistent project partnership, maintaining context, decisions, and learning across all development phases and Claude Code conversations.
+**Key Takeaway**: Session management through Serena MCP keeps project decisions and learning across Claude Code conversations. It does not resume work; for that, see [Resuming Existing Work](#resuming-existing-work-cross-conversation).

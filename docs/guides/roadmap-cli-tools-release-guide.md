@@ -14,6 +14,8 @@ This guide covers the `superclaude roadmap` CLI tooling, including:
 
 ---
 
+> **Which roadmap tool?** `/roadmap` (a skill) writes a roadmap plus one task file per phase that you run with `/task`; use it by default. `/sc:roadmap` and the `superclaude roadmap run` CLI described here belong to a separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`). For which tool to use when, see [How We Work](../user-guide/how-we-work.md).
+
 ## 1) Release Summary (What is included)
 
 ### Core command surface
@@ -1047,6 +1049,8 @@ These are not exposed as top-level CLI subcommands but are used internally by th
 
 ## 11) End-to-End Workflow: Spec → Roadmap → Tasklist → Execution
 
+This section describes the CLI pipeline. For the default team workflow (`/roadmap` then `/task`), see [How We Work](../user-guide/how-we-work.md).
+
 The roadmap CLI is Stage B in the full release pipeline.
 
 ### Stage A: Spec (requirements source)
@@ -1189,12 +1193,14 @@ Deterministic, programmatic pipeline execution with subprocess orchestration.
 The `/sc:roadmap` slash command (defined in `src/superclaude/commands/roadmap.md`) invokes the `sc-roadmap-protocol` skill for inference-based roadmap generation within a Claude Code session. This is the interactive counterpart to the CLI tool.
 
 **Key differences**:
-| Aspect | CLI (`superclaude roadmap run`) | Slash command (`/sc:roadmap`) |
-|--------|------|------|
-| Execution | Subprocess-per-step, automated | Single Claude session, interactive |
-| Gate validation | Automated, Python-based | Inference-based within session |
-| Resume | `--resume` flag with state file | Session persistence |
-| Best for | CI/CD, unattended runs, reproducibility | Interactive exploration, quick iteration |
+| Aspect | Skill (`/roadmap`) | CLI (`superclaude roadmap run`) | Slash command (`/sc:roadmap`) |
+|--------|------|------|------|
+| Produces | Roadmap plus one task file per phase | Roadmap | Roadmap |
+| How you run the result | `/task <phase task file>` | `/sc:tasklist`, then `superclaude sprint run` | `/sc:tasklist`, then `superclaude sprint run` |
+| Execution | Claude Code session, composes `/task-builder` and `/task` | Subprocess-per-step, automated | Single Claude session, interactive |
+| Gate validation | Checks inside each phase task file | Automated, Python-based | Inference-based within session |
+| Resume | Re-run `/task` on the phase task file | `--resume` flag with state file | Session persistence |
+| Best for | Default team workflow | CI/CD, unattended runs, reproducibility | Interactive exploration, quick iteration |
 
 ---
 

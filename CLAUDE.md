@@ -71,28 +71,30 @@ uv run python script.py          # Execute scripts
 
 ## 📂 Project Structure
 
-**Current v4.2.0 Architecture**: Python package with slash commands
+**Current v4.3.5 Architecture**: Python package with slash commands
 
 ```text
-# Claude Code Configuration (v4.2.0)
+# Claude Code Configuration (v4.3.5)
 .claude/
 ├── settings.json        # User settings
-├── commands/            # Slash commands (installed via `superclaude install`)
-├── agents/              # Agent definitions (installed via `superclaude install`)
-└── skills/              # Skills (installed via `superclaude install`)
+├── commands/sc/         # Dev copies of the slash commands, synced from src/ by `make sync-dev`
+├── agents/              # Dev copies of the agents, synced from src/ by `make sync-dev`
+└── skills/              # Dev copies of the skills, synced from src/ by `make sync-dev`
 
 # Python Package
 src/superclaude/         # Pytest plugin + CLI tools
+├── core/                # Framework .md files installed to ~/.claude/ (CLAUDE.md, RULES, PRINCIPLES, etc.)
+├── commands/            # Slash command definitions
 ├── pytest_plugin.py     # Auto-loaded pytest integration
 ├── pm_agent/            # confidence.py, self_check.py, reflexion.py
 ├── execution/           # parallel.py, reflection.py, self_correction.py
-├── cli/                 # main.py, doctor.py, install_skill.py, install_agents.py, install_skills.py
+├── cli/                 # Python CLI: sprint, roadmap, tasklist, audit, pipeline
 ├── agents/              # Agent definition source files (.md)
 └── skills/              # Skill packages (SKILL.md + rules/ + templates/ + scripts/)
 
 # Project Files
 tests/                   # Python test suite
-docs/                    # Documentation
+docs/                    # Documentation (docs/generated/ = CLI pipeline artifacts)
 scripts/                 # Analysis tools (workflow metrics, A/B testing)
 KNOWLEDGE.md             # Accumulated insights
 ```
@@ -103,7 +105,7 @@ KNOWLEDGE.md             # Accumulated insights
 
 ```bash
 # Setup
-make dev              # Install in editable mode with dev dependencies
+make install          # Install editable + dev dependencies (ruff included)
 make verify           # Verify installation (package, plugin, health)
 
 # Testing
@@ -119,14 +121,19 @@ make format           # Format code with ruff
 make doctor           # Health check diagnostics
 
 # Component Sync (skills + agents)
-make sync-dev         # Copy src/superclaude/{skills,agents} → .claude/
+make sync-dev         # Copy src/superclaude/{skills,agents,commands,hooks,templates} → .claude/
 make verify-sync      # Check src/ and .claude/ are in sync (CI-friendly)
+
+# Pipelines
+superclaude sprint run <tasklist-index.md>   # Execute sprint pipeline
+superclaude roadmap run <spec.md>            # Generate roadmap pipeline
+superclaude roadmap validate <output-dir>    # Validate roadmap artifacts
 
 # MCP Servers
 superclaude mcp                              # Interactive install (gateway default)
 superclaude mcp --list                       # List available servers
 superclaude mcp --servers airis-mcp-gateway  # Install AIRIS Gateway (recommended)
-superclaude mcp --servers tavily context7    # Install individual servers
+superclaude mcp --servers tavily --servers context7  # Install individual servers (one --servers per server)
 
 # Plugin Packaging
 make build-plugin            # Build plugin artefacts into dist/
@@ -203,11 +210,11 @@ Registered via `pyproject.toml` entry point, automatically available after insta
 - Automatic dependency analysis
 - Example: [Read files in parallel] → Analyze → [Edit files in parallel]
 
-### Slash Commands (v4.2.0)
+### Slash Commands (v4.3.5)
 
-- Install via: `pipx install superclaude && superclaude install`
-- Commands installed to: `~/.claude/commands/`
-- Available: `/pm`, `/research`, `/index-repo`, and 27 others
+- Install via: `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` (the PyPI `superclaude` package is the upstream project, not this fork)
+- Commands installed to: `~/.claude/commands/sc/`
+- Available: run `/sc:help` to list every installed command and skill
 
 > **Note**: TypeScript plugin system planned for v5.0 ([#419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419))
 
@@ -292,6 +299,8 @@ git worktree remove .dev/worktrees/integration
 
 ## 📝 Key Documentation Files
 
+**`src/superclaude/core/HOW-WE-WORK.md`** - the routing guide: which command or skill to use for each kind of work, in what order, with which safe flags. Edit it here; it installs to `~/.claude/HOW-WE-WORK.md`. After editing, copy it byte-for-byte to `plugins/superclaude/skills/sc-recommend/refs/HOW-WE-WORK.md` and re-run the level-table copy into `src/superclaude/core/CLAUDE.md` (tests check both). Never add it as an `@` import.
+
 **KNOWLEDGE.md** - Accumulated insights and troubleshooting
 
 Additional docs in `docs/user-guide/`, `docs/developer-guide/`, `docs/reference/`
@@ -320,7 +329,7 @@ Use **Wave → Checkpoint → Wave** pattern (3.5x faster). Example: `[Read file
 ## 🔧 MCP Server Integration
 
 **Recommended**: Use **airis-mcp-gateway** for unified MCP management.
-**HIGHET PRIORITY SERVER**
+**HIGHEST PRIORITY SERVER**
 Auggie MCP should be used whenever broader codebase context and knowledge would be valuable.  It is free and costs little to no tokens
 
 ```bash
@@ -336,28 +345,33 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 - **Serena**: Session persistence
 - **Mindbase**: Cross-session learning
 
+**Individual servers (not in the gateway; install with `superclaude mcp --servers <name>`)**:
+
+- **Morphllm** (`morphllm-fast-apply`): Fast bulk edits (needs `MORPH_API_KEY`)
+- **Auggie** (`auggie`): Codebase context retrieval (needs the global `auggie` npm binary and a one-time `auggie login`)
+
 **Optional**: Playwright (browser automation)
 
 **Usage**: TypeScript plugins and Python pytest plugin can call MCP servers. Always prefer MCP tools over speculation for documentation/research.
 
 ## 🚀 Development & Installation
 
-### Current Installation Method (v4.2.0)
+### Current Installation Method (v4.3.5)
 
 **Standard Installation**:
 
 ```bash
-# Option 1: pipx (recommended)
-pipx install superclaude
-superclaude install        # Installs: core files → commands → agents → skills
+# Option 1: pipx (recommended; the PyPI "superclaude" package is upstream, so install from the fork)
+pipx install git+https://github.com/IronbellyOrg/IronClaude
+superclaude install        # Installs core files, commands, agents, skills, hooks, templates and user setup
 
-# Option 2: Direct from repo
-git clone https://github.com/SuperClaude-Org/SuperClaude_Framework.git
-cd SuperClaude_Framework
-./install.sh
+# Option 2: From a clone
+git clone https://github.com/IronbellyOrg/IronClaude.git
+cd IronClaude
+uv venv && make install && uv run superclaude install
 ```
 
-**`superclaude install` installs 4 component types**:
+**`superclaude install` installs these component types (plus ccsession, hooks, templates and user setup)**:
 
 1. Core framework files (`.md`) → `~/.claude/`
 2. Slash commands (`.md`) → `~/.claude/commands/sc/`
@@ -368,7 +382,7 @@ cd SuperClaude_Framework
 
 ```bash
 # Install in editable mode
-make dev
+make install
 
 # Run tests
 make test
@@ -385,7 +399,7 @@ See `docs/plugin-reorg.md` for details.
 ## 📊 Package Information
 
 **Package name**: `superclaude`
-**Version**: 4.2.0
+**Version**: 4.3.5 (see `version` in `pyproject.toml`)
 **Python**: >=3.10
 **Build system**: hatchling (PEP 517)
 

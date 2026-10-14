@@ -8,6 +8,8 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 
+_EXCLUDE_FILES = {"README.md"}
+
 
 def install_commands(target_path: Path = None, force: bool = False) -> Tuple[bool, str]:
     """
@@ -34,7 +36,9 @@ def install_commands(target_path: Path = None, force: bool = False) -> Tuple[boo
     target_path.mkdir(parents=True, exist_ok=True)
 
     # Get all command files
-    command_files = list(command_source.glob("*.md"))
+    command_files = [
+        f for f in sorted(command_source.glob("*.md")) if f.name not in _EXCLUDE_FILES
+    ]
 
     if not command_files:
         return False, f"No command files found in {command_source}"
@@ -136,7 +140,7 @@ def list_available_commands() -> List[str]:
 
     commands = []
     for file in command_source.glob("*.md"):
-        if file.stem != "README":
+        if file.name not in _EXCLUDE_FILES:
             commands.append(file.stem)
 
     return sorted(commands)
@@ -156,7 +160,7 @@ def list_installed_commands() -> List[str]:
 
     installed = []
     for file in commands_dir.glob("*.md"):
-        if file.stem != "README":
+        if file.name not in _EXCLUDE_FILES:
             installed.append(file.stem)
 
     return sorted(installed)

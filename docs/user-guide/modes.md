@@ -2,7 +2,7 @@
 
 ## ✅ Quick Verification
 
-Test modes by using `/sc:` commands - they activate automatically based on task complexity. For full command reference, see [Commands Guide](commands.md).
+Mode files under `src/superclaude/modes/` are not installed or loaded automatically. A mode flag such as `--brainstorm` is a hint Claude may honour; the triggers and behaviors on this page describe what to ask for, not switches that run in code. Where the page says a mode activates "automatically", read it as "Claude may adopt this style when your request fits". For full command reference, see [Commands Guide](commands.md).
 
 ## Quick Reference Table
 
@@ -416,60 +416,6 @@ Standard Approach: Consistent, professional baseline for all tasks
 
 ---
 
-## Real-World Examples
-
-### Complete Workflow Examples
-
-**New Project Development:**
-
-```bash
-# Phase 1: Discovery (Brainstorming Mode auto-activates)
-"I want to build a productivity app"
-→ 🤔 Socratic questions about users, features, platform choice
-→ 📝 Structured requirements brief
-
-# Phase 2: Planning (Task Management Mode auto-activates)  
-/sc:implement "core productivity features"
-→ 📋 Multi-phase breakdown with dependencies
-→ 🎯 Phase coordination with quality gates
-
-# Phase 3: Implementation (Orchestration Mode coordinates tools)
-/sc:implement "frontend and backend systems"
-→ 🎯 Magic (UI) + Context7 (patterns)
-→ ⚡ Parallel execution optimization
-```
-
-**Debugging Complex Issues:**
-
-```bash
-# Problem analysis (Introspection Mode auto-activates)
-"Users getting intermittent auth failures"
-→ 🤔 Transparent reasoning about potential causes
-→ 🎯 Hypothesis formation and evidence gathering
-→ 💡 Pattern recognition across similar issues
-
-# Systematic resolution (Task Management coordinates)
-# Fix authentication system comprehensively
-→ 📋 Phase 1: Root cause analysis
-→ 📋 Phase 2: Solution implementation  
-→ 📋 Phase 3: Testing and validation
-```
-
-### Mode Combination Patterns
-
-**High-Complexity Scenarios:**
-
-```bash
-# Large refactoring with multiple constraints
-/sc:improve legacy-system/ --introspect --uc --orchestrate
-→ 🔍 Transparent reasoning (Introspection)
-→ ⚡ Compressed communication (Token Efficiency)  
-→ 🎯 Optimal tool coordination (Orchestration)
-→ 📋 Systematic phases (Task Management auto-activates)
-```
-
----
-
 ## Quick Reference
 
 ### Mode Activation Patterns
@@ -608,8 +554,9 @@ For troubleshooting help, see:
 **Level 3: Expert Support (30+ min)**
 
 ```bash
-# Deep mode analysis
-SuperClaude install --diagnose
+# Installation health check (there is no install --diagnose flag)
+superclaude doctor --verbose
+superclaude install --list                # Show which core files, commands, agents and skills are installed
 # Check mode activation patterns
 # Review behavioral triggers and thresholds
 ```
@@ -688,7 +635,7 @@ SuperClaude's 5 behavioral modes create an **intelligent adaptation system** tha
 - **⚡ Token Efficiency**: Compresses communication while preserving clarity
 - **🎨 Standard**: Maintains professional baseline for straightforward tasks
 
-**The key insight**: You don't need to think about modes - they work transparently to enhance your development experience. Simply describe what you want to accomplish, and SuperClaude automatically adapts its approach to match your needs.
+**The key insight**: Mode files under `src/superclaude/modes/` are not installed or loaded automatically. A mode flag such as `--brainstorm` is a hint Claude may honour, so ask for the style you want (or pass the flag) when it matters.
 
 ---
 
@@ -698,21 +645,21 @@ SuperClaude's 5 behavioral modes create an **intelligent adaptation system** tha
 
 **🌱 Essential (Week 1)**
 
-- [Quick Start Guide](../getting-started/quick-start.md) - Mode activation examples
-- [Commands Reference](commands.md) - Commands automatically activate modes
-- [Installation Guide](../getting-started/installation.md) - Set up behavioral modes
+- [Quick Start Guide](../getting-started/quick-start.md) - Where to start: installation and the How We Work guide
+- [Commands Reference](commands.md) - Each command's own options (commands do not activate modes)
+- [Installation Guide](../getting-started/installation.md) - Install IronClaude (mode files are not installed)
 
 **🌿 Intermediate (Week 2-3)**  
 
 - [Agents Guide](agents.md) - How modes coordinate with specialists
 - [Flags Guide](flags.md) - Manual mode control and optimization
-- [Examples Cookbook](../reference/examples-cookbook.md) - Mode patterns in practice
+- [How We Work](how-we-work.md) - Which tool to use for each kind of work
 
 **🌲 Advanced (Month 2+)**
 
 - [MCP Servers](mcp-servers.md) - Mode integration with enhanced capabilities
 - [Session Management](session-management.md) - Task Management mode workflows  
-- [Getting Started](../getting-started/quick-start.md) - Mode usage patterns
+- [How We Work](how-we-work.md) - Which tool to use for each kind of work
 
 **🔧 Expert**
 
@@ -721,7 +668,7 @@ SuperClaude's 5 behavioral modes create an **intelligent adaptation system** tha
 
 **Mode-Specific Guides:**
 
-- **Brainstorming**: [Requirements Discovery Patterns](../reference/examples-cookbook.md#requirements)
+- **Brainstorming**: [Brainstorm Guide](brainstorm.md)
 - **Task Management**: [Session Management Guide](session-management.md)
 - **Orchestration**: [MCP Servers Guide](mcp-servers.md)
 - **Token Efficiency**: [Command Fundamentals](commands.md#token-efficiency)

@@ -4,7 +4,7 @@ Compliance tests for all 6 critical corrections.
 Tests each correction documented in the SC-ROADMAP-FEATURE-SPEC:
 1. No subagent_type parameter in Task tool
 2. Template directory must be created (not assumed)
-3. Compliance tiers from ORCHESTRATOR.md
+3. Compliance tiers (STANDARD/STRICT)
 4. TodoWrite uses only 3 states
 5. 7 wave-enabled commands
 6. /sc:git subcommands don't exist
@@ -58,7 +58,7 @@ class TestCriticalCorrection2:
 
 
 class TestCriticalCorrection3:
-    """CC3: Compliance tiers from ORCHESTRATOR.md."""
+    """CC3: Compliance tiers (STANDARD/STRICT)."""
 
     def test_compliance_tiers_referenced(self, skill_md_content):
         """SKILL.md should reference compliance tiers."""

@@ -2,11 +2,11 @@
 
 # 📦 SuperClaude Installation Guide
 
-### **Transform Claude Code with 21 Commands, 14 Agents & 6 MCP Servers**
+### **Transform Claude Code with commands, agents, skills, and MCP integrations**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-4.1.5-blue?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/Python-3.8+-green?style=for-the-badge" alt="Python">
+  <img src="https://img.shields.io/badge/version-4.3.5-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Python-3.10+-green?style=for-the-badge" alt="Python">
   <img src="https://img.shields.io/badge/Platform-Linux%20|%20macOS%20|%20Windows-orange?style=for-the-badge" alt="Platform">
 </p>
 
@@ -30,12 +30,18 @@
 
 | Method | Command | Platform | Best For |
 |:------:|---------|:--------:|----------|
-| **🐍 pipx** | `pipx install SuperClaude && SuperClaude install` | Linux/macOS | **✅ Recommended** - Isolated environment |
-| **📦 pip** | `pip install SuperClaude && SuperClaude install` | All | Traditional Python setups |
-| **🌐 npm** | `npm install -g @bifrost_inc/superclaude && superclaude install` | All | Node.js developers |
-| **🔧 Dev** | `git clone ... && uv pip install -e ".[dev]"` | All | Contributors & developers |
+| **🐍 pipx** | `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | Linux/macOS | **✅ Recommended** - Isolated environment |
+| **📦 pip** | `pip install git+https://github.com/IronbellyOrg/IronClaude && superclaude install` | All | Traditional Python setups |
+| **🔧 Dev** | `git clone ... && uv venv && make install && uv run superclaude install` | All | Contributors & developers |
 
 </div>
+
+> **IronClaude vs. the PyPI package.** IronClaude is a fork that still ships under the
+> Python package name `superclaude`. The `superclaude` package on PyPI
+> (`pipx install superclaude`) is the upstream SuperClaude Framework, not IronClaude: it
+> does not include `HOW-WE-WORK.md` or this fork's commands. Install IronClaude from the
+> repository (`https://github.com/IronbellyOrg/IronClaude`) as shown below. Installing
+> from the repository URL needs read access to it.
 
 ### Global policy activation
 
@@ -71,7 +77,7 @@ adaptive diagnostics as separate calls.
 
 | Component | Version | Check Command |
 |-----------|---------|---------------|
-| **Python** | 3.8+ | `python3 --version` |
+| **Python** | 3.10+ | `python3 --version` |
 | **pip** | Latest | `pip --version` |
 | **Claude Code** | Latest | `claude --version` |
 | **Disk Space** | 50MB | `df -h` |
@@ -128,11 +134,11 @@ git --version 2>/dev/null && echo "✅ Git OK (optional)" || echo "⚠️ Git mi
 python3 -m pip install --user pipx
 python3 -m pipx ensurepath
 
-# Install SuperClaude
-pipx install SuperClaude
+# Install IronClaude from the fork (the PyPI "superclaude" package is upstream)
+pipx install git+https://github.com/IronbellyOrg/IronClaude
 
 # Run the installer
-SuperClaude install
+superclaude install
 ```
 
 </td>
@@ -162,14 +168,14 @@ SuperClaude install
 <td width="60%">
 
 ```bash
-# Standard installation
-pip install SuperClaude
+# Standard installation (from the fork, not PyPI)
+pip install git+https://github.com/IronbellyOrg/IronClaude
 
 # Or user installation
-pip install --user SuperClaude
+pip install --user git+https://github.com/IronbellyOrg/IronClaude
 
 # Run the installer
-SuperClaude install
+superclaude install
 ```
 
 </td>
@@ -191,40 +197,7 @@ SuperClaude install
 </tr>
 </table>
 
-### **Method 3: npm (Cross-platform)**
-
-<table>
-<tr>
-<td width="60%">
-
-```bash
-# Global installation
-npm install -g @bifrost_inc/superclaude
-
-# Run the installer
-superclaude install
-```
-
-</td>
-<td width="40%">
-
-**✅ Advantages:**
-
-- Cross-platform
-- NPM ecosystem
-- JavaScript familiar
-
-**📍 Best for:**
-
-- Node.js developers
-- NPM users
-- Cross-platform needs
-
-</td>
-</tr>
-</table>
-
-### **Method 4: Development Installation**
+### **Method 3: Development Installation**
 
 <table>
 <tr>
@@ -232,18 +205,29 @@ superclaude install
 
 ```bash
 # Clone repository
-git clone https://github.com/SuperClaude-Org/SuperClaude_Framework.git
-cd SuperClaude_Framework
+git clone https://github.com/IronbellyOrg/IronClaude
+cd IronClaude
 
 # Install uv if not present
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install in development mode
-uv pip install -e ".[dev]"
+# Create the virtual environment that `make install` installs into
+# (`make install` runs `uv pip install -e ".[dev]"`, which needs an environment)
+uv venv
 
-# Test installation
-SuperClaude install --dry-run
+# Install in development mode (editable package + dev dependencies)
+make install
+
+# Copy commands, agents, skills, hooks and core files into ~/.claude/
+uv run superclaude install
+
+# Verify installation
+make verify
 ```
+
+From a source checkout, `superclaude` lives in `.venv`. Prefix it with `uv run`
+(for example `uv run superclaude doctor`) or activate the environment with
+`source .venv/bin/activate`.
 
 </td>
 <td width="40%">
@@ -275,11 +259,9 @@ SuperClaude install --dry-run
 
 | Option | Command | Description |
 |--------|---------|-------------|
-| **Interactive** | `SuperClaude install` | Guided setup with prompts |
-| **Specific Components** | `SuperClaude install --components core mcp modes` | Install only what you need |
-| **Preview Mode** | `SuperClaude install --dry-run` | See what will be installed |
-| **Force Install** | `SuperClaude install --force --yes` | Skip all confirmations |
-| **List Components** | `SuperClaude install --list-components` | View available components |
+| `--target <dir>` | `superclaude install --target <dir>` | Where to install commands (default: `~/.claude/commands/sc`) |
+| `--force` | `superclaude install --force` | Overwrite existing files |
+| `--list` | `superclaude install --list` | List available and installed components |
 
 </div>
 
@@ -296,13 +278,11 @@ SuperClaude install --dry-run
 ### **Step 1: Check Installation**
 
 ```bash
-# Verify SuperClaude version
-python3 -m SuperClaude --version
-# Expected: SuperClaude 4.1.5
+# Verify the installed version
+superclaude --version
 
-# List installed components
-SuperClaude install --list-components
-# Expected: List of available components
+# Run the health check
+superclaude doctor
 ```
 
 ### **Step 2: Test in Claude Code**
@@ -311,19 +291,20 @@ SuperClaude install --list-components
 # Open Claude Code and try these commands:
 /sc:brainstorm "test project"     # Should trigger discovery questions
 /sc:analyze README.md              # Should provide structured analysis
-@agent-security "review code"     # Should activate security specialist
+@agent-security-engineer "review code"  # Should activate security specialist
 ```
 
 ### **Step 3: What's Installed**
 
 <div align="center">
 
-| Location | Contents | Size |
-|----------|----------|------|
-| `~/.claude/` | Framework files | ~50MB |
-| `~/.claude/CLAUDE.md` | Main entry point | ~2KB |
-| `~/.claude/*.md` | Behavioral instructions | ~200KB |
-| `~/.claude/claude-code-settings.json` | MCP configurations | ~5KB |
+| Contents | Location |
+|----------|----------|
+| Core files, including the routing guide `HOW-WE-WORK.md` | `~/.claude/` |
+| Slash commands | `~/.claude/commands/sc/` |
+| Agents | `~/.claude/agents/` |
+| Skills | `~/.claude/skills/` |
+| Hooks | `~/.claude/hooks/` |
 
 </div>
 
@@ -336,38 +317,34 @@ SuperClaude install --list-components
 <table>
 <tr>
 <th>📦 Update</th>
-<th>💾 Backup</th>
 <th>🗑️ Uninstall</th>
 </tr>
 <tr>
 <td>
 
 ```bash
-# Update to latest
-pip install --upgrade SuperClaude
-SuperClaude update
+# Update to latest (pipx). --force reinstalls from the repository:
+# `pipx upgrade` skips the reinstall while the version number is unchanged
+pipx install --force git+https://github.com/IronbellyOrg/IronClaude
+superclaude update
+
+# Update to latest (pip). --force-reinstall for the same reason
+pip install --force-reinstall git+https://github.com/IronbellyOrg/IronClaude
+superclaude update
 ```
 
 </td>
 <td>
 
 ```bash
-# Create backup
-SuperClaude backup --create
+# Uninstall package (pipx)
+pipx uninstall superclaude
 
-# Restore backup
-SuperClaude backup --restore [file]
-```
+# Uninstall package (pip)
+pip uninstall superclaude
 
-</td>
-<td>
-
-```bash
-# Remove framework
-SuperClaude uninstall
-
-# Uninstall package
-pip uninstall SuperClaude
+# Remove the old Claude Code plugin install
+make uninstall-legacy
 ```
 
 </td>
@@ -375,6 +352,22 @@ pip uninstall SuperClaude
 </table>
 
 </div>
+
+There is no `superclaude uninstall` command. Uninstalling the package removes only the Python package and the `superclaude` command. Everything `superclaude install` copied into your home folder stays where it is:
+
+- core files such as `~/.claude/CLAUDE.md`, `~/.claude/RULES.md` and `~/.claude/HOW-WE-WORK.md`
+- `~/.claude/commands/sc/`, `~/.claude/agents/`, `~/.claude/skills/`, `~/.claude/hooks/` and `~/.claude/templates/`
+- `~/.claude/rules/` and `~/.claude/output-styles/`
+- the `~/.local/bin/ccsession` link and `~/.claude/ccsession.env`
+- the hook entries and settings defaults merged into `~/.claude/settings.json` (a backup named `settings.json.bak.<timestamp>` is written before the hook merge)
+
+Remove those by hand if you want them gone. Run `superclaude install --list` before uninstalling to see which core files, commands, agents, skills and templates are installed.
+
+`make uninstall-legacy` (run from a repository checkout) runs `scripts/uninstall_legacy.sh`. It removes only the old Claude Code plugin install: `~/.claude/plugins/superclaude@superclaude`, `~/.claude/superclaude.json`, `~/.claude/superclaude_config.json`, and the `superclaude@superclaude` entry in `enabledPlugins` in `~/.claude/settings.json`. It backs these up to `~/.claude-superclaude-backup-<timestamp>` first. It does not remove anything `superclaude install` put in `~/.claude/`.
+
+A plain `superclaude install` never replaces files you already have; run `superclaude update` to get the new `~/.claude/CLAUDE.md` and the latest `~/.claude/HOW-WE-WORK.md`.
+
+> **Warning:** `superclaude update` overwrites every file it ships, including `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, and keeps no backup of them. It also deletes and re-copies each shipped skill folder in `~/.claude/skills/`, so any file you added inside one is lost. `superclaude install --force` does the same. If you edited or added any of these files, copy them first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes after the update.
 
 ---
 
@@ -389,20 +382,20 @@ This error occurs on systems with externally managed Python environments.
 
 ```bash
 # Option 1: Use pipx (Recommended)
-pipx install SuperClaude
+pipx install git+https://github.com/IronbellyOrg/IronClaude
 
 # Option 2: User installation
-pip install --user SuperClaude
+pip install --user git+https://github.com/IronbellyOrg/IronClaude
 
 # Option 3: Virtual environment
 python3 -m venv superclaude-env
 source superclaude-env/bin/activate  # Linux/macOS
 # or
 superclaude-env\Scripts\activate  # Windows
-pip install SuperClaude
+pip install git+https://github.com/IronbellyOrg/IronClaude
 
 # Option 4: Force (use with caution)
-pip install --break-system-packages SuperClaude
+pip install --break-system-packages git+https://github.com/IronbellyOrg/IronClaude
 ```
 
 </details>
@@ -410,14 +403,14 @@ pip install --break-system-packages SuperClaude
 <details>
 <summary><b>❌ Command Not Found</b></summary>
 
-If `SuperClaude` command is not found after installation:
+If the `superclaude` command is not found after installation:
 
 ```bash
 # Check if package is installed
-python3 -m pip show SuperClaude
+python3 -m pip show superclaude
 
-# Run using Python module
-python3 -m SuperClaude install
+# Run the installer
+superclaude install
 
 # Add to PATH (if using --user)
 export PATH="$HOME/.local/bin:$PATH"
@@ -446,13 +439,13 @@ For permission errors during installation:
 
 ```bash
 # Use user installation
-pip install --user SuperClaude
+pip install --user git+https://github.com/IronbellyOrg/IronClaude
 
 # Or use sudo (not recommended)
-sudo pip install SuperClaude
+sudo pip install git+https://github.com/IronbellyOrg/IronClaude
 
 # Better: use pipx
-pipx install SuperClaude
+pipx install git+https://github.com/IronbellyOrg/IronClaude
 ```
 
 </details>
@@ -512,7 +505,7 @@ brew install python3
 
 - [Behavioral Modes](../user-guide/modes.md)
 - [Agents Guide](../user-guide/agents.md)
-- [Examples Cookbook](../reference/examples-cookbook.md)
+- [How We Work](../user-guide/how-we-work.md)
 
 </td>
 <td valign="top">
@@ -539,7 +532,7 @@ brew install python3
 You now have access to:
 
 <p align="center">
-  <b>21 Commands</b> • <b>14 AI Agents</b> • <b>6 Behavioral Modes</b> • <b>6 MCP Servers</b>
+  <b>Commands</b> • <b>AI Agents</b> • <b>Skills</b> • <b>MCP Integrations</b>
 </p>
 
 **Ready to start?** Try `/sc:brainstorm` in Claude Code for your first SuperClaude experience!

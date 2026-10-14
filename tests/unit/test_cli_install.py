@@ -373,3 +373,11 @@ class TestPostReleaseCommandContract:
         assert "allowed-tools:" in frontmatter
         assert "argument-hint:" in frontmatter
         assert "<version>" in frontmatter
+
+
+def test_commands_readme_not_installed(tmp_path):
+    target = tmp_path / "sc"
+    ok, message = install_commands(target_path=target, force=True)
+    assert ok, message
+    assert (target / "help.md").exists()
+    assert not (target / "README.md").exists()

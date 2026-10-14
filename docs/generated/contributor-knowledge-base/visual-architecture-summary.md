@@ -21,7 +21,7 @@ If older prose elsewhere in the repo conflicts with the current tree, prefer the
 - [Major component map](#major-component-map)
 - [CLI runner and subsystem map](#cli-runner-and-subsystem-map)
 - [Protocol-backed command relationships](#protocol-backed-command-relationships)
-- [Unified planning pipeline](#unified-planning-pipeline)
+- [Release pipeline (`/sc:roadmap`)](#release-pipeline-scroadmap)
 - [Roadmap and adversarial integration flow](#roadmap-and-adversarial-integration-flow)
 - [Adversarial workflow as a reusable protocol](#adversarial-workflow-as-a-reusable-protocol)
 - [Task, roadmap, and tasklist compliance alignment](#task-roadmap-and-tasklist-compliance-alignment)
@@ -322,10 +322,10 @@ flowchart LR
     subgraph Skills[Backing skills / protocols]
         S1[sc:roadmap-protocol]
         S2[sc:tasklist-protocol]
-        S3[sc:task-unified-protocol]
+        S3[sc:task-protocol]
         S4[sc:adversarial-protocol]
         S5[sc:cleanup-audit-protocol]
-        S6[sc:recommend-protocol]
+        S6[sc-recommend]
         S7[sc:review-translation-protocol]
         S8[sc:pm-protocol]
         S9[sc:validate-tests-protocol]
@@ -344,15 +344,15 @@ flowchart LR
 
 ### Important note
 
-`/sc:task` is special: the command performs tier classification first, then only STANDARD and STRICT paths invoke `sc:task-unified-protocol`; LIGHT and EXEMPT remain command-handled.
+`/sc:task` is special: the command performs tier classification first, then only STANDARD and STRICT paths invoke `sc:task-protocol`; LIGHT and EXEMPT remain command-handled.
 
-## Unified planning pipeline
+## Release pipeline (`/sc:roadmap`)
 
-The active planning pipeline is staged, not automatic. `sc:roadmap-protocol` produces planning artifacts, after which the user may later run `/sc:tasklist`, and then later execute work through `/sc:task`.
+The default planning route is not this pipeline: for a full specification it is `/prd`, then `/tdd`, then `/roadmap`, then `/task` on each phase task file; see [How We Work](../../user-guide/how-we-work.md) (level 6 and section 5). The `/sc:roadmap` pipeline below is a separate release pipeline. It is staged, not automatic: `sc:roadmap-protocol` produces planning artifacts, the user then runs `/sc:tasklist`, and then `superclaude sprint run <tasklist-index.md>`, which runs each phase file as a `/sc:task ... --compliance strict` session.
 
 ```mermaid
 flowchart TD
-    A[Specification file(s)] --> B[/sc:roadmap]
+    A["Specification file(s)"] --> B["/sc:roadmap"]
     B --> C[sc:roadmap-protocol]
 
     C --> C1[Wave 0: prerequisites]
@@ -364,15 +364,13 @@ flowchart TD
 
     C6 --> D[roadmap.md + extraction.md + test-strategy.md]
 
-    D --> E[/sc:tasklist]
+    D --> E["/sc:tasklist"]
     E --> F[sc:tasklist-protocol]
     F --> G[tasklist-index.md + phase-N-tasklist.md bundle]
 
-    G --> H[User selects task]
-    H --> I[/sc:task]
-    I --> J[Command-level tier classification]
-    J -->|EXEMPT / LIGHT| K[Direct execution in command flow]
-    J -->|STANDARD / STRICT| L[sc:task-unified-protocol]
+    G --> H["superclaude sprint run tasklist-index.md"]
+    H --> I["Each phase file runs as /sc:task --compliance strict"]
+    I --> L[sc:task-protocol]
     L --> M[Tiered execution + verification routing]
 ```
 
@@ -456,22 +454,24 @@ flowchart LR
 
 ## Audit, recommendation, and review-translation orchestration family
 
-These flows are all protocol-backed, but they operate at different layers:
+These flows are all skill-backed (`/sc:recommend` by the `sc-recommend` skill, the other two by `-protocol` skills), but they operate at different layers:
 
-- `/sc:recommend` recommends command sequences and flags; it does not execute them
+- `/sc:recommend` reads the routing table in the How We Work guide first and, when a row matches, returns that row's ordered steps and mandatory flags; only when no row matches does it enumerate the installed commands and skills, rank them with auggie, and Read-verify each candidate. It does not execute them
 - `/sc:cleanup-audit` is a read-only multi-pass audit that writes reports only
 - `/sc:review-translation` is a staged localization review system with a confirmation gate and adversarial validation
 
 ```mermaid
 flowchart TD
     subgraph Recommend[Recommendation flow]
-        R1[/sc:recommend] --> R2[sc:recommend-protocol]
-        R2 --> R3[Keyword + context + expertise analysis]
-        R3 --> R4[Recommended command sequences]
+        R1["/sc:recommend"] --> R2[sc-recommend]
+        R2 --> R3["Read routing guide, match a routing row"]
+        R3 -->|row matches| R4[Recommended command sequences]
+        R3 -->|no match| R3b["Live surface enumeration + auggie rank + Read-verify"]
+        R3b --> R4
     end
 
     subgraph Audit[Repository audit flow]
-        A1[/sc:cleanup-audit] --> A2[sc:cleanup-audit-protocol]
+        A1["/sc:cleanup-audit"] --> A2[sc:cleanup-audit-protocol]
         A2 --> A3[Pass 1: surface scan]
         A3 --> A4[Pass 2: structural audit]
         A4 --> A5[Pass 3: cross-cutting comparison]
@@ -480,7 +480,7 @@ flowchart TD
     end
 
     subgraph Translation[Localization review flow]
-        T1[/sc:review-translation] --> T2[sc:review-translation-protocol]
+        T1["/sc:review-translation"] --> T2[sc:review-translation-protocol]
         T2 --> T3[Phase 0: file detection + validation]
         T3 --> T4[Phase 1: context analysis + user confirmation gate]
         T4 --> T5[Phase 3: parallel per-language review]
@@ -510,13 +510,12 @@ flowchart LR
 
 ## Task-surface deprecation map
 
-Current task workflow documentation should treat `task-unified` as the primary active surface.
+`task.md` (`/sc:task`) is the active task command; it invokes the `sc-task-protocol` skill for STANDARD and STRICT tiers.
 
 ```mermaid
 flowchart LR
-    A[task.md<br/>legacy / deprecated] --> C[task-unified.md<br/>active /sc:task surface]
-    B[task-mcp.md<br/>deprecated] --> C
-    C --> D[sc:task-unified-protocol]
+    C[task.md<br/>active /sc:task surface]
+    C --> D[sc:task-protocol]
     D --> E[STANDARD / STRICT execution paths]
 ```
 
@@ -589,7 +588,7 @@ Use this page as the hub, then jump to the generated document that matches your 
 - [Components Guide](./components-guide.md) — subsystem-by-subsystem contributor map
 - [Contributor Workflow Guide](./contributor-workflow.md) — how to work safely in the repo
 - [CLI API Inventory](./cli-api-inventory.md) — module-by-module CLI package inventory
-- [Commands and Skills Cross-Reference](./commands-skills-cross-reference.md) — command/protocol relationship map
+- [Commands Reference](../../user-guide/commands.md) — per-command syntax and options
 
 ## Mermaid readability and style notes
 
@@ -613,5 +612,5 @@ Authoring guidance used in this generated bundle:
 - Current package metadata identifies `superclaude` version `4.2.0` with Python `>=3.10`.
 - Current executable entry points are the CLI (`superclaude.cli.main:main`) and pytest plugin (`superclaude.pytest_plugin`).
 - Current code shows a larger CLI tree than some older docs imply, including `sprint`, `roadmap`, `cleanup_audit`, `pipeline`, and `audit` subsystems.
-- Current protocol-backed command families include roadmap, tasklist, task-unified, adversarial, cleanup-audit, recommend, review-translation, pm, and validate-tests.
+- Current protocol-backed command families include roadmap, tasklist, task, adversarial, cleanup-audit, review-translation, pm, and validate-tests; recommend is backed by the sc-recommend skill (no -protocol suffix).
 - For conflicts between older architecture prose and the present tree, prefer `src/superclaude/`, `pyproject.toml`, `CLAUDE.md`, and `Makefile`.

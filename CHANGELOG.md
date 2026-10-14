@@ -4,6 +4,28 @@ All notable changes to IronClaude are documented in this file.
 
 ## [Unreleased]
 
+### routing — one "how we work" guide for which tool to use when; retired unused core files
+
+#### Added (routing)
+
+- `HOW-WE-WORK.md`, the single guide for which command or skill to use for each kind of work, in what order, and with which safe flags. `superclaude install` and `superclaude update` copy it to `~/.claude/HOW-WE-WORK.md`. The plugin source tree `plugins/superclaude/` now also carries it inside the `sc-recommend` skill (`skills/sc-recommend/refs/HOW-WE-WORK.md`) for the next plugin build; the plugin that can be installed today (the repository-root `.claude-plugin/`) does not include it, and `make build-plugin` also needs `plugins/superclaude/manifest/metadata.json`, which is missing. Until a plugin build ships it, get the guide with `pipx install git+https://github.com/IronbellyOrg/IronClaude && superclaude install`. It ends with a machine-readable routing table that `/sc:recommend` reads; `/sc:help` prints its six-level table. It is never `@`-imported, so it costs no context until something reads it.
+- `docs/user-guide/how-we-work.md`, a short page pointing to the guide.
+- The `sc-recommend` skill and up-to-date `help` and `recommend` commands in the Claude Code plugin source tree (`plugins/superclaude/`), for the next plugin build.
+
+#### Changed (routing)
+
+- `~/.claude/CLAUDE.md` gains a short routing block: the six levels, the hard limit on unplanned changes, and the rule that a `/sc:<name>` message whose command file names a skill must load that skill first (commands whose file names no skill run from their own file). It no longer contains the persona table, the "Skills & Commands" section with its wave-strategies claim, the Key Docs pointers to `PLANNING.md`, `TASK.md` and `KNOWLEDGE.md`, or the IronClaude-contributor sections (Project Structure, Dev Commands, Component Sync, and the "Component edits" core rule); the repository's own `CLAUDE.md` covers the contributor material. A plain `superclaude install` never overwrites a file that already exists in `~/.claude/`: it adds `HOW-WE-WORK.md` the first time, but it does not replace an existing `CLAUDE.md`, and it does not refresh `HOW-WE-WORK.md` in later releases. Run `superclaude update` (or `superclaude install --force`) to get the new `CLAUDE.md` and the latest guide. Warning: both overwrite every file they ship, including an edited `~/.claude/CLAUDE.md` and `~/.claude/RULES.md`, keep no backup, and delete and re-copy each shipped skill folder in `~/.claude/skills/`, so files you added inside one are lost. Back up any file you changed or added first (for example `cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.mine`), then re-apply your changes.
+- `/sc:help` lists the commands and skills that are actually installed, read live, prints the guide's level table, and points to the guide and `/sc:recommend`. Its flag reference moved to `docs/user-guide/flags.md`.
+- `/sc:recommend` reads the guide first. When the goal matches a row of the routing table it returns that row's steps in order, with every flag the guide makes mandatory. It also searches `~/.claude/` and the project's `.claude/` folder, not only an IronClaude checkout's `src/`, and it skips its cache step outside an IronClaude checkout: the `superclaude recommend` CLI is installed everywhere, but the cache fingerprint is computed over a checkout's `src/superclaude/` and the cache lives in that project's `.claude/cache/`.
+- The `sc-recommend` skill's description no longer asks Claude to load it on its own whenever you describe a task. It is loaded by `/sc:recommend`; when you ask which command or skill to use, Claude suggests running `/sc:recommend` instead.
+- `docs/user-guide/commands.md` is now a per-command reference only, with a "Changes files?" column; `docs/getting-started/quick-start.md` now points to the guide.
+- `commands/README.md` is no longer installed, so new installs no longer show a `/sc:README` command. An existing `~/.claude/commands/sc/README.md` is left in place; delete it yourself if you like.
+
+#### Removed (routing)
+
+- Core files no longer shipped: `ORCHESTRATOR.md`, `COMMANDS.md`, `PERSONAS.md`, `MODES.md`, `FLAGS.md`, `MCP.md`, and the plugin copy of `FLAGS.md`. The shipped `CLAUDE.md` has not imported any of them since 2026-03-16; their routing content now lives in the guide. `BUSINESS_SYMBOLS.md` is unchanged (decision 5). Copies of the retired files already in your `~/.claude/` are left in place; nothing loads them, so you can delete them yourself.
+- Docs superseded by the guide: `docs/reference/examples-cookbook.md`, `basic-examples.md`, `advanced-workflows.md`, `advanced-patterns.md`, `integration-patterns.md`, `commands-list.md`, `suggested-commands.md`, `comprehensive-features.md`; `docs/guides/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` (a duplicate of the copy kept in `docs/developer-guide/`); `docs/generated/contributor-knowledge-base/commands-skills-cross-reference.md`.
+
 ### reflect — D13 coverage hardening: inference-assisted extraction + parse-density guard (contract 1.5.0)
 
 #### Added (reflect skill)
