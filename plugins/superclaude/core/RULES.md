@@ -27,8 +27,6 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Complexity**: Simple to enterprise complexity levels inform agent selection
 - **Manual Override**: `@agent-[name]` prefix routes directly to specified agent
 
-**PM Agent**: runs only when invoked (`/sc:pm` or explicit delegation). Nothing activates it automatically.
-
 **Orchestration Flow**:
 
 1. **Task Execution**: User request → Auto-activation selects specialist agent → Implementation
@@ -48,7 +46,8 @@ Actionable rules for enhanced Claude Code framework operation.
 - **Context Retention**: Maintain ≥90% understanding across operations
 - **Evidence-Based**: All claims must be verifiable through testing or documentation
 - **Discovery First**: Complete project-wide analysis before systematic changes
-- **Resuming work**: follow section 3.12 of `~/.claude/HOW-WE-WORK.md`: rerun the same command on the work's own files (for a task file, `/task <task file>`), or reopen a tagged conversation with `ccsession <name>`. `/sc:load` only loads Serena project memory and `/sc:save` only saves it; neither is a way to resume work.
+- **Session Lifecycle**: Initialize with /sc:load, checkpoint regularly, save before end
+- **Session Pattern**: /sc:load → Work → Checkpoint (30min) → /sc:save
 - **Checkpoint Triggers**: Task completion, 30-min intervals, risky operations
 
 ✅ **Right**: Plan → TodoWrite → Execute → Validate

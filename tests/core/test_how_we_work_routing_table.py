@@ -328,3 +328,29 @@ def test_guide_is_not_an_at_import_anywhere():
             assert not re.search(
                 r"^\s*@\S*HOW-WE-WORK", path.read_text(encoding="utf-8"), re.M
             ), path
+
+
+# Spec 3.2 (line 63): when the guide names a safe flag, the recommendation must
+# include it. Each row that steps through one of these commands lists the flag as
+# mandatory on that step, so /sc:recommend always emits it.
+_SAFE_FLAGS = {
+    "/sc:auggie-review": "--no-post-pr",
+    "/sc:pr-submit": "--monitor 1",
+    "/sc:reflect --mode post": "--no-promote",
+}
+
+
+@pytest.mark.parametrize("command,flag", sorted(_SAFE_FLAGS.items()))
+def test_named_safe_flags_are_mandatory_on_their_steps(command, flag):
+    checked = 0
+    for row in _routing_rows():
+        if row["id"] not in ("review-pr", "confirm-built"):
+            continue
+        for label, step in _steps(row).items():
+            if f"`{command}" not in step:
+                continue
+            checked += 1
+            assert f"{label}: `{flag}`" in row["mandatory_flags"], (
+                f"{row['id']} step {label}: {flag} not mandatory"
+            )
+    assert checked, f"no review-pr or confirm-built step runs {command}"

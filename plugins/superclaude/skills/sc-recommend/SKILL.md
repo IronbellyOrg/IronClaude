@@ -44,7 +44,7 @@ Local mode only; skip this step when `--plugin` is set. Read the IronClaude rout
 2. `${CLAUDE_SKILL_DIR}/refs/HOW-WE-WORK.md` (Claude Code plugin installs). If this text still shows the literal `${CLAUDE_SKILL_DIR}`, skip this location.
 3. `${CLAUDE_PLUGIN_ROOT}/skills/sc-recommend/refs/HOW-WE-WORK.md` (Claude Code plugin installs, for when `${CLAUDE_SKILL_DIR}` is not expanded). If this text still shows the literal `${CLAUDE_PLUGIN_ROOT}`, or the variable is empty, skip this location.
 4. `src/superclaude/core/HOW-WE-WORK.md` under the repository root (`git rev-parse --show-toplevel`; only inside an IronClaude checkout).
-5. Not found: print exactly this one line, then continue with the Hot-Path Cache Lookup and Phase 0 as written, with `guide_status: absent`:
+5. Not found: print exactly this one line, then skip the Hot-Path Cache Lookup and run Phase 0 (live enumeration only), with `guide_status: absent`:
    `Routing guide not found. pipx/pip install: run superclaude update. Plugin install: update the SuperClaude plugin. Until then, recommendations do not use the routing guide.`
 
 When the guide is found, add its path to `verified_sources` and extract three blocks by their markers, never by line number or heading text:

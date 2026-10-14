@@ -3,7 +3,7 @@ name: help
 description: "List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide"
 category: utility
 complexity: low
-allowed-tools: Read, Glob, Grep, Bash(find:*), Bash(ls:*), Bash(grep:*), Bash(head:*), Bash(cat:*), Bash(echo:*), Bash(test:*), Bash(basename:*), Bash(dirname:*), Bash(sed:*), Bash(while:*), Bash(read:*), Bash([:*), Bash(case:*), Bash(continue:*), Bash(git rev-parse:*)
+allowed-tools: Read, Glob, Grep, Bash(find:*), Bash(ls:*), Bash(grep:*), Bash(echo:*), Bash(test:*), Bash(basename:*), Bash(dirname:*), Bash(sed:*), Bash(while:*), Bash(read:*), Bash([:*), Bash(case:*), Bash(continue:*), Bash(git rev-parse:*)
 mcp-servers: []
 personas: []
 ---
@@ -18,7 +18,7 @@ personas: []
 
 ## Behavioral Flow
 
-Read-only. Run each of the four listings below as its own Bash call. Then do steps 2-4. Do nothing else.
+Run only the listing commands below (they read files and change nothing). Run each of the four listings below as its own Bash call. Then do steps 2-4. Do nothing else.
 
 ### 1. List what is installed, read live
 

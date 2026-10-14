@@ -76,10 +76,10 @@ There is no keyword, file-type or complexity matching in code. Claude may choose
 
 **Priority Hierarchy:**
 
-1. **Manual Override** - @agent-[name] takes precedence over auto-activation
-2. **Keywords** - Direct domain terminology triggers primary agents
-3. **File Types** - Extensions activate language/framework specialists  
-4. **Complexity** - Multi-step tasks engage coordination agents
+1. **Manual Override** - @agent-<full-name> routes directly to that agent
+2. **Subject** - Claude may pick an agent whose description fits the domain of your request
+3. **File Types** - The files involved can guide that choice (no code matches extensions)
+4. **Complexity** - Multi-step tasks may be delegated to coordination agents
 5. **Context** - Related concepts trigger complementary agents
 
 **Conflict Resolution:**
@@ -871,7 +871,7 @@ After applying agent fixes, test with:
 **Natural Language First:**
 
 1. **Describe Your Goal**: Use natural language with domain-specific keywords
-2. **Trust Auto-Activation**: Let the system route to appropriate agents automatically  
+2. **Name the agent when it matters**: Claude may choose an agent for you, or you can name one with `@agent-<full-name>`
 3. **Learn from Patterns**: Observe which agents activate for different request types
 4. **Iterate and Refine**: Add specificity to engage additional specialist agents
 
