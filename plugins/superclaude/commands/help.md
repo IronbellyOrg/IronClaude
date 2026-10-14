@@ -3,7 +3,7 @@ name: help
 description: "List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide"
 category: utility
 complexity: low
-allowed-tools: Read, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep, Bash(find:*), Bash(ls:*), Bash(grep:*), Bash(head:*), Bash(cat:*), Bash(echo:*), Bash(test:*), Bash(basename:*), Bash(dirname:*), Bash(sed:*), Bash(while:*), Bash(read:*), Bash([:*), Bash(case:*), Bash(continue:*), Bash(git rev-parse:*)
 mcp-servers: []
 personas: []
 ---
