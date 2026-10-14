@@ -19,19 +19,22 @@ Actionable rules for enhanced Claude Code framework operation.
 
 **Priority**: 🔴 **Triggers**: Task execution and post-implementation
 
-**Task Execution Layer** (guidance, not automatic triggers):
+**Task Execution Layer** (Existing Auto-Activation):
 
-- **Agent Choice**: Claude may choose to delegate to a specialist agent whose `description` fits the request. No keyword, file-type or complexity matching runs in code.
-- **Delegation by commands and skills**: Many commands and skills delegate to named agents as part of their own steps.
-- **Context to weigh**: The subject of the request (security, performance, frontend, backend, architecture), the file types involved and the size of the task can guide which agent Claude picks.
-- **Manual Override**: `@agent-<full-name>` (for example `@agent-security-engineer`) routes directly to that agent
+- **Auto-Selection**: Claude Code automatically selects appropriate specialist agents based on context
+- **Keywords**: Security, performance, frontend, backend, architecture keywords trigger specialist agents
+- **File Types**: `.py`, `.jsx`, `.ts`, etc. trigger language/framework specialists
+- **Complexity**: Simple to enterprise complexity levels inform agent selection
+- **Manual Override**: `@agent-[name]` prefix routes directly to specified agent
 
 **PM Agent**: runs only when invoked (`/sc:pm` or explicit delegation). Nothing activates it automatically.
 
-**Orchestration Flow**: User request → Claude, a command, or a skill picks a specialist agent (or you name one) → Implementation
+**Orchestration Flow**:
+
+1. **Task Execution**: User request → Auto-activation selects specialist agent → Implementation
 
 ✅ **Right**: User request → backend-architect implements
-✅ **Right**: `@agent-security-engineer "review auth"` → Direct to security-engineer (manual override)
+✅ **Right**: `@agent-security "review auth"` → Direct to security-engineer (manual override)
 ❌ **Wrong**: Continue implementing after mistake (no root cause analysis)
 
 ## Workflow Rules

@@ -170,3 +170,22 @@ def test_surface_hash_guide_path_overrides_default(tmp_path):
 def test_surface_hash_without_guide_is_full_digest(tmp_path):
     _seed_surface(tmp_path, None)
     assert re.fullmatch(r"[0-9a-f]{64}", compute_surface_hash(base=tmp_path))
+
+
+def test_surface_hash_changes_when_an_installed_command_is_added(tmp_path):
+    base = tmp_path / "src"
+    _seed_surface(base, b"guide\n")
+    home = tmp_path / "home" / ".claude"
+    (home / "commands" / "sc").mkdir(parents=True)
+    before = compute_surface_hash(base=base, installed_roots=(home,))
+    (home / "commands" / "sc" / "new.md").write_text("new\n", encoding="utf-8")
+    assert compute_surface_hash(base=base, installed_roots=(home,)) != before
+
+
+def test_surface_hash_ignores_installed_roots_when_given_none_to_scan(tmp_path):
+    base = tmp_path / "src"
+    _seed_surface(base, b"guide\n")
+    empty = tmp_path / "empty"
+    assert compute_surface_hash(base=base, installed_roots=(empty,)) == (
+        compute_surface_hash(base=base, installed_roots=())
+    )
