@@ -1,6 +1,6 @@
 ---
 name: sc:troubleshoot-protocol
-description: "Tiered debugging protocol — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in task-builder remediation chain in Tier 3. Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
+description: "Tiered debugging protocol — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in remediation chain in Tier 3 (sc:workflow → sc:implement with --fix; task-builder → /task with --fix --depth deep). Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
 allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
@@ -52,7 +52,9 @@ The skill returns a structured dictionary on completion:
 | `doc_context_card_path` | string \| null | When Wave 1.5 ran, the **repo-relative** path of the Documentation Context Card (e.g., `.dev/troubleshoot/bug-foo-20260522/doc-context.md`). `null` ONLY when `--no-doc-discovery` was set (the wave is skipped entirely). When the wave runs but produces no relevant docs across all three branches, the field still points to an empty card whose sections all read "None found" — distinguished downstream from the skip case via the hypothesis card's `consistency_with_docs=no_docs_found` value. Format is repo-relative, same convention as `test_file_path`. |
 | `hypothesis_cards` | list[path] | Paths to per-agent hypothesis cards (Tier 2) |
 | `adversarial_artifacts_dir` | string | `sc:adversarial` artifacts dir (Tier 2 only, when 2+ fix proposals were debated) |
-| `task_file_path` | string | MDTM task file path (Tier 3 only) |
+| `remediation_route` | string \| null | `plan` (`--fix`) or `mdtm` (`--fix --depth deep`); `null` when Tier 3 was not offered |
+| `plan_path` | string \| null | `sc:workflow` `plan.md` path (Tier 3 plan route only) |
+| `task_file_path` | string | MDTM task file path (Tier 3 MDTM route only) |
 | `remediation_offered` | bool | Whether Tier 3 was offered |
 | `remediation_accepted` | bool | If offered, user's response |
 | `diagnosability_verdict` | string | one of `sufficient`, `partial`, `insufficient`, `unknown` (default `unknown` when audit could not run — auggie + Grep fallback empty, failing_component not localizable, or `--no-diagnosability-audit` set; never silently skipped) |
@@ -87,7 +89,7 @@ The skill returns a structured dictionary on completion:
 
 If the diagnosis says "the test is incorrect but the code is also missing a guard" — surface BOTH in `Files to change` but keep `test_is_wrong=false` since the code is the load-bearing fix.
 
-The prose REPORT.md is still the human-readable source of truth; this flag exists so downstream automation (Tier 3 task-builder, fleet auto-apply wrappers, telemetry) can short-circuit on the asymmetric-cost case without parsing prose.
+The prose REPORT.md is still the human-readable source of truth; this flag exists so downstream automation (Tier 3 remediation chain, fleet auto-apply wrappers, telemetry) can short-circuit on the asymmetric-cost case without parsing prose.
 
 **`behavior_is_documented` derivation rule** (applied during Wave 5 synthesis): set `behavior_is_documented=true` when the chosen hypothesis card's `consistency_with_docs=aligned` AND the Diagnosis section concludes the observed symptom IS the documented behavior (not the user's expected behavior). If the docs say the system should do X and the user reports it does X but expected Y, the bug is in the user's expectation (or the docs) — set the flag and recommend a spec change or stakeholder discussion. If `consistency_with_docs=conflicts`, the docs side with the user — keep the flag false and proceed with normal code remediation. Mutually exclusive with `test_is_wrong=true` by construction (not by tiebreaker), via this 3-case decomposition: **Case A** (user expectation diverges) — observed behavior matches docs AND failing artifact is NOT a test → `behavior_is_documented=true`, `test_is_wrong=false`; remediate via spec change or stakeholder discussion. **Case B** (test contradicts docs+code consensus) — `consistency_with_docs=aligned` AND failing artifact IS a test → `test_is_wrong=true`, `behavior_is_documented=false`; the docs are not the bug, remediate by updating the test to match the docs. **Case C** (code violates docs) — `consistency_with_docs=conflicts` → both flags false, normal code remediation.
 
@@ -107,7 +109,7 @@ Wave 4: Tier 2 — Adversarial Fix Debate (conditional, requires ≥2 viable fix
 Wave 4.5: Pipeline Hardening Closure ← conditional, when pipeline_hardening_applicable=true (issue topology); runs gates HC0-HC5; loads the 6 hardening refs
 Wave 5: Synthesis + Report        ← always finalises; loads refs/report-template.md
                                     Wave 1.6 hard-stop edge: → Wave 5 (skip Waves 1.7–4.5; hardening does not run on diagnosability hard-stop); sets diagnosability_hard_stop=true and status=partial (or blocked per the S1.6.4 precedence rule)
-Wave 6: Tier 3 — Remediation Chain (conditional, requires --fix + user accept)
+Wave 6: Tier 3 — Remediation Chain (conditional, requires --fix + user accept; route by requested --depth: plan = sc:workflow → sc:implement, deep = task-builder → /task)
 ```
 
 Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-loaded.
@@ -552,15 +554,22 @@ return_contract_path: <abs-path|none>
 
 **Steps**:
 
-1. **Present the remediation offer** to the user — read the prompt template in `refs/remediation-handoff.md`. Ask one yes/no question. Wait.
-2. On accept:
-   - **Phase A — Build the task file**: invoke the `task-builder` skill via `Skill` with a `BUILD_REQUEST` whose GOAL is "Apply the fix described in `<REPORT.md path>`", WHY is the summary section, WHERE is the cited file(s), and TEMPLATE is generic (template 01) unless the fix involves > 3 files or > 2 hours of work (then template 02).
-   - **Phase B — Pre-execution review**: after `task-builder` returns the task file path, invoke `/sc:reflect --type task --analyze` (if available) against the new task file. If reflect flags issues, surface them; ask the user whether to refactor the tasklist or proceed as-is.
-   - **Phase C — Execution gate**: do NOT auto-execute. Surface the task file path and the literal command (`/task <path>`) the user can run. Stop here — the user runs it.
-   - **Phase D — Post-execution validation** (only if the user reports back after `/task` completion): invoke `/sc:reflect --type task --validate` (or `self-review` agent as fallback) before the user commits.
-3. On decline: return success; the report is the final deliverable.
+1. **Select the route** from the `--depth` the user requested (not the tier reached): `--fix` alone → **plan route**; `--fix --depth deep` → **MDTM route**. (`--depth quick --fix` already STOPped at Wave 0.) Set `remediation_route` accordingly. Full route table: `refs/remediation-handoff.md`.
+2. **Present the remediation offer** to the user — read the prompt template in `refs/remediation-handoff.md`. Ask one yes/no question. Wait.
+3. On accept, run the selected route (phase detail lives in `refs/remediation-handoff.md`):
+   - **Plan route (`--fix`)**
+     - **Phase A — Build the plan**: write `<output-dir>/remediation-source.md` from REPORT.md (summary, files, acceptance, references, `## Pipeline Hardening` block), then invoke `Skill sc:workflow-protocol` on it with `--depth standard --handoff none`. Never `--handoff implement`.
+     - **Phase B — Pre-execution review**: `/sc:reflect --mode pre --spec <REPORT.md> --tasklist <plan.md>` (fallback: `self-review` agent). `sc:workflow` has only a mechanical schema gate, so this is the sole semantic check on the plan. If reflect flags issues, surface them; ask the user whether to refactor or proceed as-is.
+     - **Phase C — Execution gate**: do NOT auto-execute. Surface the plan path and the literal command (`/sc:implement <plan.md>`) the user can run. Stop here — the user runs it.
+     - **Phase D — Post-execution validation** (only if the user reports back after `/sc:implement` completes): `/sc:reflect --mode post --spec <REPORT.md> --tasklist <plan.md> --diff <ref-or-patch>` (or `self-review` agent as fallback) before the user commits.
+   - **MDTM route (`--fix --depth deep`)**
+     - **Phase A — Build the task file**: invoke the `task-builder` skill via `Skill` with a `BUILD_REQUEST` whose GOAL is "Apply the fix described in `<REPORT.md path>`", WHY is the summary section, WHERE is the cited file(s), and TEMPLATE is generic (template 01) unless the fix involves > 3 files or > 2 hours of work (then template 02).
+     - **Phase B — Pre-execution review**: after `task-builder` returns the task file path, invoke `/sc:reflect --type task --analyze` (if available) against the new task file. If reflect flags issues, surface them; ask the user whether to refactor the tasklist or proceed as-is.
+     - **Phase C — Execution gate**: do NOT auto-execute. Surface the task file path and the literal command (`/task <path>`) the user can run. Stop here — the user runs it.
+     - **Phase D — Post-execution validation** (only if the user reports back after `/task` completion): invoke `/sc:reflect --type task --validate` (or `self-review` agent as fallback) before the user commits.
+4. On decline: return success; the report is the final deliverable.
 
-**Exit criteria**: task file path returned (or decline recorded). Output contract finalized.
+**Exit criteria**: `plan_path` (plan route) or `task_file_path` (MDTM route) returned, or decline recorded. Output contract finalized.
 
 ---
 
@@ -573,7 +582,7 @@ return_contract_path: <abs-path|none>
 | `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |
 | `mcp__tavily__tavily_search` | — | ✓ rate-limited (≤2 queries) | — |
 | `Task` (agent spawn) | ✓ (root-cause-analyst + confidence-calibrator (C-rule structural assertions via `assertions_path`); Wave 1.6: 2 parallel audit branches A/B + 1 orchestrator synthesis) | ✓ (2-4 hypothesis agents in parallel + per-card confidence-calibrator + evidence-validator at Wave 5 (A-rule structural assertions)) | ✓ (self-review for post-exec) |
-| `Skill` | — | ✓ (`sc:adversarial-protocol`) | ✓ (`task-builder`, `/sc:reflect`) |
+| `Skill` | — | ✓ (`sc:adversarial-protocol`) | ✓ (`sc:workflow-protocol` plan route / `task-builder` MDTM route, `/sc:reflect`) |
 | `Read` / `Grep` / `Glob` | ✓ (Wave 1.6 Grep/Glob fallback when auggie unavailable) | ✓ | — |
 | `Bash` | ✓ (repro when cheap, run via `OBSERVE-VIA` from the execution-locus card; failing-arm job-log fetch; S1.6.4 read-only rows only through the shared authorization/transport gate, never by executing artifact-file access) | ✓ (diagnostic commands) | — |
 | `Write` | ✓ (hypothesis + report) | ✓ (hypothesis cards, fix proposals) | — |
@@ -601,8 +610,9 @@ return_contract_path: <abs-path|none>
 - Call tavily without a focused query (the rate cap exists for a reason)
 - Trust agent-reported confidence without independent re-grading (the `confidence-calibrator` agent or the inline fallback applies the rubric in a fresh context)
 - Ship a `REPORT.md` whose `file:line` citations have not passed through `evidence-validator` (or the inline fallback)
-- Auto-execute the Tier 3 task file — that is always a separate user-initiated `/task` invocation
-- Auto-commit after Tier 3 — `/sc:reflect --type task --validate` is the final gate the user runs before committing
+- Auto-execute the Tier 3 plan or task file — that is always a separate user-initiated `/sc:implement` (plan route) or `/task` (MDTM route) invocation; never pass `--handoff implement` to `sc:workflow`
+- Auto-commit after Tier 3 — `/sc:reflect --mode post` (plan route) or `/sc:reflect --type task --validate` (MDTM route) is the final gate the user runs before committing
+- Select the MDTM route without `--depth deep` — `task-builder` and `/task` are reserved for `--fix --depth deep`
 - Auto-apply the diagnosability tasklist — it is a proposal that requires user review (opt-in MDTM packaging via `--diagnosability-handoff` invokes `task-builder` against the tasklist).
 - Force the Wave 1.6 hard-stop when `--no-escalate` is set — the flag suppresses the hard-stop and downgrades it to a soft-warn while still emitting the tasklist informationally.
 - Allow the diagnosability tasklist to target the failing component's own source code — every task MUST target an invocation site (test script, CI workflow YAML, dev harness, container entrypoint, dev-mode config override). Diagnostic code in production source leaks into release artifacts.
@@ -625,7 +635,8 @@ return_contract_path: <abs-path|none>
 | All Tier 2 agents fail | Downgrade to Tier 1 result; report `partial`; recommend rerun | None |
 | `sc:adversarial-protocol` fails in Wave 4 | Pick the highest-confidence Tier 2 fix proposal as the chosen fix; note in audit and report header | None |
 | `self-review` flags blocker on adversarial merge | STOP at Wave 5 with `partial` status; report includes the blocker; recommend rerun with `--depth deep` or different focus | None |
-| `task-builder` unavailable in Wave 6 | Surface the fix proposal path; recommend manual task creation; don't fail the whole skill | None |
+| `task-builder` unavailable in Wave 6 (MDTM route) | Surface the fix proposal path; recommend manual task creation; don't fail the whole skill | None |
+| `sc:workflow-protocol` unavailable or STOPs in Wave 6 (plan route) | Surface the fix proposal path and the STOP code; recommend manual planning or `--depth deep`; don't fail the whole skill | None |
 | User declines remediation offer | Return success; report stands | None |
 | `--depth deep` requested on under-specified input | STOP at Wave 0; ask user to add detail | None |
 | `evidence-validator` agent fails (subprocess crash, timeout, or malformed report) | Inline-validate citations in the orchestrator context (the original Wave 5 step 3 behavior); add a Grounding Gap entry noting the validator was unavailable; do not assign `status` (common-epilogue merge decides) | None — the inline path is the fallback |
@@ -644,7 +655,7 @@ return_contract_path: <abs-path|none>
 | Tier 1 only | ~2-5k | ~3-6k | 1-3 min |
 | Tier 2 (no adversarial) | ~5-15k | ~15-30k | 4-7 min |
 | Tier 2 (with adversarial) | ~10-25k | ~30-60k | 8-15 min |
-| Tier 3 added | +0 (auggie not used) | +20-40k (task-builder) | +5-10 min |
+| Tier 3 added | +0 (auggie not used) | +20-40k (task-builder, MDTM route); plan route is lighter (estimate not yet measured) | +5-10 min |
 | Wave 1.6 added | +1-2k auggie | +1-2.5k Claude | +30-60s wall clock |
 
 These are targets, not hard caps. The cosmetic counter is a non-blocking threshold, never a hard cap; overrun is audit-logged as `cosmetic_overrun=<n>` and the run continues. Auggie tokens are offloaded to a free / low-cost retrieval tier; Claude tokens are the constrained resource. The escalation gate exists specifically to keep the Tier-1-only path inside the 3-9k Claude-token band for the common case. (Wave 1.6 hard-stop case yields a net token *saving* vs the full Tier 2 path — early halt prevents Tier 2 hypothesis-round token spend on blind code.)

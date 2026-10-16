@@ -110,7 +110,7 @@ For an established diagnosis, describe the proposed change concretely (files and
 - `path/to/test_file.py::test_name` should pass after the fix
 - (or, "add new test: ...")
 
-**Apply with**: `/sc:troubleshoot --fix ...` (re-run with `--fix` to authorize the Tier 3 task-builder chain), or apply manually.
+**Apply with**: `/sc:troubleshoot --fix ...` (re-run with `--fix` to authorize the Tier 3 plan chain via `sc:workflow` → `sc:implement`, or `--fix --depth deep` for the task-builder → `/task` chain), or apply manually.
 
 ## Alternative Fixes Considered
 
@@ -165,11 +165,12 @@ Pick the line(s) that apply:
 - Whenever a tasklist was emitted, including a hard-stop (`diagnosability_hard_stop=true`), later sufficient verdict, or Wave 3 creation after audit bypass, render one line per unexecuted `## Discriminator rows` row of `diagnosability-tasklist.md`, using the Core/Optional forms in Falsifiers above with the pending reason and unchanged outcome semantics. Include linked enabling-task operational actions. A2 checks row linkage/publication, not a claim that every pending row gates status. Optional budget-exhausted cells remain informational and cannot force partial or prove a cause. If no tasklist exists, explain missing discriminator evidence rather than invent rows. Blocked/failed reports retain all pending rows and the external action needed, but suppress inapplicable rerun/fix/bypass advice.
 - Apply the following advice only when the final status, established diagnosis, round cap, transport and authorization permit it; an audit bypass or counter reset never grants execution authorization. Inconclusive reports recommend evidence gathering, not causal remediation. Hard-stops use the conditional advice in the variant below rather than ordinary tier remediation.
 
-- Tier 1, high confidence: "Apply the fix manually, or re-run with `/sc:troubleshoot --fix <args>` to generate an MDTM task."
+- Tier 1, high confidence: "Apply the fix manually, or re-run with `/sc:troubleshoot --fix <args>` to generate a plan (add `--depth deep` for an MDTM task instead)."
 - Tier 1, low confidence (but `--no-escalate`): "Re-run without `--no-escalate` (or with `--depth deep`) to enable Tier 2 fan-out."
 - Tier 2 without `--fix`: "Re-run with `--fix` added to your previous invocation to enter the remediation chain."
-- Tier 2 with `--fix`, awaiting user accept: "Reply **yes** to proceed to the task-builder remediation chain, or apply the fix manually."
-- Tier 3 chain completed (post-`/task`): "Run `/sc:reflect --type task --validate <task-file>` before committing."
+- Tier 2 with `--fix`, awaiting user accept: "Reply **yes** to proceed to the remediation chain (`sc:workflow` plan route, or `task-builder` MDTM route when `--depth deep`), or apply the fix manually."
+- Tier 3 plan route completed (post-`/sc:implement`): "Run `/sc:reflect --mode post --spec <REPORT.md> --tasklist <plan.md> --diff <ref-or-patch>` before committing."
+- Tier 3 MDTM route completed (post-`/task`): "Run `/sc:reflect --type task --validate <task-file>` before committing."
 
 ## TFEP Consumer
 
@@ -321,5 +322,5 @@ The **Pipeline Hardening Closure** section (inside the template block) renders t
 - **Closure verdict is the five-token enum** `pass | blocked | advisory | not_applicable | blocked-on-authorization` (the fifth value is set by the Wave 1.6 S1.6.4 precedence rule, never by §5.4 aggregation). `advisory` is a first-class outcome and MUST appear in the enum — a three-token Closure verdict is a defect.
 - **Emit `NOT PROVEN` blockers for absent required proof.** When the verdict is `blocked` (any HC1–HC5 `FAIL`, a latched waiver with a mandatory probe absent/waived without an accepted substitute, or an unrationalized `N/A`), render the matching `NOT PROVEN — …` line from the §5.4 truth table verbatim. `NOT PROVEN` is stronger than ordinary confidence language and is reserved for absent/failed required proof (FR-13 AC3).
 - **`advisory` differs from `blocked`.** `advisory` (truth-table rows 5 and 6) means closure relies on waived/substituted proof or a rationalized `N/A` with no hard failure — render the matching `ADVISORY — …` line, NOT a `NOT PROVEN` blocker. `blocked` is a hard failure; `advisory` is a rationalized or accepted-substitute closure. Neither may be rendered as a plain `success`.
-- **Downstream may not re-green.** A `blocked`/`advisory` closure verdict is rendered as `success_with_hardening_blocker` / `success_with_hardening_advisory` by any downstream stage that has its own success enum; downstream `task-builder` / `sc:reflect` / `sc:adversarial` / report-rendering stages may append findings but may NOT convert `blocked`/`advisory` into `pass`/`success` (§5.4 downstream no-override rule). Independently of aggregation/applicability, downstream consumers must also preserve `blocked-on-authorization` and its authorization blocker; if they render a separate success enum, use `success_with_hardening_blocker` with the original fifth verdict/refusal reason, never plain pass/success. Diagnostic status retains blocked or higher-precedence failed.
+- **Downstream may not re-green.** A `blocked`/`advisory` closure verdict is rendered as `success_with_hardening_blocker` / `success_with_hardening_advisory` by any downstream stage that has its own success enum; downstream `task-builder` / `sc:workflow` / `sc:implement` / `sc:reflect` / `sc:adversarial` / report-rendering stages may append findings but may NOT convert `blocked`/`advisory` into `pass`/`success` (§5.4 downstream no-override rule). Independently of aggregation/applicability, downstream consumers must also preserve `blocked-on-authorization` and its authorization blocker; if they render a separate success enum, use `success_with_hardening_blocker` with the original fifth verdict/refusal reason, never plain pass/success. Diagnostic status retains blocked or higher-precedence failed.
 - **Backtest status is separate from the verdict.** `not_run`/`partial` keep the production-facing pipeline-health signoff `advisory` even when the run-level `Closure verdict` is `pass`; only `complete` may mirror the verdict.
