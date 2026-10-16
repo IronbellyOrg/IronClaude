@@ -58,7 +58,7 @@ social, comment threads).
 
 ## Depth Profiles
 
-Tavily MCP version: **0.2.20** (pinned — see the `install_mcp.py` registry and `MCP_Tavily.md`).
+Tavily MCP version: `tavily-mcp@0.2.22` (pinned — see the `install_mcp.py` registry and `MCP_Tavily.md`).
 The server-level `DEFAULT_PARAMETERS` baseline is injected at install (canonical values live in
 `install_mcp.py` / `MCP_Tavily.md` — not duplicated here). Each profile below overrides
 `search_depth` / `extract_depth` per tier; per-call tool args override the server default.
@@ -130,7 +130,7 @@ Apply recency controls only when the query is time-sensitive.
 
 ## Error Handling
 
-See MCP.md §Error Handling & Circuit Breaker for server fallbacks. Research-specific: low_confidence → replan, contradictions → more sources, insufficient_data → expand scope.
+Server fallbacks are in the table below. Research-specific: low_confidence → replan, contradictions → more sources, insufficient_data → expand scope.
 
 ## MCP Integration
 

@@ -19,9 +19,9 @@ This guide covers how to verify your SuperClaude installation and troubleshoot c
 ### Check Installation Status
 
 ```bash
-# Verify SuperClaude installation system is available
-python3 -m SuperClaude --version
-# Expected: SuperClaude Framework installation help
+# Verify the superclaude CLI is available (from a source checkout: uv run superclaude --version)
+superclaude --version
+# Expected: SuperClaude, version <x.y.z>
 
 # Verify Claude Code CLI integration
 claude --version
@@ -29,7 +29,7 @@ claude --version
 
 # Check if context files were installed
 ls ~/.claude/
-# Expected: CLAUDE.md, FLAGS.md, RULES.md, agents/, commands/, modes/
+# Expected: CLAUDE.md, HOW-WE-WORK.md, RULES.md, PRINCIPLES.md, agents/, commands/, skills/
 
 # Verify main context file
 head ~/.claude/CLAUDE.md
@@ -40,7 +40,7 @@ head ~/.claude/CLAUDE.md
 
 ```bash
 # Check all directories exist
-for dir in agents commands modes; do
+for dir in agents commands/sc skills; do
     if [ -d ~/.claude/$dir ]; then
         echo "✅ $dir directory exists"
         ls ~/.claude/$dir | wc -l
@@ -53,14 +53,20 @@ done
 ### Count Installed Components
 
 ```bash
-# Should have 14 agents
+# Compare what is available with what is installed (counts change between releases,
+# so do not check against a fixed number)
+superclaude install --list
+# Each section ends with "<N> available, <M> installed". Every shipped item should show
+# "✅ installed"; M can be higher than N if you have your own or Orca's skills or agents,
+# so installed is at least the available set, not necessarily equal to it
+
+# Health check (exits non-zero if any check fails)
+superclaude doctor --verbose
+
+# Raw counts, if you want them (commands install to ~/.claude/commands/sc/)
 ls ~/.claude/agents/*.md | wc -l
-
-# Should have 21 commands  
-ls ~/.claude/commands/*.md | wc -l
-
-# Should have 5 modes
-ls ~/.claude/modes/*.md | wc -l
+ls ~/.claude/commands/sc/*.md | wc -l
+ls -d ~/.claude/skills/*/ | wc -l
 ```
 
 ## Context File Verification
@@ -69,7 +75,7 @@ ls ~/.claude/modes/*.md | wc -l
 
 ```bash
 # Check core context files exist
-for file in CLAUDE.md FLAGS.md RULES.md PRINCIPLES.md; do
+for file in CLAUDE.md HOW-WE-WORK.md RULES.md PRINCIPLES.md; do
     if [ -f ~/.claude/$file ]; then
         echo "✅ $file exists ($(wc -l < ~/.claude/$file) lines)"
     else
@@ -81,15 +87,10 @@ done
 ### Verify Import System
 
 ```bash
-# Check CLAUDE.md has correct imports
-grep "@import" ~/.claude/CLAUDE.md
+# CLAUDE.md imports exactly one file
+grep '^@' ~/.claude/CLAUDE.md
 # Expected output:
-# @import commands/*.md
-# @import agents/*.md
-# @import modes/*.md
-# @import FLAGS.md
-# @import RULES.md
-# @import PRINCIPLES.md
+# @BASH_INSPECTION_POLICY.md
 ```
 
 ### Check File Integrity
@@ -148,20 +149,20 @@ npx -y @upstash/context7-mcp@latest --help 2>/dev/null && echo "✅ Context7 ava
 **Verification**:
 
 ```bash
-# Check if command file exists
-ls ~/.claude/commands/implement.md
+# Check if command file exists (commands install to ~/.claude/commands/sc/)
+ls ~/.claude/commands/sc/implement.md
 # If missing, reinstall SuperClaude
 
 # Verify file content
-head -20 ~/.claude/commands/implement.md
+head -20 ~/.claude/commands/sc/implement.md
 # Should show command metadata and instructions
 ```
 
 **Solution**:
 
 ```bash
-# Reinstall commands component
-PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components commands --force
+# Reinstall (install has no per-component option; --force overwrites existing files)
+superclaude install --force
 ```
 
 ### Issue: Agents Not Activating
@@ -181,8 +182,8 @@ cat ~/.claude/agents/python-expert.md | head -20
 **Solution**:
 
 ```bash
-# Reinstall agents
-PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components agents --force
+# Reinstall (install has no per-component option; --force overwrites existing files)
+superclaude install --force
 ```
 
 ### Issue: Context Not Loading
@@ -227,8 +228,9 @@ python3 -c "import json; json.load(open('$HOME/.claude.json'))" && echo "✅ Val
 # macOS: brew install node
 # Windows: Download from nodejs.org
 
-# Fix JSON syntax if invalid
-PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install --components mcp --force
+# Fix JSON syntax if invalid, then re-add the MCP servers you need
+superclaude mcp --list
+superclaude mcp --servers <name>
 ```
 
 ## Troubleshooting Commands
@@ -244,11 +246,12 @@ echo ""
 
 # Check installation system
 echo "1. Installation System:"
-if command -v SuperClaude &> /dev/null; then
-    echo "   ✅ SuperClaude installation available"
-    python3 -m SuperClaude --version
+if command -v superclaude &> /dev/null; then
+    echo "   ✅ superclaude CLI available"
+    superclaude --version
 else
-    echo "   ❌ SuperClaude not found - install with: pipx install SuperClaude (or pip install SuperClaude)"
+    echo "   ❌ superclaude not found - install IronClaude with: pipx install git+https://github.com/IronbellyOrg/IronClaude"
+    echo "      (or pip install git+https://github.com/IronbellyOrg/IronClaude; the PyPI 'superclaude' package is upstream)"
 fi
 
 # Check context files
@@ -257,8 +260,8 @@ echo "2. Context Files:"
 if [ -d ~/.claude ]; then
     echo "   ✅ ~/.claude directory exists"
     echo "   - Agents: $(ls ~/.claude/agents/*.md 2>/dev/null | wc -l)"
-    echo "   - Commands: $(ls ~/.claude/commands/*.md 2>/dev/null | wc -l)"
-    echo "   - Modes: $(ls ~/.claude/modes/*.md 2>/dev/null | wc -l)"
+    echo "   - Commands: $(ls ~/.claude/commands/sc/*.md 2>/dev/null | wc -l)"
+    echo "   - Skills: $(ls -d ~/.claude/skills/*/ 2>/dev/null | wc -l)"
 else
     echo "   ❌ ~/.claude directory not found"
 fi
@@ -291,7 +294,7 @@ echo "=== Diagnostic Complete ==="
 # Fix permissions on all context files
 chmod 644 ~/.claude/*.md
 chmod 644 ~/.claude/**/*.md
-chmod 755 ~/.claude ~/.claude/agents ~/.claude/commands ~/.claude/modes
+chmod 755 ~/.claude ~/.claude/agents ~/.claude/commands ~/.claude/commands/sc ~/.claude/skills
 ```
 
 ### Complete Reinstall
@@ -304,7 +307,7 @@ cp -r ~/.claude ~/.claude.backup.$(date +%Y%m%d)
 rm -rf ~/.claude
 
 # Reinstall everything
-PYTHONPATH=/path/to/SuperClaude_Framework python3 -m setup install
+superclaude install
 
 # Restore any customizations from backup if needed
 ```

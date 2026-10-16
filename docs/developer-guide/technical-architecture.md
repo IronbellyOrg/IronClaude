@@ -23,24 +23,14 @@ This guide documents how SuperClaude's Context-Oriented Configuration Framework 
 
 ```
 ~/.claude/ (SuperClaude Framework Files Only)
-├── CLAUDE.md                       # Main context file with imports
-├── FLAGS.md                        # Flag definitions and triggers
-├── RULES.md                        # Core behavioral rules
-├── PRINCIPLES.md                   # Guiding principles
-├── ZIG.md                          # Zig language integration
-├── MCP_Context7.md                 # Context7 MCP integration
-├── MCP_Morphllm.md                 # Morphllm MCP integration
-├── MCP_Playwright.md               # Playwright MCP integration
-├── MCP_Serena.md                   # Serena MCP integration
-├── MCP_Tavily.md                   # Tavily MCP integration
-├── MCP_Zig.md                      # Zig MCP integration
-├── MODE_Brainstorming.md           # Collaborative discovery mode
-├── MODE_Business_Panel.md          # Business expert panel mode
-├── MODE_DeepResearch.md            # Deep research mode
-├── MODE_Introspection.md           # Transparent reasoning mode
-├── MODE_Orchestration.md           # Tool coordination mode
-├── MODE_Task_Management.md         # Task orchestration mode
-├── MODE_Token_Efficiency.md        # Compressed communication mode
+├── CLAUDE.md                       # Always loaded; imports BASH_INSPECTION_POLICY.md
+├── BASH_INSPECTION_POLICY.md       # Bash inspection rules, imported by CLAUDE.md
+├── HOW-WE-WORK.md                  # Routing guide, read on demand, never imported
+├── RULES.md                        # Behavioral rules, read by skills
+├── PRINCIPLES.md                   # Engineering principles, read by skills
+├── RESEARCH_CONFIG.md              # Deep-research configuration
+├── BUSINESS_SYMBOLS.md             # Business-panel symbols
+├── BUSINESS_PANEL_EXAMPLES.md      # Business-panel examples
 ├── agents/                         # Domain specialist contexts (19 total)
 │   ├── backend-architect.md        # Backend expertise
 │   ├── business-panel-experts.md   # Business strategy panel
@@ -116,49 +106,27 @@ operational directories, not part of SuperClaude framework content.
 | File Type | Purpose | Activation | Example |
 |-----------|---------|------------|---------|
 | **Commands** | Define workflow patterns | `/sc:[command]` (context trigger) | User types `/sc:implement` → reads `implement.md` |
-| **Agents** | Provide domain expertise | `@agent-[name]` or auto | `@agent-security` → reads `security-engineer.md` |
-| **Modes** | Modify interaction style | Flags or triggers | `--brainstorm` → activates brainstorming mode |
-| **Core** | Set fundamental rules | Always active | `RULES.md` always loaded |
+| **Agents** | Provide domain expertise | `@agent-[name]`, a command or skill delegating, or Claude's choice by `description` | `@agent-security-engineer` → reads `security-engineer.md` |
+| **Modes** | Modify interaction style | Not installed or loaded automatically; a mode flag such as `--brainstorm` is a hint Claude may honour | Mode files ship under `src/superclaude/modes/` and are not installed to `~/.claude/` |
+| **Core** | Set fundamental rules | `CLAUDE.md` always loaded; the rest on demand | `CLAUDE.md` always loaded; `RULES.md`, `PRINCIPLES.md`, `HOW-WE-WORK.md` read on demand |
 
 ## The Import System
 
 ### How CLAUDE.md Works
 
-The main `CLAUDE.md` file uses an import system to load multiple context files:
+The installed `CLAUDE.md` imports one file, `BASH_INSPECTION_POLICY.md`. Everything else (rules, principles, the routing guide `HOW-WE-WORK.md`) is read on demand by skills, commands, or people, so it costs no context until it is needed.
 
 ```markdown
-# CLAUDE
+# SuperClaude — Framework Context
 
-*MANDATORY*
-@FLAGS.md                  # Flag definitions and triggers
-@RULES.md                  # Core behavioral rules
-@PRINCIPLES.md             # Guiding principles
-*SECONDARY*
-@MCP_Context7.md           # Context7 MCP integration
-@MCP_Morphllm.md           # Morphllm MCP integration
-@MCP_Playwright.md         # Playwright MCP integration
-@MCP_Serena.md             # Serena MCP integration
-@MCP_Tavily.md             # Tavily MCP integration
-@MCP_Zig.md                # Zig MCP integration
-*CRITICAL*
-@MODE_Brainstorming.md     # Collaborative discovery mode
-@MODE_Business_Panel.md    # Business expert panel mode
-@MODE_DeepResearch.md      # Deep research mode
-@MODE_Introspection.md     # Transparent reasoning mode
-@MODE_Task_Management.md   # Task orchestration mode
-@MODE_Orchestration.md     # Tool coordination mode
-@MODE_Token_Efficiency.md  # Compressed communication mode
-*LANGUAGE SPECIFIC*
-@ZIG.md                    # Zig language integration
+@BASH_INSPECTION_POLICY.md
 ```
 
 ### Import Processing
 
 1. Claude Code reads `CLAUDE.md`
-2. Encounters `@import` statements
-3. Loads referenced files into context
-4. Builds complete behavioral framework
-5. Applies relevant contexts based on user input
+2. Loads each `@<file>` line into context (there is one: `@BASH_INSPECTION_POLICY.md`)
+3. Everything else (rules, principles, the routing guide, commands, agents, skills) is read on demand when a command, skill or person needs it
 
 ## Agent Context Structure
 
@@ -176,9 +144,8 @@ category: specialized|architecture|quality
 # Agent Name
 
 ## Triggers
-- Keywords that activate this agent
-- File types that trigger activation
-- Complexity thresholds
+- When this agent is a good fit (guidance for whoever delegates to it;
+  nothing matches these in code)
 
 ## Behavioral Mindset
 Core philosophy and approach
@@ -195,8 +162,8 @@ Core philosophy and approach
 ### Agent Activation Logic
 
 - **Manual**: User types `@agent-python-expert "task"`
-- **Automatic**: Keywords in request trigger agent loading
-- **Contextual**: File types or patterns activate relevant agents
+- **Delegated**: A command or skill delegates to a named agent as one of its steps
+- **Claude's choice**: Claude Code may delegate to an agent whose `description` fits the request. There is no keyword or file-type matching engine.
 
 ## Command Context Structure
 
@@ -236,14 +203,14 @@ When user types `/sc:implement "feature"` in Claude Code conversation:
 
 1. Claude reads `commands/sc/implement.md`
 2. Adopts implementation workflow pattern
-3. May auto-activate related agents
+3. Delegates to agents only where the command or its skill says to
 4. Follows defined workflow steps
 
 ## Mode Context Structure
 
 ### Behavioral Modes
 
-Modes modify Claude's interaction style:
+Modes modify Claude's interaction style. Mode files ship in the source tree under `src/superclaude/modes/` but are not installed to `~/.claude/` or loaded automatically: `CLAUDE.md` does not import them and no shipped command or skill reads them. A mode flag such as `--brainstorm` is a hint Claude may honour. The flag and keyword triggers listed inside a mode file are guidance, not automatic switches. A mode file looks like this:
 
 ```markdown
 # MODE_[Name].md
@@ -284,7 +251,7 @@ MCP servers are configured in `~/.claude.json` (NOT part of SuperClaude context)
 
 - **MCP Servers**: Actual software providing tools
 - **SuperClaude**: Context that tells Claude when to use them
-- **Activation**: Flags or keywords trigger MCP usage
+- **Activation**: Commands and skills name the servers they use; MCP flags such as `--c7` are advisory hints
 
 ## How Claude Code Reads Context
 
@@ -299,7 +266,7 @@ User Input (in Claude Code): "/sc:analyze src/ --focus security"
                     ↓
 3. Check Flags: --focus security
                     ↓
-4. Auto-Activation: load security-engineer.md
+4. Delegate if the command says so: e.g. load security-engineer.md
                     ↓
 5. Apply Patterns: follow analysis workflow
                     ↓
@@ -309,9 +276,9 @@ User Input (in Claude Code): "/sc:analyze src/ --focus security"
 ### Context Priority
 
 1. **Explicit Commands**: `/sc:` commands take precedence
-2. **Manual Agents**: `@agent-` override auto-activation
+2. **Manual Agents**: `@agent-<full-name>` routes directly to that agent
 3. **Flags**: Modify behavior of commands/agents
-4. **Auto-Activation**: Based on keywords/context
+4. **Delegation**: Agents a command or skill delegates to, or that Claude chooses by `description`
 5. **Default Behavior**: Standard Claude Code
 
 ## Extending the Framework
@@ -330,9 +297,7 @@ User Input (in Claude Code): "/sc:analyze src/ --focus security"
 
 ### Adding New Modes
 
-1. Create `~/.claude/MODE_NewMode.md`
-2. Define activation triggers and modifications
-3. Mode activates based on triggers
+There is no way to add a mode that switches on by itself. Modes ship under `src/superclaude/modes/` and are not installed, and `CLAUDE.md` imports only `BASH_INSPECTION_POLICY.md`, so a new `~/.claude/MODE_*.md` file is never loaded. To change interaction style, put the behavior in the command or skill that needs it.
 
 ### Best Practices
 

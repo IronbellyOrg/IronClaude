@@ -35,7 +35,7 @@ Before using this guide, verify agent selection works:
 
 ### What are SuperClaude Agents?
 
-**Agents** are specialized AI domain experts implemented as context instructions that modify Claude Code's behavior. Each agent is a carefully crafted `.md` file in the `superclaude/Agents/` directory containing domain-specific expertise, behavioral patterns, and problem-solving approaches.
+**Agents** are specialized AI domain experts implemented as context instructions that modify Claude Code's behavior. Each agent is a carefully crafted `.md` file in `src/superclaude/agents/` (installed to `~/.claude/agents/`) containing domain-specific expertise, behavioral patterns, and problem-solving approaches.
 
 **Important**: Agents are NOT separate AI models or software - they are context configurations that Claude Code reads to adopt specialized behaviors.
 
@@ -45,26 +45,27 @@ Before using this guide, verify agent selection works:
 
 ```bash
 # Directly invoke a specific agent
-@agent-security "review authentication implementation"
-@agent-frontend "design responsive navigation"
-@agent-architect "plan microservices migration"
+@agent-security-engineer "review authentication implementation"
+@agent-frontend-architect "design responsive navigation"
+@agent-system-architect "plan microservices migration"
 ```
 
-#### 2. Auto-Activation (Behavioral Routing)
+#### 2. Delegation by Claude, Commands and Skills
 
-"Auto-activation" means Claude Code reads behavioral instructions to engage appropriate contexts based on keywords and patterns in your requests. SuperClaude provides behavioral guidelines that Claude follows to route to the most appropriate specialists.
+There is no keyword, file-type or complexity matching in code. Claude may choose to delegate to a specialist agent whose `description` fits your request, and some commands and skills delegate to named agents as part of their own steps. A command delegates to an agent only where its command or skill file says so.
 
-> **📝 How Agent "Auto-Activation" Works**:
-> Agent activation isn't automatic system logic - it's behavioral instructions in context files.
-> When documentation says agents "auto-activate", it means Claude Code reads instructions to engage
-> specific domain expertise based on keywords and patterns in your request. This creates the
-> experience of intelligent routing while being transparent about the underlying mechanism.
+> **📝 How agent selection works**:
+> Nothing auto-activates an agent in code; where this page says a command "triggers" or "activates" an agent, it means Claude may choose that agent for such a request. Either you name one (`@agent-<full-name>`), Claude picks one whose
+> `description` matches the request, or a command or skill spawns the agents its file names.
 
 ```bash
-# These commands auto-activate relevant agents
-/sc:implement "JWT authentication"  # → security-engineer auto-activates
-/sc:design "React dashboard"        # → frontend-architect auto-activates
-/sc:troubleshoot "memory leak"      # → performance-engineer auto-activates
+# A real delegation written into a skill file:
+/sc:troubleshoot "API p99 jumped 10x" --type performance
+# → on Tier 2 escalation, spawns performance-engineer, root-cause-analyst
+#   (and system-architect if cross-component), per sc-troubleshoot-protocol Wave 3
+
+# /sc:implement and /sc:design name no agents; Claude may still choose one
+/sc:implement "JWT authentication"  # Claude may delegate to security-engineer
 ```
 
 **MCP Servers** provide enhanced capabilities through specialized tools like Context7 (documentation), Magic (UI), Playwright (testing), and Morphllm (code transformation).
@@ -75,10 +76,10 @@ Before using this guide, verify agent selection works:
 
 **Priority Hierarchy:**
 
-1. **Manual Override** - @agent-[name] takes precedence over auto-activation
-2. **Keywords** - Direct domain terminology triggers primary agents
-3. **File Types** - Extensions activate language/framework specialists  
-4. **Complexity** - Multi-step tasks engage coordination agents
+1. **Manual Override** - @agent-<full-name> routes directly to that agent
+2. **Subject** - Claude may pick an agent whose description fits the domain of your request
+3. **File Types** - The files involved can guide that choice (no code matches extensions)
+4. **Complexity** - Multi-step tasks may be delegated to coordination agents
 5. **Context** - Related concepts trigger complementary agents
 
 **Conflict Resolution:**
@@ -126,7 +127,7 @@ Task Analysis →
 /sc:troubleshoot "slow deployment pipeline with intermittent failures"
 # → Triggers: devops-architect + performance-engineer + root-cause-analyst
 
-/sc:audit "payment processing security vulnerabilities"
+/sc:analyze "payment processing" --focus security
 # → Triggers: security-engineer + quality-engineer + refactoring-expert
 ```
 
@@ -137,7 +138,7 @@ Task Analysis →
 /sc:implement "user profile system"
 
 # Then explicitly add specialist review
-@agent-security "review the profile system for OWASP compliance"
+@agent-security-engineer "review the profile system for OWASP compliance"
 @agent-performance-engineer "optimize database queries"
 ```
 
@@ -151,13 +152,14 @@ Task Analysis →
 
 **Expertise**: Self-improvement workflow executor that documents implementations, analyzes mistakes, and maintains knowledge base continuously
 
-**Auto-Activation**:
+**Activation**: `/sc:pm` or explicit delegation only (for example `@agent-pm-agent "document what we just built"`). Nothing activates it automatically: `/sc:implement`, `/sc:build` and `/sc:improve` do not call it.
 
-- **Post-Implementation**: After any task completion requiring documentation
-- **Mistake Detection**: Immediate analysis when errors or bugs occur
-- **Monthly Maintenance**: Regular documentation health reviews
-- **Knowledge Gap**: When patterns emerge requiring documentation
-- Commands: Automatically activates after `/sc:implement`, `/sc:build`, `/sc:improve` completions
+**Good times to invoke it**:
+
+- **Post-Implementation**: After a task whose decisions should be documented
+- **Mistake Analysis**: After an error or bug, to record the root cause
+- **Documentation Review**: When docs need a health review
+- **Knowledge Gap**: When patterns emerge that need documenting
 
 **Capabilities**:
 
@@ -170,7 +172,7 @@ Task Analysis →
 **How PM Agent Works** (Meta-Layer):
 
 1. **Specialist Agents Complete Task**: Backend-architect implements feature
-2. **PM Agent Auto-Activates**: After implementation completion
+2. **You Invoke PM Agent**: Run `/sc:pm` or delegate to it explicitly
 3. **Documentation**: Records patterns, decisions, edge cases in docs/
 4. **Knowledge Update**: Updates CLAUDE.md if global pattern discovered
 5. **Evidence Collection**: Links test results, screenshots, metrics
@@ -185,11 +187,12 @@ Task Analysis →
 
 2. **Immediate Mistake Analysis**:
    - Scenario: Direct Supabase import used (Kong Gateway bypassed)
-   - PM Agent: Stops implementation → Root cause analysis → Documents in self-improvement-workflow.md → Creates prevention checklist → Updates CLAUDE.md
+   - You invoke PM Agent after the mistake (`/sc:pm` or explicit delegation); it does not stop work on its own
+   - PM Agent: Root cause analysis → Documents in self-improvement-workflow.md → Creates prevention checklist → Updates CLAUDE.md
    - Output: Mistake recorded with prevention strategy, won't repeat error
 
 3. **Monthly Documentation Maintenance**:
-   - Scenario: Monthly review on 1st of month
+   - Scenario: You invoke a documentation review (it is not scheduled automatically)
    - PM Agent: Reviews docs older than 6 months → Deletes unused documents → Merges duplicates → Updates version numbers → Reduces verbosity
    - Output: Fresh, minimal, high-signal documentation maintained
 
@@ -198,9 +201,9 @@ PM Agent operates as a **meta-layer** above specialist agents:
 
 ```
 Task Flow:
-1. User Request → Auto-activation selects specialist agent
+1. User Request → Claude, a command, or a skill picks a specialist agent (or you name one)
 2. Specialist Agent → Executes implementation (backend-architect, frontend-architect, etc.)
-3. PM Agent (Auto-triggered) → Documents learnings
+3. PM Agent (invoked with /sc:pm or explicit delegation) → Documents learnings
 4. Knowledge Base → Updated with patterns, mistakes, improvements
 ```
 
@@ -216,10 +219,10 @@ Task Flow:
 **Self-Improvement Loop Phases**:
 
 - **AFTER Phase**: Primary responsibility - document implementations, update docs/, create evidence
-- **MISTAKE RECOVERY**: Immediate stop, root cause analysis, documentation update
+- **MISTAKE RECOVERY**: when you invoke it after a mistake: root cause analysis, documentation update
 - **MAINTENANCE**: Monthly pruning, merging, freshness updates, noise reduction
 
-**Verify**: Activates automatically after task completions requiring documentation
+**Verify**: After you invoke it with `/sc:pm` (or explicit delegation), it documents the completed task
 **Test**: Should document patterns after backend-architect implements features
 **Check**: Should create prevention checklists when mistakes detected
 
@@ -763,12 +766,12 @@ For troubleshooting help, see:
 
 **Expert Support:**  
 
-- Use `SuperClaude install --diagnose`
+- Run `superclaude doctor` (add `--verbose` for details) to check the installation, and `superclaude install --list` to see what is available to install
 - See [Diagnostic Reference Guide](../reference/diagnostic-reference.md) for coordination analysis
 
 **Community Support:**
 
-- Report issues at [GitHub Issues](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues)
+- Report issues at [GitHub Issues](https://github.com/IronbellyOrg/IronClaude/issues)
 - Include examples of expected vs actual agent activation
 
 ### Success Validation
@@ -868,7 +871,7 @@ After applying agent fixes, test with:
 **Natural Language First:**
 
 1. **Describe Your Goal**: Use natural language with domain-specific keywords
-2. **Trust Auto-Activation**: Let the system route to appropriate agents automatically  
+2. **Name the agent when it matters**: Claude may choose an agent for you, or you can name one with `@agent-<full-name>`
 3. **Learn from Patterns**: Observe which agents activate for different request types
 4. **Iterate and Refine**: Add specificity to engage additional specialist agents
 
@@ -1021,8 +1024,8 @@ Add "documented", "explained", or "tutorial" to requests for automatic technical
 ### Advanced Usage  
 
 - **[Behavioral Modes](modes.md)** - Context optimization for enhanced agent coordination
-- **[Getting Started](../getting-started/quick-start.md)** - Expert techniques for agent optimization
-- **[Examples Cookbook](../reference/examples-cookbook.md)** - Real-world agent coordination patterns
+- **[Getting Started](../getting-started/quick-start.md)** - Where to start: installation and the How We Work guide
+- **[How We Work](how-we-work.md)** - Which command or agent to use for each kind of work
 
 ### Development Resources
 
@@ -1043,6 +1046,6 @@ Observe agent coordination patterns. Understand how complexity and domain keywor
 Master multi-domain requests that trigger optimal agent combinations. Leverage troubleshooting techniques for effective agent selection. Use advanced patterns for complex workflows.
 
 **The SuperClaude Advantage:**
-Experience the power of 14 specialized AI experts working in coordinated response, all through simple, natural language requests. No configuration, no management, just intelligent collaboration that scales with your needs.
+Experience the power of specialized AI experts working in coordinated response, all through simple, natural language requests. No configuration, no management, just intelligent collaboration that scales with your needs.
 
-🎯 **Ready to experience intelligent agent coordination? Start with `/sc:implement` and discover the magic of specialized AI collaboration.**
+Not sure where to start? Read [How We Work](how-we-work.md) or run `/sc:recommend "<what you want to do>"`.

@@ -37,7 +37,7 @@ Orchestrate parallel brainstorming via:
 2. Optional codebase + research enrichment (parallel, partial-OK)
 3. Composed agent-spec (3 active models × N personas)
 4. Delegation to `sc-adversarial-protocol` for parallel proposal generation + debate + merge
-5. Optional handoff to `/sc:design`, `/sc:tasklist`, or `/sc:task-builder`
+5. Optional handoff to `/sc:design`, `/sc:tasklist`, or `/task-builder`
 
 **Pipeline Position**: `topic → /sc:brainstorm → seed-brief + merged-requirements → (optional handoff) → tasklist or task files`
 

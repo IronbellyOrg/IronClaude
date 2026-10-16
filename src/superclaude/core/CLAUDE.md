@@ -13,65 +13,17 @@ uv pip install package           # install deps
 uv run python script.py          # execute scripts
 ```
 
-## Project Structure
-
-```
-src/superclaude/        # Source of truth for all distributable components
-  core/                 # This file + framework .md files (RULES, PRINCIPLES, etc.)
-  commands/             # Slash command definitions
-  skills/               # Skill packages (SKILL.md + refs/ + rules/ + templates/)
-  agents/               # Agent definitions
-  cli/                  # Python CLI: sprint, roadmap, tasklist, audit, pipeline
-  pm_agent/             # confidence.py, self_check.py, reflexion.py
-.claude/                # Dev copies — synced from src/, read by Claude Code
-  commands/sc/          # Active slash commands
-  skills/               # Active skills (loaded on-demand, ~50 tokens each)
-  agents/               # Active agents
-tests/                  # Python test suite
-docs/                   # Documentation (docs/generated/ = CLI pipeline artifacts)
-```
-
-## Dev Commands
-
-```
-make dev                # Install editable + dev dependencies
-make test               # Full test suite
-make sync-dev           # src/superclaude/{skills,agents,commands} → .claude/
-make verify-sync        # Confirm src/ and .claude/ match (run before committing)
-make lint && make format
-superclaude sprint run <tasklist-index.md>   # Execute sprint pipeline
-superclaude roadmap run <spec.md>            # Generate roadmap pipeline
-superclaude roadmap validate <output-dir>    # Validate roadmap artifacts
-```
-
-## Component Sync
-
-Source of truth is `src/superclaude/`. Always edit there first, then `make sync-dev`.
-If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then `make verify-sync`.
-
 ## MCP Servers
 
-| Server         | Primary Use                                  | Flag       |
-|----------------|----------------------------------------------|------------|
+| Server         | Primary Use                                  | Flag (advisory) |
+|----------------|----------------------------------------------|-----------------|
 | auggie         | Codebase search — call before significant edits | (auto)  |
 | serena         | Symbol navigation, project memory            | --serena   |
 | context7       | Official library/framework docs              | --c7       |
 | tavily         | Web search, current information              | --tavily   |
 | playwright     | Browser automation, E2E testing              | --play     |
 
-## Personas (auto-activated by context; override with --persona-X)
-
-| Persona      | Domain                         | Primary MCP       |
-|--------------|--------------------------------|-------------------|
-| architect    | systems design, scalability    | c7                |
-| frontend     | UI/UX, components              | playwright        |
-| backend      | APIs, reliability              | c7                |
-| security     | vulnerabilities, auth          | —                 |
-| analyzer     | root cause, investigation      | c7                |
-| qa           | testing, coverage              | playwright        |
-| refactorer   | cleanup, tech debt             | —                 |
-| devops       | deploy, infrastructure         | —                 |
-| scribe       | docs, localization             | c7                |
+The Flag column is advisory: these are hints Claude may honour, not options every command accepts. A command's own flags are in its file under `~/.claude/commands/sc/`; check there before passing one.
 
 ## Core Rules
 
@@ -80,26 +32,41 @@ If you edited `.claude/` directly: copy changes back to `src/superclaude/`, then
 3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`codebase-retrieval`) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
 4. **Git** — feature branches only; never commit directly to master/main
 5. **Output paths** — write files next to their source or to the `--output` dir the CLI command specifies; `docs/generated/` is a roadmap pipeline artifact directory, not a general output sink
-6. **Component edits** — `src/superclaude/` → `make sync-dev` → `.claude/`; never reverse without syncing back
-7. **Finish what you start** — no TODO stubs for core logic; if you begin a feature, complete it to working state
-8. **Scope discipline** — build exactly what's asked; no speculative additions
-9. **Auggie first** — call `codebase-retrieval` before significant edits to load relevant context
-10. **Temporal** — verify current date from env context before any date/version reasoning
+6. **Finish what you start** — no TODO stubs for core logic; if you begin a feature, complete it to working state
+7. **Scope discipline** — build exactly what's asked; no speculative additions
+8. **Auggie first** — call `codebase-retrieval` before significant edits to load relevant context
+9. **Temporal** — verify current date from env context before any date/version reasoning
 
 ## Key Docs
 
-- `PLANNING.md` — architecture decisions, absolute rules
-- `TASK.md` — current tasks and priorities
-- `KNOWLEDGE.md` — accumulated insights and debugging patterns
-- `src/superclaude/core/RULES.md` — full behavioral rules (referenced by skills)
-- `src/superclaude/core/PRINCIPLES.md` — engineering principles (referenced by skills)
+- `~/.claude/HOW-WE-WORK.md` — which command or skill to use for each kind of work, in what order (read it when you choose a workflow; it is not loaded automatically)
+- `~/.claude/RULES.md` — full behavioral rules (referenced by skills)
+- `~/.claude/PRINCIPLES.md` — engineering principles (referenced by skills)
 
-## Skills & Commands
+## How to choose a workflow
 
-Skills in `~/.claude/skills/` load on-demand (~50 tokens each at session start).
-Commands in `~/.claude/commands/sc/` — use `/sc:help` to list all available.
-Agents in `~/.claude/agents/` — delegated by skills and commands.
-Full behavioral specs (personas, MCP workflows, wave strategies) live in the skill files.
+Decide how much process a job needs before you start. Use the first row that fits; if you are unsure between two rows, choose the heavier one.
+
+<!-- level-table:v1 -->
+
+| Level | Use this when | What you run | What you end up with |
+|---|---|---|---|
+| **1. Ask a question** | You want to understand code, a decision, or how something works, and you do not want anything changed. | Ask Claude in plain English. For an explanation of specific code, `/sc:explain src/jobs/runner.py`. | An answer. No files change. |
+| **2. Make a small, direct change** | The change is in one source file (plus its test file), needs five edits or fewer, and you already know exactly what it should be. | Ask Claude to make the change and run the related test, or use `/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"`. `/sc:task` prints a `Tier:` line at the start. If it says `STANDARD` or `STRICT`, it runs the affected tests itself; if it says `LIGHT` (typos, comments, formatting) or `EXEMPT` (no code change, such as explain or commit), it skipped checking, so run the test yourself afterwards. | The edited file and a passing test. |
+| **3. Follow a simple checked plan** | The change touches a few files, the requirements are clear, and it fits in one or two sessions. | `/sc:workflow "<what to change, why, which files>" --depth quick` writes a plan in which every step has acceptance criteria (a written definition of "done" for that step), then checks the plan against your request automatically. It prints the plan path, `.dev/tasks/to-do/<id>/<id>.md`, and the check result. `<id>` is the plan folder's name, for example `TASK-WF-retry-limit-20261013-142530`; the plan file is `<id>.md` inside it. Copy the path `/sc:workflow` prints. Read the plan, then run `/sc:implement <that path>`. It builds one step at a time and has a reviewer check each step against its criteria. | A plan folder holding the plan and `progress.md` (one line per step), plus the code changes in your repository. If interrupted, run the same `/sc:implement` command again; it continues from the first unfinished step. When every step passes, a final independent review runs and the folder moves to `.dev/tasks/done/`. On any system other than Linux (including macOS) the move is refused on purpose: the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand. |
+| **4. Build and run a task file** | The work touches many files, will take more than one session, or must not drift from what was agreed. | `/task-builder "<what to build, why, which code>"` researches the code and writes a task file: a checklist under `.dev/tasks/to-do/`. If you have a spec, PRD, or TDD, add `--spec <path to it>` so the task file is checked against it. Read the task file, then run `/task <path to task file>`. | `/task` works through the checklist item by item. The items are grouped into phases; after each phase except the first (setup) one, a panel of independent reviewer agents checks the work. At the end it runs the tests and an independent audit comparing what was built with the plan. It survives crashes. |
+| **5. Research first** | You do not yet know how the current system works, what needs to change, or whether the idea is feasible. | `/tech-research "<question, why you need it, which code to look at>"`. Then build the task file from it: `/task-builder "<what to build> as recommended in <path to the report>. Code: <folders>"` (level 4). | A report at `.dev/tasks/to-do/TASK-RESEARCH-<topic>-<timestamp>/RESEARCH-REPORT-<topic>.md` with findings, options, and a recommended plan. |
+| **6. Write a full specification** | You are building a new product, a new component, or a major feature that other people will build against. | `/prd`, then `/tdd`, then `/roadmap`. See workflow 3.1 of the routing guide (`HOW-WE-WORK.md`). | A product requirements document, a technical design document, a phased roadmap, and a task file for every phase. |
+
+**Hard limit:** if the work needs more than 5 edits or touches more than one source file (its matching test file does not count), it must go through a written plan: level 3 for a few files with clear scope, level 4 for anything larger, longer, or riskier. An edit is one change in one place in a file (one block of consecutive changed lines); renaming a name used in 8 places is 8 edits. The one exception is `/sc:cleanup` and `/sc:improve` run on a folder (section 3.7 of the routing guide): commit first and review `git diff` afterwards.
+
+<!-- /level-table -->
+
+**`/sc:` commands must load their skill when their file names one.** When a message starts with `/sc:<name>` and that command's file (`~/.claude/commands/sc/<name>.md`) says to invoke a skill, invoke the matching skill with the Skill tool before any other output. That step is blocking: answering from your memory of the protocol instead is a violation. A command whose file names no skill runs from its own file. If context pressure would make you skip the skill or improvise, stop, warn the user, and tell them to run the command again in a new chat.
+
+For the full step-by-step workflows, read `~/.claude/HOW-WE-WORK.md` with the Read tool when you need it (it is not loaded automatically). Unsure which tool fits? Run `/sc:recommend "<what you want to do, and why>"`. To see everything installed, run `/sc:help`.
+
+Commands are in `~/.claude/commands/sc/`, skills in `~/.claude/skills/` (loaded on demand), agents in `~/.claude/agents/` (used by skills and commands).
 
 ## Context freshness discipline
 

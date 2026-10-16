@@ -338,7 +338,7 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 **Essential Reading:**
 
 - [Commands Guide](commands.md) - Commands that activate MCP servers
-- [Quick Start Guide](../getting-started/quick-start.md) - MCP setup guide
+- [Quick Start Guide](../getting-started/quick-start.md) - Where to start: installation and the How We Work guide
 
 **Advanced Usage:**
 
@@ -348,5 +348,5 @@ echo 'export TAVILY_API_KEY="your_key"' >> ~/.bashrc
 
 **Technical References:**
 
-- [Examples Cookbook](../reference/examples-cookbook.md) - MCP workflow patterns
+- [How We Work](how-we-work.md) - Which tool to use for each kind of work
 - [Technical Architecture](../developer-guide/technical-architecture.md) - Integration details

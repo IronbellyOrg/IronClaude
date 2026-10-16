@@ -6,247 +6,117 @@
 
 > This file serves two purposes: quick navigation for Claude Code and learning resource for humans.
 
-**Last Updated**: 2026-01-18
+**Last Updated**: 2026-10-14
 
 ---
 
 ## 📑 Table of Contents
 
 - [📋 How to Use This Document](#-how-to-use-this-document)
-- [📁 File Map: Where to Find Information](#-file-map-where-to-find-information)
 - [🗂️ Command Categories](#️-command-categories)
 - [📖 Detailed Description of Each Command](#-detailed-description-of-each-command)
-- [🔀 Visual Map: When to Use What](#-visual-map-when-to-use-what)
-- [⚡ Key Differences](#-key-differences-commonly-confused)
-- [🎯 spawn vs task vs implement](#-spawn-vs-task-vs-implement--detailed-comparison)
-- [🤔 task vs implement](#-task-vs-implement--when-to-choose-which)
-- [📐 design vs workflow](#-design-vs-workflow--blueprint-vs-work-plan)
 - [📂 index-repo vs Serena](#-index-repo-vs-serena--indexing-tools-comparison)
-- [🔄 Typical Workflows](#-typical-workflows)
-- [🔧 MCP Server Reference](#-mcp-server-reference)
-- [📝 Notes for Future Sessions](#-notes-for-future-sessions)
 
 ---
 
 ## 📋 How to Use This Document
 
-This reference contains sections for **different audiences**:
-
-### 🤖 For Claude Code (skip these if you're human)
+This page is the per-command reference: exact syntax, options, and what each command produces. It does not say which command to use for a job; for that, see [How We Work](how-we-work.md), or run `/sc:recommend "<what you want to do>"`.
 
 | Section | Purpose |
 |---------|---------|
-| [`📁 File Map`](#-file-map-where-to-find-information) | File paths for navigation in new sessions |
-| [`🔧 MCP Server Reference`](#-mcp-server-reference) | Technical integration details |
-| [`📝 Notes for Future Sessions`](#-notes-for-future-sessions) | Session start instructions |
-
-### 👤 For Humans (learning SuperClaude)
-
-| Section | Purpose |
-|---------|---------|
-| [`🗂️ Command Categories`](#️-command-categories) | Overview of all 30 commands by category |
-| [`📖 Detailed Descriptions`](#-detailed-description-of-each-command) | Syntax, examples, when to use each command |
-| [`🔀 Visual Map`](#-visual-map-when-to-use-what) | Decision tree: which command to use |
-| [`⚡ Key Differences`](#-key-differences-commonly-confused) | spawn vs task vs implement, etc. |
-| [`🔄 Typical Workflows`](#-typical-workflows) | Real-world usage patterns with examples |
-
-> **💡 Recommendation**: Start with [`🗂️ Command Categories`](#️-command-categories) for overview, then read [`🔄 Typical Workflows`](#-typical-workflows) for practical examples.
-
----
-
-## 📁 File Map: Where to Find Information
-
-> 🤖 **For Claude Code**: This section helps navigate the codebase in new sessions.
-
-This section is for quick lookups in future sessions (new context).
-
-### ⚡ Quick Reference (read first!)
-
-```
-PROJECT_INDEX.md         # Project quick start (3K tokens)
-```
-
-### Command Sources (read for implementation details)
-
-```
-src/superclaude/commands/
-├── pm.md              # /sc:pm - Project Manager Agent (593 lines, most detailed)
-├── task.md            # /sc:task - Task Management
-├── workflow.md        # /sc:workflow - Workflow Generator
-├── spawn.md           # /sc:spawn - Meta-System Orchestration
-├── brainstorm.md      # /sc:brainstorm - Requirements Discovery
-├── implement.md       # /sc:implement - Feature Implementation
-├── design.md          # /sc:design - System Design
-├── research.md        # /sc:research - Web Research
-├── analyze.md         # /sc:analyze - Code Analysis
-├── troubleshoot.md    # /sc:troubleshoot - Issue Diagnosis
-├── improve.md         # /sc:improve - Code Improvement
-├── cleanup.md         # /sc:cleanup - Dead Code Removal
-├── test.md            # /sc:test - Testing
-├── build.md           # /sc:build - Building
-├── explain.md         # /sc:explain - Code Explanation
-├── document.md        # /sc:document - Documentation
-├── git.md             # /sc:git - Git Operations
-├── reflect.md         # /sc:reflect - Tiered Reflection
-├── spec-panel.md      # /sc:spec-panel - Expert Spec Review (414 lines)
-├── business-panel.md  # /sc:business-panel - Business Analysis
-├── index-repo.md      # /sc:index-repo - Repository Indexing
-├── index.md           # /sc:index - Project Documentation
-├── load.md            # /sc:load - Session Load
-├── save.md            # /sc:save - Session Save
-├── recommend.md       # /sc:recommend - Command Recommendation
-├── help.md            # /sc:help - Help
-└── agent.md           # /sc:agent - Custom agents
-```
-
-### Duplicate Copies (same files)
-
-```
-plugins/superclaude/commands/  # Copy for plugin distribution
-```
-
-### PM Agent Core (Python implementation)
-
-```
-src/superclaude/pm_agent/
-├── confidence.py      # ConfidenceChecker (pre-execution)
-├── self_check.py      # SelfCheckProtocol (post-implementation)
-└── reflexion.py       # ReflexionPattern (error learning)
-```
-
-### Execution Patterns (Python)
-
-```
-src/superclaude/execution/
-├── parallel.py        # Wave → Checkpoint → Wave pattern
-├── reflection.py      # Session reflection
-└── self_correction.py # Error correction
-```
-
-### Pytest Plugin
-
-```
-src/superclaude/pytest_plugin.py  # Fixtures: confidence_checker, self_check_protocol, etc.
-```
-
-### Key Documentation
-
-```
-CLAUDE.md              # Project setup, commands overview
-PLANNING.md            # Architecture, design decisions
-KNOWLEDGE.md           # Best practices, troubleshooting
-TASK.md                # Current tasks
-```
-
-### Additional Skills
-
-```
-src/superclaude/skills/confidence-check/SKILL.md  # Confidence check skill
-```
+| [`🗂️ Command Categories`](#️-command-categories) | Every command by category, and whether it changes files |
+| [`📖 Detailed Descriptions`](#-detailed-description-of-each-command) | Syntax, options, and examples for each command |
+| [`📂 index-repo vs Serena`](#-index-repo-vs-serena--indexing-tools-comparison) | Which indexing tool to use for project memory |
 
 ---
 
 ## 🗂️ Command Categories
 
-### 1. ORCHESTRATION (Meta-level) - "What to do?"
+### 1. ORCHESTRATION (Meta-level)
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:pm`](#scpm---project-manager-agent) | Project Manager (always active) | `pm.md` |
-| [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decomposition Epic → Task | `spawn.md` |
-| [`/sc:task`](#sctask---enhanced-task-management) | Execution with MCP coordination | `task.md` |
-| [`/sc:workflow`](#scworkflow---implementation-workflow-generator) | Generate plan from PRD | `workflow.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:pm`](#scpm---project-manager-agent) | Project Manager agent | `pm.md` | Yes |
+| [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decomposition Epic → Task | `spawn.md` | Report only (stops after the task breakdown; see its Critical Boundaries) |
+| [`/sc:task`](#sctask---enhanced-task-management) | One small, direct change (level 2) | `task.md` | Yes |
+| [`/sc:workflow`](#scworkflow---implementation-plan-generator) | Short checked plan for a few files (level 3) | `workflow.md` | Only with `--handoff implement` |
+| `/sc:agent` | Session controller for investigate, build, review | `agent.md` | Yes |
+| `/sc:roadmap` | Roadmap artifacts from spec, TDD, PRD | `roadmap.md` | Report only |
+| `/sc:tasklist` | Sprint-ready tasklist bundles from roadmaps | `tasklist.md` | Report only |
+| `/sc:release-split` | Two-phase release split analysis | `release-split.md` | Report only |
 
-### 2. DISCOVERY - "What's needed?"
+### 2. DISCOVERY
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery) | Clarify requirements (Socratic) | `brainstorm.md` |
-| [`/sc:research`](#scresearch---deep-web-research) | Web research via Tavily | `research.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:brainstorm`](#scbrainstorm---orchestrated-multi-agent-brainstorm) | Clarify requirements (Socratic) | `brainstorm.md` | Report only |
+| [`/sc:research`](#scresearch---deep-web-research) | Web research via Tavily | `research.md` | Report only |
 
-### 3. IMPLEMENTATION - "How to build?"
+### 3. IMPLEMENTATION
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:implement`](#scimplement---feature-implementation) | Write code | `implement.md` |
-| [`/sc:design`](#scdesign---system-and-component-design) | Architecture, API, schemas | `design.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:implement`](#scimplement---feature-implementation) | Write code | `implement.md` | Yes |
+| [`/sc:design`](#scdesign---system-and-component-design) | Architecture, API, schemas | `design.md` | Report only |
+| `/sc:tdd` | Create or populate a Technical Design Document | `tdd.md` | Yes (writes the TDD into your repo, `docs/<domain>/TDD_<COMPONENT>.md` by default, or the `--output` path) |
+| `/sc:cli-portify` | Port workflows into programmatic CLI pipelines | `cli-portify.md` | Yes |
 
-### 4. QUALITY - "Is everything correct?"
+### 4. QUALITY
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:analyze`](#scanalyze---code-analysis) | Code analysis (quality/security/perf) | `analyze.md` |
-| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` |
-| [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` |
-| [`/sc:build`](#scbuild---project-building) | Build project | `build.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:analyze`](#scanalyze---code-analysis) | Code analysis (quality/security/perf) | `analyze.md` | Report only |
+| [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis) | Root cause analysis | `troubleshoot.md` | Report only (`--fix` adds a task file you run with `/task`) |
+| [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
+| [`/sc:build`](#scbuild---project-building) | Build project | `build.md` | Yes |
+| `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
+| `/sc:auggie-review` | Auggie code review of PRs and diffs | `auggie-review.md` | Report only |
+| `/sc:cleanup-audit` | Read-only multi-pass repository cleanup audit | `cleanup-audit.md` | Report only |
+| `/sc:swarm-wizard` | Plain-language guide to the swarm CLI | `swarm-wizard.md` | Report only |
+| `/sc:validate-roadmap` | Validate roadmap pipeline outputs | `validate-roadmap.md` | Report only |
+| `/sc:validate-tests` | Validate tier classification against YAML specs | `validate-tests.md` | Report only |
+| `/sc:cli-eval` | Author or run cliEval eval suites | `cli-eval.md` | Yes |
 
-### 5. IMPROVEMENT - "How to make it better?"
+### 5. IMPROVEMENT
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:improve`](#scimprove---code-improvement) | Refactoring, optimization | `improve.md` |
-| [`/sc:cleanup`](#sccleanup---code-cleanup) | Dead code, unused imports | `cleanup.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:improve`](#scimprove---code-improvement) | Refactoring, optimization | `improve.md` | Yes |
+| [`/sc:cleanup`](#sccleanup---code-cleanup) | Dead code, unused imports | `cleanup.md` | Yes |
 
-### 6. DOCUMENTATION - "What is this?"
+### 6. DOCUMENTATION
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:explain`](#scexplain---code-explanation) | Code explanation | `explain.md` |
-| [`/sc:document`](#scdocument---documentation-generation) | Generate documentation | `document.md` |
-| [`/sc:index-repo`](#scindex-repo---repository-indexing) | Repository indexing | `index-repo.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:explain`](#scexplain---code-explanation) | Code explanation | `explain.md` | No |
+| [`/sc:document`](#scdocument---documentation-generation) | Generate documentation | `document.md` | Yes |
+| [`/sc:index-repo`](#scindex-repo---repository-indexing) | Repository indexing | `index-repo.md` | Yes (writes `PROJECT_INDEX.md` and `PROJECT_INDEX.json` into your repo) |
+| `/sc:index` | Project documentation and knowledge base | `index.md` | Yes (generates project documentation in your repo) |
+| `/sc:post-release` | Sync docs and install surface after release | `post-release.md` | Yes |
+| `/sc:review-translation` | Localization review with quality scoring | `review-translation.md` | Yes |
 
 ### 7. EXPERT PANELS
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:spec-panel`](#scspec-panel---expert-specification-review) | Specification review (Wiegers, Fowler...) | `spec-panel.md` |
-| [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel) | Business analysis (Porter, Drucker...) | `business-panel.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:spec-panel`](#scspec-panel---expert-specification-review) | Specification review (Wiegers, Fowler...) | `spec-panel.md` | Report only |
+| [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel) | Business analysis (Porter, Drucker...) | `business-panel.md` | Report only |
 
 ### 8. UTILITIES
 
-| Command | Purpose | File |
-|---------|---------|------|
-| [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` |
-| [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` |
-| `/sc:load` | Load session | `load.md` |
-| `/sc:save` | Save session | `save.md` |
+| Command | Purpose | File | Changes files? |
+|---------|---------|------|----------------|
+| [`/sc:git`](#scgit---git-operations) | Git + smart commits | `git.md` | Yes |
+| [`/sc:reflect`](#screflect---tiered-reflection) | Pre/post-execution audit | `reflect.md` | Only with `--mode post` (moves the work folder on a pass unless you add `--no-promote`) |
+| `/sc:load` | Load Serena project memory (not a resume method) | `load.md` | No |
+| `/sc:save` | Save Serena project memory (not a resume method) | `save.md` | Report only |
+| `/sc:help` | List installed commands, skills, process levels | `help.md` | No |
+| `/sc:recommend` | Paste-ready prompt for the right command | `recommend.md` | Report only (inside an IronClaude checkout it writes its cache and telemetry under `.claude/cache/`) |
+| `/sc:init-lite` | Safe audit of project-local context surfaces | `init-lite.md` | Report only |
+| `/sc:pr-submit` | Open fork PR and monitor review fixes | `pr-submit.md` | Yes |
 
----
-
-## 📊 Command Output Categories
-
-### Document-Only Commands (STOP after output)
-
-These commands produce documents/reports and DO NOT implement:
-
-- `/sc:brainstorm` → Requirements specification
-- `/sc:workflow` → Implementation plan
-- `/sc:spawn` → Task hierarchy
-- `/sc:research` → Research report
-- `/sc:design` → Architecture documents
-- `/sc:analyze` → Analysis report
-- `/sc:spec-panel` → Expert review document
-- `/sc:business-panel` → Business analysis document
-- `/sc:troubleshoot` → Diagnostic report (fixes require `--fix` flag + confirmation)
-
-### Execution Commands (IMPLEMENT changes)
-
-These commands execute changes:
-
-- `/sc:implement` → Writes code
-- `/sc:improve` → Applies improvements (auto-fix for style, approval for architecture)
-- `/sc:cleanup` → Removes dead code (auto-fix for unused imports, approval for referenced code)
-- `/sc:task` → Discrete task execution (stops when complete)
-- `/sc:test` → Runs tests
-- `/sc:build` → Builds project
-- `/sc:git` → Git operations
-
-### Key Behavior Notes
-
-- **Document-only commands** stop after producing their output and suggest next steps
-- **Execution commands** have clear completion criteria
-- **`/sc:troubleshoot`** is diagnose-first by default; use `--fix` flag to apply fixes
-- **`/sc:improve`** and **`/sc:cleanup`** auto-fix safe changes, prompt for risky ones
+"Report only" means the command only answers, or saves its report under `.dev/`, `claudedocs/` or its own output folder, and never edits your code or docs. "Yes" follows the routing guide's rule: writing docs into your repository, a commit, or moving a task folder to `done/` all count as changes, so `/sc:document` is "Yes". `/sc:workflow --handoff implement` hands the plan to `/sc:implement`, which edits code. `/sc:reflect --mode post` also moves the work folder on a pass unless you add `--no-promote`; `/sc:auggie-review` posts to the PR unless you add `--no-post-pr`; `/sc:pr-submit --monitor 0` only opens the PR.
 
 ---
 
@@ -254,18 +124,181 @@ These commands execute changes:
 
 ---
 
+### `/sc:adversarial` - Adversarial Debate and Merge
+
+**When to use:** Compare 2-10 artifacts (or generate variants from one source) through a structured adversarial debate and get a documented, scored merge. It plans and merges only; it does not check domain correctness or run the merged output (see [How We Work](how-we-work.md)).
+
+**Syntax:**
+
+```
+/sc:adversarial --compare file1.md,file2.md[,...,fileN.md] [options]
+```
+
+Other input forms (use exactly one): `--source <file> --generate <type> --agents <model[:persona]>,...` generates variants from one file and compares them; `--pipeline "<shorthand>"` or `--pipeline @pipeline.yaml` runs a multi-phase pipeline.
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `--depth quick\|standard\|deep` | `standard` | Debate depth |
+| `--convergence <0.50-0.99>` | `0.80` | Agreement threshold that ends the debate |
+| `--interactive` | off | Pause for your input at decision points |
+| `--output <dir>` | auto | Where the six output files go |
+| `--focus <areas>` | all | Comma-separated debate focus areas |
+| `--blind` | off | Strip model names before comparing |
+
+Full option list: `~/.claude/commands/sc/adversarial.md`.
+
+**Examples:**
+
+```bash
+/sc:adversarial --compare draft-a.md,draft-b.md --depth standard
+/sc:adversarial --source auth-spec.md --generate roadmap --agents opus:architect,sonnet:security --depth deep
+```
+
+**MCP servers:** context7, serena
+
+---
+
+### `/sc:agent` - Session Controller
+
+**When to use:** Start a session controller that clarifies scope, plans the investigation, and drives implementation and review for the task you describe. It waits silently after its startup checklist until you describe the task. For choosing how much process a job needs, prefer the levels in [How We Work](how-we-work.md).
+
+**Syntax:**
+
+```
+/sc:agent
+```
+
+**MCP servers:** none
+
+---
+
+### `/sc:auggie-review` - Auggie-Powered Code Review
+
+**When to use:** Review a PR, a local diff, or a file snapshot for narrow bugs, architectural risks and anti-patterns, using Auggie's indexed codebase context. It is advisory only (it never edits the code under review) and posts the report to the PR unless you pass `--no-post-pr`.
+
+**Syntax:**
+
+```
+/sc:auggie-review [<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer]
+```
+
+**MCP servers:** serena
+
+---
+
+### `/sc:cleanup-audit` - Multi-Pass Repository Audit
+
+**When to use:** Run a read-only, multi-pass audit of a repository or path that classifies each file with evidence and recommends cleanup. It never modifies, deletes, moves or renames files; acting on the recommendations is a separate, human-reviewed step.
+
+**Syntax:**
+
+```
+/sc:cleanup-audit [target-path] [--pass surface|structural|cross-cutting|all] [--batch-size N] [--focus infrastructure|frontend|backend|all]
+```
+
+**MCP servers:** serena, context7
+
+---
+
+### `/sc:cli-eval` - cliEval Suite Lifecycle
+
+**When to use:** Author a new cliEval suite (`create`) or interactively pick and supervise a run of an existing suite (`run`). It adds no flags to the `superclaude eval` CLI and never reports a non-green run as green.
+
+**Syntax:**
+
+```
+/sc:cli-eval create [--name <stem>] [--from @<design-or-spec>.md] [--agents opus,sonnet,haiku]
+/sc:cli-eval run    [--suite <name>] [--eval <id>]
+```
+
+**MCP servers:** context7, serena
+
+---
+
+### `/sc:cli-portify` - Workflow to CLI Pipeline Port
+
+**When to use:** Port an inference-based SuperClaude workflow (command, skills and agents) into a programmatic CLI pipeline with supervised execution. It does not modify the source skill files or run the generated pipeline.
+
+**Syntax:**
+
+```
+/sc:cli-portify --workflow <skill-name-or-path> [--name <cli-name>] [--output <dir>] [--dry-run]
+```
+
+**MCP servers:** serena, context7
+
+---
+
+### `/sc:help` - Installed Commands and Process Levels
+
+**When to use:** List the SuperClaude commands and skills installed here, show the six process levels, and point to the routing guide. It is read-only and does not recommend a workflow; for that, see [How We Work](how-we-work.md).
+
+**Syntax:**
+
+```
+/sc:help
+```
+
+**MCP servers:** none
+
+---
+
+### `/sc:index` - Project Documentation
+
+**When to use:** Generate project documentation and a knowledge base with intelligent organization and cross-referencing. It does not override existing manual documentation without explicit permission.
+
+**Syntax:**
+
+```
+/sc:index [target] [--type docs|api|structure|readme] [--format md|json|yaml]
+```
+
+**MCP servers:** context7
+
+---
+
+### `/sc:init-lite` - Safe Context Audit
+
+**When to use:** Audit the project-local SuperClaude context surfaces (`CLAUDE.md`, `.mcp.json`, `.claude/` settings, commands, skills, agents), estimate their context weight, and write a non-destructive report under `.dev/superclaude/`. It never modifies those context inputs and writes nothing with `--dry-run`.
+
+**Syntax:**
+
+```
+/sc:init-lite --context-optimized [--project-root <dir>] [--output <path>] [--dry-run] [--scaffold] [--force]
+```
+
+**MCP servers:** serena
+
+---
+
+### `/sc:load` - Project Context Loading
+
+**When to use:** Load Serena project memory (project context, memories and checkpoints) at the start of a session. It is not a way to resume work: to continue a task, rerun `/task <task file>` or `/sc:implement <plan path>`, or reopen a tagged session with `ccsession <name>` (see [How We Work](how-we-work.md), section 3.12). It does not modify project structure or configuration, or override existing session context without a checkpoint.
+
+**Syntax:**
+
+```
+/sc:load [target] [--type project|config|deps|checkpoint] [--refresh] [--analyze]
+```
+
+**MCP servers:** serena
+
+---
+
 ### `/sc:pm` - Project Manager Agent
 
-**Status:** Always active automatically. This is a background layer, not a command.
+**Status:** A command. It runs only when you invoke it; nothing activates it automatically.
 
-**When to use:** No need to call explicitly — always running.
+**When to use:** Agent-coordinated work when you want the PM agent's PDCA cycle. For choosing a workflow, prefer the levels in [How We Work](how-we-work.md): a vague idea goes to `/sc:brainstorm`, multi-file work to `/task-builder` then `/task`, and a new product or major feature to `/prd`, `/tdd`, `/roadmap`.
 
 **What it does:**
 
-- Automatically restores context from past sessions (Serena MCP)
+- Loads Serena project memory (not a way to resume work)
 - Delegates tasks to personas (backend, frontend, security...)
 - Runs PDCA cycle: Plan → Do → Check → Act
-- Saves progress between sessions
+- Saves notes to Serena project memory (not a way to resume work)
 
 **Workflow:**
 
@@ -281,6 +314,12 @@ PM Agent:
   7. Documents in CLAUDE.md
 ```
 
+**Syntax:**
+
+```
+/sc:pm [request] [--strategy brainstorm|direct|wave] [--verbose]
+```
+
 **MCP servers:** context7, playwright, morphllm, serena, tavily
 
 **Key patterns:**
@@ -291,9 +330,180 @@ PM Agent:
 
 ---
 
+### `/sc:post-release` - Post-Release Follow-Through
+
+**When to use:** After the release gate tags a version, bring that release's external surface current: user docs, technical docs, install and deploy scripts (checked by real end-to-end runs), and human-run e2e test guides. It needs an existing release tag.
+
+**Syntax:**
+
+```
+/sc:post-release <version> [options]
+```
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `<version>` | required | An existing release tag, for example `v1.4.1` |
+| `--output <dir>` | `docs/testing/<version>/` | Where the report, manifest and test guides go |
+
+**Examples:**
+
+```bash
+/sc:post-release v1.4.1
+/sc:post-release v1.4.1 --output docs/testing/v1.4.1/
+```
+
+**MCP servers:** serena
+
+---
+
+### `/sc:pr-submit` - PR Review Auto-Remediation Monitor
+
+**When to use:** Open a PR on the fork and, at `--monitor 1` or higher, arm an in-session monitor that polls for the Augment review, verifies findings, and sends verified ones to `/sc:troubleshoot`; higher levels also fix, push, reply and resolve. `--monitor 0` only opens the PR; it never pushes to an upstream parent or to a protected branch.
+
+**Syntax:**
+
+```
+/sc:pr-submit [--monitor {0,1,2,3}] [--max-rounds N≤5] [--poll-interval ≥30] [--timeout 600] [--silence-timeout 300] [--base <branch>] [--head <branch>] [--title ...] [--body ...] [--output-dir <dir>] [--resume <run-log.jsonl>]
+```
+
+**MCP servers:** serena, auggie
+
+---
+
+### `/sc:recommend` - Refined-Prompt Builder
+
+**When to use:** Describe a goal and get a paste-ready prompt that hands it to the right local skill, command, agent or native-tool sequence, checked against the source files; with `--plugin` it searches the Claude plugin and community skill ecosystem instead. It reads [How We Work](how-we-work.md) first and only recommends commands and flags that exist.
+
+**Syntax:**
+
+```
+/sc:recommend <goal description> [--plugin] [--eval <mode>] [--minstar <N>]
+```
+
+**MCP servers:** auggie, tavily
+
+---
+
+### `/sc:release-split` - Release Split Analysis
+
+**When to use:** Analyze a release artifact (spec, roadmap, tasklist or refactor plan) for natural split points and get a neutral split or no-split recommendation with fidelity verification. It does not execute the resulting release plans or produce tasklists or roadmaps directly.
+
+**Syntax:**
+
+```
+/sc:release-split <spec-file-path> [options]
+```
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `--output <dir>` | `<spec-dir>/release-split/` | Where all artifacts go (paths under `.claude/skills/`, `.claude/agents/` or `.claude/commands/` are refused) |
+| `--depth quick\|standard\|deep` | `standard` | Analysis depth |
+| `--interactive` | off | Pause for your confirmation between parts |
+| `--resume-from <proposal>` | - | Start from an already validated split proposal |
+| `--no-split` | off | Skip split analysis; check the release as one piece |
+| `--agents <specs>` | `opus:architect,sonnet:analyzer` | Agents that write competing split proposals (at least 2) |
+
+Full option list: `~/.claude/commands/sc/release-split.md`.
+
+**Examples:**
+
+```bash
+/sc:release-split path/to/release-spec.md
+/sc:release-split path/to/release-spec.md --depth deep --interactive
+```
+
+**MCP servers:** context7, serena
+
+---
+
+### `/sc:review-translation` - Localization Quality Review
+
+**When to use:** Review translation files for linguistic and cultural quality, with adversarial validation, real-world usage evidence and a scored, prioritized report. It implements fixes only on your explicit request and does not replace a professional human translator for high-stakes content.
+
+**Syntax:**
+
+```
+/sc:review-translation [source-file] [translation-files...] [flags]
+```
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `--strict` | off | Strict validation mode |
+| `--depth quick\|standard\|deep` | `standard` | Review depth |
+| `--tone-matrix` | off | Score tone on a measured scale |
+| `--platform steam\|playstation\|mobile\|web\|enterprise` | auto | Apply that platform's conventions |
+| `--export` | off | Also write a team handoff file |
+
+**Examples:**
+
+```bash
+/sc:review-translation english.json de_DE.json fr_FR.json es_ES.json
+/sc:review-translation source.json translations/*.json --depth deep --tone-matrix
+```
+
+**MCP servers:** tavily, context7, serena
+
+---
+
+### `/sc:roadmap` - Roadmap Generator
+
+**When to use:** Generate roadmap pipeline artifacts from one to three markdown inputs (spec, TDD and/or PRD), mirroring the `superclaude roadmap run` CLI. It does not generate tasklists, execute implementation, or modify the source files. It belongs to the separate release pipeline (`/sc:tasklist`, then `superclaude sprint run`); for the default planning route use `/roadmap`, which writes a task file for every phase (see [How We Work](how-we-work.md), section 5).
+
+**Syntax:**
+
+```
+/sc:roadmap [OPTIONS] INPUT_FILES...
+```
+
+`INPUT_FILES` is 1-3 markdown files (at most one spec, one TDD and one PRD), in any order.
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `--output <dir>` | folder of the first input | Where all artifacts go |
+| `--agents <specs>` | `opus:architect,sonnet:architect` | Agents for the generate and debate steps (`model[:persona]`) |
+| `--depth quick\|standard\|deep` | `standard` | Debate rounds (1, 2 or 3) |
+| `--resume` | off | Skip steps whose outputs already pass their gates |
+| `--dry-run` | off | Print the step plan and gate criteria, then exit |
+| `--no-validate` | off | Skip the validation step at the end |
+
+Full option list: `~/.claude/commands/sc/roadmap.md`.
+
+**Examples:**
+
+```bash
+/sc:roadmap spec.md tdd.md prd.md --output .dev/releases/current/example-release/
+/sc:roadmap spec.md --dry-run
+```
+
+**MCP servers:** none
+
+---
+
+### `/sc:save` - Session Context Persistence
+
+**When to use:** Save session context, learnings and checkpoints to Serena project memory so a later session can read them with `/sc:load`. It is not a way to resume work (see [How We Work](how-we-work.md), section 3.12). It does not override existing session context without checkpoint preservation.
+
+**Syntax:**
+
+```
+/sc:save [--type session|learnings|context|all] [--summarize] [--checkpoint]
+```
+
+**MCP servers:** serena
+
+---
+
 ### `/sc:spawn` - Meta-System Task Orchestration
 
-**When to use:** Complex task that requires breaking down into many subtasks with dependencies.
+**When to use:** Break a large job into parts with dependencies; it stops after the task breakdown. For work that changes code, use `/task-builder` then `/task` instead (level 4 in [How We Work](how-we-work.md)).
 
 **What it does:**
 
@@ -310,13 +520,9 @@ PM Agent:
 **Examples:**
 
 ```bash
-# Monolith migration
-/sc:spawn "migrate legacy monolith to microservices" --strategy adaptive --depth deep
-# Creates: Database design → Backend API → Frontend → Testing
-
-# Feature with dependencies
-/sc:spawn "implement user authentication system"
-# Breakdown: Database design → Backend API → Frontend UI → Testing
+# Decompose a large job into a task hierarchy (no code is changed)
+/sc:spawn "plan the move of the reporting jobs to the new scheduler" --strategy adaptive --depth deep
+# Breakdown: Epic → Story → Task → Subtask, with dependencies
 ```
 
 **Difference from `/sc:task`:**
@@ -326,48 +532,174 @@ PM Agent:
 
 ---
 
-### `/sc:task` - Enhanced Task Management
+### `/sc:swarm-wizard` - Guided Swarm Launcher
 
-**When to use:** Need to execute a specific complex task with MCP server coordination.
-
-**What it does:**
-
-- Activates needed personas (architect, security, frontend...)
-- Routes to correct MCP servers
-- Parallel execution where possible
-- Cross-session persistence via Serena
+**When to use:** Run the `superclaude swarm` multi-model review without being a swarm expert: it interviews you about what to review and why, picks the lens and flags, proves the pipeline with a stub dry-run, then asks before launching a real run and summarizes the outcome. It never launches a real-model run without your go-ahead and a passing dry-run.
 
 **Syntax:**
 
 ```
-/sc:task [action] [target] [--strategy systematic|agile|enterprise] [--parallel] [--delegate]
+/sc:swarm-wizard [--goal <text>] [--target <path>] [--output <dir>] [--real] [--detached] [--advanced] [--yes]
+```
+
+**MCP servers:** none
+
+---
+
+### `/sc:task` - Enhanced Task Management
+
+**When to use:** A small, direct change: one source file plus its test, five edits or fewer, and you know exactly what it should be (level 2 in [How We Work](how-we-work.md)). Work that touches more than one source file or needs more than five edits needs a written plan (`/sc:workflow --depth quick` or `/task-builder`).
+
+**What it does:**
+
+- Prints a `Tier:` line at the start (`STRICT`, `STANDARD`, `LIGHT` or `EXEMPT`)
+- `STANDARD` and `STRICT` run the full protocol, including the affected tests
+- `LIGHT` (typos, comments, formatting) and `EXEMPT` (no code change) skip its checks, so run the test yourself afterwards
+
+**Syntax:**
+
+```
+/sc:task [operation] [target] [--strategy systematic|agile|enterprise] [--compliance strict|standard|light|exempt] [--verify] [--skip-compliance] [--force-strict] [--parallel] [--delegate] [--no-escalation]
 ```
 
 **Examples:**
 
 ```bash
-# Enterprise-level feature
-/sc:task create "enterprise authentication system" --strategy systematic --parallel
-# Activates architect + security + backend + frontend
-
-# Agile sprint
-/sc:task execute "feature backlog" --strategy agile --delegate
-# Iterative execution with delegation
+# One small, direct change (level 2)
+/sc:task "Rename recieved_at to received_at in src/jobs/runner.py and update its tests"
+# Prints its Tier: line, makes the change, and (STANDARD/STRICT) runs the affected tests
 ```
 
-**MCP servers:** context7, magic, playwright, morphllm, serena
+**MCP servers:** context7, serena, playwright, morphllm
+
+---
+
+### `/sc:tasklist` - Tasklist Generator
+
+**When to use:** Turn a roadmap into a deterministic, Sprint CLI-compatible tasklist bundle and validate it against the source roadmap. It does not modify the roadmap or run `superclaude sprint run`.
+
+**Syntax:**
+
+```
+/sc:tasklist <roadmap-path> [--spec <spec-path>] [--output <output-dir>] [--no-reflect]
+```
+
+**MCP servers:** context7
+
+---
+
+### `/sc:tdd` - Technical Design Document Creator
+
+**When to use:** Create or populate a Technical Design Document for a component, service or system, researched from the actual codebase and optionally translated from a PRD. It designs only; it does not implement the system.
+
+**Syntax:**
+
+```
+/sc:tdd <component> [options]
+```
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `--from-prd <path>` (alias `--prd`) | - | PRD to translate into engineering specifications |
+| `--tier lightweight\|standard\|heavyweight` | `standard` | Design depth |
+| `--focus <dirs or files>` | all | Comma-separated places to investigate |
+| `--output <path>` | auto | Path for the finished TDD |
+| `--resume <task file>` | - | Continue an interrupted TDD session |
+
+**Examples:**
+
+```bash
+/sc:tdd "canvas roadmap" --from-prd docs/product/PRD_ROADMAP_CANVAS.md --tier standard --focus frontend/app/roadmap/
+/sc:tdd --resume .dev/tasks/to-do/TASK-TDD-20260401-143022/TASK-TDD-20260401-143022.md
+```
+
+**MCP servers:** context7, auggie-mcp
+
+---
+
+### `/sc:validate-roadmap` - Roadmap Pipeline Output Validator
+
+**When to use:** Validate the `roadmap.md`, `test-strategy.md` and `extraction.md` produced by a prior `superclaude roadmap run`, with single-agent reflection or, for two or more agents, an adversarial merge. It writes only to `<OUTPUT_DIR>/validate/`, never modifies the inputs, and always exits 0 with findings printed to the console.
+
+**Syntax:**
+
+```
+/sc:validate-roadmap <roadmap-path> --specs <spec1.md,spec2.md,...> [options]
+```
+
+The command hands its arguments to the `sc-validate-roadmap-protocol` skill, which needs the roadmap file and the spec files it was built from. It is a read-only audit and writes its findings to `<roadmap-dir>/validation/` unless you pass `--output`.
+
+**Options:**
+
+| Flag | Default | What it does |
+|------|---------|--------------|
+| `--specs <files>` | required | Comma-separated spec files the roadmap must satisfy (1-10) |
+| `--output <dir>` | `<roadmap-dir>/validation/` | Where the validation artifacts go |
+| `--depth quick\|standard\|deep` | `standard` | How thorough the analysis is |
+| `--exclude <domains>` | none | Comma-separated domains to leave out |
+| `--max-agents <n>` | `20` | Maximum parallel agents (4-20) |
+| `--skip-adversarial` | off | Skip the adversarial pass |
+| `--skip-remediation` | off | Skip the remediation plan |
+| `--report <path>` | none | Also write a summary to this path |
+| `--prior-taxonomy <file>` | none | Seed domain clustering from a prior `00-domain-taxonomy.md` |
+
+**Examples:**
+
+```bash
+/sc:validate-roadmap .dev/releases/current/v2/roadmap.md --specs docs/specs/billing-tdd.md
+/sc:validate-roadmap ./roadmap.md --specs spec-a.md,spec-b.md --depth deep
+```
+
+**MCP servers:** auggie, serena
+
+---
+
+### `/sc:validate-tests` - Behavioral Test Validation
+
+**When to use:** Validate tier classification behavior against YAML test specifications and report pass and fail counts. It does not modify the test specifications or the classification algorithm.
+
+**Syntax:**
+
+```
+/sc:validate-tests [target] [flags]
+```
+
+`target` is a test file or folder (default `tests/sc-task/`).
+
+**Options:**
+
+| Flag | What it does |
+|------|--------------|
+| `--all` | Run every test file |
+| `--category <name>` | One category: classification, routing, compound, boosters, comparison, edge, integration |
+| `--verbose` | Detailed trace for each test |
+| `--summary` | Pass/fail counts only (the default) |
+| `--stop-on-fail` | Stop at the first failure |
+| `--report <path>` | Save the report to a file |
+
+**Examples:**
+
+```bash
+/sc:validate-tests --all
+/sc:validate-tests --category classification --verbose
+```
+
+**MCP servers:** none
 
 ---
 
 ### `/sc:workflow` - Implementation Plan Generator
 
-**When to use:** Have a PRD/spec/prompt and need a phased implementation plan (`<id>.md`, named like its package directory).
+**When to use:** A few files with clear scope that fit in one or two sessions (level 3 in [How We Work](how-we-work.md)); always pass `--depth quick`. It writes a phased plan (`<id>.md`, named like its package directory). For a PRD or TDD use `/roadmap`; for many files or multi-session work use `/task-builder`.
 
 **What it does:**
 
 - Parses a PRD, spec, or inline prompt
 - Creates a new package `.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/` (`<subject>` = lower camelCase, max 16 chars, e.g. `authLogin`) with `<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and `return-contract.yaml`; never overwrites an existing package
-- Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`); on completion `/sc:implement` archives the package to `.dev/tasks/done/` (see `.dev/README.md`)
+- Checks the plan against your request when it is written (`/sc:reflect --mode pre`, advisory) and prints the result with the plan path
+- Run it with `/sc:implement .dev/tasks/to-do/<id>/<id>.md` (not MDTM `/task`); on completion `/sc:implement` archives the package to `.dev/tasks/done/` on Linux; on any other system (including macOS) the archive is refused on purpose, the folder stays in `.dev/tasks/to-do/` and the run reports archive-blocked. That is expected; never move the folder by hand
 - **Does NOT implement code** and does **not** emit sprint tasklists
 
 **Syntax:**
@@ -381,13 +713,12 @@ PM Agent:
 **Examples:**
 
 ```bash
-/sc:workflow docs/PRD/auth-feature.md --strategy systematic --depth deep
-/sc:workflow "user authentication system" --strategy agile
+/sc:workflow "Add a retry limit to the job runner: stop after 3 failures. Files: src/jobs/runner.py, src/jobs/config.py" --depth quick
 ```
 
 **Difference from `/sc:implement` / `/sc:task`:**
 
-- workflow = planning (`plan.md`)
+- workflow = planning (`.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/<id>.md`: one plan folder, and the plan file is named like its folder)
 - implement / task = execution
 
 ---
@@ -402,14 +733,14 @@ PM Agent:
 - Auto-routes codebase + research enrichment (`/sc:analyze`, `/sc:research`, `tech-research`)
 - Composes a `--agents` spec spanning 3 model aliases × domain-detected personas
 - Delegates to `/sc:adversarial` for N parallel proposals + debate + merge → `merged-requirements.md`
-- Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/sc:task-builder`
+- Optionally hands off to `/sc:design`, `/sc:tasklist`, or `/task-builder`
 
 **Syntax:**
 
 ```
 /sc:brainstorm "<topic>" [--proposals N] [--depth quick|standard|deep] \
   [--strategy systematic|agile|enterprise|auto] \
-  [--codebase|--no-codebase] [--research light|deep|none] \
+  [--codebase|--no-codebase] [--research light|deep|none|--no-research] \
   [--personas p1,p2,...] [--models opus,sonnet,haiku] \
   [--blind] [--convergence FLOAT] [--interactive] \
   [--handoff none|design|tasklist|task] [--output DIR] \
@@ -472,41 +803,42 @@ PM Agent:
 
 ### `/sc:implement` - Feature Implementation
 
-**When to use:** Know exactly what to do, need to write code.
+**When to use:** Execute a written plan, spec or task list (or an inline prompt) one step at a time, with a reviewer check of each step against its acceptance criteria. For work that spans more than one session or many files, see [How We Work](how-we-work.md).
 
 **What it does:**
 
-- Activates needed personas (frontend/backend/security)
-- Uses Context7 for framework-specific patterns
-- Magic MCP for UI components
-- Generates code with tests
+- Splits the source into tasks and, after each task, checks that task against its acceptance criteria (the source text itself when the source is informal); lint and tests are recorded as extras, never the pass/fail
+- Keeps one progress ledger: for a `/sc:workflow` plan it is `progress.md` beside the plan; otherwise `.dev/implement/<slug>/progress.md` (override with `--ledger`)
+- `--resume` continues from the first task that is not complete
+- On a `/sc:workflow` plan, once every task passes it runs a final independent review and archives the plan folder to `.dev/tasks/done/`; on macOS (any system other than Linux) the archive is refused on purpose and the folder stays in `.dev/tasks/to-do/`. `--skip-final-review` skips the final review and, on such a plan, also blocks the archive
+- Never commits, opens PRs, or releases
 
 **Syntax:**
 
 ```
-/sc:implement [feature-description] [--type component|api|service|feature] [--framework react|vue|express] [--safe] [--with-tests]
+/sc:implement <path-or-prompt> [--resume] [--ledger <path>] [--skip-final-review]
 ```
 
 **Examples:**
 
 ```bash
-# React component
-/sc:implement user profile component --type component --framework react --with-tests
+# Run a /sc:workflow plan
+/sc:implement .dev/tasks/to-do/<id>/<id>.md
 
-# API with security
-/sc:implement user authentication API --type api --safe --with-tests
+# Inline prompt
+/sc:implement Add logout to the header and wire it to /logout
 
-# Full-stack feature
-/sc:implement payment processing system --type feature --with-tests
+# Continue an interrupted task list
+/sc:implement .dev/plans/auth-tasklist.md --resume
 ```
 
-**MCP servers:** context7, magic, playwright
+**MCP servers:** none
 
 ---
 
 ### `/sc:design` - System and Component Design
 
-**When to use:** Need to design, but not implement.
+**When to use:** Need to draft one design (an API, a component, a schema) in a single pass, without implementing it. When other people will build against the design, use `/tdd` instead (see [How We Work](how-we-work.md), section 5).
 
 **What it does:**
 
@@ -577,13 +909,13 @@ PM Agent:
 **Syntax:**
 
 ```
-/sc:troubleshoot [issue] [--type bug|build|performance|deployment] [--trace] [--fix]
+/sc:troubleshoot [<issue description>] [--type bug|build|performance|deployment|security|test] [--depth quick|standard|deep] [--scope <path|symbol>] [--no-escalate] [--fix] [--models <tier:model,...>] [--output-dir <path>] [--no-doc-discovery] [--no-mcp] [--context <path>] [--caller <name>]
 ```
 
 **Examples:**
 
 ```bash
-/sc:troubleshoot "Null pointer exception in user service" --type bug --trace --fix
+/sc:troubleshoot "Null pointer exception in user service" --type bug --depth deep --fix
 /sc:troubleshoot "TypeScript compilation errors" --type build --fix
 /sc:troubleshoot "API response times degraded" --type performance
 ```
@@ -592,7 +924,7 @@ PM Agent:
 
 ### `/sc:improve` - Code Improvement
 
-**When to use:** Code works, but want to make it better.
+**When to use:** Code works, but you want to make it better in a small, contained area. Commit first and review `git diff` afterwards; for a large or structural refactor, write a spec and use `/task-builder` (see [How We Work](how-we-work.md), section 3.7).
 
 **What it does:**
 
@@ -621,7 +953,7 @@ PM Agent:
 
 ### `/sc:cleanup` - Code Cleanup
 
-**When to use:** Need to remove garbage: dead code, unused imports.
+**When to use:** Need to remove dead code and unused imports. Run `/sc:cleanup-audit` first, commit, then clean up and review `git diff` afterwards (see [How We Work](how-we-work.md), section 3.7).
 
 **What it does:**
 
@@ -830,7 +1162,7 @@ Simulates a panel discussion of renowned software engineering experts.
 **Syntax:**
 
 ```
-/sc:spec-panel [spec|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance] [--iterations N]
+/sc:spec-panel [specification_content|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus area1,area2,...] [--iterations N] [--format standard|structured|detailed]
 ```
 
 **Examples:**
@@ -972,7 +1304,7 @@ TALEB: "The real question: does this benefit from uncertainty?"
 **Syntax:**
 
 ```
-/sc:reflect [--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <ref>] [--depth quick|standard|deep] [--tier 1|2|auto] [--reviewers N] [--remediate]
+/sc:reflect [--mode pre|post] [--spec <path>] [--tasklist <path>] [--diff <ref-or-path>] [--scope <path>] [--depth quick|standard|deep] [--tier 1|2|auto] [--reviewers N] [--output <dir>] [--no-reachability] [--no-promote] [--promote-dry-run] [--remediate]
 ```
 
 **Examples:**
@@ -1027,369 +1359,6 @@ superclaude reflect run path/to/TASK.md --tmux --depth deep              # watch
 ```
 
 > Full reference (verdict matrix, sentinel/`--tmux` mechanics, recursion breaker, sidecar, and the complete auto-fix state machine): see `docs/guides/reflect-cli-tools-guide.md`.
-
----
-
-## 🔀 Visual Map: When to Use What
-
-```
-VAGUE IDEA?
-    └─→ /sc:brainstorm (clarify requirements)
-            │
-            ▼
-NEED RESEARCH?
-    └─→ /sc:research (search the web)
-            │
-            ▼
-PRD READY?
-    └─→ /sc:workflow (generate plan)
-            │
-            ▼
-COMPLEX DECOMPOSITION?
-    └─→ /sc:spawn (Epic → Story → Task)
-            │
-            ▼
-NEED DESIGN?
-    └─→ /sc:design (architecture, API, schemas)
-            │
-            ▼
-READY TO CODE?
-    └─→ /sc:implement (write code)
-            │
-            ▼
-NEED TESTS?
-    └─→ /sc:test (run tests)
-            │
-            ▼
-NEED BUILD?
-    └─→ /sc:build (build project)
-            │
-            ▼
-SOMETHING BROKEN?
-    └─→ /sc:troubleshoot (find the cause)
-            │
-            ▼
-WANT IT BETTER?
-    └─→ /sc:improve or /sc:cleanup
-            │
-            ▼
-NEED DOCUMENTATION?
-    └─→ /sc:document
-            │
-            ▼
-NEED REVIEW?
-    └─→ /sc:analyze (code) or /sc:spec-panel (specs)
-```
-
----
-
-## ⚡ Key Differences (commonly confused)
-
-| Command | Purpose | Result |
-|---------|---------|--------|
-| [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Decompose large task | Task hierarchy |
-| [`/sc:task`](#sctask---enhanced-task-management) | Execute task with coordination | Finished result |
-| [`/sc:workflow`](#scworkflow---implementation-workflow-generator) | Plan implementation | Roadmap/plan |
-| [`/sc:design`](#scdesign---system-and-component-design) | Design | Diagrams, specs |
-| [`/sc:implement`](#scimplement---feature-implementation) | Write code | Finished code |
-| [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery) | Clarify requirements | Concrete specs |
-
----
-
-## 🎯 spawn vs task vs implement — Detailed Comparison
-
-### Analogy: Team Roles
-
-| Command | Role | Writes code? |
-|---------|------|--------------|
-| [`/sc:spawn`](#scspawn---meta-system-task-orchestration) | Project Manager | ❌ **No** — only breaks down into tasks |
-| [`/sc:task`](#sctask---enhanced-task-management) | Tech Lead | ⚠️ **Can** — through delegation |
-| [`/sc:implement`](#scimplement---feature-implementation) | Developer | ✅ **Yes** — directly |
-
----
-
-### `/sc:spawn` — Decomposition (planner)
-
-**What it does:** Takes a large task and breaks it into a hierarchy of subtasks.
-
-**Result:** Document/task structure, **NOT code**.
-
-```
-/sc:spawn "build e-commerce platform"
-
-Result (structure only!):
-Epic: E-commerce Platform
-├── Story: User Authentication
-│   ├── Task: Database schema for users
-│   ├── Task: Auth API endpoints
-│   └── Task: Login UI
-├── Story: Product Catalog
-│   ├── Task: Product model
-│   └── Task: Search functionality
-└── Story: Checkout
-    ├── Task: Cart logic
-    └── Task: Payment integration
-```
-
-**When to use:** Don't know where to start, task is huge, need to break into AI-friendly parts.
-
----
-
-### `/sc:task` — Execution Coordination (Tech Lead)
-
-**What it does:** Takes a specific task and executes with MCP server and persona orchestration.
-
-**Result:** Can be code, but through delegation (activates needed tools).
-
-```
-/sc:task create "user authentication" --strategy systematic --parallel
-
-Workflow:
-1. Activates architect persona → designs
-2. Activates security persona → reviews
-3. Activates backend persona → writes code (calls implement internally)
-4. Activates qa persona → tests
-```
-
-**When to use:** Complex task requiring coordination across domains (security + backend + frontend simultaneously).
-
----
-
-### `/sc:implement` — Code Writing (Developer)
-
-**What it does:** Directly writes code.
-
-**Result:** Finished code.
-
-```
-/sc:implement user login form --type component --framework react --with-tests
-
-Result:
-- src/components/LoginForm.tsx (created)
-- src/components/LoginForm.test.tsx (created)
-```
-
-**When to use:** Know exactly what's needed, just need to write it.
-
----
-
-### How They Connect
-
-```
-/sc:spawn "build auth system"        ← Breaks into tasks
-    │
-    ├── Creates Task: "Design auth architecture"
-    │       └── Can execute via /sc:design
-    │
-    ├── Creates Task: "Implement auth API"
-    │       └── Can execute via /sc:task or /sc:implement
-    │
-    └── Creates Task: "Build login UI"
-            └── Can execute via /sc:implement
-```
-
-Or `/sc:task` can call `/sc:implement` internally:
-
-```
-/sc:task execute "auth system" --parallel
-    │
-    ├── Delegates backend → calls /sc:implement auth API
-    ├── Delegates frontend → calls /sc:implement login form
-    └── Delegates security → calls /sc:analyze --focus security
-```
-
----
-
-### When to Use What — Quick Reference
-
-| Situation | Command |
-|-----------|---------|
-| "Want to do X, but don't know how to break it down" | [`/sc:spawn`](#scspawn---meta-system-task-orchestration) |
-| "Need to do X, requires backend + security + tests" | [`/sc:task`](#sctask---enhanced-task-management) |
-| "Write me component Y" | [`/sc:implement`](#scimplement---feature-implementation) |
-| "Need implementation plan from PRD" | [`/sc:workflow`](#scworkflow---implementation-workflow-generator) |
-
----
-
-### Short Formula
-
-- **spawn** = planner (task document only, **never writes code**)
-- **task** = coordinator (can write code through delegation to other commands)
-- **implement** = executor (writes code directly)
-
----
-
-## 🤔 task vs implement — When to Choose Which?
-
-### When task is better than implement
-
-| Situation | Better |
-|-----------|--------|
-| Feature spans multiple domains (API + UI + security) | [`/sc:task`](#sctask---enhanced-task-management) |
-| Need architectural review before coding | [`/sc:task`](#sctask---enhanced-task-management) |
-| Working in unfamiliar codebase | [`/sc:task`](#sctask---enhanced-task-management) |
-| Critical feature (auth, payments) | [`/sc:task`](#sctask---enhanced-task-management) |
-
-### When implement is better than task
-
-| Situation | Better |
-|-----------|--------|
-| Single component / single function | [`/sc:implement`](#scimplement---feature-implementation) |
-| Know exactly what and how to do | [`/sc:implement`](#scimplement---feature-implementation) |
-| Simple CRUD | [`/sc:implement`](#scimplement---feature-implementation) |
-| Already did design/architecture | [`/sc:implement`](#scimplement---feature-implementation) |
-
-### Why not always use task?
-
-**Coordination overhead** — task spends tokens on "meetings":
-
-```
-/sc:task "add logout button"
-
-task thinks:
-  1. Activate architect? → overkill for a button
-  2. Activate security? → logout is simple
-  3. Activate frontend? → ok
-  4. Activate qa? → for a button?
-
-Result: spent tokens on coordination for a single button
-```
-
-vs
-
-```
-/sc:implement logout button --type component --framework react
-
-implement:
-  1. Reads existing code
-  2. Writes button
-  3. Done
-```
-
-### Analogy
-
-- **task** = schedule a meeting with 5 people to solve the task
-- **implement** = just do the task yourself
-
-For complex tasks, meetings are needed. For "add a button" — no.
-
-### Practical Rule
-
-```
-Task concerns 1 domain (only frontend OR only backend)?
-  → /sc:implement
-
-Task concerns 2+ domains (frontend + backend + security)?
-  → /sc:task
-
-Unsure about architecture?
-  → /sc:task (or first /sc:design)
-
-Critical code (auth, payments, data)?
-  → /sc:task (extra checks don't hurt)
-```
-
----
-
-## 📐 design vs workflow — Blueprint vs Work Plan
-
-| Command | Question | Result |
-|---------|----------|--------|
-| [`/sc:design`](#scdesign---system-and-component-design) | **WHAT** to build? | Architecture, schemas, specifications |
-| [`/sc:workflow`](#scworkflow---implementation-workflow-generator) | **IN WHAT ORDER** to do it? | Work plan, roadmap, steps |
-
----
-
-### `/sc:design` — Architecture (blueprint)
-
-**Answers:** How is the system structured? What components? How are they connected?
-
-```
-/sc:design payment-system --type architecture
-
-Result:
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   Client    │────▶│  API Gateway │────▶│  Payment    │
-│   (React)   │     │  (Express)   │     │  Service    │
-└─────────────┘     └─────────────┘     └─────────────┘
-                                              │
-                                              ▼
-                                        ┌─────────────┐
-                                        │   Stripe    │
-                                        │   Webhook   │
-                                        └─────────────┘
-
-+ API contracts
-+ Database schema
-+ Security requirements
-```
-
----
-
-### `/sc:workflow` — Work Plan (roadmap)
-
-**Answers:** In what order to do it? What dependencies? What's parallel?
-
-```
-/sc:workflow payment-system --strategy systematic
-
-Result:
-Phase 1: Foundation (Week 1)
-  ├── Task 1.1: Setup database schema
-  ├── Task 1.2: Create Payment model
-  └── Task 1.3: Configure Stripe SDK
-
-Phase 2: Backend (Week 2)
-  ├── Task 2.1: Implement payment endpoints ← depends on 1.1, 1.2
-  ├── Task 2.2: Add webhook handler ← depends on 1.3
-  └── Task 2.3: Write unit tests
-
-Phase 3: Frontend (Week 2-3) ← can start parallel with 2.2
-  ├── Task 3.1: Payment form component
-  └── Task 3.2: Confirmation page
-
-Phase 4: Integration (Week 3)
-  └── Task 4.1: E2E tests ← depends on all above
-```
-
----
-
-### Analogy: Building a House
-
-| Stage | Command | What you get |
-|-------|---------|--------------|
-| House blueprint | `/sc:design` | Where walls go, where windows, what materials |
-| Construction plan | `/sc:workflow` | First foundation → walls → roof → finishing |
-
----
-
-### How design and workflow are connected
-
-```
-1. /sc:brainstorm "payment system"     → Requirements (WHAT we want)
-          │
-          ▼
-2. /sc:design payment-system           → Architecture (HOW it's structured)
-          │
-          ▼
-3. /sc:workflow payment-system         → Plan (IN WHAT ORDER)
-          │
-          ▼
-4. /sc:implement ... (following plan)  → Code
-```
-
----
-
-### When design, when workflow
-
-| Situation | Command |
-|-----------|---------|
-| "How should system X be structured?" | [`/sc:design`](#scdesign---system-and-component-design) |
-| "In what order to implement feature Y?" | [`/sc:workflow`](#scworkflow---implementation-workflow-generator) |
-| "Need API spec for service Z" | [`/sc:design`](#scdesign---system-and-component-design) `--type api` |
-| "Break PRD into tasks with dependencies" | [`/sc:workflow`](#scworkflow---implementation-workflow-generator) |
-| "What database schema is needed?" | [`/sc:design`](#scdesign---system-and-component-design) `--type database` |
-| "How many phases in implementation?" | [`/sc:workflow`](#scworkflow---implementation-workflow-generator) `--depth deep` |
 
 ---
 
@@ -1499,201 +1468,6 @@ Explicitly reading PROJECT_INDEX.md or calling `serena read_memory` each session
 | Added dependency | ✅ Update | ❌ Not needed |
 | Changed code conventions | ❌ Not needed | ✅ Update |
 | Before PR/release | ⚡ Good practice | ❌ Not needed |
-
----
-
-## 🔄 Typical Workflows
-
-### New Project (initial setup)
-
-```
-# Option A: Via Serena (recommended)
-1. serena activate_project .         # Activate project
-2. serena onboarding                 # Create memories (project_overview, commands, etc.)
-
-# Option B: Via index-repo
-1. /sc:index-repo                    # Create PROJECT_INDEX.md
-
-# Can use both — they complement each other
-```
-
-> **Important**: Add Serena auto-activation instruction to project CLAUDE.md:
->
-> ```
-> mcp__serena__activate_project project="."
-> ```
->
-> Then Claude will activate Serena automatically at the start of each session.
-
-### New Feature
-
-```
-1. /sc:brainstorm "feature idea"     # Requirements gathering
-2. /sc:design feature --type api     # Architecture design
-3. /sc:workflow feature              # Implementation plan
-4. /sc:implement step1               # Step-by-step implementation
-5. /sc:test --coverage               # Testing
-```
-
-→ See: [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery), [`/sc:design`](#scdesign---system-and-component-design), [`/sc:workflow`](#scworkflow---implementation-workflow-generator), [`/sc:implement`](#scimplement---feature-implementation), [`/sc:test`](#sctest---testing)
-
-### Bug Fix
-
-```
-1. /sc:troubleshoot "error" --trace  # Diagnosis (finds code via Serena)
-2. /sc:implement fix                 # Fix
-3. /sc:test                          # Verification
-```
-
-→ See: [`/sc:troubleshoot`](#sctroubleshoot---issue-diagnosis), [`/sc:implement`](#scimplement---feature-implementation), [`/sc:test`](#sctest---testing)
-
-### Refactoring
-
-```
-1. /sc:analyze code --type quality   # Problem analysis (uses Serena)
-2. /sc:improve code --focus X        # Improvement
-3. /sc:cleanup --scope module        # Cleanup
-4. /sc:test                          # Verification
-```
-
-→ See: [`/sc:analyze`](#scanalyze---code-analysis), [`/sc:improve`](#scimprove---code-improvement), [`/sc:cleanup`](#sccleanup---code-cleanup), [`/sc:test`](#sctest---testing)
-
-### Code Review
-
-```
-1. /sc:analyze PR --type quality     # Code quality
-2. /sc:analyze PR --type security    # Security
-3. /sc:test --type integration       # Integration tests
-```
-
-→ See: [`/sc:analyze`](#scanalyze---code-analysis), [`/sc:test`](#sctest---testing)
-
-### Business Idea Development (from idea to specification)
-
-```
-1. /sc:brainstorm "idea"                    # Clarify requirements through dialogue
-2. /sc:research "market + competitors"      # Market research
-3. /sc:business-panel @idea.md --mode discussion  # Expert analysis (Porter, Christensen...)
-   # → Get strategic insights
-4. /sc:business-panel @idea.md --mode debate      # Stress-test idea (optional)
-5. /sc:design system --type architecture    # Technical architecture
-6. /sc:spec-panel @design.md --mode critique      # Specification review (Fowler, Wiegers...)
-   # → Get technical recommendations
-```
-
-→ See: [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery), [`/sc:research`](#scresearch---deep-web-research), [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel), [`/sc:design`](#scdesign---system-and-component-design), [`/sc:spec-panel`](#scspec-panel---expert-specification-review)
-
-### Improving Specification/PRD
-
-```
-1. /sc:spec-panel @spec.md --mode socratic        # Questions to understand gaps
-   # → Experts ask: "Who is primary stakeholder?"
-2. Answer questions, expand spec
-3. /sc:spec-panel @spec.md --mode critique        # Critical review
-   # → Get: ❌ CRITICAL, ⚠️ MAJOR, priorities
-4. /sc:spec-panel @spec.md --iterations 2         # Iterative improvement
-```
-
-→ See: [`/sc:spec-panel`](#scspec-panel---expert-specification-review)
-
-### Architecture Validation Before Implementation
-
-```
-1. /sc:design system --type architecture    # Create architecture
-2. /sc:spec-panel @architecture.md --focus architecture --experts "fowler,newman,nygard"
-   # → Fowler: "This violates single responsibility"
-   # → Newman: "How handle service evolution?"
-   # → Nygard: "What happens when this fails?"
-3. Fix based on recommendations
-4. /sc:workflow system                      # Implementation plan
-5. /sc:implement ...                        # Implementation
-```
-
-→ See: [`/sc:design`](#scdesign---system-and-component-design), [`/sc:spec-panel`](#scspec-panel---expert-specification-review), [`/sc:workflow`](#scworkflow---implementation-workflow-generator), [`/sc:implement`](#scimplement---feature-implementation)
-
-### Pitch/Strategy Preparation
-
-```
-1. /sc:business-panel @pitch.md --mode discussion
-   # → Porter: competitive advantage
-   # → Christensen: disruption potential
-   # → Godin: tribe and story
-2. /sc:business-panel @pitch.md --mode debate     # Stress-test arguments
-3. /sc:business-panel @pitch.md --synthesis-only  # Final synthesis
-```
-
-→ See: [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel)
-
-### Enterprise-level Feature (full cycle)
-
-```
-1. /sc:brainstorm "enterprise feature"      # Requirements
-2. /sc:business-panel @requirements.md      # Business validation
-3. /sc:design feature --type architecture   # Architecture
-4. /sc:spec-panel @design.md --focus architecture,testing  # Technical validation
-5. /sc:workflow feature --depth deep        # Detailed plan
-6. /sc:spawn "feature" --strategy adaptive  # Decompose into tasks
-7. /sc:task execute task1 --parallel        # Execution with coordination
-8. /sc:analyze feature --focus security     # Security review
-9. /sc:test --type all --coverage           # Full testing
-```
-
-→ See: [`/sc:brainstorm`](#scbrainstorm---interactive-requirements-discovery), [`/sc:business-panel`](#scbusiness-panel---business-analysis-panel), [`/sc:design`](#scdesign---system-and-component-design), [`/sc:spec-panel`](#scspec-panel---expert-specification-review), [`/sc:workflow`](#scworkflow---implementation-workflow-generator), [`/sc:spawn`](#scspawn---meta-system-task-orchestration), [`/sc:task`](#sctask---enhanced-task-management), [`/sc:analyze`](#scanalyze---code-analysis), [`/sc:test`](#sctest---testing)
-
-> **Note**: SuperClaude commands automatically use Serena for symbol search,
-> dependency analysis, and code structure understanding. No need to explicitly call `serena find_symbol` etc.
-
----
-
-## 🔧 MCP Server Reference
-
-> 🤖 **For Claude Code**: Technical integration details for MCP routing.
-
-| MCP Server | Purpose | Used in |
-|------------|---------|---------|
-| `context7` | Official docs lookup | implement, improve, explain, design |
-| `playwright` | E2E testing, browser | test, build, research |
-| `serena` | Session persistence | pm, task, reflect |
-| `tavily` | Web search | research, pm |
-| `morphllm` | Large-scale transforms | task, workflow, brainstorm |
-
----
-
-## 📝 Notes for Future Sessions
-
-> 🤖 **For Claude Code**: Session start protocol and context restoration instructions.
-
-When starting a new session:
-
-1. **For quick start** → read `PROJECT_INDEX.md` (3K tokens)
-2. **For command architecture understanding** → read this file (`SC_COMMANDS_REFERENCE.md`)
-3. **For specific command details** → `src/superclaude/commands/{name}.md`
-4. **For Python implementation** → `src/superclaude/pm_agent/` and `src/superclaude/execution/`
-5. **For pytest fixtures** → `src/superclaude/pytest_plugin.py`
-6. **For best practices** → `KNOWLEDGE.md`
-7. **For current tasks** → `TASK.md`
-8. **For architectural decisions** → `PLANNING.md`
-
-### Serena MCP (if activated)
-
-```bash
-# Activate project
-serena activate_project /path/to/SuperClaude_Framework
-
-# Check memories
-serena list_memories
-
-# Read needed memory
-serena read_memory project_overview.md
-serena read_memory suggested_commands.md
-```
-
-**Available memories:**
-
-- `project_overview.md` — about the project, tech stack, architecture
-- `suggested_commands.md` — development commands (UV, pytest, make)
-- `style_conventions.md` — code styles and conventions
-- `task_completion.md` — task completion checklist
 
 ---
 

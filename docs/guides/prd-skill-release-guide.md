@@ -76,7 +76,7 @@ src/superclaude/skills/prd/
 - **Documentation staleness protocol**: Every doc-sourced claim is tagged `[CODE-VERIFIED]`, `[CODE-CONTRADICTED]`, or `[UNVERIFIED]`. Only code-verified claims appear as current product capabilities.
 - **Zero-trust QA**: Dedicated `rf-analyst` and `rf-qa` agents verify at three gates (post-research, post-synthesis, post-assembly). The QA agent assumes everything is wrong until independently verified.
 - **Parallel partitioning for scale**: When file counts exceed thresholds (>6 research files, >4 synthesis files), multiple analyst/QA instances run in parallel with assigned subsets to prevent context rot.
-- **Template conformance**: Output always follows `src/superclaude/examples/prd_template.md`. The template is the schema — every PRD must conform to it.
+- **Template conformance**: Output always follows `src/superclaude/templates/workflow/05_prd_template.md` (installed as `~/.claude/templates/workflow/05_prd_template.md`, the path the skill reads). The template is the schema — every PRD must conform to it.
 - **Ref decomposition**: Agent prompts, synthesis mapping, and validation checklists are extracted into `refs/` files loaded by the task builder, keeping the main SKILL.md focused on behavioral protocol and reducing context pressure during scope discovery.
 
 ---
@@ -95,7 +95,7 @@ Performs scope discovery on a product area, creates an MDTM task file encoding t
 - You want evidence-based documentation grounded in actual codebase state.
 - You want multi-agent parallel investigation for deep coverage.
 - You want persistent progress tracking that survives session restarts.
-- You want to feed the PRD into downstream `/tdd` or `/sc:roadmap` workflows.
+- You want to feed the PRD into downstream `/tdd` and `/roadmap` workflows.
 
 #### Syntax
 
@@ -458,7 +458,7 @@ The MDTM task file provides automatic resume:
 
 ---
 
-## 9) End-to-End Workflow: PRD -> TDD -> Roadmap -> Tasklist -> Execution
+## 9) End-to-End Workflow: PRD -> TDD -> Roadmap -> Phase task files -> Review
 
 The PRD skill is the starting point of the full product development pipeline.
 
@@ -470,6 +470,14 @@ The PRD skill is the starting point of the full product development pipeline.
 
 Produces a comprehensive PRD at `docs/docs-product/tech/[feature]/PRD_[FEATURE].md` with research artifacts in `.dev/tasks/to-do/TASK-PRD-*/`.
 
+### Stage A2: Critique the PRD
+
+```
+/sc:spec-panel @<PRD path> --mode critique --focus requirements
+```
+
+It only reports. Decide which findings to accept, ask Claude to apply them to the PRD, then run the same command again until no critical findings remain.
+
 ### Stage B: TDD (technical design)
 
 ```
@@ -478,29 +486,58 @@ Produces a comprehensive PRD at `docs/docs-product/tech/[feature]/PRD_[FEATURE].
 
 The PRD skill offers to invoke `/tdd` automatically after completion. Research files from the PRD investigation feed into the TDD.
 
-### Stage C: Roadmap (adversarial generation)
-
-```bash
-superclaude roadmap run spec.md --depth standard
-```
-
-Generates a merged, adversarially validated roadmap from a specification. See `docs/guides/roadmap-cli-tools-release-guide.md`.
-
-### Stage D: Tasklist (execution plan)
+### Stage B2: Critique the TDD
 
 ```
-/sc:tasklist
+/sc:spec-panel @<TDD path> --mode critique --focus architecture,testing
 ```
 
-Generates Sprint CLI-compatible phase files from the roadmap.
+Apply accepted findings the same way as Stage A2.
 
-### Stage E: Sprint execution
+### Stage B3 (optional): Check whether to split the release
 
-```bash
-superclaude sprint run .dev/releases/current/tasklist-index.md
+```
+/sc:release-split <TDD path>
 ```
 
-Executes the phases with supervised Claude sessions. See `docs/guides/sprint-cli-tools-release-guide.md`.
+"Do not split" is a normal answer. If it recommends a split, use the Release 1 spec in place of the TDD in Stage C, and do not plan Release 2 until Release 1 is built and validated.
+
+### Stage C: Roadmap and phase task files
+
+```
+/roadmap "Create a full roadmap from <PRD path> and <TDD path>. Dry run first so I can review the phase plan."
+```
+
+The dry run is requested by those words in the request: it shows the proposed phases and waits for your yes. The finished run prints the roadmap path and the list of phase task files in run order. If it lists only build requests (`build-requests/BUILD_REQUEST-phase-NN-<name>.md`) and no task files, create each phase's task file with `/task-builder <path to that build request> --spec <TDD path>`. Saying "full roadmap" in the request avoids this.
+
+### Stage D: Run each phase
+
+```
+/task <phase task file>
+```
+
+Run the phase task files one at a time, in the order the roadmap run printed. Before starting the next phase, open the task file and read its `reflect_post` entry (the final audit's verdict and report path); decide anything listed under its Open Questions first.
+
+Then re-confirm before starting the next phase. The audit inside `/task` compares a commit range and `/task` does not commit, so it misses the phase's uncommitted work:
+
+```
+/sc:reflect --mode post --tasklist <task file> --spec <tdd file> --diff <commit before the work started> --no-promote
+```
+
+Give that one commit, not a `..HEAD` range: a single commit is compared with your working tree, so the audit also sees work you have not committed (`/task` does not commit). Run `git add -A` first so that new files are included. Commit each phase once it passes, so that commit is the one you made when the previous phase passed (for the first phase, the commit before the work started). It is `HEAD` if you have not committed since this phase started; otherwise find it with `git log --oneline`. `--no-promote` keeps the task folder in `.dev/tasks/to-do/`.
+
+### Stage E: Review and open a PR
+
+```
+/code-review
+/security-review
+/sc:auggie-review --diff origin/<main branch>...HEAD --no-post-pr
+/sc:pr-submit --monitor 1 --head <branch> --title "<title>" --body "<body>"
+```
+
+Commit locally first. Run `/security-review` only if login, permissions, secrets, user input, or file paths changed. Push only after your lead approves, then run `/sc:pr-submit`. It needs `gh` logged in and the Augment Code review app on the repository; without the app use `--monitor 0`, which only opens the PR. Full steps: section 3.11 of [`HOW-WE-WORK.md`](../../src/superclaude/core/HOW-WE-WORK.md) (installed as `~/.claude/HOW-WE-WORK.md`); the whole pipeline above is its workflow 3.1.
+
+The CLI pipeline (`superclaude roadmap run` -> `/sc:tasklist` -> `superclaude sprint run`) is a separate release pipeline; see [roadmap-cli-tools-release-guide.md](roadmap-cli-tools-release-guide.md). For which tool to use when, see [How We Work](../user-guide/how-we-work.md).
 
 ---
 

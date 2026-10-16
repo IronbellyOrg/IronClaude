@@ -9,6 +9,20 @@ import shutil
 from pathlib import Path
 from typing import List, Tuple
 
+# Core files this version ships; list_installed_core_files reports only these.
+KNOWN_CORE_FILES = frozenset(
+    {
+        "BASH_INSPECTION_POLICY.md",
+        "BUSINESS_PANEL_EXAMPLES.md",
+        "BUSINESS_SYMBOLS.md",
+        "CLAUDE.md",
+        "HOW-WE-WORK.md",
+        "PRINCIPLES.md",
+        "RESEARCH_CONFIG.md",
+        "RULES.md",
+    }
+)
+
 
 def install_core_files(
     target_path: Path = None, force: bool = False
@@ -135,21 +149,4 @@ def list_installed_core_files() -> List[str]:
     if not claude_dir.exists():
         return []
 
-    # Only check for known core files, not all .md files in ~/.claude/
-    known_core = {
-        "BASH_INSPECTION_POLICY.md",
-        "BUSINESS_PANEL_EXAMPLES.md",
-        "BUSINESS_SYMBOLS.md",
-        "CLAUDE.md",
-        "COMMANDS.md",
-        "FLAGS.md",
-        "MCP.md",
-        "MODES.md",
-        "ORCHESTRATOR.md",
-        "PERSONAS.md",
-        "PRINCIPLES.md",
-        "RESEARCH_CONFIG.md",
-        "RULES.md",
-    }
-
-    return sorted(f.name for f in claude_dir.glob("*.md") if f.name in known_core)
+    return sorted(f.name for f in claude_dir.glob("*.md") if f.name in KNOWN_CORE_FILES)

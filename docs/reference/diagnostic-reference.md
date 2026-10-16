@@ -19,11 +19,11 @@ ls ~/.claude/CLAUDE.md && echo "✅ SuperClaude installed" || echo "❌ Not inst
 
 ```bash
 # Check if SuperClaude is installed
-python3 -m SuperClaude --version
+superclaude --version
 
 # Count context files
-find ~/.claude -name "*.md" -type f | wc -l
-# Expected: 40+ files
+superclaude install --list
+# Expected: every available component is also listed as installed
 
 # Check file sizes (context files should have content)
 find ~/.claude -name "*.md" -type f -size 0
@@ -45,23 +45,22 @@ ls -la ~/.claude/
 
 echo "=== SuperClaude Context File Diagnostic ==="
 
-# Define expected counts
-EXPECTED_AGENTS=14
-EXPECTED_COMMANDS=21
-EXPECTED_MODES=6
-
-# Count actual files
+# Count installed files (slash commands install to ~/.claude/commands/sc/;
+# mode files are not installed, so there is no modes directory to count)
 ACTUAL_AGENTS=$(ls ~/.claude/agents/*.md 2>/dev/null | wc -l)
-ACTUAL_COMMANDS=$(ls ~/.claude/commands/*.md 2>/dev/null | wc -l)
-ACTUAL_MODES=$(ls ~/.claude/modes/*.md 2>/dev/null | wc -l)
+ACTUAL_COMMANDS=$(ls ~/.claude/commands/sc/*.md 2>/dev/null | wc -l)
+echo "Agents installed: $ACTUAL_AGENTS"
+echo "Commands installed: $ACTUAL_COMMANDS"
 
-# Report findings
-echo "Agents: $ACTUAL_AGENTS/$EXPECTED_AGENTS $([ $ACTUAL_AGENTS -ge $EXPECTED_AGENTS ] && echo ✅ || echo ⚠️)"
-echo "Commands: $ACTUAL_COMMANDS/$EXPECTED_COMMANDS $([ $ACTUAL_COMMANDS -ge $EXPECTED_COMMANDS ] && echo ✅ || echo ⚠️)"
-echo "Modes: $ACTUAL_MODES/$EXPECTED_MODES $([ $ACTUAL_MODES -ge $EXPECTED_MODES ] && echo ✅ || echo ⚠️)"
+# Compare against what this release ships (no fixed totals: the
+# shipped set changes between releases). Every shipped item should
+# show "✅ installed"; installed counts can be higher than available
+# if you have your own or Orca's agents or skills.
+superclaude install --list
+superclaude doctor
 
 # Check core files
-for file in CLAUDE.md FLAGS.md RULES.md PRINCIPLES.md; do
+for file in CLAUDE.md HOW-WE-WORK.md RULES.md PRINCIPLES.md; do
     if [ -f ~/.claude/$file ]; then
         SIZE=$(wc -c < ~/.claude/$file)
         echo "$file: $SIZE bytes ✅"
@@ -155,7 +154,7 @@ else
 fi
 
 # Check directory permissions
-for dir in ~/.claude ~/.claude/agents ~/.claude/commands ~/.claude/modes; do
+for dir in ~/.claude ~/.claude/agents ~/.claude/commands/sc ~/.claude/skills; do
     if [ -d "$dir" ]; then
         if [ -x "$dir" ]; then
             echo "✅ $dir is accessible"
@@ -258,13 +257,14 @@ ISSUES_FOUND=0
 echo "Fixing file permissions..."
 chmod 644 ~/.claude/*.md 2>/dev/null
 chmod 644 ~/.claude/**/*.md 2>/dev/null
-chmod 755 ~/.claude ~/.claude/agents ~/.claude/commands ~/.claude/modes 2>/dev/null
+chmod 755 ~/.claude ~/.claude/agents ~/.claude/commands ~/.claude/commands/sc ~/.claude/skills 2>/dev/null
 
-# Check for missing directories
-for dir in agents commands modes; do
+# Check for missing directories (superclaude install has no per-component flag;
+# a plain install adds missing files and never replaces existing ones)
+for dir in agents commands/sc skills hooks; do
     if [ ! -d ~/.claude/$dir ]; then
         echo "⚠️ Missing directory: $dir"
-        echo "  Run: SuperClaude install --components $dir"
+        echo "  Run: superclaude install   (then: superclaude doctor)"
         ((ISSUES_FOUND++))
     fi
 done
@@ -274,7 +274,7 @@ EMPTY_FILES=$(find ~/.claude -name "*.md" -type f -size 0 2>/dev/null)
 if [ -n "$EMPTY_FILES" ]; then
     echo "⚠️ Found empty files:"
     echo "$EMPTY_FILES"
-    echo "  Run: SuperClaude install --force"
+    echo "  Run: superclaude install --force"
     ((ISSUES_FOUND++))
 fi
 
@@ -302,7 +302,7 @@ fi
 rm -rf ~/.claude
 
 # Reinstall
-SuperClaude install
+superclaude install
 
 # Verify installation
 if [ -f ~/.claude/CLAUDE.md ]; then

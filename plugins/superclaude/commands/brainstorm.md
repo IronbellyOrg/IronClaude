@@ -131,7 +131,7 @@ Executes dialogue + enrichment + agent-spec composition; prints the composed --a
 3. Wave 2A: parallel enrichment via `/sc:analyze` + `/sc:research`
 4. Wave 2B: agent-spec composition + token-budget pre-flight
 5. Wave 3: delegate to `Skill sc-adversarial-protocol` with `--generate spec`
-6. Wave 4: flag-gated handoff to `/sc:design`, `/sc:tasklist`, or `/sc:task-builder`
+6. Wave 4: flag-gated handoff to `/sc:design`, `/sc:tasklist`, or `/task-builder`
 
 Produces a versioned return contract with stable + telemetry blocks.
 
@@ -150,7 +150,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Orchestrate parallel proposal generation via `/sc:adversarial` (Mode B)
 - Auto-detect and invoke codebase + research enrichment when valuable
 - Compose model × persona agent-specs across 3 active aliases (opus/sonnet/haiku)
-- Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/sc:task-builder` (flag-gated)
+- Hand off merged requirements to `/sc:design`, `/sc:tasklist`, or `/task-builder` (flag-gated)
 - Produce a versioned return contract for composability with downstream commands
 
 **Will Not:**
@@ -172,7 +172,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 | `tech-research` (skill) | Enrichment — Wave 2A invokes for deep research | `--research deep` or auto for enterprise/novel topics |
 | `/sc:design` | Handoff (text-only) | `--handoff design` prints recommendation; user runs separately |
 | `/sc:tasklist` | Handoff (invoked) | `--handoff tasklist` invokes `Skill sc-tasklist-protocol` |
-| `/sc:task-builder` | Handoff (invoked) | `--handoff task` invokes `Skill task-builder` with domain-detected template |
+| `/task-builder` | Handoff (invoked) | `--handoff task` invokes `Skill task-builder` with domain-detected template |
 
 ## CRITICAL BOUNDARIES
 

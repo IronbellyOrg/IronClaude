@@ -32,6 +32,18 @@ GENERATOR = "sc-recommend-cache/v0.2"
 # Glob patterns whose sorted output defines the live command/skill/agent surface.
 _SURFACE_GLOBS = ("commands/*.md", "skills/*/SKILL.md", "agents/*.md")
 _SURFACE_BASE = Path("src/superclaude")
+_GUIDE_RELPATH = Path("core") / "HOW-WE-WORK.md"
+# Installed and project locations the skill also searches (spec 3.2):
+# ~/.claude/{commands/sc,skills,agents} and the project's .claude/{commands,skills,agents}.
+_INSTALLED_GLOBS = (
+    "commands/**/*.md",
+    "skills/*/SKILL.md",
+    "agents/*.md",
+)
+
+
+def _default_installed_roots() -> tuple[Path, ...]:
+    return (Path.home() / ".claude", Path(".claude"))
 
 
 class _IndentDumper(yaml.SafeDumper):
@@ -48,18 +60,37 @@ class _IndentDumper(yaml.SafeDumper):
         return super().increase_indent(flow, False)
 
 
-def compute_surface_hash(base: Path = _SURFACE_BASE) -> str:
-    """Return the full sha256 hexdigest of the sorted live-surface Glob output.
+def compute_surface_hash(
+    base: Path = _SURFACE_BASE,
+    guide_path: Path | None = None,
+    installed_roots: tuple[Path, ...] | None = None,
+) -> str:
+    """Return the full sha256 hexdigest of the live surface plus the routing guide.
 
     surface_hash = SHA256(sorted(Glob(
         'src/superclaude/{commands/*.md,skills/*/SKILL.md,agents/*.md}'
-    ))). Hashes the sorted list of matching POSIX paths (additions, renames, and
-    deletions all change the set). Full digest -- NOT truncated.
+    )) + ["guide:<sha256 of core/HOW-WE-WORK.md bytes, or 'absent'>"]).
+    Path additions, renames and deletions change the digest, and so does any
+    edit to the routing guide. ``guide_path`` overrides the guide location
+    (default: ``base / core / HOW-WE-WORK.md``; never the user's home).
+    ``installed_roots`` lists the installed and project ``.claude`` folders whose
+    command, skill and agent paths are also hashed (default: ``~/.claude`` and
+    ``./.claude``), so installing or removing a command invalidates old answers.
+    Full digest -- NOT truncated.
     """
     matches: list[str] = []
     for pattern in _SURFACE_GLOBS:
         matches.extend(p.as_posix() for p in base.glob(pattern))
-    joined = "\n".join(sorted(matches))
+    roots = _default_installed_roots() if installed_roots is None else installed_roots
+    for root in roots:
+        for pattern in _INSTALLED_GLOBS:
+            matches.extend(f"installed:{p.as_posix()}" for p in root.glob(pattern))
+    guide = guide_path if guide_path is not None else base / _GUIDE_RELPATH
+    try:
+        guide_digest = hashlib.sha256(guide.read_bytes()).hexdigest()
+    except OSError:
+        guide_digest = "absent"
+    joined = "\n".join(sorted(matches) + [f"guide:{guide_digest}"])
     return hashlib.sha256(joined.encode("utf-8")).hexdigest()
 
 

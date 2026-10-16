@@ -2,6 +2,8 @@
 
 `/sc:brainstorm` v2 transforms an ambiguous topic into a unified requirements specification by combining Socratic dialogue, optional codebase/research enrichment, and parallel adversarial proposal generation via `/sc:adversarial`.
 
+For which tool to use when, see [How We Work](how-we-work.md).
+
 ## What Changed in v2
 
 | Concern | v1 | v2 |
@@ -11,7 +13,7 @@
 | Merge mechanism | None — dialogue produced one doc | Adversarial debate + scoring + provenance-annotated merge |
 | Codebase context | Single Auggie shot | Auto-routed `/sc:analyze` or Auggie quick scan, gated by complexity |
 | Research | Mentioned, not wired | Auto-invokes `/sc:research` (light) or `tech-research` (deep) |
-| Handoff | Text suggestion only | Flag-gated invocation of `/sc:design`, `/sc:tasklist`, or `/sc:task-builder` |
+| Handoff | Text suggestion only | Flag-gated invocation of `/sc:design`, `/sc:tasklist`, or `/task-builder` |
 | MCP servers | context7, magic, playwright, morphllm, serena, auggie-mcp | serena, auggie-mcp, tavily |
 | Personas | 7-persona auto-activation soup | 3 personas auto-selected per detected domain |
 
@@ -71,7 +73,7 @@ A topic string. File references via `@<path>` are supported. Empty topic STOPs t
 3. **Wave 2A — Enrichment (partial-OK)**: parallel `/sc:analyze` (codebase), `/sc:research` (light), or `tech-research` (deep). Failures degrade quality but do not abort.
 4. **Wave 2B — Agent-Spec Composition**: select personas per domain, round-robin assign models, validate via adversarial parser, run token-budget pre-flight.
 5. **Wave 3 — Adversarial Delegation**: invoke `Skill sc-adversarial-protocol` with `--generate spec`. Route by convergence score: ≥0.65 PASS, ≥0.50 PARTIAL, <0.50 FAIL.
-6. **Wave 4 — Handoff (flag-gated)**: invoke `/sc:tasklist` or `/sc:task-builder`, or print text recommendation for `/sc:design`.
+6. **Wave 4 — Handoff (flag-gated)**: invoke `/sc:tasklist` or `/task-builder`, or print text recommendation for `/sc:design`.
 
 ## Output Artifacts
 
@@ -183,7 +185,7 @@ Missing handoff skills cause STOP (no silent downgrade) — re-run with a differ
 | `tech-research` (skill) | Wave 2A deep research enrichment |
 | `/sc:design` | Wave 4 text-only handoff recommendation |
 | `/sc:tasklist` | Wave 4 invoked handoff |
-| `/sc:task-builder` | Wave 4 invoked handoff |
+| `/task-builder` | Wave 4 invoked handoff |
 
 ## Boundaries
 
@@ -222,7 +224,7 @@ topic (user)
         ├── none      → STOP (default)
         ├── design    → recommend /sc:design (text only)
         ├── tasklist  → invoke /sc:tasklist
-        └── task      → invoke /sc:task-builder
+        └── task      → invoke /task-builder
 ```
 
 ## See Also
