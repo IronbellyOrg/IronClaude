@@ -2,6 +2,17 @@
 
 After the review report is posted, the skill offers the user a deterministic remediation chain. This file pins the exact phrasing, ordering, and command shapes used in that handoff so the chain is reproducible across invocations and the user always sees the same five-phase flow.
 
+## Route selection
+
+The route is keyed on the `--depth` the user **requested** for the review:
+
+| Review `--depth` | Route | Phase B builder | Phase D user-run executor |
+|------------------|-------|-----------------|---------------------------|
+| `quick`, `standard` (default) | **Plan route** | `sc:workflow-protocol` on the remediation spec → `plan.md` | `/sc:implement <plan.md>` |
+| `deep` | **MDTM route** | `task-builder` → MDTM task file | `/task <task-file>` |
+
+`/sc:design` (Phase A) runs on both routes. `sc:implement` only gets per-task QA when its source has enumerable tasks; a design spec is prose and would collapse to one task, so the plan route puts `sc:workflow` between the spec and `sc:implement`.
+
 ## When the offer fires
 
 The remediation offer is presented only if **all** the following hold:
@@ -25,15 +36,22 @@ Would you like to run the full remediation chain on these findings?
 
   Phase A — /sc:design <report_path> --type architecture --format spec
             (produces a remediation specification document)
-  Phase B — task-builder skill on the spec
+  Phase B — [plan route]  /sc:workflow on the spec
+            (produces a phased plan.md with per-task acceptance criteria)
+            [mdtm route]  task-builder skill on the spec
             (produces an MDTM task file with evidence-backed steps)
-  Phase C — /sc:reflect --type task --analyze
-            (sanity-checks the tasklist before execution; flags
+  Phase C — [plan route]  /sc:reflect --mode pre --spec <spec> --tasklist <plan.md>
+            [mdtm route]  /sc:reflect --type task --analyze
+            (sanity-checks the plan/tasklist before execution; flags
             scope drift, weak verification criteria, missing rollback)
-  Phase D — User-driven execution of the task file
-            (the skill does NOT auto-execute; you run /task <path>)
-  Phase E — /sc:reflect --type task --validate
+  Phase D — User-driven execution
+            (the skill does NOT auto-execute; you run
+            [plan route] /sc:implement <plan.md>   [mdtm route] /task <path>)
+  Phase E — [plan route]  /sc:reflect --mode post
+            [mdtm route]  /sc:reflect --type task --validate
             (final gate before commit; blocks if validation fails)
+
+Route for this review: <plan | mdtm>   (mdtm only because --depth deep was requested)
 
 Reply 'yes' to proceed with Phase A, 'no' to stop here, or name a
 specific phase if you want to skip ahead (e.g., 'start at Phase B
@@ -56,7 +74,7 @@ If the user accepts, the skill invokes:
 Rationale for the flag choices:
 
 - `--type architecture`: even for narrow-bug findings, `/sc:design` treats the input as a structured input and produces a spec; `architecture` is the broadest type, which is correct because reviews typically span multiple concerns. If the user prefers a tighter type, they can override.
-- `--format spec`: not `code` (we're not implementing yet) and not `diagram` (we want text that the task-builder can consume).
+- `--format spec`: not `code` (we're not implementing yet) and not `diagram` (we want text that `sc:workflow` / the task-builder can consume).
 - `--output <output_dir>/remediation-spec.md`: keeps the artifact next to the review for traceability.
 
 On `/sc:design` completion:
@@ -65,7 +83,11 @@ On `/sc:design` completion:
 - Surface the spec path to the user with a one-line summary.
 - Proceed to Phase B unless the user says stop.
 
-## Phase B — `task-builder` skill
+## Phase B (plan route) — `sc:workflow`
+
+Invoke `Skill sc:workflow-protocol` on `<output_dir>/remediation-spec.md` with `--depth standard --handoff none` (never `--handoff implement`; execution is user-initiated). Before invoking, append to a copy of the spec at `<output_dir>/remediation-workflow-source.md` a `## References` section pointing at `REVIEW.md` and the cited Critical/High files, and remove any checkbox (`- [ ]`) or numbered-list lines (the workflow gate rejects them in `plan.md`). Read the workflow `return-contract.yaml`: `status: success` → record `plan_path`; otherwise surface the STOP code and do not retry automatically. Capture `plan_path`, surface it with a one-line summary, and proceed to Phase C unless the user says stop.
+
+## Phase B (mdtm route, `--depth deep`) — `task-builder` skill
 
 The `task-builder` skill is invoked via natural language, not a slash command, because it's a skill (not a command). The skill triggers on phrases like "build a task file from..." per its description.
 
@@ -99,9 +121,11 @@ On task-builder completion:
 - Surface it with a one-line summary.
 - Proceed to Phase C unless the user says stop.
 
-## Phase C — `/sc:reflect --type task --analyze`
+## Phase C — pre-execution review
 
-The skill invokes:
+**Plan route:** invoke `/sc:reflect --mode pre --spec <output_dir>/remediation-spec.md --tasklist <plan.md>`. `sc:workflow` runs only a mechanical schema gate, so this is the only semantic check on the plan. On a refactor request, append the concerns to `remediation-workflow-source.md` and re-run Phase B (same 2-cycle cap). The rest of this phase (the concerns list and outcomes) applies to both routes.
+
+**MDTM route:** the skill invokes:
 
 ```
 /sc:reflect --type task --analyze
@@ -129,9 +153,10 @@ On reflect-analyze completion:
 The skill **does not auto-execute** the task file. It surfaces the task file path and the recommended execution command:
 
 ```text
-Tasklist validated. Ready to execute.
+Plan/tasklist validated. Ready to execute.
 
-  Run: /task <task-file-path>
+  Run: /sc:implement <plan-path>          (plan route)
+       /task <task-file-path>             (mdtm route, --depth deep)
 
 The skill will wait. When execution completes, reply 'done' or
 'execution complete' and I'll run the final validation gate.
@@ -141,13 +166,15 @@ Rationale: execution can be long and may want to be split across sessions; forci
 
 After the user signals execution is complete, proceed to Phase E. If the user closes the session here, the skill returns the structured output contract with `remediation_status: in_progress`.
 
-## Phase E — `/sc:reflect --type task --validate`
+## Phase E — post-execution validation
 
-The skill invokes:
+The skill invokes `/sc:reflect --mode post --spec <output_dir>/remediation-spec.md --tasklist <plan.md> --diff <ref-or-patch>` on the plan route, or:
 
 ```
 /sc:reflect --type task --validate
 ```
+
+on the MDTM route.
 
 This is the **final gate before commit**. Per `/sc:reflect`'s `## Behavioral Flow`, `--validate` "Comprehensive analysis of session work and information gathering; quality assessment and gap identification."
 
@@ -174,7 +201,8 @@ If the user closes the session mid-chain, the skill writes the chain's state to 
   "artifacts": {
     "review_path": "...",
     "spec_path": "...",
-    "task_file_path": "...",
+    "plan_path": "... (plan route)",
+    "task_file_path": "... (mdtm route)",
     "task_reflect_analyze_result": "...",
     "task_reflect_validate_result": "..."
   },

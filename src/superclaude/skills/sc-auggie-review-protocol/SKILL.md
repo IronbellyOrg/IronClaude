@@ -321,14 +321,14 @@ duration_sec: <N>
    - Review URL (if posted)
 3. **Offer the remediation chain** (only if `--remediation-offer` AND `findings_count.critical + findings_count.high > 0`):
    - Read `refs/remediation-handoff.md` and use the exact prompt template there.
-   - The offer must list the four phases and ask one yes/no question.
-4. If the user accepts:
-   - **Phase A**: Invoke `/sc:design <REVIEW.md path> --type architecture --format spec --output <output-dir>/remediation-spec.md`
-   - **Phase B**: Invoke the `task-builder` skill with a BUILD_REQUEST citing the remediation spec (file path passed as input)
-   - **Phase C**: After task-builder returns, invoke `/sc:reflect --type task --analyze` against the new task file
-   - If reflect-analyze flags issues, surface them and ask the user whether to refactor the tasklist or accept-as-is
-   - **Phase D (execution)**: Wait for explicit user sign-off, then execute the task file (the user runs `/task <path>` or equivalent — the skill does NOT auto-execute)
-   - **Phase E**: After execution completes, invoke `/sc:reflect --type task --validate` BEFORE the user commits. Block on validation failures, do not proceed to commit suggestion.
+   - The offer must list the five phases, name the route (plan, or mdtm when `--depth deep` was requested), and ask one yes/no question.
+4. If the user accepts, select the route from the review `--depth` the user requested: `quick`/`standard` → **plan route**; `deep` → **MDTM route** (see `refs/remediation-handoff.md`, "Route selection"):
+   - **Phase A** (both routes): Invoke `/sc:design <REVIEW.md path> --type architecture --format spec --output <output-dir>/remediation-spec.md`
+   - **Phase B**: plan route → invoke `Skill sc:workflow-protocol` on the remediation spec with `--depth standard --handoff none` (never `--handoff implement`), yielding `plan.md`; MDTM route → invoke the `task-builder` skill with a BUILD_REQUEST citing the remediation spec (file path passed as input)
+   - **Phase C**: plan route → `/sc:reflect --mode pre --spec <remediation-spec.md> --tasklist <plan.md>`; MDTM route → `/sc:reflect --type task --analyze` against the new task file
+   - If the Phase C review flags issues, surface them and ask the user whether to refactor or accept-as-is
+   - **Phase D (execution)**: Wait for explicit user sign-off, then the user runs `/sc:implement <plan.md>` (plan route) or `/task <path>` (MDTM route) — the skill does NOT auto-execute
+   - **Phase E**: After execution completes, invoke `/sc:reflect --mode post` (plan route) or `/sc:reflect --type task --validate` (MDTM route) BEFORE the user commits. Block on validation failures, do not proceed to commit suggestion.
 5. Return the structured output contract.
 
 **Exit criteria**: Report posted (if applicable), remediation chain offered (if applicable), output contract returned.
@@ -342,7 +342,7 @@ duration_sec: <N>
 - Catch narrow bugs **and** architectural/anti-pattern risks (the rubric in `refs/severity-rubric.md` defines both categories explicitly)
 - Post the markdown report to the PR automatically (per the user's stated default — they opted in by running the command on a PR)
 - Attach inline comments for Critical/High findings, anchored to real lines in the diff
-- Offer a deterministic remediation chain (`/sc:design` → `task-builder` → `/sc:reflect`-analyze → execute → `/sc:reflect`-validate) and wait for explicit user acceptance before starting
+- Offer a deterministic remediation chain (`/sc:design` → `sc:workflow` → `/sc:reflect`-pre → user-run `/sc:implement` → `/sc:reflect`-post; with `--depth deep`, `task-builder` → `/task` replaces the workflow/implement pair) and wait for explicit user acceptance before starting
 - Persist the full audit (raw Auggie JSON, validation results, dedupe decisions, severity remaps) for traceability
 
 ## Will Not Do
