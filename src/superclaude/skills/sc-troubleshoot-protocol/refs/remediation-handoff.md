@@ -90,6 +90,9 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
    - The change is limited to the files listed under Files
    - No new lint or type errors introduced
 
+   ## Review Feedback
+   <contents of <output-dir>/remediation-review-notes.md, flattened; omit this whole section on the first pass>
+
    ## References
    - REPORT.md: <abs-path>
    - Audit log: <abs-path>
@@ -101,7 +104,7 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
    (Downstream stages must not re-green a blocked/advisory closure — spec §5.4 L411.)
    ```
 
-   **Flatten rule.** Anything copied from REPORT.md (the Summary, file lists, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence. A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
+   **Flatten rule.** Anything copied from REPORT.md (the Summary, file lists, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence, keeping its full text (never delete a line). A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
 
 2. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. **Never** pass `--handoff implement` — that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Never pass `--output` — it is retired (`E-LEGACY`); `sc:workflow` always writes a new managed package `.dev/tasks/to-do/<id>/` (`<id>.md` tasklist, `source.md` byte-exact snapshot of `remediation-source.md`, `return-contract.yaml`).
 3. Read `.dev/tasks/to-do/<id>/return-contract.yaml` (the `<id>` is printed by `sc:workflow`). `status: success` → resolve the absolute tasklist path (package dir + `plan_path`, which is package-relative, e.g. `./<id>.md`), record it in the audit log as `plan_path`, and keep `reflect_status` / `reflect_report_path` for Phase B. Any other status → surface it, record `plan_path=null`, do not retry automatically.
@@ -113,7 +116,7 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
 
 - Surface `reflect_status` and `reflect_report_path`.
 - `success` with no blocking findings → proceed to Phase C.
-- Findings → ask "refactor the plan before running, or proceed as-is? [refactor / proceed]". On `refactor`, append the recommendation to `remediation-source.md` and re-run Phase A — this creates a **new** package (workflow never reuses or edits an existing one; the old package stays untouched). The tasklist is never edited from findings.
+- Findings → ask "refactor the plan before running, or proceed as-is? [refactor / proceed]". On `refactor`, append the recommendation to `<output-dir>/remediation-review-notes.md` (append-only; Phase A step 1 rewrites `remediation-source.md` from scratch each pass and re-includes these notes as `## Review Feedback`, so they are never lost) and re-run Phase A — this creates a **new** package (workflow never reuses or edits an existing one; the old package stays untouched). The tasklist is never edited from findings.
 - Blocker in the report → STOP, surface it, and do not advance to Phase C until the user resolves it.
 - `reflect_status: skipped | failed` → say so and fall back to spawning the `self-review` agent on the tasklist.
 

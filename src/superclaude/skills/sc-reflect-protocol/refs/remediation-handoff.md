@@ -52,6 +52,9 @@ The route is keyed on the `--depth` the user **requested**, never on the tier re
    - The change is limited to the files listed under Files
    - No new lint or type errors introduced
 
+   ## Review Feedback
+   <contents of <output-dir>/remediation-review-notes.md, flattened; omit this whole section on the first pass>
+
    ## References
    - Report: <abs-path>
    - Deviation register: <abs-path>
@@ -67,7 +70,7 @@ The route is keyed on the `--depth` the user **requested**, never on the tier re
 
    Drift items need a per-item backfill-or-revert decision; when undecided, say in prose that deciding it is the first change the plan must make (no numbered list).
 
-   **Flatten list syntax.** Anything copied verbatim into this source (the REPORT.md summary, register rows, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence. A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
+   **Flatten list syntax.** Anything copied verbatim into this source (the REPORT.md summary, register rows, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence, keeping its full text (never delete a line). A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
 3. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. Never pass `--handoff implement`: that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Do not pass `--output` (retired in `sc:workflow`; it STOPs `E-LEGACY`). The package is always created at `.dev/tasks/to-do/<slug>/`.
 4. Read `<pkg>/return-contract.yaml` (contract 1.1). `status: success` → resolve the absolute tasklist path (`<pkg>` + `plan_path`, which is package-relative `./<slug>.md`), record it as `plan_path` in `audit.log` and emit it as the `remediation_plan_path` contract field (§9.1, 1.8.0). Any other status (for example `E-GATE`) → surface it, record `plan_path=null`, do not retry automatically.
 5. `<pkg>/source.md` is the byte-exact snapshot of `remediation-source.md`, so the `## Reflect Verdict State` section is already carried there. Verify the tasklist `<slug>.md` also carries the `needs_human_decision` / `regression_count` lines; if missing, append the section to the tasklist verbatim, keeping it free of checkbox and numbered-list lines. (`sc:workflow` has no such field of its own, so reflect owns this carry.)
@@ -76,7 +79,7 @@ The route is keyed on the `--depth` the user **requested**, never on the tier re
 
 `sc:workflow` already runs `/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<slug>.md` as its Wave 4 (advisory, read-only). Reflect does **not** make a separate call on the plan; it consumes that result. Read `reflect_status` and `reflect_report_path` from `<pkg>/return-contract.yaml` and surface both with the tasklist path.
 
-- Findings never edit the tasklist (`sc:workflow` forbids it). To change the plan, append the recommendation to `remediation-source.md` and re-run Phase A; that creates a NEW package.
+- Findings never edit the tasklist (`sc:workflow` forbids it). To change the plan, append the recommendation to `<output-dir>/remediation-review-notes.md` (append-only; Phase A step 2 rewrites `remediation-source.md` from scratch each pass and re-includes these notes as `## Review Feedback`, so they are never lost) and re-run Phase A; that creates a NEW package.
 - `reflect_status: skipped|failed` (`reflect_report_path: null`) → say so and fall back to spawning the `self-review` agent on `<pkg>/<slug>.md`.
 - Coverage caveat: the tasklist is read as a free-form file; exact-ID matching (`R-`, `REQ-`, `SPEC-`, `T-` tokens) will not fire on `## Task N:` headings, so spec rows match through the Pass-2 containment rule only. Treat `coverage_undefined` as a surfaced warning, not a silent pass.
 - Interactive outcomes: no findings → proceed to Phase C. Findings or a blocker → surface them and ask "refactor the plan before running, or proceed as-is? [refactor / proceed]"; on `refactor`, re-run Phase A as above. A blocker → STOP and do not advance to Phase C until the user resolves it.
