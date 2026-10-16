@@ -169,7 +169,9 @@ position, because the newer model wins on both score and price.
 2. Change the "checked" date at the top, or note a per-row date when only a few rows change.
 3. If a tier changes, update section 1 and also:
    - the `T<N>Model0<M>` and `_WINDOW` lines in the Coder repo's `aienv.d/defaults.sh`;
-   - `ccsession-models.json` here (profiles, `pinned`, `one_million_context`, `display_overrides`).
+   - `ccsession-models.json` here: `profiles`, the tier's `models_env` slot list under `tiers`,
+     and `picker.show`, `picker.one_million_context` and `picker.display_overrides`. Add the env
+     slots in Coder first: ccsession stops when a listed slot is not set in the workspace env.
 4. Record every removal or exclusion in section 4 with its reason.
 
 ## 7. Column meanings and footnotes
