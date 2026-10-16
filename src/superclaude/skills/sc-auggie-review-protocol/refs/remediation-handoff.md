@@ -8,7 +8,7 @@ The route is keyed on the `--depth` the user **requested** for the review:
 
 | Review `--depth` | Route | Phase B builder | Phase D user-run executor |
 |------------------|-------|-----------------|---------------------------|
-| `quick`, `standard` (default) | **Plan route** | `sc:workflow-protocol` on the remediation spec → `plan.md` | `/sc:implement <plan.md>` |
+| `quick`, `standard` (default) | **Plan route** | `sc:workflow-protocol` on the remediation spec → managed package `.dev/tasks/to-do/<id>/<id>.md` (its Wave 4 runs `/sc:reflect --mode pre` itself) | `/sc:implement <pkg>/<id>.md` |
 | `deep` | **MDTM route** | `task-builder` → MDTM task file | `/task <task-file>` |
 
 `/sc:design` (Phase A) runs on both routes. `sc:implement` only gets per-task QA when its source has enumerable tasks; a design spec is prose and would collapse to one task, so the plan route puts `sc:workflow` between the spec and `sc:implement`.
@@ -37,16 +37,16 @@ Would you like to run the full remediation chain on these findings?
   Phase A — /sc:design <report_path> --type architecture --format spec
             (produces a remediation specification document)
   Phase B — [plan route]  /sc:workflow on the spec
-            (produces a phased plan.md with per-task acceptance criteria)
+            (produces a phased tasklist package with per-task acceptance criteria)
             [mdtm route]  task-builder skill on the spec
             (produces an MDTM task file with evidence-backed steps)
-  Phase C — [plan route]  /sc:reflect --mode pre --spec <spec> --tasklist <plan.md>
+  Phase C — [plan route]  review the pre-review /sc:workflow already ran (/sc:reflect --mode pre)
             [mdtm route]  /sc:reflect --type task --analyze
             (sanity-checks the plan/tasklist before execution; flags
             scope drift, weak verification criteria, missing rollback)
   Phase D — User-driven execution
             (the skill does NOT auto-execute; you run
-            [plan route] /sc:implement <plan.md>   [mdtm route] /task <path>)
+            [plan route] /sc:implement <pkg>/<id>.md   [mdtm route] /task <path>)
   Phase E — [plan route]  /sc:reflect --mode post
             [mdtm route]  /sc:reflect --type task --validate
             (final gate before commit; blocks if validation fails)
@@ -85,7 +85,7 @@ On `/sc:design` completion:
 
 ## Phase B (plan route) — `sc:workflow`
 
-Invoke `Skill sc:workflow-protocol` on `<output_dir>/remediation-spec.md` with `--depth standard --handoff none` (never `--handoff implement`; execution is user-initiated). Before invoking, append to a copy of the spec at `<output_dir>/remediation-workflow-source.md` a `## References` section pointing at `REVIEW.md` and the cited Critical/High files, and remove any checkbox (`- [ ]`) or numbered-list lines (the workflow gate rejects them in `plan.md`). Read the workflow `return-contract.yaml`: `status: success` → record `plan_path`; otherwise surface the STOP code and do not retry automatically. Capture `plan_path`, surface it with a one-line summary, and proceed to Phase C unless the user says stop.
+Invoke `Skill sc:workflow-protocol` on `<output_dir>/remediation-spec.md` with `--depth standard --handoff none` (never `--handoff implement`; execution is user-initiated). Before invoking, append to a copy of the spec at `<output_dir>/remediation-workflow-source.md` a `## References` section pointing at `REVIEW.md` and the cited Critical/High files, and remove any checkbox (`- [ ]`) or numbered-list lines (the workflow gate rejects them in the generated tasklist). Never pass `--output` (retired). Read `.dev/tasks/to-do/<id>/return-contract.yaml`: `status: success` → resolve the absolute tasklist path (package dir + package-relative `plan_path`) and record it as `plan_path`, and keep `reflect_status` / `reflect_report_path`; otherwise surface the STOP code and do not retry automatically. Surface the tasklist path with a one-line summary, and proceed to Phase C unless the user says stop.
 
 ## Phase B (mdtm route, `--depth deep`) — `task-builder` skill
 
@@ -123,7 +123,7 @@ On task-builder completion:
 
 ## Phase C — pre-execution review
 
-**Plan route:** invoke `/sc:reflect --mode pre --spec <output_dir>/remediation-spec.md --tasklist <plan.md>`. `sc:workflow` runs only a mechanical schema gate, so this is the only semantic check on the plan. On a refactor request, append the concerns to `remediation-workflow-source.md` and re-run Phase B (same 2-cycle cap). The rest of this phase (the concerns list and outcomes) applies to both routes.
+**Plan route (consume, do not re-run):** `sc:workflow` Wave 4 already ran `/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<id>.md` (advisory, read-only). Surface `reflect_status` and `reflect_report_path` from its return contract and handle the outcomes below. Never call `/sc:reflect --mode pre` a second time. `reflect_status: skipped|failed` → say so and fall back to the `self-review` agent on the tasklist. On a refactor request, append the concerns to `remediation-workflow-source.md` and re-run Phase B — this creates a **new** package (workflow never edits or reuses one; the tasklist is never edited from findings); same 2-cycle cap. The rest of this phase (the concerns list and outcomes) applies to both routes.
 
 **MDTM route:** the skill invokes:
 
@@ -155,7 +155,7 @@ The skill **does not auto-execute** the task file. It surfaces the task file pat
 ```text
 Plan/tasklist validated. Ready to execute.
 
-  Run: /sc:implement <plan-path>          (plan route)
+  Run: /sc:implement <pkg>/<id>.md        (plan route; a TASK-WF package never goes to /task)
        /task <task-file-path>             (mdtm route, --depth deep)
 
 The skill will wait. When execution completes, reply 'done' or
@@ -168,7 +168,7 @@ After the user signals execution is complete, proceed to Phase E. If the user cl
 
 ## Phase E — post-execution validation
 
-The skill invokes `/sc:reflect --mode post --spec <output_dir>/remediation-spec.md --tasklist <plan.md> --diff <ref-or-patch>` on the plan route, or:
+The skill invokes `/sc:reflect --mode post --spec <output_dir>/remediation-spec.md --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>` on the plan route (record `baseline_ref = git rev-parse HEAD` at Phase D; `<pkg-now>` is `.dev/tasks/to-do/<id>` or, once `/sc:implement` archived the package after its final review, `.dev/tasks/done/<id>`; resolve by id), or:
 
 ```
 /sc:reflect --type task --validate
@@ -201,7 +201,7 @@ If the user closes the session mid-chain, the skill writes the chain's state to 
   "artifacts": {
     "review_path": "...",
     "spec_path": "...",
-    "plan_path": "... (plan route)",
+    "plan_path": "... (plan route; absolute .dev/tasks/to-do/<id>/<id>.md)",
     "task_file_path": "... (mdtm route)",
     "task_reflect_analyze_result": "...",
     "task_reflect_validate_result": "..."

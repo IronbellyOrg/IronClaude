@@ -132,9 +132,9 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 /sc:auggie-review 62
 # After report posts, user accepts the remediation offer:
 #   1. /sc:design <report-path> --type architecture --format spec  → remediation spec
-#   2. /sc:workflow on the spec                 → phased plan.md
-#   3. /sc:reflect --mode pre --spec <spec> --tasklist <plan.md>  → plan sanity check
-#   4. User sign-off OR refactor plan          → user runs /sc:implement <plan.md>
+#   2. /sc:workflow on the spec                 → tasklist package .dev/tasks/to-do/<id>/<id>.md
+#   3. (built in) workflow's own /sc:reflect --mode pre → plan sanity check, result surfaced
+#   4. User sign-off OR refactor plan          → user runs /sc:implement <tasklist>
 #   5. /sc:reflect --mode post                 → pre-commit validation
 ```
 
@@ -175,8 +175,8 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 ## Related Commands
 
 - **`/sc:design`** — Used in the remediation chain to convert review findings into an architecture/component remediation spec
-- **`/sc:reflect`** — Used twice in the remediation chain (pre + post gates): `--mode pre|post` on the plan route, `--type task --analyze|--validate` on the MDTM route
-- **`/sc:workflow`** → **`/sc:implement`** — Default remediation route: workflow turns the design spec into `plan.md`, the user runs implement
+- **`/sc:reflect`** — Pre + post gates in the remediation chain. Plan route: the pre gate is `sc:workflow`'s built-in `--mode pre` (not re-run), the post gate is `--mode post`; `--type task --analyze|--validate` on the MDTM route
+- **`/sc:workflow`** → **`/sc:implement`** — Default remediation route: workflow turns the design spec into a tasklist package (and runs its own `/sc:reflect --mode pre`), the user runs implement
 - **`task-builder` skill** — Only with `--depth deep`: invoked between `/sc:design` and execution to produce an MDTM task file for `/task`
 - **`/sc:adversarial`** — Complementary; use `/sc:adversarial` when you need multi-model debate on a single artifact, vs this command's auggie-centric whole-diff review
 - **`/sc:cleanup-audit`** — Complementary; whole-repo audit vs this command's diff/PR-scoped review

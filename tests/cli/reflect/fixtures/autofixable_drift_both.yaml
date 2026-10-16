@@ -26,4 +26,4 @@ user_decision_required: false
 serena_summary_corroboration: unavailable
 degraded_components: []
 remediation_task_path: /abs/path/to/TASK-RF-remediation/file.md
-remediation_plan_path: /abs/path/to/.dev/workflow/remediation/plan.md
+remediation_plan_path: /abs/path/to/.dev/tasks/to-do/TASK-WF-fixAuth-20261001-063000/TASK-WF-fixAuth-20261001-063000.md

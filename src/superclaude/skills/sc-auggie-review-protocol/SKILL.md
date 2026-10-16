@@ -324,11 +324,11 @@ duration_sec: <N>
    - The offer must list the five phases, name the route (plan, or mdtm when `--depth deep` was requested), and ask one yes/no question.
 4. If the user accepts, select the route from the review `--depth` the user requested: `quick`/`standard` → **plan route**; `deep` → **MDTM route** (see `refs/remediation-handoff.md`, "Route selection"):
    - **Phase A** (both routes): Invoke `/sc:design <REVIEW.md path> --type architecture --format spec --output <output-dir>/remediation-spec.md`
-   - **Phase B**: plan route → invoke `Skill sc:workflow-protocol` on the remediation spec with `--depth standard --handoff none` (never `--handoff implement`), yielding `plan.md`; MDTM route → invoke the `task-builder` skill with a BUILD_REQUEST citing the remediation spec (file path passed as input)
-   - **Phase C**: plan route → `/sc:reflect --mode pre --spec <remediation-spec.md> --tasklist <plan.md>`; MDTM route → `/sc:reflect --type task --analyze` against the new task file
+   - **Phase B**: plan route → invoke `Skill sc:workflow-protocol` on the remediation spec with `--depth standard --handoff none` (never `--handoff implement`, never `--output`), yielding the tasklist package `.dev/tasks/to-do/<id>/<id>.md`; MDTM route → invoke the `task-builder` skill with a BUILD_REQUEST citing the remediation spec (file path passed as input)
+   - **Phase C**: plan route → consume the pre-review `sc:workflow` already ran (`reflect_status` / `reflect_report_path` in its return contract; do not re-run `/sc:reflect --mode pre`); MDTM route → `/sc:reflect --type task --analyze` against the new task file
    - If the Phase C review flags issues, surface them and ask the user whether to refactor or accept-as-is
-   - **Phase D (execution)**: Wait for explicit user sign-off, then the user runs `/sc:implement <plan.md>` (plan route) or `/task <path>` (MDTM route) — the skill does NOT auto-execute
-   - **Phase E**: After execution completes, invoke `/sc:reflect --mode post` (plan route) or `/sc:reflect --type task --validate` (MDTM route) BEFORE the user commits. Block on validation failures, do not proceed to commit suggestion.
+   - **Phase D (execution)**: Wait for explicit user sign-off, then the user runs `/sc:implement <pkg>/<id>.md` (plan route) or `/task <path>` (MDTM route) — the skill does NOT auto-execute
+   - **Phase E**: After execution completes, invoke `/sc:reflect --mode post --spec <remediation-spec.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>` (plan route; `<pkg-now>` = `to-do/<id>` or `done/<id>` after implement archives it) or `/sc:reflect --type task --validate` (MDTM route) BEFORE the user commits. Block on validation failures, do not proceed to commit suggestion.
 5. Return the structured output contract.
 
 **Exit criteria**: Report posted (if applicable), remediation chain offered (if applicable), output contract returned.

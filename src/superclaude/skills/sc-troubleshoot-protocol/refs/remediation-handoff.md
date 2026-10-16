@@ -8,7 +8,7 @@ The route is keyed on the `--depth` the user **requested**, never on the tier re
 
 | Flags | Route | Builder | User-run executor |
 |-------|-------|---------|-------------------|
-| `--fix` (depth `standard`, the default) | **Plan route** | `sc:workflow-protocol` → `plan.md` | `/sc:implement <plan.md>` |
+| `--fix` (depth `standard`, the default) | **Plan route** | `sc:workflow-protocol` → managed package `.dev/tasks/to-do/<id>/<id>.md` (its Wave 4 runs `/sc:reflect --mode pre` itself) | `/sc:implement <pkg>/<id>.md` |
 | `--fix --depth deep` | **MDTM route** | `task-builder` → MDTM task file | `/task <task-file>` |
 
 Without `--fix`, neither route runs.
@@ -29,9 +29,10 @@ After Wave 5, before invoking the route's builder, the skill surfaces this promp
 Tier 3 remediation chain is available for this fix.   Route: <plan | mdtm>
 
 Plan route (--fix) — the chain will:
-  1. Build a phased plan.md from the report via /sc:workflow (no code edits yet)
-  2. Run `/sc:reflect --mode pre --spec <REPORT.md> --tasklist <plan.md>` against the plan
-  3. Stop and surface the literal `/sc:implement <plan.md>` command for you to run
+  1. Build a phased tasklist package from the report via /sc:workflow (no code edits yet);
+     /sc:workflow runs its own advisory `/sc:reflect --mode pre` on it
+  2. Show you the pre-review result (reflect_status + report path) and ask refactor vs proceed
+  3. Stop and surface the literal `/sc:implement <pkg>/<id>.md` command for you to run
   4. After you run /sc:implement and report back, run `/sc:reflect --mode post`
      as the final gate before you commit
 
@@ -102,41 +103,46 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
 
    **Flatten rule.** Anything copied from REPORT.md (the Summary, file lists, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence. A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
 
-2. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. **Never** pass `--handoff implement` — that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Do not pass `--output` (it must stay under `.dev/workflow/`; the default is correct).
-3. Read the workflow `return-contract.yaml`. `status: success` → record `plan_path` in the audit log. Any other status → surface it, record `plan_path=null`, do not retry automatically.
-4. Verify `plan.md` still carries the `pipeline_hardening_verdict` / `waiver_status` lines from the source. If either is missing, append the `## Pipeline Hardening` block to `plan.md` verbatim. (`sc:workflow` has no hardening field of its own, so troubleshoot owns this carry.)
+2. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. **Never** pass `--handoff implement` — that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Never pass `--output` — it is retired (`E-LEGACY`); `sc:workflow` always writes a new managed package `.dev/tasks/to-do/<id>/` (`<id>.md` tasklist, `source.md` byte-exact snapshot of `remediation-source.md`, `return-contract.yaml`).
+3. Read `.dev/tasks/to-do/<id>/return-contract.yaml` (the `<id>` is printed by `sc:workflow`). `status: success` → resolve the absolute tasklist path (package dir + `plan_path`, which is package-relative, e.g. `./<id>.md`), record it in the audit log as `plan_path`, and keep `reflect_status` / `reflect_report_path` for Phase B. Any other status → surface it, record `plan_path=null`, do not retry automatically.
+4. The `## Pipeline Hardening` lines travel in `<pkg>/source.md` (byte-exact snapshot of the source). Also verify the tasklist `<id>.md` carries the `pipeline_hardening_verdict` / `waiver_status` lines; if either is missing, append the `## Pipeline Hardening` block to the tasklist verbatim, free of checkbox and numbered-list lines. (`sc:workflow` has no hardening field of its own, so troubleshoot owns this carry.)
 
-### Phase B — Pre-execution review
+### Phase B — Pre-execution review (consume the workflow's built-in review)
 
-`sc:workflow` runs only a mechanical schema gate — no semantic review — so this phase is the only check that the plan covers the diagnosis.
+`sc:workflow` Wave 4 already ran `/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<id>.md` (advisory, read-only) and recorded the result in its return contract. **Do not call `/sc:reflect --mode pre` again.** This phase only consumes that result:
 
-Invoke `/sc:reflect --mode pre --spec <REPORT.md> --tasklist <plan.md>` via `Skill` (if `sc:reflect` is available — otherwise fall back to spawning the `self-review` agent on `plan.md`).
-
-Outcomes are handled exactly as in the MDTM route Phase B (OK / recommends refactor / blocker). On `refactor`, append the recommendation to `remediation-source.md` and re-run Phase A.
+- Surface `reflect_status` and `reflect_report_path`.
+- `success` with no blocking findings → proceed to Phase C.
+- Findings → ask "refactor the plan before running, or proceed as-is? [refactor / proceed]". On `refactor`, append the recommendation to `remediation-source.md` and re-run Phase A — this creates a **new** package (workflow never reuses or edits an existing one; the old package stays untouched). The tasklist is never edited from findings.
+- Blocker in the report → STOP, surface it, and do not advance to Phase C until the user resolves it.
+- `reflect_status: skipped | failed` → say so and fall back to spawning the `self-review` agent on the tasklist.
 
 ### Phase C — Execution gate (always user-initiated)
 
-The skill **never** auto-executes the plan. It surfaces the path and the literal command:
+The skill **never** auto-executes the plan. Record `baseline_ref = git rev-parse HEAD` in the audit log, then surface the path and the literal command:
 
 ```text
-Plan ready: <abs-path>
+Plan ready: <pkg>/<id>.md          (pkg = .dev/tasks/to-do/<id>)
 
 To execute, run:
-  /sc:implement <abs-path>
+  /sc:implement <pkg>/<id>.md
 
-The skill stops here. After /sc:implement completes, optionally re-invoke /sc:troubleshoot
-or /sc:reflect --mode post --spec <REPORT.md> --tasklist <abs-path> --diff <ref-or-patch> for the post-execution gate.
+The skill stops here. After /sc:implement completes, run the post-execution gate. /sc:implement archives
+the package to .dev/tasks/done/<id>/ after its final review, so use whichever of to-do/ or done/ exists:
+  /sc:reflect --mode post --spec <REPORT.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>
 ```
 
-This is non-negotiable. `/sc:implement` edits product code; running it on the user's behalf bypasses their final review of what is about to change.
+This is non-negotiable. `/sc:implement` edits product code; running it on the user's behalf bypasses their final review of what is about to change. A `TASK-WF-*` package is an `/sc:implement` package — never route it to `/task`.
 
 ### Phase D — Post-execution validation (optional, user-triggered)
 
 Only fires if the user comes back and explicitly invokes the validation step. The skill itself does not poll and does not auto-resume after `/sc:implement`.
 
 ```text
-/sc:reflect --mode post --spec <REPORT.md> --tasklist <plan.md> --diff <ref-or-patch>
+/sc:reflect --mode post --spec <REPORT.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>
 ```
+
+`<pkg-now>` is `.dev/tasks/to-do/<id>` or, after `/sc:implement` archived it, `.dev/tasks/done/<id>` (resolve by id; if both exist, report the conflict instead of guessing).
 
 `OK` → emit "Validation passed — safe to commit." Issues → surface them; do not auto-fix. The user decides whether to revert, patch, or accept.
 

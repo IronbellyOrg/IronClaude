@@ -31,7 +31,7 @@ All notable changes to IronClaude are documented in this file.
 
 #### Changed
 
-- `sc:troubleshoot --fix`, `sc:reflect --remediate`, and the `sc:auggie-review` remediation offer now build a phased `plan.md` through `sc:workflow` (`--handoff none`), review it with `/sc:reflect --mode pre`, and surface a user-run `/sc:implement <plan.md>`. The `task-builder` → `/task` chain is used only with `--depth deep` (`--fix --depth deep` / `--remediate --depth deep` / review `--depth deep`). Nothing auto-executes.
+- `sc:troubleshoot --fix`, `sc:reflect --remediate`, and the `sc:auggie-review` remediation offer now build a phased tasklist through `sc:workflow` (`--handoff none`), which writes it as a managed `.dev/tasks/to-do/<id>/<id>.md` package and reuses its own built-in advisory `/sc:reflect --mode pre` review (no separate reflect call on the plan), and surface a user-run `/sc:implement <id>.md`. The `task-builder` → `/task` chain is used only with `--depth deep` (`--fix --depth deep` / `--remediate --depth deep` / review `--depth deep`). Nothing auto-executes.
 - `sc:troubleshoot --diagnosability-handoff` packages the diagnosability tasklist via `sc:workflow` instead of `task-builder`.
 - reflect return contract bumped **`1.7.0 → 1.8.0`** (additive): new `remediation_plan_path` (plan-route sibling of `remediation_task_path`).
 - `superclaude reflect run --fix`: the auto-fix loop applies `/sc:implement <remediation_plan_path>` on the plan route and `/task <remediation_task_path>` on the MDTM route (`--depth deep`); the MDTM pointer wins if both are set.

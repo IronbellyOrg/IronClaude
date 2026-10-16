@@ -169,7 +169,7 @@ Pick the line(s) that apply:
 - Tier 1, low confidence (but `--no-escalate`): "Re-run without `--no-escalate` (or with `--depth deep`) to enable Tier 2 fan-out."
 - Tier 2 without `--fix`: "Re-run with `--fix` added to your previous invocation to enter the remediation chain."
 - Tier 2 with `--fix`, awaiting user accept: "Reply **yes** to proceed to the remediation chain (`sc:workflow` plan route, or `task-builder` MDTM route when `--depth deep`), or apply the fix manually."
-- Tier 3 plan route completed (post-`/sc:implement`): "Run `/sc:reflect --mode post --spec <REPORT.md> --tasklist <plan.md> --diff <ref-or-patch>` before committing."
+- Tier 3 plan route completed (post-`/sc:implement`): "Run `/sc:reflect --mode post --spec <REPORT.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>` before committing (`<pkg-now>` = the workflow package under `.dev/tasks/to-do/` or, once `/sc:implement` archived it, `.dev/tasks/done/`)."
 - Tier 3 MDTM route completed (post-`/task`): "Run `/sc:reflect --type task --validate <task-file>` before committing."
 
 ## TFEP Consumer

@@ -170,7 +170,7 @@ def test_failed_apply_fails_closed_no_reaudit(
 def test_plan_route_applies_via_sc_implement(
     temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
 ) -> None:
-    """Plan route: remediation_plan_path (no task path) -> apply is `/sc:implement <plan>`."""
+    """Plan route: remediation_plan_path (no task path) -> apply is `/sc:implement <tasklist>`."""
     config = _config(temp_tasklist, fix=True)
     factory = make_claude_process_sequence(
         [
@@ -186,7 +186,7 @@ def test_plan_route_applies_via_sc_implement(
     apply_kwargs = mock_cls.call_args_list[1].kwargs
     assert (
         apply_kwargs["prompt"]
-        == "/sc:implement /abs/path/to/.dev/workflow/remediation/plan.md"
+        == "/sc:implement /abs/path/to/.dev/tasks/to-do/TASK-WF-fixAuth-20261001-063000/TASK-WF-fixAuth-20261001-063000.md"
     )
     assert apply_kwargs["env_vars"] == {_MARKER: "1"}
 

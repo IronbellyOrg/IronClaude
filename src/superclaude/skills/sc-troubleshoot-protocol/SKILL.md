@@ -53,7 +53,7 @@ The skill returns a structured dictionary on completion:
 | `hypothesis_cards` | list[path] | Paths to per-agent hypothesis cards (Tier 2) |
 | `adversarial_artifacts_dir` | string | `sc:adversarial` artifacts dir (Tier 2 only, when 2+ fix proposals were debated) |
 | `remediation_route` | string \| null | `plan` (`--fix`) or `mdtm` (`--fix --depth deep`); `null` when Tier 3 was not offered |
-| `plan_path` | string \| null | `sc:workflow` `plan.md` path (Tier 3 plan route only) |
+| `plan_path` | string \| null | absolute path of the `sc:workflow` tasklist `.dev/tasks/to-do/<id>/<id>.md` (Tier 3 plan route only) |
 | `task_file_path` | string | MDTM task file path (Tier 3 MDTM route only) |
 | `remediation_offered` | bool | Whether Tier 3 was offered |
 | `remediation_accepted` | bool | If offered, user's response |
@@ -559,9 +559,9 @@ return_contract_path: <abs-path|none>
 3. On accept, run the selected route (phase detail lives in `refs/remediation-handoff.md`):
    - **Plan route (`--fix`)**
      - **Phase A — Build the plan**: write `<output-dir>/remediation-source.md` from REPORT.md (summary, files, acceptance, references, `## Pipeline Hardening` block), then invoke `Skill sc:workflow-protocol` on it with `--depth standard --handoff none`. Never `--handoff implement`.
-     - **Phase B — Pre-execution review**: `/sc:reflect --mode pre --spec <REPORT.md> --tasklist <plan.md>` (fallback: `self-review` agent). `sc:workflow` has only a mechanical schema gate, so this is the sole semantic check on the plan. If reflect flags issues, surface them; ask the user whether to refactor or proceed as-is.
-     - **Phase C — Execution gate**: do NOT auto-execute. Surface the plan path and the literal command (`/sc:implement <plan.md>`) the user can run. Stop here — the user runs it.
-     - **Phase D — Post-execution validation** (only if the user reports back after `/sc:implement` completes): `/sc:reflect --mode post --spec <REPORT.md> --tasklist <plan.md> --diff <ref-or-patch>` (or `self-review` agent as fallback) before the user commits.
+     - **Phase B — Pre-execution review (consume, do not re-run)**: `sc:workflow` Wave 4 already ran `/sc:reflect --mode pre` on the tasklist; read `reflect_status` / `reflect_report_path` from its `return-contract.yaml` and surface them. If reflect flags issues, ask the user whether to refactor (re-run Phase A, which creates a new package) or proceed as-is. `reflect_status: skipped|failed` → fall back to the `self-review` agent. Never call `/sc:reflect --mode pre` a second time.
+     - **Phase C — Execution gate**: do NOT auto-execute. Record `baseline_ref` (`git rev-parse HEAD`), surface the tasklist path (`.dev/tasks/to-do/<id>/<id>.md`) and the literal command (`/sc:implement <pkg>/<id>.md`) the user can run. Stop here — the user runs it. A `TASK-WF-*` package is never given to `/task`.
+     - **Phase D — Post-execution validation** (only if the user reports back after `/sc:implement` completes): `/sc:reflect --mode post --spec <REPORT.md> --tasklist <pkg-now>/<id>.md --task-log <pkg-now>/progress.md --diff <baseline_ref>` (or `self-review` agent as fallback) before the user commits; `<pkg-now>` is `to-do/<id>` or, after `/sc:implement` archived it, `done/<id>`.
    - **MDTM route (`--fix --depth deep`)**
      - **Phase A — Build the task file**: invoke the `task-builder` skill via `Skill` with a `BUILD_REQUEST` whose GOAL is "Apply the fix described in `<REPORT.md path>`", WHY is the summary section, WHERE is the cited file(s), and TEMPLATE is generic (template 01) unless the fix involves > 3 files or > 2 hours of work (then template 02).
      - **Phase B — Pre-execution review**: after `task-builder` returns the task file path, invoke `/sc:reflect --type task --analyze` (if available) against the new task file. If reflect flags issues, surface them; ask the user whether to refactor the tasklist or proceed as-is.

@@ -1,6 +1,6 @@
 # Wave 6 Remediation Handoff — Plan Route (default) and task-builder Route (`--depth deep`)
 
-Loaded by Wave 6 only when `--remediate` is set AND Wave 5 produced a deviation register with at least one item whose class warrants a remediation (see default-remediation table below). Reflect itself never fixes code; this ref documents the opt-in handoff. The default chain builds a `plan.md` through `sc:workflow` for the user to run with `/sc:implement`; the `task-builder` → `/task` chain runs only with `--depth deep`.
+Loaded by Wave 6 only when `--remediate` is set AND Wave 5 produced a deviation register with at least one item whose class warrants a remediation (see default-remediation table below). Reflect itself never fixes code; this ref documents the opt-in handoff. The default chain builds a workflow tasklist (`.dev/tasks/to-do/<slug>/<slug>.md`, a managed `TASK-WF-*` package) through `sc:workflow` for the user to run with `/sc:implement`; the `task-builder` → `/task` chain runs only with `--depth deep`.
 
 Source for the MDTM route: `task-builder/SKILL.md` lines 785-985 (M1-frozen BUILD_REQUEST schema, plus the API-001-M2 `EXECUTION_CONTEXT_REQUIREMENTS` extension). Merged-requirements driver: §7 row "task-builder (skill, not agent) — Wave 6", §8 cross-skill table, §10.3 Drift, §10.4 Regression.
 
@@ -11,20 +11,21 @@ The route is keyed on the `--depth` the user **requested**, never on the tier re
 | Flags | Route | Builder | User-run executor |
 |-------|-------|---------|-------------------|
 | no `--remediate` (any depth, including `--depth deep` alone) | **None** | none | none |
-| `--remediate` (depth `standard`, the default, or `quick`) | **Plan route** | `sc:workflow-protocol` → `plan.md` | `/sc:implement <plan.md>` |
+| `--remediate` (depth `standard`, the default, or `quick`) | **Plan route** | `sc:workflow-protocol` → package tasklist `<pkg>/<slug>.md` (its built-in advisory `--mode pre` review is surfaced) | `/sc:implement <pkg>/<slug>.md` |
 | `--remediate --depth deep` | **MDTM route** | `task-builder` → MDTM task file | `/task <task-file>` |
-| headless `claude --print` + `--remediate` (reflect wrapper, `superclaude reflect run --fix`), depth `standard`/`quick` | **Plan route** (same depth rule) | `sc:workflow-protocol` → `plan.md` | the wrapper auto-runs `/sc:implement <remediation_plan_path>` |
+| headless `claude --print` + `--remediate` (reflect wrapper, `superclaude reflect run --fix`), depth `standard`/`quick` | **Plan route** (same depth rule) | `sc:workflow-protocol` → package tasklist `<pkg>/<slug>.md` | the wrapper auto-runs `/sc:implement <remediation_plan_path>` |
 | headless `claude --print` + `--remediate --depth deep` | **MDTM route** | `task-builder` | the wrapper auto-runs `/task <remediation_task_path>` |
 
 - `--depth deep` alone does **not** trigger remediation: Wave 6 still requires `--remediate`.
 - `--depth quick` with `--remediate` takes the plan route; there is no new STOP for it.
 - The skill never runs `/sc:implement` or `/task`, and never passes `--handoff implement` to `sc:workflow` (that would auto-run `sc:implement`). The route-specific phases below stop at a user-run execution gate.
 - Headless runs follow the same depth-keyed rule; the only differences are auto-accept and no Phase B/C user gates. See "Headless auto-accept under `--print` (FR-9)".
-- **Sanctioned nested call.** Plan-route Phase B invokes `/sc:reflect --mode pre` from inside Wave 6. This is the one sanctioned exception to the SKILL.md Will Not rule against reflecting on reflect's own intermediate output: it audits the authored `plan.md` against the report, runs as a fresh Skill call without `--remediate`, and writes to its own `--output`.
+- **Sanctioned nested call.** Reflect's Wave 6 does not call reflect on the plan itself. The `/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<slug>.md` call is made by `sc:workflow` in its own Wave 4 (advisory, no `--remediate`, its own output). This is the one sanctioned exception to the SKILL.md Will Not rule against reflecting on reflect's own intermediate output.
+- A `TASK-WF-*` package is an `/sc:implement` package: never give it to `/task`. `sc:workflow` no longer accepts `--output`; never pass it.
 
 ## Plan route (`--remediate`) — Phases A–D
 
-`sc:workflow` and `sc:implement` have no `BUILD_REQUEST`-style field, so any reflect state that must survive (Regression items, Drift decisions, `needs_human_decision`, grounding gaps) travels as a plain section in the source file handed to `sc:workflow`. The `sc:workflow` gate forbids checkbox (`- [ ]`) and numbered-list lines anywhere in `plan.md` (`sc:implement` would enumerate them as tasks), so the source uses plain dash bullets and prose only.
+`sc:workflow` and `sc:implement` have no `BUILD_REQUEST`-style field, so any reflect state that must survive (Regression items, Drift decisions, `needs_human_decision`, grounding gaps) travels as a plain section in the source file handed to `sc:workflow`. The `sc:workflow` gate forbids checkbox (`- [ ]`) and numbered-list lines anywhere in the tasklist (`sc:implement` would enumerate them as tasks), so the source uses plain dash bullets and prose only. `sc:workflow` snapshots the source byte-exact as `<pkg>/source.md`, where `<pkg>` = `.dev/tasks/to-do/<slug>`.
 
 ### Phase A — Build the plan
 
@@ -67,36 +68,36 @@ The route is keyed on the `--depth` the user **requested**, never on the tier re
    Drift items need a per-item backfill-or-revert decision; when undecided, say in prose that deciding it is the first change the plan must make (no numbered list).
 
    **Flatten list syntax.** Anything copied verbatim into this source (the REPORT.md summary, register rows, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence. A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
-3. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. Never pass `--handoff implement`: that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Do not pass `--output` (it must stay under `.dev/workflow/`; the default is correct).
-4. Read the workflow `return-contract.yaml`. `status: success` → record `plan_path` in `audit.log` and emit it as the `remediation_plan_path` contract field (§9.1, 1.8.0). Any other status (for example `E-GATE`) → surface it, record `plan_path=null`, do not retry automatically.
-5. Verify `plan.md` still carries the `## Reflect Verdict State` lines (`needs_human_decision`, `regression_count`). If missing, append the section to `plan.md` verbatim, keeping it free of checkbox and numbered-list lines. (`sc:workflow` has no such field of its own, so reflect owns this carry.)
+3. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. Never pass `--handoff implement`: that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Do not pass `--output` (retired in `sc:workflow`; it STOPs `E-LEGACY`). The package is always created at `.dev/tasks/to-do/<slug>/`.
+4. Read `<pkg>/return-contract.yaml` (contract 1.1). `status: success` → resolve the absolute tasklist path (`<pkg>` + `plan_path`, which is package-relative `./<slug>.md`), record it as `plan_path` in `audit.log` and emit it as the `remediation_plan_path` contract field (§9.1, 1.8.0). Any other status (for example `E-GATE`) → surface it, record `plan_path=null`, do not retry automatically.
+5. `<pkg>/source.md` is the byte-exact snapshot of `remediation-source.md`, so the `## Reflect Verdict State` section is already carried there. Verify the tasklist `<slug>.md` also carries the `needs_human_decision` / `regression_count` lines; if missing, append the section to the tasklist verbatim, keeping it free of checkbox and numbered-list lines. (`sc:workflow` has no such field of its own, so reflect owns this carry.)
 
-### Phase B — Pre-execution review
+### Phase B — Consume the built-in pre-review
 
-`sc:workflow` runs only a mechanical schema gate — no semantic review and never `sc:reflect` — so this phase is the only semantic check that the plan covers the deviations.
+`sc:workflow` already runs `/sc:reflect --mode pre --spec <pkg>/source.md --tasklist <pkg>/<slug>.md` as its Wave 4 (advisory, read-only). Reflect does **not** make a separate call on the plan; it consumes that result. Read `reflect_status` and `reflect_report_path` from `<pkg>/return-contract.yaml` and surface both with the tasklist path.
 
-Invoke `/sc:reflect --mode pre --spec <report.md> --tasklist <plan.md> --output <output-dir>/plan-review` via `Skill` (fall back to spawning the `self-review` agent on `plan.md` if `sc:reflect` is unavailable).
-
-- Make this a fresh `Skill` call after the current run's Wave 5 report is final.
-- The nested call must NOT carry `--remediate` (that would recurse into Wave 6) and uses its own `--output`.
-- Coverage caveat: reflect reads the tasklist as a free-form file, but exact-ID matching (`R-`, `REQ-`, `SPEC-`, `T-` tokens) will not fire on `## Task N:` headings, so spec rows match through the Pass-2 containment rule only. Treat `coverage_undefined` as a surfaced warning, not a silent pass. Whether the Step 1B.1 zero-task guard counts `## Task N:` headings as tasks is unverified; if it STOPs `empty_input`, surface that and let the user proceed as-is or use the `self-review` agent.
-- Outcomes: **OK** → proceed to Phase C. **Recommends refactor** → surface it and ask "refactor the plan before running, or proceed as-is? [refactor / proceed]"; on `refactor`, append the recommendation to `remediation-source.md` and re-run Phase A. **Blocker** → STOP, surface it, and do not advance to Phase C until the user resolves it.
+- Findings never edit the tasklist (`sc:workflow` forbids it). To change the plan, append the recommendation to `remediation-source.md` and re-run Phase A; that creates a NEW package.
+- `reflect_status: skipped|failed` (`reflect_report_path: null`) → say so and fall back to spawning the `self-review` agent on `<pkg>/<slug>.md`.
+- Coverage caveat: the tasklist is read as a free-form file; exact-ID matching (`R-`, `REQ-`, `SPEC-`, `T-` tokens) will not fire on `## Task N:` headings, so spec rows match through the Pass-2 containment rule only. Treat `coverage_undefined` as a surfaced warning, not a silent pass.
+- Interactive outcomes: no findings → proceed to Phase C. Findings or a blocker → surface them and ask "refactor the plan before running, or proceed as-is? [refactor / proceed]"; on `refactor`, re-run Phase A as above. A blocker → STOP and do not advance to Phase C until the user resolves it.
+- Headless: the built-in advisory pre-review still runs inside `sc:workflow` (extra cost), but the wrapper does not gate on its findings.
 
 ### Phase C — Execution gate (always user-initiated)
 
 Record `baseline_ref = git rev-parse HEAD` in `audit.log`, then surface the path and the literal commands:
 
 ```text
-Plan ready: <abs-path>
+Plan ready: <abs-path to .dev/tasks/to-do/<slug>/<slug>.md>
 
 To execute, run:
   /sc:implement <abs-path>
 
-The skill stops here. After /sc:implement completes, run the post-execution gate:
-  /sc:reflect --mode post --spec <report.md> --tasklist <abs-path> --diff <baseline_ref> --task-log .dev/implement/<slug>/progress.md
+The skill stops here. After /sc:implement completes, resolve the package by id (it is archived to
+.dev/tasks/done/<slug>/ after a fresh FINAL; use whichever of to-do/done exists) and run the post-execution gate:
+  /sc:reflect --mode post --spec <report.md> --tasklist <resolved-pkg>/<slug>.md --diff <baseline_ref> --task-log <resolved-pkg>/progress.md
 ```
 
-A single ref (not `A..B`) diffs against the working tree, so `--diff <baseline_ref>` captures uncommitted `/sc:implement` edits to tracked files; `git diff` omits untracked files, so `--task-log` (the `sc:implement` ledger) lets reflect see files the run created. This is non-negotiable: the skill never runs `/sc:implement` — running it on the user's behalf bypasses their final review of what is about to change.
+A single ref (not `A..B`) diffs against the working tree, so `--diff <baseline_ref>` captures uncommitted `/sc:implement` edits to tracked files; `git diff` omits untracked files, so `--task-log` (the package's sibling `progress.md` ledger) lets reflect see files the run created. This is non-negotiable: the skill never runs `/sc:implement` — running it on the user's behalf bypasses their final review of what is about to change.
 
 ### Phase D — Post-execution validation (optional, user-triggered)
 
@@ -199,9 +200,9 @@ Wave 6 presents this verbatim **before** invoking the route's builder (no auto-e
 Tier 3 remediation chain is available.   Route: <plan | mdtm>
 
 Plan route (--remediate) — the chain will:
-  1. Build a phased plan.md from this report via /sc:workflow (no code edits yet)
-  2. Run `/sc:reflect --mode pre --spec <report.md> --tasklist <plan.md>` against the plan
-  3. Stop and show the literal `/sc:implement <plan.md>` command for you to run
+  1. Build a phased tasklist package (.dev/tasks/to-do/<slug>/<slug>.md) from this report via /sc:workflow (no code edits yet)
+  2. Show workflow's built-in pre-review result (reflect_status / reflect_report_path)
+  3. Stop and show the literal `/sc:implement <pkg>/<slug>.md` command for you to run
   4. After you run it and report back, run `/sc:reflect --mode post` as the final gate
 
 MDTM route (--remediate --depth deep) — the chain will:
@@ -225,7 +226,7 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
 If no: the report at <report_path> is the final deliverable.
 ```
 
-**State carried per route.** Step 6.0 (handoff memory write) and the `remediation_task_path` emission are **MDTM-route only**: `task-builder` can `read_memory` a handoff key, `sc:workflow` cannot. On the plan route the state travels in the `## Reflect Verdict State` section of `remediation-source.md`, so `handoff_memory_key: null` and `remediation_task_path: null`; the plan route records `remediation_route: plan` in `audit.log` and emits the built plan as the `remediation_plan_path` contract field (§9.1, 1.8.0; `null` when no plan was built). The wrapper's auto-fix loop is the only consumer of either field.
+**State carried per route.** Step 6.0 (handoff memory write) and the `remediation_task_path` emission are **MDTM-route only**: `task-builder` can `read_memory` a handoff key, `sc:workflow` cannot. On the plan route the state travels in the `## Reflect Verdict State` section of `remediation-source.md`, so `handoff_memory_key: null` and `remediation_task_path: null`; the plan route records `remediation_route: plan` in `audit.log` and emits the absolute path of the built tasklist `<pkg>/<slug>.md` as the `remediation_plan_path` contract field (§9.1, 1.8.0; `null` when no plan was built). The wrapper's auto-fix loop is the only consumer of either field.
 
 ## Headless auto-accept under `--print` (FR-9)
 
@@ -239,7 +240,7 @@ author** the corrective artifact **without presenting the yes/no prompt** — bu
 registers (solely §10.3 Drift and/or §10.2 Necessary). The authored path is then emitted as
 `remediation_plan_path` (plan route) or `remediation_task_path` (MDTM route) (§9.1) for the wrapper to auto-run.
 
-**Headless plan route skips Phases B and C.** There is no user to gate on, and the wrapper's own re-audit after the apply (same `--base`, bounded by `--max-fix-iterations`) is the verification. Phase A (build the plan) still runs in full, including the flatten rule and the `## Reflect Verdict State` carry.
+**Headless plan route skips Phases B and C.** There is no user to gate on, and the wrapper's own re-audit after the apply (same `--base`, bounded by `--max-fix-iterations`) is the verification. Phase A (build the plan) still runs in full, including the flatten rule and the `## Reflect Verdict State` carry. The built-in advisory pre-review still runs inside `sc:workflow` (extra cost) but the wrapper does not gate on its findings.
 
 For **HUMAN-REQUIRED** registers (any §10.4 Regression, or `needs_human_decision: true` from a
 non-empty `grounding-gaps.yaml`), the headless branch authors **nothing auto-runnable**: the
@@ -292,4 +293,4 @@ Maps each BUILD_REQUEST field to the reflect output-contract source (§9.1).
 | `task-builder` returns an error or is missing (MDTM route) | Surface the error; record `remediation_task_path=null`; do not retry automatically; do NOT silently downgrade to the plan route |
 | `sc:workflow-protocol` returns non-`success` or STOPs, e.g. `E-GATE` (plan route) | Surface the code; record `plan_path=null` and emit `remediation_plan_path: null`; do not retry automatically (headless: the wrapper terminal-HALTs for lack of a pointer) |
 | `sc:workflow-protocol` unavailable (plan route) | Surface the report path; recommend manual planning or re-running with `--depth deep`; do not fail the whole skill |
-| Plan built but the Phase B pre review flags a blocker | Stop at Phase B; surface the blocker |
+| Plan built but workflow's built-in pre-review (`reflect_status`) flags a blocker | Stop at Phase B; surface the blocker (interactive only) |
