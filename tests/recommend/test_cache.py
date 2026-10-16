@@ -189,3 +189,13 @@ def test_surface_hash_ignores_installed_roots_when_given_none_to_scan(tmp_path):
     assert compute_surface_hash(base=base, installed_roots=(empty,)) == (
         compute_surface_hash(base=base, installed_roots=())
     )
+
+
+def test_surface_hash_changes_when_a_nested_project_command_is_added(tmp_path):
+    base = tmp_path / "src"
+    _seed_surface(base, b"guide\n")
+    project = tmp_path / "proj" / ".claude"
+    (project / "commands" / "custom").mkdir(parents=True)
+    before = compute_surface_hash(base=base, installed_roots=(project,))
+    (project / "commands" / "custom" / "new.md").write_text("new\n", encoding="utf-8")
+    assert compute_surface_hash(base=base, installed_roots=(project,)) != before

@@ -36,8 +36,7 @@ _GUIDE_RELPATH = Path("core") / "HOW-WE-WORK.md"
 # Installed and project locations the skill also searches (spec 3.2):
 # ~/.claude/{commands/sc,skills,agents} and the project's .claude/{commands,skills,agents}.
 _INSTALLED_GLOBS = (
-    "commands/sc/*.md",
-    "commands/*.md",
+    "commands/**/*.md",
     "skills/*/SKILL.md",
     "agents/*.md",
 )

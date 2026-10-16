@@ -626,23 +626,30 @@ Full option list: `~/.claude/commands/sc/roadmap.md`.
 **Syntax:**
 
 ```
-/sc:validate-roadmap <OUTPUT_DIR> [options]
+/sc:validate-roadmap <roadmap-path> --specs <spec1.md,spec2.md,...> [options]
 ```
+
+The command hands its arguments to the `sc-validate-roadmap-protocol` skill, which needs the roadmap file and the spec files it was built from. It is a read-only audit and writes its findings to `<roadmap-dir>/validation/` unless you pass `--output`.
 
 **Options:**
 
 | Flag | Default | What it does |
 |------|---------|--------------|
-| `--agents <specs>` | `opus:architect` | One agent reflects; two or more add an adversarial merge |
-| `--model <name>` | each agent's own model | Override the model for every validation step |
-| `--max-turns <n>` | `100` | Max agent turns per subprocess |
-| `--debug` | off | Debug logging |
+| `--specs <files>` | required | Comma-separated spec files the roadmap must satisfy (1-10) |
+| `--output <dir>` | `<roadmap-dir>/validation/` | Where the validation artifacts go |
+| `--depth quick\|standard\|deep` | `standard` | How thorough the analysis is |
+| `--exclude <domains>` | none | Comma-separated domains to leave out |
+| `--max-agents <n>` | `20` | Maximum parallel agents (4-20) |
+| `--skip-adversarial` | off | Skip the adversarial pass |
+| `--skip-remediation` | off | Skip the remediation plan |
+| `--report <path>` | none | Also write a summary to this path |
+| `--prior-taxonomy <file>` | none | Seed domain clustering from a prior `00-domain-taxonomy.md` |
 
 **Examples:**
 
 ```bash
-/sc:validate-roadmap ./output
-/sc:validate-roadmap ./output --agents opus:architect,haiku:qa
+/sc:validate-roadmap .dev/releases/current/v2/roadmap.md --specs docs/specs/billing-tdd.md
+/sc:validate-roadmap ./roadmap.md --specs spec-a.md,spec-b.md --depth deep
 ```
 
 **MCP servers:** auggie, serena

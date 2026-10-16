@@ -540,7 +540,7 @@ The dry run is requested by those words in the request: it shows the proposed ph
 
 Run the phase task files one at a time, in the order the roadmap run printed. Before starting the next phase, open the task file and read its `reflect_post` entry (the final audit's verdict and report path); decide anything listed under its Open Questions first.
 
-Only if you changed anything to resolve those Open Questions, re-confirm before starting the next phase:
+Then re-confirm before starting the next phase. The audit inside `/task` compares a commit range and `/task` does not commit, so it misses the phase's uncommitted work:
 
 ```
 /sc:reflect --mode post --tasklist <task file> --spec <tdd file> --diff <commit before the work started> --no-promote
