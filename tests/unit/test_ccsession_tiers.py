@@ -46,6 +46,8 @@ export T1Model02="gpt-6.1-sol"
 export T1Model02_WINDOW=850000
 export T1Model03=claude-sonnet-5-5
 export T1Model03_WINDOW=1000000
+export T1Model04=muse-wonder-full-1.0
+export T1Model04_WINDOW=1000000
 export T2_WINDOW=500000
 export T2Model01=muse-spark-1.3
 export T2Model01_WINDOW=950000
@@ -55,6 +57,8 @@ export T2Model03='Qwen3.8-max'
 export T2Model03_WINDOW=1000000
 export T2Model04=glm-5.3
 export T2Model04_WINDOW=1000000
+export T2Model05=muse-wonder-1.0
+export T2Model05_WINDOW=1000000
 export T3_WINDOW=850000
 export T3Model01=gpt-6-luna
 export T3Model01_WINDOW=850000
@@ -137,6 +141,7 @@ def test_defaults_file_wins_over_stale_shell_env(tmp_path: Path, monkeypatch) ->
         "claude-opus-5-5",
         "gpt-6.1-sol",
         "claude-sonnet-5-5",
+        "muse-wonder-full-1.0",
     ]
 
 
@@ -602,6 +607,7 @@ def test_picker_shows_tiers_and_show_all_adds_env_models(shim) -> None:
         "claude-opus-5-5",
         "gpt-6.1-sol",
         "claude-sonnet-5-5",
+        "muse-wonder-full-1.0",
     ]
 
 
@@ -621,10 +627,12 @@ def test_show_all_lists_every_tier_model_with_env_windows(shim) -> None:
         "claude-opus-5-5[1m]",
         "claude-gw-gpt-6.1-sol[1m]",
         "claude-sonnet-5-5[1m]",
+        "claude-gw-muse-wonder-full-1.0[1m]",
         "claude-gw-muse-spark-1.3[1m]",
         "claude-gw-grok-4.7[1m]",
         "claude-gw-qwen3.8-max[1m]",
         "claude-gw-glm-5.3[1m]",
+        "claude-gw-muse-wonder-1.0[1m]",
         "claude-gw-gpt-6-luna[1m]",
     ]
     # A model listed only by show-all, and a hidden gateway model, both route.
@@ -758,7 +766,7 @@ def test_no_backup_can_hold_it_passes_the_error_back(shim) -> None:
     gateway, start, _ = shim
     base = start()
     gateway.script["muse-spark-1.3"] = [COOLING]
-    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3"):
+    for m in ("grok-4.7", "Qwen3.8-max", "glm-5.3", "muse-wonder-1.0"):
         gateway.script[m] = [TOO_LONG]
     status, body = _ask(base, "claude-gw-tier2")
     assert status == 400
@@ -771,7 +779,13 @@ def test_no_backup_can_hold_it_passes_the_error_back(shim) -> None:
 def test_all_models_out_returns_last_error_with_note(shim) -> None:
     gateway, start, _ = shim
     base = start()
-    for m in ("muse-spark-1.3", "grok-4.7", "Qwen3.8-max", "glm-5.3"):
+    for m in (
+        "muse-spark-1.3",
+        "grok-4.7",
+        "Qwen3.8-max",
+        "glm-5.3",
+        "muse-wonder-1.0",
+    ):
         gateway.script[m] = [COOLING]
     status, body = _ask(base, "claude-gw-tier2")
     assert status == 429
@@ -1688,7 +1702,13 @@ def test_exhausted_tier_with_string_errors_returns_valid_json(shim) -> None:
     gateway, start, _ = shim
     base = start()
     outdated = (426, b'{"error":"Your Grok CLI version (0.2.120) is outdated."}')
-    for model in ("muse-spark-1.3", "grok-4.7", "Qwen3.8-max", "glm-5.3"):
+    for model in (
+        "muse-spark-1.3",
+        "grok-4.7",
+        "Qwen3.8-max",
+        "glm-5.3",
+        "muse-wonder-1.0",
+    ):
         gateway.script[model] = [outdated]
     status, body = _ask(base, "claude-gw-tier2")
     error = json.loads(body)["error"]
@@ -1793,6 +1813,7 @@ def test_size_failure_is_reported_even_when_a_later_model_is_out_of_usage(
     gateway.script["grok-4.7"] = [TOO_LONG]
     gateway.script["Qwen3.8-max"] = [COOLING]
     gateway.script["glm-5.3"] = [COOLING]
+    gateway.script["muse-wonder-1.0"] = [COOLING]
     status, body = _ask(base, "claude-gw-tier2")
     message = json.loads(body)["error"]["message"]
     assert status == TOO_LONG[0]

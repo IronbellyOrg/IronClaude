@@ -204,8 +204,13 @@ ccsession notes --profile gpt --shim
 | `gpt` | GPT 6.1 Sol | 850,000 | yes |
 | `grok` | Grok 4.7 | 500,000 | yes |
 | `muse` | Muse Spark 1.3 | 950,000 | yes |
+| `wonderfull` | Muse Wonder Full 1.0 | 1,000,000 | yes |
+| `wonder` | Muse Wonder 1.0 | 1,000,000 | yes |
 | `qwen` | Qwen 3.8 Max | 1,000,000 | yes |
 | `glm` | GLM 5.3 | 1,000,000 | yes |
+
+Which model sits in which tier, and the scores and prices behind it, are in
+[MODEL-TIERS.md](MODEL-TIERS.md).
 
 `ccsession --help` shows the list from the last download (or the copy shipped
 with the skill) without going online; run `ccsession --refresh-models` to fetch

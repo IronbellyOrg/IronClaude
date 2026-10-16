@@ -105,6 +105,13 @@ def test_profiles_launch_expected_models_and_windows(tmp_path: Path) -> None:
         "gpt": ("gpt-6.1-sol", "850000", "850000", "gpt-6.1-sol"),
         "grok": ("grok-4.7", "500000", "500000", "grok-4.7"),
         "muse": ("muse-spark-1.3", "950000", "950000", "muse-spark-1.3"),
+        "wonderfull": (
+            "muse-wonder-full-1.0",
+            "1000000",
+            "1000000",
+            "muse-wonder-full-1.0",
+        ),
+        "wonder": ("muse-wonder-1.0", "1000000", "1000000", "muse-wonder-1.0"),
         "qwen": ("Qwen3.8-max", "1000000", "1000000", "Qwen3.8-max"),
         "glm": ("glm-5.3", "1000000", "1000000", "glm-5.3"),
     }
@@ -123,6 +130,8 @@ def test_help_lists_all_commands_and_profiles() -> None:
     for expected in (
         "--profile claude",
         "--profile muse",
+        "--profile wonderfull",
+        "--profile wonder",
         "--profile gpt",
         "--profile qwen",
         "--profile glm",
@@ -695,6 +704,10 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
             {"id": "muse-spark-1.1"},
             {"id": "muse-spark-1.2-contributor"},
             {"id": "muse-spark-1.3-contributor"},
+            {"id": "muse-wonder-1.0"},
+            {"id": "muse-wonder-full-1.0"},
+            {"id": "muse-wonder-1.0-contributor"},
+            {"id": "muse-wonder-full-1.0-contributor"},
             {"id": "Qwen/Qwen3-Max"},
             {"id": "Qwen3.8-max"},
             {"id": "gpt-image-2.5-sunburst"},
@@ -713,6 +726,8 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
         "claude-gw-gpt-6-astra[1m]",
         "claude-gw-gpt-6-luna[1m]",
         "claude-gw-grok-4.7",
+        "claude-gw-muse-wonder-full-1.0[1m]",
+        "claude-gw-muse-wonder-1.0[1m]",
         "claude-gw-muse-spark-1.3[1m]",
         "claude-fable-5-1[1m]",
         "claude-gw-qwen3.8-max[1m]",
@@ -740,6 +755,8 @@ def test_shim_curates_models_and_preserves_wire_aliases() -> None:
         "claude-gw-muse-spark-1.1",
         "claude-gw-muse-spark-1.2-contributor",
         "claude-gw-muse-spark-1.3-contributor",
+        "claude-gw-muse-wonder-1.0-contributor",
+        "claude-gw-muse-wonder-full-1.0-contributor",
     ):
         assert hidden not in ids
     # Hidden models keep an alias, so /model or a resumed session still routes.
