@@ -177,7 +177,7 @@ The §6.1 step-5.6 contracted-sink reachability gate (contract `1.7.0`, UC-2) in
 | `--no-reachability` telemetry-only | `yaml_field` + `regex_absent` | `reachability_skip_reason == "--no-reachability"`, `reachability_gate_ran == false`; `regex_absent` on any reachability Grounding-Gap row |
 | `spec-and-tasklist-absent` telemetry-only | `yaml_field` | `reachability_skip_reason == "spec-and-tasklist-absent"`, `reachability_gate_ran == false`, `status != partial` |
 | Semantic-fallback advisory non-gating | `regex_absent` | no `reachability_unproven` increment / Grounding-Gap row from semantic-only classification lacking `durable_sink:` / `@sink` |
-| `contract_version == "1.7.0"` | `yaml_field` | additive bump check |
+| `contract_version == "1.8.0"` | `yaml_field` | additive bump check |
 
 A producer-level eval fixture (R6) drives Step 5.6 from real inputs; only if such an implemented fixture demonstrably needs a semantic check beyond `yaml_field` / `regex_present` / `regex_absent` / `yaml_list_contains` should a new assertion type be proposed — v1 invents none.
 

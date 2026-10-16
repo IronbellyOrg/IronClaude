@@ -165,3 +165,44 @@ def test_failed_apply_fails_closed_no_reaudit(
     sc = _sidecar(config)
     assert "fix-apply-failed" in sc["reason"]
     assert "rc=1" in sc["reason"]
+
+
+def test_plan_route_applies_via_sc_implement(
+    temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
+) -> None:
+    """Plan route: remediation_plan_path (no task path) -> apply is `/sc:implement <plan>`."""
+    config = _config(temp_tasklist, fix=True)
+    factory = make_claude_process_sequence(
+        [
+            ("autofixable_drift_plan.yaml", 0),  # audit #1 -> HALTED, plan pointer only
+            (None, 0),  # apply #1 (/sc:implement)
+            ("postfix_pass.yaml", 0),  # audit #2 -> PASS
+        ]
+    )
+    with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
+        result = ReflectRunner(config).run()
+    assert result.verdict is Verdict.PASS
+    assert result.fix_iterations == 1
+    apply_kwargs = mock_cls.call_args_list[1].kwargs
+    assert (
+        apply_kwargs["prompt"]
+        == "/sc:implement /abs/path/to/.dev/workflow/remediation/plan.md"
+    )
+    assert apply_kwargs["env_vars"] == {_MARKER: "1"}
+
+
+def test_task_path_wins_when_both_pointers_set(
+    temp_tasklist, patch_git, patch_runner_env, make_claude_process_sequence
+) -> None:
+    """Back-compat: if a contract carries both pointers, the MDTM `/task` apply is used."""
+    config = _config(temp_tasklist, fix=True)
+    factory = make_claude_process_sequence(
+        [
+            ("autofixable_drift_both.yaml", 0),
+            (None, 0),
+            ("postfix_pass.yaml", 0),
+        ]
+    )
+    with patch(_PATCH_TARGET, side_effect=factory) as mock_cls:
+        ReflectRunner(config).run()
+    assert mock_cls.call_args_list[1].kwargs["prompt"].startswith("/task ")

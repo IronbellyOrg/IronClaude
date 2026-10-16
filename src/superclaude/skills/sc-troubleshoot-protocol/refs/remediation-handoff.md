@@ -79,10 +79,10 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
    Goal: Apply the fix described in <abs-path-to-REPORT.md>
 
    ## Summary
-   <copy the REPORT.md "Summary" section verbatim>
+   <copy the REPORT.md "Summary" section, flattened — see the flatten rule below>
 
    ## Files
-   <list of files from REPORT.md "Proposed Fix" section>
+   <list of files from REPORT.md "Proposed Fix" section, as plain `- ` bullets>
 
    ## Acceptance
    - <test to verify from REPORT.md, restated as a plain bullet — no checkboxes, no numbered lines>
@@ -99,6 +99,8 @@ Proceed with <sc:workflow | task-builder>?  [yes / no]
    waiver_status: <none | latched>
    (Downstream stages must not re-green a blocked/advisory closure — spec §5.4 L411.)
    ```
+
+   **Flatten rule.** Anything copied from REPORT.md (the Summary, file lists, test names) must first be flattened: rewrite every numbered line (`1.`, `1)`) and every checkbox line (`- [ ]`, `- [x]`, `* [ ]`) as a plain `- ` bullet or a prose sentence. A single leftover list line makes the `sc:workflow` gate fail with `E-GATE` (or makes `sc:implement` enumerate it as a task).
 
 2. Invoke `Skill sc:workflow-protocol` with `<output-dir>/remediation-source.md --depth standard --handoff none`. **Never** pass `--handoff implement` — that auto-invokes `sc:implement`, which edits product code, and the execution gate (Phase C) is always user-initiated. Do not pass `--output` (it must stay under `.dev/workflow/`; the default is correct).
 3. Read the workflow `return-contract.yaml`. `status: success` → record `plan_path` in the audit log. Any other status → surface it, record `plan_path=null`, do not retry automatically.
