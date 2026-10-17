@@ -444,9 +444,13 @@ reproduction of the original research or a causal superiority test. Generators
 receive only frozen source packets, not baselines, hidden rubrics or completed
 implementation/QA solutions.
 
-**Scoring contract:** workflow generates `plan.md` plus a return contract,
-**not an MDTM bundle**. Validate workflow format separately from shared planning
-quality. Use the same frozen, source-grounded rubric for coverage, correctness,
+**Scoring contract:** each run makes one managed workflow package,
+`.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/`, holding the tasklist
+`<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and a
+`return-contract.yaml`, **not an MDTM bundle**. `/sc:workflow` also runs its own
+advisory `/sc:reflect --mode pre` on the tasklist; the companion records
+`reflect_status` / `reflect_report_path` but does not score or require them.
+Validate workflow format separately from shared planning quality. Use the same frozen, source-grounded rubric for coverage, correctness,
 safety, testability, dependencies and scope, with exact artifact evidence.
 Historical baselines are not gold answers; MDTM syntax and execution outcomes
 earn no quality bonus. Score each of the **3 baselines once**, then at most
@@ -490,6 +494,17 @@ all selected models; CLI acceptance alone is not evidence. The user chose
 support before proceeding; explicit confirmation of the paid launch, judge,
 data disclosure, limits and spend ceiling is still required. This suite is
 manual/on-demand, not an automatic paid CI job.
+
+Two further pre-launch checks apply to the merged workflow. First, the
+restricted child denies `Bash`, but `/sc:workflow` uses it for the exclusive
+package `mkdir` and `date -u`; the preflight must show a valid timestamped
+package id is still produced with `Write` alone, and if it is not, widen the
+Bash policy narrowly rather than relaxing the package checks. Second, the
+restricted tool pool denies `Agent`/`Task`, so the workflow's built-in
+`/sc:reflect --mode pre` may not run fully; the companion records its
+activation and `reflect_*` fields as advisory evidence and never requires it.
+Existing `confinement_evidence` was bound to the previous staged file set
+(reflect now staged beside workflow) and must be regenerated.
 
 ---
 

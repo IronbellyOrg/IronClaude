@@ -1,0 +1,207 @@
+{
+  "requirements": [
+    {
+      "id": "WF1-R001",
+      "dimension": "scope",
+      "text": "This spec removes the `--file` misuse and delivers local content the way every\nother pipeline already does — **inline in the prompt** — eliminating the\nsession-token dependency. No pipeline redesign.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "This spec removes the `--file` misuse and delivers local content the way every\nother pipeline already does — **inline in the prompt** — eliminating the\nsession-token dependency. No pipeline redesign."
+    },
+    {
+      "id": "WF1-R002",
+      "dimension": "correctness",
+      "text": "**Decision: Option B.** Specs are the operator's ground truth; deterministic\nin-context delivery is the entire purpose of `--spec`. Current specs are all\n<50 KB, so they inline in full.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "**Decision: Option B.** Specs are the operator's ground truth; deterministic\nin-context delivery is the entire purpose of `--spec`. Current specs are all\n<50 KB, so they inline in full."
+    },
+    {
+      "id": "WF1-R003",
+      "dimension": "correctness",
+      "text": "- Remove the refs `--file` branch (`:198-199`) and the spec `--file` branch (`:201-204`).",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- Remove the refs `--file` branch (`:198-199`) and the spec `--file` branch (`:201-204`)."
+    },
+    {
+      "id": "WF1-R004",
+      "dimension": "scope",
+      "text": "- `_build_file_args` now has no `--file` to emit. **Remove the method and its\n  `extra_args=file_args` wiring** (`:154-155`, `:166`), passing no `extra_args`\n  (matching the sibling pipelines), **OR** retain it returning `[]` if the implementer\n  prefers a smaller diff — verdict left to implementation, but no `--file` may remain.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- `_build_file_args` now has no `--file` to emit. **Remove the method and its\n  `extra_args=file_args` wiring** (`:154-155`, `:166`), passing no `extra_args`\n  (matching the sibling pipelines), **OR** retain it returning `[]` if the implementer\n  prefers a smaller diff — verdict left to implementation, but no `--file` may remain."
+    },
+    {
+      "id": "WF1-R005",
+      "dimension": "safety",
+      "text": "- Remove now-dead module constants **only after confirming no other references**:\n  `_FILE_SIZE_THRESHOLD` (`:115`), `_SPEC_FILE_STEPS` (`:121`), and `_PHASE_ALLOWED_REFS`\n  (`:95-113`) if used solely by `_build_file_args`. (Grep before deleting; refs inlining\n  in `prompts.py` uses literal names, not this map.)",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- Remove now-dead module constants **only after confirming no other references**:\n  `_FILE_SIZE_THRESHOLD` (`:115`), `_SPEC_FILE_STEPS` (`:121`), and `_PHASE_ALLOWED_REFS`\n  (`:95-113`) if used solely by `_build_file_args`. (Grep before deleting; refs inlining\n  in `prompts.py` uses literal names, not this map.)"
+    },
+    {
+      "id": "WF1-R006",
+      "dimension": "coverage",
+      "text": "- Update the class docstring (`:132-135`) and module docstring (`:4,11`) that advertise\n  \"Phase-aware `--file` arg construction\" to reflect inline delivery.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- Update the class docstring (`:132-135`) and module docstring (`:4,11`) that advertise\n  \"Phase-aware `--file` arg construction\" to reflect inline delivery."
+    },
+    {
+      "id": "WF1-R007",
+      "dimension": "correctness",
+      "text": "- Upgrade `_authoritative_specs_block(spec_paths)` (`:120-138`): for each path, embed\n  `_read_file(Path(p))` content under a clearly-delimited per-spec header, retaining the\n  \"AUTHORITATIVE … MUST Read IN FULL (if truncated)\" instruction. Preserve the empty-input\n  contract (return `\"\"` when no specs → byte-identical no-spec prompts). Signature unchanged;\n  callers at `:247` and `:919` unchanged.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- Upgrade `_authoritative_specs_block(spec_paths)` (`:120-138`): for each path, embed\n  `_read_file(Path(p))` content under a clearly-delimited per-spec header, retaining the\n  \"AUTHORITATIVE … MUST Read IN FULL (if truncated)\" instruction. Preserve the empty-input\n  contract (return `\"\"` when no specs → byte-identical no-spec prompts). Signature unchanged;\n  callers at `:247` and `:919` unchanged."
+    },
+    {
+      "id": "WF1-R008",
+      "dimension": "safety",
+      "text": "- **MANDATORY missing-path guard (per research gate GAP-2/GAP-3).** The block is invoked\n  with paths from the persisted `parsed-request.json` `SPECS` array (`prompts.py:247-249`,\n  `:919`; `_bind_specs` at `executor.py:1437`), NOT the Click-validated `config.spec_files`.\n  On **resume** those paths can be missing/stale and `_bind_specs` tolerates them\n  (`executor.py:1357-1360`). Therefore, for each path: **if `Path(p).is_file()` → inline\n  `_read_file` content; else → fall back to the current path-only line (never call\n  `_read_file` on it).** An unguarded read raises bare `FileNotFoundError` inside\n  `build_scope_discovery_prompt`, which the executor only catches as `MissingArtifactError`\n  → it would re-introduce a crash on the *same* `scope-discovery` step (token crash traded\n  for a file-read crash). The guard also keeps the existing fake-path injection tests green\n  (missing paths still render as a path).",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- **MANDATORY missing-path guard (per research gate GAP-2/GAP-3).** The block is invoked\n  with paths from the persisted `parsed-request.json` `SPECS` array (`prompts.py:247-249`,\n  `:919`; `_bind_specs` at `executor.py:1437`), NOT the Click-validated `config.spec_files`.\n  On **resume** those paths can be missing/stale and `_bind_specs` tolerates them\n  (`executor.py:1357-1360`). Therefore, for each path: **if `Path(p).is_file()` → inline\n  `_read_file` content; else → fall back to the current path-only line (never call\n  `_read_file` on it).** An unguarded read raises bare `FileNotFoundError` inside\n  `build_scope_discovery_prompt`, which the executor only catches as `MissingArtifactError`\n  → it would re-introduce a crash on the *same* `scope-discovery` step (token crash traded\n  for a file-read crash). The guard also keeps the existing fake-path injection tests green\n  (missing paths still render as a path)."
+    },
+    {
+      "id": "WF1-R009",
+      "dimension": "scope",
+      "text": "### 5.3 No other call sites\n`grep -rn '\"--file\"' src/superclaude/cli/prd/` must return **zero** matches after the change.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "### 5.3 No other call sites\n`grep -rn '\"--file\"' src/superclaude/cli/prd/` must return **zero** matches after the change."
+    },
+    {
+      "id": "WF1-R010",
+      "dimension": "correctness",
+      "text": "- **Runs without `--spec`**: `_authoritative_specs_block` returns `\"\"` on empty input →\n  prompts byte-identical to today. No behavior change.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- **Runs without `--spec`**: `_authoritative_specs_block` returns `\"\"` on empty input →\n  prompts byte-identical to today. No behavior change."
+    },
+    {
+      "id": "WF1-R011",
+      "dimension": "correctness",
+      "text": "- **Refs**: already inlined by the prompt builder; all current refs <50 KB → no truncation,\n  no loss. Any future >50 KB ref is inlined truncated-at-50 KB with `_TRUNCATION_MARKER`\n  (same cap the prompt builder already applies) — not silently dropped.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- **Refs**: already inlined by the prompt builder; all current refs <50 KB → no truncation,\n  no loss. Any future >50 KB ref is inlined truncated-at-50 KB with `_TRUNCATION_MARKER`\n  (same cap the prompt builder already applies) — not silently dropped."
+    },
+    {
+      "id": "WF1-R012",
+      "dimension": "correctness",
+      "text": "- **Determinism of `--spec`**: force-bind is unchanged (specs are still bound into\n  `SPECS`/`WHERE` by `_bind_specs`); Option B strengthens it (content, not just a path).",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- **Determinism of `--spec`**: force-bind is unchanged (specs are still bound into\n  `SPECS`/`WHERE` by `_bind_specs`); Option B strengthens it (content, not just a path)."
+    },
+    {
+      "id": "WF1-R013",
+      "dimension": "safety",
+      "text": "- **Env**: no dependency on `CLAUDE_CODE_SESSION_ACCESS_TOKEN` anywhere in the PRD path.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- **Env**: no dependency on `CLAUDE_CODE_SESSION_ACCESS_TOKEN` anywhere in the PRD path."
+    },
+    {
+      "id": "WF1-R014",
+      "dimension": "testability",
+      "text": "1. **No `--file` emitted** — invert/replace `tests/cli/prd/test_spec_flag.py::TestSpecFileAttach`\n   (:459-515, the ONLY `--file` test): for `scope-discovery` and `investigation` with\n   `config.spec_files=[tmp_spec]`, assert the built argv / `extra_args` contains **no** `\"--file\"`.\n   Remove the `== []` cases that name the deleted `_build_file_args` symbol.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "1. **No `--file` emitted** — invert/replace `tests/cli/prd/test_spec_flag.py::TestSpecFileAttach`\n   (:459-515, the ONLY `--file` test): for `scope-discovery` and `investigation` with\n   `config.spec_files=[tmp_spec]`, assert the built argv / `extra_args` contains **no** `\"--file\"`.\n   Remove the `== []` cases that name the deleted `_build_file_args` symbol."
+    },
+    {
+      "id": "WF1-R015",
+      "dimension": "testability",
+      "text": "2. **Spec content reaches the prompt (Option B)** — real `tmp_path` spec with a UNIQUE_MARKER →\n   `_authoritative_specs_block([str(p)])` output contains the marker (content inlined) AND\n   `AUTHORITATIVE SPECIFICATIONS`; a >50 KB `tmp_path` spec → output contains `_TRUNCATION_MARKER`.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "2. **Spec content reaches the prompt (Option B)** — real `tmp_path` spec with a UNIQUE_MARKER →\n   `_authoritative_specs_block([str(p)])` output contains the marker (content inlined) AND\n   `AUTHORITATIVE SPECIFICATIONS`; a >50 KB `tmp_path` spec → output contains `_TRUNCATION_MARKER`."
+    },
+    {
+      "id": "WF1-R016",
+      "dimension": "testability",
+      "text": "3. **Missing-path guard** — `_authoritative_specs_block([\"/nope/missing.md\"])` returns a block\n   containing the path string and does **NOT** raise (Decision 1 / GAP-2/3).",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "3. **Missing-path guard** — `_authoritative_specs_block([\"/nope/missing.md\"])` returns a block\n   containing the path string and does **NOT** raise (Decision 1 / GAP-2/3)."
+    },
+    {
+      "id": "WF1-R017",
+      "dimension": "testability",
+      "text": "4. **No-spec parity** — `_authoritative_specs_block(None)` and `([])` return `\"\"` (existing lock\n   at `test_spec_flag.py:310-312` stays green); no-spec scope-discovery prompt unchanged.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "4. **No-spec parity** — `_authoritative_specs_block(None)` and `([])` return `\"\"` (existing lock\n   at `test_spec_flag.py:310-312` stays green); no-spec scope-discovery prompt unchanged."
+    },
+    {
+      "id": "WF1-R018",
+      "dimension": "scope",
+      "text": "5. **Keep green (do NOT migrate/delete)** — the prompt-injection tests that bind non-existent\n   paths and assert the path appears stay valid via the Decision 1 fallback. Leave\n   `tests/pipeline/test_process.py:78-81` (base-class `--file` support) untouched — out of scope.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "5. **Keep green (do NOT migrate/delete)** — the prompt-injection tests that bind non-existent\n   paths and assert the path appears stay valid via the Decision 1 fallback. Leave\n   `tests/pipeline/test_process.py:78-81` (base-class `--file` support) untouched — out of scope."
+    },
+    {
+      "id": "WF1-R019",
+      "dimension": "testability",
+      "text": "6. **No dead `--file`** — grep guard: `grep -rn '\"--file\"' src/superclaude/cli/prd/` → 0 matches.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "6. **No dead `--file`** — grep guard: `grep -rn '\"--file\"' src/superclaude/cli/prd/` → 0 matches."
+    },
+    {
+      "id": "WF1-R020",
+      "dimension": "testability",
+      "text": "7. **Acceptance (manual/integration)** — `superclaude prd run \"…\" --spec … --output …` in a\n   shell with `CLAUDE_CODE_SESSION_ACCESS_TOKEN` **unset** advances past `scope-discovery`\n   (no \"Session token required\" error in `scope-discovery-error.txt`).",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "7. **Acceptance (manual/integration)** — `superclaude prd run \"…\" --spec … --output …` in a\n   shell with `CLAUDE_CODE_SESSION_ACCESS_TOKEN` **unset** advances past `scope-discovery`\n   (no \"Session token required\" error in `scope-discovery-error.txt`)."
+    },
+    {
+      "id": "WF1-R021",
+      "dimension": "testability",
+      "text": "- [ ] `grep -rn '\"--file\"' src/superclaude/cli/prd/` → 0 matches.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- [ ] `grep -rn '\"--file\"' src/superclaude/cli/prd/` → 0 matches."
+    },
+    {
+      "id": "WF1-R022",
+      "dimension": "testability",
+      "text": "- [ ] New/updated unit tests (§7.1–7.4) pass under `uv run pytest`.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- [ ] New/updated unit tests (§7.1–7.4) pass under `uv run pytest`."
+    },
+    {
+      "id": "WF1-R023",
+      "dimension": "dependencies",
+      "text": "- [ ] `make sync-dev && make verify-sync` clean.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- [ ] `make sync-dev && make verify-sync` clean."
+    },
+    {
+      "id": "WF1-R024",
+      "dimension": "correctness",
+      "text": "- [ ] A headless PRD run with `--spec` and no session token reaches `research-notes`\n      (i.e. clears `scope-discovery`) — verified against the octodive repro.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- [ ] A headless PRD run with `--spec` and no session token reaches `research-notes`\n      (i.e. clears `scope-discovery`) — verified against the octodive repro."
+    },
+    {
+      "id": "WF1-R025",
+      "dimension": "correctness",
+      "text": "- [ ] No change to prompts for runs that use neither `--spec` nor a >50 KB ref.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- [ ] No change to prompts for runs that use neither `--spec` nor a >50 KB ref."
+    },
+    {
+      "id": "WF1-R026",
+      "dimension": "scope",
+      "text": "Out of scope: - Executor fail-fast / crashloop hardening on `scope-discovery` exit≠0 (separate follow-up).",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- Executor fail-fast / crashloop hardening on `scope-discovery` exit≠0 (separate follow-up)."
+    },
+    {
+      "id": "WF1-R027",
+      "dimension": "scope",
+      "text": "Out of scope: - Any change to sibling pipelines.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- Any change to sibling pipelines."
+    },
+    {
+      "id": "WF1-R028",
+      "dimension": "scope",
+      "text": "Out of scope: - Raising the 50 KB inline cap or adding a digest for >50 KB specs (the deferred\n  \"Phase 2 heuristic digest\"); current specs/refs are all <50 KB.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "- Raising the 50 KB inline cap or adding a digest for >50 KB specs (the deferred\n  \"Phase 2 heuristic digest\"); current specs/refs are all <50 KB."
+    },
+    {
+      "id": "WF1-R029",
+      "dimension": "dependencies",
+      "text": "Edit `src/superclaude/cli/prd/` → `make sync-dev` → `make verify-sync` →\n`uv run pytest` → single PR on `fix/prd-local-file-no-session-token` →\n`IronbellyOrg/IronClaude`.",
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "source_quote": "Edit `src/superclaude/cli/prd/` → `make sync-dev` → `make verify-sync` →\n`uv run pytest` → single PR on `fix/prd-local-file-no-session-token` →\n`IronbellyOrg/IronClaude`."
+    }
+  ]
+}

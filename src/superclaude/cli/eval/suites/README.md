@@ -20,6 +20,7 @@ T01.04).
 | `eval_cli_doc_parity.yaml` | Doc⇆CLI parity gate: documented `eval run` flags stay in sync with `eval run --help` (ships with `/sc:cli-eval`). | Discovered by `discover_suite_manifests`. |
 | `cli_eval_skill_contract.yaml` | Deliverable-wiring gate: the `/sc:cli-eval` command + protocol skill + 3 agents stay wired.        | Discovered by `discover_suite_manifests`. |
 | `suite_schema_guard.yaml` | Meta-gate: every `suites/*.yaml` still loads + schema-validates (`eval list` exit 0).               | Discovered by `discover_suite_manifests`. |
+| `workflow_vs_task_builder.yaml` | Three provenance-backed spec cases × three proxy model slots × low/medium/high reasoning effort: 27 expanded workflow plans compared with historical task-builder baselines. | Schema-valid and discovered; core-run PASS is non-authoritative. See execution note below. |
 | `__init__.py`         | Exports `SCHEMA_PATH`. Not a manifest.                                                   | Ignored by the glob. |
 | `<other>.yaml`        | Any future suite manifest authored under the naming rules in §"Filename rules".          | Discovered alongside `real.yaml`. |
 | `*_callbacks.py`      | Optional sibling Python module exporting D-4 YAML-callback escape-hatch functions.       | Imported lazily by suites that name `callback:` entries; not a manifest. |
@@ -27,6 +28,55 @@ T01.04).
 Anything else placed here — fixture files, scratch outputs, in-flight
 drafts with a `.draft` or `.tmp` suffix — is ignored by the loader
 glob (`suites_dir.glob("*.yaml")` at `commands.py:606`).
+
+## `workflow_vs_task_builder` — execution and comparison boundary
+
+This schema-validated suite expands three provenance-backed spec cases into
+27 candidates: three proxy model slots × low/medium/high reasoning effort
+per case. Model slots bind the operator config's pinned IDs without fallback.
+The selected generators are `gpt-6.1-sol`, `claude-sonnet-5-5`, and
+`Qwen3.8-max`, with Opus 5.5 (`claude-opus-5-5`) as the fixed judge.
+Each run makes one managed workflow package under `.dev/tasks/to-do/<id>/`
+(tasklist `<id>.md`, `source.md`, `return-contract.yaml`), **not an MDTM
+bundle**; `/sc:workflow` also runs its own advisory `/sc:reflect --mode pre`.
+
+The frozen corpus index is
+`.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/corpus.json`.
+Its PRD local-file delivery, detection-contract setup and reflect integration
+cases carry **29, 145 and 104 source-grounded requirements**, respectively.
+Baselines are first-added Git snapshots already completed at that point;
+normalized scoring views strip completion evidence but remain **non-pristine**.
+The comparison is **source-only and retrospective/context-limited**, not a
+reproduction of historical research. Baselines and hidden rubrics are not
+generator inputs or gold answers. Keep format validation separate from shared
+planning-quality scoring; score each of the three baselines once and at most
+27 candidates using the same frozen rubric and exact artifact evidence.
+
+**Core-run PASS is non-authoritative:** the current core eval runner has a
+null lifecycle executor and unwired assertions. The manifest registers the
+matrix; it does not prove real generation or Skill activation. This suite
+uses a companion, not a sibling callback:
+`scripts/eval_workflow_vs_task_builder.py` implements headless `/sc:workflow`
+Skill execution and artifact/rubric checks. Mocked-process checks verify
+offline logic, not real execution or installed containment. Inspect `--help`
+via `uv run python scripts/eval_workflow_vs_task_builder.py --help`.
+Network-free preparation retains all 27 rows as `BLOCKED` (exit 2) when live
+evidence is absent. Execution requires explicit confirmation, genuine
+capability/confinement evidence and isolated authentication. Restricted children
+explicitly load the canonical Markdown payloads as a local plugin in a private
+temporary workspace; bare mode cannot provide the necessary Skill surface.
+`--preflight --confirm-live` runs ten unscored synthetic jobs. A null
+`preflight_budget_usd` removes its dollar cap but not finite call/turn/time
+safeguards. Jobs and actual Messages requests are counted separately. Metadata
+HTTP 404 is not model unavailability. Full-run dollar limits remain soft and
+CLI cost estimates do not prove actual provider spend.
+
+Effective reasoning-effort support is **unverified for all selected models**;
+CLI acceptance does not establish effective support. The user chose
+**verification before the full run**. Explicit paid-launch confirmation
+covering models, judge, disclosure, limits and spend ceiling remains required.
+Cadence is manual/on-demand. See `docs/guides/suites-guide.md` for the suite's
+operator-facing comparison contract.
 
 ## Filename rules
 

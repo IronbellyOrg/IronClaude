@@ -1,0 +1,370 @@
+{
+  "case_id": "WF1",
+  "slug": "prd-local-file-delivery",
+  "grounding": "source-only; retrospective/context-limited",
+  "source_records": [
+    {
+      "source_path": ".dev/specs/prd-local-file-delivery-fix.md",
+      "frozen_path": "sources/prd-local-file-delivery-fix.md",
+      "sha256": "1fdebccc7504cf6a578fe9aa00084ccec8e1989f1ea3bddc1df26bae8640c6ba",
+      "bytes": 10356,
+      "selection": "Verbatim working-tree authoritative spec; no claim this is a pristine pre-implementation source revision."
+    }
+  ],
+  "binding_human_supplements": [],
+  "baseline": {
+    "design_baseline_path": ".dev/tasks/done/TASK-RF-prd-local-file-20260609-005242/TASK-RF-prd-local-file-20260609-005242.md",
+    "working_tree_sha256": "430340e9abc035b8b237404b51f171680b6beb528f2e9f5d398adb2cc61de721",
+    "selected_snapshot": "first git-added baseline bytes recovered read-only, not generation-only",
+    "git_commit": "7601ad2548e232ce89219908f726d4e35fe41412",
+    "git_path": ".dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/TASK-RF-prd-local-file-20260609-005242.md",
+    "recovery_command": [
+      "git",
+      "show",
+      "7601ad2548e232ce89219908f726d4e35fe41412:.dev/tasks/to-do/TASK-RF-prd-local-file-20260609-005242/TASK-RF-prd-local-file-20260609-005242.md"
+    ],
+    "addition_commits_found": [
+      "7601ad2548e232ce89219908f726d4e35fe41412"
+    ],
+    "generation_pristine": false,
+    "snapshot_state": "already complete at first git addition",
+    "snapshot_evidence": {
+      "frontmatter_status": "status: \"🟢 Done\"",
+      "checked_items": 37,
+      "execution_log_present": true,
+      "post_reflect_outcomes_present": true
+    },
+    "original_path": "baseline-original.md",
+    "original_sha256": "893613a0cd9302f632575388aa80c6cbb106970aef667f65184433e955cf31a2",
+    "original_bytes": 87908,
+    "scoring_path": "baseline.md",
+    "scoring_sha256": "227edaa20ca1a6b7e3475d753dd16b1579df54d5247e9983ed7dfda95834a850",
+    "scoring_bytes": 62968,
+    "normalization_method": "Local deterministic plain-text deletions and checkbox reset; no inference and no planning instruction synthesis.",
+    "normalization_operations": [
+      {
+        "operation": "Remove entire YAML frontmatter (including completion dates, start commits, PRE/POST reflect verdicts)",
+        "pattern": "\\A---\\n.*?\\n---\\n",
+        "replacement": "",
+        "flags": "re.DOTALL",
+        "matches": 1,
+        "before_sha256": "893613a0cd9302f632575388aa80c6cbb106970aef667f65184433e955cf31a2",
+        "after_sha256": "8fcacfcc48c05d275cdd9e9f35f71013e85155c78c9104338f08813cb6b17d8e"
+      },
+      {
+        "operation": "Remove entire task-log tail: completion summary, executed results, QA fixes/findings, follow-ups, post-reflect evidence",
+        "pattern": "^## Task Log / Notes[^\\n]*\\n.*\\Z",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "8fcacfcc48c05d275cdd9e9f35f71013e85155c78c9104338f08813cb6b17d8e",
+        "after_sha256": "5f808ebbe49e000d1513fd58e45b7302fd6be0e7d664ef374afd49f1d1ed73d9"
+      },
+      {
+        "operation": "Remove own post-completion administration/handoff/Done section (not feature implementation instructions)",
+        "pattern": "^## Post-Completion Actions\\n.*\\Z",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "5f808ebbe49e000d1513fd58e45b7302fd6be0e7d664ef374afd49f1d1ed73d9",
+        "after_sha256": "c8cfdbcab31e9dffcd32aa1c66e35e43c904c047d15fe5caa1ce1d4dfe6d7daf"
+      },
+      {
+        "operation": "Remove executor status-update protocol",
+        "pattern": "^### Frontmatter Update Protocol\\n.*?(?=^## |^### |\\Z)",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "c8cfdbcab31e9dffcd32aa1c66e35e43c904c047d15fe5caa1ce1d4dfe6d7daf",
+        "after_sha256": "a972d731374a95526b082ebec3f0aa0be8f956eb22bacf3c6ad089493d497aab"
+      },
+      {
+        "operation": "Remove initial execution status/log bookkeeping item",
+        "pattern": "^\\*\\*Step 1\\.1(?::\\*\\* Update task status|: Update task status\\*\\*)\\n.*?(?=^\\*\\*Step 1\\.2)",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "a972d731374a95526b082ebec3f0aa0be8f956eb22bacf3c6ad089493d497aab",
+        "after_sha256": "be17e3e3d2f15036868c18f929fa942f66509b16e97547abd1c130b6b22a2abb"
+      },
+      {
+        "operation": "Reset actual checked completion flags to pending",
+        "pattern": "- \\[[xX]\\]",
+        "replacement": "- [ ]",
+        "flags": "re.MULTILINE",
+        "matches": 30,
+        "before_sha256": "be17e3e3d2f15036868c18f929fa942f66509b16e97547abd1c130b6b22a2abb",
+        "after_sha256": "b5aae244e02b876533a07c2b066adaace27dc82991d2551c404748f794b05773"
+      }
+    ],
+    "non_pristine_caveat": "Original first-added snapshot already includes execution/completion edits. Scoring view is planning-only but cannot undo unknown edits to retained planning instructions or recreate unavailable generation context. Deleting own completion/reflect handoff sections omits any planning-only acceptance content embedded exclusively there; authoritative rubric remains unchanged. Future-tense implementation/tests/QA plans and feature-level PRE/POST reflect requirements are retained. Historical QA/procedural preferences are not gold answers.",
+    "final_whitespace_transform": {
+      "operation": "str.strip() followed by one LF",
+      "before_sha256": "b5aae244e02b876533a07c2b066adaace27dc82991d2551c404748f794b05773",
+      "after_sha256": "227edaa20ca1a6b7e3475d753dd16b1579df54d5247e9983ed7dfda95834a850"
+    }
+  },
+  "rubric": {
+    "path": "requirements.json",
+    "sha256": "c6227d16d81ac633633230bdf4eac61bc4961d4250012960ff1b57102daef7e0",
+    "requirement_count": 29,
+    "sources_only": true,
+    "frozen_before_generation": true,
+    "dimension_counts": {
+      "coverage": 1,
+      "correctness": 8,
+      "safety": 3,
+      "testability": 8,
+      "dependencies": 2,
+      "scope": 7
+    },
+    "scoring_policy": {
+      "dimensions": [
+        "coverage",
+        "correctness",
+        "safety",
+        "testability",
+        "dependencies",
+        "scope"
+      ],
+      "scoring_unit": "Substantive source-grounded requirement; evidence must quote the scored planning artifact exactly.",
+      "format_neutral": true,
+      "no_gold_baseline": true,
+      "judge_instruction": "Do not award points merely for MDTM syntax, executor-specific bookkeeping, agent count, QA infrastructure, historical verdicts or implementation outcomes. Score substantive coverage and fidelity, safe refusal/edge cases, actionable validation and dependencies. Equivalent plan.md organization is acceptable. Repeated source obligations corroborate each other; do not give duplicate coverage bonus. Optional/rejected proposals are not mandatory. Source-literal arithmetic/token constraints remain binding.",
+      "precedence": "Binding human supplement overrides conflicting proposal; otherwise source requirements/design govern. Recommendations with pending decisions must not be silently treated as approved.",
+      "freeze_stage": "Before candidate generation; no inference or judging performed."
+    },
+    "source_evidence": {
+      "WF1-R001": {
+        "source_lines": {
+          "start": 24,
+          "end": 26
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R002": {
+        "source_lines": {
+          "start": 71,
+          "end": 73
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R003": {
+        "source_lines": {
+          "start": 78,
+          "end": 78
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R004": {
+        "source_lines": {
+          "start": 79,
+          "end": 82
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R005": {
+        "source_lines": {
+          "start": 83,
+          "end": 86
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R006": {
+        "source_lines": {
+          "start": 87,
+          "end": 88
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R007": {
+        "source_lines": {
+          "start": 91,
+          "end": 95
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R008": {
+        "source_lines": {
+          "start": 96,
+          "end": 106
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R009": {
+        "source_lines": {
+          "start": 108,
+          "end": 109
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R010": {
+        "source_lines": {
+          "start": 113,
+          "end": 114
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R011": {
+        "source_lines": {
+          "start": 115,
+          "end": 117
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R012": {
+        "source_lines": {
+          "start": 118,
+          "end": 119
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R013": {
+        "source_lines": {
+          "start": 120,
+          "end": 120
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R014": {
+        "source_lines": {
+          "start": 124,
+          "end": 127
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R015": {
+        "source_lines": {
+          "start": 128,
+          "end": 130
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R016": {
+        "source_lines": {
+          "start": 131,
+          "end": 132
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R017": {
+        "source_lines": {
+          "start": 133,
+          "end": 134
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R018": {
+        "source_lines": {
+          "start": 135,
+          "end": 137
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R019": {
+        "source_lines": {
+          "start": 138,
+          "end": 138
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R020": {
+        "source_lines": {
+          "start": 139,
+          "end": 141
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R021": {
+        "source_lines": {
+          "start": 145,
+          "end": 145
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R022": {
+        "source_lines": {
+          "start": 146,
+          "end": 146
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R023": {
+        "source_lines": {
+          "start": 147,
+          "end": 147
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R024": {
+        "source_lines": {
+          "start": 148,
+          "end": 149
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R025": {
+        "source_lines": {
+          "start": 150,
+          "end": 150
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R026": {
+        "source_lines": {
+          "start": 154,
+          "end": 154
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R027": {
+        "source_lines": {
+          "start": 155,
+          "end": 155
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R028": {
+        "source_lines": {
+          "start": 156,
+          "end": 157
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      },
+      "WF1-R029": {
+        "source_lines": {
+          "start": 161,
+          "end": 163
+        },
+        "frozen_source_path": "sources/prd-local-file-delivery-fix.md"
+      }
+    }
+  },
+  "input": {
+    "path": "input.md",
+    "sha256": "8a195564aa8eafe76cee6bba0c9c0b460b9d3d89caa3dbf95dd55ba5a54eac4c",
+    "baseline_or_research_solution_included": false,
+    "only_allowlisted_packet_files": [
+      "input.md"
+    ]
+  },
+  "disclosure_boundary": "Generator receives input.md only (plus identical evaluation protocol supplied externally). sources/ are provenance copies of packet text; do not expose baseline*, requirements.json or provenance.json to generator. All non-input corpus files are evaluator-only.",
+  "execution": {
+    "network_calls": 0,
+    "paid_model_calls": 0,
+    "candidate_generation_calls": 0,
+    "git_mutations": 0
+  },
+  "verification": {
+    "all_requirement_quotes_found_in_input": true,
+    "all_source_specs_frozen_verbatim": true,
+    "all_ids_unique": true,
+    "scoring_completed_checkboxes_remaining": 0
+  },
+  "hashes": {
+    "input.md": "8a195564aa8eafe76cee6bba0c9c0b460b9d3d89caa3dbf95dd55ba5a54eac4c",
+    "baseline.md": "227edaa20ca1a6b7e3475d753dd16b1579df54d5247e9983ed7dfda95834a850",
+    "baseline-original.md": "893613a0cd9302f632575388aa80c6cbb106970aef667f65184433e955cf31a2",
+    "requirements.json": "c6227d16d81ac633633230bdf4eac61bc4961d4250012960ff1b57102daef7e0"
+  }
+}
