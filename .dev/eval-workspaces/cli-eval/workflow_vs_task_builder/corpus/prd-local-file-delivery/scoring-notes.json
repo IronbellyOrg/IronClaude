@@ -1,0 +1,7 @@
+{
+  "schema": "workflow-vs-task-builder/scoring-notes/1",
+  "corroborates": {
+    "WF1-R021": "WF1-R019"
+  },
+  "superseded_by": {}
+}

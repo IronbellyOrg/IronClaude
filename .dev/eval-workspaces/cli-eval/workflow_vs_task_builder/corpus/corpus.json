@@ -1,0 +1,28 @@
+{
+  "cases": [
+    {
+      "id": "WF1",
+      "slug": "prd-local-file-delivery",
+      "input_path": "prd-local-file-delivery/input.md",
+      "baseline_path": "prd-local-file-delivery/baseline.md",
+      "requirements_path": "prd-local-file-delivery/requirements.json",
+      "provenance_path": "prd-local-file-delivery/provenance.json"
+    },
+    {
+      "id": "WF2",
+      "slug": "detection-contract-setup",
+      "input_path": "detection-contract-setup/input.md",
+      "baseline_path": "detection-contract-setup/baseline.md",
+      "requirements_path": "detection-contract-setup/requirements.json",
+      "provenance_path": "detection-contract-setup/provenance.json"
+    },
+    {
+      "id": "WF3",
+      "slug": "reflect-integration",
+      "input_path": "reflect-integration/input.md",
+      "baseline_path": "reflect-integration/baseline.md",
+      "requirements_path": "reflect-integration/requirements.json",
+      "provenance_path": "reflect-integration/provenance.json"
+    }
+  ]
+}

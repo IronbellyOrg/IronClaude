@@ -1,0 +1,1231 @@
+{
+  "case_id": "WF2",
+  "slug": "detection-contract-setup",
+  "grounding": "source-only; retrospective/context-limited",
+  "source_records": [
+    {
+      "source_path": ".dev/brainstorms/20260701-142634-reflect-detection-contract-flow/design.md",
+      "frozen_path": "sources/design.md",
+      "sha256": "7f9dd5bdedc3646803c78f58837a98f27622c20164f33539b5d406f2aeb36ca0",
+      "bytes": 30699,
+      "selection": "Verbatim working-tree authoritative spec; no claim this is a pristine pre-implementation source revision."
+    },
+    {
+      "source_path": ".dev/brainstorms/20260701-142634-reflect-detection-contract-flow/merged-requirements.md",
+      "frozen_path": "sources/merged-requirements.md",
+      "sha256": "890ffe63d155ea8570c4e9e7a14d141486d4c6b2a31797b9cf62708fcfc6516b",
+      "bytes": 16217,
+      "selection": "Verbatim working-tree authoritative spec; no claim this is a pristine pre-implementation source revision."
+    }
+  ],
+  "binding_human_supplements": [
+    {
+      "source_path": ".dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/BUILD-REQUEST.md",
+      "source_sha256": "7ffbc621ebab2264803432b90c42245ae8c552dc537b62377941a6a7cc7bface",
+      "frozen_path": "sources/binding-human-constraints.md",
+      "frozen_sha256": "145a3491ab589fdd24361b927df1ded1c3c504a2177cdb5ecb325ac8346f3a15",
+      "source_ranges": [
+        {
+          "start": 3,
+          "end": 5
+        },
+        {
+          "start": 15,
+          "end": 17
+        },
+        {
+          "start": 35,
+          "end": 50
+        }
+      ],
+      "binding_status": "Human source constraints only; OQ recommended defaults remain unapproved until recorded.",
+      "excluded": "Research directory, QA results, researcher file inventory, generated task solutions, MDTM-only formatting and QA-agent infrastructure preferences."
+    }
+  ],
+  "baseline": {
+    "design_baseline_path": ".dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/TASK-RF-detection-contract-20260701-164700.md",
+    "working_tree_sha256": "506c76f7600ba49acdf1c70b733924562062cfad0951cf4548d2fe8584ace946",
+    "selected_snapshot": "first git-added baseline bytes recovered read-only, not generation-only",
+    "git_commit": "b916ec54f551ce3099be0a102292bea69b49cb6d",
+    "git_path": ".dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/TASK-RF-detection-contract-20260701-164700.md",
+    "recovery_command": [
+      "git",
+      "show",
+      "b916ec54f551ce3099be0a102292bea69b49cb6d:.dev/tasks/to-do/TASK-RF-detection-contract-20260701-164700/TASK-RF-detection-contract-20260701-164700.md"
+    ],
+    "addition_commits_found": [
+      "b916ec54f551ce3099be0a102292bea69b49cb6d"
+    ],
+    "generation_pristine": false,
+    "snapshot_state": "already complete at first git addition",
+    "snapshot_evidence": {
+      "frontmatter_status": "status: \"🟢 Done\"",
+      "checked_items": 86,
+      "execution_log_present": true,
+      "post_reflect_outcomes_present": true
+    },
+    "original_path": "baseline-original.md",
+    "original_sha256": "506c76f7600ba49acdf1c70b733924562062cfad0951cf4548d2fe8584ace946",
+    "original_bytes": 192572,
+    "scoring_path": "baseline.md",
+    "scoring_sha256": "83449d3e9d0cbc6e8c573534ae42da2fb734c2e3f6353558ccf9fd229156fd46",
+    "scoring_bytes": 144109,
+    "normalization_method": "Local deterministic plain-text deletions and checkbox reset; no inference and no planning instruction synthesis.",
+    "normalization_operations": [
+      {
+        "operation": "Remove entire YAML frontmatter (including completion dates, start commits, PRE/POST reflect verdicts)",
+        "pattern": "\\A---\\n.*?\\n---\\n",
+        "replacement": "",
+        "flags": "re.DOTALL",
+        "matches": 1,
+        "before_sha256": "506c76f7600ba49acdf1c70b733924562062cfad0951cf4548d2fe8584ace946",
+        "after_sha256": "4d4b54418e82518a1b620883eee4bcc0e64a06182172750055836b810787c86a"
+      },
+      {
+        "operation": "Remove entire task-log tail: completion summary, executed results, QA fixes/findings, follow-ups, post-reflect evidence",
+        "pattern": "^## Task Log / Notes[^\\n]*\\n.*\\Z",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "4d4b54418e82518a1b620883eee4bcc0e64a06182172750055836b810787c86a",
+        "after_sha256": "9424ac3e715d4f92ea3013eeaf9e4a502a94637ddf72d2bd4354f2947c49a747"
+      },
+      {
+        "operation": "Remove own final completion summary, post-reflect wrapper and Done-flip items",
+        "pattern": "^\\*\\*Step 5\\.5: Create task summary\\*\\*.*\\Z",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "9424ac3e715d4f92ea3013eeaf9e4a502a94637ddf72d2bd4354f2947c49a747",
+        "after_sha256": "55b319054ca03c37232840bcd14fd9d2d2dd2b4f811402254c2a03461e0c6911"
+      },
+      {
+        "operation": "Remove executor status-update protocol",
+        "pattern": "^### Frontmatter Update Protocol\\n.*?(?=^## |^### |\\Z)",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "55b319054ca03c37232840bcd14fd9d2d2dd2b4f811402254c2a03461e0c6911",
+        "after_sha256": "ba7c8d8aa63d75da905e1bb593ca04e9c8234dc49bd2a374f4d00d98cd8c0255"
+      },
+      {
+        "operation": "Remove standalone executor-launch instructions",
+        "pattern": "^### Execution Command\\n.*?(?=^## |^### |\\Z)",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "ba7c8d8aa63d75da905e1bb593ca04e9c8234dc49bd2a374f4d00d98cd8c0255",
+        "after_sha256": "251f7ca37edd3c48ae87a98589285eb4386b65f61728a7bf492dd5c4ce93aea1"
+      },
+      {
+        "operation": "Remove initial execution status/log bookkeeping item",
+        "pattern": "^\\*\\*Step 1\\.1(?::\\*\\* Update task status|: Update task status\\*\\*)\\n.*?(?=^\\*\\*Step 1\\.2)",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "251f7ca37edd3c48ae87a98589285eb4386b65f61728a7bf492dd5c4ce93aea1",
+        "after_sha256": "e3b741dfbe3158f2077fb89e8eb9b45e249809bbcb2eefcb294415ceb2391671"
+      },
+      {
+        "operation": "Reset actual checked completion flags to pending",
+        "pattern": "- \\[[xX]\\]",
+        "replacement": "- [ ]",
+        "flags": "re.MULTILINE",
+        "matches": 82,
+        "before_sha256": "e3b741dfbe3158f2077fb89e8eb9b45e249809bbcb2eefcb294415ceb2391671",
+        "after_sha256": "1281ecedc97301b7cbe16d51bb86b8b06c14d18de8555a33bafeba021ed78656"
+      }
+    ],
+    "non_pristine_caveat": "Original first-added snapshot already includes execution/completion edits. Scoring view is planning-only but cannot undo unknown edits to retained planning instructions or recreate unavailable generation context. Deleting own completion/reflect handoff sections omits any planning-only acceptance content embedded exclusively there; authoritative rubric remains unchanged. Future-tense implementation/tests/QA plans and feature-level PRE/POST reflect requirements are retained. Historical QA/procedural preferences are not gold answers.",
+    "final_whitespace_transform": {
+      "operation": "str.strip() followed by one LF",
+      "before_sha256": "1281ecedc97301b7cbe16d51bb86b8b06c14d18de8555a33bafeba021ed78656",
+      "after_sha256": "83449d3e9d0cbc6e8c573534ae42da2fb734c2e3f6353558ccf9fd229156fd46"
+    }
+  },
+  "rubric": {
+    "path": "requirements.json",
+    "sha256": "bf4081d4ac2b6296e9d8f187da7d05289427d3ea9b86bdc0cfc69464e08592a6",
+    "requirement_count": 145,
+    "sources_only": true,
+    "frozen_before_generation": true,
+    "dimension_counts": {
+      "coverage": 20,
+      "correctness": 29,
+      "safety": 50,
+      "testability": 19,
+      "dependencies": 15,
+      "scope": 12
+    },
+    "scoring_policy": {
+      "dimensions": [
+        "coverage",
+        "correctness",
+        "safety",
+        "testability",
+        "dependencies",
+        "scope"
+      ],
+      "scoring_unit": "Substantive source-grounded requirement; evidence must quote the scored planning artifact exactly.",
+      "format_neutral": true,
+      "no_gold_baseline": true,
+      "judge_instruction": "Do not award points merely for MDTM syntax, executor-specific bookkeeping, agent count, QA infrastructure, historical verdicts or implementation outcomes. Score substantive coverage and fidelity, safe refusal/edge cases, actionable validation and dependencies. Equivalent plan.md organization is acceptable. Repeated source obligations corroborate each other; do not give duplicate coverage bonus. Optional/rejected proposals are not mandatory. Source-literal arithmetic/token constraints remain binding.",
+      "precedence": "Binding human supplement overrides conflicting proposal; otherwise source requirements/design govern. Recommendations with pending decisions must not be silently treated as approved.",
+      "freeze_stage": "Before candidate generation; no inference or judging performed."
+    },
+    "source_evidence": {
+      "WF2-R001": {
+        "source_lines": {
+          "start": 14,
+          "end": 14
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R002": {
+        "source_lines": {
+          "start": 16,
+          "end": 16
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R003": {
+        "source_lines": {
+          "start": 17,
+          "end": 17
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R004": {
+        "source_lines": {
+          "start": 18,
+          "end": 18
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R005": {
+        "source_lines": {
+          "start": 19,
+          "end": 19
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R006": {
+        "source_lines": {
+          "start": 20,
+          "end": 20
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R007": {
+        "source_lines": {
+          "start": 28,
+          "end": 31
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R008": {
+        "source_lines": {
+          "start": 35,
+          "end": 37
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R009": {
+        "source_lines": {
+          "start": 43,
+          "end": 45
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R010": {
+        "source_lines": {
+          "start": 49,
+          "end": 51
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R011": {
+        "source_lines": {
+          "start": 57,
+          "end": 61
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R012": {
+        "source_lines": {
+          "start": 69,
+          "end": 69
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R013": {
+        "source_lines": {
+          "start": 70,
+          "end": 70
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R014": {
+        "source_lines": {
+          "start": 71,
+          "end": 71
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R015": {
+        "source_lines": {
+          "start": 72,
+          "end": 72
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R016": {
+        "source_lines": {
+          "start": 73,
+          "end": 73
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R017": {
+        "source_lines": {
+          "start": 74,
+          "end": 74
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R018": {
+        "source_lines": {
+          "start": 75,
+          "end": 75
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R019": {
+        "source_lines": {
+          "start": 76,
+          "end": 76
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R020": {
+        "source_lines": {
+          "start": 77,
+          "end": 77
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R021": {
+        "source_lines": {
+          "start": 81,
+          "end": 81
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R022": {
+        "source_lines": {
+          "start": 83,
+          "end": 86
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R023": {
+        "source_lines": {
+          "start": 88,
+          "end": 90
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R024": {
+        "source_lines": {
+          "start": 92,
+          "end": 95
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R025": {
+        "source_lines": {
+          "start": 97,
+          "end": 99
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R026": {
+        "source_lines": {
+          "start": 101,
+          "end": 103
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R027": {
+        "source_lines": {
+          "start": 105,
+          "end": 108
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R028": {
+        "source_lines": {
+          "start": 110,
+          "end": 112
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R029": {
+        "source_lines": {
+          "start": 114,
+          "end": 117
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R030": {
+        "source_lines": {
+          "start": 119,
+          "end": 121
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R031": {
+        "source_lines": {
+          "start": 123,
+          "end": 125
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R032": {
+        "source_lines": {
+          "start": 127,
+          "end": 129
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R033": {
+        "source_lines": {
+          "start": 131,
+          "end": 133
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R034": {
+        "source_lines": {
+          "start": 135,
+          "end": 137
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R035": {
+        "source_lines": {
+          "start": 139,
+          "end": 141
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R036": {
+        "source_lines": {
+          "start": 143,
+          "end": 146
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R037": {
+        "source_lines": {
+          "start": 148,
+          "end": 150
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R038": {
+        "source_lines": {
+          "start": 154,
+          "end": 168
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R039": {
+        "source_lines": {
+          "start": 171,
+          "end": 185
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R040": {
+        "source_lines": {
+          "start": 192,
+          "end": 192
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R041": {
+        "source_lines": {
+          "start": 193,
+          "end": 193
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R042": {
+        "source_lines": {
+          "start": 194,
+          "end": 194
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R043": {
+        "source_lines": {
+          "start": 195,
+          "end": 195
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R044": {
+        "source_lines": {
+          "start": 196,
+          "end": 196
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R045": {
+        "source_lines": {
+          "start": 197,
+          "end": 197
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R046": {
+        "source_lines": {
+          "start": 198,
+          "end": 198
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R047": {
+        "source_lines": {
+          "start": 199,
+          "end": 199
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R048": {
+        "source_lines": {
+          "start": 200,
+          "end": 200
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R049": {
+        "source_lines": {
+          "start": 201,
+          "end": 201
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R050": {
+        "source_lines": {
+          "start": 202,
+          "end": 202
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R051": {
+        "source_lines": {
+          "start": 203,
+          "end": 203
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R052": {
+        "source_lines": {
+          "start": 205,
+          "end": 211
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R053": {
+        "source_lines": {
+          "start": 213,
+          "end": 220
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R054": {
+        "source_lines": {
+          "start": 226,
+          "end": 230
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R055": {
+        "source_lines": {
+          "start": 234,
+          "end": 239
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R056": {
+        "source_lines": {
+          "start": 243,
+          "end": 245
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R057": {
+        "source_lines": {
+          "start": 249,
+          "end": 253
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R058": {
+        "source_lines": {
+          "start": 257,
+          "end": 260
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R059": {
+        "source_lines": {
+          "start": 264,
+          "end": 268
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R060": {
+        "source_lines": {
+          "start": 272,
+          "end": 292
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R061": {
+        "source_lines": {
+          "start": 294,
+          "end": 294
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R062": {
+        "source_lines": {
+          "start": 298,
+          "end": 304
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R063": {
+        "source_lines": {
+          "start": 316,
+          "end": 316
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R064": {
+        "source_lines": {
+          "start": 320,
+          "end": 325
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R065": {
+        "source_lines": {
+          "start": 329,
+          "end": 334
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R066": {
+        "source_lines": {
+          "start": 338,
+          "end": 338
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R067": {
+        "source_lines": {
+          "start": 339,
+          "end": 339
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R068": {
+        "source_lines": {
+          "start": 340,
+          "end": 340
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R069": {
+        "source_lines": {
+          "start": 341,
+          "end": 341
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R070": {
+        "source_lines": {
+          "start": 342,
+          "end": 342
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R071": {
+        "source_lines": {
+          "start": 343,
+          "end": 343
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R072": {
+        "source_lines": {
+          "start": 344,
+          "end": 344
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R073": {
+        "source_lines": {
+          "start": 345,
+          "end": 345
+        },
+        "conditional": "Live capture is deferred unless explicit approval; not mandatory v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R074": {
+        "source_lines": {
+          "start": 346,
+          "end": 346
+        },
+        "conditional": "Required v1",
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R075": {
+        "source_lines": {
+          "start": 352,
+          "end": 352
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R076": {
+        "source_lines": {
+          "start": 353,
+          "end": 353
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R077": {
+        "source_lines": {
+          "start": 354,
+          "end": 354
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R078": {
+        "source_lines": {
+          "start": 355,
+          "end": 355
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R079": {
+        "source_lines": {
+          "start": 356,
+          "end": 356
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R080": {
+        "source_lines": {
+          "start": 357,
+          "end": 357
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R081": {
+        "source_lines": {
+          "start": 358,
+          "end": 358
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R082": {
+        "source_lines": {
+          "start": 359,
+          "end": 359
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R083": {
+        "source_lines": {
+          "start": 363,
+          "end": 363
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R084": {
+        "source_lines": {
+          "start": 364,
+          "end": 364
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R085": {
+        "source_lines": {
+          "start": 365,
+          "end": 365
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R086": {
+        "source_lines": {
+          "start": 366,
+          "end": 366
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R087": {
+        "source_lines": {
+          "start": 367,
+          "end": 367
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R088": {
+        "source_lines": {
+          "start": 368,
+          "end": 368
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R089": {
+        "source_lines": {
+          "start": 369,
+          "end": 369
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R090": {
+        "source_lines": {
+          "start": 370,
+          "end": 370
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R091": {
+        "source_lines": {
+          "start": 371,
+          "end": 371
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R092": {
+        "source_lines": {
+          "start": 372,
+          "end": 372
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R093": {
+        "source_lines": {
+          "start": 373,
+          "end": 373
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R094": {
+        "source_lines": {
+          "start": 374,
+          "end": 374
+        },
+        "frozen_source_path": "sources/merged-requirements.md"
+      },
+      "WF2-R095": {
+        "source_lines": {
+          "start": 38,
+          "end": 45
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R096": {
+        "source_lines": {
+          "start": 49,
+          "end": 58
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R097": {
+        "source_lines": {
+          "start": 62,
+          "end": 65
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R098": {
+        "source_lines": {
+          "start": 129,
+          "end": 131
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R099": {
+        "source_lines": {
+          "start": 135,
+          "end": 137
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R100": {
+        "source_lines": {
+          "start": 141,
+          "end": 151
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R101": {
+        "source_lines": {
+          "start": 157,
+          "end": 174
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R102": {
+        "source_lines": {
+          "start": 179,
+          "end": 192
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R103": {
+        "source_lines": {
+          "start": 197,
+          "end": 211
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R104": {
+        "source_lines": {
+          "start": 217,
+          "end": 235
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R105": {
+        "source_lines": {
+          "start": 239,
+          "end": 241
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R106": {
+        "source_lines": {
+          "start": 244,
+          "end": 252
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R107": {
+        "source_lines": {
+          "start": 254,
+          "end": 256
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R108": {
+        "source_lines": {
+          "start": 258,
+          "end": 265
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R109": {
+        "source_lines": {
+          "start": 267,
+          "end": 275
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R110": {
+        "source_lines": {
+          "start": 277,
+          "end": 283
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R111": {
+        "source_lines": {
+          "start": 285,
+          "end": 296
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R112": {
+        "source_lines": {
+          "start": 299,
+          "end": 300
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R113": {
+        "source_lines": {
+          "start": 304,
+          "end": 306
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R114": {
+        "source_lines": {
+          "start": 310,
+          "end": 326
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R115": {
+        "source_lines": {
+          "start": 329,
+          "end": 330
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R116": {
+        "source_lines": {
+          "start": 334,
+          "end": 347
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R117": {
+        "source_lines": {
+          "start": 352,
+          "end": 361
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R118": {
+        "source_lines": {
+          "start": 365,
+          "end": 367
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R119": {
+        "source_lines": {
+          "start": 395,
+          "end": 398
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R120": {
+        "source_lines": {
+          "start": 421,
+          "end": 434
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R121": {
+        "source_lines": {
+          "start": 438,
+          "end": 457
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R122": {
+        "source_lines": {
+          "start": 463,
+          "end": 484
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R123": {
+        "source_lines": {
+          "start": 488,
+          "end": 506
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R124": {
+        "source_lines": {
+          "start": 517,
+          "end": 522
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R125": {
+        "source_lines": {
+          "start": 527,
+          "end": 536
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R126": {
+        "source_lines": {
+          "start": 559,
+          "end": 561
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R127": {
+        "source_lines": {
+          "start": 567,
+          "end": 575
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R128": {
+        "source_lines": {
+          "start": 579,
+          "end": 584
+        },
+        "frozen_source_path": "sources/design.md"
+      },
+      "WF2-R129": {
+        "source_lines": {
+          "start": 3,
+          "end": 3
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R130": {
+        "source_lines": {
+          "start": 5,
+          "end": 5
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R131": {
+        "source_lines": {
+          "start": 15,
+          "end": 15
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R132": {
+        "source_lines": {
+          "start": 17,
+          "end": 17
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R133": {
+        "source_lines": {
+          "start": 36,
+          "end": 36
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R134": {
+        "source_lines": {
+          "start": 37,
+          "end": 37
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R135": {
+        "source_lines": {
+          "start": 38,
+          "end": 38
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R136": {
+        "source_lines": {
+          "start": 41,
+          "end": 41
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R137": {
+        "source_lines": {
+          "start": 42,
+          "end": 42
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R138": {
+        "source_lines": {
+          "start": 43,
+          "end": 43
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R139": {
+        "source_lines": {
+          "start": 44,
+          "end": 44
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R140": {
+        "source_lines": {
+          "start": 45,
+          "end": 45
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R141": {
+        "source_lines": {
+          "start": 46,
+          "end": 46
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R142": {
+        "source_lines": {
+          "start": 47,
+          "end": 47
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R143": {
+        "source_lines": {
+          "start": 48,
+          "end": 48
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R144": {
+        "source_lines": {
+          "start": 49,
+          "end": 49
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      },
+      "WF2-R145": {
+        "source_lines": {
+          "start": 50,
+          "end": 50
+        },
+        "frozen_source_path": "sources/binding-human-constraints.md"
+      }
+    }
+  },
+  "input": {
+    "path": "input.md",
+    "sha256": "efcbfdd07a5824b80cdb59e3d7bb4cd7fa992f0d6c981a8c36fc309ae6b23f3b",
+    "baseline_or_research_solution_included": false,
+    "only_allowlisted_packet_files": [
+      "input.md"
+    ]
+  },
+  "disclosure_boundary": "Generator receives input.md only (plus identical evaluation protocol supplied externally). sources/ are provenance copies of packet text; do not expose baseline*, requirements.json or provenance.json to generator. All non-input corpus files are evaluator-only.",
+  "execution": {
+    "network_calls": 0,
+    "paid_model_calls": 0,
+    "candidate_generation_calls": 0,
+    "git_mutations": 0
+  },
+  "verification": {
+    "all_requirement_quotes_found_in_input": true,
+    "all_source_specs_frozen_verbatim": true,
+    "all_ids_unique": true,
+    "scoring_completed_checkboxes_remaining": 0
+  },
+  "hashes": {
+    "input.md": "efcbfdd07a5824b80cdb59e3d7bb4cd7fa992f0d6c981a8c36fc309ae6b23f3b",
+    "baseline.md": "83449d3e9d0cbc6e8c573534ae42da2fb734c2e3f6353558ccf9fd229156fd46",
+    "baseline-original.md": "506c76f7600ba49acdf1c70b733924562062cfad0951cf4548d2fe8584ace946",
+    "requirements.json": "bf4081d4ac2b6296e9d8f187da7d05289427d3ea9b86bdc0cfc69464e08592a6",
+    "scoring-notes.json": "f723b3361ff7c8c3d83cb987be1cec1c1c38f0b31f52b62dfed733d2b3016c61"
+  }
+}

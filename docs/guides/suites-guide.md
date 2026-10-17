@@ -444,13 +444,31 @@ reproduction of the original research or a causal superiority test. Generators
 receive only frozen source packets, not baselines, hidden rubrics or completed
 implementation/QA solutions.
 
-**Scoring contract:** workflow generates `plan.md` plus a return contract,
-**not an MDTM bundle**. Validate workflow format separately from shared planning
-quality. Use the same frozen, source-grounded rubric for coverage, correctness,
+**Scoring contract:** each run makes one managed workflow package,
+`.dev/tasks/to-do/TASK-WF-<subject>-<YYYYMMDD>-<HHMMSS>/`, holding the tasklist
+`<id>.md` (schema `workflow-plan/1.2`), a `source.md` snapshot and a
+`return-contract.yaml`, **not an MDTM bundle**. `/sc:workflow` also runs its own
+advisory `/sc:reflect --mode pre` on the tasklist; the companion records
+`reflect_status` / `reflect_report_path` but does not score or require them.
+Validate workflow format separately from shared planning quality. Use the same frozen, source-grounded rubric for coverage, correctness,
 safety, testability, dependencies and scope, with exact artifact evidence.
 Historical baselines are not gold answers; MDTM syntax and execution outcomes
 earn no quality bonus. Score each of the **3 baselines once**, then at most
-**27 candidates** against it (at most 30 quality judgments).
+**27 candidates** against it (at most 30 quality judgments). A run exits 0 only
+when every candidate **and all three baselines** are `SCORED`: a baseline whose
+judgment is malformed leaves that case without deltas, is recorded as a blocker,
+and exits 1.
+
+**Restated and contradicted requirements.** The requirement rows are hash-pinned
+and never edited. Each case's hash-pinned `scoring-notes.json` instead lists rows
+that restate another row's obligation (`corroborates`) and a summary row that the
+source itself contradicts with a more specific one (`superseded_by`: `WF3-R003`,
+"last item", is governed by `WF3-R038`, "penultimate item"). Those rows are still
+judged, so every judgment returns every ID, but they are left out of the
+dimension means so a single obligation is not weighted twice and a plan that
+follows the governing row is not penalised. The groups were identified by reading
+the rows; paraphrased restatements are not detectable mechanically, so the list
+is a reviewed set, not a proof that no other restatement exists.
 
 **Execution warning:** schema validation and discovery have succeeded; they
 prove registration only. Core `superclaude eval run` currently uses a null
@@ -477,7 +495,13 @@ surface. Dollar limits are soft when proxy pricing is unverified; CLI reported
 costs, including zero, are estimates, not verified provider spend.
 
 `--preflight --confirm-live` runs ten synthetic diagnostic jobs, never scored
-corpus cells. It requires `acknowledge_preflight: true`; with
+corpus cells. Each job, after activating the workflow Skill, attempts one
+outside-root `Read` and one outside-root `Write` (to a not-yet-existing file the
+OS would allow); `restricted_paths` is certified only if both are refused and no
+file appears. A refusal must read as a policy denial (or arrive as a
+`permission_denied` event), and the `Write` must be well-formed: an argument
+validation error or I/O failure is not a denial and certifies nothing. The `Edit` rule family covers `Write`, but an `Edit`-tool attempt
+is not probed separately. It requires `acknowledge_preflight: true`; with
 `preflight_budget_usd: null` there is no dollar cap. Finite call/turn/time
 safeguards remain. The recorder distinguishes CLI jobs from underlying Messages
 requests, stores no raw headers/prompts, and emits qualifying evidence only.
@@ -490,6 +514,17 @@ all selected models; CLI acceptance alone is not evidence. The user chose
 support before proceeding; explicit confirmation of the paid launch, judge,
 data disclosure, limits and spend ceiling is still required. This suite is
 manual/on-demand, not an automatic paid CI job.
+
+Two further pre-launch checks apply to the merged workflow. First, the
+restricted child denies `Bash`, but `/sc:workflow` uses it for the exclusive
+package `mkdir` and `date -u`; the preflight must show a valid timestamped
+package id is still produced with `Write` alone, and if it is not, widen the
+Bash policy narrowly rather than relaxing the package checks. Second, the
+restricted tool pool denies `Agent`/`Task`, so the workflow's built-in
+`/sc:reflect --mode pre` may not run fully; the companion records its
+activation and `reflect_*` fields as advisory evidence and never requires it.
+Existing `confinement_evidence` was bound to the previous staged file set
+(reflect now staged beside workflow) and must be regenerated.
 
 ---
 
