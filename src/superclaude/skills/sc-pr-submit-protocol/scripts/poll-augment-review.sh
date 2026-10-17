@@ -59,7 +59,8 @@ fetch_rest() {
                 (if $kind == "reviews" then
                     (.state | type == "string") and has("commit_id") and
                     (.commit_id == null or (.commit_id | type == "string")) and
-                    has("submitted_at") and (.submitted_at == null or (.submitted_at | type == "string"))
+                    (.state == "PENDING" or has("submitted_at")) and
+                    (.submitted_at == null or (.submitted_at | type == "string"))
                  else (.body | type == "string") end)))' \
             "$_tmp/rest-page.json" >/dev/null 2>&1 || return 1
         jq -c '.' "$_tmp/rest-page.json" >> "$_tmp/rest-pages.jsonl" || return 1
