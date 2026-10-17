@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 
+from superclaude.pr_submit import DetectionContract, classify
+
 SCRIPTS = (
     Path(__file__).resolve().parents[2]
     / "src/superclaude/skills/sc-pr-submit-protocol/scripts"
@@ -235,6 +237,58 @@ def test_poll_all_pages_and_raw_provenance(adapter):
     assert payload["threads"][-1] == thread(101)
     assert any("endCursor=c1" in call for call in calls)
     assert payload["state"] == "review_present"
+
+
+@pytest.mark.parametrize(
+    "login,expected",
+    [
+        ("operator", "clean"),
+        ("other-bot[bot]", "clean"),
+        ("augmentcode[bot]", "polling"),
+    ],
+)
+@pytest.mark.parametrize("timestamp", ["absent", None])
+def test_pending_drafts_preserve_transport_and_author_gates(
+    adapter, load_fixture, login, expected, timestamp
+):
+    snapshot = load_fixture("cosmos-pr266.json")
+    draft = {**rest_item(999), "state": "PENDING", "user": {"login": login}}
+    if timestamp == "absent":
+        draft.pop("submitted_at")
+    else:
+        draft["submitted_at"] = timestamp
+    data = config()
+    data["reviews"] = [snapshot["reviews"] + [draft]]
+    data["threads"] = [connection(snapshot["threads"])]
+    result, _ = adapter(data)
+    payload = assert_poll(result)
+    assert payload["reviews"][-1] == draft
+    assert classify(payload, DetectionContract.for_arming()) == expected
+
+
+@pytest.mark.parametrize(
+    "state,timestamp",
+    [
+        ("COMMENTED", "absent"),
+        ("PENDING", 123),
+        ("PENDING", {}),
+        ("PENDING", []),
+        ("PENDING", False),
+    ],
+)
+def test_review_timestamp_presence_and_type_still_fail_closed(
+    adapter, state, timestamp
+):
+    review = {**rest_item(), "state": state}
+    if timestamp == "absent":
+        review.pop("submitted_at")
+    else:
+        review["submitted_at"] = timestamp
+    data = config()
+    data["reviews"] = [[review]]
+    result, _ = adapter(data)
+    payload = assert_poll(result, reviews_ok=False)
+    assert classify(payload, DetectionContract.for_arming()) == "polling"
 
 
 @pytest.mark.parametrize(
