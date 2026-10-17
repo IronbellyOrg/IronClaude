@@ -1,0 +1,25 @@
+{
+  "state": "d3aece84eff61fbfaaa104cced31f95e3cdebf7c9dae565a312208e8b04c4e3f",
+  "files": [
+    "src/superclaude/pr_submit/__init__.py",
+    "src/superclaude/pr_submit/classifier.py",
+    "src/superclaude/pr_submit/detection.py",
+    "src/superclaude/pr_submit/models.py",
+    "src/superclaude/pr_submit/severity_router.py",
+    "src/superclaude/skills/sc-pr-submit-protocol/SKILL.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/augment-poll.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/detection-contract.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/review-retrigger.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/severity-routing.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/refs/thread-reply.md",
+    "src/superclaude/skills/sc-pr-submit-protocol/scripts/poll-augment-review.sh",
+    "src/superclaude/skills/sc-pr-submit-protocol/scripts/reply-resolve-thread.sh",
+    "tests/pr_submit/fixtures/cosmos-pr266.json",
+    "tests/pr_submit/test_cosmos_poll.py",
+    "tests/pr_submit/test_cosmos_protocol.py",
+    "tests/pr_submit/test_cosmos_review.py",
+    "tests/pr_submit/test_detection_contract.py",
+    "tests/pr_submit/test_severity_router.py",
+    "tests/pr_submit/test_static_grep.py"
+  ]
+}

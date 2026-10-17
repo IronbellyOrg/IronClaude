@@ -1,0 +1,23 @@
+contract_version: "1.7.0"
+status: partial
+mode: pre
+tier_reached: 1
+report_path: /config/workspace/IronClaude/.dev/worktrees/cosmos-pr-submit/.dev/reflect/pre-cosmos-pr-submit-20261016-204642/REPORT.md
+confidence_calibrated: 0.73
+coverage_pct: 1.0
+coverage_pct_union: null
+coverage_undefined: false
+unmapped_requirements: []
+unmapped_requirements_union: []
+evidence_validator_ran: true
+evidence_validation_status: partial
+evidence_validation_path: ./evidence-validation.md
+promotion_action: not-applicable
+needs_human_decision: false
+user_decision_required: false
+degraded_components:
+  - full-reflection-grounding-chain-unavailable
+  - full-ensemble-not-completed
+unresolved:
+  - "Advisory plan wording: execute fresh independent final review with a separate subagent as required by canonical managed implementation protocol."
+  - "Report actual test outcomes and remaining limitations at execution handoff."

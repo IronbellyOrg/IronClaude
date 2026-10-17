@@ -20,6 +20,7 @@ Top-level re-exports (``run_skill``, ``remap_severity``, ``poll_augment_review``
 
 from .classifier import (
     STATE_DECLINED,
+    actionable_finding_comments,
     classify,
     has_augment_activity,
     is_decline,
@@ -35,7 +36,7 @@ from .models import (
     Severity,
     SkillResult,
 )
-from .severity_router import remap_severity, route
+from .severity_router import finding_from_comment, remap_severity, route
 
 # NOTE: ``load_fixture`` lives in ``tests/pr_submit/conftest.py`` (Phase 10) per the
 # repo's fixture-helper precedent (research/04 §D: ``FIXTURES_DIR`` + ``load_fixture``
@@ -44,6 +45,7 @@ from .severity_router import remap_severity, route
 __all__ = [
     # detection / classification
     "classify",
+    "actionable_finding_comments",
     "is_decline",
     "has_augment_activity",
     "poll_succeeded",
@@ -58,6 +60,7 @@ __all__ = [
     "evaluate_push_decision",
     "RunConfig",
     # severity routing
+    "finding_from_comment",
     "remap_severity",
     "route",
     # models

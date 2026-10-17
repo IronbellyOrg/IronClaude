@@ -14,6 +14,8 @@ finding's fields.
 
 from __future__ import annotations
 
+import re
+
 from .models import Finding, Severity
 
 # Severity rank — higher is more severe. Used to clamp to category floor/ceiling
@@ -54,6 +56,66 @@ _CATEGORY_TABLE: dict[str, tuple[Severity | None, Severity | None]] = {
 ROUTE_FIX = "--fix"  # Medium — defaults to --depth standard
 ROUTE_DEEP_FIX = "--depth deep --fix"  # High / Critical
 ROUTE_REPORT_ONLY = "report-only"  # Low / Nit — not dispatched
+
+
+def finding_from_comment(raw: dict) -> Finding:
+    """Normalize a selected root without promoting remote verification claims.
+
+    Null current locations remain null; original locations are verification hints,
+    not a replacement for the current location or proof of a reproduced defect.
+    """
+    if not isinstance(raw, dict):
+        raise ValueError("finding root must be an object")
+    for key in ("path", "body"):
+        if not isinstance(raw.get(key), str) or not raw[key].strip():
+            raise ValueError(f"finding root needs nonempty {key}")
+    line = raw.get("line")
+    original = raw.get("original_line", raw.get("originalLine"))
+    for value in (line, original):
+        if value is not None and (type(value) is not int or value <= 0):
+            raise ValueError("finding locations must be positive integers or null")
+    for key in ("severity_hint", "category", "confidence"):
+        if raw.get(key) is not None and not isinstance(raw[key], str):
+            raise ValueError(f"finding {key} must be text")
+    for key in ("in_diff", "is_outdated"):
+        if key in raw and type(raw[key]) is not bool:
+            raise ValueError(f"finding {key} must be boolean")
+    hint = (raw.get("severity_hint") or "").strip().lower() or None
+    if hint is None:
+        matches = re.findall(
+            r"^[ \t]*\*\*Severity:\*\*[ \t]*([^\r\n]+?)[ \t]*\r?$",
+            raw["body"],
+            re.IGNORECASE | re.MULTILINE,
+        )
+        if len(matches) == 1:
+            hint = matches[0].strip().lower()
+    comment_id = raw.get("comment_id", raw.get("databaseId", raw.get("id")))
+    if comment_id is not None and (type(comment_id) is not int or comment_id <= 0):
+        raise ValueError("finding comment_id must be a positive root identifier")
+    thread_id, review_id = raw.get("thread_id"), raw.get("review_id")
+    if thread_id is not None and (
+        not isinstance(thread_id, str) or not thread_id.strip()
+    ):
+        raise ValueError("finding thread_id must be nonempty text")
+    if review_id is not None and not (
+        (type(review_id) is int and review_id > 0)
+        or (isinstance(review_id, str) and review_id.strip())
+    ):
+        raise ValueError("finding review_id must be a stable identifier")
+    return Finding(
+        path=raw["path"],
+        line=line,
+        body=raw["body"],
+        severity_hint=hint,
+        category=raw.get("category"),
+        confidence=raw.get("confidence"),
+        in_diff=raw.get("in_diff", True),
+        comment_id=comment_id,
+        thread_id=thread_id,
+        review_id=review_id,
+        original_line=original,
+        is_outdated=raw.get("is_outdated", False),
+    )
 
 
 def _hint_to_severity(hint: str | None) -> Severity:

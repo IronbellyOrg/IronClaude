@@ -46,9 +46,9 @@ wall-clock start when entering a wait (Wave 1, the S5 re-review wait, or the Wav
 1. Run the wave's poll script **once** in the foreground (`scripts/poll-augment-review.sh` or
    `scripts/poll-ci-checks.sh`, always `--repo "$REPO"`). A non-zero exit is a prerequisite or
    usage failure: stop and report it, never retry it as `polling`.
-2. Classify the one JSON line with the existing core: `superclaude.pr_submit.classify` (Augment) or
-   `superclaude.pr_submit.ci.classify_checks` (CI); append the run-log event.
-3. Terminal result → leave the loop and continue the wave. For Augment `polling`, do **not**
+2. Classify the one JSON line with the existing core: use the **Augment snapshot gate** below,
+   or `superclaude.pr_submit.ci.classify_checks` for CI; append the run-log event only after the gate.
+3. Validated non-polling result → leave the wait and continue the wave. For Augment `polling`, do **not**
    call raw `timed_out`. Compute `silent = poll_succeeded(payload) and not has_augment_activity(payload, contract)`, then
    `st = rebuild_state()`, `already = pr in st["silence_rerequest_invoked"]`,
    `clock = st["silence_rerequested_at"]`, and
@@ -68,6 +68,65 @@ and authorized push / reply / resolve itself. Never hand a side effect to a back
 detached loop, or subagent, and never claim the wait survives session exit. The ordinal gates
 (L0/L1/L2/L3), `round_counter` / `max_rounds`, and `HALT_MAX_ROUNDS` preservation are unchanged by
 the loop.
+
+### Augment snapshot gate (normative; before any FSM outcome)
+
+For the initial wait set `pushed_sha = None`, `watermark = None`. In S5 retain the exact pushed full
+SHA and a trustworthy UTC re-trigger watermark (see `refs/review-retrigger.md`). On each poll execute
+this gate using the same immutable snapshot; the public explicit head argument is an **override**,
+not a comparison against the actual snapshot head:
+
+```python
+from superclaude.pr_submit import (
+    actionable_finding_comments, classify, finding_from_comment, remap_severity, route,
+)
+
+expected_head = payload.get("head_sha") if pushed_sha is None else pushed_sha
+findings = []
+routes = []
+if pushed_sha is not None and (
+    payload.get("head_sha") != pushed_sha or watermark is None
+):
+    review_state = "polling"
+else:
+    review_state = classify(
+        payload, contract, watermark=watermark, current_head_sha=expected_head,
+    )
+    if review_state == "findings":
+        selected = actionable_finding_comments(
+            payload, contract, watermark=watermark, current_head_sha=expected_head,
+        )
+        try:
+            if not selected:
+                raise ValueError("findings signal without actionable root details")
+            findings = [finding_from_comment(raw) for raw in selected]
+        except ValueError:
+            review_state = "polling"
+            findings = []
+        else:
+            findings = [remap_severity(finding) for finding in findings]
+            routes = [route(finding) for finding in findings]
+```
+
+An empty selection is possible with legacy `has_findings` / `findings_count` signals; invalid roots
+raise `ValueError`. Both are **incomplete**, not clean: resume step 3's bounded polling without
+resetting elapsed time. Never pass `review_state="findings"` with an empty `findings` list to
+`run_skill`: its legacy injected-input driver would optimistically declare clean. Do not use a
+second body parser, raw `comments` filter, or an invented completion event.
+
+Only the gated `clean` or successfully normalized `findings` result can establish a live attributed
+re-review. During S5 require **both** exact snapshot/pushed head agreement and completion strictly
+newer than the watermark before supplying the existing `rereview_attributed` edge (or explicit
+`RunConfig.rereview_outcome` token `"attributed"`). Never rely on the empty outcome sequence's
+optimistic legacy default; `polling` keeps waiting, expiry supplies `"timeout"`, and `declined`
+uses the existing fallback without a round tick. No clean, round increment or remediation on a head
+mismatch, incomplete snapshot or normalization failure. CI retains its independent Wave 8 gate.
+
+The normalized findings then pass Waves 2–3: Low/Nit report-only, other tiers still require the
+read-only evidence-validator before diagnosis or edits. `verification_status` starts `"unverified"`;
+remote verification claims are ignored. An outdated unresolved root remains visible even when
+`line is None`; `original_line` is only a verification hint, never substituted for current line.
+Existing grounding rejects a null current line; it cannot authorize an automatic fix.
 
 ## Required Input (STOP if missing)
 
@@ -128,8 +187,8 @@ Wave 8: CI wait (after Augment clean / REPORT_ONLY / HALT_MAX_ROUNDS / TERMINAL_
 ```
 
 - **Wave 0 (all ordinals):** resolve the target repo once (`REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"`, fallback parse `git remote get-url origin`) and the base branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`, overridable via `--base`); open the PR with `gh pr create --repo "$REPO" --base <base> --head <head> --title "..." --body "..."`; confirm `git remote -v` shows origin = `$REPO`; rebase if behind `origin/<base>`; verify the returned URL's `owner/repo` equals `$REPO` (a CLI that defaulted onto an upstream parent is a misroute → HALT). Pass `--repo "$REPO"` to every poll/reply/retrigger script too. At **L0 (`--monitor 0`)** the FSM never leaves `S0_IDLE` — open the PR and return, byte-for-byte identical to today (AC-1). The `offer-pr-review.sh` hook may then mention `sc:pr-submit --monitor`.
-- **Wave 1 (L1+):** load the contract via `superclaude.pr_submit.DetectionContract.for_arming()` — prefers an optional operator-local override (gitignored `.dev/pr-monitor/detection-contract.locked.md`) and falls back to the SHIPPED `refs/detection-contract.md` (baked `augmentcode[bot]` / `augmentcode` defaults). A missing or unlocked override is not a halt. Initialize the output-dir + run-log + baseline, then enter the **attended poll loop** (above) with `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each emitted JSON line advances the FSM. Arm exactly once at L1+ (T-109); never at L0 (T-110). `--monitor 0` remains no-monitor.
-- **Wave 2:** load `refs/severity-routing.md`; call `remap_severity(finding)` from `superclaude.pr_submit` and map the remapped tier to its troubleshoot route (Medium → `--fix`; High/Critical → `--depth deep --fix`; Low/Nit → report-only). NEVER emit `--depth quick --fix`.
+- **Wave 1 (L1+):** load the contract via `superclaude.pr_submit.DetectionContract.for_arming()` — prefers an optional operator-local override (gitignored `.dev/pr-monitor/detection-contract.locked.md`) and falls back to the SHIPPED `refs/detection-contract.md` (baked `augmentcode[bot]` / `augmentcode` defaults). A missing or unlocked override is not a halt. Initialize the output-dir + run-log + baseline, then enter the **attended poll loop** (above) with `scripts/poll-augment-review.sh` (interval ≥30s, timeout default 600s); each JSON line passes the snapshot gate before any FSM outcome; incomplete evidence keeps polling. Arm exactly once at L1+ (T-109); never at L0 (T-110). `--monitor 0` remains no-monitor.
+- **Wave 2:** load `refs/severity-routing.md`; use only the snapshot gate's `actionable_finding_comments` → `finding_from_comment` → `remap_severity(finding)` → `route(finding)` results from `superclaude.pr_submit`, then map the remapped tier to its troubleshoot route (Medium → `--fix`; High/Critical → `--depth deep --fix`; Low/Nit → report-only). NEVER emit `--depth quick --fix`.
 - **Wave 3:** load `refs/finding-verify.md`; spawn the `evidence-validator` agent (read-only) to confirm each finding's cited file:line exists and the defect reproduces. `unverified` → REPORT_ONLY, consuming NO round.
 - **Wave 4:** load `refs/troubleshoot-dispatch.md`; for VERIFIED findings only, `> Skill sc:troubleshoot-protocol` for diagnosis. **At L1 (G-edit `ordinal < 2`): PROPOSE "fix these? y/n" and apply NO edits.** At L2+ the skill applies the diagnosed edits ITSELF in the working tree (troubleshoot does NOT auto-apply — `sc:pr-submit` owns edit application in `S3_FIXING`).
 - **Wave 5:** run the VAL validator (below). **At L2 the ceiling stops here:** after applying the edits in `S3_FIXING` and validating in `S7_VALIDATING`, the FSM HALTs at `S4'_HALT_BEFORE_PUSH` — changes are left in the working tree with NO commit, NO push, NO reply (`S3_FIXING → S7_VALIDATING → S4'_HALT_BEFORE_PUSH`, matching `state-machine.md` §5.2a). Only L3 proceeds to Wave 6.

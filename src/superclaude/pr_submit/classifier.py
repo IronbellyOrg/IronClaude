@@ -1,77 +1,62 @@
-"""Pure four-state review classifier for the ``sc:pr-submit`` core (spec §7 / FR-2.2,
-addendum FR-9.1).
+"""Pure, finite review classification and shared actionable-root selection.
 
-:func:`classify` is a pure function of ``(payload, contract)`` that returns one of
-``"polling"`` / ``"clean"`` / ``"findings"`` / ``"declined"``. It keys on the Augment
-IDENTITY SET ``{contract.augment_bot_login, contract.augment_app_slug}`` (never a literal
-string), so the same author rendered as ``augmentcode[bot]`` (REST) or ``augmentcode``
-(GraphQL app-slug) is recognized either way, while a different bot login is treated as
-"review not detected" (T-211) and interleaved Augment+human reviews parse only the Augment
-author (T-212). The V1.1 ``"declined"`` state (FR-9.1) is checked FIRST so an Augment
-"abnormally large" decline is never miscounted as ``"findings"``; the decline predicate
-lives in the sibling pure fn :func:`is_decline`.
-
-NFR-6 core purity: no review-fetch command tokens; the payload is already fetched.
+Only the configured Augment identities supply evidence. Cosmos completion is an
+observed wire format, not a prose heuristic; ambiguous/incomplete evidence polls.
+Legacy injected payloads without attribution context remain supported.
 """
 
 from __future__ import annotations
 
+import json
 import re
+from datetime import datetime, timezone
 from typing import Any
 
-# The four review states this classifier can emit.
 STATE_POLLING = "polling"
 STATE_CLEAN = "clean"
 STATE_FINDINGS = "findings"
 STATE_DECLINED = "declined"
 
+_COMPLETENESS = ("comments_ok", "reviews_ok", "threads_ok")
+_MISSING = object()
+_COSMOS_TOKEN = re.compile(r"cosmos[\s_-]*review[\s_-]*status", re.IGNORECASE)
+_COSMOS_MARKER = re.compile(
+    r"<!--\s*cosmos-review-status:v1\s+(.{1,8192}?)\s*-->", re.DOTALL
+)
+
 
 def _login_of(entry: dict) -> str | None:
-    """Extract the author login from either payload shape.
-
-    ``gh pr view --json reviews`` yields ``{"author": {"login": ...}}`` while the
-    REST ``/pulls/<N>/reviews`` (and ``/comments``) yields ``{"user": {"login": ...}}``.
-    Both are supported so synthetic fixtures may use either shape.
-    """
-    author = entry.get("author")
-    if isinstance(author, dict) and author.get("login"):
-        return author["login"]
-    user = entry.get("user")
-    if isinstance(user, dict) and user.get("login"):
-        return user["login"]
-    # Some flattened fixtures put the login directly on the entry.
-    return entry.get("login")
+    """Accept REST, GraphQL and legacy flattened author shapes."""
+    for key in ("author", "user"):
+        author = entry.get(key)
+        if isinstance(author, dict) and isinstance(author.get("login"), str):
+            return author["login"]
+    login = entry.get("login")
+    return login if isinstance(login, str) else None
 
 
 def _augment_identities(contract: Any) -> set[str]:
-    """Return non-empty Augment identities accepted for this detection contract."""
-    identities = {
-        getattr(contract, "augment_bot_login", None),
-        getattr(contract, "augment_app_slug", None),
+    return {
+        identity
+        for identity in (
+            getattr(contract, "augment_bot_login", None),
+            getattr(contract, "augment_app_slug", None),
+        )
+        if isinstance(identity, str) and identity
     }
-    return {str(identity) for identity in identities if identity}
 
 
-def _augment_entries(entries: Any, augment_identities: set[str]) -> list[dict]:
-    """Filter ``entries`` to those authored by any configured Augment identity."""
-    if not isinstance(entries, list) or not augment_identities:
+def _augment_entries(entries: Any, identities: set[str]) -> list[dict]:
+    if not isinstance(entries, list):
         return []
-    return [
-        e for e in entries if isinstance(e, dict) and _login_of(e) in augment_identities
-    ]
+    return [e for e in entries if isinstance(e, dict) and _login_of(e) in identities]
 
 
 def has_augment_activity(payload: dict, contract: Any) -> bool:
-    """True iff any review or comment is authored by a configured Augment identity.
-
-    Empty or missing ``reviews`` / ``comments`` lists are not activity. A decline
-    comment, a summary comment, and a formal review all count. Pure: no I/O.
-    """
+    """Raw review/comment activity for silence handling, independent of completion."""
     if not isinstance(payload, dict):
         return False
     identities = _augment_identities(contract)
-    if not identities:
-        return False
     return bool(
         _augment_entries(payload.get("reviews"), identities)
         or _augment_entries(payload.get("comments"), identities)
@@ -79,185 +64,365 @@ def has_augment_activity(payload: dict, contract: Any) -> bool:
 
 
 def poll_succeeded(payload: dict) -> bool:
-    """True iff ``payload`` is a complete live poll.
-
-    Fail-soft ``gh pr view`` miss has no ``head_sha``. Independent comment-API
-    miss sets ``comments_ok`` false (empty ``comments`` is then unobserved, not
-    silent). Missing ``comments_ok`` on older fixtures is treated as complete.
-    """
+    """Missing additive flags are compatible with old injected payloads only."""
     if not isinstance(payload, dict) or not payload.get("head_sha"):
         return False
-    if payload.get("comments_ok") is False:
-        return False
-    return True
+    reviews = payload.get("reviews")
+    cosmos = isinstance(reviews, list) and any(
+        _cosmos_shaped(r) for r in reviews if isinstance(r, dict)
+    )
+    return all(payload.get(key, not cosmos) is True for key in _COMPLETENESS) and (
+        not cosmos or _timestamp(payload.get("observed_at")) is not None
+    )
+
+
+def _submission_ts(review: dict) -> Any:
+    """Formal completion uses submission, never creation of a draft review."""
+    return review.get("submitted_at", review.get("submittedAt"))
 
 
 def _entry_ts(entry: dict) -> Any:
-    """Best-effort timestamp for a comment OR review entry.
+    # A present-but-null submission time (pending review) must not use creation.
+    for key in ("submitted_at", "submittedAt", "createdAt", "created_at"):
+        if key in entry:
+            return entry[key]
+    return None
 
-    Comments carry ``createdAt`` / ``created_at``; review objects carry ``submittedAt``
-    (and sometimes ``createdAt``). Checking all three keeps the watermark/staleness
-    logic consistent whether a decline arrives as a comment or as a review — without
-    this, a decline-as-review (only ``submittedAt``) would bypass staleness (FR-9.5).
-    """
-    return entry.get("createdAt") or entry.get("created_at") or entry.get("submittedAt")
+
+def _timestamp(value: Any) -> datetime | None:
+    """Parse aware instants; naive, malformed and arbitrary Any values fail closed."""
+    try:
+        if isinstance(value, str):
+            value = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if isinstance(value, datetime) and value.utcoffset() is not None:
+            return value.astimezone(timezone.utc)
+    except (ValueError, TypeError, OverflowError):
+        pass
+    return None
 
 
 def _is_newer(ts: Any, watermark: Any) -> bool:
-    """True iff ``ts`` is strictly newer than ``watermark``, compared fail-safe.
+    time, boundary = _timestamp(ts), _timestamp(watermark)
+    return time is not None and boundary is not None and time > boundary
 
-    GitHub timestamps are ISO-8601 strings (lexicographically orderable). If either
-    side is absent, or the two are not order-comparable (e.g. a ``datetime`` vs a
-    string), return False — a non-comparable/absent timestamp is treated as NOT newer
-    rather than raising ``TypeError`` (fail-safe staleness; FR-9.5).
-    """
-    if ts is None or watermark is None:
+
+def _sha(value: Any) -> str | None:
+    if isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{40}", value):
+        return value.lower()
+    return None
+
+
+def _review_commits(review: dict) -> list[Any]:
+    commits = [review["commit_id"]] if "commit_id" in review else []
+    if "commit" in review:
+        commit = review["commit"]
+        commits.append(commit.get("oid") if isinstance(commit, dict) else None)
+    return commits
+
+
+def _cosmos_shaped(review: dict) -> bool:
+    body = review.get("body")
+    if not isinstance(body, str):
         return False
+    return bool(
+        _COSMOS_TOKEN.search(body)
+        or (
+            "Deep Code Review Agent" in body
+            and "https://cosmos.augmentcode.com/session" in body
+        )
+        or re.search(r"^#{1,6}\s+Cosmos\b", body, re.IGNORECASE | re.MULTILINE)
+    )
+
+
+def _json_object(pairs: list[tuple[str, Any]]) -> dict:
+    """Reject duplicate keys rather than let a later head/count overwrite evidence."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate marker key")
+        result[key] = value
+    return result
+
+
+def _cosmos_marker(review: dict) -> dict | None:
+    body = review.get("body")
+    if not isinstance(body, str) or len(_COSMOS_TOKEN.findall(body)) != 1:
+        return None
+    match = _COSMOS_MARKER.search(body)
+    if not match:
+        return None
     try:
-        return ts > watermark
-    except TypeError:
-        return False
+        marker = json.loads(match[1], object_pairs_hook=_json_object)
+    except (ValueError, RecursionError):
+        return None
+    if not isinstance(marker, dict):
+        return None
+    count, specialist = marker.get("unresolved_count"), marker.get("specialist")
+    if (
+        not isinstance(specialist, str)
+        or not specialist.strip()
+        or marker.get("status") != "reviewed"
+        or not _sha(marker.get("head"))
+        or not _sha(marker.get("baseline"))
+        or type(count) is not int
+        or count < 0
+    ):
+        return None
+    return marker
 
 
 def _entry_has_findings(review: dict) -> bool:
-    """True when a single Augment review object self-signals findings.
-
-    Synthetic fixtures may carry an explicit ``has_findings`` flag or a
-    ``findings_count`` integer; either being truthy marks the review as carrying
-    findings. (The real ``findings_locus`` JSON path is probe-locked; the
-    synthetic shape mirrors it.)
-    """
-    if review.get("has_findings"):
-        return True
     count = review.get("findings_count")
-    return isinstance(count, int) and count > 0
+    return bool(review.get("has_findings")) or (type(count) is int and count > 0)
 
 
 def is_decline(comment: dict, contract: Any, *, watermark: Any = None) -> bool:
-    """True iff ``comment`` is an Augment "abnormally large" decline (FR-9.1 / FR-9.5).
-
-    A decline is an Augment-authored comment (authored by any identity in the contract's
-    ``{augment_bot_login, augment_app_slug}`` set) whose body matches BOTH
-    ``contract.decline_phrase_regex`` (default ``abnormally\\s+large``) AND
-    ``contract.decline_retrigger_regex`` (default
-    ``comment ["'`*_]*(augment|auggie|augmentcode) review["'`*_]*`` — the ``*_`` wrappers
-    accept the Markdown-emphasized real shape ``comment "**_augment review_**"``),
-    case-insensitively, AND that is newer than ``watermark``. A ``None`` watermark accepts
-    any decline; when a watermark is given, a comment whose ``createdAt``/``created_at`` is
-    not strictly newer is treated as a stale pre-watermark decline and ignored (EC-23).
-
-    Pure: no I/O, no ``gh``/``git`` tokens. A body matching only ``abnormally large``
-    (no re-trigger instruction) is NOT a decline — both regexes must match.
-    """
-    if not isinstance(comment, dict):
+    """Legacy decline predicate; both phrases and a configured author are required."""
+    if not isinstance(comment, dict) or _login_of(comment) not in _augment_identities(
+        contract
+    ):
         return False
-    augment_identities = _augment_identities(contract)
-    if not augment_identities or _login_of(comment) not in augment_identities:
-        return False
-    phrase_re = getattr(contract, "decline_phrase_regex", None)
-    retrigger_re = getattr(contract, "decline_retrigger_regex", None)
-    if not phrase_re or not retrigger_re:
-        return False
-    body = comment.get("body") or ""
-    if not re.search(phrase_re, body, re.IGNORECASE):
-        return False
-    if not re.search(retrigger_re, body, re.IGNORECASE):
-        return False
-    if watermark is not None:
-        # Use _entry_ts (incl. submittedAt) so a decline arriving as a review object —
-        # not just a comment — is still staleness-checked (FR-9.5). Fail-safe compare.
-        if not _is_newer(_entry_ts(comment), watermark):
-            return False
-    return True
-
-
-def _is_attributed_review(review: dict, watermark: Any) -> bool:
-    """True when ``review`` is a genuine re-review attributed to our re-trigger (FR-9.5).
-
-    At the S5 re-trigger poll a watermark (our re-trigger comment's timestamp) is set; a
-    review is "attributed" only when it is NEWER than the watermark (a real post-re-trigger
-    re-review). A ``None`` watermark (the initial poll) treats any review as attributed. A
-    review carrying no timestamp cannot be attributed once a watermark is set.
-    """
-    if not isinstance(review, dict):
-        return False
-    if watermark is None:
-        return True
-    return _is_newer(_entry_ts(review), watermark)
-
-
-def classify(payload: dict, contract: Any, *, watermark: Any = None) -> str:
-    """Return the review state for ``payload`` against ``contract`` (pure).
-
-    - Augment "abnormally large" decline present (an Augment-authored comment/review
-      whose body matches BOTH decline regexes, newer than ``watermark``) →
-      ``"declined"`` (FR-9.1). Checked FIRST so a decline is never miscounted as
-      ``"findings"`` — EXCEPT FR-9.5: at the S5 re-trigger poll (a watermark is set), a
-      genuine attributed re-review (a real review newer than the watermark) WINS over a
-      co-occurring decline (the App actually reviewed), so it is classified as the review.
-    - No Augment review present (empty reviews, or only a non-Augment/different
-      bot author) → ``"polling"`` (T-201, T-211).
-    - Augment review present, no findings → ``"clean"`` (T-202).
-    - Augment review present, findings present (in the review object's
-      self-signal or in Augment-authored inline comments) → ``"findings"``
-      (T-203). Interleaved reviews parse only the Augment author (T-212).
-
-    ``watermark`` (keyword-only, default ``None``) is threaded into :func:`is_decline`
-    so a stale pre-watermark decline is ignored (EC-23); ``None`` accepts any decline.
-    """
-    augment_identities = _augment_identities(contract)
-    reviews = payload.get("reviews") if isinstance(payload, dict) else None
-    comments = payload.get("comments") if isinstance(payload, dict) else None
-
-    augment_reviews = _augment_entries(reviews, augment_identities)
-    augment_comments = _augment_entries(comments, augment_identities)
-
-    # V1.1 decline check (FR-9.1) — runs BEFORE clean/findings/polling so an Augment
-    # decline (which may arrive as a bare comment with no formal review) is never
-    # miscounted. Scans Augment-authored comments AND reviews for a decline marker.
-    decline_present = any(
-        is_decline(entry, contract, watermark=watermark)
-        for entry in (*augment_comments, *augment_reviews)
+    phrase = getattr(contract, "decline_phrase_regex", None)
+    trigger = getattr(contract, "decline_retrigger_regex", None)
+    body = comment.get("body")
+    return bool(
+        isinstance(body, str)
+        and phrase
+        and trigger
+        and re.search(phrase, body, re.IGNORECASE)
+        and re.search(trigger, body, re.IGNORECASE)
+        and (watermark is None or _is_newer(_entry_ts(comment), watermark))
     )
-    if decline_present:
-        # FR-9.5 (review > decline): at the S5 re-trigger poll (a watermark is set) a
-        # GENUINE attributed re-review — a real review newer than our re-trigger watermark
-        # — WINS over a co-occurring decline (the App actually reviewed). Otherwise (the
-        # initial poll where watermark is None, or no attributed review present) the
-        # decline-first rule (FR-9.1) holds.
-        attributed_rereview = watermark is not None and any(
-            _is_attributed_review(r, watermark)
-            and not is_decline(r, contract, watermark=watermark)
-            for r in augment_reviews
+
+
+def _completion_reviews(
+    reviews: list[dict], expected: Any, watermark: Any, cosmos: bool, observed_at: Any
+) -> tuple[list[dict], dict | None]:
+    """Select latest relevant completion before validating it; never skip bad newer evidence."""
+    contextual = (
+        cosmos
+        or expected is not _MISSING
+        or watermark is not None
+        or observed_at is not _MISSING
+    )
+    if not contextual:
+        return [
+            r for r in reviews if r.get("state") not in ("PENDING", "DISMISSED")
+        ], None
+    head = _sha(expected)
+    observed = _timestamp(observed_at)
+    if head is None or ((cosmos or observed_at is not _MISSING) and observed is None):
+        return [], None
+    candidates = []
+    for review in reviews:
+        marker = _cosmos_marker(review)
+        commits = _review_commits(review)
+        # Only unambiguously unrelated evidence can be excluded before ordering.
+        if head and commits and all(_sha(c) and _sha(c) != head for c in commits):
+            if not _cosmos_shaped(review) or (marker and _sha(marker["head"]) != head):
+                continue
+        time = _timestamp(_submission_ts(review))
+        if time is None:
+            return [], None
+        candidates.append((time, review, marker))
+    if not candidates:
+        return [], None
+    latest_time = max(time for time, _, _ in candidates)
+    latest = [(r, m) for time, r, m in candidates if time == latest_time]
+    if len(latest) != 1:
+        return [], None  # Cannot order two distinct reviews at the same instant.
+    review, marker = latest[0]
+    if (observed is not None and latest_time > observed) or (
+        watermark is not None and not _is_newer(latest_time, watermark)
+    ):
+        return [], None
+    if review.get("state") not in ("COMMENTED", "APPROVED", "CHANGES_REQUESTED"):
+        return [], None
+    commits = _review_commits(review)
+    if head and (any(_sha(c) != head for c in commits) or (not cosmos and not commits)):
+        return [], None
+    if cosmos and (marker is None or _sha(marker["head"]) != head):
+        return [], None
+    return [review], marker
+
+
+def _stable_id(entry: dict) -> str | int | None:
+    for key in ("databaseId", "id"):
+        value = entry.get(key)
+        if (type(value) is int and value > 0) or (
+            isinstance(value, str) and value.strip()
+        ):
+            return value
+    return None
+
+
+def _thread_findings(threads: Any, contract: Any, completed: dict) -> list[dict] | None:
+    """Return roots only, or None if an unresolved source cannot be safely selected.
+
+    Current-null/original-only locations stay hints. Resolution is authoritative;
+    neither outdated state nor the re-trigger watermark discards an open root.
+    """
+    if not isinstance(threads, list):
+        return None
+    identities = _augment_identities(contract)
+    selected, seen_threads, seen_roots = [], set(), set()
+    completed_at = _timestamp(_submission_ts(completed))
+    for thread in threads:
+        if not isinstance(thread, dict) or type(thread.get("isResolved")) is not bool:
+            return None
+        if thread["isResolved"]:
+            continue
+        connection = thread.get("comments")
+        nodes = connection.get("nodes") if isinstance(connection, dict) else None
+        if not isinstance(nodes, list) or not nodes or not isinstance(nodes[0], dict):
+            return None
+        root = nodes[0]
+        login = _login_of(root)
+        if not login:
+            return None
+        if login not in identities:
+            continue  # A bot reply never turns a human-rooted thread into a finding.
+        if root.get("replyTo") is not None or root.get("in_reply_to_id") is not None:
+            return None
+        if is_decline(root, contract):
+            continue
+        origin = root.get("pullRequestReview")
+        if not isinstance(origin, dict):
+            return None
+        comment_id, thread_id, review_id = (
+            _stable_id(root),
+            _stable_id(thread),
+            _stable_id(origin),
         )
-        if not attributed_rereview:
-            return STATE_DECLINED
-        # else: fall through — the attributed re-review wins; classify clean/findings below.
+        path = root.get("path", thread.get("path"))
+        line = root.get("line", thread.get("line"))
+        original = root.get("originalLine", thread.get("originalLine"))
+        body = root.get("body")
+        created = _timestamp(_entry_ts(root))
+        if (
+            comment_id is None
+            or thread_id is None
+            or review_id is None
+            or type(thread.get("isOutdated")) is not bool
+            or not isinstance(path, str)
+            or not path.strip()
+            or not isinstance(body, str)
+            or not body.strip()
+            or not any(type(n) is int and n > 0 for n in (line, original))
+            or (line is not None and (type(line) is not int or line <= 0))
+            or (original is not None and (type(original) is not int or original <= 0))
+            or not _review_commits(origin)
+            or any(_sha(c) is None for c in _review_commits(origin))
+            or created is None
+            or completed_at is None
+            or created > completed_at
+        ):
+            return None
+        if thread_id in seen_threads or comment_id in seen_roots:
+            return None  # Duplicate/conflicting identities are not extra findings.
+        seen_threads.add(thread_id)
+        seen_roots.add(comment_id)
+        selected.append(
+            {
+                **root,
+                "body": body,
+                "path": path,
+                "line": line,
+                "original_line": original,
+                "comment_id": comment_id,
+                "thread_id": thread_id,
+                "review_id": review_id,
+                "is_outdated": thread["isOutdated"],
+                "is_resolved": False,
+            }
+        )
+    return selected
 
-    if not augment_reviews:
-        # No review detected from the Augment bot (T-201 empty / T-211 other bot).
-        return STATE_POLLING
 
-    # An Augment review exists — determine clean vs findings. Findings live either
-    # in the review object's self-signal or in Augment-authored inline comments
-    # (findings_locus == comments[]). Only the Augment author is parsed (T-212). A
-    # decline-shaped comment is NEVER a finding (it is a decline, handled above / by
-    # FR-9.5), so it is excluded from the findings-comment count.
-    if any(_entry_has_findings(r) for r in augment_reviews):
-        return STATE_FINDINGS
-    # A finding-comment must carry inline context (path + integer line + body) — a
-    # bare/summary Augment comment with no locus is NOT a finding (restores the V1.0
-    # guard the V1.1 refactor dropped). This also keeps conversation/issue comments
-    # (which have no path/line — e.g. the App's "Review completed" summary) from
-    # being miscounted once the poller surfaces them alongside inline comments.
-    finding_comments = [
-        c
-        for c in augment_comments
-        if not is_decline(c, contract, watermark=None)
-        and c.get("path")
-        and isinstance(c.get("line"), int)
-        and c.get("body")
-    ]
-    if finding_comments:
-        return STATE_FINDINGS
-    return STATE_CLEAN
+def _selection(
+    payload: dict, contract: Any, watermark: Any, current_head_sha: str | None
+) -> tuple[str, list[dict]]:
+    if not isinstance(payload, dict) or any(
+        payload.get(key, True) is not True for key in _COMPLETENESS
+    ):
+        return STATE_POLLING, []
+    identities = _augment_identities(contract)
+    reviews = _augment_entries(payload.get("reviews"), identities)
+    comments = _augment_entries(payload.get("comments"), identities)
+    cosmos = any(_cosmos_shaped(r) for r in reviews)
+    expected = (
+        current_head_sha
+        if current_head_sha is not None
+        else payload.get("head_sha", _MISSING)
+    )
+    decline = any(
+        is_decline(e, contract, watermark=watermark) for e in (*comments, *reviews)
+    )
+    review_candidates = [r for r in reviews if not is_decline(r, contract)]
+    completed, marker = _completion_reviews(
+        review_candidates,
+        expected,
+        watermark,
+        cosmos,
+        payload.get("observed_at", _MISSING),
+    )
+    # Initial decline-first behavior is unchanged. Only validated re-review overrides.
+    if decline and not (watermark is not None and completed):
+        return STATE_DECLINED, []
+    if not completed:
+        return STATE_POLLING, []
+    if cosmos and not (
+        all(payload.get(key) is True for key in _COMPLETENESS)
+        and isinstance(payload.get("reviews"), list)
+        and isinstance(payload.get("comments"), list)
+    ):
+        return STATE_POLLING, []
+    if cosmos or "threads" in payload:
+        findings = _thread_findings(payload.get("threads"), contract, completed[0])
+        if findings is None or (marker and len(findings) < marker["unresolved_count"]):
+            return STATE_POLLING, []
+    else:
+        findings = [
+            {**c, "comment_id": _stable_id(c), "original_line": c.get("original_line")}
+            for c in comments
+            if not is_decline(c, contract)
+            and c.get("isResolved") is not True
+            and c.get("in_reply_to_id") is None
+            and c.get("replyTo") is None
+            and isinstance(c.get("path"), str)
+            and c["path"]
+            and type(c.get("line")) is int
+            and c["line"] > 0
+            and isinstance(c.get("body"), str)
+            and c["body"]
+        ]
+    if findings or (not cosmos and any(_entry_has_findings(r) for r in completed)):
+        return STATE_FINDINGS, findings
+    return STATE_CLEAN, []
+
+
+def classify(
+    payload: dict,
+    contract: Any,
+    *,
+    watermark: Any = None,
+    current_head_sha: str | None = None,
+) -> str:
+    """Return polling/declined/clean/findings from one shared selection decision."""
+    return _selection(payload, contract, watermark, current_head_sha)[0]
+
+
+def actionable_finding_comments(
+    payload: dict,
+    contract: Any,
+    *,
+    watermark: Any = None,
+    current_head_sha: str | None = None,
+) -> list[dict]:
+    """Return additive raw root dictionaries only for a validated findings outcome.
+
+    Raw id/databaseId/pullRequestReview remain intact. Stable comment_id/thread_id/
+    review_id and original_line/is_outdated feed the existing normalization seam.
+    The watermark attributes completion, never historical unresolved roots.
+    """
+    return _selection(payload, contract, watermark, current_head_sha)[1]

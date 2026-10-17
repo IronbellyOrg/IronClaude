@@ -39,11 +39,29 @@ gh api --method POST repos/<owner/repo>/issues/<N>/comments -f body="auggie revi
 
 ## 3. Watermark / attribution
 
-To attribute the SUBSEQUENT re-review to our push (and not a stale earlier review), the skill records a
-**watermark** at re-trigger time — the re-trigger comment's `createdAt` and our pushed `headRefOid`.
-The S5 poll then attributes a re-review only when it is newer than the watermark AND its reviewed SHA
-matches our pushed SHA (`pushed_commit_shas`). A re-review older than the watermark is ignored (the same
-staleness guard the decline classifier uses, EC-23).
+Retain the exact full pushed SHA and a trustworthy aware UTC **watermark** at the confirmed re-trigger.
+The current script prints an acknowledgement and discards the POST response; it does **not** export
+`createdAt`. Record UTC immediately after successful return as a conservative boundary, or use the
+confirmed trigger comment's REST `created_at` if independently retrieved and uniquely identified.
+Unknown/invalid freshness remains polling, never an optimistic attribution.
+
+Before supplying the pushed SHA as an explicit classifier override, require
+`payload.head_sha == pushed_sha`. The adapter detects pushes *during* collection, but a complete later
+snapshot can already describe another push; the public `current_head_sha` argument overrides the
+snapshot head rather than checking it. A mismatch must not produce clean, a round tick or remediation.
+
+Use `classify(payload, contract, watermark=watermark, current_head_sha=pushed_sha)` then, for findings,
+`actionable_finding_comments` with that **same snapshot, watermark and head**, then `finding_from_comment`
+for every selected root (SKILL snapshot gate). Only gated `clean` / successfully normalized `findings`
+can supply the existing `rereview_attributed` FSM edge or the explicit `RunConfig.rereview_outcome`
+`"attributed"` token. Never use the empty sequence's optimistic legacy default as live evidence.
+
+Completion requires reviewed SHA/marker head/expected head agreement and submission **strictly newer**
+than the watermark, no later than the snapshot's `observed_at`. Before/equal watermark, wrong-head,
+invalid metadata, partial flags, empty legacy finding selection or normalization `ValueError` remains
+polling under the existing finite timeout (no elapsed reset). Expiry supplies `"timeout"`; `declined`
+uses the existing fallback, not an attribution tick. The watermark dates **completion only**, never
+filters older unresolved root findings; outdated roots still need independent evidence validation.
 
 ## 4. INV-R1 (re-trigger boundedness, normative)
 

@@ -1,0 +1,52 @@
+{
+  "pr": 266,
+  "observed_at": "2026-10-16T22:00:00Z",
+  "head_sha": "13d246ec9e0d5aad4b6ea70529bebd9496a776e5",
+  "comments_ok": true,
+  "reviews_ok": true,
+  "threads_ok": true,
+  "reviews": [
+    {
+      "id": 5550158176,
+      "commit_id": "0f5fef56e1abf1958708473f2004c5627a0a163d",
+      "submitted_at": "2026-10-16T19:00:00Z",
+      "state": "COMMENTED",
+      "user": {"login": "augmentcode[bot]"},
+      "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=example)</sup>\n\nReview completed with 1 suggestion.\n\n<sub>Reviewed commit: `0f5fef5`</sub>\n\n<!-- cosmos-review-status:v1 {\"specialist\":\"deep-code-review\",\"status\":\"reviewed\",\"baseline\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"head\":\"0f5fef56e1abf1958708473f2004c5627a0a163d\",\"unresolved_count\":1,\"session_url\":\"https://cosmos.augmentcode.com/session?agentId=example\"} -->"
+    },
+    {
+      "id": 5550197352,
+      "commit_id": "13d246ec9e0d5aad4b6ea70529bebd9496a776e5",
+      "submitted_at": "2026-10-16T20:00:00Z",
+      "state": "COMMENTED",
+      "user": {"login": "augmentcode[bot]"},
+      "body": "<sup>[**Deep Code Review Agent**](https://cosmos.augmentcode.com/session?agentId=example)</sup>\n\nReview completed with 0 suggestions.\n\n<sub>Reviewed commit: `13d246e`</sub>\n\n<!-- cosmos-review-status:v1 {\"specialist\":\"deep-code-review\",\"status\":\"reviewed\",\"baseline\":\"0f5fef56e1abf1958708473f2004c5627a0a163d\",\"head\":\"13d246ec9e0d5aad4b6ea70529bebd9496a776e5\",\"unresolved_count\":0,\"session_url\":\"https://cosmos.augmentcode.com/session?agentId=example\"} -->"
+    }
+  ],
+  "comments": [
+    {"id": 4296483537, "user": {"login": "augmentcode[bot]"}, "body": "The lifecycle loses the previous unresolved finding.\n\n**Severity:** low", "path": "src/example.py", "line": null, "original_line": 172, "pull_request_review_id": 5550158176},
+    {"id": 1, "user": {"login": "operator"}, "body": "auggie review", "created_at": "2026-10-16T19:30:00Z"}
+  ],
+  "threads": [
+    {
+      "id": "PRRT_pr266_example",
+      "path": "src/example.py",
+      "line": null,
+      "originalLine": 172,
+      "isResolved": true,
+      "isOutdated": true,
+      "comments": {"nodes": [{
+        "id": "PRRC_pr266_example",
+        "databaseId": 4296483537,
+        "body": "The lifecycle loses the previous unresolved finding.\n\n**Severity:** low",
+        "path": "src/example.py",
+        "line": null,
+        "originalLine": 172,
+        "createdAt": "2026-10-16T19:00:00Z",
+        "author": {"login": "augmentcode"},
+        "replyTo": null,
+        "pullRequestReview": {"id": "PRR_pr266_example", "databaseId": 5550158176, "commit": {"oid": "0f5fef56e1abf1958708473f2004c5627a0a163d"}}
+      }]}
+    }
+  ]
+}
