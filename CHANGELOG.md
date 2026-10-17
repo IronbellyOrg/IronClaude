@@ -27,6 +27,16 @@ All notable changes to IronClaude are documented in this file.
 - Core files no longer shipped: `ORCHESTRATOR.md`, `COMMANDS.md`, `PERSONAS.md`, `MODES.md`, `FLAGS.md`, `MCP.md`, and the plugin copy of `FLAGS.md`. The shipped `CLAUDE.md` has not imported any of them since 2026-03-16; their routing content now lives in the guide. `BUSINESS_SYMBOLS.md` is unchanged (decision 5). Copies of the retired files already in your `~/.claude/` are left in place; nothing loads them, so you can delete them yourself.
 - Docs superseded by the guide: `docs/reference/examples-cookbook.md`, `basic-examples.md`, `advanced-workflows.md`, `advanced-patterns.md`, `integration-patterns.md`, `commands-list.md`, `suggested-commands.md`, `comprehensive-features.md`; `docs/guides/SuperClaude-Developer-Guide-Commands-Skills-Agents.md` (a duplicate of the copy kept in `docs/developer-guide/`); `docs/generated/contributor-knowledge-base/commands-skills-cross-reference.md`.
 
+### remediation routing — sc:workflow/sc:implement by default; task-builder//task only with `--depth deep`
+
+#### Changed
+
+- `sc:troubleshoot --fix`, `sc:reflect --remediate`, and the `sc:auggie-review` remediation offer now build a phased tasklist through `sc:workflow` (`--handoff none`), which writes it as a managed `.dev/tasks/to-do/<id>/<id>.md` package and reuses its own built-in advisory `/sc:reflect --mode pre` review (no separate reflect call on the plan), and surface a user-run `/sc:implement <id>.md`. The `task-builder` → `/task` chain is used only with `--depth deep` (`--fix --depth deep` / `--remediate --depth deep` / review `--depth deep`). Nothing auto-executes.
+- `sc:troubleshoot --diagnosability-handoff` packages the diagnosability tasklist via `sc:workflow` instead of `task-builder`.
+- reflect return contract bumped **`1.7.0 → 1.8.0`** (additive): new `remediation_plan_path` (plan-route sibling of `remediation_task_path`).
+- `superclaude reflect run --fix`: the auto-fix loop applies `/sc:implement <remediation_plan_path>` on the plan route and `/task <remediation_task_path>` on the MDTM route (`--depth deep`); the MDTM pointer wins if both are set.
+- `sc:workflow` source files built by remediation handoffs flatten numbered/checkbox lines (the workflow gate rejects them).
+
 ### reflect — D13 coverage hardening: inference-assisted extraction + parse-density guard (contract 1.5.0)
 
 #### Added (reflect skill)

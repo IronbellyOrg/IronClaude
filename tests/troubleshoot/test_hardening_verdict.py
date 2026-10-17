@@ -90,7 +90,14 @@ def test_downstream_success_cannot_override_latched_hardening_verdict() -> None:
     low = OC.lower()
     # (a) §5.4 L411 no-override rule names the downstream stages and forbids conversion
     assert "not** convert" in low, "no-override rule (may NOT convert) not documented"
-    for stage in ("task-builder", "sc:reflect", "sc:adversarial", "report-rendering"):
+    for stage in (
+        "task-builder",
+        "sc:workflow",
+        "sc:implement",
+        "sc:reflect",
+        "sc:adversarial",
+        "report-rendering",
+    ):
         assert stage in low, f"no-override rule must name the {stage} stage"
     # (b) success_with_hardening_* rendering, never plain success
     assert "success_with_hardening_blocker" in OC
@@ -100,3 +107,21 @@ def test_downstream_success_cannot_override_latched_hardening_verdict() -> None:
     assert "build_request" in HANDOFF.lower()
     assert "pipeline_hardening_verdict" in HANDOFF
     assert "waiver_status" in HANDOFF
+
+
+def test_tier3_route_keyed_on_depth_and_never_auto_executes() -> None:
+    """Tier 3 routing: `--fix` -> sc:workflow/sc:implement; `--fix --depth deep` ->
+    task-builder//task. The plan route carries the hardening latch and never hands off
+    to sc:implement itself (the executor stays user-initiated)."""
+    skill = (REFS.parent / "SKILL.md").read_text(encoding="utf-8")
+    command = (REPO_ROOT / "src/superclaude/commands/troubleshoot.md").read_text(
+        encoding="utf-8"
+    )
+    for doc in (HANDOFF, skill, command):
+        assert "sc:workflow" in doc and "sc:implement" in doc
+        assert "--depth deep" in doc and "task-builder" in doc
+    # plan route: latch carried in the workflow source, never --handoff implement
+    assert "## Pipeline Hardening" in HANDOFF
+    assert "Never** pass `--handoff implement`" in HANDOFF
+    # MDTM route keeps its BUILD_REQUEST latch (covered above) and /task gate
+    assert "/task <abs-path>" in HANDOFF

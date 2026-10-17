@@ -240,7 +240,13 @@ Row fired: <S1 | S2 | ... | S13 | S14>. Reason: <evidence for S14's disputed-dat
 
 ## Section 7: Tasklist generation rules + hard constraints
 
-When the verdict triggers tasklist emission (verdict ∈ {partial, insufficient} on any complexity, plus the hard-stop branch under `insufficient + non-trivial + NOT --no-escalate`), the orchestrator writes a standalone tasklist at `<output-dir>/diagnosability-tasklist.md`. The tasklist file is ALWAYS standalone (a markdown artifact the user reads and applies manually). The opt-in `--diagnosability-handoff` flag additionally invokes `task-builder` against the tasklist for full MDTM packaging.
+When the verdict triggers tasklist emission (verdict ∈ {partial, insufficient} on any complexity, plus the hard-stop branch under `insufficient + non-trivial + NOT --no-escalate`), the orchestrator writes a standalone tasklist at `<output-dir>/diagnosability-tasklist.md`. The tasklist file is ALWAYS standalone (a markdown artifact the user reads and applies manually). The opt-in `--diagnosability-handoff` flag additionally packages the tasklist as a phased workflow tasklist package (`.dev/tasks/to-do/<id>/<id>.md`) via `Skill sc:workflow-protocol` (see **Handoff packaging** below); it never invokes `task-builder` or `/task`.
+
+**Handoff packaging.** With `--diagnosability-handoff` and a tasklist on disk:
+
+1. Write `<output-dir>/diagnosability-plan-source.md` = the tasklist content (do not re-derive tasks) plus a `## Constraints` section restating hard constraints 1-4 below (invocation-site-only, additive, reversible, revert annotation) and that every `## Discriminator rows` row keeps its preregistered values. Flatten list syntax in this source: rewrite every checkbox (`- [ ]`) and numbered-list line (`1.`, `1)`) as a plain `- ` bullet or prose sentence, **keeping its full text — never delete a line** (task and discriminator rows are often numbered; a deleted row would also escape the workflow's coverage check, which only sees the snapshot). The `sc:workflow` gate rejects list lines in the generated tasklist and `sc:implement` would enumerate them as tasks.
+2. Invoke `Skill sc:workflow-protocol` on that file with `--depth standard --handoff none`. Never `--handoff implement`: the tasklist is a proposal and executing it is user-initiated (`/sc:implement <pkg>/<id>.md`). Never pass `--output` (retired). `sc:workflow` runs its own advisory `/sc:reflect --mode pre` on the result.
+3. Read `.dev/tasks/to-do/<id>/return-contract.yaml`: record the absolute tasklist path (package dir + package-relative `plan_path`) as `plan_path` in the audit log and surface it, with `reflect_status` / `reflect_report_path`, in Next Steps. Non-`success` status → surface the STOP code and keep the standalone tasklist as the deliverable; do not retry.
 
 ### Hard constraints (non-negotiable)
 

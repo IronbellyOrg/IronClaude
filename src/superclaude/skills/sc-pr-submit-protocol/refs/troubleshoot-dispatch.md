@@ -42,7 +42,7 @@ For each verified finding, construct:
 ## The edit-application seam (load-bearing)
 
 `/sc:troubleshoot --fix` **does NOT auto-apply edits** — `--fix` authorizes troubleshoot's Tier-3,
-which deliberately stops at an MDTM task file (`/task` is always user-initiated;
+which deliberately stops at a `sc:workflow` plan (`/sc:implement` is always user-initiated) or, with `--depth deep`, an MDTM task file (`/task` is always user-initiated;
 `sc-troubleshoot-protocol/SKILL.md:445-448`, `refs/remediation-handoff.md:78-92`). Therefore
 `sc:pr-submit` uses troubleshoot for **diagnosis** and **OWNS the edit application itself** in its own
 FSM `S3_FIXING` state (spec §5.1, `state-machine.md`). The dispatch here drives diagnosis; the

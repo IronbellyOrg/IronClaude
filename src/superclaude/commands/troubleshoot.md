@@ -1,6 +1,6 @@
 ---
 name: troubleshoot
-description: "Tiered debugging — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate, and an opt-in task-builder remediation chain"
+description: "Tiered debugging — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate, and an opt-in remediation chain (sc:workflow → sc:implement; task-builder → /task with --depth deep)"
 category: analysis
 complexity: advanced
 mcp-servers: [auggie, serena, context7, tavily]
@@ -48,10 +48,10 @@ The trigger is intentionally pushy because the most common reason users skip a d
 | Flag | Default | Description |
 |------|---------|-------------|
 | `--type` | auto-detect | One of `bug`, `build`, `performance`, `deployment`, `security`, `test`. Auto-detected from keywords + structural cues in the issue description. |
-| `--depth` | `standard` | `quick` (Tier 1 only, ~1-3 min, ~3-6k Claude tokens), `standard` (auto-escalate by rubric), `deep` (force Tier 2 with adversarial debate). |
+| `--depth` | `standard` | `quick` (Tier 1 only, ~1-3 min, ~3-6k Claude tokens), `standard` (auto-escalate by rubric), `deep` (force Tier 2 with adversarial debate). Combined with `--fix`, `deep` also selects the MDTM remediation route (see `--fix`). `quick` with `--fix` is a STOP. |
 | `--scope` | (none) | File, directory, or symbol to narrow auggie/serena queries against. |
 | `--no-escalate` | `false` | Cap at Tier 1 regardless of confidence. Useful for quick second-opinion passes. |
-| `--fix` | `false` | After diagnosis, offer the Tier 3 remediation chain (`task-builder` → `/sc:reflect --type task --analyze` → user runs `/task` → `/sc:reflect --type task --validate`). Code changes never auto-apply; the user runs `/task`. |
+| `--fix` | `false` | After diagnosis, offer the Tier 3 remediation chain. Default (plan route): `sc:workflow` (runs its own `/sc:reflect --mode pre`) → user runs `/sc:implement <tasklist>` → `/sc:reflect --mode post`. With `--depth deep` (MDTM route): `task-builder` → `/sc:reflect --type task --analyze` → user runs `/task` → `/sc:reflect --type task --validate`. Code changes never auto-apply; the user runs the executor. |
 | `--models` | (agent defaults) | Per-tier model override, e.g. `tier1:sonnet,hypothesis:opus`. |
 | `--output-dir` | `.dev/troubleshoot/<slug>-<timestamp>/` | Where REPORT.md, hypothesis cards, fix proposals, adversarial artifacts, and audit log are written. |
 | `--no-doc-discovery` | `false` | Skip Wave 1.5 documentation grounding (release artifacts + architectural docs + semantic restrictions). Useful when the codebase has no formal docs or the user has already grounded the symptom externally; the resulting diagnosis is NOT weighted against documented behavior and the report records the skip in Grounding Gaps. |
@@ -74,7 +74,7 @@ The full multi-wave protocol lives in the skill. The command file performs only:
 |------|------|--------------|------|
 | Tier 1 | Always (unless STOP) | Single grounded hypothesis from `root-cause-analyst` + `confidence-calibrator`, with auggie/serena grounding | ~3-6k Claude tokens, 1-3 min |
 | Tier 2 | Auto-escalate on `confidence < 0.85`, multi-domain, intermittent, security < 0.95, or `--depth deep` | 2-4 specialist agents fan out in parallel; each produces a hypothesis card; competing fixes debated via `sc:adversarial-protocol`; `self-review` sanity-checks the merge | +15-60k tokens, +4-15 min |
-| Tier 3 | Opt-in via `--fix` AND user accepts | `task-builder` produces an MDTM task file; user runs `/task`; `/sc:reflect --type task --validate` gates the commit | +20-40k tokens, +5-10 min |
+| Tier 3 | Opt-in via `--fix` AND user accepts | `--fix`: `sc:workflow` produces a tasklist package `.dev/tasks/to-do/<id>/<id>.md`; user runs `/sc:implement`; `/sc:reflect --mode post` gates the commit. `--fix --depth deep`: `task-builder` produces an MDTM task file; user runs `/task`; `/sc:reflect --type task --validate` gates the commit | MDTM route +20-40k tokens, +5-10 min; plan route lighter (not yet measured) |
 
 ## Activation
 
@@ -97,7 +97,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - **`mcp__context7__resolve-library-id` / `query-docs`**: external library docs (Tier 2 and the skill's conditional Tier 1 behaviour-definition fetch)
 - **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)
 - **`Task`**: spawn `root-cause-analyst`, Tier 2 specialist agents, `confidence-calibrator`, `evidence-validator`, `self-review`
-- **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4), `task-builder` (Wave 6), `/sc:reflect` (Wave 6)
+- **`Skill`**: invoke `sc:adversarial-protocol` (Wave 4), `sc:workflow-protocol` (Wave 6, plan route), `task-builder` (Wave 6, `--depth deep` MDTM route), `/sc:reflect` (Wave 6)
 - **`Read` / `Grep` / `Glob`**: native fallback when MCPs are unavailable; file:line validation
 - **`Bash`**: cheap reproducer commands (Tier 1), diagnostic commands (Tier 2), and read-only probes at RUN-SITE through the OBSERVE-VIA execution gate as designed by the skill; existing capability, authorization and execution-transport restrictions still apply
 - **`Write`**: hypothesis cards, REPORT.md, audit log, calibration reports, validation reports
@@ -126,13 +126,22 @@ Do NOT proceed with protocol execution using only this command file. The full be
 # - evidence-validator drops any unfounded file:line citations before REPORT.md ships
 ```
 
-### Force deep pass + remediation offer
+### Default remediation offer (plan route)
+
+```text
+/sc:troubleshoot "NameError: name 'Path' is not defined at eval_run.py:142" --fix
+# - Diagnosis as usual; after a success REPORT.md the Tier 3 offer names the plan route
+# - User accepts → sc:workflow builds the tasklist package and runs its own /sc:reflect --mode pre on it
+# - User runs /sc:implement <tasklist> themselves (never auto-executed); /sc:reflect --mode post gates commit
+```
+
+### Force deep pass + MDTM remediation offer
 
 ```text
 /sc:troubleshoot "scratch-root allowlist accepts /etc/foo" --type security --depth deep --fix
 # - --depth deep forces Tier 2 regardless of Tier 1 confidence
 # - --type security raises the escalation threshold (security_caution rule)
-# - After REPORT.md, the Tier 3 remediation chain offers task-builder
+# - --fix with --depth deep selects the MDTM route: the offer names task-builder
 # - User accepts → MDTM task file built; /sc:reflect --type task --analyze runs
 # - User runs /task themselves (never auto-executed); /sc:reflect --type task --validate gates commit
 ```
@@ -178,8 +187,9 @@ Do NOT proceed with protocol execution using only this command file. The full be
 - Spawn more than 4 hypothesis agents in Tier 2 (token waste; signal already saturated)
 - Trust agent-reported confidence without independent re-grading via `confidence-calibrator`
 - Ship a REPORT.md whose `file:line` citations have not passed through `evidence-validator` (or its inline fallback)
-- Auto-execute the Tier 3 task file — that is always a separate user-initiated `/task` invocation
-- Auto-commit after Tier 3 — `/sc:reflect --type task --validate` is the final gate the user runs before committing
+- Auto-execute the Tier 3 plan or task file — that is always a separate user-initiated `/sc:implement` (plan route) or `/task` (MDTM route) invocation
+- Use `task-builder` or `/task` without `--fix --depth deep` — the default remediation route is `sc:workflow` → `sc:implement`
+- Auto-commit after Tier 3 — `/sc:reflect --mode post` (plan route) or `/sc:reflect --type task --validate` (MDTM route) is the final gate the user runs before committing
 
 ## CRITICAL BOUNDARIES
 
@@ -188,8 +198,8 @@ Do NOT proceed with protocol execution using only this command file. The full be
 This command is diagnosis-first by default.
 
 - **Default behavior (no `--fix` flag)**: Run Tiers 1-2, produce REPORT.md, STOP. The user reviews and either re-runs with `--fix` or applies the fix manually.
-- **With `--fix` flag**: After REPORT.md, offer the Tier 3 remediation chain. Build the task file. **Stop and surface the literal `/task <path>` command — the user runs it, never the skill.**
-- **After `/task` completes**: The user runs `/sc:reflect --type task --validate` as the pre-commit gate.
+- **With `--fix` flag**: After REPORT.md, offer the Tier 3 remediation chain. Build the tasklist package via `sc:workflow` (or, with `--depth deep`, the MDTM task file via `task-builder`). **Stop and surface the literal `/sc:implement <tasklist>` (or `/task <path>`) command — the user runs it, never the skill.**
+- **After `/sc:implement` (or `/task`) completes**: The user runs `/sc:reflect --mode post` (or `/sc:reflect --type task --validate`) as the pre-commit gate.
 
 No silent code changes. No auto-execution. No auto-commit.
 
@@ -197,7 +207,8 @@ No silent code changes. No auto-execution. No auto-commit.
 
 - **`/sc:adversarial`** — Invoked in Wave 4 of Tier 2 when ≥2 competing strong fixes need to be debated (cap is the Tier-2 agent cap of 4, not a debate min/max of 3). Complementary; use directly when you need multi-model debate on artifacts that aren't fix proposals.
 - **`/sc:analyze`** — Complementary; use for read-only quality/security/architecture analysis when you don't have a specific symptom yet.
-- **`/sc:reflect --type task`** — Used twice in Tier 3 (analyze + validate gates).
-- **`task-builder` skill** — Invoked between REPORT.md and execution to produce an MDTM task file.
+- **`/sc:reflect`** — Pre + post gates in Tier 3. Plan route: the pre gate is `sc:workflow`'s built-in `--mode pre` (not re-run), the post gate is `--mode post`; MDTM route: `--type task --analyze|--validate`.
+- **`/sc:workflow`** → **`/sc:implement`** — Default Tier 3 route with `--fix`: workflow builds the tasklist package, the user runs implement.
+- **`task-builder` skill** — Only with `--fix --depth deep`: invoked between REPORT.md and execution to produce an MDTM task file for `/task`.
 - **`/sc:brainstorm`** — Complementary; use upstream of `/sc:troubleshoot` when the symptom is genuinely ambiguous and the user wants to scope it first.
 - **`/sc:auggie-review`** — Complementary; use for whole-PR review vs this command's symptom-driven diagnosis.
