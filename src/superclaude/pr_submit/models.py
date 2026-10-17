@@ -156,7 +156,7 @@ class Finding:
     """
 
     path: str
-    line: int
+    line: int | None
     body: str
     severity_hint: str | None = None
     category: str | None = None
@@ -166,6 +166,10 @@ class Finding:
     remapped_severity: Severity | None = None
     verification_status: str = "unverified"
     needs_human_decision: bool = False
+    thread_id: str | None = None
+    review_id: int | str | None = None
+    original_line: int | None = None
+    is_outdated: bool = False
 
     @property
     def fix_key(self) -> str:

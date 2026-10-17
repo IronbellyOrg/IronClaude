@@ -10,7 +10,19 @@ calibration shapes (severity-rubric.md:104-152) so the reuse is provably faithfu
 
 from __future__ import annotations
 
-from superclaude.pr_submit import Finding, Severity, remap_severity, route
+import pytest
+
+from superclaude.pr_submit import (
+    DetectionContract,
+    Finding,
+    Severity,
+    actionable_finding_comments,
+    classify,
+    finding_from_comment,
+    remap_severity,
+    route,
+)
+from superclaude.pr_submit.fsm import is_groundable
 
 
 def _f(**kw) -> Finding:
@@ -75,3 +87,87 @@ def test_tn30_router_remap_coverage(load_fixture):
             decision = route(f)
             assert decision == expected_route
             assert decision != "--depth quick --fix"
+
+
+@pytest.mark.parametrize(
+    ("body", "hint", "expected"),
+    [
+        ("Defect.\n\n**Severity:** low", None, Severity.LOW),
+        ("Defect.\r\n\r\n**Severity:** low\r\n", None, Severity.LOW),
+        ("Defect.\r\n\r\n**Severity:** low\r\n", "low", Severity.LOW),
+        ("**sEvErItY:** HIGH", None, Severity.HIGH),
+        ("plain finding", "low", Severity.LOW),
+        ("**Severity:** low", "HIGH", Severity.HIGH),
+        ("plain finding", None, Severity.MEDIUM),
+        ("**Severity:** unfamiliar", None, Severity.MEDIUM),
+        ("**Severity:** low", "unfamiliar", Severity.MEDIUM),
+        ("Example **Severity:** low in prose", None, Severity.MEDIUM),
+        ("**Severity:** low\n**Severity:** high", None, Severity.MEDIUM),
+    ],
+)
+def test_raw_severity_normalization(body, hint, expected):
+    finding = finding_from_comment(
+        {"path": "src/x.py", "line": 1, "body": body, "severity_hint": hint}
+    )
+    assert finding.body == body
+    assert remap_severity(finding).remapped_severity is expected
+
+
+def test_raw_low_hint_still_obeys_category_floor_and_verification():
+    finding = finding_from_comment(
+        {
+            "path": "src/x.py",
+            "line": 1,
+            "body": "**Severity:** low",
+            "category": "security",
+            "verification_status": "verified",
+            "remapped_severity": "Low",
+        }
+    )
+    assert finding.verification_status == "unverified"
+    assert remap_severity(finding).remapped_severity is Severity.CRITICAL
+    assert route(finding) == "--depth deep --fix"
+
+
+def test_selected_cosmos_root_normalizes_same_identity_and_nullable_locus(load_fixture):
+    payload = load_fixture("cosmos-pr266.json")
+    payload["threads"][0]["isResolved"] = False
+    contract = DetectionContract.for_arming()
+    context = {"watermark": "2026-10-16T19:30:00Z"}
+    assert classify(payload, contract, **context) == "findings"
+    selected = actionable_finding_comments(payload, contract, **context)
+    findings = [finding_from_comment(root) for root in selected]
+    assert len(findings) == 1
+    finding = findings[0]
+    assert finding.comment_id == 4296483537
+    assert finding.thread_id == "PRRT_pr266_example"
+    assert finding.review_id == 5550158176
+    assert finding.line is None
+    assert finding.original_line == 172
+    assert finding.is_outdated is True
+    assert finding.verification_status == "unverified"
+    assert not is_groundable(finding)
+    assert route(finding) == "report-only"
+    payload["threads"][0]["isResolved"] = True
+    assert classify(payload, contract, **context) == "clean"
+    assert actionable_finding_comments(payload, contract, **context) == []
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"path": ""},
+        {"body": None},
+        {"line": True},
+        {"original_line": -1},
+        {"severity_hint": []},
+        {"in_diff": "false"},
+        {"comment_id": True},
+        {"thread_id": ""},
+        {"review_id": False},
+    ],
+)
+def test_raw_finding_rejects_malformed_boundary_values(override):
+    raw = {"path": "src/x.py", "line": 1, "body": "Defect.", **override}
+    with pytest.raises(ValueError):
+        finding_from_comment(raw)

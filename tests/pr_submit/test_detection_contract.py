@@ -515,21 +515,23 @@ def test_t1117_ec22_attributed_rereview_wins_over_decline(contract):
         "body": 'abnormally large; comment "augment review"',
         "id": 4201,
     }
-    # A genuine attributed re-review (newer than the watermark) carrying findings.
+    # A genuine attributed re-review needs submission time and the expected commit.
+    head = "a" * 40
     rereview_findings = {
         "author": {"login": AUGMENT},
-        "createdAt": "2026-06-12T10:05:00Z",
+        "submittedAt": "2026-06-12T10:05:00Z",
+        "commit_id": head,
         "state": "COMMENTED",
         "has_findings": True,
     }
-    payload = {"reviews": [rereview_findings], "comments": [decline]}
+    payload = {"head_sha": head, "reviews": [rereview_findings], "comments": [decline]}
     # Review wins → "findings" (NOT "declined"), proceed as an attributed re-review.
     assert classify(payload, contract, watermark=watermark) == "findings"
     # A clean attributed re-review + the same decline → "clean" (review still wins).
     clean_rereview = {**rereview_findings, "has_findings": False}
     assert (
         classify(
-            {"reviews": [clean_rereview], "comments": [decline]},
+            {"head_sha": head, "reviews": [clean_rereview], "comments": [decline]},
             contract,
             watermark=watermark,
         )

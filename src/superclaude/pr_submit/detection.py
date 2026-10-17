@@ -15,6 +15,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -234,6 +235,9 @@ def poll_augment_review(
     pr_num: int,
     payload: dict | None = None,
     contract: DetectionContract | None = None,
+    *,
+    watermark: Any = None,
+    current_head_sha: str | None = None,
 ) -> str:
     """Classify the current review state for ``pr_num``.
 
@@ -255,4 +259,6 @@ def poll_augment_review(
         # No contract supplied: empty identity so classification is fail-safe
         # "polling" / "review not detected" (NFR-4). Arming uses for_arming().
         contract = DetectionContract()
-    return classify(payload, contract)
+    return classify(
+        payload, contract, watermark=watermark, current_head_sha=current_head_sha
+    )

@@ -10,40 +10,60 @@ deterministic core (NFR-6) — the script touches `gh`, the core decides.
 
 ## Poll surfaces (FR-2.1)
 
-Primary, the exact `--json` field set from the spec:
+The adapter obtains PR metadata, then separately paginates formal reviews and both comment sources:
 
 ```bash
-gh pr view <N> --repo <owner/repo> --json number,url,headRefName,headRefOid,baseRefName,reviews
+gh pr view <N> --repo <owner/repo> --json number,url,headRefName,headRefOid,baseRefName
+gh api repos/<owner/repo>/pulls/<N>/reviews --method GET -F per_page=100 -F page=1
+gh api repos/<owner/repo>/issues/<N>/comments --method GET -F per_page=100 -F page=1
+gh api repos/<owner/repo>/pulls/<N>/comments --method GET -F per_page=100 -F page=1
 ```
 
-- `headRefOid` = the head SHA (used by INV-001 `sha_attributed_to_our_push` and the inline-reply
-  `commit_id`).
-- `reviews` = `{author{login}, authorAssociation, state, body, submittedAt, url}`.
+REST page numbers advance until a page has fewer than 100 records. Reviews preserve `id`, `commit_id`,
+`submitted_at`, `state`, `body`, `user`. `comments` merges raw issue and inline comments (including
+`pull_request_review_id`, nullable `line`/`original_line` when supplied); issue comments retain the
+legacy decline surface. The configured `augmentcode[bot]` and `augmentcode` identities are unchanged.
+No check-run fetch is implemented here; an absent check run is not completion evidence.
 
-REST surfaces supply all comments:
+The repo-pinned GraphQL query uses `reviewThreads(first:100,after:$endCursor)` with
+`pageInfo{hasNextPage endCursor}` and `headRefOid` on **every page**. `threads` contains raw nodes:
+`id`, `path`, nullable `line`/`originalLine`, `isResolved`, `isOutdated`, and
+`comments(first:1){nodes{...}}`. Only the root is intentionally requested, not a truncated conversation.
+Root fields include `id`, `databaseId`, `body`, `path`, nullable `line`/`originalLine`, `createdAt`,
+`author{login}`, `replyTo{databaseId}` and `pullRequestReview{id databaseId commit{oid}}`.
+Replies cannot create extra findings or turn a human-rooted conversation into an Augment finding.
 
-```bash
-gh api repos/<owner/repo>/issues/<N>/comments
-gh api repos/<owner/repo>/pulls/<N>/comments
-gh api repos/<owner/repo>/commits/<headSHA>/check-runs   # only if the probe shows emission_shape==check_run
-```
+## Snapshot and classification contract
 
-Classification is pure against the probe-locked `DetectionContract` (`detection-contract.md`): key on
-the non-empty Augment identity set `{augment_bot_login, augment_app_slug}`; four states no-review /
-clean / findings / **declined** (T-201/202/203 + FR-9.1). The V1.1 `declined` state fires when an
-Augment-authored comment matches BOTH probe-locked decline regexes (`decline_phrase_regex` "abnormally
-large" AND `decline_retrigger_regex` "comment augment/auggie/augmentcode review", including quote,
-backtick, `*`, and `_` Markdown wrappers), watermark-aware (a stale pre-watermark decline is ignored,
-EC-23). The decline ARITHMETIC (the both-regex AND, the watermark comparison, the strict-once routing)
-stays in the deterministic core; only the decline raw-surfacing comes from this poll script — the same
-script-polls / FSM-decides seam as the other states. The decline is posted by the App as a **PR
-conversation comment** on `issues/<N>/comments`, NOT as an inline review comment. The poll script
-therefore **merges** REST issue comments (`issues/<N>/comments`, where REST may expose
-`user.login=augmentcode[bot]`) with inline review comments (`pulls/<N>/comments`), while GraphQL review
-authors may expose `author.login=augmentcode`. The classifier accepts either configured Augment identity
-and sees the decline; surfacing only inline comments would make `declined` unreachable in production.
-(The classifier's finding-comment rule requires `path`+`line`, so path-less conversation comments are
-never miscounted as findings.)
+One JSON line carries `pr`, `url`, `base`, `head_sha`, `observed_at`, `reviews`, `comments`, `threads`,
+`reviews_ok`, `comments_ok`, `threads_ok`, and advisory `state` (`review_present` / `polling`).
+`observed_at` is the snapshot's UTC timestamp, emitted after collection. The pure core rejects review
+submission times later than this observation, without reading a live clock. On initial fetch failure,
+the script emits an incomplete event with null head and all flags false (no successful observation).
+
+- `reviews_ok`: complete validated REST reviews; `comments_ok`: **both** REST comment sources;
+  `threads_ok`: complete validated GraphQL thread pages.
+- API failure, GraphQL `errors` even at exit zero, null connections, malformed pages, missing or
+  repeated/nonadvancing cursors, duplicate IDs, or reaching the 1000-page-per-source cap makes that
+  source incomplete. Temporary-file staging keeps large payloads out of command arguments.
+- The adapter checks head agreement on thread pages and re-reads `headRefOid` after all requests.
+  A changed/unreadable final head makes **all three flags false**. During a pushed-SHA wait the
+  SKILL must additionally require `payload.head_sha == pushed_sha` **before** the explicit head
+  override: a later, internally consistent snapshot may already describe somebody else's push.
+- Use `classify(payload, contract, watermark=watermark, current_head_sha=expected_head)` and then
+  `actionable_finding_comments` with the **same payload and context**, followed by
+  `finding_from_comment` (exported from `severity_router` and the package). Never dispatch raw REST
+  comments independently. The SKILL snapshot gate converts empty `findings` selections (possible
+  for legacy `has_findings`) or normalization `ValueError` to `polling`, not empty-driver clean.
+
+Cosmos requires all three flags literally true plus validated completion and thread data; explicit
+false flags also block legacy classification. Missing additive flags are supported only for legacy
+injected payloads, not live Cosmos snapshots. The four core states are `polling`, `clean`, `findings`,
+`declined`. `declined` still requires both configured regexes on an Augment-authored entry, strictly
+newer than the watermark when supplied; only a valid attributable re-review overrides that decline.
+Metadata validation and historical unresolved-root/count rules are in `detection-contract.md`.
+Incomplete or invalid evidence remains `polling` under the existing finite timeout: no automatic fix,
+round increment or `terminal_clean`.
 
 ## Interval, timeout, backoff (FR-2.3 / FR-2.5 / NFR-2)
 
@@ -60,8 +80,8 @@ never miscounted as findings.)
 
 ## Division of labour (the NFR-6 seam)
 
-- The **poll script** does ONE `gh`/`gh api` poll and returns a status line (`polling` / `clean` /
-  `findings`, plus the raw payload for classification). It performs no arithmetic and holds no state.
+- The **poll script** assembles ONE snapshot (multiple paginated requests), not a classification.
+  Its advisory `state` is not an FSM outcome. It owns no retry/backoff state.
 - The **FSM** owns the backoff arithmetic (which interval to use next, whether the cap or the timeout
   is reached) and the state transitions. This keeps the `gh` I/O isolated to the script and the
   deterministic decisions in `superclaude.pr_submit` (NFR-6). The ref explicitly assigns the backoff

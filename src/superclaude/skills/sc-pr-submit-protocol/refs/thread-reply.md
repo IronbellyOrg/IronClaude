@@ -29,27 +29,37 @@ block is NEVER emitted on an `applied_edits == 0` cycle.
 
 ## 3. Resolve — GraphQL `resolveReviewThread` (FR-6.2, GraphQL-only)
 
-There is **no REST endpoint and no native `gh pr` verb** to resolve a review thread (gh 2.45.0;
-cli/cli#12419 unimplemented). Resolution is two `gh api graphql` calls:
+The wrapper uses GraphQL `resolveReviewThread`, not a REST comment mutation, to resolve.
+REST root `comment_id` / `review_id` and GraphQL `thread_id` are distinct identities.
 
-**(a) Obtain the thread node id** — REST comment/review ids are NOT GraphQL thread node ids. Walk the
-PR's `reviewThreads` connection and match the thread containing the Augment comment (by `path`+`line`
-or the comment `databaseId`):
+**(a) Confirm identity and resolution BEFORE any reply.** Invoke
+`scripts/reply-resolve-thread.sh --pr <N> --repo <owner/repo> --comment-id <ROOT_DATABASE_ID> --body-file <path>`
+with optional `--thread-id <THREAD_NODE_ID>`. A supplied thread ID is preferred but must match **both**
+this PR's thread and its root database ID before skip or write; a conflicting/missing ID is not a
+license to fall back to another thread. Without it, look up the exact root database ID. Compatibility
+`--path` / `--line` arguments are accepted but never identify a thread: no path/line lookalike match.
+
+The actual wrapper completely paginates this PR-scoped connection, including when an ID is supplied:
 
 ```bash
 gh api graphql -f query='
-  query($owner:String!,$repo:String!,$pr:Int!){
-    repository(owner:$owner,name:$repo){
-      pullRequest(number:$pr){
-        reviewThreads(first:100){
-          nodes{ id isResolved path line comments(first:1){ nodes{ databaseId author{login} } } }
-        }
+  query($owner:String!,$repo:String!,$pr:Int!,$endCursor:String){
+    repository(owner:$owner,name:$repo){pullRequest(number:$pr){
+      reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor}
+        nodes{id isResolved comments(first:1){nodes{databaseId replyTo{databaseId}}}}
       }
-    }
+    }}
   }' -f owner=<owner> -f repo=<repo> -F pr=<N>
 ```
 
-**(b) Resolve it** (mutation input = the matched thread node `id`):
+Supply `-f endCursor=<previous-endCursor>` on subsequent pages until `hasNextPage:false`; validate all
+pages/termination, root-only shape, unique thread/root IDs and no GraphQL errors. Missing connections,
+missing/repeated cursors, partial lookup or the 1000-page cap fail closed before writes, even if a
+candidate appeared earlier. Targets beyond thread 100 are supported. A uniquely matched
+`isResolved:true` root causes **idempotency_skip BEFORE reply** (also with `--no-resolve`).
+
+**(b) For the confirmed open thread, reply FIRST, validate the REST response's positive `id` and
+matching `in_reply_to_id`, then resolve** (mutation input = the matched thread node `id`):
 
 ```bash
 gh api graphql -f query='
@@ -57,6 +67,10 @@ gh api graphql -f query='
   -f threadId=<THREAD_NODE_ID>
 ```
 
+- **Response validation:** successful process exit alone is insufficient. Require no GraphQL errors,
+  returned `thread.id` equal to the confirmed target and `thread.isResolved:true`. Malformed/mismatched
+  mutation data fails, never records success. `--no-resolve` skips only the mutation, not lookup,
+  already-resolved skip or reply-response validation.
 - **Permissions HALT:** `resolveReviewThread` needs Pull Requests read+write on the authenticating
   identity. A "Resource not accessible by integration" / 403 maps to a **HALT** with a clear
   "needs PR read+write" message — NOT a silent retry.

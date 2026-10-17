@@ -355,11 +355,13 @@ set -euo pipefail
 if [ "$1" = "repo" ]; then
   printf '{"nameWithOwner":"IronbellyOrg/IronClaude"}'
 elif [ "$1" = "pr" ]; then
-  printf '{"number":188,"url":"https://example.test/pr/188","headRefName":"fix/x","headRefOid":"abc123","baseRefName":"master","reviews":[]}'
+  printf '{"number":188,"url":"https://example.test/pr/188","headRefName":"fix/x","headRefOid":"13d246ec9e0d5aad4b6ea70529bebd9496a776e5","baseRefName":"master","reviews":[]}'
 elif [ "$1" = "api" ] && [[ "$2" == *"/issues/188/comments" ]]; then
   printf '%s' '[{"user":{"login":"augmentcode[bot]"},"body":"This PR is abnormally large; comment \\\"**_augment review_**\\\" to continue.","id":18801}]'
-elif [ "$1" = "api" ] && [[ "$2" == *"/pulls/188/comments" ]]; then
+elif [ "$1" = "api" ] && [[ "$2" == *"/pulls/188/comments" || "$2" == *"/pulls/188/reviews" ]]; then
   printf '[]'
+elif [ "$1" = "api" ] && [ "$2" = "graphql" ]; then
+  printf '%s' '{"data":{"repository":{"pullRequest":{"headRefOid":"13d246ec9e0d5aad4b6ea70529bebd9496a776e5","reviewThreads":{"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}}}}'
 else
   printf 'unexpected gh call: %s\\n' "$*" >&2
   exit 1
@@ -411,11 +413,15 @@ set -euo pipefail
 if [ "$1" = "repo" ]; then
   printf '{{"nameWithOwner":"IronbellyOrg/IronClaude"}}'
 elif [ "$1" = "pr" ]; then
-  printf '{{"number":238,"url":"https://example.test/pr/238","headRefName":"fix/x","headRefOid":"abc123","baseRefName":"master","reviews":[]}}'
+  printf '{{"number":238,"url":"https://example.test/pr/238","headRefName":"fix/x","headRefOid":"13d246ec9e0d5aad4b6ea70529bebd9496a776e5","baseRefName":"master","reviews":[]}}'
 elif [ "$1" = "api" ] && [[ "$2" == *"/issues/238/comments" ]]; then
   printf '[]'
 elif [ "$1" = "api" ] && [[ "$2" == *"/pulls/238/comments" ]]; then
   cat {inline_path}
+elif [ "$1" = "api" ] && [[ "$2" == *"/pulls/238/reviews" ]]; then
+  printf '[]'
+elif [ "$1" = "api" ] && [ "$2" = "graphql" ]; then
+  printf '%s' '{{"data":{{"repository":{{"pullRequest":{{"headRefOid":"13d246ec9e0d5aad4b6ea70529bebd9496a776e5","reviewThreads":{{"pageInfo":{{"hasNextPage":false,"endCursor":null}},"nodes":[]}}}}}}}}}}'
 else
   printf 'unexpected gh call: %s\\n' "$*" >&2
   exit 1
