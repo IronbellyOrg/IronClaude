@@ -54,7 +54,12 @@ each suite below; see also §"Troubleshooting".
 | 13 | `cli_eval_skill_contract` | 2 | On-PR + nightly | ✓ | `/sc:cli-eval` command + skill + agents stay wired |
 | 14 | `suite_schema_guard` | 2 | On-PR + nightly | ✓ | Every `suites/*.yaml` still loads + schema-validates |
 
-**Total: 37 evals across 14 suites.** (Suites #12–#14 ship with the `/sc:cli-eval` skill.)
+| 15 | `workflow_vs_task_builder` | 27 | Manual / on-demand | Yes | Retrospective planning-quality comparison; companion execution required |
+
+**Current discovery: 88 expanded evals across 17 suites**, including
+`real` (18) and `post_release_command_contract` (4), which are not listed
+in this historical table. Verified with `uv run superclaude eval list --json`.
+(Suites #12–#14 ship with the `/sc:cli-eval` skill.)
 
 ### Restoring stashed suites
 
@@ -407,6 +412,84 @@ uv run superclaude eval run --suite agent_grounding_drift --no-mcp
 
 **Cadence:** nightly + on edits to `.claude/agents/evidence-validator.md`
 or `.claude/agents/confidence-calibrator.md`.
+
+---
+
+### 15. `workflow_vs_task_builder.yaml` — retrospective planning quality
+
+**Purpose:** compare current `/sc:workflow` plans against historical
+`/task-builder` MDTM task documents for three provenance-backed specs.
+The matrix crosses **3 specs × 3 proxy models × 3 reasoning effort levels**
+(`low`, `medium`, `high`), expanding to **27 candidates** (`WF1.1`–`WF3.9`).
+Model slots are ordinals; concrete IDs must be pinned before launch.
+The selected generators are `gpt-6.1-sol`, `claude-sonnet-5-5`, and
+`Qwen3.8-max`; the fixed judge is Opus 5.5 (`claude-opus-5-5`).
+Reasoning effort is separate from workflow depth.
+
+| Case | Frozen source packet | Source-grounded requirements |
+|---|---|---|
+| WF1 | PRD local-file delivery | 29 |
+| WF2 | Detection-contract setup | 145 |
+| WF3 | Reflect integration | 104 |
+
+**Frozen corpus:**
+`.dev/eval-workspaces/cli-eval/workflow_vs_task_builder/corpus/corpus.json`
+indexes each case's input, normalized baseline, requirements and provenance.
+All three baselines are first-added Git snapshots already completed when
+recorded, **not pristine generation outputs**. Normalization removes completion
+bookkeeping, execution logs and verdicts and resets checkboxes; it cannot undo
+unknown edits to retained planning instructions or recover historical context.
+This is a **source-only, retrospective/context-limited comparison**, not a
+reproduction of the original research or a causal superiority test. Generators
+receive only frozen source packets, not baselines, hidden rubrics or completed
+implementation/QA solutions.
+
+**Scoring contract:** workflow generates `plan.md` plus a return contract,
+**not an MDTM bundle**. Validate workflow format separately from shared planning
+quality. Use the same frozen, source-grounded rubric for coverage, correctness,
+safety, testability, dependencies and scope, with exact artifact evidence.
+Historical baselines are not gold answers; MDTM syntax and execution outcomes
+earn no quality bonus. Score each of the **3 baselines once**, then at most
+**27 candidates** against it (at most 30 quality judgments).
+
+**Execution warning:** schema validation and discovery have succeeded; they
+prove registration only. Core `superclaude eval run` currently uses a null
+lifecycle executor with unwired assertions, so a **PASS is non-authoritative**
+and does not demonstrate generation, Skill activation or planning quality.
+`scripts/eval_workflow_vs_task_builder.py` implements the companion for
+headless `/sc:workflow` Skill execution and artifact/rubric checks. Mocked-process
+checks verify offline logic, **not real provider execution or installed
+containment**. Inspect its interface with:
+
+```bash
+uv run python scripts/eval_workflow_vs_task_builder.py --help
+```
+
+Preparation is network-free: provide `--config` JSON and a new `--output`
+directory with `--prepare` (also `--dry-run`). Missing live evidence produces
+27 `BLOCKED` rows and exit 2, not an eval failure disguised as PASS. Live
+`--execute --confirm-live` additionally requires explicit JSON launch/budget
+acknowledgements, effort/routing and confinement evidence, and verified isolated
+authentication. The restricted child uses a private temporary workspace, disables
+ambient hooks/traffic, and explicitly loads a local plugin containing the
+canonical command/Skill Markdown bytes. Bare mode cannot provide this Skill
+surface. Dollar limits are soft when proxy pricing is unverified; CLI reported
+costs, including zero, are estimates, not verified provider spend.
+
+`--preflight --confirm-live` runs ten synthetic diagnostic jobs, never scored
+corpus cells. It requires `acknowledge_preflight: true`; with
+`preflight_budget_usd: null` there is no dollar cap. Finite call/turn/time
+safeguards remain. The recorder distinguishes CLI jobs from underlying Messages
+requests, stores no raw headers/prompts, and emits qualifying evidence only.
+A metadata HTTP 404 means the capability route is unavailable—not that a model
+is unavailable or that effort is supported.
+
+**Launch gate:** effective reasoning-effort support remains unverified for
+all selected models; CLI acceptance alone is not evidence. The user chose
+**verify before the full run**. Pin model identities and verify effective
+support before proceeding; explicit confirmation of the paid launch, judge,
+data disclosure, limits and spend ceiling is still required. This suite is
+manual/on-demand, not an automatic paid CI job.
 
 ---
 
