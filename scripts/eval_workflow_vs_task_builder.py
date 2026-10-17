@@ -1733,16 +1733,55 @@ def readonly_checks(cwd, trap_root):
     return result
 
 
-def probe_trace(path, cwd, decoy):
-    events = [
-        json.loads(line) for line in path.read_text().splitlines() if line.strip()
-    ]
-    denied, reads = set(), set()
+# A refusal by tool policy reads as one. A bare error (bad arguments, missing file,
+# I/O failure) also leaves nothing behind but proves nothing about policy.
+DENIAL_TEXT = re.compile(
+    r"den(?:y|ied|ial)|permission|not allowed|not permitted|restrict|refus|forbid",
+    re.IGNORECASE,
+)
+
+
+def _result_text(block):
+    content = block.get("content", "")
+    if isinstance(content, list):
+        content = " ".join(b.get("text", "") for b in content if isinstance(b, dict))
+    return content if isinstance(content, str) else ""
+
+
+def policy_denied_ids(events):
+    """Tool-use IDs the CLI refused by policy, never ones that merely errored.
+
+    Either an error result whose text reads as a denial, or a ``permission_denied``
+    system event for that call.
+    """
+    denied = set()
     for event in events:
         require(isinstance(event, dict), "malformed trace event")
+        if (
+            event.get("type") == "system"
+            and event.get("subtype") == "permission_denied"
+        ):
+            if event.get("tool_use_id"):
+                denied.add(event["tool_use_id"])
         for block in trace_blocks(event):
-            if block.get("type") == "tool_result" and block.get("is_error") is True:
+            if (
+                block.get("type") == "tool_result"
+                and block.get("is_error") is True
+                and DENIAL_TEXT.search(_result_text(block))
+            ):
                 denied.add(block.get("tool_use_id"))
+    return denied
+
+
+def _trace_events(path):
+    return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+
+
+def probe_trace(path, cwd, decoy):
+    events = _trace_events(path)
+    denied, reads = policy_denied_ids(events), set()
+    for event in events:
+        for block in trace_blocks(event):
             if block.get("type") == "tool_use" and block.get("name") == "Read":
                 value = block.get("input", {}).get("file_path", "")
                 if (
@@ -1761,20 +1800,19 @@ def probe_write_trace(path, cwd, target):
     write to, so a refusal can only come from the CLI's own tool policy. The caller
     must also assert that ``target`` still does not exist.
     """
-    events = [
-        json.loads(line) for line in path.read_text().splitlines() if line.strip()
-    ]
-    denied, writes = set(), set()
+    events = _trace_events(path)
+    denied, writes = policy_denied_ids(events), set()
     for event in events:
-        require(isinstance(event, dict), "malformed trace event")
         for block in trace_blocks(event):
-            if block.get("type") == "tool_result" and block.get("is_error") is True:
-                denied.add(block.get("tool_use_id"))
             if block.get("type") == "tool_use" and block.get("name") == "Write":
-                value = block.get("input", {}).get("file_path", "")
+                args = block.get("input", {})
+                value = args.get("file_path", "")
+                # Only a well-formed Write (path and content) counts as an attempt:
+                # one that fails argument validation exercises no write policy.
                 if (
                     isinstance(value, str)
                     and value
+                    and isinstance(args.get("content"), str)
                     and (cwd / value).absolute() == target
                 ):
                     writes.add(block.get("id"))

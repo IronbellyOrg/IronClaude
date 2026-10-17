@@ -1923,7 +1923,16 @@ def test_mock_boundaries_are_root_proof(monkeypatch):
     assert companion.privileged() is False
 
 
-def _write_stream(path, tmp_path, use_id, name, target, is_error):
+def _write_stream(
+    path,
+    tmp_path,
+    use_id,
+    name,
+    target,
+    is_error,
+    text="Permission denied: restricted by tool policy",
+    args=None,
+):
     events = stream(path)
     events.insert(
         2,
@@ -1935,7 +1944,9 @@ def _write_stream(path, tmp_path, use_id, name, target, is_error):
                         "type": "tool_use",
                         "id": use_id,
                         "name": name,
-                        "input": {"file_path": str(target), "content": "x"},
+                        "input": args
+                        if args is not None
+                        else {"file_path": str(target), "content": "x"},
                     }
                 ]
             },
@@ -1951,7 +1962,7 @@ def _write_stream(path, tmp_path, use_id, name, target, is_error):
                         "type": "tool_result",
                         "tool_use_id": use_id,
                         "is_error": is_error,
-                        "content": "result",
+                        "content": text,
                     }
                 ]
             },
@@ -2140,3 +2151,52 @@ def test_scoring_notes_are_hash_pinned(tmp_path):
     notes.write_text(json.dumps(data, indent=2) + "\n")
     with pytest.raises(ValueError, match="hash mismatch"):
         companion.corpus(copy)
+
+
+def test_bare_errors_are_not_policy_denials(tmp_path):
+    """An error that is not a refusal (bad arguments, missing file) proves nothing."""
+    target = tmp_path.parent / "write-target.md"
+    path = tmp_path / "stream.jsonl"
+    # Write that failed argument validation (no content): never an attempt.
+    _write_stream(
+        path,
+        tmp_path,
+        "w",
+        "Write",
+        target,
+        True,
+        text="InputValidationError: content is required",
+        args={"file_path": str(target)},
+    )
+    assert companion.probe_write_trace(path, tmp_path, target) is False
+    # Well-formed Write whose error text is not a denial: not certified.
+    _write_stream(
+        path,
+        tmp_path,
+        "w",
+        "Write",
+        target,
+        True,
+        text="ENOSPC: no space left on device",
+    )
+    assert companion.probe_write_trace(path, tmp_path, target) is False
+    # Same rule for the Read probe.
+    _write_stream(
+        path, tmp_path, "r", "Read", target, True, text="File does not exist."
+    )
+    assert companion.probe_trace(path, tmp_path, target) is False
+    _write_stream(path, tmp_path, "r", "Read", target, True)  # a genuine denial
+    assert companion.probe_trace(path, tmp_path, target) is True
+
+
+def test_system_permission_denied_event_counts_even_with_generic_error_text(tmp_path):
+    target = tmp_path.parent / "write-target.md"
+    path = tmp_path / "stream.jsonl"
+    _write_stream(path, tmp_path, "w", "Write", target, True, text="tool error")
+    assert companion.probe_write_trace(path, tmp_path, target) is False
+    events = [json.loads(line) for line in path.read_text().splitlines()]
+    events.insert(
+        4, {"type": "system", "subtype": "permission_denied", "tool_use_id": "w"}
+    )
+    path.write_text("\n".join(json.dumps(e) for e in events))
+    assert companion.probe_write_trace(path, tmp_path, target) is True

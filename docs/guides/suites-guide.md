@@ -498,7 +498,9 @@ costs, including zero, are estimates, not verified provider spend.
 corpus cells. Each job, after activating the workflow Skill, attempts one
 outside-root `Read` and one outside-root `Write` (to a not-yet-existing file the
 OS would allow); `restricted_paths` is certified only if both are refused and no
-file appears. The `Edit` rule family covers `Write`, but an `Edit`-tool attempt
+file appears. A refusal must read as a policy denial (or arrive as a
+`permission_denied` event), and the `Write` must be well-formed: an argument
+validation error or I/O failure is not a denial and certifies nothing. The `Edit` rule family covers `Write`, but an `Edit`-tool attempt
 is not probed separately. It requires `acknowledge_preflight: true`; with
 `preflight_budget_usd: null` there is no dollar cap. Finite call/turn/time
 safeguards remain. The recorder distinguishes CLI jobs from underlying Messages
