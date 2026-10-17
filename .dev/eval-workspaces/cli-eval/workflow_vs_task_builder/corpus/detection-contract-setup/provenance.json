@@ -1225,6 +1225,7 @@
     "input.md": "efcbfdd07a5824b80cdb59e3d7bb4cd7fa992f0d6c981a8c36fc309ae6b23f3b",
     "baseline.md": "83449d3e9d0cbc6e8c573534ae42da2fb734c2e3f6353558ccf9fd229156fd46",
     "baseline-original.md": "506c76f7600ba49acdf1c70b733924562062cfad0951cf4548d2fe8584ace946",
-    "requirements.json": "bf4081d4ac2b6296e9d8f187da7d05289427d3ea9b86bdc0cfc69464e08592a6"
+    "requirements.json": "bf4081d4ac2b6296e9d8f187da7d05289427d3ea9b86bdc0cfc69464e08592a6",
+    "scoring-notes.json": "f723b3361ff7c8c3d83cb987be1cec1c1c38f0b31f52b62dfed733d2b3016c61"
   }
 }

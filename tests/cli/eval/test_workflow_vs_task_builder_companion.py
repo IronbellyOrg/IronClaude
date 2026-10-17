@@ -728,7 +728,12 @@ def test_independently_authored_suite_and_prepare_never_spawn(tmp_path, monkeypa
         companion.main(["--config", str(config), "--output", str(output), "--prepare"])
 
 
-def install_mock_boundary(monkeypatch, calls, *, interrupt=False, unknown_cost=False):
+def install_mock_boundary(
+    monkeypatch, calls, *, interrupt=False, unknown_cost=False, bad_baseline=False
+):
+    # The mocked boundary must not depend on who runs the suite: under root the real
+    # guard would return BLOCKED before reaching any process mock.
+    monkeypatch.setattr(companion, "privileged", lambda: False)
     evidence = {
         model: {effort: {"observable_models": [model]} for effort in companion.EFFORTS}
         for model in [*controls()["models"], controls()["judge_model"]]
@@ -765,6 +770,8 @@ def install_mock_boundary(monkeypatch, calls, *, interrupt=False, unknown_cost=F
                 for line in process.output_file.read_text().splitlines()
             ]
             events[-1]["result"] = json.dumps({"scores": scores})
+            if bad_baseline and "baseline-" in str(process.output_file):
+                events[-1]["result"] = "not json: malformed baseline judgment"
             process.output_file.write_text("\n".join(json.dumps(e) for e in events))
         events = [
             json.loads(line) for line in process.output_file.read_text().splitlines()
@@ -1190,7 +1197,8 @@ def test_recorder_forwards_exact_auth_and_model_without_persisting_secrets(monke
         )
 
 
-def mock_preflight(monkeypatch, *, denied=True):
+def mock_preflight(monkeypatch, *, denied=True, write_attempt=True, write_denied=True):
+    monkeypatch.setattr(companion, "privileged", lambda: False)  # root-proof, as above
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setenv("ANTHROPIC_AUTH_TOKEN", "mock-private-bearer")
     monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://approved.invalid/anthropic")
@@ -1255,6 +1263,45 @@ def mock_preflight(monkeypatch, *, denied=True):
                 },
             },
         )
+        if write_attempt:
+            # After the Skill result (index 4): an artifact Write before activation is
+            # rejected by the trace gate, as it should be.
+            events.insert(
+                5,
+                {
+                    "type": "assistant",
+                    "message": {
+                        "model": process.model,
+                        "content": [
+                            {
+                                "type": "tool_use",
+                                "id": "outside-write",
+                                "name": "Write",
+                                "input": {
+                                    "file_path": str(process._preflight_write_target),
+                                    "content": "denied",
+                                },
+                            }
+                        ],
+                    },
+                },
+            )
+            events.insert(
+                6,
+                {
+                    "type": "user",
+                    "message": {
+                        "content": [
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": "outside-write",
+                                "is_error": write_denied,
+                                "content": "mock write denial",
+                            }
+                        ]
+                    },
+                },
+            )
         process.output_file.write_text("\n".join(json.dumps(e) for e in events))
         wire = {
             "model": process.model,
@@ -1825,3 +1872,271 @@ def test_settings_allow_only_the_two_writable_roots_and_both_skills():
     assert companion.restricted_policy()["writable_roots"] == list(
         companion.WRITABLE_ROOTS
     )
+
+
+# --- review follow-ups: baseline completion, write probe, scoring notes, root-proof mocks ---
+
+
+def _run_execute(tmp_path, name):
+    config = tmp_path / "config.json"
+    companion.write_json(config, controls())
+    output = tmp_path / name
+    rc = companion.main(
+        [
+            "--config",
+            str(config),
+            "--output",
+            str(output),
+            "--execute",
+            "--confirm-live",
+        ]
+    )
+    return rc, companion.read_json(output / "summary.json")
+
+
+def test_baseline_judge_failure_is_never_a_completed_pass(tmp_path, monkeypatch):
+    if not companion.DEFAULT_SUITE.exists():
+        pytest.skip("independent suite author has not yet produced manifest")
+    install_mock_boundary(monkeypatch, [], bad_baseline=True)
+    rc, result = _run_execute(tmp_path, "bad-baseline")
+    # Candidates all score, but no baseline did, so no delta exists: not a PASS.
+    assert rc == 1
+    assert result["state"] == "COMPLETED"
+    assert all(row["status"] == "SCORED" for row in result["rows"])
+    assert all(row.get("delta") is None for row in result["rows"])
+    assert {b["status"] for b in result["baselines"].values()} == {"INVALID_JUDGMENT"}
+    for cid in ("WF1", "WF2", "WF3"):
+        assert any(
+            f"baseline judgment not SCORED: {cid}" in b for b in result["blockers"]
+        )
+
+
+def test_mock_boundaries_are_root_proof(monkeypatch):
+    monkeypatch.setattr(companion.os, "geteuid", lambda: 0)
+    assert companion.privileged() is True
+    install_mock_boundary(monkeypatch, [])
+    assert companion.privileged() is False
+    monkeypatch.setattr(companion.os, "geteuid", lambda: 0)
+    monkeypatch.undo()  # restore, then prove mock_preflight neutralises it independently
+    monkeypatch.setattr(companion.os, "geteuid", lambda: 0)
+    mock_preflight(monkeypatch)
+    assert companion.privileged() is False
+
+
+def _write_stream(path, tmp_path, use_id, name, target, is_error):
+    events = stream(path)
+    events.insert(
+        2,
+        {
+            "type": "assistant",
+            "message": {
+                "content": [
+                    {
+                        "type": "tool_use",
+                        "id": use_id,
+                        "name": name,
+                        "input": {"file_path": str(target), "content": "x"},
+                    }
+                ]
+            },
+        },
+    )
+    events.insert(
+        3,
+        {
+            "type": "user",
+            "message": {
+                "content": [
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": use_id,
+                        "is_error": is_error,
+                        "content": "result",
+                    }
+                ]
+            },
+        },
+    )
+    path.write_text("\n".join(json.dumps(e) for e in events))
+
+
+def test_probe_write_trace_requires_an_attempted_and_refused_write(tmp_path):
+    target = tmp_path.parent / "write-target.md"
+    path = tmp_path / "stream.jsonl"
+    _write_stream(path, tmp_path, "w", "Write", target, True)
+    assert companion.probe_write_trace(path, tmp_path, target) is True
+    _write_stream(path, tmp_path, "w", "Write", target, False)  # write succeeded
+    assert companion.probe_write_trace(path, tmp_path, target) is False
+    _write_stream(path, tmp_path, "w", "Read", target, True)  # never tried to write
+    assert companion.probe_write_trace(path, tmp_path, target) is False
+    _write_stream(path, tmp_path, "w", "Write", tmp_path.parent / "other.md", True)
+    assert companion.probe_write_trace(path, tmp_path, target) is False
+
+
+def _snapshot_config(tmp_path, supported=True):
+    config = {
+        **controls(),
+        "acknowledge_preflight": True,
+        "preflight_budget_usd": None,
+        "preflight_metadata_snapshot": "metadata.json",
+    }
+    _, fingerprint = companion.endpoint_identity()
+    records = []
+    for model in [*config["models"], config["judge_model"]]:
+        row = {
+            "model": model,
+            "endpoint_sha256": fingerprint,
+            "auth_method": "bearer",
+            "http_status": 200 if supported else 404,
+        }
+        if supported:
+            row["metadata"] = {
+                "id": model,
+                "capabilities": {
+                    "effort": {
+                        "supported": True,
+                        **{lv: {"supported": True} for lv in companion.EFFORTS},
+                    }
+                },
+            }
+        records.append(row)
+    companion.write_json(tmp_path / "metadata.json", {"records": records})
+    companion.write_json(tmp_path / "config.json", config)
+
+
+def _preflight(tmp_path, name):
+    output = tmp_path / name
+    rc = companion.main(
+        [
+            "--config",
+            str(tmp_path / "config.json"),
+            "--output",
+            str(output),
+            "--preflight",
+            "--confirm-live",
+        ]
+    )
+    return rc, output
+
+
+def test_preflight_successful_outside_write_stops_and_certifies_nothing(
+    tmp_path, monkeypatch
+):
+    mock_preflight(monkeypatch, write_denied=False)
+    _snapshot_config(tmp_path)
+    rc, output = _preflight(tmp_path, "write-escape")
+    result = companion.read_json(output / "preflight-summary.json")
+    assert rc == 1 and result["state"] == "STOPPED" and result["probe_processes"] == 1
+    assert result["probes"][0]["status"] == "ERRORED"
+    assert "confinement_evidence" not in result["evidence_index"]
+
+
+def test_preflight_without_a_write_attempt_does_not_certify_restricted_paths(
+    tmp_path, monkeypatch
+):
+    mock_preflight(monkeypatch, write_attempt=False)
+    _snapshot_config(tmp_path)
+    rc, output = _preflight(tmp_path, "no-write-attempt")
+    result = companion.read_json(output / "preflight-summary.json")
+    assert rc == 2 and result["state"] != "VERIFIED"
+    assert all(p["status"] != "VERIFIED" for p in result["probes"])
+    assert all(p.get("outside_write_denied") is False for p in result["probes"])
+    assert "confinement_evidence" not in result["evidence_index"]
+
+
+def test_preflight_with_read_and_write_denied_certifies_restricted_paths(
+    tmp_path, monkeypatch
+):
+    mock_preflight(monkeypatch)
+    _snapshot_config(tmp_path)
+    rc, output = _preflight(tmp_path, "both-denied")
+    result = companion.read_json(output / "preflight-summary.json")
+    assert rc == 0 and result["state"] == "VERIFIED"
+    assert all(p["outside_write_denied"] is True for p in result["probes"])
+    proof = companion.read_json(output / "confinement-evidence.json")
+    assert proof["restricted_paths"] is True and "Write" in proof["verification"]
+
+
+REQS = [
+    {"id": "A", "dimension": "testability"},
+    {"id": "B", "dimension": "testability"},  # restates A
+    {"id": "C", "dimension": "testability"},
+    {"id": "D", "dimension": "safety"},
+]
+
+
+def _payload(**scores):
+    # nonzero scores must quote exact artifact text; the test artifact body is "quote"
+    return {
+        "scores": [
+            {"id": k, "score": v, "evidence": "quote" if v else ""}
+            for k, v in scores.items()
+        ]
+    }
+
+
+def test_score_judgment_excluded_rows_are_judged_but_not_weighted():
+    body = "quote"
+    plain = companion.score_judgment(_payload(A=2, B=0, C=2, D=2), REQS, body)
+    assert plain["dimensions"]["testability"] == pytest.approx(100 * 4 / 6)
+    notes = {"B": {"kind": "corroborates", "target": "A"}}
+    weighted = companion.score_judgment(_payload(A=2, B=0, C=2, D=2), REQS, body, notes)
+    assert weighted["dimensions"]["testability"] == 100  # B no longer takes a slot
+    assert weighted["excluded"] == notes
+    # still judged: dropping the excluded row from the judgment is a missing ID
+    with pytest.raises(ValueError, match="missing judgment IDs"):
+        companion.score_judgment(_payload(A=2, C=2, D=2), REQS, body, notes)
+
+
+@pytest.mark.parametrize(
+    "notes",
+    [
+        {"corroborates": {"Z": "A"}, "superseded_by": {}},  # unknown id
+        {"corroborates": {"B": "Z"}, "superseded_by": {}},  # unknown target
+        {"corroborates": {"B": "B"}, "superseded_by": {}},  # self reference
+        {"corroborates": {"D": "A"}, "superseded_by": {}},  # crosses dimensions
+        {"corroborates": {"B": "A"}, "superseded_by": {"B": "C"}},  # excluded twice
+        {"corroborates": {"B": "A", "A": "C"}, "superseded_by": {}},  # chain
+        {"corroborates": {}},  # missing key
+    ],
+)
+def test_scoring_notes_reject_invalid_overlays(notes):
+    with pytest.raises(ValueError):
+        companion.scoring_notes(
+            {"schema": companion.SCORING_NOTES_SCHEMA, **notes}, REQS
+        )
+    with pytest.raises(ValueError, match="invalid scoring notes"):
+        companion.scoring_notes(
+            {"schema": "wrong", "corroborates": {}, "superseded_by": {}}, REQS
+        )
+
+
+def test_frozen_corpus_pins_scoring_notes_and_excludes_the_reviewed_rows():
+    cases = companion.corpus(companion.DEFAULT_CORPUS)
+    assert set(cases["WF1"]["excluded"]) == {"WF1-R021"}
+    assert set(cases["WF2"]["excluded"]) == {"WF2-R082", "WF2-R140"}
+    assert set(cases["WF3"]["excluded"]) == {"WF3-R043", "WF3-R093", "WF3-R003"}
+    assert cases["WF3"]["excluded"]["WF3-R003"] == {
+        "kind": "superseded_by",
+        "target": "WF3-R038",
+    }
+    # governing/primary rows stay weighted; the requirement counts are unchanged
+    for primary in ("WF1-R019", "WF2-R061", "WF3-R006", "WF3-R068", "WF3-R038"):
+        assert all(primary not in c["excluded"] for c in cases.values())
+    assert [len(cases[c]["requirements"]) for c in ("WF1", "WF2", "WF3")] == [
+        29,
+        145,
+        104,
+    ]
+    assert all("scoring-notes.json" in c["hashes"] for c in cases.values())
+
+
+def test_scoring_notes_are_hash_pinned(tmp_path):
+    copy = tmp_path / "corpus"
+    shutil.copytree(companion.DEFAULT_CORPUS, copy)
+    notes = copy / "reflect-integration" / "scoring-notes.json"
+    data = json.loads(notes.read_text())
+    data["superseded_by"] = {}
+    notes.write_text(json.dumps(data, indent=2) + "\n")
+    with pytest.raises(ValueError, match="hash mismatch"):
+        companion.corpus(copy)

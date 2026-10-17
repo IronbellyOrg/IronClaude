@@ -454,7 +454,21 @@ Validate workflow format separately from shared planning quality. Use the same f
 safety, testability, dependencies and scope, with exact artifact evidence.
 Historical baselines are not gold answers; MDTM syntax and execution outcomes
 earn no quality bonus. Score each of the **3 baselines once**, then at most
-**27 candidates** against it (at most 30 quality judgments).
+**27 candidates** against it (at most 30 quality judgments). A run exits 0 only
+when every candidate **and all three baselines** are `SCORED`: a baseline whose
+judgment is malformed leaves that case without deltas, is recorded as a blocker,
+and exits 1.
+
+**Restated and contradicted requirements.** The requirement rows are hash-pinned
+and never edited. Each case's hash-pinned `scoring-notes.json` instead lists rows
+that restate another row's obligation (`corroborates`) and a summary row that the
+source itself contradicts with a more specific one (`superseded_by`: `WF3-R003`,
+"last item", is governed by `WF3-R038`, "penultimate item"). Those rows are still
+judged, so every judgment returns every ID, but they are left out of the
+dimension means so a single obligation is not weighted twice and a plan that
+follows the governing row is not penalised. The groups were identified by reading
+the rows; paraphrased restatements are not detectable mechanically, so the list
+is a reviewed set, not a proof that no other restatement exists.
 
 **Execution warning:** schema validation and discovery have succeeded; they
 prove registration only. Core `superclaude eval run` currently uses a null
@@ -481,7 +495,11 @@ surface. Dollar limits are soft when proxy pricing is unverified; CLI reported
 costs, including zero, are estimates, not verified provider spend.
 
 `--preflight --confirm-live` runs ten synthetic diagnostic jobs, never scored
-corpus cells. It requires `acknowledge_preflight: true`; with
+corpus cells. Each job, after activating the workflow Skill, attempts one
+outside-root `Read` and one outside-root `Write` (to a not-yet-existing file the
+OS would allow); `restricted_paths` is certified only if both are refused and no
+file appears. The `Edit` rule family covers `Write`, but an `Edit`-tool attempt
+is not probed separately. It requires `acknowledge_preflight: true`; with
 `preflight_budget_usd: null` there is no dollar cap. Finite call/turn/time
 safeguards remain. The recorder distinguishes CLI jobs from underlying Messages
 requests, stores no raw headers/prompts, and emits qualifying evidence only.

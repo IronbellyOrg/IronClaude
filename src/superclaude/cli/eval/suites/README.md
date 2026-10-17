@@ -50,7 +50,10 @@ The comparison is **source-only and retrospective/context-limited**, not a
 reproduction of historical research. Baselines and hidden rubrics are not
 generator inputs or gold answers. Keep format validation separate from shared
 planning-quality scoring; score each of the three baselines once and at most
-27 candidates using the same frozen rubric and exact artifact evidence.
+27 candidates using the same frozen rubric and exact artifact evidence. A run
+exits 0 only if every candidate and all three baselines are `SCORED`. Each
+case's hash-pinned `scoring-notes.json` marks restated or contradicted
+requirement rows: they are still judged but left out of the dimension means.
 
 **Core-run PASS is non-authoritative:** the current core eval runner has a
 null lifecycle executor and unwired assertions. The manifest registers the
@@ -65,7 +68,8 @@ evidence is absent. Execution requires explicit confirmation, genuine
 capability/confinement evidence and isolated authentication. Restricted children
 explicitly load the canonical Markdown payloads as a local plugin in a private
 temporary workspace; bare mode cannot provide the necessary Skill surface.
-`--preflight --confirm-live` runs ten unscored synthetic jobs. A null
+`--preflight --confirm-live` runs ten unscored synthetic jobs, each probing an
+outside-root `Read` and `Write` that must both be refused. A null
 `preflight_budget_usd` removes its dollar cap but not finite call/turn/time
 safeguards. Jobs and actual Messages requests are counted separately. Metadata
 HTTP 404 is not model unavailability. Full-run dollar limits remain soft and
