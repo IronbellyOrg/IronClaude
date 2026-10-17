@@ -39,7 +39,7 @@ Depth caps phase count (quick 2–4, standard 4–8, deep 6–12).
 
 ## Wave 2 — Synthesize
 
-Write `<pkg>/<id>.md` (the full package directory basename + `.md`, e.g. `TASK-WF-authLogin-20261001-063000.md`; never `plan.md`) from `src/superclaude/templates/workflow/00_mdtm_template_simple_task.md`: follow the rules in its HTML comment, then remove the comment and unused placeholders. Frontmatter keys (schema `workflow-plan/1.2`, `slug` = package id, `source: ./source.md`) and fill rules: `refs/quality-gates.md`.
+Write `<pkg>/<id>.md` (the full package directory basename + `.md`, e.g. `TASK-WF-authLogin-20261001-063000.md`; never `plan.md`) from the bundled `refs/00_mdtm_template_simple_task.md`: Read it from this skill's directory and follow the rules in its HTML comment, then remove the comment and unused placeholders. Frontmatter keys (schema `workflow-plan/1.2`, `slug` = package id, `source: ./source.md`) and fill rules: `refs/quality-gates.md`.
 
 Each Wave 1 phase → `## Phase N:` then its `## Task N:` headings (numbered 1..N across the plan). Phase Inputs → files/sections named in the task body; Outputs → the body and `Acceptance criteria:` of the task that produces each one (every Output lands in some task); Checkpoint → the last task's `Acceptance criteria:`; deps → `Depends on: Task K`.
 

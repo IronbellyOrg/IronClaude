@@ -9,6 +9,8 @@ import filecmp
 import re
 from pathlib import Path
 
+from superclaude.cli.install_skill import install_skill_command
+
 _REPO = Path(__file__).resolve().parents[2]
 _CMD = _REPO / "src" / "superclaude" / "commands" / "workflow.md"
 _SKILL = _REPO / "src" / "superclaude" / "skills" / "sc-workflow-protocol"
@@ -72,6 +74,20 @@ def test_plan_uses_template_00():
     for key in ("schema: workflow-plan/1.2", "version:", "priority:", "created_date:"):
         assert key in gates, key
     assert "workflow-plan/1.1" not in gates
+
+
+def test_workflow_template_is_bundled_and_installed(tmp_path):
+    bundled = _SKILL / "refs" / _TPL00.name
+    skill = (_SKILL / "SKILL.md").read_text(encoding="utf-8")
+    assert f"refs/{_TPL00.name}" in skill
+    assert "src/superclaude/templates/workflow/" not in skill
+    assert bundled.read_bytes() == _TPL00.read_bytes()
+
+    ok, message = install_skill_command("sc-workflow-protocol", tmp_path / "skills")
+    assert ok, message
+    installed = tmp_path / "skills" / "sc-workflow-protocol"
+    assert (installed / "refs" / _TPL00.name).read_bytes() == _TPL00.read_bytes()
+    assert f"refs/{_TPL00.name}" in (installed / "SKILL.md").read_text(encoding="utf-8")
 
 
 def test_plugin_mirror_matches_src():
