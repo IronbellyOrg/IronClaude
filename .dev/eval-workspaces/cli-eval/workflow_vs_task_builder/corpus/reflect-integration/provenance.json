@@ -1,0 +1,931 @@
+{
+  "case_id": "WF3",
+  "slug": "reflect-integration",
+  "grounding": "source-only; retrospective/context-limited",
+  "source_records": [
+    {
+      "source_path": ".dev/proposals/reflect-in-task-builder.md",
+      "frozen_path": "sources/reflect-in-task-builder.md",
+      "sha256": "4bef27a607d357816eecf62bd8e5908a319582398863a4a0c9485208d9a4d589",
+      "bytes": 36951,
+      "selection": "Verbatim working-tree authoritative spec; no claim this is a pristine pre-implementation source revision."
+    },
+    {
+      "source_path": ".dev/proposals/reflect-in-sc-tasklist.md",
+      "frozen_path": "sources/reflect-in-sc-tasklist.md",
+      "sha256": "c15eb0302cf085401c183f46c28b7d7b3b281a82527a7952d2f4da14c65187a7",
+      "bytes": 40631,
+      "selection": "Verbatim working-tree authoritative spec; no claim this is a pristine pre-implementation source revision."
+    }
+  ],
+  "binding_human_supplements": [
+    {
+      "source_path": ".dev/tasks/done/TASK-RF-20260604-042055/research-notes.md",
+      "source_sha256": "115130a9cfa47d32a1d771a53abc1777f5638f09a838f057f8f3f0743582064a",
+      "frozen_path": "sources/binding-human-decision.md",
+      "frozen_sha256": "587a7e4d933b75acdd13689ca9a07eb11a138543c7c06a5d87982c6ed0c29147",
+      "source_ranges": [
+        {
+          "start": 22,
+          "end": 22
+        }
+      ],
+      "binding_status": "User-mandated S4 token correction, overriding proposal S4 row only.",
+      "excluded": "All remaining researcher notes, file inventories, suggested phases, tests/QA results and solutions."
+    }
+  ],
+  "baseline": {
+    "design_baseline_path": ".dev/tasks/done/TASK-RF-20260604-042055/TASK-RF-20260604-042055.md",
+    "working_tree_sha256": "aa9e83dca960ac656a5aa26f71438c8dbe6a53d17ee19cde20d072e60c003f82",
+    "selected_snapshot": "first git-added baseline bytes recovered read-only, not generation-only",
+    "git_commit": "ee15ed5f19da1bd4abf49075e557eec7da096bce",
+    "git_path": ".dev/tasks/to-do/TASK-RF-20260604-042055/TASK-RF-20260604-042055.md",
+    "recovery_command": [
+      "git",
+      "show",
+      "ee15ed5f19da1bd4abf49075e557eec7da096bce:.dev/tasks/to-do/TASK-RF-20260604-042055/TASK-RF-20260604-042055.md"
+    ],
+    "addition_commits_found": [
+      "7dd3f9bd387bcff7827e1453296efaab469d70fe",
+      "ee15ed5f19da1bd4abf49075e557eec7da096bce"
+    ],
+    "generation_pristine": false,
+    "snapshot_state": "already complete at first git addition",
+    "snapshot_evidence": {
+      "frontmatter_status": "status: \"🟢 Done\"",
+      "checked_items": 45,
+      "execution_log_present": true,
+      "post_reflect_outcomes_present": true
+    },
+    "original_path": "baseline-original.md",
+    "original_sha256": "aa9e83dca960ac656a5aa26f71438c8dbe6a53d17ee19cde20d072e60c003f82",
+    "original_bytes": 95577,
+    "scoring_path": "baseline.md",
+    "scoring_sha256": "257c2478a10e2e99e6afb7e26b6034742f36c4b152a76d1ed2c103096448a6ab",
+    "scoring_bytes": 66647,
+    "normalization_method": "Local deterministic plain-text deletions and checkbox reset; no inference and no planning instruction synthesis.",
+    "normalization_operations": [
+      {
+        "operation": "Remove entire YAML frontmatter (including completion dates, start commits, PRE/POST reflect verdicts)",
+        "pattern": "\\A---\\n.*?\\n---\\n",
+        "replacement": "",
+        "flags": "re.DOTALL",
+        "matches": 1,
+        "before_sha256": "aa9e83dca960ac656a5aa26f71438c8dbe6a53d17ee19cde20d072e60c003f82",
+        "after_sha256": "d62d8c4496b285542ae41d9adeffbefc69c3593c87bf98957592b3848cf61732"
+      },
+      {
+        "operation": "Remove entire task-log tail: completion summary, executed results, QA fixes/findings, follow-ups, post-reflect evidence",
+        "pattern": "^## Task Log / Notes[^\\n]*\\n.*\\Z",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "d62d8c4496b285542ae41d9adeffbefc69c3593c87bf98957592b3848cf61732",
+        "after_sha256": "ba9e9c66ec963a27cfacd245ed36aa25d51f894ff4428f7b568e9f1c3553fcb9"
+      },
+      {
+        "operation": "Remove own post-completion administration/handoff/Done section (not feature implementation instructions)",
+        "pattern": "^## Post-Completion Actions\\n.*\\Z",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "ba9e9c66ec963a27cfacd245ed36aa25d51f894ff4428f7b568e9f1c3553fcb9",
+        "after_sha256": "7ecc7fc5b22ef2b34324e5007b61472c56085569552d2491ce36d3f4188bef57"
+      },
+      {
+        "operation": "Remove executor status-update protocol",
+        "pattern": "^### Frontmatter Update Protocol\\n.*?(?=^## |^### |\\Z)",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "7ecc7fc5b22ef2b34324e5007b61472c56085569552d2491ce36d3f4188bef57",
+        "after_sha256": "90cd42ed6a616817c25f72ff802f172fe0efcaac5c23cc5c7df0448d61661ec0"
+      },
+      {
+        "operation": "Remove initial execution status/log bookkeeping item",
+        "pattern": "^\\*\\*Step 1\\.1(?::\\*\\* Update task status|: Update task status\\*\\*)\\n.*?(?=^\\*\\*Step 1\\.2)",
+        "replacement": "",
+        "flags": "re.MULTILINE|re.DOTALL",
+        "matches": 1,
+        "before_sha256": "90cd42ed6a616817c25f72ff802f172fe0efcaac5c23cc5c7df0448d61661ec0",
+        "after_sha256": "9fd885890c518531af4bed70c99f922243f153b349ff1df617efc47a5181ce41"
+      },
+      {
+        "operation": "Reset actual checked completion flags to pending",
+        "pattern": "- \\[[xX]\\]",
+        "replacement": "- [ ]",
+        "flags": "re.MULTILINE",
+        "matches": 39,
+        "before_sha256": "9fd885890c518531af4bed70c99f922243f153b349ff1df617efc47a5181ce41",
+        "after_sha256": "bd12feb18b93f3783d697bf81a891ea9647c11d2e069f44545a4a4447064ec91"
+      }
+    ],
+    "non_pristine_caveat": "Original first-added snapshot already includes execution/completion edits. Scoring view is planning-only but cannot undo unknown edits to retained planning instructions or recreate unavailable generation context. Deleting own completion/reflect handoff sections omits any planning-only acceptance content embedded exclusively there; authoritative rubric remains unchanged. Future-tense implementation/tests/QA plans and feature-level PRE/POST reflect requirements are retained. Historical QA/procedural preferences are not gold answers.",
+    "final_whitespace_transform": {
+      "operation": "str.strip() followed by one LF",
+      "before_sha256": "bd12feb18b93f3783d697bf81a891ea9647c11d2e069f44545a4a4447064ec91",
+      "after_sha256": "257c2478a10e2e99e6afb7e26b6034742f36c4b152a76d1ed2c103096448a6ab"
+    },
+    "addition_duplicate_evidence": {
+      "commit": "7dd3f9bd387bcff7827e1453296efaab469d70fe",
+      "same_original_sha256": "aa9e83dca960ac656a5aa26f71438c8dbe6a53d17ee19cde20d072e60c003f82",
+      "selection_reason": "Earlier original branch addition; later squash addition has byte-identical completed baseline."
+    }
+  },
+  "rubric": {
+    "path": "requirements.json",
+    "sha256": "5f7f5c3d7250762262522b46d33bf8a3d9cbef28aeaeaf2590e94572da0144b4",
+    "requirement_count": 104,
+    "sources_only": true,
+    "frozen_before_generation": true,
+    "dimension_counts": {
+      "coverage": 14,
+      "correctness": 38,
+      "safety": 21,
+      "testability": 8,
+      "dependencies": 12,
+      "scope": 11
+    },
+    "scoring_policy": {
+      "dimensions": [
+        "coverage",
+        "correctness",
+        "safety",
+        "testability",
+        "dependencies",
+        "scope"
+      ],
+      "scoring_unit": "Substantive source-grounded requirement; evidence must quote the scored planning artifact exactly.",
+      "format_neutral": true,
+      "no_gold_baseline": true,
+      "judge_instruction": "Do not award points merely for MDTM syntax, executor-specific bookkeeping, agent count, QA infrastructure, historical verdicts or implementation outcomes. Score substantive coverage and fidelity, safe refusal/edge cases, actionable validation and dependencies. Equivalent plan.md organization is acceptable. Repeated source obligations corroborate each other; do not give duplicate coverage bonus. Optional/rejected proposals are not mandatory. Source-literal arithmetic/token constraints remain binding.",
+      "precedence": "Binding human supplement overrides conflicting proposal; otherwise source requirements/design govern. Recommendations with pending decisions must not be silently treated as approved.",
+      "freeze_stage": "Before candidate generation; no inference or judging performed."
+    },
+    "source_evidence": {
+      "WF3-R001": {
+        "source_lines": {
+          "start": 6,
+          "end": 6
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R002": {
+        "source_lines": {
+          "start": 16,
+          "end": 16
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R003": {
+        "source_lines": {
+          "start": 17,
+          "end": 17
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R004": {
+        "source_lines": {
+          "start": 18,
+          "end": 18
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R005": {
+        "source_lines": {
+          "start": 19,
+          "end": 19
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R006": {
+        "source_lines": {
+          "start": 21,
+          "end": 21
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R007": {
+        "source_lines": {
+          "start": 39,
+          "end": 41
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R008": {
+        "source_lines": {
+          "start": 45,
+          "end": 49
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R009": {
+        "source_lines": {
+          "start": 54,
+          "end": 56
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R010": {
+        "source_lines": {
+          "start": 77,
+          "end": 77
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R011": {
+        "source_lines": {
+          "start": 83,
+          "end": 83
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R012": {
+        "source_lines": {
+          "start": 88,
+          "end": 88
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R013": {
+        "source_lines": {
+          "start": 94,
+          "end": 94
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R014": {
+        "source_lines": {
+          "start": 102,
+          "end": 104
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R015": {
+        "source_lines": {
+          "start": 108,
+          "end": 108
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R016": {
+        "source_lines": {
+          "start": 109,
+          "end": 109
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R017": {
+        "source_lines": {
+          "start": 110,
+          "end": 110
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R018": {
+        "source_lines": {
+          "start": 22,
+          "end": 22
+        },
+        "supersedes": {
+          "source_path": ".dev/proposals/reflect-in-task-builder.md",
+          "source_lines": {
+            "start": 111,
+            "end": 111
+          }
+        },
+        "frozen_source_path": "sources/binding-human-decision.md"
+      },
+      "WF3-R019": {
+        "source_lines": {
+          "start": 112,
+          "end": 112
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R020": {
+        "source_lines": {
+          "start": 113,
+          "end": 113
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R021": {
+        "source_lines": {
+          "start": 115,
+          "end": 115
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R022": {
+        "source_lines": {
+          "start": 120,
+          "end": 120
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R023": {
+        "source_lines": {
+          "start": 123,
+          "end": 123
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R024": {
+        "source_lines": {
+          "start": 129,
+          "end": 131
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R025": {
+        "source_lines": {
+          "start": 137,
+          "end": 137
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R026": {
+        "source_lines": {
+          "start": 138,
+          "end": 138
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R027": {
+        "source_lines": {
+          "start": 139,
+          "end": 139
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R028": {
+        "source_lines": {
+          "start": 140,
+          "end": 140
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R029": {
+        "source_lines": {
+          "start": 144,
+          "end": 146
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R030": {
+        "source_lines": {
+          "start": 148,
+          "end": 150
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R031": {
+        "source_lines": {
+          "start": 158,
+          "end": 158
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R032": {
+        "source_lines": {
+          "start": 162,
+          "end": 170
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R033": {
+        "source_lines": {
+          "start": 171,
+          "end": 171
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R034": {
+        "source_lines": {
+          "start": 172,
+          "end": 176
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R035": {
+        "source_lines": {
+          "start": 177,
+          "end": 187
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R036": {
+        "source_lines": {
+          "start": 188,
+          "end": 188
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R037": {
+        "source_lines": {
+          "start": 192,
+          "end": 200
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R038": {
+        "source_lines": {
+          "start": 202,
+          "end": 202
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R039": {
+        "source_lines": {
+          "start": 207,
+          "end": 226
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R040": {
+        "source_lines": {
+          "start": 231,
+          "end": 231
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R041": {
+        "source_lines": {
+          "start": 232,
+          "end": 233
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R042": {
+        "source_lines": {
+          "start": 237,
+          "end": 237
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R043": {
+        "source_lines": {
+          "start": 241,
+          "end": 241
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R044": {
+        "source_lines": {
+          "start": 245,
+          "end": 251
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R045": {
+        "source_lines": {
+          "start": 257,
+          "end": 258
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R046": {
+        "source_lines": {
+          "start": 259,
+          "end": 259
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R047": {
+        "source_lines": {
+          "start": 261,
+          "end": 261
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R048": {
+        "source_lines": {
+          "start": 262,
+          "end": 262
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R049": {
+        "source_lines": {
+          "start": 269,
+          "end": 276
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R050": {
+        "source_lines": {
+          "start": 277,
+          "end": 277
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R051": {
+        "source_lines": {
+          "start": 278,
+          "end": 278
+        },
+        "frozen_source_path": "sources/reflect-in-task-builder.md"
+      },
+      "WF3-R052": {
+        "source_lines": {
+          "start": 18,
+          "end": 18
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R053": {
+        "source_lines": {
+          "start": 55,
+          "end": 59
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R054": {
+        "source_lines": {
+          "start": 60,
+          "end": 60
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R055": {
+        "source_lines": {
+          "start": 62,
+          "end": 62
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R056": {
+        "source_lines": {
+          "start": 66,
+          "end": 66
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R057": {
+        "source_lines": {
+          "start": 71,
+          "end": 72
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R058": {
+        "source_lines": {
+          "start": 78,
+          "end": 78
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R059": {
+        "source_lines": {
+          "start": 79,
+          "end": 79
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R060": {
+        "source_lines": {
+          "start": 80,
+          "end": 80
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R061": {
+        "source_lines": {
+          "start": 81,
+          "end": 81
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R062": {
+        "source_lines": {
+          "start": 82,
+          "end": 82
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R063": {
+        "source_lines": {
+          "start": 83,
+          "end": 83
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R064": {
+        "source_lines": {
+          "start": 117,
+          "end": 117
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R065": {
+        "source_lines": {
+          "start": 127,
+          "end": 127
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R066": {
+        "source_lines": {
+          "start": 135,
+          "end": 138
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R067": {
+        "source_lines": {
+          "start": 140,
+          "end": 149
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R068": {
+        "source_lines": {
+          "start": 151,
+          "end": 151
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R069": {
+        "source_lines": {
+          "start": 154,
+          "end": 156
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R070": {
+        "source_lines": {
+          "start": 159,
+          "end": 161
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R071": {
+        "source_lines": {
+          "start": 163,
+          "end": 164
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R072": {
+        "source_lines": {
+          "start": 167,
+          "end": 184
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R073": {
+        "source_lines": {
+          "start": 186,
+          "end": 190
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R074": {
+        "source_lines": {
+          "start": 193,
+          "end": 195
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R075": {
+        "source_lines": {
+          "start": 198,
+          "end": 198
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R076": {
+        "source_lines": {
+          "start": 199,
+          "end": 199
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R077": {
+        "source_lines": {
+          "start": 200,
+          "end": 200
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R078": {
+        "source_lines": {
+          "start": 201,
+          "end": 201
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R079": {
+        "source_lines": {
+          "start": 207,
+          "end": 208
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R080": {
+        "source_lines": {
+          "start": 215,
+          "end": 217
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R081": {
+        "source_lines": {
+          "start": 221,
+          "end": 221
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R082": {
+        "source_lines": {
+          "start": 225,
+          "end": 228
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R083": {
+        "source_lines": {
+          "start": 230,
+          "end": 230
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R084": {
+        "source_lines": {
+          "start": 234,
+          "end": 234
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R085": {
+        "source_lines": {
+          "start": 237,
+          "end": 241
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R086": {
+        "source_lines": {
+          "start": 243,
+          "end": 243
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R087": {
+        "source_lines": {
+          "start": 248,
+          "end": 254
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R088": {
+        "source_lines": {
+          "start": 256,
+          "end": 256
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R089": {
+        "source_lines": {
+          "start": 262,
+          "end": 264
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R090": {
+        "source_lines": {
+          "start": 267,
+          "end": 267
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R091": {
+        "source_lines": {
+          "start": 268,
+          "end": 268
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R092": {
+        "source_lines": {
+          "start": 272,
+          "end": 272
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R093": {
+        "source_lines": {
+          "start": 276,
+          "end": 276
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R094": {
+        "source_lines": {
+          "start": 278,
+          "end": 278
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R095": {
+        "source_lines": {
+          "start": 280,
+          "end": 280
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R096": {
+        "source_lines": {
+          "start": 284,
+          "end": 284
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R097": {
+        "source_lines": {
+          "start": 285,
+          "end": 285
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R098": {
+        "source_lines": {
+          "start": 286,
+          "end": 286
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R099": {
+        "source_lines": {
+          "start": 292,
+          "end": 292
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R100": {
+        "source_lines": {
+          "start": 293,
+          "end": 293
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R101": {
+        "source_lines": {
+          "start": 294,
+          "end": 294
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R102": {
+        "source_lines": {
+          "start": 295,
+          "end": 295
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R103": {
+        "source_lines": {
+          "start": 296,
+          "end": 296
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      },
+      "WF3-R104": {
+        "source_lines": {
+          "start": 297,
+          "end": 297
+        },
+        "frozen_source_path": "sources/reflect-in-sc-tasklist.md"
+      }
+    }
+  },
+  "input": {
+    "path": "input.md",
+    "sha256": "960de073a3b8aa37216f61d0c09595e6af26e3a65b04a37f3f29ec60c7c256c8",
+    "baseline_or_research_solution_included": false,
+    "only_allowlisted_packet_files": [
+      "input.md"
+    ]
+  },
+  "disclosure_boundary": "Generator receives input.md only (plus identical evaluation protocol supplied externally). sources/ are provenance copies of packet text; do not expose baseline*, requirements.json or provenance.json to generator. All non-input corpus files are evaluator-only.",
+  "execution": {
+    "network_calls": 0,
+    "paid_model_calls": 0,
+    "candidate_generation_calls": 0,
+    "git_mutations": 0
+  },
+  "verification": {
+    "all_requirement_quotes_found_in_input": true,
+    "all_source_specs_frozen_verbatim": true,
+    "all_ids_unique": true,
+    "scoring_completed_checkboxes_remaining": 0
+  },
+  "hashes": {
+    "input.md": "960de073a3b8aa37216f61d0c09595e6af26e3a65b04a37f3f29ec60c7c256c8",
+    "baseline.md": "257c2478a10e2e99e6afb7e26b6034742f36c4b152a76d1ed2c103096448a6ab",
+    "baseline-original.md": "aa9e83dca960ac656a5aa26f71438c8dbe6a53d17ee19cde20d072e60c003f82",
+    "requirements.json": "5f7f5c3d7250762262522b46d33bf8a3d9cbef28aeaeaf2590e94572da0144b4",
+    "scoring-notes.json": "a4ea7d8c6e58ea577d21290873dec6b68488ca45d5b31514eb310178a19c1145"
+  }
+}
