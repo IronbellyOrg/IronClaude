@@ -125,7 +125,7 @@ findings (A.3 step-2a `reuse-auditor` delegation). One row per proposed componen
 
 `tier ∈ {confident-duplicate, maybe-related, distinct}`; `Verdict ∈ {reuse-by-import,
 mirror-shape, extract-shared, distinct}`. **L3 rows** (`S_reuse ≥ 0.82` AND
-`confidence ≥ 0.85` AND `verdict ≠ distinct`) carry the **ADVISORY-BLOCKING-PREVIEW**
+`confidence ≥ 0.85` AND `verdict ≠ distinct` AND `tier = confident-duplicate`) carry the **ADVISORY-BLOCKING-PREVIEW**
 banner: *"Building this as a new component will be classified Drift and BLOCK promotion
 at `sc:reflect --mode post`. Recommended action before build: `<verdict>`."* The verdict
 recorded here is the same one `--mode post` recomputes against the shipped diff. Omit the

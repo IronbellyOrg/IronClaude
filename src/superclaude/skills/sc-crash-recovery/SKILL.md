@@ -1,6 +1,6 @@
 ---
 name: sc-crash-recovery
-description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, serena memory, git status, and auggie semantic sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `superclaude sprint`, `superclaude roadmap`, or `/sc:task` pipelines fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
+description: Post-crash work-state recovery. Fans parallel subagents across pipeline artifacts (.dev/releases, manifest.json, execution-log.jsonl, .roadmap-state.json), recent Claude Code session logs, serena memory, git status, and WIP-marker sweeps to produce a structured "where was I, what's in-flight, what to resume" report with concrete resume commands. Use this skill whenever the user mentions a server crash, reboot, machine restart, lost session, dropped pipelines, "where was I", "what was I working on", "what's in flight", "resume", "pick up where I left off", "recover state", or logs back in after an outage — even when they don't explicitly say "crash recovery". Also use after `superclaude sprint`, `superclaude roadmap`, or `/sc:task` pipelines fail or get interrupted, when investigating stalled work, or when starting a fresh session on a project that has unfinished pipeline runs. Supports a single project (default, current cwd) or fleet sweep across all workspaces with `--all`.
 allowed-tools: Read, Glob, Grep, Bash(ls *), Bash(find *), Bash(wc *), Bash(cat *), Bash(head *), Bash(tail *), Bash(stat *), Bash(git status *), Bash(git diff *), Bash(git log *), Bash(git stash *), Bash(git branch *), Bash(git ls-files *), Bash(~/.claude/skills/sc-crash-recovery/scripts/*), Bash(~/workspace/IronClaude/.claude/skills/sc-crash-recovery/scripts/*), Task
 metadata:
   type: workflow
@@ -78,11 +78,11 @@ For each project that has signal, spawn these investigators in parallel via the 
 | claude-sessions | no `~/.claude/projects/<encoded-cwd>/*.jsonl` | general-purpose |
 | serena-memory | no `.serena/memories/` | general-purpose |
 | git-state | not a git repo | general-purpose |
-| auggie-semantic | source tree is empty or trivially small | general-purpose |
+| wip-scan | source tree is empty or trivially small | general-purpose |
 
 Each investigator returns a structured fragment (see `refs/report-template.md`) — not raw logs. The fan-out is where context bloat lives, so the investigator prompts demand short, structured answers.
 
-**Why parallel matters**: a single-project recovery report should land in roughly the time of the slowest investigator (typically `pipeline-artifacts` or `auggie-semantic`), not the sum of all five. Sequential investigation can take 5–10× longer.
+**Why parallel matters**: a single-project recovery report should land in roughly the time of the slowest investigator (typically `pipeline-artifacts`), not the sum of all five. Sequential investigation can take 5–10× longer.
 
 ### Step 4: Synthesize the report (sequential)
 
@@ -96,15 +96,9 @@ This skill is diagnostic. Do not run the resume commands yourself. The output en
 
 If the user follows up with "go ahead, run #2", do it then — but each command goes through normal approval, not implicit consent from invoking the skill.
 
-## Auggie usage
+## WIP-marker sweep
 
-Auggie's `codebase-retrieval` is the primary tool for the `auggie-semantic` investigator, and also useful as a secondary check in `pipeline-artifacts` when manifest data is ambiguous. Specific queries to use:
-
-- *"What files contain in-progress markers (TODO-WIP, FIXME-RECENT, status fields like 🟡 InProgress) modified in the last 72 hours?"*
-- *"Where are recovery or resume instructions documented for the sprint, roadmap, or task pipelines?"*
-- *"What's the most recently touched feature work, by file mtime and content recency?"*
-
-Do not use auggie as a substitute for reading manifest.json or execution-log.jsonl directly — those are exact, auggie is semantic. Use auggie when you need to find work-status signals scattered across the tree that no manifest will catch.
+The `wip-scan` investigator uses `Grep` on the working tree only (the work being recovered is usually uncommitted): in-progress markers, "left off" phrases, and frontmatter `status:` values. See `refs/investigators.md` §5. It does not replace reading manifest.json or execution-log.jsonl directly; it catches work-status signals scattered across the tree that no manifest records.
 
 ## Pipeline knowledge
 
@@ -143,7 +137,6 @@ When an investigator's tool layer fails, do not silently drop its signal — the
 | Failure | Behavior | Fallback |
 |---|---|---|
 | `bootstrap_scan.sh` exits non-zero or returns malformed JSON | Continue with the investigators that don't depend on it (git-state, claude-sessions); mark pipeline-artifacts and serena-memory as `unscanned: bootstrap_failed` in the final report | Read .dev/releases/current/* directly via Glob+Read as a degraded fallback |
-| Auggie MCP unreachable / `codebase-retrieval` returns error | Skip the auggie-semantic investigator; emit `unscanned: auggie_unavailable` in the report; offer the user the option to run a Grep-based fallback for `TODO-WIP`/`status: 🟡` markers | Grep over the tree for the explicit marker strings |
 | Task subagent times out or returns empty string | Re-spawn that one investigator once with a tighter prompt (cap output, narrower scope); if still empty, emit `unscanned: subagent_failure` and continue synthesis | None — the report is honest about the gap |
 | Wave exit criterion: any investigator that returns neither a structured fragment nor an explicit "no signal" marker | Wait briefly, then treat as `unscanned`. Never let a silent-empty investigator slip through into a synthesis that looks complete | None |
 

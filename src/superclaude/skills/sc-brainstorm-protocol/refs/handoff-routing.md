@@ -15,6 +15,8 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 
 **Tier 1 (primary)**: `mcp__auggie__augment_code_search`
 
+- Prior art on the default branch only: pass `repo_owner`, `repo_name` and `branch=<default-branch>` from `augment_repo=owner/name@<default-branch>` in `<session-context>`. Working-tree context (branch-only or uncommitted code) comes from Tier 2 Serena and Grep/Read. A hit is a lead: Read it on the working tree before citing it. `[BRANCH_NOT_FOUND]`/`[REPO_NOT_FOUND]` → say "Augment unavailable: <reason>" and go to Tier 2.
+
 - Two parallel queries (per existing brainstorm v1 pattern):
   - Query 1: `"{topic} - find relevant code, existing implementations, related components, and integration points"`
   - Query 2: `"Project architecture, structure, patterns, and conventions related to {topic_domain_area}"`

@@ -84,6 +84,8 @@ Do NOT attempt to execute the monitor using only this command file. The determin
 
 **Will Not:** run headless / imply a daemon; push to an upstream parent remote or to the repo's default/protected branch; emit `--depth quick --fix`; apply edits at L1 or push/reply at L2.
 
+A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
+
 ## Related Commands
 
 - `/sc:auggie-review` — the sibling PR-review command (offered together by the post-PR-create hook).

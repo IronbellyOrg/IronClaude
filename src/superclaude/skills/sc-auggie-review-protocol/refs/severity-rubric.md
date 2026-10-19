@@ -1,8 +1,8 @@
 # Severity Rubric
 
-Auggie's `severity_hint` is a starting point, not authoritative. After Wave 3 grounding completes, every finding is remapped through this rubric so the report grades consistently regardless of which Auggie pass produced the finding.
+The reviewer's `severity_hint` is a starting point, not authoritative. After Wave 3 grounding completes, every finding is remapped through this rubric so the report grades consistently regardless of which pass produced the finding.
 
-## Why a rubric (and not just trust Auggie)
+## Why a rubric (and not just trust the reviewer)
 
 Severity drift is the most common failure mode of AI code review: each invocation grades slightly differently, two findings in the same report contradict each other on severity, and reviewers lose trust in the report. The rubric exists to make grading reproducible — given two findings with the same factual content, they receive the same severity regardless of which pass found them.
 
@@ -62,9 +62,9 @@ Nits are condensed into a single sub-section of the report (one-line per nit), n
 
 ## Severity-remap algorithm (applied in Wave 3)
 
-For each finding F coming out of Auggie:
+For each finding F coming out of the reviewer:
 
-1. **Start from Auggie's `severity_hint`**.
+1. **Start from the reviewer's `severity_hint`**.
 2. **Apply category overrides** (the category is more reliable than the hint):
 
 | Category | Floor severity (cannot be downgraded below this without explicit reason) | Ceiling severity (cannot be upgraded above this without explicit reason) |
@@ -86,7 +86,7 @@ For each finding F coming out of Auggie:
 | `logging` | Low | High (PII in logs → High) |
 | `naming` / `style` | Nit | Low |
 
-3. **Apply confidence adjustment** (Auggie's `confidence` field):
+3. **Apply confidence adjustment** (the reviewer's `confidence` field):
    - `low` confidence → drop severity by one tier (Critical → High, High → Medium, etc.). If Critical and low confidence, downgrade only if the orchestrator's grounding pass also flagged uncertainty.
    - `medium` confidence → no change
    - `high` confidence → no change
@@ -94,9 +94,6 @@ For each finding F coming out of Auggie:
    - `in_diff: true` → no change
    - `in_diff: false` AND finding type is correctness/security on a callsite affected by the diff → no change
    - `in_diff: false` AND finding is "pre-existing in code the diff doesn't touch" → drop one tier (this is the "PR scope" principle: don't make the PR author fix unrelated debt)
-5. **Apply cross-source agreement bonus** (`--depth deep` only):
-   - Finding present in both Auggie main pass AND the `auggie-reviewer` agent's independent pass → no change (already high-confidence)
-   - Finding present in only one source → drop one tier UNLESS the rubric's floor for that category prevents it
 
 The remap result is the final severity printed in the report.
 
@@ -112,7 +109,7 @@ def get_user(name):
     return db.execute(f"SELECT * FROM users WHERE name = '{name}'")
 ```
 
-- Auggie `severity_hint`: `critical`
+- Reviewer `severity_hint`: `critical`
 - Category: `security` (exploitable today)
 - Confidence: `high`
 - `in_diff`: `true`
@@ -124,7 +121,7 @@ def get_user(name):
 # diff adds 40 lines to a function that is now 280 lines
 ```
 
-- Auggie `severity_hint`: `medium`
+- Reviewer `severity_hint`: `medium`
 - Category: `anti-pattern`
 - Confidence: `medium`
 - `in_diff`: `true`
@@ -132,7 +129,7 @@ def get_user(name):
 
 ### Example: missing test on a new helper called only once
 
-- Auggie `severity_hint`: `high`
+- Reviewer `severity_hint`: `high`
 - Category: `tests`
 - Function is called from one place, not on the critical path
 - Confidence: `high`
@@ -140,14 +137,14 @@ def get_user(name):
 
 ### Example: pre-existing layering violation that the diff doesn't touch
 
-- Auggie `severity_hint`: `high`
+- Reviewer `severity_hint`: `high`
 - Category: `layering`
 - `in_diff`: `false` and the diff doesn't increase the violation
 - **Remap result**: 🟢 Low (PR-scope adjustment downgrades pre-existing-and-untouched)
 
 ### Example: typo in a comment
 
-- Auggie `severity_hint`: `low`
+- Reviewer `severity_hint`: `low`
 - Category: `style`
 - **Remap result**: 💬 Nit (style ceiling is Nit unless there's a Low-tier reason to elevate)
 

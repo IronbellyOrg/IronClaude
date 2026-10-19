@@ -23,21 +23,21 @@ The governing rule is the auggie-review hallucination contract
 ## Grounding floor — the Wave-3 file:line validation pass (reuse, cite)
 
 The structural grounding floor is the auggie-review **Wave-3 step-3 "File:line validation pass
-(non-negotiable)"** (`sc-auggie-review-protocol/SKILL.md:206-209`), reused by reference:
+(non-negotiable)"** (`sc-auggie-review-protocol/SKILL.md:164-167`), reused by reference:
 
 1. For each finding, **`Read` the cited file at the cited line range**; confirm the line exists and
-   (where possible) confirm the cited snippet actually appears on that line (`:207`).
-2. For PR/diff mode, additionally confirm the line is within the diff hunks (`:208`).
-3. For `needs-grounding` findings, attempt grounding via `mcp__auggie__augment_code_search` or `Grep`;
-   promote on success, **drop and log** on failure (`:209`).
+   (where possible) confirm the cited snippet actually appears on that line (`:165`).
+2. For PR/diff mode, additionally confirm the line is within the diff hunks (`:166`).
+3. For `needs-grounding` findings, ground via `Grep`, then Serena, then `Read` (Serena output is never
+   cited without that Read); promote on success, **drop and log** on failure (`:167`).
 
 ## The delta C3a adds — "does the defect reproduce"
 
 Spawn the existing **`evidence-validator` agent** (`sc-troubleshoot-protocol/SKILL.md:409`) via the
 `Task` tool (read-only, citation-dropping; `allow_command_reexec=false`) for the "cited line exists +
 snippet matches" check, then **layer the "defect reproduces" judgment on top** — the delta FR-3.5
-adds over the structural drop. Mirror the independent-pass / cross-check shape
-(`sc-auggie-review-protocol/SKILL.md:183, 215`): the verification fans out across findings **in
+adds over the structural drop. Mirror the batched agent-spawn shape
+(`sc-auggie-review-protocol/SKILL.md:147`): the verification fans out across findings **in
 parallel, in one batched message** (T-342).
 
 A finding is:

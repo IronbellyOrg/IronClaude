@@ -229,7 +229,7 @@ Example: "Write a guide for the deployment process"
 
 ### A.3: Perform Scope Discovery
 
-Use Glob, Grep, and codebase-retrieval to map the procedure's problem space. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
+Use Glob, Grep, Read and Serena (`find_symbol`, `get_symbols_overview`) to map the procedure's problem space. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
 
 **Adjust depth by scenario:**
 - **Scenario A**: Focused discovery — verify the files/directories the user mentioned exist, scan for related configs and scripts, identify gaps in what the user specified.
@@ -607,7 +607,7 @@ Do NOT broadcast TASK_READY, use TaskCreate, or use SendMessage — these tools
 will fail because there is no team. This overrides your agent definition's
 Critical Rule 6 ("ALWAYS broadcast TASK_READY") and Step 6 (TaskCreate + broadcast).
 Instead, return the task file path as your final output.
-- **Codebase questions** → use WebSearch or codebase-retrieval (you have access)
+- **Codebase questions** → use Grep/Read and Serena on the working tree
 - **External docs/syntax** → use WebSearch
 - **If blocked** → create the best task file you can and note gaps in the Task Log section. The skill will review and iterate.
 

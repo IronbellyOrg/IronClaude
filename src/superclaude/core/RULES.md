@@ -58,7 +58,7 @@ Actionable rules for enhanced Claude Code framework operation.
 
 - **Recommendation = Action**: A recommendation is a form of implementation. The confidence-check trigger surface is NOT limited to code edits — it covers any output that names specifics.
 - **Verify First, Same Turn**: The verification tool call goes BEFORE the message containing the recommendation, in the same turn. Not "let me check if you want" — check, then answer.
-- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, `grep`, file read, symbol lookup, or `codebase-retrieval` (Auggie, fastest for project-internal identifiers) satisfies this rule.
+- **Lightweight Form Allowed**: Full `@confidence-check` skill invocation is not always required. Verifying the specific token via `--help`, Grep, file read, or a Serena symbol lookup satisfies this rule. Grep/Read decide existence; Augment only for default-branch prior art.
 - **Mark Unverified Explicitly**: If verification cost is genuinely high (e.g., requires a long-running process), say so and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — never ship it bare.
 - **Well-Known Exceptions**: For trivial mentions of universal tokens (`--help`, `-v`, `git status`), the rule still applies but verification is usually already in context or universally true — use judgment.
 - **Behavior, Not Promises**: This is mandatory, not aspirational. Skipping verification to make a response *look* more finished optimizes appearance over correctness.

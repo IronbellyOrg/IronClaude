@@ -228,6 +228,8 @@ A validation retry does NOT increment `round_counter`.
 - Apply any edit at L1, or push/reply at L2.
 - `git add` any `.claude/` path except `.claude/settings.json`.
 
+A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
+
 ## Error Handling
 
 | Scenario | Behavior |

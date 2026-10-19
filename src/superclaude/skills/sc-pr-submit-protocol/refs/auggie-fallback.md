@@ -34,8 +34,6 @@ auto-review — it is NOT our operator re-trigger. The fallback is `sc:pr-submit
 | `--remediation-offer` | (default true) | chain into remediation after the review. |
 | `--post-pr` | (default true for a PR target) | the report is auto-posted to the PR; **no extra flag needed and `--no-post-pr` must NOT be passed**. |
 
-No `--auggie-model` flag is passed here; fallback intentionally inherits `/sc:auggie-review`'s default reviewing model.
-
 ## 3. Strict-once + clamp + single-shot (the invariants)
 
 - **Strict-once (INV-R2):** the invocation is gated on the durable `auggie_review_invoked` idempotency

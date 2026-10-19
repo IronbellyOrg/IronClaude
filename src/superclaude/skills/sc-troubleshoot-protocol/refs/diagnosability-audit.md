@@ -6,49 +6,20 @@ This ref defines the two parallel audit branches (A: log-call inspection at and 
 
 ---
 
-## Section 1: Auggie query templates per branch
+## Section 1: Branch query targets
 
-Each branch issues ONE `mcp__auggie__augment_code_search` call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
+Each branch runs the Section 2 Grep/Glob procedure on the working tree (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
 
-### Branch A — Log-Call Inspection
-
-Query target: `<failing_component>` (plus immediate callers).
-
-```text
-In the codebase at <failing_component> (or <scope> if broader), find every location that produces diagnostic signal around the behavior described as: <symptom>. This includes:
-
-1. Python: logging module calls (logging.debug/info/warning/error/exception/critical), loguru calls, print() statements, structlog calls.
-2. JavaScript/TypeScript: console.log/warn/error/debug/info, winston/pino/bunyan logger calls.
-3. Java: SLF4J/Logback calls, Log4j2 calls, java.util.logging calls.
-4. Exception handlers: try/except (Python), try/catch (JS/Java). For each, whether it logs the exception or silently swallows it.
-5. Error-reporter initializations: Sentry.init(), Datadog.init(), rollbar.configure(), or equivalent.
-
-For each hit, return: file path, line number, call_type (logger_call | print | exception_handler | error_reporter_init), framework, log level, 1-2 line snippet, and (for exception handlers) richness: rich | minimal | silent.
-```
-
-### Branch B — Log-Config Inspection
-
-Query target: repository-wide configuration for `<failing_component>`.
-
-```text
-In the entire repository, find every configuration file or environment-variable reference that controls logging behavior for <failing_component>:
-
-1. Python: logging.yaml/.yml/.conf/.ini, log_config.py, [tool.logging] in pyproject.toml.
-2. Java: log4j2.xml/.properties, logback.xml, application.properties/.yml with logging.* keys.
-3. JS/Node: winston.config.js, logger.js, pino transport config, .env with LOG_LEVEL/DEBUG/NODE_ENV.
-4. Env vars: LOG_LEVEL, LOGLEVEL, DEBUG, NODE_ENV=production, LOG_FORMAT=json in Dockerfile, docker-compose.yml, .env*, Makefile, CI pipeline files.
-5. Structured-log filter/rate-limit config, sampling configuration.
-
-For each hit, return: file path, config_type (file | env_var | pipeline_config), framework, effective log level if discernible, 1-3 line snippet.
-```
+- **Branch A — Log-Call Inspection.** Query target: `<failing_component>` (plus immediate callers). Looks for logger calls, `print()`, exception handlers (and whether each logs or swallows), and error-reporter inits. For each hit, return: file path, line number, call_type (logger_call | print | exception_handler | error_reporter_init), framework, log level, 1-2 line snippet, and (for exception handlers) richness: rich | minimal | silent.
+- **Branch B — Log-Config Inspection.** Query target: repository-wide configuration for `<failing_component>` (logging config files, `LOG_LEVEL`/`DEBUG`/`NODE_ENV`/`LOG_FORMAT` env references in Dockerfile, compose, `.env*`, Makefile, CI files, sampling/rate-limit config). For each hit, return: file path, config_type (file | env_var | pipeline_config), framework, effective log level if discernible, 1-3 line snippet.
 
 ---
 
-## Section 2: Fallback paths (auggie unavailable)
+## Section 2: Grep/Glob procedure (primary)
 
-When `mcp__auggie__augment_code_search` is not available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
+This is the procedure, not a fallback. A Grep zero-hit does not set `degraded`. `sufficient` means the published pattern list below ran, not that every conceivable diagnostic was checked. Grep skips gitignored paths, so Read or Glob a gitignored target directly.
 
-### Branch A fallback
+### Branch A procedure
 
 ```bash
 grep -rn 'logging\.\(debug\|info\|warning\|error\|exception\|critical\)\|logger\.\(debug\|info\|warning\|error\|exception\|critical\)\|from loguru import' <failing_component>
@@ -60,9 +31,7 @@ grep -rn 'catch.*{.*}' <failing_component>
 grep -rn 'Sentry\.init\|Datadog\.init\|rollbar\.config' <failing_component>
 ```
 
-When the fallback fires, set Branch A schema field `degraded` to true; the sufficiency rubric caps the verdict at `partial` (never `sufficient`) when degraded=true.
-
-### Branch B fallback
+### Branch B procedure
 
 ```bash
 find . -name 'logging.{yaml,yml,conf,ini}' -o -name 'log4j2.*' -o -name 'logback*.xml' -o -name 'winston*.js' -o -name 'logger.js' 2>/dev/null
@@ -71,7 +40,7 @@ find . -name 'application*.{properties,yml,yaml}' 2>/dev/null
 grep -rn 'LOG_LEVEL\|LOGLEVEL\|DEBUG\s*=\|NODE_ENV\|LOG_FORMAT' .env* Dockerfile docker-compose.yml Makefile .github/workflows/*.yml .gitlab-ci.yml 2>/dev/null
 ```
 
-When the fallback fires, set Branch B schema field `degraded` to true; reachability_verdict defaults to `unknown` for every Branch A hit.
+When Branch B finds no config for a Branch A hit, its reachability_verdict is `unknown`.
 
 ---
 
@@ -146,8 +115,8 @@ Evaluate S14 first ONLY for evidenced loss/substitution of the actual disputed d
 | **S7**: Error-reporter SDK (Sentry/Datadog) initialized AND would capture the symptom class | `sufficient` |
 | **S8**: 1-2 logger calls at INFO, no exception-handler logging, no error reporter | `partial` (if deterministic) or `insufficient` (if intermittent) |
 | **S9**: Only `print()` statements, no structured logger | `partial` (deterministic) or `insufficient` (intermittent / multi-threaded) |
-| **S10**: No logger calls, no print, no error reporter near symptom site | `insufficient` |
-| **S11**: Auggie unavailable AND Glob/Grep fallback returned no signal AND Branch A `degraded=true` | `unknown` |
+| **S10**: The localized `failing_component` files were Read in full AND contain no logger call, no print, and no error-reporter call | `insufficient` |
+| **S11**: The Section 2 Grep/Glob procedure returned no signal AND the `failing_component` files were not Read in full | `unknown` (record a Grounding Gap) |
 | **S12**: `failing_component` not localizable (no `--scope`, stack trace bottoms in compiled code) | `unknown` |
 | **S13**: Intermittent keywords present AND 3-W's `when_answerable != yes` | `insufficient` (intermittent-with-no-trace short-circuit) |
 | **S14**: the asserted value exists at a code-site (`file:line` known) but an intermediate layer between that site and what the model reads (filter, allowlist, projection, summary, formatter, wrapper) drops it or writes an expected/default value in its place | `insufficient` (the layer hides the datum) |
@@ -156,8 +125,7 @@ Evaluate S14 first ONLY for evidenced loss/substitution of the actual disputed d
 
 | Scenario | Verdict | Surfaced in |
 |----------|---------|-------------|
-| Auggie unavailable, Grep/Glob found signal | `partial` (cap; degraded discovery loses semantic recall) | Diagnosability Context Card with `degraded: true` |
-| Auggie unavailable, Grep/Glob found nothing | `unknown` | Grounding Gaps |
+| Grep/Glob found no signal and the `failing_component` files were not Read in full | `unknown` (S11) | Grounding Gaps |
 | `failing_component` not localizable | `unknown` | Grounding Gaps |
 | `--no-diagnosability-audit` | not emitted (audit skipped); `diagnosability_verdict: unknown` in contract | REPORT.md header + Grounding Gaps |
 

@@ -37,8 +37,8 @@ evidence-validator gate can authorize diagnosis/remediation; unverified findings
 
 Re-grading is **not** reinvented here. For every Augment finding, **apply the severity-remap
 algorithm defined in `sc-auggie-review-protocol/refs/severity-rubric.md` §Severity-remap algorithm**
-(the 5-step pipeline at `severity-rubric.md:63-101`), keyed on the rubric's **category floor/ceiling
-table** (`severity-rubric.md:70-87`). The five steps, applied by reference:
+(the 4-step pipeline at `severity-rubric.md:63-98`), keyed on the rubric's **category floor/ceiling
+table** (`severity-rubric.md:70-87`). The four steps, applied by reference:
 
 1. Start from Augment's `severity_hint` (a hint, not authoritative — FR-3.1).
 2. **Category floor/ceiling override** (`severity-rubric.md:70-87`) — the category is more reliable
@@ -46,8 +46,6 @@ table** (`severity-rubric.md:70-87`). The five steps, applied by reference:
    E.g. `security (exploitable)` floor = Critical; `naming`/`style` ceiling = Nit.
 3. **Confidence adjustment** (`:89-93`) — `low` → drop one tier; `medium`/`high` → no change.
 4. **Diff-locality adjustment** (`:93-96`) — `in_diff:false` AND pre-existing-untouched → drop one tier.
-5. **Cross-source agreement bonus** (`:97-100`, `--depth deep` only) — single-source → drop one tier
-   unless the category floor blocks it.
 
 The remapped tier is one of: Critical / High / Medium / Low / Nit. The module
 `superclaude.pr_submit.severity_router.remap_severity(finding)` implements this pipeline by reference

@@ -16,6 +16,7 @@ default (Open Question OQ6), OQ1 base-branch default ``master``.
 from __future__ import annotations
 
 import os
+import posixpath
 import subprocess
 from pathlib import Path
 
@@ -114,9 +115,11 @@ def _audit_tree_dirty(git_cwd: Path, base: str) -> bool:
 
     The audit's file set is ``git diff --name-only <base> -- .`` from the repo
     root. The tree is "dirty for the audit" if any of those repo-relative paths
-    also appears in ``git status --porcelain=v1`` as a TRACKED modification.
-    Untracked (``??``) entries do NOT count (they are not part of the
-    committed-ref diff a snapshot captures).
+    also appears in ``git status --porcelain=v1`` as a TRACKED modification,
+    or if an untracked (``??``) entry is in scope: it sits in the directory of
+    an audit path, or under a non-root directory of one. A snapshot of the
+    committed ref omits untracked files, so isolating reviewers there would
+    hide the target.
 
     Fail-closed: any git error -> ``True`` (treat as dirty so the L2 gate STOPs
     rather than snapshotting a tree that may omit the audit target). Reuses the
@@ -134,13 +137,19 @@ def _audit_tree_dirty(git_cwd: Path, base: str) -> bool:
         }
         if not scope:
             return False
+        scope_dirs = {posixpath.dirname(p) for p in scope}  # "" = repo root
         for line in _git(repo_root, "status", "--porcelain=v1").splitlines():
             if not line.strip():
                 continue
             status_code = line[:2]
             path = line[3:].strip()
-            # Untracked entries (??) do not make the audit tree dirty.
             if status_code == "??":
+                # Untracked dirs are listed collapsed as "dir/".
+                path = path.rstrip("/")
+                if posixpath.dirname(path) in scope_dirs or any(
+                    d and path.startswith(d + "/") for d in scope_dirs
+                ):
+                    return True
                 continue
             # Rename entries "R  old -> new": the new path is the dirty one.
             if " -> " in path:

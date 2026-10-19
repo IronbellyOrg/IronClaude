@@ -97,6 +97,8 @@ The full behavioral specification is in the protocol skill.
 - Trigger downstream commands (tasklist generation, implementation, remediation execution)
 - Spawn additional sub-agents beyond the `--agents` list passed on the CLI
 
+A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
+
 ## See Also
 
 - `/sc:roadmap` — Generate roadmaps from specifications (produces the artifacts this command validates)

@@ -150,7 +150,7 @@ If there are no follow-ups, write "None."
 What the skill could **not** verify. If status ≠ success (partial, blocked, or failed), the items here explain why. Examples:
 
 - "Reproducer not available in sandbox — relied on user-pasted stack trace"
-- "MCP `auggie` was unavailable; grounding used `Grep`/`Glob` only"
+- "MCP `serena` was unavailable; grounding used `Grep`/`Read` only"
 - "Hypothesis card from `quality-engineer` cited line 88 of test_foo.py but that file is only 60 lines long — citation dropped"
 - "Documentation grounding skipped by `--no-doc-discovery` — diagnosis is not weighted against documented behavior or restrictions; consumer should re-run without `--no-doc-discovery` if doc-alignment matters."
 - "Wave 1.5 documentation discovery ran but found no relevant docs for the affected surface — `consistency_with_docs` set to `no_docs_found` across all hypothesis cards; downstream weighting fell back to correctness/risk/test-coverage alone."

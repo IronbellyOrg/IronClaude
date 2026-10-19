@@ -34,7 +34,10 @@ Skip this step in matched mode (SKILL.md Step 0 matched a routing row) and set `
 
 ```text
 mcp__auggie__augment_code_search(
-  information_request: "Given the user request: '<verbatim user request>',
+  repo_owner: "<owner>",
+  repo_name: "<name>",
+  branch: "<default-branch>",
+  query: "Given the user request: '<verbatim user request>',
     and the project's enumerated surface (commands: <comma-separated names>;
     skills: <comma-separated names>; agents: <comma-separated names>;
     templates: <comma-separated names>), rank the top 3-5 candidates by
@@ -45,9 +48,11 @@ mcp__auggie__augment_code_search(
     (4) any known caveats or recent behavioral changes;
     (5) related skills/commands typically paired with it in this repo.
     Do NOT invent candidates not in the enumerated list.",
-  directory_path: "<absolute path to cwd>"
+  max_results: 5
 )
 ```
+
+Take `<owner>`, `<name>` and `<default-branch>` from `augment_repo=owner/name@<default-branch>` in `<session-context>` and always pass `branch` explicitly: the hosted index covers only the default branch. The cwd is not a narrowing scope; the tool takes no path. If the context has `augment_unavailable=<reason>`, or the call returns `[BRANCH_NOT_FOUND]` or `[REPO_NOT_FOUND]`, say "Augment unavailable: <reason>", set `auggie_status: unavailable`, and continue with the local surface enumeration (Steps A and C).
 
 Keep the enumerated-surface list literal in the query — auggie has stronger grounding when shown the candidate set rather than asked to discover it.
 

@@ -2,7 +2,7 @@
 name: reflect-reviewer
 description: Restricted read-only deviation-audit agent for sc:reflect Wave-3. Audits completed work against its driving spec/tasklist and classifies every divergence under the 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Spawned as one of N heterogeneous Tier-2 reviewers; carries a read-only tool allowlist (no Bash/Edit/Write/Task) so a reviewer can never mutate the repository it is auditing. Returns structured deviation findings; the orchestrator persists them.
 category: quality
-tools: Read, Grep, Glob, mcp__auggie__augment_code_search, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file
+tools: Read, Grep, Glob, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file
 model: sonnet
 maxTurns: 50
 permissionMode: plan
@@ -130,6 +130,8 @@ These findings are RAISED FOR TRIAGE by the orchestrator; they MUST NOT set `reg
 - Spawn sub-agents (no `Task`).
 - Audit the live shared worktree instead of the supplied snapshot.
 - Soften a real deviation to "close enough" — classify it or drop it with a reason.
+
+A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
 
 ## Failure Modes (what the orchestrator should plan for)
 

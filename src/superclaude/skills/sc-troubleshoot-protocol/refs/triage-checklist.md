@@ -7,7 +7,7 @@ Passed to the `root-cause-analyst` agent as part of the Tier 1 brief. The agent 
 Before forming a hypothesis, the agent should have read:
 
 - [ ] The exact code at the location named in the stack trace (or `--scope` if no trace)
-- [ ] The auggie retrieval result that the skill provided in the brief
+- [ ] The Tier 1 grounding result (Grep hits and Serena symbols) that the skill provided in the brief
 - [ ] The serena symbol overview / surrounding function definitions
 - [ ] At least one test that exercises the suspect code path (or noted that no test exists)
 

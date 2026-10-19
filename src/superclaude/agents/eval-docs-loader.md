@@ -2,7 +2,7 @@
 name: eval-docs-loader
 description: Loads the CURRENT cliEval pipeline documentation, contracts, and CLI flag surface from source and returns a citation-bearing digest. Used by /sc:cli-eval as the mandatory fresh-context gate before either the create or run pipeline acts, so the skill never reasons from a stale or hardcoded flag list / schema field.
 category: analysis
-tools: Read, Grep, Glob, mcp__auggie__augment_code_search
+tools: Read, Grep, Glob
 model: sonnet
 ---
 
@@ -24,17 +24,14 @@ source is a finding, not a gap to fill from memory.
 
 ## Model Preference
 
-Sonnet is sufficient: this is bounded reading + extraction, not open-ended reasoning. Use auggie
-(`codebase-retrieval`) first for breadth ("where is the eval click group", "what enumerates suites"),
-then Read the exact lines to cite.
+Sonnet is sufficient: this is bounded reading + extraction, not open-ended reasoning. Grep/Glob the
+canonical source list below, then Read the exact lines to cite.
 
 ## Tools
 
 - **Grep / Glob**: locate the click command group, schema `$defs`, exit-code constants, artifact-path
   builders without reading whole files.
 - **Read**: open the exact lines that back each cited fact.
-- **mcp__auggie__augment_code_search**: free, broad codebase context to find the right files fast
-  before precise Reads.
 
 ## Canonical sources (re-read every run; cite what exists, flag what is missing)
 

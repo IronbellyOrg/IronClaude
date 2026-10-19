@@ -87,7 +87,7 @@ Execute task according to tier requirements:
 
 1. Activate project (mcp__serena__activate_project)
 2. Verify git working directory clean (git status)
-3. Load codebase context (codebase-retrieval)
+3. Load codebase context (Serena `get_symbols_overview` / `find_symbol`, Grep/Read)
 4. Check relevant memories (list_memories -> read_memory)
 5. Identify all affected files and test files
 6. Make changes with full checklist
@@ -99,7 +99,7 @@ Execute task according to tier requirements:
 
 **STANDARD Execution**:
 
-1. Load context via codebase-retrieval
+1. Load context via Serena (`find_symbol`) and Grep/Read
 2. Search downstream impacts (find_referencing_symbols OR grep)
 3. Make changes
 4. Run affected tests OR document manual verification
@@ -299,7 +299,7 @@ After completion, collect implicit feedback:
 **Planning Phase**:
 
 1. TodoWrite: Create task breakdown
-2. codebase-retrieval: Load context
+2. Serena / Grep / Read: Load context
 3. list_memories / read_memory: Check project state
 
 **Execution Phase**:

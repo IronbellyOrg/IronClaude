@@ -45,7 +45,7 @@ Full 5-check scoring is not always required. For a single specific token, verify
 - `--help` / `<cmd> --help` for CLI flags and subcommands
 - `grep` / symbol lookup for functions, config keys, identifiers
 - File read for paths and file contents
-- `codebase-retrieval` (Auggie) — fastest for project-internal identifiers
+- Grep/Read (decides existence); Augment only for default-branch prior art
 
 If verification cost is genuinely high (requires a long-running process), say so explicitly and mark the specific token `[UNVERIFIED]` with the command the user can run to confirm — do **not** ship it bare.
 

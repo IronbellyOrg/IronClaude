@@ -60,6 +60,9 @@ AUGGIE_REVIEW_SKILL = (
     / "sc-auggie-review-protocol"
     / "SKILL.md"
 )
+AUGGIE_REVIEWER_AGENT = (
+    REPO_ROOT / "src" / "superclaude" / "agents" / "auggie-reviewer.md"
+)
 RETRIGGER_SCRIPT = SKILL_DIR / "scripts" / "retrigger-review.sh"
 REVIEW_RETRIGGER_REF = SKILL_DIR / "refs" / "review-retrigger.md"
 AUGGIE_FALLBACK_REF = SKILL_DIR / "refs" / "auggie-fallback.md"
@@ -296,17 +299,8 @@ def test_t1115_auggie_fallback_flag_parity():
         (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--depth`")), ""
     )
     assert "quick" in depth_row, "`quick` is not an accepted value on the --depth row"
-    # The command's documented default model must match the protocol default.
-    model_row = next(
-        (ln for ln in cmd.splitlines() if ln.strip().startswith("| `--auggie-model`")),
-        "",
-    )
-    assert "`prism-b`" in model_row, (
-        "prism-b is not the documented --auggie-model default"
-    )
-    # The INVOCATION itself must NOT pass --no-post-pr and must NOT pass --auggie-model
-    # (fallback inherits /sc:auggie-review's default model). The ref may MENTION either
-    # flag in prose; guard only the actual fenced/inline `> Skill ...` command text.
+    # The INVOCATION itself must NOT pass --no-post-pr or --auggie-model. Guard only the
+    # actual fenced/inline `> Skill ...` command text.
     invocation_lines = [
         ln.strip()
         for ln in fallback.splitlines()
@@ -321,11 +315,40 @@ def test_t1115_auggie_fallback_flag_parity():
         assert "--auggie-model" not in ln, f"invocation passes --auggie-model: {ln}"
 
 
-def test_auggie_review_protocol_defaults_to_prism_b():
-    """The primary /sc:auggie-review Auggie invocation defaults to prism-b."""
-    skill = AUGGIE_REVIEW_SKILL.read_text(encoding="utf-8")
-    assert '--model "${AUGGIE_MODEL:-prism-b}"' in skill
-    assert '${AUGGIE_MODEL:+--model "$AUGGIE_MODEL"}' not in skill
+def test_auggie_review_has_no_cli():
+    """/sc:auggie-review runs on the auggie-reviewer agent: no auggie CLI, no detect_changes."""
+    forbidden = (
+        "Bash(auggie",
+        "command -v auggie",
+        "auggie --print",
+        "--instruction-file",
+        "--workspace-root",
+        "--wait-for-indexing",
+        "AUGGIE_MODEL",
+        "prism-b",
+        "--auggie-model",
+        "detect_changes",
+    )
+    files = [AUGGIE_REVIEW_CMD, AUGGIE_REVIEWER_AGENT]
+    files += [p for p in AUGGIE_REVIEW_SKILL.parent.rglob("*") if p.is_file()]
+    hits = [
+        (str(p.relative_to(REPO_ROOT)), tok)
+        for p in files
+        for tok in forbidden
+        if tok in p.read_text(encoding="utf-8")
+    ]
+    assert not hits, hits
+
+
+def test_finding_verify_quote_lock():
+    """finding-verify.md quotes the skill's hallucination contract verbatim, and no
+    longer grounds through Augment."""
+    verify = (SKILL_DIR / "refs" / "finding-verify.md").read_text(encoding="utf-8")
+    quote = re.search(r'^> "(.+?)"$', verify, re.MULTILINE | re.DOTALL)
+    assert quote, "no quoted hallucination contract in finding-verify.md"
+    sentence = " ".join(ln.lstrip("> ").strip() for ln in quote.group(1).splitlines())
+    assert sentence in AUGGIE_REVIEW_SKILL.read_text(encoding="utf-8")
+    assert "augment_code_search" not in verify
 
 
 def test_poll_script_fetches_issue_and_inline_comments_without_pr_view_comments():

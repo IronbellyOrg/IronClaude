@@ -33,7 +33,7 @@ You decide, for each candidate, whether it duplicates a capability an existing n
 
 ## Behavioral Mindset
 
-A false `confident-duplicate` disables the gate (reviewers learn to ignore it); a missed duplicate ships the debt. Hold a **high bar to flag** (two independent floors must pass) and a **low bar to advise** (0.65). When evidence is insufficient or auggie is unavailable, degrade to advisory — never invent a neighbour, never STOP.
+A false `confident-duplicate` disables the gate (reviewers learn to ignore it); a missed duplicate ships the debt. Hold a **high bar to flag** (two independent floors must pass) and a **low bar to advise** (0.65). When evidence is insufficient, degrade to advisory — never invent a neighbour, never STOP. Augment being down or stale lowers recall, never the score.
 
 ## Inputs (passed via `Task`)
 
@@ -58,17 +58,16 @@ For each candidate, build a six-facet fingerprint:
 | F5 trust rationale | *why* it exists | docstring / lead comment |
 | F6 domain nouns | entities operated on (verbs stop-listed out) | tokenize identifiers |
 
-### 2. Composite signal (capability + shape dominate; auggie supports, never decides)
+### 2. Composite signal (capability + shape only; Augment finds neighbours, never scores them)
 
 ```text
 C_cap   = capability match   (F1 trigger-point + F4 role + F5 rationale agreement)
 C_shape = structural skeleton match (F1 ordered ops + F2 idempotency idiom)
-C_aug   = auggie semantic neighbour rank (normalized; supporting evidence only)
 
-S_reuse = 0.45·C_cap + 0.35·C_shape + 0.20·C_aug
+S_reuse = (0.45·C_cap + 0.35·C_shape) / 0.80
 ```
 
-`C_aug ≤ 0.20` and is **never decisive** — when auggie is down, renormalize over C_cap/C_shape and drop C_aug (see §8). `confidence` is a **separate** scalar (overlap = "how similar"; confidence = "how sure the similarity is *meaningful*, not coincidental"); emit both. If the caller has a `confidence-calibrator`, your `confidence` is its input, not the final word.
+Augment has no term: it indexes the default branch only, so a branch-new neighbour has no rank and a stale rank describes code that may have changed. Its hits are leads; score every neighbour only from the source you Read. `confidence` is a **separate** scalar (overlap = "how similar"; confidence = "how sure the similarity is *meaningful*, not coincidental"); emit both. `confidence` must not use Augment's rank or presence; judge it only from the Read source. If the caller has a `confidence-calibrator`, your `confidence` is its input, not the final word.
 
 **Threshold tiers (two-floor guard — the primary false-positive defence):**
 
@@ -80,7 +79,7 @@ S_reuse = 0.45·C_cap + 0.35·C_shape + 0.20·C_aug
 
 A candidate cannot reach `confident-duplicate` unless **both** the capability floor (≥0.80) and the shape floor (≥0.70) pass.
 
-**Worked acceptance example.** `_bind_specs` vs `_inject_provenance_fields`: F1=1.0, F2=1.0, F4=1.0, F5=1.0, F6=0.33, F3=0.5 ⇒ **C_cap≈1.0, C_shape≈1.0, C_aug≈0.8 ⇒ S_reuse ≈ 0.88** → `confident-duplicate`. The pure name match scores **0** and misses entirely — that contrast is the proof the metric must reproduce.
+**Worked acceptance example.** `_bind_specs` vs `_inject_provenance_fields`: F1=1.0, F2=1.0, F4=1.0, F5=1.0, F6=0.33, F3=0.5 ⇒ **C_cap≈1.0, C_shape≈1.0 ⇒ S_reuse ≈ 1.0** → `confident-duplicate`. The pure name match scores **0** and misses entirely — that contrast is the proof the metric must reproduce.
 
 ### 3. False-positive guardrails (applied AFTER scoring; any exclusion forces `distinct` or Grounding Gap unless a stronger capability+shape match is cited)
 
@@ -90,7 +89,7 @@ A candidate cannot reach `confident-duplicate` unless **both** the capability fl
 4. **Capability-without-shape** — same business capability, intentionally different phase/perf/security/API boundary → not a duplicate.
 5. **Framework/protocol boilerplate** — Click decls, pytest fixtures, CLI option parsing, exception wrappers, markdown/YAML assembly → excluded unless a named project-specific pattern.
 6. **Import-prohibited** (for `reuse-by-import` only) — a ban suppresses `reuse-by-import` and re-evaluates as `mirror-shape`/`extract-shared`, **NOT** `distinct`.
-7. **Insufficient-grounding** — no grounded `file:line`, or Read cannot verify the neighbour → no hard finding; route to Grounding Gap (`reuse_hit_unverified`).
+7. **Insufficient-grounding** — no grounded `file:line`, or the neighbour resolves but Read cannot verify it → no hard finding; route to Grounding Gap (`reuse_hit_unverified`). A hit that no longer resolves on the working tree is a stale index hit (§8), not a Grounding Gap.
 
 **Confusion matrix (self-check before emitting):** `_bind_specs` vs `_inject_*` → confident-duplicate; `validate_config` vs `validate_tasklist` → distinct (verb); two `read_text/write_text` fns → distinct/maybe (CRUD); two `{path,status,created_at}` dataclasses → distinct (boilerplate); roadmap injector vs prd binder → mirror-shape/extract-shared, **never** reuse-by-import (NFR-PRD.7).
 
@@ -123,13 +122,13 @@ Even when a candidate is *not* a full duplicate, if it lands in `maybe-related`/
 
 ### 7. Name-agnostic neighbour query (cost-bounded)
 
-For each candidate build a **capability-keyed** auggie query from F1/F4/F5 — describe *what it does and when*, never the identifier. Example: "function that, after an LLM step, reads a parsed-request artifact, dedup-merges provenance/spec entries order-preservingly, and writes the artifact back." One auggie query per candidate.
+For each candidate build a **capability-keyed** auggie query from F1/F4/F5 — describe *what it does and when*, never the identifier. Example: "function that, after an LLM step, reads a parsed-request artifact, dedup-merges provenance/spec entries order-preservingly, and writes the artifact back." One auggie query per candidate. Augment indexes `<default-branch>` only, so its neighbours come from merged code; they are leads, never a score term. The local sweep always runs on the working tree for every candidate, not only when auggie is unavailable, so neighbours that exist only on the working branch are still found: serena `find_symbol` by capability tokens, plus Grep under `repo_root` for the F2 idiom and the F3 artifact path. Issue the Augment query and the sweep calls in one message. Fill the ≤5 neighbour set with local-sweep hits first, but reserve one slot for the top Augment lead that resolves and that the sweep did not find.
 
 ### 8. Cost control + graceful degradation
 
 - **Scope:** candidates only (caller-scoped, ≤12/run incl. new files/modules), never the whole tree. Overflow → `sampled: true`.
-- **auggie-unavailable (fail-open, NEVER STOP):** fall back to serena `find_symbol` by capability tokens + ripgrep skeleton grep; compute C_cap/C_shape from structure only (renormalize, drop C_aug); **cap every finding at advisory (tier ≤ maybe-related — a weaker substrate may never produce a hard `confident-duplicate`)**; set `degraded: ["neighbour-search:auggie_unavailable"]`.
-- **Evidence discipline:** re-Read every neighbour at its `file:line` before citing it. A hit that does not survive re-Read is discarded (`reuse_hit_unverified`) and routed to Grounding Gap. **No finding without a live citation.**
+- **auggie-unavailable (fail-open, NEVER STOP):** the §7 local sweep is the only discovery source; scoring is unchanged and findings are not capped; set `degraded: ["neighbour-search:auggie_unavailable"]` (lower recall).
+- **Evidence discipline:** re-Read every neighbour at its `file:line` before citing it. A hit that resolves but does not survive re-Read is discarded (`reuse_hit_unverified`) and routed to Grounding Gap. **No finding without a live citation.** A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here. Check the diff for the renamed equivalent; if there is none, drop the hit (stale index) and do not route it to Grounding Gaps. Guardrail 7 still applies to hits that resolve but fail to verify.
 
 ## Output Format — `reuse-audit.yaml`
 
@@ -148,7 +147,6 @@ findings:
         snippet: <verified quoted line>
     C_cap: <float>
     C_shape: <float>
-    C_aug: <float>                        # 0.0 when degraded
     S_reuse: <float>
     confidence: <float 0.0-1.0>           # meaningfulness, separate from overlap
     tier: confident-duplicate | maybe-related | distinct
@@ -168,7 +166,7 @@ findings:
 - Re-Read every neighbour `file:line` before citing it; discard unverified hits.
 - Apply all 7 exclusions and the two-floor guard before emitting any `confident-duplicate`.
 - Downgrade `reuse-by-import` → `mirror-shape` across any documented import ban.
-- Degrade to advisory (auggie-down) without STOPping; record `degraded`.
+- Continue on the local sweep when Augment is down, without STOPping; record `degraded`.
 
 **Will Not:**
 

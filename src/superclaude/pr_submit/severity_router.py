@@ -1,8 +1,8 @@
 """Severity re-grading + troubleshoot routing for the ``sc:pr-submit`` core (C3).
 
-``remap_severity(finding)`` applies the 5-step remap pipeline DEFINED BY the
+``remap_severity(finding)`` applies the 4-step remap pipeline DEFINED BY the
 auggie-review rubric (``sc-auggie-review-protocol/refs/severity-rubric.md``
-§Severity-remap algorithm, lines 63-101) — it encodes the rubric's category
+§Severity-remap algorithm, lines 63-98) — it encodes the rubric's category
 floor/ceiling table by reference, it does NOT fork the tier scheme. ``route(finding)``
 maps the remapped tier to a troubleshoot route (FR-3.2) and NEVER emits the
 ``--depth quick --fix`` conflict.
@@ -19,7 +19,7 @@ import re
 from .models import Finding, Severity
 
 # Severity rank — higher is more severe. Used to clamp to category floor/ceiling
-# and to apply the one-tier drops (confidence / diff-locality / cross-source).
+# and to apply the one-tier drops (confidence / diff-locality).
 _RANK: dict[Severity, int] = {
     Severity.NIT: 0,
     Severity.LOW: 1,
@@ -147,14 +147,13 @@ def _drop_one(sev: Severity) -> Severity:
     return _BY_RANK[max(0, _RANK[sev] - 1)]
 
 
-def remap_severity(finding: Finding, *, deep: bool = False) -> Finding:
-    """Apply the rubric's 5-step remap pipeline; set and return ``finding.remapped_severity``.
+def remap_severity(finding: Finding) -> Finding:
+    """Apply the rubric's 4-step remap pipeline; set and return ``finding.remapped_severity``.
 
-    Steps (by reference to severity-rubric.md:63-101):
+    Steps (by reference to severity-rubric.md:63-98):
     (1) start from ``severity_hint``; (2) clamp to the category floor/ceiling;
     (3) ``confidence == "low"`` → drop one tier; (4) ``in_diff is False`` (pre-existing,
-    untouched) → drop one tier; (5) ``deep`` single-source → drop one tier unless the
-    category floor blocks it. The category floor is re-applied after the drops so a
+    untouched) → drop one tier. The category floor is re-applied after the drops so a
     floor (e.g. exploitable security = Critical) is never violated by a drop.
     """
     sev = _hint_to_severity(finding.severity_hint)
@@ -186,10 +185,6 @@ def remap_severity(finding: Finding, *, deep: bool = False) -> Finding:
             floor = None
         else:
             sev = _drop_one(sev)
-
-    # Step 5: cross-source agreement bonus (--depth deep only) — single-source drop.
-    if deep:
-        sev = _drop_one(sev)
 
     # Re-apply the category floor so the one-tier drops never breach an exploitable
     # floor (e.g. security stays Critical). Ceiling stays applied too.

@@ -219,7 +219,7 @@ Example: "Write a PRD for pixel streaming"
 
 ### A.3: Perform Scope Discovery
 
-Use Glob, Grep, and codebase-retrieval to map the product space. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
+Use Glob, Grep, Read and Serena (`find_symbol`, `get_symbols_overview`) to map the product space. This must happen BEFORE building the task file so the builder can enumerate specific investigation assignments.
 
 **Adjust depth by scenario:**
 

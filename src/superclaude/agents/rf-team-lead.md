@@ -144,7 +144,7 @@ Before spawning ANY researchers, perform a lightweight scan to map the problem s
 
 1. **Glob** — Find relevant files by pattern
 2. **Grep** — Find content patterns (class names, function names, imports)
-3. **codebase-retrieval** — Semantic search for subsystem understanding
+3. **Serena** — `find_symbol` / `get_symbols_overview` for subsystem understanding (Read before citing)
 
 **Output**: For each track, produce a scope map:
 

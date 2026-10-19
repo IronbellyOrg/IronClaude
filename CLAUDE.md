@@ -329,8 +329,7 @@ Use **Wave → Checkpoint → Wave** pattern (3.5x faster). Example: `[Read file
 ## 🔧 MCP Server Integration
 
 **Recommended**: Use **airis-mcp-gateway** for unified MCP management.
-**HIGHEST PRIORITY SERVER**
-Auggie MCP should be used whenever broader codebase context and knowledge would be valuable.  It is free and costs little to no tokens
+**Codebase context:** Grep/Read decide existence on the working tree; Serena for symbols and callers. Augment (`mcp__auggie__augment_code_search`) is for default-branch prior art only: it indexes merged code, so a miss is never absence.
 
 ```bash
 superclaude mcp  # Interactive install, gateway is default (requires Docker)
@@ -348,7 +347,7 @@ superclaude mcp  # Interactive install, gateway is default (requires Docker)
 **Individual servers (not in the gateway; install with `superclaude mcp --servers <name>`)**:
 
 - **Morphllm** (`morphllm-fast-apply`): Fast bulk edits (needs `MORPH_API_KEY`)
-- **Auggie** (`auggie`): Codebase context retrieval (needs the global `auggie` npm binary and a one-time `auggie login`)
+- **Auggie** (`auggie`): Default-branch prior art search via the LiteLLM MCP gateway (needs `LITELLM_API_KEY`)
 
 **Optional**: Playwright (browser automation)
 

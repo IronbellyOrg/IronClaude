@@ -74,7 +74,7 @@ def identify_large_directories(
         threshold: Minimum file count to qualify as "large" directory.
 
     Returns:
-        Mapping of directory_path -> list of findings for large directories.
+        Mapping of directory path -> list of findings for large directories.
     """
     import os
 

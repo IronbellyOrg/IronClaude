@@ -1,13 +1,13 @@
 ---
 name: sc:troubleshoot-protocol
-description: "Tiered debugging protocol — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in remediation chain in Tier 3 (sc:workflow → sc:implement with --fix; task-builder → /task with --fix --depth deep). Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__augment_code_search, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
+description: "Tiered debugging protocol — fast Tier 1 triage with serena + Grep grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in remediation chain in Tier 3 (sc:workflow → sc:implement with --fix; task-builder → /task with --fix --depth deep). Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
 category: utility
 complexity: advanced
-mcp-servers: [auggie, serena, context7, tavily]
+mcp-servers: [serena, context7, tavily]
 personas: [analyzer, performance, security, qa, refactorer, devops]
 -->
 
@@ -57,7 +57,7 @@ The skill returns a structured dictionary on completion:
 | `task_file_path` | string | MDTM task file path (Tier 3 MDTM route only) |
 | `remediation_offered` | bool | Whether Tier 3 was offered |
 | `remediation_accepted` | bool | If offered, user's response |
-| `diagnosability_verdict` | string | one of `sufficient`, `partial`, `insufficient`, `unknown` (default `unknown` when audit could not run — auggie + Grep fallback empty, failing_component not localizable, or `--no-diagnosability-audit` set; never silently skipped) |
+| `diagnosability_verdict` | string | one of `sufficient`, `partial`, `insufficient`, `unknown` (default `unknown` when audit could not run — Grep/Glob found no signal and the component was not Read in full, failing_component not localizable, or `--no-diagnosability-audit` set; never silently skipped) |
 | `diagnosability_context_card_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-context.md`; `null` only when `--no-diagnosability-audit` was set or Wave 1.6 was not reached |
 | `diagnosability_tasklist_path` | string \| null | repo-relative path to `<output-dir>/diagnosability-tasklist.md`; populated whenever the tasklist was emitted this run, including a later sufficient verdict, bypass followed by Wave 3 emission, or unknown verdict; `null` only when no tasklist exists for this run. Every creation/append path queues pending rows for Wave 5 Next Steps |
 | `diagnosability_hard_stop` | bool | `true` when Wave 1.6 fired the hard-stop and skipped Waves 1.7–4.5; hard-stop still writes Wave 5; status is `partial` unless S1.6.4 precedence / 3-round cap / A8 contributes `blocked` (or `failed` wins) |
@@ -131,7 +131,7 @@ Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-
    - "auth", "token", "leak", "exposed", "CVE", "vulnerab" → `security`
    - "pytest", "jest", "flake", "intermittent", "passing locally" → `test`
    - On ambiguity, leave `--type` unset and treat all agent specialties as candidates for Tier 2.
-3. Resolve `--scope` to a concrete path/symbol. If given, narrow auggie/serena queries to that target.
+3. Resolve `--scope` (file, directory, `file:line`, or symbol) in this order: `path:line` if the text matches that form; else an existing path; else a symbol via `mcp__serena__find_symbol`, then one `Grep -nw` of the name. A path wins when both a path and a symbol could match. Record the resolved kind in the audit `scope:` field. Unresolved (path missing, symbol not found) → **STOP** `scope-unresolved: <value>`; for machine callers (`caller=task-unified`, pr-submit) map it to `status: blocked` / halt. Never AskUserQuestion. An empty search inside a resolved scope is not this outcome. Scoped lookups follow the Wave 1 step 1 routing on the working tree.
 4. Compute output slug: `<type-or-untyped>-<first-5-words-of-issue-or-scope>-<YYYYMMDDHHMMSS>` and create `<output-dir>/`.
 5. Open audit log; emit machine-readable header:
 
@@ -140,10 +140,10 @@ Each wave has explicit entry/exit criteria. Refs are loaded per-wave, never pre-
 issue: <first 80 chars>
 type: <type|auto>
 depth: <quick|standard|deep|auto>
-scope: <path|symbol|none>
+scope: <path:line|path|symbol|none>
 fix_authorized: <bool>
 no_escalate: <bool>
-mcps_available: <auggie|serena|context7|tavily|none>
+mcps_available: <serena|context7|tavily|none>
 output_dir: <abs-path>
 caller: <name|none>
 context_path: <abs-path|none>
@@ -166,10 +166,12 @@ context_path: <abs-path|none>
 
 **Steps**:
 
-1. **Ground the symptom in real code** — issue two parallel MCP calls (or fall back to native tools):
-   - `mcp__auggie__augment_code_search` with query: "Find the code involved in: `<issue description, capped at ~300 chars>`. Include the function or module that produces this behaviour, recent changes near it, and any related test." Scope to `--scope` if set.
-   - `mcp__serena__get_symbols_overview` on the target file or `mcp__serena__find_symbol` on a specific function if the issue names one.
-   - If `--no-mcp` or both MCPs are unavailable: fall back to `Glob` + `Grep` on the issue keywords; note the fallback in the audit log.
+1. **Ground the symptom in real code** — issue these calls in ONE message, on the working tree (the resolved `--scope` if set, else the repo root):
+   - `Grep` on 3-6 keywords from the issue description (error text, identifiers, file names). Mandatory, never conditional on another result. `files_with_matches` first, then content; `head_limit` 50, and past the cap record `unscanned: capped`.
+   - `mcp__serena__find_symbol` when the issue or scope names a symbol; `mcp__serena__get_symbols_overview` when it names a file.
+   - `Read` each candidate before citing it. A hit whose file or identifier is gone was deleted or renamed here.
+   - If `--no-mcp` or Serena is unavailable: run `Grep -nw` on the named symbol instead, labelled textual (`text-not-symbol`); note it in the audit log. Hosted Augment indexes only the default branch, so it is never used here.
+   - A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
 1b. **Write the execution-locus card** — `<output-dir>/execution-locus.md`, on every invocation including pasted-log issues, re-derived each run and never carried over. One line each; `unknown` is legal, blank is illegal:
    - `PRINT-SITE:` the file / stream / job / terminal where the failing line appeared. Copy verbatim from the issue.
    - `RUN-SITE:` the `file:line` from step 1 that emits that line, `@` the process/host/environment label under which it executes. Initial value `pending-producers` if step 1 found none; overwritten by S1.6.0b step 4 with the surviving producer's `file:line`. Validator A7 rejects the sentinel at finalize **only when `producers.md` has ≥1 producer row**; otherwise the sentinel is legal with `status: partial`.
@@ -191,9 +193,9 @@ context_path: <abs-path|none>
    - For build failures with a reachable transport and existing authorization: re-run the build command and capture the first error.
    - For performance issues: take the user's reported metric as the observation; do not run benchmarks in Tier 1.
 
-**Exit criteria**: Real-code grounding complete (auggie + serena results captured in audit log, or `Glob`/`Grep` fallback noted); observation captured at `<output-dir>/tier1-observation.md` (or "no repro available" recorded in audit). Emit "Wave 1 complete: grounding done; handing off to Wave 1.5".
+**Exit criteria**: Real-code grounding complete (Grep + Serena results captured in audit log, or the textual Grep fallback noted); observation captured at `<output-dir>/tier1-observation.md` (or "no repro available" recorded in audit). Emit "Wave 1 complete: grounding done; handing off to Wave 1.5".
 
-**Token budget for Wave 1**: target ≤ ~3k Claude tokens (MCP retrieval offloads the bulk of the work). Hypothesis formation's separate token budget is in Wave 1.7.
+**Token budget for Wave 1**: target ≤ ~3k Claude tokens (keep Grep output capped and Read only the top hits). Hypothesis formation's separate token budget is in Wave 1.7.
 
 ---
 
@@ -205,12 +207,12 @@ context_path: <abs-path|none>
 
 **Steps**:
 
-1. **Load `refs/doc-discovery.md`** — read the Section 1 Auggie query templates, the Section 2 Branch B currency-check procedure, the Section 3 per-branch output schemas, and the Section 4 Documentation Context Card template.
+1. **Load `refs/doc-discovery.md`** — read the Section 1 per-branch Grep/Glob procedures, the Section 2 Branch B currency-check procedure, the Section 3 per-branch output schemas, and the Section 4 Documentation Context Card template.
 2. **Spawn three discovery branches** in parallel via `Task` (single message with three Task calls). Each branch receives:
    - The original `<issue_description>`, `<scope>`, and `<component_paths>` from Wave 0.
    - The branch-specific procedure from `refs/doc-discovery.md` Section 1 (Branch A = release-doc, Branch B = architectural-doc with Section 2 currency check, Branch C = semantic-restriction).
    - The output path for the branch's structured-output file: `<output-dir>/wave1_5-branch-<A|B|C>.md` per the Section 3 schemas.
-   - An instruction to run the branch's procedure: Branch A uses local `Grep`/`Glob` only, because current-release artifacts are often untracked or unpushed and invisible to the hosted Augment index. Branches B and C issue ONE `mcp__auggie__augment_code_search` call against the branch's query target. Every branch then emits the schema-conformant output (Branch A: single object or `{ "hit": false }`; Branch B: array of `{ doc_path, currency_verdict, reason }`; Branch C: array of `{ source_file, file_line, quoted_text, applies_to }`).
+   - An instruction to run the branch's procedure: every branch uses `Grep`/`Glob` over its query target on the working tree, then `Read`s the top hits. A Grep zero-hit is a normal result and does not set `degraded`. Every branch then emits the schema-conformant output (Branch A: single object or `{ "hit": false }`; Branch B: array of `{ doc_path, currency_verdict, reason }`; Branch C: array of `{ source_file, file_line, quoted_text, applies_to }`).
 3. **Wait for all three branches** to complete. Read each output file.
 4. **Synthesise the Documentation Context Card** at `<output-dir>/doc-context.md` using the Section 4 template — merging Branch A's release-doc context (Section: Release context), Branch B's architectural-doc list with currency verdicts (Section: Architectural docs consulted; surface CAUTION lines for `stale` / `unknown` verdicts), Branch C's semantic restrictions (Section: Restrictions / decisions that constrain the fix), and a 1-3 bullet Re-frame signals synthesis tying the three findings back to the bug-as-stated.
 5. **Set output-contract pointer** — emit `doc_context_card_path: <output-dir>/doc-context.md` in the audit log so Wave 5 can wire it into the report.
@@ -226,12 +228,11 @@ context_path: <abs-path|none>
 | Scenario | Behavior | Fallback |
 |----------|----------|----------|
 | `--no-doc-discovery` set | Skip the entire wave; emit `doc_context_card_path: null`; surface in Grounding Gaps | None |
-| Auggie unavailable for Branch B or C | Fall back to `Grep`/`Glob` against the branch's query target (release dirs, docs/ dirs, scope source files); mark `degraded: true` in the affected branch's output | None |
-| All three branches return empty / no-hit | Write the Documentation Context Card with "None found" in every section; set `doc_context_card_path` to the (still-emitted) card path; record `behavior_is_documented` derivation as `no_docs_found` candidate downstream | None |
+| All three branches return empty / no-hit | Write the Documentation Context Card with "None found" in every section; set `doc_context_card_path` to the (still-emitted) card path; record `behavior_is_documented` derivation as `no_docs_found` candidate downstream. `no_docs_found` is derived only from the branches' Grep/Glob results | None |
 | Branch B Section 2 currency check fails (`stat` not available, mtime unobtainable) | Emit `currency_verdict: unknown` for every Branch B hit; surface CAUTION lines in the card | None |
 | Branch synthesis times out / one branch crashes | Continue with remaining branch outputs; mark the missing branch's section as "Branch <X> failed — see audit"; do NOT block downstream waves | None |
 
-**Token budget**: Wave 1.5 should consume ≤ 2k Claude tokens (the auggie calls offload heavy retrieval). If it goes over 3k Claude tokens, audit-log the overrun — the wave is meant to be retrieval-offload, not Claude reasoning.
+**Token budget**: Wave 1.5 should consume ≤ 2k Claude tokens (branch agents keep Grep output capped and Read only the top hits). If it goes over 3k Claude tokens, audit-log the overrun — the wave is meant to be bounded retrieval, not Claude reasoning.
 
 ---
 
@@ -258,7 +259,7 @@ context_path: <abs-path|none>
 - Primitive targeting: read only data rows of the `## Producers` table in `<output-dir>/producers.md`, stopping at the next heading; ignore table headers/separators, account for an optional leading border, and decode Markdown escapes in the named `line` cell. Require a terminal `:<positive line number>`, remove only that suffix, resolve the remaining path against the repository root, verify it exists, and deduplicate paths. Never pass headings or coordinates as shell paths; quote each resolved path when used as a command argument. Inspect each producer's source expression and immediate call operands, classifying its primitives using refs/primitive-differential.md Section 1 (a classification table, not a regex catalogue); record each identified expression's `file:line` and kind. Queue exact/reference pairs under the single S1.6.4 pair budget, not a separate row limit. Replace `pending-producers` with all surviving producer coordinates and their environment labels (one when unique, an explicitly unresolved candidate set otherwise); do not invent a unique run site.
 - A control arm counts only if the locus card records `CONTROL-PROOF: yes: <file:line>` for it (`no: <file:line>` / `unknown` otherwise). Never rank producers by plausibility here; never drop a row without a cited exclusion line; never grep only `failing_component`; agents cite rows by `id` plus `file:line`, they never re-grep (every Wave 1.7/Wave 3 brief pastes the full table).
 
-2. **S1.6.1 — Load `refs/diagnosability-audit.md`** (lazy load, mirroring Wave 1.5's discipline). Read Section 1 (query templates), Section 2 (fallback paths), Section 3 (per-branch schemas), Section 4 (sufficiency rubric + 3-W's synthesis), Section 5 (complexity gate), Section 6 (Diagnosability Context Card template), Section 7 (tasklist rules), Section 8 (T4 worked example).
+2. **S1.6.1 — Load `refs/diagnosability-audit.md`** (lazy load, mirroring Wave 1.5's discipline). Read Section 1 (branch query targets), Section 2 (Grep/Glob procedure), Section 3 (per-branch schemas), Section 4 (sufficiency rubric + 3-W's synthesis), Section 5 (complexity gate), Section 6 (Diagnosability Context Card template), Section 7 (tasklist rules), Section 8 (T4 worked example).
 
 3. **S1.6.2 — Spawn 2 audit branches in parallel** via `Task` (single message, two Task calls):
    - **Branch A — Log-Call Inspection**: logger/print/exception-handler calls + error-reporter SDK initializations on the `failing_component` and immediate callers. Captures exception-handler richness as a piggyback signal (no separate branch).
@@ -290,13 +291,13 @@ context_path: <abs-path|none>
 | Scenario | Behavior | Fallback |
 |----------|----------|----------|
 | `--no-diagnosability-audit` set | Skip Wave 1.6 entirely | Emit `diagnosability_verdict: unknown`, `diagnosability_context_card_path: null`, `diagnosability_hard_stop: false`; log bypass in REPORT.md header AND the audit log |
-| Auggie unavailable (Wave 1.6) | Fall back to Glob/Grep per `refs/diagnosability-audit.md` Section 2 | Set Branch A/B `degraded: true`; cap verdict at `partial` (never `sufficient`) |
+| Grep/Glob found no signal (Wave 1.6) | The `failing_component` files were not Read in full | Verdict `unknown` (S11) plus a Grounding Gaps line; a Grep zero-hit does not set `degraded` |
 | Both Wave 1.6 branches return empty | Cannot compute 3-W's coverage | Set verdict = `insufficient` if complexity non-trivial; `partial` if trivial; surface in Grounding Gaps |
 | `failing_component` not localizable | S1.6.0 cannot identify the smallest failing component | Set verdict = `unknown`; add Grounding Gaps line; continue to Wave 1.7 without hard-stop |
 | Heisenbug detected on Wave 1.6 re-run | Instrumentation altered timing — bug no longer reproduces | Downgrade next-round tasklist to env-vars-only (no `--debug` flag changes, no log-level overrides); record Heisenbug finding in audit card |
 | 3-round diagnosability cap reached for a counter key | Authoritative counter at `<repo-root>/.dev/troubleshoot/diagnosability-rounds.json` reached 3 tasklists with `discriminator-required: yes` for the same `<branch>:<repro-venue-id>` (digits stripped) | Write the tasklist anyway; emit the 3-round cap message (refs/report-template.md hard-stop variant + cap-specific prose) with `status: blocked`; suppress the re-run recommendation (not the file) until `--reset-diagnosability-rounds` is set |
 
-**Token budget**: ≤ 2-3k Claude tokens (auggie offloads retrieval bulk). Hard-stop case yields a net token saving over the full Tier 2 pipeline.
+**Token budget**: ≤ 2-3k Claude tokens (branch agents keep Grep output capped). Hard-stop case yields a net token saving over the full Tier 2 pipeline.
 
 ---
 
@@ -308,7 +309,7 @@ context_path: <abs-path|none>
 
 **Steps**:
 
-1. **Form one hypothesis** — spawn the `root-cause-analyst` agent via `Task` with a focused brief: the symptom, the grounding from Wave 1 step 1, the observation from Wave 1 step 2, the Documentation Context Card path (`<output-dir>/doc-context.md`, or `null` when Wave 1.5 was skipped via `--no-doc-discovery`), and `--scope` if any. The agent's job is to produce one hypothesis card (template in `refs/hypothesis-card-template.md`) — not three, not the full tree. The hypothesis card MUST set `consistency_with_docs` to one of `aligned | conflicts | not_applicable | no_docs_found` based on the Documentation Context Card (or `not_applicable` when the card path is `null`). When the execution-locus card (`<output-dir>/execution-locus.md`) derives `SAME-ENV ≠ yes`, the card MUST also carry a plain `runs-in=<RUN-SITE label>` line (`unknown` is legal; the calibrator then caps Runtime check ≤ 0.5 with `locus_unknown`); a card without it is returned unread, exactly like a card without `consistency_with_docs`. The brief pastes the full `## Producers` table of `<output-dir>/producers.md` verbatim when it exists; only when that table contains at least one `surviving=yes` row is a card naming the categorical value but citing none of those rows returned unread (refs/triage-checklist.md, Producer citation). If the table is missing or has no surviving rows, log `producer-citation-check: skipped — menu absent or empty`; require ordinary grounded `file:line` or captured-command-output citations and continue behaviour binding and independent calibration. This bypass skips only producer-row citation, not the documentation, locus, evidence or confidence checks; never invent a producer row.
+1. **Form one hypothesis** — spawn the `root-cause-analyst` agent via `Task` with a focused brief: the symptom, the grounding from Wave 1 step 1, the observation from Wave 1 step 2, the Documentation Context Card path (`<output-dir>/doc-context.md`, or `null` when Wave 1.5 was skipped via `--no-doc-discovery`), and `--scope` if any. The brief also contains, verbatim: "A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here." and "Do not use `augment_code_search` for questions about this working tree." The agent's job is to produce one hypothesis card (template in `refs/hypothesis-card-template.md`) — not three, not the full tree. The hypothesis card MUST set `consistency_with_docs` to one of `aligned | conflicts | not_applicable | no_docs_found` based on the Documentation Context Card (or `not_applicable` when the card path is `null`). When the execution-locus card (`<output-dir>/execution-locus.md`) derives `SAME-ENV ≠ yes`, the card MUST also carry a plain `runs-in=<RUN-SITE label>` line (`unknown` is legal; the calibrator then caps Runtime check ≤ 0.5 with `locus_unknown`); a card without it is returned unread, exactly like a card without `consistency_with_docs`. The brief pastes the full `## Producers` table of `<output-dir>/producers.md` verbatim when it exists; only when that table contains at least one `surviving=yes` row is a card naming the categorical value but citing none of those rows returned unread (refs/triage-checklist.md, Producer citation). If the table is missing or has no surviving rows, log `producer-citation-check: skipped — menu absent or empty`; require ordinary grounded `file:line` or captured-command-output citations and continue behaviour binding and independent calibration. This bypass skips only producer-row citation, not the documentation, locus, evidence or confidence checks; never invent a producer row.
 1.5. **Bind behaviour evidence after receipt** — run the shared Wave 3 step 1 behaviour-definition procedure on the Tier 1 card (including inline formation), attach its row citation, and persist the card before step 2 captures `card_mtime`; reuse matching producer-definition rows from S1.6.4.
 2. **Calibrate confidence (independently)** — spawn the `confidence-calibrator` agent via `Task` with `card_path=<output-dir>/tier1-hypothesis.md`, `rubric_path=<skill-dir>/refs/escalation-rubric.md`, `card_tier=1`, `flags_context=<wave 0 parsed flags>`, `output_path=<output-dir>/tier1-calibration.md`, `now_iso=<ISO-8601 from this turn's`date -u +%Y-%m-%dT%H:%M:%SZ`>`, `card_mtime=<ISO-8601 mtime of card_path>` (GNU: `date -u -d "@$(stat -c %Y "<card_path>")" +%Y-%m-%dT%H:%M:%SZ`; BSD: `date -u -r "<card_path>" +%Y-%m-%dT%H:%M:%SZ`; missing mtime ⇒ drop that citation / omit `card_mtime`), `behaviour_definitions_path=<output-dir>/behaviour-definitions.md` (omit/null if the file does not exist), `tasklist_path=<output-dir>/diagnosability-tasklist.md` (omit/null if the file does not exist so skip rules fire), `locus_path=<output-dir>/execution-locus.md` (omit/null if the file does not exist), `assertions_path=<skill-dir>/refs/agent-assertions.md`. The agent re-grades the hypothesis card against the 6-dimension rubric without the formation context (anchoring is reduced, not eliminated). Its calibrated confidence and verdict feed Wave 2 directly.
    - **Fallback**: if `confidence-calibrator` fails (subprocess crash, malformed output, agent unavailable), fall back to inline orchestrator calibration against the rubric and mark `calibration: inline-fallback` in the audit log. The inline path applies the identical C-rule list in `refs/agent-assertions.md` (C1-C8, C3b) with the same inputs the spawn would have received and records `structural_flags: <fired flags or none>` beside the `calibration: inline-fallback` audit line. Persist the full agent Output Format at the normal per-card `output_path`, not just the audit: adjusted per-dimension scores and evidence, Stage-2 trace, canonical structural table including skipped rows, final confidence, recommendation/provenance, restrictions and Notes. The orchestrator persists returned agent reports too; neither read-only agent mutates input files or needs Bash/Write tools.
@@ -366,7 +367,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
 1. **MCP enrichment in parallel with agent spawn** — issue any of the following that match the signals (parallel calls, all kicked off in the same turn):
    - `mcp__context7__resolve-library-id` + `mcp__context7__query-docs` when the issue mentions a framework / library by name or the stack trace is in third-party code
    - `mcp__tavily__tavily_search` for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave; for the error-string query use `search_depth: advanced` with recommended `include_domains: [github.com, stackoverflow.com]` — only hard cases reach Tier-2, and the ≤2-query cap bounds cost)
-   - `mcp__auggie__augment_code_search` with a more targeted query than Tier 1 (e.g. "find every call site of `<symbol>` and how they handle the error case")
+   - `mcp__serena__find_referencing_symbols` on `<symbol>` plus `Grep -nw <symbol>` over the working tree for every call site and how it handles the error case (a true negative only from Serena; if Serena is down, label the Grep result textual — its empty is not a negative). Reuse the Tier 1 grounding; do not repeat it.
    - **Behaviour-definition fetch (conditional, never a halt)** — Shared procedure callable before S1.6.4 pair construction and after card receipt in both tiers. Input is a producer assertion (with its source coordinate) OR a hypothesis card; reuse an existing definition row only for the same primitive and asserted behaviour. Trigger: an input whose `claim_class` is `environment_dependent`, or whose assertion/mechanism sentence says what a primitive (library call, config loader, scheduler, protocol, runtime builtin) *does*, when that behaviour has not been directly observed in this run. For each such input append one row (`# | Primitive | Asserted behaviour | Defining artifact | Fetch query | Status`) to `<output-dir>/behaviour-definitions.md` **before** issuing the fetch:
      - *Asserted behaviour* = the verb phrase copied verbatim from the producer assertion or card's mechanism sentence
      - *Defining artifact* = the thing that makes that verb true (function body, spec/RFC clause, schema rule, doc section whose heading contains the verb) — never an example, sample output, format string, tutorial, or web-search summary
@@ -378,6 +379,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
    - The original issue + Tier 1 hypothesis card (so they can agree, disagree, or extend)
    - The **Documentation Context Card** at `<output-dir>/doc-context.md` (the same single card produced by Wave 1.5 — agents do NOT re-run discovery). If `--no-doc-discovery` was set, this path is `null` and agents set `consistency_with_docs: not_applicable` in their hypothesis cards.
    - The MCP enrichment results
+   - Verbatim: "A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here." and "Do not use `augment_code_search` for questions about this working tree."
    - The output path for their own hypothesis card: `<output-dir>/tier2-<agent-name>-hypothesis.md`
    - An instruction to produce **at most one proposed fix** with: claim, evidence (cited file:line or command output), proposed fix, confidence, risks, `consistency_with_docs` (see `refs/hypothesis-card-template.md`), and a one-line "if I'm wrong it's probably because...".
    - When `<output-dir>/producers.md` exists, paste its full `## Producers` table verbatim (never summarised), with `observation-kind`/`producer-count`; also paste tasklist discriminator rows when present. **Menu-equality check** before spawning: compare the SET of surviving producer identities (table row ID plus `file:line`) in the prompt with the SET in the on-disk table; the sets must match, even when several producers emit the same token. Separately require coverage of every surviving enum value; never equate distinct-token count with producer count. Repair missing identities before spawning. If the audit was bypassed and no table exists, explicitly record the absent menu and skip only this table-dependent check, not grounding/calibration; never invent a producer file.
@@ -413,7 +415,7 @@ Verification command: run one initial on-disk completeness check per tier over t
 | Scenario | Behavior | Fallback |
 |----------|----------|----------|
 | Agent subprocess fails | Continue with remaining agents; record failure in audit | If < 2 agents complete, downgrade to "Tier 1 only" and add a warning to the report |
-| MCP call fails (auggie/serena) | Fall back to `Grep`/`Glob`; note in audit | None — proceed without that enrichment |
+| MCP call fails (serena) | Fall back to `Grep -nw` (labelled textual); note in audit | None — proceed without that enrichment |
 | MCP call fails (context7/tavily) | Continue without external docs; note in audit | None |
 | All agents converge with high confidence | Skip Wave 4 (adversarial) only if the converged variable was *observed* in this run; otherwise mark the cluster `split-pending` (step 4.5) and append its probe pair to the tasklist; then jump to Wave 5 | None |
 | All agents diverge with low confidence | Proceed to Wave 4; warn in audit that no fix is strongly supported | None |
@@ -441,7 +443,7 @@ Verification command: run one initial on-disk completeness check per tier over t
    - Use `--depth quick` if all proposals share the same diagnosis and only differ in the fix mechanism (fast debate is sufficient).
    - Use `--depth standard` otherwise.
 3. **Collect adversarial output** — `<output-dir>/adversarial/` will contain the standard 6 artifacts (`diff-analysis.md`, `debate-transcript.md`, `base-selection.md`, `refactor-plan.md`, `merge-log.md`, `merged-output.md`). The merged output is the **chosen fix proposal**. If the debate flagged that the winning proposal requires a doc update to remove or rewrite a documented constraint (surfaced via the embedded `## Documented constraints to honor` section in the source fix-<N>.md), the merged output is structured as a **doc-update + fix bundle**: the bundle lists the doc file(s) to update alongside the code change(s), and Wave 5's Proposed Fix section renders both atoms.
-4. **Sanity-check the merge** — spawn `self-review` via `Task` against the merged fix proposal with the four standard self-check questions (tests? edge cases? requirements? follow-up?). Record the result in the audit log. If self-review flags a blocker, surface it and STOP — do not proceed to Wave 5 with a known-broken proposal.
+4. **Sanity-check the merge** — spawn `self-review` via `Task` against the merged fix proposal with the four standard self-check questions (tests? edge cases? requirements? follow-up?). The brief (and the last lines of every `fix-<N>.md` from step 1, so the debate agents see it too) contains, verbatim: "A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here." and "Do not use `augment_code_search` for questions about this working tree." Record the result in the audit log. If self-review flags a blocker, surface it and STOP — do not proceed to Wave 5 with a known-broken proposal.
 
 **Exit criteria**: `adversarial/merged-output.md` exists, `self-review` produced an OK or a documented blocker.
 
@@ -577,13 +579,12 @@ return_contract_path: <abs-path|none>
 
 | Tool | Tier 1 | Tier 2 | Tier 3 |
 |------|--------|--------|--------|
-| `mcp__auggie__augment_code_search` | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries; Wave 1.6 audit fan-out: 2 parallel branch queries (A log-call, B log-config)) | ✓ (per-hypothesis queries) | — |
-| `mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview` | ✓ | ✓ | — |
+| `mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview` | ✓ (symbols and file outlines named by the issue or scope) | ✓ (`find_referencing_symbols` for call sites) | — |
 | `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |
 | `mcp__tavily__tavily_search` | — | ✓ rate-limited (≤2 queries) | — |
 | `Task` (agent spawn) | ✓ (root-cause-analyst + confidence-calibrator (C-rule structural assertions via `assertions_path`); Wave 1.6: 2 parallel audit branches A/B + 1 orchestrator synthesis) | ✓ (2-4 hypothesis agents in parallel + per-card confidence-calibrator + evidence-validator at Wave 5 (A-rule structural assertions)) | ✓ (self-review for post-exec) |
 | `Skill` | — | ✓ (`sc:adversarial-protocol`) | ✓ (`sc:workflow-protocol` plan route / `task-builder` MDTM route, `/sc:reflect`) |
-| `Read` / `Grep` / `Glob` | ✓ (Wave 1.6 Grep/Glob fallback when auggie unavailable) | ✓ | — |
+| `Read` / `Grep` / `Glob` | ✓ (Wave 1 step 1 mandatory Grep; Wave 1.5 branches; Wave 1.6 primary procedure) | ✓ | — |
 | `Bash` | ✓ (repro when cheap, run via `OBSERVE-VIA` from the execution-locus card; failing-arm job-log fetch; S1.6.4 read-only rows only through the shared authorization/transport gate, never by executing artifact-file access) | ✓ (diagnostic commands) | — |
 | `Write` | ✓ (hypothesis + report) | ✓ (hypothesis cards, fix proposals) | — |
 
@@ -592,7 +593,7 @@ return_contract_path: <abs-path|none>
 - Always run Tier 1 first; respect the "quick first option" contract
 - Auto-escalate only when the rubric in `refs/escalation-rubric.md` says so, or when `--depth deep` is set
 - Fan out 2-4 specialist agents in parallel in Tier 2, chosen by signal mix
-- Use auggie/serena every tier for in-repo grounding; use context7/tavily for relevant Tier 2 enrichment, with the conditional behaviour-definition fetch also permitted in Tier 1 before pair construction or calibration
+- Use Serena and Grep/Read every tier for in-repo grounding on the working tree (never hosted Augment, which indexes only the default branch); use context7/tavily for relevant Tier 2 enrichment, with the conditional behaviour-definition fetch also permitted in Tier 1 before pair construction or calibration
 - Run `/sc:adversarial` only when Tier 2 produces ≥2 competing strong fixes (cap is the Tier-2 agent cap of 4, not a debate min/max of 3) (not when there is consensus — that wastes the debate)
 - Run `self-review` after the adversarial merge to catch obvious regressions before reporting
 - Validate every `file:line` citation in the report against the real file
@@ -627,8 +628,7 @@ return_contract_path: <abs-path|none>
 | Scenario | Behavior | Fallback |
 |----------|----------|----------|
 | All MCPs unavailable | Run in `--no-mcp` mode; warn user that triage quality is degraded; native tools only | None |
-| auggie unavailable (others OK) | Fall back to `Grep` + `Glob` for grounding; mark in audit | None |
-| auggie unavailable in Wave 1.5 (others OK) | Fall back to `Grep`/`Glob` against the per-branch query targets (`.dev/releases/`, `docs/`, `<scope>`); mark `degraded: true` per branch; do NOT block the Tier 1 hypothesis | None |
+| serena unavailable (others OK) | Use `Grep -nw` for symbols, labelled textual; mark in audit | None |
 | All three Wave 1.5 branches return empty / no-hit | Write Documentation Context Card with "None found" in every section; set `doc_context_card_path` to the (still-emitted) empty card; mark `behavior_is_documented` derivation as `no_docs_found` candidate | None |
 | `--no-doc-discovery` set by user | Skip Wave 1.5 entirely; emit `doc_context_card_path: null`; record skip-line in Wave 5 Grounding Gaps | None |
 | root-cause-analyst agent fails in Tier 1 | Skill produces a degraded Tier 1 (Claude inline) and recommends `--depth deep` | None |
@@ -642,7 +642,7 @@ return_contract_path: <abs-path|none>
 | `evidence-validator` agent fails (subprocess crash, timeout, or malformed report) | Inline-validate citations in the orchestrator context (the original Wave 5 step 3 behavior); add a Grounding Gap entry noting the validator was unavailable; do not assign `status` (common-epilogue merge decides) | None — the inline path is the fallback |
 | `confidence-calibrator` agent fails for any card | Use Wave 1.7's full-schema persisted inline fallback and the shared calibration receipt/failure ladder; preserve known bounds/C1; terminal failure routes to the failed diagnostic epilogue, never escalation from a missing calibration | One retry per shared ladder |
 | `--no-diagnosability-audit` set | Skip Wave 1.6 entirely | Emit `diagnosability_verdict: unknown`, `diagnosability_context_card_path: null`, `diagnosability_hard_stop: false`; log the bypass in REPORT.md's header AND the audit log |
-| Auggie unavailable (Wave 1.6) | Fall back to Glob/Grep per refs/diagnosability-audit.md Section 2 | Set Branch A/B `degraded: true`; cap verdict at `partial` (never `sufficient`) |
+| Grep/Glob found no signal (Wave 1.6) | The `failing_component` files were not Read in full | Verdict `unknown` (S11) plus a Grounding Gaps line; a Grep zero-hit does not set `degraded` |
 | Both Wave 1.6 branches return empty | Cannot compute 3-W's coverage | Set verdict = `insufficient` if complexity non-trivial; `partial` if trivial; surface in Grounding Gaps |
 | `failing_component` not localizable (Wave 1.6) | S1.6.0 cannot identify the smallest failing component | Set verdict = `unknown`; add Grounding Gaps line; continue to Wave 1.7 without hard-stop |
 | Heisenbug detected on Wave 1.6 re-run | Instrumentation altered timing — bug no longer reproduces | Downgrade next-round tasklist to env-vars-only (no `--debug` flag changes, no log-level overrides); record Heisenbug finding in audit card |
@@ -650,15 +650,15 @@ return_contract_path: <abs-path|none>
 
 ## Token Cost Profile
 
-| Tier reached | Auggie tokens (offloaded) | Claude tokens (orchestration + agents) | Wall clock |
-|--------------|---------------------------|----------------------------------------|------------|
-| Tier 1 only | ~2-5k | ~3-6k | 1-3 min |
-| Tier 2 (no adversarial) | ~5-15k | ~15-30k | 4-7 min |
-| Tier 2 (with adversarial) | ~10-25k | ~30-60k | 8-15 min |
-| Tier 3 added | +0 (auggie not used) | +20-40k (task-builder, MDTM route); plan route is lighter (estimate not yet measured) | +5-10 min |
-| Wave 1.6 added | +1-2k auggie | +1-2.5k Claude | +30-60s wall clock |
+| Tier reached | Claude tokens (orchestration + agents) | Wall clock |
+|--------------|----------------------------------------|------------|
+| Tier 1 only | ~3-6k | 1-3 min |
+| Tier 2 (no adversarial) | ~15-30k | 4-7 min |
+| Tier 2 (with adversarial) | ~30-60k | 8-15 min |
+| Tier 3 added | +20-40k (task-builder, MDTM route); plan route is lighter (estimate not yet measured) | +5-10 min |
+| Wave 1.6 added | +1-2.5k Claude | +30-60s wall clock |
 
-These are targets, not hard caps. The cosmetic counter is a non-blocking threshold, never a hard cap; overrun is audit-logged as `cosmetic_overrun=<n>` and the run continues. Auggie tokens are offloaded to a free / low-cost retrieval tier; Claude tokens are the constrained resource. The escalation gate exists specifically to keep the Tier-1-only path inside the 3-9k Claude-token band for the common case. (Wave 1.6 hard-stop case yields a net token *saving* vs the full Tier 2 path — early halt prevents Tier 2 hypothesis-round token spend on blind code.)
+These are targets, not hard caps. The cosmetic counter is a non-blocking threshold, never a hard cap; overrun is audit-logged as `cosmetic_overrun=<n>` and the run continues. Claude tokens are the constrained resource. The escalation gate exists specifically to keep the Tier-1-only path inside the 3-9k Claude-token band for the common case. (Wave 1.6 hard-stop case yields a net token *saving* vs the full Tier 2 path — early halt prevents Tier 2 hypothesis-round token spend on blind code.)
 
 ## Refs
 
@@ -666,11 +666,11 @@ These are targets, not hard caps. The cosmetic counter is a non-blocking thresho
 |------|-------------|
 | `refs/escalation-rubric.md` | Wave 2 (confidence gate) and Wave 1.7 (calibration) |
 | `refs/triage-checklist.md` | Wave 1 (real-code grounding load) AND Wave 1.7 (passed to root-cause-analyst as part of the brief) |
-| `refs/doc-discovery.md` | Wave 1.5 (documentation grounding — Auggie query templates, currency-check procedure, output schemas, Documentation Context Card template) |
+| `refs/doc-discovery.md` | Wave 1.5 (documentation grounding — per-branch Grep/Glob procedures, currency-check procedure, output schemas, Documentation Context Card template) |
 | `refs/hypothesis-card-template.md` | Wave 1.7 and Wave 3 (passed to agents) |
 | `refs/report-template.md` | Wave 5 |
 | `refs/remediation-handoff.md` | Wave 6 |
-| `refs/diagnosability-audit.md` | Wave 1.6 (audit query templates, fallback paths, sufficiency rubric, complexity gate, context card template, tasklist rules + hard constraints, T4 worked example) |
+| `refs/diagnosability-audit.md` | Wave 1.6 (branch query targets, Grep/Glob procedure, sufficiency rubric, complexity gate, context card template, tasklist rules + hard constraints, T4 worked example) |
 | `refs/pipeline-hardening-closure.md` | Wave 4.5 (mode skeleton, HC0 applicability + boundary-scan schema, HC5 off-path-reviewer rule) |
 | `refs/hardening-output-contract.md` | Wave 4.5 (verdict-aggregation truth table, output-contract field schema, waiver / no-re-greening latch) |
 | `refs/runtime-entrypoint-verification.md` | Wave 4.5 (HC1 runtime-entrypoint card + negative-witness rule) |

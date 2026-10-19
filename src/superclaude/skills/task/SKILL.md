@@ -593,7 +593,7 @@ These rules apply across ALL task file executions. Violations compromise executi
 
 5. **Evidence-based completion only.** An item is only complete when there is evidence — a file was written, a command produced output, a verification passed. Never mark an item `- [x]` based on "I think I did that" or "that should be fine."
 
-6. **Use dedicated tools.** Use Glob for file search, Grep for content search, Read for file reading, codebase-retrieval for semantic code search. Do NOT use bash `find`, `grep`, `cat`, `head`, `tail`, `rg`, or `awk` commands for these operations. Use Edit for file modifications, not `sed` or `awk`.
+6. **Use dedicated tools.** Use Glob for file search, Grep for content search, Read for file reading, Serena for symbol lookup. Do NOT use bash `find`, `grep`, `cat`, `head`, `tail`, `rg`, or `awk` commands for these operations. Use Edit for file modifications, not `sed` or `awk`.
 
 7. **One item at a time (with parallel exception).** The default is strictly sequential — complete one item fully before starting the next. The ONLY exception is parallel agent spawning of independent items within the same phase. Even then, each agent's completion is tracked individually.
 

@@ -131,6 +131,8 @@ A PreToolUse hook (`sc-recommend-phase0.sh`) defense-in-depths the Phase 0 gate 
 - Estimate time, budget, or token cost
 - Detect user language or project framework via file-system heuristics
 
+A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
+
 ## Output Constraints
 
 - Single-line bash for any install / invocation commands embedded in the output (project memory: terminals cannot paste heredocs or `\` continuations). The prompt block itself may be multi-line because it is an argument string passed to the next tool, not a shell command.

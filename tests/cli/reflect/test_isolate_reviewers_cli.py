@@ -100,6 +100,34 @@ def test_audit_tree_dirty_checks_repo_root_scope(tmp_path) -> None:
     assert (str(task_dir), ("rev-parse", "--show-toplevel")) in calls
 
 
+def test_audit_tree_dirty_counts_in_scope_untracked(tmp_path) -> None:
+    """R-11: an untracked file next to (or under) an audit path is dirty."""
+
+    def _git_with_status(status: str):
+        def _fake_git(cwd, *args):
+            if args == ("rev-parse", "--show-toplevel"):
+                return str(tmp_path)
+            if args[:2] == ("diff", "--name-only"):
+                return "src/pkg/a.py\nREADME.md"
+            if args == ("status", "--porcelain=v1"):
+                return status
+            raise AssertionError(args)
+
+        return _fake_git
+
+    for status, dirty in [
+        ("?? src/pkg/new.py", True),
+        ("?? src/pkg/sub/", True),
+        ("?? NOTES.md", True),
+        ("?? .dev/scratch/", False),
+        ("?? docs/x.md", False),
+    ]:
+        with patch(
+            "superclaude.cli.reflect.config._git", side_effect=_git_with_status(status)
+        ):
+            assert _audit_tree_dirty(tmp_path, "base-ref") is dirty, status
+
+
 def test_isolate_reviewers_flag_in_help(cli_runner) -> None:
     """CR-1: the flag is documented in ``run --help``."""
     result = cli_runner.invoke(reflect_group, ["run", "--help"])

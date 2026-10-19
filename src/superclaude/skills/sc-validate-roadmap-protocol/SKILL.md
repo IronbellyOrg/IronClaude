@@ -261,7 +261,9 @@ After building the requirement universe, scan it for code references that would 
 1. **Identify code-referencing requirements**: Scan requirement text for backtick-wrapped identifiers (class names, function names, file paths), import paths, API endpoint paths, and technology-specific keywords (e.g., database table names, config keys).
 2. **Triage references by resolution method**:
    - **Simple references** (file paths, exact symbol names): Resolve with `Grep`/`Glob` first. Do NOT use Auggie for lookups that a pattern search can answer.
-   - **Semantic references** (architectural concepts, integration patterns, "the auth subsystem"): Query Auggie's `codebase-retrieval` with a focused natural-language query.
+   - **Semantic references** (architectural concepts, integration patterns, "the auth subsystem"): Query `mcp__auggie__augment_code_search` with a focused natural-language query, for default-branch prior art only: pass `repo_owner`, `repo_name` and `branch=<default-branch>` from `augment_repo=owner/name@<default-branch>` in `<session-context>`, plus `query`. A hit is a lead: Read it on the working tree before annotating. On `[BRANCH_NOT_FOUND]` or `[REPO_NOT_FOUND]`, say "Augment unavailable: <reason>" and resolve with `Grep`/`Read` instead.
+
+   A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
 3. **Query Auggie** for each semantic reference (hard cap: **15 queries maximum**):
    - Query format: `"What code implements {concept}? Include callers, related tests, and file paths."`
    - For each response, extract: relevant file paths, function/class names, test file references.

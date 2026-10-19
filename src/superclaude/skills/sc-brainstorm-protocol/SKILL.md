@@ -12,7 +12,7 @@ argument-hint: "<topic> [--proposals N] [--depth quick|standard|deep] [--strateg
 <!-- Extended metadata (for documentation, not parsed):
 category: orchestration
 complexity: advanced
-mcp-servers: [serena, auggie-mcp, tavily]
+mcp-servers: [serena, auggie, tavily]
 personas: [architect, analyzer, scribe]
 version: 2.0.0
 spec: .dev/eval-workspaces/sc-brainstorm/SPEC.md
@@ -180,13 +180,15 @@ Orchestrate parallel brainstorming via:
 
    | Condition | Action | Output |
    |-----------|--------|--------|
-   | `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase` | Invoke `/sc:analyze <relevant-paths> --focus quality --depth quick` OR `mcp__auggie__augment_code_search` for quick scan | `enrichment/codebase-context.md` |
+   | `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase` | Invoke `/sc:analyze <relevant-paths> --focus quality --depth quick` OR `mcp__auggie__augment_code_search` for default-branch prior art (working-tree context via Serena/Grep) | `enrichment/codebase-context.md` |
    | `--codebase` (forced) | Same as above regardless of domain | Same |
    | `--research light` OR (auto: topic mentions framework/library names not in project) | Invoke `Skill sc-research-protocol` with `--depth quick` (or `/sc:research` if standalone) | `enrichment/research-light.md` |
    | `--research deep` OR (auto: `--strategy enterprise` + novel topic) | Invoke `Skill tech-research` with topic | `enrichment/research-deep.md` |
    | Otherwise | Skip enrichment | — |
 
    Research depth/params are owned by `/sc:research` and `tech-research` — see RESEARCH_CONFIG.md; brainstorm selects the route only.
+
+   A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
 
 2. **Quality-tier tracking** (mandatory per enrichment source):
    - `primary` — first-choice source ran cleanly

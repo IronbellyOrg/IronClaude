@@ -46,7 +46,7 @@ mv .dev/tasks/to-do/TASK-PRD-<ts> .dev/tasks/done/
 - `.dev/research/<topic-slug>/` — multi-file research bundles, often with `00-extraction.md`, `01-...`, etc.
 - `claudedocs/` — finished tech references and analyses
 - `.dev/research/research-results/` — aggregated results
-**Status signal:** harder to read directly. Look for frontmatter, presence of a `synthesis.md` or `report.md`, and file mtimes. Auggie codebase-retrieval is useful here.
+**Status signal:** harder to read directly. Look for frontmatter, presence of a `synthesis.md` or `report.md`, and file mtimes. `Grep` frontmatter `status:` under the bundle directory.
 **Recovery:** typically re-invoke the original skill with the same prompt. There's no formal resume protocol — the work is regenerable.
 
 ## Roadmap pipeline (`superclaude roadmap run`)

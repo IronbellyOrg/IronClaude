@@ -1,14 +1,8 @@
-# Auggie Prompt Templates
+# Review Prompt Templates
 
-These are the structured instruction templates the skill writes to a file and passes to Auggie via `--instruction-file`. Each template ends with a strict JSON-output contract — Auggie returns findings as parseable JSON, not free-form markdown.
+These are the prompt templates the skill passes to the `auggie-reviewer` agent via `Task`. Each template ends with a strict JSON-output contract — the agent returns findings as parseable JSON in its final message, not free-form markdown.
 
-## Why these prompts look the way they do
-
-Auggie's strength is **indexed-codebase retrieval and cross-file reasoning** — it can answer "where is this function called?" and "is this pattern used consistently?" much more cheaply than Claude reading files one at a time. The prompts below explicitly invite Auggie to use that strength: every finding category asks Auggie to cross-reference against the indexed repo, not to reason only from the diff in isolation.
-
-Auggie's weakness, relative to a careful Claude pass, is calibration — it can hallucinate file:line citations or grade severity inconsistently. The skill's Wave 3 validation step exists to compensate. Our job in these prompts is to maximize Auggie's signal and tag uncertainty explicitly, knowing Claude will second-pass it.
-
-The `--ask` flag (set in the invocation, not the prompt) restricts Auggie to retrieval/non-editing tools, which is the right safety boundary for a review.
+Every finding category asks the agent to cross-reference the repo, not to reason only from the diff in isolation. The agent can still mis-cite a line or grade severity inconsistently; the skill's Wave 3 validation step compensates.
 
 ---
 
@@ -30,17 +24,18 @@ Files changed ({N_FILES}):
 {FILE_LIST}
 
 The full diff is available at: {DIFF_PATH}
-Read it with the `view` tool, then use your indexed codebase context to investigate.
+Head matches the local checkout: {HEAD_MATCH}. If false, cite only the new side of the diff; do not Read the local file as evidence and do not query Serena.
+Read the diff, then investigate with Read, Grep and Serena.
 
 ## Focus areas
 
-You MUST cover every focus area listed below. For each focus area, search for the patterns described — do not just react to what's visible in the diff. Use your codebase retrieval to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
+You MUST cover every focus area listed below. For each focus area, search for the patterns described — do not just react to what's visible in the diff. Use Grep and Serena to find related call sites, similar patterns elsewhere, and prior conventions in the repo.
 
 {FOCUS_AREA_BLOCK}
 
 ## Output contract (STRICT — your response must match this exactly)
 
-Respond with a single JSON object. Even when the prompt asks for no markdown fences, Auggie in practice wraps the JSON in a ```json ...``` fence — that is fine and the orchestrator strips it before parsing. Do not include explanatory prose **outside** the fence. The shape is:
+Your final message is a single JSON object. A ```json ...``` fence is tolerated and stripped before parsing. Do not include explanatory prose outside it. Do not write files. The shape is:
 
 {
   "findings": [
@@ -70,12 +65,12 @@ Respond with a single JSON object. Even when the prompt asks for no markdown fen
       "confidence": "<as above>"
     }
   ],
-  "notes_for_orchestrator": "<optional free-form notes — chunking signals, areas where indexing seems stale, scope you couldn't cover>"
+  "notes_for_orchestrator": "<optional free-form notes — chunking signals, scope you couldn't cover>"
 }
 
 ## Quality bar
 
-- Every finding must cite a real file:line. If you can't verify the file:line, set confidence to "low" and the orchestrator will validate.
+- Every finding must cite a real file:line you have Read. A Serena or index result is a hint, never evidence, and a miss never proves absence; only a Grep or Read citing its pattern and root does.
 - Do not invent file paths. If you remember a file existing but can't read it, leave it out.
 - For each focus area, aim for the highest-signal 3-5 findings, not an exhaustive list. The orchestrator will dedupe with other passes.
 - It is OK to return zero findings in a focus area if the area is genuinely clean. Do not pad.
@@ -120,7 +115,7 @@ Target: snapshot of {SNAPSHOT_PATH}
 Files to review ({N_FILES}):
 {FILE_LIST}
 
-Read these files via your file tools, then use your indexed codebase context to investigate.
+Read these files, then investigate with Grep and Serena.
 
 ## Focus areas
 
@@ -129,32 +124,25 @@ Read these files via your file tools, then use your indexed codebase context to 
 (... same Output contract and Quality bar as the pr-review-prompt ...)
 ```
 
-When `in_diff` is irrelevant (snapshot mode), Auggie should set every finding's `in_diff` to `false` and the orchestrator will ignore the field.
+When `in_diff` is irrelevant (snapshot mode), the agent should set every finding's `in_diff` to `false` and the orchestrator will ignore the field.
 
 ---
 
 ## Persona-specialized prompts (used only in `--depth deep`)
 
-For deep reviews, after the main pass the skill spawns additional Auggie calls — one per focus area not adequately covered by the main pass. Each persona prompt is the main `pr-review-prompt` with a single-area focus block and an additional preamble:
+For deep reviews the skill also spawns four persona runs of the agent (security, architect, performance, qa), once each on the whole diff, not once per chunk. Each persona prompt is the main `pr-review-prompt` with a single-area focus block and an additional preamble:
 
 ```text
-You are running a specialized {PERSONA} pass. The main review has already covered general issues. Your job is to find what the main pass might have missed within {PERSONA}'s domain. Be deeper, more skeptical, and willing to chase indirect/long-range concerns.
+You are running a specialized {PERSONA} pass. A general pass covers general issues. Your job is to find what the main pass might have missed within {PERSONA}'s domain. Be deeper, more skeptical, and willing to chase indirect/long-range concerns.
 ```
 
 Where `{PERSONA}` is one of: `security`, `architect`, `performance`, `qa`.
 
 ---
 
-## Notes on tuning
-
-- **`--max-turns`**: We set 8 for quick, 16 for standard, 24 for deep. Lower bounds force Auggie to be efficient; deep mode allows more multi-step retrieval.
-- **`--workspace-root`**: Always passed explicitly so Auggie indexes the right tree. Without this flag, Auggie auto-detects from the working directory, which can drift if the skill is invoked from a subdirectory.
-- **`--add-workspace`**: Not used by default. Add if the review needs to span multiple repos (rare).
-- **`--rules`**: Not used by default. Could be a future extension to point Auggie at `RULES.md` or `PRINCIPLES.md` for repo-specific standards.
-
 ## Anti-patterns in prompt writing (avoid)
 
-- Don't ask Auggie to "evaluate code quality" without specifying patterns. It will return a smoothed-over generic checklist.
+- Don't ask the agent to "evaluate code quality" without specifying patterns. It will return a smoothed-over generic checklist.
 - Don't allow free-form markdown output. Parser breakage is silent and pernicious.
-- Don't put severity caps in the prompt ("only return high-severity findings") — let Auggie surface everything and let the rubric handle grading. Auggie underestimates severity more often than overestimates it.
-- Don't ask Auggie to make merge/approve recommendations. That decision belongs to the orchestrator and ultimately the human reviewer.
+- Don't put severity caps in the prompt ("only return high-severity findings") — let the agent surface everything and let the rubric handle grading.
+- Don't ask the agent to make merge/approve recommendations. That decision belongs to the orchestrator and ultimately the human reviewer.

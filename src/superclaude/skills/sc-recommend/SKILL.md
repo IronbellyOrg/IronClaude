@@ -391,6 +391,8 @@ R3 enforces: **invoke, don't reimplement**. Duplicating a target's protocol inli
 - Detect user language (English-only — Turkish detection from old skill is dropped)
 - Detect project framework from file system heuristics (this skill ships in the SuperClaude repo; the relevant context is the source tree, not which JS framework is present)
 
+A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
+
 ## Related References
 
 - `refs/surface-enumeration.md` — Phase 0 glob set, auggie sweep algorithm, verification record schema

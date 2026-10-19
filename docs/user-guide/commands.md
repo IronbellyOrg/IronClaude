@@ -71,7 +71,7 @@ This page is the per-command reference: exact syntax, options, and what each com
 | [`/sc:test`](#sctest---testing) | Tests + coverage | `test.md` | Only with `--fix` |
 | [`/sc:build`](#scbuild---project-building) | Build project | `build.md` | Yes |
 | `/sc:adversarial` | Adversarial debate, compare, merge of artifacts | `adversarial.md` | Report only |
-| `/sc:auggie-review` | Auggie code review of PRs and diffs | `auggie-review.md` | Report only |
+| `/sc:auggie-review` | Agent code review of PRs and diffs | `auggie-review.md` | Report only |
 | `/sc:cleanup-audit` | Read-only multi-pass repository cleanup audit | `cleanup-audit.md` | Report only |
 | `/sc:swarm-wizard` | Plain-language guide to the swarm CLI | `swarm-wizard.md` | Report only |
 | `/sc:validate-roadmap` | Validate roadmap pipeline outputs | `validate-roadmap.md` | Report only |
@@ -174,9 +174,9 @@ Full option list: `~/.claude/commands/sc/adversarial.md`.
 
 ---
 
-### `/sc:auggie-review` - Auggie-Powered Code Review
+### `/sc:auggie-review` - Agent Code Review
 
-**When to use:** Review a PR, a local diff, or a file snapshot for narrow bugs, architectural risks and anti-patterns, using Auggie's indexed codebase context. It is advisory only (it never edits the code under review) and posts the report to the PR unless you pass `--no-post-pr`.
+**When to use:** Review a PR, a local diff, or a file snapshot for narrow bugs, architectural risks and anti-patterns. The `auggie-reviewer` agent does the review, with Serena for caller hints, and every finding is grounded by reading the file; no `auggie` binary is needed. It is advisory only (it never edits the code under review) and posts the report to the PR unless you pass `--no-post-pr`.
 
 **Syntax:**
 

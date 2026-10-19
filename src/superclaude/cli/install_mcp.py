@@ -75,7 +75,7 @@ MCP_SERVERS = {
     },
     "auggie": {
         "name": "auggie",
-        "description": "Augment Code semantic codebase search (codebase-retrieval, ask_question)",
+        "description": "Augment Code search over the default branch (augment_code_search; prior art only)",
         "transport": "stdio",
         "command": "auggie --mcp --mcp-auto-workspace",
         "required": False,

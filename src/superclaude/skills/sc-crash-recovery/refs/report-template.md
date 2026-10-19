@@ -64,7 +64,7 @@ _Last 1-3 sessions for this project. The assistant's last reply often hints at t
 - `<memory-name>.md` (<mtime>) — <one-line summary>
 - ...
 
-## Auggie semantic signals
+## WIP-scan signals
 - TODO-WIP / status-InProgress markers found in: `<paths>`
 - "Resume here" / "continue tomorrow" notes in: `<paths>`
 

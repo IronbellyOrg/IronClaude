@@ -6,15 +6,13 @@ This ref defines the three parallel discovery branches (A: release-doc, B: archi
 
 ---
 
-## Section 1: Auggie query templates per branch
+## Section 1: Query procedure per branch
 
-Branches B and C each issue ONE `mcp__auggie__augment_code_search` call. Branch A uses local `Grep`/`Glob` only (see below). Branches fan out as parallel Task spawns from the Wave 1.5 orchestrator in a single message. The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
+Every branch searches the working tree with `Grep`/`Glob`, then `Read`s the top hits. Branches fan out as parallel Task spawns from the Wave 1.5 orchestrator in a single message. The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
 
-### Branch A — Release-doc lookup (local search, no Auggie)
+### Branch A — Release-doc lookup
 
 Query target: `.dev/releases/current/` and `.dev/releases/complete/` for prior release artifacts (PRDs, TDDs, specs) that scope the symptom's component.
-
-Augment's hosted index covers only committed content on the default branch. Current-release artifacts are often untracked or unpushed, so this branch searches the local tree instead:
 
 1. `Grep` (files-with-matches, `*.md`) under `.dev/releases/current/` for each `<component_paths>` path and basename, and for 1-3 subject keywords from `<issue_description>`. Repeat under `.dev/releases/complete/` only if `current/` has fewer than 3 hits.
 2. Rank hits by how many distinct terms they match. `Read` the top 3, preferring PRD, TDD, spec and roadmap artifacts.
@@ -24,17 +22,17 @@ Augment's hosted index covers only committed content on the default branch. Curr
 
 Query target: `docs/reference/`, `docs/developer-guide/`, `docs/analysis/`, `docs/troubleshooting/`, and any top-level architectural markdown (`PLANNING.md`, `CLAUDE.md`, `KNOWLEDGE.md`).
 
-```
-In the docs/ tree (especially reference/, developer-guide/, analysis/, troubleshooting/) and the repo-root architecture files (PLANNING.md, CLAUDE.md, KNOWLEDGE.md), find any document that describes the architecture, contract, or expected behavior of <component_paths> as it relates to <issue_description>. For each hit, return the doc path, a 2-3 sentence summary of the documented behavior, and a currency verdict per the procedure in Section 2.
-```
+1. `Grep` (files-with-matches, `*.md`) under those directories and files for each `<component_paths>` path and basename, and for 1-3 subject keywords from `<issue_description>`.
+2. Rank hits by how many distinct terms they match. `Read` the top 3.
+3. For each kept doc, record the doc path, a 2-3 sentence summary of the documented behavior of `<component_paths>` as it relates to `<issue_description>`, and a currency verdict per the procedure in Section 2.
 
 ### Branch C — Semantic-restriction extraction
 
 Query target: any file under `<scope>` or referenced from `<component_paths>` that contains explicit MUST / MUST NOT / SHALL / forbidden-pattern language.
 
-```
-In the source tree under <scope> (or in <component_paths> if scope is unset), find every file or section that contains explicit MUST, MUST NOT, SHALL, REQUIRED, FORBIDDEN, or NEVER language constraining the behavior of <component_paths>. For each hit, return the source file, the file:line, the quoted constraint text, and which surface (function / class / module / contract) the constraint applies to.
-```
+1. `Grep` (content, `-n`) under `<scope>` (else `<component_paths>`) for the tokens `MUST`, `MUST NOT`, `SHALL`, `REQUIRED`, `FORBIDDEN`, `NEVER`. Cap at 50 hits; past the cap record `unscanned: capped`.
+2. `Read` ±5 lines around each kept hit.
+3. For each constraint constraining `<component_paths>`, record the source file, the `file:line`, the quoted constraint text, and which surface (function / class / module / contract) it applies to.
 
 ---
 
@@ -102,7 +100,7 @@ An array of objects (zero or more):
 [
   {
     "doc_path": "<absolute path>",
-    "summary": "<2-3 sentence summary of the documented behavior of <component_paths>, per the Section 1 Branch B query template>",
+    "summary": "<2-3 sentence summary of the documented behavior of <component_paths>, per the Section 1 Branch B procedure>",
     "currency_verdict": "current",
     "reason": "<one-line rationale for the currency_verdict, tied to Section 2 procedure>"
   }
@@ -181,4 +179,4 @@ If no signals reframe the bug-as-stated, write the literal: "No documentation-de
 
 ## Loading discipline
 
-This ref is loaded only by Wave 1.5. Do not pre-load. The three branch agents receive their query templates from Section 1 by quotation in the Wave 1.5 brief; they do NOT load this entire ref. The synthesised Documentation Context Card from Section 4 is the only artifact consumed by downstream waves (Waves 1, 3, 4, 5).
+This ref is loaded only by Wave 1.5. Do not pre-load. The three branch agents receive their procedures from Section 1 by quotation in the Wave 1.5 brief; they do NOT load this entire ref. The synthesised Documentation Context Card from Section 4 is the only artifact consumed by downstream waves (Waves 1, 3, 4, 5).

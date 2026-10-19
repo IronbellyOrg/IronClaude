@@ -151,7 +151,7 @@ Wave 0:   Parse + Validate Input + Activate Project + Memory Hydrate
             0.7b onboarding bootstrap (only when --onboard AND list_memories empty)
             0.8 Open audit log + machine-readable header
 Wave 1:   Tier 1 — Grounded Single-Agent Reflection
-            1A. Real-code grounding (auggie + serena symbolic chain)
+            1A. Real-code grounding (serena symbolic chain)
             1B. Mode-specific evidence gathering (UC-1: coverage map; UC-2: tasklist-vs-diff map)
                 — zero-task guard (Change #12); coverage_undefined route (Change #11)
             1C. Single-agent reflection (root-cause-analyst OR self-review)
@@ -282,9 +282,9 @@ read_only: <bool>                               # FR-4.7: read_only:true disable
 
 **Step 0.5e (reviewer-isolation snapshot gate — L2, opt-in via `--isolate-reviewers`).** When reviewer isolation is enabled (flag-gated opt-in; OFF by default so today's #153 dirty-tree-audit behavior is unchanged), the wrapper grounds the two ClaudeProcess review children (the Tier-1 audit child and the adversarial scorer) in an isolated `git worktree` snapshot rather than the live shared worktree, so those children never read another session's mid-commit state; and — via L1 + L1b — no reviewer of any class can mutate the repository it is auditing (reliability / data-loss-prevention). (The text-in/out Tier-2 swarm workers still read the live tasklist path in v1 — see item 4 and the honest `snapshot-children-only` telemetry value; closing their read surface is the deferred "design (a)" follow-up.) The gate runs in the Python wrapper (`cli/reflect/{config,runner,ensemble}.py`) AFTER the dry-run gate (FR-12 unaffected), and proceeds:
 
-1. **Cleanliness probe** — compute `audit_tree_dirty` = the tracked, in-scope (`git diff --name-only <base>`) paths that are dirty in `git status --porcelain=v1`. Untracked entries do not count. Fail-closed: any git error → treat as dirty.
+1. **Cleanliness probe** — compute `audit_tree_dirty` = the tracked, in-scope (`git diff --name-only <base>`) paths that are dirty in `git status --porcelain=v1`, plus in-scope untracked (`??`) paths (in the directory of an audit path, or under a non-root directory of one): those count as dirty, so `--isolate-reviewers` STOPs `non-committable` instead of snapshotting a committed ref that omits the target. Fail-closed: any git error → treat as dirty.
 2. **STOP-on-non-committable predicate (COR-1)** — `committable = base resolves AND HEAD resolves AND not audit_tree_dirty`. If NOT committable, the wrapper STOPs with `status: stopped-precondition` (verdict BLOCKED, exit 2 — the fail-closed contract is unchanged) and `reason ∈ {dirty, no-committable-ref, head-moved-precondition, snapshot-precleanup-failed, worktree-add-failed}` (any non-zero `git worktree add` exit STOPs with the captured stderr, never falling back to the live tree). It never points reviewers at a committed-ref snapshot that omits the uncommitted target.
-3. **Snapshot creation (COR-2 / A-2)** — on the committable path, pre-clean a leftover `<output>/_review-snapshot`, re-resolve HEAD immediately before `git worktree add --detach <output>/_review-snapshot <ref>` and STOP `head-moved-precondition` on drift (the parallel-session HEAD-moved hazard), then create a REAL worktree checkout (NOT an archive, so serena/auggie stay indexed).
+3. **Snapshot creation (COR-2 / A-2)** — on the committable path, pre-clean a leftover `<output>/_review-snapshot`, re-resolve HEAD immediately before `git worktree add --detach <output>/_review-snapshot <ref>` and STOP `head-moved-precondition` on drift (the parallel-session HEAD-moved hazard), then create a REAL worktree checkout (NOT an archive, so serena stays live).
 4. **Grounding-root redirect (scope: ClaudeProcess children only, v1)** — the snapshot grounds the two live-CWD review children: the Tier-1 audit child and the adversarial scorer both run with `cwd = <snapshot>`, never the live shared worktree. The text-in/out Tier-2 swarm workers hold NO repo CWD; in v1 their review target is still sourced from the live tasklist path (NOT yet derived from `<snapshot>`), so isolation covers the two ClaudeProcess children but not the swarm-worker read surface. The telemetry value `snapshot-children-only` (below) reports this scope honestly rather than overclaiming full `snapshot` isolation. (Closing the swarm-worker read surface — deriving their target from `<snapshot>` — is the deferred "design (a)" follow-up; the mutation incident vector is independently closed by L1 + L1b for every reviewer class regardless.)
 5. **`finally` teardown (A-3)** — the snapshot is always removed via `git worktree remove --force` (never `rm -rf` / `git stash`), on success / STOP / exception, while the always-write sidecar still emits inside the try.
 
@@ -503,6 +503,8 @@ The protocol replaces every `think_about_*` invocation with a concrete symbol-an
 
 ### 6.1 Mandatory evidence-gathering chain (Wave 1A)
 
+A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
+
 For every touched file in UC-2, or every spec-referenced module in UC-1:
 
 ```
@@ -560,7 +562,7 @@ Step 5.6 (FR-RH1, UC-2-only) is the **contracted-sink reachability & oracle-admi
 
 This pass reuses steps 4 and 6 (no new tool class), rides the existing `reachability_unreachable`/`regression_present` gating fields, and is additive to Step 5.6 (it does not weaken the durable-sink gate's real-boot rule for annotated sinks; it adds an annotation-free blocking path for spec-declared required capabilities).
 
-Step 4a (FR-REUSE.1) is the **outward reuse/consolidation neighbour search** — the inverse of the inward symbol-walk above. For each new/body-changed symbol (incl. new files), it delegates to the `reuse-auditor` agent (§7), which fingerprints behaviour (capability + skeleton, name-agnostic), fires one capability-keyed auggie query per candidate (cap ≤12/run; overflow → `neighbour_search_sampled: true`), re-Reads each returned neighbour `file:line` before citing it (§6.2), and returns `reuse-audit.yaml` (per-candidate `tier`/`verdict`/composite-scores + run-level `max_overlap`). It is invoked at **orchestrator / Tier-1 level only** — never inside an already-spawned subagent (subagent→agent nesting can fail). The agent returns *findings only*; the skill maps each `confident-duplicate` onto §10.8 Reuse-Miss (Drift/Regression by evidence) and routes `maybe-related`/insufficient-grounding to §10.6 Grounding Gaps. Fail-open: agent or auggie unavailable → inline serena+ripgrep grep-skeleton, findings CAPPED at advisory L2, `degraded_components += "neighbour-search:auggie_unavailable"`; NEVER STOP. Emits one `audit.log` row (`reuse_sweep_invoked`, `candidates_scanned`, `neighbours_found`, `max_overlap`) per the §4 per-step convention.
+Step 4a (FR-REUSE.1) is the **outward reuse/consolidation neighbour search** — the inverse of the inward symbol-walk above. For each new/body-changed symbol (incl. new files), it delegates to the `reuse-auditor` agent (§7), which fingerprints behaviour (capability + skeleton, name-agnostic), fires one capability-keyed Augment query plus a local serena+Grep sweep per candidate (cap ≤12/run; overflow → `neighbour_search_sampled: true`), re-Reads each returned neighbour `file:line` before citing it (§6.2), and returns `reuse-audit.yaml` (per-candidate `tier`/`verdict`/composite-scores + run-level `max_overlap`). It is invoked at **orchestrator / Tier-1 level only** — never inside an already-spawned subagent (subagent→agent nesting can fail). The agent returns *findings only*; the skill maps each `confident-duplicate` onto §10.8 Reuse-Miss (Drift/Regression by evidence) and routes `maybe-related`/insufficient-grounding to §10.6 Grounding Gaps. Fail-open: agent unavailable → inline serena+ripgrep grep-skeleton, findings CAPPED at advisory L2 (Augment unavailable inside the agent does not cap: the score has no Augment term), `degraded_components += "neighbour-search:auggie_unavailable"`; NEVER STOP. Emits one `audit.log` row (`reuse_sweep_invoked`, `candidates_scanned`, `neighbours_found`, `max_overlap`) per the §4 per-step convention.
 
 The chain replaces "think_about_collected_information" — instead of asking the model to self-assess whether it has enough info, the protocol *produces* the evidence and lets the rubric score whether grounding is sufficient.
 
@@ -656,6 +658,11 @@ Every reusable agent is mapped to a wave; no agent is duplicated inline.
 | `socratic-mentor` | 1C | UC-1 (deep) | Optional probing pass for `--depth deep` UC-1 when spec is ambiguous | Skip |
 | `reuse-auditor` | 1A | both | Detect reuse/consolidation prior art for new/changed symbols (post) or proposed components (pre); fingerprint behaviour name-agnostically and return findings (verdict + tier + grounded neighbours) — **detection only, never classifies deviations or gates** | Inline grep-skeleton degrade (advisory-capped) |
 | `reflect-reviewer` | 3A | UC-2 | Read-only Tier-2 heterogeneous deviation-audit reviewer; audits completed work vs spec/tasklist and classifies each divergence under the 4-category taxonomy (Authorized expansion / Necessary deviation / Drift / Regression); persona supplied via the per-reviewer brief; restricted `tools:` allowlist (no Bash/Edit/Write/Task) so it cannot mutate the repo under audit (L1) | Inline orchestrator pass / single-reviewer degrade |
+
+**Wave 1C brief.** Every Wave 1C spawn brief (`root-cause-analyst`, `self-review`, `socratic-mentor`) includes these two lines verbatim:
+
+> A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here.
+> Do not use `augment_code_search` for questions about this working tree.
 
 (See `refs/reviewer-spec.md` for the brief template and reviewer composition rotation details.)
 
@@ -819,7 +826,7 @@ reuse_miss_advisory: <int>                    # rung ≤ L2 (non-gating)
 reuse_verdict_count_by_type: { reuse_by_import: <int>, mirror_shape: <int>, extract_shared: <int>, distinct: <int> }
 reuse_grounding_gap_count: <int>              # maybe-related/insufficient routed to §10.6
 neighbour_search_sampled: <bool>              # candidates exceeded the ≤12 cap
-neighbour_search_degraded: <bool>             # auggie-unavailable fallback used (caps findings at advisory L2)
+neighbour_search_degraded: <bool>             # Augment or agent unavailable; only the agent-unavailable inline fallback caps at advisory L2
 max_overlap_score: <float 0.0-1.0> | null
 
 # Input integrity
@@ -959,7 +966,7 @@ reviewer_models: [<list>]
 reviewer_personas: [<list>]
 reviewer_vendors: [<list>]
 serena_checkpoints_path: <path>
-degraded_components: [<list>]   # e.g. ["auggie", "evidence-validator", "env-aliases"]
+degraded_components: [<list>]   # e.g. ["neighbour-search:auggie_unavailable", "evidence-validator", "env-aliases"]
 fallback_path: null | F1 | F2 | F3
 executor_class_source: flag | env | log-heuristic | unknown
 executor_class_resolved: bool                                  # false → §7.1 anti-self-confirmation WARN emitted
@@ -1157,7 +1164,7 @@ The taxonomy is **4 categories**, not 5. There is no `unknown` deviation class. 
   reuse_candidate: <symbol or proposed-component name>      # optional
   nearest_neighbour: <file:line>                            # optional
   similarity_tier: maybe-related | insufficient-grounding   # optional
-  composite_scores: { C_cap: <float>, C_shape: <float>, C_aug: <float>, S_reuse: <float> }   # optional
+  composite_scores: { C_cap: <float>, C_shape: <float>, S_reuse: <float> }   # optional
 ```
 
 When `grounding-gaps.yaml` is non-empty:
@@ -1181,7 +1188,7 @@ A new/changed symbol that implements a capability an existing neighbour already 
 - shipped duplicate with an inline rationale contradicting no criterion → **§10.2 Necessary**
 - tasklist/spec/user explicitly approved a separate impl → **§10.1 Authorized expansion**
 
-**Blocking bar (high):** a Reuse-Miss maps to a blocking class (Drift/Regression) **only at rung L3** — `S_reuse ≥ 0.82` **AND** `confidence ≥ 0.85` **AND** `verdict ≠ distinct`. Weaker signal (rung ≤ L2), any auggie-unavailable fallback finding, OR `maybe-related`/insufficient-grounding → **§10.6 Grounding Gaps** (NEVER `deviation-ledger.yaml`). The verdict vocabulary is `reuse-by-import | mirror-shape | extract-shared | distinct`, with the mechanical NFR-import-ban downgrade (`reuse-by-import` → `mirror-shape` across a banned edge) applied by the agent.
+**Blocking bar (high):** a Reuse-Miss maps to a blocking class (Drift/Regression) **only at rung L3** — `S_reuse ≥ 0.82` **AND** `confidence ≥ 0.85` **AND** `verdict ≠ distinct`. Weaker signal (rung ≤ L2), any orchestrator inline-fallback finding (reuse-auditor agent unavailable), OR `maybe-related`/insufficient-grounding → **§10.6 Grounding Gaps** (NEVER `deviation-ledger.yaml`). The verdict vocabulary is `reuse-by-import | mirror-shape | extract-shared | distinct`, with the mechanical NFR-import-ban downgrade (`reuse-by-import` → `mirror-shape` across a banned edge) applied by the agent.
 
 **Default remediation.** Drift-mapped → "authorize-or-revert OR consolidate"; if `--remediate`, Tier-3 consolidate/backfill/revert. Regression-mapped → Tier-3 + §5.3 rule-3a Tier-2 escalation. There is **no** `deviation_count_by_class.reuse_miss` counter (§17.7); a blocking Reuse-Miss increments the Drift or Regression counter of the class it maps to (§14.5.2 cond 4).
 
@@ -1488,7 +1495,6 @@ Three concrete forces shape the pick:
 | 2 env-var aliases resolved | T2 with 2 reviewers; `t2_model_class_diversity: degraded` | Continue |
 | Single-vendor T2 ensemble | Continue; WARN; `t2_vendor_diversity: single` (warn-only) | None |
 | Calibrator class collides with all reviewer classes | Continue with highest-cap calibrator not used by most reviewers; `calibrator_diversity: degraded` | None |
-| Auggie unavailable | Fall back to Grep/Glob in Wave 1A; mark `degraded: ["auggie"]` | Continue |
 | Serena unavailable | Fall back to Grep/Glob; skip `get_diagnostics_for_file`; mark `degraded: ["serena"]` | Continue |
 | Verification triangle unavailable (FR-4: `execute_shell_command` context-excluded OR `read_only: true` OR `--no-verify`) | Continue: emit `verification_ran: false` + `verification_skip_reason: tool-unavailable\|read-only-project\|--no-verify`; degrade §10.4 Regression detection to the task-log claim with a Grounding Gap entry; emit the loud `[reflect][WARN]` from the ops-integration WARN catalog | Continue |
 | Context7 unavailable in `--depth deep` UC-1 | Skip best-practice external lookup; mark `degraded: ["context7"]` | Continue |
@@ -1547,7 +1553,7 @@ Promotion fires only when ALL of the following hold:
 1. **`mode == post`** — UC-1 has no completed work to promote. *(maps to `gate_evaluation.mode_post`)*
 2. **`status == success`** — `partial` or `failed` blocks promotion. (Conditional-CONVERGED per §11.0 is NOT eligible.) *(maps to `gate_evaluation.status_success`)*
 3. **`tasklist_completion_pct == 1.0`** — every checklist item independently verified done by reflect (not just frontmatter-declared). *(maps to `gate_evaluation.tasklist_completion_pct_1_0`)*
-4. **`deviation_count_by_class.drift == 0` AND `deviation_count_by_class.regression == 0`** — Authorized expansion and Necessary deviation are non-blocking; Drift and Regression block. **Exception**: if the only Drift signal is the frontmatter-mismatch from condition 5b AND that mismatch is classifiable as §10.2 Necessary deviation (e.g., frontmatter carries an inline rationale that does not contradict any spec acceptance criterion), it is NOT counted as Drift here — but condition 5b still independently gates promotion. **Reuse-Miss clause (§10.8):** a Reuse-Miss finding mapped to Drift or Regression at rung L3 increments `deviation_count_by_class.drift`/`.regression` like any deviation of that class and gates promotion through this UNMODIFIED condition; advisory Reuse-Miss findings (rung ≤ L2, or any auggie-unavailable fallback) do NOT increment these counters and do NOT gate. *(maps to `gate_evaluation.no_drift_no_regression`)*
+4. **`deviation_count_by_class.drift == 0` AND `deviation_count_by_class.regression == 0`** — Authorized expansion and Necessary deviation are non-blocking; Drift and Regression block. **Exception**: if the only Drift signal is the frontmatter-mismatch from condition 5b AND that mismatch is classifiable as §10.2 Necessary deviation (e.g., frontmatter carries an inline rationale that does not contradict any spec acceptance criterion), it is NOT counted as Drift here — but condition 5b still independently gates promotion. **Reuse-Miss clause (§10.8):** a Reuse-Miss finding mapped to Drift or Regression at rung L3 increments `deviation_count_by_class.drift`/`.regression` like any deviation of that class and gates promotion through this UNMODIFIED condition; advisory Reuse-Miss findings (rung ≤ L2, or any orchestrator inline-fallback finding) do NOT increment these counters and do NOT gate. *(maps to `gate_evaluation.no_drift_no_regression`)*
 5. **Frontmatter agreement** — split into two independent sub-conditions:
    - **5a. Frontmatter is present and parseable** — the tasklist file MUST have a `status` field (or equivalent completion marker per the adapter's frontmatter schema). Missing/unparseable frontmatter fails 5a regardless of value. *(maps to `gate_evaluation.frontmatter_present`)*
    - **5b. Frontmatter status agrees with reflect's verdict** — `status: done` (or equivalent terminal value) MUST be declared. Any other value (including `in-progress`, `partial`, blank, etc.) fails 5b. Disagreement is recorded as Drift (§10.3) in the deviation register regardless of promotion outcome, but does not redundantly increment cond 4 (see cond 4 exception). *(maps to `gate_evaluation.frontmatter_status_matches`)*

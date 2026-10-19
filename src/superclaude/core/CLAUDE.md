@@ -17,7 +17,7 @@ uv run python script.py          # execute scripts
 
 | Server         | Primary Use                                  | Flag (advisory) |
 |----------------|----------------------------------------------|-----------------|
-| auggie         | Codebase search — call before significant edits | (auto)  |
+| auggie         | Default-branch prior art only (merged code); never existence on the working tree | (auto)  |
 | serena         | Symbol navigation, project memory            | --serena   |
 | context7       | Official library/framework docs              | --c7       |
 | tavily         | Web search, current information              | --tavily   |
@@ -29,12 +29,12 @@ The Flag column is advisory: these are hints Claude may honour, not options ever
 
 1. **UV only** — never `python -m` or bare `pip`
 2. **Parallel by default** — batch independent tool calls; sequential only for true dependencies
-3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read/`codebase-retrieval`) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
+3. **Confidence check** — ≥90% proceed, 70-89% present options, <70% ask. Trigger surface is not just code edits: run it (or its lightweight form — verify the specific token via `--help`/grep/file read) BEFORE any reply that suggests an action, emits a command/snippet, or names a specific flag/path/function/version. Recommendation = action.
 4. **Git** — feature branches only; never commit directly to master/main
 5. **Output paths** — write files next to their source or to the `--output` dir the CLI command specifies; `docs/generated/` is a roadmap pipeline artifact directory, not a general output sink
 6. **Finish what you start** — no TODO stubs for core logic; if you begin a feature, complete it to working state
 7. **Scope discipline** — build exactly what's asked; no speculative additions
-8. **Auggie first** — call `codebase-retrieval` before significant edits to load relevant context
+8. **Grep/Serena first for working-tree context; Augment for default-branch prior art** — before significant edits, load context with Grep/Read and Serena; use `mcp__auggie__augment_code_search` only for prior art in merged code
 9. **Temporal** — verify current date from env context before any date/version reasoning
 
 ## Key Docs
@@ -106,8 +106,11 @@ Pick the refresh tool by the content type of the claim:
 |---|---|
 | Exact line numbers / file content | `Read` |
 | Symbolic queries (which function, where defined, what references) | `mcp__serena__find_symbol` / `find_referencing_symbols` |
-| Semantic / cross-cutting ("is there an X anywhere") | `mcp__auggie__augment_code_search` |
+| Existence on the working tree ("is there an X anywhere", "is X implemented") | Grep / Read decide; `mcp__serena__find_symbol` for symbols |
+| Prior art on the default branch (merged code) | `mcp__auggie__augment_code_search` (a lead; Read hits; a miss is never absence) |
 | Runtime state (permissions, mounts, sockets) | `Bash` (user-executed read-only command) |
+
+**Absence claims.** A miss from Augment (default branch only), Serena (exact symbols only) or any index never proves absence. Before claiming something is missing, unimplemented, unused or uncalled, check the diff for a renamed equivalent, then Grep or Read the working tree and cite the pattern and root searched. Read every hit before citing it: a hit whose file or identifier is gone was deleted or renamed here. This applies on every branch, including the default branch: unpushed commits and uncommitted or untracked edits are invisible to Augment, so use Augment only for prior art on the default branch. Under `--isolate-reviewers` the root is the review snapshot (`<output>/_review-snapshot`), not the parent checkout. Grep skips gitignored paths, so Read or Glob a gitignored target directly.
 
 ### Session context envelope
 

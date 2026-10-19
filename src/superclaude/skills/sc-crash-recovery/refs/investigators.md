@@ -129,28 +129,28 @@ Be brief. Tables and paths, not prose. Do NOT run any write commands.
 
 ---
 
-## 5. auggie-semantic
+## 5. wip-scan
 
-**Goal:** catch work-in-progress signals that the structured scans miss — TODO markers, status fields in docs, half-written sections, comments that say "will continue tomorrow", etc.
+**Goal:** catch work-in-progress signals that the structured scans miss — TODO markers, status fields in docs, comments that say "will continue tomorrow", etc.
 
 **Prompt skeleton:**
 
 ```
-You are doing a semantic sweep of project <PROJECT_PATH> using the auggie codebase-retrieval MCP tool. The user just survived a crash and wants to find any in-progress work that structured scans (manifest.json, frontmatter) might miss.
+You are sweeping project <PROJECT_PATH> for work-in-progress markers with Grep on the working tree. The user just survived a crash and wants to find any in-progress work that structured scans (manifest.json, frontmatter) might miss.
 
-Run the following codebase-retrieval queries IN PARALLEL where possible:
+Run these Grep calls IN PARALLEL, all with path=<PROJECT_PATH>:
 
-1. "Files containing in-progress markers (TODO-WIP, FIXME-RECENT, XXX-RESUME, status: 🟡 InProgress, draft, WIP) that have been recently modified."
-2. "Notes or comments that say things like 'will continue', 'next step', 'left off', 'TODO next session', 'resume here', 'pause point'."
-3. "Recently modified source files (last 72 hours) whose changes look incomplete — empty function bodies, NotImplementedError, pass statements with comments, half-written imports."
-4. "Documents (.md files) with frontmatter status field set to anything other than Done — InProgress, Draft, Blocked, Review, etc."
+1. Markers: `TODO-WIP|FIXME-RECENT|XXX-RESUME|status: 🟡|\bWIP\b`
+2. "Left off" phrases (case-insensitive): `will continue|next step|left off|TODO next session|resume here|pause point`
+3. Heuristic only: `NotImplementedError`, restricted to the paths listed by `git -C <PROJECT_PATH> status --porcelain`. Label the results "heuristic: possibly incomplete", not "WIP found".
+4. Frontmatter status: `^status:` in `*.md` files; keep hits whose value is not Done (InProgress, Draft, Blocked, Review, etc.).
 
-For each query, return the top 5 file paths plus a 1-line excerpt showing the matching signal. Group results under the four query headings.
+For each search, return the top 5 file paths plus a 1-line excerpt showing the matching signal. Group results under the four headings. Name the pattern and root for each search; an empty result means "no match for that pattern under that root".
 
-Skip queries that return nothing. Be terse — paths, excerpts. No prose.
+Skip searches that return nothing. Be terse — paths, excerpts. No prose.
 ```
 
-**Estimated time:** 30–90s depending on auggie response time.
+**Estimated time:** 10–30s.
 
 ---
 
@@ -163,7 +163,7 @@ In one message, emit all needed Task tool calls. Example:
 [Task: claude-sessions for tracel3t]
 [Task: serena-memory for tracel3t]
 [Task: git-state for tracel3t]
-[Task: auggie-semantic for tracel3t]
+[Task: wip-scan for tracel3t]
 ```
 
 Skip any whose signal source the bootstrap scan reported as absent.
