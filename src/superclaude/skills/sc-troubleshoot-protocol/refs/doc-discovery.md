@@ -8,15 +8,17 @@ This ref defines the three parallel discovery branches (A: release-doc, B: archi
 
 ## Section 1: Auggie query templates per branch
 
-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.5 orchestrator). The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
+Branches B and C each issue ONE `mcp__auggie__augment_code_search` call. Branch A uses local `Grep`/`Glob` only (see below). Branches fan out as parallel Task spawns from the Wave 1.5 orchestrator in a single message. The placeholders `<issue_description>`, `<scope>`, and `<component_paths>` are filled by the Wave 1.5 orchestrator from the parsed Wave 0 input.
 
-### Branch A — Release-doc lookup
+### Branch A — Release-doc lookup (local search, no Auggie)
 
 Query target: `.dev/releases/current/` and `.dev/releases/complete/` for prior release artifacts (PRDs, TDDs, specs) that scope the symptom's component.
 
-```
-In the .dev/releases/ tree (both current/ and complete/), find any PRD, TDD, spec, or roadmap artifact that scopes <component_paths> or names <issue_description>'s subject area. For each hit, return the artifact path, a 2-3 sentence summary of how the artifact constrains the behavior of <component_paths>, and a confidence score (0.0-1.0) reflecting how directly the artifact addresses the symptom.
-```
+Augment's hosted index covers only committed content on the default branch. Current-release artifacts are often untracked or unpushed, so this branch searches the local tree instead:
+
+1. `Grep` (files-with-matches, `*.md`) under `.dev/releases/current/` for each `<component_paths>` path and basename, and for 1-3 subject keywords from `<issue_description>`. Repeat under `.dev/releases/complete/` only if `current/` has fewer than 3 hits.
+2. Rank hits by how many distinct terms they match. `Read` the top 3, preferring PRD, TDD, spec and roadmap artifacts.
+3. Produce the Branch A output: the artifact path, a 2-3 sentence summary of how the artifact constrains the behavior of `<component_paths>`, and a confidence score (0.0-1.0) reflecting how directly the artifact addresses the symptom.
 
 ### Branch B — Architectural-doc lookup (with currency validation)
 

@@ -28,7 +28,7 @@ The structural grounding floor is the auggie-review **Wave-3 step-3 "File:line v
 1. For each finding, **`Read` the cited file at the cited line range**; confirm the line exists and
    (where possible) confirm the cited snippet actually appears on that line (`:207`).
 2. For PR/diff mode, additionally confirm the line is within the diff hunks (`:208`).
-3. For `needs-grounding` findings, attempt grounding via `mcp__auggie__codebase-retrieval` or `Grep`;
+3. For `needs-grounding` findings, attempt grounding via `mcp__auggie__augment_code_search` or `Grep`;
    promote on success, **drop and log** on failure (`:209`).
 
 ## The delta C3a adds — "does the defect reproduce"

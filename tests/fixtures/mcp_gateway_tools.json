@@ -1,0 +1,419 @@
+{
+  "_source": "LiteLLM MCP gateway tools/list, x-mcp-servers single-server selection, 2026-10-19",
+  "servers": {
+    "tavily": {
+      "alias": "tavily",
+      "tools": {
+        "tavily_search": {
+          "properties": {
+            "query": {
+              "description": "Search query",
+              "type": "string"
+            },
+            "max_results": {
+              "default": 5,
+              "description": "The maximum number of search results to return",
+              "type": "integer"
+            },
+            "search_depth": {
+              "default": "basic",
+              "description": "The depth of the search. 'basic' for generic results, 'advanced' for more thorough search, 'fast' for optimized low latency with high relevance, 'ultra-fast' for prioritizing latency above all else",
+              "enum": [
+                "basic",
+                "advanced",
+                "fast",
+                "ultra-fast"
+              ],
+              "type": "string"
+            },
+            "topic": {
+              "default": "general",
+              "description": "Search category. Use 'general' for almost all searches, including current events and requests that combine news with other information. Use 'news' only when the user explicitly asks for news, headlines, or news coverage.",
+              "enum": [
+                "general",
+                "news"
+              ],
+              "type": "string"
+            },
+            "time_range": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "day",
+                    "week",
+                    "month",
+                    "year"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "The time range back from the current date to include in the search results"
+            },
+            "include_images": {
+              "default": false,
+              "description": "Include a list of query-related images in the response",
+              "type": "boolean"
+            },
+            "include_image_descriptions": {
+              "default": false,
+              "description": "Include a list of query-related images and their descriptions in the response",
+              "type": "boolean"
+            },
+            "include_raw_content": {
+              "default": false,
+              "description": "Include the cleaned and parsed HTML content of each search result",
+              "type": "boolean"
+            },
+            "include_domains": {
+              "default": [],
+              "description": "A list of domains to specifically include in the search results, if the user asks to search on specific sites set this to the domain of the site",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "exclude_domains": {
+              "default": [],
+              "description": "List of domains to specifically exclude, if the user asks to exclude a domain set this to the domain of the site",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "country": {
+              "default": "",
+              "description": "Boost search results from a specific country. Must be a full country name (e.g., 'United States', 'Japan', 'Germany'). ISO country codes (e.g., 'us', 'jp') are not supported. Available only if topic is general. See https://docs.tavily.com/documentation/api-reference/search for the full list of supported countries.",
+              "type": "string"
+            },
+            "include_favicon": {
+              "default": false,
+              "description": "Whether to include the favicon URL for each result",
+              "type": "boolean"
+            },
+            "start_date": {
+              "default": "",
+              "description": "Will return all results after the specified start date. Required to be written in the format YYYY-MM-DD.",
+              "type": "string"
+            },
+            "end_date": {
+              "default": "",
+              "description": "Will return all results before the specified end date. Required to be written in the format YYYY-MM-DD",
+              "type": "string"
+            },
+            "exact_match": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Only return results containing the exact phrase(s) in quotes in your query"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object",
+          "additionalProperties": false
+        },
+        "tavily_extract": {
+          "properties": {
+            "urls": {
+              "description": "List of URLs to extract content from",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "extract_depth": {
+              "default": "basic",
+              "description": "Use 'advanced' for LinkedIn, protected sites, or tables/embedded content",
+              "enum": [
+                "basic",
+                "advanced"
+              ],
+              "type": "string"
+            },
+            "include_images": {
+              "default": false,
+              "description": "Include images from pages",
+              "type": "boolean"
+            },
+            "format": {
+              "default": "markdown",
+              "description": "Output format",
+              "enum": [
+                "markdown",
+                "text"
+              ],
+              "type": "string"
+            },
+            "include_favicon": {
+              "default": false,
+              "description": "Include favicon URLs",
+              "type": "boolean"
+            },
+            "query": {
+              "default": "",
+              "description": "Query to rerank content chunks by relevance",
+              "type": "string"
+            }
+          },
+          "required": [
+            "urls"
+          ],
+          "type": "object",
+          "additionalProperties": false
+        },
+        "tavily_crawl": {
+          "properties": {
+            "url": {
+              "description": "The root URL to begin the crawl",
+              "type": "string"
+            },
+            "max_depth": {
+              "default": 1,
+              "description": "Max depth of the crawl. Defines how far from the base URL the crawler can explore.",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "max_breadth": {
+              "default": 20,
+              "description": "Max number of links to follow per level of the tree (i.e., per page)",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "limit": {
+              "default": 50,
+              "description": "Total number of links the crawler will process before stopping",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "instructions": {
+              "default": "",
+              "description": "Natural language instructions for the crawler. Instructions specify which types of pages the crawler should return.",
+              "type": "string"
+            },
+            "select_paths": {
+              "default": [],
+              "description": "Regex patterns to select only URLs with specific path patterns (e.g., /docs/.*, /api/v1.*)",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "select_domains": {
+              "default": [],
+              "description": "Regex patterns to restrict crawling to specific domains or subdomains (e.g., ^docs\\.example\\.com$)",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "allow_external": {
+              "default": true,
+              "description": "Whether to return external links in the final response",
+              "type": "boolean"
+            },
+            "extract_depth": {
+              "default": "basic",
+              "description": "Advanced extraction retrieves more data, including tables and embedded content, with higher success but may increase latency",
+              "enum": [
+                "basic",
+                "advanced"
+              ],
+              "type": "string"
+            },
+            "format": {
+              "default": "markdown",
+              "description": "The format of the extracted web page content. markdown returns content in markdown format. text returns plain text and may increase latency.",
+              "enum": [
+                "markdown",
+                "text"
+              ],
+              "type": "string"
+            },
+            "include_favicon": {
+              "default": false,
+              "description": "Whether to include the favicon URL for each result",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object",
+          "additionalProperties": false
+        },
+        "tavily_map": {
+          "properties": {
+            "url": {
+              "description": "The root URL to begin the mapping",
+              "type": "string"
+            },
+            "max_depth": {
+              "default": 1,
+              "description": "Max depth of the mapping. Defines how far from the base URL the crawler can explore",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "max_breadth": {
+              "default": 20,
+              "description": "Max number of links to follow per level of the tree (i.e., per page)",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "limit": {
+              "default": 50,
+              "description": "Total number of links the crawler will process before stopping",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "instructions": {
+              "default": "",
+              "description": "Natural language instructions for the crawler",
+              "type": "string"
+            },
+            "select_paths": {
+              "default": [],
+              "description": "Regex patterns to select only URLs with specific path patterns (e.g., /docs/.*, /api/v1.*)",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "select_domains": {
+              "default": [],
+              "description": "Regex patterns to restrict crawling to specific domains or subdomains (e.g., ^docs\\.example\\.com$)",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "allow_external": {
+              "default": true,
+              "description": "Whether to return external links in the final response",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "url"
+          ],
+          "type": "object",
+          "additionalProperties": false
+        },
+        "tavily_research": {
+          "properties": {
+            "input": {
+              "description": "A comprehensive description of the research task",
+              "type": "string"
+            },
+            "model": {
+              "default": "auto",
+              "description": "Defines the degree of depth of the research. 'mini' is good for narrow tasks with few subtopics. 'pro' is good for broad tasks with many subtopics",
+              "enum": [
+                "mini",
+                "pro",
+                "auto"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "input"
+          ],
+          "type": "object",
+          "additionalProperties": false
+        }
+      }
+    },
+    "context7": {
+      "alias": "context7",
+      "tools": {
+        "resolve-library-id": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "What to look up in the library's documentation. This is used to rank library results by relevance to what the user is trying to accomplish. The query is sent to the Context7 API for processing. Do not include any sensitive or confidential information such as API keys, passwords, credentials, personal data, or proprietary code in your query."
+            },
+            "libraryName": {
+              "type": "string",
+              "description": "Library name to search for and retrieve a Context7-compatible library ID. Use the official library name with proper punctuation \u2014 e.g., 'Next.js' instead of 'nextjs', 'Customer.io' instead of 'customerio', 'Three.js' instead of 'threejs'."
+            }
+          },
+          "required": [
+            "query",
+            "libraryName"
+          ]
+        },
+        "query-docs": {
+          "type": "object",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "properties": {
+            "libraryId": {
+              "type": "string",
+              "description": "Exact Context7-compatible library ID (e.g., '/mongodb/docs', '/vercel/next.js', '/supabase/supabase', '/vercel/next.js/v16.2.9') retrieved from 'resolve-library-id' or directly from user query in the format '/org/project' or '/org/project/version'."
+            },
+            "query": {
+              "type": "string",
+              "description": "What to look up in the library's documentation, scoped to a single concept. Be specific and include relevant details, but keep each query to one topic \u2014 if the user's question spans multiple distinct concepts, make a separate call per concept instead of combining them, unless the question is about how the concepts interact. Good: 'How to set up authentication with JWT in Express.js' or 'React useEffect cleanup function examples'. Bad (too vague): 'auth' or 'hooks'. Bad (too broad): 'routing and auth and caching in Next.js'. The query is sent to the Context7 API for processing. Do not include any sensitive or confidential information such as API keys, passwords, credentials, personal data, or proprietary code in your query."
+            },
+            "language": {
+              "description": "Programming language the user is writing code in, such as 'Python', 'TypeScript', 'Go', or 'C#'. Ranks code examples in that language first. Leave it out when the language is unknown or does not apply.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "libraryId",
+            "query"
+          ]
+        }
+      }
+    },
+    "auggie": {
+      "alias": "augment_code",
+      "tools": {
+        "augment_code_search": {
+          "type": "object",
+          "properties": {
+            "repo_owner": {
+              "type": "string",
+              "description": "The GitHub organization or username that owns the repository. For example, for github.com/augmentcode/test-repo, use 'augmentcode'."
+            },
+            "repo_name": {
+              "type": "string",
+              "description": "The repository name without the owner prefix. For example, for github.com/augmentcode/test-repo, use 'test-repo'."
+            },
+            "query": {
+              "type": "string",
+              "description": "The natural language query describing what code you're looking for. For example: 'function that handles user authentication' or 'database connection setup code'."
+            },
+            "branch": {
+              "type": "string",
+              "description": "The branch name to search. Defaults to 'main'. Do not include 'refs/heads/' prefix."
+            },
+            "max_results": {
+              "type": "integer",
+              "description": "Maximum number of code snippets to return. Defaults to 5."
+            }
+          },
+          "required": [
+            "repo_owner",
+            "repo_name",
+            "query"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

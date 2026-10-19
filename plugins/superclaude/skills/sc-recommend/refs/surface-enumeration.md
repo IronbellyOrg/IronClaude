@@ -33,7 +33,7 @@ The current working directory may be a worktree under `.dev/worktrees/<name>/` r
 Skip this step in matched mode (SKILL.md Step 0 matched a routing row) and set `auggie_status: skipped`; Step A and Step C still run. Otherwise: one query. One. Iterating across files defeats the purpose of having auggie.
 
 ```text
-mcp__auggie__codebase-retrieval(
+mcp__auggie__augment_code_search(
   information_request: "Given the user request: '<verbatim user request>',
     and the project's enumerated surface (commands: <comma-separated names>;
     skills: <comma-separated names>; agents: <comma-separated names>;

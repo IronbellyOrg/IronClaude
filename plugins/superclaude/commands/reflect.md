@@ -145,7 +145,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## MCP Integration
 
-- **Auggie** (primary, free retrieval): Wave 0-2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to the free tier, keeping Claude tokens tight.
+- **Auggie** (primary, free retrieval): Wave 0-2 codebase grounding via `mcp__auggie__augment_code_search`. Offloads heavy retrieval to the free tier, keeping Claude tokens tight.
 - **Serena**: Wave 0-6 symbol-level navigation (`find_symbol`, `find_referencing_symbols`, `get_symbols_overview`, plus `find_declaration` / `find_implementations` / `type_hierarchy` for declaration-anchored and polymorphic grounding), the UC-2 §6.1 step-5.5 verification triangle (`get_diagnostics_for_file` / `execute_shell_command` / `summarize_changes`; `--no-verify` disables), opt-in `onboarding` cold-start bootstrap (`--onboard`), the memory pattern for cross-session learning capture (§6.3), and the `think_about_*` checkpoint triad as one of several signals (NOT the sole reflection mechanism — see §6.4 fail-open policy).
 - **Context7**: Tier 2 only; consulted when the spec/diff references a framework or library by name.
 - **Tavily**: Tier 2 only; rate-limited; used for external-symptom lookups when documentation grounding can't resolve a deviation.
@@ -153,7 +153,7 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## Tool Coordination
 
-- **`mcp__auggie__codebase-retrieval`**: in-repo grounding (all waves)
+- **`mcp__auggie__augment_code_search`**: in-repo grounding (all waves)
 - **`mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview`**: symbol navigation
 - **`mcp__serena__find_declaration` / `find_implementations`**: diff-hunk → canonical declaration site (§6.1 step 2a, FR-2) and polymorphic implementor surface (§6.1 step 3b, FR-1)
 - **`mcp__serena__type_hierarchy`**: transitive supertype/subtype family (§6.1 step 4.5, Wave 1B.3) — backend- and `--with-hierarchy`-gated; fail-open when unavailable

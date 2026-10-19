@@ -85,14 +85,14 @@ Do NOT proceed with protocol execution using only this command file. The full be
 
 ## MCP Integration
 
-- **Auggie** (primary, free retrieval): Tier 1, Wave 1.5 (documentation grounding fan-out across release artifacts + architectural docs + semantic restrictions), and Tier 2 codebase grounding via `mcp__auggie__codebase-retrieval`. Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
+- **Auggie** (primary, free retrieval): Tier 1, Wave 1.5 (documentation grounding fan-out across release artifacts + architectural docs + semantic restrictions), and Tier 2 codebase grounding via `mcp__auggie__augment_code_search`. Offloads heavy retrieval to a free / low-cost tier, keeping the Claude token budget tight.
 - **Serena**: Tier 1 + Tier 2 symbol-level navigation via `find_symbol`, `find_referencing_symbols`, `get_symbols_overview`. Critical when the issue names a specific function or class.
 - **Context7**: Tier 2 when the symptom mentions a framework or library by name or the stack trace ends in third-party code; also the skill's conditional Tier 1 behaviour-definition fetch, not general Tier 1 web research.
 - **Tavily**: Tier 2 only, rate-limited to ≤ 2 queries per invocation. Used for `<exact error string> github issue` and `<library> <version> <symptom>` lookups.
 - **Native reasoning**: Tier 2 synthesis when reconciling competing hypotheses.
 ## Tool Coordination
 
-- **`mcp__auggie__codebase-retrieval`**: in-repo grounding (Tier 1 + Tier 2)
+- **`mcp__auggie__augment_code_search`**: in-repo grounding (Tier 1 + Tier 2)
 - **`mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview`**: symbol navigation
 - **`mcp__context7__resolve-library-id` / `query-docs`**: external library docs (Tier 2 and the skill's conditional Tier 1 behaviour-definition fetch)
 - **`mcp__tavily__tavily_search`**: targeted web search (Tier 2, rate-limited)

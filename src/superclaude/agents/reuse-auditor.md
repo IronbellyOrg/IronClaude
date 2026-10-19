@@ -2,7 +2,7 @@
 name: reuse-auditor
 description: Independent reuse/consolidation auditor. For each new or proposed component, fingerprints its behaviour, searches the repo for prior art (name-agnostic), scores a composite similarity signal, and returns reuse findings with a verdict (reuse-by-import | mirror-shape | extract-shared | distinct) + consolidation recommendation. Detection only — never classifies deviations or gates. Reusable by any skill (sc:reflect, /tdd, cleanup-audit, analyze, code-review).
 category: analysis
-tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__find_referencing_symbols
+tools: Read, Grep, Glob, mcp__auggie__augment_code_search, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__find_referencing_symbols
 model: sonnet
 maxTurns: 50
 permissionMode: plan

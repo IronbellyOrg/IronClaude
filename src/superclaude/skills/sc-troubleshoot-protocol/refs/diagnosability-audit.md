@@ -8,7 +8,7 @@ This ref defines the two parallel audit branches (A: log-call inspection at and 
 
 ## Section 1: Auggie query templates per branch
 
-Each branch issues ONE `mcp__auggie__codebase-retrieval` call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
+Each branch issues ONE `mcp__auggie__augment_code_search` call (single message, fan-out via parallel Task spawns from the Wave 1.6 orchestrator). The placeholders `<failing_component>`, `<scope>`, and `<symptom>` are filled by the Wave 1.6 orchestrator from the Wave 0 input (issue description, `--scope`, `--type`) and the Wave 1 grounding output (the localized failing component path).
 
 ### Branch A — Log-Call Inspection
 
@@ -46,7 +46,7 @@ For each hit, return: file path, config_type (file | env_var | pipeline_config),
 
 ## Section 2: Fallback paths (auggie unavailable)
 
-When `mcp__auggie__codebase-retrieval` is not available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
+When `mcp__auggie__augment_code_search` is not available (Wave 0 detected `--no-mcp`, the gateway is down, or rate limits exhausted the per-session call budget), each branch falls back to Glob/Grep substitutes. The orchestrator MUST set the branch's `degraded` flag to `true` so the sufficiency rubric in Section 4 caps the verdict at `partial`.
 
 ### Branch A fallback
 

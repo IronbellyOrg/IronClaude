@@ -139,7 +139,7 @@ command. Enumerate the ACTUAL surface every time; never use a static mapping.
      Checkout test: src/superclaude/commands/ exists under `git rev-parse --show-toplevel`.
      Checkout paths resolve under that root, so under .dev/worktrees/<name>/ they
      resolve to that worktree. (Full algorithm: refs/surface-enumeration.md.)
-  B. Issue ONE mcp__auggie__codebase-retrieval query to semantically rank the
+  B. Issue ONE mcp__auggie__augment_code_search query to semantically rank the
      enumerated surface against the verbatim user request (top 3-5 candidates).
      (Query template: refs/surface-enumeration.md.)
   C. Verify each candidate by Reading its source file (flag table, required

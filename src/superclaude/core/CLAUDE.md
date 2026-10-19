@@ -106,7 +106,7 @@ Pick the refresh tool by the content type of the claim:
 |---|---|
 | Exact line numbers / file content | `Read` |
 | Symbolic queries (which function, where defined, what references) | `mcp__serena__find_symbol` / `find_referencing_symbols` |
-| Semantic / cross-cutting ("is there an X anywhere") | `mcp__auggie__codebase-retrieval` |
+| Semantic / cross-cutting ("is there an X anywhere") | `mcp__auggie__augment_code_search` |
 | Runtime state (permissions, mounts, sockets) | `Bash` (user-executed read-only command) |
 
 ### Session context envelope

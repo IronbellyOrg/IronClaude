@@ -1,7 +1,7 @@
 ---
 name: sc:troubleshoot-protocol
 description: "Tiered debugging protocol — fast Tier 1 triage with auggie + serena grounding, auto-escalation to parallel hypothesis agents + adversarial fix debate in Tier 2, and an opt-in remediation chain in Tier 3 (sc:workflow → sc:implement with --fix; task-builder → /task with --fix --depth deep). Use this skill whenever the user reports a broken build, runtime error, performance regression, deployment problem, or failing test, even when they don't explicitly say 'troubleshoot' — phrases like 'why is X broken', 'this used to work', 'something's off with...', a pasted stack trace, or a failing-command transcript should all activate it."
-allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
+allowed-tools: Read, Grep, Glob, Bash, TodoWrite, Task, Write, Edit, Skill, mcp__auggie__augment_code_search, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__context7__resolve-library-id, mcp__context7__query-docs, mcp__tavily__tavily_search
 ---
 
 <!-- Extended metadata (for documentation, not parsed):
@@ -167,7 +167,7 @@ context_path: <abs-path|none>
 **Steps**:
 
 1. **Ground the symptom in real code** — issue two parallel MCP calls (or fall back to native tools):
-   - `mcp__auggie__codebase-retrieval` with query: "Find the code involved in: `<issue description, capped at ~300 chars>`. Include the function or module that produces this behaviour, recent changes near it, and any related test." Scope to `--scope` if set.
+   - `mcp__auggie__augment_code_search` with query: "Find the code involved in: `<issue description, capped at ~300 chars>`. Include the function or module that produces this behaviour, recent changes near it, and any related test." Scope to `--scope` if set.
    - `mcp__serena__get_symbols_overview` on the target file or `mcp__serena__find_symbol` on a specific function if the issue names one.
    - If `--no-mcp` or both MCPs are unavailable: fall back to `Glob` + `Grep` on the issue keywords; note the fallback in the audit log.
 1b. **Write the execution-locus card** — `<output-dir>/execution-locus.md`, on every invocation including pasted-log issues, re-derived each run and never carried over. One line each; `unknown` is legal, blank is illegal:
@@ -208,9 +208,9 @@ context_path: <abs-path|none>
 1. **Load `refs/doc-discovery.md`** — read the Section 1 Auggie query templates, the Section 2 Branch B currency-check procedure, the Section 3 per-branch output schemas, and the Section 4 Documentation Context Card template.
 2. **Spawn three discovery branches** in parallel via `Task` (single message with three Task calls). Each branch receives:
    - The original `<issue_description>`, `<scope>`, and `<component_paths>` from Wave 0.
-   - The branch-specific Auggie query template from `refs/doc-discovery.md` Section 1 (Branch A = release-doc, Branch B = architectural-doc with Section 2 currency check, Branch C = semantic-restriction).
+   - The branch-specific procedure from `refs/doc-discovery.md` Section 1 (Branch A = release-doc, Branch B = architectural-doc with Section 2 currency check, Branch C = semantic-restriction).
    - The output path for the branch's structured-output file: `<output-dir>/wave1_5-branch-<A|B|C>.md` per the Section 3 schemas.
-   - An instruction to issue ONE `mcp__auggie__codebase-retrieval` call against the branch's query target and emit the schema-conformant output (Branch A: single object or `{ "hit": false }`; Branch B: array of `{ doc_path, currency_verdict, reason }`; Branch C: array of `{ source_file, file_line, quoted_text, applies_to }`).
+   - An instruction to run the branch's procedure: Branch A uses local `Grep`/`Glob` only, because current-release artifacts are often untracked or unpushed and invisible to the hosted Augment index. Branches B and C issue ONE `mcp__auggie__augment_code_search` call against the branch's query target. Every branch then emits the schema-conformant output (Branch A: single object or `{ "hit": false }`; Branch B: array of `{ doc_path, currency_verdict, reason }`; Branch C: array of `{ source_file, file_line, quoted_text, applies_to }`).
 3. **Wait for all three branches** to complete. Read each output file.
 4. **Synthesise the Documentation Context Card** at `<output-dir>/doc-context.md` using the Section 4 template — merging Branch A's release-doc context (Section: Release context), Branch B's architectural-doc list with currency verdicts (Section: Architectural docs consulted; surface CAUTION lines for `stale` / `unknown` verdicts), Branch C's semantic restrictions (Section: Restrictions / decisions that constrain the fix), and a 1-3 bullet Re-frame signals synthesis tying the three findings back to the bug-as-stated.
 5. **Set output-contract pointer** — emit `doc_context_card_path: <output-dir>/doc-context.md` in the audit log so Wave 5 can wire it into the report.
@@ -226,7 +226,7 @@ context_path: <abs-path|none>
 | Scenario | Behavior | Fallback |
 |----------|----------|----------|
 | `--no-doc-discovery` set | Skip the entire wave; emit `doc_context_card_path: null`; surface in Grounding Gaps | None |
-| Auggie unavailable for any branch | Fall back to `Grep`/`Glob` against the branch's query target (release dirs, docs/ dirs, scope source files); mark `degraded: true` in the affected branch's output | None |
+| Auggie unavailable for Branch B or C | Fall back to `Grep`/`Glob` against the branch's query target (release dirs, docs/ dirs, scope source files); mark `degraded: true` in the affected branch's output | None |
 | All three branches return empty / no-hit | Write the Documentation Context Card with "None found" in every section; set `doc_context_card_path` to the (still-emitted) card path; record `behavior_is_documented` derivation as `no_docs_found` candidate downstream | None |
 | Branch B Section 2 currency check fails (`stat` not available, mtime unobtainable) | Emit `currency_verdict: unknown` for every Branch B hit; surface CAUTION lines in the card | None |
 | Branch synthesis times out / one branch crashes | Continue with remaining branch outputs; mark the missing branch's section as "Branch <X> failed — see audit"; do NOT block downstream waves | None |
@@ -366,7 +366,7 @@ Cap at 4 agents. If `--type` is unset and signals point in multiple directions, 
 1. **MCP enrichment in parallel with agent spawn** — issue any of the following that match the signals (parallel calls, all kicked off in the same turn):
    - `mcp__context7__resolve-library-id` + `mcp__context7__query-docs` when the issue mentions a framework / library by name or the stack trace is in third-party code
    - `mcp__tavily__tavily_search` for the exact error message string + "github issue", or for `<library> <version> <symptom>` (rate-limited — at most 2 queries in this wave; for the error-string query use `search_depth: advanced` with recommended `include_domains: [github.com, stackoverflow.com]` — only hard cases reach Tier-2, and the ≤2-query cap bounds cost)
-   - `mcp__auggie__codebase-retrieval` with a more targeted query than Tier 1 (e.g. "find every call site of `<symbol>` and how they handle the error case")
+   - `mcp__auggie__augment_code_search` with a more targeted query than Tier 1 (e.g. "find every call site of `<symbol>` and how they handle the error case")
    - **Behaviour-definition fetch (conditional, never a halt)** — Shared procedure callable before S1.6.4 pair construction and after card receipt in both tiers. Input is a producer assertion (with its source coordinate) OR a hypothesis card; reuse an existing definition row only for the same primitive and asserted behaviour. Trigger: an input whose `claim_class` is `environment_dependent`, or whose assertion/mechanism sentence says what a primitive (library call, config loader, scheduler, protocol, runtime builtin) *does*, when that behaviour has not been directly observed in this run. For each such input append one row (`# | Primitive | Asserted behaviour | Defining artifact | Fetch query | Status`) to `<output-dir>/behaviour-definitions.md` **before** issuing the fetch:
      - *Asserted behaviour* = the verb phrase copied verbatim from the producer assertion or card's mechanism sentence
      - *Defining artifact* = the thing that makes that verb true (function body, spec/RFC clause, schema rule, doc section whose heading contains the verb) — never an example, sample output, format string, tutorial, or web-search summary
@@ -577,7 +577,7 @@ return_contract_path: <abs-path|none>
 
 | Tool | Tier 1 | Tier 2 | Tier 3 |
 |------|--------|--------|--------|
-| `mcp__auggie__codebase-retrieval` | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries; Wave 1.6 audit fan-out: 2 parallel branch queries (A log-call, B log-config)) | ✓ (per-hypothesis queries) | — |
+| `mcp__auggie__augment_code_search` | ✓ (one focused query + Wave 1.5 doc-grounding fan-out: 3 parallel branch queries; Wave 1.6 audit fan-out: 2 parallel branch queries (A log-call, B log-config)) | ✓ (per-hypothesis queries) | — |
 | `mcp__serena__find_symbol` / `find_referencing_symbols` / `get_symbols_overview` | ✓ | ✓ | — |
 | `mcp__context7__query-docs` | Conditional behaviour-definition fetch before S1.6.4 pairs and Tier 1 calibration; same fallback chain as Tier 2 | ✓ when framework/library named; behaviour-definition fetch (Wave 3 step 1; fallback `WebFetch` → raw source fetch, e.g. `gh api`) | — |
 | `mcp__tavily__tavily_search` | — | ✓ rate-limited (≤2 queries) | — |

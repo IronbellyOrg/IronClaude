@@ -58,7 +58,7 @@ Phase 0 is MANDATORY for sc:recommend. Before emitting any recommendation:
      src/superclaude/examples/*-template.md, under `git rev-parse --show-toplevel`
      (only inside an IronClaude checkout: src/superclaude/commands/ exists there)
 
-2. Issue ONE mcp__auggie__codebase-retrieval query that ranks the enumerated
+2. Issue ONE mcp__auggie__augment_code_search query that ranks the enumerated
    surface against the user's verbatim request. Do not iterate file-by-file.
    Exception: in matched mode (step 0 matched a routing row) skip this query
    (auggie_status: skipped) and verify the matched row's steps in step 3.

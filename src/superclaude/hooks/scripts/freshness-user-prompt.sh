@@ -179,7 +179,7 @@ if [ "${AUGGIE_FIRST_DISABLE:-0}" != "1" ] \
             elif [ ! -e "$DISMISS_FILE" ]; then
                 : > "$DISMISS_FILE" 2>/dev/null || true
                 rm -f "$STICKY_FILE" 2>/dev/null || true
-                AUGGIE_WARN="auggie_project_not_indexed=1 (call mcp__auggie__codebase-retrieval to index $CWD_NORM, or add to $INDEXED_LIST; rm $DISMISS_FILE to re-arm warning)"
+                AUGGIE_WARN="auggie_project_not_indexed=1 (call mcp__auggie__augment_code_search to index $CWD_NORM, or add to $INDEXED_LIST; rm $DISMISS_FILE to re-arm warning)"
                 if [ ${#AUGGIE_WARN} -gt "$AUGGIE_WARN_MAX_LEN" ]; then
                     AUGGIE_WARN="auggie_project_not_indexed=1 (see $DISMISS_FILE for dismiss state)"
                 fi

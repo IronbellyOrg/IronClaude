@@ -83,7 +83,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 - **Bash(gh *)**: Fetch PR metadata, post review comments
 - **Bash(git *)**: Resolve diff ranges, list changed files
 - **Read / Grep / Glob**: Validate Auggie's file:line citations against actual files
-- **mcp__auggie__codebase-retrieval**: In-session codebase queries when validating findings without spawning a full Auggie subprocess
+- **mcp__auggie__augment_code_search**: In-session codebase queries when validating findings without spawning a full Auggie subprocess
 - **Write**: Emit the markdown report and audit log under `--output-dir`
 - **Task**: Delegate per-persona deep passes to `auggie-reviewer` agent in `--depth deep` mode
 

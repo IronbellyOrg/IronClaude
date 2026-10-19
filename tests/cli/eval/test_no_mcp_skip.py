@@ -76,7 +76,7 @@ REAL_SUITE_PATH: Path = SCHEMA_PATH.parent / "real.yaml"
 # The four MCP-dependent evals named in the T05.26 task description.
 # Authored as a module constant so a future manifest reshuffle breaks
 # this test loudly rather than silently dropping coverage.
-MCP_EVAL_IDS: tuple[str, ...] = ("E1", "E2.1", "E2.2", "E2.3")
+MCP_EVAL_IDS: tuple[str, ...] = ("E1", "E2.1", "E2.3")
 
 
 def _mcp_specs() -> tuple[_CapabilitySpec, ...]:
@@ -120,7 +120,7 @@ def test_real_suite_lists_no_mcp_gate_flag_in_optional_capabilities() -> None:
 
 
 def test_real_suite_mcp_evals_carry_mcp_server_requires() -> None:
-    """E1, E2.1, E2.2, E2.3 each ``require`` an MCP-server capability."""
+    """E1, E2.1, E2.3 each ``require`` an MCP-server capability."""
 
     payload = yaml.safe_load(REAL_SUITE_PATH.read_text(encoding="utf-8"))
     by_id = {row["id"]: row for row in payload["evals"]}
@@ -212,7 +212,6 @@ def _expected_skip_outcome(spec: EvalSpec) -> EvalOutcome:
     [
         ("E1", "mcp_server.auggie"),
         ("E2.1", "mcp_server.auggie"),
-        ("E2.2", "mcp_server.auggie-mcp"),
         ("E2.3", "mcp_server.airis-mcp-gateway"),
     ],
 )

@@ -13,7 +13,7 @@ Loaded in Wave 2A. Defines the matrix of enrichment options and quality-tier fal
 - `domain ∈ {code, architecture, incident}` AND NOT `--no-codebase`, OR
 - `--codebase` (forced) regardless of domain
 
-**Tier 1 (primary)**: `mcp__auggie__codebase-retrieval`
+**Tier 1 (primary)**: `mcp__auggie__augment_code_search`
 
 - Two parallel queries (per existing brainstorm v1 pattern):
   - Query 1: `"{topic} - find relevant code, existing implementations, related components, and integration points"`

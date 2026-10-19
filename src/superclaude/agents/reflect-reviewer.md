@@ -2,7 +2,7 @@
 name: reflect-reviewer
 description: Restricted read-only deviation-audit agent for sc:reflect Wave-3. Audits completed work against its driving spec/tasklist and classifies every divergence under the 4-category deviation taxonomy (Authorized expansion / Necessary deviation / Drift / Regression). Spawned as one of N heterogeneous Tier-2 reviewers; carries a read-only tool allowlist (no Bash/Edit/Write/Task) so a reviewer can never mutate the repository it is auditing. Returns structured deviation findings; the orchestrator persists them.
 category: quality
-tools: Read, Grep, Glob, mcp__auggie__codebase-retrieval, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file
+tools: Read, Grep, Glob, mcp__auggie__augment_code_search, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__serena__get_diagnostics_for_file
 model: sonnet
 maxTurns: 50
 permissionMode: plan

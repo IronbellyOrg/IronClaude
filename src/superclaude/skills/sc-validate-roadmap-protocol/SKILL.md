@@ -1,7 +1,7 @@
 ---
 name: sc-validate-roadmap-protocol
 description: "Full behavioral protocol for sc:validate-roadmap — multi-agent roadmap-to-spec fidelity validation with adversarial review, coverage matrix, gap registry, and remediation planning. Use this skill whenever verifying roadmap completeness against specifications, auditing coverage before tasklist generation, or checking for requirement gaps between specs and roadmaps."
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie-mcp__codebase-retrieval, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, TodoWrite, Task, Skill, mcp__auggie__augment_code_search, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__activate_project
 argument-hint: "<roadmap-path> --specs <spec1.md,...> [--output dir] [--depth quick|standard|deep] [--exclude domains] [--max-agents N]"
 ---
 
@@ -122,7 +122,7 @@ Every verb maps to exactly one Claude Code tool. Never use bare verbs without th
 | Dispatch agent | `Task` | Parallel sub-agent validation work |
 | Track progress | `TodoWrite` | Phase completion tracking |
 | Run validation | `Bash` | File existence checks, line counts |
-| Query codebase (semantic) | `mcp__auggie-mcp__codebase-retrieval` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
+| Query codebase (semantic) | `mcp__auggie__augment_code_search` | Codebase-grounded enrichment (Steps 0.2b, 5.1b) — orchestrator only, fail-open |
 | Read session memory | `mcp__serena__read_memory` | Load validation ledger, terminology, patterns (Pre-Phase 0) — fail-open |
 | Write session memory | `mcp__serena__write_memory` | Persist ledger, terminology, patterns (Post-Phase 6) — fail-open |
 | Activate project | `mcp__serena__activate_project` | Initialize Serena project context (Pre-Phase 0, Step 0.5) — fail-open |
@@ -252,7 +252,7 @@ Write artifact: `{OUTPUT_DIR}/00-requirement-universe.md`
 
 #### Step 0.2b — Codebase-Grounded Requirement Enrichment (Optional)
 
-**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+**Requires**: `mcp__auggie__augment_code_search` (fail-open — skip entirely if Auggie is unavailable).
 
 After building the requirement universe, scan it for code references that would benefit from codebase context. This step enriches requirements with advisory structural information — it never creates new requirements or changes coverage calculations.
 
@@ -869,7 +869,7 @@ Phase R9: Re-validate (rerun this skill after all fixes applied)
 
 #### Step 5.1b — Codebase-Grounded Remediation Enrichment (Optional)
 
-**Requires**: `mcp__auggie-mcp__codebase-retrieval` (fail-open — skip entirely if Auggie is unavailable).
+**Requires**: `mcp__auggie__augment_code_search` (fail-open — skip entirely if Auggie is unavailable).
 
 Before generating the patch checklist, enrich CRITICAL and HIGH remediation entries with codebase context so that implementers know which files and packages are affected.
 

@@ -42,7 +42,7 @@ argument-hint: "<goal description> [--plugin] [--eval <mode>] [--minstar <N>]"
 `/sc:recommend` generates a **paste-ready prompt** that hands the user's goal off to the right delegation — or recommends native `Read`/`Edit`/`Glob`/`Grep`/`Bash` when no delegation adds net value. Every invocation:
 
 1. Reads the routing guide first (`~/.claude/HOW-WE-WORK.md`, else the skill's `refs/HOW-WE-WORK.md` in a plugin install, else `src/superclaude/core/HOW-WE-WORK.md`; inside an IronClaude checkout, where `src/superclaude/commands/` exists under `git rev-parse --show-toplevel`, the `src/` copy is read first); when a routing row matches the goal, returns that row's steps in order with their mandatory flags. Then enumerates the installed (`~/.claude/`), project (`.claude/`), plugin and (in an IronClaude checkout) `src/` surface (commands, skills, agents, templates). No hand-written keyword table.
-2. Issues one `mcp__auggie__codebase-retrieval` query to semantically rank candidates against the verbatim user request, except in matched mode (a routing row matched in step 1), where the query is skipped and the row's steps are verified directly.
+2. Issues one `mcp__auggie__augment_code_search` query to semantically rank candidates against the verbatim user request, except in matched mode (a routing row matched in step 1), where the query is skipped and the row's steps are verified directly.
 3. Reads each candidate's source file before it is allowed into the recommendation.
 4. Evaluates whether the chosen delegation earns its overhead vs. native tooling, and falls back to native when it does not.
 5. Emits a hand-off envelope — never restates the target's protocol logic inline.
