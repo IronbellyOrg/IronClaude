@@ -1,0 +1,41 @@
+merge_method: adversarial
+convergence_score: 0.889
+base_variant: "sonnet:analyzer (reviewer-1-card)"
+merged_verdict: approve
+verdict_applies_to_tasklist_sha256: 954add6ccec3866f1ed5e2e20bf453f89bf86836d0474e9b15073e1223a4f4de
+reviewed_tasklist_sha256: 9d4d00eda44f108d2b1e78caa2b8eb086274c4af7ae67a8e9f82dd6db0e90074
+revision_drift_note: "Both cards reviewed 9d4d00ed. The tasklist changed 16 s after card 2 and is now 954add6c. Every finding was re-adjudicated against the current text."
+required_tasklist_changes: []
+rejected_findings:
+  - id: A1
+    source: reviewer-1 (sonnet)
+    rationale: "Valid as a finding, but it needs no change now. T:50 already reads 'the full STOP messages appear only in the Wave 0 step and the two Error Handling rows', which is A1's recommended text."
+  - id: QA-1
+    source: reviewer-2 (haiku)
+    rationale: "Valid against spec 4.3/RF11, but already applied. T:60 conditions the WARN on '--revagent was supplied' and '--depth is quick or standard' and requires the audit-log record. The T:80 test requires quick+standard, forbids deep, requires the audit log and keeps the text out of step 5."
+  - id: QA-2
+    source: reviewer-2 (haiku)
+    rationale: "Valid against spec section 3, but already applied. T:61 AC and T:81 deep-only guard test require step 5 to begin 'For `--depth deep` **only**' with model: <revagent> inside it."
+  - id: QA-3
+    source: reviewer-2 (haiku)
+    rationale: "Valid against spec 4.2/RF12, but already applied. T:59 and T:77 require connect, Opus, claude-sonnet-4-6 and inherit in the same Wave 0 bullet, which is stricter than RF12's test minimum."
+  - id: V2-verdict-approve-with-changes
+    source: reviewer-2 (haiku)
+    rationale: "Correct only for 9d4d00ed. Every change it asked for is already in 954add6c, and the V2 advocate conceded this."
+unresolved_conflicts: 0
+unresolved_non_blocking:
+  - id: S-001
+    level: L1
+    note: "Card-shape style preference: one advocate said neither, the other said V1. It has no effect on the verdict or the tasklist, so it is not counted as a conflict."
+return_contract:
+  merged_output_path: /config/workspace/IronClaude/.dev/worktrees/auggie-review-revagent/.dev/reflect/pre-revagent-final-20261020054716/adversarial/merged-review-card.yaml
+  convergence_score: 0.889
+  artifacts_dir: /config/workspace/IronClaude/.dev/worktrees/auggie-review-revagent/.dev/reflect/pre-revagent-final-20261020054716/adversarial
+  status: partial
+  base_variant: "sonnet:analyzer"
+  unresolved_conflicts: 0
+  fallback_mode: true
+  failure_stage: null
+  invocation_method: task-agent
+  unaddressed_invariants: []
+  status_reason: "partial for two reasons: (1) both input cards reviewed a superseded tasklist revision, so findings were re-adjudicated against the current file; (2) the merge was applied inline by the orchestrator rather than by a merge-executor (fallback_mode). Rounds 2 and 2.5 were skipped (depth=quick), so the invariant gate was not applied."

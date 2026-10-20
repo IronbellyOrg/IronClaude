@@ -1,0 +1,40 @@
+contract_version: "1.8.0"
+status: success
+mode: pre
+tier_reached: 2
+escalation_rule_matched: null      # --tier 2 hard override (final gate requested by coordinator)
+spec: .dev/tasks/to-do/TASK-WF-designSpec-20261020-053703/source.md
+spec_sha256: f108e00f0785247e5fd975e12925841a1d56de05690f63ff7690ce72e28beb1d
+tasklist: .dev/tasks/to-do/TASK-WF-designSpec-20261020-053703/TASK-WF-designSpec-20261020-053703.md
+tasklist_sha256_reviewed: 9d4d00eda44f108d2b1e78caa2b8eb086274c4af7ae67a8e9f82dd6db0e90074
+tasklist_sha256_final: 954add6ccec3866f1ed5e2e20bf453f89bf86836d0474e9b15073e1223a4f4de
+tasklist_delta: "reviewer findings A1, QA-1, QA-2, QA-3 applied between card collection and merge; merge and both validator passes judged the final 954add6c text"
+coverage_pct: 1.0
+coverage_pct_union: 1.0
+unmapped_requirements: []            # evidence-validator pass 1 mapped AC1-AC8, 4.1-4.5, RF1-RF12 -> UNCOVERED none
+reviewer_cards: [./reviewer-cards/reviewer-1-card.yaml, ./reviewer-cards/reviewer-2-card.yaml]
+reviewer_models: [sonnet, haiku]
+executor_class: opus (excluded)
+calibrator_model: fable
+calibrator_diversity: full
+calibrated_confidence_per_card: {reviewer-1: 0.72, reviewer-2: 0.67}
+t2_model_class_diversity: degraded   # 2 reviewers
+t2_vendor_diversity: single
+merge_method: adversarial
+adversarial_artifacts_dir: ./adversarial
+adversarial_convergence_score: 0.889
+adversarial_unavailable: false
+merged_verdict: approve
+required_tasklist_changes: []
+adversarial_return_status: partial   # reported because cards targeted the pre-fix revision; all findings verified resolved in final text
+adversarial_fallback_mode: true      # orchestrator applied merge itself instead of a merge-executor agent
+evidence_validator_ran: true
+evidence_validator_passes:
+  - {pass: 1, citations_total: 49, citations_dropped: 8, reason: "stale rev-9d4d line numbers in merged card prior_findings_resolved; claims supported", gate: fail}
+  - {pass: 2, citations_total: 50, citations_dropped: 0, gate: pass, note: "after re-anchoring the 8 locators to current lines"}
+citations_total: 50
+citations_dropped: 0
+needs_human_decision: false
+regression_present: false
+known_limitation: "content-contract tests cannot prove runtime WARN behavior (spec-chosen test style); live smoke in Task 4 is the runtime check"
+gate_passed: true

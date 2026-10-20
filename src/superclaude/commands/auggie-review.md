@@ -5,7 +5,7 @@ category: quality
 complexity: advanced
 mcp-servers: [serena]
 personas: [analyzer, architect, security, qa, refactorer]
-argument-hint: "[<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer]"
+argument-hint: "[<PR-num|PR-URL>|--diff <base>...HEAD|--snapshot <path>] [--focus security,architecture,quality,performance,all] [--depth quick|standard|deep] [--post-pr|--no-post-pr] [--remediation-offer|--no-remediation-offer] [--revagent opus|sonnet|haiku|fable]"
 ---
 
 # /sc:auggie-review - Auggie-Powered Code Review
@@ -39,6 +39,8 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
 /sc:auggie-review --snapshot src/superclaude/cli/       # Review a subtree (no diff)
 /sc:auggie-review 62 --focus security,architecture      # Focus areas only
 /sc:auggie-review 62 --depth deep --no-post-pr          # Deep review, do not post to PR
+/sc:auggie-review 62 --depth deep --revagent sonnet     # Deep review; internal reviewer agent runs on sonnet
+/sc:auggie-review 62 --depth deep --revagent opus       # Deep review; internal reviewer agent pinned to opus
 ```
 
 ## Options
@@ -53,12 +55,13 @@ The trigger discipline exists because deep reviews are expensive (Auggie indexin
 | `--no-remediation-offer` | — | Suppress the remediation chain offer |
 | `--output-dir` | `.dev/reviews/<target-slug>-<timestamp>/` | Where to write the markdown report, raw auggie JSON, and audit log |
 | `--auggie-model` | `prism-b` | Override the model auggie uses; when omitted and `AUGGIE_MODEL` is unset, uses `prism-b` (e.g., `--auggie-model <model-id>`) |
+| `--revagent` | unset: reviewer agents use their frontmatter model | Model for the INTERNAL review-agent spawns only (the `--depth deep` `auggie-reviewer` pass and any re-spawn of it); it does not change the lead session model or `--auggie-model`. Accepted: `opus`, `sonnet`, `haiku`, `fable`. These are the native Agent tool `model` aliases; a missing value or any other value (e.g. `connect`, a full model ID, a gateway alias) STOPs with an error before any work, and never falls back to the default. `--revagent` picks the request alias; which concrete model an alias resolves to is Claude Code / gateway configuration (e.g. `ANTHROPIC_DEFAULT_SONNET_MODEL`, a LiteLLM alias), and `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` overrides per-invocation models. At `--depth quick` or `standard` no internal reviewer runs, so the flag only prints a WARN |
 
 ## Behavioral Flow
 
 The full multi-wave protocol lives in the skill. The command file performs only:
 
-1. **Parse arguments** → resolve target type (PR / diff / snapshot)
+1. **Parse arguments** → resolve target type (PR / diff / snapshot) and validate `--revagent`: a missing or unsupported value STOPs here, before step 2 environment checks
 2. **Validate environment** → `auggie` on PATH, `gh` authed (if PR target), repo is a git working tree
 3. **Hand off to the skill** via the Activation section below
 4. **On skill return**, surface the report path, PR URL (if posted), and remediation-chain prompt (if enabled)
@@ -85,7 +88,7 @@ External tool (not MCP, but central): **`auggie` CLI** is the primary review eng
 - **Read / Grep / Glob**: Validate Auggie's file:line citations against actual files
 - **mcp__auggie__codebase-retrieval**: In-session codebase queries when validating findings without spawning a full Auggie subprocess
 - **Write**: Emit the markdown report and audit log under `--output-dir`
-- **Task**: Delegate per-persona deep passes to `auggie-reviewer` agent in `--depth deep` mode
+- **Task**: Spawn the `auggie-reviewer` agent for the `--depth deep` cross-check pass (protocol Wave 2 step 5), passing the `model` parameter when `--revagent` is set (per-persona deep passes are Auggie CLI calls, not agents)
 
 ## Examples
 

@@ -1,0 +1,51 @@
+# Provenance: produced by /sc:adversarial (Mode A, depth quick)
+# Base: Variant 1 (sonnet:analyzer, reviewer-1-card.yaml); incorporated: Variant 2 (haiku:qa)
+# Merge date: 2026-10-20
+reviewer: tier2-merged (reviewer-1 base + reviewer-2)
+models: [sonnet, haiku]
+target_tasklist_sha256: 954add6ccec3866f1ed5e2e20bf453f89bf86836d0474e9b15073e1223a4f4de   # Source: Change #1
+reviewed_tasklist_sha256: 9d4d00eda44f108d2b1e78caa2b8eb086274c4af7ae67a8e9f82dd6db0e90074  # Source: Change #1
+revision_drift_note: "Both source cards reviewed 9d4d00ed; the tasklist was modified 16 s after card 2 (now 954add6c). All findings re-adjudicated against the current text by debate + orchestrator re-read."
+verdict: approve                       # Source: Base (original); confirmed for current revision (X-001)
+coverage_gaps: []                      # Source: Base (original); confirmed for current revision (X-002)
+findings:
+  - id: A1                             # Source: Base (original, modified) — Change #2
+    severity: low
+    origin: reviewer-1
+    claim: "Task 2 STOP-message placement wording contradicted the Error Handling rows."
+    status: applied-in-current
+    evidence: "T:50 now reads 'the full STOP messages appear only in the Wave 0 step and the two Error Handling rows'"
+  - id: QA-1                           # Source: Variant 2 findings — Change #3
+    severity: medium
+    origin: reviewer-2
+    claim: "Unconditional WARN/revagent_effect would pass all ACs/tests."
+    status: applied-in-current
+    evidence: "T:60 (condition names '--revagent was supplied' and '--depth is quick or standard', audit log); T:80 (bullet contains quick+standard, not deep, audit log; absent from step 5)"
+  - id: QA-2                           # Source: Variant 2 findings — Change #3
+    severity: medium
+    origin: reviewer-2
+    claim: "No AC/test kept Wave 2 step 5 deep-only."
+    status: applied-in-current
+    evidence: "T:61 (step 5 still begins 'For `--depth deep` **only**' with model: <revagent> inside); T:81 deep-only guard test"
+  - id: QA-3                           # Source: Variant 2 findings — Change #3
+    severity: low
+    origin: reviewer-2
+    claim: "Only connect asserted among RF12 examples."
+    status: applied-in-current
+    evidence: "T:59 and T:77 require connect, Opus, claude-sonnet-4-6, inherit in the same Wave 0 bullet"
+prior_findings_resolved:               # Source: Base (original) + Change #4
+  # locators re-anchored to current T (sha 954add6c) after evidence-validator pass 1 dropped 8 stale (rev 9d4d00ed) line numbers; claims unchanged
+  - {id: WARN-in-Wave0-conditioned-on-flag-supplied, resolved: true, evidence: "T:51, T:60, T:80"}
+  - {id: Accepted-sentence-parse-rule, resolved: true, evidence: "T:39, T:51, T:76"}
+  - {id: Wave0-slicing-for-ordering, resolved: true, evidence: "T:59; SKILL.md Wave0 76-110, command -v auggie at 84 only within slice"}
+  - {id: full-missing-value-predicate, resolved: true, evidence: "T:59, T:78"}
+  - {id: Tool-Coordination-literals, resolved: true, evidence: "T:83 vs auggie-review.md:88"}
+  - {id: Error-Handling-row-contents, resolved: true, evidence: "T:56, T:82; SKILL.md:361-370"}
+  - {id: FORCE-to-BLOCKED-ENV-only, resolved: true, evidence: "T:99"}
+  - {id: artifacts-package-relative, resolved: true, evidence: "T:100"}
+  - {id: diff-based-allowed-paths-check, resolved: true, evidence: "T:101"}
+  - {id: gap-WARN-depth-conditioned-and-audit-logged, origin: reviewer-2, resolved: true, evidence: "T:60, T:80 (spec 4.3, RF11)"}
+  - {id: gap-step5-deep-only-in-AC-test, origin: reviewer-2, resolved: true, evidence: "T:61, T:81 (spec 3, 4.3)"}
+  - {id: gap-RF12-examples-beyond-connect, origin: reviewer-2, resolved: true, evidence: "T:59, T:77 (spec 4.2, RF12)"}
+test_contract_ceiling: "Literal content-contract tests (RF5) cannot prove runtime WARN behavior at quick/standard; Task 4 smoke covers the spawn only. Spec-chosen ceiling, not a tasklist defect."  # Source: Change #5 (A-002)
+baseline_checks: "auggie-review.md lines 8/61/88 and SKILL.md 34-39/82-84/95/183/272/281/361-370 match; test_static_grep.py:277-329 unaffected"  # Source: Base (original)
