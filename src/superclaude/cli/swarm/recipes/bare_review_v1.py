@@ -66,6 +66,12 @@ from datetime import datetime, timezone
 from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
+from superclaude.cli.swarm.recipes._primitives import (
+    extract_section,
+    format_timestamp,
+    strip_frontmatter,
+    yaml_str,
+)
 
 __all__ = [
     "BareReviewV1",
@@ -116,20 +122,7 @@ FINDING_ID: re.Pattern[str] = re.compile(r"^f-?\d+$", re.IGNORECASE)
 
 def iso_now() -> str:
     """ISO-8601 UTC timestamp (legacy ``iso_now``, byte-identical format)."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def yaml_str(v: str) -> str:
-    """Double-quote a scalar for safe single-line YAML emission."""
-    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
-
-
-def strip_frontmatter(text: str) -> str:
-    if text.lstrip().startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            return parts[2]
-    return text
+    return format_timestamp(datetime.now(timezone.utc))
 
 
 def normalize_sev(cell: str) -> str:
@@ -168,18 +161,6 @@ def parse_findings(text: str) -> list[dict[str, str]]:
             }
         )
     return findings
-
-
-def extract_section(text: str, heading: str, cap: int) -> str:
-    m = re.search(
-        rf"^#+\s*{re.escape(heading)}\s*$", text, re.IGNORECASE | re.MULTILINE
-    )
-    if not m:
-        return ""
-    rest = text[m.end() :]
-    nxt = re.search(r"^#+\s", rest, re.MULTILINE)
-    body = rest[: nxt.start()] if nxt else rest
-    return " ".join(body.split())[:cap]
 
 
 def render_markdown(

@@ -9,12 +9,16 @@ Covers T04.03 acceptance criteria:
 
 from __future__ import annotations
 
+import logging
+from datetime import timezone
 from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
 from superclaude.cli.main import main
+from superclaude.cli.pipeline.models import PipelineConfig, Step, StepStatus
+from superclaude.cli.tasklist import executor as tasklist_executor
 from superclaude.cli.tasklist.commands import tasklist_group
 from superclaude.cli.tasklist.executor import (
     _build_steps,
@@ -734,3 +738,409 @@ class TestCrossCuttingHygiene:
         # An unknown flag is rejected with a non-zero exit.
         bad_result = runner.invoke(tasklist_group, ["validate", "--bogus-flag", "x"])
         assert bad_result.exit_code != 0
+
+
+# ---------------------------------------------------------------------------
+# C06 baseline characterization (item 2.12): the REAL tasklist_run_step path.
+#
+# tasklist_run_step runs unmodified; only the module-local ClaudeProcess name is
+# replaced by an in-memory fake (no subprocess, no model). execute_pipeline is
+# never mocked. Expected values are the observed behavior of the current code
+# and must stay identical after the C06 helper extraction.
+# ---------------------------------------------------------------------------
+
+_TASKLIST_LOGGER = "superclaude.tasklist.executor"
+_PREAMBLE_OUTPUT = "Hi\n---\nx: 1\n---\nbody"
+_CLEANED_OUTPUT = "---\nx: 1\n---\nbody"
+
+
+def _install_fake_process(monkeypatch, *, exit_code=0, output=None, polls=None):
+    """Replace tasklist executor's module-local ClaudeProcess with a fake.
+
+    ``output`` is written to the step output file on start (what the real CLI
+    child would produce). ``polls`` is the sequence returned by
+    ``_process.poll()``; None means no live child (``_process`` stays None).
+    """
+    rec: dict = {"kwargs": None, "events": []}
+
+    class _FakePopen:
+        def __init__(self, seq):
+            self._seq = list(seq)
+
+        def poll(self):
+            rec["events"].append("poll")
+            return self._seq.pop(0) if self._seq else 0
+
+    class _FakeClaudeProcess:
+        def __init__(self, **kwargs):
+            rec["kwargs"] = kwargs
+            self._output_file = kwargs["output_file"]
+            self._process = None
+
+        def start(self):
+            rec["events"].append("start")
+            if output is not None:
+                self._output_file.write_text(output, encoding="utf-8")
+            if polls is not None:
+                self._process = _FakePopen(polls)
+
+        def terminate(self):
+            rec["events"].append("terminate")
+
+        def wait(self):
+            rec["events"].append("wait")
+            return exit_code
+
+    monkeypatch.setattr(tasklist_executor, "ClaudeProcess", _FakeClaudeProcess)
+    return rec
+
+
+def _make_step(tmp_path, *, inputs=None, model="", step_id="tasklist-fidelity"):
+    return Step(
+        id=step_id,
+        prompt="PROMPT",
+        output_file=tmp_path / "out" / "tasklist-fidelity.md",
+        gate=None,
+        timeout_seconds=600,
+        inputs=list(inputs or []),
+        model=model,
+    )
+
+
+def _prepare_out(step):
+    step.output_file.parent.mkdir(parents=True, exist_ok=True)
+
+
+def _records(caplog, name):
+    return [r for r in caplog.records if r.name == name]
+
+
+class TestTasklistRunStepRealPath:
+    """G3.14/G3.16 + FR-06(c): real tasklist_run_step with a fake child."""
+
+    def test_success_embeds_inputs_in_order_and_sanitizes(
+        self, tmp_path, monkeypatch, caplog
+    ):
+        p = tmp_path / "p.md"
+        p.write_text("", encoding="utf-8")
+        q = tmp_path / "q.md"
+        q.write_text("é", encoding="utf-8")
+        step = _make_step(tmp_path, inputs=[p, p, q], model="step-model")
+        _prepare_out(step)
+        config = PipelineConfig(
+            max_turns=7, model="cfg-model", permission_flag="--perm-x", dry_run=False
+        )
+        rec = _install_fake_process(monkeypatch, output=_PREAMBLE_OUTPUT)
+
+        with caplog.at_level(logging.DEBUG):
+            result = tasklist_executor.tasklist_run_step(step, config, lambda: False)
+
+        expected_prompt = (
+            f"PROMPT\n\n# {p}\n```\n\n```\n\n# {p}\n```\n\n```\n\n# {q}\n```\né\n```"
+        )
+        assert rec["kwargs"] == {
+            "prompt": expected_prompt,
+            "output_file": step.output_file,
+            "error_file": step.output_file.with_suffix(".err"),
+            "max_turns": 7,
+            "model": "step-model",
+            "permission_flag": "--perm-x",
+            "timeout_seconds": 600,
+            "output_format": "text",
+            "extra_args": [],
+        }
+        # _process is None after start -> no poll loop; wait() exactly once.
+        assert rec["events"] == ["start", "wait"]
+        assert result.status == StepStatus.PASS
+        assert result.step is step
+        assert result.attempt == 1
+        assert result.gate_failure_reason is None
+        assert result.started_at.tzinfo is timezone.utc
+        assert result.finished_at.tzinfo is timezone.utc
+        assert result.started_at <= result.finished_at
+        # Sanitized after exit 0: preamble removed, fixed .tmp gone.
+        assert step.output_file.read_text(encoding="utf-8") == _CLEANED_OUTPUT
+        assert not step.output_file.with_suffix(".md.tmp").exists()
+        info = [
+            r for r in _records(caplog, _TASKLIST_LOGGER) if r.levelno == logging.INFO
+        ]
+        assert [r.getMessage() for r in info] == [
+            f"Stripped 3-byte preamble from {step.output_file}"
+        ]
+
+    def test_model_falls_back_to_config_and_empty_inputs_use_bare_prompt(
+        self, tmp_path, monkeypatch
+    ):
+        step = _make_step(tmp_path, inputs=[], model="")
+        _prepare_out(step)
+        rec = _install_fake_process(monkeypatch, output=_CLEANED_OUTPUT)
+        config = PipelineConfig(model="cfg-model", dry_run=False)
+
+        result = tasklist_executor.tasklist_run_step(step, config, lambda: False)
+
+        assert result.status == StepStatus.PASS
+        assert rec["kwargs"]["prompt"] == "PROMPT"
+        assert rec["kwargs"]["model"] == "cfg-model"
+        assert rec["kwargs"]["max_turns"] == 100
+        assert rec["kwargs"]["permission_flag"] == "--dangerously-skip-permissions"
+        assert rec["kwargs"]["extra_args"] == []
+
+    def test_already_frontmatter_output_is_untouched_and_not_logged(
+        self, tmp_path, monkeypatch, caplog
+    ):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        _install_fake_process(monkeypatch, output="  " + _CLEANED_OUTPUT)
+
+        with caplog.at_level(logging.DEBUG):
+            result = tasklist_executor.tasklist_run_step(
+                step, PipelineConfig(dry_run=False), lambda: False
+            )
+
+        assert result.status == StepStatus.PASS
+        assert step.output_file.read_text(encoding="utf-8") == "  " + _CLEANED_OUTPUT
+        assert _records(caplog, _TASKLIST_LOGGER) == []
+
+    def test_missing_output_still_passes(self, tmp_path, monkeypatch, caplog):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        _install_fake_process(monkeypatch, output=None)
+
+        with caplog.at_level(logging.DEBUG):
+            result = tasklist_executor.tasklist_run_step(
+                step, PipelineConfig(dry_run=False), lambda: False
+            )
+
+        assert result.status == StepStatus.PASS
+        assert not step.output_file.exists()
+        assert _records(caplog, _TASKLIST_LOGGER) == []
+
+    def test_poll_loop_sleeps_one_second_until_child_exits(self, tmp_path, monkeypatch):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        rec = _install_fake_process(
+            monkeypatch, output=_PREAMBLE_OUTPUT, polls=[None, 0]
+        )
+        sleeps: list = []
+        monkeypatch.setattr(tasklist_executor.time, "sleep", sleeps.append)
+        checks: list = []
+
+        def cancel_check():
+            checks.append(1)
+            return False
+
+        result = tasklist_executor.tasklist_run_step(
+            step, PipelineConfig(dry_run=False), cancel_check
+        )
+
+        assert result.status == StepStatus.PASS
+        assert sleeps == [1]
+        assert len(checks) == 1
+        assert rec["events"] == ["start", "poll", "poll", "wait"]
+        assert step.output_file.read_text(encoding="utf-8") == _CLEANED_OUTPUT
+
+
+class TestTasklistRunStepBypass:
+    """FR-06(c): dry-run, cancel, timeout and nonzero exit skip sanitation."""
+
+    def _spy_sanitize(self, monkeypatch):
+        calls: list = []
+        monkeypatch.setattr(
+            tasklist_executor, "_sanitize_output", lambda p: calls.append(p) or 0
+        )
+        return calls
+
+    def test_dry_run_skips_embed_process_and_sanitize(
+        self, tmp_path, monkeypatch, caplog
+    ):
+        step = _make_step(tmp_path, inputs=[tmp_path / "never-read.md"])
+
+        def _boom(*a, **k):
+            raise AssertionError("must not be called on dry-run")
+
+        monkeypatch.setattr(tasklist_executor, "_embed_inputs", _boom)
+        monkeypatch.setattr(tasklist_executor, "ClaudeProcess", _boom)
+        monkeypatch.setattr(tasklist_executor, "_sanitize_output", _boom)
+
+        with caplog.at_level(logging.DEBUG):
+            result = tasklist_executor.tasklist_run_step(
+                step, PipelineConfig(dry_run=True), lambda: False
+            )
+
+        assert result.status == StepStatus.PASS
+        assert result.attempt == 1
+        assert result.gate_failure_reason is None
+        assert result.started_at.tzinfo is timezone.utc
+        assert result.started_at <= result.finished_at
+        assert [r.getMessage() for r in _records(caplog, _TASKLIST_LOGGER)] == [
+            "[dry-run] Would execute step 'tasklist-fidelity'"
+        ]
+
+    def test_cancel_terminates_without_wait_or_sanitize(self, tmp_path, monkeypatch):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        rec = _install_fake_process(monkeypatch, output=_PREAMBLE_OUTPUT, polls=[None])
+        calls = self._spy_sanitize(monkeypatch)
+
+        result = tasklist_executor.tasklist_run_step(
+            step, PipelineConfig(dry_run=False), lambda: True
+        )
+
+        assert result.status == StepStatus.CANCELLED
+        assert result.gate_failure_reason == "Cancelled by external signal"
+        assert result.attempt == 1
+        assert result.started_at <= result.finished_at
+        assert rec["events"] == ["start", "poll", "terminate"]
+        assert calls == []
+        assert step.output_file.read_text(encoding="utf-8") == _PREAMBLE_OUTPUT
+
+    def test_timeout_exit_124_skips_sanitize(self, tmp_path, monkeypatch):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        _install_fake_process(monkeypatch, exit_code=124, output=_PREAMBLE_OUTPUT)
+        calls = self._spy_sanitize(monkeypatch)
+
+        result = tasklist_executor.tasklist_run_step(
+            step, PipelineConfig(dry_run=False), lambda: False
+        )
+
+        assert result.status == StepStatus.TIMEOUT
+        assert (
+            result.gate_failure_reason
+            == "Step 'tasklist-fidelity' timed out after 600s"
+        )
+        assert result.started_at <= result.finished_at
+        assert calls == []
+        assert step.output_file.read_text(encoding="utf-8") == _PREAMBLE_OUTPUT
+
+    def test_nonzero_exit_skips_sanitize(self, tmp_path, monkeypatch):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        _install_fake_process(monkeypatch, exit_code=2, output=_PREAMBLE_OUTPUT)
+        calls = self._spy_sanitize(monkeypatch)
+
+        result = tasklist_executor.tasklist_run_step(
+            step, PipelineConfig(dry_run=False), lambda: False
+        )
+
+        assert result.status == StepStatus.FAIL
+        assert (
+            result.gate_failure_reason == "Step 'tasklist-fidelity' exited with code 2"
+        )
+        assert calls == []
+        assert step.output_file.read_text(encoding="utf-8") == _PREAMBLE_OUTPUT
+
+
+class TestTasklistRunStepModuleSeams:
+    """Module-local _embed_inputs/_sanitize_output/ClaudeProcess/_log lookups."""
+
+    def test_embed_inputs_looked_up_on_module_at_call_time(self, tmp_path, monkeypatch):
+        step = _make_step(tmp_path, inputs=[tmp_path / "a.md"])
+        _prepare_out(step)
+        seen: list = []
+
+        def _fake_embed(paths):
+            seen.append(list(paths))
+            return "EMBED"
+
+        monkeypatch.setattr(tasklist_executor, "_embed_inputs", _fake_embed)
+        rec = _install_fake_process(monkeypatch, output=_CLEANED_OUTPUT)
+
+        tasklist_executor.tasklist_run_step(
+            step, PipelineConfig(dry_run=False), lambda: False
+        )
+
+        assert seen == [[tmp_path / "a.md"]]
+        assert rec["kwargs"]["prompt"] == "PROMPT\n\nEMBED"
+
+    def test_sanitize_output_looked_up_on_module_after_exit_zero(
+        self, tmp_path, monkeypatch
+    ):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        rec = _install_fake_process(monkeypatch, output=_PREAMBLE_OUTPUT)
+        calls: list = []
+
+        def _fake_sanitize(path):
+            rec["events"].append("sanitize")
+            calls.append(path)
+            return 99
+
+        monkeypatch.setattr(tasklist_executor, "_sanitize_output", _fake_sanitize)
+
+        result = tasklist_executor.tasklist_run_step(
+            step, PipelineConfig(dry_run=False), lambda: False
+        )
+
+        # Return value is discarded; PASS regardless; sanitize runs after wait().
+        assert result.status == StepStatus.PASS
+        assert calls == [step.output_file]
+        assert rec["events"] == ["start", "wait", "sanitize"]
+        assert step.output_file.read_text(encoding="utf-8") == _PREAMBLE_OUTPUT
+
+    def test_runtime_reassigned_log_receives_success_message(
+        self, tmp_path, monkeypatch, caplog
+    ):
+        step = _make_step(tmp_path)
+        _prepare_out(step)
+        _install_fake_process(monkeypatch, output=_PREAMBLE_OUTPUT)
+        replacement = logging.getLogger("tests.tasklist.replacement_log")
+        monkeypatch.setattr(tasklist_executor, "_log", replacement)
+
+        with caplog.at_level(logging.DEBUG):
+            result = tasklist_executor.tasklist_run_step(
+                step, PipelineConfig(dry_run=False), lambda: False
+            )
+
+        assert result.status == StepStatus.PASS
+        assert [
+            r.getMessage() for r in _records(caplog, "tests.tasklist.replacement_log")
+        ] == [f"Stripped 3-byte preamble from {step.output_file}"]
+        assert _records(caplog, _TASKLIST_LOGGER) == []
+
+
+class TestTasklistValidateRealPipeline:
+    """execute_tasklist_validate -> real execute_pipeline -> real run_step."""
+
+    def test_end_to_end_sanitized_report_passes_gate(
+        self, tmp_path, monkeypatch, caplog
+    ):
+        roadmap = tmp_path / "roadmap.md"
+        roadmap.write_text("# Roadmap\n", encoding="utf-8")
+        tasklist_dir = tmp_path / "tasklists"
+        tasklist_dir.mkdir()
+        (tasklist_dir / "phase-1.md").write_text("# Phase 1\n", encoding="utf-8")
+        out_dir = tmp_path / "out"
+        out_dir.mkdir()
+        body = "\n".join(f"- line {i}" for i in range(25))
+        report = (
+            "---\n"
+            "high_severity_count: 0\n"
+            "medium_severity_count: 0\n"
+            "low_severity_count: 0\n"
+            "total_deviations: 0\n"
+            "validation_complete: true\n"
+            "tasklist_ready: true\n"
+            "---\n"
+            f"## Deviation Report\n{body}\n"
+        )
+        rec = _install_fake_process(monkeypatch, output="Sure, here it is:\n" + report)
+        config = TasklistValidateConfig(
+            output_dir=out_dir, roadmap_file=roadmap, tasklist_dir=tasklist_dir
+        )
+
+        with caplog.at_level(logging.INFO):
+            ok = tasklist_executor.execute_tasklist_validate(config)
+
+        assert ok is True
+        assert (out_dir / "tasklist-fidelity.md").read_text(encoding="utf-8") == report
+        assert f"# {roadmap}\n```\n# Roadmap\n\n```" in rec["kwargs"]["prompt"]
+        assert (
+            f"# {tasklist_dir / 'phase-1.md'}\n```\n# Phase 1\n\n```"
+            in (rec["kwargs"]["prompt"])
+        )
+        assert [
+            r.getMessage()
+            for r in _records(caplog, _TASKLIST_LOGGER)
+            if r.getMessage().startswith("Stripped")
+        ] == [f"Stripped 18-byte preamble from {out_dir / 'tasklist-fidelity.md'}"]

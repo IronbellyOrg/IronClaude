@@ -254,3 +254,76 @@ class TestLoggingComplete:
         e = json.loads(jsonl_path.read_text().strip())
         assert e["event_type"] == EV_CONVERGENCE_TRANSITION
         assert e["to_state"] == "ESCALATED"
+
+
+# ---------------------------------------------------------------------------
+# Migrated from test_monitor.py TestEventLogger/TestDiagnosticReport
+# (C01 rows A-02, A-03, A-04, A-20) onto the live ExecutionLog owner.
+# ---------------------------------------------------------------------------
+
+
+class TestLiveLoggingMigrated:
+    """Live ExecutionLog obligations previously asserted via monitor helpers."""
+
+    def _record_sequence(self, log):
+        log.step_start("s1")
+        log.gate_eval("s1", gate_id="G-001", tier="STRICT")
+        log.gate_fail("s1", gate_id="G-001", reason="missing section")
+        log.step_end("s1", status="fail", duration_s=0.25)
+        log.pipeline_outcome("FAILURE")
+        return [
+            EV_STEP_START,
+            EV_GATE_EVAL,
+            EV_GATE_FAIL,
+            EV_STEP_END,
+            EV_PIPELINE_OUTCOME,
+        ]
+
+    def test_logging_complete_n_events_one_flush_n_jsonl_lines(self, tmp_path):
+        """A-02: N records in one flush -> N parseable JSONL lines with schema."""
+        log = ExecutionLog(tmp_path)
+        expected = self._record_sequence(log)
+        log.flush(phase="p", status="fail", elapsed=0.0)
+        lines = (tmp_path / "execution-log.jsonl").read_text().splitlines()
+        assert len(lines) == len(expected) == 5
+        for line in lines:
+            e = json.loads(line)
+            assert {"timestamp", "event_type", "step_id"} <= e.keys()
+            assert "T" in e["timestamp"]
+
+    def test_logging_complete_record_order_preserved(self, tmp_path):
+        """A-03: in-memory entries and flushed JSONL keep record order."""
+        log = ExecutionLog(tmp_path)
+        expected = self._record_sequence(log)
+        assert [e["event_type"] for e in log.get_all_entries()] == expected
+        log.flush()
+        lines = (tmp_path / "execution-log.jsonl").read_text().splitlines()
+        assert [json.loads(line)["event_type"] for line in lines] == expected
+
+    def test_logging_complete_extra_kwargs_in_jsonl(self, tmp_path):
+        """A-04: arbitrary record() kwargs are serialized as top-level fields."""
+        log = ExecutionLog(tmp_path)
+        log.record(EV_STEP_START, step_id="s1", attempt=2, detail={"k": "v"})
+        log.step_end("s1", status="pass", custom_flag=True)
+        log.flush()
+        lines = (tmp_path / "execution-log.jsonl").read_text().splitlines()
+        first, second = (json.loads(line) for line in lines)
+        assert first["attempt"] == 2
+        assert first["detail"] == {"k": "v"}
+        assert first["step_id"] == "s1"
+        assert second["custom_flag"] is True
+        assert second["status"] == "pass"
+
+    def test_logging_complete_md_row_reports_event_count(self, tmp_path):
+        """A-20: execution-log.md row reports the number of flushed events."""
+        log = ExecutionLog(tmp_path)
+        self._record_sequence(log)
+        log.flush(phase="analyze", status="fail", elapsed=1.5)
+        log.step_start("s2")
+        log.flush(phase="synth", status="pass", elapsed=0.25)
+        md_lines = (tmp_path / "execution-log.md").read_text().splitlines()
+        assert md_lines[2] == "| Phase | Status | Elapsed | Events |"
+        assert md_lines[4] == "| analyze | fail | 1.500s | 5 |"
+        assert md_lines[5] == "| synth | pass | 0.250s | 1 |"
+        jsonl = (tmp_path / "execution-log.jsonl").read_text().splitlines()
+        assert len(jsonl) == 6  # md counts sum to JSONL line total

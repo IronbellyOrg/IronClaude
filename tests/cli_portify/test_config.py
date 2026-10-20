@@ -9,6 +9,7 @@ Covers:
 
 from __future__ import annotations
 
+import os
 import time
 from pathlib import Path
 
@@ -76,6 +77,10 @@ class TestConfigValidationErrors:
         errors = validate_portify_config(config)
         assert len(errors) >= 1
         assert any("SKILL.md" in e for e in errors)
+        # C04 characterization: missing workflow SKILL.md is a hard error that
+        # names the workflow path. There is no "continue with available
+        # skills" fallback in the live config owner.
+        assert errors == [f"SKILL.md not found at {wf.resolve()}"]
 
     def test_non_writable_output(self, tmp_workflow, tmp_path):
         """Error path 3: Output directory not writable."""
@@ -92,6 +97,24 @@ class TestConfigValidationErrors:
             or "not a directory" in e.lower()
             for e in errors
         )
+        # C04 migration (test_error_mentions_directory): error names the path.
+        assert any("/proc/1/cli_portify_test_nonexistent" in e for e in errors)
+
+    @pytest.mark.skipif(
+        hasattr(os, "geteuid") and os.geteuid() == 0,
+        reason="root bypasses directory write permissions",
+    )
+    def test_existing_read_only_output(self, tmp_workflow, tmp_path):
+        """Error path 3b: existing output directory without write access."""
+        ro = tmp_path / "read-only-output"
+        ro.mkdir()
+        ro.chmod(0o555)
+        try:
+            config = load_portify_config(workflow_path=tmp_workflow, output_dir=ro)
+            errors = validate_portify_config(config)
+        finally:
+            ro.chmod(0o755)
+        assert errors == [f"Output path is not writable: {ro.resolve()}"]
 
     def test_name_collision(self, tmp_workflow, tmp_output):
         """Error path 4: CLI name collides with existing command."""

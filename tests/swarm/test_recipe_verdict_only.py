@@ -600,3 +600,489 @@ def test_recipe_emits_well_formed_yaml_frontmatter(fixture_name):
         "verdict_confidence:",
     ]:
         assert key in head, f"missing frontmatter key {key!r}"
+
+
+# ---------------------------------------------------------------------------
+# 6 -- C03 characterization (item 2.10): pins the CURRENT verdict_only_v1
+# behaviour through its original names before the shared-primitive
+# extraction. Expected values were observed from the unchanged module;
+# they are oracles, not a specification. G5.x = spec-panel guard rows.
+# ---------------------------------------------------------------------------
+
+import superclaude.cli.swarm.recipes.verdict_only_v1 as verdict_mod  # noqa: E402
+from superclaude.cli.swarm.recipes.verdict_only_v1 import (  # noqa: E402
+    _flatten,
+    render_markdown,
+)
+
+FROZEN_CLOCK = "2031-02-03T04:05:06Z"
+
+_FM_HEAD = (
+    "---\n"
+    'schema_version: "1.0"\n'
+    'tier: "T2-spec"\n'
+    "suspect: false\n"
+    'lens: "spec-completeness"\n'
+    'reviewer_model_id: "m"\n'
+    'reviewer_model_label: "M"\n'
+    'target: "/tmp/example/auth_login_spec.md"\n'
+    'target_checksum: "deadbeefcafe"\n'
+    "target_truncated: false\n"
+)
+
+
+def _section(text: str, heading: str) -> str:
+    """Return the single rendered line under ``## <heading>``."""
+    return text.split(f"## {heading}\n", 1)[1].split("\n", 1)[0]
+
+
+def _fm_value(text: str, key: str) -> str:
+    for line in text.split("---\n", 2)[1].splitlines():
+        if line.startswith(f"{key}: "):
+            return line[len(key) + 2 :]
+    raise AssertionError(f"missing frontmatter key {key!r}")
+
+
+# --- shared confidence semantics via the original name (G5.2-G5.10) --------
+
+
+@pytest.mark.parametrize(
+    "cell,expected",
+    [
+        ("", ""),  # G5.2
+        ("  ", ""),  # G5.2
+        ("0", "0"),  # G5.3
+        ("confidence 73%", "73"),  # G5.4
+        ("100", "100"),  # G5.5
+        ("101", "100"),  # G5.6
+        ("-1", "1"),  # G5.7
+        ("12.5 then 99", "12"),  # G5.8
+        (" high  confidence ", "high confidence"),  # G5.9 (verdict side)
+    ],
+)
+def test_c03_parse_confidence_shared_semantics(cell, expected):
+    assert parse_confidence(cell) == expected
+
+
+def test_c03_parse_confidence_int_conversion_error_propagates():
+    """G5.10: oversized digit run -> baseline int() ValueError, no fallback."""
+    with pytest.raises(ValueError):
+        parse_confidence("9" * 5000)
+
+
+# --- shared section semantics via the original name (G5.17-G5.24, G5.28) ---
+
+
+@pytest.mark.parametrize(
+    "text,heading,cap,expected",
+    [
+        ("plain", "Notes", 600, ""),  # G5.17
+        ("## Notes\n## Other\nx", "Notes", 600, ""),  # G5.18
+        ("## nOtEs\na", "Notes", 600, "a"),  # G5.19
+        ("## Notes\na  b\n## Other\nc", "Notes", 600, "a b"),  # G5.20
+        ("## Notes\na  b\n", "Notes", 600, "a b"),  # G5.21
+        ("## Notes\nfirst\n## Notes\nsecond", "Notes", 600, "first"),  # G5.22
+        ("## Notes\na", "Notes", 0, ""),  # G5.23
+        ("## Notes\nabc", "Notes", -1, "ab"),  # G5.24
+        ("## Notes\n a   b ", "Notes", 3, "a b"),  # G5.28
+        ("Verdict:\nx", "Verdict", 600, ""),  # not a heading
+        (
+            "### VERDICT  \nx\n#tag\ny",
+            "Verdict",
+            600,
+            "x #tag y",
+        ),  # '#tag' not a heading
+    ],
+)
+def test_c03_extract_section_shared_semantics(text, heading, cap, expected):
+    assert extract_section(text, heading, cap) == expected
+
+
+# --- verdict parser policy (G5.43-G5.47) -----------------------------------
+
+
+@pytest.mark.parametrize(
+    "section,expected",
+    [
+        ("", ("", "", "")),  # G5.43
+        ("  \n ", ("", "", "")),  # G5.43
+        ("yes 73 — why", ("yes", "73", "why")),  # G5.44 em dash
+        ("yes 73 -- why", ("yes", "73", "why")),  # G5.44 double dash
+        ("yes 73 - why", ("yes", "73", "why")),  # G5.44 spaced hyphen
+        ("yes 73: why", ("yes", "73", "why")),  # G5.44 ': '
+        ("x: y — z", ("x", "", "y — z")),  # first separator wins
+        ("yes—why", ("yes", "", "")),  # unspaced em dash is not a separator
+        ("yes-why", ("yes-why", "", "")),  # hyphen kept inside label run
+        ("yes:why", ("yes", "", "")),  # ':' without space is not a separator
+        ("a-b - c", ("a-b", "", "c")),
+        ("yes 73", ("yes", "73", "")),  # G5.45
+        ("PASS", ("yes", "", "")),  # G5.46 alias (case-insensitive)
+        ("Not_Feasible", ("no", "", "")),  # alias with underscore
+        ("not feasible", ("not", "", "")),  # space ends the label run
+        ("novel", ("novel", "", "")),  # G5.46 unknown passthrough
+        ("73", ("", "73", "")),  # G5.46 no letter prefix -> empty label
+        ("(85) yes", ("", "85", "")),  # label must be at head start
+        ("é", ("", "", "")),  # label run is ASCII-only
+        ("yes — needs 100 tests", ("yes", "", "needs 100 tests")),  # G5.47
+        ("yes 101 junk 5", ("yes", "100", "")),  # first head digit run, clamped
+        ("no 12.5: r", ("no", "12", "r")),
+    ],
+)
+def test_c03_parse_verdict_policy(section, expected):
+    assert parse_verdict(section) == expected
+
+
+def test_c03_every_alias_maps_through_parse_verdict():
+    for alias, canonical in VERDICT_ALIASES.items():
+        assert parse_verdict(alias) == (canonical, "", "")
+        assert parse_verdict(alias.upper()) == (canonical, "", "")
+
+
+# --- caps at k-1 / k / k+1 (G5.25-G5.27) -----------------------------------
+
+
+def test_c03_cap_constants_pinned():
+    assert (VERDICT_LABEL_CAP, RATIONALE_CAP, NOTES_CAP) == (32, 300, 600)
+
+
+@pytest.mark.parametrize("n", [31, 32, 33])
+def test_c03_unknown_label_cap_32(n):
+    # The label run is [A-Za-z][A-Za-z_-]*, so ASCII stands in for 'é'.
+    label, _, _ = parse_verdict("a" * n)
+    assert label == "a" * min(n, 32)
+    out = _run(f"## Verdict\n{'a' * n}\n")
+    assert _section(out.text, "Verdict") == "a" * min(n, 32)
+    assert _fm_value(out.text, "verdict") == '"' + "a" * min(n, 32) + '"'
+
+
+@pytest.mark.parametrize("n", [299, 300, 301])
+def test_c03_rationale_cap_300(n):
+    _, _, rationale = parse_verdict("yes — " + "é" * n)
+    assert rationale == "é" * min(n, 300)
+    out = _run(f"## Verdict\nyes — {'é' * n}\n")
+    assert _section(out.text, "Rationale") == "é" * min(n, 300)
+
+
+@pytest.mark.parametrize("total", [599, 600, 601])
+def test_c03_initial_verdict_section_cap_600(total):
+    # Flattened Verdict section of `total` chars whose LAST char is a
+    # head-zone digit: the RATIONALE_CAP * 2 = 600 section cap keeps it at
+    # 599/600 and drops it at 601.
+    section = "yes " + "é" * (total - 6) + " 7"
+    assert len(section) == total
+    out = _run(f"## Verdict\n{section}\n")
+    expected_conf = "7" if total <= 600 else ""
+    assert _fm_value(out.text, "verdict_confidence") == f'"{expected_conf}"'
+    assert _section(out.text, "Verdict") == ("yes (7)" if expected_conf else "yes")
+
+
+@pytest.mark.parametrize("n", [599, 600, 601])
+def test_c03_notes_cap_600_single_heading(n):
+    out = _run(f"## Verdict\nyes\n\n## Notes\n{'é' * n}\n")
+    assert _section(out.text, "Notes") == "é" * min(n, 600)
+
+
+def test_c03_notes_fold_cap_600_applies_after_join():
+    out = _run(
+        "## Verdict\nyes\n\n## Notes\n" + "a" * 400 + "\n\n## Gaps\n" + "b" * 400 + "\n"
+    )
+    assert _section(out.text, "Notes") == "a" * 400 + " | " + "b" * 197
+
+
+def test_c03_flatten_collapses_then_caps():
+    assert _flatten(" a   b ", 3) == "a b"
+    assert _flatten("é" * 33, 32) == "é" * 32
+
+
+# --- Notes / Gaps / Concerns folding order (G5.48) -------------------------
+
+
+@pytest.mark.parametrize(
+    "raw,expected",
+    [
+        # Heading-iteration order, not document order.
+        ("## Concerns\nC\n## Gaps\nG\n## Notes\nN\n", "N | G | C"),
+        ("## Notes\n## Gaps\nG\n## Concerns\nC\n", "G | C"),  # empty Notes skipped
+        ("## Notes\nN\n## Gaps\n## Concerns\nC\n", "N | C"),  # empty Gaps skipped
+        ("## Gaps\nG1\n## Gaps\nG2\n", "G1"),  # first heading only
+        ("## Notes\nN\n## Gaps\nG\n## Concerns\n", "N | G"),
+    ],
+)
+def test_c03_notes_gaps_concerns_fold_order(raw, expected):
+    out = _run("## Verdict\nyes\n\n" + raw)
+    assert _section(out.text, "Notes") == expected
+
+
+# --- metadata serialization (G5.31, G5.54) ---------------------------------
+
+
+def test_c03_render_markdown_bool_int_string_order():
+    fm = {"b": False, "i": 0, "s": "é", "t": True, "q": 'a"b\\c', "e": ""}
+    text = render_markdown("slug", fm, "", "", "", "")
+    assert text == (
+        "---\n"
+        "b: false\n"
+        "i: 0\n"
+        's: "é"\n'
+        "t: true\n"
+        'q: "a\\"b\\\\c"\n'
+        'e: ""\n'
+        "---\n"
+        "\n"
+        "# T2-Verdict (verdict-only) — slug\n"
+        "\n"
+        "## Verdict\n"
+        "(no verdict returned)\n"
+        "\n"
+        "## Rationale\n"
+        "(no rationale returned)\n"
+        "\n"
+        "## Notes\n"
+        "(no notes returned)\n"
+    )
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [
+        (0, "0"),
+        (None, "0"),
+        ("bad", "0"),
+        ("", "0"),
+        ("42", "42"),
+        (3.9, "3"),
+        ("4.5", "0"),
+    ],
+)
+def test_c03_elapsed_ms_conversion(value, expected):
+    args: dict[str, Any] = {"generated": FIXED_GENERATED, "elapsed_ms": value}
+    text = VerdictOnlyV1().normalize("## Verdict\nyes\n", args).text
+    assert _fm_value(text, "elapsed_ms") == expected
+
+
+def test_c03_metadata_defaults_types_and_key_order():
+    args: dict[str, Any] = {
+        "status": "success",
+        "target": FIXED_TARGET,
+        "target_checksum": FIXED_CHECKSUM,
+        "target_truncated": True,
+        "model_id": "m",
+        "model_label": 'é"\\',
+        "caller_label": None,
+        "elapsed_ms": "42",
+        "generated": FIXED_GENERATED,
+        "lens": "",
+        "tier": "",
+        "suspect": True,
+    }
+    result = VerdictOnlyV1().normalize("## Verdict\nyes\n", args)
+    assert result.salvaged is False and result.error is None
+    assert result.text == (
+        "---\n"
+        'schema_version: "1.0"\n'
+        'tier: "T2"\n'
+        "suspect: true\n"
+        'lens: "verdict-only"\n'
+        'reviewer_model_id: "m"\n'
+        'reviewer_model_label: "é\\"\\\\"\n'
+        'target: "/tmp/example/auth_login_spec.md"\n'
+        'target_checksum: "deadbeefcafe"\n'
+        "target_truncated: true\n"
+        'generated: "2026-06-01T11:43:39Z"\n'
+        'caller_label: ""\n'
+        "elapsed_ms: 42\n"
+        'verdict: "yes"\n'
+        'verdict_confidence: ""\n'
+        "---\n"
+        "\n"
+        "# T2-Verdict (verdict-only) — auth_login_spec\n"
+        "\n"
+        "## Verdict\n"
+        "yes\n"
+        "\n"
+        "## Rationale\n"
+        "(no rationale returned)\n"
+        "\n"
+        "## Notes\n"
+        "(no notes returned)\n"
+    )
+
+
+# --- success / recovery / fallback serialized oracles (G5.1, G5.49-G5.52) --
+
+
+def _body(
+    label_line: str,
+    verdict: str,
+    conf: str,
+    rationale: str,
+    notes: str,
+    generated: str = FIXED_GENERATED,
+) -> str:
+    return (
+        _FM_HEAD + f'generated: "{generated}"\n'
+        'caller_label: ""\n'
+        "elapsed_ms: 12345\n"
+        f'verdict: "{verdict}"\n'
+        f'verdict_confidence: "{conf}"\n'
+        "---\n"
+        "\n"
+        "# T2-Verdict (spec-completeness) — auth_login_spec\n"
+        "\n"
+        "## Verdict\n"
+        f"{label_line}\n"
+        "\n"
+        "## Rationale\n"
+        f"{rationale}\n"
+        "\n"
+        "## Notes\n"
+        f"{notes}\n"
+    )
+
+
+@pytest.mark.parametrize(
+    "raw,status,salvaged,expected",
+    [
+        (  # G5.52 success structured
+            "## Verdict\nincomplete (40) — three gaps.\n\n## Gaps\nG1\n\n## Notes\nN1\n",
+            "success",
+            False,
+            _body("no (40)", "no", "40", "three gaps.", "N1 | G1"),
+        ),
+        (  # G5.50 parse_error recovered by label alone
+            "## Verdict\nyes\n",
+            "parse_error",
+            True,
+            _body("yes", "yes", "", "(no rationale returned)", "(no notes returned)"),
+        ),
+        (  # G5.50 parse_error recovered by Concerns alone
+            "## Concerns\nC1\n",
+            "parse_error",
+            True,
+            _body("(no verdict returned)", "", "", "(no rationale returned)", "C1"),
+        ),
+        (  # G5.51 success freeform fallback
+            "free   prose\nonly\n",
+            "success",
+            False,
+            _body(
+                "uncertain", "uncertain", "", "free prose only", "(no notes returned)"
+            ),
+        ),
+        (  # G5.51 fallback keeps a head-only confidence; rationale = flat body
+            "## Verdict\n73\n",
+            "success",
+            False,
+            _body(
+                "uncertain (73)",
+                "uncertain",
+                "73",
+                "## Verdict 73",
+                "(no notes returned)",
+            ),
+        ),
+        (  # G5.51 fallback placeholder when the stripped body flattens to ''
+            "---\nx: 1\n---\n\n",
+            "success",
+            False,
+            _body(
+                "uncertain",
+                "uncertain",
+                "",
+                "(no structured verdict returned)",
+                "(no notes returned)",
+            ),
+        ),
+    ],
+)
+def test_c03_serialized_branch_oracles(raw, status, salvaged, expected):
+    result = _run(raw, status=status)
+    assert result.error is None
+    assert result.salvaged is salvaged
+    assert result.text == expected
+
+
+@pytest.mark.parametrize(
+    "raw,status,error",
+    [
+        ("", "success", "empty raw body"),  # G5.1
+        (" \n ", "parse_error", "empty raw body"),  # G5.1
+        ("free prose only\n", "parse_error", "no verdict or notes"),  # G5.49
+        ("## Verdict\n73\n", "parse_error", "no verdict or notes"),  # confidence alone
+        ("---\nx: 1\n---\n\n", "parse_error", "no verdict or notes"),
+    ],
+)
+def test_c03_unrecovered_branches(raw, status, error):
+    result = _run(raw, status=status)
+    assert (result.text, result.salvaged, result.error) == ("", False, error)
+
+
+# --- frozen clock seam (G5.30 / G5.55) -------------------------------------
+
+
+@pytest.mark.parametrize("generated", ["__absent__", "", None])
+def test_c03_generated_fallback_uses_module_iso_now(monkeypatch, generated):
+    monkeypatch.setattr(verdict_mod, "iso_now", lambda: FROZEN_CLOCK)
+    args: dict[str, Any] = {
+        "status": "success",
+        "target": FIXED_TARGET,
+        "target_checksum": FIXED_CHECKSUM,
+        "target_truncated": False,
+        "model_id": "m",
+        "model_label": "M",
+        "caller_label": "",
+        "elapsed_ms": 12345,
+        "lens": "spec-completeness",
+        "tier": "T2-spec",
+        "suspect": False,
+    }
+    if generated != "__absent__":
+        args["generated"] = generated
+    result = VerdictOnlyV1().normalize("## Verdict\nyes\n", args)
+    assert result.text == _body(
+        "yes",
+        "yes",
+        "",
+        "(no rationale returned)",
+        "(no notes returned)",
+        generated=FROZEN_CLOCK,
+    )
+
+
+def test_c03_supplied_generated_wins_over_patched_clock(monkeypatch):
+    monkeypatch.setattr(verdict_mod, "iso_now", lambda: FROZEN_CLOCK)
+    assert _fm_value(_run("## Verdict\nyes\n").text, "generated") == (
+        f'"{FIXED_GENERATED}"'
+    )
+
+
+def test_c03_iso_now_reads_module_datetime(monkeypatch):
+    from datetime import datetime as real_datetime
+
+    class _FrozenDatetime:
+        @staticmethod
+        def now(tz):
+            return real_datetime(2031, 2, 3, 4, 5, 6, tzinfo=tz)
+
+    monkeypatch.setattr(verdict_mod, "datetime", _FrozenDatetime)
+    assert verdict_mod.iso_now() == FROZEN_CLOCK
+
+
+def test_c03_original_names_and_all_unchanged():
+    assert verdict_mod.__all__ == [
+        "VerdictOnlyV1",
+        "VERDICT_ALIASES",
+        "CANONICAL_VERDICTS",
+        "VERDICT_LABEL_CAP",
+        "RATIONALE_CAP",
+        "NOTES_CAP",
+        "iso_now",
+        "yaml_str",
+        "strip_frontmatter",
+        "parse_confidence",
+        "parse_verdict",
+        "extract_section",
+        "render_markdown",
+    ]
+    for name in verdict_mod.__all__:
+        assert hasattr(verdict_mod, name)

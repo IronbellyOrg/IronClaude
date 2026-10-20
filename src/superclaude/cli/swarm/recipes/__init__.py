@@ -196,10 +196,14 @@ sentinels for concrete Recipe objects; the lens validator
 (:func:`superclaude.cli.swarm.lenses._validate.default_recipe_checker`)
 treats either ``None`` or a Protocol-conforming object as "registered".
 
-The Wave-2 dispatcher
-(:func:`superclaude.cli.swarm.normalize.normalize_wave2`) falls back to
-its private ``_PassthroughFallback`` when ``REGISTRY[name] is None`` so
-the M3 -> M4 handshake works through the T04.03..T04.08 sequence.
+All six entries are concrete today, but ``None`` stays a supported value:
+when an entry (for example one added by an extension) is explicitly
+``None``, the Wave-2 dispatcher
+(:func:`superclaude.cli.swarm.normalize.normalize_wave2`) resolves it to a
+fresh concrete :class:`~superclaude.cli.swarm.recipes.passthrough.Passthrough`
+(raw body, ``salvaged=False``) without mutating this registry. An absent
+name raises ``KeyError``; a non-``None`` value that is not a Recipe raises
+``TypeError``.
 
 Open-class: contributors register additional recipes by assigning
 ``REGISTRY[<name>] = MyRecipe()`` at import time (AC-007 verification

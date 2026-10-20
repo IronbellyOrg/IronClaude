@@ -21,10 +21,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from superclaude.cli.pipeline.deliverables import decompose_deliverables
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import (
-    Deliverable,
     PipelineConfig,
     Step,
     StepResult,
@@ -3447,21 +3445,6 @@ def read_state(path: Path) -> dict | None:
         return json.loads(text)
     except (json.JSONDecodeError, OSError):
         return None
-
-
-def apply_decomposition_pass(deliverables: list[Deliverable]) -> list[Deliverable]:
-    """Post-generation decomposition pass for the roadmap pipeline.
-
-    Runs after deliverable generation, before output formatting.
-    Splits behavioral deliverables into Implement/Verify pairs.
-
-    Idempotent: running twice produces identical results because
-    already-decomposed deliverables (IDs ending .a/.b) are skipped.
-
-    Preserves milestone-internal ordering: deliverables within each
-    milestone maintain their relative order after decomposition.
-    """
-    return decompose_deliverables(deliverables)
 
 
 def _restore_from_state(

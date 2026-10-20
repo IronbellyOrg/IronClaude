@@ -28,6 +28,7 @@ from typing import Any
 
 import pytest
 
+import superclaude.cli.swarm.recipes.findings_table_v1 as _ft
 from superclaude.cli.swarm.models import WorkerResult
 from superclaude.cli.swarm.normalize import normalize_wave2
 from superclaude.cli.swarm.recipes import REGISTRY, NormalizedResult, Recipe
@@ -499,3 +500,357 @@ def test_truncation_caps_oversize_cell_content():
     assert len(rows[0]["finding"]) <= CLAIM_CAP
     assert len(rows[0]["detail"]) <= DETAIL_CAP
     assert len(rows[0]["action"]) <= DETAIL_CAP
+
+
+# ---------------------------------------------------------------------------
+# 6 -- Item 2.8 characterization (C03 / panel G5): every expected value below
+# was observed from the UNCHANGED findings_table_v1 implementation and is
+# frozen here before any shared-primitive extraction. Serialized copies live
+# in the task artifacts (A/baselines/recipes/findings/cases.json).
+# ---------------------------------------------------------------------------
+
+_E = "é"  # 2-byte UTF-8 code point for Unicode cap checks
+_TABLE = "| L | F | D | A |\n|---|---|---|---|\n"
+_FB = "Some prose from the model. No table, no Notes heading.\n"
+
+_FM_DEFAULT = (
+    "---\n"
+    'schema_version: "1.0"\n'
+    'tier: "T2-code"\n'
+    "suspect: false\n"
+    'lens: "refactor-find"\n'
+    'reviewer_model_id: "m"\n'
+    'reviewer_model_label: "M"\n'
+    'target: "/tmp/example/target.py"\n'
+    'target_checksum: "deadbeefcafe"\n'
+    "target_truncated: false\n"
+    'generated: "2026-06-01T11:19:39Z"\n'
+    'caller_label: ""\n'
+    "elapsed_ms: 12345\n"
+)
+_HEAD = (
+    "---\n"
+    "\n"
+    "# T2-Findings Table (refactor-find) — target\n"
+    "\n"
+    "## Findings\n"
+    "\n"
+    "| ID | Locator | Finding | Detail | Action |\n"
+    "|----|---------|---------|--------|--------|\n"
+)
+_PLACEHOLDER = "| F-00 | (no rows) | (no structured findings returned) | — | — |\n"
+
+
+def _notes_section(text: str) -> str:
+    return text.split("\n## Notes\n", 1)[1]
+
+
+def _frontmatter(text: str) -> list[tuple[str, str]]:
+    block = text.split("---\n", 2)[1]
+    return [tuple(line.split(": ", 1)) for line in block.splitlines()]
+
+
+def _row(loc="", fin="", det="", act=""):
+    return {"locator": loc, "finding": fin, "detail": det, "action": act}
+
+
+# --- extract_notes: omitted/explicit cap + definition-time default binding ---
+
+
+@pytest.mark.parametrize("n,expected_len", [(299, 299), (300, 300), (301, 300)])
+def test_c03_extract_notes_omitted_cap_is_300_unicode(n, expected_len):
+    out = extract_notes("## Notes\n" + _E * n)
+    assert out == _E * expected_len
+    assert len(out.encode("utf-8")) == 2 * expected_len
+
+
+@pytest.mark.parametrize(
+    "text,cap,expected",
+    [
+        ("## Notes\n" + _E * 10, 5, _E * 5),
+        ("## Notes\n" + _E * 400, 350, _E * 350),  # explicit cap overrides default
+        ("## Notes\nabc", 0, ""),
+        ("## Notes\nabc", -1, "ab"),
+        ("## Notes\n a   b ", 3, "a b"),  # G5.28 collapse then slice
+    ],
+)
+def test_c03_extract_notes_explicit_cap(text, cap, expected):
+    assert extract_notes(text, cap) == expected
+
+
+def test_c03_extract_notes_default_bound_at_definition_time():
+    assert FALLBACK_NOTES_CAP == 300
+    assert extract_notes.__defaults__ == (300,)
+
+
+def test_c03_default300_survives_patching_module_constant(monkeypatch):
+    monkeypatch.setattr(_ft, "FALLBACK_NOTES_CAP", 10)
+    # Omitted cap still uses the value bound when extract_notes was defined.
+    assert extract_notes.__defaults__ == (300,)
+    assert len(_ft.extract_notes("## Notes\n" + _E * 400)) == 300
+    assert len(extract_notes("## Notes\n" + _E * 400)) == 300
+
+
+def test_c03_freeform_fallback_reads_module_constant_at_runtime(monkeypatch):
+    """Contrast pin: the normalize freeform fallback (findings_table_v1.py
+    `_truncate(body, FALLBACK_NOTES_CAP)`) looks the constant up at call
+    time, so the same patch DOES change it."""
+    monkeypatch.setattr(_ft, "FALLBACK_NOTES_CAP", 10)
+    result = _run(_E * 400)
+    assert _notes_section(result.text) == _E * 10 + "\n"
+
+
+# --- extract_notes: section selection (G5.17-G5.22) ---
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("plain", ""),  # G5.17 absent
+        ("## Notes\n## Other\nx", ""),  # G5.18 empty before next heading
+        ("## Notes\n## Notes\nsecond", ""),  # G5.18 no later repeat selected
+        ("## nOtEs\na", "a"),  # G5.19 case-insensitive
+        ("## Notes\na  b\n## Other\nc", "a b"),  # G5.20 next heading
+        ("## Notes\na  b\n", "a b"),  # G5.21 to EOF
+        ("## Notes\nfirst\n## Notes\nsecond", "first"),  # G5.22 first only
+        ("# Notes  \nx\n### NOTES\ny", "x"),
+        ("##Notes\nx", "x"),
+        ("## Notes\na\n#tag b\n## End\nc", "a #tag b"),  # '#tag' is not a heading
+        ("## Notes about\nx", ""),
+    ],
+)
+def test_c03_extract_notes_section_selection(text, expected):
+    assert extract_notes(text) == expected
+
+
+# --- parse_findings_table: widths, trailing cells, block reset, caps ---
+
+
+@pytest.mark.parametrize(
+    "line,expected",
+    [
+        ("| a |", _row("a")),
+        ("| a | b |", _row("a", "b")),
+        ("| a | b | c |", _row("a", "b", "c")),
+        ("| a | b | c | d |", _row("a", "b", "c", "d")),
+        ("| a | b | c | d | e | f |", _row("a", "b", "c", "d / e / f")),
+        ("| a | b |  |   |", _row("a", "b")),  # trailing empty cells popped
+        ("| a |  | c | d |", _row("a", "", "c", "d")),  # middle empty kept
+        ("|  | x |", _row("", "x")),  # leading empty kept
+        ("   | a | b", _row("a", "b")),  # indented, no closing pipe
+        ("| a   b | c \t d |", _row("a b", "c d")),  # per-cell collapse
+    ],
+)
+def test_c03_parse_widths_and_cells(line, expected):
+    assert parse_findings_table(_TABLE + line + "\n") == [expected]
+
+
+def test_c03_parse_all_empty_row_skipped_without_block_reset():
+    rows = parse_findings_table(_TABLE + "|  |  |\n| a | b | c | d |\n")
+    assert rows == [_row("a", "b", "c", "d")]
+
+
+def test_c03_parse_header_divider_reset():
+    """G5.34: header -> divider -> data -> plain -> pipe (no divider) ->
+    header -> divider -> data."""
+    text = (
+        "| H1 | H2 |\n|---|---|\n| d1 | x |\nplain\n| after-plain | y |\n"
+        "| H | H |\n| :--: | --- |\n| d2 | z |\n"
+    )
+    assert parse_findings_table(text) == [_row("d1", "x"), _row("d2", "z")]
+
+
+def test_c03_parse_blank_line_resets_block():
+    assert parse_findings_table(_TABLE + "| d1 | x |\n\n| d2 | y |\n") == [
+        _row("d1", "x")
+    ]
+
+
+def test_c03_parse_second_divider_keeps_block_open():
+    text = _TABLE + "| d1 | x |\n|---|---|\n| d2 | y |\n"
+    assert parse_findings_table(text) == [_row("d1", "x"), _row("d2", "y")]
+
+
+def test_c03_parse_preserves_order_and_duplicates():
+    text = _TABLE + "| z | 1 |\n| a | 2 |\n| z | 1 |\n"
+    assert parse_findings_table(text) == [
+        _row("z", "1"),
+        _row("a", "2"),
+        _row("z", "1"),
+    ]
+
+
+@pytest.mark.parametrize("n,kept", [(199, 199), (200, 200), (201, 200)])
+def test_c03_locator_finding_cap_200_unicode(n, kept):
+    assert CLAIM_CAP == 200
+    [row] = parse_findings_table(_TABLE + f"| {_E * n} | {_E * n} |\n")
+    assert row == _row(_E * kept, _E * kept)
+
+
+@pytest.mark.parametrize("n,kept", [(199, 199), (200, 200), (201, 200)])
+def test_c03_detail_action_cap_200_unicode(n, kept):
+    assert DETAIL_CAP == 200
+    [row] = parse_findings_table(_TABLE + f"| a | b | {_E * n} | {_E * n} |\n")
+    assert row == _row("a", "b", _E * kept, _E * kept)
+
+
+def test_c03_action_tail_joined_before_cap():
+    [row] = parse_findings_table(_TABLE + f"| a | b | c | {_E * 198} | xyz |\n")
+    assert row == _row("a", "b", "c", _E * 198 + " /")
+
+
+# --- normalize: branches with exact serialized output ---
+
+
+def test_c03_normalize_structured_success_exact():
+    raw = _TABLE + "| a:1 | f | d | x |\n| b:2 | g |  |  |\n\n## Notes\nok  notes\n"
+    result = _run(raw)
+    assert (result.salvaged, result.error) == (False, None)
+    assert result.text == (
+        _FM_DEFAULT
+        + "finding_count: 2\n"
+        + _HEAD
+        + "| F-01 | a:1 | f | d | x |\n"
+        + "| F-02 | b:2 | g |  |  |\n"
+        + "\n## Notes\nok notes\n"
+    )
+
+
+def test_c03_normalize_freeform_success_exact():
+    result = _run(_FB)
+    assert (result.salvaged, result.error) == (False, None)
+    assert result.text == (
+        _FM_DEFAULT
+        + "finding_count: 0\n"
+        + _HEAD
+        + _PLACEHOLDER
+        + "\n## Notes\nSome prose from the model. No table, no Notes heading.\n"
+    )
+
+
+@pytest.mark.parametrize("n,kept", [(299, 299), (300, 300), (301, 300)])
+def test_c03_normalize_freeform_fallback_cap_300_unicode(n, kept):
+    result = _run(_E * n)
+    assert result.text == (
+        _FM_DEFAULT
+        + "finding_count: 0\n"
+        + _HEAD
+        + _PLACEHOLDER
+        + "\n## Notes\n"
+        + _E * kept
+        + "\n"
+    )
+
+
+@pytest.mark.parametrize(
+    "raw,notes",
+    [
+        ("---\nx: 1\n---\n   ", "(no structured findings returned)"),
+        ("## Notes\n\n", "## Notes"),  # empty Notes -> body collapsed as fallback
+    ],
+)
+def test_c03_normalize_freeform_edge_bodies(raw, notes):
+    result = _run(raw)
+    assert (result.salvaged, result.error) == (False, None)
+    assert "finding_count: 0\n" in result.text
+    assert _PLACEHOLDER in result.text
+    assert _notes_section(result.text) == notes + "\n"
+
+
+def test_c03_normalize_non_parse_error_status_uses_success_path():
+    assert _run(_FB, status="timeout").text == _run(_FB).text
+
+
+@pytest.mark.parametrize(
+    "raw,status,error",
+    [
+        ("", "success", "empty raw body"),
+        (" \n\t", "success", "empty raw body"),
+        ("", "parse_error", "empty raw body"),
+        (_FB, "parse_error", "no findings or notes"),
+    ],
+)
+def test_c03_normalize_error_branches(raw, status, error):
+    result = _run(raw, status=status)
+    assert (result.text, result.salvaged, result.error) == ("", False, error)
+
+
+def test_c03_normalize_parse_error_salvage_rows_exact():
+    result = _run(_TABLE + "| a | b |\n", status="parse_error")
+    assert (result.salvaged, result.error) == (True, None)
+    assert result.text == (
+        _FM_DEFAULT
+        + "finding_count: 1\n"
+        + _HEAD
+        + "| F-01 | a | b |  |  |\n"
+        + "\n## Notes\n(no notes returned)\n"
+    )
+
+
+def test_c03_normalize_parse_error_salvage_notes_only_exact():
+    result = _run("## Notes\nkept\n", status="parse_error")
+    assert (result.salvaged, result.error) == (True, None)
+    assert result.text == (
+        _FM_DEFAULT + "finding_count: 0\n" + _HEAD + _PLACEHOLDER + "\n## Notes\nkept\n"
+    )
+
+
+# --- metadata field order / types under fixed generated values ---
+
+
+def test_c03_metadata_field_order_and_types_exact():
+    raw = _TABLE + "| a | b |\n"
+    args: dict[str, Any] = {
+        "status": "success",
+        "target": "/a/b.tar.gz",
+        "target_checksum": FIXED_CHECKSUM,
+        "target_truncated": 1,
+        "model_id": "m",
+        "model_label": 'q"b\\' + _E,
+        "caller_label": None,
+        "elapsed_ms": "7",
+        "generated": FIXED_GENERATED,
+        "lens": "",
+        "tier": "",
+        "suspect": "yes",
+    }
+    result = FindingsTableV1().normalize(raw, args)
+    assert _frontmatter(result.text) == [
+        ("schema_version", '"1.0"'),
+        ("tier", '"T2"'),
+        ("suspect", "true"),
+        ("lens", '"findings-table"'),
+        ("reviewer_model_id", '"m"'),
+        ("reviewer_model_label", '"q\\"b\\\\' + _E + '"'),
+        ("target", '"/a/b.tar.gz"'),
+        ("target_checksum", '"deadbeefcafe"'),
+        ("target_truncated", "true"),
+        ("generated", '"2026-06-01T11:19:39Z"'),
+        ("caller_label", '""'),
+        ("elapsed_ms", "7"),
+        ("finding_count", "1"),
+    ]
+    assert "# T2-Findings Table (findings-table) — b.tar\n" in result.text
+
+
+@pytest.mark.parametrize("elapsed", ["bad", None, 0, 0.9])
+def test_c03_metadata_elapsed_fallback_zero(elapsed):
+    result = _run(_TABLE + "| a | b |\n", elapsed_ms=elapsed)
+    assert ("elapsed_ms", "0") in _frontmatter(result.text)
+
+
+def test_c03_empty_target_gives_empty_slug():
+    result = _run(_TABLE + "| a | b |\n", target="")
+    assert ("target", '""') in _frontmatter(result.text)
+    assert "# T2-Findings Table (refactor-find) — \n" in result.text
+
+
+@pytest.mark.parametrize("generated", [None, ""])
+def test_c03_generated_absent_uses_module_iso_now(monkeypatch, generated):
+    monkeypatch.setattr(_ft, "iso_now", lambda: "2000-01-02T03:04:05Z")
+    raw = _TABLE + "| a | b |\n"
+    args: dict[str, Any] = {"status": "success", "target": FIXED_TARGET}
+    if generated is not None:
+        args["generated"] = generated
+    result = FindingsTableV1().normalize(raw, args)
+    assert ("generated", '"2000-01-02T03:04:05Z"') in _frontmatter(result.text)
