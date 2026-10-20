@@ -120,6 +120,13 @@ from datetime import datetime, timezone
 from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
+from superclaude.cli.swarm.recipes._primitives import (
+    extract_section,
+    format_timestamp,
+    parse_confidence,
+    strip_frontmatter,
+    yaml_str,
+)
 
 __all__ = [
     "VerdictOnlyV1",
@@ -218,64 +225,12 @@ NOTES_CAP: int = 600
 
 def iso_now() -> str:
     """ISO-8601 UTC timestamp, matches sibling recipes."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def yaml_str(v: str) -> str:
-    """Double-quote a scalar for safe single-line YAML emission."""
-    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
-
-
-def strip_frontmatter(text: str) -> str:
-    """Drop a leading ``---``-delimited YAML frontmatter block, if any."""
-    if text.lstrip().startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            return parts[2]
-    return text
+    return format_timestamp(datetime.now(timezone.utc))
 
 
 def _flatten(text: str, cap: int) -> str:
     """Whitespace-collapse + hard-cap a string."""
     return " ".join(text.split())[:cap]
-
-
-def parse_confidence(cell: str) -> str:
-    """Reformat a confidence cell.
-
-    Mirrors :func:`hypothesis_table_v1.parse_confidence`: extract the
-    first digit-run and clamp to ``[0, 100]``. Qualitative labels with
-    no digits return whitespace-collapsed (the recipe does not
-    interpret ``high``/``medium``/``low`` as scores -- that crosses
-    the AC-011 boundary). Empty / pure-whitespace input returns an
-    empty string.
-    """
-    if not cell or not cell.strip():
-        return ""
-    m = re.search(r"\d+", cell)
-    if m:
-        return str(max(0, min(100, int(m.group()))))
-    return " ".join(cell.split())
-
-
-def extract_section(text: str, heading: str, cap: int) -> str:
-    """Pull the contents of a ``## <heading>`` section (case-insensitive).
-
-    Mirrors :func:`bare_review_v1.extract_section`. Returns the section
-    body whitespace-collapsed and hard-capped at ``cap`` chars. Returns
-    an empty string when the heading is not present.
-    """
-    m = re.search(
-        rf"^#+\s*{re.escape(heading)}\s*$",
-        text,
-        re.IGNORECASE | re.MULTILINE,
-    )
-    if not m:
-        return ""
-    rest = text[m.end() :]
-    nxt = re.search(r"^#+\s", rest, re.MULTILINE)
-    body = rest[: nxt.start()] if nxt else rest
-    return " ".join(body.split())[:cap]
 
 
 def parse_verdict(section_text: str) -> tuple[str, str, str]:

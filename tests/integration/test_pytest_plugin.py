@@ -4,7 +4,93 @@ Integration tests for SuperClaude pytest plugin
 Tests that the pytest plugin loads correctly and provides expected fixtures.
 """
 
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+from urllib.parse import unquote, urlparse
+
 import pytest
+
+import superclaude
+import superclaude.pytest_plugin
+
+PLUGIN_FIXTURES = (
+    "confidence_checker",
+    "self_check_protocol",
+    "reflexion_pattern",
+    "token_budget",
+    "pm_context",
+)
+
+
+def _distribution_package_roots():
+    """Locations the installed ``superclaude`` distribution serves its package from.
+
+    Wheel install: ``<site-packages>/superclaude``. Editable install: the
+    ``direct_url.json`` project directory's ``src/superclaude``.
+    """
+    dist = importlib.metadata.distribution("superclaude")
+    roots = [Path(dist.locate_file("superclaude")).resolve()]
+    direct = json.loads(dist.read_text("direct_url.json") or "{}")
+    if direct.get("dir_info", {}).get("editable"):
+        project = Path(unquote(urlparse(direct["url"]).path))
+        roots += [(project / "src" / "superclaude").resolve()]
+    return roots
+
+
+def _is_within_distribution(path):
+    path = Path(path).resolve()
+    return any(path.is_relative_to(root) for root in _distribution_package_roots())
+
+
+class TestPluginDiscoveryProvenance:
+    """The plugin must load via the distribution's pytest11 entrypoint, not manual registration."""
+
+    def test_distribution_declares_pytest11_entrypoint(self):
+        eps = [
+            ep
+            for ep in importlib.metadata.entry_points(group="pytest11")
+            if ep.name == "superclaude"
+        ]
+        assert len(eps) == 1, eps
+        assert eps[0].value == "superclaude.pytest_plugin"
+        assert eps[0].dist.metadata["Name"] == "superclaude"
+        assert eps[0].load() is superclaude.pytest_plugin
+
+    def test_plugin_module_lives_in_installed_distribution(self):
+        plugin_file = Path(superclaude.pytest_plugin.__file__).resolve()
+        assert plugin_file.parent == Path(superclaude.__file__).resolve().parent
+        assert _is_within_distribution(plugin_file), (
+            plugin_file,
+            _distribution_package_roots(),
+        )
+
+    def test_pluginmanager_registered_plugin_automatically(self, request):
+        pm = request.config.pluginmanager
+        # Entrypoint loading registers under the entrypoint name; -p/pytest_plugins
+        # would register under the module name instead.
+        assert pm.get_plugin("superclaude") is superclaude.pytest_plugin
+        assert pm.get_name(superclaude.pytest_plugin) == "superclaude"
+        dists = [
+            dist.metadata["Name"]
+            for plugin, dist in pm.list_plugin_distinfo()
+            if plugin is superclaude.pytest_plugin
+        ]
+        assert dists == ["superclaude"]
+        # No manual registration masks a broken entrypoint.
+        args = [str(a) for a in request.config.invocation_params.args]
+        assert not any("superclaude.pytest_plugin" in a for a in args), args
+        assert "superclaude" not in os.environ.get("PYTEST_PLUGINS", "")
+        assert os.environ.get("PYTEST_DISABLE_PLUGIN_AUTOLOAD") is None
+
+    @pytest.mark.parametrize("name", PLUGIN_FIXTURES)
+    def test_fixture_provided_by_installed_plugin(self, request, name):
+        defs = request._fixturemanager.getfixturedefs(name, request.node)
+        assert defs, f"fixture {name} not available"
+        func = defs[-1].func
+        assert func.__module__ == "superclaude.pytest_plugin"
+        assert _is_within_distribution(func.__code__.co_filename)
 
 
 class TestPytestPluginIntegration:

@@ -99,14 +99,13 @@ threads the full context through.
 from __future__ import annotations
 
 import json
-import os
-import tempfile
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Optional
 
 import yaml
 
+from superclaude.cli.swarm.atomic import write_prepared_bytes
 from superclaude.cli.swarm.models import (
     AmalgamationMode,
     Artifacts,
@@ -340,24 +339,7 @@ def _atomic_write_bytes(path: Path, data: bytes) -> int:
     executor's contract that the output dir is materialized at preflight).
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, tmp_name = tempfile.mkstemp(
-        prefix=path.name + ".",
-        suffix=".tmp",
-        dir=str(path.parent),
-    )
-    try:
-        with os.fdopen(fd, "wb") as handle:
-            handle.write(data)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(tmp_name, str(path))
-    except Exception:
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        raise
-    return len(data)
+    return write_prepared_bytes(path, data)
 
 
 # ---------------------------------------------------------------------------

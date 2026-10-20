@@ -23,7 +23,11 @@ Covers five layers:
 
 from __future__ import annotations
 
+import inspect
 import json
+import sys
+from datetime import datetime as _real_datetime
+from datetime import timezone as _real_timezone
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +36,8 @@ import pytest
 from superclaude.cli.swarm.models import WorkerResult
 from superclaude.cli.swarm.normalize import normalize_wave2
 from superclaude.cli.swarm.recipes import REGISTRY, NormalizedResult, Recipe
+from superclaude.cli.swarm.recipes import hypothesis_table_v1 as hyp_mod
+from superclaude.cli.swarm.recipes.bare_review_v1 import parse_conf as bare_parse_conf
 from superclaude.cli.swarm.recipes.hypothesis_table_v1 import (
     CAUSE_CAP,
     EVIDENCE_CAP,
@@ -582,3 +588,580 @@ def test_recipe_emits_well_formed_yaml_frontmatter(fixture_name):
         "hypothesis_count:",
     ]:
         assert key in head, f"missing frontmatter key {key!r}"
+
+
+# ---------------------------------------------------------------------------
+# 6 -- Phase 2 characterization (cleanup-debt item 2.9 / C03 / panel G5)
+#
+# Expected values below were OBSERVED from the unchanged implementation
+# and pinned; they are the before-extraction oracle for C03. Module-level
+# case tables are also consumed by the baseline capture script under the
+# task's artifacts/baselines/recipes/hypothesis/ directory.
+# ---------------------------------------------------------------------------
+
+
+E = "é"  # 'é': one code point, two UTF-8 bytes
+
+EXPECTED_ALL = [
+    "HypothesisTableV1",
+    "DIVIDER_CELL_RE",
+    "CAUSE_CAP",
+    "EVIDENCE_CAP",
+    "NEXT_STEP_CAP",
+    "FALLBACK_NOTES_CAP",
+    "iso_now",
+    "yaml_str",
+    "strip_frontmatter",
+    "parse_confidence",
+    "parse_hypothesis_table",
+    "extract_notes",
+    "render_markdown",
+]
+
+# (cell, hypothesis parse_confidence, bare parse_conf)
+CONFIDENCE_CASES: list[tuple[str, str, str]] = [
+    ("", "", ""),  # G5.2
+    ("  ", "", ""),  # G5.2
+    ("\t", "", ""),
+    ("0", "0", "0"),  # G5.3
+    ("confidence 73%", "73", "73"),  # G5.4
+    ("100", "100", "100"),  # G5.5
+    ("101", "100", "100"),  # G5.6
+    ("9000", "100", "100"),
+    ("-1", "1", "1"),  # G5.7 signed-looking -> first digit run
+    ("-5", "5", "5"),
+    ("+7", "7", "7"),
+    ("x-0042y", "42", "42"),
+    ("007", "7", "7"),
+    ("12.5 then 99", "12", "12"),  # G5.8
+    (" high  confidence ", "high confidence", ""),  # G5.9 split
+    ("Medium\n\tHigh", "Medium High", ""),
+    ("٣", "3", "3"),  # Unicode decimal digit matches \d
+]
+
+# (data-row cells, expected parsed row) -- G5.37..G5.42 and qualitative tails
+WIDTH_CASES: list[tuple[list[str], dict[str, str]]] = [
+    (["a"], {"cause": "a", "evidence": "", "confidence": "", "next_step": ""}),
+    (["a", "b"], {"cause": "a", "evidence": "", "confidence": "", "next_step": "b"}),
+    (
+        ["a", "b", "c"],
+        {"cause": "a", "evidence": "b", "confidence": "", "next_step": "c"},
+    ),
+    (
+        ["a", "b", "73", "c"],
+        {"cause": "a", "evidence": "b", "confidence": "73", "next_step": "c"},
+    ),
+    (
+        ["a", "b", "c", "73", "d"],
+        {"cause": "a", "evidence": "b | c", "confidence": "73", "next_step": "d"},
+    ),
+    (
+        ["a", "b", "c", "d", "73", "e"],
+        {"cause": "a", "evidence": "b | c | d", "confidence": "73", "next_step": "e"},
+    ),
+    (
+        ["a", "b", "c", "d", "e", "f", "g"],
+        {
+            "cause": "a",
+            "evidence": "b | c | d | e",
+            "confidence": "f",
+            "next_step": "g",
+        },
+    ),
+    (
+        ["a", "b", " high  confidence ", "c"],
+        {
+            "cause": "a",
+            "evidence": "b",
+            "confidence": "high confidence",
+            "next_step": "c",
+        },
+    ),
+    (
+        ["a", "b", "c", "low", "d"],
+        {"cause": "a", "evidence": "b | c", "confidence": "low", "next_step": "d"},
+    ),
+    (
+        ["a  b", "c   d", "-1", "  e  f "],
+        {"cause": "a b", "evidence": "c d", "confidence": "1", "next_step": "e f"},
+    ),
+]
+
+# (table text, expected cause list) -- divider / reset / trailing-cell (G5.34/35)
+TABLE_BLOCK_CASES: list[tuple[str, str, list[str]]] = [
+    (
+        "reset_on_plain_and_blank",
+        "| h |\n|---|\n| a |\nplain\n| b |\n|---|\n| c |\n\n| d |\n",
+        ["a", "c"],
+    ),
+    ("divider_with_empty_inner_cell_is_not_divider", "|C|\n|---||---|\n| a |\n", []),
+    ("alignment_divider", "|C|\n| :-: | --- |\n| a |\n", ["a"]),
+    ("divider_without_header", "|---|\n| a |\n", ["a"]),
+    ("header_only_no_divider", "| not a real table |\n| just two rows |\n", []),
+    ("all_empty_pipe_row_skipped_no_reset", "|C|\n|---|\n| | | |\n| x |\n", ["x"]),
+    ("leading_empty_cell_kept", "|C|\n|---|\n|  | a |\n", [""]),
+    ("doubled_leading_pipe_collapses", "|C|\n|---|\n|| a |\n", ["a"]),
+    ("indented_rows_accepted", "  | h |\n  |---|\n  | a |", ["a"]),
+    (
+        "mid_block_divider_rearms_not_a_row",
+        "|C|\n|---|\n| a |\n| --- |\n| b |\n",
+        ["a", "b"],
+    ),
+    ("no_pipes", "just prose\n", []),
+]
+
+# (raw, status, expected salvaged, expected error, expected Notes body or None)
+NORMALIZE_CASES: list[tuple[str, str, str, bool, str | None, str | None]] = [
+    ("empty_success", "", "success", False, "empty raw body", None),  # G5.1
+    ("whitespace_parse_error", " \n ", "parse_error", False, "empty raw body", None),
+    (
+        "pe_frontmatter_only",
+        "---\nx\n---\n",
+        "parse_error",
+        False,
+        "no hypotheses or notes",
+        None,
+    ),  # G5.49
+    (
+        "pe_empty_notes_heading",
+        "## Notes\n\n",
+        "parse_error",
+        False,
+        "no hypotheses or notes",
+        None,
+    ),
+    (
+        "pe_unstructured",
+        "raw stream, no pipes\n",
+        "parse_error",
+        False,
+        "no hypotheses or notes",
+        None,
+    ),
+    (
+        "pe_rows_only",
+        "|C|\n|---|\n| a |\n",
+        "parse_error",
+        True,
+        None,
+        "(no notes returned)",
+    ),  # G5.50
+    ("pe_notes_only", "## Notes\nn\n", "parse_error", True, None, "n"),
+    (
+        "ok_freeform",
+        "free  form\ntext",
+        "success",
+        False,
+        None,
+        "free form text",
+    ),  # G5.51
+    (
+        "ok_frontmatter_then_blank",
+        "---\nx: 1\n---\n   \n",
+        "success",
+        False,
+        None,
+        "(no structured hypotheses returned)",
+    ),
+    (
+        "ok_empty_notes_heading_falls_back_to_body",
+        "## Notes\n\n## Other\nprose\n",
+        "success",
+        False,
+        None,
+        "## Notes ## Other prose",
+    ),
+    (
+        "unknown_status_uses_success_branch",
+        "free text",
+        "timeout",
+        False,
+        None,
+        "free text",
+    ),
+    (
+        "ok_structured",
+        "|C|\n|---|\n| a | b | 73 | c |\n## Notes\nn",
+        "success",
+        False,
+        None,
+        "n",
+    ),  # G5.52
+]
+
+FROZEN_STRUCTURED_RAW = (
+    "---\nfoo: 1\n---\n"
+    "## Hypotheses\n"
+    "| Cause | Supporting | Falsifying | Conf | Next |\n"
+    "|-------|------------|------------|------|------|\n"
+    "| stale cache | ttl > age | none | 80% | flush |\n"
+    "| pool | full | | high | bump |\n"
+    "\n## Notes\nkeep  both\n"
+)
+
+FROZEN_STRUCTURED_EXPECTED = (
+    "---\n"
+    'schema_version: "1.0"\n'
+    'tier: "T2-tshoot"\n'
+    "suspect: false\n"
+    'lens: "troubleshoot-hypothesis"\n'
+    'reviewer_model_id: "m"\n'
+    'reviewer_model_label: "M"\n'
+    'target: "/tmp/example/auth_login_500.log"\n'
+    'target_checksum: "deadbeefcafe"\n'
+    "target_truncated: false\n"
+    'generated: "2026-06-01T11:19:39Z"\n'
+    'caller_label: ""\n'
+    "elapsed_ms: 12345\n"
+    "hypothesis_count: 2\n"
+    "---\n"
+    "\n"
+    "# T2-Hypothesis Table (troubleshoot-hypothesis) — auth_login_500\n"
+    "\n"
+    "## Hypotheses\n"
+    "\n"
+    "| ID | Cause | Evidence | Confidence | Next Step |\n"
+    "|----|-------|----------|------------|-----------|\n"
+    "| H-01 | stale cache | ttl > age | none | 80 | flush |\n"
+    "| H-02 | pool | full | | high | bump |\n"
+    "\n"
+    "## Notes\n"
+    "keep both\n"
+)
+
+FROZEN_PLACEHOLDER_EXPECTED_TAIL = (
+    "| ID | Cause | Evidence | Confidence | Next Step |\n"
+    "|----|-------|----------|------------|-----------|\n"
+    "| H-00 | (no rows) | (no structured hypotheses returned) | — | — |\n"
+    "\n"
+    "## Notes\n"
+    "free form text\n"
+)
+
+FM_KEY_ORDER = [
+    "schema_version",
+    "tier",
+    "suspect",
+    "lens",
+    "reviewer_model_id",
+    "reviewer_model_label",
+    "target",
+    "target_checksum",
+    "target_truncated",
+    "generated",
+    "caller_label",
+    "elapsed_ms",
+    "hypothesis_count",
+]
+
+
+def _notes_body(text: str) -> str:
+    return text.split("\n## Notes\n", 1)[1].removesuffix("\n")
+
+
+def _fm_lines(text: str) -> list[str]:
+    return text.split("---\n", 2)[1].splitlines()
+
+
+def _row(cells: list[str]) -> str:
+    return "| C |\n|---|\n| " + " | ".join(cells) + " |\n"
+
+
+# -- surface / constants -----------------------------------------------------
+
+
+def test_c03_hyp_all_exports_pinned():
+    assert hyp_mod.__all__ == EXPECTED_ALL
+    for name in EXPECTED_ALL:
+        assert hasattr(hyp_mod, name), name
+
+
+def test_c03_hyp_cap_constants_and_divider_regex_pinned():
+    assert (CAUSE_CAP, EVIDENCE_CAP, NEXT_STEP_CAP, FALLBACK_NOTES_CAP) == (
+        240,
+        320,
+        240,
+        300,
+    )
+    assert hyp_mod.DIVIDER_CELL_RE.pattern == r"^[\-:\s]+$"
+
+
+# -- confidence (G5.2-G5.10) -------------------------------------------------
+
+
+@pytest.mark.parametrize(("cell", "expected", "_bare"), CONFIDENCE_CASES)
+def test_c03_hyp_parse_confidence_cases(cell, expected, _bare):
+    assert parse_confidence(cell) == expected
+
+
+@pytest.mark.parametrize(("cell", "_hyp", "bare_expected"), CONFIDENCE_CASES)
+def test_c03_hyp_bare_no_digit_distinction_survives(cell, _hyp, bare_expected):
+    """Bare ``parse_conf`` stays distinct: no digit -> '' (G5.9)."""
+    assert bare_parse_conf(cell) == bare_expected
+
+
+def test_c03_hyp_parse_confidence_int_conversion_error_propagates():
+    """G5.10: over-limit digit run raises the baseline ValueError, no fallback."""
+    huge = "9" * (sys.get_int_max_str_digits() + 1)
+    with pytest.raises(ValueError):
+        parse_confidence(huge)
+    with pytest.raises(ValueError):
+        parse_hypothesis_table(_row(["a", "b", huge, "c"]))
+
+
+# -- Notes adapter: default binding + section semantics ----------------------
+
+
+def test_c03_hyp_extract_notes_default_bound_at_definition_time(monkeypatch):
+    assert inspect.signature(extract_notes).parameters["cap"].default == 300
+    monkeypatch.setattr(hyp_mod, "FALLBACK_NOTES_CAP", 5)
+    body = "## Notes\n" + E * 400
+    assert extract_notes(body) == E * 300  # omitted cap ignores the patch
+    assert hyp_mod.extract_notes(body) == E * 300
+    assert extract_notes(body, 5) == E * 5
+
+
+def test_c03_hyp_fallback_notes_cap_is_runtime_lookup(monkeypatch):
+    """The freeform fallback reads FALLBACK_NOTES_CAP at call time."""
+    monkeypatch.setattr(hyp_mod, "FALLBACK_NOTES_CAP", 5)
+    assert _notes_body(_run("abcdefgh").text) == "abcde"
+
+
+@pytest.mark.parametrize(
+    ("text", "cap", "expected"),
+    [
+        ("plain", None, ""),  # G5.17
+        ("## Notes\n## Other\nx", None, ""),  # G5.18
+        ("## nOtEs\na", None, "a"),  # G5.19
+        ("## Notes\na  b\n## Other\nc", None, "a b"),  # G5.20
+        ("## Notes\na  b\n", None, "a b"),  # G5.21
+        ("## Notes\nfirst\n## Notes\nsecond", None, "first"),  # G5.22
+        ("## Notes\na", 0, ""),  # G5.23
+        ("## Notes\nabc", -1, "ab"),  # G5.24
+        ("## Notes\n a   b \n", 3, "a b"),  # G5.28
+        ("#Notes\nx", None, "x"),
+        ("### Notes  \nx\n#tag-not-heading\ny", None, "x #tag-not-heading y"),
+        ("## Notes:\nx", None, ""),
+    ],
+)
+def test_c03_hyp_extract_notes_section_cases(text, cap, expected):
+    got = extract_notes(text) if cap is None else extract_notes(text, cap)
+    assert got == expected
+
+
+# -- caps k-1 / k / k+1, code-point based (G5.25-G5.27) ----------------------
+
+
+def _cap_field(field: str, value: str) -> str:
+    if field == "cause":
+        return parse_hypothesis_table(_row([value, "e", "50", "n"]))[0]["cause"]
+    if field == "evidence":
+        return parse_hypothesis_table(_row(["c", value, "50", "n"]))[0]["evidence"]
+    if field == "next_step":
+        return parse_hypothesis_table(_row(["c", "e", "50", value]))[0]["next_step"]
+    if field == "next_step_width2":
+        return parse_hypothesis_table(_row(["c", value]))[0]["next_step"]
+    if field == "notes_default":
+        return extract_notes("## Notes\n" + value)
+    if field == "fallback_notes":
+        return _notes_body(_run(value).text)
+    raise AssertionError(field)
+
+
+CAP_FIELDS = [
+    ("cause", 240),
+    ("evidence", 320),
+    ("next_step", 240),
+    ("next_step_width2", 240),
+    ("notes_default", 300),
+    ("fallback_notes", 300),
+]
+
+
+@pytest.mark.parametrize(("field", "k"), CAP_FIELDS)
+@pytest.mark.parametrize("delta", [-1, 0, 1])
+def test_c03_hyp_caps_code_point_boundaries(field, k, delta):
+    value = E * (k + delta)
+    got = _cap_field(field, value)
+    assert got == E * min(k, k + delta)
+    assert len(got) == min(k, k + delta)
+    assert len(got.encode("utf-8")) == 2 * min(k, k + delta)
+
+
+def test_c03_hyp_evidence_cap_applies_after_middle_join():
+    left, right = "x" * 200, "y" * 200
+    rows = parse_hypothesis_table(_row(["c", left, right, "50", "n"]))
+    assert rows[0]["evidence"] == (left + " | " + right)[:320]
+
+
+def test_c03_hyp_cell_caps_are_runtime_lookup_collapse_then_slice(monkeypatch):
+    monkeypatch.setattr(hyp_mod, "CAUSE_CAP", 3)
+    monkeypatch.setattr(hyp_mod, "EVIDENCE_CAP", 3)
+    monkeypatch.setattr(hyp_mod, "NEXT_STEP_CAP", 3)
+    rows = parse_hypothesis_table(_row(["a   b   c", "d   e   f", "1", "g   h   i"]))
+    assert rows == [
+        {"cause": "a b", "evidence": "d e", "confidence": "1", "next_step": "g h"}
+    ]
+
+
+# -- widths and table blocks (G5.34, G5.35, G5.37-G5.42) ---------------------
+
+
+@pytest.mark.parametrize(("cells", "expected"), WIDTH_CASES)
+def test_c03_hyp_row_width_mapping(cells, expected):
+    assert parse_hypothesis_table(_row(cells)) == [expected]
+
+
+@pytest.mark.parametrize("trailing", ["", " |", "   |  |", "   "])
+def test_c03_hyp_trailing_empty_cells_dropped(trailing):
+    """Trailing empty cells never widen the row (stays width 2)."""
+    rows = parse_hypothesis_table("| C |\n|---|\n| a | b |" + trailing + "\n")
+    assert rows == [{"cause": "a", "evidence": "", "confidence": "", "next_step": "b"}]
+
+
+@pytest.mark.parametrize(
+    ("text", "causes"),
+    [(t, c) for (_n, t, c) in TABLE_BLOCK_CASES],
+    ids=[n for (n, _t, _c) in TABLE_BLOCK_CASES],
+)
+def test_c03_hyp_table_block_divider_reset(text, causes):
+    assert [r["cause"] for r in parse_hypothesis_table(text)] == causes
+
+
+# -- normalize: empty / parse-error recovery / freeform (G5.1, G5.49-G5.52) --
+
+
+@pytest.mark.parametrize(
+    ("raw", "status", "salvaged", "error", "notes"),
+    [c[1:] for c in NORMALIZE_CASES],
+    ids=[c[0] for c in NORMALIZE_CASES],
+)
+def test_c03_hyp_normalize_recovery_matrix(raw, status, salvaged, error, notes):
+    result = _run(raw, status=status)
+    assert result.salvaged is salvaged
+    assert result.error == error
+    if error is not None:
+        assert result.text == ""
+    else:
+        assert _notes_body(result.text) == notes
+
+
+# -- frozen-clock serialization (G5.30, G5.31, G5.53, G5.54) -----------------
+
+
+def test_c03_hyp_frozen_structured_render_bytes():
+    result = _run(FROZEN_STRUCTURED_RAW)
+    assert result.salvaged is False and result.error is None
+    assert result.text == FROZEN_STRUCTURED_EXPECTED
+
+
+def test_c03_hyp_frozen_placeholder_render():
+    text = _run("free  form\ntext").text
+    assert text.endswith(FROZEN_PLACEHOLDER_EXPECTED_TAIL)
+    assert "hypothesis_count: 0\n" in text
+
+
+def test_c03_hyp_frontmatter_key_order_and_types():
+    result = HypothesisTableV1().normalize(
+        "|C|\n|---|\n| a |\n",
+        {
+            "generated": FIXED_GENERATED,
+            "suspect": True,
+            "target_truncated": 1,
+            "caller_label": E,
+            "model_id": 'a"b\\c',
+            "elapsed_ms": 0,
+            "tier": "",
+            "lens": "",
+        },
+    )
+    lines = _fm_lines(result.text)
+    assert [ln.split(":", 1)[0] for ln in lines] == FM_KEY_ORDER
+    assert lines == [
+        'schema_version: "1.0"',
+        'tier: "T2-tshoot"',
+        "suspect: true",
+        'lens: "troubleshoot-hypothesis"',
+        'reviewer_model_id: "a\\"b\\\\c"',
+        'reviewer_model_label: ""',
+        'target: ""',
+        'target_checksum: ""',
+        "target_truncated: true",
+        'generated: "2026-06-01T11:19:39Z"',
+        f'caller_label: "{E}"',
+        "elapsed_ms: 0",
+        "hypothesis_count: 1",
+    ]
+    # Empty target -> empty slug; heading keeps the trailing separator.
+    assert "\n# T2-Hypothesis Table (troubleshoot-hypothesis) — \n" in result.text
+
+
+def test_c03_hyp_custom_lens_and_tier_flow_to_render():
+    text = _run("|C|\n|---|\n| a |\n", lens="custom-lens", tier="T9").text
+    assert 'lens: "custom-lens"' in text
+    assert 'tier: "T9"' in text
+    assert "# T2-Hypothesis Table (custom-lens) — auth_login_500\n" in text
+
+
+@pytest.mark.parametrize(
+    ("elapsed", "expected"),
+    [(0, 0), (None, 0), ("bad", 0), ("", 0), ("7", 7), (3.9, 3), ([], 0)],
+)
+def test_c03_hyp_elapsed_ms_conversion(elapsed, expected):
+    text = (
+        HypothesisTableV1()
+        .normalize("x", {"generated": FIXED_GENERATED, "elapsed_ms": elapsed})
+        .text
+    )
+    assert f"\nelapsed_ms: {expected}\n" in text
+
+
+@pytest.mark.parametrize("generated", [None, "", 0])
+def test_c03_hyp_generated_falsy_uses_module_iso_now(monkeypatch, generated):
+    monkeypatch.setattr(hyp_mod, "iso_now", lambda: "1999-12-31T23:59:59Z")
+    args: dict[str, Any] = {"target": FIXED_TARGET}
+    if generated is not None:
+        args["generated"] = generated
+    text = HypothesisTableV1().normalize("x", args).text
+    assert '\ngenerated: "1999-12-31T23:59:59Z"\n' in text
+
+
+def test_c03_hyp_generated_supplied_never_reads_clock(monkeypatch):
+    def _boom() -> str:
+        raise AssertionError("clock read despite supplied generated")
+
+    monkeypatch.setattr(hyp_mod, "iso_now", _boom)
+    assert f'generated: "{FIXED_GENERATED}"' in _run("x").text
+
+
+def test_c03_hyp_iso_now_reads_module_datetime_seam(monkeypatch):
+    seen: list[Any] = []
+
+    class _FrozenDatetime:
+        @staticmethod
+        def now(tz=None):
+            seen.append(tz)
+            return _real_datetime(2026, 1, 2, 3, 4, 5, tzinfo=_real_timezone.utc)
+
+    monkeypatch.setattr(hyp_mod, "datetime", _FrozenDatetime)
+    assert hyp_mod.iso_now() == "2026-01-02T03:04:05Z"
+    assert seen == [hyp_mod.timezone.utc]
+    text = HypothesisTableV1().normalize("x", {}).text
+    assert '\ngenerated: "2026-01-02T03:04:05Z"\n' in text
+
+
+# -- exported lookup seams stay effective (G5.55) ----------------------------
+
+
+def test_c03_hyp_module_global_seams_are_effective(monkeypatch):
+    monkeypatch.setattr(hyp_mod, "parse_confidence", lambda c: "PC")
+    assert parse_hypothesis_table(_row(["a", "b", "73", "c"]))[0]["confidence"] == "PC"
+    monkeypatch.setattr(hyp_mod, "yaml_str", lambda v: "<Y>")
+    assert "\ntier: <Y>\n" in _run("x").text
+    monkeypatch.setattr(hyp_mod, "extract_notes", lambda t, cap=0: "PATCHED")
+    assert _notes_body(_run("|C|\n|---|\n| a |\n").text) == "PATCHED"
+    monkeypatch.setattr(hyp_mod, "strip_frontmatter", lambda t: "## Notes\nSF")
+    assert _notes_body(_run("anything").text) == "PATCHED"
+    monkeypatch.undo()
+    monkeypatch.setattr(hyp_mod, "strip_frontmatter", lambda t: "## Notes\nSF")
+    assert _notes_body(_run("anything").text) == "SF"

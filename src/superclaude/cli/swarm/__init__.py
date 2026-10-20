@@ -62,6 +62,9 @@ Documented divergences (swarm-specific, no sprint analogue):
   3-worker boundary test -- see ``merge.py`` docstring). All scoring /
   ranking / dedup / rewrite stays in ``/sc:adversarial``; sprint has
   no merge counterpart.
+* ``atomic.py`` -- shared tmp file + fsync + ``os.replace`` byte write
+  used by ``normalize.py`` and ``reduce.py`` (IMM-6); callers prepare the
+  parent directory and encoding. Sprint has no equivalent writer.
 * ``transports/`` -- swarm fans a prompt across heterogeneous workers,
   so a Transport Protocol + concrete impls (openai_compat, stub) live
   in a sub-package. Sprint shells out via ``process.py`` instead.

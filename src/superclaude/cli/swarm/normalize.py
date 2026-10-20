@@ -18,10 +18,10 @@ Contract (FR-LENSREG.NS / §3.3 / §4.1)
   canonical Protocol and the :class:`NormalizedResult` dataclass live
   in :mod:`superclaude.cli.swarm.recipes` (T04.02); this module
   re-exports them so callers can keep importing ``Recipe`` /
-  ``NormalizedResult`` from either side. While REGISTRY entries
-  remain at the M2 ``None`` sentinel, the dispatcher falls back to
-  :class:`_PassthroughFallback` so the dispatcher surface lands ahead
-  of the per-recipe modules (T04.03..T04.09).
+  ``NormalizedResult`` from either side. A REGISTRY entry explicitly
+  set to ``None`` resolves to a fresh concrete
+  :class:`~superclaude.cli.swarm.recipes.passthrough.Passthrough`
+  (raw body, ``salvaged=False``) without mutating the registry.
 * Per-worker output: each worker's normalized body is written to
   ``worker.final_path`` via write-to-tmp + ``os.replace`` (IMM-6 /
   NFR-002). The meta sidecar is written to ``worker.meta_path``
@@ -74,18 +74,18 @@ from __future__ import annotations
 
 import dataclasses
 import json
-import os
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
+from superclaude.cli.swarm.atomic import write_prepared_bytes
 from superclaude.cli.swarm.models import WorkerResult
 from superclaude.cli.swarm.recipes import (
     REGISTRY,
     NormalizedResult,
     Recipe,
 )
+from superclaude.cli.swarm.recipes.passthrough import Passthrough
 
 __all__ = [
     "NormalizedResult",
@@ -233,30 +233,13 @@ def salvage_parse_error(
     )
 
 
-class _PassthroughFallback:
-    """Pre-T04.02 fallback recipe used when REGISTRY[name] is ``None``.
-
-    The :data:`recipes.REGISTRY` ships with M2-era sentinel ``None``
-    values for every recipe name; T04.03..T04.09 swap them for real
-    Recipe objects. While that sequence is in flight, the dispatcher
-    needs *some* callable to route through so the M3->M4 handshake can
-    be exercised. The passthrough returns the raw body unchanged with
-    ``salvaged=False`` -- it is intentionally NOT registered into the
-    REGISTRY because doing so would mask a "recipe missing" bug.
-    """
-
-    def normalize(self, raw_output: str, args: dict[str, Any]) -> NormalizedResult:
-        del args
-        return NormalizedResult(text=raw_output, salvaged=False)
-
-
 def _resolve_recipe(name: str) -> Recipe:
     """Look up ``name`` in :data:`recipes.REGISTRY`.
 
     Returns the registered Recipe when it conforms to the Protocol.
-    Returns a passthrough fallback when REGISTRY carries the M2
-    sentinel ``None`` (pre-T04.03..T04.09). Raises ``KeyError`` when
-    the name is not registered at all -- this surfaces lens validator
+    Returns a fresh concrete :class:`Passthrough` when REGISTRY carries
+    an explicit ``None`` (never ``REGISTRY["passthrough"]``). Raises
+    ``KeyError`` when the name is not registered at all -- this surfaces lens validator
     drift (FR-LENSREG.NS / U-008 should have caught it at preflight).
     Raises ``TypeError`` when the registered value is neither ``None``
     nor a Protocol-conforming object.
@@ -268,7 +251,7 @@ def _resolve_recipe(name: str) -> Recipe:
         )
     entry = REGISTRY[name]
     if entry is None:
-        return _PassthroughFallback()
+        return Passthrough()
     if isinstance(entry, Recipe):
         return entry
     raise TypeError(
@@ -289,24 +272,7 @@ def _atomic_write_text(path: Path, content: str) -> int:
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     data = content.encode("utf-8")
-    fd, tmp_name = tempfile.mkstemp(
-        prefix=path.name + ".",
-        suffix=".tmp",
-        dir=str(path.parent),
-    )
-    try:
-        with os.fdopen(fd, "wb") as handle:
-            handle.write(data)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(tmp_name, str(path))
-    except Exception:
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        raise
-    return len(data)
+    return write_prepared_bytes(path, data)
 
 
 def _read_raw(worker: WorkerResult) -> str:
@@ -525,8 +491,9 @@ def normalize_wave2(
             :class:`NormalizationSpec.recipe`. Looked up in
             :data:`recipes.REGISTRY`. Unknown names raise ``KeyError``
             (lens validator drift -- should have been caught at
-            preflight per FR-LENSREG.NS / U-008). Sentinel ``None``
-            entries (pre-T04.03..T04.09) fall back to passthrough.
+            preflight per FR-LENSREG.NS / U-008). An entry explicitly
+            set to ``None`` resolves to a fresh concrete ``Passthrough``
+            without mutating the registry.
         schema_version: the normalize schema version recorded on each
             meta sidecar. Defaults to ``"1.0"`` per §4.1 spec block;
             mirrors :attr:`NormalizationSpec.schema_version` so the

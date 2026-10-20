@@ -13,8 +13,6 @@ Context isolation: each subprocess receives only its prompt via inline embedding
 from __future__ import annotations
 
 import logging
-import os
-import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,6 +21,8 @@ from typing import Callable
 from superclaude.cli.pipeline.executor import execute_pipeline
 from superclaude.cli.pipeline.models import PipelineConfig, Step, StepResult, StepStatus
 from superclaude.cli.pipeline.process import ClaudeProcess
+from superclaude.cli.pipeline.validation_text import embed_inputs as _embed_inputs
+from superclaude.cli.pipeline.validation_text import sanitize_output
 
 from .gates import TASKLIST_FIDELITY_GATE
 from .models import TasklistValidateConfig
@@ -52,41 +52,9 @@ def _collect_tasklist_files(tasklist_dir: Path) -> list[Path]:
     return files
 
 
-def _embed_inputs(input_paths: list[Path]) -> str:
-    """Read input files and return their contents as fenced code blocks."""
-    if not input_paths:
-        return ""
-    blocks: list[str] = []
-    for p in input_paths:
-        content = Path(p).read_text(encoding="utf-8")
-        blocks.append(f"# {p}\n```\n{content}\n```")
-    return "\n\n".join(blocks)
-
-
 def _sanitize_output(output_file: Path) -> int:
     """Strip conversational preamble before YAML frontmatter."""
-    try:
-        content = output_file.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        return 0
-
-    if content.lstrip().startswith("---"):
-        return 0
-
-    match = re.search(r"^---[ \t]*$", content, re.MULTILINE)
-    if match is None:
-        return 0
-
-    preamble = content[: match.start()]
-    cleaned = content[match.start() :]
-    preamble_bytes = len(preamble.encode("utf-8"))
-
-    tmp_file = output_file.with_suffix(output_file.suffix + ".tmp")
-    tmp_file.write_text(cleaned, encoding="utf-8")
-    os.replace(tmp_file, output_file)
-
-    _log.info("Stripped %d-byte preamble from %s", preamble_bytes, output_file)
-    return preamble_bytes
+    return sanitize_output(output_file, logger=_log)
 
 
 def tasklist_run_step(

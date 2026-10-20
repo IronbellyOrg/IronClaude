@@ -228,30 +228,6 @@ def handle_partial_artifact(
     )
 
 
-def handle_non_writable_output(
-    output_dir: str,
-) -> FailureHandlerResult:
-    """Handle a non-writable output directory (validate-config step)."""
-    step_result = PortifyStepResult(
-        step_name="validate-config",
-        step_number=1,
-        phase=1,
-        portify_status=PortifyStatus.FAIL,
-        failure_classification=FailureClassification.MISSING_ARTIFACT,
-        gate_tier="EXEMPT",
-        resume_context=ResumeContext(),
-    )
-    return FailureHandlerResult(
-        step_result=step_result,
-        error_message=f"Output directory is not writable: {output_dir}",
-        remediation=(
-            f"Ensure the output directory '{output_dir}' is writable. "
-            "Try: `chmod +w <directory>` or choose a different output path."
-        ),
-        is_terminal=True,
-    )
-
-
 def handle_budget_exhausted(
     step_name: str,
     step_number: int,
@@ -288,36 +264,6 @@ def handle_budget_exhausted(
     )
 
 
-def handle_missing_skills(
-    step_name: str,
-    step_number: int,
-    phase: int,
-    missing_skills: list[str],
-) -> FailureHandlerResult:
-    """Handle missing skill files (graceful fallback — non-terminal PASS)."""
-    skills_str = ", ".join(missing_skills)
-    step_result = PortifyStepResult(
-        step_name=step_name,
-        step_number=step_number,
-        phase=phase,
-        portify_status=PortifyStatus.PASS,
-        failure_classification=None,
-        resume_context=ResumeContext(),
-    )
-    return FailureHandlerResult(
-        step_result=step_result,
-        error_message=(
-            f"Some skills could not be found: {skills_str}. "
-            "Continuing with available skills."
-        ),
-        remediation=(
-            f"Install the missing skills: {skills_str}. "
-            "Use `superclaude install` to install all skills."
-        ),
-        is_terminal=False,
-    )
-
-
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
@@ -338,9 +284,3 @@ FAILURE_HANDLERS: dict[FailureClassification, Optional[Callable]] = {
 def has_handler(classification: FailureClassification) -> bool:
     """Return True if a callable failure handler exists for the given classification."""
     return FAILURE_HANDLERS.get(classification) is not None
-
-
-def get_failure_handler_name(classification: FailureClassification) -> Optional[str]:
-    """Return the name of the handler function for a classification, or None."""
-    handler = FAILURE_HANDLERS.get(classification)
-    return handler.__name__ if handler else None

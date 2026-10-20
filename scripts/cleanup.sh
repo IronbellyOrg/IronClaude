@@ -97,5 +97,5 @@ echo -e "  • OS-specific files: Removed"
 
 echo -e "\n${YELLOW}💡 Next steps:${NC}"
 echo -e "  • Run validation: ${BLUE}python3 scripts/validate_pypi_ready.py${NC}"
-echo -e "  • Test build: ${BLUE}./scripts/publish.sh build${NC}"
+echo -e "  • Test build: ${BLUE}uv build${NC}"
 echo -e "  • Check git status: ${BLUE}git status${NC}"

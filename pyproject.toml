@@ -47,7 +47,6 @@ dev = [
     "pytest-cov>=4.0.0",
     "pytest-benchmark>=4.0.0",
     "scipy>=1.10.0",  # For A/B testing
-    "black>=22.0",
     # Pinned exactly: `ruff format` output is version-sensitive, so an
     # unpinned floor let CI install newer ruffs whose reformatting drifted
     # `ruff format --check` red against the committed tree. Pin so CI and
@@ -171,23 +170,6 @@ exclude_lines = [
 ]
 show_missing = true
 
-[tool.black]
-line-length = 88
-target-version = ["py310", "py311", "py312"]
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
-'''
-
 [tool.ruff]
 line-length = 88
 target-version = "py310"
@@ -201,7 +183,7 @@ extend-exclude = [
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "TID"]
 ignore = [
-    "E501",  # Line too long (handled by black)
+    "E501",  # Line too long (handled by ruff format)
     # N818: many existing exception classes (PtyDriverTimeout,
     # ReporterContractViolation, HomeContainmentViolation, InvalidEvalId,
     # ScratchRootViolation, EvalNotFound, etc.) are part of the public

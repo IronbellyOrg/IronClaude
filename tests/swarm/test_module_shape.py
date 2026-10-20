@@ -102,6 +102,7 @@ SWARM_ONLY_FILES: tuple[str, ...] = (
     "normalize.py",
     "reduce.py",
     "merge.py",
+    "atomic.py",
 )
 SWARM_ONLY_PACKAGES: tuple[str, ...] = ("transports", "lenses", "recipes")
 

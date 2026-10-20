@@ -109,6 +109,15 @@ from datetime import datetime, timezone
 from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
+from superclaude.cli.swarm.recipes._primitives import (
+    extract_section as _extract_section,
+)
+from superclaude.cli.swarm.recipes._primitives import (
+    format_timestamp,
+    parse_confidence,
+    strip_frontmatter,
+    yaml_str,
+)
 
 __all__ = [
     "HypothesisTableV1",
@@ -155,44 +164,12 @@ FALLBACK_NOTES_CAP: int = 300
 
 def iso_now() -> str:
     """ISO-8601 UTC timestamp, matches sibling recipes."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def yaml_str(v: str) -> str:
-    """Double-quote a scalar for safe single-line YAML emission."""
-    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
-
-
-def strip_frontmatter(text: str) -> str:
-    """Drop a leading ``---``-delimited YAML frontmatter block, if any."""
-    if text.lstrip().startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            return parts[2]
-    return text
+    return format_timestamp(datetime.now(timezone.utc))
 
 
 def _truncate(cell: str, cap: int) -> str:
     """Whitespace-collapse + hard-cap a cell string."""
     return " ".join(cell.split())[:cap]
-
-
-def parse_confidence(cell: str) -> str:
-    """Reformat a confidence cell.
-
-    Mirrors :func:`bare_review_v1.parse_conf`: extract the first
-    digit-run and clamp to ``[0, 100]``. Qualitative labels with no
-    digits are returned whitespace-collapsed (the recipe does not
-    interpret ``high``/``medium``/``low`` as scores -- that crosses
-    the AC-011 boundary). Empty / pure-whitespace input returns an
-    empty string.
-    """
-    if not cell or not cell.strip():
-        return ""
-    m = re.search(r"\d+", cell)
-    if m:
-        return str(max(0, min(100, int(m.group()))))
-    return " ".join(cell.split())
 
 
 def parse_hypothesis_table(text: str) -> list[dict[str, str]]:
@@ -288,13 +265,7 @@ def parse_hypothesis_table(text: str) -> list[dict[str, str]]:
 
 def extract_notes(text: str, cap: int = FALLBACK_NOTES_CAP) -> str:
     """Pull the contents of a ``## Notes`` heading (case-insensitive)."""
-    m = re.search(r"^#+\s*Notes\s*$", text, re.IGNORECASE | re.MULTILINE)
-    if not m:
-        return ""
-    rest = text[m.end() :]
-    nxt = re.search(r"^#+\s", rest, re.MULTILINE)
-    body = rest[: nxt.start()] if nxt else rest
-    return " ".join(body.split())[:cap]
+    return _extract_section(text, "Notes", cap)
 
 
 def render_markdown(

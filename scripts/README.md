@@ -1,78 +1,17 @@
-# SuperClaude PyPI Publishing Scripts
+# SuperClaude Scripts
 
-This directory contains scripts for building and publishing SuperClaude to PyPI.
+This directory contains maintenance and development scripts. Package publishing is not done by a local script; it is handled by the GitHub Actions workflow described below.
 
-## Scripts
+## Publishing (GitHub Actions)
 
-### `publish.sh` - Main Publishing Script
+The `.github/workflows/publish-pypi.yml` workflow builds the package with `python -m build`, validates it with `twine check`, and uploads it:
 
-Easy-to-use shell script for common publishing tasks:
+- **On a published GitHub release**: uploads to PyPI.
+- **Manual run (`workflow_dispatch`)** with the `target` input:
+  - `testpypi` (default): uploads to TestPyPI, then a separate job installs the package from TestPyPI as a smoke test.
+  - `pypi`: uploads to PyPI. No install test runs for this target.
 
-```bash
-# Test upload to TestPyPI
-./scripts/publish.sh test
-
-# Test installation from TestPyPI
-./scripts/publish.sh test-install
-
-# Production upload to PyPI
-./scripts/publish.sh prod
-
-# Build package only
-./scripts/publish.sh build
-
-# Clean build artifacts
-./scripts/publish.sh clean
-
-# Validate project structure
-./scripts/publish.sh check
-```
-
-### `build_and_upload.py` - Advanced Build Script
-
-Python script with detailed control over the build and upload process:
-
-```bash
-# Build and upload to TestPyPI
-python scripts/build_and_upload.py --testpypi
-
-# Test installation from TestPyPI
-python scripts/build_and_upload.py --testpypi --test-install
-
-# Production upload (with confirmation)
-python scripts/build_and_upload.py
-
-# Skip validation (for faster builds)
-python scripts/build_and_upload.py --skip-validation --testpypi
-
-# Clean only
-python scripts/build_and_upload.py --clean
-```
-
-## Prerequisites
-
-1. **PyPI Account**: Register at <https://pypi.org/account/register/>
-2. **API Tokens**: Generate tokens at <https://pypi.org/manage/account/>
-3. **Configuration**: Create `~/.pypirc`:
-
-   ```ini
-   [pypi]
-   username = __token__
-   password = pypi-[your-production-token]
-   
-   [testpypi]
-   repository = https://test.pypi.org/legacy/
-   username = __token__
-   password = pypi-[your-test-token]
-   ```
-
-## GitHub Actions
-
-The `.github/workflows/publish-pypi.yml` workflow automates publishing:
-
-- **Automatic**: Publishes to PyPI when a GitHub release is created
-- **Manual**: Can be triggered manually for TestPyPI uploads
-- **Validation**: Includes package validation and installation testing
+The workflow publishes under the PyPI project name `SuperClaude`; whether a given fork can publish to that name depends on the PyPI project's ownership.
 
 ### Required Secrets
 
@@ -81,56 +20,35 @@ Set these in your GitHub repository settings → Secrets and variables → Actio
 - `PYPI_API_TOKEN`: Production PyPI token
 - `TEST_PYPI_API_TOKEN`: TestPyPI token
 
-## Publishing Workflow
+### Release steps
 
-### 1. Development Release (TestPyPI)
-
-```bash
-# Test the build and upload process
-./scripts/publish.sh test
-
-# Verify the package installs correctly
-./scripts/publish.sh test-install
-```
-
-### 2. Production Release (PyPI)
-
-#### Option A: Manual
-
-```bash
-# Upload directly (requires confirmation)
-./scripts/publish.sh prod
-```
-
-#### Option B: GitHub Release (Recommended)
-
-1. Update version in code
+1. Update the version (see Version Management)
 2. Commit and push changes
-3. Create a new release on GitHub
-4. GitHub Actions will automatically build and publish
+3. Optionally run the workflow manually with `target=testpypi` to check the TestPyPI upload and install
+4. Publish a GitHub release; the workflow builds and uploads to PyPI
+
+The former local publishing wrapper (`scripts/publish.sh`) and its `build_and_upload.py` helper have been retired. Their local-only modes (clean, check, build-only, standalone test-install) have no workflow equivalent; to build locally without uploading, run `uv build`.
 
 ## Version Management
 
 Before publishing, ensure version consistency across:
 
 - `pyproject.toml`
-- `superclaude/__init__.py`
-- `superclaude/__main__.py`
-- `setup/__init__.py`
+- `src/superclaude/__init__.py`
 
-The build script validates version consistency automatically.
+The workflow's "Verify package structure" step prints both versions.
 
 ## Troubleshooting
 
 ### Build Failures
 
-- Check Python version compatibility (≥3.8)
+- Check Python version compatibility (≥3.10)
 - Ensure all required files are present
 - Validate `pyproject.toml` syntax
 
 ### Upload Failures
 
-- Verify API tokens are correct
+- Verify the repository secrets are set and correct
 - Check if version already exists on PyPI
 - Ensure package name is available
 
@@ -143,6 +61,6 @@ The build script validates version consistency automatically.
 ## Security Notes
 
 - Never commit API tokens to version control
-- Use environment variables or `.pypirc` for credentials
+- Store publishing tokens only as GitHub Actions secrets
 - Tokens should have minimal required permissions
 - Consider using Trusted Publishing for GitHub Actions

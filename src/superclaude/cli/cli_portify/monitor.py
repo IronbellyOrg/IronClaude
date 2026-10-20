@@ -1,130 +1,19 @@
-"""Output monitoring, diagnostics, and failure classification.
+"""Output monitoring and timing capture.
 
 Implements:
 - OutputMonitor tracking 8 metrics (NFR-009, T03.11)
-- Stall detection with kill action on growth_rate_bps drop (R-001)
-- EventLogger producing NDJSON using signal vocabulary
+- Stall accounting on growth_rate_bps drop (R-001); callers decide on action
 - TimingCapture for per-phase and per-step timing
-- classify_failure() for all 7 FailureClassification types
-- generate_diagnostic_report() Markdown report
 """
 
 from __future__ import annotations
 
-import json
 import time
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 from superclaude.cli.cli_portify.contract import StepTiming
-from superclaude.cli.cli_portify.models import FailureClassification, MonitorState
-
-# ---------------------------------------------------------------------------
-# EventRecord
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class EventRecord:
-    """A single NDJSON event record."""
-
-    event_type: str
-    step: str = ""
-    phase: int = 0
-    timestamp: float = field(default_factory=time.time)
-    extra: dict = field(default_factory=dict)
-
-    def to_dict(self) -> dict:
-        d: dict[str, Any] = {
-            "event": self.event_type,
-            "step": self.step,
-            "phase": self.phase,
-            "ts": self.timestamp,
-        }
-        d.update(self.extra)
-        return d
-
-    def to_json(self) -> str:
-        return json.dumps(self.to_dict())
-
-
-# ---------------------------------------------------------------------------
-# EventLogger
-# ---------------------------------------------------------------------------
-
-
-class EventLogger:
-    """NDJSON event logger using signal vocabulary."""
-
-    def __init__(self) -> None:
-        self.events: list[EventRecord] = []
-
-    def emit(self, event_type: str, step: str = "", phase: int = 0, **kwargs) -> None:
-        record = EventRecord(
-            event_type=event_type,
-            step=step,
-            phase=phase,
-            extra=kwargs,
-        )
-        self.events.append(record)
-
-    def get_output(self) -> str:
-        """Return all events as newline-delimited JSON."""
-        lines = [e.to_json() for e in self.events]
-        return "\n".join(lines) + ("\n" if lines else "")
-
-
-# ---------------------------------------------------------------------------
-# classify_failure()
-# ---------------------------------------------------------------------------
-
-
-def classify_failure(
-    exit_code: int,
-    timed_out: bool,
-    stdout: str,
-    *,
-    artifact_path: Optional[Path] = None,
-    gate_passed: bool = True,
-    user_rejected: bool = False,
-    budget_exhausted: bool = False,
-) -> FailureClassification:
-    """Classify a step failure into one of the 7 FailureClassification types.
-
-    Priority order:
-      1. USER_REJECTION (overrides all other signals)
-      2. BUDGET_EXHAUSTION
-      3. TIMEOUT (exit 124 or timed_out)
-      4. GATE_FAILURE (non-zero exit with gate failure)
-      5. MISSING_ARTIFACT (exit 0, artifact path given but not found)
-      6. MALFORMED_FRONTMATTER (exit 0, artifact found but no --- frontmatter)
-      7. PARTIAL_ARTIFACT (exit 0, artifact found, frontmatter ok, but placeholders)
-    """
-    if user_rejected:
-        return FailureClassification.USER_REJECTION
-
-    if budget_exhausted:
-        return FailureClassification.BUDGET_EXHAUSTION
-
-    if timed_out or exit_code == 124:
-        return FailureClassification.TIMEOUT
-
-    if not gate_passed:
-        return FailureClassification.GATE_FAILURE
-
-    # exit 0 paths
-    if artifact_path is not None:
-        if not artifact_path.exists():
-            return FailureClassification.MISSING_ARTIFACT
-        content = artifact_path.read_text(errors="replace")
-        if not content.startswith("---"):
-            return FailureClassification.MALFORMED_FRONTMATTER
-        if "{{SC_PLACEHOLDER:" in content:
-            return FailureClassification.PARTIAL_ARTIFACT
-
-    return FailureClassification.MISSING_ARTIFACT
-
+from superclaude.cli.cli_portify.models import MonitorState
 
 # ---------------------------------------------------------------------------
 # Timing
@@ -244,64 +133,3 @@ class OutputMonitor:
     def set_placeholder_count(self, n: int) -> None:
         """Set the current placeholder sentinel count."""
         self.state.placeholder_count = n
-
-
-# ---------------------------------------------------------------------------
-# generate_diagnostic_report()
-# ---------------------------------------------------------------------------
-
-
-def generate_diagnostic_report(
-    timing: TimingCapture,
-    events: list[EventRecord],
-    step_results: list[dict],
-) -> str:
-    """Generate a Markdown diagnostic report."""
-    lines: list[str] = ["# Portify Pipeline Diagnostic Report", ""]
-
-    # Summary
-    total = len(step_results)
-    passed = sum(1 for s in step_results if s.get("status") == "pass")
-    failed = total - passed
-
-    lines += [
-        "## Summary",
-        f"- Steps executed: {total}",
-        f"- Passed: {passed}",
-        f"- Failed: {failed}",
-        f"- Total duration: {timing.total_duration:.2f}s",
-        "",
-    ]
-
-    # Step table
-    if step_results:
-        lines += ["## Steps", "", "| Step | Status | Duration |"]
-        lines += ["|------|--------|----------|"]
-        for sr in step_results:
-            step = sr.get("step", "")
-            status = sr.get("status", "")
-            duration = sr.get("duration", 0.0)
-            lines.append(f"| {step} | {status} | {duration:.2f}s |")
-        lines.append("")
-
-    # Event summary
-    if events:
-        lines += ["## Event Summary", ""]
-        event_counts: dict[str, int] = {}
-        for e in events:
-            event_counts[e.event_type] = event_counts.get(e.event_type, 0) + 1
-        for etype, count in sorted(event_counts.items()):
-            lines.append(f"- {etype}: {count}")
-        lines.append("")
-
-    # Phase timings
-    phase_data = {p: t for p, t in timing._phase_timings.items() if t.step_timings}
-    if phase_data:
-        lines += ["## Phase Timings", ""]
-        for phase, pt in sorted(phase_data.items()):
-            lines.append(f"### Phase {phase}")
-            for st in pt.step_timings:
-                lines.append(f"- {st.step}: {st.duration_seconds:.3f}s")
-            lines.append("")
-
-    return "\n".join(lines)

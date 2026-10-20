@@ -17,11 +17,14 @@ emitter (:func:`superclaude.cli.swarm.reduce.emit_contract`):
    at the emitter (declaration-order preservation matters for
    non-Python callers that diff the file as text per FR-030).
 3. **Atomic write via tmp + ``os.replace``.** The emitter routes
-   through ``reduce._atomic_write_bytes`` which uses
-   ``tempfile.mkstemp`` + ``os.fsync`` + ``os.replace``. The test asserts
-   the static-source contract (the symbol appears in the writer body)
-   and the runtime contract (no ``.tmp`` siblings after success; a
-   second emission atomically replaces the first with no corruption).
+   through ``reduce._atomic_write_bytes``, which delegates to the shared
+   transaction :func:`superclaude.cli.swarm.atomic.write_prepared_bytes`
+   (``tempfile.mkstemp`` + ``os.fsync`` + ``os.replace``). The test asserts
+   the static-source contract of that shared writer body, a runtime spy
+   on the real emitter -> facade -> shared-writer chain with the exact
+   serialized bytes and transaction order, and the runtime contract (no
+   ``.tmp`` siblings after success; a second emission atomically
+   replaces the first with no corruption).
 4. **``recommended_next_command`` template substitution.** The
    rendered string lands on ``contract.recommended_next_command`` (the
    on-disk YAML) with placeholders resolved from the supplied
@@ -39,11 +42,15 @@ orchestrator path.
 from __future__ import annotations
 
 import dataclasses
+import inspect
+import os
+import tempfile
 from pathlib import Path
 
 import pytest
 import yaml
 
+from superclaude.cli.swarm import atomic, reduce
 from superclaude.cli.swarm.models import (
     AmalgamationMode,
     Artifacts,
@@ -357,34 +364,103 @@ def test_emitted_yaml_merged_path_string_round_trips(tmp_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-REDUCE_SRC_PATH = (
-    Path(__file__).resolve().parents[2]
-    / "src"
-    / "superclaude"
-    / "cli"
-    / "swarm"
-    / "reduce.py"
-)
-
-
 def test_atomic_write_uses_tmp_and_os_replace() -> None:
     """Static-source assertion: the contract writer uses tmp + ``os.replace``.
 
-    Mirrors the cross-writer sweep in
-    :mod:`tests.swarm.test_imm6_atomic_write` -- a regression to a
-    naive ``open(path, "wb")`` truncating write here would silently
+    ``reduce._atomic_write_bytes`` delegates the transaction to the shared
+    :func:`superclaude.cli.swarm.atomic.write_prepared_bytes`, so the
+    mechanics are asserted on the body of the function object reduce
+    actually binds (not on a module-name string). Mirrors the cross-writer
+    sweep in :mod:`tests.swarm.test_imm6_atomic_write` -- a regression to
+    a naive ``open(path, "wb")`` truncating write here would silently
     break IMM-6 / NFR-002 on the caller-facing contract.
     """
-    source = REDUCE_SRC_PATH.read_text(encoding="utf-8")
+    assert reduce.write_prepared_bytes is atomic.write_prepared_bytes
+    source = inspect.getsource(reduce.write_prepared_bytes)
     assert "tempfile.mkstemp" in source, (
-        "reduce._atomic_write_bytes must use tempfile.mkstemp"
+        "the shared contract writer must use tempfile.mkstemp"
+    )
+    assert "dir=str(path.parent)" in source, (
+        "the tmp file must live beside the target so os.replace stays atomic"
     )
     assert "os.replace(" in source, (
-        "reduce._atomic_write_bytes must swap via os.replace"
+        "the shared contract writer must swap via os.replace"
     )
     assert "os.fsync" in source, (
-        "reduce._atomic_write_bytes must fsync the tmp file before swap"
+        "the shared contract writer must fsync the tmp file before swap"
     )
+    assert source.index("os.fsync") < source.index("os.replace("), (
+        "fsync must precede the os.replace swap"
+    )
+
+
+def test_emit_contract_reaches_shared_atomic_writer_with_exact_bytes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Runtime spy: real ``emit_contract`` -> ``reduce._atomic_write_bytes``
+    -> ``atomic.write_prepared_bytes`` with the complete serialized bytes,
+    and the shared writer performs mkstemp -> fsync -> replace in the
+    target directory.
+    """
+    contract = _fully_populated_contract()
+    expected = yaml.safe_dump(
+        to_dict(contract), sort_keys=False, allow_unicode=True
+    ).encode("utf-8")
+    target = tmp_path / CONTRACT_FILENAME
+    events: list[tuple[str, object]] = []
+
+    real_facade = reduce._atomic_write_bytes
+    real_shared = atomic.write_prepared_bytes
+    assert reduce.write_prepared_bytes is real_shared
+    real_mkstemp = tempfile.mkstemp
+    real_fsync = os.fsync
+    real_replace = os.replace
+
+    def facade_spy(path: Path, data: bytes) -> int:
+        events.append(("facade", (path, data)))
+        return real_facade(path, data)
+
+    def shared_spy(path: Path, data: bytes) -> int:
+        events.append(("shared", (path, data)))
+        result = real_shared(path, data)
+        events.append(("shared_return", result))
+        return result
+
+    def mkstemp_spy(*args, **kwargs):
+        fd, name = real_mkstemp(*args, **kwargs)
+        events.append(("mkstemp", name))
+        return fd, name
+
+    def fsync_spy(fd: int) -> None:
+        events.append(("fsync", fd))
+        real_fsync(fd)
+
+    def replace_spy(src, dst) -> None:
+        events.append(("replace", (str(src), str(dst))))
+        real_replace(src, dst)
+
+    monkeypatch.setattr(reduce, "_atomic_write_bytes", facade_spy)
+    monkeypatch.setattr(reduce, "write_prepared_bytes", shared_spy)
+    monkeypatch.setattr(atomic.tempfile, "mkstemp", mkstemp_spy)
+    monkeypatch.setattr(atomic.os, "fsync", fsync_spy)
+    monkeypatch.setattr(atomic.os, "replace", replace_spy)
+
+    written = emit_contract(contract, tmp_path)
+
+    assert written == target
+    kinds = [kind for kind, _ in events]
+    assert kinds == ["facade", "shared", "mkstemp", "fsync", "replace", "shared_return"]
+    facade_path, facade_bytes = events[0][1]
+    shared_path, shared_bytes = events[1][1]
+    tmp_name = events[2][1]
+    replace_src, replace_dst = events[4][1]
+    assert facade_path == shared_path == target
+    assert facade_bytes == shared_bytes == expected
+    assert target.read_bytes() == shared_bytes == expected
+    assert events[5][1] == len(expected)
+    assert Path(tmp_name).parent == target.parent
+    assert (replace_src, replace_dst) == (tmp_name, str(target))
+    assert not Path(tmp_name).exists()
 
 
 def test_emit_contract_leaves_no_tmp_siblings(tmp_path: Path) -> None:

@@ -57,7 +57,8 @@ Validation grep (phase-3-tasklist T03.13)::
     grep -RnE "os\\.replace\\(" src/superclaude/cli/swarm/
 
 must surface a hit in every writer module on the ``os.replace``
-contract (state.py, preflight.py). The log module is intentionally
+contract (state.py, preflight.py, and the shared atomic.py leaf added
+by cleanup-debt C07 for the normalize/reduce facades). The log module is intentionally
 excluded; the static-source assertion in
 :func:`test_log_module_uses_append_only_not_replace` documents why.
 """
@@ -92,6 +93,9 @@ _OS_REPLACE_WRITERS: tuple[tuple[str, str], ...] = (
     # (module-relative-path, short-name-for-error-messages)
     ("state.py", "write_state"),
     ("preflight.py", "write_manifest / emit_env_missing_contract"),
+    # New shared leaf (cleanup-debt C07): the transaction behind the
+    # normalize._atomic_write_text / reduce._atomic_write_bytes facades.
+    ("atomic.py", "write_prepared_bytes"),
 )
 
 
@@ -114,6 +118,114 @@ def test_writer_module_calls_os_replace(module_rel: str, writer_label: str) -> N
         "found; the tmp+os.replace atomicity contract (NFR-002 / IMM-6) "
         "is broken."
     )
+
+
+# ---------------------------------------------------------------------------
+# Shared-writer facade transaction (new coverage, cleanup-debt C07).
+#
+# normalize._atomic_write_text (mkdir -> encode) and
+# reduce._atomic_write_bytes (mkdir) both hand prepared bytes to
+# atomic.write_prepared_bytes. These tests drive each facade and spy
+# the leaf's own mkstemp / fsync / replace lookups to prove the real
+# shared transaction runs. Only caught ``Exception`` cleanup is
+# asserted; no SIGKILL / BaseException cleanup is promised.
+# ---------------------------------------------------------------------------
+
+
+def _text_facade(path: Path, payload: str) -> int:
+    from superclaude.cli.swarm import normalize
+
+    return normalize._atomic_write_text(path, payload)
+
+
+def _bytes_facade(path: Path, payload: str) -> int:
+    from superclaude.cli.swarm import reduce
+
+    return reduce._atomic_write_bytes(path, payload.encode("utf-8"))
+
+
+_FACADES = pytest.mark.parametrize(
+    "facade",
+    [_text_facade, _bytes_facade],
+    ids=["normalize._atomic_write_text", "reduce._atomic_write_bytes"],
+)
+
+
+def _spy_leaf(monkeypatch: pytest.MonkeyPatch, events: list) -> None:
+    """Record mkstemp/fsync/replace calls made through the atomic leaf."""
+    from superclaude.cli.swarm import atomic
+
+    real_mkstemp = atomic.tempfile.mkstemp
+    real_fsync = atomic.os.fsync
+    real_replace = atomic.os.replace
+
+    def mkstemp(*args, **kwargs):
+        fd, name = real_mkstemp(*args, **kwargs)
+        events.append(("mkstemp", name, kwargs))
+        return fd, name
+
+    def fsync(fd):
+        events.append(("fsync",))
+        return real_fsync(fd)
+
+    def replace(src, dst):
+        events.append(("replace", src, dst, Path(src).read_bytes()))
+        return real_replace(src, dst)
+
+    monkeypatch.setattr(atomic.tempfile, "mkstemp", mkstemp)
+    monkeypatch.setattr(atomic.os, "fsync", fsync)
+    monkeypatch.setattr(atomic.os, "replace", replace)
+
+
+@_FACADES
+def test_facade_runs_shared_atomic_transaction(
+    facade, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Each facade reaches atomic's mkstemp -> fsync -> replace in order."""
+    target = tmp_path / "nested" / "artifact.json"
+    events: list = []
+    _spy_leaf(monkeypatch, events)
+
+    written = facade(target, "é-payload")
+
+    expected = "é-payload".encode("utf-8")
+    assert written == len(expected)
+    assert target.read_bytes() == expected
+    assert [e[0] for e in events] == ["mkstemp", "fsync", "replace"]
+    _, tmp_name, kwargs = events[0]
+    assert kwargs == {
+        "prefix": "artifact.json.",
+        "suffix": ".tmp",
+        "dir": str(target.parent),
+    }
+    assert Path(tmp_name).parent == target.parent
+    _, src, dst, staged = events[2]
+    assert (src, dst, staged) == (tmp_name, str(target), expected)
+    assert sorted(p.name for p in target.parent.iterdir()) == ["artifact.json"]
+
+
+@_FACADES
+def test_facade_replace_failure_keeps_prior_file(
+    facade, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A caught replace failure keeps prior bytes, unlinks tmp, re-raises."""
+    from superclaude.cli.swarm import atomic
+
+    target = tmp_path / "artifact.json"
+    target.write_bytes(b"prior")
+    boom = OSError("replace failed")
+
+    def failing_replace(src, dst):
+        raise boom
+
+    monkeypatch.setattr(atomic.os, "replace", failing_replace)
+
+    with pytest.raises(OSError) as excinfo:
+        facade(target, "next")
+
+    assert excinfo.value is boom
+    assert target.read_bytes() == b"prior"
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["artifact.json"]
 
 
 def test_log_module_uses_append_only_not_replace() -> None:

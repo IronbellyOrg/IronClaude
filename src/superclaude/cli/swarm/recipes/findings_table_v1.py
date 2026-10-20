@@ -80,6 +80,14 @@ from datetime import datetime, timezone
 from typing import Any
 
 from superclaude.cli.swarm.recipes import NormalizedResult
+from superclaude.cli.swarm.recipes._primitives import (
+    extract_section as _extract_section,
+)
+from superclaude.cli.swarm.recipes._primitives import (
+    format_timestamp,
+    strip_frontmatter,
+    yaml_str,
+)
 
 __all__ = [
     "FindingsTableV1",
@@ -128,21 +136,7 @@ FALLBACK_NOTES_CAP: int = 300
 
 def iso_now() -> str:
     """ISO-8601 UTC timestamp, matches :func:`bare_review_v1.iso_now`."""
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def yaml_str(v: str) -> str:
-    """Double-quote a scalar for safe single-line YAML emission."""
-    return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
-
-
-def strip_frontmatter(text: str) -> str:
-    """Drop a leading ``---``-delimited YAML frontmatter block, if any."""
-    if text.lstrip().startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) == 3:
-            return parts[2]
-    return text
+    return format_timestamp(datetime.now(timezone.utc))
 
 
 def _truncate(cell: str, cap: int) -> str:
@@ -222,13 +216,7 @@ def extract_notes(text: str, cap: int = FALLBACK_NOTES_CAP) -> str:
     Notes heading -- findings_table_v1 lenses do not emit a Verdict
     section.
     """
-    m = re.search(r"^#+\s*Notes\s*$", text, re.IGNORECASE | re.MULTILINE)
-    if not m:
-        return ""
-    rest = text[m.end() :]
-    nxt = re.search(r"^#+\s", rest, re.MULTILINE)
-    body = rest[: nxt.start()] if nxt else rest
-    return " ".join(body.split())[:cap]
+    return _extract_section(text, "Notes", cap)
 
 
 def render_markdown(

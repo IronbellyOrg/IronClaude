@@ -115,6 +115,16 @@ class TestValidateConfigErrors:
         assert result.valid is False
         codes = [e["code"] for e in result.errors]
         assert ERR_OUTPUT_NOT_WRITABLE in codes
+        # C04 migration: live FAIL result metadata and path-naming error.
+        # failure_classification is not asserted (live value is None).
+        assert step_result.portify_status == PortifyStatus.FAIL
+        assert step_result.step_name == "validate-config"
+        assert step_result.step_number == 1
+        assert step_result.gate_tier == "EXEMPT"
+        msg = next(
+            e["message"] for e in result.errors if e["code"] == ERR_OUTPUT_NOT_WRITABLE
+        )
+        assert str(config.output_dir) in msg
 
     def test_err_name_collision(self, tmp_workflow, tmp_output):
         config = load_portify_config(
@@ -126,6 +136,103 @@ class TestValidateConfigErrors:
         assert result.valid is False
         codes = [e["code"] for e in result.errors]
         assert ERR_NAME_COLLISION in codes
+
+
+class TestValidateConfigLiveFailureBoundary:
+    """Live owner of unwritable-output and missing-skill handling (C04 / FR-04).
+
+    Pins current run_validate_config behavior. Permission failures are injected
+    with monkeypatch so the result does not depend on running as root.
+    failure_classification is deliberately not asserted (live value is None).
+    """
+
+    @staticmethod
+    def _assert_fail_metadata(step_result):
+        assert step_result.portify_status == PortifyStatus.FAIL
+        assert step_result.step_name == "validate-config"
+        assert step_result.step_number == 1
+        assert step_result.phase == 1
+        assert step_result.gate_tier == "EXEMPT"
+
+    def test_existing_output_not_writable(
+        self, tmp_workflow, tmp_output, tmp_path, monkeypatch
+    ):
+        import superclaude.cli.cli_portify.steps.validate_config as vc
+
+        config = load_portify_config(workflow_path=tmp_workflow, output_dir=tmp_output)
+        real_access = vc.os.access
+        monkeypatch.setattr(
+            vc.os,
+            "access",
+            lambda p, mode, *a, **k: (
+                False
+                if Path(p) == config.output_dir and mode == vc.os.W_OK
+                else real_access(p, mode, *a, **k)
+            ),
+        )
+        artifact_dir = tmp_path / "artifact-out"
+        result, step_result = run_validate_config(config, output_dir=artifact_dir)
+
+        assert result.valid is False
+        assert result.errors == [
+            {
+                "code": ERR_OUTPUT_NOT_WRITABLE,
+                "message": f"Output path is not writable: {config.output_dir}",
+            }
+        ]
+        self._assert_fail_metadata(step_result)
+        artifact = Path(step_result.artifact_path)
+        assert artifact == artifact_dir / "validate-config-result.json"
+        data = json.loads(artifact.read_text())
+        assert data["valid"] is False
+        assert data["errors"] == result.errors
+
+    def test_output_dir_cannot_be_created(self, tmp_workflow, tmp_path, monkeypatch):
+        out = tmp_path / "blocked-output"
+        config = load_portify_config(workflow_path=tmp_workflow, output_dir=out)
+        real_mkdir = Path.mkdir
+
+        def _mkdir(self, *args, **kwargs):
+            if self == config.output_dir:
+                raise PermissionError(13, "Permission denied", str(self))
+            return real_mkdir(self, *args, **kwargs)
+
+        monkeypatch.setattr(Path, "mkdir", _mkdir)
+        artifact_dir = tmp_path / "artifact-out"
+        result, step_result = run_validate_config(config, output_dir=artifact_dir)
+
+        assert result.valid is False
+        assert [e["code"] for e in result.errors] == [ERR_OUTPUT_NOT_WRITABLE]
+        message = result.errors[0]["message"]
+        assert message.startswith(
+            f"Cannot create output directory {config.output_dir}: "
+        )
+        assert "Permission denied" in message
+        assert not config.output_dir.exists()
+        self._assert_fail_metadata(step_result)
+        artifact = Path(step_result.artifact_path)
+        assert artifact == artifact_dir / "validate-config-result.json"
+        assert json.loads(artifact.read_text())["errors"] == result.errors
+
+    def test_missing_skill_is_hard_failure(self, tmp_path):
+        wf = tmp_path / "empty-workflow"
+        wf.mkdir()
+        config = load_portify_config(workflow_path=wf, output_dir=tmp_path / "output")
+        result, step_result = run_validate_config(config)
+
+        # No graceful "continue with available skills" fallback at this boundary.
+        assert result.valid is False
+        assert result.skill_dir == ""
+        assert result.errors == [
+            {
+                "code": ERR_MISSING_SKILL,
+                "message": f"SKILL.md not found at {config.resolve_workflow_path()}",
+            }
+        ]
+        self._assert_fail_metadata(step_result)
+        data = json.loads(Path(step_result.artifact_path).read_text())
+        assert data["valid"] is False
+        assert data["errors"] == result.errors
 
 
 class TestValidateConfigArtifact:
