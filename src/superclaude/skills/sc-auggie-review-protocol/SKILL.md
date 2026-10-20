@@ -37,6 +37,7 @@ The skill receives one of three target modes from `/sc:auggie-review`:
 - `auggie` is not on PATH (`command -v auggie` fails)
 - For PR mode, `gh auth status` reports unauthed
 - `--depth deep` requested but the diff exceeds 5000 lines without `--force` (too large to be useful)
+- `--revagent` value missing or unsupported (see Wave 0 step 1)
 
 **WARN (proceed)** if:
 
@@ -79,17 +80,25 @@ Wave 4: Post & Handoff       ← loads refs/remediation-handoff.md
 
 **Steps**:
 
-1. Classify target mode (`pr`, `diff`, `snapshot`).
-2. Validate environment:
+1. Validate `--revagent` before any environment check, Auggie call, diff fetch, or agent spawn. Validation applies at every `--depth`, and a bad value never falls back to the default:
+   - Accepted: `opus`, `sonnet`, `haiku`, `fable`.
+   - These are the native Agent tool model aliases; full model IDs and backend/gateway aliases are not accepted.
+   - Omitted → `revagent = default` (reviewer agents keep their frontmatter model).
+   - Value in the accepted set → `revagent = <value>`.
+   - Missing value (no following token, or the next token starts with `--`) → STOP: `--revagent requires a value: one of opus, sonnet, haiku, fable.`
+   - Any other value, e.g. `connect`, `Opus`, `claude-sonnet-4-6`, `inherit` → STOP: `--revagent: unsupported value '<v>'. Supported: opus, sonnet, haiku, fable (native Agent tool model aliases). Full model IDs and backend/gateway aliases are not accepted; map them to a backend model via your Claude Code / gateway alias configuration instead.`
+   - Only when `--revagent` was supplied and `--depth` is `quick` or `standard`: print exactly `WARN: --revagent <value> has no effect at --depth <d> (no internal reviewer agent)` and record `revagent_effect: none (no internal reviewer at depth=<d>)` in the audit log (alongside the step 6 TARGET header).
+2. Classify target mode (`pr`, `diff`, `snapshot`).
+3. Validate environment:
    - `command -v auggie` (STOP if missing)
    - `git rev-parse --is-inside-work-tree` (STOP if not in repo)
    - For PR mode: `gh auth status` (STOP if unauthed)
-3. Resolve target details:
+4. Resolve target details:
    - PR: fetch `gh pr view <id> --json number,headRefName,baseRefName,title,body,files,url,headRepositoryOwner,headRepository` and the merge-base diff range
    - Diff: validate `<base>` ref exists (`git rev-parse <base>`)
    - Snapshot: validate path exists and is readable
-4. Compute `target_slug` (`pr-62`, `diff-master-HEAD`, `snapshot-src-superclaude-cli`) and create `--output-dir` (default `.dev/reviews/<target-slug>-<YYYYMMDDHHMMSS>/`).
-5. Emit machine-readable header to the audit log:
+5. Compute `target_slug` (`pr-62`, `diff-master-HEAD`, `snapshot-src-superclaude-cli`) and create `--output-dir` (default `.dev/reviews/<target-slug>-<YYYYMMDDHHMMSS>/`).
+6. Emit machine-readable header to the audit log:
 
 ```text
 <!-- SC:AUGGIE-REVIEW:TARGET
@@ -100,6 +109,7 @@ depth: <quick|standard|deep>
 output_dir: <abs-path>
 auggie_version: <version>
 gh_authed: <bool>
+revagent: <opus|sonnet|haiku|fable|default>
 -->
 ```
 
@@ -180,7 +190,7 @@ auggie --print \
 > - **Indexer cold-start**: if `auggie-stderr.log` still mentions "indexing" or "not ready" despite `--wait-for-indexing`, retry once before treating as a failure.
 
 4. For `--depth deep`, after the initial pass spawn one **per-persona Auggie call** for each focus area not adequately covered (security, architecture, performance), reusing the same diff but a persona-specialized prompt. Aggregate the per-persona JSON outputs alongside the main pass.
-5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3.
+5. For `--depth deep` **only**, additionally spawn the `auggie-reviewer` agent via the `Task` tool to run an independent Claude-side review pass that does not see Auggie's findings yet — this provides a cross-check used in Wave 3. Model selection: when `revagent` is set, pass `model: <revagent>` on this `Task` spawn (it overrides the agent's frontmatter `model`); when `revagent = default`, pass no `model` argument, so the frontmatter default applies. Any re-spawn of a reviewer agent in the same run (retry, or re-run after a failed or invalid output) reuses the same `model` argument. `--revagent` is never passed to the `auggie` CLI and never to the step 4 per-persona Auggie calls.
 
 **Exit criteria**: One or more `auggie-raw-*.json` files under `<output-dir>/`, all containing structured findings. Audit log notes any non-zero exit codes, retries, or chunk failures.
 
@@ -274,11 +284,12 @@ auggie --print \
 - Auggie chunks: <N> (succeeded: <N>, retried: <N>, skipped: <N>)
 - Findings dropped during grounding: <N> (see `audit.log`)
 - Persona cross-check: <enabled|disabled>
+- Reviewer agent model: <value|frontmatter default>
 - Token cost: Claude ≈ <N> (orchestration), Auggie ≈ <N> (deep pass)
 
 ````
 
-8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons.
+8. Write `<output-dir>/audit.log` with: every Auggie invocation (cmd + duration + exit), every finding with grounding result, every dedupe decision, every severity remap, dropped findings with reasons, and the model argument passed on each reviewer spawn (or `frontmatter` when none was passed).
 
 **Exit criteria**: `REVIEW.md` and `audit.log` written. Audit log includes the machine-readable summary header:
 
@@ -362,6 +373,8 @@ duration_sec: <N>
 |----------|----------|----------|
 | `auggie` missing | STOP at Wave 0 with install hint | None |
 | `gh` unauthed for PR mode | STOP at Wave 0 with `gh auth login` hint | None |
+| `--revagent` given with no value | STOP at Wave 0 with `--revagent requires a value: one of opus, sonnet, haiku, fable.` | None |
+| `--revagent` given an unsupported value (e.g. `connect`) | STOP at Wave 0 with `--revagent: unsupported value '<v>'. Supported: opus, sonnet, haiku, fable (native Agent tool model aliases). Full model IDs and backend/gateway aliases are not accepted; map them to a backend model via your Claude Code / gateway alias configuration instead.` | None |
 | Auggie chunk fails after retry | Continue with remaining chunks; status `partial`; note in audit and report header | Findings from successful chunks still produced |
 | Findings all fail file:line grounding | Emit `REVIEW.md` with empty findings sections and a clear "review inconclusive — Auggie findings could not be grounded" notice; status `partial` | Do not post to PR in this case |
 | `gh pr review` post fails | Save the body to `<output-dir>/REVIEW.md`, surface the path to the user, status `partial` | None |

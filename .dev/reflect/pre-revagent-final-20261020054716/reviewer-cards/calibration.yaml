@@ -1,0 +1,14 @@
+calibrator_model: fable          # disjoint from reviewers (sonnet, haiku) and executor (opus)
+calibrator_diversity: full
+cards:
+  reviewer-1:
+    self_confidence: 0.90
+    calibrated_confidence: 0.72
+    scores: {citation_grounding: 0.80, coverage_completeness: 0.65, deviation_clarity: 0.75, risk_surface: 0.55, actionability: 0.85}
+    note: "baseline cites verify; coverage_gaps: [] asserted without a map; RF4/RF7/RF10/RF12 not evidenced in card"
+  reviewer-2:
+    self_confidence: 0.86
+    calibrated_confidence: 0.67
+    scores: {citation_grounding: 0.70, coverage_completeness: 0.55, deviation_clarity: 0.70, risk_surface: 0.55, actionability: 0.85}
+    note: "findings accurate and actionable; narrow slice of spec test contract"
+follow_up: "Wave 5 evidence-validator additionally maps every AC1-AC8 and RF1-RF12 to a current-tasklist line (closes calibrator coverage concern)."
