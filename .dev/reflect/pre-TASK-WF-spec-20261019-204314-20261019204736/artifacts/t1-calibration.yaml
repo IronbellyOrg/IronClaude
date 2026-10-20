@@ -1,0 +1,21 @@
+calibration: independent-agent
+calibrator_model_class: opus
+calibrator_model: claude-opus-5-5[1m]
+card_path: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/reflect/pre-TASK-WF-spec-20261019-204314-20261019204736/t1-card.md
+rubric: reflect-five-dimension-continuous-arithmetic-mean
+scores:
+  citation_grounding: 0.70
+  coverage_completeness: 0.58
+  deviation_classification_clarity: 0.90
+  risk_surface_coverage: 0.75
+  recommendation_actionability: 0.72
+confidence_calibrated: 0.73
+calibrator_diversity: degraded
+citation_validation_performed_by_calibrator: false
+prior_result_superseded: 0.60
+prior_result_problem: Generic agent assumed coarse 0/0.5/1 anchors; same blind instance rescored using actual five reflect anchors supplied verbatim from loaded rubric.
+caveats:
+  - Card-only blind assessment; underlying source citations were not independently checked by the calibrator.
+  - Initial card lacked individual dispositions for the 23 literal nonmatches. Later semantic crosswalk was not included in this blind pass; do not silently increase this score.
+  - Primary registration/upstream risks considered; other safety paths summarized rather than risk-analyzed in T1 card.
+  - Opus is also in Tier-2 reviewer rotation; no disjoint class available from three resolved aliases.

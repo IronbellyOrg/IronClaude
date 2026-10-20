@@ -1,0 +1,748 @@
+[
+  {
+    "hunk_id": "H-001",
+    "path": "README.md",
+    "before": [
+      61,
+      67
+    ],
+    "after": [
+      61,
+      67
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-002",
+    "path": "README.md",
+    "before": [
+      72,
+      78
+    ],
+    "after": [
+      72,
+      78
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-003",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "before": [
+      1,
+      8
+    ],
+    "after": [
+      1,
+      18
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-004",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "before": [
+      11,
+      17
+    ],
+    "after": [
+      21,
+      27
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-005",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "before": [
+      301,
+      315
+    ],
+    "after": [
+      311,
+      325
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-006",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "before": [
+      328,
+      334
+    ],
+    "after": [
+      338,
+      344
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-007",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "before": [
+      355,
+      361
+    ],
+    "after": [
+      365,
+      371
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-008",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "before": [
+      386,
+      394
+    ],
+    "after": [
+      396,
+      404
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-009",
+    "path": "docs/mcp/mcp-optional-design.md",
+    "before": [
+      407,
+      418
+    ],
+    "after": [
+      417,
+      428
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-010",
+    "path": "docs/reference/mcp-server-guide.md",
+    "before": [
+      8,
+      26
+    ],
+    "after": [
+      8,
+      57
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-011",
+    "path": "docs/reference/mcp-server-guide.md",
+    "before": [
+      616,
+      624
+    ],
+    "after": [
+      647,
+      655
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-012",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      1,
+      6
+    ],
+    "after": [
+      1,
+      28
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-013",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      8,
+      27
+    ],
+    "after": [
+      30,
+      60
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-014",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      31,
+      41
+    ],
+    "after": [
+      64,
+      76
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-015",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      80,
+      93
+    ],
+    "after": [
+      115,
+      127
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-016",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      121,
+      127
+    ],
+    "after": [
+      155,
+      161
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-017",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      142,
+      159
+    ],
+    "after": [
+      176,
+      198
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-018",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      164,
+      170
+    ],
+    "after": [
+      203,
+      244
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-019",
+    "path": "docs/user-guide/mcp-installation.md",
+    "before": [
+      229,
+      236
+    ],
+    "after": [
+      303,
+      324
+    ],
+    "matched_tasks": [
+      "T7"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-020",
+    "path": "src/superclaude/cli/install_codebase_memory.py",
+    "before": [
+      1,
+      0
+    ],
+    "after": [
+      1,
+      711
+    ],
+    "matched_tasks": [
+      "T1",
+      "T3"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-021",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      10,
+      19
+    ],
+    "after": [
+      10,
+      24
+    ],
+    "matched_tasks": [
+      "T2",
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-022",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      92,
+      97
+    ],
+    "after": [
+      97,
+      110
+    ],
+    "matched_tasks": [
+      "T2"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-023",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      181,
+      186
+    ],
+    "after": [
+      194,
+      204
+    ],
+    "matched_tasks": [
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-024",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      193,
+      201
+    ],
+    "after": [
+      211,
+      216
+    ],
+    "matched_tasks": [
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-025",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      234,
+      260
+    ],
+    "after": [
+      249,
+      265
+    ],
+    "matched_tasks": [
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-026",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      474,
+      524
+    ],
+    "after": [
+      479,
+      587
+    ],
+    "matched_tasks": [
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-027",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      648,
+      653
+    ],
+    "after": [
+      711,
+      998
+    ],
+    "matched_tasks": [
+      "T2",
+      "T3",
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-028",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      663,
+      668
+    ],
+    "after": [
+      1008,
+      1017
+    ],
+    "matched_tasks": [
+      "T2"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-029",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      745,
+      755
+    ],
+    "after": [
+      1094,
+      1111
+    ],
+    "matched_tasks": [
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-030",
+    "path": "src/superclaude/cli/install_mcp.py",
+    "before": [
+      862,
+      986
+    ],
+    "after": [
+      1218,
+      1359
+    ],
+    "matched_tasks": [
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-031",
+    "path": "src/superclaude/cli/main.py",
+    "before": [
+      35,
+      54
+    ],
+    "after": [
+      35,
+      55
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-032",
+    "path": "src/superclaude/cli/main.py",
+    "before": [
+      62,
+      67
+    ],
+    "after": [
+      63,
+      69
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-033",
+    "path": "src/superclaude/cli/main.py",
+    "before": [
+      73,
+      78
+    ],
+    "after": [
+      75,
+      86
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-034",
+    "path": "src/superclaude/cli/main.py",
+    "before": [
+      150,
+      155
+    ],
+    "after": [
+      158,
+      189
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-035",
+    "path": "src/superclaude/cli/main.py",
+    "before": [
+      217,
+      222
+    ],
+    "after": [
+      251,
+      266
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-036",
+    "path": "src/superclaude/cli/main.py",
+    "before": [
+      226,
+      276
+    ],
+    "after": [
+      270,
+      344
+    ],
+    "matched_tasks": [
+      "T4",
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-037",
+    "path": "tests/cli/test_install_codebase_memory.py",
+    "before": [
+      1,
+      0
+    ],
+    "after": [
+      1,
+      1528
+    ],
+    "matched_tasks": [
+      "T1",
+      "T3",
+      "T4",
+      "T6"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-038",
+    "path": "tests/cli/test_install_mcp_registry.py",
+    "before": [
+      187,
+      189
+    ],
+    "after": [
+      187,
+      260
+    ],
+    "matched_tasks": [
+      "T2",
+      "T4"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-039",
+    "path": "tests/cli/test_install_mcp_tavily.py",
+    "before": [
+      8,
+      15
+    ],
+    "after": [
+      8,
+      18
+    ],
+    "matched_tasks": [
+      "T2"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-040",
+    "path": "tests/cli/test_install_mcp_tavily.py",
+    "before": [
+      374,
+      376
+    ],
+    "after": [
+      377,
+      1041
+    ],
+    "matched_tasks": [
+      "T2",
+      "T3"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-041",
+    "path": "tests/cli/test_update_command.py",
+    "before": [
+      6,
+      11
+    ],
+    "after": [
+      6,
+      12
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-042",
+    "path": "tests/cli/test_update_command.py",
+    "before": [
+      24,
+      36
+    ],
+    "after": [
+      25,
+      90
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-043",
+    "path": "tests/cli/test_update_command.py",
+    "before": [
+      81,
+      86
+    ],
+    "after": [
+      135,
+      141
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-044",
+    "path": "tests/cli/test_update_command.py",
+    "before": [
+      91,
+      98
+    ],
+    "after": [
+      146,
+      152
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-045",
+    "path": "tests/cli/test_update_command.py",
+    "before": [
+      106,
+      111
+    ],
+    "after": [
+      160,
+      170
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  },
+  {
+    "hunk_id": "H-046",
+    "path": "tests/cli/test_update_command.py",
+    "before": [
+      187,
+      189
+    ],
+    "after": [
+      246,
+      424
+    ],
+    "matched_tasks": [
+      "T5"
+    ],
+    "method": "recorded_start_tree_line_provenance"
+  }
+]

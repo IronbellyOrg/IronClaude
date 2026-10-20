@@ -1,0 +1,25 @@
+selected_tier: 2
+fired_rule_number: 3
+confidence_calibrated: 0.73
+S_scope: 11
+S_domains: 3
+S_dev_density: 0.0
+S_dev_density_method: recorded-start-tree line attribution, not a semantic clean-verdict claim
+coverage_degraded: null
+surface_unreached: null
+composite_score: 8
+per_signal_breakdown:
+  scope_size: 2
+  task_count: 1
+  blast_radius: 2
+  spec_density: 1
+  ambiguity_signals: 2
+escalation_reason: T1 classified source compatibility scenarios as regression candidates; rule 3 requires debate before adjudication. Three domains and C below 0.85 independently require escalation at later rules.
+composite_note: Recording-only qualitative 0-2 signal scores; 11 files, seven tasks, default/native destructive lifecycle, 49 ACs, and three unadjudicated compatibility candidates. Composite does not decide routing.
+executor_class_source: unknown
+executor_class_resolved: false
+reviewer_model_overrides: [sonnet, haiku, opus]
+reviewer_aliases_observed: ["claude-sonnet-5-5[1m]", "grok-4.7[1m]", "claude-opus-5-5[1m]"]
+calibrator_model_override: opus
+calibrator_diversity: degraded
+calibrator_note: Three distinct reviewer slots consume the available configured rotation. The documented highest-capability fallback collides with one reviewer class; do not claim a full three-way disjoint partition.

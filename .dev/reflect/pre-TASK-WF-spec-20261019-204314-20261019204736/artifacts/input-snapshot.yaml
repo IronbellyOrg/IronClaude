@@ -1,0 +1,62 @@
+{
+  "input_tree_sha256": "99b17fbd4a44802c669feabd40e1c633ac1d440ed9e2d1c24cb7f26fb9632886",
+  "file_list": [
+    {
+      "path": ".dev/tasks/to-do/TASK-WF-spec-20261019-204314/TASK-WF-spec-20261019-204314.md",
+      "sha256": "7af997cba06fbbf87eba36557814ed85a7b97036c5042a23440f5295083c8885"
+    },
+    {
+      "path": ".dev/tasks/to-do/TASK-WF-spec-20261019-204314/source.md",
+      "sha256": "ee09df8de9864189f54d11e0525054457ca570bb2037ef4ad30d1db15e7b095d"
+    },
+    {
+      "path": "README.md",
+      "sha256": "f892dcf1c6d9f03a85013c8efcc75963081ee653548cb180b42214c51a25d5bd"
+    },
+    {
+      "path": "docs/mcp/mcp-optional-design.md",
+      "sha256": "e3cdcbd210548b1f9da415b3c639554e524cc07524220c4f4d569251254747ae"
+    },
+    {
+      "path": "docs/reference/mcp-server-guide.md",
+      "sha256": "ff7a0c5adbab606e7bfbba754216ed09330e888e4ff49551c10819b40a052efb"
+    },
+    {
+      "path": "docs/user-guide/mcp-installation.md",
+      "sha256": "5375ab39ee3998747302c2ca5a4217e842f1d4b4e6096939a8a12f626e42037e"
+    },
+    {
+      "path": "src/superclaude/cli/install_ccsession.py",
+      "sha256": "fe2a2898eea1d0f4b1d5b600df427b65440412996dbc61d278feb4fd0e9cc203"
+    },
+    {
+      "path": "src/superclaude/cli/install_mcp.py",
+      "sha256": "15f8b8e08cedfe7f84a2fc06ae8e569b48c15505d31c7dd63adc6ec92e49dbc4"
+    },
+    {
+      "path": "src/superclaude/cli/main.py",
+      "sha256": "ec9abea09f2adb5fa5066c2bb4429bb95999655445714e8b87d5133f63099a71"
+    },
+    {
+      "path": "tests/cli/test_install_mcp_registry.py",
+      "sha256": "151a7038035135238d9b7312ed99b592d17acc4aa184953e23bbd32894af0dd7"
+    },
+    {
+      "path": "tests/cli/test_install_mcp_tavily.py",
+      "sha256": "b2569a0253efbe8d2328052422713890cb0c47b7e948bfb1fe7962e5b9dd9bb1"
+    },
+    {
+      "path": "tests/cli/test_update_command.py",
+      "sha256": "78d38516b818b6f45dffb487848a00b148e034a976caaea40b21e66182c7c448"
+    }
+  ],
+  "file_count": 12,
+  "unresolved_proposed_or_artifact_paths": [
+    "./artifacts/t1-upstream-contract.md",
+    "./artifacts/t6-cli-regressions.txt",
+    "./artifacts/t7-live-smoke-gate.md",
+    "src/superclaude/cli/install_codebase_memory.py",
+    "tests/cli/test_install_codebase_memory.py"
+  ],
+  "serialization": "JSON pairs, separators comma/colon, UTF-8"
+}

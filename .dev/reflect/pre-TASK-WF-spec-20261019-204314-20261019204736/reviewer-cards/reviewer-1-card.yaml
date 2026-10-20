@@ -1,0 +1,51 @@
+reviewer: 1
+model_class: sonnet
+model: claude-sonnet-5-5[1m]
+persona: analyzer
+calibration: not-performed
+self_confidence: null
+confirmed_contradictions: []
+returned_findings:
+  - id: A1
+    kind: instrumentation-warning
+    summary: Literal nonmatches are semantically represented; several matched rows also point to wrong tasks. Do not rewrite the plan to raise lexical score.
+  - id: C1
+    kind: already-covered
+    summary: Task 2 anticipates error-versus-absence, argv flattening, scope-blind no-op, unscoped removal and exact rollback risks.
+  - id: C2
+    kind: already-covered
+    summary: Task 4 anticipates selection-aware prerequisites and gateway/native aggregation.
+  - id: C3
+    kind: already-covered
+    summary: Task 7 intentionally leaves upstream live merge-safety smoke as a separately authorized release gate.
+  - id: G1
+    kind: confirmed-plan-gap
+    severity: LOW
+    summary: Positive dry-run output content and explicit MCP install disclosure are not independently listed in Task 4 acceptance criteria; existing prohibitions alone do not assert displayed source URL, effects and index retention.
+    evidence: [source.md:117, source.md:145, TASK-WF-spec-20261019-204314.md:111, TASK-WF-spec-20261019-204314.md:145]
+  - id: G2
+    kind: confirmed-plan-gap
+    severity: LOW
+    summary: Uninstall scope validation has no explicit per-task removal acceptance criterion; Task 4 scope bullet names download/write rather than removal.
+    evidence: [source.md:80, source.md:108, TASK-WF-spec-20261019-204314.md:106-107, TASK-WF-spec-20261019-204314.md:87-91]
+  - id: R1
+    kind: implementation-risk
+    severity: MEDIUM
+    summary: Existing _run_command uses shell=True on POSIX. Reusing it for native lifecycle can violate argv safety and process-tree timeout handling; do not import it across the forbidden circular dependency.
+    evidence: [src/superclaude/cli/install_mcp.py:99-128, TASK-WF-spec-20261019-204314.md:36-46, TASK-WF-spec-20261019-204314.md:80-82]
+  - id: R2
+    kind: implementation-risk
+    severity: MEDIUM
+    summary: Existing parsers do not losslessly capture transport/env/headers and hidden user scope; current external CLI support must be independently proved during Task 2.
+  - id: R3
+    kind: implementation-risk
+    severity: LOW
+    summary: Registry status uses substring scans; Codebase Memory user/binary status needs exact predicates.
+  - id: R4
+    kind: implementation-risk
+    severity: LOW
+    summary: Existing API-key prompt occurs before dry-run branch; preserve real-run Tavily handling while deliberately changing dry-run behavior in Task 4.
+limitations:
+  - No independently verified upstream or external CLI behavior.
+  - No shell/git/tests/writes/Serena performed by reviewer.
+  - Missing proposed product/test files correctly treated as expected, not regressions.

@@ -8,8 +8,11 @@ All assertions read the ACTUAL registry / argv — no fabricated expected values
 smoke is gated behind ``TAVILY_API_KEY`` so the suite is CI-safe.
 """
 
+import json
 import os
+import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -374,3 +377,665 @@ def test_live_tavily_search_smoke():
     entry = install_mcp.MCP_SERVERS["tavily"]
     assert entry["command"].endswith("tavily-mcp@0.2.22")
     assert entry.get("api_key_env") == "TAVILY_API_KEY"
+
+
+@pytest.fixture
+def native_registration(tmp_path, monkeypatch):
+    from superclaude.cli import install_codebase_memory as native
+
+    home = tmp_path / "isolated home"
+    home.mkdir()
+    config_dir = tmp_path / "config with spaces"
+    config_dir.mkdir()
+    config = config_dir / ".claude.json"
+    config.write_text(json.dumps({"mcpServers": {}}))
+    exe = home / ".local/bin/codebase-memory-mcp"
+    expected = {"type": "stdio", "command": str(exe), "args": []}
+    state = SimpleNamespace(
+        config=config,
+        home=home,
+        exe=exe,
+        expected=expected,
+        calls=[],
+        fail_adds=0,
+        fail_remove=False,
+        timeout_add=False,
+        bad_postcheck=False,
+    )
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(config_dir))
+    monkeypatch.setattr(native.platform, "system", lambda: "Linux")
+    monkeypatch.setattr(native.platform, "machine", lambda: "x86_64")
+    monkeypatch.setattr(
+        native,
+        "discover_executable",
+        lambda: native.Discovery("canonical", exe, "codebase-memory-mcp 0.12.1"),
+    )
+    monkeypatch.setattr(
+        native, "_run_bounded", lambda *a, **k: pytest.fail("native process/download")
+    )
+    acquire = native.acquire_codebase_memory
+
+    def acquisition(**kwargs):
+        state.calls.append(["acquire"])
+        return acquire(**kwargs)
+
+    monkeypatch.setattr(native, "acquire_codebase_memory", acquisition)
+
+    def run(cmd, **kwargs):
+        state.calls.append(cmd)
+        assert kwargs["timeout"] <= 60
+        if cmd == ["claude", "--version"]:
+            return subprocess.CompletedProcess(cmd, 0, "fixture version", "")
+        assert cmd[:3] in (["claude", "mcp", "add-json"], ["claude", "mcp", "remove"])
+        assert cmd[-2:] == ["--scope", "user"]
+        assert cmd[3] == "codebase-memory-mcp"
+        root = json.loads(config.read_text())
+        servers = root.setdefault("mcpServers", {})
+        if cmd[2] == "remove":
+            if state.fail_remove:
+                return subprocess.CompletedProcess(
+                    cmd, 1, "credential-sensitive output", "secret error"
+                )
+            servers.pop(cmd[3], None)
+        else:
+            if state.timeout_add:
+                state.timeout_add = False
+                raise subprocess.TimeoutExpired(
+                    cmd, 60, stderr="credential-sensitive output"
+                )
+            if state.fail_adds:
+                state.fail_adds -= 1
+                return subprocess.CompletedProcess(
+                    cmd, 1, "credential-sensitive output", "secret error"
+                )
+            assert cmd[3] not in servers
+            servers[cmd[3]] = (
+                {"type": "http", "url": "https://wrong.invalid"}
+                if state.bad_postcheck
+                else json.loads(cmd[4])
+            )
+        config.write_text(json.dumps(root))
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(install_mcp, "_run_command", run)
+    return state
+
+
+def _native_entry(state):
+    return (
+        json.loads(state.config.read_text())
+        .get("mcpServers", {})
+        .get("codebase-memory-mcp")
+    )
+
+
+def _seed_native_entry(state, entry):
+    root = json.loads(state.config.read_text())
+    root.setdefault("mcpServers", {})["codebase-memory-mcp"] = entry
+    state.config.write_text(json.dumps(root))
+
+
+def test_native_missing_registration_reuses_binary_without_download(
+    native_registration, capsys
+):
+    state = native_registration
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert success and _native_entry(state) == state.expected
+    assert state.calls[0] == ["claude", "--version"]
+    assert state.calls[1] == ["acquire"]
+    assert state.calls[2][:3] == ["claude", "mcp", "add-json"]
+    assert json.loads(state.calls[2][4])["command"] == str(state.exe)
+    assert "0.12.1" in capsys.readouterr().out and "Restart" in message
+    assert "no indexing" in message.lower() and "handshake" in message.lower()
+
+
+def test_native_correct_user_entry_is_noop(native_registration):
+    state = native_registration
+    _seed_native_entry(state, state.expected)
+    assert install_mcp.install_codebase_memory_mcp()[0]
+    assert state.calls == [["claude", "--version"], ["acquire"]]
+
+
+def test_native_upstream_registration_is_not_replaced(native_registration, monkeypatch):
+    from superclaude.cli import install_codebase_memory as native
+
+    state = native_registration
+
+    def acquisition(**kwargs):
+        state.calls.append(["acquire"])
+        _seed_native_entry(state, state.expected)
+        return native.AcquisitionResult(
+            True, "verification", "fixture", state.exe, "0.12.1", True
+        )
+
+    monkeypatch.setattr(native, "acquire_codebase_memory", acquisition)
+    assert install_mcp.install_codebase_memory_mcp()[0]
+    assert state.calls == [["claude", "--version"], ["acquire"]]
+
+
+@pytest.mark.parametrize("user_state", ["missing", "stale", "correct"])
+def test_native_scope_shadowing_preserves_local_project_and_similar_names(
+    native_registration, tmp_path, user_state
+):
+    state = native_registration
+    local = {"type": "stdio", "command": "/local/tool", "args": ["local"]}
+    similar = {"command": "/similar/tool"}
+    root = {
+        "projects": {str(tmp_path): {"mcpServers": {"codebase-memory-mcp": local}}},
+        "mcpServers": {"codebase-memory-mcp-scout": similar},
+        "unrelated": "keep",
+    }
+    if user_state != "missing":
+        root["mcpServers"]["codebase-memory-mcp"] = (
+            state.expected
+            if user_state == "correct"
+            else {"command": "/old/native", "args": []}
+        )
+    state.config.write_text(json.dumps(root))
+    project = tmp_path / ".mcp.json"
+    project.write_text(json.dumps({"mcpServers": {"codebase-memory-mcp": local}}))
+    project_before = project.read_bytes()
+    assert install_mcp.install_codebase_memory_mcp()[0]
+    result = json.loads(state.config.read_text())
+    assert result["projects"] == root["projects"]
+    assert result["mcpServers"]["codebase-memory-mcp-scout"] == similar
+    assert result["unrelated"] == "keep" and project.read_bytes() == project_before
+    removed = [cmd for cmd in state.calls if cmd[:3] == ["claude", "mcp", "remove"]]
+    assert len(removed) == int(user_state == "stale")
+    assert all(cmd[-2:] == ["--scope", "user"] for cmd in removed)
+
+
+@pytest.mark.parametrize(
+    "drift",
+    [
+        {"type": "http", "url": "https://old.invalid"},
+        {"type": "stdio", "command": "/old/native", "args": []},
+        {"type": "stdio", "command": "codebase-memory-mcp", "args": []},
+        {"args": ["--stale"]},
+    ],
+)
+def test_native_transport_path_arguments_drift_replaced(native_registration, drift):
+    state = native_registration
+    old = {**state.expected, **drift}
+    _seed_native_entry(state, old)
+    assert install_mcp.install_codebase_memory_mcp()[0]
+    assert _native_entry(state) == state.expected
+    assert state.calls[2] == [
+        "claude",
+        "mcp",
+        "remove",
+        "codebase-memory-mcp",
+        "--scope",
+        "user",
+    ]
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        "not-json secret",
+        "[]",
+        '{"mcpServers": []}',
+        '{"mcpServers":{"codebase-memory-mcp":null}}',
+        '{"mcpServers":{},"mcpServers":{}}',
+    ],
+)
+def test_native_malformed_user_query_fails_closed(native_registration, bad, capsys):
+    state = native_registration
+    state.config.write_text(bad)
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "lookup" in message.lower()
+    assert state.calls == [["claude", "--version"], ["acquire"]]
+    assert "secret" not in message + str(capsys.readouterr())
+
+
+def test_native_user_read_error_distinct_from_absence(native_registration, monkeypatch):
+    state = native_registration
+    original = Path.read_text
+
+    def read(path, *args, **kwargs):
+        if path == state.config:
+            raise PermissionError("sensitive read failure")
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", read)
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "lookup" in message.lower()
+    assert "sensitive" not in message and len(state.calls) == 2
+
+
+def test_native_default_config_location_missing_is_confirmed_absence(
+    native_registration, monkeypatch
+):
+    state = native_registration
+    monkeypatch.delenv("CLAUDE_CONFIG_DIR")
+    assert install_mcp.read_user_mcp_entry("codebase-memory-mcp") == (True, None)
+    (state.home / ".claude.json").write_text(
+        json.dumps({"mcpServers": {"codebase-memory-mcp": state.expected}})
+    )
+    assert install_mcp.read_user_mcp_entry("codebase-memory-mcp") == (
+        True,
+        state.expected,
+    )
+
+
+def test_native_dangling_config_not_absence(native_registration):
+    state = native_registration
+    state.config.unlink()
+    state.config.symlink_to(state.config.parent / "missing")
+    assert install_mcp.read_user_mcp_entry("codebase-memory-mcp") == (False, None)
+
+
+@pytest.mark.parametrize("scope", ["project", "local"])
+def test_native_scope_rejected_before_any_process(native_registration, scope):
+    state = native_registration
+    success, message = install_mcp.install_codebase_memory_mcp(scope=scope)
+    assert not success and "user" in message
+    assert state.calls == []
+
+
+@pytest.mark.parametrize("failure", ["nonzero", "timeout", "oserror"])
+def test_native_claude_readiness_precedes_acquisition(
+    native_registration, monkeypatch, failure
+):
+    state = native_registration
+
+    def run(cmd, **kwargs):
+        assert cmd == ["claude", "--version"]
+        if failure == "timeout":
+            raise subprocess.TimeoutExpired(cmd, 10, stderr="secret readiness")
+        if failure == "oserror":
+            raise OSError("secret readiness")
+        return subprocess.CompletedProcess(cmd, 1, "", "secret readiness")
+
+    monkeypatch.setattr(install_mcp, "_run_command", run)
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "Claude CLI" in message and "secret" not in message
+    assert state.calls == []
+
+
+def test_native_acquisition_failure_prevents_registration_query(
+    native_registration, monkeypatch
+):
+    from superclaude.cli import install_codebase_memory as native
+
+    state = native_registration
+    monkeypatch.setattr(
+        native,
+        "acquire_codebase_memory",
+        lambda **kwargs: native.AcquisitionResult(False, "download", "fixture failed"),
+    )
+    monkeypatch.setattr(
+        install_mcp,
+        "read_user_mcp_entry",
+        lambda *a: pytest.fail("dependent registration query"),
+    )
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "download" in message and len(state.calls) == 1
+
+
+@pytest.mark.parametrize("failure", ["nonzero", "timeout"])
+def test_native_add_failure_restores_complete_prior_entry(
+    native_registration, failure, capsys
+):
+    state = native_registration
+    old = {
+        "type": "http",
+        "url": "https://old.invalid",
+        "headers": {"Authorization": "secret-rollback"},
+        "env": {"TOKEN": "secret-rollback"},
+        "unknown": {"preserve": [1, True, "value"]},
+    }
+    _seed_native_entry(state, old)
+    state.fail_adds = int(failure == "nonzero")
+    state.timeout_add = failure == "timeout"
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "restored" in message.lower()
+    assert _native_entry(state) == old
+    assert json.loads(state.calls[-1][4]) == old
+    assert "secret" not in message + str(capsys.readouterr())
+
+
+def test_native_failed_restoration_distinct(native_registration, capsys):
+    state = native_registration
+    _seed_native_entry(
+        state, {"command": "/old/tool", "env": {"TOKEN": "secret-rollback"}}
+    )
+    state.fail_adds = 2
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "restoration failed" in message.lower()
+    assert "secret" not in message + str(capsys.readouterr())
+
+
+def test_native_remove_failure_stops_without_add(native_registration):
+    state = native_registration
+    old = {"command": "/old/native", "args": []}
+    _seed_native_entry(state, old)
+    state.fail_remove = True
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "removal" in message.lower()
+    assert _native_entry(state) == old and len(state.calls) == 3
+
+
+def test_native_post_add_verification_required(native_registration):
+    state = native_registration
+    state.bad_postcheck = True
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "verification" in message.lower()
+
+
+def test_native_implicit_stdio_defaults_are_noop(native_registration):
+    state = native_registration
+    _seed_native_entry(state, {"command": str(state.exe), "env": {"EXTRA": "keep"}})
+    assert install_mcp.install_codebase_memory_mcp()[0]
+    assert state.calls == [["claude", "--version"], ["acquire"]]
+
+
+@pytest.mark.parametrize("failure", ["timeout", "oserror"])
+def test_native_rollback_exception_never_exposes_secret_argv(
+    native_registration, monkeypatch, capsys, failure
+):
+    state = native_registration
+    old = {"command": "/old/native", "env": {"TOKEN": "SECRET-IN-ROLLBACK-ARGV"}}
+    _seed_native_entry(state, old)
+    state.fail_adds = 1
+    original = install_mcp._run_command
+
+    def run(cmd, **kwargs):
+        if cmd[:3] == ["claude", "mcp", "add-json"] and json.loads(cmd[4]) == old:
+            if failure == "timeout":
+                raise subprocess.TimeoutExpired(
+                    cmd, 60, stderr="SECRET-IN-ROLLBACK-ARGV"
+                )
+            raise OSError("SECRET-IN-ROLLBACK-ARGV")
+        return original(cmd, **kwargs)
+
+    monkeypatch.setattr(install_mcp, "_run_command", run)
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "restoration failed" in message.lower()
+    assert "SECRET-IN-ROLLBACK-ARGV" not in message + str(capsys.readouterr())
+
+
+def test_native_timeout_after_add_write_restores_prior_entry(
+    native_registration, monkeypatch
+):
+    state = native_registration
+    old = {"command": "/old/native", "args": ["--preserve"], "unknown": [1, 2]}
+    _seed_native_entry(state, old)
+    original = install_mcp._run_command
+    failed = False
+
+    def run(cmd, **kwargs):
+        nonlocal failed
+        result = original(cmd, **kwargs)
+        if cmd[:3] == ["claude", "mcp", "add-json"] and not failed:
+            failed = True
+            raise subprocess.TimeoutExpired(cmd, 60)
+        return result
+
+    monkeypatch.setattr(install_mcp, "_run_command", run)
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "restored" in message.lower()
+    assert _native_entry(state) == old
+    assert [cmd[2] for cmd in state.calls if len(cmd) > 2] == [
+        "remove",
+        "add-json",
+        "remove",
+        "add-json",
+    ]
+
+
+def test_native_rollback_preserves_unattributed_concurrent_entry(
+    native_registration, monkeypatch
+):
+    state = native_registration
+    old = {"command": "/old/native"}
+    concurrent = {"command": "/concurrently/changed", "env": {"OTHER": "keep"}}
+    _seed_native_entry(state, old)
+    original = install_mcp._run_command
+
+    def run(cmd, **kwargs):
+        if cmd[:3] == ["claude", "mcp", "add-json"]:
+            state.calls.append(cmd)
+            _seed_native_entry(state, concurrent)
+            return subprocess.CompletedProcess(cmd, 1, "", "")
+        return original(cmd, **kwargs)
+
+    monkeypatch.setattr(install_mcp, "_run_command", run)
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "restoration failed" in message.lower()
+    assert _native_entry(state) == concurrent
+    assert sum(cmd[:3] == ["claude", "mcp", "remove"] for cmd in state.calls) == 1
+
+
+def test_native_dry_run_never_acquires_or_mutates(native_registration):
+    state = native_registration
+    before = state.config.read_bytes()
+    success, message = install_mcp.install_codebase_memory_mcp(dry_run=True)
+    assert success and "DRY RUN" in message
+    assert state.calls == [] and state.config.read_bytes() == before
+
+
+@pytest.fixture
+def native_removal(native_registration, monkeypatch):
+    from superclaude.cli import install_codebase_memory as native
+
+    state = native_registration
+    state.removal_state = "ready"
+    state.upstream_cleans_registration = True
+    state.native_failure = False
+    state.post_query_failure = False
+    state.remaining = ()
+    monkeypatch.setattr(
+        native,
+        "acquire_codebase_memory",
+        lambda **kwargs: pytest.fail("acquisition during removal"),
+    )
+    monkeypatch.setattr(
+        install_mcp.click,
+        "confirm",
+        lambda *a, **k: pytest.fail("helper must not prompt"),
+    )
+
+    def preview():
+        return native.RemovalPreview(
+            state.removal_state, native.REMOVAL_EFFECTS, state.exe, state.remaining
+        )
+
+    def remove(*, scope, confirmed):
+        assert scope == "user" and confirmed is True
+        state.calls.append(["native-uninstall"])
+        if state.native_failure:
+            return native.RemovalResult(
+                False,
+                "uninstall",
+                "Possible partial removal; inspect output and retry.",
+            )
+        if state.upstream_cleans_registration:
+            root = json.loads(state.config.read_text())
+            root.get("mcpServers", {}).pop("codebase-memory-mcp", None)
+            state.config.write_text(json.dumps(root))
+        if state.post_query_failure:
+            state.config.write_text("not-json secret-payload")
+        return native.RemovalResult(
+            True,
+            "verification",
+            "Canonical executable removed; indexes retained; updater left in place.",
+            state.remaining,
+        )
+
+    monkeypatch.setattr(native, "preview_codebase_memory_removal", preview)
+    monkeypatch.setattr(native, "uninstall_codebase_memory", remove)
+    return state
+
+
+def test_native_full_removal_upstream_registration_already_gone(native_removal):
+    state = native_removal
+    _seed_native_entry(state, state.expected)
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert success and _native_entry(state) is None
+    assert state.calls == [["native-uninstall"]]
+    assert "indexes" in message and "updater" in message
+
+
+def test_native_full_removal_cleans_only_surviving_exact_user_entry(
+    native_removal, tmp_path
+):
+    state = native_removal
+    state.upstream_cleans_registration = False
+    root = {
+        "mcpServers": {
+            "codebase-memory-mcp": state.expected,
+            "codebase-memory-mcp-scout": {"command": "/keep"},
+        },
+        "projects": {
+            str(tmp_path): {
+                "mcpServers": {"codebase-memory-mcp": {"command": "/local/keep"}}
+            }
+        },
+    }
+    state.config.write_text(json.dumps(root))
+    project = tmp_path / ".mcp.json"
+    project.write_text(
+        json.dumps(
+            {"mcpServers": {"codebase-memory-mcp": {"command": "/project/keep"}}}
+        )
+    )
+    before = project.read_bytes()
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert success
+    after = json.loads(state.config.read_text())
+    assert (
+        after["projects"] == root["projects"]
+        and "codebase-memory-mcp-scout" in after["mcpServers"]
+    )
+    assert project.read_bytes() == before
+    assert state.calls == [
+        ["native-uninstall"],
+        ["claude", "mcp", "remove", "codebase-memory-mcp", "--scope", "user"],
+    ]
+
+
+def test_native_missing_binary_registration_only_partial_cleanup(native_removal):
+    state = native_removal
+    state.removal_state = "missing"
+    _seed_native_entry(state, state.expected)
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert success and _native_entry(state) is None
+    assert (
+        "registration-only" in message.lower()
+        and "companion" in message.lower()
+        and "not audited" in message.lower()
+    )
+    assert state.calls == [
+        ["claude", "mcp", "remove", "codebase-memory-mcp", "--scope", "user"]
+    ]
+
+
+def test_native_complete_absence_is_idempotent(native_removal):
+    state = native_removal
+    state.removal_state = "missing"
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert success and "absent" in message.lower() and state.calls == []
+
+
+@pytest.mark.parametrize("state_name", ["external", "ambiguous", "unsupported"])
+def test_native_removal_unsafe_discovery_stops_without_user_cleanup(
+    native_removal, state_name
+):
+    state = native_removal
+    state.removal_state = state_name
+    _seed_native_entry(state, state.expected)
+    before = state.config.read_bytes()
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert not success and state.calls == [] and state.config.read_bytes() == before
+
+
+def test_native_removal_lookup_error_prevents_native_effects(native_removal, capsys):
+    state = native_removal
+    state.config.write_text("not-json secret-query")
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert not success and "lookup" in message.lower() and state.calls == []
+    assert "secret-query" not in message + str(capsys.readouterr())
+
+
+def test_native_removal_failure_never_blindly_cleans_registration(native_removal):
+    state = native_removal
+    state.native_failure = True
+    _seed_native_entry(state, state.expected)
+    before = state.config.read_bytes()
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert not success and "partial" in message.lower()
+    assert state.calls == [["native-uninstall"]] and state.config.read_bytes() == before
+
+
+def test_native_removal_post_query_failure_is_partial(native_removal, capsys):
+    state = native_removal
+    state.post_query_failure = True
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert (
+        not success
+        and "partial" in message.lower()
+        and state.calls == [["native-uninstall"]]
+    )
+    assert "secret-payload" not in message + str(capsys.readouterr())
+
+
+def test_native_residual_cleanup_failure_is_not_success(native_removal):
+    state = native_removal
+    state.upstream_cleans_registration = False
+    state.fail_remove = True
+    _seed_native_entry(state, state.expected)
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert (
+        not success
+        and "partial" in message.lower()
+        and _native_entry(state) == state.expected
+    )
+
+
+def test_native_removal_surviving_alternates_reported(native_removal):
+    state = native_removal
+    state.remaining = (state.home / "another install" / "codebase-memory-mcp",)
+    success, message = install_mcp.uninstall_codebase_memory_mcp(confirmed=True)
+    assert success and str(state.remaining[0]) in message
+
+
+@pytest.mark.parametrize("binary_state", ["ready", "missing"])
+def test_native_removal_without_confirmation_never_mutates(
+    native_removal, binary_state
+):
+    state = native_removal
+    state.removal_state = binary_state
+    _seed_native_entry(state, state.expected)
+    before = state.config.read_bytes()
+    success, message = install_mcp.uninstall_codebase_memory_mcp()
+    assert not success and "confirm" in message.lower()
+    assert state.calls == [] and state.config.read_bytes() == before
+
+
+def test_native_removal_dry_run_previews_without_prompts_or_mutations(native_removal):
+    state = native_removal
+    _seed_native_entry(state, state.expected)
+    before = state.config.read_bytes()
+    success, message = install_mcp.uninstall_codebase_memory_mcp(dry_run=True)
+    assert success and "DRY RUN" in message
+    for phrase in (
+        "detected clients",
+        "companion",
+        "active sessions",
+        "indexes",
+        "updater",
+    ):
+        assert phrase in message.lower()
+    assert state.calls == [] and state.config.read_bytes() == before
+
+
+@pytest.mark.parametrize("scope", ["project", "local"])
+def test_native_removal_other_scope_rejected_before_effects(native_removal, scope):
+    state = native_removal
+    success, message = install_mcp.uninstall_codebase_memory_mcp(
+        scope=scope, confirmed=True
+    )
+    assert not success and "user" in message and state.calls == []

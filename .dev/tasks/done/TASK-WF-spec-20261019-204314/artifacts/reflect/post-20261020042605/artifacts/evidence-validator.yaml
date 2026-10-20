@@ -1,0 +1,28 @@
+# Wave 5 evidence-validator gate output (fresh-context agent, read-only), persisted by the orchestrator.
+validator: evidence-validator agent
+report: REPORT.md
+citations_total: 22
+citations_revalidated: 22
+citations_dropped: 0
+citations_inferred: 5
+dropped: []
+corrections:
+  - citation: src/superclaude/cli/main.py:326-330
+    note: Guard also rejects servers, uninstall and yes; G-5 wording should say "among other combinations".
+    applied: true
+  - citation: source.md:117
+    note: Literal "mutation-free" wording is at source.md:145; cite 117 and 145 together.
+    applied: true
+  - citation: REPORT.md header and inferred_audit placeholders
+    note: Unresolved template placeholders at validation time.
+    applied: true
+self_audit: >-
+  Re-read every cited range: install_mcp.py 486-496, 1284-1285, 1311-1314, 572-579;
+  install_codebase_memory.py 85-99, 110-116, 539-544; main.py 255-275, 326-330;
+  tests/cli/test_install_codebase_memory.py 944-952, 964-988; source.md 76, 78, 80, 90, 114, 117, 143, 151;
+  operator-direction.md 5-7. Verified "only option-0 test" by grepping tests/ for menu inputs ending in 0
+  (only hit line 947). Verified "no group-writable fixture" by grepping for 0o775/0o777/0o770/0o002/0o022/
+  chmod/S_IWGRP/S_IWOTH/umask (only 0o700/0o600/0o644). Verified D-4 narrowing: found.message used at
+  install_codebase_memory.py:269,607,610 but not in install_mcp.py:572-579. No tests run.
+verdict: PASS
+zero_drop_flag: true

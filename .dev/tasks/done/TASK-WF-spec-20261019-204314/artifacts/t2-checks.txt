@@ -1,0 +1,55 @@
+Task 2 focused implementation/check evidence; product files frozen for independent QA
+
+Q0 baseline tree supplied by coordinator: 7d5a9a98bea29e2760a947b2a1df0558e6384e87
+Working directory: /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP
+Existing environment: /config/workspace/IronClaude/.venv, UV --active --no-sync (no dependency installs)
+Imports: explicit worktree src on PYTHONPATH
+
+Changed product files:
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py
+/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_tavily.py
+
+APIs:
+install_codebase_memory_mcp(*, scope='user', dry_run=False) -> tuple[bool, str]
+Shared native acquisition/verification/registration boundary, callable by later framework wiring and the existing single-server MCP installer. User scope and Claude CLI readiness precede native acquisition; native result supplies the verified absolute executable/version. No Node/npm/Docker/key prerequisites in this shared path. Public install_mcp_server retains its boolean result and dispatches only the exact native registry name to the shared function.
+read_user_mcp_entry(server_name) -> tuple[bool, dict | None]
+Exact top-level user JSON lookup: True/None is confirmed absence, False/None is unknown/read/parse failure. Reads default HOME/.claude.json or CLAUDE_CONFIG_DIR/.claude.json. Does not use unscoped get/list output to infer user ownership; existing legacy lookup/parsing helpers remain unchanged for other servers. No product JSON writer was added.
+
+Registration mutations use existing _run_command with verified Claude CLI add-json/remove and explicit --scope user. Matching checks stdio (including documented implicit default), exact selected absolute command and empty arguments without lossy command-string splitting. Successful add is followed by a user-scope read/postcondition. Stale entries are retained as complete JSON dictionaries for rollback, including transport/env/headers/unknown fields. Failed restoration is distinct; timeout-after-write and unattributed concurrent entries are handled without blind overwrites. New registration diagnostics do not print subprocess output, command payloads or exception strings/argv that can contain credentials.
+
+Registry entry is codebase-memory-mcp, stdio, descriptive command codebase-memory-mcp, args [], no API-key/global npm acquisition metadata. Appended after existing entries to preserve existing registry ordering. T1 native helper was not modified; its Linux-only platform direction still applies. No Task 3 uninstall, Task 4 menu/global selection-prerequisite, Task 5 default-install/main wiring, framework update or ledger changes.
+
+Documentation/contract grounding:
+Task 2, global constraints, frozen source sections 3/4/6/7 and artifacts/operator-direction.md were read. Auggie retrieved the narrow registry/install/legacy lookup context. Context7 /websites/code_claude reconfirmed user top-level mcpServers versus local project blocks/project .mcp.json, CLAUDE_CONFIG_DIR location and scoped add-json. Coordinator had verified CLI get has no --scope/--json; those unsupported flags are not used. No real Claude CLI/native installer was run during these checks.
+
+TDD observation:
+Before implementation, the two new registry/dispatch tests failed with missing registry key and missing shared function. After implementation, all focused cases below pass.
+
+Final focused test command:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv PYTHONPATH=/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src uv run --active --no-sync pytest /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_tavily.py -q
+Exit 0: 60 passed, 1 skipped in 1.71s.
+The skip is the existing API-key-gated Tavily presence check; no real live search is exercised by new tests. New cases isolate HOME/config and mock Claude/native discovery/processes. Cases cover registry/dispatch, readiness/scope before acquisition, existing usable binary repair/no download, upstream-created registration no-op, spaces, all missing/stale/correct user entries under local/project shadowing, similar names, transport/path/args drift, malformed/read/dangling config versus absence, acquisition failure preventing dependent registration work, failed adds/restoration, complete prior JSON rollback, secret-bearing rollback exceptions, timeout-after-write, concurrent entry preservation, postcheck failure and mutation-free shared dry run. Existing Auggie and Tavily regression assertions remain runnable in this same suite.
+
+Lint:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_tavily.py
+Exit 0: All checks passed!
+
+Format:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync ruff format --check /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_registry.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/tests/cli/test_install_mcp_tavily.py
+Exit 0: 3 files already formatted.
+
+Scoped type check (NOT GREEN; pre-existing diagnostics reproduced):
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync mypy --follow-imports skip --ignore-missing-imports /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+Exit 1, exactly two diagnostics:
+- install_mcp.py:654 Returning Any from function declared to return str | None [no-any-return], in existing prompt_for_api_key.
+- install_mcp.py:1052 Argument 1 to check_mcp_server_installed has incompatible type object; expected str [arg-type], in existing list_available_servers.
+
+Baseline classification:
+Read only this exact Q0 file, not a history sweep:
+git show 7d5a9a98bea29e2760a947b2a1df0558e6384e87:src/superclaude/cli/install_mcp.py > /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t2-install_mcp-baseline.py
+Then:
+VIRTUAL_ENV=/config/workspace/IronClaude/.venv uv run --active --no-sync mypy --follow-imports skip --ignore-missing-imports --shadow-file /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/to-do/TASK-WF-spec-20261019-204314/artifacts/t2-install_mcp-baseline.py /config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/src/superclaude/cli/install_mcp.py
+Exit 1: same two diagnostics at baseline lines 643 and 853 respectively. Thus no new diagnostics in the scoped check; this does not make the command green. Coordinator explicitly directed leaving both unrelated legacy type errors unchanged.
+
+No real network/native/Claude acquisition or lifecycle execution, developer config reads/writes, dependency installations, staging, commits or other Git mutations. No optional coverage campaign was run. Independent QA owns the Task 2 acceptance verdict.

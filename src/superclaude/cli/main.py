@@ -35,20 +35,21 @@ def main():
 @click.option(
     "--force",
     is_flag=True,
-    help="Force reinstall if commands already exist",
+    help="Force reinstall framework files, never native upgrades or index resets",
 )
 @click.option(
     "--list",
     "list_only",
     is_flag=True,
-    help="List available commands without installing",
+    help="List framework components and native MCP status without installing",
 )
 def install(target: str, force: bool, list_only: bool):
     """
     Install SuperClaude to Claude Code
 
-    Installs core framework files, slash commands, agents, and skills
-    to ~/.claude/ so you can use SuperClaude in Claude Code.
+    Installs the framework to ~/.claude/ plus full user-level Codebase Memory
+    MCP setup on supported Linux systems. Native setup includes upstream's
+    detected-client/companion integrations and retains graph indexes.
 
     Examples:
         superclaude install
@@ -62,6 +63,7 @@ def install(target: str, force: bool, list_only: bool):
         list_installed_agents,
     )
     from .install_ccsession import wire_ccsession
+    from .install_codebase_memory import BINARY_NAME, discover_executable
     from .install_commands import (
         install_commands,
         list_available_commands,
@@ -73,6 +75,12 @@ def install(target: str, force: bool, list_only: bool):
         list_installed_core_files,
     )
     from .install_hooks import install_hooks
+    from .install_mcp import (
+        _native_registration_matches,
+        _native_selection_error,
+        install_codebase_memory_mcp,
+        read_user_mcp_entry,
+    )
     from .install_skill import list_available_skills
     from .install_skills import install_all_skills, list_installed_skills
     from .install_templates import (
@@ -150,6 +158,32 @@ def install(target: str, force: bool, list_only: bool):
         click.echo(
             f"\nTemplates: {len(templates_available)} available, {len(templates_installed)} installed"
         )
+        click.echo("\nCodebase Memory MCP (Linux amd64/arm64; user scope):")
+        unavailable = _native_selection_error("user")
+        found = None
+        if unavailable:
+            click.echo(f"   Native lifecycle unavailable: {unavailable}")
+        else:
+            found = discover_executable()
+            detail = f" at {found.executable}" if found.executable is not None else ""
+            if found.version is not None:
+                detail += f" ({found.version})"
+            click.echo(f"   Executable: {found.state}{detail}")
+        known, entry = read_user_mcp_entry(BINARY_NAME)
+        if not known:
+            registration = "unknown (read/parse failure; no repair attempted)"
+        elif entry is None:
+            registration = "absent"
+        elif (
+            found is not None
+            and found.state in {"canonical", "external"}
+            and found.executable is not None
+            and _native_registration_matches(entry, found.executable)
+        ):
+            registration = "matches verified executable (stdio, no arguments)"
+        else:
+            registration = "present but stale/unverified"
+        click.echo(f"   User registration: {registration}")
         return
 
     # Step 1: Install core framework files to ~/.claude/
@@ -217,6 +251,16 @@ def install(target: str, force: bool, list_only: bool):
     setup_success, setup_message = install_user_setup(force=force)
     click.echo(setup_message)
 
+    click.echo("\nInstalling Codebase Memory MCP (required user-level phase)...")
+    native_success, native_message = install_codebase_memory_mcp(scope="user")
+    click.echo(native_message)
+    if not native_success:
+        click.echo(
+            "Required Codebase Memory phase incomplete. Existing framework files were kept; "
+            "retry 'superclaude install' after addressing the reported stage.",
+            err=True,
+        )
+
     if (
         not core_success
         or not cmd_success
@@ -226,51 +270,75 @@ def install(target: str, force: bool, list_only: bool):
         or not hooks_success
         or not templates_success
         or not setup_success
+        or not native_success
     ):
         sys.exit(1)
 
 
 @main.command()
-@click.option("--servers", "-s", multiple=True, help="Specific MCP servers to install")
-@click.option("--list", "list_only", is_flag=True, help="List available MCP servers")
+@click.option(
+    "--servers",
+    "-s",
+    multiple=True,
+    help="Specific MCP servers to install or remove (repeatable)",
+)
+@click.option(
+    "--list", "list_only", is_flag=True, help="List available MCP servers (read-only)"
+)
 @click.option(
     "--scope",
     default="user",
     type=click.Choice(["local", "project", "user"]),
-    help="Installation scope",
+    help="Registration scope; native Codebase Memory supports user only",
 )
 @click.option(
     "--dry-run",
     is_flag=True,
-    help="Show what would be installed without actually installing",
+    help="Preview choices or selected lifecycle without prompts or changes",
 )
-def mcp(servers, list_only, scope, dry_run):
-    """
-    Install and manage MCP servers for Claude Code
+@click.option(
+    "--uninstall",
+    is_flag=True,
+    help="NEW: remove only codebase-memory-mcp and its owned integrations; retain indexes",
+)
+@click.option(
+    "--yes",
+    "-y",
+    is_flag=True,
+    help="NEW: confirm selected Codebase Memory removal only; never selects servers or deletes indexes",
+)
+def mcp(servers, list_only, scope, dry_run, uninstall, yes):
+    """Install and manage MCP servers for Claude Code.
+
+    No selection opens an action menu on a terminal. Native Codebase Memory uses
+    full account-wide upstream setup on Linux, not project-only registration.
 
     Examples:
         superclaude mcp --list
         superclaude mcp --servers tavily --servers context7
-        superclaude mcp --scope project
+        superclaude mcp --servers codebase-memory-mcp
+        superclaude mcp --uninstall --servers codebase-memory-mcp --yes
+        superclaude mcp --servers codebase-memory-mcp --uninstall --dry-run
         superclaude mcp --dry-run
     """
     from .install_mcp import install_mcp_servers, list_available_servers
 
     if list_only:
+        if servers or uninstall or yes or dry_run or scope != "user":
+            raise click.UsageError(
+                "--list cannot be combined with selections, lifecycle flags, --dry-run or another scope"
+            )
         list_available_servers()
         return
-
-    click.echo(f"🔌 Installing MCP servers (scope: {scope})...")
-    click.echo()
 
     success, message = install_mcp_servers(
         selected_servers=list(servers) if servers else None,
         scope=scope,
         dry_run=dry_run,
+        uninstall=uninstall,
+        yes=yes,
     )
-
     click.echo(message)
-
     if not success:
         sys.exit(1)
 

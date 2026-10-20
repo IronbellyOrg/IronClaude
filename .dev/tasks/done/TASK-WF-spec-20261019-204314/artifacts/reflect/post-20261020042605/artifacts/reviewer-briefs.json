@@ -1,0 +1,33 @@
+[
+  {
+    "reviewer": 1,
+    "persona": "analyzer",
+    "tasks": {
+      "T2": 7,
+      "T4": 8,
+      "T5": 7
+    },
+    "path": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/reviewer-briefs/reviewer-1.md",
+    "bytes": 48525
+  },
+  {
+    "reviewer": 2,
+    "persona": "qa",
+    "tasks": {
+      "T1": 7,
+      "T3": 7,
+      "T6": 6
+    },
+    "path": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/reviewer-briefs/reviewer-2.md",
+    "bytes": 63975
+  },
+  {
+    "reviewer": 3,
+    "persona": "refactorer",
+    "tasks": {
+      "T7": 7
+    },
+    "path": "/config/workspace/IronClaude/.dev/worktrees/CodebaseMemoryMCP/.dev/tasks/done/TASK-WF-spec-20261019-204314/artifacts/reflect/post-20261020042605/reviewer-briefs/reviewer-3.md",
+    "bytes": 66046
+  }
+]

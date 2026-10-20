@@ -1,0 +1,24 @@
+reviewer: 3
+model_class: opus
+model: claude-opus-5-5[1m]
+persona: refactorer
+calibration: not-performed
+self_confidence: null
+confirmed_contradictions: []
+returned_findings:
+  - {id: R3-1, kind: implementation-risk, severity: MEDIUM, summary: Keep native helper free of MCP imports; Task 2 versus Task 3 orchestration ownership may tempt circular imports.}
+  - {id: R3-2, kind: implementation-risk, severity: MEDIUM, summary: Space-joined command normalization and generic shlex-split add cannot safely represent an absolute native path containing spaces or prove empty args. Existing Task 2 tests should catch it.}
+  - {id: R3-3, kind: confirmed-plan-gap, severity: LOW, summary: Positive dry-run output obligations from source117 are not explicitly asserted by Task 4 acceptance bullets.}
+  - {id: R3-4, kind: implementation-risk, severity: LOW, summary: Task 6 should author missing cross-entry-point tests rather than duplicate tests already owned by Tasks 1-5 or grow a harness.}
+  - {id: R3-5, kind: implementation-risk, severity: LOW, summary: Strict dependency chain may over-serialize Task 5 behind menu/removal; scheduling only.}
+  - {id: R3-6, kind: implementation-risk, severity: LOW, summary: Disclosure should be shared across framework and explicit MCP installation entrypoints.}
+  - {id: R3-7, kind: implementation-risk, severity: LOW, summary: Install-all with project/local scope has spec-silent choice between full preflight rejection and explicit skipped-native reporting.}
+  - {id: R3-8, kind: already-covered, severity: LOW, summary: Additional Tavily test-file touch is justified existing registration test reuse; update remains a separate sequence.}
+  - {id: R3-9, kind: instrumentation-warning, severity: LOW, summary: All literal nonmatches have semantic support and some matched rows point to wrong tasks. Do not chase matcher score.}
+orchestrator_dispositions:
+  - No adversarial merge or blind per-card calibration performed; these are raw findings only.
+  - Dependency reordering suggestion is not adopted or recommended; preserve authoritative contiguous dependencies and unchanged plan.
+  - Module-boundary concern remains an implementation risk because the source and plan already prohibit circular imports and retain Claude registration operations in install_mcp.py.
+limitations:
+  - External CLI/upstream contract not independently revalidated.
+  - No shell/git/tests/writes/Serena performed by reviewer.
