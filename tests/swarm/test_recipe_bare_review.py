@@ -699,8 +699,11 @@ def test_bare_parse_conf_preserves_int_conversion_error():
     """G5.10: baseline int() limit error propagates (no new fallback)."""
     from superclaude.cli.swarm.recipes.bare_review_v1 import parse_conf
 
-    with pytest.raises(ValueError, match=r"Exceeds the limit \(4300 digits\)"):
+    with pytest.raises(ValueError) as original:
+        int("9" * 4301)
+    with pytest.raises(ValueError) as parsed:
         parse_conf("9" * 4301)
+    assert str(parsed.value) == str(original.value)
     with pytest.raises(ValueError, match=r"Exceeds the limit"):
         BareReviewV1().normalize(
             "| F-1 | high | c | x:1 | " + "9" * 4301 + " |\n",
@@ -721,9 +724,9 @@ def test_bare_conversion_error_at_dispatcher_seam(tmp_path):
     assert meta["status"] == "parse_error"
     assert meta["salvaged"] is False
     assert meta["salvage_reason"] == "rejected_no_recipe_signal"
-    assert meta["error"].startswith(
-        "ValueError: Exceeds the limit (4300 digits) for integer string conversion"
-    )
+    with pytest.raises(ValueError) as original:
+        int("9" * 4301)
+    assert meta["error"] == f"ValueError: {original.value}"
     assert not Path(worker.final_path).exists()
 
 
