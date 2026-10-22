@@ -1089,23 +1089,27 @@ def test_issues_then_shifted_final_archives_then_already_archived(tmp_path):
 
 
 # --- a symlinked managed retries directory must not validate ------------------------
-def _symlinked_retries_pkg(tmp_path):
+def _symlinked_retries_pkg(tmp_path, with_brief=True):
     pk = Pkg(tmp_path / "r", tasks=("1",))
     shared = (
         pk.todo_root / "shared-retries"
     )  # outside the package; moves are not followed
-    shared.mkdir()
+    (shared / "T1").mkdir(parents=True)
+    (shared / "T1/review-2.md").write_text("verdict: missing\n")
     (shared / "T1_brief-3.md").write_text("brief\n")
     (pk.pkg / "artifacts/retries").symlink_to(
         "../../shared-retries", target_is_directory=True
     )
-    pk.append(_revert(3, BRIEF3, "none"))
+    if with_brief:
+        pk.append(_revert(3, BRIEF3, "none"))
     pk.final(state="0" * 64)  # state() itself rejects the package, which is the point
     return pk
 
 
-def test_symlinked_retries_directory_is_rejected_before_any_move(tmp_path):
-    pk = _symlinked_retries_pkg(tmp_path)
+# without a brief record: a ladder-off halt at A2 still writes retry evidence
+@pytest.mark.parametrize("with_brief", [True, False])
+def test_symlinked_retries_directory_is_rejected_before_any_move(tmp_path, with_brief):
+    pk = _symlinked_retries_pkg(tmp_path, with_brief)
     with pytest.raises(aw.ArchiveError) as e:
         pk.state()
     assert e.value.code == "E-ARCHIVE-PACKAGE"

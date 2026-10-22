@@ -894,10 +894,11 @@ def test_revert_delete_is_guarded_against_symlinked_ancestors():  # STATIC
     retry = _impl("refs/retry.md")
     block = re.findall(r"```bash\n(.*?)```", retry, re.S)
     block = next(b for b in block if "sc_retry_revert()" in b)
-    guard = 'elif ! _sc_retry_linked "$top" "$p"; then'
+    guard = 'elif ! _sc_retry_linked "$top" "$p" && { [ -e "$top/$p" ] || [ -L "$top/$p" ]; }; then'
     assert block.count(guard) == 1
     assert block.index(guard) < block.index('rm -f -- "$top/$p"')
     assert "only when no directory above `p` is a symlink at that moment" in retry
+    assert "and something exists at `p`" in retry
 
 
 def test_adviser_is_bundled_with_the_plugin_and_selected_by_available_type():  # STATIC
@@ -908,3 +909,7 @@ def test_adviser_is_bundled_with_the_plugin_and_selected_by_available_type():  #
     retry = _impl("refs/retry.md")
     assert "ends in `:implement-retry-adviser`" in retry
     assert "do not guess the plugin prefix" in retry
+    # deterministic order: the bare type first, then only this skill's own plugin
+    bare = retry.index("(1) `implement-retry-adviser` itself")
+    assert bare < retry.index("(2) the plugin-scoped type")
+    assert "Never use another plugin's type with that suffix." in retry

@@ -1090,3 +1090,20 @@ def test_symlink_to_tracked_dir_does_not_destroy_the_target(tmp_path):
     assert (repo / "real/victim.txt").read_text() == "tracked\n"
     assert os.readlink(repo / "link") == "real"
     assert outside_run(repo, q0) == []
+
+
+def test_restored_file_ancestor_reports_no_false_delete(tmp_path):
+    # Q0: `a` is a file; the attempt turns it into a directory holding a/x. Restoring
+    # `a` removes a/x, so nothing is left to delete and no DELETED line may claim one.
+    def prep(repo):
+        put(repo, "a", "q0 file\n")
+
+    repo, ledger, q0 = setup(tmp_path, prep=prep)
+    (repo / "a").unlink()
+    put(repo, "a/x", "attempt\n")
+    r = run_block(repo, ledger)
+    lines = r.stdout.splitlines()
+    assert r.returncode == 0 and "DONE" in lines and "RESTORED a" in lines, r
+    assert "DELETED a/x" not in lines, lines
+    assert (repo / "a").read_text() == "q0 file\n"
+    assert outside_run(repo, q0) == []
