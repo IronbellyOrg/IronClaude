@@ -106,7 +106,7 @@ sc:roadmap supports three adversarial modes. Mode is determined by flag presence
 
 **Implicit `--multi-roadmap` inference** (Wave 0): If `--agents` flag is present WITHOUT `--multi-roadmap`, auto-enable `--multi-roadmap` and emit info: `"--multi-roadmap auto-enabled (inferred from --agents flag)."` This runs BEFORE mode detection so the correct adversarial path is activated.
 
-**Prerequisite check** (Wave 0): When either `--specs` or `--multi-roadmap` is present, verify `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` exists. If not found, abort: `"sc:adversarial skill not installed. Required for --specs/--multi-roadmap flags. Install via: superclaude install"`
+**Prerequisite check** (Wave 0): When either `--specs` or `--multi-roadmap` is present, verify `~/.claude/skills/sc-adversarial-protocol/SKILL.md` exists. If not found, abort: `"sc:adversarial skill not installed. Required for --specs/--multi-roadmap flags. Install via: superclaude install"`
 
 ---
 
@@ -441,7 +441,7 @@ adversarial:
 
 ### Adversarial Skill Not Installed
 
-**Condition**: `--specs` or `--multi-roadmap` flag present, but `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` not found.
+**Condition**: `--specs` or `--multi-roadmap` flag present, but `~/.claude/skills/sc-adversarial-protocol/SKILL.md` not found.
 
 **Action**: Abort in Wave 0 with:
 

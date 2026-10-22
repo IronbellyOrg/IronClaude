@@ -100,7 +100,7 @@ Orchestrate parallel brainstorming via:
    - Silent clamp on excess + INFO log: `"--proposals clamped to <N> by --depth <depth>"`
 3. Validate `--personas` (if provided): non-empty after trim. STOP on empty: `"--personas requires at least one persona or omit the flag for auto-detection."`
 4. Validate `--models` (if provided): non-empty after trim. STOP on empty similarly. Default model set: `opus, sonnet, haiku`.
-5. Verify `sc-adversarial-protocol` skill exists at `src/superclaude/skills/sc-adversarial-protocol/SKILL.md` (Read tool). STOP if not: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
+5. Verify `sc-adversarial-protocol` skill exists at `~/.claude/skills/sc-adversarial-protocol/SKILL.md` (Read tool). STOP if not: `"sc:adversarial skill not installed. Required by /sc:brainstorm v2. Install via: superclaude install"`
 6. **Skill version compatibility check**: Read first 30 lines of `sc-adversarial-protocol/SKILL.md`. Look for `version:` field. If present, require `>= 1.0.0`. If absent → assume compatible (legacy mode) + INFO log. If too low → STOP.
 7. **Handoff prereq validation** (no silent downgrade):
    - If `--handoff task` AND `task-builder` skill missing → STOP: `"task-builder skill missing. Re-run with --handoff tasklist (if sc-tasklist-protocol installed) or --handoff design (text-only)."`
