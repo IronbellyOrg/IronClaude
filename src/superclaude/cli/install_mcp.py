@@ -874,9 +874,16 @@ def install_codebase_memory_mcp(
             "user",
         ]
     ):
+        # A failed or timed-out remove may still have persisted; only `previous`
+        # is attributable to us here, so never remove an entry that differs from it.
+        if _restore_user_native_entry(previous, previous):
+            return (
+                False,
+                "Registration removal failed; previous user registration is intact. No replacement was attempted.",
+            )
         return (
             False,
-            "Registration removal failed; no replacement was attempted. Check the user registration before retrying.",
+            "Registration removal failed; restoration failed. User registration may be partial; inspect it before retrying.",
         )
     added = _add_user_native_entry(expected)
     known, current = read_user_mcp_entry(codebase_memory.BINARY_NAME)

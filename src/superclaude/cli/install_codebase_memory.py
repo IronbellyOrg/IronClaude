@@ -82,6 +82,46 @@ def _receipt_path() -> Path:
     return canonical_executable().parent / ".superclaude-codebase-memory.json"
 
 
+def _pending_path() -> Path:
+    return canonical_executable().parent / ".superclaude-codebase-memory.pending"
+
+
+def _acquisition_pending() -> bool:
+    """True if our own upstream run started and never reached a written receipt."""
+    try:
+        info = _pending_path().lstat()
+    except FileNotFoundError:
+        return False
+    if (
+        not stat.S_ISREG(info.st_mode)
+        or info.st_uid != os.getuid()
+        or info.st_nlink != 1
+        or info.st_mode & 0o077
+    ):
+        raise ValueError(
+            "Acquisition pending marker is not a private owned regular file"
+        )
+    return True
+
+
+def _mark_acquisition_pending() -> None:
+    """Record, before upstream runs, that an acquisition is in progress."""
+    canonical = canonical_executable()
+    for directory in (canonical.parent.parent, canonical.parent):
+        directory.mkdir(mode=0o755, exist_ok=True)
+    _check_install_directory()
+    try:
+        os.close(
+            os.open(
+                _pending_path(),
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                0o600,
+            )
+        )
+    except FileExistsError:
+        _acquisition_pending()  # An existing marker must still be our private file.
+
+
 def _check_install_directory() -> None:
     canonical = canonical_executable()
     for directory in (canonical.parent.parent, canonical.parent):
@@ -595,7 +635,12 @@ def acquire_codebase_memory(*, scope: str = "user") -> AcquisitionResult:
         )
 
     found = discover_executable()
-    if found.state in {"canonical", "external"}:
+    try:
+        # A canonical binary left by our own interrupted run is re-acquired, not reused.
+        pending = found.state == "canonical" and _acquisition_pending()
+    except (OSError, ValueError) as exc:
+        return AcquisitionResult(False, "discovery", str(exc), found.executable)
+    if found.state == "external" or (found.state == "canonical" and not pending):
         return AcquisitionResult(
             True,
             "verification",
@@ -659,6 +704,8 @@ def acquire_codebase_memory(*, scope: str = "user") -> AcquisitionResult:
                     stage,
                     f"Bootstrap download failed or was empty (exit {result.returncode}); script was not executed.",
                 )
+            stage = "prerequisites"
+            _mark_acquisition_pending()
             stage = "install"
             result = _run_bounded(
                 [str(Path(bash).absolute()), str(script), f"--dir={canonical.parent}"],
@@ -681,6 +728,7 @@ def acquire_codebase_memory(*, scope: str = "user") -> AcquisitionResult:
                 )
             stage = "provenance"
             _write_acquisition_receipt(canonical)
+            _pending_path().unlink(missing_ok=True)
             stage = "verification"
             return AcquisitionResult(
                 True,

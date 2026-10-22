@@ -399,6 +399,7 @@ def native_registration(tmp_path, monkeypatch):
         calls=[],
         fail_adds=0,
         fail_remove=False,
+        remove_persists_then=None,
         timeout_add=False,
         bad_postcheck=False,
     )
@@ -438,6 +439,12 @@ def native_registration(tmp_path, monkeypatch):
                     cmd, 1, "credential-sensitive output", "secret error"
                 )
             servers.pop(cmd[3], None)
+            if state.remove_persists_then:
+                failure, state.remove_persists_then = state.remove_persists_then, None
+                config.write_text(json.dumps(root))
+                if failure == "timeout":
+                    raise subprocess.TimeoutExpired(cmd, 60, stderr="secret error")
+                return subprocess.CompletedProcess(cmd, 1, "", "secret error")
         else:
             if state.timeout_add:
                 state.timeout_add = False
@@ -716,6 +723,20 @@ def test_native_remove_failure_stops_without_add(native_registration):
     success, message = install_mcp.install_codebase_memory_mcp()
     assert not success and "removal" in message.lower()
     assert _native_entry(state) == old and len(state.calls) == 3
+
+
+@pytest.mark.parametrize("failure", ["nonzero", "timeout"])
+def test_native_remove_persisted_then_failed_restores_previous(
+    native_registration, capsys, failure
+):
+    state = native_registration
+    old = {"command": "/old/native", "args": [], "env": {"TOKEN": "secret-x"}}
+    _seed_native_entry(state, old)
+    state.remove_persists_then = failure
+    success, message = install_mcp.install_codebase_memory_mcp()
+    assert not success and "intact" in message.lower()
+    assert _native_entry(state) == old
+    assert "secret" not in message + str(capsys.readouterr())
 
 
 def test_native_post_add_verification_required(native_registration):

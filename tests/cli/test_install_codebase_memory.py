@@ -577,6 +577,111 @@ def test_receipt_write_failure_reports_partial_acquisition(isolated_home, monkey
     assert all(not path.exists() and not path.parent.exists() for path in scripts)
 
 
+def partial_upstream(monkeypatch, home, failure):
+    """Upstream places the binary, then fails before completing its setup."""
+    calls = []
+    canonical = home / ".local/bin" / native.BINARY_NAME
+    monkeypatch.setattr(native.shutil, "which", lambda name: f"/fixture/{name}")
+
+    def run(argv, timeout, **kwargs):
+        calls.append(argv)
+        if argv[0] == "/fixture/curl":
+            Path(argv[argv.index("--output") + 1]).write_text("fixture\n")
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        if argv[0] == "/fixture/bash":
+            binary(canonical)
+            if failure == "timeout":
+                raise subprocess.TimeoutExpired(argv, timeout)
+            if failure == "oserror":
+                raise PermissionError("denied fixture")
+            return subprocess.CompletedProcess(argv, 7, "", "fixture diagnostic")
+        return subprocess.CompletedProcess(argv, 0, "codebase-memory-mcp 0.12.1\n", "")
+
+    monkeypatch.setattr(native, "_run_bounded", run)
+    return calls, canonical
+
+
+@pytest.mark.parametrize("failure", ["nonzero", "timeout", "oserror"])
+def test_retry_after_partial_upstream_reacquires(failure, isolated_home, monkeypatch):
+    _, canonical = partial_upstream(monkeypatch, isolated_home, failure)
+    first = native.acquire_codebase_memory()
+    assert not first.success and canonical.exists()
+    assert native._pending_path().is_file() and not native._receipt_path().exists()
+    calls, _, _ = setup_acquisition(monkeypatch, isolated_home)
+    retry = native.acquire_codebase_memory()
+    assert retry.success and retry.acquired
+    assert any(argv[0] == "/fixture/bash" for argv, _, _ in calls)
+    assert native._receipt_path().is_file() and not native._pending_path().exists()
+
+
+def test_retry_after_receipt_write_failure_reacquires(isolated_home, monkeypatch):
+    setup_acquisition(monkeypatch, isolated_home)
+    write_receipt = native._write_acquisition_receipt
+    monkeypatch.setattr(
+        native,
+        "_write_acquisition_receipt",
+        lambda *a: (_ for _ in ()).throw(PermissionError("receipt denied")),
+    )
+    assert native.acquire_codebase_memory().stage == "provenance"
+    assert native._pending_path().is_file()
+    monkeypatch.setattr(native, "_write_acquisition_receipt", write_receipt)
+    retry = native.acquire_codebase_memory()
+    assert retry.success and retry.acquired and native._receipt_path().is_file()
+    assert not native._pending_path().exists()
+
+
+@pytest.mark.parametrize("kind", ["symlink", "shared"])
+def test_untrusted_pending_marker_fails_closed(kind, isolated_home, monkeypatch):
+    binary(isolated_home / ".local/bin" / native.BINARY_NAME)
+    calls = probe_ok(monkeypatch)
+    marker = native._pending_path()
+    target = isolated_home / "do-not-touch"
+    target.write_text("keep\n")
+    if kind == "symlink":
+        marker.symlink_to(target)
+    else:
+        marker.write_text("")
+        marker.chmod(0o644)
+    result = native.acquire_codebase_memory()
+    assert not result.success and result.stage == "discovery"
+    assert all(argv[0] != "/fixture/bash" for argv, _, _ in calls)
+    assert target.read_text() == "keep\n"
+
+
+def test_pending_marker_does_not_block_external_reuse(isolated_home, monkeypatch):
+    external = binary(isolated_home / "package manager/bin" / native.BINARY_NAME)
+    monkeypatch.setenv("PATH", str(external.parent))
+    probe_ok(monkeypatch)
+    monkeypatch.setattr(
+        native.shutil, "which", lambda _: pytest.fail("prerequisite lookup")
+    )
+    marker = native._pending_path()
+    marker.parent.mkdir(parents=True)
+    marker.write_text("")
+    marker.chmod(0o600)
+    result = native.acquire_codebase_memory()
+    assert result.success and result.executable == external and not result.acquired
+    assert marker.is_file()
+
+
+def test_marker_failure_stops_before_upstream(isolated_home, monkeypatch):
+    calls, _, _ = setup_acquisition(monkeypatch, isolated_home)
+    monkeypatch.setattr(
+        native,
+        "_mark_acquisition_pending",
+        lambda: (_ for _ in ()).throw(PermissionError("marker denied")),
+    )
+    result = native.acquire_codebase_memory()
+    assert not result.success and result.stage == "prerequisites"
+    assert all(argv[0] != "/fixture/bash" for argv, _, _ in calls)
+
+
+def test_successful_acquisition_clears_pending_marker(isolated_home, monkeypatch):
+    setup_acquisition(monkeypatch, isolated_home)
+    assert native.acquire_codebase_memory().acquired
+    assert not native._pending_path().exists()
+
+
 def test_receipt_symlink_is_not_overwritten(isolated_home, monkeypatch):
     setup_acquisition(monkeypatch, isolated_home)
     receipt = native._receipt_path()
